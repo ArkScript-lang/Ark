@@ -1,7 +1,15 @@
 #include <iostream>
 
 #include <clipp.hpp>
-#include <Ark/constants.hpp>
+#include <Ark/Constants.hpp>
+#include <Ark/Parser/Lexer.hpp>
+
+void test()
+{
+    Ark::Parser::Lexer lexer;
+    lexer.feed(Ark::Utils::readFile("tests/1"));
+    lexer.check();
+}
 
 int main(int argc, char** argv)
 {
@@ -9,7 +17,7 @@ int main(int argc, char** argv)
 
     std::cout << "Ark programming language" << std::endl << std::endl;
 
-    enum class mode {help, version};
+    enum class mode {help, version, test};
     mode selected;
     // related to the compilers
     std::vector<std::string> input_files;
@@ -24,8 +32,9 @@ int main(int argc, char** argv)
 
     auto cli = (
         // general options
-        option("-h", "--help").set(selected, mode::help).doc("Display this help message")
-        | option("--version").set(selected, mode::version).doc("Display version numbers for KafeCLI, KafeVM and KafeASM compiler")
+        option("-h", "--help").set(selected, mode::help).doc("Displays this help message")
+        | option("--version").set(selected, mode::version).doc("Displays the Ark interpreter version and exits")
+        | command("test").set(selected, mode::test).doc("Testing mode, to test stuff")
         /*// sub-programs
         | (
             // Compilers
@@ -66,10 +75,10 @@ int main(int argc, char** argv)
     );
 
     auto fmt = doc_formatting{}
-        .start_column(8)          // column where usage lines and documentation starts
-        .doc_column(36)           // parameter docstring start col
-        .indent_size(2)           // indent of documentation lines for children of a documented group
-        .split_alternatives(true) // split usage into several lines for large alternatives
+        .start_column(8)           // column where usage lines and documentation starts
+        .doc_column(36)            // parameter docstring start col
+        .indent_size(2)            // indent of documentation lines for children of a documented group
+        .split_alternatives(true)  // split usage into several lines for large alternatives
     ;
 
     if (parse(argc, argv, cli) && wrong.empty())
@@ -84,6 +93,10 @@ int main(int argc, char** argv)
 
         case mode::version:
             std::cout << "Version " << Ark::Version::Major << "." << Ark::Version::Minor << "." << Ark::Version::Patch << std::endl;
+            break;
+        
+        case mode::test:
+            test();
             break;
         }
     }

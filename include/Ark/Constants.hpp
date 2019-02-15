@@ -1,6 +1,8 @@
 #ifndef ark_constants
 #define ark_constants
 
+#define ARK_DEBUG
+
 namespace Ark
 {
     namespace Version
