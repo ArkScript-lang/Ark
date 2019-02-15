@@ -6,6 +6,8 @@ This is a small programming language, made just for fun, in C++17.
 
 * C++17 compliant compiler
 * CMake >= 3.8
+* rj format (https://github.com/ryjen/format)
+* CLIPP
 
 # Tests
 
