@@ -6,6 +6,7 @@
 #include <iostream>
 #include <streambuf>
 #include <fstream>
+#include <regex>
 
 #include <Ark/Constants.hpp>
 #include <termcolor.hpp>
@@ -37,9 +38,14 @@ namespace Ark
             return os.str();
         }
 
-        inline bool isDigit(char c)
+        inline bool isInteger(const std::string& s)
         {
-            return isdigit(static_cast<unsigned char>(c)) != 0;
+            return std::regex_match(s, std::regex("^((\\+|-)?[[:digit:]]+)$"));
+        }
+
+        inline bool isFloat(const std::string& s)
+        {
+            return std::regex_match(s, std::regex("^((\\+|-)?[[:digit:]]+)(\\.(([[:digit:]]+)?))$"));
         }
 
         inline bool fileExists(const std::string& name)

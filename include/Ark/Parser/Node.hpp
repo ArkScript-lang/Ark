@@ -4,14 +4,8 @@
 #include <variant>
 #include <iostream>
 #include <string>
-
-#include <Ark/Parser/Definition.hpp>
-#include <Ark/Parser/Set.hpp>
-#include <Ark/Parser/Function.hpp>
-#include <Ark/Parser/IfCond.hpp>
-#include <Ark/Parser/WhileLoop.hpp>
-#include <Ark/Parser/Value.hpp>
-#include <Ark/Parser/Block.hpp>
+#include <vector>
+#include <unordered_map>
 
 namespace Ark
 {
@@ -19,29 +13,54 @@ namespace Ark
     {
         enum class NodeType
         {
-            Def,
-            Set,
-            Fun,
-            If,
-            While,
-            Value,
-            Block
+            Symbol,
+            Number,
+            List,
+            Proc,
+            Lambda
         };
+
+        enum class ValueType
+        {
+            Int,
+            Float,
+            String
+        };
+
+        class Environment;
 
         class Node
         {
         public:
-            using Value_t = std::variant<Definition, Set, Function, IfCond, WhileLoop, Value, Block>;
+            using ProcType = Node(*)(const std::vector<Node>&);
+            using Iterator = std::vector<Node>::iterator;
+            using Map = std::unordered_map<std::string, Node>;
+            using Value = std::variant<int, float, std::string>;
 
-            Node();
+            Node(NodeType type=NodeType::Symbol);
+            template <typename T> Node(NodeType type, const T& value);
+            Node(Node::ProcType proc);
             ~Node();
+
+            void addEnv(Environment* env);
+            const std::string& getStringVal();
+            void push_back(const Node& node);
+            NodeType nodeType();
+            ValueType valueType();
+            std::vector<Node>& list();
 
             friend std::ostream& operator<<(std::ostream& os, const Node& N);
         
         private:
-            Value_t m_value;
             NodeType m_type;
+            Value m_value;
+            ValueType m_valuetype;
+            std::vector<Node> m_list;
+            Node::ProcType m_procedure;
+            Environment* m_env;
         };
+
+        using Nodes = std::vector<Node>;
     }
 }
 

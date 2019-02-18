@@ -18,12 +18,11 @@ namespace Ark
             ~Program();
 
             void add(const Node& node);
-            // Iterator next();
 
             friend std::ostream& operator<<(std::ostream& os, const Program& P);
         
         private:
-            std::vector<Node> m_program;
+            Nodes m_program;
         };
     }
 }
