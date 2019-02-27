@@ -37,14 +37,12 @@ namespace Ark
 
         Node Program::_execute(Node x, Environment* env)
         {
-//            Ark::Log::info(x);
-
             if (x.nodeType() == NodeType::Symbol)
             {
                 std::string name = x.getStringVal();
-                return name[0] != '"' ? env->find(name)[name] : x;
+                return env->find(name)[name];
             }
-            if (x.nodeType() == NodeType::Number)
+            if (x.nodeType() == NodeType::String || x.nodeType() == NodeType::Number)
                 return x;
             if (x.list().empty())
                 return nil;
@@ -55,7 +53,7 @@ namespace Ark
                 if (n == "quote")
                     return x.list()[1];
                 if (n == "if")
-                    return _execute(_execute(x.list()[1], env) == falseSym ? x.list()[3] : x.list()[2], env);
+                    return _execute((_execute(x.list()[1], env) == falseSym) ? x.list()[3] : x.list()[2], env);
                 if (n == "set")
                 {
                     std::string name = x.list()[1].getStringVal();

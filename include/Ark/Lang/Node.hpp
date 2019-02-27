@@ -14,6 +14,7 @@ namespace Ark
         enum class NodeType
         {
             Symbol,
+            String,
             Number,
             List,
             Proc,
@@ -74,7 +75,7 @@ namespace Ark
         inline bool operator==(const Node& A, const Node& B)
         {
             if (A.m_type == B.m_type && A.m_type != NodeType::List && A.m_type != NodeType::Proc && A.m_type != NodeType::Lambda)
-                return A.m_valuetype == B.m_valuetype;
+                return A.m_valuetype == B.m_valuetype && A.m_value == B.m_value;
             return false;  //! not comparing proc/list/lambda
         }
 

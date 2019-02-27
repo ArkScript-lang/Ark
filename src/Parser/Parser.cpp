@@ -55,6 +55,13 @@ namespace Ark
                 return Ark::Lang::Node(Ark::Lang::NodeType::Number, std::atoi(token.c_str()));
             if (Ark::Utils::isFloat(token))
                 return Ark::Lang::Node(Ark::Lang::NodeType::Number, (float) std::atof(token.c_str()));
+            if (token[0] == '"')
+            {
+                std::string str = token;
+                str.erase(0, 1);
+                str.erase(token.size() - 2, 1);
+                return Ark::Lang::Node(Ark::Lang::NodeType::String, str);
+            }
             return Ark::Lang::Node(Ark::Lang::NodeType::Symbol, token);
         }
 

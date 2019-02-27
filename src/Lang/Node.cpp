@@ -104,6 +104,7 @@ namespace Ark
         {
             switch(N.m_type)
             {
+            case NodeType::String:
             case NodeType::Symbol:
                 os << std::get<std::string>(N.m_value);
                 break;
