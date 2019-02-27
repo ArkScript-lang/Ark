@@ -130,8 +130,8 @@ namespace Ark
             return os;
         }
 
-        extern const Node nil = Node(NodeType::Symbol, "nil");
-        extern const Node falseSym = Node(NodeType::Symbol, "false");
-        extern const Node trueSym = Node(NodeType::Symbol, "true");
+        extern const Node nil = Node(NodeType::Symbol, std::string("nil"));
+        extern const Node falseSym = Node(NodeType::Symbol, std::string("false"));
+        extern const Node trueSym = Node(NodeType::Symbol, std::string("true"));
     }
 }
