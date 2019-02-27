@@ -14,6 +14,12 @@ namespace Ark
         {
             std::cout << termcolor::red << msg << std::endl << termcolor::reset;
         }
+
+        template <typename T>
+        void info(const T& t)
+        {
+            std::cout << termcolor::cyan << t << std::endl << termcolor::reset;
+        }
     }
 }
 
