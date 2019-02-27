@@ -2,12 +2,25 @@
 
 #include <clipp.hpp>
 #include <Ark/Constants.hpp>
-#include <Ark/Parser/Program.hpp>
+#include <Ark/Lang/Program.hpp>
+
+#include <chrono>
 
 void test()
 {
-    Ark::Parser::Program program;
+    Ark::Lang::Program program;
     program.feed(Ark::Utils::readFile("tests/1"));
+
+    std::cout << program << std::endl;
+
+    std::chrono::time_point<std::chrono::system_clock> start, end;
+    start = std::chrono::system_clock::now();
+    program.execute();
+    end = std::chrono::system_clock::now();
+    auto elapsed_milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+
+    std::cout << program << std::endl;
+    std::cout << elapsed_milliseconds << "ms" << std::endl;
 }
 
 int main(int argc, char** argv)

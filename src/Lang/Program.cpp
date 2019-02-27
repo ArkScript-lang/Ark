@@ -1,10 +1,11 @@
-#include <Ark/Parser/Program.hpp>
+#include <Ark/Lang/Program.hpp>
 
 #include <Ark/Log.hpp>
+#include <Ark/Lang/Lib.hpp>
 
 namespace Ark
 {
-    namespace Parser
+    namespace Lang
     {
         Program::Program()
         {}
@@ -24,6 +25,7 @@ namespace Ark
                 argslist.push_back(node);
 
             m_global_env["_args"] = argslist;
+            registerLib(m_global_env);
 
             std::cout << _execute(m_parser.ast(), &m_global_env) << std::endl;
         }
@@ -71,6 +73,12 @@ namespace Ark
                         _execute(x.list()[i], env);
                     return _execute(x.list()[x.list().size() - 1], env);
                 }
+                if (n == "while")
+                {
+                    while (_execute(x.list()[1], env) == trueSym)
+                        _execute(x.list()[2], env);
+                    return nil;
+                }
             }
 
             Node proc(_execute(x.list()[0], env));
@@ -91,10 +99,7 @@ namespace Ark
 
         std::ostream& operator<<(std::ostream& os, const Program& P)
         {
-            os << "AST" << std::endl;
             os << P.m_parser << std::endl;
-            os << std::endl;
-
             os << "Environment" << std::endl;
             os << P.m_global_env << std::endl;
 

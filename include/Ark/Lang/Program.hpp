@@ -5,13 +5,13 @@
 #include <iostream>
 #include <string>
 
-#include <Ark/Parser/Environment.hpp>
+#include <Ark/Lang/Environment.hpp>
 #include <Ark/Parser/Parser.hpp>
-#include <Ark/Parser/Node.hpp>
+#include <Ark/Lang/Node.hpp>
 
 namespace Ark
 {
-    namespace Parser
+    namespace Lang
     {
         class Program
         {
@@ -29,7 +29,7 @@ namespace Ark
         private:
             Node _execute(Node x, Environment* env);
 
-            Parser m_parser;
+            Ark::Parser::Parser m_parser;
             Environment m_global_env;
         };
     }

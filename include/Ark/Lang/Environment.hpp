@@ -5,11 +5,11 @@
 #include <unordered_map>
 #include <iostream>
 
-#include <Ark/Parser/Node.hpp>
+#include <Ark/Lang/Node.hpp>
 
 namespace Ark
 {
-    namespace Parser
+    namespace Lang
     {
         class Environment
         {

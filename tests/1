@@ -2,7 +2,7 @@
     (def x "hello world")
     (print x)
     ' just testing if variables are correctly scoped
-    (def double (fun (x) (* x 2)))
+    (def double (fun (x) (+ x x)))
     (print "the answer to life is" (double 21))
     (def a 1)
     (if (= a 1) (print "a is 1") ())

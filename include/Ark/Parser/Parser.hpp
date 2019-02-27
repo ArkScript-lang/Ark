@@ -6,7 +6,7 @@
 #include <iostream>
 
 #include <Ark/Parser/Lexer.hpp>
-#include <Ark/Parser/Node.hpp>
+#include <Ark/Lang/Node.hpp>
 
 namespace Ark
 {
@@ -19,17 +19,16 @@ namespace Ark
             ~Parser();
 
             void feed(const std::string& code);
-            const Node& ast();
+            const Ark::Lang::Node& ast() const;
 
             friend std::ostream& operator<<(std::ostream& os, const Parser& P);
 
         private:
             Lexer m_lexer;
-            Node m_ast;
+            Ark::Lang::Node m_ast;
 
-            Node compile(std::list<std::string>& tokens);
-            Node atom(const std::string& token);
-            const Node& const_ast() const;
+            Ark::Lang::Node compile(std::list<std::string>& tokens);
+            Ark::Lang::Node atom(const std::string& token);
         };
     }
 }

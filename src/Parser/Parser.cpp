@@ -27,19 +27,19 @@ namespace Ark
             m_ast = compile(tokens);
         }
 
-        const Node& Parser::ast()
+        const Ark::Lang::Node& Parser::ast() const
         {
             return m_ast;
         }
 
-        Node Parser::compile(std::list<std::string>& tokens)
+        Ark::Lang::Node Parser::compile(std::list<std::string>& tokens)
         {
             const std::string token = tokens.front();
             tokens.pop_front();
 
             if (token == "(")
             {
-                Node n(NodeType::List);
+                Ark::Lang::Node n(Ark::Lang::NodeType::List);
                 while (tokens.front() != ")")
                     n.push_back(compile(tokens));
                 tokens.pop_front();
@@ -49,31 +49,26 @@ namespace Ark
                 return atom(token);
         }
 
-        Node Parser::atom(const std::string& token)
+        Ark::Lang::Node Parser::atom(const std::string& token)
         {
             if (Ark::Utils::isInteger(token))
-                return Node(NodeType::Number, std::atoi(token.c_str()));
+                return Ark::Lang::Node(Ark::Lang::NodeType::Number, std::atoi(token.c_str()));
             if (Ark::Utils::isFloat(token))
-                return Node(NodeType::Number, (float) std::atof(token.c_str()));
-            return Node(NodeType::Symbol, token);
-        }
-
-        const Node& Parser::const_ast() const
-        {
-            return m_ast;
+                return Ark::Lang::Node(Ark::Lang::NodeType::Number, (float) std::atof(token.c_str()));
+            return Ark::Lang::Node(Ark::Lang::NodeType::Symbol, token);
         }
 
         std::ostream& operator<<(std::ostream& os, const Parser& P)
         {
             os << "AST" << std::endl;
-            if (P.const_ast().nodeType() == NodeType::List)
+            if (P.ast().nodeType() == Ark::Lang::NodeType::List)
             {
                 int i = 0;
-                for (const auto& node: P.const_ast().const_list())
-                    std::cout << (i++) << ": " << node;
+                for (const auto& node: P.ast().const_list())
+                    std::cout << (i++) << ": " << node << std::endl;
             }
             else
-                os << "Single item" << std::endl << P.m_ast;
+                os << "Single item" << std::endl << P.m_ast << std::endl;
             return os;
         }
     }
