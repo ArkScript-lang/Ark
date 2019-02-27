@@ -3,6 +3,7 @@
 
 #include <string>
 #include <unordered_map>
+#include <iostream>
 
 #include <Ark/Parser/Node.hpp>
 
@@ -20,7 +21,9 @@ namespace Ark
 
             Environment::Map& find(const std::string& var);
             Node& operator[](const std::string& var);
-        
+
+            friend std::ostream& operator<<(std::ostream& os, const Environment& E);
+
         private:
             Environment* m_outer;
             Environment::Map m_env;
