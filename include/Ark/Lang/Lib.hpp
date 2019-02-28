@@ -5,6 +5,8 @@
 #include <Ark/Lang/Environment.hpp>
 
 #define FUNCTION(name) Node name(const Nodes& n);
+#define CHECK_ARGUMENTS(expected, args, name) if (args.size() < expected || args.size() > expected) { Ark::Log::error("[Argument Error] '" + #name + "' needs " + #expected + " arguments"); exit(1); }
+#define AT_LEAST_ARGUMENTS(expected, args, name) if (expected > args.size()) { Ark::Log::error("[Argument Error] '" + #name + "' needs at least " + #expected + " arguments"); exit(1); }
 
 namespace Ark
 {
@@ -12,13 +14,13 @@ namespace Ark
     {
         FUNCTION(add)  // +
         FUNCTION(sub)  // -
-//        FUNCTION(mul)  // *
-//        FUNCTION(div)  // /
+        FUNCTION(mul)  // *
+        FUNCTION(div)  // /
 
-//        FUNCTION(gt)  // >
+        FUNCTION(gt)  // >
         FUNCTION(lt)  // <
-//        FUNCTION(le)  // <=
-//        FUNCTION(ge)  // >=
+        FUNCTION(le)  // <=
+        FUNCTION(ge)  // >=
         FUNCTION(neq)  // !=
         FUNCTION(eq)  // =
 
@@ -31,6 +33,7 @@ namespace Ark
 //        FUNCTION(list)  // list
 //        FUNCTION(isnil)  // nil?
         FUNCTION(print)  // print
+        FUNCTION(assert)  // assert
 
         void registerLib(Environment& env);
     }
