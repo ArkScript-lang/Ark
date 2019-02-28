@@ -37,10 +37,10 @@ namespace Ark
             const std::string token = tokens.front();
             tokens.pop_front();
 
-            if (token == "(")
+            if (token == "(" || token == "[" || token == "{")
             {
                 Ark::Lang::Node n(Ark::Lang::NodeType::List);
-                while (tokens.front() != ")")
+                while (tokens.front() != ")" && tokens.front() != "]" && tokens.front() != "}")
                     n.push_back(compile(tokens));
                 tokens.pop_front();
                 return n;

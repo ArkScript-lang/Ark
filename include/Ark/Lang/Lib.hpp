@@ -16,7 +16,7 @@ namespace Ark
 //        FUNCTION(div)  // /
 
 //        FUNCTION(gt)  // >
-//        FUNCTION(lt)  // <
+        FUNCTION(lt)  // <
 //        FUNCTION(le)  // <=
 //        FUNCTION(ge)  // >=
         FUNCTION(neq)  // !=

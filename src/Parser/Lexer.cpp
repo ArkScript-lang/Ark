@@ -65,12 +65,12 @@ namespace Ark
             {
                 auto t = m_tokens[i];
 
-                if (t == "(")
+                if (t == "(" || t == "[" || t == "{")
                 {
                     lparen++;
                     nested_lparen++;
                 }
-                if (t == ")")
+                if (t == ")" || t == "]" || t == "}")
                 {
                     rparen++;
                     if (nested_lparen > 0)
@@ -81,7 +81,7 @@ namespace Ark
                         return false;
                     }
                 }
-                
+
                 if (t == "def")
                 {
                     if (i < m_tokens.size() - 2)

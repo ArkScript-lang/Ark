@@ -64,6 +64,65 @@ namespace Ark
             return nil;
         }
 
+        Node lt(const Nodes& n)
+        {
+            if (n[0].valueType() == ValueType::String)
+                return falseSym;
+            else if (n[0].valueType() == ValueType::Int)
+            {
+                int i = n[0].getIntVal();
+                bool b = true;
+
+                for (Node::Iterator it=n.begin()+1; it != n.end(); ++it)
+                {
+                    if (it->valueType() == ValueType::Int)
+                    {
+                        if (it->getIntVal() < i)
+                        {
+                            b = false;
+                            break;
+                        }
+                    }
+                    else if (it->valueType() == ValueType::Float)
+                    {
+                        if ((int) it->getFloatVal() < i)
+                        {
+                            b = false;
+                            break;
+                        }
+                    }
+                }
+                return b ? trueSym : falseSym;
+            }
+            else if (n[0].valueType() == ValueType::Float)
+            {
+                float f = n[0].getFloatVal();
+                bool b = true;
+
+                for (Node::Iterator it=n.begin()+1; it < n.end(); ++it)
+                {
+                    if (it->valueType() == ValueType::Int)
+                    {
+                        if (it->getIntVal() < f)
+                        {
+                            b = false;
+                            break;
+                        }
+                    }
+                    else if (it->valueType() == ValueType::Float)
+                    {
+                        if (it->getFloatVal() < f)
+                        {
+                            b = false;
+                            break;
+                        }
+                    }
+                }
+                return b ? trueSym : falseSym;
+            }
+            return falseSym;
+        }
+
         Node neq(const Nodes& n)
         {
             bool b = true;
@@ -114,6 +173,7 @@ namespace Ark
             env["+"] = Node(&add);
             env["-"] = Node(&sub);
 
+            env["<"] = Node(&lt);
             env["!="] = Node(&neq);
             env["="] = Node(&eq);
 
