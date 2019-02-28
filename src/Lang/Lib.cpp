@@ -125,8 +125,6 @@ namespace Ark
 
         Node gt(const Nodes& n)
         {
-            CHECK_ARGUMENTS(2, n, ">")
-        
             if (n[0].valueType() == ValueType::String)
                 return falseSym;
             else if (n[0].valueType() == ValueType::Int)
@@ -150,8 +148,6 @@ namespace Ark
 
         Node lt(const Nodes& n)
         {
-           CHECK_ARGUMENTS(2, n, "<")
-        
             if (n[0].valueType() == ValueType::String)
                 return falseSym;
             else if (n[0].valueType() == ValueType::Int)
@@ -175,8 +171,6 @@ namespace Ark
 
         Node le(const Nodes& n)
         {
-            CHECK_ARGUMENTS(2, n, "<=")
-        
             if (n[0].valueType() == ValueType::String)
                 return falseSym;
             else if (n[0].valueType() == ValueType::Int)
@@ -200,8 +194,6 @@ namespace Ark
 
         Node ge(const Nodes& n)
         {
-            CHECK_ARGUMENTS(2, n, ">=")
-        
             if (n[0].valueType() == ValueType::String)
                 return falseSym;
             else if (n[0].valueType() == ValueType::Int)
@@ -225,22 +217,16 @@ namespace Ark
 
         Node neq(const Nodes& n)
         {
-            CHECK_ARGUMENTS(2, n, "!=")
-        
             return (!(n[0] == n[1])) ? trueSym : falseSym;
         }
 
         Node eq(const Nodes& n)
         {
-            CHECK_ARGUMENTS(2, n, "=")
-        
             return (n[0] == n[1]) ? trueSym : falseSym;
         }
 
         Node print(const Nodes& n)
         {
-            AT_LEAST_ARGUMENTS(1, n, "print")
-        
             for (Node::Iterator it=n.begin(); it != n.end(); ++it)
                 std::cout << (*it) << " ";
             std::cout << std::endl;
@@ -250,9 +236,7 @@ namespace Ark
 
         Node assert(const Nodes& n)
         {
-            CHECK_ARGUMENTS(2, n, "assert")
-        
-            if (n[0] != trueSym)
+            if (n[0] == falseSym)
             {
                 Ark::Log::error("[Assertion failed] " + n[1].getStringVal());
                 exit(1);

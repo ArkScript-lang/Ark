@@ -16,6 +16,12 @@ namespace Ark
         void Program::feed(const std::string& code)
         {
             m_parser.feed(code);
+            
+            if (!m_parser.check())
+            {
+                Ark::Log::error("[Program] Program has errors");
+                exit(1);
+            }
         }
 
         void Program::execute(const Nodes& args)

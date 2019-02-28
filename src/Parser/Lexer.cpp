@@ -82,18 +82,6 @@ namespace Ark
                     }
                 }
 
-                if (t == "def")
-                {
-                    if (i < m_tokens.size() - 2)
-                        i += 2;
-                    else
-                    {
-                        Ark::Log::error("[Lexer] 'def' missing parameters. Token number: " + Ark::Utils::toString(i));
-                        return false;
-                    }
-                    continue;
-                }
-
                 // go to next token
                 if (i < m_tokens.size() - 1)
                     i++;
