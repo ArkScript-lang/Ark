@@ -3,6 +3,7 @@
 
 #define ARKLANG
 #include <Ark/Lang/Program.hpp>
+#include <Ark/Function.hpp>
 
 const char* g_code =
     "(begin\n"
@@ -19,10 +20,10 @@ int main()
     program.feed(g_code);
     program.execute();
     
-    int a = program["a"];
-    float b = program["b"];
-    std::string c = program["c"];
-    Ark::Function life = program["life"];
+    auto a = program.get<int>("a");
+    auto b = program.get<float>("b");
+    auto c = program.get<std::string>("c");
+    auto life = program.get<Ark::Function>("life");
     
     std::cout << a << " " << b << " " << c << " " << life(a) << std::endl;
     

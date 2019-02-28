@@ -8,10 +8,11 @@
 #include <Ark/Lang/Environment.hpp>
 #include <Ark/Parser/Parser.hpp>
 #include <Ark/Lang/Node.hpp>
-#include <Ark/Function.hpp>
 
 namespace Ark
 {
+    class Function;
+    
     namespace Lang
     {
         class Program
@@ -25,12 +26,11 @@ namespace Ark
 
             void loadFunction(const std::string& name, Node::ProcType function);
             
-            int operator[](const std::string& key) const;
-            float operator[](const std::string& key) const;
-            const std::string& operator[](const std::string& key) const;
-            Function operator[](const std::string& key) const;
+            template <typename T>
+            T get(const std::string& name);
 
             friend std::ostream& operator<<(std::ostream& os, const Program& P);
+            friend class Ark::Function;
         
         private:
             Node _execute(Node x, Environment* env);

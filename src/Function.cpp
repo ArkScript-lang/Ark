@@ -2,8 +2,9 @@
 
 namespace Ark
 {
-    Function::Function(Lang::Node::ProcType proc) :
-        m_procedure(proc)
+    Function::Function(Lang::Program* prog, Lang::Node function) :
+        m_procedure(function),
+        m_program(prog)
     {}
     
     Function::~Function()

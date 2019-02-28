@@ -2,6 +2,7 @@
 
 #include <Ark/Log.hpp>
 #include <Ark/Lang/Lib.hpp>
+#include <Ark/Function.hpp>
 
 namespace Ark
 {
@@ -41,7 +42,7 @@ namespace Ark
             m_global_env[name] = Node(function);
         }
         
-        int Program::operator[](const std::string& key) const
+        template <> int Program::get<int>(const std::string& key)
         {
             Node& n = m_global_env.find(key)[key];
             if (n.nodeType() == NodeType::Number && n.valueType() == ValueType::Int)
@@ -50,7 +51,7 @@ namespace Ark
             exit(1);
         }
         
-        float Program::operator[](const std::string& key) const
+        template <> float Program::get<float>(const std::string& key)
         {
             Node& n = m_global_env.find(key)[key];
             if (n.nodeType() == NodeType::Number && n.valueType() == ValueType::Float)
@@ -59,7 +60,7 @@ namespace Ark
             exit(1);
         }
         
-        const std::string& Program::operator[](const std::string& key) const
+        template <> std::string Program::get<std::string>(const std::string& key)
         {
             Node& n = m_global_env.find(key)[key];
             if (n.nodeType() == NodeType::String && n.valueType() == ValueType::String)
@@ -68,11 +69,11 @@ namespace Ark
             exit(1);
         }
         
-        Function Program::operator[](const std::string& key) const
+        template <> Function Program::get<Function>(const std::string& key)
         {
             Node& n = m_global_env.find(key)[key];
-            if (n.nodeType() == NodeType::Proc)
-                return Function(n.getProcVal());
+            if (n.nodeType() == NodeType::Lambda)
+                return Function(this, n);
             Ark::Log::error("[Program] '" + key + "' isn't a function");
             exit(1);
         }
