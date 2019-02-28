@@ -11,7 +11,7 @@ namespace Ark
     namespace Lang
     {
         FUNCTION(add)  // +
-//        FUNCTION(sub)  // -
+        FUNCTION(sub)  // -
 //        FUNCTION(mul)  // *
 //        FUNCTION(div)  // /
 

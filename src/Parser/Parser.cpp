@@ -62,6 +62,18 @@ namespace Ark
                 str.erase(token.size() - 2, 1);
                 return Ark::Lang::Node(Ark::Lang::NodeType::String, str);
             }
+            if (token == "if")
+                return Ark::Lang::Node(Ark::Lang::NodeType::Keyword, Ark::Lang::Keyword::If);
+            if (token == "set")
+                return Ark::Lang::Node(Ark::Lang::NodeType::Keyword, Ark::Lang::Keyword::Set);
+            if (token == "def")
+                return Ark::Lang::Node(Ark::Lang::NodeType::Keyword, Ark::Lang::Keyword::Def);
+            if (token == "fun")
+                return Ark::Lang::Node(Ark::Lang::NodeType::Keyword, Ark::Lang::Keyword::Fun);
+            if (token == "while")
+                return Ark::Lang::Node(Ark::Lang::NodeType::Keyword, Ark::Lang::Keyword::While);
+            if (token == "begin")
+                return Ark::Lang::Node(Ark::Lang::NodeType::Keyword, Ark::Lang::Keyword::Begin);
             return Ark::Lang::Node(Ark::Lang::NodeType::Symbol, token);
         }
 
