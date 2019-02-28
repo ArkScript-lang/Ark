@@ -40,6 +40,42 @@ namespace Ark
         {
             m_global_env[name] = Node(function);
         }
+        
+        int Program::operator[](const std::string& key) const
+        {
+            Node& n = m_global_env.find(key)[key];
+            if (n.nodeType() == NodeType::Number && n.valueType() == ValueType::Int)
+                return n.getIntVal();
+            Ark::Log::error("[Program] '" + key + "' isn't an integer");
+            exit(1);
+        }
+        
+        float Program::operator[](const std::string& key) const
+        {
+            Node& n = m_global_env.find(key)[key];
+            if (n.nodeType() == NodeType::Number && n.valueType() == ValueType::Float)
+                return n.getFloatVal();
+            Ark::Log::error("[Program] '" + key + "' isn't a float");
+            exit(1);
+        }
+        
+        const std::string& Program::operator[](const std::string& key) const
+        {
+            Node& n = m_global_env.find(key)[key];
+            if (n.nodeType() == NodeType::String && n.valueType() == ValueType::String)
+                return n.getStringVal();
+            Ark::Log::error("[Program] '" + key + "' isn't a string");
+            exit(1);
+        }
+        
+        Function Program::operator[](const std::string& key) const
+        {
+            Node& n = m_global_env.find(key)[key];
+            if (n.nodeType() == NodeType::Proc)
+                return Function(n.getProcVal());
+            Ark::Log::error("[Program] '" + key + "' isn't a function");
+            exit(1);
+        }
 
         Node Program::_execute(Node x, Environment* env)
         {

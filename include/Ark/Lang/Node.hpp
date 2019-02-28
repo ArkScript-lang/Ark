@@ -49,6 +49,7 @@ namespace Ark
             using Map = std::unordered_map<std::string, Node>;
             using Value = std::variant<int, float, std::string>;
 
+            template <typename T> Node(const T& value);
             Node(NodeType type=NodeType::Symbol);
             template <typename T> Node(NodeType type, const T& value);
             Node(Node::ProcType proc);
@@ -60,6 +61,7 @@ namespace Ark
             const std::string& getStringVal() const;
             const int getIntVal() const;
             const float getFloatVal() const;
+            const ProcType getProcVal() const;
             void push_back(const Node& node);
 
             const NodeType& nodeType() const;
