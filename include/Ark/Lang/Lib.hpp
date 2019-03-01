@@ -22,14 +22,15 @@ namespace Ark
         FUNCTION(neq)  // !=
         FUNCTION(eq)  // =
 
-//        FUNCTION(len)  // len 1
-//        FUNCTION(empty)  // empty 1
-//        FUNCTION(car)  // car 1
-//        FUNCTION(cdr)  // cdr +
+        FUNCTION(len)  // len 1
+        FUNCTION(empty)  // empty 1
+        FUNCTION(car)  // car 1
+        FUNCTION(cdr)  // cdr +
 //        FUNCTION(append)  // append +
 //        FUNCTION(cons)  // cons +
 //        FUNCTION(list)  // list +
 //        FUNCTION(isnil)  // nil? 1
+
         FUNCTION(print)  // print +
         FUNCTION(assert)  // assert 2
 
