@@ -231,22 +231,22 @@ namespace Ark
         
         Node len(const Nodes& n)
         {
-            return Node(NodeType::Number, (int) n[0].list().size());
+            return Node(NodeType::Number, (int) n[0].const_list().size());
         }
         
         Node empty(const Nodes& n)
         {
-            return (n[0].list().size() == 0) ? trueSym : falseSym;
+            return (n[0].const_list().size() == 0) ? trueSym : falseSym;
         }
         
         Node car(const Nodes& n)
         {
-            return n[0].list()[0];
+            return n[0].const_list()[0];
         }
         
         Node cdr(const Nodes& n)
         {
-            if (n[0].list().size() < 2)
+            if (n[0].const_list().size() < 2)
                 return nil;
             
             Node r = n[0];
