@@ -34,7 +34,7 @@ namespace Ark
             m_global_env["_args"] = argslist;
             registerLib(m_global_env);
 
-            std::cout << _execute(m_parser.ast(), &m_global_env) << std::endl;
+            _execute(m_parser.ast(), &m_global_env);
         }
 
         void Program::loadFunction(const std::string& name, Node::ProcType function)
