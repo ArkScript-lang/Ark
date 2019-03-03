@@ -296,7 +296,7 @@ namespace Ark
             env["="] = Node(&eq);
             
             env["len"] = Node(&len);
-            env["empty"] = Node(&empty);
+            env["empty?"] = Node(&empty);
             env["car"] = Node(&car);
             env["cdr"] = Node(&cdr);
 

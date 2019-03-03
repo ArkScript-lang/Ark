@@ -243,7 +243,7 @@ namespace Ark
                             b = p.size() > 2;
                         else if (s == "<" || s == ">" || s == "<=" || s == ">=" || s == "!=" || s == "=" || s == "assert")
                             b = p.size() == 3;
-                        else if (s == "len" || s == "empty" || s == "car" || s == "cdr" || s == "nil?")
+                        else if (s == "len" || s == "empty?" || s == "car" || s == "cdr" || s == "nil?")
                             b = p.size() == 2;
                         else if (s == "append" || s == "cons" || s == "list" || s == "print")
                             b = p.size() > 1;

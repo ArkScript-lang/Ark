@@ -2,8 +2,7 @@
 #include <string>
 
 #define ARKLANG
-#include <Ark/Lang/Program.hpp>
-#include <Ark/Function.hpp>
+#include <Ark/Ark.hpp>
 
 const char* g_code =
     "(begin\n"

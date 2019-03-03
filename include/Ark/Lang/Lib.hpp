@@ -23,7 +23,7 @@ namespace Ark
         FUNCTION(eq)  // =
 
         FUNCTION(len)  // len 1
-        FUNCTION(empty)  // empty 1
+        FUNCTION(empty)  // empty? 1
         FUNCTION(car)  // car 1
         FUNCTION(cdr)  // cdr +
 //        FUNCTION(append)  // append +
