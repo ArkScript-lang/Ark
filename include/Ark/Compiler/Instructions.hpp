@@ -20,6 +20,8 @@ namespace Ark
                 LET = 0x05,
                 POP_JUMP_IF_FALSE = 0x06,
                 JUMP = 0x07,
+                RET = 0x08,
+                HALT = 0x09,
         };
 
         struct Inst
