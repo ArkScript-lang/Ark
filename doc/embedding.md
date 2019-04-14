@@ -6,14 +6,12 @@
 #include <iostream>
 #include <string>
 
-#define ARKLANG
 #include <Ark/Ark.hpp>
 
 const char* g_code =
     "(begin\n"
     "    (def a 42)\n"
-    "    (def b 1.67)\n"
-    "    (def c \"hello world\")\n"
+    "    (def b \"hello world\")\n"
     "    (def life [fun (x) {* x 2}])\n"
     ")\n"
     "";
@@ -24,12 +22,11 @@ int main()
     program.feed(g_code);
     program.execute();
     
-    auto a = program.get<int>("a");
-    auto b = program.get<float>("b");
-    auto c = program.get<std::string>("c");
+    auto a = program.get<dozerg::HugeNumber>("a");
+    auto b = program.get<std::string>("b");
     auto life = program.get<Ark::Function>("life");
     
-    std::cout << a << " " << b << " " << c << " " << life(a) << std::endl;
+    std::cout << a << " " << b << " " << life(a) << std::endl;
     
     return 0;
 }
@@ -55,12 +52,12 @@ If you run it a second time, the environment won't be reset.
 ### Getting values from a program
 
 ```cpp
-auto my_integer = program.get<int>("my_ark_integer");
+auto my_integer = program.get<dozerg::HugeNumber>("my_ark_integer");
 ```
 
-The types supported by `.get<>` are: int, float, std::string and Function.
+The types supported by `.get<>` are: dozerg::HugeNumber, std::string and Function.
 
-A Function can take int, float, double (converted to double), and std::string (multiple arguments are supported).
+A Function can take dozerg::HugeNumber and std::string (multiple arguments are supported).
 
 ### Registering a C++ function into an Ark program
 

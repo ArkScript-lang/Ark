@@ -32,7 +32,7 @@ namespace Ark
         FUNCTION(isnil)  // nil? 1
 
         FUNCTION(print)  // print +
-        FUNCTION(assert)  // assert 2
+        FUNCTION(assert_)  // assert 2
 
         void registerLib(Environment& env);
     }

@@ -42,28 +42,19 @@ namespace Ark
             m_global_env[name] = Node(function);
         }
         
-        template <> int Program::get<int>(const std::string& key)
+        template <> dozerg::HugeNumber Program::get<dozerg::HugeNumber>(const std::string& key)
         {
             Node& n = m_global_env.find(key)[key];
-            if (n.nodeType() == NodeType::Number && n.valueType() == ValueType::Int)
+            if (n.nodeType() == NodeType::Number)
                 return n.getIntVal();
             Ark::Log::error("[Program] '" + key + "' isn't an integer");
-            exit(1);
-        }
-        
-        template <> float Program::get<float>(const std::string& key)
-        {
-            Node& n = m_global_env.find(key)[key];
-            if (n.nodeType() == NodeType::Number && n.valueType() == ValueType::Float)
-                return n.getFloatVal();
-            Ark::Log::error("[Program] '" + key + "' isn't a float");
             exit(1);
         }
         
         template <> std::string Program::get<std::string>(const std::string& key)
         {
             Node& n = m_global_env.find(key)[key];
-            if (n.nodeType() == NodeType::String && n.valueType() == ValueType::String)
+            if (n.nodeType() == NodeType::String)
                 return n.getStringVal();
             Ark::Log::error("[Program] '" + key + "' isn't a string");
             exit(1);

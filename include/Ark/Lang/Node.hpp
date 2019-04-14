@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <huge_number.hpp>
 
 namespace Ark
 {
@@ -20,13 +21,6 @@ namespace Ark
             List,
             Proc,
             Lambda
-        };
-
-        enum class ValueType
-        {
-            Int,
-            Float,
-            String
         };
 
         enum class Keyword
@@ -47,7 +41,7 @@ namespace Ark
             using ProcType = Node(*)(const std::vector<Node>&);
             using Iterator = std::vector<Node>::const_iterator;
             using Map = std::unordered_map<std::string, Node>;
-            using Value = std::variant<int, float, std::string>;
+            using Value = std::variant<dozerg::HugeNumber, std::string>;
 
             template <typename T> Node(const T& value);
             Node(NodeType type=NodeType::Symbol);
@@ -59,14 +53,12 @@ namespace Ark
             Environment* getEnv();
 
             const std::string& getStringVal() const;
-            const int getIntVal() const;
-            const float getFloatVal() const;
+            const dozerg::HugeNumber getIntVal() const;
             const ProcType getProcVal() const;
             void push_back(const Node& node);
 
             const NodeType& nodeType() const;
             void setNodeType(NodeType type);
-            const ValueType valueType() const;
             const Keyword keyword() const;
 
             std::vector<Node>& list();
@@ -80,9 +72,11 @@ namespace Ark
         private:
             NodeType m_type;
             Value m_value;
-            ValueType m_valuetype;
+
             Keyword m_keyword;
+
             std::vector<Node> m_list;
+
             Node::ProcType m_procedure;
             Environment* m_env;
         };
@@ -90,7 +84,7 @@ namespace Ark
         inline bool operator==(const Node& A, const Node& B)
         {
             if (A.m_type == B.m_type && A.m_type != NodeType::List && A.m_type != NodeType::Proc && A.m_type != NodeType::Lambda)
-                return A.m_valuetype == B.m_valuetype && A.m_value == B.m_value;
+                return A.m_value == B.m_value;
             return false;  //! not comparing proc/list/lambda
         }
 

@@ -8,29 +8,19 @@ namespace Ark
     {
         template <> Node::Node<int>(const int& value) :
             m_type(NodeType::Number),
-            m_value(value),
-            m_valuetype(ValueType::Int),
+            m_value(dozerg::HugeNumber(value)),
             m_env(nullptr)
         {}
-        
-        template <> Node::Node<float>(const float& value) :
+
+        template <> Node::Node<dozerg::HugeNumber>(const dozerg::HugeNumber& value) :
             m_type(NodeType::Number),
             m_value(value),
-            m_valuetype(ValueType::Float),
-            m_env(nullptr)
-        {}
-        
-        template <> Node::Node<double>(const double& value) :
-            m_type(NodeType::Number),
-            m_value((float) value),
-            m_valuetype(ValueType::Float),
             m_env(nullptr)
         {}
         
         template <> Node::Node<std::string>(const std::string& value) :
             m_type(NodeType::String),
             m_value(value),
-            m_valuetype(ValueType::String),
             m_env(nullptr)
         {}
 
@@ -40,29 +30,25 @@ namespace Ark
 
         template <> Node::Node<int>(NodeType type, const int& value) :
             m_type(type),
-            m_value(value),
-            m_valuetype(ValueType::Int),
+            m_value(dozerg::HugeNumber(value)),
             m_env(nullptr)
         {}
 
-        template <> Node::Node<float>(NodeType type, const float& value) :
+        template <> Node::Node<dozerg::HugeNumber>(NodeType type, const dozerg::HugeNumber& value) :
             m_type(type),
             m_value(value),
-            m_valuetype(ValueType::Float),
             m_env(nullptr)
         {}
 
         template <> Node::Node<std::string>(NodeType type, const std::string& value) :
             m_type(type),
             m_value(value),
-            m_valuetype(ValueType::String),
             m_env(nullptr)
         {}
 
         template <> Node::Node<Keyword>(NodeType type, const Keyword& value) :
             m_type(type),
-            m_value(0),
-            m_valuetype(ValueType::Int),
+            m_value(dozerg::HugeNumber(0)),
             m_keyword(value),
             m_env(nullptr)
         {}
@@ -91,14 +77,9 @@ namespace Ark
             return std::get<std::string>(m_value);
         }
 
-        const int Node::getIntVal() const
+        const dozerg::HugeNumber Node::getIntVal() const
         {
-            return std::get<int>(m_value);
-        }
-
-        const float Node::getFloatVal() const
-        {
-            return std::get<float>(m_value);
+            return std::get<dozerg::HugeNumber>(m_value);
         }
         
         const Node::ProcType Node::getProcVal() const
@@ -119,11 +100,6 @@ namespace Ark
         void Node::setNodeType(NodeType type)
         {
             m_type = type;
-        }
-
-        const ValueType Node::valueType() const
-        {
-            return m_valuetype;
         }
 
         const Keyword Node::keyword() const
@@ -156,10 +132,7 @@ namespace Ark
                 break;
 
             case NodeType::Number:
-                if (N.m_valuetype == ValueType::Int)
-                    os << std::get<int>(N.m_value);
-                else  // assuming it's a float
-                    os << std::get<float>(N.m_value);
+                os << std::get<dozerg::HugeNumber>(N.m_value);
                 break;
 
             case NodeType::List:
