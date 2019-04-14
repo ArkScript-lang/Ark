@@ -16,6 +16,10 @@ namespace Ark
                 LOAD_SYMBOL = 0x01,
                 LOAD_CONST = 0x02,
                 POP_JUMP_IF_TRUE = 0x03,
+                STORE = 0x04,
+                LET = 0x05,
+                POP_JUMP_IF_FALSE = 0x06,
+                JUMP = 0x07,
         };
 
         struct Inst
