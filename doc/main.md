@@ -40,3 +40,7 @@ The keywords are:
 ## Standart library
 
 -> [Ark std lib](lib.md)
+
+## The bytecode
+
+-> [Ark bytecode format](bytecode.md)

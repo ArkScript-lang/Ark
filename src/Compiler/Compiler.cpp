@@ -78,22 +78,32 @@ namespace Ark
                 m_bytecode.push_back(Instruction::NOP);
             }
 
-            // start main code segment
-            m_bytecode.push_back(CODE_SEGMENT_START);
-            // push number of elements
+            // start code segments
+            for (auto page : m_code_pages)
+            {
+                m_bytecode.push_back(CODE_SEGMENT_START);
+                // push number of elements
+                if (!page.size())
+                {
+                    pushNumber(0x00);
+                    return;
+                }
+                pushNumber((uint16_t) page.size());
+
+                for (auto inst : page)
+                {
+                    // handle jump to code page (for functions call)
+                    if (inst.jump_to_page == 0)
+                        m_bytecode.push_back(inst.inst);
+                    else
+                        pushNumber(inst.jump_to_page);
+                }
+            }
+
             if (!m_code_pages.size())
             {
+                m_bytecode.push_back(Instruction::CODE_SEGMENT_START);
                 pushNumber(0x00);
-                return;
-            }
-            pushNumber((uint16_t) m_code_pages[0].size());
-            for (auto inst : m_code_pages[0])
-            {
-                // handle jump to code page (for functions call)
-                if (inst.jump_to_page == 0)
-                    m_bytecode.push_back(inst.inst);
-                else
-                    pushNumber(inst.jump_to_page);
             }
         }
 
@@ -103,13 +113,21 @@ namespace Ark
             if (x.nodeType() == NodeType::Symbol)
             {
                 std::string name = x.getStringVal();
-                addSymbol(x);
+                std::size_t i = addSymbol(x);
+
+                m_bytecode.push_back(Instruction::LOAD_SYMBOL);
+                pushNumber((uint16_t) i);
+
                 return;
             }
             // register values
             if (x.nodeType() == NodeType::String || x.nodeType() == NodeType::Number)
             {
-                addValue(x);
+                std::size_t i = addValue(x);
+
+                m_bytecode.push_back(Instruction::LOAD_CONST);
+                pushNumber((uint16_t) i);
+
                 return;
             }
             // registering structures
@@ -118,7 +136,9 @@ namespace Ark
                 Keyword n = x.list()[0].keyword();
 
                 if (n == Keyword::If)
-                    return _execute((_execute(x.list()[1], env) == falseSym) ? x.list()[3] : x.list()[2], env);
+                {
+                    _execute((_execute(x.list()[1], env) == falseSym) ? x.list()[3] : x.list()[2], env);
+                }
                 if (n == Keyword::Set)
                 {
                     std::string name = x.list()[1].getStringVal();
@@ -164,18 +184,28 @@ namespace Ark
 
         void Compiler::addSymbol(const std::string& sym)
         {
-            if (std::find(m_symbols.begin(), m_symbols.end(), sym) == m_symbols.end())
+            auto it = std::find(m_symbols.begin(), m_symbols.end(), sym);
+            if (it == m_symbols.end())
+            {
                 m_symbols.push_back(sym);
+                return m_symbols.size() - 1;
+            }
+            return (std::size_t) std::distance(m_symbols.begin(), it);
         }
 
-        void Compiler::addValue(Node x)
+        std::size_t Compiler::addValue(Node x)
         {
             Value v(x);
-            if (std::find(m_values.begin(), m_values.end(), v) == m_values.end())
+            auto it = std::find(m_values.begin(), m_values.end(), v);
+            if (it == m_values.end())
+            {
                 m_values.push_back(v);
+                return m_values.size() - 1;
+            }
+            return (std::size_t) std::distance(m_values.begin(), it);
         }
 
-        void Compiler::pushNumber(uint16_t n)
+        std::size_t Compiler::pushNumber(uint16_t n)
         {
             m_bytecode.push_back((n & 0xff00) >> 8);
             m_bytecode.push_back(n & 0x00ff);
