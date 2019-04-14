@@ -8,22 +8,22 @@ namespace Ark
     {
         using namespace Ark::Lang;
 
-        template <> Value(const int& value) :
+        template <> Value::Value(const int& value) :
             value(dozerg::HugeNumber(value)),
             type(ValueType::Number)
         {}
 
-        template <> Value(const long& value) :
+        template <> Value::Value(const long& value) :
             value(dozerg::HugeNumber(value)),
             type(ValueType::Number)
         {}
 
-        template <> Value(const std::string& value) :
+        template <> Value::Value(const std::string& value) :
             value(value),
             type(ValueType::String)
         {}
 
-        template <> Value(const Node& v)
+        template <> Value::Value(const Node& v)
         {
             if (v.nodeType() == NodeType::Number)
                 value = v.getIntVal();
