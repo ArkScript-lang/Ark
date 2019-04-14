@@ -1,7 +1,7 @@
 (begin
     (def a 1)
     (def acc 2)
-    (while [!= acc 10000]
+    (while [!= acc 1000]
         (begin
             [set a [* a acc]]
             [set acc [+ 1 acc]]
