@@ -15,12 +15,15 @@ namespace Ark
             CODE_SEGMENT_START = 0x03,
                 LOAD_SYMBOL = 0x01,
                 LOAD_CONST = 0x02,
+                POP_JUMP_IF_TRUE = 0x03,
         };
 
         struct Inst
         {
             Instruction inst = Instruction::NOP;
             std::size_t jump_to_page = 0;
+
+            Inst(Instruction inst);
         };
     }
 }

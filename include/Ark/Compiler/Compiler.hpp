@@ -28,7 +28,7 @@ namespace Ark
             void compile();
 
         private:
-            void _compile(Node x);
+            void _compile(Node x, std::vector<Inst>& page);
             std::size_t addSymbol(const std::string& sym);
             std::size_t addValue(Node x);
 

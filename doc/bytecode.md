@@ -28,3 +28,4 @@ Jumps are used to jump from a code segment to another, in case of functions. The
 | `NOP` (0x00) | | Does Nothing |
 | `LOAD_SYMBOL` (0x01) | symbol id (two bytes, big endian) | Load a symbol from its id onto the stack |
 | `LOAD_CONST` (0x02) | constant id (two bytes, big endian) | Load a constant from its id onto the stack |
+| `POP_JUMP_IF_TRUE` (0x03) | relative address to jump to (two bytes, big endian) | Jump to the provided address if the last value on the stack was equal to true. Pop it if true, otherwise, leave it on the stack |
