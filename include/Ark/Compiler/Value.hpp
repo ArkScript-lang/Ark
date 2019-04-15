@@ -13,12 +13,13 @@ namespace Ark
         enum class ValueType
         {
             Number,
-            String
+            String,
+            PageAddr  // for function definitions
         };
 
         struct Value
         {
-            std::variant<dozerg::HugeNumber, std::string> value;
+            std::variant<dozerg::HugeNumber, std::string, std::size_t> value;
             ValueType type;
 
             template <typename T>

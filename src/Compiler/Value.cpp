@@ -31,6 +31,11 @@ namespace Ark
                 value = v.getStringVal();
         }
 
+        template <> Value::Value(const std::size_t value) :
+            value(value),
+            type(ValueType::PageAddr)
+        {}
+
         bool Value::operator==(const Value& A)
         {
             return A.value == value && A.type == type;

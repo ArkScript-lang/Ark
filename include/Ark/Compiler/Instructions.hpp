@@ -14,6 +14,7 @@ namespace Ark
             VAL_TABLE_START = 0x02,
                 NUMBER_TYPE = 0x01,
                 STRING_TYPE = 0x02,
+                FUNC_TYPE = 0x03,
             CODE_SEGMENT_START = 0x03,
                 LOAD_SYMBOL = 0x01,
                 LOAD_CONST = 0x02,
@@ -25,6 +26,7 @@ namespace Ark
                 RET = 0x08,
                 HALT = 0x09,
                 CALL = 0x0a,
+                NEW_ENV = 0x0b,
         };
 
         struct Inst

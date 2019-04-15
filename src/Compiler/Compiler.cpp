@@ -156,14 +156,13 @@ namespace Ark
                     // jump only if needed to the x.list()[2] part
                     page.emplace_back(Instruction::POP_JUMP_IF_TRUE);
                         // else code, generated in a temporary page
-                        m_code_pages.emplace_back();
-                        _compile(x.list()[3], m_code_pages.back());
+                        _compile(x.list()[3], m_temp_page);
                     // relative address to jump to if condition is true, casted as unsigned (don't worry, it's normal)
-                    pushNumber(static_cast<uint16_t>(m_code_pages.back().size()), &page);
+                    pushNumber(static_cast<uint16_t>(m_temp_page.size()), &page);
                     // adding temp page into current one, and removing temp page
-                    for (auto&& inst : m_code_pages.back())
+                    for (auto&& inst : m_temp_page)
                         page.emplace_back(inst);
-                    m_code_pages.pop_back();
+                    m_temp_page.clear();
                         // if code
                         _compile(x.list()[2], page);
                 }
@@ -191,20 +190,32 @@ namespace Ark
                 }
                 else if (n == Keyword::Fun)
                 {
-                    // TODO
-                    /*x.setNodeType(NodeType::Lambda);
-                    x.addEnv(env);
-                    // add arguments and body
-                    // create sub-environment
-                    */
+                    // create new page for function body
+                    m_code_pages.emplace_back();
+                    std::size_t page_id = m_code_pages.size() - 1;
+                    // push value to the current page
+                    std::size_t id = addValue(page_id);
+                    pushNumber(static_cast<uint16_t>(id));
+                    // create a new environment for function
+                    m_code_pages.back().emplace_back(Instruction::NEW_ENV);
+                    // pushing arguments from the stack into variables in the new scope
+                    for (Node::Iterator it=x.list()[1].list().begin(); it != x.list()[1].list().end(); ++it)
+                    {
+                        m_code_pages.back().emplace_back(Instruction::LET);
+                        std::size_t var_id = addSymbol(it->getStringVal());
+                        pushNumber(static_cast<uint16_t>(var_id), &(m_code_pages.back()));
+                    }
+                    // push body of the function
+                    _compile(x.list()[2], m_code_pages.back());
+                    // return last value on the stack
+                    m_code_pages.back().emplace_back(Instruction::RET);
                 }
                 else if (n == Keyword::Begin)
                 {
-                    for (std::size_t i=1; i < x.list().size() - 1; ++i)
+                    for (std::size_t i=1; i < x.list().size(); ++i)
                         _compile(x.list()[i], page);
                     
                     // return last value
-                    _compile(x.list()[x.list().size() - 1], page);
                     page.push_back(Instruction::RET);
                 }
                 else if (n == Keyword::While)
@@ -214,16 +225,15 @@ namespace Ark
                     // push condition
                     _compile(x.list()[1], page);
                     // push code to temp page
-                        m_code_pages.emplace_back();
-                        _compile(x.list()[2], m_code_pages.back());
+                        _compile(x.list()[2], m_temp_page);
                     // relative jump to end of block if condition is false
                     page.emplace_back(Instruction::POP_JUMP_IF_FALSE);
                     // relative address to jump to if condition is false, casted as unsigned (don't worry, it's normal)
-                    pushNumber(static_cast<uint16_t>(m_code_pages.back().size()), &page);
+                    pushNumber(static_cast<uint16_t>(m_temp_page), &page);
                     // copy code from temp page and destroy temp page
-                    for (auto&& inst : m_code_pages.back())
+                    for (auto&& inst : m_temp_page)
                         page.push_back(inst);
-                    m_code_pages.pop_back();
+                    m_temp_page.clear();
                     // loop, jump to the condition
                     page.emplace_back(Instruction::JUMP);
                     // relative address casted as unsigned (don't worry, it's normal)
@@ -235,15 +245,14 @@ namespace Ark
 
             // if we are here, we should have a function name
             // push arguments first, then function name, then call it
-                m_code_pages.emplace_back();
-                _compile(x.list()[0], m_code_pages.back());  // storing proc
+                _compile(x.list()[0], m_temp_page);  // storing proc
             // push arguments on current page
             for (Node::Iterator exp=x.list().begin() + 1; exp != x.list().end(); ++exp)
                 _compile(*exp, page);
             // push proc from temp page
-            for (auto&& inst : m_code_pages.back())
+            for (auto&& inst : m_temp_page)
                 page.push_back(inst);
-            m_code_pages.pop_back();
+            m_temp_page.clear();
             // call the procedure
             page.push_back(Instruction::CALL);
             pushNumber(static_cast<uint16_t>(std::distance(x.list().begin() + 1, x.list().end())));
@@ -265,6 +274,18 @@ namespace Ark
         std::size_t Compiler::addValue(Node x)
         {
             Value v(x);
+            auto it = std::find(m_values.begin(), m_values.end(), v);
+            if (it == m_values.end())
+            {
+                m_values.push_back(v);
+                return m_values.size() - 1;
+            }
+            return (std::size_t) std::distance(m_values.begin(), it);
+        }
+
+        std::size_t Compiler::addValue(std::size_t page_id)
+        {
+            Value v(page_id);
             auto it = std::find(m_values.begin(), m_values.end(), v);
             if (it == m_values.end())
             {
