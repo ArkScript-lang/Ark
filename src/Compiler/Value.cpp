@@ -31,7 +31,7 @@ namespace Ark
                 value = v.getStringVal();
         }
 
-        template <> Value::Value(const std::size_t value) :
+        template <> Value::Value(const std::size_t& value) :
             value(value),
             type(ValueType::PageAddr)
         {}

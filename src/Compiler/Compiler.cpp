@@ -82,7 +82,7 @@ namespace Ark
                 else if (val.type == ValueType::PageAddr)
                 {
                     m_bytecode.push_back(Instruction::FUNC_TYPE);
-                    pushNumber()
+                    pushNumber(static_cast<uint16_t>(std::get<std::size_t>(val.value)));
                 }
 
                 m_bytecode.push_back(Instruction::NOP);
@@ -246,7 +246,7 @@ namespace Ark
                     // relative jump to end of block if condition is false
                     page.emplace_back(Instruction::POP_JUMP_IF_FALSE);
                     // relative address to jump to if condition is false, casted as unsigned (don't worry, it's normal)
-                    pushNumber(static_cast<uint16_t>(m_temp_page), &page);
+                    pushNumber(static_cast<uint16_t>(m_temp_page.size()), &page);
                     // copy code from temp page and destroy temp page
                     for (auto&& inst : m_temp_page)
                         page.push_back(inst);
