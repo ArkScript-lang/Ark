@@ -1,6 +1,9 @@
 #ifndef ark_lib
 #define ark_lib
 
+#include <vector>
+#include <string>
+
 #include <Ark/Lang/Node.hpp>
 #include <Ark/Lang/Environment.hpp>
 
@@ -35,6 +38,8 @@ namespace Ark
         FUNCTION(assert_)  // assert 2
 
         void registerLib(Environment& env);
+
+        extern const std::vector<std::string> builtins;
     }
 }
 

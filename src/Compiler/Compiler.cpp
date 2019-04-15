@@ -79,6 +79,11 @@ namespace Ark
                     for (std::size_t i=0; i < t.size(); ++i)
                         m_bytecode.push_back(t[i]);
                 }
+                else if (val.type == ValueType::PageAddr)
+                {
+                    m_bytecode.push_back(Instruction::FUNC_TYPE);
+                    pushNumber()
+                }
 
                 m_bytecode.push_back(Instruction::NOP);
             }
@@ -121,10 +126,21 @@ namespace Ark
             if (x.nodeType() == NodeType::Symbol)
             {
                 std::string name = x.getStringVal();
-                std::size_t i = addSymbol(name);
 
-                page.emplace_back(Instruction::LOAD_SYMBOL);
-                pushNumber(static_cast<uint16_t>(i), &page);
+                auto it = std::find(builtins.begin(), builtins.end(), name);
+                // check if 'name' isn't a builtin function name before pushing it as a 'var-use'
+                if (it == builtins.end())
+                {
+                    std::size_t i = addSymbol(name);
+
+                    page.emplace_back(Instruction::LOAD_SYMBOL);
+                    pushNumber(static_cast<uint16_t>(i), &page);
+                }
+                else
+                {
+                    page.emplace_back(Instruction::BUILTIN);
+                    pushNumber(static_cast<uint16_t>(std::distance(builtins.begin(), it)), &page);
+                }
 
                 return;
             }
@@ -193,9 +209,10 @@ namespace Ark
                     // create new page for function body
                     m_code_pages.emplace_back();
                     std::size_t page_id = m_code_pages.size() - 1;
-                    // push value to the current page
-                    std::size_t id = addValue(page_id);
-                    pushNumber(static_cast<uint16_t>(id));
+                    // load value on the stack
+                    page.emplace_back(Instruction::LOAD_CONST);
+                    std::size_t id = addValue(page_id);  // save page_id into the constants table
+                    pushNumber(static_cast<uint16_t>(id), &page);
                     // create a new environment for function
                     m_code_pages.back().emplace_back(Instruction::NEW_ENV);
                     // pushing arguments from the stack into variables in the new scope
@@ -255,6 +272,7 @@ namespace Ark
             m_temp_page.clear();
             // call the procedure
             page.push_back(Instruction::CALL);
+            // number of arguments
             pushNumber(static_cast<uint16_t>(std::distance(x.list().begin() + 1, x.list().end())));
 
             return;
@@ -262,13 +280,23 @@ namespace Ark
 
         std::size_t Compiler::addSymbol(const std::string& sym)
         {
+            // check if sym is nil/false/true
+            if (sym == "nil")
+                return 0;
+            else if (sym == "false")
+                return 1;
+            else if (sym == "true")
+                return 2;
+
+            // otherwise, add the symbol, and return its id in the table + 3
+            // (+3 to have distinct symbols from the builtin ones)
             auto it = std::find(m_symbols.begin(), m_symbols.end(), sym);
             if (it == m_symbols.end())
             {
                 m_symbols.push_back(sym);
-                return m_symbols.size() - 1;
+                return 3 + (m_symbols.size() - 1);
             }
-            return (std::size_t) std::distance(m_symbols.begin(), it);
+            return 3 + ((std::size_t) std::distance(m_symbols.begin(), it));
         }
 
         std::size_t Compiler::addValue(Node x)
