@@ -33,7 +33,6 @@ namespace Ark
         struct Inst
         {
             uint8_t inst = Instruction::NOP;
-            std::size_t jump_to_page = 0;
 
             Inst(Instruction inst);
             Inst(uint8_t inst);
