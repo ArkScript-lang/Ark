@@ -1,11 +1,16 @@
 (begin
-    (def a 1)
-    (def acc 2)
-    (while [!= acc 1000]
-        (begin
-            [set a [* a acc]]
-            [set acc [+ 1 acc]]
+    (hastype fact (Number) Number)
+    (def fact [fun (n) {begin
+        (def a 1)
+        (def acc 2)
+        (while [!= acc n]
+            (begin
+                [set a [* a acc]]
+                [set acc [+ 1 acc]]
+            )
         )
-    )
-    (print a)
+        ' return value:
+        a
+    }])
+    (print (fact 1000))
 )
