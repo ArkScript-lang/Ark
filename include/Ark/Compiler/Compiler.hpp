@@ -21,14 +21,22 @@ namespace Ark
         class Compiler
         {
         public:
-            Compiler();
+            Compiler(bool debug=false);
             ~Compiler();
 
             void feed(const std::string& file);
             void compile();
+            void saveTo(const std::string& file);
 
         private:
-            void _compile(Node x, std::vector<Inst>& page);
+            inline std::vector<Inst>& page(int i)
+            {
+                if (i >= 0)
+                    return m_code_pages[i];
+                return m_temp_pages[-i - 1];
+            }
+
+            void _compile(Node x, int p);
             std::size_t addSymbol(const std::string& sym);
             std::size_t addValue(Node x);
             std::size_t addValue(std::size_t page_id);
@@ -39,9 +47,11 @@ namespace Ark
             std::vector<std::string> m_symbols;
             std::vector<Value> m_values;
             std::vector<std::vector<Inst>> m_code_pages;
-            std::vector<Inst> m_temp_page;
+            std::vector<std::vector<Inst>> m_temp_pages;
 
             std::vector<uint8_t> m_bytecode;
+
+            bool m_debug;
         };
     }
 }

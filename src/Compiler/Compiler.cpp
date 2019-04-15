@@ -1,5 +1,7 @@
 #include <Ark/Compiler/Compiler.hpp>
 
+#include <fstream>
+
 #include <Ark/Log.hpp>
 #include <Ark/Lang/Lib.hpp>
 #include <Ark/Function.hpp>
@@ -8,7 +10,8 @@ namespace Ark
 {
     namespace Compiler
     {
-        Compiler::Compiler()
+        Compiler::Compiler(bool debug) :
+            m_debug(debug)
         {}
 
         Compiler::~Compiler()
@@ -45,7 +48,7 @@ namespace Ark
             m_bytecode.push_back(Instruction::SYM_TABLE_START);
                 // gather symbols, values, and start to create code segments
                 m_code_pages.emplace_back();  // create empty page
-                _compile(m_parser.ast(), m_code_pages[0]);
+                _compile(m_parser.ast(), 0);
             // push size
             pushNumber(static_cast<uint16_t>(m_symbols.size()));
             // push elements
@@ -120,8 +123,18 @@ namespace Ark
             }
         }
 
-        void Compiler::_compile(Node x, std::vector<Inst>& page)
+        void Compiler::saveTo(const std::string& file)
         {
+            std::ofstream output(file, std::ofstream::binary);
+            output.write((char*) &m_bytecode[0], m_bytecode.size() * sizeof(uint8_t));
+            output.close();
+        }
+
+        void Compiler::_compile(Node x, int p)
+        {
+            if (m_debug)
+                Ark::Log::info(x);
+            
             // register symbols
             if (x.nodeType() == NodeType::Symbol)
             {
@@ -133,13 +146,13 @@ namespace Ark
                 {
                     std::size_t i = addSymbol(name);
 
-                    page.emplace_back(Instruction::LOAD_SYMBOL);
-                    pushNumber(static_cast<uint16_t>(i), &page);
+                    page(p).emplace_back(Instruction::LOAD_SYMBOL);
+                    pushNumber(static_cast<uint16_t>(i), &page(p));
                 }
                 else
                 {
-                    page.emplace_back(Instruction::BUILTIN);
-                    pushNumber(static_cast<uint16_t>(std::distance(builtins.begin(), it)), &page);
+                    page(p).emplace_back(Instruction::BUILTIN);
+                    pushNumber(static_cast<uint16_t>(std::distance(builtins.begin(), it)), &page(p));
                 }
 
                 return;
@@ -149,15 +162,15 @@ namespace Ark
             {
                 std::size_t i = addValue(x);
 
-                page.emplace_back(Instruction::LOAD_CONST);
-                pushNumber(static_cast<uint16_t>(i), &page);
+                page(p).emplace_back(Instruction::LOAD_CONST);
+                pushNumber(static_cast<uint16_t>(i), &page(p));
 
                 return;
             }
             // empty code block
             if (x.list().empty())
             {
-                page.emplace_back(Instruction::NOP);
+                page(p).emplace_back(Instruction::NOP);
                 return;
             }
             // registering structures
@@ -168,19 +181,20 @@ namespace Ark
                 if (n == Keyword::If)
                 {
                     // compile condition
-                    _compile(x.list()[1], page);
+                    _compile(x.list()[1], p);
                     // jump only if needed to the x.list()[2] part
-                    page.emplace_back(Instruction::POP_JUMP_IF_TRUE);
+                    page(p).emplace_back(Instruction::POP_JUMP_IF_TRUE);
                         // else code, generated in a temporary page
-                        _compile(x.list()[3], m_temp_page);
+                        m_temp_pages.emplace_back();
+                        _compile(x.list()[3], -static_cast<int>(m_temp_pages.size()));
                     // relative address to jump to if condition is true, casted as unsigned (don't worry, it's normal)
-                    pushNumber(static_cast<uint16_t>(m_temp_page.size()), &page);
+                    pushNumber(static_cast<uint16_t>(m_temp_pages.back().size()), &page(p));
                     // adding temp page into current one, and removing temp page
-                    for (auto&& inst : m_temp_page)
-                        page.emplace_back(inst);
-                    m_temp_page.clear();
+                    for (auto&& inst : m_temp_pages.back())
+                        page(p).emplace_back(inst);
+                    m_temp_pages.pop_back();
                         // if code
-                        _compile(x.list()[2], page);
+                        _compile(x.list()[2], p);
                 }
                 else if (n == Keyword::Set)
                 {
@@ -188,10 +202,10 @@ namespace Ark
                     std::size_t i = addSymbol(name);
 
                     // put value before symbol id
-                    _compile(x.list()[2], page);
+                    _compile(x.list()[2], p);
 
-                    page.emplace_back(Instruction::STORE);
-                    pushNumber(static_cast<uint16_t>(i), &page);
+                    page(p).emplace_back(Instruction::STORE);
+                    pushNumber(static_cast<uint16_t>(i), &page(p));
                 }
                 else if (n == Keyword::Def)
                 {
@@ -199,10 +213,10 @@ namespace Ark
                     std::size_t i = addSymbol(name);
 
                     // put value before symbol id
-                    _compile(x.list()[2], page);
+                    _compile(x.list()[2], p);
 
-                    page.emplace_back(Instruction::LET);
-                    pushNumber(static_cast<uint16_t>(i), &page);
+                    page(p).emplace_back(Instruction::LET);
+                    pushNumber(static_cast<uint16_t>(i), &page(p));
                 }
                 else if (n == Keyword::Fun)
                 {
@@ -210,9 +224,9 @@ namespace Ark
                     m_code_pages.emplace_back();
                     std::size_t page_id = m_code_pages.size() - 1;
                     // load value on the stack
-                    page.emplace_back(Instruction::LOAD_CONST);
-                    std::size_t id = addValue(page_id);  // save page_id into the constants table
-                    pushNumber(static_cast<uint16_t>(id), &page);
+                    page(p).emplace_back(Instruction::LOAD_CONST);
+                    std::size_t id = addValue(page_id);  // save page_id into the constants table as PageAddr
+                    pushNumber(static_cast<uint16_t>(id), &page(p));
                     // create a new environment for function
                     m_code_pages.back().emplace_back(Instruction::NEW_ENV);
                     // pushing arguments from the stack into variables in the new scope
@@ -223,38 +237,39 @@ namespace Ark
                         pushNumber(static_cast<uint16_t>(var_id), &(m_code_pages.back()));
                     }
                     // push body of the function
-                    _compile(x.list()[2], m_code_pages.back());
+                    _compile(x.list()[2], m_code_pages.size() - 1);
                     // return last value on the stack
                     m_code_pages.back().emplace_back(Instruction::RET);
                 }
                 else if (n == Keyword::Begin)
                 {
                     for (std::size_t i=1; i < x.list().size(); ++i)
-                        _compile(x.list()[i], page);
+                        _compile(x.list()[i], p);
                     
                     // return last value
-                    page.push_back(Instruction::RET);
+                    page(p).push_back(Instruction::RET);
                 }
                 else if (n == Keyword::While)
                 {
                     // save current position to jump there at the end of the loop
-                    std::size_t current = page.size();
+                    std::size_t current = page(p).size();
                     // push condition
-                    _compile(x.list()[1], page);
+                    _compile(x.list()[1], p);
                     // push code to temp page
-                        _compile(x.list()[2], m_temp_page);
+                        m_temp_pages.emplace_back();
+                        _compile(x.list()[2], -static_cast<int>(m_temp_pages.size()));
                     // relative jump to end of block if condition is false
-                    page.emplace_back(Instruction::POP_JUMP_IF_FALSE);
+                    page(p).emplace_back(Instruction::POP_JUMP_IF_FALSE);
                     // relative address to jump to if condition is false, casted as unsigned (don't worry, it's normal)
-                    pushNumber(static_cast<uint16_t>(m_temp_page.size()), &page);
+                    pushNumber(static_cast<uint16_t>(m_temp_pages.back().size()), &page(p));
                     // copy code from temp page and destroy temp page
-                    for (auto&& inst : m_temp_page)
-                        page.push_back(inst);
-                    m_temp_page.clear();
+                    for (auto&& inst : m_temp_pages.back())
+                        page(p).push_back(inst);
+                    m_temp_pages.pop_back();
                     // loop, jump to the condition
-                    page.emplace_back(Instruction::JUMP);
+                    page(p).emplace_back(Instruction::JUMP);
                     // relative address casted as unsigned (don't worry, it's normal)
-                    pushNumber(static_cast<uint16_t>(current), &page);
+                    pushNumber(static_cast<uint16_t>(current), &page(p));
                 }
 
                 return;
@@ -262,16 +277,17 @@ namespace Ark
 
             // if we are here, we should have a function name
             // push arguments first, then function name, then call it
-                _compile(x.list()[0], m_temp_page);  // storing proc
+                m_temp_pages.emplace_back();
+                _compile(x.list()[0], -static_cast<int>(m_temp_pages.size()));  // storing proc
             // push arguments on current page
             for (Node::Iterator exp=x.list().begin() + 1; exp != x.list().end(); ++exp)
-                _compile(*exp, page);
+                _compile(*exp, p);
             // push proc from temp page
-            for (auto&& inst : m_temp_page)
-                page.push_back(inst);
-            m_temp_page.clear();
+            for (auto&& inst : m_temp_pages.back())
+                page(p).push_back(inst);
+            m_temp_pages.pop_back();
             // call the procedure
-            page.push_back(Instruction::CALL);
+            page(p).push_back(Instruction::CALL);
             // number of arguments
             pushNumber(static_cast<uint16_t>(std::distance(x.list().begin() + 1, x.list().end())));
 

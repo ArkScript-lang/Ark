@@ -5,11 +5,19 @@
 #include <clipp.hpp>
 #include <Ark/Constants.hpp>
 #include <Ark/Lang/Program.hpp>
+#include <Ark/Compiler/Compiler.hpp>
+#include <Ark/Log.hpp>
 
 #include <chrono>
 
 void exec(bool debug, bool timer, const std::string& file)
 {
+    if (!Ark::Utils::fileExists(file))
+    {
+        Ark::Log::error("(Interpreter) Can not find file '" + file + "'");
+        return;
+    }
+
     Ark::Lang::Program program;
     program.feed(Ark::Utils::readFile(file));
 
@@ -28,27 +36,45 @@ void exec(bool debug, bool timer, const std::string& file)
         std::cout << "Took " << elapsed_microseconds << "us" << std::endl;
 }
 
+void compile(bool debug, const std::string& file)
+{
+    if (!Ark::Utils::fileExists(file))
+    {
+        Ark::Log::error("(Compiler) Can not find file '" + file + "'");
+        return;
+    }
+
+    Ark::Compiler::Compiler compiler(debug);
+    compiler.feed(Ark::Utils::readFile(file));
+    compiler.compile();
+    compiler.saveTo(file.substr(0, file.find_last_of('.')) + ".arkc");
+}
+
 int main(int argc, char** argv)
 {
     using namespace clipp;
 
     std::cout << "Ark programming language" << std::endl << std::endl;
 
-    enum class mode {help, version, execution};
+    enum class mode { help, version, interpreter, compiler };
     mode selected;
-    std::string exec_file = "";
+    std::string input_file = "";
     bool debug = false;
     bool timer = false;
     std::vector<std::string> wrong;
 
     auto cli = (
         // general options
-        option("-h", "--help").set(selected, mode::help).doc("Displays this help message")
-        | option("--version").set(selected, mode::version).doc("Displays the Ark interpreter version and exits")
+        option("-h", "--help").set(selected, mode::help).doc("Display this help message")
+        | option("--version").set(selected, mode::version).doc("Display Ark lang version and exit")
         | (
-            value("file", exec_file).set(selected, mode::execution)
-            , option("-t", "--time").set(timer).doc("Calculates time needed for the code to run")
-            , option("-d", "--debug").set(debug).doc("Enables debug mode")
+            value("file", input_file).set(selected, mode::interpreter)
+            , option("-t", "--time").set(timer).doc("Calculate time needed for the code to run")
+            , option("-d", "--debug").set(debug).doc("Enable debug mode")
+          )
+        | (command("compile").set(selected, mode::compiler).doc("Start the compiler to generate a bytecode file from the given Ark source file")
+            , value("file", input_file)
+            , option("-d", "--debug").set(debug).doc("Enable debug mode")
           )
         , any_other(wrong)
     );
@@ -74,8 +100,12 @@ int main(int argc, char** argv)
             std::cout << "Version " << Ark::Version::Major << "." << Ark::Version::Minor << "." << Ark::Version::Patch << std::endl;
             break;
 
-        case mode::execution:
-            exec(debug, timer, exec_file);
+        case mode::interpreter:
+            exec(debug, timer, input_file);
+            break;
+        
+        case mode::compiler:
+            compile(debug, input_file);
             break;
         }
     }
