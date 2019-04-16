@@ -65,11 +65,13 @@ namespace Ark
 
         inline std::string loggerData()
         {
-            std::time_t t = std::time(0);   // get time now
+            /*std::time_t t = std::time(0);   // get time now
             std::tm* now = std::localtime(&t);
             std::stringstream stream;
             stream << "(" << std::put_time(now, "%c %Z") << ") ";
-            return stream.str();
+            return stream.str();*/
+
+            return "";
         }
 
         void colorize(LogColor color);
