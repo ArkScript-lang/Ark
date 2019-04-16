@@ -32,15 +32,15 @@ namespace Ark
 
         Value& Frame::operator[](const std::string& key)
         {
-            return m_env[key];
+            return m_environment[key];
         }
 
         bool Frame::find(const std::string& key) const
         {
-            return m_env.find(key) != m_env.end();
+            return m_environment.find(key) != m_environment.end();
         }
 
-        std::size_t Frame::returnAddr() const
+        std::size_t Frame::callerAddr() const
         {
             return m_addr;
         }

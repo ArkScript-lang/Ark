@@ -15,7 +15,7 @@ namespace Ark
 
         enum class NFT { Nil, False, True };
         using PageAddr_t = uint16_t;
-        using Value = std::variant<HugeNumber, std::string, PageAddr_t, NFT, Ark::Lang::ProcType>;
+        using Value = std::variant<HugeNumber, std::string, PageAddr_t, NFT, Ark::Lang::Node::ProcType>;
     }
 }
 

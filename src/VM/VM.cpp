@@ -90,8 +90,8 @@ namespace Ark
             // configure ffi
             m_frames.emplace_back();  // put default page
             Ark::Lang::registerLib(m_ffi);
-            for (auto&& kv : m_ffi.m_env)
-                m_frames.back[kv->first] = kv->second;
+            for (const auto& kv : m_ffi.m_env)
+                m_frames.back()[kv.first] = Value(kv.second.getProcVal());
 
             // configure tables and pages
             const bytecode_t& b = m_bytecode;
@@ -461,7 +461,7 @@ namespace Ark
             ++m_ip;
             auto id = readNumber();
 
-            push(m_ffi[Ark::Lang::builtins[id]]);
+            push(Value(m_ffi[Ark::Lang::builtins[id]].getProcVal()));
         }
     }
 }
