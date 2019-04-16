@@ -61,10 +61,10 @@ Builtins are handled with `BUILTIN id`, with `id` being the id of the builtin fu
 | `NOP` (0x00) | | Does Nothing |
 | `LOAD_SYMBOL` (0x01) | symbol id (two bytes, big endian) | Load a symbol from its id onto the stack |
 | `LOAD_CONST` (0x02) | constant id (two bytes, big endian) | Load a constant from its id onto the stack |
-| `POP_JUMP_IF_TRUE` (0x03) | relative address to jump to (two bytes, big endian) | Jump to the provided address if the last value on the stack was equal to true. Pop it if true, otherwise, leave it on the stack |
+| `POP_JUMP_IF_TRUE` (0x03) | relative address to jump to (two bytes, big endian) | Jump to the provided address if the last value on the stack was equal to true. Remove the value from the stack no matter what it is |
 | `STORE` (0x04) | symbol id (two bytes, big endian) | Take the value on top of the stack and put it inside a variable named following the symbol id (cf symbols table), in the nearest scope. Raise an error if it couldn't find a scope where the variable exists |
 | `LET` (0x05) | symbol id (two bytes, big endian) | Take the value on top of the stack and create a variable in the current scope, named following the given symbol id (cf symbols table) |
-| `POP_JUMP_IF_FALSE` (0x06) | relative address to jump to (two bytes, big endian) | Jump to the provided address if the last value on the stack was equal to false. Pop it if false, otherwise, leave it on the stack |
+| `POP_JUMP_IF_FALSE` (0x06) | relative address to jump to (two bytes, big endian) | Jump to the provided address if the last value on the stack was equal to false. Remove the value from the stack no matter what it is |
 | `JUMP` (0x07) | relative address to jump to (two byte, big endian) | Jump to the provided address |
 | `RET` (0x08) | | If in a code segment other than the main one, quit it, and push the value on top of the stack to the new stack ; should as well delete the current environment. Otherwise, acts as a `HALT` |
 | `HALT` (0x09) | | Stop the Virtual Machine |
