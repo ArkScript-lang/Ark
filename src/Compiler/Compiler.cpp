@@ -172,6 +172,10 @@ namespace Ark
             {
                 Keyword n = x.list()[0].keyword();
 
+                // do not compile has-type rules
+                if (n == Keyword::HasType)
+                    return;
+
                 if (n == Keyword::If)
                 {
                     // compile condition
