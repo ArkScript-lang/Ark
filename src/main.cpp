@@ -33,7 +33,7 @@ void exec(bool debug, bool timer, const std::string& file)
         std::cout << "Took " << elapsed_microseconds << "us" << std::endl;
 }
 
-void compile(bool debug, const std::string& file)
+void compile(bool debug, bool timer, const std::string& file)
 {
     if (!Ark::Utils::fileExists(file))
     {
@@ -43,8 +43,18 @@ void compile(bool debug, const std::string& file)
 
     Ark::Compiler::Compiler compiler(debug);
     compiler.feed(Ark::Utils::readFile(file));
+
+    std::chrono::time_point<std::chrono::system_clock> start, end;
+    start = std::chrono::system_clock::now();
+
     compiler.compile();
     compiler.saveTo(file.substr(0, file.find_last_of('.')) + ".arkc");
+
+    end = std::chrono::system_clock::now();
+    auto elapsed_microseconds = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+
+    if (timer)
+        std::cout << "Took " << elapsed_microseconds << "us" << std::endl;
 }
 
 void bcr(const std::string& file)
@@ -54,13 +64,36 @@ void bcr(const std::string& file)
     bcr.display();
 }
 
+void vm(bool debug, bool timer, const std::string& file)
+{
+    if (!Ark::Utils::fileExists(file))
+    {
+        Ark::logger.error("(Virtual Machine) Can not find file '" + file + "'");
+        return;
+    }
+
+    Ark::VM::VM vm(debug);
+    vm.feed(file);
+
+    std::chrono::time_point<std::chrono::system_clock> start, end;
+    start = std::chrono::system_clock::now();
+
+    vm.run();
+
+    end = std::chrono::system_clock::now();
+    auto elapsed_microseconds = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+
+    if (timer)
+        std::cout << "Took " << elapsed_microseconds << "us" << std::endl;
+}
+
 int main(int argc, char** argv)
 {
     using namespace clipp;
 
     std::cout << "Ark programming language" << std::endl << std::endl;
 
-    enum class mode { help, version, interpreter, compiler, bytecode_reader };
+    enum class mode { help, version, interpreter, compiler, bytecode_reader, vm };
     mode selected;
     std::string input_file = "";
     bool debug = false;
@@ -71,18 +104,19 @@ int main(int argc, char** argv)
         // general options
         option("-h", "--help").set(selected, mode::help).doc("Display this help message")
         | option("--version").set(selected, mode::version).doc("Display Ark lang version and exit")
-        | (
-            value("file", input_file).set(selected, mode::interpreter)
-            , option("-t", "--time").set(timer).doc("Calculate time needed for the code to run")
-            , option("-d", "--debug").set(debug).doc("Enable debug mode")
-          )
-        | (command("compile").set(selected, mode::compiler).doc("Start the compiler to generate a bytecode file from the given Ark source file")
-            , value("file", input_file)
-            , option("-d", "--debug").set(debug).doc("Enable debug mode")
-          )
         | (command("bcr").set(selected, mode::bytecode_reader).doc("Run the bytecode reader on the given file")
             , value("file", input_file)
-          )
+        )
+        | (
+            (
+                command("interpreter").set(selected, mode::interpreter).doc("Start the interpreter with the given Ark source file")
+                | command("compile").set(selected, mode::compiler).doc("Start the compiler to generate a bytecode file from the given Ark source file")
+                | command("vm").set(selected, mode::vm).doc("Start the virtual machine with the given bytecode file")
+            )
+            & value("file", input_file)
+            , option("-d", "--debug").set(debug).doc("Enable debug mode")
+            , option("-t", "--time").set(timer).doc("The task is timed")
+        )
         , any_other(wrong)
     );
 
@@ -112,11 +146,15 @@ int main(int argc, char** argv)
             break;
         
         case mode::compiler:
-            compile(debug, input_file);
+            compile(debug, timer, input_file);
             break;
         
         case mode::bytecode_reader:
             bcr(input_file);
+            break;
+        
+        case mode::vm:
+            vm(debug, timer, input_file);
             break;
         }
     }
