@@ -35,6 +35,11 @@ namespace Ark
             return m_env[key];
         }
 
+        bool Frame::find(const std::string& key) const
+        {
+            return m_env.find(key) != m_env.end();
+        }
+
         std::size_t Frame::returnAddr() const
         {
             return m_addr;
