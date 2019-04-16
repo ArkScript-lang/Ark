@@ -18,7 +18,7 @@ namespace Ark
         class Program
         {
         public:
-            Program();
+            Program(bool debug);
             ~Program();
 
             void feed(const std::string& file);
@@ -35,6 +35,7 @@ namespace Ark
         private:
             Node _execute(Node x, Environment* env);
 
+            bool m_debug;
             Ark::Parser::Parser m_parser;
             Environment m_global_env;
         };

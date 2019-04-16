@@ -17,7 +17,7 @@ namespace Ark
         class Parser
         {
         public:
-            Parser();
+            Parser(bool debug=false);
             ~Parser();
 
             void feed(const std::string& code);
@@ -27,11 +27,12 @@ namespace Ark
             friend std::ostream& operator<<(std::ostream& os, const Parser& P);
 
         private:
+            bool m_debug;
             Lexer m_lexer;
             Node m_ast;
 
-            Node compile(std::list<std::string>& tokens);
-            Node atom(const std::string& token);
+            Node compile(std::list<Token>& tokens);
+            Node atom(const Token& token);
             bool _check(const Node& ast);
         };
     }

@@ -122,6 +122,22 @@ namespace Ark
             return m_procedure(args);
         }
 
+        void Node::setPos(std::size_t line, std::size_t col)
+        {
+            m_line = line;
+            m_col = col;
+        }
+
+        std::size_t Node::line() const
+        {
+            return m_line;
+        }
+        
+        std::size_t Node::col() const
+        {
+            return m_col;
+        }
+
         std::ostream& operator<<(std::ostream& os, const Node& N)
         {
             switch(N.m_type)

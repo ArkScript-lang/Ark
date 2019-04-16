@@ -177,7 +177,7 @@ namespace Ark
         {
             if (n[0] == falseSym)
             {
-                Ark::Log::error("[Assertion failed] " + n[1].getStringVal());
+                Ark::logger.error("[Assertion failed] " + n[1].getStringVal());
                 exit(1);
             }
             return nil;
