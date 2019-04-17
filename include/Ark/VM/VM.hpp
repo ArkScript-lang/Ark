@@ -32,7 +32,8 @@ namespace Ark
             bool m_debug;
             bytecode_t m_bytecode;
             // Instruction Pointer and Page Pointer
-            std::size_t m_ip, m_pp;
+            int m_ip;
+            std::size_t m_pp;
             bool m_running;
 
             Ark::Lang::Environment m_ffi;

@@ -202,17 +202,23 @@ namespace Ark
                     _compile(x.list()[1], p);
                     // jump only if needed to the x.list()[2] part
                     page(p).emplace_back(Instruction::POP_JUMP_IF_TRUE);
-                        // else code, generated in a temporary page
-                        m_temp_pages.emplace_back();
-                        _compile(x.list()[3], -static_cast<int>(m_temp_pages.size()));
-                    // relative address to jump to if condition is true, casted as unsigned (don't worry, it's normal)
-                    pushNumber(static_cast<uint16_t>(m_temp_pages.back().size()), &page(p));
-                    // adding temp page into current one, and removing temp page
-                    for (auto&& inst : m_temp_pages.back())
-                        page(p).emplace_back(inst);
-                    m_temp_pages.pop_back();
-                        // if code
-                        _compile(x.list()[2], p);
+                    std::size_t jump_to_if_pos = page(p).size();
+                    // absolute address to jump to if condition is true
+                    pushNumber(static_cast<uint16_t>(0x00), &page(p));
+                        // else code
+                        _compile(x.list()[3], p);
+                        // when else is finished, jump to end
+                        page(p).emplace_back(Instruction::JUMP);
+                        std::size_t jump_to_end_pos = page(p).size();
+                        pushNumber(static_cast<uint16_t>(0x00), &page(p));
+                    // set jump to if pos
+                    page(p)[jump_to_if_pos]     = (static_cast<uint16_t>(page(p).size()) & 0xff00) >> 8;
+                    page(p)[jump_to_if_pos + 1] =  static_cast<uint16_t>(page(p).size()) & 0x00ff;
+                    // if code
+                    _compile(x.list()[2], p);
+                    // set jump to end pos
+                    page(p)[jump_to_end_pos]     = (static_cast<uint16_t>(page(p).size()) & 0xff00) >> 8;
+                    page(p)[jump_to_end_pos + 1] =  static_cast<uint16_t>(page(p).size()) & 0x00ff;
                 }
                 else if (n == Keyword::Set)
                 {
@@ -245,8 +251,6 @@ namespace Ark
                     page(p).emplace_back(Instruction::LOAD_CONST);
                     std::size_t id = addValue(page_id);  // save page_id into the constants table as PageAddr
                     pushNumber(static_cast<uint16_t>(id), &page(p));
-                    // create a new environment for function
-                    m_code_pages.back().emplace_back(Instruction::NEW_ENV);
                     // pushing arguments from the stack into variables in the new scope
                     for (Node::Iterator it=x.list()[1].list().begin(); it != x.list()[1].list().end(); ++it)
                     {

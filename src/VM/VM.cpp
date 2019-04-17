@@ -323,7 +323,7 @@ namespace Ark
 
             Value cond = pop();
             if (cond.isNFT() && cond.nft() == NFT::True)
-                m_ip += addr - 1;  // because we are doing a ++m_ip right after this
+                m_ip = addr - 1;  // because we are doing a ++m_ip right after this
         }
         
         void VM::store()
@@ -452,7 +452,7 @@ namespace Ark
                 // convert args to std::vector<Node> (aka Nodes)
                 Ark::Lang::Nodes nodes;
                 for (std::size_t j=0; j < args.size(); ++j)
-                    nodes.push_back(convertValueToNode(args[j]));
+                    nodes.insert(nodes.begin(), convertValueToNode(args[j]));
                 // call proc
                 Ark::Lang::Node return_value = function.proc()(nodes);
                 push(convertNodeToValue(return_value));
@@ -462,7 +462,7 @@ namespace Ark
             {
                 m_frames.emplace_back(m_ip, m_pp);
                 m_pp = function.pageAddr();
-                m_ip = 0;
+                m_ip = -1;  // because we are doing a m_ip++ right after that
                 for (std::size_t j=0; j < args.size(); ++j)
                     push(args[j]);
                 return;
