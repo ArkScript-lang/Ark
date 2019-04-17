@@ -19,7 +19,7 @@ namespace Ark
 
         Value Frame::pop()
         {
-            Value value(m_stack.back());
+            Value value = m_stack.back();
             m_stack.pop_back();
 
             return value;
