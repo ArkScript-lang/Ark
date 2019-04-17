@@ -123,7 +123,7 @@ namespace Ark
                     uint16_t j = i;
                     while (true)
                     {
-                        os << i << " ";
+                        os << (i - j) << " ";
                         uint8_t inst = b[i]; i++;
                         if (inst == Instruction::LOAD_SYMBOL)
                         {
@@ -185,7 +185,6 @@ namespace Ark
                         if (i - j == size)
                             break;
                     }
-                    i++;
                 }
                 os << "\n";
             }

@@ -39,26 +39,39 @@ namespace Ark
                     - values table header
                         + elements
             */
+            if (m_debug)
+                Ark::logger.info("Adding magic constant");
+
             m_bytecode.push_back('a');
             m_bytecode.push_back('r');
             m_bytecode.push_back('k');
             m_bytecode.push_back(Instruction::NOP);
 
+            if (m_debug)
+                Ark::logger.info("Adding symbols table header");
+
             // symbols table
             m_bytecode.push_back(Instruction::SYM_TABLE_START);
+                if (m_debug)
+                    Ark::logger.info("Compiling");
                 // gather symbols, values, and start to create code segments
                 m_code_pages.emplace_back();  // create empty page
                 _compile(m_parser.ast(), 0);
+            if (m_debug)
+                Ark::logger.info("Adding symbols table");
             // push size
             pushNumber(static_cast<uint16_t>(m_symbols.size()));
             // push elements
             for (auto sym : m_symbols)
             {
-                // push the string, nul terminated
+                // push the string, null terminated
                 for (std::size_t i=0; i < sym.size(); ++i)
                     m_bytecode.push_back(sym[i]);
                 m_bytecode.push_back(Instruction::NOP);
             }
+
+            if (m_debug)
+                Ark::logger.info("Adding constants table");
 
             // values table
             m_bytecode.push_back(Instruction::VAL_TABLE_START);
@@ -91,9 +104,15 @@ namespace Ark
                 m_bytecode.push_back(Instruction::NOP);
             }
 
+            if (m_debug)
+                Ark::logger.info("Adding code segments");
+
             // start code segments
             for (auto page : m_code_pages)
             {
+                if (m_debug)
+                    Ark::logger.info("-", page.size() + 1);
+
                 m_bytecode.push_back(Instruction::CODE_SEGMENT_START);
                 // push number of elements
                 if (!page.size())
@@ -101,7 +120,7 @@ namespace Ark
                     pushNumber(0x00);
                     return;
                 }
-                pushNumber(static_cast<uint16_t>(page.size()));
+                pushNumber(static_cast<uint16_t>(page.size() + 1));
 
                 for (auto inst : page)
                     m_bytecode.push_back(inst.inst);
@@ -113,7 +132,8 @@ namespace Ark
             if (!m_code_pages.size())
             {
                 m_bytecode.push_back(Instruction::CODE_SEGMENT_START);
-                pushNumber(0x00);
+                pushNumber(static_cast<uint16_t>(1));
+                m_bytecode.push_back(Instruction::HALT);
             }
         }
 
@@ -243,9 +263,6 @@ namespace Ark
                 {
                     for (std::size_t i=1; i < x.list().size(); ++i)
                         _compile(x.list()[i], p);
-                    
-                    // return last value
-                    page(p).push_back(Instruction::RET);
                 }
                 else if (n == Keyword::While)
                 {
@@ -259,7 +276,7 @@ namespace Ark
                     // relative jump to end of block if condition is false
                     page(p).emplace_back(Instruction::POP_JUMP_IF_FALSE);
                     // relative address to jump to if condition is false, casted as unsigned (don't worry, it's normal)
-                    pushNumber(static_cast<uint16_t>(m_temp_pages.back().size()), &page(p));
+                    pushNumber(static_cast<uint16_t>(m_temp_pages.back().size() + 4), &page(p));
                     // copy code from temp page and destroy temp page
                     for (auto&& inst : m_temp_pages.back())
                         page(p).push_back(inst);
@@ -307,6 +324,9 @@ namespace Ark
             auto it = std::find(m_symbols.begin(), m_symbols.end(), sym);
             if (it == m_symbols.end())
             {
+                if (m_debug)
+                    Ark::logger.info("Registering symbol:", sym, "(", m_symbols.size() + 3, ")");
+
                 m_symbols.push_back(sym);
                 return 3 + (m_symbols.size() - 1);
             }
@@ -319,6 +339,9 @@ namespace Ark
             auto it = std::find(m_values.begin(), m_values.end(), v);
             if (it == m_values.end())
             {
+                if (m_debug)
+                    Ark::logger.info("Registering value (", m_values.size(), ")");
+                
                 m_values.push_back(v);
                 return m_values.size() - 1;
             }
@@ -331,6 +354,9 @@ namespace Ark
             auto it = std::find(m_values.begin(), m_values.end(), v);
             if (it == m_values.end())
             {
+                if (m_debug)
+                    Ark::logger.info("Registering value (", m_values.size(), ")");
+                
                 m_values.push_back(v);
                 return m_values.size() - 1;
             }
