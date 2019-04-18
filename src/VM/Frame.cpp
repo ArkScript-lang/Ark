@@ -17,6 +17,11 @@ namespace Ark
         Frame::~Frame()
         {}
 
+        void Frame::copyEnvironmentTo(Frame& other)
+        {
+            other.m_environment = m_environment;
+        }
+
         Value Frame::pop()
         {
             Value value = m_stack.back();
@@ -48,6 +53,15 @@ namespace Ark
         std::size_t Frame::callerPageAddr() const
         {
             return m_page_addr;
+        }
+
+        std::ostream& operator<<(std::ostream& os, const Frame& F)
+        {
+            for (auto kv : F.m_environment)
+            {
+                os << kv.first << ":" << kv.second << std::endl;
+            }
+            return os;
         }
     }
 }

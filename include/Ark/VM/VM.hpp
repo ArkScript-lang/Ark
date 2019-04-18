@@ -43,6 +43,7 @@ namespace Ark
             std::vector<bytecode_t> m_pages;
 
             std::vector<Frame> m_frames;
+            std::unordered_map<PageAddr_t, Frame> m_saved_frames;
 
             void configure();
             void initFFI();

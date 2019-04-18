@@ -3,6 +3,7 @@
 
 #include <string>
 #include <unordered_map>
+#include <iostream>
 
 #include <Ark/VM/Value.hpp>
 #include <Ark/Compiler/BytecodeReader.hpp>
@@ -26,6 +27,8 @@ namespace Ark
             Frame(std::size_t caller_addr, std::size_t caller_page_addr);
             ~Frame();
 
+            void copyEnvironmentTo(Frame& other);
+
             Value pop();
             void push(const Value& value);
 
@@ -34,6 +37,8 @@ namespace Ark
 
             std::size_t callerAddr() const;
             std::size_t callerPageAddr() const;
+
+            friend std::ostream& operator<<(std::ostream& os, const Frame& F);
         
         private:
             std::size_t m_addr, m_page_addr;

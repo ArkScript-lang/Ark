@@ -36,7 +36,7 @@ namespace Ark
                 , std::regex("^[\\(\\)\\[\\]{}]")  // parenthesis
                 , std::regex("^((\\+|-)?[[:digit:]]+)")  // numbers
                 , std::regex("^(\\+|-|\\*|/|%|<=|>=|!=|<|>|=|\\^)")  // operators
-                , std::regex("^[a-zA-Z][a-zA-Z0-9_\\-!?']*")  // words
+                , std::regex("^[a-zA-Z_][a-zA-Z0-9_\\-!?']*")  // words
                 , std::regex("^\\s+")  // whitespaces
                 , std::regex("^'.*")  // comments
             };

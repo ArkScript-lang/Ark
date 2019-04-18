@@ -254,14 +254,14 @@ namespace Ark
                     // pushing arguments from the stack into variables in the new scope
                     for (Node::Iterator it=x.list()[1].list().begin(); it != x.list()[1].list().end(); ++it)
                     {
-                        m_code_pages.back().emplace_back(Instruction::LET);
+                        page(page_id).emplace_back(Instruction::LET);
                         std::size_t var_id = addSymbol(it->getStringVal());
-                        pushNumber(static_cast<uint16_t>(var_id), &(m_code_pages.back()));
+                        pushNumber(static_cast<uint16_t>(var_id), &(page(page_id)));
                     }
                     // push body of the function
-                    _compile(x.list()[2], m_code_pages.size() - 1);
+                    _compile(x.list()[2], page_id);
                     // return last value on the stack
-                    m_code_pages.back().emplace_back(Instruction::RET);
+                    page(page_id).emplace_back(Instruction::RET);
                 }
                 else if (n == Keyword::Begin)
                 {
