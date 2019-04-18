@@ -1,8 +1,8 @@
 (begin
     (hastype fact (Number) Number)
-    (def fact [fun (n) {begin
-        (def a 1)
-        (def acc 2)
+    (let fact [fun (n) {begin
+        (let a 1)
+        (let acc 2)
         (while [!= acc n]
             (begin
                 [set a [* a acc]]
@@ -12,5 +12,5 @@
         ' return value:
         a
     }])
-    (print (fact 10000))
+    (print (fact 1000))
 )

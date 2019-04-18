@@ -90,7 +90,7 @@ namespace Ark
                 kw = Keyword::If;
             if (token.token == "set")
                 kw = Keyword::Set;
-            if (token.token == "def")
+            if (token.token == "let")
                 kw = Keyword::Def;
             if (token.token == "fun")
                 kw = Keyword::Fun;
