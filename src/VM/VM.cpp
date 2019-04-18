@@ -500,6 +500,9 @@ namespace Ark
                     // save environment
                     m_saved_frames[pa] = Frame();
                     m_frames.back().copyEnvironmentTo(m_saved_frames[pa]);
+                    // save upper if we can
+                    if (m_frames.size() >= 2)
+                        m_frames[m_frames.size() - 2].copyEnvironmentTo(m_saved_frames[pa]);
 
                     std::cout << "=========\n" << m_saved_frames[pa] << "=========\n" << std::endl;
                 }

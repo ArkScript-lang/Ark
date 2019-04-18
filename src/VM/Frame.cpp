@@ -19,7 +19,8 @@ namespace Ark
 
         void Frame::copyEnvironmentTo(Frame& other)
         {
-            other.m_environment = m_environment;
+            for (auto kv : m_environment)
+                other.m_environment[kv.first] = kv.second;
         }
 
         Value Frame::pop()
