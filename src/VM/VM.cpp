@@ -52,36 +52,65 @@ namespace Ark
                     uint8_t inst = m_pages[m_pp][m_ip];
 
                     // and it's time to du-du-du-du-duel!
-                    if (inst == Instruction::NOP)
-                        nop();
-                    else if (inst == Instruction::LOAD_SYMBOL)
-                        loadSymbol();
-                    else if (inst == Instruction::LOAD_CONST)
-                        loadConst();
-                    else if (inst == Instruction::POP_JUMP_IF_TRUE)
-                        popJumpIfTrue();
-                    else if (inst == Instruction::STORE)
-                        store();
-                    else if (inst == Instruction::LET)
-                        let();
-                    else if (inst == Instruction::POP_JUMP_IF_FALSE)
-                        popJumpIfFalse();
-                    else if (inst == Instruction::JUMP)
-                        jump();
-                    else if (inst == Instruction::RET)
-                        ret();
-                    else if (inst == Instruction::HALT)
-                        break;
-                    else if (inst == Instruction::CALL)
-                        call();
-                    else if (inst == Instruction::NEW_ENV)
-                        newEnv();
-                    else if (inst == Instruction::BUILTIN)
-                        builtin();
-                    else if (inst == Instruction::SAVE_ENV)
-                        saveEnv();
-                    else
+                    switch (inst)
                     {
+                    case Instruction::Nop:
+                        nop();
+                        break;
+                    
+                    case Instruction::LOAD_SYMBOL:
+                        loadSymbol();
+                        break;
+                    
+                    case Instruction::LOAD_CONST:
+                        loadConst();
+                        break;
+                    
+                    case Instruction::POP_JUMP_IF_TRUE:
+                        popJumpIfTrue();
+                        break;
+                    
+                    case Instruction::STORE:
+                        store();
+                        break;
+                    
+                    case Instruction::LET:
+                        let();
+                        break;
+                    
+                    case Instruction::POP_JUMP_IF_FALSE:
+                        popJumpIfFalse();
+                        break;
+                    
+                    case Instruction::JUMP:
+                        jump();
+                        break;
+                    
+                    case Instruction::RET:
+                        ret();
+                        break;
+                    
+                    case Instruction::HALT:
+                        m_running = false;
+                        break;
+                    
+                    case Instruction::CALL:
+                        call();
+                        break;
+                    
+                    case Instruction::NEW_ENV:
+                        newEnv();
+                        break;
+                    
+                    case Instruction::BUILTIN:
+                        builtin();
+                        break;
+                    
+                    case Instruction::SAVE_ENV:
+                        saveEnv();
+                        break;
+                    
+                    default:
                         Ark::logger.error("[Virtual Machine] unknown instruction:", static_cast<std::size_t>(inst));
                         exit(1);
                     }
