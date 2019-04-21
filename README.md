@@ -1,5 +1,7 @@
 # Ark
 
+<img align="right" src="images/Ark.png">
+
 This is a small programming language, made just for fun, in C++17.
 
 # Dependencies (already included)
