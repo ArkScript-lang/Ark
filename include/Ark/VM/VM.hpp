@@ -9,7 +9,6 @@
 
 #include <Ark/VM/Value.hpp>
 #include <Ark/VM/Frame.hpp>
-#include <Ark/Compiler/BytecodeReader.hpp>
 #include <Ark/Compiler/Instructions.hpp>
 
 namespace Ark
@@ -25,6 +24,7 @@ namespace Ark
             ~VM();
 
             void feed(const std::string& filename);
+            void feed(const bytecode_t& bytecode);
             void run();
 
             void loadFunction(const std::string& name, Value::ProcType function);

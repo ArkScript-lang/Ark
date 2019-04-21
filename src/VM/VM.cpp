@@ -27,6 +27,13 @@ namespace Ark
             configure();
         }
 
+        void VM::feed(const bytecode_t& bytecode)
+        {
+            m_bytecode = bytecode;
+
+            configure();
+        }
+
         void VM::run()
         {
             if (m_pages.size() > 0)

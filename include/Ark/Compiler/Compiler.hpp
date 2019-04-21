@@ -29,6 +29,8 @@ namespace Ark
             void compile();
             void saveTo(const std::string& file);
 
+            const bytecode_t& bytecode();
+
         private:
             inline std::vector<Inst>& page(int i)
             {
