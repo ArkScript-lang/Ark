@@ -10,9 +10,9 @@
 
 const char* g_code =
     "(begin\n"
-    "    (def a 42)\n"
-    "    (def b \"hello world\")\n"
-    "    (def life [fun (x) {* x 2}])\n"
+    "    (let a 42)\n"
+    "    (let b \"hello world\")\n"
+    "    (let life [fun (x) {* x 2}])\n"
     ")\n"
     "";
 
