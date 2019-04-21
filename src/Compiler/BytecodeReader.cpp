@@ -110,9 +110,11 @@ namespace Ark
                 os << "\n";
             }
 
+            uint16_t pp = 0;
+
             while (b[i] == Instruction::CODE_SEGMENT_START)
             {
-                os << "Code segment:\n"; i++;
+                os << "Code segment (PP: " << pp << ") :\n"; i++;
                 uint16_t size = readNumber(i); i++;
                 os << "Length: " << size << "\n";
 
@@ -176,9 +178,11 @@ namespace Ark
                             os << "BUILTIN (" << Ark::Lang::builtins[readNumber(i)] << ")\n";
                             i++;
                         }
+                        else if (inst == Instruction::SAVE_ENV)
+                            os << "SAVE_ENV\n";
                         else
                         {
-                            os << "Unknown instruction";
+                            os << "Unknown instruction\n";
                             return;
                         }
 
@@ -187,6 +191,7 @@ namespace Ark
                     }
                 }
                 os << "\n";
+                ++pp;
             }
         }
 

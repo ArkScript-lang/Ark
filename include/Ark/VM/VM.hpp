@@ -5,6 +5,7 @@
 #include <string>
 #include <cinttypes>
 #include <algorithm>
+#include <optional>
 
 #include <Ark/VM/Value.hpp>
 #include <Ark/VM/Frame.hpp>
@@ -43,7 +44,7 @@ namespace Ark
             std::vector<bytecode_t> m_pages;
 
             std::vector<Frame> m_frames;
-            std::unordered_map<PageAddr_t, Frame> m_saved_frames;
+            std::optional<Frame> m_saved_frame;
 
             void configure();
             void initFFI();
@@ -70,6 +71,7 @@ namespace Ark
             void call();
             void newEnv();
             void builtin();
+            void saveEnv();
         };
     }
 }

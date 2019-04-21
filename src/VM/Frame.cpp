@@ -46,6 +46,11 @@ namespace Ark
             return m_environment.find(key) != m_environment.end();
         }
 
+        std::size_t Frame::stackSize() const
+        {
+            return m_stack.size();
+        }
+
         std::size_t Frame::callerAddr() const
         {
             return m_addr;
@@ -58,9 +63,12 @@ namespace Ark
 
         std::ostream& operator<<(std::ostream& os, const Frame& F)
         {
+            std::size_t i = 0;
             for (auto kv : F.m_environment)
             {
-                os << kv.first << ":" << kv.second << std::endl;
+                os << kv.first << " => " << kv.second;
+                if (i != F.m_environment.size() - 1)
+                    os << ", ";
             }
             return os;
         }

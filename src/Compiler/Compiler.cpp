@@ -247,6 +247,8 @@ namespace Ark
                     // create new page for function body
                     m_code_pages.emplace_back();
                     std::size_t page_id = m_code_pages.size() - 1;
+                    // tell the Virtual Machine to save the current environment
+                    page(p).emplace_back(Instruction::SAVE_ENV);
                     // load value on the stack
                     page(p).emplace_back(Instruction::LOAD_CONST);
                     std::size_t id = addValue(page_id);  // save page_id into the constants table as PageAddr

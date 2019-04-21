@@ -1,5 +1,7 @@
 #include <Ark/VM/Value.hpp>
 
+#include <Ark/VM/Frame.hpp>
+
 namespace Ark
 {
     namespace VM
@@ -36,10 +38,19 @@ namespace Ark
             m_list(value), m_is_list(true)
         {}
 
+        template <> Value::Value<Closure>(const Closure& value) :
+            m_value(value), m_is_list(false)
+        {}
+
         template <> Value::Value<Value>(const Value& value) :
             m_value(value.m_value),
             m_list(value.m_list),
             m_is_list(value.m_is_list)
+        {}
+
+        Value::Value(Frame* frame_ptr, PageAddr_t pa) :
+            m_value(Closure(frame_ptr, pa)),
+            m_is_list(false)
         {}
 
         Value::~Value()
@@ -87,6 +98,11 @@ namespace Ark
             return m_is_list;
         }
 
+        bool Value::isClosure() const
+        {
+            return !m_is_list && std::holds_alternative<Closure>(m_value);
+        }
+
         const HugeNumber& Value::number() const
         {
             return std::get<HugeNumber>(m_value);
@@ -115,6 +131,11 @@ namespace Ark
         const std::vector<Value>& Value::list() const
         {
             return m_list;
+        }
+
+        const Closure& Value::closure() const
+        {
+            return std::get<Closure>(m_value);
         }
 
         std::vector<Value>& Value::list_ref()
@@ -155,6 +176,8 @@ namespace Ark
                     os << t << " ";
                 os << ")";
             }
+            else if (V.isClosure())
+                os << "Closure (" << V.closure().frame() << ") @ " << V.closure().pageAddr();
             return os;
         }
     }
