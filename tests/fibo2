@@ -4,17 +4,20 @@
             [begin
                 (let a 0)
                 (let b 1)
-                {while (< a n)
+                (let acc 1)
+                {while (< acc n)
                     [begin
                         (let c (+ a b))
                         (set a b)
                         (set b c)
+
+                        (set acc (+ 1 acc))
                     ]
                 }
                 ' value to return
-                a
+                b
             ]
         )
     }
-    (print (fibo 10000000))
+    (print (fibo 50000))
 )

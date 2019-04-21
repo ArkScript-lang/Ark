@@ -50,6 +50,7 @@ namespace Ark
             const Closure& closure() const;
 
             std::vector<Value>& list_ref();
+            Closure& closure_ref();
 
             void push_back(const Value& value);
 

@@ -54,7 +54,7 @@ namespace Ark
                     // and it's time to du-du-du-du-duel!
                     switch (inst)
                     {
-                    case Instruction::Nop:
+                    case Instruction::NOP:
                         nop();
                         break;
                     
@@ -415,6 +415,8 @@ namespace Ark
                 if (m_frames[i].find(sym))
                 {
                     m_frames[i][sym] = pop();
+                    if (m_frames[i][sym].isClosure())
+                        m_frames[i][sym].closure_ref().save(i, sym);
                     return;
                 }
 
@@ -441,6 +443,8 @@ namespace Ark
 
             std::string sym = m_symbols[id - 3];
             m_frames.back()[sym] = pop();
+            if (m_frames.back()[sym].isClosure())
+                m_frames.back()[sym].closure_ref().save(m_frames.size() - 1, sym);
         }
         
         void VM::popJumpIfFalse()
@@ -499,23 +503,27 @@ namespace Ark
             m_pp = m_frames.back().callerPageAddr();
             m_ip = m_frames.back().callerAddr();
 
-            auto rm_env = [&, this] () -> void {
-                // remove environment
+            auto rm_frame = [this] () -> void {
+                Closure c = m_frames.back()[".c"].closure_ref();
+                // remove frame
                 m_frames.pop_back();
-                // next environment is the one of the closure, we should save it
-                // TODO
+                // next frame is the one of the closure, we should save it
+                m_frames.back().copyEnvironmentTo(*c.frame());
+                // remove it
                 m_frames.pop_back();
+
+                m_frames[c.frameIndex()][c.symbol()] = Value(c);
             };
             
             if (m_frames.back().stackSize() != 0)
             {
                 Value return_value(pop());
-                rm_env();
+                rm_frame();
                 // push value as the return value of a function to the current stack
                 push(return_value);
             }
             else
-                rm_env();
+                rm_frame();
         }
         
         void VM::call()
@@ -555,6 +563,7 @@ namespace Ark
                 m_frames.push_back(*c.frame());
                 // create dedicated frame
                 m_frames.emplace_back(m_ip, m_pp);
+                    m_frames.back()[".c"] = function;
                 m_pp = c.pageAddr();
                 m_ip = -1;  // because we are doing a m_ip++ right after that
                 for (std::size_t j=0; j < args.size(); ++j)
