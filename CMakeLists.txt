@@ -2,6 +2,13 @@ cmake_minimum_required(VERSION 3.8)
 
 project(Ark CXX)
 
+if (NOT DEBUG)
+    message(STATUS "To enable debug mode, use -DDEBUG=true")
+    message(STATUS "Falling back to release")
+    
+    set(DEBUG "false" CACHE STRING "Enables debug mode" FORCE)
+endif()
+
 if (NOT TESTCPP)
     message(STATUS "To use test.cpp instead of main.cpp, use -DTESTCPP=true")
     message(STATUS "Using main.cpp")
@@ -40,6 +47,8 @@ set_target_properties(
         CXX_EXTENSIONS OFF
 )
 
-if (CMAKE_COMPILER_IS_GNUCXX)
-    set(CMAKE_CXX_FLAGS "-pg -g -no-pie")
+if (DEBUG MATCHES "true")
+    if (CMAKE_COMPILER_IS_GNUCXX)
+        set(CMAKE_CXX_FLAGS "-pg -g -no-pie")
+    endif()
 endif()
