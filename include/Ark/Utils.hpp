@@ -48,6 +48,11 @@ namespace Ark
             return std::regex_match(s, std::regex("^((\\+|-)?[[:digit:]]+)(\\.(([[:digit:]]+)?))$"));
         }
 
+        inline bool isFraction(const std::string& s)
+        {
+            return std::regex_match(s, std::regex("^((\\+|-)?[[:digit:]]+)(/(([[:digit:]]+)?))$"));
+        }
+
         inline bool fileExists(const std::string& name)
         {
             std::ifstream f(name.c_str());

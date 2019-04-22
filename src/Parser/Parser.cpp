@@ -68,9 +68,9 @@ namespace Ark
 
         Node Parser::atom(const Token& token)
         {
-            if (Ark::Utils::isInteger(token.token))
+            if (Ark::Utils::isInteger(token.token) || Ark::Utils::isFraction(token.token))
             {
-                auto n = Node(NodeType::Number, std::atoi(token.token.c_str()));
+                auto n = Node(NodeType::Number, Ark::BigNum(token.token.c_str()));
                 n.setPos(token.line, token.col);
                 return n;
             }
