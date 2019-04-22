@@ -41,7 +41,7 @@ Ark is a small programming language made in C++17, inspired by Lisp, using under
 
 ## Goals
 
-Ark was meant to be a toy language, but it grew into something that I could qualify as big, now aiming video games as a scripting language, and mathematics as it can handle very big numbers without problems. Even if the language is inspired by Lisp, it's trying to convey a better image than "Lost in Stupid Parentheses", by providing `()[]{}`, to help making a more readable code.
+Ark was meant to be a toy language, but it grew into something that I could qualify as big, now aiming video games as a scripting language, and mathematics as it can handle very big numbers without problems. Even if the language is inspired by Lisp, it's trying to convey a better image than "Lost in Stupid Parentheses", by providing `[...]` (expand to `(list ...)`) and `{...}` (expand to `(begin ...)`), to help making a more readable code.
 
 ## Features
 
