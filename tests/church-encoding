@@ -1,29 +1,29 @@
-(begin
-    (let create-human [fun (name age weight)
+{
+    (let create-human (fun (name age weight)
         ' return value as higher order function to manipulate the data above
         ' this will be our "constructor"
         (fun (f)
-        [begin
+        {
             ' all the setters must be defined in this scope
-            (let set-age [fun (new-age) (set age new-age)])
+            (let set-age (fun (new-age) (set age new-age)))
 
             ' and then we can call the function
             (f name age weight set-age)
-        ])
-    ])
+        })
+    ))
 
     ' define function to play with the human more easily
-    (let print-human-age [fun (_ age _ _) (print age)])
-    (let set-human-age [fun (new-age)
+    (let print-human-age (fun (_ age _ _) (print age)))
+    (let set-human-age (fun (new-age)
         (fun (_ _ _ set-age) (set-age new-age))
-    ])
+    ))
 
-    (let bob [create-human "Bob" 0 144])
-    (let john [create-human "John" 12 15])
+    (let bob (create-human "Bob" 0 144))
+    (let john (create-human "John" 12 15))
 
     (bob print-human-age)
     (bob (set-human-age 10))
     (bob print-human-age)
 
     (john print-human-age)
-)
+}

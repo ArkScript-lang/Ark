@@ -1,23 +1,23 @@
 (begin
-    {let fibo
+    (let fibo
         (fun (n)
-            [begin
+            (begin
                 (let a 0)
                 (let b 1)
                 (let acc 1)
-                {while (< acc n)
-                    [begin
+                (while (< acc n)
+                    (begin
                         (let c (+ a b))
                         (set a b)
                         (set b c)
 
                         (set acc (+ 1 acc))
-                    ]
-                }
+                    )
+                )
                 ' value to return
                 b
-            ]
+            )
         )
-    }
+    )
     (print (fibo 50000))
 )

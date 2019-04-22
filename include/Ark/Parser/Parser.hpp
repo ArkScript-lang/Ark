@@ -31,6 +31,7 @@ namespace Ark
             Lexer m_lexer;
             Node m_ast;
 
+            void sugar(std::vector<Token>& tokens);
             Node compile(std::list<Token>& tokens);
             Node atom(const Token& token);
             bool _check(const Node& ast);

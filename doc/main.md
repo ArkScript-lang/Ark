@@ -4,21 +4,25 @@ Ark is a toy programming language, inspired from Lisp.
 
 ## Basics
 
-`()[]{}` are all equal, even if they are different to you. You can use the ones you want, or all of them, just to organize your code more easily!
+Blocks are surrounded by `()`. Creating a block with `[...]` will expand to `(list ...)`, and creating one with `{...}` will expand to `(begin ...)`.
 
 `1257756`, `-7854` and `-1/2` are numbers. Internally, they are stored on `Ark::BigNum`, which allows to store really big numbers without the usual limitation (32 or 64 bits).
 
 `"hello world"` is a string.
 
+A comment starts with `'`.
+
+Instead of calling a function as you would do in C or Python, in Ark we use the Polish notation, so `f(a, b, c, ...)` becomes `(f a b c ...)`.
+
 ### Hello world!
 
 ```
-{begin
-    [let message "hello world!"]
-    [let sayHi! (fun (msg)
+{
+    (let message "hello world!")
+    (let sayHi! (fun (msg)
         (print msg)
-    )]
-    [sayHi! message]  ' display `hello world!`
+    ))
+    (sayHi! message)  ' display `hello world!`
 }
 ```
 
