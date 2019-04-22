@@ -93,6 +93,8 @@ void repl(bool debug, bool timer)
     std::cout << "Ark " << Ark::Version::Major << "." << Ark::Version::Minor << "." << Ark::Version::Patch << std::endl;
     std::cout << "Type \"help\" for more information" << std::endl;
 
+    Ark::Lang::Environment env;
+
     while (true)
     {
         std::string input = "";
@@ -111,8 +113,11 @@ void repl(bool debug, bool timer)
         start = std::chrono::system_clock::now();
 
         Ark::Lang::Program program(debug);
+        program.setEnv(env);
         program.feed(input);
         program.execute();
+
+        env = program.environment();
 
         end = std::chrono::system_clock::now();
         auto elapsed_microseconds = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();

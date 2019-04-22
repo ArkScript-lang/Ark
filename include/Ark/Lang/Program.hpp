@@ -23,11 +23,14 @@ namespace Ark
 
             void feed(const std::string& code);
             void execute(const Nodes& args={});
+            void setEnv(const Environment& env);
 
             void loadFunction(const std::string& name, Node::ProcType function);
             
             template <typename T>
             T get(const std::string& name);
+
+            const Environment& environment();
 
             friend std::ostream& operator<<(std::ostream& os, const Program& P);
             friend class Ark::Function;

@@ -42,6 +42,11 @@ namespace Ark
             _execute(m_parser.ast(), &m_global_env);
         }
 
+        void Program::setEnv(const Environment& env)
+        {
+            m_global_env = env;
+        }
+
         void Program::loadFunction(const std::string& name, Node::ProcType function)
         {
             m_global_env[name] = Node(function);
@@ -72,6 +77,11 @@ namespace Ark
                 return Function(this, n);
             Ark::logger.error("[Program] '" + key + "' isn't a function");
             exit(1);
+        }
+
+        const Environment& Program::environment()
+        {
+            return m_global_env;
         }
 
         Node Program::_execute(Node x, Environment* env)
