@@ -210,12 +210,12 @@ namespace Ark
 
                     if (type == Instruction::NUMBER_TYPE)
                     {
-                        std::string val = "0x";
+                        std::string val = "";
                         while (b[i] != 0)
                             val.push_back(b[i++]);
                         i++;
 
-                        m_constants.emplace_back(HugeNumber(val));
+                        m_constants.emplace_back(BigNum(val, /* base */ 16));
                         
                         if (m_debug)
                             Ark::logger.info("(Virtual Machine) - (Number)", val);

@@ -8,11 +8,11 @@ namespace Ark
     {
         template <> Node::Node<int>(const int& value) :
             m_type(NodeType::Number),
-            m_value(dozerg::HugeNumber(value)),
+            m_value(BigNum(value)),
             m_env(nullptr)
         {}
 
-        template <> Node::Node<dozerg::HugeNumber>(const dozerg::HugeNumber& value) :
+        template <> Node::Node<BigNum>(const BigNum& value) :
             m_type(NodeType::Number),
             m_value(value),
             m_env(nullptr)
@@ -30,11 +30,11 @@ namespace Ark
 
         template <> Node::Node<int>(NodeType type, const int& value) :
             m_type(type),
-            m_value(dozerg::HugeNumber(value)),
+            m_value(BigNum(value)),
             m_env(nullptr)
         {}
 
-        template <> Node::Node<dozerg::HugeNumber>(NodeType type, const dozerg::HugeNumber& value) :
+        template <> Node::Node<BigNum>(NodeType type, const BigNum& value) :
             m_type(type),
             m_value(value),
             m_env(nullptr)
@@ -48,7 +48,7 @@ namespace Ark
 
         template <> Node::Node<Keyword>(NodeType type, const Keyword& value) :
             m_type(type),
-            m_value(dozerg::HugeNumber(0)),
+            m_value(BigNum(0)),
             m_keyword(value),
             m_env(nullptr)
         {}
@@ -77,9 +77,9 @@ namespace Ark
             return std::get<std::string>(m_value);
         }
 
-        const dozerg::HugeNumber Node::getIntVal() const
+        const BigNum Node::getIntVal() const
         {
-            return std::get<dozerg::HugeNumber>(m_value);
+            return std::get<BigNum>(m_value);
         }
         
         const Node::ProcType Node::getProcVal() const
@@ -148,7 +148,7 @@ namespace Ark
                 break;
 
             case NodeType::Number:
-                os << std::get<dozerg::HugeNumber>(N.m_value);
+                os << std::get<BigNum>(N.m_value);
                 break;
 
             case NodeType::List:

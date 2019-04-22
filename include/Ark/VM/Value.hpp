@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <variant>
-#include <huge_number.hpp>
+#include <Ark/BigNum.hpp>
 #include <string>
 #include <cinttypes>
 #include <iostream>
@@ -15,8 +15,6 @@ namespace Ark
 {
     namespace VM
     {
-        using namespace dozerg;
-
         class Frame;
 
         class Value
@@ -24,7 +22,7 @@ namespace Ark
         public:
             using ProcType  = Value(*)(const std::vector<Value>&);
             using Iterator = std::vector<Value>::const_iterator;
-            using ValueType = std::variant<HugeNumber, std::string, PageAddr_t, NFT, ProcType, Closure>;
+            using ValueType = std::variant<BigNum, std::string, PageAddr_t, NFT, ProcType, Closure>;
 
             Value(bool is_list=false);
             template <typename T> Value(const T& value);
@@ -41,7 +39,7 @@ namespace Ark
             bool isList() const;
             bool isClosure() const;
 
-            const HugeNumber& number() const;
+            const BigNum& number() const;
             const std::string& string() const;
             const PageAddr_t pageAddr() const;
             const NFT nft() const;

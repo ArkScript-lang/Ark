@@ -11,10 +11,10 @@ namespace Ark
         {}
 
         template <> Value::Value<int>(const int& value) :
-            m_value(HugeNumber(value)), m_is_list(false)
+            m_value(BigNum(value)), m_is_list(false)
         {}
 
-        template <> Value::Value<HugeNumber>(const HugeNumber& value) :
+        template <> Value::Value<BigNum>(const BigNum& value) :
             m_value(value), m_is_list(false)
         {}
 
@@ -70,7 +70,7 @@ namespace Ark
 
         bool Value::isNumber() const
         {
-            return !m_is_list && std::holds_alternative<HugeNumber>(m_value);
+            return !m_is_list && std::holds_alternative<BigNum>(m_value);
         }
 
         bool Value::isString() const
@@ -103,9 +103,9 @@ namespace Ark
             return !m_is_list && std::holds_alternative<Closure>(m_value);
         }
 
-        const HugeNumber& Value::number() const
+        const BigNum& Value::number() const
         {
-            return std::get<HugeNumber>(m_value);
+            return std::get<BigNum>(m_value);
         }
 
         const std::string& Value::string() const

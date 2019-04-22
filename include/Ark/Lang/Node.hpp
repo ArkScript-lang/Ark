@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
-#include <huge_number.hpp>
+#include <Ark/BigNum.hpp>
 
 namespace Ark
 {
@@ -42,7 +42,7 @@ namespace Ark
             using ProcType = Node(*)(const std::vector<Node>&);
             using Iterator = std::vector<Node>::const_iterator;
             using Map = std::unordered_map<std::string, Node>;
-            using Value = std::variant<dozerg::HugeNumber, std::string>;
+            using Value = std::variant<BigNum, std::string>;
 
             template <typename T> Node(const T& value);
             Node(NodeType type=NodeType::Symbol);
@@ -54,7 +54,7 @@ namespace Ark
             Environment* getEnv();
 
             const std::string& getStringVal() const;
-            const dozerg::HugeNumber getIntVal() const;
+            const BigNum getIntVal() const;
             const ProcType getProcVal() const;
             void push_back(const Node& node);
 

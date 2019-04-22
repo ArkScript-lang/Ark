@@ -1,6 +1,7 @@
 #ifndef ark_ark
 #define ark_ark
 
+#include <Ark/BigNum.hpp>
 #include <Ark/Lang/Program.hpp>
 #include <Ark/Function.hpp>
 #include <Ark/Constants.hpp>

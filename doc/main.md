@@ -6,7 +6,7 @@ Ark is a toy programming language, inspired from Lisp.
 
 `()[]{}` are all equal, even if they are different to you. You can use the ones you want, or all of them, just to organize your code more easily!
 
-`1257756` and `-7854` are numbers. Internally, they are stored on `dozerg::HugeNumber`, which allows to store really big numbers without the usual limitation (32 or 64 bits).
+`1257756` and `-7854` are numbers. Internally, they are stored on `Ark::BigNum`, which allows to store really big numbers without the usual limitation (32 or 64 bits).
 
 `"hello world"` is a string.
 
