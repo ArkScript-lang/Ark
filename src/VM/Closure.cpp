@@ -21,6 +21,12 @@ namespace Ark
         Closure::~Closure()
         {}
 
+        void Closure::save(std::size_t frame_idx, const std::string& sym)
+        {
+            m_frame_idx = frame_idx;
+            m_symbol = sym;
+        }
+
         std::shared_ptr<Frame> Closure::frame() const
         {
             return m_frame;
@@ -29,6 +35,16 @@ namespace Ark
         PageAddr_t Closure::pageAddr() const
         {
             return m_page_addr;
+        }
+
+        std::size_t Closure::frameIndex() const
+        {
+            return m_frame_idx;
+        }
+
+        const std::string& Closure::symbol() const
+        {
+            return m_symbol;
         }
     }
 }

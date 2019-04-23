@@ -143,6 +143,11 @@ namespace Ark
             return m_list;
         }
 
+        Closure& Value::closure_ref()
+        {
+            return std::get<Closure>(m_value);
+        }
+
         void Value::push_back(const Value& value)
         {
             m_is_list = true;
