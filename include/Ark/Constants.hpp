@@ -8,7 +8,7 @@ namespace Ark
     namespace Version
     {
         constexpr unsigned int Major = 1;
-        constexpr unsigned int Minor = 1;
+        constexpr unsigned int Minor = 2;
         constexpr unsigned int Patch = 0;
     }
 }

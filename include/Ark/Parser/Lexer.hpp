@@ -15,6 +15,10 @@ namespace Ark
             std::string token;
             std::size_t line;
             std::size_t col;
+
+            Token(const std::string& tok, std::size_t line, std::size_t col) :
+                token(tok), line(line), col(col)
+            {}
         };
 
         class Lexer

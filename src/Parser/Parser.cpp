@@ -26,8 +26,11 @@ namespace Ark
                 exit(1);
             }
 
+            // apply syntactic sugar
+            std::vector<Token> t = m_lexer.tokens();
+            sugar(t);
             // create program and raise error if it can't
-            std::list<Token> tokens(m_lexer.tokens().begin(), m_lexer.tokens().end());
+            std::list<Token> tokens(t.begin(), t.end());
             m_ast = compile(tokens);
 
             if (m_debug)
@@ -47,17 +50,45 @@ namespace Ark
             return m_ast;
         }
 
+        void Parser::sugar(std::vector<Token>& tokens)
+        {
+            std::size_t i = 0;
+            while (true)
+            {
+                std::size_t line = tokens[i].line;
+                std::size_t col = tokens[i].col;
+                
+                if (tokens[i].token == "{")
+                {
+                    tokens[i] = Token("(", line, col);
+                    tokens.insert(tokens.begin() + i + 1, Token("begin", line, col));
+                }
+                else if (tokens[i].token == "}" || tokens[i].token == "]")
+                    tokens[i] = Token(")", line, col);
+                else if (tokens[i].token == "[")
+                {
+                    tokens[i] = Token("(", line, col);
+                    tokens.insert(tokens.begin() + i + 1, Token("list", line, col));
+                }
+
+                ++i;
+
+                if (i == tokens.size())
+                    break;
+            }
+        }
+
         Node Parser::compile(std::list<Token>& tokens)
         {
             const Token t = tokens.front();
             const std::string token = t.token;
             tokens.pop_front();
 
-            if (token == "(" || token == "[" || token == "{")
+            if (token == "(")
             {
                 Node n(NodeType::List);
                 n.setPos(t.line, t.col);
-                while (tokens.front().token != ")" && tokens.front().token != "]" && tokens.front().token != "}")
+                while (tokens.front().token != ")")
                     n.push_back(compile(tokens));
                 tokens.pop_front();
                 return n;
