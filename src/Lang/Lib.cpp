@@ -215,5 +215,12 @@ namespace Ark
             env["print"] = Node(&print);
             env["assert"] = Node(&assert_);
         }
+
+        extern const std::vector<std::string> builtins = {
+            "+", "-", "*", "/",
+            ">", "<", "<=", ">=", "!=", "=",
+            "len", "empty?", "firstof", "tailof", "append", "concat", "list", "nil?",
+            "print", "assert"
+        };
     }
 }
