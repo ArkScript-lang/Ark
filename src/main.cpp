@@ -8,13 +8,14 @@
 #include <Ark/Lang/Program.hpp>
 #include <Ark/Compiler/Compiler.hpp>
 #include <Ark/Compiler/BytecodeReader.hpp>
+#include <Ark/VM/VM.hpp>
 #include <Ark/Log.hpp>
 
 void exec(bool debug, bool timer, const std::string& file)
 {
     if (!Ark::Utils::fileExists(file))
     {
-        Ark::logger.error("(Interpreter) Can not find file '" + file + "'");
+        Ark::logger.error("[Interpreter] Can not find file '" + file + "'");
         return;
     }
 
@@ -37,7 +38,7 @@ void compile(bool debug, bool timer, const std::string& file)
 {
     if (!Ark::Utils::fileExists(file))
     {
-        Ark::logger.error("(Compiler) Can not find file '" + file + "'");
+        Ark::logger.error("[Compiler] Can not find file '" + file + "'");
         return;
     }
 
@@ -68,7 +69,7 @@ void vm(bool debug, bool timer, const std::string& file)
 {
     if (!Ark::Utils::fileExists(file))
     {
-        Ark::logger.error("(Virtual Machine) Can not find file '" + file + "'");
+        Ark::logger.error("[Virtual Machine] Can not find file '" + file + "'");
         return;
     }
 
