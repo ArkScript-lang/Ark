@@ -1,0 +1,34 @@
+(begin
+    (let create-human [fun (name age weight) {begin
+        (print "creating human")
+
+        (let _name name)
+        (let _age age)
+        (let _weight weight)
+
+        (let set-age [fun (new-age) (set _age new-age)])
+
+        ' return value as higher order function to manipulate the data above
+        (fun (f) [begin
+            (print "playing with human")
+            (f _name _age _weight set-age)
+        ])
+    }])
+
+    (let print-human-age [fun (d0 _age d1 d2) (print _age)])
+    (let set-human-age [fun (new-age)
+        (fun (d0 d1 d2 set-age) (set-age new-age))
+    ])
+
+    (print "creating bob")
+    (let bob [create-human "Bob" 0 144])
+
+    (print "print human age")
+    (bob print-human-age)
+
+    (print "set human age")
+    (bob (set-human-age 10))
+
+    (print "print human age (bis)")
+    (bob print-human-age)
+)

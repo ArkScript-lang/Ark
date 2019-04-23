@@ -2,7 +2,7 @@
     (let countdown-from
         {fun (n) [
             fun ()
-            (set n (- n 1))
+                (set n (- n 1))
         ]}
     )
     (let countdown-from-3 (countdown-from 3))

@@ -176,7 +176,7 @@ namespace Ark
                                     }
                                     return true;
                                 }
-                                Ark::logger.error("[Parser] need 2 nodes to create a variable: the variable name to create and the value, at {0}:{1}"s, n.line(), n.col());
+                                Ark::logger.error("[Parser] need 2 nodes to create a variable: the variable name to create and the value, at {0}:{1}, got {2}"s, n.line(), n.col(), p.size());
                                 return false;
                             }
                             

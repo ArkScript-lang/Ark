@@ -341,7 +341,7 @@ namespace Ark
         void VM::popJumpIfTrue()
         {
             /*
-                Argument: relative address to jump to (two bytes, big endian)
+                Argument: absolute address to jump to (two bytes, big endian)
                 Job: Jump to the provided address if the last value on the stack was equal to true. Remove the value from the stack no matter what it is
             */
             ++m_ip;
@@ -449,10 +449,16 @@ namespace Ark
                 return;
             }
 
+            // save pp
+            PageAddr_t old_pp = static_cast<PageAddr_t>(m_pp);
+            
             Value return_value(pop());
             m_pp = m_frames.back().callerPageAddr();
             m_ip = m_frames.back().callerAddr();
             // remove environment
+            m_frames.pop_back();
+            // remove upper environment and save it
+            m_frames.back().copyEnvironmentTo(m_saved_frames[old_pp]);
             m_frames.pop_back();
             // push value as the return value of a function to the current stack
             push(return_value);
@@ -487,8 +493,22 @@ namespace Ark
             }
             else if (function.isPageAddr())
             {
+                // checking if we have an environment
+                PageAddr_t pa = function.pageAddr();
+                if (m_saved_frames.find(pa) == m_saved_frames.end())
+                {
+                    // save environment
+                    m_saved_frames[pa] = Frame();
+                    m_frames.back().copyEnvironmentTo(m_saved_frames[pa]);
+
+                    std::cout << m_saved_frames[pa] << std::endl;
+                }
+
+                // load saved environment
+                m_frames.push_back(m_saved_frames[pa]);
+                // create dedicated frame
                 m_frames.emplace_back(m_ip, m_pp);
-                m_pp = function.pageAddr();
+                m_pp = pa;
                 m_ip = -1;  // because we are doing a m_ip++ right after that
                 for (std::size_t j=0; j < args.size(); ++j)
                     push(args[j]);
