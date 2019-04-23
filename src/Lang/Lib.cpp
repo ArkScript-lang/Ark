@@ -9,210 +9,82 @@ namespace Ark
     {
         Node add(const Nodes& n)
         {
-            if (n[0].valueType() == ValueType::Int)
-            {
-                int i = n[0].getIntVal();
-                for (Node::Iterator it=n.begin()+1; it != n.end(); ++it)
-                {
-                    if (it->valueType() == ValueType::Int)
-                        i += it->getIntVal();
-                    else if (it->valueType() == ValueType::Float)
-                        i += (int) it->getFloatVal();
-                }
-                return Node(NodeType::Number, i);
-            }
-            else if (n[0].valueType() == ValueType::Float)
-            {
-                float f = n[0].getFloatVal();
-                for (Node::Iterator it=n.begin()+1; it != n.end(); ++it)
-                {
-                    if (it->valueType() == ValueType::Int)
-                        f += (float) it->getIntVal();
-                    else if (it->valueType() == ValueType::Float)
-                        f += it->getFloatVal();
-                }
-                return Node(NodeType::Number, f);
-            }
-            return nil;
+            auto i = n[0].getIntVal();
+            for (Node::Iterator it=n.begin()+1; it != n.end(); ++it)
+                i += it->getIntVal();
+            return Node(NodeType::Number, i);
         }
 
         Node sub(const Nodes& n)
         {
-            if (n[0].valueType() == ValueType::Int)
-            {
-                int i = n[0].getIntVal();
-                for (Node::Iterator it=n.begin()+1; it != n.end(); ++it)
-                {
-                    if (it->valueType() == ValueType::Int)
-                        i -= it->getIntVal();
-                    else if (it->valueType() == ValueType::Float)
-                        i -= (int) it->getFloatVal();
-                }
-                return Node(NodeType::Number, i);
-            }
-            else if (n[0].valueType() == ValueType::Float)
-            {
-                float f = n[0].getFloatVal();
-                for (Node::Iterator it=n.begin()+1; it != n.end(); ++it)
-                {
-                    if (it->valueType() == ValueType::Int)
-                        f -= (float) it->getIntVal();
-                    else if (it->valueType() == ValueType::Float)
-                        f -= it->getFloatVal();
-                }
-                return Node(NodeType::Number, f);
-            }
-            return nil;
+            auto i = n[0].getIntVal();
+            for (Node::Iterator it=n.begin()+1; it != n.end(); ++it)
+                i -= it->getIntVal();
+            return Node(NodeType::Number, i);
         }
 
         Node mul(const Nodes& n)
         {
-            if (n[0].valueType() == ValueType::Int)
-            {
-                int i = n[0].getIntVal();
-                for (Node::Iterator it=n.begin()+1; it != n.end(); ++it)
-                {
-                    if (it->valueType() == ValueType::Int)
-                        i *= it->getIntVal();
-                    else if (it->valueType() == ValueType::Float)
-                        i *= (int) it->getFloatVal();
-                }
-                return Node(NodeType::Number, i);
-            }
-            else if (n[0].valueType() == ValueType::Float)
-            {
-                float f = n[0].getFloatVal();
-                for (Node::Iterator it=n.begin()+1; it != n.end(); ++it)
-                {
-                    if (it->valueType() == ValueType::Int)
-                        f *= (float) it->getIntVal();
-                    else if (it->valueType() == ValueType::Float)
-                        f *= it->getFloatVal();
-                }
-                return Node(NodeType::Number, f);
-            }
-            return nil;
+            auto i = n[0].getIntVal();
+            for (Node::Iterator it=n.begin()+1; it != n.end(); ++it)
+                i *= it->getIntVal();
+            return Node(NodeType::Number, i);
         }
 
         Node div(const Nodes& n)
         {
-            if (n[0].valueType() == ValueType::Int)
-            {
-                int i = n[0].getIntVal();
-                for (Node::Iterator it=n.begin()+1; it != n.end(); ++it)
-                {
-                    if (it->valueType() == ValueType::Int)
-                        i /= it->getIntVal();
-                    else if (it->valueType() == ValueType::Float)
-                        i /= (int) it->getFloatVal();
-                }
-                return Node(NodeType::Number, i);
-            }
-            else if (n[0].valueType() == ValueType::Float)
-            {
-                float f = n[0].getFloatVal();
-                for (Node::Iterator it=n.begin()+1; it != n.end(); ++it)
-                {
-                    if (it->valueType() == ValueType::Int)
-                        f /= (float) it->getIntVal();
-                    else if (it->valueType() == ValueType::Float)
-                        f /= it->getFloatVal();
-                }
-                return Node(NodeType::Number, f);
-            }
-            return nil;
+            auto i = n[0].getIntVal();
+            for (Node::Iterator it=n.begin()+1; it != n.end(); ++it)
+                i /= it->getIntVal();
+            return Node(NodeType::Number, i);
         }
         
         // ------------------------------
 
         Node gt(const Nodes& n)
         {
-            if (n[0].valueType() == ValueType::String)
+            if (n[0].nodeType() == NodeType::String)
                 return falseSym;
-            else if (n[0].valueType() == ValueType::Int)
+            else if (n[0].nodeType() == NodeType::Number)
             {
-                int i = n[0].getIntVal();
-                if (n[1].valueType() == ValueType::Int)
-                    return (i > n[1].getIntVal()) ? trueSym : falseSym;
-                else if (n[1].valueType() == ValueType::Float)
-                    return (i > n[1].getFloatVal()) ? trueSym : falseSym;
-            }
-            else if (n[0].valueType() == ValueType::Float)
-            {
-                float f = n[0].getFloatVal();
-                if (n[1].valueType() == ValueType::Int)
-                    return (f > n[1].getIntVal()) ? trueSym : falseSym;
-                else if (n[1].valueType() == ValueType::Float)
-                    return (f > n[1].getFloatVal()) ? trueSym : falseSym;
+                auto i = n[0].getIntVal();
+                return (i > n[1].getIntVal()) ? trueSym : falseSym;
             }
             return falseSym;
         }
 
         Node lt(const Nodes& n)
         {
-            if (n[0].valueType() == ValueType::String)
+            if (n[0].nodeType() == NodeType::String)
                 return falseSym;
-            else if (n[0].valueType() == ValueType::Int)
+            else if (n[0].nodeType() == NodeType::Number)
             {
-                int i = n[0].getIntVal();
-                if (n[1].valueType() == ValueType::Int)
-                    return (i < n[1].getIntVal()) ? trueSym : falseSym;
-                else if (n[1].valueType() == ValueType::Float)
-                    return (i < n[1].getFloatVal()) ? trueSym : falseSym;
-            }
-            else if (n[0].valueType() == ValueType::Float)
-            {
-                float f = n[0].getFloatVal();
-                if (n[1].valueType() == ValueType::Int)
-                    return (f < n[1].getIntVal()) ? trueSym : falseSym;
-                else if (n[1].valueType() == ValueType::Float)
-                    return (f < n[1].getFloatVal()) ? trueSym : falseSym;
+                auto i = n[0].getIntVal();
+                return (i < n[1].getIntVal()) ? trueSym : falseSym;
             }
             return falseSym;
         }
 
         Node le(const Nodes& n)
         {
-            if (n[0].valueType() == ValueType::String)
+            if (n[0].nodeType() == NodeType::String)
                 return falseSym;
-            else if (n[0].valueType() == ValueType::Int)
+            else if (n[0].nodeType() == NodeType::Number)
             {
-                int i = n[0].getIntVal();
-                if (n[1].valueType() == ValueType::Int)
-                    return (i <= n[1].getIntVal()) ? trueSym : falseSym;
-                else if (n[1].valueType() == ValueType::Float)
-                    return (i <= n[1].getFloatVal()) ? trueSym : falseSym;
-            }
-            else if (n[0].valueType() == ValueType::Float)
-            {
-                float f = n[0].getFloatVal();
-                if (n[1].valueType() == ValueType::Int)
-                    return (f <= n[1].getIntVal()) ? trueSym : falseSym;
-                else if (n[1].valueType() == ValueType::Float)
-                    return (f <= n[1].getFloatVal()) ? trueSym : falseSym;
+                auto i = n[0].getIntVal();
+                return (i <= n[1].getIntVal()) ? trueSym : falseSym;
             }
             return falseSym;
         }
 
         Node ge(const Nodes& n)
         {
-            if (n[0].valueType() == ValueType::String)
+            if (n[0].nodeType() == NodeType::String)
                 return falseSym;
-            else if (n[0].valueType() == ValueType::Int)
+            else if (n[0].nodeType() == NodeType::Number)
             {
-                int i = n[0].getIntVal();
-                if (n[1].valueType() == ValueType::Int)
-                    return (i >= n[1].getIntVal()) ? trueSym : falseSym;
-                else if (n[1].valueType() == ValueType::Float)
-                    return (i >= n[1].getFloatVal()) ? trueSym : falseSym;
-            }
-            else if (n[0].valueType() == ValueType::Float)
-            {
-                float f = n[0].getFloatVal();
-                if (n[1].valueType() == ValueType::Int)
-                    return (f >= n[1].getIntVal()) ? trueSym : falseSym;
-                else if (n[1].valueType() == ValueType::Float)
-                    return (f >= n[1].getFloatVal()) ? trueSym : falseSym;
+                auto i = n[0].getIntVal();
+                return (i >= n[1].getIntVal()) ? trueSym : falseSym;
             }
             return falseSym;
         }
@@ -301,7 +173,7 @@ namespace Ark
             return nil;
         }
 
-        Node assert(const Nodes& n)
+        Node assert_(const Nodes& n)
         {
             if (n[0] == falseSym)
             {
@@ -341,7 +213,7 @@ namespace Ark
             env["nil?"] = Node(&isnil);
 
             env["print"] = Node(&print);
-            env["assert"] = Node(&assert);
+            env["assert"] = Node(&assert_);
         }
     }
 }

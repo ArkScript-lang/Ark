@@ -58,8 +58,6 @@ namespace Ark
         {
             if (Ark::Utils::isInteger(token))
                 return Node(NodeType::Number, std::atoi(token.c_str()));
-            if (Ark::Utils::isFloat(token))
-                return Node(NodeType::Number, (float) std::atof(token.c_str()));
             if (token[0] == '"')
             {
                 std::string str = token;

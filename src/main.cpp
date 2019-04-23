@@ -1,4 +1,4 @@
-#ifndef ARKLANG  // define ARKLANG to avoid creating a main function when including Ark in a project
+#ifndef ark_ark
 
 #include <iostream>
 
