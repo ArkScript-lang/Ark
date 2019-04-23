@@ -1,12 +1,12 @@
 (begin
-    {def fibo
+    {let fibo
         (fun (n)
             [begin
-                (def a 0)
-                (def b 1)
+                (let a 0)
+                (let b 1)
                 {while (< a n)
                     [begin
-                        (def c (+ a b))
+                        (let c (+ a b))
                         (set a b)
                         (set b c)
                     ]

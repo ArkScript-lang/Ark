@@ -25,12 +25,14 @@ SYNOPSIS
         build/Ark -h 
         build/Ark --version 
         build/Ark bcr <file> 
+        build/Ark repl [-d] [-t] 
         build/Ark (interpreter|compile|vm) <file> [-d] [-t] 
 
 OPTIONS
         -h, --help                  Display this help message
         --version                   Display Ark lang version and exit
         bcr                         Run the bytecode reader on the given file
+        repl                        Start a Read-Eval-Print-Loop
         interpreter                 Start the interpreter with the given Ark source file
         compile                     Start the compiler to generate a bytecode file from the given Ark source file
         vm                          Start the virtual machine with the given bytecode file

@@ -1,11 +1,11 @@
 (begin
-    (def x "hello world")
+    (let x "hello world")
     (print x)
     ' just testing if variables are correctly scoped
-    (def double (fun (x) (+ x x)))
-    (def b (double 21))
+    (let double (fun (x) (+ x x)))
+    (let b (double 21))
     (print "the answer to life is" (double 21))
-    (def a 1)
+    (let a 1)
     (if (= a 1) (print "a is 1") ())
     (if (= a 2) () (print "a is not 2"))
     (while (!= a 10) (begin

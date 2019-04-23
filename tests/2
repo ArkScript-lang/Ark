@@ -1,10 +1,10 @@
 (begin
-    (def x 1)
+    (let x 1)
     (print x)
     (print "hello world")
-    (def f
+    (let f
         (fun (x) (+ x x))
     )
-    (def b (f 1))
+    (let b (f 1))
     (print b)
 )
