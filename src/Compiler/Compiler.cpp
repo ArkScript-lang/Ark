@@ -104,13 +104,7 @@ namespace Ark
                 pushNumber(static_cast<uint16_t>(page.size()));
 
                 for (auto inst : page)
-                {
-                    // handle jump to code page (for functions call)
-                    if (inst.jump_to_page == 0)
-                        m_bytecode.push_back(inst.inst);
-                    else
-                        pushNumber(inst.jump_to_page);
-                }
+                    m_bytecode.push_back(inst.inst);
                 // just in case we got too far, always add a HALT to be sure the
                 // VM won't do anything crazy
                 m_bytecode.push_back(Instruction::HALT);
