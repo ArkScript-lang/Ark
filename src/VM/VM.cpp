@@ -501,7 +501,7 @@ namespace Ark
                     m_saved_frames[pa] = Frame();
                     m_frames.back().copyEnvironmentTo(m_saved_frames[pa]);
 
-                    std::cout << m_saved_frames[pa] << std::endl;
+                    std::cout << "=========\n" << m_saved_frames[pa] << "=========\n" << std::endl;
                 }
 
                 // load saved environment
