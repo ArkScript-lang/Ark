@@ -114,10 +114,10 @@ namespace Ark
             if (x.nodeType() == NodeType::Symbol)
             {
                 std::string name = x.getStringVal();
-                std::size_t i = addSymbol(x);
+                std::size_t i = addSymbol(name);
 
                 page.emplace_back(Instruction::LOAD_SYMBOL);
-                pushNumber((uint16_t) i);
+                pushNumber((uint16_t) i, &page);
 
                 return;
             }
@@ -127,7 +127,7 @@ namespace Ark
                 std::size_t i = addValue(x);
 
                 page.emplace_back(Instruction::LOAD_CONST);
-                pushNumber((uint16_t) i);
+                pushNumber((uint16_t) i, &page);
 
                 return;
             }
@@ -152,7 +152,7 @@ namespace Ark
                         m_code_pages.emplace_back();
                         _compile(x.list()[3], m_code_pages.back());
                     // relative address to jump to if condition is true, casted as unsigned (don't worry, it's normal)
-                    pushNumber((uint16_t) m_code_pages.back().size());
+                    pushNumber((uint16_t) m_code_pages.back().size(), &page);
                     // adding temp page into current one, and removing temp page
                     for (auto inst : m_code_pages.back())
                         page.emplace_back(inst);
@@ -163,10 +163,29 @@ namespace Ark
                 else if (n == Keyword::Set)
                 {
                     std::string name = x.list()[1].getStringVal();
-                    return env->find(name)[name] = _execute(x.list()[2], env);
+                    std::size_t i = addSymbol(name);
+
+                    // put value before symbol id
+                    _compile(x.list()[2], page);
+
+                    page.emplace_back(Instruction::STORE);
+                    pushNumber((uint16_t) i, &page);
+
+                    return;
                 }
                 else if (n == Keyword::Def)
-                    return (*env)[x.list()[1].getStringVal()] = _execute(x.list()[2], env);
+                {
+                    std::string name = x.list()[1].getStringVal();
+                    std::size_t i = addSymbol(name);
+
+                    // put value before symbol id
+                    _compile(x.list()[2], page);
+
+                    page.emplace_back(Instruction::LET);
+                    pushNumber((uint16_t) i, &page);
+
+                    return;
+                }
                 else if (n == Keyword::Fun)
                 {
                     x.setNodeType(NodeType::Lambda);
@@ -181,9 +200,27 @@ namespace Ark
                 }
                 else if (n == Keyword::While)
                 {
-                    while (_execute(x.list()[1], env) == trueSym)
-                        _execute(x.list()[2], env);
-                    return nil;
+                    // save current position to jump there at the end of the loop
+                    std::size_t current = page.size();
+                    // push condition
+                    _compile(x.list()[1], page);
+                    // push code to temp page
+                        m_code_pages.emplace_back();
+                        _compile(x.list()[2], m_code_pages.back());
+                    // relative jump to end of block if condition is false
+                    page.emplace_back(Instruction::POP_JUMP_IF_FALSE);
+                    // relative address to jump to if condition is false, casted as unsigned (don't worry, it's normal)
+                    pushNumber((uint16_t) m_code_pages.back().size(), &page);
+                    // copy code from temp page and destroy temp page
+                    for (auto inst : m_code_pages.back())
+                        page.push_back(inst);
+                    m_code_pages.pop_back();
+                    // loop, jump to the condition
+                    page.emplace_back(Instruction::JUMP);
+                    // relative address casted as unsigned (don't worry, it's normal)
+                    pushNumber((uint16_t) current, &page);
+
+                    return;
                 }
 
                 return;
@@ -205,7 +242,7 @@ namespace Ark
             }
         }
 
-        void Compiler::addSymbol(const std::string& sym)
+        std::size_t Compiler::addSymbol(const std::string& sym)
         {
             auto it = std::find(m_symbols.begin(), m_symbols.end(), sym);
             if (it == m_symbols.end())
@@ -228,10 +265,18 @@ namespace Ark
             return (std::size_t) std::distance(m_values.begin(), it);
         }
 
-        std::size_t Compiler::pushNumber(uint16_t n)
+        void Compiler::pushNumber(uint16_t n, std::vector<Inst>* page)
         {
-            m_bytecode.push_back((n & 0xff00) >> 8);
-            m_bytecode.push_back(n & 0x00ff);
+            if (page == nullptr)
+            {
+                m_bytecode.push_back((n & 0xff00) >> 8);
+                m_bytecode.push_back(n & 0x00ff);
+            }
+            else
+            {
+                page->push_back((n & 0xff00) >> 8);
+                page->push_back(n & 0x00ff);
+            }
         }
     }
 }

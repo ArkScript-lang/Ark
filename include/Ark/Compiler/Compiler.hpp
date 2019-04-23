@@ -32,7 +32,7 @@ namespace Ark
             std::size_t addSymbol(const std::string& sym);
             std::size_t addValue(Node x);
 
-            void pushNumber(uint16_t n);
+            void pushNumber(uint16_t n, std::vector<Inst>* page=nullptr);
 
             Ark::Parser::Parser m_parser;
             std::vector<std::string> m_symbols;
