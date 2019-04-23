@@ -6,21 +6,24 @@
 
 #include <chrono>
 
-void test()
+void exec(bool debug, bool timer, const std::string& file)
 {
     Ark::Lang::Program program;
-    program.feed(Ark::Utils::readFile("tests/2"));
+    program.feed(Ark::Utils::readFile(file));
 
-    std::cout << program << std::endl;
+    if (debug)
+        std::cout << program << std::endl;
 
     std::chrono::time_point<std::chrono::system_clock> start, end;
     start = std::chrono::system_clock::now();
-    program.execute();
-    end = std::chrono::system_clock::now();
-    auto elapsed_milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
-    std::cout << program << std::endl;
-    std::cout << elapsed_milliseconds << "ms" << std::endl;
+    program.execute();
+
+    end = std::chrono::system_clock::now();
+    auto elapsed_microseconds = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+
+    if (timer)
+        std::cout << "Took " << elapsed_microseconds << "us" << std::endl;
 }
 
 int main(int argc, char** argv)
@@ -29,60 +32,22 @@ int main(int argc, char** argv)
 
     std::cout << "Ark programming language" << std::endl << std::endl;
 
-    enum class mode {help, version, test};
+    enum class mode {help, version, execution};
     mode selected;
-    /*// related to the compilers
-    std::vector<std::string> input_files;
-    std::string output_file = "";
-    // related to the KVM
     std::string exec_file = "";
-    std::vector<std::string> bytecode_args;
-    // general flags and stuff
-    bool debug = false
-        , experimental = false;*/
+    bool debug = false;
+    bool timer = false;
     std::vector<std::string> wrong;
 
     auto cli = (
         // general options
         option("-h", "--help").set(selected, mode::help).doc("Displays this help message")
         | option("--version").set(selected, mode::version).doc("Displays the Ark interpreter version and exits")
-        | command("test").set(selected, mode::test).doc("Testing mode, to test stuff")
-        /*// sub-programs
         | (
-            // Compilers
-            (
-                // Kafe compiler
-                (command("kafec").set(selected, mode::kafec).doc("Launch the Kafe compiler")
-                  )
-                // KASM compiler
-                | (command("kasm").set(selected, mode::kasm).doc("Launch the Kafe ASM compiler")
-                  )
-                , values("files", input_files)
-                , required("-o", "--out") & value("output", output_file)
-              )
-            // KVM
-            | (command("kvm").set(selected, mode::kvm).doc("Launch the Kafe Virtual Machine")
-                , value("file", exec_file)
-                , values([](const std::string& arg){ return true; }, "args", bytecode_args)
-              )
-            // REPL
-            | (
-                // KASM REPL
-                (command("repl-kasm").set(selected, mode::repl_kasm).doc("Start a REPL for the KASM language")
-                  )
-                // Kafe REPL
-                | (command("repl-kafe").set(selected, mode::repl_kafe).doc("Start a REPL for the Kafe language")
-                  )
-                // options related to all the REPL
-                , value("-c").set(repl_code).doc("Program passed in as string")
-              )
-            // options attached to all those sub-programs
-            , option("-d", "--debug").set(debug).doc("Enable debug mode")
-            , option("-E", "--experimental").set(experimental).doc("Enable experimental features")
+            value("file", exec_file).set(selected, mode::execution)
+            , option("-t", "--time").set(timer).doc("Calculates time needed for the code to run")
+            , option("-d", "--debug").set(debug).doc("Enables debug mode")
           )
-        // cup, the package manager
-        | (command("cup").set(selected, mode::cup).doc("Starts cup, the package manager")
-          )*/
         , any_other(wrong)
     );
 
@@ -106,9 +71,9 @@ int main(int argc, char** argv)
         case mode::version:
             std::cout << "Version " << Ark::Version::Major << "." << Ark::Version::Minor << "." << Ark::Version::Patch << std::endl;
             break;
-        
-        case mode::test:
-            test();
+
+        case mode::execution:
+            exec(debug, timer, exec_file);
             break;
         }
     }
