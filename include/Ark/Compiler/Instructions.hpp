@@ -13,6 +13,8 @@ namespace Ark
                 NUMBER_TYPE = 0x01,
                 STRING_TYPE = 0x02,
             CODE_SEGMENT_START = 0x03,
+                LOAD_SYMBOL = 0x01,
+                LOAD_CONST = 0x02,
         };
 
         struct Inst

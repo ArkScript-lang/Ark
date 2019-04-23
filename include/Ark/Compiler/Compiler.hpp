@@ -29,8 +29,8 @@ namespace Ark
 
         private:
             void _compile(Node x);
-            void addSymbol(const std::string& sym);
-            void addValue(Node x);
+            std::size_t addSymbol(const std::string& sym);
+            std::size_t addValue(Node x);
 
             void pushNumber(uint16_t n);
 
