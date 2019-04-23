@@ -12,6 +12,8 @@ namespace Ark
 {
     namespace Parser
     {
+        using namespace Ark::Lang;
+    
         class Parser
         {
         public:
@@ -19,16 +21,18 @@ namespace Ark
             ~Parser();
 
             void feed(const std::string& code);
-            const Ark::Lang::Node& ast() const;
+            bool check();
+            const Node& ast() const;
 
             friend std::ostream& operator<<(std::ostream& os, const Parser& P);
 
         private:
             Lexer m_lexer;
-            Ark::Lang::Node m_ast;
+            Node m_ast;
 
-            Ark::Lang::Node compile(std::list<std::string>& tokens);
-            Ark::Lang::Node atom(const std::string& token);
+            Node compile(std::list<std::string>& tokens);
+            Node atom(const std::string& token);
+            bool _check(const Node& ast);
         };
     }
 }
