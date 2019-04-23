@@ -279,7 +279,7 @@ namespace Ark
 
         void VM::initFFI()
         {
-            // must had the same order as in src/Lang/Lib.cpp:219-224
+            // must had the same order as in include/Ark/MakeFFI.hpp:266-269
             m_ffi.push_back(&FFI::add);
             m_ffi.push_back(&FFI::sub);
             m_ffi.push_back(&FFI::mul);

@@ -1,7 +1,7 @@
 #include <Ark/Compiler/BytecodeReader.hpp>
 
 #include <Ark/Compiler/Instructions.hpp>
-#include <Ark/Lang/Lib.hpp>
+#include <Ark/FFI.hpp>
 #include <Ark/Log.hpp>
 
 namespace Ark
@@ -175,7 +175,7 @@ namespace Ark
                             os << "NEW_ENV\n";
                         else if (inst == Instruction::BUILTIN)
                         {
-                            os << "BUILTIN (" << Ark::Lang::builtins[readNumber(i)] << ")\n";
+                            os << "BUILTIN (" << Ark::FFI::builtins[readNumber(i)] << ")\n";
                             i++;
                         }
                         else if (inst == Instruction::SAVE_ENV)

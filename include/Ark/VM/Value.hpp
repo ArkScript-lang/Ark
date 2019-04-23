@@ -44,10 +44,10 @@ namespace Ark
             const PageAddr_t pageAddr() const;
             const NFT nft() const;
             const ProcType proc() const;
-            const std::vector<Value>& list() const;
+            const std::vector<Value>& const_list() const;
             const Closure& closure() const;
 
-            std::vector<Value>& list_ref();
+            std::vector<Value>& list();
             Closure& closure_ref();
 
             void push_back(const Value& value);

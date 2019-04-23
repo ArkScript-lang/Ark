@@ -3,7 +3,7 @@
 #include <fstream>
 
 #include <Ark/Log.hpp>
-#include <Ark/Lang/Lib.hpp>
+#include <Ark/FFI.hpp>
 #include <Ark/Function.hpp>
 
 namespace Ark
@@ -159,9 +159,9 @@ namespace Ark
             {
                 std::string name = x.getStringVal();
 
-                auto it = std::find(builtins.begin(), builtins.end(), name);
+                auto it = std::find(FFI::builtins.begin(), FFI::builtins.end(), name);
                 // check if 'name' isn't a builtin function name before pushing it as a 'var-use'
-                if (it == builtins.end())
+                if (it == FFI::builtins.end())
                 {
                     std::size_t i = addSymbol(name);
 
@@ -171,7 +171,7 @@ namespace Ark
                 else
                 {
                     page(p).emplace_back(Instruction::BUILTIN);
-                    pushNumber(static_cast<uint16_t>(std::distance(builtins.begin(), it)), &page(p));
+                    pushNumber(static_cast<uint16_t>(std::distance(FFI::builtins.begin(), it)), &page(p));
                 }
 
                 return;

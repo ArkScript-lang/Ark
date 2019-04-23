@@ -128,7 +128,7 @@ namespace Ark
             return std::get<Value::ProcType>(m_value);
         }
 
-        const std::vector<Value>& Value::list() const
+        const std::vector<Value>& Value::const_list() const
         {
             return m_list;
         }
@@ -138,7 +138,7 @@ namespace Ark
             return std::get<Closure>(m_value);
         }
 
-        std::vector<Value>& Value::list_ref()
+        std::vector<Value>& Value::list()
         {
             return m_list;
         }
@@ -177,7 +177,7 @@ namespace Ark
             else if (V.isList())
             {
                 os << "( ";
-                for (auto& t: V.list())
+                for (auto& t: V.const_list())
                     os << t << " ";
                 os << ")";
             }
