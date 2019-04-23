@@ -19,7 +19,7 @@ int main(int argc, char** argv)
 
     enum class mode {help, version, test};
     mode selected;
-    // related to the compilers
+    /*// related to the compilers
     std::vector<std::string> input_files;
     std::string output_file = "";
     // related to the KVM
@@ -27,7 +27,7 @@ int main(int argc, char** argv)
     std::vector<std::string> bytecode_args;
     // general flags and stuff
     bool debug = false
-        , experimental = false;
+        , experimental = false;*/
     std::vector<std::string> wrong;
 
     auto cli = (

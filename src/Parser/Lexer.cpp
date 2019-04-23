@@ -52,13 +52,6 @@ namespace Ark
                     break;
                 }
             }
-
-            #ifdef ARK_DEBUG
-            for (auto& t: m_tokens)
-            {
-                std::cout << t << std::endl;
-            }
-            #endif  // ARK_DEBUG
         }
 
         bool Lexer::check()
@@ -115,6 +108,11 @@ namespace Ark
             }
 
             return true;
+        }
+
+        const std::vector<std::string> Lexer::tokens()
+        {
+            return m_tokens;
         }
     }
 }
