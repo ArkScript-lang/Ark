@@ -6,6 +6,34 @@ namespace Ark
 {
     namespace Lang
     {
+        template <> Node::Node<int>(const int& value) :
+            m_type(NodeType::Number),
+            m_value(value),
+            m_valuetype(ValueType::Int),
+            m_env(nullptr)
+        {}
+        
+        template <> Node::Node<float>(const float& value) :
+            m_type(NodeType::Number),
+            m_value(value),
+            m_valuetype(ValueType::Float),
+            m_env(nullptr)
+        {}
+        
+        template <> Node::Node<double>(const double& value) :
+            m_type(NodeType::Number),
+            m_value((float) value),
+            m_valuetype(ValueType::Float),
+            m_env(nullptr)
+        {}
+        
+        template <> Node::Node<std::string>(const std::string& value) :
+            m_type(NodeType::String),
+            m_value(value),
+            m_valuetype(ValueType::String),
+            m_env(nullptr)
+        {}
+
         Node::Node(NodeType type) :
             m_type(type), m_env(nullptr)
         {}
@@ -71,6 +99,11 @@ namespace Ark
         const float Node::getFloatVal() const
         {
             return std::get<float>(m_value);
+        }
+        
+        const Node::ProcType Node::getProcVal() const
+        {
+            return m_procedure;
         }
 
         void Node::push_back(const Node& node)
