@@ -34,7 +34,7 @@ namespace Ark
             const std::vector<std::regex> m_regexs = {
                 std::regex("^\"[^\"]*\"")  // strings
                 , std::regex("^[\\(\\)\\[\\]{}]")  // parenthesis
-                , std::regex("^((\\+|-)?[[:digit:]]+)")  // numbers
+                , std::regex("^((\\+|-)?[[:digit:]]+)(/(([[:digit:]]+)?))?")  // numbers
                 , std::regex("^(\\+|-|\\*|/|%|<=|>=|!=|<|>|=|\\^)")  // operators
                 , std::regex("^[a-zA-Z_][a-zA-Z0-9_\\-!?']*")  // words
                 , std::regex("^\\s+")  // whitespaces
