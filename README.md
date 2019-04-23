@@ -53,25 +53,27 @@ The language already handles
 
 ## Dependencies
 
-* C++17 compliant compiler
+* C++17 compliant compiler, the following have been tested
+    * GCC 7.2
+    * GCC 8.2
 * CMake >= 3.8
 
 Libs already included:
-* rj format (https://github.com/ryjen/format)
-* CLIPP
-* termcolor
+* [rj format](https://github.com/ryjen/format), MIT licence
+* [CLIPP](https://github.com/muellan/clipp), MIT licence
+* [termcolor](https://github.com/ikalnytskyi/termcolor), BSD (3-clause) licence
 
 Not included:
-* GMP (download it [here](https://ftp.gnu.org/gnu/gmp/gmp-6.1.2.tar.bz2))
+* GMP (you can download it [here](https://ftp.gnu.org/gnu/gmp/gmp-6.1.2.tar.bz2) or install from `apt`), LGPL v3 licence
 
 ## Building
 
-Running on Linux Mint 18, 64 bits.
-
 ```bash
-# building GMP
+# building GMP if you don't want to install it from apt
 $ cd gmp-6.1.2/ && ./configure && make && make install
 $ cd ../Ark
+# installing GMP if you don't want to build it
+$ sudo apt-get install libgmp-dev
 # building Ark
 $ cmake -H. -Bbuild
 $ cmake --build build
@@ -99,6 +101,16 @@ LICENSE
         Mozilla Public License 2.0
 ```
 
+The project has been tested on
+* Linux Mint 18, 64 bits
+* Lubuntu 18, 32 bits
+
 ## Credits
 
 This project was inspired by [gameprogramingpatterns](http://gameprogrammingpatterns.com/bytecode.html) and [ofan lisp.cpp](https://gist.github.com/ofan/721464)
+
+## Copyright and Licence information
+
+Copyright (c) 2019 Alexandre Plateau. All rights reserved.
+
+This Ark distribution contains no GNU GPL code, which means it can be used in proprietary projects.
