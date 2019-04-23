@@ -52,7 +52,7 @@ namespace Ark
             inline bool isString(const Value& value) { return std::holds_alternative<std::string>(value); }
             inline bool isPageAddr(const Value& value) { return std::holds_alternative<PageAddr_t>(value); }
             inline bool isNFT(const Value& value) { return std::holds_alternative<NFT>(value); }
-            inline bool isProc(const Value& value) { return std::holds_alternative<Ark::Lang::ProcType>(value); }
+            inline bool isProc(const Value& value) { return std::holds_alternative<Ark::Lang::Node::ProcType>(value); }
 
             Value pop();
             void push(const Value& value);

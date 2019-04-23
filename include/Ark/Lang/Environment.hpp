@@ -31,7 +31,7 @@ namespace Ark
 
             friend std::ostream& operator<<(std::ostream& os, const Environment& E);
 
-            friend class VM;
+            friend class VM::VM;
 
         private:
             Environment* m_outer;
