@@ -2,12 +2,12 @@
 
 #include <clipp.hpp>
 #include <Ark/Constants.hpp>
-#include <Ark/Parser/Parser.hpp>
+#include <Ark/Parser/Program.hpp>
 
 void test()
 {
-    Ark::Parser::Parser parser;
-    parser.feed(Ark::Utils::readFile("tests/1"));
+    Ark::Parser::Program program;
+    program.feed(Ark::Utils::readFile("tests/1"));
 }
 
 int main(int argc, char** argv)

@@ -60,6 +60,17 @@ namespace Ark
             Environment* m_env;
         };
 
+        inline bool operator==(const Node& A, const Node& B)
+        {
+            if (A.m_type == B.m_type && A.m_type != NodeType::List && A.m_type != NodeType::Proc && A.m_type != NodeType::Lambda)
+                return A.m_valuetype == B.m_valuetype;
+            return false;  //! not comparing proc/list/lambda
+        }
+
+        const Node nil(NodeType::Symbol, "nil");
+        const Node falseSym(NodeType::Symbol, "#f");
+        const Node trueSym(NodeType::Symbol, "#t");
+
         using Nodes = std::vector<Node>;
     }
 }
