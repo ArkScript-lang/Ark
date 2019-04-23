@@ -13,6 +13,5 @@
         ) ' endfun
     ) ' enddef
 
-    ' (print (fibo 1) (fibo 2) (fibo 3) (fibo 4) (fibo 5) (fibo 10))
-    (print (fibo 10))
+    (print (fibo 2))
 )

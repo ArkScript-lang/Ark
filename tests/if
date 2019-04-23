@@ -1,0 +1,4 @@
+(begin
+    (if (= 1 0) (print "hello") (print "nope"))
+    (print (- 1 2) (- 2 1))
+)
