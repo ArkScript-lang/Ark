@@ -3,22 +3,27 @@
 
 #include <Ark/Lang/Node.hpp>
 
+#include <Ark/Lang/Program.hpp>
+#include <Ark/Lang/Environment.hpp>
+
 namespace Ark
 {
     class Function
     {
     public:
-        Function(Lang::Node::ProcType proc);
+        Function(Lang::Program* prog, Lang::Node function);
         ~Function();
         
         template <typename... Args>
         Lang::Node operator()(const Args&... args)
         {
-            return m_procedure(Lang::Nodes { args... });
+            Lang::Nodes exps { args... };
+            return m_program->_execute(m_procedure.list()[2], new Lang::Environment(m_procedure.list()[1].list(), exps, m_procedure.getEnv()));
         }
     
     private:
-        Lang::Node::ProcType m_procedure;
+        Lang::Node m_procedure;
+        Lang::Program* m_program;
     };
 }
 
