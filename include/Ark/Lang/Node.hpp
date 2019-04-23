@@ -9,7 +9,7 @@
 
 namespace Ark
 {
-    namespace Parser
+    namespace Lang
     {
         enum class NodeType
         {
@@ -33,7 +33,7 @@ namespace Ark
         {
         public:
             using ProcType = Node(*)(const std::vector<Node>&);
-            using Iterator = std::vector<Node>::iterator;
+            using Iterator = std::vector<Node>::const_iterator;
             using Map = std::unordered_map<std::string, Node>;
             using Value = std::variant<int, float, std::string>;
 
@@ -44,13 +44,19 @@ namespace Ark
 
             void addEnv(Environment* env);
             Environment* getEnv();
-            const std::string& getStringVal();
+
+            const std::string& getStringVal() const;
+            const int getIntVal() const;
+            const float getFloatVal() const;
             void push_back(const Node& node);
+
             const NodeType& nodeType() const;
             void setNodeType(NodeType type);
-            ValueType valueType();
+            const ValueType valueType() const;
+
             std::vector<Node>& list();
             const std::vector<Node>& const_list() const;
+
             Node call(const std::vector<Node>& args);
 
             friend std::ostream& operator<<(std::ostream& os, const Node& N);

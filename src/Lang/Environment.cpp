@@ -1,10 +1,10 @@
-#include <Ark/Parser/Environment.hpp>
+#include <Ark/Lang/Environment.hpp>
 
 #include <Ark/Log.hpp>
 
 namespace Ark
 {
-    namespace Parser
+    namespace Lang
     {
         Environment::Environment(Environment* outer) :
             m_outer(outer)

@@ -1,10 +1,10 @@
-#include <Ark/Parser/Node.hpp>
+#include <Ark/Lang/Node.hpp>
 
-#include <Ark/Parser/Environment.hpp>
+#include <Ark/Lang/Environment.hpp>
 
 namespace Ark
 {
-    namespace Parser
+    namespace Lang
     {
         Node::Node(NodeType type) :
             m_type(type), m_env(nullptr)
@@ -50,9 +50,19 @@ namespace Ark
             return m_env;
         }
 
-        const std::string& Node::getStringVal()
+        const std::string& Node::getStringVal() const
         {
             return std::get<std::string>(m_value);
+        }
+
+        const int Node::getIntVal() const
+        {
+            return std::get<int>(m_value);
+        }
+
+        const float Node::getFloatVal() const
+        {
+            return std::get<float>(m_value);
         }
 
         void Node::push_back(const Node& node)
@@ -70,7 +80,7 @@ namespace Ark
             m_type = type;
         }
 
-        ValueType Node::valueType()
+        const ValueType Node::valueType() const
         {
             return m_valuetype;
         }
@@ -92,39 +102,39 @@ namespace Ark
 
         std::ostream& operator<<(std::ostream& os, const Node& N)
         {
-            os << "\t";
             switch(N.m_type)
             {
             case NodeType::Symbol:
-                os << "Symbol: " << std::get<std::string>(N.m_value) << std::endl;
+                os << std::get<std::string>(N.m_value);
                 break;
 
             case NodeType::Number:
                 if (N.m_valuetype == ValueType::Int)
-                    os << "Integer: " << std::get<int>(N.m_value) << std::endl;
+                    os << std::get<int>(N.m_value);
                 else  // assuming it's a float
-                    os << "Float: " << std::get<float>(N.m_value) << std::endl;
+                    os << std::get<float>(N.m_value);
                 break;
 
             case NodeType::List:
             {
                 int i = 0;
+                os << "( ";
                 for (auto& t: N.m_list)
-                    os << "\t" << (i++) << ": " << t;
-                os << std::endl;
+                    os << t << " ";
+                os << ")";
                 break;
             }
 
             case NodeType::Proc:
-                os << "Procedure" << std::endl;
+                os << "Procedure";
                 break;
 
             case NodeType::Lambda:
-                os << "Lambda" << std::endl;
+                os << "Lambda";
                 break;
 
             default:
-                os << "Did I forget to add a node type?" << std::endl;
+                os << "~\\._./~";
                 break;
             }
             return os;
