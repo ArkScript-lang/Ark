@@ -4,8 +4,12 @@ namespace Ark
 {
     namespace VM
     {
-        Value::Value() :
-            m_is_list(false)
+        Value::Value(bool is_list) :
+            m_is_list(is_list)
+        {}
+
+        template <> Value::Value<int>(const int& value) :
+            m_value(HugeNumber(value)), m_is_list(false)
         {}
 
         template <> Value::Value<HugeNumber>(const HugeNumber& value) :
@@ -24,7 +28,7 @@ namespace Ark
             m_value(value), m_is_list(false)
         {}
 
-        template <> Value::Value<Ark::Lang::Node::ProcType>(const Ark::Lang::Node::ProcType& value) :
+        template <> Value::Value<Value::ProcType>(const Value::ProcType& value) :
             m_value(value), m_is_list(false)
         {}
 
@@ -75,7 +79,7 @@ namespace Ark
 
         bool Value::isProc() const
         {
-            return !m_is_list && std::holds_alternative<Ark::Lang::Node::ProcType>(m_value);
+            return !m_is_list && std::holds_alternative<Value::ProcType>(m_value);
         }
 
         bool Value::isList() const
@@ -103,14 +107,55 @@ namespace Ark
             return std::get<NFT>(m_value);
         }
 
-        const Ark::Lang::Node::ProcType Value::proc() const
+        const Value::ProcType Value::proc() const
         {
-            return std::get<Ark::Lang::Node::ProcType>(m_value);
+            return std::get<Value::ProcType>(m_value);
         }
 
         const std::vector<Value>& Value::list() const
         {
             return m_list;
+        }
+
+        std::vector<Value>& Value::list_ref()
+        {
+            return m_list;
+        }
+
+        void Value::push_back(const Value& value)
+        {
+            m_is_list = true;
+            m_list.push_back(value);
+        }
+
+        std::ostream& operator<<(std::ostream& os, const Value& V)
+        {
+            if (V.isNumber())
+                os << V.number().toString();
+            else if (V.isString())
+                os << V.string();
+            else if (V.isPageAddr())
+                os << V.pageAddr();
+            else if (V.isNFT())
+            {
+                NFT nft = V.nft();
+                if (nft == NFT::Nil)
+                    os << "nil";
+                else if (nft == NFT::False)
+                    os << "false";
+                else if (nft == NFT::True)
+                    os << "true";
+            }
+            else if (V.isProc())
+                os << "Procedure";
+            else if (V.isList())
+            {
+                os << "( ";
+                for (auto& t: V.list())
+                    os << t << " ";
+                os << ")";
+            }
+            return os;
         }
     }
 }

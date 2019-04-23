@@ -20,7 +20,7 @@ Running on Linux Mint 18, 64 bits.
 $ cmake -H. -Bbuild
 $ cmake --build build
 # running
-$ ./build/Ark
+$ ./build/Ark --help
 SYNOPSIS
         build/Ark -h 
         build/Ark --version 

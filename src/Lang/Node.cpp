@@ -153,7 +153,6 @@ namespace Ark
 
             case NodeType::List:
             {
-                int i = 0;
                 os << "( ";
                 for (auto& t: N.m_list)
                     os << t << " ";

@@ -88,11 +88,45 @@ void vm(bool debug, bool timer, const std::string& file)
         std::cout << "Took " << elapsed_microseconds << "us" << std::endl;
 }
 
+void repl(bool debug, bool timer)
+{
+    std::cout << "Ark " << Ark::Version::Major << "." << Ark::Version::Minor << "." << Ark::Version::Patch << std::endl;
+    std::cout << "Type \"help\" for more information" << std::endl;
+
+    while (true)
+    {
+        std::string input = "";
+        std::cout << "~$ ";
+        std::getline(std::cin, input, '\n');
+
+        if (input == "help")
+        {
+            std::cout << "Type \"quit\" to quit the REPL" << std::endl;
+            continue;
+        }
+        else if (input == "quit")
+            break;
+
+        std::chrono::time_point<std::chrono::system_clock> start, end;
+        start = std::chrono::system_clock::now();
+
+        Ark::Lang::Program program(debug);
+        program.feed(input);
+        program.execute();
+
+        end = std::chrono::system_clock::now();
+        auto elapsed_microseconds = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+
+        if (timer)
+            std::cout << "Took " << elapsed_microseconds << "us" << std::endl;
+    }
+}
+
 int main(int argc, char** argv)
 {
     using namespace clipp;
 
-    enum class mode { help, version, interpreter, compiler, bytecode_reader, vm };
+    enum class mode { help, version, interpreter, compiler, bytecode_reader, vm, repl };
     mode selected;
     std::string input_file = "";
     bool debug = false;
@@ -106,6 +140,10 @@ int main(int argc, char** argv)
         | (command("bcr").set(selected, mode::bytecode_reader).doc("Run the bytecode reader on the given file")
             , value("file", input_file)
         )
+        | (command("repl").set(selected, mode::repl).doc("Start a Read-Eval-Print-Loop")
+            , option("-d", "--debug").set(debug)
+            , option("-t", "--time").set(timer)
+          )
         | (
             (
                 command("interpreter").set(selected, mode::interpreter).doc("Start the interpreter with the given Ark source file")
@@ -154,6 +192,10 @@ int main(int argc, char** argv)
         
         case mode::vm:
             vm(debug, timer, input_file);
+            break;
+        
+        case mode::repl:
+            repl(debug, timer);
             break;
         }
     }

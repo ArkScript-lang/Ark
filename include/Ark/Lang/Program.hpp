@@ -18,10 +18,10 @@ namespace Ark
         class Program
         {
         public:
-            Program(bool debug);
+            Program(bool debug=false);
             ~Program();
 
-            void feed(const std::string& file);
+            void feed(const std::string& code);
             void execute(const Nodes& args={});
 
             void loadFunction(const std::string& name, Node::ProcType function);

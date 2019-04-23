@@ -1,7 +1,7 @@
 #include <Ark/VM/VM.hpp>
 
-#include <Ark/Lang/Lib.hpp>
 #include <Ark/Log.hpp>
+#include <Ark/VM/FFI.hpp>
 
 namespace Ark
 {
@@ -90,7 +90,7 @@ namespace Ark
             }
         }
 
-        void VM::loadFunction(const std::string& name, Ark::Lang::Node::ProcType function)
+        void VM::loadFunction(const std::string& name, Value::ProcType function)
         {
             m_frames.back()[name] = Value(function);
         }
@@ -99,7 +99,8 @@ namespace Ark
         {
             // configure ffi
             m_frames.emplace_back();  // put default page
-            Ark::Lang::registerLib(m_ffi);
+            if (m_ffi.size() == 0)
+                initFFI();
 
             // configure tables and pages
             const bytecode_t& b = m_bytecode;
@@ -236,6 +237,34 @@ namespace Ark
                 for (uint16_t j=0; j < size; ++j)
                     m_pages.back().push_back(b[i++]);
             }
+        }
+
+        void VM::initFFI()
+        {
+            // must had the same order as in src/Lang/Lib.cpp:219-224
+            m_ffi.push_back(&FFI::add);
+            m_ffi.push_back(&FFI::sub);
+            m_ffi.push_back(&FFI::mul);
+            m_ffi.push_back(&FFI::div);
+
+            m_ffi.push_back(&FFI::gt);
+            m_ffi.push_back(&FFI::lt);
+            m_ffi.push_back(&FFI::le);
+            m_ffi.push_back(&FFI::ge);
+            m_ffi.push_back(&FFI::neq);
+            m_ffi.push_back(&FFI::eq);
+
+            m_ffi.push_back(&FFI::len);
+            m_ffi.push_back(&FFI::empty);
+            m_ffi.push_back(&FFI::firstof);
+            m_ffi.push_back(&FFI::tailof);
+            m_ffi.push_back(&FFI::append);
+            m_ffi.push_back(&FFI::concat);
+            m_ffi.push_back(&FFI::list);
+            m_ffi.push_back(&FFI::isnil);
+
+            m_ffi.push_back(&FFI::print);
+            m_ffi.push_back(&FFI::assert_);
         }
 
         Value VM::pop()
@@ -449,13 +478,11 @@ namespace Ark
             // is it a builtin function name?
             if (function.isProc())
             {
-                // convert args to std::vector<Node> (aka Nodes)
-                Ark::Lang::Nodes nodes;
-                for (std::size_t j=0; j < args.size(); ++j)
-                    nodes.insert(nodes.begin(), convertValueToNode(args[j]));
+                // reverse arguments
+                std::reverse(args.begin(), args.end());
                 // call proc
-                Ark::Lang::Node return_value = function.proc()(nodes);
-                push(convertNodeToValue(return_value));
+                Value return_value = function.proc()(args);
+                push(return_value);
                 return;
             }
             else if (function.isPageAddr())
@@ -496,7 +523,7 @@ namespace Ark
             if (m_debug)
                 Ark::logger.info("BUILTIN ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
 
-            push(Value(m_ffi[Ark::Lang::builtins[id]].getProcVal()));
+            push(m_ffi[id]);
         }
     }
 }
