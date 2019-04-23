@@ -235,8 +235,6 @@ namespace Ark
 
                 for (uint16_t j=0; j < size; ++j)
                     m_pages.back().push_back(b[i++]);
-                
-                i++;
             }
         }
 

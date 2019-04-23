@@ -92,8 +92,6 @@ int main(int argc, char** argv)
 {
     using namespace clipp;
 
-    std::cout << "Ark programming language" << std::endl << std::endl;
-
     enum class mode { help, version, interpreter, compiler, bytecode_reader, vm };
     mode selected;
     std::string input_file = "";
