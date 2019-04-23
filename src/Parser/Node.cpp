@@ -45,6 +45,11 @@ namespace Ark
             m_env = env;
         }
 
+        Environment* Node::getEnv()
+        {
+            return m_env;
+        }
+
         const std::string& Node::getStringVal()
         {
             return std::get<std::string>(m_value);
@@ -55,9 +60,14 @@ namespace Ark
             m_list.push_back(node);
         }
 
-        NodeType Node::nodeType()
+        const NodeType& Node::nodeType() const
         {
             return m_type;
+        }
+
+        void Node::setNodeType(NodeType type)
+        {
+            m_type = type;
         }
 
         ValueType Node::valueType()
@@ -70,6 +80,16 @@ namespace Ark
             return m_list;
         }
 
+        const std::vector<Node>& Node::const_list() const
+        {
+            return m_list;
+        }
+
+        Node Node::call(const std::vector<Node>& args)
+        {
+            return m_procedure(args);
+        }
+
         std::ostream& operator<<(std::ostream& os, const Node& N)
         {
             os << "\t";
@@ -78,14 +98,14 @@ namespace Ark
             case NodeType::Symbol:
                 os << "Symbol: " << std::get<std::string>(N.m_value) << std::endl;
                 break;
-            
+
             case NodeType::Number:
                 if (N.m_valuetype == ValueType::Int)
                     os << "Integer: " << std::get<int>(N.m_value) << std::endl;
                 else  // assuming it's a float
                     os << "Float: " << std::get<float>(N.m_value) << std::endl;
                 break;
-            
+
             case NodeType::List:
             {
                 int i = 0;
@@ -94,11 +114,11 @@ namespace Ark
                 os << std::endl;
                 break;
             }
-            
+
             case NodeType::Proc:
                 os << "Procedure" << std::endl;
                 break;
-            
+
             case NodeType::Lambda:
                 os << "Lambda" << std::endl;
                 break;
@@ -109,5 +129,9 @@ namespace Ark
             }
             return os;
         }
+
+        extern const Node nil = Node(NodeType::Symbol, "nil");
+        extern const Node falseSym = Node(NodeType::Symbol, "false");
+        extern const Node trueSym = Node(NodeType::Symbol, "true");
     }
 }

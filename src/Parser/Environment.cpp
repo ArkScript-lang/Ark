@@ -22,10 +22,10 @@ namespace Ark
         {
             if (m_env.find(var) != m_env.end())
                 return m_env;
-            
+
             if (m_outer != nullptr)
                 return m_outer->find(var);
-            
+
             Ark::Log::error("[Environment] Unbound symbol: " + var);
             exit(1);
         }
@@ -33,6 +33,21 @@ namespace Ark
         Node& Environment::operator[](const std::string& var)
         {
             return m_env[var];
+        }
+
+        std::ostream& operator<<(std::ostream& os, const Environment& E)
+        {
+            for (auto& kv: E.m_env)
+                os << kv.first << ":" << kv.second << std::endl;
+
+            if (E.m_outer != nullptr)
+            {
+                os << std::endl;
+                os << "Outer:" << std::endl;
+                os << (*E.m_outer) << std::endl;
+            }
+
+            return os;
         }
     }
 }

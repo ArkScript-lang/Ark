@@ -43,14 +43,19 @@ namespace Ark
             ~Node();
 
             void addEnv(Environment* env);
+            Environment* getEnv();
             const std::string& getStringVal();
             void push_back(const Node& node);
-            NodeType nodeType();
+            const NodeType& nodeType() const;
+            void setNodeType(NodeType type);
             ValueType valueType();
             std::vector<Node>& list();
+            const std::vector<Node>& const_list() const;
+            Node call(const std::vector<Node>& args);
 
             friend std::ostream& operator<<(std::ostream& os, const Node& N);
-        
+            friend inline bool operator==(const Node& A, const Node& B);
+
         private:
             NodeType m_type;
             Value m_value;
@@ -67,9 +72,9 @@ namespace Ark
             return false;  //! not comparing proc/list/lambda
         }
 
-        const Node nil(NodeType::Symbol, "nil");
-        const Node falseSym(NodeType::Symbol, "#f");
-        const Node trueSym(NodeType::Symbol, "#t");
+        extern const Node nil;
+        extern const Node falseSym;
+        extern const Node trueSym;
 
         using Nodes = std::vector<Node>;
     }

@@ -22,11 +22,7 @@ namespace Ark
             void feed(const std::string& file);
             void execute(const Nodes& args={});
 
-            template <std::string FunctionName>
-            void loadFunction(Node::ProcType function)
-            {
-                m_global_env[FunctionName] = Node(function);
-            }
+            void loadFunction(const std::string& name, Node::ProcType function);
 
             friend std::ostream& operator<<(std::ostream& os, const Program& P);
         
