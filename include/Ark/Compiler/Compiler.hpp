@@ -11,6 +11,7 @@
 #include <Ark/Lang/Node.hpp>
 #include <Ark/Compiler/Value.hpp>
 #include <Ark/Compiler/Instructions.hpp>
+#include <Ark/Compiler/BytecodeReader.hpp>
 
 namespace Ark
 {
@@ -49,7 +50,7 @@ namespace Ark
             std::vector<std::vector<Inst>> m_code_pages;
             std::vector<std::vector<Inst>> m_temp_pages;
 
-            std::vector<uint8_t> m_bytecode;
+            bytecode_t m_bytecode;
 
             bool m_debug;
         };
