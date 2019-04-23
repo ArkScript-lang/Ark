@@ -22,6 +22,8 @@ namespace Ark
             Environment::Map& find(const std::string& var);
             Node& operator[](const std::string& var);
 
+            bool empty() const;
+
             friend std::ostream& operator<<(std::ostream& os, const Environment& E);
 
         private:

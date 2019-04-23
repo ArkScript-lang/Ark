@@ -1,5 +1,6 @@
 #ifndef ark_ark
 
+#include <chrono>
 #include <iostream>
 
 #include <clipp.hpp>
@@ -8,21 +9,16 @@
 #include <Ark/Compiler/Compiler.hpp>
 #include <Ark/Log.hpp>
 
-#include <chrono>
-
 void exec(bool debug, bool timer, const std::string& file)
 {
     if (!Ark::Utils::fileExists(file))
     {
-        Ark::Log::error("(Interpreter) Can not find file '" + file + "'");
+        Ark::logger.error("(Interpreter) Can not find file '" + file + "'");
         return;
     }
 
-    Ark::Lang::Program program;
+    Ark::Lang::Program program(debug);
     program.feed(Ark::Utils::readFile(file));
-
-    if (debug)
-        std::cout << program << std::endl;
 
     std::chrono::time_point<std::chrono::system_clock> start, end;
     start = std::chrono::system_clock::now();
@@ -40,7 +36,7 @@ void compile(bool debug, const std::string& file)
 {
     if (!Ark::Utils::fileExists(file))
     {
-        Ark::Log::error("(Compiler) Can not find file '" + file + "'");
+        Ark::logger.error("(Compiler) Can not find file '" + file + "'");
         return;
     }
 

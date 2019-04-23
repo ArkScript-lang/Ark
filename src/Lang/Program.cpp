@@ -8,7 +8,9 @@ namespace Ark
 {
     namespace Lang
     {
-        Program::Program()
+        Program::Program(bool debug) :
+            m_debug(debug),
+            m_parser(debug)
         {}
 
         Program::~Program()
@@ -20,9 +22,12 @@ namespace Ark
             
             if (!m_parser.check())
             {
-                Ark::Log::error("[Program] Program has errors");
+                Ark::logger.error("[Program] Program has errors");
                 exit(1);
             }
+
+            if (m_debug)
+                Ark::logger.info("(Program) Program parsed and checked without errors");
         }
 
         void Program::execute(const Nodes& args)
@@ -47,7 +52,7 @@ namespace Ark
             Node& n = m_global_env.find(key)[key];
             if (n.nodeType() == NodeType::Number)
                 return n.getIntVal();
-            Ark::Log::error("[Program] '" + key + "' isn't an integer");
+            Ark::logger.error("[Program] '" + key + "' isn't an integer");
             exit(1);
         }
         
@@ -56,7 +61,7 @@ namespace Ark
             Node& n = m_global_env.find(key)[key];
             if (n.nodeType() == NodeType::String)
                 return n.getStringVal();
-            Ark::Log::error("[Program] '" + key + "' isn't a string");
+            Ark::logger.error("[Program] '" + key + "' isn't a string");
             exit(1);
         }
         
@@ -65,7 +70,7 @@ namespace Ark
             Node& n = m_global_env.find(key)[key];
             if (n.nodeType() == NodeType::Lambda)
                 return Function(this, n);
-            Ark::Log::error("[Program] '" + key + "' isn't a function");
+            Ark::logger.error("[Program] '" + key + "' isn't a function");
             exit(1);
         }
 
@@ -130,16 +135,18 @@ namespace Ark
                 return proc.call(exps);
             else
             {
-                Ark::Log::error("(Program) not a function");
+                Ark::logger.error("[Program] not a function");
                 exit(1);
             }
         }
 
         std::ostream& operator<<(std::ostream& os, const Program& P)
         {
-            os << P.m_parser << std::endl;
             os << "Environment" << std::endl;
-            os << P.m_global_env << std::endl;
+            if (P.m_global_env.empty())
+                os << "=> empty";
+            else
+                os << P.m_global_env << std::endl;
 
             return os;
         }

@@ -10,25 +10,33 @@ namespace Ark
 {
     namespace Parser
     {
+        struct Token
+        {
+            std::string token;
+            std::size_t line;
+            std::size_t col;
+        };
+
         class Lexer
         {
         public:
-            Lexer();
+            Lexer(bool debug=false);
             ~Lexer();
 
             void feed(const std::string& code);
             bool check();
 
-            const std::vector<std::string>& tokens();
+            const std::vector<Token>& tokens();
 
         private:
-            std::vector<std::string> m_tokens;
+            bool m_debug;
+            std::vector<Token> m_tokens;
             const std::vector<std::regex> m_regexs = {
                 std::regex("^\"[^\"]*\"")  // strings
                 , std::regex("^[\\(\\)\\[\\]{}]")  // parenthesis
-                , std::regex("^((\\+|-)?[[:digit:]]+)(\\.(([[:digit:]]+)?))?")  // numbers
+                , std::regex("^((\\+|-)?[[:digit:]]+)")  // numbers
                 , std::regex("^(\\+|-|\\*|/|%|<=|>=|!=|<|>|=|\\^)")  // operators
-                , std::regex("^[_!?\\-\\w]+")  // words
+                , std::regex("^[a-zA-Z][a-zA-Z0-9_\\-!?']*")  // words
                 , std::regex("^\\s+")  // whitespaces
                 , std::regex("^'.*")  // comments
             };

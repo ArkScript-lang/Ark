@@ -7,7 +7,8 @@ namespace Ark
 {
     namespace Parser
     {
-        Lexer::Lexer()
+        Lexer::Lexer(bool debug) :
+            m_debug(debug)
         {}
 
         Lexer::~Lexer()
@@ -32,7 +33,7 @@ namespace Ark
 
                         // stripping blanks characters between instructions, and comments
                         if (std::string::npos != m0.find_first_not_of(" \t\v\r\n") && m0.substr(0, 1) != "'")
-                            m_tokens.push_back(m[0]);
+                            m_tokens.push_back({ m[0], line, character });
                         // line-char counter
                         if (std::string::npos != m0.find_first_of("\r\n"))
                         {
@@ -48,9 +49,32 @@ namespace Ark
                 }
                 if (!ok)
                 {
-                    Ark::Log::error("[Lexer] Tokenizing error at " + Ark::Utils::toString(line) + ":" + Ark::Utils::toString(character - 1));
+                    Ark::logger.error("[Lexer] Tokenizing error at " + Ark::Utils::toString(line) + ":" + Ark::Utils::toString(character - 1));
                     break;
                 }
+            }
+
+            if (m_debug)
+            {
+                Ark::logger.info("(Lexer) Tokens:");
+
+                line = 0;
+                for (auto&& token : m_tokens)
+                {
+                    if (token.line != line)
+                    {
+                        line = token.line;
+                        if (line < 10)               std::cout << "   " << line;
+                        else if (10 <= line < 100)   std::cout << "  " << line;
+                        else if (100 <= line < 1000) std::cout << " " << line;
+                        else                         std::cout << line;
+                        std::cout << " | " << token.token << "\n";
+                    }
+                    else
+                        std::cout << "     | " << token.token << "\n";
+                }
+                // flush
+                std::cout << std::endl;
             }
         }
 
@@ -63,7 +87,7 @@ namespace Ark
 
             while (true)
             {
-                auto t = m_tokens[i];
+                auto t = m_tokens[i].token;
 
                 if (t == "(" || t == "[" || t == "{")
                 {
@@ -77,7 +101,7 @@ namespace Ark
                         nested_lparen--;
                     else
                     {
-                        Ark::Log::error("[Lexer] Found a ')' not matching any '('. Token number: " + Ark::Utils::toString(i));
+                        Ark::logger.error(std::string("[Lexer] Found a ')' not matching any '('. At {0}:{1}"), m_tokens[i].line, m_tokens[i].col);
                         return false;
                     }
                 }
@@ -91,14 +115,14 @@ namespace Ark
 
             if (lparen != rparen)
             {
-                Ark::Log::error("[Lexer] Found " + Ark::Utils::toString(lparen) + std::string(" '(' for ") + Ark::Utils::toString(rparen) + std::string(" ')'"));
+                Ark::logger.error("[Lexer] Found " + Ark::Utils::toString(lparen) + std::string(" '(' for ") + Ark::Utils::toString(rparen) + std::string(" ')'"));
                 return false;
             }
 
             return true;
         }
 
-        const std::vector<std::string>& Lexer::tokens()
+        const std::vector<Token>& Lexer::tokens()
         {
             return m_tokens;
         }

@@ -26,13 +26,18 @@ namespace Ark
             if (m_outer != nullptr)
                 return m_outer->find(var);
 
-            Ark::Log::error("[Environment] Unbound symbol: " + var);
+            Ark::logger.error("[Environment] Unbound symbol: " + var);
             exit(1);
         }
 
         Node& Environment::operator[](const std::string& var)
         {
             return m_env[var];
+        }
+
+        bool Environment::empty() const
+        {
+            return m_env.empty();
         }
 
         std::ostream& operator<<(std::ostream& os, const Environment& E)

@@ -23,7 +23,7 @@ namespace Ark
             
             if (!m_parser.check())
             {
-                Ark::Log::error("[Compiler] Program has errors");
+                Ark::logger.error("[Compiler] Program has errors");
                 exit(1);
             }
         }
@@ -127,7 +127,7 @@ namespace Ark
         void Compiler::_compile(Node x, int p)
         {
             if (m_debug)
-                Ark::Log::info(x);
+                Ark::logger.info(x);
             
             // register symbols
             if (x.nodeType() == NodeType::Symbol)

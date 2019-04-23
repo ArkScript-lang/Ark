@@ -67,6 +67,10 @@ namespace Ark
 
             Node call(const std::vector<Node>& args);
 
+            void setPos(std::size_t line, std::size_t col);
+            std::size_t line() const;
+            std::size_t col() const;
+
             friend std::ostream& operator<<(std::ostream& os, const Node& N);
             friend inline bool operator==(const Node& A, const Node& B);
 
@@ -80,6 +84,8 @@ namespace Ark
 
             Node::ProcType m_procedure;
             Environment* m_env;
+
+            std::size_t m_line, m_col;
         };
 
         inline bool operator==(const Node& A, const Node& B)
