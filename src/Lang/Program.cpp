@@ -47,7 +47,7 @@ namespace Ark
             m_global_env[name] = Node(function);
         }
         
-        template <> dozerg::HugeNumber Program::get<dozerg::HugeNumber>(const std::string& key)
+        template <> BigNum Program::get<BigNum>(const std::string& key)
         {
             Node& n = m_global_env.find(key)[key];
             if (n.nodeType() == NodeType::Number)

@@ -4,7 +4,7 @@
 #include <variant>
 #include <string>
 
-#include <huge_number.hpp>
+#include <Ark/BigNum.hpp>
 
 namespace Ark
 {
@@ -19,7 +19,7 @@ namespace Ark
 
         struct Value
         {
-            std::variant<dozerg::HugeNumber, std::string, std::size_t> value;
+            std::variant<BigNum, std::string, std::size_t> value;
             ValueType type;
 
             template <typename T>

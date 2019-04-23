@@ -22,7 +22,7 @@ int main()
     program.feed(g_code);
     program.execute();
     
-    auto a = program.get<dozerg::HugeNumber>("a");
+    auto a = program.get<Ark::BigNum>("a");
     auto b = program.get<std::string>("b");
     auto life = program.get<Ark::Function>("life");
     
@@ -50,12 +50,12 @@ If you run it a second time, the environment won't be reset.
 ### Getting values from a program
 
 ```cpp
-auto my_integer = program.get<dozerg::HugeNumber>("my_ark_integer");
+auto my_integer = program.get<Ark::BigNum>("my_ark_integer");
 ```
 
-The types supported by `.get<>` are: dozerg::HugeNumber, std::string and Function.
+The types supported by `.get<>` are: Ark::BigNum, std::string and Function.
 
-A Function can take dozerg::HugeNumber and std::string (multiple arguments are supported).
+A Function can take Ark::BigNum and std::string (multiple arguments are supported).
 
 ### Registering a C++ function into an Ark program
 

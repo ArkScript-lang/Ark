@@ -8,9 +8,14 @@ if (NOT TESTCPP)
     set(TESTCPP "false" CACHE STRING "Use test.cpp instead of main.cpp" FORCE)
 endif()
 
+set(CMAKE_MODULE_PATH ${Ark_SOURCE_DIR}/cmake)
+find_package(GMP REQUIRED)
+
 include_directories(
     ${Ark_SOURCE_DIR}/include
     ${Ark_SOURCE_DIR}/thirdparty
+
+    ${GMP_INCLUDE_DIR}
 )
 
 file(GLOB_RECURSE SOURCE_FILES
@@ -25,6 +30,7 @@ else()
 endif()
 
 add_executable(Ark ${SOURCE_FILES})
+target_link_libraries(Ark ${GMP_LIBRARIES})
 
 set_target_properties(
     Ark

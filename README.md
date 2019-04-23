@@ -51,21 +51,28 @@ The language already handles
 * church encoding
 * closures
 
-## Dependencies (already included)
+## Dependencies
 
 * C++17 compliant compiler
 * CMake >= 3.8
+
+Libs already included:
 * rj format (https://github.com/ryjen/format)
 * CLIPP
 * termcolor
-* huge_number (by [daidodo](https://github.com/daidodo/huge-long-number))
 
-## Tests
+Not included:
+* GMP (download it [here](https://ftp.gnu.org/gnu/gmp/gmp-6.1.2.tar.bz2))
+
+## Building
 
 Running on Linux Mint 18, 64 bits.
 
 ```bash
-# building
+# building GMP
+$ cd gmp-6.1.2/ && ./configure && make && make install
+$ cd ../Ark
+# building Ark
 $ cmake -H. -Bbuild
 $ cmake --build build
 # running

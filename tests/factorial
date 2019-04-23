@@ -12,5 +12,5 @@
         ' return value:
         a
     }])
-    (fact 1000)
+    (print (fact 10000))
 )

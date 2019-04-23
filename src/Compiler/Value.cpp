@@ -9,12 +9,12 @@ namespace Ark
         using namespace Ark::Lang;
 
         template <> Value::Value(const int& value) :
-            value(dozerg::HugeNumber(value)),
+            value(BigNum(value)),
             type(ValueType::Number)
         {}
 
         template <> Value::Value(const long& value) :
-            value(dozerg::HugeNumber(value)),
+            value(BigNum(value)),
             type(ValueType::Number)
         {}
 
