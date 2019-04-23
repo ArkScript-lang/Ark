@@ -1,3 +1,5 @@
+#ifndef ARKLANG  // define ARKLANG to avoid creating a main function when including Ark in a project
+
 #include <iostream>
 
 #include <clipp.hpp>
@@ -89,3 +91,5 @@ int main(int argc, char** argv)
     
     return 0;
 }
+
+#endif
