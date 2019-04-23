@@ -31,6 +31,14 @@ namespace Ark
             m_env(nullptr)
         {}
 
+        template <> Node::Node<Keyword>(NodeType type, const Keyword& value) :
+            m_type(type),
+            m_value(0),
+            m_valuetype(ValueType::Int),
+            m_keyword(value),
+            m_env(nullptr)
+        {}
+
         Node::Node(Node::ProcType proc) :
             m_procedure(proc),
             m_type(NodeType::Proc),
@@ -83,6 +91,11 @@ namespace Ark
         const ValueType Node::valueType() const
         {
             return m_valuetype;
+        }
+
+        const Keyword Node::keyword() const
+        {
+            return m_keyword;
         }
 
         std::vector<Node>& Node::list()

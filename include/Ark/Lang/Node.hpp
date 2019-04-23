@@ -14,6 +14,7 @@ namespace Ark
         enum class NodeType
         {
             Symbol,
+            Keyword,
             String,
             Number,
             List,
@@ -26,6 +27,16 @@ namespace Ark
             Int,
             Float,
             String
+        };
+
+        enum class Keyword
+        {
+            Fun,
+            Def,
+            Set,
+            If,
+            While,
+            Begin
         };
 
         class Environment;
@@ -54,6 +65,7 @@ namespace Ark
             const NodeType& nodeType() const;
             void setNodeType(NodeType type);
             const ValueType valueType() const;
+            const Keyword keyword() const;
 
             std::vector<Node>& list();
             const std::vector<Node>& const_list() const;
@@ -67,6 +79,7 @@ namespace Ark
             NodeType m_type;
             Value m_value;
             ValueType m_valuetype;
+            Keyword m_keyword;
             std::vector<Node> m_list;
             Node::ProcType m_procedure;
             Environment* m_env;

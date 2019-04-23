@@ -46,34 +46,32 @@ namespace Ark
                 return x;
             if (x.list().empty())
                 return nil;
-            if (x.list()[0].nodeType() == NodeType::Symbol)
+            if (x.list()[0].nodeType() == NodeType::Keyword)
             {
-                std::string n = x.list()[0].getStringVal();
+                Keyword n = x.list()[0].keyword();
 
-                if (n == "quote")
-                    return x.list()[1];
-                if (n == "if")
+                if (n == Keyword::If)
                     return _execute((_execute(x.list()[1], env) == falseSym) ? x.list()[3] : x.list()[2], env);
-                if (n == "set")
+                if (n == Keyword::Set)
                 {
                     std::string name = x.list()[1].getStringVal();
                     return env->find(name)[name] = _execute(x.list()[2], env);
                 }
-                if (n == "def")
+                if (n == Keyword::Def)
                     return (*env)[x.list()[1].getStringVal()] = _execute(x.list()[2], env);
-                if (n == "fun")
+                if (n == Keyword::Fun)
                 {
                     x.setNodeType(NodeType::Lambda);
                     x.addEnv(env);
                     return x;
                 }
-                if (n == "begin")
+                if (n == Keyword::Begin)
                 {
                     for (std::size_t i=1; i < x.list().size() - 1; ++i)
                         _execute(x.list()[i], env);
                     return _execute(x.list()[x.list().size() - 1], env);
                 }
-                if (n == "while")
+                if (n == Keyword::While)
                 {
                     while (_execute(x.list()[1], env) == trueSym)
                         _execute(x.list()[2], env);

@@ -35,6 +35,35 @@ namespace Ark
             return nil;
         }
 
+        Node sub(const Nodes& n)
+        {
+            if (n[0].valueType() == ValueType::Int)
+            {
+                int i = n[0].getIntVal();
+                for (Node::Iterator it=n.begin()+1; it != n.end(); ++it)
+                {
+                    if (it->valueType() == ValueType::Int)
+                        i -= it->getIntVal();
+                    else if (it->valueType() == ValueType::Float)
+                        i -= (int) it->getFloatVal();
+                }
+                return Node(NodeType::Number, i);
+            }
+            else if (n[0].valueType() == ValueType::Float)
+            {
+                float f = n[0].getFloatVal();
+                for (Node::Iterator it=n.begin()+1; it != n.end(); ++it)
+                {
+                    if (it->valueType() == ValueType::Int)
+                        f -= (float) it->getIntVal();
+                    else if (it->valueType() == ValueType::Float)
+                        f -= it->getFloatVal();
+                }
+                return Node(NodeType::Number, f);
+            }
+            return nil;
+        }
+
         Node neq(const Nodes& n)
         {
             bool b = true;
@@ -83,8 +112,11 @@ namespace Ark
             env["true"] = trueSym;
 
             env["+"] = Node(&add);
+            env["-"] = Node(&sub);
+
             env["!="] = Node(&neq);
             env["="] = Node(&eq);
+
             env["print"] = Node(&print);
         }
     }

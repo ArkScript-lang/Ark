@@ -1,0 +1,18 @@
+(begin
+    (def fibo
+        (fun (n) (if (= n 0)
+                    0 ' then
+                    (if (= n 1) ' else
+                        1 ' then
+                        (+ ' else
+                            (fibo (- n 1))
+                            (fibo (- n 2))
+                        )
+                    ) ' endif
+                ) ' endif
+        ) ' endfun
+    ) ' enddef
+
+    ' (print (fibo 1) (fibo 2) (fibo 3) (fibo 4) (fibo 5) (fibo 10))
+    (print (fibo 10))
+)
