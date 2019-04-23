@@ -99,6 +99,9 @@ namespace Ark
                     else
                         pushNumber(inst.jump_to_page);
                 }
+                // just in case we got too far, always add a HALT to be sure the
+                // VM won't do anything crazy
+                m_bytecode.push_back(Instruction::HALT);
             }
 
             if (!m_code_pages.size())
@@ -170,8 +173,6 @@ namespace Ark
 
                     page.emplace_back(Instruction::STORE);
                     pushNumber((uint16_t) i, &page);
-
-                    return;
                 }
                 else if (n == Keyword::Def)
                 {
@@ -183,11 +184,10 @@ namespace Ark
 
                     page.emplace_back(Instruction::LET);
                     pushNumber((uint16_t) i, &page);
-
-                    return;
                 }
                 else if (n == Keyword::Fun)
                 {
+                    // TODO
                     x.setNodeType(NodeType::Lambda);
                     x.addEnv(env);
                     return x;
@@ -195,8 +195,11 @@ namespace Ark
                 else if (n == Keyword::Begin)
                 {
                     for (std::size_t i=1; i < x.list().size() - 1; ++i)
-                        _execute(x.list()[i], env);
-                    return _execute(x.list()[x.list().size() - 1], env);
+                        _compile(x.list()[i], page);
+                    
+                    // return last value
+                    _compile(x.list()[x.list().size() - 1], page);
+                    page.push_back(Instruction::RET);
                 }
                 else if (n == Keyword::While)
                 {
@@ -219,8 +222,6 @@ namespace Ark
                     page.emplace_back(Instruction::JUMP);
                     // relative address casted as unsigned (don't worry, it's normal)
                     pushNumber((uint16_t) current, &page);
-
-                    return;
                 }
 
                 return;

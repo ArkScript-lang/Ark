@@ -33,3 +33,5 @@ Jumps are used to jump from a code segment to another, in case of functions. The
 | `LET` (0x05) | symbol id (two bytes, big endian) | Take the value on top of the stack and create a variable in the current scope, named following the given symbol id (cf symbols table) |
 | `POP_JUMP_IF_FALSE` (0x06) | relative address to jump to (two bytes, big endian) | Jump to the provided address if the last value on the stack was equal to false. Pop it if false, otherwise, leave it on the stack |
 | `JUMP` (0x07) | relative address to jump to (two byte, big endian) | Jump to the provided address |
+| `RET` (0x08) | | If in a code segment other than the main one, quit it, and push the value on top of the stack to the new stack. Otherwise, acts as a `HALT` |
+| `HALT` (0x09) | | Stop the Virtual Machine |
