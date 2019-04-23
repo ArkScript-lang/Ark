@@ -30,7 +30,8 @@ namespace Ark
             Set,
             If,
             While,
-            Begin
+            Begin,
+            HasType
         };
 
         class Environment;

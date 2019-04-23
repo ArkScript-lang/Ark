@@ -78,6 +78,8 @@ namespace Ark
                 return Node(NodeType::Keyword, Keyword::While);
             if (token == "begin")
                 return Node(NodeType::Keyword, Keyword::Begin);
+            if (token == "hastype")
+                return Node(NodeType::Keyword, Keyword::HasType);
             
             return Node(NodeType::Symbol, token);
         }
@@ -210,6 +212,55 @@ namespace Ark
                                     return true;
                                 }
                                 Ark::Log::error("[Parser] error: need 2 nodes to create a while loop: the condition and the body");
+                                return false;
+                            }
+
+                            case Keyword::HasType:
+                            {
+                                if (p.size() == 4)
+                                {
+                                    if (p[1].nodeType() != NodeType::Symbol)
+                                    {
+                                        Ark::Log::error("[Parser] error: need a symbol to define a has-type rule");
+                                        return false;
+                                    }
+                                    if (p[2].nodeType() != NodeType::List)
+                                    {
+                                        Ark::Log::error("[Parser] error: need a list to define the arguments of a function in a has-type rule");
+                                        return false;
+                                    }
+                                    for (Node::Iterator it2=p[2].const_list().begin(); it2 != p[2].const_list().end(); ++it2)
+                                    {
+                                        if (it2->nodeType() != NodeType::Symbol)
+                                        {
+                                            Ark::Log::error("[Parser] error: types for arguments in has-type rule should be symbols");
+                                            return false;
+                                        }
+                                        if (it2->getStringVal() != "Number" &&
+                                            it2->getStringVal() != "String" &&
+                                            it2->getStringVal() != "Bool"   &&
+                                            it2->getStringVal() != "List")
+                                        {
+                                            Ark::Log::error("[Parser] error: unknown type in has-type rule: '" + it2->getStringVal() + "'");
+                                            return false;
+                                        }
+                                    }
+                                    if (p[3].nodeType() != NodeType::Symbol)
+                                    {
+                                        Ark::Log::error("[Parser] error: need a symbol to define the return type of a function in a has-type rule");
+                                        return false;
+                                    }
+                                    if (p[3].getStringVal() != "Number" &&
+                                        p[3].getStringVal() != "String" &&
+                                        p[3].getStringVal() != "Bool"   &&
+                                        p[3].getStringVal() != "List")
+                                    {
+                                        Ark::Log::error("[Parser] error: unknown return type in has-type rule: '" + p[3].getStringVal() + "'");
+                                        return false;
+                                    }
+                                    return true;
+                                }
+                                Ark::Log::error("[Parser] error: need 4 nodes to define a has-type rule");
                                 return false;
                             }
                             
