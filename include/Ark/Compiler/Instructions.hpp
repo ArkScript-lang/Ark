@@ -1,0 +1,26 @@
+#ifndef ark_compiler_instructions
+#define ark_compiler_instructions
+
+namespace Ark
+{
+    namespace Compiler
+    {
+        enum Instruction
+        {
+            NOP = 0x00,
+            SYM_TABLE_START = 0x01,
+            VAL_TABLE_START = 0x02,
+                NUMBER_TYPE = 0x01,
+                STRING_TYPE = 0x02,
+            CODE_SEGMENT_START = 0x03,
+        };
+
+        struct Inst
+        {
+            Instruction inst = Instruction::NOP;
+            std::size_t jump_to_page = 0;
+        };
+    }
+}
+
+#endif
