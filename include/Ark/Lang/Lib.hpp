@@ -24,10 +24,10 @@ namespace Ark
 
         FUNCTION(len)  // len 1
         FUNCTION(empty)  // empty? 1
-        FUNCTION(car)  // car 1
-        FUNCTION(cdr)  // cdr +
+        FUNCTION(firstof)  // firstof 1
+        FUNCTION(tailof)  // tailof +
         FUNCTION(append)  // append +
-        FUNCTION(cons)  // cons +
+        FUNCTION(concat)  // concat +
         FUNCTION(list)  // list +
         FUNCTION(isnil)  // nil? 1
 

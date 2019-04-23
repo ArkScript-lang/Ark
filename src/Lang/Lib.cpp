@@ -111,12 +111,12 @@ namespace Ark
             return (n[0].const_list().size() == 0) ? trueSym : falseSym;
         }
         
-        Node car(const Nodes& n)
+        Node firstof(const Nodes& n)
         {
             return n[0].const_list()[0];
         }
         
-        Node cdr(const Nodes& n)
+        Node tailof(const Nodes& n)
         {
             if (n[0].const_list().size() < 2)
                 return nil;
@@ -128,38 +128,38 @@ namespace Ark
 
         Node append(const Nodes& n)
         {
-        	Node r = n[0];
-        	for (Node::Iterator it=n.begin()+1; it != n.end(); ++it)
-        	{
-        		r.push_back(*it);
-        	}
-        	return r;
+            Node r = n[0];
+            for (Node::Iterator it=n.begin()+1; it != n.end(); ++it)
+            {
+                r.push_back(*it);
+            }
+            return r;
         }
 
-        Node cons(const Nodes& n)
+        Node concat(const Nodes& n)
         {
-        	Node r = n[0];
-        	for (Node::Iterator it=n.begin()+1; it != n.end(); ++it)
-        	{
-        		for (Node::Iterator it2=it->const_list().begin(); it2 != it->const_list().end(); ++it2)
-        			r.push_back(*it2);
-        	}
-        	return r;
+            Node r = n[0];
+            for (Node::Iterator it=n.begin()+1; it != n.end(); ++it)
+            {
+                for (Node::Iterator it2=it->const_list().begin(); it2 != it->const_list().end(); ++it2)
+                    r.push_back(*it2);
+            }
+            return r;
         }
 
         Node list(const Nodes& n)
         {
-        	Node r(NodeType::List);
-        	for (Node::Iterator it=n.begin(); it != n.end(); ++it)
-        	{
-        		r.push_back(*it);
-        	}
-			return r;
+            Node r(NodeType::List);
+            for (Node::Iterator it=n.begin(); it != n.end(); ++it)
+            {
+                r.push_back(*it);
+            }
+            return r;
         }
 
         Node isnil(const Nodes& n)
         {
-        	return n[0] == nil ? trueSym : falseSym;
+            return n[0] == nil ? trueSym : falseSym;
         }
         
         // ------------------------------
@@ -205,10 +205,10 @@ namespace Ark
             
             env["len"] = Node(&len);
             env["empty?"] = Node(&empty);
-            env["car"] = Node(&car);
-            env["cdr"] = Node(&cdr);
+            env["firstof"] = Node(&firstof);
+            env["tailof"] = Node(&tailof);
             env["append"] = Node(&append);
-            env["cons"] = Node(&cons);
+            env["concat"] = Node(&concat);
             env["list"] = Node(&list);
             env["nil?"] = Node(&isnil);
 
