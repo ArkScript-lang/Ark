@@ -122,6 +122,8 @@ namespace Ark
             }
             return nil;
         }
+        
+        // ------------------------------
 
         Node gt(const Nodes& n)
         {
@@ -224,6 +226,35 @@ namespace Ark
         {
             return (n[0] == n[1]) ? trueSym : falseSym;
         }
+        
+        // ------------------------------
+        
+        Node len(const Nodes& n)
+        {
+            return Node(NodeType::Number, (int) n[0].list().size());
+        }
+        
+        Node empty(const Nodes& n)
+        {
+            return (n[0].list().size() == 0) ? trueSym : falseSym;
+        }
+        
+        Node car(const Nodes& n)
+        {
+            return n[0].list()[0];
+        }
+        
+        Node cdr(const Nodes& n)
+        {
+            if (n[0].list().size() < 2)
+                return nil;
+            
+            Node r = n[0];
+            r.list().erase(r.list().begin());
+            return r;
+        }
+        
+        // ------------------------------
 
         Node print(const Nodes& n)
         {
@@ -243,6 +274,8 @@ namespace Ark
             }
             return nil;
         }
+        
+        // ------------------------------
 
         void registerLib(Environment& env)
         {
@@ -261,6 +294,11 @@ namespace Ark
             env[">="] = Node(&ge);
             env["!="] = Node(&neq);
             env["="] = Node(&eq);
+            
+            env["len"] = Node(&len);
+            env["empty"] = Node(&empty);
+            env["car"] = Node(&car);
+            env["cdr"] = Node(&cdr);
 
             env["print"] = Node(&print);
             env["assert"] = Node(&assert);
