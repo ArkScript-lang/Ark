@@ -27,7 +27,8 @@ namespace Ark
                 HALT = 0x09,
                 CALL = 0x0a,
                 NEW_ENV = 0x0b,
-                BUILTIN = 0x0c
+                BUILTIN = 0x0c,
+                SAVE_ENV = 0x0d
         };
 
         struct Inst

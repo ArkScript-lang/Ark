@@ -78,6 +78,8 @@ namespace Ark
                         newEnv();
                     else if (inst == Instruction::BUILTIN)
                         builtin();
+                    else if (inst == Instruction::SAVE_ENV)
+                        saveEnv();
                     else
                     {
                         Ark::logger.error("[Virtual Machine] unknown instruction:", static_cast<std::size_t>(inst));
@@ -327,22 +329,30 @@ namespace Ark
         {
             /*
                 Argument: constant id (two bytes, big endian)
-                Job: Load a constant from its id onto the stack
+                Job: Load a constant from its id onto the stack. Should check for a saved environment
+                     and push a Closure with the page address + environment instead of the constant
             */
             ++m_ip;
             auto id = readNumber();
 
             if (m_debug)
                 Ark::logger.info("LOAD_CONST ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
-
-            push(m_constants[id]);
+            
+            if (m_saved_frame && m_constants[id].isPageAddr())
+            {
+                push(Value(&m_saved_frame.value(), m_constants[id].pageAddr()));
+                m_saved_frame.reset();
+            }
+            else
+                push(m_constants[id]);
         }
         
         void VM::popJumpIfTrue()
         {
             /*
                 Argument: absolute address to jump to (two bytes, big endian)
-                Job: Jump to the provided address if the last value on the stack was equal to true. Remove the value from the stack no matter what it is
+                Job: Jump to the provided address if the last value on the stack was equal to true.
+                     Remove the value from the stack no matter what it is
             */
             ++m_ip;
             int16_t addr = static_cast<int16_t>(readNumber());
@@ -359,7 +369,9 @@ namespace Ark
         {
             /*
                 Argument: symbol id (two bytes, big endian)
-                Job: Take the value on top of the stack and put it inside a variable named following the symbol id (cf symbols table), in the nearest scope. Raise an error if it couldn't find a scope where the variable exists
+                Job: Take the value on top of the stack and put it inside a variable named following
+                     the symbol id (cf symbols table), in the nearest scope. Raise an error if it
+                     couldn't find a scope where the variable exists
             */
             ++m_ip;
             auto id = readNumber();
@@ -389,7 +401,8 @@ namespace Ark
         {
             /*
                 Argument: symbol id (two bytes, big endian)
-                Job: Take the value on top of the stack and create a variable in the current scope, named following the given symbol id (cf symbols table)
+                Job: Take the value on top of the stack and create a variable in the current scope, named
+                     following the given symbol id (cf symbols table)
             */
             ++m_ip;
             auto id = readNumber();
@@ -405,7 +418,8 @@ namespace Ark
         {
             /*
                 Argument: relative address to jump to (two bytes, big endian)
-                Job: Jump to the provided address if the last value on the stack was equal to false. Remove the value from the stack no matter what it is
+                Job: Jump to the provided address if the last value on the stack was equal to false. Remove
+                     the value from the stack no matter what it is
             */
             ++m_ip;
             int16_t addr = static_cast<int16_t>(readNumber());
@@ -437,7 +451,9 @@ namespace Ark
         {
             /*
                 Argument: none
-                Job: If in a code segment other than the main one, quit it, and push the value on top of the stack to the new stack ; should as well delete the current environment. Otherwise, acts as a `HALT`
+                Job: If in a code segment other than the main one, quit it, and push the value on top of
+                     the stack to the new stack ; should as well delete the current environment.
+                     Otherwise, acts as a `HALT`
             */
             // check if we should halt the VM
             if (m_debug)
@@ -451,24 +467,36 @@ namespace Ark
 
             // save pp
             PageAddr_t old_pp = static_cast<PageAddr_t>(m_pp);
-            
-            Value return_value(pop());
             m_pp = m_frames.back().callerPageAddr();
             m_ip = m_frames.back().callerAddr();
-            // remove environment
-            m_frames.pop_back();
-            // remove upper environment and save it
-            m_frames.back().copyEnvironmentTo(m_saved_frames[old_pp]);
-            m_frames.pop_back();
-            // push value as the return value of a function to the current stack
-            push(return_value);
+
+            auto rm_env = [&, this] () -> void {
+                // remove environment
+                m_frames.pop_back();
+                // next environment is the one of the closure, we should save it
+                // TODO
+                m_frames.pop_back();
+            };
+            
+            if (m_frames.back().stackSize() != 0)
+            {
+                Value return_value(pop());
+                rm_env();
+                // push value as the return value of a function to the current stack
+                push(return_value);
+            }
+            else
+                rm_env();
         }
         
         void VM::call()
         {
             /*
                 Argument: number of arguments when calling the function
-                Job: Call function from its symbol id located on top of the stack. Take the given number of arguments from the top of stack and give them  to the function (the first argument taken from the stack will be the last one of the function). The stack of the function is now composed of its arguments, from the first to the last one
+                Job: Call function from its symbol id located on top of the stack. Take the given number of
+                     arguments from the top of stack and give them  to the function (the first argument taken
+                     from the stack will be the last one of the function). The stack of the function is now composed
+                     of its arguments, from the first to the last one
             */
             ++m_ip;
             auto argc = readNumber();
@@ -491,27 +519,14 @@ namespace Ark
                 push(return_value);
                 return;
             }
-            else if (function.isPageAddr())
+            else if (function.isClosure())
             {
-                // checking if we have an environment
-                PageAddr_t pa = function.pageAddr();
-                if (m_saved_frames.find(pa) == m_saved_frames.end())
-                {
-                    // save environment
-                    m_saved_frames[pa] = Frame();
-                    m_frames.back().copyEnvironmentTo(m_saved_frames[pa]);
-                    // save upper if we can
-                    if (m_frames.size() >= 2)
-                        m_frames[m_frames.size() - 2].copyEnvironmentTo(m_saved_frames[pa]);
-
-                    std::cout << "=========\n" << m_saved_frames[pa] << "=========\n" << std::endl;
-                }
-
-                // load saved environment
-                m_frames.push_back(m_saved_frames[pa]);
+                Closure c = function.closure();
+                // load saved frame
+                m_frames.push_back(*c.frame());
                 // create dedicated frame
                 m_frames.emplace_back(m_ip, m_pp);
-                m_pp = pa;
+                m_pp = c.pageAddr();
                 m_ip = -1;  // because we are doing a m_ip++ right after that
                 for (std::size_t j=0; j < args.size(); ++j)
                     push(args[j]);
@@ -547,6 +562,17 @@ namespace Ark
                 Ark::logger.info("BUILTIN ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
 
             push(m_ffi[id]);
+        }
+
+        void VM::saveEnv()
+        {
+            /*
+                Argument: none
+                Job: Used to tell the Virtual Machine to save the current environment. Main goal is
+                     to be able to handle closures, which need to save the environment in which
+                     they were created
+            */
+            m_saved_frame = m_frames.back();
         }
     }
 }

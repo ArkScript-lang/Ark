@@ -8,15 +8,11 @@
 
         (let set-age [fun (new-age) (set _age new-age)])
 
-        (let constructor (fun (f) [begin
+        ' return value as higher order function to manipulate the data above
+        (fun (f) [begin
             (print "playing with human")
             (f _name _age _weight set-age)
-        ]))
-
-        ' must be called at least once, otherwise the VM won't set it up as a closure
-        (constructor (fun (d0 d1 d2 d3) ()))
-        ' return value as higher order function to manipulate the data above
-        constructor
+        ])
     }])
 
     (let print-human-age [fun (d0 _age d1 d2) (print _age)])

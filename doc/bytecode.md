@@ -60,7 +60,7 @@ Builtins are handled with `BUILTIN id`, with `id` being the id of the builtin fu
 | ---- | ----------- | --- |
 | `NOP` (0x00) | | Does Nothing |
 | `LOAD_SYMBOL` (0x01) | symbol id (two bytes, big endian) | Load a symbol from its id onto the stack |
-| `LOAD_CONST` (0x02) | constant id (two bytes, big endian) | Load a constant from its id onto the stack |
+| `LOAD_CONST` (0x02) | constant id (two bytes, big endian) | Load a constant from its id onto the stack. Should check for a saved environment and push a Closure with the page address + environment instead of the constant |
 | `POP_JUMP_IF_TRUE` (0x03) | absolute address to jump to (two bytes, big endian) | Jump to the provided address if the last value on the stack was equal to true. Remove the value from the stack no matter what it is |
 | `STORE` (0x04) | symbol id (two bytes, big endian) | Take the value on top of the stack and put it inside a variable named following the symbol id (cf symbols table), in the nearest scope. Raise an error if it couldn't find a scope where the variable exists |
 | `LET` (0x05) | symbol id (two bytes, big endian) | Take the value on top of the stack and create a variable in the current scope, named following the given symbol id (cf symbols table) |
@@ -71,3 +71,4 @@ Builtins are handled with `BUILTIN id`, with `id` being the id of the builtin fu
 | `CALL` (0x0a) | number of arguments when calling the function | Call function from its symbol id located on top of the stack. Take the given number of arguments from the top of stack and give them  to the function (the first argument taken from the stack will be the last one of the function). The stack of the function is now composed of its arguments, from the first to the last one |
 | `NEW_ENV` (0x0b) | | Create a new environment (a new scope for variables) in the Virtual Machine |
 | `BUILTIN` (0x0c) | id of builtin (two bytes, big endian) | Push the builtin function object on the stack |
+| `SAVE_ENV` (0x0d) | | Used to tell the Virtual Machine to save the current environment. Main goal is to be able to handle closures, which need to save the environment in which they were created |

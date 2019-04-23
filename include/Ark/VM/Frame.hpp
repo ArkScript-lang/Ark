@@ -34,6 +34,7 @@ namespace Ark
 
             Value& operator[](const std::string& key);
             bool find(const std::string& key) const;
+            std::size_t stackSize() const;
 
             std::size_t callerAddr() const;
             std::size_t callerPageAddr() const;

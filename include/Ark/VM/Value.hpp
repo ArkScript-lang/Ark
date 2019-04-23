@@ -8,24 +8,27 @@
 #include <cinttypes>
 #include <iostream>
 
+#include <Ark/VM/Types.hpp>
+#include <Ark/VM/Closure.hpp>
+
 namespace Ark
 {
     namespace VM
     {
         using namespace dozerg;
 
-        enum class NFT { Nil, False, True };
-        using PageAddr_t = uint16_t;
+        class Frame;
 
         class Value
         {
         public:
             using ProcType  = Value(*)(const std::vector<Value>&);
             using Iterator = std::vector<Value>::const_iterator;
-            using ValueType = std::variant<HugeNumber, std::string, PageAddr_t, NFT, ProcType>;
+            using ValueType = std::variant<HugeNumber, std::string, PageAddr_t, NFT, ProcType, Closure>;
 
             Value(bool is_list=false);
             template <typename T> Value(const T& value);
+            Value(Frame* frame_ptr, PageAddr_t pa);
             ~Value();
 
             Value& operator=(const Value& value);
@@ -36,6 +39,7 @@ namespace Ark
             bool isNFT() const;
             bool isProc() const;
             bool isList() const;
+            bool isClosure() const;
 
             const HugeNumber& number() const;
             const std::string& string() const;
@@ -43,6 +47,7 @@ namespace Ark
             const NFT nft() const;
             const ProcType proc() const;
             const std::vector<Value>& list() const;
+            const Closure& closure() const;
 
             std::vector<Value>& list_ref();
 
