@@ -110,7 +110,7 @@ namespace Ark
             return true;
         }
 
-        const std::vector<std::string> Lexer::tokens()
+        const std::vector<std::string>& Lexer::tokens()
         {
             return m_tokens;
         }
