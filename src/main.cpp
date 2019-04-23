@@ -7,6 +7,7 @@
 #include <Ark/Constants.hpp>
 #include <Ark/Lang/Program.hpp>
 #include <Ark/Compiler/Compiler.hpp>
+#include <Ark/Compiler/BytecodeReader.hpp>
 #include <Ark/Log.hpp>
 
 void exec(bool debug, bool timer, const std::string& file)
@@ -46,13 +47,20 @@ void compile(bool debug, const std::string& file)
     compiler.saveTo(file.substr(0, file.find_last_of('.')) + ".arkc");
 }
 
+void bcr(const std::string& file)
+{
+    Ark::Compiler::BytecodeReader bcr;
+    bcr.feed(file);
+    bcr.display();
+}
+
 int main(int argc, char** argv)
 {
     using namespace clipp;
 
     std::cout << "Ark programming language" << std::endl << std::endl;
 
-    enum class mode { help, version, interpreter, compiler };
+    enum class mode { help, version, interpreter, compiler, bytecode_reader };
     mode selected;
     std::string input_file = "";
     bool debug = false;
@@ -71,6 +79,9 @@ int main(int argc, char** argv)
         | (command("compile").set(selected, mode::compiler).doc("Start the compiler to generate a bytecode file from the given Ark source file")
             , value("file", input_file)
             , option("-d", "--debug").set(debug).doc("Enable debug mode")
+          )
+        | (command("bcr").set(selected, mode::bytecode_reader).doc("Run the bytecode reader on the given file")
+            , value("file", input_file)
           )
         , any_other(wrong)
     );
@@ -102,6 +113,10 @@ int main(int argc, char** argv)
         
         case mode::compiler:
             compile(debug, input_file);
+            break;
+        
+        case mode::bytecode_reader:
+            bcr(input_file);
             break;
         }
     }

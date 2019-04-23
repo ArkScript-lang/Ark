@@ -94,7 +94,7 @@ namespace Ark
             // start code segments
             for (auto page : m_code_pages)
             {
-                m_bytecode.push_back(CODE_SEGMENT_START);
+                m_bytecode.push_back(Instruction::CODE_SEGMENT_START);
                 // push number of elements
                 if (!page.size())
                 {
@@ -287,7 +287,7 @@ namespace Ark
             // call the procedure
             page(p).push_back(Instruction::CALL);
             // number of arguments
-            pushNumber(static_cast<uint16_t>(std::distance(x.list().begin() + 1, x.list().end())));
+            pushNumber(static_cast<uint16_t>(std::distance(x.list().begin() + 1, x.list().end())), &page(p));
 
             return;
         }

@@ -26,9 +26,15 @@ namespace Ark
         template <> Value::Value(const Node& v)
         {
             if (v.nodeType() == NodeType::Number)
+            {
                 value = v.getIntVal();
+                type = ValueType::Number;
+            }
             else if (v.nodeType() == NodeType::String)
+            {
                 value = v.getStringVal();
+                type = ValueType::String;
+            }
         }
 
         template <> Value::Value(const std::size_t& value) :
