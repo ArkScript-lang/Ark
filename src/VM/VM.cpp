@@ -7,7 +7,8 @@ namespace Ark
     namespace VM
     {
         VM::VM(bool debug) :
-            m_debug(debug)
+            m_debug(debug),
+            m_ip(0), m_pp(0)
         {}
 
         VM::~VM()
@@ -23,7 +24,15 @@ namespace Ark
         }
 
         void VM::run()
-        {}
+        {
+            if (m_pages.size() > 0)
+            {
+                while (true)
+                {
+
+                }
+            }
+        }
 
         void VM::configure()
         {
@@ -143,6 +152,9 @@ namespace Ark
                 Ark::logger.error("[Virtual Machine] Couldn't find constants table");
                 exit(1);
             }
+
+            // save instruction pointer
+            m_ip = i + 3;
             
             while (b[i] == Instruction::CODE_SEGMENT_START)
             {
