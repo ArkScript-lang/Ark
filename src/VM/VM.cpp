@@ -7,6 +7,8 @@ namespace Ark
 {
     namespace VM
     {
+        using namespace std::string_literals;
+
         VM::VM(bool debug) :
             m_debug(debug),
             m_ip(0), m_pp(0),
@@ -29,6 +31,9 @@ namespace Ark
         {
             if (m_pages.size() > 0)
             {
+                if (m_debug)
+                    Ark::logger.info("Starting at PP:{0}, IP:{1}"s, m_pp, m_ip);
+
                 m_running = true;
                 while (m_running)
                 {
@@ -85,13 +90,16 @@ namespace Ark
             }
         }
 
+        void VM::loadFunction(const std::string& name, Ark::Lang::Node::ProcType function)
+        {
+            m_frames.back()[name] = Value(function);
+        }
+
         void VM::configure()
         {
             // configure ffi
             m_frames.emplace_back();  // put default page
             Ark::Lang::registerLib(m_ffi);
-            for (const auto& kv : m_ffi.m_env)
-                m_frames.back()[kv.first] = Value(kv.second.getProcVal());
 
             // configure tables and pages
             const bytecode_t& b = m_bytecode;
@@ -163,7 +171,7 @@ namespace Ark
 
                     if (type == Instruction::NUMBER_TYPE)
                     {
-                        std::string val = "";
+                        std::string val = "0x";
                         while (b[i] != 0)
                             val.push_back(b[i++]);
                         i++;
@@ -210,9 +218,6 @@ namespace Ark
                 Ark::logger.error("[Virtual Machine] Couldn't find constants table");
                 exit(1);
             }
-
-            // save instruction pointer
-            m_ip = i + 3;
             
             while (b[i] == Instruction::CODE_SEGMENT_START)
             {
@@ -248,6 +253,8 @@ namespace Ark
         void VM::nop()
         {
             // Does nothing
+            if (m_debug)
+                Ark::logger.info("NOP PP:{0}, IP:{1}"s, m_pp, m_ip);
         }
         
         void VM::loadSymbol()
@@ -258,6 +265,9 @@ namespace Ark
             */
             ++m_ip;
             auto id = readNumber();
+
+            if (m_debug)
+                Ark::logger.info("LOAD_SYMBOL ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
 
             if (id == 0)
                 push(NFT::Nil);
@@ -295,6 +305,9 @@ namespace Ark
             ++m_ip;
             auto id = readNumber();
 
+            if (m_debug)
+                Ark::logger.info("LOAD_CONST ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
+
             push(m_constants[id]);
         }
         
@@ -307,8 +320,11 @@ namespace Ark
             ++m_ip;
             int16_t addr = static_cast<int16_t>(readNumber());
 
+            if (m_debug)
+                Ark::logger.info("POP_JUMP_IF_TRUE ({0}) PP:{1}, IP:{2}"s, addr, m_pp, m_ip);
+
             Value cond = pop();
-            if (isNFT(cond) && std::get<NFT>(cond) == NFT::True)
+            if (cond.isNFT() && cond.nft() == NFT::True)
                 m_ip += addr - 1;  // because we are doing a ++m_ip right after this
         }
         
@@ -320,6 +336,9 @@ namespace Ark
             */
             ++m_ip;
             auto id = readNumber();
+
+            if (m_debug)
+                Ark::logger.info("STORE ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
 
             std::string sym = m_symbols[id - 3];
 
@@ -348,6 +367,9 @@ namespace Ark
             ++m_ip;
             auto id = readNumber();
 
+            if (m_debug)
+                Ark::logger.info("LET ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
+
             std::string sym = m_symbols[id - 3];
             m_frames.back()[sym] = pop();
         }
@@ -361,8 +383,11 @@ namespace Ark
             ++m_ip;
             int16_t addr = static_cast<int16_t>(readNumber());
 
+            if (m_debug)
+                Ark::logger.info("POP_JUMP_IF_FALSE ({0}) PP:{1}, IP:{2}"s, addr, m_pp, m_ip);
+
             Value cond = pop();
-            if (isNFT(cond) && std::get<NFT>(cond) == NFT::False)
+            if (cond.isNFT() && cond.nft() == NFT::False)
                 m_ip += addr - 1;  // because we are doing a ++m_ip right after this
         }
         
@@ -375,6 +400,9 @@ namespace Ark
             ++m_ip;
             int16_t addr = static_cast<int16_t>(readNumber());
 
+            if (m_debug)
+                Ark::logger.info("JUMP ({0}) PP:{1}, IP:{2}"s, addr, m_pp, m_ip);
+
             m_ip = addr - 1;  // because we are doing a ++m_ip right after this
         }
         
@@ -385,6 +413,9 @@ namespace Ark
                 Job: If in a code segment other than the main one, quit it, and push the value on top of the stack to the new stack ; should as well delete the current environment. Otherwise, acts as a `HALT`
             */
             // check if we should halt the VM
+            if (m_debug)
+                Ark::logger.info("RET PP:{0}, IP:{1}"s, m_pp, m_ip);
+            
             if (m_pp == 0)
             {
                 m_running = false;
@@ -409,30 +440,30 @@ namespace Ark
             ++m_ip;
             auto argc = readNumber();
 
+            if (m_debug)
+                Ark::logger.info("CALL ({0}) PP:{1}, IP:{2}"s, argc, m_pp, m_ip);
+
             Value function(pop());
             std::vector<Value> args;
             for (uint16_t j=0; j < argc; ++j)
                 args.push_back(pop());
 
             // is it a builtin function name?
-            if (isProc(function))
+            if (function.isProc())
             {
-                /*
-                    Convert args to std::vector<Node>
-                    will need variadic templates probably
-
-                    Convert return value as well
-
-                    also, will need to add a way for the user to add
-                    their own functions, defined as:
-                    Node func(const Nodes& n) {... return whatever;}
-                */
+                // convert args to std::vector<Node> (aka Nodes)
+                Ark::Lang::Nodes nodes;
+                for (std::size_t j=0; j < args.size(); ++j)
+                    nodes.push_back(convertValueToNode(args[j]));
+                // call proc
+                Ark::Lang::Node return_value = function.proc()(nodes);
+                push(convertNodeToValue(return_value));
                 return;
             }
-            else if (isPageAddr(function))
+            else if (function.isPageAddr())
             {
                 m_frames.emplace_back(m_ip, m_pp);
-                m_pp = std::get<PageAddr_t>(function);
+                m_pp = function.pageAddr();
                 m_ip = 0;
                 for (std::size_t j=0; j < args.size(); ++j)
                     push(args[j]);
@@ -449,6 +480,9 @@ namespace Ark
                 Argument: none
                 Job: Create a new environment (a new scope for variables) in the Virtual Machine
             */
+            if (m_debug)
+                Ark::logger.info("NEW_ENV PP:{0}, IP:{1}"s, m_pp, m_ip);
+            
             m_frames.emplace_back();
         }
 
@@ -460,6 +494,9 @@ namespace Ark
             */
             ++m_ip;
             auto id = readNumber();
+
+            if (m_debug)
+                Ark::logger.info("BUILTIN ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
 
             push(Value(m_ffi[Ark::Lang::builtins[id]].getProcVal()));
         }

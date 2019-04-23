@@ -33,3 +33,7 @@ set_target_properties(
         CXX_STANDARD_REQUIRED ON
         CXX_EXTENSIONS OFF
 )
+
+if (CMAKE_COMPILER_IS_GNUCXX)
+    set(CMAKE_CXX_FLAGS "-pg -g -no-pie")
+endif()
