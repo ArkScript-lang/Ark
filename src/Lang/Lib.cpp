@@ -253,6 +253,42 @@ namespace Ark
             r.list().erase(r.list().begin());
             return r;
         }
+
+        Node append(const Nodes& n)
+        {
+        	Node r = n[0];
+        	for (Node::Iterator it=n.begin()+1; it != n.end(); ++it)
+        	{
+        		r.push_back(*it);
+        	}
+        	return r;
+        }
+
+        Node cons(const Nodes& n)
+        {
+        	Node r = n[0];
+        	for (Node::Iterator it=n.begin()+1; it != n.end(); ++it)
+        	{
+        		for (Node::Iterator it2=it->const_list().begin(); it2 != it->const_list().end(); ++it2)
+        			r.push_back(*it2);
+        	}
+        	return r;
+        }
+
+        Node list(const Nodes& n)
+        {
+        	Node r(NodeType::List);
+        	for (Node::Iterator it=n.begin(); it != n.end(); ++it)
+        	{
+        		r.push_back(*it);
+        	}
+			return r;
+        }
+
+        Node isnil(const Nodes& n)
+        {
+        	return n[0] == nil ? trueSym : falseSym;
+        }
         
         // ------------------------------
 
@@ -299,6 +335,10 @@ namespace Ark
             env["empty?"] = Node(&empty);
             env["car"] = Node(&car);
             env["cdr"] = Node(&cdr);
+            env["append"] = Node(&append);
+            env["cons"] = Node(&cons);
+            env["list"] = Node(&list);
+            env["nil?"] = Node(&isnil);
 
             env["print"] = Node(&print);
             env["assert"] = Node(&assert);

@@ -1,7 +1,7 @@
 # Ark std lib
 
 * add (+)
-* substract (-)
+* subtract (-)
 * multiply (*)
 * divide (/)
 * greater than (>)
