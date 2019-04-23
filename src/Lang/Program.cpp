@@ -37,10 +37,12 @@ namespace Ark
 
         Node Program::_execute(Node x, Environment* env)
         {
+//            Ark::Log::info(x);
+
             if (x.nodeType() == NodeType::Symbol)
             {
                 std::string name = x.getStringVal();
-                return env->find(name)[name];
+                return name[0] != '"' ? env->find(name)[name] : x;
             }
             if (x.nodeType() == NodeType::Number)
                 return x;

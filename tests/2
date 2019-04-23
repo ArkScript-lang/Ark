@@ -1,1 +1,10 @@
-(5
+(begin
+    (def x 1)
+    (print x)
+    (print "hello world")
+    (def f
+        (fun (x) (+ x x))
+    )
+    (def b (f 1))
+    (print b)
+)

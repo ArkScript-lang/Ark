@@ -7,8 +7,8 @@
     (def a 1)
     (if (= a 1) (print "a is 1") ())
     (if (= a 2) () (print "a is not 2"))
-    (while (!= a 10) (begin
-        (print a)
-        (set a (+ a 1))
-        ))
+    '(while (!= a 10) (begin
+    '    (print a)
+    '    (set a (+ a 1))
+    '    ))
     )

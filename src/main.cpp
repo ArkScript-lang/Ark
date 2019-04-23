@@ -9,7 +9,7 @@
 void test()
 {
     Ark::Lang::Program program;
-    program.feed(Ark::Utils::readFile("tests/1"));
+    program.feed(Ark::Utils::readFile("tests/2"));
 
     std::cout << program << std::endl;
 
