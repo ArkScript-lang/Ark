@@ -28,7 +28,7 @@ void exec(bool debug, bool timer, const std::string& file)
         std::cout << "Took " << elapsed_microseconds << "us" << std::endl;
 }
 
-int main2(int argc, char** argv)
+int main(int argc, char** argv)
 {
     using namespace clipp;
 
