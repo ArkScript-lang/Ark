@@ -4,6 +4,8 @@ namespace Ark
 {
     namespace Compiler
     {
-        
+        Inst::Inst(Instruction inst) :
+            inst(inst)
+        {}
     }
 }

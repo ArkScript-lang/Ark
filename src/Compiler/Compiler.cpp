@@ -40,7 +40,8 @@ namespace Ark
             // symbols table
             m_bytecode.push_back(Instruction::SYM_TABLE_START);
                 // gather symbols, values, and start to create code segments
-                _compile(m_parser.ast());
+                m_code_pages.emplace_back();  // create empty page
+                _compile(m_parser.ast(), m_code_pages[0]);
             // push size
             pushNumber((uint16_t) m_symbols.size());
             // push elements
@@ -107,7 +108,7 @@ namespace Ark
             }
         }
 
-        void Compiler::_compile(Node x)
+        void Compiler::_compile(Node x, std::vector<Inst>& page)
         {
             // register symbols
             if (x.nodeType() == NodeType::Symbol)
@@ -115,7 +116,7 @@ namespace Ark
                 std::string name = x.getStringVal();
                 std::size_t i = addSymbol(x);
 
-                m_bytecode.push_back(Instruction::LOAD_SYMBOL);
+                page.emplace_back(Instruction::LOAD_SYMBOL);
                 pushNumber((uint16_t) i);
 
                 return;
@@ -125,9 +126,15 @@ namespace Ark
             {
                 std::size_t i = addValue(x);
 
-                m_bytecode.push_back(Instruction::LOAD_CONST);
+                page.emplace_back(Instruction::LOAD_CONST);
                 pushNumber((uint16_t) i);
 
+                return;
+            }
+            // empty code block
+            if (x.list().empty())
+            {
+                page.emplace_back(Instruction::NOP);
                 return;
             }
             // registering structures
@@ -137,33 +144,49 @@ namespace Ark
 
                 if (n == Keyword::If)
                 {
-                    _execute((_execute(x.list()[1], env) == falseSym) ? x.list()[3] : x.list()[2], env);
+                    // compile condition
+                    _compile(x.list(), page);
+                    // jump only if needed to the x.list()[2] part
+                    page.emplace_back(Instruction::POP_JUMP_IF_TRUE);
+                        // else code, generated in a temporary page
+                        m_code_pages.emplace_back();
+                        _compile(x.list()[3], m_code_pages.back());
+                    // relative address to jump to if condition is true, casted as unsigned (don't worry, it's normal)
+                    pushNumber((uint16_t) m_code_pages.back().size());
+                    // adding temp page into current one, and removing temp page
+                    for (auto inst : m_code_pages.back())
+                        page.emplace_back(inst);
+                    m_code_pages.pop_back();
+                        // if code
+                        _compile(x.list()[3], page);
                 }
-                if (n == Keyword::Set)
+                else if (n == Keyword::Set)
                 {
                     std::string name = x.list()[1].getStringVal();
                     return env->find(name)[name] = _execute(x.list()[2], env);
                 }
-                if (n == Keyword::Def)
+                else if (n == Keyword::Def)
                     return (*env)[x.list()[1].getStringVal()] = _execute(x.list()[2], env);
-                if (n == Keyword::Fun)
+                else if (n == Keyword::Fun)
                 {
                     x.setNodeType(NodeType::Lambda);
                     x.addEnv(env);
                     return x;
                 }
-                if (n == Keyword::Begin)
+                else if (n == Keyword::Begin)
                 {
                     for (std::size_t i=1; i < x.list().size() - 1; ++i)
                         _execute(x.list()[i], env);
                     return _execute(x.list()[x.list().size() - 1], env);
                 }
-                if (n == Keyword::While)
+                else if (n == Keyword::While)
                 {
                     while (_execute(x.list()[1], env) == trueSym)
                         _execute(x.list()[2], env);
                     return nil;
                 }
+
+                return;
             }
 
             Node proc(_execute(x.list()[0], env));
