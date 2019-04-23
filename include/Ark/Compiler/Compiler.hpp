@@ -31,6 +31,7 @@ namespace Ark
             void _compile(Node x, std::vector<Inst>& page);
             std::size_t addSymbol(const std::string& sym);
             std::size_t addValue(Node x);
+            std::size_t addValue(std::size_t page_id);
 
             void pushNumber(uint16_t n, std::vector<Inst>* page=nullptr);
 
@@ -38,6 +39,7 @@ namespace Ark
             std::vector<std::string> m_symbols;
             std::vector<Value> m_values;
             std::vector<std::vector<Inst>> m_code_pages;
+            std::vector<Inst> m_temp_page;
 
             std::vector<uint8_t> m_bytecode;
         };
