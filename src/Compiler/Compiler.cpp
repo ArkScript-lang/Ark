@@ -144,6 +144,11 @@ namespace Ark
             output.close();
         }
 
+        const bytecode_t& Compiler::bytecode()
+        {
+            return m_bytecode;
+        }
+
         void Compiler::_compile(Node x, int p)
         {
             if (m_debug)
