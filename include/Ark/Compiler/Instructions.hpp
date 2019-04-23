@@ -1,6 +1,8 @@
 #ifndef ark_compiler_instructions
 #define ark_compiler_instructions
 
+#include <cinttypes>
+
 namespace Ark
 {
     namespace Compiler
@@ -26,10 +28,11 @@ namespace Ark
 
         struct Inst
         {
-            Instruction inst = Instruction::NOP;
+            uint8_t inst = Instruction::NOP;
             std::size_t jump_to_page = 0;
 
             Inst(Instruction inst);
+            Inst(uint8_t inst);
         };
     }
 }

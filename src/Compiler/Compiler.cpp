@@ -1,5 +1,9 @@
 #include <Ark/Compiler/Compiler.hpp>
 
+#include <Ark/Log.hpp>
+#include <Ark/Lang/Lib.hpp>
+#include <Ark/Function.hpp>
+
 namespace Ark
 {
     namespace Compiler
@@ -43,7 +47,7 @@ namespace Ark
                 m_code_pages.emplace_back();  // create empty page
                 _compile(m_parser.ast(), m_code_pages[0]);
             // push size
-            pushNumber((uint16_t) m_symbols.size());
+            pushNumber(static_cast<uint16_t>(m_symbols.size()));
             // push elements
             for (auto sym : m_symbols)
             {
@@ -56,7 +60,7 @@ namespace Ark
             // values table
             m_bytecode.push_back(Instruction::VAL_TABLE_START);
             // push size
-            pushNumber((uint16_t) m_values.size());
+            pushNumber(static_cast<uint16_t>(m_values.size()));
             // push elements (separated with 0x00)
             for (auto val : m_values)
             {
@@ -68,7 +72,7 @@ namespace Ark
                     for (std::size_t i=0; i < t.size(); ++i)
                         m_bytecode.push_back(t[i]);
                 }
-                else if (value.type == ValueType::String)
+                else if (val.type == ValueType::String)
                 {
                     m_bytecode.push_back(Instruction::STRING_TYPE);
                     std::string t = std::get<std::string>(val.value);
@@ -89,7 +93,7 @@ namespace Ark
                     pushNumber(0x00);
                     return;
                 }
-                pushNumber((uint16_t) page.size());
+                pushNumber(static_cast<uint16_t>(page.size()));
 
                 for (auto inst : page)
                 {
@@ -120,7 +124,7 @@ namespace Ark
                 std::size_t i = addSymbol(name);
 
                 page.emplace_back(Instruction::LOAD_SYMBOL);
-                pushNumber((uint16_t) i, &page);
+                pushNumber(static_cast<uint16_t>(i), &page);
 
                 return;
             }
@@ -130,7 +134,7 @@ namespace Ark
                 std::size_t i = addValue(x);
 
                 page.emplace_back(Instruction::LOAD_CONST);
-                pushNumber((uint16_t) i, &page);
+                pushNumber(static_cast<uint16_t>(i), &page);
 
                 return;
             }
@@ -148,20 +152,20 @@ namespace Ark
                 if (n == Keyword::If)
                 {
                     // compile condition
-                    _compile(x.list(), page);
+                    _compile(x.list()[1], page);
                     // jump only if needed to the x.list()[2] part
                     page.emplace_back(Instruction::POP_JUMP_IF_TRUE);
                         // else code, generated in a temporary page
                         m_code_pages.emplace_back();
                         _compile(x.list()[3], m_code_pages.back());
                     // relative address to jump to if condition is true, casted as unsigned (don't worry, it's normal)
-                    pushNumber((uint16_t) m_code_pages.back().size(), &page);
+                    pushNumber(static_cast<uint16_t>(m_code_pages.back().size()), &page);
                     // adding temp page into current one, and removing temp page
-                    for (auto inst : m_code_pages.back())
+                    for (auto&& inst : m_code_pages.back())
                         page.emplace_back(inst);
                     m_code_pages.pop_back();
                         // if code
-                        _compile(x.list()[3], page);
+                        _compile(x.list()[2], page);
                 }
                 else if (n == Keyword::Set)
                 {
@@ -172,7 +176,7 @@ namespace Ark
                     _compile(x.list()[2], page);
 
                     page.emplace_back(Instruction::STORE);
-                    pushNumber((uint16_t) i, &page);
+                    pushNumber(static_cast<uint16_t>(i), &page);
                 }
                 else if (n == Keyword::Def)
                 {
@@ -183,14 +187,14 @@ namespace Ark
                     _compile(x.list()[2], page);
 
                     page.emplace_back(Instruction::LET);
-                    pushNumber((uint16_t) i, &page);
+                    pushNumber(static_cast<uint16_t>(i), &page);
                 }
                 else if (n == Keyword::Fun)
                 {
                     // TODO
-                    x.setNodeType(NodeType::Lambda);
+                    /*x.setNodeType(NodeType::Lambda);
                     x.addEnv(env);
-                    return x;
+                    return x;*/
                 }
                 else if (n == Keyword::Begin)
                 {
@@ -213,21 +217,21 @@ namespace Ark
                     // relative jump to end of block if condition is false
                     page.emplace_back(Instruction::POP_JUMP_IF_FALSE);
                     // relative address to jump to if condition is false, casted as unsigned (don't worry, it's normal)
-                    pushNumber((uint16_t) m_code_pages.back().size(), &page);
+                    pushNumber(static_cast<uint16_t>(m_code_pages.back().size()), &page);
                     // copy code from temp page and destroy temp page
-                    for (auto inst : m_code_pages.back())
+                    for (auto&& inst : m_code_pages.back())
                         page.push_back(inst);
                     m_code_pages.pop_back();
                     // loop, jump to the condition
                     page.emplace_back(Instruction::JUMP);
                     // relative address casted as unsigned (don't worry, it's normal)
-                    pushNumber((uint16_t) current, &page);
+                    pushNumber(static_cast<uint16_t>(current), &page);
                 }
 
                 return;
             }
 
-            Node proc(_execute(x.list()[0], env));
+            /*Node proc(_execute(x.list()[0], env));
             Nodes exps;
             for (Node::Iterator exp=x.list().begin() + 1; exp != x.list().end(); ++exp)
                 exps.push_back(_execute(*exp, env));
@@ -240,7 +244,7 @@ namespace Ark
             {
                 Ark::Log::error("(Program) not a function");
                 exit(1);
-            }
+            }*/
         }
 
         std::size_t Compiler::addSymbol(const std::string& sym)
@@ -275,8 +279,8 @@ namespace Ark
             }
             else
             {
-                page->push_back((n & 0xff00) >> 8);
-                page->push_back(n & 0x00ff);
+                page->emplace_back((n & 0xff00) >> 8);
+                page->emplace_back(n & 0x00ff);
             }
         }
     }
