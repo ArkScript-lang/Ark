@@ -24,6 +24,7 @@ namespace Ark
                 JUMP = 0x07,
                 RET = 0x08,
                 HALT = 0x09,
+                CALL = 0x0a,
         };
 
         struct Inst

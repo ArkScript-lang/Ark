@@ -35,3 +35,4 @@ Jumps are used to jump from a code segment to another, in case of functions. The
 | `JUMP` (0x07) | relative address to jump to (two byte, big endian) | Jump to the provided address |
 | `RET` (0x08) | | If in a code segment other than the main one, quit it, and push the value on top of the stack to the new stack. Otherwise, acts as a `HALT` |
 | `HALT` (0x09) | | Stop the Virtual Machine |
+| `CALL` (0x0a) | number of arguments when calling the function | Call function from its symbol id located on top of the stack. Take the given number of arguments from the top of stack and give them in reverse order to the function (the first argument taken from the stack will be the last one of the function) |

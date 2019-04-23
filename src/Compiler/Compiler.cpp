@@ -194,7 +194,9 @@ namespace Ark
                     // TODO
                     /*x.setNodeType(NodeType::Lambda);
                     x.addEnv(env);
-                    return x;*/
+                    // add arguments and body
+                    // create sub-environment
+                    */
                 }
                 else if (n == Keyword::Begin)
                 {
@@ -231,20 +233,22 @@ namespace Ark
                 return;
             }
 
-            /*Node proc(_execute(x.list()[0], env));
-            Nodes exps;
+            // if we are here, we should have a function name
+            // push arguments first, then function name, then call it
+                m_code_pages.emplace_back();
+                _compile(x.list()[0], m_code_pages.back());  // storing proc
+            // push arguments on current page
             for (Node::Iterator exp=x.list().begin() + 1; exp != x.list().end(); ++exp)
-                exps.push_back(_execute(*exp, env));
+                _compile(*exp, page);
+            // push proc from temp page
+            for (auto&& inst : m_code_pages.back())
+                page.push_back(inst);
+            m_code_pages.pop_back();
+            // call the procedure
+            page.push_back(Instruction::CALL);
+            pushNumber(static_cast<uint16_t>(std::distance(x.list().begin() + 1, x.list().end())));
 
-            if (proc.nodeType() == NodeType::Lambda)
-                return _execute(proc.list()[2], new Environment(proc.list()[1].list(), exps, proc.getEnv()));
-            else if (proc.nodeType() == NodeType::Proc)
-                return proc.call(exps);
-            else
-            {
-                Ark::Log::error("(Program) not a function");
-                exit(1);
-            }*/
+            return;
         }
 
         std::size_t Compiler::addSymbol(const std::string& sym)
