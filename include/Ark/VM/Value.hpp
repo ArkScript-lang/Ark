@@ -5,13 +5,17 @@
 #include <huge_number.hpp>
 #include <string>
 #include <cinttypes>
+#include <Ark/Lang/Node.hpp>
 
 namespace Ark
 {
     namespace VM
     {
         using namespace dozerg;
-        using Value = std::variant<HugeNumber, std::string, uint16_t>;
+
+        enum class NFT { Nil, False, True };
+        using PageAddr_t = uint16_t;
+        using Value = std::variant<HugeNumber, std::string, PageAddr_t, NFT, Ark::Lang::ProcType>;
     }
 }
 

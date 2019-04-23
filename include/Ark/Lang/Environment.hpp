@@ -9,6 +9,11 @@
 
 namespace Ark
 {
+    namespace VM
+    {
+        class VM;
+    }
+
     namespace Lang
     {
         class Environment
@@ -25,6 +30,8 @@ namespace Ark
             bool empty() const;
 
             friend std::ostream& operator<<(std::ostream& os, const Environment& E);
+
+            friend class VM;
 
         private:
             Environment* m_outer;
