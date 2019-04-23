@@ -6,30 +6,33 @@ Ark is a small programming language made in C++17, inspired by Lisp, using under
 
 ```clojure
 (begin
-    (let create-human [fun (name age weight) {begin
-        (let _name name)
-        (let _age age)
-        (let _weight weight)
-
-        (let set-age [fun (new-age) (set _age new-age)])
-
+    (let create-human [fun (name age weight)
         ' return value as higher-order function to manipulate the data above
-        (fun (f) [begin
-            (f _name _age _weight set-age)
-        ])
-    }])
+        ' this will be our "constructor"
+        (fun (f)
+        [begin
+            ' all the setters must be defined in this scope
+            (let set-age [fun (new-age) (set age new-age)])
 
-    (let print-human-age [fun (d0 _age d1 d2) (print _age)])
+            ' and then we can call the function
+            (f name age weight set-age)
+        ])
+    ])
+
+    ' define function to play with the human more easily
+    (let print-human-age [fun (_ age _ _) (print age)])
     (let set-human-age [fun (new-age)
-        (fun (d0 d1 d2 set-age) (set-age new-age))
+        (fun (_ _ _ set-age) (set-age new-age))
     ])
 
     (let bob [create-human "Bob" 0 144])
+    (let john [create-human "John" 12 15])
 
-    (bob print-human-age)  ' prints 0
-
+    (bob print-human-age)   ' prints 0
     (bob (set-human-age 10))
-    (bob print-human-age)  ' prints 10
+    (bob print-human-age)   ' prints 10
+
+    (john print-human-age)  ' prints 12
 )
 ```
 
