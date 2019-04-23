@@ -35,7 +35,7 @@ The keywords are:
 
 ## Using Ark in a project
 
--> [Embedidng Ark](embedding.md)
+-> [Embedding Ark](embedding.md)
 
 ## Standart library
 
