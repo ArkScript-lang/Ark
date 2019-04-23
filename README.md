@@ -8,6 +8,7 @@ This is a small programming language, made just for fun, in C++17.
 * CMake >= 3.8
 * rj format (https://github.com/ryjen/format)
 * CLIPP
+* termcolor
 
 # Tests
 
