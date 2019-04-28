@@ -131,7 +131,7 @@ int main(int argc, char** argv)
 {
     using namespace clipp;
 
-    enum class mode { help, version, interpreter, compiler, bytecode_reader, vm, repl };
+    enum class mode { help, version, interpreter, compiler, bytecode_reader, vm, repl, coddity };
     mode selected;
     std::string input_file = "";
     bool debug = false;
@@ -159,6 +159,7 @@ int main(int argc, char** argv)
             , option("-d", "--debug").set(debug).doc("Enable debug mode")
             , option("-t", "--time").set(timer).doc("The task is timed")
         )
+        | command("coddity").set(selected, mode::coddity).doc("Display a document written for the Coddity contest")
         , any_other(wrong)
     );
 
@@ -201,6 +202,10 @@ int main(int argc, char** argv)
         
         case mode::repl:
             repl(debug, timer);
+            break;
+        
+        case mode::coddity:
+            std::cout << Ark::Utils::readFile("coddity.txt") << std::endl;
             break;
         }
     }

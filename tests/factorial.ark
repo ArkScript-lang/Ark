@@ -1,16 +1,14 @@
-(begin
+{
     (hastype fact (Number) Number)
-    (let fact (fun (n) (begin
+    (let fact (fun (n) {
         (let a 1)
         (let acc 2)
-        (while (!= acc n)
-            (begin
+        (while (!= acc n) {
                 (set a (* a acc))
                 (set acc (+ 1 acc))
-            )
-        )
+        })
         ' return value:
         a
-    )))
+    }))
     (fact 10000)
-)
+}

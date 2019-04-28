@@ -85,6 +85,7 @@ SYNOPSIS
         build/Ark bcr <file> 
         build/Ark repl [-d] [-t] 
         build/Ark (interpreter|compile|vm) <file> [-d] [-t] 
+        build/Ark coddity 
 
 OPTIONS
         -h, --help                  Display this help message
@@ -96,6 +97,7 @@ OPTIONS
         vm                          Start the virtual machine with the given bytecode file
         -d, --debug                 Enable debug mode
         -t, --time                  The task is timed
+        coddity                     Display a document written for the Coddity contest
 
 LICENSE
         Mozilla Public License 2.0
