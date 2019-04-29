@@ -27,9 +27,6 @@ namespace Ark
             m_data(value, base)
         {}
 
-        ~BigNum()
-        {}
-
         BigNum& operator+=(const BigNum& rhs) { m_data += rhs.m_data; return *this; }
         BigNum& operator-=(const BigNum& rhs) { m_data -= rhs.m_data; return *this; }
         BigNum& operator*=(const BigNum& rhs) { m_data *= rhs.m_data; return *this; }

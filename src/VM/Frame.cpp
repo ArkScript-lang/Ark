@@ -14,9 +14,6 @@ namespace Ark
             m_page_addr(caller_page_addr)
         {}
 
-        Frame::~Frame()
-        {}
-
         void Frame::copyEnvironmentTo(Frame& other)
         {
             for (auto kv : m_environment)

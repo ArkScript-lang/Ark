@@ -25,7 +25,6 @@ namespace Ark
         public:
             Frame();
             Frame(std::size_t caller_addr, std::size_t caller_page_addr);
-            ~Frame();
 
             void copyEnvironmentTo(Frame& other);
 

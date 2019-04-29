@@ -12,7 +12,6 @@ namespace Ark
     {
     public:
         Function(Lang::Program* prog, Lang::Node function);
-        ~Function();
         
         template <typename... Args>
         Lang::Node operator()(const Args&... args)

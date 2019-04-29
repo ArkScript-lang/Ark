@@ -25,7 +25,6 @@ namespace Ark
         {
         public:
             Lexer(bool debug=false);
-            ~Lexer();
 
             void feed(const std::string& code);
             bool check();

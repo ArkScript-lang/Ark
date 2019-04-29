@@ -23,7 +23,6 @@ namespace Ark
         {
         public:
             Compiler(bool debug=false);
-            ~Compiler();
 
             void feed(const std::string& file);
             void compile();

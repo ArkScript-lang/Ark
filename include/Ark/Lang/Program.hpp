@@ -19,7 +19,6 @@ namespace Ark
         {
         public:
             Program(bool debug=false);
-            ~Program();
 
             void feed(const std::string& code);
             void execute(const Nodes& args={});

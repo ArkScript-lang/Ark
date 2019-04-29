@@ -21,7 +21,6 @@ namespace Ark
         {
         public:
             VM(bool debug=false);
-            ~VM();
 
             void feed(const std::string& filename);
             void feed(const bytecode_t& bytecode);

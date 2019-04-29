@@ -14,9 +14,6 @@ namespace Ark
             m_debug(debug)
         {}
 
-        Compiler::~Compiler()
-        {}
-
         void Compiler::feed(const std::string& code)
         {
             m_parser.feed(code);

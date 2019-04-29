@@ -6,7 +6,4 @@ namespace Ark
         m_procedure(function),
         m_program(prog)
     {}
-    
-    Function::~Function()
-    {}
 }

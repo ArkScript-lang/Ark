@@ -11,9 +11,6 @@ namespace Ark
             m_debug(debug)
         {}
 
-        Lexer::~Lexer()
-        {}
-
         void Lexer::feed(const std::string& code)
         {
             std::string s = code;

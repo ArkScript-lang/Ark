@@ -27,7 +27,6 @@ namespace Ark
             Value(bool is_list=false);
             template <typename T> Value(const T& value);
             Value(Frame* frame_ptr, PageAddr_t pa);
-            ~Value();
 
             Value& operator=(const Value& value);
 

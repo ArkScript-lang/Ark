@@ -53,9 +53,6 @@ namespace Ark
             m_is_list(false)
         {}
 
-        Value::~Value()
-        {}
-
         Value& Value::operator=(const Value& value)
         {
             if (this == &value)

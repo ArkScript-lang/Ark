@@ -18,7 +18,6 @@ namespace Ark
         {
         public:
             Parser(bool debug=false);
-            ~Parser();
 
             void feed(const std::string& code);
             bool check();

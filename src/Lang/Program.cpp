@@ -13,9 +13,6 @@ namespace Ark
             m_parser(debug)
         {}
 
-        Program::~Program()
-        {}
-
         void Program::feed(const std::string& code)
         {
             m_parser.feed(code);

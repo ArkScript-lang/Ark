@@ -17,7 +17,6 @@ namespace Ark
         {
         public:
             BytecodeReader();
-            ~BytecodeReader();
 
             void feed(const std::string& file);
             const bytecode_t& bytecode();

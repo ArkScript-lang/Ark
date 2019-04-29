@@ -11,9 +11,6 @@ namespace Ark
         BytecodeReader::BytecodeReader()
         {}
 
-        BytecodeReader::~BytecodeReader()
-        {}
-
         void BytecodeReader::feed(const std::string& file)
         {
             std::ifstream ifs(file, std::ios::binary | std::ios::ate);

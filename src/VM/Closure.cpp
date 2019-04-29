@@ -18,9 +18,6 @@ namespace Ark
             m_frame = std::make_shared<Frame>(*frame_ptr);
         }
 
-        Closure::~Closure()
-        {}
-
         void Closure::save(std::size_t frame_idx, const std::string& sym)
         {
             m_frame_idx = frame_idx;

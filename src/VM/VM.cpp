@@ -14,10 +14,7 @@ namespace Ark
             m_ip(0), m_pp(0),
             m_running(false)
         {}
-
-        VM::~VM()
-        {}
-
+        
         void VM::feed(const std::string& filename)
         {
             Ark::Compiler::BytecodeReader bcr;

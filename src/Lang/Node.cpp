@@ -59,9 +59,6 @@ namespace Ark
             m_env(nullptr)
         {}
 
-        Node::~Node()
-        {}
-
         void Node::addEnv(Environment* env)
         {
             m_env = env;

@@ -48,7 +48,6 @@ namespace Ark
             Node(NodeType type=NodeType::Symbol);
             template <typename T> Node(NodeType type, const T& value);
             Node(Node::ProcType proc);
-            ~Node();
 
             void addEnv(Environment* env);
             Environment* getEnv();
