@@ -28,8 +28,6 @@ namespace Ark
             template <typename T> Value(const T& value);
             Value(Frame* frame_ptr, PageAddr_t pa);
 
-            Value& operator=(const Value& value);
-
             bool isNumber() const;
             bool isString() const;
             bool isPageAddr() const;

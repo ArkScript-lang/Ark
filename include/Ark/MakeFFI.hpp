@@ -16,7 +16,14 @@
     #define FFI_string(value) (value).getStringVal()
 #endif
 
+#if defined(FFI_VM) || defined(FFI_INTERPRETER)
+    #define FFI_throwTypeError(msg) throw Ark::TypeError(msg)
+    #define FFI_throwZeroDivisionError() throw Ark::ZeroDivisionError()
+#endif
+
 #if defined(FFI_MAKE_HEADER)
+    #include <Ark/Exceptions.hpp>
+
     FFI_Function(add);  // +
     FFI_Function(sub);  // -
     FFI_Function(mul);  // *
@@ -53,33 +60,63 @@
 
     FFI_Function(add)
     {
+        if (!FFI_isNumber(n[0]))
+            FFI_throwTypeError("Arguments of + should be Numbers");
+        
         auto i = FFI_number(n[0]);
         for (FFI_Value::Iterator it=n.begin()+1; it != n.end(); ++it)
+        {
+            if (!FFI_isNumber(*it))
+                FFI_throwTypeError("Arguments of + should be Numbers");
             i += FFI_number(*it);
+        }
         return FFI_Value(i);
     }
 
     FFI_Function(sub)
     {
+        if (!FFI_isNumber(n[0]))
+            FFI_throwTypeError("Arguments of - should be Numbers");
+        
         auto i = FFI_number(n[0]);
         for (FFI_Value::Iterator it=n.begin()+1; it != n.end(); ++it)
+        {
+            if (!FFI_isNumber(*it))
+                FFI_throwTypeError("Arguments of - should be Numbers");
             i -= FFI_number(*it);
+        }
         return FFI_Value(i);
     }
 
     FFI_Function(mul)
     {
+        if (!FFI_isNumber(n[0]))
+            FFI_throwTypeError("Arguments of * should be Numbers");
+        
         auto i = FFI_number(n[0]);
         for (FFI_Value::Iterator it=n.begin()+1; it != n.end(); ++it)
+        {
+            if (!FFI_isNumber(*it))
+                FFI_throwTypeError("Arguments of * should be Numbers");
             i *= FFI_number(*it);
+        }
         return FFI_Value(i);
     }
 
     FFI_Function(div)
     {
+        if (!FFI_isNumber(n[0]))
+            FFI_throwTypeError("Arguments of / should be Numbers");
+        
         auto i = FFI_number(n[0]);
         for (FFI_Value::Iterator it=n.begin()+1; it != n.end(); ++it)
+        {
+            if (!FFI_isNumber(*it))
+                FFI_throwTypeError("Arguments of / should be Numbers");
+            if (FFI_number(*it) == 0)
+                FFI_throwZeroDivisionError();
             i /= FFI_number(*it);
+        }
         return FFI_Value(i);
     }
     

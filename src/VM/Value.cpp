@@ -53,18 +53,6 @@ namespace Ark
             m_is_list(false)
         {}
 
-        Value& Value::operator=(const Value& value)
-        {
-            if (this == &value)
-                return *this;
-            
-            m_value = value.m_value;
-            m_list = value.m_list;
-            m_is_list = value.m_is_list;
-
-            return *this;
-        }
-
         bool Value::isNumber() const
         {
             return !m_is_list && std::holds_alternative<BigNum>(m_value);
