@@ -70,7 +70,7 @@ namespace Ark
         template <> Function Program::get<Function>(const std::string& key)
         {
             Node& n = m_global_env.find(key)[key];
-            if (n.nodeType() == NodeType::Lambda)
+            if (n.nodeType() == NodeType::Closure)
                 return Function(this, n);
             Ark::logger.error("[Program] '" + key + "' isn't a function");
             exit(1);
@@ -109,11 +109,11 @@ namespace Ark
                     std::string name = x.list()[1].getStringVal();
                     return env->find(name)[name] = _execute(x.list()[2], env);
                 }
-                if (n == Keyword::Def)
+                if (n == Keyword::Let)
                     return (*env)[x.list()[1].getStringVal()] = _execute(x.list()[2], env);
                 if (n == Keyword::Fun)
                 {
-                    x.setNodeType(NodeType::Lambda);
+                    x.setNodeType(NodeType::Closure);
                     x.addEnv(env);
                     return x;
                 }
@@ -136,7 +136,7 @@ namespace Ark
             for (Node::Iterator exp=x.list().begin() + 1; exp != x.list().end(); ++exp)
                 exps.push_back(_execute(*exp, env));
 
-            if (proc.nodeType() == NodeType::Lambda)
+            if (proc.nodeType() == NodeType::Closure)
                 return _execute(proc.list()[2], new Environment(proc.list()[1].list(), exps, proc.getEnv()));
             else if (proc.nodeType() == NodeType::Proc)
                 return proc.call(exps);

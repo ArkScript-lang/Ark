@@ -6,7 +6,9 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+
 #include <Ark/BigNum.hpp>
+#include <Ark/Exceptions.hpp>
 
 namespace Ark
 {
@@ -20,13 +22,13 @@ namespace Ark
             Number,
             List,
             Proc,
-            Lambda
+            Closure
         };
 
         enum class Keyword
         {
             Fun,
-            Def,
+            Let,
             Set,
             If,
             While,
@@ -73,6 +75,14 @@ namespace Ark
             friend std::ostream& operator<<(std::ostream& os, const Node& N);
             friend inline bool operator==(const Node& A, const Node& B);
 
+            inline std::string typeToString()
+            {
+                static const std::vector<std::string> nodetype_str = {
+                    "Symbol", "Keyword", "String", "Number", "List", "Procedure", "Closure"
+                };
+                return nodetype_str[static_cast<int>(m_type)];
+            }
+
         private:
             NodeType m_type;
             Value m_value;
@@ -89,9 +99,22 @@ namespace Ark
 
         inline bool operator==(const Node& A, const Node& B)
         {
-            if (A.m_type == B.m_type && A.m_type != NodeType::List && A.m_type != NodeType::Proc && A.m_type != NodeType::Lambda)
+            if (A.m_type != B.m_type)  // should have the same types
+                throw Ark::TypeError("Can not compare heterogeneous values (" + A.typeToString() + " and " + B.typeToString() + ")");
+
+            if (A.m_type != NodeType::List &&
+                A.m_type != NodeType::Proc &&
+                A.m_type != NodeType::Closure)
                 return A.m_value == B.m_value;
-            return false;  //! not comparing proc/list/lambda
+            
+            if (A.m_type = NodeType::List)
+                throw Ark::TypeError("Can not compare lists");
+            
+            if (A.m_type == NodeType::Proc)
+                return A.m_procedure == B.m_procedure;
+            
+            // any other type => false (here, Closure)
+            return false;
         }
 
         extern const Node nil;

@@ -10,6 +10,7 @@
 
 #include <Ark/VM/Types.hpp>
 #include <Ark/VM/Closure.hpp>
+#include <Ark/Exceptions.hpp>
 
 namespace Ark
 {
@@ -52,6 +53,12 @@ namespace Ark
             friend std::ostream& operator<<(std::ostream& os, const Value& V);
             friend inline bool operator==(const Value& A, const Value& B);
 
+            inline std::string typeToString()
+            {
+                static const std::vector<std::string> types_str = { "Number", "String", "PageAddr", "Symbol", "Procedure", "Closure" };
+                return type_str[m_value.index()];
+            }
+
         private:
             ValueType m_value;
             std::vector<Value> m_list;
@@ -60,8 +67,13 @@ namespace Ark
 
         inline bool operator==(const Value& A, const Value& B)
         {
-            if (A.m_is_list || B.m_is_list)
-                return false;
+            // values should have the same type
+            if (A.m_value.index() != B.m_value.index())
+                throw Ark::TypeError("Can not compare heterogeneous values (" + A.typeToString() + " and " + B.typeToString() + ")");
+
+            if (A.m_is_list)
+                throw Ark::TypeError("Can not compare lists");
+            
             return A.m_value == B.m_value;
         }
     }

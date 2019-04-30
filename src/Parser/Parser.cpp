@@ -119,7 +119,7 @@ namespace Ark
             if (token.token == "set")
                 kw = Keyword::Set;
             if (token.token == "let")
-                kw = Keyword::Def;
+                kw = Keyword::Let;
             if (token.token == "fun")
                 kw = Keyword::Fun;
             if (token.token == "while")
@@ -188,7 +188,7 @@ namespace Ark
                                 return false;
                             }
                             
-                            case Keyword::Def:
+                            case Keyword::Let:
                             {
                                 if (p.size() == 3)
                                 {

@@ -233,7 +233,7 @@ namespace Ark
                     page(p).emplace_back(Instruction::STORE);
                     pushNumber(static_cast<uint16_t>(i), &page(p));
                 }
-                else if (n == Keyword::Def)
+                else if (n == Keyword::Let)
                 {
                     std::string name = x.list()[1].getStringVal();
                     std::size_t i = addSymbol(name);

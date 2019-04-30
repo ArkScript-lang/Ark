@@ -24,6 +24,8 @@ namespace Ark
             PageAddr_t pageAddr() const;
             std::size_t frameIndex() const;
             const std::string& symbol() const;
+
+            friend inline bool operator==(const Closure& A, const Closure& B);
         
         private:
             std::shared_ptr<Frame> m_frame;
@@ -32,6 +34,11 @@ namespace Ark
             std::size_t m_frame_idx;
             std::string m_symbol;
         };
+
+        inline bool operator==(const Closure& A, const Closure& B)
+        {
+            return false;
+        }
     }
 }
 

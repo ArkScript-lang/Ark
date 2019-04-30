@@ -161,8 +161,8 @@ namespace Ark
                 os << "Procedure";
                 break;
 
-            case NodeType::Lambda:
-                os << "Lambda";
+            case NodeType::Closure:
+                os << "Closure";
                 break;
 
             default:

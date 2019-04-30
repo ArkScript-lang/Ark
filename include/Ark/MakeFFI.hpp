@@ -3,6 +3,7 @@
     #define FFI_Value Value
     #define FFI_isNumber(value) (value).isNumber()
     #define FFI_isString(value) (value).isString()
+    #define FFI_isList(value)   (value).isList()
     #define FFI_makeList(value) FFI_Value value(true)
     #define FFI_number(value) (value).number()
     #define FFI_string(value) (value).string()
@@ -11,12 +12,15 @@
     #define FFI_Value Node
     #define FFI_isNumber(value) ((value).nodeType() == NodeType::Number)
     #define FFI_isString(value) ((value).nodeType() == NodeType::String)
+    #define FFI_isList(value)   ((value).nodeType() == NodeType::List)
     #define FFI_makeList(value) FFI_Value value(NodeType::List)
     #define FFI_number(value) (value).getIntVal()
     #define FFI_string(value) (value).getStringVal()
 #endif
 
 #if defined(FFI_VM) || defined(FFI_INTERPRETER)
+    #define FFI_isBool(value) ((value) == falseSym || (value) == trueSym)
+
     #define FFI_throwTypeError(msg) throw Ark::TypeError(msg)
     #define FFI_throwZeroDivisionError() throw Ark::ZeroDivisionError()
 #endif
@@ -125,49 +129,77 @@
     FFI_Function(gt)
     {
         if (FFI_isString(n[0]))
-            return falseSym;
+        {
+            if (!FFI_isString(n[1]))
+                FFI_throwTypeError("Arguments of > should have the same type");
+            
+            return (FFI_string(n[0]) > FFI_string(n[1])) ? trueSym : falseSym;
+        }
         else if (FFI_isNumber(n[0]))
         {
-            auto i = FFI_number(n[0]);
-            return (i > FFI_number(n[1])) ? trueSym : falseSym;
+            if (!FFI_isNumber(n[1]))
+                FFI_throwTypeError("Arguments of > should have the same type");
+            
+            return (FFI_number(n[0]) > FFI_number(n[1])) ? trueSym : falseSym;
         }
-        return falseSym;
+        FFI_throwTypeError("Arguments of > should either be Strings or Numbers");
     }
 
     FFI_Function(lt)
     {
         if (FFI_isString(n[0]))
-            return falseSym;
+        {
+            if (!FFI_isString(n[1]))
+                FFI_throwTypeError("Arguments of < should have the same type");
+            
+            return (FFI_string(n[0]) < FFI_string(n[1])) ? trueSym : falseSym;
+        }
         else if (FFI_isNumber(n[0]))
         {
-            auto i = FFI_number(n[0]);
-            return (i < FFI_number(n[1])) ? trueSym : falseSym;
+            if (!FFI_isNumber(n[1]))
+                FFI_throwTypeError("Arguments of < should have the same type");
+            
+            return (FFI_number(n[0]) < FFI_number(n[1])) ? trueSym : falseSym;
         }
-        return falseSym;
+        FFI_throwTypeError("Arguments of < should either be Strings or Numbers");
     }
 
     FFI_Function(le)
     {
         if (FFI_isString(n[0]))
-            return falseSym;
+        {
+            if (!FFI_isString(n[1]))
+                FFI_throwTypeError("Arguments of <= should have the same type");
+            
+            return (FFI_string(n[0]) <= FFI_string(n[1])) ? trueSym : falseSym;
+        }
         else if (FFI_isNumber(n[0]))
         {
-            auto i = FFI_number(n[0]);
-            return (i <= FFI_number(n[1])) ? trueSym : falseSym;
+            if (!FFI_isNumber(n[1]))
+                FFI_throwTypeError("Arguments of <= should have the same type");
+            
+            return (FFI_number(n[0]) <= FFI_number(n[1])) ? trueSym : falseSym;
         }
-        return falseSym;
+        FFI_throwTypeError("Arguments of <= should either be Strings or Numbers");
     }
 
     FFI_Function(ge)
     {
         if (FFI_isString(n[0]))
-            return falseSym;
+        {
+            if (!FFI_isString(n[1]))
+                FFI_throwTypeError("Arguments of >= should have the same type");
+            
+            return (FFI_string(n[0]) >= FFI_string(n[1])) ? trueSym : falseSym;
+        }
         else if (FFI_isNumber(n[0]))
         {
-            auto i = FFI_number(n[0]);
-            return (i >= FFI_number(n[1])) ? trueSym : falseSym;
+            if (!FFI_isNumber(n[1]))
+                FFI_throwTypeError("Arguments of >= should have the same type");
+            
+            return (FFI_number(n[0]) >= FFI_number(n[1])) ? trueSym : falseSym;
         }
-        return falseSym;
+        FFI_throwTypeError("Arguments of >= should either be Strings or Numbers");
     }
 
     FFI_Function(neq)
@@ -184,21 +216,33 @@
     
     FFI_Function(len)
     {
-        return FFI_Value((int) n[0].const_list().size());
+        if (!FFI_isList(n[0]))
+            FFI_throwTypeError("Argument of len must be a list");
+        
+        return FFI_Value(static_cast<int>(n[0].const_list().size()));
     }
     
     FFI_Function(empty)
     {
+        if (!FFI_isList(n[0]))
+            FFI_throwTypeError("Argument of empty must be a list");
+        
         return (n[0].const_list().size() == 0) ? trueSym : falseSym;
     }
     
     FFI_Function(firstof)
     {
+        if (!FFI_isList(n[0]))
+            FFI_throwTypeError("Argument of firstof must be a list");
+        
         return n[0].const_list()[0];
     }
     
     FFI_Function(tailof)
     {
+        if (!FFI_isList(n[0]))
+            FFI_throwTypeError("Argument of tailof must be a list");
+        
         if (n[0].const_list().size() < 2)
             return nil;
         
@@ -209,19 +253,26 @@
 
     FFI_Function(append)
     {
+        if (!FFI_isList(n[0]))
+            FFI_throwTypeError("First argument of append must be a list");
+        
         FFI_Value r = n[0];
         for (FFI_Value::Iterator it=n.begin()+1; it != n.end(); ++it)
-        {
             r.push_back(*it);
-        }
         return r;
     }
 
     FFI_Function(concat)
     {
+        if (!FFI_isList(n[0]))
+            FFI_throwTypeError("First argument of concat should be a list");
+        
         FFI_Value r = n[0];
         for (FFI_Value::Iterator it=n.begin()+1; it != n.end(); ++it)
         {
+            if (!FFI_isList(*it))
+                FFI_throwTypeError("Arguments of concat must be lists");
+
             for (FFI_Value::Iterator it2=it->const_list().begin(); it2 != it->const_list().end(); ++it2)
                 r.push_back(*it2);
         }
@@ -254,8 +305,14 @@
 
     FFI_Function(assert_)
     {
+        if (!FFI_isBool(n[0]))
+            FFI_throwTypeError("First argument of assert must be a Bool");
+        
         if (n[0] == falseSym)
         {
+            if (!FFI_isString(n[1]))
+                FFI_throwTypeError("Second argument of assert must be a String");
+
             Ark::logger.error("[Assertion failed] " + FFI_string(n[1]));
             exit(1);
         }
