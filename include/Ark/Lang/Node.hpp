@@ -75,8 +75,9 @@ namespace Ark
             friend std::ostream& operator<<(std::ostream& os, const Node& N);
             friend inline bool operator==(const Node& A, const Node& B);
 
-            inline std::string typeToString()
+            inline std::string typeToString() const
             {
+                // must have the same order as the enum class NodeType L17
                 static const std::vector<std::string> nodetype_str = {
                     "Symbol", "Keyword", "String", "Number", "List", "Procedure", "Closure"
                 };
@@ -107,7 +108,7 @@ namespace Ark
                 A.m_type != NodeType::Closure)
                 return A.m_value == B.m_value;
             
-            if (A.m_type = NodeType::List)
+            if (A.m_type == NodeType::List)
                 throw Ark::TypeError("Can not compare lists");
             
             if (A.m_type == NodeType::Proc)

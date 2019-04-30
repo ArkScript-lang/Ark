@@ -53,10 +53,11 @@ namespace Ark
             friend std::ostream& operator<<(std::ostream& os, const Value& V);
             friend inline bool operator==(const Value& A, const Value& B);
 
-            inline std::string typeToString()
+            inline std::string typeToString() const
             {
+                // must have the same order as the variant on L26
                 static const std::vector<std::string> types_str = { "Number", "String", "PageAddr", "Symbol", "Procedure", "Closure" };
-                return type_str[m_value.index()];
+                return types_str[m_value.index()];
             }
 
         private:

@@ -25,9 +25,6 @@ namespace Ark
     class ZeroDivisionError : public std::exception
     {
     public:
-        ZeroDivisionError(const std::string& message)
-        {}
-
         virtual const char* what() const throw()
         {
             return std::string(
