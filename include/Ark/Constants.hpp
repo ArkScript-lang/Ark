@@ -9,7 +9,7 @@ namespace Ark
     {
         constexpr unsigned int Major = 1;
         constexpr unsigned int Minor = 2;
-        constexpr unsigned int Patch = 0;
+        constexpr unsigned int Patch = 1;
     }
 }
 
