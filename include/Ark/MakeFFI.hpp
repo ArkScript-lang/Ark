@@ -216,10 +216,12 @@
     
     FFI_Function(len)
     {
-        if (!FFI_isList(n[0]))
-            FFI_throwTypeError("Argument of len must be a list");
-        
-        return FFI_Value(static_cast<int>(n[0].const_list().size()));
+        if (FFI_isList(n[0]))
+            return FFI_Value(static_cast<int>(n[0].const_list().size()));
+        if (FFI_isString(n[0]))
+            return FFI_Value(static_cast<int>(FFI_string(n[0]).size()));
+
+        FFI_throwTypeError("Argument of len must be a list or a String");
     }
     
     FFI_Function(empty)
