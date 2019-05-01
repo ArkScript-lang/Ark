@@ -1,6 +1,6 @@
 # Ark programming language
 
-Ark is a toy programming language, inspired from Lisp.
+Ark is a toy programming language, inspired from Lisp. The language is dynamically and strongly typed, this means that a variable can not be implicitely converted to another type, and that any variable can hold any type.
 
 ## Basics
 
