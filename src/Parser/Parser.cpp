@@ -1,6 +1,7 @@
 #include <Ark/Parser/Parser.hpp>
 
 #include <optional>
+#include <algorithm>
 
 #include <Ark/Log.hpp>
 #include <Ark/Utils.hpp>
@@ -163,11 +164,13 @@ namespace Ark
                     {
                         if (m_debug)
                             Ark::logger.info("Import found in file:", m_file);
+                        
+                        std::vector<std::string> include_files;
 
                         for (Node::Iterator it=n.const_list().begin() + i + 1; it != n.const_list().end(); ++it)
                         {
                             if (it->nodeType() == NodeType::String)
-                                m_include_files.push_back(it->getStringVal());
+                                include_files.push_back(it->getStringVal());
                             else
                                 throw Ark::TypeError("Arguments of import must be Strings");
                         }
@@ -176,26 +179,38 @@ namespace Ark
                         n.list().clear();
                         n.list().emplace_back(NodeType::Keyword, Keyword::Begin);
 
-                        for (const auto& file : m_include_files)
+                        for (const auto& file : include_files)
                         {
                             namespace fs = std::filesystem;
+                            using namespace std::string_literals;
+
                             std::string path = Ark::Utils::getDirectoryFromPath(m_file) + "/" + file;
                             if (m_debug)
                                 Ark::logger.data(path);
-                            std::string f = fs::relative(fs::path(path), fs::path(m_parent_include).root_path()).string();
+                            
+                            std::string f = fs::relative(fs::path(path), fs::path(m_parent_include.size() ? m_parent_include.back() : "").root_path()).string();
                             if (m_debug)
                                 Ark::logger.info("Importing:", file, "; relative path:", f);
 
-                            if (f != m_parent_include)
+                            if (std::find(m_parent_include.begin(), m_parent_include.end(), f) == m_parent_include.end())
                             {
                                 Parser p(m_debug);
-                                p.m_parent_include = m_file;
+
+                                for (auto&& pi : m_parent_include)
+                                    p.m_parent_include.push_back(pi);
+                                p.m_parent_include.push_back(m_file);
+
                                 p.feed(Ark::Utils::readFile(path), path);
 
                                 if (p.check())
                                     n.list().push_back(p.ast());
                                 else
                                     exit(1);
+                            }
+                            else
+                            {
+                                Ark::logger.error("Cyclic inclusion issue: file {0} is trying to include {1} which was already included"s, m_file, path);
+                                exit(1);
                             }
                         }
                     }

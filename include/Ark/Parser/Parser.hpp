@@ -31,9 +31,8 @@ namespace Ark
             Lexer m_lexer;
             Node m_ast;
 
-            std::vector<std::string> m_include_files;
             std::string m_file;
-            std::string m_parent_include;
+            std::vector<std::string> m_parent_include;
 
             void sugar(std::vector<Token>& tokens);
             Node compile(std::list<Token>& tokens);
