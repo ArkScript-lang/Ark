@@ -24,7 +24,7 @@ namespace Ark
         public:
             Compiler(bool debug=false);
 
-            void feed(const std::string& file);
+            void feed(const std::string& code, const std::string& filename="FILE");
             void compile();
             void saveTo(const std::string& file);
 

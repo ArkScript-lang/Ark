@@ -7,6 +7,7 @@
 #include <streambuf>
 #include <fstream>
 #include <regex>
+#include <filesystem>
 
 #include <Ark/Constants.hpp>
 #include <termcolor.hpp>
@@ -55,8 +56,7 @@ namespace Ark
 
         inline bool fileExists(const std::string& name)
         {
-            std::ifstream f(name.c_str());
-            return f.good();
+            return std::filesystem::exists(std::filesystem::path(name));
         }
 
         inline std::string readFile(const std::string& name)
@@ -67,6 +67,16 @@ namespace Ark
                 (std::istreambuf_iterator<char>(f)),
                 std::istreambuf_iterator<char>()
             );
+        }
+
+        inline std::string getDirectoryFromPath(const std::string& path)
+        {
+            return (std::filesystem::path(path)).parent_path().string();
+        }
+
+        inline std::string canonicalRelPath(const std::string& path)
+        {
+            return (std::filesystem::relative(std::filesystem::path(path))).string();
         }
     }
 }

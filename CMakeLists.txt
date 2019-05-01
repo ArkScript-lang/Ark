@@ -37,7 +37,8 @@ else()
 endif()
 
 add_executable(Ark ${SOURCE_FILES})
-target_link_libraries(Ark ${GMP_LIBRARIES})
+target_link_libraries(Ark PRIVATE ${GMP_LIBRARIES})
+target_link_libraries(Ark PRIVATE stdc++fs)
 
 set_target_properties(
     Ark

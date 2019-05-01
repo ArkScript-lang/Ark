@@ -40,22 +40,22 @@ namespace Ark
 
         void setLevel(LogLevel level);
 
-        template<typename... Args> void log(const Args&... args) { write2(LogColor::Nope, "[  Log  ] " + loggerData(), args...); }
+        template<typename... Args> void log(const Args&... args) { write2(LogColor::Nope, "[  Log  ]" + loggerData(), args...); }
         template<typename... Args> void log(const std::string& fmt, const Args&... args) { write(LogColor::Nope, "[  Log  ] " + loggerData() + fmt, args...); }
 
-        template<typename... Args> void warn(const Args&... args) { write2(LogColor::Yellow, "[Warning] " + loggerData(), args...); }
+        template<typename... Args> void warn(const Args&... args) { write2(LogColor::Yellow, "[Warning]" + loggerData(), args...); }
         template<typename... Args> void warn(const std::string& fmt, const Args&... args) { write(LogColor::Yellow, "[Warning] " + loggerData() + fmt, args...); }
 
-        template<typename... Args> void info(const Args&... args) { write2(LogColor::Blue, "[  Info ] " + loggerData(), args...); }
+        template<typename... Args> void info(const Args&... args) { write2(LogColor::Blue, "[  Info ]" + loggerData(), args...); }
         template<typename... Args> void info(const std::string& fmt, const Args&... args) { write(LogColor::Blue, "[  Info ] " + loggerData() + fmt, args...); }
 
-        template<typename... Args> void error(const Args&... args) { write2(LogColor::Red, "[ Error ] " + loggerData(), args...); }
+        template<typename... Args> void error(const Args&... args) { write2(LogColor::Red, "[ Error ]" + loggerData(), args...); }
         template<typename... Args> void error(const std::string& fmt, const Args&... args) { write(LogColor::Red, "[ Error ] " + loggerData() + fmt, args...); }
 
-        template<typename... Args> void success(const Args&... args) { write2(LogColor::Green, "[Success] " + loggerData(), args...); }
+        template<typename... Args> void success(const Args&... args) { write2(LogColor::Green, "[Success]" + loggerData(), args...); }
         template<typename... Args> void success(const std::string& fmt, const Args&... args) { write(LogColor::Green, "[Success] " + loggerData() + fmt, args...); }
 
-        template<typename... Args> void data(const Args&... args) { write2(LogColor::Magenta, "[  Data ] " + loggerData(), args...); }
+        template<typename... Args> void data(const Args&... args) { write2(LogColor::Magenta, "[  Data ]" + loggerData(), args...); }
         template<typename... Args> void data(const std::string& fmt, const Args&... args) { write(LogColor::Magenta, "[  Data ] " + loggerData() + fmt, args...); }
 
     private:

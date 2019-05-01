@@ -20,7 +20,7 @@ void exec(bool debug, bool timer, const std::string& file)
     }
 
     Ark::Lang::Program program(debug);
-    program.feed(Ark::Utils::readFile(file));
+    program.feed(Ark::Utils::readFile(file), file);
 
     std::chrono::time_point<std::chrono::system_clock> start, end;
     start = std::chrono::system_clock::now();
@@ -43,7 +43,7 @@ void compile(bool debug, bool timer, const std::string& file)
     }
 
     Ark::Compiler::Compiler compiler(debug);
-    compiler.feed(Ark::Utils::readFile(file));
+    compiler.feed(Ark::Utils::readFile(file), file);
 
     std::chrono::time_point<std::chrono::system_clock> start, end;
     start = std::chrono::system_clock::now();

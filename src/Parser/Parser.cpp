@@ -11,11 +11,16 @@ namespace Ark
     {
         Parser::Parser(bool debug) :
             m_debug(debug),
-            m_lexer(debug)
+            m_lexer(debug),
+            m_file("FILE")
         {}
 
-        void Parser::feed(const std::string& code)
+        void Parser::feed(const std::string& code, const std::string& filename)
         {
+            // not the default value
+            if (filename != "FILE")
+                m_file = Ark::Utils::canonicalRelPath(filename);
+
             m_lexer.feed(code);
             if (!m_lexer.check())
             {
@@ -29,6 +34,8 @@ namespace Ark
             // create program and raise error if it can't
             std::list<Token> tokens(t.begin(), t.end());
             m_ast = compile(tokens);
+            // include files if needed
+            checkForInclude(m_ast);
 
             if (m_debug)
             {
@@ -138,6 +145,64 @@ namespace Ark
             auto n = Node(NodeType::Symbol, token.token);
             n.setPos(token.line, token.col);
             return n;
+        }
+
+        bool Parser::checkForInclude(Node& n)
+        {
+            if (n.nodeType() == NodeType::Symbol)
+            {
+                std::string name = n.getStringVal();
+                if (name == "import")
+                    return true;
+            }
+            else if (n.nodeType() == NodeType::List)
+            {
+                for (std::size_t i=0; i < n.list().size(); ++i)
+                {
+                    if (checkForInclude(n.list()[i]))
+                    {
+                        if (m_debug)
+                            Ark::logger.info("Import found in file:", m_file);
+
+                        for (Node::Iterator it=n.const_list().begin() + i + 1; it != n.const_list().end(); ++it)
+                        {
+                            if (it->nodeType() == NodeType::String)
+                                m_include_files.push_back(it->getStringVal());
+                            else
+                                throw Ark::TypeError("Arguments of import must be Strings");
+                        }
+
+                        // replace content with a begin block
+                        n.list().clear();
+                        n.list().emplace_back(NodeType::Keyword, Keyword::Begin);
+
+                        for (const auto& file : m_include_files)
+                        {
+                            namespace fs = std::filesystem;
+                            std::string path = Ark::Utils::getDirectoryFromPath(m_file) + "/" + file;
+                            if (m_debug)
+                                Ark::logger.data(path);
+                            std::string f = fs::relative(fs::path(path), fs::path(m_parent_include).root_path()).string();
+                            if (m_debug)
+                                Ark::logger.info("Importing:", file, "; relative path:", f);
+
+                            if (f != m_parent_include)
+                            {
+                                Parser p(m_debug);
+                                p.m_parent_include = m_file;
+                                p.feed(Ark::Utils::readFile(path), path);
+
+                                if (p.check())
+                                    n.list().push_back(p.ast());
+                                else
+                                    exit(1);
+                            }
+                        }
+                    }
+                }
+            }
+            
+            return false;
         }
         
         bool Parser::_check(const Node& ast)

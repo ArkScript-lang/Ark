@@ -14,9 +14,9 @@ namespace Ark
             m_debug(debug)
         {}
 
-        void Compiler::feed(const std::string& code)
+        void Compiler::feed(const std::string& code, const std::string& filename)
         {
-            m_parser.feed(code);
+            m_parser.feed(code, filename);
             
             if (!m_parser.check())
             {

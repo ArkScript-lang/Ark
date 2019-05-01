@@ -20,7 +20,7 @@ namespace Ark
         public:
             Program(bool debug=false);
 
-            void feed(const std::string& code);
+            void feed(const std::string& code, const std::string& filename="FILE");
             void execute(const Nodes& args={});
             void setEnv(const Environment& env);
 

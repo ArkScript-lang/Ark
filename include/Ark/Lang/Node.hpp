@@ -62,6 +62,7 @@ namespace Ark
             const NodeType& nodeType() const;
             void setNodeType(NodeType type);
             const Keyword keyword() const;
+            void setKeyword(Keyword kw);
 
             std::vector<Node>& list();
             const std::vector<Node>& const_list() const;

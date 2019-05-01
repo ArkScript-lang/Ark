@@ -1,0 +1,4 @@
+{
+    (import "folder/test.ark")
+    (f a)
+}

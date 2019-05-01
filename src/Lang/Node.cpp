@@ -104,6 +104,11 @@ namespace Ark
             return m_keyword;
         }
 
+        void Node::setKeyword(Keyword kw)
+        {
+            m_keyword = kw;
+        }
+
         std::vector<Node>& Node::list()
         {
             return m_list;

@@ -1,0 +1,6 @@
+{
+    (import "folder/test.ark")
+    (let f (fun (n)
+        (print n)
+    ))
+}
