@@ -74,6 +74,11 @@ namespace Ark
             return (std::filesystem::path(path)).parent_path().string();
         }
 
+        inline std::string getFilenameFromPath(const std::string& path)
+        {
+            return (std::filesystem::path(path)).filename().string();
+        }
+
         inline std::string canonicalRelPath(const std::string& path)
         {
             return (std::filesystem::relative(std::filesystem::path(path))).string();

@@ -48,8 +48,13 @@ set_target_properties(
         CXX_EXTENSIONS OFF
 )
 
+add_custom_target(ARK_STD COMMAND ${CMAKE_COMMAND} -E env "ARK_STD=${CMAKE_INSTALL_PREFIX}/share/.Ark/lib")
+
 if (DEBUG MATCHES "true")
     if (CMAKE_COMPILER_IS_GNUCXX)
         set(CMAKE_CXX_FLAGS "-pg -g -no-pie")
     endif()
 endif()
+
+install(TARGETS Ark DESTINATION bin)
+install(DIRECTORY ${Ark_SOURCE_DIR}/lib/ DESTINATION share/.Ark/lib)

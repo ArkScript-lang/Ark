@@ -2,6 +2,7 @@
 
 #include <optional>
 #include <algorithm>
+#include <cstdlib>
 
 #include <Ark/Log.hpp>
 #include <Ark/Utils.hpp>
@@ -200,7 +201,20 @@ namespace Ark
                                     p.m_parent_include.push_back(pi);
                                 p.m_parent_include.push_back(m_file);
 
-                                p.feed(Ark::Utils::readFile(path), path);
+                                // search in the files of the user first
+                                if (Ark::Utils::fileExists(path))
+                                    p.feed(Ark::Utils::readFile(path), path);
+                                else
+                                {
+                                    std::string libpath = std::string(getenv("ARK_STD")) + Ark::Utils::getFilenameFromPath(path);
+                                    if (Ark::Utils::fileExists(libpath))
+                                        p.feed(Ark::Utils::readFile(libpath), libpath);
+                                    else
+                                    {
+                                        Ark::logger.error("Couldn't find file", file);
+                                        exit(1);
+                                    }
+                                }
 
                                 if (p.check())
                                     n.list().push_back(p.ast());

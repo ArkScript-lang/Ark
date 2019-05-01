@@ -1,0 +1,15 @@
+{
+    (import "Exceptions.ark")
+
+    (let invert (fun (x) {
+        (if (= x 0)
+            (throw "cannot divide by zero")
+            (return (/ 1 x))
+        )
+    }))
+
+    (try (invert 0)
+        (fun (inverted) (print inverted))
+        (fun (err) (print err))
+    )
+}
