@@ -87,7 +87,6 @@ SYNOPSIS
         Ark bcr <file> 
         Ark repl [-d] [-t] 
         Ark (interpreter|compile|vm) <file> [-d] [-t] 
-        Ark coddity 
 
 OPTIONS
         -h, --help                  Display this help message
@@ -99,7 +98,6 @@ OPTIONS
         vm                          Start the virtual machine with the given bytecode file
         -d, --debug                 Enable debug mode
         -t, --time                  The task is timed
-        coddity                     Display a document written for the Coddity contest
 
 LICENSE
         Mozilla Public License 2.0
