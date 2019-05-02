@@ -1,10 +1,6 @@
 {
-    (let left (fun (x)
-        (fun (injl injr) (injl x))
-    ))
-    (let right (fun (y)
-        (fun (injl injr) (injr y))
-    ))
+    (import "Either.ark")
+    
     (let throw left)
     (let return right)
     (let try (fun (either continue handle)
