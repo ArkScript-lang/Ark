@@ -1,5 +1,4 @@
 {
-    (hastype fact (Number) Number)
     (let fact (fun (n) {
         (let a 1)
         (let acc 2)

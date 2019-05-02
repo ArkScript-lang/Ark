@@ -96,12 +96,6 @@ namespace Ark
             {
                 Keyword n = x.list()[0].keyword();
 
-                if (n == Keyword::HasType)
-                {
-                    // skip has-type rules in interpreter
-                    return nil;
-                }
-
                 if (n == Keyword::If)
                     return _execute((_execute(x.list()[1], env) == falseSym) ? x.list()[3] : x.list()[2], env);
                 if (n == Keyword::Set)

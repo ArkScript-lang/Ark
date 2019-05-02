@@ -134,8 +134,6 @@ namespace Ark
                 kw = Keyword::While;
             if (token.token == "begin")
                 kw = Keyword::Begin;
-            if (token.token == "hastype")
-                kw = Keyword::HasType;
             if (kw)
             {
                 auto n = Node(NodeType::Keyword, kw.value());
@@ -363,55 +361,6 @@ namespace Ark
                                     return true;
                                 }
                                 Ark::logger.error("[Parser] need 2 nodes to create a while loop: the condition and the body, at {0}:{1}"s, n.line(), n.col());
-                                return false;
-                            }
-
-                            case Keyword::HasType:
-                            {
-                                if (p.size() == 4)
-                                {
-                                    if (p[1].nodeType() != NodeType::Symbol)
-                                    {
-                                        Ark::logger.error("[Parser] need a symbol to define a has-type rule, at {0}:{1}"s, p[1].line(), p[1].col());
-                                        return false;
-                                    }
-                                    if (p[2].nodeType() != NodeType::List)
-                                    {
-                                        Ark::logger.error("[Parser] need a list to define the arguments of a function in a has-type rule, at {0}:{1}"s, p[2].line(), p[2].col());
-                                        return false;
-                                    }
-                                    for (Node::Iterator it2=p[2].const_list().begin(); it2 != p[2].const_list().end(); ++it2)
-                                    {
-                                        if (it2->nodeType() != NodeType::Symbol)
-                                        {
-                                            Ark::logger.error("[Parser] types for arguments in has-type rule should be symbols, at {0}:{1}"s, it2->line(), it2->col());
-                                            return false;
-                                        }
-                                        if (it2->getStringVal() != "Number" &&
-                                            it2->getStringVal() != "String" &&
-                                            it2->getStringVal() != "Bool"   &&
-                                            it2->getStringVal() != "List")
-                                        {
-                                            Ark::logger.error("[Parser] unknown type in has-type rule: '" + it2->getStringVal() + "', at {0}:{1}"s, it2->line(), it2->col());
-                                            return false;
-                                        }
-                                    }
-                                    if (p[3].nodeType() != NodeType::Symbol)
-                                    {
-                                        Ark::logger.error("[Parser] need a symbol to define the return type of a function in a has-type rule, at {0}:{1}"s, p[3].line(), p[3].col());
-                                        return false;
-                                    }
-                                    if (p[3].getStringVal() != "Number" &&
-                                        p[3].getStringVal() != "String" &&
-                                        p[3].getStringVal() != "Bool"   &&
-                                        p[3].getStringVal() != "List")
-                                    {
-                                        Ark::logger.error("[Parser] unknown return type in has-type rule: '" + p[3].getStringVal() + "', at {0}:{1}"s, p[3].line(), p[3].col());
-                                        return false;
-                                    }
-                                    return true;
-                                }
-                                Ark::logger.error("[Parser] need 4 nodes to define a has-type rule, at {0}:{1}"s, n.line(), n.col());
                                 return false;
                             }
                             
