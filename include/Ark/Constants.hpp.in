@@ -1,0 +1,10 @@
+#ifndef ark_constants
+#define ark_constants
+
+#define ARK_VERSION_MAJOR @ARK_VERSION_MAJOR@
+#define ARK_VERSION_MINOR @ARK_VERSION_MINOR@
+#define ARK_VERSION_PATCH @ARK_VERSION_PATCH@
+#define ARK_VERSION (ARK_VERSION_MAJOR << 16) + (ARK_VERSION_MINOR << 8) + ARK_VERSION_PATCH
+#define ARK_STD "@ARK_STD@"
+
+#endif  // ark_constants

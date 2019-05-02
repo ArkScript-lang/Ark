@@ -10,14 +10,6 @@
 #include <filesystem>
 
 #include <Ark/Constants.hpp>
-#include <termcolor.hpp>
-
-#ifdef ARK_DEBUG
-    #define MODE(c, m1, m2) std::cout << termcolor::c << m1 << termcolor::reset << m2 << std::endl;
-    #define LOG(m) MODE(cyan, __FILE__ << " (" << __LINE__ << ") : ", m)
-    #define WARN(m) MODE(red, __FILE__ << " (" << __LINE__ << ") : ", m)
-    #define OK(m) MODE(green, __FILE__ << " (" << __LINE__ << ") : ", m)
-#endif  // ARK_DEBUG
 
 namespace Ark
 {

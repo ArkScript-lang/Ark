@@ -90,7 +90,7 @@ void vm(bool debug, bool timer, const std::string& file)
 
 void repl(bool debug, bool timer)
 {
-    std::cout << "Ark " << Ark::Version::Major << "." << Ark::Version::Minor << "." << Ark::Version::Patch << std::endl;
+    std::cout << "Ark " << ARK_VERSION_MAJOR << "." << ARK_VERSION_MINOR << "." << ARK_VERSION_PATCH << std::endl;
     std::cout << "Type \"help\" for more information" << std::endl;
 
     Ark::Lang::Environment env;
@@ -180,7 +180,7 @@ int main(int argc, char** argv)
             return 0;
 
         case mode::version:
-            std::cout << "Version " << Ark::Version::Major << "." << Ark::Version::Minor << "." << Ark::Version::Patch << std::endl;
+            std::cout << "Version " << ARK_VERSION_MAJOR << "." << ARK_VERSION_MINOR << "." << ARK_VERSION_PATCH << std::endl;
             break;
 
         case mode::interpreter:

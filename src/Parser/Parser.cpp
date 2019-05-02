@@ -2,7 +2,6 @@
 
 #include <optional>
 #include <algorithm>
-#include <cstdlib>
 
 #include <Ark/Log.hpp>
 #include <Ark/Utils.hpp>
@@ -206,7 +205,7 @@ namespace Ark
                                     p.feed(Ark::Utils::readFile(path), path);
                                 else
                                 {
-                                    std::string libpath = std::string(getenv("ARK_STD")) + Ark::Utils::getFilenameFromPath(path);
+                                    std::string libpath = ARK_STD + Ark::Utils::getFilenameFromPath(path);
                                     if (Ark::Utils::fileExists(libpath))
                                         p.feed(Ark::Utils::readFile(libpath), libpath);
                                     else

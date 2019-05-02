@@ -18,6 +18,16 @@ endif()
 set(CMAKE_MODULE_PATH ${Ark_SOURCE_DIR}/cmake)
 find_package(GMP REQUIRED)
 
+set(ARK_VERSION_MAJOR 1)
+set(ARK_VERSION_MINOR 2)
+set(ARK_VERSION_PATCH 2)
+set(ARK_STD ${CMAKE_INSTALL_PREFIX}/share/.Ark/lib)
+
+configure_file(
+    ${Ark_SOURCE_DIR}/include/Ark/Constants.hpp.in
+    ${Ark_SOURCE_DIR}/include/Ark/Constants.hpp
+)
+
 include_directories(
     ${Ark_SOURCE_DIR}/include
     ${Ark_SOURCE_DIR}/thirdparty
@@ -48,13 +58,12 @@ set_target_properties(
         CXX_EXTENSIONS OFF
 )
 
-add_custom_target(ARK_STD COMMAND ${CMAKE_COMMAND} -E env "ARK_STD=${CMAKE_INSTALL_PREFIX}/share/.Ark/lib")
-
 if (DEBUG MATCHES "true")
     if (CMAKE_COMPILER_IS_GNUCXX)
         set(CMAKE_CXX_FLAGS "-pg -g -no-pie")
     endif()
 endif()
+
 
 install(TARGETS Ark DESTINATION bin)
 install(DIRECTORY ${Ark_SOURCE_DIR}/lib/ DESTINATION share/.Ark/lib)
