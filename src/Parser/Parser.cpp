@@ -205,7 +205,7 @@ namespace Ark
                                     p.feed(Ark::Utils::readFile(path), path);
                                 else
                                 {
-                                    std::string libpath = ARK_STD + Ark::Utils::getFilenameFromPath(path);
+                                    std::string libpath = std::string(ARK_STD) + "/" + Ark::Utils::getFilenameFromPath(path);
                                     if (Ark::Utils::fileExists(libpath))
                                         p.feed(Ark::Utils::readFile(libpath), libpath);
                                     else

@@ -77,15 +77,17 @@ $ sudo apt-get install libgmp-dev
 # building Ark
 $ cmake -H. -Bbuild
 $ cmake --build build
+# installing Ark
+$ cd build && sudo make install && cd ..
 # running
-$ ./build/Ark --help
+$ Ark --help
 SYNOPSIS
-        build/Ark -h 
-        build/Ark --version 
-        build/Ark bcr <file> 
-        build/Ark repl [-d] [-t] 
-        build/Ark (interpreter|compile|vm) <file> [-d] [-t] 
-        build/Ark coddity 
+        Ark -h 
+        Ark --version 
+        Ark bcr <file> 
+        Ark repl [-d] [-t] 
+        Ark (interpreter|compile|vm) <file> [-d] [-t] 
+        Ark coddity 
 
 OPTIONS
         -h, --help                  Display this help message
