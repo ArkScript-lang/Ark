@@ -6,6 +6,7 @@
 
 ### Changed
 - splitted lib/Exceptions.ark into lib/Exceptions.ark and lib/Either.ark
+- renamed FindGMP FindMPIR, and we're now searching for MPIR and linking with it
 
 ### Removed
 - `hastype` keyword because I never had to implement compile time typechecking, so it's not useful

@@ -8,9 +8,33 @@ if (MPIR_INCLUDE_DIR AND MPIR_LIBRARIES)
     set(MPIR_FIND_QUIETLY TRUE)
 endif()
 
-find_path(MPIR_INCLUDE_DIR NAMES mpir.h HINTS ${CMAKE_SOURCE_DIR}/mpir-3.0.0/dll)
-find_library(MPIR_LIBRARIES NAMES mpir libmpir HINTS ${CMAKE_SOURCE_DIR}/mpir-3.0.0/dll)
-find_library(MPIRXX_LIBRARIES NAMES mpirxx libmpirxx HINTS ${CMAKE_SOURCE_DIR}/mpir-3.0.0/dll)
+find_path(MPIR_INCLUDE_DIR
+    NAMES
+        mpir.h
+    HINTS
+        ${CMAKE_SOURCE_DIR}/mpir-3.0.0/dll/win32/Release
+        ${CMAKE_SOURCE_DIR}/mpir-3.0.0/dll/x64/Release
+        ${CMAKE_SOURCE_DIR}/mpir-3.0.0/lib/win32/Release
+        ${CMAKE_SOURCE_DIR}/mpir-3.0.0/lib/x64/Release
+)
+find_library(MPIR_LIBRARIES 
+    NAMES
+        mpir libmpir
+    HINTS
+    ${CMAKE_SOURCE_DIR}/mpir-3.0.0/dll/win32/Release
+    ${CMAKE_SOURCE_DIR}/mpir-3.0.0/dll/x64/Release
+    ${CMAKE_SOURCE_DIR}/mpir-3.0.0/lib/win32/Release
+    ${CMAKE_SOURCE_DIR}/mpir-3.0.0/lib/x64/Release
+)
+find_library(MPIRXX_LIBRARIES
+    NAMES
+        mpirxx libmpirxx
+    HINTS
+    ${CMAKE_SOURCE_DIR}/mpir-3.0.0/dll/win32/Release
+    ${CMAKE_SOURCE_DIR}/mpir-3.0.0/dll/x64/Release
+    ${CMAKE_SOURCE_DIR}/mpir-3.0.0/lib/win32/Release
+    ${CMAKE_SOURCE_DIR}/mpir-3.0.0/lib/x64/Release
+)
 MESSAGE(STATUS "MPIR libs: " ${MPIR_LIBRARIES} " " ${MPIRXX_LIBRARIES})
 
 SET(MPIR_LIBRARIES ${MPIR_LIBRARIES} ${MPIRXX_LIBRARIES})

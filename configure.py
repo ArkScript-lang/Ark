@@ -90,7 +90,7 @@ def main():
         print(f"Found version: {vs_ver}")
 
         # build from command line
-        ms_arch = "Win32" if arch == 32 else "x64"
+        ms_arch = "win32" if arch == 32 else "x64"
         toolset = {"15": "v141", "14": "v140", "12": "v120", "11": "v110"}[vs_ver]
         content = ""
         line = "%msbdir%\msbuild.exe /p:Platform=%plat% /p:Configuration=%conf% %srcdir%\%src%\%src%.vcxproj"
@@ -109,7 +109,8 @@ def main():
         msvcrt.getch()
 
         print(f"Building mpir (arch: {ms_arch})...")
-        os.system(f"cd mpir-3.0.0\\build.vc{vs_ver} && msbuild.bat gc dll {ms_arch} Release && msbuild.bat cxx lib {ms_arch} Release")
+        os.system(f"cd mpir-3.0.0\\build.vc{vs_ver} && msbuild.bat gc dll {ms_arch} Release")
+        os.system(f"cd mpir-3.0.0\\build.vc{vs_ver} && msbuild.bat cxx lib {ms_arch} Release")
     
     print("Done!")
     sys.exit(0)
