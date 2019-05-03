@@ -5,7 +5,7 @@ import urllib.request
 import shutil
 import tarfile
 if os.name == 'nt':
-    import zipfile, winreg, webbrowser, msvcrt, glob
+    import zipfile, winreg, webbrowser, glob
 import platform
 
 
@@ -56,8 +56,8 @@ def main():
             if not os.path.exists("yasm/"):
                 os.mkdir("yasm/")
             
-            print("Press any key when you're done...")
-            msvcrt.getch()
+            print("Press Enter when you're done...")
+            input()
         
         msys = lambda x: os.system(f"cd {os.getcwd()} && C:\\MinGW\\msys\\1.0\\bin\\bash.exe -c \"{x}\"")
         
@@ -105,8 +105,8 @@ def main():
         
         print("Please open mpir.sln, right click on solution and retarget it...")
         os.system(f"cd mpir-3.0.0\\build.vc{vs_ver} && explorer .")
-        print("Press any key when you're done...")
-        msvcrt.getch()
+        print("Press Enter when you're done...")
+        input()
 
         print(f"Building mpir (arch: {ms_arch})...")
         os.system(f"cd mpir-3.0.0\\build.vc{vs_ver} && msbuild.bat gc dll {ms_arch} Release")
