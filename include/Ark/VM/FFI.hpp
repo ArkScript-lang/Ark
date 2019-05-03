@@ -2,6 +2,8 @@
 #define ark_vm_ffi
 
 #include <vector>
+#include <iostream>
+#include <sstream>
 
 #include <Ark/VM/Value.hpp>
 

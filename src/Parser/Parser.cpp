@@ -388,14 +388,21 @@ namespace Ark
                     {
                         std::string s = n.getStringVal();
                         bool b = true;
+                        // 2 or more arguments
                         if (s == "+" || s == "-" || s == "/" || s == "*")
                             b = p.size() > 2;
+                        // exactly 2 arguments
                         else if (s == "<" || s == ">" || s == "<=" || s == ">=" || s == "!=" || s == "=" || s == "assert")
                             b = p.size() == 3;
-                        else if (s == "len" || s == "empty?" || s == "car" || s == "cdr" || s == "nil?")
+                        // exactly 1 argument
+                        else if (s == "len" || s == "empty?" || s == "car" || s == "cdr" || s == "nil?" || s == "toNumber" || s == "toString")
                             b = p.size() == 2;
+                        // at least 1 argument
                         else if (s == "append" || s == "cons" || s == "list" || s == "print")
                             b = p.size() > 1;
+                        // 0 or 1 argument
+                        else if (s == "input")
+                            b = p.size() <= 2;
                         if (!b)
                             Ark::logger.error("[Parser] builtin function '" + s + "' has the wrong number of arguments, at {0}:{1}"s, n.line(), n.col());
                         return b;

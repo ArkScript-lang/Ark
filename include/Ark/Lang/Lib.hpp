@@ -3,6 +3,8 @@
 
 #include <vector>
 #include <string>
+#include <iostream>
+#include <sstream>
 
 #include <Ark/Lang/Node.hpp>
 #include <Ark/Lang/Environment.hpp>

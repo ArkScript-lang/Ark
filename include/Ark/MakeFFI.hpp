@@ -51,6 +51,10 @@
 
     FFI_Function(print);  // print +
     FFI_Function(assert_);  // assert 2
+    FFI_Function(input);  // input 0-1
+
+    FFI_Function(toNumber);  // toNumber 1
+    FFI_Function(toString);  // toString 1
 
     #ifdef FFI_INTERPRETER
         void registerLib(Environment& env);
@@ -321,6 +325,38 @@
         return nil;
     }
 
+    FFI_Function(input)
+    {
+        if (n.size() == 1)
+        {
+            if (!FFI_isString(n[0]))
+                FFI_throwTypeError("Argument of input must be of type String");
+            std::cout << FFI_string(n[0]);
+        }
+
+        std::string line = "";
+        std::getline(std::cin, line);
+
+        return FFI_Value(line);
+    }
+
+    // ------------------------------
+
+    FFI_Function(toNumber)
+    {
+        if (!FFI_isString(n[0]))
+            FFI_throwTypeError("Argument of toNumber must be a String");
+        
+        return FFI_Value(std::atoi(FFI_string(n[0]).c_str()));
+    }
+
+    FFI_Function(toString)
+    {
+        std::stringstream ss;
+        ss << n[0];
+        return FFI_Value(ss.str());
+    }
+
     // ------------------------------
 
     #ifdef FFI_INTERPRETER
@@ -353,6 +389,10 @@
 
             env["print"] = Node(&print);
             env["assert"] = Node(&assert_);
+            env["input"] = Node(&input);
+
+            env["toNumber"] = Node(&toNumber);
+            env["toString"] = Node(&toString);
         }
     #endif  // FFI_INTERPRETER
 #elif defined(FFI_MAKE_EXTERNS_INC)
@@ -362,7 +402,8 @@
         "+", "-", "*", "/",
         ">", "<", "<=", ">=", "!=", "=",
         "len", "empty?", "firstof", "tailof", "append", "concat", "list", "nil?",
-        "print", "assert"
+        "print", "assert", "input",
+        "toNumber", "toString"
     };
 #elif defined(FFI_INIT_VM_FFI)
     m_ffi.push_back(&FFI::add);
@@ -388,4 +429,8 @@
 
     m_ffi.push_back(&FFI::print);
     m_ffi.push_back(&FFI::assert_);
+    m_ffi.push_back(&FFI::input);
+
+    m_ffi.push_back(&FFI::toNumber);
+    m_ffi.push_back(&FFI::toString);
 #endif  // FFI_MAKE_HEADER | FFI_MAKE_SOURCE | FFI_MAKE_EXTERNS_INC | FFI_MAKE_EXTERNS_SRC | FFI_INIT_VM_FFI

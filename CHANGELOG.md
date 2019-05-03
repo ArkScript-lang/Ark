@@ -3,6 +3,7 @@
 ## Unreleased
 ### Added
 - configure.py script, to download, build and install mpir 3.0.0
+- builtins functions: input, toNumber, toString
 
 ### Changed
 - splitted lib/Exceptions.ark into lib/Exceptions.ark and lib/Either.ark
