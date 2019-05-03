@@ -5,7 +5,7 @@ import urllib.request
 import shutil
 import tarfile
 if os.name == 'nt':
-    import zipfile, winreg
+    import zipfile, winreg, webbrowser, msvcrt
 import platform
 
 
@@ -49,26 +49,21 @@ def main():
         
         url += f"{arch}.zip"
         
-        # print(f"Downloading yasm (arch: {arch})...")
-        # with urllib.request.urlopen(url) as response, open("vsyasm-1.3.0.zip", 'wb') as out_file:
-            # print(f"Downloaded {response.length} bytes, writing to file")
-            # out_file.write(response.read())
+        if not os.path.exists("./yasm/vsyasm.exe"):
+            print(f"Please download yasm (arch: {arch}) and put it into the yasm folder generated...")
+            webbrowser.open(url)
+            
+            if not os.path.exists("yasm/"):
+                os.mkdir("yasm/")
+            
+            print("Press any key when you're done...")
+            msvcrt.getch()
         
-        # if not os.path.exists("yasm/"):
-            # os.mkdir("yasm/")
+        msys = lambda x: os.system(f"cd {os.getcwd()} && C:\\MinGW\\msys\\1.0\\bin\\bash.exe -c \"{x}\"")
         
-        def msys(x):
-            cmd = f"cd {os.getcwd()} && C:\\MinGW\\msys\\1.0\\bin\\bash.exe -c \"{x}\""
-            print(cmd)
-            os.system(cmd)
         if not os.path.exists("C:\\MinGW\\msys\\1.0\\bin\\bash.exe"):
             print("This script needs msys, please install it and retry")
             sys.exit(1)
-        
-        # install yasm (must be run as admin)
-        # print("Installing yasm...")
-        # with zipfile.ZipFile("vsyasm-1.3.0.zip") as myzip:
-            # myzip.extractall("yasm/")
         
         # configure project
         print("Configuring mpir...")
@@ -97,15 +92,23 @@ def main():
         # build from command line
         ms_arch = "Win32" if arch == 32 else "x64"
         toolset = {"15": "v141", "14": "v140", "12": "v120", "11": "v110"}[vs_ver]
-        print(f"Building mpir (arch: {ms_arch})...")
         content = ""
         line = "%msbdir%\msbuild.exe /p:Platform=%plat% /p:Configuration=%conf% %srcdir%\%src%\%src%.vcxproj"
+        new_line = f"{line} /p:PlatformToolset={toolset}"
+        print("Reconfiguring build script...")
         with open(f"mpir-3.0.0/build.vc{vs_ver}/msbuild.bat") as f:
             content = f.read()
-        if f"{line} /p:PlatformToolset={toolset}" not in content:
-            content = content.replace(line, f"{line} /p:PlatformToolset={toolset}")
+        if new_line not in content:
+            content = content.replace(line, new_line)
         with open(f"mpir-3.0.0/build.vc{vs_ver}/msbuild.bat", "w") as f:
             f.write(content)
+        
+        print("Please open mpir.sln, right click on solution and retarget it...")
+        os.system(f"cd mpir-3.0.0\\build.vc{vs_ver} && explorer .")
+        print("Press any key when you're done...")
+        msvcrt.getch()
+
+        print(f"Building mpir (arch: {ms_arch})...")
         os.system(f"cd mpir-3.0.0\\build.vc{vs_ver} && msbuild.bat gc dll {ms_arch} Release")
     
     print("Done!")
