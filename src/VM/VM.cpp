@@ -277,30 +277,13 @@ namespace Ark
 
         void VM::initFFI()
         {
-            // must had the same order as in include/Ark/MakeFFI.hpp:266-269
-            m_ffi.push_back(&FFI::add);
-            m_ffi.push_back(&FFI::sub);
-            m_ffi.push_back(&FFI::mul);
-            m_ffi.push_back(&FFI::div);
+            #define FFI_VM
+            #define FFI_INIT_VM_FFI
 
-            m_ffi.push_back(&FFI::gt);
-            m_ffi.push_back(&FFI::lt);
-            m_ffi.push_back(&FFI::le);
-            m_ffi.push_back(&FFI::ge);
-            m_ffi.push_back(&FFI::neq);
-            m_ffi.push_back(&FFI::eq);
+            #include <Ark/MakeFFI.hpp>
 
-            m_ffi.push_back(&FFI::len);
-            m_ffi.push_back(&FFI::empty);
-            m_ffi.push_back(&FFI::firstof);
-            m_ffi.push_back(&FFI::tailof);
-            m_ffi.push_back(&FFI::append);
-            m_ffi.push_back(&FFI::concat);
-            m_ffi.push_back(&FFI::list);
-            m_ffi.push_back(&FFI::isnil);
-
-            m_ffi.push_back(&FFI::print);
-            m_ffi.push_back(&FFI::assert_);
+            #undef FFI_VM
+            #undef FFI_INIT_VM_FFI
         }
 
         Value VM::pop()

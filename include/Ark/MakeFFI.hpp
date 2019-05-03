@@ -364,4 +364,28 @@
         "len", "empty?", "firstof", "tailof", "append", "concat", "list", "nil?",
         "print", "assert"
     };
-#endif  // FFI_MAKE_HEADER | FFI_MAKE_SOURCE | FFI_MAKE_EXTERNS_INC | FFI_MAKE_EXTERNS_SRC
+#elif defined(FFI_INIT_VM_FFI)
+    m_ffi.push_back(&FFI::add);
+    m_ffi.push_back(&FFI::sub);
+    m_ffi.push_back(&FFI::mul);
+    m_ffi.push_back(&FFI::div);
+
+    m_ffi.push_back(&FFI::gt);
+    m_ffi.push_back(&FFI::lt);
+    m_ffi.push_back(&FFI::le);
+    m_ffi.push_back(&FFI::ge);
+    m_ffi.push_back(&FFI::neq);
+    m_ffi.push_back(&FFI::eq);
+
+    m_ffi.push_back(&FFI::len);
+    m_ffi.push_back(&FFI::empty);
+    m_ffi.push_back(&FFI::firstof);
+    m_ffi.push_back(&FFI::tailof);
+    m_ffi.push_back(&FFI::append);
+    m_ffi.push_back(&FFI::concat);
+    m_ffi.push_back(&FFI::list);
+    m_ffi.push_back(&FFI::isnil);
+
+    m_ffi.push_back(&FFI::print);
+    m_ffi.push_back(&FFI::assert_);
+#endif  // FFI_MAKE_HEADER | FFI_MAKE_SOURCE | FFI_MAKE_EXTERNS_INC | FFI_MAKE_EXTERNS_SRC | FFI_INIT_VM_FFI
