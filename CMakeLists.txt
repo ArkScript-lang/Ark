@@ -48,7 +48,9 @@ endif()
 
 add_executable(Ark ${SOURCE_FILES})
 target_link_libraries(Ark PRIVATE ${MPIR_LIBRARIES})
-target_link_libraries(Ark PRIVATE stdc++fs)
+if (CMAKE_COMPILER_IS_GNUCXX)
+    target_link_libraries(Ark PRIVATE stdc++fs)
+endif()
 
 set_target_properties(
     Ark
