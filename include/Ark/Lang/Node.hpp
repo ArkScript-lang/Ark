@@ -45,9 +45,14 @@ namespace Ark
             using Map = std::unordered_map<std::string, Node>;
             using Value = std::variant<BigNum, std::string>;
 
-            template <typename T> Node(const T& value);
+            Node(int value);
+            Node(const BigNum& value);
+            Node(const std::string& value);
             Node(NodeType type=NodeType::Symbol);
-            template <typename T> Node(NodeType type, const T& value);
+            Node(NodeType type, int value);
+            Node(NodeType type, const BigNum& value);
+            Node(NodeType type, const std::string& value);
+            Node(NodeType type, Keyword value);
             Node(Node::ProcType proc);
 
             void addEnv(Environment* env);
