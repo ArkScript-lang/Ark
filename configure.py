@@ -20,9 +20,12 @@ def main():
         print("mpir-3.0.0.tar.bz2 found, not downloading it again. If the download failed, delete the file and retry")
 
     # extract all
-    print("Extracting tarbal tp mpir-3.0.0/")
-    with tarfile.open("mpir-3.0.0.tar.bz2", "r:bz2") as tar:
-        tar.extractall("./")
+    if not os.path.exists("./mpir-3.0.0/"):
+        print("Extracting tarbal tp mpir-3.0.0/")
+        with tarfile.open("mpir-3.0.0.tar.bz2", "r:bz2") as tar:
+            tar.extractall("./")
+    else:
+        print("Tarbal already extracted, not doing it again. If the extraction failed, delete the folder an retry")
     
     if os.name == 'posix':
         print("Installing yasm...")
@@ -48,6 +51,7 @@ def main():
         
         print(f"Downloading yasm (arch: {arch})...")
         with urllib.request.urlopen(url) as response, open("vsyasm-1.3.0.zip", 'wb') as out_file:
+            print(f"Downloaded {response.length} bytes, writing to file")
             shutil.copyfileobj(response, out_file)
         
         if not os.path.exists("yasm/"):
