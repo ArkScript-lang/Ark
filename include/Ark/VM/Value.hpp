@@ -65,6 +65,14 @@ namespace Ark
             {
                 // must have the same order as the variant on L26
                 static const std::vector<std::string> types_str = { "Number", "String", "PageAddr", "Symbol", "Procedure", "Closure" };
+                
+                if (isNFT())
+                {
+                    if (nft() == NFT::Nil)
+                        return "Nil";
+                    return "Bool";
+                }
+
                 return types_str[m_value.index()];
             }
 

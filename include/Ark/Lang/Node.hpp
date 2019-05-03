@@ -86,6 +86,14 @@ namespace Ark
                 static const std::vector<std::string> nodetype_str = {
                     "Symbol", "Keyword", "String", "Number", "List", "Procedure", "Closure"
                 };
+
+                if (m_type == NodeType::Symbol)
+                {
+                    if (getStringVal() == "nil")
+                        return "Nil";
+                    return "Bool";
+                }
+                
                 return nodetype_str[static_cast<int>(m_type)];
             }
 
