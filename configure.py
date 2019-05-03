@@ -52,10 +52,15 @@ def main():
         print(f"Downloading yasm (arch: {arch})...")
         with urllib.request.urlopen(url) as response, open("vsyasm-1.3.0.zip", 'wb') as out_file:
             print(f"Downloaded {response.length} bytes, writing to file")
-            shutil.copyfileobj(response, out_file)
+            out_file.write(response.read())
         
         if not os.path.exists("yasm/"):
             os.mkdir("yasm/")
+        
+        msys = lambda x: os.system(f"cd {os.getcwd()} && C:\\MinGW\\msys\\1.0\\bin\\bash -c {x}")
+        if not os.path.exists("C:\\MinGW\\msys\\1.0\\bin\\bash"):
+            print("This script needs msys, please install it and retry")
+            sys.exit(1)
         
         # install yasm (must be run as admin)
         print("Installing yasm...")
@@ -64,7 +69,7 @@ def main():
         
         # configure project
         print("Configuring mpir...")
-        os.system("cd ./mpir-3.0.0/ && ./configure --disable-static --enable-shared --with-yasm=./yasm/vsyasm.exe")
+        msys("cd ./mpir-3.0.0/ && ./configure --disable-static --enable-shared --with-yasm=../yasm/vsyasm.exe")
         
         # find visual studio version (must be ran as admin)
         print("Searching for installed version of Visual Studio...")
@@ -89,7 +94,7 @@ def main():
         # build from command line
         ms_arch = "Win32" if arch == 32 else "x64"
         print(f"Building mpir (arch: {ms_arch})...")
-        os.system(f"cd ./mpir-3.0.0/build.vc{vs_ver}/ && msbuild.bat gc dll {ms_arch} Release")
+        msys(f"cd ./mpir-3.0.0/build.vc{vs_ver}/ && msbuild.bat gc dll {ms_arch} Release")
     
     print("Done!")
     sys.exit(0)
