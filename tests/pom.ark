@@ -1,0 +1,30 @@
+{
+    ' jeu du plus ou moins
+    (print "Jeu du plus ou moins !")
+
+    (let random 4)
+    (let value 0)
+    (let essais 0)
+
+    (let continue true)
+
+    (while continue {
+        (set value (toNumber (input "Entrez une valeur numérique: ")))
+
+        (if (< value random)
+            ' then
+            (print "C'est plus !")
+            ' else
+            (if (= value random)
+                ' then
+                { (print "Gagné !") (set continue false) }
+                ' else
+                (print "C'est moins !")
+            )
+        )
+
+        (set essais (+ 1 essais))
+    })
+
+    (print "Vous avez gagné en" essais "essais")
+}

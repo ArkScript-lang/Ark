@@ -41,89 +41,104 @@ namespace Ark
                 if (m_debug)
                     Ark::logger.info("Starting at PP:{0}, IP:{1}"s, m_pp, m_ip);
 
-                m_running = true;
-                while (m_running)
+                try
                 {
-                    if (m_pp >= m_pages.size())
+                    m_running = true;
+                    while (m_running)
                     {
-                        Ark::logger.error("[Virtual Machine] Page pointer has gone too far");
-                        exit(1);
-                    }
-                    if (m_ip >= m_pages[m_pp].size())
-                    {
-                        Ark::logger.error("[Virtual Machine] Instruction pointer has gone too far");
-                        exit(1);
-                    }
+                        if (m_pp >= m_pages.size())
+                        {
+                            Ark::logger.error("[Virtual Machine] Page pointer has gone too far");
+                            exit(1);
+                        }
+                        if (m_ip >= m_pages[m_pp].size())
+                        {
+                            Ark::logger.error("[Virtual Machine] Instruction pointer has gone too far");
+                            exit(1);
+                        }
 
-                    // get current instruction
-                    uint8_t inst = m_pages[m_pp][m_ip];
+                        // get current instruction
+                        uint8_t inst = m_pages[m_pp][m_ip];
 
-                    // and it's time to du-du-du-du-duel!
-                    switch (inst)
-                    {
-                    case Instruction::NOP:
-                        nop();
-                        break;
-                    
-                    case Instruction::LOAD_SYMBOL:
-                        loadSymbol();
-                        break;
-                    
-                    case Instruction::LOAD_CONST:
-                        loadConst();
-                        break;
-                    
-                    case Instruction::POP_JUMP_IF_TRUE:
-                        popJumpIfTrue();
-                        break;
-                    
-                    case Instruction::STORE:
-                        store();
-                        break;
-                    
-                    case Instruction::LET:
-                        let();
-                        break;
-                    
-                    case Instruction::POP_JUMP_IF_FALSE:
-                        popJumpIfFalse();
-                        break;
-                    
-                    case Instruction::JUMP:
-                        jump();
-                        break;
-                    
-                    case Instruction::RET:
-                        ret();
-                        break;
-                    
-                    case Instruction::HALT:
-                        m_running = false;
-                        break;
-                    
-                    case Instruction::CALL:
-                        call();
-                        break;
-                    
-                    case Instruction::NEW_ENV:
-                        newEnv();
-                        break;
-                    
-                    case Instruction::BUILTIN:
-                        builtin();
-                        break;
-                    
-                    case Instruction::SAVE_ENV:
-                        saveEnv();
-                        break;
-                    
-                    default:
-                        Ark::logger.error("[Virtual Machine] unknown instruction:", static_cast<std::size_t>(inst));
-                        exit(1);
+                        // and it's time to du-du-du-du-duel!
+                        switch (inst)
+                        {
+                        case Instruction::NOP:
+                            nop();
+                            break;
+                        
+                        case Instruction::LOAD_SYMBOL:
+                            loadSymbol();
+                            break;
+                        
+                        case Instruction::LOAD_CONST:
+                            loadConst();
+                            break;
+                        
+                        case Instruction::POP_JUMP_IF_TRUE:
+                            popJumpIfTrue();
+                            break;
+                        
+                        case Instruction::STORE:
+                            store();
+                            break;
+                        
+                        case Instruction::LET:
+                            let();
+                            break;
+                        
+                        case Instruction::POP_JUMP_IF_FALSE:
+                            popJumpIfFalse();
+                            break;
+                        
+                        case Instruction::JUMP:
+                            jump();
+                            break;
+                        
+                        case Instruction::RET:
+                            ret();
+                            break;
+                        
+                        case Instruction::HALT:
+                            m_running = false;
+                            break;
+                        
+                        case Instruction::CALL:
+                            call();
+                            break;
+                        
+                        case Instruction::NEW_ENV:
+                            newEnv();
+                            break;
+                        
+                        case Instruction::BUILTIN:
+                            builtin();
+                            break;
+                        
+                        case Instruction::SAVE_ENV:
+                            saveEnv();
+                            break;
+                        
+                        default:
+                            Ark::logger.error("[Virtual Machine] unknown instruction:", static_cast<std::size_t>(inst));
+                            exit(1);
+                        }
+
+                        // move forward
+                        ++m_ip;
                     }
-
-                    // move forward
-                    ++m_ip;
+                }
+                catch (const Ark::TypeError& e)
+                {
+                    Ark::logger.error(e.what());
+                }
+                catch (const Ark::ZeroDivisionError& e)
+                {
+                    Ark::logger.error(e.what());
+                }
+                catch (const std::runtime_error& e)
+                {
+                    Ark::logger.error("RuntimeError", e.what());
                 }
             }
         }

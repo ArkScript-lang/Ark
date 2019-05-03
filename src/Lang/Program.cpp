@@ -36,7 +36,22 @@ namespace Ark
             m_global_env["_args"] = argslist;
             registerLib(m_global_env);
 
-            _execute(m_parser.ast(), &m_global_env);
+            try
+            {
+                _execute(m_parser.ast(), &m_global_env);
+            }
+            catch (const Ark::TypeError& e)
+            {
+                Ark::logger.error(e.what());
+            }
+            catch (const Ark::ZeroDivisionError& e)
+            {
+                Ark::logger.error(e.what());
+            }
+            catch (const std::runtime_error& e)
+            {
+                Ark::logger.error("RuntimeError", e.what());
+            }
         }
 
         void Program::setEnv(const Environment& env)
