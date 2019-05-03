@@ -127,7 +127,8 @@ namespace Ark
 
         void VM::loadFunction(const std::string& name, Value::ProcType function)
         {
-            m_frames.back()[name] = Value(function);
+            // put it in the global frame, aka the first one
+            m_frames.front()[name] = Value(function);
         }
 
         void VM::configure()
