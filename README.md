@@ -57,6 +57,8 @@ The language already handles
     * GCC 7.2
     * GCC 8.2
 * CMake >= 3.8
+* Python 3.6 (for the configure script)
+* Visual Studio >= 11 (on Windows)
 
 Libs already included:
 * [rj format](https://github.com/ryjen/format), MIT licence
@@ -64,16 +66,13 @@ Libs already included:
 * [termcolor](https://github.com/ikalnytskyi/termcolor), BSD (3-clause) licence
 
 Not included:
-* GMP (you can download it [here](https://ftp.gnu.org/gnu/gmp/gmp-6.1.2.tar.bz2) or install from `apt`), LGPL v3 licence
+* MPIR
 
 ## Building
 
 ```bash
-# building GMP if you don't want to install it from apt
-$ cd gmp-6.1.2/ && ./configure && make && make install
-$ cd ../Ark
-# installing GMP if you don't want to build it
-$ sudo apt-get install libgmp-dev
+# configuring project (if on windows, follow the given instructions)
+$ sudo python3.6 configure.py
 # building Ark
 $ cmake -H. -Bbuild
 $ cmake --build build

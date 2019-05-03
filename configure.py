@@ -33,7 +33,7 @@ def main():
 
         # install it on the system
         print("Configuring, building and installing mpir...")
-        os.system("cd ./mpir-3.0.0/ && ./configure && make && make check && make install")
+        os.system("cd ./mpir-3.0.0/ && ./configure --enable-cxx && make && make check && make install")
     elif os.name == 'nt':
         # download yasm
         url = "http://tortall.net/projects/yasm/releases/vsyasm-1.3.0-win"
@@ -109,7 +109,7 @@ def main():
         msvcrt.getch()
 
         print(f"Building mpir (arch: {ms_arch})...")
-        os.system(f"cd mpir-3.0.0\\build.vc{vs_ver} && msbuild.bat gc dll {ms_arch} Release")
+        os.system(f"cd mpir-3.0.0\\build.vc{vs_ver} && msbuild.bat gc dll {ms_arch} Release && msbuild.bat cxx lib {ms_arch} Release")
     
     print("Done!")
     sys.exit(0)

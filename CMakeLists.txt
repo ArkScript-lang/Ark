@@ -16,7 +16,7 @@ if (NOT TESTCPP)
 endif()
 
 set(CMAKE_MODULE_PATH ${Ark_SOURCE_DIR}/cmake)
-find_package(GMP REQUIRED)
+find_package(MPIR REQUIRED)
 
 set(ARK_VERSION_MAJOR 1)
 set(ARK_VERSION_MINOR 2)
@@ -32,7 +32,7 @@ include_directories(
     ${Ark_SOURCE_DIR}/include
     ${Ark_SOURCE_DIR}/thirdparty
 
-    ${GMP_INCLUDE_DIR}
+    ${MPIR_INCLUDE_DIR}
 )
 
 file(GLOB_RECURSE SOURCE_FILES
@@ -47,7 +47,7 @@ else()
 endif()
 
 add_executable(Ark ${SOURCE_FILES})
-target_link_libraries(Ark PRIVATE ${GMP_LIBRARIES})
+target_link_libraries(Ark PRIVATE ${MPIR_LIBRARIES})
 target_link_libraries(Ark PRIVATE stdc++fs)
 
 set_target_properties(
