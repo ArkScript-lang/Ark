@@ -6,19 +6,19 @@ namespace Ark
 {
     namespace Lang
     {
-        template <> Node::Node<int>(const int& value) :
+        Node::Node(int value) :
             m_type(NodeType::Number),
             m_value(BigNum(value)),
             m_env(nullptr)
         {}
 
-        template <> Node::Node<BigNum>(const BigNum& value) :
+        Node::Node(const BigNum& value) :
             m_type(NodeType::Number),
             m_value(value),
             m_env(nullptr)
         {}
         
-        template <> Node::Node<std::string>(const std::string& value) :
+        Node::Node(const std::string& value) :
             m_type(NodeType::String),
             m_value(value),
             m_env(nullptr)
@@ -28,25 +28,25 @@ namespace Ark
             m_type(type), m_env(nullptr)
         {}
 
-        template <> Node::Node<int>(NodeType type, const int& value) :
+        Node::Node(NodeType type, int value) :
             m_type(type),
             m_value(BigNum(value)),
             m_env(nullptr)
         {}
 
-        template <> Node::Node<BigNum>(NodeType type, const BigNum& value) :
+        Node::Node(NodeType type, const BigNum& value) :
             m_type(type),
             m_value(value),
             m_env(nullptr)
         {}
 
-        template <> Node::Node<std::string>(NodeType type, const std::string& value) :
+        Node::Node(NodeType type, const std::string& value) :
             m_type(type),
             m_value(value),
             m_env(nullptr)
         {}
 
-        template <> Node::Node<Keyword>(NodeType type, const Keyword& value) :
+        Node::Node(NodeType type, Keyword value) :
             m_type(type),
             m_value(BigNum(0)),
             m_keyword(value),
