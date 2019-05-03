@@ -40,17 +40,9 @@ namespace Ark
             {
                 _execute(m_parser.ast(), &m_global_env);
             }
-            catch (const Ark::TypeError& e)
+            catch (const std::exception& e)
             {
                 Ark::logger.error(e.what());
-            }
-            catch (const Ark::ZeroDivisionError& e)
-            {
-                Ark::logger.error(e.what());
-            }
-            catch (const std::runtime_error& e)
-            {
-                Ark::logger.error("RuntimeError", e.what());
             }
         }
 

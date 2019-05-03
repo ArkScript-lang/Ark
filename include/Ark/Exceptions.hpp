@@ -10,15 +10,15 @@ namespace Ark
     {
     public:
         TypeError(const std::string& message) :
-            m_msg(message)
+            m_msg("TypeError: " + message)
         {}
 
         virtual const char* what() const throw()
         {
-            return ("TypeError: " + m_msg).c_str();
+            return m_msg.c_str();
         }
     
-    private:
+    protected:
         std::string m_msg;
     };
 
@@ -27,12 +27,11 @@ namespace Ark
     public:
         virtual const char* what() const throw()
         {
-            return std::string(
+            return 
                 "ZeroDivisionError: In ordonary arithmetic, the expression has no meaning, "
                 "as there is no number which, when multiplied by 0, gives a (assuming a != 0), "
                 "and so division by zero is undefined. Since any number multiplied by 0 is 0, "
-                "the expression 0/0 is also undefined."
-                ).c_str();
+                "the expression 0/0 is also undefined.";
         }
     };
 }
