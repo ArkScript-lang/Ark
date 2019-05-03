@@ -60,6 +60,16 @@ set_target_properties(
         CXX_EXTENSIONS OFF
 )
 
+if (MSVC)
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
+
+    add_custom_command(
+        TARGET Ark POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy "${Ark_SOURCE_DIR}/mpir-3.0.0/dll/mpir.dll" $<TARGET_FILE_DIR:Ark>
+    )
+endif()
+
 if (DEBUG MATCHES "true")
     if (CMAKE_COMPILER_IS_GNUCXX)
         set(CMAKE_CXX_FLAGS "-pg -g -no-pie")

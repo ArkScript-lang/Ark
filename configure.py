@@ -5,7 +5,7 @@ import urllib.request
 import shutil
 import tarfile
 if os.name == 'nt':
-    import zipfile, winreg, webbrowser, msvcrt
+    import zipfile, winreg, webbrowser, msvcrt, glob
 import platform
 
 
@@ -111,6 +111,17 @@ def main():
         print(f"Building mpir (arch: {ms_arch})...")
         os.system(f"cd mpir-3.0.0\\build.vc{vs_ver} && msbuild.bat gc dll {ms_arch} Release")
         os.system(f"cd mpir-3.0.0\\build.vc{vs_ver} && msbuild.bat cxx lib {ms_arch} Release")
+
+        print("Moving files...")
+        subdir = glob.glob("mpir-3.0.0/dll/*/")[0]
+        for f in glob.glob(f"{subdir}/*.*"):
+            os.rename(f, os.path.dirname(f) + "/../" + os.path.basename(f))
+        shutil.rmtree(subdir, ignore_errors=True)
+
+        subdir = glob.glob("mpir-3.0.0/lib/*/")[0]
+        for f in glob.glob(f"{subdir}/*.*"):
+            os.rename(f, os.path.dirname(f) + "/../" + os.path.basename(f))
+        shutil.rmtree(subdir, ignore_errors=True)
     
     print("Done!")
     sys.exit(0)
