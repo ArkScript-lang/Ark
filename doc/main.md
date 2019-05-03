@@ -134,7 +134,7 @@ If you need to import an Ark file from the standard library, `import` will be ab
 
 -> [Embedding Ark](embedding.md)
 
-## Standart library
+## Standard library
 
 -> [Ark std lib](lib.md)
 
