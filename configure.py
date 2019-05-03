@@ -12,16 +12,22 @@ import platform
 def main():
     # download mpir
     print("Downloading mpir-3.0.0.tar.bz2...")
-    url = "http://mpir.org/mpir-3.0.0.tar.bz2"
-    with urllib.request.urlopen(url) as response, open("mpir-3.0.0.tar.bz2", 'wb') as out_file:
-        shutil.copyfileobj(response, out_file)
+    if not os.path.exists("./mpir-3.0.0.tar.bz2"):
+        url = "http://mpir.org/mpir-3.0.0.tar.bz2"
+        with urllib.request.urlopen(url) as response, open("mpir-3.0.0.tar.bz2", 'wb') as out_file:
+            shutil.copyfileobj(response, out_file)
+    else:
+        print("mpir-3.0.0.tar.bz2 found, not downloading it again. If the download failed, delete the file and retry")
 
     # extract all
     print("Extracting tarbal tp mpir-3.0.0/")
     with tarfile.open("mpir-3.0.0.tar.bz2", "r:bz2") as tar:
-        tar.extractall("./mpir-3.0.0/")
+        tar.extractall("./")
     
     if os.name == 'posix':
+        print("Installing yasm...")
+        os.system("apt-get install yasm -y -q")
+
         # install it on the system
         print("Configuring, building and installing mpir...")
         os.system("cd ./mpir-3.0.0/ && ./configure && make && make check && make install")
