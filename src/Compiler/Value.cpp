@@ -1,29 +1,27 @@
 #include <Ark/Compiler/Value.hpp>
 
-#include <Ark/Lang/Node.hpp>
-
 namespace Ark
 {
     namespace Compiler
     {
         using namespace Ark::Lang;
 
-        template <> Value::Value(const int& value) :
+        Value::Value(int value) :
             value(BigNum(value)),
             type(ValueType::Number)
         {}
 
-        template <> Value::Value(const long& value) :
+        Value::Value(long value) :
             value(BigNum(value)),
             type(ValueType::Number)
         {}
 
-        template <> Value::Value(const std::string& value) :
+        Value::Value(const std::string& value) :
             value(value),
             type(ValueType::String)
         {}
 
-        template <> Value::Value(const Node& v)
+        Value::Value(const Node& v)
         {
             if (v.nodeType() == NodeType::Number)
             {
@@ -37,7 +35,7 @@ namespace Ark
             }
         }
 
-        template <> Value::Value(const std::size_t& value) :
+        Value::Value(std::size_t value) :
             value(value),
             type(ValueType::PageAddr)
         {}

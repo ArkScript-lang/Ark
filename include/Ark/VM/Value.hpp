@@ -26,7 +26,15 @@ namespace Ark
             using ValueType = std::variant<BigNum, std::string, PageAddr_t, NFT, ProcType, Closure>;
 
             Value(bool is_list=false);
-            template <typename T> Value(const T& value);
+            Value(int value);
+            Value(const BigNum& value);
+            Value(const std::string& value);
+            Value(PageAddr_t value);
+            Value(NFT value);
+            Value(Value::ProcType value);
+            Value(const std::vector<Value>& value);
+            Value(const Closure& value);
+            Value(const Value& value);
             Value(Frame* frame_ptr, PageAddr_t pa);
 
             bool isNumber() const;

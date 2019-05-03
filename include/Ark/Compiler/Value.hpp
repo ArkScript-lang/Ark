@@ -5,6 +5,7 @@
 #include <string>
 
 #include <Ark/BigNum.hpp>
+#include <Ark/Lang/Node.hpp>
 
 namespace Ark
 {
@@ -22,8 +23,11 @@ namespace Ark
             std::variant<BigNum, std::string, std::size_t> value;
             ValueType type;
 
-            template <typename T>
-            Value(const T& value);
+            Value(int value);
+            Value(long value);
+            Value(const std::string& value);
+            Value(const Ark::Lang::Node& v);
+            Value(std::size_t value);
 
             bool operator==(const Value& A);
         };

@@ -10,39 +10,39 @@ namespace Ark
             m_is_list(is_list)
         {}
 
-        template <> Value::Value<int>(const int& value) :
+        Value::Value(int value) :
             m_value(BigNum(value)), m_is_list(false)
         {}
 
-        template <> Value::Value<BigNum>(const BigNum& value) :
+        Value::Value(const BigNum& value) :
             m_value(value), m_is_list(false)
         {}
 
-        template <> Value::Value<std::string>(const std::string& value) :
+        Value::Value(const std::string& value) :
             m_value(value), m_is_list(false)
         {}
 
-        template <> Value::Value<PageAddr_t>(const PageAddr_t& value) :
+        Value::Value(PageAddr_t value) :
             m_value(value), m_is_list(false)
         {}
 
-        template <> Value::Value<NFT>(const NFT& value) :
+        Value::Value(NFT value) :
             m_value(value), m_is_list(false)
         {}
 
-        template <> Value::Value<Value::ProcType>(const Value::ProcType& value) :
+        Value::Value(Value::ProcType value) :
             m_value(value), m_is_list(false)
         {}
 
-        template <> Value::Value<std::vector<Value>>(const std::vector<Value>& value) :
+        Value::Value(const std::vector<Value>& value) :
             m_list(value), m_is_list(true)
         {}
 
-        template <> Value::Value<Closure>(const Closure& value) :
+        Value::Value(const Closure& value) :
             m_value(value), m_is_list(false)
         {}
 
-        template <> Value::Value<Value>(const Value& value) :
+        Value::Value(const Value& value) :
             m_value(value.m_value),
             m_list(value.m_list),
             m_is_list(value.m_is_list)
