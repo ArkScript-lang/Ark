@@ -115,12 +115,18 @@ def main():
         print("Moving files...")
         subdir = glob.glob("mpir-3.0.0/dll/*/")[0]
         for f in glob.glob(f"{subdir}/Release/*.*"):
-            os.rename(f, os.path.dirname(f) + "/../../" + os.path.basename(f))
+            try:
+                os.rename(f, os.path.dirname(f) + "/../../" + os.path.basename(f))
+            except FileExistsError:
+                pass
         shutil.rmtree(subdir, ignore_errors=True)
 
         subdir = glob.glob("mpir-3.0.0/lib/*/")[0]
         for f in glob.glob(f"{subdir}/Release/*.*"):
-            os.rename(f, os.path.dirname(f) + "/../../" + os.path.basename(f))
+            try:
+                os.rename(f, os.path.dirname(f) + "/../../" + os.path.basename(f))
+            except FileExistsError:
+                pass
         shutil.rmtree(subdir, ignore_errors=True)
     
     print("Done!")
