@@ -1,9 +1,9 @@
 #ifndef ark_vm_frame
 #define ark_vm_frame
 
-#include <string>
 #include <unordered_map>
 #include <iostream>
+#include <cinttypes>
 
 #include <Ark/VM/Value.hpp>
 #include <Ark/Compiler/BytecodeReader.hpp>
@@ -31,8 +31,8 @@ namespace Ark
             Value pop();
             void push(const Value& value);
 
-            Value& operator[](const std::string& key);
-            bool find(const std::string& key) const;
+            Value& operator[](uint16_t key);
+            bool find(uint16_t key) const;
             std::size_t stackSize() const;
 
             std::size_t callerAddr() const;
@@ -43,7 +43,7 @@ namespace Ark
         private:
             std::size_t m_addr, m_page_addr;
             std::vector<Value> m_stack;
-            std::unordered_map<std::string, Value> m_environment;
+            std::unordered_map<uint16_t, Value> m_environment;
         };
     }
 }

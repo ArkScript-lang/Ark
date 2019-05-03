@@ -26,6 +26,7 @@
 
 ### Changed
 - updated the FFI to add the runtime typechecking
+- micro optimization: using numbers as variable names internally, instead of strings
 
 ### Removed
 - unnecessary destructors removed to let the compiler auto generate T(T&&) (to avoid implicitly using T(const T&))

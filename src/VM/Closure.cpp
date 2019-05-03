@@ -18,7 +18,7 @@ namespace Ark
             m_frame = std::make_shared<Frame>(*frame_ptr);
         }
 
-        void Closure::save(std::size_t frame_idx, const std::string& sym)
+        void Closure::save(std::size_t frame_idx, uint16_t sym)
         {
             m_frame_idx = frame_idx;
             m_symbol = sym;
@@ -39,7 +39,7 @@ namespace Ark
             return m_frame_idx;
         }
 
-        const std::string& Closure::symbol() const
+        uint16_t Closure::symbol() const
         {
             return m_symbol;
         }

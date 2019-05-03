@@ -39,6 +39,7 @@ namespace Ark
             std::vector<Value::ProcType> m_ffi;
 
             std::vector<std::string> m_symbols;
+            uint16_t m_dotc_idx;
             std::vector<Value> m_constants;
             std::vector<bytecode_t> m_pages;
 

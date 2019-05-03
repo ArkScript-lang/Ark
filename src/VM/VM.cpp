@@ -1,5 +1,8 @@
 #include <Ark/VM/VM.hpp>
 
+#include <exception>
+#include <stdexcept>
+
 #include <Ark/Log.hpp>
 #include <Ark/VM/FFI.hpp>
 
@@ -128,7 +131,15 @@ namespace Ark
         void VM::loadFunction(const std::string& name, Value::ProcType function)
         {
             // put it in the global frame, aka the first one
-            m_frames.front()[name] = Value(function);
+            auto it = std::find(m_symbols.begin(), m_symbols.end(), name);
+            if (it == m_symbols.end())
+                throw std::runtime_error(
+                    "Couldn't find symbol with name " + name + ", can not add a function with this name. "
+                    "Are you sure you are using this function in your Ark script? The function must be used in the "
+                    "Ark script to bind it, otherwise the VM can not reference it!"
+                );
+
+            m_frames.front()[static_cast<uint16_t>(std::distance(m_symbols.begin(), it))] = Value(function);
         }
 
         void VM::configure()
@@ -182,6 +193,8 @@ namespace Ark
                     if (m_debug)
                         Ark::logger.info("(Virtual Machine) -", symbol);
                 }
+                m_symbols.push_back(".c");
+                m_dotc_idx = m_symbols.size() - 1;
             }
             else
             {
@@ -323,13 +336,14 @@ namespace Ark
                 push(NFT::True);
             else
             {
-                std::string sym = m_symbols[id - 3];
+                auto sid = id - 3;
+                std::string sym = m_symbols[sid];
 
                 for (std::size_t i=m_frames.size() - 1; ; --i)
                 {
-                    if (m_frames[i].find(sym))
+                    if (m_frames[i].find(sid))
                     {
-                        push(m_frames[i][sym]);
+                        push(m_frames[i][sid]);
                         return;
                     }
 
@@ -396,15 +410,16 @@ namespace Ark
             if (m_debug)
                 Ark::logger.info("STORE ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
 
-            std::string sym = m_symbols[id - 3];
+            auto sid = id - 3;
+            std::string sym = m_symbols[sid];
 
             for (std::size_t i=m_frames.size() - 1; ; --i)
             {
-                if (m_frames[i].find(sym))
+                if (m_frames[i].find(sid))
                 {
-                    m_frames[i][sym] = pop();
-                    if (m_frames[i][sym].isClosure())
-                        m_frames[i][sym].closure_ref().save(i, sym);
+                    m_frames[i][sid] = pop();
+                    if (m_frames[i][sid].isClosure())
+                        m_frames[i][sid].closure_ref().save(i, sid);
                     return;
                 }
 
@@ -429,10 +444,11 @@ namespace Ark
             if (m_debug)
                 Ark::logger.info("LET ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
 
-            std::string sym = m_symbols[id - 3];
-            m_frames.back()[sym] = pop();
-            if (m_frames.back()[sym].isClosure())
-                m_frames.back()[sym].closure_ref().save(m_frames.size() - 1, sym);
+            auto sid = id - 3;
+            std::string sym = m_symbols[sid];
+            m_frames.back()[sid] = pop();
+            if (m_frames.back()[sid].isClosure())
+                m_frames.back()[sid].closure_ref().save(m_frames.size() - 1, sid);
         }
         
         void VM::popJumpIfFalse()
@@ -492,7 +508,7 @@ namespace Ark
             m_ip = m_frames.back().callerAddr();
 
             auto rm_frame = [this] () -> void {
-                Closure c = m_frames.back()[".c"].closure_ref();
+                Closure c = m_frames.back()[m_dotc_idx].closure_ref();
                 // remove frame
                 m_frames.pop_back();
                 // next frame is the one of the closure, we should save it
@@ -551,7 +567,7 @@ namespace Ark
                 m_frames.push_back(*c.frame());
                 // create dedicated frame
                 m_frames.emplace_back(m_ip, m_pp);
-                    m_frames.back()[".c"] = function;
+                    m_frames.back()[m_dotc_idx] = function;
                 m_pp = c.pageAddr();
                 m_ip = -1;  // because we are doing a m_ip++ right after that
                 for (std::size_t j=0; j < args.size(); ++j)

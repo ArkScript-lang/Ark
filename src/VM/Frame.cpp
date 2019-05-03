@@ -33,12 +33,12 @@ namespace Ark
             m_stack.push_back(value);
         }
 
-        Value& Frame::operator[](const std::string& key)
+        Value& Frame::operator[](uint16_t key)
         {
             return m_environment[key];
         }
 
-        bool Frame::find(const std::string& key) const
+        bool Frame::find(uint16_t key) const
         {
             return m_environment.find(key) != m_environment.end();
         }
@@ -63,7 +63,7 @@ namespace Ark
             std::size_t i = 0;
             for (auto kv : F.m_environment)
             {
-                os << kv.first << " => " << kv.second;
+                os << static_cast<int>(kv.first) << " => " << kv.second;
                 if (i != F.m_environment.size() - 1)
                     os << ", ";
             }
