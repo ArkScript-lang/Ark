@@ -23,8 +23,6 @@ namespace Ark
         public:
             VM(bool debug=false);
 
-            void setLoadPath(const std::string& load_path);
-
             void feed(const std::string& filename);
             void feed(const bytecode_t& bytecode);
             void run();
@@ -51,8 +49,6 @@ namespace Ark
 
             std::vector<Frame> m_frames;
             std::optional<Frame> m_saved_frame;
-
-            std::string m_load_path;
 
             void configure();
             void initFFI();

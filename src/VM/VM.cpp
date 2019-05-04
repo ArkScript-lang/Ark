@@ -18,14 +18,8 @@ namespace Ark
             m_debug(debug),
             m_ip(0), m_pp(0),
             m_running(false),
-            m_filename("FILE"),
-            m_load_path(".")
+            m_filename("FILE")
         {}
-
-        void VM::setLoadPath(const std::string& load_path)
-        {
-            m_load_path = load_path;
-        }
         
         void VM::feed(const std::string& filename)
         {
@@ -344,7 +338,7 @@ namespace Ark
                 std::string path = "./" + file;
                 if (m_filename != "FILE")  // bytecode loaded from file
                     path = (fs::path(m_filename).root_path() / fs::path(file)).string();
-                std::string lib_path = (fs::path(m_load_path) / fs::path(file)).string();
+                std::string lib_path = (fs::path(ARK_STD) / fs::path(file)).string();
 
                 if (Ark::Utils::fileExists(path))  // if it exists alongside the .arkc file
                     m_shared_lib_objects.emplace_back(path);

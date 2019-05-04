@@ -23,6 +23,8 @@ set(ARK_VERSION_MINOR 2)
 set(ARK_VERSION_PATCH 2)
 set(ARK_STD ${CMAKE_INSTALL_PREFIX}/share/.Ark/lib)
 
+add_subdirectory(${Ark_SOURCE_DIR}/modules)
+
 configure_file(
     ${Ark_SOURCE_DIR}/include/Ark/Constants.hpp.in
     ${Ark_SOURCE_DIR}/include/Ark/Constants.hpp
