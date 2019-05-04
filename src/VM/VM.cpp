@@ -355,7 +355,6 @@ namespace Ark
 
                 // load data from it!
                 using Mapping_t = std::unordered_map<std::string, Value::ProcType>;
-                int h = m_shared_lib_objects.back().get<int (*) ()>("hello")();
                 Mapping_t map = m_shared_lib_objects.back().get<Mapping_t (*) ()>("getFunctionsMapping")();
 
                 for (auto&& kv : map)
@@ -363,7 +362,12 @@ namespace Ark
                     // put it in the global frame, aka the first one
                     auto it = std::find(m_symbols.begin(), m_symbols.end(), kv.first);
                     if (it != m_symbols.end())
+                    {
+                        if (m_debug)
+                            Ark::logger.info("Loading", kv.first);
+
                         m_frames.front()[static_cast<uint16_t>(std::distance(m_symbols.begin(), it))] = Value(kv.second);
+                    }
                 }
             }
         }

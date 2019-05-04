@@ -19,11 +19,6 @@ Value random(const std::vector<Value>& n)
     return Value(static_cast<int>(g()));
 }
 
-extern "C" int hello()
-{
-    return 0;
-}
-
 extern "C" Mapping_t getFunctionsMapping()
 {
     Mapping_t map;
