@@ -102,6 +102,22 @@ namespace Ark
             }
 
             if (m_debug)
+                Ark::logger.info("Adding plugins table");
+            
+            // plugins table
+            m_bytecode.push_back(Instruction::PLUGIN_TABLE_START);
+            // push size
+            pushNumber(static_cast<uint16_t>(m_plugins.size()));
+            // push elements
+            for (auto plugin: m_plugins)
+            {
+                // push the string, null terminated
+                for (std::size_t i=0; i < plugin.size(); ++i)
+                    m_bytecode.push_back(plugin[i]);
+                m_bytecode.push_back(Instruction::NOP);
+            }
+
+            if (m_debug)
                 Ark::logger.info("Adding code segments");
 
             // start code segments
@@ -290,6 +306,14 @@ namespace Ark
                     // relative address casted as unsigned (don't worry, it's normal)
                     pushNumber(static_cast<uint16_t>(current), &page(p));
                 }
+                else if (n == Keyword::LoadPlugin)
+                {
+                    for (Node::Iterator it=x.list().begin() + 1; it != x.list().end(); ++it)
+                    {
+                        // load const, push it to the plugins table
+                        addPlugin(*it);
+                    }
+                }
 
                 return;
             }
@@ -365,6 +389,13 @@ namespace Ark
                 return m_values.size() - 1;
             }
             return (std::size_t) std::distance(m_values.begin(), it);
+        }
+
+        void Compiler::addPlugin(Node x)
+        {
+            std::string name = x.getStringVal();
+            if (std::find(m_plugins.begin(), m_plugins.end(), name) == m_plugins.end())
+                m_plugins.push_back(name);
         }
 
         void Compiler::pushNumber(uint16_t n, std::vector<Inst>* page)

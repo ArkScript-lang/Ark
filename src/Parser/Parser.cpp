@@ -124,16 +124,18 @@ namespace Ark
             std::optional<Keyword> kw;
             if (token.token == "if")
                 kw = Keyword::If;
-            if (token.token == "set")
+            else if (token.token == "set")
                 kw = Keyword::Set;
-            if (token.token == "let")
+            else if (token.token == "let")
                 kw = Keyword::Let;
-            if (token.token == "fun")
+            else if (token.token == "fun")
                 kw = Keyword::Fun;
-            if (token.token == "while")
+            else if (token.token == "while")
                 kw = Keyword::While;
-            if (token.token == "begin")
+            else if (token.token == "begin")
                 kw = Keyword::Begin;
+            else if (token.token == "loadPlugin")
+                kw = Keyword::LoadPlugin;
             if (kw)
             {
                 auto n = Node(NodeType::Keyword, kw.value());
