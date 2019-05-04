@@ -65,7 +65,7 @@ void bcr(const std::string& file)
     bcr.display();
 }
 
-void vm(bool debug, bool timer, const std::string& file)
+void vm(bool debug, bool timer, const std::string& file, const std::string& load_path)
 {
     if (!Ark::Utils::fileExists(file))
     {
@@ -74,6 +74,7 @@ void vm(bool debug, bool timer, const std::string& file)
     }
 
     Ark::VM::VM vm(debug);
+    vm.setLoadPath(load_path);
     vm.feed(file);
 
     std::chrono::time_point<std::chrono::system_clock> start, end;
@@ -133,10 +134,11 @@ int main(int argc, char** argv)
 
     enum class mode { help, version, interpreter, compiler, bytecode_reader, vm, repl };
     mode selected;
-    std::string input_file = "";
-    bool debug = false;
-    bool timer = false;
+    std::string input_file = "", load_path = "";
+    bool debug = false, timer = false;
     std::vector<std::string> wrong;
+
+    // TODO : redo CLI
 
     auto cli = (
         // general options
@@ -153,7 +155,9 @@ int main(int argc, char** argv)
             (
                 command("interpreter").set(selected, mode::interpreter).doc("Start the interpreter with the given Ark source file")
                 | command("compile").set(selected, mode::compiler).doc("Start the compiler to generate a bytecode file from the given Ark source file")
-                | command("vm").set(selected, mode::vm).doc("Start the virtual machine with the given bytecode file")
+                | (command("vm").set(selected, mode::vm).doc("Start the virtual machine with the given bytecode file")
+                    , option("--load-path") & value("LOAD_PATH", load_path)
+                  )
             )
             & value("file", input_file)
             , option("-d", "--debug").set(debug).doc("Enable debug mode")
@@ -196,7 +200,7 @@ int main(int argc, char** argv)
             break;
         
         case mode::vm:
-            vm(debug, timer, input_file);
+            vm(debug, timer, input_file, load_path);
             break;
         
         case mode::repl:

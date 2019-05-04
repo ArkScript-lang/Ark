@@ -15,6 +15,9 @@ A basic file is composed of those headers:
             - number: represented in hexadecimal format (stored as a null terminated string), big endian
             - string: all the characters, plus a \0 at the end (aka null terminated string)
             - function: page number (two bytes, big endian)
+- plugins table
+    - number of elements (two bytes, big endian)
+    - strings (names of the plugins), null terminated
 - code segments (can have multiple code segments)
     - number of elements (two bytes, big endian), can be equal to 0
     - instructions
@@ -52,7 +55,10 @@ Builtins are handled with `BUILTIN id`, with `id` being the id of the builtin fu
 | `list` (16) | at least 0 | Return a list composed of all the arguments |
 | `nil?` (17) | 1 | Check if given argument is nil |
 | `print` (18) | at least 0 | Print the given arguments |
-| `assert` (19) | 2 | First argument must be a boolean. Raise an error, created from the message in the second argument, if the first argument is false |
+| `assert` (19) | 2 | First argument must be a Bool. Raise an error, created from the message in the second argument, if the first argument is false |
+| `input` (20) | 0 or 1 | Can take a String (prompt), return a String writen by the user in the shell |
+| `toNumber` (21) | 1 | Convert a String to Number |
+| `toString` (22) | 1 | Convert a value to String |
 
 ## Instructions
 

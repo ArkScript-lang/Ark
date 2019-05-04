@@ -48,6 +48,7 @@ namespace Ark
             Ark::Parser::Parser m_parser;
             std::vector<std::string> m_symbols;
             std::vector<Value> m_values;
+            std::vector<std::string> m_plugins;
             std::vector<std::vector<Inst>> m_code_pages;
             std::vector<std::vector<Inst>> m_temp_pages;
 

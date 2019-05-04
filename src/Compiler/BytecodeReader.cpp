@@ -107,6 +107,22 @@ namespace Ark
                 os << "\n";
             }
 
+            if (b[i] == Instruction::PLUGIN_TABLE_START)
+            {
+                os << "Plugins table:\n"; i++;
+                uint16_t size = readNumber(i); i++;
+                os << "Length: " << size << "\n";
+                for (uint16_t j=0; j < size; ++j)
+                {
+                    os << "- ";
+                    while (b[i] != 0)
+                        os << b[i++];
+                    i++;
+                    os << "\n";
+                }
+                os << "\n";
+            }
+
             uint16_t pp = 0;
 
             while (b[i] == Instruction::CODE_SEGMENT_START)

@@ -1,14 +1,18 @@
 # Change Log
 
-## Unreleased
+## Unreleased (2.x.x)
 ### Added
 - configure.py script, to download, build and install mpir 3.0.0
 - builtins functions: input, toNumber, toString
+- **breaking change** adding `PLUGIN_TABLE_START` with a value of 3 in the compiler/VM
+- modified CLI to add an option to modify the LOAD_PATH of the plugins
 
 ### Changed
 - splitted lib/Exceptions.ark into lib/Exceptions.ark and lib/Either.ark
 - renamed FindGMP FindMPIR, and we're now searching for MPIR and linking with it
 - proper exception handling
+- the VM shouldn't throw a runtime error if it can't link a function name and a function address
+- **breaking change** the `CODE_SEGMENT_START` is now equal to 4
 
 ### Removed
 - `hastype` keyword because I never had to implement compile time typechecking, so it's not useful

@@ -376,6 +376,24 @@ namespace Ark
                                 }
                                 return true;
                             }
+
+                            case Keyword::LoadPlugin:
+                            {
+                                if (p.size() > 1)
+                                {
+                                    for (Node::Iterator it2=p.begin()+1; it2 != p.end(); ++it2)
+                                    {
+                                        if (it2->nodeType() != NodeType::String)
+                                        {
+                                            Ark::logger.error("[Parser] loadPlugin needs String, at {0}:{1}"s, it2->line(), it2->col());
+                                            return false;
+                                        }
+                                    }
+                                    return true;
+                                }
+                                Ark::logger.error("[Parser] need at least 1 plugin name");
+                                return false;
+                            }
                             
                             default:
                                 Ark::logger.error("[Parser] unknown keyword type, at {0}:{1}"s, n.line(), n.col());

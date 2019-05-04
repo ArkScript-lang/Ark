@@ -15,8 +15,14 @@ namespace Ark
         VM::VM(bool debug) :
             m_debug(debug),
             m_ip(0), m_pp(0),
-            m_running(false)
+            m_running(false),
+            load_path(".")
         {}
+
+        void VM::setLoadPath(const std::string& load_path)
+        {
+            m_load_path = load_path;
+        }
         
         void VM::feed(const std::string& filename)
         {
@@ -140,11 +146,11 @@ namespace Ark
             // put it in the global frame, aka the first one
             auto it = std::find(m_symbols.begin(), m_symbols.end(), name);
             if (it == m_symbols.end())
-                throw std::runtime_error(
-                    "Couldn't find symbol with name " + name + ", can not add a function with this name. "
-                    "Are you sure you are using this function in your Ark script? The function must be used in the "
-                    "Ark script to bind it, otherwise the VM can not reference it!"
-                );
+            {
+                if (m_debug)
+                    Ark::logger.warn("Couldn't find symbol with name", name, "to set its value as a function");
+                return;
+            }
 
             m_frames.front()[static_cast<uint16_t>(std::distance(m_symbols.begin(), it))] = Value(function);
         }
@@ -275,6 +281,37 @@ namespace Ark
                 Ark::logger.error("[Virtual Machine] Couldn't find constants table");
                 exit(1);
             }
+
+            if (b[i] == Instruction::PLUGIN_TABLE_START)
+            {
+                if (m_debug)
+                    Ark::logger.info("(Virtual Machine) plugins table");
+                
+                i++;
+                uint16_t size = readNumber(i);
+                i++;
+
+                if (m_debug)
+                    Ark::logger.info("(Virtual Machine) length:", size);
+                
+                for (uint16_t j=0; j < size; ++j)
+                {
+                    std::string plugin = "";
+                    while (b[i] != 0)
+                        plugin.push_back(b[i++]);
+                    i++;
+
+                    m_plugins.push_back(plugin);
+
+                    if (m_debug)
+                        Ark::logger.info("(Virtual Machine) -", plugin);
+                }
+            }
+            else
+            {
+                Ark::logger.error("[Virtual Machine] Couldn't find plugins table");
+                exit(1);
+            }
             
             while (b[i] == Instruction::CODE_SEGMENT_START)
             {
@@ -293,6 +330,9 @@ namespace Ark
                 for (uint16_t j=0; j < size; ++j)
                     m_pages.back().push_back(b[i++]);
             }
+
+            // loading plugins
+            // TODO
         }
 
         void VM::initFFI()
