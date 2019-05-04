@@ -18,9 +18,9 @@ endif()
 set(CMAKE_MODULE_PATH ${Ark_SOURCE_DIR}/cmake)
 find_package(MPIR REQUIRED)
 
-set(ARK_VERSION_MAJOR 1)
-set(ARK_VERSION_MINOR 2)
-set(ARK_VERSION_PATCH 2)
+set(ARK_VERSION_MAJOR 2)
+set(ARK_VERSION_MINOR 0)
+set(ARK_VERSION_PATCH 0)
 set(ARK_STD ${CMAKE_INSTALL_PREFIX}/share/.Ark/lib)
 
 add_subdirectory(${Ark_SOURCE_DIR}/modules)
@@ -49,12 +49,12 @@ else()
 endif()
 
 add_executable(Ark ${SOURCE_FILES})
-target_link_libraries(Ark PRIVATE ${MPIR_LIBRARIES})
+target_link_libraries(Ark PUBLIC ${MPIR_LIBRARIES})
 if (CMAKE_COMPILER_IS_GNUCXX)
-    target_link_libraries(Ark PRIVATE stdc++fs)
+    target_link_libraries(Ark PUBLIC stdc++fs)
 endif()
 if (UNIX OR LINUX)
-    target_link_libraries(Ark PRIVATE ${CMAKE_DL_LIBS})
+    target_link_libraries(Ark PUBLIC ${CMAKE_DL_LIBS})
 endif()
 
 set_target_properties(
@@ -73,6 +73,10 @@ if (MSVC)
         TARGET Ark POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy "${Ark_SOURCE_DIR}/mpir-3.0.0/dll/mpir.dll" $<TARGET_FILE_DIR:Ark>
     )
+endif()
+
+if (CMAKE_COMPILER_IS_GNUCXX)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,-rpath,/usr/local/lib")
 endif()
 
 if (DEBUG MATCHES "true")

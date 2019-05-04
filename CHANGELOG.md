@@ -1,6 +1,11 @@
 # Change Log
 
-## Unreleased (2.x.x)
+# Unreleased
+### Added
+### Changed
+### Removed
+
+## 2.0.0
 ### Added
 - configure.py script, to download, build and install mpir 3.0.0
 - builtins functions: input, toNumber, toString
@@ -16,6 +21,7 @@
 - fixing a bug in the bytecode reader: it didn't handle `NOP`
 - `import` should be able to load plugins, also `import` takes only one argument now
 - **breaking change** `POP_JUMP_IF_FALSE` is now an absolute jump as well
+- upgrading CMakeLists to add `-rpath` option to the linker (with GCC), so that it still finds the lib after being installed
 
 ### Removed
 - `hastype` keyword because I never had to implement compile time typechecking, so it's not useful
