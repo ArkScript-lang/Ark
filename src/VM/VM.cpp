@@ -16,7 +16,7 @@ namespace Ark
             m_debug(debug),
             m_ip(0), m_pp(0),
             m_running(false),
-            load_path(".")
+            m_load_path(".")
         {}
 
         void VM::setLoadPath(const std::string& load_path)

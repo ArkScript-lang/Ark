@@ -140,7 +140,9 @@ namespace Ark
                     {
                         os << (i - j) << " ";
                         uint8_t inst = b[i]; i++;
-                        if (inst == Instruction::LOAD_SYMBOL)
+                        if (inst == Instruction::NOP)
+                            os << "NOP\n";
+                        else if (inst == Instruction::LOAD_SYMBOL)
                         {
                             os << "LOAD_SYMBOL (" << readNumber(i) << ")\n";
                             i++;
@@ -195,7 +197,7 @@ namespace Ark
                             os << "SAVE_ENV\n";
                         else
                         {
-                            os << "Unknown instruction\n";
+                            os << "Unknown instruction: " << static_cast<int>(inst) << "\n";
                             return;
                         }
 
