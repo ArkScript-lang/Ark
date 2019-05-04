@@ -103,32 +103,40 @@ namespace Ark
             {
                 Keyword n = x.list()[0].keyword();
 
-                if (n == Keyword::If)
-                    return _execute((_execute(x.list()[1], env) == falseSym) ? x.list()[3] : x.list()[2], env);
-                if (n == Keyword::Set)
+                switch (n)
                 {
-                    std::string name = x.list()[1].getStringVal();
-                    return env->find(name)[name] = _execute(x.list()[2], env);
-                }
-                if (n == Keyword::Let)
-                    return (*env)[x.list()[1].getStringVal()] = _execute(x.list()[2], env);
-                if (n == Keyword::Fun)
-                {
-                    x.setNodeType(NodeType::Closure);
-                    x.addEnv(env);
-                    return x;
-                }
-                if (n == Keyword::Begin)
-                {
-                    for (std::size_t i=1; i < x.list().size() - 1; ++i)
-                        _execute(x.list()[i], env);
-                    return _execute(x.list()[x.list().size() - 1], env);
-                }
-                if (n == Keyword::While)
-                {
-                    while (_execute(x.list()[1], env) == trueSym)
-                        _execute(x.list()[2], env);
-                    return nil;
+                    case Keyword::If:
+                        return _execute((_execute(x.list()[1], env) == falseSym) ? x.list()[3] : x.list()[2], env);
+                    
+                    case Keyword::Set:
+                    {
+                        std::string name = x.list()[1].getStringVal();
+                        return env->find(name)[name] = _execute(x.list()[2], env);
+                    }
+
+                    case Keyword::Let:
+                        return (*env)[x.list()[1].getStringVal()] = _execute(x.list()[2], env);
+                    
+                    case Keyword::Fun:
+                        x.setNodeType(NodeType::Closure);
+                        x.addEnv(env);
+                        return x;
+                    
+                    case Keyword::Begin:
+                        for (std::size_t i=1; i < x.list().size() - 1; ++i)
+                            _execute(x.list()[i], env);
+                        return _execute(x.list()[x.list().size() - 1], env);
+                    
+                    case Keyword::While:
+                        while (_execute(x.list()[1], env) == trueSym)
+                            _execute(x.list()[2], env);
+                        return nil;
+
+                    case Keyword::LoadPlugin:
+                        throw std::runtime_error("The Ark interpreter can not handle plugins");
+                    
+                    default:
+                        throw std::runtime_error("Unknown keyword");
                 }
             }
 
