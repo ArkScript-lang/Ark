@@ -14,6 +14,7 @@
 - the VM shouldn't throw a runtime error if it can't link a function name and a function address
 - **breaking change** the `CODE_SEGMENT_START` is now equal to 4
 - fixing a bug in the bytecode reader: it didn't handle `NOP`
+- `import` should be able to load plugins
 
 ### Removed
 - `hastype` keyword because I never had to implement compile time typechecking, so it's not useful

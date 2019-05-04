@@ -134,8 +134,8 @@ namespace Ark
                 kw = Keyword::While;
             else if (token.token == "begin")
                 kw = Keyword::Begin;
-            else if (token.token == "loadPlugin")
-                kw = Keyword::LoadPlugin;
+            else if (token.token == "import")
+                kw = Keyword::Import;
             if (kw)
             {
                 auto n = Node(NodeType::Keyword, kw.value());
@@ -150,10 +150,9 @@ namespace Ark
 
         bool Parser::checkForInclude(Node& n)
         {
-            if (n.nodeType() == NodeType::Symbol)
+            if (n.nodeType() == NodeType::Keyword)
             {
-                std::string name = n.getStringVal();
-                if (name == "import")
+                if (n.keyword() == Keyword::Import)
                     return true;
             }
             else if (n.nodeType() == NodeType::List)
@@ -184,46 +183,51 @@ namespace Ark
                             namespace fs = std::filesystem;
                             using namespace std::string_literals;
 
+                            std::string ext = fs::path(file).extension().string();
                             std::string path = Ark::Utils::getDirectoryFromPath(m_file) + "/" + file;
                             if (m_debug)
                                 Ark::logger.data(path);
                             
-                            std::string f = fs::relative(fs::path(path), fs::path(m_parent_include.size() ? m_parent_include.back() : "").root_path()).string();
-                            if (m_debug)
-                                Ark::logger.info("Importing:", file, "; relative path:", f);
-
-                            if (std::find(m_parent_include.begin(), m_parent_include.end(), f) == m_parent_include.end())
+                            // check if we are not loading a plugin
+                            if (ext == ".ark")
                             {
-                                Parser p(m_debug);
+                                std::string f = fs::relative(fs::path(path), fs::path(m_parent_include.size() ? m_parent_include.back() : "").root_path()).string();
+                                if (m_debug)
+                                    Ark::logger.info("Importing:", file, "; relative path:", f);
 
-                                for (auto&& pi : m_parent_include)
-                                    p.m_parent_include.push_back(pi);
-                                p.m_parent_include.push_back(m_file);
-
-                                // search in the files of the user first
-                                if (Ark::Utils::fileExists(path))
-                                    p.feed(Ark::Utils::readFile(path), path);
-                                else
+                                if (std::find(m_parent_include.begin(), m_parent_include.end(), f) == m_parent_include.end())
                                 {
-                                    std::string libpath = std::string(ARK_STD) + "/" + Ark::Utils::getFilenameFromPath(path);
-                                    if (Ark::Utils::fileExists(libpath))
-                                        p.feed(Ark::Utils::readFile(libpath), libpath);
+                                    Parser p(m_debug);
+
+                                    for (auto&& pi : m_parent_include)
+                                        p.m_parent_include.push_back(pi);
+                                    p.m_parent_include.push_back(m_file);
+
+                                    // search in the files of the user first
+                                    if (Ark::Utils::fileExists(path))
+                                        p.feed(Ark::Utils::readFile(path), path);
                                     else
                                     {
-                                        Ark::logger.error("Couldn't find file", file);
-                                        exit(1);
+                                        std::string libpath = std::string(ARK_STD) + "/" + Ark::Utils::getFilenameFromPath(path);
+                                        if (Ark::Utils::fileExists(libpath))
+                                            p.feed(Ark::Utils::readFile(libpath), libpath);
+                                        else
+                                        {
+                                            Ark::logger.error("Couldn't find file", file);
+                                            exit(1);
+                                        }
                                     }
-                                }
 
-                                if (p.check())
-                                    n.list().push_back(p.ast());
+                                    if (p.check())
+                                        n.list().push_back(p.ast());
+                                    else
+                                        exit(1);
+                                }
                                 else
+                                {
+                                    Ark::logger.error("Cyclic inclusion issue: file {0} is trying to include {1} which was already included"s, m_file, path);
                                     exit(1);
-                            }
-                            else
-                            {
-                                Ark::logger.error("Cyclic inclusion issue: file {0} is trying to include {1} which was already included"s, m_file, path);
-                                exit(1);
+                                }
                             }
                         }
                     }
@@ -379,7 +383,7 @@ namespace Ark
                                 return true;
                             }
 
-                            case Keyword::LoadPlugin:
+                            case Keyword::Import:
                             {
                                 if (p.size() > 1)
                                 {
@@ -387,7 +391,7 @@ namespace Ark
                                     {
                                         if (it2->nodeType() != NodeType::String)
                                         {
-                                            Ark::logger.error("[Parser] loadPlugin needs String, at {0}:{1}"s, it2->line(), it2->col());
+                                            Ark::logger.error("[Parser] import needs String, at {0}:{1}"s, it2->line(), it2->col());
                                             return false;
                                         }
                                     }

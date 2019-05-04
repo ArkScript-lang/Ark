@@ -306,7 +306,7 @@ namespace Ark
                     // relative address casted as unsigned (don't worry, it's normal)
                     pushNumber(static_cast<uint16_t>(current), &page(p));
                 }
-                else if (n == Keyword::LoadPlugin)
+                else if (n == Keyword::Import)
                 {
                     for (Node::Iterator it=x.list().begin() + 1; it != x.list().end(); ++it)
                     {

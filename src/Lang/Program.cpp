@@ -132,7 +132,7 @@ namespace Ark
                             _execute(x.list()[2], env);
                         return nil;
 
-                    case Keyword::LoadPlugin:
+                    case Keyword::Import:
                         throw std::runtime_error("The Ark interpreter can not handle plugins");
                     
                     default:

@@ -33,7 +33,7 @@ namespace Ark
             If,
             While,
             Begin,
-            LoadPlugin
+            Import
         };
 
         class Environment;
