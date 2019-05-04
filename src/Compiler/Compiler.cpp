@@ -290,21 +290,20 @@ namespace Ark
                     std::size_t current = page(p).size();
                     // push condition
                     _compile(x.list()[1], p);
-                    // push code to temp page
-                        m_temp_pages.emplace_back();
-                        _compile(x.list()[2], -static_cast<int>(m_temp_pages.size()));
-                    // relative jump to end of block if condition is false
+                    // absolute jump to end of block if condition is false
                     page(p).emplace_back(Instruction::POP_JUMP_IF_FALSE);
-                    // relative address to jump to if condition is false, casted as unsigned (don't worry, it's normal)
-                    pushNumber(static_cast<uint16_t>(m_temp_pages.back().size() + 4), &page(p));
-                    // copy code from temp page and destroy temp page
-                    for (auto&& inst : m_temp_pages.back())
-                        page(p).push_back(inst);
-                    m_temp_pages.pop_back();
-                    // loop, jump to the condition
-                    page(p).emplace_back(Instruction::JUMP);
-                    // relative address casted as unsigned (don't worry, it's normal)
-                    pushNumber(static_cast<uint16_t>(current), &page(p));
+                    std::size_t jump_to_end_pos = page(p).size();
+                    // absolute address to jump to if condition is false
+                    pushNumber(static_cast<uint16_t>(0x00), &page(p));
+                    // push code to page
+                        _compile(x.list()[2], p);
+                        // loop, jump to the condition
+                        page(p).emplace_back(Instruction::JUMP);
+                        // abosolute address
+                        pushNumber(static_cast<uint16_t>(current), &page(p));
+                    // set jump to end pos
+                    page(p)[jump_to_end_pos]     = (static_cast<uint16_t>(page(p).size()) & 0xff00) >> 8;
+                    page(p)[jump_to_end_pos + 1] =  static_cast<uint16_t>(page(p).size()) & 0x00ff;
                 }
                 else if (n == Keyword::Import)
                 {

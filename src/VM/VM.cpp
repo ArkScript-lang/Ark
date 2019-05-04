@@ -125,7 +125,7 @@ namespace Ark
                             break;
                         
                         default:
-                            Ark::logger.error("[Virtual Machine] unknown instruction:", static_cast<std::size_t>(inst));
+                            Ark::logger.error("[Virtual Machine] unknown instruction:", static_cast<std::size_t>(inst), ", pp:", m_pp, ", ip:", m_ip);
                             exit(1);
                         }
 
@@ -538,7 +538,7 @@ namespace Ark
         void VM::popJumpIfFalse()
         {
             /*
-                Argument: relative address to jump to (two bytes, big endian)
+                Argument: absolute address to jump to (two bytes, big endian)
                 Job: Jump to the provided address if the last value on the stack was equal to false. Remove
                      the value from the stack no matter what it is
             */
@@ -550,7 +550,7 @@ namespace Ark
 
             Value cond = pop();
             if (cond.isNFT() && cond.nft() == NFT::False)
-                m_ip += addr - 1;  // because we are doing a ++m_ip right after this
+                m_ip = addr - 1;  // because we are doing a ++m_ip right after this
         }
         
         void VM::jump()

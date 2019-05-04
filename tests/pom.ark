@@ -2,9 +2,9 @@
     ' jeu du plus ou moins
     (print "Jeu du plus ou moins !")
 
-    '(import "librandom.so")
+    (import "librandom.so")
 
-    (let number 4)
+    (let number (random))
     (print number)
     (let value 0)
     (let essais 0)
