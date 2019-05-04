@@ -164,70 +164,64 @@ namespace Ark
                         if (m_debug)
                             Ark::logger.info("Import found in file:", m_file);
                         
-                        std::vector<std::string> include_files;
+                        std::string file;
+                        if (n.const_list()[1].nodeType() == NodeType::String)
+                                file = n.const_list()[1].getStringVal();
+                        else
+                            throw Ark::TypeError("Arguments of import must be Strings");
 
-                        for (Node::Iterator it=n.const_list().begin() + i + 1; it != n.const_list().end(); ++it)
+                        namespace fs = std::filesystem;
+                        using namespace std::string_literals;
+
+                        std::string ext = fs::path(file).extension().string();
+                        std::string path = Ark::Utils::getDirectoryFromPath(m_file) + "/" + file;
+                        
+                        if (m_debug)
+                            Ark::logger.data(path);
+                        
+                        // check if we are not loading a plugin
+                        if (ext == ".ark")
                         {
-                            if (it->nodeType() == NodeType::String)
-                                include_files.push_back(it->getStringVal());
-                            else
-                                throw Ark::TypeError("Arguments of import must be Strings");
-                        }
+                            // replace content with a begin block
+                            n.list().clear();
+                            n.list().emplace_back(NodeType::Keyword, Keyword::Begin);
 
-                        // replace content with a begin block
-                        n.list().clear();
-                        n.list().emplace_back(NodeType::Keyword, Keyword::Begin);
-
-                        for (const auto& file : include_files)
-                        {
-                            namespace fs = std::filesystem;
-                            using namespace std::string_literals;
-
-                            std::string ext = fs::path(file).extension().string();
-                            std::string path = Ark::Utils::getDirectoryFromPath(m_file) + "/" + file;
+                            std::string f = fs::relative(fs::path(path), fs::path(m_parent_include.size() ? m_parent_include.back() : "").root_path()).string();
                             if (m_debug)
-                                Ark::logger.data(path);
-                            
-                            // check if we are not loading a plugin
-                            if (ext == ".ark")
+                                Ark::logger.info("Importing:", file, "; relative path:", f);
+
+                            if (std::find(m_parent_include.begin(), m_parent_include.end(), f) == m_parent_include.end())
                             {
-                                std::string f = fs::relative(fs::path(path), fs::path(m_parent_include.size() ? m_parent_include.back() : "").root_path()).string();
-                                if (m_debug)
-                                    Ark::logger.info("Importing:", file, "; relative path:", f);
+                                Parser p(m_debug);
 
-                                if (std::find(m_parent_include.begin(), m_parent_include.end(), f) == m_parent_include.end())
-                                {
-                                    Parser p(m_debug);
+                                for (auto&& pi : m_parent_include)
+                                    p.m_parent_include.push_back(pi);
+                                p.m_parent_include.push_back(m_file);
 
-                                    for (auto&& pi : m_parent_include)
-                                        p.m_parent_include.push_back(pi);
-                                    p.m_parent_include.push_back(m_file);
-
-                                    // search in the files of the user first
-                                    if (Ark::Utils::fileExists(path))
-                                        p.feed(Ark::Utils::readFile(path), path);
-                                    else
-                                    {
-                                        std::string libpath = std::string(ARK_STD) + "/" + Ark::Utils::getFilenameFromPath(path);
-                                        if (Ark::Utils::fileExists(libpath))
-                                            p.feed(Ark::Utils::readFile(libpath), libpath);
-                                        else
-                                        {
-                                            Ark::logger.error("Couldn't find file", file);
-                                            exit(1);
-                                        }
-                                    }
-
-                                    if (p.check())
-                                        n.list().push_back(p.ast());
-                                    else
-                                        exit(1);
-                                }
+                                // search in the files of the user first
+                                if (Ark::Utils::fileExists(path))
+                                    p.feed(Ark::Utils::readFile(path), path);
                                 else
                                 {
-                                    Ark::logger.error("Cyclic inclusion issue: file {0} is trying to include {1} which was already included"s, m_file, path);
-                                    exit(1);
+                                    std::string libpath = std::string(ARK_STD) + "/" + Ark::Utils::getFilenameFromPath(path);
+                                    if (Ark::Utils::fileExists(libpath))
+                                        p.feed(Ark::Utils::readFile(libpath), libpath);
+                                    else
+                                    {
+                                        Ark::logger.error("Couldn't find file", file);
+                                        exit(1);
+                                    }
                                 }
+
+                                if (p.check())
+                                    n.list().push_back(p.ast());
+                                else
+                                    exit(1);
+                            }
+                            else
+                            {
+                                Ark::logger.error("Cyclic inclusion issue: file {0} is trying to include {1} which was already included"s, m_file, path);
+                                exit(1);
                             }
                         }
                     }
@@ -385,15 +379,12 @@ namespace Ark
 
                             case Keyword::Import:
                             {
-                                if (p.size() > 1)
+                                if (p.size() == 2)
                                 {
-                                    for (Node::Iterator it2=p.begin()+1; it2 != p.end(); ++it2)
+                                    if (p[1].nodeType() != NodeType::String)
                                     {
-                                        if (it2->nodeType() != NodeType::String)
-                                        {
-                                            Ark::logger.error("[Parser] import needs String, at {0}:{1}"s, it2->line(), it2->col());
-                                            return false;
-                                        }
+                                        Ark::logger.error("[Parser] import needs String, at {0}:{1}"s, p[1].line(), p[1].col());
+                                        return false;
                                     }
                                     return true;
                                 }

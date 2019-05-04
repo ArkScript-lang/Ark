@@ -128,7 +128,7 @@ When creating a function, it's capturing the environment it was created in, and 
 
 ## Importing Ark code
 
-To import an Ark file into your code you can do this: `(import "myfile.ark")`. `import` can even take multiple arguments, so `(import "file1.ark" "file2.ark")` will work as well! The function needs a path relative to the location of the code importing the Ark files.
+To import an Ark file into your code you can do this: `(import "myfile.ark")`. The function needs a path relative to the location of the code importing the Ark files, and takes only one argument.
 
 If you need to import an Ark file from the standard library, `import` will be able to find it, no need to create a relative path to the lib! Just note that all the files in the standard library have a name starting with an uppercase letter.
 
