@@ -347,7 +347,7 @@
         if (!FFI_isString(n[0]))
             FFI_throwTypeError("Argument of toNumber must be a String");
         
-        return FFI_Value(std::atoi(FFI_string(n[0]).c_str()));
+        return FFI_Value(Ark::BigNum(FFI_string(n[0]).c_str()));
     }
 
     FFI_Function(toString)

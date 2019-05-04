@@ -337,8 +337,11 @@ namespace Ark
 
                 std::string path = "./" + file;
                 if (m_filename != "FILE")  // bytecode loaded from file
-                    path = (fs::path(m_filename).root_path() / fs::path(file)).string();
+                    path = "./" + (fs::path(m_filename).parent_path() / fs::path(file)).string();
                 std::string lib_path = (fs::path(ARK_STD) / fs::path(file)).string();
+
+                if (m_debug)
+                    Ark::logger.info("Loading", file, "in", path, "or in", lib_path);
 
                 if (Ark::Utils::fileExists(path))  // if it exists alongside the .arkc file
                     m_shared_lib_objects.emplace_back(path);
@@ -351,7 +354,17 @@ namespace Ark
                 }
 
                 // load data from it!
-                // m_shared_lib_objects.back().get<T>("name")(args...);
+                using Mapping_t = std::unordered_map<std::string, Value::ProcType>;
+                int h = m_shared_lib_objects.back().get<int (*) ()>("hello")();
+                Mapping_t map = m_shared_lib_objects.back().get<Mapping_t (*) ()>("getFunctionsMapping")();
+
+                for (auto&& kv : map)
+                {
+                    // put it in the global frame, aka the first one
+                    auto it = std::find(m_symbols.begin(), m_symbols.end(), kv.first);
+                    if (it != m_symbols.end())
+                        m_frames.front()[static_cast<uint16_t>(std::distance(m_symbols.begin(), it))] = Value(kv.second);
+                }
             }
         }
 

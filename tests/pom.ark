@@ -2,7 +2,10 @@
     ' jeu du plus ou moins
     (print "Jeu du plus ou moins !")
 
-    (let random 4)
+    (import "librandom.so")
+
+    (let r (random))
+    (print r)
     (let value 0)
     (let essais 0)
 
@@ -11,11 +14,11 @@
     (while continue {
         (set value (toNumber (input "Entrez une valeur numérique: ")))
 
-        (if (< value random)
+        (if (< value r)
             ' then
             (print "C'est plus !")
             ' else
-            (if (= value random)
+            (if (= value r)
                 ' then
                 { (print "Gagné !") (set continue false) }
                 ' else
