@@ -2,9 +2,11 @@
 
 #include <exception>
 #include <stdexcept>
+#include <filesystem>
 
 #include <Ark/Log.hpp>
 #include <Ark/VM/FFI.hpp>
+#include <Ark/Utils.hpp>
 
 namespace Ark
 {

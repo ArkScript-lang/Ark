@@ -3,7 +3,7 @@
 
 #if defined(_WIN32) || defined(_WIN64)
     #include <Windows.h>
-#if (defined(unix) || defined(__unix) || defined(__unix__)) || defined(__APPLE__)
+#elif (defined(unix) || defined(__unix) || defined(__unix__)) || defined(__APPLE__)
     #include <dlfcn.h>
 #else
     #error "Can not identify the platform on which you are running, aborting"
@@ -40,7 +40,7 @@ namespace Ark
                         , std::string("Couldn't find ") + procname
                     );
                 }
-#if (defined(unix) || defined(__unix) || defined(__unix__)) || defined(__APPLE__)
+#elif (defined(unix) || defined(__unix) || defined(__unix__)) || defined(__APPLE__)
                 if (NULL == (funcptr = reinterpret_cast<T>(dlsym(m_hInstance, procname.c_str()))))
                 {
                     throw std::system_error(
@@ -55,7 +55,7 @@ namespace Ark
         private:
 #if defined(_WIN32) || defined(_WIN64)
             HINSTANCE m_hInstance;
-#if (defined(unix) || defined(__unix) || defined(__unix__)) || defined(__APPLE__)
+#elif (defined(unix) || defined(__unix) || defined(__unix__)) || defined(__APPLE__)
             void* m_hInstance;
 #endif
             std::string m_path;

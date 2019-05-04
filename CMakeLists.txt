@@ -51,6 +51,9 @@ target_link_libraries(Ark PRIVATE ${MPIR_LIBRARIES})
 if (CMAKE_COMPILER_IS_GNUCXX)
     target_link_libraries(Ark PRIVATE stdc++fs)
 endif()
+if (UNIX OR LINUX)
+    target_link_libraries(Ark PRIVATE ${CMAKE_DL_LIBS})
+endif()
 
 set_target_properties(
     Ark

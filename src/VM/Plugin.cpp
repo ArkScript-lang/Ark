@@ -42,7 +42,7 @@ namespace Ark
                     , "Couldn't load the library"
                 );
             }
-#if (defined(unix) || defined(__unix) || defined(__unix__)) || defined(__APPLE__)
+#elif (defined(unix) || defined(__unix) || defined(__unix__)) || defined(__APPLE__)
             if (NULL == (m_hInstance = dlopen(m_path.c_str(), RTLD_NOW | RTLD_GLOBAL)))
             {
                 throw std::system_error(
@@ -60,7 +60,7 @@ namespace Ark
             {
 #if defined(_WIN32) || defined(_WIN64)
                 FreeLibrary(m_hInstance);
-#if (defined(unix) || defined(__unix) || defined(__unix__)) || defined(__APPLE__)
+#elif (defined(unix) || defined(__unix) || defined(__unix__)) || defined(__APPLE__)
                 dlclose(m_hInstance);
 #endif
             }
