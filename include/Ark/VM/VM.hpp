@@ -10,6 +10,7 @@
 #include <Ark/VM/Value.hpp>
 #include <Ark/VM/Frame.hpp>
 #include <Ark/Compiler/Instructions.hpp>
+#include <Ark/VM/Plugin.hpp>
 
 namespace Ark
 {
@@ -37,6 +38,7 @@ namespace Ark
             int m_ip;
             std::size_t m_pp;
             bool m_running;
+            std::string m_filename;
 
             std::vector<Value::ProcType> m_ffi;
 
@@ -44,6 +46,7 @@ namespace Ark
             uint16_t m_dotc_idx;
             std::vector<Value> m_constants;
             std::vector<std::string> m_plugins;
+            std::vector<SharedLibrary> m_shared_lib_objects;
             std::vector<bytecode_t> m_pages;
 
             std::vector<Frame> m_frames;

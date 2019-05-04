@@ -16,6 +16,7 @@ namespace Ark
             m_debug(debug),
             m_ip(0), m_pp(0),
             m_running(false),
+            m_filename("FILE"),
             m_load_path(".")
         {}
 
@@ -29,6 +30,8 @@ namespace Ark
             Ark::Compiler::BytecodeReader bcr;
             bcr.feed(filename);
             m_bytecode = bcr.bytecode();
+
+            m_filename = filename;
 
             configure();
         }
@@ -332,7 +335,28 @@ namespace Ark
             }
 
             // loading plugins
-            // TODO
+            for (const auto& file: m_plugins)
+            {
+                namespace fs = std::filesystem;
+
+                std::string path = "./" + file;
+                if (m_filename != "FILE")  // bytecode loaded from file
+                    path = (fs::path(m_filename).root_path() / fs::path(file)).string();
+                std::string lib_path = (fs::path(m_load_path) / fs::path(file)).string();
+
+                if (Ark::Utils::fileExists(path))  // if it exists alongside the .arkc file
+                    m_shared_lib_objects.emplace_back(path);
+                else if (Ark::Utils::fileExists(lib_path))  // check in LOAD_PATH otherwise
+                    m_shared_lib_objects.emplace_back(lib_path);
+                else
+                {
+                    Ark::logger.error("[Virtual Machine] Could not load plugin", file);
+                    exit(1);
+                }
+
+                // load data from it!
+                // m_shared_lib_objects.back().get<T>("name")(args...);
+            }
         }
 
         void VM::initFFI()

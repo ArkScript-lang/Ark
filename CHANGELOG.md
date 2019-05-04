@@ -6,6 +6,7 @@
 - builtins functions: input, toNumber, toString
 - **breaking change** adding `PLUGIN_TABLE_START` with a value of 3 in the compiler/VM
 - modified CLI to add an option to modify the LOAD_PATH of the plugins
+- adding plugins management
 
 ### Changed
 - splitted lib/Exceptions.ark into lib/Exceptions.ark and lib/Either.ark
