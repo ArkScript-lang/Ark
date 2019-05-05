@@ -151,13 +151,13 @@ namespace Ark
                 return;
             }
 
-            (*m_frames.front())[static_cast<uint16_t>(std::distance(m_symbols.begin(), it))] = Value(function);
+            frontFrame()[static_cast<uint16_t>(std::distance(m_symbols.begin(), it))] = Value(function);
         }
 
         void VM::configure()
         {
             // configure ffi
-            m_frames.push_back(std::make_shared<Frame>());  // put default page
+            createNewFrame();  // put default page
             if (m_ffi.size() == 0)
                 initFFI();
 
@@ -364,7 +364,7 @@ namespace Ark
                         if (m_debug)
                             Ark::logger.info("Loading", kv.first);
 
-                        (*m_frames.front())[static_cast<uint16_t>(std::distance(m_symbols.begin(), it))] = Value(kv.second);
+                        frontFrame()[static_cast<uint16_t>(std::distance(m_symbols.begin(), it))] = Value(kv.second);
                     }
                 }
             }
@@ -425,7 +425,7 @@ namespace Ark
                 {
                     if (m_frames[i]->find(sid))
                     {
-                        push((*m_frames[i])[sid]);
+                        push(frameAt(i)[sid]);
                         return;
                     }
 
@@ -499,9 +499,9 @@ namespace Ark
             {
                 if (m_frames[i]->find(sid))
                 {
-                    (*m_frames[i])[sid] = pop();
-                    if ((*m_frames[i])[sid].isClosure())
-                        (*m_frames[i])[sid].closure_ref().save(i, sid);
+                    frameAt(i)[sid] = pop();
+                    if (frameAt(i)[sid].isClosure())
+                        frameAt(i)[sid].closure_ref().save(i, sid);
                     return;
                 }
 
@@ -528,9 +528,9 @@ namespace Ark
 
             auto sid = id - 3;
             std::string sym = m_symbols[sid];
-            (*m_frames.back())[sid] = pop();
-            if ((*m_frames.back())[sid].isClosure())
-                (*m_frames.back())[sid].closure_ref().save(m_frames.size() - 1, sid);
+            backFrame()[sid] = pop();
+            if (backFrame()[sid].isClosure())
+                backFrame()[sid].closure_ref().save(m_frames.size() - 1, sid);
         }
 
         void VM::popJumpIfFalse()
@@ -665,7 +665,7 @@ namespace Ark
             if (m_debug)
                 Ark::logger.info("NEW_ENV PP:{0}, IP:{1}"s, m_pp, m_ip);
             
-            m_frames.push_back(std::make_shared<Frame>());
+            createNewFrame();
         }
 
         void VM::builtin()

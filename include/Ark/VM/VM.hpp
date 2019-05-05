@@ -59,6 +59,11 @@ namespace Ark
                        (static_cast<uint16_t>(m_pages[m_pp][++m_ip])     );
             }
 
+            inline Frame& frontFrame() { return *m_frames.front(); }
+            inline Frame& backFrame()  { return *m_frames.back();  }
+            inline Frame& frameAt(std::size_t i) { return *m_frames[i]; }
+            inline void createNewFrame() { m_frames.push_back(std::make_shared<Frame>()) ; }
+
             Value pop();
             void push(const Value& value);
 
