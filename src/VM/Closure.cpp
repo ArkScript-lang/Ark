@@ -11,12 +11,10 @@ namespace Ark
             m_page_addr(0)
         {}
 
-        Closure::Closure(Frame* frame_ptr, PageAddr_t pa) :
+        Closure::Closure(std::shared_ptr<Frame> frame_ptr, PageAddr_t pa) :
+            m_frame(frame_ptr),
             m_page_addr(pa)
-        {
-            // copy frame
-            m_frame = std::make_shared<Frame>(*frame_ptr);
-        }
+        {}
 
         void Closure::save(std::size_t frame_idx, uint16_t sym)
         {

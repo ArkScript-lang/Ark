@@ -19,5 +19,5 @@
             )
         )
     )
-    (print (fibo 50000))
+    (print (fibo 28))
 )

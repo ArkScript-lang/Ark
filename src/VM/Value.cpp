@@ -48,7 +48,7 @@ namespace Ark
             m_is_list(value.m_is_list)
         {}
 
-        Value::Value(Frame* frame_ptr, PageAddr_t pa) :
+        Value::Value(std::shared_ptr<Frame> frame_ptr, PageAddr_t pa) :
             m_value(Closure(frame_ptr, pa)),
             m_is_list(false)
         {}

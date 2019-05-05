@@ -6,6 +6,7 @@
 #include <cinttypes>
 #include <algorithm>
 #include <optional>
+#include <memory>
 
 #include <Ark/VM/Value.hpp>
 #include <Ark/VM/Frame.hpp>
@@ -41,14 +42,13 @@ namespace Ark
             std::vector<Value::ProcType> m_ffi;
 
             std::vector<std::string> m_symbols;
-            uint16_t m_dotc_idx;
             std::vector<Value> m_constants;
             std::vector<std::string> m_plugins;
             std::vector<SharedLibrary> m_shared_lib_objects;
             std::vector<bytecode_t> m_pages;
 
-            std::vector<Frame> m_frames;
-            std::optional<Frame> m_saved_frame;
+            std::vector<std::shared_ptr<Frame>> m_frames;
+            std::optional<std::shared_ptr<Frame>> m_saved_frame;
 
             void configure();
             void initFFI();

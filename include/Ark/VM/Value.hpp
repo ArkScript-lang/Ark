@@ -7,6 +7,7 @@
 #include <string>
 #include <cinttypes>
 #include <iostream>
+#include <memory>
 
 #include <Ark/VM/Types.hpp>
 #include <Ark/VM/Closure.hpp>
@@ -35,7 +36,7 @@ namespace Ark
             Value(const std::vector<Value>& value);
             Value(const Closure& value);
             Value(const Value& value);
-            Value(Frame* frame_ptr, PageAddr_t pa);
+            Value(std::shared_ptr<Frame> frame_ptr, PageAddr_t pa);
 
             bool isNumber() const;
             bool isString() const;
