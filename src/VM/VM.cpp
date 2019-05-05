@@ -14,8 +14,10 @@ namespace Ark
     {
         using namespace std::string_literals;
 
-        VM::VM(bool debug) :
+        VM::VM(bool debug, bool count_fcall) :
             m_debug(debug),
+            m_count_fcall(count_fcall),
+            m_fcalls(0),
             m_ip(0), m_pp(0),
             m_running(false),
             m_filename("FILE")
@@ -137,6 +139,9 @@ namespace Ark
                 {
                     Ark::logger.error(e.what());
                 }
+
+                if (m_count_fcall)
+                    std::cout << "Function calls: " << m_fcalls << "\n";
             }
         }
 
@@ -622,6 +627,9 @@ namespace Ark
 
             if (m_debug)
                 Ark::logger.info("CALL ({0}) PP:{1}, IP:{2}"s, argc, m_pp, m_ip);
+            
+            if (m_count_fcall)
+                m_fcalls++;
 
             Value function(pop());
             std::vector<Value> args;

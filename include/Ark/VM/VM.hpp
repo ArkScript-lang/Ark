@@ -22,7 +22,7 @@ namespace Ark
         class VM
         {
         public:
-            VM(bool debug=false);
+            VM(bool debug=false, bool count_fcall=false);
 
             void feed(const std::string& filename);
             void feed(const bytecode_t& bytecode);
@@ -32,6 +32,8 @@ namespace Ark
         
         private:
             bool m_debug;
+            bool m_count_fcall;
+            uint64_t m_fcalls;
             bytecode_t m_bytecode;
             // Instruction Pointer and Page Pointer
             int m_ip;

@@ -7,3 +7,4 @@ mpir-3.0.0.tar.bz2
 mpir-3.0.0/
 *.so
 *.dll
+*.arkc

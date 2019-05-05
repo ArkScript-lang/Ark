@@ -83,20 +83,19 @@ $ Ark --help
 SYNOPSIS
         Ark -h 
         Ark --version 
-        Ark bcr <file> 
-        Ark repl [-d] [-t] 
-        Ark (interpreter|compile|vm) <file> [-d] [-t] 
+        Ark <file> [-c] [-o <out>] [-vm] [--count-fcalls] [-bcr] [-d] [-t] 
 
 OPTIONS
         -h, --help                  Display this help message
         --version                   Display Ark lang version and exit
-        bcr                         Run the bytecode reader on the given file
-        repl                        Start a Read-Eval-Print-Loop
-        interpreter                 Start the interpreter with the given Ark source file
-        compile                     Start the compiler to generate a bytecode file from the given Ark source file
-        vm                          Start the virtual machine with the given bytecode file
-        -d, --debug                 Enable debug mode
-        -t, --time                  The task is timed
+        <file>                      If no options provided, start the interpreter with the given file
+        -c, --compile               Compile file
+        -o, --output                Set the output filename for the compiler
+        -vm                         Start the VM on the given file
+        --count-fcalls              Count functions calls and display result at the end of the execution
+        -bcr, --bytecode-reader     Launch the bytecode reader
+        -d, --debug                 Trigger debug mode
+        -t, --time                  Launch a timer
 
 LICENSE
         Mozilla Public License 2.0
@@ -105,6 +104,8 @@ LICENSE
 The project has been tested on
 * Linux Mint 18, 64 bits
 * Lubuntu 18, 32 bits
+
+## [Documentation](doc/main.md)
 
 ## Credits
 

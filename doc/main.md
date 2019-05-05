@@ -138,14 +138,18 @@ You may want to be able to use the SFML in Ark, or another C++ library. If an Ar
 
 The files are searched in the directory when the `.arkc` file is, and in the directory where the Ark standard library is installed.
 
-## Using Ark in a project
+# Using Ark in a project
 
 -> [Embedding Ark](embedding.md)
 
-## Standard library
+# Standard library
 
 -> [Ark std lib](lib.md)
 
-## The bytecode
+# The bytecode
 
 -> [Ark bytecode format](bytecode.md)
+
+# Using the Command Line Interface
+
+-> [Ark CLI](cli.md)

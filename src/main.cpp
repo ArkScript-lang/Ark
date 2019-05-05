@@ -31,10 +31,10 @@ void exec(bool debug, bool timer, const std::string& file)
     auto elapsed_microseconds = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
 
     if (timer)
-        std::cout << "Took " << elapsed_microseconds << "us" << std::endl;
+        std::cout << "Interpreter took " << elapsed_microseconds << "us" << std::endl;
 }
 
-void compile(bool debug, bool timer, const std::string& file)
+void compile(bool debug, bool timer, const std::string& file, const std::string& output)
 {
     if (!Ark::Utils::fileExists(file))
     {
@@ -49,13 +49,17 @@ void compile(bool debug, bool timer, const std::string& file)
     start = std::chrono::system_clock::now();
 
     compiler.compile();
-    compiler.saveTo(file.substr(0, file.find_last_of('.')) + ".arkc");
+
+    if (output != "")
+        compiler.saveTo(output);
+    else
+        compiler.saveTo(file.substr(0, file.find_last_of('.')) + ".arkc");
 
     end = std::chrono::system_clock::now();
     auto elapsed_microseconds = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
 
     if (timer)
-        std::cout << "Took " << elapsed_microseconds << "us" << std::endl;
+        std::cout << "Compiler took " << elapsed_microseconds << "us" << std::endl;
 }
 
 void bcr(const std::string& file)
@@ -65,7 +69,7 @@ void bcr(const std::string& file)
     bcr.display();
 }
 
-void vm(bool debug, bool timer, const std::string& file)
+void vm(bool debug, bool timer, const std::string& file, bool count_fcall)
 {
     if (!Ark::Utils::fileExists(file))
     {
@@ -73,7 +77,7 @@ void vm(bool debug, bool timer, const std::string& file)
         return;
     }
 
-    Ark::VM::VM vm(debug);
+    Ark::VM::VM vm(debug, count_fcall);
     vm.feed(file);
 
     std::chrono::time_point<std::chrono::system_clock> start, end;
@@ -85,7 +89,7 @@ void vm(bool debug, bool timer, const std::string& file)
     auto elapsed_microseconds = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
 
     if (timer)
-        std::cout << "Took " << elapsed_microseconds << "us" << std::endl;
+        std::cout << "VM took " << elapsed_microseconds << "us" << std::endl;
 }
 
 void repl(bool debug, bool timer)
@@ -131,35 +135,33 @@ int main(int argc, char** argv)
 {
     using namespace clipp;
 
-    enum class mode { help, version, interpreter, compiler, bytecode_reader, vm, repl };
-    mode selected;
-    std::string input_file = "";
-    bool debug = false, timer = false;
-    std::vector<std::string> wrong;
+    bool help_ = false,
+         version_ = false,
+         interpreter_ = false,
+         repl_ = true,
+         compiler_ = false,
+         vm_ = false,
+         bcr_ = false;
 
-    // TODO : redo CLI
+    std::string input_file = "", output_file = "";
+    bool debug = false, timer = false, count_fcall = false;
+    std::vector<std::string> wrong;
 
     auto cli = (
         // general options
-        option("-h", "--help").set(selected, mode::help).doc("Display this help message")
-        | option("--version").set(selected, mode::version).doc("Display Ark lang version and exit")
-        | (command("bcr").set(selected, mode::bytecode_reader).doc("Run the bytecode reader on the given file")
-            , value("file", input_file)
-        )
-        | (command("repl").set(selected, mode::repl).doc("Start a Read-Eval-Print-Loop")
-            , option("-d", "--debug").set(debug)
-            , option("-t", "--time").set(timer)
+        option("-h", "--help").set(help_).doc("Display this help message")
+        | option("--version").set(version_).doc("Display Ark lang version and exit")
+        | (value("file", input_file).set(interpreter_).doc("If no options provided, start the interpreter with the given file")
+            , option("-c", "--compile").set(compiler_).doc("Compile file")
+            , option("-o", "--output").doc("Set the output filename for the compiler") & value("out", output_file)
+            , (
+                option("-vm").set(vm_).doc("Start the VM on the given file")
+                , option("--count-fcalls").set(count_fcall).doc("Count functions calls and display result at the end of the execution")
+              )
+            , option("-bcr", "--bytecode-reader").set(bcr_).doc("Launch the bytecode reader")
+            , option("-d", "--debug").set(debug).doc("Trigger debug mode")
+            , option("-t", "--time").set(timer).doc("Launch a timer")
           )
-        | (
-            (
-                command("interpreter").set(selected, mode::interpreter).doc("Start the interpreter with the given Ark source file")
-                | command("compile").set(selected, mode::compiler).doc("Start the compiler to generate a bytecode file from the given Ark source file")
-                | command("vm").set(selected, mode::vm).doc("Start the virtual machine with the given bytecode file")
-            )
-            & value("file", input_file)
-            , option("-d", "--debug").set(debug).doc("Enable debug mode")
-            , option("-t", "--time").set(timer).doc("The task is timed")
-        )
         , any_other(wrong)
     );
 
@@ -172,37 +174,52 @@ int main(int argc, char** argv)
 
     if (parse(argc, argv, cli) && wrong.empty())
     {
-        switch (selected)
+        if (help_)
         {
-        default:
-        case mode::help:
             std::cerr << make_man_page(cli, argv[0], fmt).append_section("LICENSE", "        Mozilla Public License 2.0")
                       << std::endl;
             return 0;
+        }
 
-        case mode::version:
+        if (version_)
+        {
             std::cout << "Version " << ARK_VERSION_MAJOR << "." << ARK_VERSION_MINOR << "." << ARK_VERSION_PATCH << std::endl;
-            break;
+            return 0;
+        }
 
-        case mode::interpreter:
+        if (interpreter_ && !compiler_ && !vm_ && !bcr_)
+        {
             exec(debug, timer, input_file);
-            break;
-        
-        case mode::compiler:
-            compile(debug, timer, input_file);
-            break;
-        
-        case mode::bytecode_reader:
-            bcr(input_file);
-            break;
-        
-        case mode::vm:
-            vm(debug, timer, input_file);
-            break;
-        
-        case mode::repl:
+            return 0;
+        }
+
+        if (repl_ && !interpreter_ && !compiler_ && !vm_ && !bcr_)
+        {
             repl(debug, timer);
-            break;
+            return 0;
+        }
+
+        if (compiler_)
+            compile(debug, timer, input_file, output_file);
+
+        if (bcr_)
+        {
+            if (output_file != "")
+                bcr(output_file);
+            else if (compiler_ && output_file == "")
+                bcr(input_file.substr(0, input_file.find_last_of('.')) + ".arkc");
+            else
+                bcr(input_file);
+        }
+
+        if (vm_)
+        {
+            if (output_file != "")
+                vm(debug, timer, output_file, count_fcall);
+            else if (output_file == "" && compiler_)
+                vm(debug, timer, input_file.substr(0, input_file.find_last_of('.')) + ".arkc", count_fcall);
+            else
+                vm(debug, timer, input_file, count_fcall);
         }
     }
     else
