@@ -1,9 +1,9 @@
 (begin
-    (let countdown-from
-        (fun (n) (
-            fun ()
-                (set n (- n 1))
-        ))
+    (let countdown-from (fun (n)
+        (fun () {
+            (set n (- n 1))
+            'n
+        }))
     )
     (let countdown-from-3 (countdown-from 3))
     (print (countdown-from-3))

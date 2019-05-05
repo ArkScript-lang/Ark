@@ -6,6 +6,7 @@
 #include <cinttypes>
 #include <algorithm>
 #include <optional>
+#include <memory>
 
 #include <Ark/VM/Value.hpp>
 #include <Ark/VM/Frame.hpp>
@@ -41,14 +42,13 @@ namespace Ark
             std::vector<Value::ProcType> m_ffi;
 
             std::vector<std::string> m_symbols;
-            uint16_t m_dotc_idx;
             std::vector<Value> m_constants;
             std::vector<std::string> m_plugins;
             std::vector<SharedLibrary> m_shared_lib_objects;
             std::vector<bytecode_t> m_pages;
 
-            std::vector<Frame> m_frames;
-            std::optional<Frame> m_saved_frame;
+            std::vector<std::shared_ptr<Frame>> m_frames;
+            std::optional<std::shared_ptr<Frame>> m_saved_frame;
 
             void configure();
             void initFFI();
@@ -58,6 +58,11 @@ namespace Ark
                 return (static_cast<uint16_t>(m_pages[m_pp][  m_ip]) << 8) +
                        (static_cast<uint16_t>(m_pages[m_pp][++m_ip])     );
             }
+
+            inline Frame& frontFrame() { return *m_frames.front(); }
+            inline Frame& backFrame()  { return *m_frames.back();  }
+            inline Frame& frameAt(std::size_t i) { return *m_frames[i]; }
+            inline void createNewFrame() { m_frames.push_back(std::make_shared<Frame>()) ; }
 
             Value pop();
             void push(const Value& value);

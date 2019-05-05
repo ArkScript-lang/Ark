@@ -151,13 +151,13 @@ namespace Ark
                 return;
             }
 
-            m_frames.front()[static_cast<uint16_t>(std::distance(m_symbols.begin(), it))] = Value(function);
+            frontFrame()[static_cast<uint16_t>(std::distance(m_symbols.begin(), it))] = Value(function);
         }
 
         void VM::configure()
         {
             // configure ffi
-            m_frames.emplace_back();  // put default page
+            createNewFrame();  // put default page
             if (m_ffi.size() == 0)
                 initFFI();
 
@@ -205,8 +205,6 @@ namespace Ark
                     if (m_debug)
                         Ark::logger.info("(Virtual Machine) -", symbol);
                 }
-                m_symbols.push_back(".c");
-                m_dotc_idx = m_symbols.size() - 1;
             }
             else
             {
@@ -366,7 +364,7 @@ namespace Ark
                         if (m_debug)
                             Ark::logger.info("Loading", kv.first);
 
-                        m_frames.front()[static_cast<uint16_t>(std::distance(m_symbols.begin(), it))] = Value(kv.second);
+                        frontFrame()[static_cast<uint16_t>(std::distance(m_symbols.begin(), it))] = Value(kv.second);
                     }
                 }
             }
@@ -385,12 +383,12 @@ namespace Ark
 
         Value VM::pop()
         {
-            return m_frames.back().pop();
+            return m_frames.back()->pop();
         }
 
         void VM::push(const Value& value)
         {
-            m_frames.back().push(value);
+            m_frames.back()->push(value);
         }
 
         void VM::nop()
@@ -425,9 +423,9 @@ namespace Ark
 
                 for (std::size_t i=m_frames.size() - 1; ; --i)
                 {
-                    if (m_frames[i].find(sid))
+                    if (m_frames[i]->find(sid))
                     {
-                        push(m_frames[i][sid]);
+                        push(frameAt(i)[sid]);
                         return;
                     }
 
@@ -455,7 +453,7 @@ namespace Ark
             
             if (m_saved_frame && m_constants[id].isPageAddr())
             {
-                push(Value(&m_saved_frame.value(), m_constants[id].pageAddr()));
+                push(Value(m_saved_frame.value(), m_constants[id].pageAddr()));
                 m_saved_frame.reset();
             }
             else
@@ -499,11 +497,11 @@ namespace Ark
 
             for (std::size_t i=m_frames.size() - 1; ; --i)
             {
-                if (m_frames[i].find(sid))
+                if (m_frames[i]->find(sid))
                 {
-                    m_frames[i][sid] = pop();
-                    if (m_frames[i][sid].isClosure())
-                        m_frames[i][sid].closure_ref().save(i, sid);
+                    frameAt(i)[sid] = pop();
+                    if (frameAt(i)[sid].isClosure())
+                        frameAt(i)[sid].closure_ref().save(i, sid);
                     return;
                 }
 
@@ -530,11 +528,11 @@ namespace Ark
 
             auto sid = id - 3;
             std::string sym = m_symbols[sid];
-            m_frames.back()[sid] = pop();
-            if (m_frames.back()[sid].isClosure())
-                m_frames.back()[sid].closure_ref().save(m_frames.size() - 1, sid);
+            backFrame()[sid] = pop();
+            if (backFrame()[sid].isClosure())
+                backFrame()[sid].closure_ref().save(m_frames.size() - 1, sid);
         }
-        
+
         void VM::popJumpIfFalse()
         {
             /*
@@ -588,22 +586,18 @@ namespace Ark
 
             // save pp
             PageAddr_t old_pp = static_cast<PageAddr_t>(m_pp);
-            m_pp = m_frames.back().callerPageAddr();
-            m_ip = m_frames.back().callerAddr();
+            m_pp = m_frames.back()->callerPageAddr();
+            m_ip = m_frames.back()->callerAddr();
 
             auto rm_frame = [this] () -> void {
-                Closure c = m_frames.back()[m_dotc_idx].closure_ref();
                 // remove frame
                 m_frames.pop_back();
-                // next frame is the one of the closure, we should save it
-                m_frames.back().copyEnvironmentTo(*c.frame());
+                // next frame is the one of the closure
                 // remove it
                 m_frames.pop_back();
-
-                m_frames[c.frameIndex()][c.symbol()] = Value(c);
             };
             
-            if (m_frames.back().stackSize() != 0)
+            if (m_frames.back()->stackSize() != 0)
             {
                 Value return_value(pop());
                 rm_frame();
@@ -648,10 +642,9 @@ namespace Ark
             {
                 Closure c = function.closure();
                 // load saved frame
-                m_frames.push_back(*c.frame());
+                m_frames.push_back(c.frame());
                 // create dedicated frame
-                m_frames.emplace_back(m_ip, m_pp);
-                    m_frames.back()[m_dotc_idx] = function;
+                m_frames.push_back(std::make_shared<Frame>(m_ip, m_pp));
                 m_pp = c.pageAddr();
                 m_ip = -1;  // because we are doing a m_ip++ right after that
                 for (std::size_t j=0; j < args.size(); ++j)
@@ -672,7 +665,7 @@ namespace Ark
             if (m_debug)
                 Ark::logger.info("NEW_ENV PP:{0}, IP:{1}"s, m_pp, m_ip);
             
-            m_frames.emplace_back();
+            createNewFrame();
         }
 
         void VM::builtin()

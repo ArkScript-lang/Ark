@@ -10,5 +10,5 @@
         ) ' endfun
     ) ' enddef
 
-    (print (fibo 10))
+    (print (fibo 40))
 )

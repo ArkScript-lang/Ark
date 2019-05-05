@@ -15,7 +15,7 @@ namespace Ark
         {
         public:
             Closure();
-            Closure(Frame* frame_ptr, PageAddr_t pa);
+            Closure(std::shared_ptr<Frame> frame_ptr, PageAddr_t pa);
 
             void save(std::size_t frame_idx, uint16_t sym);
 
