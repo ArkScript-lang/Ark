@@ -2,7 +2,10 @@
 
 # Unreleased
 ### Added
+
 ### Changed
+- the frames stack is handled differently, using shared pointers to avoid unecessary copies of frame's environments, it improves execution speed by *a lot*
+
 ### Removed
 
 ## 2.0.0
