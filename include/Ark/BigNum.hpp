@@ -5,6 +5,7 @@
 #include <memory>
 #include <iostream>
 #include <string>
+#include <sstream>
 
 namespace Ark
 {
@@ -19,12 +20,8 @@ namespace Ark
             m_data(value)
         {}
 
-        BigNum(long num, long den) :
-            m_data(num, den)
-        {}
-
-        BigNum(const std::string& value, int base=10) :
-            m_data(value, base)
+        BigNum(const std::string& value) :
+            m_data(value)
         {}
 
         BigNum& operator+=(const BigNum& rhs) { m_data += rhs.m_data; return *this; }
@@ -34,9 +31,26 @@ namespace Ark
         // BigNum& operator%=(const BigNum& rhs) { m_data %= rhs.m_data; return *this; }
         // BigNum& operator<<=(const BigNum& rhs) { m_data <<= rhs.m_data; return *this; }
         // BigNum& operator>>=(const BigNum& rhs) { m_data >>= rhs.m_data; return *this; }
+        BigNum& pow(const BigNum& rhs)
+        {
+            mpf_class r;
+            if (rhs.m_data >= 0)
+                mpf_pow_ui(r.get_mpf_t(), m_data.get_mpf_t(), rhs.m_data.get_ui());
+            else
+                mpf_pow_ui(r.get_mpf_t(), mpf_class(1 / m_data).get_mpf_t(), mpf_class(-rhs.m_data).get_ui());
+            m_data = r;
+            return *this;
+        }
+        BigNum& sqrt()
+        {
+            mpf_class r;
+            mpf_sqrt(r.get_mpf_t(), m_data.get_mpf_t());
+            m_data = r;
+            return *this;
+        }
 
         BigNum operator+ (const BigNum& rhs) { return std::move(BigNum(*this) += rhs); }
-        BigNum operator- ()                  { return std::move(BigNum(-*this)); }
+        BigNum operator- ()                  { return std::move(BigNum(*this) *= BigNum(-1)); }
         BigNum operator- (const BigNum& rhs) { return std::move(BigNum(*this) -= rhs); }
         BigNum operator* (const BigNum& rhs) { return std::move(BigNum(*this) *= rhs); }
         BigNum operator/ (const BigNum& rhs) { return std::move(BigNum(*this) /= rhs); }
@@ -53,21 +67,19 @@ namespace Ark
 
         friend std::ostream& operator<<(std::ostream& os, const BigNum& rhs)
         {
-            if (rhs.m_data.get_den() != 1)
-                os << mpf_class(rhs.m_data);
-            else
-                os << rhs.m_data;
-            
+            os << rhs.m_data;
             return os;
         }
 
-        std::string toString(int base=10) const
+        std::string toString() const
         {
-            return m_data.get_str(base);
+            std::stringstream ss;
+            ss << std::fixed << m_data;
+            return ss.str();
         }
 
     private:
-        mpq_class m_data;
+        mpf_class m_data;
     };
 }
 

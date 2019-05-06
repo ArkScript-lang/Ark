@@ -81,7 +81,7 @@ namespace Ark
                         while (b[i] != 0)
                             val.push_back(b[i++]);
                         i++;
-                        os << "(Number) 0x" << val;
+                        os << "(Number) " << val;
                     }
                     else if (type == Instruction::STRING_TYPE)
                     {

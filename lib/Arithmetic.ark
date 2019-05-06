@@ -1,0 +1,9 @@
+{
+    (let mod (fun (x y) {
+        (while (> x y)
+            (set x (- x y))
+        )
+        ' ret
+        x
+    }))
+}

@@ -104,7 +104,7 @@ namespace Ark
 
         Node Parser::atom(const Token& token)
         {
-            if (Ark::Utils::isInteger(token.token) || Ark::Utils::isFraction(token.token))
+            if (Ark::Utils::isInteger(token.token) || Ark::Utils::isFloat(token.token))
             {
                 auto n = Node(NodeType::Number, Ark::BigNum(token.token.c_str()));
                 n.setPos(token.line, token.col);
@@ -404,13 +404,13 @@ namespace Ark
                         std::string s = n.getStringVal();
                         bool b = true;
                         // 2 or more arguments
-                        if (s == "+" || s == "-" || s == "/" || s == "*")
+                        if (s == "+" || s == "-" || s == "/" || s == "*" || s == "^")
                             b = p.size() > 2;
                         // exactly 2 arguments
                         else if (s == "<" || s == ">" || s == "<=" || s == ">=" || s == "!=" || s == "=" || s == "assert")
                             b = p.size() == 3;
                         // exactly 1 argument
-                        else if (s == "len" || s == "empty?" || s == "car" || s == "cdr" || s == "nil?" || s == "toNumber" || s == "toString")
+                        else if (s == "len" || s == "empty?" || s == "car" || s == "cdr" || s == "nil?" || s == "toNumber" || s == "toString" || s == "sqrt")
                             b = p.size() == 2;
                         // at least 1 argument
                         else if (s == "append" || s == "cons" || s == "list" || s == "print")

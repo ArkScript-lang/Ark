@@ -32,6 +32,8 @@
     FFI_Function(sub);  // -
     FFI_Function(mul);  // *
     FFI_Function(div);  // /
+    FFI_Function(pow);  // ^
+    FFI_Function(sqrt_);  // sqrt
 
     FFI_Function(gt);  // >
     FFI_Function(lt);  // <
@@ -125,6 +127,31 @@
                 FFI_throwZeroDivisionError();
             i /= FFI_number(*it);
         }
+        return FFI_Value(i);
+    }
+
+    FFI_Function(pow)
+    {
+        if (!FFI_isNumber(n[0]))
+            FFI_throwTypeError("Arguments of ^ should be Numbers");
+        
+        auto i = FFI_number(n[0]);
+        for (FFI_Value::Iterator it=n.begin()+1; it != n.end(); ++it)
+        {
+            if (!FFI_isNumber(*it))
+                FFI_throwTypeError("Arguments of ^ should be Numbers");
+            i.pow(FFI_number(*it));
+        }
+        return FFI_Value(i);
+    }
+
+    FFI_Function(sqrt_)
+    {
+        if (!FFI_isNumber(n[0]))
+            FFI_throwTypeError("Argument of sqrt must be a Number");
+        
+        auto i = FFI_number(n[0]);
+        i.sqrt();
         return FFI_Value(i);
     }
     
@@ -370,6 +397,8 @@
             env["-"] = Node(&sub);
             env["*"] = Node(&mul);
             env["/"] = Node(&div);
+            env["^"] = Node(&pow);
+            env["sqrt"] = Node(&sqrt_);
 
             env[">"] = Node(&gt);
             env["<"] = Node(&lt);
@@ -403,7 +432,8 @@
         ">", "<", "<=", ">=", "!=", "=",
         "len", "empty?", "firstof", "tailof", "append", "concat", "list", "nil?",
         "print", "assert", "input",
-        "toNumber", "toString"
+        "toNumber", "toString",
+        "^", "sqrt"
     };
 #elif defined(FFI_INIT_VM_FFI)
     m_ffi.push_back(&FFI::add);
@@ -433,4 +463,7 @@
 
     m_ffi.push_back(&FFI::toNumber);
     m_ffi.push_back(&FFI::toString);
+
+    m_ffi.push_back(&FFI::pow);
+    m_ffi.push_back(&FFI::sqrt_);
 #endif  // FFI_MAKE_HEADER | FFI_MAKE_SOURCE | FFI_MAKE_EXTERNS_INC | FFI_MAKE_EXTERNS_SRC | FFI_INIT_VM_FFI
