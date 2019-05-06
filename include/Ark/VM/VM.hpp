@@ -29,6 +29,9 @@ namespace Ark
             void run();
 
             void loadFunction(const std::string& name, Value::ProcType function);
+
+            template <typename T>
+            T get(const std::string& name);
         
         private:
             bool m_debug;

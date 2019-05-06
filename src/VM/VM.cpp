@@ -159,6 +159,66 @@ namespace Ark
             frontFrame()[static_cast<uint16_t>(std::distance(m_symbols.begin(), it))] = Value(function);
         }
 
+        template <> BigNum VM::get<BigNum>(const std::string& name)
+        {
+            auto it = std::find(m_symbols.begin(), m_symbols.end(), name);
+            if (it != m_symbols.end())
+            {
+                uint16_t idx = static_cast<uint16_t>(std::distance(m_symbols.begin(), it));
+                if (m_frames.front()->find(idx))
+                {
+                    if (frontFrame()[idx].isNumber())
+                        return frontFrame()[idx].number();
+                    Ark::logger.error("[Virtual Machine] '" + name + "' is not a Number");
+                    exit(1);
+                }
+                Ark::logger.error("[Virtual Machine] Couln't find '" + name + "'");
+                exit(1);
+            }
+            Ark::logger.error("[Virtual Machine] '" + name + "' is not a registered symbol");
+            exit(1);
+        }
+
+        template <> std::string VM::get<std::string>(const std::string& name)
+        {
+            auto it = std::find(m_symbols.begin(), m_symbols.end(), name);
+            if (it != m_symbols.end())
+            {
+                uint16_t idx = static_cast<uint16_t>(std::distance(m_symbols.begin(), it));
+                if (m_frames.front()->find(idx))
+                {
+                    if (frontFrame()[idx].isString())
+                        return frontFrame()[idx].string();
+                    Ark::logger.error("[Virtual Machine] '" + name + "' is not a String");
+                    exit(1);
+                }
+                Ark::logger.error("[Virtual Machine] Couln't find '" + name + "'");
+                exit(1);
+            }
+            Ark::logger.error("[Virtual Machine] '" + name + "' is not a registered symbol");
+            exit(1);
+        }
+
+        template <> bool VM::get<bool>(const std::string& name)
+        {
+            auto it = std::find(m_symbols.begin(), m_symbols.end(), name);
+            if (it != m_symbols.end())
+            {
+                uint16_t idx = static_cast<uint16_t>(std::distance(m_symbols.begin(), it));
+                if (m_frames.front()->find(idx))
+                {
+                    if (frontFrame()[idx].isNFT() && frontFrame()[idx].nft() != NFT::Nil)
+                        return frontFrame()[idx].nft() == NFT::True;
+                    Ark::logger.error("[Virtual Machine] '" + name + "' is not a Bool");
+                    exit(1);
+                }
+                Ark::logger.error("[Virtual Machine] Couln't find '" + name + "'");
+                exit(1);
+            }
+            Ark::logger.error("[Virtual Machine] '" + name + "' is not a registered symbol");
+            exit(1);
+        }
+
         void VM::configure()
         {
             // configure ffi
