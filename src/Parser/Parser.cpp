@@ -104,9 +104,22 @@ namespace Ark
 
         Node Parser::atom(const Token& token)
         {
-            if (Ark::Utils::isInteger(token.token) || Ark::Utils::isFloat(token.token))
+            if (Ark::Utils::isInteger(token.token) || Ark::Utils::isFraction(token.token))
             {
-                auto n = Node(NodeType::Number, Ark::BigNum(token.token.c_str()));
+                auto n = Node(NodeType::Number, Ark::BigNum(token.token));
+                n.setPos(token.line, token.col);
+                return n;
+            }
+            if (Ark::Utils::isFloat(token.token))
+            {
+                std::string content = token.token;
+                auto it = content.find_first_of('.');
+                std::size_t decimals = std::distance(content.begin() + it, content.end());
+                content.erase(content.begin() + it);
+                content += "/1";
+                for (std::size_t _i=0; ++_i != decimals; content += "0");
+
+                auto n = Node(NodeType::Number, Ark::BigNum(content));
                 n.setPos(token.line, token.col);
                 return n;
             }
@@ -404,13 +417,13 @@ namespace Ark
                         std::string s = n.getStringVal();
                         bool b = true;
                         // 2 or more arguments
-                        if (s == "+" || s == "-" || s == "/" || s == "*" || s == "^")
+                        if (s == "+" || s == "-" || s == "/" || s == "*")
                             b = p.size() > 2;
                         // exactly 2 arguments
                         else if (s == "<" || s == ">" || s == "<=" || s == ">=" || s == "!=" || s == "=" || s == "assert")
                             b = p.size() == 3;
                         // exactly 1 argument
-                        else if (s == "len" || s == "empty?" || s == "car" || s == "cdr" || s == "nil?" || s == "toNumber" || s == "toString" || s == "sqrt")
+                        else if (s == "len" || s == "empty?" || s == "car" || s == "cdr" || s == "nil?" || s == "toNumber" || s == "toString")
                             b = p.size() == 2;
                         // at least 1 argument
                         else if (s == "append" || s == "cons" || s == "list" || s == "print")

@@ -301,7 +301,7 @@ namespace Ark
                             val.push_back(b[i++]);
                         i++;
 
-                        m_constants.emplace_back(BigNum(val));
+                        m_constants.emplace_back(BigNum(val, /* base */ 16));
                         
                         if (m_debug)
                             Ark::logger.info("(Virtual Machine) - (Number)", val);

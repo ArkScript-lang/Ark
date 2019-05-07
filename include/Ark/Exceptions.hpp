@@ -34,6 +34,17 @@ namespace Ark
                 "the expression 0/0 is also undefined.";
         }
     };
+
+    class PowError : public std::exception
+    {
+    public:
+        virtual const char* what() const throw()
+        {
+            return
+                "PowError: Can not pow the given number (a) to the given exponent (b) because "
+                "a^b, with b being a member of the rational numbers, isn't supported.";
+        }
+    };
 }
 
 #endif

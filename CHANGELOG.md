@@ -3,13 +3,12 @@
 # Unreleased
 ### Added
 - added VM::get<T>(name) to retrieve values from the top stack of the Virtual Machine. Types currently supported are `Ark::BigNum`, `std::string` and `bool`
-- adding `pow` (supporting only integers of the size of a `long`) and `sqrt`
 - adding `mod` in the standard library
 
 ### Changed
 - the frames stack is handled differently, using shared pointers to avoid unecessary copies of frame's environments, it improves execution speed by *a lot*
 - new CLI
-- using floats instead of rationnals for numbers
+- handling floating pointer numbers and rational numbers
 
 ### Removed
 

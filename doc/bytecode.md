@@ -59,6 +59,7 @@ Builtins are handled with `BUILTIN id`, with `id` being the id of the builtin fu
 | `input` (20) | 0 or 1 | Can take a String (prompt), return a String writen by the user in the shell |
 | `toNumber` (21) | 1 | Convert a String to Number |
 | `toString` (22) | 1 | Convert a value to String |
+| `pow` (23) | at least 2 | Return the first argument exponent all the others |
 
 ## Instructions
 
