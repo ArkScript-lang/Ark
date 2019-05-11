@@ -1,0 +1,11 @@
+{
+    (import "libsfml.so")
+
+    (sf-window-init 600 600 "ArkSnake")
+    (let apple (sfml-load-sprite "apple.png"))
+
+    (let running true)
+    (while running {
+        (sf-window-display)
+    })
+}

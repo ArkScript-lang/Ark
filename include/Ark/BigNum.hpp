@@ -44,6 +44,8 @@ namespace Ark
         inline friend bool operator==(const BigNum& lhs, const BigNum& rhs) { return lhs.m_data == rhs.m_data; }
         inline friend bool operator!=(const BigNum& lhs, const BigNum& rhs) { return !(lhs == rhs); }
 
+        inline long toLong() const { return static_cast<long>(m_data.get_d()); }
+
         friend std::ostream& operator<<(std::ostream& os, const BigNum& rhs)
         {
             if (rhs.m_data.get_den() != 1)
