@@ -25,6 +25,8 @@ Concat multiple lists (at least 2 arguments, all of them must be lists): `concat
 
 Create a list (at least 0 argument): `list`.
 
+Get an element from a list by its index: `@` (give the list first, then the index).
+
 ### IO
 
 Print multiple values (at least 1 argument) with `print`.

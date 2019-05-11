@@ -420,7 +420,7 @@ namespace Ark
                         if (s == "+" || s == "-" || s == "/" || s == "*")
                             b = p.size() > 2;
                         // exactly 2 arguments
-                        else if (s == "<" || s == ">" || s == "<=" || s == ">=" || s == "!=" || s == "=" || s == "assert")
+                        else if (s == "<" || s == ">" || s == "<=" || s == ">=" || s == "!=" || s == "=" || s == "assert" || s == "@")
                             b = p.size() == 3;
                         // exactly 1 argument
                         else if (s == "len" || s == "empty?" || s == "car" || s == "cdr" || s == "nil?" || s == "toNumber" || s == "toString")

@@ -1,11 +1,138 @@
 {
     (import "libsfml.so")
+    (import "librandom.so")
+    (import "Arithmetic.ark")
 
     (sf-window-init 600 600 "ArkSnake")
-    (let apple (sfml-load-sprite "apple.png"))
+    (sf-window-setFPS 60)
 
-    (let running true)
-    (while running {
-        (sf-window-display)
+    ' stuff needed for the texts
+    (let font (sfml-load-font "freesansbold.otf"))
+    (let hello_text (sfml-make-text font "Hello!"))
+    (sf-setPos hello_text (/ (- 600 (sf-width hello_text)) 2) 10)
+
+    ' the board object
+    ' 0 => empty, 1 => apple
+    (let create-board-object (fun () {
+        ' sprites used for the game
+        (let apple_sprite (sfml-load-sprite "apple.png"))
+        (let snake_sprite (sfml-load-sprite "snake.png"))
+
+        (let data [])
+        {
+            (let y 0)
+
+            (while (!= y 20) {
+                (let x 0)
+                (let line [])
+
+                (while (!= x 20) {
+                    (let case (mod random 2))
+                    (set line (append line case))
+                    (set x (+ 1 x))
+                })
+
+                (set data (append data line))
+                (set y (+ 1 y))
+            })
+        }
+
+        (fun (f) {
+            (let draw_board (fun () {
+                (let y 0)
+                (while (!= y 20) {
+                    (let x 0)
+                    (while (!= x 20) {
+                        (let case (@ (@ data y) x))
+                        (if (= case 1)
+                            ' then
+                            (sf-draw apple_sprite)
+                            ' else
+                            ()
+                        )
+                        (set x (+ x 1))
+                    })
+                    (set y (+ 1 y))
+                })
+
+                ' ret
+                nil
+            }))
+
+            (let has_apple_left? (fun () {
+                (let apple_left 0)
+                (let y 0)
+                (while (!= y 20) {
+                    (let x 0)
+                    (while (!= x 20) {
+                        (let case (@ (@ data y) x))
+                        (if (= case 1)
+                            ' then
+                            (set apple_left (+ 1 apple_left))
+                            ' else
+                            ()
+                        )
+                        (set x (+ x 1))
+                    })
+                    (set y (+ 1 y))
+                })
+
+                ' ret
+                apple_left
+            }))
+
+            (let eat_apple_at (fun (x y) {
+                (if (= 1 (@ (@ data y) x))
+                    ' then
+                    true
+                    ' else
+                    false
+                )
+            }))
+
+            (f draw_board has_apple_left? eat_apple_at)
+        })
+    }))
+    (let board-draw (fun (f _ _) (f)))
+    (let board-has-apple-left? (fun (_ f _) (f)))
+    (let board-eat-apple-at (fun (x y) (fun (_ _ f) (f x y))))
+
+    ' instanciating
+    (let board (create-board-object))
+
+    ' the snake
+    (let create-snake-object (fun () {
+        (let pos [[0 0]])
+        (let auto_move false)
+        (fun (f) {
+            (let move (fun (mx my board) {
+                '
+            }))
+
+            (f move reset_auto_move auto_move)
+        })
+    }))
+
+    ' instanciating
+    (let snake (create-snake-object))
+
+    (while (sf-window-isOpen) {
+        ' event handling
+        (snake snake-reset-auto-move)
+
+        (let event (sf-poll-event))
+        (if (= event (sf-event-quit))          (sf-window-close)        ())
+        (if (= event (sf-event-keyup "up"))    (snake snake-move-up)    ())
+        (if (= event (sf-event-keyup "down"))  (snake snake-move-down)  ())
+        (if (= event (sf-event-keyup "right")) (snake snake-move-right) ())
+        (if (= event (sf-event-keyup "left"))  (snake snake-move-left)  ())
+
+        (snake snake-auto-move)
+
+        ' rendering
+        (sf-window-clear 0 0 0)
+        (board board-draw)      ' calling object function
+        (sf-draw hello_text)    ' just a test with a text
+        (sf-window-display)     ' double buffering
     })
 }

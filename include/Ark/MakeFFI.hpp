@@ -56,6 +56,8 @@
     FFI_Function(toNumber);  // toNumber 1
     FFI_Function(toString);  // toString 1
 
+    FFI_Function(at);  // @ 2
+
     #ifdef FFI_INTERPRETER
         void registerLib(Environment& env);
     #endif  // FFI_INTERPRETER
@@ -357,6 +359,16 @@
         return FFI_Value(ss.str());
     }
 
+    FFI_Function(at)
+    {
+        if (!FFI_isList(n[0]))
+            FFI_throwTypeError("Argument 1 of @ should be a List");
+        if (!FFI_isNumber(n[1]))
+            FFI_throwTypeError("Argument 2 of @ should be a Number");
+        
+        return n[0].const_list()[n[1].number().toLong()];
+    }
+
     // ------------------------------
 
     #ifdef FFI_INTERPRETER
@@ -393,6 +405,8 @@
 
             env["toNumber"] = Node(&toNumber);
             env["toString"] = Node(&toString);
+
+            env["@"] = Node(&at);
         }
     #endif  // FFI_INTERPRETER
 #elif defined(FFI_MAKE_EXTERNS_INC)
@@ -403,7 +417,8 @@
         ">", "<", "<=", ">=", "!=", "=",
         "len", "empty?", "firstof", "tailof", "append", "concat", "list", "nil?",
         "print", "assert", "input",
-        "toNumber", "toString"
+        "toNumber", "toString",
+        "@"
     };
 #elif defined(FFI_INIT_VM_FFI)
     m_ffi.push_back(&FFI::add);
@@ -433,4 +448,6 @@
 
     m_ffi.push_back(&FFI::toNumber);
     m_ffi.push_back(&FFI::toString);
+
+    m_ffi.push_back(&FFI:at);
 #endif  // FFI_MAKE_HEADER | FFI_MAKE_SOURCE | FFI_MAKE_EXTERNS_INC | FFI_MAKE_EXTERNS_SRC | FFI_INIT_VM_FFI
