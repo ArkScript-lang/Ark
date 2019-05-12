@@ -8,15 +8,15 @@
     (sf-window-setFPS 60)
 
     ' stuff needed for the texts
-    (let font (sfml-load-font "freesansbold.otf"))
-    (let hello_text (sfml-make-text font "Hello!"))
+    (let font (sf-load-font "FreeSansBold.ttf"))
+    (let hello_text (sf-make-text font "Hello!" 18 [255 255 255]))
     (sf-setPos hello_text (/ (- 600 (sf-width hello_text)) 2) 10)
 
     ' the board object
     ' 0 => empty, 1 => apple
     (let create-board-object (fun () {
         ' sprites used for the game
-        (let apple_sprite (sfml-load-sprite "apple.png"))
+        (let apple_sprite (sf-load-sprite "apple.png"))
 
         (let data [])
         {
@@ -27,7 +27,7 @@
                 (let line [])
 
                 (while (!= x 20) {
-                    (let case (mod random 2))
+                    (let case (mod (random-10) 2))
                     (set line (append line case))
                     (set x (+ 1 x))
                 })
@@ -84,12 +84,12 @@
                 apple_left
             }))
 
-            (let eat_apple_at (fun (x y) {
+            (let eat_apple_at (fun (x y)
                 (if (and (>= 0 x) (>= 0 y) (< y 20) (< x 20))
                     (return (= 1 (@ (@ data y) x)))
                     (throw "Out of bounds")
                 )
-            }))
+            ))
 
             (f draw_board has_apple_left? eat_apple_at)
         })
@@ -107,7 +107,7 @@
         (let pos [[0 0]])
         (let should_move true)
         (let last_direction [1 0])  ' right
-        (let snake_sprite (sfml-load-sprite "snake.png"))
+        (let snake_sprite (sf-load-sprite "snake.png"))
 
         (fun (f) {
             (let move (fun (mx my board) {
@@ -121,11 +121,17 @@
                     (fun (result) {
                         ' if result == false, move the tail to the head
                         ' otherwise, add a new head
+                        (set pos (append pos [(+ mx (@ p 0)) (+ my (@ p 1))]))
                         (if result
                             ' then
-                            {}
+                            ()
                             ' else
-                            {}
+                            (if (!= 0 (len pos))
+                                ' then
+                                (set pos (tailof pos))
+                                ' else
+                                ()
+                            )
                         )
                     })
                     (fun (err) (print err))
@@ -156,7 +162,7 @@
     (let snake-move-down  (fun (f _ _ _) (f  0  1 board)))
     (let snake-move-right (fun (f _ _ _) (f  1  0 board)))
     (let snake-move-left  (fun (f _ _ _) (f -1  0 board)))
-    (let snake-auto_move  (fun (_ _ f _) (f board)))
+    (let snake-auto-move  (fun (_ _ f _) (f board)))
     (let snake-reset-auto-move (fun (_ f _ _) (f)))
     (let snake-draw (fun (_ _ _ f) (f)))
 
@@ -168,11 +174,11 @@
         (snake snake-reset-auto-move)
 
         (let event (sf-poll-event))
-        (if (= event (sf-event-quit))          (sf-window-close)        ())
-        (if (= event (sf-event-keyup "up"))    (snake snake-move-up)    ())
-        (if (= event (sf-event-keyup "down"))  (snake snake-move-down)  ())
-        (if (= event (sf-event-keyup "right")) (snake snake-move-right) ())
-        (if (= event (sf-event-keyup "left"))  (snake snake-move-left)  ())
+        (if (= event (sf-event "quit"))          (sf-window-close)        ())
+        (if (= event (sf-event "keyup" "up"))    (snake snake-move-up)    ())
+        (if (= event (sf-event "keyup" "down"))  (snake snake-move-down)  ())
+        (if (= event (sf-event "keyup" "right")) (snake snake-move-right) ())
+        (if (= event (sf-event "keyup" "left"))  (snake snake-move-left)  ())
 
         (snake snake-auto-move)
 

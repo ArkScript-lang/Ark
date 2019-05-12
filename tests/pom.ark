@@ -3,8 +3,9 @@
     (print "Jeu du plus ou moins !")
 
     (import "librandom.so")
+    (import "Arithmetic.ark")
 
-    (let number (random))
+    (let number (mod (abs (random)) 10000))
     (print number)
     (let value 0)
     (let essais 0)

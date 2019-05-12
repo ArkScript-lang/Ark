@@ -17,6 +17,8 @@ Is the list empty? (1 argument): `empty?`.
 
 Get the first element of a list (1 argument): `firstof`.
 
+Get all the elements of a list, **except** the last one (1 argument): `headof`.
+
 Get all the elements of a list, **except** the first one (1 argument): `tailof`.
 
 Add content to a list (first argument must be a list ; at least 2 arguments): `append`.

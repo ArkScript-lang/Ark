@@ -43,7 +43,7 @@
     FFI_Function(len);  // len 1
     FFI_Function(empty);  // empty? 1
     FFI_Function(firstof);  // firstof 1
-    FFI_Function(tailof);  // tailof +
+    FFI_Function(tailof);  // tailof 1
     FFI_Function(append);  // append +
     FFI_Function(concat);  // concat +
     FFI_Function(list);  // list +
@@ -59,6 +59,7 @@
     FFI_Function(at);  // @ 2
     FFI_Function(and_);  // and +
     FFI_Function(or_);  // or +
+    FFI_Function(headof);  // headof 1
 
     #ifdef FFI_INTERPRETER
         void registerLib(Environment& env);
@@ -395,6 +396,19 @@
         return falseSym;
     }
 
+    FFI_Function(headof)
+    {
+        if (!FFI_isList(n[0]))
+            FFI_throwTypeError("Argument of headof must be a list");
+        
+        if (n[0].const_list().size() < 2)
+            return nil;
+        
+        FFI_Value r = n[0];
+        r.list().erase(r.const_list().end());
+        return r;
+    }
+
     // ------------------------------
 
     #ifdef FFI_INTERPRETER
@@ -435,6 +449,7 @@
             env["@"] = Node(&at);
             env["and"] = Node(&and_);
             env["or"] = Node(&or_);
+            env["headof"] = Node(&headof);
         }
     #endif  // FFI_INTERPRETER
 #elif defined(FFI_MAKE_EXTERNS_INC)
@@ -446,7 +461,7 @@
         "len", "empty?", "firstof", "tailof", "append", "concat", "list", "nil?",
         "print", "assert", "input",
         "toNumber", "toString",
-        "@", "and_", "or_"
+        "@", "and", "or", "headof"
     };
 #elif defined(FFI_INIT_VM_FFI)
     m_ffi.push_back(&FFI::add);

@@ -18,6 +18,8 @@ extern "C" Mapping_t getFunctionsMapping()
     map["sf-setPos"] = &sf_setpos;
     map["sf-width"] = &sf_width;
     map["sf-height"] = &sf_height;
+    map["sf-event"] = &sf_event;
+    map["sf-window-close"] = &sf_window_close;
 
     return map;
 }

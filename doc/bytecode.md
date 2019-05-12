@@ -49,7 +49,7 @@ Builtins are handled with `BUILTIN id`, with `id` being the id of the builtin fu
 | `len` (10) | 1 (must be a list) | Return the length of the given list |
 | `empty?` (11) | 1 (must be a list) | Check if the given list is empty |
 | `firstof` (12) | 1 (must be a list) | Return the first element of the given list |
-| `tailof` (13) | at least 2 | Return all the given elements, except the first one |
+| `tailof` (13) | 1 (must be a list) | Return all the given elements, except the first one |
 | `append` (14) | at least 2 (first one must be a list) | Append all arguments to the first one |
 | `concat` (15) | at least 2 (must be lists) | Concat all the lists into one |
 | `list` (16) | at least 0 | Return a list composed of all the arguments |
@@ -62,6 +62,7 @@ Builtins are handled with `BUILTIN id`, with `id` being the id of the builtin fu
 | `@` (23) | 2 | Return the i-th element of a given list |
 | `and` (24) | at least 2 (must be Bools) | Return true if all the arguments are equal to true, false otherwise |
 | `or` (25) | at 2 (must be Bools) | Return true if at least 1 argument is equal to true, false otherwise |
+| `headof` (26) | 1 (must be a list) | Return all the given elements, except the last one |
 
 ## Instructions
 

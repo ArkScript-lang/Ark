@@ -423,7 +423,7 @@ namespace Ark
                         else if (s == "<" || s == ">" || s == "<=" || s == ">=" || s == "!=" || s == "=" || s == "assert" || s == "@")
                             b = p.size() == 3;
                         // exactly 1 argument
-                        else if (s == "len" || s == "empty?" || s == "car" || s == "cdr" || s == "nil?" || s == "toNumber" || s == "toString")
+                        else if (s == "len" || s == "empty?" || s == "firstof" || s == "tailof" || s == "headof" || s == "nil?" || s == "toNumber" || s == "toString")
                             b = p.size() == 2;
                         // at least 1 argument
                         else if (s == "append" || s == "cons" || s == "print")

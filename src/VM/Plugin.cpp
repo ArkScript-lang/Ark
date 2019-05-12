@@ -43,7 +43,7 @@ namespace Ark
                 );
             }
 #elif (defined(unix) || defined(__unix) || defined(__unix__)) || defined(__APPLE__)
-            if (NULL == (m_hInstance = dlopen(m_path.c_str(), RTLD_NOW | RTLD_GLOBAL)))
+            if (NULL == (m_hInstance = dlopen(m_path.c_str(), RTLD_LAZY | RTLD_GLOBAL)))
             {
                 throw std::system_error(
                     std::error_code(errno, std::system_category())

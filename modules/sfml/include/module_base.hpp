@@ -1,4 +1,5 @@
 #include <string>
+#include <vector>
 #include <unordered_map>
 #include <Ark/VM/Value.hpp>
 #include <Ark/Exceptions.hpp>

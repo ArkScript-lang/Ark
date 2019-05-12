@@ -5,7 +5,7 @@
 - added VM::get<T>(name) to retrieve values from the top stack of the Virtual Machine. Types currently supported are `Ark::BigNum`, `std::string` and `bool`
 - adding `mod` in the standard library
 - module `sfml`, need the SFML 2.5
-- adding `@`, `and` and `or` in the FFI
+- adding `@`, `and`, `or` and `headof` in the FFI
 
 ### Changed
 - the frames stack is handled differently, using shared pointers to avoid unecessary copies of frame's environments, it improves execution speed by *a lot*

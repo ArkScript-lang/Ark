@@ -11,3 +11,5 @@ Value sf_make_text(const std::vector<Value>& n);
 Value sf_setpos(const std::vector<Value>& n);
 Value sf_width(const std::vector<Value>& n);
 Value sf_height(const std::vector<Value>& n);
+Value sf_event(const std::vector<Value>& n);
+Value sf_window_close(const std::vector<Value>& n);
