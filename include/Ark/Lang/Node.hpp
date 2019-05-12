@@ -115,7 +115,7 @@ namespace Ark
         inline bool operator==(const Node& A, const Node& B)
         {
             if (A.m_type != B.m_type)  // should have the same types
-                throw Ark::TypeError("Can not compare heterogeneous values (" + A.typeToString() + " and " + B.typeToString() + ")");
+                return false;
 
             if (A.m_type != NodeType::List &&
                 A.m_type != NodeType::Proc &&

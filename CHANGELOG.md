@@ -6,6 +6,7 @@
 - adding `mod` in the standard library
 - module `sfml`, need the SFML 2.5
 - adding `@`, `and`, `or` and `headof` in the FFI
+- adding a guard in the VM to be sure the builtins are all present in the VM FFI
 
 ### Changed
 - the frames stack is handled differently, using shared pointers to avoid unecessary copies of frame's environments, it improves execution speed by *a lot*

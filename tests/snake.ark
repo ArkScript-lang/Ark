@@ -20,25 +20,26 @@
 
         (let data [])
         {
-            (let y 0)
+            (let _y 0)
 
-            (while (!= y 20) {
-                (let x 0)
+            (while (!= _y 20) {
+                (let _x 0)
                 (let line [])
 
-                (while (!= x 20) {
+                (while (!= _x 20) {
                     (let case (mod (random-10) 2))
                     (set line (append line case))
-                    (set x (+ 1 x))
+                    (set _x (+ 1 _x))
                 })
 
                 (set data (append data line))
-                (set y (+ 1 y))
+                (set _y (+ 1 _y))
             })
         }
 
         (fun (f) {
             (let draw_board (fun () {
+                (print "draw board")
                 (let y 0)
                 (while (!= y 20) {
                     (let x 0)
@@ -85,7 +86,7 @@
             }))
 
             (let eat_apple_at (fun (x y)
-                (if (and (>= 0 x) (>= 0 y) (< y 20) (< x 20))
+                (if (and (>= x 0) (>= y 0) (< y 20) (< x 20))
                     (return (= 1 (@ (@ data y) x)))
                     (throw "Out of bounds")
                 )
@@ -145,6 +146,7 @@
             }))
 
             (let draw (fun () {
+                (print "draw snake")
                 (let acc 0)
                 (while (!= acc (len pos)) {
                     (let current (@ pos acc))
@@ -169,12 +171,13 @@
     ' instanciating
     (let snake (create-snake-object))
 
+    (print "beginning...")
+
     (while (sf-window-isOpen) {
         ' event handling
         (snake snake-reset-auto-move)
 
         (let event (sf-poll-event))
-        (if (= event (sf-event "quit"))          (sf-window-close)        ())
         (if (= event (sf-event "keyup" "up"))    (snake snake-move-up)    ())
         (if (= event (sf-event "keyup" "down"))  (snake snake-move-down)  ())
         (if (= event (sf-event "keyup" "right")) (snake snake-move-right) ())
@@ -183,7 +186,7 @@
         (snake snake-auto-move)
 
         ' rendering
-        (sf-window-clear 0 0 0)
+        '(sf-window-clear 0 0 0)
         (board board-draw)      ' draw board first
         (snake snake-draw)      ' then snake
         (sf-draw hello_text)    ' then a test with some text

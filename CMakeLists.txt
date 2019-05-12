@@ -81,10 +81,10 @@ endif()
 
 if (DEBUG MATCHES "true")
     if (CMAKE_COMPILER_IS_GNUCXX)
-        set(CMAKE_CXX_FLAGS "-pg -g -no-pie")
+        message(STATUS "Debug mode ON")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pg -g -no-pie")
     endif()
 endif()
-
 
 install(TARGETS Ark DESTINATION bin)
 install(DIRECTORY ${Ark_SOURCE_DIR}/lib/ DESTINATION share/.Ark/lib)

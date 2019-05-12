@@ -1,7 +1,17 @@
-(if (= 0 0)
-    (if (= 1 12)
+{
+    (if (= 0 0)
+        (if (= 1 12)
+            (print true)
+            (print false)
+        )
+        (print nil)
+    )
+
+    (let a 5)
+    (let b 12)
+
+    (if (and true true)
         (print true)
         (print false)
     )
-    (print nil)
-)
+}

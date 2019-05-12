@@ -3,9 +3,11 @@
 #include <exception>
 #include <stdexcept>
 #include <filesystem>
+#include <cassert>
 
 #include <Ark/Log.hpp>
 #include <Ark/VM/FFI.hpp>
+#include <Ark/FFI.hpp>
 #include <Ark/Utils.hpp>
 
 namespace Ark
@@ -444,6 +446,9 @@ namespace Ark
 
             #undef FFI_VM
             #undef FFI_INIT_VM_FFI
+
+            if (m_ffi.size() != Ark::FFI::builtins.size())
+                assert(false);
         }
 
         Value VM::pop()

@@ -87,7 +87,7 @@ namespace Ark
         {
             // values should have the same type
             if (A.m_value.index() != B.m_value.index())
-                throw Ark::TypeError("Can not compare heterogeneous values (" + A.typeToString() + " and " + B.typeToString() + ")");
+                return false;
 
             if (A.m_is_list)
                 throw Ark::TypeError("Can not compare lists");

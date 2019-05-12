@@ -493,4 +493,7 @@
     m_ffi.push_back(&FFI::toString);
 
     m_ffi.push_back(&FFI::at);
+    m_ffi.push_back(&FFI::and_);
+    m_ffi.push_back(&FFI::or_);
+    m_ffi.push_back(&FFI::headof);
 #endif  // FFI_MAKE_HEADER | FFI_MAKE_SOURCE | FFI_MAKE_EXTERNS_INC | FFI_MAKE_EXTERNS_SRC | FFI_INIT_VM_FFI

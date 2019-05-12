@@ -47,6 +47,12 @@ if (MSVC)
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
 endif()
 
+if (DEBUG MATCHES "true")
+    if (CMAKE_COMPILER_IS_GNUCXX)
+        set(CMAKE_CXX_FLAGS "-pg -g -no-pie")
+    endif()
+endif()
+
 add_custom_command(TARGET ${PROJECT_NAME}
     COMMAND ${CMAKE_COMMAND} -E copy
         "$<TARGET_FILE:${PROJECT_NAME}>" ${PROJECT_SOURCE_DIR}/../../lib
