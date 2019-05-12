@@ -366,7 +366,7 @@
         if (!FFI_isNumber(n[1]))
             FFI_throwTypeError("Argument 2 of @ should be a Number");
         
-        return n[0].const_list()[n[1].number().toLong()];
+        return n[0].const_list()[FFI_number(n[1]).toLong()];
     }
 
     // ------------------------------
@@ -449,5 +449,5 @@
     m_ffi.push_back(&FFI::toNumber);
     m_ffi.push_back(&FFI::toString);
 
-    m_ffi.push_back(&FFI:at);
+    m_ffi.push_back(&FFI::at);
 #endif  // FFI_MAKE_HEADER | FFI_MAKE_SOURCE | FFI_MAKE_EXTERNS_INC | FFI_MAKE_EXTERNS_SRC | FFI_INIT_VM_FFI
