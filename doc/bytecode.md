@@ -60,6 +60,8 @@ Builtins are handled with `BUILTIN id`, with `id` being the id of the builtin fu
 | `toNumber` (21) | 1 | Convert a String to Number |
 | `toString` (22) | 1 | Convert a value to String |
 | `@` (23) | 2 | Return the i-th element of a given list |
+| `and` (24) | at least 2 (must be Bools) | Return true if all the arguments are equal to true, false otherwise |
+| `or` (25) | at 2 (must be Bools) | Return true if at least 1 argument is equal to true, false otherwise |
 
 ## Instructions
 

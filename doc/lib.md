@@ -42,6 +42,9 @@ Test if a value is equal to `nil` (1 argument): `isnil?`.
 
 Equivalent of `assert` in C (2 arguments, a Boolean and a String): `assert`.
 
+Test if all the values are equal to true: `and`.  
+Test if at least one value is equal to true: `or`.
+
 ### Conversions
 
 Convert a String to Number (1 argument): `toNumber`.

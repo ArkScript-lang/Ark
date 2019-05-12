@@ -57,6 +57,8 @@
     FFI_Function(toString);  // toString 1
 
     FFI_Function(at);  // @ 2
+    FFI_Function(and_);  // and +
+    FFI_Function(or_);  // or +
 
     #ifdef FFI_INTERPRETER
         void registerLib(Environment& env);
@@ -369,6 +371,30 @@
         return n[0].const_list()[FFI_number(n[1]).toLong()];
     }
 
+    FFI_Function(and_)
+    {
+        for (FFI_Value::Iterator it=n.begin(); it != n.end(); ++it)
+        {
+            if (!FFI_isBool(*it))
+                FFI_throwTypeError("Arguments of and should be Bool");
+            if (*it == falseSym)
+                return falseSym;
+        }
+        return trueSym;
+    }
+
+    FFI_Function(or_)
+    {
+        for (FFI_Value::Iterator it=n.begin(); it != n.end(); ++it)
+        {
+            if (!FFI_isBool(*it))
+                FFI_throwTypeError("Arguments of or should be Bool");
+            if (*it == trueSym)
+                return trueSym;
+        }
+        return falseSym;
+    }
+
     // ------------------------------
 
     #ifdef FFI_INTERPRETER
@@ -407,6 +433,8 @@
             env["toString"] = Node(&toString);
 
             env["@"] = Node(&at);
+            env["and"] = Node(&and_);
+            env["or"] = Node(&or_);
         }
     #endif  // FFI_INTERPRETER
 #elif defined(FFI_MAKE_EXTERNS_INC)
@@ -418,7 +446,7 @@
         "len", "empty?", "firstof", "tailof", "append", "concat", "list", "nil?",
         "print", "assert", "input",
         "toNumber", "toString",
-        "@"
+        "@", "and_", "or_"
     };
 #elif defined(FFI_INIT_VM_FFI)
     m_ffi.push_back(&FFI::add);

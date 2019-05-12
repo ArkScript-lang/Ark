@@ -2,6 +2,7 @@
     (import "libsfml.so")
     (import "librandom.so")
     (import "Arithmetic.ark")
+    (import "Exceptions.ark")
 
     (sf-window-init 600 600 "ArkSnake")
     (sf-window-setFPS 60)
@@ -16,7 +17,6 @@
     (let create-board-object (fun () {
         ' sprites used for the game
         (let apple_sprite (sfml-load-sprite "apple.png"))
-        (let snake_sprite (sfml-load-sprite "snake.png"))
 
         (let data [])
         {
@@ -46,7 +46,10 @@
                         (let case (@ (@ data y) x))
                         (if (= case 1)
                             ' then
-                            (sf-draw apple_sprite)
+                            {
+                                (sf-setPos apple_sprite (* 20 x) (* 20 y))
+                                (sf-draw apple_sprite)
+                            }
                             ' else
                             ()
                         )
@@ -82,17 +85,16 @@
             }))
 
             (let eat_apple_at (fun (x y) {
-                (if (= 1 (@ (@ data y) x))
-                    ' then
-                    true
-                    ' else
-                    false
+                (if (and (>= 0 x) (>= 0 y) (< y 20) (< x 20))
+                    (return (= 1 (@ (@ data y) x)))
+                    (throw "Out of bounds")
                 )
             }))
 
             (f draw_board has_apple_left? eat_apple_at)
         })
     }))
+    ' properties
     (let board-draw (fun (f _ _) (f)))
     (let board-has-apple-left? (fun (_ f _) (f)))
     (let board-eat-apple-at (fun (x y) (fun (_ _ f) (f x y))))
@@ -103,15 +105,60 @@
     ' the snake
     (let create-snake-object (fun () {
         (let pos [[0 0]])
-        (let auto_move false)
+        (let should_move true)
+        (let last_direction [1 0])  ' right
+        (let snake_sprite (sfml-load-sprite "snake.png"))
+
         (fun (f) {
             (let move (fun (mx my board) {
-                '
+                ' we don't need to move since this function was called explicitly
+                (set should_move false)
+                (set last_direction [mx my])
+
+                (let p (@ pos (- (len pos) 1)))
+
+                (try (board (board-eat-apple-at (+ mx (@ p 0)) (+ my (@ p 1))))
+                    (fun (result) {
+                        ' if result == false, move the tail to the head
+                        ' otherwise, add a new head
+                        (if result
+                            ' then
+                            {}
+                            ' else
+                            {}
+                        )
+                    })
+                    (fun (err) (print err))
+                )
             }))
 
-            (f move reset_auto_move auto_move)
+            (let reset_auto_move (fun () (set should_move true)))
+
+            (let auto_move (fun (board) {
+                (move (@ last_direction 0) (@ last_direction 1) board)
+            }))
+
+            (let draw (fun () {
+                (let acc 0)
+                (while (!= acc (len pos)) {
+                    (let current (@ pos acc))
+                    (sf-setPos snake_sprite (* 20 (@ current 0)) (* 20 (@ current 1)))
+                    (sf-draw snake_sprite)
+                    (set acc (+ 1 acc))
+                })
+            }))
+
+            (f move reset_auto_move auto_move draw)
         })
     }))
+    ' properties
+    (let snake-move-up    (fun (f _ _ _) (f  0 -1 board)))
+    (let snake-move-down  (fun (f _ _ _) (f  0  1 board)))
+    (let snake-move-right (fun (f _ _ _) (f  1  0 board)))
+    (let snake-move-left  (fun (f _ _ _) (f -1  0 board)))
+    (let snake-auto_move  (fun (_ _ f _) (f board)))
+    (let snake-reset-auto-move (fun (_ f _ _) (f)))
+    (let snake-draw (fun (_ _ _ f) (f)))
 
     ' instanciating
     (let snake (create-snake-object))
@@ -131,8 +178,9 @@
 
         ' rendering
         (sf-window-clear 0 0 0)
-        (board board-draw)      ' calling object function
-        (sf-draw hello_text)    ' just a test with a text
+        (board board-draw)      ' draw board first
+        (snake snake-draw)      ' then snake
+        (sf-draw hello_text)    ' then a test with some text
         (sf-window-display)     ' double buffering
     })
 }
