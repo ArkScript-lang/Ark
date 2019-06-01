@@ -315,7 +315,17 @@ namespace Ark
                 }
                 else if (n == Keyword::Quote)
                 {
-                    // TODO quote compile
+                    // create new page for quoted code
+                    m_code_pages.emplace_back();
+                    std::size_t page_id = m_code_pages.size() - 1;
+                    _compile(x.list()[1], page_id);
+                    page(page_id).emplace_back(Instruction::RET);  // return to the last frame
+
+                    // call it
+                    std::size_t id = addValue(page_id);  // save page_id into the constants table as PageAddr
+                    page(p).emplace_back(Instruction::SAVE_ENV);
+                    page(p).emplace_back(Instruction::LOAD_CONST);
+                    pushNumber(static_cast<uint16_t>(id), &page(p));
                 }
 
                 return;

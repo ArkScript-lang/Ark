@@ -7,6 +7,7 @@
 
 # 2.1.0
 ### Added
+- adding `switch` and `defer1` in the standard library (`defer1` shall be rewritten using `quote`)
 - keyword `quote`, macro version is `\``
 - added VM::get<T>(name) to retrieve values from the top stack of the Virtual Machine. Types currently supported are `Ark::BigNum`, `std::string` and `bool`
 - adding `mod` in the standard library
