@@ -38,6 +38,7 @@ namespace Ark
             Node compile(std::list<Token>& tokens);
             Node atom(const Token& token);
             bool checkForInclude(Node& n);
+            void checkForQuote(Node& n);
             bool _check(const Node& ast);
         };
     }

@@ -3,6 +3,8 @@
     (import "librandom.so")
     (import "Arithmetic.ark")
     (import "Exceptions.ark")
+    (import "Switch.ark")
+    (import "Defer.ark")
 
     (sf-window-init 600 600 "ArkSnake")
     (sf-window-setFPS 60)
@@ -36,6 +38,7 @@
                 (set _y (+ 1 _y))
             })
         }
+        (print data)
 
         (fun (f) {
             (let draw_board (fun () {
@@ -178,15 +181,19 @@
         (snake snake-reset-auto-move)
 
         (let event (sf-poll-event))
-        (if (= event (sf-event "keyup" "up"))    (snake snake-move-up)    ())
-        (if (= event (sf-event "keyup" "down"))  (snake snake-move-down)  ())
-        (if (= event (sf-event "keyup" "right")) (snake snake-move-right) ())
-        (if (= event (sf-event "keyup" "left"))  (snake snake-move-left)  ())
+
+        (switch event [
+            [(sf-event "quit") (defer1 sf-window-close)]
+            [(sf-event "keyup" "up") (defer1 snake snake-move-up)]
+            [(sf-event "keyup" "down") (defer1 snake snake-move-down)]
+            [(sf-event "keyup" "right") (defer1 snake snake-move-right)]
+            [(sf-event "keyup" "left") (defer1 snake snake-move-left)]
+        ])
 
         (snake snake-auto-move)
 
         ' rendering
-        '(sf-window-clear 0 0 0)
+        (sf-window-clear 0 0 0)
         (board board-draw)      ' draw board first
         (snake snake-draw)      ' then snake
         (sf-draw hello_text)    ' then a test with some text

@@ -14,4 +14,10 @@
         (print true)
         (print false)
     )
+
+    (let f (fun () ()))
+
+    (if (= a 1) (print "ok") ())
+    (if (= a 2) (print "ok2") ())
+    (if (= a 3) (f) ())
 }

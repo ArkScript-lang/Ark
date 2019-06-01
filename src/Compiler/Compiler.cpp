@@ -313,6 +313,10 @@ namespace Ark
                         addPlugin(*it);
                     }
                 }
+                else if (n == Keyword::Quote)
+                {
+                    // TODO quote compile
+                }
 
                 return;
             }

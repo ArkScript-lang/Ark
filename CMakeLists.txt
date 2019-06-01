@@ -19,7 +19,7 @@ set(CMAKE_MODULE_PATH ${Ark_SOURCE_DIR}/cmake)
 find_package(MPIR REQUIRED)
 
 set(ARK_VERSION_MAJOR 2)
-set(ARK_VERSION_MINOR 0)
+set(ARK_VERSION_MINOR 1)
 set(ARK_VERSION_PATCH 0)
 set(ARK_STD ${CMAKE_INSTALL_PREFIX}/share/.Ark/lib)
 
@@ -84,6 +84,10 @@ if (DEBUG MATCHES "true")
         message(STATUS "Debug mode ON")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pg -g -no-pie")
     endif()
+else()
+    # release mode
+    message(STATUS "Release mode ON")
+    set(CMAKE_BUILD_TYPE CMAKE_CXX_FLAGS_RELEASE)
 endif()
 
 install(TARGETS Ark DESTINATION bin)

@@ -135,6 +135,9 @@ namespace Ark
                     case Keyword::Import:
                         throw std::runtime_error("The Ark interpreter can not handle plugins");
                     
+                    case Keyword::Quote:
+                        return x.list()[1];
+                    
                     default:
                         throw std::runtime_error("Unknown keyword");
                 }

@@ -33,7 +33,8 @@ namespace Ark
             If,
             While,
             Begin,
-            Import
+            Import,
+            Quote
         };
 
         class Environment;
@@ -137,6 +138,8 @@ namespace Ark
         extern const Node trueSym;
 
         using Nodes = std::vector<Node>;
+
+        std::ostream& operator<<(std::ostream& os, const Nodes& N);
     }
 }
 
