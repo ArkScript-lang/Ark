@@ -7,4 +7,10 @@
 #define ARK_VERSION (ARK_VERSION_MAJOR << 16) + (ARK_VERSION_MINOR << 8) + ARK_VERSION_PATCH
 #define ARK_STD "@ARK_STD@"
 
+#define ARK_USE_MPIR_ @ARK_USE_MPIR_@
+#if ARK_USE_MPIR_ == 1
+    #define ARK_USE_MPIR
+#endif
+#undef ARK_USE_MPIR_
+
 #endif  // ark_constants

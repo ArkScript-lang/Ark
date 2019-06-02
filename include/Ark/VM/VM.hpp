@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <optional>
 #include <memory>
+#include <unordered_map>
 
 #include <Ark/VM/Value.hpp>
 #include <Ark/VM/Frame.hpp>
@@ -67,7 +68,7 @@ namespace Ark
             inline Frame& frontFrame() { return *m_frames.front(); }
             inline Frame& backFrame()  { return *m_frames.back();  }
             inline Frame& frameAt(std::size_t i) { return *m_frames[i]; }
-            inline void createNewFrame() { m_frames.push_back(std::make_shared<Frame>()) ; }
+            inline void createNewFrame() { m_frames.push_back(std::make_shared<Frame>(m_symbols.size())) ; }
 
             Value pop();
             void push(const Value& value);

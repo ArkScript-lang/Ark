@@ -224,7 +224,6 @@ namespace Ark
         void VM::configure()
         {
             // configure ffi
-            createNewFrame();  // put default page
             if (m_ffi.size() == 0)
                 initFFI();
 
@@ -303,7 +302,7 @@ namespace Ark
                             val.push_back(b[i++]);
                         i++;
 
-                        m_constants.emplace_back(BigNum(val, /* base */ 16));
+                        m_constants.emplace_back(BigNum(val));
                         
                         if (m_debug)
                             Ark::logger.info("(Virtual Machine) - (Number)", val);
@@ -394,6 +393,8 @@ namespace Ark
                 for (uint16_t j=0; j < size; ++j)
                     m_pages.back().push_back(b[i++]);
             }
+
+            createNewFrame();  // put default page
 
             // loading plugins
             for (const auto& file: m_plugins)
@@ -500,7 +501,11 @@ namespace Ark
                     }
 
                     if (i == 0)
+                    {
+                        // TEMP fix
+                        push(Value(NFT::Nil));
                         break;
+                    }
                 }
 
                 Ark::logger.error("[Virtual Machine] Couldn't find symbol to load:", sym);
@@ -576,7 +581,11 @@ namespace Ark
                 }
 
                 if (i == 0)
+                {
+                    // TEMP fix
+                    frameAt(0)[sid] = pop();
                     break;
+                }
             }
 
             Ark::logger.error("[Virtual Machine] Couldn't find symbol:", sym);
@@ -717,7 +726,7 @@ namespace Ark
                 // load saved frame
                 m_frames.push_back(c.frame());
                 // create dedicated frame
-                m_frames.push_back(std::make_shared<Frame>(m_ip, m_pp));
+                m_frames.push_back(std::make_shared<Frame>(m_symbols.size(), m_ip, m_pp));
                 m_pp = c.pageAddr();
                 m_ip = -1;  // because we are doing a m_ip++ right after that
                 for (std::size_t j=0; j < args.size(); ++j)

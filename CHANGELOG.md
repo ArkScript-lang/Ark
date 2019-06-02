@@ -2,7 +2,12 @@
 
 ## Unreleased
 ### Added
+- option in the CMakeLists.txt to use MPIR or not (defaults to no MPIR)
+
 ### Changed
+- using a vector instead of a map in the `Frame` to speed up things
+- using double or MPIR depending on the compilation options
+
 ### Removed
 
 # 2.1.0

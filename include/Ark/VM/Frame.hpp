@@ -1,7 +1,6 @@
 #ifndef ark_vm_frame
 #define ark_vm_frame
 
-#include <unordered_map>
 #include <iostream>
 #include <cinttypes>
 
@@ -23,8 +22,8 @@ namespace Ark
         class Frame
         {
         public:
-            Frame();
-            Frame(std::size_t caller_addr, std::size_t caller_page_addr);
+            Frame(std::size_t length);
+            Frame(std::size_t length, std::size_t caller_addr, std::size_t caller_page_addr);
 
             void copyEnvironmentTo(Frame& other);
 
@@ -43,7 +42,7 @@ namespace Ark
         private:
             std::size_t m_addr, m_page_addr;
             std::vector<Value> m_stack;
-            std::unordered_map<uint16_t, Value> m_environment;
+            std::vector<Value> m_environment;
         };
     }
 }

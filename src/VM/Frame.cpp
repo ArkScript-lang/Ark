@@ -4,20 +4,28 @@ namespace Ark
 {
     namespace VM
     {
-        Frame::Frame() :
+        Frame::Frame(std::size_t length) :
             m_addr(0),
             m_page_addr(0)
-        {}
+        {
+            auto nil = Value(NFT::Nil);
+            for (std::size_t i=0; i < length; ++i)
+                m_environment.push_back(nil);
+        }
 
-        Frame::Frame(std::size_t caller_addr, std::size_t caller_page_addr) :
+        Frame::Frame(std::size_t length, std::size_t caller_addr, std::size_t caller_page_addr) :
             m_addr(caller_addr),
             m_page_addr(caller_page_addr)
-        {}
+        {
+            auto nil = Value(NFT::Nil);
+            for (std::size_t i=0; i < length; ++i)
+                m_environment.push_back(nil);
+        }
 
         void Frame::copyEnvironmentTo(Frame& other)
         {
-            for (auto kv : m_environment)
-                other.m_environment[kv.first] = kv.second;
+            for (std::size_t i=0; i < m_environment.size(); ++i)
+                other.m_environment[i] = m_environment[i];
         }
 
         Value Frame::pop()
@@ -40,7 +48,7 @@ namespace Ark
 
         bool Frame::find(uint16_t key) const
         {
-            return m_environment.find(key) != m_environment.end();
+            return !(m_environment[key] == Value(NFT::Nil));
         }
 
         std::size_t Frame::stackSize() const
@@ -60,10 +68,9 @@ namespace Ark
 
         std::ostream& operator<<(std::ostream& os, const Frame& F)
         {
-            std::size_t i = 0;
-            for (auto kv : F.m_environment)
+            for (std::size_t i=0; i < F.m_environment.size(); ++i)
             {
-                os << static_cast<int>(kv.first) << " => " << kv.second;
+                os << (3 + i) << " => " << F.m_environment[i];
                 if (i != F.m_environment.size() - 1)
                     os << ", ";
             }
