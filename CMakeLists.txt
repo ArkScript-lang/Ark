@@ -36,7 +36,11 @@ if (DEBUG MATCHES "true")
 else()
     # release mode
     message(STATUS "Release mode ON")
-    set(CMAKE_CXX_FLAGS "-DNDEBUG -O4 -s")
+    if (CMAKE_COMPILER_IS_GNUCXX)
+        set(CMAKE_CXX_FLAGS "-DNDEBUG -O4 -s")
+    elseif(MSVC)
+        set(CMAKE_CXX_FLAGS "/O4")
+    endif()
 endif()
 
 # configuring Constants.hpp
