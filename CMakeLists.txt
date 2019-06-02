@@ -22,6 +22,13 @@ else()
     set(ARK_USE_MPIR_ 1)
 endif()
 
+if (NOT BUILD_MODULES)
+    message(STATUS "To build the modules, use -DBUILD_MODULES=\"true\"")
+    message(STATUS "Not building the modules")
+
+    set(BUILD_MODULES "false" CACHE STRING "Build the modules" FORCE)
+endif()
+
 if (NOT TESTCPP)
     message(STATUS "To use test.cpp instead of main.cpp, use -DTESTCPP=true")
     message(STATUS "Using main.cpp")
@@ -39,7 +46,7 @@ else()
     if (CMAKE_COMPILER_IS_GNUCXX)
         set(CMAKE_CXX_FLAGS "-DNDEBUG -O4 -s")
     elseif(MSVC)
-        set(CMAKE_CXX_FLAGS "/O4")
+        set(CMAKE_CXX_FLAGS "/Ox")
     endif()
 endif()
 
@@ -52,7 +59,9 @@ set(ARK_STD ${CMAKE_INSTALL_PREFIX}/share/.Ark/lib)
 set(ARK_COMPILATION_OPTIONS ${CMAKE_CXX_FLAGS})
 set(ARK_COMPILER ${CMAKE_CXX_COMPILER_ID})
 
-add_subdirectory(${Ark_SOURCE_DIR}/modules)
+if (BUILD_MODULES MATCHES "true")
+    add_subdirectory(${Ark_SOURCE_DIR}/modules)
+endif()
 
 configure_file(
     ${Ark_SOURCE_DIR}/include/Ark/Constants.hpp.in
