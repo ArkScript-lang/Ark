@@ -35,8 +35,7 @@ namespace Ark
             bool m_debug;
             std::vector<Token> m_tokens;
             const std::vector<std::regex> m_regexs = {
-                std::regex("^\"[^\"]*\"")  // strings
-                , std::regex("^[\\(\\)\\[\\]\\{\\}]")  // parenthesis
+                  std::regex("^\"[^\"]*\"")  // strings
                 , std::regex("^((\\+|-)?[[:digit:]]+)([\\.|/](([[:digit:]]+)?))?")  // numbers
                 , std::regex("^(\\+|-|\\*|/|<=|>=|!=|<|>|=|\\^|@)")  // operators
                 , std::regex("^[a-zA-Z_][a-zA-Z0-9_\\-!?']*")  // words

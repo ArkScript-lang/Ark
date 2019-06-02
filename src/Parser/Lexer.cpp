@@ -46,8 +46,18 @@ namespace Ark
                 }
                 if (!ok)
                 {
-                    Ark::logger.error("[Lexer] Tokenizing error at " + Ark::Utils::toString(line) + ":" + Ark::Utils::toString(character - 1));
-                    break;
+                    std::string p = s.substr(0, 1);
+                    if (p == "(" || p == ")" || p == "[" || p == "]" || p == "{" || p == "}")
+                    {
+                        m_tokens.push_back({ p, line, character });
+                        character++;
+                        s = s.substr(1);
+                    }
+                    else
+                    {
+                        Ark::logger.error("[Lexer] Tokenizing error at " + Ark::Utils::toString(line) + ":" + Ark::Utils::toString(character - 1));
+                        break;
+                    }
                 }
             }
 
