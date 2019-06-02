@@ -1,8 +1,6 @@
 {
-    (import "Defer.ark")
-
     (let f (fun (n) (print n)))
-    (let df (defer1 f 5))
+    (let df (quote (f 5)))
 
     (df)
 }

@@ -4,17 +4,19 @@
 ### Added
 - option in the CMakeLists.txt to use MPIR or not (defaults to no MPIR)
 - information about the compilation options used for Ark in the CLI
+- we can now use `` ` `` to quote
 
 ### Changed
 - using a vector instead of a map in the `Frame` to speed up things
 - using double or MPIR depending on the compilation options
 
 ### Removed
+- `Defer.ark` from the standard library
 
 # 2.1.0
 ### Added
 - adding `switch` and `defer1` in the standard library (`defer1` shall be rewritten using `quote`)
-- keyword `quote`, macro version is `\``
+- keyword `quote`, macro version is `` ` ``
 - added VM::get<T>(name) to retrieve values from the top stack of the Virtual Machine. Types currently supported are `Ark::BigNum`, `std::string` and `bool`
 - adding `mod` in the standard library
 - module `sfml`, need the SFML 2.5

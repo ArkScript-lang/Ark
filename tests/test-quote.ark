@@ -3,15 +3,10 @@
     (print (quote foo))
     (print (quote (foo 5)))
 
-    (let defer (fun (o)
-        (fun () (o))
-    ))
-    (let df (defer
-        (quote (foo 5))
-    ))
+    (let df `(foo 5))
     
     (df)
 
     (let a (quote (foo 5)))
-    '(a)
+    (a)
 }

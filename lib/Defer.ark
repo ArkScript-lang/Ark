@@ -1,5 +1,0 @@
-{
-    (let defer1 (fun (f a)
-        (fun () (f a))
-    ))
-}

@@ -250,25 +250,42 @@ namespace Ark
 
         void Parser::checkForQuote(Node& n)
         {
-            /*if (n.nodeType() == NodeType::List)
+            if (n.nodeType() == NodeType::List)
             {
-                for (Node::Iterator it=n.begin(); it != n.end(); ++it)
+                std::size_t i = 0;
+                Nodes::iterator it = n.list().begin();
+
+                while (true)
                 {
+                    if (it == n.list().end())
+                        break;
+
                     if (it->nodeType() == NodeType::Symbol && it->getStringVal() == "`")
                     {
                         Node temp(NodeType::List);
 
                         temp.push_back(Node(NodeType::Keyword, Keyword::Quote));
-                        for (Node::Iterator it2=n.begin() + 1; it2 != n.end(); ++it2)
+                        while (true)
                         {
+                            Nodes::iterator it2 = n.list().begin() + 1 + i;
+                            if (it2 == n.list().end())
+                                break;
+                            
                             checkForQuote(*it2);
                             temp.push_back(*it2);
+                            n.list().erase(it2);
                         }
 
                         *it = temp;
+                        it = n.list().begin();
                     }
+                    else if (it->nodeType() == NodeType::List)
+                        checkForQuote(*it);
+
+                    ++i;
+                    ++it;
                 }
-            }*/
+            }
         }
         
         bool Parser::_check(const Node& ast)
