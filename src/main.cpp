@@ -95,6 +95,10 @@ void vm(bool debug, bool timer, const std::string& file, bool count_fcall)
 void repl(bool debug, bool timer)
 {
     std::cout << "Ark " << ARK_VERSION_MAJOR << "." << ARK_VERSION_MINOR << "." << ARK_VERSION_PATCH << std::endl;
+    std::cout << ARK_COMPILER << " " << ARK_COMPILATION_OPTIONS << std::endl;
+#ifdef ARK_USE_MPIR
+    std::cout << "Compiled using MPIR 3.0.0" << std::endl;
+#endif
     std::cout << "Type \"help\" for more information" << std::endl;
 
     Ark::Lang::Environment env;

@@ -3,6 +3,7 @@
 ## Unreleased
 ### Added
 - option in the CMakeLists.txt to use MPIR or not (defaults to no MPIR)
+- information about the compilation options used for Ark in the CLI
 
 ### Changed
 - using a vector instead of a map in the `Frame` to speed up things
