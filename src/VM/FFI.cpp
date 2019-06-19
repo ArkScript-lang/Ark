@@ -2,6 +2,8 @@
 
 #include <iostream>
 #include <Ark/Log.hpp>
+#undef abs
+#include <cmath>
 
 namespace Ark
 {

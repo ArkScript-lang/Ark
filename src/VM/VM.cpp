@@ -9,6 +9,8 @@
 #include <Ark/VM/FFI.hpp>
 #include <Ark/FFI.hpp>
 #include <Ark/Utils.hpp>
+#undef abs
+#include <cmath>
 
 namespace Ark
 {

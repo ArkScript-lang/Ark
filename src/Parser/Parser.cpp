@@ -106,22 +106,9 @@ namespace Ark
 
         Node Parser::atom(const Token& token)
         {
-            if (Ark::Utils::isInteger(token.token) || Ark::Utils::isFraction(token.token))
+            if (Ark::Utils::isInteger(token.token) || Ark::Utils::isFloat(token.token))
             {
                 auto n = Node(NodeType::Number, std::stod(token.token));
-                n.setPos(token.line, token.col);
-                return n;
-            }
-            if (Ark::Utils::isFloat(token.token))
-            {
-                std::string content = token.token;
-                auto it = content.find_first_of('.');
-                std::size_t decimals = std::distance(content.begin() + it, content.end());
-                content.erase(content.begin() + it);
-                content += "/1";
-                for (std::size_t _i=0; ++_i != decimals; content += "0");
-
-                auto n = Node(NodeType::Number, std::stod(content));
                 n.setPos(token.line, token.col);
                 return n;
             }
@@ -472,7 +459,7 @@ namespace Ark
                         if (s == "+" || s == "-" || s == "/" || s == "*" || s == "and" || s == "or")
                             b = p.size() > 2;
                         // exactly 2 arguments
-                        else if (s == "<" || s == ">" || s == "<=" || s == ">=" || s == "!=" || s == "=" || s == "assert" || s == "@")
+                        else if (s == "<" || s == ">" || s == "<=" || s == ">=" || s == "!=" || s == "=" || s == "assert" || s == "@" || s == "mod")
                             b = p.size() == 3;
                         // exactly 1 argument
                         else if (s == "len" || s == "empty?" || s == "firstof" || s == "tailof" || s == "headof" || s == "nil?" || s == "toNumber" || s == "toString")

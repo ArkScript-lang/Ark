@@ -61,6 +61,8 @@
     FFI_Function(or_);  // or +
     FFI_Function(headof);  // headof 1
 
+    FFI_Function(mod);  // mod 2
+
     #ifdef FFI_INTERPRETER
         void registerLib(Environment& env);
     #endif  // FFI_INTERPRETER
@@ -409,6 +411,16 @@
         return r;
     }
 
+    FFI_Function(mod)
+    {
+        if (!FFI_isNumber(n[0]))
+            FFI_throwTypeError("Arguments of mod should be Numbers");
+        if (!FFI_isNumber(n[1]))
+            FFI_throwTypeError("Arguments of mod should be Numbers");
+        
+        return FFI_Value(std::fmod(FFI_number(n[0]), FFI_number(n[1])));
+    }
+
     // ------------------------------
 
     #ifdef FFI_INTERPRETER
@@ -450,6 +462,8 @@
             env["and"] = Node(&and_);
             env["or"] = Node(&or_);
             env["headof"] = Node(&headof);
+
+            env["mod"] = Node(&mod);
         }
     #endif  // FFI_INTERPRETER
 #elif defined(FFI_MAKE_EXTERNS_INC)
@@ -461,7 +475,8 @@
         "len", "empty?", "firstof", "tailof", "append", "concat", "list", "nil?",
         "print", "assert", "input",
         "toNumber", "toString",
-        "@", "and", "or", "headof"
+        "@", "and", "or", "headof",
+        "mod"
     };
 #elif defined(FFI_INIT_VM_FFI)
     m_ffi.push_back(&FFI::add);
@@ -496,4 +511,6 @@
     m_ffi.push_back(&FFI::and_);
     m_ffi.push_back(&FFI::or_);
     m_ffi.push_back(&FFI::headof);
+
+    m_ffi.push_back(&FFI::mod);
 #endif  // FFI_MAKE_HEADER | FFI_MAKE_SOURCE | FFI_MAKE_EXTERNS_INC | FFI_MAKE_EXTERNS_SRC | FFI_INIT_VM_FFI

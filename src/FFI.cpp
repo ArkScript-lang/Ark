@@ -1,5 +1,7 @@
 #include <Ark/FFI.hpp>
 
+#include <cmath>
+
 namespace Ark
 {
     namespace FFI
