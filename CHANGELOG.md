@@ -9,6 +9,7 @@
 ### Changed
 - using a vector instead of a map in the `Frame` to speed up things
 - using double or MPIR depending on the compilation options
+- moving `mod` in the FFI
 
 ### Removed
 - `Defer.ark` from the standard library
