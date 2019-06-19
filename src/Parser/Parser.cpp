@@ -108,7 +108,7 @@ namespace Ark
         {
             if (Ark::Utils::isInteger(token.token) || Ark::Utils::isFraction(token.token))
             {
-                auto n = Node(NodeType::Number, Ark::BigNum(token.token));
+                auto n = Node(NodeType::Number, std::stod(token.token));
                 n.setPos(token.line, token.col);
                 return n;
             }
@@ -121,7 +121,7 @@ namespace Ark
                 content += "/1";
                 for (std::size_t _i=0; ++_i != decimals; content += "0");
 
-                auto n = Node(NodeType::Number, Ark::BigNum(content));
+                auto n = Node(NodeType::Number, std::stod(content));
                 n.setPos(token.line, token.col);
                 return n;
             }

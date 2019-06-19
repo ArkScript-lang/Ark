@@ -1,0 +1,14 @@
+{
+    (import "Switch.ark")
+
+    (let foo (fun (n) (print n)))
+    (let event "foo")
+
+    (switch event [
+        ["coucou" `(foo 12)]
+        ["hello" `(foo 13)]
+        ["world" `(foo 14)]
+        ["earth" `(foo 15)]
+        ["foo" `(foo 16)]
+    ])
+}

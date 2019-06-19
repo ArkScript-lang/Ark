@@ -12,6 +12,7 @@
 
 ### Removed
 - `Defer.ark` from the standard library
+- supporting both BigNum and double is a bad idea, using only double now
 
 # 2.1.0
 ### Added

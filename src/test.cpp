@@ -33,7 +33,7 @@ int main()
     program.feed(g_code);
     program.execute();
     
-    auto a = program.get<Ark::BigNum>("a");
+    auto a = program.get<double>("a");
     auto b = program.get<std::string>("b");
     auto life = program.get<Ark::Function>("life");
     

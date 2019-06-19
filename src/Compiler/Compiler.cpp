@@ -80,8 +80,8 @@ namespace Ark
                 if (val.type == ValueType::Number)
                 {
                     m_bytecode.push_back(Instruction::NUMBER_TYPE);
-                    auto n = std::get<BigNum>(val.value);
-                    std::string t = n.toString();
+                    auto n = std::get<double>(val.value);
+                    std::string t = Ark::Utils::toString(n);
                     for (std::size_t i=0; i < t.size(); ++i)
                         m_bytecode.push_back(t[i]);
                 }

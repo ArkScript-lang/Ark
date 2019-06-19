@@ -1,10 +1,7 @@
 {
     (import "libsfml.so")
-    (import "librandom.so")
-    (import "Arithmetic.ark")
     (import "Exceptions.ark")
     (import "Switch.ark")
-    (import "Defer.ark")
 
     (sf-window-init 600 600 "ArkSnake")
     (sf-window-setFPS 60)
@@ -12,7 +9,7 @@
     ' stuff needed for the texts
     (let font (sf-load-font "FreeSansBold.ttf"))
     (let hello_text (sf-make-text font "Hello!" 18 [255 255 255]))
-    (sf-setPos hello_text (/ (- 600 (sf-width hello_text)) 2) 10)
+    (sf-setPos hello_text (/ (- 600 (sf-width hello_text)) 2) 580)
 
     ' the board object
     ' 0 => empty, 1 => apple
@@ -29,7 +26,12 @@
                 (let line [])
 
                 (while (!= _x 20) {
-                    (let case (mod (random-10) 2))
+                    (let t 0)  ' empty
+                    (if (or (and (= _y 10) (= _x 5)) (and (= _y 5) (= _x 2)) (and (= _y 12) (= _x 12)))
+                        (set t 1)
+                        (set t 0)
+                    )
+                    (let case t)
                     (set line (append line case))
                     (set _x (+ 1 _x))
                 })
@@ -42,7 +44,6 @@
 
         (fun (f) {
             (let draw_board (fun () {
-                (print "draw board")
                 (let y 0)
                 (while (!= y 20) {
                     (let x 0)
@@ -90,7 +91,40 @@
 
             (let eat_apple_at (fun (x y)
                 (if (and (>= x 0) (>= y 0) (< y 20) (< x 20))
-                    (return (= 1 (@ (@ data y) x)))
+                    {
+                        (let test (= 1 (@ (@ data y) x)))
+                        (if test
+                            ' remove apple
+                            {
+                                (let _y 0)
+                                (let _data [])
+
+                                (while (!= _y 20) {
+                                    (let _x 0)
+                                    (let line [])
+
+                                    (if (= _y y)
+                                        ' then
+                                        (while (!= _x 20) {
+                                            (let case (@ (@ data _y) _x))
+                                            (if (= _x x) (set case 0) ())
+                                            (set line (append line case))
+                                            (set _x (+ 1 _x))
+                                        })
+                                        ' else
+                                        (set line (@ data _y))
+                                    )
+
+                                    (set _data (append _data line))
+                                    (set _y (+ 1 _y))
+                                })
+
+                                (set data _data)
+                            }
+                            ()
+                        )
+                        (return test)
+                    }
                     (throw "Out of bounds")
                 )
             ))
@@ -149,7 +183,6 @@
             }))
 
             (let draw (fun () {
-                (print "draw snake")
                 (let acc 0)
                 (while (!= acc (len pos)) {
                     (let current (@ pos acc))
@@ -176,6 +209,8 @@
 
     (print "beginning...")
 
+    (let i 0)
+
     (while (sf-window-isOpen) {
         ' event handling
         (snake snake-reset-auto-move)
@@ -183,14 +218,32 @@
         (let event (sf-poll-event))
 
         (switch event [
-            [(sf-event "quit") (defer1 sf-window-close)]
-            [(sf-event "keyup" "up") (defer1 snake snake-move-up)]
-            [(sf-event "keyup" "down") (defer1 snake snake-move-down)]
-            [(sf-event "keyup" "right") (defer1 snake snake-move-right)]
-            [(sf-event "keyup" "left") (defer1 snake snake-move-left)]
+            [(sf-event "quit") `(sf-window-close)]
+            [(sf-event "keyup" "up") `(snake snake-move-up)]
+            [(sf-event "keyup" "down") `(snake snake-move-down)]
+            [(sf-event "keyup" "right") `(snake snake-move-right)]
+            [(sf-event "keyup" "left") `(snake snake-move-left)]
         ])
 
-        (snake snake-auto-move)
+        ' update
+        (if (board board-has-apple-left?)
+            {
+                (print "victoire royale !")
+                (sf-window-close)
+            }
+            ()
+        )
+        (switch i [
+            [0 `(snake snake-move-down)]
+            [1 `(snake snake-move-down)]
+            [2 `(snake snake-move-down)]
+            [3 `(snake snake-move-down)]
+            [4 `(snake snake-move-down)]
+            [5 `(snake snake-move-right)]
+            [6 `(snake snake-move-right)]
+        ])
+        (set i (+ 1 i))
+        ' (snake snake-auto-move)
 
         ' rendering
         (sf-window-clear 0 0 0)

@@ -1,6 +1,7 @@
 #include <Ark/VM/Value.hpp>
 
 #include <Ark/VM/Frame.hpp>
+#include <Ark/Utils.hpp>
 
 namespace Ark
 {
@@ -11,10 +12,10 @@ namespace Ark
         {}
 
         Value::Value(int value) :
-            m_value(BigNum(value)), m_is_list(false)
+            m_value(static_cast<double>(value)), m_is_list(false)
         {}
 
-        Value::Value(const BigNum& value) :
+        Value::Value(double value) :
             m_value(value), m_is_list(false)
         {}
 
@@ -55,7 +56,7 @@ namespace Ark
 
         bool Value::isNumber() const
         {
-            return !m_is_list && std::holds_alternative<BigNum>(m_value);
+            return !m_is_list && std::holds_alternative<double>(m_value);
         }
 
         bool Value::isString() const
@@ -88,9 +89,9 @@ namespace Ark
             return !m_is_list && std::holds_alternative<Closure>(m_value);
         }
 
-        const BigNum& Value::number() const
+        const double Value::number() const
         {
-            return std::get<BigNum>(m_value);
+            return std::get<double>(m_value);
         }
 
         const std::string& Value::string() const
@@ -142,7 +143,7 @@ namespace Ark
         std::ostream& operator<<(std::ostream& os, const Value& V)
         {
             if (V.isNumber())
-                os << V.number().toString();
+                os << Ark::Utils::toString(V.number());
             else if (V.isString())
                 os << V.string();
             else if (V.isPageAddr())

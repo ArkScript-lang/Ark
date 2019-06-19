@@ -5,7 +5,14 @@
     (while (!= acc end) {
         (let r (@ tests acc))
         (let bis (@ r 0))
-        (if (= value bis) {(@ r 1) (set acc end)} ())
+        (if (= bis value)
+            {
+                (let df (@ r 1))
+                (df)
+                (set acc (- end 1))
+            }
+            ()
+        )
 
         (set acc (+ 1 acc))
     })

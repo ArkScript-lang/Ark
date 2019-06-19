@@ -13,5 +13,5 @@
         )
     }))
 
-    (print (ackermann 3 6))
+    (ackermann 3 6)
 }

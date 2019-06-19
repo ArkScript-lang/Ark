@@ -6,13 +6,13 @@ namespace Ark
     {
         using namespace Ark::Lang;
 
-        Value::Value(int value) :
-            value(BigNum(value)),
+        Value::Value(double value) :
+            value(value),
             type(ValueType::Number)
         {}
 
         Value::Value(long value) :
-            value(BigNum(value)),
+            value(static_cast<double>(value)),
             type(ValueType::Number)
         {}
 

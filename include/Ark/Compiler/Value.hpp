@@ -4,7 +4,6 @@
 #include <variant>
 #include <string>
 
-#include <Ark/BigNum.hpp>
 #include <Ark/Lang/Node.hpp>
 
 namespace Ark
@@ -20,10 +19,10 @@ namespace Ark
 
         struct Value
         {
-            std::variant<BigNum, std::string, std::size_t> value;
+            std::variant<double, std::string, std::size_t> value;
             ValueType type;
 
-            Value(int value);
+            Value(double value);
             Value(long value);
             Value(const std::string& value);
             Value(const Ark::Lang::Node& v);

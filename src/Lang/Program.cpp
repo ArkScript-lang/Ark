@@ -56,7 +56,7 @@ namespace Ark
             m_global_env[name] = Node(function);
         }
         
-        template <> BigNum Program::get<BigNum>(const std::string& key)
+        template <> double Program::get<double>(const std::string& key)
         {
             Node& n = m_global_env.find(key)[key];
             if (n.nodeType() == NodeType::Number)

@@ -7,7 +7,6 @@
 #include <vector>
 #include <unordered_map>
 
-#include <Ark/BigNum.hpp>
 #include <Ark/Exceptions.hpp>
 
 namespace Ark
@@ -45,14 +44,14 @@ namespace Ark
             using ProcType = Node(*)(const std::vector<Node>&);
             using Iterator = std::vector<Node>::const_iterator;
             using Map = std::unordered_map<std::string, Node>;
-            using Value = std::variant<BigNum, std::string>;
+            using Value = std::variant<double, std::string>;
 
             Node(int value);
-            Node(const BigNum& value);
+            Node(double value);
             Node(const std::string& value);
             Node(NodeType type=NodeType::Symbol);
             Node(NodeType type, int value);
-            Node(NodeType type, const BigNum& value);
+            Node(NodeType type, double value);
             Node(NodeType type, const std::string& value);
             Node(NodeType type, Keyword value);
             Node(Node::ProcType proc);
@@ -61,7 +60,7 @@ namespace Ark
             Environment* getEnv();
 
             const std::string& getStringVal() const;
-            const BigNum getIntVal() const;
+            const double getIntVal() const;
             const ProcType getProcVal() const;
             void push_back(const Node& node);
 

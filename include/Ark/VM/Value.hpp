@@ -3,7 +3,6 @@
 
 #include <vector>
 #include <variant>
-#include <Ark/BigNum.hpp>
 #include <string>
 #include <cinttypes>
 #include <iostream>
@@ -24,11 +23,11 @@ namespace Ark
         public:
             using ProcType  = Value(*)(const std::vector<Value>&);
             using Iterator = std::vector<Value>::const_iterator;
-            using ValueType = std::variant<BigNum, std::string, PageAddr_t, NFT, ProcType, Closure>;
+            using ValueType = std::variant<double, std::string, PageAddr_t, NFT, ProcType, Closure>;
 
             Value(bool is_list=false);
             Value(int value);
-            Value(const BigNum& value);
+            Value(double value);
             Value(const std::string& value);
             Value(PageAddr_t value);
             Value(NFT value);
@@ -46,7 +45,7 @@ namespace Ark
             bool isList() const;
             bool isClosure() const;
 
-            const BigNum& number() const;
+            const double number() const;
             const std::string& string() const;
             const PageAddr_t pageAddr() const;
             const NFT nft() const;

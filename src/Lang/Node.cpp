@@ -8,11 +8,11 @@ namespace Ark
     {
         Node::Node(int value) :
             m_type(NodeType::Number),
-            m_value(BigNum(value)),
+            m_value(static_cast<double>(value)),
             m_env(nullptr)
         {}
 
-        Node::Node(const BigNum& value) :
+        Node::Node(double value) :
             m_type(NodeType::Number),
             m_value(value),
             m_env(nullptr)
@@ -30,11 +30,11 @@ namespace Ark
 
         Node::Node(NodeType type, int value) :
             m_type(type),
-            m_value(BigNum(value)),
+            m_value(static_cast<double>(value)),
             m_env(nullptr)
         {}
 
-        Node::Node(NodeType type, const BigNum& value) :
+        Node::Node(NodeType type, double value) :
             m_type(type),
             m_value(value),
             m_env(nullptr)
@@ -48,7 +48,7 @@ namespace Ark
 
         Node::Node(NodeType type, Keyword value) :
             m_type(type),
-            m_value(BigNum(0)),
+            m_value(0.0),
             m_keyword(value),
             m_env(nullptr)
         {}
@@ -74,9 +74,9 @@ namespace Ark
             return std::get<std::string>(m_value);
         }
 
-        const BigNum Node::getIntVal() const
+        const double Node::getIntVal() const
         {
-            return std::get<BigNum>(m_value);
+            return std::get<double>(m_value);
         }
         
         const Node::ProcType Node::getProcVal() const
@@ -150,7 +150,7 @@ namespace Ark
                 break;
 
             case NodeType::Number:
-                os << std::get<BigNum>(N.m_value);
+                os << std::get<double>(N.m_value);
                 break;
 
             case NodeType::List:

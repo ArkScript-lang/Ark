@@ -2,7 +2,6 @@
 #define ark_ark
 
 #include <Ark/Exceptions.hpp>
-#include <Ark/BigNum.hpp>
 #include <Ark/Lang/Program.hpp>
 #include <Ark/Function.hpp>
 #include <Ark/Constants.hpp>

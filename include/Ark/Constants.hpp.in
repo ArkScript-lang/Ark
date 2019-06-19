@@ -9,10 +9,4 @@
 #define ARK_COMPILATION_OPTIONS "@ARK_COMPILATION_OPTIONS@"
 #define ARK_COMPILER "@ARK_COMPILER@"
 
-#define ARK_USE_MPIR_ @ARK_USE_MPIR_@
-#if ARK_USE_MPIR_ == 1
-    #define ARK_USE_MPIR
-#endif
-#undef ARK_USE_MPIR_
-
 #endif  // ark_constants

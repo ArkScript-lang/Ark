@@ -8,7 +8,7 @@ The language itself is very small since it has only 8 keywords: `begin`, `if`, `
 
 Blocks are surrounded by `()`. Creating a block with `[...]` will expand to `(list ...)`, and creating one with `{...}` will expand to `(begin ...)`.
 
-`1257756`, `-78/54` and `-1.2` are numbers. Internally, they are stored on `Ark::BigNum`, which allows to store really big numbers without the usual limitation (32 or 64 bits).
+`1257756`, `-78/54` and `-1.2` are numbers.
 
 `"hello world"` is a string.
 

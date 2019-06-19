@@ -352,7 +352,7 @@
         if (!FFI_isString(n[0]))
             FFI_throwTypeError("Argument of toNumber must be a String");
         
-        return FFI_Value(Ark::BigNum(FFI_string(n[0]).c_str()));
+        return FFI_Value(std::stod(FFI_string(n[0]).c_str()));
     }
 
     FFI_Function(toString)
@@ -369,7 +369,7 @@
         if (!FFI_isNumber(n[1]))
             FFI_throwTypeError("Argument 2 of @ should be a Number");
         
-        return n[0].const_list()[FFI_number(n[1]).toLong()];
+        return n[0].const_list()[static_cast<long>(FFI_number(n[1]))];
     }
 
     FFI_Function(and_)

@@ -22,7 +22,7 @@ int main()
     program.feed(g_code);
     program.execute();
     
-    auto a = program.get<Ark::BigNum>("a");
+    auto a = program.get<double>("a");
     auto b = program.get<std::string>("b");
     auto life = program.get<Ark::Function>("life");
     
@@ -50,12 +50,12 @@ If you run it a second time, the environment won't be reset.
 ### Getting values from a program
 
 ```cpp
-auto my_integer = program.get<Ark::BigNum>("my_ark_integer");
+auto my_integer = program.get<double>("my_ark_integer");
 ```
 
-The types supported by `.get<>` are: Ark::BigNum, std::string and Function.
+The types supported by `.get<>` are: double, std::string and Function.
 
-A Function can take Ark::BigNum and std::string (multiple arguments are supported).
+A Function can take double and std::string (multiple arguments are supported).
 
 ### Registering a C++ function into an Ark program
 

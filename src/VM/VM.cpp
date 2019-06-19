@@ -161,7 +161,7 @@ namespace Ark
             frontFrame()[static_cast<uint16_t>(std::distance(m_symbols.begin(), it))] = Value(function);
         }
 
-        template <> BigNum VM::get<BigNum>(const std::string& name)
+        template <> double VM::get<double>(const std::string& name)
         {
             auto it = std::find(m_symbols.begin(), m_symbols.end(), name);
             if (it != m_symbols.end())
@@ -302,7 +302,7 @@ namespace Ark
                             val.push_back(b[i++]);
                         i++;
 
-                        m_constants.emplace_back(BigNum(val));
+                        m_constants.emplace_back(std::stod(val));
                         
                         if (m_debug)
                             Ark::logger.info("(Virtual Machine) - (Number)", val);
