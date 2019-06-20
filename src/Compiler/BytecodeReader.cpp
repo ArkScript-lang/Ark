@@ -3,6 +3,8 @@
 #include <Ark/Compiler/Instructions.hpp>
 #include <Ark/FFI.hpp>
 #include <Ark/Log.hpp>
+#undef abs
+#include <Ark/Utils.hpp>
 
 namespace Ark
 {
@@ -50,6 +52,10 @@ namespace Ark
             }
             os << "Magic: ark\\0\n\n";
 
+            std::vector<std::string> symbols;
+            std::vector<std::string> values;
+            std::vector<std::string> plugins;
+
             if (b[i] == Instruction::SYM_TABLE_START)
             {
                 os << "Symbols table:\n"; i++;
@@ -58,10 +64,12 @@ namespace Ark
                 for (uint16_t j=0; j < size; ++j)
                 {
                     os << "- ";
+                    std::string content = "";
                     while (b[i] != 0)
-                        os << b[i++];
+                        content += b[i++];
                     i++;
-                    os << "\n";
+                    os << content << "\n";
+                    symbols.push_back(content);
                 }
                 os << "\n";
             }
@@ -82,6 +90,7 @@ namespace Ark
                             val.push_back(b[i++]);
                         i++;
                         os << "(Number) " << val;
+                        values.push_back("(Number) " + val);
                     }
                     else if (type == Instruction::STRING_TYPE)
                     {
@@ -90,11 +99,13 @@ namespace Ark
                             val.push_back(b[i++]);
                         i++;
                         os << "(String) " << val;
+                        values.push_back("(String) " + val);
                     }
                     else if (type == Instruction::FUNC_TYPE)
                     {
                         uint16_t addr = readNumber(i); i++;
                         os << "(PageAddr) " << addr;
+                        values.push_back("(PageAddr) " + Ark::Utils::toString(addr));
                         i++;
                     }
                     else
@@ -115,10 +126,12 @@ namespace Ark
                 for (uint16_t j=0; j < size; ++j)
                 {
                     os << "- ";
+                    std::string content = "";
                     while (b[i] != 0)
-                        os << b[i++];
+                        content += b[i++];
                     i++;
-                    os << "\n";
+                    os << content << "\n";
+                    plugins.push_back(content);
                 }
                 os << "\n";
             }
@@ -138,43 +151,44 @@ namespace Ark
                     uint16_t j = i;
                     while (true)
                     {
-                        os << (i - j) << " ";
+                        os << termcolor::cyan << (i - j) << termcolor::reset << " " << termcolor::yellow;
                         uint8_t inst = b[i]; i++;
+
                         if (inst == Instruction::NOP)
                             os << "NOP\n";
                         else if (inst == Instruction::LOAD_SYMBOL)
                         {
-                            os << "LOAD_SYMBOL (" << readNumber(i) << ")\n";
+                            os << "LOAD_SYMBOL " << termcolor::green << symbols[readNumber(i) - 3] << "\n";
                             i++;
                         }
                         else if (inst == Instruction::LOAD_CONST)
                         {
-                            os << "LOAD_CONST (" << readNumber(i) << ")\n";
+                            os << "LOAD_CONST " << termcolor::magenta << values[readNumber(i)] << "\n";
                             i++;
                         }
                         else if (inst == Instruction::POP_JUMP_IF_TRUE)
                         {
-                            os << "POP_JUMP_IF_TRUE (" << readNumber(i) << ")\n";
+                            os << "POP_JUMP_IF_TRUE " << termcolor::red << "(" << readNumber(i) << ")\n";
                             i++;
                         }
                         else if (inst == Instruction::STORE)
                         {
-                            os << "STORE (" << readNumber(i) << ")\n";
+                            os << "STORE " << termcolor::green << symbols[readNumber(i) - 3] << "\n";
                             i++;
                         }
                         else if (inst == Instruction::LET)
                         {
-                            os << "LET (" << readNumber(i) << ")\n";
+                            os << "LET " << termcolor::green << symbols[readNumber(i) - 3] << "\n";
                             i++;
                         }
                         else if (inst == Instruction::POP_JUMP_IF_FALSE)
                         {
-                            os << "POP_JUMP_IF_FALSE (" << readNumber(i) << ")\n";
+                            os << "POP_JUMP_IF_FALSE " << termcolor::red << "(" << readNumber(i) << ")\n";
                             i++;
                         }
                         else if (inst == Instruction::JUMP)
                         {
-                            os << "JUMP (" << readNumber(i) << ")\n";
+                            os << "JUMP " << termcolor::red << "(" << readNumber(i) << ")\n";
                             i++;
                         }
                         else if (inst == Instruction::RET)
@@ -183,14 +197,14 @@ namespace Ark
                             os << "HALT\n";
                         else if (inst == Instruction::CALL)
                         {
-                            os << "CALL (" << readNumber(i) << ")\n";
+                            os << "CALL " << termcolor::reset << "(" << readNumber(i) << ")\n";
                             i++;
                         }
                         else if (inst == Instruction::NEW_ENV)
                             os << "NEW_ENV\n";
                         else if (inst == Instruction::BUILTIN)
                         {
-                            os << "BUILTIN (" << Ark::FFI::builtins[readNumber(i)] << ")\n";
+                            os << "BUILTIN " << termcolor::reset << Ark::FFI::builtins[readNumber(i)] << "\n";
                             i++;
                         }
                         else if (inst == Instruction::SAVE_ENV)
@@ -205,7 +219,7 @@ namespace Ark
                             break;
                     }
                 }
-                os << "\n";
+                os << "\n" << termcolor::reset;
                 ++pp;
             }
         }
