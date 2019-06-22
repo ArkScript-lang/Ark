@@ -7,14 +7,12 @@
 #include <vector>
 
 #include <Ark/Parser/Lexer.hpp>
-#include <Ark/Lang/Node.hpp>
+#include <Ark/Parser/Node.hpp>
 
 namespace Ark
 {
     namespace Parser
     {
-        using namespace Ark::Lang;
-    
         class Parser
         {
         public:

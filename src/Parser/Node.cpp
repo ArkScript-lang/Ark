@@ -74,9 +74,19 @@ namespace Ark
             m_type = type;
         }
 
+        void Node::setString(const std::string& value)
+        {
+            std::get<std::string>(m_value) = value;
+        }
+
+        void Node::setNumber(double value)
+        {
+            std::get<double>(m_value) = value;
+        }
+
         void Node::setKeyword(Keyword kw)
         {
-            m_keyword = kw;
+            std::get<Keyword>(m_value) = kw;
         }
 
         // -------------------------
@@ -105,11 +115,11 @@ namespace Ark
             {
             case NodeType::String:
             case NodeType::Symbol:
-                os << std::get<std::string>(N.m_value);
+                os << N.string();
                 break;
 
             case NodeType::Number:
-                os << std::get<double>(N.m_value);
+                os << N.number();
                 break;
 
             case NodeType::List:
@@ -126,7 +136,7 @@ namespace Ark
                 break;
             
             case NodeType::Keyword:
-                switch(N.m_keyword)
+                switch(N.keyword())
                 {
                 case Keyword::Fun:    os << "Fun";    break;
                 case Keyword::Let:    os << "Let";    break;

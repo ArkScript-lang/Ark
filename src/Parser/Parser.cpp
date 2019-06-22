@@ -108,7 +108,7 @@ namespace Ark
         {
             if (Ark::Utils::isInteger(token.token) || Ark::Utils::isFloat(token.token))
             {
-                auto n = Node(NodeType::Number, std::stod(token.token));
+                auto n = Node(std::stod(token.token));
                 n.setPos(token.line, token.col);
                 return n;
             }
@@ -118,7 +118,7 @@ namespace Ark
                 str.erase(0, 1);
                 str.erase(token.token.size() - 2, 1);
 
-                auto n = Node(NodeType::String, str);
+                auto n = Node(str);
                 n.setPos(token.line, token.col);
                 return n;
             }
@@ -142,12 +142,13 @@ namespace Ark
                 kw = Keyword::Quote;
             if (kw)
             {
-                auto n = Node(NodeType::Keyword, kw.value());
+                auto n = Node(kw.value());
                 n.setPos(token.line, token.col);
                 return n;
             }
             
-            auto n = Node(NodeType::Symbol, token.token);
+            auto n = Node(NodeType::Symbol);
+            n.setString(token.token);
             n.setPos(token.line, token.col);
             return n;
         }
@@ -251,7 +252,7 @@ namespace Ark
                     {
                         Node temp(NodeType::List);
 
-                        temp.push_back(Node(NodeType::Keyword, Keyword::Quote));
+                        temp.push_back(Node(Keyword::Quote));
                         while (true)
                         {
                             Nodes::iterator it2 = n.list().begin() + 1 + i;

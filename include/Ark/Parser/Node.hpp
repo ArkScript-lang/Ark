@@ -58,6 +58,8 @@ namespace Ark
 
             const NodeType nodeType() const;
             void setNodeType(NodeType type);
+            void setString(const std::string& value);
+            void setNumber(double value);
             void setKeyword(Keyword kw);
 
             void setPos(std::size_t line, std::size_t col);

@@ -4,7 +4,7 @@ namespace Ark
 {
     namespace Compiler
     {
-        using namespace Ark::Lang;
+        using namespace Ark::Parser;
 
         Value::Value(double value) :
             value(value),
@@ -25,12 +25,12 @@ namespace Ark
         {
             if (v.nodeType() == NodeType::Number)
             {
-                value = v.getIntVal();
+                value = v.number();
                 type = ValueType::Number;
             }
             else if (v.nodeType() == NodeType::String)
             {
-                value = v.getStringVal();
+                value = v.string();
                 type = ValueType::String;
             }
         }

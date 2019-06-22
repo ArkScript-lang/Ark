@@ -4,7 +4,7 @@
 #include <variant>
 #include <string>
 
-#include <Ark/Lang/Node.hpp>
+#include <Ark/Parser/Node.hpp>
 
 namespace Ark
 {
@@ -25,7 +25,7 @@ namespace Ark
             Value(double value);
             Value(long value);
             Value(const std::string& value);
-            Value(const Ark::Lang::Node& v);
+            Value(const Ark::Parser::Node& v);
             Value(std::size_t value);
 
             bool operator==(const Value& A);
