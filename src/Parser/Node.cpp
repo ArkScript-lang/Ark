@@ -35,7 +35,7 @@ namespace Ark
             return std::get<std::string>(m_value);
         }
 
-        const double Node::number() const
+        double Node::number() const
         {
             return std::get<double>(m_value);
         }

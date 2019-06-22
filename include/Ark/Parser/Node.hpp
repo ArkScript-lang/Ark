@@ -49,7 +49,7 @@ namespace Ark
             Node(NodeType type=NodeType::Symbol);
 
             const std::string& string() const;
-            const double number() const;
+            double number() const;
             const Keyword keyword() const;
 
             void push_back(const Node& node);
