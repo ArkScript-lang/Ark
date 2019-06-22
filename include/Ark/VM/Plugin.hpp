@@ -13,55 +13,52 @@
 #include <system_error>
 #include <exception>
 
-namespace Ark
+namespace Ark::internal
 {
-    namespace internal
+    class SharedLibrary
     {
-        class SharedLibrary
+    public:
+        SharedLibrary();
+        SharedLibrary(const std::string& path);
+        ~SharedLibrary();
+
+        void load(const std::string& path);
+        void unload();
+
+        template <typename T>
+        T get(const std::string& procname)
         {
-        public:
-            SharedLibrary();
-            SharedLibrary(const std::string& path);
-            ~SharedLibrary();
+            T funcptr;
 
-            void load(const std::string& path);
-            void unload();
-
-            template <typename T>
-            T get(const std::string& procname)
+#if defined(_WIN32) || defined(_WIN64)
+            if (NULL == (funcptr = reinterpret_cast<T>(GetProcAddress(m_hInstance, procname.c_str()))))
             {
-                T funcptr;
-
-#if defined(_WIN32) || defined(_WIN64)
-                if (NULL == (funcptr = reinterpret_cast<T>(GetProcAddress(m_hInstance, procname.c_str()))))
-                {
-                    throw std::system_error(
-                        std::error_code(::GetLastError(), std::system_category())
-                        , std::string("Couldn't find ") + procname
-                    );
-                }
-#elif (defined(unix) || defined(__unix) || defined(__unix__)) || defined(__APPLE__)
-                if (NULL == (funcptr = reinterpret_cast<T>(dlsym(m_hInstance, procname.c_str()))))
-                {
-                    throw std::system_error(
-                        std::error_code(errno, std::system_category())
-                        , std::string("Couldn't find ") + procname + ", " + std::string(dlerror())
-                    );
-                }
-#endif
-                return funcptr;
+                throw std::system_error(
+                    std::error_code(::GetLastError(), std::system_category())
+                    , std::string("Couldn't find ") + procname
+                );
             }
-        
-        private:
-#if defined(_WIN32) || defined(_WIN64)
-            HINSTANCE m_hInstance;
 #elif (defined(unix) || defined(__unix) || defined(__unix__)) || defined(__APPLE__)
-            void* m_hInstance;
+            if (NULL == (funcptr = reinterpret_cast<T>(dlsym(m_hInstance, procname.c_str()))))
+            {
+                throw std::system_error(
+                    std::error_code(errno, std::system_category())
+                    , std::string("Couldn't find ") + procname + ", " + std::string(dlerror())
+                );
+            }
 #endif
-            std::string m_path;
-            bool m_loaded;
-        };
-    }
+            return funcptr;
+        }
+    
+    private:
+#if defined(_WIN32) || defined(_WIN64)
+        HINSTANCE m_hInstance;
+#elif (defined(unix) || defined(__unix) || defined(__unix__)) || defined(__APPLE__)
+        void* m_hInstance;
+#endif
+        std::string m_path;
+        bool m_loaded;
+    };
 }
 
 

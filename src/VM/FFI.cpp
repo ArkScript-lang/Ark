@@ -5,19 +5,16 @@
 #undef abs
 #include <cmath>
 
-namespace Ark
+namespace Ark::internal
 {
-    namespace internal
+    namespace FFI
     {
-        namespace FFI
-        {
-            #define FFI_VM
-            #define FFI_MAKE_SOURCE
+        #define FFI_VM
+        #define FFI_MAKE_SOURCE
 
-            #include <Ark/MakeFFI.hpp>
+        #include <Ark/MakeFFI.hpp>
 
-            #undef FFI_VM
-            #undef FFI_MAKE_SOURCE
-        }
+        #undef FFI_VM
+        #undef FFI_MAKE_SOURCE
     }
 }

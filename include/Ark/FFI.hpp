@@ -6,16 +6,13 @@
 #include <iostream>
 #include <sstream>
 
-namespace Ark
+namespace Ark::FFI
 {
-    namespace FFI
-    {
-        #define FFI_MAKE_EXTERNS_INC
+    #define FFI_MAKE_EXTERNS_INC
 
-        #include <Ark/MakeFFI.hpp>
+    #include <Ark/MakeFFI.hpp>
 
-        #undef FFI_MAKE_EXTERNS_INC
-    }
+    #undef FFI_MAKE_EXTERNS_INC
 }
 
 #endif

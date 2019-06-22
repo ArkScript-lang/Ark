@@ -6,31 +6,28 @@
 
 #include <Ark/Parser/Node.hpp>
 
-namespace Ark
+namespace Ark::internal
 {
-    namespace internal
+    enum class CValueType
     {
-        enum class CValueType
-        {
-            Number,
-            String,
-            PageAddr  // for function definitions
-        };
+        Number,
+        String,
+        PageAddr  // for function definitions
+    };
 
-        struct CValue
-        {
-            std::variant<double, std::string, std::size_t> value;
-            CValueType type;
+    struct CValue
+    {
+        std::variant<double, std::string, std::size_t> value;
+        CValueType type;
 
-            CValue(double value);
-            CValue(long value);
-            CValue(const std::string& value);
-            CValue(const Node& v);
-            CValue(std::size_t value);
+        CValue(double value);
+        CValue(long value);
+        CValue(const std::string& value);
+        CValue(const Node& v);
+        CValue(std::size_t value);
 
-            bool operator==(const CValue& A);
-        };
-    }
+        bool operator==(const CValue& A);
+    };
 }
 
 #endif

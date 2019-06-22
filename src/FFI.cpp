@@ -2,14 +2,11 @@
 
 #include <cmath>
 
-namespace Ark
+namespace Ark::FFI
 {
-    namespace FFI
-    {
-        #define FFI_MAKE_EXTERNS_SRC
+    #define FFI_MAKE_EXTERNS_SRC
 
-        #include <Ark/MakeFFI.hpp>
+    #include <Ark/MakeFFI.hpp>
 
-        #undef FFI_MAKE_EXTERNS_SRC
-    }
+    #undef FFI_MAKE_EXTERNS_SRC
 }

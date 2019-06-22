@@ -7,21 +7,15 @@
 
 #include <Ark/VM/Value.hpp>
 
-namespace Ark
+namespace Ark::internal::FFI
 {
-    namespace internal
-    {
-        namespace FFI
-        {
-            #define FFI_VM
-            #define FFI_MAKE_HEADER
+    #define FFI_VM
+    #define FFI_MAKE_HEADER
 
-            #include <Ark/MakeFFI.hpp>
+    #include <Ark/MakeFFI.hpp>
 
-            #undef FFI_VM
-            #undef FFI_MAKE_HEADER
-        }
-    }
+    #undef FFI_VM
+    #undef FFI_MAKE_HEADER
 }
 
 #endif
