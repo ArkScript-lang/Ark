@@ -1,0 +1,14 @@
+{
+    (let range (fun (a b)
+        (fun () {
+            (if (< a b)
+                {
+                    (let c a)
+                    (set a (+ a 1))
+                    c
+                }
+                nil
+            )
+        }))
+    )
+}
