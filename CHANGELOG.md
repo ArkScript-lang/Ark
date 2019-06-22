@@ -1,6 +1,15 @@
 # Change Log
 
-## Unreleased
+*Nota bene*: The change log below is about the development versions of the language.
+
+## Unreleased changes
+### Added
+
+### Changed
+
+### Removed
+
+## 2.2.0-dev
 ### Added
 - option in the CMakeLists.txt to use MPIR or not (defaults to no MPIR)
 - information about the compilation options used for Ark in the CLI
@@ -17,7 +26,7 @@
 - supporting both BigNum and double is a bad idea, using only double now
 - removed the interpreter
 
-# 2.1.0
+## 2.1.0-dev
 ### Added
 - adding `switch` and `defer1` in the standard library (`defer1` shall be rewritten using `quote`)
 - keyword `quote`, macro version is `` ` ``
@@ -34,7 +43,7 @@
 
 ### Removed
 
-## 2.0.0
+## 2.0.0-dev
 ### Added
 - configure.py script, to download, build and install mpir 3.0.0
 - builtins functions: input, toNumber, toString
@@ -55,7 +64,7 @@
 ### Removed
 - `hastype` keyword because I never had to implement compile time typechecking, so it's not useful
 
-## 1.2.2
+## 1.2.2-dev
 ### Added
 - adding `import` keyword (handled by parser), throwing an error if a cyclic included is detected
 
@@ -63,7 +72,7 @@
 - CMakeLists.txt to add `install` rules: installing Ark in bin/ and the Ark standard library in share/.Ark/lib/
 - updated documentation
 
-## 1.2.1
+## 1.2.1-dev
 ### Added
 - runtime typechecking
 - exceptions (in the C++ Ark API)
@@ -75,7 +84,7 @@
 ### Removed
 - unnecessary destructors removed to let the compiler auto generate T(T&&) (to avoid implicitly using T(const T&))
 
-## 1.2.0
+## 1.2.0-dev
 ### Added
 - syntactic sugar handling in the parser
 - GMP lib to handle very large number
@@ -92,7 +101,7 @@
 ### Removed
 - dozerg::HugeNumber, it was too slow
 
-## 1.1.0
+## 1.1.0-dev
 ### Added
 - test.cpp to try to embed Ark into a C++ project
 - updated the documentation
@@ -107,7 +116,7 @@
 - CMakeLists.txt, adding an option to chose between compiling main.cpp or test.cpp
 - moved the VM FFI into include/Ark/VM
 
-## 1.0.0
+## 1.0.0-dev
 ## Added
 - beginning of the documentation
 - compiler (ark code to ark bytecode)
@@ -117,7 +126,7 @@
 - interpreter and VM FFI
 - logger
 
-## 0.1.0
+## 0.1.0-dev
 ### Added
 - Node (to represent an AST node and a Node in the language)
 - Environment to map variables and values
@@ -128,7 +137,7 @@
 - tests
 - utils to play with files
 
-## 0.0.1
+## 0.0.1-dev
 ### Added
 - utils to play with strings and numbers
 - default CLI (using clipp)
