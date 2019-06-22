@@ -78,7 +78,7 @@ namespace Ark
 
                 if (m_type == NodeType::Symbol)
                 {
-                    if (getStringVal() == "nil")
+                    if (string() == "nil")
                         return "Nil";
                     return "Bool";
                 }
@@ -110,10 +110,6 @@ namespace Ark
             // any other type => false (here, Closure)
             return false;
         }
-
-        extern const Node nil;
-        extern const Node falseSym;
-        extern const Node trueSym;
 
         using Nodes = std::vector<Node>;
 

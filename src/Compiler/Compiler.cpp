@@ -4,7 +4,6 @@
 
 #include <Ark/Log.hpp>
 #include <Ark/FFI.hpp>
-#include <Ark/Function.hpp>
 
 namespace Ark
 {
@@ -162,15 +161,15 @@ namespace Ark
             return m_bytecode;
         }
 
-        void Compiler::_compile(Node x, int p)
+        void Compiler::_compile(Ark::Parser::Node x, int p)
         {
             if (m_debug)
                 Ark::logger.info(x);
             
             // register symbols
-            if (x.nodeType() == NodeType::Symbol)
+            if (x.nodeType() == Ark::Parser::NodeType::Symbol)
             {
-                std::string name = x.getStringVal();
+                std::string name = x.string();
 
                 auto it = std::find(FFI::builtins.begin(), FFI::builtins.end(), name);
                 // check if 'name' isn't a builtin function name before pushing it as a 'var-use'
@@ -190,7 +189,7 @@ namespace Ark
                 return;
             }
             // register values
-            if (x.nodeType() == NodeType::String || x.nodeType() == NodeType::Number)
+            if (x.nodeType() == Ark::Parser::NodeType::String || x.nodeType() == Ark::Parser::NodeType::Number)
             {
                 std::size_t i = addValue(x);
 
@@ -206,11 +205,11 @@ namespace Ark
                 return;
             }
             // registering structures
-            if (x.list()[0].nodeType() == NodeType::Keyword)
+            if (x.list()[0].nodeType() == Ark::Parser::NodeType::Keyword)
             {
-                Keyword n = x.list()[0].keyword();
+                Ark::Parser::Keyword n = x.list()[0].keyword();
 
-                if (n == Keyword::If)
+                if (n == Ark::Parser::Keyword::If)
                 {
                     // compile condition
                     _compile(x.list()[1], p);
@@ -234,9 +233,9 @@ namespace Ark
                     page(p)[jump_to_end_pos]     = (static_cast<uint16_t>(page(p).size()) & 0xff00) >> 8;
                     page(p)[jump_to_end_pos + 1] =  static_cast<uint16_t>(page(p).size()) & 0x00ff;
                 }
-                else if (n == Keyword::Set)
+                else if (n == Ark::Parser::Keyword::Set)
                 {
-                    std::string name = x.list()[1].getStringVal();
+                    std::string name = x.list()[1].string();
                     std::size_t i = addSymbol(name);
 
                     // put value before symbol id
@@ -245,9 +244,9 @@ namespace Ark
                     page(p).emplace_back(Instruction::STORE);
                     pushNumber(static_cast<uint16_t>(i), &page(p));
                 }
-                else if (n == Keyword::Let)
+                else if (n == Ark::Parser::Keyword::Let)
                 {
-                    std::string name = x.list()[1].getStringVal();
+                    std::string name = x.list()[1].string();
                     std::size_t i = addSymbol(name);
 
                     // put value before symbol id
@@ -256,7 +255,7 @@ namespace Ark
                     page(p).emplace_back(Instruction::LET);
                     pushNumber(static_cast<uint16_t>(i), &page(p));
                 }
-                else if (n == Keyword::Fun)
+                else if (n == Ark::Parser::Keyword::Fun)
                 {
                     // create new page for function body
                     m_code_pages.emplace_back();
@@ -268,10 +267,10 @@ namespace Ark
                     std::size_t id = addValue(page_id);  // save page_id into the constants table as PageAddr
                     pushNumber(static_cast<uint16_t>(id), &page(p));
                     // pushing arguments from the stack into variables in the new scope
-                    for (Node::Iterator it=x.list()[1].list().begin(); it != x.list()[1].list().end(); ++it)
+                    for (Ark::Parser::Node::Iterator it=x.list()[1].list().begin(); it != x.list()[1].list().end(); ++it)
                     {
                         page(page_id).emplace_back(Instruction::LET);
-                        std::size_t var_id = addSymbol(it->getStringVal());
+                        std::size_t var_id = addSymbol(it->string());
                         pushNumber(static_cast<uint16_t>(var_id), &(page(page_id)));
                     }
                     // push body of the function
@@ -279,12 +278,12 @@ namespace Ark
                     // return last value on the stack
                     page(page_id).emplace_back(Instruction::RET);
                 }
-                else if (n == Keyword::Begin)
+                else if (n == Ark::Parser::Keyword::Begin)
                 {
                     for (std::size_t i=1; i < x.list().size(); ++i)
                         _compile(x.list()[i], p);
                 }
-                else if (n == Keyword::While)
+                else if (n == Ark::Parser::Keyword::While)
                 {
                     // save current position to jump there at the end of the loop
                     std::size_t current = page(p).size();
@@ -305,15 +304,15 @@ namespace Ark
                     page(p)[jump_to_end_pos]     = (static_cast<uint16_t>(page(p).size()) & 0xff00) >> 8;
                     page(p)[jump_to_end_pos + 1] =  static_cast<uint16_t>(page(p).size()) & 0x00ff;
                 }
-                else if (n == Keyword::Import)
+                else if (n == Ark::Parser::Keyword::Import)
                 {
-                    for (Node::Iterator it=x.list().begin() + 1; it != x.list().end(); ++it)
+                    for (Ark::Parser::Node::Iterator it=x.list().begin() + 1; it != x.list().end(); ++it)
                     {
                         // load const, push it to the plugins table
                         addPlugin(*it);
                     }
                 }
-                else if (n == Keyword::Quote)
+                else if (n == Ark::Parser::Keyword::Quote)
                 {
                     // create new page for quoted code
                     m_code_pages.emplace_back();
@@ -336,7 +335,7 @@ namespace Ark
                 m_temp_pages.emplace_back();
                 _compile(x.list()[0], -static_cast<int>(m_temp_pages.size()));  // storing proc
             // push arguments on current page
-            for (Node::Iterator exp=x.list().begin() + 1; exp != x.list().end(); ++exp)
+            for (Ark::Parser::Node::Iterator exp=x.list().begin() + 1; exp != x.list().end(); ++exp)
                 _compile(*exp, p);
             // push proc from temp page
             for (auto&& inst : m_temp_pages.back())
@@ -374,7 +373,7 @@ namespace Ark
             return 3 + ((std::size_t) std::distance(m_symbols.begin(), it));
         }
 
-        std::size_t Compiler::addValue(Node x)
+        std::size_t Compiler::addValue(Ark::Parser::Node x)
         {
             Value v(x);
             auto it = std::find(m_values.begin(), m_values.end(), v);
@@ -404,9 +403,9 @@ namespace Ark
             return (std::size_t) std::distance(m_values.begin(), it);
         }
 
-        void Compiler::addPlugin(Node x)
+        void Compiler::addPlugin(Ark::Parser::Node x)
         {
-            std::string name = x.getStringVal();
+            std::string name = x.string();
             if (std::find(m_plugins.begin(), m_plugins.end(), name) == m_plugins.end())
                 m_plugins.push_back(name);
         }

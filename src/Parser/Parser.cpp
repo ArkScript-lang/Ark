@@ -171,7 +171,7 @@ namespace Ark
                         
                         std::string file;
                         if (n.const_list()[1].nodeType() == NodeType::String)
-                                file = n.const_list()[1].getStringVal();
+                                file = n.const_list()[1].string();
                         else
                             throw Ark::TypeError("Arguments of import must be Strings");
 
@@ -189,7 +189,7 @@ namespace Ark
                         {
                             // replace content with a begin block
                             n.list().clear();
-                            n.list().emplace_back(NodeType::Keyword, Keyword::Begin);
+                            n.list().emplace_back(Keyword::Begin);
 
                             std::string f = fs::relative(fs::path(path), fs::path(m_parent_include.size() ? m_parent_include.back() : "").root_path()).string();
                             if (m_debug)
@@ -248,7 +248,7 @@ namespace Ark
                     if (it == n.list().end())
                         break;
 
-                    if (it->nodeType() == NodeType::Symbol && it->getStringVal() == "`")
+                    if (it->nodeType() == NodeType::Symbol && it->string() == "`")
                     {
                         Node temp(NodeType::List);
 
@@ -454,7 +454,7 @@ namespace Ark
                     
                     case NodeType::Symbol:
                     {
-                        std::string s = n.getStringVal();
+                        std::string s = n.string();
                         bool b = true;
                         // 2 or more arguments
                         if (s == "+" || s == "-" || s == "/" || s == "*" || s == "and" || s == "or")

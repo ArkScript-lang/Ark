@@ -6,9 +6,8 @@
 #include <string>
 #include <cinttypes>
 
-#include <Ark/Lang/Environment.hpp>
 #include <Ark/Parser/Parser.hpp>
-#include <Ark/Lang/Node.hpp>
+#include <Ark/Parser/Node.hpp>
 #include <Ark/Compiler/Value.hpp>
 #include <Ark/Compiler/Instructions.hpp>
 #include <Ark/Compiler/BytecodeReader.hpp>
@@ -17,8 +16,6 @@ namespace Ark
 {
     namespace Compiler
     {
-        using namespace Ark::Lang;
-
         class Compiler
         {
         public:
@@ -38,11 +35,11 @@ namespace Ark
                 return m_temp_pages[-i - 1];
             }
 
-            void _compile(Node x, int p);
+            void _compile(Ark::Parser::Node x, int p);
             std::size_t addSymbol(const std::string& sym);
-            std::size_t addValue(Node x);
+            std::size_t addValue(Ark::Parser::Node x);
             std::size_t addValue(std::size_t page_id);
-            void addPlugin(Node x);
+            void addPlugin(Ark::Parser::Node x);
 
             void pushNumber(uint16_t n, std::vector<Inst>* page=nullptr);
 
