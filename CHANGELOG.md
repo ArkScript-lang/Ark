@@ -10,10 +10,12 @@
 - using a vector instead of a map in the `Frame` to speed up things
 - using double or MPIR depending on the compilation options
 - moving `mod` in the FFI
+- renamed methods in `Node`
 
 ### Removed
 - `Defer.ark` from the standard library
 - supporting both BigNum and double is a bad idea, using only double now
+- removed the interpreter
 
 # 2.1.0
 ### Added
