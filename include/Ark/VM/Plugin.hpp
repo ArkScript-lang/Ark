@@ -15,7 +15,7 @@
 
 namespace Ark
 {
-    namespace VM
+    namespace internal
     {
         class SharedLibrary
         {

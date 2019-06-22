@@ -11,35 +11,32 @@
 
 namespace Ark
 {
-    namespace Parser
+    class Parser
     {
-        class Parser
-        {
-        public:
-            Parser(bool debug=false);
+    public:
+        Parser(bool debug=false);
 
-            void feed(const std::string& code, const std::string& filename="FILE");
-            bool check();
-            const Node& ast() const;
+        void feed(const std::string& code, const std::string& filename="FILE");
+        bool check();
+        const internal::Node& ast() const;
 
-            friend std::ostream& operator<<(std::ostream& os, const Parser& P);
+        friend std::ostream& operator<<(std::ostream& os, const Parser& P);
 
-        private:
-            bool m_debug;
-            Lexer m_lexer;
-            Node m_ast;
+    private:
+        bool m_debug;
+        internal::Lexer m_lexer;
+        internal::Node m_ast;
 
-            std::string m_file;
-            std::vector<std::string> m_parent_include;
+        std::string m_file;
+        std::vector<std::string> m_parent_include;
 
-            void sugar(std::vector<Token>& tokens);
-            Node compile(std::list<Token>& tokens);
-            Node atom(const Token& token);
-            bool checkForInclude(Node& n);
-            void checkForQuote(Node& n);
-            bool _check(const Node& ast);
-        };
-    }
+        void sugar(std::vector<internal::Token>& tokens);
+        internal::Node compile(std::list<internal::Token>& tokens);
+        internal::Node atom(const internal::Token& token);
+        bool checkForInclude(internal::Node& n);
+        void checkForQuote(internal::Node& n);
+        bool _check(const internal::Node& ast);
+    };
 }
 
 #endif  // ark_parser

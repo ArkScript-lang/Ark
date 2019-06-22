@@ -18,7 +18,7 @@ void compile(bool debug, bool timer, const std::string& file, const std::string&
         return;
     }
 
-    Ark::Compiler::Compiler compiler(debug);
+    Ark::Compiler compiler(debug);
     compiler.feed(Ark::Utils::readFile(file), file);
 
     std::chrono::time_point<std::chrono::system_clock> start, end;
@@ -40,7 +40,7 @@ void compile(bool debug, bool timer, const std::string& file, const std::string&
 
 void bcr(const std::string& file)
 {
-    Ark::Compiler::BytecodeReader bcr;
+    Ark::BytecodeReader bcr;
     bcr.feed(file);
     bcr.display();
 }
@@ -53,7 +53,7 @@ void vm(bool debug, bool timer, const std::string& file, bool count_fcall)
         return;
     }
 
-    Ark::VM::VM vm(debug, count_fcall);
+    Ark::VM vm(debug, count_fcall);
     vm.feed(file);
 
     std::chrono::time_point<std::chrono::system_clock> start, end;

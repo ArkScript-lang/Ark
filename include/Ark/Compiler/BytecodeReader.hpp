@@ -9,26 +9,23 @@
 
 namespace Ark
 {
-    namespace Compiler
+    using bytecode_t = std::vector<uint8_t>;
+
+    class BytecodeReader
     {
-        using bytecode_t = std::vector<uint8_t>;
+    public:
+        BytecodeReader();
 
-        class BytecodeReader
-        {
-        public:
-            BytecodeReader();
+        void feed(const std::string& file);
+        const bytecode_t& bytecode();
 
-            void feed(const std::string& file);
-            const bytecode_t& bytecode();
+        void display();
+    
+    private:
+        bytecode_t m_bytecode;
 
-            void display();
-        
-        private:
-            bytecode_t m_bytecode;
-
-            uint16_t readNumber(std::size_t& i);
-        };
-    }
+        uint16_t readNumber(std::size_t& i);
+    };
 }
 
 #endif

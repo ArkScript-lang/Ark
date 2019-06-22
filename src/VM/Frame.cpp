@@ -2,7 +2,7 @@
 
 namespace Ark
 {
-    namespace VM
+    namespace internal
     {
         Frame::Frame(std::size_t length) :
             m_addr(0),

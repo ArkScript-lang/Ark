@@ -9,10 +9,8 @@
 
 namespace Ark
 {
-    namespace VM
+    namespace internal
     {
-        using namespace Ark::Compiler;
-
         /*
             A frame should hold:
             - its own stack

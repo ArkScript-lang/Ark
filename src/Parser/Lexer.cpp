@@ -5,7 +5,7 @@
 
 namespace Ark
 {
-    namespace Parser
+    namespace internal
     {
         Lexer::Lexer(bool debug) :
             m_debug(debug)

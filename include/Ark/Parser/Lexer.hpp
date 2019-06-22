@@ -8,7 +8,7 @@
 
 namespace Ark
 {
-    namespace Parser
+    namespace internal
     {
         struct Token
         {

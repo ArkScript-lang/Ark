@@ -2,45 +2,43 @@
 
 namespace Ark
 {
-    namespace Compiler
+    namespace internal
     {
-        using namespace Ark::Parser;
-
-        Value::Value(double value) :
+        CValue::CValue(double value) :
             value(value),
-            type(ValueType::Number)
+            type(CValueType::Number)
         {}
 
-        Value::Value(long value) :
+        CValue::CValue(long value) :
             value(static_cast<double>(value)),
-            type(ValueType::Number)
+            type(CValueType::Number)
         {}
 
-        Value::Value(const std::string& value) :
+        CValue::CValue(const std::string& value) :
             value(value),
-            type(ValueType::String)
+            type(CValueType::String)
         {}
 
-        Value::Value(const Node& v)
+        CValue::CValue(const Node& v)
         {
             if (v.nodeType() == NodeType::Number)
             {
                 value = v.number();
-                type = ValueType::Number;
+                type = CValueType::Number;
             }
             else if (v.nodeType() == NodeType::String)
             {
                 value = v.string();
-                type = ValueType::String;
+                type = CValueType::String;
             }
         }
 
-        Value::Value(std::size_t value) :
+        CValue::CValue(std::size_t value) :
             value(value),
-            type(ValueType::PageAddr)
+            type(CValueType::PageAddr)
         {}
 
-        bool Value::operator==(const Value& A)
+        bool CValue::operator==(const CValue& A)
         {
             return A.value == value && A.type == type;
         }

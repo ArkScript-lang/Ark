@@ -5,7 +5,7 @@
 
 namespace Ark
 {
-    namespace VM
+    namespace internal
     {
         Value::Value(bool is_list) :
             m_is_list(is_list)
@@ -54,6 +54,8 @@ namespace Ark
             m_is_list(false)
         {}
 
+        // --------------------------
+
         bool Value::isNumber() const
         {
             return !m_is_list && std::holds_alternative<double>(m_value);
@@ -89,7 +91,9 @@ namespace Ark
             return !m_is_list && std::holds_alternative<Closure>(m_value);
         }
 
-        const double Value::number() const
+        // --------------------------
+
+        double Value::number() const
         {
             return std::get<double>(m_value);
         }
@@ -99,12 +103,12 @@ namespace Ark
             return std::get<std::string>(m_value);
         }
 
-        const PageAddr_t Value::pageAddr() const
+        PageAddr_t Value::pageAddr() const
         {
             return std::get<PageAddr_t>(m_value);
         }
 
-        const NFT Value::nft() const
+        NFT Value::nft() const
         {
             return std::get<NFT>(m_value);
         }
@@ -124,6 +128,8 @@ namespace Ark
             return std::get<Closure>(m_value);
         }
 
+        // --------------------------
+
         std::vector<Value>& Value::list()
         {
             return m_list;
@@ -134,11 +140,15 @@ namespace Ark
             return std::get<Closure>(m_value);
         }
 
+        // --------------------------
+
         void Value::push_back(const Value& value)
         {
             m_is_list = true;
             m_list.push_back(value);
         }
+
+        // --------------------------
 
         std::ostream& operator<<(std::ostream& os, const Value& V)
         {

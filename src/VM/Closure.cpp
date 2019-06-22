@@ -4,7 +4,7 @@
 
 namespace Ark
 {
-    namespace VM
+    namespace internal
     {
         Closure::Closure() :
             m_frame(nullptr),

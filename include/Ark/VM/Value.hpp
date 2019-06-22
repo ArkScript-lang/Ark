@@ -14,7 +14,7 @@
 
 namespace Ark
 {
-    namespace VM
+    namespace internal
     {
         class Frame;
 
@@ -45,10 +45,10 @@ namespace Ark
             bool isList() const;
             bool isClosure() const;
 
-            const double number() const;
+            double number() const;
             const std::string& string() const;
-            const PageAddr_t pageAddr() const;
-            const NFT nft() const;
+            PageAddr_t pageAddr() const;
+            NFT nft() const;
             const ProcType proc() const;
             const std::vector<Value>& const_list() const;
             const Closure& closure() const;

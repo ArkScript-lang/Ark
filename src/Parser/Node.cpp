@@ -2,7 +2,7 @@
 
 namespace Ark
 {
-    namespace Parser
+    namespace internal
     {
         Node::Node(int value) :
             m_type(NodeType::Number),
@@ -40,7 +40,7 @@ namespace Ark
             return std::get<double>(m_value);
         }
 
-        const Keyword Node::keyword() const
+        Keyword Node::keyword() const
         {
             return std::get<Keyword>(m_value);
         }
@@ -64,7 +64,7 @@ namespace Ark
 
         // -------------------------
 
-        const NodeType Node::nodeType() const
+        NodeType Node::nodeType() const
         {
             return m_type;
         }

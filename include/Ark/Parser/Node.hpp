@@ -11,7 +11,7 @@
 
 namespace Ark
 {
-    namespace Parser
+    namespace internal
     {
         enum class NodeType
         {
@@ -50,13 +50,13 @@ namespace Ark
 
             const std::string& string() const;
             double number() const;
-            const Keyword keyword() const;
+            Keyword keyword() const;
 
             void push_back(const Node& node);
             std::vector<Node>& list();
             const std::vector<Node>& const_list() const;
 
-            const NodeType nodeType() const;
+            NodeType nodeType() const;
             void setNodeType(NodeType type);
             void setString(const std::string& value);
             void setNumber(double value);

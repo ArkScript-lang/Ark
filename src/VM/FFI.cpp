@@ -7,7 +7,7 @@
 
 namespace Ark
 {
-    namespace VM
+    namespace internal
     {
         namespace FFI
         {

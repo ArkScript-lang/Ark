@@ -5,7 +5,7 @@
 
 namespace Ark
 {
-    namespace Compiler
+    namespace internal
     {
         enum Instruction
         {

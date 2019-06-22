@@ -8,27 +8,27 @@
 
 namespace Ark
 {
-    namespace Compiler
+    namespace internal
     {
-        enum class ValueType
+        enum class CValueType
         {
             Number,
             String,
             PageAddr  // for function definitions
         };
 
-        struct Value
+        struct CValue
         {
             std::variant<double, std::string, std::size_t> value;
-            ValueType type;
+            CValueType type;
 
-            Value(double value);
-            Value(long value);
-            Value(const std::string& value);
-            Value(const Ark::Parser::Node& v);
-            Value(std::size_t value);
+            CValue(double value);
+            CValue(long value);
+            CValue(const std::string& value);
+            CValue(const Node& v);
+            CValue(std::size_t value);
 
-            bool operator==(const Value& A);
+            bool operator==(const CValue& A);
         };
     }
 }

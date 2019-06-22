@@ -14,47 +14,44 @@
 
 namespace Ark
 {
-    namespace Compiler
+    class Compiler
     {
-        class Compiler
+    public:
+        Compiler(bool debug=false);
+
+        void feed(const std::string& code, const std::string& filename="FILE");
+        void compile();
+        void saveTo(const std::string& file);
+
+        const bytecode_t& bytecode();
+
+    private:
+        inline std::vector<internal::Inst>& page(int i)
         {
-        public:
-            Compiler(bool debug=false);
+            if (i >= 0)
+                return m_code_pages[i];
+            return m_temp_pages[-i - 1];
+        }
 
-            void feed(const std::string& code, const std::string& filename="FILE");
-            void compile();
-            void saveTo(const std::string& file);
+        void _compile(Ark::internal::Node x, int p);
+        std::size_t addSymbol(const std::string& sym);
+        std::size_t addValue(Ark::internal::Node x);
+        std::size_t addValue(std::size_t page_id);
+        void addPlugin(Ark::internal::Node x);
 
-            const bytecode_t& bytecode();
+        void pushNumber(uint16_t n, std::vector<internal::Inst>* page=nullptr);
 
-        private:
-            inline std::vector<Inst>& page(int i)
-            {
-                if (i >= 0)
-                    return m_code_pages[i];
-                return m_temp_pages[-i - 1];
-            }
+        Ark::Parser m_parser;
+        std::vector<std::string> m_symbols;
+        std::vector<internal::CValue> m_values;
+        std::vector<std::string> m_plugins;
+        std::vector<std::vector<internal::Inst>> m_code_pages;
+        std::vector<std::vector<internal::Inst>> m_temp_pages;
 
-            void _compile(Ark::Parser::Node x, int p);
-            std::size_t addSymbol(const std::string& sym);
-            std::size_t addValue(Ark::Parser::Node x);
-            std::size_t addValue(std::size_t page_id);
-            void addPlugin(Ark::Parser::Node x);
+        bytecode_t m_bytecode;
 
-            void pushNumber(uint16_t n, std::vector<Inst>* page=nullptr);
-
-            Ark::Parser::Parser m_parser;
-            std::vector<std::string> m_symbols;
-            std::vector<Value> m_values;
-            std::vector<std::string> m_plugins;
-            std::vector<std::vector<Inst>> m_code_pages;
-            std::vector<std::vector<Inst>> m_temp_pages;
-
-            bytecode_t m_bytecode;
-
-            bool m_debug;
-        };
-    }
+        bool m_debug;
+    };
 }
 
 #endif

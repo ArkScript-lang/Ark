@@ -479,38 +479,38 @@
         "mod"
     };
 #elif defined(FFI_INIT_VM_FFI)
-    m_ffi.push_back(&FFI::add);
-    m_ffi.push_back(&FFI::sub);
-    m_ffi.push_back(&FFI::mul);
-    m_ffi.push_back(&FFI::div);
+    m_ffi.push_back(&internal::FFI::add);
+    m_ffi.push_back(&internal::FFI::sub);
+    m_ffi.push_back(&internal::FFI::mul);
+    m_ffi.push_back(&internal::FFI::div);
 
-    m_ffi.push_back(&FFI::gt);
-    m_ffi.push_back(&FFI::lt);
-    m_ffi.push_back(&FFI::le);
-    m_ffi.push_back(&FFI::ge);
-    m_ffi.push_back(&FFI::neq);
-    m_ffi.push_back(&FFI::eq);
+    m_ffi.push_back(&internal::FFI::gt);
+    m_ffi.push_back(&internal::FFI::lt);
+    m_ffi.push_back(&internal::FFI::le);
+    m_ffi.push_back(&internal::FFI::ge);
+    m_ffi.push_back(&internal::FFI::neq);
+    m_ffi.push_back(&internal::FFI::eq);
 
-    m_ffi.push_back(&FFI::len);
-    m_ffi.push_back(&FFI::empty);
-    m_ffi.push_back(&FFI::firstof);
-    m_ffi.push_back(&FFI::tailof);
-    m_ffi.push_back(&FFI::append);
-    m_ffi.push_back(&FFI::concat);
-    m_ffi.push_back(&FFI::list);
-    m_ffi.push_back(&FFI::isnil);
+    m_ffi.push_back(&internal::FFI::len);
+    m_ffi.push_back(&internal::FFI::empty);
+    m_ffi.push_back(&internal::FFI::firstof);
+    m_ffi.push_back(&internal::FFI::tailof);
+    m_ffi.push_back(&internal::FFI::append);
+    m_ffi.push_back(&internal::FFI::concat);
+    m_ffi.push_back(&internal::FFI::list);
+    m_ffi.push_back(&internal::FFI::isnil);
 
-    m_ffi.push_back(&FFI::print);
-    m_ffi.push_back(&FFI::assert_);
-    m_ffi.push_back(&FFI::input);
+    m_ffi.push_back(&internal::FFI::print);
+    m_ffi.push_back(&internal::FFI::assert_);
+    m_ffi.push_back(&internal::FFI::input);
 
-    m_ffi.push_back(&FFI::toNumber);
-    m_ffi.push_back(&FFI::toString);
+    m_ffi.push_back(&internal::FFI::toNumber);
+    m_ffi.push_back(&internal::FFI::toString);
 
-    m_ffi.push_back(&FFI::at);
-    m_ffi.push_back(&FFI::and_);
-    m_ffi.push_back(&FFI::or_);
-    m_ffi.push_back(&FFI::headof);
+    m_ffi.push_back(&internal::FFI::at);
+    m_ffi.push_back(&internal::FFI::and_);
+    m_ffi.push_back(&internal::FFI::or_);
+    m_ffi.push_back(&internal::FFI::headof);
 
-    m_ffi.push_back(&FFI::mod);
+    m_ffi.push_back(&internal::FFI::mod);
 #endif  // FFI_MAKE_HEADER | FFI_MAKE_SOURCE | FFI_MAKE_EXTERNS_INC | FFI_MAKE_EXTERNS_SRC | FFI_INIT_VM_FFI

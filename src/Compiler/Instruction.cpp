@@ -2,7 +2,7 @@
 
 namespace Ark
 {
-    namespace Compiler
+    namespace internal
     {
         Inst::Inst(Instruction inst) :
             inst(static_cast<uint8_t>(inst))

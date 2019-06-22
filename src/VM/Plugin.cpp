@@ -6,7 +6,7 @@
 
 namespace Ark
 {
-    namespace VM
+    namespace internal
     {
         SharedLibrary::SharedLibrary() :
             m_hInstance(NULL)

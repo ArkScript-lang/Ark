@@ -5,7 +5,7 @@
 
 namespace Ark
 {
-    namespace VM
+    namespace internal
     {
         enum class NFT { Nil, False, True };
         using PageAddr_t = uint16_t;
