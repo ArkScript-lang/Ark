@@ -11,7 +11,7 @@
 
 namespace Ark
 {
-    namespace Lang
+    namespace Parser
     {
         enum class NodeType
         {
@@ -20,7 +20,6 @@ namespace Ark
             String,
             Number,
             List,
-            Proc,
             Closure
         };
 
@@ -36,43 +35,30 @@ namespace Ark
             Quote
         };
 
-        class Environment;
-
         class Node
         {
         public:
-            using ProcType = Node(*)(const std::vector<Node>&);
             using Iterator = std::vector<Node>::const_iterator;
             using Map = std::unordered_map<std::string, Node>;
-            using Value = std::variant<double, std::string>;
+            using Value = std::variant<double, std::string, Keyword>;
 
             Node(int value);
             Node(double value);
             Node(const std::string& value);
+            Node(Keyword value);
             Node(NodeType type=NodeType::Symbol);
-            Node(NodeType type, int value);
-            Node(NodeType type, double value);
-            Node(NodeType type, const std::string& value);
-            Node(NodeType type, Keyword value);
-            Node(Node::ProcType proc);
 
-            void addEnv(Environment* env);
-            Environment* getEnv();
-
-            const std::string& getStringVal() const;
-            const double getIntVal() const;
-            const ProcType getProcVal() const;
-            void push_back(const Node& node);
-
-            const NodeType& nodeType() const;
-            void setNodeType(NodeType type);
+            const std::string& string() const;
+            const double number() const;
             const Keyword keyword() const;
-            void setKeyword(Keyword kw);
 
+            void push_back(const Node& node);
             std::vector<Node>& list();
             const std::vector<Node>& const_list() const;
 
-            Node call(const std::vector<Node>& args);
+            const NodeType nodeType() const;
+            void setNodeType(NodeType type);
+            void setKeyword(Keyword kw);
 
             void setPos(std::size_t line, std::size_t col);
             std::size_t line() const;
@@ -85,7 +71,7 @@ namespace Ark
             {
                 // must have the same order as the enum class NodeType L17
                 static const std::vector<std::string> nodetype_str = {
-                    "Symbol", "Keyword", "String", "Number", "List", "Procedure", "Closure"
+                    "Symbol", "Keyword", "String", "Number", "List", "Closure"
                 };
 
                 if (m_type == NodeType::Symbol)
@@ -102,12 +88,7 @@ namespace Ark
             NodeType m_type;
             Value m_value;
 
-            Keyword m_keyword;
-
             std::vector<Node> m_list;
-
-            Node::ProcType m_procedure;
-            Environment* m_env;
 
             std::size_t m_line, m_col;
         };
@@ -118,15 +99,11 @@ namespace Ark
                 return false;
 
             if (A.m_type != NodeType::List &&
-                A.m_type != NodeType::Proc &&
                 A.m_type != NodeType::Closure)
                 return A.m_value == B.m_value;
             
             if (A.m_type == NodeType::List)
                 throw Ark::TypeError("Can not compare lists");
-            
-            if (A.m_type == NodeType::Proc)
-                return A.m_procedure == B.m_procedure;
             
             // any other type => false (here, Closure)
             return false;

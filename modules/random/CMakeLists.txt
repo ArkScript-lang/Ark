@@ -18,7 +18,6 @@ file(GLOB_RECURSE SOURCE_FILES
 )
 
 list(REMOVE_ITEM SOURCE_FILES "${PROJECT_SOURCE_DIR}/../../src/main.cpp")
-list(REMOVE_ITEM SOURCE_FILES "${PROJECT_SOURCE_DIR}/../../src/test.cpp")
 
 add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES})
 

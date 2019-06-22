@@ -5,34 +5,10 @@
 
 #include <clipp.hpp>
 #include <Ark/Constants.hpp>
-#include <Ark/Lang/Program.hpp>
 #include <Ark/Compiler/Compiler.hpp>
 #include <Ark/Compiler/BytecodeReader.hpp>
 #include <Ark/VM/VM.hpp>
 #include <Ark/Log.hpp>
-
-void exec(bool debug, bool timer, const std::string& file)
-{
-    if (!Ark::Utils::fileExists(file))
-    {
-        Ark::logger.error("[Interpreter] Can not find file '" + file + "'");
-        return;
-    }
-
-    Ark::Lang::Program program(debug);
-    program.feed(Ark::Utils::readFile(file), file);
-
-    std::chrono::time_point<std::chrono::system_clock> start, end;
-    start = std::chrono::system_clock::now();
-
-    program.execute();
-
-    end = std::chrono::system_clock::now();
-    auto elapsed_microseconds = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-
-    if (timer)
-        std::cout << "Interpreter took " << elapsed_microseconds << "us" << std::endl;
-}
 
 void compile(bool debug, bool timer, const std::string& file, const std::string& output)
 {
@@ -92,57 +68,12 @@ void vm(bool debug, bool timer, const std::string& file, bool count_fcall)
         std::cout << "VM took " << elapsed_microseconds << "us" << std::endl;
 }
 
-void repl(bool debug, bool timer)
-{
-    std::cout << "Ark " << ARK_VERSION_MAJOR << "." << ARK_VERSION_MINOR << "." << ARK_VERSION_PATCH << std::endl;
-    std::cout << ARK_COMPILER << " " << ARK_COMPILATION_OPTIONS << std::endl;
-#ifdef ARK_USE_MPIR
-    std::cout << "Compiled using MPIR 3.0.0" << std::endl;
-#endif
-    std::cout << "Type \"help\" for more information" << std::endl;
-
-    Ark::Lang::Environment env;
-
-    while (true)
-    {
-        std::string input = "";
-        std::cout << "~$ ";
-        std::getline(std::cin, input, '\n');
-
-        if (input == "help")
-        {
-            std::cout << "Type \"quit\" to quit the REPL" << std::endl;
-            continue;
-        }
-        else if (input == "quit")
-            break;
-
-        std::chrono::time_point<std::chrono::system_clock> start, end;
-        start = std::chrono::system_clock::now();
-
-        Ark::Lang::Program program(debug);
-        program.setEnv(env);
-        program.feed(input);
-        program.execute();
-
-        env = program.environment();
-
-        end = std::chrono::system_clock::now();
-        auto elapsed_microseconds = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-
-        if (timer)
-            std::cout << "Took " << elapsed_microseconds << "us" << std::endl;
-    }
-}
-
 int main(int argc, char** argv)
 {
     using namespace clipp;
 
     bool help_ = false,
          version_ = false,
-         interpreter_ = false,
-         repl_ = true,
          compiler_ = false,
          vm_ = false,
          bcr_ = false;
@@ -155,7 +86,7 @@ int main(int argc, char** argv)
         // general options
         option("-h", "--help").set(help_).doc("Display this help message")
         | option("--version").set(version_).doc("Display Ark lang version and exit")
-        | (value("file", input_file).set(interpreter_).doc("If no options provided, start the interpreter with the given file")
+        | (value("file", input_file)
             , option("-c", "--compile").set(compiler_).doc("Compile file")
             , option("-o", "--output").doc("Set the output filename for the compiler") & value("out", output_file)
             , (
@@ -188,18 +119,6 @@ int main(int argc, char** argv)
         if (version_)
         {
             std::cout << "Version " << ARK_VERSION_MAJOR << "." << ARK_VERSION_MINOR << "." << ARK_VERSION_PATCH << std::endl;
-            return 0;
-        }
-
-        if (interpreter_ && !compiler_ && !vm_ && !bcr_)
-        {
-            exec(debug, timer, input_file);
-            return 0;
-        }
-
-        if (repl_ && !interpreter_ && !compiler_ && !vm_ && !bcr_)
-        {
-            repl(debug, timer);
             return 0;
         }
 
