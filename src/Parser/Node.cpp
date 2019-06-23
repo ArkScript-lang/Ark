@@ -74,17 +74,17 @@ namespace Ark::internal
 
     void Node::setString(const std::string& value)
     {
-        std::get<std::string>(m_value) = value;
+        m_value = value;
     }
 
     void Node::setNumber(double value)
     {
-        std::get<double>(m_value) = value;
+        m_value = value;
     }
 
     void Node::setKeyword(Keyword kw)
     {
-        std::get<Keyword>(m_value) = kw;
+        m_value = kw;
     }
 
     // -------------------------

@@ -22,7 +22,7 @@ namespace Ark::internal
                 std::string m0(m[0]);
 
                 // stripping blanks characters between instructions, and comments
-                if (std::string::npos != m0.find_first_not_of(" \t\v\r\n") && m0.substr(0, 1) != "'")
+                if (std::string::npos != m0.find_first_not_of(" \t\v\r\n") && m0.substr(0, 1) != "#")
                     m_tokens.push_back({ m[0], line, character });
                 // line-char counter
                 if (std::string::npos != m0.find_first_of("\r\n"))
