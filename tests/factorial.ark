@@ -6,7 +6,7 @@
                 (set a (* a acc))
                 (set acc (+ 1 acc))
         })
-        ' return value:
+        # return value:
         a
     }))
     (fact 10000)

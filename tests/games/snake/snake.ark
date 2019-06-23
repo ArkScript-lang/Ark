@@ -6,15 +6,15 @@
     (sf-window-init 600 600 "ArkSnake")
     (sf-window-setFPS 60)
 
-    ' stuff needed for the texts
+    # stuff needed for the texts
     (let font (sf-load-font "FreeSansBold.ttf"))
     (let hello_text (sf-make-text font "Hello!" 18 [255 255 255]))
     (sf-setPos hello_text (/ (- 600 (sf-width hello_text)) 2) 580)
 
-    ' the board object
-    ' 0 => empty, 1 => apple
+    # the board object
+    # 0 => empty, 1 => apple
     (let create-board-object (fun () {
-        ' sprites used for the game
+        # sprites used for the game
         (let apple_sprite (sf-load-sprite "apple.png"))
 
         (let data [])
@@ -26,7 +26,7 @@
                 (let line [])
 
                 (while (!= _x 20) {
-                    (let t 0)  ' empty
+                    (let t 0)  # empty
                     (if (or (and (= _y 10) (= _x 5)) (and (= _y 5) (= _x 2)) (and (= _y 12) (= _x 12)))
                         (set t 1)
                         (set t 0)
@@ -50,12 +50,12 @@
                     (while (!= x 20) {
                         (let case (@ (@ data y) x))
                         (if (= case 1)
-                            ' then
+                            # then
                             {
                                 (sf-setPos apple_sprite (* 20 x) (* 20 y))
                                 (sf-draw apple_sprite)
                             }
-                            ' else
+                            # else
                             ()
                         )
                         (set x (+ x 1))
@@ -63,7 +63,7 @@
                     (set y (+ 1 y))
                 })
 
-                ' ret
+                # ret
                 nil
             }))
 
@@ -75,9 +75,9 @@
                     (while (!= x 20) {
                         (let case (@ (@ data y) x))
                         (if (= case 1)
-                            ' then
+                            # then
                             (set apple_left (+ 1 apple_left))
-                            ' else
+                            # else
                             ()
                         )
                         (set x (+ x 1))
@@ -85,7 +85,7 @@
                     (set y (+ 1 y))
                 })
 
-                ' ret
+                # ret
                 apple_left
             }))
 
@@ -94,7 +94,7 @@
                     {
                         (let test (= 1 (@ (@ data y) x)))
                         (if test
-                            ' remove apple
+                            # remove apple
                             {
                                 (let _y 0)
                                 (let _data [])
@@ -104,14 +104,14 @@
                                     (let line [])
 
                                     (if (= _y y)
-                                        ' then
+                                        # then
                                         (while (!= _x 20) {
                                             (let case (@ (@ data _y) _x))
                                             (if (= _x x) (set case 0) ())
                                             (set line (append line case))
                                             (set _x (+ 1 _x))
                                         })
-                                        ' else
+                                        # else
                                         (set line (@ data _y))
                                     )
 
@@ -132,24 +132,24 @@
             (f draw_board has_apple_left? eat_apple_at)
         })
     }))
-    ' properties
+    # properties
     (let board-draw (fun (f _ _) (f)))
     (let board-has-apple-left? (fun (_ f _) (f)))
     (let board-eat-apple-at (fun (x y) (fun (_ _ f) (f x y))))
 
-    ' instanciating
+    # instanciating
     (let board (create-board-object))
 
-    ' the snake
+    # the snake
     (let create-snake-object (fun () {
         (let pos [[0 0]])
         (let should_move true)
-        (let last_direction [1 0])  ' right
+        (let last_direction [1 0])  # right
         (let snake_sprite (sf-load-sprite "snake.png"))
 
         (fun (f) {
             (let move (fun (mx my board) {
-                ' we don't need to move since this function was called explicitly
+                # we don't need to move since this function was called explicitly
                 (set should_move false)
                 (set last_direction [mx my])
 
@@ -157,17 +157,17 @@
 
                 (try (board (board-eat-apple-at (+ mx (@ p 0)) (+ my (@ p 1))))
                     (fun (result) {
-                        ' if result == false, move the tail to the head
-                        ' otherwise, add a new head
+                        # if result == false, move the tail to the head
+                        # otherwise, add a new head
                         (set pos (append pos [(+ mx (@ p 0)) (+ my (@ p 1))]))
                         (if result
-                            ' then
+                            # then
                             ()
-                            ' else
+                            # else
                             (if (!= 0 (len pos))
-                                ' then
+                                # then
                                 (set pos (tailof pos))
-                                ' else
+                                # else
                                 ()
                             )
                         )
@@ -195,7 +195,7 @@
             (f move reset_auto_move auto_move draw)
         })
     }))
-    ' properties
+    # properties
     (let snake-move-up    (fun (f _ _ _) (f  0 -1 board)))
     (let snake-move-down  (fun (f _ _ _) (f  0  1 board)))
     (let snake-move-right (fun (f _ _ _) (f  1  0 board)))
@@ -204,7 +204,7 @@
     (let snake-reset-auto-move (fun (_ f _ _) (f)))
     (let snake-draw (fun (_ _ _ f) (f)))
 
-    ' instanciating
+    # instanciating
     (let snake (create-snake-object))
 
     (print "beginning...")
@@ -212,20 +212,20 @@
     (let i 0)
 
     (while (sf-window-isOpen) {
-        ' event handling
+        # event handling
         (snake snake-reset-auto-move)
 
         (let event (sf-poll-event))
 
         (switch event [
-            [(sf-event "quit") `(sf-window-close)]
-            [(sf-event "keyup" "up") `(snake snake-move-up)]
-            [(sf-event "keyup" "down") `(snake snake-move-down)]
-            [(sf-event "keyup" "right") `(snake snake-move-right)]
-            [(sf-event "keyup" "left") `(snake snake-move-left)]
+            [(sf-event "quit") '(sf-window-close)]
+            [(sf-event "keyup" "up") '(snake snake-move-up)]
+            [(sf-event "keyup" "down") '(snake snake-move-down)]
+            [(sf-event "keyup" "right") '(snake snake-move-right)]
+            [(sf-event "keyup" "left") '(snake snake-move-left)]
         ])
 
-        ' update
+        # update
         (if (board board-has-apple-left?)
             {
                 (print "victoire royale !")
@@ -234,22 +234,22 @@
             ()
         )
         (switch i [
-            [0 `(snake snake-move-down)]
-            [1 `(snake snake-move-down)]
-            [2 `(snake snake-move-down)]
-            [3 `(snake snake-move-down)]
-            [4 `(snake snake-move-down)]
-            [5 `(snake snake-move-right)]
-            [6 `(snake snake-move-right)]
+            [0 '(snake snake-move-down)]
+            [1 '(snake snake-move-down)]
+            [2 '(snake snake-move-down)]
+            [3 '(snake snake-move-down)]
+            [4 '(snake snake-move-down)]
+            [5 '(snake snake-move-right)]
+            [6 '(snake snake-move-right)]
         ])
         (set i (+ 1 i))
-        ' (snake snake-auto-move)
+        # (snake snake-auto-move)
 
-        ' rendering
+        # rendering
         (sf-window-clear 0 0 0)
-        (board board-draw)      ' draw board first
-        (snake snake-draw)      ' then snake
-        (sf-draw hello_text)    ' then a test with some text
-        (sf-window-display)     ' double buffering
+        (board board-draw)      # draw board first
+        (snake snake-draw)      # then snake
+        (sf-draw hello_text)    # then a test with some text
+        (sf-window-display)     # double buffering
     })
 }

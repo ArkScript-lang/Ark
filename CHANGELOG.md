@@ -7,6 +7,7 @@
 
 ### Changed
 - moved everything from the "folder namespaces" to a single `Ark::internal` namespace
+- using `#` instead of `'` for the comments, using `'` to quote instead of `` ` ``
 
 ### Removed
 

@@ -3,7 +3,7 @@
     (print (quote foo))
     (print (quote (foo 5)))
 
-    (let df `(foo 5))
+    (let df '(foo 5))
     
     (df)
 

@@ -16,46 +16,28 @@ namespace Ark::internal
 
         while (!s.empty())
         {
-            bool ok = false;
-
-            for (const auto& r : m_regexs)
+            std::smatch m;
+            if (std::regex_search(s, m, lexer_regex))
             {
-                std::smatch m;
-                bool found = std::regex_search(s, m, r);
-                if (found)
+                std::string m0(m[0]);
+
+                // stripping blanks characters between instructions, and comments
+                if (std::string::npos != m0.find_first_not_of(" \t\v\r\n") && m0.substr(0, 1) != "'")
+                    m_tokens.push_back({ m[0], line, character });
+                // line-char counter
+                if (std::string::npos != m0.find_first_of("\r\n"))
                 {
-                    std::string m0(m[0]);
-
-                    // stripping blanks characters between instructions, and comments
-                    if (std::string::npos != m0.find_first_not_of(" \t\v\r\n") && m0.substr(0, 1) != "'")
-                        m_tokens.push_back({ m[0], line, character });
-                    // line-char counter
-                    if (std::string::npos != m0.find_first_of("\r\n"))
-                    {
-                        line++;
-                        character = 0;
-                    }
-                    character += m[0].length();
-
-                    s = std::regex_replace(s, r, std::string(""), std::regex_constants::format_first_only);
-                    ok = true;
-                    break;
+                    line++;
+                    character = 0;
                 }
+                character += m[0].length();
+
+                s = std::regex_replace(s, lexer_regex, std::string(""), std::regex_constants::format_first_only);
             }
-            if (!ok)
+            else
             {
-                std::string p = s.substr(0, 1);
-                if (p == "(" || p == ")" || p == "[" || p == "]" || p == "{" || p == "}")
-                {
-                    m_tokens.push_back({ p, line, character });
-                    character++;
-                    s = s.substr(1);
-                }
-                else
-                {
-                    Ark::logger.error("[Lexer] Tokenizing error at " + Ark::Utils::toString(line) + ":" + Ark::Utils::toString(character - 1));
-                    break;
-                }
+                Ark::logger.error("[Lexer] Tokenizing error at " + Ark::Utils::toString(line) + ":" + Ark::Utils::toString(character - 1));
+                break;
             }
         }
 

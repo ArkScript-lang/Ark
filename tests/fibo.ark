@@ -1,14 +1,14 @@
 (begin
     (let fibo
         (fun (n) (if (< n 2)
-                    n ' then
-                    (+ ' else
+                    n # then
+                    (+ # else
                         (fibo (- n 1))
                         (fibo (- n 2))
                     )
-                ) ' endif
-        ) ' endfun
-    ) ' enddef
+                ) # endif
+        ) # endfun
+    ) # enddef
 
     (print (fibo 10))
 )

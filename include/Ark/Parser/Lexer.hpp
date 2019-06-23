@@ -19,6 +19,17 @@ namespace Ark::internal
         {}
     };
 
+    const std::regex lexer_regex("^"
+        "([\\(\\)\\[\\]\\{\\}])|"  // grouping
+        "(\"[^\"]*\")|"  // strings
+        "(((\\+|-)?[[:digit:]]+)([\\.|/](([[:digit:]]+)?))?)|"  // numbers
+        "(\\+|-|\\*|/|<=|>=|!=|<|>|=|\\^|@)|"  // operators
+        "([a-zA-Z_][a-zA-Z0-9_\\-!?']*)|"  // identifiers
+        "(\\s+)|"  // whitespaces
+        "(#.*)|"  // comments
+        "(')"  // quoting
+    );
+
     class Lexer
     {
     public:
@@ -32,15 +43,6 @@ namespace Ark::internal
     private:
         bool m_debug;
         std::vector<Token> m_tokens;
-        const std::vector<std::regex> m_regexs = {
-                std::regex("^\"[^\"]*\"")  // strings
-            , std::regex("^((\\+|-)?[[:digit:]]+)([\\.|/](([[:digit:]]+)?))?")  // numbers
-            , std::regex("^(\\+|-|\\*|/|<=|>=|!=|<|>|=|\\^|@)")  // operators
-            , std::regex("^[a-zA-Z_][a-zA-Z0-9_\\-!?']*")  // words
-            , std::regex("^\\s+")  // whitespaces
-            , std::regex("^'.*")  // comments
-            , std::regex("^`")  // quote
-        };
     };
 }
 

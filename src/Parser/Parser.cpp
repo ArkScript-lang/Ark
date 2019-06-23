@@ -248,7 +248,7 @@ namespace Ark
                 if (it == n.list().end())
                     break;
 
-                if (it->nodeType() == NodeType::Symbol && it->string() == "`")
+                if (it->nodeType() == NodeType::Symbol && it->string() == "'")
                 {
                     Node temp(NodeType::List);
 
