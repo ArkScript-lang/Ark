@@ -3,31 +3,49 @@
 
 #include <vector>
 #include <regex>
+#include <algorithm>
 
 #include <Ark/Utils.hpp>
 
 namespace Ark::internal
 {
+    enum class TokenType
+    {
+        Grouping,
+        String,
+        Number,
+        Operator,
+        Identifier,
+        Keyword,
+        Skip,
+        Comment
+    };
+
     struct Token
     {
+        TokenType type;
         std::string token;
         std::size_t line;
         std::size_t col;
 
-        Token(const std::string& tok, std::size_t line, std::size_t col) :
-            token(tok), line(line), col(col)
+        Token(TokenType type, const std::string& tok, std::size_t line, std::size_t col) :
+            type(type), token(tok), line(line), col(col)
         {}
+    };
+    
+    const std::vector<std::string> keywords = {
+        "if", "let", "mut", "set", "fun", "while",
+        "begin", "import", "quote"
     };
 
     const std::regex lexer_regex("^"
-        "([\\(\\)\\[\\]\\{\\}])|"  // grouping
+        "(\\(\\)\\[\\]\\{\\})|"  // grouping
         "(\"[^\"]*\")|"  // strings
         "(((\\+|-)?[[:digit:]]+)([\\.|/](([[:digit:]]+)?))?)|"  // numbers
-        "(\\+|-|\\*|/|<=|>=|!=|<|>|=|\\^|@)|"  // operators
+        "(\\+|-|\\*|/|<=|>=|!=|<|>|@|@=|=|\\^|')|"  // operators
         "([a-zA-Z_][a-zA-Z0-9_\\-!?']*)|"  // identifiers
         "(\\s+)|"  // whitespaces
-        "(#.*)|"  // comments
-        "(')"  // quoting
+        "(#.*)"  // comments
     );
 
     class Lexer

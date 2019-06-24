@@ -87,6 +87,7 @@ namespace Ark
 
     Node Parser::compile(std::list<Token>& tokens)
     {
+        // sugar() was called before, so it's safe to assume we only have ( and )
         const Token t = tokens.front();
         const std::string token = t.token;
         tokens.pop_front();

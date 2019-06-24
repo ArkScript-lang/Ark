@@ -76,7 +76,8 @@ int main(int argc, char** argv)
          version_ = false,
          compiler_ = false,
          vm_ = false,
-         bcr_ = false;
+         bcr_ = false,
+         dev_info_ = false;
 
     std::string input_file = "", output_file = "";
     bool debug = false, timer = false, count_fcall = false;
@@ -86,6 +87,7 @@ int main(int argc, char** argv)
         // general options
         option("-h", "--help").set(help_).doc("Display this help message")
         | option("--version").set(version_).doc("Display Ark lang version and exit")
+        | option("--dev-info").set(dev_info_).doc("Display development informations and exit")
         | (value("file", input_file)
             , option("-c", "--compile").set(compiler_).doc("Compile file")
             , option("-o", "--output").doc("Set the output filename for the compiler") & value("out", output_file)
@@ -119,6 +121,17 @@ int main(int argc, char** argv)
         if (version_)
         {
             std::cout << "Version " << ARK_VERSION_MAJOR << "." << ARK_VERSION_MINOR << "." << ARK_VERSION_PATCH << std::endl;
+            return 0;
+        }
+
+        if (dev_info_)
+        {
+            std::cout << "sizeof(Ark::Value) [VM] = " << sizeof(Ark::internal::Value) << "B\n";
+            std::cout << "sizeof(Ark::Frame) [VM] = " << sizeof(Ark::internal::Frame) << "B\n";
+            std::cout << "sizeof(Ark::Closure)    = " << sizeof(Ark::internal::Closure) << "B\n";
+            std::cout << "sizeof(Ark::VM)         = " << sizeof(Ark::VM) << "B\n";
+            std::cout << "sizeof(char)            = " << sizeof(char) << "B\n";
+            std::cout << std::endl;
             return 0;
         }
 
