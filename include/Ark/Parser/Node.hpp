@@ -34,23 +34,6 @@ namespace Ark::internal
         Quote
     };
 
-    inline std::string typeToString(NodeType type) const
-    {
-        // must have the same order as the enum class NodeType L17
-        static const std::vector<std::string> nodetype_str = {
-            "Symbol", "Keyword", "String", "Number", "List", "Closure"
-        };
-
-        if (type == NodeType::Symbol)
-        {
-            if (string() == "nil")
-                return "Nil";
-            return "Bool";
-        }
-        
-        return nodetype_str[static_cast<int>(type)];
-    }
-
     class Node
     {
     public:
@@ -108,6 +91,23 @@ namespace Ark::internal
         
         // any other type => false (here, Closure)
         return false;
+    }
+
+    inline std::string typeToString(Node node)
+    {
+        // must have the same order as the enum class NodeType L17
+        static const std::vector<std::string> nodetype_str = {
+            "Symbol", "Keyword", "String", "Number", "List", "Closure"
+        };
+
+        if (node.nodeType() == NodeType::Symbol)
+        {
+            if (node.string() == "nil")
+                return "Nil";
+            return "Bool";
+        }
+        
+        return nodetype_str[static_cast<int>(node.nodeType())];
     }
 
     using Nodes = std::vector<Node>;
