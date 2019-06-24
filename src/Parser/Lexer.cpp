@@ -11,33 +11,36 @@ namespace Ark::internal
 
     void Lexer::feed(const std::string& code)
     {
-        std::string s = code;
+        std::string src = code;
         std::size_t line = 1, character = 0;
 
-        while (!s.empty())
+        while (!src.empty())
         {
-            std::smatch m;
-            if (std::regex_search(s, m, lexer_regex))
+            for (auto& item: lex_regexes)
             {
-                std::string m0(m[0]);
-
-                // stripping blanks characters between instructions, and comments
-                if (std::string::npos != m0.find_first_not_of(" \t\v\r\n") && m0.substr(0, 1) != "#")
-                    m_tokens.push_back({ m[0], line, character });
-                // line-char counter
-                if (std::string::npos != m0.find_first_of("\r\n"))
+                std::smatch m;
+                if (std::regex_search(src, m, item.second))
                 {
-                    line++;
-                    character = 0;
-                }
-                character += m[0].length();
+                    std::string result = m[0];
 
-                s = std::regex_replace(s, lexer_regex, std::string(""), std::regex_constants::format_first_only);
-            }
-            else
-            {
-                Ark::logger.error("[Lexer] Tokenizing error at " + Ark::Utils::toString(line) + ":" + Ark::Utils::toString(character - 1));
-                break;
+                    // stripping blanks characters between instructions, and comments
+                    if (item.first != TokenType::Skip && item.first != TokenType::Comment)
+                        m_tokens.push_back({ item.first, result, line, character });
+                    // line-char counter
+                    if (std::string::npos != result.find_first_of("\r\n"))
+                    {
+                        line++;
+                        character = 0;
+                    }
+                    character += result.length();
+
+                    src = std::regex_replace(src, lexer_regex, std::string(""), std::regex_constants::format_first_only);
+                }
+                else
+                {
+                    Ark::logger.error("[Lexer] Tokenizing error at " + Ark::Utils::toString(line) + ":" + Ark::Utils::toString(character - 1));
+                    break;
+                }
             }
         }
 

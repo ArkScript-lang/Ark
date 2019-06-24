@@ -4,6 +4,7 @@
 #include <vector>
 #include <regex>
 #include <algorithm>
+#include <unordered_map>
 
 #include <Ark/Utils.hpp>
 
@@ -38,15 +39,15 @@ namespace Ark::internal
         "begin", "import", "quote"
     };
 
-    const std::regex lexer_regex("^"
-        "(\\(\\)\\[\\]\\{\\})|"  // grouping
-        "(\"[^\"]*\")|"  // strings
-        "(((\\+|-)?[[:digit:]]+)([\\.|/](([[:digit:]]+)?))?)|"  // numbers
-        "(\\+|-|\\*|/|<=|>=|!=|<|>|@|@=|=|\\^|')|"  // operators
-        "([a-zA-Z_][a-zA-Z0-9_\\-!?']*)|"  // identifiers
-        "(\\s+)|"  // whitespaces
-        "(#.*)"  // comments
-    );
+    const std::unordered_map<TokenType, std::regex> lex_regexes = {
+        { TokenType::Grouping,   std::regex("^(\\(\\)\\[\\]\\{\\})") },
+        { TokenType::String,     std::regex("^(\"[^\"]*\")") },
+        { TokenType::Number,     std::regex("^(((\\+|-)?[[:digit:]]+)([\\.|/](([[:digit:]]+)?))?)") },
+        { TokenType::Operator,   std::regex("^(\\+|-|\\*|/|<=|>=|!=|<|>|@|@=|=|\\^|')") },
+        { TokenType::Identifier, std::regex("^([a-zA-Z_][a-zA-Z0-9_\\-!?']*)") },
+        { TokenType::Skip,       std::regex("^(\\s+)") },
+        { TokenType::Comment,    std::regex("^(#.*)") }
+    };
 
     class Lexer
     {
