@@ -136,15 +136,15 @@ namespace Ark::internal
         case NodeType::Keyword:
             switch(N.keyword())
             {
-            case Keyword::Fun:    os << "Fun";    break;
-            case Keyword::Let:    os << "Let";    break;
-            case Keyword::Mut:    os << "Mut";    break;
-            case Keyword::Set:    os << "Set";    break;
-            case Keyword::If:     os << "If";     break;
-            case Keyword::While:  os << "While";  break;
-            case Keyword::Begin:  os << "Begin";  break;
-            case Keyword::Import: os << "Import"; break;
-            case Keyword::Quote:  os << "Quote";  break;
+                case Keyword::Fun:    os << "Fun";    break;
+                case Keyword::Let:    os << "Let";    break;
+                case Keyword::Mut:    os << "Mut";    break;
+                case Keyword::Set:    os << "Set";    break;
+                case Keyword::If:     os << "If";     break;
+                case Keyword::While:  os << "While";  break;
+                case Keyword::Begin:  os << "Begin";  break;
+                case Keyword::Import: os << "Import"; break;
+                case Keyword::Quote:  os << "Quote";  break;
             }
             break;
 
