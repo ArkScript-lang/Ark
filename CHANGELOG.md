@@ -11,6 +11,7 @@
 - the lexer is now detecting the type of the tokens it's playing with
 
 ### Removed
+- Lexer::check, we should see if the program is correct when building the AST
 
 ## 2.2.0-dev
 ### Added

@@ -17,10 +17,7 @@ namespace Ark
     {
         std::ifstream ifs(file, std::ios::binary | std::ios::ate);
         if (!ifs.good())
-        {
-            Ark::logger.error("[BytecodeReader] Couldn't open file '" + file + "'");
-            exit(1);
-        }
+            throw std::runtime_error("[BytecodeReader] Couldn't open file '" + file + "'");
         std::ifstream::pos_type pos = ifs.tellg();
         // reserve appropriate number of bytes
         std::vector<char> temp(pos);

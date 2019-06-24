@@ -23,11 +23,6 @@ namespace Ark
             m_file = Ark::Utils::canonicalRelPath(filename);
 
         m_lexer.feed(code);
-        if (!m_lexer.check())
-        {
-            Ark::logger.error("[Parser] Can not continue, lexer has errors for you");
-            exit(1);
-        }
 
         // apply syntactic sugar
         std::vector<Token> t = m_lexer.tokens();
@@ -67,15 +62,15 @@ namespace Ark
             
             if (tokens[i].token == "{")
             {
-                tokens[i] = Token("(", line, col);
-                tokens.insert(tokens.begin() + i + 1, Token("begin", line, col));
+                tokens[i] = Token(TokenType::Grouping, "(", line, col);
+                tokens.insert(tokens.begin() + i + 1, Token(TokenType::Keyword, "begin", line, col));
             }
             else if (tokens[i].token == "}" || tokens[i].token == "]")
-                tokens[i] = Token(")", line, col);
+                tokens[i] = Token(TokenType::Grouping, ")", line, col);
             else if (tokens[i].token == "[")
             {
-                tokens[i] = Token("(", line, col);
-                tokens.insert(tokens.begin() + i + 1, Token("list", line, col));
+                tokens[i] = Token(TokenType::Grouping, "(", line, col);
+                tokens.insert(tokens.begin() + i + 1, Token(TokenType::Keyword, "list", line, col));
             }
 
             ++i;
@@ -88,18 +83,36 @@ namespace Ark
     Node Parser::compile(std::list<Token>& tokens)
     {
         // sugar() was called before, so it's safe to assume we only have ( and )
-        const Token t = tokens.front();
-        const std::string token = t.token;
+        const Token token = tokens.front();
         tokens.pop_front();
 
-        if (token == "(")
+        if (token.token == "(")
         {
-            Node n(NodeType::List);
-            n.setPos(t.line, t.col);
+            // create a list node to host the block
+            Node block(NodeType::List);
+            block.setPos(token.line, token.col);
+
+            // loop until we reach the end of the block
             while (tokens.front().token != ")")
-                n.push_back(compile(tokens));
+            {
+                block.push_back(atom(token));
+
+                if (token.type == TokenType::Keyword)
+                {}
+                else if (token.type == TokenType::Identifier || token.type == TokenType::Operator)
+                {}
+                else if (token.type == TokenType::Shorthand)
+                {}
+                else
+                    throw std::runtime_error("ParseError: can not create block from token " + tokens.front().token);
+
+                // block.push_back(compile(tokens));
+            }
+            
+            // pop the ")"
             tokens.pop_front();
-            return n;
+
+            return block;
         }
         else
             return atom(t);
@@ -107,15 +120,16 @@ namespace Ark
 
     Node Parser::atom(const Token& token)
     {
-        if (Ark::Utils::isInteger(token.token) || Ark::Utils::isFloat(token.token))
+        if (token.type == TokenType::Number)
         {
             auto n = Node(std::stod(token.token));
             n.setPos(token.line, token.col);
             return n;
         }
-        if (token.token[0] == '"')
+        else if (token.type == TokenType::String)
         {
             std::string str = token.token;
+            // remove the " at the beginning and at the end
             str.erase(0, 1);
             str.erase(token.token.size() - 2, 1);
 
@@ -123,35 +137,19 @@ namespace Ark
             n.setPos(token.line, token.col);
             return n;
         }
-        
-        std::optional<Keyword> kw;
-        if (token.token == "if")
-            kw = Keyword::If;
-        else if (token.token == "set")
-            kw = Keyword::Set;
-        else if (token.token == "let")
-            kw = Keyword::Let;
-        else if (token.token == "fun")
-            kw = Keyword::Fun;
-        else if (token.token == "while")
-            kw = Keyword::While;
-        else if (token.token == "begin")
-            kw = Keyword::Begin;
-        else if (token.token == "import")
-            kw = Keyword::Import;
-        else if (token.token == "quote")
-            kw = Keyword::Quote;
-        if (kw)
+        else if (token.type == TokenType::Identifier)
         {
-            auto n = Node(kw.value());
+            auto n = Node(NodeType::Symbol);
+            n.setString(token.token);
             n.setPos(token.line, token.col);
             return n;
         }
-        
-        auto n = Node(NodeType::Symbol);
-        n.setString(token.token);
-        n.setPos(token.line, token.col);
-        return n;
+        else if (token.type == TokenType::Keyword)
+        {
+            auto n = Node(Keyword::);
+            n.setPos(token.line, token.col);
+            return n;
+        }
     }
 
     bool Parser::checkForInclude(Node& n)
@@ -213,22 +211,13 @@ namespace Ark
                                 if (Ark::Utils::fileExists(libpath))
                                     p.feed(Ark::Utils::readFile(libpath), libpath);
                                 else
-                                {
-                                    Ark::logger.error("Couldn't find file", file);
-                                    exit(1);
-                                }
+                                    throw std::runtime_error("ParseError: Couldn't find file " + file);
                             }
 
-                            if (p.check())
-                                n.list().push_back(p.ast());
-                            else
-                                exit(1);
+                            n.list().push_back(p.ast());
                         }
                         else
-                        {
-                            Ark::logger.error("Cyclic inclusion issue: file {0} is trying to include {1} which was already included"s, m_file, path);
-                            exit(1);
-                        }
+                            throw std::runtime_error("ParseError: Cyclic inclusion issue: file " + m_file + " is trying to include " + path + " which was already included");
                     }
                 }
             }

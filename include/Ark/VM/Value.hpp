@@ -16,6 +16,21 @@ namespace Ark::internal
 {
     class Frame;
 
+    inline std::string typeToString(std::size_t index) const
+    {
+        // must have the same order as the variant on L26
+        static const std::vector<std::string> types_str = { "Number", "String", "PageAddr", "Symbol", "Procedure", "Closure" };
+        
+        if (isNFT())
+        {
+            if (nft() == NFT::Nil)
+                return "Nil";
+            return "Bool";
+        }
+
+        return types_str[index];
+    }
+
     class Value
     {
     public:
@@ -58,21 +73,6 @@ namespace Ark::internal
 
         friend std::ostream& operator<<(std::ostream& os, const Value& V);
         friend inline bool operator==(const Value& A, const Value& B);
-
-        inline std::string typeToString() const
-        {
-            // must have the same order as the variant on L26
-            static const std::vector<std::string> types_str = { "Number", "String", "PageAddr", "Symbol", "Procedure", "Closure" };
-            
-            if (isNFT())
-            {
-                if (nft() == NFT::Nil)
-                    return "Nil";
-                return "Bool";
-            }
-
-            return types_str[m_value.index()];
-        }
 
     private:
         ValueType m_value;

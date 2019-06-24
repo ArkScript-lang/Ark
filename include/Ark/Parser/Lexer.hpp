@@ -19,7 +19,8 @@ namespace Ark::internal
         Identifier,
         Keyword,
         Skip,
-        Comment
+        Comment,
+        Shorthand
     };
 
     struct Token
@@ -43,10 +44,11 @@ namespace Ark::internal
         { TokenType::Grouping,   std::regex("^(\\(\\)\\[\\]\\{\\})") },
         { TokenType::String,     std::regex("^(\"[^\"]*\")") },
         { TokenType::Number,     std::regex("^(((\\+|-)?[[:digit:]]+)([\\.|/](([[:digit:]]+)?))?)") },
-        { TokenType::Operator,   std::regex("^(\\+|-|\\*|/|<=|>=|!=|<|>|@|@=|=|\\^|')") },
+        { TokenType::Operator,   std::regex("^(\\+|-|\\*|/|<=|>=|!=|<|>|@|@=|=|\\^)") },
         { TokenType::Identifier, std::regex("^([a-zA-Z_][a-zA-Z0-9_\\-!?']*)") },
         { TokenType::Skip,       std::regex("^(\\s+)") },
-        { TokenType::Comment,    std::regex("^(#.*)") }
+        { TokenType::Comment,    std::regex("^(#.*)") },
+        { TokenType::Shorthand,  std::regex("^(')") }
     };
 
     class Lexer
@@ -55,8 +57,6 @@ namespace Ark::internal
         Lexer(bool debug=false);
 
         void feed(const std::string& code);
-        bool check();
-
         const std::vector<Token>& tokens();
 
     private:

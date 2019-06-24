@@ -75,50 +75,6 @@ namespace Ark::internal
         }
     }
 
-    bool Lexer::check()
-    {
-        // checks if code is correctly written
-        std::size_t lparen = 0, rparen = 0;
-        std::size_t nested_lparen = 0;
-        std::size_t i = 0;
-
-        while (true)
-        {
-            auto t = m_tokens[i].token;
-
-            if (t == "(" || t == "[" || t == "{")
-            {
-                lparen++;
-                nested_lparen++;
-            }
-            if (t == ")" || t == "]" || t == "}")
-            {
-                rparen++;
-                if (nested_lparen > 0)
-                    nested_lparen--;
-                else
-                {
-                    Ark::logger.error(std::string("[Lexer] Found a ')' not matching any '('. At {0}:{1}"), m_tokens[i].line, m_tokens[i].col);
-                    return false;
-                }
-            }
-
-            // go to next token
-            if (i < m_tokens.size() - 1)
-                i++;
-            else
-                break;
-        }
-
-        if (lparen != rparen)
-        {
-            Ark::logger.error("[Lexer] Found " + Ark::Utils::toString(lparen) + std::string(" '(' for ") + Ark::Utils::toString(rparen) + std::string(" ')'"));
-            return false;
-        }
-
-        return true;
-    }
-
     const std::vector<Token>& Lexer::tokens()
     {
         return m_tokens;

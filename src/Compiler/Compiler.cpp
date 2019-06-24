@@ -18,10 +18,7 @@ namespace Ark
         m_parser.feed(code, filename);
         
         if (!m_parser.check())
-        {
-            Ark::logger.error("[Compiler] Program has errors");
-            exit(1);
-        }
+            throw std::runtime_error("[Compiler] Program has errors");
     }
 
     void Compiler::compile()

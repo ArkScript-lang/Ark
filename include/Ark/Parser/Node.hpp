@@ -25,6 +25,7 @@ namespace Ark::internal
     {
         Fun,
         Let,
+        Mut,
         Set,
         If,
         While,
@@ -32,6 +33,23 @@ namespace Ark::internal
         Import,
         Quote
     };
+
+    inline std::string typeToString(NodeType type) const
+    {
+        // must have the same order as the enum class NodeType L17
+        static const std::vector<std::string> nodetype_str = {
+            "Symbol", "Keyword", "String", "Number", "List", "Closure"
+        };
+
+        if (type == NodeType::Symbol)
+        {
+            if (string() == "nil")
+                return "Nil";
+            return "Bool";
+        }
+        
+        return nodetype_str[static_cast<int>(type)];
+    }
 
     class Node
     {
@@ -66,23 +84,6 @@ namespace Ark::internal
 
         friend std::ostream& operator<<(std::ostream& os, const Node& N);
         friend inline bool operator==(const Node& A, const Node& B);
-
-        inline std::string typeToString() const
-        {
-            // must have the same order as the enum class NodeType L17
-            static const std::vector<std::string> nodetype_str = {
-                "Symbol", "Keyword", "String", "Number", "List", "Closure"
-            };
-
-            if (m_type == NodeType::Symbol)
-            {
-                if (string() == "nil")
-                    return "Nil";
-                return "Bool";
-            }
-            
-            return nodetype_str[static_cast<int>(m_type)];
-        }
 
     private:
         NodeType m_type;

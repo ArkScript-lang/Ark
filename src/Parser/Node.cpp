@@ -138,6 +138,7 @@ namespace Ark::internal
             {
             case Keyword::Fun:    os << "Fun";    break;
             case Keyword::Let:    os << "Let";    break;
+            case Keyword::Mut:    os << "Mut";    break;
             case Keyword::Set:    os << "Set";    break;
             case Keyword::If:     os << "If";     break;
             case Keyword::While:  os << "While";  break;
