@@ -17,7 +17,6 @@ namespace Ark
         Parser(bool debug=false);
 
         void feed(const std::string& code, const std::string& filename="FILE");
-        bool check();
         const internal::Node& ast() const;
 
         friend std::ostream& operator<<(std::ostream& os, const Parser& P);
@@ -31,11 +30,12 @@ namespace Ark
         std::vector<std::string> m_parent_include;
 
         void sugar(std::vector<internal::Token>& tokens);
-        internal::Node compile(std::list<internal::Token>& tokens);
-        internal::Node atom(const internal::Token& token);
+        internal::Node parse(std::list<internal::Token>& tokens);
+        internal::Node nextToken(std::list<internal::Token>& tokens);
+        internal::Token atom(const internal::Token& token);
+
         bool checkForInclude(internal::Node& n);
         void checkForQuote(internal::Node& n);
-        bool _check(const internal::Node& ast);
     };
 }
 

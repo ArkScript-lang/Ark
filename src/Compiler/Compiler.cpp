@@ -16,9 +16,6 @@ namespace Ark
     void Compiler::feed(const std::string& code, const std::string& filename)
     {
         m_parser.feed(code, filename);
-        
-        if (!m_parser.check())
-            throw std::runtime_error("[Compiler] Program has errors");
     }
 
     void Compiler::compile()

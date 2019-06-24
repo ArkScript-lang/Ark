@@ -29,7 +29,7 @@ namespace Ark
         sugar(t);
         // create program and raise error if it can't
         std::list<Token> tokens(t.begin(), t.end());
-        m_ast = compile(tokens);
+        m_ast = parse(tokens);
         // include files if needed
         checkForInclude(m_ast);
         // expend macros
@@ -40,11 +40,6 @@ namespace Ark
             Ark::logger.info("(Parser) AST:");
             std::cout << m_ast << std::endl << std::endl;
         }
-    }
-    
-    bool Parser::check()
-    {
-        return _check(m_ast);
     }
 
     const Node& Parser::ast() const
@@ -80,11 +75,10 @@ namespace Ark
         }
     }
 
-    Node Parser::compile(std::list<Token>& tokens)
+    // sugar() was called before, so it's safe to assume we only have ( and )
+    Node Parser::parse(std::list<Token>& tokens)
     {
-        // sugar() was called before, so it's safe to assume we only have ( and )
-        const Token token = tokens.front();
-        tokens.pop_front();
+        Token token = nextToken(tokens);
 
         if (token.token == "(")
         {
@@ -98,15 +92,47 @@ namespace Ark
                 block.push_back(atom(token));
 
                 if (token.type == TokenType::Keyword)
-                {}
+                {
+                    if (token.token == "if")
+                    {
+                        auto temp = tokens.front();
+                        // parse condition
+                        if (temp.type == TokenType::Grouping)
+                            block.push_back(parse(tokens));
+                        else if (temp.type == TokenType::Identifier || temp.type == TokenType::Number ||
+                                 temp.type == TokenType::String)
+                            block.push_back(atom(temp));
+                        
+                        // TODO parse 'then'
+
+                        // TODO parse 'else'
+                    }
+                    else if (token.token == "let")
+                    {}
+                    else if (token.token == "mut")
+                    {}
+                    else if (token.token == "set")
+                    {}
+                    else if (token.token == "fun")
+                    {}
+                    else if (token.token == "while")
+                    {}
+                    else if (token.token == "begin")
+                    {}
+                    else if (token.token == "import")
+                    {}
+                    else if (token.token == "quote")
+                    {}
+                }
                 else if (token.type == TokenType::Identifier || token.type == TokenType::Operator)
                 {}
                 else if (token.type == TokenType::Shorthand)
-                {}
+                {
+                    if (token.token == "'")
+                    {}
+                }
                 else
                     throw std::runtime_error("ParseError: can not create block from token " + tokens.front().token);
-
-                // block.push_back(compile(tokens));
             }
             
             // pop the ")"
@@ -114,8 +140,15 @@ namespace Ark
 
             return block;
         }
-        else
-            return atom(t);
+        
+        throw std::runtime_error("ParseError: single expressions are not allowed");
+    }
+
+    Token Parser::nextToken(std::list<Token>& tokens)
+    {
+        const Token out = tokens.front();
+        tokens.pop_front();
+        return out;
     }
 
     Node Parser::atom(const Token& token)
@@ -137,19 +170,18 @@ namespace Ark
             n.setPos(token.line, token.col);
             return n;
         }
-        else if (token.type == TokenType::Identifier)
-        {
-            auto n = Node(NodeType::Symbol);
-            n.setString(token.token);
-            n.setPos(token.line, token.col);
-            return n;
-        }
         else if (token.type == TokenType::Keyword)
         {
             auto n = Node(Keyword::);
             n.setPos(token.line, token.col);
             return n;
         }
+
+        // assuming it is a symbol
+        auto n = Node(NodeType::Symbol);
+        n.setString(token.token);
+        n.setPos(token.line, token.col);
+        return n;
     }
 
     bool Parser::checkForInclude(Node& n)
@@ -263,240 +295,6 @@ namespace Ark
                 ++i;
                 ++it;
             }
-        }
-    }
-    
-    bool Parser::_check(const Node& ast)
-    {
-        using namespace std::string_literals;
-
-        if (ast.nodeType() == NodeType::List)
-        {
-            const Nodes& p = ast.const_list();
-            if (p.size() == 0)
-                return true;
-            
-            Node n = p[0];
-            
-            switch (n.nodeType())
-            {
-                case NodeType::Keyword:
-                {
-                    switch (n.keyword())
-                    {
-                        case Keyword::Fun:
-                        {
-                            if (p.size() == 3)
-                            {
-                                if (p[1].nodeType() != NodeType::List)
-                                {
-                                    Ark::logger.error("[Parser] function needs a symbols' list as 1st argument, at {0}:{1} in {2}"s, p[1].line(), p[1].col(), p);
-                                    return false;
-                                }
-                                
-                                for (Node::Iterator it2=p[1].const_list().begin(); it2 != p[1].const_list().end(); ++it2)
-                                {
-                                    if (it2->nodeType() != NodeType::Symbol)
-                                    {
-                                        Ark::logger.error("[Parser] found a non-symbol in function arguments' list, at {0}:{1} in {2}"s, it2->line(), it2->col(), *it2);
-                                        return false;
-                                    }
-                                }
-                                
-                                if (!_check(p[2]))
-                                {
-                                    Ark::logger.error("[Parser] function body is ill-formed, at {0}:{1} in {2}"s, p[2].line(), p[2].col(), p);
-                                    return false;
-                                }
-                                return true;
-                            }
-                            Ark::logger.error("[Parser] need 2 nodes to create a function: the arguments' list and the function body, at {0}:{1} in {2}"s, n.line(), n.col(), n);
-                            return false;
-                        }
-                        
-                        case Keyword::Let:
-                        {
-                            if (p.size() == 3)
-                            {
-                                if (p[1].nodeType() != NodeType::Symbol)
-                                {
-                                    Ark::logger.error("[Parser] need a symbol to name a variable, at {0}:{1} in {2}"s, p[1].line(), p[1].col(), p);
-                                    return false;
-                                }
-                                if (!_check(p[2]))
-                                {
-                                    Ark::logger.error("[Parser] value needed to define a variable is ill-formed, at {0}:{1} in {2}"s, p[2].line(), p[2].col(), p);
-                                    return false;
-                                }
-                                return true;
-                            }
-                            Ark::logger.error("[Parser] need 2 nodes to create a variable: the variable name to create and the value, at {0}:{1}, got {2} in {3}"s, n.line(), n.col(), p.size(), p);
-                            return false;
-                        }
-                        
-                        case Keyword::Set:
-                        {
-                            if (p.size() == 3)
-                            {
-                                if (p[1].nodeType() != NodeType::Symbol)
-                                {
-                                    Ark::logger.error("[Parser] need a symbol to find the variable to set, at {0}:{1} in {2}"s, p[1].line(), p[1].col(), p);
-                                    return false;
-                                }
-                                if (!_check(p[2]))
-                                {
-                                    Ark::logger.error("[Parser] value given to variable is ill-formed, at {0}:{1} in {2}"s, p[2].line(), p[2].col(), p);
-                                    return false;
-                                }
-                                return true;
-                            }
-                            Ark::logger.error("[Parser] need 2 nodes to set a variable: the variable name and the new value, at {0}:{1} in {2}"s, n.line(), n.col(), p);
-                            return false;
-                        }
-                        
-                        case Keyword::If:
-                        {
-                            if (p.size() == 4)
-                            {
-                                if (!_check(p[1]))
-                                {
-                                    Ark::logger.error("[Parser] if condition is ill-formed, at {0}:{1} in {2}"s, p[1].line(), p[1].col(), p);
-                                    return false;
-                                }
-                                if (!_check(p[2]))
-                                {
-                                    Ark::logger.error("[Parser] if-condition: then part is ill-formed, at {0}:{1} in {2}"s, p[2].line(), p[2].col(), p);
-                                    return false;
-                                }
-                                if (!_check(p[3]))
-                                {
-                                    Ark::logger.error("[Parser] if-condition: else part is ill-formed, at {0}:{1} in {2}"s, p[3].line(), p[3].col(), p);
-                                    return false;
-                                }
-                                return true;
-                            }
-                            Ark::logger.error("[Parser] need 3 nodes to create an if-condition: the condition, the then part, and the else part, at {0}:{1} in {2}"s, n.line(), n.col(), p);
-                            return false;
-                        }
-                        
-                        case Keyword::While:
-                        {
-                            if (p.size() == 3)
-                            {
-                                if (!_check(p[1]))
-                                {
-                                    Ark::logger.error("[Parser] while condition is ill-formed, at {0}:{1} in {2}"s, p[1].line(), p[1].col(), p);
-                                    return false;
-                                }
-                                if (!_check(p[2]))
-                                {
-                                    Ark::logger.error("[Parser] while body is ill-formed, at {0}:{1} in {2}"s, p[2].line(), p[2].col(), p);
-                                    return false;
-                                }
-                                return true;
-                            }
-                            Ark::logger.error("[Parser] need 2 nodes to create a while loop: the condition and the body, at {0}:{1} in {2}"s, n.line(), n.col(), p);
-                            return false;
-                        }
-                        
-                        case Keyword::Begin:
-                        {
-                            for (Node::Iterator it2=p.begin()+1; it2 != p.end(); ++it2)
-                            {
-                                if (!_check(*it2))
-                                {
-                                    Ark::logger.error("[Parser] begin node contains an ill-formed node, at {0}:{1} in {2}"s, it2->line(), it2->col(), *it2);
-                                    return false;
-                                }
-                            }
-                            return true;
-                        }
-
-                        case Keyword::Import:
-                        {
-                            if (p.size() == 2)
-                            {
-                                if (p[1].nodeType() != NodeType::String)
-                                {
-                                    Ark::logger.error("[Parser] import needs String, at {0}:{1} in {2}"s, p[1].line(), p[1].col(), p);
-                                    return false;
-                                }
-                                return true;
-                            }
-                            Ark::logger.error("[Parser] need at least 1 plugin name");
-                            return false;
-                        }
-
-                        case Keyword::Quote:
-                        {
-                            if (p.size() == 2)
-                                return true;
-                            Ark::logger.error("[Parser] quote needs a single argument, at {0}:{1} in {2}"s, p[1].line(), p[1].col(), p);
-                            return false;
-                        }
-                        
-                        default:
-                            Ark::logger.error("[Parser] unknown keyword type, at {0}:{1} in {2}"s, n.line(), n.col(), p);
-                            return false;
-                    }
-                    break;
-                }
-                
-                case NodeType::Symbol:
-                {
-                    std::string s = n.string();
-                    bool b = true;
-                    // 2 or more arguments
-                    if (s == "+" || s == "-" || s == "/" || s == "*" || s == "and" || s == "or")
-                        b = p.size() > 2;
-                    // exactly 2 arguments
-                    else if (s == "<" || s == ">" || s == "<=" || s == ">=" || s == "!=" || s == "=" || s == "assert" || s == "@" || s == "mod")
-                        b = p.size() == 3;
-                    // exactly 1 argument
-                    else if (s == "len" || s == "empty?" || s == "firstof" || s == "tailof" || s == "headof" || s == "nil?" || s == "toNumber" || s == "toString")
-                        b = p.size() == 2;
-                    // at least 1 argument
-                    else if (s == "append" || s == "cons" || s == "print")
-                        b = p.size() > 1;
-                    // 0 or 1 argument
-                    else if (s == "input")
-                        b = p.size() <= 2;
-                    // at least 0 arguments
-                    else if (s == "list")
-                        b = p.size() >= 1;
-                    if (!b)
-                        Ark::logger.error("[Parser] builtin function '" + s + "' has the wrong number of arguments, at {0}:{1} in {2}"s, n.line(), n.col(), p);
-                    return b;
-                }
-                
-                case NodeType::String:
-                case NodeType::Number:
-                {
-                    return true;
-                }
-                
-                case NodeType::List:
-                {
-                    if (!_check(n))
-                    {
-                        Ark::logger.error("[Parser] ill-formed node list, at {0}:{1} in {2}"s, n.line(), n.col(), p);
-                        return false;
-                    }
-                    return true;
-                }
-                
-                default:
-                    Ark::logger.error("[Parser] node type unknow, at {0}:{1} in {2}"s, n.line(), n.col(), p);
-                    return false;
-            }
-        }
-        else
-        {
-            // keyword alone shouldn't work
-            if (ast.nodeType() != NodeType::Keyword)
-                return true;
-            Ark::logger.error("[Parser] keyword node can not be alone in the dark");
-            return false;
         }
     }
 
