@@ -18,14 +18,21 @@ namespace Ark::internal
         {
             for (auto& item: lex_regexes)
             {
+                TokenType type = item.first;
                 std::smatch m;
+
                 if (std::regex_search(src, m, item.second))
                 {
                     std::string result = m[0];
 
                     // stripping blanks characters between instructions, and comments
-                    if (item.first != TokenType::Skip && item.first != TokenType::Comment)
-                        m_tokens.push_back({ item.first, result, line, character });
+                    if (type == TokenType::Skip || type == TokenType::Comment)
+                        continue;
+                    else if (type == TokenType::Identifier && isKeyword(result))
+                        type = TokenType::Keyword;
+                    
+                    m_tokens.emplace_back(type, result, line, character);
+
                     // line-char counter
                     if (std::string::npos != result.find_first_of("\r\n"))
                     {
@@ -34,7 +41,7 @@ namespace Ark::internal
                     }
                     character += result.length();
 
-                    src = std::regex_replace(src, lexer_regex, std::string(""), std::regex_constants::format_first_only);
+                    src = std::regex_replace(src, item.second, std::string(""), std::regex_constants::format_first_only);
                 }
                 else
                 {

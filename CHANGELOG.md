@@ -8,6 +8,7 @@
 ### Changed
 - moved everything from the "folder namespaces" to a single `Ark::internal` namespace
 - using `#` instead of `'` for the comments, using `'` to quote instead of `` ` ``
+- the lexer is now detecting the type of the tokens it's playing with
 
 ### Removed
 

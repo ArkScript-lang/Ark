@@ -62,6 +62,11 @@ namespace Ark::internal
     private:
         bool m_debug;
         std::vector<Token> m_tokens;
+
+        inline bool isKeyword(const std::string& value)
+        {
+            return std::find(keywords.begin(), keywords.end(), value) != keywords.end();
+        }
     };
 }
 
