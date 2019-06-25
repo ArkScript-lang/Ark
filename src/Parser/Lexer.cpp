@@ -28,13 +28,18 @@ namespace Ark::internal
                     if (type == TokenType::Mismatch)
                         throwTokenizingError("couldn't tokenize", result, line, character);
 
-                    // stripping blanks characters between instructions, and comments
-                    if (type == TokenType::Skip || type == TokenType::Comment)
-                        continue;
-                    else if (type == TokenType::Identifier && isKeyword(result))
+                    if (type == TokenType::Identifier && isKeyword(result))
                         type = TokenType::Keyword;
                     
-                    m_tokens.emplace_back(type, result, line, character);
+                    if (m_debug)
+                    {
+                        std::cout << result << " " << line << ":" << character << " ";
+                        std::cout << src.size() << " characters left" << std::endl;
+                    }
+
+                    // stripping blanks characters between instructions, and comments
+                    if (type != TokenType::Skip && type != TokenType::Comment)
+                        m_tokens.emplace_back(type, result, line, character);
 
                     // line-char counter
                     if (std::string::npos != result.find_first_of("\r\n"))
@@ -45,6 +50,7 @@ namespace Ark::internal
                     character += result.length();
 
                     src = std::regex_replace(src, item.second, std::string(""), std::regex_constants::format_first_only);
+                    break;
                 }
             }
         }

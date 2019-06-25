@@ -63,7 +63,7 @@ namespace Ark
             else if (tokens[i].token == "[")
             {
                 tokens[i] = Token(TokenType::Grouping, "(", line, col);
-                tokens.insert(tokens.begin() + i + 1, Token(TokenType::Keyword, "list", line, col));
+                tokens.insert(tokens.begin() + i + 1, Token(TokenType::Identifier, "list", line, col));
             }
 
             ++i;
@@ -84,6 +84,8 @@ namespace Ark
             // create a list node to host the block
             Node block(NodeType::List);
             block.setPos(token.line, token.col);
+            // take next token, we don't want to play with a "("
+            token = nextToken(tokens);
 
             // loop until we reach the end of the block
             while (tokens.front().token != ")")
