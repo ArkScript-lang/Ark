@@ -9,19 +9,19 @@ Ark is a small programming language made in C++17, inspired by Lisp, using under
 ```clojure
 {
     (let create-human (fun (name age weight)
-        ' return value as higher order function to manipulate the data above
-        ' this will be our "constructor"
+        # return value as higher order function to manipulate the data above
+        # this will be our "constructor"
         (fun (f)
         {
-            ' all the setters must be defined in this scope
+            # all the setters must be defined in this scope
             (let set-age (fun (new-age) (set age new-age)))
 
-            ' and then we can call the function
+            # and then we can call the function
             (f name age weight set-age)
         })
     ))
 
-    ' define function to play with the human more easily
+    # define function to play with the human more easily
     (let print-human-age (fun (_ age _ _) (print age)))
     (let set-human-age (fun (new-age)
         (fun (_ _ _ set-age) (set-age new-age))
@@ -30,11 +30,11 @@ Ark is a small programming language made in C++17, inspired by Lisp, using under
     (let bob (create-human "Bob" 0 144))
     (let john (create-human "John" 12 15))
 
-    (bob print-human-age)   ' prints 0
+    (bob print-human-age)   # prints 0
     (bob (set-human-age 10))
-    (bob print-human-age)   ' prints 10
+    (bob print-human-age)   # prints 10
 
-    (john print-human-age)  ' prints 12
+    (john print-human-age)  # prints 12
 }
 ```
 
@@ -83,14 +83,15 @@ $ cd build && sudo make install && cd ..
 # running
 $ Ark --help
 SYNOPSIS
-        Ark -h 
-        Ark --version 
-        Ark <file> [-c] [-o <out>] [-vm] [--count-fcalls] [-bcr] [-d] [-t] 
+        build/Ark -h 
+        build/Ark --version 
+        build/Ark --dev-info 
+        build/Ark <file> [-c] [-o <out>] [-vm] [--count-fcalls] [-bcr] [-d] [-t] 
 
 OPTIONS
         -h, --help                  Display this help message
         --version                   Display Ark lang version and exit
-        <file>                      If no options provided, start the interpreter with the given file
+        --dev-info                  Display development informations and exit
         -c, --compile               Compile file
         -o, --output                Set the output filename for the compiler
         -vm                         Start the VM on the given file
@@ -104,8 +105,9 @@ LICENSE
 ```
 
 The project has been tested on
-* Linux Mint 18, 64 bits
-* Lubuntu 18, 32 bits
+* Linux Mint 18, 64 bits (gcc)
+* Lubuntu 18, 32 bits (gcc)
+* Windows 10, 64 bits (MSVC)
 
 ## [Documentation](doc/main.md)
 
