@@ -93,7 +93,7 @@ namespace Ark::internal
         return false;
     }
 
-    inline std::string typeToString(Node node)
+    inline std::string typeToString(const Node& node)
     {
         // must have the same order as the enum class NodeType L17
         static const std::vector<std::string> nodetype_str = {

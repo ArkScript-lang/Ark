@@ -31,11 +31,18 @@ namespace Ark
 
         void sugar(std::vector<internal::Token>& tokens);
         internal::Node parse(std::list<internal::Token>& tokens);
-        internal::Node nextToken(std::list<internal::Token>& tokens);
-        internal::Token atom(const internal::Token& token);
+        internal::Token nextToken(std::list<internal::Token>& tokens);
+        internal::Node atom(const internal::Token& token);
 
         bool checkForInclude(internal::Node& n);
-        void checkForQuote(internal::Node& n);
+
+        inline void throwParseError(const std::string& message, internal::Token token)
+        {
+            throw std::runtime_error("ParseError: " + message + "\nAt " +
+                Ark::Utils::toString(token.line) + ":" + Ark::Utils::toString(token.col) +
+                " (" + token.token + ")"
+            );
+        }
     };
 }
 

@@ -37,7 +37,7 @@ namespace Ark::internal
     
     const std::vector<std::string> keywords = {
         "if", "let", "mut", "set", "fun", "while",
-        "begin", "import", "quote"
+        "begin", "import", "quote", "del"
     };
 
     const std::unordered_map<TokenType, std::regex> lex_regexes = {

@@ -32,8 +32,6 @@ namespace Ark
         m_ast = parse(tokens);
         // include files if needed
         checkForInclude(m_ast);
-        // expend macros
-        checkForQuote(m_ast);
 
         if (m_debug)
         {
@@ -80,6 +78,7 @@ namespace Ark
     {
         Token token = nextToken(tokens);
 
+        // parse block
         if (token.token == "(")
         {
             // create a list node to host the block
@@ -101,47 +100,113 @@ namespace Ark
                             block.push_back(parse(tokens));
                         else if (temp.type == TokenType::Identifier || temp.type == TokenType::Number ||
                                  temp.type == TokenType::String)
-                            block.push_back(atom(temp));
-                        
-                        // TODO parse 'then'
-
-                        // TODO parse 'else'
+                            block.push_back(atom(nextToken(tokens)));
+                        else
+                            throwParseError("ill-formed if", temp);
+                        // parse 'then'
+                        block.push_back(parse(tokens));
+                        // parse 'else'
+                        block.push_back(parse(tokens));
                     }
                     else if (token.token == "let")
-                    {}
+                    {
+                        auto temp = tokens.front();
+                        // parse identifier
+                        if (temp.type == TokenType::Identifier)
+                            block.push_back(atom(nextToken(tokens)));
+                        else
+                            throwParseError("need an identifier to define a constant", temp);
+                        // value
+                        block.push_back(parse(tokens));
+                    }
                     else if (token.token == "mut")
-                    {}
+                    {
+                        auto temp = tokens.front();
+                        // parse identifier
+                        if (temp.type == TokenType::Identifier)
+                            block.push_back(atom(nextToken(tokens)));
+                        else
+                            throwParseError("need an identifier to define a variable", temp);
+                        // value
+                        block.push_back(parse(tokens));
+                    }
                     else if (token.token == "set")
-                    {}
+                    {
+                        auto temp = tokens.front();
+                        // parse identifier
+                        if (temp.type == TokenType::Identifier)
+                            block.push_back(atom(nextToken(tokens)));
+                        else
+                            throwParseError("need an identifier to set the value of a variable", temp);
+                        // value
+                        block.push_back(parse(tokens));
+                    }
                     else if (token.token == "fun")
-                    {}
+                    {
+                        // parse arguments
+                        if (tokens.front().type == TokenType::Grouping)
+                            block.push_back(parse(tokens));
+                        else
+                            throwParseError("invalid token to define an argument list", tokens.front());
+                        // parse body
+                        if (tokens.front().type == TokenType::Grouping)
+                            block.push_back(parse(tokens));
+                        else
+                            throwParseError("invalid token to define the body of a function", tokens.front());
+                    }
                     else if (token.token == "while")
-                    {}
+                    {
+                        auto temp = tokens.front();
+                        // parse condition
+                        if (temp.type == TokenType::Grouping)
+                            block.push_back(parse(tokens));
+                        else if (temp.type == TokenType::Identifier || temp.type == TokenType::Number ||
+                                 temp.type == TokenType::String)
+                            block.push_back(atom(nextToken(tokens)));
+                        else
+                            throwParseError("ill-formed while", temp);
+                        // parse 'do'
+                        block.push_back(parse(tokens));
+                    }
                     else if (token.token == "begin")
-                    {}
+                    {
+                        block.push_back(parse(tokens));
+                    }
                     else if (token.token == "import")
-                    {}
+                    {
+                        if (tokens.front().type == TokenType::String)
+                            block.push_back(atom(nextToken(tokens)));
+                        else
+                            throwParseError("invalid module to import: should be string", tokens.front());
+                    }
                     else if (token.token == "quote")
-                    {}
+                    {
+                        block.push_back(parse(tokens));
+                    }
                 }
                 else if (token.type == TokenType::Identifier || token.type == TokenType::Operator)
-                {}
+                {
+                    while (tokens.front().token != ")")
+                        block.push_back(parse(tokens));
+                }
                 else if (token.type == TokenType::Shorthand)
                 {
                     if (token.token == "'")
-                    {}
+                    {
+                        block.push_back(Node(Keyword::Quote));
+                        block.push_back(parse(tokens));
+                    }
+                    else
+                        throwParseError("unknown shorthand", token);
                 }
                 else
-                    throw std::runtime_error("ParseError: can not create block from token " + tokens.front().token);
+                    throwParseError("can not create block from token", tokens.front());
             }
-            
             // pop the ")"
             tokens.pop_front();
-
             return block;
         }
-        
-        throw std::runtime_error("ParseError: single expressions are not allowed");
+        return atom(token);
     }
 
     Token Parser::nextToken(std::list<Token>& tokens)
@@ -172,12 +237,25 @@ namespace Ark
         }
         else if (token.type == TokenType::Keyword)
         {
-            auto n = Node(Keyword::);
-            n.setPos(token.line, token.col);
-            return n;
+            std::optional<Keyword> kw;
+            if (token.token == "if")          kw = Keyword::If;
+            else if (token.token == "set")    kw = Keyword::Set;
+            else if (token.token == "let")    kw = Keyword::Let;
+            else if (token.token == "fun")    kw = Keyword::Fun;
+            else if (token.token == "while")  kw = Keyword::While;
+            else if (token.token == "begin")  kw = Keyword::Begin;
+            else if (token.token == "import") kw = Keyword::Import;
+            else if (token.token == "quote")  kw = Keyword::Quote;
+            if (kw)
+            {
+                auto n = Node(kw.value());
+                n.setPos(token.line, token.col);
+                return n;
+            }
+            throwParseError("unknown keyword", token);
         }
 
-        // assuming it is a symbol
+        // assuming it is a TokenType::Identifier, thus a Symbol
         auto n = Node(NodeType::Symbol);
         n.setString(token.token);
         n.setPos(token.line, token.col);
@@ -256,46 +334,6 @@ namespace Ark
         }
         
         return false;
-    }
-
-    void Parser::checkForQuote(Node& n)
-    {
-        if (n.nodeType() == NodeType::List)
-        {
-            std::size_t i = 0;
-            Nodes::iterator it = n.list().begin();
-
-            while (true)
-            {
-                if (it == n.list().end())
-                    break;
-
-                if (it->nodeType() == NodeType::Symbol && it->string() == "'")
-                {
-                    Node temp(NodeType::List);
-
-                    temp.push_back(Node(Keyword::Quote));
-                    while (true)
-                    {
-                        Nodes::iterator it2 = n.list().begin() + 1 + i;
-                        if (it2 == n.list().end())
-                            break;
-                        
-                        checkForQuote(*it2);
-                        temp.push_back(*it2);
-                        n.list().erase(it2);
-                    }
-
-                    *it = temp;
-                    it = n.list().begin();
-                }
-                else if (it->nodeType() == NodeType::List)
-                    checkForQuote(*it);
-
-                ++i;
-                ++it;
-            }
-        }
     }
 
     std::ostream& operator<<(std::ostream& os, const Parser& P)
