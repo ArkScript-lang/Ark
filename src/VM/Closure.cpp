@@ -9,7 +9,7 @@ namespace Ark::internal
         m_page_addr(0)
     {}
 
-    Closure::Closure(std::shared_ptr<Frame> frame_ptr, PageAddr_t pa) :
+    Closure::Closure(const std::shared_ptr<Frame>& frame_ptr, PageAddr_t pa) :
         m_frame(frame_ptr),
         m_page_addr(pa)
     {}
@@ -20,7 +20,7 @@ namespace Ark::internal
         m_symbol = sym;
     }
 
-    std::shared_ptr<Frame> Closure::frame() const
+    const std::shared_ptr<Frame>& Closure::frame() const
     {
         return m_frame;
     }

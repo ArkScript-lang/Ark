@@ -13,11 +13,11 @@ namespace Ark::internal
     {
     public:
         Closure();
-        Closure(std::shared_ptr<Frame> frame_ptr, PageAddr_t pa);
+        Closure(const std::shared_ptr<Frame>& frame_ptr, PageAddr_t pa);
 
         void save(std::size_t frame_idx, uint16_t sym);
 
-        std::shared_ptr<Frame> frame() const;
+        const std::shared_ptr<Frame>& frame() const;
         PageAddr_t pageAddr() const;
         std::size_t frameIndex() const;
         uint16_t symbol() const;
