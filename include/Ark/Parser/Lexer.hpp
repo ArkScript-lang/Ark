@@ -42,14 +42,14 @@ namespace Ark::internal
     };
 
     const std::map<TokenType, std::regex> lex_regexes = {
-        { TokenType::Grouping,   std::regex("^(\\(\\)\\[\\]\\{\\})") },
+        { TokenType::Grouping,   std::regex("^([\\(\\)\\[\\]\\{\\}])") },
         { TokenType::String,     std::regex("^(\"[^\"]*\")") },
         { TokenType::Number,     std::regex("^(((\\+|-)?[[:digit:]]+)([\\.|/](([[:digit:]]+)?))?)") },
-        { TokenType::Operator,   std::regex("^(\\+|-|\\*|/|<=|>=|!=|<|>|@|@=|=|\\^)") },
+        { TokenType::Operator,   std::regex("^([\\+|-|\\*|/|<=|>=|!=|<|>|@|@=|=|\\^])") },
         { TokenType::Identifier, std::regex("^([a-zA-Z_][a-zA-Z0-9_\\-!?']*)") },
         { TokenType::Skip,       std::regex("^(\\s+)") },
         { TokenType::Comment,    std::regex("^(#.*)") },
-        { TokenType::Shorthand,  std::regex("^(')") },
+        { TokenType::Shorthand,  std::regex("^(['])") },
         { TokenType::Mismatch,   std::regex("^(.)") }
     };
 
