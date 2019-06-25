@@ -27,9 +27,6 @@ namespace Ark
 
         void loadFunction(const std::string& name, internal::Value::ProcType function);
 
-        template <typename T>
-        T get(const std::string& name);
-    
     private:
         bool m_debug;
         bool m_count_fcall;
