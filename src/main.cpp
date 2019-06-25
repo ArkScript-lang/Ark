@@ -126,6 +126,7 @@ int main(int argc, char** argv)
 
         if (dev_info_)
         {
+            std::cout << ARK_COMPILER << " " << ARK_COMPILATION_OPTIONS << "\n";
             std::cout << "sizeof(Ark::Value) [VM] = " << sizeof(Ark::internal::Value) << "B\n";
             std::cout << "sizeof(Ark::Frame) [VM] = " << sizeof(Ark::internal::Frame) << "B\n";
             std::cout << "sizeof(Ark::Closure)    = " << sizeof(Ark::internal::Closure) << "B\n";

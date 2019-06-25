@@ -4,7 +4,7 @@
 #include <vector>
 #include <regex>
 #include <algorithm>
-#include <unordered_map>
+#include <map>
 
 #include <Ark/Utils.hpp>
 
@@ -20,7 +20,8 @@ namespace Ark::internal
         Keyword,
         Skip,
         Comment,
-        Shorthand
+        Shorthand,
+        Mismatch
     };
 
     struct Token
@@ -40,7 +41,7 @@ namespace Ark::internal
         "begin", "import", "quote", "del"
     };
 
-    const std::unordered_map<TokenType, std::regex> lex_regexes = {
+    const std::map<TokenType, std::regex> lex_regexes = {
         { TokenType::Grouping,   std::regex("^(\\(\\)\\[\\]\\{\\})") },
         { TokenType::String,     std::regex("^(\"[^\"]*\")") },
         { TokenType::Number,     std::regex("^(((\\+|-)?[[:digit:]]+)([\\.|/](([[:digit:]]+)?))?)") },
@@ -48,7 +49,8 @@ namespace Ark::internal
         { TokenType::Identifier, std::regex("^([a-zA-Z_][a-zA-Z0-9_\\-!?']*)") },
         { TokenType::Skip,       std::regex("^(\\s+)") },
         { TokenType::Comment,    std::regex("^(#.*)") },
-        { TokenType::Shorthand,  std::regex("^(')") }
+        { TokenType::Shorthand,  std::regex("^(')") },
+        { TokenType::Mismatch,   std::regex("^(.)") }
     };
 
     class Lexer
@@ -66,6 +68,14 @@ namespace Ark::internal
         inline bool isKeyword(const std::string& value)
         {
             return std::find(keywords.begin(), keywords.end(), value) != keywords.end();
+        }
+
+        inline void throwTokenizingError(const std::string& message, const std::string& match, std::size_t line, std::size_t col)
+        {
+            throw std::runtime_error("TokenizingError: " + message + "\nAt " +
+                Ark::Utils::toString(line) + ":" + Ark::Utils::toString(col) +
+                " (" + match + ")"
+            );
         }
     };
 }

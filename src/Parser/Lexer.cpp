@@ -25,6 +25,9 @@ namespace Ark::internal
                 {
                     std::string result = m[0];
 
+                    if (type == TokenType::Mismatch)
+                        throwTokenizingError("couldn't tokenize", result, line, character);
+
                     // stripping blanks characters between instructions, and comments
                     if (type == TokenType::Skip || type == TokenType::Comment)
                         continue;
@@ -42,11 +45,6 @@ namespace Ark::internal
                     character += result.length();
 
                     src = std::regex_replace(src, item.second, std::string(""), std::regex_constants::format_first_only);
-                }
-                else
-                {
-                    Ark::logger.error("[Lexer] Tokenizing error at " + Ark::Utils::toString(line) + ":" + Ark::Utils::toString(character - 1));
-                    break;
                 }
             }
         }
