@@ -1,5 +1,7 @@
 # Ark
 
+[![Build status](https://ci.appveyor.com/api/projects/status/rm67tu3mu2a20yy5?svg=true)](https://ci.appveyor.com/project/SuperFola/ark)
+
 <img align="right" src="images/Ark.png" width=200px>
 
 Ark is a small programming language made in C++17, inspired by Lisp, using under 10 keywords.
