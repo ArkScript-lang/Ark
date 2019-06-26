@@ -1,6 +1,7 @@
 # project junk
 
 build/
+benchmark/
 gitstats/
 gmon.out
 include/Ark/Constants.hpp
