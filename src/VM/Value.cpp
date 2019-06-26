@@ -47,7 +47,7 @@ namespace Ark::internal
         m_is_list(value.m_is_list)
     {}
 
-    Value::Value(std::shared_ptr<Frame> frame_ptr, PageAddr_t pa) :
+    Value::Value(const std::shared_ptr<Frame>& frame_ptr, PageAddr_t pa) :
         m_value(Closure(frame_ptr, pa)),
         m_is_list(false)
     {}

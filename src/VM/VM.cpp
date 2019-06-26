@@ -682,6 +682,7 @@ namespace Ark
         exit(1);
     }
     
+    // TODO remove
     void VM::newEnv()
     {
         /*

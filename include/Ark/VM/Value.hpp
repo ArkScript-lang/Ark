@@ -14,6 +14,17 @@
 
 namespace Ark::internal
 {
+    enum class ValueType
+    {
+        List,
+        Number,
+        String,
+        PageAddr,
+        NFT,
+        CProc,
+        Closure
+    };
+
     class Frame;
 
     class Value
@@ -21,8 +32,9 @@ namespace Ark::internal
     public:
         using ProcType  = Value(*)(const std::vector<Value>&);
         using Iterator = std::vector<Value>::const_iterator;
-        using ValueType = std::variant<double, std::string, PageAddr_t, NFT, ProcType, Closure>;
+        using Value_t = std::variant<double, std::string, PageAddr_t, NFT, ProcType, Closure>;
 
+        // TODO enhance
         Value(bool is_list=false);
         Value(int value);
         Value(double value);
@@ -33,8 +45,9 @@ namespace Ark::internal
         Value(const std::vector<Value>& value);
         Value(const Closure& value);
         Value(const Value& value);
-        Value(std::shared_ptr<Frame> frame_ptr, PageAddr_t pa);
+        Value(const std::shared_ptr<Frame>& frame_ptr, PageAddr_t pa);
 
+        // TODO remove and add getType()/valueType()
         bool isNumber() const;
         bool isString() const;
         bool isPageAddr() const;
@@ -60,7 +73,8 @@ namespace Ark::internal
         friend inline bool operator==(const Value& A, const Value& B);
 
     private:
-        ValueType m_value;
+        Value_t m_value;
+        ValueType m_type;
         std::vector<Value> m_list;
         bool m_is_list;
     };
