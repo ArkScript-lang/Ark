@@ -6,87 +6,92 @@
 namespace Ark::internal
 {
     Value::Value(bool is_list) :
-        m_is_list(is_list)
+        m_type(ValueType::List)
     {}
 
     Value::Value(int value) :
-        m_value(static_cast<double>(value)), m_is_list(false)
+        m_value(static_cast<double>(value)), m_type(ValueType::Number)
     {}
 
     Value::Value(double value) :
-        m_value(value), m_is_list(false)
+        m_value(value), m_type(ValueType::Number)
     {}
 
     Value::Value(const std::string& value) :
-        m_value(value), m_is_list(false)
+        m_value(value), m_type(ValueType::String)
     {}
 
     Value::Value(PageAddr_t value) :
-        m_value(value), m_is_list(false)
+        m_value(value), m_type(ValueType::PageAddr)
     {}
 
     Value::Value(NFT value) :
-        m_value(value), m_is_list(false)
+        m_value(value), m_type(ValueType::NFT)
     {}
 
     Value::Value(Value::ProcType value) :
-        m_value(value), m_is_list(false)
+        m_value(value), m_type(ValueType::CProc)
     {}
 
     Value::Value(const std::vector<Value>& value) :
-        m_list(value), m_is_list(true)
+        m_list(value), m_type(ValueType::List)
     {}
 
     Value::Value(const Closure& value) :
-        m_value(value), m_is_list(false)
+        m_value(value), m_type(ValueType::Closure)
     {}
 
     Value::Value(const Value& value) :
         m_value(value.m_value),
         m_list(value.m_list),
-        m_is_list(value.m_is_list)
+        m_type(value.m_type)
     {}
 
     Value::Value(const std::shared_ptr<Frame>& frame_ptr, PageAddr_t pa) :
         m_value(Closure(frame_ptr, pa)),
-        m_is_list(false)
+        m_type(ValueType::Closure)
     {}
 
     // --------------------------
 
+    ValueType Value::valueType()
+    {
+        return m_type;
+    }
+
     bool Value::isNumber() const
     {
-        return !m_is_list && std::holds_alternative<double>(m_value);
+        return m_type == ValueType::Number;
     }
 
     bool Value::isString() const
     {
-        return !m_is_list && std::holds_alternative<std::string>(m_value);
+        return m_type == ValueType::String;
     }
 
     bool Value::isPageAddr() const
     {
-        return !m_is_list && std::holds_alternative<PageAddr_t>(m_value);
+        return m_type == ValueType::PageAddr;
     }
 
     bool Value::isNFT() const
     {
-        return !m_is_list && std::holds_alternative<NFT>(m_value);
+        return m_type == ValueType::NFT;
     }
 
     bool Value::isProc() const
     {
-        return !m_is_list && std::holds_alternative<Value::ProcType>(m_value);
+        return m_type == ValueType::CProc;
     }
 
     bool Value::isList() const
     {
-        return m_is_list;
+        return m_type == ValueType::List;
     }
 
     bool Value::isClosure() const
     {
-        return !m_is_list && std::holds_alternative<Closure>(m_value);
+        return m_type == ValueType::Closure;
     }
 
     // --------------------------
@@ -150,13 +155,21 @@ namespace Ark::internal
 
     std::ostream& operator<<(std::ostream& os, const Value& V)
     {
-        if (V.isNumber())
+        switch (V.valueType())
+        {
+        case ValueType::Number:
             os << Ark::Utils::toString(V.number());
-        else if (V.isString())
+            break;
+        
+        case ValueType::String:
             os << V.string();
-        else if (V.isPageAddr())
+            break;
+        
+        case ValueType::PageAddr:
             os << V.pageAddr();
-        else if (V.isNFT())
+            break;
+        
+        case ValueType::NFT:
         {
             NFT nft = V.nft();
             if (nft == NFT::Nil)
@@ -165,18 +178,31 @@ namespace Ark::internal
                 os << "false";
             else if (nft == NFT::True)
                 os << "true";
+            break;
         }
-        else if (V.isProc())
+
+        case ValueType::CProc:
             os << "Procedure";
-        else if (V.isList())
+            break;
+        
+        case ValueType::List:
         {
             os << "( ";
             for (auto& t: V.const_list())
                 os << t << " ";
             os << ")";
+            break;
         }
-        else if (V.isClosure())
+
+        case ValueType::Closure:
             os << "Closure (" << V.closure().frame() << ") @ " << V.closure().pageAddr();
+            break;
+        
+        default:
+            os << "~\\._./~";
+            break;
+        }
+
         return os;
     }
 }

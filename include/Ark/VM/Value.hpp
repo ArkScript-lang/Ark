@@ -36,6 +36,7 @@ namespace Ark::internal
 
         // TODO enhance
         Value(bool is_list=false);
+
         Value(int value);
         Value(double value);
         Value(const std::string& value);
@@ -47,7 +48,9 @@ namespace Ark::internal
         Value(const Value& value);
         Value(const std::shared_ptr<Frame>& frame_ptr, PageAddr_t pa);
 
-        // TODO remove and add getType()/valueType()
+        ValueType valueType();
+
+        // TODO remove
         bool isNumber() const;
         bool isString() const;
         bool isPageAddr() const;
@@ -76,7 +79,6 @@ namespace Ark::internal
         Value_t m_value;
         ValueType m_type;
         std::vector<Value> m_list;
-        bool m_is_list;
     };
 
     inline bool operator==(const Value& A, const Value& B)
