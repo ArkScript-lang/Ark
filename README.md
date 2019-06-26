@@ -67,14 +67,9 @@ Libs already included:
 * [CLIPP](https://github.com/muellan/clipp), MIT licence
 * [termcolor](https://github.com/ikalnytskyi/termcolor), BSD (3-clause) licence
 
-Not included:
-* MPIR
-
 ## Building
 
 ```bash
-# configuring project (if on windows, follow the given instructions)
-$ sudo python3.6 configure.py
 # building Ark
 $ cmake -H. -Bbuild
 $ cmake --build build
