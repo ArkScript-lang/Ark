@@ -33,6 +33,15 @@ else()
     endif()
 endif()
 
+if (MSVC)
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
+endif()
+
+if (CMAKE_COMPILER_IS_GNUCXX)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,-rpath,/usr/local/lib")
+endif()
+
 # configuring Constants.hpp
 
 set(ARK_VERSION_MAJOR 2)
@@ -41,6 +50,7 @@ set(ARK_VERSION_PATCH 0)
 set(ARK_STD ${CMAKE_INSTALL_PREFIX}/share/.Ark/lib)
 set(ARK_COMPILATION_OPTIONS ${CMAKE_CXX_FLAGS})
 set(ARK_COMPILER ${CMAKE_CXX_COMPILER_ID})
+set(ARK_SUBMODULES_ROOT ${Ark_SOURCE_DIR}/submodules)
 
 if (BUILD_MODULES MATCHES "true")
     add_subdirectory(${Ark_SOURCE_DIR}/modules)
@@ -65,11 +75,16 @@ file(GLOB_RECURSE SOURCE_FILES
 
 add_executable(Ark ${SOURCE_FILES})
 
+add_library(ArkLib ${SOURCE_FILES})
+set_property(TARGET ArkLib PROPERTY POSITION_INDEPENDENT_CODE ON)
+
 if (CMAKE_COMPILER_IS_GNUCXX)
     target_link_libraries(Ark PUBLIC stdc++fs)
+    target_link_libraries(ArkLib PUBLIC stdc++fs)
 endif()
 if (UNIX OR LINUX)
     target_link_libraries(Ark PUBLIC ${CMAKE_DL_LIBS})
+    target_link_libraries(ArkLib PUBLIC ${CMAKE_DL_LIBS})
 endif()
 
 set_target_properties(
@@ -80,14 +95,15 @@ set_target_properties(
         CXX_EXTENSIONS OFF
 )
 
-if (MSVC)
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
-endif()
+set_target_properties(
+    ArkLib
+    PROPERTIES
+        CXX_STANDARD 17
+        CXX_STANDARD_REQUIRED ON
+        CXX_EXTENSIONS OFF
+)
 
-if (CMAKE_COMPILER_IS_GNUCXX)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,-rpath,/usr/local/lib")
-endif()
+add_subdirectory(benchmarks)
 
 install(TARGETS Ark DESTINATION bin)
 install(DIRECTORY ${Ark_SOURCE_DIR}/lib/ DESTINATION share/.Ark/lib)

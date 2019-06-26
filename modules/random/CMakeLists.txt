@@ -6,21 +6,19 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 include_directories(
     ${PROJECT_SOURCE_DIR}/include
-    ${PROJECT_SOURCE_DIR}/../../thirdparty
-    ${PROJECT_SOURCE_DIR}/../../include
+    ${Ark_SOURCE_DIR}/thirdparty
+    ${Ark_SOURCE_DIR}/include
 )
 
 file(GLOB_RECURSE SOURCE_FILES
     ${PROJECT_SOURCE_DIR}/src/*.cpp
-    ${PROJECT_SOURCE_DIR}/../../thirdparty/*.cpp
-    ${PROJECT_SOURCE_DIR}/../../thirdparty/*.c
-    ${PROJECT_SOURCE_DIR}/../../src/*.cpp
 )
 
 list(REMOVE_ITEM SOURCE_FILES "${PROJECT_SOURCE_DIR}/../../src/main.cpp")
 
 add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES})
 
+target_link_libraries(${PROJECT_NAME} PRIVATE ArkLib)
 target_link_libraries(${PROJECT_NAME} PRIVATE ${MPIR_LIBRARIES})
 if (CMAKE_COMPILER_IS_GNUCXX)
     target_link_libraries(${PROJECT_NAME} PRIVATE stdc++fs)
