@@ -472,7 +472,7 @@ namespace Ark
         
         if (m_saved_frame && m_constants[id].isPageAddr())
         {
-            push(Value(m_saved_frame.value(), m_constants[id].pageAddr()));
+            push(Value(m_frames[m_saved_frame.value()], m_constants[id].pageAddr()));
             m_saved_frame.reset();
         }
         else
@@ -718,6 +718,6 @@ namespace Ark
                     to be able to handle closures, which need to save the environment in which
                     they were created
         */
-        m_saved_frame = m_frames.back();
+        m_saved_frame = m_frames.size() - 1;
     }
 }

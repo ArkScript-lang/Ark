@@ -47,7 +47,7 @@ namespace Ark
         std::vector<bytecode_t> m_pages;
 
         std::vector<std::shared_ptr<internal::Frame>> m_frames;
-        std::optional<std::shared_ptr<internal::Frame>> m_saved_frame;
+        std::optional<std::size_t> m_saved_frame;
 
         void configure();
         void initFFI();
