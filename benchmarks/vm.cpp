@@ -1,17 +1,20 @@
 #include <benchmark/benchmark.h>
 #include <Ark/Ark.hpp>
 
-auto vm = [](benchmark::State& state)
+static void BM_VM(benchmark::State& state)
 {
-    Ark::VM vm;
-};
+    while (state.KeepRunning())
+    {
+        Ark::VM vm;
+        vm.feed("tests/ackermann.arkc");
+        vm.run();
+    }
+}
+
+BENCHMARK(BM_VM);
 
 int main(int argc, char** argv)
 {
-    auto unit = benchmark::kMicrosecond;
-
-    benchmark::RegisterBenchmark("vm", vm)->Unit(unit)->RangeMultiplier(100)->Range(10, 100000);
-
     benchmark::Initialize(&argc, argv);
     benchmark::RunSpecifiedBenchmarks();
 

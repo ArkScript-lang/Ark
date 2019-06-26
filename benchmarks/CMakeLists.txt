@@ -5,10 +5,12 @@ project(ArkBench)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
+message(STATUS "COMMAND ${CMAKE_COMMAND} --build . --target benchmark --config ${CMAKE_BUILD_TYPE}")
+
 #-------------------------------------------------------
 #                      Benchmark lib
 #-------------------------------------------------------
-set(THIRD_PARTY_BENCHMARK_LIB ${CMAKE_CURRENT_BINARY_DIR}/third_party_benchmark/src/${CMAKE_BUILD_TYPE}/libbenchmark${CMAKE_STATIC_LIBRARY_SUFFIX})
+set(THIRD_PARTY_BENCHMARK_LIB ${CMAKE_CURRENT_BINARY_DIR}/third_party_benchmark/src/libbenchmark${CMAKE_STATIC_LIBRARY_SUFFIX})
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third_party_benchmark)
 add_custom_target(third_party_benchmark
         ALL
