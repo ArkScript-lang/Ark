@@ -24,7 +24,7 @@ namespace Ark::internal
 
     Value Frame::pop()
     {
-        Value value = m_stack.back();
+        Value value = std::move(m_stack.back());
         m_stack.pop_back();
 
         return value;
