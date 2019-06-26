@@ -54,7 +54,7 @@ namespace Ark::internal
 
     // --------------------------
 
-    ValueType Value::valueType()
+    ValueType Value::valueType() const
     {
         return m_type;
     }
@@ -147,7 +147,7 @@ namespace Ark::internal
 
     void Value::push_back(const Value& value)
     {
-        m_is_list = true;
+        m_type = ValueType::List;
         m_list.push_back(value);
     }
 

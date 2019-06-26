@@ -34,7 +34,7 @@ namespace Ark::internal
 
     inline bool operator==(const Closure& A, const Closure& B)
     {
-        return false;
+        return A.m_frame.get() == B.m_frame.get();
     }
 }
 

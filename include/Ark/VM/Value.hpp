@@ -48,7 +48,7 @@ namespace Ark::internal
         Value(const Value& value);
         Value(const std::shared_ptr<Frame>& frame_ptr, PageAddr_t pa);
 
-        ValueType valueType();
+        ValueType valueType() const;
 
         // TODO remove
         bool isNumber() const;
@@ -84,11 +84,11 @@ namespace Ark::internal
     inline bool operator==(const Value& A, const Value& B)
     {
         // values should have the same type
-        if (A.m_value.index() != B.m_value.index())
+        if (A.m_type != B.m_type)
             return false;
-
-        if (A.m_is_list)
-            throw Ark::TypeError("Can not compare lists");
+        // don't compare lists
+        if (A.m_type == ValueType::List)
+            return false;
         
         return A.m_value == B.m_value;
     }
