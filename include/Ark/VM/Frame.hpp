@@ -23,6 +23,7 @@ namespace Ark::internal
 
         Value pop();
         void push(const Value& value);
+        void setData(std::size_t caller_addr, std::size_t caller_page_addr);
 
         Value& operator[](uint16_t key);
         bool find(uint16_t key) const;

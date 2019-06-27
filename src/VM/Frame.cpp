@@ -35,6 +35,12 @@ namespace Ark::internal
         m_stack.push_back(value);
     }
 
+    void Frame::setData(std::size_t caller_addr, std::size_t caller_page_addr)
+    {
+        m_addr = caller_addr;
+        m_page_addr = caller_page_addr;
+    }
+
     Value& Frame::operator[](uint16_t key)
     {
         return m_environment[key];
