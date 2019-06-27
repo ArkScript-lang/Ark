@@ -1,6 +1,6 @@
 # Ark
 
-[![Build Status Travis](https://travis-ci.org/SuperFola/Ark.svg?branch=dev)](https://travis-ci.org/SuperFola/Ark)
+[![Build Status](https://travis-ci.org/SuperFola/Ark.svg?branch=rework)](https://travis-ci.org/SuperFola/Ark)
 
 <img align="right" src="images/Ark.png" width=200px>
 
