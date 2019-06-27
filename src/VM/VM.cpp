@@ -7,7 +7,6 @@
 
 #include <Ark/Log.hpp>
 #include <Ark/VM/FFI.hpp>
-#include <Ark/FFI.hpp>
 #include <Ark/Utils.hpp>
 #undef abs
 #include <cmath>
@@ -394,13 +393,41 @@ namespace Ark
 
     void VM::initFFI()
     {
-        #define FFI_VM
-        #define FFI_INIT_VM_FFI
+        // TODO temp
+        m_ffi.push_back(&internal::FFI::add);
+        m_ffi.push_back(&internal::FFI::sub);
+        m_ffi.push_back(&internal::FFI::mul);
+        m_ffi.push_back(&internal::FFI::div);
 
-        #include <Ark/MakeFFI.hpp>
+        m_ffi.push_back(&internal::FFI::gt);
+        m_ffi.push_back(&internal::FFI::lt);
+        m_ffi.push_back(&internal::FFI::le);
+        m_ffi.push_back(&internal::FFI::ge);
+        m_ffi.push_back(&internal::FFI::neq);
+        m_ffi.push_back(&internal::FFI::eq);
 
-        #undef FFI_VM
-        #undef FFI_INIT_VM_FFI
+        m_ffi.push_back(&internal::FFI::len);
+        m_ffi.push_back(&internal::FFI::empty);
+        m_ffi.push_back(&internal::FFI::firstof);
+        m_ffi.push_back(&internal::FFI::tailof);
+        m_ffi.push_back(&internal::FFI::append);
+        m_ffi.push_back(&internal::FFI::concat);
+        m_ffi.push_back(&internal::FFI::list);
+        m_ffi.push_back(&internal::FFI::isnil);
+
+        m_ffi.push_back(&internal::FFI::print);
+        m_ffi.push_back(&internal::FFI::assert_);
+        m_ffi.push_back(&internal::FFI::input);
+
+        m_ffi.push_back(&internal::FFI::toNumber);
+        m_ffi.push_back(&internal::FFI::toString);
+
+        m_ffi.push_back(&internal::FFI::at);
+        m_ffi.push_back(&internal::FFI::and_);
+        m_ffi.push_back(&internal::FFI::or_);
+        m_ffi.push_back(&internal::FFI::headof);
+
+        m_ffi.push_back(&internal::FFI::mod);
 
         if (m_ffi.size() != Ark::FFI::builtins.size())
             assert(false);

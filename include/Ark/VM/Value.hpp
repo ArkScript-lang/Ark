@@ -50,15 +50,6 @@ namespace Ark::internal
 
         ValueType valueType() const;
 
-        // TODO remove
-        bool isNumber() const;
-        bool isString() const;
-        bool isPageAddr() const;
-        bool isNFT() const;
-        bool isProc() const;
-        bool isList() const;
-        bool isClosure() const;
-
         double number() const;
         const std::string& string() const;
         PageAddr_t pageAddr() const;

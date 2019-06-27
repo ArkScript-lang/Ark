@@ -59,41 +59,6 @@ namespace Ark::internal
         return m_type;
     }
 
-    bool Value::isNumber() const
-    {
-        return m_type == ValueType::Number;
-    }
-
-    bool Value::isString() const
-    {
-        return m_type == ValueType::String;
-    }
-
-    bool Value::isPageAddr() const
-    {
-        return m_type == ValueType::PageAddr;
-    }
-
-    bool Value::isNFT() const
-    {
-        return m_type == ValueType::NFT;
-    }
-
-    bool Value::isProc() const
-    {
-        return m_type == ValueType::CProc;
-    }
-
-    bool Value::isList() const
-    {
-        return m_type == ValueType::List;
-    }
-
-    bool Value::isClosure() const
-    {
-        return m_type == ValueType::Closure;
-    }
-
     // --------------------------
 
     double Value::number() const
