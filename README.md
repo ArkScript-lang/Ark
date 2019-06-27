@@ -1,7 +1,5 @@
 # Ark
 
-[![Build status Appveyor](https://ci.appveyor.com/api/projects/status/rm67tu3mu2a20yy5?svg=true)](https://ci.appveyor.com/project/SuperFola/ark)
-
 [![Build Status Travis](https://travis-ci.org/SuperFola/Ark.svg?branch=dev)](https://travis-ci.org/SuperFola/Ark)
 
 <img align="right" src="images/Ark.png" width=200px>
