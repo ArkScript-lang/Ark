@@ -18,6 +18,7 @@
 
 ### Removed
 - Lexer::check, we should see if the program is correct when building the AST
+- removed from the bytecode `BUILTIN XY` and `NEW_ENV`
 
 ## 2.2.0-dev
 ### Added

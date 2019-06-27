@@ -77,8 +77,6 @@ namespace Ark
         void jump();
         void ret();
         void call();
-        void newEnv();
-        void builtin();
         void saveEnv();
 
         inline void throwVMError(const std::string& message)

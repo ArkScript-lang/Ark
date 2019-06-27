@@ -548,7 +548,7 @@ namespace Ark
     {
         /*
             Argument: symbol id (two bytes, big endian)
-            Job: Take the value on top of the stack and create a variable in the current scope, named
+            Job: Take the value on top of the stack and create a constant in the current scope, named
                     following the given symbol id (cf symbols table)
         */
         ++m_ip;
@@ -687,34 +687,6 @@ namespace Ark
         }
 
         throwVMError("couldn't identify function object");
-    }
-    
-    // TODO remove
-    void VM::newEnv()
-    {
-        /*
-            Argument: none
-            Job: Create a new environment (a new scope for variables) in the Virtual Machine
-        */
-        if (m_debug)
-            Ark::logger.info("NEW_ENV PP:{0}, IP:{1}"s, m_pp, m_ip);
-        
-        createNewFrame();
-    }
-
-    void VM::builtin()
-    {
-        /*
-            Argument: id of builtin (two bytes, big endian)
-            Job: Push the builtin function object on the stack
-        */
-        ++m_ip;
-        auto id = readNumber();
-
-        if (m_debug)
-            Ark::logger.info("BUILTIN ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
-
-        push(m_ffi[id]);
     }
 
     void VM::saveEnv()
