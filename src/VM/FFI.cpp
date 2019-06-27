@@ -9,27 +9,41 @@
 
 namespace Ark::internal::FFI
 {
-    extern const std::vector<std::string> builtins = {
-        "+", "-", "*", "/",
-        ">", "<", "<=", ">=", "!=", "=",
-        "len", "empty?", "firstof", "tailof", "append", "concat", "list", "nil?",
-        "print", "assert", "input",
-        "toNumber", "toString",
-        "@", "and", "or", "headof",
-        "mod"
-    };
-
     const Value falseSym = Value(NFT::False);
     const Value trueSym  = Value(NFT::True);
     const Value nil      = Value(NFT::Nil);
+
+    extern const std::unordered_map<std::string, Value> builtins_map = {
+        { "false", falseSym },
+        { "true", trueSym },
+        { "nil", nil },
+        { "append", Value(&append) },
+        { "concat", Value(&concat) },
+        { "list", Value(&list) },
+        { "print", Value(&print) },
+    };
+
+    extern const std::vector<std::string> builtins = {
+        "false", "true", "nil",
+        "append", "concat", "list", "print",
+    };
+
+    extern const std::vector<std::string> operators = {
+        "+", "-", "*", "/",
+        ">", "<", "<=", ">=", "!=", "=",
+        "len", "empty?", "firstof", "tailof", "headof", "nil?",
+        "assert", "input",
+        "toNumber", "toString",
+        "@", "and", "or", "mod",
+    };
 
     // ------------------------------
 
     FFI_Function(add)
     {
-        if (n[0].valueType() != valueType::Number)
+        if (n[0].valueType() != ValueType::Number)
             throw Ark::TypeError("Arguments of + should be Numbers");
-        if (n[1].valueType() != valueType::Number)
+        if (n[1].valueType() != ValueType::Number)
             throw Ark::TypeError("Arguments of + should be Numbers");
         
         auto i = n[0].number();
@@ -38,9 +52,9 @@ namespace Ark::internal::FFI
 
     FFI_Function(sub)
     {
-        if (n[0].valueType() != valueType::Number)
+        if (n[0].valueType() != ValueType::Number)
             throw Ark::TypeError("Arguments of - should be Numbers");
-        if (n[1].valueType() != valueType::Number)
+        if (n[1].valueType() != ValueType::Number)
             throw Ark::TypeError("Arguments of - should be Numbers");
         
         return Value(n[0].number() - n[1].number());
@@ -48,9 +62,9 @@ namespace Ark::internal::FFI
 
     FFI_Function(mul)
     {
-        if (n[0].valueType() != valueType::Number)
+        if (n[0].valueType() != ValueType::Number)
             throw Ark::TypeError("Arguments of * should be Numbers");
-        if (n[1].valueType() != valueType::Number)
+        if (n[1].valueType() != ValueType::Number)
             throw Ark::TypeError("Arguments of * should be Numbers");
         
         return Value(n[0].number() * n[1].number());
@@ -58,9 +72,9 @@ namespace Ark::internal::FFI
 
     FFI_Function(div)
     {
-        if (n[0].valueType() != valueType::Number)
+        if (n[0].valueType() != ValueType::Number)
             throw Ark::TypeError("Arguments of / should be Numbers");
-        if (n[1].valueType() != valueType::Number)
+        if (n[1].valueType() != ValueType::Number)
             throw Ark::TypeError("Arguments of / should be Numbers");
         
         auto d = n[1].number();
@@ -165,7 +179,7 @@ namespace Ark::internal::FFI
         if (n[0].valueType() == ValueType::List)
             return Value(static_cast<int>(n[0].const_list().size()));
         if (n[0].valueType() == ValueType::String)
-            return Value(static_cast<int>(FFI_string(n[0]).size()));
+            return Value(static_cast<int>(n[0].string().size()));
 
         throw Ark::TypeError("Argument of len must be a list or a String");
     }
@@ -199,39 +213,16 @@ namespace Ark::internal::FFI
         return r;
     }
 
-    FFI_Function(append)
+    FFI_Function(headof)
     {
         if (n[0].valueType() != ValueType::List)
-            throw Ark::TypeError("First argument of append must be a list");
+            throw Ark::TypeError("Argument of headof must be a list");
+        
+        if (n[0].const_list().size() < 2)
+            return nil;
         
         Value r = n[0];
-        for (Value::Iterator it=n.begin()+1; it != n.end(); ++it)
-            r.push_back(*it);
-        return r;
-    }
-
-    FFI_Function(concat)
-    {
-        if (n[0].valueType() != ValueType::List)
-            throw Ark::TypeError("First argument of concat should be a list");
-        
-        Value r = n[0];
-        for (Value::Iterator it=n.begin()+1; it != n.end(); ++it)
-        {
-            if (it->valueType() != ValueType::List)
-                throw Ark::TypeError("Arguments of concat must be lists");
-
-            for (Value::Iterator it2=it->const_list().begin(); it2 != it->const_list().end(); ++it2)
-                r.push_back(*it2);
-        }
-        return r;
-    }
-
-    FFI_Function(list)
-    {
-        Value r(/* is_list */ true);
-        for (Value::Iterator it=n.begin(); it != n.end(); ++it)
-            r.push_back(*it);
+        r.list().erase(r.const_list().end());
         return r;
     }
 
@@ -239,17 +230,8 @@ namespace Ark::internal::FFI
     {
         return n[0] == nil ? trueSym : falseSym;
     }
-    
+
     // ------------------------------
-
-    FFI_Function(print)
-    {
-        for (Value::Iterator it=n.begin(); it != n.end(); ++it)
-            std::cout << (*it) << " ";
-        std::cout << std::endl;
-
-        return nil;
-    }
 
     FFI_Function(assert_)
     {
@@ -295,6 +277,8 @@ namespace Ark::internal::FFI
         return Value(ss.str());
     }
 
+    // ------------------------------
+
     FFI_Function(at)
     {
         if (n[0].valueType() != ValueType::List)
@@ -315,19 +299,6 @@ namespace Ark::internal::FFI
         return n[0] == trueSym || n[1] == trueSym;
     }
 
-    FFI_Function(headof)
-    {
-        if (n[0].valueType() != ValueType::List)
-            throw Ark::TypeError("Argument of headof must be a list");
-        
-        if (n[0].const_list().size() < 2)
-            return nil;
-        
-        Value r = n[0];
-        r.list().erase(r.const_list().end());
-        return r;
-    }
-
     FFI_Function(mod)
     {
         if (n[0].valueType() != ValueType::Number)
@@ -336,5 +307,52 @@ namespace Ark::internal::FFI
             throw Ark::TypeError("Arguments of mod should be Numbers");
         
         return Value(std::fmod(n[0].number(), n[1].number()));
+    }
+
+    // ------------------------------
+
+    FFI_Function(append)
+    {
+        if (n[0].valueType() != ValueType::List)
+            throw Ark::TypeError("First argument of append must be a list");
+        
+        Value r = n[0];
+        for (Value::Iterator it=n.begin()+1; it != n.end(); ++it)
+            r.push_back(*it);
+        return r;
+    }
+
+    FFI_Function(concat)
+    {
+        if (n[0].valueType() != ValueType::List)
+            throw Ark::TypeError("First argument of concat should be a list");
+        
+        Value r = n[0];
+        for (Value::Iterator it=n.begin()+1; it != n.end(); ++it)
+        {
+            if (it->valueType() != ValueType::List)
+                throw Ark::TypeError("Arguments of concat must be lists");
+
+            for (Value::Iterator it2=it->const_list().begin(); it2 != it->const_list().end(); ++it2)
+                r.push_back(*it2);
+        }
+        return r;
+    }
+
+    FFI_Function(list)
+    {
+        Value r(/* is_list */ true);
+        for (Value::Iterator it=n.begin(); it != n.end(); ++it)
+            r.push_back(*it);
+        return r;
+    }
+
+    FFI_Function(print)
+    {
+        for (Value::Iterator it=n.begin(); it != n.end(); ++it)
+            std::cout << (*it) << " ";
+        std::cout << std::endl;
+
+        return nil;
     }
 }

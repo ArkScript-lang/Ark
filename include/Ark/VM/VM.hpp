@@ -50,7 +50,6 @@ namespace Ark
         std::optional<std::size_t> m_saved_frame;
 
         void configure();
-        void initFFI();
 
         inline uint16_t readNumber()
         {

@@ -110,16 +110,20 @@ namespace Ark
                         call();
                         break;
                     
-                    case Instruction::NEW_ENV:
-                        newEnv();
+                    case Instruction::SAVE_ENV:
+                        saveEnv();
                         break;
                     
                     case Instruction::BUILTIN:
                         builtin();
                         break;
                     
-                    case Instruction::SAVE_ENV:
-                        saveEnv();
+                    case Instruction::MUT:
+                        // TODO mut();
+                        break;
+                    
+                    case Instruction::DEL:
+                        // TODO del();
                         break;
                     
                     default:
@@ -158,9 +162,9 @@ namespace Ark
 
     void VM::configure()
     {
-        // configure ffi
-        if (m_ffi.size() == 0)
-            initFFI();
+        // TODO configure ffi
+        /*if (m_ffi.size() == 0)
+            initFFI();*/
 
         // configure tables and pages
         const bytecode_t& b = m_bytecode;
@@ -391,48 +395,6 @@ namespace Ark
         }
     }
 
-    void VM::initFFI()
-    {
-        // TODO temp
-        m_ffi.push_back(&internal::FFI::add);
-        m_ffi.push_back(&internal::FFI::sub);
-        m_ffi.push_back(&internal::FFI::mul);
-        m_ffi.push_back(&internal::FFI::div);
-
-        m_ffi.push_back(&internal::FFI::gt);
-        m_ffi.push_back(&internal::FFI::lt);
-        m_ffi.push_back(&internal::FFI::le);
-        m_ffi.push_back(&internal::FFI::ge);
-        m_ffi.push_back(&internal::FFI::neq);
-        m_ffi.push_back(&internal::FFI::eq);
-
-        m_ffi.push_back(&internal::FFI::len);
-        m_ffi.push_back(&internal::FFI::empty);
-        m_ffi.push_back(&internal::FFI::firstof);
-        m_ffi.push_back(&internal::FFI::tailof);
-        m_ffi.push_back(&internal::FFI::append);
-        m_ffi.push_back(&internal::FFI::concat);
-        m_ffi.push_back(&internal::FFI::list);
-        m_ffi.push_back(&internal::FFI::isnil);
-
-        m_ffi.push_back(&internal::FFI::print);
-        m_ffi.push_back(&internal::FFI::assert_);
-        m_ffi.push_back(&internal::FFI::input);
-
-        m_ffi.push_back(&internal::FFI::toNumber);
-        m_ffi.push_back(&internal::FFI::toString);
-
-        m_ffi.push_back(&internal::FFI::at);
-        m_ffi.push_back(&internal::FFI::and_);
-        m_ffi.push_back(&internal::FFI::or_);
-        m_ffi.push_back(&internal::FFI::headof);
-
-        m_ffi.push_back(&internal::FFI::mod);
-
-        if (m_ffi.size() != Ark::FFI::builtins.size())
-            assert(false);
-    }
-
     Value VM::pop()
     {
         return m_frames.back()->pop();
@@ -506,7 +468,7 @@ namespace Ark
         if (m_debug)
             Ark::logger.info("LOAD_CONST ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
         
-        if (m_saved_frame && m_constants[id].isPageAddr())
+        if (m_saved_frame && m_constants[id].valueType() == ValueType::PageAddr)
         {
             push(Value(m_frames[m_saved_frame.value()], m_constants[id].pageAddr()));
             m_saved_frame.reset();
@@ -529,7 +491,7 @@ namespace Ark
             Ark::logger.info("POP_JUMP_IF_TRUE ({0}) PP:{1}, IP:{2}"s, addr, m_pp, m_ip);
 
         Value cond = pop();
-        if (cond.isNFT() && cond.nft() == NFT::True)
+        if (cond.valueType() == ValueType::NFT && cond.nft() == NFT::True)
             m_ip = addr - 1;  // because we are doing a ++m_ip right after this
     }
     
@@ -555,7 +517,7 @@ namespace Ark
             if (m_frames[i]->find(sid))
             {
                 frameAt(i)[sid] = pop();
-                if (frameAt(i)[sid].isClosure())
+                if (frameAt(i)[sid].valueType() == ValueType::Closure)
                     frameAt(i)[sid].closure_ref().save(i, sid);
                 return;
             }
@@ -587,7 +549,7 @@ namespace Ark
         auto sid = id - 3;
         std::string sym = m_symbols[sid];
         backFrame()[sid] = pop();
-        if (backFrame()[sid].isClosure())
+        if (backFrame()[sid].valueType() == ValueType::Closure)
             backFrame()[sid].closure_ref().save(m_frames.size() - 1, sid);
     }
 
@@ -605,7 +567,7 @@ namespace Ark
             Ark::logger.info("POP_JUMP_IF_FALSE ({0}) PP:{1}, IP:{2}"s, addr, m_pp, m_ip);
 
         Value cond = pop();
-        if (cond.isNFT() && cond.nft() == NFT::False)
+        if (cond.valueType() == ValueType::NFT && cond.nft() == NFT::False)
             m_ip = addr - 1;  // because we are doing a ++m_ip right after this
     }
     
@@ -689,31 +651,37 @@ namespace Ark
         for (uint16_t j=0; j < argc; ++j)
             args.push_back(pop());
 
-        // is it a builtin function name?
-        if (function.isProc())
+        switch (function.valueType())
         {
-            // reverse arguments
-            std::reverse(args.begin(), args.end());
-            // call proc
-            Value return_value = function.proc()(args);
-            push(return_value);
-            return;
-        }
-        else if (function.isClosure())
-        {
-            Closure c = function.closure();
-            // load saved frame
-            m_frames.push_back(c.frame());
-            // create dedicated frame
-            m_frames.push_back(std::make_shared<Frame>(m_symbols.size(), m_ip, m_pp));
-            m_pp = c.pageAddr();
-            m_ip = -1;  // because we are doing a m_ip++ right after that
-            for (std::size_t j=0; j < args.size(); ++j)
-                push(args[j]);
-            return;
-        }
+            // is it a builtin function name?
+            case ValueType::CProc:
+            {
+                // reverse arguments
+                std::reverse(args.begin(), args.end());
+                // call proc
+                Value return_value = function.proc()(args);
+                push(return_value);
+                return;
+            }
 
-        throwVMError("couldn't identify function object");
+            // is it a user defined function?
+            case ValueType::Closure:
+            {
+                Closure c = function.closure();
+                // load saved frame
+                m_frames.push_back(c.frame());
+                // create dedicated frame
+                m_frames.push_back(std::make_shared<Frame>(m_symbols.size(), m_ip, m_pp));
+                m_pp = c.pageAddr();
+                m_ip = -1;  // because we are doing a m_ip++ right after that
+                for (std::size_t j=0; j < args.size(); ++j)
+                    push(args[j]);
+                return;
+            }
+            
+            default:
+                throwVMError("couldn't identify function object");
+        }
     }
 
     void VM::builtin()

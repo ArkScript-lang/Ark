@@ -216,15 +216,23 @@ namespace Ark
                         os << "CALL " << termcolor::reset << "(" << readNumber(i) << ")\n";
                         i++;
                     }
-                    else if (inst == Instruction::NEW_ENV)
-                        os << "NEW_ENV\n";
+                    else if (inst == Instruction::SAVE_ENV)
+                        os << "SAVE_ENV\n";
                     else if (inst == Instruction::BUILTIN)
                     {
                         os << "BUILTIN " << termcolor::reset << Ark::FFI::builtins[readNumber(i)] << "\n";
                         i++;
                     }
-                    else if (inst == Instruction::SAVE_ENV)
-                        os << "SAVE_ENV\n";
+                    else if (inst == Instruction::MUT)
+                    {
+                        os << "MUT " << termcolor::green << symbols[readNumber(i) - 3] << "\n";
+                        i++;
+                    }
+                    else if (inst == Instruction::DEL)
+                    {
+                        os << "DEL " << termcolor::green << symbols[readNumber(i) - 3] << "\n";
+                        i++;
+                    }
                     else
                     {
                         os << "Unknown instruction: " << static_cast<int>(inst) << "\n";

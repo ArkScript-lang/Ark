@@ -60,7 +60,7 @@ namespace Ark
     
     protected:
         std::string m_msg;
-    }
+    };
 }
 
 #endif

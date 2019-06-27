@@ -29,6 +29,7 @@ namespace Ark::internal
             BUILTIN = 0x0c,
             MUT = 0x0d,
             DEL = 0x0e
+            // TODO add the operators
     };
 
     struct Inst
