@@ -1,7 +1,7 @@
 #include <benchmark/benchmark.h>
 #include <Ark/Ark.hpp>
 
-static void BM_VM(benchmark::State& state)
+static void Ackermann_3_6(benchmark::State& state)
 {
     while (state.KeepRunning())
     {
@@ -11,7 +11,7 @@ static void BM_VM(benchmark::State& state)
     }
 }
 
-BENCHMARK(BM_VM);
+BENCHMARK(Ackermann_3_6);
 
 int main(int argc, char** argv)
 {

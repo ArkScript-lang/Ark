@@ -49,6 +49,25 @@ namespace Ark
         }
         os << "Magic: ark\\0\n\n";
 
+        uint16_t major = readNumber(i); i++;
+        uint16_t minor = readNumber(i); i++;
+        uint16_t patch = readNumber(i); i++;
+        os << "Version: " << major << "." << minor << "." << patch << "\n";
+
+        using timestamp_t = unsigned long long;
+        timestamp_t timestamp = 
+            (static_cast<timestamp_t>(m_bytecode[  i]) << 56) +
+            (static_cast<timestamp_t>(m_bytecode[++i]) << 48) +
+            (static_cast<timestamp_t>(m_bytecode[++i]) << 40) +
+            (static_cast<timestamp_t>(m_bytecode[++i]) << 32) +
+            (static_cast<timestamp_t>(m_bytecode[++i]) << 24) +
+            (static_cast<timestamp_t>(m_bytecode[++i]) << 16) +
+            (static_cast<timestamp_t>(m_bytecode[++i]) <<  8) +
+            (static_cast<timestamp_t>(m_bytecode[++i]))
+            ;
+        ++i;
+        os << "Timestamp: " << timestamp << "\n\n";
+
         std::vector<std::string> symbols;
         std::vector<std::string> values;
         std::vector<std::string> plugins;

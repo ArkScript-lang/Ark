@@ -57,15 +57,9 @@ namespace Ark
                 while (m_running)
                 {
                     if (m_pp >= m_pages.size())
-                    {
-                        Ark::logger.error("[Virtual Machine] Page pointer has gone too far");
-                        exit(1);
-                    }
+                        throwVMError("page pointer has gone too far (" + Ark::Utils::toString(m_pp) + ")");
                     if (m_ip >= m_pages[m_pp].size())
-                    {
-                        Ark::logger.error("[Virtual Machine] Instruction pointer has gone too far");
-                        exit(1);
-                    }
+                        throwVMError("instruction pointer has gone too far (" + Ark::Utils::toString(m_ip) + ")");
 
                     // get current instruction
                     uint8_t inst = m_pages[m_pp][m_ip];
@@ -130,8 +124,9 @@ namespace Ark
                         break;
                     
                     default:
-                        Ark::logger.error("[Virtual Machine] unknown instruction:", static_cast<std::size_t>(inst), ", pp:", m_pp, ", ip:", m_ip);
-                        exit(1);
+                        throwVMError("unknown instruction: " + Ark::Utils::toString(static_cast<std::size_t>(inst)) +
+                            ", pp: " +Ark::Utils::toString(m_pp) + ", ip: " + Ark::Utils::toString(m_ip)
+                        );
                     }
 
                     // move forward
@@ -180,13 +175,44 @@ namespace Ark
 
         // read tables and check if bytecode is valid
         if (!(b.size() > 4 && b[i++] == 'a' && b[i++] == 'r' && b[i++] == 'k' && b[i++] == Instruction::NOP))
-        {
-            Ark::logger.error("[Virtual Machine] invalid format: couldn't find magic constant");
-            exit(1);
-        }
+            throwVMError("invalid format: couldn't find magic constant");
 
         if (m_debug)
             Ark::logger.info("(Virtual Machine) magic constant found: ark\\0");
+
+        uint16_t major = readNumber(i); i++;
+        uint16_t minor = readNumber(i); i++;
+        uint16_t patch = readNumber(i); i++;
+
+        if (m_debug)
+            Ark::logger.info("(Virtual Machine) version used: ", major, ".", minor, ".", patch);
+        
+        if (major != ARK_VERSION_MAJOR)
+        {
+            std::string str_version = Ark::Utils::toString(major) + "." +
+                Ark::Utils::toString(minor) + "." +
+                Ark::Utils::toString(patch);
+            std::string builtin_version = Ark::Utils::toString(ARK_VERSION_MAJOR) + "." +
+                Ark::Utils::toString(ARK_VERSION_MINOR) + "." +
+                Ark::Utils::toString(ARK_VERSION_PATCH);
+            throwVMError("Compiler and VM versions don't match: " + str_version + " and " + builtin_version);
+        }
+
+        using timestamp_t = unsigned long long;
+        timestamp_t timestamp = 
+            (static_cast<timestamp_t>(m_bytecode[  i]) << 56) +
+            (static_cast<timestamp_t>(m_bytecode[++i]) << 48) +
+            (static_cast<timestamp_t>(m_bytecode[++i]) << 40) +
+            (static_cast<timestamp_t>(m_bytecode[++i]) << 32) +
+            (static_cast<timestamp_t>(m_bytecode[++i]) << 24) +
+            (static_cast<timestamp_t>(m_bytecode[++i]) << 16) +
+            (static_cast<timestamp_t>(m_bytecode[++i]) <<  8) +
+            (static_cast<timestamp_t>(m_bytecode[++i]))
+            ;
+        ++i;
+
+        if (m_debug)
+            Ark::logger.info("(Virtual Machine) timestamp: ", timestamp);
 
         if (b[i] == Instruction::SYM_TABLE_START)
         {
@@ -214,10 +240,7 @@ namespace Ark
             }
         }
         else
-        {
-            Ark::logger.error("[Virtual Machine] Couldn't find symbols table");
-            exit(1);
-        }
+            throwVMError("couldn't find symbols table");
 
         if (b[i] == Instruction::VAL_TABLE_START)
         {
@@ -273,18 +296,11 @@ namespace Ark
                     i++;  // skip NOP
                 }
                 else
-                {
-                    if (m_debug)
-                        Ark::logger.info("(Virtual Machine) Unknown value type");
-                    return;
-                }
+                    throwVMError("unknown value type for value " + Ark::Utils::toString(j));
             }
         }
         else
-        {
-            Ark::logger.error("[Virtual Machine] Couldn't find constants table");
-            exit(1);
-        }
+            throwVMError("couldn't find constants table");
 
         if (b[i] == Instruction::PLUGIN_TABLE_START)
         {
@@ -312,10 +328,7 @@ namespace Ark
             }
         }
         else
-        {
-            Ark::logger.error("[Virtual Machine] Couldn't find plugins table");
-            exit(1);
-        }
+            throwVMError("couldn't find plugins table");
         
         while (b[i] == Instruction::CODE_SEGMENT_START)
         {
@@ -358,10 +371,7 @@ namespace Ark
             else if (Ark::Utils::fileExists(lib_path))  // check in LOAD_PATH otherwise
                 m_shared_lib_objects.emplace_back(lib_path);
             else
-            {
-                Ark::logger.error("[Virtual Machine] Could not load plugin", file);
-                exit(1);
-            }
+                throwVMError("could not load plugin " + file);
 
             // load data from it!
             using Mapping_t = std::unordered_map<std::string, Value::ProcType>;
@@ -452,8 +462,7 @@ namespace Ark
                 }
             }
 
-            Ark::logger.error("[Virtual Machine] Couldn't find symbol to load:", sym);
-            exit(1);
+            throwVMError("couldn't find symbol to load: " + sym);
         }
     }
     
@@ -532,8 +541,7 @@ namespace Ark
             }
         }
 
-        Ark::logger.error("[Virtual Machine] Couldn't find symbol:", sym);
-        exit(1);
+        throwVMError("couldn't find symbol: " + sym);
     }
     
     void VM::let()
@@ -678,8 +686,7 @@ namespace Ark
             return;
         }
 
-        Ark::logger.error("[Virtual Machine] Couldn't identify function object");
-        exit(1);
+        throwVMError("couldn't identify function object");
     }
     
     // TODO remove

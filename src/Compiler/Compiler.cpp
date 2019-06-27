@@ -1,6 +1,7 @@
 #include <Ark/Compiler/Compiler.hpp>
 
 #include <fstream>
+#include <chrono>
 
 #include <Ark/Log.hpp>
 #include <Ark/FFI.hpp>
@@ -24,6 +25,8 @@ namespace Ark
             Generating headers:
                 - lang name (to be sure we are executing an Ark file)
                     on 4 bytes (ark + padding)
+                - version (major: 2 bytes, minor: 2 bytes, patch: 2 bytes)
+                - timestamp (8 bytes, unix format)
                 - symbols table header
                     + elements
                 - values table header
@@ -36,6 +39,25 @@ namespace Ark
         m_bytecode.push_back('r');
         m_bytecode.push_back('k');
         m_bytecode.push_back(Instruction::NOP);
+
+        // push version
+        pushNumber(ARK_VERSION_MAJOR);
+        pushNumber(ARK_VERSION_MINOR);
+        pushNumber(ARK_VERSION_PATCH);
+
+        // push timestamp
+        unsigned long long timestamp = std::chrono::duration_cast<std::chrono::seconds>(
+            std::chrono::system_clock::now().time_since_epoch()
+        ).count();
+        for (char c=0; c < 8; c++)
+        {
+            unsigned d = 56 - 8 * c;
+            uint8_t b = (timestamp & (0xff << d)) >> d;
+            m_bytecode.push_back(b);
+        }
+        
+        if (m_debug)
+            Ark::logger.info("Timestamp: ", timestamp);
 
         if (m_debug)
             Ark::logger.info("Adding symbols table header");

@@ -6,11 +6,15 @@
 ### Added
 - adding `del` and `mut` keywords. Now `let` is for settings constants and `mut` for variables. Also it isn't possible to use `let` to define the same constant twice
 - `google/benchmark` library for the benchmarks
+- Ark version section in bytecode
+- timestamp (build date)
+- major versions of the compiler and the virtual machine used must match, a compatibility accross versions will be kept if they have the same major number
 
 ### Changed
 - moved everything from the "folder namespaces" to a single `Ark::internal` namespace
 - using `#` instead of `'` for the comments, using `'` to quote instead of `` ` ``
 - the lexer is now detecting the type of the tokens it's playing with
+- using `std::runtime_error`s instead of `exit(1)` when an error occured
 
 ### Removed
 - Lexer::check, we should see if the program is correct when building the AST

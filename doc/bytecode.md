@@ -2,6 +2,11 @@
 
 A basic file is composed of those headers:
 - magic number, 6386283 ('ark'), then a zero padding
+- Ark version used when compiling
+    - major on two bytes, big endian
+    - minor on two bytes, big endian
+    - patch on two bytes, big endian
+- timestamp (build date, 8 bytes, unix format)
 - symbols table
     - number of elements (two bytes, big endian)
     - strings, null terminated

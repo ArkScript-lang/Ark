@@ -31,7 +31,8 @@ namespace Ark::internal
         While,
         Begin,
         Import,
-        Quote
+        Quote,
+        Del
     };
 
     class Node

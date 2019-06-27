@@ -80,6 +80,11 @@ namespace Ark
         void newEnv();
         void builtin();
         void saveEnv();
+
+        inline void throwVMError(const std::string& message)
+        {
+            throw std::runtime_error("VMError: " + message);
+        }
     };
 }
 
