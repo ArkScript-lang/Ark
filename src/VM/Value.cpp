@@ -5,9 +5,11 @@
 
 namespace Ark::internal
 {
-    Value::Value(bool is_list) :
-        m_type(ValueType::List)
-    {}
+    Value::Value(bool is_list)
+    {
+        if (is_list)
+            m_type = ValueType::List;
+    }
 
     Value::Value(int value) :
         m_value(static_cast<double>(value)), m_type(ValueType::Number)

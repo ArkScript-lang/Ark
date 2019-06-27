@@ -716,6 +716,21 @@ namespace Ark
         throwVMError("couldn't identify function object");
     }
 
+    void VM::builtin()
+    {
+        /*
+            Argument: id of builtin (two bytes, big endian)
+            Job: Push the builtin function object on the stack
+        */
+        ++m_ip;
+        auto id = readNumber();
+
+        if (m_debug)
+            Ark::logger.info("BUILTIN ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
+
+        push(m_ffi[id]);
+    }
+
     void VM::saveEnv()
     {
         /*

@@ -34,7 +34,6 @@ namespace Ark::internal
         using Iterator = std::vector<Value>::const_iterator;
         using Value_t = std::variant<double, std::string, PageAddr_t, NFT, ProcType, Closure>;
 
-        // TODO enhance
         Value(bool is_list=false);
 
         Value(int value);

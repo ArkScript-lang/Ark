@@ -23,6 +23,8 @@ namespace Ark::internal::FFI
     const Value trueSym  = Value(NFT::True);
     const Value nil      = Value(NFT::Nil);
 
+    // ------------------------------
+
     FFI_Function(add)
     {
         if (n[0].valueType() != valueType::Number)
@@ -72,76 +74,76 @@ namespace Ark::internal::FFI
 
     FFI_Function(gt)
     {
-        if (FFI_isString(n[0]))
+        if (n[0].valueType() == ValueType::String)
         {
-            if (!FFI_isString(n[1]))
+            if (n[1].valueType() != ValueType::String)
                 throw Ark::TypeError("Arguments of > should have the same type");
             
-            return (FFI_string(n[0]) > FFI_string(n[1])) ? trueSym : falseSym;
+            return (n[0].string() > n[1].string()) ? trueSym : falseSym;
         }
-        else if (FFI_isNumber(n[0]))
+        else if (n[0].valueType() == ValueType::Number)
         {
-            if (!FFI_isNumber(n[1]))
+            if (n[1].valueType() != ValueType::Number)
                 throw Ark::TypeError("Arguments of > should have the same type");
             
-            return (FFI_number(n[0]) > FFI_number(n[1])) ? trueSym : falseSym;
+            return (n[0].number() > n[1].number()) ? trueSym : falseSym;
         }
         throw Ark::TypeError("Arguments of > should either be Strings or Numbers");
     }
 
     FFI_Function(lt)
     {
-        if (FFI_isString(n[0]))
+        if (n[0].valueType() == ValueType::String)
         {
-            if (!FFI_isString(n[1]))
+            if (n[1].valueType() != ValueType::String)
                 throw Ark::TypeError("Arguments of < should have the same type");
             
-            return (FFI_string(n[0]) < FFI_string(n[1])) ? trueSym : falseSym;
+            return (n[0].string() < n[1].string()) ? trueSym : falseSym;
         }
-        else if (FFI_isNumber(n[0]))
+        else if (n[0].valueType() == ValueType::Number)
         {
-            if (!FFI_isNumber(n[1]))
+            if (n[1].valueType() != ValueType::Number)
                 throw Ark::TypeError("Arguments of < should have the same type");
             
-            return (FFI_number(n[0]) < FFI_number(n[1])) ? trueSym : falseSym;
+            return (n[0].number() < n[1].number()) ? trueSym : falseSym;
         }
         throw Ark::TypeError("Arguments of < should either be Strings or Numbers");
     }
 
     FFI_Function(le)
     {
-        if (FFI_isString(n[0]))
+        if (n[0].valueType() == ValueType::String)
         {
-            if (!FFI_isString(n[1]))
+            if (n[1].valueType() != ValueType::String)
                 throw Ark::TypeError("Arguments of <= should have the same type");
             
-            return (FFI_string(n[0]) <= FFI_string(n[1])) ? trueSym : falseSym;
+            return (n[0].string() <= n[1].string()) ? trueSym : falseSym;
         }
-        else if (FFI_isNumber(n[0]))
+        else if (n[0].valueType() == ValueType::Number)
         {
-            if (!FFI_isNumber(n[1]))
+            if (n[1].valueType() != ValueType::Number)
                 throw Ark::TypeError("Arguments of <= should have the same type");
             
-            return (FFI_number(n[0]) <= FFI_number(n[1])) ? trueSym : falseSym;
+            return (n[0].number() <= n[1].number()) ? trueSym : falseSym;
         }
         throw Ark::TypeError("Arguments of <= should either be Strings or Numbers");
     }
 
     FFI_Function(ge)
     {
-        if (FFI_isString(n[0]))
+        if (n[0].valueType() == ValueType::String)
         {
-            if (!FFI_isString(n[1]))
+            if (n[1].valueType() != ValueType::String)
                 throw Ark::TypeError("Arguments of >= should have the same type");
             
-            return (FFI_string(n[0]) >= FFI_string(n[1])) ? trueSym : falseSym;
+            return (n[0].string() >= n[1].string()) ? trueSym : falseSym;
         }
-        else if (FFI_isNumber(n[0]))
+        else if (n[0].valueType() == ValueType::Number)
         {
-            if (!FFI_isNumber(n[1]))
+            if (n[1].valueType() != ValueType::Number)
                 throw Ark::TypeError("Arguments of >= should have the same type");
             
-            return (FFI_number(n[0]) >= FFI_number(n[1])) ? trueSym : falseSym;
+            return (n[0].number() >= n[1].number()) ? trueSym : falseSym;
         }
         throw Ark::TypeError("Arguments of >= should either be Strings or Numbers");
     }
@@ -160,9 +162,9 @@ namespace Ark::internal::FFI
     
     FFI_Function(len)
     {
-        if (FFI_isList(n[0]))
+        if (n[0].valueType() == ValueType::List)
             return Value(static_cast<int>(n[0].const_list().size()));
-        if (FFI_isString(n[0]))
+        if (n[0].valueType() == ValueType::String)
             return Value(static_cast<int>(FFI_string(n[0]).size()));
 
         throw Ark::TypeError("Argument of len must be a list or a String");
@@ -170,7 +172,7 @@ namespace Ark::internal::FFI
     
     FFI_Function(empty)
     {
-        if (!FFI_isList(n[0]))
+        if (n[0].valueType() != ValueType::List)
             throw Ark::TypeError("Argument of empty must be a list");
         
         return (n[0].const_list().size() == 0) ? trueSym : falseSym;
@@ -178,7 +180,7 @@ namespace Ark::internal::FFI
     
     FFI_Function(firstof)
     {
-        if (!FFI_isList(n[0]))
+        if (n[0].valueType() != ValueType::List)
             throw Ark::TypeError("Argument of firstof must be a list");
         
         return n[0].const_list()[0];
@@ -186,7 +188,7 @@ namespace Ark::internal::FFI
     
     FFI_Function(tailof)
     {
-        if (!FFI_isList(n[0]))
+        if (n[0].valueType() != ValueType::List)
             throw Ark::TypeError("Argument of tailof must be a list");
         
         if (n[0].const_list().size() < 2)
@@ -199,7 +201,7 @@ namespace Ark::internal::FFI
 
     FFI_Function(append)
     {
-        if (!FFI_isList(n[0]))
+        if (n[0].valueType() != ValueType::List)
             throw Ark::TypeError("First argument of append must be a list");
         
         Value r = n[0];
@@ -210,13 +212,13 @@ namespace Ark::internal::FFI
 
     FFI_Function(concat)
     {
-        if (!FFI_isList(n[0]))
+        if (n[0].valueType() != ValueType::List)
             throw Ark::TypeError("First argument of concat should be a list");
         
         Value r = n[0];
         for (Value::Iterator it=n.begin()+1; it != n.end(); ++it)
         {
-            if (!FFI_isList(*it))
+            if (it->valueType() != ValueType::List)
                 throw Ark::TypeError("Arguments of concat must be lists");
 
             for (Value::Iterator it2=it->const_list().begin(); it2 != it->const_list().end(); ++it2)
@@ -227,7 +229,7 @@ namespace Ark::internal::FFI
 
     FFI_Function(list)
     {
-        FFI_makeList(r);
+        Value r(/* is_list */ true);
         for (Value::Iterator it=n.begin(); it != n.end(); ++it)
             r.push_back(*it);
         return r;

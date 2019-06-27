@@ -26,8 +26,9 @@ namespace Ark::internal
             HALT = 0x09,
             CALL = 0x0a,
             SAVE_ENV = 0x0b,
-            MUT = 0x0c,
-            DEL = 0x0d
+            BUILTIN = 0x0c,
+            MUT = 0x0d,
+            DEL = 0x0e
     };
 
     struct Inst
