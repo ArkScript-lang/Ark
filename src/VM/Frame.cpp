@@ -8,9 +8,11 @@ namespace Ark::internal
     {
         auto nil = Value(NFT::Nil);
 
-        m_environment.reserve(64);
+        m_environment.reserve(length);
         for (std::size_t i=0; i < length; ++i)
             m_environment.push_back(nil);
+        
+        m_stack.reserve(16);
     }
 
     Frame::Frame(std::size_t length, std::size_t caller_addr, std::size_t caller_page_addr) :
@@ -18,8 +20,12 @@ namespace Ark::internal
         m_page_addr(caller_page_addr)
     {
         auto nil = Value(NFT::Nil);
+
+        m_environment.reserve(length);
         for (std::size_t i=0; i < length; ++i)
             m_environment.push_back(nil);
+        
+        m_stack.reserve(16);
     }
 
     Value Frame::pop()
