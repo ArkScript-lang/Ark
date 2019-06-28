@@ -4,7 +4,20 @@
 
 <img align="right" src="images/Ark.png" width=200px>
 
-Ark is a small programming language made in C++17, inspired by Lisp, using under 10 keywords.
+Documentation: [doc/main.md](doc/main.md)
+
+## Key features
+
+* Ark is small: the compiler, and the virtual machines fit under 5000 lines, but also small in term of keywords (it has only 10)!
+* Ark is a scripting language: it's very easy to embed it in your application. The FFI is quite easy to understand, so adding your own functions to the interpreter or the virtual machine is effortless
+* Ark can run everywhere: it produces a bytecode which is run by its virtual machine, like Java but without the `OutOfMemoryException`
+* Ark is a functional language: every parameters are by passed by value, everything is immutable unless you use `mut` to define a mutable variable
+* Ark can handle object oriented programming using closures in a very elegant way (see example below)
+* Ark handles first class objects, thus it has higher-order functions
+* Ark is fast: the compiler takes less than 200µs to compile and check a complex code with a lot of branches and sub-branches of 200 lines.
+* Ark is a Lisp-like, but with less parentheses: `[...]` is expanded to `(list ...)` and `{}` to `(begin ...)`. More shorthands will come in the future.
+
+## Example
 
 ```clojure
 {
@@ -38,45 +51,46 @@ Ark is a small programming language made in C++17, inspired by Lisp, using under
 }
 ```
 
-* Ark is small, the interpreter, the compiler, and the virtual machines fit under 5000 lines
-* Ark is a scripting language, easily embedded in your application. The FFI is quite easy to understand, so adding your own functions to the interpreter or the virtual machine is effortless
+## Contributing
 
-## Goals
+* First, [fork](https://github.com/SuperFola/Ark/fork) the repository
+* Then, clone your fork: `git clone git@github.com:username/Ark.git`
+* Create a branch for your feature: `git checkout -b feat-my-awesome-idea`
+* When you're done, push it to your fork and submit a pull request!
 
-Ark was meant to be a toy language, but it grew into something that I could qualify as big, now aiming video games as a scripting language, and mathematics as it can handle very big numbers without problems. Even if the language is inspired by Lisp, it's trying to convey a better image than "Lost in Stupid Parentheses", by providing `[...]` (expand to `(list ...)`) and `{...}` (expand to `(begin ...)`), to help making a more readable code.
+Don't know what to work on? No worries, we have a [list of things to do](https://github.com/SuperFola/Ark/projects) :wink:
 
-## Features
+## Notes
 
-The language already handles
-* first class object
-* higher-order function
-* church encoding
-* closures
+* The execution of some programs is slower than expected, due to some operators being used like functions, but we are working on it, a brand new FFI is coming soon!
+* The language is a bit limited in term of what it can do, because we are working on performance improvement and some brand new features, but adding builtin functions and operators is easy, so we will work on that as soon as possible
 
 ## Dependencies
 
-* C++17 compliant compiler, the following have been tested
-    * GCC 7.2
-    * GCC 8.2
+* C++17
 * CMake >= 3.8
-* Python 3.6 (for the configure script)
 * Visual Studio >= 11 (on Windows)
 
 Libs already included:
 * [rj format](https://github.com/ryjen/format), MIT licence
 * [CLIPP](https://github.com/muellan/clipp), MIT licence
 * [termcolor](https://github.com/ikalnytskyi/termcolor), BSD (3-clause) licence
+* [google/benchmark](https://github.com/google/benchmark), Apache 2.0 licence
 
 ## Building
 
 ```bash
+# first, clone it
+~$ git clone --depth=50 --branch=rework https://github.com/SuperFola/Ark.git
+~/Ark$ cd Ark
+~/Ark$ git submodule update --init --recursive
 # building Ark
-$ cmake -H. -Bbuild
-$ cmake --build build
+~/Ark$ cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release
+~/Ark$ cmake --build build
 # installing Ark
-$ cd build && sudo make install && cd ..
+~/Ark$ cd build && sudo make install && cd ..
 # running
-$ Ark --help
+~/Ark$ Ark --help
 SYNOPSIS
         build/Ark -h 
         build/Ark --version 
@@ -98,13 +112,6 @@ OPTIONS
 LICENSE
         Mozilla Public License 2.0
 ```
-
-The project has been tested on
-* Linux Mint 18, 64 bits (gcc)
-* Lubuntu 18, 32 bits (gcc)
-* Windows 10, 64 bits (MSVC)
-
-## [Documentation](doc/main.md)
 
 ## Credits
 
