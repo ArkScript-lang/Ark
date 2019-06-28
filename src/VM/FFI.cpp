@@ -9,9 +9,9 @@
 
 namespace Ark::internal::FFI
 {
-    const Value falseSym = Value(NFT::False);
-    const Value trueSym  = Value(NFT::True);
-    const Value nil      = Value(NFT::Nil);
+    extern const Value falseSym = Value(NFT::False);
+    extern const Value trueSym  = Value(NFT::True);
+    extern const Value nil      = Value(NFT::Nil);
 
     extern const std::unordered_map<std::string, Value> builtins_map = {
         { "false", falseSym },

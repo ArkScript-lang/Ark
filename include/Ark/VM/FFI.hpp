@@ -13,6 +13,10 @@
 
 namespace Ark::internal::FFI
 {
+    extern const Value falseSym;
+    extern const Value trueSym;
+    extern const Value nil;
+
     extern const std::unordered_map<std::string, Value> builtins_map;
     extern const std::vector<std::string> builtins;
     extern const std::vector<std::string> operators;
