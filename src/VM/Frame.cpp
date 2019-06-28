@@ -1,4 +1,5 @@
 #include <Ark/VM/Frame.hpp>
+#include <Ark/VM/FFI.hpp>
 
 namespace Ark::internal
 {
@@ -6,11 +7,9 @@ namespace Ark::internal
         m_addr(0),
         m_page_addr(0)
     {
-        auto nil = Value(NFT::Nil);
-
         m_environment.reserve(length);
         for (std::size_t i=0; i < length; ++i)
-            m_environment.push_back(nil);
+            m_environment.push_back(FFI::nil);
         
         m_stack.reserve(16);
     }
@@ -19,11 +18,9 @@ namespace Ark::internal
         m_addr(caller_addr),
         m_page_addr(caller_page_addr)
     {
-        auto nil = Value(NFT::Nil);
-
         m_environment.reserve(length);
         for (std::size_t i=0; i < length; ++i)
-            m_environment.push_back(nil);
+            m_environment.push_back(FFI::nil);
         
         m_stack.reserve(16);
     }
