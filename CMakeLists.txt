@@ -103,10 +103,7 @@ set_target_properties(
         CXX_EXTENSIONS OFF
 )
 
-if (UNIX)
-    # benchmarks don't seem to work on Windows, disable them
-    add_subdirectory(benchmarks)
-endif()
+add_subdirectory(benchmarks)
 
 install(TARGETS Ark DESTINATION bin)
 install(DIRECTORY ${Ark_SOURCE_DIR}/lib/ DESTINATION share/.Ark/lib)

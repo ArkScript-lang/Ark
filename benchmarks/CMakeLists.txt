@@ -8,7 +8,12 @@ find_package(Threads REQUIRED)
 #-------------------------------------------------------
 #                      Benchmark lib
 #-------------------------------------------------------
-set(THIRD_PARTY_BENCHMARK_LIB ${CMAKE_CURRENT_BINARY_DIR}/third_party_benchmark/src/libbenchmark${CMAKE_STATIC_LIBRARY_SUFFIX})
+if (UNIX OR APPLE)
+    set(THIRD_PARTY_BENCHMARK_LIB ${CMAKE_CURRENT_BINARY_DIR}/third_party_benchmark/src/libbenchmark${CMAKE_STATIC_LIBRARY_SUFFIX})
+else()
+    set(THIRD_PARTY_BENCHMARK_LIB ${CMAKE_CURRENT_BINARY_DIR}/third_party_benchmark/src/${CMAKE_BUILD_TYPE}/libbenchmark${CMAKE_STATIC_LIBRARY_SUFFIX})
+endif()
+
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third_party_benchmark)
 add_custom_target(third_party_benchmark
         ALL
