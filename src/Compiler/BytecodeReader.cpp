@@ -233,6 +233,52 @@ namespace Ark
                         os << "DEL " << termcolor::green << symbols[readNumber(i) - 3] << "\n";
                         i++;
                     }
+                    else if (inst == Instruction::ADD)
+                        os << "ADD\n";
+                    else if (inst == Instruction::SUB)
+                        os << "SUB\n";
+                    else if (inst == Instruction::MUL)
+                        os << "MUL\n";
+                    else if (inst == Instruction::DIV)
+                        os << "DIV\n";
+                    else if (inst == Instruction::GT)
+                        os << "GT\n";
+                    else if (inst == Instruction::LT)
+                        os << "LT\n";
+                    else if (inst == Instruction::LE)
+                        os << "LE\n";
+                    else if (inst == Instruction::GE)
+                        os << "GE\n";
+                    else if (inst == Instruction::NEQ)
+                        os << "NEQ\n";
+                    else if (inst == Instruction::EQ)
+                        os << "EQ\n";
+                    else if (inst == Instruction::LEN)
+                        os << "LEN\n";
+                    else if (inst == Instruction::EMPTY)
+                        os << "EMPTY\n";
+                    else if (inst == Instruction::FIRSTOF)
+                        os << "FIRSTOF\n";
+                    else if (inst == Instruction::TAILOF)
+                        os << "TAILOF\n";
+                    else if (inst == Instruction::HEADOF)
+                        os << "HEADOF\n";
+                    else if (inst == Instruction::ISNIL)
+                        os << "ISNIL\n";
+                    else if (inst == Instruction::ASSERT)
+                        os << "ASSERT\n";
+                    else if (inst == Instruction::TO_NUM)
+                        os << "TO_NUM\n";
+                    else if (inst == Instruction::TO_STR)
+                        os << "TO_STR\n";
+                    else if (inst == Instruction::AT)
+                        os << "AT\n";
+                    else if (inst == Instruction::AND_)
+                        os << "AND_\n";
+                    else if (inst == Instruction::OR_)
+                        os << "OR_\n";
+                    else if (inst == Instruction::MOD)
+                        os << "MOD\n";
                     else
                     {
                         os << "Unknown instruction: " << static_cast<int>(inst) << "\n";
