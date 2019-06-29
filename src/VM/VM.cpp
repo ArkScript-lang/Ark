@@ -165,10 +165,6 @@ namespace Ark
 
     void VM::configure()
     {
-        // TODO configure ffi
-        /*if (m_ffi.size() == 0)
-            initFFI();*/
-
         // configure tables and pages
         const bytecode_t& b = m_bytecode;
         std::size_t i = 0;
@@ -543,6 +539,7 @@ namespace Ark
             Job: Take the value on top of the stack and create a constant in the current scope, named
                     following the given symbol id (cf symbols table)
         */
+        // TODO handle constness
         ++m_ip;
         auto id = readNumber();
 
@@ -710,7 +707,7 @@ namespace Ark
         if (m_debug)
             Ark::logger.info("BUILTIN ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
 
-        push(m_ffi[id]);
+        push(FFI::builtins[id].second);
     }
 
     void VM::mut()
@@ -720,6 +717,18 @@ namespace Ark
             Job: Take the value on top of the stack and create a variable in the current scope,
                 named following the given symbol id (cf symbols table)
         */
+        // TODO handle constness
+        ++m_ip;
+        auto id = readNumber();
+
+        if (m_debug)
+            Ark::logger.info("MUT ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
+
+        auto sid = id - 3;
+        std::string sym = m_symbols[sid];
+        backFrame()[sid] = pop();
+        if (backFrame()[sid].valueType() == ValueType::Closure)
+            backFrame()[sid].closure_ref().save(m_frames.size() - 1, sid);
     }
 
     void VM::del()
@@ -728,6 +737,26 @@ namespace Ark
             Argument: symbol id (two bytes, big endian)
             Job: Remove a variable/constant named following the given symbol id (cf symbols table)
         */
+        ++m_ip;
+        auto id = readNumber();
+
+        if (m_debug)
+            Ark::logger.info("DEL ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
+
+        auto sid = id - 3;
+        std::string sym = m_symbols[sid];
+
+        for (std::size_t i=m_frames.size() - 1; ; --i)
+        {
+            if (m_frames[i]->find(sid))
+            {
+                // delete it
+                frameAt(i)[sid] = FFI::nil;
+                return;
+            }
+        }
+
+        throwVMError("couldn't find symbol: " + sym);
     }
 
     void VM::operators(uint8_t inst)
@@ -746,12 +775,12 @@ namespace Ark
             auto TS = pop(),
                 TS1 = pop();
             std::vector<Value> args = { TS1, TS };
-            push(FFI::operators[inst - Instruction::FIRST_OPERATOR](args));
+            push(FFI::operators[inst - Instruction::FIRST_OPERATOR].second.proc()(args));
         }
         else
         {
             auto TS = pop();
-            push(FFI::operators[inst - Instruction::FIRST_OPERATOR]({ TS }));
+            push(FFI::operators[inst - Instruction::FIRST_OPERATOR].second.proc()({ TS }));
         }
     }
 }

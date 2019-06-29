@@ -38,8 +38,6 @@ namespace Ark
         bool m_running;
         std::string m_filename;
 
-        std::vector<internal::Value::ProcType> m_ffi;
-
         std::vector<std::string> m_symbols;
         std::vector<internal::Value> m_constants;
         std::vector<std::string> m_plugins;
@@ -76,8 +74,12 @@ namespace Ark
         void jump();
         void ret();
         void call();
-        void builtin();
         void saveEnv();
+        void builtin();
+        void mut();
+        void del();
+
+        void operators(uint8_t inst);
 
         inline void throwVMError(const std::string& message)
         {
