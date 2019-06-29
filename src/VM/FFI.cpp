@@ -21,7 +21,7 @@ namespace Ark::internal::FFI
         { "concat", Value(&concat) },
         { "list", Value(&list) },
         { "print", Value(&print) },
-        { "print", Value(&input) }
+        { "input", Value(&input) }
     };
 
     extern const std::vector<std::string> builtins = {

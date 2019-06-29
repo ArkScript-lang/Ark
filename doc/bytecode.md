@@ -27,10 +27,6 @@ A basic file is composed of those headers:
     - number of elements (two bytes, big endian), can be equal to 0
     - instructions
 
-## Note on symbols table
-
-The first ID isn't 0 but 3. The ID 0, 1 and 2 are reserved for `nil`, `false` and `true`.
-
 ## Note on jumps
 
 Jumps are used to jump from a code segment to another, in case of functions. The page number is directly encoded on two bytes (big endian).
@@ -41,33 +37,14 @@ Builtins are handled with `BUILTIN id`, with `id` being the id of the builtin fu
 
 | ID | Arguments(s) | Job |
 | -- | ------------ | --- |
-| `+` (0) | at least 2 | Sum the arguments |
-| `-` (1) | at least 2 | Substract all the arguments to the first one |
-| `*` (2) | at least 2 | Multiply first argument by all the others |
-| `/` (3) | at least 2 | Divide first argument by all the others |
-| `>` (4) | 2 | compare arguments |
-| `<` (5) | 2 | compare arguments |
-| `<=` (6) | 2 | compare arguments |
-| `>=` (7) | 2 | compare arguments |
-| `!=` (8) | 2 | compare arguments |
-| `=` (9) | 2 | compare arguments |
-| `len` (10) | 1 (must be a list) | Return the length of the given list |
-| `empty?` (11) | 1 (must be a list) | Check if the given list is empty |
-| `firstof` (12) | 1 (must be a list) | Return the first element of the given list |
-| `tailof` (13) | 1 (must be a list) | Return all the given elements, except the first one |
-| `append` (14) | at least 2 (first one must be a list) | Append all arguments to the first one |
-| `concat` (15) | at least 2 (must be lists) | Concat all the lists into one |
-| `list` (16) | at least 0 | Return a list composed of all the arguments |
-| `nil?` (17) | 1 | Check if given argument is nil |
-| `print` (18) | at least 0 | Print the given arguments |
-| `assert` (19) | 2 | First argument must be a Bool. Raise an error, created from the message in the second argument, if the first argument is false |
-| `input` (20) | 0 or 1 | Can take a String (prompt), return a String writen by the user in the shell |
-| `toNumber` (21) | 1 | Convert a String to Number |
-| `toString` (22) | 1 | Convert a value to String |
-| `@` (23) | 2 | Return the i-th element of a given list |
-| `and` (24) | at least 2 (must be Bools) | Return true if all the arguments are equal to true, false otherwise |
-| `or` (25) | at 2 (must be Bools) | Return true if at least 1 argument is equal to true, false otherwise |
-| `headof` (26) | 1 (must be a list) | Return all the given elements, except the last one |
+| `false` (0) | | |
+| `true` (1) | | |
+| `nil` (2) | | |
+| `append` (3) | at least 2 (first one must be a list) | Append all arguments to the first one |
+| `concat` (4) | at least 2 (must be lists) | Concat all the lists into one |
+| `list` (5) | at least 0 | Return a list composed of all the arguments |
+| `print` (6) | at least 0 | Print the given arguments |
+| `input` (7) | 0 or 1 | Can take a String (prompt), return a String writen by the user in the shell |
 
 ## Instructions
 
