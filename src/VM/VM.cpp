@@ -64,74 +64,77 @@ namespace Ark
                     uint8_t inst = m_pages[m_pp][m_ip];
 
                     // and it's time to du-du-du-du-duel!
-                    switch (inst)
-                    {
-                    case Instruction::NOP:
-                        nop();
-                        break;
+                    if (Instruction::FIRST_INSTRUCTION <= inst && inst <= Instruction::LAST_INSTRUCTION)
+                        switch (inst)
+                        {
+                        case Instruction::NOP:
+                            nop();
+                            break;
+                        
+                        case Instruction::LOAD_SYMBOL:
+                            loadSymbol();
+                            break;
+                        
+                        case Instruction::LOAD_CONST:
+                            loadConst();
+                            break;
+                        
+                        case Instruction::POP_JUMP_IF_TRUE:
+                            popJumpIfTrue();
+                            break;
+                        
+                        case Instruction::STORE:
+                            store();
+                            break;
+                        
+                        case Instruction::LET:
+                            let();
+                            break;
+                        
+                        case Instruction::POP_JUMP_IF_FALSE:
+                            popJumpIfFalse();
+                            break;
+                        
+                        case Instruction::JUMP:
+                            jump();
+                            break;
+                        
+                        case Instruction::RET:
+                            ret();
+                            break;
+                        
+                        case Instruction::HALT:
+                            m_running = false;
+                            break;
+                        
+                        case Instruction::CALL:
+                            call();
+                            break;
+                        
+                        case Instruction::SAVE_ENV:
+                            saveEnv();
+                            break;
+                        
+                        case Instruction::BUILTIN:
+                            builtin();
+                            break;
+                        
+                        case Instruction::MUT:
+                            mut();
+                            break;
+                        
+                        case Instruction::DEL:
+                            del();
+                            break;
+                        
+                        default:
+                            throwVMError("unknown instruction: " + Ark::Utils::toString(static_cast<std::size_t>(inst)) +
+                                ", pp: " +Ark::Utils::toString(m_pp) + ", ip: " + Ark::Utils::toString(m_ip)
+                            );
+                        }
+                    else if (Instruction::FIRST_OPERATOR <= inst && inst <= Instruction::LAST_OPERATOR)
+                        operators(inst);
                     
-                    case Instruction::LOAD_SYMBOL:
-                        loadSymbol();
-                        break;
-                    
-                    case Instruction::LOAD_CONST:
-                        loadConst();
-                        break;
-                    
-                    case Instruction::POP_JUMP_IF_TRUE:
-                        popJumpIfTrue();
-                        break;
-                    
-                    case Instruction::STORE:
-                        store();
-                        break;
-                    
-                    case Instruction::LET:
-                        let();
-                        break;
-                    
-                    case Instruction::POP_JUMP_IF_FALSE:
-                        popJumpIfFalse();
-                        break;
-                    
-                    case Instruction::JUMP:
-                        jump();
-                        break;
-                    
-                    case Instruction::RET:
-                        ret();
-                        break;
-                    
-                    case Instruction::HALT:
-                        m_running = false;
-                        break;
-                    
-                    case Instruction::CALL:
-                        call();
-                        break;
-                    
-                    case Instruction::SAVE_ENV:
-                        saveEnv();
-                        break;
-                    
-                    case Instruction::BUILTIN:
-                        builtin();
-                        break;
-                    
-                    case Instruction::MUT:
-                        // TODO mut();
-                        break;
-                    
-                    case Instruction::DEL:
-                        // TODO del();
-                        break;
-                    
-                    default:
-                        throwVMError("unknown instruction: " + Ark::Utils::toString(static_cast<std::size_t>(inst)) +
-                            ", pp: " +Ark::Utils::toString(m_pp) + ", ip: " + Ark::Utils::toString(m_ip)
-                        );
-                    }
-
                     // move forward
                     ++m_ip;
                 }
@@ -684,6 +687,17 @@ namespace Ark
         }
     }
 
+    void VM::saveEnv()
+    {
+        /*
+            Argument: none
+            Job: Used to tell the Virtual Machine to save the current environment. Main goal is
+                    to be able to handle closures, which need to save the environment in which
+                    they were created
+        */
+        m_saved_frame = m_frames.size() - 1;
+    }
+
     void VM::builtin()
     {
         /*
@@ -699,14 +713,45 @@ namespace Ark
         push(m_ffi[id]);
     }
 
-    void VM::saveEnv()
+    void VM::mut()
     {
         /*
-            Argument: none
-            Job: Used to tell the Virtual Machine to save the current environment. Main goal is
-                    to be able to handle closures, which need to save the environment in which
-                    they were created
+            Argument: symbol id (two bytes, big endian)
+            Job: Take the value on top of the stack and create a variable in the current scope,
+                named following the given symbol id (cf symbols table)
         */
-        m_saved_frame = m_frames.size() - 1;
+    }
+
+    void VM::del()
+    {
+        /*
+            Argument: symbol id (two bytes, big endian)
+            Job: Remove a variable/constant named following the given symbol id (cf symbols table)
+        */
+    }
+
+    void VM::operators(uint8_t inst)
+    {
+        /*
+            Handling the operator instructions
+        */
+        /*
+            TODO enhance, shouldn't use function but their code directly
+            because creating a vector for each func call is very slow
+        */
+        if ((Instruction::ADD <= inst && inst <= Instruction::EQ) ||
+            (Instruction::ASSERT == inst) ||
+            (Instruction::AT <= inst && inst <= Instruction::MOD))
+        {
+            auto TS = pop(),
+                TS1 = pop();
+            std::vector<Value> args = { TS1, TS };
+            push(FFI::operators[inst - Instruction::FIRST_OPERATOR](args));
+        }
+        else
+        {
+            auto TS = pop();
+            push(FFI::operators[inst - Instruction::FIRST_OPERATOR]({ TS }));
+        }
     }
 }
