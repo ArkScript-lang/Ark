@@ -341,7 +341,7 @@ namespace Ark::internal::FFI
 
     FFI_Function(list)
     {
-        Value r(/* is_list */ true);
+        Value r(ValueType::List);
         for (Value::Iterator it=n.begin(); it != n.end(); ++it)
             r.push_back(*it);
         return r;

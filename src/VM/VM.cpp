@@ -470,7 +470,7 @@ namespace Ark
         
         if (m_saved_frame && m_constants[id].valueType() == ValueType::PageAddr)
         {
-            push(Value(m_frames[m_saved_frame.value()], m_constants[id].pageAddr()));
+            push(Value(Closure(m_frames[m_saved_frame.value()], m_constants[id].pageAddr())));
             m_saved_frame.reset();
         }
         else
@@ -678,7 +678,7 @@ namespace Ark
                     push(args[j]);
                 return;
             }
-            
+
             default:
                 throwVMError("couldn't identify function object");
         }

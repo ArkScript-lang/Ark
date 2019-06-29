@@ -34,18 +34,17 @@ namespace Ark::internal
         using Iterator = std::vector<Value>::const_iterator;
         using Value_t = std::variant<double, std::string, PageAddr_t, NFT, ProcType, Closure>;
 
-        Value(bool is_list=false);
-
+        Value() = default;
+        Value(ValueType type);
         Value(int value);
         Value(double value);
         Value(const std::string& value);
+        Value(std::string&& value);
         Value(PageAddr_t value);
         Value(NFT value);
         Value(Value::ProcType value);
-        Value(const std::vector<Value>& value);
-        Value(const Closure& value);
-        Value(const Value& value);
-        Value(const std::shared_ptr<Frame>& frame_ptr, PageAddr_t pa);
+        Value(std::vector<Value>&& value);
+        Value(Closure&& value);
 
         ValueType valueType() const;
 
@@ -61,6 +60,7 @@ namespace Ark::internal
         Closure& closure_ref();
 
         void push_back(const Value& value);
+        void push_back(Value&& value);
 
         friend std::ostream& operator<<(std::ostream& os, const Value& V);
         friend inline bool operator==(const Value& A, const Value& B);

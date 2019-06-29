@@ -5,11 +5,9 @@
 
 namespace Ark::internal
 {
-    Value::Value(bool is_list)
-    {
-        if (is_list)
-            m_type = ValueType::List;
-    }
+    Value::Value(ValueType type) :
+        m_type(type)
+    {}
 
     Value::Value(int value) :
         m_value(static_cast<double>(value)), m_type(ValueType::Number)
@@ -20,6 +18,10 @@ namespace Ark::internal
     {}
 
     Value::Value(const std::string& value) :
+        m_value(value), m_type(ValueType::String)
+    {}
+
+    Value::Value(std::string&& value) :
         m_value(value), m_type(ValueType::String)
     {}
 
@@ -35,23 +37,12 @@ namespace Ark::internal
         m_value(value), m_type(ValueType::CProc)
     {}
 
-    Value::Value(const std::vector<Value>& value) :
+    Value::Value(std::vector<Value>&& value) :
         m_list(value), m_type(ValueType::List)
     {}
 
-    Value::Value(const Closure& value) :
+    Value::Value(Closure&& value) :
         m_value(value), m_type(ValueType::Closure)
-    {}
-
-    Value::Value(const Value& value) :
-        m_value(value.m_value),
-        m_list(value.m_list),
-        m_type(value.m_type)
-    {}
-
-    Value::Value(const std::shared_ptr<Frame>& frame_ptr, PageAddr_t pa) :
-        m_value(Closure(frame_ptr, pa)),
-        m_type(ValueType::Closure)
     {}
 
     // --------------------------

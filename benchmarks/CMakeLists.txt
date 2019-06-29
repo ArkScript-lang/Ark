@@ -8,18 +8,18 @@ find_package(Threads REQUIRED)
 #-------------------------------------------------------
 #                      Benchmark lib
 #-------------------------------------------------------
-#if (UNIX OR APPLE)
-#    set(THIRD_PARTY_BENCHMARK_LIB ${CMAKE_CURRENT_BINARY_DIR}/third_party_benchmark/src/libbenchmark${CMAKE_STATIC_LIBRARY_SUFFIX})
-#else()
-#    set(THIRD_PARTY_BENCHMARK_LIB ${CMAKE_CURRENT_BINARY_DIR}/third_party_benchmark/src/${CMAKE_BUILD_TYPE}/benchmark${CMAKE_STATIC_LIBRARY_SUFFIX})
-#endif()
+if (UNIX OR APPLE)
+    set(THIRD_PARTY_BENCHMARK_LIB ${CMAKE_CURRENT_BINARY_DIR}/third_party_benchmark/src/libbenchmark${CMAKE_STATIC_LIBRARY_SUFFIX})
+else()
+    set(THIRD_PARTY_BENCHMARK_LIB ${CMAKE_CURRENT_BINARY_DIR}/third_party_benchmark/src/${CMAKE_BUILD_TYPE}/benchmark${CMAKE_STATIC_LIBRARY_SUFFIX})
+endif()
 
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third_party_benchmark)
 add_custom_target(third_party_benchmark
         ALL
         COMMAND ${CMAKE_COMMAND} -DBENCHMARK_ENABLE_GTEST_TESTS=OFF ${ARK_SUBMODULES_ROOT}/benchmark -DCMAKE_BUILD_TYPE=Release
         COMMAND ${CMAKE_COMMAND} --build . --target benchmark
-        #COMMAND ${CMAKE_COMMAND} -E copy ${THIRD_PARTY_BENCHMARK_LIB} ${ARK_SUBMODULES_ROOT}/benchmark/lib/benchmark${CMAKE_STATIC_LIBRARY_SUFFIX}
+        COMMAND ${CMAKE_COMMAND} -E copy ${THIRD_PARTY_BENCHMARK_LIB} ${ARK_SUBMODULES_ROOT}/benchmark/lib/benchmark${CMAKE_STATIC_LIBRARY_SUFFIX}
         WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/third_party_benchmark"
         COMMENT "Building benchmark"
         )
@@ -30,7 +30,7 @@ function(bench_make target_file)
     add_executable(${targetname} ${target_file}.cpp)
     target_include_directories(${targetname} PRIVATE ${ARK_SUBMODULES_ROOT}/benchmark/include)
     target_link_libraries(${targetname} ArkLib)
-    target_link_libraries(${targetname} third_party_benchmark Threads::Threads)
+    target_link_libraries(${targetname} "${ARK_SUBMODULES_ROOT}/benchmark/lib/benchmark${CMAKE_STATIC_LIBRARY_SUFFIX}" Threads::Threads)
     add_dependencies(${targetname} ArkLib)
     add_dependencies(${targetname} third_party_benchmark)
     set_target_properties(${targetname} PROPERTIES

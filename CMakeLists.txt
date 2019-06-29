@@ -72,19 +72,20 @@ file(GLOB_RECURSE SOURCE_FILES
     ${Ark_SOURCE_DIR}/src/*.cpp
     ${Ark_SOURCE_DIR}/thirdparty/*.cpp
 )
-
-add_executable(Ark ${SOURCE_FILES})
+list(REMOVE_ITEM SOURCE_FILES "${Ark_SOURCE_DIR}/src/main.cpp")
 
 add_library(ArkLib ${SOURCE_FILES})
 set_property(TARGET ArkLib PROPERTY POSITION_INDEPENDENT_CODE ON)
 
+add_executable(Ark ${Ark_SOURCE_DIR}/src/main.cpp)
+
 if (CMAKE_COMPILER_IS_GNUCXX)
-    target_link_libraries(Ark PUBLIC stdc++fs)
     target_link_libraries(ArkLib PUBLIC stdc++fs)
+    target_link_libraries(Ark PUBLIC stdc++fs)
 endif()
 if (UNIX OR LINUX)
-    target_link_libraries(Ark PUBLIC ${CMAKE_DL_LIBS})
     target_link_libraries(ArkLib PUBLIC ${CMAKE_DL_LIBS})
+    target_link_libraries(Ark PUBLIC ${CMAKE_DL_LIBS} ArkLib)
 endif()
 
 set_target_properties(
