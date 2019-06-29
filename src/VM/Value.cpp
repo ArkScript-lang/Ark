@@ -38,7 +38,7 @@ namespace Ark::internal
     {}
 
     Value::Value(std::vector<Value>&& value) :
-        m_list(value), m_type(ValueType::List)
+        m_value(value), m_type(ValueType::List)
     {}
 
     Value::Value(Closure&& value) :
@@ -81,7 +81,7 @@ namespace Ark::internal
 
     const std::vector<Value>& Value::const_list() const
     {
-        return m_list;
+        return std::get<std::vector<Value>>(m_value);
     }
 
     const Closure& Value::closure() const
@@ -93,7 +93,7 @@ namespace Ark::internal
 
     std::vector<Value>& Value::list()
     {
-        return m_list;
+        return std::get<std::vector<Value>>(m_value);
     }
 
     Closure& Value::closure_ref()
@@ -106,7 +106,7 @@ namespace Ark::internal
     void Value::push_back(const Value& value)
     {
         m_type = ValueType::List;
-        m_list.push_back(value);
+        list().push_back(value);
     }
 
     // --------------------------

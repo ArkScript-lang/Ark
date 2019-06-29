@@ -32,7 +32,7 @@ namespace Ark::internal
     public:
         using ProcType  = Value(*)(const std::vector<Value>&);
         using Iterator = std::vector<Value>::const_iterator;
-        using Value_t = std::variant<double, std::string, PageAddr_t, NFT, ProcType, Closure>;
+        using Value_t = std::variant<double, std::string, PageAddr_t, NFT, ProcType, Closure, std::vector<Value>>;
 
         Value() = default;
         Value(ValueType type);
@@ -68,7 +68,6 @@ namespace Ark::internal
     private:
         Value_t m_value;
         ValueType m_type;
-        std::vector<Value> m_list;
     };
 
     inline bool operator==(const Value& A, const Value& B)
