@@ -21,18 +21,19 @@ namespace Ark::internal::FFI
         { "concat", Value(&concat) },
         { "list", Value(&list) },
         { "print", Value(&print) },
+        { "print", Value(&input) }
     };
 
     extern const std::vector<std::string> builtins = {
         "false", "true", "nil",
-        "append", "concat", "list", "print",
+        "append", "concat", "list", "print", "input",
     };
 
     extern const std::vector<std::string> operators = {
         "+", "-", "*", "/",
         ">", "<", "<=", ">=", "!=", "=",
         "len", "empty?", "firstof", "tailof", "headof", "nil?",
-        "assert", "input",
+        "assert",
         "toNumber", "toString",
         "@", "and", "or", "mod",
     };
@@ -245,21 +246,6 @@ namespace Ark::internal::FFI
         return nil;
     }
 
-    FFI_Function(input)
-    {
-        if (n.size() == 1)
-        {
-            if (n[0].valueType() != ValueType::String)
-                throw Ark::TypeError("Argument of input must be of type String");
-            std::cout << n[0].string();
-        }
-
-        std::string line = "";
-        std::getline(std::cin, line);
-
-        return Value(line);
-    }
-
     // ------------------------------
 
     FFI_Function(toNumber)
@@ -354,5 +340,20 @@ namespace Ark::internal::FFI
         std::cout << std::endl;
 
         return nil;
+    }
+
+    FFI_Function(input)
+    {
+        if (n.size() == 1)
+        {
+            if (n[0].valueType() != ValueType::String)
+                throw Ark::TypeError("Argument of input must be of type String");
+            std::cout << n[0].string();
+        }
+
+        std::string line = "";
+        std::getline(std::cin, line);
+
+        return Value(line);
     }
 }

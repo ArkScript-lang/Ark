@@ -88,3 +88,26 @@ Builtins are handled with `BUILTIN id`, with `id` being the id of the builtin fu
 | `BUILTIN` (0x0c) | id of builtin (two bytes, big endian) | Push the builtin function object on the stack |
 | `MUT` (0x0d) | symbol id (two bytes, big endian) | Take the value on top of the stack and create a variable in the current scope, named following the given symbol id (cf symbols table) |
 | `DEL` (0x0e) | symbol id (two bytes, big endian) | Remove a variable/constant named following the given symbol id (cf symbols table) |
+| `ADD` (0x20) |  | Push `TS1 + TS` |
+| `SUB` (0x21) |  | Push `TS1 - TS` |
+| `MUL` (0x22) |  | Push `TS1 * TS` |
+| `DIV` (0x23) |  | Push `TS1 / TS` |
+| `GT` (0x24) |  | Push `TS1 > TS` |
+| `LT` (0x25) |  | Push `TS1 < TS` |
+| `LE` (0x26) |  | Push `TS1 <= TS` |
+| `GE` (0x27) |  | Push `TS1 >= TS` |
+| `NEQ` (0x28) |  | Push `TS1 != TS` |
+| `EQ` (0x29) |  | Push `TS1 == TS` |
+| `LEN` (0x2a) |  | Push `len(TS)`, TS must be a list |
+| `EMPTY` (0x2b) |  | Push `empty?(TS)`, TS must be a list |
+| `FIRSTOF` (0x2c) |  | Push `firstof(TS)`, the first element of TS (must be a list) |
+| `TAILOF` (0x2d) |  | Push `tailof(TS)`, all the elements of TS except the first one (TS must be a list) |
+| `HEADOF` (0x2e) |  | Push `headof(TS)`, all the elements of TS except the last one (TS must be a list) |
+| `ISNIL` (0x2f) |  | Push true if TS is nil, false otherwise |
+| `ASSERT` (0x30) |  | Throw an exception if TS1 is false, and display TS (must be a string). Otherwise, push nil |
+| `TO_NUM` (0x31) |  | Convert TS to number (must be a string) |
+| `TO_STR` (0x32) |  | Convert TS to string (must be a number) |
+| `AT` (0x33) |  | Push the value at index TS (must be a number) in TS1 (must be a list) |
+| `AND_` (0x34) |  | Push true if TS and TS1 are true, false otherwise |
+| `OR_` (0x35) |  | Push true if TS or TS1 is true, false otherwise |
+| `MOD` (0x36) |  | Push `TS1 % TS` |

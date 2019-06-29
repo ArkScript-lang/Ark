@@ -44,7 +44,6 @@ namespace Ark::internal::FFI
     FFI_Function(isnil);    // nil?,    1 argument
 
     FFI_Function(assert_);  // assert, 2 arguments
-    FFI_Function(input);    // input,  0 or 1 argument
 
     FFI_Function(toNumber);  // toNumber, 1 argument
     FFI_Function(toString);  // toString, 1 argument
@@ -61,6 +60,7 @@ namespace Ark::internal::FFI
     FFI_Function(concat);   // concat, multiple arguments
     FFI_Function(list);     // list,   multiple arguments
     FFI_Function(print);    // print,  multiple arguments
+    FFI_Function(input);    // input,  0 or 1 argument
 }
 
 #undef FFI_Function
