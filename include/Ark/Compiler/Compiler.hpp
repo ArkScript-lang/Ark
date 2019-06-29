@@ -5,12 +5,14 @@
 #include <iostream>
 #include <string>
 #include <cinttypes>
+#include <optional>
 
 #include <Ark/Parser/Parser.hpp>
 #include <Ark/Parser/Node.hpp>
 #include <Ark/Compiler/Value.hpp>
 #include <Ark/Compiler/Instructions.hpp>
 #include <Ark/Compiler/BytecodeReader.hpp>
+#include <Ark/VM/FFI.hpp>
 
 namespace Ark
 {
@@ -31,6 +33,22 @@ namespace Ark
             if (i >= 0)
                 return m_code_pages[i];
             return m_temp_pages[-i - 1];
+        }
+
+        inline std::optional<std::size_t> isOperator(const std::string& name)
+        {
+            for (std::size_t i=0; i < FFI::operators.size(); ++i)
+                if (FFI::operators[i].first == name)
+                    return i;
+            return {};
+        }
+
+        inline std::optional<std::size_t> isBuiltin(const std::string& name)
+        {
+            for (std::size_t i=0; i < FFI::builtins.size(); ++i)
+                if (FFI::builtins[i].first == name)
+                    return i;
+            return {};
         }
 
         void _compile(Ark::internal::Node x, int p);

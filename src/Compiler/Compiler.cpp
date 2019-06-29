@@ -187,19 +187,22 @@ namespace Ark
         {
             std::string name = x.string();
 
-            auto it = std::find(FFI::builtins.begin(), FFI::builtins.end(), name);
-            // check if 'name' isn't a builtin function name before pushing it as a 'var-use'
-            if (it == FFI::builtins.end())
+            // check if 'name' isn't a builtin/operator name before pushing it as a 'var-use'
+            if (auto it_builtin = isBuiltin(name))
+            {
+                page(p).emplace_back(Instruction::BUILTIN);
+                pushNumber(static_cast<uint16_t>(it_builtin.value()), &page(p));
+            }
+            else if (auto it_operator = isOperator(name))
+            {
+                pushNumber(static_cast<uint16_t>(Instruction::FIRST_OPERATOR + it_operator.value()), &page(p));
+            }
+            else
             {
                 std::size_t i = addSymbol(name);
 
                 page(p).emplace_back(Instruction::LOAD_SYMBOL);
                 pushNumber(static_cast<uint16_t>(i), &page(p));
-            }
-            else
-            {
-                page(p).emplace_back(Instruction::BUILTIN);
-                pushNumber(static_cast<uint16_t>(std::distance(FFI::builtins.begin(), it)), &page(p));
             }
 
             return;
@@ -269,6 +272,17 @@ namespace Ark
                 _compile(x.list()[2], p);
 
                 page(p).emplace_back(Instruction::LET);
+                pushNumber(static_cast<uint16_t>(i), &page(p));
+            }
+            else if (n == Ark::internal::Keyword::Mut)
+            {
+                std::string name = x.list()[1].string();
+                std::size_t i = addSymbol(name);
+
+                // put value before symbol id
+                _compile(x.list()[2], p);
+
+                page(p).emplace_back(Instruction::MUT);
                 pushNumber(static_cast<uint16_t>(i), &page(p));
             }
             else if (n == Ark::internal::Keyword::Fun)
@@ -342,6 +356,15 @@ namespace Ark
                 page(p).emplace_back(Instruction::LOAD_CONST);
                 pushNumber(static_cast<uint16_t>(id), &page(p));
             }
+            else if (n == Ark::internal::Keyword::Del)
+            {
+                // get id of symbol to delete
+                std::string name = x.list()[1].string();
+                std::size_t i = addSymbol(name);
+
+                page(p).emplace_back(Instruction::DEL);
+                pushNumber(static_cast<uint16_t>(i), &page(p));
+            }
 
             return;
         }
@@ -356,11 +379,17 @@ namespace Ark
         // push proc from temp page
         for (auto&& inst : m_temp_pages.back())
             page(p).push_back(inst);
+        std::size_t proc_page_len = m_temp_pages.back().size();
         m_temp_pages.pop_back();
         // call the procedure
-        page(p).push_back(Instruction::CALL);
-        // number of arguments
-        pushNumber(static_cast<uint16_t>(std::distance(x.list().begin() + 1, x.list().end())), &page(p));
+        // we know that operators take only 1 instruction, so if there are more
+        // it's a builtin/function
+        if (proc_page_len > 1)
+        {
+            page(p).push_back(Instruction::CALL);
+            // number of arguments
+            pushNumber(static_cast<uint16_t>(std::distance(x.list().begin() + 1, x.list().end())), &page(p));
+        }
 
         return;
     }
