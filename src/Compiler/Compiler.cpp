@@ -195,7 +195,7 @@ namespace Ark
             }
             else if (auto it_operator = isOperator(name))
             {
-                pushNumber(static_cast<uint16_t>(Instruction::FIRST_OPERATOR + it_operator.value()), &page(p));
+                page(p).emplace_back(static_cast<Instruction>(Instruction::FIRST_OPERATOR + it_operator.value()));
             }
             else
             {

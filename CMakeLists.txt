@@ -4,13 +4,6 @@ project(Ark CXX)
 
 # setting up compilations options
 
-if (NOT DEBUG)
-    message(STATUS "To enable debug mode, use -DDEBUG=\"true\"")
-    message(STATUS "Falling back to release")
-    
-    set(DEBUG "false" CACHE STRING "Enables debug mode" FORCE)
-endif()
-
 if (NOT BUILD_MODULES)
     message(STATUS "To build the modules, use -DBUILD_MODULES=\"true\"")
     message(STATUS "Not building the modules")
