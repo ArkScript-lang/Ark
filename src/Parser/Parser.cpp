@@ -185,6 +185,13 @@ namespace Ark
                     {
                         block.push_back(parse(tokens));
                     }
+                    else if (token.token == "del")
+                    {
+                        if (tokens.front().type == TokenType::Identifier)
+                            block.push_back(atom(nextToken(tokens)));
+                        else
+                            throwParseError("invalid token: del can only be applied to identifers", tokens.front());
+                    }
                 }
                 else if (token.type == TokenType::Identifier || token.type == TokenType::Operator)
                 {
