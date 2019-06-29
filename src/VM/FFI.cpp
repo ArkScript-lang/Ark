@@ -13,29 +13,41 @@ namespace Ark::internal::FFI
     extern const Value trueSym  = Value(NFT::True);
     extern const Value nil      = Value(NFT::Nil);
 
-    extern const std::unordered_map<std::string, Value> builtins_map = {
-        { "false", falseSym },
-        { "true", trueSym },
-        { "nil", nil },
+    extern const std::vector<std::pair<std::string, Value>> builtins_map = {
+        { "false",  falseSym },
+        { "true",   trueSym },
+        { "nil",    nil },
         { "append", Value(&append) },
         { "concat", Value(&concat) },
-        { "list", Value(&list) },
-        { "print", Value(&print) },
-        { "input", Value(&input) }
-    };
-
-    extern const std::vector<std::string> builtins = {
-        "false", "true", "nil",
-        "append", "concat", "list", "print", "input",
+        { "list",   Value(&list) },
+        { "print",  Value(&print) },
+        { "input",  Value(&input) }
     };
 
     extern const std::vector<std::string> operators = {
-        "+", "-", "*", "/",
-        ">", "<", "<=", ">=", "!=", "=",
-        "len", "empty?", "firstof", "tailof", "headof", "nil?",
-        "assert",
-        "toNumber", "toString",
-        "@", "and", "or", "mod",
+        { "+",        Value(&add) },
+        { "-",        Value(&sub) },
+        { "*",        Value(&mul) },
+        { "/",        Value(&div) },
+        { ">",        Value(&gt) },
+        { "<",        Value(&lt) },
+        { "<=",       Value(&le) },
+        { ">=",       Value(&ge) },
+        { "!=",       Value(&neq) },
+        { "=",        Value(&eq) },
+        { "len",      Value(&len) },
+        { "empty?",   Value(&empty) },
+        { "firstof",  Value(&firstof) },
+        { "tailof",   Value(&tailof) },
+        { "headof",   Value(&headof) },
+        { "nil?",     Value(&isnil) },
+        { "assert",   Value(&assert_) },
+        { "toNumber", Value(&toNumber) },
+        { "toString", Value(&toString) },
+        { "@",        Value(&at) },
+        { "and",      Value(&and_) },
+        { "or",       Value(&or_) },
+        { "mod",      Value(&mod) }
     };
 
     // ------------------------------
