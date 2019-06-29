@@ -220,7 +220,7 @@ namespace Ark
                         os << "SAVE_ENV\n";
                     else if (inst == Instruction::BUILTIN)
                     {
-                        os << "BUILTIN " << termcolor::reset << Ark::FFI::builtins[readNumber(i)] << "\n";
+                        os << "BUILTIN " << termcolor::reset << FFI::builtins[readNumber(i)].first << "\n";
                         i++;
                     }
                     else if (inst == Instruction::MUT)

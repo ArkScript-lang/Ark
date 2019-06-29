@@ -37,16 +37,16 @@ namespace Ark
 
         inline std::optional<std::size_t> isOperator(const std::string& name)
         {
-            for (std::size_t i=0; i < FFI::operators.size(); ++i)
-                if (FFI::operators[i].first == name)
+            for (std::size_t i=0; i < internal::FFI::operators.size(); ++i)
+                if (internal::FFI::operators[i].first == name)
                     return i;
             return {};
         }
 
         inline std::optional<std::size_t> isBuiltin(const std::string& name)
         {
-            for (std::size_t i=0; i < FFI::builtins.size(); ++i)
-                if (FFI::builtins[i].first == name)
+            for (std::size_t i=0; i < internal::FFI::builtins.size(); ++i)
+                if (internal::FFI::builtins[i].first == name)
                     return i;
             return {};
         }

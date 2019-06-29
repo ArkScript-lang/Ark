@@ -13,7 +13,7 @@ namespace Ark::internal::FFI
     extern const Value trueSym  = Value(NFT::True);
     extern const Value nil      = Value(NFT::Nil);
 
-    extern const std::vector<std::pair<std::string, Value>> builtins_map = {
+    extern const std::vector<std::pair<std::string, Value>> builtins = {
         { "false",  falseSym },
         { "true",   trueSym },
         { "nil",    nil },
@@ -24,7 +24,7 @@ namespace Ark::internal::FFI
         { "input",  Value(&input) }
     };
 
-    extern const std::vector<std::string> operators = {
+    extern const std::vector<std::pair<std::string, Value>> operators = {
         { "+",        Value(&add) },
         { "-",        Value(&sub) },
         { "*",        Value(&mul) },
