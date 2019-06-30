@@ -28,6 +28,8 @@ find_library(GBench_lib
 add_library(GBench UNKNOWN IMPORTED)
 set_property(TARGET GBench PROPERTY IMPORTED_LOCATION "${GBench_lib}")
 
+message(STATUS "${GBench_lib}")
+
 #-------------------------------------------------------
 #                        Targets
 #-------------------------------------------------------
