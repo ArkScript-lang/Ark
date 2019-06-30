@@ -72,30 +72,28 @@ int main(int argc, char** argv)
 {
     using namespace clipp;
 
-    bool help_ = false,
-         version_ = false,
-         compiler_ = false,
-         vm_ = false,
-         bcr_ = false,
-         dev_info_ = false;
+    enum class mode {help, version, compiler, vm, bcr, dev_info, tests};
+    mode selected = mode::help;
 
     std::string input_file = "", output_file = "";
     bool debug = false, timer = false, count_fcall = false;
     std::vector<std::string> wrong;
 
+    // TODO: temp CLI, redo a better one able to compile code only if needed (check timestamp)
     auto cli = (
         // general options
-        option("-h", "--help").set(help_).doc("Display this help message")
-        | option("--version").set(version_).doc("Display Ark lang version and exit")
-        | option("--dev-info").set(dev_info_).doc("Display development informations and exit")
+        option("-h", "--help").set(selected, mode::help).doc("Display this help message")
+        | option("--version").set(selected, mode::version).doc("Display Ark lang version and exit")
+        | option("--dev-info").set(selected, mode::dev_info).doc("Display development informations and exit")
+        | option("--tests")
         | (value("file", input_file)
-            , option("-c", "--compile").set(compiler_).doc("Compile file")
+            , option("-c", "--compile").set(selected, mode::compiler).doc("Compile file")
             , option("-o", "--output").doc("Set the output filename for the compiler") & value("out", output_file)
             , (
-                option("-vm").set(vm_).doc("Start the VM on the given file")
+                option("-vm").set(selected, mode::vm).doc("Start the VM on the given file")
                 , option("--count-fcalls").set(count_fcall).doc("Count functions calls and display result at the end of the execution")
               )
-            , option("-bcr", "--bytecode-reader").set(bcr_).doc("Launch the bytecode reader")
+            , option("-bcr", "--bytecode-reader").set(selected, mode::bcr).doc("Launch the bytecode reader")
             , option("-d", "--debug").set(debug).doc("Trigger debug mode")
             , option("-t", "--time").set(timer).doc("Launch a timer")
           )
@@ -111,52 +109,50 @@ int main(int argc, char** argv)
 
     if (parse(argc, argv, cli) && wrong.empty())
     {
-        if (help_)
+        switch (selected)
         {
-            std::cerr << make_man_page(cli, argv[0], fmt).append_section("LICENSE", "        Mozilla Public License 2.0")
-                      << std::endl;
-            return 0;
-        }
-
-        if (version_)
-        {
-            std::cout << "Version " << ARK_VERSION_MAJOR << "." << ARK_VERSION_MINOR << "." << ARK_VERSION_PATCH << std::endl;
-            return 0;
-        }
-
-        if (dev_info_)
-        {
-            std::cout << ARK_COMPILER << " " << ARK_COMPILATION_OPTIONS << "\n";
-            std::cout << "sizeof(Ark::Value) [VM] = " << sizeof(Ark::internal::Value) << "B\n";
-            std::cout << "sizeof(Ark::Frame) [VM] = " << sizeof(Ark::internal::Frame) << "B\n";
-            std::cout << "sizeof(Ark::Closure)    = " << sizeof(Ark::internal::Closure) << "B\n";
-            std::cout << "sizeof(Ark::VM)         = " << sizeof(Ark::VM) << "B\n";
-            std::cout << "sizeof(char)            = " << sizeof(char) << "B\n";
-            std::cout << std::endl;
-            return 0;
-        }
-
-        if (compiler_)
-            compile(debug, timer, input_file, output_file);
-
-        if (bcr_)
-        {
-            if (output_file != "")
-                bcr(output_file);
-            else if (compiler_ && output_file == "")
-                bcr(input_file.substr(0, input_file.find_last_of('.')) + ".arkc");
-            else
-                bcr(input_file);
-        }
-
-        if (vm_)
-        {
-            if (output_file != "")
-                vm(debug, timer, output_file, count_fcall);
-            else if (output_file == "" && compiler_)
-                vm(debug, timer, input_file.substr(0, input_file.find_last_of('.')) + ".arkc", count_fcall);
-            else
-                vm(debug, timer, input_file, count_fcall);
+            case mode::help:
+                std::cerr << make_man_page(cli, argv[0], fmt).append_section(
+                    "LICENSE",
+                    "        Mozilla Public License 2.0"
+                    ) << std::endl;
+                break;
+            
+            case mode::version:
+                std::cout << "Version " << ARK_VERSION_MAJOR << "." << ARK_VERSION_MINOR << "." << ARK_VERSION_PATCH << std::endl;
+                break;
+            
+            case mode::dev_info:
+                std::cout << ARK_COMPILER << " " << ARK_COMPILATION_OPTIONS << "\n";
+                std::cout << "sizeof(Ark::Value) [VM] = " << sizeof(Ark::internal::Value) << "B\n";
+                std::cout << "sizeof(Ark::Frame) [VM] = " << sizeof(Ark::internal::Frame) << "B\n";
+                std::cout << "sizeof(Ark::Closure)    = " << sizeof(Ark::internal::Closure) << "B\n";
+                std::cout << "sizeof(Ark::VM)         = " << sizeof(Ark::VM) << "B\n";
+                std::cout << "sizeof(char)            = " << sizeof(char) << "B\n";
+                std::cout << std::endl;
+                break;
+            
+            case mode::compiler:
+                compile(debug, timer, input_file, output_file);
+                break;
+            
+            case mode::bcr:
+                if (output_file != "")
+                    bcr(output_file);
+                else if (compiler_ && output_file == "")
+                    bcr(input_file.substr(0, input_file.find_last_of('.')) + ".arkc");
+                else
+                    bcr(input_file);
+                break;
+            
+            case mode::vm:
+                if (output_file != "")
+                    vm(debug, timer, output_file, count_fcall);
+                else if (output_file == "" && compiler_)
+                    vm(debug, timer, input_file.substr(0, input_file.find_last_of('.')) + ".arkc", count_fcall);
+                else
+                    vm(debug, timer, input_file, count_fcall);
+                break;
         }
     }
     else
