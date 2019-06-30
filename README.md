@@ -132,9 +132,9 @@ Load Average: 0.84, 0.64, 0.62
 -------------------------------------------------------------------
 Benchmark                         Time             CPU   Iterations
 -------------------------------------------------------------------
-Ackermann_3_6_ark_mean          160 ms          160 ms           25
-Ackermann_3_6_ark_median        159 ms          159 ms           25
-Ackermann_3_6_ark_stddev       8.75 ms         8.75 ms           25
+Ackermann_3_6_ark_mean          158 ms          158 ms           25
+Ackermann_3_6_ark_median        158 ms          158 ms           25
+Ackermann_3_6_ark_stddev       2.27 ms         2.27 ms           25
 
 Ackermann_3_6_cpp_mean        0.339 ms        0.339 ms           25
 Ackermann_3_6_cpp_median      0.337 ms        0.337 ms           25
