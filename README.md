@@ -113,6 +113,41 @@ LICENSE
         Mozilla Public License 2.0
 ```
 
+## Performances
+
+The project was compiled on Linux Mint 18 x64, with g++ 8 and `-DNDEBUG -O4 -s`.
+
+The test here is the Ackermann-Peter function with m=3 and n=6:
+
+```
+2019-06-30 17:21:33
+Running benchmark/vm
+Run on (4 X 2400 MHz CPU s)
+CPU Caches:
+  L1 Data 32K (x2)
+  L1 Instruction 32K (x2)
+  L2 Unified 256K (x2)
+  L3 Unified 3072K (x1)
+Load Average: 0.84, 0.64, 0.62
+-------------------------------------------------------------------
+Benchmark                         Time             CPU   Iterations
+-------------------------------------------------------------------
+Ackermann_3_6_ark_mean          160 ms          160 ms           25
+Ackermann_3_6_ark_median        159 ms          159 ms           25
+Ackermann_3_6_ark_stddev       8.75 ms         8.75 ms           25
+
+Ackermann_3_6_cpp_mean        0.339 ms        0.339 ms           25
+Ackermann_3_6_cpp_median      0.337 ms        0.337 ms           25
+Ackermann_3_6_cpp_stddev      0.007 ms        0.007 ms           25
+```
+
+Comparison with Java using OpenJDK 11.0.3 x64 (source code [here](benchmarks/Ackermann.java)):
+```
+Mean time: 651.28us
+Mean time: 622us
+Stddev: 119.49792299450229us
+```
+
 ## Credits
 
 This project was inspired by [gameprogramingpatterns](http://gameprogrammingpatterns.com/bytecode.html) and [ofan lisp.cpp](https://gist.github.com/ofan/721464)
