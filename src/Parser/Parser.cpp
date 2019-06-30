@@ -27,6 +27,27 @@ namespace Ark
         // apply syntactic sugar
         std::vector<Token> t = m_lexer.tokens();
         sugar(t);
+        if (m_debug)
+        {
+            Ark::logger.info("(Parser) After applying sugar:");
+            std::size_t line = 0;
+            for (auto&& token : t)
+            {
+                if (token.line != line)
+                {
+                    line = token.line;
+                    if (line < 10)               std::cout << "   " << line;
+                    else if (10 <= line && line < 100)   std::cout << "  " << line;
+                    else if (100 <= line && line < 1000) std::cout << " " << line;
+                    else                         std::cout << line;
+                    std::cout << " | " << token.token << "\n";
+                }
+                else
+                    std::cout << "     | " << token.token << "\n";
+            }
+            // flush
+            std::cout << std::endl;
+        }
         // create program and raise error if it can't
         std::list<Token> tokens(t.begin(), t.end());
         m_ast = parse(tokens);
@@ -87,8 +108,12 @@ namespace Ark
             // take next token, we don't want to play with a "("
             token = nextToken(tokens);
 
+            // return an empty block
+            if (token.token == ")")
+                return block;
+
             // loop until we reach the end of the block
-            while (tokens.front().token != ")")
+            do
             {
                 block.push_back(atom(token));
 
@@ -198,29 +223,35 @@ namespace Ark
                     while (tokens.front().token != ")")
                         block.push_back(parse(tokens));
                 }
-                else if (token.type == TokenType::Shorthand)
-                {
-                    if (token.token == "'")
-                    {
-                        block.push_back(Node(Keyword::Quote));
-                        block.push_back(parse(tokens));
-                    }
-                    else
-                        throwParseError("unknown shorthand", token);
-                }
                 else
                     throwParseError("can not create block from token", tokens.front());
-            }
+            } while (tokens.front().token != ")");
+
             // pop the ")"
             tokens.pop_front();
             return block;
+        }
+        else if (token.type == TokenType::Shorthand)
+        {
+            if (token.token == "'")
+            {
+                // create a list node to host the block
+                Node block(NodeType::List);
+                block.setPos(token.line, token.col);
+
+                block.push_back(Node(Keyword::Quote));
+                block.push_back(parse(tokens));
+                return block;
+            }
+            else
+                throwParseError("unknown shorthand", token);
         }
         return atom(token);
     }
 
     Token Parser::nextToken(std::list<Token>& tokens)
     {
-        const Token out = tokens.front();
+        const Token out = std::move(tokens.front());
         tokens.pop_front();
         return out;
     }
@@ -250,11 +281,13 @@ namespace Ark
             if (token.token == "if")          kw = Keyword::If;
             else if (token.token == "set")    kw = Keyword::Set;
             else if (token.token == "let")    kw = Keyword::Let;
+            else if (token.token == "mut")    kw = Keyword::Mut;
             else if (token.token == "fun")    kw = Keyword::Fun;
             else if (token.token == "while")  kw = Keyword::While;
             else if (token.token == "begin")  kw = Keyword::Begin;
             else if (token.token == "import") kw = Keyword::Import;
             else if (token.token == "quote")  kw = Keyword::Quote;
+            else if (token.token == "del")    kw = Keyword::Del;
             if (kw)
             {
                 auto n = Node(kw.value());
