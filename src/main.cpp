@@ -68,6 +68,48 @@ void vm(bool debug, bool timer, const std::string& file, bool count_fcall)
         std::cout << "VM took " << elapsed_microseconds << "us" << std::endl;
 }
 
+void tests(bool debug, bool timer)
+{
+    std::chrono::time_point<std::chrono::system_clock> start, end;
+    start = std::chrono::system_clock::now();
+
+    Ark::internal::Lexer lexer(debug);
+    lexer.feed(Ark::Utils::readFile("tests/manylines.ark"));
+
+    end = std::chrono::system_clock::now();
+    auto elapsed_microseconds = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+
+    if (timer)
+        std::cout << "[Tests] Lexer took " << elapsed_microseconds << "us" << std::endl;
+    
+    // --------------------------------
+
+    start = std::chrono::system_clock::now();
+
+    Ark::Parser parser(debug);
+    parser.feed(Ark::Utils::readFile("tests/manylines.ark"));
+
+    end = std::chrono::system_clock::now();
+    elapsed_microseconds = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+
+    if (timer)
+        std::cout << "[Tests] Parser took " << elapsed_microseconds << "us" << std::endl;
+    
+    // --------------------------------
+
+    start = std::chrono::system_clock::now();
+
+    Ark::Compiler compiler(debug);
+    compiler.feed(Ark::Utils::readFile("tests/manylines.ark"), "tests/manylines.ark");
+    compiler.compile();
+
+    end = std::chrono::system_clock::now();
+    elapsed_microseconds = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+
+    if (timer)
+        std::cout << "[Tests] Compiler took " << elapsed_microseconds << "us" << std::endl;
+}
+
 int main(int argc, char** argv)
 {
     using namespace clipp;
@@ -85,7 +127,10 @@ int main(int argc, char** argv)
         option("-h", "--help").set(selected, mode::help).doc("Display this help message")
         | option("--version").set(selected, mode::version).doc("Display Ark lang version and exit")
         | option("--dev-info").set(selected, mode::dev_info).doc("Display development informations and exit")
-        | option("--tests")
+        | (option("--tests").set(selected, mode::tests).doc("Launch some tests")
+            , option("-d", "--debug").set(debug).doc("Trigger debug mode")
+            , option("-t", "--time").set(timer).doc("Launch a timer")
+        )
         | (value("file", input_file)
             , option("-c", "--compile").set(selected, mode::compiler).doc("Compile file")
             , option("-o", "--output").doc("Set the output filename for the compiler") & value("out", output_file)
@@ -137,21 +182,15 @@ int main(int argc, char** argv)
                 break;
             
             case mode::bcr:
-                if (output_file != "")
-                    bcr(output_file);
-                else if (compiler_ && output_file == "")
-                    bcr(input_file.substr(0, input_file.find_last_of('.')) + ".arkc");
-                else
-                    bcr(input_file);
+                bcr(input_file);
                 break;
             
             case mode::vm:
-                if (output_file != "")
-                    vm(debug, timer, output_file, count_fcall);
-                else if (output_file == "" && compiler_)
-                    vm(debug, timer, input_file.substr(0, input_file.find_last_of('.')) + ".arkc", count_fcall);
-                else
-                    vm(debug, timer, input_file, count_fcall);
+                vm(debug, timer, input_file, count_fcall);
+                break;
+            
+            case mode::tests:
+                tests(debug, timer);
                 break;
         }
     }

@@ -11,7 +11,7 @@ static void Ackermann_3_6(benchmark::State& state)
     }
 }
 
-BENCHMARK(Ackermann_3_6);
+BENCHMARK(Ackermann_3_6)->Unit(benchmark::kMillisecond);
 
 int main(int argc, char** argv)
 {
