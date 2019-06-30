@@ -19,6 +19,8 @@ namespace Ark
         void feed(const std::string& file);
         const bytecode_t& bytecode();
 
+        unsigned long long timestamp();
+
         void display();
     
     private:

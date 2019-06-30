@@ -35,6 +35,33 @@ namespace Ark
         return m_bytecode;
     }
 
+    unsigned long long BytecodeReader::timestamp()
+    {
+        bytecode_t b = bytecode();
+        std::size_t i = 0;
+
+        if (!(b.size() > 4 && b[i++] == 'a' && b[i++] == 'r' && b[i++] == 'k' && b[i++] == Instruction::NOP))
+            return 0;
+
+        uint16_t major = readNumber(i); i++;
+        uint16_t minor = readNumber(i); i++;
+        uint16_t patch = readNumber(i); i++;
+
+        using timestamp_t = unsigned long long;
+        timestamp_t timestamp = 
+            (static_cast<timestamp_t>(m_bytecode[  i]) << 56) +
+            (static_cast<timestamp_t>(m_bytecode[++i]) << 48) +
+            (static_cast<timestamp_t>(m_bytecode[++i]) << 40) +
+            (static_cast<timestamp_t>(m_bytecode[++i]) << 32) +
+            (static_cast<timestamp_t>(m_bytecode[++i]) << 24) +
+            (static_cast<timestamp_t>(m_bytecode[++i]) << 16) +
+            (static_cast<timestamp_t>(m_bytecode[++i]) <<  8) +
+            (static_cast<timestamp_t>(m_bytecode[++i]))
+            ;
+        
+        return timestamp;
+    }
+
     void BytecodeReader::display()
     {
         bytecode_t b = bytecode();
