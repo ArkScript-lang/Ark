@@ -18,23 +18,11 @@ namespace Ark::internal::FFI
     extern const Value nil;
 
     extern const std::vector<std::pair<std::string, Value>> builtins;
-    extern const std::vector<std::pair<std::string, Value>> operators;
+    extern const std::vector<std::string> operators;
 
     // ------------------------------
     // builtin operators: they have their own instruction
     // ------------------------------
-    FFI_Function(add);  // +, 2 arguments
-    FFI_Function(sub);  // -, 2 arguments
-    FFI_Function(mul);  // *, 2 arguments
-    FFI_Function(div);  // /, 2 arguments
-
-    FFI_Function(gt);   // >,  2 arguments
-    FFI_Function(lt);   // <,  2 arguments
-    FFI_Function(le);   // <=, 2 arguments
-    FFI_Function(ge);   // >=, 2 arguments
-    FFI_Function(neq);  // !=, 2 arguments
-    FFI_Function(eq);   // =,  2 arguments
-
     FFI_Function(len);      // len,     1 argument
     FFI_Function(empty);    // empty?,  1 argument
     FFI_Function(firstof);  // firstof, 1 argument

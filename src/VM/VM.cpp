@@ -742,10 +742,159 @@ namespace Ark
         /*
             Handling the operator instructions
         */
-        /*
-            TODO enhance, shouldn't use function but their code directly
-            because creating a vector for each func call is very slow
-        */
+        switch (inst)
+        {
+            case Instruction::ADD:
+            {
+                auto b = pop(), a = pop();
+                if (a.valueType() != ValueType::Number)
+                    throw Ark::TypeError("Arguments of + should be Numbers");
+                if (b.valueType() != ValueType::Number)
+                    throw Ark::TypeError("Arguments of + should be Numbers");
+                
+                push(Value(a.number() + b.number()));
+                break;
+            }
+
+            case Instruction::SUB:
+            {
+                auto b = pop(), a = pop();
+                if (a.valueType() != ValueType::Number)
+                    throw Ark::TypeError("Arguments of - should be Numbers");
+                if (b.valueType() != ValueType::Number)
+                    throw Ark::TypeError("Arguments of - should be Numbers");
+                
+                push(Value(a.number() - b.number()));
+                break;
+            }
+
+            case Instruction::MUL:
+            {
+                auto b = pop(), a = pop();
+                if (a.valueType() != ValueType::Number)
+                    throw Ark::TypeError("Arguments of * should be Numbers");
+                if (b.valueType() != ValueType::Number)
+                    throw Ark::TypeError("Arguments of * should be Numbers");
+                
+                push(Value(a.number() * b.number()));
+                break;
+            }
+
+            case Instruction::DIV:
+            {
+                auto b = pop(), a = pop();
+                if (a.valueType() != ValueType::Number)
+                    throw Ark::TypeError("Arguments of / should be Numbers");
+                if (b.valueType() != ValueType::Number)
+                    throw Ark::TypeError("Arguments of / should be Numbers");
+                
+                auto d = b.number();
+                if (d == 0)
+                    throw Ark::ZeroDivisionError();
+                
+                push(Value(a.number() / d));
+                break;
+            }
+
+            case Instruction::GT:
+            {
+                auto b = pop(), a = pop();
+                if (a.valueType() == ValueType::String)
+                {
+                    if (b.valueType() != ValueType::String)
+                        throw Ark::TypeError("Arguments of > should have the same type");
+                    
+                    push((a.string() > b.string()) ? FFI::trueSym : FFI::falseSym);
+                }
+                else if (a.valueType() == ValueType::Number)
+                {
+                    if (b.valueType() != ValueType::Number)
+                        throw Ark::TypeError("Arguments of > should have the same type");
+                    
+                    push((a.number() > b.number()) ? FFI::trueSym : FFI::falseSym);
+                }
+                throw Ark::TypeError("Arguments of > should either be Strings or Numbers");
+                break;
+            }
+            
+            case Instruction::LT:
+            {
+                auto b = pop(), a = pop();
+                if (a.valueType() == ValueType::String)
+                {
+                    if (b.valueType() != ValueType::String)
+                        throw Ark::TypeError("Arguments of < should have the same type");
+                    
+                    push((a.string() < b.string()) ? FFI::trueSym : FFI::falseSym);
+                }
+                else if (a.valueType() == ValueType::Number)
+                {
+                    if (b.valueType() != ValueType::Number)
+                        throw Ark::TypeError("Arguments of < should have the same type");
+                    
+                    push((a.number() < b.number()) ? FFI::trueSym : FFI::falseSym);
+                }
+                throw Ark::TypeError("Arguments of < should either be Strings or Numbers");
+                break;
+            }
+
+            case Instruction::LE:
+            {
+                auto b = pop(), a = pop();
+                if (a.valueType() == ValueType::String)
+                {
+                    if (b.valueType() != ValueType::String)
+                        throw Ark::TypeError("Arguments of <= should have the same type");
+                    
+                    push((a.string() <= b.string()) ? FFI::trueSym : FFI::falseSym);
+                }
+                else if (a.valueType() == ValueType::Number)
+                {
+                    if (b.valueType() != ValueType::Number)
+                        throw Ark::TypeError("Arguments of <= should have the same type");
+                    
+                    push((a.number() <= b.number()) ? FFI::trueSym : FFI::falseSym);
+                }
+                throw Ark::TypeError("Arguments of <= should either be Strings or Numbers");
+                break;
+            }
+
+            case Instruction::GE:
+            {
+                auto b = pop(), a = pop();
+                if (a.valueType() == ValueType::String)
+                {
+                    if (b.valueType() != ValueType::String)
+                        throw Ark::TypeError("Arguments of >= should have the same type");
+                    
+                    push((a.string() >= b.string()) ? FFI::trueSym : FFI::falseSym);
+                }
+                else if (a.valueType() == ValueType::Number)
+                {
+                    if (b.valueType() != ValueType::Number)
+                        throw Ark::TypeError("Arguments of >= should have the same type");
+                    
+                    push((a.number() >= b.number()) ? FFI::trueSym : FFI::falseSym);
+                }
+                throw Ark::TypeError("Arguments of >= should either be Strings or Numbers");
+                break;
+            }
+
+            case Instruction::NEQ:
+            {
+                auto b = pop(), a = pop();
+                push(!(a == b) ? FFI::trueSym : FFI::falseSym);
+                break;
+            }
+
+            case Instruction::EQ:
+            {
+                auto b = pop(), a = pop();
+                push((a == b) ? FFI::trueSym : FFI::falseSym);
+                break;
+            }
+        }
+
         if ((Instruction::ADD <= inst && inst <= Instruction::EQ) ||
             (Instruction::ASSERT == inst) ||
             (Instruction::AT <= inst && inst <= Instruction::MOD))

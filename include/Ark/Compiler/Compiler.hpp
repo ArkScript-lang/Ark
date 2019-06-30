@@ -38,7 +38,7 @@ namespace Ark
         inline std::optional<std::size_t> isOperator(const std::string& name)
         {
             for (std::size_t i=0; i < internal::FFI::operators.size(); ++i)
-                if (internal::FFI::operators[i].first == name)
+                if (internal::FFI::operators[i] == name)
                     return i;
             return {};
         }
