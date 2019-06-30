@@ -6,43 +6,43 @@
 namespace Ark::internal
 {
     Value::Value(ValueType type) :
-        m_type(type)
+        m_type(type), m_const(false)
     {}
 
     Value::Value(int value) :
-        m_value(static_cast<double>(value)), m_type(ValueType::Number)
+        m_value(static_cast<double>(value)), m_type(ValueType::Number), m_const(false)
     {}
 
     Value::Value(double value) :
-        m_value(value), m_type(ValueType::Number)
+        m_value(value), m_type(ValueType::Number), m_const(false)
     {}
 
     Value::Value(const std::string& value) :
-        m_value(value), m_type(ValueType::String)
+        m_value(value), m_type(ValueType::String), m_const(false)
     {}
 
     Value::Value(std::string&& value) :
-        m_value(value), m_type(ValueType::String)
+        m_value(value), m_type(ValueType::String), m_const(false)
     {}
 
     Value::Value(PageAddr_t value) :
-        m_value(value), m_type(ValueType::PageAddr)
+        m_value(value), m_type(ValueType::PageAddr), m_const(false)
     {}
 
     Value::Value(NFT value) :
-        m_value(value), m_type(ValueType::NFT)
+        m_value(value), m_type(ValueType::NFT), m_const(false)
     {}
 
     Value::Value(Value::ProcType value) :
-        m_value(value), m_type(ValueType::CProc)
+        m_value(value), m_type(ValueType::CProc), m_const(false)
     {}
 
     Value::Value(std::vector<Value>&& value) :
-        m_value(value), m_type(ValueType::List)
+        m_value(value), m_type(ValueType::List), m_const(false)
     {}
 
     Value::Value(Closure&& value) :
-        m_value(value), m_type(ValueType::Closure)
+        m_value(value), m_type(ValueType::Closure), m_const(false)
     {}
 
     // --------------------------
@@ -50,6 +50,11 @@ namespace Ark::internal
     ValueType Value::valueType() const
     {
         return m_type;
+    }
+
+    bool Value::isConst() const
+    {
+        return m_const;
     }
 
     // --------------------------
@@ -99,6 +104,11 @@ namespace Ark::internal
     Closure& Value::closure_ref()
     {
         return std::get<Closure>(m_value);
+    }
+
+    void Value::setConst(bool value)
+    {
+        m_const = value;
     }
 
     // --------------------------

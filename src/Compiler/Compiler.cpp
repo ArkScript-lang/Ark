@@ -396,26 +396,17 @@ namespace Ark
 
     std::size_t Compiler::addSymbol(const std::string& sym)
     {
-        // check if sym is nil/false/true
-        if (sym == "nil")
-            return 0;
-        else if (sym == "false")
-            return 1;
-        else if (sym == "true")
-            return 2;
-
-        // otherwise, add the symbol, and return its id in the table + 3
-        // (+3 to have distinct symbols from the builtin ones)
+        // otherwise, add the symbol, and return its id in the table
         auto it = std::find(m_symbols.begin(), m_symbols.end(), sym);
         if (it == m_symbols.end())
         {
             if (m_debug)
-                Ark::logger.info("Registering symbol:", sym, "(", m_symbols.size() + 3, ")");
+                Ark::logger.info("Registering symbol:", sym, "(", m_symbols.size(), ")");
 
             m_symbols.push_back(sym);
-            return 3 + (m_symbols.size() - 1);
+            return m_symbols.size() - 1;
         }
-        return 3 + ((std::size_t) std::distance(m_symbols.begin(), it));
+        return (std::size_t) std::distance(m_symbols.begin(), it);
     }
 
     std::size_t Compiler::addValue(Ark::internal::Node x)

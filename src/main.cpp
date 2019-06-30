@@ -70,12 +70,7 @@ void vm(bool debug, bool timer, const std::string& file, bool count_fcall)
 
 void tests(bool debug, bool timer)
 {
-    Ark::Parser parser(true);
-    parser.feed(Ark::Utils::readFile("tests/closure.ark"));
-    return;
-
-
-    /*std::chrono::time_point<std::chrono::system_clock> start, end;
+    std::chrono::time_point<std::chrono::system_clock> start, end;
     start = std::chrono::system_clock::now();
 
     Ark::internal::Lexer lexer(debug);
@@ -111,7 +106,7 @@ void tests(bool debug, bool timer)
     elapsed_microseconds = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
 
     if (timer)
-        std::cout << "[Tests] Compiler took " << elapsed_microseconds << "us" << std::endl;*/
+        std::cout << "[Tests] Compiler took " << elapsed_microseconds << "us" << std::endl;
 }
 
 int main(int argc, char** argv)

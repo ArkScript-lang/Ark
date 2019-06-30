@@ -47,6 +47,7 @@ namespace Ark::internal
         Value(Closure&& value);
 
         ValueType valueType() const;
+        bool isConst() const;
 
         double number() const;
         const std::string& string() const;
@@ -58,6 +59,7 @@ namespace Ark::internal
 
         std::vector<Value>& list();
         Closure& closure_ref();
+        void setConst(bool value);
 
         void push_back(const Value& value);
         void push_back(Value&& value);
@@ -68,6 +70,7 @@ namespace Ark::internal
     private:
         Value_t m_value;
         ValueType m_type;
+        bool m_const;
     };
 
     inline bool operator==(const Value& A, const Value& B)

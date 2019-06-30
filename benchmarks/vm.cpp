@@ -11,7 +11,18 @@ static void Ackermann_3_6(benchmark::State& state)
     }
 }
 
+static void let_a_42(benchmark::State& state)
+{
+    while (state.KeepRunning())
+    {
+        Ark::VM vm;
+        vm.feed("tests/test-let.arkc");
+        vm.run();
+    }
+}
+
 BENCHMARK(Ackermann_3_6)->Unit(benchmark::kMillisecond);
+BENCHMARK(let_a_42);
 
 int main(int argc, char** argv)
 {

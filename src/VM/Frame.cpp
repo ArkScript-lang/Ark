@@ -51,7 +51,7 @@ namespace Ark::internal
 
     bool Frame::find(uint16_t key) const
     {
-        return !(m_environment[key] == Value(NFT::Nil));
+        return !(m_environment[key] == FFI::nil);
     }
 
     std::size_t Frame::stackSize() const

@@ -223,6 +223,7 @@ namespace Ark
             
             i++;
             uint16_t size = readNumber(i);
+            m_symbols.reserve(size);
             i++;
 
             if (m_debug)
@@ -251,6 +252,7 @@ namespace Ark
             
             i++;
             uint16_t size = readNumber(i);
+            m_constants.reserve(size);
             i++;
 
             if (m_debug)
@@ -311,6 +313,7 @@ namespace Ark
             
             i++;
             uint16_t size = readNumber(i);
+            m_plugins.reserve(size);
             i++;
 
             if (m_debug)
@@ -345,6 +348,7 @@ namespace Ark
                 Ark::logger.info("(Virtual Machine) length:", size);
             
             m_pages.emplace_back();
+            m_pages.back().reserve(size);
 
             for (uint16_t j=0; j < size; ++j)
                 m_pages.back().push_back(b[i++]);
@@ -394,9 +398,11 @@ namespace Ark
         }
     }
 
-    Value VM::pop()
+    Value VM::pop(int page)
     {
-        return m_frames.back()->pop();
+        if (page == -1)
+            return m_frames.back()->pop();
+        return m_frames[static_cast<std::size_t>(page)]->pop();
     }
 
     void VM::push(const Value& value)
@@ -423,35 +429,16 @@ namespace Ark
         if (m_debug)
             Ark::logger.info("LOAD_SYMBOL ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
 
-        if (id == 0)
-            push(NFT::Nil);
-        else if (id == 1)
-            push(NFT::False);
-        else if (id == 2)
-            push(NFT::True);
-        else
+        for (auto it=m_frames.rbegin(); it != m_frames.rend(); ++it)
         {
-            auto sid = id - 3;
-            std::string sym = m_symbols[sid];
-
-            for (std::size_t i=m_frames.size() - 1; ; --i)
+            if ((*it)->find(id))
             {
-                if (m_frames[i]->find(sid))
-                {
-                    push(frameAt(i)[sid]);
-                    return;
-                }
-
-                if (i == 0)
-                {
-                    // TEMP fix
-                    push(Value(NFT::Nil));
-                    break;
-                }
+                push((**it)[id]);
+                return;
             }
-
-            throwVMError("couldn't find symbol to load: " + sym);
         }
+
+        throwVMError("couldn't find symbol to load: " + m_symbols[id]);
     }
     
     void VM::loadConst()
@@ -489,8 +476,7 @@ namespace Ark
         if (m_debug)
             Ark::logger.info("POP_JUMP_IF_TRUE ({0}) PP:{1}, IP:{2}"s, addr, m_pp, m_ip);
 
-        Value cond = pop();
-        if (cond.valueType() == ValueType::NFT && cond.nft() == NFT::True)
+        if (pop() == FFI::trueSym)
             m_ip = addr - 1;  // because we are doing a ++m_ip right after this
     }
     
@@ -508,28 +494,18 @@ namespace Ark
         if (m_debug)
             Ark::logger.info("STORE ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
 
-        auto sid = id - 3;
-        std::string sym = m_symbols[sid];
-
-        for (std::size_t i=m_frames.size() - 1; ; --i)
+        for (auto it=m_frames.rbegin(); it != m_frames.rend(); ++it)
         {
-            if (m_frames[i]->find(sid))
+            if ((*it)->find(id) && !(**it)[id].isConst())
             {
-                frameAt(i)[sid] = pop();
-                if (frameAt(i)[sid].valueType() == ValueType::Closure)
-                    frameAt(i)[sid].closure_ref().save(i, sid);
+                (**it)[id] = pop();
+                if ((**it)[id].valueType() == ValueType::Closure)
+                    (**it)[id].closure_ref().save(-std::distance(m_frames.rend(), it) - 1, id);
                 return;
-            }
-
-            if (i == 0)
-            {
-                // TEMP fix
-                frameAt(0)[sid] = pop();
-                break;
             }
         }
 
-        throwVMError("couldn't find symbol: " + sym);
+        throwVMError("couldn't find symbol: " + m_symbols[id]);
     }
     
     void VM::let()
@@ -539,18 +515,20 @@ namespace Ark
             Job: Take the value on top of the stack and create a constant in the current scope, named
                     following the given symbol id (cf symbols table)
         */
-        // TODO handle constness
         ++m_ip;
         auto id = readNumber();
 
         if (m_debug)
             Ark::logger.info("LET ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
+        
+        // check if we are redefining a variable
+        if (backFrame().find(id))
+            throwVMError("can not use 'let' to redefine a symbol");
 
-        auto sid = id - 3;
-        std::string sym = m_symbols[sid];
-        backFrame()[sid] = pop();
-        if (backFrame()[sid].valueType() == ValueType::Closure)
-            backFrame()[sid].closure_ref().save(m_frames.size() - 1, sid);
+        backFrame()[id] = pop();
+        backFrame()[id].setConst(true);
+        if (backFrame()[id].valueType() == ValueType::Closure)
+            backFrame()[id].closure_ref().save(m_frames.size() - 1, id);
     }
 
     void VM::popJumpIfFalse()
@@ -566,8 +544,7 @@ namespace Ark
         if (m_debug)
             Ark::logger.info("POP_JUMP_IF_FALSE ({0}) PP:{1}, IP:{2}"s, addr, m_pp, m_ip);
 
-        Value cond = pop();
-        if (cond.valueType() == ValueType::NFT && cond.nft() == NFT::False)
+        if (pop() == FFI::falseSym)
             m_ip = addr - 1;  // because we are doing a ++m_ip right after this
     }
     
@@ -594,10 +571,10 @@ namespace Ark
                     the stack to the new stack ; should as well delete the current environment.
                     Otherwise, acts as a `HALT`
         */
-        // check if we should halt the VM
         if (m_debug)
             Ark::logger.info("RET PP:{0}, IP:{1}"s, m_pp, m_ip);
         
+        // check if we should halt the VM
         if (m_pp == 0)
         {
             m_running = false;
@@ -647,15 +624,16 @@ namespace Ark
             m_fcalls++;
 
         Value function(pop());
-        std::vector<Value> args;
-        for (uint16_t j=0; j < argc; ++j)
-            args.push_back(pop());
 
         switch (function.valueType())
         {
             // is it a builtin function name?
             case ValueType::CProc:
             {
+                std::vector<Value> args;
+                args.reserve(argc);
+                for (uint16_t j=0; j < argc; ++j)
+                    args.push_back(pop());
                 // reverse arguments
                 std::reverse(args.begin(), args.end());
                 // call proc
@@ -667,6 +645,8 @@ namespace Ark
             // is it a user defined function?
             case ValueType::Closure:
             {
+                int p = m_frames.size() - 1;
+
                 Closure c = function.closure();
                 // load saved frame
                 m_frames.push_back(c.frame());
@@ -674,8 +654,8 @@ namespace Ark
                 m_frames.push_back(std::make_shared<Frame>(m_symbols.size(), m_ip, m_pp));
                 m_pp = c.pageAddr();
                 m_ip = -1;  // because we are doing a m_ip++ right after that
-                for (std::size_t j=0; j < args.size(); ++j)
-                    push(args[j]);
+                for (std::size_t j=0; j < argc; ++j)
+                    push(pop(p));
                 return;
             }
 
@@ -717,18 +697,19 @@ namespace Ark
             Job: Take the value on top of the stack and create a variable in the current scope,
                 named following the given symbol id (cf symbols table)
         */
-        // TODO handle constness
         ++m_ip;
         auto id = readNumber();
 
         if (m_debug)
             Ark::logger.info("MUT ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
+        
+        // check if we are redefining a symbol
+        if (backFrame().find(id))
+            throwVMError("can not use 'mut' to redefine a symbol");
 
-        auto sid = id - 3;
-        std::string sym = m_symbols[sid];
-        backFrame()[sid] = pop();
-        if (backFrame()[sid].valueType() == ValueType::Closure)
-            backFrame()[sid].closure_ref().save(m_frames.size() - 1, sid);
+        backFrame()[id] = pop();
+        if (backFrame()[id].valueType() == ValueType::Closure)
+            backFrame()[id].closure_ref().save(m_frames.size() - 1, id);
     }
 
     void VM::del()
@@ -743,20 +724,17 @@ namespace Ark
         if (m_debug)
             Ark::logger.info("DEL ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
 
-        auto sid = id - 3;
-        std::string sym = m_symbols[sid];
-
-        for (std::size_t i=m_frames.size() - 1; ; --i)
+        for (auto it=m_frames.rbegin(); it != m_frames.rend(); ++it)
         {
-            if (m_frames[i]->find(sid))
+            if ((*it)->find(id))
             {
                 // delete it
-                frameAt(i)[sid] = FFI::nil;
+                (**it)[id] = FFI::nil;
                 return;
             }
         }
 
-        throwVMError("couldn't find symbol: " + sym);
+        throwVMError("couldn't find symbol: " + m_symbols[id]);
     }
 
     void VM::operators(uint8_t inst)
