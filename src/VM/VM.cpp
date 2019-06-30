@@ -410,14 +410,14 @@ namespace Ark
         m_frames.back()->push(value);
     }
 
-    void VM::nop()
+    inline void VM::nop()
     {
         // Does nothing
         if (m_debug)
             Ark::logger.info("NOP PP:{0}, IP:{1}"s, m_pp, m_ip);
     }
     
-    void VM::loadSymbol()
+    inline void VM::loadSymbol()
     {
         /*
             Argument: symbol id (two bytes, big endian)
@@ -441,7 +441,7 @@ namespace Ark
         throwVMError("couldn't find symbol to load: " + m_symbols[id]);
     }
     
-    void VM::loadConst()
+    inline void VM::loadConst()
     {
         /*
             Argument: constant id (two bytes, big endian)
@@ -463,7 +463,7 @@ namespace Ark
             push(m_constants[id]);
     }
     
-    void VM::popJumpIfTrue()
+    inline void VM::popJumpIfTrue()
     {
         /*
             Argument: absolute address to jump to (two bytes, big endian)
@@ -480,7 +480,7 @@ namespace Ark
             m_ip = addr - 1;  // because we are doing a ++m_ip right after this
     }
     
-    void VM::store()
+    inline void VM::store()
     {
         /*
             Argument: symbol id (two bytes, big endian)
@@ -508,7 +508,7 @@ namespace Ark
         throwVMError("couldn't find symbol: " + m_symbols[id]);
     }
     
-    void VM::let()
+    inline void VM::let()
     {
         /*
             Argument: symbol id (two bytes, big endian)
@@ -531,7 +531,7 @@ namespace Ark
             backFrame()[id].closure_ref().save(m_frames.size() - 1, id);
     }
 
-    void VM::popJumpIfFalse()
+    inline void VM::popJumpIfFalse()
     {
         /*
             Argument: absolute address to jump to (two bytes, big endian)
@@ -548,7 +548,7 @@ namespace Ark
             m_ip = addr - 1;  // because we are doing a ++m_ip right after this
     }
     
-    void VM::jump()
+    inline void VM::jump()
     {
         /*
             Argument: absolute address to jump to (two byte, big endian)
@@ -563,7 +563,7 @@ namespace Ark
         m_ip = addr - 1;  // because we are doing a ++m_ip right after this
     }
     
-    void VM::ret()
+    inline void VM::ret()
     {
         /*
             Argument: none
@@ -605,7 +605,7 @@ namespace Ark
             rm_frame();
     }
     
-    void VM::call()
+    inline void VM::call()
     {
         /*
             Argument: number of arguments when calling the function
@@ -664,7 +664,7 @@ namespace Ark
         }
     }
 
-    void VM::saveEnv()
+    inline void VM::saveEnv()
     {
         /*
             Argument: none
@@ -675,7 +675,7 @@ namespace Ark
         m_saved_frame = m_frames.size() - 1;
     }
 
-    void VM::builtin()
+    inline void VM::builtin()
     {
         /*
             Argument: id of builtin (two bytes, big endian)
@@ -690,7 +690,7 @@ namespace Ark
         push(FFI::builtins[id].second);
     }
 
-    void VM::mut()
+    inline void VM::mut()
     {
         /*
             Argument: symbol id (two bytes, big endian)
@@ -702,17 +702,13 @@ namespace Ark
 
         if (m_debug)
             Ark::logger.info("MUT ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
-        
-        // check if we are redefining a symbol
-        if (backFrame().find(id))
-            throwVMError("can not use 'mut' to redefine a symbol");
 
         backFrame()[id] = pop();
         if (backFrame()[id].valueType() == ValueType::Closure)
             backFrame()[id].closure_ref().save(m_frames.size() - 1, id);
     }
 
-    void VM::del()
+    inline void VM::del()
     {
         /*
             Argument: symbol id (two bytes, big endian)
@@ -737,7 +733,7 @@ namespace Ark
         throwVMError("couldn't find symbol: " + m_symbols[id]);
     }
 
-    void VM::operators(uint8_t inst)
+    inline void VM::operators(uint8_t inst)
     {
         /*
             Handling the operator instructions
@@ -805,6 +801,7 @@ namespace Ark
                         throw Ark::TypeError("Arguments of > should have the same type");
                     
                     push((a.string() > b.string()) ? FFI::trueSym : FFI::falseSym);
+                    break;
                 }
                 else if (a.valueType() == ValueType::Number)
                 {
@@ -812,9 +809,9 @@ namespace Ark
                         throw Ark::TypeError("Arguments of > should have the same type");
                     
                     push((a.number() > b.number()) ? FFI::trueSym : FFI::falseSym);
+                    break;
                 }
                 throw Ark::TypeError("Arguments of > should either be Strings or Numbers");
-                break;
             }
             
             case Instruction::LT:
@@ -826,6 +823,7 @@ namespace Ark
                         throw Ark::TypeError("Arguments of < should have the same type");
                     
                     push((a.string() < b.string()) ? FFI::trueSym : FFI::falseSym);
+                    break;
                 }
                 else if (a.valueType() == ValueType::Number)
                 {
@@ -833,9 +831,9 @@ namespace Ark
                         throw Ark::TypeError("Arguments of < should have the same type");
                     
                     push((a.number() < b.number()) ? FFI::trueSym : FFI::falseSym);
+                    break;
                 }
                 throw Ark::TypeError("Arguments of < should either be Strings or Numbers");
-                break;
             }
 
             case Instruction::LE:
@@ -847,6 +845,7 @@ namespace Ark
                         throw Ark::TypeError("Arguments of <= should have the same type");
                     
                     push((a.string() <= b.string()) ? FFI::trueSym : FFI::falseSym);
+                    break;
                 }
                 else if (a.valueType() == ValueType::Number)
                 {
@@ -854,9 +853,9 @@ namespace Ark
                         throw Ark::TypeError("Arguments of <= should have the same type");
                     
                     push((a.number() <= b.number()) ? FFI::trueSym : FFI::falseSym);
+                    break;
                 }
                 throw Ark::TypeError("Arguments of <= should either be Strings or Numbers");
-                break;
             }
 
             case Instruction::GE:
@@ -868,6 +867,7 @@ namespace Ark
                         throw Ark::TypeError("Arguments of >= should have the same type");
                     
                     push((a.string() >= b.string()) ? FFI::trueSym : FFI::falseSym);
+                    break;
                 }
                 else if (a.valueType() == ValueType::Number)
                 {
@@ -875,39 +875,167 @@ namespace Ark
                         throw Ark::TypeError("Arguments of >= should have the same type");
                     
                     push((a.number() >= b.number()) ? FFI::trueSym : FFI::falseSym);
+                    break;
                 }
                 throw Ark::TypeError("Arguments of >= should either be Strings or Numbers");
-                break;
             }
 
             case Instruction::NEQ:
             {
-                auto b = pop(), a = pop();
-                push(!(a == b) ? FFI::trueSym : FFI::falseSym);
+                push(!(pop() == pop()) ? FFI::trueSym : FFI::falseSym);
                 break;
             }
 
             case Instruction::EQ:
             {
-                auto b = pop(), a = pop();
-                push((a == b) ? FFI::trueSym : FFI::falseSym);
+                push((pop() == pop()) ? FFI::trueSym : FFI::falseSym);
                 break;
             }
-        }
 
-        if ((Instruction::ADD <= inst && inst <= Instruction::EQ) ||
-            (Instruction::ASSERT == inst) ||
-            (Instruction::AT <= inst && inst <= Instruction::MOD))
-        {
-            auto TS = pop(),
-                TS1 = pop();
-            std::vector<Value> args = { TS1, TS };
-            push(FFI::operators[inst - Instruction::FIRST_OPERATOR].second.proc()(args));
-        }
-        else
-        {
-            auto TS = pop();
-            push(FFI::operators[inst - Instruction::FIRST_OPERATOR].second.proc()({ TS }));
+            case Instruction::LEN:
+            {
+                auto a = pop();
+                if (a.valueType() == ValueType::List)
+                {
+                    push(Value(static_cast<int>(a.const_list().size())));
+                    break;
+                }
+                if (a.valueType() == ValueType::String)
+                {
+                    push(Value(static_cast<int>(a.string().size())));
+                    break;
+                }
+
+                throw Ark::TypeError("Argument of len must be a list or a String");
+            }
+
+            case Instruction::EMPTY:
+            {
+                auto a = pop();
+                if (a.valueType() != ValueType::List)
+                    throw Ark::TypeError("Argument of empty must be a list");
+                
+                push((a.const_list().size() == 0) ? FFI::trueSym : FFI::falseSym);
+                break;
+            }
+
+            case Instruction::FIRSTOF:
+            {
+                auto a = pop();
+                if (a.valueType() != ValueType::List)
+                    throw Ark::TypeError("Argument of firstof must be a list");
+                
+                push(a.const_list()[0]);
+                break;
+            }
+
+            case Instruction::TAILOF:
+            {
+                auto a = pop();
+                if (a.valueType() != ValueType::List)
+                    throw Ark::TypeError("Argument of tailof must be a list");
+                
+                if (a.const_list().size() < 2)
+                {
+                    push(FFI::nil);
+                    break;
+                }
+                
+                a.list().erase(a.const_list().begin());
+                push(a);
+                break;
+            }
+
+            case Instruction::HEADOF:
+            {
+                auto a = pop();
+                if (a.valueType() != ValueType::List)
+                    throw Ark::TypeError("Argument of headof must be a list");
+                
+                if (a.const_list().size() < 2)
+                {
+                    push(FFI::nil);
+                    break;
+                }
+                
+                a.list().erase(a.const_list().end());
+                push(a);
+                break;
+            }
+
+            case Instruction::ISNIL:
+            {
+                push((pop() == FFI::nil) ? FFI::trueSym : FFI::falseSym);
+                break;
+            }
+
+            case Instruction::ASSERT:
+            {
+                auto b = pop(), a = pop();
+                if (a == FFI::falseSym)
+                {
+                    if (b.valueType() != ValueType::String)
+                        throw Ark::TypeError("Second argument of assert must be a String");
+
+                    throw Ark::AssertionFailed(b.string());
+                }
+                push(FFI::nil);
+                break;
+            }
+
+            case Instruction::TO_NUM:
+            {
+                auto a = pop();
+                if (a.valueType() != ValueType::String)
+                    throw Ark::TypeError("Argument of toNumber must be a String");
+                
+                push(Value(std::stod(a.string().c_str())));
+                break;
+            }
+
+            case Instruction::TO_STR:
+            {
+                std::stringstream ss;
+                ss << pop();
+                push(Value(ss.str()));
+                break;
+            }
+
+            case Instruction::AT:
+            {
+                auto b = pop(), a = pop();
+                if (a.valueType() != ValueType::List)
+                    throw Ark::TypeError("Argument 1 of @ should be a List");
+                if (b.valueType() != ValueType::Number)
+                    throw Ark::TypeError("Argument 2 of @ should be a Number");
+                
+                push(a.const_list()[static_cast<long>(b.number())]);
+                break;
+            }
+
+            case Instruction::AND_:
+            {
+                push(pop() == FFI::trueSym && pop() == FFI::trueSym);
+                break;
+            }
+
+            case Instruction::OR_:
+            {
+                push(pop() == FFI::trueSym || pop() == FFI::trueSym);
+                break;
+            }
+
+            case Instruction::MOD:
+            {
+                auto b = pop(), a = pop();
+                if (a.valueType() != ValueType::Number)
+                    throw Ark::TypeError("Arguments of mod should be Numbers");
+                if (b.valueType() != ValueType::Number)
+                    throw Ark::TypeError("Arguments of mod should be Numbers");
+                
+                push(Value(std::fmod(a.number(), b.number())));
+                break;
+            }
         }
     }
 }

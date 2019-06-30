@@ -64,22 +64,22 @@ namespace Ark
         void push(const internal::Value& value);
 
         // instructions
-        void nop();
-        void loadSymbol();
-        void loadConst();
-        void popJumpIfTrue();
-        void store();
-        void let();
-        void popJumpIfFalse();
-        void jump();
-        void ret();
-        void call();
-        void saveEnv();
-        void builtin();
-        void mut();
-        void del();
+        inline void nop();
+        inline void loadSymbol();
+        inline void loadConst();
+        inline void popJumpIfTrue();
+        inline void store();
+        inline void let();
+        inline void popJumpIfFalse();
+        inline void jump();
+        inline void ret();
+        inline void call();
+        inline void saveEnv();
+        inline void builtin();
+        inline void mut();
+        inline void del();
 
-        void operators(uint8_t inst);
+        inline void operators(uint8_t inst);
 
         inline void throwVMError(const std::string& message)
         {

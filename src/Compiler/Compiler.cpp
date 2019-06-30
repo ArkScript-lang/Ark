@@ -299,7 +299,7 @@ namespace Ark
                 // pushing arguments from the stack into variables in the new scope
                 for (Ark::internal::Node::Iterator it=x.list()[1].list().begin(); it != x.list()[1].list().end(); ++it)
                 {
-                    page(page_id).emplace_back(Instruction::LET);
+                    page(page_id).emplace_back(Instruction::MUT);
                     std::size_t var_id = addSymbol(it->string());
                     pushNumber(static_cast<uint16_t>(var_id), &(page(page_id)));
                 }

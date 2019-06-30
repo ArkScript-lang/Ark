@@ -21,26 +21,6 @@ namespace Ark::internal::FFI
     extern const std::vector<std::string> operators;
 
     // ------------------------------
-    // builtin operators: they have their own instruction
-    // ------------------------------
-    FFI_Function(len);      // len,     1 argument
-    FFI_Function(empty);    // empty?,  1 argument
-    FFI_Function(firstof);  // firstof, 1 argument
-    FFI_Function(tailof);   // tailof,  1 argument
-    FFI_Function(headof);   // headof,  1 argument
-    FFI_Function(isnil);    // nil?,    1 argument
-
-    FFI_Function(assert_);  // assert, 2 arguments
-
-    FFI_Function(toNumber);  // toNumber, 1 argument
-    FFI_Function(toString);  // toString, 1 argument
-
-    FFI_Function(at);      // @,   2 arguments
-    FFI_Function(and_);    // and, 2 arguments
-    FFI_Function(or_);     // or,  2 arguments
-    FFI_Function(mod);     // mod, 2 arguments
-
-    // ------------------------------
     // builtins functions: we must use the instruction BUILTIN index
     // ------------------------------
     FFI_Function(append);   // append, multiple arguments
