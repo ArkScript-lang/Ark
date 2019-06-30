@@ -197,7 +197,8 @@ namespace Ark
                     }
                     else if (token.token == "begin")
                     {
-                        block.push_back(parse(tokens));
+                        while (tokens.front().token != ")")
+                            block.push_back(parse(tokens));
                     }
                     else if (token.token == "import")
                     {
