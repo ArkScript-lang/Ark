@@ -148,6 +148,13 @@ Mean time: 622us
 Stddev: 119.49792299450229us
 ```
 
+Comparison with Python 3.6.7 (source code [here](benchmarks/ackermann.py)):
+```
+Mean time: 36.2155839279294ms
+Median time: 35.600485280156136ms
+Stddev: 0.8867313499129518ms
+```
+
 ## Credits
 
 This project was inspired by [gameprogramingpatterns](http://gameprogrammingpatterns.com/bytecode.html) and [ofan lisp.cpp](https://gist.github.com/ofan/721464)
