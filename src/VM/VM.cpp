@@ -52,6 +52,7 @@ namespace Ark
         if (!m_persist)
         {
             m_frames.clear();
+            m_frames.reserve(100);
             m_saved_frame.reset();
             createNewFrame();
 
@@ -183,6 +184,10 @@ namespace Ark
                         }
                     else if (Instruction::FIRST_OPERATOR <= inst && inst <= Instruction::LAST_OPERATOR)
                         operators(inst);
+                    else
+                        throwVMError("unknown instruction: " + Ark::Utils::toString(static_cast<std::size_t>(inst)) +
+                            ", pp: " +Ark::Utils::toString(m_pp) + ", ip: " + Ark::Utils::toString(m_ip)
+                        );
                     
                     // move forward
                     ++m_ip;
@@ -508,8 +513,6 @@ namespace Ark
             if ((*it)->find(id) && !(**it)[id].isConst())
             {
                 (**it)[id] = pop();
-                if ((**it)[id].valueType() == ValueType::Closure)
-                    (**it)[id].closure_ref().save(-std::distance(m_frames.rend(), it) - 1, id);
                 return;
             }
         }
@@ -536,8 +539,6 @@ namespace Ark
 
         backFrame()[id] = pop();
         backFrame()[id].setConst(true);
-        if (backFrame()[id].valueType() == ValueType::Closure)
-            backFrame()[id].closure_ref().save(m_frames.size() - 1, id);
     }
 
     inline void VM::popJumpIfFalse()
@@ -669,7 +670,7 @@ namespace Ark
             }
 
             default:
-                throwVMError("couldn't identify function object");
+                throwVMError("couldn't identify function object: type index " + Ark::Utils::toString(static_cast<int>(function.valueType())));
         }
     }
 
@@ -713,8 +714,6 @@ namespace Ark
             Ark::logger.info("MUT ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
 
         backFrame()[id] = pop();
-        if (backFrame()[id].valueType() == ValueType::Closure)
-            backFrame()[id].closure_ref().save(m_frames.size() - 1, id);
     }
 
     inline void VM::del()
@@ -1030,7 +1029,8 @@ namespace Ark
 
             case Instruction::OR_:
             {
-                push(pop() == FFI::trueSym || pop() == FFI::trueSym);
+                auto a = pop();
+                push(pop() == FFI::trueSym || a == FFI::trueSym);
                 break;
             }
 

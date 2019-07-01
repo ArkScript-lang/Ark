@@ -19,7 +19,8 @@ namespace Ark::internal
     class Frame
     {
     public:
-        Frame(std::size_t length);
+        Frame(std::size_t length=16);
+        Frame(const Frame&) = default;
         Frame(std::size_t length, std::size_t caller_addr, std::size_t caller_page_addr);
 
         inline Value pop()

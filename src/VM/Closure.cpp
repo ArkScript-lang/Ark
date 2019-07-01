@@ -14,12 +14,6 @@ namespace Ark::internal
         m_page_addr(pa)
     {}
 
-    void Closure::save(std::size_t frame_idx, uint16_t sym)
-    {
-        m_frame_idx = frame_idx;
-        m_symbol = sym;
-    }
-
     const std::shared_ptr<Frame>& Closure::frame() const
     {
         return m_frame;
@@ -28,15 +22,5 @@ namespace Ark::internal
     PageAddr_t Closure::pageAddr() const
     {
         return m_page_addr;
-    }
-
-    std::size_t Closure::frameIndex() const
-    {
-        return m_frame_idx;
-    }
-
-    uint16_t Closure::symbol() const
-    {
-        return m_symbol;
     }
 }
