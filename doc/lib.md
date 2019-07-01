@@ -4,10 +4,8 @@
 
 ### Basic data manipulation functions
 
-Functions such as `+`, `-`, `*`, and `/` can take multiple arguments, at least 2 are needed.
-
-Comparisons functions are `<`, `>`, `<=`, `>=`, `=` and `!=`, they take only 2 arguments.  
-**Nota Bene**: Equality operator is written `=`, not `==` !
+Functions such as `+`, `-`, `*`, and `/` take only 2 arguments, like the comparison functions: `<`, `>`, `<=`, `>=`, `=` and `!=`.  
+**Nota Bene**: Equality operator is written `=`, not `==`!
 
 ### Lists manipulation functions
 
@@ -44,8 +42,8 @@ Test if a value is equal to `nil` (1 argument): `isnil?`.
 
 Equivalent of `assert` in C (2 arguments, a Boolean and a String): `assert`.
 
-Test if all the values are equal to true: `and`.  
-Test if at least one value is equal to true: `or`.
+Test if two values are equal to true: `and`.  
+Test if at least one value out of two is equal to true: `or`.
 
 ### Conversions
 

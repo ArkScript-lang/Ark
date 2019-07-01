@@ -27,10 +27,6 @@ A basic file is composed of those headers:
     - number of elements (two bytes, big endian), can be equal to 0
     - instructions
 
-## Note on jumps
-
-Jumps are used to jump from a code segment to another, in case of functions. The page number is directly encoded on two bytes (big endian).
-
 ## Note on builtins
 
 Builtins are handled with `BUILTIN id`, with `id` being the id of the builtin function object. The ids of the builtins are listed below.
@@ -88,3 +84,66 @@ Builtins are handled with `BUILTIN id`, with `id` being the id of the builtin fu
 | `AND_` (0x34) |  | Push true if TS and TS1 are true, false otherwise |
 | `OR_` (0x35) |  | Push true if TS or TS1 is true, false otherwise |
 | `MOD` (0x36) |  | Push `TS1 % TS` |
+
+## Example
+
+```
+0x61 0x72 0x6b 0x00  # ark\0
+0x00 0x03 0x00 0x01 0x00 0x00  # version 3.1.0
+0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00  # timestamp: 1/1/1970 at 0:00:00
+
+0x01  # symbols table
+    0x00 0x02  # 2 elements
+        0x68 0x65 0x6c 0x6c 0x6f 0x00  # 'hello'
+        0x77 0x6f 0x72 0x6c 0x64 0x00  # 'world'
+
+0x02  # constants table
+0x00 0x03  # 3 elements
+    0x02  # string
+        0x61 0x72 0x6b 0x00  # "ark"
+    0x03  # function
+        0x00 0x01  # page number 1
+    0x01  # number
+        0x31 0x2e 0x34 0x32 0x00  # string version of '1.42'
+
+0x03  # plugins table
+0x00 0x00  # no elements for this example
+
+0x04  # code segment start
+    0x00 0x10  # number of elements
+        0x02  # load const
+            0x00 0x01  # constant number 1, a function
+        0x05  # let
+            0x00 0x00  # create an immutable variable with symbol id 0, and put the top of the stack in it:
+                       # the function we loaded from the constants table
+        0x02  # load const
+            0x00 0x02  # constant number 2, the number 1.42
+        0x01  # load symbol
+            0x00 0x00  # symbol number 0: 'hello'
+        0x0a  # call
+            0x00 0x01  # 1 argument
+        0x09  # halt
+
+    0x00 0x10  # number of elements
+        0x0d  # mut
+            0x00 0x01  # create mutable variable with symbol id 1 => 'world', put argument in it
+                       # (it's the top of the stack)
+        0x01  # load symbol
+            0x00 0x01  # symbol number 1: 'world'
+        0x02  # load const
+            0x00 0x00  # constant number 0, "ark"
+        0x0c  # builtin
+            0x00 0x06  # print
+        0x0a  # call
+            0x00 0x02  # 2 arguments
+        0x08  # ret
+```
+
+This bytecode is the exact translation of:
+
+```clojure
+{
+    (let hello (fun (world) (print world "ark")))
+    (hello 1.42)  # prints `1.42 ark`
+}
+```
