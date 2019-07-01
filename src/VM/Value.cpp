@@ -47,55 +47,6 @@ namespace Ark::internal
 
     // --------------------------
 
-    ValueType Value::valueType() const
-    {
-        return m_type;
-    }
-
-    bool Value::isConst() const
-    {
-        return m_const;
-    }
-
-    // --------------------------
-
-    double Value::number() const
-    {
-        return std::get<double>(m_value);
-    }
-
-    const std::string& Value::string() const
-    {
-        return std::get<std::string>(m_value);
-    }
-
-    PageAddr_t Value::pageAddr() const
-    {
-        return std::get<PageAddr_t>(m_value);
-    }
-
-    NFT Value::nft() const
-    {
-        return std::get<NFT>(m_value);
-    }
-
-    const Value::ProcType Value::proc() const
-    {
-        return std::get<Value::ProcType>(m_value);
-    }
-
-    const std::vector<Value>& Value::const_list() const
-    {
-        return std::get<std::vector<Value>>(m_value);
-    }
-
-    const Closure& Value::closure() const
-    {
-        return std::get<Closure>(m_value);
-    }
-
-    // --------------------------
-
     std::vector<Value>& Value::list()
     {
         return std::get<std::vector<Value>>(m_value);

@@ -50,16 +50,50 @@ namespace Ark::internal
         Value(std::vector<Value>&& value);
         Value(Closure&& value);
 
-        ValueType valueType() const;
-        bool isConst() const;
+        inline ValueType valueType() const
+        {
+            return m_type;
+        }
 
-        double number() const;
-        const std::string& string() const;
-        PageAddr_t pageAddr() const;
-        NFT nft() const;
-        const ProcType proc() const;
-        const std::vector<Value>& const_list() const;
-        const Closure& closure() const;
+        inline bool isConst() const
+        {
+            return m_const;
+        }
+
+        inline double number() const
+        {
+            return std::get<double>(m_value);
+        }
+
+        inline const std::string& string() const
+        {
+            return std::get<std::string>(m_value);
+        }
+
+        inline PageAddr_t pageAddr() const
+        {
+            return std::get<PageAddr_t>(m_value);
+        }
+
+        inline NFT nft() const
+        {
+            return std::get<NFT>(m_value);
+        }
+
+        inline const ProcType proc() const
+        {
+            return std::get<Value::ProcType>(m_value);
+        }
+
+        inline const std::vector<Value>& const_list() const
+        {
+            return std::get<std::vector<Value>>(m_value);
+        }
+
+        inline const Closure& closure() const
+        {
+            return std::get<Closure>(m_value);
+        }
 
         std::vector<Value>& list();
         Closure& closure_ref();

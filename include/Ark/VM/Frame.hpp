@@ -6,6 +6,7 @@
 
 #include <Ark/VM/Value.hpp>
 #include <Ark/Compiler/BytecodeReader.hpp>
+#include <Ark/VM/FFI.hpp>
 
 namespace Ark::internal
 {
@@ -21,12 +22,29 @@ namespace Ark::internal
         Frame(std::size_t length);
         Frame(std::size_t length, std::size_t caller_addr, std::size_t caller_page_addr);
 
-        Value pop();
-        void push(const Value& value);
-        void setData(std::size_t caller_addr, std::size_t caller_page_addr);
+        inline Value pop()
+        {
+            Value value = std::move(m_stack.back());
+            m_stack.pop_back();
 
-        Value& operator[](uint16_t key);
-        bool find(uint16_t key) const;
+            return value;
+        }
+
+        inline void push(const Value& value)
+        {
+            m_stack.push_back(value);
+        }
+
+        inline Value& operator[](uint16_t key)
+        {
+            return m_environment[key];
+        }
+
+        inline bool find(uint16_t key) const
+        {
+            return !(m_environment[key] == FFI::nil);
+        }
+
         std::size_t stackSize() const;
 
         std::size_t callerAddr() const;

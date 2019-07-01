@@ -21,7 +21,17 @@ static void Ackermann_3_6_ark(benchmark::State& state)
     while (state.KeepRunning())
     {
         Ark::VM vm;
-        vm.feed("tests/ackermann.arkc");
+        vm.feed("tests/ackermann_3_6.arkc");
+        vm.run();
+    }
+}
+
+static void Fibo_28_ark(benchmark::State& state)
+{
+    while (state.KeepRunning())
+    {
+        Ark::VM vm;
+        vm.feed("tests/fibo_28.arkc");
         vm.run();
     }
 }
@@ -55,6 +65,7 @@ static void vm_boot(benchmark::State& state)
 }
 
 BENCHMARK(Ackermann_3_6_ark)->Unit(benchmark::kMillisecond);
+BENCHMARK(Fibo_28_ark)->Unit(benchmark::kMillisecond);
 BENCHMARK(Ackermann_3_6_cpp)->Unit(benchmark::kMillisecond);
 BENCHMARK(let_a_42)->Unit(benchmark::kNanosecond);
 BENCHMARK(vm_boot)->Unit(benchmark::kNanosecond);

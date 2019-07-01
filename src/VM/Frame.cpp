@@ -1,5 +1,4 @@
 #include <Ark/VM/Frame.hpp>
-#include <Ark/VM/FFI.hpp>
 
 namespace Ark::internal
 {
@@ -23,35 +22,6 @@ namespace Ark::internal
             m_environment.push_back(FFI::nil);
         
         m_stack.reserve(16);
-    }
-
-    Value Frame::pop()
-    {
-        Value value = std::move(m_stack.back());
-        m_stack.pop_back();
-
-        return value;
-    }
-
-    void Frame::push(const Value& value)
-    {
-        m_stack.push_back(value);
-    }
-
-    void Frame::setData(std::size_t caller_addr, std::size_t caller_page_addr)
-    {
-        m_addr = caller_addr;
-        m_page_addr = caller_page_addr;
-    }
-
-    Value& Frame::operator[](uint16_t key)
-    {
-        return m_environment[key];
-    }
-
-    bool Frame::find(uint16_t key) const
-    {
-        return !(m_environment[key] == FFI::nil);
     }
 
     std::size_t Frame::stackSize() const

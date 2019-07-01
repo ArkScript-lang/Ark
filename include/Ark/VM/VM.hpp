@@ -61,8 +61,8 @@ namespace Ark
         inline internal::Frame& frameAt(std::size_t i) { return *m_frames[i]; }
         inline void createNewFrame() { m_frames.push_back(std::make_shared<internal::Frame>(m_symbols.size())) ; }
 
-        internal::Value pop(int page=-1);
-        void push(const internal::Value& value);
+        inline internal::Value pop(int page=-1);
+        inline void push(const internal::Value& value);
 
         // instructions
         inline void nop();

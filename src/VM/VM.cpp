@@ -407,14 +407,14 @@ namespace Ark
         }
     }
 
-    Value VM::pop(int page)
+    inline Value VM::pop(int page)
     {
         if (page == -1)
             return m_frames.back()->pop();
         return m_frames[static_cast<std::size_t>(page)]->pop();
     }
 
-    void VM::push(const Value& value)
+    inline void VM::push(const Value& value)
     {
         m_frames.back()->push(value);
     }
