@@ -36,17 +36,28 @@ static void Ackermann_3_6_cpp(benchmark::State& state)
 
 static void let_a_42(benchmark::State& state)
 {
+    Ark::VM vm;
+    vm.feed("tests/test-let.arkc");
+    
+    while (state.KeepRunning())
+    {
+        vm.run();
+    }
+}
+
+static void vm_boot(benchmark::State& state)
+{
     while (state.KeepRunning())
     {
         Ark::VM vm;
         vm.feed("tests/test-let.arkc");
-        vm.run();
     }
 }
 
 BENCHMARK(Ackermann_3_6_ark)->Unit(benchmark::kMillisecond);
 BENCHMARK(Ackermann_3_6_cpp)->Unit(benchmark::kMillisecond);
-BENCHMARK(let_a_42);
+BENCHMARK(let_a_42)->Unit(benchmark::kNanosecond);
+BENCHMARK(vm_boot)->Unit(benchmark::kNanosecond);
 
 int main(int argc, char** argv)
 {

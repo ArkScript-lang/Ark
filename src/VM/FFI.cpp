@@ -40,7 +40,7 @@ namespace Ark::internal::FFI
         if (n[0].valueType() != ValueType::List)
             throw Ark::TypeError("First argument of append must be a list");
         
-        Value r = n[0];
+        Value r(std::move(n[0]));
         for (Value::Iterator it=n.begin()+1; it != n.end(); ++it)
             r.push_back(*it);
         return r;
@@ -51,7 +51,7 @@ namespace Ark::internal::FFI
         if (n[0].valueType() != ValueType::List)
             throw Ark::TypeError("First argument of concat should be a list");
         
-        Value r = n[0];
+        Value r(std::move(n[0]));
         for (Value::Iterator it=n.begin()+1; it != n.end(); ++it)
         {
             if (it->valueType() != ValueType::List)

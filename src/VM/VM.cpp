@@ -45,6 +45,51 @@ namespace Ark
 
     void VM::run()
     {
+        // reset VM before each run
+        m_ip = 0;
+        m_pp = 0;
+        m_frames.clear();
+        m_saved_frame.reset();
+        createNewFrame();
+
+        // loading plugins
+        for (const auto& file: m_plugins)
+        {
+            namespace fs = std::filesystem;
+
+            std::string path = "./" + file;
+            if (m_filename != "FILE")  // bytecode loaded from file
+                path = "./" + (fs::path(m_filename).parent_path() / fs::path(file)).string();
+            std::string lib_path = (fs::path(ARK_STD) / fs::path(file)).string();
+
+            if (m_debug)
+                Ark::logger.info("Loading", file, "in", path, "or in", lib_path);
+
+            if (Ark::Utils::fileExists(path))  // if it exists alongside the .arkc file
+                m_shared_lib_objects.emplace_back(path);
+            else if (Ark::Utils::fileExists(lib_path))  // check in LOAD_PATH otherwise
+                m_shared_lib_objects.emplace_back(lib_path);
+            else
+                throwVMError("could not load plugin " + file);
+
+            // load data from it!
+            using Mapping_t = std::unordered_map<std::string, Value::ProcType>;
+            Mapping_t map = m_shared_lib_objects.back().get<Mapping_t (*) ()>("getFunctionsMapping")();
+
+            for (auto&& kv : map)
+            {
+                // put it in the global frame, aka the first one
+                auto it = std::find(m_symbols.begin(), m_symbols.end(), kv.first);
+                if (it != m_symbols.end())
+                {
+                    if (m_debug)
+                        Ark::logger.info("Loading", kv.first);
+
+                    frontFrame()[static_cast<uint16_t>(std::distance(m_symbols.begin(), it))] = Value(kv.second);
+                }
+            }
+        }
+
         if (m_pages.size() > 0)
         {
             if (m_debug)
@@ -355,46 +400,6 @@ namespace Ark
             
             if (i == b.size())
                 break;
-        }
-
-        createNewFrame();  // put default page
-
-        // loading plugins
-        for (const auto& file: m_plugins)
-        {
-            namespace fs = std::filesystem;
-
-            std::string path = "./" + file;
-            if (m_filename != "FILE")  // bytecode loaded from file
-                path = "./" + (fs::path(m_filename).parent_path() / fs::path(file)).string();
-            std::string lib_path = (fs::path(ARK_STD) / fs::path(file)).string();
-
-            if (m_debug)
-                Ark::logger.info("Loading", file, "in", path, "or in", lib_path);
-
-            if (Ark::Utils::fileExists(path))  // if it exists alongside the .arkc file
-                m_shared_lib_objects.emplace_back(path);
-            else if (Ark::Utils::fileExists(lib_path))  // check in LOAD_PATH otherwise
-                m_shared_lib_objects.emplace_back(lib_path);
-            else
-                throwVMError("could not load plugin " + file);
-
-            // load data from it!
-            using Mapping_t = std::unordered_map<std::string, Value::ProcType>;
-            Mapping_t map = m_shared_lib_objects.back().get<Mapping_t (*) ()>("getFunctionsMapping")();
-
-            for (auto&& kv : map)
-            {
-                // put it in the global frame, aka the first one
-                auto it = std::find(m_symbols.begin(), m_symbols.end(), kv.first);
-                if (it != m_symbols.end())
-                {
-                    if (m_debug)
-                        Ark::logger.info("Loading", kv.first);
-
-                    frontFrame()[static_cast<uint16_t>(std::distance(m_symbols.begin(), it))] = Value(kv.second);
-                }
-            }
         }
     }
 

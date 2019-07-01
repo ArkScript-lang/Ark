@@ -35,6 +35,10 @@ namespace Ark::internal
         using Value_t = std::variant<double, std::string, PageAddr_t, NFT, ProcType, Closure, std::vector<Value>>;
 
         Value() = default;
+        Value(Value&&) = default;
+        Value(const Value&) = default;
+        Value& operator=(const Value&) = default;
+
         Value(ValueType type);
         Value(int value);
         Value(double value);
