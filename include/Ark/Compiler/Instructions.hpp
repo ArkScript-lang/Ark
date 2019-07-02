@@ -16,7 +16,7 @@ namespace Ark::internal
         PLUGIN_TABLE_START = 0x03,
         CODE_SEGMENT_START = 0x04,
 
-        FIRST_INSTRUCTION = 0x01,
+        FIRST_COMMAND = 0x01,
             LOAD_SYMBOL = 0x01,
             LOAD_CONST  = 0x02,
             POP_JUMP_IF_TRUE = 0x03,
@@ -31,7 +31,7 @@ namespace Ark::internal
             BUILTIN  = 0x0c,
             MUT = 0x0d,
             DEL = 0x0e,
-        LAST_INSTRUCTION = 0x0e,
+        LAST_COMMAND = 0x0e,
 
         FIRST_OPERATOR = 0x20,
             ADD = 0x20,
@@ -57,7 +57,9 @@ namespace Ark::internal
             AND_ = 0x34,
             OR_  = 0x35,
             MOD  = 0x36,
-        LAST_OPERATOR = 0x36
+        LAST_OPERATOR = 0x36,
+
+        LAST_INSTRUCTION = 0x36
     };
 
     struct Inst

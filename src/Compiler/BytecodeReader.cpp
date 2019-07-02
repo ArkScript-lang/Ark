@@ -201,7 +201,7 @@ namespace Ark
                         os << "NOP\n";
                     else if (inst == Instruction::LOAD_SYMBOL)
                     {
-                        os << "LOAD_SYMBOL " << termcolor::green << symbols[readNumber(i) - 3] << "\n";
+                        os << "LOAD_SYMBOL " << termcolor::green << symbols[readNumber(i)] << "\n";
                         i++;
                     }
                     else if (inst == Instruction::LOAD_CONST)
@@ -216,12 +216,12 @@ namespace Ark
                     }
                     else if (inst == Instruction::STORE)
                     {
-                        os << "STORE " << termcolor::green << symbols[readNumber(i) - 3] << "\n";
+                        os << "STORE " << termcolor::green << symbols[readNumber(i)] << "\n";
                         i++;
                     }
                     else if (inst == Instruction::LET)
                     {
-                        os << "LET " << termcolor::green << symbols[readNumber(i) - 3] << "\n";
+                        os << "LET " << termcolor::green << symbols[readNumber(i)] << "\n";
                         i++;
                     }
                     else if (inst == Instruction::POP_JUMP_IF_FALSE)
@@ -252,12 +252,12 @@ namespace Ark
                     }
                     else if (inst == Instruction::MUT)
                     {
-                        os << "MUT " << termcolor::green << symbols[readNumber(i) - 3] << "\n";
+                        os << "MUT " << termcolor::green << symbols[readNumber(i)] << "\n";
                         i++;
                     }
                     else if (inst == Instruction::DEL)
                     {
-                        os << "DEL " << termcolor::green << symbols[readNumber(i) - 3] << "\n";
+                        os << "DEL " << termcolor::green << symbols[readNumber(i)] << "\n";
                         i++;
                     }
                     else if (inst == Instruction::ADD)

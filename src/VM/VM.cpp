@@ -109,7 +109,8 @@ namespace Ark
                     &&do_save_env, &&do_builtin, &&do_mut, &&do_del, &&do_error,  // 0x0f
                     &&do_error, &&do_error, &&do_error, &&do_error, &&do_error, &&do_error,
                     &&do_error, &&do_error, &&do_error, &&do_error, &&do_error, &&do_error,
-                    &&do_error, &&do_error, &&do_error, // 0x1f
+                    &&do_error, &&do_error, &&do_error, &&do_error,  // 0x1f
+                    // maybe the number of do_error is wrong
                     // 0x20
                     &&do_op_add, &&do_op_sub, &&do_op_mul, &&do_op_div, &&do_op_gt, &&do_op_lt,
                     &&do_op_le, &&do_op_ge, &&do_op_neq, &&do_op_eq, &&do_op_len, &&do_op_empty,
@@ -131,6 +132,9 @@ namespace Ark
 
                     // get current instruction
                     uint8_t inst = m_pages[m_pp][m_ip];
+                    if (inst > LAST_INSTRUCTION)
+                        goto do_error;
+                    
                     goto *dispatch_table[inst];
                     
                     do_nop: {
@@ -315,7 +319,6 @@ namespace Ark
                             push(Value(static_cast<int>(a.string().size())));
                             continue;
                         }
-
                         throw Ark::TypeError("Argument of len must be a list or a String");
                     } do_op_empty: {
                         auto a = pop();
@@ -335,13 +338,11 @@ namespace Ark
                         auto a = pop();
                         if (a.valueType() != ValueType::List)
                             throw Ark::TypeError("Argument of tailof must be a list");
-                        
                         if (a.const_list().size() < 2)
                         {
                             push(FFI::nil);
                             continue;
                         }
-                        
                         a.list().erase(a.const_list().begin());
                         push(a);
                         continue;
@@ -349,13 +350,11 @@ namespace Ark
                         auto a = pop();
                         if (a.valueType() != ValueType::List)
                             throw Ark::TypeError("Argument of headof must be a list");
-                        
                         if (a.const_list().size() < 2)
                         {
                             push(FFI::nil);
                             continue;
                         }
-                        
                         a.list().erase(a.const_list().end());
                         push(a);
                         continue;
@@ -368,7 +367,6 @@ namespace Ark
                         {
                             if (b.valueType() != ValueType::String)
                                 throw Ark::TypeError("Second argument of assert must be a String");
-
                             throw Ark::AssertionFailed(b.string());
                         }
                         push(FFI::nil);
@@ -377,7 +375,6 @@ namespace Ark
                         auto a = pop();
                         if (a.valueType() != ValueType::String)
                             throw Ark::TypeError("Argument of toNumber must be a String");
-                        
                         push(Value(std::stod(a.string().c_str())));
                         continue;
                     } do_op_tostr: {
@@ -391,7 +388,6 @@ namespace Ark
                             throw Ark::TypeError("Argument 1 of @ should be a List");
                         if (b.valueType() != ValueType::Number)
                             throw Ark::TypeError("Argument 2 of @ should be a Number");
-                        
                         push(a.const_list()[static_cast<long>(b.number())]);
                         continue;
                     } do_op_and: {
@@ -413,7 +409,7 @@ namespace Ark
                     }
 
                     // and it's time to du-du-du-du-duel!
-                    /*if (Instruction::FIRST_INSTRUCTION <= inst && inst <= Instruction::LAST_INSTRUCTION)
+                    /*if (Instruction::FIRST_COMMAND <= inst && inst <= Instruction::LAST_COMMAND)
                         switch (inst)
                         {
                         case Instruction::NOP:
