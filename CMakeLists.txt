@@ -64,16 +64,16 @@ list(REMOVE_ITEM SOURCE_FILES "${Ark_SOURCE_DIR}/src/main.cpp")
 add_library(ArkLib ${SOURCE_FILES})
 set_property(TARGET ArkLib PROPERTY POSITION_INDEPENDENT_CODE ON)
 
-add_executable(Ark ${Ark_SOURCE_DIR}/src/main.cpp)
-
-if (CMAKE_COMPILER_IS_GNUCXX)
+if (CMAKE_COMPILER_IS_GNUCXX AND (UNIX OR LINUX))
     target_link_libraries(ArkLib PUBLIC stdc++fs)
 endif()
 
 if (UNIX OR LINUX)
     target_link_libraries(ArkLib PUBLIC ${CMAKE_DL_LIBS})
-    target_link_libraries(Ark PUBLIC ArkLib)
 endif()
+
+add_executable(Ark ${Ark_SOURCE_DIR}/src/main.cpp)
+target_link_libraries(Ark PUBLIC ArkLib)
 
 set_target_properties(
     Ark

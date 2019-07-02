@@ -35,6 +35,9 @@
 #elif defined(TERMCOLOR_OS_WINDOWS)
 #   include <io.h>
 #   include <windows.h>
+#   ifndef _fileno
+#       define _fileno(__F) ((__F)->_file)
+#   endif  // ifndef _fileno
 #endif
 
 
