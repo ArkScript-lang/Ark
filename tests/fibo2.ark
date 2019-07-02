@@ -2,12 +2,12 @@
     (let fibo
         (fun (n)
             (begin
-                (let a 0)
-                (let b 1)
-                (let acc 1)
+                (mut a 0)
+                (mut b 1)
+                (mut acc 1)
                 (while (< acc n)
                     (begin
-                        (let c (+ a b))
+                        (mut c (+ a b))
                         (set a b)
                         (set b c)
 
@@ -19,5 +19,5 @@
             )
         )
     )
-    (print (fibo 28))
+    (fibo 28)
 )
