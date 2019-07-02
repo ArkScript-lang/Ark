@@ -35,7 +35,7 @@ public class Ackermann {
         if (results.length % 2 == 0)
             System.out.println("Median time: " + (results[(results.length / 2) - 1] + results[results.length / 2]) / 2.0 + "us");
         else
-            System.out.println("Mean time: " + results[results.length / 2] + "us");
+            System.out.println("Median time: " + results[results.length / 2] + "us");
 
         double temp = 0.0;
         for (long a : results)

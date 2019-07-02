@@ -120,7 +120,7 @@ The project was compiled on Linux Mint 18 x64, with g++ 8 and `-DNDEBUG -O4 -s`.
 The test here is the Ackermann-Peter function with m=3 and n=6:
 
 ```
-2019-06-30 17:21:33
+2019-07-02 22:52:51
 Running benchmark/vm
 Run on (4 X 2400 MHz CPU s)
 CPU Caches:
@@ -128,13 +128,13 @@ CPU Caches:
   L1 Instruction 32K (x2)
   L2 Unified 256K (x2)
   L3 Unified 3072K (x1)
-Load Average: 0.84, 0.64, 0.62
+Load Average: 2.35, 1.12, 0.65
 -------------------------------------------------------------------
 Benchmark                         Time             CPU   Iterations
 -------------------------------------------------------------------
-Ackermann_3_6_ark_mean          158 ms          158 ms           25
-Ackermann_3_6_ark_median        158 ms          158 ms           25
-Ackermann_3_6_ark_stddev       2.27 ms         2.27 ms           25
+Ackermann_3_6_ark_mean          130 ms          130 ms           25
+Ackermann_3_6_ark_median        130 ms          130 ms           25
+Ackermann_3_6_ark_stddev       1.76 ms         1.76 ms           25
 
 Ackermann_3_6_cpp_mean        0.339 ms        0.339 ms           25
 Ackermann_3_6_cpp_median      0.337 ms        0.337 ms           25
@@ -144,7 +144,7 @@ Ackermann_3_6_cpp_stddev      0.007 ms        0.007 ms           25
 Comparison with Java using OpenJDK 11.0.3 x64 (source code [here](benchmarks/Ackermann.java)):
 ```
 Mean time: 651.28us
-Mean time: 622us
+Median time: 622us
 Stddev: 119.49792299450229us
 ```
 
@@ -153,6 +153,13 @@ Comparison with Python 3.6.7 (source code [here](benchmarks/ackermann.py)):
 Mean time: 36.2155839279294ms
 Median time: 35.600485280156136ms
 Stddev: 0.8867313499129518ms
+```
+
+Comparison with Lua 5.1.5 (source code [here](benchmarks/ackermann.lua)):
+```
+Mean time: 13.244432 ms
+Median time: 13.214 ms
+Stddev: 0.30360220508642ms
 ```
 
 ## Credits

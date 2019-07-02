@@ -80,6 +80,8 @@ namespace Ark
         inline void mut();
         inline void del();
 
+        inline void operators(uint8_t inst);
+
         inline void throwVMError(const std::string& message)
         {
             throw std::runtime_error("VMError: " + message);
