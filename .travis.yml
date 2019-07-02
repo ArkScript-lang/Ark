@@ -54,7 +54,7 @@ addons:
 script:
   - cmake -H. -Bbuild -DCMAKE_C_COMPILER=${C_COMPILER} -DCMAKE_CXX_COMPILER=${CXX_COMPILER} -DCMAKE_BUILD_TYPE=Release
   - cmake --build build
-  - build/Ark tests/ackermann.ack -c
+  - build/Ark tests/ackermann.ark -c
   - mv tests/ackermann.arkc tests/ackermann_3_6.arkc
   - build/Ark tests/fibo.ark -c
   - mv tests/fibo.arkc tests/fibo_28.arkc
