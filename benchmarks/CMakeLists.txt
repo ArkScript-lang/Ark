@@ -9,26 +9,10 @@ find_package(Threads REQUIRED)
 #                      Benchmark lib
 #-------------------------------------------------------
 
-add_custom_target(third_party_benchmark
-    ALL
-    COMMAND ${CMAKE_COMMAND} -DBENCHMARK_ENABLE_GTEST_TESTS=OFF ${ARK_SUBMODULES_ROOT}/benchmark -DCMAKE_BUILD_TYPE=Release
-    COMMAND ${CMAKE_COMMAND} --build . --target benchmark
-    WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/third_party_benchmark"
-    COMMENT "Building benchmark"
-)
+option(BENCHMARK_ENABLE_GTEST_TESTS "Enable building the unit tests which depend on gtest" ON)
+set(BENCHMARK_ENABLE_GTEST_TESTS OFF)
 
-find_library(GBench_lib
-    NAMES
-        libbenchmark
-        benchmark
-    PATHS
-        ${CMAKE_CURRENT_BINARY_DIR}/third_party_benchmark/src/
-        ${CMAKE_CURRENT_BINARY_DIR}/third_party_benchmark/src/${CMAKE_BUILD_TYPE}/
-)
-add_library(GBench UNKNOWN IMPORTED)
-set_property(TARGET GBench PROPERTY IMPORTED_LOCATION "${GBench_lib}")
-
-message(STATUS "${GBench_lib}")
+add_subdirectory(${ARK_SUBMODULES_ROOT}/benchmark third_party_benchmark)
 
 #-------------------------------------------------------
 #                        Targets
@@ -39,8 +23,8 @@ function(bench_make target_file)
 
     add_executable(${targetname} ${target_file}.cpp)
     target_include_directories(${targetname} PRIVATE ${ARK_SUBMODULES_ROOT}/benchmark/include)
-    target_link_libraries(${targetname} ArkLib GBench Threads::Threads)
-    add_dependencies(${targetname} ArkLib)
+    target_link_libraries(${targetname} ArkLib benchmark Threads::Threads)
+    add_dependencies(${targetname} ArkLib benchmark)
     #add_dependencies(${targetname} third_party_benchmark)
     set_target_properties(${targetname} PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${Ark_SOURCE_DIR}/benchmark"

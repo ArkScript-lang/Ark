@@ -102,9 +102,28 @@ namespace Ark
 
             try
             {
+                static void* dispatch_table[] = {
+                    // 0x00
+                    &&do_nop, &&do_load_sym, &&do_load_const, &&do_pop_jit, &&do_store,
+                    &&do_let, &&do_pop_jif, &&do_jump, &&do_ret, &&do_halt, &&do_call,
+                    &&do_save_env, &&do_builtin, &&do_mut, &&do_del, &&do_error,  // 0x0f
+                    &&do_error, &&do_error, &&do_error, &&do_error, &&do_error, &&do_error,
+                    &&do_error, &&do_error, &&do_error, &&do_error, &&do_error, &&do_error,
+                    &&do_error, &&do_error, &&do_error, // 0x1f
+                    // 0x20
+                    &&do_ops, &&do_ops, &&do_ops, &&do_ops, &&do_ops, &&do_ops, &&do_ops,
+                    &&do_ops, &&do_ops, &&do_ops, &&do_ops, &&do_ops, &&do_ops, &&do_ops,
+                    &&do_ops, &&do_ops, &&do_ops, &&do_ops, &&do_ops, &&do_ops, &&do_ops,
+                    &&do_ops, &&do_ops
+                };
+                
                 m_running = true;
+				m_ip = -1;
                 while (m_running)
                 {
+					// move forward
+                    ++m_ip;
+					
                     if (m_pp >= m_pages.size())
                         throwVMError("page pointer has gone too far (" + Ark::Utils::toString(m_pp) + ")");
                     if (m_ip >= m_pages[m_pp].size())
@@ -112,9 +131,96 @@ namespace Ark
 
                     // get current instruction
                     uint8_t inst = m_pages[m_pp][m_ip];
+                    goto *dispatch_table[inst];
+					
+					do_nop:
+					{
+						nop();
+						continue;
+					}
+					do_load_sym:
+					{
+						loadSymbol();
+						continue;
+					}
+					do_load_const:
+					{
+						loadConst();
+						continue;
+					}
+					do_pop_jit:
+					{
+						popJumpIfTrue();
+						continue;
+					}
+					do_store:
+					{
+						store();
+						continue;
+					}
+					do_let:
+					{
+						let();
+						continue;
+					}
+					do_pop_jif:
+					{
+						popJumpIfFalse();
+						continue;
+					}
+					do_jump:
+					{
+						jump();
+						continue;
+					}
+					do_ret:
+					{
+						ret();
+						continue;
+					}
+					do_halt:
+					{
+						return;
+					}
+					do_call:
+					{
+						call();
+						continue;
+					}
+					do_save_env:
+					{
+						saveEnv();
+						continue;
+					}
+					do_builtin:
+					{
+						builtin();
+						continue;
+					}
+					do_mut:
+					{
+						mut();
+						continue;
+					}
+					do_del:
+					{
+						del();
+						continue;
+					}
+					do_error:
+					{
+						throwVMError("unknown instruction: " + Ark::Utils::toString(static_cast<std::size_t>(inst)) +
+							", pp: " +Ark::Utils::toString(m_pp) + ", ip: " + Ark::Utils::toString(m_ip)
+						);
+					}
+					do_ops:
+					{
+						operators(inst);
+						continue;
+					}
 
                     // and it's time to du-du-du-du-duel!
-                    if (Instruction::FIRST_INSTRUCTION <= inst && inst <= Instruction::LAST_INSTRUCTION)
+                    /*if (Instruction::FIRST_INSTRUCTION <= inst && inst <= Instruction::LAST_INSTRUCTION)
                         switch (inst)
                         {
                         case Instruction::NOP:
@@ -187,10 +293,7 @@ namespace Ark
                     else
                         throwVMError("unknown instruction: " + Ark::Utils::toString(static_cast<std::size_t>(inst)) +
                             ", pp: " +Ark::Utils::toString(m_pp) + ", ip: " + Ark::Utils::toString(m_ip)
-                        );
-                    
-                    // move forward
-                    ++m_ip;
+                        );*/
                 }
             }
             catch (const std::exception& e)
