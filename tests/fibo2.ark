@@ -19,5 +19,9 @@
             )
         )
     )
-    (fibo 28)
+    (mut d 0)
+    (while (< d 25) {
+        (fibo 28)
+        (set d (+ 1 d))
+    })
 )
