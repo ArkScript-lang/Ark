@@ -2,7 +2,7 @@
 
 #include <exception>
 #include <stdexcept>
-//#include <filesystem>
+#include <filesystem>
 #include <cassert>
 
 #include <Ark/Log.hpp>
