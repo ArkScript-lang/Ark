@@ -347,7 +347,7 @@ namespace Ark
                         if (m_debug)
                             Ark::logger.info("Importing:", file, "; relative path:", f);
 
-                        if (std::find(m_parent_include.begin(), m_parent_include.end(), f) == m_parent_include.end())
+                        if (std::find(m_parent_include.begin(), m_parent_include.end(), path) == m_parent_include.end())
                         {
                             Parser p(m_debug);
 
@@ -366,11 +366,12 @@ namespace Ark
                                 else
                                     throw std::runtime_error("ParseError: Couldn't find file " + file);
                             }
+                            m_parent_include = p.m_parent_include;
 
                             n.list().push_back(p.ast());
                         }
                         else
-                            throw std::runtime_error("ParseError: Cyclic inclusion issue: file " + m_file + " is trying to include " + path + " which was already included");
+                            Ark::logger.warn("Possible cyclic inclusion issue: file " + m_file + " is trying to include " + path + " which was already included");
                     }
                 }
             }

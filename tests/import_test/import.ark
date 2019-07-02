@@ -1,4 +1,5 @@
 {
+    (import "main.ark")
     (let f (fun (n)
         (print n)
     ))
