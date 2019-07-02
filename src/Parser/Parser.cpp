@@ -219,13 +219,14 @@ namespace Ark
                             throwParseError("invalid token: del can only be applied to identifers", tokens.front());
                     }
                 }
-                else if (token.type == TokenType::Identifier || token.type == TokenType::Operator)
+                else if (token.type == TokenType::Identifier || token.type == TokenType::Operator ||
+                    (token.type == TokenType::Grouping && token.token == "("))
                 {
                     while (tokens.front().token != ")")
                         block.push_back(parse(tokens));
                 }
                 else
-                    throwParseError("can not create block from token", tokens.front());
+                    throwParseError("can not create block from token", token);
             } while (tokens.front().token != ")");
 
             // pop the ")"
