@@ -9,6 +9,8 @@
 - Ark version section in bytecode
 - timestamp (build date)
 - major versions of the compiler and the virtual machine used must match, a compatibility accross versions will be kept if they have the same major number
+- many opcodes to handle the operators
+- persist flag for the VM (if persist is false (default value), each time we call vm.run(), the frames will be reseted)
 
 ### Changed
 - moved everything from the "folder namespaces" to a single `Ark::internal` namespace
@@ -18,7 +20,7 @@
 
 ### Removed
 - Lexer::check, we should see if the program is correct when building the AST
-- removed from the bytecode `BUILTIN XY` and `NEW_ENV`
+- removed from the bytecode `NEW_ENV`
 
 ## 2.2.0-dev
 ### Added
