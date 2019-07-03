@@ -8,11 +8,13 @@
 #include <optional>
 #include <memory>
 #include <unordered_map>
+#include <utility>
 
 #include <Ark/VM/Value.hpp>
 #include <Ark/VM/Frame.hpp>
 #include <Ark/Compiler/Instructions.hpp>
 #include <Ark/VM/Plugin.hpp>
+#include <Ark/VM/FFI.hpp>
 
 namespace Ark
 {
@@ -45,6 +47,7 @@ namespace Ark
         std::vector<internal::SharedLibrary> m_shared_lib_objects;
         std::vector<bytecode_t> m_pages;
 
+        std::vector<std::pair<uint16_t, internal::Value>> m_locals;
         std::vector<std::shared_ptr<internal::Frame>> m_frames;
         std::optional<std::size_t> m_saved_frame;
 
@@ -56,10 +59,29 @@ namespace Ark
                     (static_cast<uint16_t>(m_pages[m_pp][++m_ip])     );
         }
 
+        inline std::optional<internal::Value*> findNearestVariable(uint16_t id)
+        {
+            for (auto it=m_locals.rbegin(); it != m_locals.rend(); ++it)
+            {
+                if (it->first == id)
+                {
+                    if (it->second == internal::FFI::nil)
+                        return {};
+                    return &(it->second);
+                }
+            }
+            return {};
+        }
+
+        inline internal::Value& registerVariable(uint16_t id, internal::Value&& value)
+        {
+            return m_locals.emplace_back(id, value).second;
+        }
+
         inline internal::Frame& frontFrame() { return *m_frames.front(); }
         inline internal::Frame& backFrame()  { return *m_frames.back();  }
         inline internal::Frame& frameAt(std::size_t i) { return *m_frames[i]; }
-        inline void createNewFrame() { m_frames.push_back(std::make_shared<internal::Frame>(m_symbols.size())) ; }
+        inline void createNewFrame() { m_frames.push_back(std::make_shared<internal::Frame>()) ; }
 
         inline internal::Value pop(int page=-1);
         inline void push(const internal::Value& value);

@@ -6,7 +6,6 @@
 #include <cassert>
 
 #include <Ark/Log.hpp>
-#include <Ark/VM/FFI.hpp>
 #include <Ark/Utils.hpp>
 #undef abs
 #include <cmath>
@@ -54,6 +53,8 @@ namespace Ark
             m_frames.clear();
             m_frames.reserve(100);
             m_saved_frame.reset();
+            m_locals.clear();
+            m_locals.reserve(32);
             createNewFrame();
 
             // loading plugins
@@ -89,7 +90,7 @@ namespace Ark
                         if (m_debug)
                             Ark::logger.info("Loading", kv.first);
 
-                        frontFrame()[static_cast<uint16_t>(std::distance(m_symbols.begin(), it))] = Value(kv.second);
+                        registerVariable(std::distance(m_symbols.begin(), it), Value(kv.second));
                     }
                 }
             }
@@ -214,7 +215,7 @@ namespace Ark
             return;
         }
 
-        frontFrame()[static_cast<uint16_t>(std::distance(m_symbols.begin(), it))] = Value(function);
+        registerVariable(std::distance(m_symbols.begin(), it), Value(function));
     }
 
     void VM::configure()
@@ -415,13 +416,13 @@ namespace Ark
     inline Value VM::pop(int page)
     {
         if (page == -1)
-            return m_frames.back()->pop();
-        return m_frames[static_cast<std::size_t>(page)]->pop();
+            return backFrame().pop();
+        return frameAt(static_cast<std::size_t>(page)).pop();
     }
 
     inline void VM::push(const Value& value)
     {
-        m_frames.back()->push(value);
+        backFrame().push(value);
     }
 
     inline void VM::nop()
@@ -443,13 +444,10 @@ namespace Ark
         if (m_debug)
             Ark::logger.info("LOAD_SYMBOL ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
 
-        for (auto it=m_frames.rbegin(); it != m_frames.rend(); ++it)
+        if (auto var = findNearestVariable(id))
         {
-            if ((*it)->find(id))
-            {
-                push((**it)[id]);
-                return;
-            }
+            push(*var.value());
+            return;
         }
 
         throwVMError("couldn't find symbol to load: " + m_symbols[id]);
@@ -508,13 +506,10 @@ namespace Ark
         if (m_debug)
             Ark::logger.info("STORE ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
 
-        for (auto it=m_frames.rbegin(); it != m_frames.rend(); ++it)
+        if (auto var = findNearestVariable(id))
         {
-            if ((*it)->find(id) && !(**it)[id].isConst())
-            {
-                (**it)[id] = pop();
-                return;
-            }
+            *var.value() = pop();
+            return;
         }
 
         throwVMError("couldn't find symbol: " + m_symbols[id]);
@@ -533,12 +528,12 @@ namespace Ark
         if (m_debug)
             Ark::logger.info("LET ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
         
+        // TODO redo, according to the current frame locals_start attribute
         // check if we are redefining a variable
-        if (backFrame().find(id))
-            throwVMError("can not use 'let' to redefine a symbol");
+        //if (findNearestVariable(id))
+        //    throwVMError("can not use 'let' to redefine a symbol");
 
-        backFrame()[id] = pop();
-        backFrame()[id].setConst(true);
+        registerVariable(id, pop()).setConst(true);
     }
 
     inline void VM::popJumpIfFalse()
@@ -593,18 +588,25 @@ namespace Ark
 
         // save pp
         PageAddr_t old_pp = static_cast<PageAddr_t>(m_pp);
-        m_pp = m_frames.back()->callerPageAddr();
-        m_ip = m_frames.back()->callerAddr();
+        m_pp = backFrame().callerPageAddr();
+        m_ip = backFrame().callerAddr();
 
         auto rm_frame = [this] () -> void {
+            auto locals_start = backFrame().localsStart();
             // remove frame
             m_frames.pop_back();
             // next frame is the one of the closure
             // remove it
             m_frames.pop_back();
+            
+            // clear locals
+            do {
+                m_locals.pop_back();
+            } while (m_locals.size() > locals_start);
+            // TODO check test, probably not right
         };
         
-        if (m_frames.back()->stackSize() != 0)
+        if (backFrame().stackSize() != 0)
         {
             Value return_value(pop());
             rm_frame();
@@ -661,7 +663,7 @@ namespace Ark
                 // load saved frame
                 m_frames.push_back(c.frame());
                 // create dedicated frame
-                m_frames.push_back(std::make_shared<Frame>(m_symbols.size(), m_ip, m_pp));
+                m_frames.push_back(std::make_shared<Frame>(m_ip, m_pp, m_locals.size()));
                 m_pp = c.pageAddr();
                 m_ip = -1;  // because we are doing a m_ip++ right after that
                 for (std::size_t j=0; j < argc; ++j)
@@ -713,7 +715,7 @@ namespace Ark
         if (m_debug)
             Ark::logger.info("MUT ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
 
-        backFrame()[id] = pop();
+        registerVariable(id, pop());
     }
 
     inline void VM::del()
@@ -727,15 +729,11 @@ namespace Ark
 
         if (m_debug)
             Ark::logger.info("DEL ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
-
-        for (auto it=m_frames.rbegin(); it != m_frames.rend(); ++it)
+        
+        if (auto var = findNearestVariable(id))
         {
-            if ((*it)->find(id))
-            {
-                // delete it
-                (**it)[id] = FFI::nil;
-                return;
-            }
+            *var.value() = FFI::nil;
+            return;
         }
 
         throwVMError("couldn't find symbol: " + m_symbols[id]);
