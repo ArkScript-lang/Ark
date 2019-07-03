@@ -111,6 +111,14 @@ namespace Ark
             // return an empty block
             if (token.token == ")")
                 return block;
+            
+            // return a sub-block
+            // TODO enhance
+            if (token.token == "(")
+            {
+                block.push_back(parse(tokens));
+                return block;
+            }
 
             // loop until we reach the end of the block
             do
@@ -219,8 +227,7 @@ namespace Ark
                             throwParseError("invalid token: del can only be applied to identifers", tokens.front());
                     }
                 }
-                else if (token.type == TokenType::Identifier || token.type == TokenType::Operator ||
-                    (token.type == TokenType::Grouping && token.token == "("))
+                else if (token.type == TokenType::Identifier || token.type == TokenType::Operator)
                 {
                     while (tokens.front().token != ")")
                         block.push_back(parse(tokens));

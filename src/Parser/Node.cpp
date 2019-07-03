@@ -1,5 +1,7 @@
 #include <Ark/Parser/Node.hpp>
 
+#include <termcolor.hpp>
+
 namespace Ark::internal
 {
     Node::Node(int value) :
@@ -107,8 +109,19 @@ namespace Ark::internal
 
     // -------------------------
 
+    auto colors = std::vector({
+        termcolor::blue,
+        termcolor::red,
+        termcolor::green,
+        termcolor::yellow,
+        termcolor::cyan,
+        termcolor::magenta
+    });
+
     std::ostream& operator<<(std::ostream& os, const Node& N)
     {
+        static int index = 0;
+
         switch(N.m_type)
         {
         case NodeType::String:
@@ -122,10 +135,12 @@ namespace Ark::internal
 
         case NodeType::List:
         {
-            os << "( ";
+            os << colors[index % colors.size()] << "( " << termcolor::reset;
+            index++;
             for (auto& t: N.m_list)
                 os << t << " ";
-            os << ")";
+            index--;
+            os << colors[index % colors.size()] << ")" << termcolor::reset;
             break;
         }
 
