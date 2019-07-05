@@ -22,7 +22,8 @@ namespace Ark
         m_fcalls(0),
         m_ip(0), m_pp(0),
         m_running(false),
-        m_filename("FILE")
+        m_filename("FILE"),
+        m_last_sym_loaded(0)
     {}
     
     void VM::feed(const std::string& filename)
@@ -459,6 +460,7 @@ namespace Ark
         */
         ++m_ip;
         auto id = readNumber();
+        m_last_sym_loaded = id;
 
         if (m_debug)
             Ark::logger.info("LOAD_SYMBOL ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
@@ -487,7 +489,8 @@ namespace Ark
         
         if (m_saved_frame && m_constants[id].valueType() == ValueType::PageAddr)
         {
-            push(Value(Closure(m_frames[m_saved_frame.value()], m_constants[id].pageAddr())));
+            // TODO enhance
+            push(Value(Closure(m_constants[id].pageAddr())));
             m_saved_frame.reset();
         }
         else
@@ -614,9 +617,6 @@ namespace Ark
             auto locals_start = backFrame().localsStart();
             // remove frame
             m_frames.pop_back();
-            // next frame is the one of the closure
-            // remove it
-            m_frames.pop_back();
             
             // clear locals
             do {
@@ -677,13 +677,15 @@ namespace Ark
             case ValueType::Closure:
             {
                 int p = m_frames.size() - 1;
-
                 Closure c = function.closure();
-                // load saved frame
-                m_frames.push_back(c.frame());
+                auto pp = c.pageAddr();
+
                 // create dedicated frame
-                m_frames.push_back(std::make_shared<Frame>(m_ip, m_pp, m_locals.size()));
-                m_pp = c.pageAddr();
+                m_frames.emplace_back(m_ip, m_pp, m_locals.size());
+                // store "reference" to the function
+                registerVariable(m_last_sym_loaded, std::move(function));
+
+                m_pp = pp;
                 m_ip = -1;  // because we are doing a m_ip++ right after that
                 for (std::size_t j=0; j < argc; ++j)
                     push(pop(p));

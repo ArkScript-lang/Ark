@@ -40,6 +40,7 @@ namespace Ark
         std::size_t m_pp;
         bool m_running;
         std::string m_filename;
+        uint16_t m_last_sym_loaded;
 
         std::vector<std::string> m_symbols;
         std::vector<internal::Value> m_constants;
@@ -48,7 +49,7 @@ namespace Ark
         std::vector<bytecode_t> m_pages;
 
         std::vector<std::pair<uint16_t, internal::Value>> m_locals;
-        std::vector<std::shared_ptr<internal::Frame>> m_frames;
+        std::vector<internal::Frame> m_frames;
         std::optional<std::size_t> m_saved_frame;
 
         void unsafeRun();
@@ -79,10 +80,10 @@ namespace Ark
             return m_locals.emplace_back(id, value).second;
         }
 
-        inline internal::Frame& frontFrame() { return *m_frames.front(); }
-        inline internal::Frame& backFrame()  { return *m_frames.back();  }
-        inline internal::Frame& frameAt(std::size_t i) { return *m_frames[i]; }
-        inline void createNewFrame() { m_frames.push_back(std::make_shared<internal::Frame>()) ; }
+        inline internal::Frame& frontFrame() { return m_frames.front(); }
+        inline internal::Frame& backFrame()  { return m_frames.back();  }
+        inline internal::Frame& frameAt(std::size_t i) { return m_frames[i]; }
+        inline void createNewFrame() { m_frames.emplace_back() ; }
 
         inline internal::Value pop(int page=-1);
         inline void push(const internal::Value& value);

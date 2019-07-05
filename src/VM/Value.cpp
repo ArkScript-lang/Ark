@@ -114,7 +114,7 @@ namespace Ark::internal
         }
 
         case ValueType::Closure:
-            os << "Closure (" << V.closure().frame() << ") @ " << V.closure().pageAddr();
+            os << "Closure @ " << V.closure().pageAddr();
             break;
         
         default:
