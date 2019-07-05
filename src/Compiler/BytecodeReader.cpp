@@ -59,7 +59,6 @@ namespace Ark
              ha = (static_cast<timestamp_t>(m_bytecode[++i]));
         i++;
         timestamp = aa + ba + ca + da + ea + fa + ga + ha;
-        os << "Timestamp: " << timestamp << "\n\n";
         
         return timestamp;
     }
@@ -325,8 +324,8 @@ namespace Ark
 
     uint16_t BytecodeReader::readNumber(std::size_t& i)
     {
-        uint16_t x = (static_cast<uint16_t>(m_bytecode[  i]) << 8) +
-                        static_cast<uint16_t>(m_bytecode[++i]);
-        return x;
+        uint16_t x = (static_cast<uint16_t>(m_bytecode[  i]) << 8),
+                 y = static_cast<uint16_t>(m_bytecode[++i]);
+        return x + y;
     }
 }
