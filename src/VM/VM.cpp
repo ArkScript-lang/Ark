@@ -549,10 +549,11 @@ namespace Ark
 
         if (m_debug)
             Ark::logger.info("LET ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
-
+        
+        // TODO redo, according to the current frame locals_start attribute
         // check if we are redefining a variable
-        if (findInCurrentScope(id))
-            throwVMError("can not use 'let' to redefine a symbol");
+        //if (findNearestVariable(id))
+        //    throwVMError("can not use 'let' to redefine a symbol");
 
         registerVariable(id, pop()).setConst(true);
     }
@@ -616,8 +617,10 @@ namespace Ark
             auto locals_start = backFrame().localsStart();
             // remove frame
             m_frames.pop_back();
+            
             // clear locals
             m_locals.erase(m_locals.begin() + locals_start + 1, m_locals.end());
+            // TODO check test, probably not right
         };
         
         if (backFrame().stackSize() != 0)

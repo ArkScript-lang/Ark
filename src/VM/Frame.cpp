@@ -5,20 +5,22 @@ namespace Ark::internal
     Frame::Frame() :
         m_addr(0),
         m_page_addr(0),
-        m_locals_start(0),
-        m_top(m_stack)
-    {}
+        m_locals_start(0)
+    {
+        m_stack.reserve(16);
+    }
 
     Frame::Frame(std::size_t caller_addr, std::size_t caller_page_addr, std::size_t locals_start) :
         m_addr(caller_addr),
         m_page_addr(caller_page_addr),
-        m_locals_start(locals_start),
-        m_top(m_stack)
-    {}
+        m_locals_start(locals_start)
+    {
+        m_stack.reserve(16);
+    }
 
     std::size_t Frame::stackSize() const
     {
-        return (m_top - m_stack) / sizeof(Value);
+        return m_stack.size();
     }
 
     std::size_t Frame::callerAddr() const

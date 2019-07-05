@@ -8,6 +8,5 @@
 #define ARK_STD "@ARK_STD@"
 #define ARK_COMPILATION_OPTIONS "@ARK_COMPILATION_OPTIONS@"
 #define ARK_COMPILER "@ARK_COMPILER@"
-#define ARK_FRAME_STACK_SIZE 24
 
 #endif  // ark_constants
