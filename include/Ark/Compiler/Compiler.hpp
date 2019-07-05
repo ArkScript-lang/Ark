@@ -37,17 +37,20 @@ namespace Ark
 
         inline std::optional<std::size_t> isOperator(const std::string& name)
         {
-            for (std::size_t i=0; i < internal::FFI::operators.size(); ++i)
-                if (internal::FFI::operators[i] == name)
-                    return i;
+            auto it = std::find(internal::FFI::operators.begin(), internal::FFI::operators.end(), name);
+            if (it != internal::FFI::operators.end())
+                return std::distance(internal::FFI::operators.begin(), it);
             return {};
         }
 
         inline std::optional<std::size_t> isBuiltin(const std::string& name)
         {
-            for (std::size_t i=0; i < internal::FFI::builtins.size(); ++i)
-                if (internal::FFI::builtins[i].first == name)
-                    return i;
+            auto it = std::find_if(internal::FFI::builtins.begin(), internal::FFI::builtins.end(),
+            [&name](const std::pair<std::string, internal::Value>& element) -> bool {
+                return name == element.first;
+            });
+            if (it != internal::FFI::builtins.end())
+                return std::distance(internal::FFI::builtins.begin(), it);
             return {};
         }
 
