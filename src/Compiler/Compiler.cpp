@@ -41,6 +41,12 @@ namespace Ark
         m_bytecode.push_back(Instruction::NOP);
 
         // push version
+        if (m_debug)
+        {
+            Ark::logger.info("Major: ", ARK_VERSION_MAJOR);
+            Ark::logger.info("Minor: ", ARK_VERSION_MINOR);
+            Ark::logger.info("Patch: ", ARK_VERSION_PATCH);
+        }
         pushNumber(ARK_VERSION_MAJOR);
         pushNumber(ARK_VERSION_MINOR);
         pushNumber(ARK_VERSION_PATCH);
@@ -54,7 +60,11 @@ namespace Ark
             unsigned d = 56 - 8 * c;
             uint8_t b = (timestamp & (0xff << d)) >> d;
             m_bytecode.push_back(b);
+            if (m_debug)
+                std::cout << static_cast<int>(b) << " ";
         }
+        if (m_debug)
+            std::cout << std::endl;
         
         if (m_debug)
             Ark::logger.info("Timestamp: ", timestamp);
