@@ -51,6 +51,7 @@ namespace Ark
         std::vector<std::shared_ptr<internal::Frame>> m_frames;
         std::optional<std::size_t> m_saved_frame;
 
+        void unsafeRun();
         void configure();
 
         inline uint16_t readNumber()

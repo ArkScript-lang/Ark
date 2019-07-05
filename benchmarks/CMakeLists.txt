@@ -23,8 +23,8 @@ function(bench_make target_file)
 
     add_executable(${targetname} ${target_file}.cpp)
     target_include_directories(${targetname} PRIVATE ${ARK_SUBMODULES_ROOT}/benchmark/include)
-    target_link_libraries(${targetname} ArkLib benchmark Threads::Threads)
-    add_dependencies(${targetname} ArkLib benchmark)
+    target_link_libraries(${targetname} ArkReactor benchmark Threads::Threads)
+    add_dependencies(${targetname} ArkReactor benchmark)
     #add_dependencies(${targetname} third_party_benchmark)
     set_target_properties(${targetname} PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${Ark_SOURCE_DIR}/benchmark"

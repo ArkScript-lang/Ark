@@ -26,7 +26,17 @@ namespace Ark::internal
                     std::string result = m[0];
 
                     if (type == TokenType::Mismatch)
-                        throwTokenizingError("couldn't tokenize", result, line, character);
+                    {
+                        // we must check by hand if we parsed a ()[]{}, since it's not working on Windows
+                        if (result == "(" || result == ")" || result == "[" || result == "]" || result == "{" || result == "}")
+                        {
+                            m_tokens.emplace_back(TokenType::Grouping, result, line, character);
+                            src = src.substr(1);
+                            break;
+                        }
+                        else
+                            throwTokenizingError("couldn't tokenize", result, line, character);
+                    }
 
                     if (type == TokenType::Identifier && isKeyword(result))
                         type = TokenType::Keyword;

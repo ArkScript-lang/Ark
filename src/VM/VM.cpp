@@ -27,13 +27,20 @@ namespace Ark
     
     void VM::feed(const std::string& filename)
     {
-        Ark::BytecodeReader bcr;
-        bcr.feed(filename);
-        m_bytecode = bcr.bytecode();
+        try
+        {
+            Ark::BytecodeReader bcr;
+            bcr.feed(filename);
+            m_bytecode = bcr.bytecode();
 
-        m_filename = filename;
+            m_filename = filename;
 
-        configure();
+            configure();
+        }
+        catch (const std::exception& e)
+        {
+            std::cout << e.what() << std::endl;
+        }
     }
 
     void VM::feed(const bytecode_t& bytecode)
@@ -44,6 +51,32 @@ namespace Ark
     }
 
     void VM::run()
+    {
+        try
+        {
+            unsafeRun();
+        }
+        catch (const std::exception& e)
+        {
+            std::cout << e.what() << std::endl;
+        }
+    }
+
+    void VM::loadFunction(const std::string& name, Value::ProcType function)
+    {
+        // put it in the global frame, aka the first one
+        auto it = std::find(m_symbols.begin(), m_symbols.end(), name);
+        if (it == m_symbols.end())
+        {
+            if (m_debug)
+                Ark::logger.warn("Couldn't find symbol with name", name, "to set its value as a function");
+            return;
+        }
+
+        registerVariable(std::distance(m_symbols.begin(), it), Value(function));
+    }
+
+    void VM::unsafeRun()
     {
         // reset VM before each run
         m_ip = 0;
@@ -202,20 +235,6 @@ namespace Ark
             if (m_count_fcall)
                 std::cout << "Function calls: " << m_fcalls << "\n";
         }
-    }
-
-    void VM::loadFunction(const std::string& name, Value::ProcType function)
-    {
-        // put it in the global frame, aka the first one
-        auto it = std::find(m_symbols.begin(), m_symbols.end(), name);
-        if (it == m_symbols.end())
-        {
-            if (m_debug)
-                Ark::logger.warn("Couldn't find symbol with name", name, "to set its value as a function");
-            return;
-        }
-
-        registerVariable(std::distance(m_symbols.begin(), it), Value(function));
     }
 
     void VM::configure()

@@ -18,7 +18,7 @@ list(REMOVE_ITEM SOURCE_FILES "${PROJECT_SOURCE_DIR}/../../src/main.cpp")
 
 add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES})
 
-target_link_libraries(${PROJECT_NAME} PRIVATE ArkLib)
+target_link_libraries(${PROJECT_NAME} PRIVATE ArkReactor)
 target_link_libraries(${PROJECT_NAME} PRIVATE ${MPIR_LIBRARIES})
 if (CMAKE_COMPILER_IS_GNUCXX)
     target_link_libraries(${PROJECT_NAME} PRIVATE stdc++fs)

@@ -61,19 +61,19 @@ file(GLOB_RECURSE SOURCE_FILES
 )
 list(REMOVE_ITEM SOURCE_FILES "${Ark_SOURCE_DIR}/src/main.cpp")
 
-add_library(ArkLib ${SOURCE_FILES})
-set_property(TARGET ArkLib PROPERTY POSITION_INDEPENDENT_CODE ON)
+add_library(ArkReactor ${SOURCE_FILES})
+set_property(TARGET ArkReactor PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 if (CMAKE_COMPILER_IS_GNUCXX AND (UNIX OR LINUX))
-    target_link_libraries(ArkLib PUBLIC stdc++fs)
+    target_link_libraries(ArkReactor PUBLIC stdc++fs)
 endif()
 
 if (UNIX OR LINUX)
-    target_link_libraries(ArkLib PUBLIC ${CMAKE_DL_LIBS})
+    target_link_libraries(ArkReactor PUBLIC ${CMAKE_DL_LIBS})
 endif()
 
 add_executable(Ark ${Ark_SOURCE_DIR}/src/main.cpp)
-target_link_libraries(Ark PUBLIC ArkLib)
+target_link_libraries(Ark PUBLIC ArkReactor)
 
 set_target_properties(
     Ark
@@ -84,7 +84,7 @@ set_target_properties(
 )
 
 set_target_properties(
-    ArkLib
+    ArkReactor
     PROPERTIES
         CXX_STANDARD 17
         CXX_STANDARD_REQUIRED ON
