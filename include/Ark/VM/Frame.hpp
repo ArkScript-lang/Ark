@@ -6,6 +6,7 @@
 
 #include <Ark/VM/Value.hpp>
 #include <Ark/Compiler/BytecodeReader.hpp>
+#include <Ark/Constants.hpp>
 
 namespace Ark::internal
 {
@@ -23,17 +24,16 @@ namespace Ark::internal
         Frame(const Frame&) = default;
         Frame(std::size_t caller_addr, std::size_t caller_page_addr, std::size_t locals_start);
 
-        inline Value pop()
+        inline const Value& pop()
         {
-            Value value = std::move(m_stack.back());
-            m_stack.pop_back();
-
-            return value;
+            m_top -= sizeof(Value);
+            return *(m_top - sizeof(Value));
         }
 
         inline void push(const Value& value)
         {
-            m_stack.push_back(value);
+            *m_top = value;
+            m_top += sizeof(Value);
         }
 
         std::size_t stackSize() const;
@@ -46,7 +46,8 @@ namespace Ark::internal
     
     private:
         std::size_t m_addr, m_page_addr, m_locals_start;
-        std::vector<Value> m_stack;
+        Value m_stack[ARK_FRAME_STACK_SIZE];
+        Value* m_top;
     };
 }
 
