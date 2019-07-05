@@ -140,10 +140,13 @@ namespace Ark
                 m_running = true;
                 while (m_running)
                 {
-                    if (m_pp >= m_pages.size())
-                        throwVMError("page pointer has gone too far (" + Ark::Utils::toString(m_pp) + ")");
-                    if (m_ip >= m_pages[m_pp].size())
-                        throwVMError("instruction pointer has gone too far (" + Ark::Utils::toString(m_ip) + ")");
+                    if (m_debug)
+                    {
+                        if (m_pp >= m_pages.size())
+                            throwVMError("page pointer has gone too far (" + Ark::Utils::toString(m_pp) + ")");
+                        if (m_ip >= m_pages[m_pp].size())
+                            throwVMError("instruction pointer has gone too far (" + Ark::Utils::toString(m_ip) + ")");
+                    }
 
                     // get current instruction
                     uint8_t inst = m_pages[m_pp][m_ip];
@@ -550,10 +553,9 @@ namespace Ark
         if (m_debug)
             Ark::logger.info("LET ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
         
-        // TODO redo, according to the current frame locals_start attribute
         // check if we are redefining a variable
-        //if (findNearestVariable(id))
-        //    throwVMError("can not use 'let' to redefine a symbol");
+        if (findInCurrentScope(id))
+            throwVMError("can not use 'let' to redefine a symbol");
 
         registerVariable(id, pop()).setConst(true);
     }

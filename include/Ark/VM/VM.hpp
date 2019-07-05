@@ -75,6 +75,17 @@ namespace Ark
             return {};
         }
 
+        inline bool findInCurrentScope(uint16_t id)
+        {
+            int stop = m_frames.back().localsStart();
+            for (int i=m_locals.size() - 1; i >= stop; i--)
+            {
+                if (m_locals[i].first == id)
+                    return true;
+            }
+            return false;
+        }
+
         inline internal::Value& registerVariable(uint16_t id, internal::Value&& value)
         {
             return m_locals.emplace_back(id, value).second;
