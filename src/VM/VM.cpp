@@ -619,9 +619,7 @@ namespace Ark
             m_frames.pop_back();
             
             // clear locals
-            do {
-                m_locals.pop_back();
-            } while (m_locals.size() > locals_start);
+            m_locals.erase(m_locals.begin() + locals_start + 1, m_locals.end());
             // TODO check test, probably not right
         };
         
