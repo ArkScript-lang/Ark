@@ -244,9 +244,9 @@ namespace Ark
         std::size_t i = 0;
 
         auto readNumber = [&b] (std::size_t& i) -> uint16_t {
-            uint16_t x = (static_cast<uint16_t>(b[  i]) << 8) +
-                            static_cast<uint16_t>(b[++i]);
-            return x;
+            uint16_t x = (static_cast<uint16_t>(b[  i]) << 8),
+                     y = static_cast<uint16_t>(b[++i]);
+            return x + y;
         };
 
         // read tables and check if bytecode is valid
