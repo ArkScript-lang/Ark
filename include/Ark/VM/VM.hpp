@@ -20,11 +20,11 @@ namespace Ark
 {
     using namespace std::string_literals;
 
-    template<bool debug=false, bool persist=false>
+    template<bool debug>
     class VM_t
     {
     public:
-        VM_t();
+        VM_t(bool persist=false);
 
         void feed(const std::string& filename);
         void feed(const bytecode_t& bytecode);
@@ -32,6 +32,7 @@ namespace Ark
         void run();
 
     private:
+        bool m_persist;
         bytecode_t m_bytecode;
         // Instruction Pointer and Page Pointer
         int m_ip;
@@ -122,14 +123,10 @@ namespace Ark
 {
     #include "VM.inl"
 
-    // debug on, persist off
-    using VM_debug = VM_t<true, false>;
-    // debug off, persist on
-    using VM_persist = VM_t<false, true>;
-    // debug on, persist on
-    using VM_debug_persist = VM_t<true, true>;
-    // standard VM, debug off, persist off
-    using VM = VM_t<>;
+    // debug on
+    using VM_debug = VM_t<true>;
+    // standard VM, debug off
+    using VM = VM_t<false>;
 }
 
 #endif

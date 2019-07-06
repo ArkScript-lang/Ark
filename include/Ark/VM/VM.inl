@@ -1,14 +1,14 @@
-template<bool debug, bool persist>
-VM_t<debug, persist>::VM_t() :
-    m_ip(0), m_pp(0), m_running(false), m_filename("FILE"), m_last_sym_loaded(0)
+template<bool debug>
+VM_t<debug>::VM_t(bool persist) :
+    m_persist(persist), m_ip(0), m_pp(0), m_running(false), m_filename("FILE"), m_last_sym_loaded(0)
 {}
 
 // ------------------------------------------
 //            bytecode loading
 // ------------------------------------------
 
-template<bool debug, bool persist>
-void VM_t<debug, persist>::feed(const std::string& filename)
+template<bool debug>
+void VM_t<debug>::feed(const std::string& filename)
 {
     try
     {
@@ -26,15 +26,15 @@ void VM_t<debug, persist>::feed(const std::string& filename)
     }
 }
 
-template<bool debug,  bool persist>
-void VM_t<debug, persist>::feed(const bytecode_t& bytecode)
+template<bool debug>
+void VM_t<debug>::feed(const bytecode_t& bytecode)
 {
     m_bytecode = bytecode;
     configure();
 }
 
-template<bool debug, bool persist>
-void VM_t<debug, persist>::configure()
+template<bool debug>
+void VM_t<debug>::configure()
 {
     using namespace Ark::internal;
 
@@ -231,8 +231,8 @@ void VM_t<debug, persist>::configure()
     }
 }
 
-template<bool debug, bool persist>
-void VM_t<debug, persist>::loadFunction(const std::string& name, internal::Value::ProcType function)
+template<bool debug>
+void VM_t<debug>::loadFunction(const std::string& name, internal::Value::ProcType function)
 {
     using namespace Ark::internal;
 
@@ -252,8 +252,8 @@ void VM_t<debug, persist>::loadFunction(const std::string& name, internal::Value
 //                 execution
 // ------------------------------------------
 
-template<bool debug, bool persist>
-void VM_t<debug, persist>::run()
+template<bool debug>
+void VM_t<debug>::run()
 {
     using namespace Ark::internal;
 
@@ -261,7 +261,7 @@ void VM_t<debug, persist>::run()
     m_ip = 0;
     m_pp = 0;
 
-    if constexpr (!persist)
+    if (!m_persist)
     {
         m_frames.clear();
         m_frames.reserve(100);
@@ -420,22 +420,22 @@ void VM_t<debug, persist>::run()
 //            stack management
 // ------------------------------------------
 
-template<bool debug, bool persist>
-internal::Value VM_t<debug, persist>::pop(int page)
+template<bool debug>
+internal::Value VM_t<debug>::pop(int page)
 {
     if (page == -1)
         return m_frames.back().pop();
     return m_frames[static_cast<std::size_t>(page)].pop();
 }
 
-template<bool debug, bool persist>
-void VM_t<debug, persist>::push(const internal::Value& value)
+template<bool debug>
+void VM_t<debug>::push(const internal::Value& value)
 {
     m_frames.back().push(value);
 }
 
-template<bool debug, bool persist>
-void VM_t<debug, persist>::push(internal::Value&& value)
+template<bool debug>
+void VM_t<debug>::push(internal::Value&& value)
 {
     m_frames.back().push(value);
 }
@@ -444,8 +444,8 @@ void VM_t<debug, persist>::push(internal::Value&& value)
 //               instructions
 // ------------------------------------------
 
-template<bool debug, bool persist>
-void VM_t<debug, persist>::loadSymbol()
+template<bool debug>
+void VM_t<debug>::loadSymbol()
 {
     /*
         Argument: symbol id (two bytes, big endian)
@@ -467,8 +467,8 @@ void VM_t<debug, persist>::loadSymbol()
     throwVMError("couldn't find symbol to load: " + m_symbols[id]);
 }
 
-template<bool debug, bool persist>
-void VM_t<debug, persist>::loadConst()
+template<bool debug>
+void VM_t<debug>::loadConst()
 {
     /*
         Argument: constant id (two bytes, big endian)
@@ -493,8 +493,8 @@ void VM_t<debug, persist>::loadConst()
         push(m_constants[id]);
 }
 
-template<bool debug, bool persist>
-void VM_t<debug, persist>::popJumpIfTrue()
+template<bool debug>
+void VM_t<debug>::popJumpIfTrue()
 {
     /*
         Argument: absolute address to jump to (two bytes, big endian)
@@ -513,8 +513,8 @@ void VM_t<debug, persist>::popJumpIfTrue()
         m_ip = addr - 1;  // because we are doing a ++m_ip right after this
 }
 
-template<bool debug, bool persist>
-void VM_t<debug, persist>::store()
+template<bool debug>
+void VM_t<debug>::store()
 {
     /*
         Argument: symbol id (two bytes, big endian)
@@ -539,8 +539,8 @@ void VM_t<debug, persist>::store()
     throwVMError("couldn't find symbol: " + m_symbols[id]);
 }
 
-template<bool debug, bool persist>
-void VM_t<debug, persist>::let()
+template<bool debug>
+void VM_t<debug>::let()
 {
     /*
         Argument: symbol id (two bytes, big endian)
@@ -562,8 +562,8 @@ void VM_t<debug, persist>::let()
     registerVariable(id, pop()).setConst(true);
 }
 
-template<bool debug, bool persist>
-void VM_t<debug, persist>::popJumpIfFalse()
+template<bool debug>
+void VM_t<debug>::popJumpIfFalse()
 {
     /*
         Argument: absolute address to jump to (two bytes, big endian)
@@ -582,8 +582,8 @@ void VM_t<debug, persist>::popJumpIfFalse()
         m_ip = addr - 1;  // because we are doing a ++m_ip right after this
 }
 
-template<bool debug, bool persist>
-void VM_t<debug, persist>::jump()
+template<bool debug>
+void VM_t<debug>::jump()
 {
     /*
         Argument: absolute address to jump to (two byte, big endian)
@@ -600,8 +600,8 @@ void VM_t<debug, persist>::jump()
     m_ip = addr - 1;  // because we are doing a ++m_ip right after this
 }
 
-template<bool debug, bool persist>
-void VM_t<debug, persist>::ret()
+template<bool debug>
+void VM_t<debug>::ret()
 {
     /*
         Argument: none
@@ -645,8 +645,8 @@ void VM_t<debug, persist>::ret()
         rm_frame();
 }
 
-template<bool debug, bool persist>
-void VM_t<debug, persist>::call()
+template<bool debug>
+void VM_t<debug>::call()
 {
     /*
         Argument: number of arguments when calling the function
@@ -704,8 +704,8 @@ void VM_t<debug, persist>::call()
     }
 }
 
-template<bool debug, bool persist>
-void VM_t<debug, persist>::saveEnv()
+template<bool debug>
+void VM_t<debug>::saveEnv()
 {
     /*
         Argument: none
@@ -716,8 +716,8 @@ void VM_t<debug, persist>::saveEnv()
     m_saved_frame = m_frames.size() - 1;
 }
 
-template<bool debug, bool persist>
-void VM_t<debug, persist>::builtin()
+template<bool debug>
+void VM_t<debug>::builtin()
 {
     /*
         Argument: id of builtin (two bytes, big endian)
@@ -734,8 +734,8 @@ void VM_t<debug, persist>::builtin()
     push(FFI::builtins[id].second);
 }
 
-template<bool debug, bool persist>
-void VM_t<debug, persist>::mut()
+template<bool debug>
+void VM_t<debug>::mut()
 {
     /*
         Argument: symbol id (two bytes, big endian)
@@ -753,8 +753,8 @@ void VM_t<debug, persist>::mut()
     registerVariable(id, pop());
 }
 
-template<bool debug, bool persist>
-void VM_t<debug, persist>::del()
+template<bool debug>
+void VM_t<debug>::del()
 {
     /*
         Argument: symbol id (two bytes, big endian)
@@ -777,8 +777,8 @@ void VM_t<debug, persist>::del()
     throwVMError("couldn't find symbol: " + m_symbols[id]);
 }
 
-template<bool debug, bool persist>
-void VM_t<debug, persist>::operators(uint8_t inst)
+template<bool debug>
+void VM_t<debug>::operators(uint8_t inst)
 {
     /*
         Handling the operator instructions
