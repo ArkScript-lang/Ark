@@ -53,7 +53,7 @@ void vm(bool debug, bool timer, const std::string& file, bool count_fcall)
         return;
     }
 
-    Ark::VM vm(debug, count_fcall);
+    Ark::VM vm;
     vm.feed(file);
 
     std::chrono::time_point<std::chrono::system_clock> start, end;

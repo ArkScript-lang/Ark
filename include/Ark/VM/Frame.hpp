@@ -36,6 +36,11 @@ namespace Ark::internal
             m_stack.push_back(value);
         }
 
+        inline void push(Value&& value)
+        {
+            m_stack.push_back(value);
+        }
+
         std::size_t stackSize() const;
 
         std::size_t callerAddr() const;

@@ -18,22 +18,20 @@
 
 namespace Ark
 {
-    class VM
+    using namespace std::string_literals;
+
+    template<bool debug=false, bool persist=false>
+    class VM_t
     {
     public:
-        VM(bool debug=false, bool count_fcall=false, bool persist=false);
+        VM_t();
 
         void feed(const std::string& filename);
         void feed(const bytecode_t& bytecode);
+        void loadFunction(const std::string& name, internal::Value::ProcType function);
         void run();
 
-        void loadFunction(const std::string& name, internal::Value::ProcType function);
-
     private:
-        bool m_debug;
-        bool m_count_fcall;
-        bool m_persist;
-        uint64_t m_fcalls;
         bytecode_t m_bytecode;
         // Instruction Pointer and Page Pointer
         int m_ip;
@@ -42,17 +40,18 @@ namespace Ark
         std::string m_filename;
         uint16_t m_last_sym_loaded;
 
+        // related to the bytecode
         std::vector<std::string> m_symbols;
         std::vector<internal::Value> m_constants;
         std::vector<std::string> m_plugins;
         std::vector<internal::SharedLibrary> m_shared_lib_objects;
         std::vector<bytecode_t> m_pages;
 
+        // related to the execution
         std::vector<std::pair<uint16_t, internal::Value>> m_locals;
         std::vector<internal::Frame> m_frames;
         std::optional<std::size_t> m_saved_frame;
 
-        void unsafeRun();
         void configure();
 
         inline uint16_t readNumber()
@@ -91,37 +90,46 @@ namespace Ark
             return m_locals.emplace_back(id, value).second;
         }
 
-        inline internal::Frame& frontFrame() { return m_frames.front(); }
-        inline internal::Frame& backFrame()  { return m_frames.back();  }
-        inline internal::Frame& frameAt(std::size_t i) { return m_frames[i]; }
-        inline void createNewFrame() { m_frames.emplace_back() ; }
-
-        inline internal::Value pop(int page=-1);
-        inline void push(const internal::Value& value);
-
-        // instructions
-        inline void nop();
-        inline void loadSymbol();
-        inline void loadConst();
-        inline void popJumpIfTrue();
-        inline void store();
-        inline void let();
-        inline void popJumpIfFalse();
-        inline void jump();
-        inline void ret();
-        inline void call();
-        inline void saveEnv();
-        inline void builtin();
-        inline void mut();
-        inline void del();
-
-        inline void operators(uint8_t inst);
-
         inline void throwVMError(const std::string& message)
         {
             throw std::runtime_error("VMError: " + message);
         }
+
+        internal::Value pop(int page=-1);
+        void push(const internal::Value& value);
+        void push(internal::Value&& value);
+
+        // instructions
+        void loadSymbol();
+        void loadConst();
+        void popJumpIfTrue();
+        void store();
+        void let();
+        void popJumpIfFalse();
+        void jump();
+        void ret();
+        void call();
+        void saveEnv();
+        void builtin();
+        void mut();
+        void del();
+
+        void operators(uint8_t inst);
     };
+}
+
+namespace Ark
+{
+    #include "VM.inl"
+
+    // debug on, persist off
+    using VM_debug = VM_t<true, false>;
+    // debug off, persist on
+    using VM_persist = VM_t<false, true>;
+    // debug on, persist on
+    using VM_debug_persist = VM_t<true, true>;
+    // standard VM, debug off, persist off
+    using VM = VM_t<>;
 }
 
 #endif
