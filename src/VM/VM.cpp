@@ -233,7 +233,7 @@ namespace Ark
             }
             catch (const std::exception& e)
             {
-                Ark::logger.error(e.what());
+                std::cout << e.what() << std::endl;
             }
 
             if (m_count_fcall)
