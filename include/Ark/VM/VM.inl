@@ -421,7 +421,7 @@ void VM_t<debug>::run()
 // ------------------------------------------
 
 template<bool debug>
-internal::Value VM_t<debug>::pop(int page)
+inline internal::Value VM_t<debug>::pop(int page)
 {
     if (page == -1)
         return m_frames.back().pop();
@@ -435,7 +435,7 @@ void VM_t<debug>::push(const internal::Value& value)
 }
 
 template<bool debug>
-void VM_t<debug>::push(internal::Value&& value)
+inline void VM_t<debug>::push(internal::Value&& value)
 {
     m_frames.back().push(value);
 }
@@ -445,7 +445,7 @@ void VM_t<debug>::push(internal::Value&& value)
 // ------------------------------------------
 
 template<bool debug>
-void VM_t<debug>::loadSymbol()
+inline void VM_t<debug>::loadSymbol()
 {
     /*
         Argument: symbol id (two bytes, big endian)
@@ -468,7 +468,7 @@ void VM_t<debug>::loadSymbol()
 }
 
 template<bool debug>
-void VM_t<debug>::loadConst()
+inline void VM_t<debug>::loadConst()
 {
     /*
         Argument: constant id (two bytes, big endian)
@@ -494,7 +494,7 @@ void VM_t<debug>::loadConst()
 }
 
 template<bool debug>
-void VM_t<debug>::popJumpIfTrue()
+inline void VM_t<debug>::popJumpIfTrue()
 {
     /*
         Argument: absolute address to jump to (two bytes, big endian)
@@ -514,7 +514,7 @@ void VM_t<debug>::popJumpIfTrue()
 }
 
 template<bool debug>
-void VM_t<debug>::store()
+inline void VM_t<debug>::store()
 {
     /*
         Argument: symbol id (two bytes, big endian)
@@ -540,7 +540,7 @@ void VM_t<debug>::store()
 }
 
 template<bool debug>
-void VM_t<debug>::let()
+inline void VM_t<debug>::let()
 {
     /*
         Argument: symbol id (two bytes, big endian)
@@ -563,7 +563,7 @@ void VM_t<debug>::let()
 }
 
 template<bool debug>
-void VM_t<debug>::popJumpIfFalse()
+inline void VM_t<debug>::popJumpIfFalse()
 {
     /*
         Argument: absolute address to jump to (two bytes, big endian)
@@ -583,7 +583,7 @@ void VM_t<debug>::popJumpIfFalse()
 }
 
 template<bool debug>
-void VM_t<debug>::jump()
+inline void VM_t<debug>::jump()
 {
     /*
         Argument: absolute address to jump to (two byte, big endian)
@@ -601,7 +601,7 @@ void VM_t<debug>::jump()
 }
 
 template<bool debug>
-void VM_t<debug>::ret()
+inline void VM_t<debug>::ret()
 {
     /*
         Argument: none
@@ -646,7 +646,7 @@ void VM_t<debug>::ret()
 }
 
 template<bool debug>
-void VM_t<debug>::call()
+inline void VM_t<debug>::call()
 {
     /*
         Argument: number of arguments when calling the function
@@ -705,7 +705,7 @@ void VM_t<debug>::call()
 }
 
 template<bool debug>
-void VM_t<debug>::saveEnv()
+inline void VM_t<debug>::saveEnv()
 {
     /*
         Argument: none
@@ -717,7 +717,7 @@ void VM_t<debug>::saveEnv()
 }
 
 template<bool debug>
-void VM_t<debug>::builtin()
+inline void VM_t<debug>::builtin()
 {
     /*
         Argument: id of builtin (two bytes, big endian)
@@ -735,7 +735,7 @@ void VM_t<debug>::builtin()
 }
 
 template<bool debug>
-void VM_t<debug>::mut()
+inline void VM_t<debug>::mut()
 {
     /*
         Argument: symbol id (two bytes, big endian)
@@ -754,7 +754,7 @@ void VM_t<debug>::mut()
 }
 
 template<bool debug>
-void VM_t<debug>::del()
+inline void VM_t<debug>::del()
 {
     /*
         Argument: symbol id (two bytes, big endian)
@@ -778,7 +778,7 @@ void VM_t<debug>::del()
 }
 
 template<bool debug>
-void VM_t<debug>::operators(uint8_t inst)
+inline void VM_t<debug>::operators(uint8_t inst)
 {
     /*
         Handling the operator instructions

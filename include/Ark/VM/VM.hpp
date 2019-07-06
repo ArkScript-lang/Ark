@@ -15,6 +15,10 @@
 #include <Ark/Compiler/Instructions.hpp>
 #include <Ark/VM/Plugin.hpp>
 #include <Ark/VM/FFI.hpp>
+#include <Ark/Log.hpp>
+
+#undef abs
+#include <cmath>
 
 namespace Ark
 {
@@ -96,26 +100,26 @@ namespace Ark
             throw std::runtime_error("VMError: " + message);
         }
 
-        internal::Value pop(int page=-1);
-        void push(const internal::Value& value);
-        void push(internal::Value&& value);
+        inline internal::Value pop(int page=-1);
+        inline void push(const internal::Value& value);
+        inline void push(internal::Value&& value);
 
         // instructions
-        void loadSymbol();
-        void loadConst();
-        void popJumpIfTrue();
-        void store();
-        void let();
-        void popJumpIfFalse();
-        void jump();
-        void ret();
-        void call();
-        void saveEnv();
-        void builtin();
-        void mut();
-        void del();
+        inline void loadSymbol();
+        inline void loadConst();
+        inline void popJumpIfTrue();
+        inline void store();
+        inline void let();
+        inline void popJumpIfFalse();
+        inline void jump();
+        inline void ret();
+        inline void call();
+        inline void saveEnv();
+        inline void builtin();
+        inline void mut();
+        inline void del();
 
-        void operators(uint8_t inst);
+        inline void operators(uint8_t inst);
     };
 }
 
