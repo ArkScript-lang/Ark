@@ -55,7 +55,13 @@ namespace Ark
             return {};
         }
 
-        // inline uint16_t get
+        inline std::optional<uint16_t> getVarIndexInCurrentScope(const std::string& name)
+        {
+            auto it = std::find(m_scopes.back().begin(), m_scopes.back().end(), name);
+            if (it != m_scopes.beack().end())
+                return std::distance(m_scopes.back().begin(), it);
+            return {};
+        }
 
         void _compile(Ark::internal::Node x, int p);
         std::size_t addSymbol(const std::string& sym);

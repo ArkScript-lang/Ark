@@ -55,7 +55,7 @@ namespace Ark::internal
         std::size_t m_addr, m_page_addr, m_locals_start;
 
         std::array<Value, ARK_MAX_STACK_SIZE> m_stack;
-        int m_i;
+        int8_t m_i;
     };
 }
 
