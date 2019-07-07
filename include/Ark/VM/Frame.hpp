@@ -3,9 +3,11 @@
 
 #include <iostream>
 #include <cinttypes>
+#include <array>
 
 #include <Ark/VM/Value.hpp>
 #include <Ark/Compiler/BytecodeReader.hpp>
+#include <Ark/Constants.hpp>
 
 namespace Ark::internal
 {
@@ -23,25 +25,25 @@ namespace Ark::internal
         Frame(const Frame&) = default;
         Frame(std::size_t caller_addr, std::size_t caller_page_addr, std::size_t locals_start);
 
-        inline Value pop()
+        inline Value&& pop()
         {
-            Value value = std::move(m_stack.back());
-            m_stack.pop_back();
-
-            return value;
+            m_i--;
+            return std::move(m_stack[m_i]);
         }
 
         inline void push(const Value& value)
         {
-            m_stack.push_back(value);
+            m_stack[m_i] = value;
+            m_i++;
         }
 
         inline void push(Value&& value)
         {
-            m_stack.push_back(value);
+            m_stack[m_i] = std::move(value);
+            m_i++;
         }
 
-        std::size_t stackSize() const;
+        std::size_t stackSize();
 
         std::size_t callerAddr() const;
         std::size_t callerPageAddr() const;
@@ -51,7 +53,9 @@ namespace Ark::internal
     
     private:
         std::size_t m_addr, m_page_addr, m_locals_start;
-        std::vector<Value> m_stack;
+
+        std::array<Value, ARK_MAX_STACK_SIZE> m_stack;
+        int m_i;
     };
 }
 

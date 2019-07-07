@@ -421,7 +421,7 @@ void VM_t<debug>::run()
 // ------------------------------------------
 
 template<bool debug>
-inline internal::Value VM_t<debug>::pop(int page)
+inline internal::Value&& VM_t<debug>::pop(int page)
 {
     if (page == -1)
         return m_frames.back().pop();

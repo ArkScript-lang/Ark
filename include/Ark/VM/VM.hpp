@@ -100,7 +100,7 @@ namespace Ark
             throw std::runtime_error("VMError: " + message);
         }
 
-        inline internal::Value pop(int page=-1);
+        inline internal::Value&& pop(int page=-1);
         inline void push(const internal::Value& value);
         inline void push(internal::Value&& value);
 

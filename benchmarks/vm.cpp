@@ -46,7 +46,7 @@ static void Ackermann_3_6_cpp(benchmark::State& state)
 
 static void let_a_42(benchmark::State& state)
 {
-    Ark::VM vm(/* persist */ true);
+    Ark::VM vm;
     vm.feed("tests/test-let.arkc");
     
     while (state.KeepRunning())

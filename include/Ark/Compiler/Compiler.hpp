@@ -6,6 +6,7 @@
 #include <string>
 #include <cinttypes>
 #include <optional>
+#include <utility>
 
 #include <Ark/Parser/Parser.hpp>
 #include <Ark/Parser/Node.hpp>
@@ -54,6 +55,8 @@ namespace Ark
             return {};
         }
 
+        // inline uint16_t get
+
         void _compile(Ark::internal::Node x, int p);
         std::size_t addSymbol(const std::string& sym);
         std::size_t addValue(Ark::internal::Node x);
@@ -68,6 +71,7 @@ namespace Ark
         std::vector<std::string> m_plugins;
         std::vector<std::vector<internal::Inst>> m_code_pages;
         std::vector<std::vector<internal::Inst>> m_temp_pages;
+        std::vector<std::vector<std::string>> m_scopes;
 
         bytecode_t m_bytecode;
 
