@@ -53,19 +53,38 @@ void vm(bool debug, bool timer, const std::string& file, bool count_fcall)
         return;
     }
 
-    Ark::VM vm;
-    vm.feed(file);
+    if (debug)
+    {
+        Ark::VM_debug vm;
+        vm.feed(file);
 
-    std::chrono::time_point<std::chrono::system_clock> start, end;
-    start = std::chrono::system_clock::now();
+        std::chrono::time_point<std::chrono::system_clock> start, end;
+        start = std::chrono::system_clock::now();
 
-    vm.run();
+        vm.run();
 
-    end = std::chrono::system_clock::now();
-    auto elapsed_microseconds = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+        end = std::chrono::system_clock::now();
+        auto elapsed_microseconds = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
 
-    if (timer)
-        std::cout << "VM took " << elapsed_microseconds << "us" << std::endl;
+        if (timer)
+            std::cout << "VM took " << elapsed_microseconds << "us" << std::endl;
+    }
+    else
+    {
+        Ark::VM vm;
+        vm.feed(file);
+
+        std::chrono::time_point<std::chrono::system_clock> start, end;
+        start = std::chrono::system_clock::now();
+
+        vm.run();
+
+        end = std::chrono::system_clock::now();
+        auto elapsed_microseconds = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+
+        if (timer)
+            std::cout << "VM took " << elapsed_microseconds << "us" << std::endl;
+    }
 }
 
 void tests(bool debug, bool timer)

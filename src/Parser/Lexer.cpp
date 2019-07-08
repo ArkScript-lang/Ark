@@ -5,6 +5,8 @@
 
 namespace Ark::internal
 {
+    std::ios::sync_with_stdio(false);
+
     Lexer::Lexer(bool debug) :
         m_debug(debug)
     {}

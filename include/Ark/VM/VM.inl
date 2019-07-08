@@ -74,17 +74,17 @@ void VM_t<debug>::configure()
     }
 
     using timestamp_t = unsigned long long;
-    timestamp_t timestamp = 
-        (static_cast<timestamp_t>(m_bytecode[  i]) << 56) +
-        (static_cast<timestamp_t>(m_bytecode[++i]) << 48) +
-        (static_cast<timestamp_t>(m_bytecode[++i]) << 40) +
-        (static_cast<timestamp_t>(m_bytecode[++i]) << 32) +
-        (static_cast<timestamp_t>(m_bytecode[++i]) << 24) +
-        (static_cast<timestamp_t>(m_bytecode[++i]) << 16) +
-        (static_cast<timestamp_t>(m_bytecode[++i]) <<  8) +
-        (static_cast<timestamp_t>(m_bytecode[++i]))
-        ;
-    ++i;
+    timestamp_t timestamp = 0;
+    auto aa = (static_cast<timestamp_t>(m_bytecode[  i]) << 56),
+            ba = (static_cast<timestamp_t>(m_bytecode[++i]) << 48),
+            ca = (static_cast<timestamp_t>(m_bytecode[++i]) << 40),
+            da = (static_cast<timestamp_t>(m_bytecode[++i]) << 32),
+            ea = (static_cast<timestamp_t>(m_bytecode[++i]) << 24),
+            fa = (static_cast<timestamp_t>(m_bytecode[++i]) << 16),
+            ga = (static_cast<timestamp_t>(m_bytecode[++i]) <<  8),
+            ha = (static_cast<timestamp_t>(m_bytecode[++i]));
+    i++;
+    timestamp = aa + ba + ca + da + ea + fa + ga + ha;
 
     if constexpr (debug)
         Ark::logger.info("(Virtual Machine) timestamp: ", timestamp);
