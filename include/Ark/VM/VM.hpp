@@ -66,6 +66,8 @@ namespace Ark
             return x + y;
         }
 
+        // variables and locals management
+
         inline std::optional<internal::Value*> findNearestVariable(uint16_t id)
         {
             for (auto it=m_locals.rbegin(); it != m_locals.rend(); ++it)
@@ -96,10 +98,19 @@ namespace Ark
             return m_locals.emplace_back(id, value).second;
         }
 
+        inline internal::Value& registerVariable(uint16_t id, const internal::Value& value)
+        {
+            return m_locals.emplace_back(id, value).second;
+        }
+
+        // error handling
+
         inline void throwVMError(const std::string& message)
         {
             throw std::runtime_error("VMError: " + message);
         }
+
+        // stack management
 
         inline internal::Value&& pop(int page=-1);
         inline void push(const internal::Value& value);

@@ -108,12 +108,7 @@ namespace Ark
 
             // handle sub-blocks
             if (tokens.front().token == "(")
-            {
-                //Node sub(NodeType::List);
-                //sub.setPos(tokens.front().line, tokens.front().col);
-                //sub.push_back(parse(tokens));
                 block.push_back(parse(tokens));
-            }
 
             // take next token, we don't want to play with a "("
             token = nextToken(tokens);

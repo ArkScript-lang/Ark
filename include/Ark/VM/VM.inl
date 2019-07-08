@@ -501,8 +501,13 @@ inline void VM_t<debug>::loadConst()
     
     if (m_saved_frame && m_constants[id].valueType() == ValueType::PageAddr)
     {
-        // TODO enhance
-        push(Value(Closure(m_constants[id].pageAddr())));
+        push(Value(
+            Closure(
+                m_constants[id].pageAddr(),
+                m_locals.begin() + m_frames.back().localsStart(),
+                m_locals.end()
+            )
+        ));
         m_saved_frame.reset();
     }
     else
@@ -698,7 +703,7 @@ inline void VM_t<debug>::call()
             return;
         }
 
-        // is it a user defined function?
+        // is it a user defined closure?
         case ValueType::Closure:
         {
             int p = m_frames.size() - 1;
@@ -709,6 +714,8 @@ inline void VM_t<debug>::call()
             m_frames.emplace_back(m_ip, m_pp, m_locals.size());
             // store "reference" to the function
             registerVariable(m_last_sym_loaded, std::move(function));
+            for (auto&& id_val: c.bindedVars())
+                registerVariable(id_val.first, id_val.second);
 
             m_pp = pp;
             m_ip = -1;  // because we are doing a m_ip++ right after that
