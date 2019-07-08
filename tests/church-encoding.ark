@@ -2,8 +2,7 @@
     (let create-human (fun (name age weight)
         # return value as higher order function to manipulate the data above
         # this will be our "constructor"
-        (fun (f)
-        {
+        (fun (f) {
             # all the setters must be defined in this scope
             (let set-age (fun (new-age) (set age new-age)))
 

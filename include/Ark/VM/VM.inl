@@ -295,7 +295,7 @@ void VM_t<debug>::run()
             // load data from it!
             using Mapping_t = std::unordered_map<std::string, Value::ProcType>;
             typedef Mapping_t (*map_fun) ();
-            Mapping_t map = m_shared_lib_objects.back().get<map_fun>("getFunctionsMapping")();
+            Mapping_t map = m_shared_lib_objects.back().template get<map_fun>("getFunctionsMapping")();
 
             for (auto&& kv : map)
             {
@@ -706,21 +706,22 @@ inline void VM_t<debug>::call()
         // is it a user defined closure?
         case ValueType::Closure:
         {
-            int p = m_frames.size() - 1;
+            int old_page_ptr = m_frames.size() - 1;
             Closure c = function.closure();
-            auto pp = c.pageAddr();
+            auto new_page_pointer = c.pageAddr();
 
             // create dedicated frame
             m_frames.emplace_back(m_ip, m_pp, m_locals.size());
             // store "reference" to the function
             registerVariable(m_last_sym_loaded, std::move(function));
+            // copy variables captured by the closure to the "execution scope"
             for (auto&& id_val: c.bindedVars())
                 registerVariable(id_val.first, id_val.second);
 
-            m_pp = pp;
+            m_pp = new_page_pointer;
             m_ip = -1;  // because we are doing a m_ip++ right after that
             for (std::size_t j=0; j < argc; ++j)
-                push(pop(p));
+                push(pop(old_page_ptr));
             return;
         }
 
