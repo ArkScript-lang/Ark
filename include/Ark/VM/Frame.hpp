@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <cinttypes>
-#include <array>
+#include <vector>
 
 #include <Ark/VM/Value.hpp>
 #include <Ark/Compiler/BytecodeReader.hpp>
@@ -54,7 +54,7 @@ namespace Ark::internal
     private:
         std::size_t m_addr, m_page_addr, m_locals_start;
 
-        std::array<Value, ARK_MAX_STACK_SIZE> m_stack;
+        std::vector<Value> m_stack;
         int8_t m_i;
     };
 }

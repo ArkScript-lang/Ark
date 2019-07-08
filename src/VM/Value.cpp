@@ -7,7 +7,10 @@ namespace Ark::internal
 {
     Value::Value(ValueType type) :
         m_type(type), m_const(false)
-    {}
+    {
+        if (m_type == ValueType::List)
+            m_value = std::vector<Value>();
+    }
 
     Value::Value(int value) :
         m_value(static_cast<double>(value)), m_type(ValueType::Number), m_const(false)

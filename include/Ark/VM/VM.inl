@@ -685,9 +685,11 @@ inline void VM_t<debug>::call()
         // is it a builtin function name?
         case ValueType::CProc:
         {
+            // drop arguments from the stack
             std::vector<Value> args(argc);
             for (uint16_t j=0; j < argc; ++j)
-                args.push_back(pop());
+                args[j] = pop();
+            
             // reverse arguments
             std::reverse(args.begin(), args.end());
             // call proc

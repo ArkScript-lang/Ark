@@ -45,7 +45,7 @@ void bcr(const std::string& file)
     bcr.display();
 }
 
-void vm(bool debug, bool timer, const std::string& file, bool count_fcall)
+void vm(bool debug, bool timer, const std::string& file)
 {
     if (!Ark::Utils::fileExists(file))
     {
@@ -136,7 +136,7 @@ int main(int argc, char** argv)
     mode selected = mode::help;
 
     std::string input_file = "", output_file = "";
-    bool debug = false, timer = false, count_fcall = false;
+    bool debug = false, timer = false;
     std::vector<std::string> wrong;
 
     // TODO: temp CLI, redo a better one able to compile code only if needed (check timestamp)
@@ -154,7 +154,6 @@ int main(int argc, char** argv)
             , option("-o", "--output").doc("Set the output filename for the compiler") & value("out", output_file)
             , (
                 option("-vm").set(selected, mode::vm).doc("Start the VM on the given file")
-                , option("--count-fcalls").set(count_fcall).doc("Count functions calls and display result at the end of the execution")
               )
             , option("-bcr", "--bytecode-reader").set(selected, mode::bcr).doc("Launch the bytecode reader")
             , option("-d", "--debug").set(debug).doc("Trigger debug mode")
@@ -204,7 +203,7 @@ int main(int argc, char** argv)
                 break;
             
             case mode::vm:
-                vm(debug, timer, input_file, count_fcall);
+                vm(debug, timer, input_file);
                 break;
             
             case mode::tests:
