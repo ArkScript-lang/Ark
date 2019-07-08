@@ -294,7 +294,8 @@ void VM_t<debug>::run()
 
             // load data from it!
             using Mapping_t = std::unordered_map<std::string, Value::ProcType>;
-            Mapping_t map = m_shared_lib_objects.back().get<Mapping_t (*) ()>("getFunctionsMapping")();
+            typedef Mapping_t (*map_fun) ();
+            Mapping_t map = m_shared_lib_objects.back().get<map_fun>("getFunctionsMapping")();
 
             for (auto&& kv : map)
             {
