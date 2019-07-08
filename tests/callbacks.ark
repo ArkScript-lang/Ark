@@ -3,9 +3,15 @@
     (let data ["Iron Man" "is" "Tony Stark"])
     (let callbacks [])
 
+    (print "1")
+
     (let add-callback (fun (d)
         (fun () (egg d))
     ))
+
+    (print "2")
+
+    (print "init")
 
     (let acc 0)
     (while (!= acc (len data)) {
@@ -14,9 +20,13 @@
         (set acc (+ 1 acc))
     })
 
+    (print "added callbacks")
+
     (set acc 0)
     (while (!= acc (len callbacks)) {
+        (print "calling")
         ((@ callbacks acc))
+        (print "called")
         (set acc (+ 1 acc))
     })
 }

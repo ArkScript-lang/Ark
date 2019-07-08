@@ -412,6 +412,21 @@ void VM_t<debug>::run()
     }
     catch (const std::exception& e)
     {
+        std::cout << "At IP: " << m_ip << ", PP: " << m_pp << "\n";
+        std::cout << "Locals:\n";
+        int count = 0;
+        for (auto&& p: m_locals)
+        {
+            std::cout << p.first << " -> " << p.second << "\n";
+
+            count++;
+
+            if (count > 10)
+            {
+                std::cout << "...\n";
+                break;
+            }
+        }
         std::cout << e.what() << std::endl;
     }
 }
@@ -631,7 +646,7 @@ inline void VM_t<debug>::ret()
         // remove frame
         m_frames.pop_back();
         // clear locals
-        m_locals.erase(m_locals.begin() + locals_start + 1, m_locals.end());
+        m_locals.erase(m_locals.begin() + locals_start, m_locals.end());
     };
     
     if (m_frames.back().stackSize() != 0)
