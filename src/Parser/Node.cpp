@@ -159,6 +159,7 @@ namespace Ark::internal
                 case Keyword::Begin:  os << "Begin";  break;
                 case Keyword::Import: os << "Import"; break;
                 case Keyword::Quote:  os << "Quote";  break;
+                case Keyword::Del:    os << "Del";    break;
             }
             break;
 

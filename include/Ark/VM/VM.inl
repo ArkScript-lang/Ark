@@ -43,8 +43,8 @@ void VM_t<debug>::configure()
     std::size_t i = 0;
 
     auto readNumber = [&b] (std::size_t& i) -> uint16_t {
-        uint16_t x = (static_cast<uint16_t>(b[  i]) << 8),
-                    y = static_cast<uint16_t>(b[++i]);
+        uint16_t x = (static_cast<uint16_t>(b[i]) << 8); ++i;
+        uint16_t y = static_cast<uint16_t>(b[i]);
         return x + y;
     };
 

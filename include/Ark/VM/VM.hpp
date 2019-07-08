@@ -61,8 +61,9 @@ namespace Ark
 
         inline uint16_t readNumber()
         {
-            return  (static_cast<uint16_t>(m_pages[m_pp][  m_ip]) << 8) +
-                    (static_cast<uint16_t>(m_pages[m_pp][++m_ip])     );
+            auto x = (static_cast<uint16_t>(m_pages[m_pp][m_ip]) << 8); ++m_ip;
+            auto y = (static_cast<uint16_t>(m_pages[m_pp][m_ip])     );
+            return x + y;
         }
 
         inline std::optional<internal::Value*> findNearestVariable(uint16_t id)
