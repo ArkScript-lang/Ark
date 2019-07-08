@@ -113,7 +113,6 @@ namespace Ark::internal
         termcolor::blue,
         termcolor::red,
         termcolor::green,
-        termcolor::yellow,
         termcolor::cyan,
         termcolor::magenta
     });

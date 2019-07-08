@@ -105,20 +105,22 @@ namespace Ark
             // create a list node to host the block
             Node block(NodeType::List);
             block.setPos(token.line, token.col);
+
+            // handle sub-blocks
+            if (tokens.front().token == "(")
+            {
+                //Node sub(NodeType::List);
+                //sub.setPos(tokens.front().line, tokens.front().col);
+                //sub.push_back(parse(tokens));
+                block.push_back(parse(tokens));
+            }
+
             // take next token, we don't want to play with a "("
             token = nextToken(tokens);
 
             // return an empty block
             if (token.token == ")")
                 return block;
-            
-            // return a sub-block
-            // TODO enhance
-            if (token.token == "(")
-            {
-                block.push_back(parse(tokens));
-                return block;
-            }
 
             // loop until we reach the end of the block
             do
