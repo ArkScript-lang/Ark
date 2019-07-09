@@ -703,17 +703,37 @@ inline void VM_t<debug>::call()
             return;
         }
 
+        // is it a user defined function?
+        case ValueType::PageAddr:
+        {
+            int old_frame = m_frames.size() - 1;
+            auto new_page_pointer = function.pageAddr();
+
+            // create dedicated frame
+            m_frames.emplace_back(m_ip, m_pp, m_locals.size());
+            // store "reference" to the function
+            if (!findInCurrentScope(m_last_sym_loaded))
+                registerVariable(m_last_sym_loaded, std::move(function));
+
+            m_pp = new_page_pointer;
+            m_ip = -1;  // because we are doing a m_ip++ right after that
+            for (std::size_t j=0; j < argc; ++j)
+                push(pop(old_frame));
+            return;
+        }
+
         // is it a user defined closure?
         case ValueType::Closure:
         {
-            int old_page_ptr = m_frames.size() - 1;
+            int old_frame = m_frames.size() - 1;
             Closure c = function.closure();
             auto new_page_pointer = c.pageAddr();
 
             // create dedicated frame
             m_frames.emplace_back(m_ip, m_pp, m_locals.size());
             // store "reference" to the function
-            registerVariable(m_last_sym_loaded, std::move(function));
+            if (!findInCurrentScope(m_last_sym_loaded))
+                registerVariable(m_last_sym_loaded, std::move(function));
             // copy variables captured by the closure to the "execution scope"
             for (auto&& id_val: c.bindedVars())
                 registerVariable(id_val.first, id_val.second);
@@ -721,7 +741,7 @@ inline void VM_t<debug>::call()
             m_pp = new_page_pointer;
             m_ip = -1;  // because we are doing a m_ip++ right after that
             for (std::size_t j=0; j < argc; ++j)
-                push(pop(old_page_ptr));
+                push(pop(old_frame));
             return;
         }
 
