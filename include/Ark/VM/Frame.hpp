@@ -4,6 +4,8 @@
 #include <iostream>
 #include <cinttypes>
 #include <vector>
+#include <optional>
+#include <utility>
 
 #include <Ark/VM/Value.hpp>
 #include <Ark/Compiler/BytecodeReader.hpp>
@@ -25,6 +27,8 @@ namespace Ark::internal
         Frame(const Frame&) = default;
         Frame(std::size_t caller_addr, std::size_t caller_page_addr, std::size_t locals_start);
 
+        // stack related
+
         inline Value&& pop()
         {
             m_i--;
@@ -43,6 +47,20 @@ namespace Ark::internal
             m_i++;
         }
 
+        // closure related, to be able to save locals
+
+        inline void setClosure(const std::pair<uint16_t, Value*>& closure_id)
+        {
+            m_closure = closure_id;
+        }
+
+        inline const std::optional<std::pair<uint16_t, Value*>>& getClosure()
+        {
+            return m_closure;
+        }
+
+        // getters
+
         std::size_t stackSize();
 
         std::size_t callerAddr() const;
@@ -56,6 +74,8 @@ namespace Ark::internal
 
         std::vector<Value> m_stack;
         int8_t m_i;
+
+        std::optional<std::pair<uint16_t,Value*>> m_closure;
     };
 }
 

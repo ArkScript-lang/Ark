@@ -43,7 +43,7 @@ namespace Ark
         std::size_t m_pp;
         bool m_running;
         std::string m_filename;
-        uint16_t m_last_sym_loaded;
+        std::pair<uint16_t, internal::Value*> m_last_sym_loaded;
 
         // related to the bytecode
         std::vector<std::string> m_symbols;
@@ -68,9 +68,9 @@ namespace Ark
 
         // variables and locals management
 
-        inline std::optional<internal::Value*> findNearestVariable(uint16_t id)
+        inline std::optional<internal::Value*> findNearestVariable(uint16_t id, std::size_t offset=0)
         {
-            for (auto it=m_locals.rbegin(); it != m_locals.rend(); ++it)
+            for (auto it=m_locals.rbegin() + offset; it != m_locals.rend(); ++it)
             {
                 if (it->first == id)
                 {

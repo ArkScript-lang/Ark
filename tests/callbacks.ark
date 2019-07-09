@@ -1,11 +1,11 @@
 {
-    (let egg (fun (bar) (print bar)))
-    (let data ["Iron Man" "is" "Tony Stark"])
-    (let callbacks [])
-
     (let add-callback (fun (d)
         (fun () (egg d))
     ))
+    
+    (let egg (fun (bar) (print bar)))
+    (let data ["Iron Man" "is" "Tony Stark"])
+    (let callbacks [])
 
     (mut acc 0)
     (while (!= acc (len data)) {

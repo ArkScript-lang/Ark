@@ -1,6 +1,6 @@
 template<bool debug>
 VM_t<debug>::VM_t(bool persist) :
-    m_persist(persist), m_ip(0), m_pp(0), m_running(false), m_filename("FILE"), m_last_sym_loaded(0)
+    m_persist(persist), m_ip(0), m_pp(0), m_running(false), m_filename("FILE"), m_last_sym_loaded({0, nullptr})
 {}
 
 // ------------------------------------------
@@ -315,8 +315,7 @@ void VM_t<debug>::run()
     if constexpr (debug)
         Ark::logger.info("Starting at PP:{0}, IP:{1}"s, m_pp, m_ip);
 
-    try
-    {
+    //try {
         m_running = true;
         while (m_running)
         {
@@ -410,9 +409,7 @@ void VM_t<debug>::run()
             // move forward
             ++m_ip;
         }
-    }
-    catch (const std::exception& e)
-    {
+    /*} catch (const std::exception& e) {
         std::cout << "At IP: " << m_ip << ", PP: " << m_pp << "\n";
         std::cout << "Locals:\n";
         int count = 0;
@@ -422,14 +419,10 @@ void VM_t<debug>::run()
 
             count++;
 
-            if (count > 10)
-            {
-                std::cout << "...\n";
-                break;
-            }
+            // if (count > 10) { std::cout << "...\n"; break; }
         }
         std::cout << e.what() << std::endl;
-    }
+    }*/
 }
 
 // ------------------------------------------
@@ -469,7 +462,6 @@ inline void VM_t<debug>::loadSymbol()
     */
     ++m_ip;
     auto id = readNumber();
-    m_last_sym_loaded = id;
 
     if constexpr (debug)
         Ark::logger.info("LOAD_SYMBOL ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
@@ -477,6 +469,8 @@ inline void VM_t<debug>::loadSymbol()
     if (auto var = findNearestVariable(id))
     {
         push(*var.value());
+        m_last_sym_loaded.first = id;
+        m_last_sym_loaded.second = var.value();
         return;
     }
 
@@ -649,6 +643,27 @@ inline void VM_t<debug>::ret()
 
     auto rm_frame = [this] () -> void {
         auto locals_start = m_frames.back().localsStart();
+        // save env if needed
+        if (auto id = m_frames.back().getClosure())
+        {
+            if (id.value().second->valueType() == ValueType::Closure)
+            {
+                if constexpr (debug)
+                    Ark::logger.warn("Saving data back into the closure:", m_symbols[id.value().first]);
+                Value* closure = id.value().second;
+                if constexpr (debug)
+                {
+                    for (auto it=m_locals.begin() + locals_start; it != m_locals.end(); ++it)
+                        Ark::logger.data(m_symbols[it->first].c_str(), it->first, "=>", it->second);
+                }
+                closure->closure_ref().save(m_locals.begin() + locals_start, m_locals.end());
+                if constexpr (debug)
+                {
+                    for (auto&& id_val: closure->closure_ref().bindedVars())
+                        Ark::logger.data(m_symbols[id_val.first].c_str(), id_val.first, "=>", id_val.second);
+                }
+            }
+        }
         // remove frame
         m_frames.pop_back();
         // clear locals
@@ -712,8 +727,8 @@ inline void VM_t<debug>::call()
             // create dedicated frame
             m_frames.emplace_back(m_ip, m_pp, m_locals.size());
             // store "reference" to the function
-            if (!findInCurrentScope(m_last_sym_loaded))
-                registerVariable(m_last_sym_loaded, std::move(function));
+            if (!findInCurrentScope(m_last_sym_loaded.first))
+                registerVariable(m_last_sym_loaded.first, std::move(function));
 
             m_pp = new_page_pointer;
             m_ip = -1;  // because we are doing a m_ip++ right after that
@@ -731,12 +746,19 @@ inline void VM_t<debug>::call()
 
             // create dedicated frame
             m_frames.emplace_back(m_ip, m_pp, m_locals.size());
+            if constexpr (debug)
+                Ark::logger.data("Saving closure: {0} ({1})"s, m_symbols[m_last_sym_loaded.first], m_last_sym_loaded.first);
+            m_frames.back().setClosure(m_last_sym_loaded);
             // store "reference" to the function
-            if (!findInCurrentScope(m_last_sym_loaded))
-                registerVariable(m_last_sym_loaded, std::move(function));
+            if (!findInCurrentScope(m_last_sym_loaded.first))
+                registerVariable(m_last_sym_loaded.first, std::move(function));
             // copy variables captured by the closure to the "execution scope"
             for (auto&& id_val: c.bindedVars())
+            {
+                if constexpr (debug)
+                    Ark::logger.data(m_symbols[id_val.first].c_str(), "=>", id_val.second);
                 registerVariable(id_val.first, id_val.second);
+            }
 
             m_pp = new_page_pointer;
             m_ip = -1;  // because we are doing a m_ip++ right after that
