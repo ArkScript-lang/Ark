@@ -125,6 +125,7 @@ namespace Ark::internal
         {
         case NodeType::String:
         case NodeType::Symbol:
+        case NodeType::Capture:
             os << N.string();
             break;
 

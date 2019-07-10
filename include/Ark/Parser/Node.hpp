@@ -14,6 +14,7 @@ namespace Ark::internal
     enum class NodeType
     {
         Symbol,
+        Capture,
         Keyword,
         String,
         Number,

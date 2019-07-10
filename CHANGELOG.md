@@ -11,12 +11,15 @@
 - major versions of the compiler and the virtual machine used must match, a compatibility accross versions will be kept if they have the same major number
 - many opcodes to handle the operators
 - persist flag for the VM (if persist is false (default value), each time we call vm.run(), the frames will be reseted)
+- adding captures through functions arguments: `(fun (&captured std-argument) (...))`
 
 ### Changed
 - moved everything from the "folder namespaces" to a single `Ark::internal` namespace
 - using `#` instead of `'` for the comments, using `'` to quote instead of `` ` ``
 - the lexer is now detecting the type of the tokens it's playing with
 - using `std::runtime_error`s instead of `exit(1)` when an error occured
+- the VM should throw an error if we try to use `set` on a constant
+- we can avoid passing all the arguments to a function, they will just be undefined
 
 ### Removed
 - Lexer::check, we should see if the program is correct when building the AST

@@ -54,7 +54,7 @@ namespace Ark
 
         // related to the execution
         std::vector<std::shared_ptr<internal::Frame>> m_frames;
-        std::optional<std::size_t> m_saved_frame;
+        std::optional<std::shared_ptr<internal::Frame>> m_saved_frame;
 
         void configure();
 
@@ -95,10 +95,11 @@ namespace Ark
         inline void jump();
         inline void ret();
         inline void call();
-        inline void saveEnv();
+        inline void capture();
         inline void builtin();
         inline void mut();
         inline void del();
+        inline void saveEnv();
 
         inline void operators(uint8_t inst);
     };

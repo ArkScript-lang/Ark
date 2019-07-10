@@ -30,7 +30,7 @@ namespace Ark
         std::vector<std::string> m_parent_include;
 
         void sugar(std::vector<internal::Token>& tokens);
-        internal::Node parse(std::list<internal::Token>& tokens);
+        internal::Node parse(std::list<internal::Token>& tokens, bool authorize_capture=false);
         internal::Token nextToken(std::list<internal::Token>& tokens);
         internal::Node atom(const internal::Token& token);
 

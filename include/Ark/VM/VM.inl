@@ -375,8 +375,8 @@ void VM_t<debug>::run()
                     call();
                     break;
                 
-                case Instruction::SAVE_ENV:
-                    saveEnv();
+                case Instruction::CAPTURE:
+                    capture();
                     break;
                 
                 case Instruction::BUILTIN:
@@ -389,6 +389,10 @@ void VM_t<debug>::run()
                 
                 case Instruction::DEL:
                     del();
+                    break;
+                
+                case Instruction::SAVE_ENV:
+                    saveEnv();
                     break;
                 
                 default:
@@ -484,9 +488,9 @@ inline void VM_t<debug>::loadConst()
     if (m_saved_frame && m_constants[id].valueType() == ValueType::PageAddr)
     {
         if constexpr (debug)
-            Ark::logger.info("Pushing closure");
+            Ark::logger.info("Pushing closure with frame:", (*m_saved_frame.value()));
         
-        push(Value(Closure(m_frames[m_saved_frame.value()], m_constants[id].pageAddr())));
+        push(Value(Closure(m_saved_frame.value(), m_constants[id].pageAddr())));
         m_saved_frame.reset();
     }
     else
@@ -532,12 +536,18 @@ inline void VM_t<debug>::store()
 
     for (auto it=m_frames.rbegin(); it != m_frames.rend(); ++it)
     {
-        if ((*it)->find(id) && !(**it)[id].isConst())
+        if ((*it)->find(id))
         {
+            if ((**it)[id].isConst())
+                throwVMError("can not modify " + m_symbols[id] + ", it's a constant");
+
             (**it)[id] = pop();
             return;
         }
     }
+
+    if constexpr (debug)
+        Ark::logger.data(*m_frames.back());
 
     throwVMError("couldn't find symbol: " + m_symbols[id]);
 }
@@ -632,10 +642,14 @@ inline void VM_t<debug>::ret()
 
     auto rm_frame = [this] () -> void {
         // remove frame
+        bool is_closure = backFrame().isClosure();
         m_frames.pop_back();
-        // next frame is the one of the closure
-        // remove it
-        m_frames.pop_back();
+        if (is_closure)
+        {
+            // next frame is the one of the closure
+            // remove it
+            m_frames.pop_back();
+        }
     };
     
     if (m_frames.back()->stackSize() != 0)
@@ -687,23 +701,22 @@ inline void VM_t<debug>::call()
         }
 
         // is it a user defined function?
-        /*case ValueType::PageAddr:
+        case ValueType::PageAddr:
         {
             int old_frame = m_frames.size() - 1;
             auto new_page_pointer = function.pageAddr();
 
             // create dedicated frame
             m_frames.emplace_back(std::make_shared<Frame>(m_symbols.size(), m_ip, m_pp));
-            // store "reference" to the function
-            if (!findInCurrentScope(m_last_sym_loaded.first))
-                registerVariable(m_last_sym_loaded.first, std::move(function));
+            // store "reference" to the function to speed the recursive functions
+            backFrame()[m_last_sym_loaded.first] = function;
 
             m_pp = new_page_pointer;
             m_ip = -1;  // because we are doing a m_ip++ right after that
             for (std::size_t j=0; j < argc; ++j)
                 push(pop(old_frame));
             return;
-        }*/
+        }
 
         // is it a user defined closure?
         case ValueType::Closure:
@@ -716,6 +729,7 @@ inline void VM_t<debug>::call()
             m_frames.push_back(c.frame());
             // create dedicated frame
             m_frames.emplace_back(std::make_shared<Frame>(m_symbols.size(), m_ip, m_pp));
+            backFrame().setClosure(true);
 
             m_pp = new_page_pointer;
             m_ip = -1;  // because we are doing a m_ip++ right after that
@@ -730,15 +744,25 @@ inline void VM_t<debug>::call()
 }
 
 template<bool debug>
-inline void VM_t<debug>::saveEnv()
+inline void VM_t<debug>::capture()
 {
     /*
-        Argument: none
-        Job: Used to tell the Virtual Machine to save the current environment. Main goal is
-                to be able to handle closures, which need to save the environment in which
-                they were created
+        Argument: symbol id (two bytes, big endian)
+        Job: Used to tell the Virtual Machine to capture the variable from the current environment.
+            Main goal is to be able to handle closures, which need to save the environment in which
+            they were created
     */
-    m_saved_frame = m_frames.size() - 1;
+    using namespace Ark::internal;
+
+    ++m_ip;
+    auto id = readNumber();
+
+    if constexpr (debug)
+        Ark::logger.info("CAPTURE ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
+
+    if (!m_saved_frame)
+        m_saved_frame = std::make_shared<Frame>(m_symbols.size());
+    (*m_saved_frame.value())[id] = backFrame()[id];
 }
 
 template<bool debug>
@@ -775,7 +799,11 @@ inline void VM_t<debug>::mut()
     if constexpr (debug)
         Ark::logger.info("MUT ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
 
-    backFrame()[id] = pop();
+    // if stack is empty, MUT id has no effect
+    if (backFrame().stackSize() != 0)
+        backFrame()[id] = pop();
+    else
+        backFrame()[id] = FFI::nil;
 }
 
 template<bool debug>
@@ -804,6 +832,16 @@ inline void VM_t<debug>::del()
     }
 
     throwVMError("couldn't find symbol: " + m_symbols[id]);
+}
+
+template<bool debug>
+inline void VM_t<debug>::saveEnv()
+{
+    /*
+        Argument: none
+        Job: Save the current environment, useful for quoted code
+    */
+    m_saved_frame = m_frames.back();
 }
 
 template<bool debug>

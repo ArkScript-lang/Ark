@@ -5,7 +5,7 @@
 
 namespace Ark::internal
 {
-    enum class NFT { Nil, False, True };
+    enum class NFT { Nil, False, True, Undefined };
     using PageAddr_t = uint16_t;
 }
 

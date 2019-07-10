@@ -38,6 +38,9 @@ namespace Ark::internal
                             throwTokenizingError("couldn't tokenize", result, line, character);
                     }
 
+                    if (type == TokenType::Capture)
+                        result = result.substr(1);  // remove the '&'
+
                     if (type == TokenType::Identifier && isKeyword(result))
                         type = TokenType::Keyword;
                     

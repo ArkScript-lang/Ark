@@ -57,10 +57,11 @@ Builtins are handled with `BUILTIN id`, with `id` being the id of the builtin fu
 | `RET` (0x08) | | If in a code segment other than the main one, quit it, and push the value on top of the stack to the new stack ; should as well delete the current environment. Otherwise, acts as a `HALT` |
 | `HALT` (0x09) | | Stop the Virtual Machine |
 | `CALL` (0x0a) | number of arguments when calling the function | Call function from its symbol id located on top of the stack. Take the given number of arguments from the top of stack and give them  to the function (the first argument taken from the stack will be the last one of the function). The stack of the function is now composed of its arguments, from the first to the last one |
-| `SAVE_ENV` (0x0b) | | Used to tell the Virtual Machine to save the current environment. Main goal is to be able to handle closures, which need to save the environment in which they were created |
+| `CAPTURE` (0x0b) | symbol id (two bytes, big endian) | Used to tell the Virtual Machine to capture the variable from the current environment. Main goal is to be able to handle closures, which need to save the environment in which they were created |
 | `BUILTIN` (0x0c) | id of builtin (two bytes, big endian) | Push the builtin function object on the stack |
 | `MUT` (0x0d) | symbol id (two bytes, big endian) | Take the value on top of the stack and create a variable in the current scope, named following the given symbol id (cf symbols table) |
 | `DEL` (0x0e) | symbol id (two bytes, big endian) | Remove a variable/constant named following the given symbol id (cf symbols table) |
+| `SAVE_ENV` (0x0f) | | Save the current environment, useful for quoted code |
 | `ADD` (0x20) |  | Push `TS1 + TS` |
 | `SUB` (0x21) |  | Push `TS1 - TS` |
 | `MUL` (0x22) |  | Push `TS1 * TS` |

@@ -244,8 +244,11 @@ namespace Ark
                         os << "CALL " << termcolor::reset << "(" << readNumber(i) << ")\n";
                         i++;
                     }
-                    else if (inst == Instruction::SAVE_ENV)
-                        os << "SAVE_ENV\n";
+                    else if (inst == Instruction::CAPTURE)
+                    {
+                        os << "CAPTURE " << termcolor::reset << symbols[readNumber(i)] << "\n";
+                        i++;
+                    }
                     else if (inst == Instruction::BUILTIN)
                     {
                         os << "BUILTIN " << termcolor::reset << FFI::builtins[readNumber(i)].first << "\n";
@@ -261,6 +264,8 @@ namespace Ark
                         os << "DEL " << termcolor::green << symbols[readNumber(i)] << "\n";
                         i++;
                     }
+                    else if (inst == Instruction::SAVE_ENV)
+                        os << "SAVE_ENV\n";
                     else if (inst == Instruction::ADD)
                         os << "ADD\n";
                     else if (inst == Instruction::SUB)

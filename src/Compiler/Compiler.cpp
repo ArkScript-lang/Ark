@@ -297,11 +297,19 @@ namespace Ark
             }
             else if (n == Ark::internal::Keyword::Fun)
             {
+                // capture, if needed
+                for (Ark::internal::Node::Iterator it=x.list()[1].list().begin(); it != x.list()[1].list().end(); ++it)
+                {
+                    if (it->nodeType() == NodeType::Capture)
+                    {
+                        page(p).emplace_back(Instruction::CAPTURE);
+                        std::size_t var_id = addSymbol(it->string());
+                        pushNumber(static_cast<uint16_t>(var_id), &(page(p)));
+                    }
+                }
                 // create new page for function body
                 m_code_pages.emplace_back();
                 std::size_t page_id = m_code_pages.size() - 1;
-                // tell the Virtual Machine to save the current environment
-                page(p).emplace_back(Instruction::SAVE_ENV);
                 // load value on the stack
                 page(p).emplace_back(Instruction::LOAD_CONST);
                 std::size_t id = addValue(page_id);  // save page_id into the constants table as PageAddr
@@ -309,9 +317,12 @@ namespace Ark
                 // pushing arguments from the stack into variables in the new scope
                 for (Ark::internal::Node::Iterator it=x.list()[1].list().begin(); it != x.list()[1].list().end(); ++it)
                 {
-                    page(page_id).emplace_back(Instruction::MUT);
-                    std::size_t var_id = addSymbol(it->string());
-                    pushNumber(static_cast<uint16_t>(var_id), &(page(page_id)));
+                    if (it->nodeType() == NodeType::Symbol)
+                    {
+                        page(page_id).emplace_back(Instruction::MUT);
+                        std::size_t var_id = addSymbol(it->string());
+                        pushNumber(static_cast<uint16_t>(var_id), &(page(page_id)));
+                    }
                 }
                 // push body of the function
                 _compile(x.list()[2], page_id);

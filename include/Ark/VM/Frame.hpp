@@ -55,16 +55,26 @@ namespace Ark::internal
 
         inline bool find(uint16_t key) const
         {
-            return !(m_environment[key] == FFI::nil);
+            return !(m_environment[key] == FFI::undefined);
         }
 
-        // getters
+        // getters-setters (misc)
 
         std::size_t stackSize();
 
         std::size_t callerAddr() const;
         std::size_t callerPageAddr() const;
         std::size_t localsStart() const;
+
+        inline void setClosure(bool value)
+        {
+            m_is_closure = value;
+        }
+        
+        inline bool isClosure() const
+        {
+            return m_is_closure;
+        }
 
         friend std::ostream& operator<<(std::ostream& os, const Frame& F);
     
@@ -74,6 +84,8 @@ namespace Ark::internal
 
         std::vector<Value> m_stack;
         int8_t m_i;
+
+        bool m_is_closure;
     };
 }
 

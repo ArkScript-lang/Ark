@@ -17,6 +17,7 @@ namespace Ark::internal
         Number,
         Operator,
         Identifier,
+        Capture,
         Keyword,
         Skip,
         Comment,
@@ -26,8 +27,8 @@ namespace Ark::internal
 
     const std::vector<std::string> tokentype_string = {
         "Grouping", "String", "Number", "Operator",
-        "Identifier", "Keyword", "Skip", "Comment",
-        "Shorthand", "Mistmatch"
+        "Identifier", "Capture", "Keyword", "Skip",
+        "Comment", "Shorthand", "Mistmatch"
     };
 
     struct Token
@@ -52,6 +53,7 @@ namespace Ark::internal
         { TokenType::Number,     std::regex("^(((\\+|-)?[[:digit:]]+)([\\.|/](([[:digit:]]+)?))?)") },
         { TokenType::Operator,   std::regex("^(\\+|\\-|\\*|/|<=|>=|!=|<|>|@=|@|=|\\^)") },
         { TokenType::Identifier, std::regex("^([a-zA-Z_][a-zA-Z0-9_\\-?']*)") },
+        { TokenType::Capture,    std::regex("^(&[a-zA-Z_][a-zA-Z0-9_\\-?']*)") },
         { TokenType::Skip,       std::regex("^([\\s]+)") },
         { TokenType::Comment,    std::regex("^(#.*)") },
         { TokenType::Shorthand,  std::regex("^(['])") },

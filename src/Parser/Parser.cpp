@@ -95,7 +95,7 @@ namespace Ark
     }
 
     // sugar() was called before, so it's safe to assume we only have ( and )
-    Node Parser::parse(std::list<Token>& tokens)
+    Node Parser::parse(std::list<Token>& tokens, bool authorize_capture)
     {
         Token token = nextToken(tokens);
 
@@ -177,7 +177,9 @@ namespace Ark
                     {
                         // parse arguments
                         if (tokens.front().type == TokenType::Grouping)
-                            block.push_back(parse(tokens));
+                        {
+                            block.push_back(parse(tokens, /* authorize_capture */ true));
+                        }
                         else
                             throwParseError("invalid token to define an argument list", tokens.front());
                         // parse body
@@ -224,7 +226,8 @@ namespace Ark
                             throwParseError("invalid token: del can only be applied to identifers", tokens.front());
                     }
                 }
-                else if (token.type == TokenType::Identifier || token.type == TokenType::Operator)
+                else if (token.type == TokenType::Identifier || token.type == TokenType::Operator ||
+                        (token.type == TokenType::Capture && authorize_capture))
                 {
                     while (tokens.front().token != ")")
                         block.push_back(parse(tokens));
@@ -301,6 +304,13 @@ namespace Ark
                 return n;
             }
             throwParseError("unknown keyword", token);
+        }
+        else if (token.type == TokenType::Capture)
+        {
+            auto n = Node(NodeType::Capture);
+            n.setString(token.token);
+            n.setPos(token.line, token.col);
+            return n;
         }
 
         // assuming it is a TokenType::Identifier, thus a Symbol

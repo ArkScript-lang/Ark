@@ -100,6 +100,8 @@ namespace Ark::internal
                 os << "false";
             else if (nft == NFT::True)
                 os << "true";
+            else if (nft == NFT::Undefined)
+                os << "undefined";
             break;
         }
 
