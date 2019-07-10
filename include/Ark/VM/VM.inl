@@ -245,7 +245,7 @@ void VM_t<debug>::loadFunction(const std::string& name, internal::Value::ProcTyp
         return;
     }
 
-    registerVariable(std::distance(m_symbols.begin(), it), Value(function));
+    frontFrame()[static_cast<uint16_t>(std::distance(m_symbols.begin(), it))] = Value(function);
 }
 
 // ------------------------------------------
@@ -265,12 +265,9 @@ void VM_t<debug>::run()
     {
         m_frames.clear();
         m_frames.reserve(100);
-        m_frames.emplace_back();
+        createNewFrame();
 
         m_saved_frame.reset();
-
-        m_locals.clear();
-        m_locals.reserve(32);
 
         // loading plugins
         for (const auto& file: m_plugins)
@@ -306,7 +303,7 @@ void VM_t<debug>::run()
                     if constexpr (debug)
                         Ark::logger.info("Loading", kv.first);
 
-                    registerVariable(std::distance(m_symbols.begin(), it), Value(kv.second));
+                    frontFrame()[static_cast<uint16_t>(std::distance(m_symbols.begin(), it))] = Value(kv.second);
                 }
             }
         }
@@ -411,16 +408,6 @@ void VM_t<debug>::run()
         }
     /*} catch (const std::exception& e) {
         std::cout << "At IP: " << m_ip << ", PP: " << m_pp << "\n";
-        std::cout << "Locals:\n";
-        int count = 0;
-        for (auto&& p: m_locals)
-        {
-            std::cout << p.first << " -> " << p.second << "\n";
-
-            count++;
-
-            // if (count > 10) { std::cout << "...\n"; break; }
-        }
         std::cout << e.what() << std::endl;
     }*/
 }
@@ -433,20 +420,20 @@ template<bool debug>
 inline internal::Value&& VM_t<debug>::pop(int page)
 {
     if (page == -1)
-        return m_frames.back().pop();
-    return m_frames[static_cast<std::size_t>(page)].pop();
+        return m_frames.back()->pop();
+    return m_frames[static_cast<std::size_t>(page)]->pop();
 }
 
 template<bool debug>
 void VM_t<debug>::push(const internal::Value& value)
 {
-    m_frames.back().push(value);
+    m_frames.back()->push(value);
 }
 
 template<bool debug>
 inline void VM_t<debug>::push(internal::Value&& value)
 {
-    m_frames.back().push(value);
+    m_frames.back()->push(std::move(value));
 }
 
 // ------------------------------------------
@@ -466,12 +453,13 @@ inline void VM_t<debug>::loadSymbol()
     if constexpr (debug)
         Ark::logger.info("LOAD_SYMBOL ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
 
-    if (auto var = findNearestVariable(id))
+    for (auto it=m_frames.rbegin(); it != m_frames.rend(); ++it)
     {
-        push(*var.value());
-        m_last_sym_loaded.first = id;
-        m_last_sym_loaded.second = var.value();
-        return;
+        if ((*it)->find(id))
+        {
+            push((**it)[id]);
+            return;
+        }
     }
 
     throwVMError("couldn't find symbol to load: " + m_symbols[id]);
@@ -495,13 +483,10 @@ inline void VM_t<debug>::loadConst()
     
     if (m_saved_frame && m_constants[id].valueType() == ValueType::PageAddr)
     {
-        push(Value(
-            Closure(
-                m_constants[id].pageAddr(),
-                m_locals.begin() + m_frames.back().localsStart(),
-                m_locals.end()
-            )
-        ));
+        if constexpr (debug)
+            Ark::logger.info("Pushing closure");
+        
+        push(Value(Closure(m_frames[m_saved_frame.value()], m_constants[id].pageAddr())));
         m_saved_frame.reset();
     }
     else
@@ -545,10 +530,13 @@ inline void VM_t<debug>::store()
     if constexpr (debug)
         Ark::logger.info("STORE ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
 
-    if (auto var = findNearestVariable(id))
+    for (auto it=m_frames.rbegin(); it != m_frames.rend(); ++it)
     {
-        *var.value() = pop();
-        return;
+        if ((*it)->find(id) && !(**it)[id].isConst())
+        {
+            (**it)[id] = pop();
+            return;
+        }
     }
 
     throwVMError("couldn't find symbol: " + m_symbols[id]);
@@ -571,10 +559,11 @@ inline void VM_t<debug>::let()
         Ark::logger.info("LET ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
     
     // check if we are redefining a variable
-    if (findInCurrentScope(id))
+    if (backFrame().find(id))
         throwVMError("can not use 'let' to redefine a symbol");
 
-    registerVariable(id, pop()).setConst(true);
+    backFrame()[id] = pop();
+    backFrame()[id].setConst(true);
 }
 
 template<bool debug>
@@ -638,39 +627,18 @@ inline void VM_t<debug>::ret()
 
     // save pp
     PageAddr_t old_pp = static_cast<PageAddr_t>(m_pp);
-    m_pp = m_frames.back().callerPageAddr();
-    m_ip = m_frames.back().callerAddr();
+    m_pp = m_frames.back()->callerPageAddr();
+    m_ip = m_frames.back()->callerAddr();
 
     auto rm_frame = [this] () -> void {
-        auto locals_start = m_frames.back().localsStart();
-        // save env if needed
-        if (auto id = m_frames.back().getClosure())
-        {
-            if (id.value().second->valueType() == ValueType::Closure)
-            {
-                if constexpr (debug)
-                    Ark::logger.warn("Saving data back into the closure:", m_symbols[id.value().first]);
-                Value* closure = id.value().second;
-                if constexpr (debug)
-                {
-                    for (auto it=m_locals.begin() + locals_start; it != m_locals.end(); ++it)
-                        Ark::logger.data(m_symbols[it->first].c_str(), it->first, "=>", it->second);
-                }
-                closure->closure_ref().save(m_locals.begin() + locals_start, m_locals.end());
-                if constexpr (debug)
-                {
-                    for (auto&& id_val: closure->closure_ref().bindedVars())
-                        Ark::logger.data(m_symbols[id_val.first].c_str(), id_val.first, "=>", id_val.second);
-                }
-            }
-        }
         // remove frame
         m_frames.pop_back();
-        // clear locals
-        m_locals.erase(m_locals.begin() + locals_start, m_locals.end());
+        // next frame is the one of the closure
+        // remove it
+        m_frames.pop_back();
     };
     
-    if (m_frames.back().stackSize() != 0)
+    if (m_frames.back()->stackSize() != 0)
     {
         Value return_value(pop());
         rm_frame();
@@ -719,13 +687,13 @@ inline void VM_t<debug>::call()
         }
 
         // is it a user defined function?
-        case ValueType::PageAddr:
+        /*case ValueType::PageAddr:
         {
             int old_frame = m_frames.size() - 1;
             auto new_page_pointer = function.pageAddr();
 
             // create dedicated frame
-            m_frames.emplace_back(m_ip, m_pp, m_locals.size());
+            m_frames.emplace_back(std::make_shared<Frame>(m_symbols.size(), m_ip, m_pp));
             // store "reference" to the function
             if (!findInCurrentScope(m_last_sym_loaded.first))
                 registerVariable(m_last_sym_loaded.first, std::move(function));
@@ -735,7 +703,7 @@ inline void VM_t<debug>::call()
             for (std::size_t j=0; j < argc; ++j)
                 push(pop(old_frame));
             return;
-        }
+        }*/
 
         // is it a user defined closure?
         case ValueType::Closure:
@@ -744,21 +712,10 @@ inline void VM_t<debug>::call()
             Closure c = function.closure();
             auto new_page_pointer = c.pageAddr();
 
+            // load saved frame
+            m_frames.push_back(c.frame());
             // create dedicated frame
-            m_frames.emplace_back(m_ip, m_pp, m_locals.size());
-            if constexpr (debug)
-                Ark::logger.data("Saving closure: {0} ({1})"s, m_symbols[m_last_sym_loaded.first], m_last_sym_loaded.first);
-            m_frames.back().setClosure(m_last_sym_loaded);
-            // store "reference" to the function
-            if (!findInCurrentScope(m_last_sym_loaded.first))
-                registerVariable(m_last_sym_loaded.first, std::move(function));
-            // copy variables captured by the closure to the "execution scope"
-            for (auto&& id_val: c.bindedVars())
-            {
-                if constexpr (debug)
-                    Ark::logger.data(m_symbols[id_val.first].c_str(), "=>", id_val.second);
-                registerVariable(id_val.first, id_val.second);
-            }
+            m_frames.emplace_back(std::make_shared<Frame>(m_symbols.size(), m_ip, m_pp));
 
             m_pp = new_page_pointer;
             m_ip = -1;  // because we are doing a m_ip++ right after that
@@ -818,7 +775,7 @@ inline void VM_t<debug>::mut()
     if constexpr (debug)
         Ark::logger.info("MUT ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
 
-    registerVariable(id, pop());
+    backFrame()[id] = pop();
 }
 
 template<bool debug>
@@ -836,10 +793,14 @@ inline void VM_t<debug>::del()
     if constexpr (debug)
         Ark::logger.info("DEL ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
     
-    if (auto var = findNearestVariable(id))
+    for (auto it=m_frames.rbegin(); it != m_frames.rend(); ++it)
     {
-        *var.value() = FFI::nil;
-        return;
+        if ((*it)->find(id))
+        {
+            // delete it
+            (**it)[id] = FFI::nil;
+            return;
+        }
     }
 
     throwVMError("couldn't find symbol: " + m_symbols[id]);

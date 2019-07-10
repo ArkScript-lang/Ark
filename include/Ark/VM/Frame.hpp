@@ -4,12 +4,11 @@
 #include <iostream>
 #include <cinttypes>
 #include <vector>
-#include <optional>
-#include <utility>
 
 #include <Ark/VM/Value.hpp>
 #include <Ark/Compiler/BytecodeReader.hpp>
 #include <Ark/Constants.hpp>
+#include <Ark/VM/FFI.hpp>
 
 namespace Ark::internal
 {
@@ -23,9 +22,9 @@ namespace Ark::internal
     class Frame
     {
     public:
-        Frame();
+        Frame(std::size_t length=16);
         Frame(const Frame&) = default;
-        Frame(std::size_t caller_addr, std::size_t caller_page_addr, std::size_t locals_start);
+        Frame(std::size_t length, std::size_t caller_addr, std::size_t caller_page_addr);
 
         // stack related
 
@@ -47,16 +46,16 @@ namespace Ark::internal
             m_i++;
         }
 
-        // closure related, to be able to save locals
+        // environment related
 
-        inline void setClosure(const std::pair<uint16_t, Value*>& closure_id)
+        inline Value& operator[](uint16_t key)
         {
-            m_closure = closure_id;
+            return m_environment[key];
         }
 
-        inline const std::optional<std::pair<uint16_t, Value*>>& getClosure()
+        inline bool find(uint16_t key) const
         {
-            return m_closure;
+            return !(m_environment[key] == FFI::nil);
         }
 
         // getters
@@ -71,11 +70,10 @@ namespace Ark::internal
     
     private:
         std::size_t m_addr, m_page_addr, m_locals_start;
+        std::vector<Value> m_environment;
 
         std::vector<Value> m_stack;
         int8_t m_i;
-
-        std::optional<std::pair<uint16_t,Value*>> m_closure;
     };
 }
 

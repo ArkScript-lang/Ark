@@ -53,8 +53,7 @@ namespace Ark
         std::vector<bytecode_t> m_pages;
 
         // related to the execution
-        std::vector<std::pair<uint16_t, internal::Value>> m_locals;
-        std::vector<internal::Frame> m_frames;
+        std::vector<std::shared_ptr<internal::Frame>> m_frames;
         std::optional<std::size_t> m_saved_frame;
 
         void configure();
@@ -66,42 +65,12 @@ namespace Ark
             return x + y;
         }
 
-        // variables and locals management
+        // frames related
 
-        inline std::optional<internal::Value*> findNearestVariable(uint16_t id, std::size_t offset=0)
-        {
-            for (auto it=m_locals.rbegin() + offset; it != m_locals.rend(); ++it)
-            {
-                if (it->first == id)
-                {
-                    if (it->second == internal::FFI::nil)
-                        return {};
-                    return &(it->second);
-                }
-            }
-            return {};
-        }
-
-        inline bool findInCurrentScope(uint16_t id)
-        {
-            int stop = m_frames.back().localsStart();
-            for (int i=m_locals.size() - 1; i >= stop; i--)
-            {
-                if (m_locals[i].first == id)
-                    return true;
-            }
-            return false;
-        }
-
-        inline internal::Value& registerVariable(uint16_t id, internal::Value&& value)
-        {
-            return m_locals.emplace_back(id, value).second;
-        }
-
-        inline internal::Value& registerVariable(uint16_t id, const internal::Value& value)
-        {
-            return m_locals.emplace_back(id, value).second;
-        }
+        inline internal::Frame& frontFrame() { return *m_frames.front(); }
+        inline internal::Frame& backFrame()  { return *m_frames.back();  }
+        inline internal::Frame& frameAt(std::size_t i) { return *m_frames[i]; }
+        inline void createNewFrame() { m_frames.push_back(std::make_shared<internal::Frame>(m_symbols.size())) ; }
 
         // error handling
 

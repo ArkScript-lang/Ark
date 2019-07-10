@@ -5,34 +5,17 @@
 namespace Ark::internal
 {
     Closure::Closure() :
+        m_frame(nullptr),
         m_page_addr(0)
     {}
 
-    Closure::Closure(PageAddr_t pa, Scope_t::iterator begin, Scope_t::iterator end) :
+    Closure::Closure(const std::shared_ptr<Frame>& frame_ptr, PageAddr_t pa) :
+        m_frame(frame_ptr),
         m_page_addr(pa)
-    {
-        while (begin != end)
-        {
-            m_binded_vars.push_back(*begin);
-            begin++;
-        }
-    }
+    {}
 
-    const Closure::Scope_t& Closure::bindedVars() const
+    const std::shared_ptr<Frame>& Closure::frame() const
     {
-        return m_binded_vars;
-    }
-
-    void Closure::save(Scope_t::iterator begin, Scope_t::iterator end)
-    {
-        while (begin != end)
-        {
-            for (auto& id_val: m_binded_vars)
-            {
-                if (id_val.first == begin->first)
-                    id_val.second = begin->second;
-            }
-            begin++;
-        }
+        return m_frame;
     }
 }
