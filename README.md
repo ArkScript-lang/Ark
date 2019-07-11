@@ -21,33 +21,30 @@ Documentation: [doc/main.md](doc/main.md)
 
 ```clojure
 {
-    (let create-human (fun (name age weight)
+    (let create-human (fun (name age weight) {
         # return value as higher order function to manipulate the data above
         # this will be our "constructor"
-        (fun (f)
-        {
-            # all the setters must be defined in this scope
-            (let set-age (fun (new-age) (set age new-age)))
-
+        (fun (f new-age &name &age &weight) {
             # and then we can call the function
-            (f name age weight set-age)
+            (if (nil? new-age)
+                (f name age weight)
+                (set age new-age)
+            )
         })
-    ))
+    }))
 
     # define function to play with the human more easily
-    (let print-human-age (fun (_ age _ _) (print age)))
-    (let set-human-age (fun (new-age)
-        (fun (_ _ _ set-age) (set-age new-age))
-    ))
+    (let print-human-age (fun (_ age _) (print age)))
 
     (let bob (create-human "Bob" 0 144))
     (let john (create-human "John" 12 15))
 
-    (bob print-human-age)   # prints 0
-    (bob (set-human-age 10))
-    (bob print-human-age)   # prints 10
+    (bob print-human-age)
+    # set age, quite ugly
+    (bob nil 10)
+    (bob print-human-age)
 
-    (john print-human-age)  # prints 12
+    (john print-human-age)
 }
 ```
 
@@ -104,7 +101,6 @@ OPTIONS
         -c, --compile               Compile file
         -o, --output                Set the output filename for the compiler
         -vm                         Start the VM on the given file
-        --count-fcalls              Count functions calls and display result at the end of the execution
         -bcr, --bytecode-reader     Launch the bytecode reader
         -d, --debug                 Trigger debug mode
         -t, --time                  Launch a timer

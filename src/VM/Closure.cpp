@@ -5,17 +5,22 @@
 namespace Ark::internal
 {
     Closure::Closure() :
-        m_frame(nullptr),
+        m_scope(nullptr),
         m_page_addr(0)
     {}
 
-    Closure::Closure(const std::shared_ptr<Frame>& frame_ptr, PageAddr_t pa) :
-        m_frame(frame_ptr),
+    Closure::Closure(Closure::Scope_t&& scope_ptr, PageAddr_t pa) :
+        m_scope(scope_ptr),
         m_page_addr(pa)
     {}
 
-    const std::shared_ptr<Frame>& Closure::frame() const
+    Closure::Closure(const Closure::Scope_t& scope_ptr, PageAddr_t pa) :
+        m_scope(scope_ptr),
+        m_page_addr(pa)
+    {}
+
+    const Closure::Scope_t& Closure::scope() const
     {
-        return m_frame;
+        return m_scope;
     }
 }

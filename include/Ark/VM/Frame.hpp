@@ -16,15 +16,13 @@ namespace Ark::internal
         A frame should hold:
         - its own stack
         - a return address to a possible caller (if it's a function's frame)
-        - a counter of the var stack to know how many variables
-            we should delete when returning
     */
     class Frame
     {
     public:
-        Frame(std::size_t length=16);
+        Frame();
         Frame(const Frame&) = default;
-        Frame(std::size_t length, std::size_t caller_addr, std::size_t caller_page_addr);
+        Frame(std::size_t caller_addr, std::size_t caller_page_addr);
 
         // stack related
 
@@ -46,25 +44,22 @@ namespace Ark::internal
             m_i++;
         }
 
-        // environment related
-
-        inline Value& operator[](uint16_t key)
-        {
-            return m_environment[key];
-        }
-
-        inline bool find(uint16_t key) const
-        {
-            return !(m_environment[key] == FFI::undefined);
-        }
-
         // getters-setters (misc)
 
-        std::size_t stackSize();
+        inline std::size_t stackSize() const
+        {
+            return m_i;
+        }
 
-        std::size_t callerAddr() const;
-        std::size_t callerPageAddr() const;
-        std::size_t localsStart() const;
+        inline std::size_t callerAddr() const
+        {
+            return m_addr;
+        }
+
+        inline std::size_t callerPageAddr() const
+        {
+            return m_page_addr;
+        }
 
         inline void setClosure(bool value)
         {
@@ -79,8 +74,8 @@ namespace Ark::internal
         friend std::ostream& operator<<(std::ostream& os, const Frame& F);
     
     private:
-        std::size_t m_addr, m_page_addr, m_locals_start;
-        std::vector<Value> m_environment;
+        //              IP,          PP
+        std::size_t m_addr, m_page_addr;
 
         std::vector<Value> m_stack;
         int8_t m_i;

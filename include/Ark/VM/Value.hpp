@@ -122,6 +122,11 @@ namespace Ark::internal
         
         return A.m_value == B.m_value;
     }
+
+    inline bool operator!=(const Value& A, const Value& B)
+    {
+        return !(A == B);
+    }
 }
 
 #endif

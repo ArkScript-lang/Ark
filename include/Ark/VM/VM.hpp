@@ -43,7 +43,7 @@ namespace Ark
         std::size_t m_pp;
         bool m_running;
         std::string m_filename;
-        std::pair<uint16_t, internal::Value*> m_last_sym_loaded;
+        uint16_t m_last_sym_loaded;
 
         // related to the bytecode
         std::vector<std::string> m_symbols;
@@ -53,8 +53,9 @@ namespace Ark
         std::vector<bytecode_t> m_pages;
 
         // related to the execution
-        std::vector<std::shared_ptr<internal::Frame>> m_frames;
-        std::optional<std::shared_ptr<internal::Frame>> m_saved_frame;
+        std::vector<internal::Frame> m_frames;
+        std::optional<internal::Closure::Scope_t> m_saved_scope;
+        std::vector<internal::Closure::Scope_t> m_locals;
 
         void configure();
 
@@ -65,12 +66,65 @@ namespace Ark
             return x + y;
         }
 
-        // frames related
+        // locals related
 
-        inline internal::Frame& frontFrame() { return *m_frames.front(); }
-        inline internal::Frame& backFrame()  { return *m_frames.back();  }
-        inline internal::Frame& frameAt(std::size_t i) { return *m_frames[i]; }
-        inline void createNewFrame() { m_frames.push_back(std::make_shared<internal::Frame>(m_symbols.size())) ; }
+        template <int pp=-1>
+        inline internal::Value& registerVariable(uint16_t id, internal::Value&& value)
+        {
+            if constexpr (pp == -1)
+                return (*m_locals.back())[id] = value;
+            return (*m_locals[pp])[id] = value;
+        }
+
+        template <int pp=-1>
+        inline internal::Value& registerVariable(uint16_t id, const internal::Value& value)
+        {
+            if constexpr (pp == -1)
+                return (*m_locals.back())[id] = value;
+            return (*m_locals[pp])[id] = value;
+        }
+
+        inline internal::Value* findNearestVariable(uint16_t id)
+        {
+            const std::size_t s = m_symbols.size();
+            for (auto it=m_locals.rbegin(); it != m_locals.rend(); ++it)
+            {
+                if ((**it)[id] != internal::FFI::undefined)
+                    return &(**it)[id];
+            }
+            return nullptr;
+        }
+
+        template<int pp=-1>
+        inline internal::Value& getVariableInScope(uint16_t id)
+        {
+            if constexpr (pp == -1)
+                return (*m_locals.back())[id];
+            return (*m_locals[pp])[id];
+        }
+
+        inline void returnFromFuncCall()
+        {
+            // remove frame
+            bool is_closure = m_frames.back().isClosure();
+            m_frames.pop_back();
+            m_locals.pop_back();
+            if (is_closure)
+            {
+                // next environment is the one of the closure
+                // remove it
+                m_locals.pop_back();
+            }
+        }
+
+        inline void createNewScope()
+        {
+            m_locals.emplace_back(
+                std::make_shared<std::vector<internal::Value>>(
+                    m_symbols.size(), internal::FFI::undefined
+                )
+            );
+        }
 
         // error handling
 

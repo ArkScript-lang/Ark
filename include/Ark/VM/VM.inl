@@ -1,6 +1,6 @@
 template<bool debug>
 VM_t<debug>::VM_t(bool persist) :
-    m_persist(persist), m_ip(0), m_pp(0), m_running(false), m_filename("FILE"), m_last_sym_loaded({0, nullptr})
+    m_persist(persist), m_ip(0), m_pp(0), m_running(false), m_filename("FILE"), m_last_sym_loaded(0)
 {}
 
 // ------------------------------------------
@@ -76,13 +76,13 @@ void VM_t<debug>::configure()
     using timestamp_t = unsigned long long;
     timestamp_t timestamp = 0;
     auto aa = (static_cast<timestamp_t>(m_bytecode[  i]) << 56),
-            ba = (static_cast<timestamp_t>(m_bytecode[++i]) << 48),
-            ca = (static_cast<timestamp_t>(m_bytecode[++i]) << 40),
-            da = (static_cast<timestamp_t>(m_bytecode[++i]) << 32),
-            ea = (static_cast<timestamp_t>(m_bytecode[++i]) << 24),
-            fa = (static_cast<timestamp_t>(m_bytecode[++i]) << 16),
-            ga = (static_cast<timestamp_t>(m_bytecode[++i]) <<  8),
-            ha = (static_cast<timestamp_t>(m_bytecode[++i]));
+        ba = (static_cast<timestamp_t>(m_bytecode[++i]) << 48),
+        ca = (static_cast<timestamp_t>(m_bytecode[++i]) << 40),
+        da = (static_cast<timestamp_t>(m_bytecode[++i]) << 32),
+        ea = (static_cast<timestamp_t>(m_bytecode[++i]) << 24),
+        fa = (static_cast<timestamp_t>(m_bytecode[++i]) << 16),
+        ga = (static_cast<timestamp_t>(m_bytecode[++i]) <<  8),
+        ha = (static_cast<timestamp_t>(m_bytecode[++i]));
     i++;
     timestamp = aa + ba + ca + da + ea + fa + ga + ha;
 
@@ -236,7 +236,7 @@ void VM_t<debug>::loadFunction(const std::string& name, internal::Value::ProcTyp
 {
     using namespace Ark::internal;
 
-    // put it in the global frame, aka the first one
+    // put it in the global frame if we can, aka the first one
     auto it = std::find(m_symbols.begin(), m_symbols.end(), name);
     if (it == m_symbols.end())
     {
@@ -245,7 +245,7 @@ void VM_t<debug>::loadFunction(const std::string& name, internal::Value::ProcTyp
         return;
     }
 
-    frontFrame()[static_cast<uint16_t>(std::distance(m_symbols.begin(), it))] = Value(function);
+    registerVariable<0>(std::distance(m_symbols.begin(), it), Value(function));
 }
 
 // ------------------------------------------
@@ -264,10 +264,12 @@ void VM_t<debug>::run()
     if (!m_persist)
     {
         m_frames.clear();
-        m_frames.reserve(100);
-        createNewFrame();
+        m_frames.emplace_back();
 
-        m_saved_frame.reset();
+        m_saved_scope.reset();
+
+        m_locals.clear();
+        createNewScope();
 
         // loading plugins
         for (const auto& file: m_plugins)
@@ -303,7 +305,7 @@ void VM_t<debug>::run()
                     if constexpr (debug)
                         Ark::logger.info("Loading", kv.first);
 
-                    frontFrame()[static_cast<uint16_t>(std::distance(m_symbols.begin(), it))] = Value(kv.second);
+                    registerVariable<0>(std::distance(m_symbols.begin(), it), Value(kv.second));
                 }
             }
         }
@@ -413,6 +415,20 @@ void VM_t<debug>::run()
     /*} catch (const std::exception& e) {
         std::cout << "At IP: " << m_ip << ", PP: " << m_pp << "\n";
         std::cout << e.what() << std::endl;
+        std::cout << "Locals:\n";
+        int count = 0;
+        for (auto&& e: m_locals)
+        {
+            for (auto&& p: *e)
+            {
+                if (p == FFI::undefined)
+                    continue;
+                
+                std::cout << p << "\n";
+                count++;
+                // if (count > 10) { std::cout << "...\n"; break; }
+            }
+        }
     }*/
 }
 
@@ -424,20 +440,20 @@ template<bool debug>
 inline internal::Value&& VM_t<debug>::pop(int page)
 {
     if (page == -1)
-        return m_frames.back()->pop();
-    return m_frames[static_cast<std::size_t>(page)]->pop();
+        return m_frames.back().pop();
+    return m_frames[static_cast<std::size_t>(page)].pop();
 }
 
 template<bool debug>
 void VM_t<debug>::push(const internal::Value& value)
 {
-    m_frames.back()->push(value);
+    m_frames.back().push(value);
 }
 
 template<bool debug>
 inline void VM_t<debug>::push(internal::Value&& value)
 {
-    m_frames.back()->push(std::move(value));
+    m_frames.back().push(std::move(value));
 }
 
 // ------------------------------------------
@@ -457,13 +473,12 @@ inline void VM_t<debug>::loadSymbol()
     if constexpr (debug)
         Ark::logger.info("LOAD_SYMBOL ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
 
-    for (auto it=m_frames.rbegin(); it != m_frames.rend(); ++it)
+    auto var = findNearestVariable(id);
+    if (var != nullptr)
     {
-        if ((*it)->find(id))
-        {
-            push((**it)[id]);
-            return;
-        }
+        push(*var);
+        m_last_sym_loaded = id;
+        return;
     }
 
     throwVMError("couldn't find symbol to load: " + m_symbols[id]);
@@ -485,13 +500,10 @@ inline void VM_t<debug>::loadConst()
     if constexpr (debug)
         Ark::logger.info("LOAD_CONST ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
     
-    if (m_saved_frame && m_constants[id].valueType() == ValueType::PageAddr)
+    if (m_saved_scope && m_constants[id].valueType() == ValueType::PageAddr)
     {
-        if constexpr (debug)
-            Ark::logger.info("Pushing closure with frame:", (*m_saved_frame.value()));
-        
-        push(Value(Closure(m_saved_frame.value(), m_constants[id].pageAddr())));
-        m_saved_frame.reset();
+        push(Value(Closure(m_saved_scope.value(), m_constants[id].pageAddr())));
+        m_saved_scope.reset();
     }
     else
         push(m_constants[id]);
@@ -534,20 +546,12 @@ inline void VM_t<debug>::store()
     if constexpr (debug)
         Ark::logger.info("STORE ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
 
-    for (auto it=m_frames.rbegin(); it != m_frames.rend(); ++it)
+    auto var = findNearestVariable(id);
+    if (var != nullptr)
     {
-        if ((*it)->find(id))
-        {
-            if ((**it)[id].isConst())
-                throwVMError("can not modify " + m_symbols[id] + ", it's a constant");
-
-            (**it)[id] = pop();
-            return;
-        }
+        *var = pop();
+        return;
     }
-
-    if constexpr (debug)
-        Ark::logger.data(*m_frames.back());
 
     throwVMError("couldn't find symbol: " + m_symbols[id]);
 }
@@ -569,11 +573,10 @@ inline void VM_t<debug>::let()
         Ark::logger.info("LET ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
     
     // check if we are redefining a variable
-    if (backFrame().find(id))
+    if (getVariableInScope(id) != FFI::undefined)
         throwVMError("can not use 'let' to redefine a symbol");
 
-    backFrame()[id] = pop();
-    backFrame()[id].setConst(true);
+    registerVariable(id, pop()).setConst(true);
 }
 
 template<bool debug>
@@ -637,30 +640,18 @@ inline void VM_t<debug>::ret()
 
     // save pp
     PageAddr_t old_pp = static_cast<PageAddr_t>(m_pp);
-    m_pp = m_frames.back()->callerPageAddr();
-    m_ip = m_frames.back()->callerAddr();
-
-    auto rm_frame = [this] () -> void {
-        // remove frame
-        bool is_closure = backFrame().isClosure();
-        m_frames.pop_back();
-        if (is_closure)
-        {
-            // next frame is the one of the closure
-            // remove it
-            m_frames.pop_back();
-        }
-    };
+    m_pp = m_frames.back().callerPageAddr();
+    m_ip = m_frames.back().callerAddr();
     
-    if (m_frames.back()->stackSize() != 0)
+    if (m_frames.back().stackSize() != 0)
     {
         Value return_value(pop());
-        rm_frame();
+        returnFromFuncCall();
         // push value as the return value of a function to the current stack
         push(return_value);
     }
     else
-        rm_frame();
+        returnFromFuncCall();
 }
 
 template<bool debug>
@@ -707,9 +698,10 @@ inline void VM_t<debug>::call()
             auto new_page_pointer = function.pageAddr();
 
             // create dedicated frame
-            m_frames.emplace_back(std::make_shared<Frame>(m_symbols.size(), m_ip, m_pp));
+            createNewScope();
+            m_frames.emplace_back(m_ip, m_pp);
             // store "reference" to the function to speed the recursive functions
-            backFrame()[m_last_sym_loaded.first] = function;
+            registerVariable(m_last_sym_loaded, function);
 
             m_pp = new_page_pointer;
             m_ip = -1;  // because we are doing a m_ip++ right after that
@@ -725,11 +717,12 @@ inline void VM_t<debug>::call()
             Closure c = function.closure();
             auto new_page_pointer = c.pageAddr();
 
-            // load saved frame
-            m_frames.push_back(c.frame());
+            // load saved scope
+            m_locals.push_back(c.scope());
             // create dedicated frame
-            m_frames.emplace_back(std::make_shared<Frame>(m_symbols.size(), m_ip, m_pp));
-            backFrame().setClosure(true);
+            createNewScope();
+            m_frames.emplace_back(m_ip, m_pp);
+            m_frames.back().setClosure(true);
 
             m_pp = new_page_pointer;
             m_ip = -1;  // because we are doing a m_ip++ right after that
@@ -760,9 +753,12 @@ inline void VM_t<debug>::capture()
     if constexpr (debug)
         Ark::logger.info("CAPTURE ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
 
-    if (!m_saved_frame)
-        m_saved_frame = std::make_shared<Frame>(m_symbols.size());
-    (*m_saved_frame.value())[id] = backFrame()[id];
+    if (!m_saved_scope)
+    {
+        m_saved_scope = std::make_shared<std::vector<Value>>();
+        m_saved_scope.value()->reserve(m_symbols.size());
+    }
+    (*m_saved_scope.value())[id] = getVariableInScope(id);
 }
 
 template<bool debug>
@@ -800,10 +796,10 @@ inline void VM_t<debug>::mut()
         Ark::logger.info("MUT ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
 
     // if stack is empty, MUT id has no effect
-    if (backFrame().stackSize() != 0)
-        backFrame()[id] = pop();
+    if (m_frames.back().stackSize() != 0)
+        registerVariable(id, pop());
     else
-        backFrame()[id] = FFI::nil;
+        registerVariable(id, FFI::nil);
 }
 
 template<bool debug>
@@ -821,14 +817,11 @@ inline void VM_t<debug>::del()
     if constexpr (debug)
         Ark::logger.info("DEL ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
     
-    for (auto it=m_frames.rbegin(); it != m_frames.rend(); ++it)
+    auto var = findNearestVariable(id);
+    if (var != nullptr)
     {
-        if ((*it)->find(id))
-        {
-            // delete it
-            (**it)[id] = FFI::nil;
-            return;
-        }
+        *var = FFI::nil;
+        return;
     }
 
     throwVMError("couldn't find symbol: " + m_symbols[id]);
@@ -841,7 +834,7 @@ inline void VM_t<debug>::saveEnv()
         Argument: none
         Job: Save the current environment, useful for quoted code
     */
-    m_saved_frame = m_frames.back();
+    m_saved_scope = m_locals.back();
 }
 
 template<bool debug>
