@@ -5,7 +5,7 @@
 
 <img align="right" src="images/Ark.png" width=200px>
 
-Documentation: [doc/main.md](doc/main.md)
+* Documentation: [doc/main.md](doc/main.md)
 
 ## Key features
 
@@ -60,7 +60,7 @@ Don't know what to work on? No worries, we have a [list of things to do](https:/
 
 ## Notes
 
-* The execution of some programs is slower than expected, due to some operators being used like functions, but we are working on it, a brand new FFI is coming soon!
+* The execution of some programs is slower than expected, because the variable stack isn't optimized yet but we are working on it!
 * The language is a bit limited in term of what it can do, because we are working on performance improvement and some brand new features, but adding builtin functions and operators is easy, so we will work on that as soon as possible
 
 ## Dependencies
@@ -93,7 +93,7 @@ SYNOPSIS
         build/Ark -h 
         build/Ark --version 
         build/Ark --dev-info 
-        build/Ark <file> [-c] [-o <out>] [-vm] [--count-fcalls] [-bcr] [-d] [-t] 
+        build/Ark <file> [-c] [-o <out>] [-vm] [-bcr] [-d] [-t] 
 
 OPTIONS
         -h, --help                  Display this help message
