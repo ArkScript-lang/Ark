@@ -314,7 +314,7 @@ void VM_t<debug>::run()
     if constexpr (debug)
         Ark::logger.info("Starting at PP:{0}, IP:{1}"s, m_pp, m_ip);
 
-    //try {
+    try {
         m_running = true;
         while (m_running)
         {
@@ -412,7 +412,7 @@ void VM_t<debug>::run()
             // move forward
             ++m_ip;
         }
-    /*} catch (const std::exception& e) {
+    } catch (const std::exception& e) {
         std::cout << "At IP: " << m_ip << ", PP: " << m_pp << "\n";
         std::cout << e.what() << std::endl;
         std::cout << "Locals:\n";
@@ -429,7 +429,7 @@ void VM_t<debug>::run()
                 // if (count > 10) { std::cout << "...\n"; break; }
             }
         }
-    }*/
+    }
 }
 
 // ------------------------------------------
