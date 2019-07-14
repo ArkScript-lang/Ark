@@ -32,7 +32,8 @@ namespace Ark::internal
             MUT = 0x0d,
             DEL = 0x0e,
             SAVE_ENV = 0x0f,
-        LAST_COMMAND = 0x0f,
+            GET_FIELD = 0x10,
+        LAST_COMMAND = 0x10,
 
         FIRST_OPERATOR = 0x20,
             ADD = 0x20,

@@ -26,7 +26,10 @@ namespace Ark
 
         // apply syntactic sugar
         std::vector<Token> t = m_lexer.tokens();
+        if (t.empty())
+            throwParseError_("Invalid syntax: empty code");
         sugar(t);
+
         if (m_debug)
         {
             Ark::logger.info("(Parser) After applying sugar:");
@@ -50,6 +53,7 @@ namespace Ark
         }
         // create program and raise error if it can't
         std::list<Token> tokens(t.begin(), t.end());
+        m_last_token = tokens.front();
         m_ast = parse(tokens);
         // include files if needed
         checkForInclude(m_ast);
@@ -95,7 +99,7 @@ namespace Ark
     }
 
     // sugar() was called before, so it's safe to assume we only have ( and )
-    Node Parser::parse(std::list<Token>& tokens, bool authorize_capture)
+    Node Parser::parse(std::list<Token>& tokens, bool authorize_capture, bool authorize_field_read)
     {
         Token token = nextToken(tokens);
 
@@ -106,16 +110,16 @@ namespace Ark
             Node block(NodeType::List);
             block.setPos(token.line, token.col);
 
+            // return an empty block
+            if (token.token == ")")
+                return block;
+
             // handle sub-blocks
             if (tokens.front().token == "(")
                 block.push_back(parse(tokens));
 
             // take next token, we don't want to play with a "("
             token = nextToken(tokens);
-
-            // return an empty block
-            if (token.token == ")")
-                return block;
 
             // loop until we reach the end of the block
             do
@@ -227,10 +231,11 @@ namespace Ark
                     }
                 }
                 else if (token.type == TokenType::Identifier || token.type == TokenType::Operator ||
-                        (token.type == TokenType::Capture && authorize_capture))
+                        (token.type == TokenType::Capture && authorize_capture) ||
+                        (token.type == TokenType::GetField && authorize_field_read))
                 {
                     while (tokens.front().token != ")")
-                        block.push_back(parse(tokens));
+                        block.push_back(parse(tokens /* authorize_capture */ false, /* authorize_field_read */ true));
                 }
                 else
                     throwParseError("can not create block from token", token);
@@ -260,6 +265,9 @@ namespace Ark
 
     Token Parser::nextToken(std::list<Token>& tokens)
     {
+        except(!tokens.empty(), "Invalid syntax: no more token to consume", m_last_token);
+        m_last_token = tokens.front();
+
         const Token out = std::move(tokens.front());
         tokens.pop_front();
         return out;

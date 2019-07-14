@@ -15,6 +15,7 @@ namespace Ark::internal
     {
         Symbol,
         Capture,
+        FieldRead,
         Keyword,
         String,
         Number,
@@ -99,7 +100,7 @@ namespace Ark::internal
     {
         // must have the same order as the enum class NodeType L17
         static const std::vector<std::string> nodetype_str = {
-            "Symbol", "Keyword", "String", "Number", "List", "Closure"
+            "Symbol", "Capture", "FieldRead", "Keyword", "String", "Number", "List", "Closure"
         };
 
         if (node.nodeType() == NodeType::Symbol)

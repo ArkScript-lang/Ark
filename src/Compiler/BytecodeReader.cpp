@@ -266,6 +266,11 @@ namespace Ark
                     }
                     else if (inst == Instruction::SAVE_ENV)
                         os << "SAVE_ENV\n";
+                    else if (inst == Instruction::GET_FIELD)
+                    {
+                        os << "GET_FIELD " << termcolor::green << symbols[readNumber(i)] << "\n";
+                        i++;
+                    }
                     else if (inst == Instruction::ADD)
                         os << "ADD\n";
                     else if (inst == Instruction::SUB)

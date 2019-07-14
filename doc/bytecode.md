@@ -62,6 +62,7 @@ Builtins are handled with `BUILTIN id`, with `id` being the id of the builtin fu
 | `MUT` (0x0d) | symbol id (two bytes, big endian) | Take the value on top of the stack and create a variable in the current scope, named following the given symbol id (cf symbols table) |
 | `DEL` (0x0e) | symbol id (two bytes, big endian) | Remove a variable/constant named following the given symbol id (cf symbols table) |
 | `SAVE_ENV` (0x0f) | | Save the current environment, useful for quoted code |
+| `GET_FIELD` (0x10) | symbol id (two bytes, big endian) | Used to read the field named following the given symbol id (cf symbols table) of a `Closure` stored in TS. Pop TS and push the value of field read on the stack |
 | `ADD` (0x20) |  | Push `TS1 + TS` |
 | `SUB` (0x21) |  | Push `TS1 - TS` |
 | `MUL` (0x22) |  | Push `TS1 * TS` |
