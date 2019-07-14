@@ -12,9 +12,8 @@
 
     (set acc 0)
     (while (!= acc (len callbacks)) {
-        (mut cb (@ callbacks acc))
-        (print cb)
-        (cb)
+        (print (@ callbacks acc) .d)
+        ((@ callbacks acc))
         (set acc (+ 1 acc))
     })
 }

@@ -433,11 +433,7 @@ namespace Ark
             {
                 if (it->nodeType() != Ark::internal::NodeType::GetField &&
                     it->nodeType() != Ark::internal::NodeType::Capture)
-                {
-                    std::cout << (*it) << std::endl;
-
                     args_count++;
-                }
             }
             pushNumber(static_cast<uint16_t>(args_count), &page(p));
         }

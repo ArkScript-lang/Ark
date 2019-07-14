@@ -314,7 +314,7 @@ void VM_t<debug>::run()
     if constexpr (debug)
         Ark::logger.info("Starting at PP:{0}, IP:{1}"s, m_pp, m_ip);
 
-    try {
+    //try {
         m_running = true;
         while (m_running)
         {
@@ -417,25 +417,11 @@ void VM_t<debug>::run()
             // move forward
             ++m_ip;
         }
-    } catch (const std::exception& e) {
+    /*} catch (const std::exception& e) {
         std::cout << "At IP: " << m_ip << ", PP: " << m_pp << "\n";
         std::cout << e.what() << std::endl;
-        std::cout << "Locals:\n";
-        int count = 0;
-        for (auto&& e: m_locals)
-        {
-            for (auto&& p: *e)
-            {
-                if (p == FFI::undefined)
-                    continue;
-                
-                std::cout << "- " << p << "\n";
-                count++;
-                // if (count > 10) { std::cout << "...\n"; break; }
-            }
-        }
-        std::cout << "Frame count: " << m_frames.size() << std::endl;
-    }
+        std::cout << termcolor::reset;
+    }*/
 }
 
 // ------------------------------------------
@@ -763,8 +749,9 @@ inline void VM_t<debug>::capture()
 
     if (!m_saved_scope)
     {
-        m_saved_scope = std::make_shared<std::vector<Value>>();
-        m_saved_scope.value()->reserve(m_symbols.size());
+        m_saved_scope = std::make_shared<std::vector<Value>>(
+            m_symbols.size(), internal::FFI::undefined
+        );
     }
     (*m_saved_scope.value())[id] = getVariableInScope(id);
 }
