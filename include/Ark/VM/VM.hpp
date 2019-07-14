@@ -154,6 +154,7 @@ namespace Ark
         inline void mut();
         inline void del();
         inline void saveEnv();
+        inline void getField();
 
         inline void operators(uint8_t inst);
     };

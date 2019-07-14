@@ -220,6 +220,9 @@ int main(int argc, char** argv)
                   << "Options:" << std::endl << documentation(cli, fmt) << std::endl
                   << "LICENSE"  << std::endl << "        Mozilla Public License 2.0" << std::endl;
     }
+
+    // to avoid some "CLI glitches"
+    std::cout << termcolor::reset;
     
     return 0;
 }

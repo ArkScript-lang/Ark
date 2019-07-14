@@ -28,6 +28,18 @@ namespace Ark
         const bytecode_t& bytecode();
 
     private:
+        Ark::Parser m_parser;
+        std::vector<std::string> m_symbols;
+        std::vector<internal::CValue> m_values;
+        std::vector<std::string> m_plugins;
+        std::vector<std::vector<internal::Inst>> m_code_pages;
+        std::vector<std::vector<internal::Inst>> m_temp_pages;
+
+        bytecode_t m_bytecode;
+
+        bool m_debug;
+        bool m_ast_ok;
+
         inline std::vector<internal::Inst>& page(int i)
         {
             if (i >= 0)
@@ -61,17 +73,6 @@ namespace Ark
         void addPlugin(Ark::internal::Node x);
 
         void pushNumber(uint16_t n, std::vector<internal::Inst>* page=nullptr);
-
-        Ark::Parser m_parser;
-        std::vector<std::string> m_symbols;
-        std::vector<internal::CValue> m_values;
-        std::vector<std::string> m_plugins;
-        std::vector<std::vector<internal::Inst>> m_code_pages;
-        std::vector<std::vector<internal::Inst>> m_temp_pages;
-
-        bytecode_t m_bytecode;
-
-        bool m_debug;
     };
 }
 

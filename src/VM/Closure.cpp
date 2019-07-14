@@ -23,4 +23,9 @@ namespace Ark::internal
     {
         return m_scope;
     }
+
+    Closure::Scope_t& Closure::scope_ref()
+    {
+        return m_scope;
+    }
 }

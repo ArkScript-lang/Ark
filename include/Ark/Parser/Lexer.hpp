@@ -39,9 +39,13 @@ namespace Ark::internal
         std::size_t line;
         std::size_t col;
 
+        Token() = default;
+
         Token(TokenType type, const std::string& tok, std::size_t line, std::size_t col) :
             type(type), token(tok), line(line), col(col)
         {}
+
+        Token(const Token&) = default;
     };
     
     const std::vector<std::string> keywords = {

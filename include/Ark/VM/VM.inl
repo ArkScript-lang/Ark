@@ -330,13 +330,14 @@ void VM_t<debug>::run()
             uint8_t inst = m_pages[m_pp][m_ip];
 
             // and it's time to du-du-du-du-duel!
-            if (Instruction::FIRST_COMMAND <= inst && inst <= Instruction::LAST_COMMAND)
+            if (inst == Instruction::NOP)
+            {
+                if constexpr (debug)
+                    Ark::logger.info("NOP PP:{0}, IP:{1}"s, m_pp, m_ip);
+            }
+            else if (Instruction::FIRST_COMMAND <= inst && inst <= Instruction::LAST_COMMAND)
                 switch (inst)
                 {
-                case Instruction::NOP:
-                    // do nothing
-                    break;
-                
                 case Instruction::LOAD_SYMBOL:
                     loadSymbol();
                     break;
@@ -397,6 +398,10 @@ void VM_t<debug>::run()
                     saveEnv();
                     break;
                 
+                case Instruction::GET_FIELD:
+                    getField();
+                    break;
+                
                 default:
                     throwVMError("unknown instruction: " + Ark::Utils::toString(static_cast<std::size_t>(inst)) +
                         ", pp: " +Ark::Utils::toString(m_pp) + ", ip: " + Ark::Utils::toString(m_ip)
@@ -424,11 +429,12 @@ void VM_t<debug>::run()
                 if (p == FFI::undefined)
                     continue;
                 
-                std::cout << p << "\n";
+                std::cout << "- " << p << "\n";
                 count++;
                 // if (count > 10) { std::cout << "...\n"; break; }
             }
         }
+        std::cout << "Frame count: " << m_frames.size() << std::endl;
     }
 }
 
@@ -471,7 +477,7 @@ inline void VM_t<debug>::loadSymbol()
     auto id = readNumber();
 
     if constexpr (debug)
-        Ark::logger.info("LOAD_SYMBOL ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
+        Ark::logger.info("LOAD_SYMBOL ({0}) PP:{1}, IP:{2}"s, m_symbols[id], m_pp, m_ip);
 
     auto var = findNearestVariable(id);
     if (var != nullptr)
@@ -498,7 +504,7 @@ inline void VM_t<debug>::loadConst()
     auto id = readNumber();
 
     if constexpr (debug)
-        Ark::logger.info("LOAD_CONST ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
+        Ark::logger.info("LOAD_CONST ({0}) PP:{1}, IP:{2}"s, m_constants[id], m_pp, m_ip);
     
     if (m_saved_scope && m_constants[id].valueType() == ValueType::PageAddr)
     {
@@ -544,7 +550,7 @@ inline void VM_t<debug>::store()
     auto id = readNumber();
 
     if constexpr (debug)
-        Ark::logger.info("STORE ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
+        Ark::logger.info("STORE ({0}) PP:{1}, IP:{2}"s, m_symbols[id], m_pp, m_ip);
 
     auto var = findNearestVariable(id);
     if (var != nullptr)
@@ -570,7 +576,7 @@ inline void VM_t<debug>::let()
     auto id = readNumber();
 
     if constexpr (debug)
-        Ark::logger.info("LET ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
+        Ark::logger.info("LET ({0}) PP:{1}, IP:{2}"s, m_symbols[id], m_pp, m_ip);
     
     // check if we are redefining a variable
     if (getVariableInScope(id) != FFI::undefined)
@@ -751,7 +757,7 @@ inline void VM_t<debug>::capture()
     auto id = readNumber();
 
     if constexpr (debug)
-        Ark::logger.info("CAPTURE ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
+        Ark::logger.info("CAPTURE ({0}) PP:{1}, IP:{2}"s, m_symbols[id], m_pp, m_ip);
 
     if (!m_saved_scope)
     {
@@ -774,7 +780,7 @@ inline void VM_t<debug>::builtin()
     auto id = readNumber();
 
     if constexpr (debug)
-        Ark::logger.info("BUILTIN ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
+        Ark::logger.info("BUILTIN ({0}) PP:{1}, IP:{2}"s, FFI::builtins[id].first, m_pp, m_ip);
 
     push(FFI::builtins[id].second);
 }
@@ -793,7 +799,7 @@ inline void VM_t<debug>::mut()
     auto id = readNumber();
 
     if constexpr (debug)
-        Ark::logger.info("MUT ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
+        Ark::logger.info("MUT ({0}) PP:{1}, IP:{2}"s, m_symbols[id], m_pp, m_ip);
 
     // if stack is empty, MUT id has no effect
     if (m_frames.back().stackSize() != 0)
@@ -815,7 +821,7 @@ inline void VM_t<debug>::del()
     auto id = readNumber();
 
     if constexpr (debug)
-        Ark::logger.info("DEL ({0}) PP:{1}, IP:{2}"s, id, m_pp, m_ip);
+        Ark::logger.info("DEL ({0}) PP:{1}, IP:{2}"s, m_symbols[id], m_pp, m_ip);
     
     auto var = findNearestVariable(id);
     if (var != nullptr)
@@ -835,6 +841,38 @@ inline void VM_t<debug>::saveEnv()
         Job: Save the current environment, useful for quoted code
     */
     m_saved_scope = m_locals.back();
+}
+
+template<bool debug>
+inline void VM_t<debug>::getField()
+{
+    /*
+        Argument: symbol id (two bytes, big endian)
+        Job: Used to read the field named following the given symbol id (cf symbols table) of a `Closure`
+            stored in TS. Pop TS and push the value of field read on the stack
+    */
+    using namespace Ark::internal;
+
+    ++m_ip;
+    auto id = readNumber();
+
+    if constexpr (debug)
+        Ark::logger.info("GET_FIELD ({0}) PP:{1}, IP:{2}"s, m_symbols[id], m_pp, m_ip);
+    
+    auto var = pop();
+    if (var.valueType() != ValueType::Closure)
+        throwVMError("variable isn't a closure, can not get the field `" + m_symbols[id] + "' from it");
+    
+    auto field = (*var.closure_ref().scope())[id];
+    if (field != FFI::undefined)
+    {
+        if constexpr (debug)
+            Ark::logger.data("Pushing closure field:", field);
+        push(field);
+        return;
+    }
+
+    throwVMError("couldn't find symbol in closure enviroment: " + m_symbols[id]);
 }
 
 template<bool debug>

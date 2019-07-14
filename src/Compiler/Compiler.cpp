@@ -11,12 +11,17 @@ namespace Ark
     using namespace Ark::internal;
 
     Compiler::Compiler(bool debug) :
-        m_parser(debug), m_debug(debug)
+        m_parser(debug), m_debug(debug), m_ast_ok(false)
     {}
 
     void Compiler::feed(const std::string& code, const std::string& filename)
     {
-        m_parser.feed(code, filename);
+        try {
+            m_parser.feed(code, filename);
+            m_ast_ok = true;
+        } catch (const std::exception& e) {
+            std::cout << e.what() << std::endl;
+        }
     }
 
     void Compiler::compile()
@@ -32,6 +37,9 @@ namespace Ark
                 - values table header
                     + elements
         */
+        if (!m_ast_ok)
+            return;
+
         if (m_debug)
             Ark::logger.info("Adding magic constant");
 
@@ -214,6 +222,17 @@ namespace Ark
                 page(p).emplace_back(Instruction::LOAD_SYMBOL);
                 pushNumber(static_cast<uint16_t>(i), &page(p));
             }
+
+            return;
+        }
+        if (x.nodeType() == Ark::internal::NodeType::GetField)
+        {
+            std::string name = x.string();
+            // 'name' shouldn't be a builtin/operator, we can use it as-is
+            std::size_t i = addSymbol(name);
+            
+            page(p).emplace_back(Instruction::GET_FIELD);
+            pushNumber(static_cast<uint16_t>(i), &page(p));
 
             return;
         }
@@ -409,7 +428,13 @@ namespace Ark
         {
             page(p).push_back(Instruction::CALL);
             // number of arguments
-            pushNumber(static_cast<uint16_t>(std::distance(x.list().begin() + 1, x.list().end())), &page(p));
+            std::size_t args_count = 0;
+            for (auto it=x.list().begin() + 1; it != x.list().end(); ++it)
+            {
+                if (it->nodeType() != Ark::internal::NodeType::GetField)
+                    args_count++;
+            }
+            pushNumber(static_cast<uint16_t>(args_count), &page(p));
         }
 
         return;

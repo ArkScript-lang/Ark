@@ -12,6 +12,7 @@
 - many opcodes to handle the operators
 - persist flag for the VM (if persist is false (default value), each time we call vm.run(), the frames will be reseted)
 - adding captures through functions arguments: `(fun (&captured std-argument) (...))`
+- adding closure fields reading (readonly)
 
 ### Changed
 - moved everything from the "folder namespaces" to a single `Ark::internal` namespace

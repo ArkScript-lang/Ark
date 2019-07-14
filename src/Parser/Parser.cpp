@@ -110,16 +110,16 @@ namespace Ark
             Node block(NodeType::List);
             block.setPos(token.line, token.col);
 
-            // return an empty block
-            if (token.token == ")")
-                return block;
-
             // handle sub-blocks
             if (tokens.front().token == "(")
                 block.push_back(parse(tokens));
 
             // take next token, we don't want to play with a "("
             token = nextToken(tokens);
+
+            // return an empty block
+            if (token.token == ")")
+                return block;
 
             // loop until we reach the end of the block
             do
@@ -235,7 +235,7 @@ namespace Ark
                         (token.type == TokenType::GetField && authorize_field_read))
                 {
                     while (tokens.front().token != ")")
-                        block.push_back(parse(tokens /* authorize_capture */ false, /* authorize_field_read */ true));
+                        block.push_back(parse(tokens, /* authorize_capture */ false, /* authorize_field_read */ true));
                 }
                 else
                     throwParseError("can not create block from token", token);
@@ -316,6 +316,13 @@ namespace Ark
         else if (token.type == TokenType::Capture)
         {
             auto n = Node(NodeType::Capture);
+            n.setString(token.token);
+            n.setPos(token.line, token.col);
+            return n;
+        }
+        else if (token.type == TokenType::GetField)
+        {
+            auto n = Node(NodeType::GetField);
             n.setString(token.token);
             n.setPos(token.line, token.col);
             return n;

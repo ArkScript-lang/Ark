@@ -20,6 +20,7 @@ namespace Ark::internal
         Closure(const Scope_t& scope_ptr, PageAddr_t pa);
 
         const Scope_t& scope() const;
+        Scope_t& scope_ref();
 
         inline PageAddr_t pageAddr() const
         {

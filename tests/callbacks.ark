@@ -1,8 +1,4 @@
 {
-    (let add-callback (fun (d)
-        (fun (&d) (egg d))
-    ))
-
     (let egg (fun (bar) (print bar)))
     (let data ["Iron Man" "is" "Tony Stark"])
     (mut callbacks [])
@@ -10,7 +6,7 @@
     (mut acc 0)
     (while (!= acc (len data)) {
         (mut d (@ data acc))
-        (set callbacks (append callbacks (add-callback d)))
+        (set callbacks (append callbacks (fun (&d) (egg d))))
         # this also works:
         # (set callbacks (append callbacks (fun (&d) (egg d))))
         (set acc (+ 1 acc))

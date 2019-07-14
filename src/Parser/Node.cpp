@@ -126,7 +126,7 @@ namespace Ark::internal
         case NodeType::String:
         case NodeType::Symbol:
         case NodeType::Capture:
-        case NodeType::FieldRead:
+        case NodeType::GetField:
             os << N.string();
             break;
 
