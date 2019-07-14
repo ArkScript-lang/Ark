@@ -7,14 +7,14 @@
     (while (!= acc (len data)) {
         (mut d (@ data acc))
         (set callbacks (append callbacks (fun (&d) (egg d))))
-        # this also works:
-        # (set callbacks (append callbacks (fun (&d) (egg d))))
         (set acc (+ 1 acc))
     })
 
     (set acc 0)
     (while (!= acc (len callbacks)) {
-        ((@ callbacks acc))
+        (mut cb (@ callbacks acc))
+        (print cb)
+        (cb)
         (set acc (+ 1 acc))
     })
 }

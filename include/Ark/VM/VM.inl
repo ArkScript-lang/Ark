@@ -679,6 +679,8 @@ inline void VM_t<debug>::call()
         Ark::logger.info("CALL ({0}) PP:{1}, IP:{2}"s, argc, m_pp, m_ip);
 
     Value function(pop());
+    if constexpr (debug)
+        Ark::logger.data("function object:", function);
 
     switch (function.valueType())
     {

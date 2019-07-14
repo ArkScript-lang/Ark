@@ -124,10 +124,19 @@ namespace Ark::internal
         switch(N.m_type)
         {
         case NodeType::String:
-        case NodeType::Symbol:
-        case NodeType::Capture:
-        case NodeType::GetField:
             os << N.string();
+            break;
+        
+        case NodeType::Symbol:
+            os << "(Symbol) " << N.string();
+            break;
+        
+        case NodeType::Capture:
+            os << "(Capture) " << N.string();
+            break;
+
+        case NodeType::GetField:
+            os << "(GetField) " << N.string();
             break;
 
         case NodeType::Number:

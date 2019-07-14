@@ -106,7 +106,7 @@ namespace Ark::internal
         }
 
         case ValueType::CProc:
-            os << "Procedure";
+            os << "CProcedure";
             break;
         
         case ValueType::List:
