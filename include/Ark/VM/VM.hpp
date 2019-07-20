@@ -9,6 +9,7 @@
 #include <memory>
 #include <unordered_map>
 #include <utility>
+#include <list>
 
 #include <Ark/VM/Value.hpp>
 #include <Ark/VM/Frame.hpp>
@@ -55,7 +56,7 @@ namespace Ark
 
         // related to the execution
         std::vector<internal::Frame> m_frames;
-        std::vector<internal::Scope> m_vm_scopes;  // used to save all the scopes
+        std::list<internal::Scope> m_vm_scopes;  // used to save all the scopes
         std::optional<internal::Scope*> m_saved_scope;
         std::vector<internal::Scope*> m_locals;  // only for the scopes being used
 
@@ -123,8 +124,7 @@ namespace Ark
                 
                 // TODO improve, erasing causes iterators/pointers/references invalidity
                 // thus we are only deleting locals if they are at the end of the storage (temp)
-                if (it == m_vm_scopes.end() - 1)
-                    m_vm_scopes.erase(it);
+                m_vm_scopes.erase(it);
             }
             m_locals.pop_back();
         }
