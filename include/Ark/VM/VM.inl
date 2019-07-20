@@ -749,9 +749,8 @@ inline void VM_t<debug>::capture()
 
     if (!m_saved_scope)
     {
-        m_saved_scope = std::make_shared<std::vector<Value>>(
-            m_symbols.size(), internal::FFI::undefined
-        );
+        createNewScope</* ownedByVM */ false>();
+        m_saved_scope = &m_vm_scopes.back();
     }
     (*m_saved_scope.value())[id] = getVariableInScope(id);
 }
