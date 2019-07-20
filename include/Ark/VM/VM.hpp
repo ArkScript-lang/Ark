@@ -16,7 +16,6 @@
 #include <Ark/VM/Plugin.hpp>
 #include <Ark/VM/FFI.hpp>
 #include <Ark/Log.hpp>
-#include <Ark/VM/Scope.hpp>
 
 #undef abs
 #include <cmath>
@@ -55,9 +54,8 @@ namespace Ark
 
         // related to the execution
         std::vector<internal::Frame> m_frames;
-        std::vector<internal::Scope> m_vm_scopes;  // used to save all the scopes
-        std::optional<internal::Scope*> m_saved_scope;
-        std::vector<internal::Scope*> m_locals;  // only for the scopes being used
+        std::optional<internal::Closure::Scope_t> m_saved_scope;
+        std::vector<internal::Closure::Scope_t> m_locals;
 
         void configure();
 
@@ -70,20 +68,20 @@ namespace Ark
 
         // locals related
 
-        template <int page=-1>
+        template <int pp=-1>
         inline internal::Value& registerVariable(uint16_t id, internal::Value&& value)
         {
-            if constexpr (page == -1)
+            if constexpr (pp == -1)
                 return (*m_locals.back())[id] = value;
-            return (*m_locals[page])[id] = value;
+            return (*m_locals[pp])[id] = value;
         }
 
-        template <int page=-1>
+        template <int pp=-1>
         inline internal::Value& registerVariable(uint16_t id, const internal::Value& value)
         {
-            if constexpr (page == -1)
+            if constexpr (pp == -1)
                 return (*m_locals.back())[id] = value;
-            return (*m_locals[page])[id] = value;
+            return (*m_locals[pp])[id] = value;
         }
 
         inline internal::Value* findNearestVariable(uint16_t id)
@@ -97,36 +95,12 @@ namespace Ark
             return nullptr;
         }
 
-        template<int page=-1>
+        template<int pp=-1>
         inline internal::Value& getVariableInScope(uint16_t id)
         {
-            if constexpr (page == -1)
+            if constexpr (pp == -1)
                 return (*m_locals.back())[id];
-            return (*m_locals[page])[id];
-        }
-
-        inline void garbageCollectLocals()
-        {
-            bool isOwnedByVM = m_locals.back()->isOwnedByVM();
-
-            if (!isOwnedByVM)
-                m_locals.back()->decRefCount();
-
-            // check if we should remove it from the vm scope stack
-            if (isOwnedByVM || (!isOwnedByVM && m_locals.back()->refCount() == 0))
-            {
-                auto id = m_locals.back()->id();
-                auto it = std::find_if(m_vm_scopes.begin(), m_vm_scopes.end(),
-                    [&id](const internal::Scope& s) {
-                        return s.id() == id;
-                    });
-                
-                // TODO improve, erasing causes iterators/pointers/references invalidity
-                // thus we are only deleting locals if they are at the end of the storage (temp)
-                if (it == m_vm_scopes.end() - 1)
-                    m_vm_scopes.erase(it);
-            }
-            m_locals.pop_back();
+            return (*m_locals[pp])[id];
         }
 
         inline void returnFromFuncCall()
@@ -134,17 +108,22 @@ namespace Ark
             // remove frame
             bool is_closure = m_frames.back().isClosure();
             m_frames.pop_back();
-            
-            garbageCollectLocals();
+            m_locals.pop_back();
             if (is_closure)
-                garbageCollectLocals();
+            {
+                // next environment is the one of the closure
+                // remove it
+                m_locals.pop_back();
+            }
         }
 
-        template <bool ownedByVM=true>
         inline void createNewScope()
         {
-            // default value when creating a scope is "owned by VM"
-            m_vm_scopes.emplace_back(m_symbols.size(), ownedByVM);
+            m_locals.emplace_back(
+                std::make_shared<std::vector<internal::Value>>(
+                    m_symbols.size(), internal::FFI::undefined
+                )
+            );
         }
 
         // error handling

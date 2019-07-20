@@ -1,13 +1,10 @@
 {
     (let create-human (fun (name age weight) {
-        (let set-age (fun (new) (set age new)))
-
         # return value as higher order function to manipulate the data above
         # this will be our "constructor"
-        (fun (new-age &set-age &name &age &weight) {
+        (fun (new-age &name &age &weight) {
             (if (!= nil new-age)
-                # just testing the setter
-                (set-age new-age) ()
+                (set age new-age) ()
             )
         })
     }))
@@ -16,9 +13,8 @@
     (let john (create-human "John" 12 15))
 
     (print bob.age)
+    # set age, quite ugly
     (bob 10)
-    # nota bene: currently, (bob.set-age 10) wouldn't work because it needs
-    # to use the scope of 'bob'
     (print bob.age)
 
     (print john.age)
