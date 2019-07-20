@@ -26,22 +26,27 @@
     (let create-human (fun (name age weight) {
         # return value as higher order function to manipulate the data above
         # this will be our "constructor"
-        (fun (new-age &name &age &weight) {
-            (if (!= nil new-age)
-                (set age new-age) ()
+        (fun (f new-age &name &age &weight) {
+            # and then we can call the function
+            (if (nil? new-age)
+                (f name age weight)
+                (set age new-age)
             )
         })
     }))
 
+    # define function to play with the human more easily
+    (let print-human-age (fun (_ age _) (print age)))
+
     (let bob (create-human "Bob" 0 144))
     (let john (create-human "John" 12 15))
 
-    (print bob.age)
+    (bob print-human-age)
     # set age, quite ugly
-    (bob 10)
-    (print bob.age)
+    (bob nil 10)
+    (bob print-human-age)
 
-    (print john.age)
+    (john print-human-age)
 }
 ```
 

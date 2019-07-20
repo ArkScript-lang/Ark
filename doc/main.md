@@ -112,11 +112,11 @@ We can create a function with the keyword `fun`. It needs 2 nodes: an argument l
 (fun (a b c) (print a b c))
 ```
 
-We can play with functions and create closures by explicitely capturing arguments using the `&var` notation:
+When creating a function, it's capturing the environment it was created in, and copying it to save it. We create what we call a "closure".
 
 ```clojure
 (let make-closure (fun (name)
-    (fun (&name)
+    (fun ()
         (print name)
     )
 ))
@@ -125,18 +125,6 @@ We can play with functions and create closures by explicitely capturing argument
 (let say-hi (make-closure "hi"))
 # calling our closure
 (say-hi)  # prints `hi`
-```
-
-When we have a closure, we can read its fields using the dot notation (`closure.field`):
-
-```clojure
-{
-    (print say-hi.name)  # prints `hi`
-    (print say-hi .name)  # will work as well
-    (print say-hi . name)  # won't work
-
-    (print say-hi.error)  # runtime error: couldn't find field `error` in closure `say-hi`
-}
 ```
 
 **Nota Bene**: all the arguments passed to a function are passed by value, and they are marked as *mutable* inside the function.
