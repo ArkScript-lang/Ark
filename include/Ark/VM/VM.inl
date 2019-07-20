@@ -269,7 +269,6 @@ void VM_t<debug>::run()
         m_saved_scope.reset();
 
         m_locals.clear();
-        m_vm_scopes.clear();
         createNewScope();
 
         // loading plugins
