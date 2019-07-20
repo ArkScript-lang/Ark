@@ -1,4 +1,4 @@
-# Ark
+# ArkScript
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/fd5900d08a97487486c43079c06e19ce)](https://app.codacy.com/app/folaefolc/Ark?utm_source=github.com&utm_medium=referral&utm_content=SuperFola/Ark&utm_campaign=Badge_Grade_Settings)
 [![Build Status](https://travis-ci.org/SuperFola/Ark.svg?branch=rework)](https://travis-ci.org/SuperFola/Ark)
@@ -6,6 +6,8 @@
 <img align="right" src="images/Ark.png" width=200px>
 
 * Documentation: [doc/main.md](doc/main.md)
+
+**Nota bene**: the project is referred as "Ark" and as "ArkScript". The official public name is "ArkScript" since "Ark" is already being used by [another language](https://github.com/ark-lang/ark)
 
 ## Key features
 
@@ -26,27 +28,22 @@
     (let create-human (fun (name age weight) {
         # return value as higher order function to manipulate the data above
         # this will be our "constructor"
-        (fun (f new-age &name &age &weight) {
-            # and then we can call the function
-            (if (nil? new-age)
-                (f name age weight)
-                (set age new-age)
+        (fun (new-age &name &age &weight) {
+            (if (!= nil new-age)
+                (set age new-age) ()
             )
         })
     }))
 
-    # define function to play with the human more easily
-    (let print-human-age (fun (_ age _) (print age)))
-
     (let bob (create-human "Bob" 0 144))
     (let john (create-human "John" 12 15))
 
-    (bob print-human-age)
+    (print bob.age)
     # set age, quite ugly
-    (bob nil 10)
-    (bob print-human-age)
+    (bob 10)
+    (print bob.age)
 
-    (john print-human-age)
+    (print john.age)
 }
 ```
 
@@ -61,7 +58,7 @@ Don't know what to work on? No worries, we have a [list of things to do](https:/
 
 ## Notes
 
-* The execution of some programs is slower than expected, because the variable stack isn't optimized yet but we are working on it!
+* The CLI is going to be reworked soon to bring a better experience: no more compilation & run, the program should be able to do everything itself just by looking at the given file
 * The language is a bit limited in term of what it can do, because we are working on performance improvement and some brand new features, but adding builtin functions and operators is easy, so we will work on that as soon as possible
 
 ## Dependencies
@@ -113,29 +110,30 @@ LICENSE
 
 ## Performances
 
-The project was compiled on Linux Mint 18 x64, with g++ 8 and `-DNDEBUG -O4 -s`.
+The project was compiled on Linux Mint 18 x64, with g++ 8 and `-DNDEBUG -O3 -s`.
 
 The test here is the Ackermann-Peter function with m=3 and n=6:
 
 ```
-07/07/19 18:45:45
-Running C:\Users\Folaefolc\Documents\Code\Ark\benchmark\Release\vm.exe
-Run on (8 X 1992 MHz CPU s)
+2019-07-20 23:30:57
+Running benchmark/vm
+Run on (4 X 2400 MHz CPU s)
 CPU Caches:
-  L1 Data 32K (x4)
-  L1 Instruction 32K (x4)
-  L2 Unified 262K (x4)
-  L3 Unified 8388K (x1)
+  L1 Data 32K (x2)
+  L1 Instruction 32K (x2)
+  L2 Unified 256K (x2)
+  L3 Unified 3072K (x1)
+Load Average: 0.23, 0.48, 0.48
 -------------------------------------------------------------------
 Benchmark                         Time             CPU   Iterations
 -------------------------------------------------------------------
-Ackermann_3_6_ark_mean         69.2 ms         69.2 ms           25
-Ackermann_3_6_ark_median       69.2 ms         69.4 ms           25
-Ackermann_3_6_ark_stddev      0.538 ms        0.913 ms           25
+Ackermann_3_6_ark_mean          144 ms          144 ms           25
+Ackermann_3_6_ark_median        140 ms          140 ms           25
+Ackermann_3_6_ark_stddev       9.58 ms         9.57 ms           25
 
-Ackermann_3_6_cpp_mean        0.151 ms        0.151 ms           25
-Ackermann_3_6_cpp_median      0.147 ms        0.146 ms           25
-Ackermann_3_6_cpp_stddev      0.009 ms        0.009 ms           25
+Ackermann_3_6_cpp_mean        0.337 ms        0.337 ms           25
+Ackermann_3_6_cpp_median      0.334 ms        0.334 ms           25
+Ackermann_3_6_cpp_stddev      0.008 ms        0.008 ms           25
 ```
 
 Comparison with Java using OpenJDK 11.0.3 x64 (source code [here](benchmarks/Ackermann.java)):
