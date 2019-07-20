@@ -145,6 +145,7 @@ namespace Ark
         {
             // default value when creating a scope is "owned by VM"
             m_vm_scopes.emplace_back(m_symbols.size(), ownedByVM);
+            m_locals.push_back(&m_vm_scopes.back());
         }
 
         // error handling

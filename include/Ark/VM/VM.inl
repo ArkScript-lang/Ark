@@ -712,8 +712,9 @@ inline void VM_t<debug>::call()
             auto new_page_pointer = c.pageAddr();
 
             // load saved scope
+            c.scope()->incRefCount();
             m_locals.push_back(c.scope());
-            // create dedicated frame
+            // create dedicated scope and frame
             createNewScope();
             m_frames.emplace_back(m_ip, m_pp);
             m_frames.back().setClosure(true);
@@ -751,6 +752,7 @@ inline void VM_t<debug>::capture()
     {
         createNewScope</* ownedByVM */ false>();
         m_saved_scope = &m_vm_scopes.back();
+        m_saved_scope.value()->incRefCount();
     }
     (*m_saved_scope.value())[id] = getVariableInScope(id);
 }
@@ -829,6 +831,7 @@ inline void VM_t<debug>::saveEnv()
         Job: Save the current environment, useful for quoted code
     */
     m_saved_scope = m_locals.back();
+    m_saved_scope.value()->incRefCount();
 }
 
 template<bool debug>
