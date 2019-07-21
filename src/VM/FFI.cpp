@@ -2,6 +2,8 @@
 
 #include <iostream>
 #include <Ark/Log.hpp>
+#include <Ark/Utils.hpp>
+
 #undef abs
 #include <cmath>
 
@@ -23,7 +25,10 @@ namespace Ark::internal::FFI
         { "concat", Value(&concat) },
         { "list",   Value(&list) },
         { "print",  Value(&print) },
-        { "input",  Value(&input) }
+        { "input",  Value(&input) },
+        { "writeFile", Value(&writefile) },
+        { "readFile", Value(&readfile) },
+        { "fileExists?", Value(&fileexists) }
     };
 
     extern const std::vector<std::string> operators = {
@@ -97,4 +102,68 @@ namespace Ark::internal::FFI
 
         return Value(line);
     }
+
+    FFI_Function(writefile)
+    {
+        // filename, content
+        if (n.size() == 2)
+        {
+            if (n[0].valueType() != ValueType::String)
+                throw Ark::TypeError("First argument of writeFile (filename) should be a String");
+            
+            std::ofstream f(n[0].string());
+            if (f.is_open())
+            {
+                f << n[1];
+                f.close();
+            }
+            else
+                throw std::runtime_error("Couldn't write to file \"" + n[0].string() + "\"");
+        }
+        // filename, mode (a or w), content
+        else if (n.size() == 3)
+        {
+            if (n[0].valueType() != ValueType::String)
+                throw Ark::TypeError("First argument of writeFile (filename) should be a String");
+            if (n[1].valueType() != ValueType::String)
+                throw Ark::TypeError("Second argument of writeFile (mode) should be a String");
+            
+            auto mode = n[1].string();
+            if (mode != "w" && mode != "a")
+                throw std::runtime_error("Second argument of writeFile (mode) is incorrect, available modes are \"a\" and \"w\"");
+            
+            auto ios_mode = std::ios::out | std::ios::trunc;
+            if (mode == "a")
+                ios_mode = std::ios::out | std::ios::app;
+            
+            std::ofstream f(n[0].string(), ios_mode);
+            if (f.is_open())
+            {
+                f << n[1];
+                f.close();
+            }
+            else
+                throw std::runtime_error("Couldn't write to file \"" + n[0].string() + "\"");
+        }
+        else
+            throw std::runtime_error("Got too many argument for writeFile: need a filename, an optional mode and a content");
+        return nil;
+    }
+
+    FFI_Function(readfile)
+    {
+        if (n.size() != 1)
+            throw std::runtime_error("readFile need 1 argument: filename");
+        if (n[0].valueType() != ValueType::String)
+            throw Ark::TypeError("Argument of readFile should be a String");
+        
+        auto filename = n[0].string();
+        if (!Ark::Utils::fileExists(filename))
+            throw std::runtime_error("Couldn't read file \"" + filename + "\": it doesn't exist");
+
+        return Value(Ark::Utils::readFile(filename));
+    }
+
+    FFI_Function(fileexists)
+    {}
 }

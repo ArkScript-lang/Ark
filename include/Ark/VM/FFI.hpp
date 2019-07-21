@@ -29,6 +29,9 @@ namespace Ark::internal::FFI
     FFI_Function(list);     // list,   multiple arguments
     FFI_Function(print);    // print,  multiple arguments
     FFI_Function(input);    // input,  0 or 1 argument
+    FFI_Function(writefile);   // writeFile, 2 or 3 arguments
+    FFI_Function(readfile);    // readFile, 1 argument
+    FFI_Function(fileexists);  // fileExists?, 1 argument
 }
 
 #undef FFI_Function

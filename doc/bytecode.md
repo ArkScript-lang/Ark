@@ -41,6 +41,9 @@ Builtins are handled with `BUILTIN id`, with `id` being the id of the builtin fu
 | `list` (5) | at least 0 | Return a list composed of all the arguments |
 | `print` (6) | at least 0 | Print the given arguments |
 | `input` (7) | 0 or 1 | Can take a String (prompt), return a String writen by the user in the shell |
+| `writeFile` (8) | 2 or 3 | Filename, (mode) and content |
+| `readFile` (9) | 1 | Filename |
+| `fileExists?` (10) | 1 | Filename |
 
 ## Instructions
 
@@ -86,6 +89,8 @@ Builtins are handled with `BUILTIN id`, with `id` being the id of the builtin fu
 | `AND_` (0x34) |  | Push true if TS and TS1 are true, false otherwise |
 | `OR_` (0x35) |  | Push true if TS or TS1 is true, false otherwise |
 | `MOD` (0x36) |  | Push `TS1 % TS` |
+| `TYPE` (0x37) | | Push the type of TS as a string |
+| `HASFIELD` (0x38) | | Check if TS1 is a closure field of TS. TS must be a Closure and TS1 a String |
 
 ## Example
 

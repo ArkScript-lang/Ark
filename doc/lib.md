@@ -33,6 +33,12 @@ Print multiple values (at least 1 argument) with `print`.
 
 Ask a value to the user (0 or 1 argument, a prompt of type String) with `input`, returns a String.
 
+Read a file with `readFile`, taking a filename (String), returns a String.
+
+Write to a file with `writeFile`, taking a filename (String), an optional mode (String: `a` (append to end), `w` (overwrite if file exists)) and a content (any type should work).
+
+Check if a file exists with `fileExists?` taking a filename (String).
+
 ### Miscellaneous
 
 Booleans: `true`, `false`.  
