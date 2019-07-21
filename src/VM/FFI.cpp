@@ -165,5 +165,12 @@ namespace Ark::internal::FFI
     }
 
     FFI_Function(fileexists)
-    {}
+    {
+        if (n.size() != 1)
+            throw std::runtime_error("fileExists? can take only 1 argument, a filename (String)");
+        if (n[0].valueType() != ValueType::String)
+            throw Ark::TypeError("Argument of fileExists? must be of type String");
+        
+        return Value(Ark::Utils::fileExists(n[0].string()) ? NFT::True : NFT::False);
+    }
 }
