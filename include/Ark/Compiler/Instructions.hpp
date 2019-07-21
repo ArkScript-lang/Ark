@@ -59,7 +59,9 @@ namespace Ark::internal
             AND_ = 0x34,
             OR_  = 0x35,
             MOD  = 0x36,
-        LAST_OPERATOR = 0x36,
+            TYPE = 0x37,
+            HASFIELD = 0x38,
+        LAST_OPERATOR = 0x38,
 
         LAST_INSTRUCTION = 0x36
     };

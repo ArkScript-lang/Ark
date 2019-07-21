@@ -33,6 +33,7 @@ namespace Ark::internal::FFI
         "nil?", "assert",
         "toNumber", "toString",
         "@", "and", "or", "mod",
+        "type", "hasfield",
     };
 
     // ------------------------------

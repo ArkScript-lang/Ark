@@ -1171,5 +1171,62 @@ inline void VM_t<debug>::operators(uint8_t inst)
             push(Value(std::fmod(a.number(), b.number())));
             break;
         }
+
+        case Instruction::TYPE:
+        {
+            auto a = pop();
+            switch (a.valueType())
+            {
+                case ValueType::List:     push(Value("List")); break;
+                case ValueType::Number:   push(Value("Number")); break;
+                case ValueType::String:   push(Value("String")): break;
+                case ValueType::PageAddr: push(Value("Function")); break;
+                case ValueType::NFT:
+                {
+                    switch (a.nft())
+                    {
+                        case NFT::Nil:
+                            push(FFI::nil);
+                            break;
+                        case NFT::True:
+                        case NFT::False:
+                            push(Value("Bool"));
+                            break;
+                        case NFT::Undefined:
+                            push(FFI::undefined);
+                            break;
+                    }
+                    break;
+                }
+                case ValueType::CProc:   push(Value("CProc")); break;
+                case ValueType::Closure: push(Value("Closure")); break;
+                default:
+                    throwVMError("unimplemented type");
+            }
+            break;
+        }
+
+        case Instruction::HASFIELD:
+        {
+            auto field = pop(), closure = pop();
+            if (closure.valueType() != ValueType::Closure)
+                throwVMError("Argument no 1 of hasfield should be a Closure");
+            if (field.valueType() != ValueType::String)
+                throwVMError("Argument no 2 of hasfield should be a String");
+            
+            auto it = std::find(m_symbols.begin(), m_symbols.end(), field.string());
+            if (it == m_symbols.end())
+            {
+                push(FFI::falseSym);
+                return;
+            }
+            auto id = static_cast<uint16_t>(std::distance(m_symbols.begin(), it));
+            
+            if ((*closure.closure_ref().scope_ref())[id] != FFI::undefined)
+                push(FFI::trueSym);
+            else
+                push(FFI::falseSym);
+            break;
+        }
     }
 }
