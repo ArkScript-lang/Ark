@@ -8,6 +8,7 @@
 
 #include <Ark/VM/Value.hpp>
 #include <Ark/Exceptions.hpp>
+#include <Ark/Utils.hpp>
 
 #define FFI_Function(name) Value name(const std::vector<Value>& n)
 

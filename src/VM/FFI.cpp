@@ -2,7 +2,6 @@
 
 #include <iostream>
 #include <Ark/Log.hpp>
-#include <Ark/Utils.hpp>
 
 #undef abs
 #include <cmath>
