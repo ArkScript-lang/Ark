@@ -877,13 +877,23 @@ inline void VM_t<debug>::operators(uint8_t inst)
         case Instruction::ADD:
         {
             auto b = pop(), a = pop();
-            if (a.valueType() != ValueType::Number)
-                throw Ark::TypeError("Arguments of + should be Numbers");
-            if (b.valueType() != ValueType::Number)
-                throw Ark::TypeError("Arguments of + should be Numbers");
-            
-            push(Value(a.number() + b.number()));
-            break;
+            if (a.valueType() == ValueType::Number)
+            {
+                if (b.valueType() != ValueType::Number)
+                    throw Ark::TypeError("Arguments of + should have the same type");
+                
+                push(Value(a.number() + b.number()));
+                break;
+            }
+            else if (a.valueType() == ValueType::String)
+            {
+                if (b.valueType() != ValueType::String)
+                    throw Ark::TypeError("Arguments of + should have the same type");
+                
+                push(Value(a.string() + b.string()));
+                break;
+            }
+            throw Ark::TypeError("Arguments of + should be Numbers or Strings");
         }
 
         case Instruction::SUB:
@@ -1177,9 +1187,9 @@ inline void VM_t<debug>::operators(uint8_t inst)
             auto a = pop();
             switch (a.valueType())
             {
-                case ValueType::List:     push(Value("List")); break;
-                case ValueType::Number:   push(Value("Number")); break;
-                case ValueType::String:   push(Value("String")): break;
+                case ValueType::List:     push(Value("List"));     break;
+                case ValueType::Number:   push(Value("Number"));   break;
+                case ValueType::String:   push(Value("String"));   break;
                 case ValueType::PageAddr: push(Value("Function")); break;
                 case ValueType::NFT:
                 {
@@ -1198,10 +1208,10 @@ inline void VM_t<debug>::operators(uint8_t inst)
                     }
                     break;
                 }
-                case ValueType::CProc:   push(Value("CProc")); break;
+                case ValueType::CProc:   push(Value("CProc"));   break;
                 case ValueType::Closure: push(Value("Closure")); break;
                 default:
-                    throwVMError("unimplemented type");
+                    throw Ark::TypeError("unimplemented type");
             }
             break;
         }
@@ -1210,15 +1220,15 @@ inline void VM_t<debug>::operators(uint8_t inst)
         {
             auto field = pop(), closure = pop();
             if (closure.valueType() != ValueType::Closure)
-                throwVMError("Argument no 1 of hasfield should be a Closure");
+                throw Ark::TypeError("Argument no 1 of hasfield should be a Closure");
             if (field.valueType() != ValueType::String)
-                throwVMError("Argument no 2 of hasfield should be a String");
+                throw Ark::TypeError("Argument no 2 of hasfield should be a String");
             
             auto it = std::find(m_symbols.begin(), m_symbols.end(), field.string());
             if (it == m_symbols.end())
             {
                 push(FFI::falseSym);
-                return;
+                break;
             }
             auto id = static_cast<uint16_t>(std::distance(m_symbols.begin(), it));
             
@@ -1226,6 +1236,7 @@ inline void VM_t<debug>::operators(uint8_t inst)
                 push(FFI::trueSym);
             else
                 push(FFI::falseSym);
+            
             break;
         }
     }
