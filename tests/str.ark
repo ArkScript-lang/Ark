@@ -1,4 +1,0 @@
-{
-    (if (= "hello" "hello") (print true) (print false))
-    (if (= "hello" "nothe") (print true) (print false))
-}

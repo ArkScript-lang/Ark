@@ -45,6 +45,22 @@ namespace Ark
                 "a^b, with b being a member of the rational numbers, isn't supported.";
         }
     };
+
+    class AssertionFailed : public std::exception
+    {
+    public:
+        AssertionFailed(const std::string& message) :
+            m_msg("AssertionFailed: " + message)
+        {}
+
+        virtual const char* what() const throw()
+        {
+            return m_msg.c_str();
+        }
+    
+    protected:
+        std::string m_msg;
+    };
 }
 
 #endif

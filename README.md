@@ -1,98 +1,106 @@
-# Ark
+# ArkScript
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/fd5900d08a97487486c43079c06e19ce)](https://app.codacy.com/app/folaefolc/Ark?utm_source=github.com&utm_medium=referral&utm_content=SuperFola/Ark&utm_campaign=Badge_Grade_Settings)
+[![Build Status](https://travis-ci.org/SuperFola/Ark.svg?branch=rework)](https://travis-ci.org/SuperFola/Ark)
 
 <img align="right" src="images/Ark.png" width=200px>
 
-Ark is a small programming language made in C++17, inspired by Lisp, using under 10 keywords.
+* Documentation: [doc/main.md](doc/main.md)
+
+**Nota bene**: the project is referred as "Ark" and as "ArkScript". The official public name is "ArkScript" since "Ark" is already being used by [another language](https://github.com/ark-lang/ark)
+
+## Key features
+
+* Ark is small: the compiler, and the virtual machines fit under 5000 lines, but also small in term of keywords (it has only 10)!
+* Ark is a scripting language: it's very easy to embed it in your application. The FFI is quite easy to understand, so adding your own functions to the virtual machine is effortless
+* Ark can run everywhere: it produces a bytecode which is run by its virtual machine, like Java but without the `OutOfMemoryException`
+* Ark is a functional language: every parameters are by passed by value, everything is immutable unless you use `mut` to define a mutable variable
+* Ark can handle object oriented programming in a very elegant way with its closures and explicit captures (see example below)
+* Ark is promoting functionalities before performances: expressiveness often brings more productivity, but performances aren't bad at all
+* Ark handles first class objects, thus it has higher-order functions
+* Ark is easy to compile: it takes less than 200ms to compile and check a complex code with a lot of branches and sub-branches of 200 lines.
+* Ark is a Lisp-like, but with less parentheses: `[...]` is expanded to `(list ...)` and `{}` to `(begin ...)`. More shorthands will come in the future.
+
+## Example
 
 ```clojure
 {
-    (let create-human (fun (name age weight)
-        ' return value as higher order function to manipulate the data above
-        ' this will be our "constructor"
-        (fun (f)
-        {
-            ' all the setters must be defined in this scope
-            (let set-age (fun (new-age) (set age new-age)))
-
-            ' and then we can call the function
-            (f name age weight set-age)
+    (let create-human (fun (name age weight) {
+        # return value as higher order function to manipulate the data above
+        # this will be our "constructor"
+        (fun (new-age &name &age &weight) {
+            (if (!= nil new-age)
+                (set age new-age) ()
+            )
         })
-    ))
-
-    ' define function to play with the human more easily
-    (let print-human-age (fun (_ age _ _) (print age)))
-    (let set-human-age (fun (new-age)
-        (fun (_ _ _ set-age) (set-age new-age))
-    ))
+    }))
 
     (let bob (create-human "Bob" 0 144))
     (let john (create-human "John" 12 15))
 
-    (bob print-human-age)   ' prints 0
-    (bob (set-human-age 10))
-    (bob print-human-age)   ' prints 10
+    (print bob.age)
+    # set age, quite ugly
+    (bob 10)
+    (print bob.age)
 
-    (john print-human-age)  ' prints 12
+    (print john.age)
 }
 ```
 
-* Ark is small, the interpreter, the compiler, and the virtual machines fit under 5000 lines
-* Ark is a scripting language, easily embedded in your application. The FFI is quite easy to understand, so adding your own functions to the interpreter or the virtual machine is effortless
+## Contributing
 
-## Goals
+* First, [fork](https://github.com/SuperFola/Ark/fork) the repository
+* Then, clone your fork: `git clone git@github.com:username/Ark.git`
+* Create a branch for your feature: `git checkout -b feat-my-awesome-idea`
+* When you're done, push it to your fork and submit a pull request!
 
-Ark was meant to be a toy language, but it grew into something that I could qualify as big, now aiming video games as a scripting language, and mathematics as it can handle very big numbers without problems. Even if the language is inspired by Lisp, it's trying to convey a better image than "Lost in Stupid Parentheses", by providing `[...]` (expand to `(list ...)`) and `{...}` (expand to `(begin ...)`), to help making a more readable code.
+Don't know what to work on? No worries, we have a [list of things to do](https://github.com/SuperFola/Ark/projects) :wink:
 
-## Features
+## Notes
 
-The language already handles
-* first class object
-* higher-order function
-* church encoding
-* closures
+* The CLI is going to be reworked soon to bring a better experience: no more compilation & run, the program should be able to do everything itself just by looking at the given file
+* The language is a bit limited in term of what it can do, because we are working on performance improvement and some brand new features, but adding builtin functions and operators is easy, so we will work on that as soon as possible
 
 ## Dependencies
 
-* C++17 compliant compiler, the following have been tested
-    * GCC 7.2
-    * GCC 8.2
+* C++17
 * CMake >= 3.8
-* Python 3.6 (for the configure script)
 * Visual Studio >= 11 (on Windows)
 
 Libs already included:
 * [rj format](https://github.com/ryjen/format), MIT licence
 * [CLIPP](https://github.com/muellan/clipp), MIT licence
 * [termcolor](https://github.com/ikalnytskyi/termcolor), BSD (3-clause) licence
-
-Not included:
-* MPIR
+* [google/benchmark](https://github.com/google/benchmark), Apache 2.0 licence
 
 ## Building
 
 ```bash
-# configuring project (if on windows, follow the given instructions)
-$ sudo python3.6 configure.py
+# first, clone it
+~$ git clone --depth=50 --branch=rework https://github.com/SuperFola/Ark.git
+~/Ark$ cd Ark
+~/Ark$ git submodule update --init --recursive
 # building Ark
-$ cmake -H. -Bbuild
-$ cmake --build build
+~/Ark$ cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release
+~/Ark$ cmake --build build
 # installing Ark
-$ cd build && sudo make install && cd ..
+# works on Linux and on Windows (might need administrative privileges)
+~/Ark$ cmake --install build --config Release
 # running
-$ Ark --help
+~/Ark$ Ark --help
 SYNOPSIS
-        Ark -h 
-        Ark --version 
-        Ark <file> [-c] [-o <out>] [-vm] [--count-fcalls] [-bcr] [-d] [-t] 
+        build/Ark -h 
+        build/Ark --version 
+        build/Ark --dev-info 
+        build/Ark <file> [-c] [-o <out>] [-vm] [-bcr] [-d] [-t] 
 
 OPTIONS
         -h, --help                  Display this help message
         --version                   Display Ark lang version and exit
-        <file>                      If no options provided, start the interpreter with the given file
+        --dev-info                  Display development informations and exit
         -c, --compile               Compile file
         -o, --output                Set the output filename for the compiler
         -vm                         Start the VM on the given file
-        --count-fcalls              Count functions calls and display result at the end of the execution
         -bcr, --bytecode-reader     Launch the bytecode reader
         -d, --debug                 Trigger debug mode
         -t, --time                  Launch a timer
@@ -101,11 +109,54 @@ LICENSE
         Mozilla Public License 2.0
 ```
 
-The project has been tested on
-* Linux Mint 18, 64 bits
-* Lubuntu 18, 32 bits
+## Performances
 
-## [Documentation](doc/main.md)
+The project was compiled on Linux Mint 18 x64, with g++ 8 and `-DNDEBUG -O3 -s`.
+
+The test here is the Ackermann-Peter function with m=3 and n=6:
+
+```
+2019-07-20 23:30:57
+Running benchmark/vm
+Run on (4 X 2400 MHz CPU s)
+CPU Caches:
+  L1 Data 32K (x2)
+  L1 Instruction 32K (x2)
+  L2 Unified 256K (x2)
+  L3 Unified 3072K (x1)
+Load Average: 0.23, 0.48, 0.48
+-------------------------------------------------------------------
+Benchmark                         Time             CPU   Iterations
+-------------------------------------------------------------------
+Ackermann_3_6_ark_mean          144 ms          144 ms           25
+Ackermann_3_6_ark_median        140 ms          140 ms           25
+Ackermann_3_6_ark_stddev       9.58 ms         9.57 ms           25
+
+Ackermann_3_6_cpp_mean        0.337 ms        0.337 ms           25
+Ackermann_3_6_cpp_median      0.334 ms        0.334 ms           25
+Ackermann_3_6_cpp_stddev      0.008 ms        0.008 ms           25
+```
+
+Comparison with Java using OpenJDK 11.0.3 x64 (source code [here](benchmarks/Ackermann.java)):
+```
+Mean time: 651.28us
+Median time: 622us
+Stddev: 119.49792299450229us
+```
+
+Comparison with Python 3.6.7 (source code [here](benchmarks/ackermann.py)):
+```
+Mean time: 36.2155839279294ms
+Median time: 35.600485280156136ms
+Stddev: 0.8867313499129518ms
+```
+
+Comparison with Lua 5.1.5 (source code [here](benchmarks/ackermann.lua)):
+```
+Mean time: 13.244432 ms
+Median time: 13.214 ms
+Stddev: 0.30360220508642ms
+```
 
 ## Credits
 

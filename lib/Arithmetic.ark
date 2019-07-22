@@ -1,12 +1,4 @@
 {
-    (let mod (fun (x y) {
-        (while (> x y)
-            (set x (- x y))
-        )
-        ' ret
-        x
-    }))
-
     (let abs (fun (x)
         (if (< x 0)
             (* -1 x)

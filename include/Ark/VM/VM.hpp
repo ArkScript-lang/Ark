@@ -8,87 +8,166 @@
 #include <optional>
 #include <memory>
 #include <unordered_map>
+#include <utility>
 
 #include <Ark/VM/Value.hpp>
 #include <Ark/VM/Frame.hpp>
 #include <Ark/Compiler/Instructions.hpp>
 #include <Ark/VM/Plugin.hpp>
+#include <Ark/VM/FFI.hpp>
+#include <Ark/Log.hpp>
+
+#undef abs
+#include <cmath>
 
 namespace Ark
 {
-    namespace VM
+    using namespace std::string_literals;
+
+    template<bool debug>
+    class VM_t
     {
-        using namespace Ark::Compiler;
+    public:
+        VM_t(bool persist=false);
 
-        class VM
+        void feed(const std::string& filename);
+        void feed(const bytecode_t& bytecode);
+        void loadFunction(const std::string& name, internal::Value::ProcType function);
+        void run();
+
+    private:
+        bool m_persist;
+        bytecode_t m_bytecode;
+        // Instruction Pointer and Page Pointer
+        int m_ip;
+        std::size_t m_pp;
+        bool m_running;
+        std::string m_filename;
+        uint16_t m_last_sym_loaded;
+
+        // related to the bytecode
+        std::vector<std::string> m_symbols;
+        std::vector<internal::Value> m_constants;
+        std::vector<std::string> m_plugins;
+        std::vector<internal::SharedLibrary> m_shared_lib_objects;
+        std::vector<bytecode_t> m_pages;
+
+        // related to the execution
+        std::vector<internal::Frame> m_frames;
+        std::optional<internal::Closure::Scope_t> m_saved_scope;
+        std::vector<internal::Closure::Scope_t> m_locals;
+
+        void configure();
+
+        inline uint16_t readNumber()
         {
-        public:
-            VM(bool debug=false, bool count_fcall=false);
+            auto x = (static_cast<uint16_t>(m_pages[m_pp][m_ip]) << 8); ++m_ip;
+            auto y = (static_cast<uint16_t>(m_pages[m_pp][m_ip])     );
+            return x + y;
+        }
 
-            void feed(const std::string& filename);
-            void feed(const bytecode_t& bytecode);
-            void run();
+        // locals related
 
-            void loadFunction(const std::string& name, Value::ProcType function);
+        template <int pp=-1>
+        inline internal::Value& registerVariable(uint16_t id, internal::Value&& value)
+        {
+            if constexpr (pp == -1)
+                return (*m_locals.back())[id] = value;
+            return (*m_locals[pp])[id] = value;
+        }
 
-            template <typename T>
-            T get(const std::string& name);
-        
-        private:
-            bool m_debug;
-            bool m_count_fcall;
-            uint64_t m_fcalls;
-            bytecode_t m_bytecode;
-            // Instruction Pointer and Page Pointer
-            int m_ip;
-            std::size_t m_pp;
-            bool m_running;
-            std::string m_filename;
+        template <int pp=-1>
+        inline internal::Value& registerVariable(uint16_t id, const internal::Value& value)
+        {
+            if constexpr (pp == -1)
+                return (*m_locals.back())[id] = value;
+            return (*m_locals[pp])[id] = value;
+        }
 
-            std::vector<Value::ProcType> m_ffi;
-
-            std::vector<std::string> m_symbols;
-            std::vector<Value> m_constants;
-            std::vector<std::string> m_plugins;
-            std::vector<SharedLibrary> m_shared_lib_objects;
-            std::vector<bytecode_t> m_pages;
-
-            std::vector<std::shared_ptr<Frame>> m_frames;
-            std::optional<std::shared_ptr<Frame>> m_saved_frame;
-
-            void configure();
-            void initFFI();
-
-            inline uint16_t readNumber()
+        inline internal::Value* findNearestVariable(uint16_t id)
+        {
+            const std::size_t s = m_symbols.size();
+            for (auto it=m_locals.rbegin(); it != m_locals.rend(); ++it)
             {
-                return (static_cast<uint16_t>(m_pages[m_pp][  m_ip]) << 8) +
-                       (static_cast<uint16_t>(m_pages[m_pp][++m_ip])     );
+                if ((**it)[id] != internal::FFI::undefined)
+                    return &(**it)[id];
             }
+            return nullptr;
+        }
 
-            inline Frame& frontFrame() { return *m_frames.front(); }
-            inline Frame& backFrame()  { return *m_frames.back();  }
-            inline Frame& frameAt(std::size_t i) { return *m_frames[i]; }
-            inline void createNewFrame() { m_frames.push_back(std::make_shared<Frame>(m_symbols.size())) ; }
+        template<int pp=-1>
+        inline internal::Value& getVariableInScope(uint16_t id)
+        {
+            if constexpr (pp == -1)
+                return (*m_locals.back())[id];
+            return (*m_locals[pp])[id];
+        }
 
-            Value pop();
-            void push(const Value& value);
+        inline void returnFromFuncCall()
+        {
+            // remove frame
+            bool is_closure = m_frames.back().isClosure();
+            m_frames.pop_back();
+            m_locals.pop_back();
+            if (is_closure)
+            {
+                // next environment is the one of the closure
+                // remove it
+                m_locals.pop_back();
+            }
+        }
 
-            // instructions
-            void nop();
-            void loadSymbol();
-            void loadConst();
-            void popJumpIfTrue();
-            void store();
-            void let();
-            void popJumpIfFalse();
-            void jump();
-            void ret();
-            void call();
-            void newEnv();
-            void builtin();
-            void saveEnv();
-        };
-    }
+        inline void createNewScope()
+        {
+            m_locals.emplace_back(
+                std::make_shared<std::vector<internal::Value>>(
+                    m_symbols.size(), internal::FFI::undefined
+                )
+            );
+        }
+
+        // error handling
+
+        inline void throwVMError(const std::string& message)
+        {
+            throw std::runtime_error("VMError: " + message);
+        }
+
+        // stack management
+
+        inline internal::Value&& pop(int page=-1);
+        inline void push(const internal::Value& value);
+        inline void push(internal::Value&& value);
+
+        // instructions
+        inline void loadSymbol();
+        inline void loadConst();
+        inline void popJumpIfTrue();
+        inline void store();
+        inline void let();
+        inline void popJumpIfFalse();
+        inline void jump();
+        inline void ret();
+        inline void call();
+        inline void capture();
+        inline void builtin();
+        inline void mut();
+        inline void del();
+        inline void saveEnv();
+        inline void getField();
+
+        inline void operators(uint8_t inst);
+    };
+}
+
+namespace Ark
+{
+    #include "VM.inl"
+
+    // debug on
+    using VM_debug = VM_t<true>;
+    // standard VM, debug off
+    using VM = VM_t<false>;
 }
 
 #endif

@@ -1,45 +1,31 @@
 #include <Ark/VM/Closure.hpp>
 
-#include <Ark/VM/Frame.hpp>
+#include <Ark/VM/Value.hpp>
 
-namespace Ark
+namespace Ark::internal
 {
-    namespace VM
+    Closure::Closure() :
+        m_scope(nullptr),
+        m_page_addr(0)
+    {}
+
+    Closure::Closure(Closure::Scope_t&& scope_ptr, PageAddr_t pa) :
+        m_scope(scope_ptr),
+        m_page_addr(pa)
+    {}
+
+    Closure::Closure(const Closure::Scope_t& scope_ptr, PageAddr_t pa) :
+        m_scope(scope_ptr),
+        m_page_addr(pa)
+    {}
+
+    const Closure::Scope_t& Closure::scope() const
     {
-        Closure::Closure() :
-            m_frame(nullptr),
-            m_page_addr(0)
-        {}
+        return m_scope;
+    }
 
-        Closure::Closure(std::shared_ptr<Frame> frame_ptr, PageAddr_t pa) :
-            m_frame(frame_ptr),
-            m_page_addr(pa)
-        {}
-
-        void Closure::save(std::size_t frame_idx, uint16_t sym)
-        {
-            m_frame_idx = frame_idx;
-            m_symbol = sym;
-        }
-
-        std::shared_ptr<Frame> Closure::frame() const
-        {
-            return m_frame;
-        }
-
-        PageAddr_t Closure::pageAddr() const
-        {
-            return m_page_addr;
-        }
-
-        std::size_t Closure::frameIndex() const
-        {
-            return m_frame_idx;
-        }
-
-        uint16_t Closure::symbol() const
-        {
-            return m_symbol;
-        }
+    Closure::Scope_t& Closure::scope_ref()
+    {
+        return m_scope;
     }
 }

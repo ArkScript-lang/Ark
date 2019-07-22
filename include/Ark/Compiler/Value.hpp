@@ -4,34 +4,30 @@
 #include <variant>
 #include <string>
 
-#include <Ark/BigNum.hpp>
-#include <Ark/Lang/Node.hpp>
+#include <Ark/Parser/Node.hpp>
 
-namespace Ark
+namespace Ark::internal
 {
-    namespace Compiler
+    enum class CValueType
     {
-        enum class ValueType
-        {
-            Number,
-            String,
-            PageAddr  // for function definitions
-        };
+        Number,
+        String,
+        PageAddr  // for function definitions
+    };
 
-        struct Value
-        {
-            std::variant<BigNum, std::string, std::size_t> value;
-            ValueType type;
+    struct CValue
+    {
+        std::variant<double, std::string, std::size_t> value;
+        CValueType type;
 
-            Value(int value);
-            Value(long value);
-            Value(const std::string& value);
-            Value(const Ark::Lang::Node& v);
-            Value(std::size_t value);
+        CValue(double value);
+        CValue(long value);
+        CValue(const std::string& value);
+        CValue(const Node& v);
+        CValue(std::size_t value);
 
-            bool operator==(const Value& A);
-        };
-    }
+        bool operator==(const CValue& A);
+    };
 }
 
 #endif

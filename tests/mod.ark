@@ -1,6 +1,0 @@
-{
-    (import "Arithmetic.ark")
-
-    (print (mod 36.5 5.0))
-    (print (mod 9.7  2.3))
-}

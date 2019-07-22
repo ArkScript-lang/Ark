@@ -1,0 +1,12 @@
+{
+    (import "Range.ark")
+
+    (let r (range 5 10))
+    
+    (print (r))
+    (print (r))
+    (print (r))
+    (print (r))
+    (print (r))
+    (print (r))
+}

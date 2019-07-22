@@ -1,11 +1,18 @@
 (let switch (fun (value tests) {
-    (let acc 0)
+    (mut acc 0)
     (let end (len tests))
 
     (while (!= acc end) {
-        (let r (@ tests acc))
-        (let bis (@ r 0))
-        (if (= value bis) {(@ r 1) (set acc end)} ())
+        (mut r (@ tests acc))
+        (mut bis (@ r 0))
+        (if (= bis value)
+            {
+                (mut df (@ r 1))
+                (df)
+                (set acc (- end 1))
+            }
+            ()
+        )
 
         (set acc (+ 1 acc))
     })

@@ -2,17 +2,17 @@
 
 Ark is a toy programming language, inspired from Lisp. The language is dynamically and strongly typed, this means that a variable can not be implicitely converted to another type, and that any variable can hold any type.
 
-The language itself is very small since it has only 8 keywords: `begin`, `if`, `while`, `let`, `set`, `fun`, `import` and `quote`.
+The language itself is very small since it has only 8 keywords: `begin`, `if`, `while`, `let`, `mut`, `set`, `fun`, `import`, `quote` and `del`.
 
 ## Basics
 
-Blocks are surrounded by `()`. Creating a block with `[...]` will expand to `(list ...)`, and creating one with `{...}` will expand to `(begin ...)`.
+Blocks are surrounded by `()`. Creating a block with `[...]` will expand to `(list ...)`, and creating one with `{...}` to `(begin ...)`.
 
-`1257756`, `-78/54` and `-1.2` are numbers. Internally, they are stored on `Ark::BigNum`, which allows to store really big numbers without the usual limitation (32 or 64 bits).
+`1257756` and `-1.2` are numbers.
 
 `"hello world"` is a string.
 
-A comment starts with `'`.
+A comment starts with `#`.
 
 Instead of calling a function as you would do in C or Python, in Ark we use the Polish notation, so `f(a, b, c, ...)` becomes `(f a b c ...)`.
 
@@ -24,7 +24,7 @@ Instead of calling a function as you would do in C or Python, in Ark we use the 
     (let sayHi! (fun (msg)
         (print msg)
     ))
-    (sayHi! message)  ' display `hello world!`
+    (sayHi! message)  # display `hello world!`
 }
 ```
 
@@ -46,30 +46,31 @@ void fun()
 
 Every inner level can access its outer levels.
 
-To define a new variable can be defined using `let` keyword, taking a symbol and a value:
+To define a new immutable variable, we use the `let` keyword, taking a symbol and a value:
 
 ```clojure
-(let a 10)  ' valid definition
-(let d 1 2)  ' invalid definition
-(let c) ' invalid definition
+(let a 10)  # valid definition
+(let d 1 2)  # invalid definition
+(let c) # invalid definition
 ```
 
-To modify a variable, we can't just use `let` again, we should use `set`:
+To be able to modify a variable, we must declare it as **mutable** using the `mut` keyword. Then we can change its value using `set`:
 
 ```
-(set a 12)  ' valid
-(set b 1 2)  ' invalid
-(set c)  ' invalid
+(mut a 5)
+(set a 12)  # valid
+(set b 1 2)  # invalid
+(set c)  # invalid
 ```
 
 ## Conditions
 
-A condition can be invoked using `if` keyword, taking 3 nodes: a condition, a if block, and a else block.
+A condition can be created using `if` keyword, taking 3 nodes: a condition, a if block, and a else block.
 
 ```clojure
 (if (= a 10)
-    (print "a = 10")  ' then
-    (print "a != 10") ' else
+    (print "a = 10")  # then
+    (print "a != 10") # else
 )
 ```
 
@@ -79,13 +80,13 @@ Sometimes we need to have a single block doing multiple things. We could create 
 
 ```clojure
 (if (= a 10)
-    ' then
+    # then
     (begin
         (set a 12)
         (print "because a = 10, I changed it to 12")
     )
 
-    ' else
+    # else
     (print "nope")
 )
 ```
@@ -111,7 +112,7 @@ We can create a function with the keyword `fun`. It needs 2 nodes: an argument l
 (fun (a b c) (print a b c))
 ```
 
-When creating a function, it's capturing the environment it was created in, and copy it to save it. We create what we call "closures".
+When creating a function, it's capturing the environment it was created in, and copying it to save it. We create what we call a "closure".
 
 ```clojure
 (let make-closure (fun (name)
@@ -120,17 +121,19 @@ When creating a function, it's capturing the environment it was created in, and 
     )
 ))
 
-' instanciating a closure
+# instanciating a closure
 (let say-hi (make-closure "hi"))
-' calling our closure
-(say-hi)  ' prints `hi`
+# calling our closure
+(say-hi)  # prints `hi`
 ```
+
+**Nota Bene**: all the arguments passed to a function are passed by value, and they are marked as *mutable* inside the function.
 
 ## Importing Ark code
 
 To import an Ark file into your code you can do this: `(import "myfile.ark")`. The function needs a path relative to the location of the code importing the Ark files, and takes only one argument.
 
-If you need to import an Ark file from the standard library, `import` will be able to find it, no need to create a relative path to the lib! Just note that all the files in the standard library have a name starting with an uppercase letter.
+If you want to import an Ark file from the standard library, `import` will be able to find it, no need to create a relative path to the lib! Just note that all the files in the standard library have a name starting with an uppercase letter, for example `Switch.ark`.
 
 ## Loading a plugin
 
@@ -138,16 +141,18 @@ You may want to be able to use the SFML in Ark, or another C++ library. If an Ar
 
 The files are searched in the directory when the `.arkc` file is, and in the directory where the Ark standard library is installed.
 
-## Calling a function later
+## Defering a function call
 
 ```clojure
 {
     (let foo (fun (n) (print n)))
     (let egg (quote (foo 5)))
-    (print egg)  ' prints `Clojure @ ...`
-    (egg)  ' prints `5`
+    (print egg)  # prints `Closure @ ...`
+    (egg)  # prints `5`
 }
 ```
+
+The `'(foo 5)` notation can also be used, it will be automatically expanded to `(quote ...)`.
 
 # Using Ark in a project
 

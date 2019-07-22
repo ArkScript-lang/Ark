@@ -7,41 +7,55 @@
 #include <vector>
 
 #include <Ark/Parser/Lexer.hpp>
-#include <Ark/Lang/Node.hpp>
+#include <Ark/Parser/Node.hpp>
 
 namespace Ark
 {
-    namespace Parser
+    class Parser
     {
-        using namespace Ark::Lang;
-    
-        class Parser
+    public:
+        Parser(bool debug=false);
+
+        void feed(const std::string& code, const std::string& filename="FILE");
+        const internal::Node& ast() const;
+
+        friend std::ostream& operator<<(std::ostream& os, const Parser& P);
+
+    private:
+        bool m_debug;
+        internal::Lexer m_lexer;
+        internal::Node m_ast;
+        internal::Token m_last_token;
+
+        std::string m_file;
+        std::vector<std::string> m_parent_include;
+
+        void sugar(std::vector<internal::Token>& tokens);
+        internal::Node parse(std::list<internal::Token>& tokens, bool authorize_capture=false, bool authorize_field_read=false);
+        internal::Token nextToken(std::list<internal::Token>& tokens);
+        internal::Node atom(const internal::Token& token);
+
+        bool checkForInclude(internal::Node& n);
+
+        inline void except(bool pred, const std::string& message, internal::Token token)
         {
-        public:
-            Parser(bool debug=false);
+            if (!pred)
+                throwParseError(message, token);
+        }
 
-            void feed(const std::string& code, const std::string& filename="FILE");
-            bool check();
-            const Node& ast() const;
+        inline void throwParseError(const std::string& message, internal::Token token)
+        {
+            throw std::runtime_error("ParseError: " + message + "\nAt " +
+                Ark::Utils::toString(token.line) + ":" + Ark::Utils::toString(token.col) +
+                " `" + token.token + "' (" + internal::tokentype_string[static_cast<unsigned>(token.type)] + ")"
+            );
+        }
 
-            friend std::ostream& operator<<(std::ostream& os, const Parser& P);
-
-        private:
-            bool m_debug;
-            Lexer m_lexer;
-            Node m_ast;
-
-            std::string m_file;
-            std::vector<std::string> m_parent_include;
-
-            void sugar(std::vector<Token>& tokens);
-            Node compile(std::list<Token>& tokens);
-            Node atom(const Token& token);
-            bool checkForInclude(Node& n);
-            void checkForQuote(Node& n);
-            bool _check(const Node& ast);
-        };
-    }
+        inline void throwParseError_(const std::string& message)
+        {
+            throw std::runtime_error("ParseError: " + message);
+        }
+    };
 }
 
 #endif  // ark_parser

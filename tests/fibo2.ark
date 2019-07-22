@@ -2,22 +2,26 @@
     (let fibo
         (fun (n)
             (begin
-                (let a 0)
-                (let b 1)
-                (let acc 1)
+                (mut a 0)
+                (mut b 1)
+                (mut acc 1)
                 (while (< acc n)
                     (begin
-                        (let c (+ a b))
+                        (mut c (+ a b))
                         (set a b)
                         (set b c)
 
                         (set acc (+ 1 acc))
                     )
                 )
-                ' value to return
+                # value to return
                 b
             )
         )
     )
-    (print (fibo 28))
+    (mut d 0)
+    (while (< d 25) {
+        (fibo 28)
+        (set d (+ 1 d))
+    })
 )

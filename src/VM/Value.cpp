@@ -1,174 +1,132 @@
 #include <Ark/VM/Value.hpp>
 
 #include <Ark/VM/Frame.hpp>
+#include <Ark/Utils.hpp>
 
-namespace Ark
+namespace Ark::internal
 {
-    namespace VM
+    Value::Value(ValueType type) :
+        m_type(type), m_const(false)
     {
-        Value::Value(bool is_list) :
-            m_is_list(is_list)
-        {}
+        if (m_type == ValueType::List)
+            m_value = std::vector<Value>();
+    }
 
-        Value::Value(int value) :
-            m_value(BigNum(value)), m_is_list(false)
-        {}
+    Value::Value(int value) :
+        m_value(static_cast<double>(value)), m_type(ValueType::Number), m_const(false)
+    {}
 
-        Value::Value(const BigNum& value) :
-            m_value(value), m_is_list(false)
-        {}
+    Value::Value(double value) :
+        m_value(value), m_type(ValueType::Number), m_const(false)
+    {}
 
-        Value::Value(const std::string& value) :
-            m_value(value), m_is_list(false)
-        {}
+    Value::Value(const std::string& value) :
+        m_value(value), m_type(ValueType::String), m_const(false)
+    {}
 
-        Value::Value(PageAddr_t value) :
-            m_value(value), m_is_list(false)
-        {}
+    Value::Value(std::string&& value) :
+        m_value(value), m_type(ValueType::String), m_const(false)
+    {}
 
-        Value::Value(NFT value) :
-            m_value(value), m_is_list(false)
-        {}
+    Value::Value(PageAddr_t value) :
+        m_value(value), m_type(ValueType::PageAddr), m_const(false)
+    {}
 
-        Value::Value(Value::ProcType value) :
-            m_value(value), m_is_list(false)
-        {}
+    Value::Value(NFT value) :
+        m_value(value), m_type(ValueType::NFT), m_const(false)
+    {}
 
-        Value::Value(const std::vector<Value>& value) :
-            m_list(value), m_is_list(true)
-        {}
+    Value::Value(Value::ProcType value) :
+        m_value(value), m_type(ValueType::CProc), m_const(false)
+    {}
 
-        Value::Value(const Closure& value) :
-            m_value(value), m_is_list(false)
-        {}
+    Value::Value(std::vector<Value>&& value) :
+        m_value(value), m_type(ValueType::List), m_const(false)
+    {}
 
-        Value::Value(const Value& value) :
-            m_value(value.m_value),
-            m_list(value.m_list),
-            m_is_list(value.m_is_list)
-        {}
+    Value::Value(Closure&& value) :
+        m_value(value), m_type(ValueType::Closure), m_const(false)
+    {}
 
-        Value::Value(std::shared_ptr<Frame> frame_ptr, PageAddr_t pa) :
-            m_value(Closure(frame_ptr, pa)),
-            m_is_list(false)
-        {}
+    // --------------------------
 
-        bool Value::isNumber() const
+    std::vector<Value>& Value::list()
+    {
+        return std::get<std::vector<Value>>(m_value);
+    }
+
+    Closure& Value::closure_ref()
+    {
+        return std::get<Closure>(m_value);
+    }
+
+    void Value::setConst(bool value)
+    {
+        m_const = value;
+    }
+
+    // --------------------------
+
+    void Value::push_back(const Value& value)
+    {
+        m_type = ValueType::List;
+        list().push_back(value);
+    }
+
+    // --------------------------
+
+    std::ostream& operator<<(std::ostream& os, const Value& V)
+    {
+        switch (V.valueType())
         {
-            return !m_is_list && std::holds_alternative<BigNum>(m_value);
+        case ValueType::Number:
+            os << Ark::Utils::toString(V.number());
+            break;
+        
+        case ValueType::String:
+            os << V.string();
+            break;
+        
+        case ValueType::PageAddr:
+            os << V.pageAddr();
+            break;
+        
+        case ValueType::NFT:
+        {
+            NFT nft = V.nft();
+            if (nft == NFT::Nil)
+                os << "nil";
+            else if (nft == NFT::False)
+                os << "false";
+            else if (nft == NFT::True)
+                os << "true";
+            else if (nft == NFT::Undefined)
+                os << "undefined";
+            break;
         }
 
-        bool Value::isString() const
+        case ValueType::CProc:
+            os << "CProcedure";
+            break;
+        
+        case ValueType::List:
         {
-            return !m_is_list && std::holds_alternative<std::string>(m_value);
+            os << "( ";
+            for (auto& t: V.const_list())
+                os << t << " ";
+            os << ")";
+            break;
         }
 
-        bool Value::isPageAddr() const
-        {
-            return !m_is_list && std::holds_alternative<PageAddr_t>(m_value);
+        case ValueType::Closure:
+            os << "Closure @ " << V.closure().pageAddr();
+            break;
+        
+        default:
+            os << "~\\._./~";
+            break;
         }
 
-        bool Value::isNFT() const
-        {
-            return !m_is_list && std::holds_alternative<NFT>(m_value);
-        }
-
-        bool Value::isProc() const
-        {
-            return !m_is_list && std::holds_alternative<Value::ProcType>(m_value);
-        }
-
-        bool Value::isList() const
-        {
-            return m_is_list;
-        }
-
-        bool Value::isClosure() const
-        {
-            return !m_is_list && std::holds_alternative<Closure>(m_value);
-        }
-
-        const BigNum& Value::number() const
-        {
-            return std::get<BigNum>(m_value);
-        }
-
-        const std::string& Value::string() const
-        {
-            return std::get<std::string>(m_value);
-        }
-
-        const PageAddr_t Value::pageAddr() const
-        {
-            return std::get<PageAddr_t>(m_value);
-        }
-
-        const NFT Value::nft() const
-        {
-            return std::get<NFT>(m_value);
-        }
-
-        const Value::ProcType Value::proc() const
-        {
-            return std::get<Value::ProcType>(m_value);
-        }
-
-        const std::vector<Value>& Value::const_list() const
-        {
-            return m_list;
-        }
-
-        const Closure& Value::closure() const
-        {
-            return std::get<Closure>(m_value);
-        }
-
-        std::vector<Value>& Value::list()
-        {
-            return m_list;
-        }
-
-        Closure& Value::closure_ref()
-        {
-            return std::get<Closure>(m_value);
-        }
-
-        void Value::push_back(const Value& value)
-        {
-            m_is_list = true;
-            m_list.push_back(value);
-        }
-
-        std::ostream& operator<<(std::ostream& os, const Value& V)
-        {
-            if (V.isNumber())
-                os << V.number().toString();
-            else if (V.isString())
-                os << V.string();
-            else if (V.isPageAddr())
-                os << V.pageAddr();
-            else if (V.isNFT())
-            {
-                NFT nft = V.nft();
-                if (nft == NFT::Nil)
-                    os << "nil";
-                else if (nft == NFT::False)
-                    os << "false";
-                else if (nft == NFT::True)
-                    os << "true";
-            }
-            else if (V.isProc())
-                os << "Procedure";
-            else if (V.isList())
-            {
-                os << "( ";
-                for (auto& t: V.const_list())
-                    os << t << " ";
-                os << ")";
-            }
-            else if (V.isClosure())
-                os << "Closure (" << V.closure().frame() << ") @ " << V.closure().pageAddr();
-            return os;
-        }
+        return os;
     }
 }

@@ -2,19 +2,19 @@
     (let fibo
         (fun (n)
             (if (= n 0)
-                ' then
+                # then
                 (begin
                     (print "return 0")
                     0
                 )
-                ' else
+                # else
                 (if (= n 1)
-                    ' then
+                    # then
                     (begin
                         (print "return 1")
                         1
                     )
-                    ' else
+                    # else
                     (begin
                         (print "trying to return fibo(n-1)+fibo(n-2)" n (- n 1) (- n 2))
                         (+
@@ -22,10 +22,10 @@
                             (fibo (- n 2))
                         )
                     )
-                ) ' endif
-            ) ' endif
-        ) ' endfun
-    ) ' enddef
+                ) # endif
+            ) # endif
+        ) # endfun
+    ) # enddef
 
     (print (fibo 4))
 )

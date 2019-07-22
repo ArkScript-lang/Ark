@@ -3,7 +3,6 @@
 
 #include <vector>
 #include <variant>
-#include <Ark/BigNum.hpp>
 #include <string>
 #include <cinttypes>
 #include <iostream>
@@ -13,87 +12,120 @@
 #include <Ark/VM/Closure.hpp>
 #include <Ark/Exceptions.hpp>
 
-namespace Ark
+namespace Ark::internal
 {
-    namespace VM
+    enum class ValueType
     {
-        class Frame;
+        List,
+        Number,
+        String,
+        PageAddr,
+        NFT,
+        CProc,
+        Closure
+    };
 
-        class Value
+    class Frame;
+
+    class Value
+    {
+    public:
+        using ProcType  = Value(*)(const std::vector<Value>&);
+        using Iterator = std::vector<Value>::const_iterator;
+        using Value_t = std::variant<double, std::string, PageAddr_t, NFT, ProcType, Closure, std::vector<Value>>;
+
+        Value() = default;
+        Value(Value&&) = default;
+        Value(const Value&) = default;
+        Value& operator=(const Value&) = default;
+
+        Value(ValueType type);
+        Value(int value);
+        Value(double value);
+        Value(const std::string& value);
+        Value(std::string&& value);
+        Value(PageAddr_t value);
+        Value(NFT value);
+        Value(Value::ProcType value);
+        Value(std::vector<Value>&& value);
+        Value(Closure&& value);
+
+        inline ValueType valueType() const
         {
-        public:
-            using ProcType  = Value(*)(const std::vector<Value>&);
-            using Iterator = std::vector<Value>::const_iterator;
-            using ValueType = std::variant<BigNum, std::string, PageAddr_t, NFT, ProcType, Closure>;
-
-            Value(bool is_list=false);
-            Value(int value);
-            Value(const BigNum& value);
-            Value(const std::string& value);
-            Value(PageAddr_t value);
-            Value(NFT value);
-            Value(Value::ProcType value);
-            Value(const std::vector<Value>& value);
-            Value(const Closure& value);
-            Value(const Value& value);
-            Value(std::shared_ptr<Frame> frame_ptr, PageAddr_t pa);
-
-            bool isNumber() const;
-            bool isString() const;
-            bool isPageAddr() const;
-            bool isNFT() const;
-            bool isProc() const;
-            bool isList() const;
-            bool isClosure() const;
-
-            const BigNum& number() const;
-            const std::string& string() const;
-            const PageAddr_t pageAddr() const;
-            const NFT nft() const;
-            const ProcType proc() const;
-            const std::vector<Value>& const_list() const;
-            const Closure& closure() const;
-
-            std::vector<Value>& list();
-            Closure& closure_ref();
-
-            void push_back(const Value& value);
-
-            friend std::ostream& operator<<(std::ostream& os, const Value& V);
-            friend inline bool operator==(const Value& A, const Value& B);
-
-            inline std::string typeToString() const
-            {
-                // must have the same order as the variant on L26
-                static const std::vector<std::string> types_str = { "Number", "String", "PageAddr", "Symbol", "Procedure", "Closure" };
-                
-                if (isNFT())
-                {
-                    if (nft() == NFT::Nil)
-                        return "Nil";
-                    return "Bool";
-                }
-
-                return types_str[m_value.index()];
-            }
-
-        private:
-            ValueType m_value;
-            std::vector<Value> m_list;
-            bool m_is_list;
-        };
-
-        inline bool operator==(const Value& A, const Value& B)
-        {
-            // values should have the same type
-            if (A.m_value.index() != B.m_value.index())
-                return false;
-
-            if (A.m_is_list)
-                throw Ark::TypeError("Can not compare lists");
-            
-            return A.m_value == B.m_value;
+            return m_type;
         }
+
+        inline bool isConst() const
+        {
+            return m_const;
+        }
+
+        inline double number() const
+        {
+            return std::get<double>(m_value);
+        }
+
+        inline const std::string& string() const
+        {
+            return std::get<std::string>(m_value);
+        }
+
+        inline PageAddr_t pageAddr() const
+        {
+            return std::get<PageAddr_t>(m_value);
+        }
+
+        inline NFT nft() const
+        {
+            return std::get<NFT>(m_value);
+        }
+
+        inline const ProcType proc() const
+        {
+            return std::get<Value::ProcType>(m_value);
+        }
+
+        inline const std::vector<Value>& const_list() const
+        {
+            return std::get<std::vector<Value>>(m_value);
+        }
+
+        inline const Closure& closure() const
+        {
+            return std::get<Closure>(m_value);
+        }
+
+        std::vector<Value>& list();
+        Closure& closure_ref();
+        void setConst(bool value);
+
+        void push_back(const Value& value);
+        void push_back(Value&& value);
+
+        friend std::ostream& operator<<(std::ostream& os, const Value& V);
+        friend inline bool operator==(const Value& A, const Value& B);
+
+    private:
+        Value_t m_value;
+        ValueType m_type;
+        bool m_const;
+    };
+
+    inline bool operator==(const Value& A, const Value& B)
+    {
+        // values should have the same type
+        if (A.m_type != B.m_type)
+            return false;
+        // don't compare lists
+        if (A.m_type == ValueType::List)
+            return false;
+        
+        return A.m_value == B.m_value;
+    }
+
+    inline bool operator!=(const Value& A, const Value& B)
+    {
+        return !(A == B);
     }
 }
 

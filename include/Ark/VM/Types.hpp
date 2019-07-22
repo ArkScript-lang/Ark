@@ -3,13 +3,10 @@
 
 #include <cinttypes>
 
-namespace Ark
+namespace Ark::internal
 {
-    namespace VM
-    {
-        enum class NFT { Nil, False, True };
-        using PageAddr_t = uint16_t;
-    }
+    enum class NFT { Nil, False, True, Undefined };
+    using PageAddr_t = uint16_t;
 }
 
 #endif

@@ -1,5 +1,5 @@
 {
-    ' jeu du plus ou moins
+    # jeu du plus ou moins
     (print "Jeu du plus ou moins !")
 
     (import "librandom.so")
@@ -16,13 +16,13 @@
         (set value (toNumber (input "Entrez une valeur numérique: ")))
 
         (if (< value number)
-            ' then
+            # then
             (print "C'est plus !")
-            ' else
+            # else
             (if (= value number)
-                ' then
+                # then
                 { (print "Gagné !") (set continue false) }
-                ' else
+                # else
                 (print "C'est moins !")
             )
         )

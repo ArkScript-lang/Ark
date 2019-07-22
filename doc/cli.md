@@ -15,34 +15,11 @@ $ Ark myfile.ark --compile
 $ Ark myfile.ark -c -o myfile
 ```
 
-### Executing a file with the interpreter
-
-```bash
-# if no options are given, the interpreter is triggered
-$ Ark myfile.ark
-```
-
 ### Executing a file on the virtual machine
 
 ```bash
 # the file must be an Ark bytecode file
 $ Ark myfile.arkc -vm
-```
-
-### Running the REPL (Read-Eval-Print Loop)
-
-```bash
-# if no arguments given, it automatically launches the REPL
-$ Ark
-```
-
-## Compiling and running a program on the VM
-
-```bash
-# the VM will take 'myfile' as the Ark bytecode file to execute
-$ Ark myfile.ark -c -o myfile -vm
-# the VM will take the default output path of the compiler as the filename to execute (FILENAME.arkc, FILENAME being the name of the provided file)
-$ Ark myfile.ark -c -vm
 ```
 
 ## Nota Bene

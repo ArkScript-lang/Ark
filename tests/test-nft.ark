@@ -1,0 +1,5 @@
+{
+    (let a nil)
+    (let b false)
+    (let c true)
+}

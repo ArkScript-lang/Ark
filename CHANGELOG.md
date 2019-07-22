@@ -1,6 +1,31 @@
 # Change Log
 
-## Unreleased
+## 3.0.0
+### Added
+- adding `del` and `mut` keywords. Now `let` is for settings constants and `mut` for variables. Also it isn't possible to use `let` to define the same constant twice
+- `google/benchmark` library for the benchmarks
+- Ark version section in bytecode
+- timestamp (build date)
+- major versions of the compiler and the virtual machine used must match, a compatibility accross versions will be kept if they have the same major number
+- many opcodes to handle the operators
+- persist flag for the VM (if persist is false (default value), each time we call vm.run(), the frames will be reseted)
+- adding captures through functions arguments: `(fun (&captured std-argument) (...))`
+- adding closure fields reading (readonly)
+
+### Changed
+- moved everything from the "folder namespaces" to a single `Ark::internal` namespace
+- using `#` instead of `'` for the comments, using `'` to quote instead of `` ` ``
+- the lexer is now detecting the type of the tokens it's playing with
+- using `std::runtime_error`s instead of `exit(1)` when an error occured
+- the VM should throw an error if we try to use `set` on a constant
+- we can avoid passing all the arguments to a function, they will just be undefined
+- the CLI is now able to determine if it should compile & run, run from the arkscript cache or run the file as a bytecode file
+
+### Removed
+- Lexer::check, we should see if the program is correct when building the AST
+- removed from the bytecode `NEW_ENV`
+
+## 2.2.0-dev
 ### Added
 - option in the CMakeLists.txt to use MPIR or not (defaults to no MPIR)
 - information about the compilation options used for Ark in the CLI
@@ -9,11 +34,15 @@
 ### Changed
 - using a vector instead of a map in the `Frame` to speed up things
 - using double or MPIR depending on the compilation options
+- moving `mod` in the FFI
+- renamed methods in `Node`
 
 ### Removed
 - `Defer.ark` from the standard library
+- supporting both BigNum and double is a bad idea, using only double now
+- removed the interpreter
 
-# 2.1.0
+## 2.1.0-dev
 ### Added
 - adding `switch` and `defer1` in the standard library (`defer1` shall be rewritten using `quote`)
 - keyword `quote`, macro version is `` ` ``
@@ -30,7 +59,7 @@
 
 ### Removed
 
-## 2.0.0
+## 2.0.0-dev
 ### Added
 - configure.py script, to download, build and install mpir 3.0.0
 - builtins functions: input, toNumber, toString
@@ -51,7 +80,7 @@
 ### Removed
 - `hastype` keyword because I never had to implement compile time typechecking, so it's not useful
 
-## 1.2.2
+## 1.2.2-dev
 ### Added
 - adding `import` keyword (handled by parser), throwing an error if a cyclic included is detected
 
@@ -59,7 +88,7 @@
 - CMakeLists.txt to add `install` rules: installing Ark in bin/ and the Ark standard library in share/.Ark/lib/
 - updated documentation
 
-## 1.2.1
+## 1.2.1-dev
 ### Added
 - runtime typechecking
 - exceptions (in the C++ Ark API)
@@ -71,7 +100,7 @@
 ### Removed
 - unnecessary destructors removed to let the compiler auto generate T(T&&) (to avoid implicitly using T(const T&))
 
-## 1.2.0
+## 1.2.0-dev
 ### Added
 - syntactic sugar handling in the parser
 - GMP lib to handle very large number
@@ -88,7 +117,7 @@
 ### Removed
 - dozerg::HugeNumber, it was too slow
 
-## 1.1.0
+## 1.1.0-dev
 ### Added
 - test.cpp to try to embed Ark into a C++ project
 - updated the documentation
@@ -103,7 +132,7 @@
 - CMakeLists.txt, adding an option to chose between compiling main.cpp or test.cpp
 - moved the VM FFI into include/Ark/VM
 
-## 1.0.0
+## 1.0.0-dev
 ## Added
 - beginning of the documentation
 - compiler (ark code to ark bytecode)
@@ -113,7 +142,7 @@
 - interpreter and VM FFI
 - logger
 
-## 0.1.0
+## 0.1.0-dev
 ### Added
 - Node (to represent an AST node and a Node in the language)
 - Environment to map variables and values
@@ -124,7 +153,7 @@
 - tests
 - utils to play with files
 
-## 0.0.1
+## 0.0.1-dev
 ### Added
 - utils to play with strings and numbers
 - default CLI (using clipp)

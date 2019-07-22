@@ -5,44 +5,14 @@
 
 #include <clipp.hpp>
 #include <Ark/Constants.hpp>
-#include <Ark/Lang/Program.hpp>
 #include <Ark/Compiler/Compiler.hpp>
 #include <Ark/Compiler/BytecodeReader.hpp>
 #include <Ark/VM/VM.hpp>
 #include <Ark/Log.hpp>
 
-void exec(bool debug, bool timer, const std::string& file)
-{
-    if (!Ark::Utils::fileExists(file))
-    {
-        Ark::logger.error("[Interpreter] Can not find file '" + file + "'");
-        return;
-    }
-
-    Ark::Lang::Program program(debug);
-    program.feed(Ark::Utils::readFile(file), file);
-
-    std::chrono::time_point<std::chrono::system_clock> start, end;
-    start = std::chrono::system_clock::now();
-
-    program.execute();
-
-    end = std::chrono::system_clock::now();
-    auto elapsed_microseconds = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-
-    if (timer)
-        std::cout << "Interpreter took " << elapsed_microseconds << "us" << std::endl;
-}
-
 void compile(bool debug, bool timer, const std::string& file, const std::string& output)
 {
-    if (!Ark::Utils::fileExists(file))
-    {
-        Ark::logger.error("[Compiler] Can not find file '" + file + "'");
-        return;
-    }
-
-    Ark::Compiler::Compiler compiler(debug);
+    Ark::Compiler compiler(debug);
     compiler.feed(Ark::Utils::readFile(file), file);
 
     std::chrono::time_point<std::chrono::system_clock> start, end;
@@ -62,110 +32,118 @@ void compile(bool debug, bool timer, const std::string& file, const std::string&
         std::cout << "Compiler took " << elapsed_microseconds << "us" << std::endl;
 }
 
-void bcr(const std::string& file)
+void vm(bool debug, bool timer, const std::string& file)
 {
-    Ark::Compiler::BytecodeReader bcr;
-    bcr.feed(file);
-    bcr.display();
-}
-
-void vm(bool debug, bool timer, const std::string& file, bool count_fcall)
-{
-    if (!Ark::Utils::fileExists(file))
+    if (debug)
     {
-        Ark::logger.error("[Virtual Machine] Can not find file '" + file + "'");
-        return;
-    }
-
-    Ark::VM::VM vm(debug, count_fcall);
-    vm.feed(file);
-
-    std::chrono::time_point<std::chrono::system_clock> start, end;
-    start = std::chrono::system_clock::now();
-
-    vm.run();
-
-    end = std::chrono::system_clock::now();
-    auto elapsed_microseconds = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-
-    if (timer)
-        std::cout << "VM took " << elapsed_microseconds << "us" << std::endl;
-}
-
-void repl(bool debug, bool timer)
-{
-    std::cout << "Ark " << ARK_VERSION_MAJOR << "." << ARK_VERSION_MINOR << "." << ARK_VERSION_PATCH << std::endl;
-    std::cout << ARK_COMPILER << " " << ARK_COMPILATION_OPTIONS << std::endl;
-#ifdef ARK_USE_MPIR
-    std::cout << "Compiled using MPIR 3.0.0" << std::endl;
-#endif
-    std::cout << "Type \"help\" for more information" << std::endl;
-
-    Ark::Lang::Environment env;
-
-    while (true)
-    {
-        std::string input = "";
-        std::cout << "~$ ";
-        std::getline(std::cin, input, '\n');
-
-        if (input == "help")
-        {
-            std::cout << "Type \"quit\" to quit the REPL" << std::endl;
-            continue;
-        }
-        else if (input == "quit")
-            break;
+        Ark::VM_debug vm;
+        vm.feed(file);
 
         std::chrono::time_point<std::chrono::system_clock> start, end;
         start = std::chrono::system_clock::now();
 
-        Ark::Lang::Program program(debug);
-        program.setEnv(env);
-        program.feed(input);
-        program.execute();
-
-        env = program.environment();
+        vm.run();
 
         end = std::chrono::system_clock::now();
         auto elapsed_microseconds = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
 
         if (timer)
-            std::cout << "Took " << elapsed_microseconds << "us" << std::endl;
+            std::cout << "VM took " << elapsed_microseconds << "us" << std::endl;
     }
+    else
+    {
+        Ark::VM vm;
+        vm.feed(file);
+
+        std::chrono::time_point<std::chrono::system_clock> start, end;
+        start = std::chrono::system_clock::now();
+
+        vm.run();
+
+        end = std::chrono::system_clock::now();
+        auto elapsed_microseconds = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+
+        if (timer)
+            std::cout << "VM took " << elapsed_microseconds << "us" << std::endl;
+    }
+}
+
+void bcr(const std::string& file)
+{
+    try {
+        Ark::BytecodeReader bcr;
+        bcr.feed(file);
+        bcr.display();
+    } catch (const std::exception& e) {
+        std::cout << e.what() << std::endl;
+    }
+}
+
+void run(const std::string& file, bool debug, bool timer)
+{
+    if (!Ark::Utils::fileExists(file))
+    {
+        Ark::logger.error("Can not find file '" + file + "'");
+        return;
+    }
+
+    // check if it's a bytecode file or a source code file
+    Ark::BytecodeReader bcr;
+    try {
+        bcr.feed(file);
+    } catch (const std::exception& e) {
+        std::cout << e.what() << std::endl;
+        return;
+    }
+
+    if (bcr.timestamp() == 0)  // couldn't read magic number, it's a source file
+    {
+        // check if it's in the arkscript cache
+        std::string short_filename = Ark::Utils::getFilenameFromPath(file);
+        std::string filename = short_filename.substr(0, short_filename.find_last_of('.')) + ".arkc";
+        std::filesystem::path directory =  (std::filesystem::path(file)).parent_path() / ARK_CACHE_DIRNAME;
+        std::string path = (directory / filename).string();
+
+        if (Ark::Utils::fileExists(path))
+            vm(debug, timer, path);
+        else
+        {
+            if (!std::filesystem::exists(directory))  // create ark cache directory
+                std::filesystem::create_directory(directory);
+            
+            compile(debug, timer, file, path);
+            vm(debug, timer, path);
+        }
+    }
+    else  // it's a bytecode file, run it
+        vm(debug, timer, file);
 }
 
 int main(int argc, char** argv)
 {
     using namespace clipp;
 
-    bool help_ = false,
-         version_ = false,
-         interpreter_ = false,
-         repl_ = true,
-         compiler_ = false,
-         vm_ = false,
-         bcr_ = false;
+    enum class mode { help, dev_info, bytecode_reader, version, run };
+    mode selected = mode::help;
 
-    std::string input_file = "", output_file = "";
-    bool debug = false, timer = false, count_fcall = false;
+    std::string file = "";
+    bool debug = false, timer = false;
     std::vector<std::string> wrong;
 
     auto cli = (
-        // general options
-        option("-h", "--help").set(help_).doc("Display this help message")
-        | option("--version").set(version_).doc("Display Ark lang version and exit")
-        | (value("file", input_file).set(interpreter_).doc("If no options provided, start the interpreter with the given file")
-            , option("-c", "--compile").set(compiler_).doc("Compile file")
-            , option("-o", "--output").doc("Set the output filename for the compiler") & value("out", output_file)
+        option("-h", "--help").set(selected, mode::help).doc("Display this message")
+        | option("--version").set(selected, mode::version).doc("Display ArkScript version and exit")
+        | option("--dev-info").set(selected, mode::dev_info).doc("Display development information and exit")
+        | (
+            value("file", file).set(selected, mode::run)
             , (
-                option("-vm").set(vm_).doc("Start the VM on the given file")
-                , option("--count-fcalls").set(count_fcall).doc("Count functions calls and display result at the end of the execution")
-              )
-            , option("-bcr", "--bytecode-reader").set(bcr_).doc("Launch the bytecode reader")
-            , option("-d", "--debug").set(debug).doc("Trigger debug mode")
-            , option("-t", "--time").set(timer).doc("Launch a timer")
-          )
+                (
+                    option("-d", "--debug").set(debug).doc("Enable debug mode")
+                    , option("-t", "--time").set(timer).doc("Enable timer")
+                )
+                | option("-bcr", "--bytecode-reader").set(selected, mode::bytecode_reader).doc("Launch the bytecode reader")
+            )
+        )
         , any_other(wrong)
     );
 
@@ -178,52 +156,36 @@ int main(int argc, char** argv)
 
     if (parse(argc, argv, cli) && wrong.empty())
     {
-        if (help_)
+        switch (selected)
         {
-            std::cerr << make_man_page(cli, argv[0], fmt).append_section("LICENSE", "        Mozilla Public License 2.0")
-                      << std::endl;
-            return 0;
-        }
-
-        if (version_)
-        {
-            std::cout << "Version " << ARK_VERSION_MAJOR << "." << ARK_VERSION_MINOR << "." << ARK_VERSION_PATCH << std::endl;
-            return 0;
-        }
-
-        if (interpreter_ && !compiler_ && !vm_ && !bcr_)
-        {
-            exec(debug, timer, input_file);
-            return 0;
-        }
-
-        if (repl_ && !interpreter_ && !compiler_ && !vm_ && !bcr_)
-        {
-            repl(debug, timer);
-            return 0;
-        }
-
-        if (compiler_)
-            compile(debug, timer, input_file, output_file);
-
-        if (bcr_)
-        {
-            if (output_file != "")
-                bcr(output_file);
-            else if (compiler_ && output_file == "")
-                bcr(input_file.substr(0, input_file.find_last_of('.')) + ".arkc");
-            else
-                bcr(input_file);
-        }
-
-        if (vm_)
-        {
-            if (output_file != "")
-                vm(debug, timer, output_file, count_fcall);
-            else if (output_file == "" && compiler_)
-                vm(debug, timer, input_file.substr(0, input_file.find_last_of('.')) + ".arkc", count_fcall);
-            else
-                vm(debug, timer, input_file, count_fcall);
+            case mode::help:
+                std::cerr << make_man_page(cli, argv[0], fmt).append_section(
+                    "LICENSE",
+                    "        Mozilla Public License 2.0"
+                    ) << std::endl;
+                break;
+            
+            case mode::version:
+                std::cout << "Version " << ARK_VERSION_MAJOR << "." << ARK_VERSION_MINOR << "." << ARK_VERSION_PATCH << std::endl;
+                break;
+            
+            case mode::dev_info:
+                std::cout << ARK_COMPILER << " " << ARK_COMPILATION_OPTIONS << "\n";
+                std::cout << "sizeof(Ark::Value) [VM] = " << sizeof(Ark::internal::Value) << "B\n";
+                std::cout << "sizeof(Ark::Frame) [VM] = " << sizeof(Ark::internal::Frame) << "B\n";
+                std::cout << "sizeof(Ark::Closure)    = " << sizeof(Ark::internal::Closure) << "B\n";
+                std::cout << "sizeof(Ark::VM)         = " << sizeof(Ark::VM) << "B\n";
+                std::cout << "sizeof(char)            = " << sizeof(char) << "B\n";
+                std::cout << std::endl;
+                break;
+            
+            case mode::run:
+                run(file, debug, timer);
+                break;
+            
+            case mode::bytecode_reader:
+                bcr(file);
+                break;
         }
     }
     else
@@ -235,6 +197,9 @@ int main(int argc, char** argv)
                   << "Options:" << std::endl << documentation(cli, fmt) << std::endl
                   << "LICENSE"  << std::endl << "        Mozilla Public License 2.0" << std::endl;
     }
+
+    // to avoid some "CLI glitches"
+    std::cout << termcolor::reset;
     
     return 0;
 }
