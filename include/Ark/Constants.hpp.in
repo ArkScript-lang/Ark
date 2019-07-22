@@ -8,6 +8,7 @@
 #define ARK_STD "@ARK_STD@"
 #define ARK_COMPILATION_OPTIONS "@ARK_COMPILATION_OPTIONS@"
 #define ARK_COMPILER "@ARK_COMPILER@"
-#define ARK_MAX_STACK_SIZE 12
+#define ARK_MAX_STACK_SIZE 8
+#define ARK_CACHE_DIRNAME "__arkscript_cache__"
 
 #endif  // ark_constants

@@ -12,12 +12,6 @@
 
 void compile(bool debug, bool timer, const std::string& file, const std::string& output)
 {
-    if (!Ark::Utils::fileExists(file))
-    {
-        Ark::logger.error("[Compiler] Can not find file '" + file + "'");
-        return;
-    }
-
     Ark::Compiler compiler(debug);
     compiler.feed(Ark::Utils::readFile(file), file);
 
@@ -38,21 +32,8 @@ void compile(bool debug, bool timer, const std::string& file, const std::string&
         std::cout << "Compiler took " << elapsed_microseconds << "us" << std::endl;
 }
 
-void bcr(const std::string& file)
-{
-    Ark::BytecodeReader bcr;
-    bcr.feed(file);
-    bcr.display();
-}
-
 void vm(bool debug, bool timer, const std::string& file)
 {
-    if (!Ark::Utils::fileExists(file))
-    {
-        Ark::logger.error("[Virtual Machine] Can not find file '" + file + "'");
-        return;
-    }
-
     if (debug)
     {
         Ark::VM_debug vm;
@@ -87,78 +68,82 @@ void vm(bool debug, bool timer, const std::string& file)
     }
 }
 
-void tests(bool debug, bool timer)
+void bcr(const std::string& file)
 {
-    std::chrono::time_point<std::chrono::system_clock> start, end;
-    start = std::chrono::system_clock::now();
+    try {
+        Ark::BytecodeReader bcr;
+        bcr.feed(file);
+        bcr.display();
+    } catch (const std::exception& e) {
+        std::cout << e.what() << std::endl;
+    }
+}
 
-    Ark::internal::Lexer lexer(debug);
-    lexer.feed(Ark::Utils::readFile("tests/manylines.ark"));
+void run(const std::string& file, bool debug, bool timer)
+{
+    if (!Ark::Utils::fileExists(file))
+    {
+        Ark::logger.error("Can not find file '" + file + "'");
+        return;
+    }
 
-    end = std::chrono::system_clock::now();
-    auto elapsed_microseconds = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+    // check if it's a bytecode file or a source code file
+    Ark::BytecodeReader bcr;
+    try {
+        bcr.feed(file);
+    } catch (const std::exception& e) {
+        std::cout << e.what() << std::endl;
+        return;
+    }
 
-    if (timer)
-        std::cout << "[Tests] Lexer took " << elapsed_microseconds << "us" << std::endl;
-    
-    // --------------------------------
+    if (bcr.timestamp() == 0)  // couldn't read magic number, it's a source file
+    {
+        // check if it's in the arkscript cache
+        std::string short_filename = Ark::Utils::getFilenameFromPath(file);
+        std::string filename = short_filename.substr(0, short_filename.find_last_of('.')) + ".arkc";
+        std::filesystem::path directory =  (std::filesystem::path(file)).parent_path() / ARK_CACHE_DIRNAME;
+        std::string path = (directory / filename).string();
 
-    start = std::chrono::system_clock::now();
-
-    Ark::Parser parser(debug);
-    parser.feed(Ark::Utils::readFile("tests/manylines.ark"));
-
-    end = std::chrono::system_clock::now();
-    elapsed_microseconds = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-
-    if (timer)
-        std::cout << "[Tests] Parser took " << elapsed_microseconds << "us" << std::endl;
-    
-    // --------------------------------
-
-    Ark::Compiler compiler(debug);
-    compiler.feed(Ark::Utils::readFile("tests/manylines.ark"), "tests/manylines.ark");
-    start = std::chrono::system_clock::now();
-    compiler.compile();
-
-    end = std::chrono::system_clock::now();
-    elapsed_microseconds = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-
-    if (timer)
-        std::cout << "[Tests] Compiler took " << elapsed_microseconds << "us" << std::endl;
+        if (Ark::Utils::fileExists(path))
+            vm(debug, timer, path);
+        else
+        {
+            if (!std::filesystem::exists(directory))  // create ark cache directory
+                std::filesystem::create_directory(directory);
+            
+            compile(debug, timer, file, path);
+            vm(debug, timer, path);
+        }
+    }
+    else  // it's a bytecode file, run it
+        vm(debug, timer, file);
 }
 
 int main(int argc, char** argv)
 {
     using namespace clipp;
 
-    enum class mode {help, version, compiler, vm, bcr, dev_info, tests};
+    enum class mode { help, dev_info, bytecode_reader, version, run };
     mode selected = mode::help;
 
-    std::string input_file = "", output_file = "";
+    std::string file = "";
     bool debug = false, timer = false;
     std::vector<std::string> wrong;
 
-    // TODO: temp CLI, redo a better one able to compile code only if needed (check timestamp)
     auto cli = (
-        // general options
-        option("-h", "--help").set(selected, mode::help).doc("Display this help message")
-        | option("--version").set(selected, mode::version).doc("Display Ark lang version and exit")
-        | option("--dev-info").set(selected, mode::dev_info).doc("Display development informations and exit")
-        | (option("--tests").set(selected, mode::tests).doc("Launch some tests")
-            , option("-d", "--debug").set(debug).doc("Trigger debug mode")
-            , option("-t", "--time").set(timer).doc("Launch a timer")
-        )
-        | (value("file", input_file)
-            , option("-c", "--compile").set(selected, mode::compiler).doc("Compile file")
-            , option("-o", "--output").doc("Set the output filename for the compiler") & value("out", output_file)
+        option("-h", "--help").set(selected, mode::help).doc("Display this message")
+        | option("--version").set(selected, mode::version).doc("Display ArkScript version and exit")
+        | option("--dev-info").set(selected, mode::dev_info).doc("Display development information and exit")
+        | (
+            value("file", file).set(selected, mode::run)
             , (
-                option("-vm").set(selected, mode::vm).doc("Start the VM on the given file")
-              )
-            , option("-bcr", "--bytecode-reader").set(selected, mode::bcr).doc("Launch the bytecode reader")
-            , option("-d", "--debug").set(debug).doc("Trigger debug mode")
-            , option("-t", "--time").set(timer).doc("Launch a timer")
-          )
+                (
+                    option("-d", "--debug").set(debug).doc("Enable debug mode")
+                    , option("-t", "--time").set(timer).doc("Enable timer")
+                )
+                | option("-bcr", "--bytecode-reader").set(selected, mode::bytecode_reader).doc("Launch the bytecode reader")
+            )
+        )
         , any_other(wrong)
     );
 
@@ -194,20 +179,12 @@ int main(int argc, char** argv)
                 std::cout << std::endl;
                 break;
             
-            case mode::compiler:
-                compile(debug, timer, input_file, output_file);
+            case mode::run:
+                run(file, debug, timer);
                 break;
             
-            case mode::bcr:
-                bcr(input_file);
-                break;
-            
-            case mode::vm:
-                vm(debug, timer, input_file);
-                break;
-            
-            case mode::tests:
-                tests(debug, timer);
+            case mode::bytecode_reader:
+                bcr(file);
                 break;
         }
     }
