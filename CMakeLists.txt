@@ -46,7 +46,7 @@ set(ARK_COMPILER ${CMAKE_CXX_COMPILER_ID})
 set(ARK_SUBMODULES_ROOT ${Ark_SOURCE_DIR}/submodules)
 
 # STANDARD LIBRARY PATH
-if (UNIX or APPLE)
+if (UNIX OR LINUX)
     set(ARK_STD ${CMAKE_INSTALL_PREFIX}/share/.Ark/lib)
 elseif (WIN32)
     if (MSVC)
@@ -104,7 +104,7 @@ set_target_properties(
 
 add_subdirectory(benchmarks)
 
-if (UNIX or APPLE)
+if (UNIX OR LINUX)
     install(TARGETS Ark DESTINATION bin)
     install(DIRECTORY ${Ark_SOURCE_DIR}/lib/ DESTINATION share/.Ark/lib)
 elseif (WIN32)
