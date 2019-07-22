@@ -21,6 +21,7 @@
 - using `std::runtime_error`s instead of `exit(1)` when an error occured
 - the VM should throw an error if we try to use `set` on a constant
 - we can avoid passing all the arguments to a function, they will just be undefined
+- the CLI is now able to determine if it should compile & run, run from the arkscript cache or run the file as a bytecode file
 
 ### Removed
 - Lexer::check, we should see if the program is correct when building the AST

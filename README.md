@@ -84,7 +84,8 @@ Libs already included:
 ~/Ark$ cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release
 ~/Ark$ cmake --build build
 # installing Ark
-~/Ark$ cd build && sudo make install && cd ..
+# works on Linux and on Windows (might need administrative privileges)
+~/Ark$ cmake --install build --config Release
 # running
 ~/Ark$ Ark --help
 SYNOPSIS
