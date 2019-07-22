@@ -1,8 +1,6 @@
 # Change Log
 
-*Nota bene*: The change log below is about the development versions of the language.
-
-## Unreleased changes
+## 3.0.0
 ### Added
 - adding `del` and `mut` keywords. Now `let` is for settings constants and `mut` for variables. Also it isn't possible to use `let` to define the same constant twice
 - `google/benchmark` library for the benchmarks
