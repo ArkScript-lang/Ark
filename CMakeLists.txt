@@ -29,24 +29,29 @@ if (CMAKE_COMPILER_IS_GNUCXX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,-rpath,/usr/local/lib")
 endif()
 
+if (BUILD_MODULES MATCHES "true")
+    add_subdirectory(${Ark_SOURCE_DIR}/modules)
+endif()
+
 # configuring Constants.hpp
 
-set(ARK_VERSION_MAJOR 2)
-set(ARK_VERSION_MINOR 2)
+# VERSION
+set(ARK_VERSION_MAJOR 3)
+set(ARK_VERSION_MINOR 0)
 set(ARK_VERSION_PATCH 0)
+
+# COMPILATION RELATED
 set(ARK_COMPILATION_OPTIONS ${CMAKE_CXX_FLAGS})
+set(ARK_COMPILER ${CMAKE_CXX_COMPILER_ID})
+set(ARK_SUBMODULES_ROOT ${Ark_SOURCE_DIR}/submodules)
+
+# STANDARD LIBRARY PATH
 if (UNIX or APPLE)
-set(ARK_STD ${CMAKE_INSTALL_PREFIX}/share/.Ark/lib)
+    set(ARK_STD ${CMAKE_INSTALL_PREFIX}/share/.Ark/lib)
 elseif (WIN32)
     if (MSVC)
         set(ARK_STD ${CMAKE_INSTALL_PREFIX}/lib)
     endif()
-endif()
-set(ARK_COMPILER ${CMAKE_CXX_COMPILER_ID})
-set(ARK_SUBMODULES_ROOT ${Ark_SOURCE_DIR}/submodules)
-
-if (BUILD_MODULES MATCHES "true")
-    add_subdirectory(${Ark_SOURCE_DIR}/modules)
 endif()
 
 configure_file(
