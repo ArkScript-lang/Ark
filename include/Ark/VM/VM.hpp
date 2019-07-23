@@ -54,8 +54,8 @@ namespace Ark
 
         // related to the execution
         std::vector<internal::Frame> m_frames;
-        std::optional<internal::Closure::Scope_t> m_saved_scope;
-        std::vector<internal::Closure::Scope_t> m_locals;
+        std::optional<internal::Scope_t> m_saved_scope;
+        std::vector<internal::Scope_t> m_locals;
 
         void configure();
 

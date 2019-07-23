@@ -9,22 +9,22 @@ namespace Ark::internal
         m_page_addr(0)
     {}
 
-    Closure::Closure(Closure::Scope_t&& scope_ptr, PageAddr_t pa) :
+    Closure::Closure(Scope_t&& scope_ptr, PageAddr_t pa) :
         m_scope(scope_ptr),
         m_page_addr(pa)
     {}
 
-    Closure::Closure(const Closure::Scope_t& scope_ptr, PageAddr_t pa) :
+    Closure::Closure(const Scope_t& scope_ptr, PageAddr_t pa) :
         m_scope(scope_ptr),
         m_page_addr(pa)
     {}
 
-    const Closure::Scope_t& Closure::scope() const
+    const Scope_t& Closure::scope() const
     {
         return m_scope;
     }
 
-    Closure::Scope_t& Closure::scope_ref()
+    Scope_t& Closure::scope_ref()
     {
         return m_scope;
     }

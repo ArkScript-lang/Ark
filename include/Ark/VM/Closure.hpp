@@ -10,11 +10,11 @@ namespace Ark::internal
 {
     class Value;
 
+    using Scope_t = std::shared_ptr<std::vector<Value>>;
+
     class Closure
     {
     public:
-        using Scope_t = std::shared_ptr<std::vector<Value>>;
-
         Closure();
         Closure(Scope_t&& scope_ptr, PageAddr_t pa);
         Closure(const Scope_t& scope_ptr, PageAddr_t pa);
