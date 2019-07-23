@@ -16,11 +16,13 @@ const char* g_code_vm =
     ")\n"
     "";
 
-Ark::VM::Value dostuff(const std::vector<Ark::VM::Value>& values)
+using namespace Ark::internal;
+
+Value dostuff(const std::vector<Value>& values)
 {
     if (values.size() == 1 && values[0].isNumber() && values[0].number() == 42)
-        return Ark::VM::Value(Ark::VM::NFT::True);
-    return Ark::VM::Value(Ark::VM::NFT::False);
+        return Value(NFT::True);
+    return Value(NFT::False);
 }
 
 int main()
@@ -52,6 +54,9 @@ compile.compile();  // needed to toggle bytecode generation
 To create a virtual machine:
 
 ```cpp
+// debug mode on
+Ark::VM_debug vm;
+// debug mode off
 Ark::VM vm;
 vm.feed(compiler.bytecode());
 // or

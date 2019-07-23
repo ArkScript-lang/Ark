@@ -10,13 +10,10 @@
 #include <Ark/VM/VM.hpp>
 #include <Ark/Log.hpp>
 
-void compile(bool debug, bool timer, const std::string& file, const std::string& output)
+void compile(bool debug, const std::string& file, const std::string& output)
 {
     Ark::Compiler compiler(debug);
     compiler.feed(Ark::Utils::readFile(file), file);
-
-    std::chrono::time_point<std::chrono::system_clock> start, end;
-    start = std::chrono::system_clock::now();
 
     compiler.compile();
 
@@ -24,47 +21,21 @@ void compile(bool debug, bool timer, const std::string& file, const std::string&
         compiler.saveTo(output);
     else
         compiler.saveTo(file.substr(0, file.find_last_of('.')) + ".arkc");
-
-    end = std::chrono::system_clock::now();
-    auto elapsed_microseconds = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-
-    if (timer)
-        std::cout << "Compiler took " << elapsed_microseconds << "us" << std::endl;
 }
 
-void vm(bool debug, bool timer, const std::string& file)
+void vm(bool debug, const std::string& file)
 {
     if (debug)
     {
         Ark::VM_debug vm;
         vm.feed(file);
-
-        std::chrono::time_point<std::chrono::system_clock> start, end;
-        start = std::chrono::system_clock::now();
-
         vm.run();
-
-        end = std::chrono::system_clock::now();
-        auto elapsed_microseconds = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-
-        if (timer)
-            std::cout << "VM took " << elapsed_microseconds << "us" << std::endl;
     }
     else
     {
         Ark::VM vm;
         vm.feed(file);
-
-        std::chrono::time_point<std::chrono::system_clock> start, end;
-        start = std::chrono::system_clock::now();
-
         vm.run();
-
-        end = std::chrono::system_clock::now();
-        auto elapsed_microseconds = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-
-        if (timer)
-            std::cout << "VM took " << elapsed_microseconds << "us" << std::endl;
     }
 }
 
@@ -79,7 +50,7 @@ void bcr(const std::string& file)
     }
 }
 
-void run(const std::string& file, bool debug, bool timer)
+void run(const std::string& file, bool debug)
 {
     if (!Ark::Utils::fileExists(file))
     {
@@ -105,18 +76,30 @@ void run(const std::string& file, bool debug, bool timer)
         std::string path = (directory / filename).string();
 
         if (Ark::Utils::fileExists(path))
-            vm(debug, timer, path);
+        {
+            auto ftime = std::filesystem::last_write_time(directory / filename);
+
+            // this shouldn't fail
+            Ark::BytecodeReader bcr2;
+            bcr2.feed(path);
+            auto timestamp = bcr.timestamp();
+            auto file_last_write = static_cast<decltype(timestamp)>(ftime.time_since_epoch().count());
+            // recompile
+            if (timestamp < file_last_write)
+                compile(debug, file, path);
+            vm(debug, path);
+        }
         else
         {
             if (!std::filesystem::exists(directory))  // create ark cache directory
                 std::filesystem::create_directory(directory);
             
-            compile(debug, timer, file, path);
-            vm(debug, timer, path);
+            compile(debug, file, path);
+            vm(debug, path);
         }
     }
     else  // it's a bytecode file, run it
-        vm(debug, timer, file);
+        vm(debug, file);
 }
 
 int main(int argc, char** argv)
@@ -127,7 +110,7 @@ int main(int argc, char** argv)
     mode selected = mode::help;
 
     std::string file = "";
-    bool debug = false, timer = false;
+    bool debug = false;
     std::vector<std::string> wrong;
 
     auto cli = (
@@ -139,7 +122,7 @@ int main(int argc, char** argv)
             , (
                 (
                     option("-d", "--debug").set(debug).doc("Enable debug mode")
-                    , option("-t", "--time").set(timer).doc("Enable timer")
+                    // , option("-t", "--time").set(timer).doc("Enable timer")
                 )
                 | option("-bcr", "--bytecode-reader").set(selected, mode::bytecode_reader).doc("Launch the bytecode reader")
             )
@@ -180,7 +163,7 @@ int main(int argc, char** argv)
                 break;
             
             case mode::run:
-                run(file, debug, timer);
+                run(file, debug);
                 break;
             
             case mode::bytecode_reader:

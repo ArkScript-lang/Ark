@@ -165,7 +165,3 @@ The `'(foo 5)` notation can also be used, it will be automatically expanded to `
 # The bytecode
 
 -> [Ark bytecode format](bytecode.md)
-
-# Using the Command Line Interface
-
--> [Ark CLI](cli.md)

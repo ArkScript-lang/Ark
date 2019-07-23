@@ -89,21 +89,17 @@ Libs already included:
 # running
 ~/Ark$ Ark --help
 SYNOPSIS
-        build/Ark -h 
-        build/Ark --version 
-        build/Ark --dev-info 
-        build/Ark <file> [-c] [-o <out>] [-vm] [-bcr] [-d] [-t] 
+        build/Ark -h
+        build/Ark --version
+        build/Ark --dev-info
+        build/Ark <file> [-d|-bcr]
 
 OPTIONS
-        -h, --help                  Display this help message
-        --version                   Display Ark lang version and exit
-        --dev-info                  Display development informations and exit
-        -c, --compile               Compile file
-        -o, --output                Set the output filename for the compiler
-        -vm                         Start the VM on the given file
+        -h, --help                  Display this message
+        --version                   Display ArkScript version and exit
+        --dev-info                  Display development information and exit
+        -d, --debug                 Enable debug mode
         -bcr, --bytecode-reader     Launch the bytecode reader
-        -d, --debug                 Trigger debug mode
-        -t, --time                  Launch a timer
 
 LICENSE
         Mozilla Public License 2.0

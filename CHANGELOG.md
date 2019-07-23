@@ -1,5 +1,14 @@
 # Change Log
 
+## Unreleased version
+### Added
+
+### Changed
+- the CLI is checking the timestamp of the file to know if it should recompile it or not
+- the CLI knows if it should recompile the given file or not
+
+### Removed
+
 ## 3.0.0
 ### Added
 - adding `del` and `mut` keywords. Now `let` is for settings constants and `mut` for variables. Also it isn't possible to use `let` to define the same constant twice
