@@ -314,7 +314,7 @@ void VM_t<debug>::run()
     if constexpr (debug)
         Ark::logger.info("Starting at PP:{0}, IP:{1}"s, m_pp, m_ip);
 
-    //try {
+    try {
         m_running = true;
         while (m_running)
         {
@@ -417,11 +417,11 @@ void VM_t<debug>::run()
             // move forward
             ++m_ip;
         }
-    /*} catch (const std::exception& e) {
+    } catch (const std::exception& e) {
         std::cout << "At IP: " << m_ip << ", PP: " << m_pp << "\n";
         std::cout << e.what() << std::endl;
         std::cout << termcolor::reset;
-    }*/
+    }
 }
 
 // ------------------------------------------
@@ -708,15 +708,15 @@ inline void VM_t<debug>::call()
         case ValueType::Closure:
         {
             int old_frame = m_frames.size() - 1;
-            Closure c = function.closure();
+            Closure& c = function.closure_ref();
             auto new_page_pointer = c.pageAddr();
 
             // load saved scope
             m_locals.push_back(c.scope());
             // create dedicated frame
             createNewScope();
+            m_frames.back().incScopeCountToDelete();
             m_frames.emplace_back(m_ip, m_pp);
-            m_frames.back().setClosure(true);
 
             m_pp = new_page_pointer;
             m_ip = -1;  // because we are doing a m_ip++ right after that
@@ -850,13 +850,21 @@ inline void VM_t<debug>::getField()
     
     auto var = pop();
     if (var.valueType() != ValueType::Closure)
-        throwVMError("variable isn't a closure, can not get the field `" + m_symbols[id] + "' from it");
+        throwVMError("variable `" + m_symbols[m_last_sym_loaded] + "' isn't a closure, can not get the field `" + m_symbols[id] + "' from it");
     
     auto field = (*var.closure_ref().scope())[id];
     if (field != FFI::undefined)
     {
         if constexpr (debug)
             Ark::logger.data("Pushing closure field:", field);
+        
+        // check for CALL instruction
+        if (m_ip + 1 < m_pages[m_pp].size() && m_pages[m_pp][m_ip + 1] == Instruction::CALL)
+        {
+            m_locals.push_back(var.closure_ref().scope());
+            m_frames.back().incScopeCountToDelete();
+        }
+
         push(field);
         return;
     }

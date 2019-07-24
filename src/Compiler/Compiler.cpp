@@ -412,14 +412,27 @@ namespace Ark
         // if we are here, we should have a function name
         // push arguments first, then function name, then call it
             m_temp_pages.emplace_back();
-            _compile(x.list()[0], -static_cast<int>(m_temp_pages.size()));  // storing proc
+            int proc_page = -static_cast<int>(m_temp_pages.size());
+            _compile(x.list()[0], proc_page);  // storing proc
+            // trying to handle chained closure.field.field.field...
+                std::size_t n = 1;
+                while (true)
+                {
+                    if (x.list()[n].nodeType() == Ark::internal::NodeType::GetField)
+                    {
+                        _compile(x.list()[n], proc_page);
+                        n++;
+                    }
+                    else
+                        break;
+                }
+            std::size_t proc_page_len = m_temp_pages.back().size();
         // push arguments on current page
-        for (Ark::internal::Node::Iterator exp=x.list().begin() + 1; exp != x.list().end(); ++exp)
+        for (Ark::internal::Node::Iterator exp=x.list().begin() + n; exp != x.list().end(); ++exp)
             _compile(*exp, p);
         // push proc from temp page
         for (auto&& inst : m_temp_pages.back())
             page(p).push_back(inst);
-        std::size_t proc_page_len = m_temp_pages.back().size();
         m_temp_pages.pop_back();
         // call the procedure
         // we know that operators take only 1 instruction, so if there are more

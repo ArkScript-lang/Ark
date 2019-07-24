@@ -21,7 +21,7 @@ namespace Ark::internal
                 TokenType type = item.first;
                 std::smatch m;
 
-                if (std::regex_search(src, m, item.second))
+                if (std::regex_search(src, m, item.second, std::regex_constants::match_continuous))
                 {
                     std::string result = m[0];
 

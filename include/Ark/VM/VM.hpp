@@ -86,7 +86,6 @@ namespace Ark
 
         inline internal::Value* findNearestVariable(uint16_t id)
         {
-            const std::size_t s = m_symbols.size();
             for (auto it=m_locals.rbegin(); it != m_locals.rend(); ++it)
             {
                 if ((**it)[id] != internal::FFI::undefined)
@@ -106,15 +105,17 @@ namespace Ark
         inline void returnFromFuncCall()
         {
             // remove frame
-            bool is_closure = m_frames.back().isClosure();
             m_frames.pop_back();
+            uint8_t del_counter = m_frames.back().scopeCountToDelete();
             m_locals.pop_back();
-            if (is_closure)
+            
+            while (del_counter != 0)
             {
-                // next environment is the one of the closure
-                // remove it
                 m_locals.pop_back();
+                del_counter--;
             }
+
+            m_frames.back().resetScopeCountToDelete();
         }
 
         inline void createNewScope()

@@ -61,14 +61,21 @@ namespace Ark::internal
             return m_page_addr;
         }
 
-        inline void setClosure(bool value)
+        // related to scope deletion
+
+        inline void incScopeCountToDelete()
         {
-            m_is_closure = value;
+            m_scope_to_delete++;
+        }
+
+        inline void resetScopeCountToDelete()
+        {
+            m_scope_to_delete = 0;
         }
         
-        inline bool isClosure() const
+        inline uint8_t scopeCountToDelete() const
         {
-            return m_is_closure;
+            return m_scope_to_delete;
         }
 
         friend std::ostream& operator<<(std::ostream& os, const Frame& F);
@@ -80,7 +87,7 @@ namespace Ark::internal
         std::vector<Value> m_stack;
         int8_t m_i;
 
-        bool m_is_closure;
+        uint8_t m_scope_to_delete;
     };
 }
 

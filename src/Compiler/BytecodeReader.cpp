@@ -317,6 +317,10 @@ namespace Ark
                         os << "OR_\n";
                     else if (inst == Instruction::MOD)
                         os << "MOD\n";
+                    else if (inst == Instruction::TYPE)
+                        os << "TYPE\n";
+                    else if (inst == Instruction::HASFIELD)
+                        os << "HASFIELD\n";
                     else
                     {
                         os << "Unknown instruction: " << static_cast<int>(inst) << "\n";

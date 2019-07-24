@@ -1,20 +1,17 @@
 {
     (let create-human (fun (name age weight) {
-        # return value as higher order function to manipulate the data above
+        # functions can be invoked in the closure scope
+        (let set-age (fun (new-age) (set age new-age)))
+
         # this will be our "constructor"
-        (fun (new-age &name &age &weight) {
-            (if (!= nil new-age)
-                (set age new-age) ()
-            )
-        })
+        (fun (&set-age &name &age &weight) ())
     }))
 
     (let bob (create-human "Bob" 0 144))
     (let john (create-human "John" 12 15))
 
     (print bob.age)
-    # set age, quite ugly
-    (bob 10)
+    (bob.set-age 10)
     (print bob.age)
 
     (print john.age)

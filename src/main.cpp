@@ -50,7 +50,7 @@ void bcr(const std::string& file)
     }
 }
 
-void run(const std::string& file, bool debug)
+void run(const std::string& file, bool debug, bool recompile)
 {
     if (!Ark::Utils::fileExists(file))
     {
@@ -67,7 +67,7 @@ void run(const std::string& file, bool debug)
         return;
     }
 
-    if (bcr.timestamp() == 0)  // couldn't read magic number, it's a source file
+    if (recompile || bcr.timestamp() == 0)  // couldn't read magic number, it's a source file
     {
         // check if it's in the arkscript cache
         std::string short_filename = Ark::Utils::getFilenameFromPath(file);
@@ -75,7 +75,7 @@ void run(const std::string& file, bool debug)
         std::filesystem::path directory =  (std::filesystem::path(file)).parent_path() / ARK_CACHE_DIRNAME;
         std::string path = (directory / filename).string();
 
-        if (Ark::Utils::fileExists(path))
+        if (!recompile && Ark::Utils::fileExists(path))
         {
             auto ftime = std::filesystem::last_write_time(directory / filename);
 
@@ -110,7 +110,7 @@ int main(int argc, char** argv)
     mode selected = mode::help;
 
     std::string file = "";
-    bool debug = false;
+    bool debug = false, recompile = false;
     std::vector<std::string> wrong;
 
     auto cli = (
@@ -122,7 +122,7 @@ int main(int argc, char** argv)
             , (
                 (
                     option("-d", "--debug").set(debug).doc("Enable debug mode")
-                    // , option("-t", "--time").set(timer).doc("Enable timer")
+                     , option("-c", "--compile").set(recompile).doc("Force compilation")
                 )
                 | option("-bcr", "--bytecode-reader").set(selected, mode::bytecode_reader).doc("Launch the bytecode reader")
             )
@@ -163,7 +163,7 @@ int main(int argc, char** argv)
                 break;
             
             case mode::run:
-                run(file, debug);
+                run(file, debug, recompile);
                 break;
             
             case mode::bytecode_reader:
