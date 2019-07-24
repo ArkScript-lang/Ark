@@ -1,13 +1,12 @@
 # Change Log
 
-## Unreleased version
+## 3.0.1
 ### Added
+- we can now call functions captured by closures, inside the scope of the closure, using the dot notation
 
 ### Changed
 - the CLI is checking the timestamp of the file to know if it should recompile it or not
 - the CLI knows if it should recompile the given file or not
-
-### Removed
 
 ## 3.0.0
 ### Added
