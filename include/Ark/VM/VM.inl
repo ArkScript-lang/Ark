@@ -790,11 +790,7 @@ inline void VM_t<debug>::mut()
     if constexpr (debug)
         Ark::logger.info("MUT ({0}) PP:{1}, IP:{2}"s, m_symbols[id], m_pp, m_ip);
 
-    // if stack is empty, MUT id has no effect
-    if (m_frames.back().stackSize() != 0)
-        registerVariable(id, pop());
-    else
-        registerVariable(id, FFI::nil);
+    registerVariable(id, pop());
 }
 
 template<bool debug>
