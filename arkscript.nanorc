@@ -1,0 +1,29 @@
+syntax "ArkScript" "\.ark$"
+
+## built-in objects
+color brightmagenta "\<(nil|true|false)\>"
+
+## captures
+color brightgreen "&[a-zA-Z_][a-zA-Z0-9_\-?']*"
+
+## keywords
+color brightblue "\<(set|del|import|quote|begin|let|mut|fun|if|while)\>"
+color brightcyan "\<(append|concat|list|print|input|writeFile|readFile|writeFile|fileExists?)\>"
+
+## operators
+color brightyellow "[.+*|=!@'\^]" "<" ">" "/" "-" "and" "or" "mod" "type" "hasfield" "len" "empty?" "firstof" "tailof" "headof" "nil?" "assert" "toNumber" "toString"
+
+## blocks
+color yellow "[()]" "\[" "\]" "\{" "\}"
+
+## numbers
+icolor brightred "\b(([1-9][0-9]+)|0+)\.[0-9]+\b" "\b([1-9][0-9]*)\b" "\b0o?[0-7]*\b" "\b0x[1-9a-f][0-9a-f]*\b" "\b0b[01]+\b"
+
+## strings
+color yellow "["][^"]*[^\\]["]"
+
+## trailing spaces
+color ,green "[[:space:]]+$"
+
+## comments
+color blue "#.*"
