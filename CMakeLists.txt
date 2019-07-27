@@ -102,7 +102,9 @@ set_target_properties(
         CXX_EXTENSIONS OFF
 )
 
-add_subdirectory(benchmarks)
+if (ARK_BUILD_BENCHMARK)
+    add_subdirectory(benchmarks)
+endif()
 
 if (UNIX OR LINUX)
     install(TARGETS Ark DESTINATION bin)
