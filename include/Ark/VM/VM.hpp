@@ -35,6 +35,50 @@ namespace Ark
         void loadFunction(const std::string& name, internal::Value::ProcType function);
         void run();
 
+        internal::Value& operator[](const std::string& name);
+
+        template <typename... Args>
+        internal::Value& call(const std::string& name, Args&&... args)
+        {
+            using namespace Ark::internal;
+
+            // find id of function
+            auto it = std::find(m_symbols.begin(), m_symbols.end(), name);
+            if (it == m_symbols.end())
+            {
+                if constexpr (debug)
+                    throwVMError("Couldn't find symbol with name "+ name);
+            }
+
+            // find function object and push it if it's a pageaddr/closure
+            uint16_t id = static_cast<uint16_t>(std::distance(m_symbols.begin(), it));
+            auto var = findNearestVariable(id);
+            if (var != nullptr)
+            {
+                if (var->valueType() != ValueType::PageAddr && var->valueType() != ValueType::Closure)
+                    throwVMError("Symbol " + name + " isn't a function");
+                
+                push(*var);
+                m_last_sym_loaded = id;
+                throwVMError("Couldn't load symbol with name " + name);
+            }
+
+            // convert and push arguments in reverse order
+            std::vector<Value> args_ = { args... };
+            for (auto it2=args_.rbegin(); it2 != args_.rend(); ++it2)
+                push(*it2);
+
+            std::size_t frames_count = m_frames.size();
+            // call it
+            call(static_cast<int16_t>(sizeof...(Args)));
+
+            // run until the function returns
+            safeRun(/* untilFrameCount */ frames_count);
+
+            // get result
+            return pop();
+        }
+
     private:
         bool m_persist;
         bytecode_t m_bytecode;
@@ -44,6 +88,7 @@ namespace Ark
         bool m_running;
         std::string m_filename;
         uint16_t m_last_sym_loaded;
+        std::size_t m_until_frame_count;
 
         // related to the bytecode
         std::vector<std::string> m_symbols;
@@ -58,6 +103,7 @@ namespace Ark
         std::vector<internal::Scope_t> m_locals;
 
         void configure();
+        void safeRun(std::size_t untilFrameCount=0);
 
         inline uint16_t readNumber()
         {
@@ -116,6 +162,9 @@ namespace Ark
             }
 
             m_frames.back().resetScopeCountToDelete();
+
+            if (m_frames.size() == m_until_frame_count)
+                m_running = false;
         }
 
         inline void createNewScope()
@@ -149,7 +198,7 @@ namespace Ark
         inline void popJumpIfFalse();
         inline void jump();
         inline void ret();
-        inline void call();
+        inline void call(int16_t argc_=-1);
         inline void capture();
         inline void builtin();
         inline void mut();
