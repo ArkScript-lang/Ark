@@ -94,6 +94,16 @@ if (ARK_BUILD_EXE)
             CXX_STANDARD_REQUIRED ON
             CXX_EXTENSIONS OFF
     )
+
+    if (UNIX OR LINUX)
+        install(TARGETS Ark DESTINATION bin)
+        install(DIRECTORY ${Ark_SOURCE_DIR}/lib/ DESTINATION share/.Ark/lib)
+    elseif (WIN32)
+        if (MSVC)
+            install(TARGETS Ark DESTINATION bin)
+            install(DIRECTORY ${Ark_SOURCE_DIR}/lib DESTINATION lib)
+        endif()
+    endif()
 endif()
 
 set_target_properties(
@@ -106,14 +116,4 @@ set_target_properties(
 
 if (ARK_BUILD_BENCHMARK)
     add_subdirectory(benchmarks)
-endif()
-
-if (UNIX OR LINUX)
-    install(TARGETS Ark DESTINATION bin)
-    install(DIRECTORY ${Ark_SOURCE_DIR}/lib/ DESTINATION share/.Ark/lib)
-elseif (WIN32)
-    if (MSVC)
-        install(TARGETS Ark DESTINATION bin)
-        install(DIRECTORY ${Ark_SOURCE_DIR}/lib DESTINATION lib)
-    endif()
 endif()
