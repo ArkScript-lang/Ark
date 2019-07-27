@@ -83,16 +83,18 @@ if (UNIX OR LINUX)
     target_link_libraries(ArkReactor PUBLIC ${CMAKE_DL_LIBS})
 endif()
 
-add_executable(Ark ${Ark_SOURCE_DIR}/src/main.cpp)
-target_link_libraries(Ark PUBLIC ArkReactor)
+if (ARK_BUILD_EXE)
+    add_executable(Ark ${Ark_SOURCE_DIR}/src/main.cpp)
+    target_link_libraries(Ark PUBLIC ArkReactor)
 
-set_target_properties(
-    Ark
-    PROPERTIES
-        CXX_STANDARD 17
-        CXX_STANDARD_REQUIRED ON
-        CXX_EXTENSIONS OFF
-)
+    set_target_properties(
+        Ark
+        PROPERTIES
+            CXX_STANDARD 17
+            CXX_STANDARD_REQUIRED ON
+            CXX_EXTENSIONS OFF
+    )
+endif()
 
 set_target_properties(
     ArkReactor
