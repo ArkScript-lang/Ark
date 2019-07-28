@@ -249,6 +249,27 @@ void VM_t<debug>::loadFunction(const std::string& name, internal::Value::ProcTyp
     registerVariable<0>(std::distance(m_symbols.begin(), it), Value(function));
 }
 
+template<bool debug>
+internal::Value& VM_t<debug>::operator[](const std::string& name)
+{
+    using namespace Ark::internal;
+
+    // find id of object
+    auto it = std::find(m_symbols.begin(), m_symbols.end(), name);
+    if (it == m_symbols.end())
+    {
+        if constexpr (debug)
+            throwVMError("Couldn't find symbol with name " + name);
+    }
+
+    uint16_t id = static_cast<uint16_t>(std::distance(m_symbols.begin(), it));
+    auto var = findNearestVariable(id);
+    if (var != nullptr)
+        return *var;
+    else
+        throwVMError("Couldn't load symbol with name " + name);
+}
+
 // ------------------------------------------
 //                 execution
 // ------------------------------------------

@@ -47,7 +47,7 @@ namespace Ark
             if (it == m_symbols.end())
             {
                 if constexpr (debug)
-                    throwVMError("Couldn't find symbol with name "+ name);
+                    throwVMError("Couldn't find symbol with name " + name);
             }
 
             // find function object and push it if it's a pageaddr/closure
@@ -60,12 +60,13 @@ namespace Ark
                 
                 push(*var);
                 m_last_sym_loaded = id;
-                throwVMError("Couldn't load symbol with name " + name);
             }
+            else
+                throwVMError("Couldn't load symbol with name " + name);
 
             // convert and push arguments in reverse order
-            std::vector<Value> args_ = { args... };
-            for (auto it2=args_.rbegin(); it2 != args_.rend(); ++it2)
+            std::vector<Value> fnargs { args... };
+            for (auto it2=fnargs.rbegin(); it2 != fnargs.rend(); ++it2)
                 push(*it2);
 
             std::size_t frames_count = m_frames.size();
