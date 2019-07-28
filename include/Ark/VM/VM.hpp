@@ -38,7 +38,7 @@ namespace Ark
         internal::Value& operator[](const std::string& name);
 
         template <typename... Args>
-        internal::Value& call(const std::string& name, Args&&... args)
+        internal::Value&& call(const std::string& name, Args&&... args)
         {
             using namespace Ark::internal;
 
