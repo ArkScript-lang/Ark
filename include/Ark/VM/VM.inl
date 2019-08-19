@@ -1,6 +1,7 @@
 template<bool debug>
 VM_t<debug>::VM_t(bool persist) :
-    m_persist(persist), m_ip(0), m_pp(0), m_running(false), m_filename("FILE"), m_last_sym_loaded(0)
+    m_persist(persist), m_ip(0), m_pp(0), m_running(false), m_filename("FILE"),
+    m_last_sym_loaded(0), m_until_frame_count(0)
 {}
 
 // ------------------------------------------
@@ -247,6 +248,27 @@ void VM_t<debug>::loadFunction(const std::string& name, internal::Value::ProcTyp
     registerVariable<0>(std::distance(m_symbols.begin(), it), Value(function));
 }
 
+template<bool debug>
+internal::Value& VM_t<debug>::operator[](const std::string& name)
+{
+    using namespace Ark::internal;
+
+    // find id of object
+    auto it = std::find(m_symbols.begin(), m_symbols.end(), name);
+    if (it == m_symbols.end())
+    {
+        if constexpr (debug)
+            throwVMError("Couldn't find symbol with name " + name);
+    }
+
+    uint16_t id = static_cast<uint16_t>(std::distance(m_symbols.begin(), it));
+    auto var = findNearestVariable(id);
+    if (var != nullptr)
+        return *var;
+    else
+        throwVMError("Couldn't load symbol with name " + name);
+}
+
 // ------------------------------------------
 //                 execution
 // ------------------------------------------
@@ -313,6 +335,15 @@ void VM_t<debug>::run()
     if constexpr (debug)
         Ark::logger.info("Starting at PP:{0}, IP:{1}"s, m_pp, m_ip);
 
+    safeRun();
+}
+
+template<bool debug>
+void VM_t<debug>::safeRun(std::size_t untilFrameCount)
+{
+    using namespace Ark::internal;
+    m_until_frame_count = untilFrameCount;
+    
     try {
         m_running = true;
         while (m_running)
@@ -646,7 +677,7 @@ inline void VM_t<debug>::ret()
 }
 
 template<bool debug>
-inline void VM_t<debug>::call()
+inline void VM_t<debug>::call(int16_t argc_)
 {
     /*
         Argument: number of arguments when calling the function
@@ -657,8 +688,15 @@ inline void VM_t<debug>::call()
     */
     using namespace Ark::internal;
 
-    ++m_ip;
-    auto argc = readNumber();
+    uint16_t argc = 0;
+
+    if (argc_ <= -1)
+    {
+        ++m_ip;
+        argc = readNumber();
+    }
+    else
+        argc = argc_;
 
     if constexpr (debug)
         Ark::logger.info("CALL ({0}) PP:{1}, IP:{2}"s, argc, m_pp, m_ip);

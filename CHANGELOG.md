@@ -1,5 +1,14 @@
 # Change Log
 
+## Unreleased changes
+### Added
+- cmake options `ARK_BUILD_EXE` and `ARK_BUILD_BENCHMARK` to choose what to build
+
+### Changed
+- updated the VM to be able to call functions defined in Ark from C++
+
+### Removed
+
 ## 3.0.1
 ### Added
 - we can now call functions captured by closures, inside the scope of the closure, using the dot notation

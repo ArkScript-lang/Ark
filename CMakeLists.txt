@@ -38,7 +38,7 @@ endif()
 # VERSION
 set(ARK_VERSION_MAJOR 3)
 set(ARK_VERSION_MINOR 0)
-set(ARK_VERSION_PATCH 1)
+set(ARK_VERSION_PATCH 2)
 
 # COMPILATION RELATED
 set(ARK_COMPILATION_OPTIONS ${CMAKE_CXX_FLAGS})
@@ -83,16 +83,28 @@ if (UNIX OR LINUX)
     target_link_libraries(ArkReactor PUBLIC ${CMAKE_DL_LIBS})
 endif()
 
-add_executable(Ark ${Ark_SOURCE_DIR}/src/main.cpp)
-target_link_libraries(Ark PUBLIC ArkReactor)
+if (ARK_BUILD_EXE)
+    add_executable(Ark ${Ark_SOURCE_DIR}/src/main.cpp)
+    target_link_libraries(Ark PUBLIC ArkReactor)
 
-set_target_properties(
-    Ark
-    PROPERTIES
-        CXX_STANDARD 17
-        CXX_STANDARD_REQUIRED ON
-        CXX_EXTENSIONS OFF
-)
+    set_target_properties(
+        Ark
+        PROPERTIES
+            CXX_STANDARD 17
+            CXX_STANDARD_REQUIRED ON
+            CXX_EXTENSIONS OFF
+    )
+
+    if (UNIX OR LINUX)
+        install(TARGETS Ark DESTINATION bin)
+        install(DIRECTORY ${Ark_SOURCE_DIR}/lib/ DESTINATION share/.Ark/lib)
+    elseif (WIN32)
+        if (MSVC)
+            install(TARGETS Ark DESTINATION bin)
+            install(DIRECTORY ${Ark_SOURCE_DIR}/lib DESTINATION lib)
+        endif()
+    endif()
+endif()
 
 set_target_properties(
     ArkReactor
@@ -102,14 +114,6 @@ set_target_properties(
         CXX_EXTENSIONS OFF
 )
 
-add_subdirectory(benchmarks)
-
-if (UNIX OR LINUX)
-    install(TARGETS Ark DESTINATION bin)
-    install(DIRECTORY ${Ark_SOURCE_DIR}/lib/ DESTINATION share/.Ark/lib)
-elseif (WIN32)
-    if (MSVC)
-        install(TARGETS Ark DESTINATION bin)
-        install(DIRECTORY ${Ark_SOURCE_DIR}/lib DESTINATION lib)
-    endif()
+if (ARK_BUILD_BENCHMARK)
+    add_subdirectory(benchmarks)
 endif()

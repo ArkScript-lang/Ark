@@ -77,7 +77,7 @@ Libs already included:
 ~/Ark$ cd Ark
 ~/Ark$ git submodule update --init --recursive
 # building Ark
-~/Ark$ cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release
+~/Ark$ cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release -DARK_BUILD_EXE=1
 ~/Ark$ cmake --build build
 # installing Ark
 # works on Linux and on Windows (might need administrative privileges)
