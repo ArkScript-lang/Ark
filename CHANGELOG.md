@@ -3,6 +3,7 @@
 ## Unreleased changes
 ### Added
 - cmake options `ARK_BUILD_EXE` and `ARK_BUILD_BENCHMARK` to choose what to build
+- when the VM crash, displaying stack trace
 
 ### Changed
 - updated the VM to be able to call functions defined in Ark from C++

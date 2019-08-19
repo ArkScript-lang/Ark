@@ -141,6 +141,20 @@ namespace Ark
             return nullptr;
         }
 
+        inline uint16_t findNearestVariableIdWithValue(internal::Value&& value)
+        {
+            for (auto it=m_locals.rbegin(); it != m_locals.rend(); ++it)
+            {
+                for (auto sub=(*it)->begin(); sub != (*it)->end(); ++sub)
+                {
+                    if (*sub == value)
+                        return static_cast<uint16_t>(std::distance((*it)->begin(), sub));
+                }
+            }
+            // oversized by one: didn't find anything
+            return static_cast<uint16_t>(m_symbols.size());
+        }
+
         template<int pp=-1>
         inline internal::Value& getVariableInScope(uint16_t id)
         {

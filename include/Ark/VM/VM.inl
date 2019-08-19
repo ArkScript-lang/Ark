@@ -449,9 +449,33 @@ void VM_t<debug>::safeRun(std::size_t untilFrameCount)
             ++m_ip;
         }
     } catch (const std::exception& e) {
-        std::cout << "At IP: " << m_ip << ", PP: " << m_pp << "\n";
-        std::cout << e.what() << std::endl;
-        std::cout << termcolor::reset;
+        std::cout << "\n" << termcolor::red << e.what() << "\n";
+        std::cout << termcolor::reset << "At IP: " << m_ip << ", PP: " << m_pp << "\n";
+
+        if (m_frames.size() > 1)
+        {
+            // display call stack trace
+            for (auto it=m_frames.rbegin(); it != m_frames.rend(); ++it)
+            {
+                std::cout << "[" << termcolor::cyan << std::distance(it, m_frames.rend()) << termcolor::reset << "] ";
+                if (it->currentPageAddr() != 0)
+                {
+                    uint16_t id = findNearestVariableIdWithValue(
+                        Value(static_cast<PageAddr_t>(it->currentPageAddr()))
+                    );
+                    
+                    std::cout << "In function `" << termcolor::green << m_symbols[id] << termcolor::reset << "'\n";
+                }
+                else
+                    std::cout << "In global scope\n";
+
+                if (std::distance(m_frames.rbegin(), it) > 7)
+                {
+                    std::cout << "...\n";
+                    break;
+                }
+            }
+        }
     }
 }
 
@@ -731,7 +755,7 @@ inline void VM_t<debug>::call(int16_t argc_)
 
             // create dedicated frame
             createNewScope();
-            m_frames.emplace_back(m_ip, m_pp);
+            m_frames.emplace_back(m_ip, m_pp, new_page_pointer);
             // store "reference" to the function to speed the recursive functions
             registerVariable(m_last_sym_loaded, function);
 
@@ -754,7 +778,7 @@ inline void VM_t<debug>::call(int16_t argc_)
             // create dedicated frame
             createNewScope();
             m_frames.back().incScopeCountToDelete();
-            m_frames.emplace_back(m_ip, m_pp);
+            m_frames.emplace_back(m_ip, m_pp, new_page_pointer);
 
             m_pp = new_page_pointer;
             m_ip = -1;  // because we are doing a m_ip++ right after that

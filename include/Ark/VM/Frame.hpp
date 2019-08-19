@@ -22,7 +22,7 @@ namespace Ark::internal
     public:
         Frame();
         Frame(const Frame&) = default;
-        Frame(std::size_t caller_addr, std::size_t caller_page_addr);
+        Frame(std::size_t caller_addr, std::size_t caller_page_addr, std::size_t new_pp);
 
         // stack related
 
@@ -67,6 +67,11 @@ namespace Ark::internal
             return m_page_addr;
         }
 
+        inline std::size_t currentPageAddr() const
+        {
+            return m_new_pp;
+        }
+
         // related to scope deletion
 
         inline void incScopeCountToDelete()
@@ -87,8 +92,8 @@ namespace Ark::internal
         friend std::ostream& operator<<(std::ostream& os, const Frame& F);
     
     private:
-        //              IP,          PP
-        std::size_t m_addr, m_page_addr;
+        //              IP,          PP    EXC_PP
+        std::size_t m_addr, m_page_addr, m_new_pp;
 
         std::vector<Value> m_stack;
         int16_t m_i;
