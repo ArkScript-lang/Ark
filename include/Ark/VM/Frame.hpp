@@ -36,12 +36,18 @@ namespace Ark::internal
         {
             m_stack[m_i] = value;
             m_i++;
+
+            if (m_i == m_stack.size())
+                m_stack.emplace_back();
         }
 
         inline void push(Value&& value)
         {
             m_stack[m_i] = std::move(value);
             m_i++;
+
+            if (m_i == m_stack.size())
+                m_stack.emplace_back();
         }
 
         // getters-setters (misc)
@@ -85,7 +91,7 @@ namespace Ark::internal
         std::size_t m_addr, m_page_addr;
 
         std::vector<Value> m_stack;
-        int8_t m_i;
+        int16_t m_i;
 
         uint8_t m_scope_to_delete;
     };

@@ -6,6 +6,7 @@
 
 ### Changed
 - updated the VM to be able to call functions defined in Ark from C++
+- `del sym` set `sym` to `undefined` (internal value only, not the `undefined` of Javascript) instead of `nil`
 
 ### Removed
 

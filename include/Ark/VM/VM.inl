@@ -849,7 +849,7 @@ inline void VM_t<debug>::del()
     auto var = findNearestVariable(id);
     if (var != nullptr)
     {
-        *var = FFI::nil;
+        *var = FFI::undefined;
         return;
     }
 

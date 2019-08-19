@@ -7,8 +7,8 @@
 
     (let number (mod (abs (random)) 10000))
     (print number)
-    (let value 0)
-    (let essais 0)
+    (mut value 0)
+    (mut essais 0)
 
     (let continue true)
 

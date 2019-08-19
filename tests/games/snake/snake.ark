@@ -17,23 +17,24 @@
         # sprites used for the game
         (let apple_sprite (sf-load-sprite "apple.png"))
 
-        (let data [])
+        (mut data [])
         {
-            (let _y 0)
+            (mut _y 0)
 
             (while (!= _y 20) {
-                (let _x 0)
-                (let line [])
+                (mut _x 0)
+                (mut line [])
 
                 (while (!= _x 20) {
-                    (let t 0)  # empty
-                    (if (or (and (= _y 10) (= _x 5)) (and (= _y 5) (= _x 2)) (and (= _y 12) (= _x 12)))
+                    (mut t 0)  # empty
+                    (if (or (and (= _y 10) (= _x 5)) (or (and (= _y 5) (= _x 2)) (and (= _y 12) (= _x 12))))
                         (set t 1)
                         (set t 0)
                     )
                     (let case t)
                     (set line (append line case))
                     (set _x (+ 1 _x))
+                    (del case)
                 })
 
                 (set data (append data line))
@@ -42,95 +43,97 @@
         }
         (print data)
 
-        (fun (f) {
-            (let draw_board (fun () {
-                (let y 0)
-                (while (!= y 20) {
-                    (let x 0)
-                    (while (!= x 20) {
-                        (let case (@ (@ data y) x))
-                        (if (= case 1)
-                            # then
-                            {
-                                (sf-setPos apple_sprite (* 20 x) (* 20 y))
-                                (sf-draw apple_sprite)
-                            }
-                            # else
-                            ()
-                        )
-                        (set x (+ x 1))
-                    })
-                    (set y (+ 1 y))
+        (let draw_board (fun () {
+            (mut y 0)
+            (while (!= y 20) {
+                (mut x 0)
+                (while (!= x 20) {
+                    (let case (@ (@ data y) x))
+                    (if (= case 1)
+                        # then
+                        {
+                            (sf-setPos apple_sprite (* 20 x) (* 20 y))
+                            (sf-draw apple_sprite)
+                        }
+                        # else
+                        ()
+                    )
+                    (del case)
+                    (set x (+ x 1))
                 })
+                (set y (+ 1 y))
+            })
 
-                # ret
-                nil
-            }))
+            # ret
+            nil
+        }))
 
-            (let has_apple_left? (fun () {
-                (let apple_left 0)
-                (let y 0)
-                (while (!= y 20) {
-                    (let x 0)
-                    (while (!= x 20) {
-                        (let case (@ (@ data y) x))
-                        (if (= case 1)
-                            # then
-                            (set apple_left (+ 1 apple_left))
-                            # else
-                            ()
-                        )
-                        (set x (+ x 1))
-                    })
-                    (set y (+ 1 y))
+        (let has_apple_left? (fun () {
+            (mut apple_left 0)
+            (mut y 0)
+            (while (!= y 20) {
+                (mut x 0)
+                (while (!= x 20) {
+                    (let case (@ (@ data y) x))
+                    (if (= case 1)
+                        # then
+                        (set apple_left (+ 1 apple_left))
+                        # else
+                        ()
+                    )
+                    (del case)
+                    (set x (+ x 1))
                 })
+                (set y (+ 1 y))
+            })
 
-                # ret
-                apple_left
-            }))
+            # ret
+            apple_left
+        }))
 
-            (let eat_apple_at (fun (x y)
-                (if (and (>= x 0) (>= y 0) (< y 20) (< x 20))
-                    {
-                        (let test (= 1 (@ (@ data y) x)))
-                        (if test
-                            # remove apple
-                            {
-                                (let _y 0)
-                                (let _data [])
+        (let eat_apple_at (fun (x y)
+            (if (and (>= x 0) (>= y 0) (< y 20) (< x 20))
+                {
+                    (let test (= 1 (@ (@ data y) x)))
+                    (if test
+                        # remove apple
+                        {
+                            (mut _y 0)
+                            (mut _data [])
 
-                                (while (!= _y 20) {
-                                    (let _x 0)
-                                    (let line [])
+                            (while (!= _y 20) {
+                                (mut _x 0)
+                                (mut line [])
 
-                                    (if (= _y y)
-                                        # then
-                                        (while (!= _x 20) {
-                                            (let case (@ (@ data _y) _x))
-                                            (if (= _x x) (set case 0) ())
-                                            (set line (append line case))
-                                            (set _x (+ 1 _x))
-                                        })
-                                        # else
-                                        (set line (@ data _y))
-                                    )
+                                (if (= _y y)
+                                    # then
+                                    (while (!= _x 20) {
+                                        (mut case (@ (@ data _y) _x))
+                                        (if (= _x x) (set case 0) ())
+                                        (set line (append line case))
+                                        (set _x (+ 1 _x))
+                                    })
+                                    # else
+                                    (set line (@ data _y))
+                                )
 
-                                    (set _data (append _data line))
-                                    (set _y (+ 1 _y))
-                                })
+                                (set _data (append _data line))
+                                (set _y (+ 1 _y))
+                            })
 
-                                (set data _data)
-                            }
-                            ()
-                        )
-                        (return test)
-                    }
-                    (throw "Out of bounds")
-                )
-            ))
+                            (set data _data)
+                        }
+                        ()
+                    )
+                    (return test)
+                }
+                (throw "Out of bounds")
+            )
+        ))
 
+        (fun (f &data &apple_sprite) 
             (f draw_board has_apple_left? eat_apple_at)
-        })
+        )
     }))
     # properties
     (let board-draw (fun (f _ _) (f)))
@@ -142,58 +145,59 @@
 
     # the snake
     (let create-snake-object (fun () {
-        (let pos [[0 0]])
-        (let should_move true)
-        (let last_direction [1 0])  # right
+        (mut pos [[0 0]])
+        (mut should_move true)
+        (mut last_direction [1 0])  # right
         (let snake_sprite (sf-load-sprite "snake.png"))
 
-        (fun (f) {
-            (let move (fun (mx my board) {
-                # we don't need to move since this function was called explicitly
-                (set should_move false)
-                (set last_direction [mx my])
+        (let move (fun (mx my board) {
+            # we don't need to move since this function was called explicitly
+            (set should_move false)
+            (set last_direction [mx my])
 
-                (let p (@ pos (- (len pos) 1)))
+            (let p (@ pos (- (len pos) 1)))
 
-                (try (board (board-eat-apple-at (+ mx (@ p 0)) (+ my (@ p 1))))
-                    (fun (result) {
-                        # if result == false, move the tail to the head
-                        # otherwise, add a new head
-                        (set pos (append pos [(+ mx (@ p 0)) (+ my (@ p 1))]))
-                        (if result
+            (try (board (board-eat-apple-at (+ mx (@ p 0)) (+ my (@ p 1))))
+                (fun (result) {
+                    # if result == false, move the tail to the head
+                    # otherwise, add a new head
+                    (set pos (append pos [(+ mx (@ p 0)) (+ my (@ p 1))]))
+                    (if result
+                        # then
+                        ()
+                        # else
+                        (if (!= 0 (len pos))
                             # then
-                            ()
+                            (set pos (tailof pos))
                             # else
-                            (if (!= 0 (len pos))
-                                # then
-                                (set pos (tailof pos))
-                                # else
-                                ()
-                            )
+                            ()
                         )
-                    })
-                    (fun (err) (print err))
-                )
-            }))
-
-            (let reset_auto_move (fun () (set should_move true)))
-
-            (let auto_move (fun (board) {
-                (move (@ last_direction 0) (@ last_direction 1) board)
-            }))
-
-            (let draw (fun () {
-                (let acc 0)
-                (while (!= acc (len pos)) {
-                    (let current (@ pos acc))
-                    (sf-setPos snake_sprite (* 20 (@ current 0)) (* 20 (@ current 1)))
-                    (sf-draw snake_sprite)
-                    (set acc (+ 1 acc))
+                    )
                 })
-            }))
+                (fun (err) (print err))
+            )
+        }))
 
+        (let reset_auto_move (fun () (set should_move true)))
+
+        (let auto_move (fun (board) {
+            (move (@ last_direction 0) (@ last_direction 1) board)
+        }))
+
+        (let draw (fun () {
+            (mut acc 0)
+            (while (!= acc (len pos)) {
+                (let current (@ pos acc))
+                (sf-setPos snake_sprite (* 20 (@ current 0)) (* 20 (@ current 1)))
+                (del current)
+                (sf-draw snake_sprite)
+                (set acc (+ 1 acc))
+            })
+        }))
+
+        (fun (f)
             (f move reset_auto_move auto_move draw)
-        })
+        )
     }))
     # properties
     (let snake-move-up    (fun (f _ _ _) (f  0 -1 board)))
@@ -209,13 +213,13 @@
 
     (print "beginning...")
 
-    (let i 0)
+    (mut i 0)
 
     (while (sf-window-isOpen) {
         # event handling
         (snake snake-reset-auto-move)
 
-        (let event (sf-poll-event))
+        (mut event (sf-poll-event))
 
         (switch event [
             [(sf-event "quit") '(sf-window-close)]
