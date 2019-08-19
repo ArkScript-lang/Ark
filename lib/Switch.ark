@@ -7,13 +7,11 @@
         (mut bis (@ r 0))
         (if (= bis value)
             {
-                (mut df (@ r 1))
-                (df)
+                ((@ r 1))
                 (set acc (- end 1))
             }
             ()
         )
-
         (set acc (+ 1 acc))
     })
 }))

@@ -131,14 +131,14 @@
             )
         ))
 
-        (fun (f &data &apple_sprite) 
+        (fun (f &data &apple_sprite &draw_board &has_apple_left? &eat_apple_at) 
             (f draw_board has_apple_left? eat_apple_at)
         )
     }))
     # properties
     (let board-draw (fun (f _ _) (f)))
     (let board-has-apple-left? (fun (_ f _) (f)))
-    (let board-eat-apple-at (fun (x y) (fun (_ _ f) (f x y))))
+    (let board-eat-apple-at (fun (x y) (fun (_ _ f &x &y) (f x y))))
 
     # instanciating
     (let board (create-board-object))
@@ -195,7 +195,7 @@
             })
         }))
 
-        (fun (f)
+        (fun (f &move &reset_auto_move &auto_move &draw &pos &should_move &last_direction &snake_sprite)
             (f move reset_auto_move auto_move draw)
         )
     }))

@@ -1,9 +1,9 @@
 {
     (let range (fun (a b)
-        (fun () {
+        (fun (&a &b) {
             (if (< a b)
                 {
-                    (let c a)
+                    (mut c a)
                     (set a (+ a 1))
                     c
                 }
