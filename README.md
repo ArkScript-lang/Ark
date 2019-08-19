@@ -55,7 +55,6 @@ Don't know what to work on? No worries, we have a [list of things to do](https:/
 
 ## Notes
 
-* The CLI is going to be reworked soon to bring a better experience: no more compilation & run, the program should be able to do everything itself just by looking at the given file
 * The language is a bit limited in term of what it can do, because we are working on performance improvement and some brand new features, but adding builtin functions and operators is easy, so we will work on that as soon as possible
 
 ## Dependencies

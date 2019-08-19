@@ -50,20 +50,31 @@ namespace Ark
         std::vector<internal::Value> m_constants;
         std::vector<std::string> m_plugins;
         std::vector<internal::SharedLibrary> m_shared_lib_objects;
-        std::vector<bytecode_t> m_pages;
+        std::vector<std::size_t> m_pages_table;  // page id to position in bytecode
+        bytecode_t m_pages;
 
         // related to the execution
         std::vector<internal::Frame> m_frames;
         std::optional<internal::Scope_t> m_saved_scope;
         std::vector<internal::Scope_t> m_locals;
 
+        // bytecode releated
+
         void configure();
 
         inline uint16_t readNumber()
         {
-            auto x = (static_cast<uint16_t>(m_pages[m_pp][m_ip]) << 8); ++m_ip;
-            auto y = (static_cast<uint16_t>(m_pages[m_pp][m_ip])     );
+            auto x = (static_cast<uint16_t>(m_pages[m_ip]) << 8); ++m_ip;
+            auto y = (static_cast<uint16_t>(m_pages[m_ip])     );
             return x + y;
+        }
+
+        inline std::size_t getPageSize(uint16_t pp)
+        {
+            return (pp + 1 < m_pages_table.size() ?
+                m_pages_table[pp + 1]
+                : m_pages.size()
+            ) - m_pages_table[pp];
         }
 
         // locals related

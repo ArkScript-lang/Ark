@@ -220,11 +220,10 @@ void VM_t<debug>::configure()
         if constexpr (debug)
             Ark::logger.info("(Virtual Machine) length:", size);
         
-        m_pages.emplace_back();
-        m_pages.back().reserve(size);
-
+        m_pages_table.push_back(m_pages.size());
+        
         for (uint16_t j=0; j < size; ++j)
-            m_pages.back().push_back(b[i++]);
+            m_pages.push_back(b[i++]);
         
         if (i == b.size())
             break;
@@ -320,14 +319,14 @@ void VM_t<debug>::run()
         {
             if constexpr (debug)
             {
-                if (m_pp >= m_pages.size())
+                if (m_pp >= m_pages_table.size())
                     throwVMError("page pointer has gone too far (" + Ark::Utils::toString(m_pp) + ")");
-                if (m_ip >= m_pages[m_pp].size())
+                if (m_ip >= m_pages.size())
                     throwVMError("instruction pointer has gone too far (" + Ark::Utils::toString(m_ip) + ")");
             }
 
             // get current instruction
-            uint8_t inst = m_pages[m_pp][m_ip];
+            uint8_t inst = m_pages[m_ip];
 
             // and it's time to du-du-du-du-duel!
             if (inst == Instruction::NOP)
@@ -518,7 +517,7 @@ inline void VM_t<debug>::popJumpIfTrue()
         Ark::logger.info("POP_JUMP_IF_TRUE ({0}) PP:{1}, IP:{2}"s, addr, m_pp, m_ip);
 
     if (pop() == FFI::trueSym)
-        m_ip = addr - 1;  // because we are doing a ++m_ip right after this
+        m_ip = m_pages_table[m_pp] + addr - 1;  // because we are doing a ++m_ip right after this
 }
 
 template<bool debug>
@@ -588,7 +587,7 @@ inline void VM_t<debug>::popJumpIfFalse()
         Ark::logger.info("POP_JUMP_IF_FALSE ({0}) PP:{1}, IP:{2}"s, addr, m_pp, m_ip);
 
     if (pop() == FFI::falseSym)
-        m_ip = addr - 1;  // because we are doing a ++m_ip right after this
+        m_ip = m_pages_table[m_pp] + addr - 1;  // because we are doing a ++m_ip right after this
 }
 
 template<bool debug>
@@ -606,7 +605,7 @@ inline void VM_t<debug>::jump()
     if constexpr (debug)
         Ark::logger.info("JUMP ({0}) PP:{1}, IP:{2}"s, addr, m_pp, m_ip);
 
-    m_ip = addr - 1;  // because we are doing a ++m_ip right after this
+    m_ip = m_pages_table[m_pp] + addr - 1;  // because we are doing a ++m_ip right after this
 }
 
 template<bool debug>
@@ -698,7 +697,7 @@ inline void VM_t<debug>::call()
             registerVariable(m_last_sym_loaded, function);
 
             m_pp = new_page_pointer;
-            m_ip = -1;  // because we are doing a m_ip++ right after that
+            m_ip = m_pages_table[m_pp] - 1;  // because we are doing a m_ip++ right after that
             for (std::size_t j=0; j < argc; ++j)
                 push(pop(old_frame));
             return;
@@ -719,7 +718,7 @@ inline void VM_t<debug>::call()
             m_frames.emplace_back(m_ip, m_pp);
 
             m_pp = new_page_pointer;
-            m_ip = -1;  // because we are doing a m_ip++ right after that
+            m_ip = m_pages_table[m_pp] - 1;  // because we are doing a m_ip++ right after that
             for (std::size_t j=0; j < argc; ++j)
                 push(pop(old_frame));
             return;
@@ -855,7 +854,7 @@ inline void VM_t<debug>::getField()
             Ark::logger.data("Pushing closure field:", field);
         
         // check for CALL instruction
-        if (m_ip + 1 < m_pages[m_pp].size() && m_pages[m_pp][m_ip + 1] == Instruction::CALL)
+        if (m_ip + 1 < getPageSize(m_pp) && m_pages[m_ip + 1] == Instruction::CALL)
         {
             m_locals.push_back(var.closure_ref().scope());
             m_frames.back().incScopeCountToDelete();
