@@ -20,7 +20,12 @@ namespace Ark
     {
         // not the default value
         if (filename != "FILE")
+        {
             m_file = Ark::Utils::canonicalRelPath(filename);
+            if (m_debug)
+                Ark::logger.data("New parser:", m_file);
+            m_parent_include.push_back(m_file);
+        }
 
         m_lexer.feed(code);
 
@@ -396,7 +401,9 @@ namespace Ark
                                 else
                                     throw std::runtime_error("ParseError: Couldn't find file " + file);
                             }
-                            m_parent_include = p.m_parent_include;
+                            
+                            for (auto&& inc : m_parent_include)
+                                std::cout << inc << "\n";
 
                             n.list().push_back(p.ast());
                         }

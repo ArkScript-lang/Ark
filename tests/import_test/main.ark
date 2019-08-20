@@ -1,4 +1,5 @@
 {
     (import "folder/test.ark")
     (f a)
+    (import "import.ark")
 }

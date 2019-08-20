@@ -1,6 +1,0 @@
-{
-    (let a 10)
-    (del a)
-    (let a 10)
-    (print a)
-}

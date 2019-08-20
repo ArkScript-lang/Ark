@@ -1,8 +1,0 @@
-{
-    (let a [255 255 255])
-    (print a)
-
-    (let foo (fun (A B C L) (print A B C L)))
-    (let bar (fun (D) (+ D 10)))
-    (foo (bar 12) 14 15 a)
-}

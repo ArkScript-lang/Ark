@@ -1,6 +1,0 @@
-{
-    (let f (fun (n) (print n)))
-    (let df (quote (f 5)))
-
-    (df)
-}

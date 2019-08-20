@@ -1,0 +1,191 @@
+{
+    (import "Switch.ark")
+    (import "Exceptions.ark")
+    (import "Range.ark")
+
+    (let start_time (time))
+    (mut passed 0)
+    
+    # --------------------------
+    #          switch
+    # --------------------------
+    (let switch-tests (fun () {
+        (let foo (fun (n) (set passed (+ 1 passed))))
+        (let event "foo")
+
+        (switch event [
+            ["coucou" '(assert false "Switch test 1 failed")]
+            ["hello"  '(assert false "Switch test 1 failed")]
+            ["world"  '(assert false "Switch test 1 failed")]
+            ["earth"  '(assert false "Switch test 1 failed")]
+            ["foob"   '(assert false "Switch test 1 failed")]
+            ["foo"    '(foo 16)]
+        ])
+    }))
+    (switch-tests)
+
+    # --------------------------
+    #          defer
+    # --------------------------
+    (let defer-tests (fun () {
+        (let foo (fun (n) (+ 5 n)))
+        (assert (= "Closure" (type (quote foo))) "Defer test 1 failed")
+        (set passed (+ 1 passed))
+        (assert (= "Closure" (type (quote (foo 5)))) "Defer test 2 failed")
+        (set passed (+ 1 passed))
+
+        (let df '(foo 5))
+        (assert (= "Closure" (type df)) "Defer test 3 failed")
+        (set passed (+ 1 passed))
+        
+        (assert (= 10 (df)) "Defer test 4 failed")
+        (set passed (+ 1 passed))
+
+        (let a (quote (foo 5)))
+        (assert (= 10 (a)) "Defer test 5 failed")
+        (set passed (+ 1 passed))
+    }))
+    (defer-tests)
+
+    # --------------------------
+    #        recursion
+    # --------------------------
+    (let ackermann (fun (m n) {
+        (if (> m 0)
+            # then
+            (if (= 0 n)
+                # then
+                (ackermann (- m 1) 1)
+                # else
+                (ackermann (- m 1) (ackermann m (- n 1)))
+            )
+            # else
+            (+ 1 n)
+        )
+    }))
+    (assert (= 509 (ackermann 3 6)) "Ackermann 3 6 test failed")
+    (set passed (+ 1 passed))
+
+    (let fibo (fun (n)
+        (if (< n 2) n
+            (+ (fibo (- n 1)) (fibo (- n 2)))
+        ))
+    )
+
+    (assert (= (fibo 16) 987) "Fibo 16 test failed")
+    (set passed (+ 1 passed))
+
+    # --------------------------
+    #         callbacks
+    # --------------------------
+    (let callbacks-tests (fun () {
+        (let egg (fun (bar) { bar }))
+        (let data ["Iron Man" "is" "Tony Stark"])
+        (mut callbacks [])
+
+        (mut acc 0)
+        (while (!= acc (len data)) {
+            (mut d (@ data acc))
+            (set callbacks (append callbacks (fun (&d) (egg d))))
+            (set acc (+ 1 acc))
+        })
+
+        (set acc 0)
+        (while (!= acc (len callbacks)) {
+            (assert (= (@ data acc) (@ callbacks acc).d) "Callback test 1 failed")
+            (assert (= (@ data acc) ((@ callbacks acc))) "Callback test 1°2 failed")
+            (set acc (+ 1 acc))
+        })
+        (set passed (+ 1 passed))
+
+        (let countdown-from (fun (number)
+            (fun (&number) {
+                (set number (- number 1))
+                number
+            }))
+        )
+        (let countdown-from-3 (countdown-from 3))
+        (assert (= 2 (countdown-from-3)) "Callback test 2 failed")
+        (assert (= 1 (countdown-from-3)) "Callback test 2°2 failed")
+        (assert (= 0 (countdown-from-3)) "Callback test 2°3 failed")
+        (set passed (+ 1 passed))
+    }))
+    (callbacks-tests)
+
+    # --------------------------
+    #            OOP
+    # --------------------------
+    (let oop-test (fun () {
+        (let create-human (fun (name age weight) {
+            # functions can be invoked in the closure scope
+            (let set-age (fun (new-age) (set age new-age)))
+
+            # this will be our "constructor"
+            (fun (&set-age &name &age &weight) ())
+        }))
+
+        (let bob (create-human "Bob" 0 144))
+        (let john (create-human "John" 12 15))
+
+        (assert (= bob.age 0) "OOP test 1 failed")
+        (set passed (+ 1 passed))
+
+        (bob.set-age 10)
+        (assert (= bob.age 10) "OOP test 2 failed")
+        (set passed (+ 1 passed))
+
+        (assert (= john.age 12) "OOP test 3 failed")
+        (set passed (+ 1 passed))
+    }))
+    (oop-test)
+
+    # --------------------------
+    #         Errors
+    # --------------------------
+    (let error-tests (fun () {
+        (let invert (fun (x) {
+            (if (= x 0)
+                (throw "cannot divide by zero")
+                (return (/ 1 x))
+            )
+        }))
+
+        (try (invert 0)
+            (fun (inverted) (assert false "Error test 1 failed"))
+            (fun (err) (assert (= err "cannot divide by zero") "Error test 1°2 failed"))
+        )
+        (set passed (+ 1 passed))
+    }))
+    (error-tests)
+
+    # --------------------------
+    #          Ranges
+    # --------------------------
+    (let range-test (fun () {
+        (let r (range 5 10))
+    
+        (assert (= 5 (r)) "Range test 1 failed")
+        (assert (= 6 (r)) "Range test 1°2 failed")
+        (assert (= 7 (r)) "Range test 1°3 failed")
+        (assert (= 8 (r)) "Range test 1°4 failed")
+        (assert (= 9 (r)) "Range test 1°5 failed")
+        (assert (= nil (r)) "Range test 1°6 failed")
+        (set passed (+ 1 passed))
+    }))
+    (range-test)
+
+    # --------------------------
+    #            Del
+    # --------------------------
+    (let del-test (fun () {
+        (let a 10)
+        (del a)
+        (let a 10)
+
+        (set passed (+ 1 passed))
+    }))
+    (del-test)
+
+    (print passed "tests passed!")
+    (print "Completed in" (toString (- (time) start_time)) "seconds")
+}
