@@ -43,12 +43,6 @@ namespace Ark::internal
 
                     if (type == TokenType::Identifier && isKeyword(result))
                         type = TokenType::Keyword;
-                    
-                    if (m_debug)
-                    {
-                        std::cout << result << " " << line << ":" << character << " ";
-                        std::cout << src.size() << " characters left" << std::endl;
-                    }
 
                     // stripping blanks characters between instructions, and comments
                     if (type != TokenType::Skip && type != TokenType::Comment)
