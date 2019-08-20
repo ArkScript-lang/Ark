@@ -83,11 +83,6 @@ More examples are available in the folder `examples/`.
 
 Don't know what to work on? No worries, we have a [list of things to do](https://github.com/SuperFola/Ark/projects) :wink:
 
-## Notes
-
-* The CLI is going to be reworked soon to bring a better experience: no more compilation & run, the program should be able to do everything itself just by looking at the given file
-* The language is a bit limited in term of what it can do, because we are working on performance improvement and some brand new features, but adding builtin functions and operators is easy, so we will work on that as soon as possible
-
 ## Dependencies
 
 * C++17
@@ -180,6 +175,14 @@ Mean time: 13.244432 ms
 Median time: 13.214 ms
 Stddev: 0.30360220508642ms
 ```
+
+## Games
+
+You can find a snake created in ArkScript in the folder examples/game/snake (run it from there, otherwise it won't find the font and the sprites ; you might need to install the SFML as well).
+
+![ArkSnake](images/ArkSnake.png)
+
+Controls are the arrows (left, right, up and down), the game closes itself when you successfully collect the 3 apples.
 
 ## Credits
 

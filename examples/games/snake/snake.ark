@@ -157,13 +157,13 @@
                         # else
                         (if (!= 0 (len pos))
                             # then
-                            (set pos (tailof pos))
+                            (set pos (tailOf pos))
                             # else
                             ()
                         )
                     )
                 })
-                (fun (err) (print err))
+                (fun (err) ())
             )
         }))
 
@@ -213,7 +213,7 @@
             }
             ()
         )
-        (snake.auto_move board)
+        # (snake.auto_move board)
 
         # rendering
         (sf-window-clear 0 0 0)
