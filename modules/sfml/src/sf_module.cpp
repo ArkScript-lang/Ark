@@ -4,7 +4,7 @@
 bool has_window = false;
 sf::RenderWindow window;
 sf::Event event;
-std::vector<sf::Texture> textures;
+std::unordered_map<std::string, sf::Texture> textures;
 std::unordered_map<std::string, sf::Sprite> sprites;
 std::unordered_map<std::string, sf::Font> fonts;
 std::unordered_map<std::string, sf::Text> texts;
@@ -49,6 +49,8 @@ Value sf_poll_event(const std::vector<Value>& n)
             out += "keyup";
         else if (event.type == sf::Event::KeyPressed)
             out += "keydown";
+        else
+            out += "unknown";
         
         if (event.type == sf::Event::KeyReleased || event.type == sf::Event::KeyPressed)
         {
@@ -181,12 +183,14 @@ Value sf_load_sprite(const std::vector<Value>& n)
     if (n[0].valueType() != ValueType::String)
         throw Ark::TypeError("sf-load-sprite: need a String");
     
-    textures.emplace_back();
-    if (!textures.back().loadFromFile(n[0].string()))
-        throw std::runtime_error("sf-load-sprite: Could not load sprite: " + n[0].string());
     std::string name = "sprite-" + n[0].string();
+    
+    textures[name] = sf::Texture();
+    if (!textures[name].loadFromFile(n[0].string()))
+        throw std::runtime_error("sf-load-sprite: Could not load sprite: " + n[0].string());
+    
     sprites[name] = sf::Sprite();
-    sprites[name].setTexture(textures.back());
+    sprites[name].setTexture(textures[name]);
 
     return Value(name);
 }

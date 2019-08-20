@@ -237,16 +237,16 @@
             }
             ()
         )
-        (switch i [
-            [0 '(snake snake-move-down)]
-            [1 '(snake snake-move-down)]
-            [2 '(snake snake-move-down)]
-            [3 '(snake snake-move-down)]
-            [4 '(snake snake-move-down)]
-            [5 '(snake snake-move-right)]
-            [6 '(snake snake-move-right)]
-        ])
-        (set i (+ 1 i))
+        #(switch i [
+        #    [0 '(snake snake-move-down)]
+        #    [1 '(snake snake-move-down)]
+        #    [2 '(snake snake-move-down)]
+        #    [3 '(snake snake-move-down)]
+        #    [4 '(snake snake-move-down)]
+        #    [5 '(snake snake-move-right)]
+        #    [6 '(snake snake-move-right)]
+        #])
+        #(set i (+ 1 i))
         # (snake snake-auto-move)
 
         # rendering
