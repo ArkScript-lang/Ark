@@ -31,10 +31,9 @@
                         (set t 1)
                         (set t 0)
                     )
-                    (let case t)
+                    (mut case t)
                     (set line (append line case))
                     (set _x (+ 1 _x))
-                    (del case)
                 })
 
                 (set data (append data line))
@@ -48,7 +47,7 @@
             (while (!= y 20) {
                 (mut x 0)
                 (while (!= x 20) {
-                    (let case (@ (@ data y) x))
+                    (mut case (@ (@ data y) x))
                     (if (= case 1)
                         # then
                         {
@@ -58,7 +57,6 @@
                         # else
                         ()
                     )
-                    (del case)
                     (set x (+ x 1))
                 })
                 (set y (+ 1 y))
@@ -74,14 +72,13 @@
             (while (!= y 20) {
                 (mut x 0)
                 (while (!= x 20) {
-                    (let case (@ (@ data y) x))
+                    (mut case (@ (@ data y) x))
                     (if (= case 1)
                         # then
                         (set apple_left (+ 1 apple_left))
                         # else
                         ()
                     )
-                    (del case)
                     (set x (+ x 1))
                 })
                 (set y (+ 1 y))
@@ -187,9 +184,8 @@
         (let draw (fun () {
             (mut acc 0)
             (while (!= acc (len pos)) {
-                (let current (@ pos acc))
+                (mut current (@ pos acc))
                 (sf-setPos snake_sprite (* 20 (@ current 0)) (* 20 (@ current 1)))
-                (del current)
                 (sf-draw snake_sprite)
                 (set acc (+ 1 acc))
             })
@@ -216,6 +212,8 @@
     (mut i 0)
 
     (while (sf-window-isOpen) {
+        (mut frame_start (time))
+
         # event handling
         (snake snake-reset-auto-move)
 
@@ -255,5 +253,11 @@
         (snake snake-draw)      # then snake
         (sf-draw hello_text)    # then a test with some text
         (sf-window-display)     # double buffering
+
+        (mut diff (- (time) frame_start))
+        (if (!= diff 0)
+            (print (/ 1 diff) "FPS")
+            (print "inf FPS")
+        )
     })
 }

@@ -4,6 +4,7 @@
 ### Added
 - cmake options `ARK_BUILD_EXE` and `ARK_BUILD_BENCHMARK` to choose what to build
 - when the VM crash, displaying stack trace
+- added function `time` to the FFI (time in seconds since epoch)
 
 ### Changed
 - updated the VM to be able to call functions defined in Ark from C++

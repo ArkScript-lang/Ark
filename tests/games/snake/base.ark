@@ -25,6 +25,8 @@
     (sf-setPos snake_sprite 256 32)
 
     (while (sf-window-isOpen) {
+        (mut frame_start (time))
+
         (mut event (sf-poll-event))
 
         (switch event [
@@ -38,5 +40,11 @@
         (sf-draw hello_text)
         (sf-draw bis_text)
         (sf-window-display)
+
+        (mut diff (- (time) frame_start))
+        (if (!= diff 0)
+            (print (/ 1 diff) "FPS")
+            (print "inf FPS")
+        )
     })
 }

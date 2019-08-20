@@ -5,6 +5,7 @@
 
 #undef abs
 #include <cmath>
+#include <chrono>
 
 #define FFI_Function(name) Value name(const std::vector<Value>& n)
 
@@ -25,9 +26,10 @@ namespace Ark::internal::FFI
         { "list",   Value(&list) },
         { "print",  Value(&print) },
         { "input",  Value(&input) },
-        { "writeFile", Value(&writefile) },
-        { "readFile", Value(&readfile) },
-        { "fileExists?", Value(&fileexists) }
+        { "writeFile", Value(&writeFile) },
+        { "readFile", Value(&readFile) },
+        { "fileExists?", Value(&fileExists) },
+        { "time", Value(&timeSinceEpoch) }
     };
 
     extern const std::vector<std::string> operators = {
@@ -102,7 +104,7 @@ namespace Ark::internal::FFI
         return Value(line);
     }
 
-    FFI_Function(writefile)
+    FFI_Function(writeFile)
     {
         // filename, content
         if (n.size() == 2)
@@ -149,7 +151,7 @@ namespace Ark::internal::FFI
         return nil;
     }
 
-    FFI_Function(readfile)
+    FFI_Function(readFile)
     {
         if (n.size() != 1)
             throw std::runtime_error("readFile need 1 argument: filename");
@@ -163,7 +165,7 @@ namespace Ark::internal::FFI
         return Value(Ark::Utils::readFile(filename));
     }
 
-    FFI_Function(fileexists)
+    FFI_Function(fileExists)
     {
         if (n.size() != 1)
             throw std::runtime_error("fileExists? can take only 1 argument, a filename (String)");
@@ -171,5 +173,13 @@ namespace Ark::internal::FFI
             throw Ark::TypeError("Argument of fileExists? must be of type String");
         
         return Value(Ark::Utils::fileExists(n[0].string()) ? NFT::True : NFT::False);
+    }
+
+    FFI_Function(timeSinceEpoch)
+    {
+        const auto now = std::chrono::system_clock::now();
+        const auto epoch = now.time_since_epoch();
+        const auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(epoch);
+        return Value(static_cast<double>(milliseconds.count()) / 1000);
     }
 }

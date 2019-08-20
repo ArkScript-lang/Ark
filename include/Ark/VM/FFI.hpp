@@ -17,7 +17,7 @@ namespace Ark::internal::FFI
     extern const Value falseSym;
     extern const Value trueSym;
     extern const Value nil;
-    extern const Value undefined;
+    extern const Value undefined;  // internal value only
 
     extern const std::vector<std::pair<std::string, Value>> builtins;
     extern const std::vector<std::string> operators;
@@ -30,9 +30,10 @@ namespace Ark::internal::FFI
     FFI_Function(list);     // list,   multiple arguments
     FFI_Function(print);    // print,  multiple arguments
     FFI_Function(input);    // input,  0 or 1 argument
-    FFI_Function(writefile);   // writeFile, 2 or 3 arguments
-    FFI_Function(readfile);    // readFile, 1 argument
-    FFI_Function(fileexists);  // fileExists?, 1 argument
+    FFI_Function(writeFile);   // writeFile, 2 or 3 arguments
+    FFI_Function(readFile);    // readFile, 1 argument
+    FFI_Function(fileExists);  // fileExists?, 1 argument
+    FFI_Function(timeSinceEpoch);  // time, 0 argument
 }
 
 #undef FFI_Function
