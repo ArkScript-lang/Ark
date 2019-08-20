@@ -401,9 +401,8 @@ namespace Ark
                                 else
                                     throw std::runtime_error("ParseError: Couldn't find file " + file);
                             }
-                            
-                            for (auto&& inc : m_parent_include)
-                                std::cout << inc << "\n";
+                            for (auto&& inc : p.m_parent_include)
+                                m_parent_include.push_back(inc);
 
                             n.list().push_back(p.ast());
                         }
