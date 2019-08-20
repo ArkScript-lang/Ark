@@ -178,7 +178,7 @@ Stddev: 0.30360220508642ms
 
 ## Games
 
-You can find a snake created in ArkScript in the folder examples/game/snake (run it from there, otherwise it won't find the font and the sprites ; you might need to install the SFML as well).
+You can find a snake created in ArkScript in the folder examples/games/snake (run it from there, otherwise it won't find the font and the sprites ; you might need to install the SFML as well).
 
 ![ArkSnake](images/ArkSnake.png)
 
