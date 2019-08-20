@@ -2,8 +2,13 @@
 
 ## Unreleased changes
 ### Added
+- should be able to compare lists
 
 ### Changed
+- some functions playing with list should also be able to play with Strings: `headof`, `tailof`, `firstof`, `len`, `empty?`, `@`
+- `firstof` should segfault when the list/String is empty
+- fixing type of `nil` to be `"Nil"` instead of `nil` when using `(type nil)`
+- uniformised names of builtins: pascal case (impacted functions are `firstOf`, `headOf` and `tailOf`, as well as `hasField`)
 
 ### Removed
 

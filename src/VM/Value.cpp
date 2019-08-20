@@ -60,6 +60,11 @@ namespace Ark::internal
         return std::get<Closure>(m_value);
     }
 
+    std::string& Value::string_ref()
+    {
+        return std::get<std::string>(m_value);
+    }
+
     void Value::setConst(bool value)
     {
         m_const = value;

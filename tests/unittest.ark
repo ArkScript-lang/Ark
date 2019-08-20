@@ -5,6 +5,176 @@
 
     (let start_time (time))
     (mut passed 0)
+
+    # --------------------------
+    #         Arithmetic
+    # --------------------------
+    (let math-tests (fun () {
+        (assert (= 3 3.0) "Math test basic failed")
+        (set passed (+ 1 passed))
+
+        (assert (= 12 (+ 5.5 6.5)) "Math test 1 failed")
+        (assert (= 12 (+ 6 6)) "Math test 1°2 failed")
+        (set passed (+ 1 passed))
+
+        (assert (= 12 (- 14.5 2.5)) "Math test 2 failed")
+        (assert (= 12 (- 111 99)) "Math test 2°2 failed")
+        (set passed (+ 1 passed))
+
+        (assert (= 12 (* 3 4)) "Math test 3 failed")
+        (assert (= -12 (* -3 4)) "Math test 3°2 failed")
+        (set passed (+ 1 passed))
+
+        (assert (= 12 (/ 144 12)) "Math test 4 failed")
+        (assert (= 3.0 (/ 7.5 2.5)) "Math test 4°2 failed")
+        (set passed (+ 1 passed))
+
+        (assert (< 12 14) "Math test 5 failed")
+        (assert (< -12 14) "Math test 5°2 failed")
+        (set passed (+ 1 passed))
+
+        (assert (> 112 14) "Math test 6 failed")
+        (assert (> -12 -14) "Math test 6°2 failed")
+        (set passed (+ 1 passed))
+
+        (assert (!= 12 14) "Math test 7 failed")
+        (assert (!= -12 14) "Math test 7°2 failed")
+        (set passed (+ 1 passed))
+
+        (assert (<= 12 12) "Math test 8 failed")
+        (assert (<= -12 14) "Math test 8°2 failed")
+        (set passed (+ 1 passed))
+
+        (assert (= 0 (mod 10 5)) "Math test 9 failed")
+        (assert (= 0.5 (mod 7.5 7)) "Math test 9°2 failed")
+        (set passed (+ 1 passed))
+    }))
+    (math-tests)
+
+    # --------------------------
+    #         Strings
+    # --------------------------
+    (let string-tests (fun () {
+        (assert (= "Hello world" (+ "Hello" " world")) "String test 1 failed")
+        (set passed (+ 1 passed))
+
+        (assert (= "H" (@ "Hello world" 0)) "String test 2 failed")
+        (assert (= "w" (@ "Hello world" 6)) "String test 2°2 failed")
+        (set passed (+ 1 passed))
+
+        (assert (= 11 (len "Hello world")) "String test 3 failed")
+        (set passed (+ 1 passed))
+
+        (assert (= true (empty? "")) "String test 4 failed")
+        (assert (= false (empty? "Hello world")) "String test 4°2 failed")
+        (set passed (+ 1 passed))
+
+        (assert (= "H" (firstOf "Hello world")) "String test 5 failed")
+        (set passed (+ 1 passed))
+
+        (assert (= "Hello worl" (headOf "Hello world")) "String test 6 failed")
+        (set passed (+ 1 passed))
+
+        (assert (= "ello world" (tailOf "Hello world")) "String test 7 failed")
+        (set passed (+ 1 passed))
+
+        (assert (= "12" (toString 12)) "String test 8 failed")
+        (assert (= "true" (toString true)) "String test 8°2 failed")
+        (assert (= "false" (toString false)) "String test 8°3 failed")
+        (assert (= "nil" (toString nil)) "String test 8°4 failed")
+        (assert (= "( 12 42 )" (toString [12 42])) "String test 8°5 failed")
+        (set passed (+ 1 passed))
+    }))
+    (string-tests)
+
+    # --------------------------
+    #           List
+    # --------------------------
+    (let list-tests (fun () {
+        (let a [12 42])
+        (assert (= "List" (type a)) "List test 1 failed")
+        (set passed (+ 1 passed))
+
+        (assert (= 2 (len a)) "List test 2 failed")
+        (set passed (+ 1 passed))
+
+        (assert (= false (empty? a)) "List test 3 failed")
+        (assert (= true (empty? [])) "List test 3°2 failed")
+        (set passed (+ 1 passed))
+
+        (assert (= 12 (firstOf a)) "List test 4 failed")
+        (assert (= nil (firstOf [])) "List test 4°2 failed")
+        (set passed (+ 1 passed))
+
+        (assert (= [42] (tailOf a)) "List test 5 failed")
+        (assert (= nil (tailOf [])) "List test 5°2 failed")
+        (set passed (+ 1 passed))
+
+        (assert (= [12] (headOf a)) "List test 6 failed")
+        (assert (= nil (headOf [])) "List test 6°2 failed")
+        (set passed (+ 1 passed))
+
+        (assert (= [12 42 64] (append a 64)) "List test 7 failed")
+        (assert (= [12 42 [64]] (append a [64])) "List test 7°2 failed")
+        (assert (= [12 42 nil] (append a nil)) "List test 7°3 failed")
+        (set passed (+ 1 passed))
+
+        (assert (= [12 42 12 42] (concat a a)) "List test 8 failed")
+        (assert (= [12 42] (concat a [])) "List test 8°2 failed")
+        (set passed (+ 1 passed))
+    }))
+    (list-tests)
+
+    # --------------------------
+    #           misc
+    # --------------------------
+    (let misc-tests (fun () {
+        (assert (= 12 (toNumber "12")) "Misc test 1 failed")
+        (assert (= 12.5 (toNumber "12.5")) "Misc test 1°2 failed")
+        (set passed (+ 1 passed))
+
+        (assert (= nil nil) "Misc test 2 failed")
+        (assert (= true (= 1 1)) "Misc test 2°2 failed")
+        (assert (= false (= 1 2)) "Misc test 2°3 failed")
+        (set passed (+ 1 passed))
+
+        (assert (and true true) "Misc test 3 failed")
+        (assert (= false (and true false)) "Misc test 3°2 failed")
+        (assert (= false (and false true)) "Misc test 3°3 failed")
+        (assert (= false (and false false)) "Misc test 3°4 failed")
+        (set passed (+ 1 passed))
+
+        (assert (or true true) "Misc test 4 failed")
+        (assert (or true false) "Misc test 4°2 failed")
+        (assert (or false true) "Misc test 4°3 failed")
+        (assert (= false (or false false)) "Misc test 4°4 failed")
+        (set passed (+ 1 passed))
+
+        (let a nil)
+        (let closure (fun (&a) ()))
+
+        (assert (= "Number" (type 1)) "Misc test 5 failed")
+        (assert (= "List" (type [])) "Misc test 5°2 failed")
+        (assert (= "String" (type "")) "Misc test 5°3 failed")
+        (assert (= "Function" (type misc-tests)) "Misc test 5°4 failed")
+        (assert (= "Bool" (type true)) "Misc test 5°5 failed")
+        (assert (= "Bool" (type false)) "Misc test 5°6 failed")
+        (assert (= "Nil" (type nil)) "Misc test 5°7 failed")
+        (assert (= "CProc" (type list)) "Misc test 5°8 failed")
+        (assert (= "Closure" (type closure)) "Misc test 5°9 failed")
+        (set passed (+ 1 passed))
+
+        (assert (= true (hasField closure "a")) "Misc test 6 failed")
+        (assert (= false (hasField closure "b")) "Misc test 6°2 failed")
+        (set passed (+ 1 passed))
+
+        (assert (= false (nil? 0)) "Misc test 7 failed")
+        (assert (nil? nil) "Misc test 7°2 failed")
+        (assert (= false (nil? [])) "Misc test 7°3 failed")
+        (assert (= false (nil? "")) "Misc test 7°4 failed")
+        (set passed (+ 1 passed))
+    }))
+    (misc-tests)
     
     # --------------------------
     #          switch

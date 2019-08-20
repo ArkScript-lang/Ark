@@ -1,6 +1,6 @@
 {
-    # jeu du plus ou moins
-    (print "Jeu du plus ou moins !")
+    # more or less game
+    (print "More or less game!")
 
     (import "librandom.so")
     (import "Arithmetic.ark")
@@ -10,25 +10,22 @@
     (mut value 0)
     (mut essais 0)
 
-    (let continue true)
+    (mut continue true)
 
     (while continue {
-        (set value (toNumber (input "Entrez une valeur numérique: ")))
+        (set value (toNumber (input "Input a numeric value: ")))
 
         (if (< value number)
             # then
-            (print "C'est plus !")
+            (print "More!")
             # else
             (if (= value number)
                 # then
-                { (print "Gagné !") (set continue false) }
+                { (print "Bingo!") (set continue false) }
                 # else
-                (print "C'est moins !")
-            )
-        )
+                (print "Less!")))
 
-        (set essais (+ 1 essais))
-    })
+        (set essais (+ 1 essais))})
 
-    (print "Vous avez gagné en" essais "essais")
+    (print "You won in" essais "tries")
 }

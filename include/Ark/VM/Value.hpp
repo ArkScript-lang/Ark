@@ -97,6 +97,7 @@ namespace Ark::internal
 
         std::vector<Value>& list();
         Closure& closure_ref();
+        std::string& string_ref();
         void setConst(bool value);
 
         void push_back(const Value& value);
@@ -115,9 +116,6 @@ namespace Ark::internal
     {
         // values should have the same type
         if (A.m_type != B.m_type)
-            return false;
-        // don't compare lists
-        if (A.m_type == ValueType::List)
             return false;
         
         return A.m_value == B.m_value;

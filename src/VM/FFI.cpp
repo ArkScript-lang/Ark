@@ -35,11 +35,11 @@ namespace Ark::internal::FFI
     extern const std::vector<std::string> operators = {
         "+", "-", "*", "/",
         ">", "<", "<=", ">=", "!=", "=",
-        "len", "empty?", "firstof", "tailof", "headof",
+        "len", "empty?", "firstOf", "tailOf", "headOf",
         "nil?", "assert",
         "toNumber", "toString",
         "@", "and", "or", "mod",
-        "type", "hasfield",
+        "type", "hasField",
     };
 
     // ------------------------------

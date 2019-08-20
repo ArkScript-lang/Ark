@@ -16,11 +16,11 @@ Example:
 (= 5 b)  # test if b is equal to 5
 ```
 
-### Lists manipulation functions
+### Lists and Strings manipulation functions
 
 Create a list (at least 0 argument): `list`.
 
-Get an element from a list by its index: `@` (give the list first, then the index).
+Get an element from a list or a String by its index: `@` (give the list first, then the index).
 
 ```clojure
 (let L (list 1 2 3))
@@ -30,14 +30,14 @@ Get an element from a list by its index: `@` (give the list first, then the inde
 (print (@ L 2))  # 3 (index starts from 0)
 ```
 
-Length of a list (1 argument): `len`.
+Length of a list or a String (1 argument): `len`.
 
 ```clojure
 (let L [1 2])
 (print (len L))  # 2
 ```
 
-Is the list empty? (1 argument): `empty?`.
+Is the list (or String) empty? (1 argument): `empty?`.
 
 ```clojure
 (if (empty? L)
@@ -46,17 +46,17 @@ Is the list empty? (1 argument): `empty?`.
 )
 ```
 
-Get the first element of a list (1 argument): `firstof`.
+Get the first element of a list or String (1 argument): `firstOf`.
 
-Get all the elements of a list, **except** the last one (1 argument): `headof`.
+Get all the elements of a list or String, **except** the last one (1 argument): `headOf`.
 
-Get all the elements of a list, **except** the first one (1 argument): `tailof`.
+Get all the elements of a list or String, **except** the first one (1 argument): `tailOf`.
 
 ```clojure
 (let L [1 2 3])
-(print (firstof L))  # 1
-(print (headof L))  # ( 1 2 )
-(print (tailof L))  # ( 2 3 )
+(print (firstOf L))  # 1
+(print (headOf L))  # ( 1 2 )
+(print (tailOf L))  # ( 2 3 )
 ```
 
 Add content to a list (first argument must be a list ; at least 2 arguments): `append`.
@@ -104,7 +104,7 @@ Check if a file exists with `fileExists?` taking a filename (String).
 Booleans: `true`, `false`.  
 Null type: `nil`.
 
-Test if a value is equal to `nil` (1 argument): `isnil?`.
+Test if a value is equal to `nil` (1 argument): `nil?`.
 
 Equivalent of `assert` in C (2 arguments, a Boolean and a String): `assert`.
 
@@ -131,6 +131,10 @@ Test if at least one value out of two is equal to true: `or`.
     (print "a or b is false")
 )
 ```
+
+Get type of value: `type` (returns a String).
+
+Test if a closure has a specific field: `(hasField closure "field")`.
 
 ### Conversions
 

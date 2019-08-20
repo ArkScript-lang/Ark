@@ -1,4 +1,5 @@
 # ArkScript
+### Current version: 3.0.2
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/fd5900d08a97487486c43079c06e19ce)](https://app.codacy.com/app/folaefolc/Ark?utm_source=github.com&utm_medium=referral&utm_content=SuperFola/Ark&utm_campaign=Badge_Grade_Settings)
 [![Build Status](https://travis-ci.org/SuperFola/Ark.svg?branch=rework)](https://travis-ci.org/SuperFola/Ark)
@@ -15,7 +16,7 @@
 * Ark is a scripting language: it's very easy to embed it in your application. The FFI is quite easy to understand, so adding your own functions to the virtual machine is effortless
 * Ark can run everywhere: it produces a bytecode which is run by its virtual machine, like Java but without the `OutOfMemoryException`
 * Ark is a functional language: every parameters are by passed by value, everything is immutable unless you use `mut` to define a mutable variable
-* Ark can handle object oriented programming in a very elegant way with its closures and explicit captures (see example below)
+* Ark can handle object oriented programming in a very elegant way with its closures and explicit captures (see examples/church-encoding)
 * Ark is promoting functionalities before performances: expressiveness often brings more productivity, but performances aren't bad at all
 * Ark handles first class objects, thus it has higher-order functions
 * Ark is easy to compile: it takes less than 200ms to compile and check a complex code with a lot of branches and sub-branches of 200 lines.
@@ -23,24 +24,51 @@
 
 ## Example
 
+### Fibonacci suite
+
 ```clojure
 {
-    (let create-human (fun (name age weight) {
-        # functions can be invoked in the closure scope
-        (let set-age (fun (new-age) (set age new-age)))
+    (let fibo (fun (n)
+        (if (< n 2)
+            n
+            (+ (fibo (- n 1)) (fibo (- n 2))))))
 
-        # this will be our "constructor"
-        (fun (&set-age &name &age &weight) ())
-    }))
+    (print (fibo 28))  # display 317811
+}
+```
 
-    (let bob (create-human "Bob" 0 144))
-    (let john (create-human "John" 12 15))
+## More or less game
 
-    (print bob.age)
-    (bob.set-age 10)
-    (print bob.age)
+```clojure
+{
+    # more or less game
+    (print "More or less game!")
 
-    (print john.age)
+    (import "librandom.so")
+    (import "Arithmetic.ark")
+
+    (let number (mod (abs (random)) 10000))
+    (mut value 0)
+    (mut essais 0)
+
+    (mut continue true)
+
+    (while continue {
+        (set value (toNumber (input "Input a numeric value: ")))
+
+        (if (< value number)
+            # then
+            (print "More!")
+            # else
+            (if (= value number)
+                # then
+                { (print "Bingo!") (set continue false) }
+                # else
+                (print "Less!")))
+
+        (set essais (+ 1 essais))})
+
+    (print "You won in" essais "tries")
 }
 ```
 

@@ -667,6 +667,8 @@ inline void VM_t<debug>::store()
     auto var = findNearestVariable(id);
     if (var != nullptr)
     {
+        if (var->isConst())
+            throwVMError("can not modify a constant: " + m_symbols[id]);
         *var = pop();
         return;
     }
@@ -1193,54 +1195,88 @@ inline void VM_t<debug>::operators(uint8_t inst)
         case Instruction::EMPTY:
         {
             auto a = pop();
-            if (a.valueType() != ValueType::List)
-                throw Ark::TypeError("Argument of empty must be a list");
+            if (a.valueType() == ValueType::List)
+                push((a.const_list().size() == 0) ? FFI::trueSym : FFI::falseSym);
+            else if (a.valueType() == ValueType::String)
+                push((a.string().size() == 0) ? FFI::trueSym : FFI::falseSym);
+            else
+                throw Ark::TypeError("Argument of empty? must be a list or a String");
             
-            push((a.const_list().size() == 0) ? FFI::trueSym : FFI::falseSym);
             break;
         }
 
         case Instruction::FIRSTOF:
         {
             auto a = pop();
-            if (a.valueType() != ValueType::List)
-                throw Ark::TypeError("Argument of firstof must be a list");
-            
-            push(a.const_list()[0]);
+            if (a.valueType() == ValueType::List)
+                push(a.const_list().size() > 0 ? a.const_list()[0] : FFI::nil);
+            else if (a.valueType() == ValueType::String)
+                push(a.string().size() > 0 ? Value(std::string(1, a.string()[0])) : FFI::nil);
+            else
+                throw Ark::TypeError("Argument of firstOf must be a list");
+
             break;
         }
 
         case Instruction::TAILOF:
         {
             auto a = pop();
-            if (a.valueType() != ValueType::List)
-                throw Ark::TypeError("Argument of tailof must be a list");
-            
-            if (a.const_list().size() < 2)
+            if (a.valueType() == ValueType::List)
             {
-                push(FFI::nil);
-                break;
+                if (a.const_list().size() < 2)
+                {
+                    push(FFI::nil);
+                    break;
+                }
+                
+                a.list().erase(a.const_list().begin());
+                push(a);
             }
+            else if (a.valueType() == ValueType::String)
+            {
+                if (a.string().size() < 2)
+                {
+                    push(FFI::nil);
+                    break;
+                }
+
+                a.string_ref().erase(a.string().begin());
+                push(a);
+            }
+            else
+                throw Ark::TypeError("Argument of tailOf must be a list or a String");
             
-            a.list().erase(a.const_list().begin());
-            push(a);
             break;
         }
 
         case Instruction::HEADOF:
         {
             auto a = pop();
-            if (a.valueType() != ValueType::List)
-                throw Ark::TypeError("Argument of headof must be a list");
-            
-            if (a.const_list().size() < 2)
+            if (a.valueType() == ValueType::List)
             {
-                push(FFI::nil);
-                break;
+                if (a.const_list().size() < 2)
+                {
+                    push(FFI::nil);
+                    break;
+                }
+                
+                a.list().erase(a.const_list().end());
+                push(a);
             }
+            else if (a.valueType() == ValueType::String)
+            {
+                if (a.string().size() < 2)
+                {
+                    push(FFI::nil);
+                    break;
+                }
+                
+                a.string_ref().pop_back();
+                push(a);
+            }
+            else
+                throw Ark::TypeError("Argument of headOf must be a list or a String");
             
-            a.list().erase(a.const_list().end());
-            push(a);
             break;
         }
 
@@ -1285,25 +1321,29 @@ inline void VM_t<debug>::operators(uint8_t inst)
         case Instruction::AT:
         {
             auto b = pop(), a = pop();
-            if (a.valueType() != ValueType::List)
-                throw Ark::TypeError("Argument 1 of @ should be a List");
             if (b.valueType() != ValueType::Number)
                 throw Ark::TypeError("Argument 2 of @ should be a Number");
-            
-            push(a.const_list()[static_cast<long>(b.number())]);
+
+            if (a.valueType() == ValueType::List)
+                push(a.const_list()[static_cast<long>(b.number())]);
+            else if (a.valueType() == ValueType::String)
+                push(Value(std::string(1, a.string()[static_cast<long>(b.number())])));
+            else
+                throw Ark::TypeError("Argument 1 of @ should be a List or a String");
             break;
         }
 
         case Instruction::AND_:
         {
-            push((pop() == FFI::trueSym && pop() == FFI::trueSym) ? FFI::trueSym : FFI::falseSym);
+            auto a = pop(), b = pop();
+            push((a == FFI::trueSym && b == FFI::trueSym) ? FFI::trueSym : FFI::falseSym);
             break;
         }
 
         case Instruction::OR_:
         {
-            auto a = pop();
-            push((pop() == FFI::trueSym || a == FFI::trueSym) ? FFI::trueSym : FFI::falseSym);
+            auto a = pop(), b = pop();
+            push((b == FFI::trueSym || a == FFI::trueSym) ? FFI::trueSym : FFI::falseSym);
             break;
         }
 
@@ -1333,14 +1373,14 @@ inline void VM_t<debug>::operators(uint8_t inst)
                     switch (a.nft())
                     {
                         case NFT::Nil:
-                            push(FFI::nil);
+                            push(Value("Nil"));
                             break;
                         case NFT::True:
                         case NFT::False:
                             push(Value("Bool"));
                             break;
                         case NFT::Undefined:
-                            push(FFI::undefined);
+                            push(Value("Undefined"));
                             break;
                     }
                     break;
@@ -1357,9 +1397,9 @@ inline void VM_t<debug>::operators(uint8_t inst)
         {
             auto field = pop(), closure = pop();
             if (closure.valueType() != ValueType::Closure)
-                throw Ark::TypeError("Argument no 1 of hasfield should be a Closure");
+                throw Ark::TypeError("Argument no 1 of hasField should be a Closure");
             if (field.valueType() != ValueType::String)
-                throw Ark::TypeError("Argument no 2 of hasfield should be a String");
+                throw Ark::TypeError("Argument no 2 of hasField should be a String");
             
             auto it = std::find(m_symbols.begin(), m_symbols.end(), field.string());
             if (it == m_symbols.end())

@@ -11,7 +11,7 @@ color brightblue "\<(set|del|import|quote|begin|let|mut|fun|if|while)\>"
 color brightcyan "\<(append|concat|list|print|input|writeFile|readFile|writeFile|fileExists?)\>"
 
 ## operators
-color brightyellow "[.+*|=!@'\^]" "<" ">" "/" "-" "and" "or" "mod" "type" "hasfield" "len" "empty?" "firstof" "tailof" "headof" "nil?" "assert" "toNumber" "toString"
+color brightyellow "[.+*|=!@'\^]" "<" ">" "/" "-" "and" "or" "mod" "type" "hasField" "len" "empty?" "firstOf" "tailOf" "headOf" "nil?" "assert" "toNumber" "toString"
 
 ## blocks
 color yellow "[()]" "\[" "\]" "\{" "\}"
