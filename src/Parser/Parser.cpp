@@ -401,12 +401,13 @@ namespace Ark
                                 else
                                     throw std::runtime_error("ParseError: Couldn't find file " + file);
                             }
+                            
                             for (auto&& inc : p.m_parent_include)
                                 m_parent_include.push_back(inc);
 
                             n.list().push_back(p.ast());
                         }
-                        else
+                        else if (m_debug)
                             Ark::logger.warn("Possible cyclic inclusion issue: file " + m_file + " is trying to include " + path + " which was already included");
                     }
                 }

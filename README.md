@@ -44,6 +44,8 @@
 }
 ```
 
+More examples are available in the folder `examples/`.
+
 ## Contributing
 
 * First, [fork](https://github.com/SuperFola/Ark/fork) the repository

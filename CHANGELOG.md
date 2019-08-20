@@ -2,16 +2,26 @@
 
 ## Unreleased changes
 ### Added
+
+### Changed
+
+### Removed
+
+## 3.0.2
+### Added
 - cmake options `ARK_BUILD_EXE` and `ARK_BUILD_BENCHMARK` to choose what to build
 - when the VM crash, displaying stack trace
 - added function `time` to the FFI (time in seconds since epoch)
+- adding VM.doFile
 
 ### Changed
 - updated the VM to be able to call functions defined in Ark from C++
 - `del sym` set `sym` to `undefined` (internal value only, not the `undefined` of Javascript) instead of `nil`
 - fixed imports
+- fixed automatic compilation of not-up-to-date files
 
 ### Removed
+- flag `-c|--compile` to force compilation was not useful
 
 ## 3.0.1
 ### Added

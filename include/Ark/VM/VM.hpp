@@ -12,7 +12,7 @@
 
 #include <Ark/VM/Value.hpp>
 #include <Ark/VM/Frame.hpp>
-#include <Ark/Compiler/Instructions.hpp>
+#include <Ark/Compiler/Compiler.hpp>
 #include <Ark/VM/Plugin.hpp>
 #include <Ark/VM/FFI.hpp>
 #include <Ark/Log.hpp>
@@ -32,6 +32,8 @@ namespace Ark
 
         void feed(const std::string& filename);
         void feed(const bytecode_t& bytecode);
+        void doFile(const std::string& filename);
+
         void loadFunction(const std::string& name, internal::Value::ProcType function);
         void run();
 

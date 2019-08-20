@@ -6,6 +6,17 @@
 #include <clipp.hpp>
 #include <Ark/Ark.hpp>
 
+void bcr(const std::string& file)
+{
+    try {
+        Ark::BytecodeReader bcr;
+        bcr.feed(file);
+        bcr.display();
+    } catch (const std::exception& e) {
+        std::cout << e.what() << std::endl;
+    }
+}
+
 int main(int argc, char** argv)
 {
     using namespace clipp;
@@ -14,7 +25,7 @@ int main(int argc, char** argv)
     mode selected = mode::help;
 
     std::string file = "";
-    bool debug = false, recompile = false;
+    bool debug = false;
     std::vector<std::string> wrong;
 
     auto cli = (
@@ -26,7 +37,6 @@ int main(int argc, char** argv)
             , (
                 (
                     option("-d", "--debug").set(debug).doc("Enable debug mode")
-                     , option("-c", "--compile").set(recompile).doc("Force compilation")
                 )
                 | option("-bcr", "--bytecode-reader").set(selected, mode::bytecode_reader).doc("Launch the bytecode reader")
             )
@@ -69,8 +79,19 @@ int main(int argc, char** argv)
                 break;
             
             case mode::run:
-                run(file, debug, recompile);
+            {
+                if (debug)
+                {
+                    Ark::VM_debug vm;
+                    vm.doFile(file);
+                }
+                else
+                {
+                    Ark::VM vm;
+                    vm.doFile(file);
+                }
                 break;
+            }
             
             case mode::bytecode_reader:
                 bcr(file);
