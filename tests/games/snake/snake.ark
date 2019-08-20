@@ -8,8 +8,8 @@
 
     # stuff needed for the texts
     (let font (sf-load-font "FreeSansBold.ttf"))
-    (let hello_text (sf-make-text font "Hello!" 18 [255 255 255]))
-    (sf-setPos hello_text (/ (- 600 (sf-width hello_text)) 2) 580)
+    (let fps_text (sf-make-text font "FPS: NaN" 18 [255 255 255]))
+    (sf-setPos fps_text (/ (- 600 (sf-width fps_text)) 2) 580)
 
     # the board object
     # 0 => empty, 1 => apple
@@ -122,13 +122,7 @@
                     )
                     (return test)
                 }
-                {
-                    (let A (and (>= x 0) (>= y 0)))
-                    (let B (and (< y 20) (< x 20)))
-                    (print (type A) B (and A B))
-                    (print x y)
-                    (throw "Out of bounds")
-                }
+                (throw "Out of bounds")
             )
         ))
 
@@ -195,10 +189,6 @@
     # instanciating
     (let snake (create-snake-object))
 
-    (print "beginning...")
-
-    (mut i 0)
-
     (while (sf-window-isOpen) {
         (mut frame_start (time))
 
@@ -216,36 +206,26 @@
         ])
 
         # update
-        (if (= (board.has_apple_left?) 0)
+        (if (= 0 (board.has_apple_left?))
             {
                 (print "victoire royale !")
                 (sf-window-close)
             }
             ()
         )
-        #(switch i [
-        #    [0 '(snake snake-move-down)]
-        #    [1 '(snake snake-move-down)]
-        #    [2 '(snake snake-move-down)]
-        #    [3 '(snake snake-move-down)]
-        #    [4 '(snake snake-move-down)]
-        #    [5 '(snake snake-move-right)]
-        #    [6 '(snake snake-move-right)]
-        #])
-        #(set i (+ 1 i))
-        # (snake.auto_move board)
+        (snake.auto_move board)
 
         # rendering
         (sf-window-clear 0 0 0)
         (board.draw_board)      # draw board first
         (snake.draw)            # then snake
-        (sf-draw hello_text)    # then a test with some text
+        (sf-draw fps_text)
         (sf-window-display)     # double buffering
 
-        #(mut diff (- (time) frame_start))
-        #(if (!= diff 0)
-        #    (print (/ 1 diff) "FPS")
-        #    (print "inf FPS")
-        #)
+        (mut diff (- (time) frame_start))
+        (if (!= diff 0)
+            (sf-setText fps_text (+ "FPS: " (toString (/ 1 diff))))
+            (sf-setText fps_text "FPS: NaN")
+        )
     })
 }

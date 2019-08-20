@@ -243,6 +243,26 @@ Value sf_make_text(const std::vector<Value>& n)
     return Value(name);
 }
 
+Value sf_set_text(const std::vector<Value>& n)
+{
+    if (n.size() != 2)
+        throw std::runtime_error("sf-setText: need 2 arguments: text object, new value");
+    if (n[0].valueType() != ValueType::String)
+        throw Ark::TypeError("sf-make-text: invalid argument (text object)");
+    if (n[1].valueType() != ValueType::String)
+        throw Ark::TypeError("sf-make-text: invalid argument (new value)");
+    
+    std::size_t i = n[0].string().find_first_of('-');
+    std::string sub = n[0].string().substr(0, i);
+
+    if (sub == "text")
+        texts[n[0].string()].setString(n[1].string());
+    else
+        throw Ark::TypeError("Object isn't a text object");
+    
+    return nil;
+}
+
 Value sf_setpos(const std::vector<Value>& n)
 {
     if (n.size() != 3)

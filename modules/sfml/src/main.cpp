@@ -15,6 +15,7 @@ extern "C" Mapping_t getFunctionsMapping()
     map["sf-load-sprite"] = &sf_load_sprite;
     map["sf-load-font"] = &sf_load_font;
     map["sf-make-text"] = &sf_make_text;
+    map["sf-setText"] = &sf_set_text;
     map["sf-setPos"] = &sf_setpos;
     map["sf-width"] = &sf_width;
     map["sf-height"] = &sf_height;
