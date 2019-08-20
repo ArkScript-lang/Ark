@@ -1225,14 +1225,14 @@ inline void VM_t<debug>::operators(uint8_t inst)
 
         case Instruction::AND_:
         {
-            push(pop() == FFI::trueSym && pop() == FFI::trueSym);
+            push((pop() == FFI::trueSym && pop() == FFI::trueSym) ? FFI::trueSym : FFI::falseSym);
             break;
         }
 
         case Instruction::OR_:
         {
             auto a = pop();
-            push(pop() == FFI::trueSym || a == FFI::trueSym);
+            push((pop() == FFI::trueSym || a == FFI::trueSym) ? FFI::trueSym : FFI::falseSym);
             break;
         }
 

@@ -31,8 +31,7 @@
                         (set t 1)
                         (set t 0)
                     )
-                    (mut case t)
-                    (set line (append line case))
+                    (set line (append line t))
                     (set _x (+ 1 _x))
                 })
 
@@ -40,7 +39,6 @@
                 (set _y (+ 1 _y))
             })
         }
-        (print data)
 
         (let draw_board (fun () {
             (mut y 0)
@@ -89,7 +87,7 @@
         }))
 
         (let eat_apple_at (fun (x y)
-            (if (and (>= x 0) (>= y 0) (< y 20) (< x 20))
+            (if (and (and (>= x 0) (>= y 0)) (and (< y 20) (< x 20)))
                 {
                     (let test (= 1 (@ (@ data y) x)))
                     (if test
@@ -124,18 +122,18 @@
                     )
                     (return test)
                 }
-                (throw "Out of bounds")
+                {
+                    (let A (and (>= x 0) (>= y 0)))
+                    (let B (and (< y 20) (< x 20)))
+                    (print (type A) B (and A B))
+                    (print x y)
+                    (throw "Out of bounds")
+                }
             )
         ))
 
-        (fun (f &data &apple_sprite &draw_board &has_apple_left? &eat_apple_at) 
-            (f draw_board has_apple_left? eat_apple_at)
-        )
+        (fun (&data &apple_sprite &draw_board &has_apple_left? &eat_apple_at) ())
     }))
-    # properties
-    (let board-draw (fun (f _ _) (f)))
-    (let board-has-apple-left? (fun (_ f _) (f)))
-    (let board-eat-apple-at (fun (x y) (fun (_ _ f &x &y) (f x y))))
 
     # instanciating
     (let board (create-board-object))
@@ -154,7 +152,7 @@
 
             (let p (@ pos (- (len pos) 1)))
 
-            (try (board (board-eat-apple-at (+ mx (@ p 0)) (+ my (@ p 1))))
+            (try (board.eat_apple_at (+ mx (@ p 0)) (+ my (@ p 1)))
                 (fun (result) {
                     # if result == false, move the tail to the head
                     # otherwise, add a new head
@@ -191,18 +189,8 @@
             })
         }))
 
-        (fun (f &move &reset_auto_move &auto_move &draw &pos &should_move &last_direction &snake_sprite)
-            (f move reset_auto_move auto_move draw)
-        )
+        (fun (&move &reset_auto_move &auto_move &draw &pos &should_move &last_direction &snake_sprite) ())
     }))
-    # properties
-    (let snake-move-up    (fun (f _ _ _) (f  0 -1 board)))
-    (let snake-move-down  (fun (f _ _ _) (f  0  1 board)))
-    (let snake-move-right (fun (f _ _ _) (f  1  0 board)))
-    (let snake-move-left  (fun (f _ _ _) (f -1  0 board)))
-    (let snake-auto-move  (fun (_ _ f _) (f board)))
-    (let snake-reset-auto-move (fun (_ f _ _) (f)))
-    (let snake-draw (fun (_ _ _ f) (f)))
 
     # instanciating
     (let snake (create-snake-object))
@@ -215,20 +203,20 @@
         (mut frame_start (time))
 
         # event handling
-        (snake snake-reset-auto-move)
+        (snake.reset_auto_move)
 
         (mut event (sf-poll-event))
 
         (switch event [
             [(sf-event "quit") '(sf-window-close)]
-            [(sf-event "keyup" "up") '(snake snake-move-up)]
-            [(sf-event "keyup" "down") '(snake snake-move-down)]
-            [(sf-event "keyup" "right") '(snake snake-move-right)]
-            [(sf-event "keyup" "left") '(snake snake-move-left)]
+            [(sf-event "keyup" "up") '(snake.move 0 -1 board)]
+            [(sf-event "keyup" "down") '(snake.move 0 1 board)]
+            [(sf-event "keyup" "right") '(snake.move 1 0 board)]
+            [(sf-event "keyup" "left") '(snake.move -1 0 board)]
         ])
 
         # update
-        (if (board board-has-apple-left?)
+        (if (= (board.has_apple_left?) 0)
             {
                 (print "victoire royale !")
                 (sf-window-close)
@@ -245,19 +233,19 @@
         #    [6 '(snake snake-move-right)]
         #])
         #(set i (+ 1 i))
-        # (snake snake-auto-move)
+        # (snake.auto_move board)
 
         # rendering
         (sf-window-clear 0 0 0)
-        (board board-draw)      # draw board first
-        (snake snake-draw)      # then snake
+        (board.draw_board)      # draw board first
+        (snake.draw)            # then snake
         (sf-draw hello_text)    # then a test with some text
         (sf-window-display)     # double buffering
 
-        (mut diff (- (time) frame_start))
-        (if (!= diff 0)
-            (print (/ 1 diff) "FPS")
-            (print "inf FPS")
-        )
+        #(mut diff (- (time) frame_start))
+        #(if (!= diff 0)
+        #    (print (/ 1 diff) "FPS")
+        #    (print "inf FPS")
+        #)
     })
 }
