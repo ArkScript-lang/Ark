@@ -6,6 +6,10 @@
     (let start_time (time))
     (mut passed 0)
 
+    (print "Starting unit tests")
+
+    # multiple # comments # test
+
     # --------------------------
     #         Arithmetic
     # --------------------------
@@ -50,6 +54,7 @@
         (set passed (+ 1 passed))
     }))
     (math-tests)
+    (print "Math tests passed")
 
     # --------------------------
     #         Strings
@@ -86,6 +91,7 @@
         (set passed (+ 1 passed))
     }))
     (string-tests)
+    (print "String tests passed")
 
     # --------------------------
     #           List
@@ -124,6 +130,7 @@
         (set passed (+ 1 passed))
     }))
     (list-tests)
+    (print "List tests passed")
 
     # --------------------------
     #           misc
@@ -175,6 +182,7 @@
         (set passed (+ 1 passed))
     }))
     (misc-tests)
+    (print "Misc tests passed")
     
     # --------------------------
     #          switch
@@ -193,6 +201,7 @@
         ])
     }))
     (switch-tests)
+    (print "Switch tests passed")
 
     # --------------------------
     #          defer
@@ -216,6 +225,7 @@
         (set passed (+ 1 passed))
     }))
     (defer-tests)
+    (print "Defer tests passed")
 
     # --------------------------
     #        recursion
@@ -244,6 +254,8 @@
 
     (assert (= (fibo 16) 987) "Fibo 16 test failed")
     (set passed (+ 1 passed))
+
+    (print "Recursion tests passed")
 
     # --------------------------
     #         callbacks
@@ -281,6 +293,7 @@
         (set passed (+ 1 passed))
     }))
     (callbacks-tests)
+    (print "Callback tests passed")
 
     # --------------------------
     #            OOP
@@ -308,6 +321,7 @@
         (set passed (+ 1 passed))
     }))
     (oop-test)
+    (print "OOP tests passed")
 
     # --------------------------
     #         Errors
@@ -327,6 +341,7 @@
         (set passed (+ 1 passed))
     }))
     (error-tests)
+    (print "Error tests passed")
 
     # --------------------------
     #          Ranges
@@ -343,6 +358,7 @@
         (set passed (+ 1 passed))
     }))
     (range-test)
+    (print "Range tests passed")
 
     # --------------------------
     #            Del
@@ -355,6 +371,7 @@
         (set passed (+ 1 passed))
     }))
     (del-test)
+    (print "Del tests passed")
 
     (print passed "tests passed!")
     (print "Completed in" (toString (- (time) start_time)) "seconds")

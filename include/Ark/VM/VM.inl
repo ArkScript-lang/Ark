@@ -520,33 +520,35 @@ void VM_t<debug>::safeRun(std::size_t untilFrameCount)
             ++m_ip;
         }
     } catch (const std::exception& e) {
-        std::cout << "\n" << termcolor::red << e.what() << "\n";
-        std::cout << termcolor::reset << "At IP: " << m_ip << ", PP: " << m_pp << "\n";
+        std::cerr << "\n" << termcolor::red << e.what() << "\n";
+        std::cerr << termcolor::reset << "At IP: " << m_ip << ", PP: " << m_pp << "\n";
 
         if (m_frames.size() > 1)
         {
             // display call stack trace
             for (auto it=m_frames.rbegin(); it != m_frames.rend(); ++it)
             {
-                std::cout << "[" << termcolor::cyan << std::distance(it, m_frames.rend()) << termcolor::reset << "] ";
+                std::cerr << "[" << termcolor::cyan << std::distance(it, m_frames.rend()) << termcolor::reset << "] ";
                 if (it->currentPageAddr() != 0)
                 {
                     uint16_t id = findNearestVariableIdWithValue(
                         Value(static_cast<PageAddr_t>(it->currentPageAddr()))
                     );
                     
-                    std::cout << "In function `" << termcolor::green << m_symbols[id] << termcolor::reset << "'\n";
+                    std::cerr << "In function `" << termcolor::green << m_symbols[id] << termcolor::reset << "'\n";
                 }
                 else
-                    std::cout << "In global scope\n";
+                    std::cerr << "In global scope\n";
 
                 if (std::distance(m_frames.rbegin(), it) > 7)
                 {
-                    std::cout << "...\n";
+                    std::cerr << "...\n";
                     break;
                 }
             }
         }
+    } catch (...) {
+        std::cerr << "Unknown error" << std::endl;
     }
 }
 

@@ -55,7 +55,7 @@ namespace Ark::internal
 
     const std::vector<std::pair<TokenType, std::regex>> lex_regexes = {
         { TokenType::String,     std::regex("^\"[^\"]*\"") },
-        { TokenType::Number,     std::regex("^((\\+|-)?[[:digit:]]+)([\\.|/](([[:digit:]]+)?))?") },
+        { TokenType::Number,     std::regex("^((\\+|-)?[[:digit:]]+)(\\.(([[:digit:]]+)?))?") },
         { TokenType::Operator,   std::regex("^(\\+|\\-|\\*|/|<=|>=|!=|<|>|@=|@|=|\\^)") },
         { TokenType::Identifier, std::regex("^[a-zA-Z_][a-zA-Z0-9_\\-?']*") },
         { TokenType::Capture,    std::regex("^&[a-zA-Z_][a-zA-Z0-9_\\-?']*") },
