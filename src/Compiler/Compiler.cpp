@@ -416,7 +416,7 @@ namespace Ark
             _compile(x.list()[0], proc_page);  // storing proc
             // trying to handle chained closure.field.field.field...
                 std::size_t n = 1;
-                while (true)
+                while (n < x.list().size())
                 {
                     if (x.list()[n].nodeType() == Ark::internal::NodeType::GetField)
                     {

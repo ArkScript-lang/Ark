@@ -1262,7 +1262,7 @@ inline void VM_t<debug>::operators(uint8_t inst)
                     break;
                 }
                 
-                a.list().erase(a.const_list().end());
+                a.list().pop_back();
                 push(a);
             }
             else if (a.valueType() == ValueType::String)
