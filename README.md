@@ -6,7 +6,7 @@
 
 <img align="right" src="images/Ark.png" width=200px>
 
-* Documentation: [doc/main.md](doc/main.md)
+* Documentation: [https://github.com/SuperFola/Ark/wiki](Wiki)
 
 **Nota bene**: the project is referred as "Ark" and as "ArkScript". The official public name is "ArkScript" since "Ark" is already being used by [another language](https://github.com/ark-lang/ark)
 
@@ -15,7 +15,7 @@
 * Ark is small: the compiler, and the virtual machines fit under 5000 lines, but also small in term of keywords (it has only 10)!
 * Ark is a scripting language: it's very easy to embed it in your application. The FFI is quite easy to understand, so adding your own functions to the virtual machine is effortless
 * Ark can run everywhere: it produces a bytecode which is run by its virtual machine, like Java but without the `OutOfMemoryException`
-* Ark is a functional language: every parameters are by passed by value, everything is immutable unless you use `mut` to define a mutable variable
+* Ark is a functional language: every parameters are passed by value, everything is immutable unless you use `mut` to define a mutable variable
 * Ark can handle object oriented programming in a very elegant way with its closures and explicit captures (see examples/church-encoding)
 * Ark is promoting functionalities before performances: expressiveness often brings more productivity, but performances aren't bad at all
 * Ark handles first class objects, thus it has higher-order functions
