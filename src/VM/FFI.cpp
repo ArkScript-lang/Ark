@@ -140,7 +140,7 @@ namespace Ark::internal::FFI
             std::ofstream f(n[0].string(), ios_mode);
             if (f.is_open())
             {
-                f << n[1];
+                f << n[2];
                 f.close();
             }
             else
