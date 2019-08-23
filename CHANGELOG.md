@@ -1,8 +1,9 @@
 # Change Log
 
-## Unreleased changes
+## 3.0.3
 ### Added
 - should be able to compare lists
+- chained operators: `(+ 1 2 3)` is automatically expanded (at compile time) into `(+ (+ 1 2) 3)` by the compiler
 
 ### Changed
 - some functions playing with list should also be able to play with Strings: `headof`, `tailof`, `firstof`, `len`, `empty?`, `@`
