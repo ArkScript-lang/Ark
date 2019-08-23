@@ -10,8 +10,7 @@
 - `firstof` should segfault when the list/String is empty
 - fixing type of `nil` to be `"Nil"` instead of `nil` when using `(type nil)`
 - uniformised names of builtins: pascal case (impacted functions are `firstOf`, `headOf` and `tailOf`, as well as `hasField`)
-
-### Removed
+- fixing bug with `writeFile` when sending a mode: the mode was also the content of the file, it no longer is
 
 ## 3.0.2
 ### Added
