@@ -427,18 +427,19 @@ namespace Ark
                         break;
                 }
             std::size_t proc_page_len = m_temp_pages.back().size();
-        // push arguments on current page
-        for (Ark::internal::Node::Iterator exp=x.list().begin() + n; exp != x.list().end(); ++exp)
-            _compile(*exp, p);
-        // push proc from temp page
-        for (auto&& inst : m_temp_pages.back())
-            page(p).push_back(inst);
-        m_temp_pages.pop_back();
-        // call the procedure
         // we know that operators take only 1 instruction, so if there are more
         // it's a builtin/function
         if (proc_page_len > 1)
         {
+            // push arguments on current page
+            for (Ark::internal::Node::Iterator exp=x.list().begin() + n; exp != x.list().end(); ++exp)
+                _compile(*exp, p);
+            // push proc from temp page
+            for (auto&& inst : m_temp_pages.back())
+                page(p).push_back(inst);
+            m_temp_pages.pop_back();
+
+            // call the procedure
             page(p).push_back(Instruction::CALL);
             // number of arguments
             std::size_t args_count = 0;
@@ -449,6 +450,25 @@ namespace Ark
                     args_count++;
             }
             pushNumber(static_cast<uint16_t>(args_count), &page(p));
+        }
+        else  // operator
+        {
+            // retrieve operator
+            auto op_inst = m_temp_pages.back()[0];
+            m_temp_pages.pop_back();
+
+            // push arguments on current page
+            std::size_t exp_count = 0;
+            for (Ark::internal::Node::Iterator exp=x.list().begin() + n; exp != x.list().end(); ++exp)
+            {
+                _compile(*exp, p);
+                exp_count++;
+
+                // in order to be able to handle things like (op A B C D...)
+                // which should be transformed into A B op C op D op...
+                if (exp_count >= 2)
+                    page(p).push_back(op_inst);
+            }
         }
 
         return;
