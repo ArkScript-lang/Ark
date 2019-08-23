@@ -459,10 +459,14 @@ namespace Ark
 
             // push arguments on current page
             std::size_t exp_count = 0;
-            for (Ark::internal::Node::Iterator exp=x.list().begin() + n; exp != x.list().end(); ++exp)
+            for (std::size_t index=n; index < x.list().size(); ++index)
             {
-                _compile(*exp, p);
-                if (exp->nodeType() != Ark::internal::NodeType::GetField)
+                _compile(x.list()[index], p);
+
+                if ((index + 1 < x.list().size() &&
+                    x.list()[index + 1].nodeType() != Ark::internal::NodeType::GetField &&
+                    x.list()[index + 1].nodeType() != Ark::internal::NodeType::Capture) ||
+                    index + 1 == x.list().size())
                     exp_count++;
 
                 // in order to be able to handle things like (op A B C D...)
