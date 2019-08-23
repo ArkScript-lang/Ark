@@ -29,7 +29,7 @@ if (CMAKE_COMPILER_IS_GNUCXX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,-rpath,/usr/local/lib")
 endif()
 
-if (BUILD_MODULES MATCHES "true")
+if (ARK_BUILD_MODULES)
     add_subdirectory(${Ark_SOURCE_DIR}/modules)
 endif()
 

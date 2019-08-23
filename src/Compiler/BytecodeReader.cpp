@@ -333,6 +333,9 @@ namespace Ark
             }
             os << "\n" << termcolor::reset;
             ++pp;
+
+			if (i == b.size())
+				break;
         }
     }
 

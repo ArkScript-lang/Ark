@@ -34,17 +34,27 @@ void VM_t<debug>::feed(const bytecode_t& bytecode)
     configure();
 }
 
-static void compile(bool debug, const std::string& file, const std::string& output)
+static bool compile(bool debug, const std::string& file, const std::string& output)
 {
     Compiler compiler(debug);
     compiler.feed(Utils::readFile(file), file);
 
-    compiler.compile();
+    try {
+        compiler.compile();
 
-    if (output != "")
-        compiler.saveTo(output);
-    else
-        compiler.saveTo(file.substr(0, file.find_last_of('.')) + ".arkc");
+        if (output != "")
+            compiler.saveTo(output);
+        else
+            compiler.saveTo(file.substr(0, file.find_last_of('.')) + ".arkc");
+    } catch (const std::exception& e) {
+        std::cerr << e.what() << std::endl;
+        return false;
+    } catch (...) {
+        std::cerr << "Unknown lexer-or-parser-compiler error" << std::endl;
+        return false;
+    }
+
+    return true;
 }
 
 template<bool debug>
@@ -73,6 +83,8 @@ void VM_t<debug>::doFile(const std::string& file)
         std::filesystem::path directory =  (std::filesystem::path(file)).parent_path() / ARK_CACHE_DIRNAME;
         std::string path = (directory / filename).string();
 
+        bool compiled_successfuly = false;
+
         if (Ark::Utils::fileExists(path))
         {
             auto ftime = std::filesystem::last_write_time(std::filesystem::path(file));
@@ -84,19 +96,22 @@ void VM_t<debug>::doFile(const std::string& file)
             auto file_last_write = static_cast<decltype(timestamp)>(std::chrono::duration_cast<std::chrono::seconds>(ftime.time_since_epoch()).count());
             // recompile
             if (timestamp < file_last_write)
-                Ark::compile(debug, file, path);
+                compiled_successfuly = Ark::compile(debug, file, path);
         }
         else
         {
             if (!std::filesystem::exists(directory))  // create ark cache directory
                 std::filesystem::create_directory(directory);
             
-            Ark::compile(debug, file, path);
+            compiled_successfuly = Ark::compile(debug, file, path);
         }
         
         // run
-        feed(path);
-        run();
+        if (compiled_successfuly)
+        {
+            feed(path);
+            run();
+        }
     }
     else  // it's a bytecode file, run it
     {

@@ -462,12 +462,38 @@ namespace Ark
             for (Ark::internal::Node::Iterator exp=x.list().begin() + n; exp != x.list().end(); ++exp)
             {
                 _compile(*exp, p);
-                exp_count++;
+                if (exp->nodeType() != Ark::internal::NodeType::GetField)
+                    exp_count++;
 
                 // in order to be able to handle things like (op A B C D...)
                 // which should be transformed into A B op C op D op...
                 if (exp_count >= 2)
                     page(p).push_back(op_inst);
+            }
+
+            if (exp_count == 1)
+                page(p).push_back(op_inst);
+
+            // need to check we didn't push the (op A B C D...) things for operators not supporting it
+            if (exp_count > 2)
+            {
+                switch (op_inst.inst)
+                {
+                    // authorized instructions
+                    case Instruction::ADD:
+                    case Instruction::SUB:
+                    case Instruction::DIV:
+                    case Instruction::MUL:
+                    case Instruction::MOD:
+                    case Instruction::AND_:
+                    case Instruction::OR_:
+                        break;
+                    
+                    default:
+                        throw std::runtime_error("CompilerError: can not create a chained expression (of length " + Utils::toString(exp_count) +
+                            ") for operator `" + FFI::operators[static_cast<std::size_t>(op_inst.inst - Instruction::FIRST_OPERATOR)] + "' " +
+                            "at node `" + Utils::toString(x) + "'");
+                }
             }
         }
 
