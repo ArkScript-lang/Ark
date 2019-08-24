@@ -73,6 +73,13 @@ namespace Ark::Utils
     {
         return (std::filesystem::relative(std::filesystem::path(path))).string();
     }
+
+    inline bool isDouble(const std::string& s)
+    {
+        char* end = 0;
+        double val = strtod(s.c_str(), &end);
+        return end != s.c_str() && *end == '\0' && val != HUGE_VAL;
+    }
 }
 
 #endif  // ark_utils

@@ -1323,7 +1323,10 @@ inline void VM_t<debug>::operators(uint8_t inst)
             if (a.valueType() != ValueType::String)
                 throw Ark::TypeError("Argument of toNumber must be a String");
             
-            push(Value(std::stod(a.string().c_str())));
+            if (Utils::isDouble(a.string()))
+                push(Value(std::stod(a.string().c_str())));
+            else
+                push(FFI::nil);
             break;
         }
 
