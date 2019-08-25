@@ -9,6 +9,8 @@
 #include <regex>
 #include <filesystem>
 
+#include <cmath>
+
 #include <Ark/Constants.hpp>
 
 namespace Ark::Utils
