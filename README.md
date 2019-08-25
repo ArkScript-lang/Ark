@@ -6,7 +6,7 @@
 
 <img align="right" src="images/Ark.png" width=200px>
 
-* Documentation: [https://github.com/SuperFola/Ark/wiki](Wiki)
+* Documentation: [Wiki](https://github.com/SuperFola/Ark/wiki)
 
 **Nota bene**: the project is referred as "Ark" and as "ArkScript". The official public name is "ArkScript" since "Ark" is already being used by [another language](https://github.com/ark-lang/ark)
 
