@@ -14,19 +14,19 @@ matrix:
       env:
         - C_COMPILER=gcc-8 CXX_COMPILER=g++-8
 
-    - os: linux
-      dist: xenial
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-xenial-8
-          packages:
-            - gcc-8
-            - g++-8
-            - clang-8
-      env:
-        - C_COMPILER=clang-8 CXX_COMPILER=clang++-8
+    #- os: linux
+    #  dist: xenial
+    #  addons:
+    #    apt:
+    #      sources:
+    #        - ubuntu-toolchain-r-test
+    #        - llvm-toolchain-xenial-8
+    #      packages:
+    #        - gcc-8
+    #        - g++-8
+    #        - clang-8
+    #  env:
+    #    - C_COMPILER=clang-8 CXX_COMPILER=clang++-8
 
     - os: windows
       dist: 1803-containers
