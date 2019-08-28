@@ -237,6 +237,12 @@ namespace Ark
     using VM_debug = VM_t<true>;
     // standard VM, debug off
     using VM = VM_t<false>;
+
+    // aliases
+    using Value = internal::Value;
+    using Nil = internal::FFI::nil;
+    using False = internal::FFI::falseSym;
+    using True = internal::FFI::trueSym;
 }
 
 #endif
