@@ -35,7 +35,7 @@ namespace Ark
         void feed(const bytecode_t& bytecode);
         void doFile(const std::string& filename);
 
-        void loadFunction(const std::string& name, const internal::Value::ProcType& function);
+        void loadFunction(const std::string& name, internal::Value::ProcType function);
         void run();
 
         internal::Value& operator[](const std::string& name);
