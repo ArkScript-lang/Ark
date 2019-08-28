@@ -7,6 +7,7 @@
 #include <cinttypes>
 #include <iostream>
 #include <memory>
+#include <functional>
 
 #include <Ark/VM/Types.hpp>
 #include <Ark/VM/Closure.hpp>
@@ -30,7 +31,7 @@ namespace Ark::internal
     class Value
     {
     public:
-        using ProcType  = Value(*)(const std::vector<Value>&);
+        using ProcType  = std::function<Value (const std::vector<Value>&)>;
         using Iterator = std::vector<Value>::const_iterator;
         using Value_t = std::variant<double, std::string, PageAddr_t, NFT, ProcType, Closure, std::vector<Value>>;
 
@@ -80,7 +81,7 @@ namespace Ark::internal
             return std::get<NFT>(m_value);
         }
 
-        inline const ProcType proc() const
+        inline const ProcType& proc() const
         {
             return std::get<Value::ProcType>(m_value);
         }

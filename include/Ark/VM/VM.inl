@@ -319,7 +319,7 @@ void VM_t<debug>::configure()
 }
 
 template<bool debug>
-void VM_t<debug>::loadFunction(const std::string& name, internal::Value::ProcType function)
+void VM_t<debug>::loadFunction(const std::string& name, const internal::Value::ProcType& function)
 {
     using namespace Ark::internal;
 
