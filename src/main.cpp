@@ -24,7 +24,7 @@ int main(int argc, char** argv)
     enum class mode { help, dev_info, bytecode_reader, version, run };
     mode selected = mode::help;
 
-    std::string file = "";
+    std::string file = "", lib_dir = "";
     bool debug = false;
     std::vector<std::string> wrong;
 
@@ -39,6 +39,10 @@ int main(int argc, char** argv)
                     option("-d", "--debug").set(debug).doc("Enable debug mode")
                 )
                 | option("-bcr", "--bytecode-reader").set(selected, mode::bytecode_reader).doc("Launch the bytecode reader")
+            ),
+            (
+                option("-L", "--lib").doc("Define the directory where the Ark standard library is")
+                & value("lib_dir", lib_dir)
             )
         )
         , any_other(wrong)
@@ -82,12 +86,12 @@ int main(int argc, char** argv)
             {
                 if (debug)
                 {
-                    Ark::VM_debug vm;
+                    Ark::VM_debug vm(lib_dir);
                     vm.doFile(file);
                 }
                 else
                 {
-                    Ark::VM vm;
+                    Ark::VM vm(lib_dir);
                     vm.doFile(file);
                 }
                 break;

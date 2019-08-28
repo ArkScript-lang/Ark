@@ -1,6 +1,12 @@
 template<bool debug>
 VM_t<debug>::VM_t(bool persist) :
-    m_persist(persist), m_ip(0), m_pp(0), m_running(false), m_filename("FILE"),
+    m_persist(persist), m_libdir(ARK_STD_DEFAULT), m_ip(0), m_pp(0), m_running(false), m_filename("FILE"),
+    m_last_sym_loaded(0), m_until_frame_count(0)
+{}
+
+template<bool debug>
+VM_t<debug>::VM_t(const std::string& lib_dir) :
+    m_persist(false), m_libdir(lib_dir != "" ? lib_dir : ARK_STD_DEFAULT), m_ip(0), m_pp(0), m_running(false), m_filename("FILE"),
     m_last_sym_loaded(0), m_until_frame_count(0)
 {}
 
@@ -34,9 +40,9 @@ void VM_t<debug>::feed(const bytecode_t& bytecode)
     configure();
 }
 
-static bool compile(bool debug, const std::string& file, const std::string& output)
+static bool compile(bool debug, const std::string& file, const std::string& output, const std::string& lib_dir)
 {
-    Compiler compiler(debug);
+    Compiler compiler(debug, lib_dir);
     compiler.feed(Utils::readFile(file), file);
 
     try {
@@ -96,7 +102,7 @@ void VM_t<debug>::doFile(const std::string& file)
             auto file_last_write = static_cast<decltype(timestamp)>(std::chrono::duration_cast<std::chrono::seconds>(ftime.time_since_epoch()).count());
             // recompile
             if (timestamp < file_last_write)
-                compiled_successfuly = Ark::compile(debug, file, path);
+                compiled_successfuly = Ark::compile(debug, file, path, m_libdir);
             else
                 compiled_successfuly = true;
         }
@@ -105,7 +111,7 @@ void VM_t<debug>::doFile(const std::string& file)
             if (!std::filesystem::exists(directory))  // create ark cache directory
                 std::filesystem::create_directory(directory);
             
-            compiled_successfuly = Ark::compile(debug, file, path);
+            compiled_successfuly = Ark::compile(debug, file, path, m_libdir);
         }
         
         // run
@@ -389,7 +395,7 @@ void VM_t<debug>::run()
             std::string path = "./" + file;
             if (m_filename != "FILE")  // bytecode loaded from file
                 path = "./" + (fs::path(m_filename).parent_path() / fs::path(file)).string();
-            std::string lib_path = (fs::path(ARK_STD) / fs::path(file)).string();
+            std::string lib_path = (fs::path(m_libdir) / fs::path(file)).string();
 
             if constexpr (debug)
                 Ark::logger.info("Loading", file, "in", path, "or in", lib_path);

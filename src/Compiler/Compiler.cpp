@@ -11,7 +11,11 @@ namespace Ark
     using namespace Ark::internal;
 
     Compiler::Compiler(bool debug) :
-        m_parser(debug), m_debug(debug), m_ast_ok(false)
+        m_parser(debug, ARK_STD_DEFAULT), m_debug(debug), m_ast_ok(false)
+    {}
+
+    Compiler::Compiler(bool debug, const std::string& lib_dir) :
+        m_parser(debug, lib_dir), m_debug(debug), m_ast_ok(false)
     {}
 
     void Compiler::feed(const std::string& code, const std::string& filename)

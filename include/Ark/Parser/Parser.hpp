@@ -15,6 +15,7 @@ namespace Ark
     {
     public:
         Parser(bool debug=false);
+        Parser(bool debug, const std::string& lib_dir);
 
         void feed(const std::string& code, const std::string& filename="FILE");
         const internal::Node& ast() const;
@@ -23,6 +24,7 @@ namespace Ark
 
     private:
         bool m_debug;
+        std::string m_libdir;
         internal::Lexer m_lexer;
         internal::Node m_ast;
         internal::Token m_last_token;

@@ -29,6 +29,7 @@ namespace Ark
     {
     public:
         VM_t(bool persist=false);
+        VM_t(const std::string& lib_dir);
 
         void feed(const std::string& filename);
         void feed(const bytecode_t& bytecode);
@@ -85,6 +86,7 @@ namespace Ark
     private:
         bool m_persist;
         bytecode_t m_bytecode;
+        std::string m_libdir;
         // Instruction Pointer and Page Pointer
         int m_ip;
         std::size_t m_pp;

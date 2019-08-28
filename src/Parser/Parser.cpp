@@ -12,6 +12,14 @@ namespace Ark
 
     Parser::Parser(bool debug) :
         m_debug(debug),
+        m_libdir(ARK_STD_DEFAULT),
+        m_lexer(debug),
+        m_file("FILE")
+    {}
+
+    Parser::Parser(bool debug, const std::string& lib_dir) :
+        m_debug(debug),
+        m_libdir(lib_dir),
         m_lexer(debug),
         m_file("FILE")
     {}
@@ -395,7 +403,7 @@ namespace Ark
                                 p.feed(Ark::Utils::readFile(path), path);
                             else
                             {
-                                std::string libpath = std::string(ARK_STD) + "/" + Ark::Utils::getFilenameFromPath(path);
+                                std::string libpath = std::string(m_libdir) + "/" + Ark::Utils::getFilenameFromPath(path);
                                 if (Ark::Utils::fileExists(libpath))
                                     p.feed(Ark::Utils::readFile(libpath), libpath);
                                 else

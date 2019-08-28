@@ -20,6 +20,7 @@ namespace Ark
     {
     public:
         Compiler(bool debug=false);
+        Compiler(bool debug, const std::string& lib_dir);
 
         void feed(const std::string& code, const std::string& filename="FILE");
         void compile();
