@@ -2,14 +2,11 @@ cmake_minimum_required(VERSION 3.8)
 
 project(Ark CXX)
 
-# setting up compilations options
-
-if (NOT BUILD_MODULES)
-    message(STATUS "To build the modules, use -DBUILD_MODULES=\"true\"")
-    message(STATUS "Not building the modules")
-
-    set(BUILD_MODULES "false" CACHE STRING "Build the modules" FORCE)
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    set(CMAKE_COMPILER_IS_CLANG ON)
 endif()
+
+# setting up compilations options
 
 if (CMAKE_BUILD_TYPE MATCHES Debug)
     if (CMAKE_COMPILER_IS_GNUCXX)
@@ -27,6 +24,9 @@ endif()
 
 if (CMAKE_COMPILER_IS_GNUCXX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,-rpath,/usr/local/lib")
+elseif (CMAKE_COMPILER_IS_CLANG)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++abi")
 endif()
 
 if (ARK_BUILD_MODULES)
@@ -75,7 +75,7 @@ list(REMOVE_ITEM SOURCE_FILES "${Ark_SOURCE_DIR}/src/main.cpp")
 add_library(ArkReactor ${SOURCE_FILES})
 set_property(TARGET ArkReactor PROPERTY POSITION_INDEPENDENT_CODE ON)
 
-if (CMAKE_COMPILER_IS_GNUCXX AND (UNIX OR LINUX))
+if ((CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG) AND (UNIX OR LINUX))
     target_link_libraries(ArkReactor PUBLIC stdc++fs)
 endif()
 

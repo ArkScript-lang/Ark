@@ -1,6 +1,7 @@
 # project junk
 
 build/
+clang/
 benchmark/
 gitstats/
 gmon.out
