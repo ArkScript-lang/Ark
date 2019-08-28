@@ -1,5 +1,17 @@
 # Change Log
 
+## Unreleased changes
+### Added
+- with the option `-L|--lib` we can set the path to the Ark standard library
+- we can now load C++ lambdas into the ArkVM, as well as C++ functions
+
+### Changed
+- updating CMakeLists.txt to avoid building unuseful stuff from google benchmark
+- `toNumber` doesn't raise an unrecoverable error but returns `nil` if the conversion failed
+
+### Removed
+- `doc` folder, now everything is on the wiki
+
 ## 3.0.3
 ### Added
 - should be able to compare lists
