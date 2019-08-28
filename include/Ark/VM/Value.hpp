@@ -31,7 +31,7 @@ namespace Ark::internal
     class Value
     {
     public:
-        using ProcType  = std::function<Value (const std::vector<Value>&)>;
+        using ProcType = std::function<Value (const std::vector<Value>&)>;
         using Iterator = std::vector<Value>::const_iterator;
         using Value_t = std::variant<double, std::string, PageAddr_t, NFT, ProcType, Closure, std::vector<Value>>;
 

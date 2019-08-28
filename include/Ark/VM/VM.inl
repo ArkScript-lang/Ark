@@ -97,6 +97,8 @@ void VM_t<debug>::doFile(const std::string& file)
             // recompile
             if (timestamp < file_last_write)
                 compiled_successfuly = Ark::compile(debug, file, path);
+            else
+                compiled_successfuly = true;
         }
         else
         {

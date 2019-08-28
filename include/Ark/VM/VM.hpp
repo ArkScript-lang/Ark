@@ -235,8 +235,6 @@ namespace Ark
     using VM_debug = VM_t<true>;
     // standard VM, debug off
     using VM = VM_t<false>;
-
-    using Value = internal::Value;
 }
 
 #endif
