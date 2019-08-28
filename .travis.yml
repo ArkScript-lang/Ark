@@ -42,12 +42,4 @@ addons:
     sources:
       - ubuntu-toolchain-r-test
 
-<<<<<<< HEAD
 script: ./.github/travis.sh
-=======
-script:
-  - cmake -H. -Bbuild -DCMAKE_C_COMPILER=${C_COMPILER} -DCMAKE_CXX_COMPILER=${CXX_COMPILER} -DCMAKE_BUILD_TYPE=Release -DARK_BUILD_EXE=1
-  - cmake --build build --config Release
-  - cmake --install build --config Release
-  - build/Ark tests/unittest.ark
->>>>>>> 116f02f6b749ffadbf4b03c4db92ae2cc088143a
