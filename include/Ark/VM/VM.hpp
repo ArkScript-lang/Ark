@@ -109,6 +109,7 @@ namespace Ark
 
         void configure();
         void safeRun(std::size_t untilFrameCount=0);
+		void init();
 
         inline uint16_t readNumber()
         {

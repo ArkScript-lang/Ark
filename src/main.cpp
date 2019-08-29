@@ -19,6 +19,18 @@ void bcr(const std::string& file)
 
 int main(int argc, char** argv)
 {
+	Ark::VM vm(true);
+	vm.loadFunction("myscene_coucou", [](const std::vector<Ark::Value>& s) {
+		for (auto&& u : s)
+			std::cout << "ark coucou: " << u << std::endl;
+		return Ark::Nil;
+	});
+	vm.doFile("C:/Users/Folaefolc/Documents/Code/engine/assets/scripts/test.ark");
+	vm.call("onStateChange", std::string("running"));
+	return 0;
+
+
+
     using namespace clipp;
 
     enum class mode { help, dev_info, bytecode_reader, version, run };
