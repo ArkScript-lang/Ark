@@ -78,6 +78,10 @@ namespace Ark
             std::size_t frames_count = m_frames.size();
             // call it
             call(static_cast<int16_t>(sizeof...(Args)));
+			// reset instruction pointer, otherwise the safeRun method will start at ip = -1
+			// without doing m_ip++ as intended (done right after the call() in the loop, but here
+			// we start outside this loop)
+			m_ip = 0;
 
             // run until the function returns
             safeRun(/* untilFrameCount */ frames_count);
@@ -109,6 +113,7 @@ namespace Ark
         std::vector<internal::Frame> m_frames;
         std::optional<internal::Scope_t> m_saved_scope;
         std::vector<internal::Scope_t> m_locals;
+		std::unordered_map<std::string, internal::Value::ProcType> m_binded_functions;
 
         void configure();
         void safeRun(std::size_t untilFrameCount=0);

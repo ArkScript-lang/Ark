@@ -26,6 +26,7 @@ void VM_t<debug>::feed(const std::string& filename)
         m_filename = filename;
 
         configure();
+		init();
     }
     catch (const std::exception& e)
     {
@@ -38,6 +39,7 @@ void VM_t<debug>::feed(const bytecode_t& bytecode)
 {
     m_bytecode = bytecode;
     configure();
+	init();
 }
 
 static bool compile(bool debug, const std::string& file, const std::string& output, const std::string& lib_dir)
@@ -118,16 +120,12 @@ void VM_t<debug>::doFile(const std::string& file)
         if (compiled_successfuly)
         {
             feed(path);
-			if (m_persist)
-				init();
             run();
         }
     }
     else  // it's a bytecode file, run it
     {
         feed(file);
-		if (m_persist)
-			init();
         run();
     }
 }
@@ -333,15 +331,37 @@ void VM_t<debug>::configure()
 template<bool debug>
 void VM_t<debug>::init()
 {
+	using namespace Ark::internal;
+
+	// clearing frames and setting up a new one
 	m_frames.clear();
 	m_frames.emplace_back();
 
 	m_saved_scope.reset();
 
+	// clearing locals (scopes) and create a global scope
 	m_locals.clear();
 	createNewScope();
 
+	// loading binded functions
+	// put them in the global frame if we can, aka the first one
+	for (auto name_func : m_binded_functions)
+	{
+		auto it = std::find(m_symbols.begin(), m_symbols.end(), name_func.first);
+		if (it == m_symbols.end())
+		{
+			if constexpr (debug)
+				Ark::logger.warn("Couldn't find symbol with name", name_func.first, "to set its value as a function");
+			return;
+		}
+		registerVariable<0>(std::distance(m_symbols.begin(), it), Value(name_func.second));
+	}
+
 	// loading plugins
+	// we don't want to load the plugins multiple times
+	if (m_shared_lib_objects.size() == m_plugins.size())
+		return;
+	
 	for (const auto& file : m_plugins)
 	{
 		namespace fs = std::filesystem;
@@ -384,18 +404,7 @@ void VM_t<debug>::init()
 template<bool debug>
 void VM_t<debug>::loadFunction(const std::string& name, internal::Value::ProcType function)
 {
-    using namespace Ark::internal;
-
-    // put it in the global frame if we can, aka the first one
-    auto it = std::find(m_symbols.begin(), m_symbols.end(), name);
-    if (it == m_symbols.end())
-    {
-        if constexpr (debug)
-            Ark::logger.warn("Couldn't find symbol with name", name, "to set its value as a function");
-        return;
-    }
-
-    registerVariable<0>(std::distance(m_symbols.begin(), it), Value(function));
+	m_binded_functions[name] = std::move(function);
 }
 
 template<bool debug>
