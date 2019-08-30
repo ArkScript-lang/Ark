@@ -45,6 +45,9 @@ namespace Ark
         {
             using namespace Ark::internal;
 
+			// reset ip and pp
+			m_ip = m_pp = 0;
+
             // find id of function
             auto it = std::find(m_symbols.begin(), m_symbols.end(), name);
             if (it == m_symbols.end())
@@ -53,24 +56,24 @@ namespace Ark
                     throwVMError("Couldn't find symbol with name " + name);
             }
 
-            // find function object and push it if it's a pageaddr/closure
-            uint16_t id = static_cast<uint16_t>(std::distance(m_symbols.begin(), it));
-            auto var = findNearestVariable(id);
-            if (var != nullptr)
-            {
-                if (var->valueType() != ValueType::PageAddr && var->valueType() != ValueType::Closure)
-                    throwVMError("Symbol " + name + " isn't a function");
-                
-                push(*var);
-                m_last_sym_loaded = id;
-            }
-            else
-                throwVMError("Couldn't load symbol with name " + name);
-
             // convert and push arguments in reverse order
             std::vector<Value> fnargs { args... };
             for (auto it2=fnargs.rbegin(); it2 != fnargs.rend(); ++it2)
                 push(*it2);
+			
+			// find function object and push it if it's a pageaddr/closure
+			uint16_t id = static_cast<uint16_t>(std::distance(m_symbols.begin(), it));
+			auto var = findNearestVariable(id);
+			if (var != nullptr)
+			{
+				if (var->valueType() != ValueType::PageAddr && var->valueType() != ValueType::Closure)
+					throwVMError("Symbol " + name + " isn't a function");
+
+				push(*var);
+				m_last_sym_loaded = id;
+			}
+			else
+				throwVMError("Couldn't load symbol with name " + name);
 
             std::size_t frames_count = m_frames.size();
             // call it
