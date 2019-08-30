@@ -83,6 +83,10 @@ More examples are available in the folder `examples/`.
 
 Don't know what to work on? No worries, we have a [list of things to do](https://github.com/SuperFola/Ark/projects) :wink:
 
+### Contributing to the Ark standard library
+
+See [Coding guidelines](https://github.com/SuperFola/Ark/wiki/Coding-guidelines#coding-in-ark)
+
 ## Dependencies
 
 * C++17
