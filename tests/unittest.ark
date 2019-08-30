@@ -188,6 +188,14 @@
         (assert (= false (nil? [])) "Misc test 7°3 failed")
         (assert (= false (nil? "")) "Misc test 7°4 failed")
         (set passed (+ 1 passed))
+
+        (let start-sleep (time))
+        (sleep 350)
+        (let diff-sleep (- (time) start-sleep))
+        (assert (and (>= diff-sleep 0.330) (<= diff-sleep 0.375)) "Misc test 8 failed")  # using a range of value since sleep can't be accurate
+
+        (assert (= "A bear walked up 20 miles and saw an eagle." (format "{0} walked up {1} miles and saw {2}." "A bear" 20 "an eagle")) "Misc test 9 failed")
+        (assert (= "Hello world" (format "Hello world")) "Misc test 9°2 failed")
     }))
     (misc-tests)
     (print "  Misc tests passed")
@@ -402,6 +410,6 @@
     (scope-tests)
     (print "  Scope tests passed")
 
-    (print passed "tests passed!")
-    (print "Completed in" (toString (- (time) start_time)) "seconds")
+    (print passed " tests passed!")
+    (print "Completed in " (toString (- (time) start_time)) " seconds")
 }

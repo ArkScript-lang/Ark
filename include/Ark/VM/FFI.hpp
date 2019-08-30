@@ -35,6 +35,7 @@ namespace Ark::internal::FFI
     FFI_Function(timeSinceEpoch);  // time, 0 argument
     FFI_Function(sleep);  // sleep, 1 argument
     FFI_Function(system_);  // system, 1 argument
+    FFI_Function(format);  // format, multiple arguments
 }
 
 #undef FFI_Function

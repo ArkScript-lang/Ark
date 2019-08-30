@@ -1,7 +1,6 @@
 #include <Ark/VM/FFI.hpp>
 
 #include <iostream>
-#include <chrono>
 #include <thread>
 #include <cstdlib>
 #include <Ark/Log.hpp>
@@ -34,7 +33,8 @@ namespace Ark::internal::FFI
         { "fileExists?", Value(fileExists) },
         { "time", Value(timeSinceEpoch) },
         { "sleep", Value(sleep) },
-        { "system", Value(system_) }
+        { "system", Value(system_) },
+        { "format", Value(format) }
     };
 
     extern const std::vector<std::string> operators = {
@@ -195,7 +195,8 @@ namespace Ark::internal::FFI
         if (n[0].valueType() != ValueType::Number)
             throw std::runtime_error("Argument of sleep must be of type Number");
         
-        std::this_thread::sleep_for(std::chrono::milliseconds(n[0].number()));
+        auto duration = std::chrono::duration<double, std::ratio<1, 1000>>(n[0].number());
+        std::this_thread::sleep_for(duration);
         
         return nil;
     }
@@ -208,9 +209,31 @@ namespace Ark::internal::FFI
             throw std::runtime_error("Argument of system must be of type String");
         
         #if ARK_ENABLE_SYSTEM != 0
-            std::system(n[0].string());
+            std::system(n[0].string().c_str());
         #endif  // ARK_ENABLE_SYSTEM
         
         return nil;
+    }
+
+    FFI_Function(format)
+    {
+        if (n.size() == 0)
+            throw std::runtime_error("format take at least one argument");
+        if (n[0].valueType() != ValueType::String)
+            throw std::runtime_error("Argument 1 of format must be of type String");
+
+        rj::format f(n[0].string());
+
+        for (Value::Iterator it=n.begin()+1; it != n.end(); ++it)
+        {
+            if (it->valueType() == ValueType::String)
+                f.args(it->string());
+            else if (it->valueType() == ValueType::Number)
+                f.args(it->number());
+            else
+                throw std::runtime_error("Argument of format must be of type String or Number");
+        }
+
+        return Value(std::string(f));
     }
 }
