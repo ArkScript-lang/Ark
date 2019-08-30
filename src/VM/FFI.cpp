@@ -1,6 +1,8 @@
 #include <Ark/VM/FFI.hpp>
 
 #include <iostream>
+#include <chrono>
+#include <thread>
 #include <Ark/Log.hpp>
 
 #undef abs
@@ -29,7 +31,8 @@ namespace Ark::internal::FFI
         { "writeFile", Value(writeFile) },
         { "readFile", Value(readFile) },
         { "fileExists?", Value(fileExists) },
-        { "time", Value(timeSinceEpoch) }
+        { "time", Value(timeSinceEpoch) },
+        { "sleep", Value(sleep) }
     };
 
     extern const std::vector<std::string> operators = {
@@ -83,7 +86,7 @@ namespace Ark::internal::FFI
     FFI_Function(print)
     {
         for (Value::Iterator it=n.begin(); it != n.end(); ++it)
-            std::cout << (*it) << " ";
+            std::cout << (*it);
         std::cout << std::endl;
 
         return nil;
@@ -181,5 +184,17 @@ namespace Ark::internal::FFI
         const auto epoch = now.time_since_epoch();
         const auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(epoch);
         return Value(static_cast<double>(milliseconds.count()) / 1000);
+    }
+
+    FFI_Function(sleep)
+    {
+        if (n.size() != 1)
+            throw std::runtime_error("sleep can take only one argument, a duration (milliseconds)");
+        if (n[0].valueType() != ValueType::Number)
+            throw std::runtime_error("Argument of sleep must be of type Number");
+        
+        std::this_thread::sleep_for(std::chrono::milliseconds(n[0].number()));
+        
+        return nil;
     }
 }

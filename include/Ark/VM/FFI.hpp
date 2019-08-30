@@ -3,7 +3,6 @@
 
 #include <vector>
 #include <utility>
-#include <iostream>
 #include <sstream>
 
 #include <Ark/VM/Value.hpp>
@@ -34,6 +33,7 @@ namespace Ark::internal::FFI
     FFI_Function(readFile);    // readFile, 1 argument
     FFI_Function(fileExists);  // fileExists?, 1 argument
     FFI_Function(timeSinceEpoch);  // time, 0 argument
+    FFI_Function(sleep);  // sleep, 1 argument
 }
 
 #undef FFI_Function
