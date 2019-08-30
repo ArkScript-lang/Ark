@@ -118,7 +118,7 @@ SYNOPSIS
         build/Ark -h
         build/Ark --version
         build/Ark --dev-info
-        build/Ark <file> [-d|-bcr]
+        build/Ark <file> [-d|-bcr] [-L <lib_dir>]
 
 OPTIONS
         -h, --help                  Display this message
@@ -126,6 +126,7 @@ OPTIONS
         --dev-info                  Display development information and exit
         -d, --debug                 Enable debug mode
         -bcr, --bytecode-reader     Launch the bytecode reader
+        -L, --lib                   Define the directory where the Ark standard library is
 
 LICENSE
         Mozilla Public License 2.0
