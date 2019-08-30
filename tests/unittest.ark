@@ -409,7 +409,19 @@
     }))
     (scope-tests)
     (print "  Scope tests passed")
+        # --------------------------
+    #           Split
+    # --------------------------
+    (let split-tests (fun () {
+        (assert (= ["hello" "world"] (split "hello world" "")) "Split test 1 failed")
+        (assert (= ["" "" ""] (split "aaa" "a")) "Split test 2 failed")
+        (assert (= ["hello"] (split "hello" " ")) "Split test 3 failed")
+    }))
+    (split-tests)
+    (print "  Split tests passed")
 
+    (print passed "tests passed!")
+    (print "Completed in" (toString (- (time) start_time)) "seconds")
     (print passed " tests passed!")
     (print "Completed in " (toString (- (time) start_time)) " seconds")
 }
