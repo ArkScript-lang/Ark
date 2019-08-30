@@ -1,0 +1,19 @@
+{
+  #made by Natendrtfm (on Github) with <3
+  (let split (fun (string separator) {
+        (mut i 0)
+        (mut word "")
+        (mut letter "")
+        (mut output [])
+        (while (< i (len string) ) {
+            (set letter (@ string i))
+            (if (= letter separator) {
+              (set output (append output word))
+              (set word "")
+            } ())
+            (set word (+ word letter))
+            (set i (+ i 1))
+        })
+        (append output word)
+  }))
+}    
