@@ -8,7 +8,6 @@
         (while (< i (len string)) {
             (set letter (@ string i))
             (if (= letter separator) {
-              (if (!= separator " ") (set word (+ word letter)) ())#Not tested !
               (set output (append output word))
               (set word "")
             } ())
