@@ -3,6 +3,7 @@
 #include <iostream>
 #include <chrono>
 #include <thread>
+#include <cstdlib>
 #include <Ark/Log.hpp>
 
 #undef abs
@@ -32,7 +33,8 @@ namespace Ark::internal::FFI
         { "readFile", Value(readFile) },
         { "fileExists?", Value(fileExists) },
         { "time", Value(timeSinceEpoch) },
-        { "sleep", Value(sleep) }
+        { "sleep", Value(sleep) },
+        { "system", Value(system_) }
     };
 
     extern const std::vector<std::string> operators = {
@@ -194,6 +196,20 @@ namespace Ark::internal::FFI
             throw std::runtime_error("Argument of sleep must be of type Number");
         
         std::this_thread::sleep_for(std::chrono::milliseconds(n[0].number()));
+        
+        return nil;
+    }
+
+    FFI_Function(system_)
+    {
+        if (n.size() != 1)
+            throw std::runtime_error("system can take only one argument, a command");
+        if (n[0].valueType() != ValueType::String)
+            throw std::runtime_error("Argument of system must be of type String");
+        
+        #if ARK_ENABLE_SYSTEM != 0
+            std::system(n[0].string());
+        #endif  // ARK_ENABLE_SYSTEM
         
         return nil;
     }

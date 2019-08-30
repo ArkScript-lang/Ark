@@ -10,5 +10,6 @@
 #define ARK_COMPILER "@ARK_COMPILER@"
 #define ARK_MAX_STACK_SIZE 8
 #define ARK_CACHE_DIRNAME "__arkscript_cache__"
+#define ARK_ENABLE_SYSTEM @@ARK_ENABLE_SYSTEM@@
 
 #endif  // ark_constants
