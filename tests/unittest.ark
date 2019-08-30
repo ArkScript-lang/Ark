@@ -415,9 +415,12 @@
     #           Split
     # --------------------------
     (let split-tests (fun () {
-        (assert (= ["hello" "world"] (split "hello world" "")) "Split test 1 failed")
+        (assert (= ["hello" "world"] (split "hello world" " ")) "Split test 1 failed")
+        (set passed (+ 1 passed))
         (assert (= ["" "" ""] (split "aaa" "a")) "Split test 2 failed")
+        (set passed (+ 1 passed))
         (assert (= ["hello"] (split "hello" " ")) "Split test 3 failed")
+        (set passed (+ 1 passed))
     }))
     (split-tests)
     (print "  Split tests passed")
