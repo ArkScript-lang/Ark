@@ -3,6 +3,8 @@
 #include <cstdlib>
 #include <Ark/Constants.hpp>
 
+#define FFI_Function(name) Value name(const std::vector<Value>& n)
+
 namespace Ark::internal::FFI
 {
     FFI_Function(system_)
