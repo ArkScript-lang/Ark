@@ -83,6 +83,10 @@ More examples are available in the folder `examples/`.
 
 Don't know what to work on? No worries, we have a [list of things to do](https://github.com/SuperFola/Ark/projects) :wink:
 
+### Contributing to the Ark standard library
+
+See [Coding guidelines](https://github.com/SuperFola/Ark/wiki/Coding-guidelines#coding-in-ark)
+
 ## Dependencies
 
 * C++17
@@ -114,7 +118,7 @@ SYNOPSIS
         build/Ark -h
         build/Ark --version
         build/Ark --dev-info
-        build/Ark <file> [-d|-bcr]
+        build/Ark <file> [-d|-bcr] [-L <lib_dir>]
 
 OPTIONS
         -h, --help                  Display this message
@@ -122,6 +126,7 @@ OPTIONS
         --dev-info                  Display development information and exit
         -d, --debug                 Enable debug mode
         -bcr, --bytecode-reader     Launch the bytecode reader
+        -L, --lib                   Define the directory where the Ark standard library is
 
 LICENSE
         Mozilla Public License 2.0

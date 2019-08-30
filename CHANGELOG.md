@@ -4,10 +4,13 @@
 ### Added
 - with the option `-L|--lib` we can set the path to the Ark standard library
 - we can now load C++ lambdas into the ArkVM, as well as C++ functions
+- adding function `sleep`, taking a duration in milliseconds
+- adding function `system`, taking a command from a string ; can be deleted if `ARK_ENABLE_SYSTEM` is set to 0 in the CMakeLists
 
 ### Changed
 - updating CMakeLists.txt to avoid building unuseful stuff from google benchmark
 - `toNumber` doesn't raise an unrecoverable error but returns `nil` if the conversion failed
+- `print` no longer add a space between each element
 
 ### Removed
 - `doc` folder, now everything is on the wiki

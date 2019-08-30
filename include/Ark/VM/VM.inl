@@ -26,6 +26,7 @@ void VM_t<debug>::feed(const std::string& filename)
         m_filename = filename;
 
         configure();
+		init();
     }
     catch (const std::exception& e)
     {
@@ -38,6 +39,7 @@ void VM_t<debug>::feed(const bytecode_t& bytecode)
 {
     m_bytecode = bytecode;
     configure();
+	init();
 }
 
 static bool compile(bool debug, const std::string& file, const std::string& output, const std::string& lib_dir)
@@ -327,20 +329,82 @@ void VM_t<debug>::configure()
 }
 
 template<bool debug>
+void VM_t<debug>::init()
+{
+	using namespace Ark::internal;
+
+	// clearing frames and setting up a new one
+	m_frames.clear();
+	m_frames.emplace_back();
+
+	m_saved_scope.reset();
+
+	// clearing locals (scopes) and create a global scope
+	m_locals.clear();
+	createNewScope();
+
+	// loading binded functions
+	// put them in the global frame if we can, aka the first one
+	for (auto name_func : m_binded_functions)
+	{
+		auto it = std::find(m_symbols.begin(), m_symbols.end(), name_func.first);
+		if (it == m_symbols.end())
+		{
+			if constexpr (debug)
+				Ark::logger.warn("Couldn't find symbol with name", name_func.first, "to set its value as a function");
+			return;
+		}
+		registerVariable<0>(std::distance(m_symbols.begin(), it), Value(name_func.second));
+	}
+
+	// loading plugins
+	// we don't want to load the plugins multiple times
+	if (m_shared_lib_objects.size() == m_plugins.size())
+		return;
+	
+	for (const auto& file : m_plugins)
+	{
+		namespace fs = std::filesystem;
+
+		std::string path = "./" + file;
+		if (m_filename != "FILE")  // bytecode loaded from file
+			path = "./" + (fs::path(m_filename).parent_path() / fs::path(file)).string();
+		std::string lib_path = (fs::path(m_libdir) / fs::path(file)).string();
+
+		if constexpr (debug)
+			Ark::logger.info("Loading", file, "in", path, "or in", lib_path);
+
+		if (Ark::Utils::fileExists(path))  // if it exists alongside the .arkc file
+			m_shared_lib_objects.emplace_back(path);
+		else if (Ark::Utils::fileExists(lib_path))  // check in LOAD_PATH otherwise
+			m_shared_lib_objects.emplace_back(lib_path);
+		else
+			throwVMError("could not load plugin " + file);
+
+		// load data from it!
+		using Mapping_t = std::unordered_map<std::string, Value::ProcType>;
+		using map_fun_t = Mapping_t(*) ();
+		Mapping_t map = m_shared_lib_objects.back().template get<map_fun_t>("getFunctionsMapping")();
+
+		for (auto&& kv : map)
+		{
+			// put it in the global frame, aka the first one
+			auto it = std::find(m_symbols.begin(), m_symbols.end(), kv.first);
+			if (it != m_symbols.end())
+			{
+				if constexpr (debug)
+					Ark::logger.info("Loading", kv.first);
+
+				registerVariable<0>(std::distance(m_symbols.begin(), it), Value(kv.second));
+			}
+		}
+	}
+}
+
+template<bool debug>
 void VM_t<debug>::loadFunction(const std::string& name, internal::Value::ProcType function)
 {
-    using namespace Ark::internal;
-
-    // put it in the global frame if we can, aka the first one
-    auto it = std::find(m_symbols.begin(), m_symbols.end(), name);
-    if (it == m_symbols.end())
-    {
-        if constexpr (debug)
-            Ark::logger.warn("Couldn't find symbol with name", name, "to set its value as a function");
-        return;
-    }
-
-    registerVariable<0>(std::distance(m_symbols.begin(), it), Value(function));
+	m_binded_functions[name] = std::move(function);
 }
 
 template<bool debug>
@@ -378,54 +442,7 @@ void VM_t<debug>::run()
     m_pp = 0;
 
     if (!m_persist)
-    {
-        m_frames.clear();
-        m_frames.emplace_back();
-
-        m_saved_scope.reset();
-
-        m_locals.clear();
-        createNewScope();
-
-        // loading plugins
-        for (const auto& file: m_plugins)
-        {
-            namespace fs = std::filesystem;
-
-            std::string path = "./" + file;
-            if (m_filename != "FILE")  // bytecode loaded from file
-                path = "./" + (fs::path(m_filename).parent_path() / fs::path(file)).string();
-            std::string lib_path = (fs::path(m_libdir) / fs::path(file)).string();
-
-            if constexpr (debug)
-                Ark::logger.info("Loading", file, "in", path, "or in", lib_path);
-
-            if (Ark::Utils::fileExists(path))  // if it exists alongside the .arkc file
-                m_shared_lib_objects.emplace_back(path);
-            else if (Ark::Utils::fileExists(lib_path))  // check in LOAD_PATH otherwise
-                m_shared_lib_objects.emplace_back(lib_path);
-            else
-                throwVMError("could not load plugin " + file);
-
-            // load data from it!
-            using Mapping_t = std::unordered_map<std::string, Value::ProcType>;
-            using map_fun_t = Mapping_t (*) ();
-            Mapping_t map = m_shared_lib_objects.back().template get<map_fun_t>("getFunctionsMapping")();
-
-            for (auto&& kv : map)
-            {
-                // put it in the global frame, aka the first one
-                auto it = std::find(m_symbols.begin(), m_symbols.end(), kv.first);
-                if (it != m_symbols.end())
-                {
-                    if constexpr (debug)
-                        Ark::logger.info("Loading", kv.first);
-
-                    registerVariable<0>(std::distance(m_symbols.begin(), it), Value(kv.second));
-                }
-            }
-        }
-    }
+		init();
 
     if constexpr (debug)
         Ark::logger.info("Starting at PP:{0}, IP:{1}"s, m_pp, m_ip);
@@ -441,7 +458,7 @@ void VM_t<debug>::safeRun(std::size_t untilFrameCount)
     
     try {
         m_running = true;
-        while (m_running)
+        while (m_running && m_frames.size() > m_until_frame_count)
         {
             if constexpr (debug)
             {

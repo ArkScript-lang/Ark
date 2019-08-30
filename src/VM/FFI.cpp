@@ -1,6 +1,8 @@
 #include <Ark/VM/FFI.hpp>
 
 #include <iostream>
+#include <thread>
+#include <cstdlib>
 #include <Ark/Log.hpp>
 
 #undef abs
@@ -29,7 +31,10 @@ namespace Ark::internal::FFI
         { "writeFile", Value(writeFile) },
         { "readFile", Value(readFile) },
         { "fileExists?", Value(fileExists) },
-        { "time", Value(timeSinceEpoch) }
+        { "time", Value(timeSinceEpoch) },
+        { "sleep", Value(sleep) },
+        { "system", Value(system_) },
+        { "format", Value(format) }
     };
 
     extern const std::vector<std::string> operators = {
@@ -83,7 +88,7 @@ namespace Ark::internal::FFI
     FFI_Function(print)
     {
         for (Value::Iterator it=n.begin(); it != n.end(); ++it)
-            std::cout << (*it) << " ";
+            std::cout << (*it);
         std::cout << std::endl;
 
         return nil;
@@ -181,5 +186,54 @@ namespace Ark::internal::FFI
         const auto epoch = now.time_since_epoch();
         const auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(epoch);
         return Value(static_cast<double>(milliseconds.count()) / 1000);
+    }
+
+    FFI_Function(sleep)
+    {
+        if (n.size() != 1)
+            throw std::runtime_error("sleep can take only one argument, a duration (milliseconds)");
+        if (n[0].valueType() != ValueType::Number)
+            throw std::runtime_error("Argument of sleep must be of type Number");
+        
+        auto duration = std::chrono::duration<double, std::ratio<1, 1000>>(n[0].number());
+        std::this_thread::sleep_for(duration);
+        
+        return nil;
+    }
+
+    FFI_Function(system_)
+    {
+        if (n.size() != 1)
+            throw std::runtime_error("system can take only one argument, a command");
+        if (n[0].valueType() != ValueType::String)
+            throw std::runtime_error("Argument of system must be of type String");
+        
+        #if ARK_ENABLE_SYSTEM != 0
+            std::system(n[0].string().c_str());
+        #endif  // ARK_ENABLE_SYSTEM
+        
+        return nil;
+    }
+
+    FFI_Function(format)
+    {
+        if (n.size() == 0)
+            throw std::runtime_error("format take at least one argument");
+        if (n[0].valueType() != ValueType::String)
+            throw std::runtime_error("Argument 1 of format must be of type String");
+
+        rj::format f(n[0].string());
+
+        for (Value::Iterator it=n.begin()+1; it != n.end(); ++it)
+        {
+            if (it->valueType() == ValueType::String)
+                f.args(it->string());
+            else if (it->valueType() == ValueType::Number)
+                f.args(it->number());
+            else
+                throw std::runtime_error("Argument of format must be of type String or Number");
+        }
+
+        return Value(std::string(f));
     }
 }
