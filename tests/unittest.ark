@@ -2,6 +2,7 @@
     (import "Switch.ark")
     (import "Exceptions.ark")
     (import "Range.ark")
+    (import "Split.ark")
 
     (let start_time (time))
     (mut passed 0)
@@ -409,7 +410,8 @@
     }))
     (scope-tests)
     (print "  Scope tests passed")
-        # --------------------------
+    
+    # --------------------------
     #           Split
     # --------------------------
     (let split-tests (fun () {
@@ -420,8 +422,6 @@
     (split-tests)
     (print "  Split tests passed")
 
-    (print passed "tests passed!")
-    (print "Completed in" (toString (- (time) start_time)) "seconds")
     (print passed " tests passed!")
     (print "Completed in " (toString (- (time) start_time)) " seconds")
 }
