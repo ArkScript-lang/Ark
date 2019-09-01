@@ -14,18 +14,23 @@ namespace Ark::internal::FFI
         { "false",  falseSym },
         { "true",   trueSym },
         { "nil",    nil },
-        { "append", Value(append) },
-        { "concat", Value(concat) },
-        { "list",   Value(list) },
-        { "print",  Value(print) },
-        { "input",  Value(input) },
-        { "writeFile", Value(writeFile) },
-        { "readFile", Value(readFile) },
-        { "fileExists?", Value(fileExists) },
-        { "time", Value(timeSinceEpoch) },
-        { "sleep", Value(sleep) },
-        { "system", Value(system_) },
-        { "format", Value(format) }
+
+        { "append", Value(Array::append) },
+        { "concat", Value(Array::concat) },
+        { "list",   Value(Array::list) },
+
+        { "print",  Value(IO::print) },
+        { "input",  Value(IO::input) },
+        { "writeFile", Value(IO::writeFile) },
+        { "readFile", Value(IO::readFile) },
+        { "fileExists?", Value(IO::fileExists) },
+
+        { "time", Value(Time::timeSinceEpoch) },
+        { "sleep", Value(Time::sleep) },
+
+        { "system", Value(System::system_) },
+
+        { "format", Value(String::format) }
     };
 
     extern const std::vector<std::string> operators = {

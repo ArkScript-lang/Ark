@@ -25,26 +25,41 @@ namespace Ark::internal::FFI
     // builtins functions: we must use the instruction BUILTIN index
     // ------------------------------
     // Array
-    FFI_Function(append);   // append, multiple arguments
-    FFI_Function(concat);   // concat, multiple arguments
-    FFI_Function(list);     // list,   multiple arguments
+    namespace Array
+    {
+        FFI_Function(append);   // append, multiple arguments
+        FFI_Function(concat);   // concat, multiple arguments
+        FFI_Function(list);     // list,   multiple arguments
+    }
 
     // IO
-    FFI_Function(print);    // print,  multiple arguments
-    FFI_Function(input);    // input,  0 or 1 argument
-    FFI_Function(writeFile);   // writeFile, 2 or 3 arguments
-    FFI_Function(readFile);    // readFile, 1 argument
-    FFI_Function(fileExists);  // fileExists?, 1 argument
+    namespace IO
+    {
+        FFI_Function(print);    // print,  multiple arguments
+        FFI_Function(input);    // input,  0 or 1 argument
+        FFI_Function(writeFile);   // writeFile, 2 or 3 arguments
+        FFI_Function(readFile);    // readFile, 1 argument
+        FFI_Function(fileExists);  // fileExists?, 1 argument
+    }
 
     // Time
-    FFI_Function(timeSinceEpoch);  // time, 0 argument
-    FFI_Function(sleep);  // sleep, 1 argument
+    namespace Time
+    {
+        FFI_Function(timeSinceEpoch);  // time, 0 argument
+        FFI_Function(sleep);  // sleep, 1 argument
+    }
 
     // System
-    FFI_Function(system_);  // system, 1 argument
+    namespace System
+    {
+        FFI_Function(system_);  // system, 1 argument
+    }
 
     // String
-    FFI_Function(format);  // format, multiple arguments
+    namespace String
+    {
+        FFI_Function(format);  // format, multiple arguments
+    }
 }
 
 #undef FFI_Function

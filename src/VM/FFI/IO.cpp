@@ -5,7 +5,7 @@
 
 #define FFI_Function(name) Value name(const std::vector<Value>& n)
 
-namespace Ark::internal::FFI
+namespace Ark::internal::FFI::IO
 {
     FFI_Function(print)
     {
