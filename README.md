@@ -1,5 +1,5 @@
 # ArkScript
-### Current version: 3.0.3
+### Current version: 3.0.4
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/fd5900d08a97487486c43079c06e19ce)](https://app.codacy.com/app/folaefolc/Ark?utm_source=github.com&utm_medium=referral&utm_content=SuperFola/Ark&utm_campaign=Badge_Grade_Settings)
 [![Build Status](https://travis-ci.org/SuperFola/Ark.svg?branch=rework)](https://travis-ci.org/SuperFola/Ark)
@@ -22,7 +22,7 @@
 * Ark is easy to compile: it takes less than 200ms to compile and check a complex code with a lot of branches and sub-branches of 200 lines.
 * Ark is a Lisp-like, but with less parentheses: `[...]` is expanded to `(list ...)` and `{}` to `(begin ...)`. More shorthands will come in the future.
 
-## Example
+## Examples
 
 ### Fibonacci suite
 
@@ -85,7 +85,9 @@ Don't know what to work on? No worries, we have a [list of things to do](https:/
 
 ### Contributing to the Ark standard library
 
-See [Coding guidelines](https://github.com/SuperFola/Ark/wiki/Coding-guidelines#coding-in-ark)
+See [Coding guidelines](https://github.com/SuperFola/Ark/wiki/Coding-guidelines#coding-in-ark) if you want to write Ark code for the library (see folder `lib/`).
+
+For performance reasons, some functions might be written in C++, in `include/Ark/VM/FFI.hpp` and `src/VM/FFI/`.
 
 ## Dependencies
 
