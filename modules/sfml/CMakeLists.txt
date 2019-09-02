@@ -20,6 +20,7 @@ endif()
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+set(SFML_STATIC_LIBRARIES TRUE)
 find_package(SFML 2.5 COMPONENTS graphics window system network audio REQUIRED)
 
 include_directories(
