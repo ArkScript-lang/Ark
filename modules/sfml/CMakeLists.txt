@@ -38,7 +38,7 @@ list(REMOVE_ITEM SOURCE_FILES "${PROJECT_SOURCE_DIR}/../../src/main.cpp")
 add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE ArkReactor)
-target_link_libraries(${PROJECT_NAME} PRIVATE ${SFML_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} PRIVATE sfml-graphics sfml-window sfml-system sfml-network sfml-audio)
 
 if (CMAKE_COMPILER_IS_GNUCXX)
     target_link_libraries(${PROJECT_NAME} PRIVATE stdc++fs)

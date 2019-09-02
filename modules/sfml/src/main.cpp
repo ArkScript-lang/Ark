@@ -1,6 +1,8 @@
 #include <Ark/Module.hpp>
 #include <sf_module.hpp>
 
+MAKE_ENTRY_POINT()
+
 // module functions mapping
 ARK_API_EXPORT Mapping_t getFunctionsMapping()
 {

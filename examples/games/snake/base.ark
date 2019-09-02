@@ -1,5 +1,5 @@
 {
-    (import "libsfml.so")
+    (import "sfml.dll")
     (import "Switch.ark")
 
     (sf-window-init 600 600 "ArkSnake")

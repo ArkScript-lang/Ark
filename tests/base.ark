@@ -1,6 +1,8 @@
 {
     (import "random.dll")
+    (import "sfml.dll")
 
     (print (random))
-    (print (random-10))
+
+    (sf-window-init 400 400 "Test sfml")
 }

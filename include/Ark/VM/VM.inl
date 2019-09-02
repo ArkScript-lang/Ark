@@ -380,11 +380,17 @@ void VM_t<debug>::init()
             m_shared_lib_objects.emplace_back(lib_path);
         else
             throwVMError("could not load plugin " + file);
+        
+        if constexpr (debug)
+            Ark::logger.info("Plugin loaded");
 
         // load data from it!
         using Mapping_t = std::unordered_map<std::string, Value::ProcType>;
         using map_fun_t = Mapping_t(*) ();
         Mapping_t map = m_shared_lib_objects.back().template get<map_fun_t>("getFunctionsMapping")();
+
+        if constexpr (debug)
+            Ark::logger.info("Functions mapping retrieved\n{0} symbols"s, map.size());
 
         for (auto&& kv : map)
         {
