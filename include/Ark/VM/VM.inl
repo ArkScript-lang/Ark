@@ -359,7 +359,6 @@ void VM_t<debug>::init()
 
     // loading plugins
     // we don't want to load the plugins multiple times
-    std::cout << m_plugins.size() << "\n";
     if (m_shared_lib_objects.size() == m_plugins.size())
         return;
     
@@ -438,17 +437,17 @@ void VM_t<debug>::run()
 {
     using namespace Ark::internal;
 
-    // reset VM before each run
+    if constexpr (debug)
+        Ark::logger.info("Starting at PP:{0}, IP:{1}"s, m_pp, m_ip);
+
+    safeRun();
+
+    // reset VM after each run
     m_ip = 0;
     m_pp = 0;
 
     if (!m_persist)
         init();
-
-    if constexpr (debug)
-        Ark::logger.info("Starting at PP:{0}, IP:{1}"s, m_pp, m_ip);
-
-    safeRun();
 }
 
 template<bool debug>
