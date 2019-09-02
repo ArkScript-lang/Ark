@@ -1,1 +1,6 @@
-(print "hello world")
+{
+    (import "random.dll")
+
+    (print (random))
+    (print (random-10))
+}

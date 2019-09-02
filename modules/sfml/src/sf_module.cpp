@@ -1,5 +1,5 @@
 #include <SFML/Graphics.hpp>
-#include <module_base.hpp>
+#include <Ark/Module.hpp>
 
 bool has_window = false;
 sf::RenderWindow window;
@@ -29,12 +29,12 @@ Value sf_window_init(const std::vector<Value>& n)
     else
         throw std::runtime_error("sf-window-init: can't call the function twice");
 
-    return nil;
+    return Nil;
 }
 
 Value sf_window_isopen(const std::vector<Value>& n)
 {
-    return window.isOpen() ? trueSym : falseSym;
+    return window.isOpen() ? True : False;
 }
 
 Value sf_poll_event(const std::vector<Value>& n)
@@ -135,7 +135,7 @@ Value sf_window_clear(const std::vector<Value>& n)
     if (n[2].valueType() != ValueType::Number)
         throw Ark::TypeError("sf-window-clear: b must be a Number");
     window.clear(sf::Color(static_cast<long>(n[0].number()), static_cast<long>(n[1].number()), static_cast<long>(n[2].number())));
-    return nil;
+    return Nil;
 }
 
 Value sf_draw(const std::vector<Value>& n)
@@ -159,13 +159,13 @@ Value sf_draw(const std::vector<Value>& n)
         else
             throw Ark::TypeError("Object isn't a SFML object");
     }
-    return nil;
+    return Nil;
 }
 
 Value sf_window_display(const std::vector<Value>& n)
 {
     window.display();
-    return nil;
+    return Nil;
 }
 
 Value sf_window_set_fps(const std::vector<Value>& n)
@@ -173,7 +173,7 @@ Value sf_window_set_fps(const std::vector<Value>& n)
     if (n[0].valueType() != ValueType::Number)
         throw Ark::TypeError("sf-window-setFPS: fps must be a Number");
     window.setFramerateLimit(static_cast<long>(n[0].number()));
-    return nil;
+    return Nil;
 }
 
 Value sf_load_sprite(const std::vector<Value>& n)
@@ -260,7 +260,7 @@ Value sf_set_text(const std::vector<Value>& n)
     else
         throw Ark::TypeError("Object isn't a text object");
     
-    return nil;
+    return Nil;
 }
 
 Value sf_setpos(const std::vector<Value>& n)
@@ -288,7 +288,7 @@ Value sf_setpos(const std::vector<Value>& n)
     else
         throw Ark::TypeError("Object isn't a SFML object");
     
-    return nil;
+    return Nil;
 }
 
 Value sf_width(const std::vector<Value>& n)
@@ -353,5 +353,5 @@ Value sf_event(const std::vector<Value>& n)
 Value sf_window_close(const std::vector<Value>& n)
 {
     window.close();
-    return nil;
+    return Nil;
 }

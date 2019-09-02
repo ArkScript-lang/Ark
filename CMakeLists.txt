@@ -8,18 +8,12 @@ endif()
 
 # setting up compilations options
 
-if (CMAKE_BUILD_TYPE MATCHES Debug)
-    if (CMAKE_COMPILER_IS_GNUCXX)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pg -g -no-pie")
-    elseif (MSVC)
-        set(CMAKE_CXX_FLAGS "/DWIN32 /D_WINDOWS /W3 /GR /EHa /MTd")
-    endif()
-elseif (CMAKE_BUILD_TYPE MATCHES Release)
-    if (CMAKE_COMPILER_IS_GNUCXX)
-        set(CMAKE_CXX_FLAGS "-DNDEBUG -O3 -s")
-    elseif (MSVC)
-        set(CMAKE_CXX_FLAGS "/DWIN32 /D_WINDOWS /W3 /GR /EHa /Ox /Ob2 /Oi /Ot /Oy /MT")
-    endif()
+if (CMAKE_COMPILER_IS_GNUCXX)
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -pg -g -no-pie")
+    set(CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG -O3 -s")
+elseif (MSVC)
+    set(CMAKE_CXX_FLAGS_DEBUG "/DWIN32 /D_WINDOWS /W3 /GR /EHa /MDd" CACHE STRING "Debug compilation options" FORCE)
+    set(CMAKE_CXX_FLAGS_RELEASE "/DWIN32 /D_WINDOWS /W3 /GR /EHa /Ox /Ob2 /Oi /Ot /Oy /MD" CACHE STRING "Release compilation options" FORCE)
 endif()
 
 if (CMAKE_COMPILER_IS_GNUCXX)
@@ -29,16 +23,14 @@ elseif (CMAKE_COMPILER_IS_CLANG)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++abi")
 endif()
 
-if (ARK_BUILD_MODULES)
-    add_subdirectory(${Ark_SOURCE_DIR}/modules)
-endif()
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # configuring Constants.hpp
 
 # VERSION
 set(ARK_VERSION_MAJOR 3)
 set(ARK_VERSION_MINOR 0)
-set(ARK_VERSION_PATCH 3)
+set(ARK_VERSION_PATCH 4)
 
 # COMPILATION RELATED
 set(ARK_COMPILATION_OPTIONS ${CMAKE_CXX_FLAGS})
@@ -74,7 +66,6 @@ file(GLOB_RECURSE SOURCE_FILES
 list(REMOVE_ITEM SOURCE_FILES "${Ark_SOURCE_DIR}/src/main.cpp")
 
 add_library(ArkReactor ${SOURCE_FILES})
-set_property(TARGET ArkReactor PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 if ((CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG) AND (UNIX OR LINUX))
     target_link_libraries(ArkReactor PUBLIC stdc++fs)
@@ -114,6 +105,12 @@ set_target_properties(
         CXX_STANDARD_REQUIRED ON
         CXX_EXTENSIONS OFF
 )
+
+# subdirectories
+
+if (ARK_BUILD_MODULES)
+    add_subdirectory(${Ark_SOURCE_DIR}/modules)
+endif()
 
 if (ARK_BUILD_BENCHMARK)
     add_subdirectory(benchmarks)

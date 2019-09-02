@@ -9,3 +9,4 @@ include/Ark/Constants.hpp
 *.so
 *.dll
 *.arkc
+*.lib

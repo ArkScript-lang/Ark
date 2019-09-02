@@ -1,8 +1,8 @@
-#include <module_base.hpp>
+#include <Ark/Module.hpp>
 #include <sf_module.hpp>
 
 // module functions mapping
-extern "C" Mapping_t getFunctionsMapping()
+ARK_API_EXPORT Mapping_t getFunctionsMapping()
 {
     Mapping_t map;
     map["sf-window-init"] = sf_window_init;

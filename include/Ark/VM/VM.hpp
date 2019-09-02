@@ -45,8 +45,8 @@ namespace Ark
         {
             using namespace Ark::internal;
 
-			// reset ip and pp
-			m_ip = m_pp = 0;
+            // reset ip and pp
+            m_ip = m_pp = 0;
 
             // find id of function
             auto it = std::find(m_symbols.begin(), m_symbols.end(), name);
@@ -60,28 +60,28 @@ namespace Ark
             std::vector<Value> fnargs { args... };
             for (auto it2=fnargs.rbegin(); it2 != fnargs.rend(); ++it2)
                 push(*it2);
-			
-			// find function object and push it if it's a pageaddr/closure
-			uint16_t id = static_cast<uint16_t>(std::distance(m_symbols.begin(), it));
-			auto var = findNearestVariable(id);
-			if (var != nullptr)
-			{
-				if (var->valueType() != ValueType::PageAddr && var->valueType() != ValueType::Closure)
-					throwVMError("Symbol " + name + " isn't a function");
+            
+            // find function object and push it if it's a pageaddr/closure
+            uint16_t id = static_cast<uint16_t>(std::distance(m_symbols.begin(), it));
+            auto var = findNearestVariable(id);
+            if (var != nullptr)
+            {
+                if (var->valueType() != ValueType::PageAddr && var->valueType() != ValueType::Closure)
+                    throwVMError("Symbol " + name + " isn't a function");
 
-				push(*var);
-				m_last_sym_loaded = id;
-			}
-			else
-				throwVMError("Couldn't load symbol with name " + name);
+                push(*var);
+                m_last_sym_loaded = id;
+            }
+            else
+                throwVMError("Couldn't load symbol with name " + name);
 
             std::size_t frames_count = m_frames.size();
             // call it
             call(static_cast<int16_t>(sizeof...(Args)));
-			// reset instruction pointer, otherwise the safeRun method will start at ip = -1
-			// without doing m_ip++ as intended (done right after the call() in the loop, but here
-			// we start outside this loop)
-			m_ip = 0;
+            // reset instruction pointer, otherwise the safeRun method will start at ip = -1
+            // without doing m_ip++ as intended (done right after the call() in the loop, but here
+            // we start outside this loop)
+            m_ip = 0;
 
             // run until the function returns
             safeRun(/* untilFrameCount */ frames_count);
@@ -113,11 +113,11 @@ namespace Ark
         std::vector<internal::Frame> m_frames;
         std::optional<internal::Scope_t> m_saved_scope;
         std::vector<internal::Scope_t> m_locals;
-		std::unordered_map<std::string, internal::Value::ProcType> m_binded_functions;
+        std::unordered_map<std::string, internal::Value::ProcType> m_binded_functions;
 
         void configure();
         void safeRun(std::size_t untilFrameCount=0);
-		void init();
+        void init();
 
         inline uint16_t readNumber()
         {

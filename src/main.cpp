@@ -19,7 +19,7 @@ void bcr(const std::string& file)
 
 int main(int argc, char** argv)
 {
-	using namespace clipp;
+    using namespace clipp;
 
     enum class mode { help, dev_info, bytecode_reader, version, run };
     mode selected = mode::help;

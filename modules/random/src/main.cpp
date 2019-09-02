@@ -3,16 +3,7 @@
 #include <random>
 #include <chrono>
 
-#include <Ark/VM/VM.hpp>
-
-using namespace Ark;
-using namespace Ark::internal;
-
-using Mapping_t = std::unordered_map<std::string, Value::ProcType>;
-
-const Value falseSym = Value(NFT::False);
-const Value trueSym  = Value(NFT::True);
-const Value nil      = Value(NFT::Nil);
+#include <Ark/Module.hpp>
 
 namespace ArkRandom
 {
@@ -37,7 +28,7 @@ namespace ArkRandom
     }
 }
 
-extern "C" Mapping_t getFunctionsMapping()
+ARK_API_EXPORT Mapping_t getFunctionsMapping()
 {
     Mapping_t map;
     map["random"] = ArkRandom::random;
