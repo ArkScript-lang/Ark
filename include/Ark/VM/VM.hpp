@@ -250,9 +250,9 @@ namespace Ark
     // aliases
     using Value = internal::Value;
     using ValueType = internal::ValueType;
-    const Value Nil = internal::FFI::nil;
-    const Value False = internal::FFI::falseSym;
-    const Value True = internal::FFI::trueSym;
+    const Value Nil = Value(internal::NFT::Nil);
+    const Value False = Value(internal::NFT::False);
+    const Value True = Value(internal::NFT::True);
 }
 
 #endif

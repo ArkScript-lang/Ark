@@ -105,7 +105,7 @@ Libs already included:
 
 ```bash
 # first, clone it
-~$ git clone --depth=50 --branch=rework https://github.com/SuperFola/Ark.git
+~$ git clone --depth=50 --branch=dev https://github.com/SuperFola/Ark.git
 ~/Ark$ cd Ark
 ~/Ark$ git submodule update --init --recursive
 # building Ark
