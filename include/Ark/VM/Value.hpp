@@ -13,6 +13,11 @@
 #include <Ark/VM/Closure.hpp>
 #include <Ark/Exceptions.hpp>
 
+namespace Ark
+{
+    template<bool D> class VM_t;
+}
+
 namespace Ark::internal
 {
     enum class ValueType
@@ -71,6 +76,27 @@ namespace Ark::internal
             return std::get<std::string>(m_value);
         }
 
+        inline const std::vector<Value>& const_list() const
+        {
+            return std::get<std::vector<Value>>(m_value);
+        }
+
+        std::vector<Value>& list();
+        std::string& string_ref();
+
+        void push_back(const Value& value);
+        void push_back(Value&& value);
+
+        friend std::ostream& operator<<(std::ostream& os, const Value& V);
+        friend inline bool operator==(const Value& A, const Value& B);
+
+        template<bool D> friend class Ark::VM_t;
+
+    private:
+        Value_t m_value;
+        ValueType m_type;
+        bool m_const;
+
         inline PageAddr_t pageAddr() const
         {
             return std::get<PageAddr_t>(m_value);
@@ -86,31 +112,13 @@ namespace Ark::internal
             return std::get<Value::ProcType>(m_value);
         }
 
-        inline const std::vector<Value>& const_list() const
-        {
-            return std::get<std::vector<Value>>(m_value);
-        }
-
         inline const Closure& closure() const
         {
             return std::get<Closure>(m_value);
         }
 
-        std::vector<Value>& list();
-        Closure& closure_ref();
-        std::string& string_ref();
         void setConst(bool value);
-
-        void push_back(const Value& value);
-        void push_back(Value&& value);
-
-        friend std::ostream& operator<<(std::ostream& os, const Value& V);
-        friend inline bool operator==(const Value& A, const Value& B);
-
-    private:
-        Value_t m_value;
-        ValueType m_type;
-        bool m_const;
+        Closure& closure_ref();
     };
 
     inline bool operator==(const Value& A, const Value& B)
