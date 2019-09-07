@@ -142,6 +142,20 @@
     (print "  List tests passed")
 
     # --------------------------
+    #         Functions
+    # --------------------------
+    (let func-tests (fun () {
+        (assert (= 12 ((fun (x) (begin x)) 12)) "Function test 1 failed")
+        (set passed (+ 1 passed))
+
+        (let f (fun (x) (begin x)))
+        (assert (= 12 ((f f) 12)) "Function test 2 failed")
+        (set passed (+ 1 passed))
+    }))
+    (func-tests)
+    (print "  Function tests passed")
+
+    # --------------------------
     #           misc
     # --------------------------
     (let misc-tests (fun () {

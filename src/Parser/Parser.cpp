@@ -261,8 +261,6 @@ namespace Ark
                     while (tokens.front().token != ")")
                         block.push_back(parse(tokens, /* authorize_capture */ false, /* authorize_field_read */ true));
                 }
-                else
-                    throwParseError("can not create block from token", token);
             } while (tokens.front().token != ")");
 
             // pop the ")"
