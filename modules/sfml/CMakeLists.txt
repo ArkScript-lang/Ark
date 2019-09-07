@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.12)
 cmake_policy(SET CMP0074 NEW)
 
 project(sfml)
@@ -20,7 +20,9 @@ endif()
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-set(SFML_STATIC_LIBRARIES TRUE)
+if (WIN32)
+    set(SFML_STATIC_LIBRARIES TRUE)
+endif()
 find_package(SFML 2.5 COMPONENTS graphics window system network audio REQUIRED)
 
 include_directories(
