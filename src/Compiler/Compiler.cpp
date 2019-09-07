@@ -11,21 +11,16 @@ namespace Ark
     using namespace Ark::internal;
 
     Compiler::Compiler(bool debug) :
-        m_parser(debug, ARK_STD_DEFAULT), m_debug(debug), m_ast_ok(false)
+        m_parser(debug, ARK_STD_DEFAULT), m_debug(debug)
     {}
 
     Compiler::Compiler(bool debug, const std::string& lib_dir) :
-        m_parser(debug, lib_dir), m_debug(debug), m_ast_ok(false)
+        m_parser(debug, lib_dir), m_debug(debug)
     {}
 
     void Compiler::feed(const std::string& code, const std::string& filename)
     {
-        try {
-            m_parser.feed(code, filename);
-            m_ast_ok = true;
-        } catch (const std::exception& e) {
-            std::cout << e.what() << std::endl;
-        }
+        m_parser.feed(code, filename);
     }
 
     void Compiler::compile()
@@ -41,8 +36,6 @@ namespace Ark
                 - values table header
                     + elements
         */
-        if (!m_ast_ok)
-            return;
 
         if (m_debug)
             Ark::logger.info("Adding magic constant");
