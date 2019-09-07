@@ -230,6 +230,7 @@ namespace Ark
                             except(tokens.size() != 0, "No more token to consume when creating begin block", m_last_token);
                             if (tokens.front().token == ")")
                                 break;
+                            m_last_token = tokens.front();
                             
                             block.push_back(parse(tokens));
                         }
