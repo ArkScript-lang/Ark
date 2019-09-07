@@ -54,7 +54,8 @@ namespace Ark::internal
                         line += std::count(result.begin(), result.end(), '\n');
                         character = 0;
                     }
-                    character += result.substr(result.find_last_of("\r\n"));
+                    auto linefeed_pos = result.find_last_of("\r\n");
+                    character += result.substr(linefeed_pos != std::string::npos ? linefeed_pos : 0).size();
 
                     src = std::regex_replace(src, item.second, std::string(""), std::regex_constants::format_first_only);
                     break;
