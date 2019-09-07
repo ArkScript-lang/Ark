@@ -45,9 +45,9 @@ void VM_t<debug>::feed(const bytecode_t& bytecode)
 static bool compile(bool debug, const std::string& file, const std::string& output, const std::string& lib_dir)
 {
     Compiler compiler(debug, lib_dir);
-    compiler.feed(Utils::readFile(file), file);
 
     try {
+        compiler.feed(Utils::readFile(file), file);
         compiler.compile();
 
         if (output != "")
