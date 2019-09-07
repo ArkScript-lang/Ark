@@ -92,7 +92,7 @@ For performance reasons, some functions might be written in C++, in `include/Ark
 ## Dependencies
 
 * C++17
-* CMake >= 3.8
+* CMake >= 3.12
 * Visual Studio >= 11 (on Windows)
 
 Libs already included:
