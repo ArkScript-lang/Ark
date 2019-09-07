@@ -66,6 +66,7 @@ namespace Ark
         }
         // create program and raise error if it can't
         std::list<Token> tokens(t.begin(), t.end());
+        except(!tokens.empty(), "Invalid syntax: no more token to consume", Token(TokenType::Mismatch, "", 0, 0));
         m_last_token = tokens.front();
         m_ast = parse(tokens);
         // include files if needed
@@ -138,6 +139,9 @@ namespace Ark
             do
             {
                 block.push_back(atom(token));
+
+                except(!tokens.empty(), "Invalid syntax: no more token to consume", m_last_token);
+                m_last_token = tokens.front();
 
                 if (token.type == TokenType::Keyword)
                 {
@@ -221,8 +225,14 @@ namespace Ark
                     }
                     else if (token.token == "begin")
                     {
-                        while (tokens.front().token != ")")
+                        while (true)
+                        {
+                            except(tokens.size() != 0, "No more token to consume when creating begin block", m_last_token);
+                            if (tokens.front().token == ")")
+                                break;
+                            
                             block.push_back(parse(tokens));
+                        }
                     }
                     else if (token.token == "import")
                     {

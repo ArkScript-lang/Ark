@@ -51,7 +51,7 @@ namespace Ark::internal
                     // line-char counter
                     if (std::string::npos != result.find_first_of("\r\n"))
                     {
-                        line++;
+                        line += std::count(result.begin(), result.end(), '\n');
                         character = 0;
                     }
                     character += result.length();
