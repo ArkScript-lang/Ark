@@ -39,7 +39,6 @@ namespace Ark
         bytecode_t m_bytecode;
 
         bool m_debug;
-        bool m_ast_ok;
 
         inline std::vector<internal::Inst>& page(int i)
         {

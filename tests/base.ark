@@ -1,4 +1,9 @@
 {
+    (let f (fun (x) (begin x)))
+    (print ((f f) 12))
+
+    ((fun (x) (print "hello" x)) 12)
+
     (import "random.dll")
     (import "sfml.dll")
 

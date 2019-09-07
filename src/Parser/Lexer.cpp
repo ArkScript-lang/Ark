@@ -51,10 +51,11 @@ namespace Ark::internal
                     // line-char counter
                     if (std::string::npos != result.find_first_of("\r\n"))
                     {
-                        line++;
+                        line += std::count(result.begin(), result.end(), '\n');
                         character = 0;
                     }
-                    character += result.length();
+                    auto linefeed_pos = result.find_last_of("\r\n");
+                    character += result.substr(linefeed_pos != std::string::npos ? linefeed_pos : 0).size();
 
                     src = std::regex_replace(src, item.second, std::string(""), std::regex_constants::format_first_only);
                     break;
