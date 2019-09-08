@@ -10,6 +10,7 @@
 - the compiler shouldn't crash on a bad code block
 - better line counter in lexer
 - the VM shouldn't try to run a non-existing bytecode file if the compilation fails (when calling `doFile()`)
+- `VM.call` should return `nil` if the stack is empty, otherwise it results in a `vector subscript out of range` and that's bad
 
 ### Removed
 

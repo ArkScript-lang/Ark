@@ -87,7 +87,10 @@ namespace Ark
             safeRun(/* untilFrameCount */ frames_count);
 
             // get result
-            return pop();
+            if (m_frames.back().stackSize() != 0)
+                return pop();
+            else
+                return FFI::nil;
         }
 
     private:
