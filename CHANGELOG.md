@@ -1,5 +1,17 @@
 # Change Log
 
+## Unreleased changes
+### Added
+- the parser cna now recognize expressions like `((f f) x)`
+
+### Changed
+- the `init()` internal method of the VM shouldn't stop when a binded function isn't used in the code, just ignore it
+- the compiler shouldn't crash on a bad code block
+- better line counter in lexer
+- the VM shouldn't try to run a non-existing bytecode file if the compilation fails (when calling `doFile()`)
+
+### Removed
+
 ## 3.0.4
 ### Added
 - with the option `-L|--lib` we can set the path to the Ark standard library

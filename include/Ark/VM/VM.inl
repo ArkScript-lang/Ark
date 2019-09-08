@@ -352,9 +352,9 @@ void VM_t<debug>::init()
         {
             if constexpr (debug)
                 Ark::logger.warn("Couldn't find symbol with name", name_func.first, "to set its value as a function");
-            return;
         }
-        registerVariable<0>(std::distance(m_symbols.begin(), it), Value(name_func.second));
+        else
+            registerVariable<0>(std::distance(m_symbols.begin(), it), Value(name_func.second));
     }
 
     // loading plugins
