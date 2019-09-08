@@ -47,6 +47,7 @@ namespace Ark::internal
 
         Value(ValueType type);
         Value(int value);
+        Value(float value);
         Value(double value);
         Value(const std::string& value);
         Value(std::string&& value);

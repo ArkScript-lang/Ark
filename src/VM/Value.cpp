@@ -16,6 +16,10 @@ namespace Ark::internal
         m_value(static_cast<double>(value)), m_type(ValueType::Number), m_const(false)
     {}
 
+    Value::Value(float value) :
+        m_value(static_cast<double>(value)), m_type(ValueType::Number), m_const(false)
+    {}
+
     Value::Value(double value) :
         m_value(value), m_type(ValueType::Number), m_const(false)
     {}

@@ -3,6 +3,7 @@
 ## Unreleased changes
 ### Added
 - the parser cna now recognize expressions like `((f f) x)`
+- we can now create `Ark::Value` with floats
 
 ### Changed
 - the `init()` internal method of the VM shouldn't stop when a binded function isn't used in the code, just ignore it
