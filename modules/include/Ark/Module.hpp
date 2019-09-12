@@ -7,6 +7,8 @@ using namespace Ark;
 using Mapping_t = std::unordered_map<std::string, Value::ProcType>;
 
 #if defined(_WIN32) || defined(_WIN64)
+    #define OS_WINDOWS
+
     // Windows compilers need specific (and different) keywords for export and import
     #define ARK_API_EXPORT extern "C" __declspec(dllexport)
     #define ARK_API_IMPORT extern "C" __declspec(dllimport)
@@ -19,6 +21,8 @@ using Mapping_t = std::unordered_map<std::string, Value::ProcType>;
     #include <Windows.h>
     #define MAKE_ENTRY_POINT() BOOL WINAPI DllMain(HINSTANCE, DWORD, LPVOID) { return TRUE; }
 #else // Linux, FreeBSD, Mac OS X
+    #define OS_LINUX
+    
     #if __GNUC__ >= 4
         // GCC 4 has special keywords for showing/hidding symbols,
         // the same keyword is used for both importing and exporting

@@ -10,3 +10,4 @@ include/Ark/Constants.hpp
 *.dll
 *.arkc
 *.lib
+*.bin
