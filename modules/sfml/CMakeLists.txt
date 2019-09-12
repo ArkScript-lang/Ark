@@ -20,10 +20,12 @@ endif()
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+####### code required for the SFML
 if (WIN32)
     set(SFML_STATIC_LIBRARIES TRUE)
 endif()
 find_package(SFML 2.5 COMPONENTS graphics window system network audio REQUIRED)
+####### code required for the SFML
 
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../include
@@ -41,7 +43,9 @@ list(REMOVE_ITEM SOURCE_FILES "${PROJECT_SOURCE_DIR}/../../src/main.cpp")
 add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE ArkReactor)
+####### code required for the SFML
 target_link_libraries(${PROJECT_NAME} PRIVATE sfml-graphics sfml-window sfml-system sfml-network sfml-audio)
+####### code required for the SFML
 
 if (CMAKE_COMPILER_IS_GNUCXX)
     target_link_libraries(${PROJECT_NAME} PRIVATE stdc++fs)
@@ -61,5 +65,5 @@ set_target_properties(
 
 add_custom_command(TARGET ${PROJECT_NAME}
     COMMAND ${CMAKE_COMMAND} -E copy
-        "$<TARGET_FILE:${PROJECT_NAME}>" ${PROJECT_SOURCE_DIR}/../../lib
+        "$<TARGET_FILE:${PROJECT_NAME}>" ${PROJECT_SOURCE_DIR}/../../lib/${PROJECT_NAME}.bin
 )
