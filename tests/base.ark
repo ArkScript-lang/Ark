@@ -4,10 +4,6 @@
 
     ((fun (x) (print "hello" x)) 12)
 
-    (import "random.dll")
-    (import "sfml.dll")
-
-    (print (random))
-
+    (import "sfml.bin")
     (sf-window-init 400 400 "Test sfml")
 }

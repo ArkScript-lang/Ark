@@ -4,3 +4,4 @@ project(Modules)
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/random)
 add_subdirectory(${PROJECT_SOURCE_DIR}/sfml)
+add_subdirectory(${PROJECT_SOURCE_DIR}/console)
