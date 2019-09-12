@@ -65,7 +65,7 @@ file(GLOB_RECURSE SOURCE_FILES
 )
 list(REMOVE_ITEM SOURCE_FILES "${Ark_SOURCE_DIR}/src/main.cpp")
 
-add_library(ArkReactor ${SOURCE_FILES})
+add_library(ArkReactor STATIC ${SOURCE_FILES})
 
 if ((CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG) AND (UNIX OR LINUX))
     target_link_libraries(ArkReactor PUBLIC stdc++fs)

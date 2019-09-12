@@ -31,8 +31,8 @@ namespace Ark
         VM_t(bool persist=false);
         VM_t(const std::string& lib_dir);
 
-        void feed(const std::string& filename);
-        void feed(const bytecode_t& bytecode);
+        bool feed(const std::string& filename);
+        bool feed(const bytecode_t& bytecode);
         void doFile(const std::string& filename);
 
         void loadFunction(const std::string& name, internal::Value::ProcType function);

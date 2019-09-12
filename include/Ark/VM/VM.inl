@@ -15,10 +15,10 @@ VM_t<debug>::VM_t(const std::string& lib_dir) :
 // ------------------------------------------
 
 template<bool debug>
-void VM_t<debug>::feed(const std::string& filename)
+bool VM_t<debug>::feed(const std::string& filename)
 {
-    try
-    {
+    bool result = true;
+    try {
         Ark::BytecodeReader bcr;
         bcr.feed(filename);
         m_bytecode = bcr.bytecode();
@@ -27,19 +27,28 @@ void VM_t<debug>::feed(const std::string& filename)
 
         configure();
         init();
-    }
-    catch (const std::exception& e)
-    {
+    } catch (const std::exception& e) {
+        result = false;
         std::cout << e.what() << std::endl;
     }
+
+    return result;
 }
 
 template<bool debug>
-void VM_t<debug>::feed(const bytecode_t& bytecode)
+bool VM_t<debug>::feed(const bytecode_t& bytecode)
 {
-    m_bytecode = bytecode;
-    configure();
-    init();
+    bool result = true;
+    try {
+        m_bytecode = bytecode;
+        configure();
+        init();
+    } catch (const std::exception& e) {
+        result = false;
+        std::cout << e.what() << std::endl;
+    }
+
+    return result;
 }
 
 static bool compile(bool debug, const std::string& file, const std::string& output, const std::string& lib_dir)
@@ -119,14 +128,14 @@ void VM_t<debug>::doFile(const std::string& file)
         // run
         if (compiled_successfuly)
         {
-            feed(path);
-            run();
+            if (feed(path))
+                run();
         }
     }
     else  // it's a bytecode file, run it
     {
-        feed(file);
-        run();
+        if (feed(file))
+            run();
     }
 }
 
@@ -421,17 +430,14 @@ internal::Value& VM_t<debug>::operator[](const std::string& name)
     // find id of object
     auto it = std::find(m_symbols.begin(), m_symbols.end(), name);
     if (it == m_symbols.end())
-    {
-        if constexpr (debug)
-            throwVMError("Couldn't find symbol with name " + name);
-    }
+        return FFI::nil;
 
     uint16_t id = static_cast<uint16_t>(std::distance(m_symbols.begin(), it));
     auto var = findNearestVariable(id);
     if (var != nullptr)
         return *var;
     else
-        throwVMError("Couldn't load symbol with name " + name);
+        return FFI::nil;
 }
 
 // ------------------------------------------
