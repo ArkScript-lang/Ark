@@ -118,6 +118,9 @@ namespace Ark
         std::vector<internal::Scope_t> m_locals;
         std::unordered_map<std::string, internal::Value::ProcType> m_binded_functions;
 
+        // just a nice little trick for operator[]
+        internal::Value m__no_value = internal::FFI::nil;
+
         void configure();
         void safeRun(std::size_t untilFrameCount=0);
         void init();

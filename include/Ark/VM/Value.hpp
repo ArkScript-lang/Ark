@@ -42,6 +42,7 @@ namespace Ark::internal
 
         Value() = default;
         Value(Value&&) = default;
+        // TODO maybe a bad idea, noticed that thingy = FFI::nil does not work properly
         Value(const Value&) = default;
         Value& operator=(const Value&) = default;
 

@@ -430,14 +430,20 @@ internal::Value& VM_t<debug>::operator[](const std::string& name)
     // find id of object
     auto it = std::find(m_symbols.begin(), m_symbols.end(), name);
     if (it == m_symbols.end())
-        return FFI::nil;
+    {
+        m__no_value = FFI::nil;
+        return m__no_value;
+    }
 
     uint16_t id = static_cast<uint16_t>(std::distance(m_symbols.begin(), it));
     auto var = findNearestVariable(id);
     if (var != nullptr)
         return *var;
     else
-        return FFI::nil;
+    {
+        m__no_value = FFI::nil;
+        return m__no_value;
+    }
 }
 
 // ------------------------------------------
