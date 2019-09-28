@@ -1,0 +1,12 @@
+{
+    # Because for no reasons unit tests file don't work
+    (import "Slice.ark")
+    # --------------------------
+    #           Slice
+    # --------------------------
+    (let slice-tests (fun () {
+        (assert (= "ABC" (slice "ABCDEFG" 3)) "Slice test 1 failed")
+        (assert (= "1 1 1" (slice "1 1 1 2" 5)) "Slice test 2 failed")
+    }))
+    (slice-tests)
+}

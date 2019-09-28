@@ -1,0 +1,5 @@
+{
+    (let slice (fun (string length) {
+        ()
+    }))
+}
