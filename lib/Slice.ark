@@ -1,5 +1,14 @@
 {
-    (let slice (fun (string length) {
-        ()
+    (let slice (fun (inputed length) {
+        (assert (> (len inputed) length) "slice length must be inferior than argument length")
+        (assert (> (len inputed) 1) "argument length must be superior to 1")
+        (assert (> length 1) "slice length must be superior to 1")
+        (mut returnedString "")
+        (mut i 0)
+        (while (< i length){
+            (set returnedString (+ returnedString (@ inputed i)))
+            (set i (+ i 1))
+        })
+        returnedString
     }))
 }
