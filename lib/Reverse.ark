@@ -1,4 +1,5 @@
 {
+    #made by Natendrtfm (on Github) with <3
     (let reverse (fun (inputed){
         (assert (!= inputed "") "Argument length must be superior to 0") # Sounds weird to me , but it work ! 
         (mut i (- (len inputed) 1))
