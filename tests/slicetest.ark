@@ -1,6 +1,5 @@
 {
-    # Because for no reasons unit tests file don't work
-    (import "Slice.ark")
+    (import "StringMethods.ark")
     # --------------------------
     #           Slice
     # --------------------------

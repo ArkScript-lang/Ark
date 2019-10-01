@@ -22,7 +22,6 @@
         })
         returnedString
     }))
-  #made by Natendrtfm (on Github) with <3
   (let split (fun (string separator) {
         (assert (!= "" separator) "Separator of split can not be empty")
         (assert (= 1 (len separator)) "Separator length must be equal to 1")
