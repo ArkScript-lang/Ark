@@ -2,7 +2,7 @@
     (import "Switch.ark")
     (import "Exceptions.ark")
     (import "Range.ark")
-    (import "FileMethods.ark")
+    (import "Split.ark")
 
     (let start_time (time))
     (mut passed 0)
