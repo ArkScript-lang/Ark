@@ -7,5 +7,5 @@
         (assert (= "CBA" (reverse "ABC")) "Slice test 1 failed")
         (assert (= "Wow, it work" (reverse (reverse "Wow, it work"))) "Slice test 2 failed")
     }))
-    (slice-tests)
+    (reverse-tests)
 }
