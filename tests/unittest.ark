@@ -2,7 +2,7 @@
     (import "Switch.ark")
     (import "Exceptions.ark")
     (import "Range.ark")
-    (import "Split.ark")
+    (import "FileMethods.ark")
 
     (let start_time (time))
     (mut passed 0)
@@ -214,7 +214,7 @@
     }))
     (misc-tests)
     (print "  Misc tests passed")
-    
+
     # --------------------------
     #          switch
     # --------------------------
@@ -247,7 +247,7 @@
         (let df '(foo 5))
         (assert (= "Closure" (type df)) "Defer test 3 failed")
         (set passed (+ 1 passed))
-        
+
         (assert (= 10 (df)) "Defer test 4 failed")
         (set passed (+ 1 passed))
 
@@ -379,7 +379,7 @@
     # --------------------------
     (let range-test (fun () {
         (let r (range 5 10))
-    
+
         (assert (= 5 (r)) "Range test 1 failed")
         (assert (= 6 (r)) "Range test 1°2 failed")
         (assert (= 7 (r)) "Range test 1°3 failed")
@@ -409,22 +409,22 @@
     # --------------------------
     (let scope-tests (fun () {
         (let foo (fun () {x}))
-        
+
         (let dummy1 (fun () {
             (let x 5)
             (foo)}))
-        
+
         (let dummy2 (fun () {
             (let x 10)
             (foo)}))
-        
+
         (assert (= 5 (dummy1)) "Scope test 1 failed")
         (assert (= 10 (dummy2)) "Scope test 1°2 failed")
         (set passed (+ 1 passed))
     }))
     (scope-tests)
     (print "  Scope tests passed")
-    
+
     # --------------------------
     #           Split
     # --------------------------
