@@ -371,7 +371,7 @@ void VM_t<debug>::init()
     if (m_shared_lib_objects.size() == m_plugins.size())
         return;
     
-    for (const auto& file : m_plugins)
+    for (const std::string& file : m_plugins)
     {
         namespace fs = std::filesystem;
 
@@ -436,7 +436,7 @@ internal::Value& VM_t<debug>::operator[](const std::string& name)
     }
 
     uint16_t id = static_cast<uint16_t>(std::distance(m_symbols.begin(), it));
-    auto var = findNearestVariable(id);
+    Value* var = findNearestVariable(id);
     if (var != nullptr)
         return *var;
     else
@@ -584,7 +584,7 @@ void VM_t<debug>::safeRun(std::size_t untilFrameCount)
         if (m_frames.size() > 1)
         {
             // display call stack trace
-            for (auto it=m_frames.rbegin(); it != m_frames.rend(); ++it)
+            for (auto&& it=m_frames.rbegin(); it != m_frames.rend(); ++it)
             {
                 std::cerr << "[" << termcolor::cyan << std::distance(it, m_frames.rend()) << termcolor::reset << "] ";
                 if (it->currentPageAddr() != 0)
@@ -646,12 +646,12 @@ inline void VM_t<debug>::loadSymbol()
         Job: Load a symbol from its id onto the stack
     */
     ++m_ip;
-    auto id = readNumber();
+    uint16_t id = readNumber();
 
     if constexpr (debug)
         Ark::logger.info("LOAD_SYMBOL ({0}) PP:{1}, IP:{2}"s, m_symbols[id], m_pp, m_ip);
 
-    auto var = findNearestVariable(id);
+    Value* var = findNearestVariable(id);
     if (var != nullptr)
     {
         push(*var);
@@ -673,7 +673,7 @@ inline void VM_t<debug>::loadConst()
     using namespace Ark::internal;
 
     ++m_ip;
-    auto id = readNumber();
+    uint16_t id = readNumber();
 
     if constexpr (debug)
         Ark::logger.info("LOAD_CONST ({0}) PP:{1}, IP:{2}"s, m_constants[id], m_pp, m_ip);
@@ -719,12 +719,12 @@ inline void VM_t<debug>::store()
     using namespace Ark::internal;
     
     ++m_ip;
-    auto id = readNumber();
+    uint16_t id = readNumber();
 
     if constexpr (debug)
         Ark::logger.info("STORE ({0}) PP:{1}, IP:{2}"s, m_symbols[id], m_pp, m_ip);
 
-    auto var = findNearestVariable(id);
+    Value* var = findNearestVariable(id);
     if (var != nullptr)
     {
         if (var->isConst())
@@ -747,7 +747,7 @@ inline void VM_t<debug>::let()
     using namespace Ark::internal;
 
     ++m_ip;
-    auto id = readNumber();
+    uint16_t id = readNumber();
 
     if constexpr (debug)
         Ark::logger.info("LET ({0}) PP:{1}, IP:{2}"s, m_symbols[id], m_pp, m_ip);
@@ -884,7 +884,7 @@ inline void VM_t<debug>::call(int16_t argc_)
         case ValueType::PageAddr:
         {
             int old_frame = m_frames.size() - 1;
-            auto new_page_pointer = function.pageAddr();
+            PageAddr_t new_page_pointer = function.pageAddr();
 
             // create dedicated frame
             createNewScope();
@@ -904,7 +904,7 @@ inline void VM_t<debug>::call(int16_t argc_)
         {
             int old_frame = m_frames.size() - 1;
             Closure& c = function.closure_ref();
-            auto new_page_pointer = c.pageAddr();
+            PageAddr_t new_page_pointer = c.pageAddr();
 
             // load saved scope
             m_locals.push_back(c.scope());
@@ -937,7 +937,7 @@ inline void VM_t<debug>::capture()
     using namespace Ark::internal;
 
     ++m_ip;
-    auto id = readNumber();
+    uint16_t id = readNumber();
 
     if constexpr (debug)
         Ark::logger.info("CAPTURE ({0}) PP:{1}, IP:{2}"s, m_symbols[id], m_pp, m_ip);
@@ -961,7 +961,7 @@ inline void VM_t<debug>::builtin()
     using namespace Ark::internal;
 
     ++m_ip;
-    auto id = readNumber();
+    uint16_t id = readNumber();
 
     if constexpr (debug)
         Ark::logger.info("BUILTIN ({0}) PP:{1}, IP:{2}"s, FFI::builtins[id].first, m_pp, m_ip);
@@ -980,7 +980,7 @@ inline void VM_t<debug>::mut()
     using namespace Ark::internal;
 
     ++m_ip;
-    auto id = readNumber();
+    uint16_t id = readNumber();
 
     if constexpr (debug)
         Ark::logger.info("MUT ({0}) PP:{1}, IP:{2}"s, m_symbols[id], m_pp, m_ip);
@@ -998,12 +998,12 @@ inline void VM_t<debug>::del()
     using namespace Ark::internal;
 
     ++m_ip;
-    auto id = readNumber();
+    uint16_t id = readNumber();
 
     if constexpr (debug)
         Ark::logger.info("DEL ({0}) PP:{1}, IP:{2}"s, m_symbols[id], m_pp, m_ip);
     
-    auto var = findNearestVariable(id);
+    Value* var = findNearestVariable(id);
     if (var != nullptr)
     {
         *var = FFI::undefined;
@@ -1034,16 +1034,16 @@ inline void VM_t<debug>::getField()
     using namespace Ark::internal;
 
     ++m_ip;
-    auto id = readNumber();
+    uint16_t id = readNumber();
 
     if constexpr (debug)
         Ark::logger.info("GET_FIELD ({0}) PP:{1}, IP:{2}"s, m_symbols[id], m_pp, m_ip);
     
-    auto var = pop();
+    Value&& var = pop();
     if (var.valueType() != ValueType::Closure)
         throwVMError("variable `" + m_symbols[m_last_sym_loaded] + "' isn't a closure, can not get the field `" + m_symbols[id] + "' from it");
     
-    auto field = (*var.closure_ref().scope())[id];
+    const Value& field = (*var.closure_ref().scope())[id];
     if (field != FFI::undefined)
     {
         if constexpr (debug)
@@ -1075,7 +1075,7 @@ inline void VM_t<debug>::operators(uint8_t inst)
     {
         case Instruction::ADD:
         {
-            auto b = pop(), a = pop();
+            Value&& b = pop(), a = pop();
             if (a.valueType() == ValueType::Number)
             {
                 if (b.valueType() != ValueType::Number)
@@ -1097,7 +1097,7 @@ inline void VM_t<debug>::operators(uint8_t inst)
 
         case Instruction::SUB:
         {
-            auto b = pop(), a = pop();
+            Value&& b = pop(), a = pop();
             if (a.valueType() != ValueType::Number)
                 throw Ark::TypeError("Arguments of - should be Numbers");
             if (b.valueType() != ValueType::Number)
@@ -1109,7 +1109,7 @@ inline void VM_t<debug>::operators(uint8_t inst)
 
         case Instruction::MUL:
         {
-            auto b = pop(), a = pop();
+            Value&& b = pop(), a = pop();
             if (a.valueType() != ValueType::Number)
                 throw Ark::TypeError("Arguments of * should be Numbers");
             if (b.valueType() != ValueType::Number)
@@ -1121,7 +1121,7 @@ inline void VM_t<debug>::operators(uint8_t inst)
 
         case Instruction::DIV:
         {
-            auto b = pop(), a = pop();
+            Value&& b = pop(), a = pop();
             if (a.valueType() != ValueType::Number)
                 throw Ark::TypeError("Arguments of / should be Numbers");
             if (b.valueType() != ValueType::Number)
@@ -1137,7 +1137,7 @@ inline void VM_t<debug>::operators(uint8_t inst)
 
         case Instruction::GT:
         {
-            auto b = pop(), a = pop();
+            Value&& b = pop(), a = pop();
             if (a.valueType() == ValueType::String)
             {
                 if (b.valueType() != ValueType::String)
@@ -1159,7 +1159,7 @@ inline void VM_t<debug>::operators(uint8_t inst)
         
         case Instruction::LT:
         {
-            auto b = pop(), a = pop();
+            Value&& b = pop(), a = pop();
             if (a.valueType() == ValueType::String)
             {
                 if (b.valueType() != ValueType::String)
@@ -1181,7 +1181,7 @@ inline void VM_t<debug>::operators(uint8_t inst)
 
         case Instruction::LE:
         {
-            auto b = pop(), a = pop();
+            Value&& b = pop(), a = pop();
             if (a.valueType() == ValueType::String)
             {
                 if (b.valueType() != ValueType::String)
@@ -1203,7 +1203,7 @@ inline void VM_t<debug>::operators(uint8_t inst)
 
         case Instruction::GE:
         {
-            auto b = pop(), a = pop();
+            Value&& b = pop(), a = pop();
             if (a.valueType() == ValueType::String)
             {
                 if (b.valueType() != ValueType::String)
@@ -1237,7 +1237,7 @@ inline void VM_t<debug>::operators(uint8_t inst)
 
         case Instruction::LEN:
         {
-            auto a = pop();
+            Value&& a = pop();
             if (a.valueType() == ValueType::List)
             {
                 push(Value(static_cast<int>(a.const_list().size())));
@@ -1254,7 +1254,7 @@ inline void VM_t<debug>::operators(uint8_t inst)
 
         case Instruction::EMPTY:
         {
-            auto a = pop();
+            Value&& a = pop();
             if (a.valueType() == ValueType::List)
                 push((a.const_list().size() == 0) ? FFI::trueSym : FFI::falseSym);
             else if (a.valueType() == ValueType::String)
@@ -1267,7 +1267,7 @@ inline void VM_t<debug>::operators(uint8_t inst)
 
         case Instruction::FIRSTOF:
         {
-            auto a = pop();
+            Value&& a = pop();
             if (a.valueType() == ValueType::List)
                 push(a.const_list().size() > 0 ? a.const_list()[0] : FFI::nil);
             else if (a.valueType() == ValueType::String)
@@ -1280,7 +1280,7 @@ inline void VM_t<debug>::operators(uint8_t inst)
 
         case Instruction::TAILOF:
         {
-            auto a = pop();
+            Value&& a = pop();
             if (a.valueType() == ValueType::List)
             {
                 if (a.const_list().size() < 2)
@@ -1311,7 +1311,7 @@ inline void VM_t<debug>::operators(uint8_t inst)
 
         case Instruction::HEADOF:
         {
-            auto a = pop();
+            Value&& a = pop();
             if (a.valueType() == ValueType::List)
             {
                 if (a.const_list().size() < 2)
@@ -1348,7 +1348,7 @@ inline void VM_t<debug>::operators(uint8_t inst)
 
         case Instruction::ASSERT:
         {
-            auto b = pop(), a = pop();
+            Value&& b = pop(), a = pop();
             if (a == FFI::falseSym)
             {
                 if (b.valueType() != ValueType::String)
@@ -1362,7 +1362,7 @@ inline void VM_t<debug>::operators(uint8_t inst)
 
         case Instruction::TO_NUM:
         {
-            auto a = pop();
+            Value&& a = pop();
             if (a.valueType() != ValueType::String)
                 throw Ark::TypeError("Argument of toNumber must be a String");
             
@@ -1383,7 +1383,7 @@ inline void VM_t<debug>::operators(uint8_t inst)
 
         case Instruction::AT:
         {
-            auto b = pop(), a = pop();
+            Value&& b = pop(), a = pop();
             if (b.valueType() != ValueType::Number)
                 throw Ark::TypeError("Argument 2 of @ should be a Number");
 
@@ -1398,21 +1398,21 @@ inline void VM_t<debug>::operators(uint8_t inst)
 
         case Instruction::AND_:
         {
-            auto a = pop(), b = pop();
+            Value&& a = pop(), b = pop();
             push((a == FFI::trueSym && b == FFI::trueSym) ? FFI::trueSym : FFI::falseSym);
             break;
         }
 
         case Instruction::OR_:
         {
-            auto a = pop(), b = pop();
+            Value&& a = pop(), b = pop();
             push((b == FFI::trueSym || a == FFI::trueSym) ? FFI::trueSym : FFI::falseSym);
             break;
         }
 
         case Instruction::MOD:
         {
-            auto b = pop(), a = pop();
+            Value&& b = pop(), a = pop();
             if (a.valueType() != ValueType::Number)
                 throw Ark::TypeError("Arguments of mod should be Numbers");
             if (b.valueType() != ValueType::Number)
@@ -1424,7 +1424,7 @@ inline void VM_t<debug>::operators(uint8_t inst)
 
         case Instruction::TYPE:
         {
-            auto a = pop();
+            Value&& a = pop();
             switch (a.valueType())
             {
                 case ValueType::List:     push(Value("List"));     break;
@@ -1458,7 +1458,7 @@ inline void VM_t<debug>::operators(uint8_t inst)
 
         case Instruction::HASFIELD:
         {
-            auto field = pop(), closure = pop();
+            Value&& field = pop(), closure = pop();
             if (closure.valueType() != ValueType::Closure)
                 throw Ark::TypeError("Argument no 1 of hasField should be a Closure");
             if (field.valueType() != ValueType::String)
@@ -1470,7 +1470,7 @@ inline void VM_t<debug>::operators(uint8_t inst)
                 push(FFI::falseSym);
                 break;
             }
-            auto id = static_cast<uint16_t>(std::distance(m_symbols.begin(), it));
+            uint16_t id = static_cast<uint16_t>(std::distance(m_symbols.begin(), it));
             
             if ((*closure.closure_ref().scope_ref())[id] != FFI::undefined)
                 push(FFI::trueSym);

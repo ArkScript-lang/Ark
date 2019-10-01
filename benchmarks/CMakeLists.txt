@@ -19,6 +19,8 @@ add_subdirectory(${ARK_SUBMODULES_ROOT}/benchmark third_party_benchmark)
 #                        Targets
 #-------------------------------------------------------
 
+set(CMAKE_BUILD_TYPE Release)
+
 function(bench_make target_file)
     set(targetname bench_${target_file})
 

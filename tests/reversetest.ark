@@ -1,7 +1,7 @@
 {
 (import "Reverse.ark")
     # --------------------------
-    #           Slice
+    #           Reverse
     # --------------------------
     (let reverse-tests (fun () {
         (assert (= "CBA" (reverse "ABC")) "Slice test 1 failed")
