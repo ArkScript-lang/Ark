@@ -1,5 +1,5 @@
 {
-    (import "StringMethods.ark")
+    (import "Slice.ark")
     # --------------------------
     #           Slice
     # --------------------------
