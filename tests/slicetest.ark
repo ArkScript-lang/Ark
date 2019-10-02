@@ -4,8 +4,9 @@
     #           Slice
     # --------------------------
     (let slice-tests (fun () {
-        (assert (= "ABC" (slice "ABCDEFG" 3)) "Slice test 1 failed")
-        (assert (= "1 1 1" (slice "1 1 1 2" 5)) "Slice test 2 failed")
+        (assert (= "ABC" (sliceStr "ABCDEFG" 0 3)) "Slice test 1 failed")
+        (assert (= "1 1 1" (sliceStr "1 1 1 2" 0 5)) "Slice test 2 failed")
+        (assert (= "bcdefg" (sliceStr "abcdefg" 1 5)))
     }))
     (slice-tests)
 }

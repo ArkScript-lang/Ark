@@ -1,4 +1,5 @@
 {
+    #made by Natendrtfm (on Github) with <3
     (let sliceStr (fun (inputed startingIndex length) {
         (assert (> (len inputed) length) "slice length must be inferior than argument length")
         (assert (> (len inputed) 1) "argument length must be superior to 1")

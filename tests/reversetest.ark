@@ -4,8 +4,10 @@
     #           Reverse
     # --------------------------
     (let reverse-tests (fun () {
-        (assert (= "CBA" (reverse "ABC")) "Reverse test 1 failed")
-        (assert (= "Wow, it works" (reverse (reverse "Wow, it works"))) "Reverse test 2 failed")
+        (assert (= "CBA" (reverseStr "ABC")) "Reverse test 1 failed")
+        (assert (= "Wow, it works" (reverseStr (reverseStr "Wow, it works"))) "Reverse test 2 failed")
+        (assert (= "" (reverseStr "")) "Reverse test 3 failed")
+        (assert (= "a a" (reverseStr "a a")))
     }))
     (reverse-tests)
 }
