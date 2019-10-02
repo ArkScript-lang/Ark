@@ -645,6 +645,8 @@ inline void VM_t<debug>::loadSymbol()
         Argument: symbol id (two bytes, big endian)
         Job: Load a symbol from its id onto the stack
     */
+    using namespace Ark::internal;
+    
     ++m_ip;
     uint16_t id = readNumber();
 
