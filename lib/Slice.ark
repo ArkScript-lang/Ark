@@ -4,6 +4,8 @@
         (assert (> (len inputed) length) "slice length must be inferior than argument length")
         (assert (> (len inputed) 1) "argument length must be superior to 1")
         (assert (> length 1) "slice length must be superior to 1")
+        (assert (> startingIndex -1) "argument length must be superior to 1")
+        (assert (< startingIndex (len string)) "starting index must be inferior than string length")
         (mut returnedString "")
         (mut i startingIndex)
         (while (< i length){
