@@ -2,6 +2,13 @@
 
 ## Unreleased changes
 ### Added
+
+### Changed
+
+### Removed
+
+## 3.0.5
+### Added
 - the parser cna now recognize expressions like `((f f) x)`
 - we can now create `Ark::Value` with floats
 
@@ -11,8 +18,7 @@
 - better line counter in lexer
 - the VM shouldn't try to run a non-existing bytecode file if the compilation fails (when calling `doFile()`)
 - `VM.call` should return `nil` if the stack is empty, otherwise it results in a `vector subscript out of range` and that's bad
-
-### Removed
+- the SFML plugin was updated to run on Windows
 
 ## 3.0.4
 ### Added
