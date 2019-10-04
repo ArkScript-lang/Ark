@@ -54,13 +54,6 @@ configure_file(
     ${Ark_SOURCE_DIR}/include/Ark/Constants.hpp
 )
 
-# including content of project
-
-include_directories(
-    ${Ark_SOURCE_DIR}/include
-    ${Ark_SOURCE_DIR}/thirdparty
-)
-
 file(GLOB_RECURSE SOURCE_FILES
     ${Ark_SOURCE_DIR}/src/*.cpp
     ${Ark_SOURCE_DIR}/thirdparty/*.cpp
@@ -68,6 +61,16 @@ file(GLOB_RECURSE SOURCE_FILES
 list(REMOVE_ITEM SOURCE_FILES "${Ark_SOURCE_DIR}/src/main.cpp")
 
 add_library(ArkReactor STATIC ${SOURCE_FILES})
+
+# including content of project
+
+target_include_directories(ArkReactor
+    PUBLIC
+        ${Ark_SOURCE_DIR}/include
+        ${Ark_SOURCE_DIR}/thirdparty
+)
+
+# linking libraries
 
 if ((CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG) AND (UNIX OR LINUX))
     target_link_libraries(ArkReactor PUBLIC stdc++fs)
@@ -77,8 +80,24 @@ if (UNIX OR LINUX)
     target_link_libraries(ArkReactor PUBLIC ${CMAKE_DL_LIBS})
 endif()
 
+# setting up project properties
+
+set_target_properties(
+    ArkReactor
+    PROPERTIES
+        CXX_STANDARD 17
+        CXX_STANDARD_REQUIRED ON
+        CXX_EXTENSIONS OFF
+)
+
+# building exe
+
 if (ARK_BUILD_EXE)
     add_executable(Ark ${Ark_SOURCE_DIR}/src/main.cpp)
+    target_include_directories(Ark PUBLIC
+        ${Ark_SOURCE_DIR}/include
+        ${Ark_SOURCE_DIR}/thirdparty
+    )
     target_link_libraries(Ark PUBLIC ArkReactor)
 
     set_target_properties(
@@ -88,6 +107,8 @@ if (ARK_BUILD_EXE)
             CXX_STANDARD_REQUIRED ON
             CXX_EXTENSIONS OFF
     )
+
+    # setting up installation directory
 
     if (UNIX OR LINUX)
         install(TARGETS Ark DESTINATION bin)
@@ -100,15 +121,7 @@ if (ARK_BUILD_EXE)
     endif()
 endif()
 
-set_target_properties(
-    ArkReactor
-    PROPERTIES
-        CXX_STANDARD 17
-        CXX_STANDARD_REQUIRED ON
-        CXX_EXTENSIONS OFF
-)
-
-# subdirectories
+# submodules
 
 if (ARK_BUILD_MODULES)
     add_subdirectory(${Ark_SOURCE_DIR}/modules)
