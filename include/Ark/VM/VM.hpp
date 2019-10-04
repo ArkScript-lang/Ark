@@ -94,7 +94,7 @@ namespace Ark
         }
 
     private:
-        bool m_persist;
+        uint16_t m_options;
         bytecode_t m_bytecode;
         std::string m_libdir;
         // Instruction Pointer and Page Pointer

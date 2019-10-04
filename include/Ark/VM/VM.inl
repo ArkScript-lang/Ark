@@ -1,12 +1,20 @@
+constexpr uint16_t FeaturePersist            = 1 << 0;
+constexpr uint16_t FeatureFunctionArityCheck = 1 << 1;
+
+constexpr uint16_t DefaultFeatures =
+    FeatureFunctionArityCheck;
+
 template<bool debug>
 VM_t<debug>::VM_t(bool persist) :
-    m_persist(persist), m_libdir(ARK_STD_DEFAULT), m_ip(0), m_pp(0), m_running(false), m_filename("FILE"),
+    m_options(FeaturePersist & DefaultFeatures),
+    m_libdir(ARK_STD_DEFAULT), m_ip(0), m_pp(0), m_running(false), m_filename("FILE"),
     m_last_sym_loaded(0), m_until_frame_count(0)
 {}
 
 template<bool debug>
 VM_t<debug>::VM_t(const std::string& lib_dir) :
-    m_persist(false), m_libdir(lib_dir != "" ? lib_dir : ARK_STD_DEFAULT), m_ip(0), m_pp(0), m_running(false), m_filename("FILE"),
+    m_options(DefaultFeatures), m_libdir(lib_dir != "" ? lib_dir : ARK_STD_DEFAULT),
+    m_ip(0), m_pp(0), m_running(false), m_filename("FILE"),
     m_last_sym_loaded(0), m_until_frame_count(0)
 {}
 
@@ -464,7 +472,7 @@ void VM_t<debug>::run()
     m_ip = 0;
     m_pp = 0;
 
-    if (!m_persist)
+    if (m_options & FeaturePersist == 0)
         init();
 }
 
@@ -563,23 +571,19 @@ void VM_t<debug>::safeRun(std::size_t untilFrameCount)
                     break;
                 
                 default:
-                    throwVMError("unknown instruction: " + Ark::Utils::toString(static_cast<std::size_t>(inst)) +
-                        ", pp: " +Ark::Utils::toString(m_pp) + ", ip: " + Ark::Utils::toString(m_ip)
-                    );
+                    throwVMError("unknown instruction: " + Ark::Utils::toString(static_cast<std::size_t>(inst)));
                 }
             else if (Instruction::FIRST_OPERATOR <= inst && inst <= Instruction::LAST_OPERATOR)
                 operators(inst);
             else
-                throwVMError("unknown instruction: " + Ark::Utils::toString(static_cast<std::size_t>(inst)) +
-                    ", pp: " + Ark::Utils::toString(m_pp) + ", ip: " + Ark::Utils::toString(m_ip)
-                );
+                throwVMError("unknown instruction: " + Ark::Utils::toString(static_cast<std::size_t>(inst)));
             
             // move forward
             ++m_ip;
         }
     } catch (const std::exception& e) {
         std::cerr << "\n" << termcolor::red << e.what() << "\n";
-        std::cerr << termcolor::reset << "At IP: " << m_ip << ", PP: " << m_pp << "\n";
+        std::cerr << termcolor::reset << "At IP: " << (m_ip != -1 ? m_ip : 0) << ", PP: " << m_pp << "\n";
 
         if (m_frames.size() > 1)
         {
@@ -850,6 +854,7 @@ inline void VM_t<debug>::call(int16_t argc_)
 
     uint16_t argc = 0;
 
+    // handling calls from C++ code
     if (argc_ <= -1)
     {
         ++m_ip;
@@ -898,7 +903,7 @@ inline void VM_t<debug>::call(int16_t argc_)
             m_ip = -1;  // because we are doing a m_ip++ right after that
             for (std::size_t j=0; j < argc; ++j)
                 push(pop(old_frame));
-            return;
+            break;
         }
 
         // is it a user defined closure?
@@ -919,11 +924,29 @@ inline void VM_t<debug>::call(int16_t argc_)
             m_ip = -1;  // because we are doing a m_ip++ right after that
             for (std::size_t j=0; j < argc; ++j)
                 push(pop(old_frame));
-            return;
+            break;
         }
 
         default:
             throwVMError("couldn't identify function object: type index " + Ark::Utils::toString(static_cast<int>(function.valueType())));
+    }
+
+    // checking function arity
+    std::size_t received_argc = m_frames.back().stackSize();
+    std::size_t needed_argc = 0;
+    if (m_options & FeatureFunctionArityCheck)
+    {
+        std::size_t index = 0;
+        while (m_pages[m_pp][index] == Instruction::MUT)
+        {
+            needed_argc += 1;
+            index += 3;  // jump the argument of MUT (integer on 2 bits, big endian)
+        }
+
+        if constexpr (debug)
+            Ark::logger.info("Function needs {0} arguments, and received {1}"s, needed_argc, received_argc);
+        if (needed_argc != received_argc)
+            throwVMError("Function needs " + Ark::Utils::toString(needed_argc) + " arguments, and received " + Ark::Utils::toString(received_argc));
     }
 }
 

@@ -2,6 +2,7 @@
 
 ## Unreleased changes
 ### Added
+- function arity handling in the VM, can be disabled with the option `-fno-function-arity-checks`
 
 ### Changed
 - updated the include module, which was randomly adding `/` before the path of the files
