@@ -4,12 +4,13 @@
 ### Added
 
 ### Changed
+- updated the include module, which was randomly adding `/` before the path of the files
 
 ### Removed
 
 ## 3.0.5
 ### Added
-- the parser cna now recognize expressions like `((f f) x)`
+- the parser can now recognize expressions like `((f f) x)`
 - we can now create `Ark::Value` with floats
 
 ### Changed

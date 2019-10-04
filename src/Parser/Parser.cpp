@@ -383,7 +383,8 @@ namespace Ark
                     using namespace std::string_literals;
 
                     std::string ext = fs::path(file).extension().string();
-                    std::string path = Ark::Utils::getDirectoryFromPath(m_file) + "/" + file;
+                    std::string dir = Ark::Utils::getDirectoryFromPath(m_file) + "/";
+                    std::string path = (dir != "/") ? dir + file : file;
                     
                     if (m_debug)
                         Ark::logger.data(path);
