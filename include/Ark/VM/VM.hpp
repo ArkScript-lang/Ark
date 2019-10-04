@@ -24,12 +24,18 @@ namespace Ark
 {
     using namespace std::string_literals;
 
+    constexpr uint16_t FeaturePersist            = 1 << 0;
+    constexpr uint16_t FeatureFunctionArityCheck = 1 << 1;
+
+    constexpr uint16_t DefaultFeatures =
+        FeatureFunctionArityCheck;
+
     template<bool debug>
     class VM_t
     {
     public:
-        VM_t(bool persist=false);
-        VM_t(const std::string& lib_dir);
+        VM_t(uint16_t flags=DefaultFeatures);
+        VM_t(const std::string& lib_dir, uint16_t flags=DefaultFeatures);
 
         bool feed(const std::string& filename);
         bool feed(const bytecode_t& bytecode);

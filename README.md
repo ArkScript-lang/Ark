@@ -120,7 +120,7 @@ SYNOPSIS
         build/Ark -h
         build/Ark --version
         build/Ark --dev-info
-        build/Ark <file> [-d|-bcr] [-L <lib_dir>]
+        build/Ark <file> [-d|-bcr] [-L <lib_dir>] [-ffunction-arity-check|-fno-function-arity-check]
 
 OPTIONS
         -h, --help                  Display this message
@@ -129,6 +129,9 @@ OPTIONS
         -d, --debug                 Enable debug mode
         -bcr, --bytecode-reader     Launch the bytecode reader
         -L, --lib                   Define the directory where the Ark standard library is
+
+        -ffunction-arity-check|-fno-function-arity-check
+                                    Toggle function arity checks (default: ON)
 
 LICENSE
         Mozilla Public License 2.0

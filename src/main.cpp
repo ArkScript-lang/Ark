@@ -27,6 +27,7 @@ int main(int argc, char** argv)
     std::string file = "", lib_dir = "";
     bool debug = false;
     std::vector<std::string> wrong;
+    uint16_t options = Ark::DefaultFeatures;
 
     auto cli = (
         option("-h", "--help").set(selected, mode::help).doc("Display this message")
@@ -36,13 +37,21 @@ int main(int argc, char** argv)
             value("file", file).set(selected, mode::run)
             , (
                 (
-                    option("-d", "--debug").set(debug).doc("Enable debug mode")
+                    (
+                        option("-d", "--debug").set(debug).doc("Enable debug mode")
+                    )
+                    | option("-bcr", "--bytecode-reader").set(selected, mode::bytecode_reader).doc("Launch the bytecode reader")
+                ),
+                (
+                    option("-L", "--lib").doc("Define the directory where the Ark standard library is")
+                    & value("lib_dir", lib_dir)
+                ),
+                (
+                    ( option("-ffunction-arity-check").call([&]{ options |= Ark::FeatureFunctionArityCheck; })
+                    | option("-fno-function-arity-check").call([&]{ options &= ~Ark::FeatureFunctionArityCheck; })
+                    ).doc("Toggle function arity checks (default: ON)")
+                    // add more options here
                 )
-                | option("-bcr", "--bytecode-reader").set(selected, mode::bytecode_reader).doc("Launch the bytecode reader")
-            ),
-            (
-                option("-L", "--lib").doc("Define the directory where the Ark standard library is")
-                & value("lib_dir", lib_dir)
             )
         )
         , any_other(wrong)
@@ -86,12 +95,12 @@ int main(int argc, char** argv)
             {
                 if (debug)
                 {
-                    Ark::VM_debug vm(lib_dir);
+                    Ark::VM_debug vm(lib_dir, options);
                     vm.doFile(file);
                 }
                 else
                 {
-                    Ark::VM vm(lib_dir);
+                    Ark::VM vm(lib_dir, options);
                     vm.doFile(file);
                 }
                 break;

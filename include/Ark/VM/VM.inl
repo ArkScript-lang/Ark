@@ -1,19 +1,13 @@
-constexpr uint16_t FeaturePersist            = 1 << 0;
-constexpr uint16_t FeatureFunctionArityCheck = 1 << 1;
-
-constexpr uint16_t DefaultFeatures =
-    FeatureFunctionArityCheck;
-
 template<bool debug>
-VM_t<debug>::VM_t(bool persist) :
-    m_options(FeaturePersist & DefaultFeatures),
+VM_t<debug>::VM_t(uint16_t flags) :
+    m_options(flags),
     m_libdir(ARK_STD_DEFAULT), m_ip(0), m_pp(0), m_running(false), m_filename("FILE"),
     m_last_sym_loaded(0), m_until_frame_count(0)
 {}
 
 template<bool debug>
-VM_t<debug>::VM_t(const std::string& lib_dir) :
-    m_options(DefaultFeatures), m_libdir(lib_dir != "" ? lib_dir : ARK_STD_DEFAULT),
+VM_t<debug>::VM_t(const std::string& lib_dir, uint16_t flags) :
+    m_options(flags), m_libdir(lib_dir != "" ? lib_dir : ARK_STD_DEFAULT),
     m_ip(0), m_pp(0), m_running(false), m_filename("FILE"),
     m_last_sym_loaded(0), m_until_frame_count(0)
 {}
