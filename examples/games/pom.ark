@@ -2,7 +2,7 @@
     # more or less game
     (print "More or less game!")
 
-    (import "librandom.so")
+    (import "random.bin")
     (import "Arithmetic.ark")
 
     (let number (mod (abs (random)) 10000))

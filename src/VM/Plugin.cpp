@@ -17,9 +17,7 @@ namespace Ark::internal
         , m_path(path)
         , m_loaded(false)
     {
-        std::cout << "loading " << path << "\n";
         load(m_path);
-        std::cout << "loaded\n";
     }
 
     SharedLibrary::~SharedLibrary()
@@ -35,16 +33,13 @@ namespace Ark::internal
         m_path = path;
         
 #if defined(_WIN32) || defined(_WIN64)
-        std::cout << "win try load\n";
         if (NULL == (m_hInstance = LoadLibrary(m_path.c_str())))
         {
-            std::cout << "win error\n";
             throw std::system_error(
                 std::error_code(::GetLastError(), std::system_category())
                 , "Couldn't load the library at " + path
             );
         }
-        std::cout << "win loaded\n";
 #elif (defined(unix) || defined(__unix) || defined(__unix__)) || defined(__APPLE__)
         if (NULL == (m_hInstance = dlopen(m_path.c_str(), RTLD_LAZY | RTLD_GLOBAL)))
         {

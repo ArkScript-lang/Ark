@@ -1,13 +1,13 @@
 #include <SFML/Graphics.hpp>
 #include <Ark/Module.hpp>
 
-bool has_window = false;
-sf::RenderWindow window;
-sf::Event event;
-std::unordered_map<std::string, sf::Texture> textures;
-std::unordered_map<std::string, sf::Sprite> sprites;
-std::unordered_map<std::string, sf::Font> fonts;
-std::unordered_map<std::string, sf::Text> texts;
+bool& get_has_window() { static bool w = false; return w; }
+sf::RenderWindow& get_window() { static sf::RenderWindow w; return w; }
+sf::Event& get_event() { static sf::Event e; return e; }
+std::unordered_map<std::string, sf::Texture>& get_textures() { static std::unordered_map<std::string, sf::Texture> t; return t; }
+std::unordered_map<std::string, sf::Sprite>& get_sprites() { static std::unordered_map<std::string, sf::Sprite> s; return s; }
+std::unordered_map<std::string, sf::Font>& get_fonts() { static std::unordered_map<std::string, sf::Font> f; return f; }
+std::unordered_map<std::string, sf::Text>& get_texts() { static std::unordered_map<std::string, sf::Text> t; return t; }
 
 // module functions
 Value sf_window_init(const std::vector<Value>& n)
@@ -21,10 +21,10 @@ Value sf_window_init(const std::vector<Value>& n)
     if (n[2].valueType() != ValueType::String)
         throw Ark::TypeError("sf-window-init: title must be a String");
     
-    if (!has_window)
+    if (!get_has_window())
     {
-        window.create(sf::VideoMode(static_cast<long>(n[0].number()), static_cast<long>(n[1].number())), n[2].string());
-        has_window = true;
+        get_window().create(sf::VideoMode(static_cast<long>(n[0].number()), static_cast<long>(n[1].number())), n[2].string());
+        get_has_window() = true;
     }
     else
         throw std::runtime_error("sf-window-init: can't call the function twice");
@@ -34,27 +34,27 @@ Value sf_window_init(const std::vector<Value>& n)
 
 Value sf_window_isopen(const std::vector<Value>& n)
 {
-    return window.isOpen() ? True : False;
+    return get_window().isOpen() ? True : False;
 }
 
 Value sf_poll_event(const std::vector<Value>& n)
 {
-    if (window.pollEvent(event))
+    if (get_window().pollEvent(get_event()))
     {
         std::string out = "event-";
 
-        if (event.type == sf::Event::Closed)
+        if (get_event().type == sf::Event::Closed)
             out += "quit";
-        else if (event.type == sf::Event::KeyReleased)
+        else if (get_event().type == sf::Event::KeyReleased)
             out += "keyup";
-        else if (event.type == sf::Event::KeyPressed)
+        else if (get_event().type == sf::Event::KeyPressed)
             out += "keydown";
         else
             out += "unknown";
         
-        if (event.type == sf::Event::KeyReleased || event.type == sf::Event::KeyPressed)
+        if (get_event().type == sf::Event::KeyReleased || get_event().type == sf::Event::KeyPressed)
         {
-            switch (event.key.code)
+            switch (get_event().key.code)
             {
             case sf::Keyboard::A: out += "a"; break;
             case sf::Keyboard::B: out += "b"; break;
@@ -134,7 +134,7 @@ Value sf_window_clear(const std::vector<Value>& n)
         throw Ark::TypeError("sf-window-clear: g must be a Number");
     if (n[2].valueType() != ValueType::Number)
         throw Ark::TypeError("sf-window-clear: b must be a Number");
-    window.clear(sf::Color(static_cast<long>(n[0].number()), static_cast<long>(n[1].number()), static_cast<long>(n[2].number())));
+    get_window().clear(sf::Color(static_cast<long>(n[0].number()), static_cast<long>(n[1].number()), static_cast<long>(n[2].number())));
     return Nil;
 }
 
@@ -149,9 +149,9 @@ Value sf_draw(const std::vector<Value>& n)
         std::string sub = it->string().substr(0, i);
 
         if (sub == "text")
-            window.draw(texts[n[0].string()]);
+            get_window().draw(get_texts()[n[0].string()]);
         else if (sub == "sprite")
-            window.draw(sprites[n[0].string()]);
+            get_window().draw(get_sprites()[n[0].string()]);
         else if (sub == "event")
             throw Ark::TypeError("sf-draw: Can not draw event");
         else if (sub == "font")
@@ -164,7 +164,7 @@ Value sf_draw(const std::vector<Value>& n)
 
 Value sf_window_display(const std::vector<Value>& n)
 {
-    window.display();
+    get_window().display();
     return Nil;
 }
 
@@ -172,7 +172,7 @@ Value sf_window_set_fps(const std::vector<Value>& n)
 {
     if (n[0].valueType() != ValueType::Number)
         throw Ark::TypeError("sf-window-setFPS: fps must be a Number");
-    window.setFramerateLimit(static_cast<long>(n[0].number()));
+    get_window().setFramerateLimit(static_cast<long>(n[0].number()));
     return Nil;
 }
 
@@ -185,12 +185,12 @@ Value sf_load_sprite(const std::vector<Value>& n)
     
     std::string name = "sprite-" + n[0].string();
     
-    textures[name] = sf::Texture();
-    if (!textures[name].loadFromFile(n[0].string()))
+    get_textures()[name] = sf::Texture();
+    if (!get_textures()[name].loadFromFile(n[0].string()))
         throw std::runtime_error("sf-load-sprite: Could not load sprite: " + n[0].string());
     
-    sprites[name] = sf::Sprite();
-    sprites[name].setTexture(textures[name]);
+    get_sprites()[name] = sf::Sprite();
+    get_sprites()[name].setTexture(get_textures()[name]);
 
     return Value(name);
 }
@@ -203,8 +203,8 @@ Value sf_load_font(const std::vector<Value>& n)
         throw Ark::TypeError("sf-load-font: need a String");
     
     std::string name = "font-" + n[0].string();
-    fonts[name] = sf::Font();
-    if (!fonts[name].loadFromFile(n[0].string()))
+    get_fonts()[name] = sf::Font();
+    if (!get_fonts()[name].loadFromFile(n[0].string()))
         throw std::runtime_error("sf-load-font: Could not load font: " + n[0].string());
 
     return Value(name);
@@ -230,11 +230,11 @@ Value sf_make_text(const std::vector<Value>& n)
         throw Ark::TypeError("sf-make-text: invalid font object");
     
     std::string name = "text-" + n[0].string() + n[1].string();
-    texts[name] = sf::Text();
-    texts[name].setFont(fonts[n[0].string()]);
-    texts[name].setString(n[1].string());
-    texts[name].setCharacterSize(static_cast<long>(n[2].number()));
-    texts[name].setFillColor(sf::Color(
+    get_texts()[name] = sf::Text();
+    get_texts()[name].setFont(get_fonts()[n[0].string()]);
+    get_texts()[name].setString(n[1].string());
+    get_texts()[name].setCharacterSize(static_cast<long>(n[2].number()));
+    get_texts()[name].setFillColor(sf::Color(
         static_cast<long>(n[3].const_list()[0].number()),
         static_cast<long>(n[3].const_list()[1].number()),
         static_cast<long>(n[3].const_list()[2].number())
@@ -256,7 +256,7 @@ Value sf_set_text(const std::vector<Value>& n)
     std::string sub = n[0].string().substr(0, i);
 
     if (sub == "text")
-        texts[n[0].string()].setString(n[1].string());
+        get_texts()[n[0].string()].setString(n[1].string());
     else
         throw Ark::TypeError("Object isn't a text object");
     
@@ -278,9 +278,9 @@ Value sf_setpos(const std::vector<Value>& n)
     std::string sub = n[0].string().substr(0, i);
 
     if (sub == "text")
-        texts[n[0].string()].setPosition(static_cast<long>(n[1].number()), static_cast<long>(n[2].number()));
+        get_texts()[n[0].string()].setPosition(static_cast<long>(n[1].number()), static_cast<long>(n[2].number()));
     else if (sub == "sprite")
-        sprites[n[0].string()].setPosition(static_cast<long>(n[1].number()), static_cast<long>(n[2].number()));
+        get_sprites()[n[0].string()].setPosition(static_cast<long>(n[1].number()), static_cast<long>(n[2].number()));
     else if (sub == "event")
         throw Ark::TypeError("sf-setPos: Can not set position of event");
     else if (sub == "font")
@@ -302,9 +302,9 @@ Value sf_width(const std::vector<Value>& n)
     std::string sub = n[0].string().substr(0, i);
 
     if (sub == "text")
-        return Value(static_cast<int>(texts[n[0].string()].getGlobalBounds().width));
+        return Value(static_cast<int>(get_texts()[n[0].string()].getGlobalBounds().width));
     else if (sub == "sprite")
-        return Value(static_cast<int>(sprites[n[0].string()].getGlobalBounds().width));
+        return Value(static_cast<int>(get_sprites()[n[0].string()].getGlobalBounds().width));
     else if (sub == "event")
         throw Ark::TypeError("sf-width: Can not get width of event");
     else if (sub == "font")
@@ -323,9 +323,9 @@ Value sf_height(const std::vector<Value>& n)
     std::string sub = n[0].string().substr(0, i);
 
     if (sub == "text")
-        return Value(static_cast<int>(texts[n[0].string()].getGlobalBounds().height));
+        return Value(static_cast<int>(get_texts()[n[0].string()].getGlobalBounds().height));
     else if (sub == "sprite")
-        return Value(static_cast<int>(sprites[n[0].string()].getGlobalBounds().height));
+        return Value(static_cast<int>(get_sprites()[n[0].string()].getGlobalBounds().height));
     else if (sub == "event")
         throw Ark::TypeError("sf-height: Can not get height of event");
     else if (sub == "font")
@@ -352,6 +352,6 @@ Value sf_event(const std::vector<Value>& n)
 
 Value sf_window_close(const std::vector<Value>& n)
 {
-    window.close();
+    get_window().close();
     return Nil;
 }
