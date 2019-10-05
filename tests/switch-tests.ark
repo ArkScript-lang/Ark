@@ -2,7 +2,7 @@
     (import "Switch.ark")
 
     (let switch-tests (fun () {
-        (let foo (fun (n) (set passed (+ 1 passed))))
+        (let foo (fun (n) {}))
         (let event "foo")
 
         (switch event [

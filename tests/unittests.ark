@@ -2,7 +2,6 @@
     (import "Split.ark")
 
     (let start_time (time))
-    (mut passed 0)
 
     (print "Starting unit tests")
 
@@ -27,6 +26,5 @@
     (import "scope-tests.ark")
     (import "split-tests.ark")
 
-    (print passed " tests passed!")
     (print "Completed in " (toString (- (time) start_time)) " seconds")
 }
