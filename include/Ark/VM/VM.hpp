@@ -12,6 +12,7 @@
 
 #include <Ark/VM/Value.hpp>
 #include <Ark/VM/Frame.hpp>
+#include <Ark/VM/State.hpp>
 #include <Ark/Compiler/Compiler.hpp>
 #include <Ark/VM/Plugin.hpp>
 #include <Ark/VM/FFI.hpp>
@@ -101,28 +102,18 @@ namespace Ark
 
     private:
         uint16_t m_options;
-        bytecode_t m_bytecode;
-        std::string m_libdir;
-        // Instruction Pointer and Page Pointer
-        int m_ip;
-        std::size_t m_pp;
+        State m_state;
+        
+        int m_ip;           // instruction pointer
+        std::size_t m_pp;   // page pointer
         bool m_running;
-        std::string m_filename;
         uint16_t m_last_sym_loaded;
         std::size_t m_until_frame_count;
-
-        // related to the bytecode
-        std::vector<std::string> m_symbols;
-        std::vector<internal::Value> m_constants;
-        std::vector<std::string> m_plugins;
-        std::vector<internal::SharedLibrary> m_shared_lib_objects;
-        std::vector<bytecode_t> m_pages;
 
         // related to the execution
         std::vector<internal::Frame> m_frames;
         std::optional<internal::Scope_t> m_saved_scope;
         std::vector<internal::Scope_t> m_locals;
-        std::unordered_map<std::string, internal::Value::ProcType> m_binded_functions;
 
         // just a nice little trick for operator[]
         internal::Value m__no_value = internal::FFI::nil;
