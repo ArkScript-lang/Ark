@@ -108,7 +108,7 @@ void VM_t<debug>::doFile(const std::string& file)
             auto file_last_write = static_cast<decltype(timestamp)>(std::chrono::duration_cast<std::chrono::seconds>(ftime.time_since_epoch()).count());
             // recompile
             if (timestamp < file_last_write)
-                compiled_successfuly = Ark::compile(debug, file, path, m_libdir);
+                compiled_successfuly = Ark::compile(debug, file, path, m_state->m_libdir);
             else
                 compiled_successfuly = true;
         }
@@ -117,7 +117,7 @@ void VM_t<debug>::doFile(const std::string& file)
             if (!std::filesystem::exists(directory))  // create ark cache directory
                 std::filesystem::create_directory(directory);
             
-            compiled_successfuly = Ark::compile(debug, file, path, m_libdir);
+            compiled_successfuly = Ark::compile(debug, file, path, m_state->m_libdir);
         }
         
         // run
@@ -176,14 +176,14 @@ void VM_t<debug>::configure()
 
     using timestamp_t = unsigned long long;
     timestamp_t timestamp = 0;
-    auto aa = (static_cast<timestamp_t>(m_bytecode[  i]) << 56),
-        ba = (static_cast<timestamp_t>(m_bytecode[++i]) << 48),
-        ca = (static_cast<timestamp_t>(m_bytecode[++i]) << 40),
-        da = (static_cast<timestamp_t>(m_bytecode[++i]) << 32),
-        ea = (static_cast<timestamp_t>(m_bytecode[++i]) << 24),
-        fa = (static_cast<timestamp_t>(m_bytecode[++i]) << 16),
-        ga = (static_cast<timestamp_t>(m_bytecode[++i]) <<  8),
-        ha = (static_cast<timestamp_t>(m_bytecode[++i]));
+    auto aa = (static_cast<timestamp_t>(b[  i]) << 56),
+        ba = (static_cast<timestamp_t>(b[++i]) << 48),
+        ca = (static_cast<timestamp_t>(b[++i]) << 40),
+        da = (static_cast<timestamp_t>(b[++i]) << 32),
+        ea = (static_cast<timestamp_t>(b[++i]) << 24),
+        fa = (static_cast<timestamp_t>(b[++i]) << 16),
+        ga = (static_cast<timestamp_t>(b[++i]) <<  8),
+        ha = (static_cast<timestamp_t>(b[++i]));
     i++;
     timestamp = aa + ba + ca + da + ea + fa + ga + ha;
 
@@ -371,9 +371,9 @@ void VM_t<debug>::init()
         namespace fs = std::filesystem;
 
         std::string path = "./" + file;
-        if (m_filename != "FILE")  // bytecode loaded from file
-            path = "./" + (fs::path(m_filename).parent_path() / fs::path(file)).string();
-        std::string lib_path = (fs::path(m_libdir) / fs::path(file)).string();
+        if (m_state->m_filename != "FILE")  // bytecode loaded from file
+            path = "./" + (fs::path(m_state->m_filename).parent_path() / fs::path(file)).string();
+        std::string lib_path = (fs::path(m_state->m_libdir) / fs::path(file)).string();
 
         if constexpr (debug)
             Ark::logger.info("Loading", file, "in", path, "or in", lib_path);

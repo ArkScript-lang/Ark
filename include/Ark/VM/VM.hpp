@@ -55,7 +55,7 @@ namespace Ark
             m_ip = m_pp = 0;
 
             // find id of function
-            auto it = std::find(m_symbols.begin(), m_symbols.end(), name);
+            auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), name);
             if (it == m_symbols.end())
             {
                 if constexpr (debug)
@@ -68,7 +68,7 @@ namespace Ark
                 push(*it2);
             
             // find function object and push it if it's a pageaddr/closure
-            uint16_t id = static_cast<uint16_t>(std::distance(m_symbols.begin(), it));
+            uint16_t id = static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it));
             auto var = findNearestVariable(id);
             if (var != nullptr)
             {
@@ -123,8 +123,8 @@ namespace Ark
 
         inline uint16_t readNumber()
         {
-            auto x = (static_cast<uint16_t>(m_pages[m_pp][m_ip]) << 8); ++m_ip;
-            auto y = (static_cast<uint16_t>(m_pages[m_pp][m_ip])     );
+            auto x = (static_cast<uint16_t>(m_state->m_pages[m_pp][m_ip]) << 8); ++m_ip;
+            auto y = (static_cast<uint16_t>(m_state->m_pages[m_pp][m_ip])     );
             return x + y;
         }
 
@@ -167,7 +167,7 @@ namespace Ark
                 }
             }
             // oversized by one: didn't find anything
-            return static_cast<uint16_t>(m_symbols.size());
+            return static_cast<uint16_t>(m_state->m_symbols.size());
         }
 
         template<int pp=-1>
@@ -199,9 +199,10 @@ namespace Ark
 
         inline void createNewScope()
         {
+            // TODO update
             m_locals.emplace_back(
                 std::make_shared<std::vector<internal::Value>>(
-                    m_symbols.size(), internal::FFI::undefined
+                    m_state->m_symbols.size(), internal::FFI::undefined
                 )
             );
         }

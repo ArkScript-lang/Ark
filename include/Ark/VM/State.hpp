@@ -8,6 +8,7 @@
 
 #include <Ark/VM/Value.hpp>
 #include <Ark/Compiler/BytecodeReader.hpp>
+#include <Ark/VM/Plugin.hpp>
 
 namespace Ark
 {
