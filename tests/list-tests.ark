@@ -1,0 +1,31 @@
+{
+    (let list-tests (fun () {
+        (let a [12 42])
+        (assert (= "List" (type a)) "List test 1 failed")
+
+        (assert (= 2 (len a)) "List test 2 failed")
+
+        (assert (= false (empty? a)) "List test 3 failed")
+        (assert (= true (empty? [])) "List test 3°2 failed")
+
+        (assert (= 12 (firstOf a)) "List test 4 failed")
+        (assert (= nil (firstOf [])) "List test 4°2 failed")
+
+        (assert (= [42] (tailOf a)) "List test 5 failed")
+        (assert (= nil (tailOf [])) "List test 5°2 failed")
+
+        (assert (= [12] (headOf a)) "List test 6 failed")
+        (assert (= nil (headOf [])) "List test 6°2 failed")
+
+        (assert (= [12 42 64] (append a 64)) "List test 7 failed")
+        (assert (= [12 42 [64]] (append a [64])) "List test 7°2 failed")
+        (assert (= [12 42 nil] (append a nil)) "List test 7°3 failed")
+
+        (assert (= [12 42 12 42] (concat a a)) "List test 8 failed")
+        (assert (= [12 42] (concat a [])) "List test 8°2 failed")
+
+        (print "  List tests passed")
+    }))
+
+    (list-tests)
+}

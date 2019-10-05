@@ -1,0 +1,18 @@
+{
+    (import "Range.ark")
+
+    (let range-tests (fun () {
+        (let r (range 5 10))
+    
+        (assert (= 5 (r)) "Range test 1 failed")
+        (assert (= 6 (r)) "Range test 1°2 failed")
+        (assert (= 7 (r)) "Range test 1°3 failed")
+        (assert (= 8 (r)) "Range test 1°4 failed")
+        (assert (= 9 (r)) "Range test 1°5 failed")
+        (assert (= nil (r)) "Range test 1°6 failed")
+
+        (print "  Range tests passed")
+    }))
+
+    (range-tests)
+}
