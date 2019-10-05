@@ -14,7 +14,7 @@ namespace Ark
     class State
     {
     public:
-        State();
+        State(const std::string& libdir="", const std::string& filename="FILE");
 
         template <bool D> friend class VM_t;
     

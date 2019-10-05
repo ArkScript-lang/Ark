@@ -1,14 +1,7 @@
 template<bool debug>
-VM_t<debug>::VM_t(uint16_t flags) :
-    m_options(flags),
-    m_libdir(ARK_STD_DEFAULT), m_ip(0), m_pp(0), m_running(false), m_filename("FILE"),
-    m_last_sym_loaded(0), m_until_frame_count(0)
-{}
-
-template<bool debug>
-VM_t<debug>::VM_t(const std::string& lib_dir, uint16_t flags) :
-    m_options(flags), m_libdir(lib_dir != "" ? lib_dir : ARK_STD_DEFAULT),
-    m_ip(0), m_pp(0), m_running(false), m_filename("FILE"),
+VM_t<debug>::VM_t(State* state, uint16_t flags) :
+    m_options(flags), m_state(state),
+    m_ip(0), m_pp(0), m_running(false),
     m_last_sym_loaded(0), m_until_frame_count(0)
 {}
 
@@ -23,9 +16,9 @@ bool VM_t<debug>::feed(const std::string& filename)
     try {
         Ark::BytecodeReader bcr;
         bcr.feed(filename);
-        m_bytecode = bcr.bytecode();
+        m_state->m_bytecode = bcr.bytecode();
 
-        m_filename = filename;
+        m_state->m_filename = filename;
 
         configure();
         init();
@@ -42,7 +35,7 @@ bool VM_t<debug>::feed(const bytecode_t& bytecode)
 {
     bool result = true;
     try {
-        m_bytecode = bytecode;
+        m_state->m_bytecode = bytecode;
         configure();
         init();
     } catch (const std::exception& e) {
@@ -147,7 +140,7 @@ void VM_t<debug>::configure()
     using namespace Ark::internal;
 
     // configure tables and pages
-    const bytecode_t& b = m_bytecode;
+    const bytecode_t& b = m_state->m_bytecode;
     std::size_t i = 0;
 
     auto readNumber = [&b] (std::size_t& i) -> uint16_t {
@@ -204,7 +197,7 @@ void VM_t<debug>::configure()
         
         i++;
         uint16_t size = readNumber(i);
-        m_symbols.reserve(size);
+        m_state->m_symbols.reserve(size);
         i++;
 
         if constexpr (debug)
@@ -217,7 +210,7 @@ void VM_t<debug>::configure()
                 symbol.push_back(b[i++]);
             i++;
 
-            m_symbols.push_back(symbol);
+            m_state->m_symbols.push_back(symbol);
 
             if constexpr (debug)
                 Ark::logger.info("(Virtual Machine) -", symbol);
@@ -233,7 +226,7 @@ void VM_t<debug>::configure()
         
         i++;
         uint16_t size = readNumber(i);
-        m_constants.reserve(size);
+        m_state->m_constants.reserve(size);
         i++;
 
         if constexpr (debug)
@@ -251,7 +244,7 @@ void VM_t<debug>::configure()
                     val.push_back(b[i++]);
                 i++;
 
-                m_constants.emplace_back(std::stod(val));
+                m_state->m_constants.emplace_back(std::stod(val));
                 
                 if constexpr (debug)
                     Ark::logger.info("(Virtual Machine) - (Number)", val);
@@ -263,7 +256,7 @@ void VM_t<debug>::configure()
                     val.push_back(b[i++]);
                 i++;
 
-                m_constants.emplace_back(val);
+                m_state->m_constants.emplace_back(val);
                 
                 if constexpr (debug)
                     Ark::logger.info("(Virtual Machine) - (String)", val);
@@ -273,7 +266,7 @@ void VM_t<debug>::configure()
                 uint16_t addr = readNumber(i);
                 i++;
 
-                m_constants.emplace_back(addr);
+                m_state->m_constants.emplace_back(addr);
 
                 if constexpr (debug)
                     Ark::logger.info("(Virtual Machine) - (PageAddr)", addr);
@@ -294,7 +287,7 @@ void VM_t<debug>::configure()
         
         i++;
         uint16_t size = readNumber(i);
-        m_plugins.reserve(size);
+        m_state->m_plugins.reserve(size);
         i++;
 
         if constexpr (debug)
@@ -307,7 +300,7 @@ void VM_t<debug>::configure()
                 plugin.push_back(b[i++]);
             i++;
 
-            m_plugins.push_back(plugin);
+            m_state->m_plugins.push_back(plugin);
 
             if constexpr (debug)
                 Ark::logger.info("(Virtual Machine) -", plugin);
@@ -328,11 +321,11 @@ void VM_t<debug>::configure()
         if constexpr (debug)
             Ark::logger.info("(Virtual Machine) length:", size);
         
-        m_pages.emplace_back();
-        m_pages.back().reserve(size);
+        m_state->m_pages.emplace_back();
+        m_state->m_pages.back().reserve(size);
 
         for (uint16_t j=0; j < size; ++j)
-            m_pages.back().push_back(b[i++]);
+            m_state->m_pages.back().push_back(b[i++]);
         
         if (i == b.size())
             break;
@@ -356,24 +349,24 @@ void VM_t<debug>::init()
 
     // loading binded functions
     // put them in the global frame if we can, aka the first one
-    for (auto name_func : m_binded_functions)
+    for (auto name_func : m_state->m_binded_functions)
     {
-        auto it = std::find(m_symbols.begin(), m_symbols.end(), name_func.first);
-        if (it == m_symbols.end())
+        auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), name_func.first);
+        if (it == m_state->m_symbols.end())
         {
             if constexpr (debug)
                 Ark::logger.warn("Couldn't find symbol with name", name_func.first, "to set its value as a function");
         }
         else
-            registerVariable<0>(std::distance(m_symbols.begin(), it), Value(name_func.second));
+            registerVariable<0>(std::distance(m_state->m_symbols.begin(), it), Value(name_func.second));
     }
 
     // loading plugins
     // we don't want to load the plugins multiple times
-    if (m_shared_lib_objects.size() == m_plugins.size())
+    if (m_state->m_shared_lib_objects.size() == m_state->m_plugins.size())
         return;
     
-    for (const std::string& file : m_plugins)
+    for (const std::string& file : m_state->m_plugins)
     {
         namespace fs = std::filesystem;
 
@@ -386,9 +379,9 @@ void VM_t<debug>::init()
             Ark::logger.info("Loading", file, "in", path, "or in", lib_path);
 
         if (Ark::Utils::fileExists(path))  // if it exists alongside the .arkc file
-            m_shared_lib_objects.emplace_back(path);
+            m_state->m_shared_lib_objects.emplace_back(path);
         else if (Ark::Utils::fileExists(lib_path))  // check in LOAD_PATH otherwise
-            m_shared_lib_objects.emplace_back(lib_path);
+            m_state->m_shared_lib_objects.emplace_back(lib_path);
         else
             throwVMError("could not load plugin " + file);
         
@@ -398,7 +391,7 @@ void VM_t<debug>::init()
         // load data from it!
         using Mapping_t = std::unordered_map<std::string, Value::ProcType>;
         using map_fun_t = Mapping_t(*) ();
-        Mapping_t map = m_shared_lib_objects.back().template get<map_fun_t>("getFunctionsMapping")();
+        Mapping_t map = m_state->m_shared_lib_objects.back().template get<map_fun_t>("getFunctionsMapping")();
 
         if constexpr (debug)
             Ark::logger.info("Functions mapping retrieved\n{0} symbols"s, map.size());
@@ -406,13 +399,13 @@ void VM_t<debug>::init()
         for (auto&& kv : map)
         {
             // put it in the global frame, aka the first one
-            auto it = std::find(m_symbols.begin(), m_symbols.end(), kv.first);
-            if (it != m_symbols.end())
+            auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), kv.first);
+            if (it != m_state->m_symbols.end())
             {
                 if constexpr (debug)
                     Ark::logger.info("Loading", kv.first);
 
-                registerVariable<0>(std::distance(m_symbols.begin(), it), Value(kv.second));
+                registerVariable<0>(std::distance(m_state->m_symbols.begin(), it), Value(kv.second));
             }
         }
     }
@@ -421,7 +414,7 @@ void VM_t<debug>::init()
 template<bool debug>
 void VM_t<debug>::loadFunction(const std::string& name, internal::Value::ProcType function)
 {
-    m_binded_functions[name] = std::move(function);
+    m_state->m_binded_functions[name] = std::move(function);
 }
 
 template<bool debug>
@@ -430,14 +423,14 @@ internal::Value& VM_t<debug>::operator[](const std::string& name)
     using namespace Ark::internal;
 
     // find id of object
-    auto it = std::find(m_symbols.begin(), m_symbols.end(), name);
-    if (it == m_symbols.end())
+    auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), name);
+    if (it == m_state->m_symbols.end())
     {
         m__no_value = FFI::nil;
         return m__no_value;
     }
 
-    uint16_t id = static_cast<uint16_t>(std::distance(m_symbols.begin(), it));
+    uint16_t id = static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it));
     Value* var = findNearestVariable(id);
     if (var != nullptr)
         return *var;
@@ -482,14 +475,14 @@ void VM_t<debug>::safeRun(std::size_t untilFrameCount)
         {
             if constexpr (debug)
             {
-                if (m_pp >= m_pages.size())
+                if (m_pp >= m_state->m_pages.size())
                     throwVMError("page pointer has gone too far (" + Ark::Utils::toString(m_pp) + ")");
-                if (m_ip >= m_pages[m_pp].size())
+                if (m_ip >= m_state->m_pages[m_pp].size())
                     throwVMError("instruction pointer has gone too far (" + Ark::Utils::toString(m_ip) + ")");
             }
 
             // get current instruction
-            uint8_t inst = m_pages[m_pp][m_ip];
+            uint8_t inst = m_state->m_pages[m_pp][m_ip];
 
             // and it's time to du-du-du-du-duel!
             if (inst == Instruction::NOP)
@@ -591,7 +584,7 @@ void VM_t<debug>::safeRun(std::size_t untilFrameCount)
                         Value(static_cast<PageAddr_t>(it->currentPageAddr()))
                     );
                     
-                    std::cerr << "In function `" << termcolor::green << m_symbols[id] << termcolor::reset << "'\n";
+                    std::cerr << "In function `" << termcolor::green << m_state->m_symbols[id] << termcolor::reset << "'\n";
                 }
                 else
                     std::cerr << "In global scope\n";
@@ -649,7 +642,7 @@ inline void VM_t<debug>::loadSymbol()
     uint16_t id = readNumber();
 
     if constexpr (debug)
-        Ark::logger.info("LOAD_SYMBOL ({0}) PP:{1}, IP:{2}"s, m_symbols[id], m_pp, m_ip);
+        Ark::logger.info("LOAD_SYMBOL ({0}) PP:{1}, IP:{2}"s, m_state->m_symbols[id], m_pp, m_ip);
 
     Value* var = findNearestVariable(id);
     if (var != nullptr)
@@ -659,7 +652,7 @@ inline void VM_t<debug>::loadSymbol()
         return;
     }
 
-    throwVMError("couldn't find symbol to load: " + m_symbols[id]);
+    throwVMError("couldn't find symbol to load: " + m_state->m_symbols[id]);
 }
 
 template<bool debug>
@@ -676,15 +669,15 @@ inline void VM_t<debug>::loadConst()
     uint16_t id = readNumber();
 
     if constexpr (debug)
-        Ark::logger.info("LOAD_CONST ({0}) PP:{1}, IP:{2}"s, m_constants[id], m_pp, m_ip);
+        Ark::logger.info("LOAD_CONST ({0}) PP:{1}, IP:{2}"s, m_state->m_constants[id], m_pp, m_ip);
     
-    if (m_saved_scope && m_constants[id].valueType() == ValueType::PageAddr)
+    if (m_saved_scope && m_state->m_constants[id].valueType() == ValueType::PageAddr)
     {
-        push(Value(Closure(m_saved_scope.value(), m_constants[id].pageAddr())));
+        push(Value(Closure(m_saved_scope.value(), m_state->m_constants[id].pageAddr())));
         m_saved_scope.reset();
     }
     else
-        push(m_constants[id]);
+        push(m_state->m_constants[id]);
 }
 
 template<bool debug>
@@ -722,18 +715,18 @@ inline void VM_t<debug>::store()
     uint16_t id = readNumber();
 
     if constexpr (debug)
-        Ark::logger.info("STORE ({0}) PP:{1}, IP:{2}"s, m_symbols[id], m_pp, m_ip);
+        Ark::logger.info("STORE ({0}) PP:{1}, IP:{2}"s, m_state->m_symbols[id], m_pp, m_ip);
 
     Value* var = findNearestVariable(id);
     if (var != nullptr)
     {
         if (var->isConst())
-            throwVMError("can not modify a constant: " + m_symbols[id]);
+            throwVMError("can not modify a constant: " + m_state->m_symbols[id]);
         *var = pop();
         return;
     }
 
-    throwVMError("couldn't find symbol: " + m_symbols[id]);
+    throwVMError("couldn't find symbol: " + m_state->m_symbols[id]);
 }
 
 template<bool debug>
@@ -750,7 +743,7 @@ inline void VM_t<debug>::let()
     uint16_t id = readNumber();
 
     if constexpr (debug)
-        Ark::logger.info("LET ({0}) PP:{1}, IP:{2}"s, m_symbols[id], m_pp, m_ip);
+        Ark::logger.info("LET ({0}) PP:{1}, IP:{2}"s, m_state->m_symbols[id], m_pp, m_ip);
     
     // check if we are redefining a variable
     if (getVariableInScope(id) != FFI::undefined)
@@ -931,7 +924,7 @@ inline void VM_t<debug>::call(int16_t argc_)
     if (m_options & FeatureFunctionArityCheck)
     {
         std::size_t index = 0;
-        while (m_pages[m_pp][index] == Instruction::MUT)
+        while (m_state->m_pages[m_pp][index] == Instruction::MUT)
         {
             needed_argc += 1;
             index += 3;  // jump the argument of MUT (integer on 2 bits, big endian)
@@ -959,12 +952,12 @@ inline void VM_t<debug>::capture()
     uint16_t id = readNumber();
 
     if constexpr (debug)
-        Ark::logger.info("CAPTURE ({0}) PP:{1}, IP:{2}"s, m_symbols[id], m_pp, m_ip);
+        Ark::logger.info("CAPTURE ({0}) PP:{1}, IP:{2}"s, m_state->m_symbols[id], m_pp, m_ip);
 
     if (!m_saved_scope)
     {
         m_saved_scope = std::make_shared<std::vector<Value>>(
-            m_symbols.size(), internal::FFI::undefined
+            m_state->m_symbols.size(), internal::FFI::undefined
         );
     }
     (*m_saved_scope.value())[id] = getVariableInScope(id);
@@ -1002,7 +995,7 @@ inline void VM_t<debug>::mut()
     uint16_t id = readNumber();
 
     if constexpr (debug)
-        Ark::logger.info("MUT ({0}) PP:{1}, IP:{2}"s, m_symbols[id], m_pp, m_ip);
+        Ark::logger.info("MUT ({0}) PP:{1}, IP:{2}"s, m_state->m_symbols[id], m_pp, m_ip);
 
     registerVariable(id, pop());
 }
@@ -1020,7 +1013,7 @@ inline void VM_t<debug>::del()
     uint16_t id = readNumber();
 
     if constexpr (debug)
-        Ark::logger.info("DEL ({0}) PP:{1}, IP:{2}"s, m_symbols[id], m_pp, m_ip);
+        Ark::logger.info("DEL ({0}) PP:{1}, IP:{2}"s, m_state->m_symbols[id], m_pp, m_ip);
     
     Value* var = findNearestVariable(id);
     if (var != nullptr)
@@ -1029,7 +1022,7 @@ inline void VM_t<debug>::del()
         return;
     }
 
-    throwVMError("couldn't find symbol: " + m_symbols[id]);
+    throwVMError("couldn't find symbol: " + m_state->m_symbols[id]);
 }
 
 template<bool debug>
@@ -1056,11 +1049,11 @@ inline void VM_t<debug>::getField()
     uint16_t id = readNumber();
 
     if constexpr (debug)
-        Ark::logger.info("GET_FIELD ({0}) PP:{1}, IP:{2}"s, m_symbols[id], m_pp, m_ip);
+        Ark::logger.info("GET_FIELD ({0}) PP:{1}, IP:{2}"s, m_state->m_symbols[id], m_pp, m_ip);
     
     Value&& var = pop();
     if (var.valueType() != ValueType::Closure)
-        throwVMError("variable `" + m_symbols[m_last_sym_loaded] + "' isn't a closure, can not get the field `" + m_symbols[id] + "' from it");
+        throwVMError("variable `" + m_state->m_symbols[m_last_sym_loaded] + "' isn't a closure, can not get the field `" + m_state->m_symbols[id] + "' from it");
     
     const Value& field = (*var.closure_ref().scope())[id];
     if (field != FFI::undefined)
@@ -1069,7 +1062,7 @@ inline void VM_t<debug>::getField()
             Ark::logger.data("Pushing closure field:", field);
         
         // check for CALL instruction
-        if (m_ip + 1 < m_pages[m_pp].size() && m_pages[m_pp][m_ip + 1] == Instruction::CALL)
+        if (m_ip + 1 < m_state->m_pages[m_pp].size() && m_state->m_pages[m_pp][m_ip + 1] == Instruction::CALL)
         {
             m_locals.push_back(var.closure_ref().scope());
             m_frames.back().incScopeCountToDelete();
@@ -1079,7 +1072,7 @@ inline void VM_t<debug>::getField()
         return;
     }
 
-    throwVMError("couldn't find symbol in closure enviroment: " + m_symbols[id]);
+    throwVMError("couldn't find symbol in closure enviroment: " + m_state->m_symbols[id]);
 }
 
 template<bool debug>
@@ -1483,13 +1476,13 @@ inline void VM_t<debug>::operators(uint8_t inst)
             if (field.valueType() != ValueType::String)
                 throw Ark::TypeError("Argument no 2 of hasField should be a String");
             
-            auto it = std::find(m_symbols.begin(), m_symbols.end(), field.string());
-            if (it == m_symbols.end())
+            auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), field.string());
+            if (it == m_state->m_symbols.end())
             {
                 push(FFI::falseSym);
                 break;
             }
-            uint16_t id = static_cast<uint16_t>(std::distance(m_symbols.begin(), it));
+            uint16_t id = static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it));
             
             if ((*closure.closure_ref().scope_ref())[id] != FFI::undefined)
                 push(FFI::trueSym);

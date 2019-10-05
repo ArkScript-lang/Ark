@@ -6,6 +6,8 @@
 
 ### Changed
 - updated the include module, which was randomly adding `/` before the path of the files
+- dispatched the unit tests in multiple files
+- now using a separated class to hold the description values for the VM
 
 ### Removed
 

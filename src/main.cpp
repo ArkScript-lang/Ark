@@ -93,14 +93,16 @@ int main(int argc, char** argv)
             
             case mode::run:
             {
+                Ark::State state(lib_dir, file);
+
                 if (debug)
                 {
-                    Ark::VM_debug vm(lib_dir, options);
+                    Ark::VM_debug vm(&state, options);
                     vm.doFile(file);
                 }
                 else
                 {
-                    Ark::VM vm(lib_dir, options);
+                    Ark::VM vm(&state, options);
                     vm.doFile(file);
                 }
                 break;

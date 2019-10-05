@@ -35,8 +35,7 @@ namespace Ark
     class VM_t
     {
     public:
-        VM_t(uint16_t flags=DefaultFeatures);
-        VM_t(const std::string& lib_dir, uint16_t flags=DefaultFeatures);
+        VM_t(State* state, uint16_t flags=DefaultFeatures);
 
         bool feed(const std::string& filename);
         bool feed(const bytecode_t& bytecode);
@@ -102,7 +101,7 @@ namespace Ark
 
     private:
         uint16_t m_options;
-        State m_state;
+        State* m_state;
         
         int m_ip;           // instruction pointer
         std::size_t m_pp;   // page pointer
