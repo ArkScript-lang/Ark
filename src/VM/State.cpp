@@ -83,8 +83,6 @@ namespace Ark
             return false;
         }
 
-        Ark::logger.data("doFile() launched on", file);
-
         // check if it's a bytecode file or a source code file
         Ark::BytecodeReader bcr;
         try
@@ -105,22 +103,21 @@ namespace Ark
             std::filesystem::path directory =  (std::filesystem::path(file)).parent_path() / ARK_CACHE_DIRNAME;
             std::string path = (directory / filename).string();
 
-            Ark::logger.info("doFile() analyzing a source file");
-
             bool compiled_successfuly = false;
 
             if (Ark::Utils::fileExists(path))
             {
-                Ark::logger.info("doFile() found the ark cache directory in", directory.string());
-
                 auto ftime = std::filesystem::last_write_time(std::filesystem::path(file));
 
                 // this shouldn't fail
                 Ark::BytecodeReader bcr2;
                 bcr2.feed(path);
                 auto timestamp = bcr2.timestamp();
-                auto file_last_write = static_cast<decltype(timestamp)>(std::chrono::duration_cast<std::chrono::seconds>(ftime.time_since_epoch()).count());
+                auto file_last_write = static_cast<decltype(timestamp)>(
+                    std::chrono::duration_cast<std::chrono::seconds>(
+                        ftime.time_since_epoch()).count());
                 
+                // TODO fix me, timestamp is wrong on Windows (by 369 years)
                 Ark::logger.data("doFile() timestamp bytecode file:", timestamp, " ; timestamp " + file + ":", file_last_write);
                 
                 // recompile
@@ -131,8 +128,6 @@ namespace Ark
             }
             else
             {
-                Ark::logger.info("doFile() need to create the ark cache directory in", directory.string());
-
                 if (!std::filesystem::exists(directory))  // create ark cache directory
                     std::filesystem::create_directory(directory);
                 
