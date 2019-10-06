@@ -97,7 +97,7 @@ int main(int argc, char** argv)
                 if (!state.doFile(file))
                 {
                     Ark::logger.error("Ark::State.doFile(" + file + ") failed");
-                    return;
+                    return -1;
                 }
 
                 if (debug)

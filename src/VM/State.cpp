@@ -5,7 +5,8 @@
 namespace Ark
 {
     State::State(const std::string& libdir, const std::string& filename) :
-        m_libdir(libdir == "" ? ARK_STD_DEFAULT : libdir), m_filename(filename)
+        m_libdir(libdir == "" ? ARK_STD_DEFAULT : libdir), m_filename(filename),
+        m_debug(false)
     {}
 
     bool State::feed(const std::string& bytecode_filename)
@@ -79,7 +80,7 @@ namespace Ark
         if (!Ark::Utils::fileExists(file))
         {
             Ark::logger.error("Can not find file '" + file + "'");
-            return;
+            return false;
         }
 
         Ark::logger.data("doFile() launched on", file);
@@ -120,11 +121,11 @@ namespace Ark
                 auto timestamp = bcr2.timestamp();
                 auto file_last_write = static_cast<decltype(timestamp)>(std::chrono::duration_cast<std::chrono::seconds>(ftime.time_since_epoch()).count());
                 
-                Ark::logger.data("doFile() the cached bytecode file is too old:", (file_last_write > timestamp));
+                Ark::logger.data("doFile() timestamp bytecode file:", timestamp, " ; timestamp " + file + ":", file_last_write);
                 
                 // recompile
                 if (timestamp < file_last_write)
-                    compiled_successfuly = Ark::compile(debug, file, path, m_libdir);
+                    compiled_successfuly = Ark::compile(m_debug, file, path, m_libdir);
                 else
                     compiled_successfuly = true;
             }
@@ -135,7 +136,7 @@ namespace Ark
                 if (!std::filesystem::exists(directory))  // create ark cache directory
                     std::filesystem::create_directory(directory);
                 
-                compiled_successfuly = Ark::compile(debug, file, path, m_libdir);
+                compiled_successfuly = Ark::compile(m_debug, file, path, m_libdir);
             }
             
             if (compiled_successfuly && feed(path))
@@ -151,6 +152,11 @@ namespace Ark
         m_binded_functions[name] = std::move(function);
     }
 
+    void State::setDebug(bool value)
+    {
+        m_debug = value;
+    }
+
     void State::configure()
     {
         using namespace Ark::internal;
@@ -158,7 +164,7 @@ namespace Ark
         // configure tables and pages
         std::size_t i = 0;
 
-        auto readNumber = [&m_bytecode] (std::size_t& i) -> uint16_t {
+        auto readNumber = [&, this] (std::size_t& i) -> uint16_t {
             uint16_t x = (static_cast<uint16_t>(m_bytecode[i]) << 8); ++i;
             uint16_t y = static_cast<uint16_t>(m_bytecode[i]);
             return x + y;

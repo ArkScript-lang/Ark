@@ -10,6 +10,7 @@
 #include <Ark/Compiler/BytecodeReader.hpp>
 #include <Ark/Compiler/Compiler.hpp>
 #include <Ark/VM/Plugin.hpp>
+#include <Ark/Log.hpp>
 
 namespace Ark
 {
@@ -26,6 +27,7 @@ namespace Ark
         bool doFile(const std::string& filename);
 
         void loadFunction(const std::string& name, internal::Value::ProcType function);
+        void setDebug(bool value);
 
         template <bool D> friend class VM_t;
     
@@ -36,6 +38,8 @@ namespace Ark
         {
             throw std::runtime_error("StateError: " + message);
         }
+
+        bool m_debug;
 
         bytecode_t m_bytecode;
         std::string m_libdir;
