@@ -11,13 +11,17 @@ namespace Ark
     bool State::feed(const std::string& bytecode_filename)
     {
         bool result = true;
-        try {
+        try
+        {
             Ark::BytecodeReader bcr;
             bcr.feed(bytecode_filename);
             m_bytecode = bcr.bytecode();
 
             m_filename = bytecode_filename;
-        } catch (const std::exception& e) {
+            configure();
+        }
+        catch (const std::exception& e)
+        {
             result = false;
             std::cout << e.what() << std::endl;
         }
@@ -28,14 +32,46 @@ namespace Ark
     bool State::feed(const bytecode_t& bytecode)
     {
         bool result = true;
-        try {
+        try
+        {
             m_bytecode = bytecode;
-        } catch (const std::exception& e) {
+            configure();
+        }
+        catch (const std::exception& e)
+        {
             result = false;
             std::cout << e.what() << std::endl;
         }
 
         return result;
+    }
+
+    static bool compile(bool debug, const std::string& file, const std::string& output, const std::string& lib_dir)
+    {
+        Compiler compiler(debug, lib_dir);
+
+        try
+        {
+            compiler.feed(Utils::readFile(file), file);
+            compiler.compile();
+
+            if (output != "")
+                compiler.saveTo(output);
+            else
+                compiler.saveTo(file.substr(0, file.find_last_of('.')) + ".arkc");
+        }
+        catch (const std::exception& e)
+        {
+            std::cerr << e.what() << std::endl;
+            return false;
+        }
+        catch (...)
+        {
+            std::cerr << "Unknown lexer-parser-or-compiler error" << std::endl;
+            return false;
+        }
+
+        return true;
     }
 
     bool State::doFile(const std::string& file)
@@ -50,11 +86,14 @@ namespace Ark
 
         // check if it's a bytecode file or a source code file
         Ark::BytecodeReader bcr;
-        try {
+        try
+        {
             bcr.feed(file);
-        } catch (const std::exception& e) {
+        }
+        catch (const std::exception& e)
+        {
             std::cout << e.what() << std::endl;
-            return;
+            return false;
         }
 
         if (bcr.timestamp() == 0)  // couldn't read magic number, it's a source file
@@ -112,26 +151,151 @@ namespace Ark
         m_binded_functions[name] = std::move(function);
     }
 
-    static bool compile(bool debug, const std::string& file, const std::string& output, const std::string& lib_dir)
+    void State::configure()
     {
-        Compiler compiler(debug, lib_dir);
+        using namespace Ark::internal;
 
-        try {
-            compiler.feed(Utils::readFile(file), file);
-            compiler.compile();
+        // configure tables and pages
+        std::size_t i = 0;
 
-            if (output != "")
-                compiler.saveTo(output);
-            else
-                compiler.saveTo(file.substr(0, file.find_last_of('.')) + ".arkc");
-        } catch (const std::exception& e) {
-            std::cerr << e.what() << std::endl;
-            return false;
-        } catch (...) {
-            std::cerr << "Unknown lexer-parser-or-compiler error" << std::endl;
-            return false;
+        auto readNumber = [&m_bytecode] (std::size_t& i) -> uint16_t {
+            uint16_t x = (static_cast<uint16_t>(m_bytecode[i]) << 8); ++i;
+            uint16_t y = static_cast<uint16_t>(m_bytecode[i]);
+            return x + y;
+        };
+
+        // read tables and check if bytecode is valid
+        if (!(m_bytecode.size() > 4 && m_bytecode[i++] == 'a' &&
+            m_bytecode[i++] == 'r' && m_bytecode[i++] == 'k' &&
+            m_bytecode[i++] == Instruction::NOP))
+            throwStateError("invalid format: couldn't find magic constant");
+
+        uint16_t major = readNumber(i); i++;
+        uint16_t minor = readNumber(i); i++;
+        uint16_t patch = readNumber(i); i++;
+        
+        if (major != ARK_VERSION_MAJOR)
+        {
+            std::string str_version = Ark::Utils::toString(major) + "." +
+                Ark::Utils::toString(minor) + "." +
+                Ark::Utils::toString(patch);
+            std::string builtin_version = Ark::Utils::toString(ARK_VERSION_MAJOR) + "." +
+                Ark::Utils::toString(ARK_VERSION_MINOR) + "." +
+                Ark::Utils::toString(ARK_VERSION_PATCH);
+            throwStateError("Compiler and VM versions don't match: " + str_version + " and " + builtin_version);
         }
 
-        return true;
+        using timestamp_t = unsigned long long;
+        timestamp_t timestamp = 0;
+        auto aa = (static_cast<timestamp_t>(m_bytecode[  i]) << 56),
+            ba = (static_cast<timestamp_t>(m_bytecode[++i]) << 48),
+            ca = (static_cast<timestamp_t>(m_bytecode[++i]) << 40),
+            da = (static_cast<timestamp_t>(m_bytecode[++i]) << 32),
+            ea = (static_cast<timestamp_t>(m_bytecode[++i]) << 24),
+            fa = (static_cast<timestamp_t>(m_bytecode[++i]) << 16),
+            ga = (static_cast<timestamp_t>(m_bytecode[++i]) <<  8),
+            ha = (static_cast<timestamp_t>(m_bytecode[++i]));
+        i++;
+        timestamp = aa + ba + ca + da + ea + fa + ga + ha;
+
+        if (m_bytecode[i] == Instruction::SYM_TABLE_START)
+        {
+            i++;
+            uint16_t size = readNumber(i);
+            m_symbols.reserve(size);
+            i++;
+
+            for (uint16_t j=0; j < size; ++j)
+            {
+                std::string symbol = "";
+                while (m_bytecode[i] != 0)
+                    symbol.push_back(m_bytecode[i++]);
+                i++;
+
+                m_symbols.push_back(symbol);
+            }
+        }
+        else
+            throwStateError("couldn't find symbols table");
+
+        if (m_bytecode[i] == Instruction::VAL_TABLE_START)
+        {
+            i++;
+            uint16_t size = readNumber(i);
+            m_constants.reserve(size);
+            i++;
+
+            for (uint16_t j=0; j < size; ++j)
+            {
+                uint8_t type = m_bytecode[i];
+                i++;
+
+                if (type == Instruction::NUMBER_TYPE)
+                {
+                    std::string val = "";
+                    while (m_bytecode[i] != 0)
+                        val.push_back(m_bytecode[i++]);
+                    i++;
+
+                    m_constants.emplace_back(std::stod(val));
+                }
+                else if (type == Instruction::STRING_TYPE)
+                {
+                    std::string val = "";
+                    while (m_bytecode[i] != 0)
+                        val.push_back(m_bytecode[i++]);
+                    i++;
+
+                    m_constants.emplace_back(val);
+                }
+                else if (type == Instruction::FUNC_TYPE)
+                {
+                    uint16_t addr = readNumber(i);
+                    i++;
+                    m_constants.emplace_back(addr);
+                    i++;  // skip NOP
+                }
+                else
+                    throwStateError("unknown value type for value " + Ark::Utils::toString(j));
+            }
+        }
+        else
+            throwStateError("couldn't find constants table");
+
+        if (m_bytecode[i] == Instruction::PLUGIN_TABLE_START)
+        {
+            i++;
+            uint16_t size = readNumber(i);
+            m_plugins.reserve(size);
+            i++;
+
+            for (uint16_t j=0; j < size; ++j)
+            {
+                std::string plugin = "";
+                while (m_bytecode[i] != 0)
+                    plugin.push_back(m_bytecode[i++]);
+                i++;
+
+                m_plugins.push_back(plugin);
+            }
+        }
+        else
+            throwStateError("couldn't find plugins table");
+        
+        while (m_bytecode[i] == Instruction::CODE_SEGMENT_START)
+        {
+            i++;
+            uint16_t size = readNumber(i);
+            i++;
+
+            m_pages.emplace_back();
+            m_pages.back().reserve(size);
+
+            for (uint16_t j=0; j < size; ++j)
+                m_pages.back().push_back(m_bytecode[i++]);
+            
+            if (i == m_bytecode.size())
+                break;
+        }
     }
 }

@@ -30,6 +30,13 @@ namespace Ark
         template <bool D> friend class VM_t;
     
     private:
+        void configure();
+
+        inline void throwStateError(const std::string& message)
+        {
+            throw std::runtime_error("StateError: " + message);
+        }
+
         bytecode_t m_bytecode;
         std::string m_libdir;
         std::string m_filename;
