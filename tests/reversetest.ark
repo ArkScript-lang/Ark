@@ -7,7 +7,7 @@
         (assert (= "CBA" (reverseStr "ABC")) "Reverse test 1 failed")
         (assert (= "Wow, it works" (reverseStr (reverseStr "Wow, it works"))) "Reverse test 2 failed")
         (assert (= "" (reverseStr "")) "Reverse test 3 failed")
-        (assert (= "a a" (reverseStr "a a")))
+        (assert (= "a" (reverseStr "a")) "Reverse test 4 failed")
     }))
     (reverse-tests)
 }
