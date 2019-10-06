@@ -1,0 +1,29 @@
+{
+    (let string-tests (fun () {
+        (assert (= "Hello world" (+ "Hello" " world")) "String test 1 failed")
+
+        (assert (= "H" (@ "Hello world" 0)) "String test 2 failed")
+        (assert (= "w" (@ "Hello world" 6)) "String test 2°2 failed")
+
+        (assert (= 11 (len "Hello world")) "String test 3 failed")
+
+        (assert (= true (empty? "")) "String test 4 failed")
+        (assert (= false (empty? "Hello world")) "String test 4°2 failed")
+
+        (assert (= "H" (firstOf "Hello world")) "String test 5 failed")
+
+        (assert (= "Hello worl" (headOf "Hello world")) "String test 6 failed")
+
+        (assert (= "ello world" (tailOf "Hello world")) "String test 7 failed")
+
+        (assert (= "12" (toString 12)) "String test 8 failed")
+        (assert (= "true" (toString true)) "String test 8°2 failed")
+        (assert (= "false" (toString false)) "String test 8°3 failed")
+        (assert (= "nil" (toString nil)) "String test 8°4 failed")
+        (assert (= "( 12 42 )" (toString [12 42])) "String test 8°5 failed")
+
+        (print "  String tests passed")
+    }))
+
+    (string-tests)
+}

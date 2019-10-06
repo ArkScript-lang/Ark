@@ -1,9 +1,0 @@
-{
-    (let f (fun (x) (begin x)))
-    (print ((f f) 12))
-
-    ((fun (x) (print "hello" x)) 12)
-
-    (import "sfml.bin")
-    (sf-window-init 400 400 "Test sfml")
-}

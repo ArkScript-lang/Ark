@@ -1,11 +1,13 @@
 {
     (import "Slice.ark")
-    # --------------------------
-    #           Slice
-    # --------------------------
+    
     (let slice-tests (fun () {
         (assert (= "ABC" (sliceStr "ABCDEFG" 0 3)) "Slice test 1 failed")
         (assert (= "1 1 1" (sliceStr "1 1 1 2" 0 5)) "Slice test 2 failed")
+        (assert (= "cdef" (sliceStr "abcdef" 2 13)) "Slice test 3 failed")
+
+        (print "  Slice tests passed")
     }))
+
     (slice-tests)
 }

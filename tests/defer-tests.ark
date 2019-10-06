@@ -1,0 +1,20 @@
+{
+    (let defer-tests (fun () {
+        (let foo (fun (n) (+ 5 n)))
+        (assert (= "Closure" (type (quote foo))) "Defer test 1 failed")
+
+        (assert (= "Closure" (type (quote (foo 5)))) "Defer test 2 failed")
+
+        (let df '(foo 5))
+        (assert (= "Closure" (type df)) "Defer test 3 failed")
+        
+        (assert (= 10 (df)) "Defer test 4 failed")
+
+        (let a (quote (foo 5)))
+        (assert (= 10 (a)) "Defer test 5 failed")
+
+        (print "  Defer tests passed")
+    }))
+
+    (defer-tests)
+}

@@ -3,9 +3,12 @@
 ## Unreleased changes
 ### Added
 - function arity handling in the VM, can be disabled with the option `-fno-function-arity-check`
+- `sliceStr` in `lib/Slice.ark`, taking a string, a starting index (can't be less than 0), and the length (can't be less than 1), returning a portion of the given string
+- `reverseStr` in `lib/Reverse.ark` taking a string and returning it in reverse
 
 ### Changed
 - updated the include module, which was randomly adding `/` before the path of the files
+- updated assertions in `split` in `lib/Split.ark` (works only with single character separators)
 
 ### Removed
 

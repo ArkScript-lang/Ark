@@ -1,0 +1,44 @@
+{
+    (let math-tests (fun () {
+        (assert (= 3 3.0) "Math test basic failed")
+
+        (assert (= 12 (+ 5.5 6.5)) "Math test 1 failed")
+        (assert (= 12 (+ 6 6)) "Math test 1°2 failed")
+
+        (assert (= 12 (- 14.5 2.5)) "Math test 2 failed")
+        (assert (= 12 (- 111 99)) "Math test 2°2 failed")
+
+        (assert (= 12 (* 3 4)) "Math test 3 failed")
+        (assert (= -12 (* -3 4)) "Math test 3°2 failed")
+
+        (assert (= 12 (/ 144 12)) "Math test 4 failed")
+        (assert (= 3.0 (/ 7.5 2.5)) "Math test 4°2 failed")
+
+        (assert (< 12 14) "Math test 5 failed")
+        (assert (< -12 14) "Math test 5°2 failed")
+
+        (assert (> 112 14) "Math test 6 failed")
+        (assert (> -12 -14) "Math test 6°2 failed")
+
+        (assert (!= 12 14) "Math test 7 failed")
+        (assert (!= -12 14) "Math test 7°2 failed")
+
+        (assert (<= 12 12) "Math test 8 failed")
+        (assert (<= -12 14) "Math test 8°2 failed")
+
+        (assert (= 0 (mod 10 5)) "Math test 9 failed")
+        (assert (= 0.5 (mod 7.5 7)) "Math test 9°2 failed")
+
+        (assert (= 6 (+ 1 2 3)) "Math test 10 failed")
+        (assert (= -4 (- 1 2 3)) "Math test 10°2 failed")
+        (assert (= 24 (* 2 3 4)) "Math test 10°3 failed")
+        (assert (= 2 (/ 32 8 2)) "Math test 10°4 failed")
+        (assert (= 2 (mod 12 7 3)) "Math test 10°5 failed")
+        (assert (and true true true) "Math test 10°6 failed")
+        (assert (or false false true) "Math test 10°7 failed")
+
+        (print "  Math tests passed")
+    }))
+
+    (math-tests)
+}

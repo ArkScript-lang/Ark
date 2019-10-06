@@ -1,0 +1,12 @@
+{
+    (let del-tests (fun () {
+        (let a 10)
+        (del a)
+        (let a 10)  # would fail if del wasn't working, because let would
+                    # have to redefine a symbol, but it can't
+
+        (print "  Del tests passed")
+    }))
+
+    (del-tests)
+}

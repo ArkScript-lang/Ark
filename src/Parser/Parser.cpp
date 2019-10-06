@@ -387,7 +387,7 @@ namespace Ark
                     std::string path = (dir != "/") ? dir + file : file;
                     
                     if (m_debug)
-                        Ark::logger.data(path);
+                        Ark::logger.data("path:", path, " ; file:", file, " ; libdir:", m_libdir);
                     
                     // check if we are not loading a plugin
                     if (ext == ".ark")
@@ -402,7 +402,7 @@ namespace Ark
 
                         if (std::find(m_parent_include.begin(), m_parent_include.end(), path) == m_parent_include.end())
                         {
-                            Parser p(m_debug);
+                            Parser p(m_debug, m_libdir);
 
                             for (auto&& pi : m_parent_include)
                                 p.m_parent_include.push_back(pi);
@@ -413,9 +413,13 @@ namespace Ark
                                 p.feed(Ark::Utils::readFile(path), path);
                             else
                             {
-                                std::string libpath = std::string(m_libdir) + "/" + Ark::Utils::getFilenameFromPath(path);
+                                std::string libpath = std::string(m_libdir) + "/" + Ark::Utils::getFilenameFromPath(file);
+                                std::string libpath2 = std::string(m_libdir) + "/" + Ark::Utils::getFilenameFromPath(path);
+
                                 if (Ark::Utils::fileExists(libpath))
                                     p.feed(Ark::Utils::readFile(libpath), libpath);
+                                else if (Ark::Utils::fileExists(libpath2))
+                                    p.feed(Ark::Utils::readFile(libpath2), libpath2);
                                 else
                                     throw std::runtime_error("ParseError: Couldn't find file " + file);
                             }
