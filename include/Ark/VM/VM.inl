@@ -78,6 +78,9 @@ void VM_t<debug>::doFile(const std::string& file)
         return;
     }
 
+    if constexpr (debug)
+        Ark::logger.data("doFile() launched on", file);
+
     // check if it's a bytecode file or a source code file
     Ark::BytecodeReader bcr;
     try {
@@ -95,10 +98,16 @@ void VM_t<debug>::doFile(const std::string& file)
         std::filesystem::path directory =  (std::filesystem::path(file)).parent_path() / ARK_CACHE_DIRNAME;
         std::string path = (directory / filename).string();
 
+        if constexpr (debug)
+            Ark::logger.info("doFile() analyzing a source file");
+
         bool compiled_successfuly = false;
 
         if (Ark::Utils::fileExists(path))
         {
+            if constexpr (debug)
+                Ark::logger.info("doFile() found the ark cache directory in", directory.string());
+
             auto ftime = std::filesystem::last_write_time(std::filesystem::path(file));
 
             // this shouldn't fail
@@ -106,6 +115,10 @@ void VM_t<debug>::doFile(const std::string& file)
             bcr2.feed(path);
             auto timestamp = bcr2.timestamp();
             auto file_last_write = static_cast<decltype(timestamp)>(std::chrono::duration_cast<std::chrono::seconds>(ftime.time_since_epoch()).count());
+            
+            if constexpr (debug)
+                Ark::logger.data("doFile() the cached bytecode file is too old:", (file_last_write > timestamp));
+            
             // recompile
             if (timestamp < file_last_write)
                 compiled_successfuly = Ark::compile(debug, file, path, m_state->m_libdir);
@@ -114,6 +127,9 @@ void VM_t<debug>::doFile(const std::string& file)
         }
         else
         {
+            if constexpr (debug)
+                Ark::logger.info("doFile() need to create the ark cache directory in", directory.string());
+
             if (!std::filesystem::exists(directory))  // create ark cache directory
                 std::filesystem::create_directory(directory);
             
