@@ -14,14 +14,13 @@ set(BENCHMARK_ENABLE_GTEST_TESTS OFF CACHE BOOL "Enable gbench testing" FORCE)
 set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "Enable gbench testing" FORCE)
 
 add_definitions(-DNDEBUG)
+set(CMAKE_BUILD_TYPE Release)
 
 add_subdirectory(${ARK_SUBMODULES_ROOT}/benchmark third_party_benchmark)
 
 #-------------------------------------------------------
 #                        Targets
 #-------------------------------------------------------
-
-set(CMAKE_BUILD_TYPE Release)
 
 function(bench_make target_file)
     set(targetname bench_${target_file})

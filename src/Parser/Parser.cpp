@@ -43,27 +43,6 @@ namespace Ark
             throwParseError_("Invalid syntax: empty code");
         sugar(t);
 
-        if (m_debug)
-        {
-            Ark::logger.info("(Parser) After applying sugar:");
-            std::size_t line = 0;
-            for (auto&& token : t)
-            {
-                if (token.line != line)
-                {
-                    line = token.line;
-                    if (line < 10)               std::cout << "   " << line;
-                    else if (10 <= line && line < 100)   std::cout << "  " << line;
-                    else if (100 <= line && line < 1000) std::cout << " " << line;
-                    else                         std::cout << line;
-                    std::cout << " | " << token.token << "\n";
-                }
-                else
-                    std::cout << "     | " << token.token << "\n";
-            }
-            // flush
-            std::cout << std::endl;
-        }
         // create program and raise error if it can't
         std::list<Token> tokens(t.begin(), t.end());
         except(!tokens.empty(), "Invalid syntax: no more token to consume", Token(TokenType::Mismatch, "", 0, 0));
