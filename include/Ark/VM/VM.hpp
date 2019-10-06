@@ -56,7 +56,7 @@ namespace Ark
 
             // find id of function
             auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), name);
-            if (it == m_symbols.end())
+            if (it == m_state->m_symbols.end())
             {
                 if constexpr (debug)
                     throwVMError("Couldn't find symbol with name " + name);
