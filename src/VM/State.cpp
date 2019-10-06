@@ -38,7 +38,7 @@ namespace Ark
         return result;
     }
 
-    bool State::doFile(const std::string& filename)
+    bool State::doFile(const std::string& file)
     {
         if (!Ark::Utils::fileExists(file))
         {
