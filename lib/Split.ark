@@ -1,6 +1,5 @@
 {
-  #made by Natendrtfm (on Github) with <3
-  (let split (fun (string separator) {
+    (let split (fun (string separator) {
         (assert (!= "" separator) "Separator of split can not be empty")
         (assert (= 1 (len separator)) "Separator length must be equal to 1")
         (mut i 0)
@@ -21,4 +20,4 @@
             output
             (append output word))
     }))
-}    
+}

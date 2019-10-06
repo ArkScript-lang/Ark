@@ -25,6 +25,8 @@
     (import "del-tests.ark")
     (import "scope-tests.ark")
     (import "split-tests.ark")
+    (import "slice-tests.ark")
+    (import "reverse-tests.ark")
 
     (print "Completed in " (toString (- (time) start_time)) " seconds")
 }
