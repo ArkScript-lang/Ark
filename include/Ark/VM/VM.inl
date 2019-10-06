@@ -39,32 +39,12 @@ void VM_t<debug>::init()
     if (m_state->m_shared_lib_objects.size() == m_state->m_plugins.size())
         return;
     
-    for (const std::string& file : m_state->m_plugins)
+    for (auto&& plugin : m_state->m_shared_lib_objects)
     {
-        namespace fs = std::filesystem;
-
-        std::string path = "./" + file;
-        if (m_state->m_filename != "FILE")  // bytecode loaded from file
-            path = "./" + (fs::path(m_state->m_filename).parent_path() / fs::path(file)).string();
-        std::string lib_path = (fs::path(m_state->m_libdir) / fs::path(file)).string();
-
-        if constexpr (debug)
-            Ark::logger.info("Loading", file, "in", path, "or in", lib_path);
-
-        if (Ark::Utils::fileExists(path))  // if it exists alongside the .arkc file
-            m_state->m_shared_lib_objects.emplace_back(path);
-        else if (Ark::Utils::fileExists(lib_path))  // check in LOAD_PATH otherwise
-            m_state->m_shared_lib_objects.emplace_back(lib_path);
-        else
-            throwVMError("could not load plugin " + file);
-        
-        if constexpr (debug)
-            Ark::logger.info("Plugin loaded");
-
         // load data from it!
         using Mapping_t = std::unordered_map<std::string, Value::ProcType>;
         using map_fun_t = Mapping_t(*) ();
-        Mapping_t map = m_state->m_shared_lib_objects.back().template get<map_fun_t>("getFunctionsMapping")();
+        Mapping_t map = plugin.template get<map_fun_t>("getFunctionsMapping")();
 
         if constexpr (debug)
             Ark::logger.info("Functions mapping retrieved\n{0} symbols"s, map.size());
@@ -119,15 +99,15 @@ void VM_t<debug>::run()
 
     if constexpr (debug)
         Ark::logger.info("Starting at PP:{0}, IP:{1}"s, m_pp, m_ip);
+    
+    if (m_options & FeaturePersist == 0)
+        init();
 
     safeRun();
 
     // reset VM after each run
     m_ip = 0;
     m_pp = 0;
-
-    if (m_options & FeaturePersist == 0)
-        init();
 }
 
 template<bool debug>

@@ -297,5 +297,22 @@ namespace Ark
             if (i == m_bytecode.size())
                 break;
         }
+
+        for (const std::string& file : m_plugins)
+        {
+            namespace fs = std::filesystem;
+
+            std::string path = "./" + file;
+            if (m_filename != "FILE")  // bytecode loaded from file
+                path = "./" + (fs::path(m_filename).parent_path() / fs::path(file)).string();
+            std::string lib_path = (fs::path(m_libdir) / fs::path(file)).string();
+
+            if (Ark::Utils::fileExists(path))  // if it exists alongside the .arkc file
+                m_shared_lib_objects.emplace_back(path);
+            else if (Ark::Utils::fileExists(lib_path))  // check in LOAD_PATH otherwise
+                m_shared_lib_objects.emplace_back(lib_path);
+            else
+                throwStateError("could not load plugin " + file);
+        }
     }
 }
