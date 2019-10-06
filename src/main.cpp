@@ -93,15 +93,22 @@ int main(int argc, char** argv)
             
             case mode::run:
             {
+                Ark::State state(lib_dir);
+                if (!state.doFile(file))
+                {
+                    Ark::logger.error("Ark::State.doFile(" + file + ") failed");
+                    return -1;
+                }
+
                 if (debug)
                 {
-                    Ark::VM_debug vm(lib_dir, options);
-                    vm.doFile(file);
+                    Ark::VM_debug vm(&state, options);
+                    vm.run();
                 }
                 else
                 {
-                    Ark::VM vm(lib_dir, options);
-                    vm.doFile(file);
+                    Ark::VM vm(&state, options);
+                    vm.run();
                 }
                 break;
             }

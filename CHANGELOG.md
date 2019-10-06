@@ -8,6 +8,8 @@
 
 ### Changed
 - updated the include module, which was randomly adding `/` before the path of the files
+- dispatched the unit tests in multiple files
+- now using a separated class to hold the description values for the VM
 - updated assertions in `split` in `lib/Split.ark` (works only with single character separators)
 
 ### Removed

@@ -12,7 +12,7 @@
 
 #include <Ark/VM/Value.hpp>
 #include <Ark/VM/Frame.hpp>
-#include <Ark/Compiler/Compiler.hpp>
+#include <Ark/VM/State.hpp>
 #include <Ark/VM/Plugin.hpp>
 #include <Ark/VM/FFI.hpp>
 #include <Ark/Log.hpp>
@@ -34,14 +34,8 @@ namespace Ark
     class VM_t
     {
     public:
-        VM_t(uint16_t flags=DefaultFeatures);
-        VM_t(const std::string& lib_dir, uint16_t flags=DefaultFeatures);
+        VM_t(State* state, uint16_t flags=DefaultFeatures);
 
-        bool feed(const std::string& filename);
-        bool feed(const bytecode_t& bytecode);
-        void doFile(const std::string& filename);
-
-        void loadFunction(const std::string& name, internal::Value::ProcType function);
         void run();
 
         internal::Value& operator[](const std::string& name);
@@ -55,8 +49,8 @@ namespace Ark
             m_ip = m_pp = 0;
 
             // find id of function
-            auto it = std::find(m_symbols.begin(), m_symbols.end(), name);
-            if (it == m_symbols.end())
+            auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), name);
+            if (it == m_state->m_symbols.end())
             {
                 if constexpr (debug)
                     throwVMError("Couldn't find symbol with name " + name);
@@ -68,7 +62,7 @@ namespace Ark
                 push(*it2);
             
             // find function object and push it if it's a pageaddr/closure
-            uint16_t id = static_cast<uint16_t>(std::distance(m_symbols.begin(), it));
+            uint16_t id = static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it));
             auto var = findNearestVariable(id);
             if (var != nullptr)
             {
@@ -101,28 +95,18 @@ namespace Ark
 
     private:
         uint16_t m_options;
-        bytecode_t m_bytecode;
-        std::string m_libdir;
-        // Instruction Pointer and Page Pointer
-        int m_ip;
-        std::size_t m_pp;
+        State* m_state;
+        
+        int m_ip;           // instruction pointer
+        std::size_t m_pp;   // page pointer
         bool m_running;
-        std::string m_filename;
         uint16_t m_last_sym_loaded;
         std::size_t m_until_frame_count;
-
-        // related to the bytecode
-        std::vector<std::string> m_symbols;
-        std::vector<internal::Value> m_constants;
-        std::vector<std::string> m_plugins;
-        std::vector<internal::SharedLibrary> m_shared_lib_objects;
-        std::vector<bytecode_t> m_pages;
 
         // related to the execution
         std::vector<internal::Frame> m_frames;
         std::optional<internal::Scope_t> m_saved_scope;
         std::vector<internal::Scope_t> m_locals;
-        std::unordered_map<std::string, internal::Value::ProcType> m_binded_functions;
 
         // just a nice little trick for operator[]
         internal::Value m__no_value = internal::FFI::nil;
@@ -133,8 +117,8 @@ namespace Ark
 
         inline uint16_t readNumber()
         {
-            auto x = (static_cast<uint16_t>(m_pages[m_pp][m_ip]) << 8); ++m_ip;
-            auto y = (static_cast<uint16_t>(m_pages[m_pp][m_ip])     );
+            auto x = (static_cast<uint16_t>(m_state->m_pages[m_pp][m_ip]) << 8); ++m_ip;
+            auto y = (static_cast<uint16_t>(m_state->m_pages[m_pp][m_ip])     );
             return x + y;
         }
 
@@ -177,7 +161,7 @@ namespace Ark
                 }
             }
             // oversized by one: didn't find anything
-            return static_cast<uint16_t>(m_symbols.size());
+            return static_cast<uint16_t>(m_state->m_symbols.size());
         }
 
         template<int pp=-1>
@@ -209,9 +193,10 @@ namespace Ark
 
         inline void createNewScope()
         {
+            // TODO update
             m_locals.emplace_back(
                 std::make_shared<std::vector<internal::Value>>(
-                    m_symbols.size(), internal::FFI::undefined
+                    m_state->m_symbols.size(), internal::FFI::undefined
                 )
             );
         }
