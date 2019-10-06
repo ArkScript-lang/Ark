@@ -13,7 +13,6 @@
 #include <Ark/VM/Value.hpp>
 #include <Ark/VM/Frame.hpp>
 #include <Ark/VM/State.hpp>
-#include <Ark/Compiler/Compiler.hpp>
 #include <Ark/VM/Plugin.hpp>
 #include <Ark/VM/FFI.hpp>
 #include <Ark/Log.hpp>
@@ -37,11 +36,6 @@ namespace Ark
     public:
         VM_t(State* state, uint16_t flags=DefaultFeatures);
 
-        bool feed(const std::string& filename);
-        bool feed(const bytecode_t& bytecode);
-        void doFile(const std::string& filename);
-
-        void loadFunction(const std::string& name, internal::Value::ProcType function);
         void run();
 
         internal::Value& operator[](const std::string& name);

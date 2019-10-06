@@ -8,6 +8,7 @@
 
 #include <Ark/VM/Value.hpp>
 #include <Ark/Compiler/BytecodeReader.hpp>
+#include <Ark/Compiler/Compiler.hpp>
 #include <Ark/VM/Plugin.hpp>
 
 namespace Ark
@@ -16,6 +17,15 @@ namespace Ark
     {
     public:
         State(const std::string& libdir="", const std::string& filename="FILE");
+
+        // for already compiled Ark files
+        bool feed(const std::string& bytecode_filename);
+        bool feed(const bytecode_t& bytecode);
+
+        // to compile file *only* if needed and use the resulting bytecode
+        bool doFile(const std::string& filename);
+
+        void loadFunction(const std::string& name, internal::Value::ProcType function);
 
         template <bool D> friend class VM_t;
     
