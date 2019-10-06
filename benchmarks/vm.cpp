@@ -18,18 +18,20 @@ unsigned ack(unsigned m, unsigned n)
 
 static void Ackermann_3_6_ark(benchmark::State& state)
 {
+    Ark::State ark_state;
     while (state.KeepRunning())
     {
-        Ark::VM vm;
+        Ark::VM vm(&ark_state);
         vm.doFile("examples/ackermann.ark");
     }
 }
 
 static void Fibo_28_ark(benchmark::State& state)
 {
+    Ark::State ark_state;
     while (state.KeepRunning())
     {
-        Ark::VM vm;
+        Ark::VM vm(&ark_state);
         vm.doFile("examples/fibo.ark");
     }
 }
@@ -44,9 +46,10 @@ static void Ackermann_3_6_cpp(benchmark::State& state)
 
 static void vm_boot(benchmark::State& state)
 {
+    Ark::State ark_state;
     while (state.KeepRunning())
     {
-        Ark::VM vm;
+        Ark::VM vm(&ark_state);
         vm.feed("examples/__arkscript_cache__/fibo.arkc");
     }
 }

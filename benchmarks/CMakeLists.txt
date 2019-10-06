@@ -13,6 +13,8 @@ option(BENCHMARK_ENABLE_GTEST_TESTS "Enable building the unit tests which depend
 set(BENCHMARK_ENABLE_GTEST_TESTS OFF CACHE BOOL "Enable gbench testing" FORCE)
 set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "Enable gbench testing" FORCE)
 
+add_definitions(-DNDEBUG)
+
 add_subdirectory(${ARK_SUBMODULES_ROOT}/benchmark third_party_benchmark)
 
 #-------------------------------------------------------
