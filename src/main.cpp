@@ -94,6 +94,8 @@ int main(int argc, char** argv)
             case mode::run:
             {
                 Ark::State state(lib_dir);
+                state.setDebug(debug);
+
                 if (!state.doFile(file))
                 {
                     Ark::logger.error("Ark::State.doFile(" + file + ") failed");

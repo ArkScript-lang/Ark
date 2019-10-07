@@ -19,6 +19,7 @@ namespace Ark
 
         void feed(const std::string& code, const std::string& filename="FILE");
         const internal::Node& ast() const;
+        const std::vector<std::string>& getImports();
 
         friend std::ostream& operator<<(std::ostream& os, const Parser& P);
 

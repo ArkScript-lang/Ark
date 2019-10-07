@@ -21,6 +21,13 @@ namespace Ark
     void Compiler::feed(const std::string& code, const std::string& filename)
     {
         m_parser.feed(code, filename);
+
+        if (m_debug)
+        {
+            Ark::logger.info(filename + " is importing " + Ark::Utils::toString(m_parser.getImports().size()) + " files:");
+            for (auto&& import: m_parser.getImports())
+                Ark::logger.data("\t" + import);
+        }
     }
 
     void Compiler::compile()

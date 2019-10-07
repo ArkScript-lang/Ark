@@ -62,29 +62,6 @@ namespace Ark::internal
                 }
             }
         }
-
-        if (m_debug)
-        {
-            Ark::logger.info("(Lexer) Tokens:");
-
-            line = 0;
-            for (auto&& token : m_tokens)
-            {
-                if (token.line != line)
-                {
-                    line = token.line;
-                    if (line < 10)               std::cout << "   " << line;
-                    else if (10 <= line && line < 100)   std::cout << "  " << line;
-                    else if (100 <= line && line < 1000) std::cout << " " << line;
-                    else                         std::cout << line;
-                    std::cout << " | " << token.token << "\n";
-                }
-                else
-                    std::cout << "     | " << token.token << "\n";
-            }
-            // flush
-            std::cout << std::endl;
-        }
     }
 
     const std::vector<Token>& Lexer::tokens()

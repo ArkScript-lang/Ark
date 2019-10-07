@@ -63,6 +63,11 @@ namespace Ark
         return m_ast;
     }
 
+    const std::vector<std::string>& Parser::getImports()
+    {
+        return m_parent_include;
+    }
+
     void Parser::sugar(std::vector<Token>& tokens)
     {
         std::size_t i = 0;
@@ -384,7 +389,10 @@ namespace Ark
                             Parser p(m_debug, m_libdir);
 
                             for (auto&& pi : m_parent_include)
-                                p.m_parent_include.push_back(pi);
+                            {
+                                if (std::find(p.m_parent_include.begin(), p.m_parent_include.end(), pi) == p.m_parent_include.end())
+                                    p.m_parent_include.push_back(pi);
+                            }
                             p.m_parent_include.push_back(m_file);
 
                             // search in the files of the user first
@@ -404,7 +412,10 @@ namespace Ark
                             }
                             
                             for (auto&& inc : p.m_parent_include)
-                                m_parent_include.push_back(inc);
+                            {
+                                if (std::find(m_parent_include.begin(), m_parent_include.end(), inc) == m_parent_include.end())
+                                    m_parent_include.push_back(inc);
+                            }
 
                             n.list().push_back(p.ast());
                         }
