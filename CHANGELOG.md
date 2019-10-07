@@ -11,6 +11,7 @@
 - dispatched the unit tests in multiple files
 - now using a separated class to hold the description values for the VM
 - updated assertions in `split` in `lib/Split.ark` (works only with single character separators)
+- fixing import bug
 
 ## 3.0.5
 ### Added
