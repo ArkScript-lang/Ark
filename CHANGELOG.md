@@ -1,5 +1,12 @@
 # Change Log
 
+## Unreleased changes
+### Added
+
+### Changed
+
+### Removed
+
 ## 3.0.6
 ### Added
 - function arity handling in the VM, can be disabled with the option `-fno-function-arity-check`
