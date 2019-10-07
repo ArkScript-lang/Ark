@@ -11,14 +11,20 @@ void VM_t<debug>::init()
     using namespace Ark::internal;
 
     // clearing frames and setting up a new one
-    m_frames.clear();
-    m_frames.emplace_back();
+    if ((m_options & FeaturePersist) == 0)
+    {
+        m_frames.clear();
+        m_frames.emplace_back();
+    }
 
     m_saved_scope.reset();
 
     // clearing locals (scopes) and create a global scope
-    m_locals.clear();
-    createNewScope();
+    if ((m_options & FeaturePersist) == 0)
+    {
+        m_locals.clear();
+        createNewScope();
+    }
 
     // loading binded functions
     // put them in the global frame if we can, aka the first one
@@ -100,9 +106,7 @@ void VM_t<debug>::run()
     if constexpr (debug)
         Ark::logger.info("Starting at PP:{0}, IP:{1}"s, m_pp, m_ip);
     
-    if (m_options & FeaturePersist == 0)
-        init();
-
+    init();
     safeRun();
 
     // reset VM after each run

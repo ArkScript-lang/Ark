@@ -119,7 +119,7 @@ namespace Ark
                 
                 // TODO fix me, timestamp is wrong on Windows (by 369 years)
                 Ark::logger.data("doFile() timestamp bytecode file:", timestamp, " ; timestamp " + file + ":", file_last_write);
-                
+
                 // recompile
                 if (timestamp < file_last_write)
                     compiled_successfuly = Ark::compile(m_debug, file, path, m_libdir);
