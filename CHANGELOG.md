@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased changes
+## 3.0.6
 ### Added
 - function arity handling in the VM, can be disabled with the option `-fno-function-arity-check`
 - `sliceStr` in `lib/Slice.ark`, taking a string, a starting index (can't be less than 0), and the length (can't be less than 1), returning a portion of the given string
@@ -11,8 +11,6 @@
 - dispatched the unit tests in multiple files
 - now using a separated class to hold the description values for the VM
 - updated assertions in `split` in `lib/Split.ark` (works only with single character separators)
-
-### Removed
 
 ## 3.0.5
 ### Added
