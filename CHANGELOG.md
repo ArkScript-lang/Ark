@@ -2,6 +2,7 @@
 
 ## Unreleased changes
 ### Added
+- adding `lib/Functional.ark` to store `(compose f g)`
 
 ### Changed
 
