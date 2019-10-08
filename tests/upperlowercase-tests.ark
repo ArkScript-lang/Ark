@@ -1,6 +1,6 @@
 {
-    (import "./../lib/ToLowerCase.ark")
-    (import "./../lib/ToUpperCase.ark")
+    (import "ToLowerCase.ark")
+    (import "ToUpperCase.ark")
     (let lowercase-tests (fun () {
         (assert (= "hello" (toLowerCase "HELLO")) "toLowerCase test 1 failed")
         (assert (= "hello foo bar baz" (toLowerCase "HeLlO FoO bar baZ")) "toLowerCase test 2 failed")
