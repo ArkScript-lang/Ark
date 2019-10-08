@@ -16,6 +16,12 @@ void VM_t<debug>::init()
         m_frames.clear();
         m_frames.emplace_back();
     }
+    else if (m_frames.size() == 0)
+    {
+        // if persistance is set but no frames are present, add one
+        // it usually happens on the first run
+        m_frames.emplace_back();
+    }
 
     m_saved_scope.reset();
 
@@ -23,6 +29,11 @@ void VM_t<debug>::init()
     if ((m_options & FeaturePersist) == 0)
     {
         m_locals.clear();
+        createNewScope();
+    }
+    else if (m_locals.size() == 0)
+    {
+        // if persistance is set but not scopes are present, add one
         createNewScope();
     }
 
@@ -246,6 +257,10 @@ void VM_t<debug>::safeRun(std::size_t untilFrameCount)
                     break;
                 }
             }
+
+            // if persistance is on, clear frames to keep only the global one
+            if (m_options & FeaturePersist)
+                m_frames.erase(m_frames.begin() + 1, m_frames.end());
         }
     } catch (...) {
         std::cerr << "Unknown error" << std::endl;

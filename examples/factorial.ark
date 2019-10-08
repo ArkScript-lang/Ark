@@ -1,7 +1,7 @@
 {
     (let fact (fun (n) {
-        (let a 1)
-        (let acc 2)
+        (mut a 1)
+        (mut acc 2)
         (while (!= acc n) {
                 (set a (* a acc))
                 (set acc (+ 1 acc))

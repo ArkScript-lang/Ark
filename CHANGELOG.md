@@ -5,6 +5,7 @@
 - adding `lib/Functional.ark` to store `(compose f g)`
 
 ### Changed
+- the VM now deletes all scopes except the global one in case of failure, when the persisting flag is set
 
 ### Removed
 
