@@ -22,7 +22,7 @@ static void Ackermann_3_6_ark(benchmark::State& state)
     ark_state.doFile("examples/ackermann.ark");
     while (state.KeepRunning())
     {
-        Ark::VM vm(&ark_state);
+        Ark::VM vm(&ark_state, 0);
         vm.run();
     }
 }
@@ -33,7 +33,7 @@ static void Fibo_28_ark(benchmark::State& state)
     ark_state.doFile("examples/fibo.ark");
     while (state.KeepRunning())
     {
-        Ark::VM vm(&ark_state);
+        Ark::VM vm(&ark_state, 0);
         vm.run();
     }
 }
@@ -52,7 +52,7 @@ static void vm_boot(benchmark::State& state)
     ark_state.doFile("examples/__arkscript_cache__/fibo.arkc");
     while (state.KeepRunning())
     {
-        Ark::VM vm(&ark_state);
+        Ark::VM vm(&ark_state, 0);
         vm.run();
     }
 }

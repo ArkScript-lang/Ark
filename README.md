@@ -144,7 +144,7 @@ The project was compiled on Linux Mint 18 x64, with g++ 8 and `-DNDEBUG -O3 -s`.
 The test here is the Ackermann-Peter function with m=3 and n=6:
 
 ```
-2019-07-20 23:30:57
+2019-10-08 19:46:02
 Running benchmark/vm
 Run on (4 X 2400 MHz CPU s)
 CPU Caches:
@@ -152,17 +152,17 @@ CPU Caches:
   L1 Instruction 32K (x2)
   L2 Unified 256K (x2)
   L3 Unified 3072K (x1)
-Load Average: 0.23, 0.48, 0.48
+Load Average: 0.94, 1.25, 0.86
 -------------------------------------------------------------------
 Benchmark                         Time             CPU   Iterations
 -------------------------------------------------------------------
-Ackermann_3_6_ark_mean          144 ms          144 ms           25
-Ackermann_3_6_ark_median        140 ms          140 ms           25
-Ackermann_3_6_ark_stddev       9.58 ms         9.57 ms           25
+Ackermann_3_6_ark_mean          133 ms          133 ms           25
+Ackermann_3_6_ark_median        133 ms          133 ms           25
+Ackermann_3_6_ark_stddev      0.694 ms        0.694 ms           25
 
-Ackermann_3_6_cpp_mean        0.337 ms        0.337 ms           25
-Ackermann_3_6_cpp_median      0.334 ms        0.334 ms           25
-Ackermann_3_6_cpp_stddev      0.008 ms        0.008 ms           25
+Ackermann_3_6_cpp_mean        0.370 ms        0.370 ms           25
+Ackermann_3_6_cpp_median      0.368 ms        0.368 ms           25
+Ackermann_3_6_cpp_stddev      0.004 ms        0.004 ms           25
 ```
 
 Comparison with Java using OpenJDK 11.0.3 x64 (source code [here](benchmarks/Ackermann.java)):
