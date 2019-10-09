@@ -18,14 +18,14 @@ matrix:
       osx_image: xcode11
       compiler:
           - clang
+          - gcc
       addons:
         homebrew:
           packages:
-            - clang-9
-            - clang++-9
+            - clang
           update: true
       env:
-        - C_COMPILER=clang-9 CXX_COMPILER=clang++-9
+        - C_COMPILER=clang CXX_COMPILER=clang++
 
     #- os: linux
     #  dist: xenial
