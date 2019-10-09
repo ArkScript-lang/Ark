@@ -15,15 +15,17 @@ matrix:
         - C_COMPILER=gcc-8 CXX_COMPILER=g++-8
 
     - os: osx
-      name: "osx"
       osx_image: xcode11
+      compiler:
+          - gcc
       addons:
         homebrew:
           packages:
-            - gcc-9
-            - g++-9
+            - clang-9
+            - clang++-9
+          update: true
       env:
-        - C_COMPILER=gcc-9 CXX_COMPILER=g++-9
+        - C_COMPILER=clang-9 CXX_COMPILER=clang++-9
 
     #- os: linux
     #  dist: xenial
