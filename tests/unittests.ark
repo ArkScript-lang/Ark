@@ -1,5 +1,4 @@
 {
-
     (let start_time (time))
 
     (print "Starting unit tests")
@@ -26,6 +25,7 @@
     (import "split-tests.ark")
     (import "slice-tests.ark")
     (import "reverse-tests.ark")
+    (import "upperlowercase-tests.ark")
 
     (print "Completed in " (toString (- (time) start_time)) " seconds")
 }

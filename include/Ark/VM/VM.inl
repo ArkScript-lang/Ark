@@ -4,8 +4,8 @@ VM_t<debug>::VM_t(State* state, uint16_t flags) :
     m_ip(0), m_pp(0), m_running(false),
     m_last_sym_loaded(0), m_until_frame_count(0)
 {
-    m_frames.reserve(512);
-    m_locals.reserve(512);
+    m_frames.reserve(128);
+    m_locals.reserve(128);
 }
 
 template<bool debug>
