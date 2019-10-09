@@ -1,5 +1,8 @@
 services: docker
 
+before_install:
+  - sudo apt-get install -y llvm-toolchain-xenial-9
+
 matrix:
   include:
     - os: linux
@@ -33,7 +36,6 @@ matrix:
         apt:
           sources:
             - ubuntu-toolchain-r-test
-            - llvm-toolchain-xenial-9
           packages:
             - gcc-8
             - g++-8
