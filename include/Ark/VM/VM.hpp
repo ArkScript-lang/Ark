@@ -193,7 +193,6 @@ namespace Ark
 
         inline void createNewScope()
         {
-            // TODO update
             m_locals.emplace_back(
                 std::make_shared<std::vector<internal::Value>>(
                     m_state->m_symbols.size(), internal::FFI::undefined

@@ -118,7 +118,7 @@ namespace Ark
                         ftime.time_since_epoch()).count());
                 
                 // TODO fix me, timestamp is wrong on Windows (by 369 years)
-                Ark::logger.data("doFile() timestamp bytecode file:", timestamp, " ; timestamp " + file + ":", file_last_write);
+                // Ark::logger.data("doFile() timestamp bytecode file:", timestamp, " ; timestamp " + file + ":", file_last_write);
 
                 // recompile
                 if (timestamp < file_last_write)
