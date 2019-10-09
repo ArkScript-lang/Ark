@@ -1,0 +1,16 @@
+{
+    (import "Case.ark")
+    (let lowercase-tests (fun () {
+        (assert (= "hello" (toLowerCase "HELLO")) "toLowerCase test 1 failed")
+        (assert (= "hello foo bar baz" (toLowerCase "HeLlO FoO bar baZ")) "toLowerCase test 2 failed")
+        (assert (= "" (toLowerCase "")) "toLowerCase test 3 failed")
+    }))
+    (let uppercase-tests (fun () {
+        (assert (= "HELLO" (toUpperCase "hello")) "toUpperCase test 1 failed")
+        (assert (= "HELLO FOO BAR BAZ" (toUpperCase "heLlO fOo BAr baZ")) "toUpperCase test 1 failed")
+        (assert (= "" (toUpperCase "")) "toUpperCase test 1 failed")
+    }))
+    (lowercase-tests)
+    (uppercase-tests)
+    (print " Upper and Lower case tests passed")   
+}

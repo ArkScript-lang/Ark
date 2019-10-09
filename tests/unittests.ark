@@ -1,5 +1,4 @@
 {
-    (import "Split.ark")
 
     (let start_time (time))
 
