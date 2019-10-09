@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-
-cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=$1 -DARK_BUILD_EXE=1 -DARK_BUILD_MODULES=1 -DARK_BUILD_BENCHMARK=1

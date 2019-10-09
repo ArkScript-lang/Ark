@@ -1,11 +1,17 @@
 # project junk
 
+# folders
 build/
 clang/
 benchmark/
 gitstats/
+
+# files
 gmon.out
 include/Ark/Constants.hpp
+build.sh
+deploy.ps1
+
 *.so
 *.dll
 *.arkc
