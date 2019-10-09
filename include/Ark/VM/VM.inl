@@ -52,10 +52,6 @@ void VM_t<debug>::init()
     }
 
     // loading plugins
-    // we don't want to load the plugins multiple times
-    if (m_state->m_shared_lib_objects.size() == m_state->m_plugins.size())
-        return;
-    
     for (auto&& plugin : m_state->m_shared_lib_objects)
     {
         // load data from it!
