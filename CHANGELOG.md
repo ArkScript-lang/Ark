@@ -1,13 +1,12 @@
 # Change Log
 
-## Unreleased changes
+## 3.0.6-b
 ### Added
 - adding `lib/Functional.ark` to store `(compose f g)`
 
 ### Changed
 - the VM now deletes all scopes except the global one in case of failure, when the persisting flag is set
-
-### Removed
+- fixing plugin importation
 
 ## 3.0.6
 ### Added
