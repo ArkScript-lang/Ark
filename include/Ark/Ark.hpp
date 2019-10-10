@@ -6,5 +6,6 @@
 #include <Ark/Utils.hpp>
 #include <Ark/VM/VM.hpp>
 #include <Ark/Compiler/Compiler.hpp>
+#include <Ark/REPL/Repl.hpp>
 
 #endif  // ark_ark
