@@ -34,7 +34,7 @@ ARK_API_EXPORT Mapping_t getFunctionsMapping()
 {
     Mapping_t map;
     map["random"] = ArkRandom::random;
-    map["random-10"] = ArkRandom::random_10;
+    map["rand10"] = ArkRandom::random_10;
 
     return map;
 }
