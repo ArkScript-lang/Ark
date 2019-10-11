@@ -1,5 +1,14 @@
 # Change Log
 
+## Unreleased changes
+### Added
+
+### Changed
+- moved the lib files in subfolders to be more organized
+- re-updating the import rules on the parser side to be able to import files in subfolders from the standard library
+
+### Removed
+
 ## 3.0.6-b
 ### Added
 - adding `lib/Functional.ark` to store `(compose f g)`
