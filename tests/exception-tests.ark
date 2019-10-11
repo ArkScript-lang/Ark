@@ -1,5 +1,5 @@
 {
-    (import "Exceptions.ark")
+    (import "Functional/Exceptions.ark")
 
     (let exception-tests (fun () {
         (let invert (fun (x) {

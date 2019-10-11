@@ -1,5 +1,5 @@
 {
-    (import "Reverse.ark")
+    (import "String/Reverse.ark")
     
     (let reverse-tests (fun () {
         (assert (= "CBA" (reverseStr "ABC")) "Reverse test 1 failed")

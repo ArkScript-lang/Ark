@@ -1,5 +1,6 @@
 {
-    (import "Split.ark")
+    (import "String/Split.ark")
+    
     (let split-tests (fun () {
         (assert (= ["hello" "world"] (split "hello world" " ")) "Split test 1 failed")
         

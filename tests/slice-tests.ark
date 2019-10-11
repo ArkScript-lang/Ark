@@ -1,5 +1,5 @@
 {
-    (import "Slice.ark")
+    (import "String/Slice.ark")
     
     (let slice-tests (fun () {
         (assert (= "ABC" (sliceStr "ABCDEFG" 0 3)) "Slice test 1 failed")
