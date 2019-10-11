@@ -55,7 +55,7 @@
         })
         output
     }))
-    # Made with <3 by Natend (Natendrtfm on github)
+    
     (let toUpperCase (fun (text) {
         (mut i 0)
         (mut element "")
@@ -112,5 +112,4 @@
         })
         output
     }))
-
 }

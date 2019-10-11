@@ -1,0 +1,15 @@
+# made by Natendrtfm (on Github) with <3
+(let sliceStr (fun (inputed startingIndex length) {
+    (assert (>= length 1) "slice length must be greater or equal to 1")
+    (assert (and (>= startingIndex 0) (< startingIndex (len inputed))) "slice start index must be in range [0, string length[")
+    
+    (mut returnedString "")
+    (mut i startingIndex)
+    (set length (if (> length (len inputed)) (len inputed) length))
+
+    (while (< i length){
+        (set returnedString (+ returnedString (@ inputed i)))
+        (set i (+ i 1))
+    })
+    returnedString
+}))

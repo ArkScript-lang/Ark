@@ -1,14 +1,10 @@
-{
-    (let range (fun (a b)
-        (fun (&a &b) {
-            (if (< a b)
-                {
-                    (mut c a)
-                    (set a (+ a 1))
-                    c
-                }
-                nil
-            )
-        }))
-    )
-}
+(let range (fun (a b)
+    (fun (&a &b) {
+        (if (< a b)
+            {
+                (mut c a)
+                (set a (+ a 1))
+                c
+            }
+            nil
+        )})))
