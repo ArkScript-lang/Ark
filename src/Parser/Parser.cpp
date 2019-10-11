@@ -397,16 +397,31 @@ namespace Ark
 
                             // search in the files of the user first
                             if (Ark::Utils::fileExists(path))
+                            {
+                                if (m_debug)
+                                    Ark::logger.info("file", file, "in", path, "was found");
                                 p.feed(Ark::Utils::readFile(path), path);
+                            }
                             else
                             {
                                 std::string libpath = std::string(m_libdir) + "/" + Ark::Utils::getFilenameFromPath(file);
-                                std::string libpath2 = std::string(m_libdir) + "/" + Ark::Utils::getFilenameFromPath(path);
+                                std::string libpath2 = std::string(m_libdir) + "/" + file;
+
+                                if (m_debug)
+                                    Ark::logger.info("paths:", libpath, libpath2);
 
                                 if (Ark::Utils::fileExists(libpath))
+                                {
+                                    if (m_debug)
+                                        Ark::logger.info("file", file, "in", libpath, "was found in the lib");
                                     p.feed(Ark::Utils::readFile(libpath), libpath);
+                                }
                                 else if (Ark::Utils::fileExists(libpath2))
+                                {
+                                    if (m_debug)
+                                        Ark::logger.info("file", file, "in", libpath2, "was found in the lib");
                                     p.feed(Ark::Utils::readFile(libpath2), libpath2);
+                                }
                                 else
                                     throw std::runtime_error("ParseError: Couldn't find file " + file);
                             }

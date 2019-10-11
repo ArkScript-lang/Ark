@@ -1,5 +1,7 @@
 {
+    (print "import.ark importing main.ark")
     (import "main.ark")
+    
     (let f (fun (n)
         (print n)
     ))

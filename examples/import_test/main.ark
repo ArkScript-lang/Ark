@@ -1,5 +1,9 @@
 {
+    (print "main.ark importing folder/test.ark")
     (import "folder/test.ark")
+
     (f a)
+    
+    (print "main.ark importing import.ark")
     (import "import.ark")
 }
