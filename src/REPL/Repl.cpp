@@ -8,11 +8,10 @@ namespace Ark {
 
         print_repl_header();
 
-
         while(true)
         {
             Ark::Compiler compiler(false);
-            Ark::State state(".");
+            Ark::State state(m_lib_dir);
             Ark::VM vm(&state, m_options);
             state.setDebug(false);
 

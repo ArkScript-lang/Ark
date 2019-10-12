@@ -94,7 +94,7 @@ int main(int argc, char** argv)
             
             case mode::repl:
             {
-                Ark::Repl repl(options);
+                Ark::Repl repl(options, lib_dir);
                 repl.run();
                 break;
             }
