@@ -15,7 +15,7 @@ namespace Ark {
     private:
         uint16_t m_options;
 
-        void print_repl_header();
+        inline void print_repl_header();
         int count_open_parentheses(std::string line);
     };
 }

@@ -38,7 +38,7 @@ namespace Ark {
         }
     }
 
-    void Repl::print_repl_header()
+    inline void Repl::print_repl_header()
     {
         std::cout << "ArkScript REPL -- ";
         std::cout << "Version " << ARK_VERSION_MAJOR << "." << ARK_VERSION_MINOR << "." << ARK_VERSION_PATCH << " ";
