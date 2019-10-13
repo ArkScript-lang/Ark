@@ -1,6 +1,7 @@
 #include <Ark/REPL/Repl.hpp>
 
-namespace Ark {
+namespace Ark
+{
     void Repl::run()
     {
         const std::string new_prompt = ">> ";
