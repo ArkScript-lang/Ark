@@ -9,9 +9,9 @@
 #include <Ark/VM/VM.hpp>
 #include <Ark/VM/State.hpp>
 
-namespace Ark 
+namespace Ark
 {
-    class Repl 
+    class Repl
     {
     public:
         Repl(uint16_t options, std::string lib_dir) : 
