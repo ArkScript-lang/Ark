@@ -21,7 +21,7 @@ int main(int argc, char** argv)
 {
     using namespace clipp;
 
-    enum class mode { help, dev_info, bytecode_reader, version, run };
+    enum class mode { help, dev_info, bytecode_reader, version, run, repl };
     mode selected = mode::help;
 
     std::string file = "", lib_dir = "";
@@ -33,6 +33,7 @@ int main(int argc, char** argv)
         option("-h", "--help").set(selected, mode::help).doc("Display this message")
         | option("--version").set(selected, mode::version).doc("Display ArkScript version and exit")
         | option("--dev-info").set(selected, mode::dev_info).doc("Display development information and exit")
+        | option("-r", "--repl").set(selected, mode::repl).doc("Run the ArkScript REPL")
         | (
             value("file", file).set(selected, mode::run)
             , (
@@ -90,6 +91,13 @@ int main(int argc, char** argv)
                 std::cout << "sizeof(char)            = " << sizeof(char) << "B\n";
                 std::cout << std::endl;
                 break;
+            
+            case mode::repl:
+            {
+                Ark::Repl repl(options, lib_dir);
+                repl.run();
+                break;
+            }
             
             case mode::run:
             {
