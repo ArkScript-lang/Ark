@@ -78,7 +78,7 @@ namespace Ark
         std::cout << "Type \"(quit)\" to quit." << std::endl;
     }
 
-    int Repl::count_open_parentheses(std::string line)
+    int Repl::count_open_parentheses(std::string& line)
     {
         int open_parentheses = 0;
 
@@ -94,7 +94,7 @@ namespace Ark
         return open_parentheses;
     }
 
-    int Repl::count_open_braces(std::string line)
+    int Repl::count_open_braces(std::string& line)
     {
         int open_braces = 0;
 

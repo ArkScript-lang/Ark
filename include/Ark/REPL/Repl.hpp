@@ -23,8 +23,8 @@ namespace Ark
         uint16_t m_options;
 
         inline void print_repl_header();
-        int count_open_parentheses(std::string line);
-        int count_open_braces(std::string line);
+        int count_open_parentheses(std::string& line);
+        int count_open_braces(std::string& line);
     };
 }
 
