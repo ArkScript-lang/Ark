@@ -7,8 +7,8 @@
 
 namespace Ark::internal::FFI::Mathematics
 {
-    extern const Value pi_ = Value(M_PI);
-    extern const Value e_ = Value(std::exp(1.0));
+    extern const Value pi_  = Value(M_PI);
+    extern const Value e_   = Value(std::exp(1.0));
     extern const Value tau_ = Value(M_PI * 2.0);
     extern const Value inf_ = Value(HUGE_VAL);
     extern const Value nan_ = Value(std::numeric_limits<double>::signaling_NaN());
@@ -89,6 +89,72 @@ namespace Ark::internal::FFI::Mathematics
             throw std::runtime_error("Argument of isInf must be of type Number");
         
         Value r(std::isinf(n[0].number()));
+        return r;
+    }
+
+    FFI_Function(cos_)
+    {
+        if (n.size() != 1)
+            throw std::runtime_error("cos can take only one argument, a number");
+        if (n[0].valueType() != ValueType::Number)
+            throw std::runtime_error("Argument of cos must be of type Number");
+        
+        Value r(std::cos(n[0].number()));
+        return r;
+    }
+
+    FFI_Function(sin_)
+    {
+        if (n.size() != 1)
+            throw std::runtime_error("sin can take only one argument, a number");
+        if (n[0].valueType() != ValueType::Number)
+            throw std::runtime_error("Argument of sin must be of type Number");
+        
+        Value r(std::sin(n[0].number()));
+        return r;
+    }
+
+    FFI_Function(tan_)
+    {
+        if (n.size() != 1)
+            throw std::runtime_error("tan can take only one argument, a number");
+        if (n[0].valueType() != ValueType::Number)
+            throw std::runtime_error("Argument of tan must be of type Number");
+        
+        Value r(std::tan(n[0].number()));
+        return r;
+    }
+
+    FFI_Function(acos_)
+    {
+        if (n.size() != 1)
+            throw std::runtime_error("arccos can take only one argument, a number");
+        if (n[0].valueType() != ValueType::Number)
+            throw std::runtime_error("Argument of arccos must be of type Number");
+        
+        Value r(std::acos(n[0].number()));
+        return r;
+    }
+
+    FFI_Function(asin_)
+    {
+        if (n.size() != 1)
+            throw std::runtime_error("arcsin can take only one argument, a number");
+        if (n[0].valueType() != ValueType::Number)
+            throw std::runtime_error("Argument of arcsin must be of type Number");
+        
+        Value r(std::asin(n[0].number()));
+        return r;
+    }
+
+    FFI_Function(atan_)
+    {
+        if (n.size() != 1)
+            throw std::runtime_error("arctan can take only one argument, a number");
+        if (n[0].valueType() != ValueType::Number)
+            throw std::runtime_error("Argument of arctan must be of type Number");
+        
+        Value r(std::atan(n[0].number()));
         return r;
     }
 }

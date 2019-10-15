@@ -50,7 +50,13 @@ namespace Ark::internal::FFI
         { "E", Mathematics::e_ },
         { "Tau", Mathematics::tau_ },
         { "Inf", Mathematics::inf_ },
-        { "NaN", Mathematics::nan_ }
+        { "NaN", Mathematics::nan_ },
+        { "cos", Mathematics::cos_ },
+        { "sin", Mathematics::sin_ },
+        { "tan", Mathematics::tan_ },
+        { "arccos", Mathematics::acos_ },
+        { "arcsin", Mathematics::asin_ },
+        { "arctan", Mathematics::atan_ }
     };
 
     // This list is related to include/Ark/Compiler/Instructions.hpp

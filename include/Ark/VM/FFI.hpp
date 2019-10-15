@@ -71,6 +71,13 @@ namespace Ark::internal::FFI
         extern const Value tau_;
         extern const Value inf_;
         extern const Value nan_;
+
+        FFI_Function(cos_);  // cos, 1 argument
+        FFI_Function(sin_);  // sin, 1 argument
+        FFI_Function(tan_);  // tan, 1 argument
+        FFI_Function(acos_);  // arccos, 1 argument
+        FFI_Function(asin_);  // arcsin, 1 argument
+        FFI_Function(atan_);  // arctan, 1 argument
     }
 }
 
