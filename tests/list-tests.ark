@@ -1,4 +1,6 @@
 {
+    (import "List/Sum.ark")
+
     (let list-tests (fun () {
         (let a [12 42])
         (assert (= "List" (type a)) "List test 1 failed")
@@ -23,6 +25,8 @@
 
         (assert (= [12 42 12 42] (concat a a)) "List test 8 failed")
         (assert (= [12 42] (concat a [])) "List test 8°2 failed")
+
+        (assert (= 6 (sum [1 2 3])) "List test 9 failed")
 
         (print "  List tests passed")
     }))

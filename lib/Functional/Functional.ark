@@ -2,7 +2,7 @@
     (let compose (fun (f g)
         (fun (y &f &g) (f (g y)))))
     
-    (let zip (fun a b) {
+    (let zip (fun (a b) {
         (if (!= (len a) (len b)) nil
             {
                 (mut c [])
@@ -12,9 +12,9 @@
                     (set idx (+ 1 idx))})
                 c
                 })
-    })
+    }))
 
-    (let map (fun f L) {
+    (let map (fun (f L) {
         (mut idx 0)
         (mut output [])
         (while (< idx (len L)) {
@@ -22,5 +22,5 @@
             (set idx (+ 1 idx))
         })
         output
-    })
+    }))
 }

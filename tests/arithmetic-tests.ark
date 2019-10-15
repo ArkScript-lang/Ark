@@ -1,4 +1,6 @@
 {
+    (import "Math/Arithmetic.ark")
+
     (let math-tests (fun () {
         (assert (= 3 3.0) "Math test basic failed")
 
@@ -36,6 +38,20 @@
         (assert (= 2 (mod 12 7 3)) "Math test 10°5 failed")
         (assert (and true true true) "Math test 10°6 failed")
         (assert (or false false true) "Math test 10°7 failed")
+
+        (assert (= (exp 0) 1) "Math test 11 failed")
+        (assert (= (ln 1) 0) "Math 11°2 failed")
+        (assert (= E (exp 1)) "Math test 11°3 failed")
+        (assert (= Tau (* 2 Pi)) "Math test 11°4 failed")
+        (assert (isNaN NaN) "Math test 11°5 failed")
+        (assert (isInf Inf) "Math test 11°6 failed")
+        (assert (= false (isNaN 0)) "Math test 11°7 failed")
+        (assert (= false (isInf 0)) "Math test 11°8 failed")
+
+        (assert (= (pow 2 2) 4) "Math test 12 failed")
+        (assert (= (sqrt 4) 2) "Math test 12°2 failed")
+        (assert (= (abs -1) 1) "Math test 12°3 failed")
+        (assert (= (abs 1) 1) "Math test 12°4 failed")
 
         (print "  Math tests passed")
     }))
