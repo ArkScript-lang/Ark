@@ -1,4 +1,16 @@
 {
     (let compose (fun (f g)
         (fun (y &f &g) (f (g y)))))
+    
+    (let zip (fun a b) {
+        (if (!= (len a) (len b)) nil
+            {
+                (mut c [])
+                (mut idx 0)
+                (while (< idx (len a)) {
+                    (set c (append c [(@ a idx) (@ b idx)]))
+                    (set idx (+ 1 idx))})
+                c
+                })
+    })
 }
