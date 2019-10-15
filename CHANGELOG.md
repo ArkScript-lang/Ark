@@ -1,14 +1,19 @@
 # Change Log
 
-## Unreleased changes
+## 3.0.7
 ### Added
+- `cos`, `arccos`, `sin`, `arcsin`, `tan`, `arctan`
+- `E` (exp 1), `Pi`, `Tau` (2 * Pi), `NaN`, `Inf`
+- `isNaN`, `isInf`
+- `exp`, `ln` (standard logarithm), `pow`, `sqrt`
+- `ceil`, `round`, `floor`
+- `zip`, `map`, `sum`
+- REPL, made by @rstefanic
 
 ### Changed
 - moved the lib files in subfolders to be more organized
 - re-updating the import rules on the parser side to be able to import files in subfolders from the standard library
 - updating naming convention of the modules
-
-### Removed
 
 ## 3.0.6-b
 ### Added

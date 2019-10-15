@@ -1,5 +1,5 @@
 # ArkScript
-### Current version: 3.0.6
+### Current version: 3.0.7
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/fd5900d08a97487486c43079c06e19ce)](https://app.codacy.com/app/folaefolc/Ark?utm_source=github.com&utm_medium=referral&utm_content=SuperFola/Ark&utm_campaign=Badge_Grade_Settings)
 [![Build Status](https://travis-ci.org/SuperFola/Ark.svg?branch=rework)](https://travis-ci.org/SuperFola/Ark)
@@ -120,12 +120,14 @@ SYNOPSIS
         build/Ark -h
         build/Ark --version
         build/Ark --dev-info
+        build/Ark -r
         build/Ark <file> [-d|-bcr] [-L <lib_dir>] [-ffunction-arity-check|-fno-function-arity-check]
 
 OPTIONS
         -h, --help                  Display this message
         --version                   Display ArkScript version and exit
         --dev-info                  Display development information and exit
+        -r, --repl                  Run the ArkScript REPL
         -d, --debug                 Enable debug mode
         -bcr, --bytecode-reader     Launch the bytecode reader
         -L, --lib                   Define the directory where the Ark standard library is
