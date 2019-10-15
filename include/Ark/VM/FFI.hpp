@@ -65,6 +65,12 @@ namespace Ark::internal::FFI
         FFI_Function(round_);  // round, 1 argument
         FFI_Function(isnan_);  // isNaN, 1 argument
         FFI_Function(isinf_);  // isInf, 1 argument
+
+        extern const Value pi_;
+        extern const Value e_;
+        extern const Value tau_;
+        extern const Value inf_;
+        extern const Value nan_;
     }
 }
 

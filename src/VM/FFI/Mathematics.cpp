@@ -1,11 +1,18 @@
 #include <Ark/VM/FFI.hpp>
 
 #include <cmath>
+#include <limits>
 
 #define FFI_Function(name) Value name(const std::vector<Value>& n)
 
 namespace Ark::internal::FFI::Mathematics
 {
+    extern const Value pi_ = Value(M_PI);
+    extern const Value e_ = Value(std::exp(1.0));
+    extern const Value tau_ = Value(M_PI * 2.0);
+    extern const Value inf_ = Value(HUGE_VAL);
+    extern const Value nan_ = Value(std::numeric_limits<double>::signaling_NaN());
+
     FFI_Function(exponential)
     {
         if (n.size() != 1)

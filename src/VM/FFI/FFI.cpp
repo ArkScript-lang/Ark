@@ -45,7 +45,12 @@ namespace Ark::internal::FFI
         { "floor", Value(Mathematics::floor_) },
         { "round", Value(Mathematics::round_) },
         { "isNaN", Value(Mathematics::isnan_) },
-        { "isInf", Value(Mathematics::isinf_) }
+        { "isInf", Value(Mathematics::isinf_) },
+        { "Pi", Mathematics::pi_ },
+        { "E", Mathematics::e_ },
+        { "Tau", Mathematics::tau_ },
+        { "Inf", Mathematics::inf_ },
+        { "NaN", Mathematics::nan_ }
     };
 
     // This list is related to include/Ark/Compiler/Instructions.hpp
