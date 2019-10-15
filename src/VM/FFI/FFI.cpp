@@ -11,28 +11,46 @@ namespace Ark::internal::FFI
     extern const Value undefined = Value(NFT::Undefined);
 
     extern const std::vector<std::pair<std::string, Value>> builtins = {
+        // builtin variables or constants
         { "false",  falseSym },
         { "true",   trueSym },
         { "nil",    nil },
 
+        // Array
         { "append", Value(Array::append) },
         { "concat", Value(Array::concat) },
         { "list",   Value(Array::list) },
 
+        // IO
         { "print",  Value(IO::print) },
         { "input",  Value(IO::input) },
         { "writeFile", Value(IO::writeFile) },
         { "readFile", Value(IO::readFile) },
         { "fileExists?", Value(IO::fileExists) },
 
+        // Time
         { "time", Value(Time::timeSinceEpoch) },
         { "sleep", Value(Time::sleep) },
 
+        // System
         { "system", Value(System::system_) },
 
-        { "format", Value(String::format) }
+        // String
+        { "format", Value(String::format) },
+
+        // Mathematics
+        { "exp", Value(Mathematics::exponential) },
+        { "ln", Value(Mathematics::logarithm) },
+        { "ceil", Value(Mathematics::ceil_) },
+        { "floor", Value(Mathematics::floor_) },
+        { "round", Value(Mathematics::round_) },
+        { "isNaN", Value(Mathematics::isnan_) },
+        { "isInf", Value(Mathematics::isinf_) }
     };
 
+    // This list is related to include/Ark/Compiler/Instructions.hpp
+    // from FIRST_OPERATOR, to LAST_OPERATOR
+    // The order is very important
     extern const std::vector<std::string> operators = {
         "+", "-", "*", "/",
         ">", "<", "<=", ">=", "!=", "=",

@@ -35,6 +35,10 @@ namespace Ark::internal
             GET_FIELD = 0x10,
         LAST_COMMAND = 0x10,
 
+        // NB: when adding an operator, it must be referenced as well under
+        // src/VM/FFI.cpp, in the operators table
+        // The order of the operators below must be the same as the one in
+        // the operators table from src/VM/FFI.cpp
         FIRST_OPERATOR = 0x20,
             ADD = 0x20,
             SUB = 0x21,
