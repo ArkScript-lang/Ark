@@ -50,7 +50,8 @@ namespace Ark
         {
             throw std::runtime_error("ParseError: " + message + "\nAt " +
                 Ark::Utils::toString(token.line) + ":" + Ark::Utils::toString(token.col) +
-                " `" + token.token + "' (" + internal::tokentype_string[static_cast<unsigned>(token.type)] + ")"
+                " `" + token.token + "' (" + internal::tokentype_string[static_cast<unsigned>(token.type)] + ")" +
+                ((m_file != "FILE") ? " in file " + m_file : "")
             );
         }
 
