@@ -6,4 +6,6 @@
         )))
     
     (let pow (fun x a) (exp (* a (ln x))))
+
+    (let sqrt (fun x) (exp (* 0.5 (ln x))))
 }
