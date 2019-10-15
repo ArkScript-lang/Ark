@@ -37,6 +37,7 @@ namespace Ark::internal::FFI
 
         // String
         { "format", Value(String::format) },
+        { "findSubStr", Value(String::findSubStr) },
 
         // Mathematics
         { "exp", Value(Mathematics::exponential) },
@@ -46,17 +47,17 @@ namespace Ark::internal::FFI
         { "round", Value(Mathematics::round_) },
         { "isNaN", Value(Mathematics::isnan_) },
         { "isInf", Value(Mathematics::isinf_) },
-        { "Pi", Mathematics::pi_ },
-        { "E", Mathematics::e_ },
-        { "Tau", Mathematics::tau_ },
-        { "Inf", Mathematics::inf_ },
-        { "NaN", Mathematics::nan_ },
-        { "cos", Mathematics::cos_ },
-        { "sin", Mathematics::sin_ },
-        { "tan", Mathematics::tan_ },
-        { "arccos", Mathematics::acos_ },
-        { "arcsin", Mathematics::asin_ },
-        { "arctan", Mathematics::atan_ }
+        { "Pi", Value(Mathematics::pi_) },
+        { "E", Value(Mathematics::e_) },
+        { "Tau", Value(Mathematics::tau_) },
+        { "Inf", Value(Mathematics::inf_) },
+        { "NaN", Value(Mathematics::nan_) },
+        { "cos", Value(Mathematics::cos_) },
+        { "sin", Value(Mathematics::sin_) },
+        { "tan", Value(Mathematics::tan_) },
+        { "arccos", Value(Mathematics::acos_) },
+        { "arcsin", Value(Mathematics::asin_) },
+        { "arctan", Value(Mathematics::atan_) }
     };
 
     // This list is related to include/Ark/Compiler/Instructions.hpp

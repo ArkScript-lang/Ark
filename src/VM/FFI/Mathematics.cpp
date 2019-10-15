@@ -1,6 +1,8 @@
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include <Ark/VM/FFI.hpp>
 
-#include <cmath>
 #include <limits>
 
 #define FFI_Function(name) Value name(const std::vector<Value>& n)

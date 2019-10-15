@@ -27,4 +27,16 @@ namespace Ark::internal::FFI::String
 
         return Value(std::string(f));
     }
+
+    FFI_Function(findSubStr)
+    {
+        if (n.size() != 2)
+            throw std::runtime_error("findSubStr take exactly 2 arguments: a string and the substring to search for");
+        if (n[0].valueType() != ValueType::String)
+            throw std::runtime_error("Argument 1 of findSubStr must be of type String");
+        if (n[1].valueType() != ValueType::String)
+            throw std::runtime_error("Argument 2 of findSubStr must be of type String");
+        
+        return (n[0].string().find(n[1].string()) != std::string::npos) ? trueSym : falseSym;
+    }
 }

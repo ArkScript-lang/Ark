@@ -54,6 +54,7 @@ namespace Ark::internal::FFI
     namespace String
     {
         FFI_Function(format);  // format, multiple arguments
+        FFI_Function(findSubStr);  // findSubStr, 2 arguments
     }
 
     namespace Mathematics
