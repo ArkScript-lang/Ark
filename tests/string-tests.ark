@@ -23,7 +23,7 @@
         (assert (= "( 12 42 )" (toString [12 42])) "String test 8°5 failed")
 
         (assert (findSubStr "hello world" "hello") "String test 9 failed")
-        (assert (findSubStr "hello world" "abc") "String test 9°2 failed")
+        (assert (= false (findSubStr "hello world" "abc")) "String test 9°2 failed")
 
         (print "  String tests passed")
     }))

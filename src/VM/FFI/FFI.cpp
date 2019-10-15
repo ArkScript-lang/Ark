@@ -1,3 +1,7 @@
+#define _USE_MATH_DEFINES
+#include <cmath>
+#include <limits>
+
 #include <Ark/VM/FFI.hpp>
 
 #define FFI_Function(name) Value name(const std::vector<Value>& n)
@@ -9,6 +13,15 @@ namespace Ark::internal::FFI
     extern const Value nil      = Value(NFT::Nil);
     // not assignable value
     extern const Value undefined = Value(NFT::Undefined);
+
+    namespace Mathematics
+    {
+        extern const Value pi_  = Value(M_PI);
+        extern const Value e_   = Value(std::exp(1.0));
+        extern const Value tau_ = Value(M_PI * 2.0);
+        extern const Value inf_ = Value(HUGE_VAL);
+        extern const Value nan_ = Value(std::numeric_limits<double>::signaling_NaN());
+    }
 
     extern const std::vector<std::pair<std::string, Value>> builtins = {
         // builtin variables or constants
@@ -47,11 +60,11 @@ namespace Ark::internal::FFI
         { "round", Value(Mathematics::round_) },
         { "isNaN", Value(Mathematics::isnan_) },
         { "isInf", Value(Mathematics::isinf_) },
-        { "Pi", Value(Mathematics::pi_) },
-        { "E", Value(Mathematics::e_) },
-        { "Tau", Value(Mathematics::tau_) },
-        { "Inf", Value(Mathematics::inf_) },
-        { "NaN", Value(Mathematics::nan_) },
+        { "Pi", Mathematics::pi_ },
+        { "E", Mathematics::e_ },
+        { "Tau", Mathematics::tau_ },
+        { "Inf", Mathematics::inf_ },
+        { "NaN", Mathematics::nan_ },
         { "cos", Value(Mathematics::cos_) },
         { "sin", Value(Mathematics::sin_) },
         { "tan", Value(Mathematics::tan_) },

@@ -3,18 +3,10 @@
 
 #include <Ark/VM/FFI.hpp>
 
-#include <limits>
-
 #define FFI_Function(name) Value name(const std::vector<Value>& n)
 
 namespace Ark::internal::FFI::Mathematics
 {
-    extern const Value pi_  = Value(M_PI);
-    extern const Value e_   = Value(std::exp(1.0));
-    extern const Value tau_ = Value(M_PI * 2.0);
-    extern const Value inf_ = Value(HUGE_VAL);
-    extern const Value nan_ = Value(std::numeric_limits<double>::signaling_NaN());
-
     FFI_Function(exponential)
     {
         if (n.size() != 1)
@@ -79,8 +71,7 @@ namespace Ark::internal::FFI::Mathematics
         if (n[0].valueType() != ValueType::Number)
             throw std::runtime_error("Argument of isNaN must be of type Number");
         
-        Value r(std::isnan(n[0].number()));
-        return r;
+        return std::isnan(n[0].number()) ? trueSym : falseSym;
     }
 
     FFI_Function(isinf_)
@@ -90,8 +81,7 @@ namespace Ark::internal::FFI::Mathematics
         if (n[0].valueType() != ValueType::Number)
             throw std::runtime_error("Argument of isInf must be of type Number");
         
-        Value r(std::isinf(n[0].number()));
-        return r;
+        return std::isinf(n[0].number()) ? trueSym : falseSym;
     }
 
     FFI_Function(cos_)
