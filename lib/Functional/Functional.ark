@@ -13,4 +13,14 @@
                 c
                 })
     })
+
+    (let map (fun f L) {
+        (mut idx 0)
+        (mut output [])
+        (while (< idx (len L)) {
+            (set output (append output (f (@ L idx))))
+            (set idx (+ 1 idx))
+        })
+        output
+    })
 }
