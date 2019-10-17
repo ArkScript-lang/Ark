@@ -11,7 +11,7 @@ namespace Ark
 
         while(true)
         {
-            Ark::Compiler compiler(false);
+            Ark::Compiler compiler(false, m_lib_dir);
             Ark::State state(m_lib_dir);
             Ark::VM vm(&state, m_options);
             state.setDebug(false);
@@ -78,11 +78,11 @@ namespace Ark
         std::cout << "Type \"(quit)\" to quit." << std::endl;
     }
 
-    int Repl::count_open_parentheses(std::string& line)
+    int Repl::count_open_parentheses(const std::string& line)
     {
         int open_parentheses = 0;
 
-        for(char& c: line)
+        for(const char& c: line)
         {
             switch(c)
             {
@@ -94,11 +94,11 @@ namespace Ark
         return open_parentheses;
     }
 
-    int Repl::count_open_braces(std::string& line)
+    int Repl::count_open_braces(const std::string& line)
     {
         int open_braces = 0;
 
-        for(char& c: line)
+        for(const char& c: line)
         {
             switch(c)
             {

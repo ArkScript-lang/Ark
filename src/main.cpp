@@ -33,7 +33,11 @@ int main(int argc, char** argv)
         option("-h", "--help").set(selected, mode::help).doc("Display this message")
         | option("--version").set(selected, mode::version).doc("Display ArkScript version and exit")
         | option("--dev-info").set(selected, mode::dev_info).doc("Display development information and exit")
-        | option("-r", "--repl").set(selected, mode::repl).doc("Run the ArkScript REPL")
+        | (
+            option("-r", "--repl").set(selected, mode::repl).doc("Run the ArkScript REPL"),
+            option("-L", "--lib").doc("Define the directory where the Ark standard library is")
+                & value("lib_dir", lib_dir)
+          )
         | (
             value("file", file).set(selected, mode::run)
             , (
