@@ -11,7 +11,7 @@ namespace Ark
 
         while(true)
         {
-            Ark::Compiler compiler(false);
+            Ark::Compiler compiler(false, m_lib_dir);
             Ark::State state(m_lib_dir);
             Ark::VM vm(&state, m_options);
             state.setDebug(false);
