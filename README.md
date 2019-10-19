@@ -12,15 +12,20 @@
 
 ## Key features
 
-* Ark is small: the compiler, and the virtual machines fit under 5000 lines, but also small in term of keywords (it has only 10)!
-* Ark is a scripting language: it's very easy to embed it in your application. The FFI is quite easy to understand, so adding your own functions to the virtual machine is effortless
-* Ark can run everywhere: it produces a bytecode which is run by its virtual machine, like Java but without the `OutOfMemoryException`
-* Ark is a functional language: every parameters are passed by value, everything is immutable unless you use `mut` to define a mutable variable
-* Ark can handle object oriented programming in a very elegant way with its closures and explicit captures (see examples/church-encoding)
-* Ark is promoting functionalities before performances: expressiveness often brings more productivity, but performances aren't bad at all
-* Ark handles first class objects, thus it has higher-order functions
-* Ark is easy to compile: it takes less than 200ms to compile and check a complex code with a lot of branches and sub-branches of 200 lines.
-* Ark is a Lisp-like, but with less parentheses: `[...]` is expanded to `(list ...)` and `{}` to `(begin ...)`. More shorthands will come in the future.
+ArkScript is
+* small: the compiler, and the virtual machines fit under 5000 lines, but also small in term of keywords (it has only 10)!
+* a scripting language: it's very easy to embed it in your application. The FFI is quite easy to understand, so adding your own functions to the virtual machine is effortless
+* portable: it produces a bytecode which is run by its virtual machine, like Java but without the `OutOfMemoryException`
+* a functional language: every parameters are passed by value, everything is immutable unless you use `mut` to define a mutable variable
+* powerful: it can handle object oriented programming in a very elegant way with its closures and explicit captures (see examples/church-encoding)
+* promoting functionalities before performances: expressiveness often brings more productivity, but performances aren't bad at all
+* easy to compile: it takes less than 200ms to compile and check a complex code with a lot of branches and sub-branches of 200 lines.
+* a Lisp-like, but with less parentheses: `[...]` is expanded to `(list ...)` and `{}` to `(begin ...)`. More shorthands will come in the future.
+
+Also:
+* it has a REPL
+* it has a growing standard library, composed of ArkScript (under `lib/`) and C++ (under `modules/`)
+* it has a lot of unit tests, which are ran before every release to ensure everything work as intended
 
 ## Examples
 
@@ -83,9 +88,9 @@ More examples are available in the folder `examples/`.
 
 Don't know what to work on? No worries, we have a [list of things to do](https://github.com/SuperFola/Ark/projects) :wink:
 
-### Contributing to the Ark standard library
+### Contributing to the ArkScript standard library
 
-See [Coding guidelines](https://github.com/SuperFola/Ark/wiki/Coding-guidelines#coding-in-ark) if you want to write Ark code for the library (see folder `lib/`).
+See [Coding guidelines](https://github.com/SuperFola/Ark/wiki/Coding-guidelines#coding-in-ark) if you want to write ArkScript for the library (see folder `lib/`).
 
 For performance reasons, some functions might be written in C++, in `include/Ark/VM/FFI.hpp` and `src/VM/FFI/`.
 
@@ -200,8 +205,16 @@ Controls are the arrows (left, right, up and down), the game closes itself when 
 
 This project was inspired by [gameprogramingpatterns](http://gameprogrammingpatterns.com/bytecode.html) and [ofan lisp.cpp](https://gist.github.com/ofan/721464)
 
+### Contributors
+
+Huge thanks to
+* @Natendrtfm (standard library)
+* @rstefanic (REPL)
+* @rinz13r (FFI, standard library)
+* @OfficePop (wiki)
+
 ## Copyright and Licence information
 
 Copyright (c) 2019 Alexandre Plateau. All rights reserved.
 
-This Ark distribution contains no GNU GPL code, which means it can be used in proprietary projects.
+This ArkScript distribution contains no GNU GPL code, which means it can be used in proprietary projects.
