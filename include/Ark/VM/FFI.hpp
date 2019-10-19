@@ -30,6 +30,9 @@ namespace Ark::internal::FFI
         FFI_Function(concat);   // concat, multiple arguments
         FFI_Function(list);     // list,   multiple arguments
         FFI_Function(reverseList);  // reverse, single arg
+        FFI_Function(findInList);
+        FFI_Function (removeAtList);
+        FFI_Function (sliceList);
     }
 
     namespace IO
@@ -56,6 +59,7 @@ namespace Ark::internal::FFI
     {
         FFI_Function(format);  // format, multiple arguments
         FFI_Function(findSubStr);  // findSubStr, 2 arguments
+        FFI_Function (removeAtStr);
     }
 
     namespace Mathematics

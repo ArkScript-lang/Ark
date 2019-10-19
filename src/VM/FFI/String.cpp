@@ -39,4 +39,23 @@ namespace Ark::internal::FFI::String
         
         return (n[0].string().find(n[1].string()) != std::string::npos) ? trueSym : falseSym;
     }
+
+    FFI_Function (removeAtStr)
+    {
+        if (n.size () != 2)
+            throw std::runtime_error("removeAtStr take exactly 2 arguments: a string and an index");
+        if (n[0].valueType() != ValueType::String)
+            throw std::runtime_error("Argument 1 of removeAtStr must be of type String");
+        if (n[1].valueType() != ValueType::Number)
+            throw std::runtime_error("Argument 2 of removeAtStr must be of type Number");
+
+        auto str = n[0].string ();
+        Value id (std::move (n[1]));
+        if (id.number () < 0 || id.number () > str.size ())
+            throw std::runtime_error ("String index out of bounds");
+
+        str.erase (str.begin () + id.number ());
+
+        return Value (str);
+    }
 }
