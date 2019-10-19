@@ -53,7 +53,6 @@ static void vm_boot(benchmark::State& state)
     while (state.KeepRunning())
     {
         Ark::VM vm(&ark_state, 0);
-        vm.run();
     }
 }
 
