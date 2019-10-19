@@ -815,100 +815,42 @@ inline void VM_t<debug>::operators(uint8_t inst)
         case Instruction::GT:
         {
             Value&& b = pop(), a = pop();
-            if (a.valueType() == ValueType::String)
-            {
-                if (b.valueType() != ValueType::String)
-                    throw Ark::TypeError("Arguments of > should have the same type");
-                
-                push((a.string() > b.string()) ? FFI::trueSym : FFI::falseSym);
-                break;
-            }
-            else if (a.valueType() == ValueType::Number)
-            {
-                if (b.valueType() != ValueType::Number)
-                    throw Ark::TypeError("Arguments of > should have the same type");
-                
-                push((a.number() > b.number()) ? FFI::trueSym : FFI::falseSym);
-                break;
-            }
-            throw Ark::TypeError("Arguments of > should either be Strings or Numbers");
+            push((!(a == b) && !(a < b)) ? FFI::trueSym : FFI::falseSym);
+            break;
         }
         
         case Instruction::LT:
         {
             Value&& b = pop(), a = pop();
-            if (a.valueType() == ValueType::String)
-            {
-                if (b.valueType() != ValueType::String)
-                    throw Ark::TypeError("Arguments of < should have the same type");
-                
-                push((a.string() < b.string()) ? FFI::trueSym : FFI::falseSym);
-                break;
-            }
-            else if (a.valueType() == ValueType::Number)
-            {
-                if (b.valueType() != ValueType::Number)
-                    throw Ark::TypeError("Arguments of < should have the same type");
-                
-                push((a.number() < b.number()) ? FFI::trueSym : FFI::falseSym);
-                break;
-            }
-            throw Ark::TypeError("Arguments of < should either be Strings or Numbers");
+            push((a < b) ? FFI::trueSym : FFI::falseSym);
+            break;
         }
 
         case Instruction::LE:
         {
             Value&& b = pop(), a = pop();
-            if (a.valueType() == ValueType::String)
-            {
-                if (b.valueType() != ValueType::String)
-                    throw Ark::TypeError("Arguments of <= should have the same type");
-                
-                push((a.string() <= b.string()) ? FFI::trueSym : FFI::falseSym);
-                break;
-            }
-            else if (a.valueType() == ValueType::Number)
-            {
-                if (b.valueType() != ValueType::Number)
-                    throw Ark::TypeError("Arguments of <= should have the same type");
-                
-                push((a.number() <= b.number()) ? FFI::trueSym : FFI::falseSym);
-                break;
-            }
-            throw Ark::TypeError("Arguments of <= should either be Strings or Numbers");
+            push(((a < b) || (a == b)) ? FFI::trueSym : FFI::falseSym);
+            break;
         }
 
         case Instruction::GE:
         {
             Value&& b = pop(), a = pop();
-            if (a.valueType() == ValueType::String)
-            {
-                if (b.valueType() != ValueType::String)
-                    throw Ark::TypeError("Arguments of >= should have the same type");
-                
-                push((a.string() >= b.string()) ? FFI::trueSym : FFI::falseSym);
-                break;
-            }
-            else if (a.valueType() == ValueType::Number)
-            {
-                if (b.valueType() != ValueType::Number)
-                    throw Ark::TypeError("Arguments of >= should have the same type");
-                
-                push((a.number() >= b.number()) ? FFI::trueSym : FFI::falseSym);
-                break;
-            }
-            throw Ark::TypeError("Arguments of >= should either be Strings or Numbers");
+            push(!(a < b) ? FFI::trueSym : FFI::falseSym);
+            break;
         }
 
         case Instruction::NEQ:
         {
-            push(!(pop() == pop()) ? FFI::trueSym : FFI::falseSym);
+            Value&& b = pop(), a = pop();
+            push((a != b) ? FFI::trueSym : FFI::falseSym);
             break;
         }
 
         case Instruction::EQ:
         {
-            push((pop() == pop()) ? FFI::trueSym : FFI::falseSym);
+            Value&& b = pop(), a = pop();
+            push((a == b) ? FFI::trueSym : FFI::falseSym);
             break;
         }
 
@@ -1033,7 +975,6 @@ inline void VM_t<debug>::operators(uint8_t inst)
 
                 throw Ark::AssertionFailed(b.string());
             }
-            push(FFI::nil);
             break;
         }
 
