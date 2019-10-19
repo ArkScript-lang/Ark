@@ -25,6 +25,9 @@
         (assert (findSubStr "hello world" "hello") "String test 9 failed")
         (assert (= false (findSubStr "hello world" "abc")) "String test 9°2 failed")
 
+        (assert (= (removeAtStr "hello world" 1) "hllo world") "String test 10 failed")
+        (assert (= (removeAtStr "a" 0) "") "String test 10°2 failed")
+
         (print "  String tests passed")
     }))
 

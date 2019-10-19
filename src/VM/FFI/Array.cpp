@@ -43,34 +43,30 @@ namespace Ark::internal::FFI::Array
     FFI_Function(reverseList)
     {
         if (n[0].valueType() != ValueType::List)
-            throw Ark::TypeError("First argument of reverse must be a list");
-
-        if (n.size () != 1) // arity error
-            throw Ark::TypeError ("reverse takes only 1 argument");
+            throw Ark::TypeError("First argument of reverseList must be a list");
+        if (n.size() != 1)  // arity error
+            throw Ark::TypeError("reverseList takes only 1 argument");
 
         Value r(std::move(n[0]));
-        auto & l = r.list ();
-        std::reverse (l.begin (), l.end ());
+        auto& l = r.list();
+        std::reverse(l.begin(), l.end());
 
         return r;
     }
 
     FFI_Function(findInList)
     {
-        if (n.size () != 2) {
-            throw std::runtime_error ("findInList takes 2 arguments");
-        }
-
+        if (n.size() != 2)
+            throw std::runtime_error("findInList takes 2 arguments: a list and a value to find in it");
         if (n[0].valueType() != ValueType::List)
             throw Ark::TypeError("First argument of findInList must be a list");
         
-        Value r (std::move (n[0]));
-        auto & l = r.list ();
+        Value r(std::move(n[0]));
+        std::vector<Value>& l = r.list();
         for (Value::Iterator it=l.begin(); it != l.end(); ++it)
         {
-            if (*it == n[1]) {
+            if (*it == n[1])
                 return trueSym;
-            }
         }
 
         return falseSym;
@@ -78,58 +74,56 @@ namespace Ark::internal::FFI::Array
 
     FFI_Function(removeAtList)
     {
-        if (n.size () != 2)
-            throw std::runtime_error ("removeAtList takes 2 arguments");
-
+        if (n.size() != 2)
+            throw std::runtime_error("removeAtList takes 2 arguments: a list and an index");
         if (n[0].valueType() != ValueType::List)
             throw Ark::TypeError("First argument of removeAtList must be a list");
-        if (n[1].valueType () != ValueType::Number)
-            throw Ark::TypeError("Second argument of removeAtList must be a Number");            
+        if (n[1].valueType() != ValueType::Number)
+            throw Ark::TypeError("Second argument of removeAtList must be a Number");
 
-        Value r (std::move (n[0]));
-        Value id (std::move (n[1]));
-        auto l = r.list ();
-        if (id.number () < 0 || id.number () >= l.size ())
-            throw std::runtime_error ("List index out of bounds");
+        Value r(std::move(n[0]));
+        std::size_t idx = static_cast<std::size_t>(n[1].number());
+        std::vector<Value>& l = r.list();
+        if (idx < 0 || idx >= l.size())
+            throw std::runtime_error("List index out of range");
 
-        l.erase (l.begin () + id.number ());
-        return Value (std::move (l));
+        l.erase(l.begin () + idx);
+        return r;
     }
 
     FFI_Function(sliceList)
     {
         if (n.size () != 4)
-            throw std::runtime_error ("sliceList takes 4 arguments");
-
+            throw std::runtime_error("sliceList takes 4 arguments: a list, a start position, an end position, and a step");
         if (n[0].valueType() != ValueType::List)
             throw Ark::TypeError("First argument of sliceList must be a list");
-        if (n[1].valueType () != ValueType::Number)
+        if (n[1].valueType() != ValueType::Number)
             throw Ark::TypeError("Second argument of sliceList must be a Number");
-        if (n[2].valueType () != ValueType::Number)
+        if (n[2].valueType() != ValueType::Number)
             throw Ark::TypeError("Third argument of sliceList must be a Number");
-        if (n[3].valueType () != ValueType::Number)
+        if (n[3].valueType() != ValueType::Number)
             throw Ark::TypeError("Fourth argument of sliceList must be a Number");
 
-        Value step (std::move (n[3]));
-        if (step.number () == 0)
-            throw std::runtime_error ("Step can't be 0.");
+        long step = static_cast<long>(n[3].number());
+        if (step == 0)
+            throw std::runtime_error ("Step can't be 0");
 
-        Value r (std::move (n[0]));
-        Value s (std::move (n[1]));
-        Value e (std::move (n[2]));
+        Value r(std::move(n[0]));
+        long start = static_cast<long>(n[1].number());
+        long end = static_cast<long>(n[2].number());
 
-        auto l = r.list ();
-        if (s.number () > e.number ())
-            throw std::runtime_error ("Start must be less than equal to end index");
+        auto l = r.list();
+        if (start > end)
+            throw std::runtime_error("Start position must be less or equal to end position");
 
-        if (s.number () < 0 || e.number () > l.size ())
-            throw std::runtime_error ("Slice indices out of bounds");
+        if (start < 0 || end > l.size())
+            throw std::runtime_error("Slice indices out of range");
 
         std::vector<Value> retlist;
-        for (size_t i = s.number (); i < e.number (); i += step.number ())
-            retlist.push_back (l[i]);
+        for (std::size_t i=start; i < end; i += step)
+            retlist.push_back(l[i]);
 
-        Value ret (std::move (retlist));
+        Value ret(std::move(retlist));
         return ret;
     }
 }

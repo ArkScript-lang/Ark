@@ -8,6 +8,7 @@
 ### Changed
 - the internal API used to compare values has been updated to be much shorter
 - the REPL can take into account the lib directory, by @rstefanic
+- `isNaN` and `isInf` should work on any type but return false if they aren't numbers
 
 ### Removed
 
