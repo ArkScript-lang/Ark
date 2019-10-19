@@ -28,6 +28,7 @@ namespace Ark::internal
         }
 
         friend inline bool operator==(const Closure& A, const Closure& B);
+        friend inline bool operator<(const Closure& A, const Closure& B);
     
     private:
         Scope_t m_scope;
@@ -37,6 +38,11 @@ namespace Ark::internal
     inline bool operator==(const Closure& A, const Closure& B)
     {
         return A.m_scope == B.m_scope;
+    }
+
+    inline bool operator<(const Closure& A, const Closure& B)
+    {
+        return A.m_page_addr < B.m_page_addr;
     }
 }
 

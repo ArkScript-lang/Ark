@@ -90,8 +90,8 @@ namespace Ark::internal
         void push_back(Value&& value);
 
         friend std::ostream& operator<<(std::ostream& os, const Value& V);
-        friend inline const bool operator==(const Value& A, const Value& B);
-        friend inline const bool operator<(const Value& A, const Value& B);
+        friend inline bool operator==(const Value& A, const Value& B);
+        friend inline bool operator<(const Value& A, const Value& B);
 
         template<bool D> friend class Ark::VM_t;
 
@@ -124,7 +124,7 @@ namespace Ark::internal
         Closure& closure_ref();
     };
 
-    inline const bool operator==(const Value& A, const Value& B)
+    inline bool operator==(const Value& A, const Value& B)
     {
         // values should have the same type
         if (A.m_type != B.m_type)
@@ -133,14 +133,14 @@ namespace Ark::internal
         return A.m_value == B.m_value;
     }
 
-    inline const bool operator<(const Value& A, const Value& B)
+    inline bool operator<(const Value& A, const Value& B)
     {
         if (A.m_type != B.m_type)
             return (static_cast<int>(A.m_type) - static_cast<int>(B.m_type)) < 0;
         return A.m_value < B.m_value;
     }
 
-    inline const bool operator!=(const Value& A, const Value& B)
+    inline bool operator!=(const Value& A, const Value& B)
     {
         return !(A == B);
     }
