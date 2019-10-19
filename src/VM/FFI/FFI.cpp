@@ -55,6 +55,7 @@ namespace Ark::internal::FFI
         // String
         { "format", Value(String::format) },
         { "findSubStr", Value(String::findSubStr) },
+        { "removeAtStr", Value (String::removeAtStr)},
 
         // Mathematics
         { "exp", Value(Mathematics::exponential) },
