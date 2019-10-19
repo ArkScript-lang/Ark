@@ -54,4 +54,25 @@ namespace Ark::internal::FFI::Array
 
         return r;
     }
+
+    FFI_Function(findInList)
+    {
+        if (n.size () != 2) {
+            throw std::runtime_error ("findInList takes 2 arguments");
+        }
+
+        if (n[0].valueType() != ValueType::List)
+            throw Ark::TypeError("First argument of findInList must be a list");
+        
+        Value r (std::move (n[0]));
+        auto & l = r.list ();
+        for (Value::Iterator it=l.begin(); it != l.end(); ++it)
+        {
+            if (*it == n[1]) {
+                return trueSym;
+            }
+        }
+
+        return falseSym;
+    }
 }

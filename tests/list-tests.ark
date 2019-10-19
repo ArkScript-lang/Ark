@@ -31,6 +31,8 @@
         (assert (= [3 2 1] (reverseList [1 2 3])) "List test 10 failed")
         (assert (= ["three" 2 1] (reverseList [1 2 "three"])) "List test 10°2 failed")
 
+        (assert (= (findInList [1 2 3 "asdf"] "asd") false) "List test 11 failed")
+
         (print "  List tests passed")
     }))
 

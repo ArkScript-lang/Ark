@@ -34,6 +34,7 @@ namespace Ark::internal::FFI
         { "concat", Value(Array::concat) },
         { "list",   Value(Array::list) },
         {"reverseList", Value(Array::reverseList)},
+        {"findInList", Value(Array::findInList)},
 
         // IO
         { "print",  Value(IO::print) },

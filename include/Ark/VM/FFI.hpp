@@ -30,6 +30,7 @@ namespace Ark::internal::FFI
         FFI_Function(concat);   // concat, multiple arguments
         FFI_Function(list);     // list,   multiple arguments
         FFI_Function(reverseList);  // reverse, single arg
+        FFI_Function(findInList);
     }
 
     namespace IO
