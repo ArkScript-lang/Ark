@@ -32,6 +32,7 @@ namespace Ark::internal::FFI
         FFI_Function(reverseList);  // reverse, single arg
         FFI_Function(findInList);
         FFI_Function (removeAtList);
+        FFI_Function (sliceList);
     }
 
     namespace IO

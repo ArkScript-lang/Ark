@@ -35,6 +35,7 @@
 
         (assert (= (removeAtList [1 2 3] 1) [1 3]) "List test 12 failed")
 
+        (assert (= (sliceList [1 2 3 4 5] 0 2 1) [1 2]) "List test 13 failed")
         (print "  List tests passed")
     }))
 

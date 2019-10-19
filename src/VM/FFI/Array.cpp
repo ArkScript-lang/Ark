@@ -95,4 +95,41 @@ namespace Ark::internal::FFI::Array
         l.erase (l.begin () + id.number ());
         return Value (std::move (l));
     }
+
+    FFI_Function(sliceList)
+    {
+        if (n.size () != 4)
+            throw std::runtime_error ("sliceList takes 4 arguments");
+
+        if (n[0].valueType() != ValueType::List)
+            throw Ark::TypeError("First argument of sliceList must be a list");
+        if (n[1].valueType () != ValueType::Number)
+            throw Ark::TypeError("Second argument of sliceList must be a Number");
+        if (n[2].valueType () != ValueType::Number)
+            throw Ark::TypeError("Third argument of sliceList must be a Number");
+        if (n[3].valueType () != ValueType::Number)
+            throw Ark::TypeError("Fourth argument of sliceList must be a Number");
+
+        Value step (std::move (n[3]));
+        if (step.number () == 0)
+            throw std::runtime_error ("Step can't be 0.");
+
+        Value r (std::move (n[0]));
+        Value s (std::move (n[1]));
+        Value e (std::move (n[2]));
+
+        auto l = r.list ();
+        if (s.number () > e.number ())
+            throw std::runtime_error ("Start must be less than equal to end index");
+
+        if (s.number () < 0 || e.number () > l.size ())
+            throw std::runtime_error ("Slice indices out of bounds");
+
+        std::vector<Value> retlist;
+        for (size_t i = s.number (); i < e.number (); i += step.number ())
+            retlist.push_back (l[i]);
+
+        Value ret (std::move (retlist));
+        return ret;
+    }
 }

@@ -36,6 +36,7 @@ namespace Ark::internal::FFI
         {"reverseList", Value(Array::reverseList)},
         {"findInList", Value(Array::findInList)},
         {"removeAtList", Value (Array::removeAtList)},
+        {"sliceList", Value (Array::sliceList)},
 
         // IO
         { "print",  Value(IO::print) },
