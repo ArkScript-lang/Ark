@@ -8,7 +8,7 @@ namespace Ark::internal::FFI::Array
     {
         if (n[0].valueType() != ValueType::List)
             throw Ark::TypeError("First argument of append must be a list");
-        
+
         Value r(std::move(n[0]));
         for (Value::Iterator it=n.begin()+1; it != n.end(); ++it)
             r.push_back(*it);
@@ -19,7 +19,7 @@ namespace Ark::internal::FFI::Array
     {
         if (n[0].valueType() != ValueType::List)
             throw Ark::TypeError("First argument of concat should be a list");
-        
+
         Value r(std::move(n[0]));
         for (Value::Iterator it=n.begin()+1; it != n.end(); ++it)
         {
@@ -37,6 +37,21 @@ namespace Ark::internal::FFI::Array
         Value r(ValueType::List);
         for (Value::Iterator it=n.begin(); it != n.end(); ++it)
             r.push_back(*it);
+        return r;
+    }
+
+    FFI_Function(reverseList)
+    {
+        if (n[0].valueType() != ValueType::List)
+            throw Ark::TypeError("First argument of reverse must be a list");
+
+        if (n.size () != 1) // arity error
+            throw Ark::TypeError ("reverse takes only 1 argument");
+
+        Value r(std::move(n[0]));
+        auto & l = r.list ();
+        std::reverse (l.begin (), l.end ());
+
         return r;
     }
 }

@@ -33,6 +33,7 @@ namespace Ark::internal::FFI
         { "append", Value(Array::append) },
         { "concat", Value(Array::concat) },
         { "list",   Value(Array::list) },
+        {"reverseList", Value(Array::reverseList)},
 
         // IO
         { "print",  Value(IO::print) },

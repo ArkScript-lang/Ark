@@ -29,6 +29,7 @@ namespace Ark::internal::FFI
         FFI_Function(append);   // append, multiple arguments
         FFI_Function(concat);   // concat, multiple arguments
         FFI_Function(list);     // list,   multiple arguments
+        FFI_Function(reverseList);  // reverse, single arg
     }
 
     namespace IO
