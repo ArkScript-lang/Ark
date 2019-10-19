@@ -1,5 +1,16 @@
 # Change Log
 
+## Unreleased changes
+### Added
+- it's now possible to compare Values using `operator<`
+- `reverseList` (added to the FFI) by @rinz13r
+
+### Changed
+- the internal API used to compare values has been updated to be much shorter
+- the REPL can take into account the lib directory, by @rstefanic
+
+### Removed
+
 ## 3.0.7
 ### Added
 - `cos`, `arccos`, `sin`, `arcsin`, `tan`, `arctan`
