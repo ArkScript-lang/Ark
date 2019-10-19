@@ -40,18 +40,18 @@ namespace Ark::internal::FFI::Array
         return r;
     }
 
-	FFI_Function(reverse)
-	{
-		if (n[0].valueType() != ValueType::List)
+    FFI_Function(reverseList)
+    {
+        if (n[0].valueType() != ValueType::List)
             throw Ark::TypeError("First argument of reverse must be a list");
 
-		if (n.size () != 1) // arity error
-			throw Ark::TypeError ("reverse takes only 1 argument");
+        if (n.size () != 1) // arity error
+            throw Ark::TypeError ("reverse takes only 1 argument");
 
-		Value r(std::move(n[0]));
-		auto & l = r.list ();
-		std::reverse (l.begin (), l.end ());
+        Value r(std::move(n[0]));
+        auto & l = r.list ();
+        std::reverse (l.begin (), l.end ());
 
-		return r;
+        return r;
     }
 }
