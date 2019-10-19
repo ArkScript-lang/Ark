@@ -33,6 +33,8 @@
 
         (assert (= (findInList [1 2 3 "asdf"] "asd") false) "List test 11 failed")
 
+        (assert (= (removeAtList [1 2 3] 1) [1 3]) "List test 12 failed")
+
         (print "  List tests passed")
     }))
 

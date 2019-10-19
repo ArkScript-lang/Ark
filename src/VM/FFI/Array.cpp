@@ -75,4 +75,24 @@ namespace Ark::internal::FFI::Array
 
         return falseSym;
     }
+
+    FFI_Function(removeAtList)
+    {
+        if (n.size () != 2)
+            throw std::runtime_error ("removeAtList takes 2 arguments");
+
+        if (n[0].valueType() != ValueType::List)
+            throw Ark::TypeError("First argument of removeAtList must be a list");
+        if (n[1].valueType () != ValueType::Number)
+            throw Ark::TypeError("Second argument of removeAtList must be a Number");            
+
+        Value r (std::move (n[0]));
+        Value id (std::move (n[1]));
+        auto l = r.list ();
+        if (id.number () < 0 || id.number () >= l.size ())
+            throw std::runtime_error ("List index out of bounds");
+
+        l.erase (l.begin () + id.number ());
+        return Value (std::move (l));
+    }
 }
