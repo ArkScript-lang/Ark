@@ -38,7 +38,7 @@ namespace Ark::internal
             m_i++;
 
             if (m_i == m_stack.size())
-                m_stack.emplace_back();
+                m_stack.emplace_back(FFI::undefined);
         }
 
         inline void push(Value&& value)
@@ -47,7 +47,7 @@ namespace Ark::internal
             m_i++;
 
             if (m_i == m_stack.size())
-                m_stack.emplace_back();
+                m_stack.emplace_back(FFI::undefined);
         }
 
         // getters-setters (misc)

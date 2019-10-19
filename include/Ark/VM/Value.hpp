@@ -91,6 +91,7 @@ namespace Ark::internal
 
         friend std::ostream& operator<<(std::ostream& os, const Value& V);
         friend inline bool operator==(const Value& A, const Value& B);
+        friend inline bool operator<(const Value& A, const Value& B);
 
         template<bool D> friend class Ark::VM_t;
 
@@ -130,6 +131,13 @@ namespace Ark::internal
             return false;
         
         return A.m_value == B.m_value;
+    }
+
+    inline bool operator<(const Value& A, const Value& B)
+    {
+        if (A.m_type != B.m_type)
+            return (static_cast<int>(A.m_type) - static_cast<int>(B.m_type)) < 0;
+        return A.m_value < B.m_value;
     }
 
     inline bool operator!=(const Value& A, const Value& B)
