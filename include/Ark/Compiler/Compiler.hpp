@@ -19,7 +19,7 @@ namespace Ark
     class Compiler
     {
     public:
-        Compiler(bool debug, const std::string& lib_dir, uint16_t options);
+        Compiler(bool debug, const std::string& lib_dir, uint16_t options=DefaultFeatures);
 
         void feed(const std::string& code, const std::string& filename="FILE");
         void compile();
