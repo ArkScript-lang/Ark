@@ -24,12 +24,6 @@ namespace Ark
 {
     using namespace std::string_literals;
 
-    constexpr uint16_t FeaturePersist            = 1 << 0;
-    constexpr uint16_t FeatureFunctionArityCheck = 1 << 1;
-
-    constexpr uint16_t DefaultFeatures =
-        FeatureFunctionArityCheck;
-
     template<bool debug>
     class VM_t
     {

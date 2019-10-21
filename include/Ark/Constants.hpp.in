@@ -12,4 +12,20 @@
 #define ARK_CACHE_DIRNAME "__arkscript_cache__"
 #define ARK_ENABLE_SYSTEM @ARK_ENABLE_SYSTEM@
 
+#include <cinttypes>
+
+namespace Ark
+{
+    // VM options
+    constexpr uint16_t FeaturePersist            = 1 << 0;
+    constexpr uint16_t FeatureFunctionArityCheck = 1 << 1;
+    // Parser options
+    constexpr uint16_t FeatureDisallowInvalidTokenAfterParen = 1 << 8;
+
+    // Default features for the VM x Compiler x Parser
+    constexpr uint16_t DefaultFeatures =
+        FeatureFunctionArityCheck
+        | FeatureDisallowInvalidTokenAfterParen;
+}
+
 #endif  // ark_constants

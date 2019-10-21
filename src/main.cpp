@@ -34,12 +34,9 @@ int main(int argc, char** argv)
         | option("--version").set(selected, mode::version).doc("Display ArkScript version and exit")
         | option("--dev-info").set(selected, mode::dev_info).doc("Display development information and exit")
         | (
-            option("-r", "--repl").set(selected, mode::repl).doc("Run the ArkScript REPL"),
-            option("-L", "--lib").doc("Define the directory where the Ark standard library is")
-                & value("lib_dir", lib_dir)
-          )
-        | (
-            value("file", file).set(selected, mode::run)
+            ( value("file", file).set(selected, mode::run)
+            | option("-r", "--repl").set(selected, mode::repl).doc("Run the ArkScript REPL")
+            )
             , (
                 (
                     (
@@ -55,7 +52,9 @@ int main(int argc, char** argv)
                     ( option("-ffunction-arity-check").call([&]{ options |= Ark::FeatureFunctionArityCheck; })
                     | option("-fno-function-arity-check").call([&]{ options &= ~Ark::FeatureFunctionArityCheck; })
                     ).doc("Toggle function arity checks (default: ON)")
-                    // add more options here
+                    , ( option("-fallow-invalid-token-after-paren").call([&]{ options &= ~Ark::FeatureDisallowInvalidTokenAfterParen; })
+                    | option("-fno-invalid-token-after-paren").call([&]{ options |= Ark::FeatureDisallowInvalidTokenAfterParen; })
+                    ).doc("Authorize invalid token after `(' (default: OFF). When ON, only display a warning")
                 )
             )
         )
@@ -105,7 +104,7 @@ int main(int argc, char** argv)
             
             case mode::run:
             {
-                Ark::State state(lib_dir);
+                Ark::State state(lib_dir, file, options);
                 state.setDebug(debug);
 
                 if (!state.doFile(file))

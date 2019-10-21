@@ -4,9 +4,9 @@
 
 namespace Ark
 {
-    State::State(const std::string& libdir, const std::string& filename) :
+    State::State(const std::string& libdir, const std::string& filename, uint16_t options) :
         m_libdir(libdir == "" ? ARK_STD_DEFAULT : libdir), m_filename(filename),
-        m_debug(false)
+        m_options(options), m_debug(false)
     {}
 
     bool State::feed(const std::string& bytecode_filename)
@@ -47,9 +47,9 @@ namespace Ark
         return result;
     }
 
-    static bool compile(bool debug, const std::string& file, const std::string& output, const std::string& lib_dir)
+    static bool compile(bool debug, const std::string& file, const std::string& output, const std::string& lib_dir, uint16_t options)
     {
-        Compiler compiler(debug, lib_dir);
+        Compiler compiler(debug, lib_dir, options);
 
         try
         {
@@ -122,7 +122,7 @@ namespace Ark
 
                 // recompile
                 if (timestamp < file_last_write)
-                    compiled_successfuly = Ark::compile(m_debug, file, path, m_libdir);
+                    compiled_successfuly = Ark::compile(m_debug, file, path, m_libdir, m_options);
                 else
                     compiled_successfuly = true;
             }
@@ -131,7 +131,7 @@ namespace Ark
                 if (!std::filesystem::exists(directory))  // create ark cache directory
                     std::filesystem::create_directory(directory);
                 
-                compiled_successfuly = Ark::compile(m_debug, file, path, m_libdir);
+                compiled_successfuly = Ark::compile(m_debug, file, path, m_libdir, m_options);
             }
             
             if (compiled_successfuly && feed(path))

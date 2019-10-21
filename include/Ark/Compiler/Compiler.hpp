@@ -19,8 +19,7 @@ namespace Ark
     class Compiler
     {
     public:
-        Compiler(bool debug=false);
-        Compiler(bool debug, const std::string& lib_dir);
+        Compiler(bool debug, const std::string& lib_dir, uint16_t options);
 
         void feed(const std::string& code, const std::string& filename="FILE");
         void compile();
@@ -30,6 +29,7 @@ namespace Ark
 
     private:
         Ark::Parser m_parser;
+        uint16_t m_options;
         std::vector<std::string> m_symbols;
         std::vector<internal::CValue> m_values;
         std::vector<std::string> m_plugins;

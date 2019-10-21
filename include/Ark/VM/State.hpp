@@ -17,7 +17,7 @@ namespace Ark
     class State
     {
     public:
-        State(const std::string& libdir="", const std::string& filename="FILE");
+        State(const std::string& libdir="", const std::string& filename="FILE", uint16_t options=DefaultFeatures);
 
         // for already compiled Ark files
         bool feed(const std::string& bytecode_filename);
@@ -44,6 +44,7 @@ namespace Ark
         bytecode_t m_bytecode;
         std::string m_libdir;
         std::string m_filename;
+        uint16_t m_options;
 
         // related to the bytecode
         std::vector<std::string> m_symbols;

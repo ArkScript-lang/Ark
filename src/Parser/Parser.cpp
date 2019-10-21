@@ -10,16 +10,10 @@ namespace Ark
 {
     using namespace Ark::internal;
 
-    Parser::Parser(bool debug) :
-        m_debug(debug),
-        m_libdir(ARK_STD_DEFAULT),
-        m_lexer(debug),
-        m_file("FILE")
-    {}
-
-    Parser::Parser(bool debug, const std::string& lib_dir) :
+    Parser::Parser(bool debug, const std::string& lib_dir, uint16_t options) :
         m_debug(debug),
         m_libdir(lib_dir),
+        m_options(options),
         m_lexer(debug),
         m_file("FILE")
     {}
@@ -128,12 +122,18 @@ namespace Ark
                 std::pair<std::size_t, std::size_t> warn_info = std::make_pair(
                     token.line, token.col
                 );
+
                 if (std::find(m_warns.begin(), m_warns.end(), warn_info) == m_warns.end() &&
                     (atomized.nodeType() == NodeType::String || atomized.nodeType() == NodeType::Number ||
                         atomized.nodeType() == NodeType::List))
                 {
-                    m_warns.push_back(std::move(warn_info));
-                    Ark::logger.warn("Found a possible ill-formed code line: invalid token after `(' (token: {0}, at {1}:{2})"s, token.token, token.line, token.col);
+                    if ((m_options & FeatureDisallowInvalidTokenAfterParen) == 0)
+                    {
+                        m_warns.push_back(std::move(warn_info));
+                        Ark::logger.warn("Found a possible ill-formed code line: invalid token after `(' (token: {0}, at {1}:{2})"s, token.token, token.line, token.col);
+                    }
+                    else
+                        throwParseError("Ill-formed code line: invalid token after `('", token);
                 }
 
                 block.push_back(atomized);
@@ -400,7 +400,7 @@ namespace Ark
 
                         if (std::find(m_parent_include.begin(), m_parent_include.end(), path) == m_parent_include.end())
                         {
-                            Parser p(m_debug, m_libdir);
+                            Parser p(m_debug, m_libdir, m_options);
 
                             for (auto&& pi : m_parent_include)
                             {
