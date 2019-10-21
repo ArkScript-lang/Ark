@@ -99,6 +99,8 @@ namespace Ark
     // sugar() was called before, so it's safe to assume we only have ( and )
     Node Parser::parse(std::list<Token>& tokens, bool authorize_capture, bool authorize_field_read)
     {
+        using namespace std::string_literals;
+
         Token token = nextToken(tokens);
 
         // parse block
@@ -122,7 +124,19 @@ namespace Ark
             // loop until we reach the end of the block
             do
             {
-                block.push_back(atom(token));
+                auto atomized = atom(token);
+                std::pair<std::size_t, std::size_t> warn_info = std::make_pair(
+                    token.line, token.col
+                );
+                if (std::find(m_warns.begin(), m_warns.end(), warn_info) == m_warns.end() &&
+                    (atomized.nodeType() == NodeType::String || atomized.nodeType() == NodeType::Number ||
+                        atomized.nodeType() == NodeType::List))
+                {
+                    m_warns.push_back(std::move(warn_info));
+                    Ark::logger.warn("Found a possible ill-formed code line: invalid token after `(' (token: {0}, at {1}:{2})"s, token.token, token.line, token.col);
+                }
+
+                block.push_back(atomized);
 
                 except(!tokens.empty(), "Invalid syntax: no more token to consume", m_last_token);
                 m_last_token = tokens.front();

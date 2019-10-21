@@ -5,6 +5,7 @@
 #include <list>
 #include <iostream>
 #include <vector>
+#include <utility>
 
 #include <Ark/Parser/Lexer.hpp>
 #include <Ark/Parser/Node.hpp>
@@ -32,6 +33,7 @@ namespace Ark
 
         std::string m_file;
         std::vector<std::string> m_parent_include;
+        std::vector<std::pair<std::size_t, std::size_t>> m_warns;
 
         void sugar(std::vector<internal::Token>& tokens);
         internal::Node parse(std::list<internal::Token>& tokens, bool authorize_capture=false, bool authorize_field_read=false);
