@@ -5,6 +5,7 @@
 - it's now possible to compare Values using `operator<`
 - `reverseList` (added to the FFI) by @rinz13r
 - a warning will now pop up during compilation if code appears to be ill-formed (eg number/string/list right after a `(`)
+- option `-f(allow-invalid-token-after-paren|no-invalid-token-after-paren)` was added (default: OFF)
 
 ### Changed
 - the internal API used to compare values has been updated to be much shorter
