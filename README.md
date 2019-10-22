@@ -213,10 +213,10 @@ This project was inspired by [gameprogramingpatterns](http://gameprogrammingpatt
 ### Contributors
 
 Huge thanks to
-* @Natendrtfm (standard library)
-* @rstefanic (REPL)
-* @rinz13r (FFI, standard library)
-* @OfficePop (wiki)
+* [@Natendrtfm](github.com/Natendrtfm) (standard library)
+* [@rstefanic](github.com/rstefanic) (REPL)
+* [@rinz13r](github.com/rinz13r) (FFI, standard library)
+* [@OfficePop](github.com/OfficePop) (wiki)
 
 ## Copyright and Licence information
 
