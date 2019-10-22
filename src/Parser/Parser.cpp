@@ -100,13 +100,18 @@ namespace Ark
         // parse block
         if (token.token == "(")
         {
+            bool previous_token_was_lparen = true;
+
             // create a list node to host the block
             Node block(NodeType::List);
             block.setPos(token.line, token.col);
 
             // handle sub-blocks
             if (tokens.front().token == "(")
+            {
                 block.push_back(parse(tokens));
+                previous_token_was_lparen = false;
+            }
 
             // take next token, we don't want to play with a "("
             token = nextToken(tokens);
@@ -125,12 +130,13 @@ namespace Ark
 
                 if (std::find(m_warns.begin(), m_warns.end(), warn_info) == m_warns.end() &&
                     (atomized.nodeType() == NodeType::String || atomized.nodeType() == NodeType::Number ||
-                        atomized.nodeType() == NodeType::List))
+                        atomized.nodeType() == NodeType::List) &&
+                    previous_token_was_lparen)
                 {
                     if ((m_options & FeatureDisallowInvalidTokenAfterParen) == 0)
                     {
                         m_warns.push_back(std::move(warn_info));
-                        Ark::logger.warn("Found a possible ill-formed code line: invalid token after `(' (token: {0}, at {1}:{2})"s, token.token, token.line, token.col);
+                        Ark::logger.warn("Found a possible ill-formed code line: invalid token after `(' (token: {0}, at {1}:{2}, in {3})"s, token.token, token.line, token.col, m_file);
                     }
                     else
                         throwParseError("Ill-formed code line: invalid token after `('", token);

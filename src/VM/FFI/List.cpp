@@ -1,5 +1,7 @@
 #include <Ark/VM/FFI.hpp>
 
+#include <iterator>
+
 #define FFI_Function(name) Value name(const std::vector<Value>& n)
 
 namespace Ark::internal::FFI::List
@@ -66,7 +68,7 @@ namespace Ark::internal::FFI::List
         for (Value::Iterator it=l.begin(); it != l.end(); ++it)
         {
             if (*it == n[1])
-                return Value(static_cast<int>(std::distance(l.begin(), it)));
+                return Value(static_cast<int>(std::distance<Value::Iterator>(l.begin(), it)));
         }
 
         return FFI::nil;
