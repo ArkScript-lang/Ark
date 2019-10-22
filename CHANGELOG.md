@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased changes
+## 3.0.8
 ### Added
 - it's now possible to compare Values using `operator<`
 - `reverseList` (added to the FFI) by @rinz13r
