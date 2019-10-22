@@ -45,15 +45,16 @@ int main(int argc, char** argv)
                     | option("-bcr", "--bytecode-reader").set(selected, mode::bytecode_reader).doc("Launch the bytecode reader")
                 ),
                 (
-                    option("-L", "--lib").doc("Define the directory where the Ark standard library is")
+                    option("-L", "--lib").doc("Set the location of the ArkScript standard library")
                     & value("lib_dir", lib_dir)
                 ),
-                (
-                    ( option("-ffunction-arity-check").call([&]{ options |= Ark::FeatureFunctionArityCheck; })
-                    | option("-fno-function-arity-check").call([&]{ options &= ~Ark::FeatureFunctionArityCheck; })
+                with_prefix("-f",
+                    ( option("function-arity-check"   ).call([&]{ options |= Ark::FeatureFunctionArityCheck; })
+                    | option("no-function-arity-check").call([&]{ options &= ~Ark::FeatureFunctionArityCheck; })
                     ).doc("Toggle function arity checks (default: ON)")
-                    , ( option("-fallow-invalid-token-after-paren").call([&]{ options &= ~Ark::FeatureDisallowInvalidTokenAfterParen; })
-                    | option("-fno-invalid-token-after-paren").call([&]{ options |= Ark::FeatureDisallowInvalidTokenAfterParen; })
+                    ,
+                    ( option("allow-invalid-token-after-paren").call([&]{ options &= ~Ark::FeatureDisallowInvalidTokenAfterParen; })
+                    | option("no-invalid-token-after-paren"   ).call([&]{ options |= Ark::FeatureDisallowInvalidTokenAfterParen; })
                     ).doc("Authorize invalid token after `(' (default: OFF). When ON, only display a warning")
                 )
             )
@@ -66,6 +67,7 @@ int main(int argc, char** argv)
         .doc_column(36)            // parameter docstring start col
         .indent_size(2)            // indent of documentation lines for children of a documented group
         .split_alternatives(true)  // split usage into several lines for large alternatives
+        .merge_alternative_flags_with_common_prefix(true)  // [-fok] [-fno-ok] becomes [-f(ok|no-ok)]
     ;
 
     if (parse(argc, argv, cli) && wrong.empty())

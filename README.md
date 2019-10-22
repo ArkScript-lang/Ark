@@ -122,11 +122,10 @@ Libs already included:
 # running
 ~/Ark$ Ark --help
 SYNOPSIS
-        build/Ark -h
+        build/Ark -h, --help
         build/Ark --version
         build/Ark --dev-info
-        build/Ark -r
-        build/Ark <file> [-d|-bcr] [-L <lib_dir>] [-ffunction-arity-check|-fno-function-arity-check]
+        build/Ark (<file>|-r, --repl) [-(d|bcr)] [-L, --lib <lib_dir>] [-f(function-arity-check|no-function-arity-check)] [-f(allow-invalid-token-after-paren|no-invalid-token-after-paren)]
 
 OPTIONS
         -h, --help                  Display this message
@@ -137,8 +136,11 @@ OPTIONS
         -bcr, --bytecode-reader     Launch the bytecode reader
         -L, --lib                   Define the directory where the Ark standard library is
 
-        -ffunction-arity-check|-fno-function-arity-check
+        -f(function-arity-check|no-function-arity-check)
                                     Toggle function arity checks (default: ON)
+
+        -f(allow-invalid-token-after-paren|no-invalid-token-after-paren)
+                                    Authorize invalid token after `(' (default: OFF). When ON, only display a warning
 
 LICENSE
         Mozilla Public License 2.0
