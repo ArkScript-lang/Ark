@@ -12,7 +12,7 @@ ARK_API_EXPORT Mapping_t getFunctionsMapping()
     map["sfPollEvent"] = sf_poll_event;
     map["sfWindowClear"] = sf_window_clear;
     map["sfDraw"] = sf_draw;
-    map["sfWindowWisplay"] = sf_window_display;
+    map["sfWindowDisplay"] = sf_window_display;
     map["sfWindowSetFPS"] = sf_window_set_fps;
     map["sfLoadSprite"] = sf_load_sprite;
     map["sfLoadFont"] = sf_load_font;

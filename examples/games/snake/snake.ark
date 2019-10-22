@@ -1,6 +1,6 @@
 {
     (import "sfml.bin")
-    (import "Exceptions.ark")
+    (import "Functional/Exceptions.ark")
     (import "Switch.ark")
 
     (sfWindowInit 600 600 "ArkSnake")
