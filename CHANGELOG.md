@@ -12,6 +12,7 @@
 - the REPL can take into account the lib directory, by @rstefanic
 - `isNaN` and `isInf` should work on any type but return false if they aren't numbers
 - replacing Ark with ArkScript in source code and files (Ark being the shortname for ArkScript, as JS is the shortname for Javascript)
+- `findInList` now returns `nil` when the object can not be found, otherwise it returns its index in the list
 
 ### Removed
 

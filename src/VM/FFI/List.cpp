@@ -66,10 +66,10 @@ namespace Ark::internal::FFI::List
         for (Value::Iterator it=l.begin(); it != l.end(); ++it)
         {
             if (*it == n[1])
-                return trueSym;
+                return Value(static_cast<int>(std::distance(l.begin(), it)));
         }
 
-        return falseSym;
+        return FFI::nil;
     }
 
     FFI_Function(removeAtList)
