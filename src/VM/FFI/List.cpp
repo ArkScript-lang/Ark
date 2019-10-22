@@ -2,7 +2,7 @@
 
 #define FFI_Function(name) Value name(const std::vector<Value>& n)
 
-namespace Ark::internal::FFI::Array
+namespace Ark::internal::FFI::List
 {
     FFI_Function(append)
     {

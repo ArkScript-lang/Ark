@@ -29,14 +29,14 @@ namespace Ark::internal::FFI
         { "true",   trueSym },
         { "nil",    nil },
 
-        // Array
-        { "append", Value(Array::append) },
-        { "concat", Value(Array::concat) },
-        { "list",   Value(Array::list) },
-        { "reverseList", Value(Array::reverseList) },
-        { "findInList", Value(Array::findInList) },
-        { "removeAtList", Value(Array::removeAtList) },
-        { "sliceList", Value(Array::sliceList) },
+        // List
+        { "append", Value(List::append) },
+        { "concat", Value(List::concat) },
+        { "list",   Value(List::list) },
+        { "reverseList", Value(List::reverseList) },
+        { "findInList", Value(List::findInList) },
+        { "removeAtList", Value(List::removeAtList) },
+        { "sliceList", Value(List::sliceList) },
 
         // IO
         { "print",  Value(IO::print) },

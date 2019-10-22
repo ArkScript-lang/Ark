@@ -24,7 +24,7 @@ namespace Ark::internal::FFI
     // ------------------------------
     // builtins functions: we must use the instruction BUILTIN index
     // ------------------------------
-    namespace Array
+    namespace List
     {
         FFI_Function(append);   // append, multiple arguments
         FFI_Function(concat);   // concat, multiple arguments
