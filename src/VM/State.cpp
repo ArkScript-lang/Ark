@@ -162,7 +162,7 @@ namespace Ark
             return false;
         }
 
-        state.feed(compiler.bytecode());
+        feed(compiler.bytecode());
 
         return true;
     }
