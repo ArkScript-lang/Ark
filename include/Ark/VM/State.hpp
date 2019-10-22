@@ -25,6 +25,8 @@ namespace Ark
 
         // to compile file *only* if needed and use the resulting bytecode
         bool doFile(const std::string& filename);
+        // compile string and store resulting bytecode in m_bytecode
+        bool doString(const std::string& code);
 
         void loadFunction(const std::string& name, internal::Value::ProcType function);
         void setDebug(bool value);

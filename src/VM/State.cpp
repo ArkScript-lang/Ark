@@ -142,6 +142,31 @@ namespace Ark
         return false;
     }
 
+    bool State::doString(const std::string& code)
+    {
+        Compiler compiler(m_debug, m_libdir, m_options);
+
+        try
+        {
+            compiler.feed(code);
+            compiler.compile();
+        }
+        catch (const std::exception& e)
+        {
+            std::cerr << e.what() << std::endl;
+            return false;
+        }
+        catch (...)
+        {
+            std::cerr << "Unknown lexer-parser-or-compiler error" << std::endl;
+            return false;
+        }
+
+        state.feed(compiler.bytecode());
+
+        return true;
+    }
+
     void State::loadFunction(const std::string& name, internal::Value::ProcType function)
     {
         m_binded_functions[name] = std::move(function);

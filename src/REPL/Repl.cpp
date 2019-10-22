@@ -9,9 +9,8 @@ namespace Ark
 
         print_repl_header();
 
-        while(true)
+        while (true)
         {
-            Ark::Compiler compiler(false, m_lib_dir, m_options);
             Ark::State state(m_lib_dir, /* filename */ "FILE", m_options);
             Ark::VM vm(&state, m_options);
             state.setDebug(false);
@@ -48,25 +47,10 @@ namespace Ark
                 std::cout << continuing_prompt;
             }
 
-            try
-            {
-                compiler.feed("{" + code.str() + "}");
-                compiler.compile();
-
-                state.feed(compiler.bytecode());
+            if (state.doString("{" + code.str() + "}"))
                 vm.run();
-            }
-            catch (const std::runtime_error& e) {
-                std::cerr << e.what() << std::endl;
-            }
-            catch (const std::exception& e)
-            {
-                std::cerr << e.what() << std::endl;
-            }
-            catch (...)
-            {
-                std::cerr << "Unknown lexer-parser-or-compiler error" << std::endl;
-            }
+            else
+                std::cerr << "Ark::State::doString failed" << std::endl;
         }
     }
 
