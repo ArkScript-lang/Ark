@@ -19,7 +19,7 @@ namespace Ark
     public:
         State(const std::string& libdir="", const std::string& filename="FILE", uint16_t options=DefaultFeatures);
 
-        // for already compiled Ark files
+        // for already compiled ArkScript files
         bool feed(const std::string& bytecode_filename);
         bool feed(const bytecode_t& bytecode);
 

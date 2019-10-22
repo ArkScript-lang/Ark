@@ -77,10 +77,12 @@ int main(int argc, char** argv)
         switch (selected)
         {
             case mode::help:
-                std::cerr << make_man_page(cli, argv[0], fmt).append_section(
-                    "LICENSE",
-                    "        Mozilla Public License 2.0"
-                    ) << std::endl;
+                std::cout << make_man_page(cli, argv[0], fmt)
+                            .append_section("LICENSE",
+                                            "        Mozilla Public License 2.0")
+                            .prepend_section("DESCRIPTION",
+                                             "        ArkScript programming language");
+                std::cout << std::endl;
                 break;
             
             case mode::version:

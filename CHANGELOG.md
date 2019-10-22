@@ -11,6 +11,7 @@
 - the internal API used to compare values has been updated to be much shorter
 - the REPL can take into account the lib directory, by @rstefanic
 - `isNaN` and `isInf` should work on any type but return false if they aren't numbers
+- replacing Ark with ArkScript in source code and files (Ark being the shortname for ArkScript, as JS is the shortname for Javascript)
 
 ### Removed
 
@@ -65,7 +66,7 @@
 
 ## 3.0.4
 ### Added
-- with the option `-L|--lib` we can set the path to the Ark standard library
+- with the option `-L|--lib` we can set the path to the ArkScript standard library
 - we can now load C++ lambdas into the ArkVM, as well as C++ functions
 - adding function `sleep`, taking a duration in milliseconds
 - adding function `system`, taking a command from a string ; can be deleted if `ARK_ENABLE_SYSTEM` is set to 0 in the CMakeLists
@@ -99,7 +100,7 @@
 - adding VM.doFile
 
 ### Changed
-- updated the VM to be able to call functions defined in Ark from C++
+- updated the VM to be able to call functions defined in ArkScript from C++
 - `del sym` set `sym` to `undefined` (internal value only, not the `undefined` of Javascript) instead of `nil`
 - fixed imports
 - fixed automatic compilation of not-up-to-date files
@@ -119,7 +120,7 @@
 ### Added
 - adding `del` and `mut` keywords. Now `let` is for settings constants and `mut` for variables. Also it isn't possible to use `let` to define the same constant twice
 - `google/benchmark` library for the benchmarks
-- Ark version section in bytecode
+- ArkScript version section in bytecode
 - timestamp (build date)
 - major versions of the compiler and the virtual machine used must match, a compatibility accross versions will be kept if they have the same major number
 - many opcodes to handle the operators
@@ -143,7 +144,7 @@
 ## 2.2.0-dev
 ### Added
 - option in the CMakeLists.txt to use MPIR or not (defaults to no MPIR)
-- information about the compilation options used for Ark in the CLI
+- information about the compilation options used for ArkScript in the CLI
 - we can now use `` ` `` to quote
 
 ### Changed
@@ -200,13 +201,13 @@
 - adding `import` keyword (handled by parser), throwing an error if a cyclic included is detected
 
 ### Changed
-- CMakeLists.txt to add `install` rules: installing Ark in bin/ and the Ark standard library in share/.Ark/lib/
+- CMakeLists.txt to add `install` rules: installing ArkScript in bin/ and the ArkScript standard library in share/.Ark/lib/
 - updated documentation
 
 ## 1.2.1-dev
 ### Added
 - runtime typechecking
-- exceptions (in the C++ Ark API)
+- exceptions (in the C++ ArkScript API)
 
 ### Changed
 - updated the FFI to add the runtime typechecking
@@ -234,11 +235,11 @@
 
 ## 1.1.0-dev
 ### Added
-- test.cpp to try to embed Ark into a C++ project
+- test.cpp to try to embed ArkScript into a C++ project
 - updated the documentation
 - the compiler can now return a read only version of the bytecode being executed
 - the VM can take a bytecode or a filename
-- *OOP* test with Ark using closures
+- *OOP* test with ArkScript using closures
 - closures support
 - Types.hpp (for the VM) to store the definitions of the NFT (Nil/True/False enum class) and the PageAddr_t
 - Function.hpp to get a lambda from the interpreter and call it from C++ code
@@ -261,7 +262,7 @@
 ### Added
 - Node (to represent an AST node and a Node in the language)
 - Environment to map variables and values
-- Program executing Ark code from the AST
+- Program executing ArkScript code from the AST
 - standard library (builtin functions)
 - Lexer and parser
 - default CLI can handle the interpreter

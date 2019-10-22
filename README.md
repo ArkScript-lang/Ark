@@ -121,6 +121,9 @@ Libs already included:
 ~/Ark$ cmake --install build --config Release
 # running
 ~/Ark$ Ark --help
+DESCRIPTION
+        ArkScript programming language
+
 SYNOPSIS
         build/Ark -h, --help
         build/Ark --version
@@ -134,7 +137,7 @@ OPTIONS
         -r, --repl                  Run the ArkScript REPL
         -d, --debug                 Enable debug mode
         -bcr, --bytecode-reader     Launch the bytecode reader
-        -L, --lib                   Define the directory where the Ark standard library is
+        -L, --lib                   Set the location of the ArkScript standard library
 
         -f(function-arity-check|no-function-arity-check)
                                     Toggle function arity checks (default: ON)
@@ -197,7 +200,7 @@ Stddev: 0.30360220508642ms
 
 ## Games
 
-You can find a snake created in ArkScript in the folder examples/games/snake (run it from there, otherwise it won't find the font and the sprites ; you might need to install the SFML as well).
+You can find a snake created in ArkScript in the folder examples/games/snake (run it from there, otherwise it won't find the font and the sprites ; you won't need to install the SFML).
 
 ![ArkSnake](images/ArkSnake.png)
 

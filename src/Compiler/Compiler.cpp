@@ -30,7 +30,7 @@ namespace Ark
     {
         /*
             Generating headers:
-                - lang name (to be sure we are executing an Ark file)
+                - lang name (to be sure we are executing an ArkScript file)
                     on 4 bytes (ark + padding)
                 - version (major: 2 bytes, minor: 2 bytes, patch: 2 bytes)
                 - timestamp (8 bytes, unix format)
