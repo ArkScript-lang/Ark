@@ -14,8 +14,6 @@
 - replacing Ark with ArkScript in source code and files (Ark being the shortname for ArkScript, as JS is the shortname for Javascript)
 - `findInList` now returns `nil` when the object can not be found, otherwise it returns its index in the list
 
-### Removed
-
 ## 3.0.7
 ### Added
 - `cos`, `arccos`, `sin`, `arcsin`, `tan`, `arctan`

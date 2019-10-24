@@ -163,7 +163,8 @@ namespace Ark
             // push number of elements
             if (!page.size())
             {
-                pushNumber(0x00);
+                pushNumber(0x01);
+                m_bytecode.push_back(Instruction::HALT);
                 return;
             }
             pushNumber(static_cast<uint16_t>(page.size() + 1));
