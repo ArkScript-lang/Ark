@@ -97,7 +97,7 @@ namespace Ark::internal
             break;
         
         case ValueType::PageAddr:
-            os << V.pageAddr();
+            os << "Function @ " << V.pageAddr();
             break;
         
         case ValueType::NFT:

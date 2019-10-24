@@ -1,5 +1,14 @@
 # Change Log
 
+## Unreleased changes
+### Added
+- fixing segfault when the VM receives an empty code page (generated from an empty block)
+- `(print (fun () ()))` will now print `Function @ 1` instead of just its page addr, `1`
+
+### Changed
+
+### Removed
+
 ## 3.0.8
 ### Added
 - it's now possible to compare Values using `operator<`
