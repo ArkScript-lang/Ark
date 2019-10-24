@@ -247,10 +247,12 @@ namespace Ark
 
             return;
         }
-        // empty code block
+        // empty code block should be nil
         if (x.list().empty())
         {
-            page(p).emplace_back(Instruction::NOP);
+            auto it_builtin = isBuiltin("nil");
+            page(p).emplace_back(Instruction::BUILTIN);
+            pushNumber(static_cast<uint16_t>(it_builtin.value()), &page(p));
             return;
         }
         // registering structures

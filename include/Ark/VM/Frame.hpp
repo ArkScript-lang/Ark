@@ -28,12 +28,6 @@ namespace Ark::internal
 
         inline Value&& pop()
         {
-            if (m_i <= 0)
-            {
-                m_nil = FFI::nil;
-                return std::move(m_nil);
-            }
-            
             m_i--;
             return std::move(m_stack[m_i]);
         }
@@ -103,7 +97,6 @@ namespace Ark::internal
 
         std::vector<Value> m_stack;
         int16_t m_i;
-        Value m_nil;
 
         uint8_t m_scope_to_delete;
     };
