@@ -489,7 +489,10 @@ inline void VM_t<debug>::ret()
         push(return_value);
     }
     else
+    {
         returnFromFuncCall();
+        push(FFI::nil);
+    }
 }
 
 template<bool debug>
@@ -549,7 +552,8 @@ inline void VM_t<debug>::call(int16_t argc_)
             createNewScope();
             m_frames.emplace_back(m_ip, m_pp, new_page_pointer);
             // store "reference" to the function to speed the recursive functions
-            registerVariable(m_last_sym_loaded, function);
+            if (m_last_sym_loaded < m_state->m_symbols.size())
+                registerVariable(m_last_sym_loaded, function);
 
             m_pp = new_page_pointer;
             m_ip = -1;  // because we are doing a m_ip++ right after that

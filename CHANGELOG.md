@@ -4,6 +4,7 @@
 ### Added
 - fixing segfault when the VM receives an empty code page (generated from an empty block)
 - `(print (fun () ()))` will now print `Function @ 1` instead of just its page addr, `1`
+- `(if true () ())` now returns nil (can be generalized to `() -> nil`)
 
 ### Changed
 
