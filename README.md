@@ -217,6 +217,7 @@ Huge thanks to
 * [@rstefanic](github.com/rstefanic) (REPL)
 * [@rinz13r](github.com/rinz13r) (FFI, standard library)
 * [@OfficePop](github.com/OfficePop) (wiki)
+* [@FrenchMasterSword](github.com/FrenchMasterSword) (language specification)
 
 ## Copyright and Licence information
 
