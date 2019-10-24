@@ -213,11 +213,11 @@ This project was inspired by [gameprogramingpatterns](http://gameprogrammingpatt
 ### Contributors
 
 Huge thanks to
-* [@Natendrtfm](github.com/Natendrtfm) (standard library)
-* [@rstefanic](github.com/rstefanic) (REPL)
-* [@rinz13r](github.com/rinz13r) (FFI, standard library)
-* [@OfficePop](github.com/OfficePop) (wiki)
-* [@FrenchMasterSword](github.com/FrenchMasterSword) (language specification)
+* [@Natendrtfm](https://github.com/Natendrtfm) (standard library)
+* [@rstefanic](https://github.com/rstefanic) (REPL)
+* [@rinz13r](https://github.com/rinz13r) (FFI, standard library)
+* [@OfficePop](https://github.com/OfficePop) (wiki)
+* [@FrenchMasterSword](https://github.com/FrenchMasterSword) (language specification)
 
 ## Copyright and Licence information
 
