@@ -1,6 +1,6 @@
 template<bool debug>
-VM_t<debug>::VM_t(State* state, uint16_t flags) :
-    m_options(flags), m_state(state),
+VM_t<debug>::VM_t(State* state) :
+    m_state(state),
     m_ip(0), m_pp(0), m_running(false),
     m_last_sym_loaded(0), m_until_frame_count(0)
 {
@@ -14,7 +14,7 @@ void VM_t<debug>::init()
     using namespace Ark::internal;
 
     // clearing frames and setting up a new one
-    if ((m_options & FeaturePersist) == 0)
+    if ((m_state->m_options & FeaturePersist) == 0)
     {
         m_frames.clear();
         m_frames.emplace_back();
@@ -29,7 +29,7 @@ void VM_t<debug>::init()
     m_saved_scope.reset();
 
     // clearing locals (scopes) and create a global scope
-    if ((m_options & FeaturePersist) == 0)
+    if ((m_state->m_options & FeaturePersist) == 0)
     {
         m_locals.clear();
         createNewScope();
@@ -258,7 +258,7 @@ void VM_t<debug>::safeRun(std::size_t untilFrameCount)
             }
 
             // if persistance is on, clear frames to keep only the global one
-            if (m_options & FeaturePersist)
+            if (m_state->m_options & FeaturePersist)
                 m_frames.erase(m_frames.begin() + 1, m_frames.end());
         }
     } catch (...) {
@@ -590,7 +590,7 @@ inline void VM_t<debug>::call(int16_t argc_)
     // checking function arity
     std::size_t received_argc = m_frames.back().stackSize();
     std::size_t needed_argc = 0;
-    if (m_options & FeatureFunctionArityCheck)
+    if (m_state->m_options & FeatureFunctionArityCheck)
     {
         std::size_t index = 0;
         while (m_state->m_pages[m_pp][index] == Instruction::MUT)

@@ -119,12 +119,12 @@ int main(int argc, char** argv)
 
                 if (debug)
                 {
-                    Ark::VM_debug vm(&state, options);
+                    Ark::VM_debug vm(&state);
                     vm.run();
                 }
                 else
                 {
-                    Ark::VM vm(&state, options);
+                    Ark::VM vm(&state);
                     vm.run();
                 }
                 break;

@@ -28,7 +28,7 @@ namespace Ark
     class VM_t
     {
     public:
-        VM_t(State* state, uint16_t flags=DefaultFeatures);
+        VM_t(State* state);
 
         void run();
 
@@ -88,7 +88,6 @@ namespace Ark
         }
 
     private:
-        uint16_t m_options;
         State* m_state;
         
         int m_ip;           // instruction pointer

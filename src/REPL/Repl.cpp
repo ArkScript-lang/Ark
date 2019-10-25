@@ -12,7 +12,7 @@ namespace Ark
         while (true)
         {
             Ark::State state(m_lib_dir, /* filename */ "FILE", m_options);
-            Ark::VM vm(&state, m_options);
+            Ark::VM vm(&state);
             state.setDebug(false);
 
             std::stringstream code;
