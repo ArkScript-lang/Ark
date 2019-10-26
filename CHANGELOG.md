@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased changes
+## 3.0.9
 ### Added
 - fixing segfault when the VM receives an empty code page (generated from an empty block)
 - `(print (fun () ()))` will now print `Function @ 1` instead of just its page addr, `1`
@@ -8,12 +8,12 @@
 - anonymous functions are now available ; eg: `((fun () (print "a")))`
 - added `forEach` in library
 - added `-c|--compile` option to the CLI so that we can only compile an ArkScript file instead of compiling and running it
+- added `min` and `max` in `lib/Math/Arithmetic.ark`
 
 ### Changed
 - a quoted code (defered evaluation) isn't capturing anymore surrounding variables' values, thus increasing greatly performances
 - lists are printed like `["string" 1 true]` now, instead of `( string 1 true )`
-
-### Removed
+- updated `zip` so that it can work with lists of different sizes
 
 ## 3.0.8
 ### Added
