@@ -7,13 +7,17 @@
 - `(if true () ())` now returns nil (can be generalized to `() -> nil`)
 - anonymous functions are now available ; eg: `((fun () (print "a")))`
 - added `forEach` in library
-- added `-c|--compile` option to the CLI so that we can only compile an ArkScript file instead of compiling and running it
-- added `min` and `max` in `lib/Math/Arithmetic.ark`
+- added `-c|--compile` option to the CLI so that we can only compile an ArkScript file instead of compiling and running it, by @DontBelieveMe
+- added `min` and `max` in `lib/Math/Arithmetic.ark`, by @FrenchMasterSword
+- added `reduce` in `lib/Functional/Reduce.ark`, by @FrenchMasterSword
+- added `product` in `lib/List/Product.ark`, by @FrenchMasterSword
 
 ### Changed
 - a quoted code (defered evaluation) isn't capturing anymore surrounding variables' values, thus increasing greatly performances
 - lists are printed like `["string" 1 true]` now, instead of `( string 1 true )`
-- updated `zip` so that it can work with lists of different sizes
+- updated `zip` so that it can work with lists of different sizes, by @FrenchMasterSword
+- better cyclic includes detection
+- better VM error message when redefining a variable through `let`
 
 ## 3.0.8
 ### Added
