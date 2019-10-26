@@ -5,8 +5,11 @@
 - fixing segfault when the VM receives an empty code page (generated from an empty block)
 - `(print (fun () ()))` will now print `Function @ 1` instead of just its page addr, `1`
 - `(if true () ())` now returns nil (can be generalized to `() -> nil`)
+- anonymous functions are now available ; eg: `((fun () (print "a")))`
+- added `forEach` in library
 
 ### Changed
+- a quoted code (defered evaluation) isn't capturing anymore surrounding variables' values, thus increasing greatly performances
 
 ### Removed
 

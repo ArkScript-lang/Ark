@@ -395,7 +395,7 @@ namespace Ark
 
                 // call it
                 std::size_t id = addValue(page_id);  // save page_id into the constants table as PageAddr
-                page(p).emplace_back(Instruction::SAVE_ENV);
+                // page(p).emplace_back(Instruction::SAVE_ENV);
                 page(p).emplace_back(Instruction::LOAD_CONST);
                 pushNumber(static_cast<uint16_t>(id), &page(p));
             }
