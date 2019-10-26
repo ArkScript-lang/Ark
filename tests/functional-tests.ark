@@ -10,9 +10,10 @@
         (let a [1 2 3 4])
         (let b [2 3 4 5])
         (let c [1 2 3])
-        (assert (nil? (zip a c)) "Functional test 2 failed")
+        (assert (= (zip a c) [[1 1] [2 2] [3 3]]) "Functional test 2 failed")
         (assert (= (zip a b) [[1 2] [2 3] [3 4] [4 5]]) "Functional test 2°2 failed")
         (assert (= (zip b a) [[2 1] [3 2] [4 3] [5 4]]) "Functional test 2°3 failed")
+        (assert (= (zip [] a) []) "Functional test 2°4 failed")
 
         (assert (= (map foo a) [11 12 13 14]) "Functional test 3 failed")
         (assert (= (map foo []) []) "Functional test 3°2 failed")
