@@ -1,6 +1,6 @@
 {
 
-    (import "../Math/Arithmetic.ark")
+    (import "Math/Arithmetic.ark")
 
     (let compose (fun (f g)
         (fun (y &f &g) (f (g y)))))
