@@ -412,7 +412,7 @@ inline void VM_t<debug>::let()
     
     // check if we are redefining a variable
     if (getVariableInScope(id) != FFI::undefined)
-        throwVMError("can not use 'let' to redefine a symbol");
+        throwVMError("can not use 'let' to redefine the variable " + m_state->m_symbols[id]);
 
     registerVariable(id, pop()).setConst(true);
 }
