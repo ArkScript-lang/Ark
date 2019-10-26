@@ -34,22 +34,32 @@ int main(int argc, char** argv)
         | option("--version").set(selected, mode::version).doc("Display ArkScript version and exit")
         | option("--dev-info").set(selected, mode::dev_info).doc("Display development information and exit")
         | (
-            ( value("file", file).set(selected, mode::run)
+            (
+                ( value("file", file).set(selected, mode::run)
+                , option("-c", "--compile").set(selected, mode::compile).doc("Compile the given program to bytecode, but do not run")
+                )
             | option("-r", "--repl").set(selected, mode::repl).doc("Run the ArkScript REPL")
             )
+            // options taken by mode::run, mode::repl and mode::compile
             , (
                 (
                     (
+                        // options which can be cumulated (separated by commas)
                         option("-d", "--debug").set(debug).doc("Enable debug mode")
                     )
+                    // other options which can not be cumulated, separated by pipes
                     | option("-bcr", "--bytecode-reader").set(selected, mode::bytecode_reader).doc("Launch the bytecode reader")
-                    | option("-c", "--compile").set(selected, mode::compile).doc("Compile the given program to bytecode, but do not run")
                 ),
+                // shouldn't change now, the lib option is fine and working
                 (
                     option("-L", "--lib").doc("Set the location of the ArkScript standard library")
                     & value("lib_dir", lib_dir)
                 ),
+                // feature flags
                 with_prefix("-f",
+                    // a single feature should always be defined with an ON and an OFF version, and documentation
+                    // all features must be separated by commas as following
+                    // exclusing feature flags (ON/OFF) should be separated by pipes
                     ( option("function-arity-check"   ).call([&]{ options |= Ark::FeatureFunctionArityCheck; })
                     | option("no-function-arity-check").call([&]{ options &= ~Ark::FeatureFunctionArityCheck; })
                     ).doc("Toggle function arity checks (default: ON)")
