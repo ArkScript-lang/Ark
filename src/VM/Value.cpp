@@ -120,10 +120,18 @@ namespace Ark::internal
         
         case ValueType::List:
         {
-            os << "( ";
-            for (auto& t: V.const_list())
-                os << t << " ";
-            os << ")";
+            os << "[";
+            for (std::size_t index = 0; index < V.const_list().size(); ++index)
+            {
+                auto& t = V.const_list()[index];
+                if (t.valueType() == ValueType::String)
+                    os << "\"" << t << "\"";
+                else
+                    os << t;
+                if (index + 1 != V.const_list().size())
+                    os << " ";
+            }
+            os << "]";
             break;
         }
 

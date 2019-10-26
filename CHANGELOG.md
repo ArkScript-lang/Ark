@@ -7,9 +7,11 @@
 - `(if true () ())` now returns nil (can be generalized to `() -> nil`)
 - anonymous functions are now available ; eg: `((fun () (print "a")))`
 - added `forEach` in library
+- added `-c|--compile` option to the CLI so that we can only compile an ArkScript file instead of compiling and running it
 
 ### Changed
 - a quoted code (defered evaluation) isn't capturing anymore surrounding variables' values, thus increasing greatly performances
+- lists are printed like `["string" 1 true]` now, instead of `( string 1 true )`
 
 ### Removed
 

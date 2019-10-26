@@ -128,7 +128,7 @@ SYNOPSIS
         build/Ark -h, --help
         build/Ark --version
         build/Ark --dev-info
-        build/Ark (<file>|-r, --repl) [-(d|bcr)] [-L, --lib <lib_dir>] [-f(function-arity-check|no-function-arity-check)] [-f(allow-invalid-token-after-paren|no-invalid-token-after-paren)]
+        build/Ark (<file>|-r, --repl) [-(d|bcr|c)] [-L, --lib <lib_dir>] [-f(function-arity-check|no-function-arity-check)] [-f(allow-invalid-token-after-paren|no-invalid-token-after-paren)]
 
 OPTIONS
         -h, --help                  Display this message
@@ -137,6 +137,7 @@ OPTIONS
         -r, --repl                  Run the ArkScript REPL
         -d, --debug                 Enable debug mode
         -bcr, --bytecode-reader     Launch the bytecode reader
+        -c, --compile               Compile the given program to bytecode, but do not run
         -L, --lib                   Set the location of the ArkScript standard library
 
         -f(function-arity-check|no-function-arity-check)
@@ -217,7 +218,8 @@ Huge thanks to
 * [@rstefanic](https://github.com/rstefanic) (REPL)
 * [@rinz13r](https://github.com/rinz13r) (FFI, standard library)
 * [@OfficePop](https://github.com/OfficePop) (wiki)
-* [@FrenchMasterSword](https://github.com/FrenchMasterSword) (language specification)
+* [@FrenchMasterSword](https://github.com/FrenchMasterSword) (language specification, standard library)
+* [@DontBelieveMe](https://github.com/DontBelieveMe) (CLI)
 
 ## Copyright and Licence information
 
