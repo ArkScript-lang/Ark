@@ -1,6 +1,7 @@
 {
     (import "List/Sum.ark")
     (import "List/ForEach.ark")
+    (import "List/Product.ark")
 
     (let list-tests (fun () {
         (let a [12 42])
@@ -50,6 +51,9 @@
         })
 
         (forEach [] '(assert true "List test 14°2 failed"))
+
+        (assert (= (product []) 1) "List test 15 failed")
+        (assert (= (product [1 2 3]) 6) "List test 15°2 failed")
 
         (print "  List tests passed")
     }))
