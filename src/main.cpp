@@ -21,7 +21,7 @@ int main(int argc, char** argv)
 {
     using namespace clipp;
 
-    enum class mode { help, dev_info, bytecode_reader, version, run, repl };
+    enum class mode { help, dev_info, bytecode_reader, version, run, repl, compile };
     mode selected = mode::help;
 
     std::string file = "", lib_dir = "";
@@ -43,6 +43,7 @@ int main(int argc, char** argv)
                         option("-d", "--debug").set(debug).doc("Enable debug mode")
                     )
                     | option("-bcr", "--bytecode-reader").set(selected, mode::bytecode_reader).doc("Launch the bytecode reader")
+                    | option("-c", "--compile").set(selected, mode::compile).doc("Compile the given program to bytecode, but do not run")
                 ),
                 (
                     option("-L", "--lib").doc("Set the location of the ArkScript standard library")
@@ -103,6 +104,20 @@ int main(int argc, char** argv)
             {
                 Ark::Repl repl(options, lib_dir);
                 repl.run();
+                break;
+            }
+
+            case mode::compile:
+            {
+                Ark::State state(lib_dir, file, options);
+				state.setDebug(debug);
+
+                if (!state.doFile(file))
+                {
+                    Ark::logger.error("Ark::State.doFile(" + file + ") failed");
+                    return -1;
+                }
+
                 break;
             }
             
