@@ -52,6 +52,8 @@
         (assert (= (sqrt 4) 2) "Math test 12°2 failed")
         (assert (= (abs -1) 1) "Math test 12°3 failed")
         (assert (= (abs 1) 1) "Math test 12°4 failed")
+        (assert (= (min 2 3) 2) "Math test 12°5 failed")
+        (assert (= (max 2 3) 3) "Math test 12°6 failed")
 
         (print "  Math tests passed")
     }))
