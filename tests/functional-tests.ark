@@ -1,5 +1,6 @@
 {
     (import "Functional/Functional.ark")
+    (import "Functional/Reduce.ark")
 
     (let functional-tests (fun () {
         (let foo (fun (a) (+ a 10)))
@@ -17,6 +18,9 @@
 
         (assert (= (map foo a) [11 12 13 14]) "Functional test 3 failed")
         (assert (= (map foo []) []) "Functional test 3°2 failed")
+
+        (let newsum (fun (a b) (+ a b)))
+        (assert (= (reduce newsum [1 2 3]) 6) "Functional test 4 failed")
 
         (print "  Functional tests passed")
     }))
