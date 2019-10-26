@@ -128,16 +128,16 @@ SYNOPSIS
         build/Ark -h, --help
         build/Ark --version
         build/Ark --dev-info
-        build/Ark (<file>|-r, --repl) [-(d|bcr|c)] [-L, --lib <lib_dir>] [-f(function-arity-check|no-function-arity-check)] [-f(allow-invalid-token-after-paren|no-invalid-token-after-paren)]
+        build/Ark ((<file> [-c]) | -r) [-(d|bcr)] [-L <lib_dir>] [-f(function-arity-check|no-function-arity-check)] [-f(allow-invalid-token-after-paren|no-invalid-token-after-paren)]
 
 OPTIONS
         -h, --help                  Display this message
         --version                   Display ArkScript version and exit
         --dev-info                  Display development information and exit
+        -c, --compile               Compile the given program to bytecode, but do not run
         -r, --repl                  Run the ArkScript REPL
         -d, --debug                 Enable debug mode
         -bcr, --bytecode-reader     Launch the bytecode reader
-        -c, --compile               Compile the given program to bytecode, but do not run
         -L, --lib                   Set the location of the ArkScript standard library
 
         -f(function-arity-check|no-function-arity-check)
