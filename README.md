@@ -74,7 +74,7 @@ Also:
 
         (set essais (+ 1 essais))})
 
-    (print "You won in" essais "tries")
+    (print "You won in " essais " tries")
 }
 ```
 
@@ -88,6 +88,29 @@ More examples are available in the folder `examples/`.
 * When you're done, push it to your fork and submit a pull request!
 
 Don't know what to work on? No worries, we have a [list of things to do](https://github.com/SuperFola/Ark/projects) :wink:
+
+### Our beloved contributors
+
+Who worked on
+* the standard library
+    * [@SuperFola](https://github.com/SuperFola)
+    * [@Natendrtfm](https://github.com/Natendrtfm)
+    * [@rinz13r](https://github.com/rinz13r)
+    * [@FrenchMasterSword](https://github.com/FrenchMasterSword)
+* the FFI
+    * [@SuperFola](https://github.com/SuperFola)
+    * [@rinz13r](https://github.com/rinz13r)
+* the REPL
+    * [@rstefanic](https://github.com/rstefanic)
+* the CLI
+    * [@SuperFola](https://github.com/SuperFola)
+    * [@DontBelieveMe](https://github.com/DontBelieveMe)
+* the documentation
+    * [@SuperFola](https://github.com/SuperFola)
+    * [@OfficePop](https://github.com/OfficePop)
+* the language specification
+    * [@SuperFola](https://github.com/SuperFola)
+    * [@FrenchMasterSword](https://github.com/FrenchMasterSword)
 
 ### Contributing to the ArkScript standard library
 
@@ -211,16 +234,6 @@ Controls are the arrows (left, right, up and down), the game closes itself when 
 ## Credits
 
 This project was inspired by [gameprogramingpatterns](http://gameprogrammingpatterns.com/bytecode.html) and [ofan lisp.cpp](https://gist.github.com/ofan/721464)
-
-### Contributors
-
-Huge thanks to
-* [@Natendrtfm](https://github.com/Natendrtfm) (standard library)
-* [@rstefanic](https://github.com/rstefanic) (REPL)
-* [@rinz13r](https://github.com/rinz13r) (FFI, standard library)
-* [@OfficePop](https://github.com/OfficePop) (wiki)
-* [@FrenchMasterSword](https://github.com/FrenchMasterSword) (language specification, standard library)
-* [@DontBelieveMe](https://github.com/DontBelieveMe) (CLI)
 
 ## Copyright and Licence information
 
