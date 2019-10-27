@@ -118,6 +118,10 @@ See [Coding guidelines](https://github.com/SuperFola/Ark/wiki/Coding-guidelines#
 
 For performance reasons, some functions might be written in C++, in `include/Ark/VM/FFI.hpp` and `src/VM/FFI/`.
 
+### Code structure
+
+![ArkScript code structure](images/arkscript-code-structure.png)
+
 ## Dependencies
 
 * C++17
