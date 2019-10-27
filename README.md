@@ -7,6 +7,7 @@
 <img align="right" src="images/Ark.png" width=200px>
 
 * Documentation: [Wiki](https://github.com/SuperFola/Ark/wiki)
+* Discord server: [invite link](https://discord.gg/YT5yDwn), to discuss the specification of the language and receive help
 
 **Nota bene**: the project is referred as "Ark" and as "ArkScript". The official public name is "ArkScript" since "Ark" is already being used by [another language](https://github.com/ark-lang/ark)
 
