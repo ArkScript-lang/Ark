@@ -6,6 +6,7 @@
 - added `\t`, `\n`, `\v` and `\r` escape codes (available in strings only)
 
 ### Changed
+- updated output of tests with number of passed tests
 
 ### Removed
 
