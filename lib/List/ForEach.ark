@@ -2,7 +2,7 @@
     (mut i 0)
     (while (< i (len L)) {
         (mut element (@ L i))
-        (code)
+        (code element)
         (set i (+ 1 i))
     })
 }))
