@@ -1,6 +1,7 @@
 #include <Ark/VM/FFI.hpp>
 
 #include <iterator>
+#include <algorithm>
 
 #define FFI_Function(name) Value name(const std::vector<Value>& n)
 
@@ -127,5 +128,17 @@ namespace Ark::internal::FFI::List
 
         Value ret(std::move(retlist));
         return ret;
+    }
+
+    FFI_Function(sort_)
+    {
+        if (n.size() != 1)
+            throw std::runtime_error("sort takes 1 argument: a list");
+        if (n[0].valueType() != ValueType::List)
+            throw Ark::TypeError("First argument of sort should be a list");
+        
+        Value r = n[0];
+        std::sort(r.list().begin(), r.list().end());
+        return r;
     }
 }

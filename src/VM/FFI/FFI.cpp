@@ -37,6 +37,7 @@ namespace Ark::internal::FFI
         { "findInList", Value(List::findInList) },
         { "removeAtList", Value(List::removeAtList) },
         { "sliceList", Value(List::sliceList) },
+        { "sort", Value(List::sort_) },
 
         // IO
         { "print",  Value(IO::print) },

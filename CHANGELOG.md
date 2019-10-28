@@ -1,5 +1,13 @@
 # Change Log
 
+## Unreleased changes
+### Added
+- adding `sort` to sort a list
+
+### Changed
+
+### Removed
+
 ## 3.0.9
 ### Added
 - fixing segfault when the VM receives an empty code page (generated from an empty block)
