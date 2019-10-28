@@ -3,6 +3,7 @@
 ## Unreleased changes
 ### Added
 - adding `sort` to sort a list
+- added `\t`, `\n`, `\v` and `\r` escape codes (available in strings only)
 
 ### Changed
 
