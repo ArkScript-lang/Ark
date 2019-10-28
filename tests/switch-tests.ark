@@ -2,6 +2,8 @@
     (import "Switch.ark")
 
     (let switch-tests (fun () {
+        (mut tests 0)
+
         (let foo (fun (n) {}))
         (let event "foo")
 
@@ -13,9 +15,11 @@
             ["foob"   '(assert false "Switch test 1 failed")]
             ["foo"    '(foo 16)]
         ])
+        (set tests (+ 1 tests))
 
-        (print "  Switch tests passed")
+        (print "  Switch tests passed \t\t(" tests ")")
+        tests
     }))
 
-    (switch-tests)
+    (let passed-switch (switch-tests))
 }

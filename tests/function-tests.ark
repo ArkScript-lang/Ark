@@ -1,12 +1,17 @@
 {
     (let func-tests (fun () {
-        (assert (= 12 ((fun (x) (begin x)) 12)) "Function test 1 failed")
+        (mut tests 0)
+
+        (assert (= 12 ((fun (x) (begin x)) 12)) "Function test 1 failed")   (set tests (+ 1 tests))
 
         (let f (fun (x) (begin x)))
-        (assert (= 12 ((f f) 12)) "Function test 2 failed")
+        (assert (= 12 ((f f) 12)) "Function test 2 failed")                 (set tests (+ 1 tests))
 
-        (print "  Function tests passed")
+        (assert ((fun () {true})) "Function test 3 failed")                 (set tests (+ 1 tests))
+
+        (print "  Function tests passed \t(" tests ")")
+        tests
     }))
 
-    (func-tests)
+    (let passed-function (func-tests))
 }

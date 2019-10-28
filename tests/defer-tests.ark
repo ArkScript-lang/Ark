@@ -1,20 +1,23 @@
 {
     (let defer-tests (fun () {
-        (let foo (fun (n) (+ 5 n)))
-        (assert (= "Function" (type (quote foo))) "Defer test 1 failed")
+        (mut tests 0)
 
-        (assert (= "Function" (type (quote (foo 5)))) "Defer test 2 failed")
+        (let foo (fun (n) (+ 5 n)))
+        (assert (= "Function" (type (quote foo))) "Defer test 1 failed")        (set tests (+ 1 tests))
+
+        (assert (= "Function" (type (quote (foo 5)))) "Defer test 2 failed")    (set tests (+ 1 tests))
 
         (let df '(foo 5))
-        (assert (= "Function" (type df)) "Defer test 3 failed")
+        (assert (= "Function" (type df)) "Defer test 3 failed")                 (set tests (+ 1 tests))
         
-        (assert (= 10 (df)) "Defer test 4 failed")
+        (assert (= 10 (df)) "Defer test 4 failed")                              (set tests (+ 1 tests))
 
         (let a (quote (foo 5)))
-        (assert (= 10 (a)) "Defer test 5 failed")
+        (assert (= 10 (a)) "Defer test 5 failed")                               (set tests (+ 1 tests))
 
-        (print "  Defer tests passed")
+        (print "  Defer tests passed \t\t(" tests ")")
+        tests
     }))
 
-    (defer-tests)
+    (let passed-defer (defer-tests))
 }

@@ -1,12 +1,16 @@
 {
     (let del-tests (fun () {
+        (mut tests 0)
+
         (let a 10)
         (del a)
         (let a 10)  # would fail if del wasn't working, because let would
                     # have to redefine a symbol, but it can't
+        (set tests (+ 1 tests))
 
-        (print "  Del tests passed")
+        (print "  Del tests passed \t\t(" tests ")")
+        tests
     }))
 
-    (del-tests)
+    (let passed-del (del-tests))
 }

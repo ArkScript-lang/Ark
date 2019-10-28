@@ -1,25 +1,32 @@
 {
-    (let ackermann (fun (m n) {
-        (if (> m 0)
-            # then
-            (if (= 0 n)
+    (let recursion-tests (fun () {
+        (mut tests 0)
+
+        (let ackermann (fun (m n) {
+            (if (> m 0)
                 # then
-                (ackermann (- m 1) 1)
+                (if (= 0 n)
+                    # then
+                    (ackermann (- m 1) 1)
+                    # else
+                    (ackermann (- m 1) (ackermann m (- n 1)))
+                )
                 # else
-                (ackermann (- m 1) (ackermann m (- n 1)))
+                (+ 1 n)
             )
-            # else
-            (+ 1 n)
+        }))
+        (assert (= 509 (ackermann 3 6)) "Ackermann 3 6 test failed")    (set tests (+ 1 tests))
+
+        (let fibo (fun (n)
+            (if (< n 2) n
+                (+ (fibo (- n 1)) (fibo (- n 2)))
+            ))
         )
+        (assert (= (fibo 16) 987) "Fibo 16 test failed")                (set tests (+ 1 tests))
+
+        (print "  Recursion tests passed \t(" tests ")")
+        tests
     }))
-    (assert (= 509 (ackermann 3 6)) "Ackermann 3 6 test failed")
 
-    (let fibo (fun (n)
-        (if (< n 2) n
-            (+ (fibo (- n 1)) (fibo (- n 2)))
-        ))
-    )
-    (assert (= (fibo 16) 987) "Fibo 16 test failed")
-
-    (print "  Recursion tests passed")
+    (let passed-recursion (recursion-tests))
 }

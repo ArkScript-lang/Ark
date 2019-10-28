@@ -1,5 +1,7 @@
 {
     (let closure-tests (fun () {
+        (mut tests 0)
+
         (let create-human (fun (name age weight) {
             # functions can be invoked in the closure scope
             (let set-age (fun (new-age) (set age new-age)))
@@ -11,15 +13,16 @@
         (let bob (create-human "Bob" 0 144))
         (let john (create-human "John" 12 15))
 
-        (assert (= bob.age 0) "Closure test 1 failed")
+        (assert (= bob.age 0) "Closure test 1 failed")      (set tests (+ 1 tests))
 
         (bob.set-age 10)
-        (assert (= bob.age 10) "Closure test 2 failed")
+        (assert (= bob.age 10) "Closure test 2 failed")     (set tests (+ 1 tests))
 
-        (assert (= john.age 12) "Closure test 3 failed")
+        (assert (= john.age 12) "Closure test 3 failed")        (set tests (+ 1 tests))
 
-        (print "  Closure tests passed")
+        (print "  Closure tests passed \t\t(" tests ")")
+        tests
     }))
 
-    (closure-tests)
+    (let passed-closure (closure-tests))
 }

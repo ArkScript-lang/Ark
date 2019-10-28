@@ -1,5 +1,7 @@
 {
     (let scope-tests (fun () {
+        (mut tests 0)
+
         (let foo (fun () {x}))
         
         (let dummy1 (fun () {
@@ -10,11 +12,12 @@
             (let x 10)
             (foo)}))
         
-        (assert (= 5 (dummy1)) "Scope test 1 failed")
-        (assert (= 10 (dummy2)) "Scope test 1°2 failed")
+        (assert (= 5 (dummy1)) "Scope test 1 failed")       (set tests (+ 1 tests))
+        (assert (= 10 (dummy2)) "Scope test 1°2 failed")    (set tests (+ 1 tests))
         
-        (print "  Scope tests passed")
+        (print "  Scope tests passed \t\t(" tests ")")
+        tests
     }))
 
-    (scope-tests)
+    (let passed-scope (scope-tests))
 }

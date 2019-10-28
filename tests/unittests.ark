@@ -18,15 +18,27 @@
     (import "recursion-tests.ark")
     (import "callback-tests.ark")
     (import "closure-tests.ark")
-    (import "exception-tests.ark")
     (import "range-tests.ark")
     (import "del-tests.ark")
     (import "scope-tests.ark")
-    (import "split-tests.ark")
-    (import "slice-tests.ark")
-    (import "reverse-tests.ark")
-    (import "upperlowercase-tests.ark")
     (import "functional-tests.ark")
 
-    (print "Completed in " (toString (- (time) start_time)) " seconds")
+    (print "  ------------------------------")
+
+    (print "  Total: " (+ passed-arithmetic
+                          passed-string
+                          passed-list
+                          passed-function
+                          passed-misc
+                          passed-switch
+                          passed-defer
+                          passed-recursion
+                          passed-callback
+                          passed-closure
+                          passed-range
+                          passed-del
+                          passed-functional
+                        ))
+
+    (print "\nCompleted in " (toString (- (time) start_time)) " seconds")
 }
