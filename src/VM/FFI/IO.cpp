@@ -111,11 +111,11 @@ namespace Ark::internal::FFI::IO
         if (n[0].valueType() != ValueType::String)
             throw Ark::TypeError("Argument of listFiles must be of type String");
         
-        Value r(ValueType::List);
-        for (const auto& entry : std::filesystem::directory_iterator(n[0].string()))
+        std::vector<Value> r;
+        for (const auto& entry: std::filesystem::directory_iterator(n[0].string()))
             r.push_back(Value(entry.path().string()));
         
-        return r;
+        return Value(std::move(r));
     }
 
     FFI_Function(isDirectory)

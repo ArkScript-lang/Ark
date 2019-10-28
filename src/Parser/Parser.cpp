@@ -159,7 +159,7 @@ namespace Ark
                                  temp.type == TokenType::String)
                             block.push_back(atom(nextToken(tokens)));
                         else
-                            throwParseError("ill-formed if", temp);
+                            throwParseError("ill-formed if, couldn't find condition", temp);
                         // parse 'then'
                         block.push_back(parse(tokens));
                         // parse 'else'
@@ -206,7 +206,7 @@ namespace Ark
                             block.push_back(parse(tokens, /* authorize_capture */ true));
                         }
                         else
-                            throwParseError("invalid token to define an argument list", tokens.front());
+                            throwParseError("invalid token to define an arguments list", tokens.front());
                         // parse body
                         if (tokens.front().type == TokenType::Grouping)
                             block.push_back(parse(tokens));
@@ -223,7 +223,7 @@ namespace Ark
                                  temp.type == TokenType::String)
                             block.push_back(atom(nextToken(tokens)));
                         else
-                            throwParseError("ill-formed while", temp);
+                            throwParseError("ill-formed while, couldn't find condition", temp);
                         // parse 'do'
                         block.push_back(parse(tokens));
                     }
@@ -244,7 +244,7 @@ namespace Ark
                         if (tokens.front().type == TokenType::String)
                             block.push_back(atom(nextToken(tokens)));
                         else
-                            throwParseError("invalid module to import: should be string", tokens.front());
+                            throwParseError("invalid import rule: should be a string", tokens.front());
                     }
                     else if (token.token == "quote")
                     {
@@ -386,7 +386,7 @@ namespace Ark
                     if (n.const_list()[1].nodeType() == NodeType::String)
                         file = n.const_list()[1].string();
                     else
-                        throw Ark::TypeError("Arguments of import must be Strings");
+                        throw Ark::TypeError("Arguments of import must be of type String");
 
                     namespace fs = std::filesystem;
                     using namespace std::string_literals;
@@ -406,7 +406,7 @@ namespace Ark
                         n.list().emplace_back(Keyword::Begin);
 
                         // lib paths
-                        std::string libpath = m_libdir + "/" + Ark::Utils::getFilenameFromPath(file);
+                        std::string libpath  = m_libdir + "/" + Ark::Utils::getFilenameFromPath(file);
                         std::string libpath2 = m_libdir + "/" + file;
 
                         std::string included_file = "";

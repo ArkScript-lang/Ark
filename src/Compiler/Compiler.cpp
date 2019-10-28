@@ -130,6 +130,10 @@ namespace Ark
                 m_bytecode.push_back(Instruction::FUNC_TYPE);
                 pushNumber(static_cast<uint16_t>(std::get<std::size_t>(val.value)));
             }
+            else
+            {
+                throw std::runtime_error("CompilerError: trying to put a value in the value table, but the type isn't handled.\nCertainly a logic problem in the compiler source code");
+            }
 
             m_bytecode.push_back(Instruction::NOP);
         }
@@ -187,7 +191,7 @@ namespace Ark
     void Compiler::saveTo(const std::string& file)
     {
         std::ofstream output(file, std::ofstream::binary);
-        output.write((char*) &m_bytecode[0], m_bytecode.size() * sizeof(uint8_t));
+        output.write(reinterpret_cast<char*>(&m_bytecode[0]), m_bytecode.size() * sizeof(uint8_t));
         output.close();
     }
 
@@ -519,7 +523,7 @@ namespace Ark
             m_symbols.push_back(sym);
             return m_symbols.size() - 1;
         }
-        return (std::size_t) std::distance(m_symbols.begin(), it);
+        return static_cast<std::size_t>(std::distance(m_symbols.begin(), it));
     }
 
     std::size_t Compiler::addValue(Ark::internal::Node x)
@@ -534,7 +538,7 @@ namespace Ark
             m_values.push_back(v);
             return m_values.size() - 1;
         }
-        return (std::size_t) std::distance(m_values.begin(), it);
+        return static_cast<std::size_t>(std::distance(m_values.begin(), it));
     }
 
     std::size_t Compiler::addValue(std::size_t page_id)
@@ -549,7 +553,7 @@ namespace Ark
             m_values.push_back(v);
             return m_values.size() - 1;
         }
-        return (std::size_t) std::distance(m_values.begin(), it);
+        return static_cast<std::size_t>(std::distance(m_values.begin(), it));
     }
 
     void Compiler::addPlugin(Ark::internal::Node x)
