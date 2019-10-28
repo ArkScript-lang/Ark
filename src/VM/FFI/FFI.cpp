@@ -45,6 +45,7 @@ namespace Ark::internal::FFI
         { "writeFile", Value(IO::writeFile) },
         { "readFile", Value(IO::readFile) },
         { "fileExists?", Value(IO::fileExists) },
+        { "listFiles", Value(IO::listFiles) },
 
         // Time
         { "time", Value(Time::timeSinceEpoch) },

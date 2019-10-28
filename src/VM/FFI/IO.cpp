@@ -1,6 +1,8 @@
 #include <Ark/VM/FFI.hpp>
 
 #include <iostream>
+#include <filesystem>
+
 #include <Ark/Utils.hpp>
 
 #define FFI_Function(name) Value name(const std::vector<Value>& n)
@@ -100,5 +102,19 @@ namespace Ark::internal::FFI::IO
             throw Ark::TypeError("Argument of fileExists? must be of type String");
         
         return Value(Ark::Utils::fileExists(n[0].string()) ? NFT::True : NFT::False);
+    }
+
+    FFI_Function(listFiles)
+    {
+        if (n.size() != 1)
+            throw std::runtime_error("listFiles can take only 1 argument, a filename (String)");
+        if (n[0].valueType() != ValueType::String)
+            throw Ark::TypeError("Argument of listFiles must be of type String");
+        
+        Value r(ValueType::List);
+        for (const auto& entry : std::filesystem::directory_iterator(n[0].string()))
+            r.push_back(Value(entry.path().string()));
+        
+        return r;
     }
 }

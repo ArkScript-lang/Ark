@@ -4,6 +4,7 @@
 ### Added
 - adding `sort` to sort a list
 - added `\t`, `\n`, `\v` and `\r` escape codes (available in strings only)
+- adding `listFiles` which returns a list of paths (strings)
 
 ### Changed
 - updated output of tests with number of passed tests

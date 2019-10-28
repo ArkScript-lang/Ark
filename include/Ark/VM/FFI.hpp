@@ -43,6 +43,7 @@ namespace Ark::internal::FFI
         FFI_Function(writeFile);   // writeFile, 2 or 3 arguments
         FFI_Function(readFile);    // readFile, 1 argument
         FFI_Function(fileExists);  // fileExists?, 1 argument
+        FFI_Function(listFiles);  // listFiles, 1 argument
     }
 
     namespace Time
