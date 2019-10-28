@@ -46,6 +46,9 @@ namespace Ark::internal::FFI
         { "readFile", Value(IO::readFile) },
         { "fileExists?", Value(IO::fileExists) },
         { "listFiles", Value(IO::listFiles) },
+        { "isDir?", Value(IO::isDirectory) },
+        { "makeDir", Value(IO::makeDir) },
+        { "removeFiles", Value(IO::removeFiles) },
 
         // Time
         { "time", Value(Time::timeSinceEpoch) },

@@ -44,6 +44,9 @@ namespace Ark::internal::FFI
         FFI_Function(readFile);    // readFile, 1 argument
         FFI_Function(fileExists);  // fileExists?, 1 argument
         FFI_Function(listFiles);  // listFiles, 1 argument
+        FFI_Function(isDirectory);  // isDir?, 1 argument
+        FFI_Function(makeDir);  // makeDir, 1 argument
+        FFI_Function(removeFiles);  // removeFiles, multiple arguments
     }
 
     namespace Time

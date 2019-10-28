@@ -117,4 +117,40 @@ namespace Ark::internal::FFI::IO
         
         return r;
     }
+
+    FFI_Function(isDirectory)
+    {
+        if (n.size() != 1)
+            throw std::runtime_error("isDir? can take only 1 argument, a filename (String)");
+        if (n[0].valueType() != ValueType::String)
+            throw Ark::TypeError("Argument of isDir? must be of type String");
+        
+        return (std::filesystem::is_directory(std::filesystem::path(n[0].string()))) ? trueSym : falseSym;
+    }
+
+    FFI_Function(makeDir)
+    {
+        if (n.size() != 1)
+            throw std::runtime_error("makeDir can take only 1 argument, a filename (String)");
+        if (n[0].valueType() != ValueType::String)
+            throw Ark::TypeError("Argument of makeDir must be of type String");
+        
+        std::filesystem::create_directories(std::filesystem::path(n[0].string()));
+        return nil;
+    }
+
+    FFI_Function(removeFiles)
+    {
+        if (n.size() == 0)
+            throw std::runtime_error("removeFiles takes at least one argument");
+        
+        for (Value::Iterator it=n.begin(); it != n.end(); ++it)
+        {
+            if (it->valueType() != ValueType::String)
+                throw Ark::TypeError("Arguments of removeFiles should be of type String");
+            std::filesystem::remove_all(std::filesystem::path(it->string()));
+        }
+
+        return nil;
+    }
 }
