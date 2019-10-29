@@ -72,9 +72,12 @@ target_include_directories(ArkReactor
 
 # linking libraries
 
-if ((CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG) AND (UNIX OR LINUX))
-    message(STATUS "linking with stdc++fs")
-    target_link_libraries(ArkReactor PUBLIC stdc++fs)
+if (UNIX OR LINUX)
+    if (CMAKE_COMPILER_IS_GNUCXX)
+        target_link_libraries(ArkReactor PUBLIC stdc++fs)
+    elseif (CMAKE_COMPILER_IS_CLANG)
+        target_link_libraries(ArkReactor PUBLIC c++fs)
+    endif()
 endif()
 
 if (UNIX OR LINUX)
