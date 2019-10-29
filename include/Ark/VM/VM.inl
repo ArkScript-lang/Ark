@@ -890,7 +890,7 @@ inline void VM_t<debug>::operators(uint8_t inst)
 
         case Instruction::FIRSTOF:
         {
-            Value&& a = pop();
+            Value a = pop();
             if (a.valueType() == ValueType::List)
                 push(a.const_list().size() > 0 ? a.const_list()[0] : FFI::nil);
             else if (a.valueType() == ValueType::String)
@@ -903,7 +903,7 @@ inline void VM_t<debug>::operators(uint8_t inst)
 
         case Instruction::TAILOF:
         {
-            Value&& a = pop();
+            Value a = pop();
             if (a.valueType() == ValueType::List)
             {
                 if (a.const_list().size() < 2)
@@ -934,7 +934,7 @@ inline void VM_t<debug>::operators(uint8_t inst)
 
         case Instruction::HEADOF:
         {
-            Value&& a = pop();
+            Value a = pop();
             if (a.valueType() == ValueType::List)
             {
                 if (a.const_list().size() < 2)
