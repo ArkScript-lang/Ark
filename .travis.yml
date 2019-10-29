@@ -33,16 +33,17 @@ matrix:
         apt:
           sources:
             - ubuntu-toolchain-r-test
-            - llvm-toolchain-trusty-7.0
-            - sourceline: 'deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-7.0 main'
-              key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
+            - llvm-toolchain-trusty-8
+            #- sourceline: 'deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-8 main'
+            #  key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
           packages:
-            - libc++-7-dev
-            - libc++abi-7-dev
-            #- clang-7
+            - clang-8
+            - libc++-8-dev
+            - libstdc++-8-dev
+            - libc++abi-8-dev
       env:
-        - MATRIX_EVAL="CC=clang && CXX=clang++"
-        - C_COMPILER=clang CXX_COMPILER=clang++
+        - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8"
+        - C_COMPILER=clang-8 CXX_COMPILER=clang++-8
         - LINKER_FLAGS="-stdlib=libc++ -lc++abi"
         - CXXFLAGS="-stdlib=libc++"
         - LIBCXX=On
