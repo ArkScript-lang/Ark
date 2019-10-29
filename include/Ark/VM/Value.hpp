@@ -124,6 +124,11 @@ namespace Ark::internal
         Closure& closure_ref();
     };
 
+    inline bool operator==(const Value::ProcType& f, const Value::ProcType& g)
+    {
+        return f.target<Value (const std::vector<Value>&)>() == g.target<Value (const std::vector<Value>&)>();
+    }
+
     inline bool operator==(const Value& A, const Value& B)
     {
         // values should have the same type
