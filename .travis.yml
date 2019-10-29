@@ -14,27 +14,28 @@ matrix:
       env:
         - C_COMPILER=gcc-8 CXX_COMPILER=g++-8
 
-    - os: osx
-      osx_image: xcode11
-      compiler:
-          - clang
-          - gcc
-      addons:
-        homebrew:
-          packages:
-            - llvm
-          update: true
-      env:
-        - C_COMPILER=clang CXX_COMPILER=clang++
+    # need MacOS 10.15 to work, travis has only the 10.14
+    #- os: osx
+    #  osx_image: xcode11.2
+    #  compiler:
+    #      - clang
+    #      - gcc
+    #  addons:
+    #    homebrew:
+    #      packages:
+    #        - llvm
+    #      update: true
+    #  env:
+    #    - C_COMPILER=clang CXX_COMPILER=clang++
 
     - os: linux
       addons:
         apt:
           sources:
             - ubuntu-toolchain-r-test
-            #- llvm-toolchain-trusty-7.0
-            #- sourceline: 'deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-7.0 main'
-            #  key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
+            - llvm-toolchain-trusty-7.0
+            - sourceline: 'deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-7.0 main'
+              key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
           #packages:
             #- clang-7
       env:
