@@ -8,4 +8,4 @@ cmake --build build --config Release
 if [ -f build/Release/Ark ]; then
     mv build/Release/Ark build/Ark
 fi
-build/Ark tests/unittests.ark --lib lib/
+build/Ark tests/unittests.ark --lib lib/ || exit 1

@@ -120,7 +120,7 @@ int main(int argc, char** argv)
             case mode::compile:
             {
                 Ark::State state(lib_dir, file, options);
-				state.setDebug(debug);
+                state.setDebug(debug);
 
                 if (!state.doFile(file))
                 {
@@ -145,12 +145,12 @@ int main(int argc, char** argv)
                 if (debug)
                 {
                     Ark::VM_debug vm(&state);
-                    vm.run();
+                    return vm.run();
                 }
                 else
                 {
                     Ark::VM vm(&state);
-                    vm.run();
+                    return vm.run();
                 }
                 break;
             }

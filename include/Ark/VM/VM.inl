@@ -109,7 +109,7 @@ internal::Value& VM_t<debug>::operator[](const std::string& name)
 // ------------------------------------------
 
 template<bool debug>
-void VM_t<debug>::run()
+int VM_t<debug>::run()
 {
     using namespace Ark::internal;
 
@@ -117,15 +117,17 @@ void VM_t<debug>::run()
         Ark::logger.info("Starting at PP:{0}, IP:{1}"s, m_pp, m_ip);
     
     init();
-    safeRun();
+    int out = safeRun();
 
     // reset VM after each run
     m_ip = 0;
     m_pp = 0;
+
+    return out;
 }
 
 template<bool debug>
-void VM_t<debug>::safeRun(std::size_t untilFrameCount)
+int VM_t<debug>::safeRun(std::size_t untilFrameCount)
 {
     using namespace Ark::internal;
     m_until_frame_count = untilFrameCount;
@@ -261,9 +263,13 @@ void VM_t<debug>::safeRun(std::size_t untilFrameCount)
             if (m_state->m_options & FeaturePersist)
                 m_frames.erase(m_frames.begin() + 1, m_frames.end());
         }
+
+        return 1;
     } catch (...) {
         std::cerr << "Unknown error" << std::endl;
+        return 1;
     }
+    return 0;
 }
 
 // ------------------------------------------
@@ -720,7 +726,7 @@ inline void VM_t<debug>::getField()
     if constexpr (debug)
         Ark::logger.info("GET_FIELD ({0}) PP:{1}, IP:{2}"s, m_state->m_symbols[id], m_pp, m_ip);
     
-    Value&& var = pop();
+    auto var = pop();
     if (var.valueType() != ValueType::Closure)
         throwVMError("variable `" + m_state->m_symbols[m_last_sym_loaded] + "' isn't a closure, can not get the field `" + m_state->m_symbols[id] + "' from it");
     
@@ -756,7 +762,7 @@ inline void VM_t<debug>::operators(uint8_t inst)
     {
         case Instruction::ADD:
         {
-            Value&& b = pop(), a = pop();
+            auto b = pop(), a = pop();
             if (a.valueType() == ValueType::Number)
             {
                 if (b.valueType() != ValueType::Number)
@@ -778,7 +784,7 @@ inline void VM_t<debug>::operators(uint8_t inst)
 
         case Instruction::SUB:
         {
-            Value&& b = pop(), a = pop();
+            auto b = pop(), a = pop();
             if (a.valueType() != ValueType::Number)
                 throw Ark::TypeError("Arguments of - should be Numbers");
             if (b.valueType() != ValueType::Number)
@@ -790,7 +796,7 @@ inline void VM_t<debug>::operators(uint8_t inst)
 
         case Instruction::MUL:
         {
-            Value&& b = pop(), a = pop();
+            auto b = pop(), a = pop();
             if (a.valueType() != ValueType::Number)
                 throw Ark::TypeError("Arguments of * should be Numbers");
             if (b.valueType() != ValueType::Number)
@@ -802,7 +808,7 @@ inline void VM_t<debug>::operators(uint8_t inst)
 
         case Instruction::DIV:
         {
-            Value&& b = pop(), a = pop();
+            auto b = pop(), a = pop();
             if (a.valueType() != ValueType::Number)
                 throw Ark::TypeError("Arguments of / should be Numbers");
             if (b.valueType() != ValueType::Number)
@@ -818,49 +824,49 @@ inline void VM_t<debug>::operators(uint8_t inst)
 
         case Instruction::GT:
         {
-            Value&& b = pop(), a = pop();
+            auto b = pop(), a = pop();
             push((!(a == b) && !(a < b)) ? FFI::trueSym : FFI::falseSym);
             break;
         }
         
         case Instruction::LT:
         {
-            Value&& b = pop(), a = pop();
+            auto b = pop(), a = pop();
             push((a < b) ? FFI::trueSym : FFI::falseSym);
             break;
         }
 
         case Instruction::LE:
         {
-            Value&& b = pop(), a = pop();
+            auto b = pop(), a = pop();
             push(((a < b) || (a == b)) ? FFI::trueSym : FFI::falseSym);
             break;
         }
 
         case Instruction::GE:
         {
-            Value&& b = pop(), a = pop();
+            auto b = pop(), a = pop();
             push(!(a < b) ? FFI::trueSym : FFI::falseSym);
             break;
         }
 
         case Instruction::NEQ:
         {
-            Value&& b = pop(), a = pop();
+            auto b = pop(), a = pop();
             push((a != b) ? FFI::trueSym : FFI::falseSym);
             break;
         }
 
         case Instruction::EQ:
         {
-            Value&& b = pop(), a = pop();
+            auto b = pop(), a = pop();
             push((a == b) ? FFI::trueSym : FFI::falseSym);
             break;
         }
 
         case Instruction::LEN:
         {
-            Value&& a = pop();
+            auto a = pop();
             if (a.valueType() == ValueType::List)
             {
                 push(Value(static_cast<int>(a.const_list().size())));
@@ -877,7 +883,7 @@ inline void VM_t<debug>::operators(uint8_t inst)
 
         case Instruction::EMPTY:
         {
-            Value&& a = pop();
+            auto a = pop();
             if (a.valueType() == ValueType::List)
                 push((a.const_list().size() == 0) ? FFI::trueSym : FFI::falseSym);
             else if (a.valueType() == ValueType::String)
@@ -890,7 +896,7 @@ inline void VM_t<debug>::operators(uint8_t inst)
 
         case Instruction::FIRSTOF:
         {
-            Value a = pop();
+            auto a = pop();
             if (a.valueType() == ValueType::List)
                 push(a.const_list().size() > 0 ? a.const_list()[0] : FFI::nil);
             else if (a.valueType() == ValueType::String)
@@ -903,7 +909,7 @@ inline void VM_t<debug>::operators(uint8_t inst)
 
         case Instruction::TAILOF:
         {
-            Value a = pop();
+            auto a = pop();
             if (a.valueType() == ValueType::List)
             {
                 if (a.const_list().size() < 2)
@@ -934,7 +940,7 @@ inline void VM_t<debug>::operators(uint8_t inst)
 
         case Instruction::HEADOF:
         {
-            Value a = pop();
+            auto a = pop();
             if (a.valueType() == ValueType::List)
             {
                 if (a.const_list().size() < 2)
@@ -971,7 +977,7 @@ inline void VM_t<debug>::operators(uint8_t inst)
 
         case Instruction::ASSERT:
         {
-            Value&& b = pop(), a = pop();
+            auto b = pop(), a = pop();
             if (a == FFI::falseSym)
             {
                 if (b.valueType() != ValueType::String)
@@ -984,7 +990,7 @@ inline void VM_t<debug>::operators(uint8_t inst)
 
         case Instruction::TO_NUM:
         {
-            Value&& a = pop();
+            auto a = pop();
             if (a.valueType() != ValueType::String)
                 throw Ark::TypeError("Argument of toNumber must be a String");
             
@@ -1005,7 +1011,7 @@ inline void VM_t<debug>::operators(uint8_t inst)
 
         case Instruction::AT:
         {
-            Value&& b = pop(), a = pop();
+            auto b = pop(), a = pop();
             if (b.valueType() != ValueType::Number)
                 throw Ark::TypeError("Argument 2 of @ should be a Number");
 
@@ -1020,21 +1026,21 @@ inline void VM_t<debug>::operators(uint8_t inst)
 
         case Instruction::AND_:
         {
-            Value&& a = pop(), b = pop();
+            auto a = pop(), b = pop();
             push((a == FFI::trueSym && b == FFI::trueSym) ? FFI::trueSym : FFI::falseSym);
             break;
         }
 
         case Instruction::OR_:
         {
-            Value&& a = pop(), b = pop();
+            auto a = pop(), b = pop();
             push((b == FFI::trueSym || a == FFI::trueSym) ? FFI::trueSym : FFI::falseSym);
             break;
         }
 
         case Instruction::MOD:
         {
-            Value&& b = pop(), a = pop();
+            auto b = pop(), a = pop();
             if (a.valueType() != ValueType::Number)
                 throw Ark::TypeError("Arguments of mod should be Numbers");
             if (b.valueType() != ValueType::Number)
@@ -1046,7 +1052,7 @@ inline void VM_t<debug>::operators(uint8_t inst)
 
         case Instruction::TYPE:
         {
-            Value&& a = pop();
+            auto a = pop();
             switch (a.valueType())
             {
                 case ValueType::List:     push(Value("List"));     break;
@@ -1080,7 +1086,7 @@ inline void VM_t<debug>::operators(uint8_t inst)
 
         case Instruction::HASFIELD:
         {
-            Value&& field = pop(), closure = pop();
+            auto field = pop(), closure = pop();
             if (closure.valueType() != ValueType::Closure)
                 throw Ark::TypeError("Argument no 1 of hasField should be a Closure");
             if (field.valueType() != ValueType::String)

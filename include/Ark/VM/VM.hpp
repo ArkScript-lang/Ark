@@ -30,7 +30,7 @@ namespace Ark
     public:
         VM_t(State* state);
 
-        void run();
+        int run();
 
         internal::Value& operator[](const std::string& name);
 
@@ -105,7 +105,7 @@ namespace Ark
         internal::Value m__no_value = internal::FFI::nil;
 
         void configure();
-        void safeRun(std::size_t untilFrameCount=0);
+        int safeRun(std::size_t untilFrameCount=0);
         void init();
 
         inline uint16_t readNumber()
