@@ -29,22 +29,19 @@ matrix:
     #    - C_COMPILER=clang CXX_COMPILER=clang++
 
     - os: linux
-      dist: xenial
       addons:
         apt:
           sources:
             - ubuntu-toolchain-r-test
-            - llvm-toolchain-xenial-9
-            - sourceline: 'deb http://apt.llvm.org/trusty/ llvm-toolchain-xenial-9 main'
-              key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
+            - llvm-toolchain-trusty-8
           packages:
-            - clang-9
-            - libc++-9-dev
-            - libstdc++-9-dev
-            - libc++abi-9-dev
+            - clang-8
+            - libc++-8-dev
+            - libstdc++-8-dev
+            - libc++abi-8-dev
       env:
-        - MATRIX_EVAL="CC=clang-9 && CXX=clang++-9"
-        - C_COMPILER=clang-9 CXX_COMPILER=clang++-9
+        - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8"
+        - C_COMPILER=clang-8 CXX_COMPILER=clang++-8
         - LINKER_FLAGS="-stdlib=libc++ -lc++abi"
         - CXXFLAGS="-stdlib=libc++"
         - LIBCXX=On
