@@ -28,20 +28,19 @@ matrix:
         - C_COMPILER=clang CXX_COMPILER=clang++
 
     - os: linux
-      dist: xenial
+      dist: trusty
       addons:
         apt:
           sources:
             - ubuntu-toolchain-r-test
-            - llvm-toolchain-trusty-6.0
-            - libstdc++-7-dev
-            - sourceline: 'deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-6.0 main'
+            - llvm-toolchain-trusty-7.0
+            - sourceline: 'deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-7.0 main'
               key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
           packages:
-            - clang-6.0
+            - clang-7
       env:
-        - MATRIX_EVAL="CC=clang-6.0 && CXX=clang++-6.0"
-        - C_COMPILER=clang-6.0 CXX_COMPILER=clang++-6.0
+        - MATRIX_EVAL="CC=clang-7 && CXX=clang++-7"
+        - C_COMPILER=clang-7 CXX_COMPILER=clang++-7
         - LINKER_FLAGS="-stdlib=libc++ -lc++abi"
         - CXXFLAGS="-stdlib=libc++"
 
