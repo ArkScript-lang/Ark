@@ -112,6 +112,8 @@ Who worked on
 * the language specification
     * [@SuperFola](https://github.com/SuperFola)
     * [@FrenchMasterSword](https://github.com/FrenchMasterSword)
+* the logo
+    * [Ma15fo43](https://github.com/Ma15fo43)
 
 ### Contributing to the ArkScript standard library
 
