@@ -127,7 +127,7 @@ endif()
 
 # submodules
 
-if (ARK_BUILD_MODULES)
+if (ARK_BUILD_MODULES OR ARK_BUILD_BASE_MODULES)
     add_subdirectory(${Ark_SOURCE_DIR}/modules)
 endif()
 
