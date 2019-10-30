@@ -41,6 +41,7 @@ namespace Ark::internal::FFI
 
         // IO
         { "print",  Value(IO::print) },
+        { "puts", Value(IO::puts_) },
         { "input",  Value(IO::input) },
         { "writeFile", Value(IO::writeFile) },
         { "readFile", Value(IO::readFile) },

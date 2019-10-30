@@ -18,6 +18,14 @@ namespace Ark::internal::FFI::IO
         return nil;
     }
 
+    FFI_Function(puts_)
+    {
+        for (Value::Iterator it=n.begin(); it != n.end(); ++it)
+            std::cout << (*it);
+
+        return nil;
+    }
+
     FFI_Function(input)
     {
         if (n.size() == 1)

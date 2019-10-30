@@ -38,8 +38,9 @@ namespace Ark::internal::FFI
 
     namespace IO
     {
-        FFI_Function(print);    // print,  multiple arguments
-        FFI_Function(input);    // input,  0 or 1 argument
+        FFI_Function(print);    // print, multiple arguments
+        FFI_Function(puts_);    // puts, multiple arguments
+        FFI_Function(input);    // input, 0 or 1 argument
         FFI_Function(writeFile);   // writeFile, 2 or 3 arguments
         FFI_Function(readFile);    // readFile, 1 argument
         FFI_Function(fileExists);  // fileExists?, 1 argument

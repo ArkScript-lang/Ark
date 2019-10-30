@@ -1,6 +1,9 @@
 {
+    (import "test-tools.ark")
+    
     (let callbacks-tests (fun () {
         (mut tests 0)
+        (let start-time (time))
 
         (let egg (fun (bar) { bar }))
         (let data ["Iron Man" "is" "Tony Stark"])
@@ -15,8 +18,8 @@
 
         (set acc 0)
         (while (!= acc (len callbacks)) {
-            (assert (= (@ data acc) (@ callbacks acc).d) "Callback test 1 failed")      (set tests (+ 1 tests))
-            (assert (= (@ data acc) ((@ callbacks acc))) "Callback test 1°2 failed")    (set tests (+ 1 tests))
+            (assert_ (= (@ data acc) (@ callbacks acc).d) "Callback test 1 failed")
+            (assert_ (= (@ data acc) ((@ callbacks acc))) "Callback test 1°2 failed")
             (set acc (+ 1 acc))
         })
 
@@ -27,11 +30,12 @@
             }))
         )
         (let countdown-from-3 (countdown-from 3))
-        (assert (= 2 (countdown-from-3)) "Callback test 2 failed")                      (set tests (+ 1 tests))
-        (assert (= 1 (countdown-from-3)) "Callback test 2°2 failed")                    (set tests (+ 1 tests))
-        (assert (= 0 (countdown-from-3)) "Callback test 2°3 failed")                    (set tests (+ 1 tests))
+        (assert_ (= 2 (countdown-from-3)) "Callback test 2 failed")
+        (assert_ (= 1 (countdown-from-3)) "Callback test 2°2 failed")
+        (assert_ (= 0 (countdown-from-3)) "Callback test 2°3 failed")
 
-        (print "  Callback tests passed \t(" tests ")")
+        (recap "Callback tests passed" tests (- (time) start-time))
+        
         tests
     }))
 

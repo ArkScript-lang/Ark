@@ -1,6 +1,9 @@
 {
+    (import "test-tools.ark")
+    
     (let scope-tests (fun () {
         (mut tests 0)
+        (let start-time (time))
 
         (let foo (fun () {x}))
         
@@ -12,10 +15,11 @@
             (let x 10)
             (foo)}))
         
-        (assert (= 5 (dummy1)) "Scope test 1 failed")       (set tests (+ 1 tests))
-        (assert (= 10 (dummy2)) "Scope test 1°2 failed")    (set tests (+ 1 tests))
+        (assert_ (= 5 (dummy1)) "Scope test 1 failed")
+        (assert_ (= 10 (dummy2)) "Scope test 1°2 failed")
         
-        (print "  Scope tests passed \t\t(" tests ")")
+        (recap "Scope tests passed" tests (- (time) start-time))
+        
         tests
     }))
 

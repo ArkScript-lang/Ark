@@ -7,11 +7,14 @@
 - adding `listFiles` which returns a list of paths (strings)
 - adding `(makeDir path)` and `(removeFiles ...)`
 - added `(filter func list)` in `lib/Functional/Functional.ark`
+- adding `puts`. Does the same thing as print but doesn't print a newline character
 
 ### Changed
 - updated output of tests with number of passed tests
 - updated REPL so that it doesn't try to compile blank lines or comments, by @rstefanic
 - the option `-d|--debug` is now repeatable, to set a debug level. Can go from 1 (compilation information) to 3 (a lot of information).
+- better precision when using `(time)`
+- better tests presentation
 
 ### Removed
 

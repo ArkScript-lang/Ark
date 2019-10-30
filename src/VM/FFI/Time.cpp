@@ -13,8 +13,8 @@ namespace Ark::internal::FFI::Time
     {
         const auto now = std::chrono::system_clock::now();
         const auto epoch = now.time_since_epoch();
-        const auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(epoch);
-        return Value(static_cast<double>(milliseconds.count()) / 1000);
+        const auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(epoch);
+        return Value(static_cast<double>(microseconds.count()) / 1000000);
     }
 
     FFI_Function(sleep)

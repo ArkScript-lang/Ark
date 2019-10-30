@@ -1,6 +1,9 @@
 {
+    (import "test-tools.ark")
+    
     (let del-tests (fun () {
         (mut tests 0)
+        (let start-time (time))
 
         (let a 10)
         (del a)
@@ -8,7 +11,8 @@
                     # have to redefine a symbol, but it can't
         (set tests (+ 1 tests))
 
-        (print "  Del tests passed \t\t(" tests ")")
+        (recap "Del tests passed" tests (- (time) start-time))
+
         tests
     }))
 

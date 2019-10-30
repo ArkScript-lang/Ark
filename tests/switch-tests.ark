@@ -1,23 +1,26 @@
 {
+    (import "test-tools.ark")
+    
     (import "Switch.ark")
 
     (let switch-tests (fun () {
         (mut tests 0)
+        (let start-time (time))
 
         (let foo (fun (n) {}))
         (let event "foo")
 
         (switch event [
-            ["coucou" '(assert false "Switch test 1 failed")]
-            ["hello"  '(assert false "Switch test 1 failed")]
-            ["world"  '(assert false "Switch test 1 failed")]
-            ["earth"  '(assert false "Switch test 1 failed")]
-            ["foob"   '(assert false "Switch test 1 failed")]
+            ["coucou" '(assert_ false "Switch test 1 failed")]
+            ["hello"  '(assert_ false "Switch test 1 failed")]
+            ["world"  '(assert_ false "Switch test 1 failed")]
+            ["earth"  '(assert_ false "Switch test 1 failed")]
+            ["foob"   '(assert_ false "Switch test 1 failed")]
             ["foo"    '(foo 16)]
         ])
-        (set tests (+ 1 tests))
 
-        (print "  Switch tests passed \t\t(" tests ")")
+        (recap "Switch tests passed" tests (- (time) start-time))
+        
         tests
     }))
 

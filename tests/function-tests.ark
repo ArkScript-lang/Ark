@@ -1,15 +1,19 @@
 {
+    (import "test-tools.ark")
+    
     (let func-tests (fun () {
         (mut tests 0)
+        (let start-time (time))
 
-        (assert (= 12 ((fun (x) (begin x)) 12)) "Function test 1 failed")   (set tests (+ 1 tests))
+        (assert_ (= 12 ((fun (x) (begin x)) 12)) "Function test 1 failed")
 
         (let f (fun (x) (begin x)))
-        (assert (= 12 ((f f) 12)) "Function test 2 failed")                 (set tests (+ 1 tests))
+        (assert_ (= 12 ((f f) 12)) "Function test 2 failed")
 
-        (assert ((fun () {true})) "Function test 3 failed")                 (set tests (+ 1 tests))
+        (assert_ ((fun () {true})) "Function test 3 failed")
 
-        (print "  Function tests passed \t(" tests ")")
+        (recap "Function tests passed" tests (- (time) start-time))
+
         tests
     }))
 

@@ -1,57 +1,58 @@
 {
+    (import "test-tools.ark")
+    
     (let misc-tests (fun () {
         (mut tests 0)
+        (let start-time (time))
 
-        (assert (= 12 (toNumber "12")) "Misc test 1 failed")        (set tests (+ 1 tests))
-        (assert (= 12.5 (toNumber "12.5")) "Misc test 1°2 failed")  (set tests (+ 1 tests))
+        (assert_ (= 12 (toNumber "12")) "Misc test 1 failed")
+        (assert_ (= 12.5 (toNumber "12.5")) "Misc test 1°2 failed")
 
-        (assert (= nil nil) "Misc test 2 failed")           (set tests (+ 1 tests))
-        (assert (= true (= 1 1)) "Misc test 2°2 failed")    (set tests (+ 1 tests))
-        (assert (= false (= 1 2)) "Misc test 2°3 failed")   (set tests (+ 1 tests))
+        (assert_ (= nil nil) "Misc test 2 failed")
+        (assert_ (= true (= 1 1)) "Misc test 2°2 failed")
+        (assert_ (= false (= 1 2)) "Misc test 2°3 failed")
 
-        (assert (and true true) "Misc test 3 failed")               (set tests (+ 1 tests))
-        (assert (= false (and true false)) "Misc test 3°2 failed")  (set tests (+ 1 tests))
-        (assert (= false (and false true)) "Misc test 3°3 failed")  (set tests (+ 1 tests))
-        (assert (= false (and false false)) "Misc test 3°4 failed") (set tests (+ 1 tests))
+        (assert_ (and true true) "Misc test 3 failed")
+        (assert_ (= false (and true false)) "Misc test 3°2 failed")
+        (assert_ (= false (and false true)) "Misc test 3°3 failed")
+        (assert_ (= false (and false false)) "Misc test 3°4 failed")
 
-        (assert (or true true) "Misc test 4 failed")                (set tests (+ 1 tests))
-        (assert (or true false) "Misc test 4°2 failed")             (set tests (+ 1 tests))
-        (assert (or false true) "Misc test 4°3 failed")             (set tests (+ 1 tests))
-        (assert (= false (or false false)) "Misc test 4°4 failed")  (set tests (+ 1 tests))
+        (assert_ (or true true) "Misc test 4 failed")
+        (assert_ (or true false) "Misc test 4°2 failed")
+        (assert_ (or false true) "Misc test 4°3 failed")
+        (assert_ (= false (or false false)) "Misc test 4°4 failed")
 
         (let a nil)
         (let closure (fun (&a) ()))
 
-        (assert (= "Number" (type 1)) "Misc test 5 failed")                 (set tests (+ 1 tests))
-        (assert (= "List" (type [])) "Misc test 5°2 failed")                (set tests (+ 1 tests))
-        (assert (= "String" (type "")) "Misc test 5°3 failed")              (set tests (+ 1 tests))
-        (assert (= "Function" (type misc-tests)) "Misc test 5°4 failed")    (set tests (+ 1 tests))
-        (assert (= "Bool" (type true)) "Misc test 5°5 failed")              (set tests (+ 1 tests))
-        (assert (= "Bool" (type false)) "Misc test 5°6 failed")             (set tests (+ 1 tests))
-        (assert (= "Nil" (type nil)) "Misc test 5°7 failed")                (set tests (+ 1 tests))
-        (assert (= "CProc" (type list)) "Misc test 5°8 failed")             (set tests (+ 1 tests))
-        (assert (= "Closure" (type closure)) "Misc test 5°9 failed")        (set tests (+ 1 tests))
+        (assert_ (= "Number" (type 1)) "Misc test 5 failed")
+        (assert_ (= "List" (type [])) "Misc test 5°2 failed")
+        (assert_ (= "String" (type "")) "Misc test 5°3 failed")
+        (assert_ (= "Function" (type misc-tests)) "Misc test 5°4 failed")
+        (assert_ (= "Bool" (type true)) "Misc test 5°5 failed")
+        (assert_ (= "Bool" (type false)) "Misc test 5°6 failed")
+        (assert_ (= "Nil" (type nil)) "Misc test 5°7 failed")
+        (assert_ (= "CProc" (type list)) "Misc test 5°8 failed")
+        (assert_ (= "Closure" (type closure)) "Misc test 5°9 failed")
 
-        (assert (= true (hasField closure "a")) "Misc test 6 failed")       (set tests (+ 1 tests))
-        (assert (= false (hasField closure "b")) "Misc test 6°2 failed")    (set tests (+ 1 tests))
+        (assert_ (= true (hasField closure "a")) "Misc test 6 failed")
+        (assert_ (= false (hasField closure "b")) "Misc test 6°2 failed")
 
-        (assert (= false (nil? 0)) "Misc test 7 failed")        (set tests (+ 1 tests))
-        (assert (nil? nil) "Misc test 7°2 failed")              (set tests (+ 1 tests))
-        (assert (= false (nil? [])) "Misc test 7°3 failed")     (set tests (+ 1 tests))
-        (assert (= false (nil? "")) "Misc test 7°4 failed")     (set tests (+ 1 tests))
+        (assert_ (= false (nil? 0)) "Misc test 7 failed")
+        (assert_ (nil? nil) "Misc test 7°2 failed")
+        (assert_ (= false (nil? [])) "Misc test 7°3 failed")
+        (assert_ (= false (nil? "")) "Misc test 7°4 failed")
 
         (let start-sleep (time))
         (sleep 350)
         (let diff-sleep (- (time) start-sleep))
-        (assert (and (>= diff-sleep 0.330) (<= diff-sleep 0.375)) "Misc test 8 failed")  # using a range of value since sleep can't be accurate
-        (set tests (+ 1 tests))
+        (assert_ (and (>= diff-sleep 0.330) (<= diff-sleep 0.375)) "Misc test 8 failed")  # using a range of value since sleep can't be accurate
 
-        (assert (= "A bear walked up 20 miles and saw an eagle." (format "{0} walked up {1} miles and saw {2}." "A bear" 20 "an eagle")) "Misc test 9 failed")
-        (set tests (+ 1 tests))
-        (assert (= "Hello world" (format "Hello world")) "Misc test 9°2 failed")
-        (set tests (+ 1 tests))
-    
-        (print "  Misc tests passed \t\t(" tests ")")
+        (assert_ (= "A bear walked up 20 miles and saw an eagle." (format "{0} walked up {1} miles and saw {2}." "A bear" 20 "an eagle")) "Misc test 9 failed")
+        (assert_ (= "Hello world" (format "Hello world")) "Misc test 9°2 failed")
+        
+        (recap "Misc tests passed" tests (- (time) start-time))
+
         tests
     }))
 
