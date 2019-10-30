@@ -4,7 +4,7 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/fd5900d08a97487486c43079c06e19ce)](https://app.codacy.com/app/folaefolc/Ark?utm_source=github.com&utm_medium=referral&utm_content=SuperFola/Ark&utm_campaign=Badge_Grade_Settings)
 [![Build Status](https://travis-ci.org/SuperFola/Ark.svg?branch=rework)](https://travis-ci.org/SuperFola/Ark)
 
-<img align="right" src="images/Ark.png" width=200px>
+<img align="right" src="images/ArkTransparent-by-mazz.png" width=200px>
 
 * Documentation: [Wiki](https://github.com/SuperFola/Ark/wiki)
 * Discord server: [invite link](https://discord.gg/YT5yDwn), to discuss the specification of the language and receive help
