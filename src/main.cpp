@@ -25,7 +25,7 @@ int main(int argc, char** argv)
     mode selected = mode::help;
 
     std::string file = "", lib_dir = "";
-    bool debug = false;
+    unsigned debug = false;
     std::vector<std::string> wrong;
     uint16_t options = Ark::DefaultFeatures;
 
@@ -45,7 +45,7 @@ int main(int argc, char** argv)
                 (
                     (
                         // options which can be cumulated (separated by commas)
-                        option("-d", "--debug").set(debug).doc("Enable debug mode")
+                        joinable(repeatable(option("-d", "--debug").call([&]{ debug++; }).doc("Increase debug level (default: 0)")))
                     )
                     // other options which can not be cumulated, separated by pipes
                     | option("-bcr", "--bytecode-reader").set(selected, mode::bytecode_reader).doc("Launch the bytecode reader")
@@ -119,7 +119,7 @@ int main(int argc, char** argv)
 
             case mode::compile:
             {
-                Ark::State state(lib_dir, file, options);
+                Ark::State state(lib_dir, options);
                 state.setDebug(debug);
 
                 if (!state.doFile(file))
@@ -133,7 +133,7 @@ int main(int argc, char** argv)
             
             case mode::run:
             {
-                Ark::State state(lib_dir, file, options);
+                Ark::State state(lib_dir, options);
                 state.setDebug(debug);
 
                 if (!state.doFile(file))
@@ -142,7 +142,7 @@ int main(int argc, char** argv)
                     return -1;
                 }
 
-                if (debug)
+                if (debug >= 2)
                 {
                     Ark::VM_debug vm(&state);
                     return vm.run();

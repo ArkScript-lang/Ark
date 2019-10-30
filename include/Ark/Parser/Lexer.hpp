@@ -69,13 +69,13 @@ namespace Ark::internal
     class Lexer
     {
     public:
-        Lexer(bool debug=false);
+        Lexer(unsigned debug);
 
         void feed(const std::string& code);
         const std::vector<Token>& tokens();
 
     private:
-        bool m_debug;
+        unsigned m_debug;
         std::vector<Token> m_tokens;
 
         inline bool isKeyword(const std::string& value)

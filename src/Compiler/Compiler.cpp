@@ -10,7 +10,7 @@ namespace Ark
 {
     using namespace Ark::internal;
 
-    Compiler::Compiler(bool debug, const std::string& lib_dir, uint16_t options) :
+    Compiler::Compiler(unsigned debug, const std::string& lib_dir, uint16_t options) :
         m_parser(debug, lib_dir, options), m_options(options), m_debug(debug)
     {}
 
@@ -18,7 +18,7 @@ namespace Ark
     {
         m_parser.feed(code, filename);
 
-        if (m_debug)
+        if (m_debug >= 2)
         {
             Ark::logger.info(filename + " is importing " + Ark::Utils::toString(m_parser.getImports().size()) + " files:");
             for (auto&& import: m_parser.getImports())
@@ -40,7 +40,7 @@ namespace Ark
                     + elements
         */
 
-        if (m_debug)
+        if (m_debug >= 2)
             Ark::logger.info("Adding magic constant");
 
         m_bytecode.push_back('a');
@@ -49,7 +49,7 @@ namespace Ark
         m_bytecode.push_back(Instruction::NOP);
 
         // push version
-        if (m_debug)
+        if (m_debug >= 2)
         {
             Ark::logger.info("Major: ", ARK_VERSION_MAJOR);
             Ark::logger.info("Minor: ", ARK_VERSION_MINOR);
@@ -68,26 +68,26 @@ namespace Ark
             unsigned d = 56 - 8 * c;
             uint8_t b = (timestamp & (0xff << d)) >> d;
             m_bytecode.push_back(b);
-            if (m_debug)
+            if (m_debug >= 2)
                 std::cout << static_cast<int>(b) << " ";
         }
-        if (m_debug)
+        if (m_debug >= 2)
             std::cout << std::endl;
         
-        if (m_debug)
+        if (m_debug >= 1)
             Ark::logger.info("Timestamp: ", timestamp);
 
-        if (m_debug)
+        if (m_debug >= 1)
             Ark::logger.info("Adding symbols table header");
 
         // symbols table
         m_bytecode.push_back(Instruction::SYM_TABLE_START);
-            if (m_debug)
+            if (m_debug >= 1)
                 Ark::logger.info("Compiling");
             // gather symbols, values, and start to create code segments
             m_code_pages.emplace_back();  // create empty page
             _compile(m_parser.ast(), 0);
-        if (m_debug)
+        if (m_debug >= 1)
             Ark::logger.info("Adding symbols table");
         // push size
         pushNumber(static_cast<uint16_t>(m_symbols.size()));
@@ -100,7 +100,7 @@ namespace Ark
             m_bytecode.push_back(Instruction::NOP);
         }
 
-        if (m_debug)
+        if (m_debug >= 1)
             Ark::logger.info("Adding constants table");
 
         // values table
@@ -138,7 +138,7 @@ namespace Ark
             m_bytecode.push_back(Instruction::NOP);
         }
 
-        if (m_debug)
+        if (m_debug >= 1)
             Ark::logger.info("Adding plugins table");
         
         // plugins table
@@ -154,13 +154,13 @@ namespace Ark
             m_bytecode.push_back(Instruction::NOP);
         }
 
-        if (m_debug)
+        if (m_debug >= 1)
             Ark::logger.info("Adding code segments");
 
         // start code segments
         for (auto page : m_code_pages)
         {
-            if (m_debug)
+            if (m_debug >= 2)
                 Ark::logger.info("-", page.size() + 1);
 
             m_bytecode.push_back(Instruction::CODE_SEGMENT_START);
@@ -190,6 +190,9 @@ namespace Ark
 
     void Compiler::saveTo(const std::string& file)
     {
+        if (m_debug >= 1)
+            Ark::logger.info("Final bytecode size:", m_bytecode.size() * sizeof(uint8_t), "B");
+
         std::ofstream output(file, std::ofstream::binary);
         output.write(reinterpret_cast<char*>(&m_bytecode[0]), m_bytecode.size() * sizeof(uint8_t));
         output.close();
@@ -202,7 +205,7 @@ namespace Ark
 
     void Compiler::_compile(Ark::internal::Node x, int p)
     {
-        if (m_debug)
+        if (m_debug >= 2)
             Ark::logger.info(x);
         
         // register symbols
@@ -517,7 +520,7 @@ namespace Ark
         auto it = std::find(m_symbols.begin(), m_symbols.end(), sym);
         if (it == m_symbols.end())
         {
-            if (m_debug)
+            if (m_debug >= 2)
                 Ark::logger.info("Registering symbol:", sym, "(", m_symbols.size(), ")");
 
             m_symbols.push_back(sym);
@@ -532,7 +535,7 @@ namespace Ark
         auto it = std::find(m_values.begin(), m_values.end(), v);
         if (it == m_values.end())
         {
-            if (m_debug)
+            if (m_debug >= 2)
                 Ark::logger.info("Registering value (", m_values.size(), ")");
             
             m_values.push_back(v);
@@ -547,7 +550,7 @@ namespace Ark
         auto it = std::find(m_values.begin(), m_values.end(), v);
         if (it == m_values.end())
         {
-            if (m_debug)
+            if (m_debug >= 2)
                 Ark::logger.info("Registering value (", m_values.size(), ")");
             
             m_values.push_back(v);

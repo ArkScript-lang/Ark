@@ -4,9 +4,9 @@
 
 namespace Ark
 {
-    State::State(const std::string& libdir, const std::string& filename, uint16_t options) :
-        m_libdir(libdir == "" ? ARK_STD_DEFAULT : libdir), m_filename(filename),
-        m_options(options), m_debug(false)
+    State::State(const std::string& libdir, uint16_t options) :
+        m_libdir(libdir == "" ? ARK_STD_DEFAULT : libdir), m_filename("FILE"),
+        m_options(options), m_debug_level(0)
     {}
 
     bool State::feed(const std::string& bytecode_filename)
@@ -47,7 +47,7 @@ namespace Ark
         return result;
     }
 
-    static bool compile(bool debug, const std::string& file, const std::string& output, const std::string& lib_dir, uint16_t options)
+    static bool compile(unsigned debug, const std::string& file, const std::string& output, const std::string& lib_dir, uint16_t options)
     {
         Compiler compiler(debug, lib_dir, options);
 
@@ -122,7 +122,7 @@ namespace Ark
 
                 // recompile
                 if (timestamp < file_last_write)
-                    compiled_successfuly = Ark::compile(m_debug, file, path, m_libdir, m_options);
+                    compiled_successfuly = Ark::compile(m_debug_level, file, path, m_libdir, m_options);
                 else
                     compiled_successfuly = true;
             }
@@ -131,7 +131,7 @@ namespace Ark
                 if (!std::filesystem::exists(directory))  // create ark cache directory
                     std::filesystem::create_directory(directory);
                 
-                compiled_successfuly = Ark::compile(m_debug, file, path, m_libdir, m_options);
+                compiled_successfuly = Ark::compile(m_debug_level, file, path, m_libdir, m_options);
             }
             
             if (compiled_successfuly && feed(path))
@@ -144,7 +144,7 @@ namespace Ark
 
     bool State::doString(const std::string& code)
     {
-        Compiler compiler(m_debug, m_libdir, m_options);
+        Compiler compiler(m_debug_level, m_libdir, m_options);
 
         try
         {
@@ -172,9 +172,9 @@ namespace Ark
         m_binded_functions[name] = std::move(function);
     }
 
-    void State::setDebug(bool value)
+    void State::setDebug(unsigned level)
     {
-        m_debug = value;
+        m_debug_level = level;
     }
 
     void State::configure()

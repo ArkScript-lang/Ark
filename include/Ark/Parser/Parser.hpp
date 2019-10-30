@@ -16,7 +16,7 @@ namespace Ark
     class Parser
     {
     public:
-        Parser(bool debug, const std::string& lib_dir, uint16_t options);
+        Parser(unsigned debug, const std::string& lib_dir, uint16_t options);
 
         void feed(const std::string& code, const std::string& filename="FILE");
         const internal::Node& ast() const;
@@ -25,7 +25,7 @@ namespace Ark
         friend std::ostream& operator<<(std::ostream& os, const Parser& P);
 
     private:
-        bool m_debug;
+        unsigned m_debug;
         std::string m_libdir;
         uint16_t m_options;
         internal::Lexer m_lexer;

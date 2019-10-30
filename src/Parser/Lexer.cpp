@@ -5,7 +5,7 @@
 
 namespace Ark::internal
 {
-    Lexer::Lexer(bool debug) :
+    Lexer::Lexer(unsigned debug) :
         m_debug(debug)
     {}
 
@@ -14,8 +14,14 @@ namespace Ark::internal
         std::string src = code;
         std::size_t line = 1, character = 0;
 
+        std::size_t tokens_count = 0;
+        if (m_debug  >= 3)
+            std::cout << "Tokens" << std::endl;
+
         while (!src.empty())
         {
+            tokens_count = m_tokens.size();
+
             for (auto& item: lex_regexes)
             {
                 TokenType type = item.first;
@@ -60,6 +66,15 @@ namespace Ark::internal
                     src = std::regex_replace(src, item.second, std::string(""), std::regex_constants::format_first_only);
                     break;
                 }
+            }
+            
+            if (m_debug >= 3 && m_tokens.size() > tokens_count)
+            {
+                auto last_token = m_tokens.back();
+                std::cout << "TokenType: " << tokentype_string[static_cast<std::size_t>(last_token.type)] << "\t";
+                std::cout << "Line: " << last_token.line << " \t";
+                std::cout << "[" << last_token.col << "\t]\t";
+                std::cout << "Token: " << last_token.token << std::endl;
             }
         }
     }

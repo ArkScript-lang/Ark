@@ -97,6 +97,7 @@ Who worked on
     * [@Natendrtfm](https://github.com/Natendrtfm)
     * [@rinz13r](https://github.com/rinz13r)
     * [@FrenchMasterSword](https://github.com/FrenchMasterSword)
+    * [@rstefanic](https://github.com/rstefanic)
 * the FFI
     * [@SuperFola](https://github.com/SuperFola)
     * [@rinz13r](https://github.com/rinz13r)
@@ -164,7 +165,7 @@ OPTIONS
         --dev-info                  Display development information and exit
         -c, --compile               Compile the given program to bytecode, but do not run
         -r, --repl                  Run the ArkScript REPL
-        -d, --debug                 Enable debug mode
+        -d, --debug...              Increase debug level (default: 0)
         -bcr, --bytecode-reader     Launch the bytecode reader
         -L, --lib                   Set the location of the ArkScript standard library
 

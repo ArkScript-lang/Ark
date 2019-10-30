@@ -10,7 +10,7 @@ namespace Ark
 {
     using namespace Ark::internal;
 
-    Parser::Parser(bool debug, const std::string& lib_dir, uint16_t options) :
+    Parser::Parser(unsigned debug, const std::string& lib_dir, uint16_t options) :
         m_debug(debug),
         m_libdir(lib_dir),
         m_options(options),
@@ -24,7 +24,7 @@ namespace Ark
         if (filename != "FILE")
         {
             m_file = Ark::Utils::canonicalRelPath(filename);
-            if (m_debug)
+            if (m_debug >= 2)
                 Ark::logger.data("New parser:", m_file);
             m_parent_include.push_back(m_file);
         }
@@ -45,7 +45,7 @@ namespace Ark
         // include files if needed
         checkForInclude(m_ast);
 
-        if (m_debug)
+        if (m_debug >= 2)
         {
             Ark::logger.info("(Parser) AST:");
             std::cout << m_ast << std::endl << std::endl;
@@ -379,7 +379,7 @@ namespace Ark
             {
                 if (checkForInclude(n.list()[i]))
                 {
-                    if (m_debug)
+                    if (m_debug >= 2)
                         Ark::logger.info("Import found in file:", m_file);
                     
                     std::string file;
@@ -395,7 +395,7 @@ namespace Ark
                     std::string dir = Ark::Utils::getDirectoryFromPath(m_file) + "/";
                     std::string path = (dir != "/") ? dir + file : file;
                     
-                    if (m_debug)
+                    if (m_debug >= 2)
                         Ark::logger.data("path:", path, " ; file:", file, " ; libdir:", m_libdir);
                     
                     // check if we are not loading a plugin
@@ -442,7 +442,7 @@ namespace Ark
 
                             n.list().push_back(p.ast());
                         }
-                        else if (m_debug)
+                        else if (m_debug >= 1)
                             Ark::logger.warn("Possible cyclic inclusion issue: file " + m_file + " is trying to include " + path + " which was already included");
                     }
                 }

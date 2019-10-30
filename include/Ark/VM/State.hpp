@@ -17,7 +17,7 @@ namespace Ark
     class State
     {
     public:
-        State(const std::string& libdir="", const std::string& filename="FILE", uint16_t options=DefaultFeatures);
+        State(const std::string& libdir="", uint16_t options=DefaultFeatures);
 
         // for already compiled ArkScript files
         bool feed(const std::string& bytecode_filename);
@@ -29,7 +29,7 @@ namespace Ark
         bool doString(const std::string& code);
 
         void loadFunction(const std::string& name, internal::Value::ProcType function);
-        void setDebug(bool value);
+        void setDebug(unsigned level);
 
         template <bool D> friend class VM_t;
     
@@ -41,7 +41,7 @@ namespace Ark
             throw std::runtime_error("StateError: " + message);
         }
 
-        bool m_debug;
+        unsigned m_debug_level;
 
         bytecode_t m_bytecode;
         std::string m_libdir;
