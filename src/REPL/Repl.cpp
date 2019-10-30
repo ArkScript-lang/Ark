@@ -23,7 +23,9 @@ namespace Ark
             std::cout << new_prompt;
             for(std::string line; std::getline(std::cin, line);)
             {
-                if (line.length() == 0)
+                trim_whitespace(line);
+
+                if (line.length() == 0 || line.at(0) == '#')
                 {
                     std::cout << (new_command ? new_prompt : continuing_prompt);
                     continue;
@@ -92,5 +94,15 @@ namespace Ark
         }
 
         return open_braces;
+    }
+
+    void Repl::trim_whitespace(std::string& line)
+    {
+        size_t string_begin = line.find_first_not_of(" \t");
+        if (std::string::npos != string_begin)
+        {
+            size_t string_end = line.find_last_not_of(" \t");
+            line = line.substr(string_begin, (string_end - string_begin + 1));
+        }
     }
 }
