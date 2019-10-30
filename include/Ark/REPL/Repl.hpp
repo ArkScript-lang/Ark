@@ -25,7 +25,7 @@ namespace Ark
         inline void print_repl_header();
         int count_open_parentheses(const std::string& line);
         int count_open_braces(const std::string& line);
-        std::string Repl::trim_whitespace(const std::string& str);
+        void trim_whitespace(std::string& line);
     };
 }
 
