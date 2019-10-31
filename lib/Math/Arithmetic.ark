@@ -25,5 +25,5 @@
         (= 0 (mod n 2))))
 
     (let odd (fun (n)
-        (= 1 (mod n 2))))
+        (= 1 (abs (mod n 2)))))
 }
