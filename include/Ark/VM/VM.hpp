@@ -206,24 +206,7 @@ namespace Ark
         inline void push(const internal::Value& value);
         inline void push(internal::Value&& value);
 
-        // instructions
-        inline void loadSymbol();
-        inline void loadConst();
-        inline void popJumpIfTrue();
-        inline void store();
-        inline void let();
-        inline void popJumpIfFalse();
-        inline void jump();
-        inline void ret();
         inline void call(int16_t argc_=-1);
-        inline void capture();
-        inline void builtin();
-        inline void mut();
-        inline void del();
-        inline void saveEnv();
-        inline void getField();
-
-        inline void operators(uint8_t inst);
     };
 }
 

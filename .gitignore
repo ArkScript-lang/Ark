@@ -2,6 +2,8 @@
 
 # folders
 build/
+build32/
+linux/
 clang/
 benchmark/
 gitstats/

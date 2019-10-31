@@ -157,36 +157,197 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
                 switch (inst)
                 {
                 case Instruction::LOAD_SYMBOL:
-                    loadSymbol();
+                {
+                    /*
+                        Argument: symbol id (two bytes, big endian)
+                        Job: Load a symbol from its id onto the stack
+                    */
+                    
+                    ++m_ip;
+                    uint16_t id = readNumber();
+
+                    if constexpr (debug)
+                        Ark::logger.info("LOAD_SYMBOL ({0}) PP:{1}, IP:{2}"s, m_state->m_symbols[id], m_pp, m_ip);
+
+                    Value* var = findNearestVariable(id);
+                    if (var != nullptr)
+                    {
+                        push(*var);
+                        m_last_sym_loaded = id;
+                        break;
+                    }
+
+                    throwVMError("couldn't find symbol to load: " + m_state->m_symbols[id]);
                     break;
+                }
                 
                 case Instruction::LOAD_CONST:
-                    loadConst();
+                {
+                    /*
+                        Argument: constant id (two bytes, big endian)
+                        Job: Load a constant from its id onto the stack. Should check for a saved environment
+                                and push a Closure with the page address + environment instead of the constant
+                    */
+
+                    ++m_ip;
+                    uint16_t id = readNumber();
+
+                    if constexpr (debug)
+                        Ark::logger.info("LOAD_CONST ({0}) PP:{1}, IP:{2}"s, m_state->m_constants[id], m_pp, m_ip);
+                    
+                    if (m_saved_scope && m_state->m_constants[id].valueType() == ValueType::PageAddr)
+                    {
+                        push(Value(Closure(m_saved_scope.value(), m_state->m_constants[id].pageAddr())));
+                        m_saved_scope.reset();
+                    }
+                    else
+                        push(m_state->m_constants[id]);
                     break;
+                }
                 
                 case Instruction::POP_JUMP_IF_TRUE:
-                    popJumpIfTrue();
+                {
+                    /*
+                        Argument: absolute address to jump to (two bytes, big endian)
+                        Job: Jump to the provided address if the last value on the stack was equal to true.
+                                Remove the value from the stack no matter what it is
+                    */
+
+                    ++m_ip;
+                    int16_t addr = static_cast<int16_t>(readNumber());
+
+                    if constexpr (debug)
+                        Ark::logger.info("POP_JUMP_IF_TRUE ({0}) PP:{1}, IP:{2}"s, addr, m_pp, m_ip);
+
+                    if (pop() == FFI::trueSym)
+                        m_ip = addr - 1;  // because we are doing a ++m_ip right after this
                     break;
+                }
                 
                 case Instruction::STORE:
-                    store();
+                {
+                    /*
+                        Argument: symbol id (two bytes, big endian)
+                        Job: Take the value on top of the stack and put it inside a variable named following
+                                the symbol id (cf symbols table), in the nearest scope. Raise an error if it
+                                couldn't find a scope where the variable exists
+                    */
+                    
+                    ++m_ip;
+                    uint16_t id = readNumber();
+
+                    if constexpr (debug)
+                        Ark::logger.info("STORE ({0}) PP:{1}, IP:{2}"s, m_state->m_symbols[id], m_pp, m_ip);
+
+                    Value* var = findNearestVariable(id);
+                    if (var != nullptr)
+                    {
+                        if (var->isConst())
+                            throwVMError("can not modify a constant: " + m_state->m_symbols[id]);
+                        *var = pop();
+                        break;
+                    }
+
+                    throwVMError("couldn't find symbol: " + m_state->m_symbols[id]);
                     break;
+                }
                 
                 case Instruction::LET:
-                    let();
+                {
+                    /*
+                        Argument: symbol id (two bytes, big endian)
+                        Job: Take the value on top of the stack and create a constant in the current scope, named
+                                following the given symbol id (cf symbols table)
+                    */
+
+                    ++m_ip;
+                    uint16_t id = readNumber();
+
+                    if constexpr (debug)
+                        Ark::logger.info("LET ({0}) PP:{1}, IP:{2}"s, m_state->m_symbols[id], m_pp, m_ip);
+                    
+                    // check if we are redefining a variable
+                    if (getVariableInScope(id) != FFI::undefined)
+                        throwVMError("can not use 'let' to redefine the variable " + m_state->m_symbols[id]);
+
+                    registerVariable(id, pop()).setConst(true);
                     break;
+                }
                 
                 case Instruction::POP_JUMP_IF_FALSE:
-                    popJumpIfFalse();
+                {
+                    /*
+                        Argument: absolute address to jump to (two bytes, big endian)
+                        Job: Jump to the provided address if the last value on the stack was equal to false. Remove
+                                the value from the stack no matter what it is
+                    */
+
+                    ++m_ip;
+                    int16_t addr = static_cast<int16_t>(readNumber());
+
+                    if constexpr (debug)
+                        Ark::logger.info("POP_JUMP_IF_FALSE ({0}) PP:{1}, IP:{2}"s, addr, m_pp, m_ip);
+
+                    if (pop() == FFI::falseSym)
+                        m_ip = addr - 1;  // because we are doing a ++m_ip right after this
                     break;
+                }
                 
                 case Instruction::JUMP:
-                    jump();
+                {
+                    /*
+                        Argument: absolute address to jump to (two byte, big endian)
+                        Job: Jump to the provided address
+                    */
+
+                    ++m_ip;
+                    int16_t addr = static_cast<int16_t>(readNumber());
+
+                    if constexpr (debug)
+                        Ark::logger.info("JUMP ({0}) PP:{1}, IP:{2}"s, addr, m_pp, m_ip);
+
+                    m_ip = addr - 1;  // because we are doing a ++m_ip right after this
                     break;
+                }
                 
                 case Instruction::RET:
-                    ret();
+                {
+                    /*
+                        Argument: none
+                        Job: If in a code segment other than the main one, quit it, and push the value on top of
+                                the stack to the new stack ; should as well delete the current environment.
+                                Otherwise, acts as a `HALT`
+                    */
+
+                    if constexpr (debug)
+                        Ark::logger.info("RET PP:{0}, IP:{1}"s, m_pp, m_ip);
+                    
+                    // check if we should halt the VM
+                    if (m_pp == 0)
+                    {
+                        m_running = false;
+                        break;
+                    }
+
+                    // save pp
+                    PageAddr_t old_pp = static_cast<PageAddr_t>(m_pp);
+                    m_pp = m_frames.back().callerPageAddr();
+                    m_ip = m_frames.back().callerAddr();
+                    
+                    if (m_frames.back().stackSize() != 0)
+                    {
+                        Value return_value(pop());
+                        returnFromFuncCall();
+                        // push value as the return value of a function to the current stack
+                        push(return_value);
+                    }
+                    else
+                    {
+                        returnFromFuncCall();
+                        push(FFI::nil);
+                    }
                     break;
+                }
                 
                 case Instruction::HALT:
                     m_running = false;
@@ -197,34 +358,493 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
                     break;
                 
                 case Instruction::CAPTURE:
-                    capture();
+                {
+                    /*
+                        Argument: symbol id (two bytes, big endian)
+                        Job: Used to tell the Virtual Machine to capture the variable from the current environment.
+                            Main goal is to be able to handle closures, which need to save the environment in which
+                            they were created
+                    */
+
+                    ++m_ip;
+                    uint16_t id = readNumber();
+
+                    if constexpr (debug)
+                        Ark::logger.info("CAPTURE ({0}) PP:{1}, IP:{2}"s, m_state->m_symbols[id], m_pp, m_ip);
+
+                    if (!m_saved_scope)
+                    {
+                        m_saved_scope = std::make_shared<std::vector<Value>>(
+                            m_state->m_symbols.size(), internal::FFI::undefined
+                        );
+                    }
+                    (*m_saved_scope.value())[id] = getVariableInScope(id);
                     break;
+                }
                 
                 case Instruction::BUILTIN:
-                    builtin();
+                {
+                    /*
+                        Argument: id of builtin (two bytes, big endian)
+                        Job: Push the builtin function object on the stack
+                    */
+
+                    ++m_ip;
+                    uint16_t id = readNumber();
+
+                    if constexpr (debug)
+                        Ark::logger.info("BUILTIN ({0}) PP:{1}, IP:{2}"s, FFI::builtins[id].first, m_pp, m_ip);
+
+                    push(FFI::builtins[id].second);
                     break;
+                }
                 
                 case Instruction::MUT:
-                    mut();
+                {
+                    /*
+                        Argument: symbol id (two bytes, big endian)
+                        Job: Take the value on top of the stack and create a variable in the current scope,
+                            named following the given symbol id (cf symbols table)
+                    */
+
+                    ++m_ip;
+                    uint16_t id = readNumber();
+
+                    if constexpr (debug)
+                        Ark::logger.info("MUT ({0}) PP:{1}, IP:{2}"s, m_state->m_symbols[id], m_pp, m_ip);
+
+                    registerVariable(id, pop());
                     break;
+                }
                 
                 case Instruction::DEL:
-                    del();
+                {
+                    /*
+                        Argument: symbol id (two bytes, big endian)
+                        Job: Remove a variable/constant named following the given symbol id (cf symbols table)
+                    */
+
+                    ++m_ip;
+                    uint16_t id = readNumber();
+
+                    if constexpr (debug)
+                        Ark::logger.info("DEL ({0}) PP:{1}, IP:{2}"s, m_state->m_symbols[id], m_pp, m_ip);
+                    
+                    Value* var = findNearestVariable(id);
+                    if (var != nullptr)
+                    {
+                        *var = FFI::undefined;
+                        break;
+                    }
+
+                    throwVMError("couldn't find symbol: " + m_state->m_symbols[id]);
                     break;
+                }
                 
                 case Instruction::SAVE_ENV:
-                    saveEnv();
+                {
+                    /*
+                        Argument: none
+                        Job: Save the current environment, useful for quoted code
+                    */
+                    m_saved_scope = m_locals.back();
                     break;
+                }
                 
                 case Instruction::GET_FIELD:
-                    getField();
+                {
+                    /*
+                        Argument: symbol id (two bytes, big endian)
+                        Job: Used to read the field named following the given symbol id (cf symbols table) of a `Closure`
+                            stored in TS. Pop TS and push the value of field read on the stack
+                    */
+
+                    ++m_ip;
+                    uint16_t id = readNumber();
+
+                    if constexpr (debug)
+                        Ark::logger.info("GET_FIELD ({0}) PP:{1}, IP:{2}"s, m_state->m_symbols[id], m_pp, m_ip);
+                    
+                    auto var = pop();
+                    if (var.valueType() != ValueType::Closure)
+                        throwVMError("variable `" + m_state->m_symbols[m_last_sym_loaded] + "' isn't a closure, can not get the field `" + m_state->m_symbols[id] + "' from it");
+                    
+                    const Value& field = (*var.closure_ref().scope())[id];
+                    if (field != FFI::undefined)
+                    {
+                        if constexpr (debug)
+                            Ark::logger.data("Pushing closure field:", field);
+                        
+                        // check for CALL instruction
+                        if (m_ip + 1 < m_state->m_pages[m_pp].size() && m_state->m_pages[m_pp][m_ip + 1] == Instruction::CALL)
+                        {
+                            m_locals.push_back(var.closure_ref().scope());
+                            m_frames.back().incScopeCountToDelete();
+                        }
+
+                        push(field);
+                        break;
+                    }
+
+                    throwVMError("couldn't find symbol in closure enviroment: " + m_state->m_symbols[id]);
                     break;
+                }
                 
                 default:
                     throwVMError("unknown instruction: " + Ark::Utils::toString(static_cast<std::size_t>(inst)));
+                    break;
                 }
             else if (Instruction::FIRST_OPERATOR <= inst && inst <= Instruction::LAST_OPERATOR)
-                operators(inst);
+                switch (inst)
+                {
+                    case Instruction::ADD:
+                    {
+                        auto b = pop(), a = pop();
+                        if (a.valueType() == ValueType::Number)
+                        {
+                            if (b.valueType() != ValueType::Number)
+                                throw Ark::TypeError("Arguments of + should have the same type");
+                            
+                            push(Value(a.number() + b.number()));
+                            break;
+                        }
+                        else if (a.valueType() == ValueType::String)
+                        {
+                            if (b.valueType() != ValueType::String)
+                                throw Ark::TypeError("Arguments of + should have the same type");
+                            
+                            push(Value(a.string() + b.string()));
+                            break;
+                        }
+                        throw Ark::TypeError("Arguments of + should be Numbers or Strings");
+                    }
+
+                    case Instruction::SUB:
+                    {
+                        auto b = pop(), a = pop();
+                        if (a.valueType() != ValueType::Number)
+                            throw Ark::TypeError("Arguments of - should be Numbers");
+                        if (b.valueType() != ValueType::Number)
+                            throw Ark::TypeError("Arguments of - should be Numbers");
+                        
+                        push(Value(a.number() - b.number()));
+                        break;
+                    }
+
+                    case Instruction::MUL:
+                    {
+                        auto b = pop(), a = pop();
+                        if (a.valueType() != ValueType::Number)
+                            throw Ark::TypeError("Arguments of * should be Numbers");
+                        if (b.valueType() != ValueType::Number)
+                            throw Ark::TypeError("Arguments of * should be Numbers");
+                        
+                        push(Value(a.number() * b.number()));
+                        break;
+                    }
+
+                    case Instruction::DIV:
+                    {
+                        auto b = pop(), a = pop();
+                        if (a.valueType() != ValueType::Number)
+                            throw Ark::TypeError("Arguments of / should be Numbers");
+                        if (b.valueType() != ValueType::Number)
+                            throw Ark::TypeError("Arguments of / should be Numbers");
+                        
+                        auto d = b.number();
+                        if (d == 0)
+                            throw Ark::ZeroDivisionError();
+                        
+                        push(Value(a.number() / d));
+                        break;
+                    }
+
+                    case Instruction::GT:
+                    {
+                        auto b = pop(), a = pop();
+                        push((!(a == b) && !(a < b)) ? FFI::trueSym : FFI::falseSym);
+                        break;
+                    }
+                    
+                    case Instruction::LT:
+                    {
+                        auto b = pop(), a = pop();
+                        push((a < b) ? FFI::trueSym : FFI::falseSym);
+                        break;
+                    }
+
+                    case Instruction::LE:
+                    {
+                        auto b = pop(), a = pop();
+                        push(((a < b) || (a == b)) ? FFI::trueSym : FFI::falseSym);
+                        break;
+                    }
+
+                    case Instruction::GE:
+                    {
+                        auto b = pop(), a = pop();
+                        push(!(a < b) ? FFI::trueSym : FFI::falseSym);
+                        break;
+                    }
+
+                    case Instruction::NEQ:
+                    {
+                        auto b = pop(), a = pop();
+                        push((a != b) ? FFI::trueSym : FFI::falseSym);
+                        break;
+                    }
+
+                    case Instruction::EQ:
+                    {
+                        auto b = pop(), a = pop();
+                        push((a == b) ? FFI::trueSym : FFI::falseSym);
+                        break;
+                    }
+
+                    case Instruction::LEN:
+                    {
+                        auto a = pop();
+                        if (a.valueType() == ValueType::List)
+                        {
+                            push(Value(static_cast<int>(a.const_list().size())));
+                            break;
+                        }
+                        if (a.valueType() == ValueType::String)
+                        {
+                            push(Value(static_cast<int>(a.string().size())));
+                            break;
+                        }
+
+                        throw Ark::TypeError("Argument of len must be a list or a String");
+                    }
+
+                    case Instruction::EMPTY:
+                    {
+                        auto a = pop();
+                        if (a.valueType() == ValueType::List)
+                            push((a.const_list().size() == 0) ? FFI::trueSym : FFI::falseSym);
+                        else if (a.valueType() == ValueType::String)
+                            push((a.string().size() == 0) ? FFI::trueSym : FFI::falseSym);
+                        else
+                            throw Ark::TypeError("Argument of empty? must be a list or a String");
+                        
+                        break;
+                    }
+
+                    case Instruction::FIRSTOF:
+                    {
+                        auto a = pop();
+                        if (a.valueType() == ValueType::List)
+                            push(a.const_list().size() > 0 ? a.const_list()[0] : FFI::nil);
+                        else if (a.valueType() == ValueType::String)
+                            push(a.string().size() > 0 ? Value(std::string(1, a.string()[0])) : FFI::nil);
+                        else
+                            throw Ark::TypeError("Argument of firstOf must be a list");
+
+                        break;
+                    }
+
+                    case Instruction::TAILOF:
+                    {
+                        auto a = pop();
+                        if (a.valueType() == ValueType::List)
+                        {
+                            if (a.const_list().size() < 2)
+                            {
+                                push(FFI::nil);
+                                break;
+                            }
+                            
+                            a.list().erase(a.const_list().begin());
+                            push(a);
+                        }
+                        else if (a.valueType() == ValueType::String)
+                        {
+                            if (a.string().size() < 2)
+                            {
+                                push(FFI::nil);
+                                break;
+                            }
+
+                            a.string_ref().erase(a.string().begin());
+                            push(a);
+                        }
+                        else
+                            throw Ark::TypeError("Argument of tailOf must be a list or a String");
+                        
+                        break;
+                    }
+
+                    case Instruction::HEADOF:
+                    {
+                        auto a = pop();
+                        if (a.valueType() == ValueType::List)
+                        {
+                            if (a.const_list().size() < 2)
+                            {
+                                push(FFI::nil);
+                                break;
+                            }
+                            
+                            a.list().pop_back();
+                            push(a);
+                        }
+                        else if (a.valueType() == ValueType::String)
+                        {
+                            if (a.string().size() < 2)
+                            {
+                                push(FFI::nil);
+                                break;
+                            }
+                            
+                            a.string_ref().pop_back();
+                            push(a);
+                        }
+                        else
+                            throw Ark::TypeError("Argument of headOf must be a list or a String");
+                        
+                        break;
+                    }
+
+                    case Instruction::ISNIL:
+                    {
+                        push((pop() == FFI::nil) ? FFI::trueSym : FFI::falseSym);
+                        break;
+                    }
+
+                    case Instruction::ASSERT:
+                    {
+                        auto b = pop(), a = pop();
+                        if (a == FFI::falseSym)
+                        {
+                            if (b.valueType() != ValueType::String)
+                                throw Ark::TypeError("Second argument of assert must be a String");
+
+                            throw Ark::AssertionFailed(b.string());
+                        }
+                        break;
+                    }
+
+                    case Instruction::TO_NUM:
+                    {
+                        auto a = pop();
+                        if (a.valueType() != ValueType::String)
+                            throw Ark::TypeError("Argument of toNumber must be a String");
+                        
+                        if (Utils::isDouble(a.string()))
+                            push(Value(std::stod(a.string().c_str())));
+                        else
+                            push(FFI::nil);
+                        break;
+                    }
+
+                    case Instruction::TO_STR:
+                    {
+                        std::stringstream ss;
+                        ss << pop();
+                        push(Value(ss.str()));
+                        break;
+                    }
+
+                    case Instruction::AT:
+                    {
+                        auto b = pop(), a = pop();
+                        if (b.valueType() != ValueType::Number)
+                            throw Ark::TypeError("Argument 2 of @ should be a Number");
+
+                        if (a.valueType() == ValueType::List)
+                            push(a.const_list()[static_cast<long>(b.number())]);
+                        else if (a.valueType() == ValueType::String)
+                            push(Value(std::string(1, a.string()[static_cast<long>(b.number())])));
+                        else
+                            throw Ark::TypeError("Argument 1 of @ should be a List or a String");
+                        break;
+                    }
+
+                    case Instruction::AND_:
+                    {
+                        auto a = pop(), b = pop();
+                        push((a == FFI::trueSym && b == FFI::trueSym) ? FFI::trueSym : FFI::falseSym);
+                        break;
+                    }
+
+                    case Instruction::OR_:
+                    {
+                        auto a = pop(), b = pop();
+                        push((b == FFI::trueSym || a == FFI::trueSym) ? FFI::trueSym : FFI::falseSym);
+                        break;
+                    }
+
+                    case Instruction::MOD:
+                    {
+                        auto b = pop(), a = pop();
+                        if (a.valueType() != ValueType::Number)
+                            throw Ark::TypeError("Arguments of mod should be Numbers");
+                        if (b.valueType() != ValueType::Number)
+                            throw Ark::TypeError("Arguments of mod should be Numbers");
+                        
+                        push(Value(std::fmod(a.number(), b.number())));
+                        break;
+                    }
+
+                    case Instruction::TYPE:
+                    {
+                        auto a = pop();
+                        switch (a.valueType())
+                        {
+                            case ValueType::List:     push(Value("List"));     break;
+                            case ValueType::Number:   push(Value("Number"));   break;
+                            case ValueType::String:   push(Value("String"));   break;
+                            case ValueType::PageAddr: push(Value("Function")); break;
+                            case ValueType::NFT:
+                            {
+                                switch (a.nft())
+                                {
+                                    case NFT::Nil:
+                                        push(Value("Nil"));
+                                        break;
+                                    case NFT::True:
+                                    case NFT::False:
+                                        push(Value("Bool"));
+                                        break;
+                                    case NFT::Undefined:
+                                        push(Value("Undefined"));
+                                        break;
+                                }
+                                break;
+                            }
+                            case ValueType::CProc:   push(Value("CProc"));   break;
+                            case ValueType::Closure: push(Value("Closure")); break;
+                            default:
+                                throw Ark::TypeError("unimplemented type");
+                        }
+                        break;
+                    }
+
+                    case Instruction::HASFIELD:
+                    {
+                        auto field = pop(), closure = pop();
+                        if (closure.valueType() != ValueType::Closure)
+                            throw Ark::TypeError("Argument no 1 of hasField should be a Closure");
+                        if (field.valueType() != ValueType::String)
+                            throw Ark::TypeError("Argument no 2 of hasField should be a String");
+                        
+                        auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), field.string());
+                        if (it == m_state->m_symbols.end())
+                        {
+                            push(FFI::falseSym);
+                            break;
+                        }
+                        uint16_t id = static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it));
+                        
+                        if ((*closure.closure_ref().scope_ref())[id] != FFI::undefined)
+                            push(FFI::trueSym);
+                        else
+                            push(FFI::falseSym);
+                        
+                        break;
+                    }
+                }
             else
                 throwVMError("unknown instruction: " + Ark::Utils::toString(static_cast<std::size_t>(inst)));
             
@@ -299,207 +919,6 @@ inline void VM_t<debug>::push(internal::Value&& value)
 // ------------------------------------------
 //               instructions
 // ------------------------------------------
-
-template<bool debug>
-inline void VM_t<debug>::loadSymbol()
-{
-    /*
-        Argument: symbol id (two bytes, big endian)
-        Job: Load a symbol from its id onto the stack
-    */
-    using namespace Ark::internal;
-    
-    ++m_ip;
-    uint16_t id = readNumber();
-
-    if constexpr (debug)
-        Ark::logger.info("LOAD_SYMBOL ({0}) PP:{1}, IP:{2}"s, m_state->m_symbols[id], m_pp, m_ip);
-
-    Value* var = findNearestVariable(id);
-    if (var != nullptr)
-    {
-        push(*var);
-        m_last_sym_loaded = id;
-        return;
-    }
-
-    throwVMError("couldn't find symbol to load: " + m_state->m_symbols[id]);
-}
-
-template<bool debug>
-inline void VM_t<debug>::loadConst()
-{
-    /*
-        Argument: constant id (two bytes, big endian)
-        Job: Load a constant from its id onto the stack. Should check for a saved environment
-                and push a Closure with the page address + environment instead of the constant
-    */
-    using namespace Ark::internal;
-
-    ++m_ip;
-    uint16_t id = readNumber();
-
-    if constexpr (debug)
-        Ark::logger.info("LOAD_CONST ({0}) PP:{1}, IP:{2}"s, m_state->m_constants[id], m_pp, m_ip);
-    
-    if (m_saved_scope && m_state->m_constants[id].valueType() == ValueType::PageAddr)
-    {
-        push(Value(Closure(m_saved_scope.value(), m_state->m_constants[id].pageAddr())));
-        m_saved_scope.reset();
-    }
-    else
-        push(m_state->m_constants[id]);
-}
-
-template<bool debug>
-inline void VM_t<debug>::popJumpIfTrue()
-{
-    /*
-        Argument: absolute address to jump to (two bytes, big endian)
-        Job: Jump to the provided address if the last value on the stack was equal to true.
-                Remove the value from the stack no matter what it is
-    */
-    using namespace Ark::internal;
-
-    ++m_ip;
-    int16_t addr = static_cast<int16_t>(readNumber());
-
-    if constexpr (debug)
-        Ark::logger.info("POP_JUMP_IF_TRUE ({0}) PP:{1}, IP:{2}"s, addr, m_pp, m_ip);
-
-    if (pop() == FFI::trueSym)
-        m_ip = addr - 1;  // because we are doing a ++m_ip right after this
-}
-
-template<bool debug>
-inline void VM_t<debug>::store()
-{
-    /*
-        Argument: symbol id (two bytes, big endian)
-        Job: Take the value on top of the stack and put it inside a variable named following
-                the symbol id (cf symbols table), in the nearest scope. Raise an error if it
-                couldn't find a scope where the variable exists
-    */
-    using namespace Ark::internal;
-    
-    ++m_ip;
-    uint16_t id = readNumber();
-
-    if constexpr (debug)
-        Ark::logger.info("STORE ({0}) PP:{1}, IP:{2}"s, m_state->m_symbols[id], m_pp, m_ip);
-
-    Value* var = findNearestVariable(id);
-    if (var != nullptr)
-    {
-        if (var->isConst())
-            throwVMError("can not modify a constant: " + m_state->m_symbols[id]);
-        *var = pop();
-        return;
-    }
-
-    throwVMError("couldn't find symbol: " + m_state->m_symbols[id]);
-}
-
-template<bool debug>
-inline void VM_t<debug>::let()
-{
-    /*
-        Argument: symbol id (two bytes, big endian)
-        Job: Take the value on top of the stack and create a constant in the current scope, named
-                following the given symbol id (cf symbols table)
-    */
-    using namespace Ark::internal;
-
-    ++m_ip;
-    uint16_t id = readNumber();
-
-    if constexpr (debug)
-        Ark::logger.info("LET ({0}) PP:{1}, IP:{2}"s, m_state->m_symbols[id], m_pp, m_ip);
-    
-    // check if we are redefining a variable
-    if (getVariableInScope(id) != FFI::undefined)
-        throwVMError("can not use 'let' to redefine the variable " + m_state->m_symbols[id]);
-
-    registerVariable(id, pop()).setConst(true);
-}
-
-template<bool debug>
-inline void VM_t<debug>::popJumpIfFalse()
-{
-    /*
-        Argument: absolute address to jump to (two bytes, big endian)
-        Job: Jump to the provided address if the last value on the stack was equal to false. Remove
-                the value from the stack no matter what it is
-    */
-    using namespace Ark::internal;
-
-    ++m_ip;
-    int16_t addr = static_cast<int16_t>(readNumber());
-
-    if constexpr (debug)
-        Ark::logger.info("POP_JUMP_IF_FALSE ({0}) PP:{1}, IP:{2}"s, addr, m_pp, m_ip);
-
-    if (pop() == FFI::falseSym)
-        m_ip = addr - 1;  // because we are doing a ++m_ip right after this
-}
-
-template<bool debug>
-inline void VM_t<debug>::jump()
-{
-    /*
-        Argument: absolute address to jump to (two byte, big endian)
-        Job: Jump to the provided address
-    */
-    using namespace Ark::internal;
-
-    ++m_ip;
-    int16_t addr = static_cast<int16_t>(readNumber());
-
-    if constexpr (debug)
-        Ark::logger.info("JUMP ({0}) PP:{1}, IP:{2}"s, addr, m_pp, m_ip);
-
-    m_ip = addr - 1;  // because we are doing a ++m_ip right after this
-}
-
-template<bool debug>
-inline void VM_t<debug>::ret()
-{
-    /*
-        Argument: none
-        Job: If in a code segment other than the main one, quit it, and push the value on top of
-                the stack to the new stack ; should as well delete the current environment.
-                Otherwise, acts as a `HALT`
-    */
-    using namespace Ark::internal;
-
-    if constexpr (debug)
-        Ark::logger.info("RET PP:{0}, IP:{1}"s, m_pp, m_ip);
-    
-    // check if we should halt the VM
-    if (m_pp == 0)
-    {
-        m_running = false;
-        return;
-    }
-
-    // save pp
-    PageAddr_t old_pp = static_cast<PageAddr_t>(m_pp);
-    m_pp = m_frames.back().callerPageAddr();
-    m_ip = m_frames.back().callerAddr();
-    
-    if (m_frames.back().stackSize() != 0)
-    {
-        Value return_value(pop());
-        returnFromFuncCall();
-        // push value as the return value of a function to the current stack
-        push(return_value);
-    }
-    else
-    {
-        returnFromFuncCall();
-        push(FFI::nil);
-    }
-}
 
 template<bool debug>
 inline void VM_t<debug>::call(int16_t argc_)
@@ -609,503 +1028,5 @@ inline void VM_t<debug>::call(int16_t argc_)
             Ark::logger.info("Function needs {0} arguments, and received {1}"s, needed_argc, received_argc);
         if (needed_argc != received_argc)
             throwVMError("Function needs " + Ark::Utils::toString(needed_argc) + " arguments, and received " + Ark::Utils::toString(received_argc));
-    }
-}
-
-template<bool debug>
-inline void VM_t<debug>::capture()
-{
-    /*
-        Argument: symbol id (two bytes, big endian)
-        Job: Used to tell the Virtual Machine to capture the variable from the current environment.
-            Main goal is to be able to handle closures, which need to save the environment in which
-            they were created
-    */
-    using namespace Ark::internal;
-
-    ++m_ip;
-    uint16_t id = readNumber();
-
-    if constexpr (debug)
-        Ark::logger.info("CAPTURE ({0}) PP:{1}, IP:{2}"s, m_state->m_symbols[id], m_pp, m_ip);
-
-    if (!m_saved_scope)
-    {
-        m_saved_scope = std::make_shared<std::vector<Value>>(
-            m_state->m_symbols.size(), internal::FFI::undefined
-        );
-    }
-    (*m_saved_scope.value())[id] = getVariableInScope(id);
-}
-
-template<bool debug>
-inline void VM_t<debug>::builtin()
-{
-    /*
-        Argument: id of builtin (two bytes, big endian)
-        Job: Push the builtin function object on the stack
-    */
-    using namespace Ark::internal;
-
-    ++m_ip;
-    uint16_t id = readNumber();
-
-    if constexpr (debug)
-        Ark::logger.info("BUILTIN ({0}) PP:{1}, IP:{2}"s, FFI::builtins[id].first, m_pp, m_ip);
-
-    push(FFI::builtins[id].second);
-}
-
-template<bool debug>
-inline void VM_t<debug>::mut()
-{
-    /*
-        Argument: symbol id (two bytes, big endian)
-        Job: Take the value on top of the stack and create a variable in the current scope,
-            named following the given symbol id (cf symbols table)
-    */
-    using namespace Ark::internal;
-
-    ++m_ip;
-    uint16_t id = readNumber();
-
-    if constexpr (debug)
-        Ark::logger.info("MUT ({0}) PP:{1}, IP:{2}"s, m_state->m_symbols[id], m_pp, m_ip);
-
-    registerVariable(id, pop());
-}
-
-template<bool debug>
-inline void VM_t<debug>::del()
-{
-    /*
-        Argument: symbol id (two bytes, big endian)
-        Job: Remove a variable/constant named following the given symbol id (cf symbols table)
-    */
-    using namespace Ark::internal;
-
-    ++m_ip;
-    uint16_t id = readNumber();
-
-    if constexpr (debug)
-        Ark::logger.info("DEL ({0}) PP:{1}, IP:{2}"s, m_state->m_symbols[id], m_pp, m_ip);
-    
-    Value* var = findNearestVariable(id);
-    if (var != nullptr)
-    {
-        *var = FFI::undefined;
-        return;
-    }
-
-    throwVMError("couldn't find symbol: " + m_state->m_symbols[id]);
-}
-
-template<bool debug>
-inline void VM_t<debug>::saveEnv()
-{
-    /*
-        Argument: none
-        Job: Save the current environment, useful for quoted code
-    */
-    m_saved_scope = m_locals.back();
-}
-
-template<bool debug>
-inline void VM_t<debug>::getField()
-{
-    /*
-        Argument: symbol id (two bytes, big endian)
-        Job: Used to read the field named following the given symbol id (cf symbols table) of a `Closure`
-            stored in TS. Pop TS and push the value of field read on the stack
-    */
-    using namespace Ark::internal;
-
-    ++m_ip;
-    uint16_t id = readNumber();
-
-    if constexpr (debug)
-        Ark::logger.info("GET_FIELD ({0}) PP:{1}, IP:{2}"s, m_state->m_symbols[id], m_pp, m_ip);
-    
-    auto var = pop();
-    if (var.valueType() != ValueType::Closure)
-        throwVMError("variable `" + m_state->m_symbols[m_last_sym_loaded] + "' isn't a closure, can not get the field `" + m_state->m_symbols[id] + "' from it");
-    
-    const Value& field = (*var.closure_ref().scope())[id];
-    if (field != FFI::undefined)
-    {
-        if constexpr (debug)
-            Ark::logger.data("Pushing closure field:", field);
-        
-        // check for CALL instruction
-        if (m_ip + 1 < m_state->m_pages[m_pp].size() && m_state->m_pages[m_pp][m_ip + 1] == Instruction::CALL)
-        {
-            m_locals.push_back(var.closure_ref().scope());
-            m_frames.back().incScopeCountToDelete();
-        }
-
-        push(field);
-        return;
-    }
-
-    throwVMError("couldn't find symbol in closure enviroment: " + m_state->m_symbols[id]);
-}
-
-template<bool debug>
-inline void VM_t<debug>::operators(uint8_t inst)
-{
-    /*
-        Handling the operator instructions
-    */
-    using namespace Ark::internal;
-    
-    switch (inst)
-    {
-        case Instruction::ADD:
-        {
-            auto b = pop(), a = pop();
-            if (a.valueType() == ValueType::Number)
-            {
-                if (b.valueType() != ValueType::Number)
-                    throw Ark::TypeError("Arguments of + should have the same type");
-                
-                push(Value(a.number() + b.number()));
-                break;
-            }
-            else if (a.valueType() == ValueType::String)
-            {
-                if (b.valueType() != ValueType::String)
-                    throw Ark::TypeError("Arguments of + should have the same type");
-                
-                push(Value(a.string() + b.string()));
-                break;
-            }
-            throw Ark::TypeError("Arguments of + should be Numbers or Strings");
-        }
-
-        case Instruction::SUB:
-        {
-            auto b = pop(), a = pop();
-            if (a.valueType() != ValueType::Number)
-                throw Ark::TypeError("Arguments of - should be Numbers");
-            if (b.valueType() != ValueType::Number)
-                throw Ark::TypeError("Arguments of - should be Numbers");
-            
-            push(Value(a.number() - b.number()));
-            break;
-        }
-
-        case Instruction::MUL:
-        {
-            auto b = pop(), a = pop();
-            if (a.valueType() != ValueType::Number)
-                throw Ark::TypeError("Arguments of * should be Numbers");
-            if (b.valueType() != ValueType::Number)
-                throw Ark::TypeError("Arguments of * should be Numbers");
-            
-            push(Value(a.number() * b.number()));
-            break;
-        }
-
-        case Instruction::DIV:
-        {
-            auto b = pop(), a = pop();
-            if (a.valueType() != ValueType::Number)
-                throw Ark::TypeError("Arguments of / should be Numbers");
-            if (b.valueType() != ValueType::Number)
-                throw Ark::TypeError("Arguments of / should be Numbers");
-            
-            auto d = b.number();
-            if (d == 0)
-                throw Ark::ZeroDivisionError();
-            
-            push(Value(a.number() / d));
-            break;
-        }
-
-        case Instruction::GT:
-        {
-            auto b = pop(), a = pop();
-            push((!(a == b) && !(a < b)) ? FFI::trueSym : FFI::falseSym);
-            break;
-        }
-        
-        case Instruction::LT:
-        {
-            auto b = pop(), a = pop();
-            push((a < b) ? FFI::trueSym : FFI::falseSym);
-            break;
-        }
-
-        case Instruction::LE:
-        {
-            auto b = pop(), a = pop();
-            push(((a < b) || (a == b)) ? FFI::trueSym : FFI::falseSym);
-            break;
-        }
-
-        case Instruction::GE:
-        {
-            auto b = pop(), a = pop();
-            push(!(a < b) ? FFI::trueSym : FFI::falseSym);
-            break;
-        }
-
-        case Instruction::NEQ:
-        {
-            auto b = pop(), a = pop();
-            push((a != b) ? FFI::trueSym : FFI::falseSym);
-            break;
-        }
-
-        case Instruction::EQ:
-        {
-            auto b = pop(), a = pop();
-            push((a == b) ? FFI::trueSym : FFI::falseSym);
-            break;
-        }
-
-        case Instruction::LEN:
-        {
-            auto a = pop();
-            if (a.valueType() == ValueType::List)
-            {
-                push(Value(static_cast<int>(a.const_list().size())));
-                break;
-            }
-            if (a.valueType() == ValueType::String)
-            {
-                push(Value(static_cast<int>(a.string().size())));
-                break;
-            }
-
-            throw Ark::TypeError("Argument of len must be a list or a String");
-        }
-
-        case Instruction::EMPTY:
-        {
-            auto a = pop();
-            if (a.valueType() == ValueType::List)
-                push((a.const_list().size() == 0) ? FFI::trueSym : FFI::falseSym);
-            else if (a.valueType() == ValueType::String)
-                push((a.string().size() == 0) ? FFI::trueSym : FFI::falseSym);
-            else
-                throw Ark::TypeError("Argument of empty? must be a list or a String");
-            
-            break;
-        }
-
-        case Instruction::FIRSTOF:
-        {
-            auto a = pop();
-            if (a.valueType() == ValueType::List)
-                push(a.const_list().size() > 0 ? a.const_list()[0] : FFI::nil);
-            else if (a.valueType() == ValueType::String)
-                push(a.string().size() > 0 ? Value(std::string(1, a.string()[0])) : FFI::nil);
-            else
-                throw Ark::TypeError("Argument of firstOf must be a list");
-
-            break;
-        }
-
-        case Instruction::TAILOF:
-        {
-            auto a = pop();
-            if (a.valueType() == ValueType::List)
-            {
-                if (a.const_list().size() < 2)
-                {
-                    push(FFI::nil);
-                    break;
-                }
-                
-                a.list().erase(a.const_list().begin());
-                push(a);
-            }
-            else if (a.valueType() == ValueType::String)
-            {
-                if (a.string().size() < 2)
-                {
-                    push(FFI::nil);
-                    break;
-                }
-
-                a.string_ref().erase(a.string().begin());
-                push(a);
-            }
-            else
-                throw Ark::TypeError("Argument of tailOf must be a list or a String");
-            
-            break;
-        }
-
-        case Instruction::HEADOF:
-        {
-            auto a = pop();
-            if (a.valueType() == ValueType::List)
-            {
-                if (a.const_list().size() < 2)
-                {
-                    push(FFI::nil);
-                    break;
-                }
-                
-                a.list().pop_back();
-                push(a);
-            }
-            else if (a.valueType() == ValueType::String)
-            {
-                if (a.string().size() < 2)
-                {
-                    push(FFI::nil);
-                    break;
-                }
-                
-                a.string_ref().pop_back();
-                push(a);
-            }
-            else
-                throw Ark::TypeError("Argument of headOf must be a list or a String");
-            
-            break;
-        }
-
-        case Instruction::ISNIL:
-        {
-            push((pop() == FFI::nil) ? FFI::trueSym : FFI::falseSym);
-            break;
-        }
-
-        case Instruction::ASSERT:
-        {
-            auto b = pop(), a = pop();
-            if (a == FFI::falseSym)
-            {
-                if (b.valueType() != ValueType::String)
-                    throw Ark::TypeError("Second argument of assert must be a String");
-
-                throw Ark::AssertionFailed(b.string());
-            }
-            break;
-        }
-
-        case Instruction::TO_NUM:
-        {
-            auto a = pop();
-            if (a.valueType() != ValueType::String)
-                throw Ark::TypeError("Argument of toNumber must be a String");
-            
-            if (Utils::isDouble(a.string()))
-                push(Value(std::stod(a.string().c_str())));
-            else
-                push(FFI::nil);
-            break;
-        }
-
-        case Instruction::TO_STR:
-        {
-            std::stringstream ss;
-            ss << pop();
-            push(Value(ss.str()));
-            break;
-        }
-
-        case Instruction::AT:
-        {
-            auto b = pop(), a = pop();
-            if (b.valueType() != ValueType::Number)
-                throw Ark::TypeError("Argument 2 of @ should be a Number");
-
-            if (a.valueType() == ValueType::List)
-                push(a.const_list()[static_cast<long>(b.number())]);
-            else if (a.valueType() == ValueType::String)
-                push(Value(std::string(1, a.string()[static_cast<long>(b.number())])));
-            else
-                throw Ark::TypeError("Argument 1 of @ should be a List or a String");
-            break;
-        }
-
-        case Instruction::AND_:
-        {
-            auto a = pop(), b = pop();
-            push((a == FFI::trueSym && b == FFI::trueSym) ? FFI::trueSym : FFI::falseSym);
-            break;
-        }
-
-        case Instruction::OR_:
-        {
-            auto a = pop(), b = pop();
-            push((b == FFI::trueSym || a == FFI::trueSym) ? FFI::trueSym : FFI::falseSym);
-            break;
-        }
-
-        case Instruction::MOD:
-        {
-            auto b = pop(), a = pop();
-            if (a.valueType() != ValueType::Number)
-                throw Ark::TypeError("Arguments of mod should be Numbers");
-            if (b.valueType() != ValueType::Number)
-                throw Ark::TypeError("Arguments of mod should be Numbers");
-            
-            push(Value(std::fmod(a.number(), b.number())));
-            break;
-        }
-
-        case Instruction::TYPE:
-        {
-            auto a = pop();
-            switch (a.valueType())
-            {
-                case ValueType::List:     push(Value("List"));     break;
-                case ValueType::Number:   push(Value("Number"));   break;
-                case ValueType::String:   push(Value("String"));   break;
-                case ValueType::PageAddr: push(Value("Function")); break;
-                case ValueType::NFT:
-                {
-                    switch (a.nft())
-                    {
-                        case NFT::Nil:
-                            push(Value("Nil"));
-                            break;
-                        case NFT::True:
-                        case NFT::False:
-                            push(Value("Bool"));
-                            break;
-                        case NFT::Undefined:
-                            push(Value("Undefined"));
-                            break;
-                    }
-                    break;
-                }
-                case ValueType::CProc:   push(Value("CProc"));   break;
-                case ValueType::Closure: push(Value("Closure")); break;
-                default:
-                    throw Ark::TypeError("unimplemented type");
-            }
-            break;
-        }
-
-        case Instruction::HASFIELD:
-        {
-            auto field = pop(), closure = pop();
-            if (closure.valueType() != ValueType::Closure)
-                throw Ark::TypeError("Argument no 1 of hasField should be a Closure");
-            if (field.valueType() != ValueType::String)
-                throw Ark::TypeError("Argument no 2 of hasField should be a String");
-            
-            auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), field.string());
-            if (it == m_state->m_symbols.end())
-            {
-                push(FFI::falseSym);
-                break;
-            }
-            uint16_t id = static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it));
-            
-            if ((*closure.closure_ref().scope_ref())[id] != FFI::undefined)
-                push(FFI::trueSym);
-            else
-                push(FFI::falseSym);
-            
-            break;
-        }
     }
 }
