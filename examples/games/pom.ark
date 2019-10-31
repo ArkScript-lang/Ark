@@ -3,7 +3,7 @@
     (print "More or less game!")
 
     (import "random.bin")
-    (import "Arithmetic.ark")
+    (import "Math/Arithmetic.ark")
 
     (let number (mod (abs (random)) 10000))
     (print number)

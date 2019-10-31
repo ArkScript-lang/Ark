@@ -51,7 +51,7 @@ Also:
     (print "More or less game!")
 
     (import "librandom.so")
-    (import "Arithmetic.ark")
+    (import "Math/Arithmetic.ark")
 
     (let number (mod (abs (random)) 10000))
     (mut value 0)
