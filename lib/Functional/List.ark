@@ -18,4 +18,34 @@
         })
         output
     }))
+
+    (let takeWhile (fun (f L) {
+        (mut idx 0)
+        (mut output [])
+        (mut continue true)
+
+        (while (and (< idx (len L)) continue) {
+            (if (= true (f (@ L idx)))
+                {
+                  (set output (append output (@ L idx)))
+                  (set idx (+ 1 idx))
+                }
+                (set continue false)
+            )
+        })
+        output
+    }))
+
+    (let dropWhile (fun (f L) {
+        (mut n 0)
+        (mut output [])
+        (mut continue true)
+
+        (while (and (< n (len L)) continue) {
+            (if (= true (f (@ L n)))
+                (set n (+ 1 n))
+                (set continue false))
+        })
+        (drop n L)
+    }))
 }
