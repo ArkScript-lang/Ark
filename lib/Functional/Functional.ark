@@ -3,6 +3,9 @@
 
     (let compose (fun (f g)
         (fun (y &f &g) (f (g y)))))
+
+    (let flip (fun (f a)
+        (fun (b &f &a) (f b a))))
     
     (let zip (fun (a b) {
         (let m (min (len a) (len b) ))
