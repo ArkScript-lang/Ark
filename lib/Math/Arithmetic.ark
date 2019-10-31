@@ -20,4 +20,10 @@
             a
             b
         )))
+
+    (let even (fun (n)
+        (= 0 (mod n 2))))
+
+    (let odd (fun (n)
+        (= 1 (mod n 2))))
 }
