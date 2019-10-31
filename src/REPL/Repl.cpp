@@ -32,22 +32,21 @@ namespace Ark
                 }
 
                 if (line.compare("(quit)") == 0)
-                {
                     return;
-                }
 
                 code << line << "\n";
                 open_parentheses += count_open_parentheses(line);
                 open_braces += count_open_braces(line);
 
                 if (open_parentheses == 0 && open_braces == 0)
-                {
                     break;
-                }
 
                 new_command = false;
                 std::cout << continuing_prompt;
             }
+
+            if (std::cin.eof())
+                return;
 
             if (state.doString("{" + code.str() + "}"))
                 vm.run();
