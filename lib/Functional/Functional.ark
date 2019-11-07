@@ -1,54 +1,14 @@
 {
-    (import "Math/Arithmetic.ark")
-
-    (let compose (fun (f g)
-        (fun (y &f &g) (f (g y)))))
-
-    (let flip (fun (f a)
-        (fun (b &f &a) (f b a))))
-    
-    (let zip (fun (a b) {
-        (let m (min (len a) (len b) ))
-        (mut c [])
-        (mut idx 0)
-        (while (< idx m) {
-            (set c (append c [(@ a idx) (@ b idx)]))
-            (set idx (+ 1 idx))})
-        c
-    }))
-
-    (let unzip (fun (L) {
-        (let m (len L))
-        (mut list1 [])
-        (mut list2 [])
-        (mut idx 0)
-        (while (< idx m) {
-            (mut current (@ L idx))
-            (set list1 (append list1 (@ current 0)))
-            (set list2 (append list2 (@ current 1)))
-            (set idx (+ 1 idx))})
-        [list1 list2]
-    }))
-
-    (let map (fun (f L) {
-        (mut idx 0)
-        (mut output [])
-        (while (< idx (len L)) {
-            (set output (append output (f (@ L idx))))
-            (set idx (+ 1 idx))
-        })
-        output
-    }))
-
-    (let filter (fun (f L) {
-        (mut idx 0)
-        (mut output [])
-        (while (< idx (len L)) {
-            (if (= true (f (@ L idx)))
-                (set output (append output (@ L idx)))
-                nil)
-            (set idx (+ 1 idx))
-        })
-        output
-    }))
+    (import "Functional/Compose.ark")
+    (import "Functional/Drop.ark")
+    (import "Functional/DropWhile.ark")
+    (import "Functional/Either.ark")
+    (import "Functional/Filter.ark")
+    (import "Functional/Flip.ark")
+    (import "Functional/Map.ark")
+    (import "Functional/Reduce.ark")
+    (import "Functional/Take.ark")
+    (import "Functional/TakeWhile.ark")
+    (import "Functional/Unzip.ark")
+    (import "Functional/Zip.ark")
 }

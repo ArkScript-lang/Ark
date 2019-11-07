@@ -1,0 +1,2 @@
+(let flip (fun (f a)
+    (fun (b &f &a) (f b a))))

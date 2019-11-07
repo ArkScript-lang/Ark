@@ -1,0 +1,9 @@
+(let take (fun (n L) {
+    (mut idx 0)
+    (mut output [])
+    (while (and (< idx n) (< idx (len L))) {
+        (set output (append output (@ L idx)))
+        (set idx (+ 1 idx))
+    })
+    output
+}))
