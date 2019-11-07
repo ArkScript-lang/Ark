@@ -4,7 +4,7 @@
     (mut continue true)
 
     (while (and (< n (len L)) continue) {
-        (if (= true (f (@ L n)))
+        (if (f (@ L n))
             (set n (+ 1 n))
             (set continue false))
     })
