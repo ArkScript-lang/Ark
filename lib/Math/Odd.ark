@@ -1,0 +1,2 @@
+(let odd (fun (n)
+    (= 1 (abs (mod n 2)))))

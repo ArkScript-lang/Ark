@@ -1,0 +1,1 @@
+(let sqrt (fun (x) (exp (* 0.5 (ln x)))))

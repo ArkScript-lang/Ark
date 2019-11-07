@@ -1,0 +1,2 @@
+(let even (fun (n)
+    (= 0 (mod n 2))))
