@@ -1,0 +1,9 @@
+(let drop (fun (n L) {
+    (mut idx n)
+    (mut output [])
+    (while (< idx (len L)) {
+        (set output (append output (@ L idx)))
+        (set idx (+ 1 idx))
+    })
+    output
+}))

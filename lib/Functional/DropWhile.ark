@@ -1,0 +1,12 @@
+(let dropWhile (fun (f L) {
+    (mut n 0)
+    (mut output [])
+    (mut continue true)
+
+    (while (and (< n (len L)) continue) {
+        (if (f (@ L n))
+            (set n (+ 1 n))
+            (set continue false))
+    })
+    (drop n L)
+}))

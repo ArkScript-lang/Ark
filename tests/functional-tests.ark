@@ -2,7 +2,6 @@
     (import "test-tools.ark")
     
     (import "Functional/Functional.ark")
-    (import "Functional/Reduce.ark")
     (import "Functional/Exceptions.ark")
 
     (let functional-tests (fun () {
@@ -39,6 +38,21 @@
             (fun (inverted) { (assert_ false "Functional test 5 failed") })
             (fun (err) { (assert_ (= err "cannot divide by zero") "Functional test 5°2 failed") })
         )
+
+        (assert_ (= (unzip (zip a c)) [[1 2 3] [1 2 3]]) "Functional test 6 failed")
+        (assert_ (= (unzip (zip a b)) [[1 2 3 4] [2 3 4 5]]) "Functional test 6°2 failed")
+        (assert_ (= (unzip (zip b a)) [[2 3 4 5] [1 2 3 4]]) "Functional test 6°3 failed")
+        (assert_ (= (unzip (zip [] a)) [[] []]) "Functional test 6°4 failed")
+
+        (let oneThroughTen [1 2 3 4 5 6 7 8 9 10])
+        (assert_ (= (filter (fun (x) (= 0 (mod x 2))) oneThroughTen) [2 4 6 8 10]) "Functional test 7 failed")
+        (assert_ (= (filter (fun (x) (> x 5)) oneThroughTen) [6 7 8 9 10]) "Functional test 7°2 failed")
+        (assert_ (= (filter (fun (x) (true)) []) []) "Functional test 7°3 failed")
+
+        (let div (fun (x y) (/ x y)))
+        (let divBy5 (flip div 5))
+
+        (assert_ (= (divBy5 10) 2) "Functional test 8 failed")
 
         (recap "Functional tests passed" tests (- (time) start-time))
 

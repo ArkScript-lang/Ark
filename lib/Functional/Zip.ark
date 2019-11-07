@@ -1,0 +1,13 @@
+{
+    (import "Math/Min.ark")
+    
+    (let zip (fun (a b) {
+        (let m (min (len a) (len b) ))
+        (mut c [])
+        (mut idx 0)
+        (while (< idx m) {
+            (set c (append c [(@ a idx) (@ b idx)]))
+            (set idx (+ 1 idx))})
+        c
+    }))
+}
