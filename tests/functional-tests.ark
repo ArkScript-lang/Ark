@@ -2,7 +2,6 @@
     (import "test-tools.ark")
     
     (import "Functional/Functional.ark")
-    (import "Functional/Reduce.ark")
     (import "Functional/Exceptions.ark")
 
     (let functional-tests (fun () {
