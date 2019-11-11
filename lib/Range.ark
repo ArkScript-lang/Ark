@@ -1,10 +1,32 @@
-(let range (fun (a b)
-    (fun (&a &b) {
-        (if (< a b)
-            {
-                (mut c a)
-                (set a (+ a 1))
-                c
-            }
-            nil
-        )})))
+{
+    (let range (fun (a b)
+        (let astList (fun () {
+            # a and b are going to be captured by the caller
+            (mut output [])
+            (mut a_ a)
+            (while (< a_ b) {
+                (set output (append output a_))
+                (set a_ (+ 1 a_))
+            })
+            output
+        }))
+
+        (fun (&a &b &asList) {
+            (if (< a b) {
+                    (mut c a)
+                    (set a (+ a 1))
+                    c
+                }
+                nil
+            )
+        })
+    ))
+
+    (let forEachR (fun (r f) {
+        (mut val (r))
+        (while (= false (nil? val)) {
+            (f val)
+            (set val (r))
+        })
+    }))
+}

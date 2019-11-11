@@ -4,9 +4,11 @@
     (mut continue true)
 
     (while (and (< n (len L)) continue) {
-        (if (f (@ L n))
-            (set n (+ 1 n))
+        (if (f (@ L n)) {
+                (set n (+ 1 n))
+                (set output (append output (@ L n)))
+            }
             (set continue false))
     })
-    (drop n L)
+    output
 }))

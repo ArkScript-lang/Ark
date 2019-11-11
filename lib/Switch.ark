@@ -5,12 +5,12 @@
     (while (!= acc end) {
         (mut r (@ tests acc))
         (mut bis (@ r 0))
-        (if (= bis value)
-            {
+        (if (= bis value) {
                 ((@ r 1))
                 (set acc (- end 1))
             }
             ()
         )
         (set acc (+ 1 acc))
-    })}))
+    })
+}))

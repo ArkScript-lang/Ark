@@ -4,8 +4,7 @@
     (mut continue true)
 
     (while (and (< idx (len L)) continue) {
-        (if (f (@ L idx))
-            {
+        (if (f (@ L idx)) {
                 (set output (append output (@ L idx)))
                 (set idx (+ 1 idx))
             }
