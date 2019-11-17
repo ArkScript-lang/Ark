@@ -25,7 +25,7 @@ int main(int argc, char** argv)
     mode selected = mode::help;
 
     std::string file = "", lib_dir = "";
-    unsigned debug = false;
+    unsigned debug = 0;
     std::vector<std::string> wrong;
     uint16_t options = Ark::DefaultFeatures;
 
