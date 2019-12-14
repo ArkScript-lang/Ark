@@ -1,5 +1,5 @@
 {
-    (let range (fun (a b)
+    (let range (fun (a b) {
         (let astList (fun () {
             # a and b are going to be captured by the caller
             (mut output [])
@@ -20,7 +20,7 @@
                 nil
             )
         })
-    ))
+    }))
 
     (let forEachR (fun (r f) {
         (mut val (r))
