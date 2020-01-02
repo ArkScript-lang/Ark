@@ -1,6 +1,3 @@
-#include <iostream> 
-#include <sstream>
-#include <msgpack.hpp>
 #include <msgpack_module.hpp>
 
 MAKE_ENTRY_POINT()
@@ -14,20 +11,26 @@ namespace ArkMsgpack
             throw std::runtime_error("ArgError : This function must have 1 arguments");
         ValueType type {args[0].valueType()};
         std::stringstream buffer;
-        ObjekType value_src {get_objekt(args[0], type)};
+        CObjekt value_src {get_cobjekt(args[0], type)};
         std::string dst;
 
         buffer.seekg(0);
         if(type == ValueType::Number)
         {
-            auto src = std::get<double>(value_src);
+            auto src {std::get<double>(value_src)};
             msgpack::pack(buffer, src);
             dst = buffer.str();
         }
         else if(type == ValueType::String)
         {
-            auto src = std::get<std::string>(value_src);
+            auto src {std::get<std::string>(value_src)};
             msgpack::pack(buffer, src);
+            dst = buffer.str();
+        }
+        else
+        {
+            auto src {std::get<std::vector<Value>>(value_src)};
+            list_packing(src, buffer);
             dst = buffer.str();
         }
         return Value(dst);
