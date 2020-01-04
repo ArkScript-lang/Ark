@@ -39,28 +39,31 @@ namespace ArkMsgpack
         //unpack(Value packed_str_buffer) and return an object unpacked 
         if(args.size() != 2)
             throw std::runtime_error("ArgError : This function must have 2 arguments");
-        if(args[0].valueType() != ValueType::String)
-            throw Ark::TypeError("The packed buffer must be a string");
+        if(args[0].valueType() != ValueType::String && args[0].valueType() != ValueType::List)
+            throw Ark::TypeError("The packed buffer must be a string or a list");
         if(args[1].valueType() != ValueType::Number)
-            throw Ark::TypeError("The type index must be a number");
-        
-        std::string packed {static_cast<Value>(args[0]).string_ref()};
+            throw Ark::TypeError("The type index must be a number");        
         Value dst;
-        msgpack::object deserialized = msgpack::unpack(packed.data(), packed.size()).get();
+
         if(args[1] == 0)
         {
+            std::string packed {static_cast<Value>(args[0]).string_ref()};
+            msgpack::object deserialized = msgpack::unpack(packed.data(), packed.size()).get();
             double ark_number;
             deserialized.convert(ark_number);
             dst = Value(ark_number);
         }
         else if(args[1] == 1)
         {
+            std::string packed {static_cast<Value>(args[0]).string_ref()};
+            msgpack::object deserialized = msgpack::unpack(packed.data(), packed.size()).get();
             std::string ark_string;
             deserialized.convert(ark_string);
             dst = Value(ark_string);
         }
         else if(args[1] == 2)
         {
+            auto packed {static_cast<Value>(args[0]).list()};
             dst = list_unpacking(packed);
         }
         return dst;

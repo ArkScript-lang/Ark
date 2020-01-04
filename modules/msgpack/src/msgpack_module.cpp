@@ -42,24 +42,34 @@ namespace ArkMsgpack
 		}
 		return list;
 	}
-	Value list_unpacking(std::string &buffer)
+	Value list_unpacking(std::vector<Value> &buffer_list)
 	{
 		std::vector<Value> list;
 		double number;
 		std::string str;
-		std::string each;
 		msgpack::object deserialized;
- 
-		for(unsigned i {0}; i < buffer.size(); ++ i)
-		{
-			each.push_back(buffer[i]);
-			if(buffer[i] == COMMA || i == buffer.size() - 1)
+		auto each_to_value = [&](void) {
+			try
 			{
-				each.pop_back();
-				//std::cout << each << std::endl;
-				std::string s {each};
-				each.clear();
+				deserialized.convert(number);
+				list.push_back(Value(number));
 			}
+			catch(const std::bad_cast &e)
+			{
+				try
+				{
+					deserialized.convert(str);
+					list.push_back(Value(str));
+				}
+				catch(const std::exception &e) {}
+			}
+		};
+ 
+		for(unsigned i {0}; i < buffer_list.size(); ++ i)
+		{
+			std::string buffer {static_cast<Value>(buffer_list[i]).string_ref()};
+			deserialized = msgpack::unpack(buffer.data(), buffer.size()).get();
+			each_to_value();
 		}
 		return list;
 	}
