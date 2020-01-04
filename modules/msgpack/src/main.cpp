@@ -12,28 +12,27 @@ namespace ArkMsgpack
         ValueType type {args[0].valueType()};
         std::stringstream buffer;
         CObjekt value_src {get_cobjekt(args[0], type)};
-        std::string packed;
+        Value packed;
 
         buffer.seekg(0);
         if(type == ValueType::Number)
         {
             auto src {std::get<double>(value_src)};
             msgpack::pack(buffer, src);
-            packed = buffer.str();
+            packed = Value(buffer.str());
         }
         else if(type == ValueType::String)
         {
             auto src {std::get<std::string>(value_src)};
             msgpack::pack(buffer, src);
-            packed = buffer.str();
+            packed = Value(buffer.str());
         }
         else
         {
             auto src {std::get<std::vector<Value>>(value_src)};
-            list_packing(src, buffer);
-            packed = buffer.str();
+            packed = list_packing(src);
         }
-        return Value(packed);
+        return packed;
     }
     Value unpack(const std::vector<Value>& args)
     {
@@ -48,7 +47,6 @@ namespace ArkMsgpack
         std::string packed {static_cast<Value>(args[0]).string_ref()};
         Value dst;
         msgpack::object deserialized = msgpack::unpack(packed.data(), packed.size()).get();
-
         if(args[1] == 0)
         {
             double ark_number;
@@ -61,16 +59,24 @@ namespace ArkMsgpack
             deserialized.convert(ark_string);
             dst = Value(ark_string);
         }
-        else if()
+        else if(args[1] == 2)
+        {
+            dst = list_unpacking(packed);
+        }
         return dst;
     }
+    Value py(const std::vector<Value> &args)
+    {
+        std::vector<Value> v;
+        return v;
+    }
 }
-
 ARK_API_EXPORT Mapping_t getFunctionsMapping()
 {
     Mapping_t map;
 
     map["msgPack"] = ArkMsgpack::pack;
-    map["msgUnpack"] = ArkMsgpack::unpack;
+    map["msgUnpack"] = ArkMsgpack::unpack; 
+    map["py"] = ArkMsgpack::py; 
     return map;
 }

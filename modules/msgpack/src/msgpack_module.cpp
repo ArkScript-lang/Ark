@@ -15,29 +15,52 @@ namespace ArkMsgpack
 
 		return objekt;
 	}
-	void list_packing(std::vector<Value> &list, std::stringstream &buffer)
+	Value list_packing(std::vector<Value> &src_list)
 	{
-		CObjekt swap;
+		std::vector<Value> list;
+		std::stringstream buffer;
+		CObjekt each;
 
-		for(unsigned i {0}; i < list.size(); ++ i)
+		for(unsigned i {0}; i < src_list.size(); ++ i)
 		{
-			ValueType type {list[i].valueType()};
-			swap = get_cobjekt(list[i], type);
+			ValueType type {src_list[i].valueType()};
+			each = get_cobjekt(src_list[i], type);
 			if(type == ValueType::Number)
 			{
-				auto src = std::get<double>(swap);
+				auto src = std::get<double>(each);
 				msgpack::pack(buffer, src);
-				if(i != (list.size() - 1))
-					buffer << COMMA;
+				list.push_back(Value(buffer.str()));
+				buffer.str("");
 			}
 			else if(type == ValueType::String)
 			{
-				auto src = std::get<std::string>(swap);
+				auto src = std::get<std::string>(each);
 				msgpack::pack(buffer, src);
-				if(i != (list.size() - 1))
-					buffer << COMMA;
+				list.push_back(Value(buffer.str()));
+				buffer.str("");
 			}
 		}
-		//std::cout << buffer.str() << std::endl;
+		return list;
+	}
+	Value list_unpacking(std::string &buffer)
+	{
+		std::vector<Value> list;
+		double number;
+		std::string str;
+		std::string each;
+		msgpack::object deserialized;
+ 
+		for(unsigned i {0}; i < buffer.size(); ++ i)
+		{
+			each.push_back(buffer[i]);
+			if(buffer[i] == COMMA || i == buffer.size() - 1)
+			{
+				each.pop_back();
+				//std::cout << each << std::endl;
+				std::string s {each};
+				each.clear();
+			}
+		}
+		return list;
 	}
 }
