@@ -2,16 +2,16 @@
 
 namespace ArkMsgpack
 {
-	CObjekt get_cobjekt(const Value &arkObjekt, ValueType type)
+	CObjekt get_cobjekt(const Value &ark_objekt, ValueType type)
 	{
 		CObjekt objekt;
 
 		if(type == ValueType::Number)
-			objekt = static_cast<Value>(arkObjekt).number();
+			objekt = static_cast<Value>(ark_objekt).number();
 		else if(type == ValueType::String)
-			objekt = static_cast<Value>(arkObjekt).string_ref();
+			objekt = static_cast<Value>(ark_objekt).string_ref();
 		else
-			objekt = static_cast<Value>(arkObjekt).list();
+			objekt = static_cast<Value>(ark_objekt).list();
 
 		return objekt;
 	}
@@ -72,5 +72,34 @@ namespace ArkMsgpack
 			each_to_value();
 		}
 		return list;
+	}
+	void list_unpacked_str(std::vector<Value> &buffer_list, std::ostringstream &stream)
+	{
+		msgpack::object deserialized;
+		stream << '[';
+		auto each_to_value = [&](auto i) {
+			try
+			{
+            	if(i > 0) {stream << ' ';}
+            	stream << deserialized;
+			}
+			catch(const std::bad_cast &e)
+			{
+				try
+				{
+            		stream << ' ';
+            		stream << deserialized;
+				}
+				catch(const std::exception &e) {}
+			}
+		};
+ 
+		for(unsigned i {0}; i < buffer_list.size(); ++ i)
+		{
+			std::string buffer {static_cast<Value>(buffer_list[i]).string_ref()};
+			deserialized = msgpack::unpack(buffer.data(), buffer.size()).get();
+			each_to_value(i);
+		}
+		stream << ']';
 	}
 }

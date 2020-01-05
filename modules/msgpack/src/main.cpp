@@ -4,7 +4,7 @@ MAKE_ENTRY_POINT()
 
 namespace ArkMsgpack
 {
-    Value pack(const std::vector<Value>& args)
+    Value pack(const std::vector<Value> &args)
     {
         // pack(Value src) and return a buffer's string packed 
         if(args.size() != 1)
@@ -34,15 +34,13 @@ namespace ArkMsgpack
         }
         return packed;
     }
-    Value unpack(const std::vector<Value>& args)
+    Value unpack(const std::vector<Value> &args)
     {
         //unpack(Value packed_str_buffer) and return an object unpacked 
         if(args.size() != 1)
-            throw std::runtime_error("ArgError : This function must have 2 arguments");
+            throw std::runtime_error("ArgError : This function must have 1 arguments");
         if(args[0].valueType() != ValueType::String && args[0].valueType() != ValueType::List)
-            throw Ark::TypeError("The packed buffer must be a string or a list");
-        //if(args[1].valueType() != ValueType::Number)
-        //    throw Ark::TypeError("The type index must be a number");        
+            throw Ark::TypeError("The packed buffer must be a string or a list");    
         Value dst;
         double ark_number;
         std::string ark_string;
@@ -77,12 +75,37 @@ namespace ArkMsgpack
         }
         return dst;
     }
+    Value objekt_str(const std::vector<Value> &args)
+    {
+        if(args.size() != 1)
+            throw std::runtime_error("ArgError : This function must have 1 argument");
+        if(args[0].valueType() != ValueType::String && args[0].valueType() != ValueType::List)
+            throw Ark::TypeError("The packed buffer must be a string or a list");
+        Value msg_object_str;
+        std::ostringstream str_buffer; 
+        msgpack::object deserialized;
+
+        if(args[0].valueType() == ValueType::List)
+        {
+            list_unpacked_str(static_cast<Value>(args[0]).list(), str_buffer);
+            msg_object_str = Value(str_buffer.str());
+        }
+        else
+        {
+            std::string packed {static_cast<Value>(args[0]).string_ref()};
+            deserialized =  msgpack::unpack(packed.data(), packed.size()).get();
+            str_buffer << deserialized;
+            msg_object_str = Value(str_buffer.str());
+        }
+        return msg_object_str;
+    }
 }
 ARK_API_EXPORT Mapping_t getFunctionsMapping()
 {
     Mapping_t map;
 
     map["msgPack"] = ArkMsgpack::pack;
-    map["msgUnpack"] = ArkMsgpack::unpack;  
+    map["msgUnpack"] = ArkMsgpack::unpack;
+    map["msgObjectStr"] = ArkMsgpack::objekt_str;
     return map;
 }
