@@ -12,6 +12,7 @@
 #include <Ark/VM/Types.hpp>
 #include <Ark/VM/Closure.hpp>
 #include <Ark/Exceptions.hpp>
+#include <Ark/VM/UserType.hpp>
 
 namespace Ark
 {
@@ -28,7 +29,8 @@ namespace Ark::internal
         PageAddr,
         NFT,
         CProc,
-        Closure
+        Closure,
+        User
     };
 
     class Frame;
@@ -38,7 +40,7 @@ namespace Ark::internal
     public:
         using ProcType = std::function<Value (const std::vector<Value>&)>;
         using Iterator = std::vector<Value>::const_iterator;
-        using Value_t = std::variant<double, std::string, PageAddr_t, NFT, ProcType, Closure, std::vector<Value>>;
+        using Value_t = std::variant<double, std::string, PageAddr_t, NFT, ProcType, Closure, UserType, std::vector<Value>>;
 
         Value() = default;
         Value(Value&&) = default;
@@ -57,6 +59,7 @@ namespace Ark::internal
         Value(Value::ProcType value);
         Value(std::vector<Value>&& value);
         Value(Closure&& value);
+        Value(UserType&& value);
 
         inline ValueType valueType() const
         {
@@ -85,6 +88,7 @@ namespace Ark::internal
 
         std::vector<Value>& list();
         std::string& string_ref();
+        UserType& usertype_ref();
 
         void push_back(const Value& value);
         void push_back(Value&& value);
