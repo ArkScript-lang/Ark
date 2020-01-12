@@ -6,13 +6,19 @@ namespace ArkMsgpack
 	{
 		CObjekt objekt;
 
-		if(type == ValueType::Number)
+		if(type == ValueType::NFT)
+		{
+			if(ark_objekt == Ark::True)
+				objekt = true;
+			else if(ark_objekt == Ark::False)
+				objekt = false;
+		}
+		else if(type == ValueType::Number)
 			objekt = static_cast<Value>(ark_objekt).number();
 		else if(type == ValueType::String)
 			objekt = static_cast<Value>(ark_objekt).string_ref();
 		else
 			objekt = static_cast<Value>(ark_objekt).list();
-
 		return objekt;
 	}
 	Value list_packing(std::vector<Value> &src_list)
@@ -25,7 +31,14 @@ namespace ArkMsgpack
 		{
 			ValueType type {src_list[i].valueType()};
 			each = get_cobjekt(src_list[i], type);
-			if(type == ValueType::Number)
+			if(type == ValueType::NFT)
+			{
+				auto src = std::get<bool>(each);
+				msgpack::pack(buffer, src);
+				list.push_back(Value(buffer.str()));
+				buffer.str("");
+			}
+			else if(type == ValueType::Number)
 			{
 				auto src = std::get<double>(each);
 				msgpack::pack(buffer, src);
@@ -45,23 +58,32 @@ namespace ArkMsgpack
 	Value list_unpacking(std::vector<Value> &buffer_list)
 	{
 		std::vector<Value> list;
-		double number;
-		std::string str;
+		bool ark_bool;
+		double ark_number;
+		std::string ark_string;
 		msgpack::object deserialized;
 		auto each_to_value = [&](void) {
 			try
 			{
-				deserialized.convert(number);
-				list.push_back(Value(number));
+				deserialized.convert(ark_bool);
+				list.push_back(Value(ark_bool));
 			}
 			catch(const std::bad_cast &e)
 			{
 				try
 				{
-					deserialized.convert(str);
-					list.push_back(Value(str));
+					deserialized.convert(ark_number);
+					list.push_back(Value(ark_number));
 				}
-				catch(const std::exception &e) {}
+				catch(const std::bad_cast &e) 
+				{
+					try
+					{
+						deserialized.convert(ark_string);
+						list.push_back(Value(ark_string));					
+					}
+					catch(std::exception &e) {}
+				}
 			}
 		};
  
@@ -77,28 +99,14 @@ namespace ArkMsgpack
 	{
 		msgpack::object deserialized;
 		stream << '[';
-		auto each_to_value = [&](auto i) {
-			try
-			{
-            	if(i > 0) {stream << ' ';}
-            	stream << deserialized;
-			}
-			catch(const std::bad_cast &e)
-			{
-				try
-				{
-            		stream << ' ';
-            		stream << deserialized;
-				}
-				catch(const std::exception &e) {}
-			}
-		};
  
 		for(unsigned i {0}; i < buffer_list.size(); ++ i)
 		{
 			std::string buffer {static_cast<Value>(buffer_list[i]).string_ref()};
 			deserialized = msgpack::unpack(buffer.data(), buffer.size()).get();
-			each_to_value(i);
+			if(i > 0)
+				stream << ' ';
+			stream << deserialized;
 		}
 		stream << ']';
 	}

@@ -8,7 +8,7 @@
 
 namespace ArkMsgpack
 {
-	using CObjekt = std::variant<double, std::string, std::vector<Value>>;
+	using CObjekt = std::variant<bool, double, std::string, std::vector<Value>>;
 	extern CObjekt get_cobjekt(const Value &ark_objekt, ValueType type);
 	extern Value list_packing(std::vector<Value> &list);
 	extern Value list_unpacking(std::vector<Value> &buffer_list);
