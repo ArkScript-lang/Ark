@@ -1,10 +1,9 @@
 # Msgpack module docummentation
 
 
-_For the moment_ we have an implementation with too many limits mainly cause by some
-restriction of API, but we can make basic and simple action which can do by the original
-library, like packing, unpacking and a limited use in background of msgpack objects. So
-the list of usable functions are : 
+_For the moment_ we have an implementation with some many limits mainly cause by some
+restrictions of API, but we can make basic operations that can be done by the original library, like packing, unpacking and a limited use in background of msgpack objects. So
+the list of usable functions is : 
 
 ## **msgPack** : for data packing ;
 ## **msgUnpack** : for data unpacking ;
