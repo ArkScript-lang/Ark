@@ -1,6 +1,3 @@
 [submodule "submodules/benchmark"]
 	path = submodules/benchmark
 	url = https://github.com/google/benchmark.git
-[submodule "submodules/msgpack-c"]
-	path = msgpack-c
-	url = https://github.com/msgpack/msgpack-c.git
