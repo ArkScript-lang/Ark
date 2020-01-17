@@ -1,5 +1,5 @@
 {
-	(import "libmsgpack.so")
+	(import "msgpack.bin")
 
 	# list source
 	(let lst (list 1 true "hello" 1.453))
