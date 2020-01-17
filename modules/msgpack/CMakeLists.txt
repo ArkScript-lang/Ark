@@ -24,10 +24,12 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/include
     ${Ark_SOURCE_DIR}/thirdparty
     ${Ark_SOURCE_DIR}/include
+    ${ARK_SUBMODULES_ROOT}/msgpack-c/include
 )
 
 file(GLOB_RECURSE SOURCE_FILES
     ${PROJECT_SOURCE_DIR}/src/*.cpp
+    ${ARK_SUBMODULES_ROOT}/msgpack-c/src/*.c
 )
 
 list(REMOVE_ITEM SOURCE_FILES "${PROJECT_SOURCE_DIR}/../../src/main.cpp")
