@@ -11,35 +11,37 @@ namespace ArkMsgpack
             throw std::runtime_error("ArgError : This function must have 1 arguments");
         ValueType type {args[0].valueType()};
         std::stringstream buffer;
-        CObjekt value_src {get_cobjekt(args[0], type)};
+        CObject value_src {get_cobject(args[0], type)};
         Value packed;
         
         buffer.seekg(0);
         if(type == ValueType::NFT)
         {
-            auto src {std::get<bool>(value_src)};
+            bool src {std::get<bool>(value_src)};
             msgpack::pack(buffer, src);
             packed = Value(buffer.str());
         }
         else if(type == ValueType::Number)
         {
-            auto src {std::get<double>(value_src)};
+            double src {std::get<double>(value_src)};
             msgpack::pack(buffer, src);
             packed = Value(buffer.str());
         }
         else if(type == ValueType::String)
         {
-            auto src {std::get<std::string>(value_src)};
+            std::string src {std::get<std::string>(value_src)};
             msgpack::pack(buffer, src);
             packed = Value(buffer.str());
         }
         else
         {
-            auto src {std::get<std::vector<Value>>(value_src)};
+            std::vector<Value> src {std::get<std::vector<Value>>(value_src)};
             packed = list_packing(src);
         }
+
         return packed;
     }
+
     Value unpack(const std::vector<Value> &args)
     {
         //unpack(Value packed(string or list)) and return an object unpacked 
@@ -81,46 +83,51 @@ namespace ArkMsgpack
 
         if(args[0].valueType() == ValueType::List)
         {
-            auto packed {static_cast<Value>(args[0]).list()};
+            std::vector<Value> packed {static_cast<Value>(args[0]).list()};
             dst = list_unpacking(packed);
         }
         else
         {
             type_test();
         }
+
         return dst;
     }
-    Value objekt_str(const std::vector<Value> &args)
+
+    Value object_str(const std::vector<Value> &args)
     {
         if(args.size() != 1)
             throw std::runtime_error("ArgError : This function must have 1 argument");
         if(args[0].valueType() != ValueType::String && args[0].valueType() != ValueType::List)
             throw Ark::TypeError("The packed buffer must be a string or a list");
-        Value msg_objekt_str;
+        Value msg_object_str;
         std::ostringstream str_buffer; 
         msgpack::object deserialized;
 
         if(args[0].valueType() == ValueType::List)
         {
             list_unpacked_str(static_cast<Value>(args[0]).list(), str_buffer);
-            msg_objekt_str = Value(str_buffer.str());
+            msg_object_str = Value(str_buffer.str());
         }
         else
         {
             std::string packed {static_cast<Value>(args[0]).string_ref()};
             deserialized =  msgpack::unpack(packed.data(), packed.size()).get();
             str_buffer << deserialized;
-            msg_objekt_str = Value(str_buffer.str());
+            msg_object_str = Value(str_buffer.str());
         }
-        return msg_objekt_str;
+        
+        return msg_object_str;
     }
 }
+
 ARK_API_EXPORT Mapping_t getFunctionsMapping()
 {
     Mapping_t map;
 
     map["msgPack"] = ArkMsgpack::pack;
     map["msgUnpack"] = ArkMsgpack::unpack;
-    map["msgObjectStr"] = ArkMsgpack::objekt_str;
+    map["msgObjectStr"] = ArkMsgpack::object_str;
+
     return map;
 }

@@ -2,59 +2,63 @@
 
 namespace ArkMsgpack
 {
-    CObjekt get_cobjekt(const Value &ark_objekt, ValueType type)
+    CObject get_cobject(const Value &ark_object, ValueType type)
     {
-        CObjekt objekt;
+        CObject object;
 
         if(type == ValueType::NFT)
         {
-            if(ark_objekt == Ark::True)
-                objekt = true;
-            else if(ark_objekt == Ark::False)
-                objekt = false;
+            if(ark_object == Ark::True)
+                object = true;
+            else if(ark_object == Ark::False)
+                object = false;
         }
         else if(type == ValueType::Number)
-            objekt = static_cast<Value>(ark_objekt).number();
+            object = static_cast<Value>(ark_object).number();
         else if(type == ValueType::String)
-            objekt = static_cast<Value>(ark_objekt).string_ref();
+            object = static_cast<Value>(ark_object).string_ref();
         else
-            objekt = static_cast<Value>(ark_objekt).list();
-        return objekt;
+            object = static_cast<Value>(ark_object).list();
+
+        return object;
     }
+
     Value list_packing(std::vector<Value> &src_list)
     {
         std::vector<Value> list;
         std::stringstream buffer;
-        CObjekt each;
+        CObject each;
 
         for(unsigned i {0}; i < src_list.size(); ++ i)
         {
             ValueType type {src_list[i].valueType()};
-            each = get_cobjekt(src_list[i], type);
+            each = get_cobject(src_list[i], type);
             if(type == ValueType::NFT)
             {
-                auto src = std::get<bool>(each);
+                bool src = std::get<bool>(each);
                 msgpack::pack(buffer, src);
                 list.push_back(Value(buffer.str()));
                 buffer.str("");
             }
             else if(type == ValueType::Number)
             {
-                auto src = std::get<double>(each);
+                double src = std::get<double>(each);
                 msgpack::pack(buffer, src);
                 list.push_back(Value(buffer.str()));
                 buffer.str("");
             }
             else if(type == ValueType::String)
             {
-                auto src = std::get<std::string>(each);
+                std::string src = std::get<std::string>(each);
                 msgpack::pack(buffer, src);
                 list.push_back(Value(buffer.str()));
                 buffer.str("");
             }
         }
+
         return list;
     }
+
     Value list_unpacking(std::vector<Value> &buffer_list)
     {
         std::vector<Value> list;
@@ -93,8 +97,10 @@ namespace ArkMsgpack
             deserialized = msgpack::unpack(buffer.data(), buffer.size()).get();
             each_to_value();
         }
+
         return list;
     }
+
     void list_unpacked_str(std::vector<Value> &buffer_list, std::ostringstream &stream)
     {
         msgpack::object deserialized;
@@ -108,6 +114,7 @@ namespace ArkMsgpack
                 stream << ' ';
             stream << deserialized;
         }
+        
         stream << ']';
     }
 }

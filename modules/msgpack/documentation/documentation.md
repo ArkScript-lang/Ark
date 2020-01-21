@@ -13,7 +13,7 @@ the list of usable functions is :
 
 ``` clojure
 {
-	(import "libmsgpack.so")
+	(import "msgpack.bin")
 
 	# list source
 	(let lst (list 1 true "hello" 1.453))
