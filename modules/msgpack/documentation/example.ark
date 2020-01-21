@@ -1,0 +1,14 @@
+{
+	(import "msgpack.bin")
+
+	# list source
+	(let lst (list 1 true "hello" 1.453))
+	# list packing
+	(let buffer (msgPack lst))
+	(print "buffer : " buffer)
+	# getting deserialized object string
+	(let deserialized (msgObjectStr buffer))
+	(print "deserialized : " deserialized)
+	# print unpacked 
+	(print "unpacked result : " (msgUnpack buffer))
+}
