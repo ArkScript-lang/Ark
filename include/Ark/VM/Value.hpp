@@ -86,6 +86,11 @@ namespace Ark::internal
             return std::get<std::vector<Value>>(m_value);
         }
 
+        inline const UserType& usertype() const
+        {
+            return std::get<UserType>(m_value);
+        }
+
         std::vector<Value>& list();
         std::string& string_ref();
         UserType& usertype_ref();
@@ -122,11 +127,6 @@ namespace Ark::internal
         inline const Closure& closure() const
         {
             return std::get<Closure>(m_value);
-        }
-
-        inline const UserType& usertype() const
-        {
-            return std::get<UserType>(m_value);
         }
 
         void setConst(bool value);

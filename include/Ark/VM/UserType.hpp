@@ -9,7 +9,7 @@ namespace Ark
         template <typename T>
         UserType(unsigned type_id, T* data=nullptr) :
             m_type_id(type_id),
-            data(static_cast<void*>(data))
+            m_data(static_cast<void*>(data))
         {}
 
         inline const unsigned type_id() const
