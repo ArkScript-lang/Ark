@@ -149,7 +149,7 @@ namespace Ark::internal
             break;
         
         case ValueType::User:
-            os << "UserType<" << V.usertype_ref().type_id() << ", 0x" << V.usertype_ref().data() << ">";
+            os << "UserType<" << V.usertype().type_id() << ", 0x" << V.usertype().data() << ">";
             break;
         
         default:

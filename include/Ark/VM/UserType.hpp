@@ -12,12 +12,12 @@ namespace Ark
             data(static_cast<void*>(data))
         {}
 
-        inline unsigned type_id()
+        inline const unsigned type_id() const
         {
             return m_type_id;
         }
 
-        inline void* data()
+        inline void* data() const
         {
             return m_data;
         }

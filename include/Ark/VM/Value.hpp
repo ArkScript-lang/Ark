@@ -124,6 +124,11 @@ namespace Ark::internal
             return std::get<Closure>(m_value);
         }
 
+        inline const UserType& usertype() const
+        {
+            return std::get<UserType>(m_value);
+        }
+
         void setConst(bool value);
         Closure& closure_ref();
     };
