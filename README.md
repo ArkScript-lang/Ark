@@ -22,6 +22,7 @@ ArkScript is
 * promoting functionalities before performances: expressiveness often brings more productivity, but performances aren't bad at all
 * easy to compile: it takes less than 200ms to compile and check a complex code with a lot of branches and sub-branches of 200 lines.
 * a Lisp-like, but with less parentheses: `[...]` is expanded to `(list ...)` and `{}` to `(begin ...)`. More shorthands will come in the future.
+* extensible: it is very easy to create a C++ module to use in the language
 
 Also:
 * it has a REPL
