@@ -145,11 +145,11 @@ namespace Ark::internal
         }
 
         case ValueType::Closure:
-            os << "Closure @ " << V.closure().pageAddr();
+            os << V.closure();
             break;
         
         case ValueType::User:
-            os << "UserType<" << V.usertype().type_id() << ", 0x" << V.usertype().data() << ">";
+            os << V.usertype();
             break;
         
         default:
