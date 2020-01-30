@@ -86,6 +86,11 @@ namespace Ark::internal
             return std::get<std::vector<Value>>(m_value);
         }
 
+        inline const UserType& usertype() const
+        {
+            return std::get<UserType>(m_value);
+        }
+
         std::vector<Value>& list();
         std::string& string_ref();
         UserType& usertype_ref();
@@ -131,7 +136,7 @@ namespace Ark::internal
 
     inline bool operator==(const Value::ProcType& f, const Value::ProcType& g)
     {
-        return f.target<Value (const std::vector<Value>&)>() == g.target<Value (const std::vector<Value>&)>();
+        return f.template target<Value (const std::vector<Value>&)>() == g.template target<Value (const std::vector<Value>&)>();
     }
 
     inline bool operator==(const Value& A, const Value& B)
