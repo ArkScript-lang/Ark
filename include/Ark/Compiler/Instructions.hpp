@@ -36,9 +36,9 @@ namespace Ark::internal
         LAST_COMMAND = 0x10,
 
         // NB: when adding an operator, it must be referenced as well under
-        // src/VM/FFI.cpp, in the operators table
+        // src/VM/FFI/FFI.cpp, in the operators table
         // The order of the operators below must be the same as the one in
-        // the operators table from src/VM/FFI.cpp
+        // the operators table from src/VM/FFI/FFI.cpp
         FIRST_OPERATOR = 0x20,
             ADD = 0x20,
             SUB = 0x21,
@@ -65,9 +65,10 @@ namespace Ark::internal
             MOD  = 0x36,
             TYPE = 0x37,
             HASFIELD = 0x38,
-        LAST_OPERATOR = 0x38,
+            NOT = 0x39,
+        LAST_OPERATOR = 0x39,
 
-        LAST_INSTRUCTION = 0x36
+        LAST_INSTRUCTION = 0x39
     };
 
     struct Inst

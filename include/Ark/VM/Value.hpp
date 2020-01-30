@@ -96,6 +96,7 @@ namespace Ark::internal
         friend std::ostream& operator<<(std::ostream& os, const Value& V);
         friend inline bool operator==(const Value& A, const Value& B);
         friend inline bool operator<(const Value& A, const Value& B);
+        friend inline bool operator!(const Value& A);
 
         template<bool D> friend class Ark::VM_t;
 
@@ -152,6 +153,35 @@ namespace Ark::internal
     inline bool operator!=(const Value& A, const Value& B)
     {
         return !(A == B);
+    }
+
+    inline bool operator!(const Value& A)
+    {
+        switch (A.valueType())
+        {
+            case ValueType::List:
+                return !A.const_list().empty();
+            
+            case ValueType::Number:
+                return !A.number();
+            
+            case ValueType::String:
+                return !A.string();
+            
+            case ValueType::NFT:
+            {
+                if (A.nft() == NFT::True)
+                    return false;
+                return true;
+            }
+
+            case ValueType::User:
+                // TODO
+                return false;  // A.usertype().not();
+            
+            default:
+                return false;
+        }
     }
 }
 
