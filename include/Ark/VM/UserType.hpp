@@ -6,23 +6,39 @@ namespace Ark
     class UserType
     {
     public:
-        // TODO enhance by using template to cast to void* automatically?
-        UserType(unsigned type_id, void* data=nullptr);
+        template <typename T>
+        UserType(unsigned type_id, T* data=nullptr) :
+            m_type_id(type_id),
+            m_data(static_cast<void*>(data))
+        {}
 
-        inline unsigned type_id()
+        inline const unsigned type_id() const
         {
             return m_type_id;
         }
 
-        inline void* data()
+        inline void* data() const
         {
             return m_data;
         }
+
+        friend inline bool operator==(const UserType& A, const UserType& B);
+        friend inline bool operator<(const UserType& A, const UserType& B);
     
     private:
         unsigned m_type_id;
         void* m_data;
     };
+
+    inline bool operator==(const UserType& A, const UserType& B)
+    {
+        return (A.m_type_id == B.m_type_id) && (A.m_data == B.m_data);
+    }
+
+    inline bool operator<(const UserType& A, const UserType& B)
+    {
+        return false;
+    }
 }
 
 #endif
