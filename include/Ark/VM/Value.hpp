@@ -165,13 +165,13 @@ namespace Ark::internal
         switch (A.valueType())
         {
             case ValueType::List:
-                return !A.const_list().empty();
+                return A.const_list().empty();
             
             case ValueType::Number:
                 return !A.number();
             
             case ValueType::String:
-                return !A.string();
+                return A.string().empty();
             
             case ValueType::NFT:
             {
@@ -181,8 +181,7 @@ namespace Ark::internal
             }
 
             case ValueType::User:
-                // TODO
-                return false;  // A.usertype().not();
+                return A.usertype().not();
             
             default:
                 return false;
