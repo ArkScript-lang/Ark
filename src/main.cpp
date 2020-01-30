@@ -101,7 +101,7 @@ int main(int argc, char** argv)
                 break;
             
             case mode::dev_info:
-                std::cout << ARK_COMPILER << " " << ARK_COMPILATION_OPTIONS << "\n";
+                std::cout << "Have been compiled with " << ARK_COMPILER << ", options: " << ARK_COMPILATION_OPTIONS << "\n\n";
                 std::cout << "sizeof(Ark::Value)  [VM] = " << sizeof(Ark::internal::Value) << "B\n";
                 std::cout << "sizeof(Ark::Frame)  [VM] = " << sizeof(Ark::internal::Frame) << "B\n";
                 std::cout << "sizeof(Ark::State)  [VM] = " << sizeof(Ark::State) << "B\n";
