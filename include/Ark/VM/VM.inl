@@ -847,7 +847,11 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
 
                     case Instruction::NOT:
                     {
-                        push(!pop());
+                        bool a = !pop();
+                        if (a)
+                            push(FFI::trueSym);
+                        else
+                            push(FFI::falseSym);
                         break;
                     }
                 }

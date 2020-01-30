@@ -22,6 +22,13 @@ namespace Ark
             return m_data;
         }
 
+        // custom operators
+        inline bool not() const
+        {
+            // TODO let the user implement his/her own
+            return false;
+        }
+
         friend inline bool operator==(const UserType& A, const UserType& B);
         friend inline bool operator<(const UserType& A, const UserType& B);
     
