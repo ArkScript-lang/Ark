@@ -28,4 +28,10 @@ namespace Ark::internal
     {
         return m_scope;
     }
+
+    std::ostream& operator<<(std::ostream& os, const Closure& C)
+    {
+        os << "Closure<" << C.m_page_addr << ">";
+        return os;
+    }
 }
