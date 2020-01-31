@@ -8,6 +8,9 @@
 - adding `(makeDir path)` and `(removeFiles ...)`
 - added `(filter func list)` in `lib/Functional/Functional.ark`
 - adding `puts`. Does the same thing as print but doesn't print a newline character
+- added a msgpack module by @PierrePharel
+- added a user type (to be defined in C++)
+- adding a `not` operator
 
 ### Changed
 - updated output of tests with number of passed tests
