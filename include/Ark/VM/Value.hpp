@@ -181,7 +181,7 @@ namespace Ark::internal
             }
 
             case ValueType::User:
-                return A.usertype().not();
+                return A.usertype().not_();
             
             default:
                 return false;
