@@ -28,8 +28,6 @@ namespace ArkRandom
     }
 }
 
-MAKE_ENTRY_POINT()
-
 ARK_API_EXPORT Mapping_t getFunctionsMapping()
 {
     Mapping_t map;
