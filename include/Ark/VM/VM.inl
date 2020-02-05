@@ -844,6 +844,16 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
                         
                         break;
                     }
+
+                    case Instruction::NOT:
+                    {
+                        bool a = !pop();
+                        if (a)
+                            push(FFI::trueSym);
+                        else
+                            push(FFI::falseSym);
+                        break;
+                    }
                 }
             else
                 throwVMError("unknown instruction: " + Ark::Utils::toString(static_cast<std::size_t>(inst)));
