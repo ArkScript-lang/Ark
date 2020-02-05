@@ -17,9 +17,6 @@ using Mapping_t = std::unordered_map<std::string, Value::ProcType>;
     #ifdef _MSC_VER
         #pragma warning(disable: 4251)
     #endif
-
-    #include <Windows.h>
-    #define MAKE_ENTRY_POINT() BOOL WINAPI DllMain(HINSTANCE, DWORD, LPVOID) { return TRUE; }
 #else // Linux, FreeBSD, Mac OS X
     #define OS_LINUX
     
@@ -33,8 +30,6 @@ using Mapping_t = std::unordered_map<std::string, Value::ProcType>;
         #define ARK_API_EXPORT extern "C"
         #define ARK_API_IMPORT extern "C"
     #endif
-
-    #define MAKE_ENTRY_POINT()
 #endif
 
 #endif

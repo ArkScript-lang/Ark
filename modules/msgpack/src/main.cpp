@@ -1,7 +1,5 @@
 #include <msgpack_module.hpp>
 
-MAKE_ENTRY_POINT()
-
 namespace ArkMsgpack
 {
     Value pack(const std::vector<Value> &args)
