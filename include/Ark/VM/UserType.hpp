@@ -34,7 +34,7 @@ namespace Ark
         }
 
         // custom operators
-        inline bool not() const
+        inline bool not_() const
         {
             // TODO let the user implement his/her own
             return false;
