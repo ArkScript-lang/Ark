@@ -87,3 +87,95 @@ Example:
     (httpServerListenAfterBind)
 }
 ```
+
+### httpServerSetMountPoint
+
+Mount a given directory to a specific location.
+
+You can mount a directory to multiple locations, thus creating a search order.
+
+Returns a boolean: true if it worked, false if the base directory doesn't exist.
+
+Example:
+
+```clojure
+{
+    (let srv (httpCreateServer))
+
+    # mount / to ./www
+    (httpServerSetMountPoint srv "/" "./www")
+
+    # mount /public to ./www1 and ./www2 directories
+    (httpServerSetMountPoint srv "/public" "/www1")  # 1st order to search
+    (httpServerSetMountPoint srv "/public" "/www2")  # 2nd order to search
+}
+```
+
+### httpServerRmMountPoint
+
+Remove a mount point. Returns false if the mount point can't be found, true otherwise.
+
+Example:
+
+```clojure
+{
+    (let srv (httpCreateServer))
+
+    # mount / to ./www
+    (httpServerSetMountPoint srv "/" "./www")
+
+    # mount /public to ./www1 and ./www2 directories
+    (httpServerSetMountPoint srv "/public" "/www1")  # 1st order to search
+    (httpServerSetMountPoint srv "/public" "/www2")  # 2nd order to search
+
+    # remove mount /
+    (httpServerRmMountPoint srv "/")
+}
+```
+
+### httpServerSetFileExtAndMimetypeMapping
+
+Map a file extension to a mimetype.
+
+Built-in mappings:
+
+Extension | MIME Type
+--------- | ---------
+txt | text/plain
+html, htm | text/html
+css | text/css
+jpeg, jpg | image/jpg
+png | image/png
+gif | image/gif
+svg | image/svg+xml
+ico | image/x-icon
+json | application/json
+pdf | application/pdf
+js | application/javascript
+wasm | application/wasm
+xml | application/xml
+xhtml | application/xhtml+xml
+
+Example:
+
+```clojure
+(httpServerSetFileExtAndMimetypeMapping srv "cc" "text/x-c")
+```
+
+### httpServerEnableLogger
+
+Set the logging level, by default 0.
+
+TODO document the logging level
+
+Example:
+
+```clojure
+{
+    # set logger level to 1
+    (httpServerEnableLogger)
+
+    # select a given logger level, here 3
+    (httpServerEnableLogger 3)
+}
+```

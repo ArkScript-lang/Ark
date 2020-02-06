@@ -1,8 +1,6 @@
 #include <Ark/Module.hpp>
 #include <httplib.hpp>
 
-#define HTTP_MOD_DEBUG
-
 using namespace httplib;
 
 enum class Type : unsigned
@@ -11,22 +9,37 @@ enum class Type : unsigned
     Client = 1
 };
 
+int& get_logger_level()
+{
+    static int i = 0;
+    return i;
+}
+
+bool& get_error_handler()
+{
+    static bool b = false;
+    return b;
+}
+
 Server& create_server()
 {
     static Server srv;
-#ifdef HTTP_MOD_DEBUG
-    srv.set_logger([](const auto& req, const auto& res) {
-        std::cout << "got request\n";
-        std::cout << "method " << req.method << ", path " << req.path << ", body " << req.body << "\n";
-        std::cout << "status " << res.status << "\n";
-        std::cout << "==================\n\n";
-    });
-    srv.set_error_handler([](const auto& req, const auto& res) {
-        std::cout << "ERROR???\n";
-        std::cout << "status " << res.status << "\n";
-        std::cout << "==================\n\n";
-    });
-#endif
+
+    if (get_logger_level() > 0)
+        srv.set_logger([](const auto& req, const auto& res) {
+            std::cout << "got request\n";
+            std::cout << "method " << req.method << ", path " << req.path << ", body " << req.body << "\n";
+            std::cout << "status " << res.status << "\n";
+            std::cout << "==================\n\n";
+        });
+    
+    if (get_error_handler())
+        srv.set_error_handler([](const auto& req, const auto& res) {
+            std::cout << "ERROR???\n";
+            std::cout << "status " << res.status << "\n";
+            std::cout << "==================\n\n";
+        });
+    
     return srv;
 }
 
@@ -120,6 +133,72 @@ Value http_server_listen_after_bind(const std::vector<Value>& n)
         throw Ark::TypeError("httpServerListenAfterBind: server must be an httpServer");
     
     static_cast<Server*>(n[0].usertype().data())->listen_after_bind();
+
+    return Nil;
+}
+
+Value http_server_set_mount_point(const std::vector<Value>& n)
+{
+    if (n.size() != 3)
+        throw std::runtime_error("httpServerSetMountPoint: needs 3 arguments: httpServer, folder, destination");
+    if (n[0].valueType() != ValueType::User || n[0].usertype().type_id() != static_cast<unsigned>(Type::Server))
+        throw Ark::TypeError("httpServerSetMountPoint: server must be an httpServer");
+    if (n[1].valueType() != ValueType::String)
+        throw Ark::TypeError("httpServerSetMountPoint: folder must be a String");
+    if (n[2].valueType() != ValueType::String)
+        throw Ark::TypeError("httpServerSetMountPoint: destination must be a String");
+    
+    auto ret = static_cast<Server*>(n[0].usertype().data())->set_mount_point(n[1].string().c_str(), n[2].string().c_str());
+    if (!ret)
+        return False;  // directory doesn't exist
+    return True;
+}
+
+Value http_server_remove_mount_point(const std::vector<Value>& n)
+{
+    if (n.size() != 2)
+        throw std::runtime_error("httpServerRmMountPoint: needs 2 arguments: httpServer, folder");
+    if (n[0].valueType() != ValueType::User || n[0].usertype().type_id() != static_cast<unsigned>(Type::Server))
+        throw Ark::TypeError("httpServerRmMountPoint: server must be an httpServer");
+    if (n[1].valueType() != ValueType::String)
+        throw Ark::TypeError("httpServerRmMountPoint: folder must be a String");
+    
+    auto ret = static_cast<Server*>(n[0].usertype().data())->remove_mount_point(n[1].string().c_str());
+    if (!ret)
+        return False;  // directory doesn't exist
+    return True;
+}
+
+Value http_server_set_fext_mimetype(const std::vector<Value>& n)
+{
+    if (n.size() != 3)
+        throw std::runtime_error("httpServerSetFileExtAndMimetypeMapping: needs 3 arguments: httpServer, ext, mimetype");
+    if (n[0].valueType() != ValueType::User || n[0].usertype().type_id() != static_cast<unsigned>(Type::Server))
+        throw Ark::TypeError("httpServerSetFileExtAndMimetypeMapping: server must be an httpServer");
+    if (n[1].valueType() != ValueType::String)
+        throw Ark::TypeError("httpServerSetFileExtAndMimetypeMapping: ext must be a String");
+    if (n[2].valueType() != ValueType::String)
+        throw Ark::TypeError("httpServerSetFileExtAndMimetypeMapping: mimetype must be a String");
+    
+    static_cast<Server*>(n[0].usertype().data())->set_file_extension_and_mimetype_mapping(
+        n[1].string().c_str(), n[2].string().c_str()
+    );
+    return Nil;
+}
+
+Value http_server_enable_logger(const std::vector<Value>& n)
+{
+    if (n.size() > 1)
+        throw std::runtime_error("httpServerEnableLogger: needs 0 or 1 argument: [level=1]");
+    
+    if (n.size() == 1 && n[0].valueType() != ValueType::String)
+        throw Ark::TypeError("httpServerEnableLogger: level must be a Number");
+
+    int& level = get_logger_level();
+    if (n.size() == 1)
+        level = static_cast<int>(n[0].number());
+    else
+        level = 1;
 
     return Nil;
 }
