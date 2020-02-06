@@ -11,6 +11,7 @@
 - added a msgpack module by @PierrePharel
 - added a user type (to be defined in C++)
 - adding a `not` operator
+- adding an http module by @SuperFola
 
 ### Changed
 - updated output of tests with number of passed tests
