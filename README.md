@@ -2,12 +2,13 @@
 ### Current version: 3.0.9
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/fd5900d08a97487486c43079c06e19ce)](https://app.codacy.com/app/folaefolc/Ark?utm_source=github.com&utm_medium=referral&utm_content=SuperFola/Ark&utm_campaign=Badge_Grade_Settings)
-[![Build Status](https://travis-ci.org/SuperFola/Ark.svg?branch=rework)](https://travis-ci.org/SuperFola/Ark)
+[![Build Status](https://travis-ci.org/ArkScript-lang/Ark.svg?branch=rework)](https://travis-ci.org/ArkScript-lang/Ark)
 
 <img align="right" src="images/ArkTransparent-by-mazz.png" width=200px>
 
-* Documentation: [Wiki](https://github.com/SuperFola/Ark/wiki)
+* Documentation: [Wiki](https://github.com/ArkScript-lang/Ark/wiki)
 * Discord server: [invite link](https://discord.gg/YT5yDwn), to discuss the specification of the language and receive help
+* [Modules](https://github.com/ArkScript-lang/modules)
 
 **Nota bene**: the project is referred as "Ark" and as "ArkScript". The official public name is "ArkScript" since "Ark" is already being used by [another language](https://github.com/ark-lang/ark)
 
@@ -83,12 +84,12 @@ More examples are available in the folder `examples/`.
 
 ## Contributing
 
-* First, [fork](https://github.com/SuperFola/Ark/fork) the repository
+* First, [fork](https://github.com/ArkScript-lang/Ark/fork) the repository
 * Then, clone your fork: `git clone git@github.com:username/Ark.git`
 * Create a branch for your feature: `git checkout -b feat-my-awesome-idea`
 * When you're done, push it to your fork and submit a pull request!
 
-Don't know what to work on? No worries, we have a [list of things to do](https://github.com/SuperFola/Ark/projects) :wink:
+Don't know what to work on? No worries, we have a [list of things to do](https://github.com/ArkScript-lang/Ark/projects) :wink:
 
 ### Our beloved contributors
 
@@ -118,7 +119,7 @@ Who worked on
 
 ### Contributing to the ArkScript standard library
 
-See [Coding guidelines](https://github.com/SuperFola/Ark/wiki/Coding-guidelines#coding-in-ark) if you want to write ArkScript for the library (see folder `lib/`).
+See [Coding guidelines](https://github.com/ArkScript-lang/Ark/wiki/Coding-guidelines#coding-in-ark) if you want to write ArkScript for the library (see folder `lib/`).
 
 For performance reasons, some functions might be written in C++, in `include/Ark/VM/FFI.hpp` and `src/VM/FFI/`.
 
@@ -142,7 +143,7 @@ Libs already included:
 
 ```bash
 # first, clone it
-~$ git clone --depth=50 --branch=dev https://github.com/SuperFola/Ark.git
+~$ git clone --depth=50 --branch=dev https://github.com/ArkScript-lang/Ark.git
 ~/Ark$ cd Ark
 ~/Ark$ git submodule update --init --recursive
 # building Ark
