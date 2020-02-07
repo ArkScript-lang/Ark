@@ -19,6 +19,7 @@
 - the option `-d|--debug` is now repeatable, to set a debug level. Can go from 1 (compilation information) to 3 (a lot of information).
 - better precision when using `(time)`
 - better tests presentation
+- moved the modules to https://github.com/ArkScript-lang/modules
 
 ### Removed
 
