@@ -4,3 +4,6 @@
 [submodule "submodules/msgpack-c"]
 	path = submodules/msgpack-c
 	url = https://github.com/msgpack/msgpack-c.git
+[submodule "modules"]
+	path = modules
+	url = https://github.com/ArkScript-lang/modules
