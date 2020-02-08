@@ -1,0 +1,8 @@
+{
+    (import "http.bin")
+
+    (let srv (httpCreateServer))
+    (print srv)
+    (httpServerGet srv "/hi" "Hello world!")
+    (httpServerListen srv "127.0.0.1" 8081)
+}

@@ -12,6 +12,7 @@
 #include <Ark/VM/Types.hpp>
 #include <Ark/VM/Closure.hpp>
 #include <Ark/Exceptions.hpp>
+#include <Ark/VM/UserType.hpp>
 
 namespace Ark
 {
@@ -28,7 +29,8 @@ namespace Ark::internal
         PageAddr,
         NFT,
         CProc,
-        Closure
+        Closure,
+        User
     };
 
     class Frame;
@@ -38,7 +40,7 @@ namespace Ark::internal
     public:
         using ProcType = std::function<Value (const std::vector<Value>&)>;
         using Iterator = std::vector<Value>::const_iterator;
-        using Value_t = std::variant<double, std::string, PageAddr_t, NFT, ProcType, Closure, std::vector<Value>>;
+        using Value_t = std::variant<double, std::string, PageAddr_t, NFT, ProcType, Closure, UserType, std::vector<Value>>;
 
         Value() = default;
         Value(Value&&) = default;
@@ -57,6 +59,7 @@ namespace Ark::internal
         Value(Value::ProcType value);
         Value(std::vector<Value>&& value);
         Value(Closure&& value);
+        Value(UserType&& value);
 
         inline ValueType valueType() const
         {
@@ -83,8 +86,14 @@ namespace Ark::internal
             return std::get<std::vector<Value>>(m_value);
         }
 
+        inline const UserType& usertype() const
+        {
+            return std::get<UserType>(m_value);
+        }
+
         std::vector<Value>& list();
         std::string& string_ref();
+        UserType& usertype_ref();
 
         void push_back(const Value& value);
         void push_back(Value&& value);
@@ -92,6 +101,7 @@ namespace Ark::internal
         friend std::ostream& operator<<(std::ostream& os, const Value& V);
         friend inline bool operator==(const Value& A, const Value& B);
         friend inline bool operator<(const Value& A, const Value& B);
+        friend inline bool operator!(const Value& A);
 
         template<bool D> friend class Ark::VM_t;
 
@@ -126,7 +136,7 @@ namespace Ark::internal
 
     inline bool operator==(const Value::ProcType& f, const Value::ProcType& g)
     {
-        return f.target<Value (const std::vector<Value>&)>() == g.target<Value (const std::vector<Value>&)>();
+        return f.template target<Value (const std::vector<Value>&)>() == g.template target<Value (const std::vector<Value>&)>();
     }
 
     inline bool operator==(const Value& A, const Value& B)
@@ -148,6 +158,34 @@ namespace Ark::internal
     inline bool operator!=(const Value& A, const Value& B)
     {
         return !(A == B);
+    }
+
+    inline bool operator!(const Value& A)
+    {
+        switch (A.valueType())
+        {
+            case ValueType::List:
+                return A.const_list().empty();
+            
+            case ValueType::Number:
+                return !A.number();
+            
+            case ValueType::String:
+                return A.string().empty();
+            
+            case ValueType::NFT:
+            {
+                if (A.nft() == NFT::True)
+                    return false;
+                return true;
+            }
+
+            case ValueType::User:
+                return A.usertype().not_();
+            
+            default:
+                return false;
+        }
     }
 }
 

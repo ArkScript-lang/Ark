@@ -8,6 +8,10 @@
 - adding `(makeDir path)` and `(removeFiles ...)`
 - added `(filter func list)` in `lib/Functional/Functional.ark`
 - adding `puts`. Does the same thing as print but doesn't print a newline character
+- added a msgpack module by @PierrePharel
+- added a user type (to be defined in C++)
+- adding a `not` operator
+- adding an http module by @SuperFola
 
 ### Changed
 - updated output of tests with number of passed tests
@@ -15,6 +19,7 @@
 - the option `-d|--debug` is now repeatable, to set a debug level. Can go from 1 (compilation information) to 3 (a lot of information).
 - better precision when using `(time)`
 - better tests presentation
+- moved the modules to https://github.com/ArkScript-lang/modules
 
 ### Removed
 

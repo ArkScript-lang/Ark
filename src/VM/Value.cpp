@@ -52,6 +52,10 @@ namespace Ark::internal
         m_value(value), m_type(ValueType::Closure), m_const(false)
     {}
 
+    Value::Value(UserType&& value) :
+        m_value(value), m_type(ValueType::User), m_const(false)
+    {}
+
     // --------------------------
 
     std::vector<Value>& Value::list()
@@ -67,6 +71,11 @@ namespace Ark::internal
     std::string& Value::string_ref()
     {
         return std::get<std::string>(m_value);
+    }
+
+    UserType& Value::usertype_ref()
+    {
+        return std::get<UserType>(m_value);
     }
 
     void Value::setConst(bool value)
@@ -136,7 +145,11 @@ namespace Ark::internal
         }
 
         case ValueType::Closure:
-            os << "Closure @ " << V.closure().pageAddr();
+            os << V.closure();
+            break;
+        
+        case ValueType::User:
+            os << V.usertype();
             break;
         
         default:
