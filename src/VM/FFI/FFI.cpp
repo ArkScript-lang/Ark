@@ -95,5 +95,6 @@ namespace Ark::internal::FFI
         "toNumber", "toString",
         "@", "and", "or", "mod",
         "type", "hasField",
+        "not"
     };
 }

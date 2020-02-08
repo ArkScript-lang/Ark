@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <vector>
+#include <iostream>
 
 #include <Ark/VM/Types.hpp>
 
@@ -29,6 +30,7 @@ namespace Ark::internal
 
         friend inline bool operator==(const Closure& A, const Closure& B);
         friend inline bool operator<(const Closure& A, const Closure& B);
+        friend std::ostream& operator<<(std::ostream& os, const Closure& C);
     
     private:
         Scope_t m_scope;

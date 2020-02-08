@@ -72,6 +72,8 @@ target_include_directories(ArkReactor
 
 # linking libraries
 
+find_package(Threads)
+
 if (UNIX OR LINUX)
     if (CMAKE_COMPILER_IS_GNUCXX)
         target_link_libraries(ArkReactor PUBLIC stdc++fs)
@@ -81,7 +83,7 @@ if (UNIX OR LINUX)
 endif()
 
 if (UNIX OR LINUX)
-    target_link_libraries(ArkReactor PUBLIC ${CMAKE_DL_LIBS})
+    target_link_libraries(ArkReactor PUBLIC ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 endif()
 
 # setting up project properties
