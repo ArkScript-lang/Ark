@@ -91,6 +91,12 @@ namespace Ark::internal
         list().push_back(value);
     }
 
+    void Value::push_back(Value&& value)
+    {
+        m_type = ValueType::List;
+        list().push_back(value);
+    }
+
     // --------------------------
 
     std::ostream& operator<<(std::ostream& os, const Value& V)
