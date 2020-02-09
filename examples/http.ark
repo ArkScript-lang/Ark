@@ -1,8 +1,23 @@
 {
     (import "http.bin")
 
-    (let srv (httpCreateServer))
-    (print srv)
-    (httpServerGet srv "/hi" "Hello world!")
-    (httpServerListen srv "127.0.0.1" 8081)
+    (let cli (httpCreateClient "ifconfig.me" 80))
+
+    (mut output (httpClientGet cli "/"))
+    (if (nil? output)
+        (print "couldn't reach the server")
+        (print output)
+    )
+
+    (let cli2 (httpCreateClient "yahoo.com" 80))
+
+    (set output (httpClientGet cli2 "/"))
+    (print (@ output 0))  # status: 301
+
+    (httpClientSetFollowLocation cli2 true)
+    (set output (httpClientGet cli2 "/"))
+    (if (nil? output)
+        (print "error")
+        (print (@ output 0))  # status: 200
+    )
 }
