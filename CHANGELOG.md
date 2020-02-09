@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased changes
+## 3.0.10
 ### Added
 - adding `sort` to sort a list
 - added `\t`, `\n`, `\v` and `\r` escape codes (available in strings only)
@@ -20,8 +20,6 @@
 - better precision when using `(time)`
 - better tests presentation
 - moved the modules to https://github.com/ArkScript-lang/modules
-
-### Removed
 
 ## 3.0.9
 ### Added
