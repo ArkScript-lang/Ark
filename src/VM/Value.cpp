@@ -3,6 +3,11 @@
 #include <Ark/VM/Frame.hpp>
 #include <Ark/Utils.hpp>
 
+// usertype static id gen
+unsigned Ark::UserType::m_current_valid_id = 0;
+// to keep what types we known 
+std::vector<std::type_info> Ark::UserType::m_known_types {};
+
 namespace Ark::internal
 {
     Value::Value(ValueType type) :
