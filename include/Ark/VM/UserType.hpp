@@ -3,6 +3,8 @@
 
 #include <functional>
 #include <iostream>
+#include <typeinfo>
+#include <vector>
 
 namespace Ark
 {
@@ -12,11 +14,13 @@ namespace Ark
         using FuncStream_t = std::function<std::ostream& (std::ostream& os, const UserType& A)>;
 
         template <typename T>
-        UserType(unsigned type_id, T* data=nullptr) :
-            m_type_id(type_id),
+        explicit UserType(T* data=nullptr) :
             m_data(static_cast<void*>(data)),
             m_ostream_func(nullptr)
-        {}
+        {
+            m_type_id = m_current_valid_id;
+            ++ m_current_valid_id;
+        }
 
         inline void setOStream(FuncStream_t&& f)
         {
@@ -45,6 +49,8 @@ namespace Ark
         friend inline std::ostream& operator<<(std::ostream& os, const UserType& A);
     
     private:
+        static unsigned m_current_valid_id;
+        static std::vector<std::type_info> m_known_types;
         unsigned m_type_id;
         void* m_data;
         FuncStream_t m_ostream_func;
