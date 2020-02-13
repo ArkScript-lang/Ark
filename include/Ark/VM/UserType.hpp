@@ -3,8 +3,9 @@
 
 #include <functional>
 #include <iostream>
-#include <typeinfo>
 #include <vector>
+#include <utility>
+#include <algorithm>
 
 namespace Ark
 {
@@ -16,10 +17,32 @@ namespace Ark
         template <typename T>
         explicit UserType(T* data=nullptr) :
             m_data(static_cast<void*>(data)),
+            //m_type_id(m_current_valid_id),
             m_ostream_func(nullptr)
         {
-            m_type_id = m_current_valid_id;
-            ++ m_current_valid_id;
+            bool generated {false};
+            // if the type is knowned
+            if(!m_known_types.empty())
+            {
+                for(int i {0}; i < m_known_types.size(); ++ i)
+                {
+                    if(m_known_types[i].second == std::string(typeid(data).name()))
+                    {
+                        m_type_id = m_known_types[i].first;
+                        generated = true;
+                        break;
+                    }
+                }
+            }
+
+            // if is a new type
+            if(!generated)
+            {
+                m_type_id = m_current_valid_id;
+                m_known_types.push_back(std::make_pair(m_current_valid_id, std::string(typeid(data).name())));
+                ++ m_current_valid_id;
+            }
+            //++ m_current_valid_id;
         }
 
         inline void setOStream(FuncStream_t&& f)
@@ -50,7 +73,7 @@ namespace Ark
     
     private:
         static unsigned m_current_valid_id;
-        static std::vector<std::type_info> m_known_types;
+        static std::vector<std::pair<unsigned, std::string>> m_known_types;
         unsigned m_type_id;
         void* m_data;
         FuncStream_t m_ostream_func;
