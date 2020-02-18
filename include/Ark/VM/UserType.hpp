@@ -3,6 +3,9 @@
 
 #include <functional>
 #include <iostream>
+#include <vector>
+#include <utility>
+#include <typeindex>
 
 namespace Ark
 {
@@ -12,18 +15,19 @@ namespace Ark
         using FuncStream_t = std::function<std::ostream& (std::ostream& os, const UserType& A)>;
 
         template <typename T>
-        UserType(unsigned type_id, T* data=nullptr) :
-            m_type_id(type_id),
+        explicit UserType(T* data=nullptr) :
             m_data(static_cast<void*>(data)),
-            m_ostream_func(nullptr)
-        {}
+            m_ostream_func(nullptr),
+            m_type_id(std::type_index(typeid(data)))
+        {
+        }
 
         inline void setOStream(FuncStream_t&& f)
         {
             m_ostream_func = std::move(f);
         }
 
-        inline const unsigned type_id() const
+        inline const std::type_index type_id() const
         {
             return m_type_id;
         }
@@ -45,7 +49,7 @@ namespace Ark
         friend inline std::ostream& operator<<(std::ostream& os, const UserType& A);
     
     private:
-        unsigned m_type_id;
+        std::type_index m_type_id;
         void* m_data;
         FuncStream_t m_ostream_func;
     };
@@ -65,7 +69,7 @@ namespace Ark
         if (A.m_ostream_func != nullptr)
             return A.m_ostream_func(os, A);
         
-        os << "UserType<" << A.m_type_id << ", 0x" << A.m_data << ">";
+        os << "UserType<" << A.m_type_id.hash_code() << ", 0x" << A.m_data << ">";
         return os;
     }
 }
