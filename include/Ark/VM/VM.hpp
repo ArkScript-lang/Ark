@@ -260,6 +260,11 @@ namespace Ark
 {
     #include "VM.inl"
 
+    namespace internal
+    {
+        #include "Value.inl"
+    }
+
     // debug on
     using VM_debug = VM_t<true>;
     // standard VM, debug off
