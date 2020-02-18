@@ -968,7 +968,10 @@ inline void VM_t<debug>::call(int16_t argc_)
             // drop arguments from the stack
             std::vector<Value> args(argc);
             for (uint16_t j=0; j < argc; ++j)
+            {
                 args[j] = pop();
+                args[j].registerVM(this);  // so that plugin can call .resolve(...) on functions they were sent
+            }
             
             // reverse arguments
             std::reverse(args.begin(), args.end());

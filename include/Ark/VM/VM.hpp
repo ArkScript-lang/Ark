@@ -207,6 +207,17 @@ namespace Ark
         inline void push(internal::Value&& value);
 
         inline void call(int16_t argc_=-1);
+
+        // function calling from plugins
+
+        template <typename Args...>
+        internal::Value resolve(internal::Value* val, Args&&... args)
+        {
+            if (m_type == ValueType::PageAddr || m_type == ValueType::Closure)
+            {}
+            else
+                throw Ark::TypeError("Value::resolve couldn't resolve a non-function");
+        }
     };
 }
 
