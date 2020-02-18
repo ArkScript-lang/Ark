@@ -66,6 +66,11 @@ namespace Ark::internal
             return m_type;
         }
 
+        inline bool isFunction() const
+        {
+            return m_type == ValueType::PageAddr || m_type == ValueType::Closure || m_type == ValueType::CProc;
+        }
+
         inline bool isConst() const
         {
             return m_const;
