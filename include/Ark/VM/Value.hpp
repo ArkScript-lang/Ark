@@ -105,15 +105,7 @@ namespace Ark::internal
         void push_back(Value&& value);
 
         template <typename... Args>
-        Value resolve(Args&&... args) const
-        {
-            if (m_vmf)
-                return m_vmf->resolve(this, std::forward<Args>(args)...);
-            else if (m_vmt)
-                return m_vmt->resolve(this, std::forward<Args>(args)...);
-            else
-                throw std::runtime_error("Value::resolve couldn't resolve a without a VM");
-        }
+        Value resolve(Args&&... args) const;
 
         friend std::ostream& operator<<(std::ostream& os, const Value& V);
         friend inline bool operator==(const Value& A, const Value& B);
