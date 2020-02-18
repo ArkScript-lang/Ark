@@ -99,9 +99,14 @@ namespace Ark::internal
 
     // --------------------------
 
-    void Value::registerVM(Ark::VM_t* vm)
+    void Value::registerVM(Ark::VM_t<false>* vm)
     {
-        m_vm = vm;
+        m_vmf = vm;
+    }
+
+    void Value::registerVM(Ark::VM_t<true>* vm)
+    {
+        m_vmt = vm;
     }
 
     // --------------------------

@@ -1,6 +1,15 @@
 {
     (import "http.bin")
 
+    (let srv (httpCreateServer))
+    (let f (fun (str) {
+        (print "hello world")
+        (+ "we got: '" str "', it worked!")
+    }))
+    (print (type f))
+    (httpServerGet srv "/hi" f)
+    (httpServerListen srv "localhost" 80)
+
     (let cli (httpCreateClient "ifconfig.me" 80))
 
     (mut output (httpClientGet cli "/"))

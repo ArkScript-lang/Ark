@@ -51,7 +51,7 @@ namespace Ark
             }
 
             // convert and push arguments in reverse order
-            std::vector<Value> fnargs { args... };
+            std::vector<Value> fnargs { { args... } };
             for (auto it2=fnargs.rbegin(); it2 != fnargs.rend(); ++it2)
                 push(*it2);
             
@@ -86,6 +86,8 @@ namespace Ark
             else
                 return FFI::nil;
         }
+
+        friend class internal::Value;
 
     private:
         State* m_state;
@@ -210,17 +212,21 @@ namespace Ark
 
         // function calling from plugins
 
-        template <typename Args...>
-        internal::Value resolve(internal::Value* val, Args&&... args)
+        template <typename... Args>
+        internal::Value resolve(const internal::Value* val, Args&&... args)
         {
-            if (m_type != internal::ValueType::PageAddr && m_type != internal::ValueType::Closure)
+            using namespace Ark::internal;
+
+            if (val->valueType() != ValueType::PageAddr &&
+                val->valueType() != ValueType::Closure &&
+                val->valueType() != ValueType::CProc)
                 throw Ark::TypeError("Value::resolve couldn't resolve a non-function");
             
             int ip = m_ip;
             std::size_t pp = m_pp;
 
             // convert and push arguments in reverse order
-            std::vector<Value> fnargs { args... };
+            std::vector<Value> fnargs { { args... } };
             for (auto it=fnargs.rbegin(); it != fnargs.rend(); ++it)
                 push(*it);
             // push function

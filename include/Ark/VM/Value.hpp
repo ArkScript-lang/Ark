@@ -8,6 +8,7 @@
 #include <iostream>
 #include <memory>
 #include <functional>
+#include <utility>
 
 #include <Ark/VM/Types.hpp>
 #include <Ark/VM/Closure.hpp>
@@ -104,10 +105,12 @@ namespace Ark::internal
         void push_back(Value&& value);
 
         template <typename... Args>
-        Value resolve(Args&&... args)
+        Value resolve(Args&&... args) const
         {
-            if (m_vm)
-                return m_vm->resolve(*this, args...);
+            if (m_vmf)
+                return m_vmf->resolve(this, std::forward<Args>(args)...);
+            else if (m_vmt)
+                return m_vmt->resolve(this, std::forward<Args>(args)...);
             else
                 throw std::runtime_error("Value::resolve couldn't resolve a without a VM");
         }
@@ -123,7 +126,8 @@ namespace Ark::internal
         Value_t m_value;
         ValueType m_type;
         bool m_const;
-        Ark::VM_t* m_vm = nullptr;
+        Ark::VM_t<false>* m_vmf = nullptr;
+        Ark::VM_t<true>* m_vmt = nullptr;
 
         inline PageAddr_t pageAddr() const
         {
@@ -147,7 +151,8 @@ namespace Ark::internal
 
         void setConst(bool value);
         Closure& closure_ref();
-        void registerVM(Ark::VM_t* vm);
+        void registerVM(Ark::VM_t<false>* vm);
+        void registerVM(Ark::VM_t<true>* vm);
     };
 
     inline bool operator==(const Value::ProcType& f, const Value::ProcType& g)
