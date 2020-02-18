@@ -8,6 +8,7 @@
 #include <iostream>
 #include <memory>
 #include <functional>
+#include <utility>
 
 #include <Ark/VM/Types.hpp>
 #include <Ark/VM/Closure.hpp>
@@ -66,6 +67,11 @@ namespace Ark::internal
             return m_type;
         }
 
+        inline bool isFunction() const
+        {
+            return m_type == ValueType::PageAddr || m_type == ValueType::Closure || m_type == ValueType::CProc;
+        }
+
         inline bool isConst() const
         {
             return m_const;
@@ -98,6 +104,9 @@ namespace Ark::internal
         void push_back(const Value& value);
         void push_back(Value&& value);
 
+        template <typename... Args>
+        Value resolve(Args&&... args) const;
+
         friend std::ostream& operator<<(std::ostream& os, const Value& V);
         friend inline bool operator==(const Value& A, const Value& B);
         friend inline bool operator<(const Value& A, const Value& B);
@@ -109,6 +118,8 @@ namespace Ark::internal
         Value_t m_value;
         ValueType m_type;
         bool m_const;
+        Ark::VM_t<false>* m_vmf = nullptr;
+        Ark::VM_t<true>* m_vmt = nullptr;
 
         inline PageAddr_t pageAddr() const
         {
@@ -132,6 +143,8 @@ namespace Ark::internal
 
         void setConst(bool value);
         Closure& closure_ref();
+        void registerVM(Ark::VM_t<false>* vm);
+        void registerVM(Ark::VM_t<true>* vm);
     };
 
     inline bool operator==(const Value::ProcType& f, const Value::ProcType& g)

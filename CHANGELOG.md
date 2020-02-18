@@ -1,5 +1,14 @@
 # Change Log
 
+## Unreleased changes
+### Added
+- member function `resolve(Args&& args...)` to Value, callable by plugins to resolve the value of a function called with specific arguments given by the plugin
+
+### Changed
+- UserType does not need to be given a manually defined type id but relies on `typeid(T)`
+
+### Removed
+
 ## 3.0.10
 ### Added
 - adding `sort` to sort a list
