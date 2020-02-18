@@ -213,10 +213,39 @@ namespace Ark
         template <typename Args...>
         internal::Value resolve(internal::Value* val, Args&&... args)
         {
-            if (m_type == ValueType::PageAddr || m_type == ValueType::Closure)
-            {}
-            else
+            if (m_type != internal::ValueType::PageAddr && m_type != internal::ValueType::Closure)
                 throw Ark::TypeError("Value::resolve couldn't resolve a non-function");
+            
+            int ip = m_ip;
+            std::size_t pp = m_pp;
+
+            // convert and push arguments in reverse order
+            std::vector<Value> fnargs { args... };
+            for (auto it=fnargs.rbegin(); it != fnargs.rend(); ++it)
+                push(*it);
+            // push function
+            push(*val);
+
+            std::size_t frames_count = m_frames.size();
+            // call it
+            call(static_cast<int16_t>(sizeof...(Args)));
+            // reset instruction pointer, otherwise the safeRun method will start at ip = -1
+            // without doing m_ip++ as intended (done right after the call() in the loop, but here
+            // we start outside this loop)
+            m_ip = 0;
+
+            // run until the function returns
+            safeRun(/* untilFrameCount */ frames_count);
+
+            // restore VM state
+            m_ip = ip;
+            m_pp = pp;
+
+            // get result
+            if (m_frames.back().stackSize() != 0)
+                return pop();
+            else
+                return FFI::nil;
         }
     };
 }
