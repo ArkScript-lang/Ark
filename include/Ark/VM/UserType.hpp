@@ -18,7 +18,7 @@ namespace Ark
         explicit UserType(T* data=nullptr) :
             m_data(static_cast<void*>(data)),
             m_ostream_func(nullptr),
-            m_type_id(std::type_index(typeid(data)))
+            m_type_id(std::type_index(typeid(T)))
         {
         }
 
