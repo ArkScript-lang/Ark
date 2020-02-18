@@ -98,6 +98,15 @@ namespace Ark::internal
         void push_back(const Value& value);
         void push_back(Value&& value);
 
+        template <typename... Args>
+        Value resolve(Args&&... args)
+        {
+            if (m_vm)
+                return m_vm->resolve(*this, args...);
+            else
+                throw std::runtime_error("Value::resolve couldn't resolve a without a VM");
+        }
+
         friend std::ostream& operator<<(std::ostream& os, const Value& V);
         friend inline bool operator==(const Value& A, const Value& B);
         friend inline bool operator<(const Value& A, const Value& B);
@@ -109,6 +118,7 @@ namespace Ark::internal
         Value_t m_value;
         ValueType m_type;
         bool m_const;
+        Ark::VM_t* m_vm = nullptr;
 
         inline PageAddr_t pageAddr() const
         {
@@ -132,6 +142,7 @@ namespace Ark::internal
 
         void setConst(bool value);
         Closure& closure_ref();
+        void registerVM(Ark::VM_t* vm);
     };
 
     inline bool operator==(const Value::ProcType& f, const Value::ProcType& g)
