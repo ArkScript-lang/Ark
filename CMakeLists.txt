@@ -46,6 +46,8 @@ if (UNIX OR LINUX)
 elseif (WIN32)
     if (MSVC)
         set(ARK_STD ${CMAKE_INSTALL_PREFIX}/lib)
+        add_compile_options(/wd4267)  # disable warning about data loss (size_t -> int)
+        add_compile_options(/wd4244)  # disable warning about data loss (size_t -> char)
     endif()
 endif()
 

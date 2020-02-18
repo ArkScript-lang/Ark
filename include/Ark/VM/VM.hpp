@@ -51,7 +51,7 @@ namespace Ark
             }
 
             // convert and push arguments in reverse order
-            std::vector<Value> fnargs { args... };
+            std::vector<Value> fnargs { { args... } };
             for (auto it2=fnargs.rbegin(); it2 != fnargs.rend(); ++it2)
                 push(*it2);
             
@@ -86,6 +86,8 @@ namespace Ark
             else
                 return FFI::nil;
         }
+
+        friend class internal::Value;
 
     private:
         State* m_state;
@@ -207,12 +209,61 @@ namespace Ark
         inline void push(internal::Value&& value);
 
         inline void call(int16_t argc_=-1);
+
+        // function calling from plugins
+
+        template <typename... Args>
+        internal::Value resolve(const internal::Value* val, Args&&... args)
+        {
+            using namespace Ark::internal;
+
+            if (val->valueType() != ValueType::PageAddr &&
+                val->valueType() != ValueType::Closure &&
+                val->valueType() != ValueType::CProc)
+                throw Ark::TypeError("Value::resolve couldn't resolve a non-function");
+            
+            int ip = m_ip;
+            std::size_t pp = m_pp;
+
+            // convert and push arguments in reverse order
+            std::vector<Value> fnargs { { args... } };
+            for (auto it=fnargs.rbegin(); it != fnargs.rend(); ++it)
+                push(*it);
+            // push function
+            push(*val);
+
+            std::size_t frames_count = m_frames.size();
+            // call it
+            call(static_cast<int16_t>(sizeof...(Args)));
+            // reset instruction pointer, otherwise the safeRun method will start at ip = -1
+            // without doing m_ip++ as intended (done right after the call() in the loop, but here
+            // we start outside this loop)
+            m_ip = 0;
+
+            // run until the function returns
+            safeRun(/* untilFrameCount */ frames_count);
+
+            // restore VM state
+            m_ip = ip;
+            m_pp = pp;
+
+            // get result
+            if (m_frames.back().stackSize() != 0)
+                return pop();
+            else
+                return FFI::nil;
+        }
     };
 }
 
 namespace Ark
 {
     #include "VM.inl"
+
+    namespace internal
+    {
+        #include "Value.inl"
+    }
 
     // debug on
     using VM_debug = VM_t<true>;

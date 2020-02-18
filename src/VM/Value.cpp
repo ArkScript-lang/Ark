@@ -99,6 +99,18 @@ namespace Ark::internal
 
     // --------------------------
 
+    void Value::registerVM(Ark::VM_t<false>* vm)
+    {
+        m_vmf = vm;
+    }
+
+    void Value::registerVM(Ark::VM_t<true>* vm)
+    {
+        m_vmt = vm;
+    }
+
+    // --------------------------
+
     std::ostream& operator<<(std::ostream& os, const Value& V)
     {
         switch (V.valueType())
