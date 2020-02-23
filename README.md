@@ -185,52 +185,22 @@ LICENSE
 
 ## Performances
 
-The project was compiled on Linux Mint 18 x64, with g++ 8, and on Windows 10 64bits with MSVC 15.
+Compiled on WSL (Ubuntu 18.04.3 LTS 64 bits), 25 independants runs, 5 consecutives runs to have a nice median.
+
+Run on (8 X 1992 MHz CPU s)
+CPU Caches:
+* L1 Data 32K (x4)
+* L1 Instruction 32K (x4)
+* L2 Unified 262K (x4)
+* L3 Unified 8388K (x1)
 
 The test here is the Ackermann-Peter function with m=3 and n=6:
 
-```
-02/23/20 15:27:50
-02/23/20 19:17:02
-Running C:\Users\Folaefolc\Documents\Code\ArkScript\Ark\benchmark\Release\vm.exe
-Run on (8 X 1992 MHz CPU s)
-CPU Caches:
-  L1 Data 32K (x4)
-  L1 Instruction 32K (x4)
-  L2 Unified 262K (x4)
-  L3 Unified 8388K (x1)
--------------------------------------------------------------------
-Benchmark                         Time             CPU   Iterations
--------------------------------------------------------------------
-Ackermann_3_6_ark_mean         92.1 ms         92.1 ms           25
-Ackermann_3_6_ark_median       91.1 ms         90.6 ms           25
-Ackermann_3_6_ark_stddev       4.02 ms         3.84 ms           25
-
-Ackermann_3_6_cpp_mean        0.111 ms        0.111 ms           25
-Ackermann_3_6_cpp_median      0.109 ms        0.107 ms           25
-Ackermann_3_6_cpp_stddev      0.006 ms        0.006 ms           25
-```
-
-Comparison with Java using OpenJDK 11.0.3 x64 (source code [here](benchmarks/Ackermann.java)):
-```
-Mean time: 651.28us
-Median time: 622us
-Stddev: 119.49792299450229us
-```
-
-Comparison with Python 3.7.3 (source code [here](benchmarks/ackermann.py)):
-```
-Mean time: 15.987787199999998ms
-Median time: 15.901759999999987ms
-Stddev: 0.11182505227377326ms
-```
-
-Comparison with Lua 5.1.5 (source code [here](benchmarks/ackermann.lua)):
-```
-Mean time:      6.2ms
-Median time:    6.2ms
-Stddev: 0.40414518843274ms
-```
+       | ArkScript | C++ (g++ 8.3.0) | Java (OpenJDK 11.0.6) 64 bits | Lua 5.1.5 | Python 3.6.9
+-------+-----------+-----------------+-------------------------------+-----------+--------------
+mean   | 51.5 ms   | 0.144 ms        | 210.608 us                    | 13.553 ms | 9.125 ms
+median | 51.1 ms   | 0.142 ms        | 179 us                        | 13.404 ms | 9.375 ms
+stddev | 0.619 ms  | 0.003 ms        | 90.559 us                     | 0.146 ms  | 0.865 ms
 
 ## Games
 
