@@ -217,18 +217,18 @@ Median time: 622us
 Stddev: 119.49792299450229us
 ```
 
-Comparison with Python 3.6.7 (source code [here](benchmarks/ackermann.py)):
+Comparison with Python 3.7.3 (source code [here](benchmarks/ackermann.py)):
 ```
-Mean time: 36.2155839279294ms
-Median time: 35.600485280156136ms
-Stddev: 0.8867313499129518ms
+Mean time: 15.987787199999998ms
+Median time: 15.901759999999987ms
+Stddev: 0.11182505227377326ms
 ```
 
 Comparison with Lua 5.1.5 (source code [here](benchmarks/ackermann.lua)):
 ```
-Mean time: 13.244432 ms
-Median time: 13.214 ms
-Stddev: 0.30360220508642ms
+Mean time:      6.2ms
+Median time:    6.2ms
+Stddev: 0.40414518843274ms
 ```
 
 ## Games
@@ -245,6 +245,6 @@ This project was inspired by [gameprogramingpatterns](http://gameprogrammingpatt
 
 ## Copyright and Licence information
 
-Copyright (c) 2019 Alexandre Plateau. All rights reserved.
+Copyright (c) 2019-2020 Alexandre Plateau. All rights reserved.
 
 This ArkScript distribution contains no GNU GPL code, which means it can be used in proprietary projects.

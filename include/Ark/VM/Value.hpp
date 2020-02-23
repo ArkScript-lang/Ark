@@ -49,6 +49,7 @@ namespace Ark::internal
         Value(const Value&) = default;
         Value& operator=(const Value&) = default;
 
+        // high cpu cost
         Value(ValueType type);
         Value(int value);
         Value(float value);
