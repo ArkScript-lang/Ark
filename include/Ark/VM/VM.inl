@@ -242,7 +242,7 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
                     Value* var = findNearestVariable(id);
                     if (var != nullptr)
                     {
-                        if (var->isConst())
+                        if (var->m_const)
                             throwVMError("can not modify a constant: " + m_state->m_symbols[id]);
                         *var = pop();
                         break;
@@ -270,7 +270,7 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
                     if (getVariableInScope(id) != FFI::undefined)
                         throwVMError("can not use 'let' to redefine the variable " + m_state->m_symbols[id]);
 
-                    registerVariable(id, pop()).setConst(true);
+                    registerVariable(id, pop()).m_const = true;
                     break;
                 }
                 

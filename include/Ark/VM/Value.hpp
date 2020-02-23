@@ -72,11 +72,6 @@ namespace Ark::internal
             return m_type == ValueType::PageAddr || m_type == ValueType::Closure || m_type == ValueType::CProc;
         }
 
-        inline bool isConst() const
-        {
-            return m_const;
-        }
-
         inline double number() const
         {
             return std::get<double>(m_value);
@@ -141,7 +136,6 @@ namespace Ark::internal
             return std::get<Closure>(m_value);
         }
 
-        void setConst(bool value);
         Closure& closure_ref();
         void registerVM(Ark::VM_t<false>* vm);
         void registerVM(Ark::VM_t<true>* vm);
