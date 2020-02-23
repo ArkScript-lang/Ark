@@ -169,6 +169,8 @@ namespace Ark
             // remove frame
             m_frames.pop_back();
             uint8_t del_counter = m_frames.back().scopeCountToDelete();
+
+            // high cpu cost
             m_locals.pop_back();
             
             while (del_counter != 0)
@@ -185,6 +187,7 @@ namespace Ark
 
         inline void createNewScope()
         {
+            // high cpu cost
             m_locals.emplace_back(
                 std::make_shared<std::vector<internal::Value>>(
                     m_state->m_symbols.size(), internal::FFI::undefined
