@@ -6,6 +6,7 @@
 
 ### Changed
 - UserType does not need to be given a manually defined type id but relies on `typeid(T)`
+- performance boost of the VM by using pointers to avoid unecessary copies
 
 ### Removed
 

@@ -185,30 +185,29 @@ LICENSE
 
 ## Performances
 
-The project was compiled on Linux Mint 18 x64, with g++ 8 and `-DNDEBUG -O3 -s`.
+The project was compiled on Linux Mint 18 x64, with g++ 8, and on Windows 10 64bits with MSVC 15.
 
 The test here is the Ackermann-Peter function with m=3 and n=6:
 
 ```
-2019-10-08 19:46:02
-Running benchmark/vm
-Run on (4 X 2400 MHz CPU s)
+02/23/20 15:27:50
+Running C:\Users\Folaefolc\Documents\Code\ArkScript\Ark\benchmark\Release\vm.exe
+Run on (8 X 1992 MHz CPU s)
 CPU Caches:
-  L1 Data 32K (x2)
-  L1 Instruction 32K (x2)
-  L2 Unified 256K (x2)
-  L3 Unified 3072K (x1)
-Load Average: 0.94, 1.25, 0.86
+  L1 Data 32K (x4)
+  L1 Instruction 32K (x4)
+  L2 Unified 262K (x4)
+  L3 Unified 8388K (x1)
 -------------------------------------------------------------------
 Benchmark                         Time             CPU   Iterations
 -------------------------------------------------------------------
-Ackermann_3_6_ark_mean          133 ms          133 ms           25
-Ackermann_3_6_ark_median        133 ms          133 ms           25
-Ackermann_3_6_ark_stddev      0.694 ms        0.694 ms           25
+Ackermann_3_6_ark_mean         98.3 ms         98.4 ms           25
+Ackermann_3_6_ark_median       95.6 ms         93.8 ms           25
+Ackermann_3_6_ark_stddev       8.17 ms         8.71 ms           25
 
-Ackermann_3_6_cpp_mean        0.370 ms        0.370 ms           25
-Ackermann_3_6_cpp_median      0.368 ms        0.368 ms           25
-Ackermann_3_6_cpp_stddev      0.004 ms        0.004 ms           25
+Ackermann_3_6_cpp_mean        0.114 ms        0.114 ms           25
+Ackermann_3_6_cpp_median      0.113 ms        0.112 ms           25
+Ackermann_3_6_cpp_stddev      0.009 ms        0.009 ms           25
 ```
 
 Comparison with Java using OpenJDK 11.0.3 x64 (source code [here](benchmarks/Ackermann.java)):
