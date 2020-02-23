@@ -633,11 +633,11 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
 
                     case Instruction::FIRSTOF:
                     {
-                        Value* a = pop();
-                        if (a->valueType() == ValueType::List)
-                            push(a->const_list().size() > 0 ? a->const_list()[0] : FFI::nil);
-                        else if (a->valueType() == ValueType::String)
-                            push(a->string().size() > 0 ? Value(std::string(1, a->string()[0])) : FFI::nil);
+                        Value a = *pop();
+                        if (a.valueType() == ValueType::List)
+                            push(a.const_list().size() > 0 ? (a.const_list())[0] : FFI::nil);
+                        else if (a.valueType() == ValueType::String)
+                            push(a.string().size() > 0 ? Value(std::string(1, (a.string())[0])) : FFI::nil);
                         else
                             throw Ark::TypeError("Argument of firstOf must be a list");
 
@@ -748,14 +748,14 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
 
                     case Instruction::AT:
                     {
-                        Value *b = pop(), *a = pop();
+                        Value *b = pop(), a = *pop();
                         if (b->valueType() != ValueType::Number)
                             throw Ark::TypeError("Argument 2 of @ should be a Number");
 
-                        if (a->valueType() == ValueType::List)
-                            push(a->const_list()[static_cast<long>(b->number())]);
-                        else if (a->valueType() == ValueType::String)
-                            push(Value(std::string(1, a->string()[static_cast<long>(b->number())])));
+                        if (a.valueType() == ValueType::List)
+                            push(a.list()[static_cast<long>(b->number())]);
+                        else if (a.valueType() == ValueType::String)
+                            push(Value(std::string(1, a.string()[static_cast<long>(b->number())])));
                         else
                             throw Ark::TypeError("Argument 1 of @ should be a List or a String");
                         break;
