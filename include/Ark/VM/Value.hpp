@@ -43,13 +43,8 @@ namespace Ark::internal
         using Iterator = std::vector<Value>::const_iterator;
         using Value_t = std::variant<double, std::string, PageAddr_t, NFT, ProcType, Closure, UserType, std::vector<Value>>;
 
-        Value() = default;
-        Value(Value&&) = default;
-        // TODO maybe a bad idea, noticed that thingy = FFI::nil does not work properly
-        Value(const Value&) = default;
-        Value& operator=(const Value&) = default;
+        Value();
 
-        // high cpu cost
         Value(ValueType type);
         Value(int value);
         Value(float value);
