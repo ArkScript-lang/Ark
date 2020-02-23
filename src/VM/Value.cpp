@@ -78,11 +78,6 @@ namespace Ark::internal
         return std::get<UserType>(m_value);
     }
 
-    void Value::setConst(bool value)
-    {
-        m_const = value;
-    }
-
     // --------------------------
 
     void Value::push_back(const Value& value)

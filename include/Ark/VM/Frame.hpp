@@ -26,10 +26,10 @@ namespace Ark::internal
 
         // stack related
 
-        inline Value&& pop()
+        inline Value* pop()
         {
             m_i--;
-            return std::move(m_stack[m_i]);
+            return &m_stack[m_i];
         }
 
         inline void push(const Value& value)

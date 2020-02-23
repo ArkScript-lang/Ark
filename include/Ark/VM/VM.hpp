@@ -45,10 +45,7 @@ namespace Ark
             // find id of function
             auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), name);
             if (it == m_state->m_symbols.end())
-            {
-                if constexpr (debug)
-                    throwVMError("Couldn't find symbol with name " + name);
-            }
+                throwVMError("Couldn't find symbol with name " + name);
 
             // convert and push arguments in reverse order
             std::vector<Value> fnargs { { args... } };
@@ -82,7 +79,7 @@ namespace Ark
 
             // get result
             if (m_frames.back().stackSize() != 0)
-                return pop();
+                return *pop();
             else
                 return FFI::nil;
         }
@@ -172,6 +169,8 @@ namespace Ark
             // remove frame
             m_frames.pop_back();
             uint8_t del_counter = m_frames.back().scopeCountToDelete();
+
+            // high cpu cost
             m_locals.pop_back();
             
             while (del_counter != 0)
@@ -188,6 +187,7 @@ namespace Ark
 
         inline void createNewScope()
         {
+            // high cpu cost
             m_locals.emplace_back(
                 std::make_shared<std::vector<internal::Value>>(
                     m_state->m_symbols.size(), internal::FFI::undefined
@@ -204,7 +204,7 @@ namespace Ark
 
         // stack management
 
-        inline internal::Value&& pop(int page=-1);
+        inline internal::Value* pop(int page=-1);
         inline void push(const internal::Value& value);
         inline void push(internal::Value&& value);
 
@@ -249,7 +249,7 @@ namespace Ark
 
             // get result
             if (m_frames.back().stackSize() != 0)
-                return pop();
+                return *pop();
             else
                 return FFI::nil;
         }

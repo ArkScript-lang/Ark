@@ -366,6 +366,7 @@ namespace Ark
         return n;
     }
 
+    // high cpu cost
     bool Parser::checkForInclude(Node& n)
     {
         if (n.nodeType() == NodeType::Keyword)
