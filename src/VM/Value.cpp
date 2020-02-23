@@ -5,6 +5,11 @@
 
 namespace Ark::internal
 {
+    Value::Value()
+    {}
+
+    // --------------------------
+
     Value::Value(ValueType type) :
         m_type(type), m_const(false)
     {

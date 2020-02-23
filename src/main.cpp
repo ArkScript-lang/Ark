@@ -102,14 +102,15 @@ int main(int argc, char** argv)
             
             case mode::dev_info:
                 std::cout << "Have been compiled with " << ARK_COMPILER << ", options: " << ARK_COMPILATION_OPTIONS << "\n\n";
-                std::cout << "sizeof(Ark::Value)  [VM] = " << sizeof(Ark::internal::Value) << "B\n";
-                std::cout << "sizeof(Ark::Frame)  [VM] = " << sizeof(Ark::internal::Frame) << "B\n";
-                std::cout << "sizeof(Ark::State)  [VM] = " << sizeof(Ark::State) << "B\n";
-                std::cout << "sizeof(Ark::Plugin) [VM] = " << sizeof(Ark::internal::SharedLibrary) << "B\n";
-                std::cout << "sizeof(Ark::Closure)     = " << sizeof(Ark::internal::Closure) << "B\n";
-                std::cout << "sizeof(Ark::UserType)    = " << sizeof(Ark::UserType) << "B\n";
-                std::cout << "sizeof(Ark::VM)          = " << sizeof(Ark::VM) << "B\n";
-                std::cout << "sizeof(char)             = " << sizeof(char) << "B\n";
+                std::cout << "sizeof(Ark::Value)    = " << sizeof(Ark::internal::Value) << "B\n";
+                std::cout << "      sizeof(Value_t) = " << sizeof(Ark::internal::Value::Value_t) << "B\n";
+                std::cout << "sizeof(Ark::Frame)    = " << sizeof(Ark::internal::Frame) << "B\n";
+                std::cout << "sizeof(Ark::State)    = " << sizeof(Ark::State) << "B\n";
+                std::cout << "sizeof(Ark::Plugin)   = " << sizeof(Ark::internal::SharedLibrary) << "B\n";
+                std::cout << "sizeof(Ark::Closure)  = " << sizeof(Ark::internal::Closure) << "B\n";
+                std::cout << "sizeof(Ark::UserType) = " << sizeof(Ark::UserType) << "B\n";
+                std::cout << "sizeof(Ark::VM)       = " << sizeof(Ark::VM) << "B\n";
+                std::cout << "sizeof(char)          = " << sizeof(char) << "B\n";
                 std::cout << std::endl;
                 break;
             

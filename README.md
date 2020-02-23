@@ -191,6 +191,7 @@ The test here is the Ackermann-Peter function with m=3 and n=6:
 
 ```
 02/23/20 15:27:50
+02/23/20 19:17:02
 Running C:\Users\Folaefolc\Documents\Code\ArkScript\Ark\benchmark\Release\vm.exe
 Run on (8 X 1992 MHz CPU s)
 CPU Caches:
@@ -201,13 +202,13 @@ CPU Caches:
 -------------------------------------------------------------------
 Benchmark                         Time             CPU   Iterations
 -------------------------------------------------------------------
-Ackermann_3_6_ark_mean         98.3 ms         98.4 ms           25
-Ackermann_3_6_ark_median       95.6 ms         93.8 ms           25
-Ackermann_3_6_ark_stddev       8.17 ms         8.71 ms           25
+Ackermann_3_6_ark_mean         92.1 ms         92.1 ms           25
+Ackermann_3_6_ark_median       91.1 ms         90.6 ms           25
+Ackermann_3_6_ark_stddev       4.02 ms         3.84 ms           25
 
-Ackermann_3_6_cpp_mean        0.114 ms        0.114 ms           25
-Ackermann_3_6_cpp_median      0.113 ms        0.112 ms           25
-Ackermann_3_6_cpp_stddev      0.009 ms        0.009 ms           25
+Ackermann_3_6_cpp_mean        0.111 ms        0.111 ms           25
+Ackermann_3_6_cpp_median      0.109 ms        0.107 ms           25
+Ackermann_3_6_cpp_stddev      0.006 ms        0.006 ms           25
 ```
 
 Comparison with Java using OpenJDK 11.0.3 x64 (source code [here](benchmarks/Ackermann.java)):

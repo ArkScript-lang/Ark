@@ -1,0 +1,8 @@
+{
+    (mut data [])
+    (mut i 0)
+    (while (< i 1000) {
+        (set data (append data nil))
+        (set i (+ i 1))
+    })
+}
