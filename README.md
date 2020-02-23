@@ -185,30 +185,29 @@ LICENSE
 
 ## Performances
 
-The project was compiled on Linux Mint 18 x64, with g++ 8 and `-DNDEBUG -O3 -s`.
+The project was compiled on Linux Mint 18 x64, with g++ 8, and on Windows 10 64bits with MSVC 15.
 
 The test here is the Ackermann-Peter function with m=3 and n=6:
 
 ```
-2019-10-08 19:46:02
-Running benchmark/vm
-Run on (4 X 2400 MHz CPU s)
+02/23/20 15:27:50
+Running C:\Users\Folaefolc\Documents\Code\ArkScript\Ark\benchmark\Release\vm.exe
+Run on (8 X 1992 MHz CPU s)
 CPU Caches:
-  L1 Data 32K (x2)
-  L1 Instruction 32K (x2)
-  L2 Unified 256K (x2)
-  L3 Unified 3072K (x1)
-Load Average: 0.94, 1.25, 0.86
+  L1 Data 32K (x4)
+  L1 Instruction 32K (x4)
+  L2 Unified 262K (x4)
+  L3 Unified 8388K (x1)
 -------------------------------------------------------------------
 Benchmark                         Time             CPU   Iterations
 -------------------------------------------------------------------
-Ackermann_3_6_ark_mean          133 ms          133 ms           25
-Ackermann_3_6_ark_median        133 ms          133 ms           25
-Ackermann_3_6_ark_stddev      0.694 ms        0.694 ms           25
+Ackermann_3_6_ark_mean         98.3 ms         98.4 ms           25
+Ackermann_3_6_ark_median       95.6 ms         93.8 ms           25
+Ackermann_3_6_ark_stddev       8.17 ms         8.71 ms           25
 
-Ackermann_3_6_cpp_mean        0.370 ms        0.370 ms           25
-Ackermann_3_6_cpp_median      0.368 ms        0.368 ms           25
-Ackermann_3_6_cpp_stddev      0.004 ms        0.004 ms           25
+Ackermann_3_6_cpp_mean        0.114 ms        0.114 ms           25
+Ackermann_3_6_cpp_median      0.113 ms        0.112 ms           25
+Ackermann_3_6_cpp_stddev      0.009 ms        0.009 ms           25
 ```
 
 Comparison with Java using OpenJDK 11.0.3 x64 (source code [here](benchmarks/Ackermann.java)):
@@ -218,18 +217,18 @@ Median time: 622us
 Stddev: 119.49792299450229us
 ```
 
-Comparison with Python 3.6.7 (source code [here](benchmarks/ackermann.py)):
+Comparison with Python 3.7.3 (source code [here](benchmarks/ackermann.py)):
 ```
-Mean time: 36.2155839279294ms
-Median time: 35.600485280156136ms
-Stddev: 0.8867313499129518ms
+Mean time: 15.987787199999998ms
+Median time: 15.901759999999987ms
+Stddev: 0.11182505227377326ms
 ```
 
 Comparison with Lua 5.1.5 (source code [here](benchmarks/ackermann.lua)):
 ```
-Mean time: 13.244432 ms
-Median time: 13.214 ms
-Stddev: 0.30360220508642ms
+Mean time:      6.2ms
+Median time:    6.2ms
+Stddev: 0.40414518843274ms
 ```
 
 ## Games
@@ -246,6 +245,6 @@ This project was inspired by [gameprogramingpatterns](http://gameprogrammingpatt
 
 ## Copyright and Licence information
 
-Copyright (c) 2019 Alexandre Plateau. All rights reserved.
+Copyright (c) 2019-2020 Alexandre Plateau. All rights reserved.
 
 This ArkScript distribution contains no GNU GPL code, which means it can be used in proprietary projects.

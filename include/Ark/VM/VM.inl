@@ -219,7 +219,7 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
                     if constexpr (debug)
                         Ark::logger.info("POP_JUMP_IF_TRUE ({0}) PP:{1}, IP:{2}"s, addr, m_pp, m_ip);
 
-                    if (pop() == FFI::trueSym)
+                    if (*pop() == FFI::trueSym)
                         m_ip = addr - 1;  // because we are doing a ++m_ip right after this
                     break;
                 }
@@ -242,9 +242,9 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
                     Value* var = findNearestVariable(id);
                     if (var != nullptr)
                     {
-                        if (var->isConst())
+                        if (var->m_const)
                             throwVMError("can not modify a constant: " + m_state->m_symbols[id]);
-                        *var = pop();
+                        *var = *pop();
                         break;
                     }
 
@@ -270,7 +270,7 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
                     if (getVariableInScope(id) != FFI::undefined)
                         throwVMError("can not use 'let' to redefine the variable " + m_state->m_symbols[id]);
 
-                    registerVariable(id, pop()).setConst(true);
+                    registerVariable(id, *pop()).m_const = true;
                     break;
                 }
                 
@@ -288,7 +288,7 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
                     if constexpr (debug)
                         Ark::logger.info("POP_JUMP_IF_FALSE ({0}) PP:{1}, IP:{2}"s, addr, m_pp, m_ip);
 
-                    if (pop() == FFI::falseSym)
+                    if (*pop() == FFI::falseSym)
                         m_ip = addr - 1;  // because we are doing a ++m_ip right after this
                     break;
                 }
@@ -336,7 +336,7 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
                     
                     if (m_frames.back().stackSize() != 0)
                     {
-                        Value return_value(pop());
+                        Value return_value = *pop();
                         returnFromFuncCall();
                         // push value as the return value of a function to the current stack
                         push(return_value);
@@ -413,7 +413,7 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
                     if constexpr (debug)
                         Ark::logger.info("MUT ({0}) PP:{1}, IP:{2}"s, m_state->m_symbols[id], m_pp, m_ip);
 
-                    registerVariable(id, pop());
+                    registerVariable(id, *pop());
                     break;
                 }
                 
@@ -465,11 +465,11 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
                     if constexpr (debug)
                         Ark::logger.info("GET_FIELD ({0}) PP:{1}, IP:{2}"s, m_state->m_symbols[id], m_pp, m_ip);
                     
-                    auto var = pop();
-                    if (var.valueType() != ValueType::Closure)
+                    Value* var = pop();
+                    if (var->valueType() != ValueType::Closure)
                         throwVMError("variable `" + m_state->m_symbols[m_last_sym_loaded] + "' isn't a closure, can not get the field `" + m_state->m_symbols[id] + "' from it");
                     
-                    const Value& field = (*var.closure_ref().scope())[id];
+                    const Value& field = (*var->closure_ref().scope())[id];
                     if (field != FFI::undefined)
                     {
                         if constexpr (debug)
@@ -478,7 +478,7 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
                         // check for CALL instruction
                         if (m_ip + 1 < m_state->m_pages[m_pp].size() && m_state->m_pages[m_pp][m_ip + 1] == Instruction::CALL)
                         {
-                            m_locals.push_back(var.closure_ref().scope());
+                            m_locals.push_back(var->closure_ref().scope());
                             m_frames.back().incScopeCountToDelete();
                         }
 
@@ -499,21 +499,21 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
                 {
                     case Instruction::ADD:
                     {
-                        auto b = pop(), a = pop();
-                        if (a.valueType() == ValueType::Number)
+                        Value *b = pop(), *a = pop();
+                        if (a->valueType() == ValueType::Number)
                         {
-                            if (b.valueType() != ValueType::Number)
+                            if (b->valueType() != ValueType::Number)
                                 throw Ark::TypeError("Arguments of + should have the same type");
                             
-                            push(Value(a.number() + b.number()));
+                            push(Value(a->number() + b->number()));
                             break;
                         }
-                        else if (a.valueType() == ValueType::String)
+                        else if (a->valueType() == ValueType::String)
                         {
-                            if (b.valueType() != ValueType::String)
+                            if (b->valueType() != ValueType::String)
                                 throw Ark::TypeError("Arguments of + should have the same type");
                             
-                            push(Value(a.string() + b.string()));
+                            push(Value(a->string() + b->string()));
                             break;
                         }
                         throw Ark::TypeError("Arguments of + should be Numbers or Strings");
@@ -521,97 +521,97 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
 
                     case Instruction::SUB:
                     {
-                        auto b = pop(), a = pop();
-                        if (a.valueType() != ValueType::Number)
+                        Value *b = pop(), *a = pop();
+                        if (a->valueType() != ValueType::Number)
                             throw Ark::TypeError("Arguments of - should be Numbers");
-                        if (b.valueType() != ValueType::Number)
+                        if (b->valueType() != ValueType::Number)
                             throw Ark::TypeError("Arguments of - should be Numbers");
                         
-                        push(Value(a.number() - b.number()));
+                        push(Value(a->number() - b->number()));
                         break;
                     }
 
                     case Instruction::MUL:
                     {
-                        auto b = pop(), a = pop();
-                        if (a.valueType() != ValueType::Number)
+                        Value *b = pop(), *a = pop();
+                        if (a->valueType() != ValueType::Number)
                             throw Ark::TypeError("Arguments of * should be Numbers");
-                        if (b.valueType() != ValueType::Number)
+                        if (b->valueType() != ValueType::Number)
                             throw Ark::TypeError("Arguments of * should be Numbers");
                         
-                        push(Value(a.number() * b.number()));
+                        push(Value(a->number() * b->number()));
                         break;
                     }
 
                     case Instruction::DIV:
                     {
-                        auto b = pop(), a = pop();
-                        if (a.valueType() != ValueType::Number)
+                        Value *b = pop(), *a = pop();
+                        if (a->valueType() != ValueType::Number)
                             throw Ark::TypeError("Arguments of / should be Numbers");
-                        if (b.valueType() != ValueType::Number)
+                        if (b->valueType() != ValueType::Number)
                             throw Ark::TypeError("Arguments of / should be Numbers");
                         
-                        auto d = b.number();
+                        auto d = b->number();
                         if (d == 0)
                             throw Ark::ZeroDivisionError();
                         
-                        push(Value(a.number() / d));
+                        push(Value(a->number() / d));
                         break;
                     }
 
                     case Instruction::GT:
                     {
-                        auto b = pop(), a = pop();
-                        push((!(a == b) && !(a < b)) ? FFI::trueSym : FFI::falseSym);
+                        Value *b = pop(), *a = pop();
+                        push((!(*a == *b) && !(*a < *b)) ? FFI::trueSym : FFI::falseSym);
                         break;
                     }
                     
                     case Instruction::LT:
                     {
-                        auto b = pop(), a = pop();
-                        push((a < b) ? FFI::trueSym : FFI::falseSym);
+                        Value *b = pop(), *a = pop();
+                        push((*a < *b) ? FFI::trueSym : FFI::falseSym);
                         break;
                     }
 
                     case Instruction::LE:
                     {
-                        auto b = pop(), a = pop();
-                        push(((a < b) || (a == b)) ? FFI::trueSym : FFI::falseSym);
+                        Value *b = pop(), *a = pop();
+                        push(((*a < *b) || (*a == *b)) ? FFI::trueSym : FFI::falseSym);
                         break;
                     }
 
                     case Instruction::GE:
                     {
-                        auto b = pop(), a = pop();
-                        push(!(a < b) ? FFI::trueSym : FFI::falseSym);
+                        Value *b = pop(), *a = pop();
+                        push(!(*a < *b) ? FFI::trueSym : FFI::falseSym);
                         break;
                     }
 
                     case Instruction::NEQ:
                     {
-                        auto b = pop(), a = pop();
-                        push((a != b) ? FFI::trueSym : FFI::falseSym);
+                        Value *b = pop(), *a = pop();
+                        push((*a != *b) ? FFI::trueSym : FFI::falseSym);
                         break;
                     }
 
                     case Instruction::EQ:
                     {
-                        auto b = pop(), a = pop();
-                        push((a == b) ? FFI::trueSym : FFI::falseSym);
+                        Value *b = pop(), *a = pop();
+                        push((*a == *b) ? FFI::trueSym : FFI::falseSym);
                         break;
                     }
 
                     case Instruction::LEN:
                     {
-                        auto a = pop();
-                        if (a.valueType() == ValueType::List)
+                        Value *a = pop();
+                        if (a->valueType() == ValueType::List)
                         {
-                            push(Value(static_cast<int>(a.const_list().size())));
+                            push(Value(static_cast<int>(a->const_list().size())));
                             break;
                         }
-                        if (a.valueType() == ValueType::String)
+                        if (a->valueType() == ValueType::String)
                         {
-                            push(Value(static_cast<int>(a.string().size())));
+                            push(Value(static_cast<int>(a->string().size())));
                             break;
                         }
 
@@ -620,11 +620,11 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
 
                     case Instruction::EMPTY:
                     {
-                        auto a = pop();
-                        if (a.valueType() == ValueType::List)
-                            push((a.const_list().size() == 0) ? FFI::trueSym : FFI::falseSym);
-                        else if (a.valueType() == ValueType::String)
-                            push((a.string().size() == 0) ? FFI::trueSym : FFI::falseSym);
+                        Value* a = pop();
+                        if (a->valueType() == ValueType::List)
+                            push((a->const_list().size() == 0) ? FFI::trueSym : FFI::falseSym);
+                        else if (a->valueType() == ValueType::String)
+                            push((a->string().size() == 0) ? FFI::trueSym : FFI::falseSym);
                         else
                             throw Ark::TypeError("Argument of empty? must be a list or a String");
                         
@@ -633,11 +633,11 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
 
                     case Instruction::FIRSTOF:
                     {
-                        auto a = pop();
+                        Value a = *pop();
                         if (a.valueType() == ValueType::List)
-                            push(a.const_list().size() > 0 ? a.const_list()[0] : FFI::nil);
+                            push(a.const_list().size() > 0 ? (a.const_list())[0] : FFI::nil);
                         else if (a.valueType() == ValueType::String)
-                            push(a.string().size() > 0 ? Value(std::string(1, a.string()[0])) : FFI::nil);
+                            push(a.string().size() > 0 ? Value(std::string(1, (a.string())[0])) : FFI::nil);
                         else
                             throw Ark::TypeError("Argument of firstOf must be a list");
 
@@ -646,28 +646,28 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
 
                     case Instruction::TAILOF:
                     {
-                        auto a = pop();
-                        if (a.valueType() == ValueType::List)
+                        Value* a = pop();
+                        if (a->valueType() == ValueType::List)
                         {
-                            if (a.const_list().size() < 2)
+                            if (a->const_list().size() < 2)
                             {
                                 push(FFI::nil);
                                 break;
                             }
                             
-                            a.list().erase(a.const_list().begin());
-                            push(a);
+                            a->list().erase(a->const_list().begin());
+                            push(*a);
                         }
-                        else if (a.valueType() == ValueType::String)
+                        else if (a->valueType() == ValueType::String)
                         {
-                            if (a.string().size() < 2)
+                            if (a->string().size() < 2)
                             {
                                 push(FFI::nil);
                                 break;
                             }
 
-                            a.string_ref().erase(a.string().begin());
-                            push(a);
+                            a->string_ref().erase(a->string().begin());
+                            push(*a);
                         }
                         else
                             throw Ark::TypeError("Argument of tailOf must be a list or a String");
@@ -677,28 +677,28 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
 
                     case Instruction::HEADOF:
                     {
-                        auto a = pop();
-                        if (a.valueType() == ValueType::List)
+                        Value* a = pop();
+                        if (a->valueType() == ValueType::List)
                         {
-                            if (a.const_list().size() < 2)
+                            if (a->const_list().size() < 2)
                             {
                                 push(FFI::nil);
                                 break;
                             }
                             
-                            a.list().pop_back();
-                            push(a);
+                            a->list().pop_back();
+                            push(*a);
                         }
-                        else if (a.valueType() == ValueType::String)
+                        else if (a->valueType() == ValueType::String)
                         {
-                            if (a.string().size() < 2)
+                            if (a->string().size() < 2)
                             {
                                 push(FFI::nil);
                                 break;
                             }
                             
-                            a.string_ref().pop_back();
-                            push(a);
+                            a->string_ref().pop_back();
+                            push(*a);
                         }
                         else
                             throw Ark::TypeError("Argument of headOf must be a list or a String");
@@ -708,31 +708,31 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
 
                     case Instruction::ISNIL:
                     {
-                        push((pop() == FFI::nil) ? FFI::trueSym : FFI::falseSym);
+                        push((*pop() == FFI::nil) ? FFI::trueSym : FFI::falseSym);
                         break;
                     }
 
                     case Instruction::ASSERT:
                     {
-                        auto b = pop(), a = pop();
-                        if (a == FFI::falseSym)
+                        Value *b = pop(), *a = pop();
+                        if (*a == FFI::falseSym)
                         {
-                            if (b.valueType() != ValueType::String)
+                            if (b->valueType() != ValueType::String)
                                 throw Ark::TypeError("Second argument of assert must be a String");
 
-                            throw Ark::AssertionFailed(b.string());
+                            throw Ark::AssertionFailed(b->string());
                         }
                         break;
                     }
 
                     case Instruction::TO_NUM:
                     {
-                        auto a = pop();
-                        if (a.valueType() != ValueType::String)
+                        Value* a = pop();
+                        if (a->valueType() != ValueType::String)
                             throw Ark::TypeError("Argument of toNumber must be a String");
                         
-                        if (Utils::isDouble(a.string()))
-                            push(Value(std::stod(a.string().c_str())));
+                        if (Utils::isDouble(a->string()))
+                            push(Value(std::stod(a->string().c_str())));
                         else
                             push(FFI::nil);
                         break;
@@ -741,21 +741,21 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
                     case Instruction::TO_STR:
                     {
                         std::stringstream ss;
-                        ss << pop();
+                        ss << (*pop());
                         push(Value(ss.str()));
                         break;
                     }
 
                     case Instruction::AT:
                     {
-                        auto b = pop(), a = pop();
-                        if (b.valueType() != ValueType::Number)
+                        Value *b = pop(), a = *pop();
+                        if (b->valueType() != ValueType::Number)
                             throw Ark::TypeError("Argument 2 of @ should be a Number");
 
                         if (a.valueType() == ValueType::List)
-                            push(a.const_list()[static_cast<long>(b.number())]);
+                            push(a.list()[static_cast<long>(b->number())]);
                         else if (a.valueType() == ValueType::String)
-                            push(Value(std::string(1, a.string()[static_cast<long>(b.number())])));
+                            push(Value(std::string(1, a.string()[static_cast<long>(b->number())])));
                         else
                             throw Ark::TypeError("Argument 1 of @ should be a List or a String");
                         break;
@@ -763,34 +763,34 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
 
                     case Instruction::AND_:
                     {
-                        auto a = pop(), b = pop();
-                        push((a == FFI::trueSym && b == FFI::trueSym) ? FFI::trueSym : FFI::falseSym);
+                        Value *a = pop(), *b = pop();
+                        push((*a == FFI::trueSym && *b == FFI::trueSym) ? FFI::trueSym : FFI::falseSym);
                         break;
                     }
 
                     case Instruction::OR_:
                     {
-                        auto a = pop(), b = pop();
-                        push((b == FFI::trueSym || a == FFI::trueSym) ? FFI::trueSym : FFI::falseSym);
+                        Value *a = pop(), *b = pop();
+                        push((*b == FFI::trueSym || *a == FFI::trueSym) ? FFI::trueSym : FFI::falseSym);
                         break;
                     }
 
                     case Instruction::MOD:
                     {
-                        auto b = pop(), a = pop();
-                        if (a.valueType() != ValueType::Number)
+                        Value *b = pop(), *a = pop();
+                        if (a->valueType() != ValueType::Number)
                             throw Ark::TypeError("Arguments of mod should be Numbers");
-                        if (b.valueType() != ValueType::Number)
+                        if (b->valueType() != ValueType::Number)
                             throw Ark::TypeError("Arguments of mod should be Numbers");
                         
-                        push(Value(std::fmod(a.number(), b.number())));
+                        push(Value(std::fmod(a->number(), b->number())));
                         break;
                     }
 
                     case Instruction::TYPE:
                     {
-                        auto a = pop();
-                        switch (a.valueType())
+                        Value *a = pop();
+                        switch (a->valueType())
                         {
                             case ValueType::List:     push(Value("List"));     break;
                             case ValueType::Number:   push(Value("Number"));   break;
@@ -798,7 +798,7 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
                             case ValueType::PageAddr: push(Value("Function")); break;
                             case ValueType::NFT:
                             {
-                                switch (a.nft())
+                                switch (a->nft())
                                 {
                                     case NFT::Nil:
                                         push(Value("Nil"));
@@ -823,13 +823,13 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
 
                     case Instruction::HASFIELD:
                     {
-                        auto field = pop(), closure = pop();
-                        if (closure.valueType() != ValueType::Closure)
+                        Value *field = pop(), *closure = pop();
+                        if (closure->valueType() != ValueType::Closure)
                             throw Ark::TypeError("Argument no 1 of hasField should be a Closure");
-                        if (field.valueType() != ValueType::String)
+                        if (field->valueType() != ValueType::String)
                             throw Ark::TypeError("Argument no 2 of hasField should be a String");
                         
-                        auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), field.string());
+                        auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), field->string());
                         if (it == m_state->m_symbols.end())
                         {
                             push(FFI::falseSym);
@@ -837,7 +837,7 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
                         }
                         uint16_t id = static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it));
                         
-                        if ((*closure.closure_ref().scope_ref())[id] != FFI::undefined)
+                        if ((*closure->closure_ref().scope_ref())[id] != FFI::undefined)
                             push(FFI::trueSym);
                         else
                             push(FFI::falseSym);
@@ -847,7 +847,7 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
 
                     case Instruction::NOT:
                     {
-                        bool a = !pop();
+                        bool a = !(*pop());
                         if (a)
                             push(FFI::trueSym);
                         else
@@ -907,7 +907,7 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
 // ------------------------------------------
 
 template<bool debug>
-inline internal::Value&& VM_t<debug>::pop(int page)
+inline internal::Value* VM_t<debug>::pop(int page)
 {
     if (page == -1)
         return m_frames.back().pop();
@@ -956,7 +956,7 @@ inline void VM_t<debug>::call(int16_t argc_)
     if constexpr (debug)
         Ark::logger.info("CALL ({0}) PP:{1}, IP:{2}"s, argc, m_pp, m_ip);
 
-    Value function(pop());
+    Value function = *pop();
     if constexpr (debug)
         Ark::logger.data("function object:", function);
 
@@ -969,12 +969,10 @@ inline void VM_t<debug>::call(int16_t argc_)
             std::vector<Value> args(argc);
             for (uint16_t j=0; j < argc; ++j)
             {
-                args[j] = pop();
+                args[argc - 1 - j] = *pop();
                 args[j].registerVM(this);  // so that plugin can call .resolve(...) on functions they were sent
             }
             
-            // reverse arguments
-            std::reverse(args.begin(), args.end());
             // call proc
             push(function.proc()(args));
             return;
@@ -996,7 +994,7 @@ inline void VM_t<debug>::call(int16_t argc_)
             m_pp = new_page_pointer;
             m_ip = -1;  // because we are doing a m_ip++ right after that
             for (std::size_t j=0; j < argc; ++j)
-                push(pop(old_frame));
+                push(*pop(old_frame));
             break;
         }
 
@@ -1017,7 +1015,7 @@ inline void VM_t<debug>::call(int16_t argc_)
             m_pp = new_page_pointer;
             m_ip = -1;  // because we are doing a m_ip++ right after that
             for (std::size_t j=0; j < argc; ++j)
-                push(pop(old_frame));
+                push(*pop(old_frame));
             break;
         }
 

@@ -49,6 +49,7 @@ namespace Ark::internal
         Value(const Value&) = default;
         Value& operator=(const Value&) = default;
 
+        // high cpu cost
         Value(ValueType type);
         Value(int value);
         Value(float value);
@@ -70,11 +71,6 @@ namespace Ark::internal
         inline bool isFunction() const
         {
             return m_type == ValueType::PageAddr || m_type == ValueType::Closure || m_type == ValueType::CProc;
-        }
-
-        inline bool isConst() const
-        {
-            return m_const;
         }
 
         inline double number() const
@@ -141,7 +137,6 @@ namespace Ark::internal
             return std::get<Closure>(m_value);
         }
 
-        void setConst(bool value);
         Closure& closure_ref();
         void registerVM(Ark::VM_t<false>* vm);
         void registerVM(Ark::VM_t<true>* vm);
