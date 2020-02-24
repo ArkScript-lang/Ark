@@ -419,7 +419,7 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
                     if constexpr (debug)
                         Ark::logger.info("MUT ({0}) PP:{1}, IP:{2}"s, m_state->m_symbols[id], m_pp, m_ip);
 
-                    registerVariable(id, *pop());
+                    registerVariable(id, *pop()).m_const = false;
                     break;
                 }
                 

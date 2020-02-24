@@ -2,9 +2,9 @@ import timeit
 
 
 def list_alloc():
-    data = []
-    for _ in range(1000):
-        data.append(None)
+    data = [None]
+    while len(data) < 1000:
+        data += data
 
 
 if __name__ == '__main__':
