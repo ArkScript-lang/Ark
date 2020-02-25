@@ -16,7 +16,7 @@
             ["world"  '(assert_ false "Switch test 1 failed")]
             ["earth"  '(assert_ false "Switch test 1 failed")]
             ["foob"   '(assert_ false "Switch test 1 failed")]
-            ["foo"    '(foo 16)]
+            ["foo"    '(assert_ true "Switch test 1 failed")]
         ])
 
         (recap "Switch tests passed" tests (- (time) start-time))

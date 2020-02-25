@@ -39,6 +39,7 @@ namespace Ark::internal::FFI
         { "sliceList", Value(List::sliceList) },
         { "sort", Value(List::sort_) },
         { "fill", Value(List::fill) },
+        { "setListAt", Value(List::setListAt) },
 
         // IO
         { "print",  Value(IO::print) },
