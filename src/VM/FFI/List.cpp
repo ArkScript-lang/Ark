@@ -136,16 +136,29 @@ namespace Ark::internal::FFI::List
 
     FFI_Function(fill)
     {
-        if (n.size() != 3)
+        if (n.size() != 2)
             throw std::runtime_error(LIST_FILL_ARITY);
-        if (n[0].valueType() != ValueType::List)
+        if (n[0].valueType() != ValueType::Number)
             throw Ark::TypeError(LIST_FILL_TE0);
-        if (n[1].valueType() != ValueType::Number)
-            throw Ark::TypeError(LIST_FILL_TE1);
         
-        n[0].list().reserve(static_cast<std::size_t>(n[1].number()));
-        std::fill(n[0].list().begin(), n[0].list().end(), n[2]);
+        std::size_t c = static_cast<std::size_t>(n[0].number());
+        std::vector<Value> l;
+        for (std::size_t i=0; i < c; i++)
+            l.push_back(n[1]);
 
+        return Value(std::move(l));
+    }
+
+    FFI_Function(setListAt)
+    {
+        if (n.size() != 3)
+            throw std::runtime_error(LIST_SETAT_ARITY);
+        if (n[0].valueType() != ValueType::List)
+            throw Ark::TypeError(LIST_SETAT_TE0);
+        if (n[1].valueType() != ValueType::Number)
+            throw Ark::TypeError(LIST_SETAT_TE1);
+        
+        n[0].list()[static_cast<std::size_t>(n[1].number())] = n[2];
         return n[0];
     }
 }

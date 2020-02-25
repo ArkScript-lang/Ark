@@ -3,6 +3,8 @@
 ## Unreleased changes
 ### Added
 - member function `resolve(Args&& args...)` to Value, callable by plugins to resolve the value of a function called with specific arguments given by the plugin
+- `(fill qu value)` create a list of `qu` `value`s
+- `(setListAt list at new-value)` modify a list in place and return the new list value
 
 ### Changed
 - UserType does not need to be given a manually defined type id but relies on `typeid(T)`

@@ -11,7 +11,7 @@
 #define IO_READ_TE0 "readFile: filename must be a String"
 
 #define IO_EXISTS_ARITY "fileExists? needs 1 argument: filename"
-#define IO_EXISTS_TE0 "fileExists?: filename must be a String
+#define IO_EXISTS_TE0 "fileExists?: filename must be a String"
 
 #define IO_LS_ARITY "listFiles needs 1 argument: filename"
 #define IO_LS_TE0 "listFiles: filename must be a String"
@@ -56,9 +56,12 @@
 #define LIST_SORT_ARITY "sort needs 1 argument: a list"
 #define LIST_SORT_TE0 "sort: list must be a List"
 
-#define LIST_FILL_ARITY "fill needs 3 arguments: list, size, value"
-#define LIST_FILL_TE0 "fill: list must be a List"
-#define LIST_FILL_TE1 "fill: size must be a Number"
+#define LIST_FILL_ARITY "fill needs 2 arguments: size, value"
+#define LIST_FILL_TE0 "fill: size must be a Number"
+
+#define LIST_SETAT_ARITY "setListAt needs 3 arguments: list, index, value"
+#define LIST_SETAT_TE0 "setListAt: list must be a List"
+#define LIST_SETAT_TE1 "setListAt: index must be a Number"
 
 // Mathmatics
 
