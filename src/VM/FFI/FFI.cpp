@@ -38,6 +38,7 @@ namespace Ark::internal::FFI
         { "removeAtList", Value(List::removeAtList) },
         { "sliceList", Value(List::sliceList) },
         { "sort", Value(List::sort_) },
+        { "fill", Value(List::fill) },
 
         // IO
         { "print",  Value(IO::print) },

@@ -34,6 +34,7 @@ namespace Ark::internal::FFI
         FFI_Function(removeAtList);  // removeAtList, 2 arguments
         FFI_Function(sliceList);    // sliceList, 4 arguments
         FFI_Function(sort_);  // sort, 1 argument
+        FFI_Function(fill);  // fill, 3 arguments
     }
 
     namespace IO
