@@ -3,7 +3,7 @@
 
 #include <Ark/VM/FFI.hpp>
 
-#define FFI_Function(name) Value name(const std::vector<Value>& n)
+#define FFI_Function(name) Value name(std::vector<Value>& n)
 
 namespace Ark::internal::FFI::Mathematics
 {

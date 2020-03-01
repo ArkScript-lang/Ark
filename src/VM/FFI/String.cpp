@@ -2,7 +2,7 @@
 
 #include <fmt/format.hpp>
 
-#define FFI_Function(name) Value name(const std::vector<Value>& n)
+#define FFI_Function(name) Value name(std::vector<Value>& n)
 
 namespace Ark::internal::FFI::String
 {
@@ -39,7 +39,7 @@ namespace Ark::internal::FFI::String
         return (n[0].string().find(n[1].string()) != std::string::npos) ? trueSym : falseSym;
     }
 
-    FFI_Function (removeAtStr)
+    FFI_Function(removeAtStr)
     {
         if (n.size () != 2)
             throw std::runtime_error("removeAtStr take exactly 2 arguments: a string and an index");
@@ -48,12 +48,11 @@ namespace Ark::internal::FFI::String
         if (n[1].valueType() != ValueType::Number)
             throw Ark::TypeError("Argument 2 of removeAtStr must be of type Number");
 
-        std::string str = n[0].string();
         long id = static_cast<long>(n[1].number());
-        if (id < 0 || id > str.size())
+        if (id < 0 || id > n[0].string().size())
             throw std::runtime_error("String index out of range");
 
-        str.erase(str.begin() + id);
-        return Value(str);
+        n[0].string_ref().erase(n[0].string_ref().begin() + id);
+        return n[0];
     }
 }
