@@ -14,7 +14,7 @@
 #include <Ark/VM/Frame.hpp>
 #include <Ark/VM/State.hpp>
 #include <Ark/VM/Plugin.hpp>
-#include <Ark/VM/FFI.hpp>
+#include <Ark/FFI/FFI.hpp>
 #include <Ark/Log.hpp>
 
 #undef abs

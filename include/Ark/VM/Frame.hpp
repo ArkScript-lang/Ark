@@ -8,7 +8,7 @@
 #include <Ark/VM/Value.hpp>
 #include <Ark/Compiler/BytecodeReader.hpp>
 #include <Ark/Constants.hpp>
-#include <Ark/VM/FFI.hpp>
+#include <Ark/FFI/FFI.hpp>
 
 namespace Ark::internal
 {
