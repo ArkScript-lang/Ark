@@ -12,7 +12,7 @@
 #include <Ark/Compiler/Value.hpp>
 #include <Ark/Compiler/Instructions.hpp>
 #include <Ark/Compiler/BytecodeReader.hpp>
-#include <Ark/VM/FFI.hpp>
+#include <Ark/FFI/FFI.hpp>
 
 namespace Ark
 {

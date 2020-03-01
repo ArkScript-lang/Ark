@@ -2,7 +2,7 @@
 #include <cmath>
 #include <limits>
 
-#include <Ark/VM/FFI.hpp>
+#include <Ark/FFI/FFI.hpp>
 
 #define FFI_Function(name) Value name(std::vector<Value>& n)
 
@@ -38,6 +38,8 @@ namespace Ark::internal::FFI
         { "removeAtList", Value(List::removeAtList) },
         { "sliceList", Value(List::sliceList) },
         { "sort", Value(List::sort_) },
+        { "fill", Value(List::fill) },
+        { "setListAt", Value(List::setListAt) },
 
         // IO
         { "print",  Value(IO::print) },

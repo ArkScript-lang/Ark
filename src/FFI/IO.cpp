@@ -1,10 +1,11 @@
-#include <Ark/VM/FFI.hpp>
+#include <Ark/FFI/FFI.hpp>
 
 #include <iostream>
 #include <filesystem>
 
 #include <Ark/Utils.hpp>
 
+#include <Ark/FFI/FFIErrors.inl>
 #define FFI_Function(name) Value name(std::vector<Value>& n)
 
 namespace Ark::internal::FFI::IO
@@ -31,7 +32,7 @@ namespace Ark::internal::FFI::IO
         if (n.size() == 1)
         {
             if (n[0].valueType() != ValueType::String)
-                throw Ark::TypeError("Argument of input must be of type String");
+                throw Ark::TypeError(IO_INPUT_TE);
             std::cout << n[0].string();
         }
 
@@ -47,7 +48,7 @@ namespace Ark::internal::FFI::IO
         if (n.size() == 2)
         {
             if (n[0].valueType() != ValueType::String)
-                throw Ark::TypeError("First argument of writeFile (filename) should be a String");
+                throw Ark::TypeError(IO_WRITE_TE0);
             
             std::ofstream f(n[0].string());
             if (f.is_open())
@@ -62,13 +63,13 @@ namespace Ark::internal::FFI::IO
         else if (n.size() == 3)
         {
             if (n[0].valueType() != ValueType::String)
-                throw Ark::TypeError("First argument of writeFile (filename) should be a String");
+                throw Ark::TypeError(IO_WRITE_TE0);
             if (n[1].valueType() != ValueType::String)
-                throw Ark::TypeError("Second argument of writeFile (mode) should be a String");
+                throw Ark::TypeError(IO_WRITE_TE1);
             
             auto mode = n[1].string();
             if (mode != "w" && mode != "a")
-                throw std::runtime_error("Second argument of writeFile (mode) is incorrect, available modes are \"a\" and \"w\"");
+                throw std::runtime_error(IO_WRITE_VE_1);
             
             auto ios_mode = std::ios::out | std::ios::trunc;
             if (mode == "a")
@@ -84,16 +85,16 @@ namespace Ark::internal::FFI::IO
                 throw std::runtime_error("Couldn't write to file \"" + n[0].string() + "\"");
         }
         else
-            throw std::runtime_error("Got too many argument for writeFile: need a filename, an optional mode and a content");
+            throw std::runtime_error(IO_WRITE_ARITY);
         return nil;
     }
 
     FFI_Function(readFile)
     {
         if (n.size() != 1)
-            throw std::runtime_error("readFile need 1 argument: filename");
+            throw std::runtime_error(IO_READ_ARITY);
         if (n[0].valueType() != ValueType::String)
-            throw Ark::TypeError("Argument of readFile should be a String");
+            throw Ark::TypeError(IO_READ_TE0);
         
         auto filename = n[0].string();
         if (!Ark::Utils::fileExists(filename))
@@ -105,9 +106,9 @@ namespace Ark::internal::FFI::IO
     FFI_Function(fileExists)
     {
         if (n.size() != 1)
-            throw std::runtime_error("fileExists? can take only 1 argument, a filename (String)");
+            throw std::runtime_error(IO_EXISTS_ARITY);
         if (n[0].valueType() != ValueType::String)
-            throw Ark::TypeError("Argument of fileExists? must be of type String");
+            throw Ark::TypeError(IO_EXISTS_TE0);
         
         return Value(Ark::Utils::fileExists(n[0].string()) ? NFT::True : NFT::False);
     }
@@ -115,13 +116,13 @@ namespace Ark::internal::FFI::IO
     FFI_Function(listFiles)
     {
         if (n.size() != 1)
-            throw std::runtime_error("listFiles can take only 1 argument, a filename (String)");
+            throw std::runtime_error(IO_LS_ARITY);
         if (n[0].valueType() != ValueType::String)
-            throw Ark::TypeError("Argument of listFiles must be of type String");
+            throw Ark::TypeError(IO_LS_TE0);
         
         std::vector<Value> r;
         for (const auto& entry: std::filesystem::directory_iterator(n[0].string()))
-            r.push_back(Value(entry.path().string()));
+            r.emplace_back(entry.path().string());
         
         return Value(std::move(r));
     }
@@ -129,9 +130,9 @@ namespace Ark::internal::FFI::IO
     FFI_Function(isDirectory)
     {
         if (n.size() != 1)
-            throw std::runtime_error("isDir? can take only 1 argument, a filename (String)");
+            throw std::runtime_error(IO_ISDIR_ARITY);
         if (n[0].valueType() != ValueType::String)
-            throw Ark::TypeError("Argument of isDir? must be of type String");
+            throw Ark::TypeError(IO_ISDIR_TE0);
         
         return (std::filesystem::is_directory(std::filesystem::path(n[0].string()))) ? trueSym : falseSym;
     }
@@ -139,9 +140,9 @@ namespace Ark::internal::FFI::IO
     FFI_Function(makeDir)
     {
         if (n.size() != 1)
-            throw std::runtime_error("makeDir can take only 1 argument, a filename (String)");
+            throw std::runtime_error(IO_MKD_ARITY);
         if (n[0].valueType() != ValueType::String)
-            throw Ark::TypeError("Argument of makeDir must be of type String");
+            throw Ark::TypeError(IO_MKD_TE0);
         
         std::filesystem::create_directories(std::filesystem::path(n[0].string()));
         return nil;
@@ -150,12 +151,12 @@ namespace Ark::internal::FFI::IO
     FFI_Function(removeFiles)
     {
         if (n.size() == 0)
-            throw std::runtime_error("removeFiles takes at least one argument");
+            throw std::runtime_error(IO_RM_ARITY);
         
         for (Value::Iterator it=n.begin(); it != n.end(); ++it)
         {
             if (it->valueType() != ValueType::String)
-                throw Ark::TypeError("Arguments of removeFiles should be of type String");
+                throw Ark::TypeError(IO_RM_TE0);
             std::filesystem::remove_all(std::filesystem::path(it->string()));
         }
 

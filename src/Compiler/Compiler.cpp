@@ -4,7 +4,7 @@
 #include <chrono>
 
 #include <Ark/Log.hpp>
-#include <Ark/VM/FFI.hpp>
+#include <Ark/FFI/FFI.hpp>
 
 namespace Ark
 {
