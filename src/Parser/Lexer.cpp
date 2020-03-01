@@ -43,11 +43,9 @@ namespace Ark::internal
                         else
                             throwTokenizingError("couldn't tokenize", result, line, character);
                     }
-
-                    if (type == TokenType::Capture || type == TokenType::GetField)
+                    else if (type == TokenType::Capture || type == TokenType::GetField)
                         result = result.substr(1);  // remove the '&' / '.'
-
-                    if (type == TokenType::Identifier && isKeyword(result))
+                    else if (type == TokenType::Identifier && isKeyword(result))
                         type = TokenType::Keyword;
 
                     // stripping blanks characters between instructions, and comments
