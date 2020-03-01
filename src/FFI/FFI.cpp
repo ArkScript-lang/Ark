@@ -2,7 +2,7 @@
 #include <cmath>
 #include <limits>
 
-#include <Ark/VM/FFI.hpp>
+#include <Ark/FFI/FFI.hpp>
 
 #define FFI_Function(name) Value name(std::vector<Value>& n)
 

@@ -1,9 +1,9 @@
-#include <Ark/VM/FFI.hpp>
+#include <Ark/FFI/FFI.hpp>
 
 #include <cstdlib>
 #include <Ark/Constants.hpp>
 
-#include <Ark/VM/FFIErrors.inl>
+#include <Ark/FFI/FFIErrors.inl>
 #define FFI_Function(name) Value name(std::vector<Value>& n)
 
 namespace Ark::internal::FFI::System
