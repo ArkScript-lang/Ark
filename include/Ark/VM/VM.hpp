@@ -132,6 +132,7 @@ namespace Ark
             return (*m_locals[pp])[id] = value;
         }
 
+        // could be optimized
         inline internal::Value* findNearestVariable(uint16_t id)
         {
             for (auto it=m_locals.rbegin(); it != m_locals.rend(); ++it)
@@ -142,6 +143,7 @@ namespace Ark
             return nullptr;
         }
 
+        // only used to display the call stack traceback
         inline uint16_t findNearestVariableIdWithValue(internal::Value&& value)
         {
             for (auto it=m_locals.rbegin(); it != m_locals.rend(); ++it)

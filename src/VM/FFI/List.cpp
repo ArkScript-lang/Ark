@@ -3,7 +3,7 @@
 #include <iterator>
 #include <algorithm>
 
-#define FFI_Function(name) Value name(const std::vector<Value>& n)
+#define FFI_Function(name) Value name(std::vector<Value>& n)
 
 namespace Ark::internal::FFI::List
 {
@@ -12,10 +12,9 @@ namespace Ark::internal::FFI::List
         if (n[0].valueType() != ValueType::List)
             throw Ark::TypeError("First argument of append must be a list");
 
-        Value r(std::move(n[0]));
         for (Value::Iterator it=n.begin()+1; it != n.end(); ++it)
-            r.push_back(*it);
-        return r;
+            n[0].push_back(*it);
+        return n[0];
     }
 
     FFI_Function(concat)
@@ -23,16 +22,15 @@ namespace Ark::internal::FFI::List
         if (n[0].valueType() != ValueType::List)
             throw Ark::TypeError("First argument of concat should be a list");
 
-        Value r(std::move(n[0]));
         for (Value::Iterator it=n.begin()+1; it != n.end(); ++it)
         {
             if (it->valueType() != ValueType::List)
                 throw Ark::TypeError("Arguments of concat must be lists");
 
             for (Value::Iterator it2=it->const_list().begin(); it2 != it->const_list().end(); ++it2)
-                r.push_back(*it2);
+                n[0].push_back(*it2);
         }
-        return r;
+        return n[0];
     }
 
     FFI_Function(list)
@@ -50,11 +48,9 @@ namespace Ark::internal::FFI::List
         if (n.size() != 1)  // arity error
             throw Ark::TypeError("reverseList takes only 1 argument");
 
-        Value r(std::move(n[0]));
-        auto& l = r.list();
-        std::reverse(l.begin(), l.end());
+        std::reverse(n[0].list().begin(), n[0].list().end());
 
-        return r;
+        return n[0];
     }
 
     FFI_Function(findInList)
@@ -64,8 +60,7 @@ namespace Ark::internal::FFI::List
         if (n[0].valueType() != ValueType::List)
             throw Ark::TypeError("First argument of findInList must be a list");
         
-        Value r(std::move(n[0]));
-        std::vector<Value>& l = r.list();
+        std::vector<Value>& l = n[0].list();
         for (Value::Iterator it=l.begin(); it != l.end(); ++it)
         {
             if (*it == n[1])
@@ -84,14 +79,12 @@ namespace Ark::internal::FFI::List
         if (n[1].valueType() != ValueType::Number)
             throw Ark::TypeError("Second argument of removeAtList must be a Number");
 
-        Value r(std::move(n[0]));
         std::size_t idx = static_cast<std::size_t>(n[1].number());
-        std::vector<Value>& l = r.list();
-        if (idx < 0 || idx >= l.size())
+        if (idx < 0 || idx >= n[0].list().size())
             throw std::runtime_error("List index out of range");
 
-        l.erase(l.begin () + idx);
-        return r;
+        n[0].list().erase(n[0].list().begin () + idx);
+        return n[0];
     }
 
     FFI_Function(sliceList)
@@ -111,20 +104,17 @@ namespace Ark::internal::FFI::List
         if (step == 0)
             throw std::runtime_error ("Step can't be 0");
 
-        Value r(std::move(n[0]));
         long start = static_cast<long>(n[1].number());
         long end = static_cast<long>(n[2].number());
 
-        auto l = r.list();
         if (start > end)
             throw std::runtime_error("Start position must be less or equal to end position");
-
-        if (start < 0 || end > l.size())
+        if (start < 0 || end > n[0].list().size())
             throw std::runtime_error("Slice indices out of range");
 
         std::vector<Value> retlist;
         for (std::size_t i=start; i < end; i += step)
-            retlist.push_back(l[i]);
+            retlist.push_back(n[0].list()[i]);
 
         Value ret(std::move(retlist));
         return ret;
@@ -137,8 +127,7 @@ namespace Ark::internal::FFI::List
         if (n[0].valueType() != ValueType::List)
             throw Ark::TypeError("First argument of sort should be a list");
         
-        Value r = n[0];
-        std::sort(r.list().begin(), r.list().end());
-        return r;
+        std::sort(n[0].list().begin(), n[0].list().end());
+        return n[0];
     }
 }

@@ -131,6 +131,12 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
 {
     using namespace Ark::internal;
     m_until_frame_count = untilFrameCount;
+
+    static const Value types_to_str[] = {
+        Value("List"), Value("Number"), Value("String"), Value("Function"),
+        Value("NFT"), Value("CProc"), Value("Closure"),
+        Value("Nil"), Value("Bool"), Value("Undefined")
+    };
     
     try {
         m_running = true;
@@ -413,7 +419,7 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
                     if constexpr (debug)
                         Ark::logger.info("MUT ({0}) PP:{1}, IP:{2}"s, m_state->m_symbols[id], m_pp, m_ip);
 
-                    registerVariable(id, *pop());
+                    registerVariable(id, *pop()).m_const = false;
                     break;
                 }
                 
@@ -790,34 +796,14 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
                     case Instruction::TYPE:
                     {
                         Value *a = pop();
-                        switch (a->valueType())
-                        {
-                            case ValueType::List:     push(Value("List"));     break;
-                            case ValueType::Number:   push(Value("Number"));   break;
-                            case ValueType::String:   push(Value("String"));   break;
-                            case ValueType::PageAddr: push(Value("Function")); break;
-                            case ValueType::NFT:
-                            {
-                                switch (a->nft())
-                                {
-                                    case NFT::Nil:
-                                        push(Value("Nil"));
-                                        break;
-                                    case NFT::True:
-                                    case NFT::False:
-                                        push(Value("Bool"));
-                                        break;
-                                    case NFT::Undefined:
-                                        push(Value("Undefined"));
-                                        break;
-                                }
-                                break;
-                            }
-                            case ValueType::CProc:   push(Value("CProc"));   break;
-                            case ValueType::Closure: push(Value("Closure")); break;
-                            default:
-                                throw Ark::TypeError("unimplemented type");
-                        }
+                        if (a->valueType() != ValueType::NFT)
+                            push(types_to_str[static_cast<unsigned>(a->valueType())]);
+                        else if (a->nft() == NFT::True || a->nft() == NFT::False)
+                            push(types_to_str[8]);
+                        else if (a->nft() == NFT::Nil)
+                            push(types_to_str[7]);
+                        else
+                            push(types_to_str[9]);
                         break;
                     }
 
