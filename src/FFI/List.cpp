@@ -1,16 +1,19 @@
-#include <Ark/VM/FFI.hpp>
+#include <Ark/FFI/FFI.hpp>
 
 #include <iterator>
 #include <algorithm>
 
+#include <Ark/FFI/FFIErrors.inl>
 #define FFI_Function(name) Value name(std::vector<Value>& n)
 
 namespace Ark::internal::FFI::List
 {
     FFI_Function(append)
     {
+        if (n.size() < 2)
+            throw std::runtime_error(LIST_APPEND_ARITY);
         if (n[0].valueType() != ValueType::List)
-            throw Ark::TypeError("First argument of append must be a list");
+            throw Ark::TypeError(LIST_APPEND_TE0);
 
         for (Value::Iterator it=n.begin()+1; it != n.end(); ++it)
             n[0].push_back(*it);
@@ -20,12 +23,12 @@ namespace Ark::internal::FFI::List
     FFI_Function(concat)
     {
         if (n[0].valueType() != ValueType::List)
-            throw Ark::TypeError("First argument of concat should be a list");
+            throw Ark::TypeError(LIST_CONCAT_ARITY);
 
         for (Value::Iterator it=n.begin()+1; it != n.end(); ++it)
         {
             if (it->valueType() != ValueType::List)
-                throw Ark::TypeError("Arguments of concat must be lists");
+                throw Ark::TypeError(LIST_CONCAT_TE);
 
             for (Value::Iterator it2=it->const_list().begin(); it2 != it->const_list().end(); ++it2)
                 n[0].push_back(*it2);
@@ -44,9 +47,9 @@ namespace Ark::internal::FFI::List
     FFI_Function(reverseList)
     {
         if (n[0].valueType() != ValueType::List)
-            throw Ark::TypeError("First argument of reverseList must be a list");
+            throw Ark::TypeError(LIST_REVERSE_ARITY);
         if (n.size() != 1)  // arity error
-            throw Ark::TypeError("reverseList takes only 1 argument");
+            throw Ark::TypeError(LIST_REVERSE_TE0);
 
         std::reverse(n[0].list().begin(), n[0].list().end());
 
@@ -56,9 +59,9 @@ namespace Ark::internal::FFI::List
     FFI_Function(findInList)
     {
         if (n.size() != 2)
-            throw std::runtime_error("findInList takes 2 arguments: a list and a value to find in it");
+            throw std::runtime_error(LIST_FIND_ARITY);
         if (n[0].valueType() != ValueType::List)
-            throw Ark::TypeError("First argument of findInList must be a list");
+            throw Ark::TypeError(LIST_FIND_TE0);
         
         std::vector<Value>& l = n[0].list();
         for (Value::Iterator it=l.begin(); it != l.end(); ++it)
@@ -73,15 +76,15 @@ namespace Ark::internal::FFI::List
     FFI_Function(removeAtList)
     {
         if (n.size() != 2)
-            throw std::runtime_error("removeAtList takes 2 arguments: a list and an index");
+            throw std::runtime_error(LIST_RMAT_ARITY);
         if (n[0].valueType() != ValueType::List)
-            throw Ark::TypeError("First argument of removeAtList must be a list");
+            throw Ark::TypeError(LIST_RMAT_TE0);
         if (n[1].valueType() != ValueType::Number)
-            throw Ark::TypeError("Second argument of removeAtList must be a Number");
+            throw Ark::TypeError(LIST_RMAT_TE1);
 
         std::size_t idx = static_cast<std::size_t>(n[1].number());
         if (idx < 0 || idx >= n[0].list().size())
-            throw std::runtime_error("List index out of range");
+            throw std::runtime_error(LIST_RMAT_OOR);
 
         n[0].list().erase(n[0].list().begin () + idx);
         return n[0];
@@ -90,27 +93,27 @@ namespace Ark::internal::FFI::List
     FFI_Function(sliceList)
     {
         if (n.size () != 4)
-            throw std::runtime_error("sliceList takes 4 arguments: a list, a start position, an end position, and a step");
+            throw std::runtime_error(LIST_SLICE_ARITY);
         if (n[0].valueType() != ValueType::List)
-            throw Ark::TypeError("First argument of sliceList must be a list");
+            throw Ark::TypeError(LIST_SLICE_TE0);
         if (n[1].valueType() != ValueType::Number)
-            throw Ark::TypeError("Second argument of sliceList must be a Number");
+            throw Ark::TypeError(LIST_SLICE_TE1);
         if (n[2].valueType() != ValueType::Number)
-            throw Ark::TypeError("Third argument of sliceList must be a Number");
+            throw Ark::TypeError(LIST_SLICE_TE2);
         if (n[3].valueType() != ValueType::Number)
-            throw Ark::TypeError("Fourth argument of sliceList must be a Number");
+            throw Ark::TypeError(LIST_SLICE_TE3);
 
         long step = static_cast<long>(n[3].number());
         if (step == 0)
-            throw std::runtime_error ("Step can't be 0");
+            throw std::runtime_error(LIST_SLICE_STEP);
 
         long start = static_cast<long>(n[1].number());
         long end = static_cast<long>(n[2].number());
 
         if (start > end)
-            throw std::runtime_error("Start position must be less or equal to end position");
+            throw std::runtime_error(LIST_SLICE_ORDER);
         if (start < 0 || end > n[0].list().size())
-            throw std::runtime_error("Slice indices out of range");
+            throw std::runtime_error(LIST_SLICE_OOR);
 
         std::vector<Value> retlist;
         for (std::size_t i=start; i < end; i += step)
@@ -123,11 +126,39 @@ namespace Ark::internal::FFI::List
     FFI_Function(sort_)
     {
         if (n.size() != 1)
-            throw std::runtime_error("sort takes 1 argument: a list");
+            throw std::runtime_error(LIST_SORT_ARITY);
         if (n[0].valueType() != ValueType::List)
-            throw Ark::TypeError("First argument of sort should be a list");
+            throw Ark::TypeError(LIST_SORT_TE0);
         
         std::sort(n[0].list().begin(), n[0].list().end());
+        return n[0];
+    }
+
+    FFI_Function(fill)
+    {
+        if (n.size() != 2)
+            throw std::runtime_error(LIST_FILL_ARITY);
+        if (n[0].valueType() != ValueType::Number)
+            throw Ark::TypeError(LIST_FILL_TE0);
+        
+        std::size_t c = static_cast<std::size_t>(n[0].number());
+        std::vector<Value> l;
+        for (std::size_t i=0; i < c; i++)
+            l.push_back(n[1]);
+
+        return Value(std::move(l));
+    }
+
+    FFI_Function(setListAt)
+    {
+        if (n.size() != 3)
+            throw std::runtime_error(LIST_SETAT_ARITY);
+        if (n[0].valueType() != ValueType::List)
+            throw Ark::TypeError(LIST_SETAT_TE0);
+        if (n[1].valueType() != ValueType::Number)
+            throw Ark::TypeError(LIST_SETAT_TE1);
+        
+        n[0].list()[static_cast<std::size_t>(n[1].number())] = n[2];
         return n[0];
     }
 }

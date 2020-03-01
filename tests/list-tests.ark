@@ -64,6 +64,12 @@
         (assert_ (= [1 2 3] (sort [1 2 3])) "List test 16°2 failed")
         (assert_ (= [2 3 "1"] (sort ["1" 2 3])) "List test 16°3 failed")
 
+        (mut L (fill 12 nil))
+        (assert_ (= 12 (len L)) "List test 17 failed")
+        (set L (setListAt L 4 true))
+        (assert_ (@ L 4) "List test 17°2 failed")
+        (assert_ (not (@ L 3)) "List test 17°3 failed")
+
         (recap "List tests passed" tests (- (time) start-time))
 
         tests
