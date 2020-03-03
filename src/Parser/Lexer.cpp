@@ -11,7 +11,7 @@ namespace Ark::internal
 
     void Lexer::feed(const std::string& code)
     {
-        std::string src = code;
+        std::wstring src = utf8_to_ws(code);
         std::size_t line = 1, character = 0;
 
         std::size_t tokens_count = 0;
@@ -25,11 +25,11 @@ namespace Ark::internal
             for (auto& item: lex_regexes)
             {
                 TokenType type = item.first;
-                std::smatch m;
+                std::wsmatch m;
 
                 if (std::regex_search(src, m, item.second, std::regex_constants::match_continuous))
                 {
-                    std::string result = m[0];
+                    std::string result = ws_to_utf8(m[0]);
 
                     if (type == TokenType::Mismatch)
                     {
@@ -61,7 +61,7 @@ namespace Ark::internal
                     auto linefeed_pos = result.find_last_of("\r\n");
                     character += result.substr(linefeed_pos != std::string::npos ? linefeed_pos : 0).size();
 
-                    src = std::regex_replace(src, item.second, std::string(""), std::regex_constants::format_first_only);
+                    src = std::regex_replace(src, item.second, std::wstring(L""), std::regex_constants::format_first_only);
                     break;
                 }
             }
