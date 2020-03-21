@@ -1,8 +1,9 @@
-# ArkScript
-### Current version: 3.0.10
+# ArkScript  ![Latest version](https://img.shields.io/github/v/release/arkscript-lang/ark?include_prereleases)
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/fd5900d08a97487486c43079c06e19ce)](https://app.codacy.com/app/folaefolc/Ark?utm_source=github.com&utm_medium=referral&utm_content=SuperFola/Ark&utm_campaign=Badge_Grade_Settings)
 [![Build Status](https://travis-ci.org/ArkScript-lang/Ark.svg?branch=rework)](https://travis-ci.org/ArkScript-lang/Ark)
+![Code size](https://img.shields.io/github/languages/code-size/arkscript-lang/ark)
+![Downloads](https://img.shields.io/github/downloads/arkscript-lang/ark/total?color=%2324cc24)
 
 <img align="right" src="images/ArkTransparent-by-mazz.png" width=200px>
 
