@@ -153,7 +153,7 @@ namespace Ark
         }
         catch (const std::exception& e)
         {
-            std::cerr << e.what() << std::endl;
+            std::cerr << typeid(e).name() << ": " << e.what() << std::endl;
             return false;
         }
         catch (...)
