@@ -2,6 +2,10 @@
 
 namespace Ark
 {
+    Repl::Repl(uint16_t options, std::string lib_dir) :
+        m_options(options), m_lib_dir(lib_dir)
+    {}
+    
     void Repl::run()
     {
         const std::string new_prompt = ">> ";
@@ -13,7 +17,7 @@ namespace Ark
         {
             Ark::State state(m_lib_dir, m_options);
             Ark::VM vm(&state);
-            state.setDebug(false);
+            state.setDebug(0);
 
             std::stringstream code;
             int open_parentheses = 0;
@@ -25,12 +29,14 @@ namespace Ark
             {
                 trim_whitespace(line);
 
+                // empty lines and comments handling
                 if (line.length() == 0 || line.at(0) == '#')
                 {
                     std::cout << (new_command ? new_prompt : continuing_prompt);
                     continue;
                 }
 
+                // specific commands handling
                 if (line.compare("(quit)") == 0)
                     return;
 

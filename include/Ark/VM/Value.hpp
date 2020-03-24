@@ -112,7 +112,7 @@ namespace Ark::internal
         void registerVM(Ark::VM_t<true>* vm);
     };
 
-    #include "Value.inl"
+    #include "inline/Value.inl"
 }
 
 #endif

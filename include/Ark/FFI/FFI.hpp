@@ -77,8 +77,8 @@ namespace Ark::internal::FFI
         FFI_Function(ceil_);  // ceil, 1 argument
         FFI_Function(floor_);  // floor, 1 argument
         FFI_Function(round_);  // round, 1 argument
-        FFI_Function(isnan_);  // isNaN, 1 argument
-        FFI_Function(isinf_);  // isInf, 1 argument
+        FFI_Function(isnan_);  // NaN?, 1 argument
+        FFI_Function(isinf_);  // Inf?, 1 argument
 
         extern const Value pi_;
         extern const Value e_;

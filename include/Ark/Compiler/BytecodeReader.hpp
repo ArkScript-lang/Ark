@@ -19,7 +19,7 @@ namespace Ark
     class BytecodeReader
     {
     public:
-        BytecodeReader();
+        BytecodeReader() = default;
 
         void feed(const std::string& file);
 

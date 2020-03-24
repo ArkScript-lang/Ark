@@ -41,24 +41,32 @@ namespace Ark::internal
     {
     public:
         using Iterator = std::vector<Node>::const_iterator;
-        using Map = std::unordered_map<std::string, Node>;
-        using Value = std::variant<double, std::string, Keyword>;
+        using Map      = std::unordered_map<std::string, Node>;
+        using Value    = std::variant<double, std::string, Keyword>;
 
+        // Numbers
         Node(int value);
         Node(double value);
+        // Strings
         Node(const std::string& value);
+        // Keywords
         Node(Keyword value);
+        // Default constructor, not setting the value
         Node(NodeType type=NodeType::Symbol);
 
+        // getters
         const std::string& string() const;
         double number() const;
         Keyword keyword() const;
 
+        // every node has a list as well as a value so we can push_back on all node no matter their type
         void push_back(const Node& node);
         std::vector<Node>& list();
         const std::vector<Node>& const_list() const;
 
         NodeType nodeType() const;
+
+        // setters
         void setNodeType(NodeType type);
         void setString(const std::string& value);
         void setNumber(double value);
@@ -74,44 +82,12 @@ namespace Ark::internal
     private:
         NodeType m_type;
         Value m_value;
-
         std::vector<Node> m_list;
-
+        // position of the node in the original code, useful when it comes to parser errors
         std::size_t m_line, m_col;
     };
 
-    inline bool operator==(const Node& A, const Node& B)
-    {
-        if (A.m_type != B.m_type)  // should have the same types
-            return false;
-
-        if (A.m_type != NodeType::List &&
-            A.m_type != NodeType::Closure)
-            return A.m_value == B.m_value;
-        
-        if (A.m_type == NodeType::List)
-            throw Ark::TypeError("Can not compare lists");
-        
-        // any other type => false (here, Closure)
-        return false;
-    }
-
-    inline std::string typeToString(const Node& node)
-    {
-        // must have the same order as the enum class NodeType L17
-        static const std::vector<std::string> nodetype_str = {
-            "Symbol", "Capture", "GetField", "Keyword", "String", "Number", "List", "Closure"
-        };
-
-        if (node.nodeType() == NodeType::Symbol)
-        {
-            if (node.string() == "nil")
-                return "Nil";
-            return "Bool";
-        }
-        
-        return nodetype_str[static_cast<int>(node.nodeType())];
-    }
+    #include "Node.inl"
 
     using Nodes = std::vector<Node>;
 

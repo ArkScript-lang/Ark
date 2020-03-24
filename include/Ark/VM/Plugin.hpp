@@ -22,6 +22,7 @@ namespace Ark::internal
     {
     public:
         SharedLibrary();
+        // loading a shared library from its path
         SharedLibrary(const std::string& path);
         ~SharedLibrary();
 

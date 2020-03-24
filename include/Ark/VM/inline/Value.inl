@@ -1,4 +1,4 @@
-// public gettes
+// public getters
 
 inline ValueType Value::valueType() const
 {
