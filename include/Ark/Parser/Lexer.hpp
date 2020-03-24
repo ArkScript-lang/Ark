@@ -7,6 +7,7 @@
 #include <utility>
 
 #include <Ark/Utils.hpp>
+#include <Ark/Parser/Utf8Converter.hpp>
 
 namespace Ark::internal
 {
@@ -55,17 +56,17 @@ namespace Ark::internal
         "begin", "import", "quote", "del"
     };
 
-    const std::vector<std::pair<TokenType, std::regex>> lex_regexes = {
-        { TokenType::String,     std::regex("^\"[^\"]*\"") },
-        { TokenType::Number,     std::regex("^((\\+|-)?[[:digit:]]+)(\\.(([[:digit:]]+)?))?") },
-        { TokenType::Operator,   std::regex("^(\\+|\\-|\\*|/|<=|>=|!=|<|>|@=|@|=|\\^)") },
-        { TokenType::Identifier, std::regex("^[a-zA-Z_][a-zA-Z0-9_\\-?']*") },
-        { TokenType::Capture,    std::regex("^&[a-zA-Z_][a-zA-Z0-9_\\-?']*") },
-        { TokenType::GetField,   std::regex("^\\.[a-zA-Z_][a-zA-Z0-9_\\-?']*") },
-        { TokenType::Skip,       std::regex("^[\\s]+") },
-        { TokenType::Comment,    std::regex("^#.*") },
-        { TokenType::Shorthand,  std::regex("^[']") },
-        { TokenType::Mismatch,   std::regex("^.") }
+    const std::vector<std::pair<TokenType, std::wregex>> lex_regexes = {
+        { TokenType::String,     std::wregex(utf8_to_ws(R"*(^"[^"]*")*")) },
+        { TokenType::Number,     std::wregex(utf8_to_ws(R"*(^((\+|-)?[[:digit:]]+)(\.(([[:digit:]]+)?))?)*")) },
+        { TokenType::Operator,   std::wregex(utf8_to_ws(R"*(^(\+|\-|\*|/|<=|>=|!=|<|>|@=|@|=|\^))*")) },
+        { TokenType::Identifier, std::wregex(utf8_to_ws(R"*(^[a-zA-Z_\u0080-\uDB7F][a-zA-Z0-9_\u0080-\uDB7F\-?']*)*")) },
+        { TokenType::Capture,    std::wregex(utf8_to_ws(R"*(^&[a-zA-Z_][a-zA-Z0-9_\-?']*)*")) },
+        { TokenType::GetField,   std::wregex(utf8_to_ws(R"*(^\.[a-zA-Z_][a-zA-Z0-9_\-?']*)*")) },
+        { TokenType::Skip,       std::wregex(utf8_to_ws(R"*(^[\s]+)*")) },
+        { TokenType::Comment,    std::wregex(utf8_to_ws("^#.*")) },
+        { TokenType::Shorthand,  std::wregex(utf8_to_ws("^[']")) },
+        { TokenType::Mismatch,   std::wregex(utf8_to_ws("^.")) }
     };
 
     class Lexer
