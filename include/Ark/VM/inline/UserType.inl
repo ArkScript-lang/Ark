@@ -14,11 +14,13 @@ inline void* UserType::data() const
 }
 
 // custom operators
-inline bool not_() const
+inline bool UserType::not_() const
 {
     // TODO let the user implement his/her own
     return false;
 }
+
+// friends
 
 inline bool operator==(const UserType& A, const UserType& B)
 {

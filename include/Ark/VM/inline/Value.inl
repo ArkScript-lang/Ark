@@ -56,7 +56,7 @@ inline const Closure& Value::closure() const
 
 inline bool operator==(const Value::ProcType& f, const Value::ProcType& g)
 {
-    return f.template target<Value (const std::vector<Value>&)>() == g.template target<Value (const std::vector<Value>&)>();
+    return f.target_type() == g.target_type();
 }
 
 inline bool operator==(const Value& A, const Value& B)
