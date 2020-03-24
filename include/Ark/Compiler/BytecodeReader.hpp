@@ -11,14 +11,20 @@ namespace Ark
 {
     using bytecode_t = std::vector<uint8_t>;
 
+    /*
+        This class is just a helper to
+            * check if a bytecode is valid
+            * display it in a human readable way by using the opcode names
+    */
     class BytecodeReader
     {
     public:
         BytecodeReader();
 
         void feed(const std::string& file);
-        const bytecode_t& bytecode();
 
+        // getters
+        const bytecode_t& bytecode();
         unsigned long long timestamp();
 
         void display();
