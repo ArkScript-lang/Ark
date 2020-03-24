@@ -7,6 +7,3 @@
 [submodule "modules"]
 	path = modules
 	url = https://github.com/ArkScript-lang/modules
-[submodule "submodules/eastl"]
-	path = submodules/eastl
-	url = git@github.com:electronicarts/EASTL.git
