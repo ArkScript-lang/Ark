@@ -17,7 +17,7 @@ namespace Ark
     class State
     {
     public:
-        State(const std::string& libdir="", uint16_t options=DefaultFeatures);
+        State(const std::string& libdir="?", uint16_t options=DefaultFeatures);
 
         // for already compiled ArkScript files
         bool feed(const std::string& bytecode_filename);

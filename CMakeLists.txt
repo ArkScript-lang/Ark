@@ -14,10 +14,8 @@ if (CMAKE_COMPILER_IS_GNUCXX)
 elseif (MSVC)
     set(CMAKE_CXX_FLAGS_DEBUG "/DWIN32 /D_WINDOWS /W3 /GR /EHa /MDd" CACHE STRING "Debug compilation options" FORCE)
     set(CMAKE_CXX_FLAGS_RELEASE "/DNDEBUG /DWIN32 /D_WINDOWS /W3 /GR /EHa /Ox /Ob2 /Oi /Ot /Oy /MD" CACHE STRING "Release compilation options" FORCE)
-endif()
-
-if (CMAKE_COMPILER_IS_GNUCXX)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,-rpath,/usr/local/lib")
+    add_compile_options(/wd4267)  # disable warning about data loss (size_t -> int)
+    add_compile_options(/wd4244)  # disable warning about data loss (size_t -> char)
 elseif (CMAKE_COMPILER_IS_CLANG)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++abi")
@@ -40,33 +38,10 @@ set(ARK_COMPILER ${CMAKE_CXX_COMPILER_ID})
 set(ARK_SUBMODULES_ROOT ${Ark_SOURCE_DIR}/submodules)
 set(ARK_ENABLE_SYSTEM 1)  # enable use of (system "command here")
 
-# STANDARD LIBRARY PATH
-if (UNIX OR LINUX)
-    set(ARK_STD ${CMAKE_INSTALL_PREFIX}/share/.Ark/lib)
-elseif (WIN32)
-    if (MSVC)
-        set(ARK_STD ${CMAKE_INSTALL_PREFIX}/lib)
-        add_compile_options(/wd4267)  # disable warning about data loss (size_t -> int)
-        add_compile_options(/wd4244)  # disable warning about data loss (size_t -> char)
-    endif()
-endif()
-
 configure_file(
     ${Ark_SOURCE_DIR}/include/Ark/Constants.hpp.in
     ${Ark_SOURCE_DIR}/include/Ark/Constants.hpp
 )
-
-# EASTL
-set(EASTL_ROOT_DIR "${Ark_SOURCE_DIR}/submodules/eastl")
-include_directories(${EASTL_ROOT_DIR}/include)
-set(EASTL_BUILD_TESTS ON)
-set(EASTL_LIBRARY
-    debug
-        ${EASTL_ROOT_DIR}/build/Debug/EASTL.lib
-    optimized
-        ${EASTL_ROOT_DIR}/build/Release/EASTL.lib
-)
-add_subdirectory("${Ark_SOURCE_DIR}/submodules/eastl")
 
 file(GLOB_RECURSE SOURCE_FILES
     ${Ark_SOURCE_DIR}/src/*.cpp
