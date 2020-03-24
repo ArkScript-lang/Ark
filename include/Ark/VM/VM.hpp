@@ -264,7 +264,7 @@ namespace Ark
 
     namespace internal
     {
-        #include "Value.inl"
+        #include "Value_VM.inl"
     }
 
     // debug on

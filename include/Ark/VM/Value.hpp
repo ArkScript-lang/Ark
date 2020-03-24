@@ -41,60 +41,48 @@ namespace Ark::internal
     public:
         using ProcType = std::function<Value (std::vector<Value>&)>;
         using Iterator = std::vector<Value>::const_iterator;
-        using Value_t = std::variant<double, std::string, PageAddr_t, NFT, ProcType, Closure, UserType, std::vector<Value>>;
+        using Value_t  = std::variant<double, std::string, PageAddr_t, NFT, ProcType, Closure, UserType, std::vector<Value>>;
 
         Value();
 
         Value(ValueType type);
+        // Number
         Value(int value);
         Value(float value);
         Value(double value);
+        // String
         Value(const std::string& value);
         Value(std::string&& value);
+        // Function
         Value(PageAddr_t value);
+        // Nil, False, True
         Value(NFT value);
+        // C function binding
         Value(Value::ProcType value);
+        // List
         Value(std::vector<Value>&& value);
+        // Closure
         Value(Closure&& value);
+        // UserType
         Value(UserType&& value);
 
-        inline ValueType valueType() const
-        {
-            return m_type;
-        }
-
-        inline bool isFunction() const
-        {
-            return m_type == ValueType::PageAddr || m_type == ValueType::Closure || m_type == ValueType::CProc;
-        }
-
-        inline double number() const
-        {
-            return std::get<double>(m_value);
-        }
-
-        inline const std::string& string() const
-        {
-            return std::get<std::string>(m_value);
-        }
-
-        inline const std::vector<Value>& const_list() const
-        {
-            return std::get<std::vector<Value>>(m_value);
-        }
-
-        inline const UserType& usertype() const
-        {
-            return std::get<UserType>(m_value);
-        }
+        // public getters
+        inline ValueType valueType() const;
+        inline bool isFunction() const;
+        inline double number() const;
+        inline const std::string& string() const;
+        inline const std::vector<Value>& const_list() const;
+        inline const UserType& usertype() const;
 
         std::vector<Value>& list();
         std::string& string_ref();
         UserType& usertype_ref();
 
+        // work only on lists
         void push_back(const Value& value);
         void push_back(Value&& value);
 
+        // needed by C function bindings in modules, to resolve the value of a function call
         template <typename... Args>
         Value resolve(Args&&... args) const;
 
@@ -112,84 +100,19 @@ namespace Ark::internal
         Ark::VM_t<false>* m_vmf = nullptr;
         Ark::VM_t<true>* m_vmt = nullptr;
 
-        inline PageAddr_t pageAddr() const
-        {
-            return std::get<PageAddr_t>(m_value);
-        }
-
-        inline NFT nft() const
-        {
-            return std::get<NFT>(m_value);
-        }
-
-        inline const ProcType& proc() const
-        {
-            return std::get<Value::ProcType>(m_value);
-        }
-
-        inline const Closure& closure() const
-        {
-            return std::get<Closure>(m_value);
-        }
+        // private getters only for the virtual machine
+        inline PageAddr_t pageAddr() const;
+        inline NFT nft() const;
+        inline const ProcType& proc() const;
+        inline const Closure& closure() const;
 
         Closure& closure_ref();
+
         void registerVM(Ark::VM_t<false>* vm);
         void registerVM(Ark::VM_t<true>* vm);
     };
 
-    inline bool operator==(const Value::ProcType& f, const Value::ProcType& g)
-    {
-        return f.template target<Value (const std::vector<Value>&)>() == g.template target<Value (const std::vector<Value>&)>();
-    }
-
-    inline bool operator==(const Value& A, const Value& B)
-    {
-        // values should have the same type
-        if (A.m_type != B.m_type)
-            return false;
-        
-        return A.m_value == B.m_value;
-    }
-
-    inline bool operator<(const Value& A, const Value& B)
-    {
-        if (A.m_type != B.m_type)
-            return (static_cast<int>(A.m_type) - static_cast<int>(B.m_type)) < 0;
-        return A.m_value < B.m_value;
-    }
-
-    inline bool operator!=(const Value& A, const Value& B)
-    {
-        return !(A == B);
-    }
-
-    inline bool operator!(const Value& A)
-    {
-        switch (A.valueType())
-        {
-            case ValueType::List:
-                return A.const_list().empty();
-            
-            case ValueType::Number:
-                return !A.number();
-            
-            case ValueType::String:
-                return A.string().empty();
-            
-            case ValueType::NFT:
-            {
-                if (A.nft() == NFT::True)
-                    return false;
-                return true;
-            }
-
-            case ValueType::User:
-                return A.usertype().not_();
-            
-            default:
-                return false;
-        }
-    }
+    #include "Value.inl"
 }
 
 #endif
