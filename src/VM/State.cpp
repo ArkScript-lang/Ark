@@ -5,9 +5,13 @@
 namespace Ark
 {
     State::State(const std::string& libdir, uint16_t options) :
-        m_libdir(libdir == "" ? ARK_STD_DEFAULT : libdir), m_filename("FILE"),
+        m_libdir(libdir), m_filename("FILE"),
         m_options(options), m_debug_level(0)
-    {}
+    {
+        // read environment variable to locate ark std lib
+        if (m_libdir == "?")
+        {}
+    }
 
     bool State::feed(const std::string& bytecode_filename)
     {
