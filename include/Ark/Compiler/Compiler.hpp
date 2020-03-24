@@ -9,7 +9,7 @@
 
 #include <Ark/Parser/Parser.hpp>
 #include <Ark/Parser/Node.hpp>
-#include <Ark/Compiler/Value.hpp>
+#include <Ark/Compiler/CValue.hpp>
 #include <Ark/Compiler/Instructions.hpp>
 #include <Ark/Compiler/BytecodeReader.hpp>
 #include <Ark/FFI/FFI.hpp>
