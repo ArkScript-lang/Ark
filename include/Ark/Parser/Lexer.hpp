@@ -26,6 +26,7 @@ namespace Ark::internal
         Mismatch
     };
 
+    // TokenType to string
     const std::vector<std::string> tokentype_string = {
         "Grouping", "String", "Number", "Operator",
         "Identifier", "Capture", "GetField", "Keyword",
@@ -47,7 +48,8 @@ namespace Ark::internal
 
         Token(const Token&) = default;
     };
-    
+
+    // list of available keywords in ArkScript
     const std::vector<std::string> keywords = {
         "if", "let", "mut", "set", "fun", "while",
         "begin", "import", "quote", "del"
@@ -78,19 +80,13 @@ namespace Ark::internal
         unsigned m_debug;
         std::vector<Token> m_tokens;
 
-        inline bool isKeyword(const std::string& value)
-        {
-            return std::find(keywords.begin(), keywords.end(), value) != keywords.end();
-        }
-
-        inline void throwTokenizingError(const std::string& message, const std::string& match, std::size_t line, std::size_t col)
-        {
-            throw std::runtime_error("TokenizingError: " + message + "\nAt " +
-                Ark::Utils::toString(line) + ":" + Ark::Utils::toString(col) +
-                " (" + match + ")"
-            );
-        }
+        // helper to know if a string represents a keyword
+        inline bool isKeyword(const std::string& value);
+        // throwing nice tokenizing errors
+        inline void throwTokenizingError(const std::string& message, const std::string& match, std::size_t line, std::size_t col);
     };
+
+    #include "Lexer.inl"
 }
 
 #endif  // ark_lexer
