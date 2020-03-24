@@ -12,7 +12,7 @@ namespace Ark::internal::FFI::IO
 {
     FFI_Function(print)
     {
-        for (Value::Iterator it=n.begin(); it != n.end(); ++it)
+        for (Value::Iterator it=n.begin(), it_end=n.end(); it != it_end; ++it)
             std::cout << (*it);
         std::cout << std::endl;
 
@@ -21,7 +21,7 @@ namespace Ark::internal::FFI::IO
 
     FFI_Function(puts_)
     {
-        for (Value::Iterator it=n.begin(); it != n.end(); ++it)
+        for (Value::Iterator it=n.begin(), it_end=n.end(); it != it_end; ++it)
             std::cout << (*it);
 
         return nil;
@@ -153,7 +153,7 @@ namespace Ark::internal::FFI::IO
         if (n.size() == 0)
             throw std::runtime_error(IO_RM_ARITY);
         
-        for (Value::Iterator it=n.begin(); it != n.end(); ++it)
+        for (Value::Iterator it=n.begin(), it_end=n.end(); it != it_end; ++it)
         {
             if (it->valueType() != ValueType::String)
                 throw Ark::TypeError(IO_RM_TE0);

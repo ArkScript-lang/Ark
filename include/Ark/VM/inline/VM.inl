@@ -854,7 +854,7 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
         if (m_frames.size() > 1)
         {
             // display call stack trace
-            for (auto&& it=m_frames.rbegin(); it != m_frames.rend(); ++it)
+            for (auto&& it=m_frames.rbegin(), it_end=m_frames.rend(); it != it_end; ++it)
             {
                 std::cerr << "[" << termcolor::cyan << std::distance(it, m_frames.rend()) << termcolor::reset << "] ";
                 if (it->currentPageAddr() != 0)

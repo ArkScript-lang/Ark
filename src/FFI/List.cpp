@@ -15,7 +15,7 @@ namespace Ark::internal::FFI::List
         if (n[0].valueType() != ValueType::List)
             throw Ark::TypeError(LIST_APPEND_TE0);
 
-        for (Value::Iterator it=n.begin()+1; it != n.end(); ++it)
+        for (Value::Iterator it=n.begin()+1, it_end=n.end(); it != it_end; ++it)
             n[0].push_back(*it);
         return n[0];
     }
@@ -25,12 +25,12 @@ namespace Ark::internal::FFI::List
         if (n[0].valueType() != ValueType::List)
             throw Ark::TypeError(LIST_CONCAT_ARITY);
 
-        for (Value::Iterator it=n.begin()+1; it != n.end(); ++it)
+        for (Value::Iterator it=n.begin()+1, it_end=n.end(); it != it_end; ++it)
         {
             if (it->valueType() != ValueType::List)
                 throw Ark::TypeError(LIST_CONCAT_TE);
 
-            for (Value::Iterator it2=it->const_list().begin(); it2 != it->const_list().end(); ++it2)
+            for (Value::Iterator it2=it->const_list().begin(), it2_end=it->const_list().end(); it2 != it2_end; ++it2)
                 n[0].push_back(*it2);
         }
         return n[0];
@@ -39,7 +39,7 @@ namespace Ark::internal::FFI::List
     FFI_Function(list)
     {
         Value r(ValueType::List);
-        for (Value::Iterator it=n.begin(); it != n.end(); ++it)
+        for (Value::Iterator it=n.begin(), it_end=n.end(); it != it_end; ++it)
             r.push_back(*it);
         return r;
     }
@@ -64,7 +64,7 @@ namespace Ark::internal::FFI::List
             throw Ark::TypeError(LIST_FIND_TE0);
         
         std::vector<Value>& l = n[0].list();
-        for (Value::Iterator it=l.begin(); it != l.end(); ++it)
+        for (Value::Iterator it=l.begin(), it_end=n.end(); it != it_end; ++it)
         {
             if (*it == n[1])
                 return Value(static_cast<int>(std::distance<Value::Iterator>(l.begin(), it)));
