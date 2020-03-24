@@ -26,71 +26,25 @@ namespace Ark::internal
 
         // stack related
 
-        inline Value* pop()
-        {
-            m_i--;
-            return &m_stack[m_i];
-        }
-
-        inline void push(const Value& value)
-        {
-            m_stack[m_i] = value;
-            m_i++;
-
-            if (m_i == m_stack.size())
-                m_stack.emplace_back(FFI::undefined);
-        }
-
-        inline void push(Value&& value)
-        {
-            m_stack[m_i] = std::move(value);
-            m_i++;
-
-            if (m_i == m_stack.size())
-                m_stack.emplace_back(FFI::undefined);
-        }
+        inline Value* pop();
+        inline void push(const Value& value);
+        inline void push(Value&& value);
 
         // getters-setters (misc)
 
-        inline std::size_t stackSize() const
-        {
-            return m_i;
-        }
-
-        inline std::size_t callerAddr() const
-        {
-            return m_addr;
-        }
-
-        inline std::size_t callerPageAddr() const
-        {
-            return m_page_addr;
-        }
-
-        inline std::size_t currentPageAddr() const
-        {
-            return m_new_pp;
-        }
+        inline std::size_t stackSize() const;
+        inline std::size_t callerAddr() const;
+        inline std::size_t callerPageAddr() const;
+        inline std::size_t currentPageAddr() const;
 
         // related to scope deletion
 
-        inline void incScopeCountToDelete()
-        {
-            m_scope_to_delete++;
-        }
-
-        inline void resetScopeCountToDelete()
-        {
-            m_scope_to_delete = 0;
-        }
-        
-        inline uint8_t scopeCountToDelete() const
-        {
-            return m_scope_to_delete;
-        }
+        inline void incScopeCountToDelete();
+        inline void resetScopeCountToDelete();
+        inline uint8_t scopeCountToDelete() const;
 
         friend std::ostream& operator<<(std::ostream& os, const Frame& F);
-    
+
     private:
         //              IP,          PP    EXC_PP
         std::size_t m_addr, m_page_addr, m_new_pp;
@@ -100,6 +54,8 @@ namespace Ark::internal
 
         uint8_t m_scope_to_delete;
     };
+
+    #include "inline/Frame.inl"
 }
 
 #endif

@@ -11,6 +11,11 @@ namespace Ark::internal
 {
     class Value;
 
+    /*
+        A scope is defined as a shared pointer to a list of local variables
+        because a Closure could continue to leave when the local variables list
+        has been closed by the virtual machine
+    */
     using Scope_t = std::shared_ptr<std::vector<Value>>;
 
     class Closure
@@ -20,13 +25,11 @@ namespace Ark::internal
         Closure(Scope_t&& scope_ptr, PageAddr_t pa);
         Closure(const Scope_t& scope_ptr, PageAddr_t pa);
 
+        // getters
         const Scope_t& scope() const;
         Scope_t& scope_ref();
 
-        inline PageAddr_t pageAddr() const
-        {
-            return m_page_addr;
-        }
+        inline PageAddr_t pageAddr() const { return m_page_addr; }
 
         friend inline bool operator==(const Closure& A, const Closure& B);
         friend inline bool operator<(const Closure& A, const Closure& B);
@@ -34,6 +37,7 @@ namespace Ark::internal
     
     private:
         Scope_t m_scope;
+        // keep track of the code page number, in case we need it later
         PageAddr_t m_page_addr;
     };
 

@@ -162,7 +162,7 @@ SYNOPSIS
         build/Ark -h, --help
         build/Ark --version
         build/Ark --dev-info
-        build/Ark ((<file> [-c]) | -r) [-(d|bcr)] [-L <lib_dir>] [-f(function-arity-check|no-function-arity-check)] [-f(allow-invalid-token-after-paren|no-invalid-token-after-paren)]
+        build/Ark ((<file> [-c]) | -r) [-(d|bcr)] [-L <lib_dir>] [-f(fac|no-fac)] [-f(aitap|no-aitap)]
 
 OPTIONS
         -h, --help                  Display this message
@@ -174,10 +174,10 @@ OPTIONS
         -bcr, --bytecode-reader     Launch the bytecode reader
         -L, --lib                   Set the location of the ArkScript standard library
 
-        -f(function-arity-check|no-function-arity-check)
+        -f(fac|no-fac)
                                     Toggle function arity checks (default: ON)
 
-        -f(allow-invalid-token-after-paren|no-invalid-token-after-paren)
+        -f(aitap|no-aitap)
                                     Authorize invalid token after `(' (default: OFF). When ON, only display a warning
 
 LICENSE

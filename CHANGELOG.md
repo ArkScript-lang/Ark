@@ -10,6 +10,10 @@
 ### Changed
 - UserType does not need to be given a manually defined type id but relies on `typeid(T)`
 - performance boost of the VM by using pointers to avoid unecessary copies
+- renaming `isNaN` to `NaN?`, `isInf` to `Inf?` for uniformisation (see `empty?`, `nil?`)
+- renaming CLI feature options:
+    - `-ffunction-arity-check` becomes `-ffac`, same for the `-fno-` version
+    - `-fauthorize-invalid-token-after-paren` becomes `-faitap`, some for the `-fno-` version
 
 ### Removed
 

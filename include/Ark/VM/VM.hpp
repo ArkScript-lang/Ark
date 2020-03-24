@@ -166,15 +166,16 @@ namespace Ark
             return (*m_locals[pp])[id];
         }
 
+        // doing the job nobody wants to do: cleaning after everyone has finished to play
         inline void returnFromFuncCall()
         {
             // remove frame
             m_frames.pop_back();
             uint8_t del_counter = m_frames.back().scopeCountToDelete();
 
-            // high cpu cost
+            // high cpu cost because destroying variants cost
             m_locals.pop_back();
-            
+
             while (del_counter != 0)
             {
                 m_locals.pop_back();
@@ -183,13 +184,14 @@ namespace Ark
 
             m_frames.back().resetScopeCountToDelete();
 
+            // stop the executing if we reach the wanted frame count
             if (m_frames.size() == m_until_frame_count)
                 m_running = false;
         }
 
         inline void createNewScope()
         {
-            // high cpu cost
+            // high cpu cost because we are creating a lot of variants
             m_locals.emplace_back(
                 std::make_shared<std::vector<internal::Value>>(
                     m_state->m_symbols.size(), internal::FFI::undefined
@@ -256,15 +258,12 @@ namespace Ark
                 return FFI::nil;
         }
     };
-}
 
-namespace Ark
-{
-    #include "VM.inl"
+    #include "inline/VM.inl"
 
     namespace internal
     {
-        #include "Value_VM.inl"
+        #include "inline/Value_VM.inl"
     }
 
     // debug on

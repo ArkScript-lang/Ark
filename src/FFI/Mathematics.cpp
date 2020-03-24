@@ -68,7 +68,7 @@ namespace Ark::internal::FFI::Mathematics
     FFI_Function(isnan_)
     {
         if (n.size() != 1)
-            throw std::runtime_error(MATH_ARITY("isNaN"));
+            throw std::runtime_error(MATH_ARITY("NaN?"));
         if (n[0].valueType() != ValueType::Number)
             return falseSym;
         
@@ -78,7 +78,7 @@ namespace Ark::internal::FFI::Mathematics
     FFI_Function(isinf_)
     {
         if (n.size() != 1)
-            throw std::runtime_error(MATH_ARITY("isInf"));
+            throw std::runtime_error(MATH_ARITY("Inf?"));
         if (n[0].valueType() != ValueType::Number)
             return falseSym;
         

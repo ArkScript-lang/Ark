@@ -56,6 +56,7 @@ namespace Ark::internal
         "begin", "import", "quote", "del"
     };
 
+    // some heavy regex creation to be able to handle UTF8 in ArkScript
     const std::vector<std::pair<TokenType, std::wregex>> lex_regexes = {
         { TokenType::String,     std::wregex(utf8_to_ws(R"*(^"[^"]*")*")) },
         { TokenType::Number,     std::wregex(utf8_to_ws(R"*(^((\+|-)?[[:digit:]]+)(\.(([[:digit:]]+)?))?)*")) },

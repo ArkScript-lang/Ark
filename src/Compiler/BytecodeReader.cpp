@@ -10,9 +10,6 @@ namespace Ark
 {
     using namespace Ark::internal;
 
-    BytecodeReader::BytecodeReader()
-    {}
-
     void BytecodeReader::feed(const std::string& file)
     {
         std::ifstream ifs(file, std::ios::binary | std::ios::ate);
@@ -40,6 +37,7 @@ namespace Ark
         bytecode_t b = bytecode();
         std::size_t i = 0;
 
+        // we want to see a 'ark\0' header
         if (!(b.size() > 4 && b[i++] == 'a' && b[i++] == 'r' && b[i++] == 'k' && b[i++] == Instruction::NOP))
             return 0;
 
@@ -47,6 +45,7 @@ namespace Ark
         uint16_t minor = readNumber(i); i++;
         uint16_t patch = readNumber(i); i++;
 
+        // reading the timestamp in big endian
         using timestamp_t = unsigned long long;
         timestamp_t timestamp = 0;
         auto aa = (static_cast<timestamp_t>(m_bytecode[  i]) << 56),
@@ -99,6 +98,8 @@ namespace Ark
         std::vector<std::string> symbols;
         std::vector<std::string> values;
         std::vector<std::string> plugins;
+
+        // reading the different tables, one after another
 
         if (b[i] == Instruction::SYM_TABLE_START)
         {
