@@ -49,7 +49,7 @@ namespace Ark
 
             // convert and push arguments in reverse order
             std::vector<Value> fnargs { { args... } };
-            for (auto it2=fnargs.rbegin(); it2 != fnargs.rend(); ++it2)
+            for (auto it2=fnargs.rbegin(), it_end=fnargs.rend(); it2 != it_end; ++it2)
                 push(*it2);
             
             // find function object and push it if it's a pageaddr/closure
@@ -135,7 +135,7 @@ namespace Ark
         // could be optimized
         inline internal::Value* findNearestVariable(uint16_t id)
         {
-            for (auto it=m_locals.rbegin(); it != m_locals.rend(); ++it)
+            for (auto it=m_locals.rbegin(), it_end=m_locals.rend(); it != it_end; ++it)
             {
                 if ((**it)[id] != internal::FFI::undefined)
                     return &(**it)[id];
@@ -146,9 +146,9 @@ namespace Ark
         // only used to display the call stack traceback
         inline uint16_t findNearestVariableIdWithValue(internal::Value&& value)
         {
-            for (auto it=m_locals.rbegin(); it != m_locals.rend(); ++it)
+            for (auto it=m_locals.rbegin(), it_end=m_locals.rend(); it != it_end; ++it)
             {
-                for (auto sub=(*it)->begin(); sub != (*it)->end(); ++sub)
+                for (auto sub=(*it)->begin(), sub_end=(*it)->end(); sub != sub_end; ++sub)
                 {
                     if (*sub == value)
                         return static_cast<uint16_t>(std::distance((*it)->begin(), sub));
@@ -231,7 +231,7 @@ namespace Ark
 
             // convert and push arguments in reverse order
             std::vector<Value> fnargs { { args... } };
-            for (auto it=fnargs.rbegin(); it != fnargs.rend(); ++it)
+            for (auto it=fnargs.rbegin(), it_end=fnargs.end(); it != it_end; ++it)
                 push(*it);
             // push function
             push(*val);

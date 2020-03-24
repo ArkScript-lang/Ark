@@ -376,7 +376,7 @@ namespace Ark
         }
         else if (n.nodeType() == NodeType::List)
         {
-            for (std::size_t i=0; i < n.list().size(); ++i)
+            for (std::size_t i=0, size=n.list().size(); i < size; ++i)
             {
                 if (checkForInclude(n.list()[i]))
                 {

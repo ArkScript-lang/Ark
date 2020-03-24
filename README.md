@@ -139,6 +139,7 @@ Libs already included:
 * [CLIPP](https://github.com/muellan/clipp), MIT licence
 * [termcolor](https://github.com/ikalnytskyi/termcolor), BSD (3-clause) licence
 * [google/benchmark](https://github.com/google/benchmark), Apache 2.0 licence
+* [EASTL](https://github.com/electronicarts/EASTL), BSD (3-clause) licence
 
 ## Building
 

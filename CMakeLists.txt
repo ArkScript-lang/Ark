@@ -56,6 +56,22 @@ configure_file(
     ${Ark_SOURCE_DIR}/include/Ark/Constants.hpp
 )
 
+# EASTL
+set(EASTL_ROOT_DIR "${Ark_SOURCE_DIR}/submodules/EASTL")
+include_directories(${EASTL_ROOT_DIR}/include)
+include_directories(${EASTL_ROOT_DIR}/test/packages/EAAssert/include)
+include_directories(${EASTL_ROOT_DIR}/test/packages/EABase/include/Common)
+include_directories(${EASTL_ROOT_DIR}/test/packages/EAMain/include)
+include_directories(${EASTL_ROOT_DIR}/test/packages/EAStdC/include)
+include_directories(${EASTL_ROOT_DIR}/test/packages/EATest/include)
+include_directories(${EASTL_ROOT_DIR}/test/packages/EAThread/include)
+set(EASTL_LIBRARY
+    debug
+        ${EASTL_ROOT_DIR}/build/Debug/EASTL.lib
+    optimized
+        ${EASTL_ROOT_DIR}/build/Release/EASTL.lib
+)
+
 file(GLOB_RECURSE SOURCE_FILES
     ${Ark_SOURCE_DIR}/src/*.cpp
     ${Ark_SOURCE_DIR}/thirdparty/*.cpp
@@ -82,10 +98,8 @@ if (UNIX OR LINUX)
     elseif (CMAKE_COMPILER_IS_CLANG)
         target_link_libraries(ArkReactor PUBLIC c++fs)
     endif()
-endif()
 
-if (UNIX OR LINUX)
-    target_link_libraries(ArkReactor PUBLIC ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+    target_link_libraries(ArkReactor PUBLIC ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${EASTL_LIBRARY})
 endif()
 
 # setting up project properties

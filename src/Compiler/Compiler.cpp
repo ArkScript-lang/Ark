@@ -95,7 +95,7 @@ namespace Ark
         for (auto sym : m_symbols)
         {
             // push the string, null terminated
-            for (std::size_t i=0; i < sym.size(); ++i)
+            for (std::size_t i=0, size=sym.size(); i < size; ++i)
                 m_bytecode.push_back(sym[i]);
             m_bytecode.push_back(Instruction::NOP);
         }
@@ -115,14 +115,14 @@ namespace Ark
                 m_bytecode.push_back(Instruction::NUMBER_TYPE);
                 auto n = std::get<double>(val.value);
                 std::string t = Ark::Utils::toString(n);
-                for (std::size_t i=0; i < t.size(); ++i)
+                for (std::size_t i=0, size=t.size(); i < size; ++i)
                     m_bytecode.push_back(t[i]);
             }
             else if (val.type == CValueType::String)
             {
                 m_bytecode.push_back(Instruction::STRING_TYPE);
                 std::string t = std::get<std::string>(val.value);
-                for (std::size_t i=0; i < t.size(); ++i)
+                for (std::size_t i=0, size=t.size(); i < size; ++i)
                     m_bytecode.push_back(t[i]);
             }
             else if (val.type == CValueType::PageAddr)
@@ -149,7 +149,7 @@ namespace Ark
         for (auto plugin: m_plugins)
         {
             // push the string, null terminated
-            for (std::size_t i=0; i < plugin.size(); ++i)
+            for (std::size_t i=0, size=plugin.size(); i < size; ++i)
                 m_bytecode.push_back(plugin[i]);
             m_bytecode.push_back(Instruction::NOP);
         }
@@ -327,7 +327,7 @@ namespace Ark
             else if (n == Ark::internal::Keyword::Fun)
             {
                 // capture, if needed
-                for (Ark::internal::Node::Iterator it=x.list()[1].list().begin(); it != x.list()[1].list().end(); ++it)
+                for (Ark::internal::Node::Iterator it=x.list()[1].list().begin(), it_end=x.list()[1].list().end(); it != it_end; ++it)
                 {
                     if (it->nodeType() == NodeType::Capture)
                     {
@@ -344,7 +344,7 @@ namespace Ark
                 std::size_t id = addValue(page_id);  // save page_id into the constants table as PageAddr
                 pushNumber(static_cast<uint16_t>(id), &page(p));
                 // pushing arguments from the stack into variables in the new scope
-                for (Ark::internal::Node::Iterator it=x.list()[1].list().begin(); it != x.list()[1].list().end(); ++it)
+                for (Ark::internal::Node::Iterator it=x.list()[1].list().begin(), it_end=x.list()[1].list().end(); it != it_end; ++it)
                 {
                     if (it->nodeType() == NodeType::Symbol)
                     {
@@ -360,7 +360,7 @@ namespace Ark
             }
             else if (n == Ark::internal::Keyword::Begin)
             {
-                for (std::size_t i=1; i < x.list().size(); ++i)
+                for (std::size_t i=1, size=x.list().size(); i < size; ++i)
                     _compile(x.list()[i], p);
             }
             else if (n == Ark::internal::Keyword::While)
@@ -386,7 +386,7 @@ namespace Ark
             }
             else if (n == Ark::internal::Keyword::Import)
             {
-                for (Ark::internal::Node::Iterator it=x.list().begin() + 1; it != x.list().end(); ++it)
+                for (Ark::internal::Node::Iterator it=x.list().begin() + 1, it_end=x.list().end(); it != it_end; ++it)
                 {
                     // load const, push it to the plugins table
                     addPlugin(*it);
@@ -442,7 +442,7 @@ namespace Ark
         if (proc_page_len > 1)
         {
             // push arguments on current page
-            for (Ark::internal::Node::Iterator exp=x.list().begin() + n; exp != x.list().end(); ++exp)
+            for (Ark::internal::Node::Iterator exp=x.list().begin() + n, exp_end=x.list().end(); exp != exp_end; ++exp)
                 _compile(*exp, p);
             // push proc from temp page
             for (auto&& inst : m_temp_pages.back())
@@ -453,7 +453,7 @@ namespace Ark
             page(p).push_back(Instruction::CALL);
             // number of arguments
             std::size_t args_count = 0;
-            for (auto it=x.list().begin() + 1; it != x.list().end(); ++it)
+            for (auto it=x.list().begin() + 1, it_end=x.list().end(); it != it_end; ++it)
             {
                 if (it->nodeType() != Ark::internal::NodeType::GetField &&
                     it->nodeType() != Ark::internal::NodeType::Capture)
@@ -469,14 +469,14 @@ namespace Ark
 
             // push arguments on current page
             std::size_t exp_count = 0;
-            for (std::size_t index=n; index < x.list().size(); ++index)
+            for (std::size_t index=n, size=x.list().size(); index < size; ++index)
             {
                 _compile(x.list()[index], p);
 
-                if ((index + 1 < x.list().size() &&
+                if ((index + 1 < size &&
                     x.list()[index + 1].nodeType() != Ark::internal::NodeType::GetField &&
                     x.list()[index + 1].nodeType() != Ark::internal::NodeType::Capture) ||
-                    index + 1 == x.list().size())
+                    index + 1 == size)
                     exp_count++;
 
                 // in order to be able to handle things like (op A B C D...)

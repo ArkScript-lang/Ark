@@ -16,7 +16,7 @@ namespace Ark::internal::FFI::String
 
         rj::format f(n[0].string());
 
-        for (Value::Iterator it=n.begin()+1; it != n.end(); ++it)
+        for (Value::Iterator it=n.begin()+1, it_end=n.end(); it != it_end; ++it)
         {
             if (it->valueType() == ValueType::String)
                 f.args(it->string());
