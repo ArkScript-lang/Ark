@@ -16,7 +16,7 @@ namespace Ark::internal::FFI
     extern const Value falseSym;
     extern const Value trueSym;
     extern const Value nil;
-    extern const Value undefined;  // internal value only
+    extern const Value undefined;  // internal value only, not to be used in a program (it can't be used in a program actually)
 
     extern const std::vector<std::pair<std::string, Value>> builtins;
     extern const std::vector<std::string> operators;
