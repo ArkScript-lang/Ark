@@ -231,7 +231,7 @@ namespace Ark
 
             // convert and push arguments in reverse order
             std::vector<Value> fnargs { { args... } };
-            for (auto it=fnargs.rbegin(), it_end=fnargs.end(); it != it_end; ++it)
+            for (auto it=fnargs.rbegin(), it_end=fnargs.rend(); it != it_end; ++it)
                 push(*it);
             // push function
             push(*val);

@@ -57,20 +57,16 @@ configure_file(
 )
 
 # EASTL
-set(EASTL_ROOT_DIR "${Ark_SOURCE_DIR}/submodules/EASTL")
+set(EASTL_ROOT_DIR "${Ark_SOURCE_DIR}/submodules/eastl")
 include_directories(${EASTL_ROOT_DIR}/include)
-include_directories(${EASTL_ROOT_DIR}/test/packages/EAAssert/include)
-include_directories(${EASTL_ROOT_DIR}/test/packages/EABase/include/Common)
-include_directories(${EASTL_ROOT_DIR}/test/packages/EAMain/include)
-include_directories(${EASTL_ROOT_DIR}/test/packages/EAStdC/include)
-include_directories(${EASTL_ROOT_DIR}/test/packages/EATest/include)
-include_directories(${EASTL_ROOT_DIR}/test/packages/EAThread/include)
+set(EASTL_BUILD_TESTS ON)
 set(EASTL_LIBRARY
     debug
         ${EASTL_ROOT_DIR}/build/Debug/EASTL.lib
     optimized
         ${EASTL_ROOT_DIR}/build/Release/EASTL.lib
 )
+add_subdirectory("${Ark_SOURCE_DIR}/submodules/eastl")
 
 file(GLOB_RECURSE SOURCE_FILES
     ${Ark_SOURCE_DIR}/src/*.cpp
