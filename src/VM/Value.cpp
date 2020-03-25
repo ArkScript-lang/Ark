@@ -5,7 +5,8 @@
 
 namespace Ark::internal
 {
-    Value::Value()
+    Value::Value() :
+        m_type(ValueType::Undefined)
     {}
 
     // --------------------------
@@ -39,10 +40,6 @@ namespace Ark::internal
 
     Value::Value(PageAddr_t value) :
         m_value(value), m_type(ValueType::PageAddr), m_const(false)
-    {}
-
-    Value::Value(NFT value) :
-        m_value(value), m_type(ValueType::NFT), m_const(false)
     {}
 
     Value::Value(Value::ProcType value) :
@@ -141,7 +138,7 @@ namespace Ark::internal
 
     std::ostream& operator<<(std::ostream& os, const Value& V)
     {
-        switch (V.valueType())
+        switch (V.m_type)
         {
         case ValueType::Number:
         {
@@ -158,20 +155,6 @@ namespace Ark::internal
         case ValueType::PageAddr:
             os << "Function @ " << V.pageAddr();
             break;
-        
-        case ValueType::NFT:
-        {
-            NFT nft = V.nft();
-            if (nft == NFT::Nil)
-                os << "nil";
-            else if (nft == NFT::False)
-                os << "false";
-            else if (nft == NFT::True)
-                os << "true";
-            else if (nft == NFT::Undefined)
-                os << "undefined";
-            break;
-        }
 
         case ValueType::CProc:
             os << "CProcedure";
@@ -182,7 +165,7 @@ namespace Ark::internal
             os << "[";
             for (auto it=V.const_list().begin(), it_end=V.const_list().end(); it != it_end; ++it)
             {
-                if (it->valueType() == ValueType::String)
+                if (it->m_type == ValueType::String)
                     os << "\"" << (*it) << "\"";
                 else
                     os << (*it);
@@ -199,6 +182,22 @@ namespace Ark::internal
         
         case ValueType::User:
             os << V.usertype();
+            break;
+        
+        case ValueType::Nil:
+            os << "nil";
+            break;
+        
+        case ValueType::True:
+            os << "true";
+            break;
+        
+        case ValueType::False:
+            os << "false";
+            break;
+        
+        case ValueType::Undefined:
+            os << "undefined";
             break;
         
         default:

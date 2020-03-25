@@ -110,7 +110,7 @@ namespace Ark::internal::FFI::IO
         if (n[0].valueType() != ValueType::String)
             throw Ark::TypeError(IO_EXISTS_TE0);
         
-        return Value(Ark::Utils::fileExists(n[0].string()) ? NFT::True : NFT::False);
+        return Ark::Utils::fileExists(n[0].string()) ? trueSym : falseSym;
     }
 
     FFI_Function(listFiles)

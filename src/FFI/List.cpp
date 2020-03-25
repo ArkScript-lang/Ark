@@ -64,7 +64,7 @@ namespace Ark::internal::FFI::List
             throw Ark::TypeError(LIST_FIND_TE0);
         
         std::vector<Value>& l = n[0].list();
-        for (Value::Iterator it=l.begin(), it_end=n.end(); it != it_end; ++it)
+        for (Value::Iterator it=l.begin(), it_end=l.end(); it != it_end; ++it)
         {
             if (*it == n[1])
                 return Value(static_cast<int>(std::distance<Value::Iterator>(l.begin(), it)));

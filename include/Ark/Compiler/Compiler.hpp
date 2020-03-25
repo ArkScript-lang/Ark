@@ -49,12 +49,12 @@ namespace Ark
         inline std::optional<std::size_t> isBuiltin(const std::string& name);
 
         // to compile a single node, recursively
-        void _compile(Ark::internal::Node x, int p);
+        void _compile(const Ark::internal::Node& x, int p);
         // register a symbol/value/plugin in its own table
         std::size_t addSymbol(const std::string& sym);
-        std::size_t addValue(Ark::internal::Node x);
+        std::size_t addValue(const Ark::internal::Node& x);
         std::size_t addValue(std::size_t page_id);
-        void addPlugin(Ark::internal::Node x);
+        void addPlugin(const Ark::internal::Node& x);
         // push a number on stack (need 2 )
         void pushNumber(uint16_t n, std::vector<internal::Inst>* page=nullptr);
     };

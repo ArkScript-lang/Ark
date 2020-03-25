@@ -376,7 +376,8 @@ namespace Ark
         }
         else if (n.nodeType() == NodeType::List)
         {
-            for (std::size_t i=0, size=n.list().size(); i < size; ++i)
+            // can not optimize calls to n.list().size() because we are modifying n.list()
+            for (std::size_t i=0; i < n.list().size(); ++i)
             {
                 if (checkForInclude(n.list()[i]))
                 {

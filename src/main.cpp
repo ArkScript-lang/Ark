@@ -24,7 +24,7 @@ int main(int argc, char** argv)
     enum class mode { help, dev_info, bytecode_reader, version, run, repl, compile };
     mode selected = mode::help;
 
-    std::string file = "", lib_dir = "";
+    std::string file = "", lib_dir = "?";
     unsigned debug = 0;
     std::vector<std::string> wrong;
     uint16_t options = Ark::DefaultFeatures;
