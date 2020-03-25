@@ -28,10 +28,14 @@ namespace Ark::internal
         Number,
         String,
         PageAddr,
-        NFT,
         CProc,
         Closure,
-        User
+        User,
+
+        Nil,
+        True,
+        False,
+        Undefined
     };
 
     class Frame;
@@ -41,7 +45,7 @@ namespace Ark::internal
     public:
         using ProcType = std::function<Value (std::vector<Value>&)>;
         using Iterator = std::vector<Value>::const_iterator;
-        using Value_t  = std::variant<double, std::string, PageAddr_t, NFT, ProcType, Closure, UserType, std::vector<Value>>;
+        using Value_t  = std::variant<double, std::string, PageAddr_t, ProcType, Closure, UserType, std::vector<Value>>;
 
         Value();
 
@@ -55,8 +59,6 @@ namespace Ark::internal
         Value(std::string&& value);
         // Function
         Value(PageAddr_t value);
-        // Nil, False, True
-        Value(NFT value);
         // C function binding
         Value(Value::ProcType value);
         // List
@@ -102,7 +104,6 @@ namespace Ark::internal
 
         // private getters only for the virtual machine
         inline PageAddr_t pageAddr() const;
-        inline NFT nft() const;
         inline const ProcType& proc() const;
         inline const Closure& closure() const;
 

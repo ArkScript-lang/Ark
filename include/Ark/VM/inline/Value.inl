@@ -37,11 +37,6 @@ inline PageAddr_t Value::pageAddr() const
     return std::get<PageAddr_t>(m_value);
 }
 
-inline NFT Value::nft() const
-{
-    return std::get<NFT>(m_value);
-}
-
 inline const Value::ProcType& Value::proc() const
 {
     return std::get<Value::ProcType>(m_value);
@@ -64,6 +59,8 @@ inline bool operator==(const Value& A, const Value& B)
     // values should have the same type
     if (A.m_type != B.m_type)
         return false;
+    else if (A.m_type == ValueType::Nil || A.m_type == ValueType::True || A.m_type == ValueType::False || A.m_type == ValueType::Undefined)
+        return true;
     
     return A.m_value == B.m_value;
 }
@@ -82,7 +79,7 @@ inline bool operator!=(const Value& A, const Value& B)
 
 inline bool operator!(const Value& A)
 {
-    switch (A.valueType())
+    switch (A.m_type)
     {
         case ValueType::List:
             return A.const_list().empty();
@@ -92,16 +89,16 @@ inline bool operator!(const Value& A)
         
         case ValueType::String:
             return A.string().empty();
-        
-        case ValueType::NFT:
-        {
-            if (A.nft() == NFT::True)
-                return false;
-            return true;
-        }
 
         case ValueType::User:
             return A.usertype().not_();
+        
+        case ValueType::Nil:
+        case ValueType::False:
+            return true;
+        
+        case ValueType::True:
+            return false;
         
         default:
             return false;

@@ -12,7 +12,7 @@ inline void Frame::push(const Value& value)
     m_i++;
 
     if (m_i == m_stack.size())
-        m_stack.emplace_back(FFI::undefined);
+        m_stack.emplace_back(ValueType::Undefined);
 }
 
 inline void Frame::push(Value&& value)
@@ -21,7 +21,7 @@ inline void Frame::push(Value&& value)
     m_i++;
 
     if (m_i == m_stack.size())
-        m_stack.emplace_back(FFI::undefined);
+        m_stack.emplace_back(ValueType::Undefined);
 }
 
 // getters-setters (misc)

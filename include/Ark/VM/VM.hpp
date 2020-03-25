@@ -57,7 +57,7 @@ namespace Ark
             auto var = findNearestVariable(id);
             if (var != nullptr)
             {
-                if (var->valueType() != ValueType::PageAddr && var->valueType() != ValueType::Closure)
+                if (var->m_type != ValueType::PageAddr && var->m_type != ValueType::Closure)
                     throwVMError("Symbol " + name + " isn't a function");
 
                 push(*var);
@@ -137,7 +137,7 @@ namespace Ark
         {
             for (auto it=m_locals.rbegin(), it_end=m_locals.rend(); it != it_end; ++it)
             {
-                if ((**it)[id] != internal::FFI::undefined)
+                if ((**it)[id].m_type != internal::ValueType::Undefined)
                     return &(**it)[id];
             }
             return nullptr;
@@ -194,7 +194,7 @@ namespace Ark
             // high cpu cost because we are creating a lot of variants
             m_locals.emplace_back(
                 std::make_shared<std::vector<internal::Value>>(
-                    m_state->m_symbols.size(), internal::FFI::undefined
+                    m_state->m_symbols.size(), internal::ValueType::Undefined
                 )
             );
         }
@@ -221,9 +221,7 @@ namespace Ark
         {
             using namespace Ark::internal;
 
-            if (val->valueType() != ValueType::PageAddr &&
-                val->valueType() != ValueType::Closure &&
-                val->valueType() != ValueType::CProc)
+            if (!val->isFunction())
                 throw Ark::TypeError("Value::resolve couldn't resolve a non-function");
             
             int ip = m_ip;
@@ -274,9 +272,9 @@ namespace Ark
     // aliases
     using Value = internal::Value;
     using ValueType = internal::ValueType;
-    const Value Nil = Value(internal::NFT::Nil);
-    const Value False = Value(internal::NFT::False);
-    const Value True = Value(internal::NFT::True);
+    const Value Nil = Value(internal::ValueType::Nil);
+    const Value False = Value(internal::ValueType::False);
+    const Value True = Value(internal::ValueType::True);
 }
 
 #endif

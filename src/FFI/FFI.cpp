@@ -8,11 +8,9 @@
 
 namespace Ark::internal::FFI
 {
-    extern const Value falseSym = Value(NFT::False);
-    extern const Value trueSym  = Value(NFT::True);
-    extern const Value nil      = Value(NFT::Nil);
-    // not assignable value
-    extern const Value undefined = Value(NFT::Undefined);
+    extern const Value falseSym = Value(ValueType::False);
+    extern const Value trueSym  = Value(ValueType::True);
+    extern const Value nil      = Value(ValueType::Nil);
 
     namespace Mathematics
     {
