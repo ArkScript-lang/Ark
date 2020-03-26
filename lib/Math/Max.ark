@@ -1,5 +1,5 @@
-(let max (fun (a b)
-    (if (> a b)
-        a
-        b
+(let max (fun (_a _b)
+    (if (> _a _b)
+        _a
+        _b
     )))

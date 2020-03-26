@@ -1,9 +1,9 @@
-(let map (fun (f L) {
-    (mut idx 0)
-    (mut output [])
-    (while (< idx (len L)) {
-        (set output (append output (f (@ L idx))))
-        (set idx (+ 1 idx))
+(let map (fun (_f _L) {
+    (mut _index 0)
+    (mut _output [])
+    (while (< _index (len _L)) {
+        (set _output (append _output (_f (@ _L _index))))
+        (set _index (+ 1 _index))
     })
-    output
+    _output
 }))

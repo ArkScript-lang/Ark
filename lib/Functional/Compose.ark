@@ -1,2 +1,2 @@
-(let compose (fun (f g)
-    (fun (y &f &g) (f (g y)))))
+(let compose (fun (_f _g)
+    (fun (_y &_f &_g) (_f (_g _y)))))

@@ -1,14 +1,14 @@
 {
     (import "Math/Min.ark")
     
-    (let zip (fun (a b) {
-        (let m (min (len a) (len b) ))
-        (mut c [])
-        (mut idx 0)
-        (while (< idx m) {
-            (set c (append c [(@ a idx) (@ b idx)]))
-            (set idx (+ 1 idx))
+    (let zip (fun (_a _b) {
+        (let _m (min (len _a) (len _b) ))
+        (mut _c [])
+        (mut _index 0)
+        (while (< _index _m) {
+            (set _c (append _c [(@ _a _index) (@ _b _index)]))
+            (set _index (+ 1 _index))
         })
-        c
+        _c
     }))
 }
