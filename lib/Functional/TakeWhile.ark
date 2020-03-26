@@ -1,15 +1,15 @@
-(let takeWhile (fun (f L) {
-    (mut idx 0)
-    (mut output [])
-    (mut continue true)
+(let takeWhile (fun (_f _L) {
+    (mut _index 0)
+    (mut _output [])
+    (mut _continue true)
 
-    (while (and (< idx (len L)) continue) {
-        (if (f (@ L idx)) {
-                (set output (append output (@ L idx)))
-                (set idx (+ 1 idx))
+    (while (and (< _index (len _L)) _continue) {
+        (if (_f (@ _L _index)) {
+                (set _output (append _output (@ _L _index)))
+                (set _index (+ 1 _index))
             }
-            (set continue false)
+            (set _continue false)
         )
     })
-    output
+    _output
 }))

@@ -1,11 +1,11 @@
-(let filter (fun (f L) {
-    (mut idx 0)
-    (mut output [])
-    (while (< idx (len L)) {
-        (if (f (@ L idx))
-            (set output (append output (@ L idx)))
+(let filter (fun (_f _L) {
+    (mut _index 0)
+    (mut _output [])
+    (while (< _index (len _L)) {
+        (if (_f (@ _L _index))
+            (set _output (append _output (@ _L _index)))
             nil)
-        (set idx (+ 1 idx))
+        (set _index (+ 1 _index))
     })
-    output
+    _output
 }))

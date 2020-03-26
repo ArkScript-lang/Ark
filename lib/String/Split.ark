@@ -1,21 +1,21 @@
-(let split (fun (string separator) {
-    (assert (!= "" separator) "Separator of split can not be empty")
-    (assert (= 1 (len separator)) "Separator length must be equal to 1")
-    (mut i 0)
-    (mut word "")
-    (mut letter "")
-    (mut output [])
+(let split (fun (_string _separator) {
+    (assert (!= "" _separator) "Separator of split can not be empty")
+    (assert (= 1 (len _separator)) "Separator length must be equal to 1")
+    (mut _index 0)
+    (mut _word "")
+    (mut _letter "")
+    (mut _output [])
 
-    (while (< i (len string)) {
-        (set letter (@ string i))
-        (if (= letter separator) {
-            (set output (append output word))
-            (set word "")
+    (while (< _index (len _string)) {
+        (set _letter (@ _string _index))
+        (if (= _letter _separator) {
+            (set _output (append _output _word))
+            (set _word "")
             }
-            (set word (+ word letter)))
-        (set i (+ i 1))
+            (set _word (+ _word _letter)))
+        (set _index (+ _index 1))
     })
-    (if (empty? word)
-        output
-        (append output word))
+    (if (empty? _word)
+        _output
+        (append _output _word))
 }))
