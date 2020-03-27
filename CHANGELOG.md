@@ -6,6 +6,7 @@
 - `(fill qu value)` create a list of `qu` `value`s
 - `(setListAt list at new-value)` modify a list in place and return the new list value
 - adding UTF-8 support in programs (experimental)
+- more benchmarks
 
 ### Changed
 - UserType does not need to be given a manually defined type id but relies on `typeid(T)`

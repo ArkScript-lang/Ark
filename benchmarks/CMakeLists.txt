@@ -44,3 +44,5 @@ function(bench_make target_file)
 endfunction()
 
 bench_make(vm)
+bench_make(ackermann)
+bench_make(list_alloc)

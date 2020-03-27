@@ -1,4 +1,4 @@
-import timeit
+import time
 
 
 def ack(m, n):
@@ -12,10 +12,13 @@ def ack(m, n):
 
 
 if __name__ == '__main__':
-    results = [i / 5 * 1000 for i in timeit.repeat(lambda: ack(3, 6), repeat=25, number=5)]
-    for r in results:
-        print(f"Run time: {r}ms")
-    
+    results = []
+    for i in range(125):
+        start = time.perf_counter()
+        ack(3, 6)
+        stop = time.perf_counter() - start
+        results.append(stop * 1000)  # time.perf_counter is in seconds
+
     mean = sum(results) / len(results)
     print(f"Mean time: {mean}ms")
 

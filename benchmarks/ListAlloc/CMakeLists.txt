@@ -1,0 +1,1 @@
+bench_make(list_alloc)
