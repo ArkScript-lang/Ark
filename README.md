@@ -198,11 +198,11 @@ CPU Caches:
 
 The test here is the Ackermann-Peter function with m=3 and n=6:
 
-| data   | ArkScript | C++ (g++ 8.3.0) | Java (OpenJDK 11.0.6) 64 bits | Lua 5.1.5 | Python 3.6.9 |
-| ------ | --------- | --------------- | ----------------------------- | --------- | ------------ |
-| mean   | 51.5 ms   | 0.144 ms        | 0.211 ms                      | 13.553 ms | 9.125 ms     |
-| median | 51.1 ms   | 0.142 ms        | 0.179 ms                      | 13.404 ms | 9.375 ms     |
-| stddev | 0.619 ms  | 0.003 ms        | 0.906 ms                      | 0.146 ms  | 0.865 ms     |
+| data   | ArkScript | C++ (g++ 8.3.0) | Java (OpenJDK 11.0.6) 64 bits | Lua 5.1.5 | Python 3.6.9 | JavaScript (SpiderMonkey, Firefox 74) |
+| ------ | --------- | --------------- | ----------------------------- | --------- | ------------ | ------------------------------------- |
+| mean   | 46.7 ms   | 0.144 ms        | 0.211 ms                      | 13.553 ms | 9.125 ms     | 19.76 ms                              |
+| median | 44.9 ms   | 0.142 ms        | 0.179 ms                      | 13.404 ms | 9.375 ms     | 20 ms                                 |
+| stddev | 7.22 ms   | 0.003 ms        | 0.906 ms                      | 0.146 ms  | 0.865 ms     | 1.046 ms                              |
 
 ## Games
 
