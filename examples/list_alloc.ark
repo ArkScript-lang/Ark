@@ -1,4 +1,1 @@
-{
-    (mut data [nil])
-    (while (< (len data) 1000) (set data (concat data data)))
-}
+(mut data (fill 1000 0))

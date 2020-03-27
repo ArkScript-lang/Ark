@@ -1,16 +1,9 @@
 import java.util.Arrays;
 
-public class Ackermann {
-    public static int ack(int m, int n) {
-        if (m > 0) {
-            if (n == 0) {
-                return ack(m - 1, 1);
-            } else {
-                return ack(m - 1, ack(m, n - 1));
-            }
-        } else {
-            return n + 1;
-        }
+public class ListAlloc {
+    public static void allocate() {
+        int arr[] = new int[1000];
+        Arrays.fill(arr, 0);
     }
 
     public static void main(String args[]) {
@@ -18,10 +11,9 @@ public class Ackermann {
 
         for (int i=0; i < 125; ++i) {
             long startTime = System.nanoTime() / 1000000;
-            ack(3, 6);
+            allocate();
             long stopTime = System.nanoTime() / 1000000;
             results[i] = stopTime - startTime;
-            System.out.println("Run time: " + (stopTime - startTime));
         }
 
         double mean = 0.0;
