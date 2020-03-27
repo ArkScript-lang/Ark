@@ -1,2 +1,2 @@
-(let even (fun (n)
-    (= 0 (mod n 2))))
+(let even (fun (_n)
+    (= 0 (mod _n 2))))

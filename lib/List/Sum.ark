@@ -1,9 +1,9 @@
-(let sum (fun (L) {
-    (mut idx 0)
-    (mut output 0)
-    (while (< idx (len L)) {
-        (set output (+ output (@ L idx)))
-        (set idx (+ 1 idx))
+(let sum (fun (_L) {
+    (mut _index 0)
+    (mut _output 0)
+    (while (< _index (len _L)) {
+        (set _output (+ _output (@ _L _index)))
+        (set _index (+ 1 _index))
     })
-    output
+    _output
 }))

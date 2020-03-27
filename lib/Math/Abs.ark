@@ -1,5 +1,5 @@
-(let abs (fun (x)
-    (if (< x 0)
-        (* -1 x)
-        x
+(let abs (fun (_x)
+    (if (< _x 0)
+        (* -1 _x)
+        _x
     )))
