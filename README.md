@@ -154,8 +154,7 @@ Libs already included:
 # building Ark
 ~/Ark$ cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release -DARK_BUILD_EXE=1
 ~/Ark$ cmake --build build
-# installing Ark
-# works on Linux and on Windows (might need administrative privileges)
+# installing Ark (might need administrative privileges)
 ~/Ark$ cmake --install build --config Release
 # running
 ~/Ark$ Ark --help
