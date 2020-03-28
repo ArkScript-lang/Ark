@@ -133,6 +133,10 @@ For performance reasons, some functions might be written in C++, in `include/Ark
 * C++17
 * CMake >= 3.12
 * Visual Studio >= 11 (on Windows)
+* On macOS versions prior to 10.15, `libc++` lacks `filesystem` in the standard library.
+
+  * Install a newer compiler using [Homebrew](https://docs.brew.sh/): `brew install gcc && brew link gcc`
+  * Pass compiler paths to `cmake` in the build step: `-DCMAKE_C_COMPILER=/usr/local/bin/gcc-9 -DCMAKE_CXX_COMPILER=/usr/local/bin/g++-9`
 
 Libs already included:
 * [rj format](https://github.com/ryjen/format), MIT licence
