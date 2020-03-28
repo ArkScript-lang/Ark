@@ -133,6 +133,10 @@ For performance reasons, some functions might be written in C++, in `include/Ark
 * C++17
 * CMake >= 3.12
 * Visual Studio >= 11 (on Windows)
+* On macOS versions prior to 10.15, `libc++` lacks `filesystem` in the standard library.
+
+  * Install a newer compiler using [Homebrew](https://docs.brew.sh/): `brew install gcc && brew link gcc`
+  * Pass compiler path to `cmake` in the build step: `-DCMAKE_CXX_COMPILER=/usr/local/bin/g++-9`
 
 Libs already included:
 * [rj format](https://github.com/ryjen/format), MIT licence
@@ -150,8 +154,7 @@ Libs already included:
 # building Ark
 ~/Ark$ cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release -DARK_BUILD_EXE=1
 ~/Ark$ cmake --build build
-# installing Ark
-# works on Linux and on Windows (might need administrative privileges)
+# installing Ark (might need administrative privileges)
 ~/Ark$ cmake --install build --config Release
 # running
 ~/Ark$ Ark --help
