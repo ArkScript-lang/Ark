@@ -143,7 +143,6 @@ Libs already included:
 * [CLIPP](https://github.com/muellan/clipp), MIT licence
 * [termcolor](https://github.com/ikalnytskyi/termcolor), BSD (3-clause) licence
 * [google/benchmark](https://github.com/google/benchmark), Apache 2.0 licence
-* [EASTL](https://github.com/electronicarts/EASTL), BSD (3-clause) licence
 
 ## Building
 
@@ -177,12 +176,8 @@ OPTIONS
         -d, --debug...              Increase debug level (default: 0)
         -bcr, --bytecode-reader     Launch the bytecode reader
         -L, --lib                   Set the location of the ArkScript standard library
-
-        -f(fac|no-fac)
-                                    Toggle function arity checks (default: ON)
-
-        -f(aitap|no-aitap)
-                                    Authorize invalid token after `(' (default: OFF). When ON, only display a warning
+        -f(fac|no-fac)              Toggle function arity checks (default: ON)
+        -f(aitap|no-aitap)          Authorize invalid token after `(' (default: OFF). When ON, only display a warning
 
 LICENSE
         Mozilla Public License 2.0
