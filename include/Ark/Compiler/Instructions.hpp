@@ -5,6 +5,10 @@
 
 namespace Ark::internal
 {
+    /**
+     * @brief The different bytecodes are stored here
+     * 
+     */
     enum Instruction
     {
         NOP = 0x00,
