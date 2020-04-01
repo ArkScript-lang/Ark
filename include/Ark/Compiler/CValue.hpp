@@ -15,6 +15,10 @@ namespace Ark::internal
         PageAddr  // for function definitions
     };
 
+    /**
+     * @brief A Compiler Value class helper to handle multiple types
+     * 
+     */
     struct CValue
     {
         std::variant<double, std::string, std::size_t> value;
