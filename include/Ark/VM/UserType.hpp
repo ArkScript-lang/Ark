@@ -9,17 +9,24 @@
 
 namespace Ark
 {
-    /*
-        A class to be handle to send (through C++ code) your own data types
-        and retrieves them later one. A pointer to the value you want to store
-        must be sent, thus the value must not be destroyed while the UserType lives,
-        otherwise it would result in an UB when trying to use the object
+    /**
+     * @brief A class to be use C++ objects in ArkScript
+     * 
+     * A pointer to the value you want to store
+     * must be sent, thus the value must not be destroyed while the UserType lives,
+     * otherwise it would result in an UB when trying to use the object
     */
     class UserType
     {
     public:
         using FuncStream_t = std::function<std::ostream& (std::ostream& os, const UserType& A)>;
 
+        /**
+         * @brief Construct a new User Type object
+         * 
+         * @tparam T the type of the pointer
+         * @param data a pointer to the data to store in the object
+         */
         template <typename T>
         explicit UserType(T* data=nullptr) :
             m_data(static_cast<void*>(data)),
@@ -27,14 +34,33 @@ namespace Ark
             m_type_id(std::type_index(typeid(T)))
         {}
 
-        // setters
+        /**
+         * @brief Set the ostream function
+         * 
+         * @param f the function
+         */
         inline void setOStream(FuncStream_t&& f);
 
-        // getters
+        /**
+         * @brief Get the type id of the value held by the object
+         * 
+         * @return const std::type_index 
+         */
         inline const std::type_index type_id() const;
+
+        /**
+         * @brief Get the pointer to the object
+         * 
+         * @return void* 
+         */
         inline void* data() const;
 
-        // custom operators
+        /**
+         * @brief User implemented `not` operator
+         * 
+         * @return true 
+         * @return false 
+         */
         inline bool not_() const;
 
         friend inline bool operator==(const UserType& A, const UserType& B);

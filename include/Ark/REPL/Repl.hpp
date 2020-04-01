@@ -23,7 +23,7 @@ namespace Ark
         Repl(uint16_t options, std::string lib_dir);
 
         /**
-         * @brief Starts the REPL
+         * @brief Start the REPL
          * 
          */
         void run();

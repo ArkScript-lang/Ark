@@ -12,35 +12,115 @@
 
 namespace Ark::internal
 {
-    /*
-        A frame should hold:
-        - its own stack
-        - a return address to a possible caller (if it's a function's frame)
-    */
+    /**
+     * @brief Frame management
+     * 
+     * A frame should hold:
+     *  - its own stack
+     *  - a return address to a possible caller (if it's a function's frame)
+     */
     class Frame
     {
     public:
+        /**
+         * @brief Construct a new Frame object
+         * 
+         */
         Frame();
+
+        /**
+         * @brief Construct a new Frame object from another one
+         * 
+         */
         Frame(const Frame&) = default;
+
+        /**
+         * @brief Construct a new Frame object
+         * 
+         * @param caller_addr the address of the caller, to return to it afterward
+         * @param caller_page_addr the page address of the caller
+         * @param new_pp the new page address where we're going
+         */
         Frame(std::size_t caller_addr, std::size_t caller_page_addr, std::size_t new_pp);
 
         // stack related
 
+        /**
+         * @brief Pop a value from the stack of the frame
+         * 
+         * @return Value* the value popped
+         */
         inline Value* pop();
+
+        /**
+         * @brief Push a value on the stack of the frame
+         * 
+         * @param value the value to put on the stack
+         */
         inline void push(const Value& value);
+
+        /**
+         * @brief Push a value on the stack of the frame
+         * 
+         * @param value the value to put on the stack
+         */
         inline void push(Value&& value);
 
         // getters-setters (misc)
 
+        /**
+         * @brief Get the stack size
+         * 
+         * @return std::size_t 
+         */
         inline std::size_t stackSize() const;
+
+        /**
+         * @brief Get the caller address
+         * 
+         * @return std::size_t 
+         */
         inline std::size_t callerAddr() const;
+
+        /**
+         * @brief Get the caller page address
+         * 
+         * @return std::size_t 
+         */
         inline std::size_t callerPageAddr() const;
+
+        /**
+         * @brief Get the current page address
+         * 
+         * @return std::size_t 
+         */
         inline std::size_t currentPageAddr() const;
 
         // related to scope deletion
 
+        /**
+         * @brief Increment the number of scopes linked to this frame
+         * 
+         * Needed for the primitive garbage collecting system.
+         * 
+         */
         inline void incScopeCountToDelete();
+
+        /**
+         * @brief Decrement the number of scopes linked to this frame
+         * 
+         * Needed for the primitive garbage collecting system.
+         * 
+         */
         inline void resetScopeCountToDelete();
+
+        /**
+         * @brief Get the number of scopes linked to this frame
+         * 
+         * Needed for the primitive garbage collecting system.
+         * 
+         * @return uint8_t 
+         */
         inline uint8_t scopeCountToDelete() const;
 
         friend std::ostream& operator<<(std::ostream& os, const Frame& F);

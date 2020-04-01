@@ -9,7 +9,7 @@
 namespace Ark::internal
 {
     /**
-     * @brief Converts a wide string to a standard string
+     * @brief Convert a wide string to a standard string
      * 
      * @param s the wide string to convert
      * @return std::string 
@@ -17,7 +17,7 @@ namespace Ark::internal
     std::string ws_to_utf8(const std::wstring& s);
 
     /**
-     * @brief Converts a standard string to wide string
+     * @brief Convert a standard string to wide string
      * 
      * @param utf8 the string to convert
      * @return std::wstring 

@@ -41,7 +41,7 @@ namespace Ark
         void feed(const std::string& code, const std::string& filename="FILE");
     
         /**
-         * @brief Starts the compilation
+         * @brief Start the compilation
          * 
          */
         void compile();
@@ -54,7 +54,7 @@ namespace Ark
         void saveTo(const std::string& file);
 
         /**
-         * @brief Returns the constructed bytecode object
+         * @brief Return the constructed bytecode object
          * 
          * @return const bytecode_t& 
          */
@@ -78,8 +78,10 @@ namespace Ark
         inline std::vector<internal::Inst>& page(int i);
         // checking if a symbol is an operator or a builtin
         // because they are implemented the same way
+
         /// Checking if a symbol is an operator
         inline std::optional<std::size_t> isOperator(const std::string& name);
+        /// Checking if a symbol is a builtin
         inline std::optional<std::size_t> isBuiltin(const std::string& name);
 
         /**

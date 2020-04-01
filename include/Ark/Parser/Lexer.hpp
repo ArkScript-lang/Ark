@@ -108,7 +108,7 @@ namespace Ark::internal
         void feed(const std::string& code);
 
         /**
-         * @brief Returns the list of tokens
+         * @brief Return the list of tokens
          * 
          * @return const std::vector<Token>& 
          */

@@ -34,14 +34,14 @@ namespace Ark
         void feed(const std::string& file);
 
         /**
-         * @brief Returns the bytecode object constructed
+         * @brief Return the bytecode object constructed
          * 
          * @return const bytecode_t& 
          */
         const bytecode_t& bytecode();
 
         /**
-         * @brief Returns the read timestamp from the bytecode file
+         * @brief Return the read timestamp from the bytecode file
          * 
          * @return unsigned long long 
          */
