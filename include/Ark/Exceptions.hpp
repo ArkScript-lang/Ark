@@ -6,6 +6,10 @@
 
 namespace Ark
 {
+    /**
+     * @brief A type error triggered when types don't match
+     * 
+     */
     class TypeError : public std::exception
     {
     public:
@@ -22,6 +26,10 @@ namespace Ark
         std::string m_msg;
     };
 
+    /**
+     * @brief A special zero division error triggered when a number is divided by 0
+     * 
+     */
     class ZeroDivisionError : public std::exception
     {
     public:
@@ -35,6 +43,10 @@ namespace Ark
         }
     };
 
+    /**
+     * @brief A pow error triggered when we can't do a pow b
+     * 
+     */
     class PowError : public std::exception
     {
     public:
@@ -46,6 +58,10 @@ namespace Ark
         }
     };
 
+    /**
+     * @brief An assertion error, only triggered from ArkScript code through (assert expr error-message)
+     * 
+     */
     class AssertionFailed : public std::exception
     {
     public:
