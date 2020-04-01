@@ -41,16 +41,32 @@ namespace Ark::internal
         std::size_t line;
         std::size_t col;
 
+        /**
+         * @brief Construct a new Token object
+         * 
+         */
         Token() = default;
 
+        /**
+         * @brief Construct a new Token object
+         * 
+         * @param type the token type
+         * @param tok the token value
+         * @param line the line where we found the token
+         * @param col the column at which was the token
+         */
         Token(TokenType type, const std::string& tok, std::size_t line, std::size_t col) :
             type(type), token(tok), line(line), col(col)
         {}
 
+        /**
+         * @brief Construct a new Token object from another one
+         * 
+         */
         Token(const Token&) = default;
     };
 
-    // list of available keywords in ArkScript
+    /// List of available keywords in ArkScript
     const std::vector<std::string> keywords = {
         "if", "let", "mut", "set", "fun", "while",
         "begin", "import", "quote", "del"
@@ -70,12 +86,32 @@ namespace Ark::internal
         { TokenType::Mismatch,   std::wregex(utf8_to_ws("^.")) }
     };
 
+    /**
+     * @brief The lexer, in charge of creating a list of tokens
+     * 
+     */
     class Lexer
     {
     public:
+        /**
+         * @brief Construct a new Lexer object
+         * 
+         * @param debug the debug level
+         */
         Lexer(unsigned debug);
 
+        /**
+         * @brief Give code to tokenize and create the list of tokens
+         * 
+         * @param code the ArkScript code
+         */
         void feed(const std::string& code);
+
+        /**
+         * @brief Returns the list of tokens
+         * 
+         * @return const std::vector<Token>& 
+         */
         const std::vector<Token>& tokens();
 
     private:

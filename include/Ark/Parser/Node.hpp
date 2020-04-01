@@ -11,6 +11,7 @@
 
 namespace Ark::internal
 {
+    /// The different node types available
     enum class NodeType
     {
         Symbol,
@@ -23,6 +24,7 @@ namespace Ark::internal
         Closure
     };
 
+    /// The different keywords available
     enum class Keyword
     {
         Fun,
@@ -37,6 +39,10 @@ namespace Ark::internal
         Del
     };
 
+    /**
+     * @brief A node of an Abstract Syntax Tree for ArkScript
+     * 
+     */
     class Node
     {
     public:
@@ -44,36 +50,138 @@ namespace Ark::internal
         using Map      = std::unordered_map<std::string, Node>;
         using Value    = std::variant<double, std::string, Keyword>;
 
-        // Numbers
+        /**
+         * @brief Construct a new Node object
+         * 
+         * @param value 
+         */
         Node(int value);
+
+        /**
+         * @brief Construct a new Node object
+         * 
+         * @param value 
+         */
         Node(double value);
-        // Strings
+
+        /**
+         * @brief Construct a new Node object
+         * 
+         * @param value 
+         */
         Node(const std::string& value);
-        // Keywords
+
+        /**
+         * @brief Construct a new Node object
+         * 
+         * @param value 
+         */
         Node(Keyword value);
-        // Default constructor, not setting the value
+
+        /**
+         * @brief Construct a new Node object, does not set the value
+         * 
+         * @param type 
+         */
         Node(NodeType type=NodeType::Symbol);
 
-        // getters
+        /**
+         * @brief Returns the string held by the value (if the node type allows it)
+         * 
+         * @return const std::string& 
+         */
         const std::string& string() const;
+
+        /**
+         * @brief Returns the number held by the value (if the node type allows it)
+         * 
+         * @return double 
+         */
         double number() const;
+
+        /**
+         * @brief Returns the keyword held by the value (if the node type allows it)
+         * 
+         * @return Keyword 
+         */
         Keyword keyword() const;
 
-        // every node has a list as well as a value so we can push_back on all node no matter their type
+        /**
+         * @brief Every node has a list as well as a value so we can push_back on all node no matter their type
+         * 
+         * @param node a sub-node to push on the list held by the current node
+         */
         void push_back(const Node& node);
+
+        /**
+         * @brief Returns the list of sub-nodes held by the node
+         * 
+         * @return std::vector<Node>& 
+         */
         std::vector<Node>& list();
+
+        /**
+         * @brief Returns the list of sub-nodes held by the node
+         * 
+         * @return const std::vector<Node>& 
+         */
         const std::vector<Node>& const_list() const;
 
+        /**
+         * @brief Returns the node type
+         * 
+         * @return NodeType 
+         */
         NodeType nodeType() const;
 
-        // setters
+        /**
+         * @brief Set the Node Type object
+         * 
+         * @param type 
+         */
         void setNodeType(NodeType type);
+
+        /**
+         * @brief Set the String object
+         * 
+         * @param value 
+         */
         void setString(const std::string& value);
+
+        /**
+         * @brief Set the Number object
+         * 
+         * @param value 
+         */
         void setNumber(double value);
+
+        /**
+         * @brief Set the Keyword object
+         * 
+         * @param kw 
+         */
         void setKeyword(Keyword kw);
 
+        /**
+         * @brief Set the Position of the node in the text
+         * 
+         * @param line 
+         * @param col 
+         */
         void setPos(std::size_t line, std::size_t col);
+
+        /**
+         * @brief Get the line at which this node was created
+         * 
+         * @return std::size_t 
+         */
         std::size_t line() const;
+
+        /**
+         * @brief Get the column at which this node was created
+         * 
+         * @return std::size_t 
+         */
         std::size_t col() const;
 
         friend std::ostream& operator<<(std::ostream& os, const Node& N);
