@@ -14,7 +14,18 @@ namespace Ark
     class Repl
     {
     public:
+        /**
+         * @brief Construct a new Repl object
+         * 
+         * @param options the REPL options
+         * @param lib_dir the path to the standard library
+         */
         Repl(uint16_t options, std::string lib_dir);
+
+        /**
+         * @brief Starts the REPL
+         * 
+         */
         void run();
 
     private:
