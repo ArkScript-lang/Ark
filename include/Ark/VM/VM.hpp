@@ -24,16 +24,45 @@ namespace Ark
 {
     using namespace std::string_literals;
 
+    /**
+     * @brief The ArkScript virtual machine, executing ArkScript bytecode
+     * 
+     * @tparam debug if we need to generate a VM in a debug state or not
+     */
     template<bool debug>
     class VM_t
     {
     public:
+        /**
+         * @brief Construct a new vm t object
+         * 
+         * @param state a pointer to an ArkScript state, which can be reused for multiple VMs
+         */
         VM_t(State* state);
 
+        /**
+         * @brief Run the bytecode held in the state
+         * 
+         * @return int the exit code (default to 0 if no error)
+         */
         int run();
 
+        /**
+         * @brief Retrieve a value from the virtual machine, given its symbol name
+         * 
+         * @param name the name of the variable to retrieve
+         * @return internal::Value& 
+         */
         internal::Value& operator[](const std::string& name);
 
+        /**
+         * @brief Call a function from ArkScript, by giving it arguments
+         * 
+         * @tparam Args 
+         * @param name the function name in the ArkScript code
+         * @param args C++ argument list, converted to internal representation
+         * @return internal::Value 
+         */
         template <typename... Args>
         internal::Value call(const std::string& name, Args&&... args)
         {
@@ -104,9 +133,21 @@ namespace Ark
         internal::Value m__no_value = internal::FFI::nil;
 
         void configure();
+
+        /**
+         * @brief Run ArkScript bytecode inside a try catch to retrieve all the exceptions and display a stack trace if needed
+         * 
+         * @param untilFrameCount the frame count we need to reach before stopping the VM
+         * @return int the exit code
+         */
         int safeRun(std::size_t untilFrameCount=0);
         void init();
 
+        /**
+         * @brief Read a 2 bytes big endian number from the bytecode
+         * 
+         * @return uint16_t 
+         */
         inline uint16_t readNumber()
         {
             auto x = (static_cast<uint16_t>(m_state->m_pages[m_pp][m_ip]) << 8); ++m_ip;
@@ -116,6 +157,14 @@ namespace Ark
 
         // locals related
 
+        /**
+         * @brief Register a variable in a given page
+         * 
+         * @tparam pp=-1 the page number
+         * @param id the symbol id of the value
+         * @param value the value itself
+         * @return internal::Value& 
+         */
         template <int pp=-1>
         inline internal::Value& registerVariable(uint16_t id, internal::Value&& value)
         {
@@ -124,6 +173,14 @@ namespace Ark
             return (*m_locals[pp])[id] = value;
         }
 
+        /**
+         * @brief Register a variable in a given page
+         * 
+         * @tparam pp=-1 the page number
+         * @param id the symbol id of the value
+         * @param value the value itself
+         * @return internal::Value& 
+         */
         template <int pp=-1>
         inline internal::Value& registerVariable(uint16_t id, const internal::Value& value)
         {
@@ -133,6 +190,12 @@ namespace Ark
         }
 
         // could be optimized
+        /**
+         * @brief Find the nearest variable of a given id
+         * 
+         * @param id the id to find
+         * @return internal::Value* 
+         */
         inline internal::Value* findNearestVariable(uint16_t id)
         {
             for (auto it=m_locals.rbegin(), it_end=m_locals.rend(); it != it_end; ++it)
@@ -143,7 +206,14 @@ namespace Ark
             return nullptr;
         }
 
-        // only used to display the call stack traceback
+        /**
+         * @brief Find the nearest variable id with a given value
+         * 
+         * Only used to display the call stack traceback
+         * 
+         * @param value the value to search for
+         * @return uint16_t 
+         */
         inline uint16_t findNearestVariableIdWithValue(internal::Value&& value)
         {
             for (auto it=m_locals.rbegin(), it_end=m_locals.rend(); it != it_end; ++it)
@@ -158,6 +228,13 @@ namespace Ark
             return static_cast<uint16_t>(m_state->m_symbols.size());
         }
 
+        /**
+         * @brief Get a variable in a scope from its id
+         * 
+         * @tparam pp=-1 the page number
+         * @param id the id of the variable
+         * @return internal::Value& 
+         */
         template<int pp=-1>
         inline internal::Value& getVariableInScope(uint16_t id)
         {
@@ -166,7 +243,13 @@ namespace Ark
             return (*m_locals[pp])[id];
         }
 
-        // doing the job nobody wants to do: cleaning after everyone has finished to play
+        /**
+         * @brief Destroy the current frame and get back to the previous one, resuming execution
+         * 
+         * Doing the job nobody wants to do: cleaning after everyone has finished to play.
+         * This is a sort of primitive garbage collector
+         * 
+         */
         inline void returnFromFuncCall()
         {
             // remove frame
@@ -189,6 +272,10 @@ namespace Ark
                 m_running = false;
         }
 
+        /**
+         * @brief Create a new Scope object which will become the current one
+         * 
+         */
         inline void createNewScope()
         {
             // high cpu cost because we are creating a lot of variants
@@ -208,14 +295,45 @@ namespace Ark
 
         // stack management
 
+        /**
+         * @brief Pop a value from the stack of a given frame
+         * 
+         * @param page the page number
+         * @return internal::Value* 
+         */
         inline internal::Value* pop(int page=-1);
+
+        /**
+         * @brief Push a value to the stack of the current frame
+         * 
+         * @param value 
+         */
         inline void push(const internal::Value& value);
+
+        /**
+         * @brief Push a value to the stack of the current frame
+         * 
+         * @param value 
+         */
         inline void push(internal::Value&& value);
 
+        /**
+         * @brief Function called when the CALL instruction is met in the bytecode
+         * 
+         * @param argc_ number of arguments already sent, default to -1 if it needs to search for them by itself
+         */
         inline void call(int16_t argc_=-1);
 
         // function calling from plugins
 
+        /**
+         * @brief Resolving a function call (called by the resolve method of a Value)
+         * 
+         * @tparam Args 
+         * @param val the ArkScript function object
+         * @param args C++ argument list
+         * @return internal::Value 
+         */
         template <typename... Args>
         internal::Value resolve(const internal::Value* val, Args&&... args)
         {
@@ -264,16 +382,21 @@ namespace Ark
         #include "inline/Value_VM.inl"
     }
 
-    // debug on
+    /// VM with debug on
     using VM_debug = VM_t<true>;
-    // standard VM, debug off
+
+    /// standard VM, debug off
     using VM = VM_t<false>;
 
     // aliases
     using Value = internal::Value;
     using ValueType = internal::ValueType;
+
+    /// ArkScript Nil value
     const Value Nil = Value(internal::ValueType::Nil);
+    /// ArkScript False value
     const Value False = Value(internal::ValueType::False);
+    /// ArkScript True value
     const Value True = Value(internal::ValueType::True);
 }
 
