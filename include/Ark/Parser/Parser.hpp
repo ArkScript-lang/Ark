@@ -38,14 +38,14 @@ namespace Ark
         void feed(const std::string& code, const std::string& filename="FILE");
 
         /**
-         * @brief Returns the generated AST
+         * @brief Return the generated AST
          * 
          * @return const internal::Node& 
          */
         const internal::Node& ast() const;
 
         /**
-         * @brief Returns the list of files imported by the code given to the parser
+         * @brief Return the list of files imported by the code given to the parser
          * 
          * Each path of each imported file is relative to the filename given when feeding the parser.
          * 

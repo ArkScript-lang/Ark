@@ -11,24 +11,63 @@ namespace Ark::internal
 {
     class Value;
 
-    /*
-        A scope is defined as a shared pointer to a list of local variables
-        because a Closure could continue to leave when the local variables list
-        has been closed by the virtual machine
-    */
+    /**
+     * @brief Scope handling
+     * 
+     * A scope is defined as a shared pointer to a list of local variables
+     *  because a Closure could continue to leave when the local variables list
+     *  has been closed by the virtual machine
+     */
     using Scope_t = std::shared_ptr<std::vector<Value>>;
 
+    /**
+     * @brief Closure management
+     * 
+     */
     class Closure
     {
     public:
+        /**
+         * @brief Construct a new Closure object
+         * 
+         */
         Closure();
+
+        /**
+         * @brief Construct a new Closure object
+         * 
+         * @param scope_ptr the scope of the function turned into a closure
+         * @param pa the current page address of the function turned into a closure
+         */
         Closure(Scope_t&& scope_ptr, PageAddr_t pa);
+
+        /**
+         * @brief Construct a new Closure object
+         * 
+         * @param scope_ptr the scope of the function turned into a closure
+         * @param pa the current page address of the function turned into a closure
+         */
         Closure(const Scope_t& scope_ptr, PageAddr_t pa);
 
-        // getters
+        /**
+         * @brief Return the scope held by the object
+         * 
+         * @return const Scope_t& 
+         */
         const Scope_t& scope() const;
+
+        /**
+         * @brief Return a reference to the scpoe held by the object
+         * 
+         * @return Scope_t& 
+         */
         Scope_t& scope_ref();
 
+        /**
+         * @brief Return the page address of the object
+         * 
+         * @return PageAddr_t 
+         */
         inline PageAddr_t pageAddr() const { return m_page_addr; }
 
         friend inline bool operator==(const Closure& A, const Closure& B);

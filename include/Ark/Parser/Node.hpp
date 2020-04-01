@@ -86,21 +86,21 @@ namespace Ark::internal
         Node(NodeType type=NodeType::Symbol);
 
         /**
-         * @brief Returns the string held by the value (if the node type allows it)
+         * @brief Return the string held by the value (if the node type allows it)
          * 
          * @return const std::string& 
          */
         const std::string& string() const;
 
         /**
-         * @brief Returns the number held by the value (if the node type allows it)
+         * @brief Return the number held by the value (if the node type allows it)
          * 
          * @return double 
          */
         double number() const;
 
         /**
-         * @brief Returns the keyword held by the value (if the node type allows it)
+         * @brief Return the keyword held by the value (if the node type allows it)
          * 
          * @return Keyword 
          */
@@ -114,21 +114,21 @@ namespace Ark::internal
         void push_back(const Node& node);
 
         /**
-         * @brief Returns the list of sub-nodes held by the node
+         * @brief Return the list of sub-nodes held by the node
          * 
          * @return std::vector<Node>& 
          */
         std::vector<Node>& list();
 
         /**
-         * @brief Returns the list of sub-nodes held by the node
+         * @brief Return the list of sub-nodes held by the node
          * 
          * @return const std::vector<Node>& 
          */
         const std::vector<Node>& const_list() const;
 
         /**
-         * @brief Returns the node type
+         * @brief Return the node type
          * 
          * @return NodeType 
          */
