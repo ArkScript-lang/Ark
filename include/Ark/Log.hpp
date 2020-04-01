@@ -30,6 +30,10 @@ namespace Ark
         Magenta
     };
 
+    /**
+     * @brief A basic logger
+     * 
+     */
     class Logger
     {
     public:
