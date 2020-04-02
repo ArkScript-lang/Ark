@@ -185,8 +185,13 @@ HTML_FILE_EXTENSION    = .html
 HTML_HEADER            =
 HTML_FOOTER            =
 HTML_STYLESHEET        =
-HTML_EXTRA_STYLESHEET  =
-HTML_EXTRA_FILES       =
+HTML_EXTRA_STYLESHEET  = ../arkscript-lang.github.io/doxygen/doxygen-modern.css
+HTML_EXTRA_FILES       = ../arkscript-lang.github.io/doxygen/inconsolata.woff \
+                         ../arkscript-lang.github.io/doxygen/SourceCodePro-Regular-webfont.woff \
+                         ../arkscript-lang.github.io/doxygen/Roboto-Light-webfont.woff \
+                         ../arkscript-lang.github.io/doxygen/Roboto-Regular-webfont.woff \
+                         ../arkscript-lang.github.io/doxygen/folder.png \
+                         ../arkscript-lang.github.io/doxygen/code.png
 
 HTML_COLORSTYLE_HUE    = 220
 HTML_COLORSTYLE_SAT    = 100
