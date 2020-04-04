@@ -26,7 +26,7 @@ namespace Ark::Utils
     std::string toString(T&& object)
     {
         std::ostringstream os;
-        os << std::forward(object);
+        os << object;
         return os.str();
     }
 

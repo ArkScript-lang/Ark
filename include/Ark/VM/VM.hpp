@@ -14,7 +14,7 @@
 #include <Ark/VM/Frame.hpp>
 #include <Ark/VM/State.hpp>
 #include <Ark/VM/Plugin.hpp>
-#include <Ark/FFI/FFI.hpp>
+#include <Ark/Builtins/Builtins.hpp>
 #include <Ark/Log.hpp>
 
 #undef abs
@@ -110,7 +110,7 @@ namespace Ark
             if (m_frames.back().stackSize() != 0)
                 return *pop();
             else
-                return FFI::nil;
+                return Builtins::nil;
         }
 
         friend class internal::Value;
@@ -130,7 +130,7 @@ namespace Ark
         std::vector<internal::Scope_t> m_locals;
 
         // just a nice little trick for operator[]
-        internal::Value m__no_value = internal::FFI::nil;
+        internal::Value m__no_value = internal::Builtins::nil;
 
         void configure();
 
@@ -371,7 +371,7 @@ namespace Ark
             if (m_frames.back().stackSize() != 0)
                 return *pop();
             else
-                return FFI::nil;
+                return Builtins::nil;
         }
     };
 
