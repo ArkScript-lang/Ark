@@ -2,11 +2,11 @@
 #include <cmath>
 #include <limits>
 
-#include <Ark/FFI/FFI.hpp>
+#include <Ark/Builtins/Builtins.hpp>
 
-#define FFI_Function(name) Value name(std::vector<Value>& n)
+#define Builtins_Function(name) Value name(std::vector<Value>& n)
 
-namespace Ark::internal::FFI
+namespace Ark::internal::Builtins
 {
     extern const Value falseSym = Value(ValueType::False);
     extern const Value trueSym  = Value(ValueType::True);

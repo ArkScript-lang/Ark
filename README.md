@@ -17,7 +17,7 @@
 
 ArkScript is
 * small: the compiler, and the virtual machines fit under 5000 lines, but also small in term of keywords (it has only 10)!
-* a scripting language: it's very easy to embed it in your application. The FFI is quite easy to understand, so adding your own functions to the virtual machine is effortless
+* a scripting language: it's very easy to embed it in your application. The builtin construction is quite easy to understand, so adding your own functions to the virtual machine is effortless
 * portable: it produces a bytecode which is run by its virtual machine, like Java but without the `OutOfMemoryException`
 * a functional language: every parameter is passed by value, everything is immutable unless you use `mut` to define a mutable variable
 * powerful: it can handle object oriented programming in a very elegant way with its closures and explicit captures (see examples/church-encoding)
@@ -101,7 +101,7 @@ Who worked on
     * [@rinz13r](https://github.com/rinz13r)
     * [@FrenchMasterSword](https://github.com/FrenchMasterSword)
     * [@rstefanic](https://github.com/rstefanic)
-* the FFI
+* the builtins
     * [@SuperFola](https://github.com/SuperFola)
     * [@rinz13r](https://github.com/rinz13r)
 * the REPL
@@ -122,7 +122,7 @@ Who worked on
 
 See [Coding guidelines](https://github.com/ArkScript-lang/Ark/wiki/Coding-guidelines#coding-in-ark) if you want to write ArkScript for the library (see folder `lib/`).
 
-For performance reasons, some functions might be written in C++, in `include/Ark/VM/FFI.hpp` and `src/VM/FFI/`.
+For performance reasons, some functions might be written in C++, in `include/Ark/Builtins/Builtins.hpp` and `src/Builtins/`.
 
 ### Code structure
 

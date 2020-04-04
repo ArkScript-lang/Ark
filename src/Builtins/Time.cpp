@@ -1,16 +1,16 @@
-#include <Ark/FFI/FFI.hpp>
+#include <Ark/Builtins/Builtins.hpp>
 
 #include <thread>
 
 #undef abs
 #include <chrono>
 
-#include <Ark/FFI/FFIErrors.inl>
-#define FFI_Function(name) Value name(std::vector<Value>& n)
+#include <Ark/Builtins/BuiltinsErrors.inl>
+#define Builtins_Function(name) Value name(std::vector<Value>& n)
 
-namespace Ark::internal::FFI::Time
+namespace Ark::internal::Builtins::Time
 {
-    FFI_Function(timeSinceEpoch)
+    Builtins_Function(timeSinceEpoch)
     {
         const auto now = std::chrono::system_clock::now();
         const auto epoch = now.time_since_epoch();
@@ -18,7 +18,7 @@ namespace Ark::internal::FFI::Time
         return Value(static_cast<double>(microseconds.count()) / 1000000);
     }
 
-    FFI_Function(sleep)
+    Builtins_Function(sleep)
     {
         if (n.size() != 1)
             throw std::runtime_error(TIME_SLEEP_ARITY);

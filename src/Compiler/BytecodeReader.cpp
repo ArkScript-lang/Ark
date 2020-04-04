@@ -1,7 +1,7 @@
 #include <Ark/Compiler/BytecodeReader.hpp>
 
 #include <Ark/Compiler/Instructions.hpp>
-#include <Ark/FFI/FFI.hpp>
+#include <Ark/Builtins/Builtins.hpp>
 #include <Ark/Log.hpp>
 #undef abs
 #include <Ark/Utils.hpp>
@@ -252,7 +252,7 @@ namespace Ark
                     }
                     else if (inst == Instruction::BUILTIN)
                     {
-                        os << "BUILTIN " << termcolor::reset << FFI::builtins[readNumber(i)].first << "\n";
+                        os << "BUILTIN " << termcolor::reset << Builtins::builtins[readNumber(i)].first << "\n";
                         i++;
                     }
                     else if (inst == Instruction::MUT)

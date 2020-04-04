@@ -179,7 +179,7 @@ IGNORE_PREFIX          =
 #---------------------------------------------------------------------------
 
 GENERATE_HTML          = YES
-HTML_OUTPUT            = html
+HTML_OUTPUT            = impl
 HTML_FILE_EXTENSION    = .html
 
 HTML_HEADER            =

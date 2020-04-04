@@ -4,7 +4,7 @@
 #include <chrono>
 
 #include <Ark/Log.hpp>
-#include <Ark/FFI/FFI.hpp>
+#include <Ark/Builtins/Builtins.hpp>
 
 namespace Ark
 {
@@ -505,7 +505,7 @@ namespace Ark
                     
                     default:
                         throw std::runtime_error("CompilerError: can not create a chained expression (of length " + Utils::toString(exp_count) +
-                            ") for operator `" + FFI::operators[static_cast<std::size_t>(op_inst.inst - Instruction::FIRST_OPERATOR)] + "' " +
+                            ") for operator `" + Builtins::operators[static_cast<std::size_t>(op_inst.inst - Instruction::FIRST_OPERATOR)] + "' " +
                             "at node `" + Utils::toString(x) + "'");
                 }
             }

@@ -89,7 +89,7 @@ internal::Value& VM_t<debug>::operator[](const std::string& name)
     auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), name);
     if (it == m_state->m_symbols.end())
     {
-        m__no_value = FFI::nil;
+        m__no_value = Builtins::nil;
         return m__no_value;
     }
 
@@ -99,7 +99,7 @@ internal::Value& VM_t<debug>::operator[](const std::string& name)
         return *var;
     else
     {
-        m__no_value = FFI::nil;
+        m__no_value = Builtins::nil;
         return m__no_value;
     }
 }
@@ -225,7 +225,7 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
                     if constexpr (debug)
                         Ark::logger.info("POP_JUMP_IF_TRUE ({0}) PP:{1}, IP:{2}"s, addr, m_pp, m_ip);
 
-                    if (*pop() == FFI::trueSym)
+                    if (*pop() == Builtins::trueSym)
                         m_ip = addr - 1;  // because we are doing a ++m_ip right after this
                     break;
                 }
@@ -294,7 +294,7 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
                     if constexpr (debug)
                         Ark::logger.info("POP_JUMP_IF_FALSE ({0}) PP:{1}, IP:{2}"s, addr, m_pp, m_ip);
 
-                    if (*pop() == FFI::falseSym)
+                    if (*pop() == Builtins::falseSym)
                         m_ip = addr - 1;  // because we are doing a ++m_ip right after this
                     break;
                 }
@@ -350,7 +350,7 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
                     else
                     {
                         returnFromFuncCall();
-                        push(FFI::nil);
+                        push(Builtins::nil);
                     }
                     break;
                 }
@@ -399,9 +399,9 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
                     uint16_t id = readNumber();
 
                     if constexpr (debug)
-                        Ark::logger.info("BUILTIN ({0}) PP:{1}, IP:{2}"s, FFI::builtins[id].first, m_pp, m_ip);
+                        Ark::logger.info("BUILTIN ({0}) PP:{1}, IP:{2}"s, Builtins::builtins[id].first, m_pp, m_ip);
 
-                    push(FFI::builtins[id].second);
+                    push(Builtins::builtins[id].second);
                     break;
                 }
                 
@@ -568,42 +568,42 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
                     case Instruction::GT:
                     {
                         Value *b = pop(), *a = pop();
-                        push((!(*a == *b) && !(*a < *b)) ? FFI::trueSym : FFI::falseSym);
+                        push((!(*a == *b) && !(*a < *b)) ? Builtins::trueSym : Builtins::falseSym);
                         break;
                     }
                     
                     case Instruction::LT:
                     {
                         Value *b = pop(), *a = pop();
-                        push((*a < *b) ? FFI::trueSym : FFI::falseSym);
+                        push((*a < *b) ? Builtins::trueSym : Builtins::falseSym);
                         break;
                     }
 
                     case Instruction::LE:
                     {
                         Value *b = pop(), *a = pop();
-                        push(((*a < *b) || (*a == *b)) ? FFI::trueSym : FFI::falseSym);
+                        push(((*a < *b) || (*a == *b)) ? Builtins::trueSym : Builtins::falseSym);
                         break;
                     }
 
                     case Instruction::GE:
                     {
                         Value *b = pop(), *a = pop();
-                        push(!(*a < *b) ? FFI::trueSym : FFI::falseSym);
+                        push(!(*a < *b) ? Builtins::trueSym : Builtins::falseSym);
                         break;
                     }
 
                     case Instruction::NEQ:
                     {
                         Value *b = pop(), *a = pop();
-                        push((*a != *b) ? FFI::trueSym : FFI::falseSym);
+                        push((*a != *b) ? Builtins::trueSym : Builtins::falseSym);
                         break;
                     }
 
                     case Instruction::EQ:
                     {
                         Value *b = pop(), *a = pop();
-                        push((*a == *b) ? FFI::trueSym : FFI::falseSym);
+                        push((*a == *b) ? Builtins::trueSym : Builtins::falseSym);
                         break;
                     }
 
@@ -628,9 +628,9 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
                     {
                         Value* a = pop();
                         if (a->m_type == ValueType::List)
-                            push((a->const_list().size() == 0) ? FFI::trueSym : FFI::falseSym);
+                            push((a->const_list().size() == 0) ? Builtins::trueSym : Builtins::falseSym);
                         else if (a->m_type == ValueType::String)
-                            push((a->string().size() == 0) ? FFI::trueSym : FFI::falseSym);
+                            push((a->string().size() == 0) ? Builtins::trueSym : Builtins::falseSym);
                         else
                             throw Ark::TypeError("Argument of empty? must be a list or a String");
                         
@@ -641,9 +641,9 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
                     {
                         Value a = *pop();
                         if (a.m_type == ValueType::List)
-                            push(a.const_list().size() > 0 ? (a.const_list())[0] : FFI::nil);
+                            push(a.const_list().size() > 0 ? (a.const_list())[0] : Builtins::nil);
                         else if (a.m_type == ValueType::String)
-                            push(a.string().size() > 0 ? Value(std::string(1, (a.string())[0])) : FFI::nil);
+                            push(a.string().size() > 0 ? Value(std::string(1, (a.string())[0])) : Builtins::nil);
                         else
                             throw Ark::TypeError("Argument of firstOf must be a list");
 
@@ -657,7 +657,7 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
                         {
                             if (a->const_list().size() < 2)
                             {
-                                push(FFI::nil);
+                                push(Builtins::nil);
                                 break;
                             }
                             
@@ -668,7 +668,7 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
                         {
                             if (a->string().size() < 2)
                             {
-                                push(FFI::nil);
+                                push(Builtins::nil);
                                 break;
                             }
 
@@ -688,7 +688,7 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
                         {
                             if (a->const_list().size() < 2)
                             {
-                                push(FFI::nil);
+                                push(Builtins::nil);
                                 break;
                             }
                             
@@ -699,7 +699,7 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
                         {
                             if (a->string().size() < 2)
                             {
-                                push(FFI::nil);
+                                push(Builtins::nil);
                                 break;
                             }
                             
@@ -714,14 +714,14 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
 
                     case Instruction::ISNIL:
                     {
-                        push((*pop() == FFI::nil) ? FFI::trueSym : FFI::falseSym);
+                        push((*pop() == Builtins::nil) ? Builtins::trueSym : Builtins::falseSym);
                         break;
                     }
 
                     case Instruction::ASSERT:
                     {
                         Value *b = pop(), *a = pop();
-                        if (*a == FFI::falseSym)
+                        if (*a == Builtins::falseSym)
                         {
                             if (b->m_type != ValueType::String)
                                 throw Ark::TypeError("Second argument of assert must be a String");
@@ -740,7 +740,7 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
                         if (Utils::isDouble(a->string()))
                             push(Value(std::stod(a->string().c_str())));
                         else
-                            push(FFI::nil);
+                            push(Builtins::nil);
                         break;
                     }
 
@@ -770,14 +770,14 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
                     case Instruction::AND_:
                     {
                         Value *a = pop(), *b = pop();
-                        push((*a == FFI::trueSym && *b == FFI::trueSym) ? FFI::trueSym : FFI::falseSym);
+                        push((*a == Builtins::trueSym && *b == Builtins::trueSym) ? Builtins::trueSym : Builtins::falseSym);
                         break;
                     }
 
                     case Instruction::OR_:
                     {
                         Value *a = pop(), *b = pop();
-                        push((*b == FFI::trueSym || *a == FFI::trueSym) ? FFI::trueSym : FFI::falseSym);
+                        push((*b == Builtins::trueSym || *a == Builtins::trueSym) ? Builtins::trueSym : Builtins::falseSym);
                         break;
                     }
 
@@ -811,15 +811,15 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
                         auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), field->string());
                         if (it == m_state->m_symbols.end())
                         {
-                            push(FFI::falseSym);
+                            push(Builtins::falseSym);
                             break;
                         }
                         uint16_t id = static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it));
                         
                         if ((*closure->closure_ref().scope_ref())[id].m_type != ValueType::Undefined)
-                            push(FFI::trueSym);
+                            push(Builtins::trueSym);
                         else
-                            push(FFI::falseSym);
+                            push(Builtins::falseSym);
                         
                         break;
                     }
@@ -828,9 +828,9 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
                     {
                         bool a = !(*pop());
                         if (a)
-                            push(FFI::trueSym);
+                            push(Builtins::trueSym);
                         else
-                            push(FFI::falseSym);
+                            push(Builtins::falseSym);
                         break;
                     }
                 }

@@ -40,9 +40,9 @@ namespace Ark::internal
         LAST_COMMAND = 0x10,
 
         // NB: when adding an operator, it must be referenced as well under
-        // src/VM/FFI/FFI.cpp, in the operators table
+        // src/VM/Builtins/Builtins.cpp, in the operators table
         // The order of the operators below must be the same as the one in
-        // the operators table from src/VM/FFI/FFI.cpp
+        // the operators table from src/VM/Builtins/Builtins.cpp
         FIRST_OPERATOR = 0x20,
             ADD = 0x20,
             SUB = 0x21,
