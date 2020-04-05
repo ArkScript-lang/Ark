@@ -16,6 +16,7 @@
     - `-ffunction-arity-check` becomes `-ffac`, same for the `-fno-` version
     - `-fauthorize-invalid-token-after-paren` becomes `-faitap`, some for the `-fno-` version
 - improving compiler performances by using const ref when passing nodes around
+- renaming the FFI "builtins" because it's not a FFI but a set of functions using the VM API
 
 ### Removed
 - removed NFT from the internal API to rely only on the value type
