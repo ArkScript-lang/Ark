@@ -188,6 +188,11 @@ namespace Ark
         m_debug_level = level;
     }
 
+    void State::setLibDir(const std::string& libDir)
+    {
+        m_libdir = libDir;
+    }
+
     void State::configure()
     {
         using namespace Ark::internal;

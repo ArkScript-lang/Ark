@@ -80,6 +80,13 @@ namespace Ark
          */
         void setDebug(unsigned level);
 
+        /**
+         * @brief Set the Lib Dir path
+         * 
+         * @param libDir 
+         */
+        void setLibDir(const std::string& libDir);
+
         template <bool D> friend class VM_t;
 
     private:
