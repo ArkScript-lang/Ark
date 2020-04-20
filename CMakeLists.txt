@@ -70,7 +70,7 @@ if (UNIX OR LINUX)
         target_link_libraries(ArkReactor PUBLIC c++fs)
     endif()
 
-    target_link_libraries(ArkReactor PUBLIC ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${EASTL_LIBRARY})
+    target_link_libraries(ArkReactor PUBLIC ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 endif()
 
 # setting up project properties
