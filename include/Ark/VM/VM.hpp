@@ -296,6 +296,7 @@ namespace Ark
 
         inline void backtrace()
         {
+            using namespace Ark::internal;
             std::cerr << termcolor::reset << "At IP: " << (m_ip != -1 ? m_ip : 0) << ", PP: " << m_pp << "\n";
 
             if (m_frames.size() > 1)
