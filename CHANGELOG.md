@@ -17,6 +17,7 @@
     - `-fauthorize-invalid-token-after-paren` becomes `-faitap`, some for the `-fno-` version
 - improving compiler performances by using const ref when passing nodes around
 - renaming the FFI "builtins" because it's not a FFI but a set of functions using the VM API
+- the VM should display a backtrace even if an unknown error occured
 
 ### Removed
 - removed NFT from the internal API to rely only on the value type
