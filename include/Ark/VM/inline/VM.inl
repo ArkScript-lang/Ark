@@ -920,7 +920,7 @@ inline void VM_t<debug>::call(int16_t argc_)
             for (uint16_t j=0; j < argc; ++j)
             {
                 args[argc - 1 - j] = *pop();
-                args[j].registerVM(this);  // so that plugin can call .resolve(...) on functions they were sent
+                args[argc - 1 - j].registerVM(this);  // so that plugin can call .resolve(...) on functions they were sent
             }
             
             // call proc
