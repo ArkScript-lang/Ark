@@ -51,7 +51,7 @@ void VM_t<debug>::init()
                 Ark::logger.warn("Couldn't find symbol with name", name_func.first, "to set its value as a function");
         }
         else
-            registerVariable<0>(std::distance(m_state->m_symbols.begin(), it), Value(name_func.second));
+            registerVariable<0>(static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it)), Value(name_func.second));
     }
 
     // loading plugins
@@ -74,7 +74,7 @@ void VM_t<debug>::init()
                 if constexpr (debug)
                     Ark::logger.info("Loading", kv.first);
 
-                registerVariable<0>(std::distance(m_state->m_symbols.begin(), it), Value(kv.second));
+                registerVariable<0>(static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it)), Value(kv.second));
             }
         }
     }
@@ -338,8 +338,8 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
                     // save pp
                     PageAddr_t old_pp = static_cast<PageAddr_t>(m_pp);
                     m_pp = m_frames.back().callerPageAddr();
-                    m_ip = m_frames.back().callerAddr();
-                    
+                    m_ip = static_cast<int>(m_frames.back().callerAddr());
+
                     if (m_frames.back().stackSize() != 0)
                     {
                         Value return_value = *pop();
@@ -354,15 +354,15 @@ int VM_t<debug>::safeRun(std::size_t untilFrameCount)
                     }
                     break;
                 }
-                
+
                 case Instruction::HALT:
                     m_running = false;
                     break;
-                
+
                 case Instruction::CALL:
                     call();
                     break;
-                
+
                 case Instruction::CAPTURE:
                 {
                     /*
@@ -931,7 +931,7 @@ inline void VM_t<debug>::call(int16_t argc_)
         // is it a user defined function?
         case ValueType::PageAddr:
         {
-            int old_frame = m_frames.size() - 1;
+            int old_frame = static_cast<int>(m_frames.size()) - 1;
             PageAddr_t new_page_pointer = function.pageAddr();
 
             // create dedicated frame
@@ -951,7 +951,7 @@ inline void VM_t<debug>::call(int16_t argc_)
         // is it a user defined closure?
         case ValueType::Closure:
         {
-            int old_frame = m_frames.size() - 1;
+            int old_frame = static_cast<int>(m_frames.size()) - 1;
             Closure& c = function.closure_ref();
             PageAddr_t new_page_pointer = c.pageAddr();
 
