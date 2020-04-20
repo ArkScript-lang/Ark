@@ -69,7 +69,8 @@ namespace Ark
             using namespace Ark::internal;
 
             // reset ip and pp
-            m_ip = m_pp = 0;
+            m_ip = 0;
+            m_pp = 0;
 
             // find id of function
             auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), name);
@@ -293,6 +294,40 @@ namespace Ark
             throw std::runtime_error("VMError: " + message);
         }
 
+        inline void backtrace()
+        {
+            std::cerr << termcolor::reset << "At IP: " << (m_ip != -1 ? m_ip : 0) << ", PP: " << m_pp << "\n";
+
+            if (m_frames.size() > 1)
+            {
+                // display call stack trace
+                for (auto&& it=m_frames.rbegin(), it_end=m_frames.rend(); it != it_end; ++it)
+                {
+                    std::cerr << "[" << termcolor::cyan << std::distance(it, m_frames.rend()) << termcolor::reset << "] ";
+                    if (it->currentPageAddr() != 0)
+                    {
+                        uint16_t id = findNearestVariableIdWithValue(
+                            Value(static_cast<PageAddr_t>(it->currentPageAddr()))
+                        );
+                        
+                        std::cerr << "In function `" << termcolor::green << m_state->m_symbols[id] << termcolor::reset << "'\n";
+                    }
+                    else
+                        std::cerr << "In global scope\n";
+
+                    if (std::distance(m_frames.rbegin(), it) > 7)
+                    {
+                        std::cerr << "...\n";
+                        break;
+                    }
+                }
+
+                // if persistance is on, clear frames to keep only the global one
+                if (m_state->m_options & FeaturePersist)
+                    m_frames.erase(m_frames.begin() + 1, m_frames.end());
+            }
+        }
+
         // stack management
 
         /**
@@ -341,7 +376,7 @@ namespace Ark
 
             if (!val->isFunction())
                 throw Ark::TypeError("Value::resolve couldn't resolve a non-function");
-            
+
             int ip = m_ip;
             std::size_t pp = m_pp;
 
