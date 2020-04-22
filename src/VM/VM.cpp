@@ -11,7 +11,7 @@
 // register a variable in the global scope
 #define registerVarGlobal(id, value) ((*m_locals[0])[id] = value)
 // stack management
-#define popVal m_frames.back().pop()
+#define popVal() m_frames.back().pop()
 #define popValFrom(page) m_frames[static_cast<std::size_t>(page)].pop()
 #define push(value) m_frames.back().push(value)
 // create a new locals scope
@@ -204,7 +204,7 @@ namespace Ark
                         uint16_t id; readNumber(id);
                         int16_t addr = static_cast<int16_t>(id);
 
-                        if (*popVal == Builtins::trueSym)
+                        if (*popVal() == Builtins::trueSym)
                             m_ip = addr - 1;  // because we are doing a ++m_ip right after this
                         break;
                     }
@@ -226,7 +226,7 @@ namespace Ark
                         {
                             if (var->m_const)
                                 throwVMError("can not modify a constant: " + m_state->m_symbols[id]);
-                            *var = *popVal;
+                            *var = *popVal();
                             break;
                         }
 
@@ -249,7 +249,7 @@ namespace Ark
                         if (getVariableInCurrentScope(id).m_type != ValueType::Undefined)
                             throwVMError("can not use 'let' to redefine the variable " + m_state->m_symbols[id]);
 
-                        registerVariable(id, *popVal).m_const = true;
+                        registerVariable(id, *popVal()).m_const = true;
                         break;
                     }
                     
@@ -265,7 +265,7 @@ namespace Ark
                         uint16_t id; readNumber(id);
                         int16_t addr = static_cast<int16_t>(id);
 
-                        if (*popVal == Builtins::falseSym)
+                        if (*popVal() == Builtins::falseSym)
                             m_ip = addr - 1;  // because we are doing a ++m_ip right after this
                         break;
                     }
@@ -308,7 +308,7 @@ namespace Ark
 
                         if (m_frames.back().stackSize() != 0)
                         {
-                            Value return_value = *popVal;
+                            Value return_value = *popVal();
                             returnFromFuncCall();
                             // push value as the return value of a function to the current stack
                             push(return_value);
@@ -376,7 +376,7 @@ namespace Ark
                         ++m_ip;
                         uint16_t id; readNumber(id);
 
-                        registerVariable(id, *popVal).m_const = false;
+                        registerVariable(id, *popVal()).m_const = false;
                         break;
                     }
 
@@ -422,7 +422,7 @@ namespace Ark
                         ++m_ip;
                         uint16_t id; readNumber(id);
 
-                        Value* var = popVal;
+                        Value* var = popVal();
                         if (var->m_type != ValueType::Closure)
                             throwVMError("variable `" + m_state->m_symbols[m_last_sym_loaded] + "' isn't a closure, can not get the field `" + m_state->m_symbols[id] + "' from it");
                         
@@ -453,7 +453,7 @@ namespace Ark
                     {
                         case Instruction::ADD:
                         {
-                            Value *b = popVal, *a = popVal;
+                            Value *b = popVal(), *a = popVal();
                             if (a->m_type == ValueType::Number)
                             {
                                 if (b->m_type != ValueType::Number)
@@ -475,7 +475,7 @@ namespace Ark
 
                         case Instruction::SUB:
                         {
-                            Value *b = popVal, *a = popVal;
+                            Value *b = popVal(), *a = popVal();
                             if (a->m_type != ValueType::Number)
                                 throw Ark::TypeError("Arguments of - should be Numbers");
                             if (b->m_type != ValueType::Number)
@@ -487,7 +487,7 @@ namespace Ark
 
                         case Instruction::MUL:
                         {
-                            Value *b = popVal, *a = popVal;
+                            Value *b = popVal(), *a = popVal();
                             if (a->m_type != ValueType::Number)
                                 throw Ark::TypeError("Arguments of * should be Numbers");
                             if (b->m_type != ValueType::Number)
@@ -499,7 +499,7 @@ namespace Ark
 
                         case Instruction::DIV:
                         {
-                            Value *b = popVal, *a = popVal;
+                            Value *b = popVal(), *a = popVal();
                             if (a->m_type != ValueType::Number)
                                 throw Ark::TypeError("Arguments of / should be Numbers");
                             if (b->m_type != ValueType::Number)
@@ -515,49 +515,49 @@ namespace Ark
 
                         case Instruction::GT:
                         {
-                            Value *b = popVal, *a = popVal;
+                            Value *b = popVal(), *a = popVal();
                             push((!(*a == *b) && !(*a < *b)) ? Builtins::trueSym : Builtins::falseSym);
                             break;
                         }
                         
                         case Instruction::LT:
                         {
-                            Value *b = popVal, *a = popVal;
+                            Value *b = popVal(), *a = popVal();
                             push((*a < *b) ? Builtins::trueSym : Builtins::falseSym);
                             break;
                         }
 
                         case Instruction::LE:
                         {
-                            Value *b = popVal, *a = popVal;
+                            Value *b = popVal(), *a = popVal();
                             push(((*a < *b) || (*a == *b)) ? Builtins::trueSym : Builtins::falseSym);
                             break;
                         }
 
                         case Instruction::GE:
                         {
-                            Value *b = popVal, *a = popVal;
+                            Value *b = popVal(), *a = popVal();
                             push(!(*a < *b) ? Builtins::trueSym : Builtins::falseSym);
                             break;
                         }
 
                         case Instruction::NEQ:
                         {
-                            Value *b = popVal, *a = popVal;
+                            Value *b = popVal(), *a = popVal();
                             push((*a != *b) ? Builtins::trueSym : Builtins::falseSym);
                             break;
                         }
 
                         case Instruction::EQ:
                         {
-                            Value *b = popVal, *a = popVal;
+                            Value *b = popVal(), *a = popVal();
                             push((*a == *b) ? Builtins::trueSym : Builtins::falseSym);
                             break;
                         }
 
                         case Instruction::LEN:
                         {
-                            Value *a = popVal;
+                            Value *a = popVal();
                             if (a->m_type == ValueType::List)
                             {
                                 push(Value(static_cast<int>(a->const_list().size())));
@@ -574,7 +574,7 @@ namespace Ark
 
                         case Instruction::EMPTY:
                         {
-                            Value* a = popVal;
+                            Value* a = popVal();
                             if (a->m_type == ValueType::List)
                                 push((a->const_list().size() == 0) ? Builtins::trueSym : Builtins::falseSym);
                             else if (a->m_type == ValueType::String)
@@ -587,7 +587,7 @@ namespace Ark
 
                         case Instruction::FIRSTOF:
                         {
-                            Value a = *popVal;
+                            Value a = *popVal();
                             if (a.m_type == ValueType::List)
                                 push(a.const_list().size() > 0 ? (a.const_list())[0] : Builtins::nil);
                             else if (a.m_type == ValueType::String)
@@ -600,7 +600,7 @@ namespace Ark
 
                         case Instruction::TAILOF:
                         {
-                            Value* a = popVal;
+                            Value* a = popVal();
                             if (a->m_type == ValueType::List)
                             {
                                 if (a->const_list().size() < 2)
@@ -631,7 +631,7 @@ namespace Ark
 
                         case Instruction::HEADOF:
                         {
-                            Value* a = popVal;
+                            Value* a = popVal();
                             if (a->m_type == ValueType::List)
                             {
                                 if (a->const_list().size() < 2)
@@ -662,13 +662,13 @@ namespace Ark
 
                         case Instruction::ISNIL:
                         {
-                            push((*popVal == Builtins::nil) ? Builtins::trueSym : Builtins::falseSym);
+                            push((*popVal() == Builtins::nil) ? Builtins::trueSym : Builtins::falseSym);
                             break;
                         }
 
                         case Instruction::ASSERT:
                         {
-                            Value *b = popVal, *a = popVal;
+                            Value *b = popVal(), *a = popVal();
                             if (*a == Builtins::falseSym)
                             {
                                 if (b->m_type != ValueType::String)
@@ -681,7 +681,7 @@ namespace Ark
 
                         case Instruction::TO_NUM:
                         {
-                            Value* a = popVal;
+                            Value* a = popVal();
                             if (a->m_type != ValueType::String)
                                 throw Ark::TypeError("Argument of toNumber must be a String");
                             
@@ -695,14 +695,14 @@ namespace Ark
                         case Instruction::TO_STR:
                         {
                             std::stringstream ss;
-                            ss << (*popVal);
+                            ss << (*popVal());
                             push(Value(ss.str()));
                             break;
                         }
 
                         case Instruction::AT:
                         {
-                            Value *b = popVal, a = *popVal;
+                            Value *b = popVal(), a = *popVal();
                             if (b->m_type != ValueType::Number)
                                 throw Ark::TypeError("Argument 2 of @ should be a Number");
 
@@ -717,21 +717,21 @@ namespace Ark
 
                         case Instruction::AND_:
                         {
-                            Value *a = popVal, *b = popVal;
+                            Value *a = popVal(), *b = popVal();
                             push((*a == Builtins::trueSym && *b == Builtins::trueSym) ? Builtins::trueSym : Builtins::falseSym);
                             break;
                         }
 
                         case Instruction::OR_:
                         {
-                            Value *a = popVal, *b = popVal;
+                            Value *a = popVal(), *b = popVal();
                             push((*b == Builtins::trueSym || *a == Builtins::trueSym) ? Builtins::trueSym : Builtins::falseSym);
                             break;
                         }
 
                         case Instruction::MOD:
                         {
-                            Value *b = popVal, *a = popVal;
+                            Value *b = popVal(), *a = popVal();
                             if (a->m_type != ValueType::Number)
                                 throw Ark::TypeError("Arguments of mod should be Numbers");
                             if (b->m_type != ValueType::Number)
@@ -743,14 +743,14 @@ namespace Ark
 
                         case Instruction::TYPE:
                         {
-                            Value *a = popVal;
+                            Value *a = popVal();
                             push(types_to_str[static_cast<unsigned>(a->m_type)]);
                             break;
                         }
 
                         case Instruction::HASFIELD:
                         {
-                            Value *field = popVal, *closure = popVal;
+                            Value *field = popVal(), *closure = popVal();
                             if (closure->m_type != ValueType::Closure)
                                 throw Ark::TypeError("Argument no 1 of hasField should be a Closure");
                             if (field->m_type != ValueType::String)
@@ -774,7 +774,7 @@ namespace Ark
 
                         case Instruction::NOT:
                         {
-                            bool a = !(*popVal);
+                            bool a = !(*popVal());
                             if (a)
                                 push(Builtins::trueSym);
                             else
