@@ -18,6 +18,7 @@
 - improving compiler performances by using const ref when passing nodes around
 - renaming the FFI "builtins" because it's not a FFI but a set of functions using the VM API
 - the VM should display a backtrace even if an unknown error occured
+- transforming inline code from the vm into not inline code when possible to speed compilation, using macros instead of inline functions
 
 ### Removed
 - removed NFT from the internal API to rely only on the value type

@@ -146,17 +146,8 @@ int main(int argc, char** argv)
                     return -1;
                 }
 
-                if (debug >= 2)
-                {
-                    Ark::VM_debug vm(&state);
-                    return vm.run();
-                }
-                else
-                {
-                    Ark::VM vm(&state);
-                    return vm.run();
-                }
-                break;
+                Ark::VM vm(&state);
+                return vm.run();
             }
             
             case mode::bytecode_reader:
