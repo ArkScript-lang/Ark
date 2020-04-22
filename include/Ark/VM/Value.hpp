@@ -17,7 +17,7 @@
 
 namespace Ark
 {
-    template<bool D> class VM_t;
+    class VM;
 }
 
 namespace Ark::internal
@@ -225,14 +225,13 @@ namespace Ark::internal
         friend inline bool operator<(const Value& A, const Value& B);
         friend inline bool operator!(const Value& A);
 
-        template<bool D> friend class Ark::VM_t;
+        friend class Ark::VM;
 
     private:
         Value_t m_value;
         ValueType m_type;
         bool m_const;
-        Ark::VM_t<false>* m_vmf = nullptr;
-        Ark::VM_t<true>* m_vmt = nullptr;
+        Ark::VM* m_vm = nullptr;
 
         // private getters only for the virtual machine
 
@@ -269,14 +268,7 @@ namespace Ark::internal
          * 
          * @param vm 
          */
-        void registerVM(Ark::VM_t<false>* vm);
-
-        /**
-         * @brief Register a pointer to the virtual machine, needed to resolve function calls
-         * 
-         * @param vm 
-         */
-        void registerVM(Ark::VM_t<true>* vm);
+        void registerVM(Ark::VM* vm);
     };
 
     #include "inline/Value.inl"
