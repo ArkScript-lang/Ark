@@ -9,75 +9,243 @@ namespace Ark::internal
         m_type(ValueType::Undefined)
     {}
 
+    Value::Value(const Value& value) :
+        m_type(value.m_type), m_const(value.m_const), m_vm(value.m_vm)
+    {
+        switch (m_type)
+        {
+            case ValueType::List:
+                new (&m_value.list) std::vector<Value>;
+                m_value.list = value.m_value.list;
+                break;
+
+            case ValueType::Number:
+                m_value.number = value.m_value.number;
+                break;
+
+            case ValueType::String:
+                new (&m_value.string) std::string;
+                m_value.string = value.m_value.string;
+                break;
+
+            case ValueType::PageAddr:
+                m_value.page = value.m_value.page;
+                break;
+
+            case ValueType::CProc:
+                new (&m_value.proc) Value::ProcType;
+                m_value.proc = value.m_value.proc;
+                break;
+
+            case ValueType::Closure:
+                new (&m_value.closure) Closure;
+                m_value.closure = value.m_value.closure;
+                break;
+
+            case ValueType::User:
+                new (&m_value.user) UserType;
+                m_value.user = value.m_value.user;
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    Value& Value::operator=(const Value& value)
+    {
+        this->~Value();
+
+        m_type = value.m_type;
+        m_const = value.m_const;
+        m_vm = value.m_vm;
+
+        switch (m_type)
+        {
+            case ValueType::List:
+                new (&m_value.list) std::vector<Value>;
+                m_value.list = value.m_value.list;
+                break;
+
+            case ValueType::Number:
+                m_value.number = value.m_value.number;
+                break;
+
+            case ValueType::String:
+                new (&m_value.string) std::string;
+                m_value.string = value.m_value.string;
+                break;
+
+            case ValueType::PageAddr:
+                m_value.page = value.m_value.page;
+                break;
+
+            case ValueType::CProc:
+                new (&m_value.proc) Value::ProcType;
+                m_value.proc = value.m_value.proc;
+                break;
+
+            case ValueType::Closure:
+                new (&m_value.closure) Closure;
+                m_value.closure = value.m_value.closure;
+                break;
+
+            case ValueType::User:
+                new (&m_value.user) UserType;
+                m_value.user = value.m_value.user;
+                break;
+
+            default:
+                break;
+        }
+
+        return *this;
+    }
+
+    Value::~Value()
+    {
+        switch (m_type)
+        {
+            case ValueType::List:
+                m_value.list.~vector<Value>();
+                break;
+
+            case ValueType::String:
+                m_value.string.~basic_string();
+                break;
+
+            case ValueType::CProc:
+                m_value.proc.~function();
+                break;
+
+            case ValueType::Closure:
+                m_value.closure.~Closure();
+                break;
+
+            case ValueType::User:
+                m_value.user.~UserType();
+                break;
+
+            default:
+                break;
+        }
+    }
+
     // --------------------------
 
     Value::Value(ValueType type) :
         m_type(type), m_const(false)
     {
-        if (m_type == ValueType::List)
-            m_value = std::vector<Value>();
+        switch (m_type)
+        {
+            case ValueType::List:
+                new (&m_value.list) std::vector<Value>;
+                break;
+
+            case ValueType::String:
+                new (&m_value.string) std::string;
+                break;
+
+            case ValueType::CProc:
+                new (&m_value.proc) Value::ProcType;
+                break;
+
+            case ValueType::Closure:
+                new (&m_value.closure) Closure;
+                break;
+
+            case ValueType::User:
+                new (&m_value.user) UserType;
+                break;
+        }
     }
 
     Value::Value(int value) :
-        m_value(static_cast<double>(value)), m_type(ValueType::Number), m_const(false)
-    {}
+        m_type(ValueType::Number), m_const(false)
+    {
+        m_value.number = static_cast<double>(value);
+    }
 
     Value::Value(float value) :
-        m_value(static_cast<double>(value)), m_type(ValueType::Number), m_const(false)
-    {}
+        m_type(ValueType::Number), m_const(false)
+    {
+        m_value.number = static_cast<double>(value);
+    }
 
     Value::Value(double value) :
-        m_value(value), m_type(ValueType::Number), m_const(false)
-    {}
+        m_type(ValueType::Number), m_const(false)
+    {
+        m_value.number = static_cast<double>(value);
+    }
 
     Value::Value(const std::string& value) :
-        m_value(value), m_type(ValueType::String), m_const(false)
-    {}
+        m_type(ValueType::String), m_const(false)
+    {
+        new (&m_value.string) std::string;
+        m_value.string = value;
+    }
 
     Value::Value(std::string&& value) :
-        m_value(value), m_type(ValueType::String), m_const(false)
-    {}
+        m_type(ValueType::String), m_const(false)
+    {
+        new (&m_value.string) std::string;
+        m_value.string = value;
+    }
 
     Value::Value(PageAddr_t value) :
-        m_value(value), m_type(ValueType::PageAddr), m_const(false)
-    {}
+        m_type(ValueType::PageAddr), m_const(false)
+    {
+        m_value.page = value;
+    }
 
     Value::Value(Value::ProcType value) :
-        m_value(value), m_type(ValueType::CProc), m_const(false)
-    {}
+        m_type(ValueType::CProc), m_const(false)
+    {
+        new (&m_value.proc) Value::ProcType;
+        m_value.proc = value;
+    }
 
     Value::Value(std::vector<Value>&& value) :
-        m_value(value), m_type(ValueType::List), m_const(false)
-    {}
+        m_type(ValueType::List), m_const(false)
+    {
+        new (&m_value.list) std::vector<Value>;
+        m_value.list = value;
+    }
 
     Value::Value(Closure&& value) :
-        m_value(value), m_type(ValueType::Closure), m_const(false)
-    {}
+        m_type(ValueType::Closure), m_const(false)
+    {
+        new (&m_value.closure) Closure;
+        m_value.closure = value;
+    }
 
     Value::Value(UserType&& value) :
-        m_value(value), m_type(ValueType::User), m_const(false)
-    {}
+        m_type(ValueType::User), m_const(false)
+    {
+        new (&m_value.user) UserType;
+        m_value.user = value;
+    }
 
     // --------------------------
 
     std::vector<Value>& Value::list()
     {
-        return std::get<std::vector<Value>>(m_value);
+        return m_value.list;
     }
 
     Closure& Value::closure_ref()
     {
-        return std::get<Closure>(m_value);
+        return m_value.closure;
     }
 
     std::string& Value::string_ref()
     {
-        return std::get<std::string>(m_value);
+        return m_value.string;
     }
 
     UserType& Value::usertype_ref()
     {
-        return std::get<UserType>(m_value);
+        return m_value.user;
     }
 
     // --------------------------
@@ -174,27 +342,27 @@ namespace Ark::internal
         case ValueType::Closure:
             os << V.closure();
             break;
-        
+
         case ValueType::User:
             os << V.usertype();
             break;
-        
+
         case ValueType::Nil:
             os << "nil";
             break;
-        
+
         case ValueType::True:
             os << "true";
             break;
-        
+
         case ValueType::False:
             os << "false";
             break;
-        
+
         case ValueType::Undefined:
             os << "undefined";
             break;
-        
+
         default:
             os << "~\\._./~";
             break;

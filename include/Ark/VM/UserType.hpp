@@ -21,6 +21,10 @@ namespace Ark
     public:
         using FuncStream_t = std::function<std::ostream& (std::ostream& os, const UserType& A)>;
 
+        UserType() :
+            m_data(nullptr), m_ostream_func(nullptr), m_type_id(std::type_index(typeid(void)))
+        {}
+
         /**
          * @brief Construct a new User Type object
          * 

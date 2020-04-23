@@ -2,7 +2,6 @@
 #define ark_vm_value
 
 #include <vector>
-#include <variant>
 #include <string>
 #include <cinttypes>
 #include <iostream>
@@ -18,6 +17,12 @@
 namespace Ark
 {
     class VM;
+
+    namespace internal
+    {
+        class Value;
+        class Frame;
+    }
 }
 
 namespace Ark::internal
@@ -38,20 +43,39 @@ namespace Ark::internal
         Undefined
     };
 
-    class Frame;
+    union ValueUnion
+    {
+        double              number;
+        PageAddr_t          page;
+        std::string         string;
+        std::function<Value (std::vector<Value>&)> proc;
+        Closure             closure;
+        UserType            user;
+        std::vector<Value>  list;
+
+        ValueUnion() {}
+        ValueUnion(const ValueUnion&) {}
+        ValueUnion& operator=(const ValueUnion&) {}
+        ~ValueUnion() {}
+    };
 
     class Value
     {
     public:
         using ProcType = std::function<Value (std::vector<Value>&)>;
         using Iterator = std::vector<Value>::const_iterator;
-        using Value_t  = std::variant<double, std::string, PageAddr_t, ProcType, Closure, UserType, std::vector<Value>>;
 
         /**
          * @brief Construct a new Value object
          * 
          */
         Value();
+
+        Value(const Value& value);
+
+        Value& operator=(const Value& value);
+
+        ~Value();
 
         /**
          * @brief Construct a new Value object
@@ -228,7 +252,7 @@ namespace Ark::internal
         friend class Ark::VM;
 
     private:
-        Value_t m_value;
+        ValueUnion m_value;
         ValueType m_type;
         bool m_const;
         Ark::VM* m_vm = nullptr;
