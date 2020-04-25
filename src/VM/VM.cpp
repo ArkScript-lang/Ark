@@ -204,7 +204,7 @@ namespace Ark
                         uint16_t id; readNumber(id);
                         int16_t addr = static_cast<int16_t>(id);
 
-                        if (*popVal() == Builtins::trueSym)
+                        if (popVal()->m_type == ValueType::True)
                             m_ip = addr - 1;  // because we are doing a ++m_ip right after this
                         break;
                     }
@@ -265,7 +265,7 @@ namespace Ark
                         uint16_t id; readNumber(id);
                         int16_t addr = static_cast<int16_t>(id);
 
-                        if (*popVal() == Builtins::falseSym)
+                        if (popVal()->m_type == ValueType::False)
                             m_ip = addr - 1;  // because we are doing a ++m_ip right after this
                         break;
                     }
@@ -393,7 +393,7 @@ namespace Ark
                         Value* var = findNearestVariable(id);
                         if (var != nullptr)
                         {
-                            var->m_type = ValueType::Undefined;
+                            *var = Value(ValueType::Undefined);
                             break;
                         }
 
@@ -718,14 +718,14 @@ namespace Ark
                         case Instruction::AND_:
                         {
                             Value *a = popVal(), *b = popVal();
-                            push((*a == Builtins::trueSym && *b == Builtins::trueSym) ? Builtins::trueSym : Builtins::falseSym);
+                            push((a->m_type == ValueType::True && b->m_type == ValueType::True) ? Builtins::trueSym : Builtins::falseSym);
                             break;
                         }
 
                         case Instruction::OR_:
                         {
                             Value *a = popVal(), *b = popVal();
-                            push((*b == Builtins::trueSym || *a == Builtins::trueSym) ? Builtins::trueSym : Builtins::falseSym);
+                            push((b->m_type == ValueType::True || a->m_type == ValueType::True) ? Builtins::trueSym : Builtins::falseSym);
                             break;
                         }
 
@@ -763,7 +763,7 @@ namespace Ark
                                 break;
                             }
                             uint16_t id = static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it));
-                            
+
                             if ((*closure->closure_ref().scope_ref())[id].m_type != ValueType::Undefined)
                                 push(Builtins::trueSym);
                             else
@@ -839,7 +839,7 @@ namespace Ark
                     uint16_t id = findNearestVariableIdWithValue(
                         Value(static_cast<PageAddr_t>(it->currentPageAddr()))
                     );
-                    
+
                     std::cerr << "In function `" << termcolor::green << m_state->m_symbols[id] << termcolor::reset << "'\n";
                 }
                 else

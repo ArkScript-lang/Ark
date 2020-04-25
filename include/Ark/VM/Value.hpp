@@ -48,21 +48,21 @@ namespace Ark::internal
         double              number;
         PageAddr_t          page;
         std::string         string;
-        std::function<Value (std::vector<Value>&)> proc;
+        Value (*proc) (std::vector<Value>&);
         Closure             closure;
         UserType            user;
         std::vector<Value>  list;
 
         ValueUnion() {}
         ValueUnion(const ValueUnion&) {}
-        ValueUnion& operator=(const ValueUnion&) {}
+        ValueUnion& operator=(const ValueUnion&) { return *this; }
         ~ValueUnion() {}
     };
 
     class Value
     {
     public:
-        using ProcType = std::function<Value (std::vector<Value>&)>;
+        using ProcType = Value (*) (std::vector<Value>&);
         using Iterator = std::vector<Value>::const_iterator;
 
         /**

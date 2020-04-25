@@ -33,7 +33,6 @@ namespace Ark::internal
                 break;
 
             case ValueType::CProc:
-                new (&m_value.proc) Value::ProcType;
                 m_value.proc = value.m_value.proc;
                 break;
 
@@ -81,7 +80,6 @@ namespace Ark::internal
                 break;
 
             case ValueType::CProc:
-                new (&m_value.proc) Value::ProcType;
                 m_value.proc = value.m_value.proc;
                 break;
 
@@ -114,10 +112,6 @@ namespace Ark::internal
                 m_value.string.~basic_string();
                 break;
 
-            case ValueType::CProc:
-                m_value.proc.~function();
-                break;
-
             case ValueType::Closure:
                 m_value.closure.~Closure();
                 break;
@@ -144,10 +138,6 @@ namespace Ark::internal
 
             case ValueType::String:
                 new (&m_value.string) std::string;
-                break;
-
-            case ValueType::CProc:
-                new (&m_value.proc) Value::ProcType;
                 break;
 
             case ValueType::Closure:
@@ -201,7 +191,6 @@ namespace Ark::internal
     Value::Value(Value::ProcType value) :
         m_type(ValueType::CProc), m_const(false)
     {
-        new (&m_value.proc) Value::ProcType;
         m_value.proc = value;
     }
 
