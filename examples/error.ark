@@ -1,5 +1,5 @@
 {
-    (import "Exceptions.ark")
+    (import "Functional/Exceptions.ark")
 
     (let invert (fun (x) {
         (if (= x 0)

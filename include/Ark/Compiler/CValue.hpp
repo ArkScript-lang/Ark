@@ -15,15 +15,23 @@ namespace Ark::internal
         PageAddr  // for function definitions
     };
 
+    /**
+     * @brief A Compiler Value class helper to handle multiple types
+     * 
+     */
     struct CValue
     {
         std::variant<double, std::string, std::size_t> value;
         CValueType type;
 
+        // Numbers
         CValue(double value);
         CValue(long value);
+        // Strings
         CValue(const std::string& value);
+        // automatic handling (Number/String/Function)
         CValue(const Node& v);
+        // Functions
         CValue(std::size_t value);
 
         bool operator==(const CValue& A);

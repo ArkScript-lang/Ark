@@ -1,13 +1,13 @@
-#include <Ark/FFI/FFI.hpp>
+#include <Ark/Builtins/Builtins.hpp>
 
 #include <fmt/format.hpp>
 
-#include <Ark/FFI/FFIErrors.inl>
-#define FFI_Function(name) Value name(std::vector<Value>& n)
+#include <Ark/Builtins/BuiltinsErrors.inl>
+#define Builtins_Function(name) Value name(std::vector<Value>& n)
 
-namespace Ark::internal::FFI::String
+namespace Ark::internal::Builtins::String
 {
-    FFI_Function(format)
+    Builtins_Function(format)
     {
         if (n.size() == 0)
             throw std::runtime_error(STR_FORMAT_ARITY);
@@ -16,7 +16,7 @@ namespace Ark::internal::FFI::String
 
         rj::format f(n[0].string());
 
-        for (Value::Iterator it=n.begin()+1; it != n.end(); ++it)
+        for (Value::Iterator it=n.begin()+1, it_end=n.end(); it != it_end; ++it)
         {
             if (it->valueType() == ValueType::String)
                 f.args(it->string());
@@ -29,7 +29,7 @@ namespace Ark::internal::FFI::String
         return n[0];
     }
 
-    FFI_Function(findSubStr)
+    Builtins_Function(findSubStr)
     {
         if (n.size() != 2)
             throw std::runtime_error(STR_FIND_ARITY);
@@ -41,7 +41,7 @@ namespace Ark::internal::FFI::String
         return (n[0].string().find(n[1].string()) != std::string::npos) ? trueSym : falseSym;
     }
 
-    FFI_Function(removeAtStr)
+    Builtins_Function(removeAtStr)
     {
         if (n.size () != 2)
             throw std::runtime_error(STR_RM_ARITY);

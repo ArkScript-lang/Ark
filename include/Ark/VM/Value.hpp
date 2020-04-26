@@ -17,7 +17,7 @@
 
 namespace Ark
 {
-    template<bool D> class VM_t;
+    class VM;
 }
 
 namespace Ark::internal
@@ -28,10 +28,14 @@ namespace Ark::internal
         Number,
         String,
         PageAddr,
-        NFT,
         CProc,
         Closure,
-        User
+        User,
+
+        Nil,
+        True,
+        False,
+        Undefined
     };
 
     class Frame;
@@ -41,60 +45,178 @@ namespace Ark::internal
     public:
         using ProcType = std::function<Value (std::vector<Value>&)>;
         using Iterator = std::vector<Value>::const_iterator;
-        using Value_t = std::variant<double, std::string, PageAddr_t, NFT, ProcType, Closure, UserType, std::vector<Value>>;
+        using Value_t  = std::variant<double, std::string, PageAddr_t, ProcType, Closure, UserType, std::vector<Value>>;
 
+        /**
+         * @brief Construct a new Value object
+         * 
+         */
         Value();
 
+        /**
+         * @brief Construct a new Value object
+         * 
+         * @param type the value type which is going to be held
+         */
         Value(ValueType type);
+
+        /**
+         * @brief Construct a new Value object as a Number
+         * 
+         * @param value 
+         */
         Value(int value);
+
+        /**
+         * @brief Construct a new Value object as a Number
+         * 
+         * @param value 
+         */
         Value(float value);
+
+        /**
+         * @brief Construct a new Value object as a Number
+         * 
+         * @param value 
+         */
         Value(double value);
+
+        /**
+         * @brief Construct a new Value object as a String
+         * 
+         * @param value 
+         */
         Value(const std::string& value);
+
+        /**
+         * @brief Construct a new Value object as a String
+         * 
+         * @param value 
+         */
         Value(std::string&& value);
+
+        /**
+         * @brief Construct a new Value object as a Function
+         * 
+         * @param value 
+         */
         Value(PageAddr_t value);
-        Value(NFT value);
+
+        /**
+         * @brief Construct a new Value object from a C++ function
+         * 
+         * @param value 
+         */
         Value(Value::ProcType value);
+
+        /**
+         * @brief Construct a new Value object as a List
+         * 
+         * @param value 
+         */
         Value(std::vector<Value>&& value);
+
+        /**
+         * @brief Construct a new Value object as a Closure
+         * 
+         * @param value 
+         */
         Value(Closure&& value);
+
+        /**
+         * @brief Construct a new Value object as a UserType
+         * 
+         * @param value 
+         */
         Value(UserType&& value);
 
-        inline ValueType valueType() const
-        {
-            return m_type;
-        }
+        /**
+         * @brief Return the value type
+         * 
+         * @return ValueType 
+         */
+        inline ValueType valueType() const;
 
-        inline bool isFunction() const
-        {
-            return m_type == ValueType::PageAddr || m_type == ValueType::Closure || m_type == ValueType::CProc;
-        }
+        /**
+         * @brief Check if a function is held
+         * 
+         * @return true on success
+         * @return false on failure
+         */
+        inline bool isFunction() const;
 
-        inline double number() const
-        {
-            return std::get<double>(m_value);
-        }
+        /**
+         * @brief Return the stored number
+         * 
+         * @return double 
+         */
+        inline double number() const;
 
-        inline const std::string& string() const
-        {
-            return std::get<std::string>(m_value);
-        }
+        /**
+         * @brief Return the stored string
+         * 
+         * @return const std::string& 
+         */
+        inline const std::string& string() const;
 
-        inline const std::vector<Value>& const_list() const
-        {
-            return std::get<std::vector<Value>>(m_value);
-        }
+        /**
+         * @brief Return the stored list
+         * 
+         * @return const std::vector<Value>& 
+         */
+        inline const std::vector<Value>& const_list() const;
 
-        inline const UserType& usertype() const
-        {
-            return std::get<UserType>(m_value);
-        }
+        /**
+         * @brief Return the stored user type
+         * 
+         * @return const UserType& 
+         */
+        inline const UserType& usertype() const;
 
+        /**
+         * @brief Return the stored list as a reference
+         * 
+         * @return std::vector<Value>& 
+         */
         std::vector<Value>& list();
+
+        /**
+         * @brief Return the stored string as a reference
+         * 
+         * @return std::string& 
+         */
         std::string& string_ref();
+
+        /**
+         * @brief Return the stored user type as a reference
+         * 
+         * @return UserType& 
+         */
         UserType& usertype_ref();
 
+        /**
+         * @brief Add an element to the list held by the value (if the value type is set to list)
+         * 
+         * @param value 
+         */
         void push_back(const Value& value);
+
+        /**
+         * @brief Add an element to the list held by the value (if the value type is set to list)
+         * 
+         * @param value 
+         */
         void push_back(Value&& value);
 
+        /**
+         * @brief Resolve a function call (works only if the object is a function) with given arguments
+         * 
+         * Needed by C function bindings in modules, to resolve the value of a function call
+         * 
+         * @tparam Args 
+         * @param args 
+         * @return Value 
+         */
         template <typename... Args>
         Value resolve(Args&&... args) const;
 
@@ -103,93 +225,53 @@ namespace Ark::internal
         friend inline bool operator<(const Value& A, const Value& B);
         friend inline bool operator!(const Value& A);
 
-        template<bool D> friend class Ark::VM_t;
+        friend class Ark::VM;
 
     private:
         Value_t m_value;
         ValueType m_type;
         bool m_const;
-        Ark::VM_t<false>* m_vmf = nullptr;
-        Ark::VM_t<true>* m_vmt = nullptr;
+        Ark::VM* m_vm = nullptr;
 
-        inline PageAddr_t pageAddr() const
-        {
-            return std::get<PageAddr_t>(m_value);
-        }
+        // private getters only for the virtual machine
 
-        inline NFT nft() const
-        {
-            return std::get<NFT>(m_value);
-        }
+        /**
+         * @brief Return the page address held by the value
+         * 
+         * @return PageAddr_t 
+         */
+        inline PageAddr_t pageAddr() const;
 
-        inline const ProcType& proc() const
-        {
-            return std::get<Value::ProcType>(m_value);
-        }
+        /**
+         * @brief Return the C Function held by the value
+         * 
+         * @return const ProcType& 
+         */
+        inline const ProcType& proc() const;
 
-        inline const Closure& closure() const
-        {
-            return std::get<Closure>(m_value);
-        }
+        /**
+         * @brief Return the closure held by the value
+         * 
+         * @return const Closure& 
+         */
+        inline const Closure& closure() const;
 
+        /**
+         * @brief Return a reference to the closure held by the value
+         * 
+         * @return Closure& 
+         */
         Closure& closure_ref();
-        void registerVM(Ark::VM_t<false>* vm);
-        void registerVM(Ark::VM_t<true>* vm);
+
+        /**
+         * @brief Register a pointer to the virtual machine, needed to resolve function calls
+         * 
+         * @param vm 
+         */
+        void registerVM(Ark::VM* vm);
     };
 
-    inline bool operator==(const Value::ProcType& f, const Value::ProcType& g)
-    {
-        return f.template target<Value (const std::vector<Value>&)>() == g.template target<Value (const std::vector<Value>&)>();
-    }
-
-    inline bool operator==(const Value& A, const Value& B)
-    {
-        // values should have the same type
-        if (A.m_type != B.m_type)
-            return false;
-        
-        return A.m_value == B.m_value;
-    }
-
-    inline bool operator<(const Value& A, const Value& B)
-    {
-        if (A.m_type != B.m_type)
-            return (static_cast<int>(A.m_type) - static_cast<int>(B.m_type)) < 0;
-        return A.m_value < B.m_value;
-    }
-
-    inline bool operator!=(const Value& A, const Value& B)
-    {
-        return !(A == B);
-    }
-
-    inline bool operator!(const Value& A)
-    {
-        switch (A.valueType())
-        {
-            case ValueType::List:
-                return A.const_list().empty();
-            
-            case ValueType::Number:
-                return !A.number();
-            
-            case ValueType::String:
-                return A.string().empty();
-            
-            case ValueType::NFT:
-            {
-                if (A.nft() == NFT::True)
-                    return false;
-                return true;
-            }
-
-            case ValueType::User:
-                return A.usertype().not_();
-            
-            default:
-                return false;
-        }
-    }
+    #include "inline/Value.inl"
 }
 
 #endif

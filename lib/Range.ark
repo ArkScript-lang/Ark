@@ -1,20 +1,20 @@
 {
-    (let range (fun (a b) {
+    (let range (fun (_a _b) {
         (let astList (fun () {
-            # a and b are going to be captured by the caller
-            (mut output [])
-            (mut a_ a)
-            (while (< a_ b) {
-                (set output (append output a_))
+            # _a and _b are going to be captured by the caller
+            (mut _output [])
+            (mut a_ _a)
+            (while (< a_ _b) {
+                (set _output (append _output a_))
                 (set a_ (+ 1 a_))
             })
-            output
+            _output
         }))
 
-        (fun (&a &b &asList) {
-            (if (< a b) {
-                    (mut c a)
-                    (set a (+ a 1))
+        (fun (&_a &_b &asList) {
+            (if (< _a _b) {
+                    (mut c _a)
+                    (set _a (+ _a 1))
                     c
                 }
                 nil
@@ -22,10 +22,10 @@
         })
     }))
 
-    (let forEachR (fun (r f) {
+    (let forEachR (fun (r _f) {
         (mut val (r))
         (while (= false (nil? val)) {
-            (f val)
+            (_f val)
             (set val (r))
         })
     }))

@@ -231,7 +231,7 @@ namespace Ark
                     {
                         while (true)
                         {
-                            except(tokens.size() != 0, "No more token to consume when creating begin block", m_last_token);
+                            except(!tokens.empty(), "No more token to consume when creating begin block", m_last_token);
                             if (tokens.front().token == ")")
                                 break;
                             m_last_token = tokens.front();
@@ -376,6 +376,7 @@ namespace Ark
         }
         else if (n.nodeType() == NodeType::List)
         {
+            // can not optimize calls to n.list().size() because we are modifying n.list()
             for (std::size_t i=0; i < n.list().size(); ++i)
             {
                 if (checkForInclude(n.list()[i]))

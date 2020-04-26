@@ -5,7 +5,8 @@
 
 namespace Ark::internal
 {
-    Value::Value()
+    Value::Value() :
+        m_type(ValueType::Undefined)
     {}
 
     // --------------------------
@@ -39,10 +40,6 @@ namespace Ark::internal
 
     Value::Value(PageAddr_t value) :
         m_value(value), m_type(ValueType::PageAddr), m_const(false)
-    {}
-
-    Value::Value(NFT value) :
-        m_value(value), m_type(ValueType::NFT), m_const(false)
     {}
 
     Value::Value(Value::ProcType value) :
@@ -99,14 +96,9 @@ namespace Ark::internal
 
     // --------------------------
 
-    void Value::registerVM(Ark::VM_t<false>* vm)
+    void Value::registerVM(Ark::VM* vm)
     {
-        m_vmf = vm;
-    }
-
-    void Value::registerVM(Ark::VM_t<true>* vm)
-    {
-        m_vmt = vm;
+        m_vm = vm;
     }
 
     // --------------------------
@@ -141,7 +133,7 @@ namespace Ark::internal
 
     std::ostream& operator<<(std::ostream& os, const Value& V)
     {
-        switch (V.valueType())
+        switch (V.m_type)
         {
         case ValueType::Number:
         {
@@ -158,20 +150,6 @@ namespace Ark::internal
         case ValueType::PageAddr:
             os << "Function @ " << V.pageAddr();
             break;
-        
-        case ValueType::NFT:
-        {
-            NFT nft = V.nft();
-            if (nft == NFT::Nil)
-                os << "nil";
-            else if (nft == NFT::False)
-                os << "false";
-            else if (nft == NFT::True)
-                os << "true";
-            else if (nft == NFT::Undefined)
-                os << "undefined";
-            break;
-        }
 
         case ValueType::CProc:
             os << "CProcedure";
@@ -180,14 +158,13 @@ namespace Ark::internal
         case ValueType::List:
         {
             os << "[";
-            for (std::size_t index = 0; index < V.const_list().size(); ++index)
+            for (auto it=V.const_list().begin(), it_end=V.const_list().end(); it != it_end; ++it)
             {
-                auto& t = V.const_list()[index];
-                if (t.valueType() == ValueType::String)
-                    os << "\"" << t << "\"";
+                if (it->m_type == ValueType::String)
+                    os << "\"" << (*it) << "\"";
                 else
-                    os << t;
-                if (index + 1 != V.const_list().size())
+                    os << (*it);
+                if (it + 1 != it_end)
                     os << " ";
             }
             os << "]";
@@ -200,6 +177,22 @@ namespace Ark::internal
         
         case ValueType::User:
             os << V.usertype();
+            break;
+        
+        case ValueType::Nil:
+            os << "nil";
+            break;
+        
+        case ValueType::True:
+            os << "true";
+            break;
+        
+        case ValueType::False:
+            os << "false";
+            break;
+        
+        case ValueType::Undefined:
+            os << "undefined";
             break;
         
         default:

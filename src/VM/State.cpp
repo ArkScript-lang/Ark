@@ -2,12 +2,23 @@
 
 #include <Ark/Constants.hpp>
 
+#define _CRT_SECURE_NO_WARNINGS  // avoid warning on getenv
+#include <stdlib.h>
+
 namespace Ark
 {
     State::State(const std::string& libdir, uint16_t options) :
-        m_libdir(libdir == "" ? ARK_STD_DEFAULT : libdir), m_filename("FILE"),
+        m_libdir(libdir), m_filename("FILE"),
         m_options(options), m_debug_level(0)
-    {}
+    {
+        // read environment variable to locate ark std lib
+        if (m_libdir == "?")
+        {
+            char* val = getenv("ARKSCRIPT_PATH");
+            m_libdir = val == nullptr ? "" : std::string(val);
+            m_libdir += "/lib";
+        }
+    }
 
     bool State::feed(const std::string& bytecode_filename)
     {
@@ -175,6 +186,11 @@ namespace Ark
     void State::setDebug(unsigned level)
     {
         m_debug_level = level;
+    }
+
+    void State::setLibDir(const std::string& libDir)
+    {
+        m_libdir = libDir;
     }
 
     void State::configure()

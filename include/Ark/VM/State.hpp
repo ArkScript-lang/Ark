@@ -14,26 +14,86 @@
 
 namespace Ark
 {
+    /**
+     * @brief Ark state to handle the dirty job of loading and compiling ArkScript code
+     * 
+     */
     class State
     {
     public:
-        State(const std::string& libdir="", uint16_t options=DefaultFeatures);
+        /**
+         * @brief Construct a new State object
+         * 
+         * @param libdir the path to the standard library, defaults to "?" which means: search in environment variables
+         * @param options the options for the virtual machine, compiler, and parser
+         */
+        State(const std::string& libdir="?", uint16_t options=DefaultFeatures);
 
-        // for already compiled ArkScript files
+        /**
+         * @brief Feed the state by giving it the path to an existing bytecode file
+         * 
+         * @param bytecode_filename 
+         * @return true on success
+         * @return false on failure
+         */
         bool feed(const std::string& bytecode_filename);
+
+        /**
+         * @brief Feed the state with ArkScript bytecode
+         * 
+         * @param bytecode 
+         * @return true on success
+         * @return false on failure
+         */
         bool feed(const bytecode_t& bytecode);
 
-        // to compile file *only* if needed and use the resulting bytecode
+        /**
+         * @brief Compile a file *only* if needed, and use the resulting bytecode
+         * 
+         * @param filename path to an ArkScript code file
+         * @return true on success
+         * @return false on failure
+         */
         bool doFile(const std::string& filename);
-        // compile string and store resulting bytecode in m_bytecode
+
+        /**
+         * @brief Compile a string (representing ArkScript code) and store resulting bytecode in m_bytecode
+         * 
+         * @param code the ArkScript code
+         * @return true on success
+         * @return false on failure
+         */
         bool doString(const std::string& code);
 
+        /**
+         * @brief Register a function in the virtual machine
+         * 
+         * @param name the name of the function in ArkScript
+         * @param function the code of the function
+         */
         void loadFunction(const std::string& name, internal::Value::ProcType function);
+
+        /**
+         * @brief Set the debug level
+         * 
+         * @param level between 0 (nothing) and 3 (maximum verbosity)
+         */
         void setDebug(unsigned level);
 
-        template <bool D> friend class VM_t;
-    
+        /**
+         * @brief Set the Lib Dir path
+         * 
+         * @param libDir 
+         */
+        void setLibDir(const std::string& libDir);
+
+        friend class VM;
+
     private:
+        /**
+         * @brief Called to configure the state (set the bytecode, debug level, call the compiler...)
+         * 
+         */
         void configure();
 
         inline void throwStateError(const std::string& message)

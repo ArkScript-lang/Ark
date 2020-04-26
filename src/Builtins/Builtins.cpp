@@ -2,17 +2,15 @@
 #include <cmath>
 #include <limits>
 
-#include <Ark/FFI/FFI.hpp>
+#include <Ark/Builtins/Builtins.hpp>
 
-#define FFI_Function(name) Value name(std::vector<Value>& n)
+#define Builtins_Function(name) Value name(std::vector<Value>& n)
 
-namespace Ark::internal::FFI
+namespace Ark::internal::Builtins
 {
-    extern const Value falseSym = Value(NFT::False);
-    extern const Value trueSym  = Value(NFT::True);
-    extern const Value nil      = Value(NFT::Nil);
-    // not assignable value
-    extern const Value undefined = Value(NFT::Undefined);
+    extern const Value falseSym = Value(ValueType::False);
+    extern const Value trueSym  = Value(ValueType::True);
+    extern const Value nil      = Value(ValueType::Nil);
 
     namespace Mathematics
     {
@@ -71,8 +69,8 @@ namespace Ark::internal::FFI
         { "ceil", Value(Mathematics::ceil_) },
         { "floor", Value(Mathematics::floor_) },
         { "round", Value(Mathematics::round_) },
-        { "isNaN", Value(Mathematics::isnan_) },
-        { "isInf", Value(Mathematics::isinf_) },
+        { "NaN?", Value(Mathematics::isnan_) },
+        { "Inf?", Value(Mathematics::isinf_) },
         { "Pi", Mathematics::pi_ },
         { "E", Mathematics::e_ },
         { "Tau", Mathematics::tau_ },

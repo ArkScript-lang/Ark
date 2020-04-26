@@ -1,14 +1,14 @@
-#include <Ark/FFI/FFI.hpp>
+#include <Ark/Builtins/Builtins.hpp>
 
 #include <cstdlib>
 #include <Ark/Constants.hpp>
 
-#include <Ark/FFI/FFIErrors.inl>
-#define FFI_Function(name) Value name(std::vector<Value>& n)
+#include <Ark/Builtins/BuiltinsErrors.inl>
+#define Builtins_Function(name) Value name(std::vector<Value>& n)
 
-namespace Ark::internal::FFI::System
+namespace Ark::internal::Builtins::System
 {
-    FFI_Function(system_)
+    Builtins_Function(system_)
     {
         if (n.size() != 1)
             throw std::runtime_error(SYS_SYS_ARITY);
