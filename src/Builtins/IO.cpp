@@ -1,33 +1,33 @@
-#include <Ark/FFI/FFI.hpp>
+#include <Ark/Builtins/Builtins.hpp>
 
 #include <iostream>
 #include <filesystem>
 
 #include <Ark/Utils.hpp>
 
-#include <Ark/FFI/FFIErrors.inl>
-#define FFI_Function(name) Value name(std::vector<Value>& n)
+#include <Ark/Builtins/BuiltinsErrors.inl>
+#define Builtins_Function(name) Value name(std::vector<Value>& n)
 
-namespace Ark::internal::FFI::IO
+namespace Ark::internal::Builtins::IO
 {
-    FFI_Function(print)
+    Builtins_Function(print)
     {
-        for (Value::Iterator it=n.begin(); it != n.end(); ++it)
+        for (Value::Iterator it=n.begin(), it_end=n.end(); it != it_end; ++it)
             std::cout << (*it);
         std::cout << std::endl;
 
         return nil;
     }
 
-    FFI_Function(puts_)
+    Builtins_Function(puts_)
     {
-        for (Value::Iterator it=n.begin(); it != n.end(); ++it)
+        for (Value::Iterator it=n.begin(), it_end=n.end(); it != it_end; ++it)
             std::cout << (*it);
 
         return nil;
     }
 
-    FFI_Function(input)
+    Builtins_Function(input)
     {
         if (n.size() == 1)
         {
@@ -42,7 +42,7 @@ namespace Ark::internal::FFI::IO
         return Value(line);
     }
 
-    FFI_Function(writeFile)
+    Builtins_Function(writeFile)
     {
         // filename, content
         if (n.size() == 2)
@@ -89,7 +89,7 @@ namespace Ark::internal::FFI::IO
         return nil;
     }
 
-    FFI_Function(readFile)
+    Builtins_Function(readFile)
     {
         if (n.size() != 1)
             throw std::runtime_error(IO_READ_ARITY);
@@ -103,17 +103,17 @@ namespace Ark::internal::FFI::IO
         return Value(Ark::Utils::readFile(filename));
     }
 
-    FFI_Function(fileExists)
+    Builtins_Function(fileExists)
     {
         if (n.size() != 1)
             throw std::runtime_error(IO_EXISTS_ARITY);
         if (n[0].valueType() != ValueType::String)
             throw Ark::TypeError(IO_EXISTS_TE0);
         
-        return Value(Ark::Utils::fileExists(n[0].string()) ? NFT::True : NFT::False);
+        return Ark::Utils::fileExists(n[0].string()) ? trueSym : falseSym;
     }
 
-    FFI_Function(listFiles)
+    Builtins_Function(listFiles)
     {
         if (n.size() != 1)
             throw std::runtime_error(IO_LS_ARITY);
@@ -127,7 +127,7 @@ namespace Ark::internal::FFI::IO
         return Value(std::move(r));
     }
 
-    FFI_Function(isDirectory)
+    Builtins_Function(isDirectory)
     {
         if (n.size() != 1)
             throw std::runtime_error(IO_ISDIR_ARITY);
@@ -137,7 +137,7 @@ namespace Ark::internal::FFI::IO
         return (std::filesystem::is_directory(std::filesystem::path(n[0].string()))) ? trueSym : falseSym;
     }
 
-    FFI_Function(makeDir)
+    Builtins_Function(makeDir)
     {
         if (n.size() != 1)
             throw std::runtime_error(IO_MKD_ARITY);
@@ -148,12 +148,12 @@ namespace Ark::internal::FFI::IO
         return nil;
     }
 
-    FFI_Function(removeFiles)
+    Builtins_Function(removeFiles)
     {
         if (n.size() == 0)
             throw std::runtime_error(IO_RM_ARITY);
         
-        for (Value::Iterator it=n.begin(); it != n.end(); ++it)
+        for (Value::Iterator it=n.begin(), it_end=n.end(); it != it_end; ++it)
         {
             if (it->valueType() != ValueType::String)
                 throw Ark::TypeError(IO_RM_TE0);

@@ -1,14 +1,14 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 
-#include <Ark/FFI/FFI.hpp>
+#include <Ark/Builtins/Builtins.hpp>
 
-#include <Ark/FFI/FFIErrors.inl>
-#define FFI_Function(name) Value name(std::vector<Value>& n)
+#include <Ark/Builtins/BuiltinsErrors.inl>
+#define Builtins_Function(name) Value name(std::vector<Value>& n)
 
-namespace Ark::internal::FFI::Mathematics
+namespace Ark::internal::Builtins::Mathematics
 {
-    FFI_Function(exponential)
+    Builtins_Function(exponential)
     {
         if (n.size() != 1)
             throw std::runtime_error(MATH_ARITY("exp"));
@@ -19,7 +19,7 @@ namespace Ark::internal::FFI::Mathematics
         return r;
     }
 
-    FFI_Function(logarithm)
+    Builtins_Function(logarithm)
     {
         if (n.size() != 1)
             throw std::runtime_error(MATH_ARITY("log"));
@@ -32,7 +32,7 @@ namespace Ark::internal::FFI::Mathematics
         return r;
     }
 
-    FFI_Function(ceil_)
+    Builtins_Function(ceil_)
     {
         if (n.size() != 1)
             throw std::runtime_error(MATH_ARITY("ceil"));
@@ -43,7 +43,7 @@ namespace Ark::internal::FFI::Mathematics
         return r;
     }
 
-    FFI_Function(floor_)
+    Builtins_Function(floor_)
     {
         if (n.size() != 1)
             throw std::runtime_error(MATH_ARITY("floor"));
@@ -54,7 +54,7 @@ namespace Ark::internal::FFI::Mathematics
         return r;
     }
 
-    FFI_Function(round_)
+    Builtins_Function(round_)
     {
         if (n.size() != 1)
             throw std::runtime_error(MATH_ARITY("round"));
@@ -65,27 +65,27 @@ namespace Ark::internal::FFI::Mathematics
         return r;
     }
 
-    FFI_Function(isnan_)
+    Builtins_Function(isnan_)
     {
         if (n.size() != 1)
-            throw std::runtime_error(MATH_ARITY("isNaN"));
+            throw std::runtime_error(MATH_ARITY("NaN?"));
         if (n[0].valueType() != ValueType::Number)
             return falseSym;
         
         return std::isnan(n[0].number()) ? trueSym : falseSym;
     }
 
-    FFI_Function(isinf_)
+    Builtins_Function(isinf_)
     {
         if (n.size() != 1)
-            throw std::runtime_error(MATH_ARITY("isInf"));
+            throw std::runtime_error(MATH_ARITY("Inf?"));
         if (n[0].valueType() != ValueType::Number)
             return falseSym;
         
         return std::isinf(n[0].number()) ? trueSym : falseSym;
     }
 
-    FFI_Function(cos_)
+    Builtins_Function(cos_)
     {
         if (n.size() != 1)
             throw std::runtime_error(MATH_ARITY("cos"));
@@ -96,7 +96,7 @@ namespace Ark::internal::FFI::Mathematics
         return r;
     }
 
-    FFI_Function(sin_)
+    Builtins_Function(sin_)
     {
         if (n.size() != 1)
             throw std::runtime_error(MATH_ARITY("sin"));
@@ -107,7 +107,7 @@ namespace Ark::internal::FFI::Mathematics
         return r;
     }
 
-    FFI_Function(tan_)
+    Builtins_Function(tan_)
     {
         if (n.size() != 1)
             throw std::runtime_error(MATH_ARITY("tan"));
@@ -118,7 +118,7 @@ namespace Ark::internal::FFI::Mathematics
         return r;
     }
 
-    FFI_Function(acos_)
+    Builtins_Function(acos_)
     {
         if (n.size() != 1)
             throw std::runtime_error(MATH_ARITY("arccos"));
@@ -129,7 +129,7 @@ namespace Ark::internal::FFI::Mathematics
         return r;
     }
 
-    FFI_Function(asin_)
+    Builtins_Function(asin_)
     {
         if (n.size() != 1)
             throw std::runtime_error(MATH_ARITY("arcsin"));
@@ -140,7 +140,7 @@ namespace Ark::internal::FFI::Mathematics
         return r;
     }
 
-    FFI_Function(atan_)
+    Builtins_Function(atan_)
     {
         if (n.size() != 1)
             throw std::runtime_error(MATH_ARITY("arctan"));

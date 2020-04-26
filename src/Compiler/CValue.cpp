@@ -1,4 +1,4 @@
-#include <Ark/Compiler/Value.hpp>
+#include <Ark/Compiler/CValue.hpp>
 
 namespace Ark::internal
 {

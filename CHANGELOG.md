@@ -6,12 +6,22 @@
 - `(fill qu value)` create a list of `qu` `value`s
 - `(setListAt list at new-value)` modify a list in place and return the new list value
 - adding UTF-8 support in programs (experimental)
+- more benchmarks
 
 ### Changed
 - UserType does not need to be given a manually defined type id but relies on `typeid(T)`
 - performance boost of the VM by using pointers to avoid unecessary copies
+- renaming `isNaN` to `NaN?`, `isInf` to `Inf?` for uniformisation (see `empty?`, `nil?`)
+- renaming CLI feature options:
+    - `-ffunction-arity-check` becomes `-ffac`, same for the `-fno-` version
+    - `-fauthorize-invalid-token-after-paren` becomes `-faitap`, some for the `-fno-` version
+- improving compiler performances by using const ref when passing nodes around
+- renaming the FFI "builtins" because it's not a FFI but a set of functions using the VM API
+- the VM should display a backtrace even if an unknown error occured
+- transforming inline code from the vm into not inline code when possible to speed compilation, using macros instead of inline functions
 
 ### Removed
+- removed NFT from the internal API to rely only on the value type
 
 ## 3.0.10
 ### Added

@@ -14,7 +14,7 @@
 #include <Ark/VM/Frame.hpp>
 #include <Ark/VM/State.hpp>
 #include <Ark/VM/Plugin.hpp>
-#include <Ark/FFI/FFI.hpp>
+#include <Ark/Builtins/Builtins.hpp>
 #include <Ark/Log.hpp>
 
 #undef abs
@@ -24,71 +24,51 @@ namespace Ark
 {
     using namespace std::string_literals;
 
-    template<bool debug>
-    class VM_t
+    /**
+     * @brief The ArkScript virtual machine, executing ArkScript bytecode
+     * 
+     */
+    class VM
     {
     public:
-        VM_t(State* state);
+        /**
+         * @brief Construct a new vm t object
+         * 
+         * @param state a pointer to an ArkScript state, which can be reused for multiple VMs
+         */
+        VM(State* state);
 
+        /**
+         * @brief Run the bytecode held in the state
+         * 
+         * @return int the exit code (default to 0 if no error)
+         */
         int run();
 
+        /**
+         * @brief Retrieve a value from the virtual machine, given its symbol name
+         * 
+         * @param name the name of the variable to retrieve
+         * @return internal::Value& 
+         */
         internal::Value& operator[](const std::string& name);
 
+        /**
+         * @brief Call a function from ArkScript, by giving it arguments
+         * 
+         * @tparam Args 
+         * @param name the function name in the ArkScript code
+         * @param args C++ argument list, converted to internal representation
+         * @return internal::Value 
+         */
         template <typename... Args>
-        internal::Value call(const std::string& name, Args&&... args)
-        {
-            using namespace Ark::internal;
-
-            // reset ip and pp
-            m_ip = m_pp = 0;
-
-            // find id of function
-            auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), name);
-            if (it == m_state->m_symbols.end())
-                throwVMError("Couldn't find symbol with name " + name);
-
-            // convert and push arguments in reverse order
-            std::vector<Value> fnargs { { args... } };
-            for (auto it2=fnargs.rbegin(); it2 != fnargs.rend(); ++it2)
-                push(*it2);
-            
-            // find function object and push it if it's a pageaddr/closure
-            uint16_t id = static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it));
-            auto var = findNearestVariable(id);
-            if (var != nullptr)
-            {
-                if (var->valueType() != ValueType::PageAddr && var->valueType() != ValueType::Closure)
-                    throwVMError("Symbol " + name + " isn't a function");
-
-                push(*var);
-                m_last_sym_loaded = id;
-            }
-            else
-                throwVMError("Couldn't load symbol with name " + name);
-
-            std::size_t frames_count = m_frames.size();
-            // call it
-            call(static_cast<int16_t>(sizeof...(Args)));
-            // reset instruction pointer, otherwise the safeRun method will start at ip = -1
-            // without doing m_ip++ as intended (done right after the call() in the loop, but here
-            // we start outside this loop)
-            m_ip = 0;
-
-            // run until the function returns
-            safeRun(/* untilFrameCount */ frames_count);
-
-            // get result
-            if (m_frames.back().stackSize() != 0)
-                return *pop();
-            else
-                return FFI::nil;
-        }
+        internal::Value call(const std::string& name, Args&&... args);
 
         friend class internal::Value;
 
     private:
         State* m_state;
-        
+
         int m_ip;           // instruction pointer
         std::size_t m_pp;   // page pointer
         bool m_running;
@@ -101,183 +81,106 @@ namespace Ark
         std::vector<internal::Scope_t> m_locals;
 
         // just a nice little trick for operator[]
-        internal::Value m__no_value = internal::FFI::nil;
+        internal::Value m__no_value = internal::Builtins::nil;
 
         void configure();
-        int safeRun(std::size_t untilFrameCount=0);
-        void init();
 
-        inline uint16_t readNumber()
-        {
-            auto x = (static_cast<uint16_t>(m_state->m_pages[m_pp][m_ip]) << 8); ++m_ip;
-            auto y = (static_cast<uint16_t>(m_state->m_pages[m_pp][m_ip])     );
-            return x + y;
-        }
+        /**
+         * @brief Run ArkScript bytecode inside a try catch to retrieve all the exceptions and display a stack trace if needed
+         * 
+         * @param untilFrameCount the frame count we need to reach before stopping the VM
+         * @return int the exit code
+         */
+        int safeRun(std::size_t untilFrameCount=0);
+
+        /**
+         * @brief Initialize the VM according to the parameters
+         * 
+         */
+        void init();
 
         // locals related
 
-        template <int pp=-1>
-        inline internal::Value& registerVariable(uint16_t id, internal::Value&& value)
-        {
-            if constexpr (pp == -1)
-                return (*m_locals.back())[id] = value;
-            return (*m_locals[pp])[id] = value;
-        }
+        /**
+         * @brief Find the nearest variable of a given id
+         * 
+         * @param id the id to find
+         * @return internal::Value* 
+         */
+        inline internal::Value* findNearestVariable(uint16_t id);
 
-        template <int pp=-1>
-        inline internal::Value& registerVariable(uint16_t id, const internal::Value& value)
-        {
-            if constexpr (pp == -1)
-                return (*m_locals.back())[id] = value;
-            return (*m_locals[pp])[id] = value;
-        }
-
-        // could be optimized
-        inline internal::Value* findNearestVariable(uint16_t id)
-        {
-            for (auto it=m_locals.rbegin(); it != m_locals.rend(); ++it)
-            {
-                if ((**it)[id] != internal::FFI::undefined)
-                    return &(**it)[id];
-            }
-            return nullptr;
-        }
-
-        // only used to display the call stack traceback
-        inline uint16_t findNearestVariableIdWithValue(internal::Value&& value)
-        {
-            for (auto it=m_locals.rbegin(); it != m_locals.rend(); ++it)
-            {
-                for (auto sub=(*it)->begin(); sub != (*it)->end(); ++sub)
-                {
-                    if (*sub == value)
-                        return static_cast<uint16_t>(std::distance((*it)->begin(), sub));
-                }
-            }
-            // oversized by one: didn't find anything
-            return static_cast<uint16_t>(m_state->m_symbols.size());
-        }
-
-        template<int pp=-1>
-        inline internal::Value& getVariableInScope(uint16_t id)
-        {
-            if constexpr (pp == -1)
-                return (*m_locals.back())[id];
-            return (*m_locals[pp])[id];
-        }
-
-        inline void returnFromFuncCall()
-        {
-            // remove frame
-            m_frames.pop_back();
-            uint8_t del_counter = m_frames.back().scopeCountToDelete();
-
-            // high cpu cost
-            m_locals.pop_back();
-            
-            while (del_counter != 0)
-            {
-                m_locals.pop_back();
-                del_counter--;
-            }
-
-            m_frames.back().resetScopeCountToDelete();
-
-            if (m_frames.size() == m_until_frame_count)
-                m_running = false;
-        }
-
-        inline void createNewScope()
-        {
-            // high cpu cost
-            m_locals.emplace_back(
-                std::make_shared<std::vector<internal::Value>>(
-                    m_state->m_symbols.size(), internal::FFI::undefined
-                )
-            );
-        }
+        /**
+         * @brief Destroy the current frame and get back to the previous one, resuming execution
+         * 
+         * Doing the job nobody wants to do: cleaning after everyone has finished to play.
+         * This is a sort of primitive garbage collector
+         * 
+         */
+        inline void returnFromFuncCall();
 
         // error handling
 
-        inline void throwVMError(const std::string& message)
-        {
-            throw std::runtime_error("VMError: " + message);
-        }
+        /**
+         * @brief Find the nearest variable id with a given value
+         * 
+         * Only used to display the call stack traceback
+         * 
+         * @param value the value to search for
+         * @return uint16_t 
+         */
+        uint16_t findNearestVariableIdWithValue(internal::Value&& value);
 
-        // stack management
+        /**
+         * @brief Throw a VM error message
+         * 
+         * @param message 
+         */
+        void throwVMError(const std::string& message);
 
-        inline internal::Value* pop(int page=-1);
-        inline void push(const internal::Value& value);
-        inline void push(internal::Value&& value);
+        /**
+         * @brief Display a backtrace when the VM encounter an exception
+         * 
+         */
+        void backtrace();
 
+        /**
+         * @brief Function called when the CALL instruction is met in the bytecode
+         * 
+         * @param argc_ number of arguments already sent, default to -1 if it needs to search for them by itself
+         */
         inline void call(int16_t argc_=-1);
 
         // function calling from plugins
 
+        /**
+         * @brief Resolving a function call (called by the resolve method of a Value)
+         * 
+         * @tparam Args 
+         * @param val the ArkScript function object
+         * @param args C++ argument list
+         * @return internal::Value 
+         */
         template <typename... Args>
-        internal::Value resolve(const internal::Value* val, Args&&... args)
-        {
-            using namespace Ark::internal;
-
-            if (val->valueType() != ValueType::PageAddr &&
-                val->valueType() != ValueType::Closure &&
-                val->valueType() != ValueType::CProc)
-                throw Ark::TypeError("Value::resolve couldn't resolve a non-function");
-            
-            int ip = m_ip;
-            std::size_t pp = m_pp;
-
-            // convert and push arguments in reverse order
-            std::vector<Value> fnargs { { args... } };
-            for (auto it=fnargs.rbegin(); it != fnargs.rend(); ++it)
-                push(*it);
-            // push function
-            push(*val);
-
-            std::size_t frames_count = m_frames.size();
-            // call it
-            call(static_cast<int16_t>(sizeof...(Args)));
-            // reset instruction pointer, otherwise the safeRun method will start at ip = -1
-            // without doing m_ip++ as intended (done right after the call() in the loop, but here
-            // we start outside this loop)
-            m_ip = 0;
-
-            // run until the function returns
-            safeRun(/* untilFrameCount */ frames_count);
-
-            // restore VM state
-            m_ip = ip;
-            m_pp = pp;
-
-            // get result
-            if (m_frames.back().stackSize() != 0)
-                return *pop();
-            else
-                return FFI::nil;
-        }
+        internal::Value resolve(const internal::Value* val, Args&&... args);
     };
-}
 
-namespace Ark
-{
-    #include "VM.inl"
+    #include "inline/VM.inl"
 
     namespace internal
     {
-        #include "Value.inl"
+        #include "inline/Value_VM.inl"
     }
-
-    // debug on
-    using VM_debug = VM_t<true>;
-    // standard VM, debug off
-    using VM = VM_t<false>;
 
     // aliases
     using Value = internal::Value;
     using ValueType = internal::ValueType;
-    const Value Nil = Value(internal::NFT::Nil);
-    const Value False = Value(internal::NFT::False);
-    const Value True = Value(internal::NFT::True);
+
+    /// ArkScript Nil value
+    const Value Nil = Value(internal::ValueType::Nil);
+    /// ArkScript False value
+    const Value False = Value(internal::ValueType::False);
+    /// ArkScript True value
+    const Value True = Value(internal::ValueType::True);
 }
 
 #endif

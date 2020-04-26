@@ -14,19 +14,18 @@ matrix:
       env:
         - C_COMPILER=gcc-8 CXX_COMPILER=g++-8
 
-    # need MacOS 10.15 to work, travis has only the 10.14
-    #- os: osx
-    #  osx_image: xcode11.2
-    #  compiler:
-    #      - clang
-    #      - gcc
-    #  addons:
-    #    homebrew:
-    #      packages:
-    #        - llvm
-    #      update: true
-    #  env:
-    #    - C_COMPILER=clang CXX_COMPILER=clang++
+    - os: osx
+      #compiler:
+      #    - clang
+      #    - gcc
+      #addons:
+      #  homebrew:
+      #    packages:
+      #      - llvm
+      #    update: true
+      env:
+        - C_COMPILER=clang
+        - CXX_COMPILER=clang++
 
     - os: linux
       addons:

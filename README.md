@@ -17,7 +17,7 @@
 
 ArkScript is
 * small: the compiler, and the virtual machines fit under 5000 lines, but also small in term of keywords (it has only 10)!
-* a scripting language: it's very easy to embed it in your application. The FFI is quite easy to understand, so adding your own functions to the virtual machine is effortless
+* a scripting language: it's very easy to embed it in your application. The builtin construction is quite easy to understand, so adding your own functions to the virtual machine is effortless
 * portable: it produces a bytecode which is run by its virtual machine, like Java but without the `OutOfMemoryException`
 * a functional language: every parameter is passed by value, everything is immutable unless you use `mut` to define a mutable variable
 * powerful: it can handle object oriented programming in a very elegant way with its closures and explicit captures (see examples/church-encoding)
@@ -101,7 +101,7 @@ Who worked on
     * [@rinz13r](https://github.com/rinz13r)
     * [@FrenchMasterSword](https://github.com/FrenchMasterSword)
     * [@rstefanic](https://github.com/rstefanic)
-* the FFI
+* the builtins
     * [@SuperFola](https://github.com/SuperFola)
     * [@rinz13r](https://github.com/rinz13r)
 * the REPL
@@ -122,7 +122,7 @@ Who worked on
 
 See [Coding guidelines](https://github.com/ArkScript-lang/Ark/wiki/Coding-guidelines#coding-in-ark) if you want to write ArkScript for the library (see folder `lib/`).
 
-For performance reasons, some functions might be written in C++, in `include/Ark/VM/FFI.hpp` and `src/VM/FFI/`.
+For performance reasons, some functions might be written in C++, in `include/Ark/Builtins/Builtins.hpp` and `src/Builtins/`.
 
 ### Code structure
 
@@ -165,7 +165,7 @@ SYNOPSIS
         build/Ark -h, --help
         build/Ark --version
         build/Ark --dev-info
-        build/Ark ((<file> [-c]) | -r) [-(d|bcr)] [-L <lib_dir>] [-f(function-arity-check|no-function-arity-check)] [-f(allow-invalid-token-after-paren|no-invalid-token-after-paren)]
+        build/Ark ((<file> [-c]) | -r) [-(d|bcr)] [-L <lib_dir>] [-f(fac|no-fac)] [-f(aitap|no-aitap)]
 
 OPTIONS
         -h, --help                  Display this message
@@ -176,12 +176,8 @@ OPTIONS
         -d, --debug...              Increase debug level (default: 0)
         -bcr, --bytecode-reader     Launch the bytecode reader
         -L, --lib                   Set the location of the ArkScript standard library
-
-        -f(function-arity-check|no-function-arity-check)
-                                    Toggle function arity checks (default: ON)
-
-        -f(allow-invalid-token-after-paren|no-invalid-token-after-paren)
-                                    Authorize invalid token after `(' (default: OFF). When ON, only display a warning
+        -f(fac|no-fac)              Toggle function arity checks (default: ON)
+        -f(aitap|no-aitap)          Authorize invalid token after `(' (default: OFF). When ON, only display a warning
 
 LICENSE
         Mozilla Public License 2.0
@@ -189,22 +185,7 @@ LICENSE
 
 ## Performances
 
-Compiled on WSL (Ubuntu 18.04.3 LTS 64 bits), 25 independants runs, 5 consecutives runs to have a nice median.
-
-Run on (8 X 1992 MHz CPU s)
-CPU Caches:
-* L1 Data 32K (x4)
-* L1 Instruction 32K (x4)
-* L2 Unified 262K (x4)
-* L3 Unified 8388K (x1)
-
-The test here is the Ackermann-Peter function with m=3 and n=6:
-
-| data   | ArkScript | C++ (g++ 8.3.0) | Java (OpenJDK 11.0.6) 64 bits | Lua 5.1.5 | Python 3.6.9 |
-| ------ | --------- | --------------- | ----------------------------- | --------- | ------------ |
-| mean   | 51.5 ms   | 0.144 ms        | 0.211 ms                      | 13.553 ms | 9.125 ms     |
-| median | 51.1 ms   | 0.142 ms        | 0.179 ms                      | 13.404 ms | 9.375 ms     |
-| stddev | 0.619 ms  | 0.003 ms        | 0.906 ms                      | 0.146 ms  | 0.865 ms     |
+See [benchmarks/README.md](benchmarks/README.md)
 
 ## Games
 

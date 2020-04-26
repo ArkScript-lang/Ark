@@ -9,40 +9,59 @@
 
 namespace Ark
 {
+    /**
+     * @brief A class to be use C++ objects in ArkScript
+     * 
+     * A pointer to the value you want to store
+     * must be sent, thus the value must not be destroyed while the UserType lives,
+     * otherwise it would result in an UB when trying to use the object
+    */
     class UserType
     {
     public:
         using FuncStream_t = std::function<std::ostream& (std::ostream& os, const UserType& A)>;
 
+        /**
+         * @brief Construct a new User Type object
+         * 
+         * @tparam T the type of the pointer
+         * @param data a pointer to the data to store in the object
+         */
         template <typename T>
         explicit UserType(T* data=nullptr) :
             m_data(static_cast<void*>(data)),
             m_ostream_func(nullptr),
             m_type_id(std::type_index(typeid(T)))
-        {
-        }
+        {}
 
-        inline void setOStream(FuncStream_t&& f)
-        {
-            m_ostream_func = std::move(f);
-        }
+        /**
+         * @brief Set the ostream function
+         * 
+         * @param f the function
+         */
+        inline void setOStream(FuncStream_t&& f);
 
-        inline const std::type_index type_id() const
-        {
-            return m_type_id;
-        }
+        /**
+         * @brief Get the type id of the value held by the object
+         * 
+         * @return const std::type_index 
+         */
+        inline const std::type_index type_id() const;
 
-        inline void* data() const
-        {
-            return m_data;
-        }
+        /**
+         * @brief Get the pointer to the object
+         * 
+         * @return void* 
+         */
+        inline void* data() const;
 
-        // custom operators
-        inline bool not_() const
-        {
-            // TODO let the user implement his/her own
-            return false;
-        }
+        /**
+         * @brief User implemented `not` operator
+         * 
+         * @return true 
+         * @return false 
+         */
+        inline bool not_() const;
 
         friend inline bool operator==(const UserType& A, const UserType& B);
         friend inline bool operator<(const UserType& A, const UserType& B);
@@ -54,24 +73,7 @@ namespace Ark
         FuncStream_t m_ostream_func;
     };
 
-    inline bool operator==(const UserType& A, const UserType& B)
-    {
-        return (A.m_type_id == B.m_type_id) && (A.m_data == B.m_data);
-    }
-
-    inline bool operator<(const UserType& A, const UserType& B)
-    {
-        return false;
-    }
-
-    inline std::ostream& operator<<(std::ostream& os, const UserType& A)
-    {
-        if (A.m_ostream_func != nullptr)
-            return A.m_ostream_func(os, A);
-        
-        os << "UserType<" << A.m_type_id.hash_code() << ", 0x" << A.m_data << ">";
-        return os;
-    }
+    #include "inline/UserType.inl"
 }
 
 #endif

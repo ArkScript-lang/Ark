@@ -24,7 +24,7 @@ int main(int argc, char** argv)
     enum class mode { help, dev_info, bytecode_reader, version, run, repl, compile };
     mode selected = mode::help;
 
-    std::string file = "", lib_dir = "";
+    std::string file = "", lib_dir = "?";
     unsigned debug = 0;
     std::vector<std::string> wrong;
     uint16_t options = Ark::DefaultFeatures;
@@ -60,12 +60,12 @@ int main(int argc, char** argv)
                     // a single feature should always be defined with an ON and an OFF version, and documentation
                     // all features must be separated by commas as following
                     // exclusing feature flags (ON/OFF) should be separated by pipes
-                    ( option("function-arity-check"   ).call([&]{ options |= Ark::FeatureFunctionArityCheck; })
-                    | option("no-function-arity-check").call([&]{ options &= ~Ark::FeatureFunctionArityCheck; })
+                    ( option("fac"   ).call([&]{ options |= Ark::FeatureFunctionArityCheck; })
+                    | option("no-fac").call([&]{ options &= ~Ark::FeatureFunctionArityCheck; })
                     ).doc("Toggle function arity checks (default: ON)")
                     ,
-                    ( option("allow-invalid-token-after-paren").call([&]{ options &= ~Ark::FeatureDisallowInvalidTokenAfterParen; })
-                    | option("no-invalid-token-after-paren"   ).call([&]{ options |= Ark::FeatureDisallowInvalidTokenAfterParen; })
+                    ( option("aitap"   ).call([&]{ options &= ~Ark::FeatureDisallowInvalidTokenAfterParen; })
+                    | option("no-aitap").call([&]{ options |= Ark::FeatureDisallowInvalidTokenAfterParen; })
                     ).doc("Authorize invalid token after `(' (default: OFF). When ON, only display a warning")
                 )
             )
@@ -146,17 +146,8 @@ int main(int argc, char** argv)
                     return -1;
                 }
 
-                if (debug >= 2)
-                {
-                    Ark::VM_debug vm(&state);
-                    return vm.run();
-                }
-                else
-                {
-                    Ark::VM vm(&state);
-                    return vm.run();
-                }
-                break;
+                Ark::VM vm(&state);
+                return vm.run();
             }
             
             case mode::bytecode_reader:

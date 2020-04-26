@@ -16,23 +16,13 @@ local function ackermann(m, n)
   return ackermann(m-1, ackermann(m, n-1))
 end
 
-results = {}
-for i=1,25 do
-  temp = {}
-  for j=1,5 do
-    start = os.clock()
-    ackermann(3, 6)
-    table.insert(temp, (os.clock() - start) * 1000)
-  end
+local socket=require 'socket'
 
-  r = table.reduce(
-      temp,
-      function (a, b)
-          return a + b
-      end
-  )
-  r = r / 5
-  table.insert(results, r)
+results = {}
+for i=1,125 do
+  start = socket.gettime()
+  ackermann(3, 6)
+  table.insert(results, (socket.gettime() - start) * 1000)
 end
 
 local function quantile(t, q)
@@ -79,7 +69,8 @@ function standardDeviation(t, m)
 end
 
 sum = table.reduce(results, function (a, b) return a + b end)
-mean = sum / 25
+mean = sum / 125
+
 print("Mean time:", mean, "ms")
 
 print("Median time:", median(results), "ms")

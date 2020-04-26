@@ -14,10 +14,8 @@ if (CMAKE_COMPILER_IS_GNUCXX)
 elseif (MSVC)
     set(CMAKE_CXX_FLAGS_DEBUG "/DWIN32 /D_WINDOWS /W3 /GR /EHa /MDd" CACHE STRING "Debug compilation options" FORCE)
     set(CMAKE_CXX_FLAGS_RELEASE "/DNDEBUG /DWIN32 /D_WINDOWS /W3 /GR /EHa /Ox /Ob2 /Oi /Ot /Oy /MD" CACHE STRING "Release compilation options" FORCE)
-endif()
-
-if (CMAKE_COMPILER_IS_GNUCXX)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,-rpath,/usr/local/lib")
+    add_compile_options(/wd4267)  # disable warning about data loss (size_t -> int)
+    add_compile_options(/wd4244)  # disable warning about data loss (size_t -> char)
 elseif (CMAKE_COMPILER_IS_CLANG)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++abi")
@@ -39,17 +37,6 @@ set(ARK_COMPILATION_OPTIONS ${CMAKE_CXX_FLAGS})
 set(ARK_COMPILER ${CMAKE_CXX_COMPILER_ID})
 set(ARK_SUBMODULES_ROOT ${Ark_SOURCE_DIR}/submodules)
 set(ARK_ENABLE_SYSTEM 1)  # enable use of (system "command here")
-
-# STANDARD LIBRARY PATH
-if (UNIX OR LINUX)
-    set(ARK_STD ${CMAKE_INSTALL_PREFIX}/share/.Ark/lib)
-elseif (WIN32)
-    if (MSVC)
-        set(ARK_STD ${CMAKE_INSTALL_PREFIX}/lib)
-        add_compile_options(/wd4267)  # disable warning about data loss (size_t -> int)
-        add_compile_options(/wd4244)  # disable warning about data loss (size_t -> char)
-    endif()
-endif()
 
 configure_file(
     ${Ark_SOURCE_DIR}/include/Ark/Constants.hpp.in
@@ -82,9 +69,7 @@ if (UNIX OR LINUX)
     elseif (CMAKE_COMPILER_IS_CLANG)
         target_link_libraries(ArkReactor PUBLIC c++fs)
     endif()
-endif()
 
-if (UNIX OR LINUX)
     target_link_libraries(ArkReactor PUBLIC ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 endif()
 

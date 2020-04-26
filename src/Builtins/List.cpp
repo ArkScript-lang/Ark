@@ -1,50 +1,50 @@
-#include <Ark/FFI/FFI.hpp>
+#include <Ark/Builtins/Builtins.hpp>
 
 #include <iterator>
 #include <algorithm>
 
-#include <Ark/FFI/FFIErrors.inl>
-#define FFI_Function(name) Value name(std::vector<Value>& n)
+#include <Ark/Builtins/BuiltinsErrors.inl>
+#define Builtins_Function(name) Value name(std::vector<Value>& n)
 
-namespace Ark::internal::FFI::List
+namespace Ark::internal::Builtins::List
 {
-    FFI_Function(append)
+    Builtins_Function(append)
     {
         if (n.size() < 2)
             throw std::runtime_error(LIST_APPEND_ARITY);
         if (n[0].valueType() != ValueType::List)
             throw Ark::TypeError(LIST_APPEND_TE0);
 
-        for (Value::Iterator it=n.begin()+1; it != n.end(); ++it)
+        for (Value::Iterator it=n.begin()+1, it_end=n.end(); it != it_end; ++it)
             n[0].push_back(*it);
         return n[0];
     }
 
-    FFI_Function(concat)
+    Builtins_Function(concat)
     {
         if (n[0].valueType() != ValueType::List)
             throw Ark::TypeError(LIST_CONCAT_ARITY);
 
-        for (Value::Iterator it=n.begin()+1; it != n.end(); ++it)
+        for (Value::Iterator it=n.begin()+1, it_end=n.end(); it != it_end; ++it)
         {
             if (it->valueType() != ValueType::List)
                 throw Ark::TypeError(LIST_CONCAT_TE);
 
-            for (Value::Iterator it2=it->const_list().begin(); it2 != it->const_list().end(); ++it2)
+            for (Value::Iterator it2=it->const_list().begin(), it2_end=it->const_list().end(); it2 != it2_end; ++it2)
                 n[0].push_back(*it2);
         }
         return n[0];
     }
 
-    FFI_Function(list)
+    Builtins_Function(list)
     {
         Value r(ValueType::List);
-        for (Value::Iterator it=n.begin(); it != n.end(); ++it)
+        for (Value::Iterator it=n.begin(), it_end=n.end(); it != it_end; ++it)
             r.push_back(*it);
         return r;
     }
 
-    FFI_Function(reverseList)
+    Builtins_Function(reverseList)
     {
         if (n[0].valueType() != ValueType::List)
             throw Ark::TypeError(LIST_REVERSE_ARITY);
@@ -56,7 +56,7 @@ namespace Ark::internal::FFI::List
         return n[0];
     }
 
-    FFI_Function(findInList)
+    Builtins_Function(findInList)
     {
         if (n.size() != 2)
             throw std::runtime_error(LIST_FIND_ARITY);
@@ -64,16 +64,16 @@ namespace Ark::internal::FFI::List
             throw Ark::TypeError(LIST_FIND_TE0);
         
         std::vector<Value>& l = n[0].list();
-        for (Value::Iterator it=l.begin(); it != l.end(); ++it)
+        for (Value::Iterator it=l.begin(), it_end=l.end(); it != it_end; ++it)
         {
             if (*it == n[1])
                 return Value(static_cast<int>(std::distance<Value::Iterator>(l.begin(), it)));
         }
 
-        return FFI::nil;
+        return Builtins::nil;
     }
 
-    FFI_Function(removeAtList)
+    Builtins_Function(removeAtList)
     {
         if (n.size() != 2)
             throw std::runtime_error(LIST_RMAT_ARITY);
@@ -90,7 +90,7 @@ namespace Ark::internal::FFI::List
         return n[0];
     }
 
-    FFI_Function(sliceList)
+    Builtins_Function(sliceList)
     {
         if (n.size () != 4)
             throw std::runtime_error(LIST_SLICE_ARITY);
@@ -123,7 +123,7 @@ namespace Ark::internal::FFI::List
         return ret;
     }
 
-    FFI_Function(sort_)
+    Builtins_Function(sort_)
     {
         if (n.size() != 1)
             throw std::runtime_error(LIST_SORT_ARITY);
@@ -134,7 +134,7 @@ namespace Ark::internal::FFI::List
         return n[0];
     }
 
-    FFI_Function(fill)
+    Builtins_Function(fill)
     {
         if (n.size() != 2)
             throw std::runtime_error(LIST_FILL_ARITY);
@@ -149,7 +149,7 @@ namespace Ark::internal::FFI::List
         return Value(std::move(l));
     }
 
-    FFI_Function(setListAt)
+    Builtins_Function(setListAt)
     {
         if (n.size() != 3)
             throw std::runtime_error(LIST_SETAT_ARITY);

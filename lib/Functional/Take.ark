@@ -1,9 +1,9 @@
-(let take (fun (n L) {
-    (mut idx 0)
-    (mut output [])
-    (while (and (< idx n) (< idx (len L))) {
-        (set output (append output (@ L idx)))
-        (set idx (+ 1 idx))
+(let take (fun (_n _L) {
+    (mut _index 0)
+    (mut _output [])
+    (while (and (< _index _n) (< _index (len _L))) {
+        (set _output (append _output (@ _L _index)))
+        (set _index (+ 1 _index))
     })
-    output
+    _output
 }))

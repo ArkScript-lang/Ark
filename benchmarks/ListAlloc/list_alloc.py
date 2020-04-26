@@ -1,17 +1,19 @@
-import timeit
+import time
 
 
-def list_alloc():
-    data = [None]
-    while len(data) < 1000:
-        data += data
+def allocate():
+    data = [0] * 1000
+    return data
 
 
 if __name__ == '__main__':
-    results = [i / 5 * 1000 for i in timeit.repeat(lambda: list_alloc(), repeat=25, number=5)]
-    for r in results:
-        print(f"Run time: {r}ms")
-    
+    results = []
+    for i in range(125):
+        start = time.perf_counter()
+        allocate()
+        stop = time.perf_counter() - start
+        results.append(stop * 1000)  # time.perf_counter is in seconds
+
     mean = sum(results) / len(results)
     print(f"Mean time: {mean}ms")
 
