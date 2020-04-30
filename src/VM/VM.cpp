@@ -839,7 +839,7 @@ namespace Ark
                     uint16_t id = findNearestVariableIdWithValue(
                         Value(static_cast<PageAddr_t>(it->currentPageAddr()))
                     );
-                    
+
                     std::cerr << "In function `" << termcolor::green << m_state->m_symbols[id] << termcolor::reset << "'\n";
                 }
                 else
@@ -850,6 +850,14 @@ namespace Ark
                     std::cerr << "...\n";
                     break;
                 }
+            }
+
+            // display variables values in the current scope
+            std::cerr << "\nCurrent scope variables values:\n";
+            for (std::size_t i=0, size=m_locals.back()->size(); i < size; ++i)
+            {
+                if ((*m_locals.back())[i].m_type != ValueType::Undefined)
+                    std::cerr << termcolor::cyan << m_state->m_symbols[i] << termcolor::reset << " = " << (*m_locals.back())[i] << "\n";
             }
 
             // if persistance is on, clear frames to keep only the global one
