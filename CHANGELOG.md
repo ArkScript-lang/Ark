@@ -7,6 +7,7 @@
 - `(setListAt list at new-value)` modify a list in place and return the new list value
 - adding UTF-8 support in programs (experimental)
 - more benchmarks
+- on error, the VM now display the value of each variable in the current scope
 
 ### Changed
 - UserType does not need to be given a manually defined type id but relies on `typeid(T)`
