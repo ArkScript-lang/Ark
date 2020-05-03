@@ -110,6 +110,8 @@ int main(int argc, char** argv)
                 std::cout << "sizeof(Ark::Closure)  = " << sizeof(Ark::internal::Closure) << "B\n";
                 std::cout << "sizeof(Ark::UserType) = " << sizeof(Ark::UserType) << "B\n";
                 std::cout << "sizeof(Ark::VM)       = " << sizeof(Ark::VM) << "B\n";
+                std::cout << "sizeof(vector<Ark::Value>) = " << sizeof(std::vector<Ark::internal::Value>) << "B\n";
+                std::cout << "sizeof(std::string)   = " << sizeof(std::string) << "B\n";
                 std::cout << "sizeof(char)          = " << sizeof(char) << "B\n";
                 std::cout << std::endl;
                 break;
