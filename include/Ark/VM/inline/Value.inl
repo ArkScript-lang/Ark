@@ -49,11 +49,6 @@ inline const Closure& Value::closure() const
 
 // operators
 
-inline bool operator==(const Value::ProcType& f, const Value::ProcType& g)
-{
-    return f.target_type() == g.target_type();
-}
-
 inline bool operator==(const Value& A, const Value& B)
 {
     // values should have the same type
