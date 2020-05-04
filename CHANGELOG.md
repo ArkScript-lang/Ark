@@ -23,6 +23,7 @@
 - transforming inline code from the vm into not inline code when possible to speed compilation, using macros instead of inline functions
 - smaller value class
 - smaller vm frames
+- forked madureira/String and modified it for the needs of the project, added it as a submodule
 
 ### Removed
 - removed NFT from the internal API to rely only on the value type

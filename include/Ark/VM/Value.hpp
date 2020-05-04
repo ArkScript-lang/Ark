@@ -9,7 +9,7 @@
 #include <memory>
 #include <functional>
 #include <utility>
-#include <madureira/String.hpp>  // our string implementation
+#include <Ark/String.hpp>  // our string implementation
 #include <string.h>  // strcmp
 
 #include <Ark/VM/Types.hpp>
