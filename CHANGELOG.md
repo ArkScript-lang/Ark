@@ -8,6 +8,7 @@
 - adding UTF-8 support in programs (experimental)
 - more benchmarks
 - on error, the VM now display the value of each variable in the current scope
+- added thirdparty/madureira/String, to replace std::string in Ark::internal::Value which was heavy and slower than the new implementation
 
 ### Changed
 - UserType does not need to be given a manually defined type id but relies on `typeid(T)`
@@ -20,6 +21,8 @@
 - renaming the FFI "builtins" because it's not a FFI but a set of functions using the VM API
 - the VM should display a backtrace even if an unknown error occured
 - transforming inline code from the vm into not inline code when possible to speed compilation, using macros instead of inline functions
+- smaller value class
+- smaller vm frames
 
 ### Removed
 - removed NFT from the internal API to rely only on the value type
