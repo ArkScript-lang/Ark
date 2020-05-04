@@ -26,7 +26,7 @@ namespace Ark::internal::Builtins::String
             else
                 throw Ark::TypeError(STR_FORMAT_TE1);
         }
-        n[0].string_ref() = String(std::string(f).c_str());
+        n[0].string_ref() = ::String(std::string(f).c_str());
         return n[0];
     }
 

@@ -62,7 +62,7 @@ public:
         return m_Buffer;
     }
 
-    bool equals(String& other) const
+    bool equals(const String& other) const
     {
         if (m_Length != other.size()) return false;
         unsigned int n = 0;
@@ -284,7 +284,7 @@ public:
         return *this;
     }
 
-    std::string toString()
+    std::string toString() const
     {
         return std::string(m_Buffer);
     }
@@ -318,47 +318,47 @@ public:
         return m_Buffer[index];
     }
 
-    friend bool operator==(String& left, String& right)
+    friend bool operator==(const String& left, const String& right)
     {
         return left.equals(right);
     }
 
-    friend bool operator==(String& left, const char* right)
+    friend bool operator==(const String& left, const char* right)
     {
         return left.equals(right);
     }
 
-    friend bool operator==(const char* left, String& right)
+    friend bool operator==(const char* left, const String& right)
     {
         return right.equals(left);
     }
 
-    friend bool operator!=(String& left, String& right)
+    friend bool operator!=(const String& left, const String& right)
     {
         return !left.equals(right);
     }
 
-    friend bool operator!=(String& left, const char* right)
+    friend bool operator!=(const String& left, const char* right)
     {
         return !left.equals(right);
     }
 
-    friend bool operator!=(const char* left, String& right)
+    friend bool operator!=(const char* left, const String& right)
     {
         return !right.equals(left);
     }
 
-    friend bool operator<(String& left, String& right)
+    friend bool operator<(const String& left, const String& right)
     {
         return strcmp(left.c_str(), right.c_str()) < 0;
     }
 
-    friend bool operator<(String& left, const char* right)
+    friend bool operator<(const String& left, const char* right)
     {
         return strcmp(left.c_str(), right) < 0;
     }
 
-    friend bool operator<(const char* left, String& right)
+    friend bool operator<(const char* left, const String& right)
     {
         return strcmp(left, right.c_str()) < 0;
     }

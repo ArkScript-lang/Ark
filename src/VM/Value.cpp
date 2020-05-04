@@ -3,7 +3,7 @@
 #include <Ark/VM/Frame.hpp>
 #include <Ark/Utils.hpp>
 
-namespace Ark
+namespace Ark::internal
 {
     Value::Value() :
         m_type(ValueType::Undefined)
