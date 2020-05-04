@@ -55,7 +55,7 @@ namespace Ark::internal::Builtins::String
         if (id < 0 || id > n[0].string_ref().size())
             throw std::runtime_error(STR_RM_OOR);
 
-        n[0].string_ref().erase(id);
+        n[0].string_ref().erase(id, id + 1);
         return n[0];
     }
 }
