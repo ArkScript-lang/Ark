@@ -31,17 +31,17 @@ inline std::size_t Frame::stackSize() const
     return m_i;
 }
 
-inline std::size_t Frame::callerAddr() const
+inline uint16_t Frame::callerAddr() const
 {
     return m_addr;
 }
 
-inline std::size_t Frame::callerPageAddr() const
+inline uint16_t Frame::callerPageAddr() const
 {
     return m_page_addr;
 }
 
-inline std::size_t Frame::currentPageAddr() const
+inline uint16_t Frame::currentPageAddr() const
 {
     return m_new_pp;
 }
