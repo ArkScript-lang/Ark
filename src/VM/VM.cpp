@@ -458,7 +458,7 @@ namespace Ark
                             {
                                 if (b->m_type != ValueType::Number)
                                     throw Ark::TypeError("Arguments of + should have the same type");
-                                
+
                                 push(Value(a->number() + b->number()));
                                 break;
                             }
@@ -480,7 +480,7 @@ namespace Ark
                                 throw Ark::TypeError("Arguments of - should be Numbers");
                             if (b->m_type != ValueType::Number)
                                 throw Ark::TypeError("Arguments of - should be Numbers");
-                            
+
                             push(Value(a->number() - b->number()));
                             break;
                         }
@@ -492,7 +492,7 @@ namespace Ark
                                 throw Ark::TypeError("Arguments of * should be Numbers");
                             if (b->m_type != ValueType::Number)
                                 throw Ark::TypeError("Arguments of * should be Numbers");
-                            
+
                             push(Value(a->number() * b->number()));
                             break;
                         }
@@ -504,7 +504,7 @@ namespace Ark
                                 throw Ark::TypeError("Arguments of / should be Numbers");
                             if (b->m_type != ValueType::Number)
                                 throw Ark::TypeError("Arguments of / should be Numbers");
-                            
+
                             auto d = b->number();
                             if (d == 0)
                                 throw Ark::ZeroDivisionError();
