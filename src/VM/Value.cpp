@@ -3,7 +3,7 @@
 #include <Ark/VM/Frame.hpp>
 #include <Ark/Utils.hpp>
 
-namespace Ark::internal
+namespace Ark
 {
     Value::Value() :
         m_type(ValueType::Undefined)
@@ -31,10 +31,14 @@ namespace Ark::internal
     {}
 
     Value::Value(const std::string& value) :
+        m_value(value.c_str()), m_type(ValueType::String), m_const(false)
+    {}
+
+    Value::Value(const String& value) :
         m_value(value), m_type(ValueType::String), m_const(false)
     {}
 
-    Value::Value(std::string&& value) :
+    Value::Value(const char* value) :
         m_value(value), m_type(ValueType::String), m_const(false)
     {}
 
@@ -70,9 +74,9 @@ namespace Ark::internal
         return std::get<Closure>(m_value);
     }
 
-    std::string& Value::string_ref()
+    String& Value::string_ref()
     {
-        return std::get<std::string>(m_value);
+        return std::get<String>(m_value);
     }
 
     UserType& Value::usertype_ref()
@@ -142,11 +146,11 @@ namespace Ark::internal
             os << d;
             break;
         }
-        
+
         case ValueType::String:
-            os << V.string();
+            os << V.string().c_str();
             break;
-        
+
         case ValueType::PageAddr:
             os << "Function @ " << V.pageAddr();
             break;
@@ -154,7 +158,7 @@ namespace Ark::internal
         case ValueType::CProc:
             os << "CProcedure";
             break;
-        
+
         case ValueType::List:
         {
             os << "[";
@@ -174,27 +178,27 @@ namespace Ark::internal
         case ValueType::Closure:
             os << V.closure();
             break;
-        
+
         case ValueType::User:
             os << V.usertype();
             break;
-        
+
         case ValueType::Nil:
             os << "nil";
             break;
-        
+
         case ValueType::True:
             os << "true";
             break;
-        
+
         case ValueType::False:
             os << "false";
             break;
-        
+
         case ValueType::Undefined:
             os << "undefined";
             break;
-        
+
         default:
             os << "~\\._./~";
             break;

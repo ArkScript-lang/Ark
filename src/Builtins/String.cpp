@@ -1,6 +1,7 @@
 #include <Ark/Builtins/Builtins.hpp>
 
 #include <fmt/format.hpp>
+#include <madureira/String.hpp>
 
 #include <Ark/Builtins/BuiltinsErrors.inl>
 #define Builtins_Function(name) Value name(std::vector<Value>& n)
@@ -14,18 +15,18 @@ namespace Ark::internal::Builtins::String
         if (n[0].valueType() != ValueType::String)
             throw Ark::TypeError(STR_FORMAT_TE0);
 
-        rj::format f(n[0].string());
+        rj::format f(n[0].string().c_str());
 
         for (Value::Iterator it=n.begin()+1, it_end=n.end(); it != it_end; ++it)
         {
             if (it->valueType() == ValueType::String)
-                f.args(it->string());
+                f.args(it->string().c_str());
             else if (it->valueType() == ValueType::Number)
                 f.args(it->number());
             else
                 throw Ark::TypeError(STR_FORMAT_TE1);
         }
-        n[0].string_ref() = std::string(f);
+        n[0].string_ref() = String(std::string(f).c_str());
         return n[0];
     }
 
@@ -37,8 +38,8 @@ namespace Ark::internal::Builtins::String
             throw Ark::TypeError(STR_FIND_TE0);
         if (n[1].valueType() != ValueType::String)
             throw Ark::TypeError(STR_FIND_TE1);
-        
-        return (n[0].string().find(n[1].string()) != std::string::npos) ? trueSym : falseSym;
+
+        return (n[0].string_ref().find(n[1].string_ref()) != -1) ? trueSym : falseSym;
     }
 
     Builtins_Function(removeAtStr)
@@ -51,10 +52,10 @@ namespace Ark::internal::Builtins::String
             throw Ark::TypeError(STR_RM_TE1);
 
         long id = static_cast<long>(n[1].number());
-        if (id < 0 || id > n[0].string().size())
+        if (id < 0 || id > n[0].string_ref().size())
             throw std::runtime_error(STR_RM_OOR);
 
-        n[0].string_ref().erase(n[0].string_ref().begin() + id);
+        n[0].string_ref().erase(id);
         return n[0];
     }
 }

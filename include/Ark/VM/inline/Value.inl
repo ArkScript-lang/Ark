@@ -15,9 +15,9 @@ inline double Value::number() const
     return std::get<double>(m_value);
 }
 
-inline const std::string& Value::string() const
+inline const String& Value::string() const
 {
-    return std::get<std::string>(m_value);
+    return std::get<String>(m_value);
 }
 
 inline const std::vector<Value>& Value::const_list() const
@@ -56,7 +56,7 @@ inline bool operator==(const Value& A, const Value& B)
         return false;
     else if (A.m_type == ValueType::Nil || A.m_type == ValueType::True || A.m_type == ValueType::False || A.m_type == ValueType::Undefined)
         return true;
-    
+
     return A.m_value == B.m_value;
 }
 
@@ -78,23 +78,23 @@ inline bool operator!(const Value& A)
     {
         case ValueType::List:
             return A.const_list().empty();
-        
+
         case ValueType::Number:
             return !A.number();
-        
+
         case ValueType::String:
-            return A.string().empty();
+            return A.string().size() == 0;
 
         case ValueType::User:
             return A.usertype().not_();
-        
+
         case ValueType::Nil:
         case ValueType::False:
             return true;
-        
+
         case ValueType::True:
             return false;
-        
+
         default:
             return false;
     }

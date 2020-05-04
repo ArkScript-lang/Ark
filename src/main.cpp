@@ -115,7 +115,7 @@ int main(int argc, char** argv)
                 std::cout << "sizeof(char)          = " << sizeof(char) << "B\n";
                 std::cout << std::endl;
                 break;
-            
+
             case mode::repl:
             {
                 Ark::Repl repl(options, lib_dir);

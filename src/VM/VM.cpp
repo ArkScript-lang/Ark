@@ -15,7 +15,7 @@
 #define popValFrom(page) m_frames[static_cast<std::size_t>(page)].pop()
 #define push(value) m_frames.back().push(value)
 // create a new locals scope
-#define createNewScope() m_locals.emplace_back(std::make_shared<std::vector<internal::Value>>(m_state->m_symbols.size(), internal::ValueType::Undefined));
+#define createNewScope() m_locals.emplace_back(std::make_shared<std::vector<Value>>(m_state->m_symbols.size(), ValueType::Undefined));
 // get a variable from a scope
 #define getVariableInCurrentScope(id) (*m_locals.back())[id]
 
@@ -24,8 +24,8 @@ namespace Ark
     VM::VM(State* state) :
         m_state(state), m_ip(0), m_pp(0), m_running(false), m_last_sym_loaded(0), m_until_frame_count(0)
     {
-        m_frames.reserve(128);
-        m_locals.reserve(128);
+        m_frames.reserve(16);
+        m_locals.reserve(4);
     }
 
     void VM::init()
@@ -137,7 +137,7 @@ namespace Ark
             Value("CProc"), Value("Closure"), Value("UserType"),
             Value("Nil"), Value("Bool"), Value("Bool"), Value("Undefined")
         };
-        
+
         try {
             m_running = true;
             while (m_running && m_frames.size() > m_until_frame_count)
@@ -170,7 +170,7 @@ namespace Ark
                         throwVMError("couldn't find symbol to load: " + m_state->m_symbols[id]);
                         break;
                     }
-                    
+
                     case Instruction::LOAD_CONST:
                     {
                         /*
@@ -303,7 +303,7 @@ namespace Ark
 
                         // save pp
                         PageAddr_t old_pp = static_cast<PageAddr_t>(m_pp);
-                        m_pp = m_frames.back().callerPageAddr();
+                        m_pp = static_cast<std::size_t>(m_frames.back().callerPageAddr());
                         m_ip = static_cast<int>(m_frames.back().callerAddr());
 
                         if (m_frames.back().stackSize() != 0)
@@ -466,7 +466,7 @@ namespace Ark
                             {
                                 if (b->m_type != ValueType::String)
                                     throw Ark::TypeError("Arguments of + should have the same type");
-                                
+
                                 push(Value(a->string() + b->string()));
                                 break;
                             }
@@ -608,7 +608,7 @@ namespace Ark
                                     push(Builtins::nil);
                                     break;
                                 }
-                                
+
                                 a->list().erase(a->const_list().begin());
                                 push(*a);
                             }
@@ -620,12 +620,12 @@ namespace Ark
                                     break;
                                 }
 
-                                a->string_ref().erase(a->string().begin());
+                                a->string_ref().erase_front(0);
                                 push(*a);
                             }
                             else
                                 throw Ark::TypeError("Argument of tailOf must be a list or a String");
-                            
+
                             break;
                         }
 
@@ -639,7 +639,7 @@ namespace Ark
                                     push(Builtins::nil);
                                     break;
                                 }
-                                
+
                                 a->list().pop_back();
                                 push(*a);
                             }
@@ -650,13 +650,13 @@ namespace Ark
                                     push(Builtins::nil);
                                     break;
                                 }
-                                
-                                a->string_ref().pop_back();
+
+                                a->string_ref().erase(a->string_ref().size() - 1);
                                 push(*a);
                             }
                             else
                                 throw Ark::TypeError("Argument of headOf must be a list or a String");
-                            
+
                             break;
                         }
 
@@ -674,7 +674,7 @@ namespace Ark
                                 if (b->m_type != ValueType::String)
                                     throw Ark::TypeError("Second argument of assert must be a String");
 
-                                throw Ark::AssertionFailed(b->string());
+                                throw Ark::AssertionFailed(b->string().toString());
                             }
                             break;
                         }
@@ -684,9 +684,10 @@ namespace Ark
                             Value* a = popVal();
                             if (a->m_type != ValueType::String)
                                 throw Ark::TypeError("Argument of toNumber must be a String");
-                            
-                            if (Utils::isDouble(a->string()))
-                                push(Value(std::stod(a->string().c_str())));
+
+                            double val;
+                            if (Utils::isDouble(a->string().c_str(), &val))
+                                push(Value(val));
                             else
                                 push(Builtins::nil);
                             break;
@@ -755,20 +756,20 @@ namespace Ark
                                 throw Ark::TypeError("Argument no 1 of hasField should be a Closure");
                             if (field->m_type != ValueType::String)
                                 throw Ark::TypeError("Argument no 2 of hasField should be a String");
-                            
-                            auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), field->string());
+
+                            auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), field->string().toString());
                             if (it == m_state->m_symbols.end())
                             {
                                 push(Builtins::falseSym);
                                 break;
                             }
                             uint16_t id = static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it));
-                            
+
                             if ((*closure->closure_ref().scope_ref())[id].m_type != ValueType::Undefined)
                                 push(Builtins::trueSym);
                             else
                                 push(Builtins::falseSym);
-                            
+
                             break;
                         }
 
@@ -784,7 +785,7 @@ namespace Ark
                     }
                 else
                     throwVMError("unknown instruction: " + Ark::Utils::toString(static_cast<std::size_t>(inst)));
-                
+
                 // move forward
                 ++m_ip;
             }

@@ -139,7 +139,7 @@ inline void VM::call(int16_t argc_)
 
             // create dedicated frame
             createNewScope();
-            m_frames.emplace_back(m_ip, m_pp, new_page_pointer);
+            m_frames.emplace_back(m_ip, static_cast<uint16_t>(m_pp), new_page_pointer);
             // store "reference" to the function to speed the recursive functions
             if (m_last_sym_loaded < m_state->m_symbols.size())
                 (*m_locals.back())[m_last_sym_loaded] = function;
@@ -163,7 +163,7 @@ inline void VM::call(int16_t argc_)
             // create dedicated frame
             createNewScope();
             m_frames.back().incScopeCountToDelete();
-            m_frames.emplace_back(m_ip, m_pp, new_page_pointer);
+            m_frames.emplace_back(m_ip, static_cast<uint16_t>(m_pp), new_page_pointer);
 
             m_pp = new_page_pointer;
             m_ip = -1;  // because we are doing a m_ip++ right after that
