@@ -674,7 +674,7 @@ namespace Ark
                                 if (b->m_type != ValueType::String)
                                     throw Ark::TypeError("Second argument of assert must be a String");
 
-                                throw Ark::AssertionFailed(b->string().toString());
+                                throw Ark::AssertionFailed(b->string_ref().toString());
                             }
                             break;
                         }
@@ -757,7 +757,7 @@ namespace Ark
                             if (field->m_type != ValueType::String)
                                 throw Ark::TypeError("Argument no 2 of hasField should be a String");
 
-                            auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), field->string().toString());
+                            auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), field->string_ref().toString());
                             if (it == m_state->m_symbols.end())
                             {
                                 push(Builtins::falseSym);
