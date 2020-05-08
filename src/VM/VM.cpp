@@ -852,6 +852,14 @@ namespace Ark
                 }
             }
 
+            // display variables values in the current scope
+            std::cerr << "\nCurrent scope variables values:\n";
+            for (std::size_t i=0, size=m_locals.back()->size(); i < size; ++i)
+            {
+                if ((*m_locals.back())[i].m_type != ValueType::Undefined)
+                    std::cerr << termcolor::cyan << m_state->m_symbols[i] << termcolor::reset << " = " << (*m_locals.back())[i] << "\n";
+            }
+
             // if persistance is on, clear frames to keep only the global one
             if (m_state->m_options & FeaturePersist)
                 m_frames.erase(m_frames.begin() + 1, m_frames.end());
