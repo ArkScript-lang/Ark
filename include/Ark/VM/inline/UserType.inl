@@ -31,7 +31,7 @@ inline std::ostream& operator<<(std::ostream& os, const UserType& A)
 {
     if (A.m_ostream_func != nullptr)
         return A.m_ostream_func(os, A);
-    
-    os << "UserType<" << A.m_type_id.hash_code() << ", 0x" << A.m_data << ">";
+
+    os << "UserType<" << A.m_type_id << ", 0x" << A.m_data << ">";
     return os;
 }

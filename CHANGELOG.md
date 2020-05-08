@@ -9,6 +9,7 @@
 - more benchmarks
 - on error, the VM now display the value of each variable in the current scope
 - added thirdparty/madureira/String, to replace std::string in Ark::internal::Value which was heavy and slower than the new implementation
+- minimizing the size of the usertype
 
 ### Changed
 - UserType does not need to be given a manually defined type id but relies on `typeid(T)`
