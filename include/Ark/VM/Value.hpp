@@ -47,7 +47,17 @@ namespace Ark::internal
     public:
         using ProcType = Value (*) (std::vector<Value>&);  // std::function<Value (std::vector<Value>&)>;
         using Iterator = std::vector<Value>::const_iterator;
-        using Value_t  = std::variant<double, String, PageAddr_t, ProcType, Closure, UserType, std::vector<Value>>;
+
+        using Value_t  = std::variant<
+            double,             //  8 bytes
+            String,             // 16 bytes
+            PageAddr_t,         //  2 bytes
+            ProcType,           // 16 bytes
+            Closure,            // 24 bytes
+            UserType,           // 24 bytes
+            std::vector<Value>  // 24 bytes
+        >;                      // +8 bytes overhead
+        //                   total 32 bytes
 
         /**
          * @brief Construct a new Value object

@@ -3,11 +3,6 @@ inline void UserType::setOStream(FuncStream_t&& f)
     m_ostream_func = std::move(f);
 }
 
-inline const std::type_index UserType::type_id() const
-{
-    return m_type_id;
-}
-
 inline void* UserType::data() const
 {
     return m_data;
