@@ -103,7 +103,6 @@ int main(int argc, char** argv)
             case mode::dev_info:
                 std::cout << "Have been compiled with " << ARK_COMPILER << ", options: " << ARK_COMPILATION_OPTIONS << "\n\n";
                 std::cout << "sizeof(Ark::Value)    = " << sizeof(Ark::internal::Value) << "B\n";
-                std::cout << "      sizeof(Value_t) = " << sizeof(Ark::internal::Value::Value_t) << "B\n";
                 std::cout << "sizeof(Ark::Frame)    = " << sizeof(Ark::internal::Frame) << "B\n";
                 std::cout << "sizeof(Ark::State)    = " << sizeof(Ark::State) << "B\n";
                 std::cout << "sizeof(Ark::Plugin)   = " << sizeof(Ark::internal::SharedLibrary) << "B\n";

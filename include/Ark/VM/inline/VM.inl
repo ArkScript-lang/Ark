@@ -111,9 +111,9 @@ inline void VM::call(int16_t argc_)
     else
         argc = argc_;
 
-    Value function = *m_frames.back().pop();
+    Value* function = m_frames.back().pop();
 
-    switch (function.m_type)
+    switch (function->m_type)
     {
         // is it a builtin function name?
         case ValueType::CProc:
@@ -127,7 +127,7 @@ inline void VM::call(int16_t argc_)
             }
 
             // call proc
-            m_frames.back().push(function.proc()(args));
+            m_frames.back().push(function->proc()(args));
             return;
         }
 
@@ -135,14 +135,14 @@ inline void VM::call(int16_t argc_)
         case ValueType::PageAddr:
         {
             int old_frame = static_cast<int>(m_frames.size()) - 1;
-            PageAddr_t new_page_pointer = function.pageAddr();
+            PageAddr_t new_page_pointer = function->pageAddr();
 
             // create dedicated frame
             createNewScope();
             m_frames.emplace_back(m_ip, static_cast<uint16_t>(m_pp), new_page_pointer);
             // store "reference" to the function to speed the recursive functions
             if (m_last_sym_loaded < m_state->m_symbols.size())
-                (*m_locals.back())[m_last_sym_loaded] = function;
+                (*m_locals.back())[m_last_sym_loaded] = *function;
 
             m_pp = new_page_pointer;
             m_ip = -1;  // because we are doing a m_ip++ right after that
@@ -155,7 +155,7 @@ inline void VM::call(int16_t argc_)
         case ValueType::Closure:
         {
             int old_frame = static_cast<int>(m_frames.size()) - 1;
-            Closure& c = function.closure_ref();
+            Closure& c = function->closure_ref();
             PageAddr_t new_page_pointer = c.pageAddr();
 
             // load saved scope
@@ -173,7 +173,7 @@ inline void VM::call(int16_t argc_)
         }
 
         default:
-            throwVMError("couldn't identify function object: type index " + Ark::Utils::toString(static_cast<int>(function.m_type)));
+            throwVMError("couldn't identify function object: type index " + Ark::Utils::toString(static_cast<int>(function->m_type)));
     }
 
     // checking function arity
