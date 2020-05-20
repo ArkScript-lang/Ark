@@ -45,7 +45,7 @@ namespace Ark::internal
     class Value
     {
     public:
-        using ProcType = Value (*) (std::vector<Value>&);  // std::function<Value (std::vector<Value>&)>;
+        using ProcType = Value (*) (std::vector<Value>&, Ark::VM*);  // std::function<Value (std::vector<Value>&, Ark::VM*)>;
         using Iterator = std::vector<Value>::const_iterator;
 
         using Value_t  = std::variant<
@@ -227,18 +227,6 @@ namespace Ark::internal
          */
         void push_back(Value&& value);
 
-        /**
-         * @brief Resolve a function call (works only if the object is a function) with given arguments
-         * 
-         * Needed by C function bindings in modules, to resolve the value of a function call
-         * 
-         * @tparam Args 
-         * @param args 
-         * @return Value 
-         */
-        template <typename... Args>
-        Value resolve(Args&&... args) const;
-
         friend std::ostream& operator<<(std::ostream& os, const Value& V);
         friend inline bool operator==(const Value& A, const Value& B);
         friend inline bool operator<(const Value& A, const Value& B);
@@ -248,9 +236,7 @@ namespace Ark::internal
 
     private:
         Value_t m_value;
-        ValueType m_type;
-        bool m_const;
-        Ark::VM* m_vm = nullptr;
+        uint8_t m_constType;  ///< First bit if for constness, right most bits are for type
 
         // private getters only for the virtual machine
 
@@ -283,11 +269,19 @@ namespace Ark::internal
         internal::Closure& closure_ref();
 
         /**
-         * @brief Register a pointer to the virtual machine, needed to resolve function calls
+         * @brief Check if the value is const or not
          * 
-         * @param vm 
+         * @return true 
+         * @return false 
          */
-        void registerVM(Ark::VM* vm);
+        inline const bool isConst() const;
+
+        /**
+         * @brief Set the Const object
+         * 
+         * @param value 
+         */
+        inline void setConst(bool value);
     };
 
     #include "inline/Value.inl"

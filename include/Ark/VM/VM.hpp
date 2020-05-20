@@ -64,6 +64,19 @@ namespace Ark
         template <typename... Args>
         internal::Value call(const std::string& name, Args&&... args);
 
+        // function calling from plugins
+
+        /**
+         * @brief Resolving a function call (called by plugins)
+         * 
+         * @tparam Args 
+         * @param val the ArkScript function object
+         * @param args C++ argument list
+         * @return internal::Value 
+         */
+        template <typename... Args>
+        internal::Value resolve(const internal::Value* val, Args&&... args);
+
         friend class internal::Value;
 
     private:
@@ -149,27 +162,9 @@ namespace Ark
          * @param argc_ number of arguments already sent, default to -1 if it needs to search for them by itself
          */
         inline void call(int16_t argc_=-1);
-
-        // function calling from plugins
-
-        /**
-         * @brief Resolving a function call (called by the resolve method of a Value)
-         * 
-         * @tparam Args 
-         * @param val the ArkScript function object
-         * @param args C++ argument list
-         * @return internal::Value 
-         */
-        template <typename... Args>
-        internal::Value resolve(const internal::Value* val, Args&&... args);
     };
 
     #include "inline/VM.inl"
-
-    namespace internal
-    {
-        #include "inline/Value_VM.inl"
-    }
 
     // aliases
     using Value = internal::Value;

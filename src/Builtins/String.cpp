@@ -4,11 +4,11 @@
 #include <Ark/String.hpp>
 
 #include <Ark/Builtins/BuiltinsErrors.inl>
-#define Builtins_Function(name) Value name(std::vector<Value>& n)
+#include <Ark/VM/VM.hpp>
 
 namespace Ark::internal::Builtins::String
 {
-    Builtins_Function(format)
+    Value format(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() == 0)
             throw std::runtime_error(STR_FORMAT_ARITY);
@@ -30,7 +30,7 @@ namespace Ark::internal::Builtins::String
         return n[0];
     }
 
-    Builtins_Function(findSubStr)
+    Value findSubStr(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 2)
             throw std::runtime_error(STR_FIND_ARITY);
@@ -42,7 +42,7 @@ namespace Ark::internal::Builtins::String
         return (n[0].string_ref().find(n[1].string_ref()) != -1) ? trueSym : falseSym;
     }
 
-    Builtins_Function(removeAtStr)
+    Value removeAtStr(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size () != 2)
             throw std::runtime_error(STR_RM_ARITY);

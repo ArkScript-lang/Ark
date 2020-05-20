@@ -4,13 +4,12 @@
 #include <filesystem>
 
 #include <Ark/Utils.hpp>
-
+#include <Ark/VM/VM.hpp>
 #include <Ark/Builtins/BuiltinsErrors.inl>
-#define Builtins_Function(name) Value name(std::vector<Value>& n)
 
 namespace Ark::internal::Builtins::IO
 {
-    Builtins_Function(print)
+    Value print(std::vector<Value>& n, Ark::VM* vm)
     {
         for (Value::Iterator it=n.begin(), it_end=n.end(); it != it_end; ++it)
             std::cout << (*it);
@@ -19,7 +18,7 @@ namespace Ark::internal::Builtins::IO
         return nil;
     }
 
-    Builtins_Function(puts_)
+    Value puts_(std::vector<Value>& n, Ark::VM* vm)
     {
         for (Value::Iterator it=n.begin(), it_end=n.end(); it != it_end; ++it)
             std::cout << (*it);
@@ -27,7 +26,7 @@ namespace Ark::internal::Builtins::IO
         return nil;
     }
 
-    Builtins_Function(input)
+    Value input(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() == 1)
         {
@@ -42,7 +41,7 @@ namespace Ark::internal::Builtins::IO
         return Value(line);
     }
 
-    Builtins_Function(writeFile)
+    Value writeFile(std::vector<Value>& n, Ark::VM* vm)
     {
         // filename, content
         if (n.size() == 2)
@@ -89,7 +88,7 @@ namespace Ark::internal::Builtins::IO
         return nil;
     }
 
-    Builtins_Function(readFile)
+    Value readFile(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 1)
             throw std::runtime_error(IO_READ_ARITY);
@@ -103,7 +102,7 @@ namespace Ark::internal::Builtins::IO
         return Value(Ark::Utils::readFile(filename));
     }
 
-    Builtins_Function(fileExists)
+    Value fileExists(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 1)
             throw std::runtime_error(IO_EXISTS_ARITY);
@@ -113,7 +112,7 @@ namespace Ark::internal::Builtins::IO
         return Ark::Utils::fileExists(n[0].string().c_str()) ? trueSym : falseSym;
     }
 
-    Builtins_Function(listFiles)
+    Value listFiles(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 1)
             throw std::runtime_error(IO_LS_ARITY);
@@ -127,7 +126,7 @@ namespace Ark::internal::Builtins::IO
         return Value(std::move(r));
     }
 
-    Builtins_Function(isDirectory)
+    Value isDirectory(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 1)
             throw std::runtime_error(IO_ISDIR_ARITY);
@@ -137,7 +136,7 @@ namespace Ark::internal::Builtins::IO
         return (std::filesystem::is_directory(std::filesystem::path(n[0].string().c_str()))) ? trueSym : falseSym;
     }
 
-    Builtins_Function(makeDir)
+    Value makeDir(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 1)
             throw std::runtime_error(IO_MKD_ARITY);
@@ -148,7 +147,7 @@ namespace Ark::internal::Builtins::IO
         return nil;
     }
 
-    Builtins_Function(removeFiles)
+    Value removeFiles(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() == 0)
             throw std::runtime_error(IO_RM_ARITY);
