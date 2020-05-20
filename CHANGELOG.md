@@ -25,6 +25,8 @@
 - smaller value class
 - smaller vm frames
 - forked madureira/String and modified it for the needs of the project, added it as a submodule
+- removed the VM pointer from the value class to make it lighter, now the VM is sending a pointer of itself to the C procedures
+- removed const and type from value, now using a uint8_t to store those informations
 
 ### Removed
 - removed NFT from the internal API to rely only on the value type

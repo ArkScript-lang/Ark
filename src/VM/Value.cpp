@@ -3,63 +3,65 @@
 #include <Ark/VM/Frame.hpp>
 #include <Ark/Utils.hpp>
 
+#define init_const_type(is_const, type) ((is_const ? (1 << 8) : 0) | static_cast<uint8_t>(type))
+
 namespace Ark::internal
 {
     Value::Value() :
-        m_type(ValueType::Undefined)
+        m_constType(init_const_type(false, ValueType::Undefined))
     {}
 
     // --------------------------
 
     Value::Value(ValueType type) :
-        m_type(type), m_const(false)
+        m_constType(init_const_type(false, type))
     {
-        if (m_type == ValueType::List)
+        if (type == ValueType::List)
             m_value = std::vector<Value>();
     }
 
     Value::Value(int value) :
-        m_value(static_cast<double>(value)), m_type(ValueType::Number), m_const(false)
+        m_value(static_cast<double>(value)), m_constType(init_const_type(false, ValueType::Number))
     {}
 
     Value::Value(float value) :
-        m_value(static_cast<double>(value)), m_type(ValueType::Number), m_const(false)
+        m_value(static_cast<double>(value)), m_constType(init_const_type(false, ValueType::Number))
     {}
 
     Value::Value(double value) :
-        m_value(value), m_type(ValueType::Number), m_const(false)
+        m_value(value), m_constType(init_const_type(false, ValueType::Number))
     {}
 
     Value::Value(const std::string& value) :
-        m_value(value.c_str()), m_type(ValueType::String), m_const(false)
+        m_value(value.c_str()), m_constType(init_const_type(false, ValueType::String))
     {}
 
     Value::Value(const String& value) :
-        m_value(value), m_type(ValueType::String), m_const(false)
+        m_value(value), m_constType(init_const_type(false, ValueType::String))
     {}
 
     Value::Value(const char* value) :
-        m_value(value), m_type(ValueType::String), m_const(false)
+        m_value(value), m_constType(init_const_type(false, ValueType::String))
     {}
 
     Value::Value(PageAddr_t value) :
-        m_value(value), m_type(ValueType::PageAddr), m_const(false)
+        m_value(value), m_constType(init_const_type(false, ValueType::PageAddr))
     {}
 
     Value::Value(Value::ProcType value) :
-        m_value(value), m_type(ValueType::CProc), m_const(false)
+        m_value(value), m_constType(init_const_type(false, ValueType::CProc))
     {}
 
     Value::Value(std::vector<Value>&& value) :
-        m_value(value), m_type(ValueType::List), m_const(false)
+        m_value(value), m_constType(init_const_type(false, ValueType::List))
     {}
 
     Value::Value(Closure&& value) :
-        m_value(value), m_type(ValueType::Closure), m_const(false)
+        m_value(value), m_constType(init_const_type(false, ValueType::Closure))
     {}
 
     Value::Value(UserType&& value) :
-        m_value(value), m_type(ValueType::User), m_const(false)
+        m_value(value), m_constType(init_const_type(false, ValueType::User))
     {}
 
     // --------------------------
@@ -88,21 +90,14 @@ namespace Ark::internal
 
     void Value::push_back(const Value& value)
     {
-        m_type = ValueType::List;
+        m_constType = init_const_type(isConst(), ValueType::List);
         list().push_back(value);
     }
 
     void Value::push_back(Value&& value)
     {
-        m_type = ValueType::List;
+        m_constType = init_const_type(isConst(), ValueType::List);
         list().push_back(value);
-    }
-
-    // --------------------------
-
-    void Value::registerVM(Ark::VM* vm)
-    {
-        m_vm = vm;
     }
 
     // --------------------------
@@ -137,7 +132,7 @@ namespace Ark::internal
 
     std::ostream& operator<<(std::ostream& os, const Value& V)
     {
-        switch (V.m_type)
+        switch (V.valueType())
         {
         case ValueType::Number:
         {
@@ -164,7 +159,7 @@ namespace Ark::internal
             os << "[";
             for (auto it=V.const_list().begin(), it_end=V.const_list().end(); it != it_end; ++it)
             {
-                if (it->m_type == ValueType::String)
+                if (it->valueType() == ValueType::String)
                     os << "\"" << (*it) << "\"";
                 else
                     os << (*it);
