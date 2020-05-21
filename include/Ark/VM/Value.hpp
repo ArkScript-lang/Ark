@@ -3,12 +3,14 @@
 
 #include <vector>
 #include <variant>
-#include <string>
+#include <string>  // for conversions
 #include <cinttypes>
 #include <iostream>
 #include <memory>
 #include <functional>
 #include <utility>
+#include <Ark/String.hpp>  // our string implementation
+#include <string.h>  // strcmp
 
 #include <Ark/VM/Types.hpp>
 #include <Ark/VM/Closure.hpp>
@@ -43,9 +45,19 @@ namespace Ark::internal
     class Value
     {
     public:
-        using ProcType = std::function<Value (std::vector<Value>&)>;
+        using ProcType = Value (*) (std::vector<Value>&, Ark::VM*);  // std::function<Value (std::vector<Value>&, Ark::VM*)>;
         using Iterator = std::vector<Value>::const_iterator;
-        using Value_t  = std::variant<double, std::string, PageAddr_t, ProcType, Closure, UserType, std::vector<Value>>;
+
+        using Value_t  = std::variant<
+            double,             //  8 bytes
+            String,             // 16 bytes
+            PageAddr_t,         //  2 bytes
+            ProcType,           // 16 bytes
+            Closure,            // 24 bytes
+            UserType,           // 24 bytes
+            std::vector<Value>  // 24 bytes
+        >;                      // +8 bytes overhead
+        //                   total 32 bytes
 
         /**
          * @brief Construct a new Value object
@@ -93,7 +105,14 @@ namespace Ark::internal
          * 
          * @param value 
          */
-        Value(std::string&& value);
+        Value(const String& value);
+
+        /**
+         * @brief Construct a new Value object as a String
+         * 
+         * @param value 
+         */
+        Value(const char* value);
 
         /**
          * @brief Construct a new Value object as a Function
@@ -155,9 +174,9 @@ namespace Ark::internal
         /**
          * @brief Return the stored string
          * 
-         * @return const std::string& 
+         * @return const String& 
          */
-        inline const std::string& string() const;
+        inline const String& string() const;
 
         /**
          * @brief Return the stored list
@@ -183,9 +202,9 @@ namespace Ark::internal
         /**
          * @brief Return the stored string as a reference
          * 
-         * @return std::string& 
+         * @return String& 
          */
-        std::string& string_ref();
+        String& string_ref();
 
         /**
          * @brief Return the stored user type as a reference
@@ -208,18 +227,6 @@ namespace Ark::internal
          */
         void push_back(Value&& value);
 
-        /**
-         * @brief Resolve a function call (works only if the object is a function) with given arguments
-         * 
-         * Needed by C function bindings in modules, to resolve the value of a function call
-         * 
-         * @tparam Args 
-         * @param args 
-         * @return Value 
-         */
-        template <typename... Args>
-        Value resolve(Args&&... args) const;
-
         friend std::ostream& operator<<(std::ostream& os, const Value& V);
         friend inline bool operator==(const Value& A, const Value& B);
         friend inline bool operator<(const Value& A, const Value& B);
@@ -229,18 +236,16 @@ namespace Ark::internal
 
     private:
         Value_t m_value;
-        ValueType m_type;
-        bool m_const;
-        Ark::VM* m_vm = nullptr;
+        uint8_t m_constType;  ///< First bit if for constness, right most bits are for type
 
         // private getters only for the virtual machine
 
         /**
          * @brief Return the page address held by the value
          * 
-         * @return PageAddr_t 
+         * @return internal::PageAddr_t 
          */
-        inline PageAddr_t pageAddr() const;
+        inline internal::PageAddr_t pageAddr() const;
 
         /**
          * @brief Return the C Function held by the value
@@ -252,23 +257,31 @@ namespace Ark::internal
         /**
          * @brief Return the closure held by the value
          * 
-         * @return const Closure& 
+         * @return const internal::Closure& 
          */
-        inline const Closure& closure() const;
+        inline const internal::Closure& closure() const;
 
         /**
          * @brief Return a reference to the closure held by the value
          * 
-         * @return Closure& 
+         * @return internal::Closure& 
          */
-        Closure& closure_ref();
+        internal::Closure& closure_ref();
 
         /**
-         * @brief Register a pointer to the virtual machine, needed to resolve function calls
+         * @brief Check if the value is const or not
          * 
-         * @param vm 
+         * @return true 
+         * @return false 
          */
-        void registerVM(Ark::VM* vm);
+        inline const bool isConst() const;
+
+        /**
+         * @brief Set the Const object
+         * 
+         * @param value 
+         */
+        inline void setConst(bool value);
     };
 
     #include "inline/Value.inl"

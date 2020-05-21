@@ -98,13 +98,16 @@ namespace Ark::Utils
      * @brief Checks if a string is a valid double
      * 
      * @param s the string
+     * @param output optional pointer to the output to avoid 2 conversions
      * @return true on success
      * @return false on failure
      */
-    inline bool isDouble(const std::string& s)
+    inline bool isDouble(const std::string& s, double* output=nullptr)
     {
         char* end = 0;
         double val = strtod(s.c_str(), &end);
+        if (output != nullptr)
+            *output = val;
         return end != s.c_str() && *end == '\0' && val != HUGE_VAL;
     }
 

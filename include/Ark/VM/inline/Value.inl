@@ -2,12 +2,14 @@
 
 inline ValueType Value::valueType() const
 {
-    return m_type;
+    // the type is stored on the right most bits
+    return static_cast<ValueType>(m_constType & (0b01111111));
 }
 
 inline bool Value::isFunction() const  // if it's a function we can resolve it
 {
-    return m_type == ValueType::PageAddr || m_type == ValueType::Closure || m_type == ValueType::CProc;
+    auto type = valueType();
+    return type == ValueType::PageAddr || type == ValueType::Closure || type == ValueType::CProc;
 }
 
 inline double Value::number() const
@@ -15,9 +17,9 @@ inline double Value::number() const
     return std::get<double>(m_value);
 }
 
-inline const std::string& Value::string() const
+inline const String& Value::string() const
 {
-    return std::get<std::string>(m_value);
+    return std::get<String>(m_value);
 }
 
 inline const std::vector<Value>& Value::const_list() const
@@ -47,28 +49,36 @@ inline const Closure& Value::closure() const
     return std::get<Closure>(m_value);
 }
 
-// operators
-
-inline bool operator==(const Value::ProcType& f, const Value::ProcType& g)
+inline const bool Value::isConst() const
 {
-    return f.target_type() == g.target_type();
+    return m_constType & (1 << 8);
 }
+
+inline void Value::setConst(bool value)
+{
+    if (value)
+        m_constType |= 1 << 8;
+    else
+        m_constType &= 0b01111111;  // keep only the right most bits
+}
+
+// operators
 
 inline bool operator==(const Value& A, const Value& B)
 {
     // values should have the same type
-    if (A.m_type != B.m_type)
+    if (A.valueType() != B.valueType())
         return false;
-    else if (A.m_type == ValueType::Nil || A.m_type == ValueType::True || A.m_type == ValueType::False || A.m_type == ValueType::Undefined)
+    else if (A.valueType() == ValueType::Nil || A.valueType() == ValueType::True || A.valueType() == ValueType::False || A.valueType() == ValueType::Undefined)
         return true;
-    
+
     return A.m_value == B.m_value;
 }
 
 inline bool operator<(const Value& A, const Value& B)
 {
-    if (A.m_type != B.m_type)
-        return (static_cast<int>(A.m_type) - static_cast<int>(B.m_type)) < 0;
+    if (A.valueType() != B.valueType())
+        return (static_cast<int>(A.valueType()) - static_cast<int>(B.valueType())) < 0;
     return A.m_value < B.m_value;
 }
 
@@ -79,27 +89,27 @@ inline bool operator!=(const Value& A, const Value& B)
 
 inline bool operator!(const Value& A)
 {
-    switch (A.m_type)
+    switch (A.valueType())
     {
         case ValueType::List:
             return A.const_list().empty();
-        
+
         case ValueType::Number:
             return !A.number();
-        
+
         case ValueType::String:
-            return A.string().empty();
+            return A.string().size() == 0;
 
         case ValueType::User:
             return A.usertype().not_();
-        
+
         case ValueType::Nil:
         case ValueType::False:
             return true;
-        
+
         case ValueType::True:
             return false;
-        
+
         default:
             return false;
     }

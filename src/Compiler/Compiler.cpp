@@ -207,7 +207,7 @@ namespace Ark
     {
         if (m_debug >= 2)
             Ark::logger.info(x);
-        
+
         // register symbols
         if (x.nodeType() == Ark::internal::NodeType::Symbol)
         {
@@ -238,7 +238,7 @@ namespace Ark
             std::string name = x.string();
             // 'name' shouldn't be a builtin/operator, we can use it as-is
             std::size_t i = addSymbol(name);
-            
+
             page(p).emplace_back(Instruction::GET_FIELD);
             pushNumber(static_cast<uint16_t>(i), &page(p));
 
