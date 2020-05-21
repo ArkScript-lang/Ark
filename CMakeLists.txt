@@ -31,7 +31,7 @@ add_subdirectory("${Ark_SOURCE_DIR}/submodules/String")
 # VERSION
 set(ARK_VERSION_MAJOR 3)
 set(ARK_VERSION_MINOR 0)
-set(ARK_VERSION_PATCH 10)
+set(ARK_VERSION_PATCH 11)
 
 message(STATUS "ArkScript version ${ARK_VERSION_MAJOR}.${ARK_VERSION_MINOR}.${ARK_VERSION_PATCH}")
 
