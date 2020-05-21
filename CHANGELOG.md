@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased changes
+## 3.0.11
 ### Added
 - member function `resolve(Args&& args...)` to Value, callable by plugins to resolve the value of a function called with specific arguments given by the plugin
 - `(fill qu value)` create a list of `qu` `value`s
