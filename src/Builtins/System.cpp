@@ -4,11 +4,11 @@
 #include <Ark/Constants.hpp>
 
 #include <Ark/Builtins/BuiltinsErrors.inl>
-#define Builtins_Function(name) Value name(std::vector<Value>& n)
+#include <Ark/VM/VM.hpp>
 
 namespace Ark::internal::Builtins::System
 {
-    Builtins_Function(system_)
+    Value system_(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 1)
             throw std::runtime_error(SYS_SYS_ARITY);

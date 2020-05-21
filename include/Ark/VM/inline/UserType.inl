@@ -3,11 +3,6 @@ inline void UserType::setOStream(FuncStream_t&& f)
     m_ostream_func = std::move(f);
 }
 
-inline const std::type_index UserType::type_id() const
-{
-    return m_type_id;
-}
-
 inline void* UserType::data() const
 {
     return m_data;
@@ -36,7 +31,7 @@ inline std::ostream& operator<<(std::ostream& os, const UserType& A)
 {
     if (A.m_ostream_func != nullptr)
         return A.m_ostream_func(os, A);
-    
-    os << "UserType<" << A.m_type_id.hash_code() << ", 0x" << A.m_data << ">";
+
+    os << "UserType<" << A.m_type_id << ", 0x" << A.m_data << ">";
     return os;
 }

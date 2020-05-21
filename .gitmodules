@@ -7,3 +7,6 @@
 [submodule "modules"]
 	path = modules
 	url = https://github.com/ArkScript-lang/modules
+[submodule "submodules/String"]
+	path = submodules/String
+	url = https://github.com/ArkScript-lang/String.git

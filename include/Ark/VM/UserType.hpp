@@ -1,7 +1,6 @@
 #ifndef ark_vm_usertype
 #define ark_vm_usertype
 
-#include <functional>
 #include <iostream>
 #include <vector>
 #include <utility>
@@ -19,7 +18,7 @@ namespace Ark
     class UserType
     {
     public:
-        using FuncStream_t = std::function<std::ostream& (std::ostream& os, const UserType& A)>;
+        using FuncStream_t = std::ostream& (*) (std::ostream& os, const UserType& A);
 
         /**
          * @brief Construct a new User Type object
@@ -31,7 +30,7 @@ namespace Ark
         explicit UserType(T* data=nullptr) :
             m_data(static_cast<void*>(data)),
             m_ostream_func(nullptr),
-            m_type_id(std::type_index(typeid(T)))
+            m_type_id(typeid(T).hash_code() & static_cast<uint16_t>(~0))
         {}
 
         /**
@@ -40,13 +39,6 @@ namespace Ark
          * @param f the function
          */
         inline void setOStream(FuncStream_t&& f);
-
-        /**
-         * @brief Get the type id of the value held by the object
-         * 
-         * @return const std::type_index 
-         */
-        inline const std::type_index type_id() const;
 
         /**
          * @brief Get the pointer to the object
@@ -63,12 +55,34 @@ namespace Ark
          */
         inline bool not_() const;
 
+        /**
+         * @brief Check if the object held is of a given type
+         * @details Usage example:
+         * @code
+         * MyType object;
+         * UserType a(&object);
+         * if (a.is<MyType>())
+         *     // then ...
+         * else
+         *     // otherwise...
+         * @endcode
+         * 
+         * @tparam T 
+         * @return true 
+         * @return false 
+         */
+        template <typename T>
+        bool is() const
+        {
+            return (typeid(T).hash_code() & static_cast<uint16_t>(~0)) == m_type_id;
+        }
+
         friend inline bool operator==(const UserType& A, const UserType& B);
         friend inline bool operator<(const UserType& A, const UserType& B);
         friend inline std::ostream& operator<<(std::ostream& os, const UserType& A);
-    
+
     private:
-        std::type_index m_type_id;
+        uint16_t m_type_id;
         void* m_data;
         FuncStream_t m_ostream_func;
     };

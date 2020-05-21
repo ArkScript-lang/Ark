@@ -4,11 +4,11 @@
 #include <Ark/Builtins/Builtins.hpp>
 
 #include <Ark/Builtins/BuiltinsErrors.inl>
-#define Builtins_Function(name) Value name(std::vector<Value>& n)
+#include <Ark/VM/VM.hpp>
 
 namespace Ark::internal::Builtins::Mathematics
 {
-    Builtins_Function(exponential)
+    Value exponential(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 1)
             throw std::runtime_error(MATH_ARITY("exp"));
@@ -19,7 +19,7 @@ namespace Ark::internal::Builtins::Mathematics
         return r;
     }
 
-    Builtins_Function(logarithm)
+    Value logarithm(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 1)
             throw std::runtime_error(MATH_ARITY("log"));
@@ -32,7 +32,7 @@ namespace Ark::internal::Builtins::Mathematics
         return r;
     }
 
-    Builtins_Function(ceil_)
+    Value ceil_(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 1)
             throw std::runtime_error(MATH_ARITY("ceil"));
@@ -43,7 +43,7 @@ namespace Ark::internal::Builtins::Mathematics
         return r;
     }
 
-    Builtins_Function(floor_)
+    Value floor_(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 1)
             throw std::runtime_error(MATH_ARITY("floor"));
@@ -54,7 +54,7 @@ namespace Ark::internal::Builtins::Mathematics
         return r;
     }
 
-    Builtins_Function(round_)
+    Value round_(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 1)
             throw std::runtime_error(MATH_ARITY("round"));
@@ -65,7 +65,7 @@ namespace Ark::internal::Builtins::Mathematics
         return r;
     }
 
-    Builtins_Function(isnan_)
+    Value isnan_(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 1)
             throw std::runtime_error(MATH_ARITY("NaN?"));
@@ -75,7 +75,7 @@ namespace Ark::internal::Builtins::Mathematics
         return std::isnan(n[0].number()) ? trueSym : falseSym;
     }
 
-    Builtins_Function(isinf_)
+    Value isinf_(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 1)
             throw std::runtime_error(MATH_ARITY("Inf?"));
@@ -85,7 +85,7 @@ namespace Ark::internal::Builtins::Mathematics
         return std::isinf(n[0].number()) ? trueSym : falseSym;
     }
 
-    Builtins_Function(cos_)
+    Value cos_(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 1)
             throw std::runtime_error(MATH_ARITY("cos"));
@@ -96,7 +96,7 @@ namespace Ark::internal::Builtins::Mathematics
         return r;
     }
 
-    Builtins_Function(sin_)
+    Value sin_(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 1)
             throw std::runtime_error(MATH_ARITY("sin"));
@@ -107,7 +107,7 @@ namespace Ark::internal::Builtins::Mathematics
         return r;
     }
 
-    Builtins_Function(tan_)
+    Value tan_(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 1)
             throw std::runtime_error(MATH_ARITY("tan"));
@@ -118,7 +118,7 @@ namespace Ark::internal::Builtins::Mathematics
         return r;
     }
 
-    Builtins_Function(acos_)
+    Value acos_(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 1)
             throw std::runtime_error(MATH_ARITY("arccos"));
@@ -129,7 +129,7 @@ namespace Ark::internal::Builtins::Mathematics
         return r;
     }
 
-    Builtins_Function(asin_)
+    Value asin_(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 1)
             throw std::runtime_error(MATH_ARITY("arcsin"));
@@ -140,7 +140,7 @@ namespace Ark::internal::Builtins::Mathematics
         return r;
     }
 
-    Builtins_Function(atan_)
+    Value atan_(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 1)
             throw std::runtime_error(MATH_ARITY("arctan"));
