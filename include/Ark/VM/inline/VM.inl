@@ -28,7 +28,7 @@ internal::Value VM::call(const std::string& name, Args&&... args)
     auto var = findNearestVariable(id);
     if (var != nullptr)
     {
-        if (var->m_type != ValueType::PageAddr && var->m_type != ValueType::Closure)
+        if (var->valueType() != ValueType::PageAddr && var->valueType() != ValueType::Closure)
             throwVMError("Symbol " + name + " isn't a function");
 
         m_frames.back().push(*var);
@@ -59,7 +59,7 @@ inline internal::Value* VM::findNearestVariable(uint16_t id)
 {
     for (auto it=m_locals.rbegin(), it_end=m_locals.rend(); it != it_end; ++it)
     {
-        if ((**it)[id].m_type != internal::ValueType::Undefined)
+        if ((**it)[id].valueType() != internal::ValueType::Undefined)
             return &(**it)[id];
     }
     return nullptr;
@@ -113,7 +113,7 @@ inline void VM::call(int16_t argc_)
 
     Value function = *m_frames.back().pop();
 
-    switch (function.m_type)
+    switch (function.valueType())
     {
         // is it a builtin function name?
         case ValueType::CProc:
@@ -121,13 +121,10 @@ inline void VM::call(int16_t argc_)
             // drop arguments from the stack
             std::vector<Value> args(argc);
             for (uint16_t j=0; j < argc; ++j)
-            {
                 args[argc - 1 - j] = *m_frames.back().pop();
-                args[argc - 1 - j].registerVM(this);  // so that plugin can call .resolve(...) on functions they were sent
-            }
 
             // call proc
-            m_frames.back().push(function.proc()(args));
+            m_frames.back().push(function.proc()(args, this));
             return;
         }
 
@@ -139,7 +136,7 @@ inline void VM::call(int16_t argc_)
 
             // create dedicated frame
             createNewScope();
-            m_frames.emplace_back(m_ip, m_pp, new_page_pointer);
+            m_frames.emplace_back(m_ip, static_cast<uint16_t>(m_pp), new_page_pointer);
             // store "reference" to the function to speed the recursive functions
             if (m_last_sym_loaded < m_state->m_symbols.size())
                 (*m_locals.back())[m_last_sym_loaded] = function;
@@ -163,7 +160,7 @@ inline void VM::call(int16_t argc_)
             // create dedicated frame
             createNewScope();
             m_frames.back().incScopeCountToDelete();
-            m_frames.emplace_back(m_ip, m_pp, new_page_pointer);
+            m_frames.emplace_back(m_ip, static_cast<uint16_t>(m_pp), new_page_pointer);
 
             m_pp = new_page_pointer;
             m_ip = -1;  // because we are doing a m_ip++ right after that
@@ -173,7 +170,7 @@ inline void VM::call(int16_t argc_)
         }
 
         default:
-            throwVMError("couldn't identify function object: type index " + Ark::Utils::toString(static_cast<int>(function.m_type)));
+            throwVMError("couldn't identify function object: type index " + Ark::Utils::toString(static_cast<int>(function.valueType())));
     }
 
     // checking function arity

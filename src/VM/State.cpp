@@ -2,7 +2,10 @@
 
 #include <Ark/Constants.hpp>
 
-#define _CRT_SECURE_NO_WARNINGS  // avoid warning on getenv
+#ifdef _MSC_VER
+    #pragma warning(push)
+    #pragma warning(disable:4996)
+#endif
 #include <stdlib.h>
 
 namespace Ark
@@ -358,3 +361,7 @@ namespace Ark
         }
     }
 }
+
+#ifdef _MSC_VER
+    #pragma warning(pop)
+#endif

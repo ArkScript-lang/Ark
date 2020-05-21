@@ -7,7 +7,6 @@
 
 #include <Ark/VM/Value.hpp>
 #include <Ark/Compiler/BytecodeReader.hpp>
-#include <Ark/Constants.hpp>
 #include <Ark/Builtins/Builtins.hpp>
 
 namespace Ark::internal
@@ -41,7 +40,7 @@ namespace Ark::internal
          * @param caller_page_addr the page address of the caller
          * @param new_pp the new page address where we're going
          */
-        Frame(std::size_t caller_addr, std::size_t caller_page_addr, std::size_t new_pp);
+        Frame(uint16_t caller_addr, uint16_t caller_page_addr, uint16_t new_pp);
 
         // stack related
 
@@ -78,23 +77,23 @@ namespace Ark::internal
         /**
          * @brief Get the caller address
          * 
-         * @return std::size_t 
+         * @return uint16_t 
          */
-        inline std::size_t callerAddr() const;
+        inline uint16_t callerAddr() const;
 
         /**
          * @brief Get the caller page address
          * 
-         * @return std::size_t 
+         * @return uint16_t 
          */
-        inline std::size_t callerPageAddr() const;
+        inline uint16_t callerPageAddr() const;
 
         /**
          * @brief Get the current page address
          * 
-         * @return std::size_t 
+         * @return uint16_t 
          */
-        inline std::size_t currentPageAddr() const;
+        inline uint16_t currentPageAddr() const;
 
         // related to scope deletion
 
@@ -107,7 +106,7 @@ namespace Ark::internal
         inline void incScopeCountToDelete();
 
         /**
-         * @brief Decrement the number of scopes linked to this frame
+         * @brief Reset the number of scopes linked to this frame
          * 
          * Needed for the primitive garbage collecting system.
          * 
@@ -127,7 +126,7 @@ namespace Ark::internal
 
     private:
         //              IP,          PP    EXC_PP
-        std::size_t m_addr, m_page_addr, m_new_pp;
+        uint16_t m_addr, m_page_addr, m_new_pp;
 
         std::vector<Value> m_stack;
         int16_t m_i;

@@ -6,11 +6,11 @@
 #include <chrono>
 
 #include <Ark/Builtins/BuiltinsErrors.inl>
-#define Builtins_Function(name) Value name(std::vector<Value>& n)
+#include <Ark/VM/VM.hpp>
 
 namespace Ark::internal::Builtins::Time
 {
-    Builtins_Function(timeSinceEpoch)
+    Value timeSinceEpoch(std::vector<Value>& n, Ark::VM* vm)
     {
         const auto now = std::chrono::system_clock::now();
         const auto epoch = now.time_since_epoch();
@@ -18,7 +18,7 @@ namespace Ark::internal::Builtins::Time
         return Value(static_cast<double>(microseconds.count()) / 1000000);
     }
 
-    Builtins_Function(sleep)
+    Value sleep(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 1)
             throw std::runtime_error(TIME_SLEEP_ARITY);

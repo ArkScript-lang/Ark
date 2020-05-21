@@ -23,6 +23,9 @@ endif()
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+# submodules
+add_subdirectory("${Ark_SOURCE_DIR}/submodules/String")
+
 # configuring Constants.hpp
 
 # VERSION
@@ -49,7 +52,7 @@ file(GLOB_RECURSE SOURCE_FILES
 )
 list(REMOVE_ITEM SOURCE_FILES "${Ark_SOURCE_DIR}/src/main.cpp")
 
-add_library(ArkReactor STATIC ${SOURCE_FILES})
+add_library(ArkReactor STATIC ${SOURCE_FILES} ${STRING_SOURCES})
 
 # including content of project
 
@@ -57,6 +60,7 @@ target_include_directories(ArkReactor
     PUBLIC
         ${Ark_SOURCE_DIR}/include
         ${Ark_SOURCE_DIR}/thirdparty
+        ${STRING_INCLUDES}
 )
 
 # linking libraries
