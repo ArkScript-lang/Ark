@@ -4,11 +4,11 @@
 #include <algorithm>
 
 #include <Ark/Builtins/BuiltinsErrors.inl>
-#define Builtins_Function(name) Value name(std::vector<Value>& n)
+#include <Ark/VM/VM.hpp>
 
 namespace Ark::internal::Builtins::List
 {
-    Builtins_Function(append)
+    Value append(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() < 2)
             throw std::runtime_error(LIST_APPEND_ARITY);
@@ -20,7 +20,7 @@ namespace Ark::internal::Builtins::List
         return n[0];
     }
 
-    Builtins_Function(concat)
+    Value concat(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n[0].valueType() != ValueType::List)
             throw Ark::TypeError(LIST_CONCAT_ARITY);
@@ -36,7 +36,7 @@ namespace Ark::internal::Builtins::List
         return n[0];
     }
 
-    Builtins_Function(list)
+    Value list(std::vector<Value>& n, Ark::VM* vm)
     {
         Value r(ValueType::List);
         for (Value::Iterator it=n.begin(), it_end=n.end(); it != it_end; ++it)
@@ -44,7 +44,7 @@ namespace Ark::internal::Builtins::List
         return r;
     }
 
-    Builtins_Function(reverseList)
+    Value reverseList(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n[0].valueType() != ValueType::List)
             throw Ark::TypeError(LIST_REVERSE_ARITY);
@@ -56,7 +56,7 @@ namespace Ark::internal::Builtins::List
         return n[0];
     }
 
-    Builtins_Function(findInList)
+    Value findInList(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 2)
             throw std::runtime_error(LIST_FIND_ARITY);
@@ -73,7 +73,7 @@ namespace Ark::internal::Builtins::List
         return Builtins::nil;
     }
 
-    Builtins_Function(removeAtList)
+    Value removeAtList(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 2)
             throw std::runtime_error(LIST_RMAT_ARITY);
@@ -90,7 +90,7 @@ namespace Ark::internal::Builtins::List
         return n[0];
     }
 
-    Builtins_Function(sliceList)
+    Value sliceList(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size () != 4)
             throw std::runtime_error(LIST_SLICE_ARITY);
@@ -123,7 +123,7 @@ namespace Ark::internal::Builtins::List
         return ret;
     }
 
-    Builtins_Function(sort_)
+    Value sort_(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 1)
             throw std::runtime_error(LIST_SORT_ARITY);
@@ -134,7 +134,7 @@ namespace Ark::internal::Builtins::List
         return n[0];
     }
 
-    Builtins_Function(fill)
+    Value fill(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 2)
             throw std::runtime_error(LIST_FILL_ARITY);
@@ -149,7 +149,7 @@ namespace Ark::internal::Builtins::List
         return Value(std::move(l));
     }
 
-    Builtins_Function(setListAt)
+    Value setListAt(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 3)
             throw std::runtime_error(LIST_SETAT_ARITY);
