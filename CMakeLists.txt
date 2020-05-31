@@ -25,6 +25,9 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # submodules
 add_subdirectory("${Ark_SOURCE_DIR}/submodules/String")
+# replxx
+add_subdirectory("${Ark_SOURCE_DIR}/submodules/replxx")
+set(REPLXX_INCLUDES "${Ark_SOURCE_DIR}/submodules/replxx/include")
 
 # configuring Constants.hpp
 
@@ -51,6 +54,7 @@ file(GLOB_RECURSE SOURCE_FILES
     ${Ark_SOURCE_DIR}/thirdparty/*.cpp
 )
 list(REMOVE_ITEM SOURCE_FILES "${Ark_SOURCE_DIR}/src/main.cpp")
+list(REMOVE_ITEM SOURCE_FILES "${Ark_SOURCE_DIR}/src/REPL/Repl.cpp")
 
 add_library(ArkReactor STATIC ${SOURCE_FILES} ${STRING_SOURCES})
 
@@ -90,12 +94,13 @@ set_target_properties(
 # building exe
 
 if (ARK_BUILD_EXE)
-    add_executable(Ark ${Ark_SOURCE_DIR}/src/main.cpp)
+    include_directories(${REPLXX_INCLUDES})
+    add_executable(Ark ${Ark_SOURCE_DIR}/src/main.cpp ${Ark_SOURCE_DIR}/src/REPL/Repl.cpp)
     target_include_directories(Ark PUBLIC
         ${Ark_SOURCE_DIR}/include
         ${Ark_SOURCE_DIR}/thirdparty
     )
-    target_link_libraries(Ark PUBLIC ArkReactor)
+    target_link_libraries(Ark PUBLIC ArkReactor replxx)
 
     set_target_properties(
         Ark
