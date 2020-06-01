@@ -60,9 +60,11 @@ add_library(ArkReactor STATIC ${SOURCE_FILES} ${STRING_SOURCES})
 
 # including content of project
 
+set(ArkReactor_INCLUDES "${Ark_SOURCE_DIR}/include")
+list(REMOVE_ITEM ArkReactor_INCLUDES "${Ark_SOURCE_DIR}/src/REPL/Repl.hpp")
 target_include_directories(ArkReactor
     PUBLIC
-        ${Ark_SOURCE_DIR}/include
+        ${ArkReactor_INCLUDES}
         ${Ark_SOURCE_DIR}/thirdparty
         ${STRING_INCLUDES}
 )
