@@ -8,9 +8,6 @@ namespace Ark
     
     void Repl::run()
     {
-        unsigned n_lines = 0;
-        unsigned scope = 0;
-
         print_repl_header();
 
         while(true)
@@ -22,41 +19,36 @@ namespace Ark
             std::stringstream code;
             int open_parentheses = 0;
             int open_braces = 0;
-            bool new_command = true;
 
             while(true)
             {
-                std::string infos = std::string(MAIN) + std::string(COLON) + std::to_string(n_lines) + std::string(COLON) + std::to_string(scope) + std::string(PROMPT);
+                std::string infos = std::string(MAIN) + std::string(COLON) + std::to_string(m_lines) + std::string(COLON) + std::to_string(m_scope) + std::string(PROMPT);
                 std::string line = m_repl.input(infos);
                 trim_whitespace(line);
-
-                // empty lines and comments handling
-                if(line.length() == 0 || line.at(0) == '#')
-                    break;
 
                 // specific commands handling
                 if(line.compare("(quit)") == 0 || line.compare("(q)") == 0)
                     return;
 
                 // scopes
-                if(line.at(0) == '{')
-                    ++ scope;
-                else if(line.at(0) == '}' || line.back() == '}')
-                    -- scope;
+                scope_update(line);
 
-                code << line;
+                code << line << "\n";
                 open_parentheses += count_open_parentheses(line);
                 open_braces += count_open_braces(line);
 
+                // lines number incrementation
+                ++ m_lines;
                 if(open_parentheses == 0 && open_braces == 0)
                     break;
             }
 
+            // review necessary for main scope var re-use possible
+            // and add returned value print 
             if(state.doString("{" + code.str() + "}"))
                 vm.run();
             else
                 std::cerr << "Ark::State::doString failed" << std::endl;
-            ++ n_lines;
         }
     }
 
@@ -108,5 +100,14 @@ namespace Ark
             size_t string_end = line.find_last_not_of(" \t");
             line = line.substr(string_begin, (string_end - string_begin + 1));
         }
+    }
+
+    void Repl::scope_update(const std::string& line)
+    {
+        if(line.find('{') != std::string::npos)
+            ++ m_scope;
+        else if(line.find('}') != std::string::npos)
+            if(m_scope != 0)
+                -- m_scope;
     }
 }
