@@ -8,6 +8,13 @@
 #include <Ark/Compiler/Compiler.hpp>
 #include <Ark/VM/VM.hpp>
 #include <Ark/VM/State.hpp>
+#include <replxx.hxx>
+
+#define MAIN ("(main)")
+#define COLON (":")
+#define PROMPT ("> ")
+
+using Replxx = replxx::Replxx;
 
 namespace Ark
 {
@@ -31,6 +38,7 @@ namespace Ark
     private:
         std::string m_lib_dir;
         uint16_t m_options;
+        Replxx m_repl;
 
         inline void print_repl_header();
         int count_open_parentheses(const std::string& line);
