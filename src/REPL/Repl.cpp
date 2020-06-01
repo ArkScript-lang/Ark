@@ -24,6 +24,9 @@ namespace Ark
             {
                 std::string infos = std::string(MAIN) + std::string(COLON) + std::to_string(m_lines) + std::string(COLON) + std::to_string(m_scope) + std::string(PROMPT);
                 std::string line = m_repl.input(infos);
+
+                // line history
+                m_repl.history_add(line);
                 trim_whitespace(line);
 
                 // specific commands handling
