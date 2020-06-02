@@ -53,15 +53,22 @@ file(GLOB_RECURSE SOURCE_FILES
     ${Ark_SOURCE_DIR}/src/*.cpp
     ${Ark_SOURCE_DIR}/thirdparty/*.cpp
 )
-list(REMOVE_ITEM SOURCE_FILES "${Ark_SOURCE_DIR}/src/main.cpp")
-list(REMOVE_ITEM SOURCE_FILES "${Ark_SOURCE_DIR}/src/REPL/Repl.cpp")
+list(REMOVE_ITEM SOURCE_FILES 
+    "${Ark_SOURCE_DIR}/src/main.cpp" 
+    "${Ark_SOURCE_DIR}/src/REPL/Repl.cpp"
+    "${Ark_SOURCE_DIR}/src/REPL/replxx/util.cpp"
+)
 
 add_library(ArkReactor STATIC ${SOURCE_FILES} ${STRING_SOURCES})
 
 # including content of project
 
 set(ArkReactor_INCLUDES "${Ark_SOURCE_DIR}/include")
-list(REMOVE_ITEM ArkReactor_INCLUDES "${Ark_SOURCE_DIR}/src/REPL/Repl.hpp")
+list(REMOVE_ITEM ArkReactor_INCLUDES 
+    "${Ark_SOURCE_DIR}/include/REPL/Repl.hpp"
+    "${Ark_SOURCE_DIR}/include/REPL/CGUI.hpp"
+    "${Ark_SOURCE_DIR}/include/REPL/replxx/util.hpp"
+)
 target_include_directories(ArkReactor
     PUBLIC
         ${ArkReactor_INCLUDES}
@@ -95,9 +102,16 @@ set_target_properties(
 
 # building exe
 
+# REPL
+
+set(REPL_SOURCES 
+    "${Ark_SOURCE_DIR}/src/REPL/Repl.cpp"
+    "${Ark_SOURCE_DIR}/src/REPL/replxx/util.cpp"
+)
+
 if (ARK_BUILD_EXE)
     include_directories(${REPLXX_INCLUDES})
-    add_executable(Ark ${Ark_SOURCE_DIR}/src/main.cpp ${Ark_SOURCE_DIR}/src/REPL/Repl.cpp)
+    add_executable(Ark ${Ark_SOURCE_DIR}/src/main.cpp ${REPL_SOURCES})
     target_include_directories(Ark PUBLIC
         ${Ark_SOURCE_DIR}/include
         ${Ark_SOURCE_DIR}/thirdparty
