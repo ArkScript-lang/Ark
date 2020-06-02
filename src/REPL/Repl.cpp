@@ -1,4 +1,8 @@
+#include <functional>
+
 #include <Ark/REPL/Repl.hpp>
+
+using namespace std::placeholders;
 
 namespace Ark
 {
@@ -10,6 +14,7 @@ namespace Ark
     {
         print_repl_header();
 
+        cgui_setup();
         while(true)
         {
             Ark::State state(m_lib_dir, m_options);
@@ -112,5 +117,10 @@ namespace Ark
         else if(line.find('}') != std::string::npos)
             if(m_scope != 0)
                 -- m_scope;
+    }
+
+    void Repl::cgui_setup()
+    {
+        m_repl.set_completion_callback(std::bind(&hook_completion, _1, _2, std::cref(KeyWordDict)));
     }
 }
