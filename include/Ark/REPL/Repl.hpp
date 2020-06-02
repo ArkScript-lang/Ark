@@ -9,6 +9,8 @@
 #include <Ark/VM/VM.hpp>
 #include <Ark/VM/State.hpp>
 #include <replxx.hxx>
+#include <Ark/REPL/CGUI.hpp>
+#include <Ark/REPL/replxx/util.hpp>
 
 #define MAIN ("(main)")
 #define COLON (":")
@@ -47,6 +49,7 @@ namespace Ark
         int count_open_braces(const std::string& line);
         void trim_whitespace(std::string& line);
         void scope_update(const std::string& line);
+        void cgui_setup();
     };
 }
 
