@@ -1,5 +1,15 @@
 # Change Log
 
+## Unreleased changes
+### Added
+
+### Changed
+- updated the string module to benefit from the new `format` member function
+- updated the logger to remove `fmt/format`
+
+### Removed
+- removed `fmt/format` from our dependencies
+
 ## 3.0.11
 ### Added
 - member function `resolve(Args&& args...)` to Value, callable by plugins to resolve the value of a function called with specific arguments given by the plugin
