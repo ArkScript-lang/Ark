@@ -72,7 +72,7 @@
 
 #define STR_FORMAT_ARITY "format needs at least 1 argument: string, [values...]"
 #define STR_FORMAT_TE0   "format: string must be a String"
-#define STR_FORMAT_TE1   "format: value should be a String or a Number"
+#define STR_FORMAT_TE1   "format: value should be a String, a Number, a Boolean, or Nil"
 
 #define STR_FIND_ARITY "findSubStr needs 2 arguments: string, substr"
 #define STR_FIND_TE0   "findSubStr: string must be a String"

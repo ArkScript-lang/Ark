@@ -173,6 +173,22 @@ namespace Ark::Utils
         std::replace(temp.begin(), temp.end(), '\\', '/');
         return temp;
     }
+
+    /**
+     * @brief Count the number of decimals for a double
+     * 
+     * @param d 
+     * @return int 
+     */
+    int dec_places(double d);
+
+    /**
+     * @brief Count the number of digits for a double
+     * 
+     * @param d 
+     * @return int 
+     */
+    int dig_places(double d);
 }
 
 #endif  // ark_utils
