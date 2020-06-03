@@ -2,8 +2,6 @@
 
 #include <Ark/REPL/Repl.hpp>
 
-using namespace std::placeholders;
-
 namespace Ark
 {
     Repl::Repl(uint16_t options, std::string lib_dir) :
@@ -76,8 +74,8 @@ namespace Ark
         {
             switch(c)
             {
-                case '(': open_parentheses++; break;
-                case ')': open_parentheses--; break;
+                case OPEN_PARENTHESE : ++ open_parentheses; break;
+                case CLOSE_PARENTHESE : -- open_parentheses; break;
             }
         }
 
@@ -92,8 +90,8 @@ namespace Ark
         {
             switch(c)
             {
-                case '{': open_braces++; break;
-                case '}': open_braces--; break;
+                case OPEN_BRACE : ++ open_braces; break;
+                case CLOSE_BRACE : -- open_braces; break;
             }
         }
 
@@ -112,15 +110,19 @@ namespace Ark
 
     void Repl::scope_update(const std::string& line)
     {
-        if(line.find('{') != std::string::npos)
+        if(line.find(OPEN_BRACE) != std::string::npos)
             ++ m_scope;
-        else if(line.find('}') != std::string::npos)
+        else if(line.find(CLOSE_BRACE) != std::string::npos)
             if(m_scope != 0)
                 -- m_scope;
     }
 
     void Repl::cgui_setup()
     {
-        m_repl.set_completion_callback(std::bind(&hook_completion, _1, _2, std::cref(KeyWordDict)));
+        using namespace std::placeholders;
+
+        m_repl.set_completion_callback(std::bind(&hook_completion, _1, _2, std::cref(KeywordsDict)));
+        m_repl.set_highlighter_callback(std::bind(&hook_color, _1, _2, cref(ColorsRegexDict)));
+        m_repl.set_hint_callback(std::bind(&hook_hint, _1, _2, _3, std::cref(KeywordsDict)));
     }
 }

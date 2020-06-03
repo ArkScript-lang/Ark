@@ -8,15 +8,16 @@
 #include <Ark/Compiler/Compiler.hpp>
 #include <Ark/VM/VM.hpp>
 #include <Ark/VM/State.hpp>
-#include <replxx.hxx>
 #include <Ark/REPL/CGUI.hpp>
 #include <Ark/REPL/replxx/util.hpp>
 
+#define OPEN_BRACE ('{')
+#define CLOSE_BRACE ('}')
+#define OPEN_PARENTHESE ('(')
+#define CLOSE_PARENTHESE (')')
 #define MAIN ("(main)")
 #define COLON (":")
 #define PROMPT ("> ")
-
-using Replxx = replxx::Replxx;
 
 namespace Ark
 {
