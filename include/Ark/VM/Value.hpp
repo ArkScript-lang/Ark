@@ -46,7 +46,8 @@ namespace Ark::internal
     {
     public:
         using ProcType = Value (*) (std::vector<Value>&, Ark::VM*);  // std::function<Value (std::vector<Value>&, Ark::VM*)>;
-        using Iterator = std::vector<Value>::const_iterator;
+        using Iterator = std::vector<Value>::iterator;
+        using ConstIterator = std::vector<Value>::const_iterator;
 
         using Value_t  = std::variant<
             double,             //  8 bytes
