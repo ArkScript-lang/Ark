@@ -33,14 +33,14 @@ int main(int argc, char** argv)
         option("-h", "--help").set(selected, mode::help).doc("Display this message")
         | option("--version").set(selected, mode::version).doc("Display ArkScript version and exit")
         | option("--dev-info").set(selected, mode::dev_info).doc("Display development information and exit")
+        | option("-r", "--repl").set(selected, mode::repl).doc("Run the ArkScript REPL")
         | (
             (
                 ( value("file", file).set(selected, mode::run)
                 , option("-c", "--compile").set(selected, mode::compile).doc("Compile the given program to bytecode, but do not run")
                 )
-            | option("-r", "--repl").set(selected, mode::repl).doc("Run the ArkScript REPL")
             )
-            // options taken by mode::run, mode::repl and mode::compile
+            //  options taken by mode::run, mode::repl and mode::compile
             , (
                 (
                     (
