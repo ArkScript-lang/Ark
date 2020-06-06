@@ -22,7 +22,7 @@ int main(int argc, char** argv)
     using namespace clipp;
 
     enum class mode { help, dev_info, bytecode_reader, version, run, repl, compile };
-    mode selected = mode::help;
+    mode selected = mode::repl;
 
     std::string file = "", lib_dir = "?";
     unsigned debug = 0;
