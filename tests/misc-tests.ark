@@ -1,6 +1,6 @@
 {
     (import "test-tools.ark")
-    
+
     (let misc-tests (fun () {
         (mut tests 0)
         (let start-time (time))

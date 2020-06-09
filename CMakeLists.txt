@@ -38,7 +38,6 @@ message(STATUS "ArkScript version ${ARK_VERSION_MAJOR}.${ARK_VERSION_MINOR}.${AR
 # COMPILATION RELATED
 set(ARK_COMPILATION_OPTIONS ${CMAKE_CXX_FLAGS})
 set(ARK_COMPILER ${CMAKE_CXX_COMPILER_ID})
-set(ARK_SUBMODULES_ROOT ${Ark_SOURCE_DIR}/submodules)
 set(ARK_ENABLE_SYSTEM 1)  # enable use of (system "command here")
 
 configure_file(
@@ -109,7 +108,7 @@ if (ARK_BUILD_EXE)
 
     if (UNIX OR LINUX)
         install(TARGETS Ark DESTINATION bin)
-        install(DIRECTORY ${Ark_SOURCE_DIR}/lib/ DESTINATION share/.Ark/lib)
+        install(DIRECTORY ${Ark_SOURCE_DIR}/lib/ DESTINATION Ark/lib)
     elseif (WIN32)
         if (MSVC)
             install(TARGETS Ark DESTINATION bin)
@@ -122,8 +121,4 @@ endif()
 
 if (ARK_BUILD_MODULES OR ARK_BUILD_BASE_MODULES)
     add_subdirectory(${Ark_SOURCE_DIR}/modules)
-endif()
-
-if (ARK_BUILD_BENCHMARK)
-    add_subdirectory(benchmarks)
 endif()

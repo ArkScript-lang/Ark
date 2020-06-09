@@ -53,7 +53,7 @@ Also:
     # more or less game
     (print "More or less game!")
 
-    (import "librandom.so")
+    (import "random.bin")
     (import "Math/Arithmetic.ark")
 
     (let number (mod (abs (random)) 10000))
@@ -134,9 +134,8 @@ For performance reasons, some functions might be written in C++, in `include/Ark
 * CMake >= 3.12
 * Visual Studio >= 11 (on Windows)
 * On macOS versions prior to 10.15, `libc++` lacks `filesystem` in the standard library.
-
-  * Install a newer compiler using [Homebrew](https://docs.brew.sh/): `brew install gcc && brew link gcc`
-  * Pass compiler path to `cmake` in the build step: `-DCMAKE_CXX_COMPILER=/usr/local/bin/g++-9`
+    * Install a newer compiler using [Homebrew](https://docs.brew.sh/): `brew install gcc && brew link gcc`
+    * Pass compiler path to `cmake` in the build step: `-DCMAKE_CXX_COMPILER=/usr/local/bin/g++-9`
 
 Libs already included:
 * [rj format](https://github.com/ryjen/format), MIT licence
@@ -162,10 +161,10 @@ DESCRIPTION
         ArkScript programming language
 
 SYNOPSIS
-        build/Ark -h, --help
-        build/Ark --version
-        build/Ark --dev-info
-        build/Ark ((<file> [-c]) | -r) [-(d|bcr)] [-L <lib_dir>] [-f(fac|no-fac)] [-f(aitap|no-aitap)]
+        Ark -h, --help
+        Ark --version
+        Ark --dev-info
+        Ark ((<file> [-c]) | -r) [-(d|bcr)] [-L <lib_dir>] [-f(fac|no-fac)] [-f(aitap|no-aitap)]
 
 OPTIONS
         -h, --help                  Display this message
@@ -185,7 +184,7 @@ LICENSE
 
 ## Performances
 
-See [benchmarks/README.md](benchmarks/README.md)
+See [https://github.com/ArkScript-lang/benchmarks](ArkScript-lang/benchmarks)
 
 ## Games
 
