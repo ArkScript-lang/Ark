@@ -138,10 +138,8 @@ For performance reasons, some functions might be written in C++, in `include/Ark
     * Pass compiler path to `cmake` in the build step: `-DCMAKE_CXX_COMPILER=/usr/local/bin/g++-9`
 
 Libs already included:
-* [rj format](https://github.com/ryjen/format), MIT licence
 * [CLIPP](https://github.com/muellan/clipp), MIT licence
 * [termcolor](https://github.com/ikalnytskyi/termcolor), BSD (3-clause) licence
-* [google/benchmark](https://github.com/google/benchmark), Apache 2.0 licence
 
 ## Building
 
