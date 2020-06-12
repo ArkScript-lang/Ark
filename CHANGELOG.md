@@ -6,6 +6,7 @@
 ### Changed
 - updated the string module to benefit from the new `format` member function
 - updated the logger to remove `fmt/format`
+- changed the argument order for `Ark::State`
 
 ### Removed
 - removed `fmt/format` from our dependencies
