@@ -74,7 +74,14 @@ namespace Ark
             // load data from it!
             using Mapping_t = std::unordered_map<std::string, Value::ProcType>;
             using map_fun_t = Mapping_t(*) ();
-            Mapping_t map = plugin.template get<map_fun_t>("getFunctionsMapping")();
+            Mapping_t map;
+
+            try {
+                map = plugin.template get<map_fun_t>("getFunctionsMapping")();
+            } catch (const std::system_error& e) {
+                std::cerr << e.what() << std::endl;
+                //exit(-1);
+            }
 
             for (auto&& kv : map)
             {

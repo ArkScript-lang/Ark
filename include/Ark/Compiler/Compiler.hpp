@@ -13,6 +13,7 @@
 #include <Ark/Compiler/Instructions.hpp>
 #include <Ark/Compiler/BytecodeReader.hpp>
 #include <Ark/Builtins/Builtins.hpp>
+#include <Ark/Config.hpp>
 
 namespace Ark
 {
@@ -20,7 +21,7 @@ namespace Ark
      * @brief The ArkScript bytecode compiler
      * 
      */
-    class Compiler
+    class ARK_API_EXPORT Compiler
     {
     public:
         /**
