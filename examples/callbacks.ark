@@ -12,7 +12,7 @@
 
     (set acc 0)
     (while (!= acc (len callbacks)) {
-        (print (@ callbacks acc) .d)
+        (print "stored: " (@ callbacks acc) .d)
         ((@ callbacks acc))
         (set acc (+ 1 acc))
     })

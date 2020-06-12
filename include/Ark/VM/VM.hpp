@@ -16,6 +16,7 @@
 #include <Ark/VM/Plugin.hpp>
 #include <Ark/Builtins/Builtins.hpp>
 #include <Ark/Log.hpp>
+#include <Ark/Config.hpp>
 
 #undef abs
 #include <cmath>
@@ -28,7 +29,7 @@ namespace Ark
      * @brief The ArkScript virtual machine, executing ArkScript bytecode
      * 
      */
-    class VM
+    class ARK_API_EXPORT VM
     {
     public:
         /**
