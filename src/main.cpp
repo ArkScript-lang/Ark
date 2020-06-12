@@ -127,7 +127,7 @@ int main(int argc, char** argv)
 
             case mode::compile:
             {
-                Ark::State state(lib_dir, options);
+                Ark::State state(options, lib_dir);
                 state.setDebug(debug);
 
                 if (!state.doFile(file))
@@ -141,7 +141,7 @@ int main(int argc, char** argv)
             
             case mode::run:
             {
-                Ark::State state(lib_dir, options);
+                Ark::State state(options, lib_dir);
                 state.setDebug(debug);
 
                 if (!state.doFile(file))

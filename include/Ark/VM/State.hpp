@@ -24,10 +24,10 @@ namespace Ark
         /**
          * @brief Construct a new State object
          * 
-         * @param libdir the path to the standard library, defaults to "?" which means: search in environment variables
          * @param options the options for the virtual machine, compiler, and parser
+         * @param libdir the path to the standard library, defaults to "?" which means: search in environment variables
          */
-        State(const std::string& libdir="?", uint16_t options=DefaultFeatures);
+        State(uint16_t options=DefaultFeatures, const std::string& libdir="?");
 
         /**
          * @brief Feed the state by giving it the path to an existing bytecode file

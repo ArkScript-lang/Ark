@@ -10,7 +10,7 @@
 
 namespace Ark
 {
-    State::State(const std::string& libdir, uint16_t options) :
+    State::State(uint16_t options, const std::string& libdir) :
         m_libdir(libdir), m_filename("FILE"),
         m_options(options), m_debug_level(0)
     {
