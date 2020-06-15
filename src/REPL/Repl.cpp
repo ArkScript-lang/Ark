@@ -10,22 +10,24 @@ namespace Ark
     
     void Repl::run()
     {
-        print_repl_header();
+        Ark::State state(m_lib_dir, m_options);
+        Ark::VM vm(&state);
+        state.setDebug(0);
+        std::string code;
 
+        print_repl_header();
         cgui_setup();
+
+        vm.init();
         while(true)
         {
-            Ark::State state(m_lib_dir, m_options);
-            Ark::VM vm(&state);
-            state.setDebug(0);
-
-            std::stringstream code;
-            int open_parentheses = 0;
-            int open_braces = 0;
+            std::string tmp_code;
+            unsigned open_parentheses = 0;
+            unsigned open_braces = 0;
 
             while(true)
             {
-                std::string infos = std::string(MAIN) + std::string(COLON) + std::to_string(m_lines) + std::string(COLON) + std::to_string(m_scope) + std::string(PROMPT);
+                std::string infos = "main:" + std::to_string(m_lines) + ":" + std::to_string(m_scope) + "> ";
                 std::string line = m_repl.input(infos);
 
                 // line history
@@ -33,13 +35,13 @@ namespace Ark
                 trim_whitespace(line);
 
                 // specific commands handling
-                if(line.compare("(quit)") == 0 || line.compare("(q)") == 0)
+                if(line == "(quit)" || line == "(q)")
                     return;
 
                 // scopes
                 scope_update(line);
 
-                code << line << "\n";
+                tmp_code = code + (line + "\n");
                 open_parentheses += count_open_parentheses(line);
                 open_braces += count_open_braces(line);
 
@@ -49,12 +51,26 @@ namespace Ark
                     break;
             }
 
-            // review necessary for main scope var re-use possible
-            // and add returned value print 
-            if(state.doString("{" + code.str() + "}"))
-                vm.run();
+            if(state.doString("{" + tmp_code + "}"))
+            {
+                if(state.m_pages.size() != 0)
+                    vm.m_pp = state.m_pages.size() - 1;
+                // variables
+                if(vm.m_locals[0]->size() < state.m_symbols.size())
+                    for(unsigned i = vm.m_locals[0]->size(); i < state.m_symbols.size(); ++ i)
+                        vm.m_locals[0]->emplace_back(ValueType::Undefined);
+                for(unsigned i = 0; i < vm.m_locals[0]->size(); ++ i)
+                    (*vm.m_locals[0])[i] = Value(ValueType::Undefined);
+                if(vm.safeRun() == 0)
+                    code = tmp_code;
+                else
+                    tmp_code = code;
+                state.m_constants.clear();
+            }
             else
                 std::cerr << "Ark::State::doString failed" << std::endl;
+
+            vm.m_ip = 0;
         }
     }
 
@@ -74,8 +90,8 @@ namespace Ark
         {
             switch(c)
             {
-                case OPEN_PARENTHESE : ++ open_parentheses; break;
-                case CLOSE_PARENTHESE : -- open_parentheses; break;
+                case '(' : ++ open_parentheses; break;
+                case ')' : -- open_parentheses; break;
             }
         }
 
@@ -90,8 +106,8 @@ namespace Ark
         {
             switch(c)
             {
-                case OPEN_BRACE : ++ open_braces; break;
-                case CLOSE_BRACE : -- open_braces; break;
+                case '{' : ++ open_braces; break;
+                case '}' : -- open_braces; break;
             }
         }
 
@@ -110,9 +126,9 @@ namespace Ark
 
     void Repl::scope_update(const std::string& line)
     {
-        if(line.find(OPEN_BRACE) != std::string::npos)
+        if(line.find('{') != std::string::npos)
             ++ m_scope;
-        else if(line.find(CLOSE_BRACE) != std::string::npos)
+        else if(line.find('}') != std::string::npos)
             if(m_scope != 0)
                 -- m_scope;
     }

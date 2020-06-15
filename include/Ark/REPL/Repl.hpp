@@ -11,14 +11,6 @@
 #include <Ark/REPL/CGUI.hpp>
 #include <Ark/REPL/replxx/util.hpp>
 
-#define OPEN_BRACE ('{')
-#define CLOSE_BRACE ('}')
-#define OPEN_PARENTHESE ('(')
-#define CLOSE_PARENTHESE (')')
-#define MAIN ("(main)")
-#define COLON (":")
-#define PROMPT ("> ")
-
 namespace Ark
 {
     class Repl

@@ -27,7 +27,7 @@ int main(int argc, char** argv)
     std::string file = "", lib_dir = "?";
     unsigned debug = 0;
     std::vector<std::string> wrong;
-    uint16_t options = Ark::DefaultFeatures;
+    uint16_t options = Ark::FeaturePersist;
 
     auto cli = (
         option("-h", "--help").set(selected, mode::help).doc("Display this message")
