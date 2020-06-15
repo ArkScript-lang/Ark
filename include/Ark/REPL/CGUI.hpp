@@ -48,7 +48,7 @@ namespace Ark
 		// function
 		{"fun", Replxx::Color::CYAN},
 		{"return", Replxx::Color::MAGENTA},
-		// loop and statement
+		// control flow
 		{"while", Replxx::Color::MAGENTA},
 		{"if", Replxx::Color::MAGENTA},
 		// variables

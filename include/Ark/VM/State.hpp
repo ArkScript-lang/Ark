@@ -88,6 +88,7 @@ namespace Ark
         void setLibDir(const std::string& libDir);
 
         friend class VM;
+        friend class Repl;
 
     private:
         /**
