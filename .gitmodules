@@ -1,5 +1,5 @@
 [submodule "modules"]
-	path = modules
+	path = lib/ext
 	url = https://github.com/ArkScript-lang/modules
 [submodule "submodules/String"]
 	path = submodules/String

@@ -10,6 +10,7 @@
 - renamed the cache directory `__arkscript__`
 - operator `@` can now handle negative indexes to get elements from the end of the given container
 - the standard library is now in another repository
+- moved the modules to lib/ext
 
 ### Removed
 - removed `fmt/format` from our dependencies

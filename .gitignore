@@ -17,4 +17,4 @@ deploy.ps1
 *.dll
 *.arkc
 *.lib
-*.bin
+*.arkm
