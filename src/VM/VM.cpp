@@ -706,10 +706,12 @@ namespace Ark
                         if (b->valueType() != ValueType::Number)
                             throw Ark::TypeError("Argument 2 of @ should be a Number");
 
+                        long idx = static_cast<long>(b->number());
+
                         if (a.valueType() == ValueType::List)
-                            push(a.list()[static_cast<long>(b->number())]);
+                            push(a.list()[idx < 0 ? a.list().size() + idx : idx]);
                         else if (a.valueType() == ValueType::String)
-                            push(Value(std::string(1, a.string()[static_cast<long>(b->number())])));
+                            push(Value(std::string(1, a.string()[idx < 0 ? a.string().size() + idx : idx])));
                         else
                             throw Ark::TypeError("Argument 1 of @ should be a List or a String");
                         break;
