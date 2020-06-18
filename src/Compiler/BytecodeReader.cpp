@@ -309,6 +309,8 @@ namespace Ark
                         os << "TYPE\n";
                     else if (inst == Instruction::HASFIELD)
                         os << "HASFIELD\n";
+                    else if (inst == Instruction::NOT)
+                        os << "NOT\n";
                     else
                     {
                         os << "Unknown instruction: " << static_cast<int>(inst) << "\n";
