@@ -1,9 +1,0 @@
-(let take (fun (_n _L) {
-    (mut _index 0)
-    (mut _output [])
-    (while (and (< _index _n) (< _index (len _L))) {
-        (set _output (append _output (@ _L _index)))
-        (set _index (+ 1 _index))
-    })
-    _output
-}))

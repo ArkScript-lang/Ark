@@ -1,9 +1,0 @@
-(let drop (fun (_n _L) {
-    (mut _index _n)
-    (mut _output [])
-    (while (< _index (len _L)) {
-        (set _output (append _output (@ _L _index)))
-        (set _index (+ 1 _index))
-    })
-    _output
-}))

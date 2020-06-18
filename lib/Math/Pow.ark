@@ -1,1 +1,0 @@
-(let pow (fun (x _a) (exp (* _a (ln x)))))
