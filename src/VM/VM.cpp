@@ -37,6 +37,7 @@ namespace Ark
         {
             m_frames.clear();
             m_frames.emplace_back();
+            m_shared_lib_objects.clear();
         }
         else if (m_frames.size() == 0)
         {
@@ -66,30 +67,6 @@ namespace Ark
             auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), name_func.first);
             if (it != m_state->m_symbols.end())
                 registerVarGlobal(static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it)), Value(name_func.second));
-        }
-
-        // loading plugins
-        for (auto&& plugin : m_state->m_shared_lib_objects)
-        {
-            // load data from it!
-            using Mapping_t = std::unordered_map<std::string, Value::ProcType>;
-            using map_fun_t = Mapping_t(*) ();
-            Mapping_t map;
-
-            try {
-                map = plugin.template get<map_fun_t>("getFunctionsMapping")();
-            } catch (const std::system_error& e) {
-                std::cerr << e.what() << std::endl;
-                //exit(-1);
-            }
-
-            for (auto&& kv : map)
-            {
-                // put it in the global frame, aka the first one
-                auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), kv.first);
-                if (it != m_state->m_symbols.end())
-                    registerVarGlobal(static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it)), Value(kv.second));
-            }
         }
     }
 
@@ -447,6 +424,61 @@ namespace Ark
                         }
 
                         throwVMError("couldn't find symbol in closure enviroment: " + m_state->m_symbols[id]);
+                        break;
+                    }
+
+                    case Instruction::PLUGIN:
+                    {
+                        /*
+                            Argument: constant id (two bytes, big endian)
+                            Job: Load a plugin named following the constant id (cf constants table).
+                                 Raise an error if it couldn't find the plugin.
+                        */
+
+                        namespace fs = std::filesystem;
+
+                        ++m_ip;
+                        uint16_t id; readNumber(id);
+
+                        std::string file = m_state->m_constants[id].string_ref().toString();
+                        std::string path = "./" + file;
+
+                        if (m_state->m_filename != ARK_NO_NAME_FILE)  // bytecode loaded from file
+                            path = "./" + (fs::path(m_state->m_filename).parent_path() / fs::path(file)).string();
+                        std::string lib_path = (fs::path(m_state->m_libdir) / fs::path(file)).string();
+
+                        if (std::find_if(m_shared_lib_objects.begin(), m_shared_lib_objects.end(), [&, this](const auto& val){
+                            if (val.path() == path || val.path() == lib_path)
+                                return true;
+                            return false;
+                        }) != m_shared_lib_objects.end())
+                            break;
+
+                        if (Utils::fileExists(path))  // if it exists alongside the .arkc file
+                            m_shared_lib_objects.emplace_back(path);
+                        else if (Utils::fileExists(lib_path))  // check in LOAD_PATH otherwise
+                            m_shared_lib_objects.emplace_back(lib_path);
+                        else
+                            throwVMError("could not load plugin " + file);
+
+                        // load data from it!
+                        using Mapping_t = std::unordered_map<std::string, Value::ProcType>;
+                        using map_fun_t = Mapping_t(*) ();
+                        Mapping_t map;
+
+                        try {
+                            map = m_shared_lib_objects.back().template get<map_fun_t>("getFunctionsMapping")();
+                        } catch (const std::system_error& e) {
+                            throwVMError(std::string(e.what()));
+                        }
+
+                        for (auto&& kv : map)
+                        {
+                            // put it in the global frame, aka the first one
+                            auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), kv.first);
+                            if (it != m_state->m_symbols.end())
+                                registerVarGlobal(static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it)), Value(kv.second));
+                        }
                         break;
                     }
 

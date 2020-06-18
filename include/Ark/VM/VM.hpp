@@ -93,6 +93,7 @@ namespace Ark
         std::vector<internal::Frame> m_frames;
         std::optional<internal::Scope_t> m_saved_scope;
         std::vector<internal::Scope_t> m_locals;
+        std::vector<internal::SharedLibrary> m_shared_lib_objects;
 
         // just a nice little trick for operator[]
         internal::Value m__no_value = internal::Builtins::nil;

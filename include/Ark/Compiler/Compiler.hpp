@@ -39,8 +39,8 @@ namespace Ark
          * @param code the code of the file
          * @param filename the name of the file
          */
-        void feed(const std::string& code, const std::string& filename="FILE");
-    
+        void feed(const std::string& code, const std::string& filename=ARK_NO_NAME_FILE);
+
         /**
          * @brief Start the compilation
          * 
@@ -67,7 +67,6 @@ namespace Ark
         // tables: symbols, values, plugins and codes
         std::vector<std::string> m_symbols;
         std::vector<internal::CValue> m_values;
-        std::vector<std::string> m_plugins;
         std::vector<std::vector<internal::Inst>> m_code_pages;
             // we need a temp code pages for some compilations passes
         std::vector<std::vector<internal::Inst>> m_temp_pages;
@@ -97,8 +96,7 @@ namespace Ark
         std::size_t addSymbol(const std::string& sym);
         std::size_t addValue(const Ark::internal::Node& x);
         std::size_t addValue(std::size_t page_id);
-        void addPlugin(const Ark::internal::Node& x);
-    
+
         // push a number on stack (need 2 bytes)
         void pushNumber(uint16_t n, std::vector<internal::Inst>* page=nullptr);
     };

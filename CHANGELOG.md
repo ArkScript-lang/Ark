@@ -2,6 +2,8 @@
 
 ## Unreleased changes
 ### Added
+- using a macro to define the default filename (when none is given, eg when loading bytecode files or from the REPL)
+- `PLUGIN <const id>` instruction to load plugin dynamically and not when the VM boots up
 
 ### Changed
 - updated the string module to benefit from the new `format` member function
@@ -11,9 +13,11 @@
 - operator `@` can now handle negative indexes to get elements from the end of the given container
 - the standard library is now in another repository
 - moved the modules to lib/ext
+- the value of `CODE_SEGMENT_START` is again 0x03 (because we removed the plugin table)
 
 ### Removed
 - removed `fmt/format` from our dependencies
+- `PLUGIN_TABLE` was removed to use the `PLUGIN` instruction
 
 ## 3.0.11
 ### Added

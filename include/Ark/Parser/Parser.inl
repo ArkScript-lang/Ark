@@ -9,7 +9,7 @@ inline void Parser::throwParseError(const std::string& message, internal::Token 
     throw std::runtime_error("ParseError: " + message + "\nAt " +
         Ark::Utils::toString(token.line) + ":" + Ark::Utils::toString(token.col) +
         " `" + token.token + "' (" + internal::tokentype_string[static_cast<unsigned>(token.type)] + ")" +
-        ((m_file != "FILE") ? " in file " + m_file : "")
+        ((m_file != ARK_NO_NAME_FILE) ? " in file " + m_file : "")
     );
 }
 

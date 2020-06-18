@@ -107,7 +107,6 @@ int main(int argc, char** argv)
                 std::cout << "      sizeof(ValueType) = " << sizeof(Ark::internal::ValueType) << "B\n";
                 std::cout << "sizeof(Ark::Frame)    = " << sizeof(Ark::internal::Frame) << "B\n";
                 std::cout << "sizeof(Ark::State)    = " << sizeof(Ark::State) << "B\n";
-                std::cout << "sizeof(Ark::Plugin)   = " << sizeof(Ark::internal::SharedLibrary) << "B\n";
                 std::cout << "sizeof(Ark::Closure)  = " << sizeof(Ark::internal::Closure) << "B\n";
                 std::cout << "sizeof(Ark::UserType) = " << sizeof(Ark::UserType) << "B\n";
                 std::cout << "sizeof(Ark::VM)       = " << sizeof(Ark::VM) << "B\n";

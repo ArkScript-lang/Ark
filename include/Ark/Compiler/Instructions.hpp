@@ -17,8 +17,7 @@ namespace Ark::internal
             NUMBER_TYPE = 0x01,
             STRING_TYPE = 0x02,
             FUNC_TYPE = 0x03,
-        PLUGIN_TABLE_START = 0x03,
-        CODE_SEGMENT_START = 0x04,
+        CODE_SEGMENT_START = 0x03,
 
         FIRST_COMMAND = 0x01,
             LOAD_SYMBOL = 0x01,
@@ -37,7 +36,8 @@ namespace Ark::internal
             DEL = 0x0e,
             SAVE_ENV = 0x0f,
             GET_FIELD = 0x10,
-        LAST_COMMAND = 0x10,
+            PLUGIN = 0x11,
+        LAST_COMMAND = 0x11,
 
         // NB: when adding an operator, it must be referenced as well under
         // src/VM/Builtins/Builtins.cpp, in the operators table
