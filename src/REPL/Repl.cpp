@@ -14,11 +14,11 @@ namespace Ark
         Ark::VM vm(&state);
         state.setDebug(0);
         std::string code;
+        bool init = false;
 
         print_repl_header();
         cgui_setup();
 
-        vm.init();
         while(true)
         {
             std::string tmp_code;
@@ -51,26 +51,36 @@ namespace Ark
                     break;
             }
 
+            m_old_ip = vm.m_ip;
             if(state.doString("{" + tmp_code + "}"))
             {
+                if(init == false)
+                {
+                    vm.init();
+                    init = true;
+                }
+
                 if(state.m_pages.size() != 0)
                     vm.m_pp = state.m_pages.size() - 1;
                 // variables
                 if(vm.m_locals[0]->size() < state.m_symbols.size())
                     for(unsigned i = vm.m_locals[0]->size(); i < state.m_symbols.size(); ++ i)
                         vm.m_locals[0]->emplace_back(ValueType::Undefined);
-                for(unsigned i = 0; i < vm.m_locals[0]->size(); ++ i)
-                    (*vm.m_locals[0])[i] = Value(ValueType::Undefined);
                 if(vm.safeRun() == 0)
+                {
                     code = tmp_code;
+                    -- vm.m_ip;
+                }
                 else
+                {
                     tmp_code = code;
+                    vm.m_ip = m_old_ip;
+                }
+
                 state.m_constants.clear();
             }
             else
                 std::cerr << "Ark::State::doString failed" << std::endl;
-
-            vm.m_ip = 0;
         }
     }
 

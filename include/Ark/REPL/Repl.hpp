@@ -36,6 +36,7 @@ namespace Ark
         Replxx m_repl;
         unsigned m_scope = 0;
         unsigned m_lines = 1;
+        int m_old_ip = 0;
 
         inline void print_repl_header();
         int count_open_parentheses(const std::string& line);
