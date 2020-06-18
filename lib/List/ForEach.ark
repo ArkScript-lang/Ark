@@ -1,8 +1,0 @@
-(let forEach (fun (_L code) {
-    (mut _index 0)
-    (while (< _index (len _L)) {
-        (mut _element (@ _L _index))
-        (code _element)
-        (set _index (+ 1 _index))
-    })
-}))

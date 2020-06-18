@@ -1,9 +1,0 @@
-{
-    (import "Math/Abs.ark")
-    (import "Math/Even.ark")
-    (import "Math/Max.ark")
-    (import "Math/Min.ark")
-    (import "Math/Odd.ark")
-    (import "Math/Pow.ark")
-    (import "Math/Sqrt.ark")
-}
