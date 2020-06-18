@@ -139,22 +139,6 @@ namespace Ark
         }
 
         if (m_debug >= 1)
-            Ark::logger.info("Adding plugins table");
-        
-        // plugins table
-        m_bytecode.push_back(Instruction::PLUGIN_TABLE_START);
-        // push size
-        pushNumber(static_cast<uint16_t>(m_plugins.size()));
-        // push elements
-        for (auto plugin: m_plugins)
-        {
-            // push the string, null terminated
-            for (std::size_t i=0, size=plugin.size(); i < size; ++i)
-                m_bytecode.push_back(plugin[i]);
-            m_bytecode.push_back(Instruction::NOP);
-        }
-
-        if (m_debug >= 1)
             Ark::logger.info("Adding code segments");
 
         // start code segments
@@ -386,11 +370,11 @@ namespace Ark
             }
             else if (n == Ark::internal::Keyword::Import)
             {
-                for (auto it=x.const_list().begin() + 1, it_end=x.const_list().end(); it != it_end; ++it)
-                {
-                    // load const, push it to the plugins table
-                    addPlugin(*it);
-                }
+                // register plugin path in the constants table
+                std::size_t id = addValue(x.const_list()[1]);
+                // add plugin instruction + id of the constant refering to the plugin path
+                page(p).emplace_back(Instruction::PLUGIN);
+                pushNumber(static_cast<uint16_t>(id), &page(p));
             }
             else if (n == Ark::internal::Keyword::Quote)
             {
@@ -557,13 +541,6 @@ namespace Ark
             return m_values.size() - 1;
         }
         return static_cast<std::size_t>(std::distance(m_values.begin(), it));
-    }
-
-    void Compiler::addPlugin(const Ark::internal::Node& x)
-    {
-        std::string name = x.string();
-        if (std::find(m_plugins.begin(), m_plugins.end(), name) == m_plugins.end())
-            m_plugins.push_back(name);
     }
 
     void Compiler::pushNumber(uint16_t n, std::vector<Inst>* page)

@@ -8,6 +8,7 @@
 #define ARK_COMPILATION_OPTIONS "@ARK_COMPILATION_OPTIONS@"
 #define ARK_COMPILER "@ARK_COMPILER@"
 #define ARK_CACHE_DIRNAME "__arkscript__"
+#define ARK_NO_NAME_FILE "FILE"
 #define ARK_ENABLE_SYSTEM @ARK_ENABLE_SYSTEM@
 
 #include <cinttypes>

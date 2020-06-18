@@ -15,13 +15,13 @@ namespace Ark
         m_libdir(lib_dir),
         m_options(options),
         m_lexer(debug),
-        m_file("FILE")
+        m_file(ARK_NO_NAME_FILE)
     {}
 
     void Parser::feed(const std::string& code, const std::string& filename)
     {
         // not the default value
-        if (filename != "FILE")
+        if (filename != ARK_NO_NAME_FILE)
         {
             m_file = Ark::Utils::canonicalRelPath(filename);
             if (m_debug >= 2)
@@ -383,7 +383,7 @@ namespace Ark
                 {
                     if (m_debug >= 2)
                         Ark::logger.info("Import found in file:", m_file);
-                    
+
                     std::string file;
                     if (n.const_list()[1].nodeType() == NodeType::String)
                         file = n.const_list()[1].string();
@@ -396,10 +396,10 @@ namespace Ark
                     std::string ext = fs::path(file).extension().string();
                     std::string dir = Ark::Utils::getDirectoryFromPath(m_file) + "/";
                     std::string path = (dir != "/") ? dir + file : file;
-                    
+
                     if (m_debug >= 2)
                         Ark::logger.data("path:", path, " ; file:", file, " ; libdir:", m_libdir);
-                    
+
                     // check if we are not loading a plugin
                     if (ext == ".ark")
                     {
@@ -407,18 +407,20 @@ namespace Ark
                         // replace content with a begin block
                         n.list().emplace_back(Keyword::Begin);
 
-                        // lib paths
-                        std::string libpath  = m_libdir + "/" + Ark::Utils::getFilenameFromPath(file);
-                        std::string libpath2 = m_libdir + "/" + file;
-
+                        std::string libpath;
                         std::string included_file = "";
+                        std::string filename = Ark::Utils::getFilenameFromPath(file);
+
+                        if (m_debug > 2)
+                            Ark::logger.info("filename:", filename);
+
                         // search in the files of the user first
                         if (Ark::Utils::fileExists(path))
                             included_file = path;
-                        else if (Ark::Utils::fileExists(libpath))
+                        else if (libpath = m_libdir + "/std/" + file; Ark::Utils::fileExists(libpath))
                             included_file = libpath;
-                        else if (Ark::Utils::fileExists(libpath2))
-                            included_file = libpath2;
+                        else if (libpath = m_libdir + "/" + file; Ark::Utils::fileExists(libpath))
+                            included_file = libpath;
                         else
                             throw std::runtime_error("ParseError: Couldn't find file " + file);
 
@@ -434,7 +436,7 @@ namespace Ark
                             p.m_parent_include.push_back(included_file);
 
                             p.feed(Ark::Utils::readFile(included_file), included_file);
-                            
+
                             // update our list of included files
                             for (auto&& inc : p.m_parent_include)
                             {

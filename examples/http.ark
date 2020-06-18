@@ -1,5 +1,5 @@
 {
-    (import "http.bin")
+    (import "http.arkm")
 
     (let srv (httpCreateServer))
     (let f (fun (str) {

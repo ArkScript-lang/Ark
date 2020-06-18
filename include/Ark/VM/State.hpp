@@ -9,7 +9,6 @@
 #include <Ark/VM/Value.hpp>
 #include <Ark/Compiler/BytecodeReader.hpp>
 #include <Ark/Compiler/Compiler.hpp>
-#include <Ark/VM/Plugin.hpp>
 #include <Ark/Log.hpp>
 
 namespace Ark
@@ -111,8 +110,6 @@ namespace Ark
         // related to the bytecode
         std::vector<std::string> m_symbols;
         std::vector<internal::Value> m_constants;
-        std::vector<std::string> m_plugins;
-        std::vector<internal::SharedLibrary> m_shared_lib_objects;
         std::vector<bytecode_t> m_pages;
 
         // related to the execution

@@ -11,7 +11,7 @@
 namespace Ark
 {
     State::State(uint16_t options, const std::string& libdir) :
-        m_libdir(libdir), m_filename("FILE"),
+        m_libdir(libdir), m_filename(ARK_NO_NAME_FILE),
         m_options(options), m_debug_level(0)
     {
         // read environment variable to locate ark std lib
@@ -307,26 +307,7 @@ namespace Ark
         else
             throwStateError("couldn't find constants table");
 
-        if (m_bytecode[i] == Instruction::PLUGIN_TABLE_START)
-        {
-            i++;
-            uint16_t size = readNumber(i);
-            m_plugins.reserve(size);
-            i++;
 
-            for (uint16_t j=0; j < size; ++j)
-            {
-                std::string plugin = "";
-                while (m_bytecode[i] != 0)
-                    plugin.push_back(m_bytecode[i++]);
-                i++;
-
-                m_plugins.push_back(plugin);
-            }
-        }
-        else
-            throwStateError("couldn't find plugins table");
-        
         while (m_bytecode[i] == Instruction::CODE_SEGMENT_START)
         {
             i++;
@@ -341,23 +322,6 @@ namespace Ark
             
             if (i == m_bytecode.size())
                 break;
-        }
-
-        for (const std::string& file : m_plugins)
-        {
-            namespace fs = std::filesystem;
-
-            std::string path = "./" + file;
-            if (m_filename != "FILE")  // bytecode loaded from file
-                path = "./" + (fs::path(m_filename).parent_path() / fs::path(file)).string();
-            std::string lib_path = (fs::path(m_libdir) / fs::path(file)).string();
-
-            if (Ark::Utils::fileExists(path))  // if it exists alongside the .arkc file
-                m_shared_lib_objects.emplace_back(path);
-            else if (Ark::Utils::fileExists(lib_path))  // check in LOAD_PATH otherwise
-                m_shared_lib_objects.emplace_back(lib_path);
-            else
-                throwStateError("could not load plugin " + file);
         }
     }
 }
