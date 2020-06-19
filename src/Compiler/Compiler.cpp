@@ -84,6 +84,8 @@ namespace Ark
         m_bytecode.push_back(Instruction::SYM_TABLE_START);
             if (m_debug >= 1)
                 Ark::logger.info("Compiling");
+            // remove unused code first
+            remove_unused();
             // gather symbols, values, and start to create code segments
             m_code_pages.emplace_back();  // create empty page
             _compile(m_parser.ast(), 0);
@@ -185,6 +187,30 @@ namespace Ark
     const bytecode_t& Compiler::bytecode()
     {
         return m_bytecode;
+    }
+
+    void Compiler::remove_unused()
+    {
+        std::map<std::string, unsigned> appearances;
+        auto ast = m_parser.ast();
+
+        // do not handle non-list
+        if (ast.nodeType() != internal::NodeType::List)
+            return;
+
+        // iterate only on the first level
+        for (auto it=ast.const_list().begin(), end=ast.const_list().end(); it != end; ++it)
+        {
+            // check if it's a function declaration
+            if (it->const_list()[0].nodeType() == internal::NodeType::Keyword && (it->const_list()[0].keyword() == internal::Keyword::Let || it->const_list()[0].keyword() == internal::Keyword::Mut) &&
+                it->const_list()[2].const_list()[0].nodeType() == internal::NodeType::Keyword && it->const_list()[2].const_list()[0].keyword() == internal::Keyword::Fun)
+            {
+                if (appearances.find(it->const_list()[1].string()) == appearances.end())
+                    appearances[it->const_list()[1].string()] = 1;
+                else
+                    appearances[it->const_list()[1].string()]++;
+            }
+        }
     }
 
     void Compiler::_compile(const Ark::internal::Node& x, int p)

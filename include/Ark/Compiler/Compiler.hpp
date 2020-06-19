@@ -74,6 +74,9 @@ namespace Ark
         bytecode_t m_bytecode;
         unsigned m_debug;
 
+        // iterate over the AST and remove unused top level functions and constants
+        void remove_unused();
+
         // helper functions to get a temp or finalized code page
         inline std::vector<internal::Inst>& page(int i);
         // checking if a symbol is an operator or a builtin
