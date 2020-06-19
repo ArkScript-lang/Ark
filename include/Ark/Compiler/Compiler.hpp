@@ -62,7 +62,7 @@ namespace Ark
         const bytecode_t& bytecode();
 
     private:
-        Ark::Parser m_parser;
+        Parser m_parser;
         uint16_t m_options;
         // tables: symbols, values, plugins and codes
         std::vector<std::string> m_symbols;
@@ -90,14 +90,14 @@ namespace Ark
         /**
          * @brief Compile a single node recursively
          * 
-         * @param x the Ark::internal::Node to compile
+         * @param x the internal::Node to compile
          * @param p the current page number we're on
          */
-        void _compile(const Ark::internal::Node& x, int p);
+        void _compile(const internal::Node& x, int p);
 
         // register a symbol/value/plugin in its own table
         std::size_t addSymbol(const std::string& sym);
-        std::size_t addValue(const Ark::internal::Node& x);
+        std::size_t addValue(const internal::Node& x);
         std::size_t addValue(std::size_t page_id);
 
         // push a number on stack (need 2 bytes)
