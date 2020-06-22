@@ -48,14 +48,6 @@ namespace Ark
         inline void* data() const;
 
         /**
-         * @brief User implemented `not` operator
-         * 
-         * @return true 
-         * @return false 
-         */
-        inline bool not_() const;
-
-        /**
          * @brief Check if the object held is of a given type
          * @details Usage example:
          * @code
@@ -67,7 +59,7 @@ namespace Ark
          *     // otherwise...
          * @endcode
          * 
-         * @tparam T 
+         * @tparam T the type to use for the test
          * @return true 
          * @return false 
          */
@@ -75,6 +67,18 @@ namespace Ark
         bool is() const
         {
             return (typeid(T).hash_code() & static_cast<uint16_t>(~0)) == m_type_id;
+        }
+
+        /**
+         * @brief Return the underlying object as a given type
+         * 
+         * @tparam T the type in which the underlying data pointer should be converted to
+         * @return T& 
+         */
+        template <typename T>
+        T& as()
+        {
+            return *static_cast<T*>(m_data);
         }
 
         friend inline bool operator==(const UserType& A, const UserType& B);

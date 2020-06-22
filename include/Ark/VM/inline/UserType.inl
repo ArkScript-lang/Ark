@@ -8,13 +8,6 @@ inline void* UserType::data() const
     return m_data;
 }
 
-// custom operators
-inline bool UserType::not_() const
-{
-    // TODO let the user implement his/her own
-    return false;
-}
-
 // friends
 
 inline bool operator==(const UserType& A, const UserType& B)
