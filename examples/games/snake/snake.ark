@@ -3,19 +3,20 @@
     (import "Functional/Exceptions.ark")
     (import "Switch.ark")
 
-    (sfWindowInit 600 600 "ArkSnake")
-    (sfWindowSetFPS 60)
+    (sf:window:init 600 600 "ArkSnake")
+    (sf:window:setFPS 60)
 
     # stuff needed for the texts
-    (let font (sfLoadFont "FreeSansBold.ttf"))
-    (let fps_text (sfMakeText font "FPS: NaN" 18 [255 255 255]))
-    (sfSetPos fps_text (/ (- 600 (sfWidth fps_text)) 2) 580)
+    (let font (sf:load:font "FreeSansBold.ttf"))
+    (let fps_text (sf:make:text font "FPS: NaN" 18 [255 255 255]))
+    (sf:set:pos fps_text (/ (- 600 (sf:width fps_text)) 2) 580)
 
     # the board object
     # 0 => empty, 1 => apple
     (let create-board-object (fun () {
         # sprites used for the game
-        (let apple_sprite (sfLoadSprite "apple.png"))
+        (let apple_texture (sf:load:texture "apple.png"))
+        (let apple_sprite (sf:load:sprite apple_texture))
 
         (mut data [])
         {
@@ -29,8 +30,7 @@
                     (mut t 0)  # empty
                     (if (or (and (= _y 10) (= _x 5)) (or (and (= _y 5) (= _x 2)) (and (= _y 12) (= _x 12))))
                         (set t 1)
-                        (set t 0)
-                    )
+                        (set t 0))
                     (set line (append line t))
                     (set _x (+ 1 _x))
                 })
@@ -49,12 +49,11 @@
                     (if (= case 1)
                         # then
                         {
-                            (sfSetPos apple_sprite (* 20 x) (* 20 y))
-                            (sfDraw apple_sprite)
+                            (sf:set:pos apple_sprite (* 20 x) (* 20 y))
+                            (sf:draw apple_sprite)
                         }
                         # else
-                        ()
-                    )
+                        ())
                     (set x (+ x 1))
                 })
                 (set y (+ 1 y))
@@ -75,8 +74,7 @@
                         # then
                         (set apple_left (+ 1 apple_left))
                         # else
-                        ()
-                    )
+                        ())
                     (set x (+ x 1))
                 })
                 (set y (+ 1 y))
@@ -109,8 +107,7 @@
                                         (set _x (+ 1 _x))
                                     })
                                     # else
-                                    (set line (@ data _y))
-                                )
+                                    (set line (@ data _y)))
 
                                 (set _data (append _data line))
                                 (set _y (+ 1 _y))
@@ -118,12 +115,10 @@
 
                             (set data _data)
                         }
-                        ()
-                    )
+                        ())
                     (return test)
                 }
-                (throw "Out of bounds")
-            )
+                (throw "Out of bounds"))
         ))
 
         (fun (&data &apple_sprite &draw_board &has_apple_left? &eat_apple_at) ())
@@ -137,7 +132,8 @@
         (mut pos [[0 0]])
         (mut should_move true)
         (mut last_direction [1 0])  # right
-        (let snake_sprite (sfLoadSprite "snake.png"))
+        (let snake_texture (sf:load:texture "snake.png"))
+        (let snake_sprite (sf:load:sprite snake_texture))
 
         (let move (fun (mx my board) {
             # we don't need to move since this function was called explicitly
@@ -159,26 +155,21 @@
                             # then
                             (set pos (tailOf pos))
                             # else
-                            ()
-                        )
-                    )
-                })
-                (fun (err) ())
-            )
+                            ()))})
+                (fun (err) ()))
         }))
 
         (let reset_auto_move (fun () (set should_move true)))
 
         (let auto_move (fun (board) {
-            (move (@ last_direction 0) (@ last_direction 1) board)
-        }))
+            (move (@ last_direction 0) (@ last_direction 1) board)}))
 
         (let draw (fun () {
             (mut acc 0)
             (while (!= acc (len pos)) {
                 (mut current (@ pos acc))
-                (sfSetPos snake_sprite (* 20 (@ current 0)) (* 20 (@ current 1)))
-                (sfDraw snake_sprite)
+                (sf:set:pos snake_sprite (* 20 (@ current 0)) (* 20 (@ current 1)))
+                (sf:draw snake_sprite)
                 (set acc (+ 1 acc))
             })
         }))
@@ -189,43 +180,40 @@
     # instanciating
     (let snake (create-snake-object))
 
-    (while (sfWindowIsOpen) {
+    (while (sf:window:open?) {
         (mut frame_start (time))
 
         # event handling
         (snake.reset_auto_move)
-
-        (mut event (sfPollEvent))
+        (mut event (sf:pollEvent))
 
         (switch event [
-            [(sfEvent "quit") '(sfWindowClose)]
-            [(sfEvent "keyup" "up") '(snake.move 0 -1 board)]
-            [(sfEvent "keyup" "down") '(snake.move 0 1 board)]
-            [(sfEvent "keyup" "right") '(snake.move 1 0 board)]
-            [(sfEvent "keyup" "left") '(snake.move -1 0 board)]
+            [(sf:event "quit") '(sf:window:close)]
+            [(sf:event "keyup" "up") '(snake.move 0 -1 board)]
+            [(sf:event "keyup" "down") '(snake.move 0 1 board)]
+            [(sf:event "keyup" "right") '(snake.move 1 0 board)]
+            [(sf:event "keyup" "left") '(snake.move -1 0 board)]
         ])
 
         # update
         (if (= 0 (board.has_apple_left?))
             {
                 (print "victoire royale !")
-                (sfWindowClose)
+                (sf:window:close)
             }
-            ()
-        )
+            ())
         # (snake.auto_move board)
 
         # rendering
-        (sfWindowClear 0 0 0)
+        (sf:window:clear 0 0 0)
         (board.draw_board)      # draw board first
         (snake.draw)            # then snake
-        (sfDraw fps_text)
-        (sfWindowDisplay)     # double buffering
+        (sf:draw fps_text)
+        (sf:window:display)     # double buffering
 
         (mut diff (- (time) frame_start))
         (if (!= diff 0)
-            (sfSetText fps_text (+ "FPS: " (toString (/ 1 diff))))
-            (sfSetText fps_text "FPS: NaN")
-        )
+            (sf:set:text fps_text (+ "FPS: " (toString (/ 1 diff))))
+            (sf:set:text fps_text "FPS: NaN"))
     })
 }
