@@ -47,7 +47,7 @@ namespace Ark::internal::Builtins
         { "readFile", Value(IO::readFile) },
         { "fileExists?", Value(IO::fileExists) },
         { "listFiles", Value(IO::listFiles) },
-        { "isDir?", Value(IO::isDirectory) },
+        { "dir?", Value(IO::isDirectory) },
         { "makeDir", Value(IO::makeDir) },
         { "removeFiles", Value(IO::removeFiles) },
 
