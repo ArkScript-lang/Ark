@@ -75,7 +75,7 @@ namespace Ark
         unsigned m_debug;
 
         // iterate over the AST and remove unused top level functions and constants
-        void remove_unused();
+        void remove_unused(const internal::Node& ast);
 
         // helper functions to get a temp or finalized code page
         inline std::vector<internal::Inst>& page(int i);

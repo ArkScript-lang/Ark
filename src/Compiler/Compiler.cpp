@@ -85,7 +85,7 @@ namespace Ark
             if (m_debug >= 1)
                 Ark::logger.info("Compiling");
             // remove unused code first
-            remove_unused();
+            remove_unused(m_parser.ast());
             // gather symbols, values, and start to create code segments
             m_code_pages.emplace_back();  // create empty page
             _compile(m_parser.ast(), 0);
@@ -189,10 +189,9 @@ namespace Ark
         return m_bytecode;
     }
 
-    void Compiler::remove_unused()
+    void Compiler::remove_unused(const Node& ast)
     {
         std::unordered_map<std::string, unsigned> appearances;
-        auto ast = m_parser.ast();
 
         // do not handle non-list
         if (ast.nodeType() != NodeType::List)
@@ -202,8 +201,12 @@ namespace Ark
         for (auto it=ast.const_list().begin(), end=ast.const_list().end(); it != end; ++it)
         {
             // check if it's a let/mut declaration
-            if (it->const_list()[0].nodeType() == NodeType::Keyword && (it->const_list()[0].keyword() == Keyword::Let || it->const_list()[0].keyword() == Keyword::Mut))
-                appearances[it->const_list()[1].string()] = 1;
+            if (it->const_list().size() == 3 && it->const_list()[0].nodeType() == NodeType::Keyword)
+            {
+                Keyword kw = it->const_list()[0].keyword();
+                if (kw == Keyword::Let || kw == Keyword::Mut)
+                    appearances[it->const_list()[1].string()] = 1;
+            }
         }
     }
 
