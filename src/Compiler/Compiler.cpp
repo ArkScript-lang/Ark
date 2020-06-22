@@ -73,7 +73,7 @@ namespace Ark
         }
         if (m_debug >= 2)
             std::cout << std::endl;
-        
+
         if (m_debug >= 1)
             Ark::logger.info("Timestamp: ", timestamp);
 
@@ -85,10 +85,10 @@ namespace Ark
             if (m_debug >= 1)
                 Ark::logger.info("Compiling");
             // remove unused code first
-            remove_unused(m_parser.ast());
+            Node new_ast = remove_unused(m_parser.ast());
             // gather symbols, values, and start to create code segments
             m_code_pages.emplace_back();  // create empty page
-            _compile(m_parser.ast(), 0);
+            _compile(new_ast, 0);
         if (m_debug >= 1)
             Ark::logger.info("Adding symbols table");
         // push size
@@ -189,24 +189,72 @@ namespace Ark
         return m_bytecode;
     }
 
-    void Compiler::remove_unused(const Node& ast)
+    Node Compiler::remove_unused(const Node& ast)
     {
+        Node new_ast(ast);
         std::unordered_map<std::string, unsigned> appearances;
 
-        // do not handle non-list
-        if (ast.nodeType() != NodeType::List)
-            return;
+        // if we shouldn't remove unused vars, exit
+        // also, do not handle non-list nodes
+        if ((m_options & FeatureRemoveUnusedVars) == 0 || ast.nodeType() != NodeType::List)
+            return new_ast;
 
-        // iterate only on the first level
-        for (auto it=ast.const_list().begin(), end=ast.const_list().end(); it != end; ++it)
+        run_on_global_scope_vars(new_ast, [&appearances](Node& node, Node& parent, int idx){
+            appearances[node.const_list()[1].string()] = 0;
+        });
+        count_occurences(new_ast, appearances);
+
+        // logic: remove piece of code with only 1 reference
+        run_on_global_scope_vars(new_ast, [&appearances](Node& node, Node& parent, int idx){
+            std::string name = node.const_list()[1].string();
+            // a variable was only declared and never used
+            if (appearances.find(name) != appearances.end() && appearances[name] == 1)
+                parent.list().erase(parent.list().begin() + idx);  // erase the node from the list
+        });
+
+        return new_ast;
+    }
+
+    void Compiler::run_on_global_scope_vars(Node& node, const std::function<void(Node&, Node&, int)>& func)
+    {
+        int i = static_cast<int>(node.const_list().size());
+        // iterate only on the first level, using reverse iterators to avoid copy-delete-move to nowhere
+        for (auto it=node.list().rbegin(); it != node.list().rend(); ++it)
         {
-            // check if it's a let/mut declaration
-            if (it->const_list().size() == 3 && it->const_list()[0].nodeType() == NodeType::Keyword)
+            i--;
+
+            if (it->const_list().size() > 0 && it->const_list()[0].nodeType() == NodeType::Keyword)
             {
                 Keyword kw = it->const_list()[0].keyword();
-                if (kw == Keyword::Let || kw == Keyword::Mut)
-                    appearances[it->const_list()[1].string()] = 1;
+
+                // eliminate nested begin blocks
+                if (kw == Keyword::Begin)
+                {
+                    run_on_global_scope_vars(*it, func);
+                    // skip let/ mut detection
+                    continue;
+                }
+                // check if it's a let/mut declaration
+                else if (kw == Keyword::Let || kw == Keyword::Mut)
+                    func(*it, node, i);
             }
+        }
+    }
+
+    void Compiler::count_occurences(const Node& node, std::unordered_map<std::string, unsigned>& appearances)
+    {
+        if (node.nodeType() == NodeType::Symbol)
+        {
+            std::string name = node.string();
+            // check if it's the name of something declared in global scope
+            if (appearances.find(name) != appearances.end())
+                appearances[name]++;
+        }
+        else if (node.nodeType() == NodeType::List)
+        {
+            // iterate over children
+            for (auto it=node.const_list().begin(), end=node.const_list().end(); it != end; ++it)
+                count_occurences(*it, appearances);
         }
     }
 
@@ -240,7 +288,7 @@ namespace Ark
 
             return;
         }
-        if (x.nodeType() == NodeType::GetField)
+        else if (x.nodeType() == NodeType::GetField)
         {
             std::string name = x.string();
             // 'name' shouldn't be a builtin/operator, we can use it as-is
@@ -252,7 +300,7 @@ namespace Ark
             return;
         }
         // register values
-        if (x.nodeType() == NodeType::String || x.nodeType() == NodeType::Number)
+        else if (x.nodeType() == NodeType::String || x.nodeType() == NodeType::Number)
         {
             std::size_t i = addValue(x);
 
@@ -262,7 +310,7 @@ namespace Ark
             return;
         }
         // empty code block should be nil
-        if (x.const_list().empty())
+        else if (x.const_list().empty())
         {
             auto it_builtin = isBuiltin("nil");
             page(p).emplace_back(Instruction::BUILTIN);
@@ -270,7 +318,7 @@ namespace Ark
             return;
         }
         // registering structures
-        if (x.const_list()[0].nodeType() == NodeType::Keyword)
+        else if (x.const_list()[0].nodeType() == NodeType::Keyword)
         {
             Keyword n = x.const_list()[0].keyword();
 

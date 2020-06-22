@@ -6,6 +6,7 @@
 #include <string>
 #include <cinttypes>
 #include <optional>
+#include <functional>
 
 #include <Ark/Parser/Parser.hpp>
 #include <Ark/Parser/Node.hpp>
@@ -75,7 +76,9 @@ namespace Ark
         unsigned m_debug;
 
         // iterate over the AST and remove unused top level functions and constants
-        void remove_unused(const internal::Node& ast);
+        internal::Node remove_unused(const internal::Node& ast);
+        void run_on_global_scope_vars(internal::Node& node, const std::function<void(internal::Node&, internal::Node&, int)>& func);
+        void count_occurences(const internal::Node& node, std::unordered_map<std::string, unsigned>& appearances);
 
         // helper functions to get a temp or finalized code page
         inline std::vector<internal::Inst>& page(int i);
