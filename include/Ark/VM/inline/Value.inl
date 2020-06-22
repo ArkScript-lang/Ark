@@ -51,13 +51,13 @@ inline const Closure& Value::closure() const
 
 inline const bool Value::isConst() const
 {
-    return m_constType & (1 << 8);
+    return m_constType & (1 << 7);
 }
 
 inline void Value::setConst(bool value)
 {
     if (value)
-        m_constType |= 1 << 8;
+        m_constType |= 1 << 7;
     else
         m_constType &= 0b01111111;  // keep only the right most bits
 }

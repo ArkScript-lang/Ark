@@ -90,13 +90,11 @@ namespace Ark::internal
 
     void Value::push_back(const Value& value)
     {
-        m_constType = init_const_type(isConst(), ValueType::List);
         list().push_back(value);
     }
 
     void Value::push_back(Value&& value)
     {
-        m_constType = init_const_type(isConst(), ValueType::List);
         list().push_back(value);
     }
 
