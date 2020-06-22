@@ -6,6 +6,7 @@
 - `PLUGIN <const id>` instruction to load plugin dynamically and not when the VM boots up
 - updated search paths for `(import "lib.ark")`, looking in ./, lib/std/ and lib/
 - added a case to display NOT instructions in the bytecode reader
+- `T& as<T>()` in usertype
 
 ### Changed
 - updated the string module to benefit from the new `format` member function
@@ -16,10 +17,12 @@
 - the standard library is now in another repository
 - moved the modules to lib/ext
 - the value of `CODE_SEGMENT_START` is again 0x03 (because we removed the plugin table)
+- renamed `isDir?` to `dir?` for consistency
 
 ### Removed
 - removed `fmt/format` from our dependencies
 - `PLUGIN_TABLE` was removed to use the `PLUGIN` instruction
+- `not_()` from usertype
 
 ## 3.0.11
 ### Added
