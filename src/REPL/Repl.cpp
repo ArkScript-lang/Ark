@@ -1,6 +1,9 @@
 #include <functional>
+#include <sstream>
 
 #include <Ark/REPL/Repl.hpp>
+#include <Ark/REPL/replxx/Util.hpp>
+
 
 namespace Ark
 {
@@ -21,13 +24,23 @@ namespace Ark
 
         while(true)
         {
-            std::string tmp_code;
+            std::stringstream tmp_code;
             unsigned open_parentheses = 0;
             unsigned open_braces = 0;
 
+            tmp_code << code;
             while(true)
             {
-                std::string infos = "main:" + std::to_string(m_lines) + ":" + std::to_string(m_scope) + "> ";
+                std::string str_lines = "000";
+                if(std::to_string(m_lines).size() < 3)
+                {
+                    std::size_t size = std::to_string(m_lines).size(); 
+                    str_lines.replace((str_lines.size() - size), size, std::to_string(m_lines));
+                }
+                else
+                    str_lines = std::to_string(m_lines);
+
+                std::string infos = "main:" + str_lines + "> ";
                 std::string line = m_repl.input(infos);
 
                 // line history
@@ -35,13 +48,10 @@ namespace Ark
                 trim_whitespace(line);
 
                 // specific commands handling
-                if(line == "(quit)" || line == "(q)")
+                if(line == "(quit)")
                     return;
 
-                // scopes
-                scope_update(line);
-
-                tmp_code = code + (line + "\n");
+                tmp_code << line;
                 open_parentheses += count_open_parentheses(line);
                 open_braces += count_open_braces(line);
 
@@ -52,7 +62,7 @@ namespace Ark
             }
 
             m_old_ip = vm.m_ip;
-            if(state.doString("{" + tmp_code + "}"))
+            if(state.doString("{" + tmp_code.str() + "}"))
             {
                 if(init == false)
                 {
@@ -60,24 +70,20 @@ namespace Ark
                     init = true;
                 }
 
-                if(state.m_pages.size() != 0)
-                    vm.m_pp = state.m_pages.size() - 1;
-                // variables
                 if(vm.m_locals[0]->size() < state.m_symbols.size())
                     for(unsigned i = vm.m_locals[0]->size(); i < state.m_symbols.size(); ++ i)
                         vm.m_locals[0]->emplace_back(ValueType::Undefined);
+
                 if(vm.safeRun() == 0)
                 {
-                    code = tmp_code;
+                    code = tmp_code.str();
                     -- vm.m_ip;
                 }
                 else
-                {
-                    tmp_code = code;
                     vm.m_ip = m_old_ip;
-                }
 
                 state.m_constants.clear();
+                state.m_pages.clear();
             }
             else
                 std::cerr << "Ark::State::doString failed" << std::endl;
@@ -132,15 +138,6 @@ namespace Ark
             size_t string_end = line.find_last_not_of(" \t");
             line = line.substr(string_begin, (string_end - string_begin + 1));
         }
-    }
-
-    void Repl::scope_update(const std::string& line)
-    {
-        if(line.find('{') != std::string::npos)
-            ++ m_scope;
-        else if(line.find('}') != std::string::npos)
-            if(m_scope != 0)
-                -- m_scope;
     }
 
     void Repl::cgui_setup()
