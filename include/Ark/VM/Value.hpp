@@ -42,7 +42,11 @@ namespace Ark::internal
         Undefined
     };
 
-    const std::array<Value, 11> types_to_str;
+    const std::array<std::string, 11> types_to_str = {
+        "List", "Number", "String", "Function",
+        "CProc", "Closure", "UserType",
+        "Nil", "Bool", "Bool", "Undefined"
+    };
 
     class Frame;
 

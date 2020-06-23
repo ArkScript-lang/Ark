@@ -772,7 +772,7 @@ namespace Ark
                     case Instruction::TYPE:
                     {
                         Value *a = popVal();
-                        push(types_to_str[static_cast<unsigned>(a->valueType())]);
+                        push(Value(types_to_str[static_cast<unsigned>(a->valueType())]));
                         break;
                     }
 
