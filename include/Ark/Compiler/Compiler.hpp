@@ -6,6 +6,7 @@
 #include <string>
 #include <cinttypes>
 #include <optional>
+#include <functional>
 
 #include <Ark/Parser/Parser.hpp>
 #include <Ark/Parser/Node.hpp>
@@ -62,7 +63,7 @@ namespace Ark
         const bytecode_t& bytecode();
 
     private:
-        Ark::Parser m_parser;
+        Parser m_parser;
         uint16_t m_options;
         // tables: symbols, values, plugins and codes
         std::vector<std::string> m_symbols;
@@ -73,6 +74,11 @@ namespace Ark
 
         bytecode_t m_bytecode;
         unsigned m_debug;
+
+        // iterate over the AST and remove unused top level functions and constants
+        internal::Node remove_unused(const internal::Node& ast);
+        void run_on_global_scope_vars(internal::Node& node, const std::function<void(internal::Node&, internal::Node&, int)>& func);
+        void count_occurences(const internal::Node& node, std::unordered_map<std::string, unsigned>& appearances);
 
         // helper functions to get a temp or finalized code page
         inline std::vector<internal::Inst>& page(int i);
@@ -87,14 +93,14 @@ namespace Ark
         /**
          * @brief Compile a single node recursively
          * 
-         * @param x the Ark::internal::Node to compile
+         * @param x the internal::Node to compile
          * @param p the current page number we're on
          */
-        void _compile(const Ark::internal::Node& x, int p);
+        void _compile(const internal::Node& x, int p);
 
         // register a symbol/value/plugin in its own table
         std::size_t addSymbol(const std::string& sym);
-        std::size_t addValue(const Ark::internal::Node& x);
+        std::size_t addValue(const internal::Node& x);
         std::size_t addValue(std::size_t page_id);
 
         // push a number on stack (need 2 bytes)

@@ -8,6 +8,8 @@
 - added a case to display NOT instructions in the bytecode reader
 - `T& as<T>()` in usertype
 - enhanced error message when calling a non-function object
+- eliminating unused global scope variables in the compiler
+- adding a new feature enabled by default: `FeatureRemoveUnusedVars` (not enabled for the REPL for obvious reasons)
 
 ### Changed
 - updated the string module to benefit from the new `format` member function
