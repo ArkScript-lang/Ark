@@ -9,7 +9,6 @@
 #include <Ark/VM/Value.hpp>
 #include <Ark/Compiler/BytecodeReader.hpp>
 #include <Ark/Compiler/Compiler.hpp>
-#include <Ark/VM/Plugin.hpp>
 #include <Ark/Log.hpp>
 
 namespace Ark
@@ -24,10 +23,10 @@ namespace Ark
         /**
          * @brief Construct a new State object
          * 
-         * @param libdir the path to the standard library, defaults to "?" which means: search in environment variables
          * @param options the options for the virtual machine, compiler, and parser
+         * @param libdir the path to the standard library, defaults to "?" which means: search in environment variables
          */
-        State(const std::string& libdir="?", uint16_t options=DefaultFeatures);
+        State(uint16_t options=DefaultFeatures, const std::string& libdir="?");
 
         /**
          * @brief Feed the state by giving it the path to an existing bytecode file
@@ -116,8 +115,6 @@ namespace Ark
         // related to the bytecode
         std::vector<std::string> m_symbols;
         std::vector<internal::Value> m_constants;
-        std::vector<std::string> m_plugins;
-        std::vector<internal::SharedLibrary> m_shared_lib_objects;
         std::vector<bytecode_t> m_pages;
 
         // related to the execution

@@ -30,7 +30,7 @@ namespace Ark::internal::Builtins::List
             if (it->valueType() != ValueType::List)
                 throw Ark::TypeError(LIST_CONCAT_TE);
 
-            for (Value::Iterator it2=it->const_list().begin(), it2_end=it->const_list().end(); it2 != it2_end; ++it2)
+            for (Value::ConstIterator it2=it->const_list().begin(), it2_end=it->const_list().end(); it2 != it2_end; ++it2)
                 n[0].push_back(*it2);
         }
         return n[0];

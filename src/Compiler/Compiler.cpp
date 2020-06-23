@@ -73,7 +73,7 @@ namespace Ark
         }
         if (m_debug >= 2)
             std::cout << std::endl;
-        
+
         if (m_debug >= 1)
             Ark::logger.info("Timestamp: ", timestamp);
 
@@ -84,9 +84,11 @@ namespace Ark
         m_bytecode.push_back(Instruction::SYM_TABLE_START);
             if (m_debug >= 1)
                 Ark::logger.info("Compiling");
+            // remove unused code first
+            Node new_ast = remove_unused(m_parser.ast());
             // gather symbols, values, and start to create code segments
             m_code_pages.emplace_back();  // create empty page
-            _compile(m_parser.ast(), 0);
+            _compile(new_ast, 0);
         if (m_debug >= 1)
             Ark::logger.info("Adding symbols table");
         // push size
@@ -114,7 +116,7 @@ namespace Ark
             {
                 m_bytecode.push_back(Instruction::NUMBER_TYPE);
                 auto n = std::get<double>(val.value);
-                std::string t = Ark::Utils::toString(n);
+                std::string t = Utils::toString(n);
                 for (std::size_t i=0, size=t.size(); i < size; ++i)
                     m_bytecode.push_back(t[i]);
             }
@@ -135,22 +137,6 @@ namespace Ark
                 throw std::runtime_error("CompilerError: trying to put a value in the value table, but the type isn't handled.\nCertainly a logic problem in the compiler source code");
             }
 
-            m_bytecode.push_back(Instruction::NOP);
-        }
-
-        if (m_debug >= 1)
-            Ark::logger.info("Adding plugins table");
-        
-        // plugins table
-        m_bytecode.push_back(Instruction::PLUGIN_TABLE_START);
-        // push size
-        pushNumber(static_cast<uint16_t>(m_plugins.size()));
-        // push elements
-        for (auto plugin: m_plugins)
-        {
-            // push the string, null terminated
-            for (std::size_t i=0, size=plugin.size(); i < size; ++i)
-                m_bytecode.push_back(plugin[i]);
             m_bytecode.push_back(Instruction::NOP);
         }
 
@@ -203,13 +189,82 @@ namespace Ark
         return m_bytecode;
     }
 
-    void Compiler::_compile(const Ark::internal::Node& x, int p)
+    Node Compiler::remove_unused(const Node& ast)
+    {
+        Node new_ast(ast);
+        std::unordered_map<std::string, unsigned> appearances;
+
+        // if we shouldn't remove unused vars, exit
+        // also, do not handle non-list nodes
+        if ((m_options & FeatureRemoveUnusedVars) == 0 || ast.nodeType() != NodeType::List)
+            return new_ast;
+
+        run_on_global_scope_vars(new_ast, [&appearances](Node& node, Node& parent, int idx){
+            appearances[node.const_list()[1].string()] = 0;
+        });
+        count_occurences(new_ast, appearances);
+
+        // logic: remove piece of code with only 1 reference
+        run_on_global_scope_vars(new_ast, [&appearances](Node& node, Node& parent, int idx){
+            std::string name = node.const_list()[1].string();
+            // a variable was only declared and never used
+            if (appearances.find(name) != appearances.end() && appearances[name] == 1)
+                parent.list().erase(parent.list().begin() + idx);  // erase the node from the list
+        });
+
+        return new_ast;
+    }
+
+    void Compiler::run_on_global_scope_vars(Node& node, const std::function<void(Node&, Node&, int)>& func)
+    {
+        int i = static_cast<int>(node.const_list().size());
+        // iterate only on the first level, using reverse iterators to avoid copy-delete-move to nowhere
+        for (auto it=node.list().rbegin(); it != node.list().rend(); ++it)
+        {
+            i--;
+
+            if (it->const_list().size() > 0 && it->const_list()[0].nodeType() == NodeType::Keyword)
+            {
+                Keyword kw = it->const_list()[0].keyword();
+
+                // eliminate nested begin blocks
+                if (kw == Keyword::Begin)
+                {
+                    run_on_global_scope_vars(*it, func);
+                    // skip let/ mut detection
+                    continue;
+                }
+                // check if it's a let/mut declaration
+                else if (kw == Keyword::Let || kw == Keyword::Mut)
+                    func(*it, node, i);
+            }
+        }
+    }
+
+    void Compiler::count_occurences(const Node& node, std::unordered_map<std::string, unsigned>& appearances)
+    {
+        if (node.nodeType() == NodeType::Symbol)
+        {
+            std::string name = node.string();
+            // check if it's the name of something declared in global scope
+            if (appearances.find(name) != appearances.end())
+                appearances[name]++;
+        }
+        else if (node.nodeType() == NodeType::List)
+        {
+            // iterate over children
+            for (auto it=node.const_list().begin(), end=node.const_list().end(); it != end; ++it)
+                count_occurences(*it, appearances);
+        }
+    }
+
+    void Compiler::_compile(const Node& x, int p)
     {
         if (m_debug >= 2)
             Ark::logger.info(x);
 
         // register symbols
-        if (x.nodeType() == Ark::internal::NodeType::Symbol)
+        if (x.nodeType() == NodeType::Symbol)
         {
             std::string name = x.string();
 
@@ -233,7 +288,7 @@ namespace Ark
 
             return;
         }
-        if (x.nodeType() == Ark::internal::NodeType::GetField)
+        else if (x.nodeType() == NodeType::GetField)
         {
             std::string name = x.string();
             // 'name' shouldn't be a builtin/operator, we can use it as-is
@@ -245,7 +300,7 @@ namespace Ark
             return;
         }
         // register values
-        if (x.nodeType() == Ark::internal::NodeType::String || x.nodeType() == Ark::internal::NodeType::Number)
+        else if (x.nodeType() == NodeType::String || x.nodeType() == NodeType::Number)
         {
             std::size_t i = addValue(x);
 
@@ -255,7 +310,7 @@ namespace Ark
             return;
         }
         // empty code block should be nil
-        if (x.const_list().empty())
+        else if (x.const_list().empty())
         {
             auto it_builtin = isBuiltin("nil");
             page(p).emplace_back(Instruction::BUILTIN);
@@ -263,11 +318,11 @@ namespace Ark
             return;
         }
         // registering structures
-        if (x.const_list()[0].nodeType() == Ark::internal::NodeType::Keyword)
+        else if (x.const_list()[0].nodeType() == NodeType::Keyword)
         {
-            Ark::internal::Keyword n = x.const_list()[0].keyword();
+            Keyword n = x.const_list()[0].keyword();
 
-            if (n == Ark::internal::Keyword::If)
+            if (n == Keyword::If)
             {
                 // compile condition
                 _compile(x.const_list()[1], p);
@@ -291,7 +346,7 @@ namespace Ark
                 page(p)[jump_to_end_pos]     = (static_cast<uint16_t>(page(p).size()) & 0xff00) >> 8;
                 page(p)[jump_to_end_pos + 1] =  static_cast<uint16_t>(page(p).size()) & 0x00ff;
             }
-            else if (n == Ark::internal::Keyword::Set)
+            else if (n == Keyword::Set)
             {
                 std::string name = x.const_list()[1].string();
                 std::size_t i = addSymbol(name);
@@ -302,7 +357,7 @@ namespace Ark
                 page(p).emplace_back(Instruction::STORE);
                 pushNumber(static_cast<uint16_t>(i), &page(p));
             }
-            else if (n == Ark::internal::Keyword::Let)
+            else if (n == Keyword::Let)
             {
                 std::string name = x.const_list()[1].string();
                 std::size_t i = addSymbol(name);
@@ -313,7 +368,7 @@ namespace Ark
                 page(p).emplace_back(Instruction::LET);
                 pushNumber(static_cast<uint16_t>(i), &page(p));
             }
-            else if (n == Ark::internal::Keyword::Mut)
+            else if (n == Keyword::Mut)
             {
                 std::string name = x.const_list()[1].string();
                 std::size_t i = addSymbol(name);
@@ -324,7 +379,7 @@ namespace Ark
                 page(p).emplace_back(Instruction::MUT);
                 pushNumber(static_cast<uint16_t>(i), &page(p));
             }
-            else if (n == Ark::internal::Keyword::Fun)
+            else if (n == Keyword::Fun)
             {
                 // capture, if needed
                 for (auto it=x.const_list()[1].const_list().begin(), it_end=x.const_list()[1].const_list().end(); it != it_end; ++it)
@@ -358,12 +413,12 @@ namespace Ark
                 // return last value on the stack
                 page(page_id).emplace_back(Instruction::RET);
             }
-            else if (n == Ark::internal::Keyword::Begin)
+            else if (n == Keyword::Begin)
             {
                 for (std::size_t i=1, size=x.const_list().size(); i < size; ++i)
                     _compile(x.const_list()[i], p);
             }
-            else if (n == Ark::internal::Keyword::While)
+            else if (n == Keyword::While)
             {
                 // save current position to jump there at the end of the loop
                 std::size_t current = page(p).size();
@@ -384,15 +439,15 @@ namespace Ark
                 page(p)[jump_to_end_pos]     = (static_cast<uint16_t>(page(p).size()) & 0xff00) >> 8;
                 page(p)[jump_to_end_pos + 1] =  static_cast<uint16_t>(page(p).size()) & 0x00ff;
             }
-            else if (n == Ark::internal::Keyword::Import)
+            else if (n == Keyword::Import)
             {
-                for (auto it=x.const_list().begin() + 1, it_end=x.const_list().end(); it != it_end; ++it)
-                {
-                    // load const, push it to the plugins table
-                    addPlugin(*it);
-                }
+                // register plugin path in the constants table
+                std::size_t id = addValue(x.const_list()[1]);
+                // add plugin instruction + id of the constant refering to the plugin path
+                page(p).emplace_back(Instruction::PLUGIN);
+                pushNumber(static_cast<uint16_t>(id), &page(p));
             }
-            else if (n == Ark::internal::Keyword::Quote)
+            else if (n == Keyword::Quote)
             {
                 // create new page for quoted code
                 m_code_pages.emplace_back();
@@ -406,7 +461,7 @@ namespace Ark
                 page(p).emplace_back(Instruction::LOAD_CONST);
                 pushNumber(static_cast<uint16_t>(id), &page(p));
             }
-            else if (n == Ark::internal::Keyword::Del)
+            else if (n == Keyword::Del)
             {
                 // get id of symbol to delete
                 std::string name = x.const_list()[1].string();
@@ -428,7 +483,7 @@ namespace Ark
                 std::size_t n = 1;
                 while (n < x.const_list().size())
                 {
-                    if (x.const_list()[n].nodeType() == Ark::internal::NodeType::GetField)
+                    if (x.const_list()[n].nodeType() == NodeType::GetField)
                     {
                         _compile(x.const_list()[n], proc_page);
                         n++;
@@ -455,8 +510,8 @@ namespace Ark
             std::size_t args_count = 0;
             for (auto it=x.const_list().begin() + 1, it_end=x.const_list().end(); it != it_end; ++it)
             {
-                if (it->nodeType() != Ark::internal::NodeType::GetField &&
-                    it->nodeType() != Ark::internal::NodeType::Capture)
+                if (it->nodeType() != NodeType::GetField &&
+                    it->nodeType() != NodeType::Capture)
                     args_count++;
             }
             pushNumber(static_cast<uint16_t>(args_count), &page(p));
@@ -474,8 +529,8 @@ namespace Ark
                 _compile(x.const_list()[index], p);
 
                 if ((index + 1 < size &&
-                    x.const_list()[index + 1].nodeType() != Ark::internal::NodeType::GetField &&
-                    x.const_list()[index + 1].nodeType() != Ark::internal::NodeType::Capture) ||
+                    x.const_list()[index + 1].nodeType() != NodeType::GetField &&
+                    x.const_list()[index + 1].nodeType() != NodeType::Capture) ||
                     index + 1 == size)
                     exp_count++;
 
@@ -502,7 +557,7 @@ namespace Ark
                     case Instruction::AND_:
                     case Instruction::OR_:
                         break;
-                    
+
                     default:
                         throw std::runtime_error("CompilerError: can not create a chained expression (of length " + Utils::toString(exp_count) +
                             ") for operator `" + Builtins::operators[static_cast<std::size_t>(op_inst.inst - Instruction::FIRST_OPERATOR)] + "' " +
@@ -529,7 +584,7 @@ namespace Ark
         return static_cast<std::size_t>(std::distance(m_symbols.begin(), it));
     }
 
-    std::size_t Compiler::addValue(const Ark::internal::Node& x)
+    std::size_t Compiler::addValue(const Node& x)
     {
         CValue v(x);
         auto it = std::find(m_values.begin(), m_values.end(), v);
@@ -537,7 +592,7 @@ namespace Ark
         {
             if (m_debug >= 2)
                 Ark::logger.info("Registering value (", m_values.size(), ")");
-            
+
             m_values.push_back(v);
             return m_values.size() - 1;
         }
@@ -552,18 +607,11 @@ namespace Ark
         {
             if (m_debug >= 2)
                 Ark::logger.info("Registering value (", m_values.size(), ")");
-            
+
             m_values.push_back(v);
             return m_values.size() - 1;
         }
         return static_cast<std::size_t>(std::distance(m_values.begin(), it));
-    }
-
-    void Compiler::addPlugin(const Ark::internal::Node& x)
-    {
-        std::string name = x.string();
-        if (std::find(m_plugins.begin(), m_plugins.end(), name) == m_plugins.end())
-            m_plugins.push_back(name);
     }
 
     void Compiler::pushNumber(uint16_t n, std::vector<Inst>* page)

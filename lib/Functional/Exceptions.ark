@@ -1,8 +1,0 @@
-{
-    (import "Either.ark")
-    
-    (let throw left)
-    (let return right)
-    (let try (fun (either continue handle)
-        (either handle continue)))
-}

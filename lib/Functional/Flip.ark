@@ -1,2 +1,0 @@
-(let flip (fun (_f _a)
-    (fun (_b &_f &_a) (_f _b _a))))

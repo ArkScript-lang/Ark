@@ -1,8 +1,0 @@
-{
-    (let left (fun (x)
-        (fun (_injl _injr &x) (_injl x))
-    ))
-    (let right (fun (y)
-        (fun (_injl _injr &y) (_injr y))
-    ))
-}

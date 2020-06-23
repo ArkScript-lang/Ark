@@ -1,2 +1,0 @@
-(let even (fun (_n)
-    (= 0 (mod _n 2))))

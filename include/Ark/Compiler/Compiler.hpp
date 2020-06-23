@@ -6,6 +6,7 @@
 #include <string>
 #include <cinttypes>
 #include <optional>
+#include <functional>
 
 #include <Ark/Parser/Parser.hpp>
 #include <Ark/Parser/Node.hpp>
@@ -13,6 +14,7 @@
 #include <Ark/Compiler/Instructions.hpp>
 #include <Ark/Compiler/BytecodeReader.hpp>
 #include <Ark/Builtins/Builtins.hpp>
+#include <Ark/Config.hpp>
 
 namespace Ark
 {
@@ -20,7 +22,7 @@ namespace Ark
      * @brief The ArkScript bytecode compiler
      * 
      */
-    class Compiler
+    class ARK_API_EXPORT Compiler
     {
     public:
         /**
@@ -38,8 +40,8 @@ namespace Ark
          * @param code the code of the file
          * @param filename the name of the file
          */
-        void feed(const std::string& code, const std::string& filename="FILE");
-    
+        void feed(const std::string& code, const std::string& filename=ARK_NO_NAME_FILE);
+
         /**
          * @brief Start the compilation
          * 
@@ -61,18 +63,22 @@ namespace Ark
         const bytecode_t& bytecode();
 
     private:
-        Ark::Parser m_parser;
+        Parser m_parser;
         uint16_t m_options;
         // tables: symbols, values, plugins and codes
         std::vector<std::string> m_symbols;
         std::vector<internal::CValue> m_values;
-        std::vector<std::string> m_plugins;
         std::vector<std::vector<internal::Inst>> m_code_pages;
             // we need a temp code pages for some compilations passes
         std::vector<std::vector<internal::Inst>> m_temp_pages;
 
         bytecode_t m_bytecode;
         unsigned m_debug;
+
+        // iterate over the AST and remove unused top level functions and constants
+        internal::Node remove_unused(const internal::Node& ast);
+        void run_on_global_scope_vars(internal::Node& node, const std::function<void(internal::Node&, internal::Node&, int)>& func);
+        void count_occurences(const internal::Node& node, std::unordered_map<std::string, unsigned>& appearances);
 
         // helper functions to get a temp or finalized code page
         inline std::vector<internal::Inst>& page(int i);
@@ -87,17 +93,16 @@ namespace Ark
         /**
          * @brief Compile a single node recursively
          * 
-         * @param x the Ark::internal::Node to compile
+         * @param x the internal::Node to compile
          * @param p the current page number we're on
          */
-        void _compile(const Ark::internal::Node& x, int p);
+        void _compile(const internal::Node& x, int p);
 
         // register a symbol/value/plugin in its own table
         std::size_t addSymbol(const std::string& sym);
-        std::size_t addValue(const Ark::internal::Node& x);
+        std::size_t addValue(const internal::Node& x);
         std::size_t addValue(std::size_t page_id);
-        void addPlugin(const Ark::internal::Node& x);
-    
+
         // push a number on stack (need 2 bytes)
         void pushNumber(uint16_t n, std::vector<internal::Inst>* page=nullptr);
     };

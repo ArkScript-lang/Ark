@@ -1,9 +1,0 @@
-(let reduce (fun (function _L) {
-    (mut _index 1)
-    (mut _output (@ _L 0))
-    (while (< _index (len _L)) {
-        (set _output (function _output (@ _L _index)))
-        (set _index (+ 1 _index))
-    })
-    _output
-}))

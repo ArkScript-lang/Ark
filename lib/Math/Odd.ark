@@ -1,6 +1,0 @@
-{
-    (import "Math/Abs.ark")
-    
-    (let odd (fun (_n)
-        (= 1 (abs (mod _n 2)))))
-}

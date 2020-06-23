@@ -1,7 +1,7 @@
 #include <Ark/Builtins/Builtins.hpp>
 
-#include <fmt/format.hpp>
 #include <Ark/String.hpp>
+#include <Ark/Utils.hpp>
 
 #include <Ark/Builtins/BuiltinsErrors.inl>
 #include <Ark/VM/VM.hpp>
@@ -15,18 +15,31 @@ namespace Ark::internal::Builtins::String
         if (n[0].valueType() != ValueType::String)
             throw Ark::TypeError(STR_FORMAT_TE0);
 
-        rj::format f(n[0].string().c_str());
+        ::String f(n[0].string().c_str());
 
         for (Value::Iterator it=n.begin()+1, it_end=n.end(); it != it_end; ++it)
         {
             if (it->valueType() == ValueType::String)
-                f.args(it->string().c_str());
+            {
+                ::String& obj = it->string_ref();
+                f.format(f.size() + obj.size(), obj.c_str());
+            }
             else if (it->valueType() == ValueType::Number)
-                f.args(it->number());
+            {
+                // TODO handle doubles
+                long obj = it->number();
+                f.format(f.size() + Utils::dig_places(obj) + Utils::dec_places(obj), obj);
+            }
+            else if (it->valueType() == ValueType::Nil)
+                f.format(f.size() + 5, std::string_view("nil"));
+            else if (it->valueType() == ValueType::True)
+                f.format(f.size() + 5, std::string_view("true"));
+            else if (it->valueType() == ValueType::False)
+                f.format(f.size() + 5, std::string_view("false"));
             else
                 throw Ark::TypeError(STR_FORMAT_TE1);
         }
-        n[0].string_ref() = ::String(std::string(f).c_str());
+        n[0].string_ref() = f;
         return n[0];
     }
 

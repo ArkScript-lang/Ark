@@ -16,6 +16,7 @@
 #include <Ark/VM/Closure.hpp>
 #include <Ark/Exceptions.hpp>
 #include <Ark/VM/UserType.hpp>
+#include <Ark/Config.hpp>
 
 namespace Ark
 {
@@ -42,11 +43,12 @@ namespace Ark::internal
 
     class Frame;
 
-    class Value
+    class ARK_API_EXPORT Value
     {
     public:
         using ProcType = Value (*) (std::vector<Value>&, Ark::VM*);  // std::function<Value (std::vector<Value>&, Ark::VM*)>;
-        using Iterator = std::vector<Value>::const_iterator;
+        using Iterator = std::vector<Value>::iterator;
+        using ConstIterator = std::vector<Value>::const_iterator;
 
         using Value_t  = std::variant<
             double,             //  8 bytes

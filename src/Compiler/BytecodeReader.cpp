@@ -108,7 +108,7 @@ namespace Ark
             os << "Length: " << size << "\n";
             for (uint16_t j=0; j < size; ++j)
             {
-                os << "- ";
+                os << static_cast<int>(j) << ") ";
                 std::string content = "";
                 while (b[i] != 0)
                     content += b[i++];
@@ -126,7 +126,7 @@ namespace Ark
             os << "Length: " << size << "\n";
             for (uint16_t j=0; j < size; ++j)
             {
-                os << "- ";
+                os << static_cast<int>(j) << ") ";
                 uint8_t type = b[i]; i++;
                 if (type == Instruction::NUMBER_TYPE)
                 {
@@ -159,24 +159,6 @@ namespace Ark
                     return;
                 }
                 os << "\n";
-            }
-            os << "\n";
-        }
-
-        if (b[i] == Instruction::PLUGIN_TABLE_START)
-        {
-            os << "Plugins table:\n"; i++;
-            uint16_t size = readNumber(i); i++;
-            os << "Length: " << size << "\n";
-            for (uint16_t j=0; j < size; ++j)
-            {
-                os << "- ";
-                std::string content = "";
-                while (b[i] != 0)
-                    content += b[i++];
-                i++;
-                os << content << "\n";
-                plugins.push_back(content);
             }
             os << "\n";
         }
@@ -272,6 +254,11 @@ namespace Ark
                         os << "GET_FIELD " << termcolor::green << symbols[readNumber(i)] << "\n";
                         i++;
                     }
+                    else if (inst == Instruction::PLUGIN)
+                    {
+                        os << "PLUGIN " << termcolor::magenta << values[readNumber(i)] << "\n";
+                        i++;
+                    }
                     else if (inst == Instruction::ADD)
                         os << "ADD\n";
                     else if (inst == Instruction::SUB)
@@ -322,6 +309,8 @@ namespace Ark
                         os << "TYPE\n";
                     else if (inst == Instruction::HASFIELD)
                         os << "HASFIELD\n";
+                    else if (inst == Instruction::NOT)
+                        os << "NOT\n";
                     else
                     {
                         os << "Unknown instruction: " << static_cast<int>(inst) << "\n";

@@ -7,6 +7,8 @@
 #include <string>
 #include <cinttypes>
 
+#include <Ark/Config.hpp>
+
 namespace Ark
 {
     using bytecode_t = std::vector<uint8_t>;
@@ -17,7 +19,7 @@ namespace Ark
      * - display it in a human readable way by using the opcode names
      * 
      */
-    class BytecodeReader
+    class ARK_API_EXPORT BytecodeReader
     {
     public:
         /**
