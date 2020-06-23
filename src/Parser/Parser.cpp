@@ -41,7 +41,11 @@ namespace Ark
         std::list<Token> tokens(t.begin(), t.end());
         except(!tokens.empty(), "Invalid syntax: no more token to consume", Token(TokenType::Mismatch, "", 0, 0));
         m_last_token = tokens.front();
-        m_ast = parse(tokens);
+
+        m_ast = Node(NodeType::List);
+        m_ast.list().emplace_back(Keyword::Begin);
+        while (!tokens.empty())
+            m_ast.list().push_back(parse(tokens));
         // include files if needed
         checkForInclude(m_ast);
 
