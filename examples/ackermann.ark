@@ -1,17 +1,15 @@
-{
-    (let ackermann (fun (m n) {
-        (if (> m 0)
+(let ackermann (fun (m n) {
+    (if (> m 0)
+        # then
+        (if (= 0 n)
             # then
-            (if (= 0 n)
-                # then
-                (ackermann (- m 1) 1)
-                # else
-                (ackermann (- m 1) (ackermann m (- n 1)))
-            )
+            (ackermann (- m 1) 1)
             # else
-            (+ 1 n)
+            (ackermann (- m 1) (ackermann m (- n 1)))
         )
-    }))
+        # else
+        (+ 1 n)
+    )
+}))
 
-    (ackermann 3 6)
-}
+(ackermann 3 6)
