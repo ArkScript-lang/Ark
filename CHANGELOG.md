@@ -22,6 +22,7 @@
 - the value of `CODE_SEGMENT_START` is again 0x03 (because we removed the plugin table)
 - renamed `isDir?` to `dir?` for consistency
 - the lexer is no longer using regexes but a char after char method
+- an ArkScript program is no longer a single bloc, but can be composed of multiple bloc, thus we don't need to use a single big {} or (begin) bloc for all the program
 
 ### Removed
 - removed `fmt/format` from our dependencies
