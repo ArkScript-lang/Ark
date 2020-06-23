@@ -21,11 +21,13 @@
 - moved the modules to lib/ext
 - the value of `CODE_SEGMENT_START` is again 0x03 (because we removed the plugin table)
 - renamed `isDir?` to `dir?` for consistency
+- the lexer is no longer using regexes but a char after char method
 
 ### Removed
 - removed `fmt/format` from our dependencies
 - `PLUGIN_TABLE` was removed to use the `PLUGIN` instruction
 - `not_()` from usertype
+- removed Parser/Utf8Converter
 
 ## 3.0.11
 ### Added
