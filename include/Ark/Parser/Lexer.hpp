@@ -5,6 +5,7 @@
 #include <regex>
 #include <algorithm>
 #include <utility>
+#include <sstream>
 
 #include <Ark/Utils.hpp>
 #include <Ark/Parser/Utf8Converter.hpp>
@@ -72,18 +73,8 @@ namespace Ark::internal
         "begin", "import", "quote", "del"
     };
 
-    // some heavy regex creation to be able to handle UTF8 in ArkScript
-    const std::vector<std::pair<TokenType, std::wregex>> lex_regexes = {
-        { TokenType::String,     std::wregex(utf8_to_ws(R"*(^"[^"]*")*")) },
-        { TokenType::Number,     std::wregex(utf8_to_ws(R"*(^((\+|-)?[[:digit:]]+)(\.(([[:digit:]]+)?))?)*")) },
-        { TokenType::Operator,   std::wregex(utf8_to_ws(R"*(^(\+|\-|\*|/|<=|>=|!=|<|>|@=|@|=|\^))*")) },
-        { TokenType::Identifier, std::wregex(utf8_to_ws(R"*(^[a-zA-Z_\u0080-\uDB7F][a-zA-Z0-9_\u0080-\uDB7F\-?']*)*")) },
-        { TokenType::Capture,    std::wregex(utf8_to_ws(R"*(^&[a-zA-Z_\u0080-\uDB7F][a-zA-Z0-9_\u0080-\uDB7F\-?']*)*")) },
-        { TokenType::GetField,   std::wregex(utf8_to_ws(R"*(^\.[a-zA-Z_\u0080-\uDB7F][a-zA-Z0-9_\u0080-\uDB7F\-?']*)*")) },
-        { TokenType::Skip,       std::wregex(utf8_to_ws(R"*(^[\s]+)*")) },
-        { TokenType::Comment,    std::wregex(utf8_to_ws("^#.*")) },
-        { TokenType::Shorthand,  std::wregex(utf8_to_ws("^[']")) },
-        { TokenType::Mismatch,   std::wregex(utf8_to_ws("^.")) }
+    const std::vector<std::string> operators = {
+        "+", "-", "*", "/", "<=", ">=", "!=", "<", ">", "@", "=", "^"
     };
 
     /**
@@ -118,10 +109,52 @@ namespace Ark::internal
         unsigned m_debug;
         std::vector<Token> m_tokens;
 
-        // helper to know if a string represents a keyword
+        /**
+         * @brief Helper function to determine the type of a token
+         * 
+         * @param value 
+         * @return TokenType 
+         */
+        inline TokenType guessType(const std::string& value);
+
+        /**
+         * @brief Check if the value is a keyword in ArkScript
+         * 
+         * @param value 
+         * @return true 
+         * @return false 
+         */
         inline bool isKeyword(const std::string& value);
-        // throwing nice tokenizing errors
-        inline void throwTokenizingError(const std::string& message, const std::string& match, std::size_t line, std::size_t col);
+
+        /**
+         * @brief Check if the value is an operator in ArkScript
+         * 
+         * @param value 
+         * @return true 
+         * @return false 
+         */
+        inline bool isOperator(const std::string& value);
+
+        /**
+         * @brief Check if a control character / sequence is complete or not
+         * 
+         * @param sequence the sequence without the leading \\
+         * @param next the next character to come, maybe, in the sequence
+         * @return true 
+         * @return false 
+         */
+        inline bool endOfControlChar(const std::string& sequence, char next);
+
+        /**
+         * @brief To throw nice lexer errors
+         * 
+         * @param message 
+         * @param match 
+         * @param line 
+         * @param col 
+         * @param context
+         */
+        inline void throwTokenizingError(const std::string& message, const std::string& match, std::size_t line, std::size_t col, const std::string& context);
     };
 
     #include "Lexer.inl"
