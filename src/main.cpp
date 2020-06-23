@@ -119,7 +119,8 @@ int main(int argc, char** argv)
 
             case mode::repl:
             {
-                Ark::Repl repl(options, lib_dir);
+                // send default features without FeatureRemoveUnusedVars to avoid deleting code which will be used later on
+                Ark::Repl repl(Ark::DefaultFeatures & ~Ark::FeatureRemoveUnusedVars, lib_dir);
                 repl.run();
                 break;
             }
