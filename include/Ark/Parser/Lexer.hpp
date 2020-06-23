@@ -2,13 +2,11 @@
 #define ark_lexer
 
 #include <vector>
-#include <regex>
 #include <algorithm>
 #include <utility>
 #include <sstream>
 
 #include <Ark/Utils.hpp>
-#include <Ark/Parser/Utf8Converter.hpp>
 
 namespace Ark::internal
 {
