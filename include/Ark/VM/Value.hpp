@@ -11,6 +11,7 @@
 #include <utility>
 #include <Ark/String.hpp>  // our string implementation
 #include <string.h>  // strcmp
+#include <array>
 
 #include <Ark/VM/Types.hpp>
 #include <Ark/VM/Closure.hpp>
@@ -40,6 +41,8 @@ namespace Ark::internal
         False,
         Undefined
     };
+
+    const std::array<Value, 11> types_to_str;
 
     class Frame;
 

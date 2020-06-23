@@ -116,12 +116,6 @@ namespace Ark
         using namespace Ark::internal;
         m_until_frame_count = untilFrameCount;
 
-        static const Value types_to_str[] = {
-            Value("List"), Value("Number"), Value("String"), Value("Function"),
-            Value("CProc"), Value("Closure"), Value("UserType"),
-            Value("Nil"), Value("Bool"), Value("Bool"), Value("Undefined")
-        };
-
         try {
             m_running = true;
             while (m_running && m_frames.size() > m_until_frame_count)
