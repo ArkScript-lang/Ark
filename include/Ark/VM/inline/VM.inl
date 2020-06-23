@@ -29,7 +29,7 @@ internal::Value VM::call(const std::string& name, Args&&... args)
     if (var != nullptr)
     {
         if (var->valueType() != ValueType::PageAddr && var->valueType() != ValueType::Closure)
-            throwVMError("Symbol " + name + " isn't a function");
+            throwVMError("'" + name + "' isn't a function");
 
         m_frames.back().push(*var);
         m_last_sym_loaded = id;
@@ -170,7 +170,7 @@ inline void VM::call(int16_t argc_)
         }
 
         default:
-            throwVMError("couldn't identify function object: type index " + Ark::Utils::toString(static_cast<int>(function.valueType())));
+            throwVMError("'" + m_state->m_symbols[m_last_sym_loaded] + "' isn't a function but a " + types_to_str[static_cast<int>(function.valueType())]);
     }
 
     // checking function arity

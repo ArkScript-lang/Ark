@@ -7,6 +7,7 @@
 - updated search paths for `(import "lib.ark")`, looking in ./, lib/std/ and lib/
 - added a case to display NOT instructions in the bytecode reader
 - `T& as<T>()` in usertype
+- enhanced error message when calling a non-function object
 
 ### Changed
 - updated the string module to benefit from the new `format` member function
