@@ -170,7 +170,7 @@ inline void VM::call(int16_t argc_)
         }
 
         default:
-            throwVMError("'" + m_state->m_symbols[m_last_sym_loaded] + "' isn't a function but a " + types_to_str[static_cast<int>(function.valueType())]);
+            throwVMError("Can't call '" + m_state->m_symbols[m_last_sym_loaded] + "': it isn't a Function but a " + types_to_str[static_cast<int>(function.valueType())]);
     }
 
     // checking function arity
