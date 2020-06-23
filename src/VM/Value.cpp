@@ -7,12 +7,6 @@
 
 namespace Ark::internal
 {
-    const std::array<Value, 11> types_to_str = {
-        Value("List"), Value("Number"), Value("String"), Value("Function"),
-        Value("CProc"), Value("Closure"), Value("UserType"),
-        Value("Nil"), Value("Bool"), Value("Bool"), Value("Undefined")
-    };
-
     Value::Value() :
         m_constType(init_const_type(false, ValueType::Undefined))
     {}
