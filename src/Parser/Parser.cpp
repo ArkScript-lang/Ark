@@ -314,11 +314,6 @@ namespace Ark
             str.erase(0, 1);
             str.erase(token.token.size() - 2, 1);
 
-            Ark::Utils::stringReplaceAll(str, "\\t", "\t");
-            Ark::Utils::stringReplaceAll(str, "\\n", "\n");
-            Ark::Utils::stringReplaceAll(str, "\\r", "\r");
-            Ark::Utils::stringReplaceAll(str, "\\v", "\v");
-
             auto n = Node(str);
             n.setPos(token.line, token.col);
             return n;
