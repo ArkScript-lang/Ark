@@ -87,6 +87,8 @@ namespace Ark
          */
         void setLibDir(const std::string& libDir);
 
+        void reset();
+
         friend class VM;
         friend class Repl;
 
@@ -94,8 +96,10 @@ namespace Ark
         /**
          * @brief Called to configure the state (set the bytecode, debug level, call the compiler...)
          * 
-         */
+         */        
         void configure();
+
+        bool compile(unsigned debug, const std::string& file, const std::string& output, const std::string& lib_dir, uint16_t options);
 
         inline void throwStateError(const std::string& message)
         {
