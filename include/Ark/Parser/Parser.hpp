@@ -35,7 +35,7 @@ namespace Ark
          * @param code the ArkScript code
          * @param filename the name of the file
          */
-        void feed(const std::string& code, const std::string& filename="FILE");
+        void feed(const std::string& code, const std::string& filename=ARK_NO_NAME_FILE);
 
         /**
          * @brief Return the generated AST

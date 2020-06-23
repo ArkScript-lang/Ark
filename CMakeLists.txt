@@ -25,9 +25,6 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # submodules
 add_subdirectory("${Ark_SOURCE_DIR}/submodules/String")
-# replxx
-add_subdirectory("${Ark_SOURCE_DIR}/submodules/replxx")
-set(REPLXX_INCLUDES "${Ark_SOURCE_DIR}/submodules/replxx/include")
 
 # configuring Constants.hpp
 
@@ -41,7 +38,6 @@ message(STATUS "ArkScript version ${ARK_VERSION_MAJOR}.${ARK_VERSION_MINOR}.${AR
 # COMPILATION RELATED
 set(ARK_COMPILATION_OPTIONS ${CMAKE_CXX_FLAGS})
 set(ARK_COMPILER ${CMAKE_CXX_COMPILER_ID})
-set(ARK_SUBMODULES_ROOT ${Ark_SOURCE_DIR}/submodules)
 set(ARK_ENABLE_SYSTEM 1)  # enable use of (system "command here")
 
 configure_file(
@@ -49,29 +45,32 @@ configure_file(
     ${Ark_SOURCE_DIR}/include/Ark/Constants.hpp
 )
 
+# files needed for the library ArkReactor
 file(GLOB_RECURSE SOURCE_FILES
-    ${Ark_SOURCE_DIR}/src/*.cpp
+    ${Ark_SOURCE_DIR}/src/Builtins/*.cpp
+    ${Ark_SOURCE_DIR}/src/Compiler/*.cpp
+    ${Ark_SOURCE_DIR}/src/Parser/*.cpp
+    ${Ark_SOURCE_DIR}/src/VM/*.cpp
+
     ${Ark_SOURCE_DIR}/thirdparty/*.cpp
 )
-list(REMOVE_ITEM SOURCE_FILES 
-    "${Ark_SOURCE_DIR}/src/main.cpp" 
-    "${Ark_SOURCE_DIR}/src/REPL/Repl.cpp"
-    "${Ark_SOURCE_DIR}/src/REPL/replxx/Util.cpp"
+list(APPEND SOURCE_FILES
+    ${Ark_SOURCE_DIR}/src/Ark.cpp
+    ${Ark_SOURCE_DIR}/src/Log.cpp
+    ${Ark_SOURCE_DIR}/src/Utils.cpp
 )
 
-add_library(ArkReactor STATIC ${SOURCE_FILES} ${STRING_SOURCES})
+add_library(ArkReactor
+    STATIC
+        ${SOURCE_FILES}
+        ${STRING_SOURCES}
+)
 
 # including content of project
 
-set(ArkReactor_INCLUDES "${Ark_SOURCE_DIR}/include")
-list(REMOVE_ITEM ArkReactor_INCLUDES 
-    "${Ark_SOURCE_DIR}/include/REPL/Repl.hpp"
-    "${Ark_SOURCE_DIR}/include/REPL/ConsoleStyle.hpp"
-    "${Ark_SOURCE_DIR}/include/REPL/replxx/Util.hpp"
-)
 target_include_directories(ArkReactor
     PUBLIC
-        ${ArkReactor_INCLUDES}
+        ${Ark_SOURCE_DIR}/include
         ${Ark_SOURCE_DIR}/thirdparty
         ${STRING_INCLUDES}
 )
@@ -102,21 +101,19 @@ set_target_properties(
 
 # building exe
 
-# REPL
-
-set(REPL_SOURCES 
-    "${Ark_SOURCE_DIR}/src/REPL/Repl.cpp"
-    "${Ark_SOURCE_DIR}/src/REPL/replxx/Util.cpp"
-)
-
 if (ARK_BUILD_EXE)
-    include_directories(${REPLXX_INCLUDES})
-    add_executable(Ark ${Ark_SOURCE_DIR}/src/main.cpp ${REPL_SOURCES})
+    # additional files needed for the exe (repl, command line and stuff)
+    set(EXE_SOURCES
+        ${Ark_SOURCE_DIR}/src/REPL/Repl.cpp
+        ${Ark_SOURCE_DIR}/src/main.cpp
+    )
+
+    add_executable(Ark ${EXE_SOURCES})
     target_include_directories(Ark PUBLIC
         ${Ark_SOURCE_DIR}/include
         ${Ark_SOURCE_DIR}/thirdparty
     )
-    target_link_libraries(Ark PUBLIC ArkReactor replxx)
+    target_link_libraries(Ark PUBLIC ArkReactor)
 
     set_target_properties(
         Ark
@@ -130,7 +127,7 @@ if (ARK_BUILD_EXE)
 
     if (UNIX OR LINUX)
         install(TARGETS Ark DESTINATION bin)
-        install(DIRECTORY ${Ark_SOURCE_DIR}/lib/ DESTINATION share/.Ark/lib)
+        install(DIRECTORY ${Ark_SOURCE_DIR}/lib/ DESTINATION Ark/lib)
     elseif (WIN32)
         if (MSVC)
             install(TARGETS Ark DESTINATION bin)
@@ -142,9 +139,5 @@ endif()
 # submodules
 
 if (ARK_BUILD_MODULES OR ARK_BUILD_BASE_MODULES)
-    add_subdirectory(${Ark_SOURCE_DIR}/modules)
-endif()
-
-if (ARK_BUILD_BENCHMARK)
-    add_subdirectory(benchmarks)
+    add_subdirectory(${Ark_SOURCE_DIR}/lib/ext)
 endif()

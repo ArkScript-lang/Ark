@@ -90,45 +90,15 @@ namespace Ark::internal
 
     void Value::push_back(const Value& value)
     {
-        m_constType = init_const_type(isConst(), ValueType::List);
         list().push_back(value);
     }
 
     void Value::push_back(Value&& value)
     {
-        m_constType = init_const_type(isConst(), ValueType::List);
         list().push_back(value);
     }
 
     // --------------------------
-
-    int dec_places(double d)
-    {
-        constexpr double precision = 1e-7;
-        double temp = 0.0;
-        int decimal_places = 0;
-
-        do
-        {
-            d *= 10;
-            temp = d - static_cast<int>(d);
-            decimal_places++;
-        } while(temp > precision && decimal_places < std::numeric_limits<double>::digits10);
-        
-        return decimal_places;
-    }
-
-    int dig_places(double d)
-    {
-        int digit_places = 0;
-        int i = static_cast<int>(d);
-        while (i != 0)
-        {
-            digit_places++;
-            i /= 10;
-        }
-        return digit_places;
-    }
 
     std::ostream& operator<<(std::ostream& os, const Value& V)
     {
@@ -137,7 +107,7 @@ namespace Ark::internal
         case ValueType::Number:
         {
             double d = V.number();
-            os.precision(dig_places(d) + dec_places(d));
+            os.precision(Utils::dig_places(d) + Utils::dec_places(d));
             os << d;
             break;
         }

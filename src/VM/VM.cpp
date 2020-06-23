@@ -37,6 +37,7 @@ namespace Ark
         {
             m_frames.clear();
             m_frames.emplace_back();
+            m_shared_lib_objects.clear();
         }
         else if (m_frames.size() == 0)
         {
@@ -66,23 +67,6 @@ namespace Ark
             auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), name_func.first);
             if (it != m_state->m_symbols.end())
                 registerVarGlobal(static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it)), Value(name_func.second));
-        }
-
-        // loading plugins
-        for (auto&& plugin : m_state->m_shared_lib_objects)
-        {
-            // load data from it!
-            using Mapping_t = std::unordered_map<std::string, Value::ProcType>;
-            using map_fun_t = Mapping_t(*) ();
-            Mapping_t map = plugin.template get<map_fun_t>("getFunctionsMapping")();
-
-            for (auto&& kv : map)
-            {
-                // put it in the global frame, aka the first one
-                auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), kv.first);
-                if (it != m_state->m_symbols.end())
-                    registerVarGlobal(static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it)), Value(kv.second));
-            }
         }
     }
 
@@ -146,9 +130,8 @@ namespace Ark
                 uint8_t inst = m_state->m_pages[m_pp][m_ip];
 
                 // and it's time to du-du-du-du-duel!
-                if (Instruction::FIRST_COMMAND <= inst && inst <= Instruction::LAST_COMMAND)
-                    switch (inst)
-                    {
+                switch (inst)
+                {
                     case Instruction::LOAD_SYMBOL:
                     {
                         /*
@@ -443,348 +426,400 @@ namespace Ark
                         throwVMError("couldn't find symbol in closure enviroment: " + m_state->m_symbols[id]);
                         break;
                     }
-                    
+
+                    case Instruction::PLUGIN:
+                    {
+                        /*
+                            Argument: constant id (two bytes, big endian)
+                            Job: Load a plugin named following the constant id (cf constants table).
+                                 Raise an error if it couldn't find the plugin.
+                        */
+
+                        namespace fs = std::filesystem;
+
+                        ++m_ip;
+                        uint16_t id; readNumber(id);
+
+                        std::string file = m_state->m_constants[id].string_ref().toString();
+                        std::string path = "./" + file;
+
+                        if (m_state->m_filename != ARK_NO_NAME_FILE)  // bytecode loaded from file
+                            path = "./" + (fs::path(m_state->m_filename).parent_path() / fs::path(file)).string();
+                        std::string lib_path = (fs::path(m_state->m_libdir) / fs::path(file)).string();
+
+                        if (std::find_if(m_shared_lib_objects.begin(), m_shared_lib_objects.end(), [&, this](const auto& val){
+                            if (val.path() == path || val.path() == lib_path)
+                                return true;
+                            return false;
+                        }) != m_shared_lib_objects.end())
+                            break;
+
+                        if (Utils::fileExists(path))  // if it exists alongside the .arkc file
+                            m_shared_lib_objects.emplace_back(path);
+                        else if (Utils::fileExists(lib_path))  // check in LOAD_PATH otherwise
+                            m_shared_lib_objects.emplace_back(lib_path);
+                        else
+                            throwVMError("could not load plugin " + file);
+
+                        // load data from it!
+                        using Mapping_t = std::unordered_map<std::string, Value::ProcType>;
+                        using map_fun_t = Mapping_t(*) ();
+                        Mapping_t map;
+
+                        try {
+                            map = m_shared_lib_objects.back().template get<map_fun_t>("getFunctionsMapping")();
+                        } catch (const std::system_error& e) {
+                            throwVMError(std::string(e.what()));
+                        }
+
+                        for (auto&& kv : map)
+                        {
+                            // put it in the global frame, aka the first one
+                            auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), kv.first);
+                            if (it != m_state->m_symbols.end())
+                                registerVarGlobal(static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it)), Value(kv.second));
+                        }
+                        break;
+                    }
+
+                    case Instruction::ADD:
+                    {
+                        Value *b = popVal(), *a = popVal();
+                        if (a->valueType() == ValueType::Number)
+                        {
+                            if (b->valueType() != ValueType::Number)
+                                throw Ark::TypeError("Arguments of + should have the same type");
+
+                            push(Value(a->number() + b->number()));
+                            break;
+                        }
+                        else if (a->valueType() == ValueType::String)
+                        {
+                            if (b->valueType() != ValueType::String)
+                                throw Ark::TypeError("Arguments of + should have the same type");
+
+                            push(Value(a->string() + b->string()));
+                            break;
+                        }
+                        throw Ark::TypeError("Arguments of + should be Numbers or Strings");
+                    }
+
+                    case Instruction::SUB:
+                    {
+                        Value *b = popVal(), *a = popVal();
+                        if (a->valueType() != ValueType::Number)
+                            throw Ark::TypeError("Arguments of - should be Numbers");
+                        if (b->valueType() != ValueType::Number)
+                            throw Ark::TypeError("Arguments of - should be Numbers");
+
+                        push(Value(a->number() - b->number()));
+                        break;
+                    }
+
+                    case Instruction::MUL:
+                    {
+                        Value *b = popVal(), *a = popVal();
+                        if (a->valueType() != ValueType::Number)
+                            throw Ark::TypeError("Arguments of * should be Numbers");
+                        if (b->valueType() != ValueType::Number)
+                            throw Ark::TypeError("Arguments of * should be Numbers");
+
+                        push(Value(a->number() * b->number()));
+                        break;
+                    }
+
+                    case Instruction::DIV:
+                    {
+                        Value *b = popVal(), *a = popVal();
+                        if (a->valueType() != ValueType::Number)
+                            throw Ark::TypeError("Arguments of / should be Numbers");
+                        if (b->valueType() != ValueType::Number)
+                            throw Ark::TypeError("Arguments of / should be Numbers");
+
+                        auto d = b->number();
+                        if (d == 0)
+                            throw Ark::ZeroDivisionError();
+
+                        push(Value(a->number() / d));
+                        break;
+                    }
+
+                    case Instruction::GT:
+                    {
+                        Value *b = popVal(), *a = popVal();
+                        push((!(*a == *b) && !(*a < *b)) ? Builtins::trueSym : Builtins::falseSym);
+                        break;
+                    }
+
+                    case Instruction::LT:
+                    {
+                        Value *b = popVal(), *a = popVal();
+                        push((*a < *b) ? Builtins::trueSym : Builtins::falseSym);
+                        break;
+                    }
+
+                    case Instruction::LE:
+                    {
+                        Value *b = popVal(), *a = popVal();
+                        push(((*a < *b) || (*a == *b)) ? Builtins::trueSym : Builtins::falseSym);
+                        break;
+                    }
+
+                    case Instruction::GE:
+                    {
+                        Value *b = popVal(), *a = popVal();
+                        push(!(*a < *b) ? Builtins::trueSym : Builtins::falseSym);
+                        break;
+                    }
+
+                    case Instruction::NEQ:
+                    {
+                        Value *b = popVal(), *a = popVal();
+                        push((*a != *b) ? Builtins::trueSym : Builtins::falseSym);
+                        break;
+                    }
+
+                    case Instruction::EQ:
+                    {
+                        Value *b = popVal(), *a = popVal();
+                        push((*a == *b) ? Builtins::trueSym : Builtins::falseSym);
+                        break;
+                    }
+
+                    case Instruction::LEN:
+                    {
+                        Value *a = popVal();
+                        if (a->valueType() == ValueType::List)
+                        {
+                            push(Value(static_cast<int>(a->const_list().size())));
+                            break;
+                        }
+                        if (a->valueType() == ValueType::String)
+                        {
+                            push(Value(static_cast<int>(a->string().size())));
+                            break;
+                        }
+
+                        throw Ark::TypeError("Argument of len must be a list or a String");
+                    }
+
+                    case Instruction::EMPTY:
+                    {
+                        Value* a = popVal();
+                        if (a->valueType() == ValueType::List)
+                            push((a->const_list().size() == 0) ? Builtins::trueSym : Builtins::falseSym);
+                        else if (a->valueType() == ValueType::String)
+                            push((a->string().size() == 0) ? Builtins::trueSym : Builtins::falseSym);
+                        else
+                            throw Ark::TypeError("Argument of empty? must be a list or a String");
+                        
+                        break;
+                    }
+
+                    case Instruction::FIRSTOF:
+                    {
+                        Value a = *popVal();
+                        if (a.valueType() == ValueType::List)
+                            push(a.const_list().size() > 0 ? (a.const_list())[0] : Builtins::nil);
+                        else if (a.valueType() == ValueType::String)
+                            push(a.string().size() > 0 ? Value(std::string(1, (a.string())[0])) : Builtins::nil);
+                        else
+                            throw Ark::TypeError("Argument of firstOf must be a list");
+
+                        break;
+                    }
+
+                    case Instruction::TAILOF:
+                    {
+                        Value* a = popVal();
+                        if (a->valueType() == ValueType::List)
+                        {
+                            if (a->const_list().size() < 2)
+                            {
+                                push(Builtins::nil);
+                                break;
+                            }
+
+                            a->list().erase(a->const_list().begin());
+                            push(*a);
+                        }
+                        else if (a->valueType() == ValueType::String)
+                        {
+                            if (a->string().size() < 2)
+                            {
+                                push(Builtins::nil);
+                                break;
+                            }
+
+                            a->string_ref().erase_front(0);
+                            push(*a);
+                        }
+                        else
+                            throw Ark::TypeError("Argument of tailOf must be a list or a String");
+
+                        break;
+                    }
+
+                    case Instruction::HEADOF:
+                    {
+                        Value* a = popVal();
+                        if (a->valueType() == ValueType::List)
+                        {
+                            if (a->const_list().size() < 2)
+                            {
+                                push(Builtins::nil);
+                                break;
+                            }
+
+                            a->list().pop_back();
+                            push(*a);
+                        }
+                        else if (a->valueType() == ValueType::String)
+                        {
+                            if (a->string().size() < 2)
+                            {
+                                push(Builtins::nil);
+                                break;
+                            }
+
+                            a->string_ref().erase(a->string_ref().size() - 1);
+                            push(*a);
+                        }
+                        else
+                            throw Ark::TypeError("Argument of headOf must be a list or a String");
+
+                        break;
+                    }
+
+                    case Instruction::ISNIL:
+                    {
+                        push((*popVal() == Builtins::nil) ? Builtins::trueSym : Builtins::falseSym);
+                        break;
+                    }
+
+                    case Instruction::ASSERT:
+                    {
+                        Value *b = popVal(), *a = popVal();
+                        if (*a == Builtins::falseSym)
+                        {
+                            if (b->valueType() != ValueType::String)
+                                throw Ark::TypeError("Second argument of assert must be a String");
+
+                            throw Ark::AssertionFailed(b->string_ref().toString());
+                        }
+                        break;
+                    }
+
+                    case Instruction::TO_NUM:
+                    {
+                        Value* a = popVal();
+                        if (a->valueType() != ValueType::String)
+                            throw Ark::TypeError("Argument of toNumber must be a String");
+
+                        double val;
+                        if (Utils::isDouble(a->string().c_str(), &val))
+                            push(Value(val));
+                        else
+                            push(Builtins::nil);
+                        break;
+                    }
+
+                    case Instruction::TO_STR:
+                    {
+                        std::stringstream ss;
+                        ss << (*popVal());
+                        push(Value(ss.str()));
+                        break;
+                    }
+
+                    case Instruction::AT:
+                    {
+                        Value *b = popVal(), a = *popVal();
+                        if (b->valueType() != ValueType::Number)
+                            throw Ark::TypeError("Argument 2 of @ should be a Number");
+
+                        long idx = static_cast<long>(b->number());
+
+                        if (a.valueType() == ValueType::List)
+                            push(a.list()[idx < 0 ? a.list().size() + idx : idx]);
+                        else if (a.valueType() == ValueType::String)
+                            push(Value(std::string(1, a.string()[idx < 0 ? a.string().size() + idx : idx])));
+                        else
+                            throw Ark::TypeError("Argument 1 of @ should be a List or a String");
+                        break;
+                    }
+
+                    case Instruction::AND_:
+                    {
+                        Value *a = popVal(), *b = popVal();
+                        push((*a == Builtins::trueSym && *b == Builtins::trueSym) ? Builtins::trueSym : Builtins::falseSym);
+                        break;
+                    }
+
+                    case Instruction::OR_:
+                    {
+                        Value *a = popVal(), *b = popVal();
+                        push((*b == Builtins::trueSym || *a == Builtins::trueSym) ? Builtins::trueSym : Builtins::falseSym);
+                        break;
+                    }
+
+                    case Instruction::MOD:
+                    {
+                        Value *b = popVal(), *a = popVal();
+                        if (a->valueType() != ValueType::Number)
+                            throw Ark::TypeError("Arguments of mod should be Numbers");
+                        if (b->valueType() != ValueType::Number)
+                            throw Ark::TypeError("Arguments of mod should be Numbers");
+                        
+                        push(Value(std::fmod(a->number(), b->number())));
+                        break;
+                    }
+
+                    case Instruction::TYPE:
+                    {
+                        Value *a = popVal();
+                        push(types_to_str[static_cast<unsigned>(a->valueType())]);
+                        break;
+                    }
+
+                    case Instruction::HASFIELD:
+                    {
+                        Value *field = popVal(), *closure = popVal();
+                        if (closure->valueType() != ValueType::Closure)
+                            throw Ark::TypeError("Argument no 1 of hasField should be a Closure");
+                        if (field->valueType() != ValueType::String)
+                            throw Ark::TypeError("Argument no 2 of hasField should be a String");
+
+                        auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), field->string_ref().toString());
+                        if (it == m_state->m_symbols.end())
+                        {
+                            push(Builtins::falseSym);
+                            break;
+                        }
+                        uint16_t id = static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it));
+
+                        if ((*closure->closure_ref().scope_ref())[id].valueType() != ValueType::Undefined)
+                            push(Builtins::trueSym);
+                        else
+                            push(Builtins::falseSym);
+
+                        break;
+                    }
+
+                    case Instruction::NOT:
+                    {
+                        bool a = !(*popVal());
+                        if (a)
+                            push(Builtins::trueSym);
+                        else
+                            push(Builtins::falseSym);
+                        break;
+                    }
+
                     default:
                         throwVMError("unknown instruction: " + Ark::Utils::toString(static_cast<std::size_t>(inst)));
                         break;
-                    }
-                else if (Instruction::FIRST_OPERATOR <= inst && inst <= Instruction::LAST_OPERATOR)
-                    switch (inst)
-                    {
-                        case Instruction::ADD:
-                        {
-                            Value *b = popVal(), *a = popVal();
-                            if (a->valueType() == ValueType::Number)
-                            {
-                                if (b->valueType() != ValueType::Number)
-                                    throw Ark::TypeError("Arguments of + should have the same type");
-
-                                push(Value(a->number() + b->number()));
-                                break;
-                            }
-                            else if (a->valueType() == ValueType::String)
-                            {
-                                if (b->valueType() != ValueType::String)
-                                    throw Ark::TypeError("Arguments of + should have the same type");
-
-                                push(Value(a->string() + b->string()));
-                                break;
-                            }
-                            throw Ark::TypeError("Arguments of + should be Numbers or Strings");
-                        }
-
-                        case Instruction::SUB:
-                        {
-                            Value *b = popVal(), *a = popVal();
-                            if (a->valueType() != ValueType::Number)
-                                throw Ark::TypeError("Arguments of - should be Numbers");
-                            if (b->valueType() != ValueType::Number)
-                                throw Ark::TypeError("Arguments of - should be Numbers");
-
-                            push(Value(a->number() - b->number()));
-                            break;
-                        }
-
-                        case Instruction::MUL:
-                        {
-                            Value *b = popVal(), *a = popVal();
-                            if (a->valueType() != ValueType::Number)
-                                throw Ark::TypeError("Arguments of * should be Numbers");
-                            if (b->valueType() != ValueType::Number)
-                                throw Ark::TypeError("Arguments of * should be Numbers");
-
-                            push(Value(a->number() * b->number()));
-                            break;
-                        }
-
-                        case Instruction::DIV:
-                        {
-                            Value *b = popVal(), *a = popVal();
-                            if (a->valueType() != ValueType::Number)
-                                throw Ark::TypeError("Arguments of / should be Numbers");
-                            if (b->valueType() != ValueType::Number)
-                                throw Ark::TypeError("Arguments of / should be Numbers");
-
-                            auto d = b->number();
-                            if (d == 0)
-                                throw Ark::ZeroDivisionError();
-                            
-                            push(Value(a->number() / d));
-                            break;
-                        }
-
-                        case Instruction::GT:
-                        {
-                            Value *b = popVal(), *a = popVal();
-                            push((!(*a == *b) && !(*a < *b)) ? Builtins::trueSym : Builtins::falseSym);
-                            break;
-                        }
-                        
-                        case Instruction::LT:
-                        {
-                            Value *b = popVal(), *a = popVal();
-                            push((*a < *b) ? Builtins::trueSym : Builtins::falseSym);
-                            break;
-                        }
-
-                        case Instruction::LE:
-                        {
-                            Value *b = popVal(), *a = popVal();
-                            push(((*a < *b) || (*a == *b)) ? Builtins::trueSym : Builtins::falseSym);
-                            break;
-                        }
-
-                        case Instruction::GE:
-                        {
-                            Value *b = popVal(), *a = popVal();
-                            push(!(*a < *b) ? Builtins::trueSym : Builtins::falseSym);
-                            break;
-                        }
-
-                        case Instruction::NEQ:
-                        {
-                            Value *b = popVal(), *a = popVal();
-                            push((*a != *b) ? Builtins::trueSym : Builtins::falseSym);
-                            break;
-                        }
-
-                        case Instruction::EQ:
-                        {
-                            Value *b = popVal(), *a = popVal();
-                            push((*a == *b) ? Builtins::trueSym : Builtins::falseSym);
-                            break;
-                        }
-
-                        case Instruction::LEN:
-                        {
-                            Value *a = popVal();
-                            if (a->valueType() == ValueType::List)
-                            {
-                                push(Value(static_cast<int>(a->const_list().size())));
-                                break;
-                            }
-                            if (a->valueType() == ValueType::String)
-                            {
-                                push(Value(static_cast<int>(a->string().size())));
-                                break;
-                            }
-
-                            throw Ark::TypeError("Argument of len must be a list or a String");
-                        }
-
-                        case Instruction::EMPTY:
-                        {
-                            Value* a = popVal();
-                            if (a->valueType() == ValueType::List)
-                                push((a->const_list().size() == 0) ? Builtins::trueSym : Builtins::falseSym);
-                            else if (a->valueType() == ValueType::String)
-                                push((a->string().size() == 0) ? Builtins::trueSym : Builtins::falseSym);
-                            else
-                                throw Ark::TypeError("Argument of empty? must be a list or a String");
-                            
-                            break;
-                        }
-
-                        case Instruction::FIRSTOF:
-                        {
-                            Value a = *popVal();
-                            if (a.valueType() == ValueType::List)
-                                push(a.const_list().size() > 0 ? (a.const_list())[0] : Builtins::nil);
-                            else if (a.valueType() == ValueType::String)
-                                push(a.string().size() > 0 ? Value(std::string(1, (a.string())[0])) : Builtins::nil);
-                            else
-                                throw Ark::TypeError("Argument of firstOf must be a list");
-
-                            break;
-                        }
-
-                        case Instruction::TAILOF:
-                        {
-                            Value* a = popVal();
-                            if (a->valueType() == ValueType::List)
-                            {
-                                if (a->const_list().size() < 2)
-                                {
-                                    push(Builtins::nil);
-                                    break;
-                                }
-
-                                a->list().erase(a->const_list().begin());
-                                push(*a);
-                            }
-                            else if (a->valueType() == ValueType::String)
-                            {
-                                if (a->string().size() < 2)
-                                {
-                                    push(Builtins::nil);
-                                    break;
-                                }
-
-                                a->string_ref().erase_front(0);
-                                push(*a);
-                            }
-                            else
-                                throw Ark::TypeError("Argument of tailOf must be a list or a String");
-
-                            break;
-                        }
-
-                        case Instruction::HEADOF:
-                        {
-                            Value* a = popVal();
-                            if (a->valueType() == ValueType::List)
-                            {
-                                if (a->const_list().size() < 2)
-                                {
-                                    push(Builtins::nil);
-                                    break;
-                                }
-
-                                a->list().pop_back();
-                                push(*a);
-                            }
-                            else if (a->valueType() == ValueType::String)
-                            {
-                                if (a->string().size() < 2)
-                                {
-                                    push(Builtins::nil);
-                                    break;
-                                }
-
-                                a->string_ref().erase(a->string_ref().size() - 1);
-                                push(*a);
-                            }
-                            else
-                                throw Ark::TypeError("Argument of headOf must be a list or a String");
-
-                            break;
-                        }
-
-                        case Instruction::ISNIL:
-                        {
-                            push((*popVal() == Builtins::nil) ? Builtins::trueSym : Builtins::falseSym);
-                            break;
-                        }
-
-                        case Instruction::ASSERT:
-                        {
-                            Value *b = popVal(), *a = popVal();
-                            if (*a == Builtins::falseSym)
-                            {
-                                if (b->valueType() != ValueType::String)
-                                    throw Ark::TypeError("Second argument of assert must be a String");
-
-                                throw Ark::AssertionFailed(b->string_ref().toString());
-                            }
-                            break;
-                        }
-
-                        case Instruction::TO_NUM:
-                        {
-                            Value* a = popVal();
-                            if (a->valueType() != ValueType::String)
-                                throw Ark::TypeError("Argument of toNumber must be a String");
-
-                            double val;
-                            if (Utils::isDouble(a->string().c_str(), &val))
-                                push(Value(val));
-                            else
-                                push(Builtins::nil);
-                            break;
-                        }
-
-                        case Instruction::TO_STR:
-                        {
-                            std::stringstream ss;
-                            ss << (*popVal());
-                            push(Value(ss.str()));
-                            break;
-                        }
-
-                        case Instruction::AT:
-                        {
-                            Value *b = popVal(), a = *popVal();
-                            if (b->valueType() != ValueType::Number)
-                                throw Ark::TypeError("Argument 2 of @ should be a Number");
-
-                            if (a.valueType() == ValueType::List)
-                                push(a.list()[static_cast<long>(b->number())]);
-                            else if (a.valueType() == ValueType::String)
-                                push(Value(std::string(1, a.string()[static_cast<long>(b->number())])));
-                            else
-                                throw Ark::TypeError("Argument 1 of @ should be a List or a String");
-                            break;
-                        }
-
-                        case Instruction::AND_:
-                        {
-                            Value *a = popVal(), *b = popVal();
-                            push((*a == Builtins::trueSym && *b == Builtins::trueSym) ? Builtins::trueSym : Builtins::falseSym);
-                            break;
-                        }
-
-                        case Instruction::OR_:
-                        {
-                            Value *a = popVal(), *b = popVal();
-                            push((*b == Builtins::trueSym || *a == Builtins::trueSym) ? Builtins::trueSym : Builtins::falseSym);
-                            break;
-                        }
-
-                        case Instruction::MOD:
-                        {
-                            Value *b = popVal(), *a = popVal();
-                            if (a->valueType() != ValueType::Number)
-                                throw Ark::TypeError("Arguments of mod should be Numbers");
-                            if (b->valueType() != ValueType::Number)
-                                throw Ark::TypeError("Arguments of mod should be Numbers");
-                            
-                            push(Value(std::fmod(a->number(), b->number())));
-                            break;
-                        }
-
-                        case Instruction::TYPE:
-                        {
-                            Value *a = popVal();
-                            push(types_to_str[static_cast<unsigned>(a->valueType())]);
-                            break;
-                        }
-
-                        case Instruction::HASFIELD:
-                        {
-                            Value *field = popVal(), *closure = popVal();
-                            if (closure->valueType() != ValueType::Closure)
-                                throw Ark::TypeError("Argument no 1 of hasField should be a Closure");
-                            if (field->valueType() != ValueType::String)
-                                throw Ark::TypeError("Argument no 2 of hasField should be a String");
-
-                            auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), field->string_ref().toString());
-                            if (it == m_state->m_symbols.end())
-                            {
-                                push(Builtins::falseSym);
-                                break;
-                            }
-                            uint16_t id = static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it));
-
-                            if ((*closure->closure_ref().scope_ref())[id].valueType() != ValueType::Undefined)
-                                push(Builtins::trueSym);
-                            else
-                                push(Builtins::falseSym);
-
-                            break;
-                        }
-
-                        case Instruction::NOT:
-                        {
-                            bool a = !(*popVal());
-                            if (a)
-                                push(Builtins::trueSym);
-                            else
-                                push(Builtins::falseSym);
-                            break;
-                        }
-                    }
-                else
-                    throwVMError("unknown instruction: " + Ark::Utils::toString(static_cast<std::size_t>(inst)));
+                }
 
                 // move forward
                 ++m_ip;

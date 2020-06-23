@@ -1,5 +1,5 @@
 {
-    (import "sfml.bin")
+    (import "sfml.arkm")
     (import "Functional/Exceptions.ark")
     (import "Switch.ark")
 

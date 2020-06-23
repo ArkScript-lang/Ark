@@ -4,8 +4,12 @@
 #if defined(_WIN32) || defined(_WIN64)
     // do not include winsock.h
     #define WIN32_LEAN_AND_MEAN
+    #define _WINSOCKAPI_
+    #define _WINSOCK_
     #define NOMINMAX
     #include <Windows.h>
+    #undef _WINSOCK_
+    #undef _WINSOCKAPI_
 #elif (defined(unix) || defined(__unix) || defined(__unix__)) || defined(__APPLE__)
     #include <dlfcn.h>
 #else
@@ -57,6 +61,8 @@ namespace Ark::internal
          */
         void unload();
 
+        inline const std::string& path() const { return m_path; }
+
         /**
          * @brief Return a function from the shared library
          * 
@@ -88,7 +94,7 @@ namespace Ark::internal
 #endif
             return funcptr;
         }
-    
+
     private:
 #if defined(_WIN32) || defined(_WIN64)
         HINSTANCE m_hInstance;

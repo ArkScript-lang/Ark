@@ -1,15 +1,6 @@
-[submodule "submodules/benchmark"]
-	path = submodules/benchmark
-	url = https://github.com/google/benchmark.git
-[submodule "submodules/msgpack-c"]
-	path = submodules/msgpack-c
-	url = https://github.com/msgpack/msgpack-c.git
 [submodule "modules"]
-	path = modules
+	path = lib/ext
 	url = https://github.com/ArkScript-lang/modules
 [submodule "submodules/String"]
 	path = submodules/String
 	url = https://github.com/ArkScript-lang/String.git
-[submodule "submodules/replxx"]
-	path = submodules/replxx
-	url = https://github.com/AmokHuginnsson/replxx.git

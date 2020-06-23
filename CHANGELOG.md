@@ -1,5 +1,28 @@
 # Change Log
 
+## Unreleased changes
+### Added
+- using a macro to define the default filename (when none is given, eg when loading bytecode files or from the REPL)
+- `PLUGIN <const id>` instruction to load plugin dynamically and not when the VM boots up
+- updated search paths for `(import "lib.ark")`, looking in ./, lib/std/ and lib/
+- added a case to display NOT instructions in the bytecode reader
+- eliminating unused global scope variables in the compiler
+- adding a new feature enabled by default: `FeatureRemoveUnusedVars` (not enabled for the REPL for obvious reasons)
+
+### Changed
+- updated the string module to benefit from the new `format` member function
+- updated the logger to remove `fmt/format`
+- changed the argument order for `Ark::State`
+- renamed the cache directory `__arkscript__`
+- operator `@` can now handle negative indexes to get elements from the end of the given container
+- the standard library is now in another repository
+- moved the modules to lib/ext
+- the value of `CODE_SEGMENT_START` is again 0x03 (because we removed the plugin table)
+
+### Removed
+- removed `fmt/format` from our dependencies
+- `PLUGIN_TABLE` was removed to use the `PLUGIN` instruction
+
 ## 3.0.11
 ### Added
 - member function `resolve(Args&& args...)` to Value, callable by plugins to resolve the value of a function called with specific arguments given by the plugin

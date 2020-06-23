@@ -1,6 +1,6 @@
 {
     (import "test-tools.ark")
-    
+
     (let misc-tests (fun () {
         (mut tests 0)
         (let start-time (time))
@@ -48,7 +48,7 @@
         (let diff-sleep (- (time) start-sleep))
         (assert_ (and (>= diff-sleep 0.330) (<= diff-sleep 0.375)) "Misc test 8 failed")  # using a range of value since sleep can't be accurate
 
-        (assert_ (= "A bear walked up 20 miles and saw an eagle." (format "{0} walked up {1} miles and saw {2}." "A bear" 20 "an eagle")) "Misc test 9 failed")
+        (assert_ (= "A bear walked up 20 miles and saw an eagle." (format "%% walked up %% miles and saw %%." "A bear" 20 "an eagle")) "Misc test 9 failed")
         (assert_ (= "Hello world" (format "Hello world")) "Misc test 9°2 failed")
 
         (assert_ (= true (not false)) "Misc test 10 failed")
@@ -60,7 +60,7 @@
         (assert_ (= true (not nil)) "Misc test 10°7 failed")
         (assert_ (= false (not "a")) "Misc test 10°8 failed")
         (assert_ (= false (not [1])) "Misc test 10°9 failed")
-        
+
         (recap "Misc tests passed" tests (- (time) start-time))
 
         tests
