@@ -56,7 +56,7 @@ file(GLOB_RECURSE SOURCE_FILES
 list(REMOVE_ITEM SOURCE_FILES 
     "${Ark_SOURCE_DIR}/src/main.cpp" 
     "${Ark_SOURCE_DIR}/src/REPL/Repl.cpp"
-    "${Ark_SOURCE_DIR}/src/REPL/replxx/util.cpp"
+    "${Ark_SOURCE_DIR}/src/REPL/replxx/Util.cpp"
 )
 
 add_library(ArkReactor STATIC ${SOURCE_FILES} ${STRING_SOURCES})
@@ -66,8 +66,8 @@ add_library(ArkReactor STATIC ${SOURCE_FILES} ${STRING_SOURCES})
 set(ArkReactor_INCLUDES "${Ark_SOURCE_DIR}/include")
 list(REMOVE_ITEM ArkReactor_INCLUDES 
     "${Ark_SOURCE_DIR}/include/REPL/Repl.hpp"
-    "${Ark_SOURCE_DIR}/include/REPL/CGUI.hpp"
-    "${Ark_SOURCE_DIR}/include/REPL/replxx/util.hpp"
+    "${Ark_SOURCE_DIR}/include/REPL/ConsoleStyle.hpp"
+    "${Ark_SOURCE_DIR}/include/REPL/replxx/Util.hpp"
 )
 target_include_directories(ArkReactor
     PUBLIC
@@ -106,7 +106,7 @@ set_target_properties(
 
 set(REPL_SOURCES 
     "${Ark_SOURCE_DIR}/src/REPL/Repl.cpp"
-    "${Ark_SOURCE_DIR}/src/REPL/replxx/util.cpp"
+    "${Ark_SOURCE_DIR}/src/REPL/replxx/Util.cpp"
 )
 
 if (ARK_BUILD_EXE)
