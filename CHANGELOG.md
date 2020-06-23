@@ -6,6 +6,8 @@
 - `PLUGIN <const id>` instruction to load plugin dynamically and not when the VM boots up
 - updated search paths for `(import "lib.ark")`, looking in ./, lib/std/ and lib/
 - added a case to display NOT instructions in the bytecode reader
+- eliminating unused global scope variables in the compiler
+- adding a new feature enabled by default: `FeatureRemoveUnusedVars` (not enabled for the REPL for obvious reasons)
 
 ### Changed
 - updated the string module to benefit from the new `format` member function
