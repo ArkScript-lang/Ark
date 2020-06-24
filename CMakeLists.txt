@@ -26,6 +26,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 # submodules
 add_subdirectory("${Ark_SOURCE_DIR}/submodules/String")
 add_subdirectory("${Ark_SOURCE_DIR}/submodules/replxx")
+set(REPLXX_INCLUDE_DIR "${Ark_SOURCE_DIR}/submodules/replxx/include")
 
 # configuring Constants.hpp
 
@@ -110,7 +111,7 @@ if (ARK_BUILD_EXE)
         ${Ark_SOURCE_DIR}/src/main.cpp
     )
 
-    include_directories(${Ark_SOURCE_DIR}/submodules/replxx/include)
+    include_directories(${REPLXX_INCLUDE_DIR})
     add_executable(Ark ${EXE_SOURCES})
     target_include_directories(Ark PUBLIC
         ${Ark_SOURCE_DIR}/include
