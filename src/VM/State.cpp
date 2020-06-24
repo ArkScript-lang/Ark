@@ -329,8 +329,6 @@ namespace Ark
     {
         m_symbols.clear();
         m_constants.clear();
-        m_plugins.clear();
-        m_shared_lib_objects.clear();
         m_pages.clear();
         m_binded_functions.clear(); 
     }

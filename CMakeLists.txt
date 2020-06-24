@@ -25,6 +25,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # submodules
 add_subdirectory("${Ark_SOURCE_DIR}/submodules/String")
+add_subdirectory("${Ark_SOURCE_DIR}/submodules/replxx")
 
 # configuring Constants.hpp
 
@@ -104,16 +105,18 @@ set_target_properties(
 if (ARK_BUILD_EXE)
     # additional files needed for the exe (repl, command line and stuff)
     set(EXE_SOURCES
+        ${Ark_SOURCE_DIR}/src/REPL/replxx/Util.cpp
         ${Ark_SOURCE_DIR}/src/REPL/Repl.cpp
         ${Ark_SOURCE_DIR}/src/main.cpp
     )
 
+    include_directories(${REPLXX_INCLUDE_DIR})
     add_executable(Ark ${EXE_SOURCES})
     target_include_directories(Ark PUBLIC
         ${Ark_SOURCE_DIR}/include
         ${Ark_SOURCE_DIR}/thirdparty
     )
-    target_link_libraries(Ark PUBLIC ArkReactor)
+    target_link_libraries(Ark PUBLIC ArkReactor replxx)
 
     set_target_properties(
         Ark
