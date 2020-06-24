@@ -69,7 +69,7 @@ inline void Lexer::throwTokenizingError(const std::string& message, const std::s
     std::vector<std::string> ctx = Utils::splitString(context, '\n');
 
     std::stringstream ss;
-    ss << "SyntaxError: " << message << "\n";
+    ss << message << "\n";
 
     for (int i=3; i > -3; i--)
     {
@@ -90,7 +90,7 @@ inline void Lexer::throwTokenizingError(const std::string& message, const std::s
         }
     }
 
-    throw std::runtime_error(ss.str());
+    throw Ark::SyntaxError(ss.str());
 }
 
 #undef CHECK_FIRST_CHAR

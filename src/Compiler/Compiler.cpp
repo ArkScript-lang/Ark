@@ -133,9 +133,7 @@ namespace Ark
                 pushNumber(static_cast<uint16_t>(std::get<std::size_t>(val.value)));
             }
             else
-            {
-                throw std::runtime_error("CompilerError: trying to put a value in the value table, but the type isn't handled.\nCertainly a logic problem in the compiler source code");
-            }
+                throw Ark::CompilationError("trying to put a value in the value table, but the type isn't handled.\nCertainly a logic problem in the compiler source code");
 
             m_bytecode.push_back(Instruction::NOP);
         }
@@ -560,7 +558,7 @@ namespace Ark
                         break;
 
                     default:
-                        throw std::runtime_error("CompilerError: can not create a chained expression (of length " + Utils::toString(exp_count) +
+                        throw Ark::CompilationError("can not create a chained expression (of length " + Utils::toString(exp_count) +
                             ") for operator `" + Builtins::operators[static_cast<std::size_t>(op_inst.inst - Instruction::FIRST_OPERATOR)] + "' " +
                             "at node `" + Utils::toString(x) + "'");
                 }

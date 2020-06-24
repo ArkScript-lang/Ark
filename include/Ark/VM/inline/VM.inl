@@ -16,7 +16,7 @@ internal::Value VM::call(const std::string& name, Args&&... args)
     // find id of function
     auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), name);
     if (it == m_state->m_symbols.end())
-        throwVMError("Couldn't find symbol with name " + name);
+        throwVMError("unbound variable: " + name);
 
     // convert and push arguments in reverse order
     std::vector<Value> fnargs { { args... } };
@@ -29,13 +29,13 @@ internal::Value VM::call(const std::string& name, Args&&... args)
     if (var != nullptr)
     {
         if (var->valueType() != ValueType::PageAddr && var->valueType() != ValueType::Closure)
-            throwVMError("'" + name + "' isn't a function");
+            throwVMError("Can't call '" + name + "': it isn't a Function but a " + types_to_str[static_cast<int>(function.valueType())]);
 
         m_frames.back().push(*var);
         m_last_sym_loaded = id;
     }
     else
-        throwVMError("Couldn't load symbol with name " + name);
+        throwVMError("Couldn't find variable " + name);
 
     std::size_t frames_count = m_frames.size();
     // call it
@@ -186,7 +186,7 @@ inline void VM::call(int16_t argc_)
         }
 
         if (needed_argc != received_argc)
-            throwVMError("Function needs " + Ark::Utils::toString(needed_argc) + " arguments, and received " + Ark::Utils::toString(received_argc));
+            throwVMError("Function needs " + Ark::Utils::toString(needed_argc) + " arguments, but it received " + Ark::Utils::toString(received_argc));
     }
 }
 

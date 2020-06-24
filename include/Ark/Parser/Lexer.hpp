@@ -6,6 +6,7 @@
 #include <utility>
 #include <sstream>
 
+#include <Ark/Exceptions.hpp>
 #include <Ark/Utils.hpp>
 
 namespace Ark::internal
