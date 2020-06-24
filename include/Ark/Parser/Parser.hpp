@@ -9,6 +9,7 @@
 #include <cinttypes>
 #include <sstream>
 
+#include <Ark/Exceptions.hpp>
 #include <Ark/Parser/Lexer.hpp>
 #include <Ark/Parser/Node.hpp>
 

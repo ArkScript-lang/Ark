@@ -34,10 +34,10 @@ inline void Parser::throwParseError(const std::string& message, internal::Token 
         }
     }
 
-    throw std::runtime_error(ss.str());
+    throw Ark::ParseError(ss.str());
 }
 
 inline void Parser::throwParseError_(const std::string& message)
 {
-    throw std::runtime_error("ParseError: " + message);
+    throw Ark::ParseError(message);
 }
