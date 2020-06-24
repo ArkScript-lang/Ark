@@ -1,9 +1,7 @@
 {
     (import "test-tools.ark")
     
-    (import "List/Sum.ark")
-    (import "List/ForEach.ark")
-    (import "List/Product.ark")
+    (import "List.ark")
 
     (let list-tests (fun () {
         (mut tests 0)

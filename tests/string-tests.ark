@@ -1,10 +1,7 @@
 {
     (import "test-tools.ark")
 
-    (import "String/Case.ark")
-    (import "String/Reverse.ark")
-    (import "String/Slice.ark")
-    (import "String/Split.ark")
+    (import "String.ark")
 
     (let string-tests (fun () {
         (mut tests 0)
