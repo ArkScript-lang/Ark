@@ -23,6 +23,8 @@
 - renamed `isDir?` to `dir?` for consistency
 - the lexer is no longer using regexes but a char after char method
 - an ArkScript program is no longer a single bloc, but can be composed of multiple bloc, thus we don't need to use a single big {} or (begin) bloc for all the program
+- enhancing lexer and parser error messages
+- else clause in if constructions is now optional
 
 ### Removed
 - removed `fmt/format` from our dependencies

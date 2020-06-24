@@ -75,13 +75,15 @@ inline void Lexer::throwTokenizingError(const std::string& message, const std::s
     {
         int iline = static_cast<int>(line);
         if (iline >= i)
-            ss << std::setw(5) << (iline - i) << " | " << ctx[iline - i] << "\n";
+            // + 1 to display real lines numbers
+            ss << std::setw(5) << (iline - i + 1) << " | " << ctx[iline - i] << "\n";
         if (i == 0)  // line of the error
         {
             ss << "      | ";
             // padding of spaces
             for (std::size_t j=0; (match.size() > col) ? false : (j + 1 < col - match.size()); ++j)
                 ss << " ";
+            // show the error
             for (std::size_t j=0; (match.size() > col) ? (j < ctx[line].size()) : (j < match.size()); ++j)
                 ss << "^";
             ss << "\n";

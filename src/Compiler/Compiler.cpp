@@ -332,7 +332,8 @@ namespace Ark
                 // absolute address to jump to if condition is true
                 pushNumber(static_cast<uint16_t>(0x00), &page(p));
                     // else code
-                    _compile(x.const_list()[3], p);
+                    if (x.const_list().size() == 4)  // we have an else clause
+                        _compile(x.const_list()[3], p);
                     // when else is finished, jump to end
                     page(p).emplace_back(Instruction::JUMP);
                     std::size_t jump_to_end_pos = page(p).size();
