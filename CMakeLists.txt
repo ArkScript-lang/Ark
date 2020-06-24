@@ -110,7 +110,7 @@ if (ARK_BUILD_EXE)
         ${Ark_SOURCE_DIR}/src/main.cpp
     )
 
-    include_directories(${REPLXX_INCLUDE_DIR})
+    include_directories(${Ark_SOURCE_DIR}/submodules/replxx/include)
     add_executable(Ark ${EXE_SOURCES})
     target_include_directories(Ark PUBLIC
         ${Ark_SOURCE_DIR}/include
