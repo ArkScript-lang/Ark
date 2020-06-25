@@ -79,6 +79,7 @@ namespace Ark
         internal::Value resolve(const internal::Value* val, Args&&... args);
 
         friend class internal::Value;
+        friend class Repl;
 
     private:
         State* m_state;
