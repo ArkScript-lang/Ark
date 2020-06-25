@@ -72,7 +72,7 @@ namespace Ark
                     init = true;
                 }
 
-                // ajust size of scope for symbols
+                // ajust scope size for symbols
                 if(vm.m_locals[0]->size() < state.m_symbols.size())
                     for(unsigned i = vm.m_locals[0]->size(); i < state.m_symbols.size(); ++ i)
                         vm.m_locals[0]->emplace_back(ValueType::Undefined);
