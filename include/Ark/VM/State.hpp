@@ -103,7 +103,7 @@ namespace Ark
         void configure();
 
         /**
-         * @brief Read file and compile content code
+         * @brief Reads and compiles code of file
          * 
          * @param debug set the debug level
          * @param file the path of file code to compile 
