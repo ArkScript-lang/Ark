@@ -61,7 +61,7 @@ namespace Ark
         return result;
     }
 
-    static bool compile(unsigned debug, const std::string& file, const std::string& output, const std::string& lib_dir, uint16_t options)
+    bool State::compile(unsigned debug, const std::string& file, const std::string& output, const std::string& lib_dir, uint16_t options)
     {
         Compiler compiler(debug, lib_dir, options);
 
@@ -136,7 +136,7 @@ namespace Ark
 
                 // recompile
                 if (timestamp < file_last_write)
-                    compiled_successfuly = Ark::compile(m_debug_level, file, path, m_libdir, m_options);
+                    compiled_successfuly = compile(m_debug_level, file, path, m_libdir, m_options);
                 else
                     compiled_successfuly = true;
             }
@@ -145,7 +145,7 @@ namespace Ark
                 if (!std::filesystem::exists(directory))  // create ark cache directory
                     std::filesystem::create_directory(directory);
                 
-                compiled_successfuly = Ark::compile(m_debug_level, file, path, m_libdir, m_options);
+                compiled_successfuly = compile(m_debug_level, file, path, m_libdir, m_options);
             }
             
             if (compiled_successfuly && feed(path))
@@ -323,6 +323,14 @@ namespace Ark
             if (i == m_bytecode.size())
                 break;
         }
+    }
+
+    void State::reset()
+    {
+        m_symbols.clear();
+        m_constants.clear();
+        m_pages.clear();
+        m_binded_functions.clear(); 
     }
 }
 

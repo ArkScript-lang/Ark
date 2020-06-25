@@ -1,61 +1,97 @@
+#include <functional>
+#include <sstream>
+
 #include <Ark/REPL/Repl.hpp>
+#include <Ark/REPL/replxx/Util.hpp>
+
 
 namespace Ark
 {
     Repl::Repl(uint16_t options, std::string lib_dir) :
-        m_options(options), m_lib_dir(lib_dir)
+        m_options(options), m_lib_dir(lib_dir), m_lines(1), m_old_ip(0)
     {}
     
     void Repl::run()
     {
-        const std::string new_prompt = ">> ";
-        const std::string continuing_prompt = ".. ";
+        Ark::State state(m_options, m_lib_dir);
+        Ark::VM vm(&state);
+        state.setDebug(0);
+        std::string code;
+        bool init = false;
 
         print_repl_header();
+        cgui_setup();
 
-        while (true)
+        while(true)
         {
-            Ark::State state(m_options, m_lib_dir);
-            Ark::VM vm(&state);
-            state.setDebug(0);
+            std::stringstream tmp_code;
+            unsigned open_parentheses = 0;
+            unsigned open_braces = 0;
 
-            std::stringstream code;
-            int open_parentheses = 0;
-            int open_braces = 0;
-            bool new_command = true;
-
-            std::cout << new_prompt;
-            for(std::string line; std::getline(std::cin, line);)
+            tmp_code << code;
+            while(true)
             {
+                std::string str_lines = "000";
+                if(std::to_string(m_lines).size() < 3)
+                {
+                    std::size_t size = std::to_string(m_lines).size(); 
+                    str_lines.replace((str_lines.size() - size), size, std::to_string(m_lines));
+                }
+                else
+                    str_lines = std::to_string(m_lines);
+
+                std::string infos = "main:" + str_lines + "> ";
+                std::string line = m_repl.input(infos);
+
+                // line history
+                m_repl.history_add(line);
                 trim_whitespace(line);
 
-                // empty lines and comments handling
-                if (line.length() == 0 || line.at(0) == '#')
-                {
-                    std::cout << (new_command ? new_prompt : continuing_prompt);
-                    continue;
-                }
-
                 // specific commands handling
-                if (line.compare("(quit)") == 0)
+                if(line == "(quit)")
                     return;
 
-                code << line << "\n";
+                tmp_code << line;
                 open_parentheses += count_open_parentheses(line);
                 open_braces += count_open_braces(line);
 
-                if (open_parentheses == 0 && open_braces == 0)
+                // lines number incrementation
+                ++ m_lines;
+                if(open_parentheses == 0 && open_braces == 0)
                     break;
-
-                new_command = false;
-                std::cout << continuing_prompt;
             }
 
-            if (std::cin.eof())
-                return;
+            // save a valid ip if execution failed
+            m_old_ip = vm.m_ip;
+            if(state.doString("{" + tmp_code.str() + "}"))
+            {
+                // for only one vm init
+                if(init == false)
+                {
+                    vm.init();
+                    init = true;
+                }
 
-            if (state.doString("{" + code.str() + "}"))
-                vm.run();
+                // ajust scope size for symbols
+                if(vm.m_locals[0]->size() < state.m_symbols.size())
+                    for(unsigned i = vm.m_locals[0]->size(); i < state.m_symbols.size(); ++ i)
+                        vm.m_locals[0]->emplace_back(ValueType::Undefined);
+
+                if(vm.safeRun() == 0)
+                {
+                    // save good code 
+                    code = tmp_code.str();
+                    // place ip to end of bytecode intruction (HALT)
+                    -- vm.m_ip;
+                }
+                else
+                {
+                    // reset ip if execution failed
+                    vm.m_ip = m_old_ip;
+                }
+
+                state.reset();
+            }
             else
                 std::cerr << "Ark::State::doString failed" << std::endl;
         }
@@ -77,8 +113,8 @@ namespace Ark
         {
             switch(c)
             {
-                case '(': open_parentheses++; break;
-                case ')': open_parentheses--; break;
+                case '(' : ++ open_parentheses; break;
+                case ')' : -- open_parentheses; break;
             }
         }
 
@@ -93,8 +129,8 @@ namespace Ark
         {
             switch(c)
             {
-                case '{': open_braces++; break;
-                case '}': open_braces--; break;
+                case '{' : ++ open_braces; break;
+                case '}' : -- open_braces; break;
             }
         }
 
@@ -104,10 +140,19 @@ namespace Ark
     void Repl::trim_whitespace(std::string& line)
     {
         size_t string_begin = line.find_first_not_of(" \t");
-        if (std::string::npos != string_begin)
+        if(std::string::npos != string_begin)
         {
             size_t string_end = line.find_last_not_of(" \t");
             line = line.substr(string_begin, (string_end - string_begin + 1));
         }
+    }
+
+    void Repl::cgui_setup()
+    {
+        using namespace std::placeholders;
+
+        m_repl.set_completion_callback(std::bind(&hook_completion, _1, _2, std::cref(KeywordsDict)));
+        m_repl.set_highlighter_callback(std::bind(&hook_color, _1, _2, std::cref(ColorsRegexDict)));
+        m_repl.set_hint_callback(std::bind(&hook_hint, _1, _2, _3, std::cref(KeywordsDict)));
     }
 }
