@@ -10,6 +10,7 @@
 - enhanced error message when calling a non-function object
 - eliminating unused global scope variables in the compiler
 - adding a new feature enabled by default: `FeatureRemoveUnusedVars` (not enabled for the REPL for obvious reasons)
+- added replxx as a submodule
 
 ### Changed
 - updated the string module to benefit from the new `format` member function
@@ -26,6 +27,7 @@
 - enhancing lexer and parser error messages
 - else clause in if constructions is now optional
 - updating error messages in the VM
+- updated the repl to add auto completion, coloration and persistance by @PierrePharel
 
 ### Removed
 - removed `fmt/format` from our dependencies

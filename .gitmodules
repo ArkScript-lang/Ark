@@ -7,3 +7,6 @@
 [submodule "lib/std"]
 	path = lib/std
 	url = https://github.com/ArkScript-lang/std.git
+[submodule "submodules/replxx"]
+	path = submodules/replxx
+	url = https://github.com/AmokHuginnsson/replxx.git
