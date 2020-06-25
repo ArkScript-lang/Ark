@@ -25,6 +25,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # submodules
 add_subdirectory("${Ark_SOURCE_DIR}/submodules/String")
+# replxx
 add_subdirectory("${Ark_SOURCE_DIR}/submodules/replxx")
 set(REPLXX_INCLUDE_DIR "${Ark_SOURCE_DIR}/submodules/replxx/include")
 
