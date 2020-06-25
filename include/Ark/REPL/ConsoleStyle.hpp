@@ -15,13 +15,12 @@ namespace Ark
         /* Operators */
         "len", "empty?", "firstOf", "tailOf",
         "headOf", "nil?", "assert", "toNumber",
-        "toString", "and", "or", "mod", "type",
-        "hasField", "not",
+        "toString", "and", "or", "mod",
+        "type", "hasField", "not",
         /* Builtins */
         // Constants
-        "true", "false", "nil",
-        "Pi", "E", "Tau", "Inf",
-        "NaN",
+        "true", "false", "nil", "Pi",
+        "E", "Tau", "Inf", "NaN",
         // Functions
             // List
         "append", "concat", "list", "reverseList",
