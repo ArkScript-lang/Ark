@@ -86,6 +86,10 @@ namespace Ark
          */
         void setLibDir(const std::string& libDir);
 
+        /**
+         * @brief Reset State (all member variables related to execution)
+         * 
+         */
         void reset();
 
         friend class VM;
@@ -98,6 +102,17 @@ namespace Ark
          */        
         void configure();
 
+        /**
+         * @brief Read file and compile content code
+         * 
+         * @param debug set the debug level
+         * @param file the path of file code to compile 
+         * @param output set path of .arkc file 
+         * @param lib_dir the Lib Dir
+         * @param options set vm options
+         * @return true on success
+         * @return false on failure and raise an exception
+         */
         bool compile(unsigned debug, const std::string& file, const std::string& output, const std::string& lib_dir, uint16_t options);
 
         inline void throwStateError(const std::string& message)

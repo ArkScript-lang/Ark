@@ -32,8 +32,8 @@ namespace Ark
         std::string m_lib_dir;
         uint16_t m_options;
         Replxx m_repl;
-        unsigned m_lines = 1;
-        int m_old_ip = 0;
+        unsigned m_lines;
+        int m_old_ip;
 
         inline void print_repl_header();
         int count_open_parentheses(const std::string& line);
