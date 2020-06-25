@@ -8,6 +8,7 @@
 - added a case to display NOT instructions in the bytecode reader
 - eliminating unused global scope variables in the compiler
 - adding a new feature enabled by default: `FeatureRemoveUnusedVars` (not enabled for the REPL for obvious reasons)
+- added replxx as a submodule
 
 ### Changed
 - updated the string module to benefit from the new `format` member function
@@ -18,6 +19,7 @@
 - the standard library is now in another repository
 - moved the modules to lib/ext
 - the value of `CODE_SEGMENT_START` is again 0x03 (because we removed the plugin table)
+- updated the repl to add auto completion, coloration and persistance by @PierrePharel
 
 ### Removed
 - removed `fmt/format` from our dependencies
