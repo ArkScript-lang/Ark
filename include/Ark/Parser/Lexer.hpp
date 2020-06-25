@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <utility>
 #include <sstream>
-#include <iostream>
+#include <iomanip>
 
 #include <Ark/Exceptions.hpp>
 #include <Ark/Utils.hpp>
