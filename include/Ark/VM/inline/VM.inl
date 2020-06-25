@@ -29,7 +29,7 @@ internal::Value VM::call(const std::string& name, Args&&... args)
     if (var != nullptr)
     {
         if (var->valueType() != ValueType::PageAddr && var->valueType() != ValueType::Closure)
-            throwVMError("Can't call '" + name + "': it isn't a Function but a " + types_to_str[static_cast<int>(function.valueType())]);
+            throwVMError("Can't call '" + name + "': it isn't a Function but a " + types_to_str[static_cast<int>(var->valueType())]);
 
         m_frames.back().push(*var);
         m_last_sym_loaded = id;
