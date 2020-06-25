@@ -8,7 +8,7 @@
 namespace Ark
 {
     Repl::Repl(uint16_t options, std::string lib_dir) :
-        m_options(options), m_lib_dir(lib_dir)
+        m_options(options), m_lib_dir(lib_dir), m_lines(1), m_old_ip(0)
     {}
     
     void Repl::run()
@@ -61,29 +61,36 @@ namespace Ark
                     break;
             }
 
+            // save a valid ip if execution failed
             m_old_ip = vm.m_ip;
             if(state.doString("{" + tmp_code.str() + "}"))
             {
+                // for only one vm init
                 if(init == false)
                 {
                     vm.init();
                     init = true;
                 }
 
+                // ajust size of scope for symbols
                 if(vm.m_locals[0]->size() < state.m_symbols.size())
                     for(unsigned i = vm.m_locals[0]->size(); i < state.m_symbols.size(); ++ i)
                         vm.m_locals[0]->emplace_back(ValueType::Undefined);
 
                 if(vm.safeRun() == 0)
                 {
+                    // save good code 
                     code = tmp_code.str();
+                    // place ip to end of bytecode intruction (HALT)
                     -- vm.m_ip;
                 }
                 else
+                {
+                    // reset ip if execution failed
                     vm.m_ip = m_old_ip;
+                }
 
-                state.m_constants.clear();
-                state.m_pages.clear();
+                state.reset();
             }
             else
                 std::cerr << "Ark::State::doString failed" << std::endl;
@@ -95,7 +102,7 @@ namespace Ark
         std::cout << "ArkScript REPL -- ";
         std::cout << "Version " << ARK_VERSION_MAJOR << "." << ARK_VERSION_MINOR << "." << ARK_VERSION_PATCH << " ";
         std::cout << "[LICENSE: Mozilla Public License 2.0]" << std::endl;
-        std::cout << "Type \"(quit)\" or \"(q)\" to quit." << std::endl;
+        std::cout << "Type \"(quit)\" to quit." << std::endl;
     }
 
     int Repl::count_open_parentheses(const std::string& line)
@@ -145,7 +152,7 @@ namespace Ark
         using namespace std::placeholders;
 
         m_repl.set_completion_callback(std::bind(&hook_completion, _1, _2, std::cref(KeywordsDict)));
-        m_repl.set_highlighter_callback(std::bind(&hook_color, _1, _2, cref(ColorsRegexDict)));
+        m_repl.set_highlighter_callback(std::bind(&hook_color, _1, _2, std::cref(ColorsRegexDict)));
         m_repl.set_hint_callback(std::bind(&hook_hint, _1, _2, _3, std::cref(KeywordsDict)));
     }
 }
