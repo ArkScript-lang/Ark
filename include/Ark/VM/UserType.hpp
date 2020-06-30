@@ -18,7 +18,15 @@ namespace Ark
     class UserType
     {
     public:
-        using FuncStream_t = std::ostream& (*) (std::ostream& os, const UserType& A);
+        /**
+         * @brief A structure holding a bunch of pointers to different useful functions related to this usertype
+         * 
+         */
+        struct ControlFuncs
+        {
+            std::ostream& (*ostream_func) (std::ostream&, const UserType&) = nullptr;
+            void          (*deleter) (void*)                               = nullptr;
+        };
 
         /**
          * @brief Construct a new User Type object
@@ -29,16 +37,29 @@ namespace Ark
         template <typename T>
         explicit UserType(T* data=nullptr) :
             m_data(static_cast<void*>(data)),
-            m_ostream_func(nullptr),
+            m_funcs(nullptr),
             m_type_id(typeid(T).hash_code() & static_cast<uint16_t>(~0))
         {}
 
         /**
-         * @brief Set the ostream function
+         * @brief Destroy the User Type object
+         * @details Called by the VM when `(del obj)` is found or when the object goes
+         *          out of scope.
          * 
-         * @param f the function
          */
-        inline void setOStream(FuncStream_t&& f);
+         void del()
+         {
+             // call a custom deleter on the data held by the usertype
+             if (m_funcs != nullptr && m_funcs->deleter != nullptr)
+                m_funcs->deleter(m_data);
+         }
+
+        /**
+         * @brief Set the control functions structure
+         * 
+         * @param block A pointer to an instance of this block
+         */
+        inline void setControlFuncs(ControlFuncs* block);
 
         /**
          * @brief Get the pointer to the object
@@ -88,7 +109,7 @@ namespace Ark
     private:
         uint16_t m_type_id;
         void* m_data;
-        FuncStream_t m_ostream_func;
+        ControlFuncs* m_funcs;
     };
 
     #include "inline/UserType.inl"
