@@ -72,10 +72,20 @@ inline void VM::returnFromFuncCall()
     uint8_t del_counter = m_frames.back().scopeCountToDelete();
 
     // high cpu cost because destroying variants cost
+    for (auto& var : m_locals.back())
+    {
+        if (var.valueType() == ValueType::User)
+            var.del();
+    }
     m_locals.pop_back();
 
     while (del_counter != 0)
     {
+        for (auto& var : m_locals.back())
+        {
+            if (var.valueType() == ValueType::User)
+                var.del();
+        }
         m_locals.pop_back();
         del_counter--;
     }

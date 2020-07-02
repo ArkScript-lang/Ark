@@ -370,6 +370,9 @@ namespace Ark
                         Value* var = findNearestVariable(id);
                         if (var != nullptr)
                         {
+                            // delete usertype with custom deleter
+                            if (var->valueType() == ValueType::User)
+                                var->del();
                             *var = Value();
                             break;
                         }
