@@ -11,6 +11,7 @@
 - eliminating unused global scope variables in the compiler
 - adding a new feature enabled by default: `FeatureRemoveUnusedVars` (not enabled for the REPL for obvious reasons)
 - added replxx as a submodule
+- added custom destructor to the user type, called when a scope is destroyed and when we use `(del obj)`
 
 ### Changed
 - updated the string module to benefit from the new `format` member function
