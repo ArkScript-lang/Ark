@@ -4,7 +4,7 @@
 #include <variant>
 #include <string>
 
-#include <Ark/Parser/Node.hpp>
+#include <Ark/Compiler/Node.hpp>
 
 namespace Ark::internal
 {

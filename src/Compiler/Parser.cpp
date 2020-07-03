@@ -1,4 +1,4 @@
-#include <Ark/Parser/Parser.hpp>
+#include <Ark/Compiler/Parser.hpp>
 
 #include <optional>
 #include <algorithm>
@@ -424,7 +424,7 @@ namespace Ark
                         else if (libpath = m_libdir + "/" + file; Ark::Utils::fileExists(libpath))
                             included_file = libpath;
                         else
-                            throw std::runtime_error("Couldn't find file " + file);
+                            throw std::runtime_error("While processing file " + m_file + ", couldn't import " + file + ": file not found");
 
                         // if the file isn't in the include list, then we can include it
                         // this avoids cyclic includes
