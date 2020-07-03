@@ -29,6 +29,8 @@
 - else clause in if constructions is now optional
 - updating error messages in the VM
 - updated the repl to add auto completion, coloration and persistance by @PierrePharel
+- moving the parser, lexer and AST node to Compiler/ from Parser/
+- better import error messages at parsing
 
 ### Removed
 - removed `fmt/format` from our dependencies

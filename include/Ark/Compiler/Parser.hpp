@@ -10,8 +10,8 @@
 #include <sstream>
 
 #include <Ark/Exceptions.hpp>
-#include <Ark/Parser/Lexer.hpp>
-#include <Ark/Parser/Node.hpp>
+#include <Ark/Compiler/Lexer.hpp>
+#include <Ark/Compiler/Node.hpp>
 
 namespace Ark
 {

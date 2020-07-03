@@ -1,4 +1,4 @@
-#include <Ark/Parser/Lexer.hpp>
+#include <Ark/Compiler/Lexer.hpp>
 
 #include <Ark/Utils.hpp>
 #include <Ark/Log.hpp>

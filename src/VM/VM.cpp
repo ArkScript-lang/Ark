@@ -372,7 +372,7 @@ namespace Ark
                         {
                             // delete usertype with custom deleter
                             if (var->valueType() == ValueType::User)
-                                var->del();
+                                var->usertype_ref().del();
                             *var = Value();
                             break;
                         }
