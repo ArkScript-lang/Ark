@@ -1,4 +1,5 @@
 #include <Ark/VM/VM.hpp>
+#include <Ark/VM/Plugin.hpp>
 
 // read a number from the bytecode
 #define readNumber(var) {                                                        \
@@ -445,16 +446,16 @@ namespace Ark
                         std::string lib_path = (fs::path(m_state->m_libdir) / fs::path(file)).string();
 
                         if (std::find_if(m_shared_lib_objects.begin(), m_shared_lib_objects.end(), [&, this](const auto& val){
-                            if (val.path() == path || val.path() == lib_path)
+                            if (val->path() == path || val->path() == lib_path)
                                 return true;
                             return false;
                         }) != m_shared_lib_objects.end())
                             break;
 
                         if (Utils::fileExists(path))  // if it exists alongside the .arkc file
-                            m_shared_lib_objects.emplace_back(path);
+                            m_shared_lib_objects.emplace_back(std::make_shared<SharedLibrary>(path));
                         else if (Utils::fileExists(lib_path))  // check in LOAD_PATH otherwise
-                            m_shared_lib_objects.emplace_back(lib_path);
+                            m_shared_lib_objects.emplace_back(std::make_shared<SharedLibrary>(lib_path));
                         else
                             throwVMError("could not load plugin: " + file);
 
@@ -464,7 +465,7 @@ namespace Ark
                         Mapping_t map;
 
                         try {
-                            map = m_shared_lib_objects.back().template get<map_fun_t>("getFunctionsMapping")();
+                            map = m_shared_lib_objects.back()->template get<map_fun_t>("getFunctionsMapping")();
                         } catch (const std::system_error& e) {
                             throwVMError(std::string(e.what()));
                         }
