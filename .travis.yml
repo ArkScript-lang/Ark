@@ -19,7 +19,7 @@ jobs:
     - os: osx
       # osx_image: xcode11.6
       env:
-        - MATRIX_EVAL="brew install gcc && brew link gcc"
+        - MATRIX_EVAL="brew install gcc && brew link gcc && CXX=/usr/local/bin/g++-9"
         - C_COMPILER=clang
         - CXX_COMPILER=/usr/local/bin/g++-9
 
@@ -43,13 +43,5 @@ jobs:
         - LIBCXX=On
 
     - os: windows
-
-before_script:
-- |-
-    case $TRAVIS_OS_NAME in
-      osx)
-        eval "${MATRIX_EVAL}"
-        ;;
-    esac
 
 script: ./.github/travis.sh
