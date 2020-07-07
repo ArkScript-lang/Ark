@@ -5,6 +5,7 @@
 
 #include <clipp.hpp>
 #include <Ark/Ark.hpp>
+#include <Ark/REPL/Repl.hpp>
 
 void bcr(const std::string& file)
 {

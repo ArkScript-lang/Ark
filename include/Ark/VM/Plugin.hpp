@@ -4,12 +4,7 @@
 #if defined(_WIN32) || defined(_WIN64)
     // do not include winsock.h
     #define WIN32_LEAN_AND_MEAN
-    #define _WINSOCKAPI_
-    #define _WINSOCK_
-    #define NOMINMAX
     #include <Windows.h>
-    #undef _WINSOCK_
-    #undef _WINSOCKAPI_
 #elif (defined(unix) || defined(__unix) || defined(__unix__)) || defined(__APPLE__)
     #include <dlfcn.h>
 #else
