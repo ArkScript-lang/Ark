@@ -71,20 +71,27 @@ inline void VM::returnFromFuncCall()
     m_frames.pop_back();
     uint8_t del_counter = m_frames.back().scopeCountToDelete();
 
-    // high cpu cost because destroying variants cost
-    for (auto& var : *m_locals.back())
-    {
-        if (var.valueType() == internal::ValueType::User)
-            var.usertype_ref().del();
-    }
-    m_locals.pop_back();
-
-    while (del_counter != 0)
+    // search and delete usertype only if it's the last occurence of the scope
+    if (m_locals.back().use_count() > 1)
     {
         for (auto& var : *m_locals.back())
         {
             if (var.valueType() == internal::ValueType::User)
                 var.usertype_ref().del();
+        }
+    }
+    // high cpu cost because destroying variants cost
+    m_locals.pop_back();
+
+    while (del_counter != 0)
+    {
+        if (m_locals.back().use_count() > 1)
+        {
+            for (auto& var : *m_locals.back())
+            {
+                if (var.valueType() == internal::ValueType::User)
+                    var.usertype_ref().del();
+            }
         }
         m_locals.pop_back();
         del_counter--;
