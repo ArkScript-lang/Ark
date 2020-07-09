@@ -11,9 +11,9 @@ namespace Ark::internal::Builtins::Mathematics
     Value exponential(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 1)
-            throw std::runtime_error(MATH_ARITY("exp"));
+            throw std::runtime_error(MATH_ARITY("math:exp"));
         if (n[0].valueType() != ValueType::Number)
-            throw Ark::TypeError(MATH_TE0("exp"));
+            throw Ark::TypeError(MATH_TE0("math:exp"));
         
         Value r(std::exp(n[0].number()));
         return r;
@@ -22,11 +22,11 @@ namespace Ark::internal::Builtins::Mathematics
     Value logarithm(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 1)
-            throw std::runtime_error(MATH_ARITY("log"));
+            throw std::runtime_error(MATH_ARITY("math:log"));
         if (n[0].valueType() != ValueType::Number)
-            throw Ark::TypeError(MATH_TE0("log"));
+            throw Ark::TypeError(MATH_TE0("math:log"));
         if (n[0].number() <= 0.0)
-            throw std::runtime_error("Argument of log must be greater than 0");
+            throw std::runtime_error("Argument of math:log must be greater than 0");
         
         Value r(std::log(n[0].number()));
         return r;
@@ -35,9 +35,9 @@ namespace Ark::internal::Builtins::Mathematics
     Value ceil_(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 1)
-            throw std::runtime_error(MATH_ARITY("ceil"));
+            throw std::runtime_error(MATH_ARITY("math:ceil"));
         if (n[0].valueType() != ValueType::Number)
-            throw Ark::TypeError(MATH_TE0("ceil"));
+            throw Ark::TypeError(MATH_TE0("math:ceil"));
         
         Value r(std::ceil(n[0].number()));
         return r;
@@ -46,9 +46,9 @@ namespace Ark::internal::Builtins::Mathematics
     Value floor_(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 1)
-            throw std::runtime_error(MATH_ARITY("floor"));
+            throw std::runtime_error(MATH_ARITY("math:floor"));
         if (n[0].valueType() != ValueType::Number)
-            throw Ark::TypeError(MATH_TE0("floor"));
+            throw Ark::TypeError(MATH_TE0("math:floor"));
         
         Value r(std::floor(n[0].number()));
         return r;
@@ -57,9 +57,9 @@ namespace Ark::internal::Builtins::Mathematics
     Value round_(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 1)
-            throw std::runtime_error(MATH_ARITY("round"));
+            throw std::runtime_error(MATH_ARITY("math:round"));
         if (n[0].valueType() != ValueType::Number)
-            throw Ark::TypeError(MATH_TE0("round"));
+            throw Ark::TypeError(MATH_TE0("math:round"));
         
         Value r(std::round(n[0].number()));
         return r;
@@ -68,7 +68,7 @@ namespace Ark::internal::Builtins::Mathematics
     Value isnan_(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 1)
-            throw std::runtime_error(MATH_ARITY("NaN?"));
+            throw std::runtime_error(MATH_ARITY("math:NaN?"));
         if (n[0].valueType() != ValueType::Number)
             return falseSym;
         
@@ -78,7 +78,7 @@ namespace Ark::internal::Builtins::Mathematics
     Value isinf_(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 1)
-            throw std::runtime_error(MATH_ARITY("Inf?"));
+            throw std::runtime_error(MATH_ARITY("math:Inf?"));
         if (n[0].valueType() != ValueType::Number)
             return falseSym;
         
@@ -88,9 +88,9 @@ namespace Ark::internal::Builtins::Mathematics
     Value cos_(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 1)
-            throw std::runtime_error(MATH_ARITY("cos"));
+            throw std::runtime_error(MATH_ARITY("math:cos"));
         if (n[0].valueType() != ValueType::Number)
-            throw Ark::TypeError(MATH_TE0("cos"));
+            throw Ark::TypeError(MATH_TE0("math:cos"));
         
         Value r(std::cos(n[0].number()));
         return r;
@@ -99,9 +99,9 @@ namespace Ark::internal::Builtins::Mathematics
     Value sin_(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 1)
-            throw std::runtime_error(MATH_ARITY("sin"));
+            throw std::runtime_error(MATH_ARITY("math:sin"));
         if (n[0].valueType() != ValueType::Number)
-            throw Ark::TypeError(MATH_TE0("sin"));
+            throw Ark::TypeError(MATH_TE0("math:sin"));
         
         Value r(std::sin(n[0].number()));
         return r;
@@ -110,9 +110,9 @@ namespace Ark::internal::Builtins::Mathematics
     Value tan_(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 1)
-            throw std::runtime_error(MATH_ARITY("tan"));
+            throw std::runtime_error(MATH_ARITY("math:tan"));
         if (n[0].valueType() != ValueType::Number)
-            throw Ark::TypeError(MATH_TE0("tan"));
+            throw Ark::TypeError(MATH_TE0("math:tan"));
         
         Value r(std::tan(n[0].number()));
         return r;
@@ -121,9 +121,9 @@ namespace Ark::internal::Builtins::Mathematics
     Value acos_(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 1)
-            throw std::runtime_error(MATH_ARITY("arccos"));
+            throw std::runtime_error(MATH_ARITY("math:arccos"));
         if (n[0].valueType() != ValueType::Number)
-            throw Ark::TypeError(MATH_TE0("arccos"));
+            throw Ark::TypeError(MATH_TE0("math:arccos"));
         
         Value r(std::acos(n[0].number()));
         return r;
@@ -132,9 +132,9 @@ namespace Ark::internal::Builtins::Mathematics
     Value asin_(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 1)
-            throw std::runtime_error(MATH_ARITY("arcsin"));
+            throw std::runtime_error(MATH_ARITY("math:arcsin"));
         if (n[0].valueType() != ValueType::Number)
-            throw Ark::TypeError(MATH_TE0("arcsin"));
+            throw Ark::TypeError(MATH_TE0("math:arcsin"));
         
         Value r(std::asin(n[0].number()));
         return r;
@@ -143,9 +143,9 @@ namespace Ark::internal::Builtins::Mathematics
     Value atan_(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 1)
-            throw std::runtime_error(MATH_ARITY("arctan"));
+            throw std::runtime_error(MATH_ARITY("math:arctan"));
         if (n[0].valueType() != ValueType::Number)
-            throw Ark::TypeError(MATH_TE0("arctan"));
+            throw Ark::TypeError(MATH_TE0("math:arctan"));
         
         Value r(std::atan(n[0].number()));
         return r;

@@ -33,35 +33,35 @@
 #define LIST_CONCAT_ARITY "concat needs at least 2 arguments: list [...]"
 #define LIST_CONCAT_TE    "concat: list must be a List"
 
-#define LIST_REVERSE_ARITY "reverseList needs 1 argument: list"
-#define LIST_REVERSE_TE0   "reverseLists: list must be a List"
+#define LIST_REVERSE_ARITY "list:reverse needs 1 argument: list"
+#define LIST_REVERSE_TE0   "list:reverse: list must be a List"
 
-#define LIST_FIND_ARITY "findInList needs 2 arguments: list, value"
-#define LIST_FIND_TE0   "findInList: list must be a List"
+#define LIST_FIND_ARITY "list:find needs 2 arguments: list, value"
+#define LIST_FIND_TE0   "list:find: list must be a List"
 
-#define LIST_RMAT_ARITY "removeAtList needs 2 arguments: list, index"
-#define LIST_RMAT_TE0   "removeAtList: list must be a List"
-#define LIST_RMAT_TE1   "removeAtList: index must be a Number"
-#define LIST_RMAT_OOR   "removeAtList: index out of range"
+#define LIST_RMAT_ARITY "list:removeAt needs 2 arguments: list, index"
+#define LIST_RMAT_TE0   "list:removeAt: list must be a List"
+#define LIST_RMAT_TE1   "list:removeAt: index must be a Number"
+#define LIST_RMAT_OOR   "list:removeAt: index out of range"
 
-#define LIST_SLICE_ARITY "sliceList needs 4 arguments: list, start, end, step"
-#define LIST_SLICE_TE0   "sliceList: list must be a List"
-#define LIST_SLICE_TE1   "sliceList: start must be a Number"
-#define LIST_SLICE_TE2   "sliceList: end must be a Number"
-#define LIST_SLICE_TE3   "sliceList: step must be a Number"
-#define LIST_SLICE_STEP  "sliceList: step can not be null"
-#define LIST_SLICE_ORDER "sliceList: start position must be less or equal to the end position"
-#define LIST_SLICE_OOR   "sliceList: indices out of range"
+#define LIST_SLICE_ARITY "list:slice needs 4 arguments: list, start, end, step"
+#define LIST_SLICE_TE0   "list:slice: list must be a List"
+#define LIST_SLICE_TE1   "list:slice: start must be a Number"
+#define LIST_SLICE_TE2   "list:slice: end must be a Number"
+#define LIST_SLICE_TE3   "list:slice: step must be a Number"
+#define LIST_SLICE_STEP  "list:slice: step can not be null"
+#define LIST_SLICE_ORDER "list:slice: start position must be less or equal to the end position"
+#define LIST_SLICE_OOR   "list:slice: indices out of range"
 
-#define LIST_SORT_ARITY "sort needs 1 argument: a list"
-#define LIST_SORT_TE0   "sort: list must be a List"
+#define LIST_SORT_ARITY "list:sort needs 1 argument: a list"
+#define LIST_SORT_TE0   "list:sort: list must be a List"
 
-#define LIST_FILL_ARITY "fill needs 2 arguments: size, value"
-#define LIST_FILL_TE0   "fill: size must be a Number"
+#define LIST_FILL_ARITY "list:fill needs 2 arguments: size, value"
+#define LIST_FILL_TE0   "list:fill: size must be a Number"
 
-#define LIST_SETAT_ARITY "setListAt needs 3 arguments: list, index, value"
-#define LIST_SETAT_TE0   "setListAt: list must be a List"
-#define LIST_SETAT_TE1   "setListAt: index must be a Number"
+#define LIST_SETAT_ARITY "list:setAt needs 3 arguments: list, index, value"
+#define LIST_SETAT_TE0   "list:setAt: list must be a List"
+#define LIST_SETAT_TE1   "list:setAt: index must be a Number"
 
 // Mathmatics
 
@@ -70,25 +70,24 @@
 
 // String
 
-#define STR_FORMAT_ARITY "format needs at least 1 argument: string, [values...]"
-#define STR_FORMAT_TE0   "format: string must be a String"
-#define STR_FORMAT_TE1   "format: value should be a String, a Number, a Boolean, or Nil"
+#define STR_FORMAT_ARITY "str:format needs at least 1 argument: string, [values...]"
+#define STR_FORMAT_TE0   "str:format: string must be a String"
 
-#define STR_FIND_ARITY "findSubStr needs 2 arguments: string, substr"
-#define STR_FIND_TE0   "findSubStr: string must be a String"
-#define STR_FIND_TE1   "findSubStr: substr must be a String"
+#define STR_FIND_ARITY "str:find needs 2 arguments: string, substr"
+#define STR_FIND_TE0   "str:find: string must be a String"
+#define STR_FIND_TE1   "str:find: substr must be a String"
 
-#define STR_RM_ARITY "removeAtStr needs 2 arguments: string, index"
-#define STR_RM_TE0   "removeAtStr: string must be a String"
-#define STR_RM_TE1   "removeAtStr: index must be a Number"
-#define STR_RM_OOR   "removeAtStr: index out of range"
+#define STR_RM_ARITY "str:removeAt needs 2 arguments: string, index"
+#define STR_RM_TE0   "str:removeAt: string must be a String"
+#define STR_RM_TE1   "str:removeAt: index must be a Number"
+#define STR_RM_OOR   "str:removeAt: index out of range"
 
 // System
 
-#define SYS_SYS_ARITY "system needs 1 argument: command"
-#define SYS_SYS_TE0   "system: command must be a String"
+#define SYS_SYS_ARITY "sys:exec needs 1 argument: command"
+#define SYS_SYS_TE0   "sys:exec: command must be a String"
+
+#define SYS_SLEEP_ARITY "sleep needs 1 argument: duration (milliseconds)"
+#define SYS_SLEEP_TE0   "sleep: duration must be a Number"
 
 // Time
-
-#define TIME_SLEEP_ARITY "sleep needs 1 argument: duration (milliseconds)"
-#define TIME_SLEEP_TE0   "sleep: duration must be a Number"
