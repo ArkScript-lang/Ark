@@ -823,7 +823,7 @@ namespace Ark
                 ++m_ip;
             }
         } catch (const std::exception& e) {
-            std::cerr << termcolor::red << "VMError: " << termcolor::reset << e.what() << "\n";
+            std::cerr << e.what() << "\n";
             backtrace();
             return 1;
         } catch (...) {
