@@ -1,0 +1,12 @@
+(import "tests-tools.ark")
+
+(let builtin-tests (fun () {
+    (mut tests 0)
+    (let start-time (time))
+
+    (recap "Builtins operations passed" tests (- (time) start-time))
+
+    tests
+}))
+
+(let passed-builtins (builtin-tests))

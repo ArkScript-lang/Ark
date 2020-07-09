@@ -1,44 +1,20 @@
-{
-    (let start_time (time))
+(let start_time (time))
 
-    (print "Starting unit tests")
+(print "Starting unit tests")
 
-    # Each test file is consisting of a function executing a list of asserts
-    # to see if everything is all right.
-    # We *must* use functions for our tests because they create a new scope,
-    # to avoid collisions with other tests, and avoid false positive tests.
+# Each test file is consisting of a function executing a list of asserts
+# to see if everything is all right.
+# We *must* use functions for our tests because they create a new scope,
+# to avoid collisions with other tests, and avoid false positive tests.
 
-    (import "arithmetic-tests.ark")
-    (import "string-tests.ark")
-    (import "list-tests.ark")
-    (import "function-tests.ark")
-    (import "misc-tests.ark")
-    (import "switch-tests.ark")
-    (import "defer-tests.ark")
-    (import "recursion-tests.ark")
-    (import "callback-tests.ark")
-    (import "closure-tests.ark")
-    (import "range-tests.ark")
-    (import "del-tests.ark")
-    (import "scope-tests.ark")
-    (import "functional-tests.ark")
+(import "vm-tests.ark")
+(import "builtins-tests.ark")
 
-    (print "  ------------------------------")
+(print "  ------------------------------")
 
-    (print "  Total: " (+ passed-arithmetic
-                          passed-string
-                          passed-list
-                          passed-function
-                          passed-misc
-                          passed-switch
-                          passed-defer
-                          passed-recursion
-                          passed-callback
-                          passed-closure
-                          passed-range
-                          passed-del
-                          passed-functional
-                        ))
+(print "  Total: " (+ 
+    passed-vm
+    passed-builtins
+))
 
-    (print "\nCompleted in " (toString (- (time) start_time)) " seconds")
-}
+(print "\nCompleted in " (toString (- (time) start_time)) " seconds")
