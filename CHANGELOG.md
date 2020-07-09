@@ -31,6 +31,8 @@
 - updated the repl to add auto completion, coloration and persistance by @PierrePharel
 - moving the parser, lexer and AST node to Compiler/ from Parser/
 - better import error messages at parsing
+- format can now handle any value type
+- updated the tests to use the new standard library, and testing every VM instruction and builtins (we didn't test everything before, this way we can be sure we don't break *anything* in the VM after each update)
 
 ### Removed
 - removed `fmt/format` from our dependencies
