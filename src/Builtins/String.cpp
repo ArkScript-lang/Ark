@@ -37,7 +37,10 @@ namespace Ark::internal::Builtins::String
             else if (it->valueType() == ValueType::False)
                 f.format(f.size() + 5, std::string_view("false"));
             else
-                throw Ark::TypeError(STR_FORMAT_TE1);
+            {
+                std::stringstream ss; ss << (*it);
+                f.format(f.size() + ss.str().size(), std::string_view(ss.str().c_str()));
+            }
         }
         n[0].string_ref() = f;
         return n[0];
