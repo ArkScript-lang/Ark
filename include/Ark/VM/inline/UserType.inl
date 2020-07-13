@@ -1,18 +1,11 @@
-inline void UserType::setOStream(FuncStream_t&& f)
+inline void UserType::setControlFuncs(ControlFuncs* block)
 {
-    m_ostream_func = std::move(f);
+    m_funcs = block;
 }
 
 inline void* UserType::data() const
 {
     return m_data;
-}
-
-// custom operators
-inline bool UserType::not_() const
-{
-    // TODO let the user implement his/her own
-    return false;
 }
 
 // friends
@@ -29,8 +22,8 @@ inline bool operator<(const UserType& A, const UserType& B)
 
 inline std::ostream& operator<<(std::ostream& os, const UserType& A)
 {
-    if (A.m_ostream_func != nullptr)
-        return A.m_ostream_func(os, A);
+    if (A.m_funcs != nullptr && A.m_funcs->ostream_func != nullptr)
+        return A.m_funcs->ostream_func(os, A);
 
     os << "UserType<" << A.m_type_id << ", 0x" << A.m_data << ">";
     return os;

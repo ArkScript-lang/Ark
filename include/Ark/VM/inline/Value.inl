@@ -101,8 +101,6 @@ inline bool operator!(const Value& A)
             return A.string().size() == 0;
 
         case ValueType::User:
-            return A.usertype().not_();
-
         case ValueType::Nil:
         case ValueType::False:
             return true;

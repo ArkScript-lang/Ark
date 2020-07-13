@@ -57,12 +57,12 @@ namespace Ark::internal::Builtins
     namespace Time
     {
         Value timeSinceEpoch(std::vector<Value>& n, Ark::VM* vm);  // time, 0 argument
-        Value sleep(std::vector<Value>& n, Ark::VM* vm);  // sleep, 1 argument
     }
 
     namespace System
     {
         Value system_(std::vector<Value>& n, Ark::VM* vm);  // system, 1 argument
+        Value sleep(std::vector<Value>& n, Ark::VM* vm);  // sleep, 1 argument
     }
 
     namespace String

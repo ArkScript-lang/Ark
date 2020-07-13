@@ -11,6 +11,7 @@
 #include <utility>
 #include <Ark/String.hpp>  // our string implementation
 #include <string.h>  // strcmp
+#include <array>
 
 #include <Ark/VM/Types.hpp>
 #include <Ark/VM/Closure.hpp>
@@ -39,6 +40,12 @@ namespace Ark::internal
         True,
         False,
         Undefined
+    };
+
+    const std::array<std::string, 11> types_to_str = {
+        "List", "Number", "String", "Function",
+        "CProc", "Closure", "UserType",
+        "Nil", "Bool", "Bool", "Undefined"
     };
 
     class Frame;

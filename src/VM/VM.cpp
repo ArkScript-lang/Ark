@@ -1,4 +1,5 @@
 #include <Ark/VM/VM.hpp>
+#include <Ark/VM/Plugin.hpp>
 
 // read a number from the bytecode
 #define readNumber(var) {                                                        \
@@ -116,12 +117,6 @@ namespace Ark
         using namespace Ark::internal;
         m_until_frame_count = untilFrameCount;
 
-        static const Value types_to_str[] = {
-            Value("List"), Value("Number"), Value("String"), Value("Function"),
-            Value("CProc"), Value("Closure"), Value("UserType"),
-            Value("Nil"), Value("Bool"), Value("Bool"), Value("Undefined")
-        };
-
         try {
             m_running = true;
             while (m_running && m_frames.size() > m_until_frame_count)
@@ -150,7 +145,7 @@ namespace Ark
                             break;
                         }
 
-                        throwVMError("couldn't find symbol to load: " + m_state->m_symbols[id]);
+                        throwVMError("unbound variable: " + m_state->m_symbols[id]);
                         break;
                     }
 
@@ -174,7 +169,7 @@ namespace Ark
                             push(m_state->m_constants[id]);
                         break;
                     }
-                    
+
                     case Instruction::POP_JUMP_IF_TRUE:
                     {
                         /*
@@ -191,7 +186,7 @@ namespace Ark
                             m_ip = addr - 1;  // because we are doing a ++m_ip right after this
                         break;
                     }
-                    
+
                     case Instruction::STORE:
                     {
                         /*
@@ -213,7 +208,7 @@ namespace Ark
                             break;
                         }
 
-                        throwVMError("couldn't find symbol: " + m_state->m_symbols[id]);
+                        throwVMError("unbound variable " + m_state->m_symbols[id] + ", can not change its value");
                         break;
                     }
 
@@ -235,7 +230,7 @@ namespace Ark
                         registerVariable(id, *popVal()).setConst(true);
                         break;
                     }
-                    
+
                     case Instruction::POP_JUMP_IF_FALSE:
                     {
                         /*
@@ -252,7 +247,7 @@ namespace Ark
                             m_ip = addr - 1;  // because we are doing a ++m_ip right after this
                         break;
                     }
-                    
+
                     case Instruction::JUMP:
                     {
                         /*
@@ -267,7 +262,7 @@ namespace Ark
                         m_ip = addr - 1;  // because we are doing a ++m_ip right after this
                         break;
                     }
-                    
+
                     case Instruction::RET:
                     {
                         /*
@@ -376,11 +371,14 @@ namespace Ark
                         Value* var = findNearestVariable(id);
                         if (var != nullptr)
                         {
+                            // delete usertype with custom deleter
+                            if (var->valueType() == ValueType::User)
+                                var->usertype_ref().del();
                             *var = Value();
                             break;
                         }
 
-                        throwVMError("couldn't find symbol: " + m_state->m_symbols[id]);
+                        throwVMError("unbound variable: " + m_state->m_symbols[id]);
                         break;
                     }
 
@@ -407,7 +405,7 @@ namespace Ark
 
                         Value* var = popVal();
                         if (var->valueType() != ValueType::Closure)
-                            throwVMError("variable `" + m_state->m_symbols[m_last_sym_loaded] + "' isn't a closure, can not get the field `" + m_state->m_symbols[id] + "' from it");
+                            throwVMError("the variable `" + m_state->m_symbols[m_last_sym_loaded] + "' isn't a closure, can not get the field `" + m_state->m_symbols[id] + "' from it");
 
                         const Value& field = (*var->closure_ref().scope())[id];
                         if (field.valueType() != ValueType::Undefined)
@@ -423,7 +421,7 @@ namespace Ark
                             break;
                         }
 
-                        throwVMError("couldn't find symbol in closure enviroment: " + m_state->m_symbols[id]);
+                        throwVMError("couldn't find the variable " + m_state->m_symbols[id] + " in the closure enviroment");
                         break;
                     }
 
@@ -448,18 +446,18 @@ namespace Ark
                         std::string lib_path = (fs::path(m_state->m_libdir) / fs::path(file)).string();
 
                         if (std::find_if(m_shared_lib_objects.begin(), m_shared_lib_objects.end(), [&, this](const auto& val){
-                            if (val.path() == path || val.path() == lib_path)
+                            if (val->path() == path || val->path() == lib_path)
                                 return true;
                             return false;
                         }) != m_shared_lib_objects.end())
                             break;
 
                         if (Utils::fileExists(path))  // if it exists alongside the .arkc file
-                            m_shared_lib_objects.emplace_back(path);
+                            m_shared_lib_objects.emplace_back(std::make_shared<SharedLibrary>(path));
                         else if (Utils::fileExists(lib_path))  // check in LOAD_PATH otherwise
-                            m_shared_lib_objects.emplace_back(lib_path);
+                            m_shared_lib_objects.emplace_back(std::make_shared<SharedLibrary>(lib_path));
                         else
-                            throwVMError("could not load plugin " + file);
+                            throwVMError("could not load plugin: " + file);
 
                         // load data from it!
                         using Mapping_t = std::unordered_map<std::string, Value::ProcType>;
@@ -467,7 +465,7 @@ namespace Ark
                         Mapping_t map;
 
                         try {
-                            map = m_shared_lib_objects.back().template get<map_fun_t>("getFunctionsMapping")();
+                            map = m_shared_lib_objects.back()->template get<map_fun_t>("getFunctionsMapping")();
                         } catch (const std::system_error& e) {
                             throwVMError(std::string(e.what()));
                         }
@@ -612,7 +610,7 @@ namespace Ark
                             push((a->string().size() == 0) ? Builtins::trueSym : Builtins::falseSym);
                         else
                             throw Ark::TypeError("Argument of empty? must be a list or a String");
-                        
+
                         break;
                     }
 
@@ -770,7 +768,7 @@ namespace Ark
                             throw Ark::TypeError("Arguments of mod should be Numbers");
                         if (b->valueType() != ValueType::Number)
                             throw Ark::TypeError("Arguments of mod should be Numbers");
-                        
+
                         push(Value(std::fmod(a->number(), b->number())));
                         break;
                     }
@@ -778,7 +776,7 @@ namespace Ark
                     case Instruction::TYPE:
                     {
                         Value *a = popVal();
-                        push(types_to_str[static_cast<unsigned>(a->valueType())]);
+                        push(Value(types_to_str[static_cast<unsigned>(a->valueType())]));
                         break;
                     }
 
@@ -825,7 +823,7 @@ namespace Ark
                 ++m_ip;
             }
         } catch (const std::exception& e) {
-            std::cerr << "\n" << termcolor::red << e.what() << "\n";
+            std::cerr << e.what() << "\n";
             backtrace();
             return 1;
         } catch (...) {
@@ -856,7 +854,7 @@ namespace Ark
 
     void VM::throwVMError(const std::string& message)
     {
-        throw std::runtime_error("VMError: " + message);
+        throw std::runtime_error(message);
     }
 
     void VM::backtrace()
