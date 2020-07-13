@@ -9,7 +9,7 @@ inline bool operator==(const Node& A, const Node& B)
     
     if (A.m_type == NodeType::List)
         throw Ark::TypeError("Can not compare lists");
-    
+
     // any other type => false (here, Closure)
     return false;
 }
@@ -27,6 +27,6 @@ inline std::string typeToString(const Node& node)
             return "Nil";
         return "Bool";
     }
-    
+
     return nodetype_str[static_cast<int>(node.nodeType())];
 }

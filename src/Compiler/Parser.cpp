@@ -1,4 +1,4 @@
-#include <Ark/Parser/Parser.hpp>
+#include <Ark/Compiler/Parser.hpp>
 
 #include <optional>
 #include <algorithm>
@@ -29,19 +29,24 @@ namespace Ark
             m_parent_include.push_back(m_file);
         }
 
-        m_lexer.feed(code);
+        m_code = code;
 
+        m_lexer.feed(code);
         // apply syntactic sugar
         std::vector<Token> t = m_lexer.tokens();
         if (t.empty())
-            throwParseError_("Invalid syntax: empty code");
+            throwParseError_("empty file");
         sugar(t);
 
-        // create program and raise error if it can't
+        // create program
         std::list<Token> tokens(t.begin(), t.end());
-        except(!tokens.empty(), "Invalid syntax: no more token to consume", Token(TokenType::Mismatch, "", 0, 0));
         m_last_token = tokens.front();
-        m_ast = parse(tokens);
+
+        // accept every nodes in the file
+        m_ast = Node(NodeType::List);
+        m_ast.list().emplace_back(Keyword::Begin);
+        while (!tokens.empty())
+            m_ast.list().push_back(parse(tokens));
         // include files if needed
         checkForInclude(m_ast);
 
@@ -124,27 +129,30 @@ namespace Ark
             do
             {
                 auto atomized = atom(token);
-                std::pair<std::size_t, std::size_t> warn_info = std::make_pair(
-                    token.line, token.col
-                );
 
-                if (std::find(m_warns.begin(), m_warns.end(), warn_info) == m_warns.end() &&
-                    (atomized.nodeType() == NodeType::String || atomized.nodeType() == NodeType::Number ||
-                        atomized.nodeType() == NodeType::List) &&
-                    previous_token_was_lparen)
+                if ((atomized.nodeType() == NodeType::String || atomized.nodeType() == NodeType::Number ||
+                        atomized.nodeType() == NodeType::List) && previous_token_was_lparen)
                 {
-                    if ((m_options & FeatureDisallowInvalidTokenAfterParen) == 0)
-                    {
-                        m_warns.push_back(std::move(warn_info));
-                        Ark::logger.warn("Found a possible ill-formed code line: invalid token after `(' (token: {0}, at {1}:{2}, in {3})"s, token.token, token.line, token.col, m_file);
-                    }
+                    std::stringstream ss;
+                    ss << "found invalid token after `(', expected Keyword, Identifier";
+                    if (!authorize_capture && !authorize_field_read)
+                        ss << " or Operator";
                     else
-                        throwParseError("Ill-formed code line: invalid token after `('", token);
+                    {
+                        ss << ", Operator";
+                        if (authorize_capture && !authorize_field_read)
+                            ss << " or Capture";
+                        else if (!authorize_capture && authorize_field_read)
+                            ss << " or GetField";
+                        else
+                            ss << ", Capture or GetField";
+                    }
+                    throwParseError(ss.str(), token);
                 }
 
                 block.push_back(atomized);
 
-                except(!tokens.empty(), "Invalid syntax: no more token to consume", m_last_token);
+                except(!tokens.empty(), "expected more tokens after `" + token.token + "'", m_last_token);
                 m_last_token = tokens.front();
 
                 if (token.type == TokenType::Keyword)
@@ -159,11 +167,12 @@ namespace Ark
                                  temp.type == TokenType::String)
                             block.push_back(atom(nextToken(tokens)));
                         else
-                            throwParseError("ill-formed if, couldn't find condition", temp);
+                            throwParseError("found invalid token after keyword `if', expected function call, value or Identifier", temp);
                         // parse 'then'
                         block.push_back(parse(tokens));
-                        // parse 'else'
-                        block.push_back(parse(tokens));
+                        // parse 'else', if there is one
+                        if (tokens.front().token != ")")
+                            block.push_back(parse(tokens));
                     }
                     else if (token.token == "let")
                     {
@@ -172,7 +181,7 @@ namespace Ark
                         if (temp.type == TokenType::Identifier)
                             block.push_back(atom(nextToken(tokens)));
                         else
-                            throwParseError("need an identifier to define a constant", temp);
+                            throwParseError("missing identifier to define a constant, after keyword `let'", temp);
                         // value
                         block.push_back(parse(tokens));
                     }
@@ -183,7 +192,7 @@ namespace Ark
                         if (temp.type == TokenType::Identifier)
                             block.push_back(atom(nextToken(tokens)));
                         else
-                            throwParseError("need an identifier to define a variable", temp);
+                            throwParseError("missing identifier to define a variable, after keyword `mut'", temp);
                         // value
                         block.push_back(parse(tokens));
                     }
@@ -194,7 +203,7 @@ namespace Ark
                         if (temp.type == TokenType::Identifier)
                             block.push_back(atom(nextToken(tokens)));
                         else
-                            throwParseError("need an identifier to set the value of a variable", temp);
+                            throwParseError("missing identifier to assign a value to, after keyword `set'", temp);
                         // value
                         block.push_back(parse(tokens));
                     }
@@ -202,16 +211,14 @@ namespace Ark
                     {
                         // parse arguments
                         if (tokens.front().type == TokenType::Grouping)
-                        {
                             block.push_back(parse(tokens, /* authorize_capture */ true));
-                        }
                         else
-                            throwParseError("invalid token to define an arguments list", tokens.front());
+                            throwParseError("found invalid token after keyword `fun', expected a block to define the argument list of the function\nThe block can be empty if it doesn't have arguments: `()'", tokens.front());
                         // parse body
                         if (tokens.front().type == TokenType::Grouping)
                             block.push_back(parse(tokens));
                         else
-                            throwParseError("invalid token to define the body of a function", tokens.front());
+                            throwParseError("the body of a function must be a bloc, even an empty one `()'", tokens.front());
                     }
                     else if (token.token == "while")
                     {
@@ -223,7 +230,7 @@ namespace Ark
                                  temp.type == TokenType::String)
                             block.push_back(atom(nextToken(tokens)));
                         else
-                            throwParseError("ill-formed while, couldn't find condition", temp);
+                            throwParseError("found invalid token after keyword `while', expected function call, value or Identifier", temp);
                         // parse 'do'
                         block.push_back(parse(tokens));
                     }
@@ -231,11 +238,11 @@ namespace Ark
                     {
                         while (true)
                         {
-                            except(!tokens.empty(), "No more token to consume when creating begin block", m_last_token);
+                            except(!tokens.empty(), "a begin block was opened but never closed\nYou most likely forgot a `}' or `)'", m_last_token);
                             if (tokens.front().token == ")")
                                 break;
                             m_last_token = tokens.front();
-                            
+
                             block.push_back(parse(tokens));
                         }
                     }
@@ -244,7 +251,7 @@ namespace Ark
                         if (tokens.front().type == TokenType::String)
                             block.push_back(atom(nextToken(tokens)));
                         else
-                            throwParseError("invalid import rule: should be a string", tokens.front());
+                            throwParseError("found invalid token after keyword `import', expected String (path to the file or module to import)", tokens.front());
                     }
                     else if (token.token == "quote")
                     {
@@ -255,7 +262,7 @@ namespace Ark
                         if (tokens.front().type == TokenType::Identifier)
                             block.push_back(atom(nextToken(tokens)));
                         else
-                            throwParseError("invalid token: del can only be applied to identifers", tokens.front());
+                            throwParseError("found invalid token after keyword `del', expected Identifier", tokens.front());
                     }
                 }
                 else if (token.type == TokenType::Identifier || token.type == TokenType::Operator ||
@@ -291,7 +298,7 @@ namespace Ark
 
     Token Parser::nextToken(std::list<Token>& tokens)
     {
-        except(!tokens.empty(), "Invalid syntax: no more token to consume", m_last_token);
+        except(!tokens.empty(), "no more token to consume", m_last_token);
         m_last_token = tokens.front();
 
         const Token out = std::move(tokens.front());
@@ -313,11 +320,6 @@ namespace Ark
             // remove the " at the beginning and at the end
             str.erase(0, 1);
             str.erase(token.token.size() - 2, 1);
-
-            Ark::Utils::stringReplaceAll(str, "\\t", "\t");
-            Ark::Utils::stringReplaceAll(str, "\\n", "\n");
-            Ark::Utils::stringReplaceAll(str, "\\r", "\r");
-            Ark::Utils::stringReplaceAll(str, "\\v", "\v");
 
             auto n = Node(str);
             n.setPos(token.line, token.col);
@@ -422,7 +424,7 @@ namespace Ark
                         else if (libpath = m_libdir + "/" + file; Ark::Utils::fileExists(libpath))
                             included_file = libpath;
                         else
-                            throw std::runtime_error("ParseError: Couldn't find file " + file);
+                            throw std::runtime_error("While processing file " + m_file + ", couldn't import " + file + ": file not found");
 
                         // if the file isn't in the include list, then we can include it
                         // this avoids cyclic includes

@@ -6,9 +6,12 @@
 - `PLUGIN <const id>` instruction to load plugin dynamically and not when the VM boots up
 - updated search paths for `(import "lib.ark")`, looking in ./, lib/std/ and lib/
 - added a case to display NOT instructions in the bytecode reader
+- `T& as<T>()` in usertype
+- enhanced error message when calling a non-function object
 - eliminating unused global scope variables in the compiler
 - adding a new feature enabled by default: `FeatureRemoveUnusedVars` (not enabled for the REPL for obvious reasons)
 - added replxx as a submodule
+- added custom destructor to the user type, called when a scope is destroyed and when we use `(del obj)`
 
 ### Changed
 - updated the string module to benefit from the new `format` member function
@@ -19,11 +22,24 @@
 - the standard library is now in another repository
 - moved the modules to lib/ext
 - the value of `CODE_SEGMENT_START` is again 0x03 (because we removed the plugin table)
+- renamed `isDir?` to `dir?` for consistency
+- the lexer is no longer using regexes but a char after char method
+- an ArkScript program is no longer a single bloc, but can be composed of multiple bloc, thus we don't need to use a single big {} or (begin) bloc for all the program
+- enhancing lexer and parser error messages
+- else clause in if constructions is now optional
+- updating error messages in the VM
 - updated the repl to add auto completion, coloration and persistance by @PierrePharel
+- moving the parser, lexer and AST node to Compiler/ from Parser/
+- better import error messages at parsing
+- format can now handle any value type
+- updated the tests to use the new standard library, and testing every VM instruction and builtins (we didn't test everything before, this way we can be sure we don't break *anything* in the VM after each update)
+- renaming builtins to add a namespace to them (math:, sys:, str:, list: and such)
 
 ### Removed
 - removed `fmt/format` from our dependencies
 - `PLUGIN_TABLE` was removed to use the `PLUGIN` instruction
+- `not_()` from usertype
+- removed Parser/Utf8Converter
 
 ## 3.0.11
 ### Added

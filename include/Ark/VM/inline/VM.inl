@@ -16,7 +16,7 @@ internal::Value VM::call(const std::string& name, Args&&... args)
     // find id of function
     auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), name);
     if (it == m_state->m_symbols.end())
-        throwVMError("Couldn't find symbol with name " + name);
+        throwVMError("unbound variable: " + name);
 
     // convert and push arguments in reverse order
     std::vector<Value> fnargs { { args... } };
@@ -29,13 +29,13 @@ internal::Value VM::call(const std::string& name, Args&&... args)
     if (var != nullptr)
     {
         if (var->valueType() != ValueType::PageAddr && var->valueType() != ValueType::Closure)
-            throwVMError("Symbol " + name + " isn't a function");
+            throwVMError("Can't call '" + name + "': it isn't a Function but a " + types_to_str[static_cast<int>(var->valueType())]);
 
         m_frames.back().push(*var);
         m_last_sym_loaded = id;
     }
     else
-        throwVMError("Couldn't load symbol with name " + name);
+        throwVMError("Couldn't find variable " + name);
 
     std::size_t frames_count = m_frames.size();
     // call it
@@ -71,11 +71,28 @@ inline void VM::returnFromFuncCall()
     m_frames.pop_back();
     uint8_t del_counter = m_frames.back().scopeCountToDelete();
 
+    // search and delete usertype only if it's the last occurence of the scope
+    if (m_locals.back().use_count() > 1)
+    {
+        for (auto& var : *m_locals.back())
+        {
+            if (var.valueType() == internal::ValueType::User)
+                var.usertype_ref().del();
+        }
+    }
     // high cpu cost because destroying variants cost
     m_locals.pop_back();
 
     while (del_counter != 0)
     {
+        if (m_locals.back().use_count() > 1)
+        {
+            for (auto& var : *m_locals.back())
+            {
+                if (var.valueType() == internal::ValueType::User)
+                    var.usertype_ref().del();
+            }
+        }
         m_locals.pop_back();
         del_counter--;
     }
@@ -170,7 +187,7 @@ inline void VM::call(int16_t argc_)
         }
 
         default:
-            throwVMError("couldn't identify function object: type index " + Ark::Utils::toString(static_cast<int>(function.valueType())));
+            throwVMError("Can't call '" + m_state->m_symbols[m_last_sym_loaded] + "': it isn't a Function but a " + types_to_str[static_cast<int>(function.valueType())]);
     }
 
     // checking function arity
@@ -186,7 +203,7 @@ inline void VM::call(int16_t argc_)
         }
 
         if (needed_argc != received_argc)
-            throwVMError("Function needs " + Ark::Utils::toString(needed_argc) + " arguments, and received " + Ark::Utils::toString(received_argc));
+            throwVMError("Function needs " + Ark::Utils::toString(needed_argc) + " arguments, but it received " + Ark::Utils::toString(received_argc));
     }
 }
 

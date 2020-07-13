@@ -8,6 +8,7 @@
 #include <fstream>
 #include <regex>
 #include <filesystem>
+#include <vector>
 
 #include <cmath>
 
@@ -56,6 +57,29 @@ namespace Ark::Utils
         newString += source.substr(lastPos);
 
         source.swap(newString);
+    }
+
+    /**
+     * @brief Cut a string into pieces, given a character separator
+     * 
+     * @param source 
+     * @param sep 
+     * @return std::vector<std::string> 
+     */
+    inline std::vector<std::string> splitString(const std::string& source, char sep)
+    {
+        std::vector<std::string> output;
+        output.emplace_back();
+
+        for (char c : source)
+        {
+            if (c != sep)
+                output.back() += c;
+            else
+                output.emplace_back();  // add empty string
+        }
+
+        return output;
     }
 
     /**

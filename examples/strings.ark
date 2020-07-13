@@ -1,0 +1,7 @@
+{
+    (let a "hello")
+    (let b "\"hello\"")
+    (let c "\r\n\"\thello\r\n\t")
+    (let d "a")
+    (print c)
+}

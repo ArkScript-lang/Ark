@@ -21,7 +21,7 @@ namespace Ark
         {
             return m_msg.c_str();
         }
-    
+
     protected:
         std::string m_msg;
     };
@@ -73,7 +73,67 @@ namespace Ark
         {
             return m_msg.c_str();
         }
-    
+
+    protected:
+        std::string m_msg;
+    };
+
+    /**
+     * @brief SyntaxError thrown by the lexer
+     * 
+     */
+    class SyntaxError : public std::exception
+    {
+    public:
+        SyntaxError(const std::string& message) :
+            m_msg("SyntaxError: " + message)
+        {}
+
+        virtual const char* what() const throw()
+        {
+            return m_msg.c_str();
+        }
+
+    protected:
+        std::string m_msg;
+    };
+
+    /**
+     * @brief ParseError thrown by the parser
+     * 
+     */
+    class ParseError : public std::exception
+    {
+    public:
+        ParseError(const std::string& message) :
+            m_msg("ParseError: " + message)
+        {}
+
+        virtual const char* what() const throw()
+        {
+            return m_msg.c_str();
+        }
+
+    protected:
+        std::string m_msg;
+    };
+
+    /**
+     * @brief CompilationError thrown by the compiler
+     * 
+     */
+    class CompilationError : public std::exception
+    {
+    public:
+        CompilationError(const std::string& message) :
+            m_msg("CompilationError: " + message)
+        {}
+
+        virtual const char* what() const throw()
+        {
+            return m_msg.c_str();
+        }
+
     protected:
         std::string m_msg;
     };

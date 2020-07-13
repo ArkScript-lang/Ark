@@ -1,9 +1,10 @@
 services: docker
+language: cpp
+dist: xenial
 
-matrix:
+jobs:
   include:
     - os: linux
-      dist: xenial
       addons:
         apt:
           sources:
@@ -12,20 +13,15 @@ matrix:
             - gcc-8
             - g++-8
       env:
-        - C_COMPILER=gcc-8 CXX_COMPILER=g++-8
+        - C_COMPILER=gcc-8
+        - CXX_COMPILER=g++-8
 
     - os: osx
-      #compiler:
-      #    - clang
-      #    - gcc
-      #addons:
-      #  homebrew:
-      #    packages:
-      #      - llvm
-      #    update: true
+      # osx_image: xcode11.6
       env:
+        - MATRIX_EVAL="brew install gcc && brew link gcc && CXX=/usr/local/bin/g++-9"
         - C_COMPILER=clang
-        - CXX_COMPILER=clang++
+        - CXX_COMPILER=/usr/local/bin/g++-9
 
     - os: linux
       addons:
@@ -40,23 +36,12 @@ matrix:
             - libc++abi-8-dev
       env:
         - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8"
-        - C_COMPILER=clang-8 CXX_COMPILER=clang++-8
+        - C_COMPILER=clang-8
+        - CXX_COMPILER=clang++-8
         - LINKER_FLAGS="-stdlib=libc++ -lc++abi"
         - CXXFLAGS="-stdlib=libc++"
         - LIBCXX=On
 
     - os: windows
-      dist: 1803-containers
-      env: VERSION=1.11 VARIANT=windows/windowsservercore-1803
-
-sudo: required
-
-language:
-  - cpp
-
-addons:
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
 
 script: ./.github/travis.sh

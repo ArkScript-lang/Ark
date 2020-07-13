@@ -13,7 +13,6 @@
 #include <Ark/VM/Value.hpp>
 #include <Ark/VM/Frame.hpp>
 #include <Ark/VM/State.hpp>
-#include <Ark/VM/Plugin.hpp>
 #include <Ark/Builtins/Builtins.hpp>
 #include <Ark/Log.hpp>
 #include <Ark/Config.hpp>
@@ -23,6 +22,11 @@
 
 namespace Ark
 {
+    namespace internal
+    {
+        class SharedLibrary;
+    }
+
     using namespace std::string_literals;
 
     /**
@@ -94,7 +98,7 @@ namespace Ark
         std::vector<internal::Frame> m_frames;
         std::optional<internal::Scope_t> m_saved_scope;
         std::vector<internal::Scope_t> m_locals;
-        std::vector<internal::SharedLibrary> m_shared_lib_objects;
+        std::vector<std::shared_ptr<internal::SharedLibrary>> m_shared_lib_objects;
 
         // just a nice little trick for operator[]
         internal::Value m__no_value = internal::Builtins::nil;

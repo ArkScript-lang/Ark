@@ -8,8 +8,8 @@
 #include <optional>
 #include <functional>
 
-#include <Ark/Parser/Parser.hpp>
-#include <Ark/Parser/Node.hpp>
+#include <Ark/Compiler/Parser.hpp>
+#include <Ark/Compiler/Node.hpp>
 #include <Ark/Compiler/CValue.hpp>
 #include <Ark/Compiler/Instructions.hpp>
 #include <Ark/Compiler/BytecodeReader.hpp>

@@ -7,9 +7,11 @@
 #include <vector>
 #include <utility>
 #include <cinttypes>
+#include <sstream>
 
-#include <Ark/Parser/Lexer.hpp>
-#include <Ark/Parser/Node.hpp>
+#include <Ark/Exceptions.hpp>
+#include <Ark/Compiler/Lexer.hpp>
+#include <Ark/Compiler/Node.hpp>
 
 namespace Ark
 {
@@ -63,12 +65,12 @@ namespace Ark
         internal::Node m_ast;
         internal::Token m_last_token;
 
-        // source code of the current file
+        // path of the current file
         std::string m_file;
+        // source code of the current file
+        std::string m_code;
         // the files included by the "includer" to avoid multiple includes
         std::vector<std::string> m_parent_include;
-        // list of warning to avoid sending a warning twice
-        std::vector<std::pair<std::size_t, std::size_t>> m_warns;
 
         /**
          * @brief Applying syntactic sugar: {...} => (begin...), [...] => (list ...)
@@ -77,6 +79,14 @@ namespace Ark
          */
         void sugar(std::vector<internal::Token>& tokens);
 
+        /**
+         * @brief Parse a list of tokens recursively
+         * 
+         * @param tokens 
+         * @param authorize_capture if we are authorized to consume TokenType::Capture tokens
+         * @param authorize_field_read if we are authorized to consume TokenType::GetField tokens
+         * @return internal::Node 
+         */
         internal::Node parse(std::list<internal::Token>& tokens, bool authorize_capture=false, bool authorize_field_read=false);
 
         /**

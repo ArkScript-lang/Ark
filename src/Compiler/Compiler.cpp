@@ -133,9 +133,7 @@ namespace Ark
                 pushNumber(static_cast<uint16_t>(std::get<std::size_t>(val.value)));
             }
             else
-            {
-                throw std::runtime_error("CompilerError: trying to put a value in the value table, but the type isn't handled.\nCertainly a logic problem in the compiler source code");
-            }
+                throw Ark::CompilationError("trying to put a value in the value table, but the type isn't handled.\nCertainly a logic problem in the compiler source code");
 
             m_bytecode.push_back(Instruction::NOP);
         }
@@ -332,7 +330,8 @@ namespace Ark
                 // absolute address to jump to if condition is true
                 pushNumber(static_cast<uint16_t>(0x00), &page(p));
                     // else code
-                    _compile(x.const_list()[3], p);
+                    if (x.const_list().size() == 4)  // we have an else clause
+                        _compile(x.const_list()[3], p);
                     // when else is finished, jump to end
                     page(p).emplace_back(Instruction::JUMP);
                     std::size_t jump_to_end_pos = page(p).size();
@@ -559,7 +558,7 @@ namespace Ark
                         break;
 
                     default:
-                        throw std::runtime_error("CompilerError: can not create a chained expression (of length " + Utils::toString(exp_count) +
+                        throw Ark::CompilationError("can not create a chained expression (of length " + Utils::toString(exp_count) +
                             ") for operator `" + Builtins::operators[static_cast<std::size_t>(op_inst.inst - Instruction::FIRST_OPERATOR)] + "' " +
                             "at node `" + Utils::toString(x) + "'");
                 }
