@@ -75,6 +75,8 @@ namespace Ark
     {
         using namespace Ark::internal;
 
+        const std::lock_guard<std::mutex> lock(m_mutex);
+
         // find id of object
         auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), name);
         if (it == m_state->m_symbols.end())
