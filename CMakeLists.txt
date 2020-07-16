@@ -138,7 +138,7 @@ if (ARK_BUILD_EXE)
     install(DIRECTORY ${Ark_SOURCE_DIR}/lib/
             DESTINATION lib
             PATTERN "lib/ext" EXCLUDE
-            PATTERM "*.md" EXCLUDE
+            REGEX ".+\.md$" EXCLUDE
             PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
                         GROUP_EXECUTE GROUP_READ
     )
