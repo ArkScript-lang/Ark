@@ -7,7 +7,7 @@
 
 <img align="right" src="images/ArkTransparent-by-mazz.png" width=200px>
 
-* Documentation: [Wiki](https://github.com/ArkScript-lang/Ark/wiki)
+* Documentation: [Wiki](https://arkscript-lang.github.io/documentation.html)
 * Discord server: [invite link](https://discord.gg/YT5yDwn), to discuss the specification of the language and receive help
 * [Modules](https://github.com/ArkScript-lang/modules)
 
@@ -26,59 +26,56 @@ ArkScript is
 * a Lisp-like, but with less parentheses: `[...]` is expanded to `(list ...)` and `{}` to `(begin ...)`. More shorthands will come in the future.
 * extensible: it is very easy to create a C++ module to use in the language
 
-Also:
-* it has a REPL
-* it has a growing standard library, composed of ArkScript (under `lib/`) and C++ (under `modules/`)
-* it has a lot of unit tests, which are ran before every release to ensure everything work as intended
+Also it has:
+* a REPL with autocompletion and coloration
+* a growing standard library, composed of ArkScript (under `lib/std/`) and C++ (under `lib/ext/`)
+* a lot of unit tests, which are ran before every release to ensure everything work as intended
+* a dockerfile to easily build and run it, flawlessly, from everywhere
 
 ## Examples
 
 ### Fibonacci suite
 
 ```clojure
-{
-    (let fibo (fun (n)
-        (if (< n 2)
-            n
-            (+ (fibo (- n 1)) (fibo (- n 2))))))
+(let fibo (fun (n)
+    (if (< n 2)
+        n
+        (+ (fibo (- n 1)) (fibo (- n 2))))))
 
-    (print (fibo 28))  # display 317811
-}
+(print (fibo 28))  # display 317811
 ```
 
 ## More or less game
 
 ```clojure
-{
-    # more or less game
-    (print "More or less game!")
+# more or less game
+(print "More or less game!")
 
-    (import "random.bin")
-    (import "Math/Arithmetic.ark")
+(import "random.arkm")
+(import "Math.ark")
 
-    (let number (mod (abs (random)) 10000))
-    (mut value 0)
-    (mut essais 0)
+(let number (mod (abs (random)) 10000))
+(mut value 0)
+(mut essais 0)
 
-    (mut continue true)
+(mut continue true)
 
-    (while continue {
-        (set value (toNumber (input "Input a numeric value: ")))
+(while continue {
+    (set value (toNumber (input "Input a numeric value: ")))
 
-        (if (< value number)
+    (if (< value number)
+        # then
+        (print "More!")
+        # else
+        (if (= value number)
             # then
-            (print "More!")
+            { (print "Bingo!") (set continue false) }
             # else
-            (if (= value number)
-                # then
-                { (print "Bingo!") (set continue false) }
-                # else
-                (print "Less!")))
+            (print "Less!")))
 
-        (set essais (+ 1 essais))})
+    (set essais (+ 1 essais))})
 
-    (print "You won in " essais " tries")
-}
+(print "You won in " essais " tries")
 ```
 
 More examples are available in the folder `examples/`.
@@ -117,10 +114,12 @@ Who worked on
     * [@FrenchMasterSword](https://github.com/FrenchMasterSword)
 * the logo
     * [Ma15fo43](https://github.com/Ma15fo43)
+* the docker integration
+    * [@yardenshoham](https://github.com/yardenshoham)
 
 ### Contributing to the ArkScript standard library
 
-See [Coding guidelines](https://github.com/ArkScript-lang/Ark/wiki/Coding-guidelines#coding-in-ark) if you want to write ArkScript for the library (see folder `lib/`).
+See [Coding guidelines](https://github.com/ArkScript-lang/Ark/wiki/Coding-guidelines#coding-in-ark) if you want to write ArkScript for the library (see folder `lib/std/`).
 
 For performance reasons, some functions might be written in C++, in `include/Ark/Builtins/Builtins.hpp` and `src/Builtins/`.
 
