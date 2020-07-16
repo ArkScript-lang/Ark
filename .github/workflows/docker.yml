@@ -17,18 +17,20 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
         repository: arkscript/stable
+        dockerfile: Dockerfile
         # tag with the git reference and SHA
         tag_with_ref: true
         tag_with_sha: true
         # push the image only if the event that kicked off the workflow was a push of a git tah
         push: ${{ startsWith(github.ref, 'refs/tags/') }}
-    
+
     - name: Build and push nightly Docker image
       uses: docker/build-push-action@v1.1.0
       with:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
-        repository: arkscript/stable
+        repository: arkscript/nightly
+        dockerfile: Dockerfile
         # tag with the git reference and SHA
         tag_with_ref: true
         tag_with_sha: true
