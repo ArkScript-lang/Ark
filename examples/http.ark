@@ -3,14 +3,14 @@
 
     (let srv (httpCreateServer))
     (let f (fun (str) {
-        (print "hello world")
+        # (print "hello world")
         (+ "we got: '" str "', it worked!")
     }))
-    (print (type f))
     (httpServerGet srv "/hi" f)
+    (print "starting on localhost:80")
     (httpServerListen srv "localhost" 80)
 
-    (let cli (httpCreateClient "ifconfig.me" 80))
+    (let cli (httpCreateClient "monip.org" 80))
 
     (mut output (httpClientGet cli "/"))
     (if (nil? output)
