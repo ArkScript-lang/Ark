@@ -50,7 +50,7 @@ COPY --from=permissions-giver /out/docker-entrypoint.sh /out/docker/docker-entry
 FROM alpine:3.12 AS runner
 
 # Install cmake
-RUN apk --no-cache add cmake clang clang-dev make gcc g++ libc-dev linux-headers
+RUN apk --no-cache add cmake
 
 # Install Ark
 COPY --from=organizer /out/ark .
