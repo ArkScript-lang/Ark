@@ -30,7 +30,9 @@ Also it has:
 * a REPL with autocompletion and coloration
 * a growing standard library, composed of ArkScript (under `lib/std/`) and C++ (under `lib/ext/`)
 * a lot of unit tests, which are ran before every release to ensure everything work as intended
-* a dockerfile to easily build and run it, flawlessly, from everywhere
+* docker images:
+    * [stable](https://hub.docker.com/repository/docker/arkscript/stable)
+    * [nightly](https://hub.docker.com/repository/docker/arkscript/nightly)
 
 ## Examples
 
