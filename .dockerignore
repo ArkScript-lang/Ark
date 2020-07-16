@@ -1,0 +1,11 @@
+**
+
+!.git
+!include
+!lib
+!src
+!submodules
+!thirdparty
+!.gitmodules
+!CMakeLists.txt
+!docker-entrypoint.sh
