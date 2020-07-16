@@ -31,8 +31,8 @@ Also it has:
 * a growing standard library, composed of ArkScript (under `lib/std/`) and C++ (under `lib/ext/`)
 * a lot of unit tests, which are ran before every release to ensure everything work as intended
 * docker images:
-    * [stable](https://hub.docker.com/repository/docker/arkscript/stable)
-    * [nightly](https://hub.docker.com/repository/docker/arkscript/nightly)
+    * [stable](https://hub.docker.com/r/arkscript/stable)
+    * [nightly](https://hub.docker.com/r/arkscript/nightly)
 
 ## Examples
 
@@ -150,7 +150,7 @@ Libs already included:
 ~/Ark$ cd Ark
 ~/Ark$ git submodule update --init --recursive
 # building Ark
-~/Ark$ cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release -DARK_BUILD_EXE=1
+~/Ark$ cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release -DARK_BUILD_EXE=On
 ~/Ark$ cmake --build build
 # installing Ark (might need administrative privileges)
 ~/Ark$ cmake --install build --config Release
@@ -160,22 +160,23 @@ DESCRIPTION
         ArkScript programming language
 
 SYNOPSIS
-        Ark -h, --help
+        Ark -h
         Ark --version
         Ark --dev-info
-        Ark ((<file> [-c]) | -r) [-(d|bcr)] [-L <lib_dir>] [-f(fac|no-fac)] [-f(aitap|no-aitap)]
+        Ark -r
+        Ark <file> [-c] [[-d]|-bcr] [-L <lib_dir>] [-f(fac|no-fac)] [-f(aitap|no-aitap)]
 
 OPTIONS
         -h, --help                  Display this message
         --version                   Display ArkScript version and exit
         --dev-info                  Display development information and exit
-        -c, --compile               Compile the given program to bytecode, but do not run
         -r, --repl                  Run the ArkScript REPL
+        -c, --compile               Compile the given program to bytecode, but do not run
         -d, --debug...              Increase debug level (default: 0)
         -bcr, --bytecode-reader     Launch the bytecode reader
         -L, --lib                   Set the location of the ArkScript standard library
         -f(fac|no-fac)              Toggle function arity checks (default: ON)
-        -f(aitap|no-aitap)          Authorize invalid token after `(' (default: OFF). When ON, only display a warning
+        -f(aitap|no-aitap)          Authorize invalid token after `(' (default: OFF). When ON, only display a warning      
 
 LICENSE
         Mozilla Public License 2.0
