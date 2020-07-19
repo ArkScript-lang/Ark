@@ -18,7 +18,7 @@
 
 (let bench (fun (name code) {
     (mut start (time))
-    (let rep 100)
+    (let rep 1000)
 
     (mut i 0)
     (while (< i rep) {
