@@ -1,6 +1,6 @@
 #include <Ark/VM/Closure.hpp>
 
-#include <Ark/VM/Value.hpp>
+#include <Ark/VM/Scope.hpp>
 
 namespace Ark::internal
 {

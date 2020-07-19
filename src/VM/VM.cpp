@@ -8,15 +8,15 @@
     var = x + y;                                                                 \
     }
 // register a variable in the current scope
-#define registerVariable(id, value) ((*m_locals.back())[id] = value)
+#define registerVariable(id, value) ((*m_locals.back()).push_back(id, value))
 // register a variable in the global scope
-#define registerVarGlobal(id, value) ((*m_locals[0])[id] = value)
+#define registerVarGlobal(id, value) ((*m_locals[0]).push_back(id, value))
 // stack management
 #define popVal() m_frames.back().pop()
 #define popValFrom(page) m_frames[static_cast<std::size_t>(page)].pop()
 #define push(value) m_frames.back().push(value)
 // create a new locals scope
-#define createNewScope() m_locals.emplace_back(std::make_shared<std::vector<Value>>(m_state->m_symbols.size(), ValueType::Undefined));
+#define createNewScope() m_locals.emplace_back(std::make_shared<Scope>());
 // get a variable from a scope
 #define getVariableInCurrentScope(id) (*m_locals.back())[id]
 
@@ -226,10 +226,12 @@ namespace Ark
                         uint16_t id; readNumber(id);
 
                         // check if we are redefining a variable
-                        if (getVariableInCurrentScope(id).valueType() != ValueType::Undefined)
+                        if (auto val = getVariableInCurrentScope(id); val != nullptr)
                             throwVMError("can not use 'let' to redefine the variable " + m_state->m_symbols[id]);
 
-                        registerVariable(id, *popVal()).setConst(true);
+                        Value* val = popVal();
+                        val->setConst(true);
+                        registerVariable(id, *val);
                         break;
                     }
 
@@ -322,12 +324,9 @@ namespace Ark
                         uint16_t id; readNumber(id);
 
                         if (!m_saved_scope)
-                        {
-                            m_saved_scope = std::make_shared<std::vector<Value>>(
-                                m_state->m_symbols.size(), ValueType::Undefined
-                            );
-                        }
-                        (*m_saved_scope.value())[id] = getVariableInCurrentScope(id);
+                            m_saved_scope = std::make_shared<Scope>();
+                        // if it's a captured variable, it can not be nullptr
+                        (*m_saved_scope.value()).push_back(id, *getVariableInCurrentScope(id));
                         break;
                     }
 
@@ -356,7 +355,9 @@ namespace Ark
                         ++m_ip;
                         uint16_t id; readNumber(id);
 
-                        registerVariable(id, *popVal()).setConst(false);
+                        Value* val = popVal();
+                        val->setConst(false);
+                        registerVariable(id, *val);
                         break;
                     }
 
@@ -409,8 +410,8 @@ namespace Ark
                         if (var->valueType() != ValueType::Closure)
                             throwVMError("the variable `" + m_state->m_symbols[m_last_sym_loaded] + "' isn't a closure, can not get the field `" + m_state->m_symbols[id] + "' from it");
 
-                        const Value& field = (*var->closure_ref().scope())[id];
-                        if (field.valueType() != ValueType::Undefined)
+                        Value* field = (*var->closure_ref().scope())[id];
+                        if (field != nullptr)
                         {
                             // check for CALL instruction
                             if (m_ip + 1 < m_state->m_pages[m_pp].size() && m_state->m_pages[m_pp][m_ip + 1] == Instruction::CALL)
@@ -419,7 +420,7 @@ namespace Ark
                                 m_frames.back().incScopeCountToDelete();
                             }
 
-                            push(field);
+                            push(*field);
                             break;
                         }
 
@@ -798,7 +799,7 @@ namespace Ark
                         }
                         uint16_t id = static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it));
 
-                        if ((*closure->closure_ref().scope_ref())[id].valueType() != ValueType::Undefined)
+                        if (auto val = (*closure->closure_ref().scope_ref())[id]; val != nullptr)
                             push(Builtins::trueSym);
                         else
                             push(Builtins::falseSym);
@@ -844,14 +845,10 @@ namespace Ark
     {
         for (auto it=m_locals.rbegin(), it_end=m_locals.rend(); it != it_end; ++it)
         {
-            for (auto sub=(*it)->begin(), sub_end=(*it)->end(); sub != sub_end; ++sub)
-            {
-                if (*sub == value)
-                    return static_cast<uint16_t>(std::distance((*it)->begin(), sub));
-            }
+            if (auto id = (*it)->idFromValue(std::move(value)); id < m_state->m_symbols.size())
+                return id;
         }
-        // oversized by one: didn't find anything
-        return static_cast<uint16_t>(m_state->m_symbols.size());
+        return static_cast<uint16_t>(~0);
     }
 
     void VM::throwVMError(const std::string& message)
@@ -876,7 +873,10 @@ namespace Ark
                         Value(static_cast<PageAddr_t>(it->currentPageAddr()))
                     );
 
-                    std::cerr << "In function `" << termcolor::green << m_state->m_symbols[id] << termcolor::reset << "'\n";
+                    if (id < m_state->m_symbols.size())
+                        std::cerr << "In function `" << termcolor::green << m_state->m_symbols[id] << termcolor::reset << "'\n";
+                    else  // should never happen
+                        std::cerr << "In function `" << termcolor::green << "???" << termcolor::reset << "'\n";
                 }
                 else
                     std::cerr << "In global scope\n";
@@ -891,10 +891,8 @@ namespace Ark
             // display variables values in the current scope
             std::cerr << "\nCurrent scope variables values:\n";
             for (std::size_t i=0, size=m_locals.back()->size(); i < size; ++i)
-            {
-                if ((*m_locals.back())[i].valueType() != ValueType::Undefined)
-                    std::cerr << termcolor::cyan << m_state->m_symbols[i] << termcolor::reset << " = " << (*m_locals.back())[i] << "\n";
-            }
+                std::cerr << termcolor::cyan << m_state->m_symbols[m_locals.back()->m_data[i].first] << termcolor::reset
+                          << " = " << m_locals.back()->m_data[i].second << "\n";
 
             // if persistance is on, clear frames to keep only the global one
             if (m_state->m_options & FeaturePersist)
