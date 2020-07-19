@@ -621,9 +621,9 @@ namespace Ark
                     {
                         Value a = *popVal();
                         if (a.valueType() == ValueType::List)
-                            push(a.const_list().size() > 0 ? (a.const_list())[0] : Builtins::nil);
+                            push(a.const_list().size() > 0 ? (a.const_list())[0] : std::vector<Value>());
                         else if (a.valueType() == ValueType::String)
-                            push(a.string().size() > 0 ? Value(std::string(1, (a.string())[0])) : Builtins::nil);
+                            push(a.string().size() > 0 ? Value(std::string(1, (a.string())[0])) : "");
                         else
                             throw Ark::TypeError("Argument of firstOf must be a list");
 
@@ -637,7 +637,7 @@ namespace Ark
                         {
                             if (a->const_list().size() < 2)
                             {
-                                push(Builtins::nil);
+                                push(std::vector<Value>());
                                 break;
                             }
 
@@ -648,7 +648,7 @@ namespace Ark
                         {
                             if (a->string().size() < 2)
                             {
-                                push(Builtins::nil);
+                                push("");
                                 break;
                             }
 
@@ -668,7 +668,7 @@ namespace Ark
                         {
                             if (a->const_list().size() < 2)
                             {
-                                push(Builtins::nil);
+                                push(std::vector<Value>());
                                 break;
                             }
 
@@ -679,7 +679,7 @@ namespace Ark
                         {
                             if (a->string().size() < 2)
                             {
-                                push(Builtins::nil);
+                                push("");
                                 break;
                             }
 
