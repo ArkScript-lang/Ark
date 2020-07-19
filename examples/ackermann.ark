@@ -12,4 +12,9 @@
     )
 }))
 
-(ackermann 3 6)
+(mut i 0)
+(mut t (time))
+(while (< i 100) (begin
+    (ackermann 3 6)
+    (set i (+ 1 i))))
+(print (* (/ (- (time) t) 100) 1000) "ms")
