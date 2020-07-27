@@ -9,6 +9,8 @@ internal::Value VM::call(const std::string& name, Args&&... args)
 {
     using namespace Ark::internal;
 
+    const std::lock_guard<std::mutex> lock(m_mutex);
+
     // reset ip and pp
     m_ip = 0;
     m_pp = 0;
@@ -211,6 +213,8 @@ template <typename... Args>
 internal::Value VM::resolve(const internal::Value* val, Args&&... args)
 {
     using namespace Ark::internal;
+
+    const std::lock_guard<std::mutex> lock(m_mutex);
 
     if (!val->isFunction())
         throw Ark::TypeError("Value::resolve couldn't resolve a non-function");

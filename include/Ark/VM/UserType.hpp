@@ -102,6 +102,12 @@ namespace Ark
             return *static_cast<T*>(m_data);
         }
 
+        template <typename T>
+        const T& as() const
+        {
+            return *static_cast<T*>(m_data);
+        }
+
         friend inline bool operator==(const UserType& A, const UserType& B);
         friend inline bool operator<(const UserType& A, const UserType& B);
         friend inline std::ostream& operator<<(std::ostream& os, const UserType& A);
