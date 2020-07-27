@@ -1,0 +1,80 @@
+#ifndef ark_vm_scope
+#define ark_vm_scope
+
+#include <vector>
+#include <utility>
+#include <cinttypes>
+
+#include <Ark/VM/Value.hpp>
+
+namespace Ark::internal
+{
+    /**
+     * @brief A class to handle the VM scope more efficiently
+     * 
+     */
+    class Scope
+    {
+    public:
+        /**
+         * @brief Construct a new Scope object
+         * 
+         */
+        Scope();
+
+        /**
+         * @brief Put a value in the scope
+         * 
+         * @param id The symbol id of the variable
+         * @param val The value linked to the symbol
+         */
+        void push_back(uint16_t id, Value&& val);
+
+        /**
+         * @brief Put a value in the scope
+         * 
+         * @param id The symbol id of the variable
+         * @param val The value linked to the symbol
+         */
+        void push_back(uint16_t id, const Value& val);
+
+        /**
+         * @brief Check if the scope has a specific symbol in memory
+         * 
+         * @param id The id of the symbol
+         * @return true On success
+         * @return false Otherwise
+         */
+        bool has(uint16_t id);
+
+        /**
+         * @brief Get a value from its symbol id
+         * 
+         * @param id 
+         * @return Value* Returns nullptr if the value can not be found
+         */
+        Value* operator[](uint16_t id);
+
+        /**
+         * @brief Get the id of a variable based on its value ; used for debug only
+         * 
+         * @param val 
+         * @return uint16_t 
+         */
+        uint16_t idFromValue(Value&& val);
+
+        /**
+         * @brief Return the size of the scope
+         * 
+         * @return const std::size_t 
+         */
+        const std::size_t size() const;
+
+        friend class Ark::VM;
+
+    private:
+        std::vector<std::pair<uint16_t, Value>> m_data;
+    };
+}
+
+#endif

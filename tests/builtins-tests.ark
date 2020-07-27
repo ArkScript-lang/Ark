@@ -7,41 +7,64 @@
     (let base-list [1 2 3])
     (let base-list-enhanced (concat base-list [4 5]))
 
-    (set tests (assert-eq (append (append base-list 4) 5) base-list-enhanced "Builtins operations" tests))
-    (set tests (assert-eq (concat base-list [4 5]) base-list-enhanced "Builtins operations" tests))
-    (set tests (assert-eq (type []) "List" "Builtins operations" tests))
-    (set tests (assert-eq (len []) 0 "Builtins operations" tests))
-    (set tests (assert-eq (list:reverse base-list) [3 2 1] "Builtins operations" tests))
-    (set tests (assert-eq (list:reverse []) [] "Builtins operations" tests))
-    (set tests (assert-eq (list:find [] nil) nil "Builtins operations" tests))
-    (set tests (assert-eq (list:find [12] 12) 0 "Builtins operations" tests))
-    (set tests (assert-eq (list:find [1 2 3] 2) 1 "Builtins operations" tests))
-    (set tests (assert-eq (list:find [12] nil) nil "Builtins operations" tests))
-    (set tests (assert-eq (list:removeAt base-list 1) [1 3] "Builtins operations" tests))
-    (set tests (assert-eq (list:slice base-list-enhanced 0 3 1) base-list "Builtins operations" tests))
-    (set tests (assert-eq (list:slice base-list-enhanced 0 1 1) [1] "Builtins operations" tests))
-    (set tests (assert-eq (list:slice base-list-enhanced 0 3 2) [1 3] "Builtins operations" tests))
-    (set tests (assert-eq (list:sort [5 4 3 2 1]) [1 2 3 4 5] "Builtins operations" tests))
-    (set tests (assert-eq (list:sort [5]) [5] "Builtins operations" tests))
-    (set tests (assert-eq (list:sort []) [] "Builtins operations" tests))
+    (set tests (assert-eq (append (append base-list 4) 5) base-list-enhanced "append" tests))
+    (set tests (assert-eq (concat base-list [4 5]) base-list-enhanced "concat" tests))
+    (set tests (assert-eq (type []) "List" "type" tests))
+    (set tests (assert-eq (list:reverse base-list) [3 2 1] "list:reverse" tests))
+    (set tests (assert-eq (list:reverse []) [] "list:reverse" tests))
+    (set tests (assert-eq (list:find [] nil) nil "list:find" tests))
+    (set tests (assert-eq (list:find [12] 12) 0 "list:find" tests))
+    (set tests (assert-eq (list:find [1 2 3] 2) 1 "list:find" tests))
+    (set tests (assert-eq (list:find [12] nil) nil "list:find" tests))
+    (set tests (assert-eq (list:removeAt base-list 1) [1 3] "list:removeAt" tests))
+    (set tests (assert-eq (list:slice base-list-enhanced 0 3 1) base-list "list:slice" tests))
+    (set tests (assert-eq (list:slice base-list-enhanced 0 1 1) [1] "list:slice" tests))
+    (set tests (assert-eq (list:slice base-list-enhanced 0 3 2) [1 3] "list:slice" tests))
+    (set tests (assert-eq (list:sort [5 4 3 2 1]) [1 2 3 4 5] "list:sort" tests))
+    (set tests (assert-eq (list:sort [5]) [5] "list:sort" tests))
+    (set tests (assert-eq (list:sort []) [] "list:sort" tests))
 
     (let lst (list:fill 12 nil))
-    (set tests (assert-eq (len lst) 12 "Builtins operations" tests))
+    (set tests (assert-eq (len lst) 12 "list:fill length" tests))
     (mut i 0)
     (while (< i 12) {
-        (set tests (assert-eq (@ lst i) nil "Builtins operations" tests))
+        (set tests (assert-eq (@ lst i) nil "list:fill @" tests))
         (set i (+ 1 i))
     })
     (del i)
 
-    (set tests (assert-eq (@ (list:setAt lst 5 "a") 5) "a" "Builtins operations" tests))
+    (set tests (assert-eq (@ (list:setAt lst 5 "a") 5) "a" "list:setAt" tests))
     (del lst)
 
-    (set tests (assert-val (not (io:fileExists? "test.txt")) "Builtins operations" tests))
+    (set tests (assert-val (not (io:fileExists? "test.txt")) "not io:fileExists?" tests))
     (io:writeFile "test.txt" "hello, world!")
-    (set tests (assert-val (io:fileExists? "test.txt") "Builtins operations" tests))
+    (set tests (assert-val (io:fileExists? "test.txt") "io:fileExists? after io:writeFile" tests))
+    (set tests (assert-eq (io:readFile "test.txt") "hello, world!" "io:readFile after io:writeFile" tests))
+    # todo: fix me! the program crash without reporting any error
+    # (set tests (assert-eq (> (len (io:listFiles "/")) 0) "len io:listFiles" tests))
+    # todo: fix me! unknown error
+    # (set tests (assert-eq (not (io:dir? "test.txt")) "not io:dir?" tests))
+    # todo: test io:makeDir
+    (let old (time))
+    (sys:sleep 1)
+    (set tests (assert-lt old (time) "time and sys:sleep" tests))
+
+    # no need to test str:format, we are already using it for the assertions,
+    # and it's also heavily tested in the C++ String repository in the ArkScript-lang organization (github)
+
+    (set tests (assert-eq (str:find "abc" "d") -1 "str:find" tests))
+    (set tests (assert-eq (str:find "abc" "a") 0 "str:find" tests))
+    (set tests (assert-eq (str:find "abc" "bc") 1 "str:find" tests))
+    (set tests (assert-eq (str:find "abcdefghijkl" "defijkl") -1 "str:find" tests))
+    (set tests (assert-eq (str:find "abcdefghijkl" "defghijkl") 3 "str:find" tests))
+    (set tests (assert-eq (str:removeAt "abcdefghijkl" 3) "abcefghijkl" "str:removeAt" tests))
+    (set tests (assert-eq (str:removeAt "abcdefghijkl" 0) "bcdefghijkl" "str:removeAt" tests))
+    (set tests (assert-eq (str:removeAt "abcdefghijkl" 11) "abcdefghijk" "str:removeAt" tests))
 
     (recap "Builtins operations passed" tests (- (time) start-time))
+
+    # clean up
+    (io:removeFiles "test.txt")
 
     tests
 }))

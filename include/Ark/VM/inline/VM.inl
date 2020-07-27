@@ -2,7 +2,7 @@
 //               instructions
 // ------------------------------------------
 
-#define createNewScope() m_locals.emplace_back(std::make_shared<std::vector<internal::Value>>(m_state->m_symbols.size(), internal::ValueType::Undefined));
+#define createNewScope() m_locals.emplace_back(std::make_shared<internal::Scope>());
 
 template <typename... Args>
 internal::Value VM::call(const std::string& name, Args&&... args)
@@ -61,8 +61,8 @@ inline internal::Value* VM::findNearestVariable(uint16_t id)
 {
     for (auto it=m_locals.rbegin(), it_end=m_locals.rend(); it != it_end; ++it)
     {
-        if ((**it)[id].valueType() != internal::ValueType::Undefined)
-            return &(**it)[id];
+        if (auto val = (**it)[id]; val != nullptr)
+            return val;
     }
     return nullptr;
 }
@@ -74,11 +74,11 @@ inline void VM::returnFromFuncCall()
     uint8_t del_counter = m_frames.back().scopeCountToDelete();
 
     // search and delete usertype only if it's the last occurence of the scope
-    if (m_locals.back().use_count() > 1)
+    if (m_locals.back().use_count() == 1)
     {
-        for (auto& var : *m_locals.back())
+        for (std::size_t i=0, size=m_locals.back()->size(); i < size; ++i)
         {
-            if (var.valueType() == internal::ValueType::User)
+            if (auto var = m_locals.back()->m_data[i].second; var.valueType() == internal::ValueType::User)
                 var.usertype_ref().del();
         }
     }
@@ -87,11 +87,11 @@ inline void VM::returnFromFuncCall()
 
     while (del_counter != 0)
     {
-        if (m_locals.back().use_count() > 1)
+        if (m_locals.back().use_count() == 1)
         {
-            for (auto& var : *m_locals.back())
+            for (std::size_t i=0, size=m_locals.back()->size(); i < size; ++i)
             {
-                if (var.valueType() == internal::ValueType::User)
+                if (auto var = m_locals.back()->m_data[i].second; var.valueType() == internal::ValueType::User)
                     var.usertype_ref().del();
             }
         }
@@ -158,7 +158,7 @@ inline void VM::call(int16_t argc_)
             m_frames.emplace_back(m_ip, static_cast<uint16_t>(m_pp), new_page_pointer);
             // store "reference" to the function to speed the recursive functions
             if (m_last_sym_loaded < m_state->m_symbols.size())
-                (*m_locals.back())[m_last_sym_loaded] = function;
+                m_locals.back()->push_back(m_last_sym_loaded, function);
 
             m_pp = new_page_pointer;
             m_ip = -1;  // because we are doing a m_ip++ right after that
