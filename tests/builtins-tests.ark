@@ -61,6 +61,9 @@
     (set tests (assert-eq (str:removeAt "abcdefghijkl" 0) "bcdefghijkl" "str:removeAt" tests))
     (set tests (assert-eq (str:removeAt "abcdefghijkl" 11) "abcdefghijk" "str:removeAt" tests))
 
+    # no need to test the math functions since they're 1:1 binding of C++ functions and where carefully checked
+    # before writing this comment, to ensure we aren't binding math:sin to the C++ tan function
+
     (recap "Builtins operations passed" tests (- (time) start-time))
 
     # clean up
