@@ -9,7 +9,7 @@
 
 namespace Ark::internal
 {
-    class Value;
+    class Scope;
 
     /**
      * @brief Scope handling
@@ -18,7 +18,7 @@ namespace Ark::internal
      *  because a Closure could continue to leave when the local variables list
      *  has been closed by the virtual machine
      */
-    using Scope_t = std::shared_ptr<std::vector<Value>>;
+    using Scope_t = std::shared_ptr<Scope>;
 
     /**
      * @brief Closure management
