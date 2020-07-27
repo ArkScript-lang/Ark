@@ -38,6 +38,8 @@
 - renaming builtins to add a namespace to them (math:, sys:, str:, list: and such)
 - firstOf, tailOf and headOf now returns [] or "" instead of nil when they have nothing to do
 - adding a brand new scoping system, lighter, more powerful
+- `str:find` now returns the index where the substring was found
+- `str:removeAt` was fixed to throw an error when the index is strictly equal to the length of the string (can not work since accessing elements in string is 0-index based)
 
 ### Removed
 - removed `fmt/format` from our dependencies
