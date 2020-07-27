@@ -12,6 +12,7 @@
 #include <mutex>
 
 #include <Ark/VM/Value.hpp>
+#include <Ark/VM/Scope.hpp>
 #include <Ark/VM/Frame.hpp>
 #include <Ark/VM/State.hpp>
 #include <Ark/Builtins/Builtins.hpp>
