@@ -17,4 +17,4 @@
     passed-builtins
 ))
 
-(print "\nCompleted in " (toString (- (time) start_time)) " seconds")
+(print "\nCompleted in " (* 1000 (- (time) start_time)) "ms")
