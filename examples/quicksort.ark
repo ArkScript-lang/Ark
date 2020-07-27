@@ -1,0 +1,37 @@
+(import "List.ark")
+
+(let quicksort (fun (array) {
+    (if (empty? array)
+        []
+        {
+            (let pivot (firstOf array))
+            (concat
+                (quicksort
+                    (list:filter (tailOf array) (fun (e) (< e pivot))))
+                [pivot]
+                (quicksort
+                    (list:filter (tailOf array) (fun (e) (>= e pivot)))))
+        })
+}))
+
+(let a [3 6 1 5 1 65 324 765 1 6 3 0 6 9 6 5 3 2 5 6 7 64 645 7 345 432 432 4 324 23])
+
+(let bench (fun (name code) {
+    (mut start (time))
+    (let rep 100)
+
+    (mut i 0)
+    (while (< i rep) {
+        (code)
+        (set i (+ 1 i))
+    })
+
+    (let t (/ (* 1000 (- (time) start)) rep))
+    (print name " average: " t "ms")
+    t
+}))
+
+(print a)
+(let ark (bench "ark" '(quicksort a)))
+(let cpp (bench "cpp" '(list:sort a)))
+(print "ratio ark/cpp: " (/ ark cpp))

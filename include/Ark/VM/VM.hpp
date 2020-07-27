@@ -9,6 +9,7 @@
 #include <memory>
 #include <unordered_map>
 #include <utility>
+#include <mutex>
 
 #include <Ark/VM/Value.hpp>
 #include <Ark/VM/Frame.hpp>
@@ -93,6 +94,7 @@ namespace Ark
         bool m_running;
         uint16_t m_last_sym_loaded;
         std::size_t m_until_frame_count;
+        std::mutex m_mutex;
 
         // related to the execution
         std::vector<internal::Frame> m_frames;

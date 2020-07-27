@@ -130,15 +130,18 @@ if (ARK_BUILD_EXE)
 
     # setting up installation directory
 
-    if (UNIX OR LINUX)
-        install(TARGETS Ark DESTINATION bin)
-        install(DIRECTORY ${Ark_SOURCE_DIR}/lib/ DESTINATION Ark/lib)
-    elseif (WIN32)
-        if (MSVC)
-            install(TARGETS Ark DESTINATION bin)
-            install(DIRECTORY ${Ark_SOURCE_DIR}/lib/ DESTINATION lib)
-        endif()
-    endif()
+    install(TARGETS Ark
+            DESTINATION bin
+            PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
+                        GROUP_EXECUTE GROUP_READ
+    )
+    install(DIRECTORY ${Ark_SOURCE_DIR}/lib/
+            DESTINATION lib
+            PATTERN "lib/ext" EXCLUDE
+            REGEX ".+\.md$" EXCLUDE
+            PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
+                        GROUP_EXECUTE GROUP_READ
+    )
 endif()
 
 # submodules

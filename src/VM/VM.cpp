@@ -75,6 +75,8 @@ namespace Ark
     {
         using namespace Ark::internal;
 
+        const std::lock_guard<std::mutex> lock(m_mutex);
+
         // find id of object
         auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), name);
         if (it == m_state->m_symbols.end())
@@ -618,9 +620,9 @@ namespace Ark
                     {
                         Value a = *popVal();
                         if (a.valueType() == ValueType::List)
-                            push(a.const_list().size() > 0 ? (a.const_list())[0] : Builtins::nil);
+                            push(a.const_list().size() > 0 ? (a.const_list())[0] : std::vector<Value>());
                         else if (a.valueType() == ValueType::String)
-                            push(a.string().size() > 0 ? Value(std::string(1, (a.string())[0])) : Builtins::nil);
+                            push(a.string().size() > 0 ? Value(std::string(1, (a.string())[0])) : "");
                         else
                             throw Ark::TypeError("Argument of firstOf must be a list");
 
@@ -634,7 +636,7 @@ namespace Ark
                         {
                             if (a->const_list().size() < 2)
                             {
-                                push(Builtins::nil);
+                                push(std::vector<Value>());
                                 break;
                             }
 
@@ -645,7 +647,7 @@ namespace Ark
                         {
                             if (a->string().size() < 2)
                             {
-                                push(Builtins::nil);
+                                push("");
                                 break;
                             }
 
@@ -665,7 +667,7 @@ namespace Ark
                         {
                             if (a->const_list().size() < 2)
                             {
-                                push(Builtins::nil);
+                                push(std::vector<Value>());
                                 break;
                             }
 
@@ -676,7 +678,7 @@ namespace Ark
                         {
                             if (a->string().size() < 2)
                             {
-                                push(Builtins::nil);
+                                push("");
                                 break;
                             }
 
