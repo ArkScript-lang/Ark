@@ -1,0 +1,24 @@
+(import "tests-tools.ark")
+
+(import "Functional.ark")
+
+(let functional-tests (fun () {
+    (mut tests 0)
+    (let start-time (time))
+
+    (let foo (fun (x) (+ x 3)))
+    (let egg (fun (y) (* y 2)))
+    (let bar (fun (x y) (- x y)))
+
+    (set tests (assert-eq ((compose foo egg) 5) (foo (egg 5)) "compose" tests))
+    (set tests (assert-eq ((compose egg egg) 5) (egg (egg 5)) "compose" tests))
+    # no need to test left and right because they were already tested by the exceptions tests (throw, return)
+    (set tests (assert-eq ((flip bar 5) 6) (bar 6 5) "flip" tests))
+    (set tests (assert-eq ((flip bar 6) 5) (bar 5 6) "flip" tests))
+
+    (recap "Functional tests passed" tests (- (time) start-time))
+
+    tests
+}))
+
+(let passed-functional (functional-tests))

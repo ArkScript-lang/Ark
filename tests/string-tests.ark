@@ -1,0 +1,14 @@
+(import "tests-tools.ark")
+
+(import "String.ark")
+
+(let string-tests (fun () {
+    (mut tests 0)
+    (let start-time (time))
+
+    (recap "String tests passed" tests (- (time) start-time))
+
+    tests
+}))
+
+(let passed-string (string-tests))

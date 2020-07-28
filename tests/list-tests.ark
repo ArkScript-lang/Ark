@@ -1,0 +1,14 @@
+(import "tests-tools.ark")
+
+(import "List.ark")
+
+(let list-tests (fun () {
+    (mut tests 0)
+    (let start-time (time))
+
+    (recap "List tests passed" tests (- (time) start-time))
+
+    tests
+}))
+
+(let passed-list (list-tests))

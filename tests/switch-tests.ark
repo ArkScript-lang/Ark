@@ -1,0 +1,14 @@
+(import "tests-tools.ark")
+
+(import "Switch.ark")
+
+(let switch-tests (fun () {
+    (mut tests 0)
+    (let start-time (time))
+
+    (recap "Switch tests passed" tests (- (time) start-time))
+
+    tests
+}))
+
+(let passed-switch (switch-tests))

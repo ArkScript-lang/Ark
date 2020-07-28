@@ -1,0 +1,14 @@
+(import "tests-tools.ark")
+
+(import "Range.ark")
+
+(let range-tests (fun () {
+    (mut tests 0)
+    (let start-time (time))
+
+    (recap "Range tests passed" tests (- (time) start-time))
+
+    tests
+}))
+
+(let passed-range (range-tests))
