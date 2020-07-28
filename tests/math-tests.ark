@@ -1,0 +1,14 @@
+(import "tests-tools.ark")
+
+(import "Math.ark")
+
+(let math-tests (fun () {
+    (mut tests 0)
+    (let start-time (time))
+
+    (recap "Math tests passed" tests (- (time) start-time))
+
+    tests
+}))
+
+(let passed-math (math-tests))
