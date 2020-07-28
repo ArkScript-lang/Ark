@@ -33,7 +33,7 @@ namespace Ark::internal
         {
             char current = code[pos];
 
-            if (m_debug >= 3)
+            if (m_debug >= 5)
                 std::cout << "buffer: " << buffer << " - "
                             << "ctrl_char: " << ctrl_char << " - "
                             << "current: '" << std::string(1, current) << "' - "

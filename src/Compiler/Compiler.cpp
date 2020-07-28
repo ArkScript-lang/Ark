@@ -144,7 +144,7 @@ namespace Ark
         // start code segments
         for (auto page : m_code_pages)
         {
-            if (m_debug >= 2)
+            if (m_debug >= 3)
                 Ark::logger.info("-", page.size() + 1);
 
             m_bytecode.push_back(Instruction::CODE_SEGMENT_START);
@@ -258,7 +258,7 @@ namespace Ark
 
     void Compiler::_compile(const Node& x, int p)
     {
-        if (m_debug >= 2)
+        if (m_debug >= 4)
             Ark::logger.info(x);
 
         // register symbols
@@ -574,7 +574,7 @@ namespace Ark
         auto it = std::find(m_symbols.begin(), m_symbols.end(), sym);
         if (it == m_symbols.end())
         {
-            if (m_debug >= 2)
+            if (m_debug >= 3)
                 Ark::logger.info("Registering symbol:", sym, "(", m_symbols.size(), ")");
 
             m_symbols.push_back(sym);
@@ -589,7 +589,7 @@ namespace Ark
         auto it = std::find(m_values.begin(), m_values.end(), v);
         if (it == m_values.end())
         {
-            if (m_debug >= 2)
+            if (m_debug >= 3)
                 Ark::logger.info("Registering value (", m_values.size(), ")");
 
             m_values.push_back(v);
@@ -604,7 +604,7 @@ namespace Ark
         auto it = std::find(m_values.begin(), m_values.end(), v);
         if (it == m_values.end())
         {
-            if (m_debug >= 2)
+            if (m_debug >= 3)
                 Ark::logger.info("Registering value (", m_values.size(), ")");
 
             m_values.push_back(v);
