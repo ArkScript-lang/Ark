@@ -1,9 +1,11 @@
-{
-    (let fibo (fun (n)
-        (if (< n 2) n
-            (+ (fibo (- n 1)) (fibo (- n 2)))
-        ))
-    )
+# an example of a classic recursive function
+(let fibo (fun (n)
+    (if (< n 2)
+        # then, its the last value evaluated in this case, thus it's the return value
+        n
+        # else, the last value evaluated in this branch as well
+        (+ (fibo (- n 1)) (fibo (- n 2)))
+    ))
+)
 
-    (fibo 28)
-}
+(fibo 28)
