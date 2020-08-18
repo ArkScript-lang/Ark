@@ -1,0 +1,30 @@
+(import "tests-tools.ark")
+
+(import "Math.ark")
+
+(let math-tests (fun () {
+    (mut tests 0)
+    (let start-time (time))
+
+    (set tests (assert-eq (math:abs -1) 1 "math:abs" tests))
+    (set tests (assert-eq (math:abs 1) 1 "math:abs" tests))
+    (set tests (assert-val (math:even 2) "math:even" tests))
+    (set tests (assert-val (math:even -2) "math:even" tests))
+    (set tests (assert-val (math:odd 1) "math:odd" tests))
+    (set tests (assert-val (math:odd -1) "math:odd" tests))
+    (set tests (assert-eq (math:min 1 2) 1 "math:min" tests))
+    (set tests (assert-eq (math:min 1 -2) -2 "math:min" tests))
+    (set tests (assert-eq (math:min 0.5 0.2) 0.2 "math:min" tests))
+    (set tests (assert-eq (math:max 1 2) 2 "math:max" tests))
+    (set tests (assert-eq (math:max 1 -2) 1 "math:max" tests))
+    (set tests (assert-eq (math:max 0.5 0.2) 0.5 "math:max" tests))
+    (set tests (assert-eq (math:pow 2 2) 4 "math:pow" tests))
+    (set tests (assert-eq (math:pow 4 0.5) 2 "math:pow" tests))
+    (set tests (assert-eq (math:sqrt 9) 3 "math:sqrt" tests))
+
+    (recap "Math tests passed" tests (- (time) start-time))
+
+    tests
+}))
+
+(let passed-math (math-tests))

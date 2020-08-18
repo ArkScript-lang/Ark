@@ -1,3 +1,12 @@
+# the Ackermann Peter function (see https://en.wikipedia.org/wiki/Ackermann_function)
+# One of the simplest and earliest-discovered examples of a total computable function,
+# that is not primitive. All primitive recursive functions are total and computable,
+# but the Ackermann function illustrates that not all total computable functions
+# are primitive recursive.
+# Due to its definitions in terms of extremely deep recursion, it can be used as a
+# benchmark of a compiler's ability to optimize recursion, which is the reason why
+# we are using this function to benchmark the language.
+
 (let ackermann (fun (m n) {
     (if (> m 0)
         # then
@@ -11,10 +20,3 @@
         (+ 1 n)
     )
 }))
-
-(mut i 0)
-(mut t (time))
-(while (< i 100) (begin
-    (ackermann 3 6)
-    (set i (+ 1 i))))
-(print (* (/ (- (time) t) 100) 1000) "ms")

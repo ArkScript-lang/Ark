@@ -1,0 +1,24 @@
+(import "tests-tools.ark")
+
+(import "Switch.ark")
+
+(let switch-tests (fun () {
+    (mut tests 0)
+    (let start-time (time))
+
+    (switch 12 [
+        [0    '(assert-val false "switch" tests)]
+        [-1   '(assert-val false "switch" tests)]
+        [nil  '(assert-val false "switch" tests)]
+        ["12" '(assert-val false "switch" tests)]
+        [[12] '(assert-val false "switch" tests)]
+        [12   '(set tests (assert-val true "switch" tests))]
+        [true '(assert-val false "switch" tests)]
+    ])
+
+    (recap "Switch tests passed" tests (- (time) start-time))
+
+    tests
+}))
+
+(let passed-switch (switch-tests))
