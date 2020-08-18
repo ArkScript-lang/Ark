@@ -1,0 +1,28 @@
+(import "tests-tools.ark")
+
+(import "Exceptions.ark")
+
+(let exceptions-tests (fun () {
+    (mut tests 0)
+    (let start-time (time))
+
+    (let invert (fun (x) {
+        (if (= x 0)
+            (throw "cannot divide by zero")
+            (return (/ 1 x))
+        )}))
+
+    (try (invert 0)
+        (fun (inverted) (assert-val false "Exception test" tests))
+        (fun (err) (set tests (assert-eq err "cannot divide by zero" "Exception test" tests))))
+
+    (try (invert 2)
+        (fun (inverted) (set tests (assert-eq inverted 0.5 "Exception test" tests)))
+        (fun (err) (assert-val false "Exception test" tests)))
+
+    (recap "Exceptions tests passed" tests (- (time) start-time))
+
+    tests
+}))
+
+(let passed-exceptions (exceptions-tests))

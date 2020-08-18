@@ -1,7 +1,6 @@
-{
-    (let a "hello")
-    (let b "\"hello\"")
-    (let c "\r\n\"\thello\r\n\t")
-    (let d "a")
-    (print c)
-}
+# just demonstrating string and escape chars here
+(let a "hello")
+(let b "\"hello\"")
+(let c "\r\n\"\thello\r\n\t")
+(let d "a")
+(print a b c d)

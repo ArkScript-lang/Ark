@@ -1,12 +1,12 @@
-{
-    (let go (fun (n p c) {
-        (if (= n 0)
-            0
-            (if (= n 1)
-                c
-                (go (- n 1) c (+ p c))
-            )
+# the fibonacci tail recursive function
+(let go (fun (n p c) {
+    (if (= n 0)
+        0
+        (if (= n 1)
+            c
+            (go (- n 1) c (+ p c))
         )
-    }))
-    (go 45 0 1)
-}
+    )
+}))
+
+(go 45 0 1)

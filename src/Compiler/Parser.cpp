@@ -50,7 +50,7 @@ namespace Ark
         // include files if needed
         checkForInclude(m_ast);
 
-        if (m_debug >= 2)
+        if (m_debug >= 3)
         {
             Ark::logger.info("(Parser) AST:");
             std::cout << m_ast << std::endl << std::endl;
@@ -413,7 +413,7 @@ namespace Ark
                         std::string included_file = "";
                         std::string filename = Ark::Utils::getFilenameFromPath(file);
 
-                        if (m_debug > 2)
+                        if (m_debug >= 2)
                             Ark::logger.info("filename:", filename);
 
                         // search in the files of the user first
@@ -428,14 +428,13 @@ namespace Ark
 
                         // if the file isn't in the include list, then we can include it
                         // this avoids cyclic includes
-                        if (std::find(m_parent_include.begin(), m_parent_include.end(), included_file) == m_parent_include.end())
+                        if (std::find(m_parent_include.begin(), m_parent_include.end(), Ark::Utils::canonicalRelPath(included_file)) == m_parent_include.end())
                         {
                             Parser p(m_debug, m_libdir, m_options);
                             // feed the new parser with our parent includes
                             for (auto&& pi : m_parent_include)
-                                p.m_parent_include.push_back(pi);  // new parser, we can assume that the parent include list is empty
-                            p.m_parent_include.push_back(m_file);  // add the current file to avoid importing it again
-                            p.m_parent_include.push_back(included_file);
+                                p.m_parent_include.push_back(Ark::Utils::canonicalRelPath(pi));  // new parser, we can assume that the parent include list is empty
+                            p.m_parent_include.push_back(Ark::Utils::canonicalRelPath(m_file));  // add the current file to avoid importing it again
 
                             p.feed(Ark::Utils::readFile(included_file), included_file);
 
@@ -443,7 +442,7 @@ namespace Ark
                             for (auto&& inc : p.m_parent_include)
                             {
                                 if (std::find(m_parent_include.begin(), m_parent_include.end(), inc) == m_parent_include.end())
-                                    m_parent_include.push_back(inc);
+                                    m_parent_include.push_back(Ark::Utils::canonicalRelPath(inc));
                             }
 
                             n.list().push_back(p.ast());
