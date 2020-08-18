@@ -194,6 +194,12 @@ You can find a snake created in ArkScript in the folder examples/games/snake (ru
 
 Controls are the arrows (left, right, up and down), the game closes itself when you successfully collect the 3 apples.
 
+## The donators
+
+Huge thanks to those people for they donation to support the project:
+* [TheCountVEVO](https://github.com/TheCountVEVO)
+* [llexto](https://github.com/llexto)
+
 ## Credits
 
 This project was inspired by [gameprogramingpatterns](http://gameprogrammingpatterns.com/bytecode.html) and [ofan lisp.cpp](https://gist.github.com/ofan/721464)
