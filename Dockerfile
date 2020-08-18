@@ -50,5 +50,4 @@ RUN apk --no-cache add cmake
 COPY --from=organizer /out/ark .
 RUN cmake --install build --config Release
 
-COPY --from=organizer /out/docker /usr/local/bin
 ENTRYPOINT [ "Ark" ]
