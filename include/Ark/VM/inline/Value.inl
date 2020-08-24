@@ -69,7 +69,8 @@ inline bool operator==(const Value& A, const Value& B)
     // values should have the same type
     if (A.valueType() != B.valueType())
         return false;
-    else if (A.valueType() == ValueType::Nil || A.valueType() == ValueType::True || A.valueType() == ValueType::False || A.valueType() == ValueType::Undefined)
+    // all the types >= Nil are Nil itself, True, False, Undefined
+    else if ((A.m_constType & 0b01111111) >= static_cast<int>(ValueType::Nil))
         return true;
 
     return A.m_value == B.m_value;
