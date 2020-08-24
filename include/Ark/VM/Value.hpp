@@ -26,20 +26,24 @@ namespace Ark
 
 namespace Ark::internal
 {
+    // Note from the creator: we can have at most 0b01111111 (127) different types
+    // because type index is stored on the 7 right most bits of a uint8_t in the class Value.
+    // Order is also important because we are doing some optimizations to check ranges
+    // of types based on their integer values.
     enum class ValueType
     {
-        List,
-        Number,
-        String,
-        PageAddr,
-        CProc,
-        Closure,
-        User,
+        List      = 0,
+        Number    = 1,
+        String    = 2,
+        PageAddr  = 3,
+        CProc     = 4,
+        Closure   = 5,
+        User      = 6,
 
-        Nil,
-        True,
-        False,
-        Undefined
+        Nil       = 7,
+        True      = 8,
+        False     = 9,
+        Undefined = 10
     };
 
     const std::array<std::string, 11> types_to_str = {
