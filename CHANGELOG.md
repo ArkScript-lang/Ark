@@ -14,6 +14,7 @@
 - added custom destructor to the user type, called when a scope is destroyed and when we use `(del obj)`
 - added a GVL (global virtual machine lock) to be able to use the VM in a multithreaded context
 - dockerfile + specific github action to build and push stable and nightly docker images, thanks to @yardenshoham
+- added guards to the bytecode reader to stop reading if we're missing an entry point; now telling the user about it
 
 ### Changed
 - updated the string module to benefit from the new `format` member function
