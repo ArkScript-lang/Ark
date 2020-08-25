@@ -58,7 +58,7 @@ namespace Ark
              ha = (static_cast<timestamp_t>(m_bytecode[++i]));
         i++;
         timestamp = aa + ba + ca + da + ea + fa + ga + ha;
-        
+
         return timestamp;
     }
 
@@ -118,6 +118,11 @@ namespace Ark
             }
             os << "\n";
         }
+        else
+        {
+            os << termcolor::red << "Missing symbole table entry point\n" << termcolor::reset;
+            return;
+        }
 
         if (b[i] == Instruction::VAL_TABLE_START)
         {
@@ -155,12 +160,17 @@ namespace Ark
                 }
                 else
                 {
-                    os << "Unknown value type";
+                    os << termcolor::red << "Unknown value type: " << static_cast<int>(type) << '\n' << termcolor::reset;
                     return;
                 }
                 os << "\n";
             }
             os << "\n";
+        }
+        else
+        {
+            os << termcolor::red << "Missing constant table entry point\n" << termcolor::reset;
+            return;
         }
 
         uint16_t pp = 0;
@@ -313,7 +323,7 @@ namespace Ark
                         os << "NOT\n";
                     else
                     {
-                        os << "Unknown instruction: " << static_cast<int>(inst) << "\n";
+                        os << termcolor::reset << "Unknown instruction: " << static_cast<int>(inst) << '\n' << termcolor::reset;
                         return;
                     }
 
