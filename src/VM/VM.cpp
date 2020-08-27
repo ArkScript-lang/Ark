@@ -23,7 +23,9 @@
 namespace Ark
 {
     VM::VM(State* state) :
-        m_state(state), m_ip(0), m_pp(0), m_running(false), m_last_sym_loaded(0), m_until_frame_count(0)
+        m_state(state), m_ip(0), m_pp(0), m_running(false),
+        m_last_sym_loaded(0), m_until_frame_count(0),
+        m_user_pointer(nullptr)
     {
         m_frames.reserve(16);
         m_locals.reserve(4);
@@ -94,6 +96,20 @@ namespace Ark
             m__no_value = Builtins::nil;
             return m__no_value;
         }
+    }
+
+    // ------------------------------------------
+    //               user pointer
+    // ------------------------------------------
+
+    void VM::setUserPointer(void* ptr)
+    {
+        m_user_pointer = ptr;
+    }
+
+    void* VM::getUserPointer()
+    {
+        return m_user_pointer;
     }
 
     // ------------------------------------------
