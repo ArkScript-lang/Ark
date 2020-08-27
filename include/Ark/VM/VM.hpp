@@ -84,6 +84,20 @@ namespace Ark
         template <typename... Args>
         internal::Value resolve(const internal::Value* val, Args&&... args);
 
+        /**
+         * @brief Set the User Pointer object
+         * 
+         * @param ptr Pointer to data NOT owned by the VM, to be used later
+         */
+        void setUserPointer(void* ptr);
+
+        /**
+         * @brief Retrieves the stored pointer
+         * 
+         * @return void* 
+         */
+        void* getUserPointer();
+
         friend class internal::Value;
         friend class Repl;
 
@@ -105,6 +119,9 @@ namespace Ark
 
         // just a nice little trick for operator[]
         internal::Value m__no_value = internal::Builtins::nil;
+
+        // needed to pass data around when binding ArkScript in a program
+        void* m_user_pointer;
 
         void configure();
 
