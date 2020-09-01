@@ -1,0 +1,4 @@
+# simple test to compile, then check using the -bcr option
+# the symbol table should be empty
+(let a 12)
+(let b 14)

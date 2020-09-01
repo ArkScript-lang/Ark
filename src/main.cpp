@@ -28,7 +28,7 @@ int main(int argc, char** argv)
     std::string file = "", lib_dir = "?";
     unsigned debug = 0;
     std::vector<std::string> wrong;
-    uint16_t options = Ark::FeaturePersist;
+    uint16_t options = Ark::DefaultFeatures;
 
     auto cli = (
         option("-h", "--help").set(selected, mode::help).doc("Display this message")
@@ -139,7 +139,7 @@ int main(int argc, char** argv)
 
                 break;
             }
-            
+
             case mode::run:
             {
                 Ark::State state(options, lib_dir);
@@ -164,7 +164,7 @@ int main(int argc, char** argv)
     {
         for (const auto& arg : wrong)
             std::cerr << "'" << arg << "'" << " ins't a valid argument" << std::endl;
-            
+
         std::cerr << "Usage:"   << std::endl << usage_lines(cli, argv[0], fmt) << std::endl
                   << "Options:" << std::endl << documentation(cli, fmt) << std::endl
                   << "LICENSE"  << std::endl << "        Mozilla Public License 2.0" << std::endl;

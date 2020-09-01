@@ -190,12 +190,12 @@ namespace Ark
     Node Compiler::remove_unused(const Node& ast)
     {
         Node new_ast(ast);
-        std::unordered_map<std::string, unsigned> appearances;
-
         // if we shouldn't remove unused vars, exit
         // also, do not handle non-list nodes
         if ((m_options & FeatureRemoveUnusedVars) == 0 || ast.nodeType() != NodeType::List)
             return new_ast;
+
+        std::unordered_map<std::string, unsigned> appearances;
 
         run_on_global_scope_vars(new_ast, [&appearances](Node& node, Node& parent, int idx){
             appearances[node.const_list()[1].string()] = 0;
