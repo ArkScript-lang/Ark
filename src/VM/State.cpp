@@ -82,7 +82,7 @@ namespace Ark
         }
         catch (...)
         {
-            std::cerr << "Unknown lexer-parser-or-compiler error" << std::endl;
+            std::cerr << "Unknown lexer-parser-or-compiler error (" << file << ')' << std::endl;
             return false;
         }
 
