@@ -54,11 +54,12 @@ Also it has:
 (print "More or less game!")
 
 (import "random.arkm")
-(import "Math.ark")
+(import "Math/Arithmetic.ark")
 
 (let number (mod (abs (random)) 10000))
+(print number)
 (mut value 0)
-(mut essais 0)
+(mut tries 0)
 
 (mut continue true)
 
@@ -75,9 +76,9 @@ Also it has:
             # else
             (print "Less!")))
 
-    (set essais (+ 1 essais))})
+    (set tries (+ 1 tries))})
 
-(print "You won in " essais " tries")
+(print "You won in" tries "tries")
 ```
 
 More examples are available in the folder `examples/`.
