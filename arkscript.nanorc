@@ -8,7 +8,19 @@ color brightgreen "&[a-zA-Z_][a-zA-Z0-9_\-?']*"
 
 ## keywords
 color brightblue "\<(set|del|import|quote|begin|let|mut|fun|if|while)\>"
-color brightcyan "\<(append|concat|list|print|input|writeFile|readFile|writeFile|fileExists?)\>"
+
+## builtins list
+color brightcyan "\<(append|concat|list|list:reverse|list:find|list:removeAt|list:slice|list:sort|list:fill|list:setAt)\>"
+## builtins io
+color brightcyan "\<(print|puts|input|io:writeFile|io:readFile|io:fileExists?|io:listFiles|io:dir?|io:makeDir|io:removeFiles)\>"
+## builtins time
+color brightcyan "\<(time)\>"
+## builtins system
+color brightcyan "\<(sys:exec|sys:sleep)\>"
+## builtins string
+color brightcyan "\<(str:format|str:find|str:removeAt)\>"
+## builtins mathematics
+color brightcyan "\<(math:exp|math:ln|math:ceil|math:floor|math:round|math:NaN?|math:Inf?|math:pi|math:e|math:tau|math:Inf|math:NaN|math:cos|math:sin|math:tan|math:arccos|math:arcsin|math:arctan)\>"
 
 ## operators
 color brightyellow "[.+*|=!@'\^]" "<" ">" "/" "-" "and" "or" "mod" "type" "hasField" "len" "empty?" "firstOf" "tailOf" "headOf" "nil?" "assert" "toNumber" "toString"
