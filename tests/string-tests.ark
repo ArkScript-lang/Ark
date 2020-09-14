@@ -6,6 +6,32 @@
     (mut tests 0)
     (let start-time (time))
 
+    # TODO add (str:format) test, currently it doesn't handle decimals
+
+    (set tests (assert-eq "abcdefghijklmnopqrstuvwxyz" (str:toLower "ABCDEFGHIJKLMNOPQRSTUVWXYZ") "string lower" tests))
+    (set tests (assert-eq "abcdefghijklmnopqrstuvwxyz" (str:toLower "abcdefghijklmnopqrstuvwxyz") "string lower" tests))
+    (set tests (assert-eq "ABCDEFGHIJKLMNOPQRSTUVWXYZ" (str:toUpper "abcdefghijklmnopqrstuvwxyz") "string upper" tests))
+    (set tests (assert-eq "ABCDEFGHIJKLMNOPQRSTUVWXYZ" (str:toUpper "ABCDEFGHIJKLMNOPQRSTUVWXYZ") "string upper" tests))
+    (set tests (assert-eq "hello world" (str:reverse "dlrow olleh") "string reverse" tests))
+    (set tests (assert-eq "" (str:reverse "") "string reverse" tests))
+    (set tests (assert-eq "a" (str:reverse "a") "string reverse" tests))
+    (set tests (assert-eq "hello" (str:slice "hello world" 0 5) "string slice" tests))
+    (set tests (assert-eq "hello world" (str:slice "hello world" 0 100) "string slice" tests))
+    (set tests (assert-eq "h" (str:slice "hello world" 0 1) "string slice" tests))
+    (set tests (assert-eq "ello" (str:slice "hello world" 1 4) "string slice" tests))
+    (set tests (assert-eq ["a" "bc" "def"] (str:split "a,bc,def" ",") "string split" tests))
+    (set tests (assert-eq ["a"] (str:split "a" ",") "string split" tests))
+    (set tests (assert-eq [] (str:split "" ",") "string split" tests))
+    (set tests (assert-eq "hello world" (str:replace "hello world" "coucou" "not") "string replace" tests))
+    (set tests (assert-eq "not world" (str:replace "hello world" "hello" "not") "string replace" tests))
+    (set tests (assert-eq "not not " (str:replace "hello hello " "hello" "not") "string replace" tests))
+    (set tests (assert-eq "hllo world" (str:removeAt "hello world" 1) "string remove at" tests))
+    (set tests (assert-eq "ello world" (str:removeAt "hello world" 0) "string remove at" tests))
+    (set tests (assert-eq "hello worl" (str:removeAt "hello world" 10) "string remove at" tests))
+    (set tests (assert-eq -1 (str:find "hello" "help") "string find substr" tests))
+    (set tests (assert-eq 0 (str:find "hello" "hel") "string find substr" tests))
+    (set tests (assert-eq 2 (str:find "hello" "llo") "string find substr" tests))
+
     (recap "String tests passed" tests (- (time) start-time))
 
     tests
