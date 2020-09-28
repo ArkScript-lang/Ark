@@ -62,7 +62,7 @@ namespace Ark::internal::Builtins::List
             throw std::runtime_error(LIST_FIND_ARITY);
         if (n[0].valueType() != ValueType::List)
             throw Ark::TypeError(LIST_FIND_TE0);
-        
+
         std::vector<Value>& l = n[0].list();
         for (Value::Iterator it=l.begin(), it_end=l.end(); it != it_end; ++it)
         {
@@ -70,7 +70,7 @@ namespace Ark::internal::Builtins::List
                 return Value(static_cast<int>(std::distance<Value::Iterator>(l.begin(), it)));
         }
 
-        return Builtins::nil;
+        return -1;
     }
 
     Value removeAtList(std::vector<Value>& n, Ark::VM* vm)
