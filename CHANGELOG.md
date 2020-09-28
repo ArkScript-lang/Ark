@@ -2,8 +2,11 @@
 
 ## Unreleased changes
 ### Added
+- string tests
+- list tests
 
 ### Changed
+- `list:find` returns -1 to stay consistent with `str:find`
 
 ### Removed
 
