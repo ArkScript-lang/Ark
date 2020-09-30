@@ -4,6 +4,7 @@
 ### Added
 - string tests
 - list tests
+- range tests
 
 ### Changed
 - `list:find` returns -1 to stay consistent with `str:find`
