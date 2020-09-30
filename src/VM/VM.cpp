@@ -223,6 +223,7 @@ namespace Ark
                             if (var->isConst())
                                 throwVMError("can not modify a constant: " + m_state->m_symbols[id]);
                             *var = *popVal();
+                            var->setConst(false);
                             break;
                         }
 
