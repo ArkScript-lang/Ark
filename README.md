@@ -90,7 +90,7 @@ More examples are available in the folder `examples/`.
 * Create a branch for your feature: `git checkout -b feat-my-awesome-idea`
 * When you're done, push it to your fork and submit a pull request!
 
-Don't know what to work on? No worries, we have a [list of things to do](https://github.com/ArkScript-lang/Ark/projects) :wink:
+Don't know what to work on this? No worries, we have a [list of things to do](https://github.com/ArkScript-lang/Ark/projects) :wink:
 
 ### Our beloved contributors
 
