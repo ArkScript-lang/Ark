@@ -16,7 +16,7 @@
 ## Key features
 
 ArkScript is
-* small: the compiler and the virtual machines fit under 5000 lines, but also small in terms of keywords (it has only 10)!
+* small: the compiler and the virtual machines fit under 8000 lines, but also small in terms of keywords (it has only 10)!
 * a scripting language: it's very easy to embed it in your application. The builtin construction is quite easy to understand, so adding your own functions to the virtual machine is effortless
 * portable: it produces a bytecode which is run by its virtual machine, like Java but without the `OutOfMemoryException`
 * a functional language: every parameter is passed by value, everything is immutable unless you use `mut` to define a mutable variable
