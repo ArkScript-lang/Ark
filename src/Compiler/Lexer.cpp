@@ -45,7 +45,7 @@ namespace Ark::internal
             {
                 line++;
                 character = 0;
-				continue;
+                continue;
 
                 // close comments, don't append them
                 if (in_comment)
@@ -120,14 +120,14 @@ namespace Ark::internal
                 }
                 // identifier, number, operator
                 else
-				{
-					if (buffer.empty())
-					{
-						saved_char = character;
-						saved_line = line;
-					}
+                {
+                    if (buffer.empty())
+                    {
+                        saved_char = character;
+                        saved_line = line;
+                    }
                     buffer += current;
-				}
+                }
             }
             else  // we are in a string here
             {
