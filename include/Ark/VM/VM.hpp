@@ -18,17 +18,13 @@
 #include <Ark/Builtins/Builtins.hpp>
 #include <Ark/Log.hpp>
 #include <Ark/Config.hpp>
+#include <Ark/VM/Plugin.hpp>
 
 #undef abs
 #include <cmath>
 
 namespace Ark
 {
-    namespace internal
-    {
-        class SharedLibrary;
-    }
-
     using namespace std::string_literals;
 
     /**
@@ -161,7 +157,7 @@ namespace Ark
          * 
          * @param id Id of the constant
          */
-        inline void loadPlugin(uint16_t id);
+        void loadPlugin(uint16_t id);
 
         // error handling
 
