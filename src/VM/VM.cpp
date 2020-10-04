@@ -2,10 +2,10 @@
 #include <Ark/VM/Plugin.hpp>
 
 // read a number from the bytecode
-#define readNumber(var) {                                                        \
-    auto x = (static_cast<uint16_t>(m_state->m_pages[m_pp][m_ip]) << 8); ++m_ip; \
-    auto y = static_cast<uint16_t>(m_state->m_pages[m_pp][m_ip]);                \
-    var = x + y;                                                                 \
+#define readNumber(var) {                                                \
+    var = (static_cast<uint16_t>(m_state->m_pages[m_pp][m_ip]) << 8) +   \
+           static_cast<uint16_t>(m_state->m_pages[m_pp][m_ip + 1]);      \
+    ++m_ip;                                                              \
     }
 // register a variable in the current scope
 #define registerVariable(id, value) ((*m_locals.back()).push_back(id, value))
@@ -153,17 +153,12 @@ namespace Ark
                         */
 
                         ++m_ip;
-                        uint16_t id; readNumber(id);
+                        readNumber(m_last_sym_loaded);
 
-                        Value* var = findNearestVariable(id);
-                        if (var != nullptr)
-                        {
+                        if (Value* var = findNearestVariable(m_last_sym_loaded); var != nullptr)
                             push(*var);
-                            m_last_sym_loaded = id;
-                            break;
-                        }
-
-                        throwVMError("unbound variable: " + m_state->m_symbols[id]);
+                        else
+                            throwVMError("unbound variable: " + m_state->m_symbols[m_last_sym_loaded]);
                         break;
                     }
 
@@ -198,10 +193,9 @@ namespace Ark
 
                         ++m_ip;
                         uint16_t id; readNumber(id);
-                        int16_t addr = static_cast<int16_t>(id);
 
                         if (*popVal() == Builtins::trueSym)
-                            m_ip = addr - 1;  // because we are doing a ++m_ip right after this
+                            m_ip = static_cast<int16_t>(id) - 1;  // because we are doing a ++m_ip right after this
                         break;
                     }
 
@@ -217,8 +211,7 @@ namespace Ark
                         ++m_ip;
                         uint16_t id; readNumber(id);
 
-                        Value* var = findNearestVariable(id);
-                        if (var != nullptr)
+                        if (Value* var = findNearestVariable(id); var != nullptr)
                         {
                             if (var->isConst())
                                 throwVMError("can not modify a constant: " + m_state->m_symbols[id]);
@@ -262,10 +255,9 @@ namespace Ark
 
                         ++m_ip;
                         uint16_t id; readNumber(id);
-                        int16_t addr = static_cast<int16_t>(id);
 
                         if (*popVal() == Builtins::falseSym)
-                            m_ip = addr - 1;  // because we are doing a ++m_ip right after this
+                            m_ip = static_cast<int16_t>(id) - 1;  // because we are doing a ++m_ip right after this
                         break;
                     }
 
@@ -278,9 +270,8 @@ namespace Ark
 
                         ++m_ip;
                         uint16_t id; readNumber(id);
-                        int16_t addr = static_cast<int16_t>(id);
 
-                        m_ip = addr - 1;  // because we are doing a ++m_ip right after this
+                        m_ip = static_cast<int16_t>(id) - 1;  // because we are doing a ++m_ip right after this
                         break;
                     }
 
@@ -290,33 +281,16 @@ namespace Ark
                             Argument: none
                             Job: If in a code segment other than the main one, quit it, and push the value on top of
                                     the stack to the new stack ; should as well delete the current environment.
-                                    Otherwise, acts as a `HALT`
                         */
-
-                        // check if we should halt the VM
-                        if (m_pp == 0)
-                        {
-                            m_running = false;
-                            break;
-                        }
 
                         // save pp
                         PageAddr_t old_pp = static_cast<PageAddr_t>(m_pp);
                         m_pp = static_cast<std::size_t>(m_frames.back().callerPageAddr());
                         m_ip = static_cast<int>(m_frames.back().callerAddr());
 
-                        if (m_frames.back().stackSize() != 0)
-                        {
-                            Value return_value = *popVal();
-                            returnFromFuncCall();
-                            // push value as the return value of a function to the current stack
-                            push(return_value);
-                        }
-                        else
-                        {
-                            returnFromFuncCall();
-                            push(Builtins::nil);
-                        }
+                        Value* return_value = m_frames.back().stackSize() != 0 ? popVal() : &Builtins::nil;
+                        returnFromFuncCall();
+                        push(*return_value);
                         break;
                     }
 
@@ -388,8 +362,7 @@ namespace Ark
                         ++m_ip;
                         uint16_t id; readNumber(id);
 
-                        Value* var = findNearestVariable(id);
-                        if (var != nullptr)
+                        if (Value* var = findNearestVariable(id); var != nullptr)
                         {
                             // delete usertype with custom deleter
                             if (var->valueType() == ValueType::User)
@@ -427,8 +400,7 @@ namespace Ark
                         if (var->valueType() != ValueType::Closure)
                             throwVMError("the variable `" + m_state->m_symbols[m_last_sym_loaded] + "' isn't a closure, can not get the field `" + m_state->m_symbols[id] + "' from it");
 
-                        Value* field = (*var->closure_ref().scope())[id];
-                        if (field != nullptr)
+                        if (Value* field = (*var->closure_ref().scope())[id]; field != nullptr)
                         {
                             // check for CALL instruction
                             if (m_ip + 1 < m_state->m_pages[m_pp].size() && m_state->m_pages[m_pp][m_ip + 1] == Instruction::CALL)
@@ -453,50 +425,10 @@ namespace Ark
                                  Raise an error if it couldn't find the plugin.
                         */
 
-                        namespace fs = std::filesystem;
-
                         ++m_ip;
                         uint16_t id; readNumber(id);
 
-                        std::string file = m_state->m_constants[id].string_ref().toString();
-                        std::string path = "./" + file;
-
-                        if (m_state->m_filename != ARK_NO_NAME_FILE)  // bytecode loaded from file
-                            path = "./" + (fs::path(m_state->m_filename).parent_path() / fs::path(file)).string();
-                        std::string lib_path = (fs::path(m_state->m_libdir) / fs::path(file)).string();
-
-                        if (std::find_if(m_shared_lib_objects.begin(), m_shared_lib_objects.end(), [&, this](const auto& val){
-                            if (val->path() == path || val->path() == lib_path)
-                                return true;
-                            return false;
-                        }) != m_shared_lib_objects.end())
-                            break;
-
-                        if (Utils::fileExists(path))  // if it exists alongside the .arkc file
-                            m_shared_lib_objects.emplace_back(std::make_shared<SharedLibrary>(path));
-                        else if (Utils::fileExists(lib_path))  // check in LOAD_PATH otherwise
-                            m_shared_lib_objects.emplace_back(std::make_shared<SharedLibrary>(lib_path));
-                        else
-                            throwVMError("could not load plugin: " + file);
-
-                        // load data from it!
-                        using Mapping_t = std::unordered_map<std::string, Value::ProcType>;
-                        using map_fun_t = Mapping_t(*) ();
-                        Mapping_t map;
-
-                        try {
-                            map = m_shared_lib_objects.back()->template get<map_fun_t>("getFunctionsMapping")();
-                        } catch (const std::system_error& e) {
-                            throwVMError(std::string(e.what()));
-                        }
-
-                        for (auto&& kv : map)
-                        {
-                            // put it in the global frame, aka the first one
-                            auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), kv.first);
-                            if (it != m_state->m_symbols.end())
-                                registerVarGlobal(static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it)), Value(kv.second));
-                        }
+                        loadPlugin(id);
                         break;
                     }
 
@@ -525,9 +457,7 @@ namespace Ark
                     case Instruction::SUB:
                     {
                         Value *b = popVal(), *a = popVal();
-                        if (a->valueType() != ValueType::Number)
-                            throw Ark::TypeError("Arguments of - should be Numbers");
-                        if (b->valueType() != ValueType::Number)
+                        if (a->valueType() != ValueType::Number || b->valueType() != ValueType::Number)
                             throw Ark::TypeError("Arguments of - should be Numbers");
 
                         push(Value(a->number() - b->number()));
@@ -537,9 +467,7 @@ namespace Ark
                     case Instruction::MUL:
                     {
                         Value *b = popVal(), *a = popVal();
-                        if (a->valueType() != ValueType::Number)
-                            throw Ark::TypeError("Arguments of * should be Numbers");
-                        if (b->valueType() != ValueType::Number)
+                        if (a->valueType() != ValueType::Number || b->valueType() != ValueType::Number)
                             throw Ark::TypeError("Arguments of * should be Numbers");
 
                         push(Value(a->number() * b->number()));
@@ -549,9 +477,7 @@ namespace Ark
                     case Instruction::DIV:
                     {
                         Value *b = popVal(), *a = popVal();
-                        if (a->valueType() != ValueType::Number)
-                            throw Ark::TypeError("Arguments of / should be Numbers");
-                        if (b->valueType() != ValueType::Number)
+                        if (a->valueType() != ValueType::Number || b->valueType() != ValueType::Number)
                             throw Ark::TypeError("Arguments of / should be Numbers");
 
                         auto d = b->number();
@@ -608,17 +534,12 @@ namespace Ark
                     {
                         Value *a = popVal();
                         if (a->valueType() == ValueType::List)
-                        {
                             push(Value(static_cast<int>(a->const_list().size())));
-                            break;
-                        }
-                        if (a->valueType() == ValueType::String)
-                        {
+                        else if (a->valueType() == ValueType::String)
                             push(Value(static_cast<int>(a->string().size())));
-                            break;
-                        }
-
-                        throw Ark::TypeError("Argument of len must be a list or a String");
+                        else
+                            throw Ark::TypeError("Argument of len must be a list or a String");
+                        break;
                     }
 
                     case Instruction::EMPTY:
@@ -814,12 +735,9 @@ namespace Ark
                             push(Builtins::falseSym);
                             break;
                         }
-                        uint16_t id = static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it));
 
-                        if (auto val = (*closure->closure_ref().scope_ref())[id]; val != nullptr)
-                            push(Builtins::trueSym);
-                        else
-                            push(Builtins::falseSym);
+                        uint16_t id = static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it));
+                        push((*closure->closure_ref().scope_ref())[id] != nullptr ? Builtins::trueSym : Builtins::falseSym);
 
                         break;
                     }

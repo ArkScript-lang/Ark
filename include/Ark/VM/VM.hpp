@@ -123,8 +123,6 @@ namespace Ark
         // needed to pass data around when binding ArkScript in a program
         void* m_user_pointer;
 
-        void configure();
-
         /**
          * @brief Run ArkScript bytecode inside a try catch to retrieve all the exceptions and display a stack trace if needed
          * 
@@ -157,6 +155,13 @@ namespace Ark
          * 
          */
         inline void returnFromFuncCall();
+
+        /**
+         * @brief Load a plugin from a constant id
+         * 
+         * @param id Id of the constant
+         */
+        inline void loadPlugin(uint16_t id);
 
         // error handling
 
