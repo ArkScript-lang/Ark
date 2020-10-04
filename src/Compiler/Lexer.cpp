@@ -53,9 +53,9 @@ namespace Ark::internal
                     buffer.clear();
                     continue;
                 }
-				
-				if (!buffer.empty())
-					append_token_from_buffer();
+
+                if (!buffer.empty())
+                    append_token_from_buffer();
                 continue;
             }
 
