@@ -40,21 +40,6 @@ namespace Ark::internal
                             << "line: " << line << ", char: " << character << " - "
                             << "\n";
 
-            // position counter
-            if (current == '\n')
-            {
-                line++;
-                character = 0;
-
-                // close comments, don't append them
-                if (in_comment)
-                {
-                    in_comment = false;
-                    buffer.clear();
-                    continue;
-                }
-            }
-
             if (!in_string)
             {
                 // handle comments first
@@ -119,7 +104,14 @@ namespace Ark::internal
                 }
                 // identifier, number, operator
                 else
+                {
+                    if (buffer.empty())
+                    {
+                        saved_char = character;
+                        saved_line = line;
+                    }
                     buffer += current;
+                }
             }
             else  // we are in a string here
             {
@@ -200,8 +192,25 @@ namespace Ark::internal
                 }
             }
 
-            // update position
-            character++;
+            // position counter
+            if (current == '\n')
+            {
+                line++;
+                character = 0; // before first character
+
+                // close comments, don't append them
+                if (in_comment)
+                {
+                    in_comment = false;
+                    buffer.clear();
+                    continue;
+                }
+            }
+            else 
+            {
+                // update position
+                character++;
+            }
         }
 
         // debugging information
