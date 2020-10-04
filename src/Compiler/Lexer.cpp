@@ -40,21 +40,6 @@ namespace Ark::internal
                             << "line: " << line << ", char: " << character << " - "
                             << "\n";
 
-            // position counter
-            if (current == '\n')
-            {
-                line++;
-                character = -1; // before first character
-
-                // close comments, don't append them
-                if (in_comment)
-                {
-                    in_comment = false;
-                    buffer.clear();
-                    continue;
-                }
-            }
-
             if (!in_string)
             {
                 // handle comments first
@@ -207,8 +192,25 @@ namespace Ark::internal
                 }
             }
 
-            // update position
-            character++;
+            // position counter
+            if (current == '\n')
+            {
+                line++;
+                character = 0; // before first character
+
+                // close comments, don't append them
+                if (in_comment)
+                {
+                    in_comment = false;
+                    buffer.clear();
+                    continue;
+                }
+            }
+            else 
+            {
+                // update position
+                character++;
+            }
         }
 
         // debugging information
