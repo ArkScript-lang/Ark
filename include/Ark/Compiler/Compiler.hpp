@@ -11,6 +11,7 @@
 #include <Ark/Compiler/Parser.hpp>
 #include <Ark/Compiler/Node.hpp>
 #include <Ark/Compiler/CValue.hpp>
+#include <Ark/Compiler/Optimizer.hpp>
 #include <Ark/Compiler/Instructions.hpp>
 #include <Ark/Compiler/BytecodeReader.hpp>
 #include <Ark/Builtins/Builtins.hpp>
@@ -64,6 +65,7 @@ namespace Ark
 
     private:
         Parser m_parser;
+        Optimizer m_optimizer;
         uint16_t m_options;
         // tables: symbols, values, plugins and codes
         std::vector<std::string> m_symbols;
@@ -74,11 +76,6 @@ namespace Ark
 
         bytecode_t m_bytecode;
         unsigned m_debug;
-
-        // iterate over the AST and remove unused top level functions and constants
-        internal::Node remove_unused(const internal::Node& ast);
-        void run_on_global_scope_vars(internal::Node& node, const std::function<void(internal::Node&, internal::Node&, int)>& func);
-        void count_occurences(const internal::Node& node, std::unordered_map<std::string, unsigned>& appearances);
 
         // helper functions to get a temp or finalized code page
         inline std::vector<internal::Inst>& page(int i);

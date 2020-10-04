@@ -11,12 +11,14 @@ namespace Ark
     using namespace Ark::internal;
 
     Compiler::Compiler(unsigned debug, const std::string& lib_dir, uint16_t options) :
-        m_parser(debug, lib_dir, options), m_options(options), m_debug(debug)
+        m_parser(debug, lib_dir, options), m_optimizer(options),
+        m_options(options), m_debug(debug)
     {}
 
     void Compiler::feed(const std::string& code, const std::string& filename)
     {
         m_parser.feed(code, filename);
+        m_optimizer.feed(m_parser.ast());
 
         if (m_debug >= 2)
         {
@@ -84,11 +86,9 @@ namespace Ark
         m_bytecode.push_back(Instruction::SYM_TABLE_START);
             if (m_debug >= 1)
                 Ark::logger.info("Compiling");
-            // remove unused code first
-            Node new_ast = remove_unused(m_parser.ast());
             // gather symbols, values, and start to create code segments
             m_code_pages.emplace_back();  // create empty page
-            _compile(new_ast, 0);
+            _compile(m_optimizer.ast(), 0);
         if (m_debug >= 1)
             Ark::logger.info("Adding symbols table");
         // push size
@@ -185,75 +185,6 @@ namespace Ark
     const bytecode_t& Compiler::bytecode()
     {
         return m_bytecode;
-    }
-
-    Node Compiler::remove_unused(const Node& ast)
-    {
-        Node new_ast(ast);
-        // if we shouldn't remove unused vars, exit
-        // also, do not handle non-list nodes
-        if ((m_options & FeatureRemoveUnusedVars) == 0 || ast.nodeType() != NodeType::List)
-            return new_ast;
-
-        std::unordered_map<std::string, unsigned> appearances;
-
-        run_on_global_scope_vars(new_ast, [&appearances](Node& node, Node& parent, int idx){
-            appearances[node.const_list()[1].string()] = 0;
-        });
-        count_occurences(new_ast, appearances);
-
-        // logic: remove piece of code with only 1 reference
-        run_on_global_scope_vars(new_ast, [&appearances](Node& node, Node& parent, int idx){
-            std::string name = node.const_list()[1].string();
-            // a variable was only declared and never used
-            if (appearances.find(name) != appearances.end() && appearances[name] == 1)
-                parent.list().erase(parent.list().begin() + idx);  // erase the node from the list
-        });
-
-        return new_ast;
-    }
-
-    void Compiler::run_on_global_scope_vars(Node& node, const std::function<void(Node&, Node&, int)>& func)
-    {
-        int i = static_cast<int>(node.const_list().size());
-        // iterate only on the first level, using reverse iterators to avoid copy-delete-move to nowhere
-        for (auto it=node.list().rbegin(); it != node.list().rend(); ++it)
-        {
-            i--;
-
-            if (it->const_list().size() > 0 && it->const_list()[0].nodeType() == NodeType::Keyword)
-            {
-                Keyword kw = it->const_list()[0].keyword();
-
-                // eliminate nested begin blocks
-                if (kw == Keyword::Begin)
-                {
-                    run_on_global_scope_vars(*it, func);
-                    // skip let/ mut detection
-                    continue;
-                }
-                // check if it's a let/mut declaration
-                else if (kw == Keyword::Let || kw == Keyword::Mut)
-                    func(*it, node, i);
-            }
-        }
-    }
-
-    void Compiler::count_occurences(const Node& node, std::unordered_map<std::string, unsigned>& appearances)
-    {
-        if (node.nodeType() == NodeType::Symbol)
-        {
-            std::string name = node.string();
-            // check if it's the name of something declared in global scope
-            if (appearances.find(name) != appearances.end())
-                appearances[name]++;
-        }
-        else if (node.nodeType() == NodeType::List)
-        {
-            // iterate over children
-            for (auto it=node.const_list().begin(), end=node.const_list().end(); it != end; ++it)
-                count_occurences(*it, appearances);
-        }
     }
 
     void Compiler::_compile(const Node& x, int p)
