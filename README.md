@@ -16,14 +16,14 @@
 ## Key features
 
 ArkScript is
-* small: the compiler, and the virtual machines fit under 5000 lines, but also small in term of keywords (it has only 10)!
+* small: the compiler and the virtual machines fit under 8000 lines, but also small in terms of keywords (it has only 10)!
 * a scripting language: it's very easy to embed it in your application. The builtin construction is quite easy to understand, so adding your own functions to the virtual machine is effortless
 * portable: it produces a bytecode which is run by its virtual machine, like Java but without the `OutOfMemoryException`
 * a functional language: every parameter is passed by value, everything is immutable unless you use `mut` to define a mutable variable
-* powerful: it can handle object oriented programming in a very elegant way with its closures and explicit captures (see examples/church-encoding)
+* powerful: it can handle object-oriented programming in a very elegant way with its closures and explicit captures (see examples/church-encoding)
 * promoting functionalities before performances: expressiveness often brings more productivity, but performances aren't bad at all
 * easy to compile: it takes less than 200ms to compile and check a complex code with a lot of branches and sub-branches of 200 lines.
-* a Lisp-like, but with less parentheses: `[...]` is expanded to `(list ...)` and `{}` to `(begin ...)`. More shorthands will come in the future.
+* a Lisp-like, but with fewer parentheses: `[...]` is expanded to `(list ...)` and `{}` to `(begin ...)`. More shorthands will come in the future.
 * extensible: it is very easy to create a C++ module to use in the language
 
 Also it has:
