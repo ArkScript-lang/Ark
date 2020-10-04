@@ -44,7 +44,7 @@ namespace Ark::internal
             if (current == '\n')
             {
                 line++;
-                character = 0;
+                character = -1; // before first character
 
                 // close comments, don't append them
                 if (in_comment)
@@ -53,10 +53,6 @@ namespace Ark::internal
                     buffer.clear();
                     continue;
                 }
-
-                if (!buffer.empty())
-                    append_token_from_buffer();
-                continue;
             }
 
             if (!in_string)
@@ -97,7 +93,7 @@ namespace Ark::internal
                     buffer = "#";
                 }
                 // separation
-                else if ((current == ' ' || current == '\t' || current == '\v'))
+                else if ((current == ' ' || current == '\t' || current == '\v' || current == '\n'))
                 {
                     if (!buffer.empty())
                         append_token_from_buffer();
