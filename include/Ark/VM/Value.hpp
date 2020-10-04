@@ -65,7 +65,7 @@ namespace Ark::internal
             double,             //  8 bytes
             String,             // 16 bytes
             PageAddr_t,         //  2 bytes
-            ProcType,           // 16 bytes
+            ProcType,           //  8 bytes
             Closure,            // 24 bytes
             UserType,           // 24 bytes
             std::vector<Value>  // 24 bytes

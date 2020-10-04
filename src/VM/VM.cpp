@@ -1,5 +1,4 @@
 #include <Ark/VM/VM.hpp>
-#include <Ark/VM/Plugin.hpp>
 
 // read a number from the bytecode
 #define readNumber(var) {                                                \
@@ -95,6 +94,50 @@ namespace Ark
         {
             m__no_value = Builtins::nil;
             return m__no_value;
+        }
+    }
+
+    void VM::loadPlugin(uint16_t id)
+    {
+        using namespace Ark::internal;
+        namespace fs = std::filesystem;
+
+        std::string file = m_state->m_constants[id].string_ref().toString();
+        std::string path = "./" + file;
+
+        if (m_state->m_filename != ARK_NO_NAME_FILE)  // bytecode loaded from file
+            path = "./" + (fs::path(m_state->m_filename).parent_path() / fs::path(file)).string();
+        std::string lib_path = (fs::path(m_state->m_libdir) / fs::path(file)).string();
+
+        if (std::find_if(m_shared_lib_objects.begin(), m_shared_lib_objects.end(), [&, this](const auto& val) {
+            return (val->path() == path || val->path() == lib_path);
+        }) != m_shared_lib_objects.end())
+            return;
+
+        if (Utils::fileExists(path))  // if it exists alongside the .arkc file
+            m_shared_lib_objects.emplace_back(std::make_shared<SharedLibrary>(path));
+        else if (Utils::fileExists(lib_path))  // check in LOAD_PATH otherwise
+            m_shared_lib_objects.emplace_back(std::make_shared<SharedLibrary>(lib_path));
+        else
+            throwVMError("could not load plugin: " + file);
+
+        // load data from it!
+        using Mapping_t = std::unordered_map<std::string, Value::ProcType>;
+        using map_fun_t = Mapping_t(*) ();
+        Mapping_t map;
+
+        try {
+            map = m_shared_lib_objects.back()->template get<map_fun_t>("getFunctionsMapping")();
+        } catch (const std::system_error& e) {
+            throwVMError(std::string(e.what()));
+        }
+
+        for (auto&& kv : map)
+        {
+            // put it in the global frame, aka the first one
+            auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), kv.first);
+            if (it != m_state->m_symbols.end())
+                registerVarGlobal(static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it)), Value(kv.second));
         }
     }
 
@@ -288,9 +331,9 @@ namespace Ark
                         m_pp = static_cast<std::size_t>(m_frames.back().callerPageAddr());
                         m_ip = static_cast<int>(m_frames.back().callerAddr());
 
-                        Value* return_value = m_frames.back().stackSize() != 0 ? popVal() : &Builtins::nil;
+                        Value return_value = m_frames.back().stackSize() != 0 ? *popVal() : Builtins::nil;
                         returnFromFuncCall();
-                        push(*return_value);
+                        push(return_value);
                         break;
                     }
 
