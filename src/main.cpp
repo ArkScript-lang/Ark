@@ -22,10 +22,10 @@ int main(int argc, char** argv)
 {
     using namespace clipp;
 
-    enum class mode { help, dev_info, bytecode_reader, version, run, repl, compile };
+    enum class mode { help, dev_info, bytecode_reader, version, run, repl, compile, eval };
     mode selected = mode::repl;
 
-    std::string file = "", lib_dir = "?";
+    std::string file = "", lib_dir = "?", eval_expresion = "";
     unsigned debug = 0;
     std::vector<std::string> wrong;
     uint16_t options = Ark::DefaultFeatures;
@@ -37,11 +37,18 @@ int main(int argc, char** argv)
         | option("-r", "--repl").set(selected, mode::repl).doc("Run the ArkScript REPL")
         | (
             (
-                ( value("file", file).set(selected, mode::run)
-                , option("-c", "--compile").set(selected, mode::compile).doc("Compile the given program to bytecode, but do not run")
+                one_of(
+                    (
+                        value("file", file).set(selected, mode::run)
+                        , option("-c", "--compile").set(selected, mode::compile).doc("Compile the given program to bytecode, but do not run")
+                    )
+                    , (
+                        option("-e", "--eval").set(selected, mode::eval).doc("Evaluate ArkScript expression")
+                        & value("expression", eval_expresion)
+                    )
                 )
             )
-            //  options taken by mode::run, mode::repl and mode::compile
+            //  options taken by mode::run, mode::repl, mode::compile and mode::eval
             , (
                 (
                     (
@@ -154,6 +161,21 @@ int main(int argc, char** argv)
 
                 Ark::VM vm(&state);
                 return vm.run();
+            }
+
+            case mode::eval:
+            {
+                Ark::State state(options, lib_dir);
+                state.setDebug(debug);
+
+                if (!state.doString(eval_expresion))
+                {
+                    Ark::logger.error("Ark::State.doString(" + eval_expresion + ") failed");
+                    return  -1;
+                }
+
+                Ark::VM vm(&state);
+                return  vm.run();
             }
 
             case mode::bytecode_reader:
