@@ -57,7 +57,7 @@ internal::Value VM::call(const std::string& name, Args&&... args)
         return Builtins::nil;
 }
 
-inline internal::Value* VM::findNearestVariable(uint16_t id)
+inline internal::Value* VM::findNearestVariable(uint16_t id) noexcept
 {
     for (auto it=m_locals.rbegin(), it_end=m_locals.rend(); it != it_end; ++it)
     {
@@ -73,28 +73,11 @@ inline void VM::returnFromFuncCall()
     m_frames.pop_back();
     uint8_t del_counter = m_frames.back().scopeCountToDelete();
 
-    // search and delete usertype only if it's the last occurence of the scope
-    if (m_locals.back().use_count() == 1)
-    {
-        for (std::size_t i=0, size=m_locals.back()->size(); i < size; ++i)
-        {
-            if (auto var = m_locals.back()->m_data[i].second; var.valueType() == internal::ValueType::User)
-                var.usertype_ref().del();
-        }
-    }
     // high cpu cost because destroying variants cost
     m_locals.pop_back();
 
     while (del_counter != 0)
     {
-        if (m_locals.back().use_count() == 1)
-        {
-            for (std::size_t i=0, size=m_locals.back()->size(); i < size; ++i)
-            {
-                if (auto var = m_locals.back()->m_data[i].second; var.valueType() == internal::ValueType::User)
-                    var.usertype_ref().del();
-            }
-        }
         m_locals.pop_back();
         del_counter--;
     }

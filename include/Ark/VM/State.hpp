@@ -26,7 +26,7 @@ namespace Ark
          * @param options the options for the virtual machine, compiler, and parser
          * @param libdir the path to the standard library, defaults to "?" which means: search in environment variables
          */
-        State(uint16_t options=DefaultFeatures, const std::string& libdir="?");
+        State(uint16_t options=DefaultFeatures, const std::string& libdir="?") noexcept;
 
         /**
          * @brief Feed the state by giving it the path to an existing bytecode file
@@ -70,27 +70,27 @@ namespace Ark
          * @param name the name of the function in ArkScript
          * @param function the code of the function
          */
-        void loadFunction(const std::string& name, internal::Value::ProcType function);
+        void loadFunction(const std::string& name, internal::Value::ProcType function) noexcept;
 
         /**
          * @brief Set the debug level
          * 
          * @param level between 0 (nothing) and 3 (maximum verbosity)
          */
-        void setDebug(unsigned level);
+        void setDebug(unsigned level) noexcept;
 
         /**
          * @brief Set the Lib Dir path
          * 
          * @param libDir 
          */
-        void setLibDir(const std::string& libDir);
+        void setLibDir(const std::string& libDir) noexcept;
 
         /**
          * @brief Reset State (all member variables related to execution)
          * 
          */
-        void reset();
+        void reset() noexcept;
 
         friend class VM;
         friend class Repl;
@@ -99,7 +99,7 @@ namespace Ark
         /**
          * @brief Called to configure the state (set the bytecode, debug level, call the compiler...)
          * 
-         */        
+         */
         void configure();
 
         /**

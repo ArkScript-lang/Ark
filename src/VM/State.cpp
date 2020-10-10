@@ -10,7 +10,7 @@
 
 namespace Ark
 {
-    State::State(uint16_t options, const std::string& libdir) :
+    State::State(uint16_t options, const std::string& libdir) noexcept :
         m_libdir(libdir), m_filename(ARK_NO_NAME_FILE),
         m_options(options), m_debug_level(0)
     {
@@ -181,17 +181,17 @@ namespace Ark
         return true;
     }
 
-    void State::loadFunction(const std::string& name, internal::Value::ProcType function)
+    void State::loadFunction(const std::string& name, internal::Value::ProcType function) noexcept
     {
         m_binded_functions[name] = std::move(function);
     }
 
-    void State::setDebug(unsigned level)
+    void State::setDebug(unsigned level) noexcept
     {
         m_debug_level = level;
     }
 
-    void State::setLibDir(const std::string& libDir)
+    void State::setLibDir(const std::string& libDir) noexcept
     {
         m_libdir = libDir;
     }
@@ -325,7 +325,7 @@ namespace Ark
         }
     }
 
-    void State::reset()
+    void State::reset() noexcept
     {
         m_symbols.clear();
         m_constants.clear();

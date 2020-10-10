@@ -20,7 +20,7 @@ namespace Ark::internal
          * @brief Construct a new Scope object
          * 
          */
-        Scope();
+        Scope() noexcept;
 
         /**
          * @brief Put a value in the scope
@@ -28,7 +28,7 @@ namespace Ark::internal
          * @param id The symbol id of the variable
          * @param val The value linked to the symbol
          */
-        void push_back(uint16_t id, Value&& val);
+        void push_back(uint16_t id, Value&& val) noexcept;
 
         /**
          * @brief Put a value in the scope
@@ -36,7 +36,7 @@ namespace Ark::internal
          * @param id The symbol id of the variable
          * @param val The value linked to the symbol
          */
-        void push_back(uint16_t id, const Value& val);
+        void push_back(uint16_t id, const Value& val) noexcept;
 
         /**
          * @brief Check if the scope has a specific symbol in memory
@@ -45,7 +45,7 @@ namespace Ark::internal
          * @return true On success
          * @return false Otherwise
          */
-        bool has(uint16_t id);
+        bool has(uint16_t id) noexcept;
 
         /**
          * @brief Get a value from its symbol id
@@ -53,7 +53,7 @@ namespace Ark::internal
          * @param id 
          * @return Value* Returns nullptr if the value can not be found
          */
-        Value* operator[](uint16_t id);
+        Value* operator[](uint16_t id) noexcept;
 
         /**
          * @brief Get the id of a variable based on its value ; used for debug only
@@ -61,14 +61,14 @@ namespace Ark::internal
          * @param val 
          * @return uint16_t 
          */
-        uint16_t idFromValue(Value&& val);
+        uint16_t idFromValue(Value&& val) noexcept;
 
         /**
          * @brief Return the size of the scope
          * 
          * @return const std::size_t 
          */
-        const std::size_t size() const;
+        const std::size_t size() const noexcept;
 
         friend class Ark::VM;
 
