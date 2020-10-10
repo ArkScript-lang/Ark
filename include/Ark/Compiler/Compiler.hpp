@@ -61,7 +61,7 @@ namespace Ark
          * 
          * @return const bytecode_t& 
          */
-        const bytecode_t& bytecode();
+        const bytecode_t& bytecode() noexcept;
 
     private:
         Parser m_parser;
@@ -78,14 +78,14 @@ namespace Ark
         unsigned m_debug;
 
         // helper functions to get a temp or finalized code page
-        inline std::vector<internal::Inst>& page(int i);
+        inline std::vector<internal::Inst>& page(int i) noexcept;
         // checking if a symbol is an operator or a builtin
         // because they are implemented the same way
 
         /// Checking if a symbol is an operator
-        inline std::optional<std::size_t> isOperator(const std::string& name);
+        inline std::optional<std::size_t> isOperator(const std::string& name) noexcept;
         /// Checking if a symbol is a builtin
-        inline std::optional<std::size_t> isBuiltin(const std::string& name);
+        inline std::optional<std::size_t> isBuiltin(const std::string& name) noexcept;
 
         /**
          * @brief Compile a single node recursively
@@ -96,12 +96,12 @@ namespace Ark
         void _compile(const internal::Node& x, int p);
 
         // register a symbol/value/plugin in its own table
-        std::size_t addSymbol(const std::string& sym);
-        std::size_t addValue(const internal::Node& x);
-        std::size_t addValue(std::size_t page_id);
+        std::size_t addSymbol(const std::string& sym) noexcept;
+        std::size_t addValue(const internal::Node& x) noexcept;
+        std::size_t addValue(std::size_t page_id) noexcept;
 
         // push a number on stack (need 2 bytes)
-        void pushNumber(uint16_t n, std::vector<internal::Inst>* page=nullptr);
+        void pushNumber(uint16_t n, std::vector<internal::Inst>* page=nullptr) noexcept;
     };
 
     #include "Compiler.inl"

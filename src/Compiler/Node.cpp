@@ -4,105 +4,105 @@
 
 namespace Ark::internal
 {
-    Node::Node(int value) :
+    Node::Node(int value) noexcept :
         m_type(NodeType::Number),
         m_value(static_cast<double>(value))
     {}
 
-    Node::Node(double value) :
+    Node::Node(double value) noexcept :
         m_type(NodeType::Number),
         m_value(value)
     {}
     
-    Node::Node(const std::string& value) :
+    Node::Node(const std::string& value) noexcept :
         m_type(NodeType::String),
         m_value(value)
     {}
 
-    Node::Node(Keyword value) :
+    Node::Node(Keyword value) noexcept :
         m_type(NodeType::Keyword),
         m_value(value)
     {}
 
-    Node::Node(NodeType type) :
+    Node::Node(NodeType type) noexcept :
         m_type(type)
     {}
 
     // -------------------------
 
-    const std::string& Node::string() const
+    const std::string& Node::string() const noexcept
     {
         return std::get<std::string>(m_value);
     }
 
-    double Node::number() const
+    double Node::number() const noexcept
     {
         return std::get<double>(m_value);
     }
 
-    Keyword Node::keyword() const
+    Keyword Node::keyword() const noexcept
     {
         return std::get<Keyword>(m_value);
     }
 
     // -------------------------
 
-    void Node::push_back(const Node& node)
+    void Node::push_back(const Node& node) noexcept
     {
         m_list.push_back(node);
     }
 
-    std::vector<Node>& Node::list()
+    std::vector<Node>& Node::list() noexcept
     {
         return m_list;
     }
 
-    const std::vector<Node>& Node::const_list() const
+    const std::vector<Node>& Node::const_list() const noexcept
     {
         return m_list;
     }
 
     // -------------------------
 
-    NodeType Node::nodeType() const
+    NodeType Node::nodeType() const noexcept
     {
         return m_type;
     }
 
-    void Node::setNodeType(NodeType type)
+    void Node::setNodeType(NodeType type) noexcept
     {
         m_type = type;
     }
 
-    void Node::setString(const std::string& value)
+    void Node::setString(const std::string& value) noexcept
     {
         m_value = value;
     }
 
-    void Node::setNumber(double value)
+    void Node::setNumber(double value) noexcept
     {
         m_value = value;
     }
 
-    void Node::setKeyword(Keyword kw)
+    void Node::setKeyword(Keyword kw) noexcept
     {
         m_value = kw;
     }
 
     // -------------------------
 
-    void Node::setPos(std::size_t line, std::size_t col)
+    void Node::setPos(std::size_t line, std::size_t col) noexcept
     {
         m_line = line;
         m_col = col;
     }
 
-    std::size_t Node::line() const
+    std::size_t Node::line() const noexcept
     {
         return m_line;
     }
     
-    std::size_t Node::col() const
+    std::size_t Node::col() const noexcept
     {
         return m_col;
     }
@@ -117,7 +117,7 @@ namespace Ark::internal
         termcolor::magenta
     });
 
-    std::ostream& operator<<(std::ostream& os, const Node& N)
+    std::ostream& operator<<(std::ostream& os, const Node& N) noexcept
     {
         static int index = 0;
 
@@ -181,7 +181,7 @@ namespace Ark::internal
         return os;
     }
 
-    std::ostream& operator<<(std::ostream& os, const Nodes& N)
+    std::ostream& operator<<(std::ostream& os, const Nodes& N) noexcept
     {
         os << "( ";
         for (auto& t: N)
