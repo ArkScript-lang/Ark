@@ -185,7 +185,7 @@ namespace Ark::internal
         std::size_t col() const noexcept;
 
         friend std::ostream& operator<<(std::ostream& os, const Node& N) noexcept;
-        friend inline bool operator==(const Node& A, const Node& B) noexcept;
+        friend inline bool operator==(const Node& A, const Node& B);
 
     private:
         NodeType m_type;

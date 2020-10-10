@@ -1,4 +1,4 @@
-inline bool operator==(const Node& A, const Node& B) noexcept
+inline bool operator==(const Node& A, const Node& B)
 {
     if (A.m_type != B.m_type)  // should have the same types
         return false;
