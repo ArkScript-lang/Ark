@@ -457,7 +457,7 @@ namespace Ark
         return false;
     }
 
-    std::ostream& operator<<(std::ostream& os, const Parser& P)
+    std::ostream& operator<<(std::ostream& os, const Parser& P) noexcept
     {
         os << "AST" << std::endl;
         if (P.ast().nodeType() == NodeType::List)

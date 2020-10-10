@@ -100,7 +100,7 @@ namespace Ark::internal
 
     // --------------------------
 
-    std::ostream& operator<<(std::ostream& os, const Value& V)
+    std::ostream& operator<<(std::ostream& os, const Value& V) noexcept
     {
         switch (V.valueType())
         {
