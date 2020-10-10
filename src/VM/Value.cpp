@@ -7,60 +7,60 @@
 
 namespace Ark::internal
 {
-    Value::Value() :
+    Value::Value() noexcept :
         m_constType(init_const_type(false, ValueType::Undefined))
     {}
 
     // --------------------------
 
-    Value::Value(ValueType type) :
+    Value::Value(ValueType type) noexcept :
         m_constType(init_const_type(false, type))
     {
         if (type == ValueType::List)
             m_value = std::vector<Value>();
     }
 
-    Value::Value(int value) :
+    Value::Value(int value) noexcept :
         m_value(static_cast<double>(value)), m_constType(init_const_type(false, ValueType::Number))
     {}
 
-    Value::Value(float value) :
+    Value::Value(float value) noexcept :
         m_value(static_cast<double>(value)), m_constType(init_const_type(false, ValueType::Number))
     {}
 
-    Value::Value(double value) :
+    Value::Value(double value) noexcept :
         m_value(value), m_constType(init_const_type(false, ValueType::Number))
     {}
 
-    Value::Value(const std::string& value) :
+    Value::Value(const std::string& value) noexcept :
         m_value(value.c_str()), m_constType(init_const_type(false, ValueType::String))
     {}
 
-    Value::Value(const String& value) :
+    Value::Value(const String& value) noexcept :
         m_value(value), m_constType(init_const_type(false, ValueType::String))
     {}
 
-    Value::Value(const char* value) :
+    Value::Value(const char* value) noexcept :
         m_value(value), m_constType(init_const_type(false, ValueType::String))
     {}
 
-    Value::Value(PageAddr_t value) :
+    Value::Value(PageAddr_t value) noexcept :
         m_value(value), m_constType(init_const_type(false, ValueType::PageAddr))
     {}
 
-    Value::Value(Value::ProcType value) :
+    Value::Value(Value::ProcType value) noexcept :
         m_value(value), m_constType(init_const_type(false, ValueType::CProc))
     {}
 
-    Value::Value(std::vector<Value>&& value) :
+    Value::Value(std::vector<Value>&& value) noexcept :
         m_value(value), m_constType(init_const_type(false, ValueType::List))
     {}
 
-    Value::Value(Closure&& value) :
+    Value::Value(Closure&& value) noexcept :
         m_value(value), m_constType(init_const_type(false, ValueType::Closure))
     {}
 
-    Value::Value(UserType&& value) :
+    Value::Value(UserType&& value) noexcept :
         m_value(value), m_constType(init_const_type(false, ValueType::User))
     {}
 

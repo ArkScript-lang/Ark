@@ -31,7 +31,7 @@ namespace Ark::internal
          * @brief Construct a new Closure object
          * 
          */
-        Closure();
+        Closure() noexcept;
 
         /**
          * @brief Construct a new Closure object
@@ -39,7 +39,7 @@ namespace Ark::internal
          * @param scope_ptr the scope of the function turned into a closure
          * @param pa the current page address of the function turned into a closure
          */
-        Closure(Scope_t&& scope_ptr, PageAddr_t pa);
+        Closure(Scope_t&& scope_ptr, PageAddr_t pa) noexcept;
 
         /**
          * @brief Construct a new Closure object
@@ -47,21 +47,21 @@ namespace Ark::internal
          * @param scope_ptr the scope of the function turned into a closure
          * @param pa the current page address of the function turned into a closure
          */
-        Closure(const Scope_t& scope_ptr, PageAddr_t pa);
+        Closure(const Scope_t& scope_ptr, PageAddr_t pa) noexcept;
 
         /**
          * @brief Return the scope held by the object
          * 
          * @return const Scope_t& 
          */
-        const Scope_t& scope() const;
+        const Scope_t& scope() const noexcept;
 
         /**
          * @brief Return a reference to the scpoe held by the object
          * 
          * @return Scope_t& 
          */
-        Scope_t& scope_ref();
+        Scope_t& scope_ref() noexcept;
 
         /**
          * @brief Return the page address of the object
@@ -70,9 +70,9 @@ namespace Ark::internal
          */
         inline PageAddr_t pageAddr() const { return m_page_addr; }
 
-        friend inline bool operator==(const Closure& A, const Closure& B);
-        friend inline bool operator<(const Closure& A, const Closure& B);
-        friend std::ostream& operator<<(std::ostream& os, const Closure& C);
+        friend inline bool operator==(const Closure& A, const Closure& B) noexcept;
+        friend inline bool operator<(const Closure& A, const Closure& B) noexcept;
+        friend std::ostream& operator<<(std::ostream& os, const Closure& C) noexcept;
     
     private:
         Scope_t m_scope;
@@ -80,12 +80,12 @@ namespace Ark::internal
         PageAddr_t m_page_addr;
     };
 
-    inline bool operator==(const Closure& A, const Closure& B)
+    inline bool operator==(const Closure& A, const Closure& B) noexcept
     {
         return A.m_scope == B.m_scope;
     }
 
-    inline bool operator<(const Closure& A, const Closure& B)
+    inline bool operator<(const Closure& A, const Closure& B) noexcept
     {
         return A.m_page_addr < B.m_page_addr;
     }

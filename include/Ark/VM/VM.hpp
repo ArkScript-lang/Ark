@@ -39,14 +39,14 @@ namespace Ark
          * 
          * @param state a pointer to an ArkScript state, which can be reused for multiple VMs
          */
-        VM(State* state);
+        VM(State* state) noexcept;
 
         /**
          * @brief Run the bytecode held in the state
          * 
          * @return int the exit code (default to 0 if no error)
          */
-        int run();
+        int run() noexcept;
 
         /**
          * @brief Retrieve a value from the virtual machine, given its symbol name
@@ -54,7 +54,7 @@ namespace Ark
          * @param name the name of the variable to retrieve
          * @return internal::Value& 
          */
-        internal::Value& operator[](const std::string& name);
+        internal::Value& operator[](const std::string& name) noexcept;
 
         /**
          * @brief Call a function from ArkScript, by giving it arguments
@@ -85,14 +85,14 @@ namespace Ark
          * 
          * @param ptr Pointer to data NOT owned by the VM, to be used later
          */
-        void setUserPointer(void* ptr);
+        void setUserPointer(void* ptr) noexcept;
 
         /**
          * @brief Retrieves the stored pointer
          * 
          * @return void* 
          */
-        void* getUserPointer();
+        void* getUserPointer() noexcept;
 
         friend class internal::Value;
         friend class Repl;
@@ -131,7 +131,7 @@ namespace Ark
          * @brief Initialize the VM according to the parameters
          * 
          */
-        void init();
+        void init() noexcept;
 
         // locals related
 
@@ -141,7 +141,7 @@ namespace Ark
          * @param id the id to find
          * @return internal::Value* 
          */
-        inline internal::Value* findNearestVariable(uint16_t id);
+        inline internal::Value* findNearestVariable(uint16_t id) noexcept;
 
         /**
          * @brief Destroy the current frame and get back to the previous one, resuming execution
@@ -169,7 +169,7 @@ namespace Ark
          * @param value the value to search for
          * @return uint16_t 
          */
-        uint16_t findNearestVariableIdWithValue(internal::Value&& value);
+        uint16_t findNearestVariableIdWithValue(internal::Value&& value) noexcept;
 
         /**
          * @brief Throw a VM error message
@@ -182,7 +182,7 @@ namespace Ark
          * @brief Display a backtrace when the VM encounter an exception
          * 
          */
-        void backtrace();
+        void backtrace() noexcept;
 
         /**
          * @brief Function called when the CALL instruction is met in the bytecode
