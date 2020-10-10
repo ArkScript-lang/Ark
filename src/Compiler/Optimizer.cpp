@@ -4,7 +4,7 @@ namespace Ark
 {
     using namespace internal;
 
-    Optimizer::Optimizer(uint16_t options) :
+    Optimizer::Optimizer(uint16_t options) noexcept :
         m_options(options)
     {}
 
@@ -16,7 +16,7 @@ namespace Ark
             remove_unused();
     }
 
-    const Node& Optimizer::ast()
+    const Node& Optimizer::ast() const noexcept
     {
         return m_ast;
     }
