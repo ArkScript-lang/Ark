@@ -69,6 +69,7 @@ namespace Ark
         uint16_t m_options;
         // tables: symbols, values, plugins and codes
         std::vector<std::string> m_symbols;
+        std::vector<std::string> m_defined_symbols;
         std::vector<internal::CValue> m_values;
         std::vector<std::vector<internal::Inst>> m_code_pages;
             // we need a temp code pages for some compilations passes
@@ -99,6 +100,9 @@ namespace Ark
         std::size_t addSymbol(const std::string& sym) noexcept;
         std::size_t addValue(const internal::Node& x) noexcept;
         std::size_t addValue(std::size_t page_id) noexcept;
+
+        void addDefinedSymbol(const std::string &sym);
+        void checkForUndefinedSymbol();
 
         // push a number on stack (need 2 bytes)
         void pushNumber(uint16_t n, std::vector<internal::Inst>* page=nullptr) noexcept;
