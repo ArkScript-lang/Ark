@@ -84,11 +84,14 @@ namespace Ark
 
         // symbols table
         m_bytecode.push_back(Instruction::SYM_TABLE_START);
-            if (m_debug >= 1)
-                Ark::logger.info("Compiling");
-            // gather symbols, values, and start to create code segments
-            m_code_pages.emplace_back();  // create empty page
-            _compile(m_optimizer.ast(), 0);
+        
+        if (m_debug >= 1)
+            Ark::logger.info("Compiling");
+        // gather symbols, values, and start to create code segments
+        m_code_pages.emplace_back();  // create empty page
+        _compile(m_optimizer.ast(), 0);
+        checkForUndefinedSymbol();
+            
         if (m_debug >= 1)
             Ark::logger.info("Adding symbols table");
         // push size
