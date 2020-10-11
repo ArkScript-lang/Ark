@@ -291,6 +291,7 @@ namespace Ark
             {
                 std::string name = x.const_list()[1].string();
                 std::size_t i = addSymbol(name);
+                addDefinedSymbol(name);
 
                 // put value before symbol id
                 _compile(x.const_list()[2], p);
@@ -302,6 +303,7 @@ namespace Ark
             {
                 std::string name = x.const_list()[1].string();
                 std::size_t i = addSymbol(name);
+                addDefinedSymbol(name);
 
                 // put value before symbol id
                 _compile(x.const_list()[2], p);
@@ -335,6 +337,7 @@ namespace Ark
                     {
                         page(page_id).emplace_back(Instruction::MUT);
                         std::size_t var_id = addSymbol(it->string());
+                        addDefinedSymbol(it->string());
                         pushNumber(static_cast<uint16_t>(var_id), &(page(page_id)));
                     }
                 }
@@ -542,6 +545,31 @@ namespace Ark
             return m_values.size() - 1;
         }
         return static_cast<std::size_t>(std::distance(m_values.begin(), it));
+    }
+
+    void Compiler::addDefinedSymbol(const std::string &sym)
+    {
+        // otherwise, add the symbol, and return its id in the table
+        auto it = std::find(m_defined_symbols.begin(), m_defined_symbols.end(), sym);
+        if (it == m_defined_symbols.end())
+        {
+            if (m_debug >= 3)
+                Ark::logger.info("Registering declared symbol:", sym, "(", m_defined_symbols.size(), ")");
+
+            m_defined_symbols.push_back(sym);
+        }
+    }
+
+    void Compiler::checkForUndefinedSymbol()
+    {
+        for (const std::string &sym : m_symbols)
+        {
+            auto it = std::find(m_defined_symbols.begin(), m_defined_symbols.end(), sym);
+            if (it == m_defined_symbols.end())
+            {
+                throw Ark::CompilationError("unbound variable: " + sym + " (symbol is used but not defined)");
+            }
+        }
     }
 
     void Compiler::pushNumber(uint16_t n, std::vector<Inst>* page)
