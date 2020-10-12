@@ -11,6 +11,7 @@
 - `list:find` returns -1 to stay consistent with `str:find`
 - **hot fix** `(mut a 10) (let b 12) (set a b) (set a 11)`, the immutability was transfered from b to a
 - converting `list`, `append` and `concat` to instructions
+- instructions `LIST` `CONCAT` and `APPEND` added to replace the corresponding builtins
 
 ### Removed
 
