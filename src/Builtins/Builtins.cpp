@@ -28,9 +28,6 @@ namespace Ark::internal::Builtins
         { "nil",    nil },
 
         // List
-        { "append", Value(List::append) },
-        { "concat", Value(List::concat) },
-        { "list",   Value(List::list) },
         { "list:reverse", Value(List::reverseList) },
         { "list:find", Value(List::findInList) },
         { "list:removeAt", Value(List::removeAtList) },
