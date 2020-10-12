@@ -27,7 +27,7 @@ namespace Ark
             m_bytecode[i] = static_cast<uint8_t>(temp[i]);
     }
 
-    const bytecode_t& BytecodeReader::bytecode()
+    const bytecode_t& BytecodeReader::bytecode() noexcept
     {
         return m_bytecode;
     }

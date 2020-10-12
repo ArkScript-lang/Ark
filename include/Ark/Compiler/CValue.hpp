@@ -25,16 +25,16 @@ namespace Ark::internal
         CValueType type;
 
         // Numbers
-        CValue(double value);
-        CValue(long value);
+        CValue(double value) noexcept;
+        CValue(long value) noexcept;
         // Strings
-        CValue(const std::string& value);
+        CValue(const std::string& value) noexcept;
         // automatic handling (Number/String/Function)
-        CValue(const Node& v);
+        CValue(const Node& v) noexcept;
         // Functions
-        CValue(std::size_t value);
+        CValue(std::size_t value) noexcept;
 
-        bool operator==(const CValue& A);
+        bool operator==(const CValue& A) noexcept;
     };
 }
 

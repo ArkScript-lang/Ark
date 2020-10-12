@@ -55,112 +55,112 @@ namespace Ark::internal
          * 
          * @param value 
          */
-        Node(int value);
+        Node(int value) noexcept;
 
         /**
          * @brief Construct a new Node object
          * 
          * @param value 
          */
-        Node(double value);
+        Node(double value) noexcept;
 
         /**
          * @brief Construct a new Node object
          * 
          * @param value 
          */
-        Node(const std::string& value);
+        Node(const std::string& value) noexcept;
 
         /**
          * @brief Construct a new Node object
          * 
          * @param value 
          */
-        Node(Keyword value);
+        Node(Keyword value) noexcept;
 
         /**
          * @brief Construct a new Node object, does not set the value
          * 
          * @param type 
          */
-        Node(NodeType type=NodeType::Symbol);
+        Node(NodeType type=NodeType::Symbol) noexcept;
 
         /**
          * @brief Return the string held by the value (if the node type allows it)
          * 
          * @return const std::string& 
          */
-        const std::string& string() const;
+        const std::string& string() const noexcept;
 
         /**
          * @brief Return the number held by the value (if the node type allows it)
          * 
          * @return double 
          */
-        double number() const;
+        double number() const noexcept;
 
         /**
          * @brief Return the keyword held by the value (if the node type allows it)
          * 
          * @return Keyword 
          */
-        Keyword keyword() const;
+        Keyword keyword() const noexcept;
 
         /**
          * @brief Every node has a list as well as a value so we can push_back on all node no matter their type
          * 
          * @param node a sub-node to push on the list held by the current node
          */
-        void push_back(const Node& node);
+        void push_back(const Node& node) noexcept;
 
         /**
          * @brief Return the list of sub-nodes held by the node
          * 
          * @return std::vector<Node>& 
          */
-        std::vector<Node>& list();
+        std::vector<Node>& list() noexcept;
 
         /**
          * @brief Return the list of sub-nodes held by the node
          * 
          * @return const std::vector<Node>& 
          */
-        const std::vector<Node>& const_list() const;
+        const std::vector<Node>& const_list() const noexcept;
 
         /**
          * @brief Return the node type
          * 
          * @return NodeType 
          */
-        NodeType nodeType() const;
+        NodeType nodeType() const noexcept;
 
         /**
          * @brief Set the Node Type object
          * 
          * @param type 
          */
-        void setNodeType(NodeType type);
+        void setNodeType(NodeType type) noexcept;
 
         /**
          * @brief Set the String object
          * 
          * @param value 
          */
-        void setString(const std::string& value);
+        void setString(const std::string& value) noexcept;
 
         /**
          * @brief Set the Number object
          * 
          * @param value 
          */
-        void setNumber(double value);
+        void setNumber(double value) noexcept;
 
         /**
          * @brief Set the Keyword object
          * 
          * @param kw 
          */
-        void setKeyword(Keyword kw);
+        void setKeyword(Keyword kw) noexcept;
 
         /**
          * @brief Set the Position of the node in the text
@@ -168,23 +168,23 @@ namespace Ark::internal
          * @param line 
          * @param col 
          */
-        void setPos(std::size_t line, std::size_t col);
+        void setPos(std::size_t line, std::size_t col) noexcept;
 
         /**
          * @brief Get the line at which this node was created
          * 
          * @return std::size_t 
          */
-        std::size_t line() const;
+        std::size_t line() const noexcept;
 
         /**
          * @brief Get the column at which this node was created
          * 
          * @return std::size_t 
          */
-        std::size_t col() const;
+        std::size_t col() const noexcept;
 
-        friend std::ostream& operator<<(std::ostream& os, const Node& N);
+        friend std::ostream& operator<<(std::ostream& os, const Node& N) noexcept;
         friend inline bool operator==(const Node& A, const Node& B);
 
     private:
@@ -199,7 +199,7 @@ namespace Ark::internal
 
     using Nodes = std::vector<Node>;
 
-    std::ostream& operator<<(std::ostream& os, const Nodes& N);
+    std::ostream& operator<<(std::ostream& os, const Nodes& N) noexcept;
 }
 
 #endif  // ark_node

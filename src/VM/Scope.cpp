@@ -11,14 +11,14 @@
 
 namespace Ark::internal
 {
-    Scope::Scope()
+    Scope::Scope() noexcept
     {
     #ifndef ARK_SCOPE_DICHOTOMY
         m_data.reserve(3);
     #endif
     }
 
-    void Scope::push_back(uint16_t id, Value&& val)
+    void Scope::push_back(uint16_t id, Value&& val) noexcept
     {
     #ifdef ARK_SCOPE_DICHOTOMY
         switch (m_data.size())
@@ -46,7 +46,7 @@ namespace Ark::internal
     #endif
     }
 
-    void Scope::push_back(uint16_t id, const Value& val)
+    void Scope::push_back(uint16_t id, const Value& val) noexcept
     {
     #ifdef ARK_SCOPE_DICHOTOMY
         switch (m_data.size())
@@ -74,12 +74,12 @@ namespace Ark::internal
     #endif
     }
 
-    bool Scope::has(uint16_t id)
+    bool Scope::has(uint16_t id) noexcept
     {
         return operator[](id) != nullptr;
     }
 
-    Value* Scope::operator[](uint16_t id)
+    Value* Scope::operator[](uint16_t id) noexcept
     {
     #ifdef ARK_SCOPE_DICHOTOMY
         switch (m_data.size())
@@ -110,7 +110,7 @@ namespace Ark::internal
     #endif
     }
 
-    uint16_t Scope::idFromValue(Value&& val)
+    uint16_t Scope::idFromValue(Value&& val) noexcept
     {
         for (std::size_t i=0, end=m_data.size(); i < end; ++i)
         {
@@ -120,7 +120,7 @@ namespace Ark::internal
         return static_cast<uint16_t>(~0);
     }
 
-    const std::size_t Scope::size() const
+    const std::size_t Scope::size() const noexcept
     {
         return m_data.size();
     }

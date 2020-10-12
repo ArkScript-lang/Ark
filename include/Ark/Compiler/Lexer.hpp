@@ -56,7 +56,7 @@ namespace Ark::internal
          * @param line the line where we found the token
          * @param col the column at which was the token
          */
-        Token(TokenType type, const std::string& tok, std::size_t line, std::size_t col) :
+        Token(TokenType type, const std::string& tok, std::size_t line, std::size_t col) noexcept :
             type(type), token(tok), line(line), col(col)
         {}
 
@@ -89,7 +89,7 @@ namespace Ark::internal
          * 
          * @param debug the debug level
          */
-        Lexer(unsigned debug);
+        Lexer(unsigned debug) noexcept;
 
         /**
          * @brief Give code to tokenize and create the list of tokens
@@ -103,7 +103,7 @@ namespace Ark::internal
          * 
          * @return const std::vector<Token>& 
          */
-        const std::vector<Token>& tokens();
+        const std::vector<Token>& tokens() noexcept;
 
     private:
         unsigned m_debug;
@@ -115,7 +115,7 @@ namespace Ark::internal
          * @param value 
          * @return TokenType 
          */
-        inline TokenType guessType(const std::string& value);
+        inline TokenType guessType(const std::string& value) noexcept;
 
         /**
          * @brief Check if the value is a keyword in ArkScript
@@ -124,7 +124,7 @@ namespace Ark::internal
          * @return true 
          * @return false 
          */
-        inline bool isKeyword(const std::string& value);
+        inline bool isKeyword(const std::string& value) noexcept;
 
         /**
          * @brief Check if the value is an operator in ArkScript
@@ -133,7 +133,7 @@ namespace Ark::internal
          * @return true 
          * @return false 
          */
-        inline bool isOperator(const std::string& value);
+        inline bool isOperator(const std::string& value) noexcept;
 
         /**
          * @brief Check if a control character / sequence is complete or not
@@ -143,7 +143,7 @@ namespace Ark::internal
          * @return true 
          * @return false 
          */
-        inline bool endOfControlChar(const std::string& sequence, char next);
+        inline bool endOfControlChar(const std::string& sequence, char next) noexcept;
 
         /**
          * @brief To throw nice lexer errors

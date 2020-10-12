@@ -185,7 +185,7 @@ namespace Ark
         output.close();
     }
 
-    const bytecode_t& Compiler::bytecode()
+    const bytecode_t& Compiler::bytecode() noexcept
     {
         return m_bytecode;
     }
@@ -505,7 +505,7 @@ namespace Ark
         return;
     }
 
-    std::size_t Compiler::addSymbol(const std::string& sym)
+    std::size_t Compiler::addSymbol(const std::string& sym) noexcept
     {
         // otherwise, add the symbol, and return its id in the table
         auto it = std::find(m_symbols.begin(), m_symbols.end(), sym);
@@ -520,7 +520,7 @@ namespace Ark
         return static_cast<std::size_t>(std::distance(m_symbols.begin(), it));
     }
 
-    std::size_t Compiler::addValue(const Node& x)
+    std::size_t Compiler::addValue(const Node& x) noexcept
     {
         CValue v(x);
         auto it = std::find(m_values.begin(), m_values.end(), v);
@@ -535,7 +535,7 @@ namespace Ark
         return static_cast<std::size_t>(std::distance(m_values.begin(), it));
     }
 
-    std::size_t Compiler::addValue(std::size_t page_id)
+    std::size_t Compiler::addValue(std::size_t page_id) noexcept
     {
         CValue v(page_id);
         auto it = std::find(m_values.begin(), m_values.end(), v);
@@ -568,6 +568,7 @@ namespace Ark
         for (const std::string &sym : m_symbols)
         {
             auto it = std::find(m_defined_symbols.begin(), m_defined_symbols.end(), sym);
+            // TODO check if it isn't part of a plugin
             if (it == m_defined_symbols.end())
             {
                 throw Ark::CompilationError("unbound variable: " + sym + " (symbol is used but not defined)");
@@ -575,7 +576,7 @@ namespace Ark
         }
     }
 
-    void Compiler::pushNumber(uint16_t n, std::vector<Inst>* page)
+    void Compiler::pushNumber(uint16_t n, std::vector<Inst>* page) noexcept
     {
         if (page == nullptr)
         {

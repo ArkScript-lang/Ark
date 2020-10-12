@@ -22,11 +22,11 @@ namespace Ark
          * @brief Construct a new Optimizer
          * 
          */
-        Optimizer(uint16_t options);
+        Optimizer(uint16_t options) noexcept;
 
         void feed(const internal::Node& ast);
 
-        const internal::Node& ast();
+        const internal::Node& ast() const noexcept;
 
     private:
         internal::Node m_ast;

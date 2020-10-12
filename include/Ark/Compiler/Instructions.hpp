@@ -75,6 +75,7 @@ namespace Ark::internal
         LAST_INSTRUCTION = 0x39
     };
 
+    // TODO remove Inst, not useful
     struct Inst
     {
         uint8_t inst = Instruction::NOP;

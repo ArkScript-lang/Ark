@@ -21,7 +21,7 @@
 
 namespace Ark
 {
-    VM::VM(State* state) :
+    VM::VM(State* state) noexcept :
         m_state(state), m_ip(0), m_pp(0), m_running(false),
         m_last_sym_loaded(0), m_until_frame_count(0),
         m_user_pointer(nullptr)
@@ -30,7 +30,7 @@ namespace Ark
         m_locals.reserve(4);
     }
 
-    void VM::init()
+    void VM::init() noexcept
     {
         using namespace Ark::internal;
 
@@ -72,7 +72,7 @@ namespace Ark
         }
     }
 
-    internal::Value& VM::operator[](const std::string& name)
+    internal::Value& VM::operator[](const std::string& name) noexcept
     {
         using namespace Ark::internal;
 
@@ -90,11 +90,8 @@ namespace Ark
         Value* var = findNearestVariable(id);
         if (var != nullptr)
             return *var;
-        else
-        {
-            m__no_value = Builtins::nil;
-            return m__no_value;
-        }
+        m__no_value = Builtins::nil;
+        return m__no_value;
     }
 
     void VM::loadPlugin(uint16_t id)
@@ -145,12 +142,12 @@ namespace Ark
     //               user pointer
     // ------------------------------------------
 
-    void VM::setUserPointer(void* ptr)
+    void VM::setUserPointer(void* ptr) noexcept
     {
         m_user_pointer = ptr;
     }
 
-    void* VM::getUserPointer()
+    void* VM::getUserPointer() noexcept
     {
         return m_user_pointer;
     }
@@ -159,7 +156,7 @@ namespace Ark
     //                 execution
     // ------------------------------------------
 
-    int VM::run()
+    int VM::run() noexcept
     {
         using namespace Ark::internal;
 
@@ -407,9 +404,6 @@ namespace Ark
 
                         if (Value* var = findNearestVariable(id); var != nullptr)
                         {
-                            // delete usertype with custom deleter
-                            if (var->valueType() == ValueType::User)
-                                var->usertype_ref().del();
                             *var = Value();
                             break;
                         }
@@ -819,7 +813,7 @@ namespace Ark
     //             error handling
     // ------------------------------------------
 
-    uint16_t VM::findNearestVariableIdWithValue(internal::Value&& value)
+    uint16_t VM::findNearestVariableIdWithValue(internal::Value&& value) noexcept
     {
         for (auto it=m_locals.rbegin(), it_end=m_locals.rend(); it != it_end; ++it)
         {
@@ -834,7 +828,7 @@ namespace Ark
         throw std::runtime_error(message);
     }
 
-    void VM::backtrace()
+    void VM::backtrace() noexcept
     {
         using namespace Ark::internal;
         std::cerr << termcolor::reset << "At IP: " << (m_ip != -1 ? m_ip : 0) << ", PP: " << m_pp << "\n";

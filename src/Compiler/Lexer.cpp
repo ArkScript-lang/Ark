@@ -5,7 +5,7 @@
 
 namespace Ark::internal
 {
-    Lexer::Lexer(unsigned debug) :
+    Lexer::Lexer(unsigned debug) noexcept :
         m_debug(debug)
     {}
 
@@ -227,7 +227,7 @@ namespace Ark::internal
         }
     }
 
-    const std::vector<Token>& Lexer::tokens()
+    const std::vector<Token>& Lexer::tokens() noexcept
     {
         return m_tokens;
     }

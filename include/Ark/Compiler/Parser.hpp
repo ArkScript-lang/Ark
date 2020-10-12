@@ -29,7 +29,7 @@ namespace Ark
          * @param lib_dir the path to the standard library
          * @param options the parsing options
          */
-        Parser(unsigned debug, const std::string& lib_dir, uint16_t options);
+        Parser(unsigned debug, const std::string& lib_dir, uint16_t options) noexcept;
 
         /**
          * @brief Give the code to parse
@@ -44,7 +44,7 @@ namespace Ark
          * 
          * @return const internal::Node& 
          */
-        const internal::Node& ast() const;
+        const internal::Node& ast() const noexcept;
 
         /**
          * @brief Return the list of files imported by the code given to the parser
@@ -53,9 +53,9 @@ namespace Ark
          * 
          * @return const std::vector<std::string>& 
          */
-        const std::vector<std::string>& getImports();
+        const std::vector<std::string>& getImports() const noexcept;
 
-        friend std::ostream& operator<<(std::ostream& os, const Parser& P);
+        friend std::ostream& operator<<(std::ostream& os, const Parser& P) noexcept;
 
     private:
         unsigned m_debug;
@@ -77,7 +77,7 @@ namespace Ark
          * 
          * @param tokens a list of tokens
          */
-        void sugar(std::vector<internal::Token>& tokens);
+        void sugar(std::vector<internal::Token>& tokens) noexcept;
 
         /**
          * @brief Parse a list of tokens recursively
