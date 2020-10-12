@@ -15,6 +15,7 @@
 #include <Ark/Compiler/Instructions.hpp>
 #include <Ark/Compiler/BytecodeReader.hpp>
 #include <Ark/Builtins/Builtins.hpp>
+#include <Ark/Utils.hpp>
 #include <Ark/Config.hpp>
 
 namespace Ark
@@ -70,6 +71,7 @@ namespace Ark
         // tables: symbols, values, plugins and codes
         std::vector<std::string> m_symbols;
         std::vector<std::string> m_defined_symbols;
+        std::vector<std::string> m_plugins;
         std::vector<internal::CValue> m_values;
         std::vector<std::vector<internal::Inst>> m_code_pages;
             // we need a temp code pages for some compilations passes
@@ -87,6 +89,8 @@ namespace Ark
         inline std::optional<std::size_t> isOperator(const std::string& name) noexcept;
         /// Checking if a symbol is a builtin
         inline std::optional<std::size_t> isBuiltin(const std::string& name) noexcept;
+        /// Checking if a symbol may be coming from a plugin
+        inline bool mayBeFromPlugin(const std::string& name) noexcept;
 
         /**
          * @brief Compile a single node recursively
