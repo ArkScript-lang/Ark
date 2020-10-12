@@ -25,7 +25,7 @@ namespace Ark::internal
          * @brief Construct a new Frame object
          * 
          */
-        Frame();
+        Frame() noexcept;
 
         /**
          * @brief Construct a new Frame object from another one
@@ -40,7 +40,7 @@ namespace Ark::internal
          * @param caller_page_addr the page address of the caller
          * @param new_pp the new page address where we're going
          */
-        Frame(uint16_t caller_addr, uint16_t caller_page_addr, uint16_t new_pp);
+        Frame(uint16_t caller_addr, uint16_t caller_page_addr, uint16_t new_pp) noexcept;
 
         // stack related
 
@@ -56,14 +56,14 @@ namespace Ark::internal
          * 
          * @param value the value to put on the stack
          */
-        inline void push(const Value& value);
+        inline void push(const Value& value) noexcept;
 
         /**
          * @brief Push a value on the stack of the frame
          * 
          * @param value the value to put on the stack
          */
-        inline void push(Value&& value);
+        inline void push(Value&& value) noexcept;
 
         // getters-setters (misc)
 
@@ -72,28 +72,28 @@ namespace Ark::internal
          * 
          * @return std::size_t 
          */
-        inline std::size_t stackSize() const;
+        inline std::size_t stackSize() const noexcept;
 
         /**
          * @brief Get the caller address
          * 
          * @return uint16_t 
          */
-        inline uint16_t callerAddr() const;
+        inline uint16_t callerAddr() const noexcept;
 
         /**
          * @brief Get the caller page address
          * 
          * @return uint16_t 
          */
-        inline uint16_t callerPageAddr() const;
+        inline uint16_t callerPageAddr() const noexcept;
 
         /**
          * @brief Get the current page address
          * 
          * @return uint16_t 
          */
-        inline uint16_t currentPageAddr() const;
+        inline uint16_t currentPageAddr() const noexcept;
 
         // related to scope deletion
 
@@ -103,7 +103,7 @@ namespace Ark::internal
          * Needed for the primitive garbage collecting system.
          * 
          */
-        inline void incScopeCountToDelete();
+        inline void incScopeCountToDelete() noexcept;
 
         /**
          * @brief Reset the number of scopes linked to this frame
@@ -111,7 +111,7 @@ namespace Ark::internal
          * Needed for the primitive garbage collecting system.
          * 
          */
-        inline void resetScopeCountToDelete();
+        inline void resetScopeCountToDelete() noexcept;
 
         /**
          * @brief Get the number of scopes linked to this frame
@@ -120,9 +120,9 @@ namespace Ark::internal
          * 
          * @return uint8_t 
          */
-        inline uint8_t scopeCountToDelete() const;
+        inline uint8_t scopeCountToDelete() const noexcept;
 
-        friend std::ostream& operator<<(std::ostream& os, const Frame& F);
+        friend std::ostream& operator<<(std::ostream& os, const Frame& F) noexcept;
 
     private:
         //              IP,          PP    EXC_PP

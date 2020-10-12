@@ -14,7 +14,7 @@ inline bool operator==(const Node& A, const Node& B)
     return false;
 }
 
-inline std::string typeToString(const Node& node)
+inline std::string typeToString(const Node& node) noexcept
 {
     // must have the same order as the enum class NodeType L17
     static const std::vector<std::string> nodetype_str = {

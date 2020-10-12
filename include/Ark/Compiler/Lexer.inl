@@ -3,7 +3,7 @@
 // check if a given character is a valid hex char
 #define CHECK_IF_HEXCHAR(chr) (('a' <= chr && chr <= 'f') || ('A' <= chr && chr <= 'F') || ('0' <= chr && chr <= '9'))
 
-inline TokenType Lexer::guessType(const std::string& value)
+inline TokenType Lexer::guessType(const std::string& value) noexcept
 {
     if (value.empty())
         return TokenType::Mismatch;
@@ -25,17 +25,17 @@ inline TokenType Lexer::guessType(const std::string& value)
     return TokenType::Mismatch;
 }
 
-inline bool Lexer::isKeyword(const std::string& value)
+inline bool Lexer::isKeyword(const std::string& value) noexcept
 {
     return std::find(keywords.begin(), keywords.end(), value) != keywords.end();
 }
 
-inline bool Lexer::isOperator(const std::string& value)
+inline bool Lexer::isOperator(const std::string& value) noexcept
 {
     return std::find(operators.begin(), operators.end(), value) != operators.end();
 }
 
-inline bool Lexer::endOfControlChar(const std::string& sequence, char next)
+inline bool Lexer::endOfControlChar(const std::string& sequence, char next) noexcept
 {
     switch (sequence[0])
     {

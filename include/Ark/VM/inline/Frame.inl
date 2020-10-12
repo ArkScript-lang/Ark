@@ -6,7 +6,7 @@ inline Value* Frame::pop()
     return &m_stack[m_i];
 }
 
-inline void Frame::push(const Value& value)
+inline void Frame::push(const Value& value) noexcept
 {
     m_stack[m_i] = value;
     m_i++;
@@ -15,7 +15,7 @@ inline void Frame::push(const Value& value)
         m_stack.emplace_back(ValueType::Undefined);
 }
 
-inline void Frame::push(Value&& value)
+inline void Frame::push(Value&& value) noexcept
 {
     m_stack[m_i] = std::move(value);
     m_i++;
@@ -26,39 +26,39 @@ inline void Frame::push(Value&& value)
 
 // getters-setters (misc)
 
-inline std::size_t Frame::stackSize() const
+inline std::size_t Frame::stackSize() const noexcept
 {
     return m_i;
 }
 
-inline uint16_t Frame::callerAddr() const
+inline uint16_t Frame::callerAddr() const noexcept
 {
     return m_addr;
 }
 
-inline uint16_t Frame::callerPageAddr() const
+inline uint16_t Frame::callerPageAddr() const noexcept
 {
     return m_page_addr;
 }
 
-inline uint16_t Frame::currentPageAddr() const
+inline uint16_t Frame::currentPageAddr() const noexcept
 {
     return m_new_pp;
 }
 
 // related to scope deletion
 
-inline void Frame::incScopeCountToDelete()
+inline void Frame::incScopeCountToDelete() noexcept
 {
     m_scope_to_delete++;
 }
 
-inline void Frame::resetScopeCountToDelete()
+inline void Frame::resetScopeCountToDelete() noexcept
 {
     m_scope_to_delete = 0;
 }
 
-inline uint8_t Frame::scopeCountToDelete() const
+inline uint8_t Frame::scopeCountToDelete() const noexcept
 {
     return m_scope_to_delete;
 }

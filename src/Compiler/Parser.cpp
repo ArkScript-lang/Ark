@@ -10,7 +10,7 @@ namespace Ark
 {
     using namespace Ark::internal;
 
-    Parser::Parser(unsigned debug, const std::string& lib_dir, uint16_t options) :
+    Parser::Parser(unsigned debug, const std::string& lib_dir, uint16_t options) noexcept :
         m_debug(debug),
         m_libdir(lib_dir),
         m_options(options),
@@ -57,24 +57,24 @@ namespace Ark
         }
     }
 
-    const Node& Parser::ast() const
+    const Node& Parser::ast() const noexcept
     {
         return m_ast;
     }
 
-    const std::vector<std::string>& Parser::getImports()
+    const std::vector<std::string>& Parser::getImports() const noexcept
     {
         return m_parent_include;
     }
 
-    void Parser::sugar(std::vector<Token>& tokens)
+    void Parser::sugar(std::vector<Token>& tokens) noexcept
     {
         std::size_t i = 0;
         while (true)
         {
             std::size_t line = tokens[i].line;
             std::size_t col = tokens[i].col;
-            
+
             if (tokens[i].token == "{")
             {
                 tokens[i] = Token(TokenType::Grouping, "(", line, col);
@@ -457,7 +457,7 @@ namespace Ark
         return false;
     }
 
-    std::ostream& operator<<(std::ostream& os, const Parser& P)
+    std::ostream& operator<<(std::ostream& os, const Parser& P) noexcept
     {
         os << "AST" << std::endl;
         if (P.ast().nodeType() == NodeType::List)

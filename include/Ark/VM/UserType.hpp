@@ -35,7 +35,7 @@ namespace Ark
          * @param data a pointer to the data to store in the object
          */
         template <typename T>
-        explicit UserType(T* data=nullptr) :
+        explicit UserType(T* data=nullptr) noexcept :
             m_data(static_cast<void*>(data)),
             m_funcs(nullptr),
             m_type_id(typeid(T).hash_code() & static_cast<uint16_t>(~0))
@@ -45,28 +45,27 @@ namespace Ark
          * @brief Destroy the User Type object
          * @details Called by the VM when `(del obj)` is found or when the object goes
          *          out of scope.
-         * 
          */
-         void del()
-         {
-             // call a custom deleter on the data held by the usertype
-             if (m_funcs != nullptr && m_funcs->deleter != nullptr)
-                m_funcs->deleter(m_data);
-         }
+        ~UserType() noexcept
+        {
+            // call a custom deleter on the data held by the usertype
+            if (m_funcs != nullptr && m_funcs->deleter != nullptr)
+               m_funcs->deleter(m_data);
+        }
 
         /**
          * @brief Set the control functions structure
          * 
          * @param block A pointer to an instance of this block
          */
-        inline void setControlFuncs(ControlFuncs* block);
+        inline void setControlFuncs(ControlFuncs* block) noexcept;
 
         /**
          * @brief Get the pointer to the object
          * 
          * @return void* 
          */
-        inline void* data() const;
+        inline void* data() const noexcept;
 
         /**
          * @brief Check if the object held is of a given type
@@ -85,7 +84,7 @@ namespace Ark
          * @return false 
          */
         template <typename T>
-        bool is() const
+        bool is() const noexcept
         {
             return (typeid(T).hash_code() & static_cast<uint16_t>(~0)) == m_type_id;
         }
@@ -97,20 +96,20 @@ namespace Ark
          * @return T& 
          */
         template <typename T>
-        T& as()
+        T& as() noexcept
         {
             return *static_cast<T*>(m_data);
         }
 
         template <typename T>
-        const T& as() const
+        const T& as() const noexcept
         {
             return *static_cast<T*>(m_data);
         }
 
-        friend inline bool operator==(const UserType& A, const UserType& B);
-        friend inline bool operator<(const UserType& A, const UserType& B);
-        friend inline std::ostream& operator<<(std::ostream& os, const UserType& A);
+        friend inline bool operator==(const UserType& A, const UserType& B) noexcept;
+        friend inline bool operator<(const UserType& A, const UserType& B) noexcept;
+        friend inline std::ostream& operator<<(std::ostream& os, const UserType& A) noexcept;
 
     private:
         uint16_t m_type_id;

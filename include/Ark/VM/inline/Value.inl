@@ -1,12 +1,12 @@
 // public getters
 
-inline ValueType Value::valueType() const
+inline ValueType Value::valueType() const noexcept
 {
     // the type is stored on the right most bits
     return static_cast<ValueType>(m_constType & (0b01111111));
 }
 
-inline bool Value::isFunction() const  // if it's a function we can resolve it
+inline bool Value::isFunction() const noexcept  // if it's a function we can resolve it
 {
     auto type = valueType();
     return type == ValueType::PageAddr || type == ValueType::Closure || type == ValueType::CProc;
@@ -49,12 +49,12 @@ inline const Closure& Value::closure() const
     return std::get<Closure>(m_value);
 }
 
-inline const bool Value::isConst() const
+inline const bool Value::isConst() const noexcept
 {
     return m_constType & (1 << 7);
 }
 
-inline void Value::setConst(bool value)
+inline void Value::setConst(bool value) noexcept
 {
     if (value)
         m_constType |= 1 << 7;
@@ -64,7 +64,7 @@ inline void Value::setConst(bool value)
 
 // operators
 
-inline bool operator==(const Value& A, const Value& B)
+inline bool operator==(const Value& A, const Value& B) noexcept
 {
     // values should have the same type
     if (A.valueType() != B.valueType())
@@ -76,19 +76,19 @@ inline bool operator==(const Value& A, const Value& B)
     return A.m_value == B.m_value;
 }
 
-inline bool operator<(const Value& A, const Value& B)
+inline bool operator<(const Value& A, const Value& B) noexcept
 {
     if (A.valueType() != B.valueType())
         return (static_cast<int>(A.valueType()) - static_cast<int>(B.valueType())) < 0;
     return A.m_value < B.m_value;
 }
 
-inline bool operator!=(const Value& A, const Value& B)
+inline bool operator!=(const Value& A, const Value& B) noexcept
 {
     return !(A == B);
 }
 
-inline bool operator!(const Value& A)
+inline bool operator!(const Value& A) noexcept
 {
     switch (A.valueType())
     {

@@ -40,7 +40,7 @@ namespace Ark
          * 
          * @return const bytecode_t& 
          */
-        const bytecode_t& bytecode();
+        const bytecode_t& bytecode() noexcept;
 
         /**
          * @brief Return the read timestamp from the bytecode file
