@@ -25,3 +25,13 @@ inline std::optional<std::size_t> Compiler::isBuiltin(const std::string& name) n
         return std::distance(internal::Builtins::builtins.begin(), it);
     return {};
 }
+
+inline bool Compiler::mayBeFromPlugin(const std::string& name) noexcept
+{
+    std::string splitted = Utils::splitString(name, ':')[0];
+    auto it = std::find_if(m_plugins.begin(), m_plugins.end(),
+        [&splitted](const std::string& plugin) -> bool {
+            return Utils::splitString(plugin, '.')[0] == splitted;
+    });
+    return it != m_plugins.end();
+}

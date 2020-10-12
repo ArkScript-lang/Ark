@@ -379,6 +379,8 @@ namespace Ark
             {
                 // register plugin path in the constants table
                 std::size_t id = addValue(x.const_list()[1]);
+                // save plugin name to use it later
+                m_plugins.push_back(x.const_list()[1].string());
                 // add plugin instruction + id of the constant refering to the plugin path
                 page(p).emplace_back(Instruction::PLUGIN);
                 pushNumber(static_cast<uint16_t>(id), &page(p));
@@ -565,14 +567,12 @@ namespace Ark
 
     void Compiler::checkForUndefinedSymbol()
     {
-        for (const std::string &sym : m_symbols)
+        for (const std::string& sym : m_symbols)
         {
+            bool is_plugin = mayBeFromPlugin(sym);
             auto it = std::find(m_defined_symbols.begin(), m_defined_symbols.end(), sym);
-            // TODO check if it isn't part of a plugin
-            if (it == m_defined_symbols.end())
-            {
+            if (it == m_defined_symbols.end() && !is_plugin)
                 throw Ark::CompilationError("unbound variable: " + sym + " (symbol is used but not defined)");
-            }
         }
     }
 
