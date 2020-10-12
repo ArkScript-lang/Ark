@@ -469,6 +469,67 @@ namespace Ark
                         break;
                     }
 
+                    case Instruction::LIST:
+                    {
+                        /*
+                            Takes at least 0 arguments and push a list on the stack.
+                            The content is pushed in reverse order
+                        */
+                        ++m_ip;
+                        uint16_t count; readNumber(count);
+
+                        Value l(ValueType::List);
+                        if (count != 0)
+                            l.list().reserve(count);
+
+                        for (uint16_t i=0; i < count; ++i)
+                            l.push_back(*popVal());
+                        push(l);
+
+                        break;
+                    }
+
+                    case Instruction::APPEND:
+                    {
+                        ++m_ip;
+                        uint16_t count; readNumber(count);
+
+                        Value *list = popVal();
+                        if (list->valueType() != ValueType::List)
+                            throw Ark::TypeError("append needs a list and then whatever you want");
+                        const uint16_t size = list->const_list().size();
+                        list->list().reserve(size + count);
+
+                        for (uint16_t i=0; i < count; ++i)
+                            list->push_back(*popVal());
+                        push(*list);
+
+                        break;
+                    }
+
+                    case Instruction::CONCAT:
+                    {
+                        ++m_ip;
+                        uint16_t count; readNumber(count);
+
+                        Value *list = popVal();
+                        if (list->valueType() != ValueType::List)
+                            throw Ark::TypeError("concat needs lists");
+
+                        for (uint16_t i=0; i < count; ++i)
+                        {
+                            Value *next = popVal();
+                            if (next->valueType() != ValueType::List)
+                                throw Ark::TypeError("concat needs lists");
+
+                            for (auto it=next->list().begin(), end=next->list().end(); it != end; ++it)
+                                list->push_back(*it);
+                        }
+                        push(*list);
+
+                        break;
+                    }
+
                     case Instruction::ADD:
                     {
                         Value *b = popVal(), *a = popVal();

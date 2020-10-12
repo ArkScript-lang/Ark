@@ -27,12 +27,6 @@
 
 // List
 
-#define LIST_APPEND_ARITY "append needs at least 2 arguments: list, content [...]"
-#define LIST_APPEND_TE0   "append: list must be a List"
-
-#define LIST_CONCAT_ARITY "concat needs at least 2 arguments: list [...]"
-#define LIST_CONCAT_TE    "concat: list must be a List"
-
 #define LIST_REVERSE_ARITY "list:reverse needs 1 argument: list"
 #define LIST_REVERSE_TE0   "list:reverse: list must be a List"
 
@@ -63,7 +57,7 @@
 #define LIST_SETAT_TE0   "list:setAt: list must be a List"
 #define LIST_SETAT_TE1   "list:setAt: index must be a Number"
 
-// Mathmatics
+// Mathematics
 
 #define MATH_ARITY(name) (name " needs 1 argument: value")
 #define MATH_TE0(name)   (name ": value must be a Number")

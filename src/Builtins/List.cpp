@@ -8,42 +8,6 @@
 
 namespace Ark::internal::Builtins::List
 {
-    Value append(std::vector<Value>& n, Ark::VM* vm)
-    {
-        if (n.size() < 2)
-            throw std::runtime_error(LIST_APPEND_ARITY);
-        if (n[0].valueType() != ValueType::List)
-            throw Ark::TypeError(LIST_APPEND_TE0);
-
-        for (Value::Iterator it=n.begin()+1, it_end=n.end(); it != it_end; ++it)
-            n[0].push_back(*it);
-        return n[0];
-    }
-
-    Value concat(std::vector<Value>& n, Ark::VM* vm)
-    {
-        if (n[0].valueType() != ValueType::List)
-            throw Ark::TypeError(LIST_CONCAT_ARITY);
-
-        for (Value::Iterator it=n.begin()+1, it_end=n.end(); it != it_end; ++it)
-        {
-            if (it->valueType() != ValueType::List)
-                throw Ark::TypeError(LIST_CONCAT_TE);
-
-            for (Value::ConstIterator it2=it->const_list().begin(), it2_end=it->const_list().end(); it2 != it2_end; ++it2)
-                n[0].push_back(*it2);
-        }
-        return n[0];
-    }
-
-    Value list(std::vector<Value>& n, Ark::VM* vm)
-    {
-        Value r(ValueType::List);
-        for (Value::Iterator it=n.begin(), it_end=n.end(); it != it_end; ++it)
-            r.push_back(*it);
-        return r;
-    }
-
     Value reverseList(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n[0].valueType() != ValueType::List)

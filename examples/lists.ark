@@ -1,0 +1,6 @@
+(let a [])
+(print a)
+(print (append a 1))
+
+(let b [1 2 3])
+(print b)

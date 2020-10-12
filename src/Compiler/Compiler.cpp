@@ -200,16 +200,18 @@ namespace Ark
         {
             std::string name = x.string();
 
-            // check if 'name' isn't a builtin/operator name before pushing it as a 'var-use'
+            // builtins
             if (auto it_builtin = isBuiltin(name))
             {
                 page(p).emplace_back(Instruction::BUILTIN);
                 pushNumber(static_cast<uint16_t>(it_builtin.value()), &page(p));
             }
+            // operators
             else if (auto it_operator = isOperator(name))
             {
                 page(p).emplace_back(static_cast<Instruction>(Instruction::FIRST_OPERATOR + it_operator.value()));
             }
+            // var-use
             else
             {
                 std::size_t i = addSymbol(name);
@@ -247,6 +249,31 @@ namespace Ark
             auto it_builtin = isBuiltin("nil");
             page(p).emplace_back(Instruction::BUILTIN);
             pushNumber(static_cast<uint16_t>(it_builtin.value()), &page(p));
+            return;
+        }
+        // specific instructions
+        else if (auto c0 = x.const_list()[0]; c0.nodeType() == NodeType::Symbol && (c0.string() == "list" || c0.string() == "append" || c0.string() == "concat"))
+        {
+            std::string name = c0.string();
+            Instruction specific = name == "list" ? Instruction::LIST :
+                (name == "append" ? Instruction::APPEND : Instruction::CONCAT);
+
+            // length of at least 1 since we got a symbol name
+            uint16_t argc = x.const_list().size() - 1;
+            // error, can not use append/concat with a <2 length argument list
+            if (argc < 2 && (specific == Instruction::APPEND || specific == Instruction::CONCAT))
+                throw Ark::CompilationError("can not use " + name + " with less than 2 arguments");
+
+            // compile arguments in reverse order
+            for (uint16_t i = argc; i > 0; --i)
+                _compile(x.const_list()[i], p);
+
+            // put inst and number of arguments
+            page(p).emplace_back(specific);
+            if (specific == Instruction::LIST)
+                pushNumber(argc, &page(p));
+            else
+                pushNumber(argc - 1, &page(p));
             return;
         }
         // registering structures

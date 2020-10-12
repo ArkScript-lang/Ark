@@ -269,6 +269,21 @@ namespace Ark
                         os << "PLUGIN " << termcolor::magenta << values[readNumber(i)] << "\n";
                         i++;
                     }
+                    else if (inst == Instruction::LIST)
+                    {
+                        os << "LIST " << termcolor::reset << "(" << readNumber(i) << ")\n";
+                        i++;
+                    }
+                    else if (inst == Instruction::APPEND)
+                    {
+                        os << "APPEND " << termcolor::reset << "(" << readNumber(i) << ")\n";
+                        i++;
+                    }
+                    else if (inst == Instruction::CONCAT)
+                    {
+                        os << "CONCAT " << termcolor::reset << "(" << readNumber(i) << ")\n";
+                        i++;
+                    }
                     else if (inst == Instruction::ADD)
                         os << "ADD\n";
                     else if (inst == Instruction::SUB)
