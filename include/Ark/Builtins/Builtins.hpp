@@ -28,9 +28,6 @@ namespace Ark::internal::Builtins
     // ------------------------------
     namespace List
     {
-        Value append(std::vector<Value>& n, Ark::VM* vm);   // append, multiple arguments
-        Value concat(std::vector<Value>& n, Ark::VM* vm);   // concat, multiple arguments
-        Value list(std::vector<Value>& n, Ark::VM* vm);     // list,   multiple arguments
         Value reverseList(std::vector<Value>& n, Ark::VM* vm);  // reverseList, single arg
         Value findInList(std::vector<Value>& n, Ark::VM* vm);   // findInList, 2 arguments
         Value removeAtList(std::vector<Value>& n, Ark::VM* vm);  // removeAtList, 2 arguments
