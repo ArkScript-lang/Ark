@@ -5,6 +5,7 @@
 - string tests
 - list tests
 - range tests
+- unbound variable checker at compile time (won't break on plugin symbols)
 
 ### Changed
 - `list:find` returns -1 to stay consistent with `str:find`
