@@ -43,6 +43,9 @@ set(ARK_COMPILATION_OPTIONS ${CMAKE_CXX_FLAGS})
 set(ARK_COMPILER ${CMAKE_CXX_COMPILER_ID})
 set(ARK_ENABLE_SYSTEM 1)  # enable use of (system "command here")
 
+# PROFILER RELATED
+set(ARK_PROFILER 1)  # profiling enabled
+
 configure_file(
     ${Ark_SOURCE_DIR}/include/Ark/Constants.hpp.in
     ${Ark_SOURCE_DIR}/include/Ark/Constants.hpp
@@ -77,6 +80,11 @@ target_include_directories(ArkReactor
         ${Ark_SOURCE_DIR}/thirdparty
         ${STRING_INCLUDES}
 )
+
+# include the profiler on demand
+if (ARK_PROFILER)
+    target_include_directories(ArkReactor PUBLIC ${Ark_SOURCE_DIR}/submodules/coz/include)
+endif()
 
 # linking libraries
 

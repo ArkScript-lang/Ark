@@ -1,5 +1,14 @@
 # Change Log
 
+## Unreleased changes
+### Added
+- new submodule, plasma-umass/coz (a profiler)
+- macros for profiling, enabled only if `ARK_PROFILE` is defined
+
+### Changed
+
+### Removed
+
 ## 3.0.13
 ### Added
 - string tests
