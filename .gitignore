@@ -12,6 +12,7 @@ gmon.out
 include/Ark/Constants.hpp
 build.sh
 deploy.ps1
+profile.coz
 
 *.so
 *.dll

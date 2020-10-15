@@ -10,6 +10,7 @@
 #define ARK_CACHE_DIRNAME "__arkscript__"
 #define ARK_NO_NAME_FILE "FILE"
 #define ARK_ENABLE_SYSTEM @ARK_ENABLE_SYSTEM@
+#define ARK_PROFILE @ARK_PROFILE@
 
 #include <cinttypes>
 
