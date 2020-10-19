@@ -37,14 +37,16 @@ set(ARK_VERSION_MINOR 0)
 set(ARK_VERSION_PATCH 13)
 
 message(STATUS "ArkScript version ${ARK_VERSION_MAJOR}.${ARK_VERSION_MINOR}.${ARK_VERSION_PATCH}")
+if (ARK_PROFILER)
+    message(STATUS "Coz Profiler is enabled")
+else()
+    message(STATUS "Coz Profiler is NOT enabled")
+endif()
 
 # COMPILATION RELATED
 set(ARK_COMPILATION_OPTIONS ${CMAKE_CXX_FLAGS})
 set(ARK_COMPILER ${CMAKE_CXX_COMPILER_ID})
 set(ARK_ENABLE_SYSTEM 1)  # enable use of (system "command here")
-
-# PROFILER RELATED
-set(ARK_PROFILER 1)  # profiling enabled
 
 configure_file(
     ${Ark_SOURCE_DIR}/include/Ark/Constants.hpp.in
@@ -98,6 +100,13 @@ if (UNIX OR LINUX)
     endif()
 
     target_link_libraries(ArkReactor PUBLIC ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+endif()
+
+# coz-profiler
+if (ARK_PROFILER)
+    find_package(coz-profiler REQUIRED PATHS ${Ark_SOURCE_DIR}/submodules/coz/)
+    target_include_directories(ArkReactor PUBLIC ${COZ_INCLUDE_DIR})
+    target_link_libraries(ArkReactor PUBLIC ${COZ_LIBRARY})
 endif()
 
 # setting up project properties

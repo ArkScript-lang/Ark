@@ -199,6 +199,8 @@ namespace Ark
                             push(*var);
                         else
                             throwVMError("unbound variable: " + m_state->m_symbols[m_last_sym_loaded]);
+
+                        COZ_PROGRESS_NAMED("ark vm load_symbol");
                         break;
                     }
 
@@ -220,6 +222,8 @@ namespace Ark
                         }
                         else
                             push(m_state->m_constants[id]);
+
+                        COZ_PROGRESS_NAMED("ark vm load_const");
                         break;
                     }
 
@@ -260,6 +264,8 @@ namespace Ark
                             break;
                         }
 
+                        COZ_PROGRESS_NAMED("ark vm store");
+
                         throwVMError("unbound variable " + m_state->m_symbols[id] + ", can not change its value");
                         break;
                     }
@@ -282,6 +288,8 @@ namespace Ark
                         Value* val = popVal();
                         val->setConst(true);
                         registerVariable(id, *val);
+
+                        COZ_PROGRESS("ark vm let");
                         break;
                     }
 
@@ -331,6 +339,8 @@ namespace Ark
                         Value return_value = m_frames.back().stackSize() != 0 ? *popVal() : Builtins::nil;
                         returnFromFuncCall();
                         push(return_value);
+
+                        COZ_PROGRESS_NAMED("ark vm ret");
                         break;
                     }
 
@@ -358,6 +368,8 @@ namespace Ark
                             m_saved_scope = std::make_shared<Scope>();
                         // if it's a captured variable, it can not be nullptr
                         (*m_saved_scope.value()).push_back(id, *getVariableInCurrentScope(id));
+
+                        COZ_PROGRESS_NAMED("ark vm capture");
                         break;
                     }
 
@@ -372,6 +384,8 @@ namespace Ark
                         uint16_t id; readNumber(id);
 
                         push(Builtins::builtins[id].second);
+
+                        COZ_PROGRESS_NAMED("ark vm builtin");
                         break;
                     }
 
@@ -389,6 +403,8 @@ namespace Ark
                         Value* val = popVal();
                         val->setConst(false);
                         registerVariable(id, *val);
+
+                        COZ_PROGRESS_NAMED("ark vm mut");
                         break;
                     }
 
@@ -408,6 +424,8 @@ namespace Ark
                             break;
                         }
 
+                        COZ_PROGRESS_NAMED("ark vm del");
+
                         throwVMError("unbound variable: " + m_state->m_symbols[id]);
                         break;
                     }
@@ -419,6 +437,8 @@ namespace Ark
                             Job: Save the current environment, useful for quoted code
                         */
                         m_saved_scope = m_locals.back();
+
+                        COZ_PROGRESS("ark vm save_scope");
                         break;
                     }
 
@@ -466,6 +486,8 @@ namespace Ark
                         uint16_t id; readNumber(id);
 
                         loadPlugin(id);
+
+                        COZ_PROGRESS("ark vm plugin");
                         break;
                     }
 
@@ -486,6 +508,7 @@ namespace Ark
                             l.push_back(*popVal());
                         push(l);
 
+                        COZ_PROGRESS_NAMED("ark vm list");
                         break;
                     }
 
@@ -504,6 +527,7 @@ namespace Ark
                             list->push_back(*popVal());
                         push(*list);
 
+                        COZ_PROGRESS_NAMED("ark vm append");
                         break;
                     }
 
@@ -527,6 +551,7 @@ namespace Ark
                         }
                         push(*list);
 
+                        COZ_PROGRESS_NAMED("ark vm concat");
                         break;
                     }
 

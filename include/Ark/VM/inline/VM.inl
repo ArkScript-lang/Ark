@@ -4,6 +4,9 @@
 
 #define createNewScope() m_locals.emplace_back(std::make_shared<internal::Scope>());
 
+// profiler
+#include <Ark/Profiling.hpp>
+
 template <typename... Args>
 internal::Value VM::call(const std::string& name, Args&&... args)
 {
@@ -69,6 +72,8 @@ inline internal::Value* VM::findNearestVariable(uint16_t id) noexcept
 
 inline void VM::returnFromFuncCall()
 {
+    COZ_BEGIN("ark vm returnFromFuncCall");
+
     // remove frame
     m_frames.pop_back();
     uint8_t del_counter = m_frames.back().scopeCountToDelete();
@@ -87,6 +92,8 @@ inline void VM::returnFromFuncCall()
     // stop the executing if we reach the wanted frame count
     if (m_frames.size() == m_until_frame_count)
         m_running = false;
+
+    COZ_END("ark vm returnFromFuncCall");
 }
 
 inline void VM::call(int16_t argc_)
@@ -99,6 +106,8 @@ inline void VM::call(int16_t argc_)
                 of its arguments, from the first to the last one
     */
     using namespace Ark::internal;
+
+    COZ_BEGIN("ark vm::call");
 
     uint16_t argc = 0;
 
@@ -191,6 +200,8 @@ inline void VM::call(int16_t argc_)
         if (needed_argc != received_argc)
             throwVMError("Function '" + m_state->m_symbols[m_last_sym_loaded] + "' needs " + Ark::Utils::toString(needed_argc) + " arguments, but it received " + Ark::Utils::toString(received_argc));
     }
+
+    COZ_END("ark vm::call");
 }
 
 template <typename... Args>
