@@ -174,27 +174,17 @@ namespace Ark
                         if (tokens.front().token != ")")
                             block.push_back(parse(tokens));
                     }
-                    else if (token.token == "let")
+                    else if (token.token == "let" || token.token == "mut")
                     {
                         auto temp = tokens.front();
                         // parse identifier
                         if (temp.type == TokenType::Identifier)
                             block.push_back(atom(nextToken(tokens)));
                         else
-                            throwParseError("missing identifier to define a constant, after keyword `let'", temp);
+                            throwParseError(std::string("missing identifier to define a ") + (token.token == "let" ? "constant" : "variable") + ", after keyword `" + token.token + "'", temp);
                         // value
-                        block.push_back(parse(tokens));
-                    }
-                    else if (token.token == "mut")
-                    {
-                        auto temp = tokens.front();
-                        // parse identifier
-                        if (temp.type == TokenType::Identifier)
-                            block.push_back(atom(nextToken(tokens)));
-                        else
-                            throwParseError("missing identifier to define a variable, after keyword `mut'", temp);
-                        // value
-                        block.push_back(parse(tokens));
+                        while (tokens.front().token != ")")
+                            block.push_back(parse(tokens, /* authorize_capture */ false, /* authorize_field_read */ true));
                     }
                     else if (token.token == "set")
                     {
@@ -205,7 +195,8 @@ namespace Ark
                         else
                             throwParseError("missing identifier to assign a value to, after keyword `set'", temp);
                         // value
-                        block.push_back(parse(tokens));
+                        while (tokens.front().token != ")")
+                            block.push_back(parse(tokens, /* authorize_capture */ false, /* authorize_field_read */ true));
                     }
                     else if (token.token == "fun")
                     {
