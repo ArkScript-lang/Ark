@@ -194,6 +194,9 @@ namespace Ark
                             block.push_back(atom(nextToken(tokens)));
                         else
                             throwParseError("missing identifier to assign a value to, after keyword `set'", temp);
+                        // set can not accept a.b...c
+                        if (tokens.front().type == TokenType::GetField)
+                            throwParseError("found invalid token after keyword `set', expected an identifier, got a closure field reading expression", tokens.front());
                         // value
                         while (tokens.front().token != ")")
                             block.push_back(parse(tokens, /* authorize_capture */ false, /* authorize_field_read */ true));
