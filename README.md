@@ -116,7 +116,7 @@ Who worked on
     * [@SuperFola](https://github.com/SuperFola)
     * [@FrenchMasterSword](https://github.com/FrenchMasterSword)
 * the logo
-    * [Ma15fo43](https://github.com/Ma15fo43)
+    * [@mazzdevs](https://github.com/mazzdevs)
 * the docker integration
     * [@yardenshoham](https://github.com/yardenshoham)
 
@@ -197,7 +197,7 @@ Controls are the arrows (left, right, up and down), the game closes itself when 
 
 ## The donators
 
-Huge thanks to those people for they donation to support the project:
+Huge thanks to those people for their donations to support the project:
 * [TheCountVEVO](https://github.com/TheCountVEVO)
 * [llexto](https://github.com/llexto)
 
