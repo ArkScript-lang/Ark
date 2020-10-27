@@ -1,3 +1,14 @@
+/**
+ * @file Lexer.hpp
+ * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @brief Tokenize ArkScript code
+ * @version 0.1
+ * @date 2020-10-27
+ * 
+ * @copyright Copyright (c) 2020
+ * 
+ */
+
 #ifndef ark_lexer
 #define ark_lexer
 

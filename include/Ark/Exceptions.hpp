@@ -1,3 +1,14 @@
+/**
+ * @file Exceptions.hpp
+ * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @brief ArkScript homemade exceptions
+ * @version 0.1
+ * @date 2020-10-27
+ * 
+ * @copyright Copyright (c) 2020
+ * 
+ */
+
 #ifndef ark_exceptions
 #define ark_exceptions
 

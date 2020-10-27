@@ -1,3 +1,14 @@
+/**
+ * @file State.hpp
+ * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @brief State used by the virtual machine: it loads the bytecode, can compile it if needed, load C++ functions...
+ * @version 0.1
+ * @date 2020-10-27
+ * 
+ * @copyright Copyright (c) 2020
+ * 
+ */
+
 #ifndef ark_vm_state
 #define ark_vm_state
 

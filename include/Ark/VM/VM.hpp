@@ -1,3 +1,14 @@
+/**
+ * @file VM.hpp
+ * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @brief The ArkScript virtual machine
+ * @version 0.1
+ * @date 2020-10-27
+ * 
+ * @copyright Copyright (c) 2020
+ * 
+ */
+
 #ifndef ark_vm
 #define ark_vm
 

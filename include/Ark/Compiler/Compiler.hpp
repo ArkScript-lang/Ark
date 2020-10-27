@@ -1,3 +1,14 @@
+/**
+ * @file Compiler.hpp
+ * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @brief ArkScript compiler is in charge of transforming the AST into bytecode
+ * @version 0.1
+ * @date 2020-10-27
+ * 
+ * @copyright Copyright (c) 2020
+ * 
+ */
+
 #ifndef ark_compiler
 #define ark_compiler
 
