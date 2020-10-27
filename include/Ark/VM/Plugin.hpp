@@ -1,3 +1,14 @@
+/**
+ * @file Plugin.hpp
+ * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @brief Loads .dll/.so/.dynlib files
+ * @version 0.1
+ * @date 2020-10-27
+ * 
+ * @copyright Copyright (c) 2020
+ * 
+ */
+
 #ifndef ark_vm_plugin
 #define ark_vm_plugin
 

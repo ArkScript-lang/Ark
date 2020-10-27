@@ -1,3 +1,14 @@
+/**
+ * @file Value.hpp
+ * @author Default value type handled by the virtual machine
+ * @brief 
+ * @version 0.1
+ * @date 2020-10-27
+ * 
+ * @copyright Copyright (c) 2020
+ * 
+ */
+
 #ifndef ark_vm_value
 #define ark_vm_value
 

@@ -1,3 +1,14 @@
+/**
+ * @file Instructions.hpp
+ * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @brief The different instructions used by the compiler and virtual machine
+ * @version 0.1
+ * @date 2020-10-27
+ * 
+ * @copyright Copyright (c) 2020
+ * 
+ */
+
 #ifndef ark_compiler_instructions
 #define ark_compiler_instructions
 

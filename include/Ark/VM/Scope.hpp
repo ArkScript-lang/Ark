@@ -1,3 +1,14 @@
+/**
+ * @file Scope.hpp
+ * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @brief The virtual machine scope system
+ * @version 0.1
+ * @date 2020-10-27
+ * 
+ * @copyright Copyright (c) 2020
+ * 
+ */
+
 #ifndef ark_vm_scope
 #define ark_vm_scope
 

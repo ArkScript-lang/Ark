@@ -1,3 +1,14 @@
+/**
+ * @file Optimizer.hpp
+ * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @brief Optimizes a given ArkScript AST
+ * @version 0.1
+ * @date 2020-10-27
+ * 
+ * @copyright Copyright (c) 2020
+ * 
+ */
+
 #ifndef ark_compiler_optimizer
 #define ark_compiler_optimizer
 
@@ -24,8 +35,18 @@ namespace Ark
          */
         Optimizer(uint16_t options) noexcept;
 
+        /**
+         * @brief Send the AST to the optimizer, then run the different optimization strategies on it
+         * 
+         * @param ast 
+         */
         void feed(const internal::Node& ast);
 
+        /**
+         * @brief Returns the modified AST
+         * 
+         * @return const internal::Node& 
+         */
         const internal::Node& ast() const noexcept;
 
     private:

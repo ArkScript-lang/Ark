@@ -1,3 +1,14 @@
+/**
+ * @file Parser.hpp
+ * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @brief Parses a token stream into an AST by using the Ark::internal::Node
+ * @version 0.1
+ * @date 2020-10-27
+ * 
+ * @copyright Copyright (c) 2020
+ * 
+ */
+
 #ifndef ark_parser
 #define ark_parser
 

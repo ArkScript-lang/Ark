@@ -1,3 +1,14 @@
+/**
+ * @file Node.hpp
+ * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @brief AST node used by the parser, optimizer and compiler
+ * @version 0.1
+ * @date 2020-10-27
+ * 
+ * @copyright Copyright (c) 2020
+ * 
+ */
+
 #ifndef ark_node
 #define ark_node
 
