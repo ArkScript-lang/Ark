@@ -116,7 +116,7 @@ Who worked on
     * [@SuperFola](https://github.com/SuperFola)
     * [@FrenchMasterSword](https://github.com/FrenchMasterSword)
 * the logo
-    * [@mazzdevs](https://github.com/mazzdevs)
+    * [@mazzdevs](https://github.com/mazzlabs)
 * the docker integration
     * [@yardenshoham](https://github.com/yardenshoham)
 
@@ -151,8 +151,8 @@ Libs already included:
 ~/Ark$ cd Ark
 ~/Ark$ git submodule update --init --recursive
 # building Ark
-~/Ark$ cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release -DARK_BUILD_EXE=On
-~/Ark$ cmake --build build
+~/Ark$ cmake . -Bbuild -DCMAKE_BUILD_TYPE=Release -DARK_BUILD_EXE=On
+~/Ark$ cmake --build build --config Release
 # installing Ark (might need administrative privileges)
 ~/Ark$ cmake --install build --config Release
 # running
