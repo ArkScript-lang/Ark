@@ -47,7 +47,7 @@ namespace Ark::internal::Builtins::List
             throw Ark::TypeError(LIST_RMAT_TE1);
 
         std::size_t idx = static_cast<std::size_t>(n[1].number());
-        if (idx < 0 || idx >= n[0].list().size())
+        if (idx >= n[0].list().size())
             throw std::runtime_error(LIST_RMAT_OOR);
 
         n[0].list().erase(n[0].list().begin () + idx);
