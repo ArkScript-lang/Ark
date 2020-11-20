@@ -44,6 +44,7 @@ namespace Ark
 
         // accept every nodes in the file
         m_ast = Node(NodeType::List);
+        m_ast.setFilename(m_file);
         m_ast.list().emplace_back(Keyword::Begin);
         while (!tokens.empty())
             m_ast.list().push_back(parse(tokens));
@@ -283,6 +284,8 @@ namespace Ark
                 block.setFilename(m_file);
 
                 block.push_back(Node(Keyword::Quote));
+                block.list().back().setPos(token.line, token.col);
+                block.list().back().setFilename(m_file);
                 block.push_back(parse(tokens));
                 return block;
             }
@@ -461,7 +464,7 @@ namespace Ark
                 }
             }
         }
-        
+
         return false;
     }
 

@@ -28,6 +28,15 @@ namespace Ark::internal
         m_type(type)
     {}
 
+    Node::Node(const Node& other) noexcept :
+        m_type(other.m_type),
+        m_value(other.m_value),
+        m_list(other.m_list),
+        m_line(other.m_line),
+        m_col(other.m_col),
+        m_filename(other.m_filename)
+    {}
+
     // -------------------------
 
     const std::string& Node::string() const noexcept

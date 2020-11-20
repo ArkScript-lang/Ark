@@ -42,8 +42,7 @@ inline void Compiler::throwCompilerError(const std::string& message, const inter
     ss << message << "\n";
     if (node.filename() != ARK_NO_NAME_FILE)
         ss << "In file " << node.filename() << "\n";
-    ss << "On line " << (node.line() + 1) << ":" << node.col() << ", got NodeType::";
-    ss << internal::typeToString(node.nodeType()) << "\n";
+    ss << "On line " << (node.line() + 1) << ":" << node.col() << "\n";
 
     if (node.filename() != ARK_NO_NAME_FILE)
     {
