@@ -97,7 +97,7 @@ namespace Ark::internal
         m_col = col;
     }
 
-    void Node::setFilenam(const std::string& filename) noexcept
+    void Node::setFilename(const std::string& filename) noexcept
     {
         m_filename = filename;
     }

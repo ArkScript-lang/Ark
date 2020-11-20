@@ -4,6 +4,8 @@
 ### Added
 - the parser can handle `(let|mut a b.c)` (bug fix)
 - `f[ruv|no-ruv]` CLI switch to control the optimizer (ruv stands for remove unused variables)
+- error message when we have too many parenthesis (at parse time)
+- error message when using an operator not right after a `(`
 
 ### Changed
 - the parser checks if set is given a dot expression (which is an error)

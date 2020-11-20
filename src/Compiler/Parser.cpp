@@ -289,6 +289,12 @@ namespace Ark
             else
                 throwParseError("unknown shorthand", token);
         }
+        // error, we shouldn't have grouping token here
+        else if (token.type == TokenType::Grouping)
+        {
+            throwParseError("Found a lonely `" + token.token + "', you most likely have too much parenthesis.", token);
+        }
+
         return atom(token);
     }
 
