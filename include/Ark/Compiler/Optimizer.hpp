@@ -54,6 +54,14 @@ namespace Ark
         uint16_t m_options;
         std::unordered_map<std::string, unsigned> m_symAppearances;
 
+        /**
+         * @brief Generate a fancy error message
+         * 
+         * @param message 
+         * @param node 
+         */
+        inline void throwOptimizerError(const std::string& message, const internal::Node& node);
+
         // iterate over the AST and remove unused top level functions and constants
         void remove_unused();
         void run_on_global_scope_vars(internal::Node& node, const std::function<void(internal::Node&, internal::Node&, int)>& func);
