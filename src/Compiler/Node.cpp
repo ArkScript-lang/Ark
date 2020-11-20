@@ -97,6 +97,11 @@ namespace Ark::internal
         m_col = col;
     }
 
+    void Node::setFilenam(const std::string& filename) noexcept
+    {
+        m_filename = filename;
+    }
+
     std::size_t Node::line() const noexcept
     {
         return m_line;
@@ -105,6 +110,11 @@ namespace Ark::internal
     std::size_t Node::col() const noexcept
     {
         return m_col;
+    }
+
+    const std::string& Node::filename() const noexcept
+    {
+        return m_filename;
     }
 
     // -------------------------
