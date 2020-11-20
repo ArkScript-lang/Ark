@@ -80,7 +80,7 @@ namespace Ark
         Optimizer m_optimizer;
         uint16_t m_options;
         // tables: symbols, values, plugins and codes
-        std::vector<std::string> m_symbols;
+        std::vector<internal::Node> m_symbols;
         std::vector<std::string> m_defined_symbols;
         std::vector<std::string> m_plugins;
         std::vector<internal::CValue> m_values;
@@ -103,6 +103,9 @@ namespace Ark
         /// Checking if a symbol may be coming from a plugin
         inline bool mayBeFromPlugin(const std::string& name) noexcept;
 
+        /// Throw a nice error message
+        inline void throwCompilerError(const std::string& message, const internal::Node& node);
+
         /**
          * @brief Compile a single node recursively
          * 
@@ -112,11 +115,11 @@ namespace Ark
         void _compile(const internal::Node& x, int p);
 
         // register a symbol/value/plugin in its own table
-        std::size_t addSymbol(const std::string& sym) noexcept;
+        std::size_t addSymbol(const internal::Node& sym) noexcept;
         std::size_t addValue(const internal::Node& x) noexcept;
         std::size_t addValue(std::size_t page_id) noexcept;
 
-        void addDefinedSymbol(const std::string &sym);
+        void addDefinedSymbol(const std::string& sym);
         void checkForUndefinedSymbol();
 
         // push a number on stack (need 2 bytes)
