@@ -5,6 +5,7 @@
 
 #include <Ark/Log.hpp>
 #include <Ark/Utils.hpp>
+#include <Ark/Builtins/Builtins.hpp>
 
 namespace Ark
 {
@@ -128,8 +129,9 @@ namespace Ark
             // loop until we reach the end of the block
             do
             {
-                auto atomized = atom(token);
+                Node atomized = atom(token);
 
+                // error reporting
                 if ((atomized.nodeType() == NodeType::String || atomized.nodeType() == NodeType::Number ||
                         atomized.nodeType() == NodeType::List) && previous_token_was_lparen)
                 {
@@ -286,6 +288,11 @@ namespace Ark
             }
             else
                 throwParseError("unknown shorthand", token);
+        }
+        else if ((token.type == TokenType::Operator || token.type == TokenType::Identifier) &&
+                 std::find(Builtins::operators.begin(), Builtins::operators.end(), token.token) != Builtins::operators.end())
+        {
+            throwParseError("Found a free flying operator, which isn't authorized. Operators should always immediatly follow a `('.", token);
         }
         return atom(token);
     }
