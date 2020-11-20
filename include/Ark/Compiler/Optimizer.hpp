@@ -18,6 +18,7 @@
 #include <cinttypes>
 
 #include <Ark/Compiler/Node.hpp>
+#include <Ark/Exceptions.hpp>
 #include <Ark/Constants.hpp>
 
 namespace Ark
