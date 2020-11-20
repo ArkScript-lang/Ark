@@ -31,5 +31,5 @@ inline void Optimizer::throwOptimizerError(const std::string& message, const int
         }
     }
 
-    throw Ark::ParseError(ss.str());
+    throw Ark::OptimizerError(ss.str());
 }
