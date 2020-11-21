@@ -101,20 +101,27 @@ Who worked on
     * [@rinz13r](https://github.com/rinz13r)
     * [@FrenchMasterSword](https://github.com/FrenchMasterSword)
     * [@rstefanic](https://github.com/rstefanic)
+    * [@PierrePharel](https://github.com/PierrePharel)
+    * [@Wafelack](https://github.com/Wafelack)
 * the builtins
     * [@SuperFola](https://github.com/SuperFola)
     * [@rinz13r](https://github.com/rinz13r)
+    * [@PierrePharel](https://github.com/PierrePharel)
 * the REPL
     * [@rstefanic](https://github.com/rstefanic)
+    * [@PierrePharel](https://github.com/PierrePharel)
 * the CLI
     * [@SuperFola](https://github.com/SuperFola)
     * [@DontBelieveMe](https://github.com/DontBelieveMe)
+    * [@PierrePharel](https://github.com/PierrePharel)
 * the documentation
     * [@SuperFola](https://github.com/SuperFola)
     * [@OfficePop](https://github.com/OfficePop)
+    * [@PierrePharel](https://github.com/PierrePharel)
 * the language specification
     * [@SuperFola](https://github.com/SuperFola)
     * [@FrenchMasterSword](https://github.com/FrenchMasterSword)
+    * [@PierrePharel](https://github.com/PierrePharel)
 * the logo
     * [@mazzdevs](https://github.com/mazzlabs)
 * the docker integration
