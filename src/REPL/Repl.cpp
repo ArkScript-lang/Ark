@@ -28,7 +28,7 @@ namespace Ark
             unsigned open_parentheses = 0;
             unsigned open_braces = 0;
 
-            tmp_code << code;
+            tmp_code << code << "\n";
             while (true)
             {
                 std::string str_lines = "000";
@@ -51,7 +51,7 @@ namespace Ark
                 if (line == "(quit)")
                     return;
 
-                tmp_code << line;
+                tmp_code << line << "\n";
                 open_parentheses += count_open_parentheses(line);
                 open_braces += count_open_braces(line);
 
