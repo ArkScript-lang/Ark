@@ -219,12 +219,11 @@ namespace Ark
                             block.push_back(parse(tokens, /* authorize_capture */ true));
                         else
                             throwParseError("found invalid token after keyword `fun', expected a block to define the argument list of the function\nThe block can be empty if it doesn't have arguments: `()'", tokens.front());
-                        expect(!tokens.empty() && tokens.front().token != ")", "expected a body for the function after the argument list", m_last_token);
                         // parse body
                         if (tokens.front().type == TokenType::Grouping)
                             block.push_back(parse(tokens));
                         else
-                            throwParseError("the body of a function must be a bloc, even an empty one `()'", tokens.front());
+                            throwParseError("the body of a function must be a block, even an empty one `()'", tokens.front());
                         expect(block.list().size() == 3, "got too many arguments after keyword `" + token.token + "', expected an argument list and a body", m_last_token);
                     }
                     else if (token.token == "while")
