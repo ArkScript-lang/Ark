@@ -130,6 +130,26 @@ namespace Ark
     };
 
     /**
+     * @brief OptimizerError thrown by the AST optimizer
+     * 
+     */
+    class OptimizerError : public std::exception
+    {
+    public:
+        OptimizerError(const std::string& message) :
+            m_msg("OptimizerError: " + message)
+        {}
+
+        virtual const char* what() const throw()
+        {
+            return m_msg.c_str();
+        }
+
+    protected:
+        std::string m_msg;
+    };
+
+    /**
      * @brief CompilationError thrown by the compiler
      * 
      */

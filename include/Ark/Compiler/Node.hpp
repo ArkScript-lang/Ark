@@ -97,6 +97,13 @@ namespace Ark::internal
         Node(NodeType type=NodeType::Symbol) noexcept;
 
         /**
+         * @brief Construct a new Node object
+         * 
+         * @param other 
+         */
+        Node(const Node& other) noexcept;
+
+        /**
          * @brief Return the string held by the value (if the node type allows it)
          * 
          * @return const std::string& 
@@ -182,6 +189,13 @@ namespace Ark::internal
         void setPos(std::size_t line, std::size_t col) noexcept;
 
         /**
+         * @brief Set the original Filename where the node was
+         * 
+         * @param filename 
+         */
+        void setFilename(const std::string& filename) noexcept;
+
+        /**
          * @brief Get the line at which this node was created
          * 
          * @return std::size_t 
@@ -195,6 +209,13 @@ namespace Ark::internal
          */
         std::size_t col() const noexcept;
 
+        /**
+         * @brief Return the filename in which this node was created
+         * 
+         * @return const std::string& 
+         */
+        const std::string& filename() const noexcept;
+
         friend std::ostream& operator<<(std::ostream& os, const Node& N) noexcept;
         friend inline bool operator==(const Node& A, const Node& B);
 
@@ -203,7 +224,8 @@ namespace Ark::internal
         Value m_value;
         std::vector<Node> m_list;
         // position of the node in the original code, useful when it comes to parser errors
-        std::size_t m_line, m_col;
+        std::size_t m_line = 0, m_col = 0;
+        std::string m_filename = "";
     };
 
     #include "Node.inl"
