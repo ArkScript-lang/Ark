@@ -1,4 +1,4 @@
-inline void Parser::except(bool pred, const std::string& message, internal::Token token)
+inline void Parser::expect(bool pred, const std::string& message, internal::Token token)
 {
     if (!pred)
         throwParseError(message, token);

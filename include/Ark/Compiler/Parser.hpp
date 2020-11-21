@@ -128,7 +128,7 @@ namespace Ark
         bool checkForInclude(internal::Node& n);
 
         // error management functions
-        inline void except(bool pred, const std::string& message, internal::Token token);
+        inline void expect(bool pred, const std::string& message, internal::Token token);
         inline void throwParseError(const std::string& message, internal::Token token);
         inline void throwParseError_(const std::string& message);
     };
