@@ -92,6 +92,13 @@ namespace Ark
         internal::Value resolve(const internal::Value* val, Args&&... args);
 
         /**
+         * @brief Ask the VM to exit with a given exit code
+         * 
+         * @param code an exit code
+         */
+        void exit(int code) noexcept;
+
+        /**
          * @brief Set the User Pointer object
          * 
          * @param ptr Pointer to data NOT owned by the VM, to be used later
@@ -111,6 +118,7 @@ namespace Ark
     private:
         State* m_state;
 
+        int m_exitCode;
         int m_ip;           // instruction pointer
         std::size_t m_pp;   // page pointer
         bool m_running;
