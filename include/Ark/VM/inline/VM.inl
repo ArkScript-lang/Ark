@@ -21,7 +21,7 @@ internal::Value VM::call(const std::string& name, Args&&... args)
         throwVMError("unbound variable: " + name);
 
     // convert and push arguments in reverse order
-    std::vector<Value> fnargs { { args... } };
+    std::vector<Value> fnargs { { Value(args)... } };
     for (auto it2=fnargs.rbegin(), it_end=fnargs.rend(); it2 != it_end; ++it2)
         m_frames.back().push(*it2);
 
@@ -207,7 +207,7 @@ internal::Value VM::resolve(const internal::Value* val, Args&&... args)
     std::size_t pp = m_pp;
 
     // convert and push arguments in reverse order
-    std::vector<Value> fnargs { { args... } };
+    std::vector<Value> fnargs { { Value(args)... } };
     for (auto it=fnargs.rbegin(), it_end=fnargs.rend(); it != it_end; ++it)
         m_frames.back().push(*it);
     // push function

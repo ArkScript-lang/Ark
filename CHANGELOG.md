@@ -17,6 +17,7 @@
 - the Ark::State (re)compiles a file even if there is a bytecode version available
 - the parser is now stricter and gives better error messages when we give too many/not enough arguments to a keyword
 - better handling of the code given to the REPL (adds new line)
+- renamed the executable from `Ark` to `ark`
 
 ### Removed
 - class `Ark::internal::Inst` which was used as a wrapper between `uint8_t` and `Instruction`
