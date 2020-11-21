@@ -187,7 +187,7 @@ namespace Ark
         {
             Ark::logger.info("generated hash:");
             for (unsigned char hh : hash)
-                Ark::logger.info("- ", hh);
+                Ark::logger.info("- ", static_cast<int>(hh));
         }
     }
 

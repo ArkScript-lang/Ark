@@ -7,6 +7,7 @@
     #pragma warning(disable:4996)
 #endif
 #include <stdlib.h>
+#include <picosha2.hpp>
 
 namespace Ark
 {
@@ -199,7 +200,7 @@ namespace Ark
         uint16_t major = readNumber(i); i++;
         uint16_t minor = readNumber(i); i++;
         uint16_t patch = readNumber(i); i++;
-        
+
         if (major != ARK_VERSION_MAJOR)
         {
             std::string str_version = Ark::Utils::toString(major) + "." +
@@ -223,6 +224,16 @@ namespace Ark
             ha = (static_cast<timestamp_t>(m_bytecode[++i]));
         i++;
         timestamp = aa + ba + ca + da + ea + fa + ga + ha;
+
+        std::vector<unsigned char> hash(picosha2::k_digest_size);
+        picosha2::hash256(m_bytecode.begin() + i + picosha2::k_digest_size, m_bytecode.end(), hash);
+        // checking integrity
+        for (std::size_t j=0; j < picosha2::k_digest_size; ++j)
+        {
+            if (hash[j] != m_bytecode[i])
+                throwStateError("Integrity check failed");
+            ++i;
+        }
 
         if (m_bytecode[i] == Instruction::SYM_TABLE_START)
         {
