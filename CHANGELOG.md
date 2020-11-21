@@ -12,8 +12,10 @@
 - the parser checks if set is given a dot expression (which is an error)
 - the parser should take in account captured variables as well, otherwise some variables are optimized while they are captured, resulting in runtime errors
 - better unbound variable error message
+- (implementation) every constructor with a single argument is now marked as explicit
 
 ### Removed
+- class `Ark::internal::Inst` which was used as a wrapper between `uint8_t` and `Instruction`
 
 ## 3.0.13
 ### Added
