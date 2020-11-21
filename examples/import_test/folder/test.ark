@@ -1,6 +1,0 @@
-(let a 12)
-
-(print "folder/test.ark importing main.ark")
-(import "../import.ark")
-
-(f a)
