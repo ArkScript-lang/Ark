@@ -22,17 +22,17 @@ namespace Ark
         print_repl_header();
         cgui_setup();
 
-        while(true)
+        while (true)
         {
             std::stringstream tmp_code;
             unsigned open_parentheses = 0;
             unsigned open_braces = 0;
 
             tmp_code << code;
-            while(true)
+            while (true)
             {
                 std::string str_lines = "000";
-                if(std::to_string(m_lines).size() < 3)
+                if (std::to_string(m_lines).size() < 3)
                 {
                     std::size_t size = std::to_string(m_lines).size(); 
                     str_lines.replace((str_lines.size() - size), size, std::to_string(m_lines));
@@ -48,7 +48,7 @@ namespace Ark
                 trim_whitespace(line);
 
                 // specific commands handling
-                if(line == "(quit)")
+                if (line == "(quit)")
                     return;
 
                 tmp_code << line;
@@ -57,28 +57,22 @@ namespace Ark
 
                 // lines number incrementation
                 ++ m_lines;
-                if(open_parentheses == 0 && open_braces == 0)
+                if (open_parentheses == 0 && open_braces == 0)
                     break;
             }
 
             // save a valid ip if execution failed
             m_old_ip = vm.m_ip;
-            if(state.doString("{" + tmp_code.str() + "}"))
+            if (state.doString(tmp_code.str()))
             {
                 // for only one vm init
-                if(init == false)
+                if (init == false)
                 {
                     vm.init();
                     init = true;
                 }
 
-                // ajust scope size for symbols
-                ///@todo fix me
-                /*if(vm.m_locals[0]->size() < state.m_symbols.size())
-                    for(unsigned i = vm.m_locals[0]->size(); i < state.m_symbols.size(); ++ i)
-                        vm.m_locals[0]->emplace_back(ValueType::Undefined);*/
-
-                if(vm.safeRun() == 0)
+                if (vm.safeRun() == 0)
                 {
                     // save good code 
                     code = tmp_code.str();

@@ -13,9 +13,11 @@
 - the parser should take in account captured variables as well, otherwise some variables are optimized while they are captured, resulting in runtime errors
 - better unbound variable error message
 - (implementation) every constructor with a single argument is now marked as explicit
+- REPL does not need to add extra surrounding {}
 
 ### Removed
 - class `Ark::internal::Inst` which was used as a wrapper between `uint8_t` and `Instruction`
+- worthless examples were removed
 
 ## 3.0.13
 ### Added
