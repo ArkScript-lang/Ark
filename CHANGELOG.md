@@ -4,10 +4,14 @@
 ### Added
 - the parser can handle `(let|mut a b.c)` (bug fix)
 - `f[ruv|no-ruv]` CLI switch to control the optimizer (ruv stands for remove unused variables)
+- error message when we have too many parenthesis (at parse time)
+- error message when using an operator not right after a `(`
+- error message when we're capturing an unbound variable
 
 ### Changed
 - the parser checks if set is given a dot expression (which is an error)
 - the parser should take in account captured variables as well, otherwise some variables are optimized while they are captured, resulting in runtime errors
+- better unbound variable error message
 
 ### Removed
 
