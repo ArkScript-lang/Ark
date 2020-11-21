@@ -120,26 +120,7 @@ namespace Ark
             bool compiled_successfuly = false;
 
             if (Ark::Utils::fileExists(path))
-            {
-                auto ftime = std::filesystem::last_write_time(std::filesystem::path(file));
-
-                // this shouldn't fail
-                Ark::BytecodeReader bcr2;
-                bcr2.feed(path);
-                auto timestamp = bcr2.timestamp();
-                auto file_last_write = static_cast<decltype(timestamp)>(
-                    std::chrono::duration_cast<std::chrono::seconds>(
-                        ftime.time_since_epoch()).count());
-
-                // TODO fix me, timestamp is wrong on Windows (by 369 years)
-                // Ark::logger.data("doFile() timestamp bytecode file:", timestamp, " ; timestamp " + file + ":", file_last_write);
-
-                // recompile
-                if (timestamp < file_last_write)
-                    compiled_successfuly = compile(m_debug_level, file, path, m_libdir, m_options);
-                else
-                    compiled_successfuly = true;
-            }
+                compiled_successfuly = compile(m_debug_level, file, path, m_libdir, m_options);
             else
             {
                 if (!std::filesystem::exists(directory))  // create ark cache directory

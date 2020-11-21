@@ -58,7 +58,7 @@ namespace Ark
         bool feed(const bytecode_t& bytecode);
 
         /**
-         * @brief Compile a file *only* if needed, and use the resulting bytecode
+         * @brief Compile a file, and use the resulting bytecode
          * 
          * @param filename path to an ArkScript code file
          * @return true on success
