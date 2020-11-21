@@ -156,7 +156,7 @@ namespace Ark
 
                 block.push_back(atomized);
 
-                except(!tokens.empty(), "expected more tokens after `" + token.token + "'", m_last_token);
+                expect(!tokens.empty(), "expected more tokens after `" + token.token + "'", m_last_token);
                 m_last_token = tokens.front();
 
                 if (token.type == TokenType::Keyword)
@@ -173,10 +173,15 @@ namespace Ark
                         else
                             throwParseError("found invalid token after keyword `if', expected function call, value or Identifier", temp);
                         // parse 'then'
+                        expect(!tokens.empty() && tokens.front().token != ")", "expected a statement after the condition", temp);
                         block.push_back(parse(tokens));
                         // parse 'else', if there is one
                         if (tokens.front().token != ")")
+                        {
                             block.push_back(parse(tokens));
+                            // error handling if the if is ill-formed
+                            expect(tokens.front().token == ")", "if block is ill-formed, got more than the 3 required arguments (condition, then, else)", m_last_token);
+                        }
                     }
                     else if (token.token == "let" || token.token == "mut")
                     {
@@ -186,6 +191,7 @@ namespace Ark
                             block.push_back(atom(nextToken(tokens)));
                         else
                             throwParseError(std::string("missing identifier to define a ") + (token.token == "let" ? "constant" : "variable") + ", after keyword `" + token.token + "'", temp);
+                        expect(!tokens.empty() && tokens.front().token != ")", "expected a value after the identifier", temp);
                         // value
                         while (tokens.front().token != ")")
                             block.push_back(parse(tokens, /* authorize_capture */ false, /* authorize_field_read */ true));
@@ -198,6 +204,7 @@ namespace Ark
                             block.push_back(atom(nextToken(tokens)));
                         else
                             throwParseError("missing identifier to assign a value to, after keyword `set'", temp);
+                        expect(!tokens.empty() && tokens.front().token != ")", "expected a value after the identifier", temp);
                         // set can not accept a.b...c
                         if (tokens.front().type == TokenType::GetField)
                             throwParseError("found invalid token after keyword `set', expected an identifier, got a closure field reading expression", tokens.front());
@@ -212,11 +219,13 @@ namespace Ark
                             block.push_back(parse(tokens, /* authorize_capture */ true));
                         else
                             throwParseError("found invalid token after keyword `fun', expected a block to define the argument list of the function\nThe block can be empty if it doesn't have arguments: `()'", tokens.front());
+                        expect(!tokens.empty() && tokens.front().token != ")", "expected a body for the function after the argument list", m_last_token);
                         // parse body
                         if (tokens.front().type == TokenType::Grouping)
                             block.push_back(parse(tokens));
                         else
                             throwParseError("the body of a function must be a bloc, even an empty one `()'", tokens.front());
+                        expect(block.list().size() == 3, "got too many arguments after keyword `" + token.token + "', expected an argument list and a body", m_last_token);
                     }
                     else if (token.token == "while")
                     {
@@ -229,14 +238,16 @@ namespace Ark
                             block.push_back(atom(nextToken(tokens)));
                         else
                             throwParseError("found invalid token after keyword `while', expected function call, value or Identifier", temp);
+                        expect(!tokens.empty() && tokens.front().token != ")", "expected a body after the condition", temp);
                         // parse 'do'
                         block.push_back(parse(tokens));
+                        expect(block.list().size() == 3, "got too many arguments after keyword `" + token.token + "', expected a condition and a body", temp);
                     }
                     else if (token.token == "begin")
                     {
                         while (true)
                         {
-                            except(!tokens.empty(), "a begin block was opened but never closed\nYou most likely forgot a `}' or `)'", m_last_token);
+                            expect(!tokens.empty(), "a `begin' block was opened but never closed\nYou most likely forgot a `}' or `)'", m_last_token);
                             if (tokens.front().token == ")")
                                 break;
                             m_last_token = tokens.front();
@@ -250,10 +261,12 @@ namespace Ark
                             block.push_back(atom(nextToken(tokens)));
                         else
                             throwParseError("found invalid token after keyword `import', expected String (path to the file or module to import)", tokens.front());
+                        expect(tokens.front().token == ")", "got too many arguments after keyword `import', expected a single filename as String", tokens.front());
                     }
                     else if (token.token == "quote")
                     {
                         block.push_back(parse(tokens));
+                        expect(tokens.front().token == ")", "got too many arguments after keyword `quote', expected a single block or value", tokens.front());
                     }
                     else if (token.token == "del")
                     {
@@ -261,6 +274,7 @@ namespace Ark
                             block.push_back(atom(nextToken(tokens)));
                         else
                             throwParseError("found invalid token after keyword `del', expected Identifier", tokens.front());
+                        expect(tokens.front().token == ")", "got too many arguments after keyword `del', expected a single identifier", tokens.front());
                     }
                 }
                 else if (token.type == TokenType::Identifier || token.type == TokenType::Operator ||
@@ -309,7 +323,7 @@ namespace Ark
 
     Token Parser::nextToken(std::list<Token>& tokens)
     {
-        except(!tokens.empty(), "no more token to consume", m_last_token);
+        expect(!tokens.empty(), "no more token to consume", m_last_token);
         m_last_token = tokens.front();
 
         const Token out = std::move(tokens.front());

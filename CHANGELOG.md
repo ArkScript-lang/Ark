@@ -15,6 +15,7 @@
 - (implementation) every constructor with a single argument is now marked as explicit
 - REPL does not need to add extra surrounding {}
 - the Ark::State (re)compiles a file even if there is a bytecode version available
+- the parser is now stricter and gives better error messages when we give too many/not enough arguments to a keyword
 
 ### Removed
 - class `Ark::internal::Inst` which was used as a wrapper between `uint8_t` and `Instruction`
