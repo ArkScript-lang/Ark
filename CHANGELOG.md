@@ -14,6 +14,7 @@
 - better unbound variable error message
 - (implementation) every constructor with a single argument is now marked as explicit
 - REPL does not need to add extra surrounding {}
+- the Ark::State (re)compiles a file even if there is a bytecode version available
 
 ### Removed
 - class `Ark::internal::Inst` which was used as a wrapper between `uint8_t` and `Instruction`
