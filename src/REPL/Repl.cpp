@@ -28,7 +28,7 @@ namespace Ark
             unsigned open_parentheses = 0;
             unsigned open_braces = 0;
 
-            tmp_code << code << "\n";
+            tmp_code << code;
             while (true)
             {
                 std::string str_lines = "000";
