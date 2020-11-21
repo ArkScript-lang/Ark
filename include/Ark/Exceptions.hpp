@@ -24,7 +24,7 @@ namespace Ark
     class TypeError : public std::exception
     {
     public:
-        TypeError(const std::string& message) :
+        explicit TypeError(const std::string& message) :
             m_msg("TypeError: " + message)
         {}
 
@@ -76,7 +76,7 @@ namespace Ark
     class AssertionFailed : public std::exception
     {
     public:
-        AssertionFailed(const std::string& message) :
+        explicit AssertionFailed(const std::string& message) :
             m_msg("AssertionFailed: " + message)
         {}
 
@@ -96,7 +96,7 @@ namespace Ark
     class SyntaxError : public std::exception
     {
     public:
-        SyntaxError(const std::string& message) :
+        explicit SyntaxError(const std::string& message) :
             m_msg("SyntaxError: " + message)
         {}
 
@@ -116,7 +116,7 @@ namespace Ark
     class ParseError : public std::exception
     {
     public:
-        ParseError(const std::string& message) :
+        explicit ParseError(const std::string& message) :
             m_msg("ParseError: " + message)
         {}
 
@@ -136,7 +136,7 @@ namespace Ark
     class OptimizerError : public std::exception
     {
     public:
-        OptimizerError(const std::string& message) :
+        explicit OptimizerError(const std::string& message) :
             m_msg("OptimizerError: " + message)
         {}
 
@@ -156,7 +156,7 @@ namespace Ark
     class CompilationError : public std::exception
     {
     public:
-        CompilationError(const std::string& message) :
+        explicit CompilationError(const std::string& message) :
             m_msg("CompilationError: " + message)
         {}
 

@@ -48,7 +48,7 @@ namespace Ark
     class Logger
     {
     public:
-        Logger(const std::string& file="");
+        explicit Logger(const std::string& file="");
         ~Logger();
 
         Logger(const Logger&) = delete;

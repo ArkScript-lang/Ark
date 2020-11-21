@@ -46,7 +46,7 @@ namespace Ark::internal
          * 
          * @param path path to the shared library
          */
-        SharedLibrary(const std::string& path);
+        explicit SharedLibrary(const std::string& path);
 
         /**
          * @brief Destroy the Shared Library object

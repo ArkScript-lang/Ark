@@ -66,35 +66,35 @@ namespace Ark::internal
          * 
          * @param value 
          */
-        Node(int value) noexcept;
+        explicit Node(int value) noexcept;
 
         /**
          * @brief Construct a new Node object
          * 
          * @param value 
          */
-        Node(double value) noexcept;
+        explicit Node(double value) noexcept;
 
         /**
          * @brief Construct a new Node object
          * 
          * @param value 
          */
-        Node(const std::string& value) noexcept;
+        explicit Node(const std::string& value) noexcept;
 
         /**
          * @brief Construct a new Node object
          * 
          * @param value 
          */
-        Node(Keyword value) noexcept;
+        explicit Node(Keyword value) noexcept;
 
         /**
          * @brief Construct a new Node object, does not set the value
          * 
          * @param type 
          */
-        Node(NodeType type=NodeType::Symbol) noexcept;
+        explicit Node(NodeType type=NodeType::Symbol) noexcept;
 
         /**
          * @brief Construct a new Node object

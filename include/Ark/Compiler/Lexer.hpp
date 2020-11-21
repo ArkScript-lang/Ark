@@ -100,7 +100,7 @@ namespace Ark::internal
          * 
          * @param debug the debug level
          */
-        Lexer(unsigned debug) noexcept;
+        explicit Lexer(unsigned debug) noexcept;
 
         /**
          * @brief Give code to tokenize and create the list of tokens

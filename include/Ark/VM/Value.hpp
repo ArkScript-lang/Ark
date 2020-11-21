@@ -94,84 +94,84 @@ namespace Ark::internal
          * 
          * @param type the value type which is going to be held
          */
-        Value(ValueType type) noexcept;
+        explicit Value(ValueType type) noexcept;
 
         /**
          * @brief Construct a new Value object as a Number
          * 
          * @param value 
          */
-        Value(int value) noexcept;
+        explicit Value(int value) noexcept;
 
         /**
          * @brief Construct a new Value object as a Number
          * 
          * @param value 
          */
-        Value(float value) noexcept;
+        explicit Value(float value) noexcept;
 
         /**
          * @brief Construct a new Value object as a Number
          * 
          * @param value 
          */
-        Value(double value) noexcept;
+        explicit Value(double value) noexcept;
 
         /**
          * @brief Construct a new Value object as a String
          * 
          * @param value 
          */
-        Value(const std::string& value) noexcept;
+        explicit Value(const std::string& value) noexcept;
 
         /**
          * @brief Construct a new Value object as a String
          * 
          * @param value 
          */
-        Value(const String& value) noexcept;
+        explicit Value(const String& value) noexcept;
 
         /**
          * @brief Construct a new Value object as a String
          * 
          * @param value 
          */
-        Value(const char* value) noexcept;
+        explicit Value(const char* value) noexcept;
 
         /**
          * @brief Construct a new Value object as a Function
          * 
          * @param value 
          */
-        Value(PageAddr_t value) noexcept;
+        explicit Value(PageAddr_t value) noexcept;
 
         /**
          * @brief Construct a new Value object from a C++ function
          * 
          * @param value 
          */
-        Value(Value::ProcType value) noexcept;
+        explicit Value(Value::ProcType value) noexcept;
 
         /**
          * @brief Construct a new Value object as a List
          * 
          * @param value 
          */
-        Value(std::vector<Value>&& value) noexcept;
+        explicit Value(std::vector<Value>&& value) noexcept;
 
         /**
          * @brief Construct a new Value object as a Closure
          * 
          * @param value 
          */
-        Value(Closure&& value) noexcept;
+        explicit Value(Closure&& value) noexcept;
 
         /**
          * @brief Construct a new Value object as a UserType
          * 
          * @param value 
          */
-        Value(UserType&& value) noexcept;
+        explicit Value(UserType&& value) noexcept;
 
         /**
          * @brief Return the value type

@@ -19,6 +19,10 @@
 
 namespace Ark::internal
 {
+    /**
+     * @brief Enumeration to keep track of the type of a C(ompiler)Value
+     * 
+     */
     enum class CValueType
     {
         Number,
@@ -36,14 +40,14 @@ namespace Ark::internal
         CValueType type;
 
         // Numbers
-        CValue(double value) noexcept;
-        CValue(long value) noexcept;
+        explicit CValue(double value) noexcept;
+        explicit CValue(long value) noexcept;
         // Strings
-        CValue(const std::string& value) noexcept;
+        explicit CValue(const std::string& value) noexcept;
         // automatic handling (Number/String/Function)
-        CValue(const Node& v) noexcept;
+        explicit CValue(const Node& v) noexcept;
         // Functions
-        CValue(std::size_t value) noexcept;
+        explicit CValue(std::size_t value) noexcept;
 
         bool operator==(const CValue& A) noexcept;
     };
