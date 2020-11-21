@@ -84,15 +84,15 @@ namespace Ark
         std::vector<std::string> m_defined_symbols;
         std::vector<std::string> m_plugins;
         std::vector<internal::CValue> m_values;
-        std::vector<std::vector<internal::Inst>> m_code_pages;
+        std::vector<std::vector<internal::Inst_t>> m_code_pages;
             // we need a temp code pages for some compilations passes
-        std::vector<std::vector<internal::Inst>> m_temp_pages;
+        std::vector<std::vector<internal::Inst_t>> m_temp_pages;
 
         bytecode_t m_bytecode;
         unsigned m_debug;
 
         // helper functions to get a temp or finalized code page
-        inline std::vector<internal::Inst>& page(int i) noexcept;
+        inline std::vector<internal::Inst_t>& page(int i) noexcept;
         // checking if a symbol is an operator or a builtin
         // because they are implemented the same way
 
@@ -123,7 +123,7 @@ namespace Ark
         void checkForUndefinedSymbol();
 
         // push a number on stack (need 2 bytes)
-        void pushNumber(uint16_t n, std::vector<internal::Inst>* page=nullptr) noexcept;
+        void pushNumber(uint16_t n, std::vector<internal::Inst_t>* page=nullptr) noexcept;
     };
 
     #include "Compiler.inl"

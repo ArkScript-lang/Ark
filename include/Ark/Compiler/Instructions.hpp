@@ -16,11 +16,13 @@
 
 namespace Ark::internal
 {
+    using Inst_t = uint8_t;
+
     /**
      * @brief The different bytecodes are stored here
      * 
      */
-    enum Instruction
+    enum Instruction : Inst_t
     {
         NOP                = 0x00,
         SYM_TABLE_START    = 0x01,
@@ -87,15 +89,6 @@ namespace Ark::internal
         LAST_OPERATOR  = 0x39,
 
         LAST_INSTRUCTION = 0x39
-    };
-
-    // TODO remove Inst, not useful
-    struct Inst
-    {
-        uint8_t inst = Instruction::NOP;
-
-        Inst(Instruction inst);
-        Inst(uint8_t inst);
     };
 }
 

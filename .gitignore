@@ -6,6 +6,7 @@ build32/
 linux/
 clang/
 gitstats/
+__arkscript__/
 
 # files
 gmon.out
