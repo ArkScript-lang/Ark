@@ -162,7 +162,7 @@ namespace Ark
             pushNumber(static_cast<uint16_t>(page.size() + 1));
 
             for (auto inst : page)
-                m_bytecode.push_back(inst.inst);
+                m_bytecode.push_back(inst);
             // just in case we got too far, always add a HALT to be sure the
             // VM won't do anything crazy
             m_bytecode.push_back(Instruction::HALT);
@@ -210,7 +210,7 @@ namespace Ark
             // operators
             else if (auto it_operator = isOperator(name))
             {
-                page(p).emplace_back(static_cast<Instruction>(Instruction::FIRST_OPERATOR + it_operator.value()));
+                page(p).emplace_back(static_cast<Inst_t>(Instruction::FIRST_OPERATOR + it_operator.value()));
             }
             // var-use
             else
@@ -513,7 +513,7 @@ namespace Ark
             // need to check we didn't push the (op A B C D...) things for operators not supporting it
             if (exp_count > 2)
             {
-                switch (op_inst.inst)
+                switch (op_inst)
                 {
                     // authorized instructions
                     case Instruction::ADD:
@@ -527,7 +527,7 @@ namespace Ark
 
                     default:
                         throw Ark::CompilationError("can not create a chained expression (of length " + Utils::toString(exp_count) +
-                            ") for operator `" + Builtins::operators[static_cast<std::size_t>(op_inst.inst - Instruction::FIRST_OPERATOR)] + "' " +
+                            ") for operator `" + Builtins::operators[static_cast<std::size_t>(op_inst - Instruction::FIRST_OPERATOR)] + "' " +
                             "at node `" + Utils::toString(x) + "'");
                 }
             }
@@ -607,7 +607,7 @@ namespace Ark
         }
     }
 
-    void Compiler::pushNumber(uint16_t n, std::vector<Inst>* page) noexcept
+    void Compiler::pushNumber(uint16_t n, std::vector<Inst_t>* page) noexcept
     {
         if (page == nullptr)
         {
