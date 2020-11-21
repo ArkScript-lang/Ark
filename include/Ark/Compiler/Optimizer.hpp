@@ -34,7 +34,7 @@ namespace Ark
          * @brief Construct a new Optimizer
          * 
          */
-        Optimizer(uint16_t options) noexcept;
+        explicit Optimizer(uint16_t options) noexcept;
 
         /**
          * @brief Send the AST to the optimizer, then run the different optimization strategies on it

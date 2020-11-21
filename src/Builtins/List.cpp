@@ -34,7 +34,7 @@ namespace Ark::internal::Builtins::List
                 return Value(static_cast<int>(std::distance<Value::Iterator>(l.begin(), it)));
         }
 
-        return -1;
+        return Value(-1);
     }
 
     Value removeAtList(std::vector<Value>& n, Ark::VM* vm)
@@ -83,8 +83,7 @@ namespace Ark::internal::Builtins::List
         for (std::size_t i=start; i < end; i += step)
             retlist.push_back(n[0].list()[i]);
 
-        Value ret(std::move(retlist));
-        return ret;
+        return Value(std::move(retlist));
     }
 
     Value sort_(std::vector<Value>& n, Ark::VM* vm)
@@ -93,7 +92,7 @@ namespace Ark::internal::Builtins::List
             throw std::runtime_error(LIST_SORT_ARITY);
         if (n[0].valueType() != ValueType::List)
             throw Ark::TypeError(LIST_SORT_TE0);
-        
+
         std::sort(n[0].list().begin(), n[0].list().end());
         return n[0];
     }
@@ -121,7 +120,7 @@ namespace Ark::internal::Builtins::List
             throw Ark::TypeError(LIST_SETAT_TE0);
         if (n[1].valueType() != ValueType::Number)
             throw Ark::TypeError(LIST_SETAT_TE1);
-        
+
         n[0].list()[static_cast<std::size_t>(n[1].number())] = n[2];
         return n[0];
     }

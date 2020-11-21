@@ -50,7 +50,7 @@ namespace Ark
          * 
          * @param state a pointer to an ArkScript state, which can be reused for multiple VMs
          */
-        VM(State* state) noexcept;
+        explicit VM(State* state) noexcept;
 
         /**
          * @brief Run the bytecode held in the state

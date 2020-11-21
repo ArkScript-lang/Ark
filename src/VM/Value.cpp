@@ -18,6 +18,8 @@ namespace Ark::internal
     {
         if (type == ValueType::List)
             m_value = std::vector<Value>();
+        else if (type == ValueType::String)
+            m_value = "";
     }
 
     Value::Value(int value) noexcept :
