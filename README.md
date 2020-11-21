@@ -148,7 +148,7 @@ Libs already included:
 ```bash
 # first, clone it
 ~$ git clone --depth=50 --branch=dev https://github.com/ArkScript-lang/Ark.git
-~/Ark$ cd Ark
+~/Ark$ cd ark
 ~/Ark$ git submodule update --init --recursive
 # building Ark
 ~/Ark$ cmake . -Bbuild -DCMAKE_BUILD_TYPE=Release -DARK_BUILD_EXE=On
@@ -156,16 +156,16 @@ Libs already included:
 # installing Ark (might need administrative privileges)
 ~/Ark$ cmake --install build --config Release
 # running
-~/Ark$ Ark --help
+~/Ark$ ark --help
 DESCRIPTION
         ArkScript programming language
 
 SYNOPSIS
-        Ark -h
-        Ark --version
-        Ark --dev-info
-        Ark -r
-        Ark <file> [-c] [[-d]|-bcr] [-L <lib_dir>] [-f(fac|no-fac)] [-f(aitap|no-aitap)]
+        ark -h
+        ark --version
+        ark --dev-info
+        ark -r
+        ark <file> [-c] [[-d]|-bcr] [-L <lib_dir>] [-f(fac|no-fac)] [-f(aitap|no-aitap)]
 
 OPTIONS
         -h, --help                  Display this message
