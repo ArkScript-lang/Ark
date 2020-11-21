@@ -6,6 +6,8 @@
 #undef abs
 #include <Ark/Utils.hpp>
 
+#include <picosha2.hpp>
+
 namespace Ark
 {
     using namespace Ark::internal;
@@ -94,6 +96,14 @@ namespace Ark
         i++;
         timestamp = aa + ba + ca + da + ea + fa + ga + ha;
         os << "Timestamp: " << timestamp << "\n\n";
+
+        os << "SHA256: ";
+        for (std::size_t j=0; j < picosha2::k_digest_size; ++j)
+        {
+            os << static_cast<int>(m_bytecode[i]) << " ";
+            ++i;
+        }
+        os << "\n\n";
 
         std::vector<std::string> symbols;
         std::vector<std::string> values;
