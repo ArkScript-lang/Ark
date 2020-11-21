@@ -5,6 +5,7 @@
 
 #include <Ark/Log.hpp>
 #include <Ark/Utils.hpp>
+#include <Ark/Builtins/Builtins.hpp>
 
 namespace Ark
 {
@@ -44,6 +45,7 @@ namespace Ark
 
         // accept every nodes in the file
         m_ast = Node(NodeType::List);
+        m_ast.setFilename(m_file);
         m_ast.list().emplace_back(Keyword::Begin);
         while (!tokens.empty())
             m_ast.list().push_back(parse(tokens));
@@ -110,6 +112,7 @@ namespace Ark
             // create a list node to host the block
             Node block(NodeType::List);
             block.setPos(token.line, token.col);
+            block.setFilename(m_file);
 
             // handle sub-blocks
             if (tokens.front().token == "(")
@@ -128,8 +131,9 @@ namespace Ark
             // loop until we reach the end of the block
             do
             {
-                auto atomized = atom(token);
+                Node atomized = atom(token);
 
+                // error reporting
                 if ((atomized.nodeType() == NodeType::String || atomized.nodeType() == NodeType::Number ||
                         atomized.nodeType() == NodeType::List) && previous_token_was_lparen)
                 {
@@ -279,13 +283,26 @@ namespace Ark
                 // create a list node to host the block
                 Node block(NodeType::List);
                 block.setPos(token.line, token.col);
+                block.setFilename(m_file);
 
                 block.push_back(Node(Keyword::Quote));
+                block.list().back().setPos(token.line, token.col);
+                block.list().back().setFilename(m_file);
                 block.push_back(parse(tokens));
                 return block;
             }
             else
                 throwParseError("unknown shorthand", token);
+        }
+        // error, we shouldn't have grouping token here
+        else if (token.type == TokenType::Grouping)
+        {
+            throwParseError("Found a lonely `" + token.token + "', you most likely have too much parenthesis.", token);
+        }
+        else if ((token.type == TokenType::Operator || token.type == TokenType::Identifier) &&
+                 std::find(Builtins::operators.begin(), Builtins::operators.end(), token.token) != Builtins::operators.end())
+        {
+            throwParseError("Found a free flying operator, which isn't authorized. Operators should always immediatly follow a `('.", token);
         }
         return atom(token);
     }
@@ -306,6 +323,7 @@ namespace Ark
         {
             auto n = Node(std::stod(token.token));
             n.setPos(token.line, token.col);
+            n.setFilename(m_file);
             return n;
         }
         else if (token.type == TokenType::String)
@@ -317,6 +335,7 @@ namespace Ark
 
             auto n = Node(str);
             n.setPos(token.line, token.col);
+            n.setFilename(m_file);
             return n;
         }
         else if (token.type == TokenType::Keyword)
@@ -336,6 +355,7 @@ namespace Ark
             {
                 auto n = Node(kw.value());
                 n.setPos(token.line, token.col);
+                n.setFilename(m_file);
                 return n;
             }
             throwParseError("unknown keyword", token);
@@ -345,6 +365,7 @@ namespace Ark
             auto n = Node(NodeType::Capture);
             n.setString(token.token);
             n.setPos(token.line, token.col);
+            n.setFilename(m_file);
             return n;
         }
         else if (token.type == TokenType::GetField)
@@ -352,6 +373,7 @@ namespace Ark
             auto n = Node(NodeType::GetField);
             n.setString(token.token);
             n.setPos(token.line, token.col);
+            n.setFilename(m_file);
             return n;
         }
 
@@ -359,6 +381,7 @@ namespace Ark
         auto n = Node(NodeType::Symbol);
         n.setString(token.token);
         n.setPos(token.line, token.col);
+        n.setFilename(m_file);
         return n;
     }
 
@@ -447,7 +470,7 @@ namespace Ark
                 }
             }
         }
-        
+
         return false;
     }
 

@@ -28,6 +28,15 @@ namespace Ark::internal
         m_type(type)
     {}
 
+    Node::Node(const Node& other) noexcept :
+        m_type(other.m_type),
+        m_value(other.m_value),
+        m_list(other.m_list),
+        m_line(other.m_line),
+        m_col(other.m_col),
+        m_filename(other.m_filename)
+    {}
+
     // -------------------------
 
     const std::string& Node::string() const noexcept
@@ -97,6 +106,11 @@ namespace Ark::internal
         m_col = col;
     }
 
+    void Node::setFilename(const std::string& filename) noexcept
+    {
+        m_filename = filename;
+    }
+
     std::size_t Node::line() const noexcept
     {
         return m_line;
@@ -105,6 +119,11 @@ namespace Ark::internal
     std::size_t Node::col() const noexcept
     {
         return m_col;
+    }
+
+    const std::string& Node::filename() const noexcept
+    {
+        return m_filename;
     }
 
     // -------------------------

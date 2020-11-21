@@ -18,3 +18,4 @@ deploy.ps1
 *.arkc
 *.lib
 *.arkm
+*.coz

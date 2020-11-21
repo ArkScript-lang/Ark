@@ -130,7 +130,7 @@ namespace Ark
                 auto file_last_write = static_cast<decltype(timestamp)>(
                     std::chrono::duration_cast<std::chrono::seconds>(
                         ftime.time_since_epoch()).count());
-                
+
                 // TODO fix me, timestamp is wrong on Windows (by 369 years)
                 // Ark::logger.data("doFile() timestamp bytecode file:", timestamp, " ; timestamp " + file + ":", file_last_write);
 
@@ -144,10 +144,10 @@ namespace Ark
             {
                 if (!std::filesystem::exists(directory))  // create ark cache directory
                     std::filesystem::create_directory(directory);
-                
+
                 compiled_successfuly = compile(m_debug_level, file, path, m_libdir, m_options);
             }
-            
+
             if (compiled_successfuly && feed(path))
                 return true;
         }

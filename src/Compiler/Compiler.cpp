@@ -100,8 +100,9 @@ namespace Ark
         for (auto sym : m_symbols)
         {
             // push the string, null terminated
-            for (std::size_t i=0, size=sym.size(); i < size; ++i)
-                m_bytecode.push_back(sym[i]);
+            std::string s = sym.string();
+            for (std::size_t i=0, size=s.size(); i < size; ++i)
+                m_bytecode.push_back(s[i]);
             m_bytecode.push_back(Instruction::NOP);
         }
 
@@ -214,7 +215,7 @@ namespace Ark
             // var-use
             else
             {
-                std::size_t i = addSymbol(name);
+                std::size_t i = addSymbol(x);
 
                 page(p).emplace_back(Instruction::LOAD_SYMBOL);
                 pushNumber(static_cast<uint16_t>(i), &page(p));
@@ -226,7 +227,7 @@ namespace Ark
         {
             std::string name = x.string();
             // 'name' shouldn't be a builtin/operator, we can use it as-is
-            std::size_t i = addSymbol(name);
+            std::size_t i = addSymbol(x);
 
             page(p).emplace_back(Instruction::GET_FIELD);
             pushNumber(static_cast<uint16_t>(i), &page(p));
@@ -309,7 +310,7 @@ namespace Ark
             else if (n == Keyword::Set)
             {
                 std::string name = x.const_list()[1].string();
-                std::size_t i = addSymbol(name);
+                std::size_t i = addSymbol(x.const_list()[1]);
 
                 // put value before symbol id
                 _compile(x.const_list()[2], p);
@@ -320,7 +321,7 @@ namespace Ark
             else if (n == Keyword::Let || n == Keyword::Mut)
             {
                 std::string name = x.const_list()[1].string();
-                std::size_t i = addSymbol(name);
+                std::size_t i = addSymbol(x.const_list()[1]);
                 addDefinedSymbol(name);
 
                 // put value before symbol id
@@ -342,9 +343,15 @@ namespace Ark
                 {
                     if (it->nodeType() == NodeType::Capture)
                     {
+                        // first check that the capture is a defined symbol
+                        if (std::find(m_defined_symbols.begin(), m_defined_symbols.end(), it->string()) == m_defined_symbols.end())
+                        {
+                            // we didn't find it in the defined symbol list, thus we can't capture it
+                            throwCompilerError("Can not capture " + it->string() + " because it is referencing an unbound variable.", *it);
+                        }
                         page(p).emplace_back(Instruction::CAPTURE);
                         addDefinedSymbol(it->string());
-                        std::size_t var_id = addSymbol(it->string());
+                        std::size_t var_id = addSymbol(*it);
                         pushNumber(static_cast<uint16_t>(var_id), &(page(p)));
                     }
                 }
@@ -361,7 +368,7 @@ namespace Ark
                     if (it->nodeType() == NodeType::Symbol)
                     {
                         page(page_id).emplace_back(Instruction::MUT);
-                        std::size_t var_id = addSymbol(it->string());
+                        std::size_t var_id = addSymbol(*it);
                         addDefinedSymbol(it->string());
                         pushNumber(static_cast<uint16_t>(var_id), &(page(page_id)));
                     }
@@ -425,7 +432,7 @@ namespace Ark
             {
                 // get id of symbol to delete
                 std::string name = x.const_list()[1].string();
-                std::size_t i = addSymbol(name);
+                std::size_t i = addSymbol(x.const_list()[1]);
 
                 page(p).emplace_back(Instruction::DEL);
                 pushNumber(static_cast<uint16_t>(i), &page(p));
@@ -529,10 +536,12 @@ namespace Ark
         return;
     }
 
-    std::size_t Compiler::addSymbol(const std::string& sym) noexcept
+    std::size_t Compiler::addSymbol(const Node& sym) noexcept
     {
         // otherwise, add the symbol, and return its id in the table
-        auto it = std::find(m_symbols.begin(), m_symbols.end(), sym);
+        auto it = std::find_if(m_symbols.begin(), m_symbols.end(), [&sym](const Node& sym_node) -> bool {
+            return sym_node.string() == sym.string();
+        });
         if (it == m_symbols.end())
         {
             if (m_debug >= 3)
@@ -574,7 +583,7 @@ namespace Ark
         return static_cast<std::size_t>(std::distance(m_values.begin(), it));
     }
 
-    void Compiler::addDefinedSymbol(const std::string &sym)
+    void Compiler::addDefinedSymbol(const std::string& sym)
     {
         // otherwise, add the symbol, and return its id in the table
         auto it = std::find(m_defined_symbols.begin(), m_defined_symbols.end(), sym);
@@ -589,12 +598,12 @@ namespace Ark
 
     void Compiler::checkForUndefinedSymbol()
     {
-        for (const std::string& sym : m_symbols)
+        for (const Node& sym : m_symbols)
         {
-            bool is_plugin = mayBeFromPlugin(sym);
-            auto it = std::find(m_defined_symbols.begin(), m_defined_symbols.end(), sym);
+            bool is_plugin = mayBeFromPlugin(sym.string());
+            auto it = std::find(m_defined_symbols.begin(), m_defined_symbols.end(), sym.string());
             if (it == m_defined_symbols.end() && !is_plugin)
-                throw Ark::CompilationError("unbound variable: " + sym + " (symbol is used but not defined)");
+                throwCompilerError("Unbound variable error (variable is used but not defined)", sym);
         }
     }
 
