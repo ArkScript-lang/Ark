@@ -81,6 +81,7 @@ jobs:
       working-directory: ${{runner.workspace}}
       shell: bash
       run: |
+        ls -l
         if [ -f build/Release/ark.exe ]; then
           mv build/Release/ark.exe .
         fi
