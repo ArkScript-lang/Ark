@@ -19,23 +19,23 @@ jobs:
       matrix:
         config:
         - {
-            name: "Windows Latest MSVC", artifact: "Windows-MSVC.tar.gz",
+            name: "Windows Latest MSVC",
             os: windows-latest, os_short: "Windows",
             build_type: "Release", cc: "cl", cxx: "cl",
             environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
           }
         - {
-            name: "Ubuntu Latest GCC", artifact: "Linux-gcc.tar.gz",
+            name: "Ubuntu Latest GCC",
             os: ubuntu-latest, os_short: "Ubuntu",
             build_type: "Release", cc: "gcc-8", cxx: "g++-8"
           }
         - {
-            name: "Ubuntu Latest Clang", artifact: "Linux-clang.tar.gz",
+            name: "Ubuntu Latest Clang",
             os: ubuntu-latest, os_short: "Ubuntu",
             build_type: "Release", cc: "clang", cxx: "clang++"
           }
         - {
-            name: "macOS Latest Clang", artifact: "macOS.tar.gz",
+            name: "macOS Latest Clang",
             os: macos-latest, os_short: "macOS",
             build_type: "Release", cc: "clang", cxx: "clang++"
           }
@@ -74,7 +74,6 @@ jobs:
     - name: Test
       shell: bash
       run: |
-        ls -l
         if [ -f build/Release/ark.exe ]; then
           mv build/Release/ark.exe .
         fi
