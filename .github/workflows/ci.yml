@@ -78,7 +78,6 @@ jobs:
         cmake --build . --config $BUILD_TYPE --target console
 
     - name: Test
-      working-directory: ${{runner.workspace}}
       shell: bash
       run: |
         ls -l
