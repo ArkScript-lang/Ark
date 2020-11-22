@@ -46,7 +46,11 @@ jobs:
         submodules: true
 
     - name: Create Build Environment
-      run: cmake -E make_directory ${{runner.workspace}}/build
+      run: |
+        echo $(pwd)
+        ls -l .
+        cmake -E make_directory ${{runner.workspace}}/build
+        echo $(pwd)
 
     - name: Update compilers
       if: ${{ matrix.config.cc }} == 'gcc' && ${{ matrix.config.os_short }} == 'Ubuntu'
@@ -80,6 +84,10 @@ jobs:
       working-directory: ${{runner.workspace}}/build
       shell: bash
       run: |
+        ls -l .
+        echo ===============
+        echo ls -l ..
+        echo ===============
         if [ -f Release/ark.exe ]; then
           mv Release/ark.exe .
         fi
