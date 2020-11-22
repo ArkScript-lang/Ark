@@ -78,4 +78,4 @@ jobs:
         if [ -f build/Release/ark.exe ]; then
           mv build/Release/ark.exe .
         fi
-        ./build/ark tests/unittest.ark --lib lib/ || exit 1
+        ./build/ark tests/unittests.ark --lib lib/ || exit 1
