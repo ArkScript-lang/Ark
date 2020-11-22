@@ -526,7 +526,7 @@ namespace Ark
                         break;
 
                     default:
-                        throwCompilationError("can not create a chained expression (of length " + Utils::toString(exp_count) +
+                        throwCompilerError("can not create a chained expression (of length " + Utils::toString(exp_count) +
                             ") for operator `" + Builtins::operators[static_cast<std::size_t>(op_inst - Instruction::FIRST_OPERATOR)] +
                             "'. You most likely forgot a `)'.");
                 }
