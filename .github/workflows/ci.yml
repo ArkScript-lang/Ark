@@ -45,10 +45,6 @@ jobs:
       with:
         submodules: true
 
-    - name: Create Build Environment
-      run: |
-        cmake -E make_directory build
-
     - name: Update compilers
       if: ${{ matrix.config.cc }} == 'gcc' && ${{ matrix.config.os_short }} == 'Ubuntu'
       shell: bash
@@ -67,7 +63,7 @@ jobs:
 
     - name: Configure CMake
       shell: bash
-      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_C_COMPILER=${{ matrix.config.cc }} -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }} -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=On
+      run: cmake -Bbuild -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_C_COMPILER=${{ matrix.config.cc }} -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }} -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=On
 
     - name: Build
       shell: bash
