@@ -68,7 +68,7 @@ jobs:
     - name: Configure CMake
       shell: bash
       working-directory: ${{runner.workspace}}/build
-      run: cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_C_COMPILER=${{ matrix.config.cc }} -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }} -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=On
+      run: cmake . -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_C_COMPILER=${{ matrix.config.cc }} -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }} -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=On
 
     - name: Build
       working-directory: ${{runner.workspace}}/build
