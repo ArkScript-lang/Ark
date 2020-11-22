@@ -8,6 +8,7 @@
 - error message when using an operator not right after a `(`
 - error message when we're capturing an unbound variable
 - added `(sys:exit code)` as a builtin
+- bytecode integrity checking through a sha256 in the header
 
 ### Changed
 - the parser checks if set is given a dot expression (which is an error)
