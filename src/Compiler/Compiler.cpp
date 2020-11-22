@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <chrono>
+#include <picosha2.hpp>
 
 #include <Ark/Log.hpp>
 #include <Ark/Builtins/Builtins.hpp>
@@ -79,19 +80,21 @@ namespace Ark
         if (m_debug >= 1)
             Ark::logger.info("Timestamp: ", timestamp);
 
+        const std::size_t header_size = m_bytecode.size();
+
         if (m_debug >= 1)
             Ark::logger.info("Adding symbols table header");
 
         // symbols table
         m_bytecode.push_back(Instruction::SYM_TABLE_START);
-        
+
         if (m_debug >= 1)
             Ark::logger.info("Compiling");
         // gather symbols, values, and start to create code segments
         m_code_pages.emplace_back();  // create empty page
         _compile(m_optimizer.ast(), 0);
         checkForUndefinedSymbol();
-            
+
         if (m_debug >= 1)
             Ark::logger.info("Adding symbols table");
         // push size
@@ -173,6 +176,18 @@ namespace Ark
             m_bytecode.push_back(Instruction::CODE_SEGMENT_START);
             pushNumber(static_cast<uint16_t>(1));
             m_bytecode.push_back(Instruction::HALT);
+        }
+
+        // generate a hash of the tables + bytecode
+        std::vector<unsigned char> hash(picosha2::k_digest_size);
+        picosha2::hash256(m_bytecode.begin() + header_size, m_bytecode.end(), hash);
+        m_bytecode.insert(m_bytecode.begin() + header_size, hash.begin(), hash.end());
+
+        if (m_debug >= 2)
+        {
+            Ark::logger.info("generated hash:");
+            for (unsigned char hh : hash)
+                Ark::logger.info("- ", static_cast<int>(hh));
         }
     }
 
