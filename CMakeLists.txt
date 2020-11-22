@@ -86,7 +86,7 @@ if (UNIX OR LINUX)
     if (CMAKE_COMPILER_IS_GNUCXX)
         target_link_libraries(ArkReactor PUBLIC stdc++fs)
     elseif (CMAKE_COMPILER_IS_CLANG)
-        target_link_libraries(ArkReactor PUBLIC c++fs)
+        target_link_libraries(ArkReactor PUBLIC stdc++fs)
     endif()
 
     target_link_libraries(ArkReactor PUBLIC ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
