@@ -53,27 +53,21 @@ jobs:
     - name: Create Build Environment
       run: cmake -E make_directory ${{runner.workspace}}/build
 
-    - name: Update Ubuntu GCC compilers
+    - name: Update compilers
       if: ${{ matrix.config.cc }} == 'gcc' && ${{ matrix.config.os_short }} == 'Ubuntu'
       shell: bash
       run: |
-        sudo apt-add-repository -y ppa:ubuntu-toolchain-r/test
-        sudo apt-get -yq install g++-8 gcc-8
-
-    - name: Update Ubuntu Clang compilers
-      if: ${{ matrix.config.cc }} == 'clang' && ${{ matrix.config.os_short }} == 'Ubuntu'
-      shell: bash
-      run: |
-        wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key 2>/dev/null | sudo apt-key add -
-        sudo add-apt-repository 'deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-9 main' -y
-        sudo apt-get update -q
-        sudo apt-get install -y clang-9 lld-9 libc++-9-dev libc++abi-9-dev clang-tools-9
-
-    - name: Update MacOs compilers
-      if: ${{ matrix.config.os_short }} == 'macOS'
-      shell: bash
-      run: |
-        brew install gcc && brew link gcc && CXX=/usr/local/bin/g++-9
+        if [[ ${{ matrix.config.cc }} == 'gcc' && ${{ matrix.config.os_short }} == 'Ubuntu' ]]; then
+          sudo apt-add-repository -y ppa:ubuntu-toolchain-r/test
+          sudo apt-get -yq install g++-8 gcc-8
+        elif [[ ${{ matrix.config.cc }} == 'clang' && ${{ matrix.config.os_short }} == 'Ubuntu' ]]; then
+          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key 2>/dev/null | sudo apt-key add -
+          sudo add-apt-repository 'deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-9 main' -y
+          sudo apt-get update -q
+          sudo apt-get install -y clang-9 lld-9 libc++-9-dev libc++abi-9-dev clang-tools-9
+        elif [[ ${{ matrix.config.os_short }} == 'macOS' ]]; then
+          brew install gcc && brew link gcc && CXX=/usr/local/bin/g++-9
+        fi
 
     - name: Configure CMake
       shell: bash
