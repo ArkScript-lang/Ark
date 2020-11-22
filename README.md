@@ -4,6 +4,7 @@
 [![Build Status](https://travis-ci.org/ArkScript-lang/Ark.svg?branch=rework)](https://travis-ci.org/ArkScript-lang/Ark)
 ![Code size](https://img.shields.io/github/languages/code-size/arkscript-lang/ark)
 ![Downloads](https://img.shields.io/github/downloads/arkscript-lang/ark/total?color=%2324cc24)
+![CMake](https://github.com/ArkScript-lang/Ark/workflows/CMake/badge.svg)
 
 <img align="right" src="images/ArkTransparent-by-mazz.png" width=200px>
 
