@@ -25,11 +25,6 @@ jobs:
             environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
           }
         - {
-            name: "Windows Latest MinGW", artifact: "Windows-MinGW.tar.gz",
-            os: windows-latest, os_short: "Windows",
-            build_type: "Release", cc: "gcc-8", cxx: "g++-8"
-          }
-        - {
             name: "Ubuntu Latest GCC", artifact: "Linux-gcc.tar.gz",
             os: ubuntu-latest, os_short: "Ubuntu",
             build_type: "Release", cc: "gcc-8", cxx: "g++-8"
@@ -85,6 +80,9 @@ jobs:
       working-directory: ${{runner.workspace}}/build
       shell: bash
       run: |
+        ls .
+        echo ============================
+        ls -l build
         if [ -f build/Release/ark ]; then
           mv build/Release/ark build/ark
         fi
