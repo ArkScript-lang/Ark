@@ -80,10 +80,7 @@ jobs:
       working-directory: ${{runner.workspace}}/build
       shell: bash
       run: |
-        ls .
-        echo ============================
-        ls -l build
-        if [ -f build/Release/ark ]; then
-          mv build/Release/ark build/ark
+        if [ -f Release/ark.exe ]; then
+          mv Release/ark.exe .
         fi
-        build/ark tests/unittest.ark --lib lib/ || exit 1
+        ./ark tests/unittest.ark --lib lib/ || exit 1
