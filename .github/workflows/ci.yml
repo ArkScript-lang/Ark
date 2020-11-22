@@ -1,0 +1,41 @@
+name: CMake
+
+on:
+  push:
+    branches: [dev]
+  pull_request:
+    branches: [dev]
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: [ubuntu-20.04, ubuntu-18.04, ubuntu-16.04, macos-11.0, macos-10.15, windows-2019]
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Create Build Environment
+      run: cmake -E make_directory ${{runner.workspace}}/build
+
+    - name: Configure CMake
+      shell: bash
+      working-directory: ${{runner.workspace}}/build
+      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=On
+
+    - name: Build
+      working-directory: ${{runner.workspace}}/build
+      shell: bash
+      run: |
+        cmake --build . --config $BUILD_TYPE --target ark
+        cmake --build . --config $BUILD_TYPE --target console
+
+    - name: Test
+      working-directory: ${{runner.workspace}}/build
+      shell: bash
+      run: |
+        if [ -f build/Release/ark ]; then
+          mv build/Release/ark build/ark
+        fi
+        build/ark tests/unittest.ark --lib lib/ || exit 1
