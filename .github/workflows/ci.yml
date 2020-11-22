@@ -75,6 +75,7 @@ jobs:
       shell: bash
       run: |
         if [ -f build/Release/ark.exe ]; then
-          mv build/Release/ark.exe .
+            ./build/Release/ark.exe tests/unittests.ark --lib lib/ || exit 1
+        else
+          ./build/ark tests/unittests.ark --lib lib/ || exit 1
         fi
-        ./build/ark tests/unittests.ark --lib lib/ || exit 1
