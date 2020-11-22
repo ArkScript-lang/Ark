@@ -47,10 +47,8 @@ jobs:
 
     - name: Create Build Environment
       run: |
-        echo $(pwd)
-        ls -l .
-        cmake -E make_directory ${{runner.workspace}}/build
-        echo $(pwd)
+        mkdir -p ${{runner.workspace}}/build && cd ${{runner.workspace}}/build
+        cmake ..
 
     - name: Update compilers
       if: ${{ matrix.config.cc }} == 'gcc' && ${{ matrix.config.os_short }} == 'Ubuntu'
@@ -71,7 +69,7 @@ jobs:
     - name: Configure CMake
       shell: bash
       working-directory: ${{runner.workspace}}/build
-      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_C_COMPILER=${{ matrix.config.cc }} -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }} -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=On
+      run: cmake . -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_C_COMPILER=${{ matrix.config.cc }} -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }} -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=On
 
     - name: Build
       working-directory: ${{runner.workspace}}/build
@@ -81,14 +79,10 @@ jobs:
         cmake --build . --config $BUILD_TYPE --target console
 
     - name: Test
-      working-directory: ${{runner.workspace}}/build
+      working-directory: ${{runner.workspace}}
       shell: bash
       run: |
-        ls -l .
-        echo ===============
-        echo ls -l ..
-        echo ===============
-        if [ -f Release/ark.exe ]; then
-          mv Release/ark.exe .
+        if [ -f build/Release/ark.exe ]; then
+          mv build/Release/ark.exe .
         fi
-        ./ark ../tests/unittest.ark --lib ../lib/ || exit 1
+        ./build/ark tests/unittest.ark --lib lib/ || exit 1
