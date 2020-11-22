@@ -59,15 +59,15 @@ jobs:
 
         message(STATUS "Using host CMake version: ${CMAKE_VERSION}")
 
-        if ("${ { runner.os } }" STREQUAL "Windows")
+        if ("${{ runner.os }}" STREQUAL "Windows")
           set(ninja_suffix "win.zip")
           set(cmake_suffix "win64-x64.zip")
           set(cmake_dir "cmake-${cmake_version}-win64-x64/bin")
-        elseif ("${ { runner.os } }" STREQUAL "Linux")
+        elseif ("${{ runner.os }}" STREQUAL "Linux")
           set(ninja_suffix "linux.zip")
           set(cmake_suffix "Linux-x86_64.tar.gz")
           set(cmake_dir "cmake-${cmake_version}-Linux-x86_64/bin")
-        elseif ("${ { runner.os } }" STREQUAL "macOS")
+        elseif ("${{ runner.os }}" STREQUAL "macOS")
           set(ninja_suffix "mac.zip")
           set(cmake_suffix "Darwin-x86_64.tar.gz")
           set(cmake_dir "cmake-${cmake_version}-Darwin-x86_64/CMake.app/Contents/bin")
@@ -85,7 +85,7 @@ jobs:
         file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/${cmake_dir}" cmake_dir)
         message("::set-output name=cmake_dir::${cmake_dir}")
 
-        if (NOT "${ { runner.os } }" STREQUAL "Windows")
+        if (NOT "${{ runner.os }}" STREQUAL "Windows")
           execute_process(
             COMMAND chmod +x ninja
             COMMAND chmod +x ${cmake_dir}/cmake
@@ -95,18 +95,18 @@ jobs:
     - name: Configure
       shell: cmake -P {0}
       run: |
-        set(ENV{CC} ${ { matrix.config.cc } })
-        set(ENV{CXX} ${ { matrix.config.cxx } })
+        set(ENV{CC} ${{ matrix.config.cc }})
+        set(ENV{CXX} ${{ matrix.config.cxx }})
 
-        if ("${ { runner.os } }" STREQUAL "Windows" AND NOT "x${ { matrix.config.environment_script } }" STREQUAL "x")
+        if ("${{ runner.os }}" STREQUAL "Windows" AND NOT "x${{ matrix.config.environment_script }}" STREQUAL "x")
           execute_process(
-            COMMAND "${ { matrix.config.environment_script } }" && set
+            COMMAND "${{ matrix.config.environment_script }}" && set
             OUTPUT_FILE environment_script_output.txt
           )
           file(STRINGS environment_script_output.txt output_lines)
           foreach(line IN LISTS output_lines)
             if (line MATCHES "^([a-zA-Z0-9_-]+)=(.*)$")
-              set(ENV{${CMAKE_MATCH_1} } "${CMAKE_MATCH_2}")
+              set(ENV{${CMAKE_MATCH_1}} "${CMAKE_MATCH_2}")
             endif()
           endforeach()
         endif()
@@ -114,10 +114,10 @@ jobs:
         file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/ninja" ninja_program)
 
         execute_process(
-          COMMAND ${ { steps.cmake_and_ninja.outputs.cmake_dir } }/cmake
+          COMMAND ${{ steps.cmake_and_ninja.outputs.cmake_dir }}/cmake
             -S .
             -B build
-            -D CMAKE_BUILD_TYPE=${ { matrix.config.build_type } }
+            -D CMAKE_BUILD_TYPE=${{ matrix.config.build_type }}
             -G Ninja
             -D CMAKE_MAKE_PROGRAM=${ninja_program}
             -DARK_BUILD_EXE=On
@@ -133,17 +133,17 @@ jobs:
       run: |
         set(ENV{NINJA_STATUS} "[%f/%t %o/sec] ")
 
-        if ("${ { runner.os } }" STREQUAL "Windows" AND NOT "x${ { matrix.config.environment_script } }" STREQUAL "x")
+        if ("${{ runner.os }}" STREQUAL "Windows" AND NOT "x${{ matrix.config.environment_script }}" STREQUAL "x")
           file(STRINGS environment_script_output.txt output_lines)
           foreach(line IN LISTS output_lines)
             if (line MATCHES "^([a-zA-Z0-9_-]+)=(.*)$")
-              set(ENV{${CMAKE_MATCH_1} } "${CMAKE_MATCH_2}")
+              set(ENV{${CMAKE_MATCH_1}} "${CMAKE_MATCH_2}")
             endif()
           endforeach()
         endif()
 
         execute_process(
-          COMMAND ${ { steps.cmake_and_ninja.outputs.cmake_dir } }/cmake
+          COMMAND ${{ steps.cmake_and_ninja.outputs.cmake_dir }}/cmake
             --build build
             --config Release
             --target ark
@@ -154,7 +154,7 @@ jobs:
         endif()
 
         execute_process(
-          COMMAND ${ { steps.cmake_and_ninja.outputs.cmake_dir } }/cmake
+          COMMAND ${{ steps.cmake_and_ninja.outputs.cmake_dir }}/cmake
             --build build
             --config Release
             --target console
@@ -174,14 +174,14 @@ jobs:
         build/ark tests/unittest.ark --lib lib/ || exit 1
 
     - name: Install Strip
-      run: ${ { steps.cmake_and_ninja.outputs.cmake_dir } }/cmake --install build --prefix instdir --strip
+      run: ${{ steps.cmake_and_ninja.outputs.cmake_dir }}/cmake --install build --prefix instdir --strip
 
     - name: Pack
       working-directory: instdir
-      run: ${ { steps.cmake_and_ninja.outputs.cmake_dir } }/cmake -E tar czvf ../${ { matrix.config.artifact } } .
+      run: ${{ steps.cmake_and_ninja.outputs.cmake_dir }}/cmake -E tar czvf ../${{ matrix.config.artifact }} .
 
     - name: Upload
       uses: actions/upload-artifact@v1
       with:
-        path: ./${ { matrix.config.artifact } }
-        name: ${ { matrix.config.artifact } }
+        path: ./${{ matrix.config.artifact }}
+        name: ${{ matrix.config.artifact }}
