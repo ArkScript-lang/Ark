@@ -20,23 +20,28 @@ jobs:
         config:
         - {
             name: "Windows Latest MSVC", artifact: "Windows-MSVC.tar.gz",
-            os: windows-latest,
+            os: windows-latest, os_short: "Windows",
             build_type: "Release", cc: "cl", cxx: "cl",
             environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
           }
         - {
             name: "Windows Latest MinGW", artifact: "Windows-MinGW.tar.gz",
-            os: windows-latest,
+            os: windows-latest, os_short: "Windows",
             build_type: "Release", cc: "gcc-8", cxx: "g++-8"
           }
         - {
-            name: "Ubuntu Latest GCC", artifact: "Linux.tar.gz",
-            os: ubuntu-latest,
+            name: "Ubuntu Latest GCC", artifact: "Linux-gcc.tar.gz",
+            os: ubuntu-latest, os_short: "Ubuntu",
             build_type: "Release", cc: "gcc-8", cxx: "g++-8"
+          }
+        - {
+            name: "Ubuntu Latest Clang", artifact: "Linux-clang.tar.gz",
+            os: ubuntu-latest, os_short: "Ubuntu",
+            build_type: "Release", cc: "clang", cxx: "clang++"
           }
         - {
             name: "macOS Latest Clang", artifact: "macOS.tar.gz",
-            os: macos-latest,
+            os: macos-latest, os_short: "macOS",
             build_type: "Release", cc: "clang", cxx: "clang++"
           }
 
@@ -49,14 +54,14 @@ jobs:
       run: cmake -E make_directory ${{runner.workspace}}/build
 
     - name: Update Ubuntu GCC compilers
-      if: ${{ matrix.config.cc }} == 'gcc' && runner.os == 'Ubuntu'
+      if: ${{ matrix.config.cc }} == 'gcc' && ${{ matrix.config.os_short }} == 'Ubuntu'
       shell: bash
       run: |
         sudo apt-add-repository -y ppa:ubuntu-toolchain-r/test
         sudo apt-get -yq install g++-8 gcc-8
 
     - name: Update Ubuntu Clang compilers
-      if: ${{ matrix.config.cc }} == 'clang' && runner.os == 'Ubuntu'
+      if: ${{ matrix.config.cc }} == 'clang' && ${{ matrix.config.os_short }} == 'Ubuntu'
       shell: bash
       run: |
         wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key 2>/dev/null | sudo apt-key add -
@@ -65,7 +70,7 @@ jobs:
         sudo apt-get install -y clang-9 lld-9 libc++-9-dev libc++abi-9-dev clang-tools-9
 
     - name: Update MacOs compilers
-      if: runner.os == 'macOS'
+      if: ${{ matrix.config.os_short }} == 'macOS'
       shell: bash
       run: |
         brew install gcc && brew link gcc && CXX=/usr/local/bin/g++-9
@@ -73,7 +78,7 @@ jobs:
     - name: Configure CMake
       shell: bash
       working-directory: ${{runner.workspace}}/build
-      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=On
+      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_C_COMPILER=${{ matrix.config.cc }} -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }} -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=On
 
     - name: Build
       working-directory: ${{runner.workspace}}/build
