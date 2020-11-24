@@ -28,6 +28,7 @@
 ### Removed
 - class `Ark::internal::Inst` which was used as a wrapper between `uint8_t` and `Instruction`
 - worthless examples were removed
+- removing `f[no-]aitap` since it wasn't used anymore in the code
 
 ## 3.0.13
 ### Added
