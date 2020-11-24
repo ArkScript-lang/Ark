@@ -212,7 +212,7 @@ namespace Ark
                         else
                             throwParseError("missing identifier to assign a value to, after keyword `set'", temp);
                         expect(!tokens.empty() && tokens.front().token != ")", "expected a value after the identifier", temp);
-                        // set can not accept a.b...c
+                        // set can not accept a.b...c as an identifier
                         if (tokens.front().type == TokenType::GetField)
                             throwParseError("found invalid token after keyword `set', expected an identifier, got a closure field reading expression", tokens.front());
                         // value
