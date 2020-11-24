@@ -328,7 +328,13 @@ namespace Ark
                 std::size_t i = addSymbol(x.const_list()[1]);
 
                 // put value before symbol id
-                _compile(x.const_list()[2], p);
+                // trying to handle chained closure.field.field.field...
+                std::size_t pos = 2;
+                while (pos < x.const_list().size())
+                {
+                    _compile(x.const_list()[pos], p);
+                    pos++;
+                }
 
                 page(p).emplace_back(Instruction::STORE);
                 pushNumber(static_cast<uint16_t>(i), &page(p));
