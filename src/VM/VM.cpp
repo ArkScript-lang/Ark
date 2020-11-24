@@ -140,6 +140,10 @@ namespace Ark
             auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), std::string(map[i].name));
             if (it != m_state->m_symbols.end())
                 registerVarGlobal(static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it)), Value(map[i].value));
+
+            // free memory because we have used it and don't need it anymore
+            // no need to free map[i].value since it's a pointer to a function in the DLL
+            delete[] map[i].name;
             ++i;
         }
 
