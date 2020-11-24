@@ -142,6 +142,9 @@ namespace Ark
                 registerVarGlobal(static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it)), Value(map[i].value));
             ++i;
         }
+
+        // free memory
+        delete[] map;
     }
 
     void VM::exit(int code) noexcept
