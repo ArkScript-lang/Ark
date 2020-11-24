@@ -63,13 +63,13 @@ namespace Ark
             createNewScope();
         }
 
-        // loading binded functions
+        // loading binded stuff
         // put them in the global frame if we can, aka the first one
-        for (auto name_func : m_state->m_binded_functions)
+        for (auto name_val : m_state->m_binded)
         {
-            auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), name_func.first);
+            auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), name_val.first);
             if (it != m_state->m_symbols.end())
-                registerVarGlobal(static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it)), Value(name_func.second));
+                registerVarGlobal(static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it)), name_val.second);
         }
     }
 

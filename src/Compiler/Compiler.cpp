@@ -621,9 +621,11 @@ namespace Ark
     {
         for (const Node& sym : m_symbols)
         {
-            bool is_plugin = mayBeFromPlugin(sym.string());
-            auto it = std::find(m_defined_symbols.begin(), m_defined_symbols.end(), sym.string());
-            if (it == m_defined_symbols.end() && !is_plugin)
+            const std::string& str = sym.string();
+            bool is_plugin = mayBeFromPlugin(str);
+
+            auto it = std::find(m_defined_symbols.begin(), m_defined_symbols.end(), str);
+            if (it == m_defined_symbols.end() && !is_plugin && str != "sys:args")
                 throwCompilerError("Unbound variable error (variable is used but not defined)", sym);
         }
     }

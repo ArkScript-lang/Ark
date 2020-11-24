@@ -165,7 +165,15 @@ namespace Ark
 
     void State::loadFunction(const std::string& name, internal::Value::ProcType function) noexcept
     {
-        m_binded_functions[name] = std::move(function);
+        m_binded[name] = internal::Value(std::move(function));
+    }
+
+    void State::setArgs(const std::vector<std::string>& args) noexcept
+    {
+        internal::Value val(internal::ValueType::List);
+        for (const std::string& arg : args)
+            val.push_back(internal::Value(arg));
+        m_binded["sys:args"] = val;
     }
 
     void State::setDebug(unsigned level) noexcept
@@ -322,7 +330,7 @@ namespace Ark
         m_symbols.clear();
         m_constants.clear();
         m_pages.clear();
-        m_binded_functions.clear(); 
+        m_binded.clear(); 
     }
 }
 

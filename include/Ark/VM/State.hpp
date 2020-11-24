@@ -84,6 +84,13 @@ namespace Ark
         void loadFunction(const std::string& name, internal::Value::ProcType function) noexcept;
 
         /**
+         * @brief Set the script arguments in sys:args
+         * 
+         * @param args 
+         */
+        void setArgs(const std::vector<std::string>& args) noexcept;
+
+        /**
          * @brief Set the debug level
          * 
          * @param level between 0 (nothing) and 3 (maximum verbosity)
@@ -144,7 +151,7 @@ namespace Ark
         std::vector<bytecode_t> m_pages;
 
         // related to the execution
-        std::unordered_map<std::string, internal::Value::ProcType> m_binded_functions;
+        std::unordered_map<std::string, internal::Value> m_binded;
     };
 }
 
