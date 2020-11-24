@@ -20,7 +20,8 @@
     (set tests (assert-eq (math:max 0.5 0.2) 0.5 "math:max" tests))
     (set tests (assert-eq (math:pow 2 2) 4 "math:pow" tests))
     (set tests (assert-eq (math:pow 4 0.5) 2 "math:pow" tests))
-    #(set tests (assert-eq (math:sqrt 9) 3 "math:sqrt" tests))
+    (set tests (assert-eq (math:fibo 31 0 1) 1346269 "math:fibo" tests))
+    (set tests (assert-eq (math:fibo 32 0 1) 2178309 "math:fibo" tests))
 
     (recap "Math tests passed" tests (- (time) start-time))
 
