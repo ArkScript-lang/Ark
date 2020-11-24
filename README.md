@@ -169,22 +169,24 @@ DESCRIPTION
 
 SYNOPSIS
         ark -h
-        ark --version
+        ark -v
         ark --dev-info
-        ark -r
-        ark <file> [-c] [[-d]|-bcr] [-L <lib_dir>] [-f(fac|no-fac)] [-f(aitap|no-aitap)]
+        ark -e <expression>
+        ark -c <file> [-d]
+        ark -bcr <file>
+        ark <file> [-d] [-L <lib_dir>] [-f(fac|no-fac)] [-f(ruv|no-ruv)]
 
 OPTIONS
         -h, --help                  Display this message
-        --version                   Display ArkScript version and exit
+        -v, --version               Display ArkScript version and exit
         --dev-info                  Display development information and exit
-        -r, --repl                  Run the ArkScript REPL
+        -e, --eval                  Evaluate ArkScript expression
         -c, --compile               Compile the given program to bytecode, but do not run
         -d, --debug...              Increase debug level (default: 0)
         -bcr, --bytecode-reader     Launch the bytecode reader
-        -L, --lib                   Set the location of the ArkScript standard library
+        -L, --lib                   Set the location of the ArkScript standard library   
         -f(fac|no-fac)              Toggle function arity checks (default: ON)
-        -f(aitap|no-aitap)          Authorize invalid token after `(' (default: OFF). When ON, only display a warning      
+        -f(ruv|no-ruv)              Remove unused variables (default: ON)
 
 LICENSE
         Mozilla Public License 2.0
