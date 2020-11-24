@@ -25,6 +25,7 @@
 - now using Github Actions instead of Travis
 - the parser can now detect when let/mut/set are fed too many arguments, and generate an error
 - the compilater now handles `(set a b.c.d)`
+- using a new plugin interface, more C-like
 
 ### Removed
 - class `Ark::internal::Inst` which was used as a wrapper between `uint8_t` and `Instruction`

@@ -19,6 +19,11 @@
 // get a variable from a scope
 #define getVariableInCurrentScope(id) (*m_locals.back())[id]
 
+struct mapping {
+    char* name;
+    Ark::internal::Value (*value)(std::vector<Ark::internal::Value>&, Ark::VM*);
+};
+
 namespace Ark
 {
     VM::VM(State* state) noexcept :
@@ -119,24 +124,31 @@ namespace Ark
         else
             throwVMError("could not load plugin: " + file);
 
-        // load data from it!
-        using Mapping_t = std::unordered_map<std::string, Value::ProcType>;
-        using map_fun_t = Mapping_t(*) ();
-        Mapping_t map;
+        // load data from it
+        mapping* map;
 
         try {
-            map = m_shared_lib_objects.back()->template get<map_fun_t>("getFunctionsMapping")();
+            map = m_shared_lib_objects.back()->template get<mapping* (*)()>("getFunctionsMapping")();
         } catch (const std::system_error& e) {
             throwVMError(std::string(e.what()));
         }
 
-        for (auto&& kv : map)
+        std::size_t i = 0;
+        while (map[i].name != nullptr)
         {
             // put it in the global frame, aka the first one
-            auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), kv.first);
+            auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), std::string(map[i].name));
             if (it != m_state->m_symbols.end())
-                registerVarGlobal(static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it)), Value(kv.second));
+                registerVarGlobal(static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it)), Value(map[i].value));
+
+            // free memory because we have used it and don't need it anymore
+            // no need to free map[i].value since it's a pointer to a function in the DLL
+            delete[] map[i].name;
+            ++i;
         }
+
+        // free memory
+        delete[] map;
     }
 
     void VM::exit(int code) noexcept
