@@ -195,6 +195,13 @@ namespace Ark
                         // value
                         while (tokens.front().token != ")")
                             block.push_back(parse(tokens, /* authorize_capture */ false, /* authorize_field_read */ true));
+
+                        // the block size can exceed 3 only if we have a serie of getfields
+                        expect(
+                            block.list().size() <= 3 || std::all_of(block.list().begin() + 3, block.list().end(), [](const Node& n) -> bool { return n.nodeType() == NodeType::GetField; }),
+                            "too many arguments given to keyword `" + token.token + "', got " + Utils::toString(block.list().size() - 1) + ", expected at most 3",
+                            m_last_token
+                        );
                     }
                     else if (token.token == "set")
                     {
@@ -205,12 +212,19 @@ namespace Ark
                         else
                             throwParseError("missing identifier to assign a value to, after keyword `set'", temp);
                         expect(!tokens.empty() && tokens.front().token != ")", "expected a value after the identifier", temp);
-                        // set can not accept a.b...c
+                        // set can not accept a.b...c as an identifier
                         if (tokens.front().type == TokenType::GetField)
                             throwParseError("found invalid token after keyword `set', expected an identifier, got a closure field reading expression", tokens.front());
                         // value
                         while (tokens.front().token != ")")
                             block.push_back(parse(tokens, /* authorize_capture */ false, /* authorize_field_read */ true));
+
+                        // the block size can exceed 3 only if we have a serie of getfields
+                        expect(
+                            block.list().size() <= 3 || std::all_of(block.list().begin() + 3, block.list().end(), [](const Node& n) -> bool { return n.nodeType() == NodeType::GetField; }),
+                            "too many arguments given to keyword `" + token.token + "', got " + Utils::toString(block.list().size() - 1) + ", expected at most 3",
+                            m_last_token
+                        );
                     }
                     else if (token.token == "fun")
                     {
