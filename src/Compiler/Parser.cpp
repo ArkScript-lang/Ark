@@ -491,8 +491,6 @@ namespace Ark
 
                             n.list().push_back(p.ast());
                         }
-                        else if (m_debug >= 1)
-                            Ark::logger.warn("Possible cyclic inclusion issue: file " + m_file + " is trying to include " + path + " which was already included");
                     }
                 }
             }
