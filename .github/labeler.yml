@@ -1,14 +1,22 @@
 compiler:
-- any: ['include/Ark/Compiler/*', 'src/Compiler/*']
-  all: ['!include/Ark/Compiler/Lexer.*', '!include/Ark/Compiler/Node.*', '!include/Ark/Compiler/Parser.*', '!src/Compiler/Lexer.*', '!src/Compiler/Parser.*', '!src/Compiler/Node.*']
+  - include/Ark/Compiler/*
+  - src/Compiler/*
 
 parser:
-- any: ['include/Ark/Compiler/Lexer.*', 'include/Ark/Compiler/Node.*', 'include/Ark/Compiler/Parser.*', 'src/Compiler/Lexer.*', 'src/Compiler/Parser.*', 'src/Compiler/Node.*']
+  - include/Ark/Compiler/Lexer.*
+  - include/Ark/Compiler/Node.*
+  - include/Ark/Compiler/Parser.*
+  - src/Compiler/Lexer.*
+  - src/Compiler/Parser.*
+  - src/Compiler/Node.*
 
 repl:
-- any: ['include/Ark/REPL/**/*', 'src/REPL/**/*']
+  - include/Ark/REPL/**/*
+  - src/REPL/**/*
 
-modules: lib/ext/**/*
+modules:
+  - lib/ext/**/*
 
 virtual machine:
-- any: ['include/Ark/VM/**/*', 'src/VM/**/*']
+  - include/Ark/VM/**/*
+  - src/VM/**/*
