@@ -12,7 +12,7 @@
 - tests for `math:fibo` and `math:divs`
 
 ### Changed
-- the parser checks if set is given a dot expression (which is an error)
+- the parser checks if set is given a dot expression as an identifier (which is an error)
 - the parser should take in account captured variables as well, otherwise some variables are optimized while they are captured, resulting in runtime errors
 - better unbound variable error message
 - (implementation) every constructor with a single argument is now marked as explicit
@@ -23,6 +23,7 @@
 - renamed the executable from `Ark` to `ark`
 - now using Github Actions instead of Travis
 - the parser can now detect when let/mut/set are fed too many arguments, and generate an error
+- the compilater now handles `(set a b.c.d)`
 
 ### Removed
 - class `Ark::internal::Inst` which was used as a wrapper between `uint8_t` and `Instruction`
