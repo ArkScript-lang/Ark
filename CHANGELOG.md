@@ -10,6 +10,7 @@
 - added `(sys:exit code)` as a builtin
 - bytecode integrity checking through a sha256 in the header
 - tests for `math:fibo` and `math:divs`
+- added the ability to give scripts arguments, through `sys:args`
 
 ### Changed
 - the parser checks if set is given a dot expression as an identifier (which is an error)
