@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased changes
+## 3.0.14
 ### Added
 - the parser can handle `(let|mut a b.c)` (bug fix)
 - `f[ruv|no-ruv]` CLI switch to control the optimizer (ruv stands for remove unused variables)
