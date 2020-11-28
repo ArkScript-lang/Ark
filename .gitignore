@@ -7,12 +7,14 @@ linux/
 clang/
 gitstats/
 __arkscript__/
+packages/
 
 # files
 gmon.out
 include/Ark/Constants.hpp
 build.sh
 deploy.ps1
+build-package.sh
 
 *.so
 *.dll
