@@ -51,7 +51,7 @@ inline void Compiler::throwCompilerError(const std::string& message, const inter
         for (int i=3; i > -3; --i)
         {
             int iline = static_cast<int>(node.line());
-            if (iline >= i)
+            if (iline - i >= 0 && iline - i < ctx.size())
                 // + 1 to display real lines numbers
                 ss << std::setw(5) << (iline - i + 1) << " | " << ctx[iline - i] << "\n";
             if (i == 0)  // line of the error
