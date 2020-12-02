@@ -1,5 +1,13 @@
 # Change Log
 
+## Unreleased changes
+### Added
+
+### Changed
+- updated the error handlers to avoid errors (sigsev) when handling errors (lexing, parsing, optimization and compilation error)
+
+### Removed
+
 ## 3.0.14
 ### Added
 - the parser can handle `(let|mut a b.c)` (bug fix)
