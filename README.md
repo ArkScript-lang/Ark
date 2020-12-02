@@ -155,7 +155,7 @@ Libs already included:
 ```bash
 # first, clone it
 ~$ git clone --depth=50 --branch=dev https://github.com/ArkScript-lang/Ark.git
-~/Ark$ cd ark
+~/Ark$ cd Ark
 ~/Ark$ git submodule update --init --recursive
 # building Ark
 ~/Ark$ cmake . -Bbuild -DCMAKE_BUILD_TYPE=Release -DARK_BUILD_EXE=On
