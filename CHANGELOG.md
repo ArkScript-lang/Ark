@@ -4,6 +4,8 @@
 ### Added
 
 ### Changed
+- updated standard library
+- updated modules, adding hash
 
 ### Removed
 
