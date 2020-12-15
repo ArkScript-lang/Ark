@@ -2,6 +2,7 @@
 
 ## Unreleased changes
 ### Added
+- better error message at runtime when a plugin can not be found
 
 ### Changed
 - updated standard library
