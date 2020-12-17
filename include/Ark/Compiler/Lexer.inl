@@ -74,7 +74,8 @@ inline void Lexer::throwTokenizingError(const std::string& message, const std::s
     for (int i=3; i > -3; i--)
     {
         int iline = static_cast<int>(line);
-        if (iline >= i)
+
+        if (iline - i >= 0 && iline - i < ctx.size())
             // + 1 to display real lines numbers
             ss << std::setw(5) << (iline - i + 1) << " | " << ctx[iline - i] << "\n";
         if (i == 0)  // line of the error

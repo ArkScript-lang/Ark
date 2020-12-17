@@ -7,6 +7,7 @@
 ### Changed
 - updated standard library
 - updated modules, adding hash
+- updated the error handlers to avoid errors (sigsev) when handling errors (lexing, parsing, optimization and compilation error)
 
 ### Removed
 
