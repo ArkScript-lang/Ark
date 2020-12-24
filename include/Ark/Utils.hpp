@@ -153,9 +153,17 @@ namespace Ark::Utils
      * @return true on success
      * @return false on failure
      */
-    inline bool fileExists(const std::string& name)
+    inline bool fileExists(const std::string& name) noexcept
     {
-        return std::filesystem::exists(std::filesystem::path(name));
+        try
+        {
+            return std::filesystem::exists(std::filesystem::path(name));
+        }
+        catch (const std::filesystem::filesystem_error& e)
+        {
+            // if we met an error than we most likely fed an invalid path
+            return false;
+        }
     }
 
     /**
