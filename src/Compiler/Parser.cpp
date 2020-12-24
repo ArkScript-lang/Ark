@@ -415,11 +415,10 @@ namespace Ark
     // high cpu cost
     bool Parser::checkForInclude(Node& n)
     {
-        if (n.nodeType() == NodeType::Keyword)
-        {
-            if (n.keyword() == Keyword::Import)
-                return true;
-        }
+        namespace fs = std::filesystem;
+
+        if (n.nodeType() == NodeType::Keyword && n.keyword() == Keyword::Import)
+            return true;
         else if (n.nodeType() == NodeType::List)
         {
             // can not optimize calls to n.list().size() because we are modifying n.list()
@@ -436,49 +435,25 @@ namespace Ark
                     else
                         throw Ark::TypeError("Arguments of import must be of type String");
 
-                    namespace fs = std::filesystem;
-                    using namespace std::string_literals;
-
-                    std::string ext = fs::path(file).extension().string();
-                    std::string dir = Ark::Utils::getDirectoryFromPath(m_file) + "/";
-                    std::string path = (dir != "/") ? dir + file : file;
-
-                    if (m_debug >= 2)
-                        Ark::logger.data("path:", path, " ; file:", file, " ; libdir:", m_libdir);
-
                     // check if we are not loading a plugin
-                    if (ext == ".ark")
+                    if (fs::path(file).extension().string() == ".ark")
                     {
                         n.list().clear();
                         // replace content with a begin block
                         n.list().emplace_back(Keyword::Begin);
-
-                        std::string libpath;
-                        std::string included_file = "";
-                        std::string filename = Ark::Utils::getFilenameFromPath(file);
-
-                        if (m_debug >= 2)
-                            Ark::logger.info("filename:", filename);
-
-                        // search in the files of the user first
-                        if (Ark::Utils::fileExists(path))
-                            included_file = path;
-                        else if (libpath = m_libdir + "/std/" + file; Ark::Utils::fileExists(libpath))
-                            included_file = libpath;
-                        else if (libpath = m_libdir + "/" + file; Ark::Utils::fileExists(libpath))
-                            included_file = libpath;
-                        else
-                            throw std::runtime_error("While processing file " + m_file + ", couldn't import " + file + ": file not found");
+                        // search for the source file everywhere
+                        std::string included_file = seekFile(file);
 
                         // if the file isn't in the include list, then we can include it
                         // this avoids cyclic includes
                         if (std::find(m_parent_include.begin(), m_parent_include.end(), Ark::Utils::canonicalRelPath(included_file)) == m_parent_include.end())
                         {
                             Parser p(m_debug, m_libdir, m_options);
+
                             // feed the new parser with our parent includes
                             for (auto&& pi : m_parent_include)
-                                p.m_parent_include.push_back(Ark::Utils::canonicalRelPath(pi));  // new parser, we can assume that the parent include list is empty
-                            p.m_parent_include.push_back(Ark::Utils::canonicalRelPath(m_file));  // add the current file to avoid importing it again
+                                p.m_parent_include.push_back(pi);  // new parser, we can assume that the parent include list is empty
+                            p.m_parent_include.push_back(m_file);  // add the current file to avoid importing it again
 
                             p.feed(Ark::Utils::readFile(included_file), included_file);
 
@@ -486,7 +461,7 @@ namespace Ark
                             for (auto&& inc : p.m_parent_include)
                             {
                                 if (std::find(m_parent_include.begin(), m_parent_include.end(), inc) == m_parent_include.end())
-                                    m_parent_include.push_back(Ark::Utils::canonicalRelPath(inc));
+                                    m_parent_include.push_back(inc);
                             }
 
                             n.list().push_back(p.ast());
@@ -497,6 +472,31 @@ namespace Ark
         }
 
         return false;
+    }
+
+    std::string Parser::seekFile(const std::string& file)
+    {
+        const std::string current_dir = Ark::Utils::getDirectoryFromPath(m_file) + "/";
+        const std::string path = (current_dir != "/") ? current_dir + file : file;
+
+        if (m_debug >= 2)
+        {
+            Ark::logger.data("path:", path, " ; file:", file, " ; libdir:", m_libdir);
+            Ark::logger.info("filename:", Ark::Utils::getFilenameFromPath(file));
+        }
+
+        // search in the current directory
+        if (Ark::Utils::fileExists(path))
+            return path;
+        // then search in the standard library directory
+        else if (std::string f = m_libdir + "/std/" + file; Ark::Utils::fileExists(f))
+            return f;
+        // then in the standard library root directory
+        else if (std::string f = m_libdir + "/" + file;     Ark::Utils::fileExists(f))
+            return f;
+
+        // fallback, we couldn't find the file
+        throw std::runtime_error("While processing file " + m_file + ", couldn't import " + file + ": file not found");
     }
 
     std::ostream& operator<<(std::ostream& os, const Parser& P) noexcept

@@ -127,6 +127,14 @@ namespace Ark
          */
         bool checkForInclude(internal::Node& n);
 
+        /**
+         * @brief Seek a file in the lib folder and everywhere
+         * 
+         * @param path 
+         * @return std::string 
+         */
+        std::string seekFile(const std::string& file);
+
         // error management functions
         inline void expect(bool pred, const std::string& message, internal::Token token);
         inline void throwParseError(const std::string& message, internal::Token token);
