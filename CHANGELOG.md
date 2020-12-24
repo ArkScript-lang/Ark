@@ -2,15 +2,19 @@
 
 ## Unreleased changes
 ### Added
-- better error message at runtime when a plugin can not be found
+- new submodule, plasma-umass/coz (a profiler)
+- macros for profiling, enabled only if `ARK_PROFILE` is defined
+- cmake flags using -D to turn on/off sys:exec and the coz profiler
 
 ### Changed
 - updated standard library
 - updated modules, adding hash
 - updated the error handlers to avoid errors (sigsev) when handling errors (lexing, parsing, optimization and compilation error)
+- better error message at runtime when a plugin can not be found
 - fixes issue #203 (imports are ill-formed when given an absolute path)
 - fixes issue #205 (search for the standard library folder in more common places)
 - transitioning from C++ streams to printf
+
 ### Removed
 
 ## 3.0.14
