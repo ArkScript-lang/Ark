@@ -4,6 +4,7 @@
 ### Added
 - new submodule, plasma-umass/coz (a profiler)
 - macros for profiling, enabled only if `ARK_PROFILE` is defined
+- cmake flags using -D to turn on/off sys:exec and the coz profiler
 
 ### Changed
 - updated standard library
