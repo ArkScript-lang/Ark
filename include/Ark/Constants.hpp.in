@@ -1,3 +1,14 @@
+/**
+ * @file Constants.hpp.in
+ * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @brief Constants used by ArkScript
+ * @version 0.1
+ * @date 2020-10-27
+ * 
+ * @copyright Copyright (c) 2020
+ * 
+ */
+
 #ifndef ark_constants
 #define ark_constants
 
@@ -21,14 +32,11 @@ namespace Ark
     constexpr uint16_t FeatureFunctionArityCheck = 1 << 1;
     // Compiler options
     constexpr uint16_t FeatureRemoveUnusedVars   = 1 << 4;
-    // Parser options
-    constexpr uint16_t FeatureDisallowInvalidTokenAfterParen = 1 << 8;
 
     // Default features for the VM x Compiler x Parser
     constexpr uint16_t DefaultFeatures =
         FeatureFunctionArityCheck
-        | FeatureRemoveUnusedVars
-        | FeatureDisallowInvalidTokenAfterParen;
+        | FeatureRemoveUnusedVars;
 }
 
 #endif  // ark_constants

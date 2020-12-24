@@ -6,8 +6,44 @@
 - macros for profiling, enabled only if `ARK_PROFILE` is defined
 
 ### Changed
+- updated standard library
+- updated modules, adding hash
+- updated the error handlers to avoid errors (sigsev) when handling errors (lexing, parsing, optimization and compilation error)
+- better error message at runtime when a plugin can not be found
 
 ### Removed
+
+## 3.0.14
+### Added
+- the parser can handle `(let|mut a b.c)` (bug fix)
+- `f[ruv|no-ruv]` CLI switch to control the optimizer (ruv stands for remove unused variables)
+- error message when we have too many parenthesis (at parse time)
+- error message when using an operator not right after a `(`
+- error message when we're capturing an unbound variable
+- added `(sys:exit code)` as a builtin
+- bytecode integrity checking through a sha256 in the header
+- tests for `math:fibo` and `math:divs`
+- added the ability to give scripts arguments, through `sys:args`
+
+### Changed
+- the parser checks if set is given a dot expression as an identifier (which is an error)
+- the parser should take in account captured variables as well, otherwise some variables are optimized while they are captured, resulting in runtime errors
+- better unbound variable error message
+- (implementation) every constructor with a single argument is now marked as explicit
+- REPL does not need to add extra surrounding {}
+- the Ark::State (re)compiles a file even if there is a bytecode version available
+- the parser is now stricter and gives better error messages when we give too many/not enough arguments to a keyword
+- better handling of the code given to the REPL (adds new line)
+- renamed the executable from `Ark` to `ark`
+- now using Github Actions instead of Travis
+- the parser can now detect when let/mut/set are fed too many arguments, and generate an error
+- the compilater now handles `(set a b.c.d)`
+- using a new plugin interface, more C-like
+
+### Removed
+- class `Ark::internal::Inst` which was used as a wrapper between `uint8_t` and `Instruction`
+- worthless examples were removed
+- removing `f[no-]aitap` since it wasn't used anymore in the code
 
 ## 3.0.13
 ### Added

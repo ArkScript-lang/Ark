@@ -27,37 +27,31 @@ int main(int argc, char** argv)
 
     std::string file = "", lib_dir = "?", eval_expresion = "";
     unsigned debug = 0;
-    std::vector<std::string> wrong;
+    std::vector<std::string> wrong, script_args;
     uint16_t options = Ark::DefaultFeatures;
 
     auto cli = (
         option("-h", "--help").set(selected, mode::help).doc("Display this message")
-        | option("--version").set(selected, mode::version).doc("Display ArkScript version and exit")
+        | option("-v", "--version").set(selected, mode::version).doc("Display ArkScript version and exit")
         | option("--dev-info").set(selected, mode::dev_info).doc("Display development information and exit")
-        | option("-r", "--repl").set(selected, mode::repl).doc("Run the ArkScript REPL")
         | (
-            (
-                one_of(
-                    (
-                        value("file", file).set(selected, mode::run)
-                        , option("-c", "--compile").set(selected, mode::compile).doc("Compile the given program to bytecode, but do not run")
-                    )
-                    , (
-                        option("-e", "--eval").set(selected, mode::eval).doc("Evaluate ArkScript expression")
-                        & value("expression", eval_expresion)
-                    )
-                )
-            )
-            //  options taken by mode::run, mode::repl, mode::compile and mode::eval
+            required("-e", "--eval").set(selected, mode::eval).doc("Evaluate ArkScript expression")
+            & value("expression", eval_expresion)
+        )
+        | (
+            required("-c", "--compile").set(selected, mode::compile).doc("Compile the given program to bytecode, but do not run")
+            & value("file", file)
+            , joinable(repeatable(option("-d", "--debug").call([&]{ debug++; }).doc("Increase debug level (default: 0)")))
+        )
+        | (
+            required("-bcr", "--bytecode-reader").set(selected, mode::bytecode_reader).doc("Launch the bytecode reader")
+            & value("file", file)
+        )
+        | (
+            value("file", file).set(selected, mode::run)
             , (
-                (
-                    (
-                        // options which can be cumulated (separated by commas)
-                        joinable(repeatable(option("-d", "--debug").call([&]{ debug++; }).doc("Increase debug level (default: 0)")))
-                    )
-                    // other options which can not be cumulated, separated by pipes
-                    | option("-bcr", "--bytecode-reader").set(selected, mode::bytecode_reader).doc("Launch the bytecode reader")
-                ),
+                joinable(repeatable(option("-d", "--debug").call([&]{ debug++; })))
+                ,
                 // shouldn't change now, the lib option is fine and working
                 (
                     option("-L", "--lib").doc("Set the location of the ArkScript standard library")
@@ -72,11 +66,12 @@ int main(int argc, char** argv)
                     | option("no-fac").call([&]{ options &= ~Ark::FeatureFunctionArityCheck; })
                     ).doc("Toggle function arity checks (default: ON)")
                     ,
-                    ( option("aitap"   ).call([&]{ options &= ~Ark::FeatureDisallowInvalidTokenAfterParen; })
-                    | option("no-aitap").call([&]{ options |= Ark::FeatureDisallowInvalidTokenAfterParen; })
-                    ).doc("Authorize invalid token after `(' (default: OFF). When ON, only display a warning")
+                    ( option("ruv"   ).call([&]{ options |= Ark::FeatureRemoveUnusedVars; })
+                    | option("no-ruv").call([&]{ options &= ~Ark::FeatureRemoveUnusedVars; })
+                    ).doc("Remove unused variables (default: ON)")
                 )
             )
+            , any_other(script_args)
         )
         , any_other(wrong)
     );
@@ -96,11 +91,11 @@ int main(int argc, char** argv)
         switch (selected)
         {
             case mode::help:
-                std::cout << make_man_page(cli, argv[0], fmt)
-                            .append_section("LICENSE",
-                                            "        Mozilla Public License 2.0")
+                std::cout << make_man_page(cli, "ark", fmt)
                             .prepend_section("DESCRIPTION",
-                                             "        ArkScript programming language");
+                                             "        ArkScript programming language")
+                            .append_section("LICENSE",
+                                            "        Mozilla Public License 2.0");
                 std::cout << std::endl;
                 break;
 
@@ -152,6 +147,7 @@ int main(int argc, char** argv)
             {
                 Ark::State state(options, lib_dir);
                 state.setDebug(debug);
+                state.setArgs(script_args);
 
                 if (!state.doFile(file))
                 {
@@ -186,11 +182,14 @@ int main(int argc, char** argv)
     else
     {
         for (const auto& arg : wrong)
-            std::cerr << "'" << arg << "'" << " ins't a valid argument" << std::endl;
+            std::cout << "'" << arg << "'" << " ins't a valid argument" << std::endl;
 
-        std::cerr << "Usage:"   << std::endl << usage_lines(cli, argv[0], fmt) << std::endl
-                  << "Options:" << std::endl << documentation(cli, fmt) << std::endl
-                  << "LICENSE"  << std::endl << "        Mozilla Public License 2.0" << std::endl;
+        std::cout << make_man_page(cli, "ark", fmt)
+                    .prepend_section("DESCRIPTION",
+                                        "        ArkScript programming language")
+                    .append_section("LICENSE",
+                                    "        Mozilla Public License 2.0");
+        std::cout << std::endl;
     }
 
     // to avoid some "CLI glitches"

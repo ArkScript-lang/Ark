@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <chrono>
+#include <picosha2.hpp>
 
 #include <Ark/Log.hpp>
 #include <Ark/Builtins/Builtins.hpp>
@@ -79,19 +80,21 @@ namespace Ark
         if (m_debug >= 1)
             Ark::logger.info("Timestamp: ", timestamp);
 
+        const std::size_t header_size = m_bytecode.size();
+
         if (m_debug >= 1)
             Ark::logger.info("Adding symbols table header");
 
         // symbols table
         m_bytecode.push_back(Instruction::SYM_TABLE_START);
-        
+
         if (m_debug >= 1)
             Ark::logger.info("Compiling");
         // gather symbols, values, and start to create code segments
         m_code_pages.emplace_back();  // create empty page
         _compile(m_optimizer.ast(), 0);
         checkForUndefinedSymbol();
-            
+
         if (m_debug >= 1)
             Ark::logger.info("Adding symbols table");
         // push size
@@ -100,8 +103,9 @@ namespace Ark
         for (auto sym : m_symbols)
         {
             // push the string, null terminated
-            for (std::size_t i=0, size=sym.size(); i < size; ++i)
-                m_bytecode.push_back(sym[i]);
+            std::string s = sym.string();
+            for (std::size_t i=0, size=s.size(); i < size; ++i)
+                m_bytecode.push_back(s[i]);
             m_bytecode.push_back(Instruction::NOP);
         }
 
@@ -161,7 +165,7 @@ namespace Ark
             pushNumber(static_cast<uint16_t>(page.size() + 1));
 
             for (auto inst : page)
-                m_bytecode.push_back(inst.inst);
+                m_bytecode.push_back(inst);
             // just in case we got too far, always add a HALT to be sure the
             // VM won't do anything crazy
             m_bytecode.push_back(Instruction::HALT);
@@ -172,6 +176,18 @@ namespace Ark
             m_bytecode.push_back(Instruction::CODE_SEGMENT_START);
             pushNumber(static_cast<uint16_t>(1));
             m_bytecode.push_back(Instruction::HALT);
+        }
+
+        // generate a hash of the tables + bytecode
+        std::vector<unsigned char> hash(picosha2::k_digest_size);
+        picosha2::hash256(m_bytecode.begin() + header_size, m_bytecode.end(), hash);
+        m_bytecode.insert(m_bytecode.begin() + header_size, hash.begin(), hash.end());
+
+        if (m_debug >= 2)
+        {
+            Ark::logger.info("generated hash:");
+            for (unsigned char hh : hash)
+                Ark::logger.info("- ", static_cast<int>(hh));
         }
     }
 
@@ -209,12 +225,12 @@ namespace Ark
             // operators
             else if (auto it_operator = isOperator(name))
             {
-                page(p).emplace_back(static_cast<Instruction>(Instruction::FIRST_OPERATOR + it_operator.value()));
+                page(p).emplace_back(static_cast<Inst_t>(Instruction::FIRST_OPERATOR + it_operator.value()));
             }
             // var-use
             else
             {
-                std::size_t i = addSymbol(name);
+                std::size_t i = addSymbol(x);
 
                 page(p).emplace_back(Instruction::LOAD_SYMBOL);
                 pushNumber(static_cast<uint16_t>(i), &page(p));
@@ -226,7 +242,7 @@ namespace Ark
         {
             std::string name = x.string();
             // 'name' shouldn't be a builtin/operator, we can use it as-is
-            std::size_t i = addSymbol(name);
+            std::size_t i = addSymbol(x);
 
             page(p).emplace_back(Instruction::GET_FIELD);
             pushNumber(static_cast<uint16_t>(i), &page(p));
@@ -309,36 +325,36 @@ namespace Ark
             else if (n == Keyword::Set)
             {
                 std::string name = x.const_list()[1].string();
-                std::size_t i = addSymbol(name);
+                std::size_t i = addSymbol(x.const_list()[1]);
 
                 // put value before symbol id
-                _compile(x.const_list()[2], p);
+                // trying to handle chained closure.field.field.field...
+                std::size_t pos = 2;
+                while (pos < x.const_list().size())
+                {
+                    _compile(x.const_list()[pos], p);
+                    pos++;
+                }
 
                 page(p).emplace_back(Instruction::STORE);
                 pushNumber(static_cast<uint16_t>(i), &page(p));
             }
-            else if (n == Keyword::Let)
+            else if (n == Keyword::Let || n == Keyword::Mut)
             {
                 std::string name = x.const_list()[1].string();
-                std::size_t i = addSymbol(name);
+                std::size_t i = addSymbol(x.const_list()[1]);
                 addDefinedSymbol(name);
 
                 // put value before symbol id
-                _compile(x.const_list()[2], p);
+                // trying to handle chained closure.field.field.field...
+                std::size_t pos = 2;
+                while (pos < x.const_list().size())
+                {
+                    _compile(x.const_list()[pos], p);
+                    pos++;
+                }
 
-                page(p).emplace_back(Instruction::LET);
-                pushNumber(static_cast<uint16_t>(i), &page(p));
-            }
-            else if (n == Keyword::Mut)
-            {
-                std::string name = x.const_list()[1].string();
-                std::size_t i = addSymbol(name);
-                addDefinedSymbol(name);
-
-                // put value before symbol id
-                _compile(x.const_list()[2], p);
-
-                page(p).emplace_back(Instruction::MUT);
+                page(p).emplace_back(n == Keyword::Let ? Instruction::LET : Instruction::MUT);
                 pushNumber(static_cast<uint16_t>(i), &page(p));
             }
             else if (n == Keyword::Fun)
@@ -348,8 +364,15 @@ namespace Ark
                 {
                     if (it->nodeType() == NodeType::Capture)
                     {
+                        // first check that the capture is a defined symbol
+                        if (std::find(m_defined_symbols.begin(), m_defined_symbols.end(), it->string()) == m_defined_symbols.end())
+                        {
+                            // we didn't find it in the defined symbol list, thus we can't capture it
+                            throwCompilerError("Can not capture " + it->string() + " because it is referencing an unbound variable.", *it);
+                        }
                         page(p).emplace_back(Instruction::CAPTURE);
-                        std::size_t var_id = addSymbol(it->string());
+                        addDefinedSymbol(it->string());
+                        std::size_t var_id = addSymbol(*it);
                         pushNumber(static_cast<uint16_t>(var_id), &(page(p)));
                     }
                 }
@@ -366,7 +389,7 @@ namespace Ark
                     if (it->nodeType() == NodeType::Symbol)
                     {
                         page(page_id).emplace_back(Instruction::MUT);
-                        std::size_t var_id = addSymbol(it->string());
+                        std::size_t var_id = addSymbol(*it);
                         addDefinedSymbol(it->string());
                         pushNumber(static_cast<uint16_t>(var_id), &(page(page_id)));
                     }
@@ -430,7 +453,7 @@ namespace Ark
             {
                 // get id of symbol to delete
                 std::string name = x.const_list()[1].string();
-                std::size_t i = addSymbol(name);
+                std::size_t i = addSymbol(x.const_list()[1]);
 
                 page(p).emplace_back(Instruction::DEL);
                 pushNumber(static_cast<uint16_t>(i), &page(p));
@@ -511,7 +534,7 @@ namespace Ark
             // need to check we didn't push the (op A B C D...) things for operators not supporting it
             if (exp_count > 2)
             {
-                switch (op_inst.inst)
+                switch (op_inst)
                 {
                     // authorized instructions
                     case Instruction::ADD:
@@ -524,9 +547,9 @@ namespace Ark
                         break;
 
                     default:
-                        throw Ark::CompilationError("can not create a chained expression (of length " + Utils::toString(exp_count) +
-                            ") for operator `" + Builtins::operators[static_cast<std::size_t>(op_inst.inst - Instruction::FIRST_OPERATOR)] + "' " +
-                            "at node `" + Utils::toString(x) + "'");
+                        throwCompilerError("can not create a chained expression (of length " + Utils::toString(exp_count) +
+                            ") for operator `" + Builtins::operators[static_cast<std::size_t>(op_inst - Instruction::FIRST_OPERATOR)] +
+                            "'. You most likely forgot a `)'.", x);
                 }
             }
         }
@@ -534,10 +557,12 @@ namespace Ark
         return;
     }
 
-    std::size_t Compiler::addSymbol(const std::string& sym) noexcept
+    std::size_t Compiler::addSymbol(const Node& sym) noexcept
     {
         // otherwise, add the symbol, and return its id in the table
-        auto it = std::find(m_symbols.begin(), m_symbols.end(), sym);
+        auto it = std::find_if(m_symbols.begin(), m_symbols.end(), [&sym](const Node& sym_node) -> bool {
+            return sym_node.string() == sym.string();
+        });
         if (it == m_symbols.end())
         {
             if (m_debug >= 3)
@@ -579,7 +604,7 @@ namespace Ark
         return static_cast<std::size_t>(std::distance(m_values.begin(), it));
     }
 
-    void Compiler::addDefinedSymbol(const std::string &sym)
+    void Compiler::addDefinedSymbol(const std::string& sym)
     {
         // otherwise, add the symbol, and return its id in the table
         auto it = std::find(m_defined_symbols.begin(), m_defined_symbols.end(), sym);
@@ -594,16 +619,18 @@ namespace Ark
 
     void Compiler::checkForUndefinedSymbol()
     {
-        for (const std::string& sym : m_symbols)
+        for (const Node& sym : m_symbols)
         {
-            bool is_plugin = mayBeFromPlugin(sym);
-            auto it = std::find(m_defined_symbols.begin(), m_defined_symbols.end(), sym);
-            if (it == m_defined_symbols.end() && !is_plugin)
-                throw Ark::CompilationError("unbound variable: " + sym + " (symbol is used but not defined)");
+            const std::string& str = sym.string();
+            bool is_plugin = mayBeFromPlugin(str);
+
+            auto it = std::find(m_defined_symbols.begin(), m_defined_symbols.end(), str);
+            if (it == m_defined_symbols.end() && !is_plugin && str != "sys:args")
+                throwCompilerError("Unbound variable error (variable is used but not defined)", sym);
         }
     }
 
-    void Compiler::pushNumber(uint16_t n, std::vector<Inst>* page) noexcept
+    void Compiler::pushNumber(uint16_t n, std::vector<Inst_t>* page) noexcept
     {
         if (page == nullptr)
         {

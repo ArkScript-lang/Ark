@@ -1,3 +1,14 @@
+/**
+ * @file Compiler.hpp
+ * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @brief ArkScript compiler is in charge of transforming the AST into bytecode
+ * @version 0.1
+ * @date 2020-10-27
+ * 
+ * @copyright Copyright (c) 2020
+ * 
+ */
+
 #ifndef ark_compiler
 #define ark_compiler
 
@@ -69,19 +80,19 @@ namespace Ark
         Optimizer m_optimizer;
         uint16_t m_options;
         // tables: symbols, values, plugins and codes
-        std::vector<std::string> m_symbols;
+        std::vector<internal::Node> m_symbols;
         std::vector<std::string> m_defined_symbols;
         std::vector<std::string> m_plugins;
         std::vector<internal::CValue> m_values;
-        std::vector<std::vector<internal::Inst>> m_code_pages;
+        std::vector<std::vector<internal::Inst_t>> m_code_pages;
             // we need a temp code pages for some compilations passes
-        std::vector<std::vector<internal::Inst>> m_temp_pages;
+        std::vector<std::vector<internal::Inst_t>> m_temp_pages;
 
         bytecode_t m_bytecode;
         unsigned m_debug;
 
         // helper functions to get a temp or finalized code page
-        inline std::vector<internal::Inst>& page(int i) noexcept;
+        inline std::vector<internal::Inst_t>& page(int i) noexcept;
         // checking if a symbol is an operator or a builtin
         // because they are implemented the same way
 
@@ -92,6 +103,9 @@ namespace Ark
         /// Checking if a symbol may be coming from a plugin
         inline bool mayBeFromPlugin(const std::string& name) noexcept;
 
+        /// Throw a nice error message
+        inline void throwCompilerError(const std::string& message, const internal::Node& node);
+
         /**
          * @brief Compile a single node recursively
          * 
@@ -101,15 +115,15 @@ namespace Ark
         void _compile(const internal::Node& x, int p);
 
         // register a symbol/value/plugin in its own table
-        std::size_t addSymbol(const std::string& sym) noexcept;
+        std::size_t addSymbol(const internal::Node& sym) noexcept;
         std::size_t addValue(const internal::Node& x) noexcept;
         std::size_t addValue(std::size_t page_id) noexcept;
 
-        void addDefinedSymbol(const std::string &sym);
+        void addDefinedSymbol(const std::string& sym);
         void checkForUndefinedSymbol();
 
         // push a number on stack (need 2 bytes)
-        void pushNumber(uint16_t n, std::vector<internal::Inst>* page=nullptr) noexcept;
+        void pushNumber(uint16_t n, std::vector<internal::Inst_t>* page=nullptr) noexcept;
     };
 
     #include "Compiler.inl"

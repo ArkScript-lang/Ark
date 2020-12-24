@@ -19,12 +19,17 @@
 // get a variable from a scope
 #define getVariableInCurrentScope(id) (*m_locals.back())[id]
 
+struct mapping {
+    char* name;
+    Ark::internal::Value (*value)(std::vector<Ark::internal::Value>&, Ark::VM*);
+};
+
 namespace Ark
 {
     VM::VM(State* state) noexcept :
-        m_state(state), m_ip(0), m_pp(0), m_running(false),
-        m_last_sym_loaded(0), m_until_frame_count(0),
-        m_user_pointer(nullptr)
+        m_state(state), m_exitCode(0), m_ip(0), m_pp(0),
+        m_running(false), m_last_sym_loaded(0),
+        m_until_frame_count(0), m_user_pointer(nullptr)
     {
         m_frames.reserve(16);
         m_locals.reserve(4);
@@ -49,6 +54,7 @@ namespace Ark
         }
 
         m_saved_scope.reset();
+        m_exitCode = 0;
 
         // clearing locals (scopes) and create a global scope
         if ((m_state->m_options & FeaturePersist) == 0)
@@ -62,13 +68,13 @@ namespace Ark
             createNewScope();
         }
 
-        // loading binded functions
+        // loading binded stuff
         // put them in the global frame if we can, aka the first one
-        for (auto name_func : m_state->m_binded_functions)
+        for (auto name_val : m_state->m_binded)
         {
-            auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), name_func.first);
+            auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), name_val.first);
             if (it != m_state->m_symbols.end())
-                registerVarGlobal(static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it)), Value(name_func.second));
+                registerVarGlobal(static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it)), name_val.second);
         }
     }
 
@@ -103,9 +109,10 @@ namespace Ark
         std::string path = "./" + file;
 
         if (m_state->m_filename != ARK_NO_NAME_FILE)  // bytecode loaded from file
-            path = "./" + (fs::path(m_state->m_filename).parent_path() / fs::path(file)).string();
+            path = (fs::path(m_state->m_filename).parent_path() / fs::path(file)).relative_path().string();
         std::string lib_path = (fs::path(m_state->m_libdir) / fs::path(file)).string();
 
+        // if it's already loaded don't do anything
         if (std::find_if(m_shared_lib_objects.begin(), m_shared_lib_objects.end(), [&, this](const auto& val) {
             return (val->path() == path || val->path() == lib_path);
         }) != m_shared_lib_objects.end())
@@ -116,26 +123,39 @@ namespace Ark
         else if (Utils::fileExists(lib_path))  // check in LOAD_PATH otherwise
             m_shared_lib_objects.emplace_back(std::make_shared<SharedLibrary>(lib_path));
         else
-            throwVMError("could not load plugin: " + file);
+            throwVMError("Could not find plugin '" + file + "'. Searched in\n\t- " + path + "\n\t- " + lib_path);
 
-        // load data from it!
-        using Mapping_t = std::unordered_map<std::string, Value::ProcType>;
-        using map_fun_t = Mapping_t(*) ();
-        Mapping_t map;
+        // load data from it
+        mapping* map;
 
         try {
-            map = m_shared_lib_objects.back()->template get<map_fun_t>("getFunctionsMapping")();
+            map = m_shared_lib_objects.back()->template get<mapping* (*)()>("getFunctionsMapping")();
         } catch (const std::system_error& e) {
-            throwVMError(std::string(e.what()));
+            throwVMError("An error occurred while loading plugin '" + file + "': " + std::string(e.what()));
         }
 
-        for (auto&& kv : map)
+        std::size_t i = 0;
+        while (map[i].name != nullptr)
         {
             // put it in the global frame, aka the first one
-            auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), kv.first);
+            auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), std::string(map[i].name));
             if (it != m_state->m_symbols.end())
-                registerVarGlobal(static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it)), Value(kv.second));
+                registerVarGlobal(static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it)), Value(map[i].value));
+
+            // free memory because we have used it and don't need it anymore
+            // no need to free map[i].value since it's a pointer to a function in the DLL
+            delete[] map[i].name;
+            ++i;
         }
+
+        // free memory
+        delete[] map;
+    }
+
+    void VM::exit(int code) noexcept
+    {
+        m_exitCode = code;
+        m_running = false;
     }
 
     // ------------------------------------------
@@ -161,13 +181,13 @@ namespace Ark
         using namespace Ark::internal;
 
         init();
-        int out = safeRun();
+        safeRun();
 
         // reset VM after each run
         m_ip = 0;
         m_pp = 0;
 
-        return out;
+        return m_exitCode;
     }
 
     int VM::safeRun(std::size_t untilFrameCount)
@@ -682,9 +702,9 @@ namespace Ark
                     {
                         Value a = *popVal();
                         if (a.valueType() == ValueType::List)
-                            push(a.const_list().size() > 0 ? (a.const_list())[0] : std::vector<Value>());
+                            push(a.const_list().size() > 0 ? (a.const_list())[0] : Value(ValueType::List));
                         else if (a.valueType() == ValueType::String)
-                            push(a.string().size() > 0 ? Value(std::string(1, (a.string())[0])) : "");
+                            push(a.string().size() > 0 ? Value(std::string(1, (a.string())[0])) : Value(ValueType::String));
                         else
                             throw Ark::TypeError("Argument of firstOf must be a list");
 
@@ -698,7 +718,7 @@ namespace Ark
                         {
                             if (a->const_list().size() < 2)
                             {
-                                push(std::vector<Value>());
+                                push(Value(ValueType::List));
                                 break;
                             }
 
@@ -709,7 +729,7 @@ namespace Ark
                         {
                             if (a->string().size() < 2)
                             {
-                                push("");
+                                push(Value(ValueType::String));
                                 break;
                             }
 
@@ -729,7 +749,7 @@ namespace Ark
                         {
                             if (a->const_list().size() < 2)
                             {
-                                push(std::vector<Value>());
+                                push(Value(ValueType::List));
                                 break;
                             }
 
@@ -740,7 +760,7 @@ namespace Ark
                         {
                             if (a->string().size() < 2)
                             {
-                                push("");
+                                push(Value(ValueType::String));
                                 break;
                             }
 

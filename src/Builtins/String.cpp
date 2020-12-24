@@ -55,7 +55,7 @@ namespace Ark::internal::Builtins::String
         if (n[1].valueType() != ValueType::String)
             throw Ark::TypeError(STR_FIND_TE1);
 
-        return n[0].string_ref().find(n[1].string_ref());
+        return Value(n[0].string_ref().find(n[1].string_ref()));
     }
 
     Value removeAtStr(std::vector<Value>& n, Ark::VM* vm)

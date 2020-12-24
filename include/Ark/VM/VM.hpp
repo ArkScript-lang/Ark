@@ -1,3 +1,14 @@
+/**
+ * @file VM.hpp
+ * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @brief The ArkScript virtual machine
+ * @version 0.1
+ * @date 2020-10-27
+ * 
+ * @copyright Copyright (c) 2020
+ * 
+ */
+
 #ifndef ark_vm
 #define ark_vm
 
@@ -39,7 +50,7 @@ namespace Ark
          * 
          * @param state a pointer to an ArkScript state, which can be reused for multiple VMs
          */
-        VM(State* state) noexcept;
+        explicit VM(State* state) noexcept;
 
         /**
          * @brief Run the bytecode held in the state
@@ -81,6 +92,13 @@ namespace Ark
         internal::Value resolve(const internal::Value* val, Args&&... args);
 
         /**
+         * @brief Ask the VM to exit with a given exit code
+         * 
+         * @param code an exit code
+         */
+        void exit(int code) noexcept;
+
+        /**
          * @brief Set the User Pointer object
          * 
          * @param ptr Pointer to data NOT owned by the VM, to be used later
@@ -100,6 +118,7 @@ namespace Ark
     private:
         State* m_state;
 
+        int m_exitCode;
         int m_ip;           // instruction pointer
         std::size_t m_pp;   // page pointer
         bool m_running;
