@@ -417,11 +417,8 @@ namespace Ark
     {
         namespace fs = std::filesystem;
 
-        if (n.nodeType() == NodeType::Keyword)
-        {
-            if (n.keyword() == Keyword::Import)
-                return true;
-        }
+        if (n.nodeType() == NodeType::Keyword && n.keyword() == Keyword::Import)
+            return true;
         else if (n.nodeType() == NodeType::List)
         {
             // can not optimize calls to n.list().size() because we are modifying n.list()
