@@ -40,4 +40,16 @@ namespace Ark::internal::Builtins::System
 
         return nil;
     }
+
+    Value exit_(std::vector<Value>& n, Ark::VM* vm)
+    {
+        if (n.size() != 1)
+            throw std::runtime_error(SYS_EXIT_ARITY);
+        if (n[0].valueType() != ValueType::Number)
+            throw Ark::TypeError(SYS_EXIT_TE0);
+
+        vm->exit(static_cast<int>(n[0].number()));
+
+        return nil;
+    }
 }

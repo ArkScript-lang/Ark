@@ -50,4 +50,4 @@ RUN apk --no-cache add cmake
 COPY --from=organizer /out/ark .
 RUN cmake --install build --config Release
 
-ENTRYPOINT [ "Ark" ]
+ENTRYPOINT [ "ark" ]

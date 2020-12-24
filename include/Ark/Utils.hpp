@@ -1,3 +1,14 @@
+/**
+ * @file Utils.hpp
+ * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @brief Lots of utilities about string, filesystem and more
+ * @version 0.1
+ * @date 2020-10-27
+ * 
+ * @copyright Copyright (c) 2020
+ * 
+ */
+
 #ifndef ark_utils
 #define ark_utils
 

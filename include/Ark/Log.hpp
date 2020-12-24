@@ -1,3 +1,14 @@
+/**
+ * @file Log.hpp
+ * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @brief ArkScript logger
+ * @version 0.1
+ * @date 2020-10-27
+ * 
+ * @copyright Copyright (c) 2020
+ * 
+ */
+
 #ifndef ark_log
 #define ark_log
 
@@ -37,7 +48,7 @@ namespace Ark
     class Logger
     {
     public:
-        Logger(const std::string& file="");
+        explicit Logger(const std::string& file="");
         ~Logger();
 
         Logger(const Logger&) = delete;

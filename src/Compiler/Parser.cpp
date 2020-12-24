@@ -5,6 +5,7 @@
 
 #include <Ark/Log.hpp>
 #include <Ark/Utils.hpp>
+#include <Ark/Builtins/Builtins.hpp>
 
 namespace Ark
 {
@@ -44,6 +45,7 @@ namespace Ark
 
         // accept every nodes in the file
         m_ast = Node(NodeType::List);
+        m_ast.setFilename(m_file);
         m_ast.list().emplace_back(Keyword::Begin);
         while (!tokens.empty())
             m_ast.list().push_back(parse(tokens));
@@ -110,6 +112,7 @@ namespace Ark
             // create a list node to host the block
             Node block(NodeType::List);
             block.setPos(token.line, token.col);
+            block.setFilename(m_file);
 
             // handle sub-blocks
             if (tokens.front().token == "(")
@@ -128,8 +131,9 @@ namespace Ark
             // loop until we reach the end of the block
             do
             {
-                auto atomized = atom(token);
+                Node atomized = atom(token);
 
+                // error reporting
                 if ((atomized.nodeType() == NodeType::String || atomized.nodeType() == NodeType::Number ||
                         atomized.nodeType() == NodeType::List) && previous_token_was_lparen)
                 {
@@ -152,7 +156,7 @@ namespace Ark
 
                 block.push_back(atomized);
 
-                except(!tokens.empty(), "expected more tokens after `" + token.token + "'", m_last_token);
+                expect(!tokens.empty(), "expected more tokens after `" + token.token + "'", m_last_token);
                 m_last_token = tokens.front();
 
                 if (token.type == TokenType::Keyword)
@@ -169,32 +173,35 @@ namespace Ark
                         else
                             throwParseError("found invalid token after keyword `if', expected function call, value or Identifier", temp);
                         // parse 'then'
+                        expect(!tokens.empty() && tokens.front().token != ")", "expected a statement after the condition", temp);
                         block.push_back(parse(tokens));
                         // parse 'else', if there is one
                         if (tokens.front().token != ")")
+                        {
                             block.push_back(parse(tokens));
+                            // error handling if the if is ill-formed
+                            expect(tokens.front().token == ")", "if block is ill-formed, got more than the 3 required arguments (condition, then, else)", m_last_token);
+                        }
                     }
-                    else if (token.token == "let")
+                    else if (token.token == "let" || token.token == "mut")
                     {
                         auto temp = tokens.front();
                         // parse identifier
                         if (temp.type == TokenType::Identifier)
                             block.push_back(atom(nextToken(tokens)));
                         else
-                            throwParseError("missing identifier to define a constant, after keyword `let'", temp);
+                            throwParseError(std::string("missing identifier to define a ") + (token.token == "let" ? "constant" : "variable") + ", after keyword `" + token.token + "'", temp);
+                        expect(!tokens.empty() && tokens.front().token != ")", "expected a value after the identifier", temp);
                         // value
-                        block.push_back(parse(tokens));
-                    }
-                    else if (token.token == "mut")
-                    {
-                        auto temp = tokens.front();
-                        // parse identifier
-                        if (temp.type == TokenType::Identifier)
-                            block.push_back(atom(nextToken(tokens)));
-                        else
-                            throwParseError("missing identifier to define a variable, after keyword `mut'", temp);
-                        // value
-                        block.push_back(parse(tokens));
+                        while (tokens.front().token != ")")
+                            block.push_back(parse(tokens, /* authorize_capture */ false, /* authorize_field_read */ true));
+
+                        // the block size can exceed 3 only if we have a serie of getfields
+                        expect(
+                            block.list().size() <= 3 || std::all_of(block.list().begin() + 3, block.list().end(), [](const Node& n) -> bool { return n.nodeType() == NodeType::GetField; }),
+                            "too many arguments given to keyword `" + token.token + "', got " + Utils::toString(block.list().size() - 1) + ", expected at most 3",
+                            m_last_token
+                        );
                     }
                     else if (token.token == "set")
                     {
@@ -204,8 +211,20 @@ namespace Ark
                             block.push_back(atom(nextToken(tokens)));
                         else
                             throwParseError("missing identifier to assign a value to, after keyword `set'", temp);
+                        expect(!tokens.empty() && tokens.front().token != ")", "expected a value after the identifier", temp);
+                        // set can not accept a.b...c as an identifier
+                        if (tokens.front().type == TokenType::GetField)
+                            throwParseError("found invalid token after keyword `set', expected an identifier, got a closure field reading expression", tokens.front());
                         // value
-                        block.push_back(parse(tokens));
+                        while (tokens.front().token != ")")
+                            block.push_back(parse(tokens, /* authorize_capture */ false, /* authorize_field_read */ true));
+
+                        // the block size can exceed 3 only if we have a serie of getfields
+                        expect(
+                            block.list().size() <= 3 || std::all_of(block.list().begin() + 3, block.list().end(), [](const Node& n) -> bool { return n.nodeType() == NodeType::GetField; }),
+                            "too many arguments given to keyword `" + token.token + "', got " + Utils::toString(block.list().size() - 1) + ", expected at most 3",
+                            m_last_token
+                        );
                     }
                     else if (token.token == "fun")
                     {
@@ -218,7 +237,8 @@ namespace Ark
                         if (tokens.front().type == TokenType::Grouping)
                             block.push_back(parse(tokens));
                         else
-                            throwParseError("the body of a function must be a bloc, even an empty one `()'", tokens.front());
+                            throwParseError("the body of a function must be a block, even an empty one `()'", tokens.front());
+                        expect(block.list().size() == 3, "got too many arguments after keyword `" + token.token + "', expected an argument list and a body", m_last_token);
                     }
                     else if (token.token == "while")
                     {
@@ -231,14 +251,16 @@ namespace Ark
                             block.push_back(atom(nextToken(tokens)));
                         else
                             throwParseError("found invalid token after keyword `while', expected function call, value or Identifier", temp);
+                        expect(!tokens.empty() && tokens.front().token != ")", "expected a body after the condition", temp);
                         // parse 'do'
                         block.push_back(parse(tokens));
+                        expect(block.list().size() == 3, "got too many arguments after keyword `" + token.token + "', expected a condition and a body", temp);
                     }
                     else if (token.token == "begin")
                     {
                         while (true)
                         {
-                            except(!tokens.empty(), "a begin block was opened but never closed\nYou most likely forgot a `}' or `)'", m_last_token);
+                            expect(!tokens.empty(), "a `begin' block was opened but never closed\nYou most likely forgot a `}' or `)'", m_last_token);
                             if (tokens.front().token == ")")
                                 break;
                             m_last_token = tokens.front();
@@ -252,10 +274,12 @@ namespace Ark
                             block.push_back(atom(nextToken(tokens)));
                         else
                             throwParseError("found invalid token after keyword `import', expected String (path to the file or module to import)", tokens.front());
+                        expect(tokens.front().token == ")", "got too many arguments after keyword `import', expected a single filename as String", tokens.front());
                     }
                     else if (token.token == "quote")
                     {
                         block.push_back(parse(tokens));
+                        expect(tokens.front().token == ")", "got too many arguments after keyword `quote', expected a single block or value", tokens.front());
                     }
                     else if (token.token == "del")
                     {
@@ -263,6 +287,7 @@ namespace Ark
                             block.push_back(atom(nextToken(tokens)));
                         else
                             throwParseError("found invalid token after keyword `del', expected Identifier", tokens.front());
+                        expect(tokens.front().token == ")", "got too many arguments after keyword `del', expected a single identifier", tokens.front());
                     }
                 }
                 else if (token.type == TokenType::Identifier || token.type == TokenType::Operator ||
@@ -285,20 +310,33 @@ namespace Ark
                 // create a list node to host the block
                 Node block(NodeType::List);
                 block.setPos(token.line, token.col);
+                block.setFilename(m_file);
 
                 block.push_back(Node(Keyword::Quote));
+                block.list().back().setPos(token.line, token.col);
+                block.list().back().setFilename(m_file);
                 block.push_back(parse(tokens));
                 return block;
             }
             else
                 throwParseError("unknown shorthand", token);
         }
+        // error, we shouldn't have grouping token here
+        else if (token.type == TokenType::Grouping)
+        {
+            throwParseError("Found a lonely `" + token.token + "', you most likely have too much parenthesis.", token);
+        }
+        else if ((token.type == TokenType::Operator || token.type == TokenType::Identifier) &&
+                 std::find(Builtins::operators.begin(), Builtins::operators.end(), token.token) != Builtins::operators.end())
+        {
+            throwParseError("Found a free flying operator, which isn't authorized. Operators should always immediatly follow a `('.", token);
+        }
         return atom(token);
     }
 
     Token Parser::nextToken(std::list<Token>& tokens)
     {
-        except(!tokens.empty(), "no more token to consume", m_last_token);
+        expect(!tokens.empty(), "no more token to consume", m_last_token);
         m_last_token = tokens.front();
 
         const Token out = std::move(tokens.front());
@@ -312,6 +350,7 @@ namespace Ark
         {
             auto n = Node(std::stod(token.token));
             n.setPos(token.line, token.col);
+            n.setFilename(m_file);
             return n;
         }
         else if (token.type == TokenType::String)
@@ -323,6 +362,7 @@ namespace Ark
 
             auto n = Node(str);
             n.setPos(token.line, token.col);
+            n.setFilename(m_file);
             return n;
         }
         else if (token.type == TokenType::Keyword)
@@ -342,6 +382,7 @@ namespace Ark
             {
                 auto n = Node(kw.value());
                 n.setPos(token.line, token.col);
+                n.setFilename(m_file);
                 return n;
             }
             throwParseError("unknown keyword", token);
@@ -351,6 +392,7 @@ namespace Ark
             auto n = Node(NodeType::Capture);
             n.setString(token.token);
             n.setPos(token.line, token.col);
+            n.setFilename(m_file);
             return n;
         }
         else if (token.type == TokenType::GetField)
@@ -358,6 +400,7 @@ namespace Ark
             auto n = Node(NodeType::GetField);
             n.setString(token.token);
             n.setPos(token.line, token.col);
+            n.setFilename(m_file);
             return n;
         }
 
@@ -365,6 +408,7 @@ namespace Ark
         auto n = Node(NodeType::Symbol);
         n.setString(token.token);
         n.setPos(token.line, token.col);
+        n.setFilename(m_file);
         return n;
     }
 
@@ -447,13 +491,11 @@ namespace Ark
 
                             n.list().push_back(p.ast());
                         }
-                        else if (m_debug >= 1)
-                            Ark::logger.warn("Possible cyclic inclusion issue: file " + m_file + " is trying to include " + path + " which was already included");
                     }
                 }
             }
         }
-        
+
         return false;
     }
 

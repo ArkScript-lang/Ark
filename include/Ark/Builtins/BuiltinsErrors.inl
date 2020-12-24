@@ -84,4 +84,7 @@
 #define SYS_SLEEP_ARITY "sleep needs 1 argument: duration (milliseconds)"
 #define SYS_SLEEP_TE0   "sleep: duration must be a Number"
 
+#define SYS_EXIT_ARITY  "sys:exit needs 1 argument: exit code"
+#define SYS_EXIT_TE0    "sys:exit: exit code must be a Number"
+
 // Time

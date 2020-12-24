@@ -1,3 +1,14 @@
+/**
+ * @file Frame.hpp
+ * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @brief A frame is created each time a function is called, containing its own stack and the return address
+ * @version 0.1
+ * @date 2020-10-27
+ * 
+ * @copyright Copyright (c) 2020
+ * 
+ */
+
 #ifndef ark_vm_frame
 #define ark_vm_frame
 

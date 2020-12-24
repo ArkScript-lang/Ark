@@ -1,3 +1,14 @@
+/**
+ * @file Exceptions.hpp
+ * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @brief ArkScript homemade exceptions
+ * @version 0.1
+ * @date 2020-10-27
+ * 
+ * @copyright Copyright (c) 2020
+ * 
+ */
+
 #ifndef ark_exceptions
 #define ark_exceptions
 
@@ -13,7 +24,7 @@ namespace Ark
     class TypeError : public std::exception
     {
     public:
-        TypeError(const std::string& message) :
+        explicit TypeError(const std::string& message) :
             m_msg("TypeError: " + message)
         {}
 
@@ -65,7 +76,7 @@ namespace Ark
     class AssertionFailed : public std::exception
     {
     public:
-        AssertionFailed(const std::string& message) :
+        explicit AssertionFailed(const std::string& message) :
             m_msg("AssertionFailed: " + message)
         {}
 
@@ -85,7 +96,7 @@ namespace Ark
     class SyntaxError : public std::exception
     {
     public:
-        SyntaxError(const std::string& message) :
+        explicit SyntaxError(const std::string& message) :
             m_msg("SyntaxError: " + message)
         {}
 
@@ -105,8 +116,28 @@ namespace Ark
     class ParseError : public std::exception
     {
     public:
-        ParseError(const std::string& message) :
+        explicit ParseError(const std::string& message) :
             m_msg("ParseError: " + message)
+        {}
+
+        virtual const char* what() const throw()
+        {
+            return m_msg.c_str();
+        }
+
+    protected:
+        std::string m_msg;
+    };
+
+    /**
+     * @brief OptimizerError thrown by the AST optimizer
+     * 
+     */
+    class OptimizerError : public std::exception
+    {
+    public:
+        explicit OptimizerError(const std::string& message) :
+            m_msg("OptimizerError: " + message)
         {}
 
         virtual const char* what() const throw()
@@ -125,7 +156,7 @@ namespace Ark
     class CompilationError : public std::exception
     {
     public:
-        CompilationError(const std::string& message) :
+        explicit CompilationError(const std::string& message) :
             m_msg("CompilationError: " + message)
         {}
 

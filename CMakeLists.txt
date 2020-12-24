@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.8)
 
-project(Ark CXX)
+project(ark CXX)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     set(CMAKE_COMPILER_IS_CLANG ON)
@@ -24,17 +24,17 @@ endif()
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # submodules
-add_subdirectory("${Ark_SOURCE_DIR}/submodules/String")
+add_subdirectory("${ark_SOURCE_DIR}/submodules/String")
 # replxx
-add_subdirectory("${Ark_SOURCE_DIR}/submodules/replxx")
-set(REPLXX_INCLUDE_DIR "${Ark_SOURCE_DIR}/submodules/replxx/include")
+add_subdirectory("${ark_SOURCE_DIR}/submodules/replxx")
+set(REPLXX_INCLUDE_DIR "${ark_SOURCE_DIR}/submodules/replxx/include")
 
 # configuring Constants.hpp
 
 # VERSION
-set(ARK_VERSION_MAJOR 3)
-set(ARK_VERSION_MINOR 0)
-set(ARK_VERSION_PATCH 13)
+set(ARK_VERSION_MAJOR  3)
+set(ARK_VERSION_MINOR  0)
+set(ARK_VERSION_PATCH 14)
 
 message(STATUS "ArkScript version ${ARK_VERSION_MAJOR}.${ARK_VERSION_MINOR}.${ARK_VERSION_PATCH}")
 if (ARK_PROFILER)
@@ -49,23 +49,23 @@ set(ARK_COMPILER ${CMAKE_CXX_COMPILER_ID})
 set(ARK_ENABLE_SYSTEM 1)  # enable use of (system "command here")
 
 configure_file(
-    ${Ark_SOURCE_DIR}/include/Ark/Constants.hpp.in
-    ${Ark_SOURCE_DIR}/include/Ark/Constants.hpp
+    ${ark_SOURCE_DIR}/include/Ark/Constants.hpp.in
+    ${ark_SOURCE_DIR}/include/Ark/Constants.hpp
 )
 
 # files needed for the library ArkReactor
 file(GLOB_RECURSE SOURCE_FILES
-    ${Ark_SOURCE_DIR}/src/Builtins/*.cpp
-    ${Ark_SOURCE_DIR}/src/Compiler/*.cpp
-    ${Ark_SOURCE_DIR}/src/Parser/*.cpp
-    ${Ark_SOURCE_DIR}/src/VM/*.cpp
+    ${ark_SOURCE_DIR}/src/Builtins/*.cpp
+    ${ark_SOURCE_DIR}/src/Compiler/*.cpp
+    ${ark_SOURCE_DIR}/src/Parser/*.cpp
+    ${ark_SOURCE_DIR}/src/VM/*.cpp
 
-    ${Ark_SOURCE_DIR}/thirdparty/*.cpp
+    ${ark_SOURCE_DIR}/thirdparty/*.cpp
 )
 list(APPEND SOURCE_FILES
-    ${Ark_SOURCE_DIR}/src/Ark.cpp
-    ${Ark_SOURCE_DIR}/src/Log.cpp
-    ${Ark_SOURCE_DIR}/src/Utils.cpp
+    ${ark_SOURCE_DIR}/src/Ark.cpp
+    ${ark_SOURCE_DIR}/src/Log.cpp
+    ${ark_SOURCE_DIR}/src/Utils.cpp
 )
 
 add_library(ArkReactor
@@ -78,8 +78,8 @@ add_library(ArkReactor
 
 target_include_directories(ArkReactor
     PUBLIC
-        ${Ark_SOURCE_DIR}/include
-        ${Ark_SOURCE_DIR}/thirdparty
+        ${ark_SOURCE_DIR}/include
+        ${ark_SOURCE_DIR}/thirdparty
         ${STRING_INCLUDES}
 )
 
@@ -96,7 +96,7 @@ if (UNIX OR LINUX)
     if (CMAKE_COMPILER_IS_GNUCXX)
         target_link_libraries(ArkReactor PUBLIC stdc++fs)
     elseif (CMAKE_COMPILER_IS_CLANG)
-        target_link_libraries(ArkReactor PUBLIC c++fs)
+        target_link_libraries(ArkReactor PUBLIC stdc++fs)
     endif()
 
     target_link_libraries(ArkReactor PUBLIC ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
@@ -124,21 +124,21 @@ set_target_properties(
 if (ARK_BUILD_EXE)
     # additional files needed for the exe (repl, command line and stuff)
     set(EXE_SOURCES
-        ${Ark_SOURCE_DIR}/src/REPL/replxx/Util.cpp
-        ${Ark_SOURCE_DIR}/src/REPL/Repl.cpp
-        ${Ark_SOURCE_DIR}/src/main.cpp
+        ${ark_SOURCE_DIR}/src/REPL/replxx/Util.cpp
+        ${ark_SOURCE_DIR}/src/REPL/Repl.cpp
+        ${ark_SOURCE_DIR}/src/main.cpp
     )
 
     include_directories(${REPLXX_INCLUDE_DIR})
-    add_executable(Ark ${EXE_SOURCES})
-    target_include_directories(Ark PUBLIC
-        ${Ark_SOURCE_DIR}/include
-        ${Ark_SOURCE_DIR}/thirdparty
+    add_executable(ark ${EXE_SOURCES})
+    target_include_directories(ark PUBLIC
+        ${ark_SOURCE_DIR}/include
+        ${ark_SOURCE_DIR}/thirdparty
     )
-    target_link_libraries(Ark PUBLIC ArkReactor replxx)
+    target_link_libraries(ark PUBLIC ArkReactor replxx)
 
     set_target_properties(
-        Ark
+        ark
         PROPERTIES
             CXX_STANDARD 17
             CXX_STANDARD_REQUIRED ON
@@ -147,12 +147,12 @@ if (ARK_BUILD_EXE)
 
     # setting up installation directory
 
-    install(TARGETS Ark
+    install(TARGETS ark
             DESTINATION bin
             PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
                         GROUP_EXECUTE GROUP_READ
     )
-    install(DIRECTORY ${Ark_SOURCE_DIR}/lib/
+    install(DIRECTORY ${ark_SOURCE_DIR}/lib/
             DESTINATION lib
             PATTERN "lib/ext" EXCLUDE
             REGEX ".+\.md$" EXCLUDE
@@ -164,5 +164,5 @@ endif()
 # submodules
 
 if (ARK_BUILD_MODULES)
-    add_subdirectory(${Ark_SOURCE_DIR}/lib/ext)
+    add_subdirectory(${ark_SOURCE_DIR}/lib/ext)
 endif()

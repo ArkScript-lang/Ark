@@ -1,9 +1,9 @@
 # ArkScript  ![Latest version](https://img.shields.io/github/v/release/arkscript-lang/ark?include_prereleases)
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/fd5900d08a97487486c43079c06e19ce)](https://app.codacy.com/app/folaefolc/Ark?utm_source=github.com&utm_medium=referral&utm_content=SuperFola/Ark&utm_campaign=Badge_Grade_Settings)
-[![Build Status](https://travis-ci.org/ArkScript-lang/Ark.svg?branch=rework)](https://travis-ci.org/ArkScript-lang/Ark)
 ![Code size](https://img.shields.io/github/languages/code-size/arkscript-lang/ark)
 ![Downloads](https://img.shields.io/github/downloads/arkscript-lang/ark/total?color=%2324cc24)
+![CMake](https://github.com/ArkScript-lang/Ark/workflows/CMake/badge.svg)
 
 <img align="right" src="images/ArkTransparent-by-mazz.png" width=200px>
 
@@ -101,22 +101,29 @@ Who worked on
     * [@rinz13r](https://github.com/rinz13r)
     * [@FrenchMasterSword](https://github.com/FrenchMasterSword)
     * [@rstefanic](https://github.com/rstefanic)
+    * [@PierrePharel](https://github.com/PierrePharel)
+    * [@Wafelack](https://github.com/Wafelack)
 * the builtins
     * [@SuperFola](https://github.com/SuperFola)
     * [@rinz13r](https://github.com/rinz13r)
+    * [@PierrePharel](https://github.com/PierrePharel)
 * the REPL
     * [@rstefanic](https://github.com/rstefanic)
+    * [@PierrePharel](https://github.com/PierrePharel)
 * the CLI
     * [@SuperFola](https://github.com/SuperFola)
     * [@DontBelieveMe](https://github.com/DontBelieveMe)
+    * [@PierrePharel](https://github.com/PierrePharel)
 * the documentation
     * [@SuperFola](https://github.com/SuperFola)
     * [@OfficePop](https://github.com/OfficePop)
+    * [@PierrePharel](https://github.com/PierrePharel)
 * the language specification
     * [@SuperFola](https://github.com/SuperFola)
     * [@FrenchMasterSword](https://github.com/FrenchMasterSword)
+    * [@PierrePharel](https://github.com/PierrePharel)
 * the logo
-    * [Ma15fo43](https://github.com/Ma15fo43)
+    * [@mazzdevs](https://github.com/mazzlabs)
 * the docker integration
     * [@yardenshoham](https://github.com/yardenshoham)
 
@@ -151,33 +158,35 @@ Libs already included:
 ~/Ark$ cd Ark
 ~/Ark$ git submodule update --init --recursive
 # building Ark
-~/Ark$ cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release -DARK_BUILD_EXE=On
-~/Ark$ cmake --build build
+~/Ark$ cmake . -Bbuild -DCMAKE_BUILD_TYPE=Release -DARK_BUILD_EXE=On
+~/Ark$ cmake --build build --config Release
 # installing Ark (might need administrative privileges)
 ~/Ark$ cmake --install build --config Release
 # running
-~/Ark$ Ark --help
+~/Ark$ ark --help
 DESCRIPTION
         ArkScript programming language
 
 SYNOPSIS
-        Ark -h
-        Ark --version
-        Ark --dev-info
-        Ark -r
-        Ark <file> [-c] [[-d]|-bcr] [-L <lib_dir>] [-f(fac|no-fac)] [-f(aitap|no-aitap)]
+        ark -h
+        ark -v
+        ark --dev-info
+        ark -e <expression>
+        ark -c <file> [-d]
+        ark -bcr <file>
+        ark <file> [-d] [-L <lib_dir>] [-f(fac|no-fac)] [-f(ruv|no-ruv)]
 
 OPTIONS
         -h, --help                  Display this message
-        --version                   Display ArkScript version and exit
+        -v, --version               Display ArkScript version and exit
         --dev-info                  Display development information and exit
-        -r, --repl                  Run the ArkScript REPL
+        -e, --eval                  Evaluate ArkScript expression
         -c, --compile               Compile the given program to bytecode, but do not run
         -d, --debug...              Increase debug level (default: 0)
         -bcr, --bytecode-reader     Launch the bytecode reader
-        -L, --lib                   Set the location of the ArkScript standard library
+        -L, --lib                   Set the location of the ArkScript standard library   
         -f(fac|no-fac)              Toggle function arity checks (default: ON)
-        -f(aitap|no-aitap)          Authorize invalid token after `(' (default: OFF). When ON, only display a warning      
+        -f(ruv|no-ruv)              Remove unused variables (default: ON)
 
 LICENSE
         Mozilla Public License 2.0
@@ -197,7 +206,7 @@ Controls are the arrows (left, right, up and down), the game closes itself when 
 
 ## The donators
 
-Huge thanks to those people for they donation to support the project:
+Huge thanks to those people for their donations to support the project:
 * [TheCountVEVO](https://github.com/TheCountVEVO)
 * [llexto](https://github.com/llexto)
 

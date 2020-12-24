@@ -1,3 +1,14 @@
+/**
+ * @file ConsoleStyle.hpp
+ * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @brief Colors per token used by replxx
+ * @version 0.1
+ * @date 2020-10-27
+ * 
+ * @copyright Copyright (c) 2020
+ * 
+ */
+
 #ifndef CONSOLESTYLE_HPP
 #define CONSOLESTYLE_HPP
 
@@ -9,8 +20,8 @@ namespace Ark
 {
     const std::vector<std::string> KeywordsDict {
         /* Keywords */
-        "if", "let", "mut", "set", 
-        "fun", "while", "begin", "import", 
+        "if", "let", "mut", "set",
+        "fun", "while", "begin", "import",
         "quote", "del",
         /* Operators */
         "len", "empty?", "firstOf", "tailOf",
@@ -19,28 +30,28 @@ namespace Ark
         "type", "hasField", "not",
         /* Builtins */
         // Constants
-        "true", "false", "nil", "Pi",
-        "E", "Tau", "Inf", "NaN",
+        "true", "false", "nil", "math:pi",
+        "math:e", "math:tau", "math:Inf", "math:NaN",
         // Functions
             // List
-        "append", "concat", "list", "reverseList",
-        "findInList", "removeAtList", "sliceList", "sort",
-        "fill", "setListAt",
+        "append", "concat", "list", "list:reverse",
+        "list:find", "list:removeAt", "list:slice", "list:sort",
+        "list:fill", "list:setAt",
             // IO
-        "print", "puts", "input", "writeFile",
-        "readFile", "fileExists?", "listFiles", "isDir?",
-        "makeDir", "removeFiles",
+        "print", "puts", "input", "io:writeFile",
+        "io:readFile", "io:fileExists?", "io:listFiles", "io:dir?",
+        "io:makeDir", "io:removeFiles",
             // Times
-        "time", "sleep",
+        "time",
             // System
-        "system",
+        "sys:exec", "sys:sleep",
             // String
-        "format", "findSubStr", "removeAtStr",
+        "str:format", "str:find", "str:removeAt",
             // Mathematics
-        "exp", "ln", "ceil", "floor",
-        "round", "NaN?", "Inf?", "cos", 
-        "sin", "tan", "arccos", "arcsin",
-        "arctan",
+        "math:exp", "math:ln", "math:ceil", "math:floor",
+        "math:round", "math:NaN?", "Inf?", "math:cos", 
+        "math:sin", "math:tan", "math:arccos", "math:arcsin",
+        "math:arctan",
         /* Commands */
         "quit"
     };
@@ -91,57 +102,57 @@ namespace Ark
         {"true", Replxx::Color::RED},
         {"false", Replxx::Color::RED},
         {"nil", Replxx::Color::RED},
-        {"Pi", Replxx::Color::BLUE},
-        {"E", Replxx::Color::BLUE},
-        {"Tau", Replxx::Color::BLUE},
-        {"Inf", Replxx::Color::BLUE},
-        {"NaN", Replxx::Color::BLUE},
+        {"math:pi", Replxx::Color::BLUE},
+        {"math:e", Replxx::Color::BLUE},
+        {"math:tau", Replxx::Color::BLUE},
+        {"math:Inf", Replxx::Color::BLUE},
+        {"math:NaN", Replxx::Color::BLUE},
         // Functions
             // List
         {"append", Replxx::Color::BRIGHTGREEN},
         {"concat", Replxx::Color::BRIGHTGREEN},
         {"list", Replxx::Color::BRIGHTGREEN},
-        {"reverseList", Replxx::Color::BRIGHTGREEN},
-        {"findInList", Replxx::Color::BRIGHTGREEN},
-        {"removeAtList", Replxx::Color::BRIGHTGREEN},
-        {"sliceList", Replxx::Color::BRIGHTGREEN},
-        {"sort", Replxx::Color::BRIGHTGREEN},
-        {"fill", Replxx::Color::BRIGHTGREEN},
-        {"setListAt", Replxx::Color::BRIGHTGREEN},
+        {"list:reverse", Replxx::Color::BRIGHTGREEN},
+        {"list:find", Replxx::Color::BRIGHTGREEN},
+        {"list:removeAt", Replxx::Color::BRIGHTGREEN},
+        {"list:slice", Replxx::Color::BRIGHTGREEN},
+        {"list:sort", Replxx::Color::BRIGHTGREEN},
+        {"list:fill", Replxx::Color::BRIGHTGREEN},
+        {"list:setAt", Replxx::Color::BRIGHTGREEN},
             // IO
         {"print", Replxx::Color::GREEN},
         {"puts", Replxx::Color::GREEN},
         {"input", Replxx::Color::GREEN},
-        {"writeFile", Replxx::Color::GREEN},
-        {"readFile", Replxx::Color::GREEN},
-        {"fileExists?", Replxx::Color::GREEN},
-        {"listFiles", Replxx::Color::GREEN},
-        {"isDir?", Replxx::Color::GREEN},
-        {"makeDir", Replxx::Color::GREEN},
-        {"removeFiles", Replxx::Color::GREEN},
+        {"io:writeFile", Replxx::Color::GREEN},
+        {"io:readFile", Replxx::Color::GREEN},
+        {"io:fileExists?", Replxx::Color::GREEN},
+        {"io:listFiles", Replxx::Color::GREEN},
+        {"io:dir?", Replxx::Color::GREEN},
+        {"io:makeDir", Replxx::Color::GREEN},
+        {"io:removeFiles", Replxx::Color::GREEN},
             // Times
         {"time", Replxx::Color::GREEN},
-        {"sleep", Replxx::Color::GREEN},
             // System
-        {"system", Replxx::Color::GREEN},
+        {"sys:exec", Replxx::Color::GREEN},
+        {"sys:sleep", Replxx::Color::GREEN},
             // String
-        {"format", Replxx::Color::BRIGHTGREEN},
-        {"findSubStr", Replxx::Color::BRIGHTGREEN},
-        {"removeAtStr", Replxx::Color::BRIGHTGREEN},
+        {"str:format", Replxx::Color::BRIGHTGREEN},
+        {"str:find", Replxx::Color::BRIGHTGREEN},
+        {"str:removeAt", Replxx::Color::BRIGHTGREEN},
             // Mathematics
-        {"exp", Replxx::Color::BRIGHTCYAN},
-        {"ln", Replxx::Color::BRIGHTCYAN},
-        {"ceil", Replxx::Color::BRIGHTCYAN},
-        {"floor", Replxx::Color::BRIGHTCYAN},
-        {"round", Replxx::Color::BRIGHTCYAN},
-        {"NaN?", Replxx::Color::BRIGHTCYAN},
-        {"Inf?", Replxx::Color::BRIGHTCYAN},
-        {"cos", Replxx::Color::BRIGHTCYAN}, 
-        {"sin", Replxx::Color::BRIGHTCYAN},
-        {"tan", Replxx::Color::BRIGHTCYAN},
-        {"arccos", Replxx::Color::BRIGHTCYAN},
-        {"arcsin", Replxx::Color::BRIGHTCYAN},
-        {"arctan", Replxx::Color::BRIGHTCYAN},
+        {"math:exp", Replxx::Color::BRIGHTCYAN},
+        {"math:ln", Replxx::Color::BRIGHTCYAN},
+        {"math:ceil", Replxx::Color::BRIGHTCYAN},
+        {"math:floor", Replxx::Color::BRIGHTCYAN},
+        {"math:round", Replxx::Color::BRIGHTCYAN},
+        {"math:NaN?", Replxx::Color::BRIGHTCYAN},
+        {"math:Inf?", Replxx::Color::BRIGHTCYAN},
+        {"math:cos", Replxx::Color::BRIGHTCYAN}, 
+        {"math:sin", Replxx::Color::BRIGHTCYAN},
+        {"math:tan", Replxx::Color::BRIGHTCYAN},
+        {"math:arccos", Replxx::Color::BRIGHTCYAN},
+        {"math:arcsin", Replxx::Color::BRIGHTCYAN},
+        {"math:arctan", Replxx::Color::BRIGHTCYAN},
         /* Objects */
         // Numbers
         {"[\\-|+]{0,1}[0-9]+", Replxx::Color::YELLOW},

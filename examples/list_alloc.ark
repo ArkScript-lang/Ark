@@ -1,2 +1,0 @@
-# just an example of how we can create a list very fast, with a given default value
-(mut data (list:fill 1000 0))

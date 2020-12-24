@@ -1,3 +1,14 @@
+/**
+ * @file Lexer.hpp
+ * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @brief Tokenize ArkScript code
+ * @version 0.1
+ * @date 2020-10-27
+ * 
+ * @copyright Copyright (c) 2020
+ * 
+ */
+
 #ifndef ark_lexer
 #define ark_lexer
 
@@ -89,7 +100,7 @@ namespace Ark::internal
          * 
          * @param debug the debug level
          */
-        Lexer(unsigned debug) noexcept;
+        explicit Lexer(unsigned debug) noexcept;
 
         /**
          * @brief Give code to tokenize and create the list of tokens

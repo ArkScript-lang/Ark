@@ -69,7 +69,7 @@ namespace Ark
 
     void Optimizer::count_occurences(const Node& node)
     {
-        if (node.nodeType() == NodeType::Symbol)
+        if (node.nodeType() == NodeType::Symbol || node.nodeType() == NodeType::Capture)
         {
             std::string name = node.string();
             // check if it's the name of something declared in global scope

@@ -7,6 +7,7 @@
     #pragma warning(disable:4996)
 #endif
 #include <stdlib.h>
+#include <picosha2.hpp>
 
 namespace Ark
 {
@@ -120,34 +121,15 @@ namespace Ark
             bool compiled_successfuly = false;
 
             if (Ark::Utils::fileExists(path))
-            {
-                auto ftime = std::filesystem::last_write_time(std::filesystem::path(file));
-
-                // this shouldn't fail
-                Ark::BytecodeReader bcr2;
-                bcr2.feed(path);
-                auto timestamp = bcr2.timestamp();
-                auto file_last_write = static_cast<decltype(timestamp)>(
-                    std::chrono::duration_cast<std::chrono::seconds>(
-                        ftime.time_since_epoch()).count());
-                
-                // TODO fix me, timestamp is wrong on Windows (by 369 years)
-                // Ark::logger.data("doFile() timestamp bytecode file:", timestamp, " ; timestamp " + file + ":", file_last_write);
-
-                // recompile
-                if (timestamp < file_last_write)
-                    compiled_successfuly = compile(m_debug_level, file, path, m_libdir, m_options);
-                else
-                    compiled_successfuly = true;
-            }
+                compiled_successfuly = compile(m_debug_level, file, path, m_libdir, m_options);
             else
             {
                 if (!std::filesystem::exists(directory))  // create ark cache directory
                     std::filesystem::create_directory(directory);
-                
+
                 compiled_successfuly = compile(m_debug_level, file, path, m_libdir, m_options);
             }
-            
+
             if (compiled_successfuly && feed(path))
                 return true;
         }
@@ -183,7 +165,15 @@ namespace Ark
 
     void State::loadFunction(const std::string& name, internal::Value::ProcType function) noexcept
     {
-        m_binded_functions[name] = std::move(function);
+        m_binded[name] = internal::Value(std::move(function));
+    }
+
+    void State::setArgs(const std::vector<std::string>& args) noexcept
+    {
+        internal::Value val(internal::ValueType::List);
+        for (const std::string& arg : args)
+            val.push_back(internal::Value(arg));
+        m_binded["sys:args"] = val;
     }
 
     void State::setDebug(unsigned level) noexcept
@@ -218,7 +208,7 @@ namespace Ark
         uint16_t major = readNumber(i); i++;
         uint16_t minor = readNumber(i); i++;
         uint16_t patch = readNumber(i); i++;
-        
+
         if (major != ARK_VERSION_MAJOR)
         {
             std::string str_version = Ark::Utils::toString(major) + "." +
@@ -242,6 +232,16 @@ namespace Ark
             ha = (static_cast<timestamp_t>(m_bytecode[++i]));
         i++;
         timestamp = aa + ba + ca + da + ea + fa + ga + ha;
+
+        std::vector<unsigned char> hash(picosha2::k_digest_size);
+        picosha2::hash256(m_bytecode.begin() + i + picosha2::k_digest_size, m_bytecode.end(), hash);
+        // checking integrity
+        for (std::size_t j=0; j < picosha2::k_digest_size; ++j)
+        {
+            if (hash[j] != m_bytecode[i])
+                throwStateError("Integrity check failed");
+            ++i;
+        }
 
         if (m_bytecode[i] == Instruction::SYM_TABLE_START)
         {
@@ -330,7 +330,7 @@ namespace Ark
         m_symbols.clear();
         m_constants.clear();
         m_pages.clear();
-        m_binded_functions.clear(); 
+        m_binded.clear(); 
     }
 }
 

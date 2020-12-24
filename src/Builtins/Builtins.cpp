@@ -54,6 +54,7 @@ namespace Ark::internal::Builtins
         // System
         { "sys:exec", Value(System::system_) },
         { "sys:sleep", Value(System::sleep) },
+        { "sys:exit", Value(System::exit_) },
 
         // String
         { "str:format", Value(String::format) },
