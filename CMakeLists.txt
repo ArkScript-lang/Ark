@@ -39,16 +39,17 @@ set(ARK_VERSION_PATCH 14)
 message(STATUS "ArkScript version ${ARK_VERSION_MAJOR}.${ARK_VERSION_MINOR}.${ARK_VERSION_PATCH}")
 if (ARK_PROFILER)
     message(STATUS "Coz Profiler is enabled")
-    set(ARK_PROFILER 1)
 else()
     message(STATUS "Coz Profiler is NOT enabled")
-    set(ARK_PROFILER 0)
 endif()
 
 # COMPILATION RELATED
 set(ARK_COMPILATION_OPTIONS ${CMAKE_CXX_FLAGS})
 set(ARK_COMPILER ${CMAKE_CXX_COMPILER_ID})
-set(ARK_ENABLE_SYSTEM 1)  # enable use of (system "command here")
+set(ARK_ENABLE_SYSTEM 1 CACHE STRING "Enable sys:exec")  # enable use of (system "command here")
+set(ARK_PROFILER 0 CACHE STRING "Enable coz profiler")
+
+message(STATUS ${ARK_PROFILER})
 
 configure_file(
     ${ark_SOURCE_DIR}/include/Ark/Constants.hpp.in
