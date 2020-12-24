@@ -145,7 +145,4 @@ if (ARK_BUILD_EXE)
 endif()
 
 # submodules
-
-if (ARK_BUILD_MODULES)
-    add_subdirectory(${ark_SOURCE_DIR}/lib/ext)
-endif()
+add_subdirectory(${ark_SOURCE_DIR}/lib/ext)
