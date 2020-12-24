@@ -1,5 +1,6 @@
 #include <Ark/Builtins/Builtins.hpp>
 
+#include <cstdio>
 #include <iostream>
 #include <filesystem>
 
@@ -32,7 +33,7 @@ namespace Ark::internal::Builtins::IO
         {
             if (n[0].valueType() != ValueType::String)
                 throw Ark::TypeError(IO_INPUT_TE);
-            std::cout << n[0].string().c_str();
+            std::printf(n[0].string().c_str());
         }
 
         std::string line = "";

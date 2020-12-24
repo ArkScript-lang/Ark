@@ -1,5 +1,7 @@
 #include <Ark/Compiler/Lexer.hpp>
 
+#include <cstdio>
+
 #include <Ark/Utils.hpp>
 #include <Ark/Log.hpp>
 
@@ -34,11 +36,10 @@ namespace Ark::internal
             char current = code[pos];
 
             if (m_debug >= 5)
-                std::cout << "buffer: " << buffer << " - "
-                            << "ctrl_char: " << ctrl_char << " - "
-                            << "current: '" << std::string(1, current) << "' - "
-                            << "line: " << line << ", char: " << character << " - "
-                            << "\n";
+                std::printf(
+                    "buffer: %s - ctrl_char: %s - current: '%c' - line: %zu, char: %zu\n",
+                    buffer.c_str(), ctrl_char.c_str(), current, line, character
+                );
 
             if (!in_string)
             {
@@ -219,10 +220,13 @@ namespace Ark::internal
             auto last_token = m_tokens.back();
             for (auto& last_token : m_tokens)
             {
-                std::cout << "TokenType: " << tokentype_string[static_cast<std::size_t>(last_token.type)] << "\t";
-                std::cout << "Line: " << last_token.line << " \t";
-                std::cout << "[" << last_token.col << "\t]\t";
-                std::cout << "Token: " << last_token.token << std::endl;
+                std::printf(
+                    "TokenType: %s\tLine: %zu\n[%zu\t]\tToken: %s\n",
+                    tokentype_string[static_cast<std::size_t>(last_token.type)].c_str(),
+                    last_token.line,
+                    last_token.col,
+                    last_token.token.c_str()
+                );
             }
         }
     }

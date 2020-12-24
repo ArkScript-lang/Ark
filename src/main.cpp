@@ -1,6 +1,6 @@
 #ifndef ark_ark
 
-#include <chrono>
+#include <cstdio>
 #include <iostream>
 
 #include <clipp.hpp>
@@ -14,7 +14,7 @@ void bcr(const std::string& file)
         bcr.feed(file);
         bcr.display();
     } catch (const std::exception& e) {
-        std::cout << e.what() << std::endl;
+        std::printf(e.what());
     }
 }
 
@@ -91,34 +91,32 @@ int main(int argc, char** argv)
         switch (selected)
         {
             case mode::help:
+                // clipp only supports streams
                 std::cout << make_man_page(cli, "ark", fmt)
-                            .prepend_section("DESCRIPTION",
-                                             "        ArkScript programming language")
-                            .append_section("LICENSE",
-                                            "        Mozilla Public License 2.0");
-                std::cout << std::endl;
+                            .prepend_section("DESCRIPTION", "        ArkScript programming language")
+                            .append_section("LICENSE", "        Mozilla Public License 2.0")
+                          << std::endl;
                 break;
 
             case mode::version:
-                std::cout << "Version " << ARK_VERSION_MAJOR << "." << ARK_VERSION_MINOR << "." << ARK_VERSION_PATCH << std::endl;
+                std::printf("Version %i.%i.%i\n", ARK_VERSION_MAJOR, ARK_VERSION_MINOR, ARK_VERSION_PATCH);
                 break;
 
             case mode::dev_info:
-                std::cout << "Have been compiled with " << ARK_COMPILER << ", options: " << ARK_COMPILATION_OPTIONS << "\n\n";
-                std::cout << "sizeof(Ark::Value)    = " << sizeof(Ark::internal::Value) << "B\n";
-                std::cout << "      sizeof(Value_t) = " << sizeof(Ark::internal::Value::Value_t) << "B\n";
-                std::cout << "      sizeof(ValueType) = " << sizeof(Ark::internal::ValueType) << "B\n";
-                std::cout << "      sizeof(ProcType)  = " << sizeof(Ark::internal::Value::ProcType) << "B\n";
-                std::cout << "sizeof(Ark::Frame)    = " << sizeof(Ark::internal::Frame) << "B\n";
-                std::cout << "sizeof(Ark::State)    = " << sizeof(Ark::State) << "B\n";
-                std::cout << "sizeof(Ark::Closure)  = " << sizeof(Ark::internal::Closure) << "B\n";
-                std::cout << "sizeof(Ark::UserType) = " << sizeof(Ark::UserType) << "B\n";
-                std::cout << "sizeof(Ark::VM)       = " << sizeof(Ark::VM) << "B\n";
-                std::cout << "sizeof(vector<Ark::Value>) = " << sizeof(std::vector<Ark::internal::Value>) << "B\n";
-                std::cout << "sizeof(std::string)   = " << sizeof(std::string) << "B\n";
-                std::cout << "sizeof(String)        = " << sizeof(String) << "B\n";
-                std::cout << "sizeof(char)          = " << sizeof(char) << "B\n";
-                std::cout << std::endl;
+                std::printf("Have been compiled with %s, options: %s\n\n", ARK_COMPILER, ARK_COMPILATION_OPTIONS);
+                std::printf("sizeof(Ark::Value)    = %zuB\n", sizeof(Ark::internal::Value));
+                std::printf("      sizeof(Value_t) = %zuB\n", sizeof(Ark::internal::Value::Value_t));
+                std::printf("      sizeof(ValueType) = %zuB\n", sizeof(Ark::internal::ValueType));
+                std::printf("      sizeof(ProcType)  = %zuB\n", sizeof(Ark::internal::Value::ProcType));
+                std::printf("sizeof(Ark::Frame)    = %zuB\n", sizeof(Ark::internal::Frame));
+                std::printf("sizeof(Ark::State)    = %zuB\n", sizeof(Ark::State));
+                std::printf("sizeof(Ark::Closure)  = %zuB\n", sizeof(Ark::internal::Closure));
+                std::printf("sizeof(Ark::UserType) = %zuB\n", sizeof(Ark::UserType));
+                std::printf("sizeof(Ark::VM)       = %zuB\n", sizeof(Ark::VM));
+                std::printf("sizeof(vector<Ark::Value>) = %zuB\n", sizeof(std::vector<Ark::internal::Value>));
+                std::printf("sizeof(std::string)   = %zuB\n", sizeof(std::string));
+                std::printf("sizeof(String)        = %zuB\n", sizeof(String));
+                std::printf("sizeof(char)          = %zuB\n", sizeof(char));
                 break;
 
             case mode::repl:
@@ -182,18 +180,15 @@ int main(int argc, char** argv)
     else
     {
         for (const auto& arg : wrong)
-            std::cout << "'" << arg << "'" << " ins't a valid argument" << std::endl;
+            std::printf("'%s' ins't a valid argument\n", arg.c_str());
 
+        // clipp only supports streams
         std::cout << make_man_page(cli, "ark", fmt)
-                    .prepend_section("DESCRIPTION",
-                                        "        ArkScript programming language")
-                    .append_section("LICENSE",
-                                    "        Mozilla Public License 2.0");
-        std::cout << std::endl;
+                    .prepend_section("DESCRIPTION", "        ArkScript programming language")
+                    .append_section("LICENSE", "        Mozilla Public License 2.0")
+                    << std::endl;
     }
 
-    // to avoid some "CLI glitches"
-    std::cout << termcolor::reset;
     return 0;
 }
 
