@@ -15,12 +15,28 @@ namespace Ark
         m_libdir(libdir), m_filename(ARK_NO_NAME_FILE),
         m_options(options), m_debug_level(0)
     {
-        // read environment variable to locate ark std lib
-        if (m_libdir == "?")
+        // read environment variable to locate ark std lib, *only* if the standard library folder wasn't provided
+        // or if it doesn't exist
+        if (m_libdir == "?" || m_libdir.size() == 0 || !Ark::Utils::fileExists(m_libdir))
         {
+            // first, check in the environment variable, pointing to something like
+            // /folder/where/ark/is
+            // |___________________ ark
+            // |___________________ lib/
+            // |                    |___ std/
+            // |                    |___ file.arkm
+            // |                    |___ ...
+            // |___________________ libArkReactor.so
+
             char* val = getenv("ARKSCRIPT_PATH");
             m_libdir = val == nullptr ? "" : std::string(val);
-            m_libdir += "/lib";
+
+            // check that the environment variable does point to an existing folder
+            if (m_libdir != "" && Ark::Utils::fileExists(m_libdir + "/lib"))
+                m_libdir += "/lib";
+            // check in the current working directory
+            else if (Ark::Utils::fileExists("./lib"))
+                m_libdir = Ark::Utils::canonicalRelPath("./lib");
         }
     }
 
@@ -158,9 +174,7 @@ namespace Ark
             return false;
         }
 
-        feed(compiler.bytecode());
-
-        return true;
+        return feed(compiler.bytecode());
     }
 
     void State::loadFunction(const std::string& name, internal::Value::ProcType function) noexcept
@@ -306,7 +320,6 @@ namespace Ark
         }
         else
             throwStateError("couldn't find constants table");
-
 
         while (m_bytecode[i] == Instruction::CODE_SEGMENT_START)
         {
