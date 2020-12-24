@@ -8,7 +8,7 @@
 - updated standard library
 - updated modules, adding hash
 - updated the error handlers to avoid errors (sigsev) when handling errors (lexing, parsing, optimization and compilation error)
-
+- fixes issue #203 (imports are ill-formed when given an absolute path)
 ### Removed
 
 ## 3.0.14
