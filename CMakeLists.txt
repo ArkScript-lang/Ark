@@ -39,8 +39,10 @@ set(ARK_VERSION_PATCH 14)
 message(STATUS "ArkScript version ${ARK_VERSION_MAJOR}.${ARK_VERSION_MINOR}.${ARK_VERSION_PATCH}")
 if (ARK_PROFILER)
     message(STATUS "Coz Profiler is enabled")
+    set(ARK_PROFILER 1)
 else()
     message(STATUS "Coz Profiler is NOT enabled")
+    set(ARK_PROFILER 0)
 endif()
 
 # COMPILATION RELATED
