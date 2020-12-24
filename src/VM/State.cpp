@@ -55,7 +55,7 @@ namespace Ark
         catch (const std::exception& e)
         {
             result = false;
-            std::cout << e.what() << std::endl;
+            std::printf("%s\n", e.what());
         }
 
         return result;
@@ -72,7 +72,7 @@ namespace Ark
         catch (const std::exception& e)
         {
             result = false;
-            std::cout << e.what() << std::endl;
+            std::printf("%s\n", e.what());
         }
 
         return result;
@@ -94,12 +94,12 @@ namespace Ark
         }
         catch (const std::exception& e)
         {
-            std::cerr << e.what() << std::endl;
+            std::printf("%s\n", e.what());
             return false;
         }
         catch (...)
         {
-            std::cerr << "Unknown lexer-parser-or-compiler error (" << file << ')' << std::endl;
+            std::printf("Unknown lexer-parser-or-compiler error (%s)\n", file.c_str());
             return false;
         }
 
@@ -122,7 +122,7 @@ namespace Ark
         }
         catch (const std::exception& e)
         {
-            std::cout << e.what() << std::endl;
+            std::printf("%s\n", e.what());
             return false;
         }
 
@@ -165,12 +165,12 @@ namespace Ark
         }
         catch (const std::exception& e)
         {
-            std::cerr << typeid(e).name() << ": " << e.what() << std::endl;
+            std::printf("%s: %s\n", typeid(e).name(), e.what());
             return false;
         }
         catch (...)
         {
-            std::cerr << "Unknown lexer-parser-or-compiler error" << std::endl;
+            std::printf("Unknown lexer-parser-or-compiler error\n");
             return false;
         }
 

@@ -71,11 +71,7 @@ namespace Ark
             unsigned d = 56 - 8 * c;
             uint8_t b = (timestamp & (0xff << d)) >> d;
             m_bytecode.push_back(b);
-            if (m_debug >= 2)
-                std::cout << static_cast<int>(b) << " ";
         }
-        if (m_debug >= 2)
-            std::cout << std::endl;
 
         if (m_debug >= 1)
             Ark::logger.info("Timestamp: ", timestamp);
