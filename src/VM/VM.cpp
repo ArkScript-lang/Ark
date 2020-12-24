@@ -105,11 +105,13 @@ namespace Ark
         using namespace Ark::internal;
         namespace fs = std::filesystem;
 
-        std::string file = m_state->m_constants[id].string_ref().toString();
-        std::string path = "./" + file;
+        const std::string file = m_state->m_constants[id].string_ref().toString();
 
-        if (m_state->m_filename != ARK_NO_NAME_FILE)  // bytecode loaded from file
+        std::string path = file;
+        // bytecode loaded from file
+        if (m_state->m_filename != ARK_NO_NAME_FILE)
             path = (fs::path(m_state->m_filename).parent_path() / fs::path(file)).relative_path().string();
+
         std::string lib_path = (fs::path(m_state->m_libdir) / fs::path(file)).string();
 
         // if it's already loaded don't do anything
@@ -118,22 +120,27 @@ namespace Ark
         }) != m_shared_lib_objects.end())
             return;
 
-        if (Utils::fileExists(path))  // if it exists alongside the .arkc file
+        // if it exists alongside the .arkc file
+        if (Utils::fileExists(path))
             m_shared_lib_objects.emplace_back(std::make_shared<SharedLibrary>(path));
-        else if (Utils::fileExists(lib_path))  // check in LOAD_PATH otherwise
+        // check in lib_path otherwise
+        else if (Utils::fileExists(lib_path))
             m_shared_lib_objects.emplace_back(std::make_shared<SharedLibrary>(lib_path));
         else
-            throwVMError("Could not find plugin '" + file + "'. Searched in\n\t- " + path + "\n\t- " + lib_path);
+            throwVMError("Could not find module '" + file + "'. Searched in\n\t- " + path + "\n\t- " + lib_path);
 
-        // load data from it
+        // load the mapping from the dynamic library
         mapping* map;
-
         try {
             map = m_shared_lib_objects.back()->template get<mapping* (*)()>("getFunctionsMapping")();
         } catch (const std::system_error& e) {
-            throwVMError("An error occurred while loading plugin '" + file + "': " + std::string(e.what()));
+            throwVMError(
+                "An error occurred while loading module '" + file + "': " + std::string(e.what()) + "\n" +
+                "It is most likely because the versions of the module and the language don't match."
+            );
         }
 
+        // load the mapping data
         std::size_t i = 0;
         while (map[i].name != nullptr)
         {
@@ -478,8 +485,8 @@ namespace Ark
                     {
                         /*
                             Argument: constant id (two bytes, big endian)
-                            Job: Load a plugin named following the constant id (cf constants table).
-                                 Raise an error if it couldn't find the plugin.
+                            Job: Load a module named following the constant id (cf constants table).
+                                 Raise an error if it couldn't find the module.
                         */
 
                         ++m_ip;

@@ -159,7 +159,7 @@ namespace Ark::Utils
         {
             return std::filesystem::exists(std::filesystem::path(name));
         }
-        catch (const std::filesystem::filesystem_error& e)
+        catch (const std::filesystem::filesystem_error&)
         {
             // if we met an error than we most likely fed an invalid path
             return false;
