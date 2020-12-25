@@ -159,12 +159,13 @@ int main(int argc, char** argv)
 
                 #if ARK_PROFILER_COUNT != 0
                 std::printf(
-                    "Value\n"
+                    "\n\nValue\n"
                     "=====\n"
-                    "\tCreations: %u\n\tCopies: %u\n\tMoves: %u\n",
+                    "\tCreations: %u\n\tCopies: %u\n\tMoves: %u\n\n\tCopy coeef: %f",
                     Ark::internal::value_creations,
                     Ark::internal::value_copies,
-                    Ark::internal::value_moves
+                    Ark::internal::value_moves,
+                    static_cast<float>(Ark::internal::value_copies) / Ark::internal::value_creations
                 );
                 #endif
 

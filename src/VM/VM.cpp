@@ -251,8 +251,10 @@ namespace Ark
                             m_saved_scope.reset();
                         }
                         else
+                        {
                             // push internal ref
-                            push(Value(&m_state->m_constants[id]));
+                            push(Value(&(m_state->m_constants[id])));
+                        }
 
                         COZ_PROGRESS_NAMED("ark vm load_const");
                         break;
@@ -676,6 +678,9 @@ namespace Ark
                     case Instruction::GT:
                     {
                         Value *b = popVal(), *a = popVal();
+                        b = resolveRefAsPtr(b);
+                        a = resolveRefAsPtr(a);
+
                         push((!(*a == *b) && !(*a < *b)) ? Builtins::trueSym : Builtins::falseSym);
                         break;
                     }
@@ -683,6 +688,9 @@ namespace Ark
                     case Instruction::LT:
                     {
                         Value *b = popVal(), *a = popVal();
+                        b = resolveRefAsPtr(b);
+                        a = resolveRefAsPtr(a);
+
                         push((*a < *b) ? Builtins::trueSym : Builtins::falseSym);
                         break;
                     }
@@ -690,6 +698,9 @@ namespace Ark
                     case Instruction::LE:
                     {
                         Value *b = popVal(), *a = popVal();
+                        b = resolveRefAsPtr(b);
+                        a = resolveRefAsPtr(a);
+
                         push(((*a < *b) || (*a == *b)) ? Builtins::trueSym : Builtins::falseSym);
                         break;
                     }
@@ -697,6 +708,9 @@ namespace Ark
                     case Instruction::GE:
                     {
                         Value *b = popVal(), *a = popVal();
+                        b = resolveRefAsPtr(b);
+                        a = resolveRefAsPtr(a);
+
                         push(!(*a < *b) ? Builtins::trueSym : Builtins::falseSym);
                         break;
                     }
@@ -704,6 +718,9 @@ namespace Ark
                     case Instruction::NEQ:
                     {
                         Value *b = popVal(), *a = popVal();
+                        b = resolveRefAsPtr(b);
+                        a = resolveRefAsPtr(a);
+
                         push((*a != *b) ? Builtins::trueSym : Builtins::falseSym);
                         break;
                     }
@@ -711,6 +728,9 @@ namespace Ark
                     case Instruction::EQ:
                     {
                         Value *b = popVal(), *a = popVal();
+                        b = resolveRefAsPtr(b);
+                        a = resolveRefAsPtr(a);
+
                         push((*a == *b) ? Builtins::trueSym : Builtins::falseSym);
                         break;
                     }
@@ -772,8 +792,9 @@ namespace Ark
                                 break;
                             }
 
-                            a->list().erase(a->const_list().begin());
-                            push(*a);
+                            Value b = *a;
+                            b.list().erase(b.const_list().begin());
+                            push(b);
                         }
                         else if (a->valueType() == ValueType::String)
                         {
@@ -783,8 +804,9 @@ namespace Ark
                                 break;
                             }
 
-                            a->string_ref().erase_front(0);
-                            push(*a);
+                            Value b = *a;
+                            b.string_ref().erase_front(0);
+                            push(b);
                         }
                         else
                             throw Ark::TypeError("Argument of tailOf must be a list or a String");
@@ -805,8 +827,9 @@ namespace Ark
                                 break;
                             }
 
-                            a->list().pop_back();
-                            push(*a);
+                            Value b = *a;
+                            b.list().pop_back();
+                            push(b);
                         }
                         else if (a->valueType() == ValueType::String)
                         {
@@ -816,8 +839,9 @@ namespace Ark
                                 break;
                             }
 
-                            a->string_ref().erase(a->string_ref().size() - 1);
-                            push(*a);
+                            Value b = *a;
+                            b.string_ref().erase(b.string_ref().size() - 1);
+                            push(b);
                         }
                         else
                             throw Ark::TypeError("Argument of headOf must be a list or a String");
@@ -827,7 +851,9 @@ namespace Ark
 
                     case Instruction::ISNIL:
                     {
-                        push((*popVal() == Builtins::nil) ? Builtins::trueSym : Builtins::falseSym);
+                        Value* a = popVal();
+                        a = resolveRefAsPtr(a);
+                        push((*a == Builtins::nil) ? Builtins::trueSym : Builtins::falseSym);
                         break;
                     }
 
@@ -835,6 +861,7 @@ namespace Ark
                     {
                         Value *b = popVal(), *a = popVal();
                         b = resolveRefAsPtr(b);
+                        a = resolveRefAsPtr(a);
 
                         if (*a == Builtins::falseSym)
                         {
@@ -865,7 +892,9 @@ namespace Ark
                     case Instruction::TO_STR:
                     {
                         std::stringstream ss;
-                        ss << (*popVal());
+                        Value* a = popVal();
+                        a = resolveRefAsPtr(a);
+                        ss << (*a);
                         push(Value(ss.str()));
                         break;
                     }
@@ -893,6 +922,9 @@ namespace Ark
                     case Instruction::AND_:
                     {
                         Value *a = popVal(), *b = popVal();
+                        b = resolveRefAsPtr(b);
+                        a = resolveRefAsPtr(a);
+
                         push((*a == Builtins::trueSym && *b == Builtins::trueSym) ? Builtins::trueSym : Builtins::falseSym);
                         break;
                     }
@@ -900,6 +932,9 @@ namespace Ark
                     case Instruction::OR_:
                     {
                         Value *a = popVal(), *b = popVal();
+                        b = resolveRefAsPtr(b);
+                        a = resolveRefAsPtr(a);
+
                         push((*b == Builtins::trueSym || *a == Builtins::trueSym) ? Builtins::trueSym : Builtins::falseSym);
                         break;
                     }
@@ -953,11 +988,10 @@ namespace Ark
 
                     case Instruction::NOT:
                     {
-                        bool a = !(*popVal());
-                        if (a)
-                            push(Builtins::trueSym);
-                        else
-                            push(Builtins::falseSym);
+                        Value* a = popVal();
+                        a = resolveRefAsPtr(a);
+
+                        push(!(*a) ? Builtins::trueSym : Builtins::falseSym);
                         break;
                     }
 
