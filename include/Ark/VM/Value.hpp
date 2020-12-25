@@ -55,13 +55,15 @@ namespace Ark::internal
         Nil       = 7,
         True      = 8,
         False     = 9,
-        Undefined = 10
+        Undefined = 10,
+        Reference = 11
     };
 
-    const std::array<std::string, 11> types_to_str = {
+    const std::array<std::string, 12> types_to_str = {
         "List", "Number", "String", "Function",
         "CProc", "Closure", "UserType",
-        "Nil", "Bool", "Bool", "Undefined"
+        "Nil", "Bool", "Bool", "Undefined",
+        "Reference"
     };
 
     class Frame;
@@ -73,7 +75,7 @@ namespace Ark::internal
     class ARK_API_EXPORT Value
     {
     public:
-        using ProcType = Value (*) (std::vector<Value>&, Ark::VM*);  // std::function<Value (std::vector<Value>&, Ark::VM*)>;
+        using ProcType = Value (*) (std::vector<Value>&, Ark::VM*);  // std::function<Value (std::vector<Value>&, Ark::VM*)>
         using Iterator = std::vector<Value>::iterator;
         using ConstIterator = std::vector<Value>::const_iterator;
 
@@ -84,7 +86,8 @@ namespace Ark::internal
             ProcType,           //  8 bytes
             Closure,            // 24 bytes
             UserType,           // 24 bytes
-            std::vector<Value>  // 24 bytes
+            std::vector<Value>, // 24 bytes
+            Value*              //  8 bytes
         >;                      // +8 bytes overhead
         //                   total 32 bytes
 
@@ -185,6 +188,13 @@ namespace Ark::internal
         explicit Value(UserType&& value) noexcept;
 
         /**
+         * @brief Construct a new Value object as a reference to an internal object
+         * 
+         * @param ref 
+         */
+        explicit Value(Value* ref) noexcept;
+
+        /**
          * @brief Return the value type
          * 
          * @return ValueType 
@@ -247,6 +257,13 @@ namespace Ark::internal
          * @return UserType& 
          */
         UserType& usertype_ref();
+
+        /**
+         * @brief Return the stored internal object reference
+         * 
+         * @return Value* 
+         */
+        Value* reference() const;
 
         /**
          * @brief Add an element to the list held by the value (if the value type is set to list)

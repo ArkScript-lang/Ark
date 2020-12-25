@@ -3,6 +3,7 @@
 // ------------------------------------------
 
 #define createNewScope() m_locals.emplace_back(std::make_shared<internal::Scope>());
+#define resolveRef(valptr) ((valptr->valueType() == ValueType::Reference) ? *(valptr->reference()) : *valptr)
 
 // profiler
 #include <Ark/Profiling.hpp>
@@ -33,10 +34,16 @@ internal::Value VM::call(const std::string& name, Args&&... args)
     auto var = findNearestVariable(id);
     if (var != nullptr)
     {
-        if (var->valueType() != ValueType::PageAddr && var->valueType() != ValueType::Closure)
-            throwVMError("Can't call '" + name + "': it isn't a Function but a " + types_to_str[static_cast<int>(var->valueType())]);
+        ValueType vt = var->valueType();
 
-        m_frames.back().push(*var);
+        if (vt != ValueType::PageAddr    &&
+            vt != ValueType::Closure     &&
+            !(vt == ValueType::Reference &&
+                (var->reference()->valueType() == ValueType::PageAddr ||
+                 var->reference()->valueType() == ValueType::Closure)))
+            throwVMError("Can't call '" + name + "': it isn't a Function but a " + types_to_str[static_cast<int>(vt)]);
+
+        m_frames.back().push(resolveRef(var));
         m_last_sym_loaded = id;
     }
     else
@@ -55,7 +62,10 @@ internal::Value VM::call(const std::string& name, Args&&... args)
 
     // get result
     if (m_frames.back().stackSize() != 0)
-        return *m_frames.back().pop();
+    {
+        Value* tmp = m_frames.back().pop();
+        return resolveRef(tmp);
+    }
     else
         return Builtins::nil;
 }
@@ -121,7 +131,8 @@ inline void VM::call(int16_t argc_)
     else
         argc = argc_;
 
-    Value function = *m_frames.back().pop();
+    Value* ts = m_frames.back().pop();
+    Value function = resolveRef(ts);
 
     switch (function.valueType())
     {
@@ -131,7 +142,10 @@ inline void VM::call(int16_t argc_)
             // drop arguments from the stack
             std::vector<Value> args(argc);
             for (uint16_t j=0; j < argc; ++j)
-                args[argc - 1 - j] = *m_frames.back().pop();
+            {
+                Value* tmp = m_frames.back().pop();
+                args[argc - 1 - j] = resolveRef(tmp);
+            }
 
             // call proc
             m_frames.back().push(function.proc()(args, this));
@@ -154,7 +168,10 @@ inline void VM::call(int16_t argc_)
             m_pp = new_page_pointer;
             m_ip = -1;  // because we are doing a m_ip++ right after that
             for (std::size_t j=0; j < argc; ++j)
-                m_frames.back().push(*m_frames[old_frame].pop());
+            {
+                Value* tmp = m_frames[old_frame].pop();
+                m_frames.back().push(resolveRef(tmp));
+            }
             break;
         }
 
@@ -175,7 +192,10 @@ inline void VM::call(int16_t argc_)
             m_pp = new_page_pointer;
             m_ip = -1;  // because we are doing a m_ip++ right after that
             for (std::size_t j=0; j < argc; ++j)
-                m_frames.back().push(*m_frames[old_frame].pop());
+            {
+                Value* tmp = m_frames[old_frame].pop();
+                m_frames.back().push(resolveRef(tmp));
+            }
             break;
         }
 
@@ -220,9 +240,9 @@ internal::Value VM::resolve(const internal::Value* val, Args&&... args)
     // convert and push arguments in reverse order
     std::vector<Value> fnargs { { Value(args)... } };
     for (auto it=fnargs.rbegin(), it_end=fnargs.rend(); it != it_end; ++it)
-        m_frames.back().push(*it);
+        m_frames.back().push(resolveRef(it));
     // push function
-    m_frames.back().push(*val);
+    m_frames.back().push(resolveRef(val));
 
     std::size_t frames_count = m_frames.size();
     // call it
@@ -241,9 +261,13 @@ internal::Value VM::resolve(const internal::Value* val, Args&&... args)
 
     // get result
     if (m_frames.back().stackSize() != 0)
-        return *m_frames.back().pop();
+    {
+        Value* tmp = m_frames.back().pop();
+        return resolveRef(tmp);
+    }
     else
         return Builtins::nil;
 }
 
 #undef createNewScope
+#undef resolveRef

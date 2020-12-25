@@ -101,6 +101,10 @@ namespace Ark::internal
         m_value(value), m_constType(init_const_type(false, ValueType::User))
     {}
 
+    Value::Value(Value* ref) noexcept :
+        m_value(ref), m_constType(init_const_type(false, ValueType::Reference))
+    {}
+
     // --------------------------
 
     std::vector<Value>& Value::list()
@@ -121,6 +125,11 @@ namespace Ark::internal
     UserType& Value::usertype_ref()
     {
         return std::get<UserType>(m_value);
+    }
+
+    Value* Value::reference() const
+    {
+        return std::get<Value*>(m_value);
     }
 
     // --------------------------
@@ -199,6 +208,10 @@ namespace Ark::internal
 
         case ValueType::Undefined:
             os << "undefined";
+            break;
+
+        case ValueType::Reference:
+            os << (*V.reference());
             break;
 
         default:
