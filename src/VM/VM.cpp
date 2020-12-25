@@ -11,13 +11,16 @@
 // register a variable in the global scope
 #define registerVarGlobal(id, value) ((*m_locals[0]).push_back(id, value))
 // stack management
-#define popVal() m_frames.back().pop()
+#define popVal()         m_frames.back().pop()
 #define popValFrom(page) m_frames[static_cast<std::size_t>(page)].pop()
-#define push(value) m_frames.back().push(value)
+#define push(value)      m_frames.back().push(value)
 // create a new locals scope
 #define createNewScope() m_locals.emplace_back(std::make_shared<Scope>());
 // get a variable from a scope
 #define getVariableInCurrentScope(id) (*m_locals.back())[id]
+// resolve internal references
+#define resolveRef(valptr)      (((valptr)->valueType() == ValueType::Reference) ? *((valptr)->reference()) : *(valptr))
+#define resolveRefAsPtr(valptr) (((valptr)->valueType() == ValueType::Reference) ? ((valptr)->reference()) : valptr)
 
 struct mapping {
     char* name;
@@ -248,7 +251,8 @@ namespace Ark
                             m_saved_scope.reset();
                         }
                         else
-                            push(m_state->m_constants[id]);
+                            // push internal ref
+                            push(Value(&m_state->m_constants[id]));
 
                         COZ_PROGRESS_NAMED("ark vm load_const");
                         break;
@@ -286,7 +290,9 @@ namespace Ark
                         {
                             if (var->isConst())
                                 throwVMError("can not modify a constant: " + m_state->m_symbols[id]);
-                            *var = *popVal();
+
+                            Value* tmp = popVal();
+                            *var = resolveRef(tmp);
                             var->setConst(false);
                             break;
                         }
@@ -313,6 +319,7 @@ namespace Ark
                             throwVMError("can not use 'let' to redefine the variable " + m_state->m_symbols[id]);
 
                         Value* val = popVal();
+                        val = resolveRefAsPtr(val);
                         val->setConst(true);
                         registerVariable(id, *val);
 
@@ -363,9 +370,18 @@ namespace Ark
                         m_pp = static_cast<std::size_t>(m_frames.back().callerPageAddr());
                         m_ip = static_cast<int>(m_frames.back().callerAddr());
 
-                        Value return_value = m_frames.back().stackSize() != 0 ? *popVal() : Builtins::nil;
-                        returnFromFuncCall();
-                        push(return_value);
+                        if (m_frames.back().stackSize() != 0)
+                        {
+                            Value* tmp = popVal();
+                            Value val = resolveRef(tmp);
+                            returnFromFuncCall();
+                            push(val);
+                        }
+                        else
+                        {
+                            returnFromFuncCall();
+                            push(Builtins::nil);
+                        }
 
                         COZ_PROGRESS_NAMED("ark vm ret");
                         break;
@@ -428,6 +444,7 @@ namespace Ark
                         uint16_t id; readNumber(id);
 
                         Value* val = popVal();
+                        val = resolveRefAsPtr(val);
                         val->setConst(false);
                         registerVariable(id, *val);
 
@@ -532,7 +549,10 @@ namespace Ark
                             l.list().reserve(count);
 
                         for (uint16_t i=0; i < count; ++i)
-                            l.push_back(*popVal());
+                        {
+                            Value* tmp = popVal();
+                            l.push_back(resolveRef(tmp));
+                        }
                         push(l);
 
                         COZ_PROGRESS_NAMED("ark vm list");
@@ -551,7 +571,10 @@ namespace Ark
                         list->list().reserve(size + count);
 
                         for (uint16_t i=0; i < count; ++i)
-                            list->push_back(*popVal());
+                        {
+                            Value* tmp = popVal();
+                            list->push_back(resolveRef(tmp));
+                        }
                         push(*list);
 
                         COZ_PROGRESS_NAMED("ark vm append");
@@ -585,6 +608,9 @@ namespace Ark
                     case Instruction::ADD:
                     {
                         Value *b = popVal(), *a = popVal();
+                        b = resolveRefAsPtr(b);
+                        a = resolveRefAsPtr(a);
+
                         if (a->valueType() == ValueType::Number)
                         {
                             if (b->valueType() != ValueType::Number)
@@ -607,6 +633,9 @@ namespace Ark
                     case Instruction::SUB:
                     {
                         Value *b = popVal(), *a = popVal();
+                        b = resolveRefAsPtr(b);
+                        a = resolveRefAsPtr(a);
+
                         if (a->valueType() != ValueType::Number || b->valueType() != ValueType::Number)
                             throw Ark::TypeError("Arguments of - should be Numbers");
 
@@ -617,6 +646,9 @@ namespace Ark
                     case Instruction::MUL:
                     {
                         Value *b = popVal(), *a = popVal();
+                        b = resolveRefAsPtr(b);
+                        a = resolveRefAsPtr(a);
+
                         if (a->valueType() != ValueType::Number || b->valueType() != ValueType::Number)
                             throw Ark::TypeError("Arguments of * should be Numbers");
 
@@ -627,6 +659,9 @@ namespace Ark
                     case Instruction::DIV:
                     {
                         Value *b = popVal(), *a = popVal();
+                        b = resolveRefAsPtr(b);
+                        a = resolveRefAsPtr(a);
+
                         if (a->valueType() != ValueType::Number || b->valueType() != ValueType::Number)
                             throw Ark::TypeError("Arguments of / should be Numbers");
 
@@ -683,6 +718,8 @@ namespace Ark
                     case Instruction::LEN:
                     {
                         Value *a = popVal();
+                        a = resolveRefAsPtr(a);
+
                         if (a->valueType() == ValueType::List)
                             push(Value(static_cast<int>(a->const_list().size())));
                         else if (a->valueType() == ValueType::String)
@@ -695,6 +732,8 @@ namespace Ark
                     case Instruction::EMPTY:
                     {
                         Value* a = popVal();
+                        a = resolveRefAsPtr(a);
+
                         if (a->valueType() == ValueType::List)
                             push((a->const_list().size() == 0) ? Builtins::trueSym : Builtins::falseSym);
                         else if (a->valueType() == ValueType::String)
@@ -707,11 +746,13 @@ namespace Ark
 
                     case Instruction::FIRSTOF:
                     {
-                        Value a = *popVal();
-                        if (a.valueType() == ValueType::List)
-                            push(a.const_list().size() > 0 ? (a.const_list())[0] : Value(ValueType::List));
-                        else if (a.valueType() == ValueType::String)
-                            push(a.string().size() > 0 ? Value(std::string(1, (a.string())[0])) : Value(ValueType::String));
+                        Value* a = popVal();
+                        a = resolveRefAsPtr(a);
+
+                        if (a->valueType() == ValueType::List)
+                            push(a->const_list().size() > 0 ? (a->const_list())[0] : Value(ValueType::List));
+                        else if (a->valueType() == ValueType::String)
+                            push(a->string().size() > 0 ? Value(std::string(1, (a->string())[0])) : Value(ValueType::String));
                         else
                             throw Ark::TypeError("Argument of firstOf must be a list");
 
@@ -721,6 +762,8 @@ namespace Ark
                     case Instruction::TAILOF:
                     {
                         Value* a = popVal();
+                        a = resolveRefAsPtr(a);
+
                         if (a->valueType() == ValueType::List)
                         {
                             if (a->const_list().size() < 2)
@@ -752,6 +795,8 @@ namespace Ark
                     case Instruction::HEADOF:
                     {
                         Value* a = popVal();
+                        a = resolveRefAsPtr(a);
+
                         if (a->valueType() == ValueType::List)
                         {
                             if (a->const_list().size() < 2)
@@ -789,6 +834,8 @@ namespace Ark
                     case Instruction::ASSERT:
                     {
                         Value *b = popVal(), *a = popVal();
+                        b = resolveRefAsPtr(b);
+
                         if (*a == Builtins::falseSym)
                         {
                             if (b->valueType() != ValueType::String)
@@ -802,6 +849,8 @@ namespace Ark
                     case Instruction::TO_NUM:
                     {
                         Value* a = popVal();
+                        a = resolveRefAsPtr(a);
+
                         if (a->valueType() != ValueType::String)
                             throw Ark::TypeError("Argument of toNumber must be a String");
 
@@ -824,6 +873,9 @@ namespace Ark
                     case Instruction::AT:
                     {
                         Value *b = popVal(), a = *popVal();
+                        b = resolveRefAsPtr(b);
+                        a = resolveRef(&a);
+
                         if (b->valueType() != ValueType::Number)
                             throw Ark::TypeError("Argument 2 of @ should be a Number");
 
@@ -855,6 +907,9 @@ namespace Ark
                     case Instruction::MOD:
                     {
                         Value *b = popVal(), *a = popVal();
+                        b = resolveRefAsPtr(b);
+                        a = resolveRefAsPtr(a);
+
                         if (a->valueType() != ValueType::Number)
                             throw Ark::TypeError("Arguments of mod should be Numbers");
                         if (b->valueType() != ValueType::Number)
@@ -867,6 +922,8 @@ namespace Ark
                     case Instruction::TYPE:
                     {
                         Value *a = popVal();
+                        a = resolveRefAsPtr(a);
+
                         push(Value(types_to_str[static_cast<unsigned>(a->valueType())]));
                         break;
                     }
@@ -874,6 +931,8 @@ namespace Ark
                     case Instruction::HASFIELD:
                     {
                         Value *field = popVal(), *closure = popVal();
+                        field = resolveRefAsPtr(field);
+
                         if (closure->valueType() != ValueType::Closure)
                             throw Ark::TypeError("Argument no 1 of hasField should be a Closure");
                         if (field->valueType() != ValueType::String)
