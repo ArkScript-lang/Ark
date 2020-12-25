@@ -562,11 +562,13 @@ namespace Ark
                         if (list->valueType() != ValueType::List)
                             throw Ark::TypeError("append needs a list and then whatever you want");
                         const uint16_t size = list->const_list().size();
-                        list->list().reserve(size + count);
+
+                        Value obj = Value(*list);
+                        obj.list().reserve(size + count);
 
                         for (uint16_t i=0; i < count; ++i)
-                            list->push_back(*popAndResolveAsPtr());
-                        push(*list);
+                            obj.push_back(*popAndResolveAsPtr());
+                        push(obj);
 
                         COZ_PROGRESS_NAMED("ark vm append");
                         break;
@@ -581,6 +583,8 @@ namespace Ark
                         if (list->valueType() != ValueType::List)
                             throw Ark::TypeError("concat needs lists, got " + types_to_str[static_cast<unsigned>(list->valueType())]);
 
+                        Value obj = Value(*list);
+
                         for (uint16_t i=0; i < count; ++i)
                         {
                             Value *next = popAndResolveAsPtr();
@@ -588,9 +592,9 @@ namespace Ark
                                 throw Ark::TypeError("concat needs lists");
 
                             for (auto it=next->list().begin(), end=next->list().end(); it != end; ++it)
-                                list->push_back(*it);
+                                obj.push_back(*it);
                         }
-                        push(*list);
+                        push(obj);
 
                         COZ_PROGRESS_NAMED("ark vm concat");
                         break;
