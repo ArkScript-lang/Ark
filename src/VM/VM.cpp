@@ -317,9 +317,9 @@ namespace Ark
                         if (auto val = getVariableInCurrentScope(id); val != nullptr)
                             throwVMError("can not use 'let' to redefine the variable " + m_state->m_symbols[id]);
 
-                        Value* val = popAndResolveAsPtr();
-                        val->setConst(true);
-                        registerVariable(id, *val);
+                        Value val = *popAndResolveAsPtr();
+                        val.setConst(true);
+                        registerVariable(id, val);
 
                         COZ_PROGRESS("ark vm let");
                         break;
@@ -443,9 +443,9 @@ namespace Ark
                         ++m_ip;
                         uint16_t id; readNumber(id);
 
-                        Value* val = popAndResolveAsPtr();
-                        val->setConst(false);
-                        registerVariable(id, *val);
+                        Value val = *popAndResolveAsPtr();
+                        val.setConst(false);
+                        registerVariable(id, val);
 
                         COZ_PROGRESS_NAMED("ark vm mut");
                         break;
@@ -496,7 +496,7 @@ namespace Ark
                         ++m_ip;
                         uint16_t id; readNumber(id);
 
-                        Value* var = popVal();
+                        Value* var = popAndResolveAsPtr();
                         if (var->valueType() != ValueType::Closure)
                             throwVMError("the variable `" + m_state->m_symbols[m_last_sym_loaded] + "' isn't a closure, can not get the field `" + m_state->m_symbols[id] + "' from it");
 
