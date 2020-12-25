@@ -43,7 +43,7 @@ internal::Value VM::call(const std::string& name, Args&&... args)
                  var->reference()->valueType() == ValueType::Closure)))
             throwVMError("Can't call '" + name + "': it isn't a Function but a " + types_to_str[static_cast<int>(vt)]);
 
-        m_frames.back().push(resolveRef(var));
+        m_frames.back().push(Value(var));
         m_last_sym_loaded = id;
     }
     else
@@ -62,12 +62,20 @@ internal::Value VM::call(const std::string& name, Args&&... args)
 
     // get result
     if (m_frames.back().stackSize() != 0)
-    {
-        Value* tmp = m_frames.back().pop();
-        return resolveRef(tmp);
-    }
+        return *popAndResolveAsPtr();
     else
         return Builtins::nil;
+}
+
+inline internal::Value* VM::popAndResolveAsPtr()
+{
+    using namespace Ark::internal;
+
+    Value* tmp = m_frames.back().pop();
+
+    if (tmp->valueType() == ValueType::Reference)
+        return tmp->reference();
+    return tmp;
 }
 
 inline internal::Value* VM::findNearestVariable(uint16_t id) noexcept
@@ -131,8 +139,7 @@ inline void VM::call(int16_t argc_)
     else
         argc = argc_;
 
-    Value* ts = m_frames.back().pop();
-    Value function = resolveRef(ts);
+    Value function = *popAndResolveAsPtr();
 
     switch (function.valueType())
     {
@@ -142,10 +149,7 @@ inline void VM::call(int16_t argc_)
             // drop arguments from the stack
             std::vector<Value> args(argc);
             for (uint16_t j=0; j < argc; ++j)
-            {
-                Value* tmp = m_frames.back().pop();
-                args[argc - 1 - j] = resolveRef(tmp);
-            }
+                args[argc - 1 - j] = *popAndResolveAsPtr();
 
             // call proc
             m_frames.back().push(function.proc()(args, this));
@@ -168,10 +172,7 @@ inline void VM::call(int16_t argc_)
             m_pp = new_page_pointer;
             m_ip = -1;  // because we are doing a m_ip++ right after that
             for (std::size_t j=0; j < argc; ++j)
-            {
-                Value* tmp = m_frames[old_frame].pop();
-                m_frames.back().push(resolveRef(tmp));
-            }
+                m_frames.back().push(*popAndResolveAsPtr());
             break;
         }
 
@@ -192,10 +193,7 @@ inline void VM::call(int16_t argc_)
             m_pp = new_page_pointer;
             m_ip = -1;  // because we are doing a m_ip++ right after that
             for (std::size_t j=0; j < argc; ++j)
-            {
-                Value* tmp = m_frames[old_frame].pop();
-                m_frames.back().push(resolveRef(tmp));
-            }
+                m_frames.back().push(*popAndResolveAsPtr());
             break;
         }
 
@@ -261,10 +259,7 @@ internal::Value VM::resolve(const internal::Value* val, Args&&... args)
 
     // get result
     if (m_frames.back().stackSize() != 0)
-    {
-        Value* tmp = m_frames.back().pop();
-        return resolveRef(tmp);
-    }
+        return *popAndResolveAsPtr();
     else
         return Builtins::nil;
 }
