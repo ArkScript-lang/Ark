@@ -155,6 +155,13 @@ namespace Ark
         // locals related
 
         /**
+         * @brief Pop a value from the stack and resolve it if possible, then return it
+         * 
+         * @return internal::Value* 
+         */
+        inline internal::Value* popAndResolveAsPtr();
+
+        /**
          * @brief Find the nearest variable of a given id
          * 
          * @param id the id to find
