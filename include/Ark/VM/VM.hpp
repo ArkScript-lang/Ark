@@ -157,9 +157,10 @@ namespace Ark
         /**
          * @brief Pop a value from the stack and resolve it if possible, then return it
          * 
+         * @param frame frame to pop from
          * @return internal::Value* 
          */
-        inline internal::Value* popAndResolveAsPtr();
+        inline internal::Value* popAndResolveAsPtr(int frame=-1);
 
         /**
          * @brief Find the nearest variable of a given id

@@ -67,11 +67,11 @@ internal::Value VM::call(const std::string& name, Args&&... args)
         return Builtins::nil;
 }
 
-inline internal::Value* VM::popAndResolveAsPtr()
+inline internal::Value* VM::popAndResolveAsPtr(int frame)
 {
     using namespace Ark::internal;
 
-    Value* tmp = m_frames.back().pop();
+    Value* tmp = (frame < 0) ? m_frames.back().pop() : m_frames[frame].pop();
 
     if (tmp->valueType() == ValueType::Reference)
         return tmp->reference();
@@ -172,7 +172,7 @@ inline void VM::call(int16_t argc_)
             m_pp = new_page_pointer;
             m_ip = -1;  // because we are doing a m_ip++ right after that
             for (std::size_t j=0; j < argc; ++j)
-                m_frames.back().push(*popAndResolveAsPtr());
+                m_frames.back().push(*popAndResolveAsPtr(old_frame));
             break;
         }
 
@@ -193,7 +193,7 @@ inline void VM::call(int16_t argc_)
             m_pp = new_page_pointer;
             m_ip = -1;  // because we are doing a m_ip++ right after that
             for (std::size_t j=0; j < argc; ++j)
-                m_frames.back().push(*popAndResolveAsPtr());
+                m_frames.back().push(*popAndResolveAsPtr(old_frame));
             break;
         }
 
