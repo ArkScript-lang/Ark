@@ -29,6 +29,7 @@
 #include <Ark/Exceptions.hpp>
 #include <Ark/VM/UserType.hpp>
 #include <Ark/Config.hpp>
+#include <Ark/Profiling.hpp>
 
 namespace Ark
 {
@@ -65,6 +66,10 @@ namespace Ark::internal
 
     class Frame;
 
+#if ARK_PROFILER_COUNT != 0
+    extern unsigned value_creations, value_copies, value_moves;
+#endif
+
     class ARK_API_EXPORT Value
     {
     public:
@@ -95,6 +100,12 @@ namespace Ark::internal
          * @param type the value type which is going to be held
          */
         explicit Value(ValueType type) noexcept;
+
+#if ARK_PROFILER_COUNT != 0
+        Value(const Value& val) noexcept;
+        Value(Value&& other) noexcept;
+        Value& operator=(const Value& other) noexcept;
+#endif
 
         /**
          * @brief Construct a new Value object as a Number

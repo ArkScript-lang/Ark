@@ -48,8 +48,7 @@ set(ARK_COMPILATION_OPTIONS ${CMAKE_CXX_FLAGS})
 set(ARK_COMPILER ${CMAKE_CXX_COMPILER_ID})
 set(ARK_ENABLE_SYSTEM 1 CACHE STRING "Enable sys:exec")  # enable use of (system "command here")
 set(ARK_PROFILER 0 CACHE STRING "Enable coz profiler")
-
-message(STATUS ${ARK_PROFILER})
+set(ARK_PROFILER_COUNT 0 CACHE STRING "Enable creations/copies/moves counting on the Value")
 
 configure_file(
     ${ark_SOURCE_DIR}/include/Ark/Constants.hpp.in

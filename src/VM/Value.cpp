@@ -20,7 +20,42 @@ namespace Ark::internal
             m_value = std::vector<Value>();
         else if (type == ValueType::String)
             m_value = "";
+
+        #if ARK_PROFILER_COUNT != 0
+            value_creations++;
+        #endif
     }
+
+#if ARK_PROFILER_COUNT != 0
+    extern unsigned value_creations = 0;
+    extern unsigned value_copies = 0;
+    extern unsigned value_moves = 0;
+
+    Value::Value(const Value& val) noexcept :
+        m_value(val.m_value),
+        m_constType(val.m_constType)
+    {
+        value_copies++;
+    }
+
+    Value::Value(Value&& other) noexcept
+    {
+        m_value = std::move(other.m_value);
+        m_constType = std::move(other.m_constType);
+
+        value_moves++;
+    }
+
+    Value& Value::operator=(const Value& other) noexcept
+    {
+        m_value = other.m_value;
+        m_constType = other.m_constType;
+
+        value_copies++;
+
+        return *this;
+    }
+#endif
 
     Value::Value(int value) noexcept :
         m_value(static_cast<double>(value)), m_constType(init_const_type(false, ValueType::Number))
