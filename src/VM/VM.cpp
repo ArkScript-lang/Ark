@@ -374,10 +374,10 @@ namespace Ark
 
                         if (m_frames.back().stackSize() != 0)
                         {
-                            Value* tmp = popVal();
-                            Value val = resolveRef(tmp);
+                            // no need to resolve the possible reference because it's handled everywhere
+                            Value tmp = *popVal();
                             returnFromFuncCall();
-                            push(val);
+                            push(tmp);
                         }
                         else
                         {
