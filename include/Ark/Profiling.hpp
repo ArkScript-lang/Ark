@@ -3,7 +3,7 @@
 
 #include <Ark/Constants.hpp>
 
-#if ARK_PROFILER == 1
+#if ARK_PROFILER != 0
     #include <coz.h>
 #else
     // define the coz macro but don't add content to them
