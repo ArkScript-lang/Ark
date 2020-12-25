@@ -17,7 +17,7 @@
 // create a new locals scope
 #define createNewScope() m_locals.emplace_back(std::make_shared<Scope>());
 // get a variable from a scope
-#define getVariableInCurrentScope(id) (*m_locals.back())[id]
+#define getVariableInCurrentScope(id) ((*m_locals.back())[id])
 
 struct mapping {
     char* name;
@@ -370,8 +370,8 @@ namespace Ark
 
                         if (m_frames.back().stackSize() != 0)
                         {
-                            // no need to resolve the possible reference because it's handled everywhere
-                            Value tmp = *popVal();
+                            // we *must* resolve the value
+                            Value tmp = *popAndResolveAsPtr();
                             returnFromFuncCall();
                             push(tmp);
                         }
@@ -408,7 +408,9 @@ namespace Ark
                         if (!m_saved_scope)
                             m_saved_scope = std::make_shared<Scope>();
                         // if it's a captured variable, it can not be nullptr
-                        (*m_saved_scope.value()).push_back(id, *getVariableInCurrentScope(id));
+                        Value* ptr = getVariableInCurrentScope(id);
+                        ptr = ptr->valueType() == ValueType::Reference ? ptr->reference() : ptr;
+                        (*m_saved_scope.value()).push_back(id, *ptr);
 
                         COZ_PROGRESS_NAMED("ark vm capture");
                         break;
