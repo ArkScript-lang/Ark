@@ -7,8 +7,6 @@
     (mut tests 0)
     (let start-time (time))
 
-    (print "ok")
-
     (let r (range 0 10))
     (mut i 0)
     (while (< i 10) {
