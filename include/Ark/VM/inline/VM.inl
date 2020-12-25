@@ -3,7 +3,7 @@
 // ------------------------------------------
 
 #define createNewScope() m_locals.emplace_back(std::make_shared<internal::Scope>());
-#define resolveRef(valptr) ((valptr->valueType() == ValueType::Reference) ? *(valptr->reference()) : *valptr)
+#define resolveRef(valptr) (((valptr)->valueType() == ValueType::Reference) ? *((valptr)->reference()) : *(valptr))
 
 // profiler
 #include <Ark/Profiling.hpp>
@@ -31,7 +31,7 @@ internal::Value VM::call(const std::string& name, Args&&... args)
 
     // find function object and push it if it's a pageaddr/closure
     uint16_t id = static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it));
-    auto var = findNearestVariable(id);
+    Value* var = findNearestVariable(id);
     if (var != nullptr)
     {
         ValueType vt = var->valueType();

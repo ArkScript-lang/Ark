@@ -35,7 +35,8 @@ namespace Ark::internal
         m_value(val.m_value),
         m_constType(val.m_constType)
     {
-        value_copies++;
+        if (valueType() != ValueType::Reference)
+            value_copies++;
     }
 
     Value::Value(Value&& other) noexcept
@@ -43,7 +44,8 @@ namespace Ark::internal
         m_value = std::move(other.m_value);
         m_constType = std::move(other.m_constType);
 
-        value_moves++;
+        if (valueType() != ValueType::Reference)
+            value_moves++;
     }
 
     Value& Value::operator=(const Value& other) noexcept
@@ -51,7 +53,8 @@ namespace Ark::internal
         m_value = other.m_value;
         m_constType = other.m_constType;
 
-        value_copies++;
+        if (valueType() != ValueType::Reference)
+            value_copies++;
 
         return *this;
     }

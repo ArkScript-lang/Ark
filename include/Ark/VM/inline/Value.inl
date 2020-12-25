@@ -67,14 +67,11 @@ inline void Value::setConst(bool value) noexcept
 
 inline bool operator==(const Value& A, const Value& B) noexcept
 {
-    const Value* a = (A.valueType() == ValueType::Reference) ? A.reference() : &A;
-    const Value* b = (B.valueType() == ValueType::Reference) ? B.reference() : &B;
-
     // values should have the same type
-    if (a->valueType() != b->valueType())
+    if (A.valueType() != B.valueType())
         return false;
     // all the types >= Nil are Nil itself, True, False, Undefined
-    else if ((a->m_constType & 0b01111111) >= static_cast<int>(ValueType::Nil))
+    else if ((A.m_constType & 0b01111111) >= static_cast<int>(ValueType::Nil))
         return true;
 
     return A.m_value == B.m_value;
@@ -82,12 +79,9 @@ inline bool operator==(const Value& A, const Value& B) noexcept
 
 inline bool operator<(const Value& A, const Value& B) noexcept
 {
-    const Value* a = (A.valueType() == ValueType::Reference) ? A.reference() : &A;
-    const Value* b = (B.valueType() == ValueType::Reference) ? B.reference() : &B;
-
-    if (a->valueType() != b->valueType())
-        return (static_cast<int>(a->valueType()) - static_cast<int>(b->valueType())) < 0;
-    return a->m_value < b->m_value;
+    if (A.valueType() != B.valueType())
+        return (static_cast<int>(A.valueType()) - static_cast<int>(B.valueType())) < 0;
+    return A.m_value < B.m_value;
 }
 
 inline bool operator!=(const Value& A, const Value& B) noexcept
@@ -115,9 +109,6 @@ inline bool operator!(const Value& A) noexcept
 
         case ValueType::True:
             return false;
-
-        case ValueType::Reference:
-            return !(*A.reference());
 
         default:
             return false;
