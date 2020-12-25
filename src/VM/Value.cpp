@@ -105,7 +105,7 @@ namespace Ark::internal
     {}
 
     Value::Value(Value* ref) noexcept :
-        m_value(ref), m_constType(init_const_type(false, ValueType::Reference))
+        m_value(ref), m_constType(init_const_type(true, ValueType::Reference))
     {}
 
     // --------------------------
