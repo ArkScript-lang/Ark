@@ -12,7 +12,7 @@
 #ifndef ark_compiler_value
 #define ark_compiler_value
 
-#include <variant>
+#include <variant.hpp>
 #include <string>
 
 #include <Ark/Compiler/Node.hpp>
@@ -36,7 +36,7 @@ namespace Ark::internal
      */
     struct CValue
     {
-        std::variant<double, std::string, std::size_t> value;
+        mpark::variant<double, std::string, std::size_t> value;
         CValueType type;
 
         // Numbers

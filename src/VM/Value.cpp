@@ -20,7 +20,45 @@ namespace Ark::internal
             m_value = std::vector<Value>();
         else if (type == ValueType::String)
             m_value = "";
+
+        #ifdef ARK_PROFILER_COUNT
+            value_creations++;
+        #endif
     }
+
+#ifdef ARK_PROFILER_COUNT
+    extern unsigned value_creations = 0;
+    extern unsigned value_copies = 0;
+    extern unsigned value_moves = 0;
+
+    Value::Value(const Value& val) noexcept :
+        m_value(val.m_value),
+        m_constType(val.m_constType)
+    {
+        if (valueType() != ValueType::Reference)
+            value_copies++;
+    }
+
+    Value::Value(Value&& other) noexcept
+    {
+        m_value = std::move(other.m_value);
+        m_constType = std::move(other.m_constType);
+
+        if (valueType() != ValueType::Reference)
+            value_moves++;
+    }
+
+    Value& Value::operator=(const Value& other) noexcept
+    {
+        m_value = other.m_value;
+        m_constType = other.m_constType;
+
+        if (valueType() != ValueType::Reference)
+            value_copies++;
+
+        return *this;
+    }
+#endif
 
     Value::Value(int value) noexcept :
         m_value(static_cast<double>(value)), m_constType(init_const_type(false, ValueType::Number))
@@ -66,26 +104,35 @@ namespace Ark::internal
         m_value(value), m_constType(init_const_type(false, ValueType::User))
     {}
 
+    Value::Value(Value* ref) noexcept :
+        m_value(ref), m_constType(init_const_type(true, ValueType::Reference))
+    {}
+
     // --------------------------
 
     std::vector<Value>& Value::list()
     {
-        return std::get<std::vector<Value>>(m_value);
+        return mpark::get<std::vector<Value>>(m_value);
     }
 
     Closure& Value::closure_ref()
     {
-        return std::get<Closure>(m_value);
+        return mpark::get<Closure>(m_value);
     }
 
     String& Value::string_ref()
     {
-        return std::get<String>(m_value);
+        return mpark::get<String>(m_value);
     }
 
     UserType& Value::usertype_ref()
     {
-        return std::get<UserType>(m_value);
+        return mpark::get<UserType>(m_value);
+    }
+
+    Value* Value::reference() const
+    {
+        return mpark::get<Value*>(m_value);
     }
 
     // --------------------------
@@ -164,6 +211,10 @@ namespace Ark::internal
 
         case ValueType::Undefined:
             os << "undefined";
+            break;
+
+        case ValueType::Reference:
+            os << (*V.reference());
             break;
 
         default:

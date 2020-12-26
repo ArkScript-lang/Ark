@@ -13,7 +13,7 @@
 #define ark_vm_value
 
 #include <vector>
-#include <variant>
+#include <variant.hpp>
 #include <string>  // for conversions
 #include <cinttypes>
 #include <iostream>
@@ -29,6 +29,7 @@
 #include <Ark/Exceptions.hpp>
 #include <Ark/VM/UserType.hpp>
 #include <Ark/Config.hpp>
+#include <Ark/Profiling.hpp>
 
 namespace Ark
 {
@@ -54,34 +55,40 @@ namespace Ark::internal
         Nil       = 7,
         True      = 8,
         False     = 9,
-        Undefined = 10
+        Undefined = 10,
+        Reference = 11
     };
 
-    const std::array<std::string, 11> types_to_str = {
-        "List", "Number", "String", "Function",
-        "CProc", "Closure", "UserType",
-        "Nil", "Bool", "Bool", "Undefined"
+    const std::array<std::string, 12> types_to_str = {
+        "List",  "Number",  "String",    "Function",
+        "CProc", "Closure", "UserType",  "Nil",
+        "Bool",  "Bool",    "Undefined", "Reference"
     };
 
     class Frame;
 
+#ifdef ARK_PROFILER_COUNT
+    extern unsigned value_creations, value_copies, value_moves;
+#endif
+
     class ARK_API_EXPORT Value
     {
     public:
-        using ProcType = Value (*) (std::vector<Value>&, Ark::VM*);  // std::function<Value (std::vector<Value>&, Ark::VM*)>;
+        using ProcType = Value (*) (std::vector<Value>&, Ark::VM*);  // std::function<Value (std::vector<Value>&, Ark::VM*)>
         using Iterator = std::vector<Value>::iterator;
         using ConstIterator = std::vector<Value>::const_iterator;
 
-        using Value_t  = std::variant<
+        using Value_t  = mpark::variant<
             double,             //  8 bytes
             String,             // 16 bytes
             PageAddr_t,         //  2 bytes
             ProcType,           //  8 bytes
             Closure,            // 24 bytes
             UserType,           // 24 bytes
-            std::vector<Value>  // 24 bytes
-        >;                      // +8 bytes overhead
-        //                   total 32 bytes
+            std::vector<Value>, // 24 bytes
+            Value*              //  8 bytes
+        >;                      // +??? bytes overhead
+        //                   total 24+??? bytes
 
         /**
          * @brief Construct a new Value object
@@ -95,6 +102,12 @@ namespace Ark::internal
          * @param type the value type which is going to be held
          */
         explicit Value(ValueType type) noexcept;
+
+#ifdef ARK_PROFILER_COUNT
+        Value(const Value& val) noexcept;
+        Value(Value&& other) noexcept;
+        Value& operator=(const Value& other) noexcept;
+#endif
 
         /**
          * @brief Construct a new Value object as a Number
@@ -174,6 +187,13 @@ namespace Ark::internal
         explicit Value(UserType&& value) noexcept;
 
         /**
+         * @brief Construct a new Value object as a reference to an internal object
+         * 
+         * @param ref 
+         */
+        explicit Value(Value* ref) noexcept;
+
+        /**
          * @brief Return the value type
          * 
          * @return ValueType 
@@ -238,6 +258,13 @@ namespace Ark::internal
         UserType& usertype_ref();
 
         /**
+         * @brief Return the stored internal object reference
+         * 
+         * @return Value* 
+         */
+        Value* reference() const;
+
+        /**
          * @brief Add an element to the list held by the value (if the value type is set to list)
          * 
          * @param value 
@@ -257,6 +284,7 @@ namespace Ark::internal
         friend inline bool operator!(const Value& A) noexcept;
 
         friend class Ark::VM;
+        friend class Ark::internal::Frame;
 
     private:
         Value_t m_value;
