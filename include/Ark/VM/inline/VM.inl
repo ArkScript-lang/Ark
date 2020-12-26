@@ -96,7 +96,7 @@ inline void VM::returnFromFuncCall()
     m_frames.pop_back();
     uint8_t del_counter = m_frames.back().scopeCountToDelete();
 
-    // high cpu cost because destroying variants cost
+    // PERF high cpu cost because destroying variants cost
     m_locals.pop_back();
 
     while (del_counter != 0)

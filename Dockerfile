@@ -26,7 +26,7 @@ RUN apk --no-cache add cmake clang clang-dev make gcc g++ libc-dev linux-headers
 COPY include include
 COPY lib lib
 COPY src src
-COPY thirdparty thirdparty
+COPY thirdparties thirdparties
 COPY CMakeLists.txt .
 COPY --from=submodule-initializor /out .
 RUN cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release -DARK_BUILD_EXE=1 \

@@ -12,7 +12,7 @@
 #ifndef ark_node
 #define ark_node
 
-#include <variant>
+#include <variant.hpp>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -59,7 +59,7 @@ namespace Ark::internal
     public:
         using Iterator = std::vector<Node>::const_iterator;
         using Map      = std::unordered_map<std::string, Node>;
-        using Value    = std::variant<double, std::string, Keyword>;
+        using Value    = mpark::variant<double, std::string, Keyword>;
 
         /**
          * @brief Construct a new Node object

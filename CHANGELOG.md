@@ -5,6 +5,8 @@
 - new submodule, plasma-umass/coz (a profiler)
 - macros for profiling, enabled only if `ARK_PROFILE` is defined
 - cmake flags using -D to turn on/off sys:exec and the coz profiler
+- mpark variant is now the default used instead of the default STL variant (faster, better, stronger, and its creator is quite a god)
+- new cmake flag, -DARK_SCOPE_DICHOTOMY=On|Off (default Off)
 
 ### Changed
 - updated standard library
@@ -14,6 +16,8 @@
 - fixes issue #203 (imports are ill-formed when given an absolute path)
 - fixes issue #205 (search for the standard library folder in more common places)
 - transitioning from C++ streams to printf
+- replaced the thirdparty/ folder with a git submodule in thirdparties/
+- now checking that a scope doesn't have our symbol before doing a `mut` operation (in dichotomic mode it was automatically handled, but not in linear mode)
 
 ### Removed
 
