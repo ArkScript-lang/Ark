@@ -5,7 +5,7 @@
 !lib
 !src
 !submodules
-!thirdparty
+!thirdparties
 !.gitmodules
 !CMakeLists.txt
 !docker-entrypoint.sh

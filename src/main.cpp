@@ -6,6 +6,7 @@
 #include <clipp.hpp>
 #include <Ark/Ark.hpp>
 #include <Ark/REPL/Repl.hpp>
+#include <Ark/Profiling.hpp>
 
 void bcr(const std::string& file)
 {
@@ -154,7 +155,21 @@ int main(int argc, char** argv)
                 }
 
                 Ark::VM vm(&state);
-                return vm.run();
+                int out = vm.run();
+
+                #ifdef ARK_PROFILER_COUNT
+                std::printf(
+                    "\n\nValue\n"
+                    "=====\n"
+                    "\tCreations: %u\n\tCopies: %u\n\tMoves: %u\n\n\tCopy coeff: %f",
+                    Ark::internal::value_creations,
+                    Ark::internal::value_copies,
+                    Ark::internal::value_moves,
+                    static_cast<float>(Ark::internal::value_copies) / Ark::internal::value_creations
+                );
+                #endif
+
+                return out;
             }
 
             case mode::eval:
