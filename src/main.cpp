@@ -157,7 +157,7 @@ int main(int argc, char** argv)
                 Ark::VM vm(&state);
                 int out = vm.run();
 
-                #if ARK_PROFILER_COUNT != 0
+                #ifdef ARK_PROFILER_COUNT
                 std::printf(
                     "\n\nValue\n"
                     "=====\n"

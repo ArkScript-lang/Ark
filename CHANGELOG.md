@@ -18,6 +18,7 @@
 - transitioning from C++ streams to printf
 - replaced the thirdparty/ folder with a git submodule in thirdparties/
 - now checking that a scope doesn't have our symbol before doing a `mut` operation (in dichotomic mode it was automatically handled, but not in linear mode)
+- enhancing the cmake defines (`-DARK_XYZ`) and the code using them
 
 ### Removed
 

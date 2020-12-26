@@ -20,7 +20,7 @@ namespace Ark::internal::Builtins::System
         if (n[0].valueType() != ValueType::String)
             throw Ark::TypeError(SYS_SYS_TE0);
 
-        #if ARK_ENABLE_SYSTEM != 0
+        #ifdef ARK_ENABLE_SYSTEM
             int output = std::system(n[0].string().c_str());
             return Value(output);
         #endif  // ARK_ENABLE_SYSTEM
