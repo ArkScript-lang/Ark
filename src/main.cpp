@@ -161,7 +161,7 @@ int main(int argc, char** argv)
                 std::printf(
                     "\n\nValue\n"
                     "=====\n"
-                    "\tCreations: %u\n\tCopies: %u\n\tMoves: %u\n\n\tCopy coeef: %f",
+                    "\tCreations: %u\n\tCopies: %u\n\tMoves: %u\n\n\tCopy coeff: %f",
                     Ark::internal::value_creations,
                     Ark::internal::value_copies,
                     Ark::internal::value_moves,

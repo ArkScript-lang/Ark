@@ -60,13 +60,10 @@ namespace Ark::internal
     };
 
     const std::array<std::string, 12> types_to_str = {
-        "List", "Number", "String", "Function",
-        "CProc", "Closure", "UserType",
-        "Nil", "Bool", "Bool", "Undefined",
-        "Reference"
+        "List",  "Number",  "String",    "Function",
+        "CProc", "Closure", "UserType",  "Nil",
+        "Bool",  "Bool",    "Undefined", "Reference"
     };
-
-    class Frame;
 
 #if ARK_PROFILER_COUNT != 0
     extern unsigned value_creations, value_copies, value_moves;
