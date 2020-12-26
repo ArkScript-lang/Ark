@@ -17,7 +17,8 @@ inline void Frame::push(const Value& value) noexcept
 
 inline void Frame::push(Value&& value) noexcept
 {
-    m_stack[m_i] = std::move(value);
+    m_stack[m_i].m_value = std::move(value.m_value);
+    m_stack[m_i].m_constType = std::move(value.m_constType);
     m_i++;
 
     if (m_i == m_stack.size())
