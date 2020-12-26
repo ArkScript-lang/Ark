@@ -21,12 +21,12 @@ namespace Ark::internal
         else if (type == ValueType::String)
             m_value = "";
 
-        #if ARK_PROFILER_COUNT != 0
+        #ifdef ARK_PROFILER_COUNT
             value_creations++;
         #endif
     }
 
-#if ARK_PROFILER_COUNT != 0
+#ifdef ARK_PROFILER_COUNT
     extern unsigned value_creations = 0;
     extern unsigned value_copies = 0;
     extern unsigned value_moves = 0;

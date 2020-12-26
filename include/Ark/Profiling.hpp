@@ -1,9 +1,7 @@
 #ifndef ark_profiling
 #define ark_profiling
 
-#include <Ark/Constants.hpp>
-
-#if ARK_PROFILER != 0
+#ifdef ARK_PROFILER
     #include <coz.h>
 #else
     // define the coz macro but don't add content to them

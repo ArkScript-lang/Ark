@@ -67,7 +67,7 @@ namespace Ark::internal
 
     class Frame;
 
-#if ARK_PROFILER_COUNT != 0
+#ifdef ARK_PROFILER_COUNT
     extern unsigned value_creations, value_copies, value_moves;
 #endif
 
@@ -103,7 +103,7 @@ namespace Ark::internal
          */
         explicit Value(ValueType type) noexcept;
 
-#if ARK_PROFILER_COUNT != 0
+#ifdef ARK_PROFILER_COUNT
         Value(const Value& val) noexcept;
         Value(Value&& other) noexcept;
         Value& operator=(const Value& other) noexcept;

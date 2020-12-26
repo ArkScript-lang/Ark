@@ -43,16 +43,27 @@ else()
     message(STATUS "Coz Profiler is NOT enabled")
 endif()
 
+# COMPILATION RELATED
+set(ARK_COMPILATION_OPTIONS ${CMAKE_CXX_FLAGS})
+set(ARK_COMPILER            ${CMAKE_CXX_COMPILER_ID})
+
+set(ARK_ENABLE_SYSTEM   On  CACHE BOOL "Enable sys:exec")  # enable use of (system "command here")
+set(ARK_PROFILER        Off CACHE BOOL "Enable coz profiler")
+set(ARK_PROFILER_COUNT  Off CACHE BOOL "Enable creations/copies/moves counting on the Value")
+set(ARK_SCOPE_DICHOTOMY Off CACHE BOOL "Change the behaviour of the scopes from linear (off) to dichotomic (On)")
+
 if (ARK_SCOPE_DICHOTOMY)
     add_definitions(-DARK_SCOPE_DICHOTOMY)
 endif()
-
-# COMPILATION RELATED
-set(ARK_COMPILATION_OPTIONS ${CMAKE_CXX_FLAGS})
-set(ARK_COMPILER ${CMAKE_CXX_COMPILER_ID})
-set(ARK_ENABLE_SYSTEM 1 CACHE STRING "Enable sys:exec")  # enable use of (system "command here")
-set(ARK_PROFILER 0 CACHE STRING "Enable coz profiler")
-set(ARK_PROFILER_COUNT 0 CACHE STRING "Enable creations/copies/moves counting on the Value")
+if (ARK_PROFILER_COUNT)
+    add_definitions(-DARK_PROFILER_COUNT)
+endif()
+if (ARK_PROFILER)
+    add_definitions(-DARK_PROFILER)
+endif()
+if (ARK_ENABLE_SYSTEM)
+    add_definitions(-DARK_ENABLE_SYSTEM)
+endif()
 
 configure_file(
     ${ark_SOURCE_DIR}/include/Ark/Constants.hpp.in

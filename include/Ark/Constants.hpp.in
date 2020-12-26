@@ -20,9 +20,6 @@
 #define ARK_COMPILER "@ARK_COMPILER@"
 #define ARK_CACHE_DIRNAME "__arkscript__"
 #define ARK_NO_NAME_FILE "FILE"
-#define ARK_ENABLE_SYSTEM @ARK_ENABLE_SYSTEM@
-#define ARK_PROFILER @ARK_PROFILER@
-#define ARK_PROFILER_COUNT @ARK_PROFILER_COUNT@
 
 #include <cinttypes>
 
