@@ -7,6 +7,7 @@
 - cmake flags using -D to turn on/off sys:exec and the coz profiler
 - mpark variant is now the default used instead of the default STL variant (faster, better, stronger, and its creator is quite a god)
 - new cmake flag, -DARK_SCOPE_DICHOTOMY=On|Off (default Off)
+- using internal only references to constants and symbols to reduce the number of useless copies of the value type
 
 ### Changed
 - updated standard library
