@@ -43,6 +43,10 @@ else()
     message(STATUS "Coz Profiler is NOT enabled")
 endif()
 
+if (ARK_SCOPE_DICHOTOMY)
+    add_definitions(-DARK_SCOPE_DICHOTOMY)
+endif()
+
 # COMPILATION RELATED
 set(ARK_COMPILATION_OPTIONS ${CMAKE_CXX_FLAGS})
 set(ARK_COMPILER ${CMAKE_CXX_COMPILER_ID})
@@ -62,7 +66,7 @@ file(GLOB_RECURSE SOURCE_FILES
     ${ark_SOURCE_DIR}/src/Parser/*.cpp
     ${ark_SOURCE_DIR}/src/VM/*.cpp
 
-    ${ark_SOURCE_DIR}/thirdparty/*.cpp
+    ${ark_SOURCE_DIR}/thirdparties/*.cpp
 )
 list(APPEND SOURCE_FILES
     ${ark_SOURCE_DIR}/src/Ark.cpp
@@ -81,7 +85,7 @@ add_library(ArkReactor
 target_include_directories(ArkReactor
     PUBLIC
         ${ark_SOURCE_DIR}/include
-        ${ark_SOURCE_DIR}/thirdparty
+        ${ark_SOURCE_DIR}/thirdparties
         ${STRING_INCLUDES}
 )
 
@@ -135,7 +139,7 @@ if (ARK_BUILD_EXE)
     add_executable(ark ${EXE_SOURCES})
     target_include_directories(ark PUBLIC
         ${ark_SOURCE_DIR}/include
-        ${ark_SOURCE_DIR}/thirdparty
+        ${ark_SOURCE_DIR}/thirdparties
     )
     target_link_libraries(ark PUBLIC ArkReactor replxx)
 

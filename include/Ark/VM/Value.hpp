@@ -13,7 +13,7 @@
 #define ark_vm_value
 
 #include <vector>
-#include <variant>
+#include <variant.hpp>
 #include <string>  // for conversions
 #include <cinttypes>
 #include <iostream>
@@ -65,6 +65,8 @@ namespace Ark::internal
         "Bool",  "Bool",    "Undefined", "Reference"
     };
 
+    class Frame;
+
 #if ARK_PROFILER_COUNT != 0
     extern unsigned value_creations, value_copies, value_moves;
 #endif
@@ -76,7 +78,7 @@ namespace Ark::internal
         using Iterator = std::vector<Value>::iterator;
         using ConstIterator = std::vector<Value>::const_iterator;
 
-        using Value_t  = std::variant<
+        using Value_t  = mpark::variant<
             double,             //  8 bytes
             String,             // 16 bytes
             PageAddr_t,         //  2 bytes
@@ -85,8 +87,8 @@ namespace Ark::internal
             UserType,           // 24 bytes
             std::vector<Value>, // 24 bytes
             Value*              //  8 bytes
-        >;                      // +8 bytes overhead
-        //                   total 32 bytes
+        >;                      // +??? bytes overhead
+        //                   total 24+??? bytes
 
         /**
          * @brief Construct a new Value object
@@ -282,6 +284,7 @@ namespace Ark::internal
         friend inline bool operator!(const Value& A) noexcept;
 
         friend class Ark::VM;
+        friend class Ark::internal::Frame;
 
     private:
         Value_t m_value;
