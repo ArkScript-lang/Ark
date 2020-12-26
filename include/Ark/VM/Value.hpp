@@ -65,6 +65,8 @@ namespace Ark::internal
         "Bool",  "Bool",    "Undefined", "Reference"
     };
 
+    class Frame;
+
 #if ARK_PROFILER_COUNT != 0
     extern unsigned value_creations, value_copies, value_moves;
 #endif
@@ -282,6 +284,7 @@ namespace Ark::internal
         friend inline bool operator!(const Value& A) noexcept;
 
         friend class Ark::VM;
+        friend class Ark::internal::Frame;
 
     private:
         Value_t m_value;

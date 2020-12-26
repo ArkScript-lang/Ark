@@ -43,6 +43,10 @@ else()
     message(STATUS "Coz Profiler is NOT enabled")
 endif()
 
+if (ARK_SCOPE_DICHOTOMY)
+    add_definitions(-DARK_SCOPE_DICHOTOMY)
+endif()
+
 # COMPILATION RELATED
 set(ARK_COMPILATION_OPTIONS ${CMAKE_CXX_FLAGS})
 set(ARK_COMPILER ${CMAKE_CXX_COMPILER_ID})
