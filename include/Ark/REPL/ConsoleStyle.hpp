@@ -92,7 +92,7 @@ namespace Ark
         { "toNumber", Replxx::Color::BRIGHTBLUE },
         { "toString", Replxx::Color::BRIGHTBLUE },
         { "and", Replxx::Color::BRIGHTBLUE },
-        { "or", Replxx::Color::BRIGHTBLUE },
+        { "or ", Replxx::Color::BRIGHTBLUE },
         { "mod", Replxx::Color::BRIGHTBLUE },
         { "type", Replxx::Color::BRIGHTBLUE },
         { "hasField", Replxx::Color::BRIGHTBLUE },
