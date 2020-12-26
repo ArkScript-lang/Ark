@@ -112,27 +112,27 @@ namespace Ark::internal
 
     std::vector<Value>& Value::list()
     {
-        return std::get<std::vector<Value>>(m_value);
+        return mpark::get<std::vector<Value>>(m_value);
     }
 
     Closure& Value::closure_ref()
     {
-        return std::get<Closure>(m_value);
+        return mpark::get<Closure>(m_value);
     }
 
     String& Value::string_ref()
     {
-        return std::get<String>(m_value);
+        return mpark::get<String>(m_value);
     }
 
     UserType& Value::usertype_ref()
     {
-        return std::get<UserType>(m_value);
+        return mpark::get<UserType>(m_value);
     }
 
     Value* Value::reference() const
     {
-        return std::get<Value*>(m_value);
+        return mpark::get<Value*>(m_value);
     }
 
     // --------------------------

@@ -13,7 +13,7 @@
 #define ark_vm_value
 
 #include <vector>
-#include <variant>
+#include <variant.hpp>
 #include <string>  // for conversions
 #include <cinttypes>
 #include <iostream>
@@ -76,7 +76,7 @@ namespace Ark::internal
         using Iterator = std::vector<Value>::iterator;
         using ConstIterator = std::vector<Value>::const_iterator;
 
-        using Value_t  = std::variant<
+        using Value_t  = mpark::variant<
             double,             //  8 bytes
             String,             // 16 bytes
             PageAddr_t,         //  2 bytes
@@ -85,8 +85,8 @@ namespace Ark::internal
             UserType,           // 24 bytes
             std::vector<Value>, // 24 bytes
             Value*              //  8 bytes
-        >;                      // +8 bytes overhead
-        //                   total 32 bytes
+        >;                      // +??? bytes overhead
+        //                   total 24+??? bytes
 
         /**
          * @brief Construct a new Value object
