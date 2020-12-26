@@ -1,7 +1,7 @@
 #include <Ark/VM/Scope.hpp>
 
 // NOTE if we disable the dichotomy with the references enabled, then the unittests fail
-#define ARK_SCOPE_DICHOTOMY
+// #define ARK_SCOPE_DICHOTOMY
 
 #ifdef ARK_SCOPE_DICHOTOMY
     #include <algorithm>

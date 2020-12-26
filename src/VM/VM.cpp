@@ -445,7 +445,13 @@ namespace Ark
 
                         Value val = *popAndResolveAsPtr();
                         val.setConst(false);
-                        registerVariable(id, val);
+
+                        // avoid adding the pair (id, _) multiple times, with different values
+                        Value* local = (*m_locals.back())[id];
+                        if (local == nullptr)
+                            registerVariable(id, val);
+                        else
+                            *local = val;
 
                         COZ_PROGRESS_NAMED("ark vm mut");
                         break;
