@@ -41,25 +41,3 @@ inline uint16_t Frame::callerPageAddr() const noexcept
 {
     return m_page_addr;
 }
-
-inline uint16_t Frame::currentPageAddr() const noexcept
-{
-    return m_new_pp;
-}
-
-// related to scope deletion
-
-inline void Frame::incScopeCountToDelete() noexcept
-{
-    m_scope_to_delete++;
-}
-
-inline void Frame::resetScopeCountToDelete() noexcept
-{
-    m_scope_to_delete = 0;
-}
-
-inline uint8_t Frame::scopeCountToDelete() const noexcept
-{
-    return m_scope_to_delete;
-}

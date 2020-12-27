@@ -4,6 +4,7 @@
 
 #define createNewScope() m_locals.emplace_back(std::make_shared<internal::Scope>());
 #define resolveRef(valptr) (((valptr)->valueType() == ValueType::Reference) ? *((valptr)->reference()) : *(valptr))
+#define createNewFrame(ip, pp) m_frames.emplace_back(ip, pp); m_scope_count_to_delete.emplace_back(0)
 
 // profiler
 #include <Ark/Profiling.hpp>
@@ -94,7 +95,8 @@ inline void VM::returnFromFuncCall()
 
     // remove frame
     m_frames.pop_back();
-    uint8_t del_counter = m_frames.back().scopeCountToDelete();
+    m_scope_count_to_delete.pop_back();
+    uint8_t del_counter = m_scope_count_to_delete.back();
 
     // PERF high cpu cost because destroying variants cost
     m_locals.pop_back();
@@ -105,7 +107,7 @@ inline void VM::returnFromFuncCall()
         del_counter--;
     }
 
-    m_frames.back().resetScopeCountToDelete();
+    m_scope_count_to_delete.back() = 0;
 
     // stop the executing if we reach the wanted frame count
     if (m_frames.size() == m_until_frame_count)
@@ -164,7 +166,7 @@ inline void VM::call(int16_t argc_)
 
             // create dedicated frame
             createNewScope();
-            m_frames.emplace_back(m_ip, static_cast<uint16_t>(m_pp), new_page_pointer);
+            createNewFrame(m_ip, static_cast<uint16_t>(m_pp));
             // store "reference" to the function to speed the recursive functions
             if (m_last_sym_loaded < m_state->m_symbols.size())
                 m_locals.back()->push_back(m_last_sym_loaded, function);
@@ -187,8 +189,8 @@ inline void VM::call(int16_t argc_)
             m_locals.push_back(c.scope());
             // create dedicated frame
             createNewScope();
-            m_frames.back().incScopeCountToDelete();
-            m_frames.emplace_back(m_ip, static_cast<uint16_t>(m_pp), new_page_pointer);
+            ++m_scope_count_to_delete.back();
+            createNewFrame(m_ip, static_cast<uint16_t>(m_pp));
 
             m_pp = new_page_pointer;
             m_ip = -1;  // because we are doing a m_ip++ right after that

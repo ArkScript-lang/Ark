@@ -46,12 +46,15 @@ namespace Ark
             m_frames.emplace_back();
 
             m_shared_lib_objects.clear();
+            m_scope_count_to_delete.clear();
+            m_scope_count_to_delete.emplace_back(0);
         }
         else if (m_frames.size() == 0)
         {
             // if persistance is set but no frames are present, add one
             // it usually happens on the first run
             m_frames.emplace_back();
+            m_scope_count_to_delete.emplace_back(0);
         }
 
         m_saved_scope.reset();
@@ -513,7 +516,7 @@ namespace Ark
                             if (m_ip + 1 < m_state->m_pages[m_pp].size() && m_state->m_pages[m_pp][m_ip + 1] == Instruction::CALL)
                             {
                                 m_locals.push_back(var->closure_ref().scope());
-                                m_frames.back().incScopeCountToDelete();
+                                ++m_scope_count_to_delete.back();
                             }
 
                             push(*field);
@@ -1002,20 +1005,24 @@ namespace Ark
 
         if (m_frames.size() > 1)
         {
+            uint16_t curr_pp = m_pp;
+
             // display call stack trace
             for (auto&& it=m_frames.rbegin(), it_end=m_frames.rend(); it != it_end; ++it)
             {
                 std::cerr << "[" << termcolor::cyan << std::distance(it, m_frames.rend()) << termcolor::reset << "] ";
-                if (it->currentPageAddr() != 0)
+                if (curr_pp != 0)
                 {
                     uint16_t id = findNearestVariableIdWithValue(
-                        Value(static_cast<PageAddr_t>(it->currentPageAddr()))
+                        Value(static_cast<PageAddr_t>(curr_pp))
                     );
 
                     if (id < m_state->m_symbols.size())
                         std::cerr << "In function `" << termcolor::green << m_state->m_symbols[id] << termcolor::reset << "'\n";
                     else  // should never happen
                         std::cerr << "In function `" << termcolor::green << "???" << termcolor::reset << "'\n";
+
+                    curr_pp = it->callerPageAddr();
                 }
                 else
                     std::printf("In global scope\n");
