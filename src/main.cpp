@@ -104,20 +104,43 @@ int main(int argc, char** argv)
                 break;
 
             case mode::dev_info:
-                std::printf("Have been compiled with %s, options: %s\n\n", ARK_COMPILER, ARK_COMPILATION_OPTIONS);
-                std::printf("sizeof(Ark::Value)    = %zuB\n", sizeof(Ark::internal::Value));
-                std::printf("      sizeof(Value_t) = %zuB\n", sizeof(Ark::internal::Value::Value_t));
-                std::printf("      sizeof(ValueType) = %zuB\n", sizeof(Ark::internal::ValueType));
-                std::printf("      sizeof(ProcType)  = %zuB\n", sizeof(Ark::internal::Value::ProcType));
-                std::printf("sizeof(Ark::Frame)    = %zuB\n", sizeof(Ark::internal::Frame));
-                std::printf("sizeof(Ark::State)    = %zuB\n", sizeof(Ark::State));
-                std::printf("sizeof(Ark::Closure)  = %zuB\n", sizeof(Ark::internal::Closure));
-                std::printf("sizeof(Ark::UserType) = %zuB\n", sizeof(Ark::UserType));
-                std::printf("sizeof(Ark::VM)       = %zuB\n", sizeof(Ark::VM));
-                std::printf("sizeof(vector<Ark::Value>) = %zuB\n", sizeof(std::vector<Ark::internal::Value>));
-                std::printf("sizeof(std::string)   = %zuB\n", sizeof(std::string));
-                std::printf("sizeof(String)        = %zuB\n", sizeof(String));
-                std::printf("sizeof(char)          = %zuB\n", sizeof(char));
+                std::printf(
+                    "Have been compiled with %s, options: %s\n\n"
+                    "sizeof(Ark::Value)    = %zuB\n"
+                    "      sizeof(Value_t) = %zuB\n"
+                    "      sizeof(ValueType) = %zuB\n"
+                    "      sizeof(ProcType)  = %zuB\n"
+                    "      sizeof(Ark::Closure)  = %zuB\n"
+                    "      sizeof(Ark::UserType) = %zuB\n"
+                    "\nVirtual Machine\n"
+                    "sizeof(Ark::VM)       = %zuB\n"
+                    "      sizeof(Ark::Frame)    = %zuB\n"
+                    "      sizeof(Ark::State)    = %zuB\n"
+                    "      sizeof(Ark::Scope)    = %zuB\n"
+                    "\nMisc\n"
+                    "    sizeof(vector<Ark::Value>) = %zuB\n"
+                    "    sizeof(std::string)   = %zuB\n"
+                    "    sizeof(String)        = %zuB\n"
+                    "    sizeof(char)          = %zuB\n"
+                    , ARK_COMPILER, ARK_COMPILATION_OPTIONS,
+                    // value
+                    sizeof(Ark::internal::Value),
+                        sizeof(Ark::internal::Value::Value_t),
+                        sizeof(Ark::internal::ValueType),
+                        sizeof(Ark::internal::Value::ProcType),
+                        sizeof(Ark::internal::Closure),
+                        sizeof(Ark::UserType),
+                    // vm
+                    sizeof(Ark::VM),
+                        sizeof(Ark::internal::Frame),
+                        sizeof(Ark::State),
+                        sizeof(Ark::internal::Scope),
+                    // misc
+                        sizeof(std::vector<Ark::internal::Value>),
+                        sizeof(std::string),
+                        sizeof(String),
+                        sizeof(char)
+                );
                 break;
 
             case mode::repl:

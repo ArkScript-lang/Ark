@@ -287,8 +287,8 @@ namespace Ark::internal
         friend class Ark::internal::Frame;
 
     private:
-        Value_t m_value;
         uint8_t m_constType;  ///< First bit if for constness, right most bits are for type
+        Value_t m_value;
 
         // private getters only for the virtual machine
 
