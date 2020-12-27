@@ -84,7 +84,7 @@ namespace Ark::internal
         friend inline bool operator==(const Closure& A, const Closure& B) noexcept;
         friend inline bool operator<(const Closure& A, const Closure& B) noexcept;
         friend std::ostream& operator<<(std::ostream& os, const Closure& C) noexcept;
-    
+
     private:
         Scope_t m_scope;
         // keep track of the code page number, in case we need it later
