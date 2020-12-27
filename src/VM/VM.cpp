@@ -44,13 +44,17 @@ namespace Ark
         {
             m_frames.clear();
             m_frames.emplace_back();
+
             m_shared_lib_objects.clear();
+            m_scope_count_to_delete.clear();
+            m_scope_count_to_delete.emplace_back(0);
         }
         else if (m_frames.size() == 0)
         {
             // if persistance is set but no frames are present, add one
             // it usually happens on the first run
             m_frames.emplace_back();
+            m_scope_count_to_delete.emplace_back(0);
         }
 
         m_saved_scope.reset();
@@ -512,7 +516,7 @@ namespace Ark
                             if (m_ip + 1 < m_state->m_pages[m_pp].size() && m_state->m_pages[m_pp][m_ip + 1] == Instruction::CALL)
                             {
                                 m_locals.push_back(var->closure_ref().scope());
-                                m_frames.back().incScopeCountToDelete();
+                                ++m_scope_count_to_delete.back();
                             }
 
                             push(*field);
@@ -964,11 +968,11 @@ namespace Ark
                 ++m_ip;
             }
         } catch (const std::exception& e) {
-            std::cerr << e.what() << "\n";
+            std::printf("%s\n", e.what());
             backtrace();
             return 1;
         } catch (...) {
-            std::cerr << "Unknown error" << std::endl;
+            std::printf("Unknown error\n");
             backtrace();
             return 1;
         }
@@ -1001,33 +1005,37 @@ namespace Ark
 
         if (m_frames.size() > 1)
         {
+            uint16_t curr_pp = m_pp;
+
             // display call stack trace
             for (auto&& it=m_frames.rbegin(), it_end=m_frames.rend(); it != it_end; ++it)
             {
                 std::cerr << "[" << termcolor::cyan << std::distance(it, m_frames.rend()) << termcolor::reset << "] ";
-                if (it->currentPageAddr() != 0)
+                if (curr_pp != 0)
                 {
                     uint16_t id = findNearestVariableIdWithValue(
-                        Value(static_cast<PageAddr_t>(it->currentPageAddr()))
+                        Value(static_cast<PageAddr_t>(curr_pp))
                     );
 
                     if (id < m_state->m_symbols.size())
                         std::cerr << "In function `" << termcolor::green << m_state->m_symbols[id] << termcolor::reset << "'\n";
                     else  // should never happen
                         std::cerr << "In function `" << termcolor::green << "???" << termcolor::reset << "'\n";
+
+                    curr_pp = it->callerPageAddr();
                 }
                 else
-                    std::cerr << "In global scope\n";
+                    std::printf("In global scope\n");
 
                 if (std::distance(m_frames.rbegin(), it) > 7)
                 {
-                    std::cerr << "...\n";
+                    std::printf("...\n");
                     break;
                 }
             }
 
             // display variables values in the current scope
-            std::cerr << "\nCurrent scope variables values:\n";
+            std::printf("\nCurrent scope variables values:\n");
             for (std::size_t i=0, size=m_locals.back()->size(); i < size; ++i)
                 std::cerr << termcolor::cyan << m_state->m_symbols[m_locals.back()->m_data[i].first] << termcolor::reset
                           << " = " << m_locals.back()->m_data[i].second << "\n";
