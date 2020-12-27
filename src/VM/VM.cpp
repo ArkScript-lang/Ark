@@ -44,6 +44,7 @@ namespace Ark
         {
             m_frames.clear();
             m_frames.emplace_back();
+
             m_shared_lib_objects.clear();
         }
         else if (m_frames.size() == 0)
@@ -964,11 +965,11 @@ namespace Ark
                 ++m_ip;
             }
         } catch (const std::exception& e) {
-            std::cerr << e.what() << "\n";
+            std::printf("%s\n", e.what());
             backtrace();
             return 1;
         } catch (...) {
-            std::cerr << "Unknown error" << std::endl;
+            std::printf("Unknown error\n");
             backtrace();
             return 1;
         }
@@ -1017,17 +1018,17 @@ namespace Ark
                         std::cerr << "In function `" << termcolor::green << "???" << termcolor::reset << "'\n";
                 }
                 else
-                    std::cerr << "In global scope\n";
+                    std::printf("In global scope\n");
 
                 if (std::distance(m_frames.rbegin(), it) > 7)
                 {
-                    std::cerr << "...\n";
+                    std::printf("...\n");
                     break;
                 }
             }
 
             // display variables values in the current scope
-            std::cerr << "\nCurrent scope variables values:\n";
+            std::printf("\nCurrent scope variables values:\n");
             for (std::size_t i=0, size=m_locals.back()->size(); i < size; ++i)
                 std::cerr << termcolor::cyan << m_state->m_symbols[m_locals.back()->m_data[i].first] << termcolor::reset
                           << " = " << m_locals.back()->m_data[i].second << "\n";
