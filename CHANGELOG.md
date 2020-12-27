@@ -2,6 +2,13 @@
 
 ## Unreleased changes
 ### Added
+
+### Changed
+
+### Removed
+
+## 3.0.15
+### Added
 - new submodule, plasma-umass/coz (a profiler)
 - macros for profiling, enabled only if `ARK_PROFILE` is defined
 - cmake flags using -D to turn on/off sys:exec and the coz profiler
@@ -20,8 +27,8 @@
 - replaced the thirdparty/ folder with a git submodule in thirdparties/
 - now checking that a scope doesn't have our symbol before doing a `mut` operation (in dichotomic mode it was automatically handled, but not in linear mode)
 - enhancing the cmake defines (`-DARK_XYZ`) and the code using them
-
-### Removed
+- lighter Frame (from 40B to 32B), moved some unrelated logic from the frame to the virtual machine
+- `(sys:exec)` now returns the stdout output of the given command
 
 ## 3.0.14
 ### Added
