@@ -33,7 +33,7 @@ namespace Ark::internal::Builtins::IO
         {
             if (n[0].valueType() != ValueType::String)
                 throw Ark::TypeError(IO_INPUT_TE);
-            std::printf(n[0].string().c_str());
+            std::printf("%s", n[0].string().c_str());
         }
 
         std::string line = "";
