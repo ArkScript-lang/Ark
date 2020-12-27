@@ -15,7 +15,7 @@ void bcr(const std::string& file)
         bcr.feed(file);
         bcr.display();
     } catch (const std::exception& e) {
-        std::printf(e.what());
+        std::printf("%s\n", e.what());
     }
 }
 
