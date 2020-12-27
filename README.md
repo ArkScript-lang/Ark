@@ -201,7 +201,7 @@ LICENSE
 
 ## Performances
 
-See [https://github.com/ArkScript-lang/benchmarks](ArkScript-lang/benchmarks)
+See https://github.com/ArkScript-lang/benchmarks
 
 ## Games
 
