@@ -128,6 +128,7 @@ namespace Ark
 
         // related to the execution
         std::vector<internal::Frame> m_frames;
+        std::vector<uint8_t> m_scope_count_to_delete;
         std::optional<internal::Scope_t> m_saved_scope;
         std::vector<internal::Scope_t> m_locals;
         std::vector<std::shared_ptr<internal::SharedLibrary>> m_shared_lib_objects;
@@ -153,6 +154,14 @@ namespace Ark
         void init() noexcept;
 
         // locals related
+
+        /**
+         * @brief Pop a value from the stack and resolve it if possible, then return it
+         * 
+         * @param frame frame to pop from
+         * @return internal::Value* 
+         */
+        inline internal::Value* popAndResolveAsPtr(int frame=-1);
 
         /**
          * @brief Find the nearest variable of a given id

@@ -17,7 +17,8 @@ inline void Frame::push(const Value& value) noexcept
 
 inline void Frame::push(Value&& value) noexcept
 {
-    m_stack[m_i] = std::move(value);
+    m_stack[m_i].m_value = std::move(value.m_value);
+    m_stack[m_i].m_constType = std::move(value.m_constType);
     m_i++;
 
     if (m_i == m_stack.size())
@@ -39,26 +40,4 @@ inline uint16_t Frame::callerAddr() const noexcept
 inline uint16_t Frame::callerPageAddr() const noexcept
 {
     return m_page_addr;
-}
-
-inline uint16_t Frame::currentPageAddr() const noexcept
-{
-    return m_new_pp;
-}
-
-// related to scope deletion
-
-inline void Frame::incScopeCountToDelete() noexcept
-{
-    m_scope_to_delete++;
-}
-
-inline void Frame::resetScopeCountToDelete() noexcept
-{
-    m_scope_to_delete = 0;
-}
-
-inline uint8_t Frame::scopeCountToDelete() const noexcept
-{
-    return m_scope_to_delete;
 }

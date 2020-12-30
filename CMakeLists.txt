@@ -34,7 +34,7 @@ set(REPLXX_INCLUDE_DIR "${ark_SOURCE_DIR}/submodules/replxx/include")
 # VERSION
 set(ARK_VERSION_MAJOR  3)
 set(ARK_VERSION_MINOR  0)
-set(ARK_VERSION_PATCH 14)
+set(ARK_VERSION_PATCH 15)
 
 message(STATUS "ArkScript version ${ARK_VERSION_MAJOR}.${ARK_VERSION_MINOR}.${ARK_VERSION_PATCH}")
 if (ARK_PROFILER)
@@ -45,11 +45,25 @@ endif()
 
 # COMPILATION RELATED
 set(ARK_COMPILATION_OPTIONS ${CMAKE_CXX_FLAGS})
-set(ARK_COMPILER ${CMAKE_CXX_COMPILER_ID})
-set(ARK_ENABLE_SYSTEM 1 CACHE STRING "Enable sys:exec")  # enable use of (system "command here")
-set(ARK_PROFILER 0 CACHE STRING "Enable coz profiler")
+set(ARK_COMPILER            ${CMAKE_CXX_COMPILER_ID})
 
-message(STATUS ${ARK_PROFILER})
+set(ARK_ENABLE_SYSTEM   On  CACHE BOOL "Enable sys:exec")  # enable use of (system "command here")
+set(ARK_PROFILER        Off CACHE BOOL "Enable coz profiler")
+set(ARK_PROFILER_COUNT  Off CACHE BOOL "Enable creations/copies/moves counting on the Value")
+set(ARK_SCOPE_DICHOTOMY Off CACHE BOOL "Change the behaviour of the scopes from linear (off) to dichotomic (On)")
+
+if (ARK_SCOPE_DICHOTOMY)
+    add_definitions(-DARK_SCOPE_DICHOTOMY)
+endif()
+if (ARK_PROFILER_COUNT)
+    add_definitions(-DARK_PROFILER_COUNT)
+endif()
+if (ARK_PROFILER)
+    add_definitions(-DARK_PROFILER)
+endif()
+if (ARK_ENABLE_SYSTEM)
+    add_definitions(-DARK_ENABLE_SYSTEM)
+endif()
 
 configure_file(
     ${ark_SOURCE_DIR}/include/Ark/Constants.hpp.in
@@ -63,7 +77,7 @@ file(GLOB_RECURSE SOURCE_FILES
     ${ark_SOURCE_DIR}/src/Parser/*.cpp
     ${ark_SOURCE_DIR}/src/VM/*.cpp
 
-    ${ark_SOURCE_DIR}/thirdparty/*.cpp
+    ${ark_SOURCE_DIR}/thirdparties/*.cpp
 )
 list(APPEND SOURCE_FILES
     ${ark_SOURCE_DIR}/src/Ark.cpp
@@ -82,7 +96,7 @@ add_library(ArkReactor
 target_include_directories(ArkReactor
     PUBLIC
         ${ark_SOURCE_DIR}/include
-        ${ark_SOURCE_DIR}/thirdparty
+        ${ark_SOURCE_DIR}/thirdparties
         ${STRING_INCLUDES}
 )
 
@@ -136,7 +150,7 @@ if (ARK_BUILD_EXE)
     add_executable(ark ${EXE_SOURCES})
     target_include_directories(ark PUBLIC
         ${ark_SOURCE_DIR}/include
-        ${ark_SOURCE_DIR}/thirdparty
+        ${ark_SOURCE_DIR}/thirdparties
     )
     target_link_libraries(ark PUBLIC ArkReactor replxx)
 

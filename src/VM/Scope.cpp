@@ -1,9 +1,7 @@
 #include <Ark/VM/Scope.hpp>
 
-#define ARK_SCOPE_DICHOTOMY
-
 #ifdef ARK_SCOPE_DICHOTOMY
-#include <algorithm>
+    #include <algorithm>
 #endif
 
 #define push_pair(id, val) m_data.emplace_back(std::pair<uint16_t, Value>(id, val))
@@ -14,7 +12,8 @@ namespace Ark::internal
     Scope::Scope() noexcept
     {
     #ifndef ARK_SCOPE_DICHOTOMY
-        m_data.reserve(3);
+        // PERF costs a lot
+        m_data.reserve(2);
     #endif
     }
 
@@ -42,6 +41,7 @@ namespace Ark::internal
                 break;
         }
     #else
+        // PERF faster on ackermann, compared to the dichotomic version
         push_pair(std::move(id), std::move(val));
     #endif
     }

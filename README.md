@@ -146,16 +146,16 @@ For performance reasons, some functions might be written in C++, in `include/Ark
     * Install a newer compiler using [Homebrew](https://docs.brew.sh/): `brew install gcc && brew link gcc`
     * Pass compiler path to `cmake` in the build step: `-DCMAKE_CXX_COMPILER=/usr/local/bin/g++-9`
 
-Libs already included:
-* [CLIPP](https://github.com/muellan/clipp), MIT licence
-* [termcolor](https://github.com/ikalnytskyi/termcolor), BSD (3-clause) licence
+Some libs already included un [thirdparties](https://github.com/ArkScript-lang/thirdparties).
 
 ## Building
 
 Different CMake switches are available to customize the build:
-* `-DARK_BUILD_EXE` to generate an executable, defaults to Off, building a shared library
+* `-DARK_BUILD_EXE` to generate an executable, defaults to Off, building a shared library only
 * `-DARK_ENABLE_SYSTEM` to enable `sys:exec` (execute shell commands without restrictions), defaults to On
 * `-DARK_PROFILER` to enable the [coz](https://github.com/plasma-umass/coz) profiler, defaults to Off
+* `-DARK_PROFILER_COUNT` to count every creation/copy/move of the internal value type, defaults to Off
+* `-DARK_SCOPE_DICHOTOMY` to activate the dichotomic mode of the scope, defaults to Off
 
 ```bash
 # first, clone it
@@ -199,7 +199,7 @@ LICENSE
 
 ## Performances
 
-See [https://github.com/ArkScript-lang/benchmarks](ArkScript-lang/benchmarks)
+See https://github.com/ArkScript-lang/benchmarks
 
 ## Games
 
