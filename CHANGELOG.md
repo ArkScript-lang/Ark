@@ -4,6 +4,7 @@
 ### Added
 
 ### Changed
+- updating doxyfile and some docstrings
 
 ### Removed
 
