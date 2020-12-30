@@ -4,9 +4,9 @@
  * @brief Colors per token used by replxx
  * @version 0.1
  * @date 2020-10-27
- * 
+ *
  * @copyright Copyright (c) 2020
- * 
+ *
  */
 
 #ifndef CONSOLESTYLE_HPP
@@ -49,7 +49,7 @@ namespace Ark
         "str:format", "str:find", "str:removeAt",
             // Mathematics
         "math:exp", "math:ln", "math:ceil", "math:floor",
-        "math:round", "math:NaN?", "Inf?", "math:cos", 
+        "math:round", "math:NaN?", "Inf?", "math:cos",
         "math:sin", "math:tan", "math:arccos", "math:arcsin",
         "math:arctan",
         /* Commands */
@@ -58,15 +58,15 @@ namespace Ark
 
     const std::vector<std::pair<std::string, Replxx::Color>> ColorsRegexDict {
         /* Keywords */
-        { "if", Replxx::Color::BRIGHTRED }, 
-        { "let", Replxx::Color::BRIGHTRED }, 
-        { "mut", Replxx::Color::BRIGHTRED }, 
-        { "set", Replxx::Color::BRIGHTRED }, 
-        { "fun", Replxx::Color::BRIGHTRED }, 
-        { "while", Replxx::Color::BRIGHTRED }, 
-        { "begin", Replxx::Color::BRIGHTRED }, 
-        { "import", Replxx::Color::BRIGHTRED }, 
-        { "quote", Replxx::Color::BRIGHTRED }, 
+        { "if", Replxx::Color::BRIGHTRED },
+        { "let", Replxx::Color::BRIGHTRED },
+        { "mut", Replxx::Color::BRIGHTRED },
+        { "set", Replxx::Color::BRIGHTRED },
+        { "fun", Replxx::Color::BRIGHTRED },
+        { "while", Replxx::Color::BRIGHTRED },
+        { "begin", Replxx::Color::BRIGHTRED },
+        { "import", Replxx::Color::BRIGHTRED },
+        { "quote", Replxx::Color::BRIGHTRED },
         { "del", Replxx::Color::BRIGHTRED },
         /* Single chars or Operators */
         // Single chars (sometine operators)
@@ -147,7 +147,7 @@ namespace Ark
         { "math:round", Replxx::Color::BRIGHTCYAN },
         { "math:NaN?", Replxx::Color::BRIGHTCYAN },
         { "math:Inf?", Replxx::Color::BRIGHTCYAN },
-        { "math:cos", Replxx::Color::BRIGHTCYAN }, 
+        { "math:cos", Replxx::Color::BRIGHTCYAN },
         { "math:sin", Replxx::Color::BRIGHTCYAN },
         { "math:tan", Replxx::Color::BRIGHTCYAN },
         { "math:arccos", Replxx::Color::BRIGHTCYAN },
