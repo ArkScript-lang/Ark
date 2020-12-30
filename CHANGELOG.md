@@ -2,9 +2,19 @@
 
 ## Unreleased changes
 ### Added
+
+### Changed
+
+### Removed
+
+## 3.0.15
+### Added
 - new submodule, plasma-umass/coz (a profiler)
 - macros for profiling, enabled only if `ARK_PROFILE` is defined
 - cmake flags using -D to turn on/off sys:exec and the coz profiler
+- mpark variant is now the default used instead of the default STL variant (faster, better, stronger, and its creator is quite a god)
+- new cmake flag, -DARK_SCOPE_DICHOTOMY=On|Off (default Off)
+- using internal only references to constants and symbols to reduce the number of useless copies of the value type
 
 ### Changed
 - updated standard library
@@ -14,8 +24,11 @@
 - fixes issue #203 (imports are ill-formed when given an absolute path)
 - fixes issue #205 (search for the standard library folder in more common places)
 - transitioning from C++ streams to printf
-
-### Removed
+- replaced the thirdparty/ folder with a git submodule in thirdparties/
+- now checking that a scope doesn't have our symbol before doing a `mut` operation (in dichotomic mode it was automatically handled, but not in linear mode)
+- enhancing the cmake defines (`-DARK_XYZ`) and the code using them
+- lighter Frame (from 40B to 32B), moved some unrelated logic from the frame to the virtual machine
+- `(sys:exec)` now returns the stdout output of the given command
 
 ## 3.0.14
 ### Added

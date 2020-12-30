@@ -49,9 +49,8 @@ namespace Ark::internal
          * 
          * @param caller_addr the address of the caller, to return to it afterward
          * @param caller_page_addr the page address of the caller
-         * @param new_pp the new page address where we're going
          */
-        Frame(uint16_t caller_addr, uint16_t caller_page_addr, uint16_t new_pp) noexcept;
+        Frame(uint16_t caller_addr, uint16_t caller_page_addr) noexcept;
 
         // stack related
 
@@ -99,50 +98,12 @@ namespace Ark::internal
          */
         inline uint16_t callerPageAddr() const noexcept;
 
-        /**
-         * @brief Get the current page address
-         * 
-         * @return uint16_t 
-         */
-        inline uint16_t currentPageAddr() const noexcept;
-
-        // related to scope deletion
-
-        /**
-         * @brief Increment the number of scopes linked to this frame
-         * 
-         * Needed for the primitive garbage collecting system.
-         * 
-         */
-        inline void incScopeCountToDelete() noexcept;
-
-        /**
-         * @brief Reset the number of scopes linked to this frame
-         * 
-         * Needed for the primitive garbage collecting system.
-         * 
-         */
-        inline void resetScopeCountToDelete() noexcept;
-
-        /**
-         * @brief Get the number of scopes linked to this frame
-         * 
-         * Needed for the primitive garbage collecting system.
-         * 
-         * @return uint8_t 
-         */
-        inline uint8_t scopeCountToDelete() const noexcept;
-
-        friend std::ostream& operator<<(std::ostream& os, const Frame& F) noexcept;
-
     private:
-        //              IP,          PP    EXC_PP
-        uint16_t m_addr, m_page_addr, m_new_pp;
-
-        std::vector<Value> m_stack;
+        uint16_t m_addr;        ///< Instruction pointer
+        uint16_t m_page_addr;   ///< Page pointer
         int16_t m_i;
 
-        uint8_t m_scope_to_delete;
+        std::vector<Value> m_stack;
     };
 
     #include "inline/Frame.inl"
