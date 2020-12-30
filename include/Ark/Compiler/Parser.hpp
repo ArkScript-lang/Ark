@@ -130,7 +130,7 @@ namespace Ark
         /**
          * @brief Seek a file in the lib folder and everywhere
          * 
-         * @param path 
+         * @param file 
          * @return std::string 
          */
         std::string seekFile(const std::string& file);
