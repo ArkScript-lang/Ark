@@ -4,9 +4,9 @@
  * @brief ArkScript REPL - Read Eval Print Loop
  * @version 0.1
  * @date 2020-10-27
- * 
+ *
  * @copyright Copyright (c) 2020
- * 
+ *
  */
 
 #ifndef ark_repl
@@ -27,7 +27,7 @@ namespace Ark
     public:
         /**
          * @brief Construct a new Repl object
-         * 
+         *
          * @param options the REPL options
          * @param lib_dir the path to the standard library
          */
@@ -35,9 +35,9 @@ namespace Ark
 
         /**
          * @brief Start the REPL
-         * 
+         *
          */
-        void run();
+        int run();
 
     private:
         std::string m_lib_dir;
@@ -50,7 +50,7 @@ namespace Ark
         int count_open_parentheses(const std::string& line);
         int count_open_braces(const std::string& line);
         void trim_whitespace(std::string& line);
-        void cgui_setup();
+        void cui_setup();
     };
 }
 
