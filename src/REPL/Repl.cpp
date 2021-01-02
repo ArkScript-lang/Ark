@@ -12,7 +12,7 @@ namespace Ark
         m_options(options), m_lib_dir(lib_dir), m_lines(1), m_old_ip(0)
     {}
 
-    void Repl::run()
+    int Repl::run()
     {
         Ark::State state(m_options, m_lib_dir);
         Ark::VM vm(&state);
@@ -21,7 +21,7 @@ namespace Ark
         bool init = false;
 
         print_repl_header();
-        cgui_setup();
+        cui_setup();
 
         while (true)
         {
@@ -35,14 +35,15 @@ namespace Ark
                 std::string str_lines = "000";
                 if (std::to_string(m_lines).size() < 3)
                 {
-                    std::size_t size = std::to_string(m_lines).size(); 
+                    std::size_t size = std::to_string(m_lines).size();
                     str_lines.replace((str_lines.size() - size), size, std::to_string(m_lines));
                 }
                 else
                     str_lines = std::to_string(m_lines);
 
-                std::string infos = "main:" + str_lines + "> ";
-                std::string line = m_repl.input(infos);
+                std::string prompt = "main:" + str_lines + "> ";
+                char const* buf = m_repl.input(prompt);
+                std::string line = (buf != nullptr) ? std::string(buf) : "";
 
                 // line history
                 m_repl.history_add(line);
@@ -50,9 +51,10 @@ namespace Ark
 
                 // specific commands handling
                 if (line == "(quit)")
-                    return;
+                    return 1;
 
-                tmp_code << line << "\n";
+                if(!line.empty())
+                    tmp_code << line << "\n";
                 open_parentheses += count_open_parentheses(line);
                 open_braces += count_open_braces(line);
 
@@ -64,33 +66,37 @@ namespace Ark
 
             // save a valid ip if execution failed
             m_old_ip = vm.m_ip;
-            if (state.doString(tmp_code.str()))
+            if(!tmp_code.str().empty())
             {
-                // for only one vm init
-                if (init == false)
+                if (state.doString(tmp_code.str()))
                 {
-                    vm.init();
-                    init = true;
-                }
+                    // for only one vm init
+                    if (init == false)
+                    {
+                        vm.init();
+                        init = true;
+                    }
+                   if (vm.safeRun() == 0)
+                    {
+                        // save good code
+                        code = tmp_code.str();
+                        // place ip to end of bytecode intruction (HALT)
+                        -- vm.m_ip;
+                    }
+                    else
+                    {
+                        // reset ip if execution failed
+                        vm.m_ip = m_old_ip;
+                    }
 
-                if (vm.safeRun() == 0)
-                {
-                    // save good code 
-                    code = tmp_code.str();
-                    // place ip to end of bytecode intruction (HALT)
-                    -- vm.m_ip;
+                    state.reset();
                 }
                 else
-                {
-                    // reset ip if execution failed
-                    vm.m_ip = m_old_ip;
-                }
-
-                state.reset();
+                    std::printf("Ark::State::doString failed");
             }
-            else
-                std::printf("Ark::State::doString failed");
         }
+
+        return 0;
     }
 
     inline void Repl::print_repl_header()
@@ -146,7 +152,7 @@ namespace Ark
         }
     }
 
-    void Repl::cgui_setup()
+    void Repl::cui_setup()
     {
         using namespace std::placeholders;
 
