@@ -26,8 +26,7 @@ namespace Ark::internal::Builtins::String
             }
             else if (it->valueType() == ValueType::Number)
             {
-                // TODO handle doubles
-                long obj = it->number();
+                double obj = it->number();
                 f.format(f.size() + Utils::dig_places(obj) + Utils::dec_places(obj), obj);
             }
             else if (it->valueType() == ValueType::Nil)
