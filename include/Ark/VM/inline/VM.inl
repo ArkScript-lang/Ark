@@ -204,11 +204,18 @@ inline void VM::call(int16_t argc_)
             // move values first, from position x to y, with
             //    y = argc - x + 1
             // then place pp and ip
-            uint16_t first = m_sp - argc;
-            for (std::size_t x=0; x < argc; ++x)
-                m_stack[argc - x + 1 + first] = m_stack[first + x].valueType() == ValueType::Reference ?
-                                                 *m_stack[first + x].reference() 
-                                                : m_stack[first + x];
+            int16_t first = m_sp - argc;
+            for (int16_t x=argc - 1; x >= 0; --x)
+            {
+                // be careful
+                if (x >= 2)
+                    std::swap(m_stack[argc - x + 1 + first], m_stack[first + x]);
+                else
+                    m_stack[argc - x + 1 + first] = m_stack[first + x];
+
+                if (m_stack[first + x].valueType() == ValueType::Reference)
+                    m_stack[first + x] = *m_stack[first + x].reference();
+            }
             // create scope, put pp and ip
             m_stack[first + 0] = Value(static_cast<PageAddr_t>(m_pp));
             m_stack[first + 1] = Value(ValueType::InstPtr, static_cast<PageAddr_t>(m_ip));
@@ -246,11 +253,18 @@ inline void VM::call(int16_t argc_)
             // move values first, from position x to y, with
             //    y = argc - x + 1
             // then place pp and ip
-            uint16_t first = m_sp - argc;
-            for (std::size_t x=0; x < argc; ++x)
-                m_stack[argc - x + 1 + first] = m_stack[first + x].valueType() == ValueType::Reference ?
-                                                 *m_stack[first + x].reference() 
-                                                : m_stack[first + x];
+            int16_t first = m_sp - argc;
+            for (int16_t x=argc - 1; x >= 0; --x)
+            {
+                // be careful
+                if (x >= 2)
+                    std::swap(m_stack[argc - x + 1 + first], m_stack[first + x]);
+                else
+                    m_stack[argc - x + 1 + first] = m_stack[first + x];
+
+                if (m_stack[first + x].valueType() == ValueType::Reference)
+                    m_stack[first + x] = *m_stack[first + x].reference();
+            }
             // create scope, put pp and ip
             m_stack[first + 0] = Value(static_cast<PageAddr_t>(m_pp));
             m_stack[first + 1] = Value(ValueType::InstPtr, static_cast<PageAddr_t>(m_ip));

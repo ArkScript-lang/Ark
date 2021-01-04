@@ -618,6 +618,10 @@ namespace Ark
                     {
                         Value *b = popAndResolveAsPtr(), *a = popAndResolveAsPtr();
 
+                        std::cout << "types: " << types_to_str[static_cast<int>(a->valueType())] << ", "
+                                    << types_to_str[static_cast<int>(b->valueType())] << std::endl;
+                        std::cout << (*a) << ", " << (*b) << std::endl;
+
                         if (a->valueType() == ValueType::Number)
                         {
                             if (b->valueType() != ValueType::Number)
@@ -1036,7 +1040,10 @@ namespace Ark
                     --it;
                 }
                 else
+                {
                     std::printf("In global scope\n");
+                    break;
+                }
 
                 if (m_fc - it > 7)
                 {
