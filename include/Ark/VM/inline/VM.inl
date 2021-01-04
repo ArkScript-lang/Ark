@@ -115,9 +115,18 @@ inline void VM::returnFromFuncCall()
     COZ_BEGIN("ark vm returnFromFuncCall");
 
     // remove frame
-    while (pop()->valueType() != internal::ValueType::InstPtr);
-    // pop PP
-    pop();
+    while (true)
+    {
+        Value* tmp = pop();
+        if (tmp->valueType() == internal::ValueType::InstPtr)
+        {
+            // pop PP as well
+            pop();
+            break;
+        }
+        else if (tmp->valueType == internal::ValueType::User)
+            tmp->usertype_ref().del();
+    }
     --m_fc;
 
     m_scope_count_to_delete.pop_back();
