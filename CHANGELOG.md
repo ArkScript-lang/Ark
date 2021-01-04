@@ -5,6 +5,7 @@
 
 ### Changed
 - updating doxyfile and some docstrings
+- updating the download script
 
 ### Removed
 

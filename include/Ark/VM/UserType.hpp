@@ -57,7 +57,7 @@ namespace Ark
          * @details Called by the VM when `(del obj)` is found or when the object goes
          *          out of scope.
          */
-        ~UserType() noexcept
+        inline void del()
         {
             // call a custom deleter on the data held by the usertype
             if (m_funcs != nullptr && m_funcs->deleter != nullptr)

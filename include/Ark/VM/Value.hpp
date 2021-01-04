@@ -56,16 +56,16 @@ namespace Ark::internal
         True      = 8,
         False     = 9,
         Undefined = 10,
-        Reference = 11
+        Reference = 11,
+        InstPtr   = 12
     };
 
     const std::array<std::string, 12> types_to_str = {
         "List",  "Number",  "String",    "Function",
         "CProc", "Closure", "UserType",  "Nil",
-        "Bool",  "Bool",    "Undefined", "Reference"
+        "Bool",  "Bool",    "Undefined", "Reference",
+        "InstPtr"
     };
-
-    class Frame;
 
 #ifdef ARK_PROFILER_COUNT
     extern unsigned value_creations, value_copies, value_moves;
@@ -87,8 +87,8 @@ namespace Ark::internal
             UserType,           // 24 bytes
             std::vector<Value>, // 24 bytes
             Value*              //  8 bytes
-        >;                      // +??? bytes overhead
-        //                   total 24+??? bytes
+        >;                      // +8 bytes overhead
+        //                   total 32 bytes
 
         /**
          * @brief Construct a new Value object
@@ -102,6 +102,21 @@ namespace Ark::internal
          * @param type the value type which is going to be held
          */
         explicit Value(ValueType type) noexcept;
+
+        /**
+         * @brief Construct a new Value object
+         * @details Use at your own risks. Asking for a value type N and putting a non-matching value
+         *          will result in errors at runtime.
+         *
+         * @tparam T 
+         * @param type value type wanted
+         * @param value value needed
+         */
+        template<typename T>
+        Value(ValueType type, T&& value) noexcept :
+            m_constType(static_cast<uint8_t>(type)),
+            m_value(value)
+        {}
 
 #ifdef ARK_PROFILER_COUNT
         Value(const Value& val) noexcept;
@@ -284,7 +299,6 @@ namespace Ark::internal
         friend inline bool operator!(const Value& A) noexcept;
 
         friend class Ark::VM;
-        friend class Ark::internal::Frame;
 
     private:
         uint8_t m_constType;  ///< First bit if for constness, right most bits are for type

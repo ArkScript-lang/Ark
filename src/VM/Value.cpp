@@ -1,6 +1,5 @@
 #include <Ark/VM/Value.hpp>
 
-#include <Ark/VM/Frame.hpp>
 #include <Ark/Utils.hpp>
 
 #define init_const_type(is_const, type) ((is_const ? (1 << 7) : 0) | static_cast<uint8_t>(type))
@@ -166,6 +165,7 @@ namespace Ark::internal
             break;
 
         case ValueType::PageAddr:
+        case ValueType::InstPtr:
             os << "Function @ " << V.pageAddr();
             break;
 

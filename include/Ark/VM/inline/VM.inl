@@ -4,7 +4,7 @@
 
 #define createNewScope() m_locals.emplace_back(std::make_shared<internal::Scope>());
 #define resolveRef(valptr) (((valptr)->valueType() == ValueType::Reference) ? *((valptr)->reference()) : *(valptr))
-#define createNewFrame(ip, pp) m_frames.emplace_back(ip, pp); m_scope_count_to_delete.emplace_back(0)
+#define createNewFrame(ip, pp) push(Value(pp)); push(Value(ValueType::InstPtr, ip)); m_fc++; m_scope_count_to_delete.emplace_back(0)
 
 // profiler
 #include <Ark/Profiling.hpp>
@@ -28,7 +28,7 @@ internal::Value VM::call(const std::string& name, Args&&... args)
     // convert and push arguments in reverse order
     std::vector<Value> fnargs { { Value(args)... } };
     for (auto it2=fnargs.rbegin(), it_end=fnargs.rend(); it2 != it_end; ++it2)
-        m_frames.back().push(*it2);
+        push(*it2);
 
     // find function object and push it if it's a pageaddr/closure
     uint16_t id = static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it));
@@ -44,13 +44,13 @@ internal::Value VM::call(const std::string& name, Args&&... args)
                  var->reference()->valueType() == ValueType::Closure)))
             throwVMError("Can't call '" + name + "': it isn't a Function but a " + types_to_str[static_cast<int>(vt)]);
 
-        m_frames.back().push(Value(var));
+        push(Value(var));
         m_last_sym_loaded = id;
     }
     else
         throwVMError("Couldn't find variable " + name);
 
-    std::size_t frames_count = m_frames.size();
+    std::size_t frames_count = m_fc;
     // call it
     call(static_cast<int16_t>(sizeof...(Args)));
     // reset instruction pointer, otherwise the safeRun method will start at ip = -1
@@ -62,16 +62,39 @@ internal::Value VM::call(const std::string& name, Args&&... args)
     safeRun(/* untilFrameCount */ frames_count);
 
     // get result
-    if (m_frames.back().stackSize() != 0)
-        return *popAndResolveAsPtr();
+    return *popAndResolveAsPtr();
+}
+
+inline internal::Value* VM::pop()
+{
+    if (m_sp > 0)
+    {
+        --m_sp;
+        return m_stack[m_sp];
+    }
     else
-        return Builtins::nil;
+        return &m__no_value;
+}
+
+inline void VM::push(const internal::Value& value)
+{
+    m_stack[m_sp].m_constType = value.m_constType;
+    m_stack[m_sp].m_value = value.m_value;
+    ++m_sp;
+}
+
+inline void VM::push(internal::Value&& value)
+{
+    m_stack[m_sp].m_constType = std::move(value.m_constType);
+    m_stack[m_sp].m_value = std::move(value.m_value);
+    ++m_sp;
 }
 
 inline internal::Value* VM::popAndResolveAsPtr(int frame)
 {
     using namespace Ark::internal;
 
+    /// TODO fix it
     Value* tmp = (frame < 0) ? m_frames.back().pop() : m_frames[frame].pop();
 
     if (tmp->valueType() == ValueType::Reference)
@@ -93,6 +116,8 @@ inline void VM::returnFromFuncCall()
 {
     COZ_BEGIN("ark vm returnFromFuncCall");
 
+    /// TODO redo
+
     // remove frame
     m_frames.pop_back();
     m_scope_count_to_delete.pop_back();
@@ -110,7 +135,7 @@ inline void VM::returnFromFuncCall()
     m_scope_count_to_delete.back() = 0;
 
     // stop the executing if we reach the wanted frame count
-    if (m_frames.size() == m_until_frame_count)
+    if (m_fc == m_until_frame_count)
         m_running = false;
 
     COZ_END("ark vm returnFromFuncCall");
@@ -154,14 +179,15 @@ inline void VM::call(int16_t argc_)
                 args[argc - 1 - j] = *popAndResolveAsPtr();
 
             // call proc
-            m_frames.back().push(function.proc()(args, this));
+            push(function.proc()(args, this));
             return;
         }
 
         // is it a user defined function?
         case ValueType::PageAddr:
         {
-            int old_frame = static_cast<int>(m_frames.size()) - 1;
+            /// TODO ça va merder
+            int old_frame = static_cast<int>(m_fc) - 1;
             PageAddr_t new_page_pointer = function.pageAddr();
 
             // create dedicated frame
@@ -174,14 +200,15 @@ inline void VM::call(int16_t argc_)
             m_pp = new_page_pointer;
             m_ip = -1;  // because we are doing a m_ip++ right after that
             for (std::size_t j=0; j < argc; ++j)
-                m_frames.back().push(*popAndResolveAsPtr(old_frame));
+                push(*popAndResolveAsPtr(old_frame));
             break;
         }
 
         // is it a user defined closure?
         case ValueType::Closure:
         {
-            int old_frame = static_cast<int>(m_frames.size()) - 1;
+            /// TODO ça va casser
+            int old_frame = static_cast<int>(m_fc) - 1;
             Closure& c = function.closure_ref();
             PageAddr_t new_page_pointer = c.pageAddr();
 
@@ -195,7 +222,7 @@ inline void VM::call(int16_t argc_)
             m_pp = new_page_pointer;
             m_ip = -1;  // because we are doing a m_ip++ right after that
             for (std::size_t j=0; j < argc; ++j)
-                m_frames.back().push(*popAndResolveAsPtr(old_frame));
+                push(*popAndResolveAsPtr(old_frame));
             break;
         }
 
@@ -240,11 +267,11 @@ internal::Value VM::resolve(const internal::Value* val, Args&&... args)
     // convert and push arguments in reverse order
     std::vector<Value> fnargs { { Value(args)... } };
     for (auto it=fnargs.rbegin(), it_end=fnargs.rend(); it != it_end; ++it)
-        m_frames.back().push(resolveRef(it));
+        push(resolveRef(it));
     // push function
-    m_frames.back().push(resolveRef(val));
+    push(resolveRef(val));
 
-    std::size_t frames_count = m_frames.size();
+    std::size_t frames_count = m_fc;
     // call it
     call(static_cast<int16_t>(sizeof...(Args)));
     // reset instruction pointer, otherwise the safeRun method will start at ip = -1
@@ -260,10 +287,7 @@ internal::Value VM::resolve(const internal::Value* val, Args&&... args)
     m_pp = pp;
 
     // get result
-    if (m_frames.back().stackSize() != 0)
-        return *popAndResolveAsPtr();
-    else
-        return Builtins::nil;
+    return *popAndResolveAsPtr();
 }
 
 #undef createNewScope
