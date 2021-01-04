@@ -112,19 +112,21 @@ inline internal::Value* VM::findNearestVariable(uint16_t id) noexcept
 
 inline void VM::returnFromFuncCall()
 {
+    using namespace Ark::internal;
+
     COZ_BEGIN("ark vm returnFromFuncCall");
 
     // remove frame
     while (true)
     {
         Value* tmp = pop();
-        if (tmp->valueType() == internal::ValueType::InstPtr)
+        if (tmp->valueType() == ValueType::InstPtr)
         {
             // pop PP as well
             pop();
             break;
         }
-        else if (tmp->valueType == internal::ValueType::User)
+        else if (tmp->valueType() == ValueType::User)
             tmp->usertype_ref().del();
     }
     --m_fc;
