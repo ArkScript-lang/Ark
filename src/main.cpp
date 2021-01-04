@@ -114,7 +114,6 @@ int main(int argc, char** argv)
                     "      sizeof(Ark::UserType) = %zuB\n"
                     "\nVirtual Machine\n"
                     "sizeof(Ark::VM)       = %zuB\n"
-                    "      sizeof(Ark::Frame)    = %zuB\n"
                     "      sizeof(Ark::State)    = %zuB\n"
                     "      sizeof(Ark::Scope)    = %zuB\n"
                     "\nMisc\n"
@@ -132,7 +131,6 @@ int main(int argc, char** argv)
                         sizeof(Ark::UserType),
                     // vm
                     sizeof(Ark::VM),
-                        sizeof(Ark::internal::Frame),
                         sizeof(Ark::State),
                         sizeof(Ark::internal::Scope),
                     // misc

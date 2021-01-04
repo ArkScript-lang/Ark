@@ -10,10 +10,6 @@
 #define registerVariable(id, value) ((*m_locals.back()).push_back(id, value))
 // register a variable in the global scope
 #define registerVarGlobal(id, value) ((*m_locals[0]).push_back(id, value))
-// stack management
-#define popVal()         m_frames.back().pop()
-#define popValFrom(page) m_frames[static_cast<std::size_t>(page)].pop()
-#define push(value)      m_frames.back().push(value)
 // create a new locals scope
 #define createNewScope() m_locals.emplace_back(std::make_shared<Scope>());
 // get a variable from a scope
@@ -27,11 +23,10 @@ struct mapping {
 namespace Ark
 {
     VM::VM(State* state) noexcept :
-        m_state(state), m_exitCode(0), m_ip(0), m_pp(0),
+        m_state(state), m_exitCode(0), m_ip(0), m_pp(0), m_sp(0), m_fc(0),
         m_running(false), m_last_sym_loaded(0),
         m_until_frame_count(0), m_user_pointer(nullptr)
     {
-        m_frames.reserve(16);
         m_locals.reserve(4);
     }
 
@@ -42,18 +37,18 @@ namespace Ark
         // clearing frames and setting up a new one
         if ((m_state->m_options & FeaturePersist) == 0)
         {
-            m_frames.clear();
-            m_frames.emplace_back();
+            m_sp = 0;
+            m_fc = 1;
 
             m_shared_lib_objects.clear();
             m_scope_count_to_delete.clear();
             m_scope_count_to_delete.emplace_back(0);
         }
-        else if (m_frames.size() == 0)
+        else if (m_fc == 0)
         {
             // if persistance is set but no frames are present, add one
             // it usually happens on the first run
-            m_frames.emplace_back();
+            m_fc++;
             m_scope_count_to_delete.emplace_back(0);
         }
 
@@ -208,7 +203,7 @@ namespace Ark
 
         try {
             m_running = true;
-            while (m_running && m_frames.size() > m_until_frame_count)
+            while (m_running && m_fc > m_until_frame_count)
             {
                 // get current instruction
                 uint8_t inst = m_state->m_pages[m_pp][m_ip];
@@ -367,22 +362,27 @@ namespace Ark
                                     the stack to the new stack ; should as well delete the current environment.
                         */
 
-                        // save pp
-                        PageAddr_t old_pp = static_cast<PageAddr_t>(m_pp);
-                        m_pp = static_cast<std::size_t>(m_frames.back().callerPageAddr());
-                        m_ip = static_cast<int>(m_frames.back().callerAddr());
+                        Value* ip_or_val = popAndResolveAsPtr();
+                        // no return value on the stack
+                        if (ip_or_val->valueType() == ValueType::InstPtr)
+                        {
+                            m_ip = ip_or_val->pageAddr();
+                            // we always push PP then IP, thus the next value
+                            // MUST be the page pointer
+                            m_pp = pop()->pageAddr();
 
-                        if (m_frames.back().stackSize() != 0)
-                        {
-                            // we *must* resolve the value
-                            Value tmp = *popAndResolveAsPtr();
-                            returnFromFuncCall();
-                            push(tmp);
-                        }
-                        else
-                        {
                             returnFromFuncCall();
                             push(Builtins::nil);
+                        }
+                        // value on the stack
+                        else
+                        {
+                            Value tmp = *ip_or_val;
+                            m_ip = pop()->pageAddr();
+                            m_pp = pop()->pageAddr();
+
+                            returnFromFuncCall();
+                            push(tmp);
                         }
 
                         COZ_PROGRESS_NAMED("ark vm ret");
@@ -1003,14 +1003,14 @@ namespace Ark
         using namespace Ark::internal;
         std::cerr << termcolor::reset << "At IP: " << (m_ip != -1 ? m_ip : 0) << ", PP: " << m_pp << "\n";
 
-        if (m_frames.size() > 1)
+        if (m_fc > 1)
         {
             uint16_t curr_pp = m_pp;
 
             // display call stack trace
-            for (auto&& it=m_frames.rbegin(), it_end=m_frames.rend(); it != it_end; ++it)
+            for (uint16_t it=m_fc; it != 0; --it)
             {
-                std::cerr << "[" << termcolor::cyan << std::distance(it, m_frames.rend()) << termcolor::reset << "] ";
+                std::cerr << "[" << termcolor::cyan << it << termcolor::reset << "] ";
                 if (curr_pp != 0)
                 {
                     uint16_t id = findNearestVariableIdWithValue(
@@ -1027,7 +1027,7 @@ namespace Ark
                 else
                     std::printf("In global scope\n");
 
-                if (std::distance(m_frames.rbegin(), it) > 7)
+                if (m_fc - it > 7)
                 {
                     std::printf("...\n");
                     break;
@@ -1042,7 +1042,18 @@ namespace Ark
 
             // if persistance is on, clear frames to keep only the global one
             if (m_state->m_options & FeaturePersist)
-                m_frames.erase(m_frames.begin() + 1, m_frames.end());
+            {
+                while (m_fc != 1)
+                {
+                    Value* tmp = pop();
+                    if (tmp->valueType() == ValueType::InstPtr)
+                        --m_fc;
+                    else if (tmp->valueType() == ValueType::User)
+                        tmp->del();
+                }
+                // pop the PP as well
+                pop();
+            }
         }
     }
 }
