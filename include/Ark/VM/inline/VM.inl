@@ -90,13 +90,11 @@ inline void VM::push(internal::Value&& value)
     ++m_sp;
 }
 
-inline internal::Value* VM::popAndResolveAsPtr(int frame)
+inline internal::Value* VM::popAndResolveAsPtr()
 {
     using namespace Ark::internal;
 
-    /// TODO fix it
-    Value* tmp = (frame < 0) ? m_frames.back().pop() : m_frames[frame].pop();
-
+    Value* tmp = pop();
     if (tmp->valueType() == ValueType::Reference)
         return tmp->reference();
     return tmp;
@@ -116,10 +114,12 @@ inline void VM::returnFromFuncCall()
 {
     COZ_BEGIN("ark vm returnFromFuncCall");
 
-    /// TODO redo
-
     // remove frame
-    m_frames.pop_back();
+    while (pop()->valueType() != internal::ValueType::InstPtr);
+    // pop PP
+    pop();
+    --m_fc;
+
     m_scope_count_to_delete.pop_back();
     uint8_t del_counter = m_scope_count_to_delete.back();
 
@@ -186,8 +186,9 @@ inline void VM::call(int16_t argc_)
         // is it a user defined function?
         case ValueType::PageAddr:
         {
-            /// TODO ça va merder
-            int old_frame = static_cast<int>(m_fc) - 1;
+            std::vector<Value> temp(argc);
+            for (std::size_t j=0; j < argc; ++j)
+                temp[j] = *popAndResolveAsPtr();
             PageAddr_t new_page_pointer = function.pageAddr();
 
             // create dedicated frame
@@ -200,16 +201,16 @@ inline void VM::call(int16_t argc_)
             m_pp = new_page_pointer;
             m_ip = -1;  // because we are doing a m_ip++ right after that
             for (std::size_t j=0; j < argc; ++j)
-                push(*popAndResolveAsPtr(old_frame));
+                push(temp[j]);
             break;
         }
 
         // is it a user defined closure?
         case ValueType::Closure:
         {
-            /// TODO ça va casser
-            int old_frame = static_cast<int>(m_fc) - 1;
-            Closure& c = function.closure_ref();
+            std::vector<Value> temp(argc);
+            for (std::size_t j=0; j < argc; ++j)
+                temp[j] = *popAndResolveAsPtr();
             PageAddr_t new_page_pointer = c.pageAddr();
 
             // load saved scope
@@ -222,7 +223,7 @@ inline void VM::call(int16_t argc_)
             m_pp = new_page_pointer;
             m_ip = -1;  // because we are doing a m_ip++ right after that
             for (std::size_t j=0; j < argc; ++j)
-                push(*popAndResolveAsPtr(old_frame));
+                push(temp[j]);
             break;
         }
 
@@ -234,8 +235,7 @@ inline void VM::call(int16_t argc_)
     if (m_state->m_options & FeatureFunctionArityCheck)
     {
         std::size_t index = 0,
-                    needed_argc = 0,
-                    received_argc = m_frames.back().stackSize();
+                    needed_argc = 0;
 
         // every argument is a MUT declaration in the bytecode
         while (m_state->m_pages[m_pp][index] == Instruction::MUT)
@@ -244,7 +244,7 @@ inline void VM::call(int16_t argc_)
             index += 3;  // jump the argument of MUT (integer on 2 bits, big endian)
         }
 
-        if (needed_argc != received_argc)
+        if (needed_argc != argc)
             throwVMError("Function '" + m_state->m_symbols[m_last_sym_loaded] + "' needs " + Ark::Utils::toString(needed_argc) + " arguments, but it received " + Ark::Utils::toString(received_argc));
     }
 
