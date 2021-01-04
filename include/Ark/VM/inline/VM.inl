@@ -89,6 +89,13 @@ inline void VM::push(internal::Value&& value)
     ++m_sp;
 }
 
+inline void VM::push(internal::Value* valptr)
+{
+    m_stack[m_sp].m_constType = static_cast<uint8_t>(internal::ValueType::Reference);
+    m_stack[m_sp].m_value = valptr;
+    ++m_sp;
+}
+
 inline internal::Value* VM::popAndResolveAsPtr()
 {
     using namespace Ark::internal;

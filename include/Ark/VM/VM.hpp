@@ -182,6 +182,13 @@ namespace Ark
         inline void push(internal::Value&& val);
 
         /**
+         * @brief Push a value on the stack
+         * 
+         * @param val 
+         */
+        inline void push(internal::Value* valptr);
+
+        /**
          * @brief Pop a value from the stack and resolve it if possible, then return it
          * 
          * @return internal::Value* 
