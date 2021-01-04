@@ -1008,7 +1008,8 @@ namespace Ark
             uint16_t curr_pp = m_pp;
 
             // display call stack trace
-            for (uint16_t it=m_fc; it != 0; --it)
+            uint16_t it = m_fc;
+            while (it != 0)
             {
                 std::cerr << "[" << termcolor::cyan << it << termcolor::reset << "] ";
                 if (curr_pp != 0)
@@ -1020,9 +1021,11 @@ namespace Ark
                     if (id < m_state->m_symbols.size())
                         std::cerr << "In function `" << termcolor::green << m_state->m_symbols[id] << termcolor::reset << "'\n";
                     else  // should never happen
-                        std::cerr << "In function `" << termcolor::green << "???" << termcolor::reset << "'\n";
+                        std::cerr << "In function `" << termcolor::yellow << "???" << termcolor::reset << "'\n";
 
-                    curr_pp = it->callerPageAddr();
+                    while (pop()->valueType() != ValueType::InstPtr);
+                    curr_pp = pop()->pageAddr();
+                    --m_fc;
                 }
                 else
                     std::printf("In global scope\n");
@@ -1049,7 +1052,7 @@ namespace Ark
                     if (tmp->valueType() == ValueType::InstPtr)
                         --m_fc;
                     else if (tmp->valueType() == ValueType::User)
-                        tmp->del();
+                        tmp->usertype_ref().del();
                 }
                 // pop the PP as well
                 pop();

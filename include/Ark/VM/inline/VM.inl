@@ -4,7 +4,7 @@
 
 #define createNewScope() m_locals.emplace_back(std::make_shared<internal::Scope>());
 #define resolveRef(valptr) (((valptr)->valueType() == ValueType::Reference) ? *((valptr)->reference()) : *(valptr))
-#define createNewFrame(ip, pp) push(Value(pp)); push(Value(ValueType::InstPtr, ip)); m_fc++; m_scope_count_to_delete.emplace_back(0)
+#define createNewFrame(ip, pp) push(Value(pp)); push(Value(ValueType::InstPtr, static_cast<PageAddr_t>(ip))); m_fc++; m_scope_count_to_delete.emplace_back(0)
 
 // profiler
 #include <Ark/Profiling.hpp>
@@ -70,7 +70,7 @@ inline internal::Value* VM::pop()
     if (m_sp > 0)
     {
         --m_sp;
-        return m_stack[m_sp];
+        return &m_stack[m_sp];
     }
     else
         return &m__no_value;
@@ -208,6 +208,7 @@ inline void VM::call(int16_t argc_)
         // is it a user defined closure?
         case ValueType::Closure:
         {
+            Closure& c = function.closure_ref();
             std::vector<Value> temp(argc);
             for (std::size_t j=0; j < argc; ++j)
                 temp[j] = *popAndResolveAsPtr();
@@ -245,7 +246,10 @@ inline void VM::call(int16_t argc_)
         }
 
         if (needed_argc != argc)
-            throwVMError("Function '" + m_state->m_symbols[m_last_sym_loaded] + "' needs " + Ark::Utils::toString(needed_argc) + " arguments, but it received " + Ark::Utils::toString(received_argc));
+            throwVMError(
+                "Function '" + m_state->m_symbols[m_last_sym_loaded] + "' needs " + Ark::Utils::toString(needed_argc) +
+                " arguments, but it received " + Ark::Utils::toString(argc)
+            );
     }
 
     COZ_END("ark vm::call");

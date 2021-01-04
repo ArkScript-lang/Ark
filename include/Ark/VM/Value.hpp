@@ -60,7 +60,7 @@ namespace Ark::internal
         InstPtr   = 12
     };
 
-    const std::array<std::string, 12> types_to_str = {
+    const std::array<std::string, 13> types_to_str = {
         "List",  "Number",  "String",    "Function",
         "CProc", "Closure", "UserType",  "Nil",
         "Bool",  "Bool",    "Undefined", "Reference",
