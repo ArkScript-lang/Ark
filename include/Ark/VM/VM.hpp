@@ -12,6 +12,7 @@
 #ifndef ark_vm
 #define ark_vm
 
+#include <array>
 #include <vector>
 #include <string>
 #include <cinttypes>
@@ -130,7 +131,7 @@ namespace Ark
         std::mutex m_mutex;
 
         // related to the execution
-        std::array<Value, 8192> m_stack;
+        std::array<internal::Value, 8192> m_stack;
         std::vector<uint8_t> m_scope_count_to_delete;
         std::optional<internal::Scope_t> m_saved_scope;
         std::vector<internal::Scope_t> m_locals;
