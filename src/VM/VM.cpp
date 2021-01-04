@@ -1001,7 +1001,11 @@ namespace Ark
     void VM::backtrace() noexcept
     {
         using namespace Ark::internal;
-        std::cerr << termcolor::reset << "At IP: " << (m_ip != -1 ? m_ip : 0) << ", PP: " << m_pp << "\n";
+        std::cerr << termcolor::reset
+                  << "At IP: " << (m_ip != -1 ? m_ip : 0)
+                  << ", PP: " << m_pp
+                  << ", SP: " << m_sp
+                  << "\n";
 
         if (m_fc > 1)
         {
@@ -1025,7 +1029,7 @@ namespace Ark
 
                     while (pop()->valueType() != ValueType::InstPtr);
                     curr_pp = pop()->pageAddr();
-                    --m_fc;
+                    --it;
                 }
                 else
                     std::printf("In global scope\n");
