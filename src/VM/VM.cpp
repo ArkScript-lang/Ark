@@ -223,7 +223,7 @@ namespace Ark
 
                         if (Value* var = findNearestVariable(m_last_sym_loaded); var != nullptr)
                             // push internal reference, shouldn't break anything so far
-                            push(Value(var));
+                            push(var);
                         else
                             throwVMError("unbound variable: " + m_state->m_symbols[m_last_sym_loaded]);
 
@@ -250,7 +250,7 @@ namespace Ark
                         else
                         {
                             // push internal ref
-                            push(Value(&(m_state->m_constants[id])));
+                            push(&(m_state->m_constants[id]));
                         }
 
                         COZ_PROGRESS_NAMED("ark vm load_const");
@@ -382,7 +382,7 @@ namespace Ark
                             m_pp = pop()->pageAddr();
 
                             returnFromFuncCall();
-                            push(tmp);
+                            push(std::move(tmp));
                         }
 
                         COZ_PROGRESS_NAMED("ark vm ret");
@@ -519,7 +519,7 @@ namespace Ark
                                 ++m_scope_count_to_delete.back();
                             }
 
-                            push(*field);
+                            push(field);
                             break;
                         }
 
@@ -559,7 +559,7 @@ namespace Ark
 
                         for (uint16_t i=0; i < count; ++i)
                             l.push_back(*popAndResolveAsPtr());
-                        push(l);
+                        push(std::move(l));
 
                         COZ_PROGRESS_NAMED("ark vm list");
                         break;
@@ -580,7 +580,7 @@ namespace Ark
 
                         for (uint16_t i=0; i < count; ++i)
                             obj.push_back(*popAndResolveAsPtr());
-                        push(obj);
+                        push(std::move(obj));
 
                         COZ_PROGRESS_NAMED("ark vm append");
                         break;
@@ -606,7 +606,7 @@ namespace Ark
                             for (auto it=next->list().begin(), end=next->list().end(); it != end; ++it)
                                 obj.push_back(*it);
                         }
-                        push(obj);
+                        push(std::move(obj));
 
                         COZ_PROGRESS_NAMED("ark vm concat");
                         break;
@@ -777,7 +777,7 @@ namespace Ark
 
                             Value b = *a;
                             b.list().erase(b.const_list().begin());
-                            push(b);
+                            push(std::move(b));
                         }
                         else if (a->valueType() == ValueType::String)
                         {
@@ -789,7 +789,7 @@ namespace Ark
 
                             Value b = *a;
                             b.string_ref().erase_front(0);
-                            push(b);
+                            push(std::move(b));
                         }
                         else
                             throw Ark::TypeError("Argument of tailOf must be a list or a String");
@@ -811,7 +811,7 @@ namespace Ark
 
                             Value b = *a;
                             b.list().pop_back();
-                            push(b);
+                            push(std::move(b));
                         }
                         else if (a->valueType() == ValueType::String)
                         {
@@ -823,7 +823,7 @@ namespace Ark
 
                             Value b = *a;
                             b.string_ref().erase(b.string_ref().size() - 1);
-                            push(b);
+                            push(std::move(b));
                         }
                         else
                             throw Ark::TypeError("Argument of headOf must be a list or a String");
