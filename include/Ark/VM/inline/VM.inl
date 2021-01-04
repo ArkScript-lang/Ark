@@ -4,7 +4,6 @@
 
 #define createNewScope() m_locals.emplace_back(std::make_shared<internal::Scope>());
 #define resolveRef(valptr) (((valptr)->valueType() == ValueType::Reference) ? *((valptr)->reference()) : *(valptr))
-#define createNewFrame(ip, pp) push(Value(pp)); push(Value(ValueType::InstPtr, static_cast<PageAddr_t>(ip))); m_fc++; m_scope_count_to_delete.emplace_back(0)
 
 // profiler
 #include <Ark/Profiling.hpp>
@@ -116,19 +115,6 @@ inline void VM::returnFromFuncCall()
 
     COZ_BEGIN("ark vm returnFromFuncCall");
 
-    // remove frame
-    while (true)
-    {
-        Value* tmp = pop();
-        if (tmp->valueType() == ValueType::InstPtr)
-        {
-            // pop PP as well
-            pop();
-            break;
-        }
-        else if (tmp->valueType() == ValueType::User)
-            tmp->usertype_ref().del();
-    }
     --m_fc;
 
     m_scope_count_to_delete.pop_back();
@@ -197,22 +183,38 @@ inline void VM::call(int16_t argc_)
         // is it a user defined function?
         case ValueType::PageAddr:
         {
-            std::vector<Value> temp(argc);
-            for (std::size_t j=0; j < argc; ++j)
-                temp[j] = *popAndResolveAsPtr();
             PageAddr_t new_page_pointer = function.pageAddr();
 
             // create dedicated frame
             createNewScope();
-            createNewFrame(m_ip, static_cast<uint16_t>(m_pp));
+
+            // move values around and invert them
+            // 
+            // values:     1,  2, 3, _, _
+            // wanted:    pp, ip, 3, 2, 1
+            // positions:  0,  1, 2, 3, 4
+            // 
+            // move values first, from position x to y, with
+            //    y = argc - x + 1
+            // then place pp and ip
+            uint16_t first = m_sp - argc;
+            for (std::size_t x=0; x < argc; ++x)
+                m_stack[argc - x + 1 + first] = m_stack[first + x].valueType() == ValueType::Reference ?
+                                                 *m_stack[first + x].reference() 
+                                                : m_stack[first + x];
+            // create scope, put pp and ip
+            m_stack[first + 0] = Value(static_cast<PageAddr_t>(m_pp));
+            m_stack[first + 1] = Value(ValueType::InstPtr, static_cast<PageAddr_t>(m_ip));
+            m_fc++;
+            m_sp += 2;
+            m_scope_count_to_delete.emplace_back(0);
+
             // store "reference" to the function to speed the recursive functions
             if (m_last_sym_loaded < m_state->m_symbols.size())
                 m_locals.back()->push_back(m_last_sym_loaded, function);
 
             m_pp = new_page_pointer;
             m_ip = -1;  // because we are doing a m_ip++ right after that
-            for (std::size_t j=0; j < argc; ++j)
-                push(temp[j]);
             break;
         }
 
@@ -220,9 +222,6 @@ inline void VM::call(int16_t argc_)
         case ValueType::Closure:
         {
             Closure& c = function.closure_ref();
-            std::vector<Value> temp(argc);
-            for (std::size_t j=0; j < argc; ++j)
-                temp[j] = *popAndResolveAsPtr();
             PageAddr_t new_page_pointer = c.pageAddr();
 
             // load saved scope
@@ -230,12 +229,30 @@ inline void VM::call(int16_t argc_)
             // create dedicated frame
             createNewScope();
             ++m_scope_count_to_delete.back();
-            createNewFrame(m_ip, static_cast<uint16_t>(m_pp));
+
+            // move values around and invert them
+            // 
+            // values:     1,  2, 3, _, _
+            // wanted:    pp, ip, 3, 2, 1
+            // positions:  0,  1, 2, 3, 4
+            // 
+            // move values first, from position x to y, with
+            //    y = argc - x + 1
+            // then place pp and ip
+            uint16_t first = m_sp - argc;
+            for (std::size_t x=0; x < argc; ++x)
+                m_stack[argc - x + 1 + first] = m_stack[first + x].valueType() == ValueType::Reference ?
+                                                 *m_stack[first + x].reference() 
+                                                : m_stack[first + x];
+            // create scope, put pp and ip
+            m_stack[first + 0] = Value(static_cast<PageAddr_t>(m_pp));
+            m_stack[first + 1] = Value(ValueType::InstPtr, static_cast<PageAddr_t>(m_ip));
+            m_fc++;
+            m_sp += 2;
+            m_scope_count_to_delete.emplace_back(0);
 
             m_pp = new_page_pointer;
             m_ip = -1;  // because we are doing a m_ip++ right after that
-            for (std::size_t j=0; j < argc; ++j)
-                push(temp[j]);
             break;
         }
 
