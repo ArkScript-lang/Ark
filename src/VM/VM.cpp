@@ -612,6 +612,8 @@ namespace Ark
                         break;
                     }
 
+                    #pragma region "Operators"
+
                     case Instruction::ADD:
                     {
                         Value *b = popAndResolveAsPtr(), *a = popAndResolveAsPtr();
@@ -958,6 +960,8 @@ namespace Ark
                         push(!(*a) ? Builtins::trueSym : Builtins::falseSym);
                         break;
                     }
+
+                    #pragma endregion
 
                     default:
                         throwVMError("unknown instruction: " + Ark::Utils::toString(static_cast<std::size_t>(inst)));
