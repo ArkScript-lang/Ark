@@ -64,6 +64,8 @@ internal::Value VM::call(const std::string& name, Args&&... args)
     return *popAndResolveAsPtr();
 }
 
+#pragma region "stack management"
+
 inline internal::Value* VM::pop()
 {
     if (m_sp > 0)
@@ -105,6 +107,8 @@ inline internal::Value* VM::popAndResolveAsPtr()
         return tmp->reference();
     return tmp;
 }
+
+#pragma endregion
 
 inline internal::Value* VM::findNearestVariable(uint16_t id) noexcept
 {
@@ -204,23 +208,44 @@ inline void VM::call(int16_t argc_)
             // move values first, from position x to y, with
             //    y = argc - x + 1
             // then place pp and ip
-            int16_t first = m_sp - argc;
-            for (int16_t x=argc - 1; x >= 0; --x)
+            switch (argc)  // must be positive
             {
-                // be careful
-                if (x >= 2)
-                    std::swap(m_stack[argc - x + 1 + first], m_stack[first + x]);
-                else
-                    m_stack[argc - x + 1 + first] = m_stack[first + x];
+                case 0:
+                    push(Value(static_cast<PageAddr_t>(m_pp)));
+                    push(Value(ValueType::InstPtr, static_cast<PageAddr_t>(m_ip)));
+                    break;
 
-                if (m_stack[first + x].valueType() == ValueType::Reference)
-                    m_stack[first + x] = *m_stack[first + x].reference();
+                case 1:
+                    m_stack[m_sp + 1] = std::move(m_stack[m_sp - 1]);
+                    m_stack[m_sp - 1] = Value(static_cast<PageAddr_t>(m_pp));
+                    m_stack[m_sp + 0] = Value(ValueType::InstPtr, static_cast<PageAddr_t>(m_ip));
+                    m_sp += 2;
+                    break;
+
+                default:  // 2 or more elements
+                {
+                    const int16_t first = m_sp - argc;
+                    // move first argument to the very end
+                    m_stack[m_sp + 1] = m_stack[first + 0];
+                    // move second argument right before the last one
+                    m_stack[m_sp + 0] = m_stack[first + 1];
+                    // move the rest, if any
+                    int16_t x = 2;
+                    const int16_t stop  = ((argc % 2 == 0) ? argc : (argc - 1)) / 2;
+                    while (x <= stop)
+                    {
+                        //        destination          , origin
+                        std::swap(m_stack[m_sp - x + 1], m_stack[first + x]);
+                        ++x;
+                    }
+                    m_stack[first + 0] = Value(static_cast<PageAddr_t>(m_pp));
+                    m_stack[first + 1] = Value(ValueType::InstPtr, static_cast<PageAddr_t>(m_ip));
+                    m_sp += 2;
+                    break;
+                }
             }
-            // create scope, put pp and ip
-            m_stack[first + 0] = Value(static_cast<PageAddr_t>(m_pp));
-            m_stack[first + 1] = Value(ValueType::InstPtr, static_cast<PageAddr_t>(m_ip));
+
             m_fc++;
-            m_sp += 2;
             m_scope_count_to_delete.emplace_back(0);
 
             // store "reference" to the function to speed the recursive functions
@@ -244,32 +269,44 @@ inline void VM::call(int16_t argc_)
             createNewScope();
             ++m_scope_count_to_delete.back();
 
-            // move values around and invert them
-            // 
-            // values:     1,  2, 3, _, _
-            // wanted:    pp, ip, 3, 2, 1
-            // positions:  0,  1, 2, 3, 4
-            // 
-            // move values first, from position x to y, with
-            //    y = argc - x + 1
-            // then place pp and ip
-            int16_t first = m_sp - argc;
-            for (int16_t x=argc - 1; x >= 0; --x)
+            switch (argc)  // must be positive
             {
-                // be careful
-                if (x >= 2)
-                    std::swap(m_stack[argc - x + 1 + first], m_stack[first + x]);
-                else
-                    m_stack[argc - x + 1 + first] = m_stack[first + x];
+                case 0:
+                    push(Value(static_cast<PageAddr_t>(m_pp)));
+                    push(Value(ValueType::InstPtr, static_cast<PageAddr_t>(m_ip)));
+                    break;
 
-                if (m_stack[first + x].valueType() == ValueType::Reference)
-                    m_stack[first + x] = *m_stack[first + x].reference();
+                case 1:
+                    m_stack[m_sp + 1] = std::move(m_stack[m_sp - 1]);
+                    m_stack[m_sp - 1] = Value(static_cast<PageAddr_t>(m_pp));
+                    m_stack[m_sp + 0] = Value(ValueType::InstPtr, static_cast<PageAddr_t>(m_ip));
+                    m_sp += 2;
+                    break;
+
+                default:  // 2 or more elements
+                {
+                    const int16_t first = m_sp - argc;
+                    // move first argument to the very end
+                    m_stack[m_sp + 1] = m_stack[first + 0];
+                    // move second argument right before the last one
+                    m_stack[m_sp + 0] = m_stack[first + 1];
+                    // move the rest, if any
+                    int16_t x = 2;
+                    const int16_t stop  = ((argc % 2 == 0) ? argc : (argc - 1)) / 2;
+                    while (x <= stop)
+                    {
+                        //        destination          , origin
+                        std::swap(m_stack[m_sp - x + 1], m_stack[first + x]);
+                        ++x;
+                    }
+                    m_stack[first + 0] = Value(static_cast<PageAddr_t>(m_pp));
+                    m_stack[first + 1] = Value(ValueType::InstPtr, static_cast<PageAddr_t>(m_ip));
+                    m_sp += 2;
+                    break;
+                }
             }
-            // create scope, put pp and ip
-            m_stack[first + 0] = Value(static_cast<PageAddr_t>(m_pp));
-            m_stack[first + 1] = Value(ValueType::InstPtr, static_cast<PageAddr_t>(m_ip));
+
             m_fc++;
-            m_sp += 2;
             m_scope_count_to_delete.emplace_back(0);
 
             m_pp = new_page_pointer;

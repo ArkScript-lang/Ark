@@ -201,7 +201,7 @@ namespace Ark
         using namespace Ark::internal;
         m_until_frame_count = untilFrameCount;
 
-        try {
+        //try {
             m_running = true;
             while (m_running && m_fc > m_until_frame_count)
             {
@@ -618,10 +618,6 @@ namespace Ark
                     {
                         Value *b = popAndResolveAsPtr(), *a = popAndResolveAsPtr();
 
-                        std::cout << "types: " << types_to_str[static_cast<int>(a->valueType())] << ", "
-                                    << types_to_str[static_cast<int>(b->valueType())] << std::endl;
-                        std::cout << (*a) << ", " << (*b) << std::endl;
-
                         if (a->valueType() == ValueType::Number)
                         {
                             if (b->valueType() != ValueType::Number)
@@ -975,7 +971,7 @@ namespace Ark
                 // move forward
                 ++m_ip;
             }
-        } catch (const std::exception& e) {
+        /*} catch (const std::exception& e) {
             std::printf("%s\n", e.what());
             backtrace();
             return 1;
@@ -983,7 +979,7 @@ namespace Ark
             std::printf("Unknown error\n");
             backtrace();
             return 1;
-        }
+        }*/
         return 0;
     }
 
