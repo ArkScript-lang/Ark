@@ -201,7 +201,7 @@ namespace Ark
         using namespace Ark::internal;
         m_until_frame_count = untilFrameCount;
 
-        //try {
+        try {
             m_running = true;
             while (m_running && m_fc > m_until_frame_count)
             {
@@ -975,7 +975,7 @@ namespace Ark
                 // move forward
                 ++m_ip;
             }
-        /*} catch (const std::exception& e) {
+        } catch (const std::exception& e) {
             std::printf("%s\n", e.what());
             backtrace();
             return 1;
@@ -983,7 +983,7 @@ namespace Ark
             std::printf("Unknown error\n");
             backtrace();
             return 1;
-        }*/
+        }
         return 0;
     }
 
