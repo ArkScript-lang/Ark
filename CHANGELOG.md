@@ -10,6 +10,7 @@
 - updating doxyfile and some docstrings
 - updating the download script
 - enhancing examples
+- creating a Scope allocates 4 pairs instead of 2, reducing the number of reallocations needed
 
 ### Removed
 - `~UserType`, since we are doing manual memory management now
