@@ -5,14 +5,14 @@
     (mut a 1)
     (mut acc 2)
     # then we use a loop (for loops doesn't exist in ArkScript)
-    (while (!= acc n) {
-            (set a (* a acc))
-            # thus we need to increment the accumulator ourselves
-            (set acc (+ 1 acc))
+    (while (<= acc n) {
+        (set a (* a acc))
+        # thus we need to increment the accumulator ourselves
+        (set acc (+ 1 acc))
     })
     # the return value
     a
 }))
 
 # then we call the function we just created
-(fact 6)
+(print (fact 6))
