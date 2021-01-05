@@ -13,7 +13,7 @@ namespace Ark::internal
     {
     #ifndef ARK_SCOPE_DICHOTOMY
         // PERF costs a lot
-        m_data.reserve(2);
+        m_data.reserve(4);
     #endif
     }
 

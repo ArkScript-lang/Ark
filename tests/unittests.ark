@@ -7,28 +7,28 @@
 # We *must* use functions for our tests because they create a new scope,
 # to avoid collisions with other tests, and avoid false positive tests.
 
-#(import "vm-tests.ark")
-#(import "builtins-tests.ark")
-#(import "exceptions-tests.ark")
-#(import "functional-tests.ark")
-#(import "list-tests.ark")
-#(import "math-tests.ark")
-#(import "range-tests.ark")
-#(import "string-tests.ark")
-#(import "switch-tests.ark")
+(import "vm-tests.ark")
+(import "builtins-tests.ark")
+(import "exceptions-tests.ark")
+(import "functional-tests.ark")
+(import "list-tests.ark")
+(import "math-tests.ark")
+(import "range-tests.ark")
+(import "string-tests.ark")
+(import "switch-tests.ark")
 
 (print "  ------------------------------")
 
 (print "  Total: " (+ 0 0
-#    passed-vm
-#    passed-builtins
-#    passed-exceptions
-#    passed-functional
-#    passed-list
-#    passed-math
-#    passed-range
-#    passed-string
-#    passed-switch
+    passed-vm
+    passed-builtins
+    passed-exceptions
+    passed-functional
+    passed-list
+    passed-math
+    passed-range
+    passed-string
+    passed-switch
 ))
 
 (print "\nCompleted in " (* 1000 (- (time) start_time)) "ms")
