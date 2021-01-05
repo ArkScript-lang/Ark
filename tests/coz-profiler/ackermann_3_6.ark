@@ -28,8 +28,12 @@
         (toNumber (@ sys:args 0))
         10)
     10))
-(while (< i limit) (begin
+
+(print "limit: " limit)
+
+(while (< i limit) {
     (ackermann 3 6)
-    (set i (+ i 1))))
+    (set i (+ i 1))
+})
 (let end (- (time) start))
 (print end " " (* (/ end limit) 1000) "ms per run")

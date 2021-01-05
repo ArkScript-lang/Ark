@@ -3,7 +3,7 @@
 ## Unreleased changes
 ### Added
 - `UserType::del()`, used only by the virtual machine to free memory
-- a new unique stack based on a `std::array<Value, 8192>`
+- a new unique stack based on a `std::array<Value, ARK_STACK_SIZE>`, the default stack size being 8192
 
 ### Changed
 - updating doxyfile and some docstrings

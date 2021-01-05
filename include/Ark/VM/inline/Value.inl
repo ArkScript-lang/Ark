@@ -15,39 +15,39 @@ inline bool Value::isFunction() const noexcept  // if it's a function we can res
 
 inline double Value::number() const
 {
-    return mpark::get<double>(m_value);
+    return variant_get<double>(m_value);
 }
 
 inline const String& Value::string() const
 {
-    return mpark::get<String>(m_value);
+    return variant_get<String>(m_value);
 }
 
 inline const std::vector<Value>& Value::const_list() const
 {
-    return mpark::get<std::vector<Value>>(m_value);
+    return variant_get<std::vector<Value>>(m_value);
 }
 
 inline const UserType& Value::usertype() const
 {
-    return mpark::get<UserType>(m_value);
+    return variant_get<UserType>(m_value);
 }
 
 // private getters
 
 inline PageAddr_t Value::pageAddr() const
 {
-    return mpark::get<PageAddr_t>(m_value);
+    return variant_get<PageAddr_t>(m_value);
 }
 
 inline const Value::ProcType& Value::proc() const
 {
-    return mpark::get<Value::ProcType>(m_value);
+    return variant_get<Value::ProcType>(m_value);
 }
 
 inline const Closure& Value::closure() const
 {
-    return mpark::get<Closure>(m_value);
+    return variant_get<Closure>(m_value);
 }
 
 inline const bool Value::isConst() const noexcept
