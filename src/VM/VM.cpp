@@ -362,11 +362,11 @@ namespace Ark
                                     the stack to the new stack ; should as well delete the current environment.
                         */
 
-                        Value* ip_or_val = popAndResolveAsPtr();
+                        Value ip_or_val = *popAndResolveAsPtr();
                         // no return value on the stack
-                        if (ip_or_val->valueType() == ValueType::InstPtr)
+                        if (ip_or_val.valueType() == ValueType::InstPtr)
                         {
-                            m_ip = ip_or_val->pageAddr();
+                            m_ip = ip_or_val.pageAddr();
                             // we always push PP then IP, thus the next value
                             // MUST be the page pointer
                             m_pp = pop()->pageAddr();
@@ -377,12 +377,16 @@ namespace Ark
                         // value on the stack
                         else
                         {
-                            Value tmp = *ip_or_val;
-                            m_ip = pop()->pageAddr();
+                            Value* ip;
+                            do {
+                                ip = popAndResolveAsPtr();
+                            } while(ip->valueType() != ValueType::InstPtr);
+
+                            m_ip = ip->pageAddr();
                             m_pp = pop()->pageAddr();
 
                             returnFromFuncCall();
-                            push(std::move(tmp));
+                            push(std::move(ip_or_val));
                         }
 
                         COZ_PROGRESS_NAMED("ark vm ret");
@@ -612,7 +616,7 @@ namespace Ark
                         break;
                     }
 
-                    #pragma region "Operators"
+                #pragma region "Operators"
 
                     case Instruction::ADD:
                     {
@@ -961,7 +965,7 @@ namespace Ark
                         break;
                     }
 
-                    #pragma endregion
+                #pragma endregion
 
                     default:
                         throwVMError("unknown instruction: " + Ark::Utils::toString(static_cast<std::size_t>(inst)));

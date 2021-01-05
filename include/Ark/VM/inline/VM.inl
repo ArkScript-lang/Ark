@@ -4,6 +4,10 @@
 
 #define createNewScope() m_locals.emplace_back(std::make_shared<internal::Scope>());
 #define resolveRef(valptr) (((valptr)->valueType() == ValueType::Reference) ? *((valptr)->reference()) : *(valptr))
+#define resolveRefInPlace(val) if (val.valueType() == ValueType::Reference) {       \
+                                    val.m_constType = val.reference()->m_constType; \
+                                    val.m_value = val.reference()->m_value;         \
+                                }
 
 // profiler
 #include <Ark/Profiling.hpp>
@@ -216,7 +220,8 @@ inline void VM::call(int16_t argc_)
                     break;
 
                 case 1:
-                    m_stack[m_sp + 1] = std::move(m_stack[m_sp - 1]);
+                    m_stack[m_sp + 1] = m_stack[m_sp - 1];
+                    resolveRefInPlace(m_stack[m_sp + 1]);
                     m_stack[m_sp - 1] = Value(static_cast<PageAddr_t>(m_pp));
                     m_stack[m_sp + 0] = Value(ValueType::InstPtr, static_cast<PageAddr_t>(m_ip));
                     m_sp += 2;
@@ -227,8 +232,10 @@ inline void VM::call(int16_t argc_)
                     const int16_t first = m_sp - argc;
                     // move first argument to the very end
                     m_stack[m_sp + 1] = m_stack[first + 0];
+                    resolveRefInPlace(m_stack[m_sp + 1]);
                     // move second argument right before the last one
                     m_stack[m_sp + 0] = m_stack[first + 1];
+                    resolveRefInPlace(m_stack[m_sp + 0]);
                     // move the rest, if any
                     int16_t x = 2;
                     const int16_t stop  = ((argc % 2 == 0) ? argc : (argc - 1)) / 2;
@@ -236,6 +243,8 @@ inline void VM::call(int16_t argc_)
                     {
                         //        destination          , origin
                         std::swap(m_stack[m_sp - x + 1], m_stack[first + x]);
+                        resolveRefInPlace(m_stack[m_sp - x + 1]);
+                        resolveRefInPlace(m_stack[first + x]);
                         ++x;
                     }
                     m_stack[first + 0] = Value(static_cast<PageAddr_t>(m_pp));
@@ -269,6 +278,15 @@ inline void VM::call(int16_t argc_)
             createNewScope();
             ++m_scope_count_to_delete.back();
 
+            // move values around and invert them
+            // 
+            // values:     1,  2, 3, _, _
+            // wanted:    pp, ip, 3, 2, 1
+            // positions:  0,  1, 2, 3, 4
+            // 
+            // move values first, from position x to y, with
+            //    y = argc - x + 1
+            // then place pp and ip
             switch (argc)  // must be positive
             {
                 case 0:
@@ -277,7 +295,8 @@ inline void VM::call(int16_t argc_)
                     break;
 
                 case 1:
-                    m_stack[m_sp + 1] = std::move(m_stack[m_sp - 1]);
+                    m_stack[m_sp + 1] = m_stack[m_sp - 1];
+                    resolveRefInPlace(m_stack[m_sp + 1]);
                     m_stack[m_sp - 1] = Value(static_cast<PageAddr_t>(m_pp));
                     m_stack[m_sp + 0] = Value(ValueType::InstPtr, static_cast<PageAddr_t>(m_ip));
                     m_sp += 2;
@@ -288,8 +307,10 @@ inline void VM::call(int16_t argc_)
                     const int16_t first = m_sp - argc;
                     // move first argument to the very end
                     m_stack[m_sp + 1] = m_stack[first + 0];
+                    resolveRefInPlace(m_stack[m_sp + 1]);
                     // move second argument right before the last one
                     m_stack[m_sp + 0] = m_stack[first + 1];
+                    resolveRefInPlace(m_stack[m_sp + 0]);
                     // move the rest, if any
                     int16_t x = 2;
                     const int16_t stop  = ((argc % 2 == 0) ? argc : (argc - 1)) / 2;
@@ -297,6 +318,8 @@ inline void VM::call(int16_t argc_)
                     {
                         //        destination          , origin
                         std::swap(m_stack[m_sp - x + 1], m_stack[first + x]);
+                        resolveRefInPlace(m_stack[m_sp - x + 1]);
+                        resolveRefInPlace(m_stack[first + x]);
                         ++x;
                     }
                     m_stack[first + 0] = Value(static_cast<PageAddr_t>(m_pp));
@@ -382,3 +405,4 @@ internal::Value VM::resolve(const internal::Value* val, Args&&... args)
 
 #undef createNewScope
 #undef resolveRef
+#undef resolveRefInPlace

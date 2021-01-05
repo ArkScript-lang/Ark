@@ -31,6 +31,8 @@
 #include <Ark/Config.hpp>
 #include <Ark/VM/Plugin.hpp>
 
+#define ARK_STACK_SIZE 8192
+
 #undef abs
 #include <cmath>
 
@@ -131,7 +133,7 @@ namespace Ark
         std::mutex m_mutex;
 
         // related to the execution
-        std::array<internal::Value, 8192> m_stack;
+        std::array<internal::Value, ARK_STACK_SIZE> m_stack;
         std::vector<uint8_t> m_scope_count_to_delete;
         std::optional<internal::Scope_t> m_saved_scope;
         std::vector<internal::Scope_t> m_locals;
