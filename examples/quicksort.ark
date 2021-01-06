@@ -30,7 +30,7 @@
 # obviously ArkScript will be a bit slower
 (let bench (fun (name code) {
     (mut start (time))
-    (let rep 10000)
+    (let rep 1000)
 
     (mut i 0)
     (while (< i rep) {

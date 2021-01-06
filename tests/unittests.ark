@@ -19,7 +19,7 @@
 
 (print "  ------------------------------")
 
-(print "  Total: " (+ 
+(print "  Total: " (+ 0 0
     passed-vm
     passed-builtins
     passed-exceptions
