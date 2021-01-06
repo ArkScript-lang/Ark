@@ -17,8 +17,14 @@
 (import "../string-tests.ark")
 (import "../switch-tests.ark")
 
+(let limit (if (!= 0 (len sys:args))
+    (if (not (nil? (toNumber (@ sys:args 0))))
+        (toNumber (@ sys:args 0))
+        10)
+    10))
+
 (mut i 0)
-(while (< i 1000) (begin
+(while (< i limit) (begin
     (vm-tests)
     (builtin-tests)
     (exceptions-tests)
@@ -31,5 +37,5 @@
 
     (set i (+ 1 i))
 ))
-
-(print "\nCompleted in " (* 1000 (- (time) start_time)) "ms")
+(let total (* 1000 (- (time) start_time)))
+(print "\nCompleted in " total "ms, average " (/ (* 1000 (- (time) start_time)) limit) "ms")

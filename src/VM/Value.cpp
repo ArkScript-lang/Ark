@@ -1,6 +1,5 @@
 #include <Ark/VM/Value.hpp>
 
-#include <Ark/VM/Frame.hpp>
 #include <Ark/Utils.hpp>
 
 #define init_const_type(is_const, type) ((is_const ? (1 << 7) : 0) | static_cast<uint8_t>(type))
@@ -112,27 +111,27 @@ namespace Ark::internal
 
     std::vector<Value>& Value::list()
     {
-        return mpark::get<std::vector<Value>>(m_value);
+        return variant_get<std::vector<Value>>(m_value);
     }
 
     Closure& Value::closure_ref()
     {
-        return mpark::get<Closure>(m_value);
+        return variant_get<Closure>(m_value);
     }
 
     String& Value::string_ref()
     {
-        return mpark::get<String>(m_value);
+        return variant_get<String>(m_value);
     }
 
     UserType& Value::usertype_ref()
     {
-        return mpark::get<UserType>(m_value);
+        return variant_get<UserType>(m_value);
     }
 
     Value* Value::reference() const
     {
-        return mpark::get<Value*>(m_value);
+        return variant_get<Value*>(m_value);
     }
 
     // --------------------------
@@ -215,6 +214,10 @@ namespace Ark::internal
 
         case ValueType::Reference:
             os << (*V.reference());
+            break;
+
+        case ValueType::InstPtr:
+            os << "Instruction @ " << V.pageAddr();
             break;
 
         default:

@@ -2,11 +2,19 @@
 
 ## Unreleased changes
 ### Added
+- `UserType::del()`, used only by the virtual machine to free memory
+- a new unique stack based on a `std::array<Value, ARK_STACK_SIZE>`, the default stack size being 8192
+- more profiling tests
 
 ### Changed
 - updating doxyfile and some docstrings
+- updating the download script
+- enhancing examples
+- creating a Scope allocates 4 pairs instead of 2, reducing the number of reallocations needed
 
 ### Removed
+- `~UserType`, since we are doing manual memory management now
+- `Frame` were removed because they were giving bad performances
 
 ## 3.0.15
 ### Added
