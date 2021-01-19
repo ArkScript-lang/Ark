@@ -62,7 +62,7 @@ LOOKUP_CACHE_SIZE      = 0
 # Build related configuration options
 #---------------------------------------------------------------------------
 
-EXTRACT_ALL            = NO
+EXTRACT_ALL            = YES
 EXTRACT_PRIVATE        = YES
 EXTRACT_PACKAGE        = NO
 EXTRACT_STATIC         = NO
@@ -121,9 +121,9 @@ WARN_LOGFILE           =
 # Configuration options related to the input files
 #---------------------------------------------------------------------------
 
-INPUT                  = include
-INPUT                 += src
-#INPUT                 += lib
+INPUT  = include
+INPUT += src
+INPUT += MAINPAGE.md
 
 INPUT_ENCODING         = UTF-8
 RECURSIVE              = YES
@@ -136,21 +136,22 @@ EXCLUDE_PATTERNS += */linux/*
 EXCLUDE_PATTERNS += */submodules/*
 EXCLUDE_PATTERNS += */thirdparties/*
 EXCLUDE_PATTERNS += */.github/*
-EXCLUDE_PATTERNS += */benchmarks/*
-EXCLUDE_PATTERNS += */benchmark/*
-EXCLUDE_PATTERNS += */modules/*
 EXCLUDE_PATTERNS += */lib/*
+
+SEARCH_INCLUDES = YES
+INCLUDE_PATH  = include/Ark/Compiler
+INCLUDE_PATH += include/Ark/VM
 
 EXAMPLE_RECURSIVE      = NO
 FILTER_SOURCE_FILES    = NO
-USE_MDFILE_AS_MAINPAGE =
+USE_MDFILE_AS_MAINPAGE = MAINPAGE.md
 
 #---------------------------------------------------------------------------
 # Configuration options related to source browsing
 #---------------------------------------------------------------------------
 
 SOURCE_BROWSER         = YES
-INLINE_SOURCES         = NO
+INLINE_SOURCES         = YES
 STRIP_CODE_COMMENTS    = YES
 REFERENCED_BY_RELATION = NO
 REFERENCES_RELATION    = NO
@@ -178,13 +179,12 @@ HTML_FILE_EXTENSION    = .html
 HTML_HEADER            =
 HTML_FOOTER            =
 HTML_STYLESHEET        =
-HTML_EXTRA_STYLESHEET  = ../arkscript-lang.github.io/doxygen/doxygen-modern.css
-HTML_EXTRA_FILES       = ../arkscript-lang.github.io/doxygen/inconsolata.woff \
-                         ../arkscript-lang.github.io/doxygen/SourceCodePro-Regular-webfont.woff \
-                         ../arkscript-lang.github.io/doxygen/Roboto-Light-webfont.woff \
-                         ../arkscript-lang.github.io/doxygen/Roboto-Regular-webfont.woff \
-                         ../arkscript-lang.github.io/doxygen/folder.png \
-                         ../arkscript-lang.github.io/doxygen/code.png
+#HTML_EXTRA_STYLESHEET  = ../arkscript-lang.github.io/doxygen/doxygen-modern.css
+#HTML_EXTRA_FILES       = ../arkscript-lang.github.io/doxygen/SourceCodePro-Regular-webfont.woff \
+#                         ../arkscript-lang.github.io/doxygen/Roboto-Light-webfont.woff \
+#                         ../arkscript-lang.github.io/doxygen/Roboto-Regular-webfont.woff \
+#                         ../arkscript-lang.github.io/doxygen/folder.png \
+#                         ../arkscript-lang.github.io/doxygen/code.png
 
 HTML_COLORSTYLE_HUE    = 220
 HTML_COLORSTYLE_SAT    = 100
