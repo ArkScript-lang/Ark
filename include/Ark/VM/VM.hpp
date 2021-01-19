@@ -184,9 +184,9 @@ namespace Ark
         inline void push(internal::Value&& val);
 
         /**
-         * @brief Push a value on the stack
+         * @brief Push a value on the stack as a reference
          * 
-         * @param val 
+         * @param valptr 
          */
         inline void push(internal::Value* valptr);
 
