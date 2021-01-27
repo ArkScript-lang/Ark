@@ -8,6 +8,7 @@ clang/
 gitstats/
 __arkscript__/
 packages/
+.idea/
 
 # files
 gmon.out

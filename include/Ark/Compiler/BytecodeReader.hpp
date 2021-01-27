@@ -17,6 +17,7 @@
 #include <iostream>
 #include <string>
 #include <cinttypes>
+#include <optional>
 
 #include <Ark/Config.hpp>
 
@@ -24,6 +25,12 @@ namespace Ark
 {
     using bytecode_t = std::vector<uint8_t>;
 
+    enum class BytecodeSegment {
+        All,
+        Symbols,
+        Values,
+        Code
+    };
     /**
      * @brief This class is just a helper to
      * - check if a bytecode is valid
@@ -61,10 +68,17 @@ namespace Ark
         unsigned long long timestamp();
 
         /**
-         * @brief Display the bytecode opcode in a human friendly way
-         * 
+         * @brief Display the bytecode opcode in a human friendly way.
+         *
+         * @param segment selected bytecode segment that will be displayed
+         * @param sStart start of the segment slice to display (Ignored in code segment if no page is available)
+         * @param sEnd end of the segment slice to display (Ignored in code segment if no page is available)
+         * @param cPage selected page of the code segment (Used only for the code segment)
          */
-        void display();
+        void display(BytecodeSegment segment = BytecodeSegment::All,
+                     std::optional<uint16_t> sStart = std::nullopt,
+                     std::optional<uint16_t> sEnd = std::nullopt,
+                     std::optional<uint16_t> cPage = std::nullopt);
 
     private:
         bytecode_t m_bytecode;
