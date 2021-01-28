@@ -64,7 +64,10 @@ namespace Ark
         return timestamp;
     }
 
-    void BytecodeReader::display()
+    void BytecodeReader::display(const BytecodeSegment segment,
+                                 const std::optional<uint16_t> sStart,
+                                 const std::optional<uint16_t> sEnd,
+                                 const std::optional<uint16_t> cPage)
     {
         bytecode_t b = bytecode();
         std::size_t i = 0;
@@ -111,22 +114,55 @@ namespace Ark
 
         // reading the different tables, one after another
 
-        if (b[i] == Instruction::SYM_TABLE_START)
+        if ((sStart.has_value() && !sEnd.has_value()) || (!sStart.has_value() && sEnd.has_value())) {
+            os << termcolor::red << "Both start and end parameter need to be provided together\n" << termcolor::reset;
+            return;
+        }
+        else if (sStart.has_value() && sEnd.has_value() && (sStart.value() > sEnd.value() || sEnd.value() < sStart.value()))
         {
-            os << "Symbols table:\n"; i++;
+            os << termcolor::red << "Invalid slice start and end arguments\n" << termcolor::reset;
+            return;
+        }
+
+        if (b[i] == Instruction::SYM_TABLE_START) {
+            i++;
             uint16_t size = readNumber(i); i++;
-            os << "Length: " << size << "\n";
-            for (uint16_t j=0; j < size; ++j)
+            uint16_t sliceSize = size;
+            bool showSym = (segment == BytecodeSegment::All || segment == BytecodeSegment::Symbols);
+
+            if (showSym && sStart.has_value() && sEnd.has_value() && (sStart.value() > size || sEnd.value() > size)) {
+                os << termcolor::red << "Slice start or end can't be greater than the segment size: " << size << "\n";
+            }
+            else if (showSym && sStart.has_value() && sEnd.has_value())
             {
-                os << static_cast<int>(j) << ") ";
-                std::string content = "";
+                sliceSize = sEnd.value() - sStart.value() + 1;
+            }
+
+            if (showSym) {
+                os << "Symbols table:\n";
+                os << "Length: " << sliceSize << "\n";
+            }
+
+            for (uint16_t j = 0; j < size; ++j) {
+
+                if (auto start = sStart; auto end = sEnd) {
+                    showSym = showSym && (j >= start.value() && j <= end.value());
+                }
+
+                std::string content;
                 while (b[i] != 0)
                     content += b[i++];
                 i++;
-                os << content << "\n";
+
+                if (showSym) {
+                    os << static_cast<int>(j) << ") ";
+                    os << content << "\n";
+                }
+
                 symbols.push_back(content);
             }
-            os << "\n";
+            if (showSym)
+                os << "\n";
         }
         else
         {
@@ -134,48 +170,75 @@ namespace Ark
             return;
         }
 
+        if (segment == BytecodeSegment::Symbols)
+            return;
+
         if (b[i] == Instruction::VAL_TABLE_START)
         {
-            os << "Constants table:\n"; i++;
+            i++;
             uint16_t size = readNumber(i); i++;
-            os << "Length: " << size << "\n";
-            for (uint16_t j=0; j < size; ++j)
+            uint16_t sliceSize = size;
+
+            bool showVal = (segment == BytecodeSegment::All || segment == BytecodeSegment::Values);
+            if (showVal && sStart.has_value() && sEnd.has_value() && (sStart.value() > size || sEnd.value() > size)) {
+                os << termcolor::red << "Slice start or end can't be greater than the segment size: " << size << "\n";
+            }
+            else if (showVal && sStart.has_value() && sEnd.has_value())
             {
-                os << static_cast<int>(j) << ") ";
-                uint8_t type = b[i]; i++;
-                if (type == Instruction::NUMBER_TYPE)
-                {
-                    std::string val = "";
+                sliceSize = sEnd.value() - sStart.value() + 1;
+            }
+
+            if (showVal) {
+                os << "Constants table:\n";
+                os << "Length: " << sliceSize << "\n";
+            }
+
+            bool showLine = true;
+            for (uint16_t j = 0; j < size; ++j) {
+
+                if (auto start = sStart; auto end = sEnd) {
+                    showVal = showVal && (j >= start.value() && j <= end.value());
+                }
+
+                if (showVal)
+                    os << static_cast<int>(j) << ") ";
+                uint8_t type = b[i];
+                i++;
+                if (type == Instruction::NUMBER_TYPE) {
+                    std::string val;
                     while (b[i] != 0)
                         val.push_back(b[i++]);
                     i++;
-                    os << "(Number) " << val;
+                    if (showVal)
+                        os << "(Number) " << val;
                     values.push_back("(Number) " + val);
-                }
-                else if (type == Instruction::STRING_TYPE)
-                {
-                    std::string val = "";
+                } else if (type == Instruction::STRING_TYPE) {
+                    std::string val;
                     while (b[i] != 0)
                         val.push_back(b[i++]);
                     i++;
-                    os << "(String) " << val;
+                    if (showVal)
+                        os << "(String) " << val;
                     values.push_back("(String) " + val);
-                }
-                else if (type == Instruction::FUNC_TYPE)
-                {
-                    uint16_t addr = readNumber(i); i++;
-                    os << "(PageAddr) " << addr;
+                } else if (type == Instruction::FUNC_TYPE) {
+                    uint16_t addr = readNumber(i);
+                    i++;
+                    if (showVal)
+                        os << "(PageAddr) " << addr;
                     values.push_back("(PageAddr) " + Ark::Utils::toString(addr));
                     i++;
-                }
-                else
-                {
-                    os << termcolor::red << "Unknown value type: " << static_cast<int>(type) << '\n' << termcolor::reset;
+                } else {
+                    os << termcolor::red << "Unknown value type: " << static_cast<int>(type) << '\n'
+                       << termcolor::reset;
                     return;
                 }
-                os << "\n";
+
+                if (showVal)
+                    os << "\n";
             }
-            os << "\n";
+
+            if (showVal)
+                os << "\n";
         }
         else
         {
@@ -183,172 +246,334 @@ namespace Ark
             return;
         }
 
+        if (segment == BytecodeSegment::Values)
+            return;
+
         uint16_t pp = 0;
 
-        while (b[i] == Instruction::CODE_SEGMENT_START)
+        while (b[i] == Instruction::CODE_SEGMENT_START && (segment == BytecodeSegment::All || segment == BytecodeSegment::Code))
         {
-            os << "Code segment (PP: " << pp << ") :\n"; i++;
+            i++;
             uint16_t size = readNumber(i); i++;
-            os << "Length: " << size << "\n";
+            os << "segment size " << size << '\n';
+            uint16_t sliceSize = size;
+
+            if (sStart.has_value() && sEnd.has_value())
+            {
+                sliceSize = sEnd.value() - sStart.value() + 1;
+            }
+
+            bool displayCode = true;
+
+            if (auto page = cPage) {
+                displayCode = pp == page.value();
+            }
+
+            if (displayCode) {
+                os << "Code segment (PP: " << pp << ") :\n";
+                os << "Length: " << sliceSize << "\n";
+            }
 
             if (size == 0)
-                os << "NOP";
+            {
+                if (displayCode)
+                    os << "NOP";
+            }
             else
             {
                 uint16_t j = i;
-                while (true)
-                {
-                    os << termcolor::cyan << (i - j) << termcolor::reset << " " << termcolor::yellow;
-                    uint8_t inst = b[i]; i++;
+
+                bool displayLine = displayCode;
+                while (true) {
+                    uint16_t line_number = i - j;
+                    if (sStart.has_value() && sEnd.has_value() && ((sStart.value() > size) || (sEnd.value() > size)))
+                    {
+                        os << termcolor::red << "Slice start or end can't be greater than the segment size: "  << size << termcolor::reset << "\n";
+                        return;
+                    }
+                    else if (sStart.has_value() && sEnd.has_value() && cPage.has_value())
+                    {
+                        displayLine = displayCode && (line_number >= sStart.value() && line_number <= sEnd.value());
+                    }
+
+                    if (displayLine)
+                        os << termcolor::cyan << line_number << termcolor::reset << " " << termcolor::yellow;
+                    uint8_t inst = b[i];
+                    i++;
 
                     if (inst == Instruction::NOP)
-                        os << "NOP\n";
+                    {
+                        if (displayLine)
+                            os << "NOP\n";
+                    }
                     else if (inst == Instruction::LOAD_SYMBOL)
                     {
-                        os << "LOAD_SYMBOL " << termcolor::green << symbols[readNumber(i)] << "\n";
+                        uint16_t index = readNumber(i);
+                        if (displayLine)
+                            os << "LOAD_SYMBOL " << termcolor::green << symbols[index] << "\n";
                         i++;
                     }
                     else if (inst == Instruction::LOAD_CONST)
                     {
-                        os << "LOAD_CONST " << termcolor::magenta << values[readNumber(i)] << "\n";
+                        uint16_t index = readNumber(i);
+                        if (displayLine)
+                            os << "LOAD_CONST " << termcolor::magenta << values[index] << "\n";
                         i++;
                     }
                     else if (inst == Instruction::POP_JUMP_IF_TRUE)
                     {
-                        os << "POP_JUMP_IF_TRUE " << termcolor::red << "(" << readNumber(i) << ")\n";
+                        uint16_t value = readNumber(i);
+                        if (displayLine)
+                            os << "POP_JUMP_IF_TRUE " << termcolor::red << "(" << value << ")\n";
                         i++;
                     }
                     else if (inst == Instruction::STORE)
                     {
-                        os << "STORE " << termcolor::green << symbols[readNumber(i)] << "\n";
+                        uint16_t index = readNumber(i);
+                        if (displayLine)
+                            os << "STORE " << termcolor::green << symbols[index] << "\n";
                         i++;
                     }
                     else if (inst == Instruction::LET)
                     {
-                        os << "LET " << termcolor::green << symbols[readNumber(i)] << "\n";
+                        uint16_t index = readNumber(i);
+                        if (displayLine)
+                            os << "LET " << termcolor::green << symbols[index] << "\n";
                         i++;
                     }
                     else if (inst == Instruction::POP_JUMP_IF_FALSE)
                     {
-                        os << "POP_JUMP_IF_FALSE " << termcolor::red << "(" << readNumber(i) << ")\n";
+                        uint16_t value = readNumber(i);
+                        if (displayLine)
+                            os << "POP_JUMP_IF_FALSE " << termcolor::red << "(" << value << ")\n";
                         i++;
                     }
                     else if (inst == Instruction::JUMP)
                     {
-                        os << "JUMP " << termcolor::red << "(" << readNumber(i) << ")\n";
+                        uint16_t value = readNumber(i);
+                        if (displayLine)
+                            os << "JUMP " << termcolor::red << "(" << value << ")\n";
                         i++;
                     }
                     else if (inst == Instruction::RET)
-                        os << "RET\n";
+                    {
+                        if (displayLine)
+                            os << "RET\n";
+                    }
                     else if (inst == Instruction::HALT)
-                        os << "HALT\n";
+                    {
+                        if (displayLine)
+                            os << "HALT\n";
+                    }
                     else if (inst == Instruction::CALL)
                     {
-                        os << "CALL " << termcolor::reset << "(" << readNumber(i) << ")\n";
+                        uint16_t value = readNumber(i);
+                        if (displayLine)
+                            os << "CALL " << termcolor::reset << "(" << value << ")\n";
                         i++;
                     }
                     else if (inst == Instruction::CAPTURE)
                     {
-                        os << "CAPTURE " << termcolor::reset << symbols[readNumber(i)] << "\n";
+                        uint16_t index = readNumber(i);
+                        if (displayLine)
+                            os << "CAPTURE " << termcolor::reset << symbols[index] << "\n";
                         i++;
                     }
                     else if (inst == Instruction::BUILTIN)
                     {
-                        os << "BUILTIN " << termcolor::reset << Builtins::builtins[readNumber(i)].first << "\n";
+                        uint16_t index = readNumber(i);
+                        if (displayLine)
+                            os << "BUILTIN " << termcolor::reset << Builtins::builtins[index].first << "\n";
                         i++;
                     }
                     else if (inst == Instruction::MUT)
                     {
-                        os << "MUT " << termcolor::green << symbols[readNumber(i)] << "\n";
+                        uint16_t index = readNumber(i);
+                        if (displayLine)
+                            os << "MUT " << termcolor::green << symbols[index] << "\n";
                         i++;
                     }
                     else if (inst == Instruction::DEL)
                     {
-                        os << "DEL " << termcolor::green << symbols[readNumber(i)] << "\n";
+                        uint16_t index = readNumber(i);
+                        if (displayLine)
+                            os << "DEL " << termcolor::green << symbols[index] << "\n";
                         i++;
                     }
                     else if (inst == Instruction::SAVE_ENV)
-                        os << "SAVE_ENV\n";
+                    {
+                        if (displayLine)
+                            os << "SAVE_ENV\n";
+                    }
                     else if (inst == Instruction::GET_FIELD)
                     {
-                        os << "GET_FIELD " << termcolor::green << symbols[readNumber(i)] << "\n";
+                        uint16_t index = readNumber(i);
+                        if (displayLine)
+                            os << "GET_FIELD " << termcolor::green << symbols[index] << "\n";
                         i++;
                     }
                     else if (inst == Instruction::PLUGIN)
                     {
-                        os << "PLUGIN " << termcolor::magenta << values[readNumber(i)] << "\n";
+                        uint16_t index = readNumber(i);
+                        if (displayLine)
+                            os << "PLUGIN " << termcolor::magenta << values[index] << "\n";
                         i++;
                     }
                     else if (inst == Instruction::LIST)
                     {
-                        os << "LIST " << termcolor::reset << "(" << readNumber(i) << ")\n";
+                        uint16_t value = readNumber(i);
+                        if (displayLine)
+                            os << "LIST " << termcolor::reset << "(" << value << ")\n";
                         i++;
                     }
                     else if (inst == Instruction::APPEND)
                     {
-                        os << "APPEND " << termcolor::reset << "(" << readNumber(i) << ")\n";
+                        uint16_t value = readNumber(i);
+                        if (displayLine)
+                            os << "APPEND " << termcolor::reset << "(" << value << ")\n";
                         i++;
                     }
                     else if (inst == Instruction::CONCAT)
                     {
-                        os << "CONCAT " << termcolor::reset << "(" << readNumber(i) << ")\n";
+                        uint16_t value = readNumber(i);
+                        if (displayLine)
+                            os << "CONCAT " << termcolor::reset << "(" << value << ")\n";
                         i++;
                     }
                     else if (inst == Instruction::ADD)
-                        os << "ADD\n";
-                    else if (inst == Instruction::SUB)
-                        os << "SUB\n";
-                    else if (inst == Instruction::MUL)
-                        os << "MUL\n";
-                    else if (inst == Instruction::DIV)
-                        os << "DIV\n";
-                    else if (inst == Instruction::GT)
-                        os << "GT\n";
-                    else if (inst == Instruction::LT)
-                        os << "LT\n";
-                    else if (inst == Instruction::LE)
-                        os << "LE\n";
-                    else if (inst == Instruction::GE)
-                        os << "GE\n";
-                    else if (inst == Instruction::NEQ)
-                        os << "NEQ\n";
-                    else if (inst == Instruction::EQ)
-                        os << "EQ\n";
-                    else if (inst == Instruction::LEN)
-                        os << "LEN\n";
-                    else if (inst == Instruction::EMPTY)
-                        os << "EMPTY\n";
-                    else if (inst == Instruction::FIRSTOF)
-                        os << "FIRSTOF\n";
-                    else if (inst == Instruction::TAILOF)
-                        os << "TAILOF\n";
-                    else if (inst == Instruction::HEADOF)
-                        os << "HEADOF\n";
-                    else if (inst == Instruction::ISNIL)
-                        os << "ISNIL\n";
-                    else if (inst == Instruction::ASSERT)
-                        os << "ASSERT\n";
-                    else if (inst == Instruction::TO_NUM)
-                        os << "TO_NUM\n";
-                    else if (inst == Instruction::TO_STR)
-                        os << "TO_STR\n";
-                    else if (inst == Instruction::AT)
-                        os << "AT\n";
-                    else if (inst == Instruction::AND_)
-                        os << "AND_\n";
-                    else if (inst == Instruction::OR_)
-                        os << "OR_\n";
-                    else if (inst == Instruction::MOD)
-                        os << "MOD\n";
-                    else if (inst == Instruction::TYPE)
-                        os << "TYPE\n";
-                    else if (inst == Instruction::HASFIELD)
-                        os << "HASFIELD\n";
-                    else if (inst == Instruction::NOT)
-                        os << "NOT\n";
-                    else
                     {
-                        os << termcolor::reset << "Unknown instruction: " << static_cast<int>(inst) << '\n' << termcolor::reset;
+                        if (displayLine)
+                            os << "ADD\n";
+                    }
+                    else if (inst == Instruction::SUB)
+                    {
+                        if (displayLine)
+                            os << "SUB\n";
+                    }
+                    else if (inst == Instruction::MUL)
+                    {
+                        if (displayLine)
+                            os << "MUL\n";
+                    }
+                    else if (inst == Instruction::DIV)
+                    {
+                        if (displayLine)
+                            os << "DIV\n";
+                    }
+                    else if (inst == Instruction::GT)
+                    {
+                        if (displayLine)
+                            os << "GT\n";
+                    }
+                    else if (inst == Instruction::LT)
+                    {
+                        if (displayLine)
+                            os << "LT\n";
+                    }
+                    else if (inst == Instruction::LE)
+                    {
+                        if (displayLine)
+                            os << "LE\n";
+                    }
+                    else if (inst == Instruction::GE)
+                    {
+                        if (displayLine)
+                            os << "GE\n";
+                    }
+                    else if (inst == Instruction::NEQ)
+                    {
+
+                        if (displayLine)
+                            os << "NEQ\n";
+                    }
+                    else if (inst == Instruction::EQ)
+                    {
+                        if (displayLine)
+                            os << "EQ\n";
+                    }
+                    else if (inst == Instruction::LEN)
+                    {
+                        if (displayLine)
+                            os << "LEN\n";
+                    }
+                    else if (inst == Instruction::EMPTY)
+                    {
+                        if (displayLine)
+                            os << "EMPTY\n";
+                    }
+                    else if (inst == Instruction::FIRSTOF)
+                    {
+                        if (displayLine)
+                            os << "FIRSTOF\n";
+                    }
+                    else if (inst == Instruction::TAILOF)
+                    {
+                        if (displayLine)
+                            os << "TAILOF\n";
+                    }
+                    else if (inst == Instruction::HEADOF)
+                    {
+                        if (displayLine)
+                            os << "HEADOF\n";
+                    }
+                    else if (inst == Instruction::ISNIL)
+                    {
+                        if (displayLine)
+                            os << "ISNIL\n";
+                    }
+                    else if (inst == Instruction::ASSERT)
+                    {
+                        if (displayLine)
+                            os << "ASSERT\n";
+                    }
+                    else if (inst == Instruction::TO_NUM)
+                    {
+                        if (displayLine)
+                            os << "TO_NUM\n";
+                    }
+                    else if (inst == Instruction::TO_STR)
+                    {
+                        if (displayLine)
+                            os << "TO_STR\n";
+                    }
+                    else if (inst == Instruction::AT)
+                    {
+                        if (displayLine)
+                            os << "AT\n";
+                    }
+                    else if (inst == Instruction::AND_)
+                    {
+                        if (displayLine)
+                            os << "AND_\n";
+                    }
+                    else if (inst == Instruction::OR_)
+                    {
+                        if (displayLine)
+                            os << "OR_\n";
+                    }
+                    else if (inst == Instruction::MOD)
+                    {
+                        if (displayLine)
+                            os << "MOD\n";
+                    }
+                    else if (inst == Instruction::TYPE)
+                    {
+                        if (displayLine)
+                            os << "TYPE\n";
+                    }
+                    else if (inst == Instruction::HASFIELD)
+                    {
+                        if (displayLine)
+                            os << "HASFIELD\n";
+                    }
+                    else if (inst == Instruction::NOT)
+                    {
+                        if (displayLine)
+                            os << "NOT\n";
+                    }
+                    else {
+                        if (displayLine)
+                            os << termcolor::reset << "Unknown instruction: " << static_cast<int>(inst) << '\n' << termcolor::reset;
                         return;
                     }
 
@@ -356,7 +581,12 @@ namespace Ark
                         break;
                 }
             }
-            os << "\n" << termcolor::reset;
+            if (displayCode)
+                os << "\n" << termcolor::reset;
+
+            if (cPage.has_value() && pp == cPage)
+                return;
+
             ++pp;
 
             if (i == b.size())
