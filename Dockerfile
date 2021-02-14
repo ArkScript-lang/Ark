@@ -20,7 +20,7 @@ RUN git submodule update --init --recursive \
 FROM alpine:3.12 AS builder
 
 # Install cmake
-RUN apk --no-cache add cmake clang clang-dev make gcc g++ libc-dev linux-headers
+RUN apk --no-cache add cmake clang clang-dev make gcc g++ libc-dev linux-headers openssl
 
 # Build
 COPY include include
