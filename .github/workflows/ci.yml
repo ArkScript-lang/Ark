@@ -59,6 +59,7 @@ jobs:
           sudo apt-get install -y clang-9 lld-9 libc++-9-dev libc++abi-9-dev clang-tools-9
         elif [[ ${{ matrix.config.os_short }} == 'macOS' ]]; then
           brew install gcc && brew link gcc && CXX=/usr/local/bin/g++-9
+          brew install openssl
         fi
 
     - name: Configure CMake
