@@ -576,7 +576,7 @@ namespace Ark
 
                         Value *list = popAndResolveAsPtr();
                         if (list->valueType() != ValueType::List)
-                            throw Ark::TypeError("append needs a list and then whatever you want");
+                            throw Ark::TypeError("append needs a List and then whatever you want");
                         const uint16_t size = list->const_list().size();
 
                         Value obj = Value(*list);
@@ -735,7 +735,7 @@ namespace Ark
                         else if (a->valueType() == ValueType::String)
                             push(Value(static_cast<int>(a->string().size())));
                         else
-                            throw Ark::TypeError("Argument of len must be a list or a String");
+                            throw Ark::TypeError("Argument of len must be a List or a String");
                         break;
                     }
 
