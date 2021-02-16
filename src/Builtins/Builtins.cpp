@@ -88,7 +88,7 @@ namespace Ark::internal::Builtins
     extern const std::vector<std::string> operators = {
         "+", "-", "*", "/",
         ">", "<", "<=", ">=", "!=", "=",
-        "len", "empty?", "firstOf", "tailOf", "headOf",
+        "len", "empty?", "tail", "head",
         "nil?", "assert",
         "toNumber", "toString",
         "@", "and", "or", "mod",
