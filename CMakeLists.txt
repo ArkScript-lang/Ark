@@ -48,10 +48,11 @@ set(ARK_COMPILATION_OPTIONS ${CMAKE_CXX_FLAGS})
 set(ARK_COMPILER            ${CMAKE_CXX_COMPILER_ID})
 
 set(ARK_BUILD_EXE       Off CACHE BOOL "Build a standalone ark executable")
-set(ARK_ENABLE_SYSTEM   On  CACHE BOOL "Enable sys:exec")  # enable use of (system "command here")
+set(ARK_ENABLE_SYSTEM   On  CACHE BOOL "Enable sys:exec")  # enable use of (sys:exec "command here")
 set(ARK_PROFILER        Off CACHE BOOL "Enable coz profiler")
 set(ARK_PROFILER_COUNT  Off CACHE BOOL "Enable creations/copies/moves counting on the Value")
 set(ARK_SCOPE_DICHOTOMY Off CACHE BOOL "Change the behaviour of the scopes from linear (off) to dichotomic (On)")
+set(ARK_BUILD_MODULES   Off CACHE BOOL "Build the std library modules or not")
 
 if (ARK_SCOPE_DICHOTOMY)
     add_definitions(-DARK_SCOPE_DICHOTOMY)
@@ -64,6 +65,10 @@ if (ARK_PROFILER)
 endif()
 if (ARK_ENABLE_SYSTEM)
     add_definitions(-DARK_ENABLE_SYSTEM)
+endif()
+if (ARK_BUILD_MODULES)
+    # submodules
+    add_subdirectory(${ark_SOURCE_DIR}/lib/ext)
 endif()
 
 configure_file(
@@ -178,6 +183,3 @@ if (ARK_BUILD_EXE)
                         GROUP_EXECUTE GROUP_READ
     )
 endif()
-
-# submodules
-add_subdirectory(${ark_SOURCE_DIR}/lib/ext)
