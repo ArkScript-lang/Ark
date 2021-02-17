@@ -121,15 +121,6 @@ Finally, don't forget to `source $HOME/.bashrc` to refresh your path.
 $ docker pull arkscript/stable:latest
 ```
 
-### Through [werb](https://github.com/wafelack/werb)
-
-*Linux only*
-
-```bash
-$ cargo install werb
-$ werb install arkscript
-```
-
 ## Contributing
 
 * First, [fork](https://github.com/ArkScript-lang/Ark/fork) the repository

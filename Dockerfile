@@ -20,7 +20,7 @@ RUN git submodule update --init --recursive \
 FROM alpine:3.12 AS builder
 
 # Install cmake
-RUN apk --no-cache add cmake clang clang-dev make gcc g++ libc-dev linux-headers openssl
+RUN apk --no-cache add cmake clang clang-dev make gcc g++ libc-dev linux-headers
 
 # Build
 COPY include include
@@ -30,7 +30,7 @@ COPY thirdparties thirdparties
 COPY CMakeLists.txt .
 COPY --from=submodule-initializor /out .
 RUN cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release -DARK_BUILD_EXE=1 \
-    && cmake --build build \
+    && cmake --build build --target ark \
     && rm -rf lib/ext
 
 FROM alpine:3.12 AS organizer

@@ -65,7 +65,7 @@ jobs:
 
     - name: Configure CMake
       shell: bash
-      run: cmake -Bbuild -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_C_COMPILER=${{ matrix.config.cc }} -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }} -DARK_BUILD_EXE=On
+      run: cmake -Bbuild -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_C_COMPILER=${{ matrix.config.cc }} -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }} -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=On
 
     - name: Build
       shell: bash
