@@ -9,8 +9,8 @@
  * 
  */
 
-#ifndef ark_compiler_instructions
-#define ark_compiler_instructions
+#ifndef ARK_COMPILER_INSTRUCTIONS_HPP
+#define ARK_COMPILER_INSTRUCTIONS_HPP
 
 #include <cinttypes>
 

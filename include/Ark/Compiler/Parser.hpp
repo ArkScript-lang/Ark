@@ -9,8 +9,8 @@
  * 
  */
 
-#ifndef ark_parser
-#define ark_parser
+#ifndef ARK_COMPILER_PARSER_HPP
+#define ARK_COMPILER_PARSER_HPP
 
 #include <string>
 #include <list>
@@ -145,4 +145,4 @@ namespace Ark
     #include "Parser.inl"
 }
 
-#endif  // ark_parser
+#endif

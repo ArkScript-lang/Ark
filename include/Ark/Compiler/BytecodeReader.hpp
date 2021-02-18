@@ -9,8 +9,8 @@
  * 
  */
 
-#ifndef ark_compiler_bytecodereader
-#define ark_compiler_bytecodereader
+#ifndef ARK_COMPILER_BYTECODEREADER_HPP
+#define ARK_COMPILER_BYTECODEREADER_HPP
 
 #include <vector>
 #include <fstream>

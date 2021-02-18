@@ -9,8 +9,8 @@
  * 
  */
 
-#ifndef ark_constants
-#define ark_constants
+#ifndef INCLUDE_ARK_CONSTANTS_HPP_IN
+#define INCLUDE_ARK_CONSTANTS_HPP_IN
 
 #define ARK_VERSION_MAJOR @ARK_VERSION_MAJOR@
 #define ARK_VERSION_MINOR @ARK_VERSION_MINOR@
@@ -37,4 +37,4 @@ namespace Ark
         | FeatureRemoveUnusedVars;
 }
 
-#endif  // ark_constants
+#endif

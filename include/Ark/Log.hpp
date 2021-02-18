@@ -9,8 +9,8 @@
  * 
  */
 
-#ifndef ark_log
-#define ark_log
+#ifndef INCLUDE_ARK_LOG_HPP
+#define INCLUDE_ARK_LOG_HPP
 
 #include <string>
 #include <iostream>
@@ -104,4 +104,4 @@ namespace Ark
     extern Logger logger;
 }
 
-#endif  // ark_log
+#endif

@@ -9,8 +9,8 @@
  * 
  */
 
-#ifndef ark_vm_usertype
-#define ark_vm_usertype
+#ifndef ARK_VM_USERTYPE_HPP
+#define ARK_VM_USERTYPE_HPP
 
 #include <iostream>
 #include <vector>

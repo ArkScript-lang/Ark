@@ -9,8 +9,8 @@
  * 
  */
 
-#ifndef ark_config
-#define ark_config
+#ifndef INCLUDE_ARK_CONFIG_HPP
+#define INCLUDE_ARK_CONFIG_HPP
 
 #if defined(_WIN32) || defined(_WIN64)
     #define ARK_OS_WINDOWS

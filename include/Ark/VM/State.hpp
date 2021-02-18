@@ -9,8 +9,8 @@
  * 
  */
 
-#ifndef ark_vm_state
-#define ark_vm_state
+#ifndef ARK_VM_STATE_HPP
+#define ARK_VM_STATE_HPP
 
 #include <string>
 #include <vector>

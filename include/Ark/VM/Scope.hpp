@@ -9,8 +9,8 @@
  * 
  */
 
-#ifndef ark_vm_scope
-#define ark_vm_scope
+#ifndef ARK_VM_SCOPE_HPP
+#define ARK_VM_SCOPE_HPP
 
 #include <vector>
 #include <utility>

@@ -9,8 +9,8 @@
  *
  */
 
-#ifndef UTIL_HPP
-#define UTIL_HPP
+#ifndef REPL_REPLXX_UTIL_HPP
+#define REPL_REPLXX_UTIL_HPP
 
 #include <vector>
 #include <utility>

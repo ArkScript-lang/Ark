@@ -9,8 +9,8 @@
  * 
  */
 
-#ifndef ark_lexer
-#define ark_lexer
+#ifndef ARK_COMPILER_LEXER_HPP
+#define ARK_COMPILER_LEXER_HPP
 
 #include <vector>
 #include <algorithm>
@@ -172,4 +172,4 @@ namespace Ark::internal
     #include "Lexer.inl"
 }
 
-#endif  // ark_lexer
+#endif
