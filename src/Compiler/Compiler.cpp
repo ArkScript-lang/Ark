@@ -458,10 +458,6 @@ namespace Ark
             return;
         }
 
-        // TEMP SKIP MACROS
-        else if (x.nodeType() == NodeType::Macro)
-            return;
-
         // if we are here, we should have a function name
         // push arguments first, then function name, then call it
             m_temp_pages.emplace_back();

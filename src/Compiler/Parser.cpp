@@ -43,8 +43,6 @@ namespace Ark
         std::list<Token> tokens(t.begin(), t.end());
         m_last_token = tokens.front();
 
-        std::cout << "tokens valid" << std::endl;
-
         // accept every nodes in the file
         m_ast = Node(NodeType::List);
         m_ast.setFilename(m_file);
@@ -100,7 +98,7 @@ namespace Ark
     }
 
     // sugar() was called before, so it's safe to assume we only have ( and )
-    Node Parser::parse(std::list<Token>& tokens, bool authorize_capture, bool authorize_field_read)
+    Node Parser::parse(std::list<Token>& tokens, bool authorize_capture, bool authorize_field_read, bool in_macro)
     {
         using namespace std::string_literals;
 
@@ -170,7 +168,7 @@ namespace Ark
                         if (temp.type == TokenType::Grouping)
                             block.push_back(parse(tokens));
                         else if (temp.type == TokenType::Identifier || temp.type == TokenType::Number ||
-                                 temp.type == TokenType::String)
+                                 temp.type == TokenType::String || (in_macro && temp.type == TokenType::Spread))
                             block.push_back(atom(nextToken(tokens)));
                         else
                             throwParseError("found invalid token after keyword `if', expected function call, value or Identifier", temp);
@@ -294,10 +292,11 @@ namespace Ark
                 }
                 else if (token.type == TokenType::Identifier || token.type == TokenType::Operator ||
                         (token.type == TokenType::Capture && authorize_capture) ||
-                        (token.type == TokenType::GetField && authorize_field_read))
+                        (token.type == TokenType::GetField && authorize_field_read) ||
+                        (token.type == TokenType::Spread && in_macro))
                 {
                     while (tokens.front().token != ")")
-                        block.push_back(parse(tokens, /* authorize_capture */ false, /* authorize_field_read */ true));
+                        block.push_back(parse(tokens, /* authorize_capture */ false, /* authorize_field_read */ true, in_macro));
                 }
             } while (tokens.front().token != ")");
 
@@ -327,9 +326,14 @@ namespace Ark
                 block.setPos(token.line, token.col);
                 block.setFilename(m_file);
 
-                block.list().back().setPos(token.line, token.col);
-                block.list().back().setFilename(m_file);
-                block.push_back(parse(tokens));
+                auto saved_token = tokens.front();
+                Node parsed = parse(tokens, /* authorize_capture */ false, /* authorize_field_read */ false, /* in_macro */ true);
+                if (parsed.nodeType() != NodeType::List || parsed.list()[0].keyword() != Keyword::Begin)
+                    throwParseError("Macros can only defined using the !{ name value } or !{ name (args) value } syntax", saved_token);
+
+                // append the nodes of the parsed node to the current macro node
+                for (std::size_t i = 1, end = parsed.list().size(); i < end; ++i)
+                    block.push_back(parsed.list()[i]);
                 return block;
             }
             else
@@ -382,7 +386,7 @@ namespace Ark
         else if (token.type == TokenType::Keyword)
         {
             std::optional<Keyword> kw;
-            if (token.token == "if")          kw = Keyword::If;
+            if      (token.token == "if")     kw = Keyword::If;
             else if (token.token == "set")    kw = Keyword::Set;
             else if (token.token == "let")    kw = Keyword::Let;
             else if (token.token == "mut")    kw = Keyword::Mut;
@@ -413,6 +417,14 @@ namespace Ark
         {
             auto n = Node(NodeType::GetField);
             n.setString(token.token);
+            n.setPos(token.line, token.col);
+            n.setFilename(m_file);
+            return n;
+        }
+        else if (token.type == TokenType::Spread)
+        {
+            auto n = Node(NodeType::Spread);
+            n.setString(token.token.substr(3));  // remove the "..."
             n.setPos(token.line, token.col);
             n.setFilename(m_file);
             return n;

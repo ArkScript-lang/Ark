@@ -176,7 +176,7 @@ namespace Ark::internal
         case NodeType::Closure:
             os << "Closure";
             break;
-        
+
         case NodeType::Keyword:
             switch(N.keyword())
             {
@@ -191,6 +191,21 @@ namespace Ark::internal
                 case Keyword::Quote:  os << "Quote";  break;
                 case Keyword::Del:    os << "Del";    break;
             }
+            break;
+
+        case NodeType::Macro:
+        {
+            os << colors[index % colors.size()] << "( " << termcolor::reset << "Macro ";
+            index++;
+            for (auto& t: N.m_list)
+                os << t << " ";
+            index--;
+            os << colors[index % colors.size()] << ")" << termcolor::reset;
+            break;
+        }
+
+        case NodeType::Spread:
+            os << "(Spread) " << N.string();
             break;
 
         default:
