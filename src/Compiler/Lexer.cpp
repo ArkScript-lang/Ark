@@ -92,11 +92,11 @@ namespace Ark::internal
                     buffer.clear();
                     buffer += current;
                 }
-                // getfield
+                // getfield or spread
                 else if (current == '.')
                 {
                     // check numbers, we don't want to split 3.0 into 3 and .0
-                    if (!buffer.empty() && !(('0' <= buffer[0] && buffer[0] <= '9') || buffer[0] == '+' || buffer[0] == '-'))
+                    if (!buffer.empty() && !('0' <= buffer[0] && buffer[0] <= '9') && buffer[0] != '+' && buffer[0] != '-' && buffer[0] != '.')
                     {
                         append_token_from_buffer();
                         buffer.clear();

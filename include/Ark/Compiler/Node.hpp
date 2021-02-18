@@ -32,7 +32,8 @@ namespace Ark::internal
         String,
         Number,
         List,
-        Closure
+        Closure,
+        Macro
     };
 
     /// The different keywords available

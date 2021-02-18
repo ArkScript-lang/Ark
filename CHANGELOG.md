@@ -6,6 +6,7 @@
 - a new unique stack based on a `std::array<Value, ARK_STACK_SIZE>`, the default stack size being 8192
 - more profiling tests
 - more options on the `display()` method of the bytecode reader, allowing us to selecto segment of bytecode instead of displaying everything
+- added a new token type: `Spread` ; it handles `...identifier`, needed in macros
 
 ### Changed
 - updating doxyfile and some docstrings
