@@ -43,6 +43,8 @@ namespace Ark
         std::list<Token> tokens(t.begin(), t.end());
         m_last_token = tokens.front();
 
+        std::cout << "tokens valid" << std::endl;
+
         // accept every nodes in the file
         m_ast = Node(NodeType::List);
         m_ast.setFilename(m_file);
@@ -313,6 +315,18 @@ namespace Ark
                 block.setFilename(m_file);
 
                 block.push_back(Node(Keyword::Quote));
+                block.list().back().setPos(token.line, token.col);
+                block.list().back().setFilename(m_file);
+                block.push_back(parse(tokens));
+                return block;
+            }
+            else if (token.token == "!")
+            {
+                // macros
+                Node block(NodeType::Macro);
+                block.setPos(token.line, token.col);
+                block.setFilename(m_file);
+
                 block.list().back().setPos(token.line, token.col);
                 block.list().back().setFilename(m_file);
                 block.push_back(parse(tokens));

@@ -36,6 +36,7 @@ namespace Ark::internal
         Skip,
         Comment,
         Shorthand,
+        Spread,
         Mismatch
     };
 
@@ -43,7 +44,7 @@ namespace Ark::internal
     const std::vector<std::string> tokentype_string = {
         "Grouping", "String", "Number", "Operator",
         "Identifier", "Capture", "GetField", "Keyword",
-        "Skip", "Comment", "Shorthand", "Mistmatch"
+        "Skip", "Comment", "Shorthand", "Spread", "Mistmatch"
     };
 
     struct Token
