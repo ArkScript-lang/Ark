@@ -33,7 +33,8 @@ namespace Ark::internal
         Number,
         List,
         Closure,
-        Macro
+        Macro,
+        Spread
     };
 
     /// The different keywords available

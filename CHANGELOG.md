@@ -7,6 +7,7 @@
 - more profiling tests
 - more options on the `display()` method of the bytecode reader, allowing us to selecto segment of bytecode instead of displaying everything
 - added a new token type: `Spread` ; it handles `...identifier`, needed in macros
+- the parser can now handle macros definitions
 
 ### Changed
 - updating doxyfile and some docstrings
