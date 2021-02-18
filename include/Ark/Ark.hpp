@@ -9,8 +9,8 @@
  * 
  */
 
-#ifndef ark_ark
-#define ark_ark
+#ifndef INCLUDE_ARK_ARK_HPP
+#define INCLUDE_ARK_ARK_HPP
 
 #include <Ark/Exceptions.hpp>
 #include <Ark/Constants.hpp>
@@ -18,4 +18,4 @@
 #include <Ark/VM/VM.hpp>
 #include <Ark/Compiler/Compiler.hpp>
 
-#endif  // ark_ark
+#endif

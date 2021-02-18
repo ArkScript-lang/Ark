@@ -9,8 +9,8 @@
  * 
  */
 
-#ifndef ark_vm_value
-#define ark_vm_value
+#ifndef ARK_VM_VALUE_HPP
+#define ARK_VM_VALUE_HPP
 
 #include <vector>
 #ifndef USE_MPARK

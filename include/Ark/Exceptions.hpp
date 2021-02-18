@@ -9,8 +9,8 @@
  * 
  */
 
-#ifndef ark_exceptions
-#define ark_exceptions
+#ifndef INCLUDE_ARK_EXCEPTIONS_HPP
+#define INCLUDE_ARK_EXCEPTIONS_HPP
 
 #include <exception>
 #include <string>
