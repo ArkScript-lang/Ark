@@ -10,6 +10,9 @@ __arkscript__/
 packages/
 .idea/
 
+# those are specific to every user
+.vscode/settings.json
+
 # files
 gmon.out
 include/Ark/Constants.hpp
