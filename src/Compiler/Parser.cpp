@@ -296,7 +296,7 @@ namespace Ark
                         (token.type == TokenType::Spread && in_macro))
                 {
                     while (tokens.front().token != ")")
-                        block.push_back(parse(tokens, /* authorize_capture */ false, /* authorize_field_read */ true, in_macro));
+                        block.push_back(parse(tokens, /* authorize_capture */ false, /* authorize_field_read */ true/*, in_macro*/));
                 }
             } while (tokens.front().token != ")");
 
@@ -319,6 +319,7 @@ namespace Ark
                 block.push_back(parse(tokens));
                 return block;
             }
+            // FIXME
             // else if (token.token == "!")
             // {
             //     Ark::logger.info("Found a macro at ", token.line, ":", token.col, " in ", m_file);
@@ -430,6 +431,8 @@ namespace Ark
             n.setFilename(m_file);
             return n;
         }
+        else if (token.type == TokenType::Shorthand)
+            throwParseError("got a shorthand to atomize, and that's not normal. If you see this error please reach out on GitHub.", token);
 
         // assuming it is a TokenType::Identifier, thus a Symbol
         auto n = Node(NodeType::Symbol);

@@ -63,8 +63,8 @@ namespace Ark::internal
                     saved_line = line;
                     saved_char = character;
                 }
-                // handle shorthands
-                else if (current == '\'' || current == '!')
+                // handle shorthands, be careful with ! and !=
+                else if (current == '\'' || (current == '!' && pos + 1 < code.size() && code[pos + 1] != '='))
                 {
                     if (!buffer.empty())
                         append_token_from_buffer();
