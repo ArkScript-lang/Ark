@@ -89,14 +89,27 @@ namespace Ark::internal
 
     void MacroProcessor::process(Node& node)
     {
-        if (node.nodeType() == NodeType::Macro)
-            registerMacro(node);
-        else if (node.nodeType() == NodeType::List)
+        if (node.nodeType() == NodeType::List)
         {
             m_macros.emplace_back();
             // recursive call
-            for (std::size_t i = 0; i < node.list().size(); ++i)
-                process(node.list()[i]);
+            std::size_t i = 0;
+            while (i < node.list().size())
+            {
+                Node sub = node.list()[i];
+                if (sub.nodeType() == NodeType::Macro)
+                {
+                    registerMacro(sub);
+                    node.list().erase(node.const_list().begin() + i);
+                }
+                else
+                {
+                    process(sub);
+                    // go forward only if it isn't a macro, because we delete macros
+                    // while running on the AST
+                    ++i;
+                }
+            }
             m_macros.pop_back();
         }
         // TODO identify where macros are used
