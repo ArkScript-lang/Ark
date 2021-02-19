@@ -9,17 +9,17 @@
         # otherwise, sort it
         {
             # the pivot will be the first element
-            (let pivot (firstOf array))
+            (let pivot (head array))
             # return a concatenation of arrays
             (concat
                 # call quicksort on a smaller array containing all the elements less than the pivot
                 (quicksort
-                    (list:filter (tailOf array) (fun (e) (< e pivot))))
+                    (list:filter (tail array) (fun (e) (< e pivot))))
                 # put the pivot in the middle
                 [pivot]
                 # and after that, call quicksort on a smaller array containing all the elements greater or equal to the pivot
                 (quicksort
-                    (list:filter (tailOf array) (fun (e) (>= e pivot)))))
+                    (list:filter (tail array) (fun (e) (>= e pivot)))))
         })
 }))
 

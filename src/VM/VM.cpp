@@ -576,7 +576,7 @@ namespace Ark
 
                         Value *list = popAndResolveAsPtr();
                         if (list->valueType() != ValueType::List)
-                            throw Ark::TypeError("append needs a list and then whatever you want");
+                            throw Ark::TypeError("append needs a List and then whatever you want");
                         const uint16_t size = list->const_list().size();
 
                         Value obj = Value(*list);
@@ -735,7 +735,7 @@ namespace Ark
                         else if (a->valueType() == ValueType::String)
                             push(Value(static_cast<int>(a->string().size())));
                         else
-                            throw Ark::TypeError("Argument of len must be a list or a String");
+                            throw Ark::TypeError("Argument of len must be a List or a String");
                         break;
                     }
 
@@ -748,26 +748,12 @@ namespace Ark
                         else if (a->valueType() == ValueType::String)
                             push((a->string().size() == 0) ? Builtins::trueSym : Builtins::falseSym);
                         else
-                            throw Ark::TypeError("Argument of empty? must be a list or a String");
+                            throw Ark::TypeError("Argument of empty? must be a List or a String");
 
                         break;
                     }
 
-                    case Instruction::FIRSTOF:
-                    {
-                        Value* a = popAndResolveAsPtr();
-
-                        if (a->valueType() == ValueType::List)
-                            push(a->const_list().size() > 0 ? (a->const_list())[0] : Value(ValueType::List));
-                        else if (a->valueType() == ValueType::String)
-                            push(a->string().size() > 0 ? Value(std::string(1, (a->string())[0])) : Value(ValueType::String));
-                        else
-                            throw Ark::TypeError("Argument of firstOf must be a list");
-
-                        break;
-                    }
-
-                    case Instruction::TAILOF:
+                    case Instruction::TAIL:
                     {
                         Value* a = popAndResolveAsPtr();
 
@@ -779,9 +765,10 @@ namespace Ark
                                 break;
                             }
 
-                            Value b = *a;
-                            b.list().erase(b.const_list().begin());
-                            push(std::move(b));
+                            std::vector<Value> tmp(a->const_list().size() - 1);
+                            for (std::size_t i = 1, end = a->const_list().size(); i < end; ++i)
+                                tmp[i - 1] = a->const_list()[i];
+                            push(Value(std::move(tmp)));
                         }
                         else if (a->valueType() == ValueType::String)
                         {
@@ -796,12 +783,12 @@ namespace Ark
                             push(std::move(b));
                         }
                         else
-                            throw Ark::TypeError("Argument of tailOf must be a list or a String");
+                            throw Ark::TypeError("Argument of tail must be a List or a String");
 
                         break;
                     }
 
-                    case Instruction::HEADOF:
+                    case Instruction::HEAD:
                     {
                         Value* a = popAndResolveAsPtr();
 
@@ -809,13 +796,11 @@ namespace Ark
                         {
                             if (a->const_list().size() < 2)
                             {
-                                push(Value(ValueType::List));
+                                push(Builtins::nil);
                                 break;
                             }
 
-                            Value b = *a;
-                            b.list().pop_back();
-                            push(std::move(b));
+                            push(a->list()[0]);
                         }
                         else if (a->valueType() == ValueType::String)
                         {
@@ -825,12 +810,10 @@ namespace Ark
                                 break;
                             }
 
-                            Value b = *a;
-                            b.string_ref().erase(b.string_ref().size() - 1);
-                            push(std::move(b));
+                            push(Value(std::string(1, a->string_ref()[0])));
                         }
                         else
-                            throw Ark::TypeError("Argument of headOf must be a list or a String");
+                            throw Ark::TypeError("Argument of head must be a List or a String");
 
                         break;
                     }

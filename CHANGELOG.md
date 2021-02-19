@@ -14,10 +14,13 @@
 - updating the download script
 - enhancing examples
 - creating a Scope allocates 4 pairs instead of 2, reducing the number of reallocations needed
+- `tailOf` renamed to `tail` and `headOf` to `head` ; no need to keep the relics of the past
+- `headOf` (now `head`) returns the real head of a container (List or String), the first element (nil if the list is empty, "" if the string is empty)
 
 ### Removed
 - `~UserType`, since we are doing manual memory management now
 - `Frame` were removed because they were giving bad performances
+- `firstOf` was removed because it's basically a `(@ list 0)` and it was doing the job of `head`
 
 ## 3.0.15
 ### Added
