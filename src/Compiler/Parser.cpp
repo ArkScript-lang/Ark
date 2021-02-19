@@ -34,7 +34,7 @@ namespace Ark
 
         m_lexer.feed(code);
         // apply syntactic sugar
-        std::vector<Token> t = m_lexer.tokens();
+        std::vector<Token>& t = m_lexer.tokens();
         if (t.empty())
             throwParseError_("empty file");
         sugar(t);
@@ -59,7 +59,7 @@ namespace Ark
         }
     }
 
-    const Node& Parser::ast() const noexcept
+    Node& Parser::ast() noexcept
     {
         return m_ast;
     }
@@ -321,15 +321,17 @@ namespace Ark
             }
             else if (token.token == "!")
             {
+                if (m_debug >= 4)
+                    Ark::logger.info("Found a macro at ", token.line, ":", token.col, " in ", m_file);
+
                 // macros
                 Node block(NodeType::Macro);
                 block.setPos(token.line, token.col);
                 block.setFilename(m_file);
 
-                auto saved_token = tokens.front();
                 Node parsed = parse(tokens, /* authorize_capture */ false, /* authorize_field_read */ false, /* in_macro */ true);
                 if (parsed.nodeType() != NodeType::List || parsed.list()[0].keyword() != Keyword::Begin)
-                    throwParseError("Macros can only defined using the !{ name value } or !{ name (args) value } syntax", saved_token);
+                    throwParseError("Macros can only defined using the !{ name value } or !{ name (args) value } syntax", token);
 
                 // append the nodes of the parsed node to the current macro node
                 for (std::size_t i = 1, end = parsed.list().size(); i < end; ++i)
@@ -528,10 +530,10 @@ namespace Ark
     std::ostream& operator<<(std::ostream& os, const Parser& P) noexcept
     {
         os << "AST" << std::endl;
-        if (P.ast().nodeType() == NodeType::List)
+        if (P.const_ast().nodeType() == NodeType::List)
         {
             int i = 0;
-            for (const auto& node: P.ast().const_list())
+            for (const auto& node: P.const_ast().const_list())
                 std::cout << (i++) << ": " << node << std::endl;
         }
         else

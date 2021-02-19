@@ -113,9 +113,9 @@ namespace Ark::internal
         /**
          * @brief Return the list of tokens
          * 
-         * @return const std::vector<Token>& 
+         * @return std::vector<Token>& 
          */
-        const std::vector<Token>& tokens() noexcept;
+        std::vector<Token>& tokens() noexcept;
 
     private:
         unsigned m_debug;

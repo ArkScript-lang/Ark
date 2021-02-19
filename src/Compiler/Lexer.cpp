@@ -231,7 +231,7 @@ namespace Ark::internal
         }
     }
 
-    const std::vector<Token>& Lexer::tokens() noexcept
+    std::vector<Token>& Lexer::tokens() noexcept
     {
         return m_tokens;
     }

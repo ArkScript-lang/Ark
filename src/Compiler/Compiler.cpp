@@ -22,9 +22,9 @@ namespace Ark
         m_parser.feed(code, filename);
 
         MacroProcessor mp(m_debug, m_options);
-        mp.feed(m_parser.ast());
-
-        m_optimizer.feed(mp.ast());
+        // mp.feed(m_parser.ast());
+        // m_optimizer.feed(mp.ast());
+        m_optimizer.feed(m_parser.ast());
 
         if (m_debug >= 2)
         {

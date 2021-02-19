@@ -43,19 +43,19 @@ namespace Ark::internal
          * 
          * @param ast 
          */
-        void feed(const Node& ast);
+        void feed(Node& ast);
 
         /**
          * @brief Return the modified AST
          * 
-         * @return const Node& 
+         * @return Node& 
          */
-        const Node& ast() const noexcept;
+        Node& ast() noexcept;
 
     private:
         unsigned m_debug;  ///< The debug level
         uint16_t m_options;
-        Node m_ast;  ///< The modified AST
+        Node* m_ast;  ///< The modified AST
         std::vector<std::unordered_map<std::string, Node>> m_macros;  ///< Handling macros in a scope fashion
 
         /**
@@ -64,14 +64,14 @@ namespace Ark::internal
          * 
          * @param node A node of type Macro
          */
-        void registerMacro(const Node& node);
+        void registerMacro(Node* node);
 
         /**
          * @brief Register macros in scopes and apply them as needed
          * 
          * @param node node on which to operate
          */
-        void process(Node& node);
+        void process(Node* node);
 
         /**
          * @brief Throw a macro processing error
