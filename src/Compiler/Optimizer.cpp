@@ -8,23 +8,23 @@ namespace Ark
         m_options(options)
     {}
 
-    void Optimizer::feed(const Node& ast)
+    void Optimizer::feed(Node& ast)
     {
-        m_ast = ast;
+        m_ast = &ast;
 
         if (m_options & FeatureRemoveUnusedVars)
             remove_unused();
     }
 
-    const Node& Optimizer::ast() const noexcept
+    Node& Optimizer::ast() noexcept
     {
-        return m_ast;
+        return *m_ast;
     }
 
     void Optimizer::remove_unused()
     {
         // do not handle non-list nodes
-        if (m_ast.nodeType() != NodeType::List)
+        if (m_ast->nodeType() != NodeType::List)
             return;
 
         run_on_global_scope_vars(m_ast, [this](Node& node, Node& parent, int idx){
@@ -41,11 +41,11 @@ namespace Ark
         });
     }
 
-    void Optimizer::run_on_global_scope_vars(Node& node, const std::function<void(Node&, Node&, int)>& func)
+    void Optimizer::run_on_global_scope_vars(Node* node, const std::function<void(Node&, Node&, int)>& func)
     {
-        int i = static_cast<int>(node.const_list().size());
+        int i = static_cast<int>(node->const_list().size());
         // iterate only on the first level, using reverse iterators to avoid copy-delete-move to nowhere
-        for (auto it=node.list().rbegin(); it != node.list().rend(); ++it)
+        for (auto it=node->list().rbegin(); it != node->list().rend(); ++it)
         {
             i--;
 
@@ -56,31 +56,31 @@ namespace Ark
                 // eliminate nested begin blocks
                 if (kw == Keyword::Begin)
                 {
-                    run_on_global_scope_vars(*it, func);
+                    run_on_global_scope_vars(&*it, func);
                     // skip let/ mut detection
                     continue;
                 }
                 // check if it's a let/mut declaration
                 else if (kw == Keyword::Let || kw == Keyword::Mut)
-                    func(*it, node, i);
+                    func(*it, *node, i);
             }
         }
     }
 
-    void Optimizer::count_occurences(const Node& node)
+    void Optimizer::count_occurences(Node* node)
     {
-        if (node.nodeType() == NodeType::Symbol || node.nodeType() == NodeType::Capture)
+        if (node->nodeType() == NodeType::Symbol || node->nodeType() == NodeType::Capture)
         {
-            std::string name = node.string();
+            std::string name = node->string();
             // check if it's the name of something declared in global scope
             if (m_symAppearances.find(name) != m_symAppearances.end())
                 m_symAppearances[name]++;
         }
-        else if (node.nodeType() == NodeType::List)
+        else if (node->nodeType() == NodeType::List)
         {
             // iterate over children
-            for (auto it=node.const_list().begin(), end=node.const_list().end(); it != end; ++it)
-                count_occurences(*it);
+            for (std::size_t i = 0, end = node->const_list().size(); i != end; ++i)
+                count_occurences(&node->list()[i]);
         }
     }
 }

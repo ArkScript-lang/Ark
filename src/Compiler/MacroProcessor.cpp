@@ -10,34 +10,34 @@ namespace Ark::internal
         m_debug(debug), m_options(options)
     {}
 
-    void MacroProcessor::feed(const Node& ast)
+    void MacroProcessor::feed(Node& ast)
     {
         // so that we can start with an empty scope
         m_macros.emplace_back();
 
         // to be able to modify it
-        m_ast = ast;
-        process(m_ast);
+        m_ast = &ast;
+        // process(m_ast);
     }
 
-    const Node& MacroProcessor::ast() const noexcept
+    Node& MacroProcessor::ast() noexcept
     {
-        return m_ast;
+        return *m_ast;
     }
 
-    void MacroProcessor::registerMacro(const Node& node)
+    void MacroProcessor::registerMacro(Node* node)
     {
         // a macro needs at least 2 nodes, name + value is the minimal form
-        if (node.const_list().size() < 2)
-            throwMacroProcessingError("invalid macro, missing value", node);
+        if (node->const_list().size() < 2)
+            throwMacroProcessingError("invalid macro, missing value", *node);
 
-        const Node& first_node = node.const_list()[0],
-                    second_node = node.const_list()[1];
+        Node *first_node = &node->list()[0],
+             *second_node = &node->list()[1];
 
         // checks if argument list of !{name (args) body} are correct
-        auto check_macro_args_list = [this](const Node& args) {
+        auto check_macro_args_list = [this](Node* args) {
             bool had_spread = false;
-            for (const Node& n : args.const_list())
+            for (const Node& n : args->const_list())
             {
                 if (n.nodeType() != NodeType::Symbol && n.nodeType() != NodeType::Spread)
                     throwMacroProcessingError("invalid macro argument's list, expected symbols", n);
@@ -51,66 +51,73 @@ namespace Ark::internal
         };
 
         // !{name value}
-        if (node.const_list().size() == 2)
+        if (node->const_list().size() == 2)
         {
-            if (first_node.nodeType() == NodeType::Symbol)
+            if (first_node->nodeType() == NodeType::Symbol)
             {
-                m_macros.back()[first_node.string()] = node;
+                m_macros.back()[first_node->string()] = *node;
                 return;
             }
-            throwMacroProcessingError("can not define a macro without a symbol", first_node);
+            throwMacroProcessingError("can not define a macro without a symbol", *first_node);
         }
         // !{name (args) body}
-        else if (node.const_list().size() == 3 && first_node.nodeType() == NodeType::Symbol)
+        else if (node->const_list().size() == 3 && first_node->nodeType() == NodeType::Symbol)
         {
-            if (second_node.nodeType() != NodeType::List)
-                throwMacroProcessingError("invalid macro argument's list", second_node);
+            if (second_node->nodeType() != NodeType::List)
+                throwMacroProcessingError("invalid macro argument's list", *second_node);
             else
             {
                 check_macro_args_list(second_node);
-                m_macros.back()[first_node.string()] = node;
+                m_macros.back()[first_node->string()] = *node;
                 return;
             }
         }
         // !{if cond then else}
-        else if (std::size_t sz = node.const_list().size(); sz == 3 || sz == 4)
+        else if (std::size_t sz = node->const_list().size(); sz == 3 || sz == 4)
         {
-            if (first_node.nodeType() == NodeType::Keyword && first_node.keyword() == Keyword::If)
+            if (first_node->nodeType() == NodeType::Keyword && first_node->keyword() == Keyword::If)
             {
                 // TODO execute if
                 return;
             }
-            else if (first_node.nodeType() == NodeType::Keyword)
-                throwMacroProcessingError("the only authorized keyword in macros is `if'", first_node);
+            else if (first_node->nodeType() == NodeType::Keyword)
+                throwMacroProcessingError("the only authorized keyword in macros is `if'", *first_node);
         }
         // if we are here, it means we couldn't recognize the given macro, thus making it invalid
-        throwMacroProcessingError("unrecognized macro form", node);
+        throwMacroProcessingError("unrecognized macro form", *node);
     }
 
-    void MacroProcessor::process(Node& node)
+    void MacroProcessor::process(Node* node)
     {
-        if (node.nodeType() == NodeType::List)
+        Ark::logger.data("current macro scopes count", m_macros.size());
+
+        if (node->nodeType() == NodeType::List)
         {
-            m_macros.emplace_back();
+            // create a scope only if needed
+            if (!m_macros.back().empty())
+                m_macros.emplace_back();
+
             // recursive call
             std::size_t i = 0;
-            while (i < node.list().size())
+            while (i < node->list().size())
             {
-                Node sub = node.list()[i];
-                if (sub.nodeType() == NodeType::Macro)
+                if (node->list()[i].nodeType() == NodeType::Macro)
                 {
-                    registerMacro(sub);
-                    node.list().erase(node.const_list().begin() + i);
+                    registerMacro(&node->list()[i]);
+                    node->list().erase(node->const_list().begin() + i);
                 }
                 else
                 {
-                    process(sub);
+                    process(&node->list()[i]);
                     // go forward only if it isn't a macro, because we delete macros
                     // while running on the AST
                     ++i;
                 }
             }
-            m_macros.pop_back();
+
+            // delete a scope only if needed
+            if (!m_macros.back().empty())
+                m_macros.pop_back();
         }
         // TODO identify where macros are used
     }
