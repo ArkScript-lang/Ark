@@ -12,4 +12,14 @@
 #ifndef ARK_COMPILER_MACROPROCESSOR_HPP
 #define ARK_COMPILER_MACROPROCESSOR_HPP
 
+namespace Ark
+{
+    /**
+     * @brief The class handling the macros definitions and calls, given an AST
+     * 
+     */
+    class MacroProcessor
+    {};
+}
+
 #endif
