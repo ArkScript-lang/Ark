@@ -9,6 +9,8 @@ gitstats/
 __arkscript__/
 packages/
 .idea/
+# user settings
+.vscode/settings.json
 
 # files
 gmon.out
