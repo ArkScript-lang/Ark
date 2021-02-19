@@ -20,6 +20,7 @@
 #include <Ark/Compiler/Node.hpp>
 #include <Ark/Exceptions.hpp>
 #include <Ark/Constants.hpp>
+#include <Ark/Compiler/makeNodeBasedError.hpp>
 
 namespace Ark
 {
@@ -61,7 +62,10 @@ namespace Ark
          * @param message 
          * @param node 
          */
-        inline void throwOptimizerError(const std::string& message, const internal::Node& node);
+        inline void throwOptimizerError(const std::string& message, const internal::Node& node)
+        {
+            throw OptimizerError(internal::makeNodeBasedErrorCtx(message, node));
+        }
 
         // iterate over the AST and remove unused top level functions and constants
         void remove_unused();
