@@ -17,7 +17,7 @@ namespace Ark::internal
 
         // to be able to modify it
         m_ast = &ast;
-        // process(m_ast);
+        process(m_ast);
     }
 
     Node& MacroProcessor::ast() noexcept
@@ -89,8 +89,6 @@ namespace Ark::internal
 
     void MacroProcessor::process(Node* node)
     {
-        Ark::logger.data("current macro scopes count", m_macros.size());
-
         if (node->nodeType() == NodeType::List)
         {
             // create a scope only if needed
