@@ -56,10 +56,22 @@ namespace Ark::internal
         unsigned m_debug;  ///< The debug level
         uint16_t m_options;
         Node m_ast;  ///< The modified AST
-        std::unordered_map<std::string, Node> m_defines;  ///< Storing the !{name value}
-        std::unordered_map<std::string, std::pair<Node, Node>> m_macros;  ///< Storing the !{name (args) body}
+        std::vector<std::unordered_map<std::string, Node>> m_macros;  ///< Handling macros in a scope fashion
 
-        void process(const Node& node);
+        /**
+         * @brief Registers macros based on their type
+         * @details Validate macros and register them by their name
+         * 
+         * @param node A node of type Macro
+         */
+        void registerMacro(const Node& node);
+
+        /**
+         * @brief Register macros in scopes and apply them as needed
+         * 
+         * @param node node on which to operate
+         */
+        void process(Node& node);
 
         /**
          * @brief Throw a macro processing error
