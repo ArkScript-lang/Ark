@@ -9,8 +9,8 @@
  * 
  */
 
-#ifndef ark_compiler_optimizer
-#define ark_compiler_optimizer
+#ifndef ARK_COMPILER_OPTIMIZER_HPP
+#define ARK_COMPILER_OPTIMIZER_HPP
 
 #include <functional>
 #include <unordered_map>
@@ -70,4 +70,4 @@ namespace Ark
     };
 }
 
-#endif  // ark_compiler_optimizer
+#endif

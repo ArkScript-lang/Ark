@@ -9,8 +9,8 @@
  * 
  */
 
-#ifndef ark_node
-#define ark_node
+#ifndef ARK_COMPILER_NODE_HPP
+#define ARK_COMPILER_NODE_HPP
 
 #include <variant.hpp>
 #include <iostream>
@@ -235,4 +235,4 @@ namespace Ark::internal
     std::ostream& operator<<(std::ostream& os, const Nodes& N) noexcept;
 }
 
-#endif  // ark_node
+#endif

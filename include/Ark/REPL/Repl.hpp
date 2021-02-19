@@ -9,8 +9,8 @@
  *
  */
 
-#ifndef ark_repl
-#define ark_repl
+#ifndef ARK_REPL_REPL_HPP
+#define ARK_REPL_REPL_HPP
 
 #include <iostream>
 

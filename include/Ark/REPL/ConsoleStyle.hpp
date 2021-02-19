@@ -9,8 +9,8 @@
  *
  */
 
-#ifndef CONSOLESTYLE_HPP
-#define CONSOLESTYLE_HPP
+#ifndef ARK_REPL_CONSOLESTYLE_HPP
+#define ARK_REPL_CONSOLESTYLE_HPP
 
 #include <replxx.hxx>
 
