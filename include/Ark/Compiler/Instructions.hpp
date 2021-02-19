@@ -72,23 +72,22 @@ namespace Ark::internal
             EQ         = 0x29,
             LEN        = 0x2a,
             EMPTY      = 0x2b,
-            FIRSTOF    = 0x2c,
-            TAILOF     = 0x2d,
-            HEADOF     = 0x2e,
-            ISNIL      = 0x2f,
-            ASSERT     = 0x30,
-            TO_NUM     = 0x31,
-            TO_STR     = 0x32,
-            AT         = 0x33,
-            AND_       = 0x34,
-            OR_        = 0x35,
-            MOD        = 0x36,
-            TYPE       = 0x37,
-            HASFIELD   = 0x38,
-            NOT        = 0x39,
-        LAST_OPERATOR  = 0x39,
+            TAIL       = 0x2c,
+            HEAD       = 0x2d,
+            ISNIL      = 0x2e,
+            ASSERT     = 0x2f,
+            TO_NUM     = 0x30,
+            TO_STR     = 0x31,
+            AT         = 0x32,
+            AND_       = 0x33,
+            OR_        = 0x34,
+            MOD        = 0x35,
+            TYPE       = 0x36,
+            HASFIELD   = 0x37,
+            NOT        = 0x38,
+        LAST_OPERATOR  = 0x38,
 
-        LAST_INSTRUCTION = 0x39
+        LAST_INSTRUCTION = 0x38
     };
 }
 

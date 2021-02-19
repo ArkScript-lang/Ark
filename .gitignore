@@ -9,6 +9,8 @@ gitstats/
 __arkscript__/
 packages/
 .idea/
+# user settings
+.vscode/settings.json
 
 # those are specific to every user
 .vscode/settings.json
