@@ -6,6 +6,7 @@
 
 #include <Ark/Log.hpp>
 #include <Ark/Builtins/Builtins.hpp>
+#include <Ark/Compiler/MacroProcessor.hpp>
 
 namespace Ark
 {
@@ -19,7 +20,11 @@ namespace Ark
     void Compiler::feed(const std::string& code, const std::string& filename)
     {
         m_parser.feed(code, filename);
-        m_optimizer.feed(m_parser.ast());
+
+        MacroProcessor mp(m_debug, m_options);
+        mp.feed(m_parser.ast());
+
+        m_optimizer.feed(mp.ast());
 
         if (m_debug >= 2)
         {
