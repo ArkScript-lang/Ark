@@ -319,25 +319,24 @@ namespace Ark
                 block.push_back(parse(tokens));
                 return block;
             }
-            else if (token.token == "!")
-            {
-                if (m_debug >= 4)
-                    Ark::logger.info("Found a macro at ", token.line, ":", token.col, " in ", m_file);
+            // else if (token.token == "!")
+            // {
+            //     Ark::logger.info("Found a macro at ", token.line, ":", token.col, " in ", m_file);
 
-                // macros
-                Node block(NodeType::Macro);
-                block.setPos(token.line, token.col);
-                block.setFilename(m_file);
+            //     // macros
+            //     Node block(NodeType::Macro);
+            //     block.setPos(token.line, token.col);
+            //     block.setFilename(m_file);
 
-                Node parsed = parse(tokens, /* authorize_capture */ false, /* authorize_field_read */ false, /* in_macro */ true);
-                if (parsed.nodeType() != NodeType::List || parsed.list()[0].keyword() != Keyword::Begin)
-                    throwParseError("Macros can only defined using the !{ name value } or !{ name (args) value } syntax", token);
+            //     Node parsed = parse(tokens, /* authorize_capture */ false, /* authorize_field_read */ false, /* in_macro */ true);
+            //     if (parsed.nodeType() != NodeType::List || parsed.list()[0].keyword() != Keyword::Begin)
+            //         throwParseError("Macros can only defined using the !{ name value } or !{ name (args) value } syntax", token);
 
-                // append the nodes of the parsed node to the current macro node
-                for (std::size_t i = 1, end = parsed.list().size(); i < end; ++i)
-                    block.push_back(parsed.list()[i]);
-                return block;
-            }
+            //     // append the nodes of the parsed node to the current macro node
+            //     for (std::size_t i = 1, end = parsed.list().size(); i < end; ++i)
+            //         block.push_back(parsed.list()[i]);
+            //     return block;
+            // }
             else
                 throwParseError("unknown shorthand", token);
         }
