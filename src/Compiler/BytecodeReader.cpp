@@ -501,20 +501,15 @@ namespace Ark
                         if (displayLine)
                             os << "EMPTY\n";
                     }
-                    else if (inst == Instruction::FIRSTOF)
+                    else if (inst == Instruction::TAIL)
                     {
                         if (displayLine)
-                            os << "FIRSTOF\n";
+                            os << "TAIL\n";
                     }
-                    else if (inst == Instruction::TAILOF)
+                    else if (inst == Instruction::HEAD)
                     {
                         if (displayLine)
-                            os << "TAILOF\n";
-                    }
-                    else if (inst == Instruction::HEADOF)
-                    {
-                        if (displayLine)
-                            os << "HEADOF\n";
+                            os << "HEAD\n";
                     }
                     else if (inst == Instruction::ISNIL)
                     {
