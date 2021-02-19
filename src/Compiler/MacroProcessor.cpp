@@ -113,8 +113,12 @@ namespace Ark::internal
                 }
                 else
                 {
-                    execute(&node->list()[i]);
+                    // execute only if we have registered macros
+                    if ((m_macros.size() == 1 && m_macros[0].size() > 0) || m_macros.size() > 1)
+                        execute(&node->list()[i]);
+
                     process(&node->list()[i]);
+
                     // go forward only if it isn't a macro, because we delete macros
                     // while running on the AST
                     ++i;
