@@ -15,9 +15,15 @@ namespace Ark::internal
         // so that we can start with an empty scope
         m_macros.emplace_back();
 
+        if (m_debug >= 2)
+            Ark::logger.info("Processing macros...");
+
         // to be able to modify it
         m_ast = &ast;
         process(m_ast);
+
+        if (m_debug >= 2)
+            std::cout << (*m_ast) << std::endl;
     }
 
     Node& MacroProcessor::ast() noexcept
@@ -77,7 +83,7 @@ namespace Ark::internal
         {
             if (first_node->nodeType() == NodeType::Keyword && first_node->keyword() == Keyword::If)
             {
-                // TODO execute if
+                execute(node);
                 return;
             }
             else if (first_node->nodeType() == NodeType::Keyword)
@@ -89,6 +95,7 @@ namespace Ark::internal
 
     void MacroProcessor::process(Node* node)
     {
+        // TODO identify where macros are used
         if (node->nodeType() == NodeType::List)
         {
             // create a scope only if needed
@@ -106,6 +113,7 @@ namespace Ark::internal
                 }
                 else
                 {
+                    execute(&node->list()[i]);
                     process(&node->list()[i]);
                     // go forward only if it isn't a macro, because we delete macros
                     // while running on the AST
@@ -117,6 +125,41 @@ namespace Ark::internal
             if (!m_macros.back().empty())
                 m_macros.pop_back();
         }
-        // TODO identify where macros are used
+    }
+
+    void MacroProcessor::execute(Node* node)
+    {
+        if (node->nodeType() == NodeType::Symbol)
+        {
+            Node* macro = find_nearest_macro(node->string());
+
+            if (macro != nullptr)
+            {
+                if (m_debug >= 2)
+                    Ark::logger.info("Found macro for", node->string());
+
+                // !{name value}
+                if (macro->const_list().size() == 2)
+                {
+                    *node = macro->list()[1];
+                }
+                // !{name (args) body}
+                else if (macro->const_list().size() == 3)
+                {
+                    // TODO
+                }
+            }
+
+            return;
+        }
+        else if (node->nodeType() == NodeType::Macro && node->list()[0].nodeType() == NodeType::Keyword)
+        {
+            Node* first = &node->list()[0];
+
+            if (first->keyword() == Keyword::If)
+            {
+                Ark::logger.info("Found if macro");
+            }
+        }
     }
 }

@@ -59,6 +59,26 @@ namespace Ark::internal
         std::vector<std::unordered_map<std::string, Node>> m_macros;  ///< Handling macros in a scope fashion
 
         /**
+         * @brief Find the nearest macro matching a giving name
+         * 
+         * @param name 
+         * @return Node* nullptr if no macro was found
+         */
+        inline Node* find_nearest_macro(const std::string& name)
+        {
+            for (auto it = m_macros.rbegin(); it != m_macros.rend(); ++it)
+            {
+                if (it->size() != 0)
+                {
+                    auto res = it->find(name);
+                    if (res != it->end())
+                        return &res->second;
+                }
+            }
+            return nullptr;
+        }
+
+        /**
          * @brief Registers macros based on their type
          * @details Validate macros and register them by their name
          * 
@@ -72,6 +92,13 @@ namespace Ark::internal
          * @param node node on which to operate
          */
         void process(Node* node);
+
+        /**
+         * @brief Execute a macro
+         * 
+         * @param node 
+         */
+        void execute(Node* node);
 
         /**
          * @brief Throw a macro processing error
