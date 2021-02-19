@@ -9,8 +9,8 @@
  * 
  */
 
-#ifndef ark_utils
-#define ark_utils
+#ifndef INCLUDE_ARK_UTILS_HPP
+#define INCLUDE_ARK_UTILS_HPP
 
 #include <string>
 #include <sstream>
@@ -234,4 +234,4 @@ namespace Ark::Utils
     int dig_places(double d);
 }
 
-#endif  // ark_utils
+#endif

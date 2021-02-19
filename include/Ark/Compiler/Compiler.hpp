@@ -9,8 +9,8 @@
  * 
  */
 
-#ifndef ark_compiler
-#define ark_compiler
+#ifndef ARK_COMPILER_COMPILER_HPP
+#define ARK_COMPILER_COMPILER_HPP
 
 #include <vector>
 #include <iostream>

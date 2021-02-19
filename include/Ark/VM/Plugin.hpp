@@ -9,8 +9,8 @@
  * 
  */
 
-#ifndef ark_vm_plugin
-#define ark_vm_plugin
+#ifndef ARK_VM_PLUGIN_HPP
+#define ARK_VM_PLUGIN_HPP
 
 #if defined(_WIN32) || defined(_WIN64)
     // do not include winsock.h

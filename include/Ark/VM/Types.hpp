@@ -1,5 +1,5 @@
-#ifndef ark_vm_types
-#define ark_vm_types
+#ifndef ARK_VM_TYPES_HPP
+#define ARK_VM_TYPES_HPP
 
 #include <cinttypes>
 

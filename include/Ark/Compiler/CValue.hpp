@@ -9,8 +9,8 @@
  * 
  */
 
-#ifndef ark_compiler_value
-#define ark_compiler_value
+#ifndef ARK_COMPILER_CVALUE_HPP
+#define ARK_COMPILER_CVALUE_HPP
 
 #include <variant.hpp>
 #include <string>

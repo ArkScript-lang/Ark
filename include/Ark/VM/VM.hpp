@@ -9,8 +9,8 @@
  * 
  */
 
-#ifndef ark_vm
-#define ark_vm
+#ifndef ARK_VM_VM_HPP
+#define ARK_VM_VM_HPP
 
 #include <array>
 #include <vector>
