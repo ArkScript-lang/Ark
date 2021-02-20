@@ -1,4 +1,5 @@
-# !{should_be_broken (...args a b c) (print a b c args)}
+!{should_be_broken (...args a b c)
+    (print a b c args)}
 
 !{foo (a b) (+ a b)}
 (foo 12 3)
