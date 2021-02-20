@@ -94,11 +94,28 @@ namespace Ark::internal
         void process(Node* node);
 
         /**
-         * @brief Execute a macro
+         * @brief Execute a node, trying to emplace macros calls
          * 
          * @param node 
          */
         void execute(Node* node);
+
+        /**
+         * @brief Evaluate only the macros
+         * 
+         * @param node 
+         * @return Node 
+         */
+        Node evaluate(Node* node);
+
+        /**
+         * @brief Check if a node can be evaluated to true
+         * 
+         * @param node 
+         * @return true 
+         * @return false 
+         */
+        bool isTruthy(Node* node);
 
         /**
          * @brief Throw a macro processing error

@@ -95,7 +95,6 @@ namespace Ark::internal
 
     void MacroProcessor::process(Node* node)
     {
-        // TODO identify where macros are used
         if (node->nodeType() == NodeType::List)
         {
             // create a scope only if needed
@@ -147,11 +146,6 @@ namespace Ark::internal
                 {
                     *node = macro->list()[1];
                 }
-                // !{name (args) body}
-                else if (macro->const_list().size() == 3)
-                {
-                    // TODO
-                }
             }
 
             return;
@@ -163,7 +157,116 @@ namespace Ark::internal
             if (first->keyword() == Keyword::If)
             {
                 Ark::logger.info("Found if macro");
+
+                Node* cond = &node->list()[1];
+                // evaluate cond
+                if (Node temp = evaluate(cond); isTruthy(&temp))
+                    *node = node->list()[2];
+                else if (node->const_list().size() > 2)
+                    *node = node->list()[3];
+                else
+                {
+                    // remove node because nothing matched
+                    node->list().clear();
+                    node->setNodeType(NodeType::List);
+                }
             }
         }
+        else if (node->nodeType() == NodeType::List && node->const_list().size() > 0)
+        {
+            Node* first = &node->list()[0];
+            Node* macro = find_nearest_macro(first->string());
+
+            if (macro != nullptr)
+            {
+                if (m_debug >= 2)
+                    Ark::logger.info("Found macro for", first->string());
+
+                if (macro->const_list().size() == 2)
+                    execute(first);
+                // !{name (args) body}
+                else if (macro->const_list().size() == 3)
+                {
+                    Node temp_body = macro->const_list()[2];
+                    Node* args = &macro->list()[1];
+                    // bind node->list() to temp_body using macro->const_list()[1]
+                    std::unordered_map<std::string, Node> args_applied;
+                    std::size_t j = 0;
+                    for (std::size_t i = 1, end = node->const_list().size(); i < end; ++i)
+                    {
+                        const std::string& arg_name = args->list()[j].string();
+                        if (args->list()[j].nodeType() == NodeType::Symbol)
+                        {
+                            args_applied[arg_name] = node->const_list()[i];
+                            ++j;
+                        }
+                        else if (args->list()[j].nodeType() == NodeType::Spread)
+                            // do not move j because we checked before that the spread is always the last one
+                            args_applied[arg_name].push_back(node->const_list()[i]);
+                    }
+                    *node = evaluate(&temp_body);
+                }
+            }
+        }
+    }
+
+    Node MacroProcessor::evaluate(Node* node)
+    {
+        if (node->nodeType() == NodeType::List && node->const_list().size() > 1)
+        {
+            const std::string& name = node->list()[0].string();
+            if (Node* macro = find_nearest_macro(name); macro != nullptr)
+            {
+                execute(&node->list()[0]);
+            }
+            else if (name == "=")
+            {}
+            else if (name == "!=")
+            {}
+            else if (name == "<")
+            {}
+            else if (name == ">")
+            {}
+            else if (name == "<=")
+            {}
+            else if (name == ">=")
+            {}
+            else if (name == "not")
+            {
+                return !isTruthy()
+            }
+            else if (name == "and")
+            {}
+            else if (name == "or")
+            {}
+            else if (name == "len")
+            {}
+            else if (name == "@")
+            {}
+            else if (name == "head")
+            {}
+            else if (name == "tail")
+            {}
+            else
+                throwMacroProcessingError("", *node);
+        }
+    }
+
+    bool MacroProcessor::isTruthy(Node* node)
+    {
+        if (node->nodeType() == NodeType::Symbol)
+        {
+            if (node->string() == "true")
+                return true;
+            else if (node->string() == "false" || node->string() == "nil")
+                return false;
+        }
+        else if (node->nodeType() == NodeType::Number && node->number() != 0.0)
+            return true;
+        else if (node->nodeType() == NodeType::String && node->string().size() != 0)
+            return true;
+        else if (node->nodeType() == NodeType::Spread)
+            throwMacroProcessingError("TODO une erreur", *node);
+        return false;
     }
 }
