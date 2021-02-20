@@ -331,11 +331,7 @@ namespace Ark
                 block.setPos(token.line, token.col);
                 block.setFilename(m_file);
 
-                std::cout << "before" << std::endl;
-                // FIXME memory problem when we have (...args a b c)
                 Node parsed = parse(tokens, /* authorize_capture */ false, /* authorize_field_read */ false, /* in_macro */ true);
-                std::cout << "after" << std::endl;
-
                 if (parsed.nodeType() != NodeType::List || parsed.list().size() < 2 || parsed.list().size() > 4)
                     throwParseError("Macros can only defined using the !{ name value } or !{ name (args) value } syntax", token);
 
@@ -432,9 +428,7 @@ namespace Ark
         else if (token.type == TokenType::Spread)
         {
             auto n = Node(NodeType::Spread);
-            std::cout << "spread " << token.line << ":" << token.col << std::endl;
             n.setString(token.token.substr(3));  // remove the "..."
-            std::cout << "===> " << token.token.substr(3) << std::endl;
             n.setPos(token.line, token.col);
             n.setFilename(m_file);
             return n;
