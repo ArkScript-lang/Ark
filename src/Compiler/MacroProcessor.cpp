@@ -18,6 +18,8 @@ namespace Ark::internal
         if (m_debug >= 2)
             Ark::logger.info("Processing macros...");
 
+        // throwMacroProcessingError("oui", ast);
+
         // to be able to modify it
         m_ast = &ast;
         process(m_ast);
@@ -233,7 +235,7 @@ namespace Ark::internal
             {}
             else if (name == "not")
             {
-                return !isTruthy()
+                //return !isTruthy()
             }
             else if (name == "and")
             {}
@@ -250,6 +252,8 @@ namespace Ark::internal
             else
                 throwMacroProcessingError("", *node);
         }
+
+        return *node;
     }
 
     bool MacroProcessor::isTruthy(Node* node)
