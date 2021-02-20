@@ -16,6 +16,11 @@ namespace Ark::internal
         ss << "On line " << (node.line() + 1) << ":" << node.col() << ", got NodeType::";
         ss << Ark::internal::typeToString(node) << "\n";
 
+        std::size_t ssize = 1;
+        if (node.nodeType() == internal::NodeType::Symbol || node.nodeType() == internal::NodeType::String
+            || node.nodeType() == internal::NodeType::Spread)
+            ssize = node.string().size();
+
         if (node.filename() != ARK_NO_NAME_FILE)
         {
             std::vector<std::string> ctx = Ark::Utils::splitString(Ark::Utils::readFile(node.filename()), '\n');
@@ -30,10 +35,10 @@ namespace Ark::internal
                 {
                     ss << "      | ";
                     // padding of spaces
-                    for (std::size_t j=0; (node.string().size() > node.col()) ? false : (j < node.col()); ++j)
+                    for (std::size_t j=0; (ssize > node.col()) ? false : (j < node.col()); ++j)
                         ss << " ";
                     // show the error
-                    for (std::size_t j=0; (node.string().size() > node.col()) ? (j < ctx[node.line()].size()) : (j < node.string().size()); ++j)
+                    for (std::size_t j=0; (ssize > node.col()) ? (j < ctx[node.line()].size()) : (j < ssize); ++j)
                         ss << "^";
                     ss << "\n";
                 }
