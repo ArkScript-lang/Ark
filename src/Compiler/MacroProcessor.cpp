@@ -132,12 +132,26 @@ namespace Ark::internal
 
     void MacroProcessor::execute(Node& node)
     {
-        static auto apply_to = [](const std::unordered_map<std::string, Node>& map, Node& target) {
-            // TODO
+        std::cout << node << std::endl;
+
+        static std::function<void(const std::unordered_map<std::string, Node>&, Node&)> apply_to =
+        [](const std::unordered_map<std::string, Node>& map, Node& target) {
+            // TODO handle spread
+            if (target.nodeType() == NodeType::Symbol)
+            {
+                if (auto p = map.find(target.string()); p != map.end())
+                    target = p->second;
+            }
+            else if (target.nodeType() == NodeType::List)
+            {
+                for (std::size_t i = 0, end = target.list().size(); i < end; ++i)
+                    apply_to(map, target.list()[i]);
+            }
         };
 
         if (node.nodeType() == NodeType::Symbol)
         {
+            // error ?
             Node* macro = find_nearest_macro(node.string());
 
             if (macro != nullptr)
@@ -191,7 +205,8 @@ namespace Ark::internal
                 else if (macro->const_list().size() == 3)
                 {
                     Node temp_body = macro->const_list()[2];
-                    Node& args = macro->list()[1];
+                    Node args = macro->const_list()[1];
+
                     // bind node->list() to temp_body using macro->const_list()[1]
                     std::unordered_map<std::string, Node> args_applied;
                     std::size_t j = 0;
@@ -204,10 +219,23 @@ namespace Ark::internal
                             ++j;
                         }
                         else if (args.list()[j].nodeType() == NodeType::Spread)
+                        {
+                            if (args_applied.find(arg_name) == args_applied.end())
+                                args_applied[arg_name] = Node(NodeType::List);
                             // do not move j because we checked before that the spread is always the last one
                             args_applied[arg_name].push_back(node.const_list()[i]);
+                        }
                     }
-                    apply_to(args_applied, temp_body);
+
+                    std::cout << "before unification " << temp_body << std::endl;
+                    std::cout << "                   " << args << std::endl;
+                    std::cout << "                   " << node << std::endl;
+                    if (!args_applied.empty())
+                        apply_to(args_applied, temp_body);
+                    std::cout << "after unification " << temp_body << std::endl;
+                    std::cout << "                  " << args << std::endl;
+                    std::cout << "should be same as before " << macro->const_list()[2] << std::endl;
+                    std::cout << "                         " << macro->const_list()[1] << std::endl;
                     node = evaluate(temp_body);
                 }
             }
