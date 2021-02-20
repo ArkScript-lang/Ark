@@ -53,9 +53,9 @@ namespace Ark
         /**
          * @brief Return the generated AST
          * 
-         * @return internal::Node& 
+         * @return const internal::Node& 
          */
-        internal::Node& ast() noexcept;
+        const internal::Node& ast() const noexcept;
 
         /**
          * @brief Return the list of files imported by the code given to the parser
@@ -135,11 +135,6 @@ namespace Ark
          * @return std::string 
          */
         std::string seekFile(const std::string& file);
-
-        inline const internal::Node& const_ast() const noexcept
-        {
-            return m_ast;
-        }
 
         // error management functions
         inline void expect(bool pred, const std::string& message, internal::Token token);
