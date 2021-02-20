@@ -26,7 +26,7 @@ namespace Ark::internal
         process(m_ast);
 
         if (m_debug >= 2)
-            std::cout << m_ast << std::endl;
+            std::cout << "after>> " << m_ast << std::endl;
     }
 
     const Node& MacroProcessor::ast() const noexcept
@@ -42,24 +42,6 @@ namespace Ark::internal
 
         Node& first_node = node.list()[0];
         Node& second_node = node.list()[1];
-
-        // checks if argument list of !{name (args) body} are correct
-        auto check_macro_args_list = [this](Node& args) {
-            bool had_spread = false;
-            for (const Node& n : args.const_list())
-            {
-                if (n.nodeType() != NodeType::Symbol && n.nodeType() != NodeType::Spread)
-                    throwMacroProcessingError("invalid macro argument's list, expected symbols", n);
-                else if (n.nodeType() == NodeType::Spread)
-                {
-                    if (had_spread)
-                        throwMacroProcessingError("got another spread argument, only one is allowed", n);
-                    had_spread = true;
-                }
-                else if (had_spread && n.nodeType() == NodeType::Symbol)
-                    throwMacroProcessingError("got another argument after a spread argument, which is invalid", n);
-            }
-        };
 
         // !{name value}
         if (node.const_list().size() == 2)
@@ -78,9 +60,20 @@ namespace Ark::internal
                 throwMacroProcessingError("invalid macro argument's list", second_node);
             else
             {
-                std::cout << "checking..." << std::endl;
-                check_macro_args_list(second_node);
-                std::cout << first_node.string() << " has been checked successfully" << std::endl;
+                bool had_spread = false;
+                for (const Node& n : second_node.const_list())
+                {
+                    if (n.nodeType() != NodeType::Symbol && n.nodeType() != NodeType::Spread)
+                        throwMacroProcessingError("invalid macro argument's list, expected symbols", n);
+                    else if (n.nodeType() == NodeType::Spread)
+                    {
+                        if (had_spread)
+                            throwMacroProcessingError("got another spread argument, only one is allowed", n);
+                        had_spread = true;
+                    }
+                    else if (had_spread && n.nodeType() == NodeType::Symbol)
+                        throwMacroProcessingError("got another argument after a spread argument, which is invalid", n);
+                }
                 m_macros.back()[first_node.string()] = node;
                 return;
             }
@@ -139,6 +132,10 @@ namespace Ark::internal
 
     void MacroProcessor::execute(Node& node)
     {
+        static auto apply_to = [](const std::unordered_map<std::string, Node>& map, Node& target) {
+            // TODO
+        };
+
         if (node.nodeType() == NodeType::Symbol)
         {
             Node* macro = find_nearest_macro(node.string());
@@ -150,9 +147,7 @@ namespace Ark::internal
 
                 // !{name value}
                 if (macro->const_list().size() == 2)
-                {
                     node = macro->list()[1];
-                }
             }
 
             return;
@@ -212,6 +207,7 @@ namespace Ark::internal
                             // do not move j because we checked before that the spread is always the last one
                             args_applied[arg_name].push_back(node.const_list()[i]);
                     }
+                    apply_to(args_applied, temp_body);
                     node = evaluate(temp_body);
                 }
             }
@@ -257,7 +253,9 @@ namespace Ark::internal
             else if (name == "tail")
             {}
             else
-                throwMacroProcessingError("", node);
+            {
+                // TODO work on the other elements of the list
+            }
         }
 
         return node;
