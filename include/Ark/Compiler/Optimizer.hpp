@@ -42,17 +42,17 @@ namespace Ark
          * 
          * @param ast 
          */
-        void feed(internal::Node& ast);
+        void feed(const internal::Node& ast);
 
         /**
          * @brief Returns the modified AST
          * 
-         * @return internal::Node& 
+         * @return const internal::Node& 
          */
-        internal::Node& ast() noexcept;
+        const internal::Node& ast() const noexcept;
 
     private:
-        internal::Node* m_ast;
+        internal::Node m_ast;
         uint16_t m_options;
         std::unordered_map<std::string, unsigned> m_symAppearances;
 
@@ -69,8 +69,8 @@ namespace Ark
 
         // iterate over the AST and remove unused top level functions and constants
         void remove_unused();
-        void run_on_global_scope_vars(internal::Node* node, const std::function<void(internal::Node&, internal::Node&, int)>& func);
-        void count_occurences(internal::Node* node);
+        void run_on_global_scope_vars(internal::Node& node, const std::function<void(internal::Node&, internal::Node&, int)>& func);
+        void count_occurences(internal::Node& node);
     };
 }
 

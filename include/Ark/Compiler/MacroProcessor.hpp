@@ -43,19 +43,19 @@ namespace Ark::internal
          * 
          * @param ast 
          */
-        void feed(Node& ast);
+        void feed(const Node& ast);
 
         /**
          * @brief Return the modified AST
          * 
          * @return Node& 
          */
-        Node& ast() noexcept;
+        const Node& ast() const noexcept;
 
     private:
         unsigned m_debug;  ///< The debug level
         uint16_t m_options;
-        Node* m_ast;  ///< The modified AST
+        Node m_ast;  ///< The modified AST
         std::vector<std::unordered_map<std::string, Node>> m_macros;  ///< Handling macros in a scope fashion
 
         /**
@@ -84,21 +84,21 @@ namespace Ark::internal
          * 
          * @param node A node of type Macro
          */
-        void registerMacro(Node* node);
+        void registerMacro(Node& node);
 
         /**
          * @brief Register macros in scopes and apply them as needed
          * 
          * @param node node on which to operate
          */
-        void process(Node* node);
+        void process(Node& node);
 
         /**
          * @brief Execute a node, trying to emplace macros calls
          * 
          * @param node 
          */
-        void execute(Node* node);
+        void execute(Node& node);
 
         /**
          * @brief Evaluate only the macros
@@ -106,7 +106,7 @@ namespace Ark::internal
          * @param node 
          * @return Node 
          */
-        Node evaluate(Node* node);
+        Node evaluate(Node& node);
 
         /**
          * @brief Check if a node can be evaluated to true
@@ -115,7 +115,7 @@ namespace Ark::internal
          * @return true 
          * @return false 
          */
-        bool isTruthy(Node* node);
+        bool isTruthy(Node& node);
 
         /**
          * @brief Throw a macro processing error

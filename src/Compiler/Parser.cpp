@@ -59,7 +59,7 @@ namespace Ark
         }
     }
 
-    Node& Parser::ast() noexcept
+    const Node& Parser::ast() const noexcept
     {
         return m_ast;
     }
@@ -540,10 +540,10 @@ namespace Ark
     std::ostream& operator<<(std::ostream& os, const Parser& P) noexcept
     {
         os << "AST" << std::endl;
-        if (P.const_ast().nodeType() == NodeType::List)
+        if (P.ast().nodeType() == NodeType::List)
         {
             int i = 0;
-            for (const auto& node: P.const_ast().const_list())
+            for (const auto& node: P.ast().const_list())
                 std::cout << (i++) << ": " << node << std::endl;
         }
         else
