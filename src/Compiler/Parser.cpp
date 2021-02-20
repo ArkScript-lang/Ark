@@ -340,7 +340,7 @@ namespace Ark
                     throwParseError("Macros can only defined using the !{ name value } or !{ name (args) value } syntax", token);
 
                 // append the nodes of the parsed node to the current macro node
-                for (std::size_t i = 1, end = parsed.list().size(); i < end; ++i)
+                for (std::size_t i = 0, end = parsed.list().size(); i < end; ++i)
                     block.push_back(parsed.list()[i]);
                 return block;
             }
