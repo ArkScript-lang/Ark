@@ -21,6 +21,8 @@
 #include <Ark/Exceptions.hpp>
 #include <Ark/Utils.hpp>
 
+#include <utf8-decoder/utf8-decoder.h>
+
 namespace Ark::internal
 {
     enum class TokenType
@@ -137,6 +139,9 @@ namespace Ark::internal
          * @return false 
          */
         inline bool isKeyword(const std::string& value) noexcept;
+
+
+        inline bool isIdentifier(const std::string& value) noexcept;
 
         /**
          * @brief Check if the value is an operator in ArkScript

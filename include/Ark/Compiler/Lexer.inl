@@ -19,8 +19,7 @@ inline TokenType Lexer::guessType(const std::string& value) noexcept
         return TokenType::Capture;
     else if (value[0] == '.' && value.size() > 1 && CHECK_FIRST_CHAR(value[1]))
         return TokenType::GetField;
-    // otherwise, identifier if it starts with [a-zA-Z_]
-    else if (CHECK_FIRST_CHAR(value[0]))
+    else if (isIdentifier(value))
         return TokenType::Identifier;
     else if (value.size() > 3 && value[0] == value[1] && value[1] == value[2] && value[2] == '.')
         return TokenType::Spread;
@@ -30,6 +29,11 @@ inline TokenType Lexer::guessType(const std::string& value) noexcept
 inline bool Lexer::isKeyword(const std::string& value) noexcept
 {
     return std::find(keywords.begin(), keywords.end(), value) != keywords.end();
+}
+
+inline bool Lexer::isIdentifier(const std::string& value) noexcept
+{
+    return utf8valid(value.c_str());
 }
 
 inline bool Lexer::isOperator(const std::string& value) noexcept
