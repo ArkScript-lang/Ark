@@ -172,7 +172,13 @@ namespace Ark::internal
                                     break;
                                 }
 
-                                case 'U': break;
+                                case 'U':
+                                {
+                                    char utf8_chr[5];
+                                    utf8decode(ctrl_char.c_str() + 1, utf8_chr);
+                                    buffer += utf8_chr;
+                                    break;
+                                }
 
                                 default:
                                     throwTokenizingError("unknown control character '\\" + ctrl_char + "' in string", buffer, line, character, code);
