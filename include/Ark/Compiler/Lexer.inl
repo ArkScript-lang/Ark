@@ -1,5 +1,3 @@
-// checking if the given character is a valid first character for an identifier
-#define CHECK_FIRST_CHAR(chr) (('a' <= chr && chr <= 'z') || ('A' <= chr && chr <= 'Z') || chr == '_')
 // check if a given character is a valid hex char
 #define CHECK_IF_HEXCHAR(chr) (('a' <= chr && chr <= 'f') || ('A' <= chr && chr <= 'F') || ('0' <= chr && chr <= '9'))
 
@@ -15,9 +13,9 @@ inline TokenType Lexer::guessType(const std::string& value) noexcept
         return TokenType::Operator;
     else if (isKeyword(value))
         return TokenType::Keyword;
-    else if (value[0] == '&' && value.size() > 1 && CHECK_FIRST_CHAR(value[1]))
+    else if (value[0] == '&' && value.size() > 1 && isIdentifier(value))
         return TokenType::Capture;
-    else if (value[0] == '.' && value.size() > 1 && CHECK_FIRST_CHAR(value[1]))
+    else if (value[0] == '.' && value.size() > 1 && isIdentifier(value))
         return TokenType::GetField;
     else if (isIdentifier(value))
         return TokenType::Identifier;
