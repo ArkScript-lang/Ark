@@ -57,12 +57,7 @@ namespace Ark
          * @details Called by the VM when `(del obj)` is found or when the object goes
          *          out of scope.
          */
-        inline void del()
-        {
-            // call a custom deleter on the data held by the usertype
-            if (m_funcs != nullptr && m_funcs->deleter != nullptr)
-               m_funcs->deleter(m_data);
-        }
+        void del();
 
         /**
          * @brief Set the control functions structure
@@ -118,9 +113,9 @@ namespace Ark
             return *static_cast<T*>(m_data);
         }
 
-        friend inline bool operator==(const UserType& A, const UserType& B) noexcept;
-        friend inline bool operator<(const UserType& A, const UserType& B) noexcept;
-        friend inline std::ostream& operator<<(std::ostream& os, const UserType& A) noexcept;
+        friend bool operator==(const UserType& A, const UserType& B) noexcept;
+        friend bool operator<(const UserType& A, const UserType& B) noexcept;
+        friend std::ostream& operator<<(std::ostream& os, const UserType& A) noexcept;
 
     private:
         uint16_t m_type_id;
