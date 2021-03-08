@@ -49,7 +49,7 @@ jobs:
       if: ${{ matrix.config.cc }} == 'gcc' && ${{ matrix.config.os_short }} == 'Ubuntu'
       shell: bash
       run: |
-        if [[ ${{ matrix.config.cc }} == 'gcc' && ${{ matrix.config.os_short }} == 'Ubuntu' ]]; then
+        if [[ ${{ matrix.config.cc }} == 'gcc-8' && ${{ matrix.config.os_short }} == 'Ubuntu' ]]; then
           sudo apt-add-repository -y ppa:ubuntu-toolchain-r/test
           sudo apt-get -yq install g++-8 gcc-8
         elif [[ ${{ matrix.config.cc }} == 'clang' && ${{ matrix.config.os_short }} == 'Ubuntu' ]]; then
