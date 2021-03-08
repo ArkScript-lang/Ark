@@ -53,10 +53,7 @@ jobs:
           sudo apt-add-repository -y ppa:ubuntu-toolchain-r/test
           sudo apt-get -yq install g++-8 gcc-8
         elif [[ ${{ matrix.config.cc }} == 'clang' && ${{ matrix.config.os_short }} == 'Ubuntu' ]]; then
-          #wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key 2>/dev/null | sudo apt-key add -
-          #sudo add-apt-repository 'deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-9 main' -y
-          #sudo apt-get update -q
-          sudo apt-get install -y clang-9 lld-9 libc++-9-dev libc++abi-9-dev clang-tools-9
+          sudo apt-get install -y clang-10 lld-10 libc++-10-dev libc++abi-10-dev clang-tools-10
         elif [[ ${{ matrix.config.os_short }} == 'macOS' ]]; then
           brew install gcc && brew link gcc && CXX=/usr/local/bin/g++-9
           brew install openssl
