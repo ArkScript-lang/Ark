@@ -8,6 +8,10 @@
 - more options on the `display()` method of the bytecode reader, allowing us to selecto segment of bytecode instead of displaying everything
 - added a new token type: `Spread` ; it handles `...identifier`, needed in macros
 - the parser can now handle macros definitions
+- macros are being handled right after the parsing, before the AST optimizer can run
+    - if macros: `!{if compile-time-value then [optional else]}`
+    - values macros: `!{name value}`
+    - functions macros: `!{name (a b c ...args) body}`
 
 ### Changed
 - updating doxyfile and some docstrings
