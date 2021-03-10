@@ -211,6 +211,8 @@ namespace Ark
                 // and it's time to du-du-du-du-duel!
                 switch (inst)
                 {
+                #pragma region "Instructions"
+
                     case Instruction::LOAD_SYMBOL:
                     {
                         /*
@@ -477,6 +479,9 @@ namespace Ark
 
                         if (Value* var = findNearestVariable(id); var != nullptr)
                         {
+                            // free usertypes
+                            if (var->valueType() == ValueType::User)
+                                var->usertype_ref().del();
                             *var = Value();
                             break;
                         }
@@ -615,6 +620,8 @@ namespace Ark
                         COZ_PROGRESS_NAMED("ark vm concat");
                         break;
                     }
+
+                #pragma endregion
 
                 #pragma region "Operators"
 
