@@ -186,6 +186,9 @@ namespace Ark::internal
                     node.list().clear();
                     node.setNodeType(NodeType::List);
                 }
+
+                if (node.nodeType() == NodeType::Macro)
+                    registerMacro(node);
             }
         }
         else if (node.nodeType() == NodeType::List && node.const_list().size() > 0
@@ -225,6 +228,18 @@ namespace Ark::internal
                             // do not move j because we checked before that the spread is always the last one
                             args_applied[arg_name].push_back(node.const_list()[i]);
                         }
+                    }
+
+                    // check argument count
+                    if (args_applied.size() + 1 == args.list().size() && args.list().back().nodeType() == NodeType::Spread)
+                    {
+                        // just a spread we didn't assign
+                        args_applied[args.list().back().string()] = Node(NodeType::List);
+                    }
+                    else if (args_applied.size() != args.list().size())
+                    {
+                        std::cout << "throw " << args_applied.size() << " " << args.list().size() << std::endl;
+                        throwMacroProcessingError("Macro `" + macro->const_list()[0].string() + "' got " + std::to_string(args_applied.size()) + " argument(s) but needed " + std::to_string(args.list().size()), *macro);
                     }
 
                     std::cout << "before unification " << temp_body << std::endl;
