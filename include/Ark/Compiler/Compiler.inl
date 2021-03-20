@@ -7,6 +7,17 @@ inline std::vector<internal::Inst_t>& Compiler::page(int i) noexcept
     return m_temp_pages[-i - 1];
 }
 
+inline std::size_t Compiler::countArkObjects(const std::vector<internal::Node>& lst) noexcept
+{
+    std::size_t n = 0;
+    for (const internal::Node& node : lst)
+    {
+        if (node.nodeType() != internal::NodeType::GetField)
+            n++;
+    }
+    return n;
+}
+
 inline std::optional<std::size_t> Compiler::isOperator(const std::string& name) noexcept
 {
     auto it = std::find(internal::Builtins::operators.begin(), internal::Builtins::operators.end(), name);

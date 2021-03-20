@@ -20,6 +20,8 @@
 - creating a Scope allocates 4 pairs instead of 2, reducing the number of reallocations needed
 - `tailOf` renamed to `tail` and `headOf` to `head` ; no need to keep the relics of the past
 - `headOf` (now `head`) returns the real head of a container (List or String), the first element (nil if the list is empty, "" if the string is empty)
+- the http module was updated to add `http:params:toList` and fix the `http:server:[method]` when passing a function
+- fixing the compiler when we encounter get fields in lists
 
 ### Removed
 - `~UserType`, since we are doing manual memory management now

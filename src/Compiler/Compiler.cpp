@@ -275,14 +275,26 @@ namespace Ark
                 (name == "append" ? Instruction::APPEND : Instruction::CONCAT);
 
             // length of at least 1 since we got a symbol name
-            uint16_t argc = x.const_list().size() - 1;
+            uint16_t argc = countArkObjects(x.const_list()) - 1;
             // error, can not use append/concat with a <2 length argument list
             if (argc < 2 && (specific == Instruction::APPEND || specific == Instruction::CONCAT))
                 throw Ark::CompilationError("can not use " + name + " with less than 2 arguments");
 
             // compile arguments in reverse order
-            for (uint16_t i = argc; i > 0; --i)
+            for (uint16_t i = x.const_list().size() - 1; i > 0; --i)
+            {
+                uint16_t j = i;
+                while (x.const_list()[j].nodeType() == NodeType::GetField)
+                    --j;
+                uint16_t diff = i - j;
+                while (j < i)
+                {
+                    _compile(x.const_list()[j], p);
+                    ++j;
+                }
                 _compile(x.const_list()[i], p);
+                i -= diff;
+            }
 
             // put inst and number of arguments
             page(p).emplace_back(specific);

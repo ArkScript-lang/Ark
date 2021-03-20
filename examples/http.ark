@@ -2,7 +2,7 @@
 (import "http.arkm")
 
 # a toggle to try the client and the server
-(let server false)
+(let server true)
 
 (if server
     # then, server
@@ -10,8 +10,14 @@
         # we can have only 1 server at a time
         (let srv (http:server:create))
         # the handler answering requests on a given route, here /hi
-        (let f (fun (str) {
-            (+ "we got: '" str "', it worked!")
+        (let f (fun (data) {
+            [
+                200
+                (if (nil? data)
+                    "hello world"
+                    (+ "hello, " (toString (http:params:toList data))))
+                "text/plain"
+            ]
         }))
         # configure the route and the handler, we can also give a string instead of a function
         (http:server:get srv "/hi" f)
