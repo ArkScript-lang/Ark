@@ -4,12 +4,12 @@
 !{foo (a b) (+ a b)}
 (foo 12 3)
 
-!{bar (a ...args) (print a " " (len args))}
+!{bar (a ...args) (print a " " args)}
 (bar 1)
 (bar 2 3)
 
-!{egg (...args) (bar ...args)}
-(egg)
+#!{egg (...args) (bar ...args)}
+#(egg)
 
 !{abc (...args) (print (@ args 2))}
 (abc)
