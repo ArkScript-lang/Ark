@@ -12,10 +12,12 @@ namespace Ark::internal
         m_trueNode = Node("true");
         m_falseNode = Node("false");
         m_nilNode = Node("nil");
+        m_listNode = Node("list");
 
         m_trueNode.setNodeType(NodeType::Symbol);
         m_falseNode.setNodeType(NodeType::Symbol);
         m_nilNode.setNodeType(NodeType::Symbol);
+        m_listNode.setNodeType(NodeType::Symbol);
     }
 
     void MacroProcessor::feed(const Node& ast)
@@ -237,7 +239,10 @@ namespace Ark::internal
                         else if (args.list()[j].nodeType() == NodeType::Spread)
                         {
                             if (args_applied.find(arg_name) == args_applied.end())
+                            {
                                 args_applied[arg_name] = Node(NodeType::List);
+                                args_applied[arg_name].push_back(m_listNode);
+                            }
                             // do not move j because we checked before that the spread is always the last one
                             args_applied[arg_name].push_back(node.const_list()[i]);
                         }
@@ -248,12 +253,10 @@ namespace Ark::internal
                     {
                         // just a spread we didn't assign
                         args_applied[args.list().back().string()] = Node(NodeType::List);
+                        args_applied[args.list().back().string()].push_back(m_listNode);
                     }
                     else if (args_applied.size() != args.list().size())
-                    {
-                        std::cout << "throw " << args_applied.size() << " " << args.list().size() << std::endl;
                         throwMacroProcessingError("Macro `" + macro->const_list()[0].string() + "' got " + std::to_string(args_applied.size()) + " argument(s) but needed " + std::to_string(args.list().size()), *macro);
-                    }
 
                     std::cout << "before unification " << temp_body << std::endl;
                     std::cout << "                   " << args << std::endl;
@@ -330,7 +333,7 @@ namespace Ark::internal
                     throwMacroProcessingError("When expanding `len' inside a macro, got a " + typeToString(node.list()[1]) + ", needed a List", node);
 
                 Node& sublist = node.list()[1];
-                if (sublist.list().size() > 0 && sublist.list()[0].nodeType() == NodeType::Symbol && sublist.list()[0].string() == "list")
+                if (sublist.list().size() > 0 && sublist.list()[0] == m_listNode)
                     node = Node(static_cast<int>(sublist.list().size()) - 1);
                 else
                     node = Node(static_cast<int>(sublist.list().size()));
@@ -351,7 +354,7 @@ namespace Ark::internal
                 long num_idx = static_cast<long>(idx.number());
                 long sz = static_cast<long>(sublist.list().size());
                 long offset = 0;
-                if (sz > 0 && sublist.list()[0].nodeType() == NodeType::Symbol && sublist.list()[0].string() == "list")
+                if (sz > 0 && sublist.list()[0] == m_listNode)
                 {
                     num_idx = (num_idx >= 0) ? num_idx + 1 : num_idx;
                     offset = -1;
