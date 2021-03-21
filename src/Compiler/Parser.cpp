@@ -39,17 +39,6 @@ namespace Ark
             throwParseError_("empty file");
         sugar(t);
 
-        for (auto& tt: t)
-        {
-            std::printf(
-                    "TokenType: %s\tLine: %zu\n[%zu\t]\tToken: %s\n",
-                    tokentype_string[static_cast<std::size_t>(tt.type)].c_str(),
-                    tt.line,
-                    tt.col,
-                    tt.token.c_str()
-                );
-        }
-
         // create program
         std::list<Token> tokens(t.begin(), t.end());
         m_last_token = tokens.front();
