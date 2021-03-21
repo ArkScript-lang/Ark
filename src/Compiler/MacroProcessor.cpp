@@ -377,7 +377,7 @@ namespace Ark::internal
         return node;
     }
 
-    bool MacroProcessor::isTruthy(Node& node)
+    bool MacroProcessor::isTruthy(const Node& node)
     {
         if (node.nodeType() == NodeType::Symbol)
         {
