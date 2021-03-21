@@ -122,7 +122,7 @@ namespace Ark::internal
          * @return true 
          * @return false 
          */
-        bool isTruthy(Node& node);
+        bool isTruthy(const Node& node);
 
         /**
          * @brief Throw a macro processing error
