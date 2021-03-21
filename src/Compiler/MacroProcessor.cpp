@@ -23,7 +23,7 @@ namespace Ark::internal
 
         // to be able to modify it
         m_ast = ast;
-        process(m_ast);
+        process(m_ast, 0);
 
         if (m_debug >= 2)
             std::cout << "after>> " << m_ast << std::endl;
@@ -93,20 +93,26 @@ namespace Ark::internal
         throwMacroProcessingError("unrecognized macro form", node);
     }
 
-    void MacroProcessor::process(Node& node)
+    void MacroProcessor::process(Node& node, unsigned depth)
     {
+        bool has_created = false;
+
         if (node.nodeType() == NodeType::List)
         {
-            // create a scope only if needed
-            if (!m_macros.back().empty())
-                m_macros.emplace_back();
-
             // recursive call
             std::size_t i = 0;
             while (i < node.list().size())
             {
                 if (node.list()[i].nodeType() == NodeType::Macro)
                 {
+                    // create a scope only if needed
+                    if ((!m_macros.empty() && !m_macros.back().empty()) || !has_created)
+                    {
+                        has_created = true;
+                        m_macros.emplace_back();
+                        m_macros.back()["#depth"] = Node(static_cast<double>(depth));
+                    }
+
                     registerMacro(node.list()[i]);
                     node.list().erase(node.const_list().begin() + i);
                 }
@@ -116,7 +122,7 @@ namespace Ark::internal
                     if ((m_macros.size() == 1 && m_macros[0].size() > 0) || m_macros.size() > 1)
                         execute(node.list()[i]);
 
-                    process(node.list()[i]);
+                    process(node.list()[i], depth + 1);
 
                     // go forward only if it isn't a macro, because we delete macros
                     // while running on the AST
@@ -125,15 +131,13 @@ namespace Ark::internal
             }
 
             // delete a scope only if needed
-            if (!m_macros.back().empty())
+            if (!m_macros.empty() && !m_macros.back().empty() && static_cast<unsigned>(m_macros.back()["#depth"].number()) == depth)
                 m_macros.pop_back();
         }
     }
 
     void MacroProcessor::execute(Node& node)
     {
-        std::cout << node << std::endl;
-
         static std::function<void(const std::unordered_map<std::string, Node>&, Node&)> apply_to =
         [](const std::unordered_map<std::string, Node>& map, Node& target) {
             // TODO handle spread

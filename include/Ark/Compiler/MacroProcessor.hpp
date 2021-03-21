@@ -66,6 +66,9 @@ namespace Ark::internal
          */
         inline Node* find_nearest_macro(const std::string& name)
         {
+            if (m_macros.empty())
+                return nullptr;
+
             for (auto it = m_macros.rbegin(); it != m_macros.rend(); ++it)
             {
                 if (it->size() != 0)
@@ -90,8 +93,9 @@ namespace Ark::internal
          * @brief Register macros in scopes and apply them as needed
          * 
          * @param node node on which to operate
+         * @param depth
          */
-        void process(Node& node);
+        void process(Node& node, unsigned depth);
 
         /**
          * @brief Execute a node, trying to emplace macros calls
