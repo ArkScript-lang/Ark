@@ -10,6 +10,15 @@
     (let a [1 2 3])
     (let b [4 5 6])
 
+    (let make (fun (a b)
+        (fun (&a &b) ())))
+    (let foo (make "hello" 1))
+
+    # if this is failing, this is most likely to be a compiler problem
+    (set tests (assert-eq ["hello" 1] [foo.a foo.b] "closure's list" tests))
+    (set tests (assert-eq 2 (len [foo.a foo.b]) "closure's list" tests))
+    (set tests (assert-eq ["hello"] (append [] foo.a) "closure's list" tests))
+
     (set tests (assert-eq (append a 4) [1 2 3 4] "append" tests))
     (set tests (assert-eq a [1 2 3] "unmodified list" tests))
     (set tests (assert-eq (append a a) [1 2 3 [1 2 3]] "append" tests))
