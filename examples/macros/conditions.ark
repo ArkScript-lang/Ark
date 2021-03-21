@@ -1,0 +1,14 @@
+!{o 12}
+(print o)
+
+!{if (= o 12)
+    (print "12")
+    (print "not 12")
+}
+
+!{if (= o 12)
+    !{a (...args) (print args)}
+    !{a (...args) (print "no")}
+}
+
+(a 1 2 3)
