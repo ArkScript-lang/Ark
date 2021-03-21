@@ -58,6 +58,8 @@ namespace Ark::internal
         Node m_ast;  ///< The modified AST
         std::vector<std::unordered_map<std::string, Node>> m_macros;  ///< Handling macros in a scope fashion
 
+        Node m_trueNode, m_falseNode, m_nilNode;
+
         /**
          * @brief Find the nearest macro matching a giving name
          * 
@@ -108,9 +110,10 @@ namespace Ark::internal
          * @brief Evaluate only the macros
          * 
          * @param node 
+         * @param is_not_body true if the method is run on a non-body code (eg a condition of an if-macro)
          * @return Node 
          */
-        Node evaluate(Node& node);
+        Node evaluate(Node& node, bool is_not_body=false);
 
         /**
          * @brief Check if a node can be evaluated to true

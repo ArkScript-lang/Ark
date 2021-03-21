@@ -8,13 +8,18 @@ namespace Ark::internal
 {
     MacroProcessor::MacroProcessor(unsigned debug, uint16_t options) noexcept :
         m_debug(debug), m_options(options)
-    {}
+    {
+        m_trueNode = Node("true");
+        m_falseNode = Node("false");
+        m_nilNode = Node("nil");
+
+        m_trueNode.setNodeType(NodeType::Symbol);
+        m_falseNode.setNodeType(NodeType::Symbol);
+        m_nilNode.setNodeType(NodeType::Symbol);
+    }
 
     void MacroProcessor::feed(const Node& ast)
     {
-        // so that we can start with an empty scope
-        m_macros.emplace_back();
-
         if (m_debug >= 2)
             Ark::logger.info("Processing macros...");
 
@@ -180,7 +185,7 @@ namespace Ark::internal
 
                 Node& cond = node.list()[1];
                 // evaluate cond
-                if (Node temp = evaluate(cond); isTruthy(temp))
+                if (Node temp = evaluate(cond, /* is_not_body */ true); isTruthy(temp))
                     node = node.list()[2];
                 else if (node.const_list().size() > 2)
                     node = node.list()[3];
@@ -261,10 +266,19 @@ namespace Ark::internal
         }
     }
 
-    Node MacroProcessor::evaluate(Node& node)
+    Node MacroProcessor::evaluate(Node& node, bool is_not_body)
     {
-        if (node.nodeType() == NodeType::List && node.const_list().size() > 1
-            && node.list()[0].nodeType() == NodeType::Symbol)
+        if (node.nodeType() == NodeType::Macro)
+        {
+            Node* macro = find_nearest_macro(node.list()[0].string());
+            if (macro != nullptr)
+                return *macro;
+            else
+                throwMacroProcessingError("Found an unreferenced macro", *macro);
+        }
+        else if (node.nodeType() == NodeType::List && node.const_list().size() > 1
+            && node.list()[0].nodeType() == NodeType::Symbol
+            && is_not_body)
         {
             const std::string& name = node.list()[0].string();
             if (Node* macro = find_nearest_macro(name); macro != nullptr)
@@ -272,9 +286,19 @@ namespace Ark::internal
                 execute(node.list()[0]);
             }
             else if (name == "=")
-            {}
+            {
+                if (node.list().size() != 3)
+                    throwMacroProcessingError("Interpreting a `=' condition with " + std::to_string(node.list().size() - 1) + " arguments, instead of 2.", node);
+
+                return (evaluate(node.list()[1], is_not_body) == evaluate(node.list()[2], is_not_body)) ? m_trueNode : m_falseNode;
+            }
             else if (name == "!=")
-            {}
+            {
+                if (node.list().size() != 3)
+                    throwMacroProcessingError("Interpreting a `!=' condition with " + std::to_string(node.list().size() - 1) + " arguments, instead of 2.", node);
+
+                return (evaluate(node.list()[1], is_not_body) != evaluate(node.list()[2], is_not_body)) ? m_trueNode : m_falseNode;
+            }
             else if (name == "<")
             {}
             else if (name == ">")
@@ -285,16 +309,57 @@ namespace Ark::internal
             {}
             else if (name == "not")
             {
-                //return !isTruthy()
+                if (node.list().size() != 2)
+                    throwMacroProcessingError("Interpreting a `not' condition with " + std::to_string(node.list().size() - 1) + " arguments, instead of 1.", node);
+
+                return (!isTruthy(evaluate(node.list()[1], is_not_body))) ? m_trueNode : m_falseNode;
             }
             else if (name == "and")
             {}
             else if (name == "or")
             {}
             else if (name == "len")
-            {}
+            {
+                if (node.list().size() > 2)
+                    throwMacroProcessingError("When expanding `len' inside a macro, got " + std::to_string(node.list().size() - 1) + " arguments, needed only 1", node);
+                else if (node.list()[1].nodeType() != NodeType::List)
+                    throwMacroProcessingError("When expanding `len' inside a macro, got a " + typeToString(node.list()[1]) + ", needed a List", node);
+
+                Node& sublist = node.list()[1];
+                if (sublist.list().size() > 0 && sublist.list()[0].nodeType() == NodeType::Symbol && sublist.list()[0].string() == "list")
+                    node = Node(static_cast<int>(sublist.list().size()) - 1);
+                else
+                    node = Node(static_cast<int>(sublist.list().size()));
+            }
             else if (name == "@")
-            {}
+            {
+                if (node.list().size() != 3)
+                    throwMacroProcessingError("Interpreting a `@' with " + std::to_string(node.list().size() - 1) + " arguments, instead of 2.", node);
+
+                Node sublist = evaluate(node.list()[1], is_not_body);
+                Node idx = evaluate(node.list()[2], is_not_body);
+
+                if (sublist.nodeType() != NodeType::List)
+                    throwMacroProcessingError("Interpreting a `@' with a " + typeToString(sublist) + " instead of a List", sublist);
+                if (idx.nodeType() != NodeType::Number)
+                    throwMacroProcessingError("Interpreting a `@' with a " + typeToString(idx) + " as the index type, instead of a Number", idx);
+
+                long num_idx = static_cast<long>(idx.number());
+                long sz = static_cast<long>(sublist.list().size());
+                long offset = 0;
+                if (sz > 0 && sublist.list()[0].nodeType() == NodeType::Symbol && sublist.list()[0].string() == "list")
+                {
+                    num_idx = (num_idx >= 0) ? num_idx + 1 : num_idx;
+                    offset = -1;
+                }
+
+                if (num_idx < 0 && sz + num_idx + offset >= 0)
+                    return sublist.list()[sz + num_idx - offset];
+                else if (num_idx >= 0 && num_idx < sz + offset)
+                    return sublist.list()[num_idx - offset];
+
+                throwMacroProcessingError("Index error when processing `@' in macro: got index " + std::to_string(num_idx) + ", while max size was " + std::to_string(sz + offset), node);
+            }
             else if (name == "head")
             {}
             else if (name == "tail")
@@ -322,7 +387,7 @@ namespace Ark::internal
         else if (node.nodeType() == NodeType::String && node.string().size() != 0)
             return true;
         else if (node.nodeType() == NodeType::Spread)
-            throwMacroProcessingError("TODO une erreur", node);
+            throwMacroProcessingError("Can not determine the truth value of a spreaded symbol", node);
         return false;
     }
 }
