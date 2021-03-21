@@ -13,7 +13,7 @@ namespace Ark::internal
         m_type(NodeType::Number),
         m_value(value)
     {}
-    
+
     Node::Node(const std::string& value) noexcept :
         m_type(NodeType::String),
         m_value(value)
