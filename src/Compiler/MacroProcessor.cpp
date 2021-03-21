@@ -184,8 +184,12 @@ namespace Ark::internal
                 Ark::logger.info("Found if macro");
 
                 Node& cond = node.list()[1];
+
+                Node temp = evaluate(cond, /* is_not_body */ true);
+                std::cout << "    if (" << cond << " // " << temp << ") ..." << std::endl;
+
                 // evaluate cond
-                if (Node temp = evaluate(cond, /* is_not_body */ true); isTruthy(temp))
+                if (isTruthy(temp))
                     node = node.list()[2];
                 else if (node.const_list().size() > 2)
                     node = node.list()[3];
@@ -268,13 +272,13 @@ namespace Ark::internal
 
     Node MacroProcessor::evaluate(Node& node, bool is_not_body)
     {
-        if (node.nodeType() == NodeType::Macro)
+        if (node.nodeType() == NodeType::Symbol)
         {
-            Node* macro = find_nearest_macro(node.list()[0].string());
-            if (macro != nullptr)
-                return *macro;
+            Node* macro = find_nearest_macro(node.string());
+            if (macro != nullptr && macro->list().size() == 2)
+                return macro->list()[1];
             else
-                throwMacroProcessingError("Found an unreferenced macro", *macro);
+                return node;
         }
         else if (node.nodeType() == NodeType::List && node.const_list().size() > 1
             && node.list()[0].nodeType() == NodeType::Symbol
