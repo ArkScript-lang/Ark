@@ -1,0 +1,9 @@
+!{test (+ 1 2 3)}
+(print test)
+
+((fun () {
+    !{test (- 1 2 3)}
+    (print test)
+}))
+
+(print test)
