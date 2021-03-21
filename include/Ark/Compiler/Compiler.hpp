@@ -96,6 +96,8 @@ namespace Ark
         // checking if a symbol is an operator or a builtin
         // because they are implemented the same way
 
+        inline std::size_t countArkObjects(const std::vector<internal::Node>& lst) noexcept;
+
         /// Checking if a symbol is an operator
         inline std::optional<std::size_t> isOperator(const std::string& name) noexcept;
         /// Checking if a symbol is a builtin
