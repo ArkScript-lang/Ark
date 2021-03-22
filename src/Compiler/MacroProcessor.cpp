@@ -295,44 +295,43 @@ namespace Ark::internal
                 return node;
         }
         else if (node.nodeType() == NodeType::List && node.const_list().size() > 1
-            && node.list()[0].nodeType() == NodeType::Symbol
-            && is_not_body)
+            && node.list()[0].nodeType() == NodeType::Symbol)
         {
             const std::string& name = node.list()[0].string();
             if (Node* macro = find_nearest_macro(name); macro != nullptr)
             {
                 execute(node.list()[0]);
             }
-            else if (name == "=")
+            else if (name == "=" && is_not_body)
             {
                 if (node.list().size() != 3)
                     throwMacroProcessingError("Interpreting a `=' condition with " + std::to_string(node.list().size() - 1) + " arguments, instead of 2.", node);
 
                 return (evaluate(node.list()[1], is_not_body) == evaluate(node.list()[2], is_not_body)) ? m_trueNode : m_falseNode;
             }
-            else if (name == "!=")
+            else if (name == "!=" && is_not_body)
             {
                 if (node.list().size() != 3)
                     throwMacroProcessingError("Interpreting a `!=' condition with " + std::to_string(node.list().size() - 1) + " arguments, instead of 2.", node);
 
                 return (evaluate(node.list()[1], is_not_body) != evaluate(node.list()[2], is_not_body)) ? m_trueNode : m_falseNode;
             }
-            else if (name == "<")
+            else if (name == "<" && is_not_body)       // TODO "<"
             {}
-            else if (name == ">")
+            else if (name == ">" && is_not_body)       // TODO ">"
             {}
-            else if (name == "<=")
+            else if (name == "<=" && is_not_body)      // TODO "<="
             {}
-            else if (name == ">=")
+            else if (name == ">=" && is_not_body)      // TODO ">="
             {}
-            else if (name == "not")
+            else if (name == "not" && is_not_body)
             {
                 if (node.list().size() != 2)
                     throwMacroProcessingError("Interpreting a `not' condition with " + std::to_string(node.list().size() - 1) + " arguments, instead of 1.", node);
 
                 return (!isTruthy(evaluate(node.list()[1], is_not_body))) ? m_trueNode : m_falseNode;
             }
-            else if (name == "and")
+            else if (name == "and" && is_not_body)
             {
                 if (node.list().size() < 3)
                     throwMacroProcessingError("Interpreting a `and' chain with " + std::to_string(node.list().size() - 1) + " arguments, expected at least 2.", node);
@@ -344,7 +343,7 @@ namespace Ark::internal
                 }
                 return m_trueNode;
             }
-            else if (name == "or")
+            else if (name == "or" && is_not_body)
             {
                 if (node.list().size() < 3)
                     throwMacroProcessingError("Interpreting a `or' chain with " + std::to_string(node.list().size() - 1) + " arguments, expected at least 2.", node);
@@ -356,7 +355,7 @@ namespace Ark::internal
                 }
                 return m_falseNode;
             }
-            else if (name == "len")
+            else if (name == "len" && is_not_body)
             {
                 if (node.list().size() > 2)
                     throwMacroProcessingError("When expanding `len' inside a macro, got " + std::to_string(node.list().size() - 1) + " arguments, needed only 1", node);
@@ -399,12 +398,55 @@ namespace Ark::internal
                 throwMacroProcessingError("Index error when processing `@' in macro: got index " + std::to_string(num_idx) + ", while max size was " + std::to_string(sz + offset), node);
             }
             else if (name == "head")
-            {}
+            {
+                if (node.list().size() > 2)
+                    throwMacroProcessingError("When expanding `head' inside a macro, got " + std::to_string(node.list().size() - 1) + " arguments, needed only 1", node);
+                else if (node.list()[1].nodeType() != NodeType::List)
+                    throwMacroProcessingError("When expanding `head' inside a macro, got a " + typeToString(node.list()[1]) + ", needed a List", node);
+
+                Node& sublist = node.list()[1];
+                if (sublist.list().size() > 0 && sublist.list()[0] == m_listNode)
+                {
+                    if (sublist.list().size() > 1)
+                        node = sublist.list()[1];
+                    else
+                        node = m_nilNode;
+                }
+                else if (sublist.list().size() > 0)
+                    node = sublist.list()[0];
+                else
+                    node = m_nilNode;
+            }
             else if (name == "tail")
-            {}
+            {
+                if (node.list().size() > 2)
+                    throwMacroProcessingError("When expanding `tail' inside a macro, got " + std::to_string(node.list().size() - 1) + " arguments, needed only 1", node);
+                else if (node.list()[1].nodeType() != NodeType::List)
+                    throwMacroProcessingError("When expanding `tail' inside a macro, got a " + typeToString(node.list()[1]) + ", needed a List", node);
+
+                Node sublist = node.list()[1];
+                if (sublist.list().size() > 0 && sublist.list()[0] == m_listNode)
+                {
+                    if (sublist.list().size() > 1)
+                    {
+                        sublist.list().erase(sublist.const_list().begin() + 1);
+                        node = sublist;
+                    }
+                    else
+                        node = Node(NodeType::List);
+                }
+                else if (sublist.list().size() > 0)
+                {
+                    sublist.list().erase(sublist.const_list().begin());
+                    node = sublist;
+                }
+                else
+                    node = Node(NodeType::List);
+            }
             else
             {
-                // TODO work on the other elements of the list
+                for (std::size_t i = 0; i < node.list().size(); ++i)
+                    node.list()[i] = evaluate(node.list()[i], is_not_body);
             }
         }
 
