@@ -265,7 +265,15 @@ namespace Ark::internal
                         args_applied[args.list().back().string()].push_back(m_listNode);
                     }
                     else if (args_applied.size() != args.list().size())
-                        throwMacroProcessingError("Macro `" + macro->const_list()[0].string() + "' got " + std::to_string(args_applied.size()) + " argument(s) but needed " + std::to_string(args.list().size()), *macro);
+                    {
+                        std::size_t args_needed = args.list().size();
+                        std::string macro_name = macro->const_list()[0].string();
+
+                        if (args.list().back().nodeType() != NodeType::Spread)
+                            throwMacroProcessingError("Macro `" + macro_name + "' got " + std::to_string(args_applied.size()) + " argument(s) but needed " + std::to_string(args_needed), *macro);
+                        else
+                            throwMacroProcessingError("Macro `" + macro_name + "' got " + std::to_string(args_applied.size()) + " argument(s) but needed at least " + std::to_string(args_needed - 1), *macro);
+                    }
 
                     if (!args_applied.empty())
                         apply_to(args_applied, temp_body, nullptr);
