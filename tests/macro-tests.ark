@@ -9,35 +9,34 @@
 
     (set tests (assert-eq (add_two 1 2) 3 "macro add_two" tests))
     (set tests (assert-eq (add_two nice_value 2) 14 "macro add_two and macro value" tests))
-    (print nice_value)
     !{if (and true true)
         (set tests (assert-val true "macro if" tests))
         (set tests (assert-val false "macro if" tests))
     }
-    # !{if (= nice_value 12)
-    #     (set tests (assert-val true "macro if" tests))
-    #     (set tests (assert-val false "macro if" tests))
-    # }
-    # !{if (and true (= nice_value 12))
-    #     (set tests (assert-val true "macro if" tests))
-    #     (set tests (assert-val false "macro if" tests))
-    # }
-    # !{if (and false (= nice_value 12))
-    #     (set tests (assert-val false "macro if" tests))
-    #     (set tests (assert-val true "macro if" tests))
-    # }
-    # !{if (or false (= nice_value 12))
-    #     (set tests (assert-val true "macro if" tests))
-    #     (set tests (assert-val false "macro if" tests))
-    # }
-    # !{if (or false (!= nice_value 12))
-    #     (set tests (assert-val false "macro if" tests))
-    #     (set tests (assert-val true "macro if" tests))
-    # }
-    # !{if (not (= nice_value 12))
-    #     (set tests (assert-val false "macro if" tests))
-    #     (set tests (assert-val true "macro if" tests))
-    # }
+    !{if (= nice_value 12)
+        (set tests (assert-val true "macro if" tests))
+        (set tests (assert-val false "macro if" tests))
+    }
+    !{if (and true (= nice_value 12))
+        (set tests (assert-val true "macro if" tests))
+        (set tests (assert-val false "macro if" tests))
+    }
+    !{if (and false (= nice_value 12))
+        (set tests (assert-val false "macro if" tests))
+        (set tests (assert-val true "macro if" tests))
+    }
+    !{if (or false (= nice_value 12))
+        (set tests (assert-val true "macro if" tests))
+        (set tests (assert-val false "macro if" tests))
+    }
+    !{if (or false (!= nice_value 12))
+        (set tests (assert-val false "macro if" tests))
+        (set tests (assert-val true "macro if" tests))
+    }
+    !{if (not (= nice_value 12))
+        (set tests (assert-val false "macro if" tests))
+        (set tests (assert-val true "macro if" tests))
+    }
 
     {
         !{val (+ 1 2 3)}
@@ -79,4 +78,3 @@
 }))
 
 (let passed-macro (macro-tests))
-(print passed-macro)
