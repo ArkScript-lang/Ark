@@ -12,3 +12,18 @@
 }
 
 (a 1 2 3)
+
+!{if (and true true)
+    (print "expected true")
+    (assert false "!{if (and true true)} failed")
+}
+
+!{if (or false true)
+    (print "expected true")
+    (assert false "!{if (or false true)} failed")
+}
+
+!{if (= true (and true true))
+    (print "expected true")
+    (assert false "!{if (= true (and true true))} failed")
+}
