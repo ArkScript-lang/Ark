@@ -1,3 +1,5 @@
 !{bar (a ...args) (print a " " (len args))}
 !{egg (...args) (bar ...args)}
 (egg 1)
+
+# (egg)  # should fail at compile time
