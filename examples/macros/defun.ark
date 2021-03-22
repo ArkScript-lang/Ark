@@ -1,0 +1,5 @@
+!{defun (name args body) (let name (fun args body))}
+
+(defun foo (bar egg) (print bar egg))
+
+(foo 1 "hello")
