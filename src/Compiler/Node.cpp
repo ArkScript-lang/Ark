@@ -143,7 +143,7 @@ namespace Ark::internal
         switch(N.m_type)
         {
         case NodeType::String:
-            os << N.string();
+            os << '"' << N.string() << '"';
             break;
         
         case NodeType::Symbol:
