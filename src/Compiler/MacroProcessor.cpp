@@ -25,15 +25,15 @@ namespace Ark::internal
         if (m_debug >= 2)
             Ark::logger.info("Processing macros...");
 
-        if (m_debug >= 2)
-            std::cout << ast << std::endl;
-
         // to be able to modify it
         m_ast = ast;
         process(m_ast, 0);
 
-        if (m_debug >= 2)
-            std::cout << "after>> " << m_ast << std::endl;
+        if (m_debug >= 3)
+        {
+            Ark::logger.info("(MacroProcessor) AST after processing macros");
+            std::cout << m_ast << std::endl;
+        }
     }
 
     const Node& MacroProcessor::ast() const noexcept
@@ -90,9 +90,7 @@ namespace Ark::internal
         {
             if (first_node.nodeType() == NodeType::Keyword && first_node.keyword() == Keyword::If)
             {
-                std::cout << "executing if " << node << std::endl;
                 execute(node);
-                std::cout << "after if " << node << std::endl;
                 return;
             }
             else if (first_node.nodeType() == NodeType::Keyword)
@@ -148,9 +146,8 @@ namespace Ark::internal
 
     void MacroProcessor::execute(Node& node)
     {
-        static std::function<void(const std::unordered_map<std::string, Node>&, Node&)> apply_to =
-        [](const std::unordered_map<std::string, Node>& map, Node& target) {
-            // TODO handle spread
+        static std::function<void(const std::unordered_map<std::string, Node>&, Node&, Node*)> apply_to =
+        [](const std::unordered_map<std::string, Node>& map, Node& target, Node* parent) {
             if (target.nodeType() == NodeType::Symbol)
             {
                 if (auto p = map.find(target.string()); p != map.end())
@@ -159,7 +156,16 @@ namespace Ark::internal
             else if (target.nodeType() == NodeType::List)
             {
                 for (std::size_t i = 0, end = target.list().size(); i < end; ++i)
-                    apply_to(map, target.list()[i]);
+                    apply_to(map, target.list()[i], &target);
+            }
+            else if (target.nodeType() == NodeType::Spread)
+            {
+                Node subnode = target;
+                subnode.setNodeType(NodeType::Symbol);
+                apply_to(map, subnode, parent);
+                parent->list().pop_back();  // remove the spread
+                for (std::size_t i = 1, end = subnode.list().size(); i < end; ++i)
+                    parent->push_back(subnode.list()[i]);
             }
         };
 
@@ -170,7 +176,7 @@ namespace Ark::internal
 
             if (macro != nullptr)
             {
-                if (m_debug >= 2)
+                if (m_debug >= 3)
                     Ark::logger.info("Found macro for", node.string());
 
                 // !{name value}
@@ -186,26 +192,14 @@ namespace Ark::internal
 
             if (first.keyword() == Keyword::If)
             {
-                Ark::logger.info("Found if macro");
-
                 Node& cond = node.list()[1];
-
                 Node temp = evaluate(cond, /* is_not_body */ true);
-                std::cout << "    if (" << cond << " // " << temp << ") ..." << std::endl;
 
                 // evaluate cond
                 if (isTruthy(temp))
-                {
-                    std::cout << "(true) before if " << node << std::endl;
                     node = node.list()[2];
-                    std::cout << "(true) after if " << node << std::endl;
-                }
                 else if (node.const_list().size() > 2)
-                {
-                    std::cout << "(false) before if " << node << std::endl;
                     node = node.list()[3];
-                    std::cout << "(false) after if " << node << std::endl;
-                }
                 else
                 {
                     // remove node because nothing matched
@@ -225,7 +219,7 @@ namespace Ark::internal
 
             if (macro != nullptr)
             {
-                if (m_debug >= 2)
+                if (m_debug >= 3)
                     Ark::logger.info("Found macro for", first.string());
 
                 if (macro->const_list().size() == 2)
@@ -269,16 +263,10 @@ namespace Ark::internal
                     else if (args_applied.size() != args.list().size())
                         throwMacroProcessingError("Macro `" + macro->const_list()[0].string() + "' got " + std::to_string(args_applied.size()) + " argument(s) but needed " + std::to_string(args.list().size()), *macro);
 
-                    std::cout << "before unification " << temp_body << std::endl;
-                    std::cout << "                   " << args << std::endl;
-                    std::cout << "                   " << node << std::endl;
                     if (!args_applied.empty())
-                        apply_to(args_applied, temp_body);
-                    std::cout << "after unification " << temp_body << std::endl;
-                    std::cout << "                  " << args << std::endl;
-                    std::cout << "should be same as before " << macro->const_list()[2] << std::endl;
-                    std::cout << "                         " << macro->const_list()[1] << std::endl;
+                        apply_to(args_applied, temp_body, nullptr);
                     node = evaluate(temp_body);
+                    execute(node);
                 }
             }
         }
