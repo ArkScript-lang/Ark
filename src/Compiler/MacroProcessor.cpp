@@ -322,9 +322,29 @@ namespace Ark::internal
                 return (!isTruthy(evaluate(node.list()[1], is_not_body))) ? m_trueNode : m_falseNode;
             }
             else if (name == "and")
-            {}
+            {
+                if (node.list().size() < 3)
+                    throwMacroProcessingError("Interpreting a `and' chain with " + std::to_string(node.list().size() - 1) + " arguments, expected at least 2.", node);
+
+                for (std::size_t i = 1, end = node.list().size(); i < end; ++i)
+                {
+                    if (!isTruthy(evaluate(node.list()[i], is_not_body)))
+                        return m_falseNode;
+                }
+                return m_trueNode;
+            }
             else if (name == "or")
-            {}
+            {
+                if (node.list().size() < 3)
+                    throwMacroProcessingError("Interpreting a `or' chain with " + std::to_string(node.list().size() - 1) + " arguments, expected at least 2.", node);
+
+                for (std::size_t i = 1, end = node.list().size(); i < end; ++i)
+                {
+                    if (isTruthy(evaluate(node.list()[i], is_not_body)))
+                        return m_trueNode;
+                }
+                return m_falseNode;
+            }
             else if (name == "len")
             {
                 if (node.list().size() > 2)
