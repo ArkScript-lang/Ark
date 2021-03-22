@@ -196,14 +196,16 @@ namespace Ark::internal
 
             if (first.keyword() == Keyword::If)
             {
-                Node& cond = node.list()[1];
+                Node cond = node.list()[1];
                 Node temp = evaluate(cond, /* is_not_body */ true);
+                Node if_true = node.list()[2];
+                Node if_false = node.const_list().size() > 2 ? node.list()[3] : m_nilNode;
 
                 // evaluate cond
                 if (isTruthy(temp))
-                    node = node.list()[2];
+                    node = if_true;
                 else if (node.const_list().size() > 2)
-                    node = node.list()[3];
+                    node = if_false;
                 else
                 {
                     // remove node because nothing matched
