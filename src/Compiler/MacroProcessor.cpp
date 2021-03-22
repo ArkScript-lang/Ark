@@ -433,7 +433,10 @@ namespace Ark::internal
                         node = sublist;
                     }
                     else
+                    {
                         node = Node(NodeType::List);
+                        node.push_back(m_listNode);
+                    }
                 }
                 else if (sublist.list().size() > 0)
                 {
@@ -441,7 +444,10 @@ namespace Ark::internal
                     node = sublist;
                 }
                 else
+                {
                     node = Node(NodeType::List);
+                    node.push_back(m_listNode);
+                }
             }
             else
             {

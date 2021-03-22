@@ -1,0 +1,82 @@
+(import "tests-tools.ark")
+
+(let macro-tests (fun () {
+    (mut tests 0)
+    (let start-time (time))
+
+    !{add_two (a b) (+ a b)}
+    !{nice_value 12}
+
+    (set tests (assert-eq (add_two 1 2) 3 "macro add_two" tests))
+    (set tests (assert-eq (add_two nice_value 2) 14 "macro add_two and macro value" tests))
+    (print nice_value)
+    !{if (and true true)
+        (set tests (assert-val true "macro if" tests))
+        (set tests (assert-val false "macro if" tests))
+    }
+    # !{if (= nice_value 12)
+    #     (set tests (assert-val true "macro if" tests))
+    #     (set tests (assert-val false "macro if" tests))
+    # }
+    # !{if (and true (= nice_value 12))
+    #     (set tests (assert-val true "macro if" tests))
+    #     (set tests (assert-val false "macro if" tests))
+    # }
+    # !{if (and false (= nice_value 12))
+    #     (set tests (assert-val false "macro if" tests))
+    #     (set tests (assert-val true "macro if" tests))
+    # }
+    # !{if (or false (= nice_value 12))
+    #     (set tests (assert-val true "macro if" tests))
+    #     (set tests (assert-val false "macro if" tests))
+    # }
+    # !{if (or false (!= nice_value 12))
+    #     (set tests (assert-val false "macro if" tests))
+    #     (set tests (assert-val true "macro if" tests))
+    # }
+    # !{if (not (= nice_value 12))
+    #     (set tests (assert-val false "macro if" tests))
+    #     (set tests (assert-val true "macro if" tests))
+    # }
+
+    {
+        !{val (+ 1 2 3)}
+        (set tests (assert-eq val 6 "macro value scoping" tests))
+
+        {
+            !{val 0}
+            (set tests (assert-eq val 0 "macro value scoping" tests))
+        }
+
+        (set tests (assert-eq val 6 "macro value scoping" tests))
+    }
+
+    !{bar (a ...args) (+ a (len args))}
+    (set tests (assert-eq (bar 1) 1 "macro bar spreading" tests))
+    (set tests (assert-eq (bar 2 3) 3 "macro bar spreading" tests))
+    (set tests (assert-eq (bar 4 5 6) 6 "macro bar spreading" tests))
+    (set tests (assert-eq (bar 7 8 9 10) 10 "macro bar spreading" tests))
+
+    !{egg (...args) (bar ...args)}
+    (set tests (assert-eq (egg 1) 1 "macro egg spreading" tests))
+    (set tests (assert-eq (egg 0 1) 1 "macro egg spreading" tests))
+    (set tests (assert-eq (egg 0 0 0 1) 3 "macro egg spreading" tests))
+
+    !{h (...args) (head args)}
+    (set tests (assert-eq (h) nil "macro h spreading" tests))
+    (set tests (assert-eq (h 1) 1 "macro h spreading" tests))
+    (set tests (assert-eq (h 1 2) 1 "macro h spreading" tests))
+
+    !{g (...args) (tail args)}
+    (set tests (assert-eq (g) [] "macro g spreading" tests))
+    (set tests (assert-eq (g 1) [] "macro g spreading" tests))
+    (set tests (assert-eq (g 1 2) [2] "macro g spreading" tests))
+    (set tests (assert-eq (g 1 2 3) [2 3] "macro g spreading" tests))
+
+    (recap "Macro tests passed" tests (- (time) start-time))
+
+    tests
+}))
+
+(let passed-macro (macro-tests))
+(print passed-macro)
