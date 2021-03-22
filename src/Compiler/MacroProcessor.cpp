@@ -90,7 +90,9 @@ namespace Ark::internal
         {
             if (first_node.nodeType() == NodeType::Keyword && first_node.keyword() == Keyword::If)
             {
+                std::cout << "executing if " << node << std::endl;
                 execute(node);
+                std::cout << "after if " << node << std::endl;
                 return;
             }
             else if (first_node.nodeType() == NodeType::Keyword)
@@ -121,7 +123,8 @@ namespace Ark::internal
                     }
 
                     registerMacro(node.list()[i]);
-                    node.list().erase(node.const_list().begin() + i);
+                    if (node.list()[i].nodeType() == NodeType::Macro)
+                        node.list().erase(node.const_list().begin() + i);
                 }
                 else
                 {
@@ -192,9 +195,17 @@ namespace Ark::internal
 
                 // evaluate cond
                 if (isTruthy(temp))
+                {
+                    std::cout << "(true) before if " << node << std::endl;
                     node = node.list()[2];
+                    std::cout << "(true) after if " << node << std::endl;
+                }
                 else if (node.const_list().size() > 2)
+                {
+                    std::cout << "(false) before if " << node << std::endl;
                     node = node.list()[3];
+                    std::cout << "(false) after if " << node << std::endl;
+                }
                 else
                 {
                     // remove node because nothing matched
