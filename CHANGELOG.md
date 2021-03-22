@@ -22,6 +22,7 @@
 - `headOf` (now `head`) returns the real head of a container (List or String), the first element (nil if the list is empty, "" if the string is empty)
 - the http module was updated to add `http:params:toList` and fix the `http:server:[method]` when passing a function
 - fixing the compiler when we encounter get fields in lists
+- updating the parser to support usually invalid constructions when they are in macros, to allow things like `!{defun (name args body) (let name (fun args body))}`
 
 ### Removed
 - `~UserType`, since we are doing manual memory management now
