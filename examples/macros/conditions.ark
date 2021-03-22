@@ -2,7 +2,7 @@
 (print o)
 
 !{if (= o 12)
-    (print "12")
+    (print "i have 12")
     (print "not 12")
 }
 
@@ -12,6 +12,11 @@
 }
 
 (a 1 2 3)
+
+!{if (not false)
+    (print "expected true")
+    (assert false "!{if (not false)} failed")
+}
 
 !{if (and true true)
     (print "expected true")
@@ -27,3 +32,5 @@
     (print "expected true")
     (assert false "!{if (= true (and true true))} failed")
 }
+
+!{if (= o 1) (print "true") (print "false")}
