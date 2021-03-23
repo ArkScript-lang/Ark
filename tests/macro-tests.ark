@@ -72,6 +72,11 @@
     (set tests (assert-eq (g 1 2) [2] "macro g spreading" tests))
     (set tests (assert-eq (g 1 2 3) [2 3] "macro g spreading" tests))
 
+    !{defun (name args body) (let name (fun args body))}
+    (defun foo (a b) (+ a b))
+    (set tests (assert-eq (type foo) "Function" "macro define function" tests))
+    (set tests (assert-eq (foo 2 3) 5 "macro define function" tests))
+
     (recap "Macro tests passed" tests (- (time) start-time))
 
     tests

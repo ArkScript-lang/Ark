@@ -299,33 +299,24 @@ namespace Ark::internal
         else if (node.nodeType() == NodeType::List && node.const_list().size() > 1
             && node.list()[0].nodeType() == NodeType::Symbol)
         {
+            #define GEN_COMPARATOR(str_name, cond) \
+                else if (name == str_name && is_not_body) { \
+                    if (node.list().size() != 3) throwMacroProcessingError("Interpreting a `" str_name "' condition with " + std::to_string(node.list().size() - 1) + " arguments, instead of 2.", node);       \
+                    Node one = evaluate(node.list()[1], is_not_body), two = evaluate(node.list()[2], is_not_body); \
+                    return (cond) ? m_trueNode : m_falseNode;  \
+                }
+
             const std::string& name = node.list()[0].string();
             if (Node* macro = find_nearest_macro(name); macro != nullptr)
             {
                 execute(node.list()[0]);
             }
-            else if (name == "=" && is_not_body)
-            {
-                if (node.list().size() != 3)
-                    throwMacroProcessingError("Interpreting a `=' condition with " + std::to_string(node.list().size() - 1) + " arguments, instead of 2.", node);
-
-                return (evaluate(node.list()[1], is_not_body) == evaluate(node.list()[2], is_not_body)) ? m_trueNode : m_falseNode;
-            }
-            else if (name == "!=" && is_not_body)
-            {
-                if (node.list().size() != 3)
-                    throwMacroProcessingError("Interpreting a `!=' condition with " + std::to_string(node.list().size() - 1) + " arguments, instead of 2.", node);
-
-                return (evaluate(node.list()[1], is_not_body) != evaluate(node.list()[2], is_not_body)) ? m_trueNode : m_falseNode;
-            }
-            else if (name == "<" && is_not_body)       // TODO "<"
-            {}
-            else if (name == ">" && is_not_body)       // TODO ">"
-            {}
-            else if (name == "<=" && is_not_body)      // TODO "<="
-            {}
-            else if (name == ">=" && is_not_body)      // TODO ">="
-            {}
+            GEN_COMPARATOR("=",    one == two)
+            GEN_COMPARATOR("!=", !(one == two))
+            GEN_COMPARATOR("<",    one <  two)
+            GEN_COMPARATOR(">",  !(one <  two) && !(one == two))
+            GEN_COMPARATOR("<=",   one <  two ||    one == two)
+            GEN_COMPARATOR(">=", !(one <  two))
             else if (name == "not" && is_not_body)
             {
                 if (node.list().size() != 2)
@@ -357,7 +348,7 @@ namespace Ark::internal
                 }
                 return m_falseNode;
             }
-            else if (name == "len" && is_not_body)
+            else if (name == "len")
             {
                 if (node.list().size() > 2)
                     throwMacroProcessingError("When expanding `len' inside a macro, got " + std::to_string(node.list().size() - 1) + " arguments, needed only 1", node);
