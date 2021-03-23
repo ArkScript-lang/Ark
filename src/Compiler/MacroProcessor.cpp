@@ -383,12 +383,12 @@ namespace Ark::internal
                     offset = -1;
                 }
 
-                if (num_idx < 0 && sz + num_idx + offset >= 0)
-                    return sublist.list()[sz + num_idx - offset];
-                else if (num_idx >= 0 && num_idx < sz + offset)
-                    return sublist.list()[num_idx - offset];
+                if (num_idx < 0 && sz + num_idx >= 0 && -num_idx < sz)
+                    return sublist.list()[sz + num_idx];
+                else if (num_idx >= 0 && num_idx + offset < sz)
+                    return sublist.list()[num_idx];
 
-                throwMacroProcessingError("Index error when processing `@' in macro: got index " + std::to_string(num_idx) + ", while max size was " + std::to_string(sz + offset), node);
+                throwMacroProcessingError("Index error when processing `@' in macro: got index " + std::to_string(num_idx + offset) + ", while max size was " + std::to_string(sz + offset), node);
             }
             else if (name == "head")
             {
