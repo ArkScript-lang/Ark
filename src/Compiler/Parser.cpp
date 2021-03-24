@@ -193,6 +193,8 @@ namespace Ark
                         // parse identifier
                         if (temp.type == TokenType::Identifier)
                             block.push_back(atom(nextToken(tokens)));
+                        else if (in_macro)
+                            block.push_back(parse(tokens, false, false, in_macro));
                         else
                             throwParseError(std::string("missing identifier to define a ") + (token.token == "let" ? "constant" : "variable") + ", after keyword `" + token.token + "'", temp);
                         expect(!tokens.empty() && tokens.front().token != ")", "expected a value after the identifier", temp);
@@ -213,6 +215,8 @@ namespace Ark
                         // parse identifier
                         if (temp.type == TokenType::Identifier)
                             block.push_back(atom(nextToken(tokens)));
+                        else if (in_macro)
+                            block.push_back(parse(tokens, false, false, in_macro));
                         else
                             throwParseError("missing identifier to assign a value to, after keyword `set'", temp);
                         expect(!tokens.empty() && tokens.front().token != ")", "expected a value after the identifier", temp);
