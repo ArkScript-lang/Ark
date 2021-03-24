@@ -3,3 +3,8 @@
 (egg 1)
 
 # (egg)  # should fail at compile time
+
+!{get_symbol (bloc) (@ bloc 1)}
+!{define (bloc) (let (get_symbol bloc) (@ bloc 2))}
+(define (let a 12))
+(print a)
