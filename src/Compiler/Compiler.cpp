@@ -160,7 +160,7 @@ namespace Ark
             {
                 pushNumber(0x01);
                 m_bytecode.push_back(Instruction::HALT);
-                return;
+                break;
             }
             pushNumber(static_cast<uint16_t>(page.size() + 1));
 
