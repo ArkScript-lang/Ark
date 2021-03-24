@@ -296,14 +296,19 @@ namespace Ark::internal
             else
                 return node;
         }
-        else if (node.nodeType() == NodeType::List && node.const_list().size() > 1
-            && node.list()[0].nodeType() == NodeType::Symbol)
+        else if (node.nodeType() == NodeType::List && node.const_list().size() > 1 && node.list()[0].nodeType() == NodeType::Symbol)
         {
-            #define GEN_COMPARATOR(str_name, cond) \
-                else if (name == str_name && is_not_body) { \
-                    if (node.list().size() != 3) throwMacroProcessingError("Interpreting a `" str_name "' condition with " + std::to_string(node.list().size() - 1) + " arguments, instead of 2.", node);       \
-                    Node one = evaluate(node.list()[1], is_not_body), two = evaluate(node.list()[2], is_not_body); \
-                    return (cond) ? m_trueNode : m_falseNode;  \
+            #define GEN_COMPARATOR(str_name, cond)                            \
+                else if (name == str_name && is_not_body) {                   \
+                    if (node.list().size() != 3)                              \
+                        throwMacroProcessingError(                            \
+                            "Interpreting a `" str_name "' condition with " + \
+                            std::to_string(node.list().size() - 1) +          \
+                            " arguments, instead of 2.", node                 \
+                        );                                                    \
+                    Node one = evaluate(node.list()[1], is_not_body),         \
+                         two = evaluate(node.list()[2], is_not_body);         \
+                    return (cond) ? m_trueNode : m_falseNode;                 \
                 }
 
             const std::string& name = node.list()[0].string();
@@ -442,11 +447,11 @@ namespace Ark::internal
                     node.push_back(m_listNode);
                 }
             }
-            else
-            {
-                for (std::size_t i = 0; i < node.list().size(); ++i)
-                    node.list()[i] = evaluate(node.list()[i], is_not_body);
-            }
+        }
+        else if (node.nodeType() == NodeType::List && node.const_list().size() > 1)
+        {
+            for (std::size_t i = 0; i < node.list().size(); ++i)
+                node.list()[i] = evaluate(node.list()[i], is_not_body);
         }
 
         return node;
