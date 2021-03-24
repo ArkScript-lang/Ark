@@ -32,11 +32,12 @@ namespace Ark
         });
         count_occurences(m_ast);
 
-        // logic: remove piece of code with only 1 reference
+        // logic: remove piece of code with only 1 reference, if they aren't function calls
         run_on_global_scope_vars(m_ast, [this](Node& node, Node& parent, int idx){
             std::string name = node.const_list()[1].string();
             // a variable was only declared and never used
-            if (m_symAppearances.find(name) != m_symAppearances.end() && m_symAppearances[name] == 1)
+            if (m_symAppearances.find(name) != m_symAppearances.end() && m_symAppearances[name] == 1
+                && parent.list()[idx].list()[2].nodeType() != NodeType::List)
                 parent.list().erase(parent.list().begin() + idx);  // erase the node from the list
         });
     }
