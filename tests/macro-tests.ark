@@ -37,6 +37,30 @@
         (set tests (assert-val false "macro if" tests))
         (set tests (assert-val true "macro if" tests))
     }
+    !{if (< nice_value 14)
+        (set tests (assert-val true "macro comparison <" tests))
+        (set tests (assert-val false "macro comparison <" tests))
+    }
+    !{if (> nice_value 14)
+        (set tests (assert-val false "macro comparison >" tests))
+        (set tests (assert-val true "macro comparison >" tests))
+    }
+    !{if (<= nice_value 12)
+        (set tests (assert-val true "macro comparison <=" tests))
+        (set tests (assert-val false "macro comparison <=" tests))
+    }
+    !{if (>= nice_value 12)
+        (set tests (assert-val true "macro comparison >=" tests))
+        (set tests (assert-val false "macro comparison >=" tests))
+    }
+    !{if (@ [true false] 0)
+        (set tests (assert-val true "macro if @" tests))
+        (set tests (assert-val false "macro if @" tests))
+    }
+    !{if (@ [true false] -2)
+        (set tests (assert-val true "macro if @" tests))
+        (set tests (assert-val false "macro if @" tests))
+    }
 
     {
         !{val (+ 1 2 3)}
@@ -86,6 +110,11 @@
     (set tests (assert-eq (last 1 2) 2 "macro @ -1" tests))
     (set tests (assert-eq (last 1 3 4) 4 "macro @ -1" tests))
     (set tests (assert-eq (last 1 5 6 7 8) 8 "macro @ -1" tests))
+
+    !{get_symbol (bloc) (@ bloc 1)}
+    !{define (bloc) (let (get_symbol bloc) (@ bloc 2))}
+    (define (let a 12))
+    (set tests (assert-eq a 12 "macro get_symbol" tests))
 
     (recap "Macro tests passed" tests (- (time) start-time))
 
