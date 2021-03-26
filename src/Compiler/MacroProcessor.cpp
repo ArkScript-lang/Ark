@@ -153,7 +153,7 @@ namespace Ark::internal
                 if (auto p = map.find(target.string()); p != map.end())
                     target = p->second;
             }
-            else if (target.nodeType() == NodeType::List)
+            else if (target.nodeType() == NodeType::List || target.nodeType() == NodeType::Macro)
             {
                 for (std::size_t i = 0, end = target.list().size(); i < end; ++i)
                     apply_to(map, target.list()[i], &target);
