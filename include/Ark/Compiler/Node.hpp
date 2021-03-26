@@ -32,7 +32,9 @@ namespace Ark::internal
         String,
         Number,
         List,
-        Closure
+        Closure,
+        Macro,
+        Spread
     };
 
     /// The different keywords available
@@ -218,6 +220,8 @@ namespace Ark::internal
 
         friend std::ostream& operator<<(std::ostream& os, const Node& N) noexcept;
         friend inline bool operator==(const Node& A, const Node& B);
+        friend inline bool operator<(const Node& A, const Node& B);
+        friend inline bool operator!(const Node& A);
 
     private:
         NodeType m_type;

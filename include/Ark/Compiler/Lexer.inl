@@ -22,6 +22,8 @@ inline TokenType Lexer::guessType(const std::string& value) noexcept
     // otherwise, identifier if it starts with [a-zA-Z_]
     else if (CHECK_FIRST_CHAR(value[0]))
         return TokenType::Identifier;
+    else if (value.size() > 3 && value[0] == value[1] && value[1] == value[2] && value[2] == '.')
+        return TokenType::Spread;
     return TokenType::Mismatch;
 }
 
