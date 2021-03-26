@@ -11,6 +11,7 @@ packages/
 .idea/
 # user settings
 .vscode/settings.json
+.vscode/c_cpp_properties.json
 
 # files
 gmon.out

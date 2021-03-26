@@ -150,6 +150,26 @@ namespace Ark
     };
 
     /**
+     * @brief MacroProcessingError thrown by the compiler
+     * 
+     */
+    class MacroProcessingError : public std::exception
+    {
+    public:
+        explicit MacroProcessingError(const std::string& message) :
+            m_msg("MacroProcessingError: " + message)
+        {}
+
+        virtual const char* what() const throw()
+        {
+            return m_msg.c_str();
+        }
+
+    protected:
+        std::string m_msg;
+    };
+
+    /**
      * @brief CompilationError thrown by the compiler
      * 
      */

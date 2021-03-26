@@ -27,6 +27,7 @@ ArkScript is
 * extensible: it is very easy to create a C++ module to use in the language
 
 Also it has:
+* macros: if/else, values, and functions
 * a REPL with autocompletion and coloration
 * a growing standard library, composed of ArkScript (under `lib/std/`) and C++ (under `lib/ext/`)
 * a lot of unit tests, which are ran before every release to ensure everything work as intended
