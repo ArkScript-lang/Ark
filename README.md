@@ -55,7 +55,7 @@ Also it has:
 (print "More or less game!")
 
 (import "random.arkm")
-(import "Math/Arithmetic.ark")
+(import "Math.ark")
 
 (let number (mod (abs (random)) 10000))
 (print number)
@@ -109,7 +109,7 @@ fi
 # export arkscript path to your PATH variable to call it from everywhere
 # export also ARKSCRIPT_PATH for arkscript to find its standard library
 cat >> $HOME/.bashrc<< EOF
-export PATH="$PATH:${install_dir}/"
+export PATH="\$PATH:${install_dir}/"
 export ARKSCRIPT_PATH="${install_dir}"
 EOF
 ```
