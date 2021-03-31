@@ -187,7 +187,9 @@ namespace Ark
         using namespace Ark::internal;
 
         init();
-        safeRun();
+        int srcode = safeRun();
+        if (srcode != 0)
+            m_exitCode = srcode;
 
         // reset VM after each run
         m_ip = 0;
