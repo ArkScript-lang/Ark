@@ -80,6 +80,4 @@ jobs:
           ./build/ark tests/unittests.ark --lib lib/
           status=$?
         fi
-        echo $status
-        if [[ $status != 0 ]]; then exit 255; fi
-        # exit $status
+        exit $status
