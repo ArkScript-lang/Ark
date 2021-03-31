@@ -51,7 +51,11 @@ inline bool Lexer::endOfControlChar(const std::string& sequence, char next) noex
         case 'u':
             return sequence.size() == 5; // \uxxxx
         case 'U':
+<<<<<<< HEAD
             return sequence.size() == 9; // \Uxxxxxxxx
+=======
+            return sequence.size() == (5 + 1);  // the u/U is included
+>>>>>>> 2bc19ea (fixing \\u and \\U: the following unicode char description is on 5 bytes not 6)
 
         case '"':
         case 'n':
