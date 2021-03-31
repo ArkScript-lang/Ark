@@ -74,7 +74,10 @@ jobs:
       shell: bash
       run: |
         if [ -f build/Release/ark.exe ]; then
-            ./build/Release/ark.exe tests/unittests.ark --lib lib/ || exit 1
+            ./build/Release/ark.exe tests/unittests.ark --lib lib/
+            status=$?
         else
-          ./build/ark tests/unittests.ark --lib lib/ || exit 1
+          ./build/ark tests/unittests.ark --lib lib/
+          status=$?
         fi
+        exit $status
