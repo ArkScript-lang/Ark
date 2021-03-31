@@ -19,6 +19,8 @@ inline TokenType Lexer::guessType(const std::string& value) noexcept
         return TokenType::GetField;
     else if (isIdentifier(value))
         return TokenType::Identifier;
+    else if (value.size() > 3 && value[0] == value[1] && value[1] == value[2] && value[2] == '.')
+        return TokenType::Spread;
     return TokenType::Mismatch;
 }
 

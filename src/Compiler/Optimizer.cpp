@@ -67,7 +67,7 @@ namespace Ark
         }
     }
 
-    void Optimizer::count_occurences(const Node& node)
+    void Optimizer::count_occurences(Node& node)
     {
         if (node.nodeType() == NodeType::Symbol || node.nodeType() == NodeType::Capture)
         {
@@ -79,8 +79,8 @@ namespace Ark
         else if (node.nodeType() == NodeType::List)
         {
             // iterate over children
-            for (auto it=node.const_list().begin(), end=node.const_list().end(); it != end; ++it)
-                count_occurences(*it);
+            for (std::size_t i = 0, end = node.const_list().size(); i != end; ++i)
+                count_occurences(node.list()[i]);
         }
     }
 }
