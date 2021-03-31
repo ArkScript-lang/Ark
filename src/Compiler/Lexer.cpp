@@ -166,7 +166,9 @@ namespace Ark::internal
 
                                 case 'u':
                                 {
-                                    buffer += utf8decode(ctrl_char.c_str() + 1);
+                                    char *utf8_str = utf8decode(ctrl_char.c_str() + 1);
+                                    buffer += utf8_str;
+                                    free(utf8_str);
                                     break;
                                 }
 
@@ -174,7 +176,9 @@ namespace Ark::internal
                                 {
                                     short begin = 1;
                                     for(; ctrl_char[begin] == '0'; ++ begin);
-                                    buffer += utf8decode(ctrl_char.c_str() + begin);
+                                    char *utf8_str = utf8decode(ctrl_char.c_str() + begin);
+                                    buffer += utf8_str;
+                                    free(utf8_str);
                                     break;
                                 }
 
