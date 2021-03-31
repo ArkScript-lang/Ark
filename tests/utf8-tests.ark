@@ -13,11 +13,28 @@
     (let 🥳 12)
     (set tests (assert-eq 🥳 12 "create identifier 🥳" tests))
 
+    (let ---> 15)
+    (set tests (assert-eq ---> 15 "create identifier --->" tests))
+
+    (let <-- 16)
+    (set tests (assert-eq <-- 16 "create identifier <--" tests))
+    (set tests (assert-val (< ---> <--) "comparing ---> and <-- with < operator" tests))
+
+    (let mâkè (fun (à -->)
+        (fun (&à &-->) ())))
+
+    (let closure (mâkè 1 2))
+    (set tests (assert-eq (type mâkè) "Function" "Function test" tests))
+    (set tests (assert-eq (type closure) "Closure" "Closure test" tests))
+    (set tests (assert-val (hasField closure "à") "Closure has field" tests))
+    (set tests (assert-val (hasField closure "-->") "Closure has field" tests))
+    (set tests (assert-eq closure.à 1 "Closure field à" tests))
+    (set tests (assert-eq closure.--> 2 "Closure field -->" tests))
+
     (let emotes [
-        "🥳"
-        "😅"
-        "😥"
-        "👿"
+        "🥳" "😅" "😥" "👿" "🟢" "🙊"
+        "💡" "💻" "🌟" "🔹" "🌐" "🤖"
+        "🖐" "🤔" "🤩" "🤠" "😊"
     ])
     (mut i 0)
     (while (< i (len emotes)) {
