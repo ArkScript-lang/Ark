@@ -50,7 +50,7 @@ inline bool Lexer::endOfControlChar(const std::string& sequence, char next) noex
 
         case 'u':
         case 'U':
-            return sequence.size() == (6 + 1);  // the u/U is included
+            return sequence.size() == (5 + 1);  // the u/U is included
 
         case '"':
         case 'n':
