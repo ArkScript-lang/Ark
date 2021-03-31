@@ -162,6 +162,7 @@ namespace Ark::internal
                         {
                             switch (ctrl_char[0])
                             {
+<<<<<<< HEAD
                                 case 'x': break; /// @todo
 
                                 case 'u':
@@ -171,14 +172,25 @@ namespace Ark::internal
                                     free(utf8_str);
                                     break;
                                 }
+=======
+                                /// @todo
+                                case 'x': break;
+>>>>>>> c939d76 (fixing \\u and \\U in the lexer)
 
+                                case 'u':
                                 case 'U':
                                 {
+<<<<<<< HEAD
                                     short begin = 1;
                                     for(; ctrl_char[begin] == '0'; ++ begin);
                                     char *utf8_str = utf8decode(ctrl_char.c_str() + begin);
                                     buffer += utf8_str;
                                     free(utf8_str);
+=======
+                                    char utf8_chr[6];
+                                    utf8decode(ctrl_char.c_str() + 1, utf8_chr);
+                                    buffer += utf8_chr;
+>>>>>>> c939d76 (fixing \\u and \\U in the lexer)
                                     break;
                                 }
 
