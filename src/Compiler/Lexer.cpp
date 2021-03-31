@@ -168,7 +168,7 @@ namespace Ark::internal
                                 case 'u':
                                 case 'U':
                                 {
-                                    char utf8_chr[5];
+                                    char utf8_chr[5] = { 0 };
                                     utf8decode(ctrl_char.substr(1).c_str(), utf8_chr);
                                     buffer += utf8_chr;
                                     break;
