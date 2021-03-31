@@ -11,6 +11,7 @@
     (let mâkè (fun (à -->)
         (fun (&à &-->) ())))
 
+<<<<<<< HEAD
     (let closure (mâkè 1 2))
     (set tests (assert-eq (type mâkè) "Function" "Function test" tests))
     (set tests (assert-eq (type closure) "Closure" "Closure test" tests))
@@ -23,6 +24,13 @@
         "🥳" "😅" "😥" "👿" "🟢" "🙊"
         "💡" "💻" "🌟" "🔹" "🌐" "🤖"
         "🖐" "🤔" "🤩" "🤠" "😊"
+=======
+    (let emotes [
+        "🥳"
+        "😅"
+        "😥"
+        "👿"
+>>>>>>> 82bdfa6 (adding utf8 tests)
     ])
     (mut i 0)
     (while (< i (len emotes)) {
@@ -30,8 +38,13 @@
         (set i (+ 1 i))
     })
 
+<<<<<<< HEAD
     (set tests (assert-eq "\U0001f47f" "\U0001F47F" "👿" "checking conversion pattern \\U and its emote" tests))
     (set tests (assert-eq "\u1e0b" "\u1E0B" "ḋ" "checking conversion pattern \\u and its emote" tests))
+=======
+    (set tests (assert-eq "\U1f47f" "\u1f47f" "checking conversion pattern \\u and \\U" tests))
+    (set tests (assert-eq "\u1f47f" "👿" "checking conversion pattern \\u and its emote" tests))
+>>>>>>> 82bdfa6 (adding utf8 tests)
 
     (recap "UTF8 tests passed" tests (- (time) start-time))
 
