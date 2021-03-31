@@ -1,15 +1,3 @@
-(import "tests-tools.ark")
-
-(let utf8-tests (fun () {
-    (mut tests 0)
-    (let start-time (time))
-
-    (let é 1)
-    (set tests (assert-eq é 1 "create identifier é" tests))
-
-    (let âè 2)
-    (set tests (assert-eq âè 2 "create identifier âè" tests))
-
     (let 🥳 12)
     (set tests (assert-eq 🥳 12 "create identifier 🥳" tests))
 
