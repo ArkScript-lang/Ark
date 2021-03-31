@@ -13,19 +13,20 @@
     (let 🥳 12)
     (set tests (assert-eq 🥳 12 "create identifier 🥳" tests))
 
-    (print "hello \U128127 hello")
-
     (let emotes [
         "🥳"
         "😅"
         "😥"
-        "\U128127"  # should be "👿"
+        "👿"
     ])
     (mut i 0)
     (while (< i (len emotes)) {
         (set tests (assert-eq (len (@ emotes i)) 4 "checking emotes length" tests))
         (set i (+ 1 i))
     })
+
+    (set tests (assert-eq "\U1f47f" "\u1f47f" "checking conversion pattern \\u and \\U" tests))
+    (set tests (assert-eq "\u1f47f" "👿" "checking conversion pattern \\u and its emote" tests))
 
     (recap "UTF8 tests passed" tests (- (time) start-time))
 
