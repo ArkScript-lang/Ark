@@ -1,0 +1,5 @@
+!{foo (a b) (+ a b)}
+(print (foo 1 2))
+
+!{var 12}
+(print var)

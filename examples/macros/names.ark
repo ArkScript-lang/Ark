@@ -1,0 +1,14 @@
+{
+    !{test (+ 1 2 3)}
+    (print test)
+
+    ((fun () {
+        !{test (- 1 2 3)}
+        (print test)
+    }))
+
+    (print test)
+}
+
+# will not work because no macro exist here
+# (print test)
