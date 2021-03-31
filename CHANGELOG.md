@@ -6,6 +6,12 @@
 - a new unique stack based on a `std::array<Value, ARK_STACK_SIZE>`, the default stack size being 8192
 - more profiling tests
 - more options on the `display()` method of the bytecode reader, allowing us to selecto segment of bytecode instead of displaying everything
+- added a new token type: `Spread` ; it handles `...identifier`, needed in macros
+- the parser can now handle macros definitions
+- macros are being handled right after the parsing, before the AST optimizer can run
+    - if macros: `!{if compile-time-value then [optional else]}`
+    - values macros: `!{name value}`
+    - functions macros: `!{name (a b c ...args) body}`
 
 ### Changed
 - updating doxyfile and some docstrings
@@ -16,6 +22,7 @@
 - `headOf` (now `head`) returns the real head of a container (List or String), the first element (nil if the list is empty, "" if the string is empty)
 - the http module was updated to add `http:params:toList` and fix the `http:server:[method]` when passing a function
 - fixing the compiler when we encounter get fields in lists
+- updating the parser to support usually invalid constructions when they are in macros, to allow things like `!{defun (name args body) (let name (fun args body))}`
 
 ### Removed
 - `~UserType`, since we are doing manual memory management now

@@ -96,9 +96,10 @@ namespace Ark
          * @param tokens 
          * @param authorize_capture if we are authorized to consume TokenType::Capture tokens
          * @param authorize_field_read if we are authorized to consume TokenType::GetField tokens
+         * @param in_macro if we are in a macro, there a bunch of things we can tolerate
          * @return internal::Node 
          */
-        internal::Node parse(std::list<internal::Token>& tokens, bool authorize_capture=false, bool authorize_field_read=false);
+        internal::Node parse(std::list<internal::Token>& tokens, bool authorize_capture=false, bool authorize_field_read=false, bool in_macro=false);
 
         /**
          * @brief Get the next token if possible, from a list of tokens
