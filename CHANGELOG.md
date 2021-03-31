@@ -26,8 +26,7 @@
 - the http module was updated to add `http:params:toList` and fix the `http:server:[method]` when passing a function
 - fixing the compiler when we encounter get fields in lists
 - updating the parser to support usually invalid constructions when they are in macros, to allow things like `!{defun (name args body) (let name (fun args body))}`
-- fixing the code optimizer to avoid removing unused variables which are defined on function calls
-- CI was split into multiple files to ease maintenance
+
 
 ### Removed
 - `~UserType`, since we are doing manual memory management now
