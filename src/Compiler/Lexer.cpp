@@ -182,6 +182,7 @@ namespace Ark::internal
                                 {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
                                     short begin = 1;
                                     for(; ctrl_char[begin] == '0'; ++ begin);
                                     char *utf8_str = utf8decode(ctrl_char.c_str() + begin);
@@ -192,6 +193,9 @@ namespace Ark::internal
                                     utf8decode(ctrl_char.c_str() + 1, utf8_chr);
 =======
                                     char utf8_chr[5];
+=======
+                                    char utf8_chr[5] = { 0 };
+>>>>>>> 0af37df (fixing utf8 lexer)
                                     utf8decode(ctrl_char.substr(1).c_str(), utf8_chr);
 >>>>>>> 2bc19ea (fixing \\u and \\U: the following unicode char description is on 5 bytes not 6)
                                     buffer += utf8_chr;
