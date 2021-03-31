@@ -9,6 +9,7 @@
 
 (import "vm-tests.ark")
 (import "builtins-tests.ark")
+(import "utf8-tests.ark")
 (import "macro-tests.ark")
 (import "exceptions-tests.ark")
 (import "functional-tests.ark")
@@ -23,6 +24,7 @@
 (print "  Total: " (+ 0 0
     passed-vm
     passed-builtins
+    passed-utf8
     passed-macro
     passed-exceptions
     passed-functional
