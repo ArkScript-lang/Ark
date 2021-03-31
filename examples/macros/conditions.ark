@@ -1,0 +1,41 @@
+!{o 12}
+(print o)
+
+!{if (= o 12)
+    (print "i have 12")
+    (print "not 12")
+}
+
+!{if (= o 12)
+    !{a (...args) (print args)}
+    !{a (...args) (print "no")}
+}
+
+(a 1 2 3)
+
+!{if (not false)
+    (print "expected true")
+    (assert false "!{if (not false)} failed")
+}
+
+!{if (and true true)
+    (print "expected true")
+    (assert false "!{if (and true true)} failed")
+}
+
+!{if (and true (= o 12))
+    (print "expected true")
+    (assert false "!{if (and true (= 1 1))} failed")
+}
+
+!{if (or false true)
+    (print "expected true")
+    (assert false "!{if (or false true)} failed")
+}
+
+!{if (= true (and true true))
+    (print "expected true")
+    (assert false "!{if (= true (and true true))} failed")
+}
+
+!{if (= o 1) (print "true") (print "false")}

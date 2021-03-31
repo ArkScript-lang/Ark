@@ -28,6 +28,7 @@
 #include <Ark/Builtins/Builtins.hpp>
 #include <Ark/Utils.hpp>
 #include <Ark/Config.hpp>
+#include <Ark/Compiler/makeNodeBasedError.hpp>
 
 namespace Ark
 {
@@ -106,7 +107,10 @@ namespace Ark
         inline bool mayBeFromPlugin(const std::string& name) noexcept;
 
         /// Throw a nice error message
-        inline void throwCompilerError(const std::string& message, const internal::Node& node);
+        inline void throwCompilerError(const std::string& message, const internal::Node& node)
+        {
+            throw CompilationError(internal::makeNodeBasedErrorCtx(message, node));
+        }
 
         /**
          * @brief Compile a single node recursively

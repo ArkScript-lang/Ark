@@ -27,6 +27,7 @@ ArkScript is
 * extensible: it is very easy to create a C++ module to use in the language
 
 Also it has:
+* macros: if/else, values, and functions
 * a REPL with autocompletion and coloration
 * a growing standard library, composed of ArkScript (under `lib/std/`) and C++ (under `lib/ext/`)
 * a lot of unit tests, which are ran before every release to ensure everything work as intended
@@ -54,7 +55,7 @@ Also it has:
 (print "More or less game!")
 
 (import "random.arkm")
-(import "Math/Arithmetic.ark")
+(import "Math.ark")
 
 (let number (mod (abs (random)) 10000))
 (print number)
@@ -108,7 +109,7 @@ fi
 # export arkscript path to your PATH variable to call it from everywhere
 # export also ARKSCRIPT_PATH for arkscript to find its standard library
 cat >> $HOME/.bashrc<< EOF
-export PATH="$PATH:${install_dir}/"
+export PATH="\$PATH:${install_dir}/"
 export ARKSCRIPT_PATH="${install_dir}"
 EOF
 ```

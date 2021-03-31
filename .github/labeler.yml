@@ -20,3 +20,7 @@ modules:
 virtual machine:
   - include/Ark/VM/**/*
   - src/VM/**/*
+
+macros:
+  - include/Ark/Compiler/MacroProcessor.*
+  - src/Compiler/MacroProcessor.*
