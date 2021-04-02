@@ -49,10 +49,10 @@ inline bool Lexer::endOfControlChar(const std::string& sequence, char next) noex
             return !CHECK_IF_HEXCHAR(next);
 
         case 'u':
-            return sequence.size() == 5;
+            return sequence.size() == 5; // \uxxxx
 
         case 'U':
-            return sequence.size() == 6;
+            return sequence.size() == 9; // \Uxxxxxxxx
 
         case '"':
         case 'n':
@@ -98,5 +98,4 @@ inline void Lexer::throwTokenizingError(const std::string& message, const std::s
     throw Ark::SyntaxError(ss.str());
 }
 
-#undef CHECK_FIRST_CHAR
 #undef CHECK_IF_HEXCHAR
