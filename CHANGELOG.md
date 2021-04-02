@@ -23,6 +23,7 @@
 - the http module was updated to add `http:params:toList` and fix the `http:server:[method]` when passing a function
 - fixing the compiler when we encounter get fields in lists
 - updating the parser to support usually invalid constructions when they are in macros, to allow things like `!{defun (name args body) (let name (fun args body))}`
+- updated the lexer to add UTF8 support and allow unconventional identifiers as long as they aren't keyword nor operators, so things like `->` now works
 
 ### Removed
 - `~UserType`, since we are doing manual memory management now
