@@ -196,6 +196,7 @@ int main(int argc, char** argv)
             {
                 Ark::State state(options, lib_dir);
                 state.setDebug(debug);
+                state.setArgs(script_args);
 
                 if (!state.doString(eval_expresion))
                 {
