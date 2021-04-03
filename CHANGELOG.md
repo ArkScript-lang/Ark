@@ -12,6 +12,7 @@
     - if macros: `!{if compile-time-value then [optional else]}`
     - values macros: `!{name value}`
     - functions macros: `!{name (a b c ...args) body}`
+- `sys:platform`, containing the current platform name
 
 ### Changed
 - updating doxyfile and some docstrings
