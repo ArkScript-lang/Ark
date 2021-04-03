@@ -188,6 +188,8 @@ namespace Ark
         for (const std::string& arg : args)
             val.push_back(internal::Value(arg));
         m_binded["sys:args"] = val;
+
+        m_binded["sys:platform"] = Value(0);
     }
 
     void State::setDebug(unsigned level) noexcept
