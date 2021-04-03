@@ -21,6 +21,20 @@
 #define ARK_CACHE_DIRNAME "__arkscript__"
 #define ARK_NO_NAME_FILE "FILE"
 
+#if defined(_WIN32) || defined(_WIN64)
+    #define ARK_PLATFORM_NAME "Windows"
+#elif defined(__APPLE__) || defined(__MACH__)
+    #define ARK_PLATFORM_NAME "Mac OSX"
+#elif defined(__linux__)
+    #define ARK_PLATFORM_NAME "Linux"
+#elif defined(__FreeBSD__)
+    #define ARK_PLATFORM_NAME "FreeBSD"
+#elif defined(__unix) || defined(__unix__)
+    #define ARK_PLATFORM_NAME "Unix"
+#else
+    #define ARK_PLATFORM_NAME "Other"
+#endif
+
 #include <cinttypes>
 
 namespace Ark
