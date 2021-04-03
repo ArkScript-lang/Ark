@@ -49,10 +49,12 @@ inline bool Lexer::endOfControlChar(const std::string& sequence, char next) noex
             return !CHECK_IF_HEXCHAR(next);
 
         case 'u':
-            return sequence.size() == 5; // \uxxxx
+            // \uxxxx
+            return sequence.size() == 5;
 
         case 'U':
-            return sequence.size() == 9;  // \Uxxxxxxxx
+            // \Uxxxxxxxx
+            return sequence.size() == 9;
 
         case '"':
         case 'n':

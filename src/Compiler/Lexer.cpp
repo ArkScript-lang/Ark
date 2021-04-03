@@ -166,14 +166,33 @@ namespace Ark::internal
 
                                 case 'u':
                                 {
+                                    if (ctrl_char.size() < 5)
+                                        throwTokenizingError("invalid escape sequence \\" + ctrl_char + " in string, expected \\uxxxx", buffer, line, character, code);
+                                    for (std::size_t ci = 1; ci < ctrl_char.size(); ++ci)
+                                    {
+                                        char chr = ctrl_char[ci];
+                                        if (!(('a' <= chr && chr <= 'f') || ('A' <= chr && chr <= 'F') || ('0' <= chr && chr <= '9')))
+                                            throwTokenizingError("invalid escape sequence \\" + ctrl_char + " in string, expected hexadecimal number, got a '" + chr + "'", buffer, line, character + 1, code);
+                                    }
+
                                     buffer += utf8decode(ctrl_char.c_str() + 1);
                                     break;
                                 }
 
                                 case 'U':
                                 {
+                                    for (std::size_t ci = 1; ci < ctrl_char.size(); ++ci)
+                                    {
+                                        char chr = ctrl_char[ci];
+                                        if (!(('a' <= chr && chr <= 'f') || ('A' <= chr && chr <= 'F') || ('0' <= chr && chr <= '9')))
+                                            throwTokenizingError("invalid escape sequence \\" + ctrl_char + " in string, expected hexadecimal number, got a '" + chr + "'", buffer, line, character + 1, code);
+                                    }
+
                                     short begin = 1;
-                                    for(; ctrl_char[begin] == '0'; ++ begin);
+                                    for (; ctrl_char[begin] == '0'; ++begin);
+                                    if (ctrl_char.size() - begin == 0)
+                                        throwTokenizingError("invalid escape sequence \\" + ctrl_char + " in string, expected \\Uxxxxxxxx", buffer, line, character, code);
+
                                     buffer += utf8decode(ctrl_char.c_str() + begin);
                                     break;
                                 }
