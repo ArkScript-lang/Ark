@@ -213,13 +213,13 @@ DESCRIPTION
         ArkScript programming language
 
 SYNOPSIS
-        ark -h
-        ark -v
-        ark --dev-info
-        ark -e <expression>
-        ark -c <file> [-d]
-        ark -bcr <file>
-        ark <file> [-d] [-L <lib_dir>] [-f(fac|no-fac)] [-f(ruv|no-ruv)]
+        ark -h 
+        ark -v 
+        ark --dev-info 
+        ark -e <expression> 
+        ark -c <file> [-d] 
+        ark -bcr <file> [-(a|st|vt|cs)] [-p <page>] [-s <start> <end>] 
+        ark <file> [-d] [-L <lib_dir>] [-f(fac|no-fac)] [-f(ruv|no-ruv)] 
 
 OPTIONS
         -h, --help                  Display this message
@@ -229,6 +229,12 @@ OPTIONS
         -c, --compile               Compile the given program to bytecode, but do not run
         -d, --debug...              Increase debug level (default: 0)
         -bcr, --bytecode-reader     Launch the bytecode reader
+        -a, --all                   Display all the bytecode segments (default)
+        -st, --symbols              Display only the symbols table
+        -vt, --values               Display only the values table
+        -cs, --code                 Display only the code segments
+        -p, --page                  Set the bytecode reader code segment to display      
+        -s, --slice                 Select a slice of instructions in the bytecode       
         -L, --lib                   Set the location of the ArkScript standard library   
         -f(fac|no-fac)              Toggle function arity checks (default: ON)
         -f(ruv|no-ruv)              Remove unused variables (default: ON)
