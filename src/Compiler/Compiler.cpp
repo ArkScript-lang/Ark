@@ -40,20 +40,79 @@ namespace Ark
 
     void Compiler::compile()
     {
+        pushHeadersPhase1();
+
+        if (m_debug >= 1)
+            Ark::logger.info("Compiling");
+
+        // gather symbols, values, and start to create code segments
+        m_code_pages.emplace_back();  // create empty page
+
+        _compile(m_optimizer.ast(), 0);
+        // throw an error on undefined symbol uses
+        checkForUndefinedSymbol();
+
+        pushHeadersPhase2();
+
+        // start code segments
+        for (auto page : m_code_pages)
+        {
+            m_bytecode.push_back(Instruction::CODE_SEGMENT_START);
+            // push number of elements
+            if (!page.size())
+            {
+                pushNumber(0x01);
+                m_bytecode.push_back(Instruction::HALT);
+                return;
+            }
+            pushNumber(static_cast<uint16_t>(page.size() + 1));
+
+            for (auto inst : page)
+                m_bytecode.push_back(inst);
+            // just in case we got too far, always add a HALT to be sure the
+            // VM won't do anything crazy
+            m_bytecode.push_back(Instruction::HALT);
+        }
+
+        if (!m_code_pages.size())
+        {
+            m_bytecode.push_back(Instruction::CODE_SEGMENT_START);
+            pushNumber(static_cast<uint16_t>(1));
+            m_bytecode.push_back(Instruction::HALT);
+        }
+
+        constexpr std::size_t header_size = 18;
+
+        // generate a hash of the tables + bytecode
+        std::vector<unsigned char> hash(picosha2::k_digest_size);
+        picosha2::hash256(m_bytecode.begin() + header_size, m_bytecode.end(), hash);
+        m_bytecode.insert(m_bytecode.begin() + header_size, hash.begin(), hash.end());
+    }
+
+    void Compiler::saveTo(const std::string& file)
+    {
+        if (m_debug >= 1)
+            Ark::logger.info("Final bytecode size:", m_bytecode.size() * sizeof(uint8_t), "B");
+
+        std::ofstream output(file, std::ofstream::binary);
+        output.write(reinterpret_cast<char*>(&m_bytecode[0]), m_bytecode.size() * sizeof(uint8_t));
+        output.close();
+    }
+
+    const bytecode_t& Compiler::bytecode() noexcept
+    {
+        return m_bytecode;
+    }
+
+    void Compiler::pushHeadersPhase1() noexcept
+    {
         /*
             Generating headers:
                 - lang name (to be sure we are executing an ArkScript file)
                     on 4 bytes (ark + padding)
                 - version (major: 2 bytes, minor: 2 bytes, patch: 2 bytes)
                 - timestamp (8 bytes, unix format)
-                - symbols table header
-                    + elements
-                - values table header
-                    + elements
         */
-
-        if (m_debug >= 2)
-            Ark::logger.info("Adding magic constant");
 
         m_bytecode.push_back('a');
         m_bytecode.push_back('r');
@@ -61,12 +120,6 @@ namespace Ark
         m_bytecode.push_back(Instruction::NOP);
 
         // push version
-        if (m_debug >= 2)
-        {
-            Ark::logger.info("Major: ", ARK_VERSION_MAJOR);
-            Ark::logger.info("Minor: ", ARK_VERSION_MINOR);
-            Ark::logger.info("Patch: ", ARK_VERSION_PATCH);
-        }
         pushNumber(ARK_VERSION_MAJOR);
         pushNumber(ARK_VERSION_MINOR);
         pushNumber(ARK_VERSION_PATCH);
@@ -84,24 +137,18 @@ namespace Ark
 
         if (m_debug >= 1)
             Ark::logger.info("Timestamp: ", timestamp);
+    }
 
-        const std::size_t header_size = m_bytecode.size();
+    void Compiler::pushHeadersPhase2()
+    {
+        /*
+            - symbols table
+                + elements
+            - values table header
+                + elements
+         */
 
-        if (m_debug >= 1)
-            Ark::logger.info("Adding symbols table header");
-
-        // symbols table
         m_bytecode.push_back(Instruction::SYM_TABLE_START);
-
-        if (m_debug >= 1)
-            Ark::logger.info("Compiling");
-        // gather symbols, values, and start to create code segments
-        m_code_pages.emplace_back();  // create empty page
-        _compile(m_optimizer.ast(), 0);
-        checkForUndefinedSymbol();
-
-        if (m_debug >= 1)
-            Ark::logger.info("Adding symbols table");
         // push size
         pushNumber(static_cast<uint16_t>(m_symbols.size()));
         // push elements
@@ -113,9 +160,6 @@ namespace Ark
                 m_bytecode.push_back(s[i]);
             m_bytecode.push_back(Instruction::NOP);
         }
-
-        if (m_debug >= 1)
-            Ark::logger.info("Adding constants table");
 
         // values table
         m_bytecode.push_back(Instruction::VAL_TABLE_START);
@@ -149,66 +193,6 @@ namespace Ark
 
             m_bytecode.push_back(Instruction::NOP);
         }
-
-        if (m_debug >= 1)
-            Ark::logger.info("Adding code segments");
-
-        // start code segments
-        for (auto page : m_code_pages)
-        {
-            if (m_debug >= 3)
-                Ark::logger.info("-", page.size() + 1);
-
-            m_bytecode.push_back(Instruction::CODE_SEGMENT_START);
-            // push number of elements
-            if (!page.size())
-            {
-                pushNumber(0x01);
-                m_bytecode.push_back(Instruction::HALT);
-                return;
-            }
-            pushNumber(static_cast<uint16_t>(page.size() + 1));
-
-            for (auto inst : page)
-                m_bytecode.push_back(inst);
-            // just in case we got too far, always add a HALT to be sure the
-            // VM won't do anything crazy
-            m_bytecode.push_back(Instruction::HALT);
-        }
-
-        if (!m_code_pages.size())
-        {
-            m_bytecode.push_back(Instruction::CODE_SEGMENT_START);
-            pushNumber(static_cast<uint16_t>(1));
-            m_bytecode.push_back(Instruction::HALT);
-        }
-
-        // generate a hash of the tables + bytecode
-        std::vector<unsigned char> hash(picosha2::k_digest_size);
-        picosha2::hash256(m_bytecode.begin() + header_size, m_bytecode.end(), hash);
-        m_bytecode.insert(m_bytecode.begin() + header_size, hash.begin(), hash.end());
-
-        if (m_debug >= 2)
-        {
-            Ark::logger.info("generated hash:");
-            for (unsigned char hh : hash)
-                Ark::logger.info("- ", static_cast<int>(hh));
-        }
-    }
-
-    void Compiler::saveTo(const std::string& file)
-    {
-        if (m_debug >= 1)
-            Ark::logger.info("Final bytecode size:", m_bytecode.size() * sizeof(uint8_t), "B");
-
-        std::ofstream output(file, std::ofstream::binary);
-        output.write(reinterpret_cast<char*>(&m_bytecode[0]), m_bytecode.size() * sizeof(uint8_t));
-        output.close();
-    }
-
-    const bytecode_t& Compiler::bytecode() noexcept
-    {
-        return m_bytecode;
     }
 
     void Compiler::_compile(const Node& x, int p)
@@ -582,9 +566,6 @@ namespace Ark
         });
         if (it == m_symbols.end())
         {
-            if (m_debug >= 3)
-                Ark::logger.info("Registering symbol:", sym, "(", m_symbols.size(), ")");
-
             m_symbols.push_back(sym);
             return m_symbols.size() - 1;
         }
@@ -597,9 +578,6 @@ namespace Ark
         auto it = std::find(m_values.begin(), m_values.end(), v);
         if (it == m_values.end())
         {
-            if (m_debug >= 3)
-                Ark::logger.info("Registering value (", m_values.size(), ")");
-
             m_values.push_back(v);
             return m_values.size() - 1;
         }
@@ -612,9 +590,6 @@ namespace Ark
         auto it = std::find(m_values.begin(), m_values.end(), v);
         if (it == m_values.end())
         {
-            if (m_debug >= 3)
-                Ark::logger.info("Registering value (", m_values.size(), ")");
-
             m_values.push_back(v);
             return m_values.size() - 1;
         }
@@ -626,12 +601,7 @@ namespace Ark
         // otherwise, add the symbol, and return its id in the table
         auto it = std::find(m_defined_symbols.begin(), m_defined_symbols.end(), sym);
         if (it == m_defined_symbols.end())
-        {
-            if (m_debug >= 3)
-                Ark::logger.info("Registering declared symbol:", sym, "(", m_defined_symbols.size(), ")");
-
             m_defined_symbols.push_back(sym);
-        }
     }
 
     void Compiler::checkForUndefinedSymbol()
