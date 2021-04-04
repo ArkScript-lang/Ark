@@ -203,28 +203,7 @@ namespace Ark
         // register symbols
         if (x.nodeType() == NodeType::Symbol)
         {
-            std::string name = x.string();
-
-            // builtins
-            if (auto it_builtin = isBuiltin(name))
-            {
-                page(p).emplace_back(Instruction::BUILTIN);
-                pushNumber(static_cast<uint16_t>(it_builtin.value()), &page(p));
-            }
-            // operators
-            else if (auto it_operator = isOperator(name))
-            {
-                page(p).emplace_back(static_cast<Inst_t>(Instruction::FIRST_OPERATOR + it_operator.value()));
-            }
-            // var-use
-            else
-            {
-                std::size_t i = addSymbol(x);
-
-                page(p).emplace_back(Instruction::LOAD_SYMBOL);
-                pushNumber(static_cast<uint16_t>(i), &page(p));
-            }
-
+            compileSymbol(x, p);
             return;
         }
         else if (x.nodeType() == NodeType::GetField)
@@ -257,40 +236,10 @@ namespace Ark
             return;
         }
         // specific instructions
-        else if (auto c0 = x.const_list()[0]; c0.nodeType() == NodeType::Symbol && (c0.string() == "list" || c0.string() == "append" || c0.string() == "concat"))
+        else if (auto c0 = x.const_list()[0]; c0.nodeType() == NodeType::Symbol &&
+                (c0.string() == "list" || c0.string() == "append" || c0.string() == "concat"))
         {
-            std::string name = c0.string();
-            Instruction specific = name == "list" ? Instruction::LIST :
-                (name == "append" ? Instruction::APPEND : Instruction::CONCAT);
-
-            // length of at least 1 since we got a symbol name
-            uint16_t argc = countArkObjects(x.const_list()) - 1;
-            // error, can not use append/concat with a <2 length argument list
-            if (argc < 2 && (specific == Instruction::APPEND || specific == Instruction::CONCAT))
-                throw Ark::CompilationError("can not use " + name + " with less than 2 arguments");
-
-            // compile arguments in reverse order
-            for (uint16_t i = x.const_list().size() - 1; i > 0; --i)
-            {
-                uint16_t j = i;
-                while (x.const_list()[j].nodeType() == NodeType::GetField)
-                    --j;
-                uint16_t diff = i - j;
-                while (j < i)
-                {
-                    _compile(x.const_list()[j], p);
-                    ++j;
-                }
-                _compile(x.const_list()[i], p);
-                i -= diff;
-            }
-
-            // put inst and number of arguments
-            page(p).emplace_back(specific);
-            if (specific == Instruction::LIST)
-                pushNumber(argc, &page(p));
-            else
-                pushNumber(argc - 1, &page(p));
+            compileSpecific(c0, x, p);
             return;
         }
         // registering structures
@@ -299,188 +248,276 @@ namespace Ark
             Keyword n = x.const_list()[0].keyword();
 
             if (n == Keyword::If)
-            {
-                // compile condition
-                _compile(x.const_list()[1], p);
-                // jump only if needed to the x.list()[2] part
-                page(p).emplace_back(Instruction::POP_JUMP_IF_TRUE);
-                std::size_t jump_to_if_pos = page(p).size();
-                // absolute address to jump to if condition is true
-                pushNumber(static_cast<uint16_t>(0x00), &page(p));
-                    // else code
-                    if (x.const_list().size() == 4)  // we have an else clause
-                        _compile(x.const_list()[3], p);
-                    // when else is finished, jump to end
-                    page(p).emplace_back(Instruction::JUMP);
-                    std::size_t jump_to_end_pos = page(p).size();
-                    pushNumber(static_cast<uint16_t>(0x00), &page(p));
-                // set jump to if pos
-                page(p)[jump_to_if_pos]     = (static_cast<uint16_t>(page(p).size()) & 0xff00) >> 8;
-                page(p)[jump_to_if_pos + 1] =  static_cast<uint16_t>(page(p).size()) & 0x00ff;
-                // if code
-                _compile(x.const_list()[2], p);
-                // set jump to end pos
-                page(p)[jump_to_end_pos]     = (static_cast<uint16_t>(page(p).size()) & 0xff00) >> 8;
-                page(p)[jump_to_end_pos + 1] =  static_cast<uint16_t>(page(p).size()) & 0x00ff;
-            }
+                compileIf(x, p);
             else if (n == Keyword::Set)
-            {
-                std::string name = x.const_list()[1].string();
-                std::size_t i = addSymbol(x.const_list()[1]);
-
-                // put value before symbol id
-                // trying to handle chained closure.field.field.field...
-                std::size_t pos = 2;
-                while (pos < x.const_list().size())
-                {
-                    _compile(x.const_list()[pos], p);
-                    pos++;
-                }
-
-                page(p).emplace_back(Instruction::STORE);
-                pushNumber(static_cast<uint16_t>(i), &page(p));
-            }
+                compileSet(x, p);
             else if (n == Keyword::Let || n == Keyword::Mut)
-            {
-                std::string name = x.const_list()[1].string();
-                std::size_t i = addSymbol(x.const_list()[1]);
-                addDefinedSymbol(name);
-
-                // put value before symbol id
-                // trying to handle chained closure.field.field.field...
-                std::size_t pos = 2;
-                while (pos < x.const_list().size())
-                {
-                    _compile(x.const_list()[pos], p);
-                    pos++;
-                }
-
-                page(p).emplace_back(n == Keyword::Let ? Instruction::LET : Instruction::MUT);
-                pushNumber(static_cast<uint16_t>(i), &page(p));
-            }
+                compileLetMut(n, x, p);
             else if (n == Keyword::Fun)
-            {
-                // capture, if needed
-                for (auto it=x.const_list()[1].const_list().begin(), it_end=x.const_list()[1].const_list().end(); it != it_end; ++it)
-                {
-                    if (it->nodeType() == NodeType::Capture)
-                    {
-                        // first check that the capture is a defined symbol
-                        if (std::find(m_defined_symbols.begin(), m_defined_symbols.end(), it->string()) == m_defined_symbols.end())
-                        {
-                            // we didn't find it in the defined symbol list, thus we can't capture it
-                            throwCompilerError("Can not capture " + it->string() + " because it is referencing an unbound variable.", *it);
-                        }
-                        page(p).emplace_back(Instruction::CAPTURE);
-                        addDefinedSymbol(it->string());
-                        std::size_t var_id = addSymbol(*it);
-                        pushNumber(static_cast<uint16_t>(var_id), &(page(p)));
-                    }
-                }
-                // create new page for function body
-                m_code_pages.emplace_back();
-                std::size_t page_id = m_code_pages.size() - 1;
-                // load value on the stack
-                page(p).emplace_back(Instruction::LOAD_CONST);
-                std::size_t id = addValue(page_id);  // save page_id into the constants table as PageAddr
-                pushNumber(static_cast<uint16_t>(id), &page(p));
-                // pushing arguments from the stack into variables in the new scope
-                for (auto it=x.const_list()[1].const_list().begin(), it_end=x.const_list()[1].const_list().end(); it != it_end; ++it)
-                {
-                    if (it->nodeType() == NodeType::Symbol)
-                    {
-                        page(page_id).emplace_back(Instruction::MUT);
-                        std::size_t var_id = addSymbol(*it);
-                        addDefinedSymbol(it->string());
-                        pushNumber(static_cast<uint16_t>(var_id), &(page(page_id)));
-                    }
-                }
-                // push body of the function
-                _compile(x.const_list()[2], page_id);
-                // return last value on the stack
-                page(page_id).emplace_back(Instruction::RET);
-            }
+                compileFunction(x, p);
             else if (n == Keyword::Begin)
             {
                 for (std::size_t i=1, size=x.const_list().size(); i < size; ++i)
                     _compile(x.const_list()[i], p);
             }
             else if (n == Keyword::While)
-            {
-                // save current position to jump there at the end of the loop
-                std::size_t current = page(p).size();
-                // push condition
-                _compile(x.const_list()[1], p);
-                // absolute jump to end of block if condition is false
-                page(p).emplace_back(Instruction::POP_JUMP_IF_FALSE);
-                std::size_t jump_to_end_pos = page(p).size();
-                // absolute address to jump to if condition is false
-                pushNumber(static_cast<uint16_t>(0x00), &page(p));
-                // push code to page
-                    _compile(x.const_list()[2], p);
-                    // loop, jump to the condition
-                    page(p).emplace_back(Instruction::JUMP);
-                    // abosolute address
-                    pushNumber(static_cast<uint16_t>(current), &page(p));
-                // set jump to end pos
-                page(p)[jump_to_end_pos]     = (static_cast<uint16_t>(page(p).size()) & 0xff00) >> 8;
-                page(p)[jump_to_end_pos + 1] =  static_cast<uint16_t>(page(p).size()) & 0x00ff;
-            }
+                compileWhile(x, p);
             else if (n == Keyword::Import)
-            {
-                // register plugin path in the constants table
-                std::size_t id = addValue(x.const_list()[1]);
-                // save plugin name to use it later
-                m_plugins.push_back(x.const_list()[1].string());
-                // add plugin instruction + id of the constant refering to the plugin path
-                page(p).emplace_back(Instruction::PLUGIN);
-                pushNumber(static_cast<uint16_t>(id), &page(p));
-            }
+                compilePluginImport(x, p);
             else if (n == Keyword::Quote)
-            {
-                // create new page for quoted code
-                m_code_pages.emplace_back();
-                std::size_t page_id = m_code_pages.size() - 1;
-                _compile(x.const_list()[1], page_id);
-                page(page_id).emplace_back(Instruction::RET);  // return to the last frame
-
-                // call it
-                std::size_t id = addValue(page_id);  // save page_id into the constants table as PageAddr
-                // page(p).emplace_back(Instruction::SAVE_ENV);
-                page(p).emplace_back(Instruction::LOAD_CONST);
-                pushNumber(static_cast<uint16_t>(id), &page(p));
-            }
+                compileQuote(x, p);
             else if (n == Keyword::Del)
-            {
-                // get id of symbol to delete
-                std::string name = x.const_list()[1].string();
-                std::size_t i = addSymbol(x.const_list()[1]);
-
-                page(p).emplace_back(Instruction::DEL);
-                pushNumber(static_cast<uint16_t>(i), &page(p));
-            }
+                compileDel(x, p);
 
             return;
         }
 
         // if we are here, we should have a function name
         // push arguments first, then function name, then call it
-            m_temp_pages.emplace_back();
-            int proc_page = -static_cast<int>(m_temp_pages.size());
-            _compile(x.const_list()[0], proc_page);  // storing proc
-            // trying to handle chained closure.field.field.field...
-                std::size_t n = 1;
-                while (n < x.const_list().size())
+        handleCalls(x, p);
+        return;
+    }
+
+    void Compiler::compileSymbol(const Node& x, int p)
+    {
+        std::string name = x.string();
+
+        if (auto it_builtin = isBuiltin(name))
+        {
+            page(p).emplace_back(Instruction::BUILTIN);
+            pushNumber(static_cast<uint16_t>(it_builtin.value()), &page(p));
+        }
+        else if (auto it_operator = isOperator(name))
+            page(p).emplace_back(static_cast<Inst_t>(Instruction::FIRST_OPERATOR + it_operator.value()));
+        else  // var-use
+        {
+            std::size_t i = addSymbol(x);
+
+            page(p).emplace_back(Instruction::LOAD_SYMBOL);
+            pushNumber(static_cast<uint16_t>(i), &page(p));
+        }
+    }
+
+    void Compiler::compileSpecific(const Node& c0, const Node& x, int p)
+    {
+        std::string name = c0.string();
+        Instruction specific = name == "list" ? Instruction::LIST :
+            (name == "append" ? Instruction::APPEND : Instruction::CONCAT);
+
+        // length of at least 1 since we got a symbol name
+        uint16_t argc = countArkObjects(x.const_list()) - 1;
+        // error, can not use append/concat with a <2 length argument list
+        if (argc < 2 && (specific == Instruction::APPEND || specific == Instruction::CONCAT))
+            throw Ark::CompilationError("can not use " + name + " with less than 2 arguments");
+
+        // compile arguments in reverse order
+        for (uint16_t i = x.const_list().size() - 1; i > 0; --i)
+        {
+            uint16_t j = i;
+            while (x.const_list()[j].nodeType() == NodeType::GetField)
+                --j;
+            uint16_t diff = i - j;
+            while (j < i)
+            {
+                _compile(x.const_list()[j], p);
+                ++j;
+            }
+            _compile(x.const_list()[i], p);
+            i -= diff;
+        }
+
+        // put inst and number of arguments
+        page(p).emplace_back(specific);
+        if (specific == Instruction::LIST)
+            pushNumber(argc, &page(p));
+        else
+            pushNumber(argc - 1, &page(p));
+    }
+
+    void Compiler::compileIf(const Node& x, int p)
+    {
+        // compile condition
+        _compile(x.const_list()[1], p);
+        // jump only if needed to the x.list()[2] part
+        page(p).emplace_back(Instruction::POP_JUMP_IF_TRUE);
+        std::size_t jump_to_if_pos = page(p).size();
+        // absolute address to jump to if condition is true
+        pushNumber(static_cast<uint16_t>(0x00), &page(p));
+            // else code
+            if (x.const_list().size() == 4)  // we have an else clause
+                _compile(x.const_list()[3], p);
+            // when else is finished, jump to end
+            page(p).emplace_back(Instruction::JUMP);
+            std::size_t jump_to_end_pos = page(p).size();
+            pushNumber(static_cast<uint16_t>(0x00), &page(p));
+        // set jump to if pos
+        page(p)[jump_to_if_pos]     = (static_cast<uint16_t>(page(p).size()) & 0xff00) >> 8;
+        page(p)[jump_to_if_pos + 1] =  static_cast<uint16_t>(page(p).size()) & 0x00ff;
+        // if code
+        _compile(x.const_list()[2], p);
+        // set jump to end pos
+        page(p)[jump_to_end_pos]     = (static_cast<uint16_t>(page(p).size()) & 0xff00) >> 8;
+        page(p)[jump_to_end_pos + 1] =  static_cast<uint16_t>(page(p).size()) & 0x00ff;
+    }
+
+    void Compiler::compileFunction(const Node& x, int p)
+    {
+        // capture, if needed
+        for (auto it=x.const_list()[1].const_list().begin(), it_end=x.const_list()[1].const_list().end(); it != it_end; ++it)
+        {
+            if (it->nodeType() == NodeType::Capture)
+            {
+                // first check that the capture is a defined symbol
+                if (std::find(m_defined_symbols.begin(), m_defined_symbols.end(), it->string()) == m_defined_symbols.end())
                 {
-                    if (x.const_list()[n].nodeType() == NodeType::GetField)
-                    {
-                        _compile(x.const_list()[n], proc_page);
-                        n++;
-                    }
-                    else
-                        break;
+                    // we didn't find it in the defined symbol list, thus we can't capture it
+                    throwCompilerError("Can not capture " + it->string() + " because it is referencing an unbound variable.", *it);
                 }
-            std::size_t proc_page_len = m_temp_pages.back().size();
+                page(p).emplace_back(Instruction::CAPTURE);
+                addDefinedSymbol(it->string());
+                std::size_t var_id = addSymbol(*it);
+                pushNumber(static_cast<uint16_t>(var_id), &(page(p)));
+            }
+        }
+        // create new page for function body
+        m_code_pages.emplace_back();
+        std::size_t page_id = m_code_pages.size() - 1;
+        // load value on the stack
+        page(p).emplace_back(Instruction::LOAD_CONST);
+        std::size_t id = addValue(page_id);  // save page_id into the constants table as PageAddr
+        pushNumber(static_cast<uint16_t>(id), &page(p));
+        // pushing arguments from the stack into variables in the new scope
+        for (auto it=x.const_list()[1].const_list().begin(), it_end=x.const_list()[1].const_list().end(); it != it_end; ++it)
+        {
+            if (it->nodeType() == NodeType::Symbol)
+            {
+                page(page_id).emplace_back(Instruction::MUT);
+                std::size_t var_id = addSymbol(*it);
+                addDefinedSymbol(it->string());
+                pushNumber(static_cast<uint16_t>(var_id), &(page(page_id)));
+            }
+        }
+        // push body of the function
+        _compile(x.const_list()[2], page_id);
+        // return last value on the stack
+        page(page_id).emplace_back(Instruction::RET);
+    }
+
+    void Compiler::compileLetMut(Keyword n, const Node& x, int p)
+    {
+        std::string name = x.const_list()[1].string();
+        std::size_t i = addSymbol(x.const_list()[1]);
+        addDefinedSymbol(name);
+
+        // put value before symbol id
+        // trying to handle chained closure.field.field.field...
+        std::size_t pos = 2;
+        while (pos < x.const_list().size())
+        {
+            _compile(x.const_list()[pos], p);
+            pos++;
+        }
+
+        page(p).emplace_back(n == Keyword::Let ? Instruction::LET : Instruction::MUT);
+        pushNumber(static_cast<uint16_t>(i), &page(p));
+    }
+
+    void Compiler::compileWhile(const Node& x, int p)
+    {
+        // save current position to jump there at the end of the loop
+        std::size_t current = page(p).size();
+        // push condition
+        _compile(x.const_list()[1], p);
+        // absolute jump to end of block if condition is false
+        page(p).emplace_back(Instruction::POP_JUMP_IF_FALSE);
+        std::size_t jump_to_end_pos = page(p).size();
+        // absolute address to jump to if condition is false
+        pushNumber(static_cast<uint16_t>(0x00), &page(p));
+        // push code to page
+            _compile(x.const_list()[2], p);
+            // loop, jump to the condition
+            page(p).emplace_back(Instruction::JUMP);
+            // abosolute address
+            pushNumber(static_cast<uint16_t>(current), &page(p));
+        // set jump to end pos
+        page(p)[jump_to_end_pos]     = (static_cast<uint16_t>(page(p).size()) & 0xff00) >> 8;
+        page(p)[jump_to_end_pos + 1] =  static_cast<uint16_t>(page(p).size()) & 0x00ff;
+    }
+
+    void Compiler::compileSet(const Node& x, int p)
+    {
+        std::string name = x.const_list()[1].string();
+        std::size_t i = addSymbol(x.const_list()[1]);
+
+        // put value before symbol id
+        // trying to handle chained closure.field.field.field...
+        std::size_t pos = 2;
+        while (pos < x.const_list().size())
+        {
+            _compile(x.const_list()[pos], p);
+            pos++;
+        }
+
+        page(p).emplace_back(Instruction::STORE);
+        pushNumber(static_cast<uint16_t>(i), &page(p));
+    }
+
+    void Compiler::compileQuote(const Node& x, int p)
+    {
+        // create new page for quoted code
+        m_code_pages.emplace_back();
+        std::size_t page_id = m_code_pages.size() - 1;
+        _compile(x.const_list()[1], page_id);
+        page(page_id).emplace_back(Instruction::RET);  // return to the last frame
+
+        // call it
+        std::size_t id = addValue(page_id);  // save page_id into the constants table as PageAddr
+        // page(p).emplace_back(Instruction::SAVE_ENV);
+        page(p).emplace_back(Instruction::LOAD_CONST);
+        pushNumber(static_cast<uint16_t>(id), &page(p));
+    }
+
+    void Compiler::compilePluginImport(const Node& x, int p)
+    {
+        // register plugin path in the constants table
+        std::size_t id = addValue(x.const_list()[1]);
+        // save plugin name to use it later
+        m_plugins.push_back(x.const_list()[1].string());
+        // add plugin instruction + id of the constant refering to the plugin path
+        page(p).emplace_back(Instruction::PLUGIN);
+        pushNumber(static_cast<uint16_t>(id), &page(p));
+    }
+
+    void Compiler::compileDel(const Node& x, int p)
+    {
+        // get id of symbol to delete
+        std::string name = x.const_list()[1].string();
+        std::size_t i = addSymbol(x.const_list()[1]);
+
+        page(p).emplace_back(Instruction::DEL);
+        pushNumber(static_cast<uint16_t>(i), &page(p));
+    }
+
+    void Compiler::handleCalls(const Node& x, int p)
+    {
+        m_temp_pages.emplace_back();
+        int proc_page = -static_cast<int>(m_temp_pages.size());
+        _compile(x.const_list()[0], proc_page);  // storing proc
+
+        // trying to handle chained closure.field.field.field...
+        std::size_t n = 1;
+        while (n < x.const_list().size())
+        {
+            if (x.const_list()[n].nodeType() == NodeType::GetField)
+            {
+                _compile(x.const_list()[n], proc_page);
+                n++;
+            }
+            else
+                break;
+        }
+        std::size_t proc_page_len = m_temp_pages.back().size();
+
         // we know that operators take only 1 instruction, so if there are more
         // it's a builtin/function
         if (proc_page_len > 1)
@@ -554,8 +591,6 @@ namespace Ark
                 }
             }
         }
-
-        return;
     }
 
     std::size_t Compiler::addSymbol(const Node& sym) noexcept
