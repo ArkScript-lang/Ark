@@ -13,6 +13,7 @@
     - values macros: `!{name value}`
     - functions macros: `!{name (a b c ...args) body}`
 - `sys:platform`, containing the current platform name
+- updated the CLI so that we can slice the bytecode when displaying it
 
 ### Changed
 - updating doxyfile and some docstrings
