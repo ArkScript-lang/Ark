@@ -92,6 +92,19 @@ namespace Ark
         bytecode_t m_bytecode;
         unsigned m_debug;
 
+        /**
+         * @brief Push the first headers of the bytecode file
+         * 
+         */
+        void pushHeadersPhase1() noexcept;
+
+        /**
+         * @brief Push the other headers, after having compile the file
+         * (it's needed because we read the symbol/value tables, populated by compilation)
+         * 
+         */
+        void pushHeadersPhase2();
+
         // helper functions to get a temp or finalized code page
         inline std::vector<internal::Inst_t>& page(int i) noexcept;
         // checking if a symbol is an operator or a builtin
