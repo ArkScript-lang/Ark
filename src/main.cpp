@@ -2,22 +2,12 @@
 
 #include <cstdio>
 #include <iostream>
+#include <optional>
 
 #include <clipp.hpp>
 #include <Ark/Ark.hpp>
 #include <Ark/REPL/Repl.hpp>
 #include <Ark/Profiling.hpp>
-
-void bcr(const std::string& file)
-{
-    try {
-        Ark::BytecodeReader bcr;
-        bcr.feed(file);
-        bcr.display();
-    } catch (const std::exception& e) {
-        std::printf("%s\n", e.what());
-    }
-}
 
 int main(int argc, char** argv)
 {
@@ -25,11 +15,20 @@ int main(int argc, char** argv)
 
     enum class mode { help, dev_info, bytecode_reader, version, run, repl, compile, eval };
     mode selected = mode::repl;
-
-    std::string file = "", lib_dir = "?", eval_expresion = "";
-    unsigned debug = 0;
-    std::vector<std::string> wrong, script_args;
     uint16_t options = Ark::DefaultFeatures;
+
+    std::string file = "",
+                lib_dir = "?",
+                eval_expresion = "";
+
+    unsigned debug = 0;
+
+    uint16_t bcr_page  = ~0,
+             bcr_start = ~0,
+             bcr_end   = ~0;
+    Ark::BytecodeSegment segment = Ark::BytecodeSegment::All;
+
+    std::vector<std::string> wrong, script_args;
 
     auto cli = (
         option("-h", "--help").set(selected, mode::help).doc("Display this message")
@@ -47,6 +46,17 @@ int main(int argc, char** argv)
         | (
             required("-bcr", "--bytecode-reader").set(selected, mode::bytecode_reader).doc("Launch the bytecode reader")
             & value("file", file)
+            , (
+                option("-a", "--all").set(segment, Ark::BytecodeSegment::All).doc("Display all the bytecode segments (default)")
+                | option("-st", "--symbols").set(segment, Ark::BytecodeSegment::Symbols).doc("Display only the symbols table")
+                | option("-vt", "--values").set(segment, Ark::BytecodeSegment::Values).doc("Display only the values table")
+                | option("-cs", "--code").set(segment, Ark::BytecodeSegment::Code).doc("Display only the code segments")
+            )
+            , option("-p", "--page").doc("Set the bytecode reader code segment to display")
+                & value("page", bcr_page)
+            , option("-s", "--slice").doc("Select a slice of instructions in the bytecode")
+                & value("start", bcr_start)
+                & value("end", bcr_end)
         )
         | (
             value("file", file).set(selected, mode::run)
@@ -104,6 +114,7 @@ int main(int argc, char** argv)
                 break;
 
             case mode::dev_info:
+            {
                 std::printf(
                     "Have been compiled with %s, options: %s\n\n"
                     "sizeof(Ark::Value)    = %zuB\n"
@@ -140,6 +151,7 @@ int main(int argc, char** argv)
                         sizeof(char)
                 );
                 break;
+            }
 
             case mode::repl:
             {
@@ -208,8 +220,25 @@ int main(int argc, char** argv)
             }
 
             case mode::bytecode_reader:
-                bcr(file);
+            {
+                uint16_t not_0 = ~0;
+                try {
+                    Ark::BytecodeReader bcr;
+                    bcr.feed(file);
+
+                    if (bcr_page == not_0 && bcr_start == not_0)
+                        bcr.display(segment);
+                    else if (bcr_page != not_0 && bcr_start == not_0)
+                        bcr.display(segment, std::nullopt, std::nullopt, bcr_page);
+                    else if (bcr_page == not_0 && bcr_start != not_0)
+                        bcr.display(segment, bcr_start, bcr_end);
+                    else
+                        bcr.display(segment, bcr_start, bcr_end, bcr_page);
+                } catch (const std::exception& e) {
+                    std::printf("%s\n", e.what());
+                }
                 break;
+            }
         }
     }
     else
