@@ -133,6 +133,18 @@ namespace Ark
          */
         void _compile(const internal::Node& x, int p);
 
+        void compileSymbol(const internal::Node& x, int p);
+        void compileSpecific(const internal::Node& c0, const internal::Node& x, int p);
+        void compileIf(const internal::Node& x, int p);
+        void compileFunction(const internal::Node& x, int p);
+        void compileLetMut(internal::Keyword n, const internal::Node& x, int p);
+        void compileWhile(const internal::Node& x, int p);
+        void compileSet(const internal::Node& x, int p);
+        void compileQuote(const internal::Node& x, int p);
+        void compilePluginImport(const internal::Node& x, int p);
+        void compileDel(const internal::Node& x, int p);
+        void handleCalls(const internal::Node& x, int p);
+
         // register a symbol/value/plugin in its own table
         std::size_t addSymbol(const internal::Node& sym) noexcept;
         std::size_t addValue(const internal::Node& x) noexcept;
