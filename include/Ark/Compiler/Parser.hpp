@@ -136,9 +136,28 @@ namespace Ark
          */
         std::string seekFile(const std::string& file);
 
-        // error management functions
+        /**
+         * @brief Throw a parse exception is the given predicated is false
+         * 
+         * @param pred 
+         * @param message error message to use
+         * @param token concerned token
+         */
         inline void expect(bool pred, const std::string& message, internal::Token token);
+
+        /**
+         * @brief Throw a parse error related to a token (seek it in the related file and highlight the error)
+         * 
+         * @param message 
+         * @param token 
+         */
         inline void throwParseError(const std::string& message, internal::Token token);
+
+        /**
+         * @brief Throw a parse error unrelated to any token
+         * 
+         * @param message 
+         */
         inline void throwParseError_(const std::string& message);
     };
 
