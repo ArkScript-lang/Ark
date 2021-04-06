@@ -85,6 +85,8 @@ namespace Ark
         try
         {
             compiler.feed(Utils::readFile(file), file);
+            for (auto& p : m_binded)
+                compiler.m_defined_symbols.push_back(p.first);
             compiler.compile();
 
             if (output != "")
@@ -161,6 +163,8 @@ namespace Ark
         try
         {
             compiler.feed(code);
+            for (auto& p : m_binded)
+                compiler.m_defined_symbols.push_back(p.first);
             compiler.compile();
         }
         catch (const std::exception& e)
