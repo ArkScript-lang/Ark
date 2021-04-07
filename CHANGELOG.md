@@ -12,6 +12,7 @@
     - if macros: `!{if compile-time-value then [optional else]}`
     - values macros: `!{name value}`
     - functions macros: `!{name (a b c ...args) body}`
+- `sys:platform`, containing the current platform name
 
 ### Changed
 - updating doxyfile and some docstrings
@@ -24,6 +25,7 @@
 - fixing the compiler when we encounter get fields in lists
 - updating the parser to support usually invalid constructions when they are in macros, to allow things like `!{defun (name args body) (let name (fun args body))}`
 - updated the lexer to add UTF8 support and allow unconventional identifiers as long as they aren't keyword nor operators, so things like `->` now works
+- fixing the code optimizer to avoid removing unused variables which are defined on function calls
 
 ### Removed
 - `~UserType`, since we are doing manual memory management now

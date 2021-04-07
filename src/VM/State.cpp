@@ -78,13 +78,15 @@ namespace Ark
         return result;
     }
 
-    bool State::compile(unsigned debug, const std::string& file, const std::string& output, const std::string& lib_dir, uint16_t options)
+    bool State::compile(const std::string& file, const std::string& output)
     {
-        Compiler compiler(debug, lib_dir, options);
+        Compiler compiler(m_debug_level, m_libdir, m_options);
 
         try
         {
             compiler.feed(Utils::readFile(file), file);
+            for (auto& p : m_binded)
+                compiler.m_defined_symbols.push_back(p.first);
             compiler.compile();
 
             if (output != "")
@@ -134,18 +136,10 @@ namespace Ark
             std::filesystem::path directory =  (std::filesystem::path(file)).parent_path() / ARK_CACHE_DIRNAME;
             std::string path = (directory / filename).string();
 
-            bool compiled_successfuly = false;
+            if (!std::filesystem::exists(directory))  // create ark cache directory
+                std::filesystem::create_directory(directory);
 
-            if (Ark::Utils::fileExists(path))
-                compiled_successfuly = compile(m_debug_level, file, path, m_libdir, m_options);
-            else
-            {
-                if (!std::filesystem::exists(directory))  // create ark cache directory
-                    std::filesystem::create_directory(directory);
-
-                compiled_successfuly = compile(m_debug_level, file, path, m_libdir, m_options);
-            }
-
+            bool compiled_successfuly = compile(file, path);
             if (compiled_successfuly && feed(path))
                 return true;
         }
@@ -161,6 +155,8 @@ namespace Ark
         try
         {
             compiler.feed(code);
+            for (auto& p : m_binded)
+                compiler.m_defined_symbols.push_back(p.first);
             compiler.compile();
         }
         catch (const std::exception& e)
@@ -188,6 +184,8 @@ namespace Ark
         for (const std::string& arg : args)
             val.push_back(internal::Value(arg));
         m_binded["sys:args"] = val;
+
+        m_binded["sys:platform"] = internal::Value(ARK_PLATFORM_NAME);
     }
 
     void State::setDebug(unsigned level) noexcept
