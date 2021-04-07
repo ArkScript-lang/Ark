@@ -302,6 +302,9 @@ inline void VM::call(int16_t argc_)
         // every argument is a MUT declaration in the bytecode
         while (m_state->m_pages[m_pp][index] == Instruction::MUT)
         {
+            if (m_stack[m_sp - needed_argc].valueType() == ValueType::InstPtr)
+                break;
+
             needed_argc += 1;
             index += 3;  // jump the argument of MUT (integer on 2 bits, big endian)
         }
