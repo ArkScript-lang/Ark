@@ -15,12 +15,7 @@ namespace Ark
     Compiler::Compiler(unsigned debug, const std::string& lib_dir, uint16_t options) :
         m_parser(debug, lib_dir, options), m_optimizer(options),
         m_options(options), m_debug(debug)
-    {
-        m_defined_symbols = {
-            "sys:args",
-            "sys:platform"
-        };
-    }
+    {}
 
     void Compiler::feed(const std::string& code, const std::string& filename)
     {
