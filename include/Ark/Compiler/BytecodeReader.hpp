@@ -29,7 +29,8 @@ namespace Ark
         All,
         Symbols,
         Values,
-        Code
+        Code,
+        HeadersOnly
     };
     /**
      * @brief This class is just a helper to
