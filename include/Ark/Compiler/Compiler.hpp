@@ -32,6 +32,8 @@
 
 namespace Ark
 {
+    class State;
+
     /**
      * @brief The ArkScript bytecode compiler
      * 
@@ -75,6 +77,8 @@ namespace Ark
          * @return const bytecode_t& 
          */
         const bytecode_t& bytecode() noexcept;
+
+        friend class Ark::State;
 
     private:
         Parser m_parser;
