@@ -164,6 +164,62 @@ inline void VM::call(int16_t argc_)
     */
     using namespace Ark::internal;
 
+    static auto moveAround = [this](uint16_t argc) -> void {
+        // move values around and invert them
+        // 
+        // values:     1,  2, 3, _, _
+        // wanted:    pp, ip, 3, 2, 1
+        // positions:  0,  1, 2, 3, 4
+        // 
+        // move values first, from position x to y, with
+        //    y = argc - x + 1
+        // then place pp and ip
+        switch (argc)  // must be positive
+        {
+            case 0:
+                push(Value(static_cast<PageAddr_t>(m_pp)));
+                push(Value(ValueType::InstPtr, static_cast<PageAddr_t>(m_ip)));
+                break;
+
+            case 1:
+                m_stack[m_sp + 1] = m_stack[m_sp - 1];
+                resolveRefInPlace(m_stack[m_sp + 1]);
+                m_stack[m_sp - 1] = Value(static_cast<PageAddr_t>(m_pp));
+                m_stack[m_sp + 0] = Value(ValueType::InstPtr, static_cast<PageAddr_t>(m_ip));
+                m_sp += 2;
+                break;
+
+            default:  // 2 or more elements
+            {
+                const int16_t first = m_sp - argc;
+                // move first argument to the very end
+                m_stack[m_sp + 1] = m_stack[first + 0];
+                resolveRefInPlace(m_stack[m_sp + 1]);
+                // move second argument right before the last one
+                m_stack[m_sp + 0] = m_stack[first + 1];
+                resolveRefInPlace(m_stack[m_sp + 0]);
+                // move the rest, if any
+                int16_t x = 2;
+                const int16_t stop  = ((argc % 2 == 0) ? argc : (argc - 1)) / 2;
+                while (x <= stop)
+                {
+                    //        destination          , origin
+                    std::swap(m_stack[m_sp - x + 1], m_stack[first + x]);
+                    resolveRefInPlace(m_stack[m_sp - x + 1]);
+                    resolveRefInPlace(m_stack[first + x]);
+                    ++x;
+                }
+                m_stack[first + 0] = Value(static_cast<PageAddr_t>(m_pp));
+                m_stack[first + 1] = Value(ValueType::InstPtr, static_cast<PageAddr_t>(m_ip));
+                m_sp += 2;
+                break;
+            }
+        }
+
+        m_fc++;
+        m_scope_count_to_delete.emplace_back(0);
+    };
+
     COZ_BEGIN("ark vm::call");
 
     uint16_t argc = 0;
@@ -203,59 +259,7 @@ inline void VM::call(int16_t argc_)
             // create dedicated frame
             createNewScope();
 
-            // move values around and invert them
-            // 
-            // values:     1,  2, 3, _, _
-            // wanted:    pp, ip, 3, 2, 1
-            // positions:  0,  1, 2, 3, 4
-            // 
-            // move values first, from position x to y, with
-            //    y = argc - x + 1
-            // then place pp and ip
-            switch (argc)  // must be positive
-            {
-                case 0:
-                    push(Value(static_cast<PageAddr_t>(m_pp)));
-                    push(Value(ValueType::InstPtr, static_cast<PageAddr_t>(m_ip)));
-                    break;
-
-                case 1:
-                    m_stack[m_sp + 1] = m_stack[m_sp - 1];
-                    resolveRefInPlace(m_stack[m_sp + 1]);
-                    m_stack[m_sp - 1] = Value(static_cast<PageAddr_t>(m_pp));
-                    m_stack[m_sp + 0] = Value(ValueType::InstPtr, static_cast<PageAddr_t>(m_ip));
-                    m_sp += 2;
-                    break;
-
-                default:  // 2 or more elements
-                {
-                    const int16_t first = m_sp - argc;
-                    // move first argument to the very end
-                    m_stack[m_sp + 1] = m_stack[first + 0];
-                    resolveRefInPlace(m_stack[m_sp + 1]);
-                    // move second argument right before the last one
-                    m_stack[m_sp + 0] = m_stack[first + 1];
-                    resolveRefInPlace(m_stack[m_sp + 0]);
-                    // move the rest, if any
-                    int16_t x = 2;
-                    const int16_t stop  = ((argc % 2 == 0) ? argc : (argc - 1)) / 2;
-                    while (x <= stop)
-                    {
-                        //        destination          , origin
-                        std::swap(m_stack[m_sp - x + 1], m_stack[first + x]);
-                        resolveRefInPlace(m_stack[m_sp - x + 1]);
-                        resolveRefInPlace(m_stack[first + x]);
-                        ++x;
-                    }
-                    m_stack[first + 0] = Value(static_cast<PageAddr_t>(m_pp));
-                    m_stack[first + 1] = Value(ValueType::InstPtr, static_cast<PageAddr_t>(m_ip));
-                    m_sp += 2;
-                    break;
-                }
-            }
-
-            m_fc++;
-            m_scope_count_to_delete.emplace_back(0);
+            moveAround(argc);
 
             // store "reference" to the function to speed the recursive functions
             if (m_last_sym_loaded < m_state->m_symbols.size())
@@ -278,59 +282,7 @@ inline void VM::call(int16_t argc_)
             createNewScope();
             ++m_scope_count_to_delete.back();
 
-            // move values around and invert them
-            // 
-            // values:     1,  2, 3, _, _
-            // wanted:    pp, ip, 3, 2, 1
-            // positions:  0,  1, 2, 3, 4
-            // 
-            // move values first, from position x to y, with
-            //    y = argc - x + 1
-            // then place pp and ip
-            switch (argc)  // must be positive
-            {
-                case 0:
-                    push(Value(static_cast<PageAddr_t>(m_pp)));
-                    push(Value(ValueType::InstPtr, static_cast<PageAddr_t>(m_ip)));
-                    break;
-
-                case 1:
-                    m_stack[m_sp + 1] = m_stack[m_sp - 1];
-                    resolveRefInPlace(m_stack[m_sp + 1]);
-                    m_stack[m_sp - 1] = Value(static_cast<PageAddr_t>(m_pp));
-                    m_stack[m_sp + 0] = Value(ValueType::InstPtr, static_cast<PageAddr_t>(m_ip));
-                    m_sp += 2;
-                    break;
-
-                default:  // 2 or more elements
-                {
-                    const int16_t first = m_sp - argc;
-                    // move first argument to the very end
-                    m_stack[m_sp + 1] = m_stack[first + 0];
-                    resolveRefInPlace(m_stack[m_sp + 1]);
-                    // move second argument right before the last one
-                    m_stack[m_sp + 0] = m_stack[first + 1];
-                    resolveRefInPlace(m_stack[m_sp + 0]);
-                    // move the rest, if any
-                    int16_t x = 2;
-                    const int16_t stop  = ((argc % 2 == 0) ? argc : (argc - 1)) / 2;
-                    while (x <= stop)
-                    {
-                        //        destination          , origin
-                        std::swap(m_stack[m_sp - x + 1], m_stack[first + x]);
-                        resolveRefInPlace(m_stack[m_sp - x + 1]);
-                        resolveRefInPlace(m_stack[first + x]);
-                        ++x;
-                    }
-                    m_stack[first + 0] = Value(static_cast<PageAddr_t>(m_pp));
-                    m_stack[first + 1] = Value(ValueType::InstPtr, static_cast<PageAddr_t>(m_ip));
-                    m_sp += 2;
-                    break;
-                }
-            }
-
-            m_fc++;
-            m_scope_count_to_delete.emplace_back(0);
+            moveAround(argc);
 
             m_pp = new_page_pointer;
             m_ip = -1;  // because we are doing a m_ip++ right after that
