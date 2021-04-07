@@ -5,8 +5,10 @@ You will find here a summary of the different things you should do / look up to 
 ## Starting
 
 * First, [fork](https://github.com/ArkScript-lang/Ark/fork) the repository
-* Then, clone your fork: `git clone git@github.com:username/Ark.git`
-* Create a branch for your feature: `git checkout -b feat-my-awesome-idea`
+* Then, clone your fork: 
+    * HTTPS: `git clone https://github.com/<username>/Ark.git`
+    * or SSH: `git clone git@github.com:<username>/Ark.git`
+* Create a branch for your feature: `git checkout -b feat/my-awesome-idea`
 * When you're done, push it to your fork and submit a pull request!
 
 Don't know what to work on? No worries, we have a [list of things to do](https://github.com/ArkScript-lang/Ark/projects). Also, you can check the issues to find something to do!
@@ -16,13 +18,14 @@ Don't know what to work on? No worries, we have a [list of things to do](https:/
 * Indent with **4 spaces**
 * Every brace (`{`, `}`) must be on its own line
 * Conditions with a single statement (`if (condition) do_this();`) do not need to be enclosed in braces
-* For loops should be optimized whenever optimized, as following:
+* Put a space between `for`, `while`, `if` and `(...)`, around each `=` sign (wherever it is, even in for-loops)
+* For-loops should be optimized whenever possible, as follows:
 ```cpp
-// do NOT do this if possible
+// DEPRECATED
 for (std::size_t i = 0; i < container.size(); ++i)
     ...
 
-// like this
+// PREFERRED
 for (std::size_t i = 0, end = container.size(); i < end; i++)
     ...
 ```
