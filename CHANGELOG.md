@@ -14,6 +14,12 @@
     - functions macros: `!{name (a b c ...args) body}`
 - `sys:platform`, containing the current platform name
 - updated the CLI so that we can slice the bytecode when displaying it
+- the bytecode reader can now display
+    - all the segments
+    - only the values segment
+    - only the symbols segment
+    - only the code segment (all of them or a given one)
+    - only the segments' titles and length
 
 ### Changed
 - updating doxyfile and some docstrings
