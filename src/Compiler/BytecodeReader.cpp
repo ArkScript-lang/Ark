@@ -79,12 +79,11 @@ namespace Ark
             os << "Invalid format";
             return;
         }
-        os << "Magic: ark\\0\n\n";
 
         uint16_t major = readNumber(i); i++;
         uint16_t minor = readNumber(i); i++;
         uint16_t patch = readNumber(i); i++;
-        os << "Version: " << major << "." << minor << "." << patch << "\n";
+        os << "Version:   " << major << "." << minor << "." << patch << "\n";
 
         using timestamp_t = unsigned long long;
         timestamp_t timestamp = 0;
@@ -98,23 +97,23 @@ namespace Ark
              ha = (static_cast<timestamp_t>(m_bytecode[++i]));
         i++;
         timestamp = aa + ba + ca + da + ea + fa + ga + ha;
-        os << "Timestamp: " << timestamp << "\n\n";
+        os << "Timestamp: " << timestamp << "\n";
 
-        os << "SHA256: ";
+        os << "SHA256:    ";
         for (std::size_t j=0; j < picosha2::k_digest_size; ++j)
         {
-            os << static_cast<int>(m_bytecode[i]) << " ";
+            os << std::hex << static_cast<int>(m_bytecode[i]) << std::dec;
             ++i;
         }
         os << "\n\n";
 
         std::vector<std::string> symbols;
         std::vector<std::string> values;
-        std::vector<std::string> plugins;
 
         // reading the different tables, one after another
 
-        if ((sStart.has_value() && !sEnd.has_value()) || (!sStart.has_value() && sEnd.has_value())) {
+        if ((sStart.has_value() && !sEnd.has_value()) || (!sStart.has_value() && sEnd.has_value()))
+        {
             os << termcolor::red << "Both start and end parameter need to be provided together\n" << termcolor::reset;
             return;
         }
@@ -124,37 +123,33 @@ namespace Ark
             return;
         }
 
-        if (b[i] == Instruction::SYM_TABLE_START) {
+        if (b[i] == Instruction::SYM_TABLE_START)
+        {
             i++;
             uint16_t size = readNumber(i); i++;
             uint16_t sliceSize = size;
             bool showSym = (segment == BytecodeSegment::All || segment == BytecodeSegment::Symbols);
 
-            if (showSym && sStart.has_value() && sEnd.has_value() && (sStart.value() > size || sEnd.value() > size)) {
+            if (showSym && sStart.has_value() && sEnd.has_value() && (sStart.value() > size || sEnd.value() > size))
                 os << termcolor::red << "Slice start or end can't be greater than the segment size: " << size << "\n";
-            }
             else if (showSym && sStart.has_value() && sEnd.has_value())
-            {
                 sliceSize = sEnd.value() - sStart.value() + 1;
-            }
 
-            if (showSym) {
-                os << "Symbols table:\n";
-                os << "Length: " << sliceSize << "\n";
-            }
+            if (showSym || segment == BytecodeSegment::HeadersOnly)
+                os << termcolor::cyan << "Symbols table" << termcolor::reset << " (length: " << sliceSize << ")\n";
 
-            for (uint16_t j = 0; j < size; ++j) {
-
-                if (auto start = sStart; auto end = sEnd) {
+            for (uint16_t j = 0; j < size; ++j)
+            {
+                if (auto start = sStart; auto end = sEnd)
                     showSym = showSym && (j >= start.value() && j <= end.value());
-                }
 
                 std::string content;
                 while (b[i] != 0)
                     content += b[i++];
                 i++;
 
-                if (showSym) {
+                if (showSym)
+                {
                     os << static_cast<int>(j) << ") ";
                     os << content << "\n";
                 }
@@ -180,31 +175,27 @@ namespace Ark
             uint16_t sliceSize = size;
 
             bool showVal = (segment == BytecodeSegment::All || segment == BytecodeSegment::Values);
-            if (showVal && sStart.has_value() && sEnd.has_value() && (sStart.value() > size || sEnd.value() > size)) {
+            if (showVal && sStart.has_value() && sEnd.has_value() && (sStart.value() > size || sEnd.value() > size))
                 os << termcolor::red << "Slice start or end can't be greater than the segment size: " << size << "\n";
-            }
             else if (showVal && sStart.has_value() && sEnd.has_value())
-            {
                 sliceSize = sEnd.value() - sStart.value() + 1;
-            }
 
-            if (showVal) {
-                os << "Constants table:\n";
-                os << "Length: " << sliceSize << "\n";
-            }
+            if (showVal || segment == BytecodeSegment::HeadersOnly)
+                os << termcolor::green << "Constants table" << termcolor::reset << " (length: " << sliceSize << ")\n";
 
             bool showLine = true;
-            for (uint16_t j = 0; j < size; ++j) {
-
-                if (auto start = sStart; auto end = sEnd) {
+            for (uint16_t j = 0; j < size; ++j)
+            {
+                if (auto start = sStart; auto end = sEnd)
                     showVal = showVal && (j >= start.value() && j <= end.value());
-                }
 
                 if (showVal)
                     os << static_cast<int>(j) << ") ";
                 uint8_t type = b[i];
                 i++;
-                if (type == Instruction::NUMBER_TYPE) {
+
+                if (type == Instruction::NUMBER_TYPE)
+                {
                     std::string val;
                     while (b[i] != 0)
                         val.push_back(b[i++]);
@@ -212,7 +203,9 @@ namespace Ark
                     if (showVal)
                         os << "(Number) " << val;
                     values.push_back("(Number) " + val);
-                } else if (type == Instruction::STRING_TYPE) {
+                }
+                else if (type == Instruction::STRING_TYPE)
+                {
                     std::string val;
                     while (b[i] != 0)
                         val.push_back(b[i++]);
@@ -220,14 +213,18 @@ namespace Ark
                     if (showVal)
                         os << "(String) " << val;
                     values.push_back("(String) " + val);
-                } else if (type == Instruction::FUNC_TYPE) {
+                }
+                else if (type == Instruction::FUNC_TYPE)
+                {
                     uint16_t addr = readNumber(i);
                     i++;
                     if (showVal)
                         os << "(PageAddr) " << addr;
                     values.push_back("(PageAddr) " + Ark::Utils::toString(addr));
                     i++;
-                } else {
+                }
+                else
+                {
                     os << termcolor::red << "Unknown value type: " << static_cast<int>(type) << '\n'
                        << termcolor::reset;
                     return;
@@ -251,28 +248,22 @@ namespace Ark
 
         uint16_t pp = 0;
 
-        while (b[i] == Instruction::CODE_SEGMENT_START && (segment == BytecodeSegment::All || segment == BytecodeSegment::Code))
+        while (b[i] == Instruction::CODE_SEGMENT_START && (segment == BytecodeSegment::All || segment == BytecodeSegment::Code || segment == BytecodeSegment::HeadersOnly))
         {
             i++;
             uint16_t size = readNumber(i); i++;
-            os << "segment size " << size << '\n';
             uint16_t sliceSize = size;
 
             if (sStart.has_value() && sEnd.has_value())
-            {
                 sliceSize = sEnd.value() - sStart.value() + 1;
-            }
 
             bool displayCode = true;
 
-            if (auto page = cPage) {
+            if (auto page = cPage)
                 displayCode = pp == page.value();
-            }
 
-            if (displayCode) {
-                os << "Code segment (PP: " << pp << ") :\n";
-                os << "Length: " << sliceSize << "\n";
-            }
+            if (displayCode)
+                os << termcolor::magenta << "Code segment " << pp << termcolor::reset << " (length: " << sliceSize << ")\n";
 
             if (size == 0)
             {
@@ -283,8 +274,9 @@ namespace Ark
             {
                 uint16_t j = i;
 
-                bool displayLine = displayCode;
-                while (true) {
+                bool displayLine = segment == BytecodeSegment::HeadersOnly ? false : displayCode;
+                while (true)
+                {
                     uint16_t line_number = i - j;
                     if (sStart.has_value() && sEnd.has_value() && ((sStart.value() > size) || (sEnd.value() > size)))
                     {
@@ -292,9 +284,7 @@ namespace Ark
                         return;
                     }
                     else if (sStart.has_value() && sEnd.has_value() && cPage.has_value())
-                    {
                         displayLine = displayCode && (line_number >= sStart.value() && line_number <= sEnd.value());
-                    }
 
                     if (displayLine)
                         os << termcolor::cyan << line_number << termcolor::reset << " " << termcolor::yellow;
@@ -482,7 +472,6 @@ namespace Ark
                     }
                     else if (inst == Instruction::NEQ)
                     {
-
                         if (displayLine)
                             os << "NEQ\n";
                     }
@@ -566,7 +555,8 @@ namespace Ark
                         if (displayLine)
                             os << "NOT\n";
                     }
-                    else {
+                    else
+                    {
                         if (displayLine)
                             os << termcolor::reset << "Unknown instruction: " << static_cast<int>(inst) << '\n' << termcolor::reset;
                         return;
@@ -576,7 +566,7 @@ namespace Ark
                         break;
                 }
             }
-            if (displayCode)
+            if (displayCode && segment != BytecodeSegment::HeadersOnly)
                 os << "\n" << termcolor::reset;
 
             if (cPage.has_value() && pp == cPage)
