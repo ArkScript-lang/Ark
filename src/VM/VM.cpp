@@ -809,7 +809,8 @@ namespace Ark
                                 break;
                             }
 
-                            push(a->list()[0]);
+                            Value b = a->const_list()[0];
+                            push(b);
                         }
                         else if (a->valueType() == ValueType::String)
                         {

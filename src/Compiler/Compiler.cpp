@@ -160,7 +160,7 @@ namespace Ark
             {
                 pushNumber(0x01);
                 m_bytecode.push_back(Instruction::HALT);
-                return;
+                break;
             }
             pushNumber(static_cast<uint16_t>(page.size() + 1));
 
@@ -637,7 +637,7 @@ namespace Ark
             bool is_plugin = mayBeFromPlugin(str);
 
             auto it = std::find(m_defined_symbols.begin(), m_defined_symbols.end(), str);
-            if (it == m_defined_symbols.end() && !is_plugin && str != "sys:args")
+            if (it == m_defined_symbols.end() && !is_plugin)
                 throwCompilerError("Unbound variable error (variable is used but not defined)", sym);
         }
     }
