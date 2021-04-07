@@ -123,15 +123,12 @@ namespace Ark
         /**
          * @brief Reads and compiles code of file
          * 
-         * @param debug set the debug level
          * @param file the path of file code to compile 
-         * @param output set path of .arkc file 
-         * @param lib_dir the Lib Dir
-         * @param options set vm options
+         * @param output set path of .arkc file
          * @return true on success
          * @return false on failure and raise an exception
          */
-        bool compile(unsigned debug, const std::string& file, const std::string& output, const std::string& lib_dir, uint16_t options);
+        bool compile(const std::string& file, const std::string& output);
 
         inline void throwStateError(const std::string& message)
         {
