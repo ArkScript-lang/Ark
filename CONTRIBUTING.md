@@ -29,6 +29,7 @@ for (std::size_t i = 0; i < container.size(); ++i)
 for (std::size_t i = 0, end = container.size(); i < end; i++)
     ...
 ```
+* Header-guards should be written using `#ifndef`, `#define` and `#endif`, the define being in MACRO_CASE
 
 ## ArkScript coding guidelines
 
