@@ -139,7 +139,7 @@ namespace Ark
             if (!std::filesystem::exists(directory))  // create ark cache directory
                 std::filesystem::create_directory(directory);
 
-            bool compiled_successfuly = compiled_successfuly = compile(file, path);
+            bool compiled_successfuly = compile(file, path);
             if (compiled_successfuly && feed(path))
                 return true;
         }
