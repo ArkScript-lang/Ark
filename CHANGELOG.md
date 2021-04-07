@@ -20,6 +20,7 @@
     - only the symbols segment
     - only the code segment (all of them or a given one)
     - only the segments' titles and length
+- verifying that we give enough arguments
 
 ### Changed
 - updating doxyfile and some docstrings
