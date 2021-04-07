@@ -18,7 +18,7 @@ inline void Parser::throwParseError(const std::string& message, internal::Token 
     for (int i=3; i > -3; --i)
     {
         int iline = static_cast<int>(token.line);
-        if (iline - i >= 0 && iline - i < ctx.size())
+        if (iline - i >= 0 && iline - i < static_cast<int>(ctx.size()))  // cast to int, we'll never have a size > 2^32-1
             // + 1 to display real lines numbers
             ss << std::setw(5) << (iline - i + 1) << " | " << ctx[iline - i] << "\n";
         if (i == 0)  // line of the error
