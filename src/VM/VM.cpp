@@ -22,6 +22,8 @@ struct mapping {
 
 namespace Ark
 {
+    using namespace internal;
+
     VM::VM(State* state) noexcept :
         m_state(state), m_exitCode(0), m_ip(0), m_pp(0), m_sp(0), m_fc(0),
         m_running(false), m_last_sym_loaded(0),
@@ -32,8 +34,6 @@ namespace Ark
 
     void VM::init() noexcept
     {
-        using namespace Ark::internal;
-
         // clearing frames and setting up a new one
         if ((m_state->m_options & FeaturePersist) == 0)
         {
@@ -79,8 +79,6 @@ namespace Ark
 
     internal::Value& VM::operator[](const std::string& name) noexcept
     {
-        using namespace Ark::internal;
-
         const std::lock_guard<std::mutex> lock(m_mutex);
 
         // find id of object
@@ -101,7 +99,6 @@ namespace Ark
 
     void VM::loadPlugin(uint16_t id)
     {
-        using namespace Ark::internal;
         namespace fs = std::filesystem;
 
         const std::string file = m_state->m_constants[id].string_ref().toString();
@@ -184,8 +181,6 @@ namespace Ark
 
     int VM::run() noexcept
     {
-        using namespace Ark::internal;
-
         init();
         safeRun();
 
@@ -198,7 +193,6 @@ namespace Ark
 
     int VM::safeRun(std::size_t untilFrameCount)
     {
-        using namespace Ark::internal;
         m_until_frame_count = untilFrameCount;
 
         try {
@@ -969,13 +963,13 @@ namespace Ark
         } catch (const std::exception& e) {
             std::printf("%s\n", e.what());
             backtrace();
-            return 1;
+            m_exitCode = 1;
         } catch (...) {
             std::printf("Unknown error\n");
             backtrace();
-            return 1;
+            m_exitCode = 1;
         }
-        return 0;
+        return m_exitCode;
     }
 
     // ------------------------------------------
@@ -999,7 +993,6 @@ namespace Ark
 
     void VM::backtrace() noexcept
     {
-        using namespace Ark::internal;
         std::cerr << termcolor::reset
                   << "At IP: " << (m_ip != -1 ? m_ip : 0)
                   << ", PP: " << m_pp
