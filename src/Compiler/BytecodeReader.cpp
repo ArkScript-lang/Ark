@@ -220,7 +220,7 @@ namespace Ark
                     i++;
                     if (showVal)
                         os << "(PageAddr) " << addr;
-                    values.push_back("(PageAddr) " + Ark::Utils::toString(addr));
+                    values.push_back("(PageAddr) " + std::to_string(addr));
                     i++;
                 }
                 else

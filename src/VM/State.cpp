@@ -223,12 +223,12 @@ namespace Ark
 
         if (major != ARK_VERSION_MAJOR)
         {
-            std::string str_version = Ark::Utils::toString(major) + "." +
-                Ark::Utils::toString(minor) + "." +
-                Ark::Utils::toString(patch);
-            std::string builtin_version = Ark::Utils::toString(ARK_VERSION_MAJOR) + "." +
-                Ark::Utils::toString(ARK_VERSION_MINOR) + "." +
-                Ark::Utils::toString(ARK_VERSION_PATCH);
+            std::string str_version = std::to_string(major) + "." +
+                std::to_string(minor) + "." +
+                std::to_string(patch);
+            std::string builtin_version = std::to_string(ARK_VERSION_MAJOR) + "." +
+                std::to_string(ARK_VERSION_MINOR) + "." +
+                std::to_string(ARK_VERSION_PATCH);
             throwStateError("Compiler and VM versions don't match: " + str_version + " and " + builtin_version);
         }
 
@@ -313,7 +313,7 @@ namespace Ark
                     i++;  // skip NOP
                 }
                 else
-                    throwStateError("unknown value type for value " + Ark::Utils::toString(j));
+                    throwStateError("unknown value type for value " + std::to_string(j));
             }
         }
         else

@@ -27,7 +27,7 @@ namespace Ark
 
         if (m_debug >= 2)
         {
-            Ark::logger.info(filename + " is importing " + Ark::Utils::toString(m_parser.getImports().size()) + " files:");
+            Ark::logger.info(filename + " is importing " + std::to_string(m_parser.getImports().size()) + " files:");
             for (auto&& import: m_parser.getImports())
                 Ark::logger.data("\t" + import);
         }
@@ -167,7 +167,7 @@ namespace Ark
             {
                 m_bytecode.push_back(Instruction::NUMBER_TYPE);
                 auto n = mpark::get<double>(val.value);
-                std::string t = Utils::toString(n);
+                std::string t = std::to_string(n);
                 for (std::size_t i=0, size=t.size(); i < size; ++i)
                     m_bytecode.push_back(t[i]);
             }
@@ -580,7 +580,7 @@ namespace Ark
                         break;
 
                     default:
-                        throwCompilerError("can not create a chained expression (of length " + Utils::toString(exp_count) +
+                        throwCompilerError("can not create a chained expression (of length " + std::to_string(exp_count) +
                             ") for operator `" + Builtins::operators[static_cast<std::size_t>(op_inst - Instruction::FIRST_OPERATOR)] +
                             "'. You most likely forgot a `)'.", x);
                 }

@@ -959,7 +959,7 @@ namespace Ark
                 #pragma endregion
 
                     default:
-                        throwVMError("unknown instruction: " + Ark::Utils::toString(static_cast<std::size_t>(inst)));
+                        throwVMError("unknown instruction: " + std::to_string(static_cast<std::size_t>(inst)));
                         break;
                 }
 
