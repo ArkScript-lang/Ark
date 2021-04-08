@@ -311,8 +311,8 @@ inline void VM::call(int16_t argc_)
 
         if (needed_argc != argc)
             throwVMError(
-                "Function '" + m_state->m_symbols[m_last_sym_loaded] + "' needs " + Ark::Utils::toString(needed_argc) +
-                " arguments, but it received " + Ark::Utils::toString(argc)
+                "Function '" + m_state->m_symbols[m_last_sym_loaded] + "' needs " + std::to_string(needed_argc) +
+                " arguments, but it received " + std::to_string(argc)
             );
     }
 

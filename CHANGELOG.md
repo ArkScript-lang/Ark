@@ -38,6 +38,7 @@
 - `~UserType`, since we are doing manual memory management now
 - `Frame` were removed because they were giving bad performances
 - `firstOf` was removed because it's basically a `(@ list 0)` and it was doing the job of `head`
+- `Ark::Utils::toString`, our internal version of `std::to_string`
 
 ## 3.0.15
 ### Added
