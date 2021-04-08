@@ -1008,17 +1008,17 @@ namespace Ark
 
         if (m_fc > 1)
         {
-            uint16_t curr_pp = m_pp;
-
             // display call stack trace
             uint16_t it = m_fc;
+            Scope old_scope = *m_locals.back().get();
+
             while (it != 0)
             {
                 std::cerr << "[" << termcolor::cyan << it << termcolor::reset << "] ";
-                if (curr_pp != 0)
+                if (m_pp != 0)
                 {
                     uint16_t id = findNearestVariableIdWithValue(
-                        Value(static_cast<PageAddr_t>(curr_pp))
+                        Value(static_cast<PageAddr_t>(m_pp))
                     );
 
                     if (id < m_state->m_symbols.size())
@@ -1026,8 +1026,14 @@ namespace Ark
                     else  // should never happen
                         std::cerr << "In function `" << termcolor::yellow << "???" << termcolor::reset << "'\n";
 
-                    while (pop()->valueType() != ValueType::InstPtr);
-                    curr_pp = pop()->pageAddr();
+                    Value* ip;
+                    do {
+                        ip = popAndResolveAsPtr();
+                    } while (ip->valueType() != ValueType::InstPtr);
+
+                    m_ip = ip->pageAddr();
+                    m_pp = pop()->pageAddr();
+                    returnFromFuncCall();
                     --it;
                 }
                 else
@@ -1045,9 +1051,9 @@ namespace Ark
 
             // display variables values in the current scope
             std::printf("\nCurrent scope variables values:\n");
-            for (std::size_t i=0, size=m_locals.back()->size(); i < size; ++i)
-                std::cerr << termcolor::cyan << m_state->m_symbols[m_locals.back()->m_data[i].first] << termcolor::reset
-                          << " = " << m_locals.back()->m_data[i].second << "\n";
+            for (std::size_t i=0, size=old_scope.size(); i < size; ++i)
+                std::cerr << termcolor::cyan << m_state->m_symbols[old_scope.m_data[i].first] << termcolor::reset
+                          << " = " << old_scope.m_data[i].second << "\n";
 
             // if persistance is on, clear frames to keep only the global one
             if (m_state->m_options & FeaturePersist)
