@@ -1,4 +1,4 @@
-inline NodeType similar_nodetype_from_tokentype(internal::TokenType tt)
+inline internal::NodeType similar_nodetype_from_tokentype(internal::TokenType tt)
 {
     if (tt == internal::TokenType::Capture)
         return internal::NodeType::Capture;
