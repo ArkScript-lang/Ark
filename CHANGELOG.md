@@ -34,6 +34,7 @@
 - updating the parser to support usually invalid constructions when they are in macros, to allow things like `!{defun (name args body) (let name (fun args body))}`
 - fixing the code optimizer to avoid removing unused variables which are defined on function calls
 - fixed the traceback generation on errors, it should now display the correct function names
+- reorganizing the compiler code
 
 ### Removed
 - `~UserType`, since we are doing manual memory management now

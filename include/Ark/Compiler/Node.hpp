@@ -232,7 +232,7 @@ namespace Ark::internal
         std::string m_filename = "";
     };
 
-    #include "Node.inl"
+    #include "inline/Node.inl"
 
     using Nodes = std::vector<Node>;
 
