@@ -36,6 +36,7 @@
 - fixed the traceback generation on errors, it should now display the correct function names
 - reorganizing the compiler code
 - reorganizing the parser code to make it more maintainable
+- adding `make_node<T>` and `make_node_list` internally to avoid repetitive code
 
 ### Removed
 - `~UserType`, since we are doing manual memory management now

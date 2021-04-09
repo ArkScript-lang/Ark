@@ -63,6 +63,8 @@ namespace Ark::internal
         using Map      = std::unordered_map<std::string, Node>;
         using Value    = mpark::variant<double, std::string, Keyword>;
 
+        Node() = default;
+
         /**
          * @brief Construct a new Node object
          * 
@@ -96,7 +98,7 @@ namespace Ark::internal
          * 
          * @param type 
          */
-        explicit Node(NodeType type=NodeType::Symbol) noexcept;
+        explicit Node(NodeType type) noexcept;
 
         /**
          * @brief Construct a new Node object
@@ -234,9 +236,24 @@ namespace Ark::internal
 
     #include "inline/Node.inl"
 
-    using Nodes = std::vector<Node>;
+    template <typename T>
+    Node make_node(T&& value, std::size_t line, std::size_t col, const std::string& file)
+    {
+        Node n(std::forward<T>(value));
+        n.setPos(line, col);
+        n.setFilename(file);
+        return n;
+    }
 
-    std::ostream& operator<<(std::ostream& os, const Nodes& N) noexcept;
+    inline Node make_node_list(std::size_t line, std::size_t col, const std::string& file)
+    {
+        Node n(NodeType::List);
+        n.setPos(line, col);
+        n.setFilename(file);
+        return n;
+    }
+
+    std::ostream& operator<<(std::ostream& os, const std::vector<Node>& N) noexcept;
 }
 
 #endif
