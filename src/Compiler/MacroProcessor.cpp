@@ -146,33 +146,6 @@ namespace Ark::internal
 
     void MacroProcessor::execute(Node& node)
     {
-        static std::function<void(const std::unordered_map<std::string, Node>&, Node&, Node*)> apply_to =
-        [this](const std::unordered_map<std::string, Node>& map, Node& target, Node* parent) {
-            if (target.nodeType() == NodeType::Symbol)
-            {
-                if (auto p = map.find(target.string()); p != map.end())
-                    target = p->second;
-            }
-            else if (target.nodeType() == NodeType::List || target.nodeType() == NodeType::Macro)
-            {
-                for (std::size_t i = 0, end = target.list().size(); i < end; ++i)
-                    apply_to(map, target.list()[i], &target);
-            }
-            else if (target.nodeType() == NodeType::Spread)
-            {
-                Node subnode = target;
-                subnode.setNodeType(NodeType::Symbol);
-                apply_to(map, subnode, parent);
-                parent->list().pop_back();  // remove the spread
-
-                if (subnode.nodeType() != NodeType::List)
-                    throwMacroProcessingError("Got a non-list while trying to apply the spread operator", subnode);
-
-                for (std::size_t i = 1, end = subnode.list().size(); i < end; ++i)
-                    parent->push_back(subnode.list()[i]);
-            }
-        };
-
         if (node.nodeType() == NodeType::Symbol)
         {
             // error ?
@@ -278,11 +251,38 @@ namespace Ark::internal
                     }
 
                     if (!args_applied.empty())
-                        apply_to(args_applied, temp_body, nullptr);
+                        unify(args_applied, temp_body, nullptr);
                     node = evaluate(temp_body);
                     execute(node);
                 }
             }
+        }
+    }
+
+    void MacroProcessor::unify(const std::unordered_map<std::string, Node>& map, Node& target, Node* parent)
+    {
+        if (target.nodeType() == NodeType::Symbol)
+        {
+            if (auto p = map.find(target.string()); p != map.end())
+                target = p->second;
+        }
+        else if (target.nodeType() == NodeType::List || target.nodeType() == NodeType::Macro)
+        {
+            for (std::size_t i = 0, end = target.list().size(); i < end; ++i)
+                unify(map, target.list()[i], &target);
+        }
+        else if (target.nodeType() == NodeType::Spread)
+        {
+            Node subnode = target;
+            subnode.setNodeType(NodeType::Symbol);
+            unify(map, subnode, parent);
+            parent->list().pop_back();  // remove the spread
+
+            if (subnode.nodeType() != NodeType::List)
+                throwMacroProcessingError("Got a non-list while trying to apply the spread operator", subnode);
+
+            for (std::size_t i = 1, end = subnode.list().size(); i < end; ++i)
+                parent->push_back(subnode.list()[i]);
         }
     }
 

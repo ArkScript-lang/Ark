@@ -45,6 +45,7 @@
 - `Frame` were removed because they were giving bad performances
 - `firstOf` was removed because it's basically a `(@ list 0)` and it was doing the job of `head`
 - `Ark::Utils::toString`, our internal version of `std::to_string`
+- use of static in the MacroProcessor and in the NodeType to string conversion function
 
 ## 3.0.15
 ### Added
