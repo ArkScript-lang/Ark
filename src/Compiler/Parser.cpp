@@ -112,11 +112,8 @@ namespace Ark
         if (token.token == "(")
         {
             bool previous_token_was_lparen = true;
-
             // create a list node to host the block
-            Node block(NodeType::List);
-            block.setPos(token.line, token.col);
-            block.setFilename(m_file);
+            Node block = make_node_list(token.line, token.col, m_file);
 
             // handle sub-blocks
             if (tokens.front().token == "(")
@@ -334,13 +331,9 @@ namespace Ark
         if (token.token == "'")
         {
             // create a list node to host the block
-            Node block(NodeType::List);
-            block.setPos(token.line, token.col);
-            block.setFilename(m_file);
+            Node block = make_node_list(token.line, token.col, m_file);
 
-            block.push_back(Node(Keyword::Quote));
-            block.list().back().setPos(token.line, token.col);
-            block.list().back().setFilename(m_file);
+            block.push_back(make_node(Keyword::Quote, token.line, token.col, m_file));
             block.push_back(parse(tokens, false, false, in_macro));
             return block;
         }
@@ -350,9 +343,7 @@ namespace Ark
                 Ark::logger.info("Found a macro at ", token.line, ":", token.col, " in ", m_file);
 
             // macros
-            Node block(NodeType::Macro);
-            block.setPos(token.line, token.col);
-            block.setFilename(m_file);
+            Node block = make_node(NodeType::Macro, token.line, token.col, m_file);
 
             Node parsed = parse(tokens, /* authorize_capture */ false, /* authorize_field_read */ false, /* in_macro */ true);
             if (parsed.nodeType() != NodeType::List || parsed.list().size() < 2 || parsed.list().size() > 4)
@@ -403,12 +394,7 @@ namespace Ark
     Node Parser::atom(const Token& token)
     {
         if (token.type == TokenType::Number)
-        {
-            auto n = Node(std::stod(token.token));
-            n.setPos(token.line, token.col);
-            n.setFilename(m_file);
-            return n;
-        }
+            return make_node(std::stod(token.token), token.line, token.col, m_file);
         else if (token.type == TokenType::String)
         {
             std::string str = token.token;
@@ -416,10 +402,7 @@ namespace Ark
             str.erase(0, 1);
             str.erase(token.token.size() - 2, 1);
 
-            auto n = Node(str);
-            n.setPos(token.line, token.col);
-            n.setFilename(m_file);
-            return n;
+            return make_node(str, token.line, token.col, m_file);
         }
         else if (token.type == TokenType::Keyword)
         {
@@ -434,47 +417,35 @@ namespace Ark
             else if (token.token == "import") kw = Keyword::Import;
             else if (token.token == "quote")  kw = Keyword::Quote;
             else if (token.token == "del")    kw = Keyword::Del;
+
             if (kw)
-            {
-                auto n = Node(kw.value());
-                n.setPos(token.line, token.col);
-                n.setFilename(m_file);
-                return n;
-            }
+                return make_node(kw.value(), token.line, token.col, m_file);
             throwParseError("unknown keyword", token);
         }
         else if (token.type == TokenType::Capture)
         {
-            auto n = Node(NodeType::Capture);
+            Node n = make_node(NodeType::Capture, token.line, token.col, m_file);
             n.setString(token.token);
-            n.setPos(token.line, token.col);
-            n.setFilename(m_file);
             return n;
         }
         else if (token.type == TokenType::GetField)
         {
-            auto n = Node(NodeType::GetField);
+            Node n = make_node(NodeType::GetField, token.line, token.col, m_file);
             n.setString(token.token);
-            n.setPos(token.line, token.col);
-            n.setFilename(m_file);
             return n;
         }
         else if (token.type == TokenType::Spread)
         {
-            auto n = Node(NodeType::Spread);
+            Node n = make_node(NodeType::Spread, token.line, token.col, m_file);
             n.setString(token.token.substr(3));  // remove the "..."
-            n.setPos(token.line, token.col);
-            n.setFilename(m_file);
             return n;
         }
         else if (token.type == TokenType::Shorthand)
             throwParseError("got a shorthand to atomize, and that's not normal. If you see this error please reach out on GitHub.", token);
 
         // assuming it is a TokenType::Identifier, thus a Symbol
-        auto n = Node(NodeType::Symbol);
+        Node n = make_node(NodeType::Symbol, token.line, token.col, m_file);
         n.setString(token.token);
-        n.setPos(token.line, token.col);
-        n.setFilename(m_file);
         return n;
     }
 
