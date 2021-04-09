@@ -141,24 +141,30 @@ namespace Ark
 
                 if (token.type == TokenType::Keyword)
                 {
+                    void (Parser::*fun_ptr)(Node&, Token&, std::list<Token>&, bool, bool, bool) = nullptr;
                     if (token.token == "if")
-                        parseIf(block, token, tokens, authorize_capture, authorize_field_read, in_macro);
+                        fun_ptr = &Parser::parseIf;
                     else if (token.token == "let" || token.token == "mut")
-                        parseLetMut(block, token, tokens, authorize_capture, authorize_field_read, in_macro);
+                        fun_ptr = &Parser::parseLetMut;
                     else if (token.token == "set")
-                        parseSet(block, token, tokens, authorize_capture, authorize_field_read, in_macro);
+                        fun_ptr = &Parser::parseSet;
                     else if (token.token == "fun")
-                        parseFun(block, token, tokens, authorize_capture, authorize_field_read, in_macro);
+                        fun_ptr = &Parser::parseFun;
                     else if (token.token == "while")
-                        parseWhile(block, token, tokens, authorize_capture, authorize_field_read, in_macro);
+                        fun_ptr = &Parser::parseWhile;
                     else if (token.token == "begin")
-                        parseBegin(block, token, tokens, authorize_capture, authorize_field_read, in_macro);
+                        fun_ptr = &Parser::parseBegin;
                     else if (token.token == "import")
-                        parseImport(block, token, tokens, authorize_capture, authorize_field_read, in_macro);
+                        fun_ptr = &Parser::parseImport;
                     else if (token.token == "quote")
-                        parseQuote(block, token, tokens, authorize_capture, authorize_field_read, in_macro);
+                        fun_ptr = &Parser::parseQuote;
                     else if (token.token == "del")
-                        parseDel(block, token, tokens, authorize_capture, authorize_field_read, in_macro);
+                        fun_ptr = &Parser::parseDel;
+
+                    if (fun_ptr != nullptr)
+                        (this->*fun_ptr)(block, token, tokens, authorize_capture, authorize_field_read, in_macro);
+                    else
+                        throwParseError("unimplemented keyword `" + token.token + "'. If you see this error please report it on GitHub.", token);
                 }
                 else if (token.type == TokenType::Identifier || token.type == TokenType::Operator ||
                         (token.type == TokenType::Capture && authorize_capture) ||
@@ -437,7 +443,7 @@ namespace Ark
             }
 
             case TokenType::Shorthand:
-                throwParseError("got a shorthand to atomize, and that's not normal. If you see this error please reach out on GitHub.", token);
+                throwParseError("got a shorthand to atomize, and that's not normal. If you see this error please report it on GitHub.", token);
 
             default:
             {
