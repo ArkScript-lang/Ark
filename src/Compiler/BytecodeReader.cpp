@@ -117,7 +117,7 @@ namespace Ark
             os << termcolor::red << "Both start and end parameter need to be provided together\n" << termcolor::reset;
             return;
         }
-        else if (sStart.has_value() && sEnd.has_value() && (sStart.value() > sEnd.value() || sEnd.value() < sStart.value()))
+        else if (sStart.has_value() && sEnd.has_value() && sStart.value() >= sEnd.value())
         {
             os << termcolor::red << "Invalid slice start and end arguments\n" << termcolor::reset;
             return;
