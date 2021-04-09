@@ -136,28 +136,7 @@ namespace Ark
             do
             {
                 Node atomized = atom(token);
-
-                // error reporting
-                if ((atomized.nodeType() == NodeType::String || atomized.nodeType() == NodeType::Number ||
-                        atomized.nodeType() == NodeType::List) && previous_token_was_lparen)
-                {
-                    std::stringstream ss;
-                    ss << "found invalid token after `(', expected Keyword, Identifier";
-                    if (!authorize_capture && !authorize_field_read)
-                        ss << " or Operator";
-                    else
-                    {
-                        ss << ", Operator";
-                        if (authorize_capture && !authorize_field_read)
-                            ss << " or Capture";
-                        else if (!authorize_capture && authorize_field_read)
-                            ss << " or GetField";
-                        else
-                            ss << ", Capture or GetField";
-                    }
-                    throwParseError(ss.str(), token);
-                }
-
+                checkForInvalidTokens(atomized, token, previous_token_was_lparen, authorize_capture, authorize_field_read);
                 block.push_back(atomized);
 
                 expect(!tokens.empty(), "expected more tokens after `" + token.token + "'", m_last_token);
@@ -166,137 +145,23 @@ namespace Ark
                 if (token.type == TokenType::Keyword)
                 {
                     if (token.token == "if")
-                    {
-                        auto temp = tokens.front();
-                        // parse condition
-                        if (temp.type == TokenType::Grouping)
-                            block.push_back(parse(tokens, false, false, in_macro));
-                        else if (temp.type == TokenType::Identifier || temp.type == TokenType::Number ||
-                                 temp.type == TokenType::String || (in_macro && temp.type == TokenType::Spread))
-                            block.push_back(atom(nextToken(tokens)));
-                        else
-                            throwParseError("found invalid token after keyword `if', expected function call, value or Identifier", temp);
-                        // parse 'then'
-                        expect(!tokens.empty() && tokens.front().token != ")", "expected a statement after the condition", temp);
-                        block.push_back(parse(tokens, false, false, in_macro));
-                        // parse 'else', if there is one
-                        if (tokens.front().token != ")")
-                        {
-                            block.push_back(parse(tokens, false, false, in_macro));
-                            // error handling if the if is ill-formed
-                            expect(tokens.front().token == ")", "if block is ill-formed, got more than the 3 required arguments (condition, then, else)", m_last_token);
-                        }
-                    }
+                        parseIf(block, token, tokens, authorize_capture, authorize_field_read, in_macro);
                     else if (token.token == "let" || token.token == "mut")
-                    {
-                        auto temp = tokens.front();
-                        // parse identifier
-                        if (temp.type == TokenType::Identifier)
-                            block.push_back(atom(nextToken(tokens)));
-                        else if (in_macro)
-                            block.push_back(parse(tokens, false, false, in_macro));
-                        else
-                            throwParseError(std::string("missing identifier to define a ") + (token.token == "let" ? "constant" : "variable") + ", after keyword `" + token.token + "'", temp);
-                        expect(!tokens.empty() && tokens.front().token != ")", "expected a value after the identifier", temp);
-                        // value
-                        while (tokens.front().token != ")")
-                            block.push_back(parse(tokens, /* authorize_capture */ false, /* authorize_field_read */ true, in_macro));
-
-                        // the block size can exceed 3 only if we have a serie of getfields
-                        expect(
-                            block.list().size() <= 3 || std::all_of(block.list().begin() + 3, block.list().end(), [](const Node& n) -> bool { return n.nodeType() == NodeType::GetField; }),
-                            "too many arguments given to keyword `" + token.token + "', got " + std::to_string(block.list().size() - 1) + ", expected at most 3",
-                            m_last_token
-                        );
-                    }
+                        parseLetMut(block, token, tokens, authorize_capture, authorize_field_read, in_macro);
                     else if (token.token == "set")
-                    {
-                        auto temp = tokens.front();
-                        // parse identifier
-                        if (temp.type == TokenType::Identifier)
-                            block.push_back(atom(nextToken(tokens)));
-                        else if (in_macro)
-                            block.push_back(parse(tokens, false, false, in_macro));
-                        else
-                            throwParseError("missing identifier to assign a value to, after keyword `set'", temp);
-                        expect(!tokens.empty() && tokens.front().token != ")", "expected a value after the identifier", temp);
-                        // set can not accept a.b...c as an identifier
-                        if (tokens.front().type == TokenType::GetField)
-                            throwParseError("found invalid token after keyword `set', expected an identifier, got a closure field reading expression", tokens.front());
-                        // value
-                        while (tokens.front().token != ")")
-                            block.push_back(parse(tokens, /* authorize_capture */ false, /* authorize_field_read */ true, in_macro));
-
-                        // the block size can exceed 3 only if we have a serie of getfields
-                        expect(
-                            block.list().size() <= 3 || std::all_of(block.list().begin() + 3, block.list().end(), [](const Node& n) -> bool { return n.nodeType() == NodeType::GetField; }),
-                            "too many arguments given to keyword `" + token.token + "', got " + std::to_string(block.list().size() - 1) + ", expected at most 3",
-                            m_last_token
-                        );
-                    }
+                        parseSet(block, token, tokens, authorize_capture, authorize_field_read, in_macro);
                     else if (token.token == "fun")
-                    {
-                        // parse arguments
-                        if (tokens.front().type == TokenType::Grouping || in_macro)
-                            block.push_back(parse(tokens, /* authorize_capture */ true, false, in_macro));
-                        else
-                            throwParseError("found invalid token after keyword `fun', expected a block to define the argument list of the function\nThe block can be empty if it doesn't have arguments: `()'", tokens.front());
-                        // parse body
-                        if (tokens.front().type == TokenType::Grouping || in_macro)
-                            block.push_back(parse(tokens, false, false, in_macro));
-                        else
-                            throwParseError("the body of a function must be a block, even an empty one `()'", tokens.front());
-                        expect(block.list().size() == 3, "got too many arguments after keyword `" + token.token + "', expected an argument list and a body", m_last_token);
-                    }
+                        parseFun(block, token, tokens, authorize_capture, authorize_field_read, in_macro);
                     else if (token.token == "while")
-                    {
-                        auto temp = tokens.front();
-                        // parse condition
-                        if (temp.type == TokenType::Grouping)
-                            block.push_back(parse(tokens, false, false, in_macro));
-                        else if (temp.type == TokenType::Identifier || temp.type == TokenType::Number ||
-                                 temp.type == TokenType::String)
-                            block.push_back(atom(nextToken(tokens)));
-                        else
-                            throwParseError("found invalid token after keyword `while', expected function call, value or Identifier", temp);
-                        expect(!tokens.empty() && tokens.front().token != ")", "expected a body after the condition", temp);
-                        // parse 'do'
-                        block.push_back(parse(tokens, false, false, in_macro));
-                        expect(block.list().size() == 3, "got too many arguments after keyword `" + token.token + "', expected a condition and a body", temp);
-                    }
+                        parseWhile(block, token, tokens, authorize_capture, authorize_field_read, in_macro);
                     else if (token.token == "begin")
-                    {
-                        while (true)
-                        {
-                            expect(!tokens.empty(), "a `begin' block was opened but never closed\nYou most likely forgot a `}' or `)'", m_last_token);
-                            if (tokens.front().token == ")")
-                                break;
-                            m_last_token = tokens.front();
-
-                            block.push_back(parse(tokens, false, false, in_macro));
-                        }
-                    }
+                        parseBegin(block, token, tokens, authorize_capture, authorize_field_read, in_macro);
                     else if (token.token == "import")
-                    {
-                        if (tokens.front().type == TokenType::String)
-                            block.push_back(atom(nextToken(tokens)));
-                        else
-                            throwParseError("found invalid token after keyword `import', expected String (path to the file or module to import)", tokens.front());
-                        expect(tokens.front().token == ")", "got too many arguments after keyword `import', expected a single filename as String", tokens.front());
-                    }
+                        parseImport(block, token, tokens, authorize_capture, authorize_field_read, in_macro);
                     else if (token.token == "quote")
-                    {
-                        block.push_back(parse(tokens, false, false, in_macro));
-                        expect(tokens.front().token == ")", "got too many arguments after keyword `quote', expected a single block or value", tokens.front());
-                    }
+                        parseQuote(block, token, tokens, authorize_capture, authorize_field_read, in_macro);
                     else if (token.token == "del")
-                    {
-                        if (tokens.front().type == TokenType::Identifier)
-                            block.push_back(atom(nextToken(tokens)));
-                        else
-                            throwParseError("found invalid token after keyword `del', expected Identifier", tokens.front());
-                        expect(tokens.front().token == ")", "got too many arguments after keyword `del', expected a single identifier", tokens.front());
-                    }
+                        parseDel(block, token, tokens, authorize_capture, authorize_field_read, in_macro);
                 }
                 else if (token.type == TokenType::Identifier || token.type == TokenType::Operator ||
                         (token.type == TokenType::Capture && authorize_capture) ||
@@ -313,53 +178,216 @@ namespace Ark
             return block;
         }
         else if (token.type == TokenType::Shorthand)
-        {
-            if (token.token == "'")
-            {
-                // create a list node to host the block
-                Node block(NodeType::List);
-                block.setPos(token.line, token.col);
-                block.setFilename(m_file);
-
-                block.push_back(Node(Keyword::Quote));
-                block.list().back().setPos(token.line, token.col);
-                block.list().back().setFilename(m_file);
-                block.push_back(parse(tokens, false, false, in_macro));
-                return block;
-            }
-            else if (token.token == "!")
-            {
-                if (m_debug >= 2)
-                    Ark::logger.info("Found a macro at ", token.line, ":", token.col, " in ", m_file);
-
-                // macros
-                Node block(NodeType::Macro);
-                block.setPos(token.line, token.col);
-                block.setFilename(m_file);
-
-                Node parsed = parse(tokens, /* authorize_capture */ false, /* authorize_field_read */ false, /* in_macro */ true);
-                if (parsed.nodeType() != NodeType::List || parsed.list().size() < 2 || parsed.list().size() > 4)
-                    throwParseError("Macros can only defined using the !{ name value } or !{ name (args) value } syntax", token);
-
-                // append the nodes of the parsed node to the current macro node
-                for (std::size_t i = 0, end = parsed.list().size(); i < end; ++i)
-                    block.push_back(parsed.list()[i]);
-                return block;
-            }
-            else
-                throwParseError("unknown shorthand", token);
-        }
+            return parseShorthand(token, tokens, authorize_capture, authorize_field_read, in_macro);
         // error, we shouldn't have grouping token here
         else if (token.type == TokenType::Grouping)
-        {
             throwParseError("Found a lonely `" + token.token + "', you most likely have too much parenthesis.", token);
-        }
         else if ((token.type == TokenType::Operator || token.type == TokenType::Identifier) &&
                  std::find(Builtins::operators.begin(), Builtins::operators.end(), token.token) != Builtins::operators.end())
-        {
             throwParseError("Found a free flying operator, which isn't authorized. Operators should always immediatly follow a `('.", token);
-        }
         return atom(token);
+    }
+
+    void Parser::parseIf(Node& block, Token& token, std::list<Token>& tokens, bool authorize_capture, bool authorize_field_read, bool in_macro)
+    {
+        auto temp = tokens.front();
+        // parse condition
+        if (temp.type == TokenType::Grouping)
+            block.push_back(parse(tokens, false, false, in_macro));
+        else if (temp.type == TokenType::Identifier || temp.type == TokenType::Number ||
+                    temp.type == TokenType::String || (in_macro && temp.type == TokenType::Spread))
+            block.push_back(atom(nextToken(tokens)));
+        else
+            throwParseError("found invalid token after keyword `if', expected function call, value or Identifier", temp);
+        // parse 'then'
+        expect(!tokens.empty() && tokens.front().token != ")", "expected a statement after the condition", temp);
+        block.push_back(parse(tokens, false, false, in_macro));
+        // parse 'else', if there is one
+        if (tokens.front().token != ")")
+        {
+            block.push_back(parse(tokens, false, false, in_macro));
+            // error handling if the if is ill-formed
+            expect(tokens.front().token == ")", "if block is ill-formed, got more than the 3 required arguments (condition, then, else)", m_last_token);
+        }
+    }
+
+    void Parser::parseLetMut(Node& block, Token& token, std::list<Token>& tokens, bool authorize_capture, bool authorize_field_read, bool in_macro)
+    {
+        auto temp = tokens.front();
+        // parse identifier
+        if (temp.type == TokenType::Identifier)
+            block.push_back(atom(nextToken(tokens)));
+        else if (in_macro)
+            block.push_back(parse(tokens, false, false, in_macro));
+        else
+            throwParseError(std::string("missing identifier to define a ") + (token.token == "let" ? "constant" : "variable") + ", after keyword `" + token.token + "'", temp);
+        expect(!tokens.empty() && tokens.front().token != ")", "expected a value after the identifier", temp);
+        // value
+        while (tokens.front().token != ")")
+            block.push_back(parse(tokens, /* authorize_capture */ false, /* authorize_field_read */ true, in_macro));
+
+        // the block size can exceed 3 only if we have a serie of getfields
+        expect(
+            block.list().size() <= 3 || std::all_of(block.list().begin() + 3, block.list().end(), [](const Node& n) -> bool { return n.nodeType() == NodeType::GetField; }),
+            "too many arguments given to keyword `" + token.token + "', got " + std::to_string(block.list().size() - 1) + ", expected at most 3",
+            m_last_token
+        );
+    }
+
+    void Parser::parseSet(Node& block, Token& token, std::list<Token>& tokens, bool authorize_capture, bool authorize_field_read, bool in_macro)
+    {
+        auto temp = tokens.front();
+        // parse identifier
+        if (temp.type == TokenType::Identifier)
+            block.push_back(atom(nextToken(tokens)));
+        else if (in_macro)
+            block.push_back(parse(tokens, false, false, in_macro));
+        else
+            throwParseError("missing identifier to assign a value to, after keyword `set'", temp);
+        expect(!tokens.empty() && tokens.front().token != ")", "expected a value after the identifier", temp);
+        // set can not accept a.b...c as an identifier
+        if (tokens.front().type == TokenType::GetField)
+            throwParseError("found invalid token after keyword `set', expected an identifier, got a closure field reading expression", tokens.front());
+        // value
+        while (tokens.front().token != ")")
+            block.push_back(parse(tokens, /* authorize_capture */ false, /* authorize_field_read */ true, in_macro));
+
+        // the block size can exceed 3 only if we have a serie of getfields
+        expect(
+            block.list().size() <= 3 || std::all_of(block.list().begin() + 3, block.list().end(), [](const Node& n) -> bool { return n.nodeType() == NodeType::GetField; }),
+            "too many arguments given to keyword `" + token.token + "', got " + std::to_string(block.list().size() - 1) + ", expected at most 3",
+            m_last_token
+        );
+    }
+
+    void Parser::parseFun(Node& block, Token& token, std::list<Token>& tokens, bool authorize_capture, bool authorize_field_read, bool in_macro)
+    {
+        // parse arguments
+        if (tokens.front().type == TokenType::Grouping || in_macro)
+            block.push_back(parse(tokens, /* authorize_capture */ true, false, in_macro));
+        else
+            throwParseError("found invalid token after keyword `fun', expected a block to define the argument list of the function\nThe block can be empty if it doesn't have arguments: `()'", tokens.front());
+        // parse body
+        if (tokens.front().type == TokenType::Grouping || in_macro)
+            block.push_back(parse(tokens, false, false, in_macro));
+        else
+            throwParseError("the body of a function must be a block, even an empty one `()'", tokens.front());
+        expect(block.list().size() == 3, "got too many arguments after keyword `" + token.token + "', expected an argument list and a body", m_last_token);
+    }
+
+    void Parser::parseWhile(Node& block, Token& token, std::list<Token>& tokens, bool authorize_capture, bool authorize_field_read, bool in_macro)
+    {
+        auto temp = tokens.front();
+        // parse condition
+        if (temp.type == TokenType::Grouping)
+            block.push_back(parse(tokens, false, false, in_macro));
+        else if (temp.type == TokenType::Identifier || temp.type == TokenType::Number ||
+                    temp.type == TokenType::String)
+            block.push_back(atom(nextToken(tokens)));
+        else
+            throwParseError("found invalid token after keyword `while', expected function call, value or Identifier", temp);
+        expect(!tokens.empty() && tokens.front().token != ")", "expected a body after the condition", temp);
+        // parse 'do'
+        block.push_back(parse(tokens, false, false, in_macro));
+        expect(block.list().size() == 3, "got too many arguments after keyword `" + token.token + "', expected a condition and a body", temp);
+    }
+
+    void Parser::parseBegin(Node& block, Token& token, std::list<Token>& tokens, bool authorize_capture, bool authorize_field_read, bool in_macro)
+    {
+        while (true)
+        {
+            expect(!tokens.empty(), "a `begin' block was opened but never closed\nYou most likely forgot a `}' or `)'", m_last_token);
+            if (tokens.front().token == ")")
+                break;
+            m_last_token = tokens.front();
+
+            block.push_back(parse(tokens, false, false, in_macro));
+        }
+    }
+
+    void Parser::parseImport(Node& block, Token& token, std::list<Token>& tokens, bool authorize_capture, bool authorize_field_read, bool in_macro)
+    {
+        if (tokens.front().type == TokenType::String)
+            block.push_back(atom(nextToken(tokens)));
+        else
+            throwParseError("found invalid token after keyword `import', expected String (path to the file or module to import)", tokens.front());
+        expect(tokens.front().token == ")", "got too many arguments after keyword `import', expected a single filename as String", tokens.front());
+    }
+
+    void Parser::parseQuote(Node& block, Token& token, std::list<Token>& tokens, bool authorize_capture, bool authorize_field_read, bool in_macro)
+    {
+        block.push_back(parse(tokens, false, false, in_macro));
+        expect(tokens.front().token == ")", "got too many arguments after keyword `quote', expected a single block or value", tokens.front());
+    }
+
+    void Parser::parseDel(Node& block, Token& token, std::list<Token>& tokens, bool authorize_capture, bool authorize_field_read, bool in_macro)
+    {
+        if (tokens.front().type == TokenType::Identifier)
+            block.push_back(atom(nextToken(tokens)));
+        else
+            throwParseError("found invalid token after keyword `del', expected Identifier", tokens.front());
+        expect(tokens.front().token == ")", "got too many arguments after keyword `del', expected a single identifier", tokens.front());
+    }
+
+    Node Parser::parseShorthand(Token& token, std::list<Token>& tokens, bool authorize_capture, bool authorize_field_read, bool in_macro)
+    {
+        if (token.token == "'")
+        {
+            // create a list node to host the block
+            Node block(NodeType::List);
+            block.setPos(token.line, token.col);
+            block.setFilename(m_file);
+
+            block.push_back(Node(Keyword::Quote));
+            block.list().back().setPos(token.line, token.col);
+            block.list().back().setFilename(m_file);
+            block.push_back(parse(tokens, false, false, in_macro));
+            return block;
+        }
+        else if (token.token == "!")
+        {
+            if (m_debug >= 2)
+                Ark::logger.info("Found a macro at ", token.line, ":", token.col, " in ", m_file);
+
+            // macros
+            Node block(NodeType::Macro);
+            block.setPos(token.line, token.col);
+            block.setFilename(m_file);
+
+            Node parsed = parse(tokens, /* authorize_capture */ false, /* authorize_field_read */ false, /* in_macro */ true);
+            if (parsed.nodeType() != NodeType::List || parsed.list().size() < 2 || parsed.list().size() > 4)
+                throwParseError("Macros can only defined using the !{ name value } or !{ name (args) value } syntax", token);
+
+            // append the nodes of the parsed node to the current macro node
+            for (std::size_t i = 0, end = parsed.list().size(); i < end; ++i)
+                block.push_back(parsed.list()[i]);
+            return block;
+        }
+        else
+            throwParseError("unknown shorthand", token);
+    }
+
+    void Parser::checkForInvalidTokens(Node& atomized, Token& token, bool previous_token_was_lparen, bool authorize_capture, bool authorize_field_read)
+    {
+        if ((atomized.nodeType() == NodeType::String || atomized.nodeType() == NodeType::Number ||
+                atomized.nodeType() == NodeType::List) && previous_token_was_lparen)
+        {
+            std::stringstream ss;
+            ss << "found invalid token after `(', expected Keyword, Identifier";
+            if (!authorize_capture && !authorize_field_read)
+                ss << " or Operator";
+            else
+            {
+                ss << ", Operator";
+                if (authorize_capture && !authorize_field_read)
+                    ss << " or Capture";
+                else if (!authorize_capture && authorize_field_read)
+                    ss << " or GetField";
+                else
+                    ss << ", Capture or GetField";
+            }
+            throwParseError(ss.str(), token);
+        }
     }
 
     Token Parser::nextToken(std::list<Token>& tokens)

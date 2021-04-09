@@ -101,6 +101,18 @@ namespace Ark
          */
         internal::Node parse(std::list<internal::Token>& tokens, bool authorize_capture=false, bool authorize_field_read=false, bool in_macro=false);
 
+        void parseIf(internal::Node&, internal::Token&, std::list<internal::Token>&, bool, bool, bool);
+        void parseLetMut(internal::Node&, internal::Token&, std::list<internal::Token>&, bool, bool, bool);
+        void parseSet(internal::Node&, internal::Token&, std::list<internal::Token>&, bool, bool, bool);
+        void parseFun(internal::Node&, internal::Token&, std::list<internal::Token>&, bool, bool, bool);
+        void parseWhile(internal::Node&, internal::Token&, std::list<internal::Token>&, bool, bool, bool);
+        void parseBegin(internal::Node&, internal::Token&, std::list<internal::Token>&, bool, bool, bool);
+        void parseImport(internal::Node&, internal::Token&, std::list<internal::Token>&, bool, bool, bool);
+        void parseQuote(internal::Node&, internal::Token&, std::list<internal::Token>&, bool, bool, bool);
+        void parseDel(internal::Node&, internal::Token&, std::list<internal::Token>&, bool, bool, bool);
+        internal::Node parseShorthand(internal::Token&, std::list<internal::Token>&, bool, bool, bool);
+        void checkForInvalidTokens(internal::Node&, internal::Token&, bool, bool, bool);
+
         /**
          * @brief Get the next token if possible, from a list of tokens
          * 
