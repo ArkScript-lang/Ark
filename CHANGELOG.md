@@ -37,6 +37,7 @@
 - reorganizing the compiler code
 - reorganizing the parser code to make it more maintainable
 - adding `make_node<T>` and `make_node_list` internally to avoid repetitive code
+- enhancing the parser `atom` method
 
 ### Removed
 - `~UserType`, since we are doing manual memory management now

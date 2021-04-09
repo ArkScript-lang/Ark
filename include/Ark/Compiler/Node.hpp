@@ -236,23 +236,6 @@ namespace Ark::internal
 
     #include "inline/Node.inl"
 
-    template <typename T>
-    Node make_node(T&& value, std::size_t line, std::size_t col, const std::string& file)
-    {
-        Node n(std::forward<T>(value));
-        n.setPos(line, col);
-        n.setFilename(file);
-        return n;
-    }
-
-    inline Node make_node_list(std::size_t line, std::size_t col, const std::string& file)
-    {
-        Node n(NodeType::List);
-        n.setPos(line, col);
-        n.setFilename(file);
-        return n;
-    }
-
     std::ostream& operator<<(std::ostream& os, const std::vector<Node>& N) noexcept;
 }
 
