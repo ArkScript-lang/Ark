@@ -1,3 +1,15 @@
+inline NodeType similar_nodetype_from_tokentype(internal::TokenType tt)
+{
+    if (tt == internal::TokenType::Capture)
+        return internal::NodeType::Capture;
+    else if (tt == internal::TokenType::GetField)
+        return internal::NodeType::GetField;
+    else if (tt == internal::TokenType::Spread)
+        return internal::NodeType::Spread;
+
+    return internal::NodeType::Symbol;
+}
+
 inline void Parser::expect(bool pred, const std::string& message, internal::Token token)
 {
     if (!pred)

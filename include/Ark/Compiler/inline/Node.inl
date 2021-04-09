@@ -1,3 +1,20 @@
+template <typename T>
+Node make_node(T&& value, std::size_t line, std::size_t col, const std::string& file)
+{
+    Node n(std::forward<T>(value));
+    n.setPos(line, col);
+    n.setFilename(file);
+    return n;
+}
+
+inline Node make_node_list(std::size_t line, std::size_t col, const std::string& file)
+{
+    Node n(NodeType::List);
+    n.setPos(line, col);
+    n.setFilename(file);
+    return n;
+}
+
 inline bool operator==(const Node& A, const Node& B)
 {
     if (A.m_type != B.m_type)  // should have the same types
