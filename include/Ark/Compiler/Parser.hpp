@@ -161,7 +161,7 @@ namespace Ark
         inline void throwParseError_(const std::string& message);
     };
 
-    #include "Parser.inl"
+    #include "inline/Parser.inl"
 }
 
 #endif
