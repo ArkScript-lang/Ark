@@ -107,6 +107,15 @@ namespace Ark::internal
         void execute(Node& node);
 
         /**
+         * @brief Unify a target node with a given map symbol => replacement node, recursively
+         * 
+         * @param map 
+         * @param target 
+         * @param parent 
+         */
+        void unify(const std::unordered_map<std::string, Node>& map, Node& target, Node* parent);
+
+        /**
          * @brief Evaluate only the macros
          * 
          * @param node 

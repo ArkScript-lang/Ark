@@ -14,6 +14,7 @@
 
 #include <variant.hpp>
 #include <iostream>
+#include <array>
 #include <string>
 #include <vector>
 #include <unordered_map>
