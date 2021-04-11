@@ -215,7 +215,7 @@ namespace Ark::internal
         }
 
         // debugging information
-        if (m_debug >= 3)
+        if (m_debug > 3)
         {
             auto last_token = m_tokens.back();
             for (auto& last_token : m_tokens)

@@ -50,7 +50,7 @@ namespace Ark
         while (!tokens.empty())
             m_ast.list().push_back(parse(tokens));
         // include files if needed
-        checkForInclude(m_ast);
+        checkForInclude(m_ast, m_ast);
 
         if (m_debug >= 3)
         {
@@ -456,60 +456,68 @@ namespace Ark
     }
 
     // high cpu cost
-    bool Parser::checkForInclude(Node& n)
+    bool Parser::checkForInclude(Node& n, Node& parent, std::size_t pos)
     {
         namespace fs = std::filesystem;
 
-        if (n.nodeType() == NodeType::Keyword && n.keyword() == Keyword::Import)
-            return true;
-        else if (n.nodeType() == NodeType::List)
+        if (n.nodeType() == NodeType::List)
         {
-            // can not optimize calls to n.list().size() because we are modifying n.list()
-            for (std::size_t i=0; i < n.list().size(); ++i)
+            if (n.const_list().size() == 0)
+                return false;
+
+            const Node& first = n.const_list()[0];
+
+            if (first.nodeType() == NodeType::Keyword && first.keyword() == Keyword::Import)
             {
-                if (checkForInclude(n.list()[i]))
+                if (m_debug >= 2)
+                    Ark::logger.info("Import found in file:", m_file);
+
+                std::string file;
+                if (n.const_list()[1].nodeType() == NodeType::String)
+                    file = n.const_list()[1].string();
+                else
+                    throw Ark::TypeError("Arguments of import must be of type String");
+
+                // check if we are not loading a plugin
+                if (fs::path(file).extension().string() == ".ark")
                 {
-                    if (m_debug >= 2)
-                        Ark::logger.info("Import found in file:", m_file);
+                    // search for the source file everywhere
+                    std::string included_file = seekFile(file);
 
-                    std::string file;
-                    if (n.const_list()[1].nodeType() == NodeType::String)
-                        file = n.const_list()[1].string();
-                    else
-                        throw Ark::TypeError("Arguments of import must be of type String");
+                    // if the file isn't in the include list, then we can include it
+                    // this avoids cyclic includes
+                    if (std::find(m_parent_include.begin(), m_parent_include.end(), Ark::Utils::canonicalRelPath(included_file)) != m_parent_include.end())
+                        return true;
 
-                    // check if we are not loading a plugin
-                    if (fs::path(file).extension().string() == ".ark")
+                    Parser p(m_debug, m_libdir, m_options);
+                    // feed the new parser with our parent includes
+                    for (auto&& pi : m_parent_include)
+                        p.m_parent_include.push_back(pi);  // new parser, we can assume that the parent include list is empty
+                    p.m_parent_include.push_back(m_file);  // add the current file to avoid importing it again
+                    p.feed(Ark::Utils::readFile(included_file), included_file);
+
+                    // update our list of included files
+                    for (auto&& inc : p.m_parent_include)
                     {
-                        n.list().clear();
-                        // replace content with a begin block
-                        n.list().emplace_back(Keyword::Begin);
-                        // search for the source file everywhere
-                        std::string included_file = seekFile(file);
-
-                        // if the file isn't in the include list, then we can include it
-                        // this avoids cyclic includes
-                        if (std::find(m_parent_include.begin(), m_parent_include.end(), Ark::Utils::canonicalRelPath(included_file)) == m_parent_include.end())
-                        {
-                            Parser p(m_debug, m_libdir, m_options);
-
-                            // feed the new parser with our parent includes
-                            for (auto&& pi : m_parent_include)
-                                p.m_parent_include.push_back(pi);  // new parser, we can assume that the parent include list is empty
-                            p.m_parent_include.push_back(m_file);  // add the current file to avoid importing it again
-
-                            p.feed(Ark::Utils::readFile(included_file), included_file);
-
-                            // update our list of included files
-                            for (auto&& inc : p.m_parent_include)
-                            {
-                                if (std::find(m_parent_include.begin(), m_parent_include.end(), inc) == m_parent_include.end())
-                                    m_parent_include.push_back(inc);
-                            }
-
-                            n.list().push_back(p.ast());
-                        }
+                        if (std::find(m_parent_include.begin(), m_parent_include.end(), inc) == m_parent_include.end())
+                            m_parent_include.push_back(inc);
                     }
+
+                    for (std::size_t j = 1, end = p.ast().const_list().size(); j < end; ++j)
+                    {
+                        parent.list().insert(parent.list().begin() + pos + j, p.ast().const_list()[j]);
+                    }
+
+                    return true;
+                }
+            }
+
+            for (std::size_t i = 0; i < n.list().size(); ++i)
+            {
+                if (checkForInclude(n.list()[i], n, i))
+                {
+                    n.list().erase(n.list().begin() + i);
+                    --i;
                 }
             }
         }
