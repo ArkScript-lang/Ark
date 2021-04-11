@@ -55,7 +55,12 @@ namespace Ark::internal
         {
             if (first_node.nodeType() == NodeType::Symbol)
             {
-                m_macros.back()[first_node.string()] = node;
+                if (first_node.string() != "undef")
+                    m_macros.back()[first_node.string()] = node;
+                else if (second_node.nodeType() == NodeType::Symbol)  // undefine a macro
+                    delete_nearest_macro(second_node.string());
+                else // used undef on a non-symbol
+                    throwMacroProcessingError("can not undefine a macro without it's name", second_node);
                 return;
             }
             throwMacroProcessingError("can not define a macro without a symbol", first_node);
@@ -124,7 +129,7 @@ namespace Ark::internal
                     if (node.list()[i].nodeType() == NodeType::Macro)
                         node.list().erase(node.const_list().begin() + i);
                 }
-                else
+                else  // running on non-macros
                 {
                     // execute only if we have registered macros
                     if ((m_macros.size() == 1 && m_macros[0].size() > 0) || m_macros.size() > 1)
