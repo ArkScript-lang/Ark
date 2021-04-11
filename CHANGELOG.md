@@ -22,6 +22,7 @@
     - only the segments' titles and length
 - verifying that we give enough arguments
 - we can now import macros from other files
+- undefining macros is now possible by using `!{undef macro_name}`
 
 ### Changed
 - updating doxyfile and some docstrings
