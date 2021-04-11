@@ -135,10 +135,11 @@ namespace Ark
          * @brief Search for all the includes in a given node, in its sub-nodes and replace them by the code of the included file
          * 
          * @param n 
-         * @return true returned on success
-         * @return false returned on failure
+         * @param parent the parent node of the current one
+         * @param pos the position of the child node in the parent node list
+         * @return true if we found an import and replaced it by the corresponding code
          */
-        bool checkForInclude(internal::Node& n);
+        bool checkForInclude(internal::Node& n, internal::Node& parent, std::size_t pos = 0);
 
         /**
          * @brief Seek a file in the lib folder and everywhere

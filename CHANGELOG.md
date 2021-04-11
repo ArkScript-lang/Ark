@@ -21,6 +21,7 @@
     - only the code segment (all of them or a given one)
     - only the segments' titles and length
 - verifying that we give enough arguments
+- we can now import macros from other files
 
 ### Changed
 - updating doxyfile and some docstrings
