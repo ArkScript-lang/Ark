@@ -1,7 +1,5 @@
 #include <Ark/Compiler/MacroProcessor.hpp>
 
-#include <Ark/Log.hpp>
-
 #include <algorithm>
 
 namespace Ark::internal
@@ -23,7 +21,7 @@ namespace Ark::internal
     void MacroProcessor::feed(const Node& ast)
     {
         if (m_debug >= 2)
-            Ark::logger.info("Processing macros...");
+            std::cout << "Processing macros...\n";
 
         // to be able to modify it
         m_ast = ast;
@@ -31,7 +29,7 @@ namespace Ark::internal
 
         if (m_debug >= 3)
         {
-            Ark::logger.info("(MacroProcessor) AST after processing macros");
+            std::cout << "(MacroProcessor) AST after processing macros\n";
             std::cout << m_ast << '\n';
         }
     }
@@ -159,7 +157,7 @@ namespace Ark::internal
             if (macro != nullptr)
             {
                 if (m_debug >= 3)
-                    Ark::logger.info("Found macro for", node.string());
+                    std::cout << "Found macro for " << node.string() << '\n';
 
                 // !{name value}
                 if (macro->const_list().size() == 2)
@@ -204,7 +202,7 @@ namespace Ark::internal
             if (macro != nullptr)
             {
                 if (m_debug >= 3)
-                    Ark::logger.info("Found macro for", first.string());
+                    std::cout << "Found macro for " << first.string() << '\n';
 
                 if (macro->const_list().size() == 2)
                     execute(first);

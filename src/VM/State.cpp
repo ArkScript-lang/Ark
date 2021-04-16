@@ -8,6 +8,7 @@
 #endif
 #include <stdlib.h>
 #include <picosha2.hpp>
+#include <termcolor.hpp>
 
 namespace Ark
 {
@@ -112,7 +113,7 @@ namespace Ark
     {
         if (!Ark::Utils::fileExists(file))
         {
-            Ark::logger.error("Can not find file '" + file + "'");
+            std::cerr << termcolor::red << "Can not find file '" << file << "'\n" << termcolor::reset;
             return false;
         }
 

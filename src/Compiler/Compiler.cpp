@@ -4,7 +4,6 @@
 #include <chrono>
 #include <picosha2.hpp>
 
-#include <Ark/Log.hpp>
 #include <Ark/Builtins/Builtins.hpp>
 #include <Ark/Compiler/MacroProcessor.hpp>
 
@@ -27,9 +26,9 @@ namespace Ark
 
         if (m_debug >= 2)
         {
-            Ark::logger.info(filename + " is importing " + std::to_string(m_parser.getImports().size()) + " files:");
+            std::cout << filename << " is importing " << std::to_string(m_parser.getImports().size()) << " files:\n";
             for (auto&& import: m_parser.getImports())
-                Ark::logger.data("\t" + import);
+                std::cout << '\t' << import << '\n';
         }
     }
 
@@ -38,7 +37,7 @@ namespace Ark
         pushHeadersPhase1();
 
         if (m_debug >= 1)
-            Ark::logger.info("Compiling");
+            std::cout << "Compiling\n";
 
         // gather symbols, values, and start to create code segments
         m_code_pages.emplace_back();  // create empty page
@@ -87,7 +86,7 @@ namespace Ark
     void Compiler::saveTo(const std::string& file)
     {
         if (m_debug >= 1)
-            Ark::logger.info("Final bytecode size:", m_bytecode.size() * sizeof(uint8_t), "B");
+            std::cout << "Final bytecode size: " << m_bytecode.size() * sizeof(uint8_t) << "B\n";
 
         std::ofstream output(file, std::ofstream::binary);
         output.write(reinterpret_cast<char*>(&m_bytecode[0]), m_bytecode.size() * sizeof(uint8_t));
@@ -131,7 +130,7 @@ namespace Ark
         }
 
         if (m_debug >= 1)
-            Ark::logger.info("Timestamp: ", timestamp);
+            std::cout << "Timestamp: " << timestamp << '\n';
     }
 
     void Compiler::pushHeadersPhase2()
@@ -193,7 +192,7 @@ namespace Ark
     void Compiler::_compile(const Node& x, int p)
     {
         if (m_debug >= 4)
-            Ark::logger.info(x);
+            std::cout << x << '\n';
 
         // register symbols
         if (x.nodeType() == NodeType::Symbol)

@@ -5,6 +5,8 @@
 #include <optional>
 
 #include <clipp.hpp>
+#include <termcolor.hpp>
+
 #include <Ark/Ark.hpp>
 #include <Ark/REPL/Repl.hpp>
 #include <Ark/Profiling.hpp>
@@ -174,7 +176,7 @@ int main(int argc, char** argv)
 
                 if (!state.doFile(file))
                 {
-                    Ark::logger.error("Ark::State.doFile(" + file + ") failed");
+                    std::cerr << termcolor::red << "Ark::State.doFile(" << file << ") failed\n" << termcolor::reset;
                     return -1;
                 }
 
@@ -189,7 +191,7 @@ int main(int argc, char** argv)
 
                 if (!state.doFile(file))
                 {
-                    Ark::logger.error("Ark::State.doFile(" + file + ") failed");
+                    std::cerr << termcolor::red << "Ark::State.doFile(" << file << ") failed\n" << termcolor::reset;
                     return -1;
                 }
 
@@ -218,7 +220,7 @@ int main(int argc, char** argv)
 
                 if (!state.doString(eval_expresion))
                 {
-                    Ark::logger.error("Ark::State.doString(" + eval_expresion + ") failed");
+                    std::cerr << termcolor::red << "Ark::State.doString(" << eval_expresion << ") failed\n" << termcolor::reset;
                     return  -1;
                 }
 

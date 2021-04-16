@@ -3,7 +3,6 @@
 #include <cstdio>
 
 #include <Ark/Utils.hpp>
-#include <Ark/Log.hpp>
 
 namespace Ark::internal
 {
