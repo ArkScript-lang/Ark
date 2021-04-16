@@ -41,6 +41,7 @@
 - adding `make_node<T>` and `make_node_list` internally to avoid repetitive code
 - enhancing the parser `atom` method
 - enhancing the way we choose the subparser to use in the parser
+- avoid using `std::endl` if it's not useful
 
 ### Removed
 - `~UserType`, since we are doing manual memory management now
