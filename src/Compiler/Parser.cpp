@@ -55,7 +55,7 @@ namespace Ark
         if (m_debug >= 3)
         {
             Ark::logger.info("(Parser) AST:");
-            std::cout << m_ast << std::endl << std::endl;
+            std::cout << m_ast << "\n\n";
         }
     }
 
@@ -552,15 +552,15 @@ namespace Ark
 
     std::ostream& operator<<(std::ostream& os, const Parser& P) noexcept
     {
-        os << "AST" << std::endl;
+        os << "AST\n";
         if (P.ast().nodeType() == NodeType::List)
         {
             int i = 0;
             for (const auto& node: P.ast().const_list())
-                std::cout << (i++) << ": " << node << std::endl;
+                std::cout << (i++) << ": " << node << '\n';
         }
         else
-            os << "Single item" << std::endl << P.m_ast << std::endl;
+            os << "Single item\n" << P.m_ast << std::endl;
         return os;
     }
 }
