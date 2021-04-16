@@ -32,7 +32,7 @@ namespace Ark::internal
         if (m_debug >= 3)
         {
             Ark::logger.info("(MacroProcessor) AST after processing macros");
-            std::cout << m_ast << std::endl;
+            std::cout << m_ast << '\n';
         }
     }
 
