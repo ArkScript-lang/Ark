@@ -2,10 +2,10 @@
 
 #include <Ark/Compiler/Instructions.hpp>
 #include <Ark/Builtins/Builtins.hpp>
-#include <Ark/Log.hpp>
 #undef abs
 #include <Ark/Utils.hpp>
 
+#include <termcolor.hpp>
 #include <picosha2.hpp>
 
 namespace Ark

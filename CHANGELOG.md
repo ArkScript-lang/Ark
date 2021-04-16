@@ -49,6 +49,7 @@
 - `firstOf` was removed because it's basically a `(@ list 0)` and it was doing the job of `head`
 - `Ark::Utils::toString`, our internal version of `std::to_string`
 - use of static in the MacroProcessor and in the NodeType to string conversion function
+- `Ark::Logger` was removed in favor of `std::cout/cerr` + `termcolor`
 
 ## 3.0.15
 ### Added

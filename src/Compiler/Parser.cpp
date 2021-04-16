@@ -3,7 +3,6 @@
 #include <optional>
 #include <algorithm>
 
-#include <Ark/Log.hpp>
 #include <Ark/Utils.hpp>
 #include <Ark/Builtins/Builtins.hpp>
 
@@ -26,7 +25,7 @@ namespace Ark
         {
             m_file = Ark::Utils::canonicalRelPath(filename);
             if (m_debug >= 2)
-                Ark::logger.data("New parser:", m_file);
+                std::cout << "New parser: " << m_file << '\n';
             m_parent_include.push_back(m_file);
         }
 
@@ -53,10 +52,7 @@ namespace Ark
         checkForInclude(m_ast, m_ast);
 
         if (m_debug >= 3)
-        {
-            Ark::logger.info("(Parser) AST:");
-            std::cout << m_ast << "\n\n";
-        }
+            std::cout << "(Parser) AST\n" << m_ast << "\n\n";
     }
 
     const Node& Parser::ast() const noexcept
@@ -346,7 +342,7 @@ namespace Ark
         else if (token.token == "!")
         {
             if (m_debug >= 2)
-                Ark::logger.info("Found a macro at ", token.line, ":", token.col, " in ", m_file);
+                std::cout << "Found a macro at " << token.line << ':' << token.col << " in " << m_file << '\n';
 
             // macros
             Node block = make_node(NodeType::Macro, token.line, token.col, m_file);
@@ -470,7 +466,7 @@ namespace Ark
             if (first.nodeType() == NodeType::Keyword && first.keyword() == Keyword::Import)
             {
                 if (m_debug >= 2)
-                    Ark::logger.info("Import found in file:", m_file);
+                    std::cout << "Import found in file: " << m_file << '\n';
 
                 std::string file;
                 if (n.const_list()[1].nodeType() == NodeType::String)
@@ -532,8 +528,8 @@ namespace Ark
 
         if (m_debug >= 2)
         {
-            Ark::logger.data("path:", path, " ; file:", file, " ; libdir:", m_libdir);
-            Ark::logger.info("filename:", Ark::Utils::getFilenameFromPath(file));
+            std::cout << "path: " << path << " ; file: " << file << " ; libdir: " << m_libdir << '\n';
+            std::cout << "filename: " << Ark::Utils::getFilenameFromPath(file) << '\n';
         }
 
         // search in the current directory

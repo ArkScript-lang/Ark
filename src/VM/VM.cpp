@@ -1,5 +1,7 @@
 #include <Ark/VM/VM.hpp>
 
+#include <termcolor.hpp>
+
 // read a number from the bytecode
 #define readNumber(var) {                                                \
     var = (static_cast<uint16_t>(m_state->m_pages[m_pp][m_ip]) << 8) +   \

@@ -87,7 +87,6 @@ file(GLOB_RECURSE SOURCE_FILES
 )
 list(APPEND SOURCE_FILES
     ${ark_SOURCE_DIR}/src/Ark.cpp
-    ${ark_SOURCE_DIR}/src/Log.cpp
     ${ark_SOURCE_DIR}/src/Utils.cpp
 )
 

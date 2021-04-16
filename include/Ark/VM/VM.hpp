@@ -27,7 +27,6 @@
 #include <Ark/VM/Scope.hpp>
 #include <Ark/VM/State.hpp>
 #include <Ark/Builtins/Builtins.hpp>
-#include <Ark/Log.hpp>
 #include <Ark/Config.hpp>
 #include <Ark/VM/Plugin.hpp>
 
