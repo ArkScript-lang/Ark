@@ -130,6 +130,15 @@ $ docker pull arkscript/stable:latest
 
 Don't know what to work on? No worries, we have a [list of things to do](https://github.com/ArkScript-lang/Ark/projects) :wink:
 
+### Related projects
+
+We have other projects tightly related to ArkScript, which aren't necessarily C++ oriented:
+* the [Request For Comments](https://github.com/ArkScript-lang/rfc), where we discuss new features for the language
+* the [standard library](https://github.com/ArkScript-lang/std), written in ArkScript itself
+* the [standard library modules](https://github.com/ArkScript-lang/modules), extending the capacities of the language, written in C++
+* [ArkDoc](https://github.com/ArkScript-lang/ArkDoc), a documentation generator à la doxygen, for ArkScript, written in Ruby
+* our [website](https://github.com/ArkScript-lang/arkscript-lang.github.io) written in HTML, CSS and JavaScript
+
 ### Our beloved contributors
 
 Who worked on
