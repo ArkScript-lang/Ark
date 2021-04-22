@@ -1,5 +1,6 @@
 #include <Ark/Compiler/MacroProcessor.hpp>
-
+#include <Ark/Compiler/MacroExecutor.hpp>
+#include <Ark/Compiler/MacroExecutors/SymbolExecutor.hpp>
 #include <Ark/Log.hpp>
 
 #include <algorithm>
@@ -173,6 +174,10 @@ namespace Ark::internal
             }
         };
 
+        MacroExecutor *executor = new SymbolExecutor();
+        MacroExecutor *executor2 = new SymbolExecutor();
+        executor->set_next(executor2);
+        executor->execute(&m_macros);
         if (node.nodeType() == NodeType::Symbol)
         {
             // error ?

@@ -15,6 +15,7 @@
 #include <Ark/Compiler/Node.hpp>
 #include <Ark/Exceptions.hpp>
 #include <Ark/Compiler/makeNodeBasedError.hpp>
+#include <Ark/Compiler/MacroExecutor.hpp>
 
 #include <unordered_map>
 #include <utility>
