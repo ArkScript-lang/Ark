@@ -175,11 +175,9 @@ namespace Ark::internal
         };
 
         MacroExecutor *executor = new SymbolExecutor();
-        MacroExecutor *executor2 = new SymbolExecutor();
-        executor->set_next(executor2);
-        executor->execute(&m_macros);
         if (node.nodeType() == NodeType::Symbol)
         {
+            /*
             // error ?
             Node* macro = find_nearest_macro(node.string());
 
@@ -194,6 +192,9 @@ namespace Ark::internal
             }
 
             return;
+            */
+            executor->execute(&m_macros, node);
+
         }
         else if (node.nodeType() == NodeType::Macro && node.list()[0].nodeType() == NodeType::Keyword)
         {
