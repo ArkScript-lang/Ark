@@ -7,7 +7,7 @@
 namespace Ark::internal {
     class SymbolExecutor : public MacroExecutor{
         public:
-            void execute(std::vector<std::unordered_map<std::string, Node>> *macros);
+            void execute(std::vector<std::unordered_map<std::string, Node>> *macros, Node &node);
     };
 
 }
