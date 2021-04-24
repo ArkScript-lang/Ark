@@ -175,9 +175,13 @@ namespace Ark::internal
         auto func_evaluate = [this](Node& node, bool is_not_body = false){
             return this->evaluate(node, is_not_body);
         };
+        auto func_find_nearest_macro = [this](const std::string& name){
+            return this->find_nearest_macro(name);
+        };
+
         if (node.nodeType() == NodeType::Symbol)
         {
-            executor->execute(&m_macros, node);
+            executor->execute(func_find_nearest_macro, node);
         }
         else if (node.nodeType() == NodeType::Macro && node.list()[0].nodeType() == NodeType::Keyword)
         {

@@ -7,7 +7,7 @@
 namespace Ark::internal {
     class SymbolExecutor : public MacroExecutor{
         public:
-            void execute(std::vector<std::unordered_map<std::string, Node>> *macros, Node &node);
+            void execute(std::function<Node*(const std::string& name)> find_nearest_macro, Node &node);
     };
 
 }
