@@ -15,6 +15,42 @@ namespace Ark::internal
     {
         // initialize default Nodes
         Node::init();
+
+        auto apply_to_func = [this](const std::unordered_map<std::string, Node>& map, Node& target, Node* parent){
+            return this->apply_to(map, target, parent);
+        };
+ 
+        auto func_isTruthy = [this](const Node& node){
+            return this->isTruthy(node);
+        };
+        auto func_evaluate = [this](Node& node, bool is_not_body = false){
+            return this->evaluate(node, is_not_body);
+        };
+        auto func_find_nearest_macro = [this](const std::string& name){
+            return this->find_nearest_macro(name);
+        };
+
+        auto func_registerMacro = [this](Node &node){
+            this->registerMacro(node);
+        };
+
+        auto func_processingError = [this](const std::string& message, const Node& node){
+            this->throwMacroProcessingError(message, node);
+        };
+
+        auto func_execute = [this](Node& node){
+            return this->execute(node);
+        };
+
+        executor_pipeline = new MacroExecutorPipeline(
+            func_find_nearest_macro,
+            func_registerMacro,
+            func_isTruthy,
+             func_evaluate,
+            apply_to_func,
+            func_processingError,
+            func_execute
+        );
     }
 
     void MacroProcessor::feed(const Node& ast)
@@ -141,11 +177,8 @@ namespace Ark::internal
         }
     }
 
-    void MacroProcessor::execute(Node& node)
-    {
-        static std::function<void(const std::unordered_map<std::string, Node>&, Node&, Node*)> apply_to =
-        [this](const std::unordered_map<std::string, Node>& map, Node& target, Node* parent) {
-            if (target.nodeType() == NodeType::Symbol)
+    void MacroProcessor::apply_to(const std::unordered_map<std::string, Node>& map, Node& target, Node* parent){
+        if (target.nodeType() == NodeType::Symbol)
             {
                 if (auto p = map.find(target.string()); p != map.end())
                     target = p->second;
@@ -167,48 +200,12 @@ namespace Ark::internal
 
                 for (std::size_t i = 1, end = subnode.list().size(); i < end; ++i)
                     parent->push_back(subnode.list()[i]);
-            }
-        };
+            }   
+    }
 
-        
-        auto func_isTruthy = [this](const Node& node){
-            return this->isTruthy(node);
-        };
-        auto func_evaluate = [this](Node& node, bool is_not_body = false){
-            return this->evaluate(node, is_not_body);
-        };
-        auto func_find_nearest_macro = [this](const std::string& name){
-            return this->find_nearest_macro(name);
-        };
-
-        auto func_registerMacro = [this](Node &node){
-            this->registerMacro(node);
-        };
-
-        auto func_processingError = [this](const std::string& message, const Node& node){
-            this->throwMacroProcessingError(message, node);
-        };
-
-        auto func_execute = [this](Node& node){
-            return this->execute(node);
-        };
-
-        MacroExecutor *executor = new SymbolExecutor();
-        MacroExecutor *conditionalExecutor = new ConditionalExecutor();
-        MacroExecutor *listExecutor = new ListExecutor();
-        if (node.nodeType() == NodeType::Symbol)
-        {
-            executor->execute(func_find_nearest_macro, func_registerMacro, func_isTruthy, func_evaluate, apply_to, func_processingError, func_execute, node);
-        }
-        else if (node.nodeType() == NodeType::Macro && node.list()[0].nodeType() == NodeType::Keyword)
-        {
-            conditionalExecutor->execute(func_find_nearest_macro, func_registerMacro, func_isTruthy, func_evaluate, apply_to, func_processingError, func_execute, node);
-        }
-        else if (node.nodeType() == NodeType::List && node.const_list().size() > 0
-                && node.list()[0].nodeType() == NodeType::Symbol)
-        {
-            listExecutor->execute(func_find_nearest_macro, func_registerMacro, func_isTruthy, func_evaluate, apply_to, func_processingError, func_execute, node);
-        }
+    void MacroProcessor::execute(Node& node)
+    {
+        executor_pipeline->execute(node);
     }
 
     Node MacroProcessor::evaluate(Node& node, bool is_not_body)

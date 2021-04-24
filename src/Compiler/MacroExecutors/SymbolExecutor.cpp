@@ -9,19 +9,22 @@ namespace Ark::internal {
                             std::function<void(const std::string& message, const Node& node)> throwMacroProcessingError,
                             std::function<void(Node& node)> func_execute,
                             Node &node) {
-        // error ?
-        Node* macro = find_nearest_macro(node.string());
-
-        if (macro != nullptr)
+        if (node.nodeType() == NodeType::Symbol)
         {
-            if (m_debug >= 3)
-                Ark::logger.info("Found macro for", node.string());
+            // error ?
+            Node* macro = find_nearest_macro(node.string());
 
-            // !{name value}
-            if (macro->const_list().size() == 2)
-                node = macro->list()[1];
+            if (macro != nullptr)
+            {
+                if (m_debug >= 3)
+                    Ark::logger.info("Found macro for", node.string());
+
+                // !{name value}
+                if (macro->const_list().size() == 2)
+                    node = macro->list()[1];
+            }
+
+            return;
         }
-
-        return;
     }
 }
