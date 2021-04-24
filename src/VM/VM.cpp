@@ -35,8 +35,6 @@ namespace Ark
     {
         using namespace Ark::internal;
 
-        // initialize default Nodes
-        Node::init();
 
         // clearing frames and setting up a new one
         if ((m_state->m_options & FeaturePersist) == 0)

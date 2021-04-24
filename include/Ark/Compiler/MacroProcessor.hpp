@@ -59,8 +59,6 @@ namespace Ark::internal
         Node m_ast;  ///< The modified AST
         std::vector<std::unordered_map<std::string, Node>> m_macros;  ///< Handling macros in a scope fashion
 
-        Node m_trueNode, m_falseNode, m_nilNode, m_listNode;
-
         /**
          * @brief Find the nearest macro matching a giving name
          * 
