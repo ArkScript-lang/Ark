@@ -186,7 +186,11 @@ namespace Ark::internal
         };
 
         auto func_processingError = [this](const std::string& message, const Node& node){
-            return this->throwMacroProcessingError(message, node);
+            this->throwMacroProcessingError(message, node);
+        };
+
+        auto func_execute = [this](Node& node){
+            return this->execute(node);
         };
 
         MacroExecutor *executor = new SymbolExecutor();
@@ -194,17 +198,16 @@ namespace Ark::internal
         MacroExecutor *listExecutor = new ListExecutor();
         if (node.nodeType() == NodeType::Symbol)
         {
-            executor->execute(func_find_nearest_macro, func_registerMacro, func_isTruthy, func_evaluate, apply_to, func_processingError, node);
+            executor->execute(func_find_nearest_macro, func_registerMacro, func_isTruthy, func_evaluate, apply_to, func_processingError, func_execute, node);
         }
         else if (node.nodeType() == NodeType::Macro && node.list()[0].nodeType() == NodeType::Keyword)
         {
-            conditionalExecutor->execute(func_find_nearest_macro, func_registerMacro, func_isTruthy, func_evaluate, apply_to, func_processingError, node);
+            conditionalExecutor->execute(func_find_nearest_macro, func_registerMacro, func_isTruthy, func_evaluate, apply_to, func_processingError, func_execute, node);
         }
         else if (node.nodeType() == NodeType::List && node.const_list().size() > 0
                 && node.list()[0].nodeType() == NodeType::Symbol)
         {
-            listExecutor->execute(func_find_nearest_macro, func_registerMacro, func_isTruthy, func_evaluate, apply_to, func_processingError, node);
-            
+            listExecutor->execute(func_find_nearest_macro, func_registerMacro, func_isTruthy, func_evaluate, apply_to, func_processingError, func_execute, node);
         }
     }
 
