@@ -8,6 +8,7 @@ namespace Ark::internal {
         std::function<Node(Node& node, bool is_not_body)> evaluate,
         std::function<void(const std::unordered_map<std::string, Node>&, Node&, Node*)> apply_to,
         std::function<void(const std::string& message, const Node& node)> throwMacroProcessingError,
+        std::function<void(Node& node)> func_execute,
         Node &node) {
             Node& first = node.list()[0];
             Node* macro = find_nearest_macro(first.string());
@@ -18,7 +19,7 @@ namespace Ark::internal {
                     Ark::logger.info("Found macro for", first.string());
 
                 if (macro->const_list().size() == 2)
-                    execute(find_nearest_macro, registerMacro, isTruthy, evaluate, apply_to, throwMacroProcessingError, first);
+                    func_execute(first);
                 // !{name (args) body}
                 else if (macro->const_list().size() == 3)
                 {
@@ -69,7 +70,7 @@ namespace Ark::internal {
                     if (!args_applied.empty())
                         apply_to(args_applied, temp_body, nullptr);
                     node = evaluate(temp_body, false);
-                    execute(find_nearest_macro, registerMacro, isTruthy, evaluate, apply_to, throwMacroProcessingError, node);
+                    func_execute(node);
                 }
             }
     }
