@@ -18,6 +18,12 @@ namespace Ark::internal
         this->apply_to = apply_to;
         this->throwMacroProcessingError = throwMacroProcessingError;
         this->func_execute = func_execute;
+
+        this->m_executors = {
+            new SymbolExecutor(),
+            new ConditionalExecutor(),
+            new ListExecutor()
+        };
     }
     void MacroExecutorPipeline::execute(Node &node)
     {
