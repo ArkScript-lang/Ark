@@ -1,4 +1,5 @@
 #include <Ark/VM/VM.hpp>
+#include <Ark/Compiler/Node.hpp>
 
 // read a number from the bytecode
 #define readNumber(var) {                                                \
@@ -33,6 +34,9 @@ namespace Ark
     void VM::init() noexcept
     {
         using namespace Ark::internal;
+
+        // initialize default Nodes
+        Node::init();
 
         // clearing frames and setting up a new one
         if ((m_state->m_options & FeaturePersist) == 0)
