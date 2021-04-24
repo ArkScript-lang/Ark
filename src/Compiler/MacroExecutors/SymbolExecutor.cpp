@@ -1,7 +1,11 @@
 #include <Ark/Compiler/MacroExecutors/SymbolExecutor.hpp>
 #include <Ark/Log.hpp>
 namespace Ark::internal {
-    void SymbolExecutor::execute(std::function<Node*(const std::string& name)> find_nearest_macro, Node &node) {
+    void SymbolExecutor::execute(std::function<Node*(const std::string& name)> find_nearest_macro, 
+                            std::function<void(Node &node)> registerMacro,
+                            std::function<bool(const Node& node)> isTruthy,
+                            std::function<Node(Node& node, bool is_not_body)> evaluate,
+                            Node &node) {
         // error ?
         Node* macro = find_nearest_macro(node.string());
 

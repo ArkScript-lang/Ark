@@ -179,36 +179,17 @@ namespace Ark::internal
             return this->find_nearest_macro(name);
         };
 
+        auto func_registerMacro = [this](Node &node){
+            this->registerMacro(node);
+        };
+
         if (node.nodeType() == NodeType::Symbol)
         {
-            executor->execute(func_find_nearest_macro, node);
+            executor->execute(func_find_nearest_macro, func_registerMacro, func_isTruthy, func_evaluate, node);
         }
         else if (node.nodeType() == NodeType::Macro && node.list()[0].nodeType() == NodeType::Keyword)
         {
-            Node& first = node.list()[0];
-
-            if (first.keyword() == Keyword::If)
-            {
-                Node cond = node.list()[1];
-                Node temp = evaluate(cond, /* is_not_body */ true);
-                Node if_true = node.list()[2];
-                Node if_false = node.const_list().size() > 2 ? node.list()[3] : Node::NilNode;
-
-                // evaluate cond
-                if (isTruthy(temp))
-                    node = if_true;
-                else if (node.const_list().size() > 2)
-                    node = if_false;
-                else
-                {
-                    // remove node because nothing matched
-                    node.list().clear();
-                    node.setNodeType(NodeType::List);
-                }
-
-                if (node.nodeType() == NodeType::Macro)
-                    registerMacro(node);
-            }
+            
         }
         else if (node.nodeType() == NodeType::List && node.const_list().size() > 0
                 && node.list()[0].nodeType() == NodeType::Symbol)
