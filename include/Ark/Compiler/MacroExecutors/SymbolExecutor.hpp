@@ -11,6 +11,8 @@ namespace Ark::internal {
                             std::function<void(Node &node)> registerMacro,
                             std::function<bool(const Node& node)> isTruthy,
                             std::function<Node(Node& node, bool is_not_body)> evaluate,
+                            std::function<void(const std::unordered_map<std::string, Node>&, Node&, Node*)> apply_to,
+                            std::function<void(const std::string& message, const Node& node)> throwMacroProcessingError,                        
                             Node &node);
     };
 
