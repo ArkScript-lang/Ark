@@ -1,6 +1,7 @@
 #include <Ark/Compiler/MacroProcessor.hpp>
 #include <Ark/Compiler/MacroExecutor.hpp>
 #include <Ark/Compiler/MacroExecutors/SymbolExecutor.hpp>
+#include <Ark/Compiler/MacroExecutors/ConditionalExecutor.hpp>
 #include <Ark/Log.hpp>
 #include <Ark/Compiler/Node.hpp>
 
@@ -168,7 +169,7 @@ namespace Ark::internal
             }
         };
 
-        MacroExecutor *executor = new SymbolExecutor();
+        
         auto func_isTruthy = [this](const Node& node){
             return this->isTruthy(node);
         };
@@ -183,13 +184,15 @@ namespace Ark::internal
             this->registerMacro(node);
         };
 
+        MacroExecutor *executor = new SymbolExecutor();
+        MacroExecutor *conditionalExecutor = new ConditionalExecutor();
         if (node.nodeType() == NodeType::Symbol)
         {
             executor->execute(func_find_nearest_macro, func_registerMacro, func_isTruthy, func_evaluate, node);
         }
         else if (node.nodeType() == NodeType::Macro && node.list()[0].nodeType() == NodeType::Keyword)
         {
-            
+            conditionalExecutor->execute(func_find_nearest_macro, func_registerMacro, func_isTruthy, func_evaluate, node);
         }
         else if (node.nodeType() == NodeType::List && node.const_list().size() > 0
                 && node.list()[0].nodeType() == NodeType::Symbol)

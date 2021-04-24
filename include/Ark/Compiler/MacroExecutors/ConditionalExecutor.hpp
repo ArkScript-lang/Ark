@@ -1,5 +1,5 @@
-#ifndef ARK_COMPILER_SYMBOLEXECUTOR_HPP
-#define ARK_COMPILER_SYMBOLEXECUTOR_HPP   
+#ifndef ARK_COMPILER_CONDITIONALEXECUTOR_HPP
+#define ARK_COMPILER_CONDITIONALEXECUTOR_HPP   
 #include <Ark/Compiler/MacroExecutor.hpp>
 #include <unordered_map>
 #include <vector>
