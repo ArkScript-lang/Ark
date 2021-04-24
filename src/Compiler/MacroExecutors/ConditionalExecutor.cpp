@@ -10,6 +10,7 @@ namespace Ark::internal {
         std::function<void(const std::string& message, const Node& node)> throwMacroProcessingError,
         std::function<void(Node& node)> func_execute,
         Node &node) {
+            if (node.nodeType() == NodeType::Macro && node.list()[0].nodeType() == NodeType::Keyword){
        Node& first = node.list()[0];
 
         if (first.keyword() == Keyword::If)
@@ -34,5 +35,6 @@ namespace Ark::internal {
             if (node.nodeType() == NodeType::Macro)
                 registerMacro(node);
         }
+            }
     }
 }

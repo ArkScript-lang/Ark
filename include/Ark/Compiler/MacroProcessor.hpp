@@ -16,7 +16,7 @@
 #include <Ark/Exceptions.hpp>
 #include <Ark/Compiler/makeNodeBasedError.hpp>
 #include <Ark/Compiler/MacroExecutor.hpp>
-
+#include <Ark/Compiler/MacroExecutors/MacroExecutorPipeline.hpp>
 #include <unordered_map>
 #include <utility>
 #include <string>
@@ -59,6 +59,7 @@ namespace Ark::internal
         Node m_ast;  ///< The modified AST
         std::vector<std::unordered_map<std::string, Node>> m_macros;  ///< Handling macros in a scope fashion
 
+        MacroExecutorPipeline *executor_pipeline = nullptr;
         /**
          * @brief Find the nearest macro matching a giving name
          * 
@@ -81,6 +82,9 @@ namespace Ark::internal
             }
             return nullptr;
         }
+
+        void MacroProcessor::apply_to(const std::unordered_map<std::string, Node>& map, Node& target, Node* parent);
+
 
         /**
          * @brief Registers macros based on their type
