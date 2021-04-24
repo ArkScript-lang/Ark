@@ -169,6 +169,12 @@ namespace Ark::internal
         };
 
         MacroExecutor *executor = new SymbolExecutor();
+        auto func_isTruthy = [this](const Node& node){
+            return this->isTruthy(node);
+        };
+        auto func_evaluate = [this](Node& node, bool is_not_body = false){
+            return this->evaluate(node, is_not_body);
+        };
         if (node.nodeType() == NodeType::Symbol)
         {
             executor->execute(&m_macros, node);
