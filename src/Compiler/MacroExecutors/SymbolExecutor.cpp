@@ -1,9 +1,9 @@
 #include <Ark/Compiler/MacroExecutors/SymbolExecutor.hpp>
 #include <Ark/Log.hpp>
 namespace Ark::internal {
-    void SymbolExecutor::execute(std::vector<std::unordered_map<std::string, Node>> *macros, Node &node) {
+    void SymbolExecutor::execute(std::function<Node*(const std::string& name)> find_nearest_macro, Node &node) {
         // error ?
-        Node* macro = find_nearest_macro(macros, node.string());
+        Node* macro = find_nearest_macro(node.string());
 
         if (macro != nullptr)
         {
