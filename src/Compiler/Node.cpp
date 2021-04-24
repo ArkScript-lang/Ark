@@ -5,17 +5,17 @@
 namespace Ark::internal
 {
 
-    Node Node::m_trueNode = Node("true");
-    Node Node::m_falseNode = Node("false");
-    Node Node::m_nilNode = Node("nil");
-    Node Node::m_listNode = Node("list");
+    Node Node::TrueNode = Node("true");
+    Node Node::FalseNode = Node("false");
+    Node Node::NilNode = Node("nil");
+    Node Node::ListNode = Node("list");
 
     void Node::init()
     {
-        Node::m_trueNode.setNodeType(NodeType::Symbol);
-        Node::m_falseNode.setNodeType(NodeType::Symbol);
-        Node::m_nilNode.setNodeType(NodeType::Symbol);
-        Node::m_listNode.setNodeType(NodeType::Symbol);
+        Node::TrueNode.setNodeType(NodeType::Symbol);
+        Node::FalseNode.setNodeType(NodeType::Symbol);
+        Node::NilNode.setNodeType(NodeType::Symbol);
+        Node::ListNode.setNodeType(NodeType::Symbol);
     }
 
     Node::Node(int value) noexcept :

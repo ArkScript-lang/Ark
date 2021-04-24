@@ -63,6 +63,14 @@ namespace Ark::internal
         using Map      = std::unordered_map<std::string, Node>;
         using Value    = mpark::variant<double, std::string, Keyword>;
 
+        static Node TrueNode, FalseNode, NilNode, ListNode;
+
+
+        /**
+         * @brief Initialize static default nodes
+         * 
+         */
+        static void init();
         /**
          * @brief Construct a new Node object
          * 
