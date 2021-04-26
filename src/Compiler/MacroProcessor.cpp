@@ -46,7 +46,7 @@ namespace Ark::internal
             func_find_nearest_macro,
             func_registerMacro,
             func_isTruthy,
-             func_evaluate,
+            func_evaluate,
             apply_to_func,
             func_processingError,
             func_execute

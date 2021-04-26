@@ -1,6 +1,8 @@
 #include <Ark/Compiler/MacroExecutors/ListExecutor.hpp>
 #include <Ark/Log.hpp>
-namespace Ark::internal {
+
+namespace Ark::internal 
+{
     void ListExecutor::execute(
         std::function<Node*(const std::string& name)> find_nearest_macro, 
         std::function<void(Node &node)> registerMacro,
@@ -9,7 +11,8 @@ namespace Ark::internal {
         std::function<void(const std::unordered_map<std::string, Node>&, Node&, Node*)> apply_to,
         std::function<void(const std::string& message, const Node& node)> throwMacroProcessingError,
         std::function<void(Node& node)> func_execute,
-        Node &node) {
+        Node &node) 
+        {
             if (node.nodeType() == NodeType::List && node.const_list().size() > 0){
             Node& first = node.list()[0];
             Node* macro = find_nearest_macro(first.string());
