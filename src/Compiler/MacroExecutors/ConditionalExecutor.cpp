@@ -1,6 +1,8 @@
 #include <Ark/Compiler/MacroExecutors/ConditionalExecutor.hpp>
 #include <Ark/Log.hpp>
-namespace Ark::internal {
+
+namespace Ark::internal 
+{
     void ConditionalExecutor::execute(
         std::function<Node*(const std::string& name)> find_nearest_macro, 
         std::function<void(Node &node)> registerMacro,
@@ -9,7 +11,8 @@ namespace Ark::internal {
         std::function<void(const std::unordered_map<std::string, Node>&, Node&, Node*)> apply_to,
         std::function<void(const std::string& message, const Node& node)> throwMacroProcessingError,
         std::function<void(Node& node)> func_execute,
-        Node &node) {
+        Node &node) 
+        {
             if (node.nodeType() == NodeType::Macro && node.list()[0].nodeType() == NodeType::Keyword){
        Node& first = node.list()[0];
 

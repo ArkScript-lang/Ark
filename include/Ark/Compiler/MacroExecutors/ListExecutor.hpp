@@ -4,8 +4,11 @@
 #include <unordered_map>
 #include <vector>
 #include <Ark/Compiler/Node.hpp>
-namespace Ark::internal {
-    class ListExecutor : public MacroExecutor{
+
+namespace Ark::internal 
+{
+    class ListExecutor : public MacroExecutor
+    {
         public:
             void execute(std::function<Node*(const std::string& name)> find_nearest_macro, 
                                 std::function<void(Node &node)> registerMacro,

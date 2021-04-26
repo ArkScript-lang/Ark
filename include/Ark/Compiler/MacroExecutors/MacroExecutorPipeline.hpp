@@ -6,8 +6,10 @@
 #include <Ark/Compiler/MacroExecutors/ListExecutor.hpp>
 #include <Ark/Compiler/MacroExecutors/ConditionalExecutor.hpp>
 
-namespace Ark::internal {
-    class MacroExecutorPipeline {
+namespace Ark::internal 
+{
+    class MacroExecutorPipeline 
+    {
         std::function<Node*(const std::string& name)> find_nearest_macro;
         std::function<void(Node &node)> registerMacro;
         std::function<bool(const Node& node)> isTruthy;
@@ -17,7 +19,7 @@ namespace Ark::internal {
         std::function<void(Node& node)> func_execute;
         std::vector<MacroExecutor*> m_executors;
     public:
-        MacroExecutorPipeline() {};
+        MacroExecutorPipeline() {}
         MacroExecutorPipeline(
             std::function<Node*(const std::string& name)> find_nearest_macro, 
                             std::function<void(Node &node)> registerMacro,
