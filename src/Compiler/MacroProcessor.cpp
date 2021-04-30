@@ -42,7 +42,14 @@ namespace Ark::internal
             return this->execute(node);
         };
 
-        executor_pipeline = new MacroExecutorPipeline(
+        std::vector<std::shared_ptr<MacroExecutor>> executors = 
+        {
+            std::make_shared<SymbolExecutor>(),
+            std::make_shared<ConditionalExecutor>(),
+            std::make_shared<ListExecutor>(),
+        };
+
+        executor_pipeline = std::make_unique<MacroExecutorPipeline>(
             func_find_nearest_macro,
             func_registerMacro,
             func_isTruthy,
@@ -50,11 +57,7 @@ namespace Ark::internal
             apply_to_func,
             func_processingError,
             func_execute,
-            {
-                std::make_shared<SymbolExecutor>(),
-                std::make_shared<ConditionalExecutor>(),
-                std::make_shared<ListExecutor>(),
-            }
+            executors
         );
 
     
