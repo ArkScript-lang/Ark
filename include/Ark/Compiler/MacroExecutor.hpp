@@ -10,9 +10,9 @@ namespace Ark::internal
     class MacroExecutor 
     {
         protected:
-            unsigned int m_debug = 0;
+            unsigned int m_debug;
         public:
-            MacroExecutor (unsigned int debug = 0) : m_debug(debug) {}
+            MacroExecutor (unsigned int debug = 0);
             virtual void execute(std::function<Node*(const std::string& name)> find_nearest_macro, 
                                     std::function<void(Node &node)> registerMacro,
                                     std::function<bool(const Node& node)> isTruthy,

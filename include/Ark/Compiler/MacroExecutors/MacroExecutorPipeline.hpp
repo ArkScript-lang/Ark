@@ -17,10 +17,9 @@ namespace Ark::internal
         std::function<void(const std::unordered_map<std::string, Node>&, Node&, Node*)> apply_to;
         std::function<void(const std::string& message, const Node& node)> throwMacroProcessingError;                       
         std::function<void(Node& node)> func_execute;
-        std::vector<std::shared_ptr<MacroExecutor>> m_executors = std::vector<std::shared_ptr<MacroExecutor>>();
+        std::vector<std::shared_ptr<MacroExecutor>> m_executors;
 
     public:
-        MacroExecutorPipeline() {}
         MacroExecutorPipeline(
             std::function<Node*(const std::string& name)> find_nearest_macro, 
                             std::function<void(Node &node)> registerMacro,

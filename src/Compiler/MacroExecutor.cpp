@@ -2,5 +2,8 @@
 
 namespace Ark::internal 
 {
-   
+   MacroExecutor::MacroExecutor (unsigned int debug) 
+   {
+       m_debug = debug;
+   }
 }
