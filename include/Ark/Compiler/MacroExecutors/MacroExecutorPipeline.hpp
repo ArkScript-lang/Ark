@@ -17,7 +17,8 @@ namespace Ark::internal
         std::function<void(const std::unordered_map<std::string, Node>&, Node&, Node*)> apply_to;
         std::function<void(const std::string& message, const Node& node)> throwMacroProcessingError;                       
         std::function<void(Node& node)> func_execute;
-        std::vector<MacroExecutor*> m_executors;
+        std::vector<std::shared_ptr<MacroExecutor>> m_executors = std::vector<std::shared_ptr<MacroExecutor>>();
+
     public:
         MacroExecutorPipeline() {}
         MacroExecutorPipeline(
@@ -27,9 +28,11 @@ namespace Ark::internal
                             std::function<Node(Node& node, bool is_not_body)> evaluate,
                             std::function<void(const std::unordered_map<std::string, Node>&, Node&, Node*)> apply_to,
                             std::function<void(const std::string& message, const Node& node)> throwMacroProcessingError,                        
-                            std::function<void(Node& node)> func_execute
+                            std::function<void(Node& node)> func_execute,
+                            std::vector<std::shared_ptr<MacroExecutor>> executors
         );
         void execute(Node &node);
+
     };
 }
 

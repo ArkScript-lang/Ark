@@ -9,7 +9,9 @@ namespace Ark::internal
         std::function<Node(Node &node, bool is_not_body)> evaluate,
         std::function<void(const std::unordered_map<std::string, Node> &, Node &, Node *)> apply_to,
         std::function<void(const std::string &message, const Node &node)> throwMacroProcessingError,
-        std::function<void(Node &node)> func_execute)
+        std::function<void(Node &node)> func_execute,
+        std::vector<std::shared_ptr<MacroExecutor>> executors
+    )
     {
         this->find_nearest_macro = find_nearest_macro;
         this->registerMacro = registerMacro;
@@ -19,15 +21,11 @@ namespace Ark::internal
         this->throwMacroProcessingError = throwMacroProcessingError;
         this->func_execute = func_execute;
 
-        this->m_executors = {
-            new SymbolExecutor(),
-            new ConditionalExecutor(),
-            new ListExecutor()
-        };
+       m_executors = executors;
     }
     void MacroExecutorPipeline::execute(Node &node)
     {
-        for (MacroExecutor *executor : m_executors)
+        for (std::shared_ptr<MacroExecutor> executor : m_executors)
         {
             executor->execute(
                 find_nearest_macro,
