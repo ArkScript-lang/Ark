@@ -49,8 +49,15 @@ namespace Ark::internal
             func_evaluate,
             apply_to_func,
             func_processingError,
-            func_execute
+            func_execute,
+            {
+                std::make_shared<SymbolExecutor>(),
+                std::make_shared<ConditionalExecutor>(),
+                std::make_shared<ListExecutor>(),
+            }
         );
+
+    
     }
 
     void MacroProcessor::feed(const Node& ast)
