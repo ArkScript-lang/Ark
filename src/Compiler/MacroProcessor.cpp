@@ -16,32 +16,60 @@ namespace Ark::internal
         // initialize default Nodes
         Node::init();
 
-        auto apply_to_func = [this](const std::unordered_map<std::string, Node>& map, Node& target, Node* parent){
-            return this->apply_to(map, target, parent);
+        const auto& apply_to_func 
+        { 
+            [this](const std::unordered_map<std::string, Node>& map, Node& target, Node* parent)
+            {
+                return this->apply_to(map, target, parent);
+            }
         };
  
-        auto func_isTruthy = [this](const Node& node){
-            return this->isTruthy(node);
+        const auto& func_isTruthy 
+        { 
+            [this](const Node& node)
+            {
+                return this->isTruthy(node);
+            }
         };
-        auto func_evaluate = [this](Node& node, bool is_not_body = false){
-            return this->evaluate(node, is_not_body);
+        const auto& func_evaluate 
+        {
+            [this](Node& node, bool is_not_body = false)
+            {
+                return this->evaluate(node, is_not_body);
+            }
         };
-        auto func_find_nearest_macro = [this](const std::string& name){
-            return this->find_nearest_macro(name);
+        const auto& func_find_nearest_macro {
+            [this](const std::string& name)
+            {
+                return this->find_nearest_macro(name);
+            }
         };
 
-        auto func_registerMacro = [this](Node &node){
+        const auto& func_registerMacro
+        {
+            [this](Node &node)
+            {
             this->registerMacro(node);
+            }
         };
 
-        auto func_processingError = [this](const std::string& message, const Node& node){
+        const auto& func_processingError 
+        {
+            [this](const std::string& message, const Node& node)
+            {
             this->throwMacroProcessingError(message, node);
+            }
         };
 
-        auto func_execute = [this](Node& node){
-            return this->execute(node);
+        const auto& func_execute 
+        {
+            [this](Node& node)
+            {
+                return this->execute(node);
+            }
         };
 
+      
         std::vector<std::shared_ptr<MacroExecutor>> executors = 
         {
             std::make_shared<SymbolExecutor>(),
