@@ -13,13 +13,13 @@ namespace Ark::internal
             unsigned int m_debug;
         public:
             MacroExecutor (unsigned int debug = 0);
-            virtual void execute(std::function<Node*(const std::string& name)> find_nearest_macro, 
-                                    std::function<void(Node &node)> registerMacro,
-                                    std::function<bool(const Node& node)> isTruthy,
-                                    std::function<Node(Node& node, bool is_not_body)> evaluate,
-                                    std::function<void(const std::unordered_map<std::string, Node>&, Node&, Node*)> apply_to,
-                                    std::function<void(const std::string& message, const Node& node)> throwMacroProcessingError,
-                                    std::function<void(Node& node)> func_execute,
+            virtual void execute(std::function<Node*(const std::string& name)> const& find_nearest_macro, 
+                                    std::function<void(Node &node)> const& registerMacro,
+                                    std::function<bool(const Node& node)> const& isTruthy,
+                                    std::function<Node(Node& node, bool is_not_body)> const& evaluate,
+                                    std::function<void(const std::unordered_map<std::string, Node>&, Node&, Node*)> const& apply_to,
+                                    std::function<void(const std::string& message, const Node& node)> const& throwMacroProcessingError,
+                                    std::function<void(Node& node)> const& func_execute,
                                     Node &node) = 0;
     };
 
