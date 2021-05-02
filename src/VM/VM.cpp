@@ -1,5 +1,4 @@
 #include <Ark/VM/VM.hpp>
-#include <Ark/Compiler/Node.hpp>
 
 // read a number from the bytecode
 #define readNumber(var) {                                                \
