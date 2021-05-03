@@ -15,10 +15,20 @@ Don't know what to work on? No worries, we have a [list of things to do](https:/
 
 ## C++ coding guidelines
 
+* Avoid `auto` whenever possible. Using it is tolerated for complex types such as iterators
 * Indent with **4 spaces**
 * Every brace (`{`, `}`) must be on its own line
 * Conditions with a single statement (`if (condition) do_this();`) do not need to be enclosed in braces
-* Put a space between `for`, `while`, `if` and `(...)`, around each `=` sign (wherever it is, even in for-loops)
+* Put a space between `for`, `while`, `if` and `(...)`, around each `=` sign (wherever it is, even in for-loops), between `#include` and the file to include
+* For-each loops should use const references or rvalue references instead of plain copies:
+```cpp
+// DEPRECATED
+for (auto value : container)
+
+// PREFERRED
+for (const auto& value : container)
+for (auto&& value : container)
+```
 * For-loops should be optimized whenever possible, as follows:
 ```cpp
 // DEPRECATED
@@ -30,6 +40,76 @@ for (std::size_t i = 0, end = container.size(); i < end; i++)
     ...
 ```
 * Header-guards should be written using `#ifndef`, `#define` and `#endif`, the define being in MACRO_CASE
+* Functions and methods which can not throw exceptions must be marked `noexcept`
+* In header files, have a blank line between each method / function / structure / constant ; also put blanks line around includes blocks
+* In classes, avoid using `this`. Prefix every member variable with `m_`
+* In classes, do not declare the methods in the header file, only in the source file (unless they are `inline` or templated)
+* Add Doxygen file comments at the top of each newly created header file:
+```cpp
+/**
+ * @file Lexer.hpp
+ * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @brief Tokenize ArkScript code
+ * @version 0.1
+ * @date 2020-10-27
+ * 
+ * @copyright Copyright (c) 2020
+ * 
+ */
+ 
+#include <bla>
+
+code...
+```
+
+Snippet to recapitulate guidelines for headers:
+
+```cpp
+/**
+ * @file Lexer.hpp
+ * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @brief Tokenize ArkScript code
+ * @version 0.1
+ * @date 2020-10-27
+ * 
+ * @copyright Copyright (c) 2020
+ * 
+ */
+ 
+#ifndef HEADER_GUARD
+#define HEADER_GUARD
+ 
+#include <Ark/Compiler/Something.hpp>
+#include <vector>
+
+namespace Ark
+{
+    /**
+     * @brief doxygen documentation about the class
+     *
+     */
+    class Lexer
+    {
+    public:
+        /**
+         * @brief doxygen documentation here
+         * 
+         */
+        Lexer();
+        
+        /**
+         * @brief doxygen documentation here
+         * 
+         */
+        void a_method();
+        
+    private:
+        int m_member;  ///< This is a doxygen comment
+    };
+}
+
+#endif
+```
 
 ## ArkScript coding guidelines
 
