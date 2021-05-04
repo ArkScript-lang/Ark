@@ -7,6 +7,10 @@
 
 namespace Ark::internal 
 {
+    /**
+     * @brief Handles Symbol macros
+     * 
+     */
     class SymbolExecutor : public MacroExecutor
     {
         public:
