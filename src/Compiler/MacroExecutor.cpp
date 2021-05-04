@@ -1,5 +1,6 @@
 #include <Ark/Compiler/MacroProcessor.hpp>
 #include <Ark/Compiler/MacroExecutor.hpp>
+
 namespace Ark::internal
 {
     MacroProcessor* MacroExecutor::m_macroprocessor = nullptr;
