@@ -8,26 +8,15 @@
 
 namespace Ark::internal 
 {
+    class MacroProcessor;
     class MacroExecutorPipeline 
     {
-        std::function<Node*(const std::string& name)> const m_find_nearest_macro;
-        std::function<void(Node &node)> const m_registerMacro;
-        std::function<bool(const Node& node)> const m_isTruthy;
-        std::function<Node(Node& node, bool is_not_body)> const m_evaluate;
-        std::function<void(const std::unordered_map<std::string, Node>&, Node&, Node*)> const m_apply_to;
-        std::function<void(const std::string& message, const Node& node)> const m_throwMacroProcessingError;                       
-        std::function<void(Node& node)> const m_func_execute;
+        MacroProcessor *m_macroprocessor;
         std::vector<std::shared_ptr<MacroExecutor>> m_executors;
 
     public:
         MacroExecutorPipeline(
-            std::function<Node*(const std::string& name)> const& find_nearest_macro, 
-            std::function<void(Node &node)> const& registerMacro,
-            std::function<bool(const Node& node)> const& isTruthy,
-            std::function<Node(Node& node, bool is_not_body)> const& evaluate,
-            std::function<void(const std::unordered_map<std::string, Node>&, Node&, Node*)> const& apply_to,
-            std::function<void(const std::string& message, const Node& node)> const& throwMacroProcessingError,                        
-            std::function<void(Node& node)> const& func_execute,
+            MacroProcessor *macroprocessor,
             std::vector<std::shared_ptr<MacroExecutor>> executors
         );
         void execute(Node &node);

@@ -1,14 +1,7 @@
 #include <Ark/Compiler/MacroExecutors/SymbolExecutor.hpp>
 #include <Ark/Log.hpp>
 namespace Ark::internal {
-    void SymbolExecutor::execute(std::function<Node*(const std::string& name)> const& find_nearest_macro, 
-                            std::function<void(Node &node)> const& registerMacro,
-                            std::function<bool(const Node& node)> const& isTruthy,
-                            std::function<Node(Node& node, bool is_not_body)> const& evaluate,
-                            std::function<void(const std::unordered_map<std::string, Node>&, Node&, Node*)> const& apply_to,
-                            std::function<void(const std::string& message, const Node& node)> const& throwMacroProcessingError,
-                            std::function<void(Node& node)> const& func_execute,
-                            Node &node) 
+    void SymbolExecutor::execute(Node &node) 
                             {
         if (node.nodeType() == NodeType::Symbol)
         {

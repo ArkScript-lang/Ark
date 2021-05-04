@@ -3,15 +3,7 @@
 
 namespace Ark::internal 
 {
-    void ListExecutor::execute(
-        std::function<Node*(const std::string& name)> const& find_nearest_macro, 
-        std::function<void(Node &node)> const& registerMacro,
-        std::function<bool(const Node& node)> const& isTruthy,
-        std::function<Node(Node& node, bool is_not_body)> const& evaluate,
-        std::function<void(const std::unordered_map<std::string, Node>&, Node&, Node*)> const& apply_to,
-        std::function<void(const std::string& message, const Node& node)> const& throwMacroProcessingError,
-        std::function<void(Node& node)> const& func_execute,
-        Node &node) 
+    void ListExecutor::execute(Node &node) 
         {
             if (node.nodeType() == NodeType::List && node.const_list().size() > 0){
             Node& first = node.list()[0];
@@ -23,7 +15,7 @@ namespace Ark::internal
                     Ark::logger.info("Found macro for", first.string());
 
                 if (macro->const_list().size() == 2)
-                    func_execute(first);
+                    m_execute(first);
                 // !{name (args) body}
                 else if (macro->const_list().size() == 3)
                 {
@@ -74,7 +66,7 @@ namespace Ark::internal
                     if (!args_applied.empty())
                         apply_to(args_applied, temp_body, nullptr);
                     node = evaluate(temp_body, false);
-                    func_execute(node);
+                    m_execute(node);
                 }
             }
             }

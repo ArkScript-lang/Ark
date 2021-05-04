@@ -15,76 +15,16 @@ namespace Ark::internal
     {
         // initialize default Nodes
         Node::init();
-
-        const auto& apply_to_func 
-        { 
-            [this](const std::unordered_map<std::string, Node>& map, Node& target, Node* parent)
-            {
-                return this->apply_to(map, target, parent);
-            }
-        };
- 
-        const auto& func_isTruthy 
-        { 
-            [this](const Node& node)
-            {
-                return this->isTruthy(node);
-            }
-        };
-        const auto& func_evaluate 
-        {
-            [this](Node& node, bool is_not_body = false)
-            {
-                return this->evaluate(node, is_not_body);
-            }
-        };
-        const auto& func_find_nearest_macro {
-            [this](const std::string& name)
-            {
-                return this->find_nearest_macro(name);
-            }
-        };
-
-        const auto& func_registerMacro
-        {
-            [this](Node &node)
-            {
-            this->registerMacro(node);
-            }
-        };
-
-        const auto& func_processingError 
-        {
-            [this](const std::string& message, const Node& node)
-            {
-            this->throwMacroProcessingError(message, node);
-            }
-        };
-
-        const auto& func_execute 
-        {
-            [this](Node& node)
-            {
-                return this->execute(node);
-            }
-        };
-
-      
         std::vector<std::shared_ptr<MacroExecutor>> executors = 
         {
             std::make_shared<SymbolExecutor>(),
             std::make_shared<ConditionalExecutor>(),
-            std::make_shared<ListExecutor>(),
+            std::make_shared<ListExecutor>()
         };
-
+ 
+   
         executor_pipeline = std::make_unique<MacroExecutorPipeline>(
-            func_find_nearest_macro,
-            func_registerMacro,
-            func_isTruthy,
-            func_evaluate,
-            apply_to_func,
-            func_processingError,
-            func_execute,
+            this,
             executors
         );
 
