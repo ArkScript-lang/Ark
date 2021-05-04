@@ -70,7 +70,7 @@ namespace Ark::internal
          * @brief Initialize static default nodes
          * 
          */
-        static void init();
+        static void init() noexcept;
         /**
          * @brief Construct a new Node object
          * 
