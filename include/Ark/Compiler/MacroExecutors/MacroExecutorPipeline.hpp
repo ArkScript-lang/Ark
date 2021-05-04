@@ -1,3 +1,14 @@
+/**
+ * @file MacroExecutorPipeline.hpp
+ * @author Ray John Alovera (rakista112@gmail.com)
+ * @brief The Chain of Responsibility class for running nodes through MacroExecutors
+ * @version 0.1
+ * @date 2021-05-04
+ * 
+ * @copyright Copyright (c) 2021
+ * 
+ */
+
 #ifndef ARK_COMPILER_EXECUTORPIPELINE_HPP
 #define ARK_COMPILER_EXECUTORPIPELINE_HPP
 #include <vector>
