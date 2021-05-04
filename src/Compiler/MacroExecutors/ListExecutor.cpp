@@ -1,11 +1,12 @@
 #include <Ark/Compiler/MacroExecutors/ListExecutor.hpp>
 #include <Ark/Log.hpp>
 
-namespace Ark::internal 
+namespace Ark::internal
 {
-    void ListExecutor::execute(Node &node) 
+    void ListExecutor::execute(Node& node)
+    {
+        if (node.nodeType() == NodeType::List && node.const_list().size() > 0)
         {
-            if (node.nodeType() == NodeType::List && node.const_list().size() > 0){
             Node& first = node.list()[0];
             Node* macro = find_nearest_macro(first.string());
 
@@ -69,6 +70,6 @@ namespace Ark::internal
                     m_execute(node);
                 }
             }
-            }
+        }
     }
 }

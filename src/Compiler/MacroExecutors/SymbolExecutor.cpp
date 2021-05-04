@@ -1,8 +1,9 @@
 #include <Ark/Compiler/MacroExecutors/SymbolExecutor.hpp>
 #include <Ark/Log.hpp>
-namespace Ark::internal {
-    void SymbolExecutor::execute(Node &node) 
-                            {
+namespace Ark::internal
+{
+    void SymbolExecutor::execute(Node& node)
+    {
         if (node.nodeType() == NodeType::Symbol)
         {
             // error ?
