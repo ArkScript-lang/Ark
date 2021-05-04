@@ -155,7 +155,8 @@ namespace Ark::internal
         }
     }
 
-    void MacroProcessor::apply_to(const std::unordered_map<std::string, Node>& map, Node& target, Node* parent){
+    void MacroProcessor::apply_to(const std::unordered_map<std::string, Node>& map, Node& target, Node* parent)
+    {
         if (target.nodeType() == NodeType::Symbol)
             {
                 if (auto p = map.find(target.string()); p != map.end())
