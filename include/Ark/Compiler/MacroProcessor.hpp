@@ -83,7 +83,7 @@ namespace Ark::internal
             return nullptr;
         }
 
-        void MacroProcessor::apply_to(const std::unordered_map<std::string, Node>& map, Node& target, Node* parent);
+        void apply_to(const std::unordered_map<std::string, Node>& map, Node& target, Node* parent);
 
 
         /**
