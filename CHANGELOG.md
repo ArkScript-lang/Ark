@@ -23,6 +23,8 @@
 - verifying that we give enough arguments
 - we can now import macros from other files
 - undefining macros is now possible by using `!{undef macro_name}`
+- `str:join` added in the standard library
+- `str:split` can now take longer separators
 
 ### Changed
 - updating doxyfile and some docstrings
@@ -42,6 +44,7 @@
 - enhancing the parser `atom` method
 - enhancing the way we choose the subparser to use in the parser
 - avoid using `std::endl` if it's not useful
+- CI was split into multiple files to ease maintenance
 
 ### Removed
 - `~UserType`, since we are doing manual memory management now
