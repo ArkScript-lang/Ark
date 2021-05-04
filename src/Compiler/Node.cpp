@@ -10,7 +10,7 @@ namespace Ark::internal
     Node Node::NilNode = Node("nil");
     Node Node::ListNode = Node("list");
 
-    void Node::init()
+    void Node::init() noexcept
     {
         Node::TrueNode.setNodeType(NodeType::Symbol);
         Node::FalseNode.setNodeType(NodeType::Symbol);
