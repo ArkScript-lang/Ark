@@ -7,20 +7,26 @@
 
 namespace Ark::internal
 {
+    class MacroProcessor;
     class MacroExecutor 
     {
         protected:
             unsigned int m_debug;
+            static MacroProcessor *m_macroprocessor;
+
+            Node* find_nearest_macro(const std::string& name);
+            void registerMacro(Node &node);
+            bool isTruthy(const Node& node);
+            Node evaluate(Node& node, bool is_not_body);
+            void apply_to(const std::unordered_map<std::string, Node>&, Node&, Node*);
+            void throwMacroProcessingError(const std::string& message, const Node& node);
+            void m_execute(Node& node);
         public:
             MacroExecutor (unsigned int debug = 0);
-            virtual void execute(std::function<Node*(const std::string& name)> const& find_nearest_macro, 
-                                    std::function<void(Node &node)> const& registerMacro,
-                                    std::function<bool(const Node& node)> const& isTruthy,
-                                    std::function<Node(Node& node, bool is_not_body)> const& evaluate,
-                                    std::function<void(const std::unordered_map<std::string, Node>&, Node&, Node*)> const& apply_to,
-                                    std::function<void(const std::string& message, const Node& node)> const& throwMacroProcessingError,
-                                    std::function<void(Node& node)> const& func_execute,
-                                    Node &node) = 0;
+            static void init(MacroProcessor *macroprocessor);
+            virtual void execute(Node &node) = 0;
+
+
     };
 
    

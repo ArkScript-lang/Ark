@@ -58,7 +58,7 @@ namespace Ark::internal
         uint16_t m_options;
         Node m_ast;  ///< The modified AST
         std::vector<std::unordered_map<std::string, Node>> m_macros;  ///< Handling macros in a scope fashion
-
+        friend class MacroExecutor;
         std::unique_ptr<MacroExecutorPipeline> executor_pipeline;
         /**
          * @brief Find the nearest macro matching a giving name
