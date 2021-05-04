@@ -13,6 +13,8 @@
     - values macros: `!{name value}`
     - functions macros: `!{name (a b c ...args) body}`
 - `sys:platform`, containing the current platform name
+- `str:join` added in the standard library
+- `str:split` can now take longer separators
 
 ### Changed
 - updating doxyfile and some docstrings
