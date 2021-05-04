@@ -1,24 +1,24 @@
 #include <Ark/Compiler/MacroProcessor.hpp>
 #include <Ark/Compiler/MacroExecutor.hpp>
-namespace Ark::internal 
+namespace Ark::internal
 {
-    MacroProcessor *MacroExecutor::m_macroprocessor = nullptr;
-    MacroExecutor::MacroExecutor (unsigned int debug) : m_debug(debug)
+    MacroProcessor* MacroExecutor::m_macroprocessor = nullptr;
+    MacroExecutor::MacroExecutor(unsigned int debug) : m_debug(debug)
     {
         // macroprocessor pointer will be initialized in static init
     }
 
-    void MacroExecutor::init(MacroProcessor *macroprocessor)
+    void MacroExecutor::init(MacroProcessor* macroprocessor)
     {
         MacroExecutor::m_macroprocessor = macroprocessor;
     }
 
-    Node* MacroExecutor::find_nearest_macro(const std::string& name) 
+    Node* MacroExecutor::find_nearest_macro(const std::string& name)
     {
         return MacroExecutor::m_macroprocessor->find_nearest_macro(name);
     }
 
-    void MacroExecutor::registerMacro(Node &node)
+    void MacroExecutor::registerMacro(Node& node)
     {
         MacroExecutor::m_macroprocessor->registerMacro(node);
     }
@@ -27,6 +27,7 @@ namespace Ark::internal
     {
         return MacroExecutor::m_macroprocessor->isTruthy(node);
     }
+
     Node MacroExecutor::evaluate(Node& node, bool is_not_body)
     {
         return MacroExecutor::m_macroprocessor->evaluate(node, is_not_body);
