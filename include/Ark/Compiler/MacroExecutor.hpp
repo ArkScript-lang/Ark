@@ -1,3 +1,14 @@
+/**
+ * @file MacroExecutor.hpp
+ * @author Ray John Alovera (rakista112@gmail.com)
+ * @brief The base class for all MacroExecutors
+ * @version 0.1
+ * @date 2021-05-04
+ * 
+ * @copyright Copyright (c) 2021
+ * 
+ */
+
 #ifndef ARK_COMPILER_EXECUTOR_HPP
 #define ARK_COMPILER_EXECUTOR_HPP
 
