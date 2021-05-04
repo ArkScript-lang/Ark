@@ -47,7 +47,7 @@ endif()
 set(ARK_COMPILATION_OPTIONS ${CMAKE_CXX_FLAGS})
 set(ARK_COMPILER            ${CMAKE_CXX_COMPILER_ID})
 
-set(ARK_BUILD_EXE       On CACHE BOOL "Build a standalone ark executable")
+set(ARK_BUILD_EXE       Off CACHE BOOL "Build a standalone ark executable")
 set(ARK_ENABLE_SYSTEM   On  CACHE BOOL "Enable sys:exec")  # enable use of (sys:exec "command here")
 set(ARK_PROFILER        Off CACHE BOOL "Enable coz profiler")
 set(ARK_PROFILER_COUNT  Off CACHE BOOL "Enable creations/copies/moves counting on the Value")
