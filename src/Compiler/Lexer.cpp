@@ -162,7 +162,8 @@ namespace Ark::internal
                         {
                             switch (ctrl_char[0])
                             {
-                                case 'x': break; /// @todo
+                                /// @todo
+                                case 'x': break;
 
                                 case 'u':
                                 {
