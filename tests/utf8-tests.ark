@@ -42,8 +42,8 @@
         (set i (+ 1 i))
     })
 
-    (set tests (assert-eq "\U0001f47f" "\U0001F47F" "👿" "checking conversion pattern \\U and its emote" tests))
-    (set tests (assert-eq "\u1e0b" "\u1E0B" "ḋ" "checking conversion pattern \\u and its emote" tests))
+    (set tests (assert-eq "\U0001f47f" "👿" "checking conversion pattern \\U and its emote" tests))
+    (set tests (assert-eq "\u1E0B" "ḋ" "checking conversion pattern \\u and its emote" tests))
 
     (recap "UTF8 tests passed" tests (- (time) start-time))
 
