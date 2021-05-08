@@ -18,7 +18,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
       with:
-        submodules: true
         recursive: true
 
     - name: Update compilers
