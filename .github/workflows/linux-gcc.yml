@@ -18,14 +18,11 @@ jobs:
     steps:
     - uses: actions/checkout@v2
       with:
-        recursive: true
+        submodules: recursive
 
     - name: Update compilers
       shell: bash
       run: |
-        ls
-        ls thirdparties
-        ls thirdparties/utf8_decoder
         sudo apt-add-repository -y ppa:ubuntu-toolchain-r/test
         sudo apt-get -yq install g++-8 gcc-8
 
