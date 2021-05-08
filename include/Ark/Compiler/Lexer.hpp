@@ -21,8 +21,7 @@
 #include <Ark/Exceptions.hpp>
 #include <Ark/Utils.hpp>
 
-
-#include <utf8-decoder/utf8_decoder.h>
+#include <utf8_decoder/utf8_decoder.h>
 
 namespace Ark::internal
 {
