@@ -25,7 +25,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
       with:
-        recursive: true
+        submodules: recursive
 
     - name: Configure CMake
       shell: bash
