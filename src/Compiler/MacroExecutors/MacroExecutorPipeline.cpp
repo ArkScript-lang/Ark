@@ -12,7 +12,10 @@ namespace Ark::internal
     {
         for (const std::shared_ptr<MacroExecutor>& executor : m_executors)
         {
-            executor->execute(node);
+            if(executor->canHandle(node))
+            {
+                executor->execute(node);
+            }
         }
     }
 }
