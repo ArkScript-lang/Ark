@@ -107,6 +107,13 @@ namespace Ark::internal
          * @param node the node that contains a macro
          */
         virtual void execute(Node &node) = 0;
+
+        /**
+         * @brief Checks if the executor can execute the passed Node
+         * 
+         * @param node the node that contains a macro
+         */
+        virtual bool canHandle(Node &node) = 0;
     };
 
 }

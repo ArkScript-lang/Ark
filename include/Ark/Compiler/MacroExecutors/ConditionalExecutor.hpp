@@ -26,6 +26,7 @@ namespace Ark::internal
     {
     public:
         void execute(Node &node);
+        bool canHandle(Node &node);
     };
 
 }
