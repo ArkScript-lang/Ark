@@ -91,7 +91,11 @@ More examples are available under the folder `examples/`.
 
 **Important**: this method will add the folder where ArkScript will be downloaded to your PATH. The executable being named `ark` you can have **conflicts** with another existing program named `ark` as well, [a KDE archiving tool](https://linux.die.net/man/1/ark).
 
+Save the following code as `install_arkscript.sh` and run `bash install_arkscript.sh`.
+
 ```bash
+#!/usr/bin/env bash
+set -euo pipefail
 mkdir -p "${HOME}/.ark"
 cd "${HOME}/.ark"
 install_dir=`pwd`
@@ -107,13 +111,32 @@ fi
 
 # export arkscript path to your PATH variable to call it from everywhere
 # export also ARKSCRIPT_PATH for arkscript to find its standard library
-cat >> $HOME/.bashrc<< EOF
-export PATH="\$PATH:${install_dir}/"
+shellrc=""
+path_update="export PATH=\"\$PATH:${install_dir}\""
+SHELL=$(echo $SHELL | rev | cut -d'/' -f 1 | rev)
+case $SHELL in
+   "fish")
+      shellrc="$HOME/.config/fish/config.fish"
+      path_update="set PATH $install_dir \$PATH"
+      ;;
+   "zsh")
+      shellrc="$HOME/.zshrc"
+      ;;
+   "bash")
+      shellrc="$HOME/.bashrc"
+      ;;
+   *)
+      echo "Unsupported shell: $SHELL. Please open an issue at <https://github.com/ArkScript-lang/Ark/issues/new> to request it."
+      exit 1
+      ;;
+ esac
+
+cat >> ${shellrc}<< EOF
+$path_update
 export ARKSCRIPT_PATH="${install_dir}"
 EOF
+echo "Don't forget to reload your shell configuration (\`source ${shellrc}\`) to refresh your path."
 ```
-
-Finally, don't forget to `source $HOME/.bashrc` to refresh your PATH.
 
 ### Through docker
 
@@ -149,7 +172,7 @@ Who worked on
     * [@FrenchMasterSword](https://github.com/FrenchMasterSword)
     * [@rstefanic](https://github.com/rstefanic)
     * [@PierrePharel](https://github.com/PierrePharel)
-    * [@Wafelack](https://gitlab.com/Wafelack)
+    * [@Wafelack](https://github.com/Wafelack)
 * the builtins
     * [@SuperFola](https://github.com/SuperFola)
     * [@rinz13r](https://github.com/rinz13r)
