@@ -127,9 +127,9 @@ case $SHELL in
       shellrc="$HOME/.bashrc"
       ;;
    *)
-      echo "Unsupported shell: $SHELL. Please open an issue at <https://github.com/ArkScript-lang/Ark/issues/new> to reques it."
+      echo "Unsupported shell: $SHELL. Please open an issue at <https://github.com/ArkScript-lang/Ark/issues/new> to request it."
       exit 1
-      ;;c
+      ;;
  esac
 
 cat >> ${shellrc}<< EOF
