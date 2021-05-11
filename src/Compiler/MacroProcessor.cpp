@@ -312,7 +312,9 @@ namespace Ark::internal
                         node = sub1;
                     }
                     else
+                    {
                         node = Node::NilNode;
+                    }
                 }
                 else if (sublist.list().size() > 0)
                     node = sublist.const_list()[0];
@@ -358,6 +360,7 @@ namespace Ark::internal
                 node.list()[i] = evaluate(node.list()[i], is_not_body);
         }
 
+        std::clog << node << std::endl;
         return node;
     }
 
