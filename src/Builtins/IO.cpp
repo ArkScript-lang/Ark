@@ -14,7 +14,7 @@ namespace Ark::internal::Builtins::IO
     {
         for (Value::Iterator it=n.begin(), it_end=n.end(); it != it_end; ++it)
             std::cout << (*it);
-        std::cout << std::endl;
+        std::cout << '\n';
 
         return nil;
     }

@@ -20,7 +20,6 @@
 #include <Ark/VM/Value.hpp>
 #include <Ark/Compiler/BytecodeReader.hpp>
 #include <Ark/Compiler/Compiler.hpp>
-#include <Ark/Log.hpp>
 
 namespace Ark
 {

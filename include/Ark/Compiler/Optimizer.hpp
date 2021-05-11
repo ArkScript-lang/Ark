@@ -67,9 +67,25 @@ namespace Ark
             throw OptimizerError(internal::makeNodeBasedErrorCtx(message, node));
         }
 
-        // iterate over the AST and remove unused top level functions and constants
+        /**
+         * @brief Iterate over the AST and remove unused top level functions and constants
+         * 
+         */
         void remove_unused();
+
+        /**
+         * @brief Run a given functor on the global scope symbols
+         * 
+         * @param node 
+         * @param func 
+         */
         void run_on_global_scope_vars(internal::Node& node, const std::function<void(internal::Node&, internal::Node&, int)>& func);
+
+        /**
+         * @brief Count the occurences of each symbol in the AST, recursively
+         * 
+         * @param node 
+         */
         void count_occurences(internal::Node& node);
     };
 }

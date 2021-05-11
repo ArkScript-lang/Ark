@@ -61,7 +61,7 @@ namespace Ark::internal
         Node m_trueNode, m_falseNode, m_nilNode, m_listNode;
 
         /**
-         * @brief Find the nearest macro matching a giving name
+         * @brief Find the nearest macro matching a given name
          * 
          * @param name 
          * @return Node* nullptr if no macro was found
@@ -75,12 +75,35 @@ namespace Ark::internal
             {
                 if (it->size() != 0)
                 {
-                    auto res = it->find(name);
-                    if (res != it->end())
+                    if (auto res = it->find(name); res != it->end())
                         return &res->second;
                 }
             }
             return nullptr;
+        }
+
+        /**
+         * @brief Find the nearest macro matching a given name and delete it
+         * 
+         * @param name 
+         */
+        inline void delete_nearest_macro(const std::string& name)
+        {
+            if (m_macros.empty())
+                return;
+
+            for (auto it = m_macros.rbegin(); it != m_macros.rend(); ++it)
+            {
+                if (it->size() != 0)
+                {
+                    if (auto res = it->find(name); res != it->end())
+                    {
+                        // stop right here because we found one matching macro
+                        it->erase(res);
+                        return;
+                    }
+                }
+            }
         }
 
         /**
@@ -105,6 +128,15 @@ namespace Ark::internal
          * @param node 
          */
         void execute(Node& node);
+
+        /**
+         * @brief Unify a target node with a given map symbol => replacement node, recursively
+         * 
+         * @param map 
+         * @param target 
+         * @param parent 
+         */
+        void unify(const std::unordered_map<std::string, Node>& map, Node& target, Node* parent);
 
         /**
          * @brief Evaluate only the macros
