@@ -28,21 +28,6 @@
 namespace Ark::Utils
 {
     /**
-     * @brief Home made version of std::to_string to convert to string anything which has an operator<< for this
-     * 
-     * @tparam T the type of the object
-     * @param object the object to convert to string
-     * @return std::string 
-     */
-    template <typename T>
-    std::string toString(T&& object)
-    {
-        std::ostringstream os;
-        os << object;
-        return os.str();
-    }
-
-    /**
      * @brief Replaces all occurence of `from` to `to` in `source`
      * 
      * @param source the string in which we're going to operate

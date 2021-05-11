@@ -14,6 +14,7 @@
 
 #include <variant.hpp>
 #include <iostream>
+#include <array>
 #include <string>
 #include <vector>
 #include <unordered_map>
@@ -63,6 +64,8 @@ namespace Ark::internal
         using Map      = std::unordered_map<std::string, Node>;
         using Value    = mpark::variant<double, std::string, Keyword>;
 
+        Node() = default;
+
         /**
          * @brief Construct a new Node object
          * 
@@ -96,7 +99,7 @@ namespace Ark::internal
          * 
          * @param type 
          */
-        explicit Node(NodeType type=NodeType::Symbol) noexcept;
+        explicit Node(NodeType type) noexcept;
 
         /**
          * @brief Construct a new Node object
@@ -232,11 +235,9 @@ namespace Ark::internal
         std::string m_filename = "";
     };
 
-    #include "Node.inl"
+    #include "inline/Node.inl"
 
-    using Nodes = std::vector<Node>;
-
-    std::ostream& operator<<(std::ostream& os, const Nodes& N) noexcept;
+    std::ostream& operator<<(std::ostream& os, const std::vector<Node>& N) noexcept;
 }
 
 #endif

@@ -1,7 +1,5 @@
 #include <Ark/Compiler/MacroProcessor.hpp>
 
-#include <Ark/Log.hpp>
-
 #include <algorithm>
 
 namespace Ark::internal
@@ -23,7 +21,7 @@ namespace Ark::internal
     void MacroProcessor::feed(const Node& ast)
     {
         if (m_debug >= 2)
-            Ark::logger.info("Processing macros...");
+            std::cout << "Processing macros...\n";
 
         // to be able to modify it
         m_ast = ast;
@@ -31,8 +29,8 @@ namespace Ark::internal
 
         if (m_debug >= 3)
         {
-            Ark::logger.info("(MacroProcessor) AST after processing macros");
-            std::cout << m_ast << std::endl;
+            std::cout << "(MacroProcessor) AST after processing macros\n";
+            std::cout << m_ast << '\n';
         }
     }
 
@@ -55,7 +53,12 @@ namespace Ark::internal
         {
             if (first_node.nodeType() == NodeType::Symbol)
             {
-                m_macros.back()[first_node.string()] = node;
+                if (first_node.string() != "undef")
+                    m_macros.back()[first_node.string()] = node;
+                else if (second_node.nodeType() == NodeType::Symbol)  // undefine a macro
+                    delete_nearest_macro(second_node.string());
+                else // used undef on a non-symbol
+                    throwMacroProcessingError("can not undefine a macro without it's name", second_node);
                 return;
             }
             throwMacroProcessingError("can not define a macro without a symbol", first_node);
@@ -124,7 +127,7 @@ namespace Ark::internal
                     if (node.list()[i].nodeType() == NodeType::Macro)
                         node.list().erase(node.const_list().begin() + i);
                 }
-                else
+                else  // running on non-macros
                 {
                     // execute only if we have registered macros
                     if ((m_macros.size() == 1 && m_macros[0].size() > 0) || m_macros.size() > 1)
@@ -146,33 +149,6 @@ namespace Ark::internal
 
     void MacroProcessor::execute(Node& node)
     {
-        static std::function<void(const std::unordered_map<std::string, Node>&, Node&, Node*)> apply_to =
-        [this](const std::unordered_map<std::string, Node>& map, Node& target, Node* parent) {
-            if (target.nodeType() == NodeType::Symbol)
-            {
-                if (auto p = map.find(target.string()); p != map.end())
-                    target = p->second;
-            }
-            else if (target.nodeType() == NodeType::List || target.nodeType() == NodeType::Macro)
-            {
-                for (std::size_t i = 0, end = target.list().size(); i < end; ++i)
-                    apply_to(map, target.list()[i], &target);
-            }
-            else if (target.nodeType() == NodeType::Spread)
-            {
-                Node subnode = target;
-                subnode.setNodeType(NodeType::Symbol);
-                apply_to(map, subnode, parent);
-                parent->list().pop_back();  // remove the spread
-
-                if (subnode.nodeType() != NodeType::List)
-                    throwMacroProcessingError("Got a non-list while trying to apply the spread operator", subnode);
-
-                for (std::size_t i = 1, end = subnode.list().size(); i < end; ++i)
-                    parent->push_back(subnode.list()[i]);
-            }
-        };
-
         if (node.nodeType() == NodeType::Symbol)
         {
             // error ?
@@ -181,7 +157,7 @@ namespace Ark::internal
             if (macro != nullptr)
             {
                 if (m_debug >= 3)
-                    Ark::logger.info("Found macro for", node.string());
+                    std::cout << "Found macro for " << node.string() << '\n';
 
                 // !{name value}
                 if (macro->const_list().size() == 2)
@@ -226,7 +202,7 @@ namespace Ark::internal
             if (macro != nullptr)
             {
                 if (m_debug >= 3)
-                    Ark::logger.info("Found macro for", first.string());
+                    std::cout << "Found macro for " << first.string() << '\n';
 
                 if (macro->const_list().size() == 2)
                     execute(first);
@@ -278,11 +254,38 @@ namespace Ark::internal
                     }
 
                     if (!args_applied.empty())
-                        apply_to(args_applied, temp_body, nullptr);
+                        unify(args_applied, temp_body, nullptr);
                     node = evaluate(temp_body);
                     execute(node);
                 }
             }
+        }
+    }
+
+    void MacroProcessor::unify(const std::unordered_map<std::string, Node>& map, Node& target, Node* parent)
+    {
+        if (target.nodeType() == NodeType::Symbol)
+        {
+            if (auto p = map.find(target.string()); p != map.end())
+                target = p->second;
+        }
+        else if (target.nodeType() == NodeType::List || target.nodeType() == NodeType::Macro)
+        {
+            for (std::size_t i = 0, end = target.list().size(); i < end; ++i)
+                unify(map, target.list()[i], &target);
+        }
+        else if (target.nodeType() == NodeType::Spread)
+        {
+            Node subnode = target;
+            subnode.setNodeType(NodeType::Symbol);
+            unify(map, subnode, parent);
+            parent->list().pop_back();  // remove the spread
+
+            if (subnode.nodeType() != NodeType::List)
+                throwMacroProcessingError("Got a non-list while trying to apply the spread operator", subnode);
+
+            for (std::size_t i = 1, end = subnode.list().size(); i < end; ++i)
+                parent->push_back(subnode.list()[i]);
         }
     }
 

@@ -8,6 +8,14 @@
     }))
 
     (print test)
+
+    {
+        !{test 555}
+        (print test)
+        !{undef test}
+        (print test)
+        !{undef a}
+    }
 }
 
 # will not work because no macro exist here
