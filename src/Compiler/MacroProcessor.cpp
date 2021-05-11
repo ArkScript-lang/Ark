@@ -304,15 +304,18 @@ namespace Ark::internal
                     throwMacroProcessingError("When expanding `head' inside a macro, got a " + typeToString(node.list()[1]) + ", needed a List", node);
 
                 Node& sublist = node.list()[1];
-                if (sublist.list().size() > 0 && sublist.list()[0] == Node::ListNode)
+                if (sublist.const_list().size() > 0 && sublist.const_list()[0] == Node::ListNode)
                 {
-                    if (sublist.list().size() > 1)
-                        node = sublist.list()[1];
+                    if (sublist.const_list().size() > 1)
+                    {
+                        auto sub1 = sublist.const_list()[1]; 
+                        node = sub1;
+                    }
                     else
                         node = Node::NilNode;
                 }
                 else if (sublist.list().size() > 0)
-                    node = sublist.list()[0];
+                    node = sublist.const_list()[0];
                 else
                     node = Node::NilNode;
             }
