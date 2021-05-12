@@ -21,7 +21,7 @@ namespace Ark::internal
             std::make_shared<ConditionalExecutor>(this),
             std::make_shared<ListExecutor>(this)
         };
-        executor_pipeline = std::make_unique<MacroExecutorPipeline>(executors);
+        m_executor_pipeline = std::make_unique<MacroExecutorPipeline>(executors);
     }
 
     void MacroProcessor::feed(const Node& ast)
@@ -177,7 +177,7 @@ namespace Ark::internal
 
     void MacroProcessor::execute(Node& node)
     {
-        executor_pipeline->m_execute(node);
+        m_executor_pipeline->m_execute(node);
     }
 
     Node MacroProcessor::evaluate(Node& node, bool is_not_body)
