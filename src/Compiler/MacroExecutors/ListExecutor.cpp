@@ -3,10 +3,9 @@
 
 namespace Ark::internal
 {
-    ListExecutor::ListExecutor(MacroProcessor* macroprocessor, int debug) : MacroExecutor(macroprocessor, debug)
-    {
-
-    }
+    ListExecutor::ListExecutor(MacroProcessor* macroprocessor, unsigned debug) :
+        MacroExecutor(macroprocessor, debug)
+    {}
 
     bool ListExecutor::canHandle(Node& node)
     {

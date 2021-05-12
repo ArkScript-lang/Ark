@@ -2,16 +2,15 @@
 
 namespace Ark::internal
 {
-    SymbolExecutor::SymbolExecutor(MacroProcessor* macroprocessor, int debug) : MacroExecutor(macroprocessor, debug)
-    {
-
-    }
+    SymbolExecutor::SymbolExecutor(MacroProcessor* macroprocessor, unsigned debug) :
+        MacroExecutor(macroprocessor, debug)
+    {}
 
     bool SymbolExecutor::canHandle(Node& node)
     {
         return node.nodeType() == NodeType::Symbol;
     }
-    
+
     void SymbolExecutor::execute(Node& node)
     {
         // error ?

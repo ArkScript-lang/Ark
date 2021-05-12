@@ -11,6 +11,7 @@
 
 #ifndef ARK_COMPILER_LISTEXECUTOR_HPP
 #define ARK_COMPILER_LISTEXECUTOR_HPP
+
 #include <Ark/Compiler/MacroExecutor.hpp>
 #include <Ark/Compiler/Node.hpp>
 
@@ -23,9 +24,10 @@ namespace Ark::internal
     class ListExecutor : public MacroExecutor
     {
     public:
-        ListExecutor(MacroProcessor* macroprocessor, int debug = 0);
-        void execute(Node &node) override;
-        bool canHandle(Node &node) override;
+        ListExecutor(MacroProcessor* macroprocessor, unsigned debug = 0);
+
+        void execute(Node& node) override;
+        bool canHandle(Node& node) override;
     };
 
 }

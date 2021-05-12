@@ -2,7 +2,7 @@
  * @file MacroProcessor.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Handles the macros and their expansion in ArkScript source code
- * @version 0.1
+ * @version 0.2
  * @date 2021-02-18
  * 
  * @copyright Copyright (c) 2021
@@ -53,13 +53,15 @@ namespace Ark::internal
          */
         const Node& ast() const noexcept;
 
+        friend class MacroExecutor;
+
     private:
         unsigned m_debug;  ///< The debug level
         uint16_t m_options;
         Node m_ast;  ///< The modified AST
         std::vector<std::unordered_map<std::string, Node>> m_macros;  ///< Handling macros in a scope fashion
-        friend class MacroExecutor;
         std::unique_ptr<MacroExecutorPipeline> m_executor_pipeline;
+
         /**
          * @brief Find the nearest macro matching a given name
          * 

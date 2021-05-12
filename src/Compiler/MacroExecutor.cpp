@@ -3,9 +3,9 @@
 
 namespace Ark::internal
 {
-    MacroExecutor::MacroExecutor(MacroProcessor* macroprocessor, unsigned int debug) : m_macroprocessor(macroprocessor), m_debug(debug)
-    {
-    }
+    MacroExecutor::MacroExecutor(MacroProcessor* macroprocessor, unsigned debug) :
+        m_macroprocessor(macroprocessor), m_debug(debug)
+    {}
 
     Node* MacroExecutor::find_nearest_macro(const std::string& name)
     {
@@ -26,14 +26,17 @@ namespace Ark::internal
     {
         return m_macroprocessor->evaluate(node, is_not_body);
     }
+
     void MacroExecutor::unify(const std::unordered_map<std::string, Node>& map, Node& target, Node* parent)
     {
         m_macroprocessor->unify(map, target, parent);
     }
+
     void MacroExecutor::throwMacroProcessingError(const std::string& message, const Node& node)
     {
         m_macroprocessor->throwMacroProcessingError(message, node);
     }
+
     void MacroExecutor::execute_proxy(Node& node)
     {
         m_macroprocessor->execute(node);
