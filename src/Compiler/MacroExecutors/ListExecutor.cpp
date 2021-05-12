@@ -9,12 +9,12 @@ namespace Ark::internal
 
     }
 
-    bool ListExecutor::canHandle(Node& node)
+    bool ListExecutor::m_canHandle(Node& node)
     {
         return node.nodeType() == NodeType::List && node.const_list().size() > 0 && node.const_list()[0].nodeType() == NodeType::Symbol;
     }
 
-    void ListExecutor::execute(Node& node)
+    void ListExecutor::m_execute(Node& node)
     {
         Node& first = node.list()[0];
         Node* macro = m_find_nearest_macro(first.string());

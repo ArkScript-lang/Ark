@@ -7,7 +7,7 @@ namespace Ark::internal
         
     }
 
-    void ConditionalExecutor::execute(Node& node)
+    void ConditionalExecutor::m_execute(Node& node)
     {
         Node& first = node.list()[0];
 
@@ -34,7 +34,7 @@ namespace Ark::internal
                 m_registerMacro(node);
         }
     }
-    bool ConditionalExecutor::canHandle(Node& node)
+    bool ConditionalExecutor::m_canHandle(Node& node)
     {
         return node.nodeType() == NodeType::Macro && node.list()[0].nodeType() == NodeType::Keyword;
     }
