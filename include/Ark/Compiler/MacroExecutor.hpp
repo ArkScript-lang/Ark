@@ -38,7 +38,7 @@ namespace Ark::internal
          * @param name 
          * @return Node* nullptr if no macro was found
          */
-        Node *find_nearest_macro(const std::string &name);
+        Node* m_find_nearest_macro(const std::string &name);
 
         /**
          * @brief Registers macros based on their type
@@ -47,7 +47,7 @@ namespace Ark::internal
          * 
          * @param node A node of type Macro
          */
-        void registerMacro(Node &node);
+        void m_registerMacro(Node &node);
 
         /**
          * @brief Check if a node can be evaluated to true
@@ -57,7 +57,7 @@ namespace Ark::internal
          * @return true 
          * @return false 
          */
-        bool isTruthy(const Node &node);
+        bool m_isTruthy(const Node &node);
 
         /**
          * @brief Evaluate only the macros
@@ -67,13 +67,13 @@ namespace Ark::internal
          * @param is_not_body true if the method is run on a non-body code (eg a condition of an if-macro)
          * @return Node 
          */
-        Node evaluate(Node &node, bool is_not_body);
+        Node m_evaluate(Node &node, bool is_not_body);
 
         /**
          * @brief Applies the spread operator
          * @details Proxy function for MacroProcessor::apply_to
          */
-        void apply_to(const std::unordered_map<std::string, Node> &, Node &, Node *);
+        void m_apply_to(const std::unordered_map<std::string, Node> &, Node &, Node *);
 
         /**
          * @brief Throw a macro processing error
@@ -82,7 +82,7 @@ namespace Ark::internal
          * @param message the error
          * @param node the node in which there is an error
          */
-        void throwMacroProcessingError(const std::string &message, const Node &node);
+        void m_throwMacroProcessingError(const std::string &message, const Node &node);
 
         /**
          * @brief Execute a node, trying to emplace macros calls
@@ -90,7 +90,7 @@ namespace Ark::internal
          * 
          * @param node 
          */
-        void m_execute(Node &node);
+        void m_execute_proxy(Node &node);
 
     public:
         MacroExecutor(MacroProcessor* macroprocessor, unsigned int debug = 0);

@@ -17,7 +17,7 @@ namespace Ark::internal
     void ListExecutor::execute(Node& node)
     {
         Node& first = node.list()[0];
-        Node* macro = find_nearest_macro(first.string());
+        Node* macro = m_find_nearest_macro(first.string());
 
         if (macro != nullptr)
         {
@@ -25,7 +25,7 @@ namespace Ark::internal
                 Ark::logger.info("Found macro for", first.string());
 
             if (macro->const_list().size() == 2)
-                m_execute(first);
+                m_execute_proxy(first);
             // !{name (args) body}
             else if (macro->const_list().size() == 3)
             {
@@ -68,15 +68,15 @@ namespace Ark::internal
                     std::string macro_name = macro->const_list()[0].string();
 
                     if (args.list().back().nodeType() != NodeType::Spread)
-                        throwMacroProcessingError("Macro `" + macro_name + "' got " + std::to_string(args_applied.size()) + " argument(s) but needed " + std::to_string(args_needed), *macro);
+                        m_throwMacroProcessingError("Macro `" + macro_name + "' got " + std::to_string(args_applied.size()) + " argument(s) but needed " + std::to_string(args_needed), *macro);
                     else
-                        throwMacroProcessingError("Macro `" + macro_name + "' got " + std::to_string(args_applied.size()) + " argument(s) but needed at least " + std::to_string(args_needed - 1), *macro);
+                        m_throwMacroProcessingError("Macro `" + macro_name + "' got " + std::to_string(args_applied.size()) + " argument(s) but needed at least " + std::to_string(args_needed - 1), *macro);
                 }
 
                 if (!args_applied.empty())
-                    apply_to(args_applied, temp_body, nullptr);
-                node = evaluate(temp_body, false);
-                m_execute(node);
+                    m_apply_to(args_applied, temp_body, nullptr);
+                node = m_evaluate(temp_body, false);
+                m_execute_proxy(node);
             }
         }
     }
