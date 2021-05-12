@@ -2,6 +2,11 @@
 
 namespace Ark::internal
 {
+    ConditionalExecutor::ConditionalExecutor(MacroProcessor* macroprocessor, int debug) : MacroExecutor(macroprocessor, debug)
+    {
+        
+    }
+
     void ConditionalExecutor::execute(Node& node)
     {
         Node& first = node.list()[0];

@@ -17,16 +17,13 @@ namespace Ark::internal
         Node::init();
         std::vector<std::shared_ptr<MacroExecutor>> executors = 
         {
-            std::make_shared<SymbolExecutor>(),
-            std::make_shared<ConditionalExecutor>(),
-            std::make_shared<ListExecutor>()
+            std::make_shared<SymbolExecutor>(this),
+            std::make_shared<ConditionalExecutor>(this),
+            std::make_shared<ListExecutor>(this)
         };
  
    
-        executor_pipeline = std::make_unique<MacroExecutorPipeline>(
-            this,
-            executors
-        );
+        executor_pipeline = std::make_unique<MacroExecutorPipeline>(executors);
 
     
     }

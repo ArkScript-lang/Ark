@@ -4,6 +4,11 @@
 
 namespace Ark::internal
 {
+    ListExecutor::ListExecutor(MacroProcessor* macroprocessor, int debug) : MacroExecutor(macroprocessor, debug)
+    {
+
+    }
+
     bool ListExecutor::canHandle(Node& node)
     {
         return node.nodeType() == NodeType::List && node.const_list().size() > 0 && node.const_list()[0].nodeType() == NodeType::Symbol;

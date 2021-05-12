@@ -23,6 +23,8 @@ namespace Ark::internal
     class SymbolExecutor : public MacroExecutor
     {
     public:
+        SymbolExecutor(MacroProcessor* macroprocessor, int debug = 0);
+
         void execute(Node &node) override;
         bool canHandle(Node &node) override;
     };

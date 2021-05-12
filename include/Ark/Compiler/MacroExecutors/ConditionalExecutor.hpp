@@ -23,6 +23,7 @@ namespace Ark::internal
     class ConditionalExecutor : public MacroExecutor
     {
     public:
+        ConditionalExecutor(MacroProcessor* macroprocessor, int debug = 0);
         void execute(Node &node) override;
         bool canHandle(Node &node) override;
     };
