@@ -177,7 +177,7 @@ namespace Ark::internal
 
     void MacroProcessor::execute(Node& node)
     {
-        executor_pipeline->execute(node);
+        executor_pipeline->m_execute(node);
     }
 
     Node MacroProcessor::evaluate(Node& node, bool is_not_body)

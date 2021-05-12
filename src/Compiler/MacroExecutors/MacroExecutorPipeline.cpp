@@ -7,7 +7,7 @@ namespace Ark::internal
     {
 
     }
-    void MacroExecutorPipeline::execute(Node& node)
+    void MacroExecutorPipeline::m_execute(Node& node)
     {
         for (const std::shared_ptr<MacroExecutor>& executor : m_executors)
         {
