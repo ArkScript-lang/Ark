@@ -9,7 +9,7 @@
             "type": "cppvsdbg",
             "request": "launch",
             "program": "${command:cmake.launchTargetPath}",
-            "args": ["examples/macros.ark", "-dd"],
+            "args": ["examples/macros/basics.ark", "-dd"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [
