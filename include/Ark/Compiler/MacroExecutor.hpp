@@ -38,7 +38,7 @@ namespace Ark::internal
          * @param name 
          * @return Node* nullptr if no macro was found
          */
-        Node* m_find_nearest_macro(const std::string &name);
+        Node* find_nearest_macro(const std::string &name);
 
         /**
          * @brief Registers macros based on their type
@@ -47,7 +47,7 @@ namespace Ark::internal
          * 
          * @param node A node of type Macro
          */
-        void m_registerMacro(Node &node);
+        void registerMacro(Node &node);
 
         /**
          * @brief Check if a node can be evaluated to true
@@ -57,7 +57,7 @@ namespace Ark::internal
          * @return true 
          * @return false 
          */
-        bool m_isTruthy(const Node &node);
+        bool isTruthy(const Node &node);
 
         /**
          * @brief Evaluate only the macros
@@ -67,13 +67,13 @@ namespace Ark::internal
          * @param is_not_body true if the method is run on a non-body code (eg a condition of an if-macro)
          * @return Node 
          */
-        Node m_evaluate(Node &node, bool is_not_body);
+        Node evaluate(Node &node, bool is_not_body);
 
         /**
          * @brief Applies the spread operator
          * @details Proxy function for MacroProcessor::unify
          */
-        void m_unify(const std::unordered_map<std::string, Node> &, Node &, Node *);
+        void unify(const std::unordered_map<std::string, Node> &, Node &, Node *);
 
         /**
          * @brief Throw a macro processing error
@@ -82,7 +82,7 @@ namespace Ark::internal
          * @param message the error
          * @param node the node in which there is an error
          */
-        void m_throwMacroProcessingError(const std::string &message, const Node &node);
+        void throwMacroProcessingError(const std::string &message, const Node &node);
 
         /**
          * @brief Execute a node, trying to emplace macros calls
@@ -90,7 +90,7 @@ namespace Ark::internal
          * 
          * @param node 
          */
-        void m_execute_proxy(Node &node);
+        void execute_proxy(Node &node);
 
     public:
         MacroExecutor(MacroProcessor* macroprocessor, unsigned int debug = 0);
@@ -100,14 +100,14 @@ namespace Ark::internal
          * 
          * @param node the node that contains a macro
          */
-        virtual void m_execute(Node &node) = 0;
+        virtual void execute(Node &node) = 0;
 
         /**
          * @brief Checks if the executor can execute the passed Node
          * 
          * @param node the node that contains a macro
          */
-        virtual bool m_canHandle(Node &node) = 0;
+        virtual bool canHandle(Node &node) = 0;
     };
 
 }

@@ -8,15 +8,15 @@ namespace Ark::internal
 
     }
 
-    bool ListExecutor::m_canHandle(Node& node)
+    bool ListExecutor::canHandle(Node& node)
     {
         return node.nodeType() == NodeType::List && node.const_list().size() > 0 && node.const_list()[0].nodeType() == NodeType::Symbol;
     }
 
-    void ListExecutor::m_execute(Node& node)
+    void ListExecutor::execute(Node& node)
     {
         Node& first = node.list()[0];
-        Node* macro = m_find_nearest_macro(first.string());
+        Node* macro = find_nearest_macro(first.string());
 
         if (macro != nullptr)
         {
@@ -24,7 +24,7 @@ namespace Ark::internal
                 std::clog << "Found macro for " << first.string() << std::endl;
 
             if (macro->const_list().size() == 2)
-                m_execute_proxy(first);
+                execute_proxy(first);
             // !{name (args) body}
             else if (macro->const_list().size() == 3)
             {
@@ -67,15 +67,15 @@ namespace Ark::internal
                     std::string macro_name = macro->const_list()[0].string();
 
                     if (args.list().back().nodeType() != NodeType::Spread)
-                        m_throwMacroProcessingError("Macro `" + macro_name + "' got " + std::to_string(args_applied.size()) + " argument(s) but needed " + std::to_string(args_needed), *macro);
+                        throwMacroProcessingError("Macro `" + macro_name + "' got " + std::to_string(args_applied.size()) + " argument(s) but needed " + std::to_string(args_needed), *macro);
                     else
-                        m_throwMacroProcessingError("Macro `" + macro_name + "' got " + std::to_string(args_applied.size()) + " argument(s) but needed at least " + std::to_string(args_needed - 1), *macro);
+                        throwMacroProcessingError("Macro `" + macro_name + "' got " + std::to_string(args_applied.size()) + " argument(s) but needed at least " + std::to_string(args_needed - 1), *macro);
                 }
 
                 if (!args_applied.empty())
-                    m_unify(args_applied, temp_body, nullptr);
-                node = m_evaluate(temp_body, false);
-                m_execute_proxy(node);
+                    unify(args_applied, temp_body, nullptr);
+                node = evaluate(temp_body, false);
+                execute_proxy(node);
             }
         }
     }
