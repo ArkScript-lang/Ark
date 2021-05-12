@@ -1,6 +1,5 @@
 #include <Ark/Compiler/MacroExecutors/ListExecutor.hpp>
 #include <Ark/Compiler/Node.hpp>
-#include <Ark/Log.hpp>
 
 namespace Ark::internal
 {
@@ -22,7 +21,7 @@ namespace Ark::internal
         if (macro != nullptr)
         {
             if (m_debug >= 3)
-                Ark::logger.info("Found macro for", first.string());
+                std::clog << "Found macro for " << first.string() << std::endl;
 
             if (macro->const_list().size() == 2)
                 m_execute_proxy(first);
@@ -74,7 +73,7 @@ namespace Ark::internal
                 }
 
                 if (!args_applied.empty())
-                    m_apply_to(args_applied, temp_body, nullptr);
+                    m_unify(args_applied, temp_body, nullptr);
                 node = m_evaluate(temp_body, false);
                 m_execute_proxy(node);
             }

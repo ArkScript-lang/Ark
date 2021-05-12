@@ -82,9 +82,6 @@ namespace Ark::internal
             return nullptr;
         }
 
-        void apply_to(const std::unordered_map<std::string, Node>& map, Node& target, Node* parent);
-
-
         /**
          * @brief Find the nearest macro matching a given name and delete it
          * 

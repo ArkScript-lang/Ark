@@ -1,5 +1,4 @@
 #include <Ark/Compiler/MacroExecutors/SymbolExecutor.hpp>
-#include <Ark/Log.hpp>
 
 namespace Ark::internal
 {
@@ -21,7 +20,7 @@ namespace Ark::internal
         if (macro != nullptr)
         {
             if (m_debug >= 3)
-                Ark::logger.info("Found macro for", node.string());
+                std::clog << "Found macro for " << node.string() << std::endl;
 
             // !{name value}
             if (macro->const_list().size() == 2)

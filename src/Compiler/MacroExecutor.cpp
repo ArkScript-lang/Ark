@@ -26,9 +26,9 @@ namespace Ark::internal
     {
         return m_macroprocessor->evaluate(node, is_not_body);
     }
-    void MacroExecutor::m_apply_to(const std::unordered_map<std::string, Node>& map, Node& target, Node* parent)
+    void MacroExecutor::m_unify(const std::unordered_map<std::string, Node>& map, Node& target, Node* parent)
     {
-        m_macroprocessor->apply_to(map, target, parent);
+        m_macroprocessor->unify(map, target, parent);
     }
     void MacroExecutor::m_throwMacroProcessingError(const std::string& message, const Node& node)
     {
