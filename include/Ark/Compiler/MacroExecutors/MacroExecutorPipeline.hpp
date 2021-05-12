@@ -24,13 +24,10 @@ namespace Ark::internal
      */
     class MacroExecutorPipeline
     {
-        MacroProcessor *m_macroprocessor;
         std::vector<std::shared_ptr<MacroExecutor>> m_executors;
 
     public:
-        MacroExecutorPipeline(
-            MacroProcessor *macroprocessor,
-            const std::vector<std::shared_ptr<MacroExecutor>>& executors);
+        MacroExecutorPipeline(const std::vector<std::shared_ptr<MacroExecutor>>& executors);
         /**
          * @brief Passes node through all MacroExecutors sequentially
          * 

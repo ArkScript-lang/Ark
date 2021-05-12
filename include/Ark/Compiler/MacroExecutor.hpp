@@ -28,7 +28,7 @@ namespace Ark::internal
     {
     protected:
         unsigned int m_debug;
-        static MacroProcessor *m_macroprocessor;
+        MacroProcessor *m_macroprocessor;
 
         /**
          * @brief Find the nearest macro matching a giving name
@@ -93,13 +93,7 @@ namespace Ark::internal
         void m_execute(Node &node);
 
     public:
-        MacroExecutor(unsigned int debug = 0);
-        /**
-         * @brief Initializes the MacroProcessor pointer for all Executors
-         * 
-         * @param macroprocessor The MacroProcessor
-         */
-        static void init(MacroProcessor *macroprocessor);
+        MacroExecutor(MacroProcessor* macroprocessor, unsigned int debug = 0);
 
         /**
          * @brief Executes macros in the Node if the Executor can handle it

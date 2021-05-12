@@ -3,6 +3,11 @@
 
 namespace Ark::internal
 {
+    SymbolExecutor::SymbolExecutor(MacroProcessor* macroprocessor, int debug) : MacroExecutor(macroprocessor, debug)
+    {
+
+    }
+
     bool SymbolExecutor::canHandle(Node& node)
     {
         return node.nodeType() == NodeType::Symbol;

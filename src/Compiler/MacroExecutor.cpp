@@ -3,15 +3,8 @@
 
 namespace Ark::internal
 {
-    MacroProcessor* MacroExecutor::m_macroprocessor = nullptr;
-    MacroExecutor::MacroExecutor(unsigned int debug) : m_debug(debug)
+    MacroExecutor::MacroExecutor(MacroProcessor* macroprocessor, unsigned int debug) : m_macroprocessor(macroprocessor), m_debug(debug)
     {
-        // macroprocessor pointer will be initialized in static init
-    }
-
-    void MacroExecutor::init(MacroProcessor* macroprocessor)
-    {
-        MacroExecutor::m_macroprocessor = macroprocessor;
     }
 
     Node* MacroExecutor::find_nearest_macro(const std::string& name)
