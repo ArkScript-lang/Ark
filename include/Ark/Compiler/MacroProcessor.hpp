@@ -15,7 +15,8 @@
 #include <Ark/Compiler/Node.hpp>
 #include <Ark/Exceptions.hpp>
 #include <Ark/Compiler/makeNodeBasedError.hpp>
-
+#include <Ark/Compiler/MacroExecutor.hpp>
+#include <Ark/Compiler/MacroExecutors/MacroExecutorPipeline.hpp>
 #include <unordered_map>
 #include <utility>
 #include <string>
@@ -57,9 +58,8 @@ namespace Ark::internal
         uint16_t m_options;
         Node m_ast;  ///< The modified AST
         std::vector<std::unordered_map<std::string, Node>> m_macros;  ///< Handling macros in a scope fashion
-
-        Node m_trueNode, m_falseNode, m_nilNode, m_listNode;
-
+        friend class MacroExecutor;
+        std::unique_ptr<MacroExecutorPipeline> m_executor_pipeline;
         /**
          * @brief Find the nearest macro matching a given name
          * 
