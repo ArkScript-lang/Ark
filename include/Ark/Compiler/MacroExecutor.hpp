@@ -71,9 +71,9 @@ namespace Ark::internal
 
         /**
          * @brief Applies the spread operator
-         * @details Proxy function for MacroProcessor::apply_to
+         * @details Proxy function for MacroProcessor::unify
          */
-        void m_apply_to(const std::unordered_map<std::string, Node> &, Node &, Node *);
+        void m_unify(const std::unordered_map<std::string, Node> &, Node &, Node *);
 
         /**
          * @brief Throw a macro processing error
