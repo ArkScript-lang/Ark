@@ -14,6 +14,7 @@ namespace Ark::internal
             if(executor->m_canHandle(node))
             {
                 executor->m_execute(node);
+                break;
             }
         }
     }
