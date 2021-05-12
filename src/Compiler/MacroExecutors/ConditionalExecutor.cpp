@@ -15,7 +15,7 @@ namespace Ark::internal
             Node cond = node.list()[1];
             Node temp = evaluate(cond, /* is_not_body */ true);
             Node if_true = node.list()[2];
-            Node if_false = node.const_list().size() > 2 ? node.list()[3] : Node::NilNode;
+            Node if_false = node.const_list().size() > 3 ? node.list()[3] : Node::NilNode;
 
             // evaluate cond
             if (isTruthy(temp))
