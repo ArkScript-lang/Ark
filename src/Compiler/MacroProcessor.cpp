@@ -21,11 +21,7 @@ namespace Ark::internal
             std::make_shared<ConditionalExecutor>(this),
             std::make_shared<ListExecutor>(this)
         };
- 
-   
         executor_pipeline = std::make_unique<MacroExecutorPipeline>(executors);
-
-    
     }
 
     void MacroProcessor::feed(const Node& ast)
@@ -357,7 +353,6 @@ namespace Ark::internal
                 node.list()[i] = evaluate(node.list()[i], is_not_body);
         }
 
-        std::clog << node << std::endl;
         return node;
     }
 
