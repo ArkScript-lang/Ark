@@ -2,10 +2,9 @@
 
 namespace Ark::internal
 {
-    ConditionalExecutor::ConditionalExecutor(MacroProcessor* macroprocessor, int debug) : MacroExecutor(macroprocessor, debug)
-    {
-        
-    }
+    ConditionalExecutor::ConditionalExecutor(MacroProcessor* macroprocessor, unsigned debug) :
+        MacroExecutor(macroprocessor, debug)
+    {}
 
     void ConditionalExecutor::execute(Node& node)
     {

@@ -11,6 +11,7 @@
 
 #ifndef ARK_COMPILER_SYMBOLEXECUTOR_HPP
 #define ARK_COMPILER_SYMBOLEXECUTOR_HPP
+
 #include <Ark/Compiler/MacroExecutor.hpp>
 #include <Ark/Compiler/Node.hpp>
 
@@ -23,10 +24,10 @@ namespace Ark::internal
     class SymbolExecutor : public MacroExecutor
     {
     public:
-        SymbolExecutor(MacroProcessor* macroprocessor, int debug = 0);
+        SymbolExecutor(MacroProcessor* macroprocessor, unsigned debug = 0);
 
-        void execute(Node &node) override;
-        bool canHandle(Node &node) override;
+        void execute(Node& node) override;
+        bool canHandle(Node& node) override;
     };
 
 }

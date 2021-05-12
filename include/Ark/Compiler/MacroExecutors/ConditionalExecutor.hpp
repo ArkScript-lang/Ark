@@ -11,6 +11,7 @@
 
 #ifndef ARK_COMPILER_CONDITIONALEXECUTOR_HPP
 #define ARK_COMPILER_CONDITIONALEXECUTOR_HPP
+
 #include <Ark/Compiler/MacroExecutor.hpp>
 #include <Ark/Compiler/Node.hpp>
 
@@ -23,9 +24,10 @@ namespace Ark::internal
     class ConditionalExecutor : public MacroExecutor
     {
     public:
-        ConditionalExecutor(MacroProcessor* macroprocessor, int debug = 0);
-        void execute(Node &node) override;
-        bool canHandle(Node &node) override;
+        ConditionalExecutor(MacroProcessor* macroprocessor, unsigned debug = 0);
+
+        void execute(Node& node) override;
+        bool canHandle(Node& node) override;
     };
 
 }

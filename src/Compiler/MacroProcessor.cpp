@@ -14,8 +14,9 @@ namespace Ark::internal
     {
         // initialize default Nodes
         Node::init();
-        std::vector<std::shared_ptr<MacroExecutor>> executors = 
-        {
+
+        // create executors pipeline
+        std::vector<std::shared_ptr<MacroExecutor>> executors = {
             std::make_shared<SymbolExecutor>(this),
             std::make_shared<ConditionalExecutor>(this),
             std::make_shared<ListExecutor>(this)
@@ -206,7 +207,7 @@ namespace Ark::internal
                         );                                                    \
                     Node one = evaluate(node.list()[1], is_not_body),         \
                          two = evaluate(node.list()[2], is_not_body);         \
-                    return (cond) ? Node::TrueNode : Node::FalseNode;                 \
+                    return (cond) ? Node::TrueNode : Node::FalseNode;         \
                 }
 
             const std::string& name = node.list()[0].string();
@@ -309,9 +310,7 @@ namespace Ark::internal
                         node = sublistCopy;
                     }
                     else
-                    {
                         node = Node::NilNode;
-                    }
                 }
                 else if (sublist.list().size() > 0)
                     node = sublist.const_list()[0];
