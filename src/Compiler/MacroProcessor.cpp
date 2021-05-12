@@ -5,8 +5,6 @@
 #include <Ark/Compiler/MacroExecutors/ConditionalExecutor.hpp>
 #include <Ark/Compiler/Node.hpp>
 
-#include <algorithm>
-
 namespace Ark::internal
 {
     MacroProcessor::MacroProcessor(unsigned debug, uint16_t options) noexcept :
@@ -22,6 +20,11 @@ namespace Ark::internal
             std::make_shared<ListExecutor>(this)
         };
         m_executor_pipeline = std::make_unique<MacroExecutorPipeline>(executors);
+
+        m_predefined_macros = {
+            "symcat",
+            "argcount"
+        };
     }
 
     void MacroProcessor::feed(const Node& ast)
@@ -138,6 +141,9 @@ namespace Ark::internal
                     // execute only if we have registered macros
                     if ((m_macros.size() == 1 && m_macros[0].size() > 0) || m_macros.size() > 1)
                         execute(node.list()[i]);
+                    // execute if we are on a predefined macro
+                    if (node.list()[0].nodeType() == NodeType::Symbol && isPredefined(node.list()[0].string()))
+                        execute(node);
 
                     process(node.list()[i], depth + 1);
 
