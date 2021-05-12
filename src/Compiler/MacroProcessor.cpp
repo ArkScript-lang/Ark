@@ -350,7 +350,8 @@ namespace Ark::internal
                 }
             }
         }
-        else if (node.nodeType() == NodeType::List && node.const_list().size() > 1)
+
+        if (node.nodeType() == NodeType::List && node.const_list().size() > 1)
         {
             for (std::size_t i = 0; i < node.list().size(); ++i)
                 node.list()[i] = evaluate(node.list()[i], is_not_body);

@@ -73,6 +73,7 @@ namespace Ark::internal
 
                 if (!args_applied.empty())
                     unify(args_applied, temp_body, nullptr);
+
                 node = evaluate(temp_body, false);
                 execute_proxy(node);
             }
