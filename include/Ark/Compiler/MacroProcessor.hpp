@@ -17,6 +17,8 @@
 #include <Ark/Compiler/makeNodeBasedError.hpp>
 #include <Ark/Compiler/MacroExecutor.hpp>
 #include <Ark/Compiler/MacroExecutors/MacroExecutorPipeline.hpp>
+
+#include <algorithm>
 #include <unordered_map>
 #include <utility>
 #include <string>
@@ -61,6 +63,7 @@ namespace Ark::internal
         Node m_ast;  ///< The modified AST
         std::vector<std::unordered_map<std::string, Node>> m_macros;  ///< Handling macros in a scope fashion
         std::unique_ptr<MacroExecutorPipeline> m_executor_pipeline;
+        std::vector<std::string> m_predefined_macros;  ///< Already existing macros, non-keywords, non-builtins
 
         /**
          * @brief Find the nearest macro matching a given name
@@ -106,6 +109,24 @@ namespace Ark::internal
                     }
                 }
             }
+        }
+
+        /**
+         * @brief Check if a given symbol is a predefined macro or not
+         * 
+         * @param symbol 
+         * @return true 
+         * @return false 
+         */
+        inline bool isPredefined(const std::string& symbol)
+        {
+            auto it = std::find(
+                m_predefined_macros.begin(),
+                m_predefined_macros.end(),
+                symbol
+            );
+
+            return it != m_predefined_macros.end();
         }
 
         /**
