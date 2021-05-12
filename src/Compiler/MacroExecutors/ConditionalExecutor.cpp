@@ -34,6 +34,7 @@ namespace Ark::internal
                 m_registerMacro(node);
         }
     }
+    
     bool ConditionalExecutor::m_canHandle(Node& node)
     {
         return node.nodeType() == NodeType::Macro && node.list()[0].nodeType() == NodeType::Keyword;
