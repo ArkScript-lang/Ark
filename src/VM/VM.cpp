@@ -1,5 +1,7 @@
 #include <Ark/VM/VM.hpp>
 
+#include <termcolor.hpp>
+
 // read a number from the bytecode
 #define readNumber(var) {                                                \
     var = (static_cast<uint16_t>(m_state->m_pages[m_pp][m_ip]) << 8) +   \
@@ -22,6 +24,8 @@ struct mapping {
 
 namespace Ark
 {
+    using namespace internal;
+
     VM::VM(State* state) noexcept :
         m_state(state), m_exitCode(0), m_ip(0), m_pp(0), m_sp(0), m_fc(0),
         m_running(false), m_last_sym_loaded(0),
@@ -32,9 +36,6 @@ namespace Ark
 
     void VM::init() noexcept
     {
-        using namespace Ark::internal;
-
-
         // clearing frames and setting up a new one
         if ((m_state->m_options & FeaturePersist) == 0)
         {
@@ -80,8 +81,6 @@ namespace Ark
 
     internal::Value& VM::operator[](const std::string& name) noexcept
     {
-        using namespace Ark::internal;
-
         const std::lock_guard<std::mutex> lock(m_mutex);
 
         // find id of object
@@ -102,7 +101,6 @@ namespace Ark
 
     void VM::loadPlugin(uint16_t id)
     {
-        using namespace Ark::internal;
         namespace fs = std::filesystem;
 
         const std::string file = m_state->m_constants[id].string_ref().toString();
@@ -185,8 +183,6 @@ namespace Ark
 
     int VM::run() noexcept
     {
-        using namespace Ark::internal;
-
         init();
         safeRun();
 
@@ -199,7 +195,6 @@ namespace Ark
 
     int VM::safeRun(std::size_t untilFrameCount)
     {
-        using namespace Ark::internal;
         m_until_frame_count = untilFrameCount;
 
         try {
@@ -960,7 +955,7 @@ namespace Ark
                 #pragma endregion
 
                     default:
-                        throwVMError("unknown instruction: " + Ark::Utils::toString(static_cast<std::size_t>(inst)));
+                        throwVMError("unknown instruction: " + std::to_string(static_cast<std::size_t>(inst)));
                         break;
                 }
 
@@ -970,13 +965,13 @@ namespace Ark
         } catch (const std::exception& e) {
             std::printf("%s\n", e.what());
             backtrace();
-            return 1;
+            m_exitCode = 1;
         } catch (...) {
             std::printf("Unknown error\n");
             backtrace();
-            return 1;
+            m_exitCode = 1;
         }
-        return 0;
+        return m_exitCode;
     }
 
     // ------------------------------------------
@@ -1000,7 +995,6 @@ namespace Ark
 
     void VM::backtrace() noexcept
     {
-        using namespace Ark::internal;
         std::cerr << termcolor::reset
                   << "At IP: " << (m_ip != -1 ? m_ip : 0)
                   << ", PP: " << m_pp
@@ -1009,17 +1003,17 @@ namespace Ark
 
         if (m_fc > 1)
         {
-            uint16_t curr_pp = m_pp;
-
             // display call stack trace
             uint16_t it = m_fc;
+            Scope old_scope = *m_locals.back().get();
+
             while (it != 0)
             {
                 std::cerr << "[" << termcolor::cyan << it << termcolor::reset << "] ";
-                if (curr_pp != 0)
+                if (m_pp != 0)
                 {
                     uint16_t id = findNearestVariableIdWithValue(
-                        Value(static_cast<PageAddr_t>(curr_pp))
+                        Value(static_cast<PageAddr_t>(m_pp))
                     );
 
                     if (id < m_state->m_symbols.size())
@@ -1027,8 +1021,14 @@ namespace Ark
                     else  // should never happen
                         std::cerr << "In function `" << termcolor::yellow << "???" << termcolor::reset << "'\n";
 
-                    while (pop()->valueType() != ValueType::InstPtr);
-                    curr_pp = pop()->pageAddr();
+                    Value* ip;
+                    do {
+                        ip = popAndResolveAsPtr();
+                    } while (ip->valueType() != ValueType::InstPtr);
+
+                    m_ip = ip->pageAddr();
+                    m_pp = pop()->pageAddr();
+                    returnFromFuncCall();
                     --it;
                 }
                 else
@@ -1046,9 +1046,9 @@ namespace Ark
 
             // display variables values in the current scope
             std::printf("\nCurrent scope variables values:\n");
-            for (std::size_t i=0, size=m_locals.back()->size(); i < size; ++i)
-                std::cerr << termcolor::cyan << m_state->m_symbols[m_locals.back()->m_data[i].first] << termcolor::reset
-                          << " = " << m_locals.back()->m_data[i].second << "\n";
+            for (std::size_t i=0, size=old_scope.size(); i < size; ++i)
+                std::cerr << termcolor::cyan << m_state->m_symbols[old_scope.m_data[i].first] << termcolor::reset
+                          << " = " << old_scope.m_data[i].second << "\n";
 
             // if persistance is on, clear frames to keep only the global one
             if (m_state->m_options & FeaturePersist)

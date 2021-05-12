@@ -169,7 +169,7 @@ namespace Ark::internal
         inline void throwTokenizingError(const std::string& message, const std::string& match, std::size_t line, std::size_t col, const std::string& context);
     };
 
-    #include "Lexer.inl"
+    #include "inline/Lexer.inl"
 }
 
 #endif
