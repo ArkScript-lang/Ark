@@ -27,7 +27,5 @@ namespace Ark::internal
             if (macro->const_list().size() == 2)
                 node = macro->list()[1];
         }
-
-        return;
     }
 }
