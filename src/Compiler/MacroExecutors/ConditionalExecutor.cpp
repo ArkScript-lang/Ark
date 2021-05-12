@@ -1,5 +1,4 @@
 #include <Ark/Compiler/MacroExecutors/ConditionalExecutor.hpp>
-#include <Ark/Log.hpp>
 
 namespace Ark::internal
 {
