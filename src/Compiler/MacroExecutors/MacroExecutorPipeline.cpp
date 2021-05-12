@@ -4,7 +4,7 @@ namespace Ark::internal
 {
     MacroExecutorPipeline::MacroExecutorPipeline(
         MacroProcessor* macroprocessor,
-        std::vector<std::shared_ptr<MacroExecutor>> executors) : m_macroprocessor(macroprocessor), m_executors(executors)
+        const std::vector<std::shared_ptr<MacroExecutor>>& executors) : m_macroprocessor(macroprocessor), m_executors(executors)
     {
         MacroExecutor::init(m_macroprocessor);
     }
