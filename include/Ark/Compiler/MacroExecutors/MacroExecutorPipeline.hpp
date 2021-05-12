@@ -33,7 +33,7 @@ namespace Ark::internal
          * 
          * @param node node on which to operate
          */
-        void m_execute(Node &node);
+        void execute(Node &node);
     };
 }
 

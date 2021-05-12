@@ -25,8 +25,8 @@ namespace Ark::internal
     public:
         SymbolExecutor(MacroProcessor* macroprocessor, int debug = 0);
 
-        void m_execute(Node &node) override;
-        bool m_canHandle(Node &node) override;
+        void execute(Node &node) override;
+        bool canHandle(Node &node) override;
     };
 
 }

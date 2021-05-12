@@ -154,7 +154,7 @@ namespace Ark::internal
 
     void MacroProcessor::execute(Node& node)
     {
-        m_executor_pipeline->m_execute(node);
+        m_executor_pipeline->execute(node);
     }
 
     void MacroProcessor::unify(const std::unordered_map<std::string, Node>& map, Node& target, Node* parent)

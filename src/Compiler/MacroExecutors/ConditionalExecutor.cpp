@@ -7,19 +7,19 @@ namespace Ark::internal
         
     }
 
-    void ConditionalExecutor::m_execute(Node& node)
+    void ConditionalExecutor::execute(Node& node)
     {
         Node& first = node.list()[0];
 
         if (first.keyword() == Keyword::If)
         {
             Node cond = node.list()[1];
-            Node temp = m_evaluate(cond, /* is_not_body */ true);
+            Node temp = evaluate(cond, /* is_not_body */ true);
             Node if_true = node.list()[2];
             Node if_false = node.const_list().size() > 2 ? node.list()[3] : Node::NilNode;
 
             // evaluate cond
-            if (m_isTruthy(temp))
+            if (isTruthy(temp))
                 node = if_true;
             else if (node.const_list().size() > 2)
                 node = if_false;
@@ -31,11 +31,11 @@ namespace Ark::internal
             }
 
             if (node.nodeType() == NodeType::Macro)
-                m_registerMacro(node);
+                registerMacro(node);
         }
     }
 
-    bool ConditionalExecutor::m_canHandle(Node& node)
+    bool ConditionalExecutor::canHandle(Node& node)
     {
         return node.nodeType() == NodeType::Macro && node.list()[0].nodeType() == NodeType::Keyword;
     }

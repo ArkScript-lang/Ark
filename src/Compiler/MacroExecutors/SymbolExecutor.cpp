@@ -7,15 +7,15 @@ namespace Ark::internal
 
     }
 
-    bool SymbolExecutor::m_canHandle(Node& node)
+    bool SymbolExecutor::canHandle(Node& node)
     {
         return node.nodeType() == NodeType::Symbol;
     }
     
-    void SymbolExecutor::m_execute(Node& node)
+    void SymbolExecutor::execute(Node& node)
     {
         // error ?
-        Node* macro = m_find_nearest_macro(node.string());
+        Node* macro = find_nearest_macro(node.string());
 
         if (macro != nullptr)
         {
