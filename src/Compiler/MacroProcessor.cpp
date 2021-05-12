@@ -3,7 +3,6 @@
 #include <Ark/Compiler/MacroExecutors/SymbolExecutor.hpp>
 #include <Ark/Compiler/MacroExecutors/ListExecutor.hpp>
 #include <Ark/Compiler/MacroExecutors/ConditionalExecutor.hpp>
-#include <Ark/Log.hpp>
 #include <Ark/Compiler/Node.hpp>
 
 #include <algorithm>
@@ -27,7 +26,7 @@ namespace Ark::internal
     void MacroProcessor::feed(const Node& ast)
     {
         if (m_debug >= 2)
-            Ark::logger.info("Processing macros...");
+            std::cout << "Processing macros...\n";
 
         // to be able to modify it
         m_ast = ast;
@@ -35,8 +34,8 @@ namespace Ark::internal
 
         if (m_debug >= 3)
         {
-            Ark::logger.info("(MacroProcessor) AST after processing macros");
-            std::cout << m_ast << std::endl;
+            std::cout << "(MacroProcessor) AST after processing macros\n";
+            std::cout << m_ast << '\n';
         }
     }
 
@@ -59,7 +58,12 @@ namespace Ark::internal
         {
             if (first_node.nodeType() == NodeType::Symbol)
             {
-                m_macros.back()[first_node.string()] = node;
+                if (first_node.string() != "undef")
+                    m_macros.back()[first_node.string()] = node;
+                else if (second_node.nodeType() == NodeType::Symbol)  // undefine a macro
+                    delete_nearest_macro(second_node.string());
+                else // used undef on a non-symbol
+                    throwMacroProcessingError("can not undefine a macro without it's name", second_node);
                 return;
             }
             throwMacroProcessingError("can not define a macro without a symbol", first_node);
@@ -128,7 +132,7 @@ namespace Ark::internal
                     if (node.list()[i].nodeType() == NodeType::Macro)
                         node.list().erase(node.const_list().begin() + i);
                 }
-                else
+                else  // running on non-macros
                 {
                     // execute only if we have registered macros
                     if ((m_macros.size() == 1 && m_macros[0].size() > 0) || m_macros.size() > 1)
@@ -148,36 +152,36 @@ namespace Ark::internal
         }
     }
 
-    void MacroProcessor::apply_to(const std::unordered_map<std::string, Node>& map, Node& target, Node* parent)
-    {
-        if (target.nodeType() == NodeType::Symbol)
-            {
-                if (auto p = map.find(target.string()); p != map.end())
-                    target = p->second;
-            }
-            else if (target.nodeType() == NodeType::List || target.nodeType() == NodeType::Macro)
-            {
-                for (std::size_t i = 0, end = target.list().size(); i < end; ++i)
-                    apply_to(map, target.list()[i], &target);
-            }
-            else if (target.nodeType() == NodeType::Spread)
-            {
-                Node subnode = target;
-                subnode.setNodeType(NodeType::Symbol);
-                apply_to(map, subnode, parent);
-                parent->list().pop_back();  // remove the spread
-
-                if (subnode.nodeType() != NodeType::List)
-                    throwMacroProcessingError("Got a non-list while trying to apply the spread operator", subnode);
-
-                for (std::size_t i = 1, end = subnode.list().size(); i < end; ++i)
-                    parent->push_back(subnode.list()[i]);
-            }   
-    }
-
     void MacroProcessor::execute(Node& node)
     {
         m_executor_pipeline->m_execute(node);
+    }
+
+    void MacroProcessor::unify(const std::unordered_map<std::string, Node>& map, Node& target, Node* parent)
+    {
+        if (target.nodeType() == NodeType::Symbol)
+        {
+            if (auto p = map.find(target.string()); p != map.end())
+                target = p->second;
+        }
+        else if (target.nodeType() == NodeType::List || target.nodeType() == NodeType::Macro)
+        {
+            for (std::size_t i = 0, end = target.list().size(); i < end; ++i)
+                unify(map, target.list()[i], &target);
+        }
+        else if (target.nodeType() == NodeType::Spread)
+        {
+            Node subnode = target;
+            subnode.setNodeType(NodeType::Symbol);
+            unify(map, subnode, parent);
+            parent->list().pop_back();  // remove the spread
+
+            if (subnode.nodeType() != NodeType::List)
+                throwMacroProcessingError("Got a non-list while trying to apply the spread operator", subnode);
+
+            for (std::size_t i = 1, end = subnode.list().size(); i < end; ++i)
+                parent->push_back(subnode.list()[i]);
+        }
     }
 
     Node MacroProcessor::evaluate(Node& node, bool is_not_body)

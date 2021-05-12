@@ -27,7 +27,6 @@
 #include <Ark/VM/Scope.hpp>
 #include <Ark/VM/State.hpp>
 #include <Ark/Builtins/Builtins.hpp>
-#include <Ark/Log.hpp>
 #include <Ark/Config.hpp>
 #include <Ark/VM/Plugin.hpp>
 
@@ -196,6 +195,16 @@ namespace Ark
          * @return internal::Value* 
          */
         inline internal::Value* popAndResolveAsPtr();
+
+        /**
+         * @brief Move stack values around and invert them
+         * @details values:     1,  2, 3, _, _
+         *          wanted:    pp, ip, 3, 2, 1
+         *          positions:  0,  1, 2, 3, 4
+         * 
+         * @param argc number of arguments to swap around
+         */
+        inline void swapStackForFunCall(uint16_t argc);
 
         // ================================================
         //                locals related

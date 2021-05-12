@@ -20,6 +20,10 @@ namespace Ark::internal
 
     /**
      * @brief The different bytecodes are stored here
+     * @par Adding an operator
+     * It must be referenced as well under src/VM/Builtins/Builtins.cpp, in
+     * the operators table. The order of the operators below <code>FIRST_OPERATOR</code>
+     * must be the same as the one in the operators table from the aforementioned file.
      * 
      */
     enum Instruction : Inst_t
@@ -55,10 +59,6 @@ namespace Ark::internal
             CONCAT            = 0x14,
         LAST_COMMAND          = 0x14,
 
-        // NB: when adding an operator, it must be referenced as well under
-        // src/VM/Builtins/Builtins.cpp, in the operators table
-        // The order of the operators below must be the same as the one in
-        // the operators table from src/VM/Builtins/Builtins.cpp
         FIRST_OPERATOR = 0x20,
             ADD        = 0x20,
             SUB        = 0x21,

@@ -115,7 +115,7 @@ namespace Ark::internal
         for (std::size_t i=0, end=m_data.size(); i < end; ++i)
         {
             if (m_data[i].second == val)
-                return i;
+                return m_data[i].first;
         }
         return static_cast<uint16_t>(~0);
     }

@@ -1,0 +1,48 @@
+name: "CMake - Linux-GCC"
+
+on:
+  push:
+    branches: [dev]
+  pull_request:
+    branches: [dev]
+
+env:
+  BUILD_TYPE: Release
+  CC: gcc-8
+  CXX: g++-8
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+
+    - name: Update compilers
+      shell: bash
+      run: |
+        sudo apt-add-repository -y ppa:ubuntu-toolchain-r/test
+        sudo apt-get -yq install g++-8 gcc-8
+
+    - name: Configure CMake
+      shell: bash
+      run: cmake -Bbuild -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=On
+
+    - name: Build
+      shell: bash
+      run: |
+        cmake --build build --config $BUILD_TYPE --target ark
+        cmake --build build --config $BUILD_TYPE --target console
+
+    - name: Test
+      shell: bash
+      run: |
+        if [ -f build/Release/ark.exe ]; then
+            ./build/Release/ark.exe tests/unittests.ark --lib lib/ || exit 1
+        elif [ -f build/ark ]; then
+          ./build/ark tests/unittests.ark --lib lib/ || exit 1
+        else
+          echo "No ark executable found" && exit 1
+        fi

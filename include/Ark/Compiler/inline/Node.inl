@@ -1,3 +1,20 @@
+template <typename T>
+Node make_node(T&& value, std::size_t line, std::size_t col, const std::string& file)
+{
+    Node n(std::forward<T>(value));
+    n.setPos(line, col);
+    n.setFilename(file);
+    return n;
+}
+
+inline Node make_node_list(std::size_t line, std::size_t col, const std::string& file)
+{
+    Node n(NodeType::List);
+    n.setPos(line, col);
+    n.setFilename(file);
+    return n;
+}
+
 inline bool operator==(const Node& A, const Node& B)
 {
     if (A.m_type != B.m_type)  // should have the same types
@@ -64,12 +81,6 @@ inline bool operator!(const Node& A)
 
 inline std::string typeToString(const Node& node) noexcept
 {
-    // must have the same order as the enum class NodeType L17
-    static const std::vector<std::string> nodetype_str = {
-        "Symbol", "Capture", "GetField", "Keyword", "String",
-        "Number", "List", "Closure", "Macro", "Spread"
-    };
-
     if (node.nodeType() == NodeType::Symbol)
     {
         if (node.string() == "nil")
@@ -78,5 +89,43 @@ inline std::string typeToString(const Node& node) noexcept
             return "Bool";
     }
 
-    return nodetype_str[static_cast<int>(node.nodeType())];
+    const std::array<std::string, 10> nodetype_str = {
+        "Symbol", "Capture", "GetField", "Keyword", "String",
+        "Number", "List", "Closure", "Macro", "Spread"
+    };
+
+    switch (node.nodeType())
+    {
+        case NodeType::Symbol:
+            return "Symbol";
+
+        case NodeType::Capture:
+            return "Capture";
+
+        case NodeType::GetField:
+            return "GetField";
+
+        case NodeType::Keyword:
+            return "Keyword";
+
+        case NodeType::String:
+            return "String";
+
+        case NodeType::Number:
+            return "Number";
+
+        case NodeType::List:
+            return "List";
+
+        case NodeType::Closure:
+            return "Closure";
+
+        case NodeType::Macro:
+            return "Macro";
+
+        case NodeType::Spread:
+            return "Spread";
+    }
+
+    return "???";
 }

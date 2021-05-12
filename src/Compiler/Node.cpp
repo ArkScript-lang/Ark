@@ -229,7 +229,7 @@ namespace Ark::internal
         return os;
     }
 
-    std::ostream& operator<<(std::ostream& os, const Nodes& N) noexcept
+    std::ostream& operator<<(std::ostream& os, const std::vector<Node>& N) noexcept
     {
         os << "( ";
         for (auto& t: N)
