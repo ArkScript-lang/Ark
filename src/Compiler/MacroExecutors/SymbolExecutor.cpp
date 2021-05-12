@@ -16,7 +16,7 @@ namespace Ark::internal
     void SymbolExecutor::execute(Node& node)
     {
         // error ?
-        Node* macro = find_nearest_macro(node.string());
+        Node* macro = m_find_nearest_macro(node.string());
 
         if (macro != nullptr)
         {
