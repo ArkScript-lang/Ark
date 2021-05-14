@@ -35,7 +35,8 @@ namespace Ark::internal
         List,
         Closure,
         Macro,
-        Spread
+        Spread,
+        Unused
     };
 
     /// The different keywords available

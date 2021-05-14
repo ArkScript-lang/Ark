@@ -1,9 +1,20 @@
-!{def (start val)
-    (let (symcat start val) val)}
+# !{def (start val)
+#     (let (symcat start val) val)}
 
-(def a "a")
-(print aa)
-(def a (+ 1 2))
-(print a3)
+# (def a "a")
+# (print aa)
+# (def a (+ 1 2))
+# (print a3)
 
-(print (+ 1 2 3))
+# (print (+ 1 2 3))
+
+!{suffix-dup (sym x) {
+    !{if (> x 1)
+        (suffix-dup sym (- x 1))
+    }
+    (symcat sym x)
+}}
+
+!{define (name) (let name (fun ((suffix-dup a 3)) (- a1 a2 a3)))}
+(define magic_func)
+(print (magic_func 1 2 3))

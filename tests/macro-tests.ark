@@ -119,14 +119,26 @@
     (define (let a 12))
     (set tests (assert-eq a 12 "macro get_symbol" tests))
 
-    # !{suffix-dup (sym x)
-    #     !{if (> x 0)
-    #         {
-    #             (symcat sym x)
-    #             (suffix-dup sym (- x 1))
-    #         }
-    #     }
-    # }
+    !{define (prefix suffix value) (let (symcat prefix suffix) value)}
+    (define a 1 2)
+    (set tests (assert-eq a1 2 "macro symcat" tests))
+    (define a (+ 1 1) 2)
+    (set tests (assert-eq a2 2 "macro symcat" tests))
+    (define a (- 1 1) 2)
+    (set tests (assert-eq a0 2 "macro symcat" tests))
+    (define a (+ nice_value 1) 2)
+    (set tests (assert-eq a13 2 "macro symcat" tests))
+
+    !{suffix-dup (sym x)
+        !{if (> x 0)
+            {
+                (symcat sym x)
+                (suffix-dup sym (- x 1))
+            }
+        }
+    }
+    (let magic_func (fun (suffix-dup a 3) (- a1 a2 a3)))
+    (set tests (assert-eq (magic_func 1 2 3) (- 3 2 1) "macro symdup" tests))
 
     # !{partial (func ...defargs) {
     #     !{bloc (suffix-dup a (- (argcount func) (len defargs)))}
