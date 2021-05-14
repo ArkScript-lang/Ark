@@ -9,7 +9,8 @@
             "type": "cppvsdbg",
             "request": "launch",
             "program": "${command:cmake.launchTargetPath}",
-            "args": ["examples/macros/symcat.ark", "-ddd"],
+            "symbolSearchPath": "${workspaceFolder}/build/Debug/",
+            "args": ["examples/macros/names.ark", "-ddd"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [

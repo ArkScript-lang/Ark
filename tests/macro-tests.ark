@@ -129,16 +129,14 @@
     (define a (+ nice_value 1) 2)
     (set tests (assert-eq a13 2 "macro symcat" tests))
 
-    !{suffix-dup (sym x)
-        !{if (> x 0)
-            {
-                (symcat sym x)
-                (suffix-dup sym (- x 1))
-            }
+    !{suffix-dup (sym x) {
+        !{if (> x 1)
+            (suffix-dup sym (- x 1))
         }
-    }
-    (let magic_func (fun (suffix-dup a 3) (- a1 a2 a3)))
-    (set tests (assert-eq (magic_func 1 2 3) (- 3 2 1) "macro symdup" tests))
+        (symcat sym x)
+    }}
+    (let magic_func (fun ((suffix-dup a 3)) (- a1 a2 a3)))
+    (set tests (assert-eq (magic_func 1 2 3) (- 1 2 3) "macro symdup" tests))
 
     # !{partial (func ...defargs) {
     #     !{bloc (suffix-dup a (- (argcount func) (len defargs)))}
