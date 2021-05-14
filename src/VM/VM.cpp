@@ -2,21 +2,6 @@
 
 #include <termcolor.hpp>
 
-// read a number from the bytecode
-#define readNumber(var) {                                                \
-    var = (static_cast<uint16_t>(m_state->m_pages[m_pp][m_ip]) << 8) +   \
-           static_cast<uint16_t>(m_state->m_pages[m_pp][m_ip + 1]);      \
-    ++m_ip;                                                              \
-    }
-// register a variable in the current scope
-#define registerVariable(id, value) ((*m_locals.back()).push_back(id, value))
-// register a variable in the global scope
-#define registerVarGlobal(id, value) ((*m_locals[0]).push_back(id, value))
-// create a new locals scope
-#define createNewScope() m_locals.emplace_back(std::make_shared<Scope>());
-// get a variable from a scope
-#define getVariableInCurrentScope(id) ((*m_locals.back())[id])
-
 struct mapping {
     char* name;
     Ark::internal::Value (*value)(std::vector<Ark::internal::Value>&, Ark::VM*);
@@ -27,7 +12,7 @@ namespace Ark
     using namespace internal;
 
     VM::VM(State* state) noexcept :
-        m_state(state), m_exitCode(0), m_ip(0), m_pp(0), m_sp(0), m_fc(0),
+        m_state(state), m_exit_code(0), m_ip(0), m_pp(0), m_sp(0), m_fc(0),
         m_running(false), m_last_sym_loaded(0),
         m_until_frame_count(0), m_user_pointer(nullptr)
     {
@@ -55,7 +40,7 @@ namespace Ark
         }
 
         m_saved_scope.reset();
-        m_exitCode = 0;
+        m_exit_code = 0;
 
         // clearing locals (scopes) and create a global scope
         if ((m_state->m_options & FeaturePersist) == 0)
@@ -75,7 +60,7 @@ namespace Ark
         {
             auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), name_val.first);
             if (it != m_state->m_symbols.end())
-                registerVarGlobal(static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it)), name_val.second);
+                (*m_locals[0]).push_back(static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it)), name_val.second);
         }
     }
 
@@ -87,23 +72,23 @@ namespace Ark
         auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), name);
         if (it == m_state->m_symbols.end())
         {
-            m__no_value = Builtins::nil;
-            return m__no_value;
+            m_no_value = Builtins::nil;
+            return m_no_value;
         }
 
         uint16_t id = static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it));
         Value* var = findNearestVariable(id);
         if (var != nullptr)
             return *var;
-        m__no_value = Builtins::nil;
-        return m__no_value;
+        m_no_value = Builtins::nil;
+        return m_no_value;
     }
 
     void VM::loadPlugin(uint16_t id)
     {
         namespace fs = std::filesystem;
 
-        const std::string file = m_state->m_constants[id].string_ref().toString();
+        const std::string file = m_state->m_constants[id].stringRef().toString();
 
         std::string path = file;
         // bytecode loaded from file
@@ -145,7 +130,7 @@ namespace Ark
             // put it in the global frame, aka the first one
             auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), std::string(map[i].name));
             if (it != m_state->m_symbols.end())
-                registerVarGlobal(static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it)), Value(map[i].value));
+                (*m_locals[0]).push_back(static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it)), Value(map[i].value));
 
             // free memory because we have used it and don't need it anymore
             // no need to free map[i].value since it's a pointer to a function in the DLL
@@ -159,7 +144,7 @@ namespace Ark
 
     void VM::exit(int code) noexcept
     {
-        m_exitCode = code;
+        m_exit_code = code;
         m_running = false;
     }
 
@@ -190,7 +175,7 @@ namespace Ark
         m_ip = 0;
         m_pp = 0;
 
-        return m_exitCode;
+        return m_exit_code;
     }
 
     int VM::safeRun(std::size_t untilFrameCount)
@@ -217,7 +202,7 @@ namespace Ark
                         */
 
                         ++m_ip;
-                        readNumber(m_last_sym_loaded);
+                        m_last_sym_loaded = readNumber();
 
                         if (Value* var = findNearestVariable(m_last_sym_loaded); var != nullptr)
                             // push internal reference, shouldn't break anything so far
@@ -238,7 +223,7 @@ namespace Ark
                         */
 
                         ++m_ip;
-                        uint16_t id; readNumber(id);
+                        uint16_t id = readNumber();
 
                         if (m_saved_scope && m_state->m_constants[id].valueType() == ValueType::PageAddr)
                         {
@@ -264,7 +249,7 @@ namespace Ark
                         */
 
                         ++m_ip;
-                        uint16_t id; readNumber(id);
+                        uint16_t id = readNumber();
 
                         if (*popAndResolveAsPtr() == Builtins::trueSym)
                             m_ip = static_cast<int16_t>(id) - 1;  // because we are doing a ++m_ip right after this
@@ -281,7 +266,7 @@ namespace Ark
                         */
 
                         ++m_ip;
-                        uint16_t id; readNumber(id);
+                        uint16_t id = readNumber();
 
                         if (Value* var = findNearestVariable(id); var != nullptr)
                         {
@@ -308,15 +293,15 @@ namespace Ark
                         */
 
                         ++m_ip;
-                        uint16_t id; readNumber(id);
+                        uint16_t id = readNumber();
 
                         // check if we are redefining a variable
-                        if (auto val = getVariableInCurrentScope(id); val != nullptr)
+                        if (auto val = (*m_locals.back())[id]; val != nullptr)
                             throwVMError("can not use 'let' to redefine the variable " + m_state->m_symbols[id]);
 
                         Value val = *popAndResolveAsPtr();
                         val.setConst(true);
-                        registerVariable(id, val);
+                        (*m_locals.back()).push_back(id, val);
 
                         COZ_PROGRESS("ark vm let");
                         break;
@@ -331,7 +316,7 @@ namespace Ark
                         */
 
                         ++m_ip;
-                        uint16_t id; readNumber(id);
+                        uint16_t id = readNumber();
 
                         if (*popAndResolveAsPtr() == Builtins::falseSym)
                             m_ip = static_cast<int16_t>(id) - 1;  // because we are doing a ++m_ip right after this
@@ -346,7 +331,7 @@ namespace Ark
                         */
 
                         ++m_ip;
-                        uint16_t id; readNumber(id);
+                        uint16_t id = readNumber();
 
                         m_ip = static_cast<int16_t>(id) - 1;  // because we are doing a ++m_ip right after this
                         break;
@@ -409,12 +394,12 @@ namespace Ark
                         */
 
                         ++m_ip;
-                        uint16_t id; readNumber(id);
+                        uint16_t id = readNumber();
 
                         if (!m_saved_scope)
                             m_saved_scope = std::make_shared<Scope>();
                         // if it's a captured variable, it can not be nullptr
-                        Value* ptr = getVariableInCurrentScope(id);
+                        Value* ptr = (*m_locals.back())[id];
                         ptr = ptr->valueType() == ValueType::Reference ? ptr->reference() : ptr;
                         (*m_saved_scope.value()).push_back(id, *ptr);
 
@@ -430,7 +415,7 @@ namespace Ark
                         */
 
                         ++m_ip;
-                        uint16_t id; readNumber(id);
+                        uint16_t id = readNumber();
 
                         push(Builtins::builtins[id].second);
 
@@ -447,7 +432,7 @@ namespace Ark
                         */
 
                         ++m_ip;
-                        uint16_t id; readNumber(id);
+                        uint16_t id = readNumber();
 
                         Value val = *popAndResolveAsPtr();
                         val.setConst(false);
@@ -455,7 +440,7 @@ namespace Ark
                         // avoid adding the pair (id, _) multiple times, with different values
                         Value* local = (*m_locals.back())[id];
                         if (local == nullptr)
-                            registerVariable(id, val);
+                            (*m_locals.back()).push_back(id, val);
                         else
                             *local = val;
 
@@ -471,13 +456,13 @@ namespace Ark
                         */
 
                         ++m_ip;
-                        uint16_t id; readNumber(id);
+                        uint16_t id = readNumber();
 
                         if (Value* var = findNearestVariable(id); var != nullptr)
                         {
                             // free usertypes
                             if (var->valueType() == ValueType::User)
-                                var->usertype_ref().del();
+                                var->usertypeRef().del();
                             *var = Value();
                             break;
                         }
@@ -509,18 +494,18 @@ namespace Ark
                         */
 
                         ++m_ip;
-                        uint16_t id; readNumber(id);
+                        uint16_t id = readNumber();
 
                         Value* var = popAndResolveAsPtr();
                         if (var->valueType() != ValueType::Closure)
                             throwVMError("the variable `" + m_state->m_symbols[m_last_sym_loaded] + "' isn't a closure, can not get the field `" + m_state->m_symbols[id] + "' from it");
 
-                        if (Value* field = (*var->closure_ref().scope())[id]; field != nullptr)
+                        if (Value* field = (*var->refClosure().scope())[id]; field != nullptr)
                         {
                             // check for CALL instruction
                             if (m_ip + 1 < m_state->m_pages[m_pp].size() && m_state->m_pages[m_pp][m_ip + 1] == Instruction::CALL)
                             {
-                                m_locals.push_back(var->closure_ref().scope());
+                                m_locals.push_back(var->refClosure().scope());
                                 ++m_scope_count_to_delete.back();
                             }
 
@@ -541,7 +526,7 @@ namespace Ark
                         */
 
                         ++m_ip;
-                        uint16_t id; readNumber(id);
+                        uint16_t id = readNumber();
 
                         loadPlugin(id);
 
@@ -556,7 +541,7 @@ namespace Ark
                             The content is pushed in reverse order
                         */
                         ++m_ip;
-                        uint16_t count; readNumber(count);
+                        uint16_t count = readNumber();
 
                         Value l(ValueType::List);
                         if (count != 0)
@@ -573,12 +558,12 @@ namespace Ark
                     case Instruction::APPEND:
                     {
                         ++m_ip;
-                        uint16_t count; readNumber(count);
+                        uint16_t count = readNumber();
 
                         Value *list = popAndResolveAsPtr();
                         if (list->valueType() != ValueType::List)
                             throw Ark::TypeError("append needs a List and then whatever you want");
-                        const uint16_t size = list->const_list().size();
+                        const uint16_t size = list->constList().size();
 
                         Value obj = Value(*list);
                         obj.list().reserve(size + count);
@@ -594,7 +579,7 @@ namespace Ark
                     case Instruction::CONCAT:
                     {
                         ++m_ip;
-                        uint16_t count; readNumber(count);
+                        uint16_t count = readNumber();
 
                         Value *list = popAndResolveAsPtr();
                         if (list->valueType() != ValueType::List)
@@ -734,7 +719,7 @@ namespace Ark
                         Value *a = popAndResolveAsPtr();
 
                         if (a->valueType() == ValueType::List)
-                            push(Value(static_cast<int>(a->const_list().size())));
+                            push(Value(static_cast<int>(a->constList().size())));
                         else if (a->valueType() == ValueType::String)
                             push(Value(static_cast<int>(a->string().size())));
                         else
@@ -747,7 +732,7 @@ namespace Ark
                         Value* a = popAndResolveAsPtr();
 
                         if (a->valueType() == ValueType::List)
-                            push((a->const_list().size() == 0) ? Builtins::trueSym : Builtins::falseSym);
+                            push((a->constList().size() == 0) ? Builtins::trueSym : Builtins::falseSym);
                         else if (a->valueType() == ValueType::String)
                             push((a->string().size() == 0) ? Builtins::trueSym : Builtins::falseSym);
                         else
@@ -762,15 +747,15 @@ namespace Ark
 
                         if (a->valueType() == ValueType::List)
                         {
-                            if (a->const_list().size() < 2)
+                            if (a->constList().size() < 2)
                             {
                                 push(Value(ValueType::List));
                                 break;
                             }
 
-                            std::vector<Value> tmp(a->const_list().size() - 1);
-                            for (std::size_t i = 1, end = a->const_list().size(); i < end; ++i)
-                                tmp[i - 1] = a->const_list()[i];
+                            std::vector<Value> tmp(a->constList().size() - 1);
+                            for (std::size_t i = 1, end = a->constList().size(); i < end; ++i)
+                                tmp[i - 1] = a->constList()[i];
                             push(Value(std::move(tmp)));
                         }
                         else if (a->valueType() == ValueType::String)
@@ -782,7 +767,7 @@ namespace Ark
                             }
 
                             Value b = *a;
-                            b.string_ref().erase_front(0);
+                            b.stringRef().erase_front(0);
                             push(std::move(b));
                         }
                         else
@@ -797,13 +782,13 @@ namespace Ark
 
                         if (a->valueType() == ValueType::List)
                         {
-                            if (a->const_list().size() < 2)
+                            if (a->constList().size() < 2)
                             {
                                 push(Builtins::nil);
                                 break;
                             }
 
-                            Value b = a->const_list()[0];
+                            Value b = a->constList()[0];
                             push(b);
                         }
                         else if (a->valueType() == ValueType::String)
@@ -814,7 +799,7 @@ namespace Ark
                                 break;
                             }
 
-                            push(Value(std::string(1, a->string_ref()[0])));
+                            push(Value(std::string(1, a->stringRef()[0])));
                         }
                         else
                             throw Ark::TypeError("Argument of head must be a List or a String");
@@ -838,7 +823,7 @@ namespace Ark
                             if (b->valueType() != ValueType::String)
                                 throw Ark::TypeError("Second argument of assert must be a String");
 
-                            throw Ark::AssertionFailed(b->string_ref().toString());
+                            throw Ark::AssertionFailed(b->stringRef().toString());
                         }
                         break;
                     }
@@ -931,7 +916,7 @@ namespace Ark
                         if (field->valueType() != ValueType::String)
                             throw Ark::TypeError("Argument no 2 of hasField should be a String");
 
-                        auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), field->string_ref().toString());
+                        auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), field->stringRef().toString());
                         if (it == m_state->m_symbols.end())
                         {
                             push(Builtins::falseSym);
@@ -939,7 +924,7 @@ namespace Ark
                         }
 
                         uint16_t id = static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it));
-                        push((*closure->closure_ref().scope_ref())[id] != nullptr ? Builtins::trueSym : Builtins::falseSym);
+                        push((*closure->refClosure().refScope())[id] != nullptr ? Builtins::trueSym : Builtins::falseSym);
 
                         break;
                     }
@@ -965,13 +950,13 @@ namespace Ark
         } catch (const std::exception& e) {
             std::printf("%s\n", e.what());
             backtrace();
-            m_exitCode = 1;
+            m_exit_code = 1;
         } catch (...) {
             std::printf("Unknown error\n");
             backtrace();
-            m_exitCode = 1;
+            m_exit_code = 1;
         }
-        return m_exitCode;
+        return m_exit_code;
     }
 
     // ------------------------------------------
@@ -1059,7 +1044,7 @@ namespace Ark
                     if (tmp->valueType() == ValueType::InstPtr)
                         --m_fc;
                     else if (tmp->valueType() == ValueType::User)
-                        tmp->usertype_ref().del();
+                        tmp->usertypeRef().del();
                 }
                 // pop the PP as well
                 pop();

@@ -222,7 +222,7 @@ namespace Ark
             return;
         }
         // empty code block should be nil
-        else if (x.const_list().empty())
+        else if (x.constList().empty())
         {
             auto it_builtin = isBuiltin("nil");
             page(p).emplace_back(Instruction::BUILTIN);
@@ -230,16 +230,16 @@ namespace Ark
             return;
         }
         // specific instructions
-        else if (auto c0 = x.const_list()[0]; c0.nodeType() == NodeType::Symbol &&
+        else if (auto c0 = x.constList()[0]; c0.nodeType() == NodeType::Symbol &&
                 (c0.string() == "list" || c0.string() == "append" || c0.string() == "concat"))
         {
             compileSpecific(c0, x, p);
             return;
         }
         // registering structures
-        else if (x.const_list()[0].nodeType() == NodeType::Keyword)
+        else if (x.constList()[0].nodeType() == NodeType::Keyword)
         {
-            Keyword n = x.const_list()[0].keyword();
+            Keyword n = x.constList()[0].keyword();
 
             if (n == Keyword::If)
                 compileIf(x, p);
@@ -251,8 +251,8 @@ namespace Ark
                 compileFunction(x, p);
             else if (n == Keyword::Begin)
             {
-                for (std::size_t i=1, size=x.const_list().size(); i < size; ++i)
-                    _compile(x.const_list()[i], p);
+                for (std::size_t i=1, size=x.constList().size(); i < size; ++i)
+                    _compile(x.constList()[i], p);
             }
             else if (n == Keyword::While)
                 compileWhile(x, p);
@@ -299,24 +299,24 @@ namespace Ark
             (name == "append" ? Instruction::APPEND : Instruction::CONCAT);
 
         // length of at least 1 since we got a symbol name
-        uint16_t argc = countArkObjects(x.const_list()) - 1;
+        uint16_t argc = countArkObjects(x.constList()) - 1;
         // error, can not use append/concat with a <2 length argument list
         if (argc < 2 && (specific == Instruction::APPEND || specific == Instruction::CONCAT))
             throw Ark::CompilationError("can not use " + name + " with less than 2 arguments");
 
         // compile arguments in reverse order
-        for (uint16_t i = x.const_list().size() - 1; i > 0; --i)
+        for (uint16_t i = x.constList().size() - 1; i > 0; --i)
         {
             uint16_t j = i;
-            while (x.const_list()[j].nodeType() == NodeType::GetField)
+            while (x.constList()[j].nodeType() == NodeType::GetField)
                 --j;
             uint16_t diff = i - j;
             while (j < i)
             {
-                _compile(x.const_list()[j], p);
+                _compile(x.constList()[j], p);
                 ++j;
             }
-            _compile(x.const_list()[i], p);
+            _compile(x.constList()[i], p);
             i -= diff;
         }
 
@@ -331,15 +331,15 @@ namespace Ark
     void Compiler::compileIf(const Node& x, int p)
     {
         // compile condition
-        _compile(x.const_list()[1], p);
+        _compile(x.constList()[1], p);
         // jump only if needed to the x.list()[2] part
         page(p).emplace_back(Instruction::POP_JUMP_IF_TRUE);
         std::size_t jump_to_if_pos = page(p).size();
         // absolute address to jump to if condition is true
         pushNumber(static_cast<uint16_t>(0x00), &page(p));
             // else code
-            if (x.const_list().size() == 4)  // we have an else clause
-                _compile(x.const_list()[3], p);
+            if (x.constList().size() == 4)  // we have an else clause
+                _compile(x.constList()[3], p);
             // when else is finished, jump to end
             page(p).emplace_back(Instruction::JUMP);
             std::size_t jump_to_end_pos = page(p).size();
@@ -348,7 +348,7 @@ namespace Ark
         page(p)[jump_to_if_pos]     = (static_cast<uint16_t>(page(p).size()) & 0xff00) >> 8;
         page(p)[jump_to_if_pos + 1] =  static_cast<uint16_t>(page(p).size()) & 0x00ff;
         // if code
-        _compile(x.const_list()[2], p);
+        _compile(x.constList()[2], p);
         // set jump to end pos
         page(p)[jump_to_end_pos]     = (static_cast<uint16_t>(page(p).size()) & 0xff00) >> 8;
         page(p)[jump_to_end_pos + 1] =  static_cast<uint16_t>(page(p).size()) & 0x00ff;
@@ -357,7 +357,7 @@ namespace Ark
     void Compiler::compileFunction(const Node& x, int p)
     {
         // capture, if needed
-        for (auto it=x.const_list()[1].const_list().begin(), it_end=x.const_list()[1].const_list().end(); it != it_end; ++it)
+        for (auto it=x.constList()[1].constList().begin(), it_end=x.constList()[1].constList().end(); it != it_end; ++it)
         {
             if (it->nodeType() == NodeType::Capture)
             {
@@ -381,7 +381,7 @@ namespace Ark
         std::size_t id = addValue(page_id);  // save page_id into the constants table as PageAddr
         pushNumber(static_cast<uint16_t>(id), &page(p));
         // pushing arguments from the stack into variables in the new scope
-        for (auto it=x.const_list()[1].const_list().begin(), it_end=x.const_list()[1].const_list().end(); it != it_end; ++it)
+        for (auto it=x.constList()[1].constList().begin(), it_end=x.constList()[1].constList().end(); it != it_end; ++it)
         {
             if (it->nodeType() == NodeType::Symbol)
             {
@@ -392,23 +392,23 @@ namespace Ark
             }
         }
         // push body of the function
-        _compile(x.const_list()[2], page_id);
+        _compile(x.constList()[2], page_id);
         // return last value on the stack
         page(page_id).emplace_back(Instruction::RET);
     }
 
     void Compiler::compileLetMut(Keyword n, const Node& x, int p)
     {
-        std::string name = x.const_list()[1].string();
-        std::size_t i = addSymbol(x.const_list()[1]);
+        std::string name = x.constList()[1].string();
+        std::size_t i = addSymbol(x.constList()[1]);
         addDefinedSymbol(name);
 
         // put value before symbol id
         // trying to handle chained closure.field.field.field...
         std::size_t pos = 2;
-        while (pos < x.const_list().size())
+        while (pos < x.constList().size())
         {
-            _compile(x.const_list()[pos], p);
+            _compile(x.constList()[pos], p);
             pos++;
         }
 
@@ -421,14 +421,14 @@ namespace Ark
         // save current position to jump there at the end of the loop
         std::size_t current = page(p).size();
         // push condition
-        _compile(x.const_list()[1], p);
+        _compile(x.constList()[1], p);
         // absolute jump to end of block if condition is false
         page(p).emplace_back(Instruction::POP_JUMP_IF_FALSE);
         std::size_t jump_to_end_pos = page(p).size();
         // absolute address to jump to if condition is false
         pushNumber(static_cast<uint16_t>(0x00), &page(p));
         // push code to page
-            _compile(x.const_list()[2], p);
+            _compile(x.constList()[2], p);
             // loop, jump to the condition
             page(p).emplace_back(Instruction::JUMP);
             // abosolute address
@@ -440,15 +440,15 @@ namespace Ark
 
     void Compiler::compileSet(const Node& x, int p)
     {
-        std::string name = x.const_list()[1].string();
-        std::size_t i = addSymbol(x.const_list()[1]);
+        std::string name = x.constList()[1].string();
+        std::size_t i = addSymbol(x.constList()[1]);
 
         // put value before symbol id
         // trying to handle chained closure.field.field.field...
         std::size_t pos = 2;
-        while (pos < x.const_list().size())
+        while (pos < x.constList().size())
         {
-            _compile(x.const_list()[pos], p);
+            _compile(x.constList()[pos], p);
             pos++;
         }
 
@@ -461,7 +461,7 @@ namespace Ark
         // create new page for quoted code
         m_code_pages.emplace_back();
         std::size_t page_id = m_code_pages.size() - 1;
-        _compile(x.const_list()[1], page_id);
+        _compile(x.constList()[1], page_id);
         page(page_id).emplace_back(Instruction::RET);  // return to the last frame
 
         // call it
@@ -474,9 +474,9 @@ namespace Ark
     void Compiler::compilePluginImport(const Node& x, int p)
     {
         // register plugin path in the constants table
-        std::size_t id = addValue(x.const_list()[1]);
+        std::size_t id = addValue(x.constList()[1]);
         // save plugin name to use it later
-        m_plugins.push_back(x.const_list()[1].string());
+        m_plugins.push_back(x.constList()[1].string());
         // add plugin instruction + id of the constant refering to the plugin path
         page(p).emplace_back(Instruction::PLUGIN);
         pushNumber(static_cast<uint16_t>(id), &page(p));
@@ -485,8 +485,8 @@ namespace Ark
     void Compiler::compileDel(const Node& x, int p)
     {
         // get id of symbol to delete
-        std::string name = x.const_list()[1].string();
-        std::size_t i = addSymbol(x.const_list()[1]);
+        std::string name = x.constList()[1].string();
+        std::size_t i = addSymbol(x.constList()[1]);
 
         page(p).emplace_back(Instruction::DEL);
         pushNumber(static_cast<uint16_t>(i), &page(p));
@@ -496,15 +496,15 @@ namespace Ark
     {
         m_temp_pages.emplace_back();
         int proc_page = -static_cast<int>(m_temp_pages.size());
-        _compile(x.const_list()[0], proc_page);  // storing proc
+        _compile(x.constList()[0], proc_page);  // storing proc
 
         // trying to handle chained closure.field.field.field...
         std::size_t n = 1;
-        while (n < x.const_list().size())
+        while (n < x.constList().size())
         {
-            if (x.const_list()[n].nodeType() == NodeType::GetField)
+            if (x.constList()[n].nodeType() == NodeType::GetField)
             {
-                _compile(x.const_list()[n], proc_page);
+                _compile(x.constList()[n], proc_page);
                 n++;
             }
             else
@@ -517,7 +517,7 @@ namespace Ark
         if (proc_page_len > 1)
         {
             // push arguments on current page
-            for (auto exp=x.const_list().begin() + n, exp_end=x.const_list().end(); exp != exp_end; ++exp)
+            for (auto exp=x.constList().begin() + n, exp_end=x.constList().end(); exp != exp_end; ++exp)
                 _compile(*exp, p);
             // push proc from temp page
             for (auto&& inst : m_temp_pages.back())
@@ -528,7 +528,7 @@ namespace Ark
             page(p).push_back(Instruction::CALL);
             // number of arguments
             std::size_t args_count = 0;
-            for (auto it=x.const_list().begin() + 1, it_end=x.const_list().end(); it != it_end; ++it)
+            for (auto it=x.constList().begin() + 1, it_end=x.constList().end(); it != it_end; ++it)
             {
                 if (it->nodeType() != NodeType::GetField &&
                     it->nodeType() != NodeType::Capture)
@@ -544,13 +544,13 @@ namespace Ark
 
             // push arguments on current page
             std::size_t exp_count = 0;
-            for (std::size_t index=n, size=x.const_list().size(); index < size; ++index)
+            for (std::size_t index=n, size=x.constList().size(); index < size; ++index)
             {
-                _compile(x.const_list()[index], p);
+                _compile(x.constList()[index], p);
 
                 if ((index + 1 < size &&
-                    x.const_list()[index + 1].nodeType() != NodeType::GetField &&
-                    x.const_list()[index + 1].nodeType() != NodeType::Capture) ||
+                    x.constList()[index + 1].nodeType() != NodeType::GetField &&
+                    x.constList()[index + 1].nodeType() != NodeType::Capture) ||
                     index + 1 == size)
                     exp_count++;
 

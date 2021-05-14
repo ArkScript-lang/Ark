@@ -458,10 +458,10 @@ namespace Ark
 
         if (n.nodeType() == NodeType::List)
         {
-            if (n.const_list().size() == 0)
+            if (n.constList().size() == 0)
                 return false;
 
-            const Node& first = n.const_list()[0];
+            const Node& first = n.constList()[0];
 
             if (first.nodeType() == NodeType::Keyword && first.keyword() == Keyword::Import)
             {
@@ -469,8 +469,8 @@ namespace Ark
                     std::cout << "Import found in file: " << m_file << '\n';
 
                 std::string file;
-                if (n.const_list()[1].nodeType() == NodeType::String)
-                    file = n.const_list()[1].string();
+                if (n.constList()[1].nodeType() == NodeType::String)
+                    file = n.constList()[1].string();
                 else
                     throw Ark::TypeError("Arguments of import must be of type String");
 
@@ -499,9 +499,9 @@ namespace Ark
                             m_parent_include.push_back(inc);
                     }
 
-                    for (std::size_t j = 1, end = p.ast().const_list().size(); j < end; ++j)
+                    for (std::size_t j = 1, end = p.ast().constList().size(); j < end; ++j)
                     {
-                        parent.list().insert(parent.list().begin() + pos + j, p.ast().const_list()[j]);
+                        parent.list().insert(parent.list().begin() + pos + j, p.ast().constList()[j]);
                     }
 
                     return true;
@@ -552,7 +552,7 @@ namespace Ark
         if (P.ast().nodeType() == NodeType::List)
         {
             int i = 0;
-            for (const auto& node: P.ast().const_list())
+            for (const auto& node: P.ast().constList())
                 std::cout << (i++) << ": " << node << '\n';
         }
         else

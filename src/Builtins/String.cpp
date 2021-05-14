@@ -21,7 +21,7 @@ namespace Ark::internal::Builtins::String
         {
             if (it->valueType() == ValueType::String)
             {
-                ::String& obj = it->string_ref();
+                ::String& obj = it->stringRef();
                 f.format(f.size() + obj.size(), obj.c_str());
             }
             else if (it->valueType() == ValueType::Number)
@@ -42,7 +42,7 @@ namespace Ark::internal::Builtins::String
                 f.format(f.size() + ss.str().size(), std::string_view(ss.str().c_str()));
             }
         }
-        n[0].string_ref() = f;
+        n[0].stringRef() = f;
         return n[0];
     }
 
@@ -55,7 +55,7 @@ namespace Ark::internal::Builtins::String
         if (n[1].valueType() != ValueType::String)
             throw Ark::TypeError(STR_FIND_TE1);
 
-        return Value(n[0].string_ref().find(n[1].string_ref()));
+        return Value(n[0].stringRef().find(n[1].stringRef()));
     }
 
     Value removeAtStr(std::vector<Value>& n, Ark::VM* vm)
@@ -68,10 +68,10 @@ namespace Ark::internal::Builtins::String
             throw Ark::TypeError(STR_RM_TE1);
 
         long id = static_cast<long>(n[1].number());
-        if (id < 0 || id >= n[0].string_ref().size())
+        if (id < 0 || id >= n[0].stringRef().size())
             throw std::runtime_error(STR_RM_OOR);
 
-        n[0].string_ref().erase(id, id + 1);
+        n[0].stringRef().erase(id, id + 1);
         return n[0];
     }
 }
