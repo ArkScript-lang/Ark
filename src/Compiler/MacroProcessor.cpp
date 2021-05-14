@@ -47,14 +47,14 @@ namespace Ark::internal
     void MacroProcessor::registerMacro(Node& node)
     {
         // a macro needs at least 2 nodes, name + value is the minimal form
-        if (node.const_list().size() < 2)
+        if (node.constList().size() < 2)
             throwMacroProcessingError("invalid macro, missing value", node);
 
         Node& first_node = node.list()[0];
         Node& second_node = node.list()[1];
 
         // !{name value}
-        if (node.const_list().size() == 2)
+        if (node.constList().size() == 2)
         {
             if (first_node.nodeType() == NodeType::Symbol)
             {
@@ -69,14 +69,14 @@ namespace Ark::internal
             throwMacroProcessingError("can not define a macro without a symbol", first_node);
         }
         // !{name (args) body}
-        else if (node.const_list().size() == 3 && first_node.nodeType() == NodeType::Symbol)
+        else if (node.constList().size() == 3 && first_node.nodeType() == NodeType::Symbol)
         {
             if (second_node.nodeType() != NodeType::List)
                 throwMacroProcessingError("invalid macro argument's list", second_node);
             else
             {
                 bool had_spread = false;
-                for (const Node& n : second_node.const_list())
+                for (const Node& n : second_node.constList())
                 {
                     if (n.nodeType() != NodeType::Symbol && n.nodeType() != NodeType::Spread)
                         throwMacroProcessingError("invalid macro argument's list, expected symbols", n);
@@ -94,7 +94,7 @@ namespace Ark::internal
             }
         }
         // !{if cond then else}
-        else if (std::size_t sz = node.const_list().size(); sz == 3 || sz == 4)
+        else if (std::size_t sz = node.constList().size(); sz == 3 || sz == 4)
         {
             if (first_node.nodeType() == NodeType::Keyword && first_node.keyword() == Keyword::If)
             {
@@ -130,7 +130,7 @@ namespace Ark::internal
 
                     registerMacro(node.list()[i]);
                     if (node.list()[i].nodeType() == NodeType::Macro)
-                        node.list().erase(node.const_list().begin() + i);
+                        node.list().erase(node.constList().begin() + i);
                 }
                 else  // running on non-macros
                 {
@@ -194,7 +194,7 @@ namespace Ark::internal
             else
                 return node;
         }
-        else if (node.nodeType() == NodeType::List && node.const_list().size() > 1 && node.list()[0].nodeType() == NodeType::Symbol)
+        else if (node.nodeType() == NodeType::List && node.constList().size() > 1 && node.list()[0].nodeType() == NodeType::Symbol)
         {
             #define GEN_COMPARATOR(str_name, cond)                            \
                 else if (name == str_name && is_not_body) {                   \
@@ -301,11 +301,11 @@ namespace Ark::internal
                     throwMacroProcessingError("When expanding `head' inside a macro, got a " + typeToString(node.list()[1]) + ", needed a List", node);
 
                 Node& sublist = node.list()[1];
-                if (sublist.const_list().size() > 0 && sublist.const_list()[0] == Node::ListNode)
+                if (sublist.constList().size() > 0 && sublist.constList()[0] == Node::ListNode)
                 {
-                    if (sublist.const_list().size() > 1)
+                    if (sublist.constList().size() > 1)
                     {
-                        const Node sublistCopy = sublist.const_list()[1]; 
+                        const Node sublistCopy = sublist.constList()[1]; 
                         node = sublistCopy;
                     }
                     else
@@ -314,7 +314,7 @@ namespace Ark::internal
                     }
                 }
                 else if (sublist.list().size() > 0)
-                    node = sublist.const_list()[0];
+                    node = sublist.constList()[0];
                 else
                     node = Node::NilNode;
             }
@@ -330,7 +330,7 @@ namespace Ark::internal
                 {
                     if (sublist.list().size() > 1)
                     {
-                        sublist.list().erase(sublist.const_list().begin() + 1);
+                        sublist.list().erase(sublist.constList().begin() + 1);
                         node = sublist;
                     }
                     else
@@ -341,7 +341,7 @@ namespace Ark::internal
                 }
                 else if (sublist.list().size() > 0)
                 {
-                    sublist.list().erase(sublist.const_list().begin());
+                    sublist.list().erase(sublist.constList().begin());
                     node = sublist;
                 }
                 else
@@ -351,7 +351,7 @@ namespace Ark::internal
                 }
             }
         }
-        else if (node.nodeType() == NodeType::List && node.const_list().size() > 1)
+        else if (node.nodeType() == NodeType::List && node.constList().size() > 1)
         {
             for (std::size_t i = 0; i < node.list().size(); ++i)
                 node.list()[i] = evaluate(node.list()[i], is_not_body);
