@@ -2,21 +2,6 @@
 
 #include <termcolor.hpp>
 
-// read a number from the bytecode
-#define readNumber(var) {                                                \
-    var = (static_cast<uint16_t>(m_state->m_pages[m_pp][m_ip]) << 8) +   \
-           static_cast<uint16_t>(m_state->m_pages[m_pp][m_ip + 1]);      \
-    ++m_ip;                                                              \
-    }
-// register a variable in the current scope
-#define registerVariable(id, value) ((*m_locals.back()).push_back(id, value))
-// register a variable in the global scope
-#define registerVarGlobal(id, value) ((*m_locals[0]).push_back(id, value))
-// create a new locals scope
-#define createNewScope() m_locals.emplace_back(std::make_shared<Scope>());
-// get a variable from a scope
-#define getVariableInCurrentScope(id) ((*m_locals.back())[id])
-
 struct mapping {
     char* name;
     Ark::internal::Value (*value)(std::vector<Ark::internal::Value>&, Ark::VM*);
@@ -75,7 +60,7 @@ namespace Ark
         {
             auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), name_val.first);
             if (it != m_state->m_symbols.end())
-                registerVarGlobal(static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it)), name_val.second);
+                (*m_locals[0]).push_back(static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it)), name_val.second);
         }
     }
 
@@ -145,7 +130,7 @@ namespace Ark
             // put it in the global frame, aka the first one
             auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), std::string(map[i].name));
             if (it != m_state->m_symbols.end())
-                registerVarGlobal(static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it)), Value(map[i].value));
+                (*m_locals[0]).push_back(static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it)), Value(map[i].value));
 
             // free memory because we have used it and don't need it anymore
             // no need to free map[i].value since it's a pointer to a function in the DLL
@@ -217,7 +202,7 @@ namespace Ark
                         */
 
                         ++m_ip;
-                        readNumber(m_last_sym_loaded);
+                        m_last_sym_loaded = readNumber();
 
                         if (Value* var = findNearestVariable(m_last_sym_loaded); var != nullptr)
                             // push internal reference, shouldn't break anything so far
@@ -238,7 +223,7 @@ namespace Ark
                         */
 
                         ++m_ip;
-                        uint16_t id; readNumber(id);
+                        uint16_t id = readNumber();
 
                         if (m_saved_scope && m_state->m_constants[id].valueType() == ValueType::PageAddr)
                         {
@@ -264,7 +249,7 @@ namespace Ark
                         */
 
                         ++m_ip;
-                        uint16_t id; readNumber(id);
+                        uint16_t id = readNumber();
 
                         if (*popAndResolveAsPtr() == Builtins::trueSym)
                             m_ip = static_cast<int16_t>(id) - 1;  // because we are doing a ++m_ip right after this
@@ -281,7 +266,7 @@ namespace Ark
                         */
 
                         ++m_ip;
-                        uint16_t id; readNumber(id);
+                        uint16_t id = readNumber();
 
                         if (Value* var = findNearestVariable(id); var != nullptr)
                         {
@@ -308,15 +293,15 @@ namespace Ark
                         */
 
                         ++m_ip;
-                        uint16_t id; readNumber(id);
+                        uint16_t id = readNumber();
 
                         // check if we are redefining a variable
-                        if (auto val = getVariableInCurrentScope(id); val != nullptr)
+                        if (auto val = (*m_locals.back())[id]; val != nullptr)
                             throwVMError("can not use 'let' to redefine the variable " + m_state->m_symbols[id]);
 
                         Value val = *popAndResolveAsPtr();
                         val.setConst(true);
-                        registerVariable(id, val);
+                        (*m_locals.back()).push_back(id, val);
 
                         COZ_PROGRESS("ark vm let");
                         break;
@@ -331,7 +316,7 @@ namespace Ark
                         */
 
                         ++m_ip;
-                        uint16_t id; readNumber(id);
+                        uint16_t id = readNumber();
 
                         if (*popAndResolveAsPtr() == Builtins::falseSym)
                             m_ip = static_cast<int16_t>(id) - 1;  // because we are doing a ++m_ip right after this
@@ -346,7 +331,7 @@ namespace Ark
                         */
 
                         ++m_ip;
-                        uint16_t id; readNumber(id);
+                        uint16_t id = readNumber();
 
                         m_ip = static_cast<int16_t>(id) - 1;  // because we are doing a ++m_ip right after this
                         break;
@@ -409,12 +394,12 @@ namespace Ark
                         */
 
                         ++m_ip;
-                        uint16_t id; readNumber(id);
+                        uint16_t id = readNumber();
 
                         if (!m_saved_scope)
                             m_saved_scope = std::make_shared<Scope>();
                         // if it's a captured variable, it can not be nullptr
-                        Value* ptr = getVariableInCurrentScope(id);
+                        Value* ptr = (*m_locals.back())[id];
                         ptr = ptr->valueType() == ValueType::Reference ? ptr->reference() : ptr;
                         (*m_saved_scope.value()).push_back(id, *ptr);
 
@@ -430,7 +415,7 @@ namespace Ark
                         */
 
                         ++m_ip;
-                        uint16_t id; readNumber(id);
+                        uint16_t id = readNumber();
 
                         push(Builtins::builtins[id].second);
 
@@ -447,7 +432,7 @@ namespace Ark
                         */
 
                         ++m_ip;
-                        uint16_t id; readNumber(id);
+                        uint16_t id = readNumber();
 
                         Value val = *popAndResolveAsPtr();
                         val.setConst(false);
@@ -455,7 +440,7 @@ namespace Ark
                         // avoid adding the pair (id, _) multiple times, with different values
                         Value* local = (*m_locals.back())[id];
                         if (local == nullptr)
-                            registerVariable(id, val);
+                            (*m_locals.back()).push_back(id, val);
                         else
                             *local = val;
 
@@ -471,7 +456,7 @@ namespace Ark
                         */
 
                         ++m_ip;
-                        uint16_t id; readNumber(id);
+                        uint16_t id = readNumber();
 
                         if (Value* var = findNearestVariable(id); var != nullptr)
                         {
@@ -509,7 +494,7 @@ namespace Ark
                         */
 
                         ++m_ip;
-                        uint16_t id; readNumber(id);
+                        uint16_t id = readNumber();
 
                         Value* var = popAndResolveAsPtr();
                         if (var->valueType() != ValueType::Closure)
@@ -541,7 +526,7 @@ namespace Ark
                         */
 
                         ++m_ip;
-                        uint16_t id; readNumber(id);
+                        uint16_t id = readNumber();
 
                         loadPlugin(id);
 
@@ -556,7 +541,7 @@ namespace Ark
                             The content is pushed in reverse order
                         */
                         ++m_ip;
-                        uint16_t count; readNumber(count);
+                        uint16_t count = readNumber();
 
                         Value l(ValueType::List);
                         if (count != 0)
@@ -573,7 +558,7 @@ namespace Ark
                     case Instruction::APPEND:
                     {
                         ++m_ip;
-                        uint16_t count; readNumber(count);
+                        uint16_t count = readNumber();
 
                         Value *list = popAndResolveAsPtr();
                         if (list->valueType() != ValueType::List)
@@ -594,7 +579,7 @@ namespace Ark
                     case Instruction::CONCAT:
                     {
                         ++m_ip;
-                        uint16_t count; readNumber(count);
+                        uint16_t count = readNumber();
 
                         Value *list = popAndResolveAsPtr();
                         if (list->valueType() != ValueType::List)

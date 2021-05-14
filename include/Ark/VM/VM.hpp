@@ -30,14 +30,14 @@
 #include <Ark/Config.hpp>
 #include <Ark/VM/Plugin.hpp>
 
-#define ARK_STACK_SIZE 8192
-
 #undef abs
 #include <cmath>
 
 namespace Ark
 {
     using namespace std::string_literals;
+
+    constexpr std::size_t ARK_STACK_SIZE = 8192;
 
     /**
      * @brief The ArkScript virtual machine, executing ArkScript bytecode
@@ -157,6 +157,8 @@ namespace Ark
          */
         void init() noexcept;
 
+        inline uint16_t readNumber();
+
         // ================================================
         //                 stack related
         // ================================================
@@ -209,6 +211,8 @@ namespace Ark
         // ================================================
         //                locals related
         // ================================================
+
+        inline void createNewScope() noexcept;
 
         /**
          * @brief Find the nearest variable of a given id
