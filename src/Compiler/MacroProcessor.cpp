@@ -203,30 +203,27 @@ namespace Ark::internal
         }
         else if (node.nodeType() == NodeType::List && node.const_list().size() > 1 && node.list()[0].nodeType() == NodeType::Symbol)
         {
-            #define GEN_COMPARATOR(str_name, cond)                            \
+            #define GEN_NOT_BODY(str_name, error_handler, ret)                \
                 else if (name == str_name && is_not_body) {                   \
-                    if (node.list().size() != 3)                              \
-                        throwMacroProcessingError(                            \
-                            "Interpreting a `" str_name "' condition with " + \
-                            std::to_string(node.list().size() - 1) +          \
-                            " arguments, instead of 2.", node                 \
-                        );                                                    \
+                    if (node.list().size() != 3) error_handler;               \
                     Node one = evaluate(node.list()[1], is_not_body),         \
                          two = evaluate(node.list()[2], is_not_body);         \
-                    return (cond) ? Node::TrueNode : Node::FalseNode;         \
+                    return ret;                                               \
                 }
-            #define GEN_OP(str_name, op)                                      \
-                else if (name == str_name && is_not_body) {                   \
-                    if (node.list().size() != 3)                              \
-                        throwMacroProcessingError(                            \
-                            "Interpreting a `" str_name "' operation with " + \
-                            std::to_string(node.list().size() - 1) +          \
-                            " arguments, instead of 2.", node                 \
-                        );                                                    \
-                    Node one = evaluate(node.list()[1], is_not_body),         \
-                         two = evaluate(node.list()[2], is_not_body);         \
-                    return Node(one.number() op two.number());                \
-                }
+
+            #define GEN_COMPARATOR(str_name, cond) GEN_NOT_BODY(                                    \
+                str_name,                                                                           \
+                throwMacroProcessingError("Interpreting a `" str_name "' condition with " +         \
+                    std::to_string(node.list().size() - 1) + " arguments, instead of 2.", node),    \
+                (cond) ? Node::TrueNode : Node::FalseNode                                           \
+            )
+
+            #define GEN_OP(str_name, op) GEN_NOT_BODY(                                              \
+                str_name,                                                                           \
+                throwMacroProcessingError("Interpreting a `" str_name "' operation with " +         \
+                    std::to_string(node.list().size() - 1) + " arguments, instead of 2.", node),    \
+                Node(one.number() op two.number())                                                  \
+            )
 
             const std::string& name = node.list()[0].string();
             if (Node* macro = find_nearest_macro(name); macro != nullptr)
