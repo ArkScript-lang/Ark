@@ -72,16 +72,16 @@ namespace Ark
         auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), name);
         if (it == m_state->m_symbols.end())
         {
-            m__no_value = Builtins::nil;
-            return m__no_value;
+            m_no_value = Builtins::nil;
+            return m_no_value;
         }
 
         uint16_t id = static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it));
         Value* var = findNearestVariable(id);
         if (var != nullptr)
             return *var;
-        m__no_value = Builtins::nil;
-        return m__no_value;
+        m_no_value = Builtins::nil;
+        return m_no_value;
     }
 
     void VM::loadPlugin(uint16_t id)

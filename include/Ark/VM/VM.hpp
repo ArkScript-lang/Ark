@@ -139,7 +139,7 @@ namespace Ark
         std::vector<std::shared_ptr<internal::SharedLibrary>> m_shared_lib_objects;
 
         // just a nice little trick for operator[] and for pop
-        internal::Value m__no_value = internal::Builtins::nil;
+        internal::Value m_no_value = internal::Builtins::nil;
 
         void* m_user_pointer; ///< needed to pass data around when binding ArkScript in a program
 

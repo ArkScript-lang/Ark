@@ -126,7 +126,7 @@ inline internal::Value* VM::pop()
         return &m_stack[m_sp];
     }
     else
-        return &m__no_value;
+        return &m_no_value;
 }
 
 inline void VM::push(const internal::Value& value)
