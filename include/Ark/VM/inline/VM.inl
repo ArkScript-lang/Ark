@@ -2,7 +2,6 @@
 //               instructions
 // ------------------------------------------
 
-#define createNewScope() m_locals.emplace_back(std::make_shared<internal::Scope>());
 #define resolveRef(valptr) (((valptr)->valueType() == ValueType::Reference) ? *((valptr)->reference()) : *(valptr))
 #define resolveRefInPlace(val) if (val.valueType() == ValueType::Reference) {       \
                                     val.m_constType = val.reference()->m_constType; \
@@ -109,6 +108,16 @@ internal::Value VM::resolve(const internal::Value* val, Args&&... args)
 
 #pragma region "stack management"
 
+inline uint16_t VM::readNumber()
+{
+    uint16_t tmp =
+        (static_cast<uint16_t>(m_state->m_pages[m_pp][m_ip    ]) << 8) +
+         static_cast<uint16_t>(m_state->m_pages[m_pp][m_ip + 1]);
+
+    ++m_ip;
+    return tmp;
+}
+
 inline internal::Value* VM::pop()
 {
     if (m_sp > 0)
@@ -211,6 +220,11 @@ inline void VM::swapStackForFunCall(uint16_t argc)
 }
 
 #pragma endregion
+
+inline void VM::createNewScope() noexcept
+{
+    m_locals.emplace_back(std::make_shared<internal::Scope>());
+}
 
 inline internal::Value* VM::findNearestVariable(uint16_t id) noexcept
 {
@@ -358,6 +372,5 @@ inline void VM::call(int16_t argc_)
     COZ_END("ark vm::call");
 }
 
-#undef createNewScope
 #undef resolveRef
 #undef resolveRefInPlace
