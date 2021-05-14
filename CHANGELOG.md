@@ -25,6 +25,7 @@
 - undefining macros is now possible by using `!{undef macro_name}`
 - `str:join` added in the standard library
 - `str:split` can now take longer separators
+- added `symcat` in macros to concatenate a symbol and a number/string/symbol to create a new one
 
 ### Changed
 - updating doxyfile and some docstrings
@@ -45,6 +46,7 @@
 - enhancing the way we choose the subparser to use in the parser
 - avoid using `std::endl` if it's not useful
 - CI was split into multiple files to ease maintenance
+- fixed macros adding useless begin blocks, sometimes breaking code generation from macros
 
 ### Removed
 - `~UserType`, since we are doing manual memory management now
