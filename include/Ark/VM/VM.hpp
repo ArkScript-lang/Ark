@@ -157,6 +157,12 @@ namespace Ark
          */
         void init() noexcept;
 
+        /**
+         * @brief Read a 2 bytes number from the current bytecode page, starting at the current instruction
+         * @details Modify the instruction pointer to point on the instruction right after the number.
+         * 
+         * @return uint16_t 
+         */
         inline uint16_t readNumber();
 
         // ================================================
