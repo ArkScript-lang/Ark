@@ -222,6 +222,10 @@ namespace Ark::internal
             os << "(Spread) " << N.string();
             break;
 
+        case NodeType::Unused:
+            os << "(Unused)";
+            break;
+
         default:
             os << "~\\._./~";
             break;

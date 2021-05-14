@@ -133,19 +133,52 @@ namespace Ark::internal
                     }
 
                     registerMacro(node.list()[i]);
-                    if (node.list()[i].nodeType() == NodeType::Macro)
+                    if (node.list()[i].nodeType() == NodeType::Macro || node.list()[i].nodeType() == NodeType::Unused)
                         node.list().erase(node.constList().begin() + i);
                 }
                 else  // running on non-macros
                 {
+                    bool ran = false;
+
                     // execute only if we have registered macros
                     if ((m_macros.size() == 1 && m_macros[0].size() > 0) || m_macros.size() > 1)
+                    {
+                        ran = true;
                         execute(node.list()[i]);
+
+                        // remove unused blocks
+                        if (node.list()[i].nodeType() == NodeType::Unused)
+                            node.list().erase(node.constList().begin() + i);
+                    }
+
                     // execute if we are on a predefined macro
                     if (node.list()[0].nodeType() == NodeType::Symbol && isPredefined(node.list()[0].string()))
-                        execute(node);
+                        node = evaluate(node);
 
                     process(node.list()[i], depth + 1);
+
+                    // remove begins in macros
+                    if (ran && node.list()[i].nodeType() == NodeType::List)
+                    {
+                        Node lst = node.list()[i];
+                        Node& first = lst.list()[0];
+
+                        if (first.nodeType() == NodeType::Keyword && first.keyword() == Keyword::Begin)
+                        {
+                            std::clog << "- " << node << "\n";
+                            std::clog << "--(" << i << ") " << lst << "\n";
+
+                            std::size_t previous = i;
+
+                            for (std::size_t block_idx = 1, end = lst.constList().size(); block_idx < end; ++block_idx)
+                                node.list().insert(node.constList().begin() + i + 1, lst.list()[block_idx]);
+
+                            i += lst.constList().size() - 1;
+                            std::clog << "=== " << i << ", " << lst.constList().size() << "\n";
+                            node.list().erase(node.constList().begin() + previous);
+                            std::clog << "=== " << node << "\n";
+                        }
+                    }
 
                     // go forward only if it isn't a macro, because we delete macros
                     // while running on the AST
@@ -229,6 +262,8 @@ namespace Ark::internal
             if (Node* macro = find_nearest_macro(name); macro != nullptr)
             {
                 execute(node.list()[0]);
+                if (node.list()[0].nodeType() == NodeType::Unused)
+                    node.list().erase(node.constList().begin());
             }
             GEN_COMPARATOR("=",    one == two)
             GEN_COMPARATOR("!=", !(one == two))
@@ -408,7 +443,8 @@ namespace Ark::internal
                 node = Node(1);  // TEMP
             }
         }
-        else if (node.nodeType() == NodeType::List && node.constList().size() > 1)
+
+        if (node.nodeType() == NodeType::List && node.constList().size() > 1)
         {
             for (std::size_t i = 0; i < node.list().size(); ++i)
                 node.list()[i] = evaluate(node.list()[i], is_not_body);
