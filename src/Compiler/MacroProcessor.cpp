@@ -222,7 +222,7 @@ namespace Ark::internal
                 str_name,                                                                           \
                 throwMacroProcessingError("Interpreting a `" str_name "' operation with " +         \
                     std::to_string(node.list().size() - 1) + " arguments, instead of 2.", node),    \
-                Node(one.number() op two.number())                                                  \
+                (one.nodeType() == two.nodeType() && two.nodeType() == NodeType::Number) ? Node(one.number() op two.number()) : node \
             )
 
             const std::string& name = node.list()[0].string();
