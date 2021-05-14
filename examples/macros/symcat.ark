@@ -1,0 +1,9 @@
+!{def (start val)
+    (let (symcat start val) val)}
+
+(def a "a")
+(print aa)
+(def a (+ 1 2))
+(print a3)
+
+(print (+ 1 2 3))

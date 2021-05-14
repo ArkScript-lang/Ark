@@ -215,6 +215,18 @@ namespace Ark::internal
                          two = evaluate(node.list()[2], is_not_body);         \
                     return (cond) ? Node::TrueNode : Node::FalseNode;         \
                 }
+            #define GEN_OP(str_name, op)                                      \
+                else if (name == str_name && is_not_body) {                   \
+                    if (node.list().size() != 3)                              \
+                        throwMacroProcessingError(                            \
+                            "Interpreting a `" str_name "' operation with " + \
+                            std::to_string(node.list().size() - 1) +          \
+                            " arguments, instead of 2.", node                 \
+                        );                                                    \
+                    Node one = evaluate(node.list()[1], is_not_body),         \
+                         two = evaluate(node.list()[2], is_not_body);         \
+                    return Node(one.number() op two.number());                \
+                }
 
             const std::string& name = node.list()[0].string();
             if (Node* macro = find_nearest_macro(name); macro != nullptr)
@@ -227,6 +239,10 @@ namespace Ark::internal
             GEN_COMPARATOR(">",  !(one <  two) && !(one == two))
             GEN_COMPARATOR("<=",   one <  two ||    one == two)
             GEN_COMPARATOR(">=", !(one <  two))
+            GEN_OP("+", +)
+            GEN_OP("-", -)
+            GEN_OP("*", *)
+            GEN_OP("/", /)
             else if (name == "not" && is_not_body)
             {
                 if (node.list().size() != 2)
@@ -354,6 +370,45 @@ namespace Ark::internal
                     node = Node(NodeType::List);
                     node.push_back(Node::ListNode);
                 }
+            }
+            else if (name == "symcat")
+            {
+                if (node.list().size() <= 2)
+                    throwMacroProcessingError("When expanding `symcat', expected at least 2 arguments, got " + std::to_string(node.list().size() - 1) + " arguments", node);
+                if (node.list()[1].nodeType() != NodeType::Symbol)
+                    throwMacroProcessingError("When expanding `symcat', expected the first argument to be a Symbol, got a " + typeToString(node.list()[1]), node);
+
+                std::string sym = node.list()[1].string();
+
+                for (std::size_t i = 2, end = node.list().size(); i < end; ++i)
+                {
+                    Node ev = evaluate(node.list()[i], /* is_not_body */ true);
+
+                    switch (ev.nodeType())
+                    {
+                        case NodeType::Number:
+                            sym += std::to_string(static_cast<long int>(ev.number()));  // we don't want '.' in identifiers
+                            break;
+
+                        case NodeType::String:
+                        case NodeType::Symbol:
+                            sym += ev.string();
+                            break;
+
+                        default:
+                            throwMacroProcessingError("When expnding `symcat', expected either a Number, String or Symbol, got a " + typeToString(ev), ev);
+                    }
+                }
+
+                node.setNodeType(NodeType::Symbol);
+                node.setString(sym);
+            }
+            else if (name == "argcount")
+            {
+                // suppose it was unified
+                std::cout << "here" << std::endl;
+                std::cout << typeToString(node) << " " << node << "\n";
+                node = Node(1);  // TEMP
             }
         }
 

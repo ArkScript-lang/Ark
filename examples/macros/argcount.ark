@@ -1,0 +1,9 @@
+(let foo (fun () ()))
+(let bar (fun (a) ()))
+(let egg (fun (a b) ()))
+
+# !{if true
+    (print (argcount foo) " " (argcount bar) " " (argcount egg))
+# }
+
+(egg (bar (foo)) (bar (foo)))
