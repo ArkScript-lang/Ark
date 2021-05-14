@@ -2,10 +2,9 @@
 //               instructions
 // ------------------------------------------
 
-#define createNewScope() m_locals.emplace_back(std::make_shared<internal::Scope>());
 #define resolveRef(valptr) (((valptr)->valueType() == ValueType::Reference) ? *((valptr)->reference()) : *(valptr))
 #define resolveRefInPlace(val) if (val.valueType() == ValueType::Reference) {       \
-                                    val.m_constType = val.reference()->m_constType; \
+                                    val.m_const_type = val.reference()->m_const_type; \
                                     val.m_value = val.reference()->m_value;         \
                                 }
 
@@ -109,6 +108,16 @@ internal::Value VM::resolve(const internal::Value* val, Args&&... args)
 
 #pragma region "stack management"
 
+inline uint16_t VM::readNumber()
+{
+    uint16_t tmp =
+        (static_cast<uint16_t>(m_state->m_pages[m_pp][m_ip    ]) << 8) +
+         static_cast<uint16_t>(m_state->m_pages[m_pp][m_ip + 1]);
+
+    ++m_ip;
+    return tmp;
+}
+
 inline internal::Value* VM::pop()
 {
     if (m_sp > 0)
@@ -117,26 +126,26 @@ inline internal::Value* VM::pop()
         return &m_stack[m_sp];
     }
     else
-        return &m__no_value;
+        return &m_no_value;
 }
 
 inline void VM::push(const internal::Value& value)
 {
-    m_stack[m_sp].m_constType = value.m_constType;
+    m_stack[m_sp].m_const_type = value.m_const_type;
     m_stack[m_sp].m_value = value.m_value;
     ++m_sp;
 }
 
 inline void VM::push(internal::Value&& value)
 {
-    m_stack[m_sp].m_constType = std::move(value.m_constType);
+    m_stack[m_sp].m_const_type = std::move(value.m_const_type);
     m_stack[m_sp].m_value = std::move(value.m_value);
     ++m_sp;
 }
 
 inline void VM::push(internal::Value* valptr)
 {
-    m_stack[m_sp].m_constType = static_cast<uint8_t>(internal::ValueType::Reference);
+    m_stack[m_sp].m_const_type = static_cast<uint8_t>(internal::ValueType::Reference);
     m_stack[m_sp].m_value = valptr;
     ++m_sp;
 }
@@ -211,6 +220,11 @@ inline void VM::swapStackForFunCall(uint16_t argc)
 }
 
 #pragma endregion
+
+inline void VM::createNewScope() noexcept
+{
+    m_locals.emplace_back(std::make_shared<internal::Scope>());
+}
 
 inline internal::Value* VM::findNearestVariable(uint16_t id) noexcept
 {
@@ -315,7 +329,7 @@ inline void VM::call(int16_t argc_)
         // is it a user defined closure?
         case ValueType::Closure:
         {
-            Closure& c = function.closure_ref();
+            Closure& c = function.refClosure();
             PageAddr_t new_page_pointer = c.pageAddr();
 
             // load saved scope
@@ -358,6 +372,5 @@ inline void VM::call(int16_t argc_)
     COZ_END("ark vm::call");
 }
 
-#undef createNewScope
 #undef resolveRef
 #undef resolveRefInPlace

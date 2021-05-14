@@ -9,7 +9,7 @@ namespace Ark::internal
 
     bool ListExecutor::canHandle(Node& node)
     {
-        return node.nodeType() == NodeType::List && node.const_list().size() > 0 && node.const_list()[0].nodeType() == NodeType::Symbol;
+        return node.nodeType() == NodeType::List && node.constList().size() > 0 && node.constList()[0].nodeType() == NodeType::Symbol;
     }
 
     void ListExecutor::execute(Node& node)
@@ -22,23 +22,23 @@ namespace Ark::internal
             if (m_debug >= 3)
                 std::clog << "Found macro for " << first.string() << std::endl;
 
-            if (macro->const_list().size() == 2)
+            if (macro->constList().size() == 2)
                 execute_proxy(first);
             // !{name (args) body}
-            else if (macro->const_list().size() == 3)
+            else if (macro->constList().size() == 3)
             {
-                Node temp_body = macro->const_list()[2];
-                Node args = macro->const_list()[1];
+                Node temp_body = macro->constList()[2];
+                Node args = macro->constList()[1];
 
-                // bind node->list() to temp_body using macro->const_list()[1]
+                // bind node->list() to temp_body using macro->constList()[1]
                 std::unordered_map<std::string, Node> args_applied;
                 std::size_t j = 0;
-                for (std::size_t i = 1, end = node.const_list().size(); i < end; ++i)
+                for (std::size_t i = 1, end = node.constList().size(); i < end; ++i)
                 {
                     const std::string& arg_name = args.list()[j].string();
                     if (args.list()[j].nodeType() == NodeType::Symbol)
                     {
-                        args_applied[arg_name] = node.const_list()[i];
+                        args_applied[arg_name] = node.constList()[i];
                         ++j;
                     }
                     else if (args.list()[j].nodeType() == NodeType::Spread)
@@ -49,7 +49,7 @@ namespace Ark::internal
                             args_applied[arg_name].push_back(Node::ListNode);
                         }
                         // do not move j because we checked before that the spread is always the last one
-                        args_applied[arg_name].push_back(node.const_list()[i]);
+                        args_applied[arg_name].push_back(node.constList()[i]);
                     }
                 }
 
@@ -63,7 +63,7 @@ namespace Ark::internal
                 else if (args_applied.size() != args.list().size())
                 {
                     std::size_t args_needed = args.list().size();
-                    std::string macro_name = macro->const_list()[0].string();
+                    std::string macro_name = macro->constList()[0].string();
 
                     if (args.list().back().nodeType() != NodeType::Spread)
                         throwMacroProcessingError("Macro `" + macro_name + "' got " + std::to_string(args_applied.size()) + " argument(s) but needed " + std::to_string(args_needed), *macro);

@@ -22,7 +22,7 @@ namespace Ark::internal
                 std::clog << "Found macro for " << node.string() << std::endl;
 
             // !{name value}
-            if (macro->const_list().size() == 2)
+            if (macro->constList().size() == 2)
                 node = macro->list()[1];
         }
     }

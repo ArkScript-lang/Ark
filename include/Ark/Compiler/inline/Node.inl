@@ -56,7 +56,7 @@ inline bool operator!(const Node& A)
     switch (A.nodeType())
     {
         case NodeType::List:
-            return A.const_list().empty();
+            return A.constList().empty();
 
         case NodeType::Number:
             return !A.number();

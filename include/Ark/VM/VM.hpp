@@ -30,14 +30,14 @@
 #include <Ark/Config.hpp>
 #include <Ark/VM/Plugin.hpp>
 
-#define ARK_STACK_SIZE 8192
-
 #undef abs
 #include <cmath>
 
 namespace Ark
 {
     using namespace std::string_literals;
+
+    constexpr std::size_t ARK_STACK_SIZE = 8192;
 
     /**
      * @brief The ArkScript virtual machine, executing ArkScript bytecode
@@ -121,7 +121,7 @@ namespace Ark
     private:
         State* m_state;
 
-        int m_exitCode;     ///< VM exit code, defaults to 0. Can be changed through `sys:exit`
+        int m_exit_code;    ///< VM exit code, defaults to 0. Can be changed through `sys:exit`
         int m_ip;           ///< instruction pointer
         std::size_t m_pp;   ///< page pointer
         uint16_t m_sp;      ///< stack pointer
@@ -139,7 +139,7 @@ namespace Ark
         std::vector<std::shared_ptr<internal::SharedLibrary>> m_shared_lib_objects;
 
         // just a nice little trick for operator[] and for pop
-        internal::Value m__no_value = internal::Builtins::nil;
+        internal::Value m_no_value = internal::Builtins::nil;
 
         void* m_user_pointer; ///< needed to pass data around when binding ArkScript in a program
 
@@ -156,6 +156,14 @@ namespace Ark
          * 
          */
         void init() noexcept;
+
+        /**
+         * @brief Read a 2 bytes number from the current bytecode page, starting at the current instruction
+         * @details Modify the instruction pointer to point on the instruction right after the number.
+         * 
+         * @return uint16_t 
+         */
+        inline uint16_t readNumber();
 
         // ================================================
         //                 stack related
@@ -209,6 +217,8 @@ namespace Ark
         // ================================================
         //                locals related
         // ================================================
+
+        inline void createNewScope() noexcept;
 
         /**
          * @brief Find the nearest variable of a given id

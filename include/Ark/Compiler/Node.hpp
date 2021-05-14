@@ -155,7 +155,7 @@ namespace Ark::internal
          * 
          * @return const std::vector<Node>& 
          */
-        const std::vector<Node>& const_list() const noexcept;
+        const std::vector<Node>& constList() const noexcept;
 
         /**
          * @brief Return the node type
