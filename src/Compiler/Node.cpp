@@ -80,7 +80,7 @@ namespace Ark::internal
         return m_list;
     }
 
-    const std::vector<Node>& Node::const_list() const noexcept
+    const std::vector<Node>& Node::constList() const noexcept
     {
         return m_list;
     }

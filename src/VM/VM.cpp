@@ -88,7 +88,7 @@ namespace Ark
     {
         namespace fs = std::filesystem;
 
-        const std::string file = m_state->m_constants[id].string_ref().toString();
+        const std::string file = m_state->m_constants[id].stringRef().toString();
 
         std::string path = file;
         // bytecode loaded from file
@@ -462,7 +462,7 @@ namespace Ark
                         {
                             // free usertypes
                             if (var->valueType() == ValueType::User)
-                                var->usertype_ref().del();
+                                var->usertypeRef().del();
                             *var = Value();
                             break;
                         }
@@ -500,12 +500,12 @@ namespace Ark
                         if (var->valueType() != ValueType::Closure)
                             throwVMError("the variable `" + m_state->m_symbols[m_last_sym_loaded] + "' isn't a closure, can not get the field `" + m_state->m_symbols[id] + "' from it");
 
-                        if (Value* field = (*var->closure_ref().scope())[id]; field != nullptr)
+                        if (Value* field = (*var->refClosure().scope())[id]; field != nullptr)
                         {
                             // check for CALL instruction
                             if (m_ip + 1 < m_state->m_pages[m_pp].size() && m_state->m_pages[m_pp][m_ip + 1] == Instruction::CALL)
                             {
-                                m_locals.push_back(var->closure_ref().scope());
+                                m_locals.push_back(var->refClosure().scope());
                                 ++m_scope_count_to_delete.back();
                             }
 
@@ -563,7 +563,7 @@ namespace Ark
                         Value *list = popAndResolveAsPtr();
                         if (list->valueType() != ValueType::List)
                             throw Ark::TypeError("append needs a List and then whatever you want");
-                        const uint16_t size = list->const_list().size();
+                        const uint16_t size = list->constList().size();
 
                         Value obj = Value(*list);
                         obj.list().reserve(size + count);
@@ -719,7 +719,7 @@ namespace Ark
                         Value *a = popAndResolveAsPtr();
 
                         if (a->valueType() == ValueType::List)
-                            push(Value(static_cast<int>(a->const_list().size())));
+                            push(Value(static_cast<int>(a->constList().size())));
                         else if (a->valueType() == ValueType::String)
                             push(Value(static_cast<int>(a->string().size())));
                         else
@@ -732,7 +732,7 @@ namespace Ark
                         Value* a = popAndResolveAsPtr();
 
                         if (a->valueType() == ValueType::List)
-                            push((a->const_list().size() == 0) ? Builtins::trueSym : Builtins::falseSym);
+                            push((a->constList().size() == 0) ? Builtins::trueSym : Builtins::falseSym);
                         else if (a->valueType() == ValueType::String)
                             push((a->string().size() == 0) ? Builtins::trueSym : Builtins::falseSym);
                         else
@@ -747,15 +747,15 @@ namespace Ark
 
                         if (a->valueType() == ValueType::List)
                         {
-                            if (a->const_list().size() < 2)
+                            if (a->constList().size() < 2)
                             {
                                 push(Value(ValueType::List));
                                 break;
                             }
 
-                            std::vector<Value> tmp(a->const_list().size() - 1);
-                            for (std::size_t i = 1, end = a->const_list().size(); i < end; ++i)
-                                tmp[i - 1] = a->const_list()[i];
+                            std::vector<Value> tmp(a->constList().size() - 1);
+                            for (std::size_t i = 1, end = a->constList().size(); i < end; ++i)
+                                tmp[i - 1] = a->constList()[i];
                             push(Value(std::move(tmp)));
                         }
                         else if (a->valueType() == ValueType::String)
@@ -767,7 +767,7 @@ namespace Ark
                             }
 
                             Value b = *a;
-                            b.string_ref().erase_front(0);
+                            b.stringRef().erase_front(0);
                             push(std::move(b));
                         }
                         else
@@ -782,13 +782,13 @@ namespace Ark
 
                         if (a->valueType() == ValueType::List)
                         {
-                            if (a->const_list().size() < 2)
+                            if (a->constList().size() < 2)
                             {
                                 push(Builtins::nil);
                                 break;
                             }
 
-                            Value b = a->const_list()[0];
+                            Value b = a->constList()[0];
                             push(b);
                         }
                         else if (a->valueType() == ValueType::String)
@@ -799,7 +799,7 @@ namespace Ark
                                 break;
                             }
 
-                            push(Value(std::string(1, a->string_ref()[0])));
+                            push(Value(std::string(1, a->stringRef()[0])));
                         }
                         else
                             throw Ark::TypeError("Argument of head must be a List or a String");
@@ -823,7 +823,7 @@ namespace Ark
                             if (b->valueType() != ValueType::String)
                                 throw Ark::TypeError("Second argument of assert must be a String");
 
-                            throw Ark::AssertionFailed(b->string_ref().toString());
+                            throw Ark::AssertionFailed(b->stringRef().toString());
                         }
                         break;
                     }
@@ -916,7 +916,7 @@ namespace Ark
                         if (field->valueType() != ValueType::String)
                             throw Ark::TypeError("Argument no 2 of hasField should be a String");
 
-                        auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), field->string_ref().toString());
+                        auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), field->stringRef().toString());
                         if (it == m_state->m_symbols.end())
                         {
                             push(Builtins::falseSym);
@@ -924,7 +924,7 @@ namespace Ark
                         }
 
                         uint16_t id = static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it));
-                        push((*closure->closure_ref().scope_ref())[id] != nullptr ? Builtins::trueSym : Builtins::falseSym);
+                        push((*closure->refClosure().refScope())[id] != nullptr ? Builtins::trueSym : Builtins::falseSym);
 
                         break;
                     }
@@ -1044,7 +1044,7 @@ namespace Ark
                     if (tmp->valueType() == ValueType::InstPtr)
                         --m_fc;
                     else if (tmp->valueType() == ValueType::User)
-                        tmp->usertype_ref().del();
+                        tmp->usertypeRef().del();
                 }
                 // pop the PP as well
                 pop();
