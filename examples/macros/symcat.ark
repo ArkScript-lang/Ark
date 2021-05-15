@@ -1,12 +1,10 @@
-# !{def (start val)
-#     (let (symcat start val) val)}
+!{def (start val)
+    (let (symcat start val) val)}
 
-# (def a "a")
-# (print aa)
-# (def a (+ 1 2))
-# (print a3)
-
-# (print (+ 1 2 3))
+(def a "a")
+(print aa)
+(def a (+ 1 2))
+(print a3)
 
 !{suffix-dup (sym x) {
     !{if (> x 1)
