@@ -112,6 +112,25 @@ namespace Ark::internal
         throwMacroProcessingError("unrecognized macro form", node);
     }
 
+    void MacroProcessor::registerFuncDef(Node& node)
+    {
+        std::cout << "reg " << node << "\n";
+
+        if (node.nodeType() == NodeType::List && node.constList().size() > 0 && node.constList()[0].nodeType() == NodeType::Keyword)
+        {
+            Keyword kw = node.constList()[0].keyword();
+            if (kw != Keyword::Let && kw != Keyword::Mut && kw != Keyword::Set)
+                return;
+
+            const Node& inner = node.constList()[2];
+            if (inner.nodeType() != NodeType::List)
+                return;
+
+            if (inner.constList()[0].nodeType() == NodeType::Keyword && inner.constList()[0].keyword() == Keyword::Fun)
+                m_defined_functions[node.constList()[1].string()] = inner.constList()[1];
+        }
+    }
+
     void MacroProcessor::process(Node& node, unsigned depth)
     {
         bool has_created = false;
@@ -119,15 +138,7 @@ namespace Ark::internal
         if (node.nodeType() == NodeType::List)
         {
             // register known functions
-            if (node.constList().size() > 0 && node.constList()[0].nodeType() == NodeType::Keyword &&
-                (node.constList()[0].keyword() == Keyword::Let || node.constList()[0].keyword() == Keyword::Mut ||
-                node.constList()[0].keyword() == Keyword::Set))
-            {
-                const Node& inner = node.constList()[2];
-                if (inner.nodeType() == NodeType::List && inner.constList()[0].nodeType() == NodeType::Keyword &&
-                    inner.constList()[0].keyword() == Keyword::Fun)
-                    m_defined_functions[node.constList()[1].string()] = inner.constList()[1];
-            }
+            registerFuncDef(node);
 
             // recursive call
             std::size_t i = 0;
@@ -174,6 +185,9 @@ namespace Ark::internal
                     // execute if we are on a predefined macro
                     if (node.list()[0].nodeType() == NodeType::Symbol && isPredefined(node.list()[0].string()))
                         node = evaluate(node);
+
+                    // needed if we created a function node from a macro
+                    registerFuncDef(node);
 
                     if (node.nodeType() == NodeType::List)
                         process(node.list()[i], depth + 1);
