@@ -41,10 +41,7 @@
 namespace Ark
 {
     class VM;
-}
 
-namespace Ark::internal
-{
     // Note from the creator: we can have at most 0b01111111 (127) different types
     // because type index is stored on the 7 right most bits of a uint8_t in the class Value.
     // Order is also important because we are doing some optimizations to check ranges
@@ -87,16 +84,16 @@ namespace Ark::internal
         using ConstIterator = std::vector<Value>::const_iterator;
 
         using Value_t  = variant_t<
-            double,             //  8 bytes
-            String,             // 16 bytes
-            PageAddr_t,         //  2 bytes
-            ProcType,           //  8 bytes
-            Closure,            // 24 bytes
-            UserType,           // 24 bytes
-            std::vector<Value>, // 24 bytes
-            Value*              //  8 bytes
-        >;                      // +8 bytes overhead
-        //                   total 32 bytes
+            double,                //  8 bytes
+            String,                // 16 bytes
+            internal::PageAddr_t,  //  2 bytes
+            ProcType,              //  8 bytes
+            internal::Closure,     // 24 bytes
+            UserType,              // 24 bytes
+            std::vector<Value>,    // 24 bytes
+            Value*                 //  8 bytes
+        >;                         // +8 bytes overhead
+        //                      total 32 bytes
 
         /**
          * @brief Construct a new Value object
@@ -179,7 +176,7 @@ namespace Ark::internal
          * 
          * @param value 
          */
-        explicit Value(PageAddr_t value) noexcept;
+        explicit Value(internal::PageAddr_t value) noexcept;
 
         /**
          * @brief Construct a new Value object from a C++ function
@@ -200,7 +197,7 @@ namespace Ark::internal
          * 
          * @param value 
          */
-        explicit Value(Closure&& value) noexcept;
+        explicit Value(internal::Closure&& value) noexcept;
 
         /**
          * @brief Construct a new Value object as a UserType
