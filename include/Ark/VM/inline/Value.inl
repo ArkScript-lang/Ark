@@ -35,9 +35,9 @@ inline const UserType& Value::usertype() const
 
 // private getters
 
-inline PageAddr_t Value::pageAddr() const
+inline internal::PageAddr_t Value::pageAddr() const
 {
-    return variant_get<PageAddr_t>(m_value);
+    return variant_get<internal::PageAddr_t>(m_value);
 }
 
 inline const Value::ProcType& Value::proc() const
@@ -45,9 +45,9 @@ inline const Value::ProcType& Value::proc() const
     return variant_get<Value::ProcType>(m_value);
 }
 
-inline const Closure& Value::closure() const
+inline const internal::Closure& Value::closure() const
 {
-    return variant_get<Closure>(m_value);
+    return variant_get<internal::Closure>(m_value);
 }
 
 inline const bool Value::isConst() const noexcept

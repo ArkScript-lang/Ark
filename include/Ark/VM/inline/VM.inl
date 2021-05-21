@@ -12,7 +12,7 @@
 #include <Ark/Profiling.hpp>
 
 template <typename... Args>
-internal::Value VM::call(const std::string& name, Args&&... args)
+Value VM::call(const std::string& name, Args&&... args)
 {
     using namespace internal;
 
@@ -68,7 +68,7 @@ internal::Value VM::call(const std::string& name, Args&&... args)
 }
 
 template <typename... Args>
-internal::Value VM::resolve(const internal::Value* val, Args&&... args)
+Value VM::resolve(const Value* val, Args&&... args)
 {
     using namespace internal;
 
@@ -118,7 +118,7 @@ inline uint16_t VM::readNumber()
     return tmp;
 }
 
-inline internal::Value* VM::pop()
+inline Value* VM::pop()
 {
     if (m_sp > 0)
     {
@@ -129,31 +129,29 @@ inline internal::Value* VM::pop()
         return &m_no_value;
 }
 
-inline void VM::push(const internal::Value& value)
+inline void VM::push(const Value& value)
 {
     (*m_stack)[m_sp].m_const_type = value.m_const_type;
     (*m_stack)[m_sp].m_value = value.m_value;
     ++m_sp;
 }
 
-inline void VM::push(internal::Value&& value)
+inline void VM::push(Value&& value)
 {
     (*m_stack)[m_sp].m_const_type = std::move(value.m_const_type);
     (*m_stack)[m_sp].m_value = std::move(value.m_value);
     ++m_sp;
 }
 
-inline void VM::push(internal::Value* valptr)
+inline void VM::push(Value* valptr)
 {
-    (*m_stack)[m_sp].m_const_type = static_cast<uint8_t>(internal::ValueType::Reference);
+    (*m_stack)[m_sp].m_const_type = static_cast<uint8_t>(ValueType::Reference);
     (*m_stack)[m_sp].m_value = valptr;
     ++m_sp;
 }
 
-inline internal::Value* VM::popAndResolveAsPtr()
+inline Value* VM::popAndResolveAsPtr()
 {
-    using namespace internal;
-
     Value* tmp = pop();
     if (tmp->valueType() == ValueType::Reference)
         return tmp->reference();
@@ -226,7 +224,7 @@ inline void VM::createNewScope() noexcept
     m_locals.emplace_back(std::make_shared<internal::Scope>());
 }
 
-inline internal::Value* VM::findNearestVariable(uint16_t id) noexcept
+inline Value* VM::findNearestVariable(uint16_t id) noexcept
 {
     for (auto it=m_locals.rbegin(), it_end=m_locals.rend(); it != it_end; ++it)
     {
@@ -238,8 +236,6 @@ inline internal::Value* VM::findNearestVariable(uint16_t id) noexcept
 
 inline void VM::returnFromFuncCall()
 {
-    using namespace internal;
-
     COZ_BEGIN("ark vm returnFromFuncCall");
 
     --m_fc;
