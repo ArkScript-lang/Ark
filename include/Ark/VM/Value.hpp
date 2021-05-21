@@ -2,7 +2,7 @@
  * @file Value.hpp
  * @author Default value type handled by the virtual machine
  * @brief 
- * @version 0.1
+ * @version 0.2
  * @date 2020-10-27
  * 
  * @copyright Copyright (c) 2020
