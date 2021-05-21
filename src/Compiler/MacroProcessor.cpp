@@ -232,7 +232,7 @@ namespace Ark::internal
     {
         if (node.nodeType() == NodeType::Symbol)
         {
-            Node* macro = find_nearest_macro(node.string());
+            Node* macro = findNearestMacro(node.string());
             if (macro != nullptr && macro->list().size() == 2)
                 return macro->list()[1];
             else
@@ -263,7 +263,7 @@ namespace Ark::internal
             )
 
             const std::string& name = node.list()[0].string();
-            if (Node* macro = find_nearest_macro(name); macro != nullptr)
+            if (Node* macro = findNearestMacro(name); macro != nullptr)
             {
                 execute(node.list()[0]);
                 if (node.list()[0].nodeType() == NodeType::Unused)

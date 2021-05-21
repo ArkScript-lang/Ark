@@ -15,7 +15,7 @@ namespace Ark::internal
     void ListExecutor::execute(Node& node)
     {
         Node& first = node.list()[0];
-        Node* macro = find_nearest_macro(first.string());
+        Node* macro = findNearestMacro(first.string());
 
         if (macro != nullptr)
         {
@@ -23,7 +23,7 @@ namespace Ark::internal
                 std::clog << "Found macro for " << first.string() << std::endl;
 
             if (macro->constList().size() == 2)
-                execute_proxy(first);
+                executeProxy(first);
             // !{name (args) body}
             else if (macro->constList().size() == 3)
             {
@@ -75,7 +75,7 @@ namespace Ark::internal
                     unify(args_applied, temp_body, nullptr);
 
                 node = evaluate(temp_body, false);
-                execute_proxy(node);
+                executeProxy(node);
             }
         }
     }

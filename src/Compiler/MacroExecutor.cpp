@@ -7,9 +7,9 @@ namespace Ark::internal
         m_macroprocessor(macroprocessor), m_debug(debug)
     {}
 
-    Node* MacroExecutor::find_nearest_macro(const std::string& name)
+    Node* MacroExecutor::findNearestMacro(const std::string& name)
     {
-        return m_macroprocessor->find_nearest_macro(name);
+        return m_macroprocessor->findNearestMacro(name);
     }
 
     void MacroExecutor::registerMacro(Node& node)
@@ -37,7 +37,7 @@ namespace Ark::internal
         m_macroprocessor->throwMacroProcessingError(message, node);
     }
 
-    void MacroExecutor::execute_proxy(Node& node)
+    void MacroExecutor::executeProxy(Node& node)
     {
         m_macroprocessor->execute(node);
     }

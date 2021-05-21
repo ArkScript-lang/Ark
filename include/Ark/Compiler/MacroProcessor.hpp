@@ -71,7 +71,7 @@ namespace Ark::internal
          * @param name 
          * @return Node* nullptr if no macro was found
          */
-        inline Node* find_nearest_macro(const std::string& name)
+        inline Node* findNearestMacro(const std::string& name)
         {
             if (m_macros.empty())
                 return nullptr;
