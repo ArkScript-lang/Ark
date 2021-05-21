@@ -138,11 +138,16 @@
     (let magic_func (fun ((suffix-dup a 3)) (- a1 a2 a3)))
     (set tests (assert-eq (magic_func 1 2 3) (- 1 2 3) "macro symdup" tests))
 
-    # !{partial (func ...defargs) {
-    #     !{bloc (suffix-dup a (- (argcount func) (len defargs)))}
-    #     (fun (bloc) (func ...defargs bloc))
-    #     !{undef bloc}
-    # }}
+    !{partial (func ...defargs) {
+        !{bloc (suffix-dup a (- (argcount func) (len defargs)))}
+        (fun (bloc) (func ...defargs bloc))
+        !{undef bloc}
+    }}
+
+    (let test_func (fun (a b c) (* a b c)))
+    (let test_func1 (partial test_func 1))
+    (set tests (assert-eq (argcount test_func) 3 "macro argcount" tests))
+    (set tests (assert-eq (argcount test_func1) 2 "macro argcount" tests))
 
     (recap "Macro tests passed" tests (- (time) start-time))
 

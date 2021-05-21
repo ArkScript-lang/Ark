@@ -139,6 +139,13 @@ namespace Ark::internal
         void registerMacro(Node& node);
 
         /**
+         * @brief Registers a function definition node
+         * 
+         * @param node 
+         */
+        void registerFuncDef(Node& node);
+
+        /**
          * @brief Register macros in scopes and apply them as needed
          * 
          * @param node node on which to operate

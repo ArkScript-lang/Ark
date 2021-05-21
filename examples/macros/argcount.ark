@@ -1,9 +1,19 @@
-(let foo (fun () ()))
-(let bar (fun (a) ()))
-(let egg (fun (a b) ()))
+# (let foo (fun () ()))
+# (let bar (fun (a) ()))
+# (let egg (fun (a b) ()))
 
-# !{if true
-    (print (argcount foo) " " (argcount bar) " " (argcount egg))
-# }
+# (print (argcount foo) " " (argcount bar) " " (argcount egg))
 
-(egg (bar (foo)) (bar (foo)))
+# (egg (bar (foo)) (bar (foo)))
+
+!{partial (func ...defargs) {
+    !{bloc (suffix-dup a (- (argcount func) (len defargs)))}
+    (fun (bloc) (func ...defargs bloc))
+    !{undef bloc}
+}}
+
+(let test_func (fun (a b c) (* a b c)))
+(let test_func1 (partial test_func 1))
+
+(print (argcount test_func))
+(print (argcount test_func1))
