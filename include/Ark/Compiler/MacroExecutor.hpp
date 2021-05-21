@@ -2,7 +2,7 @@
  * @file MacroExecutor.hpp
  * @author Ray John Alovera (rakista112@gmail.com)
  * @brief The base class for all MacroExecutors
- * @version 0.1
+ * @version 0.2
  * @date 2021-05-04
  * 
  * @copyright Copyright (c) 2021
@@ -33,12 +33,12 @@ namespace Ark::internal
         /**
          * @brief Find the nearest macro matching a giving name
          * 
-         * @details Proxy function for MacroProcessor::find_nearest_macro
+         * @details Proxy function for MacroProcessor::findNearestMacro
          * 
          * @param name 
          * @return Node* nullptr if no macro was found
          */
-        Node* find_nearest_macro(const std::string& name);
+        Node* findNearestMacro(const std::string& name);
 
         /**
          * @brief Registers macros based on their type
@@ -90,7 +90,7 @@ namespace Ark::internal
          * 
          * @param node 
          */
-        void execute_proxy(Node& node);
+        void executeProxy(Node& node);
 
     public:
         /**

@@ -2,7 +2,7 @@
  * @file ConditionalExecutor.hpp
  * @author Ray John Alovera (rakista112@gmail.com)
  * @brief Executor for Conditional Macros
- * @version 0.1
+ * @version 0.2
  * @date 2021-05-04
  * 
  * @copyright Copyright (c) 2021
