@@ -65,7 +65,7 @@ namespace Ark::internal
                 if (first_node.string() != "undef")
                     m_macros.back()[first_node.string()] = node;
                 else if (second_node.nodeType() == NodeType::Symbol)  // undefine a macro
-                    delete_nearest_macro(second_node.string());
+                    deleteNearestMacro(second_node.string());
                 else // used undef on a non-symbol
                     throwMacroProcessingError("can not undefine a macro without it's name", second_node);
                 return;
@@ -118,6 +118,17 @@ namespace Ark::internal
 
         if (node.nodeType() == NodeType::List)
         {
+            // register known functions
+            if (node.constList().size() > 0 && node.constList()[0].nodeType() == NodeType::Keyword &&
+                (node.constList()[0].keyword() == Keyword::Let || node.constList()[0].keyword() == Keyword::Mut ||
+                node.constList()[0].keyword() == Keyword::Set))
+            {
+                const Node& inner = node.constList()[2];
+                if (inner.nodeType() == NodeType::List && inner.constList()[0].nodeType() == NodeType::Keyword &&
+                    inner.constList()[0].keyword() == Keyword::Fun)
+                    m_defined_functions[node.constList()[1].string()] = inner.constList()[1];
+            }
+
             // recursive call
             std::size_t i = 0;
             while (i < node.list().size())
@@ -164,7 +175,8 @@ namespace Ark::internal
                     if (node.list()[0].nodeType() == NodeType::Symbol && isPredefined(node.list()[0].string()))
                         node = evaluate(node);
 
-                    process(node.list()[i], depth + 1);
+                    if (node.nodeType() == NodeType::List)
+                        process(node.list()[i], depth + 1);
 
                     // remove begins in macros
                     if (added_begin && node.list()[i].nodeType() == NodeType::List && node.list()[i].list().size() > 0)
@@ -432,7 +444,7 @@ namespace Ark::internal
                             break;
 
                         default:
-                            throwMacroProcessingError("When expnding `symcat', expected either a Number, String or Symbol, got a " + typeToString(ev), ev);
+                            throwMacroProcessingError("When expanding `symcat', expected either a Number, String or Symbol, got a " + typeToString(ev), ev);
                     }
                 }
 
@@ -441,10 +453,11 @@ namespace Ark::internal
             }
             else if (name == "argcount")
             {
-                // suppose it was unified
-                std::cout << "here" << std::endl;
-                std::cout << typeToString(node) << " " << node << "\n";
-                node = Node(1);  // TEMP
+                Node sym = node.constList()[1];
+                if (auto it = m_defined_functions.find(sym.string()); it != m_defined_functions.end())
+                    node = Node(static_cast<long>(it->second.constList().size()));
+                else
+                    throwMacroProcessingError("When expanding `argcount', expected a known function name, got unbound variable " + sym.string(), node);
             }
         }
 
