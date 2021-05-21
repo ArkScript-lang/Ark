@@ -64,6 +64,7 @@ namespace Ark::internal
         std::vector<std::unordered_map<std::string, Node>> m_macros;  ///< Handling macros in a scope fashion
         std::unique_ptr<MacroExecutorPipeline> m_executor_pipeline;
         std::vector<std::string> m_predefined_macros;  ///< Already existing macros, non-keywords, non-builtins
+        std::unordered_map<std::string, Node> m_defined_functions;
 
         /**
          * @brief Find the nearest macro matching a given name
@@ -92,7 +93,7 @@ namespace Ark::internal
          * 
          * @param name 
          */
-        inline void delete_nearest_macro(const std::string& name)
+        inline void deleteNearestMacro(const std::string& name)
         {
             if (m_macros.empty())
                 return;
