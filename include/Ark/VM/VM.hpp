@@ -132,7 +132,7 @@ namespace Ark
         std::mutex m_mutex;
 
         // related to the execution
-        std::array<internal::Value, ARK_STACK_SIZE> m_stack;
+        std::unique_ptr<std::array<internal::Value, ARK_STACK_SIZE>> m_stack;
         std::vector<uint8_t> m_scope_count_to_delete;
         std::optional<internal::Scope_t> m_saved_scope;
         std::vector<internal::Scope_t> m_locals;
