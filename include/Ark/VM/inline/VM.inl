@@ -123,7 +123,7 @@ inline internal::Value* VM::pop()
     if (m_sp > 0)
     {
         --m_sp;
-        return &m_stack[m_sp];
+        return &(*m_stack)[m_sp];
     }
     else
         return &m_no_value;
@@ -131,22 +131,22 @@ inline internal::Value* VM::pop()
 
 inline void VM::push(const internal::Value& value)
 {
-    m_stack[m_sp].m_const_type = value.m_const_type;
-    m_stack[m_sp].m_value = value.m_value;
+    (*m_stack)[m_sp].m_const_type = value.m_const_type;
+    (*m_stack)[m_sp].m_value = value.m_value;
     ++m_sp;
 }
 
 inline void VM::push(internal::Value&& value)
 {
-    m_stack[m_sp].m_const_type = std::move(value.m_const_type);
-    m_stack[m_sp].m_value = std::move(value.m_value);
+    (*m_stack)[m_sp].m_const_type = std::move(value.m_const_type);
+    (*m_stack)[m_sp].m_value = std::move(value.m_value);
     ++m_sp;
 }
 
 inline void VM::push(internal::Value* valptr)
 {
-    m_stack[m_sp].m_const_type = static_cast<uint8_t>(internal::ValueType::Reference);
-    m_stack[m_sp].m_value = valptr;
+    (*m_stack)[m_sp].m_const_type = static_cast<uint8_t>(internal::ValueType::Reference);
+    (*m_stack)[m_sp].m_value = valptr;
     ++m_sp;
 }
 
@@ -181,10 +181,10 @@ inline void VM::swapStackForFunCall(uint16_t argc)
             break;
 
         case 1:
-            m_stack[m_sp + 1] = m_stack[m_sp - 1];
-            resolveRefInPlace(m_stack[m_sp + 1]);
-            m_stack[m_sp - 1] = Value(static_cast<PageAddr_t>(m_pp));
-            m_stack[m_sp + 0] = Value(ValueType::InstPtr, static_cast<PageAddr_t>(m_ip));
+            (*m_stack)[m_sp + 1] = (*m_stack)[m_sp - 1];
+            resolveRefInPlace((*m_stack)[m_sp + 1]);
+            (*m_stack)[m_sp - 1] = Value(static_cast<PageAddr_t>(m_pp));
+            (*m_stack)[m_sp + 0] = Value(ValueType::InstPtr, static_cast<PageAddr_t>(m_ip));
             m_sp += 2;
             break;
 
@@ -192,24 +192,24 @@ inline void VM::swapStackForFunCall(uint16_t argc)
         {
             const int16_t first = m_sp - argc;
             // move first argument to the very end
-            m_stack[m_sp + 1] = m_stack[first + 0];
-            resolveRefInPlace(m_stack[m_sp + 1]);
+            (*m_stack)[m_sp + 1] = (*m_stack)[first + 0];
+            resolveRefInPlace((*m_stack)[m_sp + 1]);
             // move second argument right before the last one
-            m_stack[m_sp + 0] = m_stack[first + 1];
-            resolveRefInPlace(m_stack[m_sp + 0]);
+            (*m_stack)[m_sp + 0] = (*m_stack)[first + 1];
+            resolveRefInPlace((*m_stack)[m_sp + 0]);
             // move the rest, if any
             int16_t x = 2;
             const int16_t stop  = ((argc % 2 == 0) ? argc : (argc - 1)) / 2;
             while (x <= stop)
             {
                 //        destination          , origin
-                std::swap(m_stack[m_sp - x + 1], m_stack[first + x]);
-                resolveRefInPlace(m_stack[m_sp - x + 1]);
-                resolveRefInPlace(m_stack[first + x]);
+                std::swap((*m_stack)[m_sp - x + 1], (*m_stack)[first + x]);
+                resolveRefInPlace((*m_stack)[m_sp - x + 1]);
+                resolveRefInPlace((*m_stack)[first + x]);
                 ++x;
             }
-            m_stack[first + 0] = Value(static_cast<PageAddr_t>(m_pp));
-            m_stack[first + 1] = Value(ValueType::InstPtr, static_cast<PageAddr_t>(m_ip));
+            (*m_stack)[first + 0] = Value(static_cast<PageAddr_t>(m_pp));
+            (*m_stack)[first + 1] = Value(ValueType::InstPtr, static_cast<PageAddr_t>(m_ip));
             m_sp += 2;
             break;
         }
