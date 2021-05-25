@@ -79,7 +79,7 @@ namespace Ark::internal
          * 
          * @param value 
          */
-        explicit Node(int value) noexcept;
+        explicit Node(long value) noexcept;
 
         /**
          * @brief Construct a new Node object

@@ -18,7 +18,7 @@ namespace Ark::internal
         Node::ListNode.setNodeType(NodeType::Symbol);
     }
 
-    Node::Node(int value) noexcept :
+    Node::Node(long value) noexcept :
         m_type(NodeType::Number),
         m_value(static_cast<double>(value))
     {}
