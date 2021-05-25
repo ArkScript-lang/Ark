@@ -226,7 +226,7 @@ namespace Ark::internal
         m_executor_pipeline->execute(node);
     }
 
-    void MacroProcessor::unify(const std::unordered_map<std::string, Node>& map, Node& target, Node* parent)
+    void MacroProcessor::unify(const std::unordered_map<std::string, Node>& map, Node& target, Node* parent, std::size_t index)
     {
         if (target.nodeType() == NodeType::Symbol)
         {
@@ -236,20 +236,20 @@ namespace Ark::internal
         else if (target.nodeType() == NodeType::List || target.nodeType() == NodeType::Macro)
         {
             for (std::size_t i = 0, end = target.list().size(); i < end; ++i)
-                unify(map, target.list()[i], &target);
+                unify(map, target.list()[i], &target, i);
         }
         else if (target.nodeType() == NodeType::Spread)
         {
             Node subnode = target;
             subnode.setNodeType(NodeType::Symbol);
             unify(map, subnode, parent);
-            parent->list().pop_back();  // remove the spread
+            parent->list().erase(parent->list().begin() + index);  // remove the spread
 
             if (subnode.nodeType() != NodeType::List)
                 throwMacroProcessingError("Got a non-list while trying to apply the spread operator", subnode);
 
             for (std::size_t i = 1, end = subnode.list().size(); i < end; ++i)
-                parent->push_back(subnode.list()[i]);
+                parent->list().insert(parent->list().begin() + index + i, subnode.list()[i]);
         }
     }
 
