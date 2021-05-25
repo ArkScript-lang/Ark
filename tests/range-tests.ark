@@ -7,31 +7,29 @@
     (mut tests 0)
     (let start-time (time))
 
-    # TODO understand why it fails silently sometimes
-
     (let r (range 0 10))
     (mut i 0)
-    #(while (< i 10) {
-    #    (set tests (assert-eq i (r) "range" tests))
-    #    (set i (+ 1 i))
-    #})
-    #(set tests (assert-eq r.i 10 "range" tests))
-    #(set tests (assert-eq (r) nil "range" tests))
+    (while (< i 10) {
+        (set tests (assert-eq i (r) "range" tests))
+        (set i (+ 1 i))
+    })
+    (set tests (assert-eq r.i 10 "range" tests))
+    (set tests (assert-eq (r) nil "range" tests))
 
-    #(r.reset)
-    #(set tests (assert-eq r.i 0 "range reset" tests))
-    #(set tests (assert-eq (r.asList) [0 1 2 3 4 5 6 7 8 9] "range asList" tests))
-    #(range:forEach r (fun (e)
-    #    (set tests (assert-neq e nil "range forEach" tests))))
+    (r.reset)
+    (set tests (assert-eq r.i 0 "range reset" tests))
+    (set tests (assert-eq (r.asList) [0 1 2 3 4 5 6 7 8 9] "range asList" tests))
+    (range:forEach r (fun (e)
+        (set tests (assert-neq e nil "range forEach" tests))))
 
-    #(let filtered (range:filter r math:even))
-    #(set tests (assert-eq filtered [0 2 4 6 8] "range filter" tests))
+    (let filtered (range:filter r math:even))
+    (set tests (assert-eq filtered [0 2 4 6 8] "range filter" tests))
 
-    #(let mapped (range:map r (fun (e) (* e e))))
-    #(set tests (assert-eq mapped [0 1 4 9 16 25 36 49 64 81] "range map" tests))
+    (let mapped (range:map r (fun (e) (* e e))))
+    (set tests (assert-eq mapped [0 1 4 9 16 25 36 49 64 81] "range map" tests))
 
-    #(let reduced (range:reduce r (fun (a b) (+ a b))))
-    #(set tests (assert-eq reduced 45 "range reduced" tests))
+    (let reduced (range:reduce r (fun (a b) (+ a b))))
+    (set tests (assert-eq reduced 45 "range reduced" tests))
 
     (recap "Range tests passed" tests (- (time) start-time))
 
