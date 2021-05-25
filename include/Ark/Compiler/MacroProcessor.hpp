@@ -131,6 +131,63 @@ namespace Ark::internal
         }
 
         /**
+         * @brief Execute a node at a given position in a node list and clear unused nodes
+         * 
+         * @param node 
+         * @param i 
+         * @return true if a begin block was added by the macro call
+         * @return false 
+         */
+        inline bool execAndCleanUnused(Node& node, std::size_t i)
+        {
+            bool added_begin = false;
+
+            auto had_begin = [](const Node& node) -> bool {
+                return node.nodeType() == NodeType::List &&
+                        node.constList().size() > 0 &&
+                        node.constList()[0].nodeType() == NodeType::Keyword &&
+                        node.constList()[0].keyword() == Keyword::Begin;
+            };
+
+            bool had = had_begin(node.list()[i]);
+            execute(node.list()[i]);
+            if (had_begin(node.list()[i]) && !had)
+                added_begin = true;
+
+            // remove unused blocks
+            if (node.list()[i].nodeType() == NodeType::Unused)
+                node.list().erase(node.constList().begin() + i);
+
+            return added_begin;
+        }
+
+        /**
+         * @brief Remove a begin block added by a macro
+         * 
+         * @param node 
+         * @param i 
+         */
+        inline void removeBegin(Node& node, std::size_t i)
+        {
+            if (node.list()[i].nodeType() == NodeType::List && node.list()[i].list().size() > 0)
+            {
+                Node lst = node.constList()[i];
+                Node first = lst.constList()[0];
+
+                if (first.nodeType() == NodeType::Keyword && first.keyword() == Keyword::Begin)
+                {
+                    std::size_t previous = i;
+
+                    for (std::size_t block_idx = 1, end = lst.constList().size(); block_idx < end; ++block_idx)
+                        node.list().insert(node.constList().begin() + i + block_idx, lst.list()[block_idx]);
+
+                    i += lst.constList().size() - 1;
+                    node.list().erase(node.constList().begin() + previous);
+                }
+            }
+        }
+
+        /**
          * @brief Registers macros based on their type
          * @details Validate macros and register them by their name
          * 

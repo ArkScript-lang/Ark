@@ -162,23 +162,7 @@ namespace Ark::internal
 
                     // execute only if we have registered macros
                     if ((m_macros.size() == 1 && m_macros[0].size() > 0) || m_macros.size() > 1)
-                    {
-                        auto had_begin = [](const Node& node) -> bool {
-                            return node.nodeType() == NodeType::List &&
-                                   node.constList().size() > 0 &&
-                                   node.constList()[0].nodeType() == NodeType::Keyword &&
-                                   node.constList()[0].keyword() == Keyword::Begin;
-                        };
-
-                        bool had = had_begin(node.list()[i]);
-                        execute(node.list()[i]);
-                        if (had_begin(node.list()[i]) && !had)
-                            added_begin = true;
-
-                        // remove unused blocks
-                        if (node.list()[i].nodeType() == NodeType::Unused)
-                            node.list().erase(node.constList().begin() + i);
-                    }
+                        added_begin = execAndCleanUnused(node, i);
 
                     // execute if we are on a predefined macro
                     if (node.list()[0].nodeType() == NodeType::Symbol && isPredefined(node.list()[0].string()))
@@ -186,28 +170,21 @@ namespace Ark::internal
 
                     if (node.nodeType() == NodeType::List)
                     {
+                        for (unsigned p = 0; p < depth; ++p) std::cout << "    "; std::cout << node.list()[i] << "\n";
+                        if (Node inner = node.list()[i]; inner.nodeType() == NodeType::List && inner.list()[0].nodeType() == NodeType::Symbol &&
+                                inner.list()[0].string() == "suffix-dup")
+                            std::cout << "----\n";
+
+                        if (execAndCleanUnused(node, i))
+                            removeBegin(node, i);
                         process(node.list()[i], depth + 1);
                         // needed if we created a function node from a macro
                         registerFuncDef(node.list()[i]);
                     }
 
                     // remove begins in macros
-                    if (added_begin && node.list()[i].nodeType() == NodeType::List && node.list()[i].list().size() > 0)
-                    {
-                        Node lst = node.constList()[i];
-                        Node first = lst.constList()[0];
-
-                        if (first.nodeType() == NodeType::Keyword && first.keyword() == Keyword::Begin)
-                        {
-                            std::size_t previous = i;
-
-                            for (std::size_t block_idx = 1, end = lst.constList().size(); block_idx < end; ++block_idx)
-                                node.list().insert(node.constList().begin() + i + block_idx, lst.list()[block_idx]);
-
-                            i += lst.constList().size() - 1;
-                            node.list().erase(node.constList().begin() + previous);
-                        }
-                    }
+                    if (added_begin)
+                        removeBegin(node, i);
 
                     // go forward only if it isn't a macro, because we delete macros
                     // while running on the AST
