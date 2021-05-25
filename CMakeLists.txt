@@ -9,16 +9,38 @@ endif()
 # setting up compilations options
 
 if (CMAKE_COMPILER_IS_GNUCXX)
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -pg -g -no-pie")
-    set(CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG -O3 -s")
+    set_property(GLOBAL PROPERTY ArkDebugFlags "${CMAKE_CXX_FLAGS_DEBUG} -pg -g -no-pie")
+    set_property(GLOBAL PROPERTY ArkReleaseFlags "-DNDEBUG -O3 -s")
+    set_property(GLOBAL PROPERTY ArkLinkerFlags "")
 elseif (MSVC)
-    set(CMAKE_CXX_FLAGS_DEBUG "/DWIN32 /D_WINDOWS /W3 /GR /EHa /MDd" CACHE STRING "Debug compilation options" FORCE)
-    set(CMAKE_CXX_FLAGS_RELEASE "/DNDEBUG /DWIN32 /D_WINDOWS /W3 /GR /EHa /Ox /Ob2 /Oi /Ot /Oy /MD" CACHE STRING "Release compilation options" FORCE)
+    set_property(GLOBAL PROPERTY ArkDebugFlags "/Z7 /DWIN32 /D_WINDOWS /W3 /GR /EHa /MDd")
+    set_property(GLOBAL PROPERTY ArkReleaseFlags "/DNDEBUG /DWIN32 /D_WINDOWS /W3 /GR /EHa /Ox /Ob2 /Oi /Ot /Oy /MD")
+    set_property(GLOBAL PROPERTY ArkLinkerFlags "")
+
     add_compile_options(/wd4267)  # disable warning about data loss (size_t -> int)
     add_compile_options(/wd4244)  # disable warning about data loss (size_t -> char)
 elseif (CMAKE_COMPILER_IS_CLANG)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++abi")
+    set_property(GLOBAL PROPERTY ArkDebugFlags "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+    set_property(GLOBAL PROPERTY ArkReleaseFlags "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+    set_property(GLOBAL PROPERTY ArkLinkerFlags "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++abi")
+endif()
+
+# set debug compilation flags
+get_property(DebugFlags GLOBAL PROPERTY ArkDebugFlags)
+if (DebugFlags)
+    set(CMAKE_CXX_FLAGS_DEBUG "${DebugFlags}" CACHE STRING "Debug compilation options" FORCE)
+endif()
+
+# set release compilation flags
+get_property(ReleaseFlags GLOBAL PROPERTY ArkReleaseFlags)
+if (ReleaseFlags)
+    set(CMAKE_CXX_FLAGS_RELEASE "${ReleaseFlags}" CACHE STRING "Release compilation options" FORCE)
+endif()
+
+# set linker flags
+get_property(LinkerFlags GLOBAL PROPERTY ArkLinkerFlags)
+if (LinkerFlags)
+    set(CMAKE_EXE_LINKER_FLAGS "${LinkerFlags}" CACHE STRING "Linker options" FORCE)
 endif()
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -47,10 +69,12 @@ endif()
 set(ARK_COMPILATION_OPTIONS ${CMAKE_CXX_FLAGS})
 set(ARK_COMPILER            ${CMAKE_CXX_COMPILER_ID})
 
-set(ARK_ENABLE_SYSTEM   On  CACHE BOOL "Enable sys:exec")  # enable use of (system "command here")
+set(ARK_BUILD_EXE       Off CACHE BOOL "Build a standalone ark executable")
+set(ARK_ENABLE_SYSTEM   On  CACHE BOOL "Enable sys:exec")  # enable use of (sys:exec "command here")
 set(ARK_PROFILER        Off CACHE BOOL "Enable coz profiler")
 set(ARK_PROFILER_COUNT  Off CACHE BOOL "Enable creations/copies/moves counting on the Value")
 set(ARK_SCOPE_DICHOTOMY Off CACHE BOOL "Change the behaviour of the scopes from linear (off) to dichotomic (On)")
+set(ARK_BUILD_MODULES   Off CACHE BOOL "Build the std library modules or not")
 
 if (ARK_SCOPE_DICHOTOMY)
     add_definitions(-DARK_SCOPE_DICHOTOMY)
@@ -63,6 +87,10 @@ if (ARK_PROFILER)
 endif()
 if (ARK_ENABLE_SYSTEM)
     add_definitions(-DARK_ENABLE_SYSTEM)
+endif()
+if (ARK_BUILD_MODULES)
+    # submodules
+    add_subdirectory(${ark_SOURCE_DIR}/lib/ext)
 endif()
 
 configure_file(
@@ -81,7 +109,6 @@ file(GLOB_RECURSE SOURCE_FILES
 )
 list(APPEND SOURCE_FILES
     ${ark_SOURCE_DIR}/src/Ark.cpp
-    ${ark_SOURCE_DIR}/src/Log.cpp
     ${ark_SOURCE_DIR}/src/Utils.cpp
 )
 
@@ -177,6 +204,3 @@ if (ARK_BUILD_EXE)
                         GROUP_EXECUTE GROUP_READ
     )
 endif()
-
-# submodules
-add_subdirectory(${ark_SOURCE_DIR}/lib/ext)

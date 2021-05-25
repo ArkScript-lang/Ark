@@ -9,8 +9,8 @@
  * 
  */
 
-#ifndef ark_vm_ffi
-#define ark_vm_ffi
+#ifndef ARK_BUILTINS_BUILTINS_HPP
+#define ARK_BUILTINS_BUILTINS_HPP
 
 #include <vector>
 #include <utility>

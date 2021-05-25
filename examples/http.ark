@@ -2,30 +2,36 @@
 (import "http.arkm")
 
 # a toggle to try the client and the server
-(let server false)
+(let server true)
 
 (if server
     # then, server
     {
         # we can have only 1 server at a time
-        (let srv (httpCreateServer))
+        (let srv (http:server:create))
         # the handler answering requests on a given route, here /hi
-        (let f (fun (str) {
-            (+ "we got: '" str "', it worked!")
+        (let f (fun (data) {
+            [
+                200
+                (if (nil? data)
+                    "hello world"
+                    (+ "hello, " (toString (http:params:toList data))))
+                "text/plain"
+            ]
         }))
         # configure the route and the handler, we can also give a string instead of a function
-        (httpServerGet srv "/hi" f)
+        (http:server:get srv "/hi" f)
         (print "starting on localhost:80")
         # make the server listen forever on the port 80
-        (httpServerListen srv "localhost" 80)
+        (http:server:listen srv "localhost" 80)
     }
     # else, client
     {
         # we give the website and the port
-        (let cli (httpCreateClient "monip.org" 80))
+        (let cli (http:client:create "monip.org" 80))
 
         # we get a route on a given client
-        (mut output (httpClientGet cli "/"))
+        (mut output (http:client:get cli "/"))
         # if we got nil, then we couldn't reach the destination
         (if (nil? output)
             (print "couldn't reach the server")
@@ -33,16 +39,16 @@
         )
 
         # we can create multiple clients at the same time
-        (let cli2 (httpCreateClient "yahoo.com" 80))
+        (let cli2 (http:client:create "yahoo.com" 80))
 
-        (set output (httpClientGet cli2 "/"))
+        (set output (http:client:get cli2 "/"))
         # the function returns a list: [code content]
         (print (@ output 0))  # status: 301
 
         # follow redirections
-        (httpClientSetFollowLocation cli2 true)
+        (http:client:setFollowLocation cli2 true)
         # and retry
-        (set output (httpClientGet cli2 "/"))
+        (set output (http:client:get cli2 "/"))
         # it should work now
         (if (nil? output)
             (print "error")
