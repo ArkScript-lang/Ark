@@ -243,13 +243,13 @@ namespace Ark::internal
             Node subnode = target;
             subnode.setNodeType(NodeType::Symbol);
             unify(map, subnode, parent);
-            parent->list().erase(parent->list().begin() + index);  // remove the spread
 
             if (subnode.nodeType() != NodeType::List)
                 throwMacroProcessingError("Got a non-list while trying to apply the spread operator", subnode);
 
             for (std::size_t i = 1, end = subnode.list().size(); i < end; ++i)
                 parent->list().insert(parent->list().begin() + index + i, subnode.list()[i]);
+            parent->list().erase(parent->list().begin() + index);  // remove the spread
         }
     }
 
@@ -474,7 +474,7 @@ namespace Ark::internal
             }
         }
 
-        if (node.nodeType() == NodeType::List && node.constList().size() > 1)
+        if (node.nodeType() == NodeType::List && node.constList().size() >= 1)
         {
             for (std::size_t i = 0; i < node.list().size(); ++i)
                 node.list()[i] = evaluate(node.list()[i], is_not_body);
