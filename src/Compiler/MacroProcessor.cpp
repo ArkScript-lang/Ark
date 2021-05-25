@@ -188,7 +188,7 @@ namespace Ark::internal
                     {
                         process(node.list()[i], depth + 1);
                         // needed if we created a function node from a macro
-                        registerFuncDef(node.list()[i]); std::cout << "\n";
+                        registerFuncDef(node.list()[i]);
                     }
 
                     // remove begins in macros
