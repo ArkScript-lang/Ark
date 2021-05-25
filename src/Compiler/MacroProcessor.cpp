@@ -114,8 +114,6 @@ namespace Ark::internal
 
     void MacroProcessor::registerFuncDef(Node& node)
     {
-        std::cout << "reg " << node << "\n";
-
         if (node.nodeType() == NodeType::List && node.constList().size() > 0 && node.constList()[0].nodeType() == NodeType::Keyword)
         {
             Keyword kw = node.constList()[0].keyword();
@@ -186,11 +184,12 @@ namespace Ark::internal
                     if (node.list()[0].nodeType() == NodeType::Symbol && isPredefined(node.list()[0].string()))
                         node = evaluate(node);
 
-                    // needed if we created a function node from a macro
-                    registerFuncDef(node);
-
                     if (node.nodeType() == NodeType::List)
+                    {
                         process(node.list()[i], depth + 1);
+                        // needed if we created a function node from a macro
+                        registerFuncDef(node.list()[i]); std::cout << "\n";
+                    }
 
                     // remove begins in macros
                     if (added_begin && node.list()[i].nodeType() == NodeType::List && node.list()[i].list().size() > 0)
