@@ -8,6 +8,7 @@
 #endif
 #include <stdlib.h>
 #include <picosha2.hpp>
+#include <termcolor.hpp>
 
 namespace Ark
 {
@@ -78,13 +79,15 @@ namespace Ark
         return result;
     }
 
-    bool State::compile(unsigned debug, const std::string& file, const std::string& output, const std::string& lib_dir, uint16_t options)
+    bool State::compile(const std::string& file, const std::string& output)
     {
-        Compiler compiler(debug, lib_dir, options);
+        Compiler compiler(m_debug_level, m_libdir, m_options);
 
         try
         {
             compiler.feed(Utils::readFile(file), file);
+            for (auto& p : m_binded)
+                compiler.m_defined_symbols.push_back(p.first);
             compiler.compile();
 
             if (output != "")
@@ -110,7 +113,7 @@ namespace Ark
     {
         if (!Ark::Utils::fileExists(file))
         {
-            Ark::logger.error("Can not find file '" + file + "'");
+            std::cerr << termcolor::red << "Can not find file '" << file << "'\n" << termcolor::reset;
             return false;
         }
 
@@ -134,18 +137,10 @@ namespace Ark
             std::filesystem::path directory =  (std::filesystem::path(file)).parent_path() / ARK_CACHE_DIRNAME;
             std::string path = (directory / filename).string();
 
-            bool compiled_successfuly = false;
+            if (!std::filesystem::exists(directory))  // create ark cache directory
+                std::filesystem::create_directory(directory);
 
-            if (Ark::Utils::fileExists(path))
-                compiled_successfuly = compile(m_debug_level, file, path, m_libdir, m_options);
-            else
-            {
-                if (!std::filesystem::exists(directory))  // create ark cache directory
-                    std::filesystem::create_directory(directory);
-
-                compiled_successfuly = compile(m_debug_level, file, path, m_libdir, m_options);
-            }
-
+            bool compiled_successfuly = compile(file, path);
             if (compiled_successfuly && feed(path))
                 return true;
         }
@@ -161,6 +156,8 @@ namespace Ark
         try
         {
             compiler.feed(code);
+            for (auto& p : m_binded)
+                compiler.m_defined_symbols.push_back(p.first);
             compiler.compile();
         }
         catch (const std::exception& e)
@@ -188,6 +185,8 @@ namespace Ark
         for (const std::string& arg : args)
             val.push_back(internal::Value(arg));
         m_binded["sys:args"] = val;
+
+        m_binded["sys:platform"] = internal::Value(ARK_PLATFORM_NAME);
     }
 
     void State::setDebug(unsigned level) noexcept
@@ -225,12 +224,12 @@ namespace Ark
 
         if (major != ARK_VERSION_MAJOR)
         {
-            std::string str_version = Ark::Utils::toString(major) + "." +
-                Ark::Utils::toString(minor) + "." +
-                Ark::Utils::toString(patch);
-            std::string builtin_version = Ark::Utils::toString(ARK_VERSION_MAJOR) + "." +
-                Ark::Utils::toString(ARK_VERSION_MINOR) + "." +
-                Ark::Utils::toString(ARK_VERSION_PATCH);
+            std::string str_version = std::to_string(major) + "." +
+                std::to_string(minor) + "." +
+                std::to_string(patch);
+            std::string builtin_version = std::to_string(ARK_VERSION_MAJOR) + "." +
+                std::to_string(ARK_VERSION_MINOR) + "." +
+                std::to_string(ARK_VERSION_PATCH);
             throwStateError("Compiler and VM versions don't match: " + str_version + " and " + builtin_version);
         }
 
@@ -315,7 +314,7 @@ namespace Ark
                     i++;  // skip NOP
                 }
                 else
-                    throwStateError("unknown value type for value " + Ark::Utils::toString(j));
+                    throwStateError("unknown value type for value " + std::to_string(j));
             }
         }
         else

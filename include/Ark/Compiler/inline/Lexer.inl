@@ -22,6 +22,8 @@ inline TokenType Lexer::guessType(const std::string& value) noexcept
     // otherwise, identifier if it starts with [a-zA-Z_]
     else if (CHECK_FIRST_CHAR(value[0]))
         return TokenType::Identifier;
+    else if (value.size() > 3 && value[0] == value[1] && value[1] == value[2] && value[2] == '.')
+        return TokenType::Spread;
     return TokenType::Mismatch;
 }
 
@@ -75,7 +77,7 @@ inline void Lexer::throwTokenizingError(const std::string& message, const std::s
     {
         int iline = static_cast<int>(line);
 
-        if (iline - i >= 0 && iline - i < ctx.size())
+        if (iline - i >= 0 && iline - i < static_cast<int>(ctx.size()))  // cast to int, we'll never have a size > 2^32-1
             // + 1 to display real lines numbers
             ss << std::setw(5) << (iline - i + 1) << " | " << ctx[iline - i] << "\n";
         if (i == 0)  // line of the error

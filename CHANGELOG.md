@@ -2,11 +2,57 @@
 
 ## Unreleased changes
 ### Added
+- `UserType::del()`, used only by the virtual machine to free memory
+- a new unique stack based on a `std::array<Value, ARK_STACK_SIZE>`, the default stack size being 8192
+- more profiling tests
+- more options on the `display()` method of the bytecode reader, allowing us to selecto segment of bytecode instead of displaying everything
+- added a new token type: `Spread` ; it handles `...identifier`, needed in macros
+- the parser can now handle macros definitions
+- macros are being handled right after the parsing, before the AST optimizer can run
+    - if macros: `!{if compile-time-value then [optional else]}`
+    - values macros: `!{name value}`
+    - functions macros: `!{name (a b c ...args) body}`
+- `sys:platform`, containing the current platform name
+- updated the CLI so that we can slice the bytecode when displaying it
+- the bytecode reader can now display
+    - all the segments
+    - only the values segment
+    - only the symbols segment
+    - only the code segment (all of them or a given one)
+    - only the segments' titles and length
+- verifying that we give enough arguments
+- we can now import macros from other files
+- undefining macros is now possible by using `!{undef macro_name}`
+- `str:join` added in the standard library
+- `str:split` can now take longer separators
 
 ### Changed
 - updating doxyfile and some docstrings
+- updating the download script
+- enhancing examples
+- creating a Scope allocates 4 pairs instead of 2, reducing the number of reallocations needed
+- `tailOf` renamed to `tail` and `headOf` to `head` ; no need to keep the relics of the past
+- `headOf` (now `head`) returns the real head of a container (List or String), the first element (nil if the list is empty, "" if the string is empty)
+- the http module was updated to add `http:params:toList` and fix the `http:server:[method]` when passing a function
+- fixing the compiler when we encounter get fields in lists
+- updating the parser to support usually invalid constructions when they are in macros, to allow things like `!{defun (name args body) (let name (fun args body))}`
+- fixing the code optimizer to avoid removing unused variables which are defined on function calls
+- fixed the traceback generation on errors, it should now display the correct function names
+- reorganizing the compiler code
+- reorganizing the parser code to make it more maintainable
+- adding `make_node<T>` and `make_node_list` internally to avoid repetitive code
+- enhancing the parser `atom` method
+- enhancing the way we choose the subparser to use in the parser
+- avoid using `std::endl` if it's not useful
+- CI was split into multiple files to ease maintenance
 
 ### Removed
+- `~UserType`, since we are doing manual memory management now
+- `Frame` were removed because they were giving bad performances
+- `firstOf` was removed because it's basically a `(@ list 0)` and it was doing the job of `head`
+- `Ark::Utils::toString`, our internal version of `std::to_string`
+- use of static in the MacroProcessor and in the NodeType to string conversion function
+- `Ark::Logger` was removed in favor of `std::cout/cerr` + `termcolor`
 
 ## 3.0.15
 ### Added

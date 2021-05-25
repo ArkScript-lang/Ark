@@ -1,5 +1,5 @@
 /**
- * @file Constants.hpp.in
+ * @file Constants.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Constants used by ArkScript
  * @version 0.1
@@ -9,8 +9,8 @@
  * 
  */
 
-#ifndef ark_constants
-#define ark_constants
+#ifndef INCLUDE_ARK_CONSTANTS_HPP_IN
+#define INCLUDE_ARK_CONSTANTS_HPP_IN
 
 #define ARK_VERSION_MAJOR @ARK_VERSION_MAJOR@
 #define ARK_VERSION_MINOR @ARK_VERSION_MINOR@
@@ -20,6 +20,20 @@
 #define ARK_COMPILER "@ARK_COMPILER@"
 #define ARK_CACHE_DIRNAME "__arkscript__"
 #define ARK_NO_NAME_FILE "FILE"
+
+#if defined(_WIN32) || defined(_WIN64)
+    #define ARK_PLATFORM_NAME "Windows"
+#elif defined(__APPLE__) || defined(__MACH__)
+    #define ARK_PLATFORM_NAME "Mac OSX"
+#elif defined(__linux__)
+    #define ARK_PLATFORM_NAME "Linux"
+#elif defined(__FreeBSD__)
+    #define ARK_PLATFORM_NAME "FreeBSD"
+#elif defined(__unix) || defined(__unix__)
+    #define ARK_PLATFORM_NAME "Unix"
+#else
+    #define ARK_PLATFORM_NAME "Other"
+#endif
 
 #include <cinttypes>
 
@@ -37,4 +51,4 @@ namespace Ark
         | FeatureRemoveUnusedVars;
 }
 
-#endif  // ark_constants
+#endif

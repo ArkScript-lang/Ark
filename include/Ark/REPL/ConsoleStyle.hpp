@@ -9,8 +9,8 @@
  *
  */
 
-#ifndef CONSOLESTYLE_HPP
-#define CONSOLESTYLE_HPP
+#ifndef ARK_REPL_CONSOLESTYLE_HPP
+#define ARK_REPL_CONSOLESTYLE_HPP
 
 #include <replxx.hxx>
 
@@ -24,8 +24,8 @@ namespace Ark
         "fun", "while", "begin", "import",
         "quote", "del",
         /* Operators */
-        "len", "empty?", "firstOf", "tailOf",
-        "headOf", "nil?", "assert", "toNumber",
+        "len", "empty?", "tail", "head",
+        "nil?", "assert", "toNumber",
         "toString", "and", "or", "mod",
         "type", "hasField", "not",
         /* Builtins */
@@ -84,9 +84,8 @@ namespace Ark
         // Operators
         { "len", Replxx::Color::BRIGHTBLUE },
         { "empty?", Replxx::Color::BRIGHTBLUE },
-        { "firstOf", Replxx::Color::BRIGHTBLUE },
-        { "tailOf", Replxx::Color::BRIGHTBLUE },
-        { "headOf", Replxx::Color::BRIGHTBLUE },
+        { "tail", Replxx::Color::BRIGHTBLUE },
+        { "head", Replxx::Color::BRIGHTBLUE },
         { "nil?", Replxx::Color::BRIGHTBLUE },
         { "assert", Replxx::Color::BRIGHTBLUE },
         { "toNumber", Replxx::Color::BRIGHTBLUE },

@@ -9,8 +9,8 @@
  * 
  */
 
-#ifndef ark_lexer
-#define ark_lexer
+#ifndef ARK_COMPILER_LEXER_HPP
+#define ARK_COMPILER_LEXER_HPP
 
 #include <vector>
 #include <algorithm>
@@ -36,6 +36,7 @@ namespace Ark::internal
         Skip,
         Comment,
         Shorthand,
+        Spread,
         Mismatch
     };
 
@@ -43,7 +44,7 @@ namespace Ark::internal
     const std::vector<std::string> tokentype_string = {
         "Grouping", "String", "Number", "Operator",
         "Identifier", "Capture", "GetField", "Keyword",
-        "Skip", "Comment", "Shorthand", "Mistmatch"
+        "Skip", "Comment", "Shorthand", "Spread", "Mistmatch"
     };
 
     struct Token
@@ -112,9 +113,9 @@ namespace Ark::internal
         /**
          * @brief Return the list of tokens
          * 
-         * @return const std::vector<Token>& 
+         * @return std::vector<Token>& 
          */
-        const std::vector<Token>& tokens() noexcept;
+        std::vector<Token>& tokens() noexcept;
 
     private:
         unsigned m_debug;
@@ -168,7 +169,7 @@ namespace Ark::internal
         inline void throwTokenizingError(const std::string& message, const std::string& match, std::size_t line, std::size_t col, const std::string& context);
     };
 
-    #include "Lexer.inl"
+    #include "inline/Lexer.inl"
 }
 
-#endif  // ark_lexer
+#endif

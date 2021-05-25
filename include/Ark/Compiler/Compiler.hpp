@@ -2,15 +2,15 @@
  * @file Compiler.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief ArkScript compiler is in charge of transforming the AST into bytecode
- * @version 0.1
+ * @version 0.2
  * @date 2020-10-27
  * 
  * @copyright Copyright (c) 2020
  * 
  */
 
-#ifndef ark_compiler
-#define ark_compiler
+#ifndef ARK_COMPILER_COMPILER_HPP
+#define ARK_COMPILER_COMPILER_HPP
 
 #include <vector>
 #include <iostream>
@@ -28,9 +28,12 @@
 #include <Ark/Builtins/Builtins.hpp>
 #include <Ark/Utils.hpp>
 #include <Ark/Config.hpp>
+#include <Ark/Compiler/makeNodeBasedError.hpp>
 
 namespace Ark
 {
+    class State;
+
     /**
      * @brief The ArkScript bytecode compiler
      * 
@@ -75,6 +78,8 @@ namespace Ark
          */
         const bytecode_t& bytecode() noexcept;
 
+        friend class Ark::State;
+
     private:
         Parser m_parser;
         Optimizer m_optimizer;
@@ -85,26 +90,77 @@ namespace Ark
         std::vector<std::string> m_plugins;
         std::vector<internal::CValue> m_values;
         std::vector<std::vector<internal::Inst_t>> m_code_pages;
-            // we need a temp code pages for some compilations passes
-        std::vector<std::vector<internal::Inst_t>> m_temp_pages;
+        std::vector<std::vector<internal::Inst_t>> m_temp_pages;  ///< we need temporary code pages for some compilations passes
 
         bytecode_t m_bytecode;
-        unsigned m_debug;
+        unsigned m_debug;  ///< the debug level of the compiler
 
-        // helper functions to get a temp or finalized code page
+        /**
+         * @brief Push the first headers of the bytecode file
+         * 
+         */
+        void pushHeadersPhase1() noexcept;
+
+        /**
+         * @brief Push the other headers, after having compile the file
+         * (it's needed because we read the symbol/value tables, populated by compilation)
+         * 
+         */
+        void pushHeadersPhase2();
+
+        /**
+         * @brief helper functions to get a temp or finalized code page
+         * 
+         * @param i page index, if negative, refers to a temporay code page
+         * @return std::vector<internal::Inst_t>& 
+         */
         inline std::vector<internal::Inst_t>& page(int i) noexcept;
-        // checking if a symbol is an operator or a builtin
-        // because they are implemented the same way
 
-        /// Checking if a symbol is an operator
+        /**
+         * @brief Count the number of "valid" ark objects in a node
+         * @details Isn't considered valid a GetField, because we use
+         *          this function to count the number of arguments of function calls.
+         * 
+         * @param lst 
+         * @return std::size_t 
+         */
+        inline std::size_t countArkObjects(const std::vector<internal::Node>& lst) noexcept;
+
+        /**
+         * @brief Checking if a symbol is an operator
+         * 
+         * @param name symbol name
+         * @return std::optional<std::size_t> position in the operators' list
+         */
         inline std::optional<std::size_t> isOperator(const std::string& name) noexcept;
-        /// Checking if a symbol is a builtin
+
+        /**
+         * @brief Checking if a symbol is a builtin
+         * 
+         * @param name symbol name
+         * @return std::optional<std::size_t> position in the builtins' list
+         */
         inline std::optional<std::size_t> isBuiltin(const std::string& name) noexcept;
-        /// Checking if a symbol may be coming from a plugin
+
+        /**
+         * @brief Checking if a symbol may be coming from a plugin
+         * 
+         * @param name symbol name
+         * @return true the symbol may be from a plugin, loaded at runtime
+         * @return false 
+         */
         inline bool mayBeFromPlugin(const std::string& name) noexcept;
 
-        /// Throw a nice error message
-        inline void throwCompilerError(const std::string& message, const internal::Node& node);
+        /**
+         * @brief Throw a nice error message
+         * 
+         * @param message 
+         * @param node 
+         */
+        inline void throwCompilerError(const std::string& message, const internal::Node& node)
+        {
+            throw CompilationError(internal::makeNodeBasedErrorCtx(message, node));
+        }
 
         /**
          * @brief Compile a single node recursively
@@ -114,19 +170,65 @@ namespace Ark
          */
         void _compile(const internal::Node& x, int p);
 
-        // register a symbol/value/plugin in its own table
+        void compileSymbol(const internal::Node& x, int p);
+        void compileSpecific(const internal::Node& c0, const internal::Node& x, int p);
+        void compileIf(const internal::Node& x, int p);
+        void compileFunction(const internal::Node& x, int p);
+        void compileLetMut(internal::Keyword n, const internal::Node& x, int p);
+        void compileWhile(const internal::Node& x, int p);
+        void compileSet(const internal::Node& x, int p);
+        void compileQuote(const internal::Node& x, int p);
+        void compilePluginImport(const internal::Node& x, int p);
+        void compileDel(const internal::Node& x, int p);
+        void handleCalls(const internal::Node& x, int p);
+
+        /**
+         * @brief Register a given node in the symbol table
+         * 
+         * @param sym 
+         * @return std::size_t 
+         */
         std::size_t addSymbol(const internal::Node& sym) noexcept;
+
+        /**
+         * @brief Register a given node in the value table
+         * 
+         * @param x 
+         * @return std::size_t 
+         */
         std::size_t addValue(const internal::Node& x) noexcept;
+
+        /**
+         * @brief Register a page id (function reference) in the value table
+         * 
+         * @param page_id 
+         * @return std::size_t 
+         */
         std::size_t addValue(std::size_t page_id) noexcept;
 
+        /**
+         * @brief Register a symbol as defined, so that later we can throw errors on undefined symbols
+         * 
+         * @param sym 
+         */
         void addDefinedSymbol(const std::string& sym);
+
+        /**
+         * @brief Checks for undefined symbols, not present in the defined symbols table
+         * 
+         */
         void checkForUndefinedSymbol();
 
-        // push a number on stack (need 2 bytes)
+        /**
+         * @brief Push a number on stack (need 2 bytes)
+         * 
+         * @param n the number to push
+         * @param page the page where it should land, nullptr for current page
+         */
         void pushNumber(uint16_t n, std::vector<internal::Inst_t>* page=nullptr) noexcept;
     };
 
-    #include "Compiler.inl"
+    #include "inline/Compiler.inl"
 }
 
 #endif

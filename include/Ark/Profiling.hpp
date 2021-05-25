@@ -1,5 +1,5 @@
-#ifndef ark_profiling
-#define ark_profiling
+#ifndef INCLUDE_ARK_PROFILING_HPP
+#define INCLUDE_ARK_PROFILING_HPP
 
 #ifdef ARK_PROFILER
     #include <coz.h>
@@ -12,4 +12,4 @@
     #define COZ_END(name)
 #endif
 
-#endif  // ark_profiling
+#endif

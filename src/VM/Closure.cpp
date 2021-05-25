@@ -24,7 +24,7 @@ namespace Ark::internal
         return m_scope;
     }
 
-    Scope_t& Closure::scope_ref() noexcept
+    Scope_t& Closure::refScope() noexcept
     {
         return m_scope;
     }
