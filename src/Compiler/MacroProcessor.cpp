@@ -345,9 +345,9 @@ namespace Ark::internal
 
                 Node& sublist = node.list()[1];
                 if (sublist.list().size() > 0 && sublist.list()[0] == Node::ListNode)
-                    node = Node(static_cast<int>(sublist.list().size()) - 1);
+                    node = Node(static_cast<long>(sublist.list().size()) - 1);
                 else
-                    node = Node(static_cast<int>(sublist.list().size()));
+                    node = Node(static_cast<long>(sublist.list().size()));
             }
             else if (name == "@")
             {
