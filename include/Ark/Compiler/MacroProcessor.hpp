@@ -166,8 +166,9 @@ namespace Ark::internal
          * @param map 
          * @param target 
          * @param parent 
+         * @param index position of target inside parent->list()
          */
-        void unify(const std::unordered_map<std::string, Node>& map, Node& target, Node* parent);
+        void unify(const std::unordered_map<std::string, Node>& map, Node& target, Node* parent, std::size_t index=0);
 
         /**
          * @brief Evaluate only the macros
