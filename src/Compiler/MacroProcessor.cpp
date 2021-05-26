@@ -162,14 +162,16 @@ namespace Ark::internal
 
                     // apply macro only if we have registered macros
                     if ((m_macros.size() == 1 && m_macros[0].size() > 0) || m_macros.size() > 1)
+                    {
                         added_begin = execAndCleanUnused(node, i);
+                        // if we got `macro`, it was replaced but not entirely applied.
+                        // but `(macro)` would get entirely applied because it's in a list,
+                        // thus we need to evaluate the node if we have list[i].list[0] as a macro
+                        evaluate(node.list()[i]);
+                    }
 
                     if (node.nodeType() == NodeType::List)
                     {
-                        for (unsigned p = 0; p < depth; ++p)
-                            std::cout << "    ";
-                        std::cout << node.list()[i] << "\n";
-
                         process(node.list()[i], depth + 1);
                         // needed if we created a function node from a macro
                         registerFuncDef(node.list()[i]);
