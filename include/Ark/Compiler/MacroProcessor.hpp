@@ -130,6 +130,17 @@ namespace Ark::internal
             return it != m_predefined_macros.end();
         }
 
+        inline void recurApply(Node& node)
+        {
+            applyMacro(node);
+
+            if (node.nodeType() == NodeType::List)
+            {
+                for (std::size_t i = 0; i < node.list().size(); ++i)
+                    recurApply(node.list()[i]);
+            }
+        }
+
         inline bool hadBegin(const Node& node)
         {
             return node.nodeType() == NodeType::List &&
