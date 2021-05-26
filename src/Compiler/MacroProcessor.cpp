@@ -165,8 +165,6 @@ namespace Ark::internal
                     {
                         bool had = hadBegin(node.list()[i]);
                         bool applied = applyMacro(node.list()[i]);
-                        if (hadBegin(node.list()[i]) && !had)
-                            added_begin = true;
 
                         // remove unused blocks
                         if (node.list()[i].nodeType() == NodeType::Unused)
@@ -175,11 +173,10 @@ namespace Ark::internal
                         // but `(macro)` would get entirely applied because it's in a list,
                         // thus we need to evaluate the node if we have list[i].list[0] as a macro
                         if (applied)
-                        {
                             recurApply(node.list()[i]);
-                            if (hadBegin(node.list()[i]) && !had)
-                                added_begin = true;
-                        }
+
+                        if (hadBegin(node.list()[i]) && !had)
+                            added_begin = true;
                     }
 
                     if (node.nodeType() == NodeType::List)

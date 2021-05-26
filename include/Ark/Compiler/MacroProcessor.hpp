@@ -72,45 +72,14 @@ namespace Ark::internal
          * @param name 
          * @return Node* nullptr if no macro was found
          */
-        inline Node* findNearestMacro(const std::string& name)
-        {
-            if (m_macros.empty())
-                return nullptr;
-
-            for (auto it = m_macros.rbegin(); it != m_macros.rend(); ++it)
-            {
-                if (it->size() != 0)
-                {
-                    if (auto res = it->find(name); res != it->end())
-                        return &res->second;
-                }
-            }
-            return nullptr;
-        }
+        inline Node* findNearestMacro(const std::string& name);
 
         /**
          * @brief Find the nearest macro matching a given name and delete it
          * 
          * @param name 
          */
-        inline void deleteNearestMacro(const std::string& name)
-        {
-            if (m_macros.empty())
-                return;
-
-            for (auto it = m_macros.rbegin(); it != m_macros.rend(); ++it)
-            {
-                if (it->size() != 0)
-                {
-                    if (auto res = it->find(name); res != it->end())
-                    {
-                        // stop right here because we found one matching macro
-                        it->erase(res);
-                        return;
-                    }
-                }
-            }
-        }
+        inline void deleteNearestMacro(const std::string& name);
 
         /**
          * @brief Check if a given symbol is a predefined macro or not
@@ -130,24 +99,21 @@ namespace Ark::internal
             return it != m_predefined_macros.end();
         }
 
-        inline void recurApply(Node& node)
-        {
-            applyMacro(node);
+        /**
+         * @brief Recursively apply macros on a given node
+         * 
+         * @param node 
+         */
+        inline void recurApply(Node& node);
 
-            if (node.nodeType() == NodeType::List)
-            {
-                for (std::size_t i = 0; i < node.list().size(); ++i)
-                    recurApply(node.list()[i]);
-            }
-        }
-
-        inline bool hadBegin(const Node& node)
-        {
-            return node.nodeType() == NodeType::List &&
-                   node.constList().size() > 0 &&
-                   node.constList()[0].nodeType() == NodeType::Keyword &&
-                   node.constList()[0].keyword() == Keyword::Begin;
-        }
+        /**
+         * @brief Check if a given node is a list node, and starts with a Begin
+         * 
+         * @param node 
+         * @return true if it starts with a Begin
+         * @return false 
+         */
+        inline bool hadBegin(const Node& node);
 
         /**
          * @brief Remove a begin block added by a macro
@@ -155,25 +121,7 @@ namespace Ark::internal
          * @param node 
          * @param i 
          */
-        inline void removeBegin(Node& node, std::size_t& i)
-        {
-            if (node.nodeType() == NodeType::List && node.list()[i].nodeType() == NodeType::List && node.list()[i].list().size() > 0)
-            {
-                Node lst = node.constList()[i];
-                Node first = lst.constList()[0];
-
-                if (first.nodeType() == NodeType::Keyword && first.keyword() == Keyword::Begin)
-                {
-                    std::size_t previous = i;
-
-                    for (std::size_t block_idx = 1, end = lst.constList().size(); block_idx < end; ++block_idx)
-                        node.list().insert(node.constList().begin() + i + block_idx, lst.list()[block_idx]);
-
-                    i += lst.constList().size() - 1;
-                    node.list().erase(node.constList().begin() + previous);
-                }
-            }
-        }
+        inline void removeBegin(Node& node, std::size_t& i);
 
         /**
          * @brief Registers macros based on their type
@@ -246,6 +194,8 @@ namespace Ark::internal
             throw MacroProcessingError(makeNodeBasedErrorCtx(message, node));
         }
     };
+
+    #include "inline/MacroProcessor.inl"
 }
 
 #endif

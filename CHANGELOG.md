@@ -26,6 +26,8 @@
 - `str:join` added in the standard library
 - `str:split` can now take longer separators
 - added `symcat` in macros to concatenate a symbol and a number/string/symbol to create a new one
+- added `argcount` in macros to count (at compile time) the number of arguments of a function
+- fixed a bug where `(bloc)` and `(print bloc)`, given a `!{bloc value}` macro, didn't give the same result (one was applied, the other was partial)
 
 ### Changed
 - updating doxyfile and some docstrings
