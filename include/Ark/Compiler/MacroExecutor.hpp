@@ -2,7 +2,7 @@
  * @file MacroExecutor.hpp
  * @author Ray John Alovera (rakista112@gmail.com)
  * @brief The base class for all MacroExecutors
- * @version 0.2
+ * @version 0.3
  * @date 2021-05-04
  * 
  * @copyright Copyright (c) 2021
@@ -91,6 +91,16 @@ namespace Ark::internal
          * @param node 
          */
         void applyMacroProxy(Node& node);
+
+        /**
+         * @brief Check if a given symbol is a predefined macro
+         * @details Proxy function for MacroProcessor::isPredefined
+         * 
+         * @param symbol 
+         * @return true 
+         * @return false 
+         */
+        bool isPredefined(const std::string& symbol);
 
     public:
         /**

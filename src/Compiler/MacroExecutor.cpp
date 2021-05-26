@@ -41,4 +41,9 @@ namespace Ark::internal
     {
         m_macroprocessor->applyMacro(node);
     }
+
+    bool MacroExecutor::isPredefined(const std::string& symbol)
+    {
+        return m_macroprocessor->isPredefined(symbol);
+    }
 }
