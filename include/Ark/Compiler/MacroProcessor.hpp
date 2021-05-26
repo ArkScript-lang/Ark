@@ -88,16 +88,7 @@ namespace Ark::internal
          * @return true 
          * @return false 
          */
-        inline bool isPredefined(const std::string& symbol)
-        {
-            auto it = std::find(
-                m_predefined_macros.begin(),
-                m_predefined_macros.end(),
-                symbol
-            );
-
-            return it != m_predefined_macros.end();
-        }
+        inline bool isPredefined(const std::string& symbol);
 
         /**
          * @brief Recursively apply macros on a given node
