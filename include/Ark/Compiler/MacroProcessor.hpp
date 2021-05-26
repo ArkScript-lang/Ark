@@ -168,7 +168,7 @@ namespace Ark::internal
          * @param node 
          * @param i 
          */
-        inline void removeBegin(Node& node, std::size_t i)
+        inline void removeBegin(Node& node, std::size_t& i)
         {
             if (node.nodeType() == NodeType::List && node.list()[i].nodeType() == NodeType::List && node.list()[i].list().size() > 0)
             {
