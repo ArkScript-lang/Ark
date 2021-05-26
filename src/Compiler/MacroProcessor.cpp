@@ -177,11 +177,7 @@ namespace Ark::internal
 
                     // remove begins in macros
                     if (added_begin)
-                    {
-                        std::cout << "before: " << node << "\n";
                         removeBegin(node, i);
-                        std::cout << "after:  " << node << "\n";
-                    }
 
                     // go forward only if it isn't a macro, because we delete macros
                     // while running on the AST
