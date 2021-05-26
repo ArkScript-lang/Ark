@@ -78,5 +78,9 @@ namespace Ark::internal
                 applyMacroProxy(node);
             }
         }
+        else if (isPredefined(first.string()))
+        {
+            node = evaluate(node, false);
+        }
     }
 }

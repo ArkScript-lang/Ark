@@ -168,11 +168,6 @@ namespace Ark::internal
                     if ((m_macros.size() == 1 && m_macros[0].size() > 0) || m_macros.size() > 1)
                         added_begin = execAndCleanUnused(node, i);
 
-                    // TODO this shouldn't be done there as a special case
-                    // evaluate if we are on a predefined macro
-                    if (node.list()[0].nodeType() == NodeType::Symbol && isPredefined(node.list()[0].string()))
-                        node = evaluate(node);
-
                     if (node.nodeType() == NodeType::List)
                     {
                         if (added_begin)
