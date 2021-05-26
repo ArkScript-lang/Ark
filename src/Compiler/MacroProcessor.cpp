@@ -166,12 +166,9 @@ namespace Ark::internal
 
                     if (node.nodeType() == NodeType::List)
                     {
-                        if (added_begin)
-                        {
-                            for (unsigned p = 0; p < depth; ++p)
-                                std::cout << "    ";
-                            std::cout << node.list()[i] << "\n";
-                        }
+                        for (unsigned p = 0; p < depth; ++p)
+                            std::cout << "    ";
+                        std::cout << node.list()[i] << "\n";
 
                         process(node.list()[i], depth + 1);
                         // needed if we created a function node from a macro
