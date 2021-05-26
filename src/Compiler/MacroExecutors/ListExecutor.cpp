@@ -12,7 +12,7 @@ namespace Ark::internal
         return node.nodeType() == NodeType::List && node.constList().size() > 0 && node.constList()[0].nodeType() == NodeType::Symbol;
     }
 
-    void ListExecutor::applyMacro(Node& node)
+    bool ListExecutor::applyMacro(Node& node)
     {
         Node& first = node.list()[0];
         Node* macro = findNearestMacro(first.string());
@@ -76,11 +76,15 @@ namespace Ark::internal
 
                 node = evaluate(temp_body, false);
                 applyMacroProxy(node);
+                return true;
             }
         }
         else if (isPredefined(first.string()))
         {
             node = evaluate(node, false);
+            return true;
         }
+
+        return false;
     }
 }

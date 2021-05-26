@@ -139,30 +139,6 @@ namespace Ark::internal
         }
 
         /**
-         * @brief Execute a node at a given position in a node list and clear unused nodes
-         * 
-         * @param node 
-         * @param i 
-         * @return true if a begin block was added by the macro call
-         * @return false 
-         */
-        inline bool execAndCleanUnused(Node& node, std::size_t i)
-        {
-            bool added_begin = false;
-
-            bool had = hadBegin(node.list()[i]);
-            applyMacro(node.list()[i]);
-            if (hadBegin(node.list()[i]) && !had)
-                added_begin = true;
-
-            // remove unused blocks
-            if (node.list()[i].nodeType() == NodeType::Unused)
-                node.list().erase(node.constList().begin() + i);
-
-            return added_begin;
-        }
-
-        /**
          * @brief Remove a begin block added by a macro
          * 
          * @param node 
@@ -215,8 +191,10 @@ namespace Ark::internal
          * @brief Apply a macro on a given node
          * 
          * @param node 
+         * @return true if a macro was applied
+         * @return false 
          */
-        void applyMacro(Node& node);
+        bool applyMacro(Node& node);
 
         /**
          * @brief Unify a target node with a given map symbol => replacement node, recursively
