@@ -176,17 +176,14 @@ namespace Ark::internal
                         // thus we need to evaluate the node if we have list[i].list[0] as a macro
                         if (applied)
                         {
-                            std::cout << "applied\n";
-                            evaluate(node.list()[i]);
+                            recurApply(node.list()[i]);
+                            if (hadBegin(node.list()[i]) && !had)
+                                added_begin = true;
                         }
                     }
 
                     if (node.nodeType() == NodeType::List)
                     {
-                        for (std::size_t j = 0; j < i; ++j)
-                            std::cout << "    ";
-                        std::cout << node.list()[i] << "\n";
-
                         process(node.list()[i], depth + 1);
                         // needed if we created a function node from a macro
                         registerFuncDef(node.list()[i]);
