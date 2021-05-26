@@ -12,7 +12,7 @@ namespace Ark::internal
         return node.nodeType() == NodeType::List && node.constList().size() > 0 && node.constList()[0].nodeType() == NodeType::Symbol;
     }
 
-    void ListExecutor::execute(Node& node)
+    void ListExecutor::applyMacro(Node& node)
     {
         Node& first = node.list()[0];
         Node* macro = findNearestMacro(first.string());
@@ -23,7 +23,7 @@ namespace Ark::internal
                 std::clog << "Found macro for " << first.string() << std::endl;
 
             if (macro->constList().size() == 2)
-                executeProxy(first);
+                applyMacroProxy(first);
             // !{name (args) body}
             else if (macro->constList().size() == 3)
             {
@@ -75,7 +75,7 @@ namespace Ark::internal
                     unify(args_applied, temp_body, nullptr);
 
                 node = evaluate(temp_body, false);
-                executeProxy(node);
+                applyMacroProxy(node);
             }
         }
     }

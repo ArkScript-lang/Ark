@@ -21,7 +21,7 @@ namespace Ark::internal
     class MacroProcessor;
 
     /**
-     * @brief A class that executes macros in a Node
+     * @brief A class that applies macros in a Node
      * 
      */
     class MacroExecutor
@@ -86,11 +86,11 @@ namespace Ark::internal
 
         /**
          * @brief Execute a node, trying to emplace macros calls
-         * @details Proxy function for MacroProcessor::m_execute
+         * @details Proxy function for MacroProcessor::applyMacro
          * 
          * @param node 
          */
-        void executeProxy(Node& node);
+        void applyMacroProxy(Node& node);
 
     public:
         /**
@@ -106,10 +106,10 @@ namespace Ark::internal
          * 
          * @param node the node that contains a macro
          */
-        virtual void execute(Node& node) = 0;
+        virtual void applyMacro(Node& node) = 0;
 
         /**
-         * @brief Checks if the executor can execute the passed Node
+         * @brief Checks if the executor can apply a macro on the passed Node
          * 
          * @param node the node that contains a macro
          */

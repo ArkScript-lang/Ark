@@ -6,7 +6,7 @@ namespace Ark::internal
         MacroExecutor(macroprocessor, debug)
     {}
 
-    void ConditionalExecutor::execute(Node& node)
+    void ConditionalExecutor::applyMacro(Node& node)
     {
         Node& first = node.list()[0];
 

@@ -2,7 +2,7 @@
  * @file MacroProcessor.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Handles the macros and their expansion in ArkScript source code
- * @version 0.2
+ * @version 0.3
  * @date 2021-02-18
  * 
  * @copyright Copyright (c) 2021
@@ -130,6 +130,14 @@ namespace Ark::internal
             return it != m_predefined_macros.end();
         }
 
+        inline bool hadBegin(const Node& node)
+        {
+            return node.nodeType() == NodeType::List &&
+                   node.constList().size() > 0 &&
+                   node.constList()[0].nodeType() == NodeType::Keyword &&
+                   node.constList()[0].keyword() == Keyword::Begin;
+        }
+
         /**
          * @brief Execute a node at a given position in a node list and clear unused nodes
          * 
@@ -142,16 +150,9 @@ namespace Ark::internal
         {
             bool added_begin = false;
 
-            auto had_begin = [](const Node& node) -> bool {
-                return node.nodeType() == NodeType::List &&
-                        node.constList().size() > 0 &&
-                        node.constList()[0].nodeType() == NodeType::Keyword &&
-                        node.constList()[0].keyword() == Keyword::Begin;
-            };
-
-            bool had = had_begin(node.list()[i]);
-            execute(node.list()[i]);
-            if (had_begin(node.list()[i]) && !had)
+            bool had = hadBegin(node.list()[i]);
+            applyMacro(node.list()[i]);
+            if (hadBegin(node.list()[i]) && !had)
                 added_begin = true;
 
             // remove unused blocks
@@ -169,7 +170,7 @@ namespace Ark::internal
          */
         inline void removeBegin(Node& node, std::size_t i)
         {
-            if (node.list()[i].nodeType() == NodeType::List && node.list()[i].list().size() > 0)
+            if (node.nodeType() == NodeType::List && node.list()[i].nodeType() == NodeType::List && node.list()[i].list().size() > 0)
             {
                 Node lst = node.constList()[i];
                 Node first = lst.constList()[0];
@@ -211,11 +212,11 @@ namespace Ark::internal
         void process(Node& node, unsigned depth);
 
         /**
-         * @brief Execute a node, trying to emplace macros calls
+         * @brief Apply a macro on a given node
          * 
          * @param node 
          */
-        void execute(Node& node);
+        void applyMacro(Node& node);
 
         /**
          * @brief Unify a target node with a given map symbol => replacement node, recursively
