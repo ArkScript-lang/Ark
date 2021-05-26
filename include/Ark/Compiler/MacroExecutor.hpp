@@ -2,7 +2,7 @@
  * @file MacroExecutor.hpp
  * @author Ray John Alovera (rakista112@gmail.com)
  * @brief The base class for all MacroExecutors
- * @version 0.3
+ * @version 0.4
  * @date 2021-05-04
  * 
  * @copyright Copyright (c) 2021
@@ -89,8 +89,10 @@ namespace Ark::internal
          * @details Proxy function for MacroProcessor::applyMacro
          * 
          * @param node 
+         * @return true 
+         * @return false 
          */
-        void applyMacroProxy(Node& node);
+        bool applyMacroProxy(Node& node);
 
         /**
          * @brief Check if a given symbol is a predefined macro
@@ -115,8 +117,10 @@ namespace Ark::internal
          * @brief Executes macros in the Node if the Executor can handle it
          * 
          * @param node the node that contains a macro
+         * @return true if a macro was successfully applied
+         * @return false 
          */
-        virtual void applyMacro(Node& node) = 0;
+        virtual bool applyMacro(Node& node) = 0;
 
         /**
          * @brief Checks if the executor can apply a macro on the passed Node

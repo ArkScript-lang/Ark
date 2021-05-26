@@ -163,15 +163,30 @@ namespace Ark::internal
                     // apply macro only if we have registered macros
                     if ((m_macros.size() == 1 && m_macros[0].size() > 0) || m_macros.size() > 1)
                     {
-                        added_begin = execAndCleanUnused(node, i);
+                        bool had = hadBegin(node.list()[i]);
+                        bool applied = applyMacro(node.list()[i]);
+                        if (hadBegin(node.list()[i]) && !had)
+                            added_begin = true;
+
+                        // remove unused blocks
+                        if (node.list()[i].nodeType() == NodeType::Unused)
+                            node.list().erase(node.constList().begin() + i);
                         // if we got `macro`, it was replaced but not entirely applied.
                         // but `(macro)` would get entirely applied because it's in a list,
                         // thus we need to evaluate the node if we have list[i].list[0] as a macro
-                        evaluate(node.list()[i]);
+                        if (applied)
+                        {
+                            std::cout << "applied\n";
+                            evaluate(node.list()[i]);
+                        }
                     }
 
                     if (node.nodeType() == NodeType::List)
                     {
+                        for (std::size_t j = 0; j < i; ++j)
+                            std::cout << "    ";
+                        std::cout << node.list()[i] << "\n";
+
                         process(node.list()[i], depth + 1);
                         // needed if we created a function node from a macro
                         registerFuncDef(node.list()[i]);
@@ -193,9 +208,9 @@ namespace Ark::internal
         }
     }
 
-    void MacroProcessor::applyMacro(Node& node)
+    bool MacroProcessor::applyMacro(Node& node)
     {
-        m_executor_pipeline->applyMacro(node);
+        return m_executor_pipeline->applyMacro(node);
     }
 
     void MacroProcessor::unify(const std::unordered_map<std::string, Node>& map, Node& target, Node* parent, std::size_t index)

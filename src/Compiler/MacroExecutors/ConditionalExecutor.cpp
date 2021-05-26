@@ -6,7 +6,7 @@ namespace Ark::internal
         MacroExecutor(macroprocessor, debug)
     {}
 
-    void ConditionalExecutor::applyMacro(Node& node)
+    bool ConditionalExecutor::applyMacro(Node& node)
     {
         Node& first = node.list()[0];
 
@@ -31,7 +31,11 @@ namespace Ark::internal
 
             if (node.nodeType() == NodeType::Macro)
                 registerMacro(node);
+
+            return true;
         }
+
+        return false;
     }
 
     bool ConditionalExecutor::canHandle(Node& node)

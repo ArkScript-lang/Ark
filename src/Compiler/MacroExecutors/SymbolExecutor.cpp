@@ -11,7 +11,7 @@ namespace Ark::internal
         return node.nodeType() == NodeType::Symbol;
     }
 
-    void SymbolExecutor::applyMacro(Node& node)
+    bool SymbolExecutor::applyMacro(Node& node)
     {
         // error ?
         Node* macro = findNearestMacro(node.string());
@@ -23,7 +23,12 @@ namespace Ark::internal
 
             // !{name value}
             if (macro->constList().size() == 2)
+            {
                 node = macro->list()[1];
+                return true;
+            }
         }
+
+        return false;
     }
 }

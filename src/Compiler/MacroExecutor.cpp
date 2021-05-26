@@ -37,9 +37,9 @@ namespace Ark::internal
         m_macroprocessor->throwMacroProcessingError(message, node);
     }
 
-    void MacroExecutor::applyMacroProxy(Node& node)
+    bool MacroExecutor::applyMacroProxy(Node& node)
     {
-        m_macroprocessor->applyMacro(node);
+        return m_macroprocessor->applyMacro(node);
     }
 
     bool MacroExecutor::isPredefined(const std::string& symbol)

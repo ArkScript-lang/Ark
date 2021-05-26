@@ -37,8 +37,10 @@ namespace Ark::internal
          * @brief Passes node through all MacroExecutors sequentially
          * 
          * @param node node on which to operate
+         * @return true if a macro was applied
+         * @return false 
          */
-        void applyMacro(Node& node);
+        bool applyMacro(Node& node);
 
     private:
         std::vector<std::shared_ptr<MacroExecutor>> m_executors;
