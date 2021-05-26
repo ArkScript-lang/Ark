@@ -2,7 +2,7 @@
  * @file SymbolExecutor.hpp
  * @author Ray John Alovera (rakista112@gmail.com)
  * @brief Executor for Symbol Macros
- * @version 0.1
+ * @version 0.2
  * @date 2021-05-04
  * 
  * @copyright Copyright (c) 2021
@@ -26,7 +26,7 @@ namespace Ark::internal
     public:
         SymbolExecutor(MacroProcessor* macroprocessor, unsigned debug = 0);
 
-        void execute(Node& node) override;
+        void applyMacro(Node& node) override;
         bool canHandle(Node& node) override;
     };
 

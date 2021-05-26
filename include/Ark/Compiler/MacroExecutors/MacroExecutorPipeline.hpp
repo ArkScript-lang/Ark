@@ -2,7 +2,7 @@
  * @file MacroExecutorPipeline.hpp
  * @author Ray John Alovera (rakista112@gmail.com)
  * @brief The Chain of Responsibility class for running nodes through MacroExecutors
- * @version 0.1
+ * @version 0.2
  * @date 2021-05-04
  * 
  * @copyright Copyright (c) 2021
@@ -38,7 +38,7 @@ namespace Ark::internal
          * 
          * @param node node on which to operate
          */
-        void execute(Node& node);
+        void applyMacro(Node& node);
 
     private:
         std::vector<std::shared_ptr<MacroExecutor>> m_executors;

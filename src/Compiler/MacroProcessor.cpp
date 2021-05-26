@@ -63,7 +63,11 @@ namespace Ark::internal
             if (first_node.nodeType() == NodeType::Symbol)
             {
                 if (first_node.string() != "undef")
+                {
+                    if (execAndCleanUnused(node, 1))
+                        removeBegin(node, 1);
                     m_macros.back()[first_node.string()] = node;
+                }
                 else if (second_node.nodeType() == NodeType::Symbol)  // undefine a macro
                     deleteNearestMacro(second_node.string());
                 else // used undef on a non-symbol
@@ -102,7 +106,7 @@ namespace Ark::internal
         {
             if (first_node.nodeType() == NodeType::Keyword && first_node.keyword() == Keyword::If)
             {
-                execute(node);
+                applyMacro(node);
                 return;
             }
             else if (first_node.nodeType() == NodeType::Keyword)
@@ -160,23 +164,24 @@ namespace Ark::internal
                 {
                     bool added_begin = false;
 
-                    // execute only if we have registered macros
+                    // apply macro only if we have registered macros
                     if ((m_macros.size() == 1 && m_macros[0].size() > 0) || m_macros.size() > 1)
                         added_begin = execAndCleanUnused(node, i);
 
-                    // execute if we are on a predefined macro
+                    // TODO this shouldn't be done there as a special case
+                    // evaluate if we are on a predefined macro
                     if (node.list()[0].nodeType() == NodeType::Symbol && isPredefined(node.list()[0].string()))
                         node = evaluate(node);
 
                     if (node.nodeType() == NodeType::List)
                     {
-                        for (unsigned p = 0; p < depth; ++p) std::cout << "    "; std::cout << node.list()[i] << "\n";
-                        if (Node inner = node.list()[i]; inner.nodeType() == NodeType::List && inner.list()[0].nodeType() == NodeType::Symbol &&
-                                inner.list()[0].string() == "suffix-dup")
-                            std::cout << "----\n";
+                        if (added_begin)
+                        {
+                            for (unsigned p = 0; p < depth; ++p)
+                                std::cout << "    ";
+                            std::cout << node.list()[i] << "\n";
+                        }
 
-                        if (execAndCleanUnused(node, i))
-                            removeBegin(node, i);
                         process(node.list()[i], depth + 1);
                         // needed if we created a function node from a macro
                         registerFuncDef(node.list()[i]);
@@ -184,7 +189,11 @@ namespace Ark::internal
 
                     // remove begins in macros
                     if (added_begin)
+                    {
+                        std::cout << "before: " << node << "\n";
                         removeBegin(node, i);
+                        std::cout << "after:  " << node << "\n";
+                    }
 
                     // go forward only if it isn't a macro, because we delete macros
                     // while running on the AST
@@ -198,9 +207,9 @@ namespace Ark::internal
         }
     }
 
-    void MacroProcessor::execute(Node& node)
+    void MacroProcessor::applyMacro(Node& node)
     {
-        m_executor_pipeline->execute(node);
+        m_executor_pipeline->applyMacro(node);
     }
 
     void MacroProcessor::unify(const std::unordered_map<std::string, Node>& map, Node& target, Node* parent, std::size_t index)
@@ -267,7 +276,7 @@ namespace Ark::internal
             const std::string& name = node.list()[0].string();
             if (Node* macro = findNearestMacro(name); macro != nullptr)
             {
-                execute(node.list()[0]);
+                applyMacro(node.list()[0]);
                 if (node.list()[0].nodeType() == NodeType::Unused)
                     node.list().erase(node.constList().begin());
             }
