@@ -63,11 +63,7 @@ namespace Ark::internal
             if (first_node.nodeType() == NodeType::Symbol)
             {
                 if (first_node.string() != "undef")
-                {
-                    if (execAndCleanUnused(node, 1))
-                        removeBegin(node, 1);
                     m_macros.back()[first_node.string()] = node;
-                }
                 else if (second_node.nodeType() == NodeType::Symbol)  // undefine a macro
                     deleteNearestMacro(second_node.string());
                 else // used undef on a non-symbol
