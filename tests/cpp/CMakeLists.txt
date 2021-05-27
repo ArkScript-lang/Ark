@@ -7,7 +7,7 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/../../ ${PROJECT_SOURCE_DIR}/ark/)
 set(OUT_DIR ${PROJECT_SOURCE_DIR}/out)
 file(MAKE_DIRECTORY ${OUT_DIR})
 
-set(TARGET_LIST "01;02")
+set(TARGET_LIST "01;02;03")
 
 foreach(ELEM ${TARGET_LIST})
     set(FNAME ${ELEM}-test)
