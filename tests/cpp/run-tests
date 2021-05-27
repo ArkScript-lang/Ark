@@ -20,7 +20,7 @@ for f in *-test ; do
     prefix_f=$(echo $f | cut -c -2)
     expected_out=$(cat -e "../expected/${prefix_f}.txt" | tr -d '^M$')
 
-    start=$(date +%s%N)
+    start=$(date +%s%N | tr -d 'N')
 
     output=$("./${f}" 2>&1 | tr -d '\r')
     code=$?
