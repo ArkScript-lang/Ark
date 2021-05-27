@@ -20,29 +20,29 @@ for f in *-test ; do
     prefix_f=$(echo $f | cut -c -2)
     expected_out=$(cat -e "../expected/${prefix_f}.txt" | tr -d '^M$')
 
-    start=$(date +%s.%N)
+    start=$(date +%s%N)
 
     output=$("./${f}" 2>&1 | tr -d '\r')
     code=$?
 
-    end=$(date +%s.%N)
-    runtime=$(date -u -d "0 $end sec - $start sec" +"%S.%N")
+    end=$(date +%s%N)
+    elapsed=$((end - start))
+    seconds=$((elapsed / 1000000000))
+    decimals=$((elapsed - (seconds * 1000000000) ))
+    runtime="${seconds}.${decimals}sec"
 
-    if [[ $code != 0 ]]; then
+    if [[ $expected_out != $output || $code != 0 ]]; then
         echo -ne "${Red}FAILED${Reset} "
-        ((failed=failed+1))
-    elif [[ $expected_out != $output ]]; then
-        echo -ne "${Red}FAILED${Reset} (wrong output) "
         ((failed=failed+1))
     else
         echo -ne "${Green}PASSED${Reset} "
         ((passed=passed+1))
     fi
 
-    echo -e "-- in ${Purple}${runtime}sec${Reset}"
+    echo -e "-- in ${Purple}${runtime}${Reset}"
 
     # display output on error
-    if [[ $expected_out != $output ]]; then
+    if [[ $expected_out != $output || $code != 0 ]]; then
         echo -e "    ${Yellow}Output${Reset}:"
         diff --color=always <(echo -n $output) <(echo -n $expected_out)
     fi
