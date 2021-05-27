@@ -13,13 +13,15 @@ White='\033[0;37m'
 passed=0
 failed=0
 
-for f in out/*-test ; do
+cd out/
+
+for f in *-test ; do
     echo -ne "TEST ${Cyan}${f}${Reset} "
-    expected_out=$(cat "expected/${f}.txt")
+    expected_out=$(cat "../expected/${f}.txt")
 
     start=$(date +%s)
 
-    output=$("./${f}")
+    output=$("./${f}" 2>&1)
     code=$?
 
     end=$(date +%s)
