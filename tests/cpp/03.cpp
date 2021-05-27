@@ -50,7 +50,7 @@ int main()
         if (n[0].valueType() == Ark::ValueType::User && n[0].usertype().is<Breakfast>())
         {
             std::cout << "UserType detected as an enum class Breakfast" << std::endl;
-            Breakfast& bf = n[0].usertype().as<Breakfast>();
+            Breakfast& bf = n[0].usertypeRef().as<Breakfast>();
             std::cout << "Got " << n[0].usertype() << "\n";
             if (bf == Breakfast::Pizza)
                 std::cout << "Good choice! Have a nice breakfast ;)" << std::endl;
@@ -73,5 +73,5 @@ int main()
         Good choice! Have a nice breakfast ;)
     */
 
-    return 0;
+    return 0;  // PASSED
 }
