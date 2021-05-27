@@ -3,6 +3,8 @@
 
 #include <Ark/Ark.hpp>
 
+#include "Tests.hpp"
+
 Ark::Value my_function(std::vector<Ark::Value>& args, Ark::VM* vm)
 {
     // checking argument number
@@ -40,16 +42,13 @@ int main()
     });
 
     Ark::VM vm(&state);
-    if (vm.run() != 0)
-        return 1;  // FAILED
+    CHECK_VM_RUN(vm)
 
     auto bar = vm["bar"];
-    if (bar.valueType() != Ark::ValueType::Number || bar.number() != 1.0 * 2.0 - 3.0 / 1.0)
-        return 1;  // FAILED
+    CHECK_VALUE_NUMBER(bar, 1.0 * 2.0 - 3.0 / 1.0)
 
     auto egg = vm["egg"];
-    if (egg.valueType() != Ark::ValueType::Number || egg.number() != 3)
-        return 1;  // FAILED
+    CHECK_VALUE_NUMBER(egg, 3)
 
-    return 0;  // PASED
+    RETURN_PASSED()
 }

@@ -3,6 +3,8 @@
 
 #include <Ark/Ark.hpp>
 
+#include "Tests.hpp"
+
 enum class Breakfast { Eggs, Bacon, Pizza };
 
 Breakfast& getBreakfast()
@@ -61,8 +63,7 @@ int main()
 
     state.doString("(let a (getBreakfast)) (print a) (useBreakfast a)");
     Ark::VM vm(&state);
-    if (vm.run() != 0)
-        return 1;  // FAILED
+    CHECK_VM_RUN(vm)
 
     /*
         Will print
@@ -73,5 +74,5 @@ int main()
         Good choice! Have a nice breakfast ;)
     */
 
-    return 0;  // PASSED
+    RETURN_PASSED()
 }

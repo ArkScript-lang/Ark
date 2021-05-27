@@ -2,6 +2,8 @@
 
 #include <Ark/Ark.hpp>
 
+#include "Tests.hpp"
+
 int main()
 {
     // A state can be shared by multiple virtual machines (note that they will NEVER modify it)
@@ -13,8 +15,7 @@ int main()
     state.doString("(let foo (fun (x y) (+ x y 2)))");
 
     Ark::VM vm(&state);
-    if (vm.run() != 0)
-        return 1;  // FAILED
+    CHECK_VM_RUN(vm)
 
     /*
         If you just want to run a precompiled bytecode file:
@@ -31,8 +32,7 @@ int main()
     */
     auto value = vm.call("foo", 5, 6.0);
     std::cout << value << "\n";  // displays 13
+    CHECK_VALUE_NUMBER(value, 13.0)
 
-    if (value.valueType() == Ark::ValueType::Number && value.number() == 13.0)
-        return 0;  // PASSED
-    return 1;  // FAILED
+    RETURN_PASSED()
 }
