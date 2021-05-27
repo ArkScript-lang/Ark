@@ -45,6 +45,7 @@
 - enhancing the way we choose the subparser to use in the parser
 - avoid using `std::endl` if it's not useful
 - CI was split into multiple files to ease maintenance
+- moving ArkScript tests from `tests/*.ark` to `tests/arkscript/*.ark`
 
 ### Removed
 - `~UserType`, since we are doing manual memory management now
