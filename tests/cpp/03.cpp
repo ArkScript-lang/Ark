@@ -51,11 +51,11 @@ int main()
     state.loadFunction("useBreakfast", [](std::vector<Ark::Value>& n, Ark::VM* vm) -> Ark::Value {
         if (n[0].valueType() == Ark::ValueType::User && n[0].usertype().is<Breakfast>())
         {
-            std::cout << "UserType detected as an enum class Breakfast" << std::endl;
+            std::cout << "UserType detected as an enum class Breakfast" << "\n";
             Breakfast& bf = n[0].usertypeRef().as<Breakfast>();
             std::cout << "Got " << n[0].usertype() << "\n";
             if (bf == Breakfast::Pizza)
-                std::cout << "Good choice! Have a nice breakfast ;)" << std::endl;
+                std::cout << "Good choice! Have a nice breakfast ;)" << "\n";
         }
 
         return Ark::Nil;
