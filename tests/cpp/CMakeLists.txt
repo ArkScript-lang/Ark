@@ -20,7 +20,7 @@ foreach(ELEM ${TARGET_LIST})
     add_custom_command(
         TARGET ${FNAME}
         POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${FNAME}> ${OUT_DIR}
+        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${FNAME}> ${OUT_DIR}/${FNAME}
     )
 
     # request C++17
