@@ -23,7 +23,7 @@
             "type": "cppvsdbg",
             "request": "launch",
             "program": "${command:cmake.launchTargetPath}",
-            "args": ["tests/unittests.ark"],
+            "args": ["tests/arkscript/unittests.ark"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [
