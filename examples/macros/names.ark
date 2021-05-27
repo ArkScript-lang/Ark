@@ -1,19 +1,19 @@
 {
     !{test (+ 1 2 3)}
-    (print test)
+    (print "expected 6, " test)
 
     ((fun () {
         !{test (- 1 2 3)}
-        (print test)
+        (print "expected -4, " test)
     }))
 
-    (print test)
+    (print "expected 6, " test)
 
     {
         !{test 555}
-        (print test)
+        (print "expected 555, " test)
         !{undef test}
-        (print test)
+        (print "expected 6, " test)
         !{undef a}
     }
 }

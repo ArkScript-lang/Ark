@@ -27,13 +27,13 @@ namespace Ark
         if (m_ast.nodeType() != NodeType::List)
             return;
 
-        run_on_global_scope_vars(m_ast, [this](Node& node, Node& parent, int idx){
+        runOnGlobalScopeVars(m_ast, [this](Node& node, Node& parent, int idx){
             m_symAppearances[node.constList()[1].string()] = 0;
         });
-        count_occurences(m_ast);
+        countOccurences(m_ast);
 
         // logic: remove piece of code with only 1 reference, if they aren't function calls
-        run_on_global_scope_vars(m_ast, [this](Node& node, Node& parent, int idx){
+        runOnGlobalScopeVars(m_ast, [this](Node& node, Node& parent, int idx){
             std::string name = node.constList()[1].string();
             // a variable was only declared and never used
             if (m_symAppearances.find(name) != m_symAppearances.end() && m_symAppearances[name] == 1
@@ -42,7 +42,7 @@ namespace Ark
         });
     }
 
-    void Optimizer::run_on_global_scope_vars(Node& node, const std::function<void(Node&, Node&, int)>& func)
+    void Optimizer::runOnGlobalScopeVars(Node& node, const std::function<void(Node&, Node&, int)>& func)
     {
         int i = static_cast<int>(node.constList().size());
         // iterate only on the first level, using reverse iterators to avoid copy-delete-move to nowhere
@@ -57,7 +57,7 @@ namespace Ark
                 // eliminate nested begin blocks
                 if (kw == Keyword::Begin)
                 {
-                    run_on_global_scope_vars(*it, func);
+                    runOnGlobalScopeVars(*it, func);
                     // skip let/ mut detection
                     continue;
                 }
@@ -68,7 +68,7 @@ namespace Ark
         }
     }
 
-    void Optimizer::count_occurences(Node& node)
+    void Optimizer::countOccurences(Node& node)
     {
         if (node.nodeType() == NodeType::Symbol || node.nodeType() == NodeType::Capture)
         {
@@ -81,7 +81,7 @@ namespace Ark
         {
             // iterate over children
             for (std::size_t i = 0, end = node.constList().size(); i != end; ++i)
-                count_occurences(node.list()[i]);
+                countOccurences(node.list()[i]);
         }
     }
 }
