@@ -25,7 +25,7 @@ for f in *-test ; do
     output=$("./${f}" 2>&1 | tr -d '\r')
     code=$?
 
-    end=$(date +%s%N)
+    end=$(date +%s%N | tr -d 'N')
     elapsed=$((end - start))
     seconds=$((elapsed / 1000000000))
     decimals=$((elapsed - (seconds * 1000000000) ))
