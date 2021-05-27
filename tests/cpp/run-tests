@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+
+Reset='\033[0m'
+Black='\033[0;30m'
+Red='\033[0;31m'
+Green='\033[0;32m'
+Yellow='\033[0;33m'
+Blue='\033[0;34m'
+Purple='\033[0;35m'
+Cyan='\033[0;36m'
+White='\033[0;37m'
+
+passed=0
+failed=0
+
+cd out/
+
+for f in *-test ; do
+    echo -ne "TEST ${Cyan}${f}${Reset} "
+    prefix_f=$(echo $f | cut -c -2)
+    expected_out=$(cat -e "../expected/${prefix_f}.txt" | tr -d '^M$')
+
+    start=$(date +%s%N | tr -d 'N')
+
+    output=$("./${f}" 2>&1 | tr -d '\r')
+    code=$?
+
+    end=$(date +%s%N | tr -d 'N')
+    elapsed=$((end - start))
+    seconds=$((elapsed / 1000000000))
+    decimals=$((elapsed - (seconds * 1000000000) ))
+    runtime="${seconds}.${decimals}sec"
+
+    if [[ $expected_out != $output || $code != 0 ]]; then
+        echo -ne "${Red}FAILED${Reset} "
+        ((failed=failed+1))
+    else
+        echo -ne "${Green}PASSED${Reset} "
+        ((passed=passed+1))
+    fi
+
+    echo -e "-- in ${Purple}${runtime}${Reset}"
+
+    # display output on error
+    if [[ $expected_out != $output || $code != 0 ]]; then
+        echo -e "    ${Yellow}Output${Reset}:"
+        diff --color=always <(echo -n $output) <(echo -n $expected_out)
+    fi
+done
+
+echo
+echo -e "${Cyan}${passed}${Reset} passed, ${Purple}${failed}${Reset} failed"
+
+if [[ $failed != 0 ]]; then
+    exit 1
+else
+    exit 0
+fi

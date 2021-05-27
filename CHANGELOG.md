@@ -48,6 +48,7 @@
 - enhancing the way we choose the subparser to use in the parser
 - avoid using `std::endl` if it's not useful
 - CI was split into multiple files to ease maintenance
+- moving ArkScript tests from `tests/*.ark` to `tests/arkscript/*.ark`
 - fixed macros adding useless begin blocks, sometimes breaking code generation from macros
 
 ### Removed
