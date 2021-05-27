@@ -15,16 +15,25 @@ failed=0
 
 for f in out/*-test ; do
     echo -ne "TEST ${Cyan}${f}${Reset} "
-    "./${f}"
+
+    start=$(date +%s)
+
+    output=$("./${f}")
     code=$?
 
+    end=$(date +%s)
+    runtime=$((end-start))
+
     if [[ $code != 0 ]]; then
-        echo -e "${Red}FAILED${Reset}"
+        echo -ne "${Red}FAILED${Reset} "
         ((failed=failed+1))
     else
-        echo -e "${Green}PASSED${Reset}"
+        echo -ne "${Green}PASSED${Reset} "
         ((passed=passed+1))
     fi
+
+    echo -e " -- in ${Purple}${runtime}sec${Reset}"
+    echo "    Output: ${output}"
 done
 
 echo
