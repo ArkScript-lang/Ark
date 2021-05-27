@@ -15,6 +15,7 @@ failed=0
 
 for f in out/*-test ; do
     echo -ne "TEST ${Cyan}${f}${Reset} "
+    expected_out=$(cat "expected/${f}.txt")
 
     start=$(date +%s)
 
@@ -24,7 +25,7 @@ for f in out/*-test ; do
     end=$(date +%s)
     runtime=$((end-start))
 
-    if [[ $code != 0 ]]; then
+    if [[ $code != 0 && $expected_out == $output ]]; then
         echo -ne "${Red}FAILED${Reset} "
         ((failed=failed+1))
     else
@@ -33,7 +34,6 @@ for f in out/*-test ; do
     fi
 
     echo -e " -- in ${Purple}${runtime}sec${Reset}"
-    echo "    Output: ${output}"
 done
 
 echo
