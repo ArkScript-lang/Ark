@@ -35,7 +35,8 @@ namespace Ark::internal
         List,
         Closure,
         Macro,
-        Spread
+        Spread,
+        Unused
     };
 
     /// The different keywords available
@@ -78,7 +79,7 @@ namespace Ark::internal
          * 
          * @param value 
          */
-        explicit Node(int value) noexcept;
+        explicit Node(long value) noexcept;
 
         /**
          * @brief Construct a new Node object
