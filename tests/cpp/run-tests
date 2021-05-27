@@ -1,7 +1,5 @@
 #!/usr/bin/bash
 
-set -e
-
 Reset='\033[0m'
 Black='\033[0;30m'
 Red='\033[0;31m'
@@ -16,10 +14,10 @@ passed=0
 failed=0
 
 for f in out/*-test ; do
+    echo -ne "TEST ${Cyan}${f}${Reset} "
     "./${f}"
     code=$?
 
-    echo -ne "TEST ${Cyan}${f}${Reset} "
     if [[ $code != 0 ]]; then
         echo -e "${Red}FAILED${Reset}"
         ((failed=failed+1))
