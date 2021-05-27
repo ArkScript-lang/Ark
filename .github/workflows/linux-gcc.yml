@@ -28,13 +28,16 @@ jobs:
 
     - name: Configure CMake
       shell: bash
-      run: cmake -Bbuild -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=On
+      run: |
+        cmake -Bbuild -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=On
+        (cd tests/cpp && cmake -Bbuild -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX)
 
     - name: Build
       shell: bash
       run: |
         cmake --build build --config $BUILD_TYPE --target ark
         cmake --build build --config $BUILD_TYPE --target console
+        (cd tests/cpp && cmake --build build --config $BUILD_TYPE)
 
     - name: Test
       shell: bash
@@ -46,3 +49,4 @@ jobs:
         else
           echo "No ark executable found" && exit 1
         fi
+        (cd tests/cpp/out && for f in *-test; do "./${f}"; done)
