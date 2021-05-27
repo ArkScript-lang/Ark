@@ -50,4 +50,4 @@ jobs:
         else
           echo "No ark executable found" && exit 1
         fi
-        (cd tests/cpp/ ; ./run-tests)
+        (cd tests/cpp/ ; bash ./run-tests)
