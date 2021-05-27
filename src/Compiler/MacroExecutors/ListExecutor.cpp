@@ -3,20 +3,19 @@
 
 namespace Ark::internal
 {
-    ListExecutor::ListExecutor(MacroProcessor* macroprocessor, int debug) : MacroExecutor(macroprocessor, debug)
-    {
-
-    }
+    ListExecutor::ListExecutor(MacroProcessor* macroprocessor, unsigned debug) :
+        MacroExecutor(macroprocessor, debug)
+    {}
 
     bool ListExecutor::canHandle(Node& node)
     {
         return node.nodeType() == NodeType::List && node.constList().size() > 0 && node.constList()[0].nodeType() == NodeType::Symbol;
     }
 
-    void ListExecutor::execute(Node& node)
+    bool ListExecutor::applyMacro(Node& node)
     {
         Node& first = node.list()[0];
-        Node* macro = find_nearest_macro(first.string());
+        Node* macro = findNearestMacro(first.string());
 
         if (macro != nullptr)
         {
@@ -24,7 +23,7 @@ namespace Ark::internal
                 std::clog << "Found macro for " << first.string() << std::endl;
 
             if (macro->constList().size() == 2)
-                execute_proxy(first);
+                applyMacroProxy(first);
             // !{name (args) body}
             else if (macro->constList().size() == 3)
             {
@@ -74,9 +73,18 @@ namespace Ark::internal
 
                 if (!args_applied.empty())
                     unify(args_applied, temp_body, nullptr);
+
                 node = evaluate(temp_body, false);
-                execute_proxy(node);
+                applyMacroProxy(node);
+                return true;
             }
         }
+        else if (isPredefined(first.string()))
+        {
+            node = evaluate(node, false);
+            return true;
+        }
+
+        return false;
     }
 }

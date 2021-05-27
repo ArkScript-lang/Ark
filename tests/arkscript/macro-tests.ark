@@ -119,6 +119,40 @@
     (define (let a 12))
     (set tests (assert-eq a 12 "macro get_symbol" tests))
 
+    !{define (prefix suffix value) (let (symcat prefix suffix) value)}
+    (define a 1 2)
+    (set tests (assert-eq a1 2 "macro symcat" tests))
+    (define a (+ 1 1) 2)
+    (set tests (assert-eq a2 2 "macro symcat" tests))
+    (define a (- 1 1) 2)
+    (set tests (assert-eq a0 2 "macro symcat" tests))
+    (define a (+ nice_value 1) 2)
+    (set tests (assert-eq a13 2 "macro symcat" tests))
+
+    !{suffix-dup (sym x) {
+        !{if (> x 1)
+            (suffix-dup sym (- x 1))
+        }
+        (symcat sym x)
+    }}
+    (let magic_func (fun ((suffix-dup a 3)) (- a1 a2 a3)))
+    (set tests (assert-eq (magic_func 1 2 3) (- 1 2 3) "macro symdup" tests))
+
+    !{partial (func ...defargs) {
+        !{bloc (suffix-dup a (- (argcount func) (len defargs)))}
+        (fun (bloc) (func ...defargs bloc))
+        !{undef bloc}
+    }}
+
+    (let test_func (fun (a b c) (* a b c)))
+    (let test_func1 (partial test_func 1))
+    (let test_func1_2 (partial test_func1 2))
+    (set tests (assert-eq (argcount test_func) 3 "macro argcount" tests))
+    (set tests (assert-eq (argcount test_func1) 2 "macro argcount" tests))
+    (set tests (assert-eq (argcount test_func1_2) 1 "macro argcount" tests))
+    (set tests (assert-eq (test_func 1 2 3) (test_func1 2 3) "macro partial" tests))
+    (set tests (assert-eq (test_func 1 2 3) (test_func1_2 3) "macro partial" tests))
+
     (recap "Macro tests passed" tests (- (time) start-time))
 
     tests

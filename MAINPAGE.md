@@ -176,7 +176,7 @@ An example is often worth a thousands words:
 
             // register the unique control functions block for this usertype
             // this cfs block can be shared between multiple usertype to reduce memory usage
-            v.usertype_ref().setControlFuncs(get_cfs());
+            v.usertypeRef().setControlFuncs(get_cfs());
 
             return v;
         });

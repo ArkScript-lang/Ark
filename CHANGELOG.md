@@ -25,6 +25,9 @@
 - undefining macros is now possible by using `!{undef macro_name}`
 - `str:join` added in the standard library
 - `str:split` can now take longer separators
+- added `symcat` in macros to concatenate a symbol and a number/string/symbol to create a new one
+- added `argcount` in macros to count (at compile time) the number of arguments of a function
+- fixed a bug where `(bloc)` and `(print bloc)`, given a `!{bloc value}` macro, didn't give the same result (one was applied, the other was partial)
 
 ### Changed
 - updating doxyfile and some docstrings
@@ -46,6 +49,7 @@
 - avoid using `std::endl` if it's not useful
 - CI was split into multiple files to ease maintenance
 - moving ArkScript tests from `tests/*.ark` to `tests/arkscript/*.ark`
+- fixed macros adding useless begin blocks, sometimes breaking code generation from macros
 
 ### Removed
 - `~UserType`, since we are doing manual memory management now
