@@ -30,16 +30,16 @@ Ark::Value my_function(std::vector<Ark::Value>& args, Ark::VM* vm)
 int main()
 {
     Ark::State state(/* options */ Ark::FeaturePersist);
-    state.doString("(let bar (my_function 1 2 3 1)) (let egg (foo 1 2 3))");  // we can call state.doFile() before or after state.loadFunction()
 
     state.loadFunction("my_function", my_function);
-
     // we can also load C++ lambdas
     // we could have done this after creating the VM, it would still works
     // we just need to do that BEFORE we call vm.run()
     state.loadFunction("foo", [](std::vector<Ark::Value>& args, Ark::VM* vm) {
         return Ark::Value(static_cast<int>(args.size()));
     });
+
+    state.doString("(let bar (my_function 1 2 3 1)) (let egg (foo 1 2 3))");  // we can call state.doFile() before or after state.loadFunction()
 
     Ark::VM vm(&state);
     CHECK_VM_RUN(vm)
