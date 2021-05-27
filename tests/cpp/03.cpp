@@ -11,11 +11,11 @@ Breakfast& getBreakfast()
     return bf;
 }
 
-UserType::ControlFuncs* get_cfs()
+Ark::UserType::ControlFuncs* get_cfs()
 {
-    static UserType::ControlFuncs cfs;
+    static Ark::UserType::ControlFuncs cfs;
 
-    cfs.ostream_func = [](std::ostream& os, const UserType& a) -> std::ostream& {
+    cfs.ostream_func = [](std::ostream& os, const Ark::UserType& a) -> std::ostream& {
         os << "Breakfast::";
         switch (a.as<Breakfast>())
         {
@@ -59,9 +59,10 @@ int main()
         return Ark::Nil;
     });
 
-    state.doString("(begin (let a (getBreakfast)) (print a) (useBreakfast a))");
+    state.doString("(let a (getBreakfast)) (print a) (useBreakfast a)");
     Ark::VM vm(&state);
-    vm.run();
+    if (vm.run() != 0)
+        return 1;  // FAILED
 
     /*
         Will print
