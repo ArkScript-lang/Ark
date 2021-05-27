@@ -2,20 +2,19 @@
 
 namespace Ark::internal
 {
-    SymbolExecutor::SymbolExecutor(MacroProcessor* macroprocessor, int debug) : MacroExecutor(macroprocessor, debug)
-    {
-
-    }
+    SymbolExecutor::SymbolExecutor(MacroProcessor* macroprocessor, unsigned debug) :
+        MacroExecutor(macroprocessor, debug)
+    {}
 
     bool SymbolExecutor::canHandle(Node& node)
     {
         return node.nodeType() == NodeType::Symbol;
     }
-    
-    void SymbolExecutor::execute(Node& node)
+
+    bool SymbolExecutor::applyMacro(Node& node)
     {
         // error ?
-        Node* macro = find_nearest_macro(node.string());
+        Node* macro = findNearestMacro(node.string());
 
         if (macro != nullptr)
         {
@@ -24,7 +23,12 @@ namespace Ark::internal
 
             // !{name value}
             if (macro->constList().size() == 2)
+            {
                 node = macro->list()[1];
+                return true;
+            }
         }
+
+        return false;
     }
 }
