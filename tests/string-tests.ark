@@ -6,8 +6,6 @@
     (mut tests 0)
     (let start-time (time))
 
-    # TODO add (str:format) test, currently it doesn't handle decimals
-
     (set tests (assert-eq "abcdefghijklmnopqrstuvwxyz" (str:toLower "ABCDEFGHIJKLMNOPQRSTUVWXYZ") "string lower" tests))
     (set tests (assert-eq "abcdefghijklmnopqrstuvwxyz" (str:toLower "abcdefghijklmnopqrstuvwxyz") "string lower" tests))
     (set tests (assert-eq "ABCDEFGHIJKLMNOPQRSTUVWXYZ" (str:toUpper "abcdefghijklmnopqrstuvwxyz") "string upper" tests))
