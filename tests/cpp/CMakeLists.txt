@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.8)
 
 project(integration CXX)
 
-add_subdirectory(${PROJECT_SOURCE_DIR}/../../ ${PROJECT_SOURCE_DIR}/ark)
+add_subdirectory(${PROJECT_SOURCE_DIR}/../../ ${PROJECT_SOURCE_DIR}/ark/)
 # create special directory for our executables
 set(OUT_DIR ${PROJECT_SOURCE_DIR}/out)
 file(MAKE_DIRECTORY ${OUT_DIR})
