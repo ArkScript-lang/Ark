@@ -139,11 +139,13 @@ namespace Ark::internal
          * @return false
          */
         inline bool isKeyword(const std::string& value) noexcept;
-
-<<<<<<< HEAD
-
-=======
->>>>>>> 90ff12e601dddf37e6b61fd0c94114fe895bb129
+        /**
+         * @brief Check if the value can be an identifier in ArkScript
+         * 
+         * @param value 
+         * @return true 
+         * @return false 
+         */
         inline bool isIdentifier(const std::string& value) noexcept;
 
         /**
