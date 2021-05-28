@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+Reset='\033[0m'
+Black='\033[0;30m'
+Red='\033[0;31m'
+Green='\033[0;32m'
+Yellow='\033[0;33m'
+Blue='\033[0;34m'
+Purple='\033[0;35m'
+Cyan='\033[0;36m'
+White='\033[0;37m'
+
+maybe_ark=$(which ark)
+if [[ $($maybe_ark --help | grep "ArkScript programming language") != "" ]]; then
+    ark=$maybe_ark
+elif [ -f ../build/ark ]; then
+    ark=../build/ark
+else
+    echo -e "${Red}Couldn't find ark${Reset}"
+    exit 1
+fi
+
+for filename in *.ark; do
+    echo -e "${Purple}Running example${Reset} ${Green}${filename}${Reset}"
+    $ark filename
+    echo
+done
