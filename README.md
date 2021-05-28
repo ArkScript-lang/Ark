@@ -141,7 +141,7 @@ Who worked on
     * [@FrenchMasterSword](https://github.com/FrenchMasterSword)
     * [@rstefanic](https://github.com/rstefanic)
     * [@PierrePharel](https://github.com/PierrePharel)
-    * [@Wafelack](https://github.com/Wafelack)
+    * [@Wafelack](https://gitlab.com/Wafelack)
 * the builtins
     * [@SuperFola](https://github.com/SuperFola)
     * [@rinz13r](https://github.com/rinz13r)
@@ -165,6 +165,7 @@ Who worked on
     * [@mazzdevs](https://github.com/mazzlabs)
 * the docker integration
     * [@yardenshoham](https://github.com/yardenshoham)
+    * [@SuperFola](https://github.com/SuperFola)
 
 ### Contributing to the ArkScript standard library
 

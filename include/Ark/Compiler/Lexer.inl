@@ -13,12 +13,13 @@ inline TokenType Lexer::guessType(const std::string& value) noexcept
         return TokenType::Operator;
     else if (isKeyword(value))
         return TokenType::Keyword;
-    else if (value.size() > 3 && value[0] == value[1] && value[1] == value[2] && value[2] == '.')
-        return TokenType::Spread;
     else if (value[0] == '&' && value.size() > 1 && isIdentifier(value))
         return TokenType::Capture;
+    else if (value.size() > 3 && value[0] == value[1] && value[1] == value[2] && value[2] == '.')
+        return TokenType::Spread;
     else if (value[0] == '.' && value.size() > 1 && isIdentifier(value))
         return TokenType::GetField;
+    // otherwise, identifier if it starts with [a-zA-Z_]
     else if (isIdentifier(value))
         return TokenType::Identifier;
     return TokenType::Mismatch;
@@ -49,11 +50,9 @@ inline bool Lexer::endOfControlChar(const std::string& sequence, char next) noex
             return !CHECK_IF_HEXCHAR(next);
 
         case 'u':
-            // \uxxxx
             return sequence.size() == 5;
 
         case 'U':
-            // \Uxxxxxxxx
             return sequence.size() == 9;
 
         case '"':
