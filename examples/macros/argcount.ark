@@ -1,0 +1,18 @@
+!{suffix-dup (sym x) {
+    !{if (> x 1)
+        (suffix-dup sym (- x 1))
+    }
+    (symcat sym x)
+}}
+
+!{partial (func ...defargs) {
+    !{bloc (suffix-dup a (- (argcount func) (len defargs)))}
+    (fun (bloc) (func ...defargs bloc))
+    !{undef bloc}
+}}
+
+(let test_func (fun (a b c) (* a b c)))
+(let test_func1 (partial test_func 1))
+(print (argcount test_func) ", expected " 3)
+(print (argcount test_func1) ", expected " 2)
+(print (test_func 1 2 3) " " (test_func1 2 3))

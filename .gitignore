@@ -1,10 +1,6 @@
-# project junk
-
-# folders
 build/
-build32/
-linux/
-clang/
+tests/cpp/out/
+tests/cpp/ark/
 gitstats/
 __arkscript__/
 packages/
@@ -26,3 +22,4 @@ build-package.sh
 *.lib
 *.arkm
 *.coz
+.vs/

@@ -72,7 +72,7 @@ namespace Ark::internal
          * 
          * @return Scope_t& 
          */
-        Scope_t& scope_ref() noexcept;
+        Scope_t& refScope() noexcept;
 
         /**
          * @brief Return the page address of the object

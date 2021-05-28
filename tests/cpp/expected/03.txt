@@ -1,0 +1,4 @@
+Breakfast::Pizza
+UserType detected as an enum class Breakfast
+Got Breakfast::Pizza
+Good choice! Have a nice breakfast ;)

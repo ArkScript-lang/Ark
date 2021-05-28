@@ -35,4 +35,4 @@
     passed-switch
 ))
 
-(print "\nCompleted in " (* 1000 (- (time) start_time)) "ms")
+(print "Completed in " (* 1000 (- (time) start_time)) "ms")

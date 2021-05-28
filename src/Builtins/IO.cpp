@@ -14,7 +14,7 @@ namespace Ark::internal::Builtins::IO
     {
         for (Value::Iterator it=n.begin(), it_end=n.end(); it != it_end; ++it)
             std::cout << (*it);
-        std::cout << std::endl;
+        std::cout << '\n';
 
         return nil;
     }
@@ -57,7 +57,7 @@ namespace Ark::internal::Builtins::IO
                 f.close();
             }
             else
-                throw std::runtime_error("Couldn't write to file \"" + n[0].string_ref().toString() + "\"");
+                throw std::runtime_error("Couldn't write to file \"" + n[0].stringRef().toString() + "\"");
         }
         // filename, mode (a or w), content
         else if (n.size() == 3)
@@ -82,7 +82,7 @@ namespace Ark::internal::Builtins::IO
                 f.close();
             }
             else
-                throw std::runtime_error("Couldn't write to file \"" + n[0].string_ref().toString() + "\"");
+                throw std::runtime_error("Couldn't write to file \"" + n[0].stringRef().toString() + "\"");
         }
         else
             throw std::runtime_error(IO_WRITE_ARITY);
