@@ -12,7 +12,7 @@ namespace Ark
     using namespace internal;
 
     VM::VM(State* state) noexcept :
-        m_state(state), m_exit_code(0), m_ip(0), m_pp(0), m_sp(0), m_fc(0),
+        m_state(state), m_exitCode(0), m_ip(0), m_pp(0), m_sp(0), m_fc(0),
         m_running(false), m_last_sym_loaded(0),
         m_until_frame_count(0), m_user_pointer(nullptr)
     {
@@ -40,7 +40,7 @@ namespace Ark
         }
 
         m_saved_scope.reset();
-        m_exit_code = 0;
+        m_exitCode = 0;
 
         // clearing locals (scopes) and create a global scope
         if ((m_state->m_options & FeaturePersist) == 0)
@@ -144,7 +144,7 @@ namespace Ark
 
     void VM::exit(int code) noexcept
     {
-        m_exit_code = code;
+        m_exitCode = code;
         m_running = false;
     }
 
@@ -169,15 +169,13 @@ namespace Ark
     int VM::run() noexcept
     {
         init();
-        int srcode = safeRun();
-        if (srcode != 0)
-            m_exitCode = srcode;
+        safeRun();
 
         // reset VM after each run
         m_ip = 0;
         m_pp = 0;
 
-        return m_exit_code;
+        return m_exitCode;
     }
 
     int VM::safeRun(std::size_t untilFrameCount)
@@ -952,13 +950,13 @@ namespace Ark
         } catch (const std::exception& e) {
             std::printf("%s\n", e.what());
             backtrace();
-            m_exit_code = 1;
+            m_exitCode = 1;
         } catch (...) {
             std::printf("Unknown error\n");
             backtrace();
-            m_exit_code = 1;
+            m_exitCode = 1;
         }
-        return m_exit_code;
+        return m_exitCode;
     }
 
     // ------------------------------------------
