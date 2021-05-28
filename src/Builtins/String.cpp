@@ -67,7 +67,7 @@ namespace Ark::internal::Builtins::String
             throw Ark::TypeError(STR_RM_TE1);
 
         long id = static_cast<long>(n[1].number());
-        if (id < 0 || static_cast<std::size_t>(id) >= n[0].string_ref().size())
+        if (id < 0 || static_cast<std::size_t>(id) >= n[0].stringRef().size())
             throw std::runtime_error(STR_RM_OOR);
 
         n[0].stringRef().erase(id, id + 1);
