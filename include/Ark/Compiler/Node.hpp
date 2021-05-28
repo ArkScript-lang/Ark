@@ -14,6 +14,7 @@
 
 #include <variant.hpp>
 #include <iostream>
+#include <array>
 #include <string>
 #include <vector>
 #include <unordered_map>
@@ -34,7 +35,8 @@ namespace Ark::internal
         List,
         Closure,
         Macro,
-        Spread
+        Spread,
+        Unused
     };
 
     /// The different keywords available
@@ -63,12 +65,21 @@ namespace Ark::internal
         using Map      = std::unordered_map<std::string, Node>;
         using Value    = mpark::variant<double, std::string, Keyword>;
 
+        static Node TrueNode, FalseNode, NilNode, ListNode;
+
+        /**
+         * @brief Initialize static default nodes
+         * 
+         */
+        static void init() noexcept;
+        Node() = default;
+
         /**
          * @brief Construct a new Node object
          * 
          * @param value 
          */
-        explicit Node(int value) noexcept;
+        explicit Node(long value) noexcept;
 
         /**
          * @brief Construct a new Node object
@@ -96,7 +107,7 @@ namespace Ark::internal
          * 
          * @param type 
          */
-        explicit Node(NodeType type=NodeType::Symbol) noexcept;
+        explicit Node(NodeType type) noexcept;
 
         /**
          * @brief Construct a new Node object
@@ -145,7 +156,7 @@ namespace Ark::internal
          * 
          * @return const std::vector<Node>& 
          */
-        const std::vector<Node>& const_list() const noexcept;
+        const std::vector<Node>& constList() const noexcept;
 
         /**
          * @brief Return the node type
@@ -232,11 +243,9 @@ namespace Ark::internal
         std::string m_filename = "";
     };
 
-    #include "Node.inl"
+    #include "inline/Node.inl"
 
-    using Nodes = std::vector<Node>;
-
-    std::ostream& operator<<(std::ostream& os, const Nodes& N) noexcept;
+    std::ostream& operator<<(std::ostream& os, const std::vector<Node>& N) noexcept;
 }
 
 #endif

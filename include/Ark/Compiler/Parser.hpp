@@ -2,7 +2,7 @@
  * @file Parser.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Parses a token stream into an AST by using the Ark::internal::Node
- * @version 0.1
+ * @version 0.2
  * @date 2020-10-27
  * 
  * @copyright Copyright (c) 2020
@@ -101,6 +101,18 @@ namespace Ark
          */
         internal::Node parse(std::list<internal::Token>& tokens, bool authorize_capture=false, bool authorize_field_read=false, bool in_macro=false);
 
+        void parseIf(internal::Node&, internal::Token&, std::list<internal::Token>&, bool, bool, bool);
+        void parseLetMut(internal::Node&, internal::Token&, std::list<internal::Token>&, bool, bool, bool);
+        void parseSet(internal::Node&, internal::Token&, std::list<internal::Token>&, bool, bool, bool);
+        void parseFun(internal::Node&, internal::Token&, std::list<internal::Token>&, bool, bool, bool);
+        void parseWhile(internal::Node&, internal::Token&, std::list<internal::Token>&, bool, bool, bool);
+        void parseBegin(internal::Node&, internal::Token&, std::list<internal::Token>&, bool, bool, bool);
+        void parseImport(internal::Node&, internal::Token&, std::list<internal::Token>&, bool, bool, bool);
+        void parseQuote(internal::Node&, internal::Token&, std::list<internal::Token>&, bool, bool, bool);
+        void parseDel(internal::Node&, internal::Token&, std::list<internal::Token>&, bool, bool, bool);
+        internal::Node parseShorthand(internal::Token&, std::list<internal::Token>&, bool, bool, bool);
+        void checkForInvalidTokens(internal::Node&, internal::Token&, bool, bool, bool);
+
         /**
          * @brief Get the next token if possible, from a list of tokens
          * 
@@ -123,10 +135,11 @@ namespace Ark
          * @brief Search for all the includes in a given node, in its sub-nodes and replace them by the code of the included file
          * 
          * @param n 
-         * @return true returned on success
-         * @return false returned on failure
+         * @param parent the parent node of the current one
+         * @param pos the position of the child node in the parent node list
+         * @return true if we found an import and replaced it by the corresponding code
          */
-        bool checkForInclude(internal::Node& n);
+        bool checkForInclude(internal::Node& n, internal::Node& parent, std::size_t pos = 0);
 
         /**
          * @brief Seek a file in the lib folder and everywhere
@@ -136,13 +149,32 @@ namespace Ark
          */
         std::string seekFile(const std::string& file);
 
-        // error management functions
+        /**
+         * @brief Throw a parse exception is the given predicated is false
+         * 
+         * @param pred 
+         * @param message error message to use
+         * @param token concerned token
+         */
         inline void expect(bool pred, const std::string& message, internal::Token token);
+
+        /**
+         * @brief Throw a parse error related to a token (seek it in the related file and highlight the error)
+         * 
+         * @param message 
+         * @param token 
+         */
         inline void throwParseError(const std::string& message, internal::Token token);
+
+        /**
+         * @brief Throw a parse error unrelated to any token
+         * 
+         * @param message 
+         */
         inline void throwParseError_(const std::string& message);
     };
 
-    #include "Parser.inl"
+    #include "inline/Parser.inl"
 }
 
 #endif

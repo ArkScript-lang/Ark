@@ -2,10 +2,9 @@
 //               instructions
 // ------------------------------------------
 
-#define createNewScope() m_locals.emplace_back(std::make_shared<internal::Scope>());
 #define resolveRef(valptr) (((valptr)->valueType() == ValueType::Reference) ? *((valptr)->reference()) : *(valptr))
 #define resolveRefInPlace(val) if (val.valueType() == ValueType::Reference) {       \
-                                    val.m_constType = val.reference()->m_constType; \
+                                    val.m_const_type = val.reference()->m_const_type; \
                                     val.m_value = val.reference()->m_value;         \
                                 }
 
@@ -15,7 +14,7 @@
 template <typename... Args>
 internal::Value VM::call(const std::string& name, Args&&... args)
 {
-    using namespace Ark::internal;
+    using namespace internal;
 
     const std::lock_guard<std::mutex> lock(m_mutex);
 
@@ -68,7 +67,56 @@ internal::Value VM::call(const std::string& name, Args&&... args)
     return *popAndResolveAsPtr();
 }
 
+template <typename... Args>
+internal::Value VM::resolve(const internal::Value* val, Args&&... args)
+{
+    using namespace internal;
+
+    const std::lock_guard<std::mutex> lock(m_mutex);
+
+    if (!val->isFunction())
+        throw TypeError("Value::resolve couldn't resolve a non-function");
+
+    int ip = m_ip;
+    std::size_t pp = m_pp;
+
+    // convert and push arguments in reverse order
+    std::vector<Value> fnargs { { Value(args)... } };
+    for (auto it=fnargs.rbegin(), it_end=fnargs.rend(); it != it_end; ++it)
+        push(resolveRef(it));
+    // push function
+    push(resolveRef(val));
+
+    std::size_t frames_count = m_fc;
+    // call it
+    call(static_cast<int16_t>(sizeof...(Args)));
+    // reset instruction pointer, otherwise the safeRun method will start at ip = -1
+    // without doing m_ip++ as intended (done right after the call() in the loop, but here
+    // we start outside this loop)
+    m_ip = 0;
+
+    // run until the function returns
+    safeRun(/* untilFrameCount */ frames_count);
+
+    // restore VM state
+    m_ip = ip;
+    m_pp = pp;
+
+    // get result
+    return *popAndResolveAsPtr();
+}
+
 #pragma region "stack management"
+
+inline uint16_t VM::readNumber()
+{
+    uint16_t tmp =
+        (static_cast<uint16_t>(m_state->m_pages[m_pp][m_ip    ]) << 8) +
+         static_cast<uint16_t>(m_state->m_pages[m_pp][m_ip + 1]);
+
+    ++m_ip;
+    return tmp;
+}
 
 inline internal::Value* VM::pop()
 {
@@ -78,33 +126,33 @@ inline internal::Value* VM::pop()
         return &m_stack[m_sp];
     }
     else
-        return &m__no_value;
+        return &m_no_value;
 }
 
 inline void VM::push(const internal::Value& value)
 {
-    m_stack[m_sp].m_constType = value.m_constType;
+    m_stack[m_sp].m_const_type = value.m_const_type;
     m_stack[m_sp].m_value = value.m_value;
     ++m_sp;
 }
 
 inline void VM::push(internal::Value&& value)
 {
-    m_stack[m_sp].m_constType = std::move(value.m_constType);
+    m_stack[m_sp].m_const_type = std::move(value.m_const_type);
     m_stack[m_sp].m_value = std::move(value.m_value);
     ++m_sp;
 }
 
 inline void VM::push(internal::Value* valptr)
 {
-    m_stack[m_sp].m_constType = static_cast<uint8_t>(internal::ValueType::Reference);
+    m_stack[m_sp].m_const_type = static_cast<uint8_t>(internal::ValueType::Reference);
     m_stack[m_sp].m_value = valptr;
     ++m_sp;
 }
 
 inline internal::Value* VM::popAndResolveAsPtr()
 {
-    using namespace Ark::internal;
+    using namespace internal;
 
     Value* tmp = pop();
     if (tmp->valueType() == ValueType::Reference)
@@ -112,7 +160,71 @@ inline internal::Value* VM::popAndResolveAsPtr()
     return tmp;
 }
 
+inline void VM::swapStackForFunCall(uint16_t argc)
+{
+    using namespace internal;
+
+    // move values around and invert them
+    // 
+    // values:     1,  2, 3, _, _
+    // wanted:    pp, ip, 3, 2, 1
+    // positions:  0,  1, 2, 3, 4
+    // 
+    // move values first, from position x to y, with
+    //    y = argc - x + 1
+    // then place pp and ip
+    switch (argc)  // must be positive
+    {
+        case 0:
+            push(Value(static_cast<PageAddr_t>(m_pp)));
+            push(Value(ValueType::InstPtr, static_cast<PageAddr_t>(m_ip)));
+            break;
+
+        case 1:
+            m_stack[m_sp + 1] = m_stack[m_sp - 1];
+            resolveRefInPlace(m_stack[m_sp + 1]);
+            m_stack[m_sp - 1] = Value(static_cast<PageAddr_t>(m_pp));
+            m_stack[m_sp + 0] = Value(ValueType::InstPtr, static_cast<PageAddr_t>(m_ip));
+            m_sp += 2;
+            break;
+
+        default:  // 2 or more elements
+        {
+            const int16_t first = m_sp - argc;
+            // move first argument to the very end
+            m_stack[m_sp + 1] = m_stack[first + 0];
+            resolveRefInPlace(m_stack[m_sp + 1]);
+            // move second argument right before the last one
+            m_stack[m_sp + 0] = m_stack[first + 1];
+            resolveRefInPlace(m_stack[m_sp + 0]);
+            // move the rest, if any
+            int16_t x = 2;
+            const int16_t stop  = ((argc % 2 == 0) ? argc : (argc - 1)) / 2;
+            while (x <= stop)
+            {
+                //        destination          , origin
+                std::swap(m_stack[m_sp - x + 1], m_stack[first + x]);
+                resolveRefInPlace(m_stack[m_sp - x + 1]);
+                resolveRefInPlace(m_stack[first + x]);
+                ++x;
+            }
+            m_stack[first + 0] = Value(static_cast<PageAddr_t>(m_pp));
+            m_stack[first + 1] = Value(ValueType::InstPtr, static_cast<PageAddr_t>(m_ip));
+            m_sp += 2;
+            break;
+        }
+    }
+
+    m_fc++;
+    m_scope_count_to_delete.emplace_back(0);
+}
+
 #pragma endregion
+
+inline void VM::createNewScope() noexcept
+{
+    m_locals.emplace_back(std::make_shared<internal::Scope>());
+}
 
 inline internal::Value* VM::findNearestVariable(uint16_t id) noexcept
 {
@@ -126,7 +238,7 @@ inline internal::Value* VM::findNearestVariable(uint16_t id) noexcept
 
 inline void VM::returnFromFuncCall()
 {
-    using namespace Ark::internal;
+    using namespace internal;
 
     COZ_BEGIN("ark vm returnFromFuncCall");
 
@@ -162,7 +274,7 @@ inline void VM::call(int16_t argc_)
                 from the stack will be the last one of the function). The stack of the function is now composed
                 of its arguments, from the first to the last one
     */
-    using namespace Ark::internal;
+    using namespace internal;
 
     COZ_BEGIN("ark vm::call");
 
@@ -203,59 +315,7 @@ inline void VM::call(int16_t argc_)
             // create dedicated frame
             createNewScope();
 
-            // move values around and invert them
-            // 
-            // values:     1,  2, 3, _, _
-            // wanted:    pp, ip, 3, 2, 1
-            // positions:  0,  1, 2, 3, 4
-            // 
-            // move values first, from position x to y, with
-            //    y = argc - x + 1
-            // then place pp and ip
-            switch (argc)  // must be positive
-            {
-                case 0:
-                    push(Value(static_cast<PageAddr_t>(m_pp)));
-                    push(Value(ValueType::InstPtr, static_cast<PageAddr_t>(m_ip)));
-                    break;
-
-                case 1:
-                    m_stack[m_sp + 1] = m_stack[m_sp - 1];
-                    resolveRefInPlace(m_stack[m_sp + 1]);
-                    m_stack[m_sp - 1] = Value(static_cast<PageAddr_t>(m_pp));
-                    m_stack[m_sp + 0] = Value(ValueType::InstPtr, static_cast<PageAddr_t>(m_ip));
-                    m_sp += 2;
-                    break;
-
-                default:  // 2 or more elements
-                {
-                    const int16_t first = m_sp - argc;
-                    // move first argument to the very end
-                    m_stack[m_sp + 1] = m_stack[first + 0];
-                    resolveRefInPlace(m_stack[m_sp + 1]);
-                    // move second argument right before the last one
-                    m_stack[m_sp + 0] = m_stack[first + 1];
-                    resolveRefInPlace(m_stack[m_sp + 0]);
-                    // move the rest, if any
-                    int16_t x = 2;
-                    const int16_t stop  = ((argc % 2 == 0) ? argc : (argc - 1)) / 2;
-                    while (x <= stop)
-                    {
-                        //        destination          , origin
-                        std::swap(m_stack[m_sp - x + 1], m_stack[first + x]);
-                        resolveRefInPlace(m_stack[m_sp - x + 1]);
-                        resolveRefInPlace(m_stack[first + x]);
-                        ++x;
-                    }
-                    m_stack[first + 0] = Value(static_cast<PageAddr_t>(m_pp));
-                    m_stack[first + 1] = Value(ValueType::InstPtr, static_cast<PageAddr_t>(m_ip));
-                    m_sp += 2;
-                    break;
-                }
-            }
-
-            m_fc++;
-            m_scope_count_to_delete.emplace_back(0);
+            swapStackForFunCall(argc);
 
             // store "reference" to the function to speed the recursive functions
             if (m_last_sym_loaded < m_state->m_symbols.size())
@@ -269,7 +329,7 @@ inline void VM::call(int16_t argc_)
         // is it a user defined closure?
         case ValueType::Closure:
         {
-            Closure& c = function.closure_ref();
+            Closure& c = function.refClosure();
             PageAddr_t new_page_pointer = c.pageAddr();
 
             // load saved scope
@@ -278,59 +338,7 @@ inline void VM::call(int16_t argc_)
             createNewScope();
             ++m_scope_count_to_delete.back();
 
-            // move values around and invert them
-            // 
-            // values:     1,  2, 3, _, _
-            // wanted:    pp, ip, 3, 2, 1
-            // positions:  0,  1, 2, 3, 4
-            // 
-            // move values first, from position x to y, with
-            //    y = argc - x + 1
-            // then place pp and ip
-            switch (argc)  // must be positive
-            {
-                case 0:
-                    push(Value(static_cast<PageAddr_t>(m_pp)));
-                    push(Value(ValueType::InstPtr, static_cast<PageAddr_t>(m_ip)));
-                    break;
-
-                case 1:
-                    m_stack[m_sp + 1] = m_stack[m_sp - 1];
-                    resolveRefInPlace(m_stack[m_sp + 1]);
-                    m_stack[m_sp - 1] = Value(static_cast<PageAddr_t>(m_pp));
-                    m_stack[m_sp + 0] = Value(ValueType::InstPtr, static_cast<PageAddr_t>(m_ip));
-                    m_sp += 2;
-                    break;
-
-                default:  // 2 or more elements
-                {
-                    const int16_t first = m_sp - argc;
-                    // move first argument to the very end
-                    m_stack[m_sp + 1] = m_stack[first + 0];
-                    resolveRefInPlace(m_stack[m_sp + 1]);
-                    // move second argument right before the last one
-                    m_stack[m_sp + 0] = m_stack[first + 1];
-                    resolveRefInPlace(m_stack[m_sp + 0]);
-                    // move the rest, if any
-                    int16_t x = 2;
-                    const int16_t stop  = ((argc % 2 == 0) ? argc : (argc - 1)) / 2;
-                    while (x <= stop)
-                    {
-                        //        destination          , origin
-                        std::swap(m_stack[m_sp - x + 1], m_stack[first + x]);
-                        resolveRefInPlace(m_stack[m_sp - x + 1]);
-                        resolveRefInPlace(m_stack[first + x]);
-                        ++x;
-                    }
-                    m_stack[first + 0] = Value(static_cast<PageAddr_t>(m_pp));
-                    m_stack[first + 1] = Value(ValueType::InstPtr, static_cast<PageAddr_t>(m_ip));
-                    m_sp += 2;
-                    break;
-                }
-            }
-
-            m_fc++;
-            m_scope_count_to_delete.emplace_back(0);
+            swapStackForFunCall(argc);
 
             m_pp = new_page_pointer;
             m_ip = -1;  // because we are doing a m_ip++ right after that
@@ -356,53 +364,13 @@ inline void VM::call(int16_t argc_)
 
         if (needed_argc != argc)
             throwVMError(
-                "Function '" + m_state->m_symbols[m_last_sym_loaded] + "' needs " + Ark::Utils::toString(needed_argc) +
-                " arguments, but it received " + Ark::Utils::toString(argc)
+                "Function '" + m_state->m_symbols[m_last_sym_loaded] + "' needs " + std::to_string(needed_argc) +
+                " arguments, but it received " + std::to_string(argc)
             );
     }
 
     COZ_END("ark vm::call");
 }
 
-template <typename... Args>
-internal::Value VM::resolve(const internal::Value* val, Args&&... args)
-{
-    using namespace Ark::internal;
-
-    const std::lock_guard<std::mutex> lock(m_mutex);
-
-    if (!val->isFunction())
-        throw Ark::TypeError("Value::resolve couldn't resolve a non-function");
-
-    int ip = m_ip;
-    std::size_t pp = m_pp;
-
-    // convert and push arguments in reverse order
-    std::vector<Value> fnargs { { Value(args)... } };
-    for (auto it=fnargs.rbegin(), it_end=fnargs.rend(); it != it_end; ++it)
-        push(resolveRef(it));
-    // push function
-    push(resolveRef(val));
-
-    std::size_t frames_count = m_fc;
-    // call it
-    call(static_cast<int16_t>(sizeof...(Args)));
-    // reset instruction pointer, otherwise the safeRun method will start at ip = -1
-    // without doing m_ip++ as intended (done right after the call() in the loop, but here
-    // we start outside this loop)
-    m_ip = 0;
-
-    // run until the function returns
-    safeRun(/* untilFrameCount */ frames_count);
-
-    // restore VM state
-    m_ip = ip;
-    m_pp = pp;
-
-    // get result
-    return *popAndResolveAsPtr();
-}
-
-#undef createNewScope
 #undef resolveRef
 #undef resolveRefInPlace

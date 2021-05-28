@@ -13,8 +13,7 @@ namespace Ark::internal
         ss << message << "\n";
         if (node.filename() != ARK_NO_NAME_FILE)
             ss << "In file " << node.filename() << "\n";
-        ss << "On line " << (node.line() + 1) << ":" << node.col() << ", got NodeType::";
-        ss << Ark::internal::typeToString(node) << "\n";
+        ss << "On line " << (node.line() + 1) << ":" << node.col() << ", got `" << node << "'\n";
 
         std::size_t ssize = 1;
         if (node.nodeType() == internal::NodeType::Symbol || node.nodeType() == internal::NodeType::String

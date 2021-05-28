@@ -7,13 +7,13 @@
 namespace Ark::internal
 {
     Value::Value() noexcept :
-        m_constType(init_const_type(false, ValueType::Undefined))
+        m_const_type(init_const_type(false, ValueType::Undefined))
     {}
 
     // --------------------------
 
     Value::Value(ValueType type) noexcept :
-        m_constType(init_const_type(false, type))
+        m_const_type(init_const_type(false, type))
     {
         if (type == ValueType::List)
             m_value = std::vector<Value>();
@@ -32,7 +32,7 @@ namespace Ark::internal
 
     Value::Value(const Value& val) noexcept :
         m_value(val.m_value),
-        m_constType(val.m_constType)
+        m_const_type(val.m_const_type)
     {
         if (valueType() != ValueType::Reference)
             value_copies++;
@@ -41,7 +41,7 @@ namespace Ark::internal
     Value::Value(Value&& other) noexcept
     {
         m_value = std::move(other.m_value);
-        m_constType = std::move(other.m_constType);
+        m_const_type = std::move(other.m_const_type);
 
         if (valueType() != ValueType::Reference)
             value_moves++;
@@ -50,7 +50,7 @@ namespace Ark::internal
     Value& Value::operator=(const Value& other) noexcept
     {
         m_value = other.m_value;
-        m_constType = other.m_constType;
+        m_const_type = other.m_const_type;
 
         if (valueType() != ValueType::Reference)
             value_copies++;
@@ -60,51 +60,51 @@ namespace Ark::internal
 #endif
 
     Value::Value(int value) noexcept :
-        m_value(static_cast<double>(value)), m_constType(init_const_type(false, ValueType::Number))
+        m_value(static_cast<double>(value)), m_const_type(init_const_type(false, ValueType::Number))
     {}
 
     Value::Value(float value) noexcept :
-        m_value(static_cast<double>(value)), m_constType(init_const_type(false, ValueType::Number))
+        m_value(static_cast<double>(value)), m_const_type(init_const_type(false, ValueType::Number))
     {}
 
     Value::Value(double value) noexcept :
-        m_value(value), m_constType(init_const_type(false, ValueType::Number))
+        m_value(value), m_const_type(init_const_type(false, ValueType::Number))
     {}
 
     Value::Value(const std::string& value) noexcept :
-        m_value(value.c_str()), m_constType(init_const_type(false, ValueType::String))
+        m_value(value.c_str()), m_const_type(init_const_type(false, ValueType::String))
     {}
 
     Value::Value(const String& value) noexcept :
-        m_value(value), m_constType(init_const_type(false, ValueType::String))
+        m_value(value), m_const_type(init_const_type(false, ValueType::String))
     {}
 
     Value::Value(const char* value) noexcept :
-        m_value(value), m_constType(init_const_type(false, ValueType::String))
+        m_value(value), m_const_type(init_const_type(false, ValueType::String))
     {}
 
     Value::Value(PageAddr_t value) noexcept :
-        m_value(value), m_constType(init_const_type(false, ValueType::PageAddr))
+        m_value(value), m_const_type(init_const_type(false, ValueType::PageAddr))
     {}
 
     Value::Value(Value::ProcType value) noexcept :
-        m_value(value), m_constType(init_const_type(false, ValueType::CProc))
+        m_value(value), m_const_type(init_const_type(false, ValueType::CProc))
     {}
 
     Value::Value(std::vector<Value>&& value) noexcept :
-        m_value(value), m_constType(init_const_type(false, ValueType::List))
+        m_value(value), m_const_type(init_const_type(false, ValueType::List))
     {}
 
     Value::Value(Closure&& value) noexcept :
-        m_value(value), m_constType(init_const_type(false, ValueType::Closure))
+        m_value(value), m_const_type(init_const_type(false, ValueType::Closure))
     {}
 
     Value::Value(UserType&& value) noexcept :
-        m_value(value), m_constType(init_const_type(false, ValueType::User))
+        m_value(value), m_const_type(init_const_type(false, ValueType::User))
     {}
 
     Value::Value(Value* ref) noexcept :
-        m_value(ref), m_constType(init_const_type(true, ValueType::Reference))
+        m_value(ref), m_const_type(init_const_type(true, ValueType::Reference))
     {}
 
     // --------------------------
@@ -114,17 +114,17 @@ namespace Ark::internal
         return variant_get<std::vector<Value>>(m_value);
     }
 
-    Closure& Value::closure_ref()
+    Closure& Value::refClosure()
     {
         return variant_get<Closure>(m_value);
     }
 
-    String& Value::string_ref()
+    String& Value::stringRef()
     {
         return variant_get<String>(m_value);
     }
 
-    UserType& Value::usertype_ref()
+    UserType& Value::usertypeRef()
     {
         return variant_get<UserType>(m_value);
     }
@@ -175,7 +175,7 @@ namespace Ark::internal
         case ValueType::List:
         {
             os << "[";
-            for (auto it=V.const_list().begin(), it_end=V.const_list().end(); it != it_end; ++it)
+            for (auto it=V.constList().begin(), it_end=V.constList().end(); it != it_end; ++it)
             {
                 if (it->valueType() == ValueType::String)
                     os << "\"" << (*it) << "\"";

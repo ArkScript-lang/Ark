@@ -1,3 +1,20 @@
+template <typename T>
+Node make_node(T&& value, std::size_t line, std::size_t col, const std::string& file)
+{
+    Node n(std::forward<T>(value));
+    n.setPos(line, col);
+    n.setFilename(file);
+    return n;
+}
+
+inline Node make_node_list(std::size_t line, std::size_t col, const std::string& file)
+{
+    Node n(NodeType::List);
+    n.setPos(line, col);
+    n.setFilename(file);
+    return n;
+}
+
 inline bool operator==(const Node& A, const Node& B)
 {
     if (A.m_type != B.m_type)  // should have the same types
@@ -39,7 +56,7 @@ inline bool operator!(const Node& A)
     switch (A.nodeType())
     {
         case NodeType::List:
-            return A.const_list().empty();
+            return A.constList().empty();
 
         case NodeType::Number:
             return !A.number();
@@ -64,12 +81,6 @@ inline bool operator!(const Node& A)
 
 inline std::string typeToString(const Node& node) noexcept
 {
-    // must have the same order as the enum class NodeType L17
-    static const std::vector<std::string> nodetype_str = {
-        "Symbol", "Capture", "GetField", "Keyword", "String",
-        "Number", "List", "Closure", "Macro", "Spread"
-    };
-
     if (node.nodeType() == NodeType::Symbol)
     {
         if (node.string() == "nil")
@@ -78,5 +89,11 @@ inline std::string typeToString(const Node& node) noexcept
             return "Bool";
     }
 
-    return nodetype_str[static_cast<int>(node.nodeType())];
+    const std::array<std::string, 11> nodetype_str = {
+        "Symbol", "Capture", "GetField", "Keyword", "String",
+        "Number", "List", "Closure", "Macro", "Spread", "Unused"
+    };
+
+    int c = static_cast<int>(node.nodeType());
+    return (c < 11) ? nodetype_str[c] : "???";
 }

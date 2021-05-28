@@ -1,29 +1,36 @@
 #include <Ark/Compiler/MacroProcessor.hpp>
-
-#include <Ark/Log.hpp>
-
-#include <algorithm>
+#include <Ark/Compiler/MacroExecutor.hpp>
+#include <Ark/Compiler/MacroExecutors/SymbolExecutor.hpp>
+#include <Ark/Compiler/MacroExecutors/ListExecutor.hpp>
+#include <Ark/Compiler/MacroExecutors/ConditionalExecutor.hpp>
+#include <Ark/Compiler/Node.hpp>
 
 namespace Ark::internal
 {
     MacroProcessor::MacroProcessor(unsigned debug, uint16_t options) noexcept :
         m_debug(debug), m_options(options)
     {
-        m_trueNode = Node("true");
-        m_falseNode = Node("false");
-        m_nilNode = Node("nil");
-        m_listNode = Node("list");
+        // initialize default Nodes
+        Node::init();
 
-        m_trueNode.setNodeType(NodeType::Symbol);
-        m_falseNode.setNodeType(NodeType::Symbol);
-        m_nilNode.setNodeType(NodeType::Symbol);
-        m_listNode.setNodeType(NodeType::Symbol);
+        // create executors pipeline
+        std::vector<std::shared_ptr<MacroExecutor>> executors = {
+            std::make_shared<SymbolExecutor>(this),
+            std::make_shared<ConditionalExecutor>(this),
+            std::make_shared<ListExecutor>(this)
+        };
+        m_executor_pipeline = std::make_unique<MacroExecutorPipeline>(executors);
+
+        m_predefined_macros = {
+            "symcat",
+            "argcount"
+        };
     }
 
     void MacroProcessor::feed(const Node& ast)
     {
         if (m_debug >= 2)
-            Ark::logger.info("Processing macros...");
+            std::cout << "Processing macros...\n";
 
         // to be able to modify it
         m_ast = ast;
@@ -31,8 +38,8 @@ namespace Ark::internal
 
         if (m_debug >= 3)
         {
-            Ark::logger.info("(MacroProcessor) AST after processing macros");
-            std::cout << m_ast << std::endl;
+            std::cout << "(MacroProcessor) AST after processing macros\n";
+            std::cout << m_ast << '\n';
         }
     }
 
@@ -44,31 +51,36 @@ namespace Ark::internal
     void MacroProcessor::registerMacro(Node& node)
     {
         // a macro needs at least 2 nodes, name + value is the minimal form
-        if (node.const_list().size() < 2)
+        if (node.constList().size() < 2)
             throwMacroProcessingError("invalid macro, missing value", node);
 
         Node& first_node = node.list()[0];
         Node& second_node = node.list()[1];
 
         // !{name value}
-        if (node.const_list().size() == 2)
+        if (node.constList().size() == 2)
         {
             if (first_node.nodeType() == NodeType::Symbol)
             {
-                m_macros.back()[first_node.string()] = node;
+                if (first_node.string() != "undef")
+                    m_macros.back()[first_node.string()] = node;
+                else if (second_node.nodeType() == NodeType::Symbol)  // undefine a macro
+                    deleteNearestMacro(second_node.string());
+                else // used undef on a non-symbol
+                    throwMacroProcessingError("can not undefine a macro without it's name", second_node);
                 return;
             }
             throwMacroProcessingError("can not define a macro without a symbol", first_node);
         }
         // !{name (args) body}
-        else if (node.const_list().size() == 3 && first_node.nodeType() == NodeType::Symbol)
+        else if (node.constList().size() == 3 && first_node.nodeType() == NodeType::Symbol)
         {
             if (second_node.nodeType() != NodeType::List)
                 throwMacroProcessingError("invalid macro argument's list", second_node);
             else
             {
                 bool had_spread = false;
-                for (const Node& n : second_node.const_list())
+                for (const Node& n : second_node.constList())
                 {
                     if (n.nodeType() != NodeType::Symbol && n.nodeType() != NodeType::Spread)
                         throwMacroProcessingError("invalid macro argument's list, expected symbols", n);
@@ -86,11 +98,11 @@ namespace Ark::internal
             }
         }
         // !{if cond then else}
-        else if (std::size_t sz = node.const_list().size(); sz == 3 || sz == 4)
+        else if (std::size_t sz = node.constList().size(); sz == 3 || sz == 4)
         {
             if (first_node.nodeType() == NodeType::Keyword && first_node.keyword() == Keyword::If)
             {
-                execute(node);
+                applyMacro(node);
                 return;
             }
             else if (first_node.nodeType() == NodeType::Keyword)
@@ -100,12 +112,32 @@ namespace Ark::internal
         throwMacroProcessingError("unrecognized macro form", node);
     }
 
+    void MacroProcessor::registerFuncDef(Node& node)
+    {
+        if (node.nodeType() == NodeType::List && node.constList().size() > 0 && node.constList()[0].nodeType() == NodeType::Keyword)
+        {
+            Keyword kw = node.constList()[0].keyword();
+            if (kw != Keyword::Let && kw != Keyword::Mut && kw != Keyword::Set)
+                return;
+
+            const Node& inner = node.constList()[2];
+            if (inner.nodeType() != NodeType::List)
+                return;
+
+            if (inner.constList()[0].nodeType() == NodeType::Keyword && inner.constList()[0].keyword() == Keyword::Fun)
+                m_defined_functions[node.constList()[1].string()] = inner.constList()[1];
+        }
+    }
+
     void MacroProcessor::process(Node& node, unsigned depth)
     {
         bool has_created = false;
 
         if (node.nodeType() == NodeType::List)
         {
+            // register known functions
+            registerFuncDef(node);
+
             // recursive call
             std::size_t i = 0;
             while (i < node.list().size())
@@ -121,16 +153,42 @@ namespace Ark::internal
                     }
 
                     registerMacro(node.list()[i]);
-                    if (node.list()[i].nodeType() == NodeType::Macro)
-                        node.list().erase(node.const_list().begin() + i);
+                    if (node.list()[i].nodeType() == NodeType::Macro || node.list()[i].nodeType() == NodeType::Unused)
+                        node.list().erase(node.constList().begin() + i);
                 }
-                else
+                else  // running on non-macros
                 {
-                    // execute only if we have registered macros
-                    if ((m_macros.size() == 1 && m_macros[0].size() > 0) || m_macros.size() > 1)
-                        execute(node.list()[i]);
+                    bool added_begin = false;
 
-                    process(node.list()[i], depth + 1);
+                    // apply macro only if we have registered macros
+                    if ((m_macros.size() == 1 && m_macros[0].size() > 0) || m_macros.size() > 1)
+                    {
+                        bool had = hadBegin(node.list()[i]);
+                        bool applied = applyMacro(node.list()[i]);
+
+                        // remove unused blocks
+                        if (node.list()[i].nodeType() == NodeType::Unused)
+                            node.list().erase(node.constList().begin() + i);
+                        // if we got `macro`, it was replaced but not entirely applied.
+                        // but `(macro)` would get entirely applied because it's in a list,
+                        // thus we need to evaluate the node if we have list[i].list[0] as a macro
+                        if (applied)
+                            recurApply(node.list()[i]);
+
+                        if (hadBegin(node.list()[i]) && !had)
+                            added_begin = true;
+                    }
+
+                    if (node.nodeType() == NodeType::List)
+                    {
+                        process(node.list()[i], depth + 1);
+                        // needed if we created a function node from a macro
+                        registerFuncDef(node.list()[i]);
+                    }
+
+                    // remove begins in macros
+                    if (added_begin)
+                        removeBegin(node, i);
 
                     // go forward only if it isn't a macro, because we delete macros
                     // while running on the AST
@@ -144,145 +202,35 @@ namespace Ark::internal
         }
     }
 
-    void MacroProcessor::execute(Node& node)
+    bool MacroProcessor::applyMacro(Node& node)
     {
-        static std::function<void(const std::unordered_map<std::string, Node>&, Node&, Node*)> apply_to =
-        [this](const std::unordered_map<std::string, Node>& map, Node& target, Node* parent) {
-            if (target.nodeType() == NodeType::Symbol)
-            {
-                if (auto p = map.find(target.string()); p != map.end())
-                    target = p->second;
-            }
-            else if (target.nodeType() == NodeType::List || target.nodeType() == NodeType::Macro)
-            {
-                for (std::size_t i = 0, end = target.list().size(); i < end; ++i)
-                    apply_to(map, target.list()[i], &target);
-            }
-            else if (target.nodeType() == NodeType::Spread)
-            {
-                Node subnode = target;
-                subnode.setNodeType(NodeType::Symbol);
-                apply_to(map, subnode, parent);
-                parent->list().pop_back();  // remove the spread
+        return m_executor_pipeline->applyMacro(node);
+    }
 
-                if (subnode.nodeType() != NodeType::List)
-                    throwMacroProcessingError("Got a non-list while trying to apply the spread operator", subnode);
-
-                for (std::size_t i = 1, end = subnode.list().size(); i < end; ++i)
-                    parent->push_back(subnode.list()[i]);
-            }
-        };
-
-        if (node.nodeType() == NodeType::Symbol)
+    void MacroProcessor::unify(const std::unordered_map<std::string, Node>& map, Node& target, Node* parent, std::size_t index)
+    {
+        if (target.nodeType() == NodeType::Symbol)
         {
-            // error ?
-            Node* macro = find_nearest_macro(node.string());
-
-            if (macro != nullptr)
-            {
-                if (m_debug >= 3)
-                    Ark::logger.info("Found macro for", node.string());
-
-                // !{name value}
-                if (macro->const_list().size() == 2)
-                    node = macro->list()[1];
-            }
-
-            return;
+            if (auto p = map.find(target.string()); p != map.end())
+                target = p->second;
         }
-        else if (node.nodeType() == NodeType::Macro && node.list()[0].nodeType() == NodeType::Keyword)
+        else if (target.nodeType() == NodeType::List || target.nodeType() == NodeType::Macro)
         {
-            Node& first = node.list()[0];
-
-            if (first.keyword() == Keyword::If)
-            {
-                Node cond = node.list()[1];
-                Node temp = evaluate(cond, /* is_not_body */ true);
-                Node if_true = node.list()[2];
-                Node if_false = node.const_list().size() > 2 ? node.list()[3] : m_nilNode;
-
-                // evaluate cond
-                if (isTruthy(temp))
-                    node = if_true;
-                else if (node.const_list().size() > 2)
-                    node = if_false;
-                else
-                {
-                    // remove node because nothing matched
-                    node.list().clear();
-                    node.setNodeType(NodeType::List);
-                }
-
-                if (node.nodeType() == NodeType::Macro)
-                    registerMacro(node);
-            }
+            for (std::size_t i = 0, end = target.list().size(); i < end; ++i)
+                unify(map, target.list()[i], &target, i);
         }
-        else if (node.nodeType() == NodeType::List && node.const_list().size() > 0
-                && node.list()[0].nodeType() == NodeType::Symbol)
+        else if (target.nodeType() == NodeType::Spread)
         {
-            Node& first = node.list()[0];
-            Node* macro = find_nearest_macro(first.string());
+            Node subnode = target;
+            subnode.setNodeType(NodeType::Symbol);
+            unify(map, subnode, parent);
 
-            if (macro != nullptr)
-            {
-                if (m_debug >= 3)
-                    Ark::logger.info("Found macro for", first.string());
+            if (subnode.nodeType() != NodeType::List)
+                throwMacroProcessingError("Got a non-list while trying to apply the spread operator", subnode);
 
-                if (macro->const_list().size() == 2)
-                    execute(first);
-                // !{name (args) body}
-                else if (macro->const_list().size() == 3)
-                {
-                    Node temp_body = macro->const_list()[2];
-                    Node args = macro->const_list()[1];
-
-                    // bind node->list() to temp_body using macro->const_list()[1]
-                    std::unordered_map<std::string, Node> args_applied;
-                    std::size_t j = 0;
-                    for (std::size_t i = 1, end = node.const_list().size(); i < end; ++i)
-                    {
-                        const std::string& arg_name = args.list()[j].string();
-                        if (args.list()[j].nodeType() == NodeType::Symbol)
-                        {
-                            args_applied[arg_name] = node.const_list()[i];
-                            ++j;
-                        }
-                        else if (args.list()[j].nodeType() == NodeType::Spread)
-                        {
-                            if (args_applied.find(arg_name) == args_applied.end())
-                            {
-                                args_applied[arg_name] = Node(NodeType::List);
-                                args_applied[arg_name].push_back(m_listNode);
-                            }
-                            // do not move j because we checked before that the spread is always the last one
-                            args_applied[arg_name].push_back(node.const_list()[i]);
-                        }
-                    }
-
-                    // check argument count
-                    if (args_applied.size() + 1 == args.list().size() && args.list().back().nodeType() == NodeType::Spread)
-                    {
-                        // just a spread we didn't assign
-                        args_applied[args.list().back().string()] = Node(NodeType::List);
-                        args_applied[args.list().back().string()].push_back(m_listNode);
-                    }
-                    else if (args_applied.size() != args.list().size())
-                    {
-                        std::size_t args_needed = args.list().size();
-                        std::string macro_name = macro->const_list()[0].string();
-
-                        if (args.list().back().nodeType() != NodeType::Spread)
-                            throwMacroProcessingError("Macro `" + macro_name + "' got " + std::to_string(args_applied.size()) + " argument(s) but needed " + std::to_string(args_needed), *macro);
-                        else
-                            throwMacroProcessingError("Macro `" + macro_name + "' got " + std::to_string(args_applied.size()) + " argument(s) but needed at least " + std::to_string(args_needed - 1), *macro);
-                    }
-
-                    if (!args_applied.empty())
-                        apply_to(args_applied, temp_body, nullptr);
-                    node = evaluate(temp_body);
-                    execute(node);
-                }
-            }
+            for (std::size_t i = 1, end = subnode.list().size(); i < end; ++i)
+                parent->list().insert(parent->list().begin() + index + i, subnode.list()[i]);
+            parent->list().erase(parent->list().begin() + index);  // remove the spread
         }
     }
 
@@ -290,31 +238,42 @@ namespace Ark::internal
     {
         if (node.nodeType() == NodeType::Symbol)
         {
-            Node* macro = find_nearest_macro(node.string());
+            Node* macro = findNearestMacro(node.string());
             if (macro != nullptr && macro->list().size() == 2)
                 return macro->list()[1];
             else
                 return node;
         }
-        else if (node.nodeType() == NodeType::List && node.const_list().size() > 1 && node.list()[0].nodeType() == NodeType::Symbol)
+        else if (node.nodeType() == NodeType::List && node.constList().size() > 1 && node.list()[0].nodeType() == NodeType::Symbol)
         {
-            #define GEN_COMPARATOR(str_name, cond)                            \
+            #define GEN_NOT_BODY(str_name, error_handler, ret)                \
                 else if (name == str_name && is_not_body) {                   \
-                    if (node.list().size() != 3)                              \
-                        throwMacroProcessingError(                            \
-                            "Interpreting a `" str_name "' condition with " + \
-                            std::to_string(node.list().size() - 1) +          \
-                            " arguments, instead of 2.", node                 \
-                        );                                                    \
+                    if (node.list().size() != 3) error_handler;               \
                     Node one = evaluate(node.list()[1], is_not_body),         \
                          two = evaluate(node.list()[2], is_not_body);         \
-                    return (cond) ? m_trueNode : m_falseNode;                 \
+                    return ret;                                               \
                 }
 
+            #define GEN_COMPARATOR(str_name, cond) GEN_NOT_BODY(                                    \
+                str_name,                                                                           \
+                throwMacroProcessingError("Interpreting a `" str_name "' condition with " +         \
+                    std::to_string(node.list().size() - 1) + " arguments, instead of 2.", node),    \
+                (cond) ? Node::TrueNode : Node::FalseNode                                           \
+            )
+
+            #define GEN_OP(str_name, op) GEN_NOT_BODY(                                              \
+                str_name,                                                                           \
+                throwMacroProcessingError("Interpreting a `" str_name "' operation with " +         \
+                    std::to_string(node.list().size() - 1) + " arguments, instead of 2.", node),    \
+                (one.nodeType() == two.nodeType() && two.nodeType() == NodeType::Number) ? Node(one.number() op two.number()) : node \
+            )
+
             const std::string& name = node.list()[0].string();
-            if (Node* macro = find_nearest_macro(name); macro != nullptr)
+            if (Node* macro = findNearestMacro(name); macro != nullptr)
             {
-                execute(node.list()[0]);
+                applyMacro(node.list()[0]);
+                if (node.list()[0].nodeType() == NodeType::Unused)
+                    node.list().erase(node.constList().begin());
             }
             GEN_COMPARATOR("=",    one == two)
             GEN_COMPARATOR("!=", !(one == two))
@@ -322,12 +281,16 @@ namespace Ark::internal
             GEN_COMPARATOR(">",  !(one <  two) && !(one == two))
             GEN_COMPARATOR("<=",   one <  two ||    one == two)
             GEN_COMPARATOR(">=", !(one <  two))
+            GEN_OP("+", +)
+            GEN_OP("-", -)
+            GEN_OP("*", *)
+            GEN_OP("/", /)
             else if (name == "not" && is_not_body)
             {
                 if (node.list().size() != 2)
                     throwMacroProcessingError("Interpreting a `not' condition with " + std::to_string(node.list().size() - 1) + " arguments, instead of 1.", node);
 
-                return (!isTruthy(evaluate(node.list()[1], is_not_body))) ? m_trueNode : m_falseNode;
+                return (!isTruthy(evaluate(node.list()[1], is_not_body))) ? Node::TrueNode : Node::FalseNode;
             }
             else if (name == "and" && is_not_body)
             {
@@ -337,9 +300,9 @@ namespace Ark::internal
                 for (std::size_t i = 1, end = node.list().size(); i < end; ++i)
                 {
                     if (!isTruthy(evaluate(node.list()[i], is_not_body)))
-                        return m_falseNode;
+                        return Node::FalseNode;
                 }
-                return m_trueNode;
+                return Node::TrueNode;
             }
             else if (name == "or" && is_not_body)
             {
@@ -349,9 +312,9 @@ namespace Ark::internal
                 for (std::size_t i = 1, end = node.list().size(); i < end; ++i)
                 {
                     if (isTruthy(evaluate(node.list()[i], is_not_body)))
-                        return m_trueNode;
+                        return Node::TrueNode;
                 }
-                return m_falseNode;
+                return Node::FalseNode;
             }
             else if (name == "len")
             {
@@ -361,10 +324,10 @@ namespace Ark::internal
                     throwMacroProcessingError("When expanding `len' inside a macro, got a " + typeToString(node.list()[1]) + ", needed a List", node);
 
                 Node& sublist = node.list()[1];
-                if (sublist.list().size() > 0 && sublist.list()[0] == m_listNode)
-                    node = Node(static_cast<int>(sublist.list().size()) - 1);
+                if (sublist.list().size() > 0 && sublist.list()[0] == Node::ListNode)
+                    node = Node(static_cast<long>(sublist.list().size()) - 1);
                 else
-                    node = Node(static_cast<int>(sublist.list().size()));
+                    node = Node(static_cast<long>(sublist.list().size()));
             }
             else if (name == "@")
             {
@@ -382,7 +345,7 @@ namespace Ark::internal
                 long num_idx = static_cast<long>(idx.number());
                 long sz = static_cast<long>(sublist.list().size());
                 long offset = 0;
-                if (sz > 0 && sublist.list()[0] == m_listNode)
+                if (sz > 0 && sublist.list()[0] == Node::ListNode)
                 {
                     num_idx = (num_idx >= 0) ? num_idx + 1 : num_idx;
                     offset = -1;
@@ -403,17 +366,20 @@ namespace Ark::internal
                     throwMacroProcessingError("When expanding `head' inside a macro, got a " + typeToString(node.list()[1]) + ", needed a List", node);
 
                 Node& sublist = node.list()[1];
-                if (sublist.list().size() > 0 && sublist.list()[0] == m_listNode)
+                if (sublist.constList().size() > 0 && sublist.constList()[0] == Node::ListNode)
                 {
-                    if (sublist.list().size() > 1)
-                        node = sublist.list()[1];
+                    if (sublist.constList().size() > 1)
+                    {
+                        const Node sublistCopy = sublist.constList()[1]; 
+                        node = sublistCopy;
+                    }
                     else
-                        node = m_nilNode;
+                        node = Node::NilNode;
                 }
                 else if (sublist.list().size() > 0)
-                    node = sublist.list()[0];
+                    node = sublist.constList()[0];
                 else
-                    node = m_nilNode;
+                    node = Node::NilNode;
             }
             else if (name == "tail")
             {
@@ -423,32 +389,73 @@ namespace Ark::internal
                     throwMacroProcessingError("When expanding `tail' inside a macro, got a " + typeToString(node.list()[1]) + ", needed a List", node);
 
                 Node sublist = node.list()[1];
-                if (sublist.list().size() > 0 && sublist.list()[0] == m_listNode)
+                if (sublist.list().size() > 0 && sublist.list()[0] == Node::ListNode)
                 {
                     if (sublist.list().size() > 1)
                     {
-                        sublist.list().erase(sublist.const_list().begin() + 1);
+                        sublist.list().erase(sublist.constList().begin() + 1);
                         node = sublist;
                     }
                     else
                     {
                         node = Node(NodeType::List);
-                        node.push_back(m_listNode);
+                        node.push_back(Node::ListNode);
                     }
                 }
                 else if (sublist.list().size() > 0)
                 {
-                    sublist.list().erase(sublist.const_list().begin());
+                    sublist.list().erase(sublist.constList().begin());
                     node = sublist;
                 }
                 else
                 {
                     node = Node(NodeType::List);
-                    node.push_back(m_listNode);
+                    node.push_back(Node::ListNode);
                 }
             }
+            else if (name == "symcat")
+            {
+                if (node.list().size() <= 2)
+                    throwMacroProcessingError("When expanding `symcat', expected at least 2 arguments, got " + std::to_string(node.list().size() - 1) + " arguments", node);
+                if (node.list()[1].nodeType() != NodeType::Symbol)
+                    throwMacroProcessingError("When expanding `symcat', expected the first argument to be a Symbol, got a " + typeToString(node.list()[1]), node);
+
+                std::string sym = node.list()[1].string();
+
+                for (std::size_t i = 2, end = node.list().size(); i < end; ++i)
+                {
+                    Node ev = evaluate(node.list()[i], /* is_not_body */ true);
+
+                    switch (ev.nodeType())
+                    {
+                        case NodeType::Number:
+                            sym += std::to_string(static_cast<long int>(ev.number()));  // we don't want '.' in identifiers
+                            break;
+
+                        case NodeType::String:
+                        case NodeType::Symbol:
+                            sym += ev.string();
+                            break;
+
+                        default:
+                            throwMacroProcessingError("When expanding `symcat', expected either a Number, String or Symbol, got a " + typeToString(ev), ev);
+                    }
+                }
+
+                node.setNodeType(NodeType::Symbol);
+                node.setString(sym);
+            }
+            else if (name == "argcount")
+            {
+                Node sym = node.constList()[1];
+                if (auto it = m_defined_functions.find(sym.string()); it != m_defined_functions.end())
+                    node = Node(static_cast<long>(it->second.constList().size()));
+                else
+                    throwMacroProcessingError("When expanding `argcount', expected a known function name, got unbound variable " + sym.string(), node);
+            }
         }
-        else if (node.nodeType() == NodeType::List && node.const_list().size() > 1)
+
+        if (node.nodeType() == NodeType::List && node.constList().size() >= 1)
         {
             for (std::size_t i = 0; i < node.list().size(); ++i)
                 node.list()[i] = evaluate(node.list()[i], is_not_body);
