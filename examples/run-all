@@ -20,6 +20,11 @@ else
     exit 1
 fi
 
+echo -e "Found ark executable in ${Cyan}${ark}${Reset}"
+echo
+echo -e "Press ${Red}CTRL+C${Reset} to stop an example"
+echo
+
 for filename in *.ark; do
     echo -e "${Purple}Running example${Reset} ${Green}${filename}${Reset}"
     $ark filename
