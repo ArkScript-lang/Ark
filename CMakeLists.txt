@@ -12,7 +12,7 @@ if (CMAKE_COMPILER_IS_GNUCXX)
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -pg -g -no-pie")
     set(CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG -O3 -s")
 elseif (MSVC)
-    set(CMAKE_CXX_FLAGS_DEBUG "/DWIN32 /D_WINDOWS /W3 /GR /EHa /MDd" CACHE STRING "Debug compilation options" FORCE)
+    set(CMAKE_CXX_FLAGS_DEBUG "/Z7 /DWIN32 /D_WINDOWS /W3 /GR /EHa /MDd" CACHE STRING "Debug compilation options" FORCE)
     set(CMAKE_CXX_FLAGS_RELEASE "/DNDEBUG /DWIN32 /D_WINDOWS /W3 /GR /EHa /Ox /Ob2 /Oi /Ot /Oy /MD" CACHE STRING "Release compilation options" FORCE)
     add_compile_options(/wd4267)  # disable warning about data loss (size_t -> int)
     add_compile_options(/wd4244)  # disable warning about data loss (size_t -> char)
@@ -82,8 +82,6 @@ file(GLOB_RECURSE SOURCE_FILES
     ${ark_SOURCE_DIR}/src/Compiler/*.cpp
     ${ark_SOURCE_DIR}/src/Parser/*.cpp
     ${ark_SOURCE_DIR}/src/VM/*.cpp
-
-    ${ark_SOURCE_DIR}/thirdparties/*.cpp
 )
 list(APPEND SOURCE_FILES
     ${ark_SOURCE_DIR}/src/Ark.cpp

@@ -1,0 +1,49 @@
+name: "CMake - MSVC"
+
+on:
+  push:
+    branches: [dev]
+  pull_request:
+    branches: [dev]
+
+env:
+  BUILD_TYPE: Release
+  CC: cl
+  CXX: cl
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    strategy:
+      matrix:
+        config:
+        - {
+            environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
+          }
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+
+    - name: Configure CMake
+      shell: bash
+      run: cmake -Bbuild -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=On
+
+    - name: Build
+      shell: bash
+      run: |
+        cmake --build build --config $BUILD_TYPE --target ark
+        cmake --build build --config $BUILD_TYPE --target console
+
+    - name: Test
+      shell: bash
+      run: |
+        if [ -f build/Release/ark.exe ]; then
+            ./build/Release/ark.exe tests/unittests.ark --lib lib/ || exit 1
+        elif [ -f build/ark ]; then
+          ./build/ark tests/unittests.ark --lib lib/ || exit 1
+        else
+          echo "No ark executable found" && exit 1
+        fi

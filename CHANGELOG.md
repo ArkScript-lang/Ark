@@ -13,6 +13,8 @@
     - values macros: `!{name value}`
     - functions macros: `!{name (a b c ...args) body}`
 - `sys:platform`, containing the current platform name
+- `str:join` added in the standard library
+- `str:split` can now take longer separators
 
 ### Changed
 - updating doxyfile and some docstrings
@@ -26,6 +28,7 @@
 - updating the parser to support usually invalid constructions when they are in macros, to allow things like `!{defun (name args body) (let name (fun args body))}`
 - updated the lexer to add UTF8 support and allow unconventional identifiers as long as they aren't keyword nor operators, so things like `->` now works
 - fixing the code optimizer to avoid removing unused variables which are defined on function calls
+- CI was split into multiple files to ease maintenance
 
 ### Removed
 - `~UserType`, since we are doing manual memory management now
