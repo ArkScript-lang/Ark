@@ -48,36 +48,6 @@
     (set tests (assert-eq (@ c 2) (@ a 2) "set list" tests))
     (set tests (assert-eq a [1 2 3] "unmodified list" tests))
 
-    (list:forEach a (fun (e) {
-        # just assert we have something, basically it's just a while + @
-        (set tests (assert-neq e nil "forEach" tests))
-    }))
-    (set tests (assert-eq (list:product b) (* 4 5 6) "product" tests))
-    (set tests (assert-eq b [4 5 6] "unmodified list" tests))
-    (set tests (assert-eq (list:product []) 1 "product" tests))
-    (set tests (assert-eq (list:sum b) (+ 4 5 6) "sum" tests))
-    (set tests (assert-eq b [4 5 6] "unmodified list" tests))
-    (set tests (assert-eq (list:sum []) 0 "sum" tests))
-    (set tests (assert-eq (list:drop a 2) [3] "drop" tests))
-    (set tests (assert-eq a [1 2 3] "unmodified list" tests))
-    (set tests (assert-eq (list:filter a math:even) [2] "filter" tests))
-    (set tests (assert-eq (list:filter a (fun (e) (> e 100))) [] "filter" tests))
-    (set tests (assert-eq a [1 2 3] "unmodified list" tests))
-    (set tests (assert-eq (list:filter [] (fun (e) (> e 100))) [] "filter" tests))
-    (set tests (assert-eq (list:map b (fun (e) (* e e))) [16 25 36] "map" tests))
-    (set tests (assert-eq b [4 5 6] "unmodified list" tests))
-    (set tests (assert-eq (list:map [] (fun (e) (* e e))) [] "map" tests))
-    (set tests (assert-eq (list:reduce a (fun (x y) (- x y))) -4 "reduce" tests))
-    (set tests (assert-eq (list:take a 1) [1] "take" tests))
-    (set tests (assert-eq (list:take a 100) a "take" tests))
-    (set tests (assert-eq a [1 2 3] "unmodified list" tests))
-
-    (let zipped [[1 5] [2 6] [3 7] [4 8]])
-    (set tests (assert-eq (list:unzip zipped) [[1 2 3 4] [5 6 7 8]] "unzip" tests))
-    (set tests (assert-eq (list:unzip []) [[] []] "unzip" tests))
-    (set tests (assert-eq (list:zip a b) [[1 4] [2 5] [3 6]] "zip" tests))
-    (set tests (assert-eq (list:zip [] []) [] "zip" tests))
-
     (recap "List tests passed" tests (- (time) start-time))
 
     tests
