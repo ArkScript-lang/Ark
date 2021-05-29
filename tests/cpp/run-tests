@@ -20,7 +20,7 @@ echo -e "ArkScript integration tests"
 echo
 
 for f in *-test ; do
-    echo -ne "TEST ${Cyan}${f}${Reset} "
+    echo -ne "  TEST ${Cyan}${f}${Reset} "
     prefix_f=$(echo $f | cut -c -2)
     expected_out=$(cat -e "../expected/${prefix_f}.txt" | tr -d '^M$')
 
@@ -53,9 +53,9 @@ for f in *-test ; do
     fi
 done
 
-echo
-echo -e "${Cyan}${passed}${Reset} passed, ${Purple}${failed}${Reset} failed"
-echo "------------------------------"
+echo "  ------------------------------"
+echo -e "  ${Cyan}${passed}${Reset} passed, ${Purple}${failed}${Reset} failed"
+
 seconds=$((total_time / 1000000000))
 decimals=$((total_time - (seconds * 1000000000) ))
 runtime="${seconds}.${decimals}sec"
