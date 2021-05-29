@@ -12,8 +12,12 @@ White='\033[0;37m'
 
 passed=0
 failed=0
+total_time=0
 
 cd out/
+
+echo -e "ArkScript integration tests"
+echo
 
 for f in *-test ; do
     echo -ne "TEST ${Cyan}${f}${Reset} "
@@ -27,6 +31,7 @@ for f in *-test ; do
 
     end=$(date +%s%N | tr -d 'N')
     elapsed=$((end - start))
+    total_time=$((total_time + elapsed))
     seconds=$((elapsed / 1000000000))
     decimals=$((elapsed - (seconds * 1000000000) ))
     runtime="${seconds}.${decimals}sec"
@@ -50,6 +55,11 @@ done
 
 echo
 echo -e "${Cyan}${passed}${Reset} passed, ${Purple}${failed}${Reset} failed"
+echo "------------------------------"
+seconds=$((total_time / 1000000000))
+decimals=$((total_time - (seconds * 1000000000) ))
+runtime="${seconds}.${decimals}sec"
+echo -e "Completed in ${Purple}${runtime}${Reset}"
 
 if [[ $failed != 0 ]]; then
     exit 1
