@@ -1,6 +1,11 @@
 (let start_time (time))
 
-(print "Starting unit tests")
+(print "
+ArkScript language
+==================
+    Starting unit tests...
+
+")
 
 # Each test file is consisting of a function executing a list of asserts
 # to see if everything is all right.
@@ -24,11 +29,3 @@
 ))
 
 (print "Completed in " (* 1000 (- (time) start_time)) "ms")
-
-(print "\nStandard library tests")
-(print "======================\n")
-
-# run std lib tests as well
-((fun () {
-    (import "../lib/std/tests/all.ark")
-}))
