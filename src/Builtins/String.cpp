@@ -86,4 +86,17 @@ namespace Ark::internal::Builtins::String
         return Value(ord);
     }
 
+    Value chr(std::vector<Value>& n, Ark::VM* vm)
+    {
+        if (n.size() != 1)
+            throw std::runtime_error("str:chr needs at least 1 argument: codepoint");
+        if (n[0].valueType() != ValueType::Number)
+            throw Ark::TypeError("str:chr: codepoint must be a Number");
+
+        char sutf8[5];
+        utf8chr(static_cast<int>(n[0].number()), sutf8);
+
+        return Value(std::string(sutf8));
+    }
+
 }

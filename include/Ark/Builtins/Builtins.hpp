@@ -82,6 +82,7 @@ namespace Ark::internal::Builtins
         Value findSubStr(std::vector<Value>& n, Ark::VM* vm);   // str:find, 2 arguments
         Value removeAtStr(std::vector<Value>& n, Ark::VM* vm);  // str:removeAt, 2 arguments
         Value ord(std::vector<Value>& n, Ark::VM* vm);          // str:ord, 1 arguments
+        Value chr(std::vector<Value>& n, Ark::VM* vm);          // str:chr, 1 arguments
     }
 
     namespace Mathematics

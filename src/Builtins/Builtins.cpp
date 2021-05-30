@@ -61,6 +61,7 @@ namespace Ark::internal::Builtins
         { "str:find", Value(String::findSubStr) },
         { "str:removeAt", Value(String::removeAtStr) },
         { "str:ord", Value(String::ord) },
+        { "str:chr", Value(String::chr) },
 
         // Mathematics
         { "math:exp", Value(Mathematics::exponential) },
