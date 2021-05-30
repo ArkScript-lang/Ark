@@ -5,12 +5,15 @@
 #########################################
 
 if [ -f build/Release/ark.exe ]; then
-    ./build/Release/ark.exe tests/arkscript/unittests.ark --lib lib/ || exit 1
+    ark=./build/Release/ark.exe
 elif [ -f build/ark ]; then
-    ./build/ark tests/arkscript/unittests.ark --lib lib/ || exit 1
+    ark=./build/ark
 else
     echo "No ark executable found" && exit 1
 fi
+
+$ark tests/arkscript/unittests.ark --lib lib/ || exit 1
+$ark lib/std/tests/all.ark         --lib lib/ || exit 1
 
 #########################################
 #          Integration tests
