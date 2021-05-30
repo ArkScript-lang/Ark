@@ -1,6 +1,10 @@
 (let start_time (time))
 
-(print "Starting unit tests")
+(print "
+ArkScript language
+==================
+    Starting unit tests...
+")
 
 # Each test file is consisting of a function executing a list of asserts
 # to see if everything is all right.
@@ -10,13 +14,8 @@
 (import "vm-tests.ark")
 (import "builtins-tests.ark")
 (import "macro-tests.ark")
-(import "exceptions-tests.ark")
-(import "functional-tests.ark")
 (import "list-tests.ark")
-(import "math-tests.ark")
-(import "range-tests.ark")
 (import "string-tests.ark")
-(import "switch-tests.ark")
 
 (print "  ------------------------------")
 
@@ -24,13 +23,8 @@
     passed-vm
     passed-builtins
     passed-macro
-    passed-exceptions
-    passed-functional
     passed-list
-    passed-math
-    passed-range
     passed-string
-    passed-switch
 ))
 
 (print "Completed in " (* 1000 (- (time) start_time)) "ms")
