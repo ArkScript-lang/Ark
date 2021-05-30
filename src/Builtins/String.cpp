@@ -59,7 +59,7 @@ namespace Ark::internal::Builtins::String
 
     Value removeAtStr(std::vector<Value>& n, Ark::VM* vm)
     {
-        if (n.size () != 2)
+        if (n.size() != 2)
             throw std::runtime_error(STR_RM_ARITY);
         if (n[0].valueType() != ValueType::String)
             throw Ark::TypeError(STR_RM_TE0);
@@ -73,4 +73,17 @@ namespace Ark::internal::Builtins::String
         n[0].stringRef().erase(id, id + 1);
         return n[0];
     }
+
+    Value ord(std::vector<Value>& n, Ark::VM* vm)
+    {
+        if (n.size() != 1)
+            throw std::runtime_error("str:ord needs at least 1 argument: string");
+        if (n[0].valueType() != ValueType::String)
+            throw Ark::TypeError("str:ord: string must be a String");
+
+        int ord = utf8codepoint(n[0].stringRef().c_str());
+
+        return Value(ord);
+    }
+
 }

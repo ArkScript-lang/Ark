@@ -141,10 +141,10 @@ namespace Ark::internal
         inline bool isKeyword(const std::string& value) noexcept;
         /**
          * @brief Check if the value can be an identifier in ArkScript
-         * 
-         * @param value 
-         * @return true 
-         * @return false 
+         *
+         * @param value
+         * @return true
+         * @return false
          */
         inline bool isIdentifier(const std::string& value) noexcept;
 

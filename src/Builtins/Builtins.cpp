@@ -60,6 +60,7 @@ namespace Ark::internal::Builtins
         { "str:format", Value(String::format) },
         { "str:find", Value(String::findSubStr) },
         { "str:removeAt", Value(String::removeAtStr) },
+        { "str:ord", Value(String::ord) },
 
         // Mathematics
         { "math:exp", Value(Mathematics::exponential) },

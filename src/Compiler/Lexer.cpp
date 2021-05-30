@@ -161,14 +161,15 @@ namespace Ark::internal
                         {
                             switch (ctrl_char[0])
                             {
-                                /// @todo
-                                case 'x': break;
+                                case 'x': break; /// @todo
 
                                 case 'u':
                                 {
-                                    char *utf8_str = utf8decode(ctrl_char.c_str() + 1);
+                                    char utf8_str[5];
+                                    utf8decode(ctrl_char.c_str() + 1, utf8_str);
+                                    if (*utf8_str == '\0')
+                                        throwTokenizingError("invalid escape sequence \\" + ctrl_char + " in string, expected hexadecimal number that in utf8 range, got a \"" + ctrl_char + "\"", buffer, line, character + 1, code);
                                     buffer += utf8_str;
-                                    free(utf8_str);
                                     break;
                                 }
 
@@ -176,9 +177,11 @@ namespace Ark::internal
                                 {
                                     short begin = 1;
                                     for(; ctrl_char[begin] == '0'; ++ begin);
-                                    char *utf8_str = utf8decode(ctrl_char.c_str() + begin);
+                                    char utf8_str[5];
+                                    utf8decode(ctrl_char.c_str() + begin, utf8_str);
+                                    if (*utf8_str == '\0')
+                                        throwTokenizingError("invalid escape sequence \\" + ctrl_char + " in string, expected hexadecimal number that in utf8 range, got a \"" + ctrl_char + "\"", buffer, line, character + 1, code);
                                     buffer += utf8_str;
-                                    free(utf8_str);
                                     break;
                                 }
 
@@ -191,14 +194,14 @@ namespace Ark::internal
                         ctrl_char.clear();
                         in_ctrl_char = false;
 
-                        if (current == '"')  // end of string
+                        if (current == '"') // end of string
                         {
                             buffer += current;
                             in_string = false;
                             m_tokens.emplace_back(TokenType::String, buffer, saved_line, saved_char);
                             buffer.clear();
                         }
-                        else if (current == '\\')  // new escape code
+                        else if (current == '\\') // new escape code
                             in_ctrl_char = true;
                         else
                             buffer += current;
