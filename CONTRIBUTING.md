@@ -20,6 +20,12 @@ Don't know what to work on? No worries, we have a [list of things to do](https:/
 * Every brace (`{`, `}`) must be on its own line
 * Conditions with a single statement (`if (condition) do_this();`) do not need to be enclosed in braces
 * Put a space between `for`, `while`, `if` and `(...)`, around each `=` sign (wherever it is, even in for-loops), between `#include` and the file to include
+* Prefer `enum class` over `enum`
+* Case
+    * Methods and functions: camelCase
+    * Variables: snake_case
+    * Constant expressions: PascalCase
+    * Enumeration members: PascalCase
 * For-each loops should use const references or rvalue references instead of plain copies:
 ```cpp
 // DEPRECATED
@@ -101,7 +107,7 @@ namespace Ark
          * @brief doxygen documentation here
          * 
          */
-        void a_method();
+        void aMethod();
         
     private:
         int m_member;  ///< This is a doxygen comment

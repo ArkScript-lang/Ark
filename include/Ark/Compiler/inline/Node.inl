@@ -89,43 +89,11 @@ inline std::string typeToString(const Node& node) noexcept
             return "Bool";
     }
 
-    const std::array<std::string, 10> nodetype_str = {
+    const std::array<std::string, 11> nodetype_str = {
         "Symbol", "Capture", "GetField", "Keyword", "String",
-        "Number", "List", "Closure", "Macro", "Spread"
+        "Number", "List", "Closure", "Macro", "Spread", "Unused"
     };
 
-    switch (node.nodeType())
-    {
-        case NodeType::Symbol:
-            return "Symbol";
-
-        case NodeType::Capture:
-            return "Capture";
-
-        case NodeType::GetField:
-            return "GetField";
-
-        case NodeType::Keyword:
-            return "Keyword";
-
-        case NodeType::String:
-            return "String";
-
-        case NodeType::Number:
-            return "Number";
-
-        case NodeType::List:
-            return "List";
-
-        case NodeType::Closure:
-            return "Closure";
-
-        case NodeType::Macro:
-            return "Macro";
-
-        case NodeType::Spread:
-            return "Spread";
-    }
-
-    return "???";
+    int c = static_cast<int>(node.nodeType());
+    return (c < 11) ? nodetype_str[c] : "???";
 }
