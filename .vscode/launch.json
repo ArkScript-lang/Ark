@@ -9,7 +9,8 @@
             "type": "cppvsdbg",
             "request": "launch",
             "program": "${command:cmake.launchTargetPath}",
-            "args": ["examples/macros/basics.ark", "-dd"],
+            "symbolSearchPath": "${workspaceFolder}/build/Debug/",
+            "args": ["examples/macros/argcount.ark", "-ddd"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [
@@ -22,7 +23,7 @@
             "type": "cppvsdbg",
             "request": "launch",
             "program": "${command:cmake.launchTargetPath}",
-            "args": ["tests/unittests.ark"],
+            "args": ["tests/arkscript/unittests.ark"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [
