@@ -76,6 +76,12 @@
 #define STR_RM_TE1   "str:removeAt: index must be a Number"
 #define STR_RM_OOR   "str:removeAt: index out of range"
 
+#define STR_ORD_ARITY "str:ord needs at least 1 argument: string"
+#define STR_ORD_TE0   "str:ord: string must be a String"
+
+#define STR_CHR_ARITY "str:chr needs at least 1 argument: codepoint"
+#define STR_CHR_TE0   "str:chr: codepoint must be a Number"
+
 // System
 
 #define SYS_SYS_ARITY "sys:exec needs 1 argument: command"
