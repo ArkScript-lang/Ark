@@ -16,6 +16,8 @@
 #include <utility>
 #include <sstream>
 
+#include <utf8_decoder/utf8_decoder.h>
+
 #include <Ark/VM/Value.hpp>
 #include <Ark/Exceptions.hpp>
 #include <Ark/Utils.hpp>
@@ -79,6 +81,8 @@ namespace Ark::internal::Builtins
         Value format(std::vector<Value>& n, Ark::VM* vm);       // str:format, multiple arguments
         Value findSubStr(std::vector<Value>& n, Ark::VM* vm);   // str:find, 2 arguments
         Value removeAtStr(std::vector<Value>& n, Ark::VM* vm);  // str:removeAt, 2 arguments
+        Value ord(std::vector<Value>& n, Ark::VM* vm);          // str:ord, 1 arguments
+        Value chr(std::vector<Value>& n, Ark::VM* vm);          // str:chr, 1 arguments
     }
 
     namespace Mathematics
