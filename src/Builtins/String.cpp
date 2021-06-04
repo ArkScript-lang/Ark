@@ -59,7 +59,7 @@ namespace Ark::internal::Builtins::String
 
     Value removeAtStr(std::vector<Value>& n, Ark::VM* vm)
     {
-        if (n.size () != 2)
+        if (n.size() != 2)
             throw std::runtime_error(STR_RM_ARITY);
         if (n[0].valueType() != ValueType::String)
             throw Ark::TypeError(STR_RM_TE0);
@@ -67,10 +67,36 @@ namespace Ark::internal::Builtins::String
             throw Ark::TypeError(STR_RM_TE1);
 
         long id = static_cast<long>(n[1].number());
-        if (id < 0 || id >= n[0].stringRef().size())
+        if (id < 0 || static_cast<std::size_t>(id) >= n[0].stringRef().size())
             throw std::runtime_error(STR_RM_OOR);
 
         n[0].stringRef().erase(id, id + 1);
         return n[0];
     }
+
+    Value ord(std::vector<Value>& n, Ark::VM* vm)
+    {
+        if (n.size() != 1)
+            throw std::runtime_error(STR_ORD_ARITY);
+        if (n[0].valueType() != ValueType::String)
+            throw Ark::TypeError(STR_ORD_TE0);
+
+        int ord = utf8codepoint(n[0].stringRef().c_str());
+
+        return Value(ord);
+    }
+
+    Value chr(std::vector<Value>& n, Ark::VM* vm)
+    {
+        if (n.size() != 1)
+            throw std::runtime_error(STR_CHR_ARITY);
+        if (n[0].valueType() != ValueType::Number)
+            throw Ark::TypeError(STR_CHR_TE0);
+
+        std::array<char, 5> sutf8;
+
+        utf8chr(static_cast<int>(n[0].number()), sutf8.data());
+        return Value(std::string(sutf8.data()));
+    }
+
 }

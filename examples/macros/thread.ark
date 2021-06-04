@@ -1,6 +1,6 @@
-!{_> (first ...args) {
+!{-> (first ...args) {
     !{if (> (len args) 0)
-        ((_> ...args) first)
+        ((-> ...args) first)
         first
     }
 }}
@@ -11,4 +11,4 @@
 (let slurp (fun (a) {a}))
 (let read-string (fun (a) {a}))
 
-(_> filename io:resource io:file slurp read-string)
+(-> filename io:resource io:file slurp read-string)
