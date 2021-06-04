@@ -93,10 +93,10 @@ namespace Ark::internal::Builtins::String
         if (n[0].valueType() != ValueType::Number)
             throw Ark::TypeError(STR_CHR_TE0);
 
-        char sutf8[5];
-        utf8chr(static_cast<int>(n[0].number()), sutf8);
+        std::array<char, 5> sutf8;
 
-        return Value(std::string(sutf8));
+        utf8chr(static_cast<int>(n[0].number()), sutf8.data());
+        return Value(std::string(sutf8.data()));
     }
 
 }
