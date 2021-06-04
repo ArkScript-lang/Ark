@@ -53,6 +53,7 @@
 - CI was split into multiple files to ease maintenance
 - moving ArkScript tests from `tests/*.ark` to `tests/arkscript/*.ark`
 - fixed macros adding useless begin blocks, sometimes breaking code generation from macros
+- moving std lib related tests into std/tests/
 
 ### Removed
 - `~UserType`, since we are doing manual memory management now
