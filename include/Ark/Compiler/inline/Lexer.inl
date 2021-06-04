@@ -1,5 +1,3 @@
-// checking if the given character is a valid first character for an identifier
-#define CHECK_FIRST_CHAR(chr) (('a' <= chr && chr <= 'z') || ('A' <= chr && chr <= 'Z') || chr == '_')
 // check if a given character is a valid hex char
 #define CHECK_IF_HEXCHAR(chr) (('a' <= chr && chr <= 'f') || ('A' <= chr && chr <= 'F') || ('0' <= chr && chr <= '9'))
 
@@ -15,21 +13,26 @@ inline TokenType Lexer::guessType(const std::string& value) noexcept
         return TokenType::Operator;
     else if (isKeyword(value))
         return TokenType::Keyword;
-    else if (value[0] == '&' && value.size() > 1 && CHECK_FIRST_CHAR(value[1]))
+    else if (value[0] == '&' && value.size() > 1 && isIdentifier(value))
         return TokenType::Capture;
-    else if (value[0] == '.' && value.size() > 1 && CHECK_FIRST_CHAR(value[1]))
-        return TokenType::GetField;
-    // otherwise, identifier if it starts with [a-zA-Z_]
-    else if (CHECK_FIRST_CHAR(value[0]))
-        return TokenType::Identifier;
     else if (value.size() > 3 && value[0] == value[1] && value[1] == value[2] && value[2] == '.')
         return TokenType::Spread;
+    else if (value[0] == '.' && value.size() > 1 && isIdentifier(value))
+        return TokenType::GetField;
+    // otherwise, identifier if it starts with [a-zA-Z_]
+    else if (isIdentifier(value))
+        return TokenType::Identifier;
     return TokenType::Mismatch;
 }
 
 inline bool Lexer::isKeyword(const std::string& value) noexcept
 {
     return std::find(keywords.begin(), keywords.end(), value) != keywords.end();
+}
+
+inline bool Lexer::isIdentifier(const std::string& value) noexcept
+{
+    return utf8valid(value.c_str());
 }
 
 inline bool Lexer::isOperator(const std::string& value) noexcept
@@ -47,10 +50,10 @@ inline bool Lexer::endOfControlChar(const std::string& sequence, char next) noex
             return !CHECK_IF_HEXCHAR(next);
 
         case 'u':
-            return sequence.size() == 4;
+            return sequence.size() == 5;
 
         case 'U':
-            return sequence.size() == 8;
+            return sequence.size() == 9;
 
         case '"':
         case 'n':
@@ -96,5 +99,4 @@ inline void Lexer::throwTokenizingError(const std::string& message, const std::s
     throw Ark::SyntaxError(ss.str());
 }
 
-#undef CHECK_FIRST_CHAR
 #undef CHECK_IF_HEXCHAR
