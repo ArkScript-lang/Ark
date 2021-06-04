@@ -77,9 +77,9 @@ namespace Ark::internal::Builtins::String
     Value ord(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 1)
-            throw std::runtime_error("str:ord needs at least 1 argument: string");
+            throw std::runtime_error(STR_ORD_ARITY);
         if (n[0].valueType() != ValueType::String)
-            throw Ark::TypeError("str:ord: string must be a String");
+            throw Ark::TypeError(STR_ORD_TE0);
 
         int ord = utf8codepoint(n[0].stringRef().c_str());
 
@@ -89,9 +89,9 @@ namespace Ark::internal::Builtins::String
     Value chr(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 1)
-            throw std::runtime_error("str:chr needs at least 1 argument: codepoint");
+            throw std::runtime_error(STR_CHR_ARITY);
         if (n[0].valueType() != ValueType::Number)
-            throw Ark::TypeError("str:chr: codepoint must be a Number");
+            throw Ark::TypeError(STR_CHR_TE0);
 
         char sutf8[5];
         utf8chr(static_cast<int>(n[0].number()), sutf8);

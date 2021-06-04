@@ -176,7 +176,7 @@ namespace Ark::internal
                                 case 'U':
                                 {
                                     short begin = 1;
-                                    for(; ctrl_char[begin] == '0'; ++ begin);
+                                    for (; ctrl_char[begin] == '0'; ++ begin);
                                     char utf8_str[5];
                                     utf8decode(ctrl_char.c_str() + begin, utf8_str);
                                     if (*utf8_str == '\0')
