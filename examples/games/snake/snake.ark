@@ -1,219 +1,205 @@
-{
-    (import "sfml.arkm")
-    (import "Functional/Exceptions.ark")
-    (import "Switch.ark")
+(import "sfml.arkm")
+(import "Exceptions.ark")
+(import "Switch.ark")
 
-    (sf:window:init 600 600 "ArkSnake")
-    (sf:window:setFPS 60)
+(sf:window:init 600 600 "ArkSnake")
+(sf:window:setFPS 60)
 
-    # stuff needed for the texts
-    (let font (sf:load:font "FreeSansBold.ttf"))
-    (let fps_text (sf:make:text font "FPS: NaN" 18 [255 255 255]))
-    (sf:set:pos fps_text (/ (- 600 (sf:width fps_text)) 2) 580)
+# stuff needed for the texts
+(let font (sf:load:font "FreeSansBold.ttf"))
+(let fps_text (sf:make:text font "FPS: NaN" 18 [255 255 255]))
+(sf:set:pos fps_text (/ (- 600 (sf:width fps_text)) 2) 580)
 
-    # the board object
-    # 0 => empty, 1 => apple
-    (let create-board-object (fun () {
-        # sprites used for the game
-        (let apple_texture (sf:load:texture "apple.png"))
-        (let apple_sprite (sf:load:sprite apple_texture))
+# the board object
+# 0 => empty, 1 => apple
+(let create-board-object (fun () {
+    # sprites used for the game
+    (let apple_texture (sf:load:texture "apple.png"))
+    (let apple_sprite (sf:load:sprite apple_texture))
 
-        (mut data [])
-        {
-            (mut _y 0)
+    (mut data [])
+    {
+        (mut _y 0)
 
-            (while (!= _y 20) {
-                (mut _x 0)
-                (mut line [])
+        (while (!= _y 20) {
+            (mut _x 0)
+            (mut line [])
 
-                (while (!= _x 20) {
-                    (mut t 0)  # empty
-                    (if (or (and (= _y 10) (= _x 5)) (or (and (= _y 5) (= _x 2)) (and (= _y 12) (= _x 12))))
-                        (set t 1)
-                        (set t 0))
-                    (set line (append line t))
-                    (set _x (+ 1 _x))
-                })
-
-                (set data (append data line))
-                (set _y (+ 1 _y))
-            })
-        }
-
-        (let draw_board (fun () {
-            (mut y 0)
-            (while (!= y 20) {
-                (mut x 0)
-                (while (!= x 20) {
-                    (mut case (@ (@ data y) x))
-                    (if (= case 1)
-                        # then
-                        {
-                            (sf:set:pos apple_sprite (* 20 x) (* 20 y))
-                            (sf:draw apple_sprite)
-                        }
-                        # else
-                        ())
-                    (set x (+ x 1))
-                })
-                (set y (+ 1 y))
+            (while (!= _x 20) {
+                (mut t 0)  # empty
+                (if (or (and (= _y 10) (= _x 5)) (or (and (= _y 5) (= _x 2)) (and (= _y 12) (= _x 12))))
+                    (set t 1)
+                    (set t 0))
+                (set line (append line t))
+                (set _x (+ 1 _x))
             })
 
-            # ret
-            nil
-        }))
+            (set data (append data line))
+            (set _y (+ 1 _y))
+        })
+    }
 
-        (let has_apple_left? (fun () {
-            (mut apple_left 0)
-            (mut y 0)
-            (while (!= y 20) {
-                (mut x 0)
-                (while (!= x 20) {
-                    (mut case (@ (@ data y) x))
-                    (if (= case 1)
-                        # then
-                        (set apple_left (+ 1 apple_left))
-                        # else
-                        ())
-                    (set x (+ x 1))
-                })
-                (set y (+ 1 y))
+    (let draw_board (fun () {
+        (mut y 0)
+        (while (!= y 20) {
+            (mut x 0)
+            (while (!= x 20) {
+                (mut case (@ (@ data y) x))
+                (if (= case 1)
+                    {
+                        (sf:set:pos apple_sprite (* 20 x) (* 20 y))
+                        (sf:draw apple_sprite)
+                    })
+                (set x (+ x 1))
             })
+            (set y (+ 1 y))
+        })
 
-            # ret
-            apple_left
-        }))
-
-        (let eat_apple_at (fun (x y)
-            (if (and (and (>= x 0) (>= y 0)) (and (< y 20) (< x 20)))
-                {
-                    (let test (= 1 (@ (@ data y) x)))
-                    (if test
-                        # remove apple
-                        {
-                            (mut _y 0)
-                            (mut _data [])
-
-                            (while (!= _y 20) {
-                                (mut _x 0)
-                                (mut line [])
-
-                                (if (= _y y)
-                                    # then
-                                    (while (!= _x 20) {
-                                        (mut case (@ (@ data _y) _x))
-                                        (if (= _x x) (set case 0) ())
-                                        (set line (append line case))
-                                        (set _x (+ 1 _x))
-                                    })
-                                    # else
-                                    (set line (@ data _y)))
-
-                                (set _data (append _data line))
-                                (set _y (+ 1 _y))
-                            })
-
-                            (set data _data)
-                        }
-                        ())
-                    (return test)
-                }
-                (throw "Out of bounds"))
-        ))
-
-        (fun (&data &apple_sprite &draw_board &has_apple_left? &eat_apple_at) ())
+        # ret
+        nil
     }))
 
-    # instanciating
-    (let board (create-board-object))
-
-    # the snake
-    (let create-snake-object (fun () {
-        (mut pos [[0 0]])
-        (mut should_move true)
-        (mut last_direction [1 0])  # right
-        (let snake_texture (sf:load:texture "snake.png"))
-        (let snake_sprite (sf:load:sprite snake_texture))
-
-        (let move (fun (mx my board) {
-            # we don't need to move since this function was called explicitly
-            (set should_move false)
-            (set last_direction [mx my])
-
-            (let p (@ pos (- (len pos) 1)))
-
-            (try (board.eat_apple_at (+ mx (@ p 0)) (+ my (@ p 1)))
-                (fun (result) {
-                    # if result == false, move the tail to the head
-                    # otherwise, add a new head
-                    (set pos (append pos [(+ mx (@ p 0)) (+ my (@ p 1))]))
-                    (if result
-                        # then
-                        ()
-                        # else
-                        (if (!= 0 (len pos))
-                            # then
-                            (set pos (tail pos))
-                            # else
-                            ()))})
-                (fun (err) ()))
-        }))
-
-        (let reset_auto_move (fun () (set should_move true)))
-
-        (let auto_move (fun (board) {
-            (move (@ last_direction 0) (@ last_direction 1) board)}))
-
-        (let draw (fun () {
-            (mut acc 0)
-            (while (!= acc (len pos)) {
-                (mut current (@ pos acc))
-                (sf:set:pos snake_sprite (* 20 (@ current 0)) (* 20 (@ current 1)))
-                (sf:draw snake_sprite)
-                (set acc (+ 1 acc))
+    (let has_apple_left? (fun () {
+        (mut apple_left 0)
+        (mut y 0)
+        (while (!= y 20) {
+            (mut x 0)
+            (while (!= x 20) {
+                (mut case (@ (@ data y) x))
+                (if (= case 1)
+                    (set apple_left (+ 1 apple_left)))
+                (set x (+ x 1))
             })
-        }))
+            (set y (+ 1 y))
+        })
 
-        (fun (&move &reset_auto_move &auto_move &draw &pos &should_move &last_direction &snake_sprite) ())
+        # ret
+        apple_left
     }))
 
-    # instanciating
-    (let snake (create-snake-object))
-
-    (while (sf:window:open?) {
-        (mut frame_start (time))
-
-        # event handling
-        (snake.reset_auto_move)
-        (mut event (sf:pollEvent))
-
-        (switch event [
-            [(sf:event "quit") '(sf:window:close)]
-            [(sf:event "keyup" "up") '(snake.move 0 -1 board)]
-            [(sf:event "keyup" "down") '(snake.move 0 1 board)]
-            [(sf:event "keyup" "right") '(snake.move 1 0 board)]
-            [(sf:event "keyup" "left") '(snake.move -1 0 board)]
-        ])
-
-        # update
-        (if (= 0 (board.has_apple_left?))
+    (let eat_apple_at (fun (x y)
+        (if (and (and (>= x 0) (>= y 0)) (and (< y 20) (< x 20)))
             {
-                (print "victoire royale !")
-                (sf:window:close)
+                (let test (= 1 (@ (@ data y) x)))
+                (if test
+                    # remove apple
+                    {
+                        (mut _y 0)
+                        (mut _data [])
+
+                        (while (!= _y 20) {
+                            (mut _x 0)
+                            (mut line [])
+
+                            (if (= _y y)
+                                (while (!= _x 20) {
+                                    (mut case (@ (@ data _y) _x))
+                                    (if (= _x x) (set case 0) ())
+                                    (set line (append line case))
+                                    (set _x (+ 1 _x))
+                                })
+                                (set line (@ data _y)))
+
+                            (set _data (append _data line))
+                            (set _y (+ 1 _y))
+                        })
+
+                        (set data _data)
+                    }
+                    ())
+                (return test)
             }
-            ())
-        # (snake.auto_move board)
+            (throw "Out of bounds"))
+    ))
 
-        # rendering
-        (sf:window:clear 0 0 0)
-        (board.draw_board)      # draw board first
-        (snake.draw)            # then snake
-        (sf:draw fps_text)
-        (sf:window:display)     # double buffering
+    (fun (&data &apple_sprite &draw_board &has_apple_left? &eat_apple_at) ())
+}))
 
-        (mut diff (- (time) frame_start))
-        (if (!= diff 0)
-            (sf:set:text fps_text (+ "FPS: " (toString (/ 1 diff))))
-            (sf:set:text fps_text "FPS: NaN"))
-    })
-}
+# instanciating
+(let board (create-board-object))
+
+# the snake
+(let create-snake-object (fun () {
+    (mut pos [[0 0]])
+    (mut should_move true)
+    (mut last_direction [1 0])  # right
+    (let snake_texture (sf:load:texture "snake.png"))
+    (let snake_sprite (sf:load:sprite snake_texture))
+
+    (let move (fun (mx my board) {
+        # we don't need to move since this function was called explicitly
+        (set should_move false)
+        (set last_direction [mx my])
+
+        (let p (@ pos (- (len pos) 1)))
+
+        (try (board.eat_apple_at (+ mx (@ p 0)) (+ my (@ p 1)))
+            (fun (result) {
+                # if result == false, move the tail to the head
+                # otherwise, add a new head
+                (set pos (append pos [(+ mx (@ p 0)) (+ my (@ p 1))]))
+                (if (not result)
+                    (if (!= 0 (len pos))
+                        # then
+                        (set pos (tail pos))))
+            })
+            (fun (err) ()))
+    }))
+
+    (let reset_auto_move (fun () (set should_move true)))
+
+    (let auto_move (fun (board) {
+        (move (@ last_direction 0) (@ last_direction 1) board)}))
+
+    (let draw (fun () {
+        (mut acc 0)
+        (while (!= acc (len pos)) {
+            (mut current (@ pos acc))
+            (sf:set:pos snake_sprite (* 20 (@ current 0)) (* 20 (@ current 1)))
+            (sf:draw snake_sprite)
+            (set acc (+ 1 acc))
+        })
+    }))
+
+    (fun (&move &reset_auto_move &auto_move &draw &pos &should_move &last_direction &snake_sprite) ())
+}))
+
+# instanciating
+(let snake (create-snake-object))
+
+(while (sf:window:open?) {
+    (mut frame_start (time))
+
+    # event handling
+    (snake.reset_auto_move)
+    (mut event (sf:pollEvent))
+
+    (switch event [
+        [(sf:event "quit") '(sf:window:close)]
+        [(sf:event "keyup" "up") '(snake.move 0 -1 board)]
+        [(sf:event "keyup" "down") '(snake.move 0 1 board)]
+        [(sf:event "keyup" "right") '(snake.move 1 0 board)]
+        [(sf:event "keyup" "left") '(snake.move -1 0 board)]
+    ])
+
+    # update
+    (if (= 0 (board.has_apple_left?))
+        {
+            (print "victoire royale !")
+            (sf:window:close)
+        }
+        ())
+    # (snake.auto_move board)
+
+    # rendering
+    (sf:window:clear 0 0 0)
+    (board.draw_board)      # draw board first
+    (snake.draw)            # then snake
+    (sf:draw fps_text)
+    (sf:window:display)     # double buffering
+
+    (mut diff (- (time) frame_start))
+    (if (!= diff 0)
+        (sf:set:text fps_text (+ "FPS: " (toString (/ 1 diff))))
+        (sf:set:text fps_text "FPS: NaN"))
+})
