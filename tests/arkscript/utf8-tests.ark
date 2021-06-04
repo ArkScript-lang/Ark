@@ -43,7 +43,15 @@
     })
 
     (set tests (assert-eq "\U0001f47f" "👿" "checking conversion pattern \\U and its emote" tests))
+    (set tests (assert-eq "\U0001F47F" "👿" "checking conversion pattern \\U and its emote" tests))
+    (set tests (assert-eq "\u1e0b" "ḋ" "checking conversion pattern \\u and its emote" tests))
     (set tests (assert-eq "\u1E0B" "ḋ" "checking conversion pattern \\u and its emote" tests))
+
+
+    (set tests (assert-eq (str:ord "👺") 128122 "checking conversion emote or character to utf8 codepoint (decimal number)" tests))
+    (set tests (assert-eq (str:chr 128122) "👺" "checking conversion codepoint to emote or character (utf8 string)" tests))
+    (set tests (assert-eq (str:ord "$") 36 "checking conversion emote or character to utf8 codepoint (decimal number)" tests))
+    (set tests (assert-eq (str:chr 36) "$" "checking conversion codepoint to emote or character (utf8 string)" tests))
 
     (recap "UTF8 tests passed" tests (- (time) start-time))
 
