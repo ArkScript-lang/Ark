@@ -2,6 +2,8 @@
 
 ## Unreleased changes
 ### Added
+- adding of new string function for manipulation of utf8 string (str:ord and str:chr)
+- utf8 support for lexer
 - `UserType::del()`, used only by the virtual machine to free memory
 - a new unique stack based on a `std::array<Value, ARK_STACK_SIZE>`, the default stack size being 8192
 - more profiling tests
