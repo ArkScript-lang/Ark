@@ -104,8 +104,6 @@ file(GLOB_RECURSE SOURCE_FILES
     ${ark_SOURCE_DIR}/src/Compiler/*.cpp
     ${ark_SOURCE_DIR}/src/Parser/*.cpp
     ${ark_SOURCE_DIR}/src/VM/*.cpp
-
-    ${ark_SOURCE_DIR}/thirdparties/*.cpp
 )
 list(APPEND SOURCE_FILES
     ${ark_SOURCE_DIR}/src/Ark.cpp

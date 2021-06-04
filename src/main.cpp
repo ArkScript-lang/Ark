@@ -225,7 +225,7 @@ int main(int argc, char** argv)
                 }
 
                 Ark::VM vm(&state);
-                return  vm.run();
+                return vm.run();
             }
 
             case mode::bytecode_reader:

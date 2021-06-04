@@ -358,6 +358,8 @@ namespace Ark
         }
 
         throwParseError("unknown shorthand", token);
+
+        return Node();
     }
 
     void Parser::checkForInvalidTokens(Node& atomized, Token& token, bool previous_token_was_lparen, bool authorize_capture, bool authorize_field_read)
