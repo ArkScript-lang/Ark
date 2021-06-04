@@ -49,6 +49,20 @@ jobs:
       run: |
         cd tests/cpp
         cmake --build build --config $BUILD_TYPE
+
     - name: Tests
       shell: bash
       run: bash .github/launch-tests
+
+    - name: Organize files for upload
+      shell: bash
+      run: |
+        mkdir artifact
+        cp build/ark artifact
+        cp lib/console.arkm artifact
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: ark-macos-clang-version
+        path: artifact
