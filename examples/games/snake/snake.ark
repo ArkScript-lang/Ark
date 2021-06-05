@@ -1,4 +1,4 @@
-(import "sfml.arkm")
+(import "sf.arkm")
 (import "Exceptions.ark")
 (import "Switch.ark")
 
@@ -7,7 +7,7 @@
 
 # stuff needed for the texts
 (let font (sf:load:font "FreeSansBold.ttf"))
-(let fps_text (sf:make:text font "FPS: NaN" 18 [255 255 255]))
+(let fps_text (sf:text:make font "FPS: NaN" 18 [255 255 255]))
 (sf:set:pos fps_text (/ (- 600 (sf:width fps_text)) 2) 580)
 
 # the board object
@@ -166,6 +166,7 @@
 
 # instanciating
 (let snake (create-snake-object))
+(mut frame 0)
 
 (while (sf:window:open?) {
     (mut frame_start (time))
@@ -185,11 +186,13 @@
     # update
     (if (= 0 (board.has_apple_left?))
         {
-            (print "victoire royale !")
+            (print "you win!")
             (sf:window:close)
-        }
-        ())
-    # (snake.auto_move board)
+        })
+
+    (if (= 0 (mod frame 20))
+        (snake.auto_move board))
+    (set frame (+ 1 frame))
 
     # rendering
     (sf:window:clear 0 0 0)
@@ -200,6 +203,6 @@
 
     (mut diff (- (time) frame_start))
     (if (!= diff 0)
-        (sf:set:text fps_text (+ "FPS: " (toString (/ 1 diff))))
-        (sf:set:text fps_text "FPS: NaN"))
+        (sf:text:set fps_text (+ "FPS: " (toString (/ 1 diff))))
+        (sf:text:set fps_text "FPS: NaN"))
 })
