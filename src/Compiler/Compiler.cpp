@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <chrono>
+#include <algorithm>
 #include <picosha2.hpp>
 
 #include <Ark/Builtins/Builtins.hpp>

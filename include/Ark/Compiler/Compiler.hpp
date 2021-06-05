@@ -2,7 +2,7 @@
  * @file Compiler.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief ArkScript compiler is in charge of transforming the AST into bytecode
- * @version 0.2
+ * @version 0.3
  * @date 2020-10-27
  * 
  * @copyright Copyright (c) 2020
@@ -91,6 +91,7 @@ namespace Ark
         std::vector<internal::CValue> m_values;
         std::vector<std::vector<internal::Inst_t>> m_code_pages;
         std::vector<std::vector<internal::Inst_t>> m_temp_pages;  ///< we need temporary code pages for some compilations passes
+        std::vector<bool> m_holders;
 
         bytecode_t m_bytecode;
         unsigned m_debug;  ///< the debug level of the compiler
@@ -160,6 +161,13 @@ namespace Ark
         inline void throwCompilerError(const std::string& message, const internal::Node& node)
         {
             throw CompilationError(internal::makeNodeBasedErrorCtx(message, node));
+        }
+
+        inline void handleStackTrashing(int p)
+        {
+            // handling stack trashing
+            if (m_holders.size() == 0 || !std::any_of(m_holders.begin(), m_holders.end(), [](auto v) { return v == true; }))
+                page(p).emplace_back(internal::Instruction::POP);
         }
 
         /**
