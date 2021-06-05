@@ -52,3 +52,16 @@ jobs:
     - name: Tests
       shell: bash
       run: bash .github/launch-tests
+
+    - name: Organize files for upload
+      shell: bash
+      run: |
+        mkdir artifact
+        cp build/ark artifact
+        cp lib/console.arkm artifact
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: ark-linux-gcc-version
+        path: artifact
