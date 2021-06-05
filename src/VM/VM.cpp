@@ -602,6 +602,12 @@ namespace Ark
                         break;
                     }
 
+                    case Instruction::POP:
+                    {
+                        pop();
+                        break;
+                    }
+
                 #pragma endregion
 
                 #pragma region "Operators"

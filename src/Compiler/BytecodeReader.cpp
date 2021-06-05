@@ -430,6 +430,11 @@ namespace Ark
                             os << "CONCAT " << termcolor::reset << "(" << value << ")\n";
                         i++;
                     }
+                    else if (inst == Instruction::POP)
+                    {
+                        if (displayLine)
+                            os << "POP\n";
+                    }
                     else if (inst == Instruction::ADD)
                     {
                         if (displayLine)
