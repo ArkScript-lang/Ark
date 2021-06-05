@@ -1,0 +1,61 @@
+(import "tests-tools.ark")
+
+(let utf8-tests (fun () {
+    (mut tests 0)
+    (let start-time (time))
+
+    (let é 1)
+    (set tests (assert-eq é 1 "create identifier é" tests))
+
+    (let âè 2)
+    (set tests (assert-eq âè 2 "create identifier âè" tests))
+
+    (let 🥳 12)
+    (set tests (assert-eq 🥳 12 "create identifier 🥳" tests))
+
+    (let ---> 15)
+    (set tests (assert-eq ---> 15 "create identifier --->" tests))
+
+    (let <-- 16)
+    (set tests (assert-eq <-- 16 "create identifier <--" tests))
+    (set tests (assert-val (< ---> <--) "comparing ---> and <-- with < operator" tests))
+
+    (let mâkè (fun (à -->)
+        (fun (&à &-->) ())))
+
+    (let closure (mâkè 1 2))
+    (set tests (assert-eq (type mâkè) "Function" "Function test" tests))
+    (set tests (assert-eq (type closure) "Closure" "Closure test" tests))
+    (set tests (assert-val (hasField closure "à") "Closure has field" tests))
+    (set tests (assert-val (hasField closure "-->") "Closure has field" tests))
+    (set tests (assert-eq closure.à 1 "Closure field à" tests))
+    (set tests (assert-eq closure.--> 2 "Closure field -->" tests))
+
+    (let emotes [
+        "🥳" "😅" "😥" "👿" "🟢" "🙊"
+        "💡" "💻" "🌟" "🔹" "🌐" "🤖"
+        "🖐" "🤔" "🤩" "🤠" "😊"
+    ])
+    (mut i 0)
+    (while (< i (len emotes)) {
+        (set tests (assert-eq (len (@ emotes i)) 4 "checking emotes length" tests))
+        (set i (+ 1 i))
+    })
+
+    (set tests (assert-eq "\U0001f47f" "👿" "checking conversion pattern \\U and its emote" tests))
+    (set tests (assert-eq "\U0001F47F" "👿" "checking conversion pattern \\U and its emote" tests))
+    (set tests (assert-eq "\u1e0b" "ḋ" "checking conversion pattern \\u and its emote" tests))
+    (set tests (assert-eq "\u1E0B" "ḋ" "checking conversion pattern \\u and its emote" tests))
+
+
+    (set tests (assert-eq (str:ord "👺") 128122 "checking conversion emote or character to utf8 codepoint (decimal number)" tests))
+    (set tests (assert-eq (str:chr 128122) "👺" "checking conversion codepoint to emote or character (utf8 string)" tests))
+    (set tests (assert-eq (str:ord "$") 36 "checking conversion emote or character to utf8 codepoint (decimal number)" tests))
+    (set tests (assert-eq (str:chr 36) "$" "checking conversion codepoint to emote or character (utf8 string)" tests))
+
+    (recap "UTF8 tests passed" tests (- (time) start-time))
+
+    tests
+}))
+
+(let passed-utf8 (utf8-tests))

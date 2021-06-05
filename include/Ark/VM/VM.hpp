@@ -121,7 +121,7 @@ namespace Ark
     private:
         State* m_state;
 
-        int m_exit_code;    ///< VM exit code, defaults to 0. Can be changed through `sys:exit`
+        int m_exitCode;     ///< VM exit code, defaults to 0. Can be changed through `sys:exit`
         int m_ip;           ///< instruction pointer
         std::size_t m_pp;   ///< page pointer
         uint16_t m_sp;      ///< stack pointer

@@ -2,6 +2,8 @@
 
 ## Unreleased changes
 ### Added
+- adding of new string function for manipulation of utf8 string (str:ord and str:chr)
+- utf8 support for lexer
 - `UserType::del()`, used only by the virtual machine to free memory
 - a new unique stack based on a `std::array<Value, ARK_STACK_SIZE>`, the default stack size being 8192
 - more profiling tests
@@ -39,6 +41,7 @@
 - the http module was updated to add `http:params:toList` and fix the `http:server:[method]` when passing a function
 - fixing the compiler when we encounter get fields in lists
 - updating the parser to support usually invalid constructions when they are in macros, to allow things like `!{defun (name args body) (let name (fun args body))}`
+- updated the lexer to add UTF8 support and allow unconventional identifiers as long as they aren't keyword nor operators, so things like `->` now works
 - fixing the code optimizer to avoid removing unused variables which are defined on function calls
 - fixed the traceback generation on errors, it should now display the correct function names
 - reorganizing the compiler code
