@@ -143,10 +143,10 @@ int main(int argc, char** argv)
                     "    sizeof(char)          = %zuB\n"
                     , ARK_COMPILER, ARK_COMPILATION_OPTIONS,
                     // value
-                    sizeof(Ark::internal::Value),
-                        sizeof(Ark::internal::Value::Value_t),
-                        sizeof(Ark::internal::ValueType),
-                        sizeof(Ark::internal::Value::ProcType),
+                    sizeof(Ark::Value),
+                        sizeof(Ark::Value::Value_t),
+                        sizeof(Ark::ValueType),
+                        sizeof(Ark::Value::ProcType),
                         sizeof(Ark::internal::Closure),
                         sizeof(Ark::UserType),
                     // vm
@@ -154,7 +154,7 @@ int main(int argc, char** argv)
                         sizeof(Ark::State),
                         sizeof(Ark::internal::Scope),
                     // misc
-                        sizeof(std::vector<Ark::internal::Value>),
+                        sizeof(std::vector<Ark::Value>),
                         sizeof(std::string),
                         sizeof(String),
                         sizeof(char)

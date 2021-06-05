@@ -2,7 +2,7 @@
  * @file VM.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief The ArkScript virtual machine
- * @version 0.1
+ * @version 0.2
  * @date 2020-10-27
  * 
  * @copyright Copyright (c) 2020
@@ -37,7 +37,7 @@ namespace Ark
 {
     using namespace std::string_literals;
 
-    constexpr std::size_t ARK_STACK_SIZE = 8192;
+    constexpr std::size_t ArkVMStackSize = 8192;
 
     /**
      * @brief The ArkScript virtual machine, executing ArkScript bytecode
@@ -64,9 +64,9 @@ namespace Ark
          * @brief Retrieve a value from the virtual machine, given its symbol name
          * 
          * @param name the name of the variable to retrieve
-         * @return internal::Value& 
+         * @return Value& 
          */
-        internal::Value& operator[](const std::string& name) noexcept;
+        Value& operator[](const std::string& name) noexcept;
 
         /**
          * @brief Call a function from ArkScript, by giving it arguments
@@ -74,10 +74,10 @@ namespace Ark
          * @tparam Args 
          * @param name the function name in the ArkScript code
          * @param args C++ argument list, converted to internal representation
-         * @return internal::Value 
+         * @return Value 
          */
         template <typename... Args>
-        internal::Value call(const std::string& name, Args&&... args);
+        Value call(const std::string& name, Args&&... args);
 
         // ================================================
         //         function calling from plugins
@@ -89,10 +89,10 @@ namespace Ark
          * @tparam Args 
          * @param val the ArkScript function object
          * @param args C++ argument list
-         * @return internal::Value 
+         * @return Value 
          */
         template <typename... Args>
-        internal::Value resolve(const internal::Value* val, Args&&... args);
+        Value resolve(const Value* val, Args&&... args);
 
         /**
          * @brief Ask the VM to exit with a given exit code
@@ -115,7 +115,7 @@ namespace Ark
          */
         void* getUserPointer() noexcept;
 
-        friend class internal::Value;
+        friend class Value;
         friend class Repl;
 
     private:
@@ -132,14 +132,14 @@ namespace Ark
         std::mutex m_mutex;
 
         // related to the execution
-        std::array<internal::Value, ARK_STACK_SIZE> m_stack;
+        std::unique_ptr<std::array<Value, ArkVMStackSize>> m_stack;
         std::vector<uint8_t> m_scope_count_to_delete;
         std::optional<internal::Scope_t> m_saved_scope;
         std::vector<internal::Scope_t> m_locals;
         std::vector<std::shared_ptr<internal::SharedLibrary>> m_shared_lib_objects;
 
         // just a nice little trick for operator[] and for pop
-        internal::Value m_no_value = internal::Builtins::nil;
+        Value m_no_value = internal::Builtins::nil;
 
         void* m_user_pointer; ///< needed to pass data around when binding ArkScript in a program
 
@@ -172,37 +172,37 @@ namespace Ark
         /**
          * @brief Pop a value from the stack
          * 
-         * @return internal::Value* 
+         * @return Value* 
          */
-        inline internal::Value* pop();
+        inline Value* pop();
 
         /**
          * @brief Push a value on the stack
          * 
          * @param val 
          */
-        inline void push(const internal::Value& val);
+        inline void push(const Value& val);
 
         /**
          * @brief Push a value on the stack
          * 
          * @param val 
          */
-        inline void push(internal::Value&& val);
+        inline void push(Value&& val);
 
         /**
          * @brief Push a value on the stack as a reference
          * 
          * @param valptr 
          */
-        inline void push(internal::Value* valptr);
+        inline void push(Value* valptr);
 
         /**
          * @brief Pop a value from the stack and resolve it if possible, then return it
          * 
-         * @return internal::Value* 
+         * @return Value* 
          */
-        inline internal::Value* popAndResolveAsPtr();
+        inline Value* popAndResolveAsPtr();
 
         /**
          * @brief Move stack values around and invert them
@@ -224,9 +224,9 @@ namespace Ark
          * @brief Find the nearest variable of a given id
          * 
          * @param id the id to find
-         * @return internal::Value* 
+         * @return Value* 
          */
-        inline internal::Value* findNearestVariable(uint16_t id) noexcept;
+        inline Value* findNearestVariable(uint16_t id) noexcept;
 
         /**
          * @brief Destroy the current frame and get back to the previous one, resuming execution
@@ -256,7 +256,7 @@ namespace Ark
          * @param value the value to search for
          * @return uint16_t 
          */
-        uint16_t findNearestVariableIdWithValue(internal::Value&& value) noexcept;
+        uint16_t findNearestVariableIdWithValue(Value&& value) noexcept;
 
         /**
          * @brief Throw a VM error message
@@ -281,16 +281,12 @@ namespace Ark
 
     #include "inline/VM.inl"
 
-    // aliases
-    using Value = internal::Value;
-    using ValueType = internal::ValueType;
-
     /// ArkScript Nil value
-    const Value Nil = Value(internal::ValueType::Nil);
+    const Value Nil = Value(ValueType::Nil);
     /// ArkScript False value
-    const Value False = Value(internal::ValueType::False);
+    const Value False = Value(ValueType::False);
     /// ArkScript True value
-    const Value True = Value(internal::ValueType::True);
+    const Value True = Value(ValueType::True);
 }
 
 #endif

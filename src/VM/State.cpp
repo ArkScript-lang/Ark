@@ -174,19 +174,19 @@ namespace Ark
         return feed(compiler.bytecode());
     }
 
-    void State::loadFunction(const std::string& name, internal::Value::ProcType function) noexcept
+    void State::loadFunction(const std::string& name, Value::ProcType function) noexcept
     {
-        m_binded[name] = internal::Value(std::move(function));
+        m_binded[name] = Value(std::move(function));
     }
 
     void State::setArgs(const std::vector<std::string>& args) noexcept
     {
-        internal::Value val(internal::ValueType::List);
+        Value val(ValueType::List);
         for (const std::string& arg : args)
-            val.push_back(internal::Value(arg));
+            val.push_back(Value(arg));
         m_binded["sys:args"] = val;
 
-        m_binded["sys:platform"] = internal::Value(ARK_PLATFORM_NAME);
+        m_binded["sys:platform"] = Value(ARK_PLATFORM_NAME);
     }
 
     void State::setDebug(unsigned level) noexcept
@@ -201,7 +201,7 @@ namespace Ark
 
     void State::configure()
     {
-        using namespace Ark::internal;
+        using namespace internal;
 
         // configure tables and pages
         std::size_t i = 0;
