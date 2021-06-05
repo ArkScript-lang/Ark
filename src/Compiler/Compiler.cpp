@@ -197,10 +197,7 @@ namespace Ark
 
         // register symbols
         if (x.nodeType() == NodeType::Symbol)
-        {
             compileSymbol(x, p);
-            return;
-        }
         else if (x.nodeType() == NodeType::GetField)
         {
             std::string name = x.string();
@@ -209,8 +206,6 @@ namespace Ark
 
             page(p).emplace_back(Instruction::GET_FIELD);
             pushNumber(static_cast<uint16_t>(i), &page(p));
-
-            return;
         }
         // register values
         else if (x.nodeType() == NodeType::String || x.nodeType() == NodeType::Number)
@@ -219,8 +214,6 @@ namespace Ark
 
             page(p).emplace_back(Instruction::LOAD_CONST);
             pushNumber(static_cast<uint16_t>(i), &page(p));
-
-            return;
         }
         // empty code block should be nil
         else if (x.constList().empty())
@@ -228,49 +221,70 @@ namespace Ark
             auto it_builtin = isBuiltin("nil");
             page(p).emplace_back(Instruction::BUILTIN);
             pushNumber(static_cast<uint16_t>(it_builtin.value()), &page(p));
-            return;
         }
         // specific instructions
         else if (auto c0 = x.constList()[0]; c0.nodeType() == NodeType::Symbol &&
                 (c0.string() == "list" || c0.string() == "append" || c0.string() == "concat"))
         {
             compileSpecific(c0, x, p);
-            return;
         }
         // registering structures
         else if (x.constList()[0].nodeType() == NodeType::Keyword)
         {
             Keyword n = x.constList()[0].keyword();
 
-            if (n == Keyword::If)
-                compileIf(x, p);
-            else if (n == Keyword::Set)
-                compileSet(x, p);
-            else if (n == Keyword::Let || n == Keyword::Mut)
-                compileLetMut(n, x, p);
-            else if (n == Keyword::Fun)
-                compileFunction(x, p);
-            else if (n == Keyword::Begin)
+            switch (n)
             {
-                for (std::size_t i=1, size=x.constList().size(); i < size; ++i)
-                    _compile(x.constList()[i], p);
-            }
-            else if (n == Keyword::While)
-                compileWhile(x, p);
-            else if (n == Keyword::Import)
-                compilePluginImport(x, p);
-            else if (n == Keyword::Quote)
-                compileQuote(x, p);
-            else if (n == Keyword::Del)
-                compileDel(x, p);
+                case Keyword::If:
+                    compileIf(x, p);
+                    break;
 
-            return;
+                case Keyword::Set:
+                    compileSet(x, p);
+                    break;
+
+                case Keyword::Let:
+                case Keyword::Mut:
+                    compileLetMut(n, x, p);
+                    break;
+
+                case Keyword::Fun:
+                    compileFunction(x, p);
+                    break;
+
+                case Keyword::Begin:
+                {
+                    m_holders.push_back(false);
+                    for (std::size_t i = 1, size = x.constList().size(); i < size; ++i)
+                        _compile(x.constList()[i], p);
+                    break;
+                }
+
+                case Keyword::While:
+                    compileWhile(x, p);
+                    break;
+
+                case Keyword::Import:
+                    compilePluginImport(x, p);
+                    break;
+
+                case Keyword::Quote:
+                    compileQuote(x, p);
+                    break;
+
+                case Keyword::Del:
+                    compileDel(x, p);
+                    break;
+            }
+        }
+        else
+        {
+            // if we are here, we should have a function name
+            // push arguments first, then function name, then call it
+            handleCalls(x, p);
         }
 
-        // if we are here, we should have a function name
-        // push arguments first, then function name, then call it
-        handleCalls(x, p);
-        return;
+        handleStackTrashing(p);
     }
 
     void Compiler::compileSymbol(const Node& x, int p)
@@ -295,6 +309,8 @@ namespace Ark
 
     void Compiler::compileSpecific(const Node& c0, const Node& x, int p)
     {
+        m_holders.push_back(true);
+
         std::string name = c0.string();
         Instruction specific = name == "list" ? Instruction::LIST :
             (name == "append" ? Instruction::APPEND : Instruction::CONCAT);
@@ -327,12 +343,18 @@ namespace Ark
             pushNumber(argc, &page(p));
         else
             pushNumber(argc - 1, &page(p));
+
+        m_holders.pop_back();
     }
 
     void Compiler::compileIf(const Node& x, int p)
     {
         // compile condition
+        // an if-condition can hold a value
+        m_holders.push_back(true);
         _compile(x.constList()[1], p);
+        m_holders.pop_back();
+
         // jump only if needed to the x.list()[2] part
         page(p).emplace_back(Instruction::POP_JUMP_IF_TRUE);
         std::size_t jump_to_if_pos = page(p).size();
@@ -353,6 +375,8 @@ namespace Ark
         // set jump to end pos
         page(p)[jump_to_end_pos]     = (static_cast<uint16_t>(page(p).size()) & 0xff00) >> 8;
         page(p)[jump_to_end_pos + 1] =  static_cast<uint16_t>(page(p).size()) & 0x00ff;
+
+        handleStackTrashing(p);
     }
 
     void Compiler::compileFunction(const Node& x, int p)
@@ -400,6 +424,8 @@ namespace Ark
 
     void Compiler::compileLetMut(Keyword n, const Node& x, int p)
     {
+        m_holders.push_back(true);
+
         std::string name = x.constList()[1].string();
         std::size_t i = addSymbol(x.constList()[1]);
         addDefinedSymbol(name);
@@ -415,6 +441,8 @@ namespace Ark
 
         page(p).emplace_back(n == Keyword::Let ? Instruction::LET : Instruction::MUT);
         pushNumber(static_cast<uint16_t>(i), &page(p));
+
+        m_holders.pop_back();
     }
 
     void Compiler::compileWhile(const Node& x, int p)
@@ -422,7 +450,11 @@ namespace Ark
         // save current position to jump there at the end of the loop
         std::size_t current = page(p).size();
         // push condition
+        // while-condition can hold a value
+        m_holders.push_back(true);
         _compile(x.constList()[1], p);
+        m_holders.pop_back();
+
         // absolute jump to end of block if condition is false
         page(p).emplace_back(Instruction::POP_JUMP_IF_FALSE);
         std::size_t jump_to_end_pos = page(p).size();
@@ -437,10 +469,14 @@ namespace Ark
         // set jump to end pos
         page(p)[jump_to_end_pos]     = (static_cast<uint16_t>(page(p).size()) & 0xff00) >> 8;
         page(p)[jump_to_end_pos + 1] =  static_cast<uint16_t>(page(p).size()) & 0x00ff;
+
+        handleStackTrashing(p);
     }
 
     void Compiler::compileSet(const Node& x, int p)
     {
+        m_holders.push_back(true);
+
         std::string name = x.constList()[1].string();
         std::size_t i = addSymbol(x.constList()[1]);
 
@@ -455,10 +491,14 @@ namespace Ark
 
         page(p).emplace_back(Instruction::STORE);
         pushNumber(static_cast<uint16_t>(i), &page(p));
+
+        m_holders.pop_back();
     }
 
     void Compiler::compileQuote(const Node& x, int p)
     {
+        m_holders.push_back(false);
+
         // create new page for quoted code
         m_code_pages.emplace_back();
         std::size_t page_id = m_code_pages.size() - 1;
@@ -470,6 +510,9 @@ namespace Ark
         // page(p).emplace_back(Instruction::SAVE_ENV);
         page(p).emplace_back(Instruction::LOAD_CONST);
         pushNumber(static_cast<uint16_t>(id), &page(p));
+
+        m_holders.pop_back();
+        handleStackTrashing(p);
     }
 
     void Compiler::compilePluginImport(const Node& x, int p)
@@ -495,6 +538,8 @@ namespace Ark
 
     void Compiler::handleCalls(const Node& x, int p)
     {
+        m_holders.push_back(true);
+
         m_temp_pages.emplace_back();
         int proc_page = -static_cast<int>(m_temp_pages.size());
         _compile(x.constList()[0], proc_page);  // storing proc
@@ -586,6 +631,9 @@ namespace Ark
                 }
             }
         }
+
+        m_holders.pop_back();
+        handleStackTrashing(p);
     }
 
     std::size_t Compiler::addSymbol(const Node& sym) noexcept
