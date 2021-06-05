@@ -1,0 +1,9 @@
+(puts "\t\tHello world\nHere is a counter: ")
+(mut i 0)
+(while (<= i 100) {
+    # puts doesn't put a \n at the end of the string
+    (puts "\rHere is a counter: " i "/100")
+    (set i (+ 1 i))
+    # sleep for 50ms
+    (sys:sleep 50)
+})
