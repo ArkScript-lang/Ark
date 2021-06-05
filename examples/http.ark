@@ -2,7 +2,7 @@
 (import "http.arkm")
 
 # a toggle to try the client and the server
-(let server true)
+(let server false)
 
 (if server
     # then, server

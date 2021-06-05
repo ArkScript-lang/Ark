@@ -17,15 +17,16 @@
 (let john (create-human "John" 12 15))
 
 # using the dot notation on a closure object, we can have a **read only** access to its fields
-(print bob.age)
+(print "Bob's age: " bob.age)
 # and even call the captured functions, which will enter the closure, and be given a **read write** access
 # meaning that, even if the fields are read only (eg, we can not do (set bob.age 14)), the "object" can be modified
+(print "Setting Bob's age to 10")
 (bob.set-age 10)
 # the age changed
-(print bob.age)
+(print "New age: " bob.age)
 
 # but john age didn't change, because we created 2 separated closures
-(print john.age)
+(print "John's age, didn't change: " john.age)
 
 
 
@@ -43,6 +44,6 @@
 
 (let countdown-from-3 (countdown-from 3))
 
-(print (countdown-from-3))  # 2
-(print (countdown-from-3))  # 1
-(print (countdown-from-3))  # 0
+(print "Countdown " (countdown-from-3))  # 2
+(print "Countdown " (countdown-from-3))  # 1
+(print "Countdown " (countdown-from-3))  # 0

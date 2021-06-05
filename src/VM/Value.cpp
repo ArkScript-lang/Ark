@@ -4,7 +4,7 @@
 
 #define init_const_type(is_const, type) ((is_const ? (1 << 7) : 0) | static_cast<uint8_t>(type))
 
-namespace Ark::internal
+namespace Ark
 {
     Value::Value() noexcept :
         m_const_type(init_const_type(false, ValueType::Undefined))
@@ -83,7 +83,7 @@ namespace Ark::internal
         m_value(value), m_const_type(init_const_type(false, ValueType::String))
     {}
 
-    Value::Value(PageAddr_t value) noexcept :
+    Value::Value(internal::PageAddr_t value) noexcept :
         m_value(value), m_const_type(init_const_type(false, ValueType::PageAddr))
     {}
 
@@ -95,7 +95,7 @@ namespace Ark::internal
         m_value(value), m_const_type(init_const_type(false, ValueType::List))
     {}
 
-    Value::Value(Closure&& value) noexcept :
+    Value::Value(internal::Closure&& value) noexcept :
         m_value(value), m_const_type(init_const_type(false, ValueType::Closure))
     {}
 
@@ -114,9 +114,9 @@ namespace Ark::internal
         return variant_get<std::vector<Value>>(m_value);
     }
 
-    Closure& Value::refClosure()
+    internal::Closure& Value::refClosure()
     {
-        return variant_get<Closure>(m_value);
+        return variant_get<internal::Closure>(m_value);
     }
 
     String& Value::stringRef()
