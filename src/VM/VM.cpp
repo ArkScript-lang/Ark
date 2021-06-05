@@ -2,9 +2,10 @@
 
 #include <termcolor.hpp>
 
-struct mapping {
+struct mapping
+{
     char* name;
-    Ark::internal::Value (*value)(std::vector<Ark::internal::Value>&, Ark::VM*);
+    Ark::Value (*value)(std::vector<Ark::Value>&, Ark::VM*);
 };
 
 namespace Ark
@@ -14,13 +15,17 @@ namespace Ark
     VM::VM(State* state) noexcept :
         m_state(state), m_exitCode(0), m_ip(0), m_pp(0), m_sp(0), m_fc(0),
         m_running(false), m_last_sym_loaded(0),
-        m_until_frame_count(0), m_user_pointer(nullptr)
+        m_until_frame_count(0), m_stack(nullptr), m_user_pointer(nullptr)
     {
         m_locals.reserve(4);
     }
 
     void VM::init() noexcept
     {
+        // initialize the stack
+        if (m_stack == nullptr)
+            m_stack = std::make_unique<std::array<Value, ArkVMStackSize>>();
+
         // clearing frames and setting up a new one
         if ((m_state->m_options & FeaturePersist) == 0)
         {
@@ -64,7 +69,7 @@ namespace Ark
         }
     }
 
-    internal::Value& VM::operator[](const std::string& name) noexcept
+    Value& VM::operator[](const std::string& name) noexcept
     {
         const std::lock_guard<std::mutex> lock(m_mutex);
 
@@ -963,7 +968,7 @@ namespace Ark
     //             error handling
     // ------------------------------------------
 
-    uint16_t VM::findNearestVariableIdWithValue(internal::Value&& value) noexcept
+    uint16_t VM::findNearestVariableIdWithValue(Value&& value) noexcept
     {
         for (auto it=m_locals.rbegin(), it_end=m_locals.rend(); it != it_end; ++it)
         {

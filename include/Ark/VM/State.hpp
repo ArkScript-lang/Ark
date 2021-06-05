@@ -2,7 +2,7 @@
  * @file State.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief State used by the virtual machine: it loads the bytecode, can compile it if needed, load C++ functions...
- * @version 0.1
+ * @version 0.2
  * @date 2020-10-27
  * 
  * @copyright Copyright (c) 2020
@@ -80,7 +80,7 @@ namespace Ark
          * @param name the name of the function in ArkScript
          * @param function the code of the function
          */
-        void loadFunction(const std::string& name, internal::Value::ProcType function) noexcept;
+        void loadFunction(const std::string& name, Value::ProcType function) noexcept;
 
         /**
          * @brief Set the script arguments in sys:args
@@ -143,11 +143,11 @@ namespace Ark
 
         // related to the bytecode
         std::vector<std::string> m_symbols;
-        std::vector<internal::Value> m_constants;
+        std::vector<Value> m_constants;
         std::vector<bytecode_t> m_pages;
 
         // related to the execution
-        std::unordered_map<std::string, internal::Value> m_binded;
+        std::unordered_map<std::string, Value> m_binded;
     };
 }
 

@@ -29,7 +29,7 @@ inline std::optional<std::size_t> Compiler::isOperator(const std::string& name) 
 inline std::optional<std::size_t> Compiler::isBuiltin(const std::string& name) noexcept
 {
     auto it = std::find_if(internal::Builtins::builtins.begin(), internal::Builtins::builtins.end(),
-        [&name](const std::pair<std::string, internal::Value>& element) -> bool {
+        [&name](const std::pair<std::string, Value>& element) -> bool {
             return name == element.first;
     });
     if (it != internal::Builtins::builtins.end())
