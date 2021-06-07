@@ -2,7 +2,7 @@
  * @file UserType.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Subtype of the value, capable of handling any C++ type
- * @version 0.1
+ * @version 0.2
  * @date 2020-10-27
  * 
  * @copyright Copyright (c) 2020
@@ -46,7 +46,7 @@ namespace Ark
          * @param data a pointer to the data to store in the object
          */
         template <typename T>
-        explicit UserType(T* data=nullptr) noexcept :
+        explicit UserType(T* data = nullptr) noexcept :
             m_data(static_cast<void*>(data)),
             m_funcs(nullptr),
             m_type_id(typeid(T).hash_code() & static_cast<uint16_t>(~0))
