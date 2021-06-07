@@ -8,7 +8,7 @@
 
 namespace Ark
 {
-    Repl::Repl(uint16_t options, std::string lib_dir) :
+    Repl::Repl(uint16_t options, const std::string& lib_dir) :
         m_options(options), m_lib_dir(lib_dir), m_lines(1), m_old_ip(0)
     {}
 
@@ -114,7 +114,7 @@ namespace Ark
     {
         int open_parentheses = 0;
 
-        for (const char& c: line)
+        for (const char& c : line)
         {
             switch (c)
             {
@@ -130,7 +130,7 @@ namespace Ark
     {
         int open_braces = 0;
 
-        for (const char& c: line)
+        for (const char& c : line)
         {
             switch (c)
             {

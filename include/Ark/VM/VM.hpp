@@ -2,10 +2,10 @@
  * @file VM.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief The ArkScript virtual machine
- * @version 0.2
+ * @version 0.3
  * @date 2020-10-27
  * 
- * @copyright Copyright (c) 2020
+ * @copyright Copyright (c) 2020-2021
  * 
  */
 
@@ -121,7 +121,7 @@ namespace Ark
     private:
         State* m_state;
 
-        int m_exitCode;     ///< VM exit code, defaults to 0. Can be changed through `sys:exit`
+        int m_exit_code;     ///< VM exit code, defaults to 0. Can be changed through `sys:exit`
         int m_ip;           ///< instruction pointer
         std::size_t m_pp;   ///< page pointer
         uint16_t m_sp;      ///< stack pointer
@@ -149,7 +149,7 @@ namespace Ark
          * @param untilFrameCount the frame count we need to reach before stopping the VM
          * @return int the exit code
          */
-        int safeRun(std::size_t untilFrameCount=0);
+        int safeRun(std::size_t untilFrameCount = 0);
 
         /**
          * @brief Initialize the VM according to the parameters
@@ -276,7 +276,7 @@ namespace Ark
          * 
          * @param argc_ number of arguments already sent, default to -1 if it needs to search for them by itself
          */
-        inline void call(int16_t argc_=-1);
+        inline void call(int16_t argc_ = -1);
     };
 
     #include "inline/VM.inl"

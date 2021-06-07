@@ -5,7 +5,7 @@
  * @version 0.2
  * @date 2020-10-27
  * 
- * @copyright Copyright (c) 2020
+ * @copyright Copyright (c) 2020-2021
  * 
  */
 
@@ -31,7 +31,6 @@
 #include <Ark/String.hpp>  // our string implementation
 #include <array>
 
-#include <Ark/VM/Types.hpp>
 #include <Ark/VM/Closure.hpp>
 #include <Ark/Exceptions.hpp>
 #include <Ark/VM/UserType.hpp>

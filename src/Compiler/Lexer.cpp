@@ -30,7 +30,7 @@ namespace Ark::internal
             buffer.clear();
         };
 
-        for (std::size_t pos=0; pos < code.size(); ++pos)
+        for (std::size_t pos = 0, end = code.size(); pos < end; ++pos)
         {
             char current = code[pos];
 

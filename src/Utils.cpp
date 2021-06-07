@@ -2,7 +2,7 @@
 
 namespace Ark::Utils
 {
-    int dec_places(double d)
+    int decPlaces(double d)
     {
         constexpr double precision = 1e-7;
         double temp = 0.0;
@@ -18,7 +18,7 @@ namespace Ark::Utils
         return decimal_places;
     }
 
-    int dig_places(double d)
+    int digPlaces(double d)
     {
         int digit_places = 0;
         int i = static_cast<int>(d);

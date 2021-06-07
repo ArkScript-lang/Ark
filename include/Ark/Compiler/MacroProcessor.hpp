@@ -2,7 +2,7 @@
  * @file MacroProcessor.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Handles the macros and their expansion in ArkScript source code
- * @version 0.3
+ * @version 0.4
  * @date 2021-02-18
  * 
  * @copyright Copyright (c) 2021
@@ -14,7 +14,7 @@
 
 #include <Ark/Compiler/Node.hpp>
 #include <Ark/Exceptions.hpp>
-#include <Ark/Compiler/makeNodeBasedError.hpp>
+#include <Ark/Compiler/makeErrorCtx.hpp>
 #include <Ark/Compiler/MacroExecutor.hpp>
 #include <Ark/Compiler/MacroExecutors/MacroExecutorPipeline.hpp>
 
@@ -154,7 +154,7 @@ namespace Ark::internal
          * @param parent 
          * @param index position of target inside parent->list()
          */
-        void unify(const std::unordered_map<std::string, Node>& map, Node& target, Node* parent, std::size_t index=0);
+        void unify(const std::unordered_map<std::string, Node>& map, Node& target, Node* parent, std::size_t index = 0);
 
         /**
          * @brief Evaluate only the macros
@@ -163,7 +163,7 @@ namespace Ark::internal
          * @param is_not_body true if the method is run on a non-body code (eg a condition of an if-macro)
          * @return Node 
          */
-        Node evaluate(Node& node, bool is_not_body=false);
+        Node evaluate(Node& node, bool is_not_body = false);
 
         /**
          * @brief Check if a node can be evaluated to true
