@@ -31,7 +31,7 @@ namespace Ark
          * @param options the REPL options
          * @param lib_dir the path to the standard library
          */
-        Repl(uint16_t options, std::string lib_dir);
+        Repl(uint16_t options, const std::string& lib_dir);
 
         /**
          * @brief Start the REPL

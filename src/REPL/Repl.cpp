@@ -8,7 +8,7 @@
 
 namespace Ark
 {
-    Repl::Repl(uint16_t options, std::string lib_dir) :
+    Repl::Repl(uint16_t options, const std::string& lib_dir) :
         m_options(options), m_lib_dir(lib_dir), m_lines(1), m_old_ip(0)
     {}
 
