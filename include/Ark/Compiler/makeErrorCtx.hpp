@@ -19,7 +19,16 @@ namespace Ark::internal
      */
     std::string makeNodeBasedErrorCtx(const std::string& message, const Ark::internal::Node& node);
 
-    
+    /**
+     * @brief Construct an error message based on a given match in the code
+     * @details Mostly used by the Lexer and Parser since they don't have Nodes to work on
+     * 
+     * @param match the identified token, causing a problem
+     * @param line line of the token
+     * @param col starting column of the token
+     * @param code the whole code of the file
+     * @return std::string the complete generated error message
+     */
     std::string makeTokenBasedErrorCtx(const std::string& match, std::size_t line, std::size_t col, const std::string& code);
 }
 
