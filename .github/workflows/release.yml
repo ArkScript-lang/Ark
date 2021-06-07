@@ -36,11 +36,8 @@ jobs:
       - name: Make ZIPs
         shell: bash
         run: |
-          ls -R
-          mv ark-linux-gcc-version linux64
-          zip linux64
-          mv ark-windows-msvc-version win64
-          zip win64
+          (cd ark-linux-gcc-version && zip -r linux64.zip ./)
+          (cd ark-windows-msvc-version && zip -r win64.zip ./)
 
       - name: Extract release notes
         id: extract-release-notes
