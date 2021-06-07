@@ -19,6 +19,7 @@ namespace Ark::internal
      */
     std::string makeNodeBasedErrorCtx(const std::string& message, const Ark::internal::Node& node);
 
+    
     std::string makeTokenBasedErrorCtx(const std::string& match, std::size_t line, std::size_t col, const std::string& code);
 }
 
