@@ -249,7 +249,7 @@ namespace Ark
         std::vector<unsigned char> hash(picosha2::k_digest_size);
         picosha2::hash256(m_bytecode.begin() + i + picosha2::k_digest_size, m_bytecode.end(), hash);
         // checking integrity
-        for (std::size_t j=0; j < picosha2::k_digest_size; ++j)
+        for (std::size_t j = 0; j < picosha2::k_digest_size; ++j)
         {
             if (hash[j] != m_bytecode[i])
                 throwStateError("Integrity check failed");
@@ -263,7 +263,7 @@ namespace Ark
             m_symbols.reserve(size);
             i++;
 
-            for (uint16_t j=0; j < size; ++j)
+            for (uint16_t j = 0; j < size; ++j)
             {
                 std::string symbol = "";
                 while (m_bytecode[i] != 0)
@@ -283,7 +283,7 @@ namespace Ark
             m_constants.reserve(size);
             i++;
 
-            for (uint16_t j=0; j < size; ++j)
+            for (uint16_t j = 0; j < size; ++j)
             {
                 uint8_t type = m_bytecode[i];
                 i++;
@@ -329,7 +329,7 @@ namespace Ark
             m_pages.emplace_back();
             m_pages.back().reserve(size);
 
-            for (uint16_t j=0; j < size; ++j)
+            for (uint16_t j = 0; j < size; ++j)
                 m_pages.back().push_back(m_bytecode[i++]);
             
             if (i == m_bytecode.size())

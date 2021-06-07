@@ -175,7 +175,7 @@ namespace Ark::internal
         case ValueType::List:
         {
             os << "[";
-            for (auto it=V.constList().begin(), it_end=V.constList().end(); it != it_end; ++it)
+            for (auto it = V.constList().begin(), it_end = V.constList().end(); it != it_end; ++it)
             {
                 if (it->valueType() == ValueType::String)
                     os << "\"" << (*it) << "\"";

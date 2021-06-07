@@ -547,7 +547,7 @@ namespace Ark
                         if (count != 0)
                             l.list().reserve(count);
 
-                        for (uint16_t i=0; i < count; ++i)
+                        for (uint16_t i = 0; i < count; ++i)
                             l.push_back(*popAndResolveAsPtr());
                         push(std::move(l));
 
@@ -568,7 +568,7 @@ namespace Ark
                         Value obj = Value(*list);
                         obj.list().reserve(size + count);
 
-                        for (uint16_t i=0; i < count; ++i)
+                        for (uint16_t i = 0; i < count; ++i)
                             obj.push_back(*popAndResolveAsPtr());
                         push(std::move(obj));
 
@@ -587,13 +587,13 @@ namespace Ark
 
                         Value obj = Value(*list);
 
-                        for (uint16_t i=0; i < count; ++i)
+                        for (uint16_t i = 0; i < count; ++i)
                         {
                             Value *next = popAndResolveAsPtr();
                             if (next->valueType() != ValueType::List)
                                 throw Ark::TypeError("concat needs lists");
 
-                            for (auto it=next->list().begin(), end=next->list().end(); it != end; ++it)
+                            for (auto it = next->list().begin(), end = next->list().end(); it != end; ++it)
                                 obj.push_back(*it);
                         }
                         push(std::move(obj));
@@ -965,7 +965,7 @@ namespace Ark
 
     uint16_t VM::findNearestVariableIdWithValue(internal::Value&& value) noexcept
     {
-        for (auto it=m_locals.rbegin(), it_end=m_locals.rend(); it != it_end; ++it)
+        for (auto it = m_locals.rbegin(), it_end = m_locals.rend(); it != it_end; ++it)
         {
             if (auto id = (*it)->idFromValue(std::move(value)); id < m_state->m_symbols.size())
                 return id;
@@ -1031,7 +1031,7 @@ namespace Ark
 
             // display variables values in the current scope
             std::printf("\nCurrent scope variables values:\n");
-            for (std::size_t i=0, size=old_scope.size(); i < size; ++i)
+            for (std::size_t i = 0, size = old_scope.size(); i < size; ++i)
                 std::cerr << termcolor::cyan << m_state->m_symbols[old_scope.m_data[i].first] << termcolor::reset
                           << " = " << old_scope.m_data[i].second << "\n";
 

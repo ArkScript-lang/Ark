@@ -24,7 +24,7 @@ namespace Ark::internal
         {
             std::vector<std::string> ctx = Ark::Utils::splitString(Ark::Utils::readFile(node.filename()), '\n');
 
-            for (int i=3; i > -3; --i)
+            for (int i = 3; i > -3; --i)
             {
                 int iline = static_cast<int>(node.line());
                 if (iline - i >= 0 && iline - i < ctx.size())
@@ -34,10 +34,10 @@ namespace Ark::internal
                 {
                     ss << "      | ";
                     // padding of spaces
-                    for (std::size_t j=0; (ssize > node.col()) ? false : (j < node.col()); ++j)
+                    for (std::size_t j = 0; (ssize > node.col()) ? false : (j < node.col()); ++j)
                         ss << " ";
                     // show the error
-                    for (std::size_t j=0; (ssize > node.col()) ? (j < ctx[node.line()].size()) : (j < ssize); ++j)
+                    for (std::size_t j = 0; (ssize > node.col()) ? (j < ctx[node.line()].size()) : (j < ssize); ++j)
                         ss << "^";
                     ss << "\n";
                 }
