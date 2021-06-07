@@ -34,6 +34,7 @@ jobs:
       - name: Make ZIPs
         shell: bash
         run: |
+          ls -R
           mv ark-linux-gcc-version linux64
           zip linux64
           mv ark-windows-msvc-version win64
