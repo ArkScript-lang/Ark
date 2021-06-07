@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased changes
+## [Unreleased]
 ### Added
 - adding of new string function for manipulation of utf8 string (str:ord and str:chr)
 - utf8 support for lexer
@@ -63,7 +63,7 @@
 - use of static in the MacroProcessor and in the NodeType to string conversion function
 - `Ark::Logger` was removed in favor of `std::cout/cerr` + `termcolor`
 
-## 3.0.15
+## [3.0.15] - 2020-12-27
 ### Added
 - new submodule, plasma-umass/coz (a profiler)
 - macros for profiling, enabled only if `ARK_PROFILE` is defined
@@ -86,7 +86,7 @@
 - lighter Frame (from 40B to 32B), moved some unrelated logic from the frame to the virtual machine
 - `(sys:exec)` now returns the stdout output of the given command
 
-## 3.0.14
+## [3.0.14] - 2020-11-26
 ### Added
 - the parser can handle `(let|mut a b.c)` (bug fix)
 - `f[ruv|no-ruv]` CLI switch to control the optimizer (ruv stands for remove unused variables)
@@ -118,7 +118,7 @@
 - worthless examples were removed
 - removing `f[no-]aitap` since it wasn't used anymore in the code
 
-## 3.0.13
+## [3.0.13] - 2020-10-12
 ### Added
 - string tests
 - list tests
@@ -131,7 +131,7 @@
 - converting `list`, `append` and `concat` to instructions
 - instructions `LIST` `CONCAT` and `APPEND` added to replace the corresponding builtins
 
-## 3.0.12
+## [3.0.12] - 2020-09-06
 ### Added
 - using a macro to define the default filename (when none is given, eg when loading bytecode files or from the REPL)
 - `PLUGIN <const id>` instruction to load plugin dynamically and not when the VM boots up
@@ -179,7 +179,7 @@
 - `not_()` from usertype
 - removed Parser/Utf8Converter
 
-## 3.0.11
+## [3.0.11] - 2020-06-21
 ### Added
 - member function `resolve(Args&& args...)` to Value, callable by plugins to resolve the value of a function called with specific arguments given by the plugin
 - `(fill qu value)` create a list of `qu` `value`s
@@ -210,7 +210,7 @@
 ### Removed
 - removed NFT from the internal API to rely only on the value type
 
-## 3.0.10
+## [3.0.10] - 2020-02-09
 ### Added
 - adding `sort` to sort a list
 - added `\t`, `\n`, `\v` and `\r` escape codes (available in strings only)
@@ -231,7 +231,7 @@
 - better tests presentation
 - moved the modules to https://github.com/ArkScript-lang/modules
 
-## 3.0.9
+## [3.0.9] - 2019-10-27
 ### Added
 - fixing segfault when the VM receives an empty code page (generated from an empty block)
 - `(print (fun () ()))` will now print `Function @ 1` instead of just its page addr, `1`
@@ -250,7 +250,7 @@
 - better cyclic includes detection
 - better VM error message when redefining a variable through `let`
 
-## 3.0.8
+## [3.0.8] - 2019-10-22
 ### Added
 - it's now possible to compare Values using `operator<`
 - `reverseList` (added to the FFI) by @rinz13r
@@ -264,7 +264,7 @@
 - replacing Ark with ArkScript in source code and files (Ark being the shortname for ArkScript, as JS is the shortname for Javascript)
 - `findInList` now returns `nil` when the object can not be found, otherwise it returns its index in the list
 
-## 3.0.7
+## [3.0.7] - 2019-10-15
 ### Added
 - `cos`, `arccos`, `sin`, `arcsin`, `tan`, `arctan`
 - `E` (exp 1), `Pi`, `Tau` (2 * Pi), `NaN`, `Inf`
@@ -279,7 +279,7 @@
 - re-updating the import rules on the parser side to be able to import files in subfolders from the standard library
 - updating naming convention of the modules
 
-## 3.0.6-b
+## [3.0.6-b] - 2019-10-09
 ### Added
 - adding `lib/Functional.ark` to store `(compose f g)`
 
@@ -287,7 +287,7 @@
 - the VM now deletes all scopes except the global one in case of failure, when the persisting flag is set
 - fixing plugin importation
 
-## 3.0.6
+## [3.0.6] - 2019-10-07
 ### Added
 - function arity handling in the VM, can be disabled with the option `-fno-function-arity-check`
 - `sliceStr` in `lib/Slice.ark`, taking a string, a starting index (can't be less than 0), and the length (can't be less than 1), returning a portion of the given string
@@ -300,7 +300,7 @@
 - updated assertions in `split` in `lib/Split.ark` (works only with single character separators)
 - fixing import bug
 
-## 3.0.5
+## [3.0.5] - 2019-10-04
 ### Added
 - the parser can now recognize expressions like `((f f) x)`
 - we can now create `Ark::Value` with floats
@@ -313,7 +313,7 @@
 - `VM.call` should return `nil` if the stack is empty, otherwise it results in a `vector subscript out of range` and that's bad
 - the SFML plugin was updated to run on Windows
 
-## 3.0.4
+## [3.0.4] - 2019-09-01
 ### Added
 - with the option `-L|--lib` we can set the path to the ArkScript standard library
 - we can now load C++ lambdas into the ArkVM, as well as C++ functions
@@ -329,7 +329,7 @@
 ### Removed
 - `doc` folder, now everything is on the wiki
 
-## 3.0.3
+## [3.0.3] - 2019-08-23
 ### Added
 - should be able to compare lists
 - chained operators: `(+ 1 2 3)` is automatically expanded (at compile time) into `(+ (+ 1 2) 3)` by the compiler
@@ -341,7 +341,7 @@
 - uniformised names of builtins: pascal case (impacted functions are `firstOf`, `headOf` and `tailOf`, as well as `hasField`)
 - fixing bug with `writeFile` when sending a mode: the mode was also the content of the file, it no longer is
 
-## 3.0.2
+## [3.0.2] - 2019-08-22
 ### Added
 - cmake options `ARK_BUILD_EXE` and `ARK_BUILD_BENCHMARK` to choose what to build
 - when the VM crash, displaying stack trace
@@ -357,7 +357,7 @@
 ### Removed
 - flag `-c|--compile` to force compilation was not useful
 
-## 3.0.1
+## [3.0.1] - 2019-07-25
 ### Added
 - we can now call functions captured by closures, inside the scope of the closure, using the dot notation
 
@@ -365,7 +365,7 @@
 - the CLI is checking the timestamp of the file to know if it should recompile it or not
 - the CLI knows if it should recompile the given file or not
 
-## 3.0.0
+## [3.0.0] - 2019
 ### Added
 - adding `del` and `mut` keywords. Now `let` is for settings constants and `mut` for variables. Also it isn't possible to use `let` to define the same constant twice
 - `google/benchmark` library for the benchmarks
@@ -390,7 +390,7 @@
 - Lexer::check, we should see if the program is correct when building the AST
 - removed from the bytecode `NEW_ENV`
 
-## 2.2.0-dev
+## [2.2.0-dev] - 2019-06-01
 ### Added
 - option in the CMakeLists.txt to use MPIR or not (defaults to no MPIR)
 - information about the compilation options used for ArkScript in the CLI
@@ -407,7 +407,7 @@
 - supporting both BigNum and double is a bad idea, using only double now
 - removed the interpreter
 
-## 2.1.0-dev
+## [2.1.0-dev] - 2019-05-05
 ### Added
 - adding `switch` and `defer1` in the standard library (`defer1` shall be rewritten using `quote`)
 - keyword `quote`, macro version is `` ` ``
@@ -422,9 +422,7 @@
 - new CLI
 - handling floating pointer numbers and rational numbers
 
-### Removed
-
-## 2.0.0-dev
+## [2.0.0-dev] - 02-05-2020
 ### Added
 - configure.py script, to download, build and install mpir 3.0.0
 - builtins functions: input, toNumber, toString
@@ -445,7 +443,7 @@
 ### Removed
 - `hastype` keyword because I never had to implement compile time typechecking, so it's not useful
 
-## 1.2.2-dev
+## [1.2.2-dev] - 2019-05-02
 ### Added
 - adding `import` keyword (handled by parser), throwing an error if a cyclic included is detected
 
@@ -453,7 +451,7 @@
 - CMakeLists.txt to add `install` rules: installing ArkScript in bin/ and the ArkScript standard library in share/.Ark/lib/
 - updated documentation
 
-## 1.2.1-dev
+## [1.2.1-dev] - 2019
 ### Added
 - runtime typechecking
 - exceptions (in the C++ ArkScript API)
@@ -465,7 +463,7 @@
 ### Removed
 - unnecessary destructors removed to let the compiler auto generate T(T&&) (to avoid implicitly using T(const T&))
 
-## 1.2.0-dev
+## [1.2.0-dev] - 2019
 ### Added
 - syntactic sugar handling in the parser
 - GMP lib to handle very large number
@@ -482,7 +480,7 @@
 ### Removed
 - dozerg::HugeNumber, it was too slow
 
-## 1.1.0-dev
+## [1.1.0-dev] - 2019
 ### Added
 - test.cpp to try to embed ArkScript into a C++ project
 - updated the documentation
@@ -497,7 +495,7 @@
 - CMakeLists.txt, adding an option to chose between compiling main.cpp or test.cpp
 - moved the VM FFI into include/Ark/VM
 
-## 1.0.0-dev
+## [1.0.0-dev] - 2019
 ## Added
 - beginning of the documentation
 - compiler (ark code to ark bytecode)
@@ -507,7 +505,7 @@
 - interpreter and VM FFI
 - logger
 
-## 0.1.0-dev
+## [0.1.0-dev] - 2019
 ### Added
 - Node (to represent an AST node and a Node in the language)
 - Environment to map variables and values
@@ -518,7 +516,7 @@
 - tests
 - utils to play with files
 
-## 0.0.1-dev
+## [0.0.1-dev] - 2019
 ### Added
 - utils to play with strings and numbers
 - default CLI (using clipp)
