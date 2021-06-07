@@ -23,6 +23,7 @@
 #include <Ark/Exceptions.hpp>
 #include <Ark/Compiler/Lexer.hpp>
 #include <Ark/Compiler/Node.hpp>
+#include <Ark/Compiler/makeErrorCtx.hpp>
 
 namespace Ark
 {
