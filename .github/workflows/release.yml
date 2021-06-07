@@ -6,8 +6,6 @@ on:
       versionName:
         description: 'Name of version  (ie 5.5.0)'
         required: true
-  pull_request:
-    branches: [dev]  # THIS IS FOR TESTING ONLY
 
 jobs:
   release:
