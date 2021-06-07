@@ -4,8 +4,6 @@
 
 #include <Ark/Builtins/Builtins.hpp>
 
-#define Builtins_Function(name) Value name(std::vector<Value>& n)
-
 namespace Ark::internal::Builtins
 {
     extern const Value falseSym = Value(ValueType::False);
