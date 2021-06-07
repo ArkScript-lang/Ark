@@ -2,7 +2,7 @@
  * @file Utils.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Lots of utilities about string, filesystem and more
- * @version 0.1
+ * @version 0.2
  * @date 2020-10-27
  * 
  * @copyright Copyright (c) 2020-2021
@@ -208,7 +208,7 @@ namespace Ark::Utils
      * @param d 
      * @return int 
      */
-    int dec_places(double d);
+    int decPlaces(double d);
 
     /**
      * @brief Count the number of digits for a double
@@ -216,7 +216,7 @@ namespace Ark::Utils
      * @param d 
      * @return int 
      */
-    int dig_places(double d);
+    int digPlaces(double d);
 }
 
 #endif

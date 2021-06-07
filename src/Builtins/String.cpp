@@ -28,7 +28,7 @@ namespace Ark::internal::Builtins::String
             else if (it->valueType() == ValueType::Number)
             {
                 double obj = it->number();
-                f.format(f.size() + Utils::dig_places(obj) + Utils::dec_places(obj) + 1, obj);
+                f.format(f.size() + Utils::digPlaces(obj) + Utils::decPlaces(obj) + 1, obj);
             }
             else if (it->valueType() == ValueType::Nil)
                 f.format(f.size() + 5, std::string_view("nil"));

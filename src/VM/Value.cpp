@@ -155,7 +155,7 @@ namespace Ark::internal
         case ValueType::Number:
         {
             double d = V.number();
-            os.precision(Utils::dig_places(d) + Utils::dec_places(d));
+            os.precision(Utils::digPlaces(d) + Utils::decPlaces(d));
             os << d;
             break;
         }
