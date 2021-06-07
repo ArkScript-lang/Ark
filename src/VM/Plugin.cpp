@@ -7,15 +7,15 @@
 namespace Ark::internal
 {
     SharedLibrary::SharedLibrary() :
-        m_instance(NULL)
-        , m_path("")
-        , m_loaded(false)
+        m_instance(NULL),
+        m_path(""),
+        m_loaded(false)
     {}
 
     SharedLibrary::SharedLibrary(const std::string& path) :
-        m_instance(NULL)
-        , m_path(path)
-        , m_loaded(false)
+        m_instance(NULL),
+        m_path(path),
+        m_loaded(false)
     {
         load(m_path);
     }
