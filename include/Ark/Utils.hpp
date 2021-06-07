@@ -122,7 +122,7 @@ namespace Ark::Utils
      * @return true on success
      * @return false on failure
      */
-    inline bool isDouble(const std::string& s, double* output=nullptr)
+    inline bool isDouble(const std::string& s, double* output = nullptr)
     {
         char* end = 0;
         double val = strtod(s.c_str(), &end);
