@@ -1,0 +1,23 @@
+(mut i 0)
+(while (< i 10000) {
+    1
+    (set i (+ 1 i))
+})
+
+# Expected bytecode output:
+# LOAD_CONST (Number) 0.000000
+# MUT i
+# LOAD_SYMBOL i
+# LOAD_CONST (Number) 10000.000000
+# LT
+# POP_JUMP_IF_FALSE (36)
+# LOAD_CONST (Number) 1.000000
+# POP
+# LOAD_CONST (Number) 1.000000
+# LOAD_SYMBOL i
+# ADD
+# STORE i
+# JUMP (7)
+# HALT
+
+# Nota bene: jump addresses are wrong, but the instructions are correct
