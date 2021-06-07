@@ -38,6 +38,9 @@ jobs:
         run: |
           (cd ark-linux-gcc-version && zip -r linux64.zip ./)
           (cd ark-windows-msvc-version && zip -r win64.zip ./)
+          ls -R
+          echo ------------------------
+          pwd
 
       - name: Extract release notes
         id: extract-release-notes
