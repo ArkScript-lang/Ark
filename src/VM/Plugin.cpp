@@ -7,13 +7,13 @@
 namespace Ark::internal
 {
     SharedLibrary::SharedLibrary() :
-        m_hInstance(NULL)
+        m_instance(NULL)
         , m_path("")
         , m_loaded(false)
     {}
 
     SharedLibrary::SharedLibrary(const std::string& path) :
-        m_hInstance(NULL)
+        m_instance(NULL)
         , m_path(path)
         , m_loaded(false)
     {
@@ -33,7 +33,7 @@ namespace Ark::internal
         m_path = path;
         
 #if defined(_WIN32) || defined(_WIN64)
-        if (NULL == (m_hInstance = LoadLibrary(m_path.c_str())))
+        if (NULL == (m_instance = LoadLibrary(m_path.c_str())))
         {
             throw std::system_error(
                 std::error_code(::GetLastError(), std::system_category())
@@ -41,7 +41,7 @@ namespace Ark::internal
             );
         }
 #elif (defined(unix) || defined(__unix) || defined(__unix__)) || defined(__APPLE__)
-        if (NULL == (m_hInstance = dlopen(m_path.c_str(), RTLD_LAZY | RTLD_GLOBAL)))
+        if (NULL == (m_instance = dlopen(m_path.c_str(), RTLD_LAZY | RTLD_GLOBAL)))
         {
             throw std::system_error(
                 std::error_code(errno, std::system_category())
@@ -57,9 +57,9 @@ namespace Ark::internal
         if (m_loaded)
         {
 #if defined(_WIN32) || defined(_WIN64)
-            FreeLibrary(m_hInstance);
+            FreeLibrary(m_instance);
 #elif (defined(unix) || defined(__unix) || defined(__unix__)) || defined(__APPLE__)
-            dlclose(m_hInstance);
+            dlclose(m_instance);
 #endif
         }
     }

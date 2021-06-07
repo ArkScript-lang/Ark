@@ -2,7 +2,7 @@
  * @file VM.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief The ArkScript virtual machine
- * @version 0.1
+ * @version 0.2
  * @date 2020-10-27
  * 
  * @copyright Copyright (c) 2020
@@ -149,7 +149,7 @@ namespace Ark
          * @param untilFrameCount the frame count we need to reach before stopping the VM
          * @return int the exit code
          */
-        int safeRun(std::size_t untilFrameCount=0);
+        int safeRun(std::size_t untilFrameCount = 0);
 
         /**
          * @brief Initialize the VM according to the parameters
@@ -276,7 +276,7 @@ namespace Ark
          * 
          * @param argc_ number of arguments already sent, default to -1 if it needs to search for them by itself
          */
-        inline void call(int16_t argc_=-1);
+        inline void call(int16_t argc_ = -1);
     };
 
     #include "inline/VM.inl"

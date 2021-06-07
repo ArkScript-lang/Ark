@@ -2,7 +2,7 @@
  * @file State.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief State used by the virtual machine: it loads the bytecode, can compile it if needed, load C++ functions...
- * @version 0.1
+ * @version 0.2
  * @date 2020-10-27
  * 
  * @copyright Copyright (c) 2020
@@ -36,7 +36,7 @@ namespace Ark
          * @param options the options for the virtual machine, compiler, and parser
          * @param libdir the path to the standard library, defaults to "?" which means: search in environment variables
          */
-        State(uint16_t options=DefaultFeatures, const std::string& libdir="?") noexcept;
+        State(uint16_t options = DefaultFeatures, const std::string& libdir = "?") noexcept;
 
         /**
          * @brief Feed the state by giving it the path to an existing bytecode file

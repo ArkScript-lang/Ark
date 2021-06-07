@@ -2,7 +2,7 @@
  * @file Plugin.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Loads .dll/.so/.dynlib files
- * @version 0.1
+ * @version 0.2
  * @date 2020-10-27
  * 
  * @copyright Copyright (c) 2020
@@ -82,19 +82,19 @@ namespace Ark::internal
             T funcptr;
 
 #if defined(_WIN32) || defined(_WIN64)
-            if (NULL == (funcptr = reinterpret_cast<T>(GetProcAddress(m_hInstance, procname.c_str()))))
+            if (NULL == (funcptr = reinterpret_cast<T>(GetProcAddress(m_instance, procname.c_str()))))
             {
                 throw std::system_error(
                     std::error_code(::GetLastError(), std::system_category())
-                    , std::string("Couldn't find ") + procname
+                    , std::string("PluginError: Couldn't find ") + procname
                 );
             }
 #elif (defined(unix) || defined(__unix) || defined(__unix__)) || defined(__APPLE__)
-            if (NULL == (funcptr = reinterpret_cast<T>(dlsym(m_hInstance, procname.c_str()))))
+            if (NULL == (funcptr = reinterpret_cast<T>(dlsym(m_instance, procname.c_str()))))
             {
                 throw std::system_error(
                     std::error_code(errno, std::system_category())
-                    , std::string("Couldn't find ") + procname + ", " + std::string(dlerror())
+                    , std::string("PluginError: Couldn't find ") + procname + ", " + std::string(dlerror())
                 );
             }
 #endif
@@ -103,9 +103,9 @@ namespace Ark::internal
 
     private:
 #if defined(_WIN32) || defined(_WIN64)
-        HINSTANCE m_hInstance;
+        HINSTANCE m_instance;
 #elif (defined(unix) || defined(__unix) || defined(__unix__)) || defined(__APPLE__)
-        void* m_hInstance;
+        void* m_instance;
 #endif
         std::string m_path;
         bool m_loaded;
