@@ -16,8 +16,6 @@
 #include <utility>
 #include <sstream>
 
-#include <utf8_decoder/utf8_decoder.h>
-
 #include <Ark/VM/Value.hpp>
 #include <Ark/Exceptions.hpp>
 #include <Ark/Utils.hpp>

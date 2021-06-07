@@ -2,6 +2,7 @@
 
 #include <Ark/String.hpp>
 #include <Ark/Utils.hpp>
+#include <utf8_decoder/utf8_decoder.h>
 
 #include <Ark/Builtins/BuiltinsErrors.inl>
 #include <Ark/VM/VM.hpp>
@@ -98,5 +99,4 @@ namespace Ark::internal::Builtins::String
         utf8chr(static_cast<int>(n[0].number()), sutf8.data());
         return Value(std::string(sutf8.data()));
     }
-
 }
