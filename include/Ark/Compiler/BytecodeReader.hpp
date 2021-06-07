@@ -84,6 +84,12 @@ namespace Ark
     private:
         bytecode_t m_bytecode;
 
+        /**
+         * @brief Read a number from the bytecode, under the instruction pointer i
+         * 
+         * @param i this parameter is being modified to point to the next value
+         * @return uint16_t the number we read (big endian)
+         */
         uint16_t readNumber(std::size_t& i);
     };
 }
