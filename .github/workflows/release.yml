@@ -23,6 +23,7 @@ jobs:
           workflow: linux-gcc.yml
           branch: dev
           name: ark-linux-gcc-version
+          path: ark-linux-gcc-version
 
       - name: Download artifact Windows MSVC
         uses: dawidd6/action-download-artifact@v2
@@ -30,6 +31,7 @@ jobs:
           workflow: msvc.yml
           branch: dev
           name: ark-windows-msvc-version
+          path: ark-windows-msvc-version
 
       - name: Make ZIPs
         shell: bash
