@@ -1,0 +1,76 @@
+name: "Create a release"
+
+on:
+  workflow_dispatch:
+    inputs:
+      versionName:
+        description: 'Name of version  (ie 5.5.0)'
+        required: true
+  pull_request:
+    branches: [dev]  # THIS IS FOR TESTING ONLY
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Download artifact Linux GCC
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: linux-gcc.yml
+          branch: dev
+          name: ark-linux-gcc-version
+
+      - name: Download artifact Windows MSVC
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: msvc.yml
+          branch: dev
+          name: ark-windows-msvc-version
+
+      - name: Make ZIPs
+        shell: bash
+        run: |
+          mv ark-linux-gcc-version linux64
+          zip linux64
+          mv ark-windows-msvc-version win64
+          zip win64
+
+      - name: Extract release notes
+        id: extract-release-notes
+        uses: ffurrer2/extract-release-notes@v1
+
+      - name: Create release
+        uses: actions/create-release@v1
+        id: create_release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ github.event.inputs.versionName }}
+          release_name: ArkScript v${{ github.event.inputs.versionName }}
+          draft: true
+          prerelease: false
+          body: ${{ steps.extract-release-notes.outputs.release_notes }}
+
+      - name: Upload Linux artifact
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./linux64.zip
+          asset_name: linux64.zip
+          asset_content_type: application/zip
+
+      - name: Upload Windows artifact
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./win64.zip
+          asset_name: win64.zip
+          asset_content_type: application/zip
