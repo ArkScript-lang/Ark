@@ -16,7 +16,6 @@
 #include <vector>
 #include <iostream>
 
-#include <Ark/VM/Types.hpp>
 
 namespace Ark::internal
 {
@@ -30,6 +29,7 @@ namespace Ark::internal
      *  has been closed by the virtual machine
      */
     using Scope_t = std::shared_ptr<Scope>;
+    using PageAddr_t = uint16_t;
 
     /**
      * @brief Closure management

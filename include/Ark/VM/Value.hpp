@@ -31,7 +31,6 @@
 #include <Ark/String.hpp>  // our string implementation
 #include <array>
 
-#include <Ark/VM/Types.hpp>
 #include <Ark/VM/Closure.hpp>
 #include <Ark/Exceptions.hpp>
 #include <Ark/VM/UserType.hpp>
