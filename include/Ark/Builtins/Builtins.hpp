@@ -108,6 +108,4 @@ namespace Ark::internal::Builtins
     }
 }
 
-#undef Builtins_Function
-
 #endif
