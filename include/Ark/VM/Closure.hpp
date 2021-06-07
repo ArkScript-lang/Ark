@@ -16,7 +16,6 @@
 #include <vector>
 #include <iostream>
 
-
 namespace Ark::internal
 {
     class Scope;
