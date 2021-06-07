@@ -2,7 +2,7 @@
  * @file VM.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief The ArkScript virtual machine
- * @version 0.2
+ * @version 0.3
  * @date 2020-10-27
  * 
  * @copyright Copyright (c) 2020-2021
@@ -121,7 +121,7 @@ namespace Ark
     private:
         State* m_state;
 
-        int m_exitCode;     ///< VM exit code, defaults to 0. Can be changed through `sys:exit`
+        int m_exit_code;     ///< VM exit code, defaults to 0. Can be changed through `sys:exit`
         int m_ip;           ///< instruction pointer
         std::size_t m_pp;   ///< page pointer
         uint16_t m_sp;      ///< stack pointer
