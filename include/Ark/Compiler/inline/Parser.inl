@@ -27,7 +27,7 @@ inline void Parser::throwParseError(const std::string& message, internal::Token 
     ss << "On line " << (token.line + 1) << ":" << token.col << ", got TokenType::";
     ss << internal::tokentype_string[static_cast<unsigned>(token.type)] << "\n";
 
-    for (int i=3; i > -3; --i)
+    for (int i = 3; i > -3; --i)
     {
         int iline = static_cast<int>(token.line);
         if (iline - i >= 0 && iline - i < static_cast<int>(ctx.size()))  // cast to int, we'll never have a size > 2^32-1
@@ -37,10 +37,10 @@ inline void Parser::throwParseError(const std::string& message, internal::Token 
         {
             ss << "      | ";
             // padding of spaces
-            for (std::size_t j=0; (token.token.size() > token.col) ? false : (j < token.col); ++j)
+            for (std::size_t j = 0; (token.token.size() > token.col) ? false : (j < token.col); ++j)
                 ss << " ";
             // show the error
-            for (std::size_t j=0; (token.token.size() > token.col) ? (j < ctx[token.line].size()) : (j < token.token.size()); ++j)
+            for (std::size_t j = 0; (token.token.size() > token.col) ? (j < ctx[token.line].size()) : (j < token.token.size()); ++j)
                 ss << "^";
             ss << "\n";
         }

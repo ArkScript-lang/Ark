@@ -114,7 +114,7 @@ namespace Ark
     {
         int open_parentheses = 0;
 
-        for (const char& c: line)
+        for (const char& c : line)
         {
             switch (c)
             {
@@ -130,7 +130,7 @@ namespace Ark
     {
         int open_braces = 0;
 
-        for (const char& c: line)
+        for (const char& c : line)
         {
             switch (c)
             {

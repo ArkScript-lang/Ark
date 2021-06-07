@@ -9,7 +9,7 @@ int utf8str_codepoint_len(char const *s, int utf8len)
     unsigned char m3 = 128 + 64 + 32;
     unsigned char m2 = 128 + 64;
 
-    for(int i=0; i < utf8len; ++i, ++codepointLen)
+    for(int i = 0; i < utf8len; ++i, ++codepointLen)
     {
         char c = s[i];
 

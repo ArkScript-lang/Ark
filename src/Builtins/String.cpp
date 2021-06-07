@@ -18,7 +18,7 @@ namespace Ark::internal::Builtins::String
 
         ::String f(n[0].string().c_str());
 
-        for (Value::Iterator it=n.begin()+1, it_end=n.end(); it != it_end; ++it)
+        for (Value::Iterator it = n.begin() + 1, it_end = n.end(); it != it_end; ++it)
         {
             if (it->valueType() == ValueType::String)
             {

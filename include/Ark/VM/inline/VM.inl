@@ -29,7 +29,7 @@ internal::Value VM::call(const std::string& name, Args&&... args)
 
     // convert and push arguments in reverse order
     std::vector<Value> fnargs { { Value(args)... } };
-    for (auto it2=fnargs.rbegin(), it_end=fnargs.rend(); it2 != it_end; ++it2)
+    for (auto it2 = fnargs.rbegin(), it_end = fnargs.rend(); it2 != it_end; ++it2)
         push(*it2);
 
     // find function object and push it if it's a pageaddr/closure
@@ -82,7 +82,7 @@ internal::Value VM::resolve(const internal::Value* val, Args&&... args)
 
     // convert and push arguments in reverse order
     std::vector<Value> fnargs { { Value(args)... } };
-    for (auto it=fnargs.rbegin(), it_end=fnargs.rend(); it != it_end; ++it)
+    for (auto it = fnargs.rbegin(), it_end = fnargs.rend(); it != it_end; ++it)
         push(resolveRef(it));
     // push function
     push(resolveRef(val));
@@ -228,7 +228,7 @@ inline void VM::createNewScope() noexcept
 
 inline internal::Value* VM::findNearestVariable(uint16_t id) noexcept
 {
-    for (auto it=m_locals.rbegin(), it_end=m_locals.rend(); it != it_end; ++it)
+    for (auto it = m_locals.rbegin(), it_end = m_locals.rend(); it != it_end; ++it)
     {
         if (auto val = (**it)[id]; val != nullptr)
             return val;
@@ -299,7 +299,7 @@ inline void VM::call(int16_t argc_)
         {
             // drop arguments from the stack
             std::vector<Value> args(argc);
-            for (uint16_t j=0; j < argc; ++j)
+            for (uint16_t j = 0; j < argc; ++j)
                 args[argc - 1 - j] = *popAndResolveAsPtr();
 
             // call proc

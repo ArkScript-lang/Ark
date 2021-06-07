@@ -180,7 +180,7 @@ namespace Ark::internal
         {
             os << colors[index % colors.size()] << "( " << termcolor::reset;
             index++;
-            for (auto& t: N.m_list)
+            for (auto& t : N.m_list)
                 os << t << " ";
             index--;
             os << colors[index % colors.size()] << ")" << termcolor::reset;
@@ -211,7 +211,7 @@ namespace Ark::internal
         {
             os << colors[index % colors.size()] << "( " << termcolor::reset << "Macro ";
             index++;
-            for (auto& t: N.m_list)
+            for (auto& t : N.m_list)
                 os << t << " ";
             index--;
             os << colors[index % colors.size()] << ")" << termcolor::reset;
@@ -236,7 +236,7 @@ namespace Ark::internal
     std::ostream& operator<<(std::ostream& os, const std::vector<Node>& N) noexcept
     {
         os << "( ";
-        for (auto& t: N)
+        for (auto& t : N)
             os << t << " ";
         os << ")";
 

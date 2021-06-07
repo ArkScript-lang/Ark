@@ -46,7 +46,7 @@ namespace Ark
     {
         int i = static_cast<int>(node.constList().size());
         // iterate only on the first level, using reverse iterators to avoid copy-delete-move to nowhere
-        for (auto it=node.list().rbegin(); it != node.list().rend(); ++it)
+        for (auto it = node.list().rbegin(); it != node.list().rend(); ++it)
         {
             i--;
 
