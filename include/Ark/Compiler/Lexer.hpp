@@ -20,6 +20,7 @@
 
 #include <Ark/Exceptions.hpp>
 #include <Ark/Utils.hpp>
+#include <Ark/Compiler/makeErrorCtx.hpp>
 
 #include <utf8_decoder/utf8_decoder.h>
 
