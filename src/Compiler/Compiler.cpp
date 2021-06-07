@@ -165,7 +165,7 @@ namespace Ark
             if (val.type == CValueType::Number)
             {
                 m_bytecode.push_back(Instruction::NUMBER_TYPE);
-                auto n = mpark::get<double>(val.value);
+                auto n = std::get<double>(val.value);
                 std::string t = std::to_string(n);
                 for (std::size_t i = 0, size = t.size(); i < size; ++i)
                     m_bytecode.push_back(t[i]);
@@ -173,14 +173,14 @@ namespace Ark
             else if (val.type == CValueType::String)
             {
                 m_bytecode.push_back(Instruction::STRING_TYPE);
-                std::string t = mpark::get<std::string>(val.value);
+                std::string t = std::get<std::string>(val.value);
                 for (std::size_t i = 0, size = t.size(); i < size; ++i)
                     m_bytecode.push_back(t[i]);
             }
             else if (val.type == CValueType::PageAddr)
             {
                 m_bytecode.push_back(Instruction::FUNC_TYPE);
-                pushNumber(static_cast<uint16_t>(mpark::get<std::size_t>(val.value)));
+                pushNumber(static_cast<uint16_t>(std::get<std::size_t>(val.value)));
             }
             else
                 throw Ark::CompilationError("trying to put a value in the value table, but the type isn't handled.\nCertainly a logic problem in the compiler source code");
