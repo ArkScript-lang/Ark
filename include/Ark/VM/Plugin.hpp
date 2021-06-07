@@ -2,7 +2,7 @@
  * @file Plugin.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Loads .dll/.so/.dynlib files
- * @version 0.2
+ * @version 0.3
  * @date 2020-10-27
  * 
  * @copyright Copyright (c) 2020-2021
@@ -12,11 +12,13 @@
 #ifndef ARK_VM_PLUGIN_HPP
 #define ARK_VM_PLUGIN_HPP
 
-#if defined(_WIN32) || defined(_WIN64)
+#include <Ark/Config.hpp>
+
+#if defined(ARK_OS_WINDOWS)
     // do not include winsock.h
     #define WIN32_LEAN_AND_MEAN
     #include <Windows.h>
-#elif (defined(unix) || defined(__unix) || defined(__unix__)) || defined(__APPLE__)
+#elif defined(ARK_OS_LINUX)
     #include <dlfcn.h>
 #else
     #error "Can not identify the platform on which you are running, aborting"
@@ -81,7 +83,7 @@ namespace Ark::internal
         {
             T funcptr;
 
-#if defined(_WIN32) || defined(_WIN64)
+#if defined(ARK_OS_WINDOWS)
             if (NULL == (funcptr = reinterpret_cast<T>(GetProcAddress(m_instance, procname.c_str()))))
             {
                 throw std::system_error(
@@ -89,7 +91,7 @@ namespace Ark::internal
                     , std::string("PluginError: Couldn't find ") + procname
                 );
             }
-#elif (defined(unix) || defined(__unix) || defined(__unix__)) || defined(__APPLE__)
+#elif defined(ARK_OS_LINUX)
             if (NULL == (funcptr = reinterpret_cast<T>(dlsym(m_instance, procname.c_str()))))
             {
                 throw std::system_error(
@@ -102,9 +104,9 @@ namespace Ark::internal
         }
 
     private:
-#if defined(_WIN32) || defined(_WIN64)
+#if defined(ARK_OS_WINDOWS)
         HINSTANCE m_instance;
-#elif (defined(unix) || defined(__unix) || defined(__unix__)) || defined(__APPLE__)
+#elif defined(ARK_OS_LINUX)
         void* m_instance;
 #endif
         std::string m_path;

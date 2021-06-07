@@ -31,8 +31,8 @@ namespace Ark::internal
             unload();
         
         m_path = path;
-        
-#if defined(_WIN32) || defined(_WIN64)
+
+#if defined(ARK_OS_WINDOWS)
         if (NULL == (m_instance = LoadLibrary(m_path.c_str())))
         {
             throw std::system_error(
@@ -40,7 +40,7 @@ namespace Ark::internal
                 , "Couldn't load the library at " + path
             );
         }
-#elif (defined(unix) || defined(__unix) || defined(__unix__)) || defined(__APPLE__)
+#elif defined(ARK_OS_LINUX)
         if (NULL == (m_instance = dlopen(m_path.c_str(), RTLD_LAZY | RTLD_GLOBAL)))
         {
             throw std::system_error(
@@ -56,9 +56,9 @@ namespace Ark::internal
     {
         if (m_loaded)
         {
-#if defined(_WIN32) || defined(_WIN64)
+#if defined(ARK_OS_WINDOWS)
             FreeLibrary(m_instance);
-#elif (defined(unix) || defined(__unix) || defined(__unix__)) || defined(__APPLE__)
+#elif defined(ARK_OS_LINUX)
             dlclose(m_instance);
 #endif
         }
