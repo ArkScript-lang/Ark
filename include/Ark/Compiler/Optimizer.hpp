@@ -20,7 +20,7 @@
 #include <Ark/Compiler/Node.hpp>
 #include <Ark/Exceptions.hpp>
 #include <Ark/Constants.hpp>
-#include <Ark/Compiler/makeNodeBasedError.hpp>
+#include <Ark/Compiler/makeErrorCtx.hpp>
 
 namespace Ark
 {

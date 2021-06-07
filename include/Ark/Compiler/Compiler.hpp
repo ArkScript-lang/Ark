@@ -28,7 +28,7 @@
 #include <Ark/Builtins/Builtins.hpp>
 #include <Ark/Utils.hpp>
 #include <Ark/Config.hpp>
-#include <Ark/Compiler/makeNodeBasedError.hpp>
+#include <Ark/Compiler/makeErrorCtx.hpp>
 
 namespace Ark
 {
