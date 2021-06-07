@@ -162,7 +162,7 @@ namespace Ark
         }
         catch (const std::exception& e)
         {
-            std::printf("%s: %s\n", typeid(e).name(), e.what());
+            std::printf("%s\n", e.what());
             return false;
         }
         catch (...)
