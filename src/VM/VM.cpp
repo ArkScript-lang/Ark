@@ -13,7 +13,7 @@ namespace Ark
     using namespace internal;
 
     VM::VM(State* state) noexcept :
-        m_state(state), m_exitCode(0), m_ip(0), m_pp(0), m_sp(0), m_fc(0),
+        m_state(state), m_exit_code(0), m_ip(0), m_pp(0), m_sp(0), m_fc(0),
         m_running(false), m_last_sym_loaded(0),
         m_until_frame_count(0), m_stack(nullptr), m_user_pointer(nullptr)
     {
@@ -45,7 +45,7 @@ namespace Ark
         }
 
         m_saved_scope.reset();
-        m_exitCode = 0;
+        m_exit_code = 0;
 
         // clearing locals (scopes) and create a global scope
         if ((m_state->m_options & FeaturePersist) == 0)
@@ -119,9 +119,12 @@ namespace Ark
 
         // load the mapping from the dynamic library
         mapping* map;
-        try {
+        try
+        {
             map = m_shared_lib_objects.back()->template get<mapping* (*)()>("getFunctionsMapping")();
-        } catch (const std::system_error& e) {
+        }
+        catch (const std::system_error& e)
+        {
             throwVMError(
                 "An error occurred while loading module '" + file + "': " + std::string(e.what()) + "\n" +
                 "It is most likely because the versions of the module and the language don't match."
@@ -149,7 +152,7 @@ namespace Ark
 
     void VM::exit(int code) noexcept
     {
-        m_exitCode = code;
+        m_exit_code = code;
         m_running = false;
     }
 
@@ -180,14 +183,15 @@ namespace Ark
         m_ip = 0;
         m_pp = 0;
 
-        return m_exitCode;
+        return m_exit_code;
     }
 
     int VM::safeRun(std::size_t untilFrameCount)
     {
         m_until_frame_count = untilFrameCount;
 
-        try {
+        try
+        {
             m_running = true;
             while (m_running && m_fc > m_until_frame_count)
             {
@@ -366,7 +370,8 @@ namespace Ark
                         else
                         {
                             Value* ip;
-                            do {
+                            do
+                            {
                                 ip = popAndResolveAsPtr();
                             } while(ip->valueType() != ValueType::InstPtr);
 
@@ -552,7 +557,7 @@ namespace Ark
                         if (count != 0)
                             l.list().reserve(count);
 
-                        for (uint16_t i=0; i < count; ++i)
+                        for (uint16_t i = 0; i < count; ++i)
                             l.push_back(*popAndResolveAsPtr());
                         push(std::move(l));
 
@@ -565,7 +570,7 @@ namespace Ark
                         ++m_ip;
                         uint16_t count = readNumber();
 
-                        Value *list = popAndResolveAsPtr();
+                        Value* list = popAndResolveAsPtr();
                         if (list->valueType() != ValueType::List)
                             throw Ark::TypeError("append needs a List and then whatever you want");
                         const uint16_t size = list->constList().size();
@@ -573,7 +578,7 @@ namespace Ark
                         Value obj = Value(*list);
                         obj.list().reserve(size + count);
 
-                        for (uint16_t i=0; i < count; ++i)
+                        for (uint16_t i = 0; i < count; ++i)
                             obj.push_back(*popAndResolveAsPtr());
                         push(std::move(obj));
 
@@ -592,13 +597,13 @@ namespace Ark
 
                         Value obj = Value(*list);
 
-                        for (uint16_t i=0; i < count; ++i)
+                        for (uint16_t i = 0; i < count; ++i)
                         {
-                            Value *next = popAndResolveAsPtr();
+                            Value* next = popAndResolveAsPtr();
                             if (next->valueType() != ValueType::List)
                                 throw Ark::TypeError("concat needs lists");
 
-                            for (auto it=next->list().begin(), end=next->list().end(); it != end; ++it)
+                            for (auto it = next->list().begin(), end = next->list().end(); it != end; ++it)
                                 obj.push_back(*it);
                         }
                         push(std::move(obj));
@@ -859,7 +864,8 @@ namespace Ark
 
                     case Instruction::AT:
                     {
-                        Value *b = popAndResolveAsPtr(), a = *popAndResolveAsPtr();
+                        Value *b = popAndResolveAsPtr();
+                        Value a = *popAndResolveAsPtr();  // be careful, it's not a pointer
 
                         if (b->valueType() != ValueType::Number)
                             throw Ark::TypeError("Argument 2 of @ should be a Number");
@@ -952,16 +958,21 @@ namespace Ark
                 // move forward
                 ++m_ip;
             }
-        } catch (const std::exception& e) {
+        }
+        catch (const std::exception& e)
+        {
             std::printf("%s\n", e.what());
             backtrace();
-            m_exitCode = 1;
-        } catch (...) {
+            m_exit_code = 1;
+        }
+        catch (...)
+        {
             std::printf("Unknown error\n");
             backtrace();
-            m_exitCode = 1;
+            m_exit_code = 1;
         }
-        return m_exitCode;
+
+        return m_exit_code;
     }
 
     // ------------------------------------------
@@ -970,7 +981,7 @@ namespace Ark
 
     uint16_t VM::findNearestVariableIdWithValue(Value&& value) noexcept
     {
-        for (auto it=m_locals.rbegin(), it_end=m_locals.rend(); it != it_end; ++it)
+        for (auto it = m_locals.rbegin(), it_end = m_locals.rend(); it != it_end; ++it)
         {
             if (auto id = (*it)->idFromValue(std::move(value)); id < m_state->m_symbols.size())
                 return id;
@@ -1012,7 +1023,8 @@ namespace Ark
                         std::cerr << "In function `" << termcolor::yellow << "???" << termcolor::reset << "'\n";
 
                     Value* ip;
-                    do {
+                    do
+                    {
                         ip = popAndResolveAsPtr();
                     } while (ip->valueType() != ValueType::InstPtr);
 
@@ -1036,7 +1048,7 @@ namespace Ark
 
             // display variables values in the current scope
             std::printf("\nCurrent scope variables values:\n");
-            for (std::size_t i=0, size=old_scope.size(); i < size; ++i)
+            for (std::size_t i = 0, size = old_scope.size(); i < size; ++i)
                 std::cerr << termcolor::cyan << m_state->m_symbols[old_scope.m_data[i].first] << termcolor::reset
                           << " = " << old_scope.m_data[i].second << "\n";
 

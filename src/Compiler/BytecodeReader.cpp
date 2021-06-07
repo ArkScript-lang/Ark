@@ -25,7 +25,7 @@ namespace Ark
         ifs.close();
 
         m_bytecode = bytecode_t(pos);
-        for (std::size_t i=0; i < pos; ++i)
+        for (std::size_t i = 0; i < pos; ++i)
             m_bytecode[i] = static_cast<uint8_t>(temp[i]);
     }
 
@@ -100,7 +100,7 @@ namespace Ark
         os << "Timestamp: " << timestamp << "\n";
 
         os << "SHA256:    ";
-        for (std::size_t j=0; j < picosha2::k_digest_size; ++j)
+        for (std::size_t j = 0; j < picosha2::k_digest_size; ++j)
         {
             os << std::hex << static_cast<int>(m_bytecode[i]) << std::dec;
             ++i;

@@ -162,7 +162,7 @@ namespace Ark
         }
         catch (const std::exception& e)
         {
-            std::printf("%s: %s\n", typeid(e).name(), e.what());
+            std::printf("%s\n", e.what());
             return false;
         }
         catch (...)
@@ -227,10 +227,7 @@ namespace Ark
             std::string str_version = std::to_string(major) + "." +
                 std::to_string(minor) + "." +
                 std::to_string(patch);
-            std::string builtin_version = std::to_string(ARK_VERSION_MAJOR) + "." +
-                std::to_string(ARK_VERSION_MINOR) + "." +
-                std::to_string(ARK_VERSION_PATCH);
-            throwStateError("Compiler and VM versions don't match: " + str_version + " and " + builtin_version);
+            throwStateError("Compiler and VM versions don't match: " + str_version + " and " + ARK_VERSION_STR);
         }
 
         using timestamp_t = unsigned long long;
@@ -249,7 +246,7 @@ namespace Ark
         std::vector<unsigned char> hash(picosha2::k_digest_size);
         picosha2::hash256(m_bytecode.begin() + i + picosha2::k_digest_size, m_bytecode.end(), hash);
         // checking integrity
-        for (std::size_t j=0; j < picosha2::k_digest_size; ++j)
+        for (std::size_t j = 0; j < picosha2::k_digest_size; ++j)
         {
             if (hash[j] != m_bytecode[i])
                 throwStateError("Integrity check failed");
@@ -263,7 +260,7 @@ namespace Ark
             m_symbols.reserve(size);
             i++;
 
-            for (uint16_t j=0; j < size; ++j)
+            for (uint16_t j = 0; j < size; ++j)
             {
                 std::string symbol = "";
                 while (m_bytecode[i] != 0)
@@ -274,7 +271,7 @@ namespace Ark
             }
         }
         else
-            throwStateError("couldn't find symbols table");
+            throwStateError("Couldn't find symbols table");
 
         if (m_bytecode[i] == Instruction::VAL_TABLE_START)
         {
@@ -283,7 +280,7 @@ namespace Ark
             m_constants.reserve(size);
             i++;
 
-            for (uint16_t j=0; j < size; ++j)
+            for (uint16_t j = 0; j < size; ++j)
             {
                 uint8_t type = m_bytecode[i];
                 i++;
@@ -314,11 +311,11 @@ namespace Ark
                     i++;  // skip NOP
                 }
                 else
-                    throwStateError("unknown value type for value " + std::to_string(j));
+                    throwStateError("Unknown value type for value " + std::to_string(j));
             }
         }
         else
-            throwStateError("couldn't find constants table");
+            throwStateError("Couldn't find constants table");
 
         while (m_bytecode[i] == Instruction::CODE_SEGMENT_START)
         {
@@ -329,7 +326,7 @@ namespace Ark
             m_pages.emplace_back();
             m_pages.back().reserve(size);
 
-            for (uint16_t j=0; j < size; ++j)
+            for (uint16_t j = 0; j < size; ++j)
                 m_pages.back().push_back(m_bytecode[i++]);
             
             if (i == m_bytecode.size())

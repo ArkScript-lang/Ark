@@ -5,7 +5,7 @@
  * @version 0.1
  * @date 2020-10-27
  *
- * @copyright Copyright (c) 2020
+ * @copyright Copyright (c) 2020-2021
  *
  */
 
@@ -20,6 +20,7 @@
 
 #include <Ark/Exceptions.hpp>
 #include <Ark/Utils.hpp>
+#include <Ark/Compiler/makeErrorCtx.hpp>
 
 #include <utf8_decoder/utf8_decoder.h>
 

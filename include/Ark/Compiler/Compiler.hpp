@@ -2,10 +2,10 @@
  * @file Compiler.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief ArkScript compiler is in charge of transforming the AST into bytecode
- * @version 0.2
+ * @version 0.3
  * @date 2020-10-27
  * 
- * @copyright Copyright (c) 2020
+ * @copyright Copyright (c) 2020-2021
  * 
  */
 
@@ -28,7 +28,7 @@
 #include <Ark/Builtins/Builtins.hpp>
 #include <Ark/Utils.hpp>
 #include <Ark/Config.hpp>
-#include <Ark/Compiler/makeNodeBasedError.hpp>
+#include <Ark/Compiler/makeErrorCtx.hpp>
 
 namespace Ark
 {
@@ -48,7 +48,7 @@ namespace Ark
          * @param lib_dir the path to the standard library
          * @param options the compilers options
          */
-        Compiler(unsigned debug, const std::string& lib_dir, uint16_t options=DefaultFeatures);
+        Compiler(unsigned debug, const std::string& lib_dir, uint16_t options = DefaultFeatures);
 
         /**
          * @brief Feed the differents variables with information taken from the given source code file
@@ -56,7 +56,7 @@ namespace Ark
          * @param code the code of the file
          * @param filename the name of the file
          */
-        void feed(const std::string& code, const std::string& filename=ARK_NO_NAME_FILE);
+        void feed(const std::string& code, const std::string& filename = ARK_NO_NAME_FILE);
 
         /**
          * @brief Start the compilation
@@ -225,7 +225,7 @@ namespace Ark
          * @param n the number to push
          * @param page the page where it should land, nullptr for current page
          */
-        void pushNumber(uint16_t n, std::vector<internal::Inst_t>* page=nullptr) noexcept;
+        void pushNumber(uint16_t n, std::vector<internal::Inst_t>* page = nullptr) noexcept;
     };
 
     #include "inline/Compiler.inl"

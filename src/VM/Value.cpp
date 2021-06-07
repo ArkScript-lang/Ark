@@ -155,7 +155,7 @@ namespace Ark
         case ValueType::Number:
         {
             double d = V.number();
-            os.precision(Utils::dig_places(d) + Utils::dec_places(d));
+            os.precision(Utils::digPlaces(d) + Utils::decPlaces(d));
             os << d;
             break;
         }
@@ -175,7 +175,7 @@ namespace Ark
         case ValueType::List:
         {
             os << "[";
-            for (auto it=V.constList().begin(), it_end=V.constList().end(); it != it_end; ++it)
+            for (auto it = V.constList().begin(), it_end = V.constList().end(); it != it_end; ++it)
             {
                 if (it->valueType() == ValueType::String)
                     os << "\"" << (*it) << "\"";

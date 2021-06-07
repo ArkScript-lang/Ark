@@ -12,7 +12,7 @@ namespace Ark::internal::Builtins::IO
 {
     Value print(std::vector<Value>& n, Ark::VM* vm)
     {
-        for (Value::Iterator it=n.begin(), it_end=n.end(); it != it_end; ++it)
+        for (Value::Iterator it = n.begin(), it_end = n.end(); it != it_end; ++it)
             std::cout << (*it);
         std::cout << '\n';
 
@@ -21,7 +21,7 @@ namespace Ark::internal::Builtins::IO
 
     Value puts_(std::vector<Value>& n, Ark::VM* vm)
     {
-        for (Value::Iterator it=n.begin(), it_end=n.end(); it != it_end; ++it)
+        for (Value::Iterator it = n.begin(), it_end = n.end(); it != it_end; ++it)
             std::cout << (*it);
 
         return nil;
@@ -153,7 +153,7 @@ namespace Ark::internal::Builtins::IO
         if (n.size() == 0)
             throw std::runtime_error(IO_RM_ARITY);
         
-        for (Value::Iterator it=n.begin(), it_end=n.end(); it != it_end; ++it)
+        for (Value::Iterator it = n.begin(), it_end = n.end(); it != it_end; ++it)
         {
             if (it->valueType() != ValueType::String)
                 throw Ark::TypeError(IO_RM_TE0);

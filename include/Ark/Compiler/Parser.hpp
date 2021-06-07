@@ -2,10 +2,10 @@
  * @file Parser.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Parses a token stream into an AST by using the Ark::internal::Node
- * @version 0.2
+ * @version 0.3
  * @date 2020-10-27
  * 
- * @copyright Copyright (c) 2020
+ * @copyright Copyright (c) 2020-2021
  * 
  */
 
@@ -23,6 +23,7 @@
 #include <Ark/Exceptions.hpp>
 #include <Ark/Compiler/Lexer.hpp>
 #include <Ark/Compiler/Node.hpp>
+#include <Ark/Compiler/makeErrorCtx.hpp>
 
 namespace Ark
 {
@@ -48,7 +49,7 @@ namespace Ark
          * @param code the ArkScript code
          * @param filename the name of the file
          */
-        void feed(const std::string& code, const std::string& filename=ARK_NO_NAME_FILE);
+        void feed(const std::string& code, const std::string& filename = ARK_NO_NAME_FILE);
 
         /**
          * @brief Return the generated AST
@@ -99,7 +100,7 @@ namespace Ark
          * @param in_macro if we are in a macro, there a bunch of things we can tolerate
          * @return internal::Node 
          */
-        internal::Node parse(std::list<internal::Token>& tokens, bool authorize_capture=false, bool authorize_field_read=false, bool in_macro=false);
+        internal::Node parse(std::list<internal::Token>& tokens, bool authorize_capture = false, bool authorize_field_read = false, bool in_macro = false);
 
         void parseIf(internal::Node&, internal::Token&, std::list<internal::Token>&, bool, bool, bool);
         void parseLetMut(internal::Node&, internal::Token&, std::list<internal::Token>&, bool, bool, bool);

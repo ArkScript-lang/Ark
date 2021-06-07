@@ -28,7 +28,7 @@ namespace Ark
             return;
 
         runOnGlobalScopeVars(m_ast, [this](Node& node, Node& parent, int idx){
-            m_symAppearances[node.constList()[1].string()] = 0;
+            m_sym_appearances[node.constList()[1].string()] = 0;
         });
         countOccurences(m_ast);
 
@@ -36,7 +36,7 @@ namespace Ark
         runOnGlobalScopeVars(m_ast, [this](Node& node, Node& parent, int idx){
             std::string name = node.constList()[1].string();
             // a variable was only declared and never used
-            if (m_symAppearances.find(name) != m_symAppearances.end() && m_symAppearances[name] == 1
+            if (m_sym_appearances.find(name) != m_sym_appearances.end() && m_sym_appearances[name] == 1
                 && parent.list()[idx].list()[2].nodeType() != NodeType::List)
                 parent.list().erase(parent.list().begin() + idx);  // erase the node from the list
         });
@@ -46,7 +46,7 @@ namespace Ark
     {
         int i = static_cast<int>(node.constList().size());
         // iterate only on the first level, using reverse iterators to avoid copy-delete-move to nowhere
-        for (auto it=node.list().rbegin(); it != node.list().rend(); ++it)
+        for (auto it = node.list().rbegin(); it != node.list().rend(); ++it)
         {
             i--;
 
@@ -74,8 +74,8 @@ namespace Ark
         {
             std::string name = node.string();
             // check if it's the name of something declared in global scope
-            if (m_symAppearances.find(name) != m_symAppearances.end())
-                m_symAppearances[name]++;
+            if (m_sym_appearances.find(name) != m_sym_appearances.end())
+                m_sym_appearances[name]++;
         }
         else if (node.nodeType() == NodeType::List)
         {
