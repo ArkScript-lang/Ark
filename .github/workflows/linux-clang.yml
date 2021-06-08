@@ -58,7 +58,7 @@ jobs:
         cp build/ark artifact
         cp lib/*.arkm artifact/lib
         cp -r lib/std/ artifact/lib
-        rm -rf artifact/lib/std/.git
+        rm -rf artifact/lib/std/.git*
 
     - name: Upload artifact
       uses: actions/upload-artifact@v2
