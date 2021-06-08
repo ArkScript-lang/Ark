@@ -61,7 +61,7 @@ jobs:
           description: |
             Please review it **before publishing it**, as this action would trigger workflows and GitHub webhooks,
             notifying everyone of a new release! You want to be sure **everything** is correct
-            [Release draft URL](${{ steps.create_release.outputs.upload_url }})
+            [Release draft URL](${{ steps.create_release.outputs.html_url }})
           nodetail: true
           username: GitHub Actions
 
