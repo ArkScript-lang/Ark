@@ -56,9 +56,10 @@ jobs:
       run: |
         mkdir -p artifact/lib
         cp build/ark artifact
+        cp build/libArkReactor.a artifact
         cp lib/*.arkm artifact/lib
         cp -r lib/std/ artifact/lib
-        rm -rf artifact/lib/std/.git*
+        rm -rf artifact/lib/std/{.git,.github,tests/__arkscript__}
 
     - name: Upload artifact
       uses: actions/upload-artifact@v2
