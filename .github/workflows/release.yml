@@ -6,6 +6,10 @@ on:
       versionName:
         description: 'Name of version  (ie 5.5.0)'
         required: true
+      isDraft:
+        description: 'Should we create a draft release?'
+        required: false
+        default: 'true'
 
 jobs:
   release:
@@ -49,12 +53,12 @@ jobs:
         with:
           tag_name: v${{ github.event.inputs.versionName }}
           release_name: ArkScript v${{ github.event.inputs.versionName }}
-          draft: true
+          draft: ${{ github.event.inputs.isDraft }}
           prerelease: false
           body: ${{ steps.extract-release-notes.outputs.release_notes }}
 
       - uses: sarisia/actions-status-discord@v1
-        if: always()
+        if: ${{ github.event.inputs.isDraft }} == 'true'
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
           title: "A new release (v${{ github.event.inputs.versionName }}) has been drafted"
