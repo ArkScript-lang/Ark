@@ -53,6 +53,18 @@ jobs:
           prerelease: false
           body: ${{ steps.extract-release-notes.outputs.release_notes }}
 
+      - uses: sarisia/actions-status-discord@v1
+        if: always()
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          title: "A new release (v${{ github.event.inputs.versionName }}) has been drafted"
+          description: |
+            Please review it **before publishing it**, as this action would trigger workflows and GitHub webhooks,
+            notifying everyone of a new release! You want to be sure **everything** is correct
+            [Release draft URL](${{ steps.create_release.outputs.html_url }})
+          nodetail: true
+          username: GitHub Actions
+
       - name: Upload Linux artifact
         uses: actions/upload-release-asset@v1
         env:
