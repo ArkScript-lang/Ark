@@ -579,11 +579,14 @@ namespace Ark
                         ++m_ip;
                         uint16_t count = readNumber();
 
-                        Value *list = popAndResolveAsPtr();
+                        Value* list = pop();
+                        bool is_ref = list->valueType() == ValueType::Reference;
+                        list = is_ref ? list->reference() : list;
+
+                        if (list->isConst())
+                            throwVMError("can not modify a constant list using `concat'");
                         if (list->valueType() != ValueType::List)
                             throw Ark::TypeError("concat needs lists, got " + types_to_str[static_cast<unsigned>(list->valueType())]);
-
-                        Value obj = Value(*list);
 
                         for (uint16_t i = 0; i < count; ++i)
                         {
@@ -592,9 +595,10 @@ namespace Ark
                                 throw Ark::TypeError("concat needs lists");
 
                             for (auto it = next->list().begin(), end = next->list().end(); it != end; ++it)
-                                obj.push_back(*it);
+                                list->push_back(*it);
                         }
-                        push(std::move(obj));
+
+                        push(Nil);
 
                         COZ_PROGRESS_NAMED("ark vm concat");
                         break;
