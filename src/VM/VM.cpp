@@ -556,17 +556,19 @@ namespace Ark
                         ++m_ip;
                         uint16_t count = readNumber();
 
-                        Value* list = popAndResolveAsPtr();
+                        Value* list = pop();
+                        bool is_ref = list->valueType() == ValueType::Reference;
+                        list = is_ref ? list->reference() : list;
+
+                        if (list->isConst())
+                            throwVMError("can not modify a constant list using `append'");
                         if (list->valueType() != ValueType::List)
                             throw Ark::TypeError("append needs a List and then whatever you want");
-                        const uint16_t size = list->constList().size();
-
-                        Value obj = Value(*list);
-                        obj.list().reserve(size + count);
 
                         for (uint16_t i = 0; i < count; ++i)
-                            obj.push_back(*popAndResolveAsPtr());
-                        push(std::move(obj));
+                            list->push_back(*popAndResolveAsPtr());
+
+                        push(Nil);
 
                         COZ_PROGRESS_NAMED("ark vm append");
                         break;
