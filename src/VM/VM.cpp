@@ -26,34 +26,20 @@ namespace Ark
         if (m_stack == nullptr)
             m_stack = std::make_unique<std::array<Value, ArkVMStackSize>>();
 
-        // clearing frames and setting up a new one
-        if ((m_state->m_options & FeaturePersist) == 0)
-        {
-            m_sp = 0;
-            m_fc = 1;
+        m_sp = 0;
+        m_fc = 1;
 
-            m_shared_lib_objects.clear();
-            m_scope_count_to_delete.clear();
-            m_scope_count_to_delete.emplace_back(0);
-        }
-        else if (m_fc == 0)
-        {
-            // if persistance is set but no frames are present, add one
-            // it usually happens on the first run
-            m_fc++;
-            m_scope_count_to_delete.emplace_back(0);
-        }
+        m_shared_lib_objects.clear();
+        m_scope_count_to_delete.clear();
+        m_scope_count_to_delete.emplace_back(0);
 
         m_saved_scope.reset();
         m_exit_code = 0;
 
-        // clearing locals (scopes) and create a global scope
-        if ((m_state->m_options & FeaturePersist) == 0)
-        {
-            m_locals.clear();
-            createNewScope();
-        }
-        else if (m_locals.size() == 0)
+        m_locals.clear();
+        createNewScope();
+
+        if (m_locals.size() == 0)
         {
             // if persistance is set but not scopes are present, add one
             createNewScope();
@@ -1052,20 +1038,16 @@ namespace Ark
                 std::cerr << termcolor::cyan << m_state->m_symbols[old_scope.m_data[i].first] << termcolor::reset
                           << " = " << old_scope.m_data[i].second << "\n";
 
-            // if persistance is on, clear frames to keep only the global one
-            if (m_state->m_options & FeaturePersist)
+            while (m_fc != 1)
             {
-                while (m_fc != 1)
-                {
-                    Value* tmp = pop();
-                    if (tmp->valueType() == ValueType::InstPtr)
-                        --m_fc;
-                    else if (tmp->valueType() == ValueType::User)
-                        tmp->usertypeRef().del();
-                }
-                // pop the PP as well
-                pop();
+                Value* tmp = pop();
+                if (tmp->valueType() == ValueType::InstPtr)
+                    --m_fc;
+                else if (tmp->valueType() == ValueType::User)
+                    tmp->usertypeRef().del();
             }
+            // pop the PP as well
+            pop();
         }
     }
 }
