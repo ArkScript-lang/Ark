@@ -8,8 +8,7 @@ int main()
 {
     // A state can be shared by multiple virtual machines (note that they will NEVER modify it)
     // leave constructor empty to select the default standard library (loaded from an environment variable $ARKSCRIPT_PATH/lib)
-    // persistance is needed to use vm.call(function_name, args...)
-    Ark::State state(/* options */ Ark::FeaturePersist);
+    Ark::State state;
 
     // Will automatically compile the file if needed (if not, will take it from the ark cache)
     state.doString("(let foo (fun (x y) (+ x y 2)))");
