@@ -28,7 +28,7 @@ namespace Ark::internal::Builtins::List
             throw Ark::TypeError(LIST_FIND_TE0);
 
         std::vector<Value>& l = n[0].list();
-        for (Value::Iterator it=l.begin(), it_end=l.end(); it != it_end; ++it)
+        for (Value::Iterator it = l.begin(), it_end = l.end(); it != it_end; ++it)
         {
             if (*it == n[1])
                 return Value(static_cast<int>(std::distance<Value::Iterator>(l.begin(), it)));
@@ -80,7 +80,7 @@ namespace Ark::internal::Builtins::List
             throw std::runtime_error(LIST_SLICE_OOR);
 
         std::vector<Value> retlist;
-        for (std::size_t i=start; i < end; i += step)
+        for (std::size_t i = start; i < end; i += step)
             retlist.push_back(n[0].list()[i]);
 
         return Value(std::move(retlist));
@@ -106,7 +106,7 @@ namespace Ark::internal::Builtins::List
         
         std::size_t c = static_cast<std::size_t>(n[0].number());
         std::vector<Value> l;
-        for (std::size_t i=0; i < c; i++)
+        for (std::size_t i = 0; i < c; i++)
             l.push_back(n[1]);
 
         return Value(std::move(l));

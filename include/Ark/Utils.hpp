@@ -2,10 +2,10 @@
  * @file Utils.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Lots of utilities about string, filesystem and more
- * @version 0.1
+ * @version 0.2
  * @date 2020-10-27
  * 
- * @copyright Copyright (c) 2020
+ * @copyright Copyright (c) 2020-2021
  * 
  */
 
@@ -122,7 +122,7 @@ namespace Ark::Utils
      * @return true on success
      * @return false on failure
      */
-    inline bool isDouble(const std::string& s, double* output=nullptr)
+    inline bool isDouble(const std::string& s, double* output = nullptr)
     {
         char* end = 0;
         double val = strtod(s.c_str(), &end);
@@ -208,7 +208,7 @@ namespace Ark::Utils
      * @param d 
      * @return int 
      */
-    int dec_places(double d);
+    int decPlaces(double d);
 
     /**
      * @brief Count the number of digits for a double
@@ -216,7 +216,7 @@ namespace Ark::Utils
      * @param d 
      * @return int 
      */
-    int dig_places(double d);
+    int digPlaces(double d);
 }
 
 #endif

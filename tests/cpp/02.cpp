@@ -29,7 +29,7 @@ Ark::Value my_function(std::vector<Ark::Value>& args, Ark::VM* vm)
 
 int main()
 {
-    Ark::State state(/* options */ Ark::FeaturePersist);
+    Ark::State state;
 
     state.loadFunction("my_function", my_function);
     // we can also load C++ lambdas

@@ -554,7 +554,7 @@ namespace Ark
         if (P.ast().nodeType() == NodeType::List)
         {
             int i = 0;
-            for (const auto& node: P.ast().constList())
+            for (const auto& node : P.ast().constList())
                 std::cout << (i++) << ": " << node << '\n';
         }
         else

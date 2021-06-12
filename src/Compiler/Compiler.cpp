@@ -28,7 +28,7 @@ namespace Ark
         if (m_debug >= 2)
         {
             std::cout << filename << " is importing " << std::to_string(m_parser.getImports().size()) << " files:\n";
-            for (auto&& import: m_parser.getImports())
+            for (auto&& import : m_parser.getImports())
                 std::cout << '\t' << import << '\n';
         }
     }
@@ -123,7 +123,7 @@ namespace Ark
         unsigned long long timestamp = std::chrono::duration_cast<std::chrono::seconds>(
             std::chrono::system_clock::now().time_since_epoch()
         ).count();
-        for (char c=0; c < 8; c++)
+        for (char c = 0; c < 8; c++)
         {
             unsigned d = 56 - 8 * c;
             uint8_t b = (timestamp & (0xff << d)) >> d;
@@ -151,7 +151,7 @@ namespace Ark
         {
             // push the string, null terminated
             std::string s = sym.string();
-            for (std::size_t i=0, size=s.size(); i < size; ++i)
+            for (std::size_t i = 0, size = s.size(); i < size; ++i)
                 m_bytecode.push_back(s[i]);
             m_bytecode.push_back(Instruction::NOP);
         }
@@ -166,22 +166,22 @@ namespace Ark
             if (val.type == CValueType::Number)
             {
                 m_bytecode.push_back(Instruction::NUMBER_TYPE);
-                auto n = mpark::get<double>(val.value);
+                auto n = std::get<double>(val.value);
                 std::string t = std::to_string(n);
-                for (std::size_t i=0, size=t.size(); i < size; ++i)
+                for (std::size_t i = 0, size = t.size(); i < size; ++i)
                     m_bytecode.push_back(t[i]);
             }
             else if (val.type == CValueType::String)
             {
                 m_bytecode.push_back(Instruction::STRING_TYPE);
-                std::string t = mpark::get<std::string>(val.value);
-                for (std::size_t i=0, size=t.size(); i < size; ++i)
+                std::string t = std::get<std::string>(val.value);
+                for (std::size_t i = 0, size = t.size(); i < size; ++i)
                     m_bytecode.push_back(t[i]);
             }
             else if (val.type == CValueType::PageAddr)
             {
                 m_bytecode.push_back(Instruction::FUNC_TYPE);
-                pushNumber(static_cast<uint16_t>(mpark::get<std::size_t>(val.value)));
+                pushNumber(static_cast<uint16_t>(std::get<std::size_t>(val.value)));
             }
             else
                 throw Ark::CompilationError("trying to put a value in the value table, but the type isn't handled.\nCertainly a logic problem in the compiler source code");
@@ -382,7 +382,7 @@ namespace Ark
     void Compiler::compileFunction(const Node& x, int p)
     {
         // capture, if needed
-        for (auto it=x.constList()[1].constList().begin(), it_end=x.constList()[1].constList().end(); it != it_end; ++it)
+        for (auto it = x.constList()[1].constList().begin(), it_end = x.constList()[1].constList().end(); it != it_end; ++it)
         {
             if (it->nodeType() == NodeType::Capture)
             {
@@ -406,7 +406,7 @@ namespace Ark
         std::size_t id = addValue(page_id);  // save page_id into the constants table as PageAddr
         pushNumber(static_cast<uint16_t>(id), &page(p));
         // pushing arguments from the stack into variables in the new scope
-        for (auto it=x.constList()[1].constList().begin(), it_end=x.constList()[1].constList().end(); it != it_end; ++it)
+        for (auto it = x.constList()[1].constList().begin(), it_end = x.constList()[1].constList().end(); it != it_end; ++it)
         {
             if (it->nodeType() == NodeType::Symbol)
             {
@@ -563,7 +563,7 @@ namespace Ark
         if (proc_page_len > 1)
         {
             // push arguments on current page
-            for (auto exp=x.constList().begin() + n, exp_end=x.constList().end(); exp != exp_end; ++exp)
+            for (auto exp = x.constList().begin() + n, exp_end = x.constList().end(); exp != exp_end; ++exp)
                 _compile(*exp, p);
             // push proc from temp page
             for (auto&& inst : m_temp_pages.back())
@@ -574,7 +574,7 @@ namespace Ark
             page(p).push_back(Instruction::CALL);
             // number of arguments
             std::size_t args_count = 0;
-            for (auto it=x.constList().begin() + 1, it_end=x.constList().end(); it != it_end; ++it)
+            for (auto it = x.constList().begin() + 1, it_end = x.constList().end(); it != it_end; ++it)
             {
                 if (it->nodeType() != NodeType::GetField &&
                     it->nodeType() != NodeType::Capture)
@@ -590,7 +590,7 @@ namespace Ark
 
             // push arguments on current page
             std::size_t exp_count = 0;
-            for (std::size_t index=n, size=x.constList().size(); index < size; ++index)
+            for (std::size_t index = n, size = x.constList().size(); index < size; ++index)
             {
                 _compile(x.constList()[index], p);
 

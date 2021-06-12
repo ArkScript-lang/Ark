@@ -2,7 +2,7 @@
  * @file MacroExecutor.hpp
  * @author Ray John Alovera (rakista112@gmail.com)
  * @brief The base class for all MacroExecutors
- * @version 0.4
+ * @version 0.5
  * @date 2021-05-04
  * 
  * @copyright Copyright (c) 2021
@@ -26,6 +26,31 @@ namespace Ark::internal
      */
     class MacroExecutor
     {
+    public:
+        /**
+         * @brief Construct a new Macro Executor object
+         * 
+         * @param macroprocessor 
+         * @param debug 
+         */
+        MacroExecutor(MacroProcessor* macroprocessor, unsigned debug = 0);
+
+        /**
+         * @brief Executes macros in the Node if the Executor can handle it
+         * 
+         * @param node the node that contains a macro
+         * @return true if a macro was successfully applied
+         * @return false 
+         */
+        virtual bool applyMacro(Node& node) = 0;
+
+        /**
+         * @brief Checks if the executor can apply a macro on the passed Node
+         * 
+         * @param node the node that contains a macro
+         */
+        virtual bool canHandle(Node& node) = 0;
+
     protected:
         unsigned int m_debug;
         MacroProcessor* m_macroprocessor;
@@ -103,31 +128,6 @@ namespace Ark::internal
          * @return false 
          */
         bool isPredefined(const std::string& symbol);
-
-    public:
-        /**
-         * @brief Construct a new Macro Executor object
-         * 
-         * @param macroprocessor 
-         * @param debug 
-         */
-        MacroExecutor(MacroProcessor* macroprocessor, unsigned debug = 0);
-
-        /**
-         * @brief Executes macros in the Node if the Executor can handle it
-         * 
-         * @param node the node that contains a macro
-         * @return true if a macro was successfully applied
-         * @return false 
-         */
-        virtual bool applyMacro(Node& node) = 0;
-
-        /**
-         * @brief Checks if the executor can apply a macro on the passed Node
-         * 
-         * @param node the node that contains a macro
-         */
-        virtual bool canHandle(Node& node) = 0;
     };
 
 }

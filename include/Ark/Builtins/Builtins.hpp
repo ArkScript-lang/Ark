@@ -5,7 +5,7 @@
  * @version 0.1
  * @date 2020-10-27
  * 
- * @copyright Copyright (c) 2020
+ * @copyright Copyright (c) 2020-2021
  * 
  */
 
@@ -15,8 +15,6 @@
 #include <vector>
 #include <utility>
 #include <sstream>
-
-#include <utf8_decoder/utf8_decoder.h>
 
 #include <Ark/VM/Value.hpp>
 #include <Ark/Exceptions.hpp>
@@ -109,7 +107,5 @@ namespace Ark::internal::Builtins
         Value atan_(std::vector<Value>& n, Ark::VM* vm);  // math:arctan, 1 argument
     }
 }
-
-#undef Builtins_Function
 
 #endif

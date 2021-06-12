@@ -30,7 +30,7 @@ jobs:
     - name: Configure CMake Ark
       shell: bash
       run: |
-        cmake -Bbuild -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=On
+        cmake -Bbuild -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=On -DARK_MOD_ALL=On
 
     - name: Configure CMake Integration tests
       shell: bash
@@ -41,8 +41,7 @@ jobs:
     - name: Build Ark
       shell: bash
       run: |
-        cmake --build build --config $BUILD_TYPE --target ark
-        cmake --build build --config $BUILD_TYPE --target console
+        cmake --build build --config $BUILD_TYPE
 
     - name: Build Integration tests
       shell: bash
@@ -57,9 +56,12 @@ jobs:
     - name: Organize files for upload
       shell: bash
       run: |
-        mkdir artifact
+        mkdir -p artifact/lib
         cp build/$BUILD_TYPE/ark.exe artifact
-        cp lib/console.arkm artifact
+        cp build/$BUILD_TYPE/ArkReactor.lib artifact
+        cp lib/*.arkm artifact/lib
+        cp -r lib/std/ artifact/lib
+        rm -rf artifact/lib/std/{.git,.github,tests/__arkscript__}
 
     - name: Upload artifact
       uses: actions/upload-artifact@v2

@@ -2,6 +2,7 @@
 
 #include <Ark/String.hpp>
 #include <Ark/Utils.hpp>
+#include <utf8_decoder/utf8_decoder.h>
 
 #include <Ark/Builtins/BuiltinsErrors.inl>
 #include <Ark/VM/VM.hpp>
@@ -17,7 +18,7 @@ namespace Ark::internal::Builtins::String
 
         ::String f(n[0].string().c_str());
 
-        for (Value::Iterator it=n.begin()+1, it_end=n.end(); it != it_end; ++it)
+        for (Value::Iterator it = n.begin() + 1, it_end = n.end(); it != it_end; ++it)
         {
             if (it->valueType() == ValueType::String)
             {
@@ -27,7 +28,7 @@ namespace Ark::internal::Builtins::String
             else if (it->valueType() == ValueType::Number)
             {
                 double obj = it->number();
-                f.format(f.size() + Utils::dig_places(obj) + Utils::dec_places(obj) + 1, obj);
+                f.format(f.size() + Utils::digPlaces(obj) + Utils::decPlaces(obj) + 1, obj);
             }
             else if (it->valueType() == ValueType::Nil)
                 f.format(f.size() + 5, std::string_view("nil"));
@@ -98,5 +99,4 @@ namespace Ark::internal::Builtins::String
         utf8chr(static_cast<int>(n[0].number()), sutf8.data());
         return Value(std::string(sutf8.data()));
     }
-
 }

@@ -2,10 +2,10 @@
  * @file Optimizer.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Optimizes a given ArkScript AST
- * @version 0.2
+ * @version 0.3
  * @date 2020-10-27
  * 
- * @copyright Copyright (c) 2020
+ * @copyright Copyright (c) 2020-2021
  * 
  */
 
@@ -20,7 +20,7 @@
 #include <Ark/Compiler/Node.hpp>
 #include <Ark/Exceptions.hpp>
 #include <Ark/Constants.hpp>
-#include <Ark/Compiler/makeNodeBasedError.hpp>
+#include <Ark/Compiler/makeErrorCtx.hpp>
 
 namespace Ark
 {
@@ -54,7 +54,7 @@ namespace Ark
     private:
         internal::Node m_ast;
         uint16_t m_options;
-        std::unordered_map<std::string, unsigned> m_symAppearances;
+        std::unordered_map<std::string, unsigned> m_sym_appearances;
 
         /**
          * @brief Generate a fancy error message

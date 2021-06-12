@@ -320,14 +320,14 @@ namespace Ark::internal
             {
                 if (node.list().size() > 2)
                     throwMacroProcessingError("When expanding `len' inside a macro, got " + std::to_string(node.list().size() - 1) + " arguments, needed only 1", node);
-                else if (node.list()[1].nodeType() != NodeType::List)
-                    throwMacroProcessingError("When expanding `len' inside a macro, got a " + typeToString(node.list()[1]) + ", needed a List", node);
-
-                Node& sublist = node.list()[1];
-                if (sublist.list().size() > 0 && sublist.list()[0] == Node::ListNode)
-                    node = Node(static_cast<long>(sublist.list().size()) - 1);
-                else
-                    node = Node(static_cast<long>(sublist.list().size()));
+                else if (node.list()[1].nodeType() == NodeType::List)  // only apply len at compile time if we can
+                {
+                    Node& sublist = node.list()[1];
+                    if (sublist.list().size() > 0 && sublist.list()[0] == Node::ListNode)
+                        node = Node(static_cast<long>(sublist.list().size()) - 1);
+                    else
+                        node = Node(static_cast<long>(sublist.list().size()));
+                }
             }
             else if (name == "@")
             {
@@ -337,63 +337,71 @@ namespace Ark::internal
                 Node sublist = evaluate(node.list()[1], is_not_body);
                 Node idx = evaluate(node.list()[2], is_not_body);
 
-                if (sublist.nodeType() != NodeType::List)
-                    throwMacroProcessingError("Interpreting a `@' with a " + typeToString(sublist) + " instead of a List", sublist);
-                if (idx.nodeType() != NodeType::Number)
-                    throwMacroProcessingError("Interpreting a `@' with a " + typeToString(idx) + " as the index type, instead of a Number", idx);
-
-                long num_idx = static_cast<long>(idx.number());
-                long sz = static_cast<long>(sublist.list().size());
-                long offset = 0;
-                if (sz > 0 && sublist.list()[0] == Node::ListNode)
+                if (sublist.nodeType() == NodeType::List && idx.nodeType() == NodeType::Number)
                 {
-                    num_idx = (num_idx >= 0) ? num_idx + 1 : num_idx;
-                    offset = -1;
+                    long num_idx = static_cast<long>(idx.number());
+                    long sz = static_cast<long>(sublist.list().size());
+                    long offset = 0;
+                    if (sz > 0 && sublist.list()[0] == Node::ListNode)
+                    {
+                        num_idx = (num_idx >= 0) ? num_idx + 1 : num_idx;
+                        offset = -1;
+                    }
+
+                    if (num_idx < 0 && sz + num_idx >= 0 && -num_idx < sz)
+                        return sublist.list()[sz + num_idx];
+                    else if (num_idx >= 0 && num_idx + offset < sz)
+                        return sublist.list()[num_idx];
+
+                    throwMacroProcessingError("Index error when processing `@' in macro: got index " + std::to_string(num_idx + offset) + ", while max size was " + std::to_string(sz + offset), node);
                 }
-
-                if (num_idx < 0 && sz + num_idx >= 0 && -num_idx < sz)
-                    return sublist.list()[sz + num_idx];
-                else if (num_idx >= 0 && num_idx + offset < sz)
-                    return sublist.list()[num_idx];
-
-                throwMacroProcessingError("Index error when processing `@' in macro: got index " + std::to_string(num_idx + offset) + ", while max size was " + std::to_string(sz + offset), node);
             }
             else if (name == "head")
             {
                 if (node.list().size() > 2)
                     throwMacroProcessingError("When expanding `head' inside a macro, got " + std::to_string(node.list().size() - 1) + " arguments, needed only 1", node);
-                else if (node.list()[1].nodeType() != NodeType::List)
-                    throwMacroProcessingError("When expanding `head' inside a macro, got a " + typeToString(node.list()[1]) + ", needed a List", node);
-
-                Node& sublist = node.list()[1];
-                if (sublist.constList().size() > 0 && sublist.constList()[0] == Node::ListNode)
+                else if (node.list()[1].nodeType() == NodeType::List)
                 {
-                    if (sublist.constList().size() > 1)
+                    Node& sublist = node.list()[1];
+                    if (sublist.constList().size() > 0 && sublist.constList()[0] == Node::ListNode)
                     {
-                        const Node sublistCopy = sublist.constList()[1]; 
-                        node = sublistCopy;
+                        if (sublist.constList().size() > 1)
+                        {
+                            const Node sublistCopy = sublist.constList()[1]; 
+                            node = sublistCopy;
+                        }
+                        else
+                            node = Node::NilNode;
                     }
+                    else if (sublist.list().size() > 0)
+                        node = sublist.constList()[0];
                     else
                         node = Node::NilNode;
                 }
-                else if (sublist.list().size() > 0)
-                    node = sublist.constList()[0];
-                else
-                    node = Node::NilNode;
             }
             else if (name == "tail")
             {
                 if (node.list().size() > 2)
                     throwMacroProcessingError("When expanding `tail' inside a macro, got " + std::to_string(node.list().size() - 1) + " arguments, needed only 1", node);
-                else if (node.list()[1].nodeType() != NodeType::List)
-                    throwMacroProcessingError("When expanding `tail' inside a macro, got a " + typeToString(node.list()[1]) + ", needed a List", node);
-
-                Node sublist = node.list()[1];
-                if (sublist.list().size() > 0 && sublist.list()[0] == Node::ListNode)
+                else if (node.list()[1].nodeType() == NodeType::List)
                 {
-                    if (sublist.list().size() > 1)
+                    Node sublist = node.list()[1];
+                    if (sublist.list().size() > 0 && sublist.list()[0] == Node::ListNode)
                     {
-                        sublist.list().erase(sublist.constList().begin() + 1);
+                        if (sublist.list().size() > 1)
+                        {
+                            sublist.list().erase(sublist.constList().begin() + 1);
+                            node = sublist;
+                        }
+                        else
+                        {
+                            node = Node(NodeType::List);
+                            node.push_back(Node::ListNode);
+                        }
+                    }
+                    else if (sublist.list().size() > 0)
+                    {
+                        sublist.list().erase(sublist.constList().begin());
                         node = sublist;
                     }
                     else
@@ -401,16 +409,6 @@ namespace Ark::internal
                         node = Node(NodeType::List);
                         node.push_back(Node::ListNode);
                     }
-                }
-                else if (sublist.list().size() > 0)
-                {
-                    sublist.list().erase(sublist.constList().begin());
-                    node = sublist;
-                }
-                else
-                {
-                    node = Node(NodeType::List);
-                    node.push_back(Node::ListNode);
                 }
             }
             else if (name == "symcat")
