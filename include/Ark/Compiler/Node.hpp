@@ -2,18 +2,19 @@
  * @file Node.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief AST node used by the parser, optimizer and compiler
- * @version 0.1
+ * @version 0.2
  * @date 2020-10-27
  * 
- * @copyright Copyright (c) 2020
+ * @copyright Copyright (c) 2020-2021
  * 
  */
 
-#ifndef ark_node
-#define ark_node
+#ifndef ARK_COMPILER_NODE_HPP
+#define ARK_COMPILER_NODE_HPP
 
-#include <variant>
+#include <variant.hpp>
 #include <iostream>
+#include <array>
 #include <string>
 #include <vector>
 #include <unordered_map>
@@ -32,7 +33,10 @@ namespace Ark::internal
         String,
         Number,
         List,
-        Closure
+        Closure,
+        Macro,
+        Spread,
+        Unused
     };
 
     /// The different keywords available
@@ -59,14 +63,24 @@ namespace Ark::internal
     public:
         using Iterator = std::vector<Node>::const_iterator;
         using Map      = std::unordered_map<std::string, Node>;
-        using Value    = std::variant<double, std::string, Keyword>;
+        using Value    = mpark::variant<double, std::string, Keyword>;
+
+        static Node TrueNode, FalseNode, NilNode, ListNode;
+
+        /**
+         * @brief Initialize static default nodes
+         * 
+         */
+        static void init() noexcept;
+
+        Node() = default;
 
         /**
          * @brief Construct a new Node object
          * 
          * @param value 
          */
-        explicit Node(int value) noexcept;
+        explicit Node(long value) noexcept;
 
         /**
          * @brief Construct a new Node object
@@ -94,7 +108,7 @@ namespace Ark::internal
          * 
          * @param type 
          */
-        explicit Node(NodeType type=NodeType::Symbol) noexcept;
+        explicit Node(NodeType type) noexcept;
 
         /**
          * @brief Construct a new Node object
@@ -143,7 +157,7 @@ namespace Ark::internal
          * 
          * @return const std::vector<Node>& 
          */
-        const std::vector<Node>& const_list() const noexcept;
+        const std::vector<Node>& constList() const noexcept;
 
         /**
          * @brief Return the node type
@@ -218,6 +232,8 @@ namespace Ark::internal
 
         friend std::ostream& operator<<(std::ostream& os, const Node& N) noexcept;
         friend inline bool operator==(const Node& A, const Node& B);
+        friend inline bool operator<(const Node& A, const Node& B);
+        friend inline bool operator!(const Node& A);
 
     private:
         NodeType m_type;
@@ -228,11 +244,9 @@ namespace Ark::internal
         std::string m_filename = "";
     };
 
-    #include "Node.inl"
+    #include "inline/Node.inl"
 
-    using Nodes = std::vector<Node>;
-
-    std::ostream& operator<<(std::ostream& os, const Nodes& N) noexcept;
+    std::ostream& operator<<(std::ostream& os, const std::vector<Node>& N) noexcept;
 }
 
-#endif  // ark_node
+#endif

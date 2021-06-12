@@ -4,13 +4,13 @@
  * @brief Tokenize ArkScript code
  * @version 0.1
  * @date 2020-10-27
- * 
- * @copyright Copyright (c) 2020
- * 
+ *
+ * @copyright Copyright (c) 2020-2021
+ *
  */
 
-#ifndef ark_lexer
-#define ark_lexer
+#ifndef ARK_COMPILER_LEXER_HPP
+#define ARK_COMPILER_LEXER_HPP
 
 #include <vector>
 #include <algorithm>
@@ -20,6 +20,9 @@
 
 #include <Ark/Exceptions.hpp>
 #include <Ark/Utils.hpp>
+#include <Ark/Compiler/makeErrorCtx.hpp>
+
+#include <utf8_decoder/utf8_decoder.h>
 
 namespace Ark::internal
 {
@@ -36,6 +39,7 @@ namespace Ark::internal
         Skip,
         Comment,
         Shorthand,
+        Spread,
         Mismatch
     };
 
@@ -43,7 +47,7 @@ namespace Ark::internal
     const std::vector<std::string> tokentype_string = {
         "Grouping", "String", "Number", "Operator",
         "Identifier", "Capture", "GetField", "Keyword",
-        "Skip", "Comment", "Shorthand", "Mistmatch"
+        "Skip", "Comment", "Shorthand", "Spread", "Mistmatch"
     };
 
     struct Token
@@ -55,13 +59,13 @@ namespace Ark::internal
 
         /**
          * @brief Construct a new Token object
-         * 
+         *
          */
         Token() = default;
 
         /**
          * @brief Construct a new Token object
-         * 
+         *
          * @param type the token type
          * @param tok the token value
          * @param line the line where we found the token
@@ -73,7 +77,7 @@ namespace Ark::internal
 
         /**
          * @brief Construct a new Token object from another one
-         * 
+         *
          */
         Token(const Token&) = default;
     };
@@ -90,31 +94,31 @@ namespace Ark::internal
 
     /**
      * @brief The lexer, in charge of creating a list of tokens
-     * 
+     *
      */
     class Lexer
     {
     public:
         /**
          * @brief Construct a new Lexer object
-         * 
+         *
          * @param debug the debug level
          */
         explicit Lexer(unsigned debug) noexcept;
 
         /**
          * @brief Give code to tokenize and create the list of tokens
-         * 
+         *
          * @param code the ArkScript code
          */
         void feed(const std::string& code);
 
         /**
          * @brief Return the list of tokens
-         * 
-         * @return const std::vector<Token>& 
+         *
+         * @return std::vector<Token>&
          */
-        const std::vector<Token>& tokens() noexcept;
+        std::vector<Token>& tokens() noexcept;
 
     private:
         unsigned m_debug;
@@ -122,53 +126,61 @@ namespace Ark::internal
 
         /**
          * @brief Helper function to determine the type of a token
-         * 
-         * @param value 
-         * @return TokenType 
+         *
+         * @param value
+         * @return TokenType
          */
         inline TokenType guessType(const std::string& value) noexcept;
 
         /**
          * @brief Check if the value is a keyword in ArkScript
-         * 
-         * @param value 
-         * @return true 
-         * @return false 
+         *
+         * @param value
+         * @return true
+         * @return false
          */
         inline bool isKeyword(const std::string& value) noexcept;
+        /**
+         * @brief Check if the value can be an identifier in ArkScript
+         *
+         * @param value
+         * @return true
+         * @return false
+         */
+        inline bool isIdentifier(const std::string& value) noexcept;
 
         /**
          * @brief Check if the value is an operator in ArkScript
-         * 
-         * @param value 
-         * @return true 
-         * @return false 
+         *
+         * @param value
+         * @return true
+         * @return false
          */
         inline bool isOperator(const std::string& value) noexcept;
 
         /**
          * @brief Check if a control character / sequence is complete or not
-         * 
+         *
          * @param sequence the sequence without the leading \\
          * @param next the next character to come, maybe, in the sequence
-         * @return true 
-         * @return false 
+         * @return true
+         * @return false
          */
         inline bool endOfControlChar(const std::string& sequence, char next) noexcept;
 
         /**
          * @brief To throw nice lexer errors
-         * 
-         * @param message 
-         * @param match 
-         * @param line 
-         * @param col 
+         *
+         * @param message
+         * @param match
+         * @param line
+         * @param col
          * @param context
          */
         inline void throwTokenizingError(const std::string& message, const std::string& match, std::size_t line, std::size_t col, const std::string& context);
     };
 
-    #include "Lexer.inl"
+    #include "inline/Lexer.inl"
 }
 
-#endif  // ark_lexer
+#endif

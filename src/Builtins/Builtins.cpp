@@ -4,8 +4,6 @@
 
 #include <Ark/Builtins/Builtins.hpp>
 
-#define Builtins_Function(name) Value name(std::vector<Value>& n)
-
 namespace Ark::internal::Builtins
 {
     extern const Value falseSym = Value(ValueType::False);
@@ -60,6 +58,8 @@ namespace Ark::internal::Builtins
         { "str:format", Value(String::format) },
         { "str:find", Value(String::findSubStr) },
         { "str:removeAt", Value(String::removeAtStr) },
+        { "str:ord", Value(String::ord) },
+        { "str:chr", Value(String::chr) },
 
         // Mathematics
         { "math:exp", Value(Mathematics::exponential) },
@@ -88,7 +88,7 @@ namespace Ark::internal::Builtins
     extern const std::vector<std::string> operators = {
         "+", "-", "*", "/",
         ">", "<", "<=", ">=", "!=", "=",
-        "len", "empty?", "firstOf", "tailOf", "headOf",
+        "len", "empty?", "tail", "head",
         "nil?", "assert",
         "toNumber", "toString",
         "@", "and", "or", "mod",

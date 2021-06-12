@@ -5,6 +5,8 @@
 # a list of function call which should be executed later on
 (mut callbacks [])
 
+(print "Data: " data)
+(print "Generating callbacks")
 (mut acc 0)
 # here we are filling the list callbacks
 (while (!= acc (len data)) {
@@ -22,6 +24,7 @@
     (print "stored: " (@ callbacks acc) .d)
     # and then we call the closure itself (be careful: (@ callbacks acc) only returns the callback,
     # thus we need to put it in another pair of parens to call the callback)
+    (puts "Calling callback number " acc ": ")
     ((@ callbacks acc))
     (set acc (+ 1 acc))
 })

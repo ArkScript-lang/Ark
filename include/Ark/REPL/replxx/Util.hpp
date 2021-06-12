@@ -4,13 +4,13 @@
  * @brief replxx utilities
  * @version 0.1
  * @date 2020-10-27
- * 
- * @copyright Copyright (c) 2020
- * 
+ *
+ * @copyright Copyright (c) 2020-2021
+ *
  */
 
-#ifndef UTIL_HPP
-#define UTIL_HPP
+#ifndef REPL_REPLXX_UTIL_HPP
+#define REPL_REPLXX_UTIL_HPP
 
 #include <vector>
 #include <utility>

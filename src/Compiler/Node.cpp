@@ -4,7 +4,21 @@
 
 namespace Ark::internal
 {
-    Node::Node(int value) noexcept :
+
+    Node Node::TrueNode = Node("true");
+    Node Node::FalseNode = Node("false");
+    Node Node::NilNode = Node("nil");
+    Node Node::ListNode = Node("list");
+
+    void Node::init() noexcept
+    {
+        Node::TrueNode.setNodeType(NodeType::Symbol);
+        Node::FalseNode.setNodeType(NodeType::Symbol);
+        Node::NilNode.setNodeType(NodeType::Symbol);
+        Node::ListNode.setNodeType(NodeType::Symbol);
+    }
+
+    Node::Node(long value) noexcept :
         m_type(NodeType::Number),
         m_value(static_cast<double>(value))
     {}
@@ -13,7 +27,7 @@ namespace Ark::internal
         m_type(NodeType::Number),
         m_value(value)
     {}
-    
+
     Node::Node(const std::string& value) noexcept :
         m_type(NodeType::String),
         m_value(value)
@@ -41,17 +55,17 @@ namespace Ark::internal
 
     const std::string& Node::string() const noexcept
     {
-        return std::get<std::string>(m_value);
+        return mpark::get<std::string>(m_value);
     }
 
     double Node::number() const noexcept
     {
-        return std::get<double>(m_value);
+        return mpark::get<double>(m_value);
     }
 
     Keyword Node::keyword() const noexcept
     {
-        return std::get<Keyword>(m_value);
+        return mpark::get<Keyword>(m_value);
     }
 
     // -------------------------
@@ -66,7 +80,7 @@ namespace Ark::internal
         return m_list;
     }
 
-    const std::vector<Node>& Node::const_list() const noexcept
+    const std::vector<Node>& Node::constList() const noexcept
     {
         return m_list;
     }
@@ -143,7 +157,7 @@ namespace Ark::internal
         switch(N.m_type)
         {
         case NodeType::String:
-            os << N.string();
+            os << '"' << N.string() << '"';
             break;
         
         case NodeType::Symbol:
@@ -166,7 +180,7 @@ namespace Ark::internal
         {
             os << colors[index % colors.size()] << "( " << termcolor::reset;
             index++;
-            for (auto& t: N.m_list)
+            for (auto& t : N.m_list)
                 os << t << " ";
             index--;
             os << colors[index % colors.size()] << ")" << termcolor::reset;
@@ -176,7 +190,7 @@ namespace Ark::internal
         case NodeType::Closure:
             os << "Closure";
             break;
-        
+
         case NodeType::Keyword:
             switch(N.keyword())
             {
@@ -193,6 +207,25 @@ namespace Ark::internal
             }
             break;
 
+        case NodeType::Macro:
+        {
+            os << colors[index % colors.size()] << "( " << termcolor::reset << "Macro ";
+            index++;
+            for (auto& t : N.m_list)
+                os << t << " ";
+            index--;
+            os << colors[index % colors.size()] << ")" << termcolor::reset;
+            break;
+        }
+
+        case NodeType::Spread:
+            os << "(Spread) " << N.string();
+            break;
+
+        case NodeType::Unused:
+            os << "(Unused)";
+            break;
+
         default:
             os << "~\\._./~";
             break;
@@ -200,10 +233,10 @@ namespace Ark::internal
         return os;
     }
 
-    std::ostream& operator<<(std::ostream& os, const Nodes& N) noexcept
+    std::ostream& operator<<(std::ostream& os, const std::vector<Node>& N) noexcept
     {
         os << "( ";
-        for (auto& t: N)
+        for (auto& t : N)
             os << t << " ";
         os << ")";
 

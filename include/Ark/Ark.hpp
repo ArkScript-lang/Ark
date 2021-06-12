@@ -5,12 +5,12 @@
  * @version 0.1
  * @date 2020-10-27
  * 
- * @copyright Copyright (c) 2020
+ * @copyright Copyright (c) 2020-2021
  * 
  */
 
-#ifndef ark_ark
-#define ark_ark
+#ifndef INCLUDE_ARK_ARK_HPP
+#define INCLUDE_ARK_ARK_HPP
 
 #include <Ark/Exceptions.hpp>
 #include <Ark/Constants.hpp>
@@ -18,4 +18,4 @@
 #include <Ark/VM/VM.hpp>
 #include <Ark/Compiler/Compiler.hpp>
 
-#endif  // ark_ark
+#endif

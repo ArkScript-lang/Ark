@@ -2,6 +2,7 @@
 
 #include <Ark/String.hpp>
 #include <Ark/Utils.hpp>
+#include <utf8_decoder/utf8_decoder.h>
 
 #include <Ark/Builtins/BuiltinsErrors.inl>
 #include <Ark/VM/VM.hpp>
@@ -17,18 +18,17 @@ namespace Ark::internal::Builtins::String
 
         ::String f(n[0].string().c_str());
 
-        for (Value::Iterator it=n.begin()+1, it_end=n.end(); it != it_end; ++it)
+        for (Value::Iterator it = n.begin() + 1, it_end = n.end(); it != it_end; ++it)
         {
             if (it->valueType() == ValueType::String)
             {
-                ::String& obj = it->string_ref();
+                ::String& obj = it->stringRef();
                 f.format(f.size() + obj.size(), obj.c_str());
             }
             else if (it->valueType() == ValueType::Number)
             {
-                // TODO handle doubles
-                long obj = it->number();
-                f.format(f.size() + Utils::dig_places(obj) + Utils::dec_places(obj), obj);
+                double obj = it->number();
+                f.format(f.size() + Utils::digPlaces(obj) + Utils::decPlaces(obj) + 1, obj);
             }
             else if (it->valueType() == ValueType::Nil)
                 f.format(f.size() + 5, std::string_view("nil"));
@@ -42,7 +42,7 @@ namespace Ark::internal::Builtins::String
                 f.format(f.size() + ss.str().size(), std::string_view(ss.str().c_str()));
             }
         }
-        n[0].string_ref() = f;
+        n[0].stringRef() = f;
         return n[0];
     }
 
@@ -55,12 +55,12 @@ namespace Ark::internal::Builtins::String
         if (n[1].valueType() != ValueType::String)
             throw Ark::TypeError(STR_FIND_TE1);
 
-        return Value(n[0].string_ref().find(n[1].string_ref()));
+        return Value(n[0].stringRef().find(n[1].stringRef()));
     }
 
     Value removeAtStr(std::vector<Value>& n, Ark::VM* vm)
     {
-        if (n.size () != 2)
+        if (n.size() != 2)
             throw std::runtime_error(STR_RM_ARITY);
         if (n[0].valueType() != ValueType::String)
             throw Ark::TypeError(STR_RM_TE0);
@@ -68,10 +68,35 @@ namespace Ark::internal::Builtins::String
             throw Ark::TypeError(STR_RM_TE1);
 
         long id = static_cast<long>(n[1].number());
-        if (id < 0 || id >= n[0].string_ref().size())
+        if (id < 0 || static_cast<std::size_t>(id) >= n[0].stringRef().size())
             throw std::runtime_error(STR_RM_OOR);
 
-        n[0].string_ref().erase(id, id + 1);
+        n[0].stringRef().erase(id, id + 1);
         return n[0];
+    }
+
+    Value ord(std::vector<Value>& n, Ark::VM* vm)
+    {
+        if (n.size() != 1)
+            throw std::runtime_error(STR_ORD_ARITY);
+        if (n[0].valueType() != ValueType::String)
+            throw Ark::TypeError(STR_ORD_TE0);
+
+        int ord = utf8codepoint(n[0].stringRef().c_str());
+
+        return Value(ord);
+    }
+
+    Value chr(std::vector<Value>& n, Ark::VM* vm)
+    {
+        if (n.size() != 1)
+            throw std::runtime_error(STR_CHR_ARITY);
+        if (n[0].valueType() != ValueType::Number)
+            throw Ark::TypeError(STR_CHR_TE0);
+
+        std::array<char, 5> sutf8;
+
+        utf8chr(static_cast<int>(n[0].number()), sutf8.data());
+        return Value(std::string(sutf8.data()));
     }
 }

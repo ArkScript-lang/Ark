@@ -3,63 +3,64 @@
 inline ValueType Value::valueType() const noexcept
 {
     // the type is stored on the right most bits
-    return static_cast<ValueType>(m_constType & (0b01111111));
+    return static_cast<ValueType>(m_const_type & (0b01111111));
 }
 
 inline bool Value::isFunction() const noexcept  // if it's a function we can resolve it
 {
     auto type = valueType();
-    return type == ValueType::PageAddr || type == ValueType::Closure || type == ValueType::CProc;
+    return type == ValueType::PageAddr || type == ValueType::Closure || type == ValueType::CProc ||
+            (type == ValueType::Reference && reference()->isFunction());
 }
 
 inline double Value::number() const
 {
-    return std::get<double>(m_value);
+    return variant_get<double>(m_value);
 }
 
 inline const String& Value::string() const
 {
-    return std::get<String>(m_value);
+    return variant_get<String>(m_value);
 }
 
-inline const std::vector<Value>& Value::const_list() const
+inline const std::vector<Value>& Value::constList() const
 {
-    return std::get<std::vector<Value>>(m_value);
+    return variant_get<std::vector<Value>>(m_value);
 }
 
 inline const UserType& Value::usertype() const
 {
-    return std::get<UserType>(m_value);
+    return variant_get<UserType>(m_value);
 }
 
 // private getters
 
-inline PageAddr_t Value::pageAddr() const
+inline internal::PageAddr_t Value::pageAddr() const
 {
-    return std::get<PageAddr_t>(m_value);
+    return variant_get<internal::PageAddr_t>(m_value);
 }
 
 inline const Value::ProcType& Value::proc() const
 {
-    return std::get<Value::ProcType>(m_value);
+    return variant_get<Value::ProcType>(m_value);
 }
 
-inline const Closure& Value::closure() const
+inline const internal::Closure& Value::closure() const
 {
-    return std::get<Closure>(m_value);
+    return variant_get<internal::Closure>(m_value);
 }
 
 inline const bool Value::isConst() const noexcept
 {
-    return m_constType & (1 << 7);
+    return m_const_type & (1 << 7);
 }
 
 inline void Value::setConst(bool value) noexcept
 {
     if (value)
-        m_constType |= 1 << 7;
+        m_const_type |= 1 << 7;
     else
-        m_constType &= 0b01111111;  // keep only the right most bits
+        m_const_type &= 0b01111111;  // keep only the right most bits
 }
 
 // operators
@@ -70,7 +71,7 @@ inline bool operator==(const Value& A, const Value& B) noexcept
     if (A.valueType() != B.valueType())
         return false;
     // all the types >= Nil are Nil itself, True, False, Undefined
-    else if ((A.m_constType & 0b01111111) >= static_cast<int>(ValueType::Nil))
+    else if ((A.m_const_type & 0b01111111) >= static_cast<int>(ValueType::Nil))
         return true;
 
     return A.m_value == B.m_value;
@@ -93,7 +94,7 @@ inline bool operator!(const Value& A) noexcept
     switch (A.valueType())
     {
         case ValueType::List:
-            return A.const_list().empty();
+            return A.constList().empty();
 
         case ValueType::Number:
             return !A.number();
