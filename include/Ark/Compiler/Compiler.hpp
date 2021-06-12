@@ -32,6 +32,21 @@
 
 namespace Ark
 {
+    namespace internal
+    {
+        /**
+         * @brief Category for complex nodes (not including values)
+         * 
+         */
+        enum class NodeCategory
+        {
+            Store,  ///< This comprises let, mut and set nodes
+            If,
+            Function,
+            While
+        };
+    }
+
     class State;
 
     /**
@@ -163,11 +178,20 @@ namespace Ark
             throw CompilationError(internal::makeNodeBasedErrorCtx(message, node));
         }
 
-        inline void handleStackTrashing(int p)
+        inline bool isCurrentNodeStored()
         {
-            // handling stack trashing
-            if (m_holders.size() == 0 || !std::any_of(m_holders.begin(), m_holders.end(), [](auto v) { return v == true; }))
-                page(p).emplace_back(internal::Instruction::POP);
+            // should return true if the current node can be stored, false otherwise
+            // should use m_history
+            return true;
+        }
+
+        inline bool isTerminalNode(std::size_t position, std::size_t parent_size)
+        {
+            if (parent_size == 1)
+                return true;
+            else if (parent_size > 1 && position == parent_size - 1)  // we have the last element of the parent
+                return true;
+            return false;
         }
 
         /**
