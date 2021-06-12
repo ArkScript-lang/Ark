@@ -4,6 +4,7 @@
 #include <Ark/Compiler/MacroExecutors/ListExecutor.hpp>
 #include <Ark/Compiler/MacroExecutors/ConditionalExecutor.hpp>
 #include <Ark/Compiler/Node.hpp>
+#include <Ark/Builtins/Builtins.hpp>
 
 namespace Ark::internal
 {
@@ -320,13 +321,49 @@ namespace Ark::internal
             {
                 if (node.list().size() > 2)
                     throwMacroProcessingError("When expanding `len' inside a macro, got " + std::to_string(node.list().size() - 1) + " arguments, needed only 1", node);
-                else if (node.list()[1].nodeType() == NodeType::List)  // only apply len at compile time if we can
+                else if (Node& lst = node.list()[1]; lst.nodeType() == NodeType::List)  // only apply len at compile time if we can
                 {
-                    Node& sublist = node.list()[1];
-                    if (sublist.list().size() > 0 && sublist.list()[0] == Node::ListNode)
-                        node = Node(static_cast<long>(sublist.list().size()) - 1);
-                    else
-                        node = Node(static_cast<long>(sublist.list().size()));
+                    bool are_compile_time_evaluated = std::all_of(lst.list().begin(), lst.list().end(), [this](const Node& node) -> bool {
+                        switch (node.nodeType())
+                        {
+                            case NodeType::Symbol:
+                            {
+                                auto it = std::find(internal::Builtins::operators.begin(), internal::Builtins::operators.end(), node.string());
+                                auto it2 = std::find_if(internal::Builtins::builtins.begin(), internal::Builtins::builtins.end(),
+                                    [&node](const std::pair<std::string, Value>& element) -> bool {
+                                        return node.string() == element.first;
+                                });
+
+                                return it != internal::Builtins::operators.end()  ||
+                                       it2 != internal::Builtins::builtins.end()  ||
+                                       findNearestMacro(node.string()) != nullptr ||
+                                       node.string() == "list";
+                            }
+
+                            case NodeType::Capture:
+                            case NodeType::GetField:
+                            case NodeType::Closure:
+                                return false;
+
+                            case NodeType::Keyword:
+                            case NodeType::String:
+                            case NodeType::Number:
+                            case NodeType::List:
+                            case NodeType::Macro:
+                            case NodeType::Spread:
+                            case NodeType::Unused:
+                                return true;
+                        }
+                        return false;
+                    });
+
+                    if (are_compile_time_evaluated)
+                    {
+                        if (lst.list().size() > 0 && lst.list()[0] == Node::ListNode)
+                            node = Node(static_cast<long>(lst.list().size()) - 1);
+                        else
+                            node = Node(static_cast<long>(lst.list().size()));
+                    }
                 }
             }
             else if (name == "@")
