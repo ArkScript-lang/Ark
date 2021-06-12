@@ -82,3 +82,43 @@ inline void MacroProcessor::removeBegin(Node& node, std::size_t& i)
         }
     }
 }
+
+inline bool MacroProcessor::canBeCompileTimeEvaluated(const Node& node) const
+{
+    switch (node.nodeType())
+    {
+        case NodeType::Symbol:
+        {
+            auto it = std::find(internal::Builtins::operators.begin(), internal::Builtins::operators.end(), node.string());
+            auto it2 = std::find_if(internal::Builtins::builtins.begin(), internal::Builtins::builtins.end(),
+                [&node](const std::pair<std::string, Value>& element) -> bool {
+                    return node.string() == element.first;
+            });
+
+            return it != internal::Builtins::operators.end()  ||
+                    it2 != internal::Builtins::builtins.end()  ||
+                    const_cast<MacroProcessor*>(this)->findNearestMacro(node.string()) != nullptr ||
+                    node.string() == "list";
+        }
+
+        case NodeType::List:
+            return std::all_of(node.constList().begin(), node.constList().end(), [this](const Node& node) {
+                return canBeCompileTimeEvaluated(node);
+            });
+
+        case NodeType::Capture:
+        case NodeType::GetField:
+        case NodeType::Closure:
+            return false;
+
+        case NodeType::Keyword:
+        case NodeType::String:
+        case NodeType::Number:
+        case NodeType::Macro:
+        case NodeType::Spread:
+        case NodeType::Unused:
+            return true;
+    }
+
+    return false;
+}
