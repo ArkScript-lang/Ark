@@ -2,21 +2,22 @@
  * @file BytecodeReader.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief A bytecode disassembler for ArkScript
- * @version 0.1
+ * @version 0.2
  * @date 2020-10-27
  * 
- * @copyright Copyright (c) 2020
+ * @copyright Copyright (c) 2020-2021
  * 
  */
 
-#ifndef ark_compiler_bytecodereader
-#define ark_compiler_bytecodereader
+#ifndef ARK_COMPILER_BYTECODEREADER_HPP
+#define ARK_COMPILER_BYTECODEREADER_HPP
 
 #include <vector>
 #include <fstream>
 #include <iostream>
 #include <string>
 #include <cinttypes>
+#include <optional>
 
 #include <Ark/Config.hpp>
 
@@ -24,6 +25,13 @@ namespace Ark
 {
     using bytecode_t = std::vector<uint8_t>;
 
+    enum class BytecodeSegment {
+        All,
+        Symbols,
+        Values,
+        Code,
+        HeadersOnly
+    };
     /**
      * @brief This class is just a helper to
      * - check if a bytecode is valid
@@ -61,14 +69,27 @@ namespace Ark
         unsigned long long timestamp();
 
         /**
-         * @brief Display the bytecode opcode in a human friendly way
-         * 
+         * @brief Display the bytecode opcode in a human friendly way.
+         *
+         * @param segment selected bytecode segment that will be displayed
+         * @param sStart start of the segment slice to display (Ignored in code segment if no page is available)
+         * @param sEnd end of the segment slice to display (Ignored in code segment if no page is available)
+         * @param cPage selected page of the code segment (Used only for the code segment)
          */
-        void display();
+        void display(BytecodeSegment segment = BytecodeSegment::All,
+                     std::optional<uint16_t> sStart = std::nullopt,
+                     std::optional<uint16_t> sEnd = std::nullopt,
+                     std::optional<uint16_t> cPage = std::nullopt);
 
     private:
         bytecode_t m_bytecode;
 
+        /**
+         * @brief Read a number from the bytecode, under the instruction pointer i
+         * 
+         * @param i this parameter is being modified to point to the next value
+         * @return uint16_t the number we read (big endian)
+         */
         uint16_t readNumber(std::size_t& i);
     };
 }

@@ -1,13 +1,13 @@
-# project junk
-
-# folders
 build/
-build32/
-linux/
-clang/
+tests/cpp/out/
+tests/cpp/ark/
 gitstats/
 __arkscript__/
 packages/
+.idea/
+# user settings
+.vscode/settings.json
+.vscode/c_cpp_properties.json
 
 # files
 gmon.out
@@ -22,3 +22,4 @@ build-package.sh
 *.lib
 *.arkm
 *.coz
+.vs/

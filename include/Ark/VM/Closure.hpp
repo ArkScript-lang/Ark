@@ -5,18 +5,16 @@
  * @version 0.1
  * @date 2020-10-27
  * 
- * @copyright Copyright (c) 2020
+ * @copyright Copyright (c) 2020-2021
  * 
  */
 
-#ifndef ark_vm_closure
-#define ark_vm_closure
+#ifndef ARK_VM_CLOSURE_HPP
+#define ARK_VM_CLOSURE_HPP
 
 #include <memory>
 #include <vector>
 #include <iostream>
-
-#include <Ark/VM/Types.hpp>
 
 namespace Ark::internal
 {
@@ -30,6 +28,7 @@ namespace Ark::internal
      *  has been closed by the virtual machine
      */
     using Scope_t = std::shared_ptr<Scope>;
+    using PageAddr_t = uint16_t;
 
     /**
      * @brief Closure management
@@ -72,7 +71,7 @@ namespace Ark::internal
          * 
          * @return Scope_t& 
          */
-        Scope_t& scope_ref() noexcept;
+        Scope_t& refScope() noexcept;
 
         /**
          * @brief Return the page address of the object
@@ -84,7 +83,7 @@ namespace Ark::internal
         friend inline bool operator==(const Closure& A, const Closure& B) noexcept;
         friend inline bool operator<(const Closure& A, const Closure& B) noexcept;
         friend std::ostream& operator<<(std::ostream& os, const Closure& C) noexcept;
-    
+
     private:
         Scope_t m_scope;
         // keep track of the code page number, in case we need it later

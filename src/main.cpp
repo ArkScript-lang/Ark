@@ -1,22 +1,15 @@
 #ifndef ark_ark
 
-#include <chrono>
+#include <cstdio>
 #include <iostream>
+#include <optional>
 
 #include <clipp.hpp>
+#include <termcolor.hpp>
+
 #include <Ark/Ark.hpp>
 #include <Ark/REPL/Repl.hpp>
-
-void bcr(const std::string& file)
-{
-    try {
-        Ark::BytecodeReader bcr;
-        bcr.feed(file);
-        bcr.display();
-    } catch (const std::exception& e) {
-        std::cout << e.what() << std::endl;
-    }
-}
+#include <Ark/Profiling.hpp>
 
 int main(int argc, char** argv)
 {
@@ -24,11 +17,20 @@ int main(int argc, char** argv)
 
     enum class mode { help, dev_info, bytecode_reader, version, run, repl, compile, eval };
     mode selected = mode::repl;
-
-    std::string file = "", lib_dir = "?", eval_expresion = "";
-    unsigned debug = 0;
-    std::vector<std::string> wrong, script_args;
     uint16_t options = Ark::DefaultFeatures;
+
+    std::string file = "",
+                lib_dir = "?",
+                eval_expresion = "";
+
+    unsigned debug = 0;
+
+    uint16_t bcr_page  = ~0,
+             bcr_start = ~0,
+             bcr_end   = ~0;
+    Ark::BytecodeSegment segment = Ark::BytecodeSegment::All;
+
+    std::vector<std::string> wrong, script_args;
 
     auto cli = (
         option("-h", "--help").set(selected, mode::help).doc("Display this message")
@@ -46,6 +48,24 @@ int main(int argc, char** argv)
         | (
             required("-bcr", "--bytecode-reader").set(selected, mode::bytecode_reader).doc("Launch the bytecode reader")
             & value("file", file)
+            , (
+                option("-on", "--only-names").set(segment, Ark::BytecodeSegment::HeadersOnly).doc("Display only the bytecode segments names and sizes")
+                | (
+                    (
+                        option("-a", "--all").set(segment, Ark::BytecodeSegment::All).doc("Display all the bytecode segments (default)")
+                        | option("-st", "--symbols").set(segment, Ark::BytecodeSegment::Symbols).doc("Display only the symbols table")
+                        | option("-vt", "--values").set(segment, Ark::BytecodeSegment::Values).doc("Display only the values table")
+                    )
+                    , option("-s", "--slice").doc("Select a slice of instructions in the bytecode")
+                        & value("start", bcr_start)
+                        & value("end", bcr_end)
+                )
+                | (
+                    option("-cs", "--code").set(segment, Ark::BytecodeSegment::Code).doc("Display only the code segments")
+                    , option("-p", "--page").doc("Set the bytecode reader code segment to display")
+                        & value("page", bcr_page)
+                )
+            )
         )
         | (
             value("file", file).set(selected, mode::run)
@@ -91,42 +111,62 @@ int main(int argc, char** argv)
         switch (selected)
         {
             case mode::help:
+                // clipp only supports streams
                 std::cout << make_man_page(cli, "ark", fmt)
-                            .prepend_section("DESCRIPTION",
-                                             "        ArkScript programming language")
-                            .append_section("LICENSE",
-                                            "        Mozilla Public License 2.0");
-                std::cout << std::endl;
+                            .prepend_section("DESCRIPTION", "        ArkScript programming language")
+                            .append_section("LICENSE", "        Mozilla Public License 2.0")
+                          << std::endl;
                 break;
 
             case mode::version:
-                std::cout << "Version " << ARK_VERSION_MAJOR << "." << ARK_VERSION_MINOR << "." << ARK_VERSION_PATCH << std::endl;
+                std::printf("Version %i.%i.%i\n", ARK_VERSION_MAJOR, ARK_VERSION_MINOR, ARK_VERSION_PATCH);
                 break;
 
             case mode::dev_info:
-                std::cout << "Have been compiled with " << ARK_COMPILER << ", options: " << ARK_COMPILATION_OPTIONS << "\n\n";
-                std::cout << "sizeof(Ark::Value)    = " << sizeof(Ark::internal::Value) << "B\n";
-                std::cout << "      sizeof(Value_t) = " << sizeof(Ark::internal::Value::Value_t) << "B\n";
-                std::cout << "      sizeof(ValueType) = " << sizeof(Ark::internal::ValueType) << "B\n";
-                std::cout << "      sizeof(ProcType)  = " << sizeof(Ark::internal::Value::ProcType) << "B\n";
-                std::cout << "sizeof(Ark::Frame)    = " << sizeof(Ark::internal::Frame) << "B\n";
-                std::cout << "sizeof(Ark::State)    = " << sizeof(Ark::State) << "B\n";
-                std::cout << "sizeof(Ark::Closure)  = " << sizeof(Ark::internal::Closure) << "B\n";
-                std::cout << "sizeof(Ark::UserType) = " << sizeof(Ark::UserType) << "B\n";
-                std::cout << "sizeof(Ark::VM)       = " << sizeof(Ark::VM) << "B\n";
-                std::cout << "sizeof(vector<Ark::Value>) = " << sizeof(std::vector<Ark::internal::Value>) << "B\n";
-                std::cout << "sizeof(std::string)   = " << sizeof(std::string) << "B\n";
-                std::cout << "sizeof(String)        = " << sizeof(String) << "B\n";
-                std::cout << "sizeof(char)          = " << sizeof(char) << "B\n";
-                std::cout << std::endl;
+            {
+                std::printf(
+                    "Have been compiled with %s, options: %s\n\n"
+                    "sizeof(Ark::Value)    = %zuB\n"
+                    "      sizeof(Value_t) = %zuB\n"
+                    "      sizeof(ValueType) = %zuB\n"
+                    "      sizeof(ProcType)  = %zuB\n"
+                    "      sizeof(Ark::Closure)  = %zuB\n"
+                    "      sizeof(Ark::UserType) = %zuB\n"
+                    "\nVirtual Machine\n"
+                    "sizeof(Ark::VM)       = %zuB\n"
+                    "      sizeof(Ark::State)    = %zuB\n"
+                    "      sizeof(Ark::Scope)    = %zuB\n"
+                    "\nMisc\n"
+                    "    sizeof(vector<Ark::Value>) = %zuB\n"
+                    "    sizeof(std::string)   = %zuB\n"
+                    "    sizeof(String)        = %zuB\n"
+                    "    sizeof(char)          = %zuB\n"
+                    , ARK_COMPILER, ARK_COMPILATION_OPTIONS,
+                    // value
+                    sizeof(Ark::Value),
+                        sizeof(Ark::Value::Value_t),
+                        sizeof(Ark::ValueType),
+                        sizeof(Ark::Value::ProcType),
+                        sizeof(Ark::internal::Closure),
+                        sizeof(Ark::UserType),
+                    // vm
+                    sizeof(Ark::VM),
+                        sizeof(Ark::State),
+                        sizeof(Ark::internal::Scope),
+                    // misc
+                        sizeof(std::vector<Ark::Value>),
+                        sizeof(std::string),
+                        sizeof(String),
+                        sizeof(char)
+                );
                 break;
+            }
 
             case mode::repl:
             {
                 // send default features without FeatureRemoveUnusedVars to avoid deleting code which will be used later on
                 Ark::Repl repl(Ark::DefaultFeatures & ~Ark::FeatureRemoveUnusedVars, lib_dir);
-                repl.run();
-                break;
+                return repl.run();
             }
 
             case mode::compile:
@@ -136,7 +176,7 @@ int main(int argc, char** argv)
 
                 if (!state.doFile(file))
                 {
-                    Ark::logger.error("Ark::State.doFile(" + file + ") failed");
+                    std::cerr << termcolor::red << "Ark::State.doFile(" << file << ") failed\n" << termcolor::reset;
                     return -1;
                 }
 
@@ -151,12 +191,26 @@ int main(int argc, char** argv)
 
                 if (!state.doFile(file))
                 {
-                    Ark::logger.error("Ark::State.doFile(" + file + ") failed");
+                    std::cerr << termcolor::red << "Ark::State.doFile(" << file << ") failed\n" << termcolor::reset;
                     return -1;
                 }
 
                 Ark::VM vm(&state);
-                return vm.run();
+                int out = vm.run();
+
+                #ifdef ARK_PROFILER_COUNT
+                std::printf(
+                    "\n\nValue\n"
+                    "=====\n"
+                    "\tCreations: %u\n\tCopies: %u\n\tMoves: %u\n\n\tCopy coeff: %f",
+                    Ark::internal::value_creations,
+                    Ark::internal::value_copies,
+                    Ark::internal::value_moves,
+                    static_cast<float>(Ark::internal::value_copies) / Ark::internal::value_creations
+                );
+                #endif
+
+                return out;
             }
 
             case mode::eval:
@@ -166,34 +220,48 @@ int main(int argc, char** argv)
 
                 if (!state.doString(eval_expresion))
                 {
-                    Ark::logger.error("Ark::State.doString(" + eval_expresion + ") failed");
+                    std::cerr << termcolor::red << "Ark::State.doString(" << eval_expresion << ") failed\n" << termcolor::reset;
                     return  -1;
                 }
 
                 Ark::VM vm(&state);
-                return  vm.run();
+                return vm.run();
             }
 
             case mode::bytecode_reader:
-                bcr(file);
+            {
+                uint16_t not_0 = ~0;
+                try {
+                    Ark::BytecodeReader bcr;
+                    bcr.feed(file);
+
+                    if (bcr_page == not_0 && bcr_start == not_0)
+                        bcr.display(segment);
+                    else if (bcr_page != not_0 && bcr_start == not_0)
+                        bcr.display(segment, std::nullopt, std::nullopt, bcr_page);
+                    else if (bcr_page == not_0 && bcr_start != not_0)
+                        bcr.display(segment, bcr_start, bcr_end);
+                    else
+                        bcr.display(segment, bcr_start, bcr_end, bcr_page);
+                } catch (const std::exception& e) {
+                    std::printf("%s\n", e.what());
+                }
                 break;
+            }
         }
     }
     else
     {
         for (const auto& arg : wrong)
-            std::cout << "'" << arg << "'" << " ins't a valid argument" << std::endl;
+            std::printf("'%s' ins't a valid argument\n", arg.c_str());
 
+        // clipp only supports streams
         std::cout << make_man_page(cli, "ark", fmt)
-                    .prepend_section("DESCRIPTION",
-                                        "        ArkScript programming language")
-                    .append_section("LICENSE",
-                                    "        Mozilla Public License 2.0");
-        std::cout << std::endl;
+                    .prepend_section("DESCRIPTION", "        ArkScript programming language")
+                    .append_section("LICENSE", "        Mozilla Public License 2.0")
+                    << std::endl;
     }
 
-    // to avoid some "CLI glitches"
-    std::cout << termcolor::reset;
     return 0;
 }
 

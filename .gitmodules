@@ -10,3 +10,9 @@
 [submodule "submodules/replxx"]
 	path = submodules/replxx
 	url = https://github.com/AmokHuginnsson/replxx.git
+[submodule "submodules/coz"]
+	path = submodules/coz
+	url = https://github.com/plasma-umass/coz.git
+[submodule "thirdparties"]
+	path = thirdparties
+	url = https://github.com/ArkScript-lang/thirdparties.git

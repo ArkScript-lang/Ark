@@ -8,4 +8,4 @@
     ))
 )
 
-(fibo 28)
+(print "Fibonacci 28: " (fibo 28))

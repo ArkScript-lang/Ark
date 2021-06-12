@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+#########################################
+#             Unit tests
+#########################################
+
+if [ -f build/Release/ark.exe ]; then
+    ark=./build/Release/ark.exe
+elif [ -f build/ark ]; then
+    ark=./build/ark
+else
+    echo "No ark executable found" && exit 1
+fi
+
+$ark tests/arkscript/unittests.ark --lib lib/ || exit 1
+$ark lib/std/tests/all.ark         --lib lib/ || exit 1
+
+#########################################
+#          Integration tests
+#########################################
+
+cd tests/cpp/
+# blank line for formatting (and easier CI logs analysis)
+echo
+bash ./run-tests

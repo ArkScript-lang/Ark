@@ -8,6 +8,7 @@
 #endif
 #include <stdlib.h>
 #include <picosha2.hpp>
+#include <termcolor.hpp>
 
 namespace Ark
 {
@@ -15,12 +16,28 @@ namespace Ark
         m_libdir(libdir), m_filename(ARK_NO_NAME_FILE),
         m_options(options), m_debug_level(0)
     {
-        // read environment variable to locate ark std lib
-        if (m_libdir == "?")
+        // read environment variable to locate ark std lib, *only* if the standard library folder wasn't provided
+        // or if it doesn't exist
+        if (m_libdir == "?" || m_libdir.size() == 0 || !Ark::Utils::fileExists(m_libdir))
         {
+            // first, check in the environment variable, pointing to something like
+            // /folder/where/ark/is
+            // |___________________ ark
+            // |___________________ lib/
+            // |                    |___ std/
+            // |                    |___ file.arkm
+            // |                    |___ ...
+            // |___________________ libArkReactor.so
+
             char* val = getenv("ARKSCRIPT_PATH");
             m_libdir = val == nullptr ? "" : std::string(val);
-            m_libdir += "/lib";
+
+            // check that the environment variable does point to an existing folder
+            if (m_libdir != "" && Ark::Utils::fileExists(m_libdir + "/lib"))
+                m_libdir += "/lib";
+            // check in the current working directory
+            else if (Ark::Utils::fileExists("./lib"))
+                m_libdir = Ark::Utils::canonicalRelPath("./lib");
         }
     }
 
@@ -39,7 +56,7 @@ namespace Ark
         catch (const std::exception& e)
         {
             result = false;
-            std::cout << e.what() << std::endl;
+            std::printf("%s\n", e.what());
         }
 
         return result;
@@ -56,19 +73,21 @@ namespace Ark
         catch (const std::exception& e)
         {
             result = false;
-            std::cout << e.what() << std::endl;
+            std::printf("%s\n", e.what());
         }
 
         return result;
     }
 
-    bool State::compile(unsigned debug, const std::string& file, const std::string& output, const std::string& lib_dir, uint16_t options)
+    bool State::compile(const std::string& file, const std::string& output)
     {
-        Compiler compiler(debug, lib_dir, options);
+        Compiler compiler(m_debug_level, m_libdir, m_options);
 
         try
         {
             compiler.feed(Utils::readFile(file), file);
+            for (auto& p : m_binded)
+                compiler.m_defined_symbols.push_back(p.first);
             compiler.compile();
 
             if (output != "")
@@ -78,12 +97,12 @@ namespace Ark
         }
         catch (const std::exception& e)
         {
-            std::cerr << e.what() << std::endl;
+            std::printf("%s\n", e.what());
             return false;
         }
         catch (...)
         {
-            std::cerr << "Unknown lexer-parser-or-compiler error (" << file << ')' << std::endl;
+            std::printf("Unknown lexer-parser-or-compiler error (%s)\n", file.c_str());
             return false;
         }
 
@@ -94,7 +113,7 @@ namespace Ark
     {
         if (!Ark::Utils::fileExists(file))
         {
-            Ark::logger.error("Can not find file '" + file + "'");
+            std::cerr << termcolor::red << "Can not find file '" << file << "'\n" << termcolor::reset;
             return false;
         }
 
@@ -106,7 +125,7 @@ namespace Ark
         }
         catch (const std::exception& e)
         {
-            std::cout << e.what() << std::endl;
+            std::printf("%s\n", e.what());
             return false;
         }
 
@@ -118,18 +137,10 @@ namespace Ark
             std::filesystem::path directory =  (std::filesystem::path(file)).parent_path() / ARK_CACHE_DIRNAME;
             std::string path = (directory / filename).string();
 
-            bool compiled_successfuly = false;
+            if (!std::filesystem::exists(directory))  // create ark cache directory
+                std::filesystem::create_directory(directory);
 
-            if (Ark::Utils::fileExists(path))
-                compiled_successfuly = compile(m_debug_level, file, path, m_libdir, m_options);
-            else
-            {
-                if (!std::filesystem::exists(directory))  // create ark cache directory
-                    std::filesystem::create_directory(directory);
-
-                compiled_successfuly = compile(m_debug_level, file, path, m_libdir, m_options);
-            }
-
+            bool compiled_successfuly = compile(file, path);
             if (compiled_successfuly && feed(path))
                 return true;
         }
@@ -145,35 +156,37 @@ namespace Ark
         try
         {
             compiler.feed(code);
+            for (auto& p : m_binded)
+                compiler.m_defined_symbols.push_back(p.first);
             compiler.compile();
         }
         catch (const std::exception& e)
         {
-            std::cerr << typeid(e).name() << ": " << e.what() << std::endl;
+            std::printf("%s\n", e.what());
             return false;
         }
         catch (...)
         {
-            std::cerr << "Unknown lexer-parser-or-compiler error" << std::endl;
+            std::printf("Unknown lexer-parser-or-compiler error\n");
             return false;
         }
 
-        feed(compiler.bytecode());
-
-        return true;
+        return feed(compiler.bytecode());
     }
 
-    void State::loadFunction(const std::string& name, internal::Value::ProcType function) noexcept
+    void State::loadFunction(const std::string& name, Value::ProcType function) noexcept
     {
-        m_binded[name] = internal::Value(std::move(function));
+        m_binded[name] = Value(std::move(function));
     }
 
     void State::setArgs(const std::vector<std::string>& args) noexcept
     {
-        internal::Value val(internal::ValueType::List);
+        Value val(ValueType::List);
         for (const std::string& arg : args)
-            val.push_back(internal::Value(arg));
+            val.push_back(Value(arg));
         m_binded["sys:args"] = val;
+
+        m_binded["sys:platform"] = Value(ARK_PLATFORM_NAME);
     }
 
     void State::setDebug(unsigned level) noexcept
@@ -188,7 +201,7 @@ namespace Ark
 
     void State::configure()
     {
-        using namespace Ark::internal;
+        using namespace internal;
 
         // configure tables and pages
         std::size_t i = 0;
@@ -211,13 +224,10 @@ namespace Ark
 
         if (major != ARK_VERSION_MAJOR)
         {
-            std::string str_version = Ark::Utils::toString(major) + "." +
-                Ark::Utils::toString(minor) + "." +
-                Ark::Utils::toString(patch);
-            std::string builtin_version = Ark::Utils::toString(ARK_VERSION_MAJOR) + "." +
-                Ark::Utils::toString(ARK_VERSION_MINOR) + "." +
-                Ark::Utils::toString(ARK_VERSION_PATCH);
-            throwStateError("Compiler and VM versions don't match: " + str_version + " and " + builtin_version);
+            std::string str_version = std::to_string(major) + "." +
+                std::to_string(minor) + "." +
+                std::to_string(patch);
+            throwStateError("Compiler and VM versions don't match: " + str_version + " and " + ARK_VERSION_STR);
         }
 
         using timestamp_t = unsigned long long;
@@ -236,7 +246,7 @@ namespace Ark
         std::vector<unsigned char> hash(picosha2::k_digest_size);
         picosha2::hash256(m_bytecode.begin() + i + picosha2::k_digest_size, m_bytecode.end(), hash);
         // checking integrity
-        for (std::size_t j=0; j < picosha2::k_digest_size; ++j)
+        for (std::size_t j = 0; j < picosha2::k_digest_size; ++j)
         {
             if (hash[j] != m_bytecode[i])
                 throwStateError("Integrity check failed");
@@ -250,7 +260,7 @@ namespace Ark
             m_symbols.reserve(size);
             i++;
 
-            for (uint16_t j=0; j < size; ++j)
+            for (uint16_t j = 0; j < size; ++j)
             {
                 std::string symbol = "";
                 while (m_bytecode[i] != 0)
@@ -261,7 +271,7 @@ namespace Ark
             }
         }
         else
-            throwStateError("couldn't find symbols table");
+            throwStateError("Couldn't find symbols table");
 
         if (m_bytecode[i] == Instruction::VAL_TABLE_START)
         {
@@ -270,7 +280,7 @@ namespace Ark
             m_constants.reserve(size);
             i++;
 
-            for (uint16_t j=0; j < size; ++j)
+            for (uint16_t j = 0; j < size; ++j)
             {
                 uint8_t type = m_bytecode[i];
                 i++;
@@ -301,12 +311,11 @@ namespace Ark
                     i++;  // skip NOP
                 }
                 else
-                    throwStateError("unknown value type for value " + Ark::Utils::toString(j));
+                    throwStateError("Unknown value type for value " + std::to_string(j));
             }
         }
         else
-            throwStateError("couldn't find constants table");
-
+            throwStateError("Couldn't find constants table");
 
         while (m_bytecode[i] == Instruction::CODE_SEGMENT_START)
         {
@@ -317,7 +326,7 @@ namespace Ark
             m_pages.emplace_back();
             m_pages.back().reserve(size);
 
-            for (uint16_t j=0; j < size; ++j)
+            for (uint16_t j = 0; j < size; ++j)
                 m_pages.back().push_back(m_bytecode[i++]);
             
             if (i == m_bytecode.size())

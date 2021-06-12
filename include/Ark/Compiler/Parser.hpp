@@ -2,15 +2,15 @@
  * @file Parser.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Parses a token stream into an AST by using the Ark::internal::Node
- * @version 0.1
+ * @version 0.3
  * @date 2020-10-27
  * 
- * @copyright Copyright (c) 2020
+ * @copyright Copyright (c) 2020-2021
  * 
  */
 
-#ifndef ark_parser
-#define ark_parser
+#ifndef ARK_COMPILER_PARSER_HPP
+#define ARK_COMPILER_PARSER_HPP
 
 #include <string>
 #include <list>
@@ -23,6 +23,7 @@
 #include <Ark/Exceptions.hpp>
 #include <Ark/Compiler/Lexer.hpp>
 #include <Ark/Compiler/Node.hpp>
+#include <Ark/Compiler/makeErrorCtx.hpp>
 
 namespace Ark
 {
@@ -48,7 +49,7 @@ namespace Ark
          * @param code the ArkScript code
          * @param filename the name of the file
          */
-        void feed(const std::string& code, const std::string& filename=ARK_NO_NAME_FILE);
+        void feed(const std::string& code, const std::string& filename = ARK_NO_NAME_FILE);
 
         /**
          * @brief Return the generated AST
@@ -96,9 +97,22 @@ namespace Ark
          * @param tokens 
          * @param authorize_capture if we are authorized to consume TokenType::Capture tokens
          * @param authorize_field_read if we are authorized to consume TokenType::GetField tokens
+         * @param in_macro if we are in a macro, there a bunch of things we can tolerate
          * @return internal::Node 
          */
-        internal::Node parse(std::list<internal::Token>& tokens, bool authorize_capture=false, bool authorize_field_read=false);
+        internal::Node parse(std::list<internal::Token>& tokens, bool authorize_capture = false, bool authorize_field_read = false, bool in_macro = false);
+
+        void parseIf(internal::Node&, internal::Token&, std::list<internal::Token>&, bool, bool, bool);
+        void parseLetMut(internal::Node&, internal::Token&, std::list<internal::Token>&, bool, bool, bool);
+        void parseSet(internal::Node&, internal::Token&, std::list<internal::Token>&, bool, bool, bool);
+        void parseFun(internal::Node&, internal::Token&, std::list<internal::Token>&, bool, bool, bool);
+        void parseWhile(internal::Node&, internal::Token&, std::list<internal::Token>&, bool, bool, bool);
+        void parseBegin(internal::Node&, internal::Token&, std::list<internal::Token>&, bool, bool, bool);
+        void parseImport(internal::Node&, internal::Token&, std::list<internal::Token>&, bool, bool, bool);
+        void parseQuote(internal::Node&, internal::Token&, std::list<internal::Token>&, bool, bool, bool);
+        void parseDel(internal::Node&, internal::Token&, std::list<internal::Token>&, bool, bool, bool);
+        internal::Node parseShorthand(internal::Token&, std::list<internal::Token>&, bool, bool, bool);
+        void checkForInvalidTokens(internal::Node&, internal::Token&, bool, bool, bool);
 
         /**
          * @brief Get the next token if possible, from a list of tokens
@@ -122,18 +136,46 @@ namespace Ark
          * @brief Search for all the includes in a given node, in its sub-nodes and replace them by the code of the included file
          * 
          * @param n 
-         * @return true returned on success
-         * @return false returned on failure
+         * @param parent the parent node of the current one
+         * @param pos the position of the child node in the parent node list
+         * @return true if we found an import and replaced it by the corresponding code
          */
-        bool checkForInclude(internal::Node& n);
+        bool checkForInclude(internal::Node& n, internal::Node& parent, std::size_t pos = 0);
 
-        // error management functions
+        /**
+         * @brief Seek a file in the lib folder and everywhere
+         * 
+         * @param file 
+         * @return std::string 
+         */
+        std::string seekFile(const std::string& file);
+
+        /**
+         * @brief Throw a parse exception is the given predicated is false
+         * 
+         * @param pred 
+         * @param message error message to use
+         * @param token concerned token
+         */
         inline void expect(bool pred, const std::string& message, internal::Token token);
+
+        /**
+         * @brief Throw a parse error related to a token (seek it in the related file and highlight the error)
+         * 
+         * @param message 
+         * @param token 
+         */
         inline void throwParseError(const std::string& message, internal::Token token);
+
+        /**
+         * @brief Throw a parse error unrelated to any token
+         * 
+         * @param message 
+         */
         inline void throwParseError_(const std::string& message);
     };
 
-    #include "Parser.inl"
+    #include "inline/Parser.inl"
 }
 
-#endif  // ark_parser
+#endif

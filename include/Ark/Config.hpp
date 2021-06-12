@@ -5,12 +5,12 @@
  * @version 0.1
  * @date 2020-10-27
  * 
- * @copyright Copyright (c) 2020
+ * @copyright Copyright (c) 2020-2021
  * 
  */
 
-#ifndef ark_config
-#define ark_config
+#ifndef INCLUDE_ARK_CONFIG_HPP
+#define INCLUDE_ARK_CONFIG_HPP
 
 #if defined(_WIN32) || defined(_WIN64)
     #define ARK_OS_WINDOWS

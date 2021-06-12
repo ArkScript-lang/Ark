@@ -2,15 +2,15 @@
  * @file CValue.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief The basic value type handled by the compiler
- * @version 0.1
+ * @version 0.2
  * @date 2020-10-27
  * 
- * @copyright Copyright (c) 2020
+ * @copyright Copyright (c) 2020-2021
  * 
  */
 
-#ifndef ark_compiler_value
-#define ark_compiler_value
+#ifndef ARK_COMPILER_CVALUE_HPP
+#define ARK_COMPILER_CVALUE_HPP
 
 #include <variant>
 #include <string>
