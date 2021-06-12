@@ -72,8 +72,6 @@ inline void MacroProcessor::removeBegin(Node& node, std::size_t& i)
 
         if (first.nodeType() == NodeType::Keyword && first.keyword() == Keyword::Begin)
         {
-            // std::cout << "before " << node.constList()[i] << "\n";
-            // std::cout << node << "\n";
             std::size_t previous = i;
 
             for (std::size_t block_idx = 1, end = lst.constList().size(); block_idx < end; ++block_idx)
@@ -81,8 +79,6 @@ inline void MacroProcessor::removeBegin(Node& node, std::size_t& i)
 
             i += lst.constList().size() - 2;  // -2 instead of -1 because it get incremented right after
             node.list().erase(node.constList().begin() + previous);
-            // std::cout << "after " << node.constList()[i] << "\n";
-            // std::cout << node << "\n\n";
         }
     }
 }
