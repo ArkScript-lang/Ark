@@ -54,6 +54,8 @@
 - moving ArkScript tests from `tests/*.ark` to `tests/arkscript/*.ark`
 - fixed macros adding useless begin blocks, sometimes breaking code generation from macros
 - moving std lib related tests into std/tests/
+- fixed macro chaining
+- fixed lexer, which wasn't adding the last token it read under some specific conditions
 
 ### Removed
 - `~UserType`, since we are doing manual memory management now
