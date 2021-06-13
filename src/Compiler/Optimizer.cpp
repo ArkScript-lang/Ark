@@ -4,6 +4,9 @@ namespace Ark
 {
     using namespace internal;
 
+    // flags for our visitor
+    constexpr Optimizer::flag_t terminal_node = 1 << 0;
+
     Optimizer::Optimizer(uint16_t options) noexcept :
         m_options(options)
     {}
@@ -23,7 +26,7 @@ namespace Ark
         return m_ast;
     }
 
-    void Optimizer::visit(Node& node, std::size_t depth)
+    void Optimizer::visit(Node& node, std::size_t depth, Optimizer::flag_t flags)
     {
         /// DEBUG
         {
@@ -35,6 +38,7 @@ namespace Ark
         {
             case NodeType::List:
                 for (std::size_t i = 0, end = node.list().size(); i < end; ++i)
+                    /// TODO build flags
                     visit(node.list()[i], depth + 1);
                 break;
 

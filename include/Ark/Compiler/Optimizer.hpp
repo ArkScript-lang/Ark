@@ -47,6 +47,8 @@ namespace Ark
     class Optimizer
     {
     public:
+        using flag_t = uint32_t;
+
         /**
          * @brief Construct a new Optimizer
          * 
@@ -83,7 +85,7 @@ namespace Ark
             throw OptimizerError(internal::makeNodeBasedErrorCtx(message, node));
         }
 
-        void visit(internal::Node& node, std::size_t depth);
+        void visit(internal::Node& node, std::size_t depth, flag_t flags = 0);
 
         /**
          * @brief Iterate over the AST and remove unused top level functions and constants
