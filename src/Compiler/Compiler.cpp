@@ -195,7 +195,7 @@ namespace Ark
         if (m_debug >= 4)
             std::cout << x << '\n';
 
-        bool is_terminal = isTerminalNode(pos, parent->constList().size());
+        bool is_terminal = parent->nodeType() == NodeType::List ? isTerminalNode(pos, parent->constList().size()) : true;
 
         // register symbols
         if (x.nodeType() == NodeType::Symbol)
