@@ -199,6 +199,17 @@ namespace Ark
          */
         inline bool isTerminalNode(std::size_t position, std::size_t parent_size);
 
+        inline void addHistory(internal::NodeCategory category, bool terminal)
+        {
+            m_history.emplace_back(category, terminal);
+        }
+
+        inline void addPop(int p)
+        {
+            if (!isCurrentNodeStored())
+                page(p).emplace_back(internal::Instruction::POP);
+        }
+
         /**
          * @brief Compile a single node recursively
          * 

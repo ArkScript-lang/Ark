@@ -199,7 +199,10 @@ namespace Ark
 
         // register symbols
         if (x.nodeType() == NodeType::Symbol)
+        {
             compileSymbol(x, parent, pos, p);
+            addPop(p);
+        }
         else if (x.nodeType() == NodeType::GetField)
         {
             std::string name = x.string();
@@ -216,6 +219,7 @@ namespace Ark
 
             page(p).emplace_back(Instruction::LOAD_CONST);
             pushNumber(static_cast<uint16_t>(i), &page(p));
+            addPop(p);
         }
         // empty code block should be nil
         else if (x.constList().empty())
@@ -223,12 +227,16 @@ namespace Ark
             auto it_builtin = isBuiltin("nil");
             page(p).emplace_back(Instruction::BUILTIN);
             pushNumber(static_cast<uint16_t>(it_builtin.value()), &page(p));
+            addPop(p);
         }
         // specific instructions
         else if (auto c0 = x.constList()[0]; c0.nodeType() == NodeType::Symbol &&
                 (c0.string() == "list" || c0.string() == "append" || c0.string() == "concat"))
         {
+            addHistory(NodeCategory::FunctionCall, is_terminal);
             compileSpecific(c0, x, parent, pos, p);
+            addPop(p);
+            m_history.pop_back();
         }
         // registering structures
         else if (x.constList()[0].nodeType() == NodeType::Keyword)
@@ -238,31 +246,44 @@ namespace Ark
             switch (n)
             {
                 case Keyword::If:
+                    addHistory(NodeCategory::If, is_terminal);
                     compileIf(x, parent, pos, p);
+                    m_history.pop_back();
                     break;
 
                 case Keyword::Set:
+                    addHistory(NodeCategory::Store, is_terminal);
                     compileSet(x, parent, pos, p);
+                    m_history.pop_back();
                     break;
 
                 case Keyword::Let:
                 case Keyword::Mut:
+                    addHistory(NodeCategory::Store, is_terminal);
                     compileLetMut(n, x, parent, pos, p);
+                    m_history.pop_back();
                     break;
 
                 case Keyword::Fun:
+                    addHistory(NodeCategory::Function, is_terminal);
                     compileFunction(x, parent, pos, p);
+                    m_history.pop_back();
                     break;
 
                 case Keyword::Begin:
                 {
                     for (std::size_t i = 1, size = x.constList().size(); i < size; ++i)
+                    {
+                        // bool is_terminal = isTerminalNode(i, x.constList().size());
                         _compile(x.constList()[i], const_cast<Node*>(&x), i, p);
+                    }
                     break;
                 }
 
                 case Keyword::While:
+                    addHistory(NodeCategory::While, is_terminal);
                     compileWhile(x, parent, pos, p);
+                    m_history.pop_back();
                     break;
 
                 case Keyword::Import:
@@ -271,6 +292,7 @@ namespace Ark
 
                 case Keyword::Quote:
                     compileQuote(x, parent, pos, p);
+                    addPop(p);
                     break;
 
                 case Keyword::Del:
@@ -280,9 +302,12 @@ namespace Ark
         }
         else
         {
+            addHistory(NodeCategory::FunctionCall, is_terminal);
             // if we are here, we should have a function name
             // push arguments first, then function name, then call it
             handleCalls(x, parent, 0, p);
+            addPop(p);
+            m_history.pop_back();
         }
     }
 
