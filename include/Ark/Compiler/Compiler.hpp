@@ -43,6 +43,7 @@ namespace Ark
             Store,  ///< This comprises let, mut and set nodes
             If,
             Function,
+            FunctionCall,
             While
         };
     }
@@ -202,7 +203,12 @@ namespace Ark
                 for (auto it = m_history.rbegin() + 1, end = m_history.rend(); it != end; ++it)
                 {
                     auto [prev_node_category, prev_is_terminal] = *it;
-                    bool is_stored = (prev_node_category == NodeCategory::Store);
+                    bool is_stored = (
+                        prev_node_category == NodeCategory::If           ||
+                        prev_node_category == NodeCategory::Store        ||
+                        prev_node_category == NodeCategory::Function     ||
+                        prev_node_category == NodeCategory::FunctionCall
+                    );
 
                     if (!prev_is_terminal && !is_stored)
                         return false;
