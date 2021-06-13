@@ -83,7 +83,7 @@ namespace Ark
             throw OptimizerError(internal::makeNodeBasedErrorCtx(message, node));
         }
 
-        void visit(internal::Node& node);
+        void visit(internal::Node& node, std::size_t depth);
 
         /**
          * @brief Iterate over the AST and remove unused top level functions and constants

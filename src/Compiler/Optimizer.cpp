@@ -12,7 +12,7 @@ namespace Ark
     {
         m_ast = ast;
 
-        visit(m_ast);
+        visit(m_ast, 0);
 
         // if (m_options & FeatureRemoveUnusedVars)
         //     remove_unused();
@@ -23,13 +23,19 @@ namespace Ark
         return m_ast;
     }
 
-    void Optimizer::visit(Node& node)
+    void Optimizer::visit(Node& node, std::size_t depth)
     {
+        /// DEBUG
+        {
+            std::clog << "Node(" << typeToString(node) << ") => " << node << "\n";
+        }
+        /// END DEBUG
+
         switch (node.nodeType())
         {
             case NodeType::List:
                 for (std::size_t i = 0, end = node.list().size(); i < end; ++i)
-                    visit(node.list()[i]);
+                    visit(node.list()[i], depth + 1);
                 break;
 
             default:
