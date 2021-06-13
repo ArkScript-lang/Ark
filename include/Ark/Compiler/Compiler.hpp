@@ -32,22 +32,6 @@
 
 namespace Ark
 {
-    namespace internal
-    {
-        /**
-         * @brief Category for complex nodes (not including values)
-         * 
-         */
-        enum class NodeCategory
-        {
-            Store,  ///< This comprises let, mut and set nodes
-            If,
-            Function,
-            FunctionCall,
-            While
-        };
-    }
-
     class State;
 
     /**

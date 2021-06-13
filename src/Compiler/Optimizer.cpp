@@ -12,14 +12,33 @@ namespace Ark
     {
         m_ast = ast;
 
-        if (m_options & FeatureRemoveUnusedVars)
-            remove_unused();
+        visit(m_ast);
+
+        // if (m_options & FeatureRemoveUnusedVars)
+        //     remove_unused();
     }
 
     const Node& Optimizer::ast() const noexcept
     {
         return m_ast;
     }
+
+    void Optimizer::visit(Node& node)
+    {
+        switch (node.nodeType())
+        {
+            case NodeType::List:
+                for (std::size_t i = 0, end = node.list().size(); i < end; ++i)
+                    visit(node.list()[i]);
+                break;
+
+            default:
+                /// TODO
+                break;
+        }
+    }
+
+    #pragma region "to clean up later"
 
     void Optimizer::remove_unused()
     {
@@ -84,4 +103,6 @@ namespace Ark
                 countOccurences(node.list()[i]);
         }
     }
+
+    #pragma endregion
 }

@@ -24,6 +24,22 @@
 
 namespace Ark
 {
+    namespace internal
+    {
+        /**
+         * @brief Category for complex nodes (not including values)
+         * 
+         */
+        enum class NodeCategory
+        {
+            Store,  ///< This comprises let, mut and set nodes
+            If,
+            Function,
+            FunctionCall,
+            While
+        };
+    }
+
     /**
      * @brief The ArkScript AST optimizer
      * 
@@ -66,6 +82,8 @@ namespace Ark
         {
             throw OptimizerError(internal::makeNodeBasedErrorCtx(message, node));
         }
+
+        void visit(internal::Node& node);
 
         /**
          * @brief Iterate over the AST and remove unused top level functions and constants
