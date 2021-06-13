@@ -55,7 +55,7 @@ inline bool Compiler::isCurrentNodeStored()
     auto [node_category, is_terminal] = m_history.back();
 
     // our direct parent is a store node, thus we are stored
-    if (node_category == NodeCategory::Store)
+    if (node_category == internal::NodeCategory::Store)
         return true;
 
     if (is_terminal)
@@ -65,10 +65,10 @@ inline bool Compiler::isCurrentNodeStored()
         {
             auto [prev_node_category, prev_is_terminal] = *it;
             bool is_stored = (
-                prev_node_category == NodeCategory::If           ||
-                prev_node_category == NodeCategory::Store        ||
-                prev_node_category == NodeCategory::Function     ||
-                prev_node_category == NodeCategory::FunctionCall
+                prev_node_category == internal::NodeCategory::If           ||
+                prev_node_category == internal::NodeCategory::Store        ||
+                prev_node_category == internal::NodeCategory::Function     ||
+                prev_node_category == internal::NodeCategory::FunctionCall
             );
 
             if (!prev_is_terminal && !is_stored)
