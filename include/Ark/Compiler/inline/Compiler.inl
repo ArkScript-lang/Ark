@@ -46,3 +46,46 @@ inline bool Compiler::mayBeFromPlugin(const std::string& name) noexcept
     });
     return it != m_plugins.end();
 }
+
+inline bool Compiler::isCurrentNodeStored()
+{
+    // should return true if the current node can be stored, false otherwise
+    // should use m_history
+
+    auto [node_category, is_terminal] = m_history.back();
+
+    // our direct parent is a store node, thus we are stored
+    if (node_category == NodeCategory::Store)
+        return true;
+
+    if (is_terminal)
+    {
+        // search for a parent which is of category Store, with the chain being all terminal nodes
+        for (auto it = m_history.rbegin() + 1, end = m_history.rend(); it != end; ++it)
+        {
+            auto [prev_node_category, prev_is_terminal] = *it;
+            bool is_stored = (
+                prev_node_category == NodeCategory::If           ||
+                prev_node_category == NodeCategory::Store        ||
+                prev_node_category == NodeCategory::Function     ||
+                prev_node_category == NodeCategory::FunctionCall
+            );
+
+            if (!prev_is_terminal && !is_stored)
+                return false;
+            else if (is_stored)
+                return true;
+        }
+    }
+
+    return false;
+}
+
+inline bool Compiler::isTerminalNode(std::size_t position, std::size_t parent_size)
+{
+    if (parent_size == 1)
+        return true;
+    else if (parent_size > 1 && position == parent_size - 1)  // we have the last element of the parent
+        return true;
+    return false;
+}
