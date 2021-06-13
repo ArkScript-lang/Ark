@@ -276,6 +276,12 @@ namespace Ark
                 case Keyword::Del:
                     compileDel(x, p);
                     break;
+
+                // hidden keyword
+                case Keyword::Pop:
+                    _compile(x.constList()[1], p);
+                    page(p).emplace_back(Instruction::POP);
+                    break;
             }
         }
         else

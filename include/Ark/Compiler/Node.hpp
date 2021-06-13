@@ -51,7 +51,9 @@ namespace Ark::internal
         Begin,
         Import,
         Quote,
-        Del
+        Del,
+        // hidden keywords for internal use only
+        Pop
     };
 
     /**
