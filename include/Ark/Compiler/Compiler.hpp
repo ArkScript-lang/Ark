@@ -107,7 +107,6 @@ namespace Ark
         std::vector<internal::CValue> m_values;
         std::vector<std::vector<internal::Inst_t>> m_code_pages;
         std::vector<std::vector<internal::Inst_t>> m_temp_pages;  ///< we need temporary code pages for some compilations passes
-        std::vector<std::pair<internal::NodeCategory, bool>> m_history;
 
         bytecode_t m_bytecode;
         unsigned m_debug;  ///< the debug level of the compiler
@@ -180,56 +179,25 @@ namespace Ark
         }
 
         /**
-         * @brief Check if the value of node can be stored in a distant or near parent
-         * @details Use an history (category, terminal?) to check this
-         * 
-         * @return true 
-         * @return false 
-         */
-        inline bool isCurrentNodeStored();
-
-        /**
-         * @brief Check if a node can be terminal
-         * @details A node is terminal if it's the only child of its parent, or if it's the last child
-         * 
-         * @param position position of the node in its parent's list
-         * @param parent_size the number of nodes in the parent
-         * @return true 
-         * @return false 
-         */
-        inline bool isTerminalNode(std::size_t position, std::size_t parent_size);
-
-        inline void addHistory(internal::NodeCategory category, bool terminal)
-        {
-            m_history.emplace_back(category, terminal);
-        }
-
-        inline void addPop(int p)
-        {
-            if (!isCurrentNodeStored())
-                page(p).emplace_back(internal::Instruction::POP);
-        }
-
-        /**
          * @brief Compile a single node recursively
          * 
          * @param x the internal::Node to compile
          * @param parent the parent node holding the current node `x`
          * @param p the current page number we're on
          */
-        void _compile(const internal::Node& x, internal::Node* parent, std::size_t pos, int p);
+        void _compile(const internal::Node& x, int p);
 
-        void compileSymbol(                             const internal::Node& x, internal::Node* parent, std::size_t pos, int p);
-        void compileSpecific(const internal::Node& c0,  const internal::Node& x, internal::Node* parent, std::size_t pos, int p);
-        void compileIf(                                 const internal::Node& x, internal::Node* parent, std::size_t pos, int p);
-        void compileFunction(                           const internal::Node& x, internal::Node* parent, std::size_t pos, int p);
-        void compileLetMut(internal::Keyword n,         const internal::Node& x, internal::Node* parent, std::size_t pos, int p);
-        void compileWhile(                              const internal::Node& x, internal::Node* parent, std::size_t pos, int p);
-        void compileSet(                                const internal::Node& x, internal::Node* parent, std::size_t pos, int p);
-        void compileQuote(                              const internal::Node& x, internal::Node* parent, std::size_t pos, int p);
-        void compilePluginImport(                       const internal::Node& x, internal::Node* parent, std::size_t pos, int p);
-        void compileDel(                                const internal::Node& x, internal::Node* parent, std::size_t pos, int p);
-        void handleCalls(                               const internal::Node& x, internal::Node* parent, std::size_t pos, int p);
+        void compileSymbol(                             const internal::Node& x, int p);
+        void compileSpecific(const internal::Node& c0,  const internal::Node& x, int p);
+        void compileIf(                                 const internal::Node& x, int p);
+        void compileFunction(                           const internal::Node& x, int p);
+        void compileLetMut(internal::Keyword n,         const internal::Node& x, int p);
+        void compileWhile(                              const internal::Node& x, int p);
+        void compileSet(                                const internal::Node& x, int p);
+        void compileQuote(                              const internal::Node& x, int p);
+        void compilePluginImport(                       const internal::Node& x, int p);
+        void compileDel(                                const internal::Node& x, int p);
+        void handleCalls(                               const internal::Node& x, int p);
 
         /**
          * @brief Register a given node in the symbol table

@@ -1,6 +1,7 @@
 (mut i 0)
 (while (< i 10000) {
     1
+    (print i)
     (set i (+ 1 i))
 })
 
