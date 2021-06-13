@@ -49,8 +49,8 @@ inline bool Compiler::mayBeFromPlugin(const std::string& name) noexcept
 
 inline bool Compiler::isCurrentNodeStored()
 {
-    // should return true if the current node can be stored, false otherwise
-    // should use m_history
+    if (m_history.empty())
+        return false;
 
     auto [node_category, is_terminal] = m_history.back();
 
