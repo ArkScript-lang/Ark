@@ -232,6 +232,9 @@ namespace Ark::internal
             }
         }
 
+        if (!buffer.empty())
+            append_token_from_buffer();
+
         // debugging information
         if (m_debug > 3)
         {
