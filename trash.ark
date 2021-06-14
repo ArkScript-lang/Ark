@@ -20,5 +20,4 @@
 # STORE i
 # JUMP (7)
 # HALT
-
 # Nota bene: jump addresses are wrong, but the instructions are correct

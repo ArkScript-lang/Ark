@@ -232,7 +232,7 @@ namespace Ark::internal
             }
         }
 
-        if (!buffer.empty())
+        if (!buffer.empty() && buffer[0] != '#')
             append_token_from_buffer();
 
         // debugging information

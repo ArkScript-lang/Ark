@@ -204,6 +204,8 @@ namespace Ark::internal
                 case Keyword::Import: os << "Import"; break;
                 case Keyword::Quote:  os << "Quote";  break;
                 case Keyword::Del:    os << "Del";    break;
+                // hidden keyword
+                case Keyword::Pop:    os << "Pop";    break;
             }
             break;
 

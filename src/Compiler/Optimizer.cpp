@@ -6,10 +6,12 @@ namespace Ark
 
     // flags for our visitor
     using flag_t = Optimizer::flag_t;
-    constexpr flag_t flag_terminal_node = 1 << 0;
-    constexpr flag_t flag_stored_node   = 1 << 1;
-    constexpr flag_t flag_avoid_pop     = 1 << 2;
-    constexpr flag_t flag_function_call = 1 << 3;
+    constexpr flag_t flag_is_condition = 1 << 0;
+    constexpr flag_t flag_is_func_arg  = 1 << 1;
+    constexpr flag_t flag_is_terminal  = 1 << 2;
+    constexpr flag_t flag_is_function  = 1 << 3;
+    constexpr flag_t flag_is_stored    = 1 << 4;
+    constexpr flag_t flag_is_if_block  = 1 << 5;
 
     Optimizer::Optimizer(unsigned debug, uint16_t options) noexcept :
         m_debug(debug), m_options(options)
@@ -19,7 +21,13 @@ namespace Ark
     {
         m_ast = ast;
 
+        if (m_debug > 1)
+            std::clog << "AST before optimizations\n" << m_ast << "\n";
+
         visit(m_ast, 0);
+
+        if (m_debug > 1)
+            std::clog << "AST after optimizations\n" << m_ast << "\n";
 
         // if (m_options & FeatureRemoveUnusedVars)
         //     remove_unused();
@@ -35,7 +43,16 @@ namespace Ark
         /// DEBUG
         if (m_debug > 1)
         {
-            std::clog << depth << " - Node(" << typeToString(node) << ") => " << node << "\n";
+            std::clog << depth << " - ";
+
+            std::clog << ((flags & flag_is_condition) ? 'C' : ' ');
+            std::clog << ((flags & flag_is_func_arg)  ? 'A' : ' ');
+            std::clog << ((flags & flag_is_terminal)  ? 'T' : ' ');
+            std::clog << ((flags & flag_is_function)  ? 'F' : ' ');
+            std::clog << ((flags & flag_is_stored)    ? 'S' : ' ');
+            std::clog << ((flags & flag_is_if_block)  ? 'I' : ' ');
+
+            std::clog << " : " << "Node(" << typeToString(node) << ") => " << node << "\n";
         }
         /// END DEBUG
 
@@ -45,13 +62,21 @@ namespace Ark
                 for (std::size_t i = 0, end = node.list().size(); i < end; ++i)
                 {
                     // flags for a subnode is based on the parent node
-                    flag_t flags = determineFlags(node, i);
-                    visit(node.list()[i], depth + 1, flags);
+                    flag_t new_flags = determineFlags(node, i)
+                                        | (flags & flag_is_stored)
+                                        | (flags & flag_is_func_arg);
+                    visit(node.list()[i], depth + 1, new_flags);
                 }
                 break;
 
             default:
-                /// TODO
+                if (depth > 1 && flags == 0)
+                {
+                    Node tmp(Keyword::Pop);
+                    tmp.push_back(node);
+                    node = tmp;
+                }
+                m_flags.pop_back();
                 break;
         }
     }
@@ -59,63 +84,6 @@ namespace Ark
     flag_t Optimizer::determineFlags(const Node& node, std::size_t child_pos)
     {
         flag_t flags = 0;
-
-        if (node.nodeType() == NodeType::List && !node.constList().empty())
-        {
-            switch (node.constList()[0].nodeType())
-            {
-                case NodeType::Symbol:  // can be a function call
-                    flags |= flag_function_call;
-                    break;
-
-                case NodeType::Capture:  // in a function argument bloc
-                    flags |= flag_avoid_pop;
-                    break;
-
-                case NodeType::GetField:  // this is impossible
-                    break;
-
-                case NodeType::Keyword:
-                {
-                    Keyword k = node.constList()[0].keyword();
-                    switch (k)
-                    {
-                        case Keyword::Fun:
-                            break;
-
-                        case Keyword::Let:
-                        case Keyword::Mut:
-                        case Keyword::Set:
-                            flags |= flag_stored_node;
-                            break;
-
-                        case Keyword::If:
-                            // should store only the condition
-                            break;
-
-                        case Keyword::While:
-                            // same
-                            break;
-
-                        case Keyword::Begin:
-                        case Keyword::Import:
-                        case Keyword::Quote:
-                        case Keyword::Del:  // TODO find something to do with those
-                            break;
-                    }
-                    break;
-                }
-
-                case NodeType::String:
-                case NodeType::Number:  // problems, can not call a value
-                    break;
-
-                case NodeType::Macro:  // skip, impossible
-                case NodeType::Spread:
-                case NodeType::Unused:
-                    break;
-            }
-        }
 
         return flags;
     }

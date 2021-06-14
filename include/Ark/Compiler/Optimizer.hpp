@@ -73,6 +73,7 @@ namespace Ark
         internal::Node m_ast;  ///< Used to store our modified version of the AST
         unsigned m_debug;
         uint16_t m_options;
+        std::vector<flag_t> m_flags;
         std::unordered_map<std::string, unsigned> m_sym_appearances;
 
         /**
