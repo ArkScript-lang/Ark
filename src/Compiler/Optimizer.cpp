@@ -30,7 +30,7 @@ namespace Ark
     {
         /// DEBUG
         {
-            std::clog << "Node(" << typeToString(node) << ") => " << node << "\n";
+            //std::clog << depth << " - Node(" << typeToString(node) << ") => " << node << "\n";
         }
         /// END DEBUG
 
