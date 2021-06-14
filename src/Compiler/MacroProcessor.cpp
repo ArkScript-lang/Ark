@@ -320,13 +320,15 @@ namespace Ark::internal
             {
                 if (node.list().size() > 2)
                     throwMacroProcessingError("When expanding `len' inside a macro, got " + std::to_string(node.list().size() - 1) + " arguments, needed only 1", node);
-                else if (node.list()[1].nodeType() == NodeType::List)  // only apply len at compile time if we can
+                else if (Node& lst = node.list()[1]; lst.nodeType() == NodeType::List)  // only apply len at compile time if we can
                 {
-                    Node& sublist = node.list()[1];
-                    if (sublist.list().size() > 0 && sublist.list()[0] == Node::ListNode)
-                        node = Node(static_cast<long>(sublist.list().size()) - 1);
-                    else
-                        node = Node(static_cast<long>(sublist.list().size()));
+                    if (canBeCompileTimeEvaluated(lst))
+                    {
+                        if (lst.list().size() > 0 && lst.list()[0] == Node::ListNode)
+                            node = Node(static_cast<long>(lst.list().size()) - 1);
+                        else
+                            node = Node(static_cast<long>(lst.list().size()));
+                    }
                 }
             }
             else if (name == "@")
@@ -352,8 +354,6 @@ namespace Ark::internal
                         return sublist.list()[sz + num_idx];
                     else if (num_idx >= 0 && num_idx + offset < sz)
                         return sublist.list()[num_idx];
-
-                    throwMacroProcessingError("Index error when processing `@' in macro: got index " + std::to_string(num_idx + offset) + ", while max size was " + std::to_string(sz + offset), node);
                 }
             }
             else if (name == "head")
