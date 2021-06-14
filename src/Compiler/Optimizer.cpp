@@ -5,10 +5,14 @@ namespace Ark
     using namespace internal;
 
     // flags for our visitor
-    constexpr Optimizer::flag_t terminal_node = 1 << 0;
+    using flag_t = Optimizer::flag_t;
+    constexpr flag_t flag_terminal_node = 1 << 0;
+    constexpr flag_t flag_stored_node   = 1 << 1;
+    constexpr flag_t flag_avoid_pop     = 1 << 2;
+    constexpr flag_t flag_function_call = 1 << 3;
 
-    Optimizer::Optimizer(uint16_t options) noexcept :
-        m_options(options)
+    Optimizer::Optimizer(unsigned debug, uint16_t options) noexcept :
+        m_debug(debug), m_options(options)
     {}
 
     void Optimizer::feed(const Node& ast)
@@ -26,11 +30,12 @@ namespace Ark
         return m_ast;
     }
 
-    void Optimizer::visit(Node& node, std::size_t depth, Optimizer::flag_t flags)
+    void Optimizer::visit(Node& node, std::size_t depth, flag_t flags)
     {
         /// DEBUG
+        if (m_debug > 1)
         {
-            //std::clog << depth << " - Node(" << typeToString(node) << ") => " << node << "\n";
+            std::clog << depth << " - Node(" << typeToString(node) << ") => " << node << "\n";
         }
         /// END DEBUG
 
@@ -38,14 +43,81 @@ namespace Ark
         {
             case NodeType::List:
                 for (std::size_t i = 0, end = node.list().size(); i < end; ++i)
-                    /// TODO build flags
-                    visit(node.list()[i], depth + 1);
+                {
+                    // flags for a subnode is based on the parent node
+                    flag_t flags = determineFlags(node, i);
+                    visit(node.list()[i], depth + 1, flags);
+                }
                 break;
 
             default:
                 /// TODO
                 break;
         }
+    }
+
+    flag_t Optimizer::determineFlags(const Node& node, std::size_t child_pos)
+    {
+        flag_t flags = 0;
+
+        if (node.nodeType() == NodeType::List && !node.constList().empty())
+        {
+            switch (node.constList()[0].nodeType())
+            {
+                case NodeType::Symbol:  // can be a function call
+                    flags |= flag_function_call;
+                    break;
+
+                case NodeType::Capture:  // in a function argument bloc
+                    flags |= flag_avoid_pop;
+                    break;
+
+                case NodeType::GetField:  // this is impossible
+                    break;
+
+                case NodeType::Keyword:
+                {
+                    Keyword k = node.constList()[0].keyword();
+                    switch (k)
+                    {
+                        case Keyword::Fun:
+                            break;
+
+                        case Keyword::Let:
+                        case Keyword::Mut:
+                        case Keyword::Set:
+                            flags |= flag_stored_node;
+                            break;
+
+                        case Keyword::If:
+                            // should store only the condition
+                            break;
+
+                        case Keyword::While:
+                            // same
+                            break;
+
+                        case Keyword::Begin:
+                        case Keyword::Import:
+                        case Keyword::Quote:
+                        case Keyword::Del:  // TODO find something to do with those
+                            break;
+                    }
+                    break;
+                }
+
+                case NodeType::String:
+                case NodeType::Number:  // problems, can not call a value
+                    break;
+
+                case NodeType::Macro:  // skip, impossible
+                case NodeType::Spread:
+                case NodeType::Unused:
+                    break;
+            }
+        }
+
+        return flags;
     }
 
     #pragma region "to clean up later"

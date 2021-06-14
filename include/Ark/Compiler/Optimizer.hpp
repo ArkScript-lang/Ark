@@ -53,7 +53,7 @@ namespace Ark
          * @brief Construct a new Optimizer
          * 
          */
-        explicit Optimizer(uint16_t options) noexcept;
+        explicit Optimizer(unsigned debug, uint16_t options) noexcept;
 
         /**
          * @brief Send the AST to the optimizer, then run the different optimization strategies on it
@@ -70,7 +70,8 @@ namespace Ark
         const internal::Node& ast() const noexcept;
 
     private:
-        internal::Node m_ast;
+        internal::Node m_ast;  ///< Used to store our modified version of the AST
+        unsigned m_debug;
         uint16_t m_options;
         std::unordered_map<std::string, unsigned> m_sym_appearances;
 
@@ -86,6 +87,8 @@ namespace Ark
         }
 
         void visit(internal::Node& node, std::size_t depth, flag_t flags = 0);
+
+        flag_t determineFlags(const internal::Node& node, std::size_t child_pos);
 
         /**
          * @brief Iterate over the AST and remove unused top level functions and constants
