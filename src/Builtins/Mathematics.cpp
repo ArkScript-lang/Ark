@@ -150,4 +150,70 @@ namespace Ark::internal::Builtins::Mathematics
         Value r(std::atan(n[0].number()));
         return r;
     }
+
+    Value cosh_(std::vector<Value>& n, Ark::VM* vm)
+    {
+        if (n.size() != 1)
+            throw std::runtime_error(MATH_ARITY("math:cosh"));
+        if (n[0].valueType() != ValueType::Number)
+            throw Ark::TypeError(MATH_TE0("math:cosh"));
+        
+        Value r(std::cosh(n[0].number()));
+        return r;
+    }
+
+    Value sinh_(std::vector<Value>& n, Ark::VM* vm)
+    {
+        if (n.size() != 1)
+            throw std::runtime_error(MATH_ARITY("math:sinh"));
+        if (n[0].valueType() != ValueType::Number)
+            throw Ark::TypeError(MATH_TE0("math:sinh"));
+        
+        Value r(std::sinh(n[0].number()));
+        return r;
+    }
+
+    Value tanh_(std::vector<Value>& n, Ark::VM* vm)
+    {
+        if (n.size() != 1)
+            throw std::runtime_error(MATH_ARITY("math:tanh"));
+        if (n[0].valueType() != ValueType::Number)
+            throw Ark::TypeError(MATH_TE0("math:tanh"));
+        
+        Value r(std::tanh(n[0].number()));
+        return r;
+    }
+
+    Value acosh_(std::vector<Value>& n, Ark::VM* vm)
+    {
+        if (n.size() != 1)
+            throw std::runtime_error(MATH_ARITY("math:acosh"));
+        if (n[0].valueType() != ValueType::Number)
+            throw Ark::TypeError(MATH_TE0("math:acosh"));
+        
+        Value r(std::acosh(n[0].number()));
+        return r;
+    }
+
+    Value asinh_(std::vector<Value>& n, Ark::VM* vm)
+    {
+        if (n.size() != 1)
+            throw std::runtime_error(MATH_ARITY("math:asinh"));
+        if (n[0].valueType() != ValueType::Number)
+            throw Ark::TypeError(MATH_TE0("math:asinh"));
+        
+        Value r(std::asinh(n[0].number()));
+        return r;
+    }
+
+    Value atanh_(std::vector<Value>& n, Ark::VM* vm)
+    {
+        if (n.size() != 1)
+            throw std::runtime_error(MATH_ARITY("math:atanh"));
+        if (n[0].valueType() != ValueType::Number)
+            throw Ark::TypeError(MATH_TE0("math:atanh"));
+        
+        Value r(std::atanh(n[0].number()));
+        return r;
+    }
 }

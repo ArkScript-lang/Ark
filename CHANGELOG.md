@@ -55,6 +55,8 @@
 - fixed macros adding useless begin blocks, sometimes breaking code generation from macros
 - moving std lib related tests into std/tests/
 - lists are mutated in place if they are mutable, through `append` and `concat`
+- fixed macro chaining
+- fixed lexer, which wasn't adding the last token it read under some specific conditions
 
 ### Removed
 - `~UserType`, since we are doing manual memory management now
