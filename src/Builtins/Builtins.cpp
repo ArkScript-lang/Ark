@@ -79,7 +79,13 @@ namespace Ark::internal::Builtins
         { "math:tan", Value(Mathematics::tan_) },
         { "math:arccos", Value(Mathematics::acos_) },
         { "math:arcsin", Value(Mathematics::asin_) },
-        { "math:arctan", Value(Mathematics::atan_) }
+        { "math:arctan", Value(Mathematics::atan_) },
+        { "math:cosh", Value(Mathematics::cosh_) },
+        { "math:sinh", Value(Mathematics::sinh_) },
+        { "math:tanh", Value(Mathematics::tanh_) },
+        { "math:acosh", Value(Mathematics::acosh_) },
+        { "math:asinh", Value(Mathematics::asinh_) },
+        { "math:atanh", Value(Mathematics::atanh_) }
     };
 
     // This list is related to include/Ark/Compiler/Instructions.hpp

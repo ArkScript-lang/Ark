@@ -17,6 +17,7 @@
 #include <Ark/Compiler/makeErrorCtx.hpp>
 #include <Ark/Compiler/MacroExecutor.hpp>
 #include <Ark/Compiler/MacroExecutors/MacroExecutorPipeline.hpp>
+#include <Ark/Builtins/Builtins.hpp>
 
 #include <algorithm>
 #include <unordered_map>
@@ -113,6 +114,15 @@ namespace Ark::internal
          * @param i 
          */
         inline void removeBegin(Node& node, std::size_t& i);
+
+        /**
+         * @brief Check if a node can be evaluated at compile time
+         * 
+         * @param node 
+         * @return true 
+         * @return false 
+         */
+        inline bool canBeCompileTimeEvaluated(const Node& node) const;
 
         /**
          * @brief Registers macros based on their type
