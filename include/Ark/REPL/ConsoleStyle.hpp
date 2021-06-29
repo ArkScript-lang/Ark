@@ -4,13 +4,13 @@
  * @brief Colors per token used by replxx
  * @version 0.1
  * @date 2020-10-27
- * 
- * @copyright Copyright (c) 2020
- * 
+ *
+ * @copyright Copyright (c) 2020-2021
+ *
  */
 
-#ifndef CONSOLESTYLE_HPP
-#define CONSOLESTYLE_HPP
+#ifndef ARK_REPL_CONSOLESTYLE_HPP
+#define ARK_REPL_CONSOLESTYLE_HPP
 
 #include <replxx.hxx>
 
@@ -24,8 +24,8 @@ namespace Ark
         "fun", "while", "begin", "import",
         "quote", "del",
         /* Operators */
-        "len", "empty?", "firstOf", "tailOf",
-        "headOf", "nil?", "assert", "toNumber",
+        "len", "empty?", "tail", "head",
+        "nil?", "assert", "toNumber",
         "toString", "and", "or", "mod",
         "type", "hasField", "not",
         /* Builtins */
@@ -49,7 +49,7 @@ namespace Ark
         "str:format", "str:find", "str:removeAt",
             // Mathematics
         "math:exp", "math:ln", "math:ceil", "math:floor",
-        "math:round", "math:NaN?", "Inf?", "math:cos", 
+        "math:round", "math:NaN?", "Inf?", "math:cos",
         "math:sin", "math:tan", "math:arccos", "math:arcsin",
         "math:arctan",
         /* Commands */
@@ -58,15 +58,15 @@ namespace Ark
 
     const std::vector<std::pair<std::string, Replxx::Color>> ColorsRegexDict {
         /* Keywords */
-        { "if", Replxx::Color::BRIGHTRED }, 
-        { "let", Replxx::Color::BRIGHTRED }, 
-        { "mut", Replxx::Color::BRIGHTRED }, 
-        { "set", Replxx::Color::BRIGHTRED }, 
-        { "fun", Replxx::Color::BRIGHTRED }, 
-        { "while", Replxx::Color::BRIGHTRED }, 
-        { "begin", Replxx::Color::BRIGHTRED }, 
-        { "import", Replxx::Color::BRIGHTRED }, 
-        { "quote", Replxx::Color::BRIGHTRED }, 
+        { "if", Replxx::Color::BRIGHTRED },
+        { "let", Replxx::Color::BRIGHTRED },
+        { "mut", Replxx::Color::BRIGHTRED },
+        { "set", Replxx::Color::BRIGHTRED },
+        { "fun", Replxx::Color::BRIGHTRED },
+        { "while", Replxx::Color::BRIGHTRED },
+        { "begin", Replxx::Color::BRIGHTRED },
+        { "import", Replxx::Color::BRIGHTRED },
+        { "quote", Replxx::Color::BRIGHTRED },
         { "del", Replxx::Color::BRIGHTRED },
         /* Single chars or Operators */
         // Single chars (sometine operators)
@@ -84,9 +84,8 @@ namespace Ark
         // Operators
         { "len", Replxx::Color::BRIGHTBLUE },
         { "empty?", Replxx::Color::BRIGHTBLUE },
-        { "firstOf", Replxx::Color::BRIGHTBLUE },
-        { "tailOf", Replxx::Color::BRIGHTBLUE },
-        { "headOf", Replxx::Color::BRIGHTBLUE },
+        { "tail", Replxx::Color::BRIGHTBLUE },
+        { "head", Replxx::Color::BRIGHTBLUE },
         { "nil?", Replxx::Color::BRIGHTBLUE },
         { "assert", Replxx::Color::BRIGHTBLUE },
         { "toNumber", Replxx::Color::BRIGHTBLUE },
@@ -147,7 +146,7 @@ namespace Ark
         { "math:round", Replxx::Color::BRIGHTCYAN },
         { "math:NaN?", Replxx::Color::BRIGHTCYAN },
         { "math:Inf?", Replxx::Color::BRIGHTCYAN },
-        { "math:cos", Replxx::Color::BRIGHTCYAN }, 
+        { "math:cos", Replxx::Color::BRIGHTCYAN },
         { "math:sin", Replxx::Color::BRIGHTCYAN },
         { "math:tan", Replxx::Color::BRIGHTCYAN },
         { "math:arccos", Replxx::Color::BRIGHTCYAN },

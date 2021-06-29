@@ -5,12 +5,12 @@
  * @version 0.1
  * @date 2020-10-27
  * 
- * @copyright Copyright (c) 2020
+ * @copyright Copyright (c) 2020-2021
  * 
  */
 
-#ifndef ark_vm_ffi
-#define ark_vm_ffi
+#ifndef ARK_BUILTINS_BUILTINS_HPP
+#define ARK_BUILTINS_BUILTINS_HPP
 
 #include <vector>
 #include <utility>
@@ -79,6 +79,8 @@ namespace Ark::internal::Builtins
         Value format(std::vector<Value>& n, Ark::VM* vm);       // str:format, multiple arguments
         Value findSubStr(std::vector<Value>& n, Ark::VM* vm);   // str:find, 2 arguments
         Value removeAtStr(std::vector<Value>& n, Ark::VM* vm);  // str:removeAt, 2 arguments
+        Value ord(std::vector<Value>& n, Ark::VM* vm);          // str:ord, 1 arguments
+        Value chr(std::vector<Value>& n, Ark::VM* vm);          // str:chr, 1 arguments
     }
 
     namespace Mathematics
@@ -103,9 +105,13 @@ namespace Ark::internal::Builtins
         Value acos_(std::vector<Value>& n, Ark::VM* vm);  // math:arccos, 1 argument
         Value asin_(std::vector<Value>& n, Ark::VM* vm);  // math:arcsin, 1 argument
         Value atan_(std::vector<Value>& n, Ark::VM* vm);  // math:arctan, 1 argument
+        Value cosh_(std::vector<Value>& n, Ark::VM* vm);  // math:cosh, 1 argument
+        Value sinh_(std::vector<Value>& n, Ark::VM* vm);  // math:sinh, 1 argument
+        Value tanh_(std::vector<Value>& n, Ark::VM* vm);  // math:tanh, 1 argument
+        Value acosh_(std::vector<Value>& n, Ark::VM* vm);  // math:acosh, 1 argument
+        Value asinh_(std::vector<Value>& n, Ark::VM* vm);  // math:asinh, 1 argument
+        Value atanh_(std::vector<Value>& n, Ark::VM* vm);  // math:atanh, 1 argument
     }
 }
-
-#undef Builtins_Function
 
 #endif

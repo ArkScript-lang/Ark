@@ -4,13 +4,13 @@
  * @brief ArkScript REPL - Read Eval Print Loop
  * @version 0.1
  * @date 2020-10-27
- * 
- * @copyright Copyright (c) 2020
- * 
+ *
+ * @copyright Copyright (c) 2020-2021
+ *
  */
 
-#ifndef ark_repl
-#define ark_repl
+#ifndef ARK_REPL_REPL_HPP
+#define ARK_REPL_REPL_HPP
 
 #include <iostream>
 
@@ -27,17 +27,17 @@ namespace Ark
     public:
         /**
          * @brief Construct a new Repl object
-         * 
+         *
          * @param options the REPL options
          * @param lib_dir the path to the standard library
          */
-        Repl(uint16_t options, std::string lib_dir);
+        Repl(uint16_t options, const std::string& lib_dir);
 
         /**
          * @brief Start the REPL
-         * 
+         *
          */
-        void run();
+        int run();
 
     private:
         std::string m_lib_dir;
@@ -50,7 +50,7 @@ namespace Ark
         int count_open_parentheses(const std::string& line);
         int count_open_braces(const std::string& line);
         void trim_whitespace(std::string& line);
-        void cgui_setup();
+        void cui_setup();
     };
 }
 

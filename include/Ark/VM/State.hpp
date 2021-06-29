@@ -2,15 +2,15 @@
  * @file State.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief State used by the virtual machine: it loads the bytecode, can compile it if needed, load C++ functions...
- * @version 0.1
+ * @version 0.2
  * @date 2020-10-27
  * 
- * @copyright Copyright (c) 2020
+ * @copyright Copyright (c) 2020-2021
  * 
  */
 
-#ifndef ark_vm_state
-#define ark_vm_state
+#ifndef ARK_VM_STATE_HPP
+#define ARK_VM_STATE_HPP
 
 #include <string>
 #include <vector>
@@ -20,7 +20,6 @@
 #include <Ark/VM/Value.hpp>
 #include <Ark/Compiler/BytecodeReader.hpp>
 #include <Ark/Compiler/Compiler.hpp>
-#include <Ark/Log.hpp>
 
 namespace Ark
 {
@@ -37,7 +36,7 @@ namespace Ark
          * @param options the options for the virtual machine, compiler, and parser
          * @param libdir the path to the standard library, defaults to "?" which means: search in environment variables
          */
-        State(uint16_t options=DefaultFeatures, const std::string& libdir="?") noexcept;
+        State(uint16_t options = DefaultFeatures, const std::string& libdir = "?") noexcept;
 
         /**
          * @brief Feed the state by giving it the path to an existing bytecode file
@@ -81,7 +80,7 @@ namespace Ark
          * @param name the name of the function in ArkScript
          * @param function the code of the function
          */
-        void loadFunction(const std::string& name, internal::Value::ProcType function) noexcept;
+        void loadFunction(const std::string& name, Value::ProcType function) noexcept;
 
         /**
          * @brief Set the script arguments in sys:args
@@ -123,15 +122,12 @@ namespace Ark
         /**
          * @brief Reads and compiles code of file
          * 
-         * @param debug set the debug level
          * @param file the path of file code to compile 
-         * @param output set path of .arkc file 
-         * @param lib_dir the Lib Dir
-         * @param options set vm options
+         * @param output set path of .arkc file
          * @return true on success
          * @return false on failure and raise an exception
          */
-        bool compile(unsigned debug, const std::string& file, const std::string& output, const std::string& lib_dir, uint16_t options);
+        bool compile(const std::string& file, const std::string& output);
 
         inline void throwStateError(const std::string& message)
         {
@@ -147,11 +143,11 @@ namespace Ark
 
         // related to the bytecode
         std::vector<std::string> m_symbols;
-        std::vector<internal::Value> m_constants;
+        std::vector<Value> m_constants;
         std::vector<bytecode_t> m_pages;
 
         // related to the execution
-        std::unordered_map<std::string, internal::Value> m_binded;
+        std::unordered_map<std::string, Value> m_binded;
     };
 }
 

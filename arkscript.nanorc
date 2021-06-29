@@ -23,7 +23,7 @@ color brightcyan "\<(str:format|str:find|str:removeAt)\>"
 color brightcyan "\<(math:exp|math:ln|math:ceil|math:floor|math:round|math:NaN?|math:Inf?|math:pi|math:e|math:tau|math:Inf|math:NaN|math:cos|math:sin|math:tan|math:arccos|math:arcsin|math:arctan)\>"
 
 ## operators
-color brightyellow "[.+*|=!@'\^]" "<" ">" "/" "-" "and" "or" "mod" "type" "hasField" "len" "empty?" "firstOf" "tailOf" "headOf" "nil?" "assert" "toNumber" "toString"
+color brightyellow "[.+*|=!@'\^]" "<" ">" "/" "-" "and" "or" "mod" "type" "hasField" "len" "empty?" "tail" "head" "nil?" "assert" "toNumber" "toString"
 
 ## blocks
 color yellow "[()]" "\[" "\]" "\{" "\}"

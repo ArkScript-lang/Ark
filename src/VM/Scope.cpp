@@ -13,7 +13,7 @@ namespace Ark::internal
     {
     #ifndef ARK_SCOPE_DICHOTOMY
         // PERF costs a lot
-        m_data.reserve(2);
+        m_data.reserve(4);
     #endif
     }
 
@@ -101,7 +101,7 @@ namespace Ark::internal
                 return nullptr;
         }
     #else
-        for (std::size_t i=0, end=m_data.size(); i < end; ++i)
+        for (std::size_t i = 0, end = m_data.size(); i < end; ++i)
         {
             if (m_data[i].first == id)
                 return &m_data[i].second;
@@ -112,10 +112,10 @@ namespace Ark::internal
 
     uint16_t Scope::idFromValue(Value&& val) noexcept
     {
-        for (std::size_t i=0, end=m_data.size(); i < end; ++i)
+        for (std::size_t i = 0, end = m_data.size(); i < end; ++i)
         {
             if (m_data[i].second == val)
-                return i;
+                return m_data[i].first;
         }
         return static_cast<uint16_t>(~0);
     }

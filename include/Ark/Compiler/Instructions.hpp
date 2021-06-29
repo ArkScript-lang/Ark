@@ -5,12 +5,12 @@
  * @version 0.1
  * @date 2020-10-27
  * 
- * @copyright Copyright (c) 2020
+ * @copyright Copyright (c) 2020-2021
  * 
  */
 
-#ifndef ark_compiler_instructions
-#define ark_compiler_instructions
+#ifndef ARK_COMPILER_INSTRUCTIONS_HPP
+#define ARK_COMPILER_INSTRUCTIONS_HPP
 
 #include <cinttypes>
 
@@ -20,6 +20,10 @@ namespace Ark::internal
 
     /**
      * @brief The different bytecodes are stored here
+     * @par Adding an operator
+     * It must be referenced as well under src/VM/Builtins/Builtins.cpp, in
+     * the operators table. The order of the operators below <code>FIRST_OPERATOR</code>
+     * must be the same as the one in the operators table from the aforementioned file.
      * 
      */
     enum Instruction : Inst_t
@@ -55,10 +59,6 @@ namespace Ark::internal
             CONCAT            = 0x14,
         LAST_COMMAND          = 0x14,
 
-        // NB: when adding an operator, it must be referenced as well under
-        // src/VM/Builtins/Builtins.cpp, in the operators table
-        // The order of the operators below must be the same as the one in
-        // the operators table from src/VM/Builtins/Builtins.cpp
         FIRST_OPERATOR = 0x20,
             ADD        = 0x20,
             SUB        = 0x21,
@@ -72,23 +72,22 @@ namespace Ark::internal
             EQ         = 0x29,
             LEN        = 0x2a,
             EMPTY      = 0x2b,
-            FIRSTOF    = 0x2c,
-            TAILOF     = 0x2d,
-            HEADOF     = 0x2e,
-            ISNIL      = 0x2f,
-            ASSERT     = 0x30,
-            TO_NUM     = 0x31,
-            TO_STR     = 0x32,
-            AT         = 0x33,
-            AND_       = 0x34,
-            OR_        = 0x35,
-            MOD        = 0x36,
-            TYPE       = 0x37,
-            HASFIELD   = 0x38,
-            NOT        = 0x39,
-        LAST_OPERATOR  = 0x39,
+            TAIL       = 0x2c,
+            HEAD       = 0x2d,
+            ISNIL      = 0x2e,
+            ASSERT     = 0x2f,
+            TO_NUM     = 0x30,
+            TO_STR     = 0x31,
+            AT         = 0x32,
+            AND_       = 0x33,
+            OR_        = 0x34,
+            MOD        = 0x35,
+            TYPE       = 0x36,
+            HASFIELD   = 0x37,
+            NOT        = 0x38,
+        LAST_OPERATOR  = 0x38,
 
-        LAST_INSTRUCTION = 0x39
+        LAST_INSTRUCTION = 0x38
     };
 }
 
