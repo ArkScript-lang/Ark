@@ -2,18 +2,26 @@
  * @file Value.hpp
  * @author Default value type handled by the virtual machine
  * @brief 
- * @version 0.1
+ * @version 0.2
  * @date 2020-10-27
  * 
- * @copyright Copyright (c) 2020
+ * @copyright Copyright (c) 2020-2021
  * 
  */
 
-#ifndef ark_vm_value
-#define ark_vm_value
+#ifndef ARK_VM_VALUE_HPP
+#define ARK_VM_VALUE_HPP
 
 #include <vector>
-#include <variant.hpp>
+#ifndef USE_MPARK
+    #include <variant>
+    #define variant_t std::variant
+    #define variant_get std::get
+#else
+    #include <variant.hpp>
+    #define variant_t mpark::variant
+    #define variant_get mpark::get
+#endif
 #include <string>  // for conversions
 #include <cinttypes>
 #include <iostream>
@@ -21,10 +29,8 @@
 #include <functional>
 #include <utility>
 #include <Ark/String.hpp>  // our string implementation
-#include <string.h>  // strcmp
 #include <array>
 
-#include <Ark/VM/Types.hpp>
 #include <Ark/VM/Closure.hpp>
 #include <Ark/Exceptions.hpp>
 #include <Ark/VM/UserType.hpp>
@@ -34,10 +40,7 @@
 namespace Ark
 {
     class VM;
-}
 
-namespace Ark::internal
-{
     // Note from the creator: we can have at most 0b01111111 (127) different types
     // because type index is stored on the 7 right most bits of a uint8_t in the class Value.
     // Order is also important because we are doing some optimizations to check ranges
@@ -56,17 +59,18 @@ namespace Ark::internal
         True      = 8,
         False     = 9,
         Undefined = 10,
-        Reference = 11
+        Reference = 11,
+        InstPtr   = 12
     };
 
-    const std::array<std::string, 12> types_to_str = {
+    const std::array<std::string, 13> types_to_str = {
         "List",  "Number",  "String",    "Function",
         "CProc", "Closure", "UserType",  "Nil",
-        "Bool",  "Bool",    "Undefined", "Reference"
+        "Bool",  "Bool",    "Undefined", "Reference",
+        "InstPtr"
     };
 
-    class Frame;
-
+// for debugging purposes only
 #ifdef ARK_PROFILER_COUNT
     extern unsigned value_creations, value_copies, value_moves;
 #endif
@@ -78,17 +82,17 @@ namespace Ark::internal
         using Iterator = std::vector<Value>::iterator;
         using ConstIterator = std::vector<Value>::const_iterator;
 
-        using Value_t  = mpark::variant<
-            double,             //  8 bytes
-            String,             // 16 bytes
-            PageAddr_t,         //  2 bytes
-            ProcType,           //  8 bytes
-            Closure,            // 24 bytes
-            UserType,           // 24 bytes
-            std::vector<Value>, // 24 bytes
-            Value*              //  8 bytes
-        >;                      // +??? bytes overhead
-        //                   total 24+??? bytes
+        using Value_t  = variant_t<
+            double,                //  8 bytes
+            String,                // 16 bytes
+            internal::PageAddr_t,  //  2 bytes
+            ProcType,              //  8 bytes
+            internal::Closure,     // 24 bytes
+            UserType,              // 24 bytes
+            std::vector<Value>,    // 24 bytes
+            Value*                 //  8 bytes
+        >;                         // +8 bytes overhead
+        //                      total 32 bytes
 
         /**
          * @brief Construct a new Value object
@@ -102,6 +106,21 @@ namespace Ark::internal
          * @param type the value type which is going to be held
          */
         explicit Value(ValueType type) noexcept;
+
+        /**
+         * @brief Construct a new Value object
+         * @details Use at your own risks. Asking for a value type N and putting a non-matching value
+         *          will result in errors at runtime.
+         *
+         * @tparam T 
+         * @param type value type wanted
+         * @param value value needed
+         */
+        template<typename T>
+        Value(ValueType type, T&& value) noexcept :
+            m_const_type(static_cast<uint8_t>(type)),
+            m_value(value)
+        {}
 
 #ifdef ARK_PROFILER_COUNT
         Value(const Value& val) noexcept;
@@ -156,7 +175,7 @@ namespace Ark::internal
          * 
          * @param value 
          */
-        explicit Value(PageAddr_t value) noexcept;
+        explicit Value(internal::PageAddr_t value) noexcept;
 
         /**
          * @brief Construct a new Value object from a C++ function
@@ -177,7 +196,7 @@ namespace Ark::internal
          * 
          * @param value 
          */
-        explicit Value(Closure&& value) noexcept;
+        explicit Value(internal::Closure&& value) noexcept;
 
         /**
          * @brief Construct a new Value object as a UserType
@@ -227,7 +246,7 @@ namespace Ark::internal
          * 
          * @return const std::vector<Value>& 
          */
-        inline const std::vector<Value>& const_list() const;
+        inline const std::vector<Value>& constList() const;
 
         /**
          * @brief Return the stored user type
@@ -248,14 +267,14 @@ namespace Ark::internal
          * 
          * @return String& 
          */
-        String& string_ref();
+        String& stringRef();
 
         /**
          * @brief Return the stored user type as a reference
          * 
          * @return UserType& 
          */
-        UserType& usertype_ref();
+        UserType& usertypeRef();
 
         /**
          * @brief Return the stored internal object reference
@@ -284,10 +303,9 @@ namespace Ark::internal
         friend inline bool operator!(const Value& A) noexcept;
 
         friend class Ark::VM;
-        friend class Ark::internal::Frame;
 
     private:
-        uint8_t m_constType;  ///< First bit if for constness, right most bits are for type
+        uint8_t m_const_type;  ///< First bit if for constness, right most bits are for type
         Value_t m_value;
 
         // private getters only for the virtual machine
@@ -318,7 +336,7 @@ namespace Ark::internal
          * 
          * @return internal::Closure& 
          */
-        internal::Closure& closure_ref();
+        internal::Closure& refClosure();
 
         /**
          * @brief Check if the value is const or not

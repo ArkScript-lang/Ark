@@ -2,15 +2,15 @@
  * @file Optimizer.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Optimizes a given ArkScript AST
- * @version 0.1
+ * @version 0.3
  * @date 2020-10-27
  * 
- * @copyright Copyright (c) 2020
+ * @copyright Copyright (c) 2020-2021
  * 
  */
 
-#ifndef ark_compiler_optimizer
-#define ark_compiler_optimizer
+#ifndef ARK_COMPILER_OPTIMIZER_HPP
+#define ARK_COMPILER_OPTIMIZER_HPP
 
 #include <functional>
 #include <unordered_map>
@@ -20,6 +20,7 @@
 #include <Ark/Compiler/Node.hpp>
 #include <Ark/Exceptions.hpp>
 #include <Ark/Constants.hpp>
+#include <Ark/Compiler/makeErrorCtx.hpp>
 
 namespace Ark
 {
@@ -53,7 +54,7 @@ namespace Ark
     private:
         internal::Node m_ast;
         uint16_t m_options;
-        std::unordered_map<std::string, unsigned> m_symAppearances;
+        std::unordered_map<std::string, unsigned> m_sym_appearances;
 
         /**
          * @brief Generate a fancy error message
@@ -61,13 +62,32 @@ namespace Ark
          * @param message 
          * @param node 
          */
-        inline void throwOptimizerError(const std::string& message, const internal::Node& node);
+        inline void throwOptimizerError(const std::string& message, const internal::Node& node)
+        {
+            throw OptimizerError(internal::makeNodeBasedErrorCtx(message, node));
+        }
 
-        // iterate over the AST and remove unused top level functions and constants
+        /**
+         * @brief Iterate over the AST and remove unused top level functions and constants
+         * 
+         */
         void remove_unused();
-        void run_on_global_scope_vars(internal::Node& node, const std::function<void(internal::Node&, internal::Node&, int)>& func);
-        void count_occurences(const internal::Node& node);
+
+        /**
+         * @brief Run a given functor on the global scope symbols
+         * 
+         * @param node 
+         * @param func 
+         */
+        void runOnGlobalScopeVars(internal::Node& node, const std::function<void(internal::Node&, internal::Node&, int)>& func);
+
+        /**
+         * @brief Count the occurences of each symbol in the AST, recursively
+         * 
+         * @param node 
+         */
+        void countOccurences(internal::Node& node);
     };
 }
 
-#endif  // ark_compiler_optimizer
+#endif

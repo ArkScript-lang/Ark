@@ -5,12 +5,12 @@
  * @version 0.1
  * @date 2020-10-27
  * 
- * @copyright Copyright (c) 2020
+ * @copyright Copyright (c) 2020-2021
  * 
  */
 
-#ifndef ark_exceptions
-#define ark_exceptions
+#ifndef INCLUDE_ARK_EXCEPTIONS_HPP
+#define INCLUDE_ARK_EXCEPTIONS_HPP
 
 #include <exception>
 #include <string>
@@ -138,6 +138,26 @@ namespace Ark
     public:
         explicit OptimizerError(const std::string& message) :
             m_msg("OptimizerError: " + message)
+        {}
+
+        virtual const char* what() const throw()
+        {
+            return m_msg.c_str();
+        }
+
+    protected:
+        std::string m_msg;
+    };
+
+    /**
+     * @brief MacroProcessingError thrown by the compiler
+     * 
+     */
+    class MacroProcessingError : public std::exception
+    {
+    public:
+        explicit MacroProcessingError(const std::string& message) :
+            m_msg("MacroProcessingError: " + message)
         {}
 
         virtual const char* what() const throw()

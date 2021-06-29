@@ -2,23 +2,40 @@
  * @file UserType.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Subtype of the value, capable of handling any C++ type
- * @version 0.1
+ * @version 0.3
  * @date 2020-10-27
  * 
- * @copyright Copyright (c) 2020
+ * @copyright Copyright (c) 2020-2021
  * 
  */
 
-#ifndef ark_vm_usertype
-#define ark_vm_usertype
+#ifndef ARK_VM_USERTYPE_HPP
+#define ARK_VM_USERTYPE_HPP
 
 #include <iostream>
 #include <vector>
 #include <utility>
-#include <typeindex>
 
 namespace Ark
 {
+    namespace internal
+    {
+        struct type_uid_impl
+        {
+            static inline uint16_t id = 0;
+            static uint16_t next()
+            {
+                return id++;
+            }
+        };
+
+        template <typename T>
+        struct type_uid
+        {
+            static inline const uint16_t value = type_uid_impl::next();
+        };
+    }
+
     /**
      * @brief A class to be use C++ objects in ArkScript
      * 
@@ -46,10 +63,10 @@ namespace Ark
          * @param data a pointer to the data to store in the object
          */
         template <typename T>
-        explicit UserType(T* data=nullptr) noexcept :
+        explicit UserType(T* data = nullptr) noexcept :
             m_data(static_cast<void*>(data)),
             m_funcs(nullptr),
-            m_type_id(typeid(T).hash_code() & static_cast<uint16_t>(~0))
+            m_type_id(internal::type_uid<T>::value)
         {}
 
         /**
@@ -57,12 +74,7 @@ namespace Ark
          * @details Called by the VM when `(del obj)` is found or when the object goes
          *          out of scope.
          */
-        ~UserType() noexcept
-        {
-            // call a custom deleter on the data held by the usertype
-            if (m_funcs != nullptr && m_funcs->deleter != nullptr)
-               m_funcs->deleter(m_data);
-        }
+        void del();
 
         /**
          * @brief Set the control functions structure
@@ -97,7 +109,7 @@ namespace Ark
         template <typename T>
         bool is() const noexcept
         {
-            return (typeid(T).hash_code() & static_cast<uint16_t>(~0)) == m_type_id;
+            return internal::type_uid<T>::value == m_type_id;
         }
 
         /**
@@ -118,9 +130,9 @@ namespace Ark
             return *static_cast<T*>(m_data);
         }
 
-        friend inline bool operator==(const UserType& A, const UserType& B) noexcept;
-        friend inline bool operator<(const UserType& A, const UserType& B) noexcept;
-        friend inline std::ostream& operator<<(std::ostream& os, const UserType& A) noexcept;
+        friend bool operator==(const UserType& A, const UserType& B) noexcept;
+        friend bool operator<(const UserType& A, const UserType& B) noexcept;
+        friend std::ostream& operator<<(std::ostream& os, const UserType& A) noexcept;
 
     private:
         uint16_t m_type_id;

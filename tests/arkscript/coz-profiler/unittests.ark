@@ -1,0 +1,41 @@
+(let start_time (time))
+
+(print "Starting unit tests")
+
+# Each test file is consisting of a function executing a list of asserts
+# to see if everything is all right.
+# We *must* use functions for our tests because they create a new scope,
+# to avoid collisions with other tests, and avoid false positive tests.
+
+(import "../vm-tests.ark")
+(import "../builtins-tests.ark")
+(import "../exceptions-tests.ark")
+(import "../functional-tests.ark")
+(import "../list-tests.ark")
+(import "../math-tests.ark")
+(import "../range-tests.ark")
+(import "../string-tests.ark")
+(import "../switch-tests.ark")
+
+(let limit (if (!= 0 (len sys:args))
+    (if (not (nil? (toNumber (@ sys:args 0))))
+        (toNumber (@ sys:args 0))
+        10)
+    10))
+
+(mut i 0)
+(while (< i limit) (begin
+    (vm-tests)
+    (builtin-tests)
+    (exceptions-tests)
+    (functional-tests)
+    (list-tests)
+    (math-tests)
+    (range-tests)
+    (string-tests)
+    (switch-tests)
+
+    (set i (+ 1 i))
+))
+(let total (* 1000 (- (time) start_time)))
+(print "\nCompleted in " total "ms, average " (/ (* 1000 (- (time) start_time)) limit) "ms")

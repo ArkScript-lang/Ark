@@ -1,0 +1,25 @@
+(import "random.arkm")
+(import "Math.ark")
+
+(let number (mod (abs (random)) 10000))
+
+(mut value 0)
+(mut tries 0)
+(mut continue true)
+
+(while continue {
+    (set value (toNumber (input "Input a numeric value: ")))
+
+    (if (< value number)
+        (print "More!")
+        (if (= value number)
+            {
+                (print "Bingo!")
+                (set continue false)
+            }
+            (print "Less!")))
+
+    (set tries (+ 1 tries))
+})
+
+(print "You won in " tries " tries")

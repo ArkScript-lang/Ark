@@ -2,15 +2,15 @@
  * @file Utils.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Lots of utilities about string, filesystem and more
- * @version 0.1
+ * @version 0.2
  * @date 2020-10-27
  * 
- * @copyright Copyright (c) 2020
+ * @copyright Copyright (c) 2020-2021
  * 
  */
 
-#ifndef ark_utils
-#define ark_utils
+#ifndef INCLUDE_ARK_UTILS_HPP
+#define INCLUDE_ARK_UTILS_HPP
 
 #include <string>
 #include <sstream>
@@ -27,21 +27,6 @@
 
 namespace Ark::Utils
 {
-    /**
-     * @brief Home made version of std::to_string to convert to string anything which has an operator<< for this
-     * 
-     * @tparam T the type of the object
-     * @param object the object to convert to string
-     * @return std::string 
-     */
-    template <typename T>
-    std::string toString(T&& object)
-    {
-        std::ostringstream os;
-        os << object;
-        return os.str();
-    }
-
     /**
      * @brief Replaces all occurence of `from` to `to` in `source`
      * 
@@ -137,7 +122,7 @@ namespace Ark::Utils
      * @return true on success
      * @return false on failure
      */
-    inline bool isDouble(const std::string& s, double* output=nullptr)
+    inline bool isDouble(const std::string& s, double* output = nullptr)
     {
         char* end = 0;
         double val = strtod(s.c_str(), &end);
@@ -223,7 +208,7 @@ namespace Ark::Utils
      * @param d 
      * @return int 
      */
-    int dec_places(double d);
+    int decPlaces(double d);
 
     /**
      * @brief Count the number of digits for a double
@@ -231,7 +216,7 @@ namespace Ark::Utils
      * @param d 
      * @return int 
      */
-    int dig_places(double d);
+    int digPlaces(double d);
 }
 
-#endif  // ark_utils
+#endif

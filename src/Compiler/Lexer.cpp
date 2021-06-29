@@ -3,7 +3,6 @@
 #include <cstdio>
 
 #include <Ark/Utils.hpp>
-#include <Ark/Log.hpp>
 
 namespace Ark::internal
 {
@@ -31,7 +30,7 @@ namespace Ark::internal
             buffer.clear();
         };
 
-        for (std::size_t pos=0; pos < code.size(); ++pos)
+        for (std::size_t pos = 0, end = code.size(); pos < end; ++pos)
         {
             char current = code[pos];
 
@@ -63,8 +62,8 @@ namespace Ark::internal
                     saved_line = line;
                     saved_char = character;
                 }
-                // handle shorthands
-                else if (current == '\'')
+                // handle shorthands, be careful with ! and !=
+                else if (current == '\'' || (current == '!' && pos + 1 < code.size() && code[pos + 1] != '='))
                 {
                     if (!buffer.empty())
                         append_token_from_buffer();
@@ -92,11 +91,11 @@ namespace Ark::internal
                     buffer.clear();
                     buffer += current;
                 }
-                // getfield
+                // getfield or spread
                 else if (current == '.')
                 {
                     // check numbers, we don't want to split 3.0 into 3 and .0
-                    if (!buffer.empty() && !(('0' <= buffer[0] && buffer[0] <= '9') || buffer[0] == '+' || buffer[0] == '-'))
+                    if (!buffer.empty() && !('0' <= buffer[0] && buffer[0] <= '9') && buffer[0] != '+' && buffer[0] != '-' && buffer[0] != '.')
                     {
                         append_token_from_buffer();
                         buffer.clear();
@@ -162,10 +161,29 @@ namespace Ark::internal
                         {
                             switch (ctrl_char[0])
                             {
-                                /// @todo
-                                case 'x': break;
-                                case 'u': break;
-                                case 'U': break;
+                                case 'x': break; /// @todo
+
+                                case 'u':
+                                {
+                                    char utf8_str[5];
+                                    utf8decode(ctrl_char.c_str() + 1, utf8_str);
+                                    if (*utf8_str == '\0')
+                                        throwTokenizingError("invalid escape sequence \\" + ctrl_char + " in string, expected hexadecimal number that in utf8 range, got a \"" + ctrl_char + "\"", buffer, line, character + 1, code);
+                                    buffer += utf8_str;
+                                    break;
+                                }
+
+                                case 'U':
+                                {
+                                    short begin = 1;
+                                    for (; ctrl_char[begin] == '0'; ++ begin);
+                                    char utf8_str[5];
+                                    utf8decode(ctrl_char.c_str() + begin, utf8_str);
+                                    if (*utf8_str == '\0')
+                                        throwTokenizingError("invalid escape sequence \\" + ctrl_char + " in string, expected hexadecimal number that in utf8 range, got a \"" + ctrl_char + "\"", buffer, line, character + 1, code);
+                                    buffer += utf8_str;
+                                    break;
+                                }
 
                                 default:
                                     throwTokenizingError("unknown control character '\\" + ctrl_char + "' in string", buffer, line, character, code);
@@ -176,14 +194,14 @@ namespace Ark::internal
                         ctrl_char.clear();
                         in_ctrl_char = false;
 
-                        if (current == '"')  // end of string
+                        if (current == '"') // end of string
                         {
                             buffer += current;
                             in_string = false;
                             m_tokens.emplace_back(TokenType::String, buffer, saved_line, saved_char);
                             buffer.clear();
                         }
-                        else if (current == '\\')  // new escape code
+                        else if (current == '\\') // new escape code
                             in_ctrl_char = true;
                         else
                             buffer += current;
@@ -207,15 +225,18 @@ namespace Ark::internal
                     continue;
                 }
             }
-            else 
+            else
             {
                 // update position
                 character++;
             }
         }
 
+        if (!buffer.empty())
+            append_token_from_buffer();
+
         // debugging information
-        if (m_debug >= 3)
+        if (m_debug > 3)
         {
             auto last_token = m_tokens.back();
             for (auto& last_token : m_tokens)
@@ -231,7 +252,7 @@ namespace Ark::internal
         }
     }
 
-    const std::vector<Token>& Lexer::tokens() noexcept
+    std::vector<Token>& Lexer::tokens() noexcept
     {
         return m_tokens;
     }

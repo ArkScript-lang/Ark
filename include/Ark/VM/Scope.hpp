@@ -5,12 +5,12 @@
  * @version 0.1
  * @date 2020-10-27
  * 
- * @copyright Copyright (c) 2020
+ * @copyright Copyright (c) 2020-2021
  * 
  */
 
-#ifndef ark_vm_scope
-#define ark_vm_scope
+#ifndef ARK_VM_SCOPE_HPP
+#define ARK_VM_SCOPE_HPP
 
 #include <vector>
 #include <utility>
