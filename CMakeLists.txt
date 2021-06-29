@@ -54,9 +54,9 @@ set(REPLXX_INCLUDE_DIR "${ark_SOURCE_DIR}/submodules/replxx/include")
 # configuring Constants.hpp
 
 # VERSION
-set(ARK_VERSION_MAJOR  3)
-set(ARK_VERSION_MINOR  0)
-set(ARK_VERSION_PATCH 15)
+set(ARK_VERSION_MAJOR 3)
+set(ARK_VERSION_MINOR 1)
+set(ARK_VERSION_PATCH 0)
 
 message(STATUS "ArkScript version ${ARK_VERSION_MAJOR}.${ARK_VERSION_MINOR}.${ARK_VERSION_PATCH}")
 if (ARK_PROFILER)
