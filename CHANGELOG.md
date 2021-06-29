@@ -1,6 +1,6 @@
 # Change Log
 
-## [Unreleased]
+## [3.1.0] - 2021-06-29
 ### Added
 - adding of new string function for manipulation of utf8 string (str:ord and str:chr)
 - utf8 support for lexer
@@ -30,6 +30,8 @@
 - added `symcat` in macros to concatenate a symbol and a number/string/symbol to create a new one
 - added `argcount` in macros to count (at compile time) the number of arguments of a function
 - fixed a bug where `(bloc)` and `(print bloc)`, given a `!{bloc value}` macro, didn't give the same result (one was applied, the other was partial)
+- new module to manipulate bits: `bitwise`
+- enhanced standard library
 
 ### Changed
 - updating doxyfile and some docstrings
