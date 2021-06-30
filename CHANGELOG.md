@@ -1,5 +1,13 @@
 # Change Log
 
+## [Unreleased]
+### Added
+
+### Changed
+- lists are mutated in place if they are mutable, through `append` and `concat`
+
+### Removed
+
 ## [3.1.0] - 2021-06-29
 ### Added
 - adding of new string function for manipulation of utf8 string (str:ord and str:chr)
