@@ -3,10 +3,12 @@
 ## [Unreleased]
 ### Added
 - lists are mutated in place if they are mutable, through `append!` and `concat!`
+- instructions for `pop` and `pop!` were added, to replace `list:removeAt`
 
 ### Changed
 
 ### Removed
+- `list:removeAt` is no longer a builtin
 
 ## [3.1.0] - 2021-06-29
 ### Added
