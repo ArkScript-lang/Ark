@@ -2,9 +2,9 @@
 
 ## [Unreleased]
 ### Added
+- lists are mutated in place if they are mutable, through `append!` and `concat!`
 
 ### Changed
-- lists are mutated in place if they are mutable, through `append` and `concat`
 
 ### Removed
 

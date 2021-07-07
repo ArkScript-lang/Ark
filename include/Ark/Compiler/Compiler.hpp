@@ -143,6 +143,14 @@ namespace Ark
         inline std::optional<std::size_t> isBuiltin(const std::string& name) noexcept;
 
         /**
+         * @brief Check if a symbol needs to be compiled to a specific instruction
+         * 
+         * @param name 
+         * @return std::optional<internal::Instruction> corresponding instruction if it exists
+         */
+        inline std::optional<internal::Instruction> isSpecific(const std::string& name) noexcept;
+
+        /**
          * @brief Checking if a symbol may be coming from a plugin
          * 
          * @param name symbol name

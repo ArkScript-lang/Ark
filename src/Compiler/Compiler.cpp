@@ -230,8 +230,7 @@ namespace Ark
             return;
         }
         // specific instructions
-        else if (auto c0 = x.constList()[0]; c0.nodeType() == NodeType::Symbol &&
-                (c0.string() == "list" || c0.string() == "append" || c0.string() == "concat"))
+        else if (auto c0 = x.constList()[0]; c0.nodeType() == NodeType::Symbol && isSpecific(c0.string()).has_value())
         {
             compileSpecific(c0, x, p);
             return;
@@ -295,13 +294,12 @@ namespace Ark
     void Compiler::compileSpecific(const Node& c0, const Node& x, int p)
     {
         std::string name = c0.string();
-        Instruction specific = name == "list" ? Instruction::LIST :
-            (name == "append" ? Instruction::APPEND : Instruction::CONCAT);
+        Instruction inst = isSpecific(name).value();
 
         // length of at least 1 since we got a symbol name
         uint16_t argc = countArkObjects(x.constList()) - 1;
-        // error, can not use append/concat with a <2 length argument list
-        if (argc < 2 && (specific == Instruction::APPEND || specific == Instruction::CONCAT))
+        // error, can not use append/concat/pop (and their in place versions) with a <2 length argument list
+        if (argc < 2 && inst != Instruction::LIST)
             throw Ark::CompilationError("can not use " + name + " with less than 2 arguments");
 
         // compile arguments in reverse order
@@ -321,10 +319,10 @@ namespace Ark
         }
 
         // put inst and number of arguments
-        page(p).emplace_back(specific);
-        if (specific == Instruction::LIST)
+        page(p).emplace_back(inst);
+        if (inst == Instruction::LIST)
             pushNumber(argc, &page(p));
-        else
+        else if (inst == Instruction::APPEND || inst == Instruction::APPEND_IN_PLACE || inst == Instruction::CONCAT || inst == Instruction::CONCAT_IN_PLACE)
             pushNumber(argc - 1, &page(p));
     }
 
