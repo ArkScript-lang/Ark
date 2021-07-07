@@ -37,23 +37,6 @@ namespace Ark::internal::Builtins::List
         return Value(-1);
     }
 
-    Value removeAtList(std::vector<Value>& n, Ark::VM* vm)
-    {
-        if (n.size() != 2)
-            throw std::runtime_error(LIST_RMAT_ARITY);
-        if (n[0].valueType() != ValueType::List)
-            throw Ark::TypeError(LIST_RMAT_TE0);
-        if (n[1].valueType() != ValueType::Number)
-            throw Ark::TypeError(LIST_RMAT_TE1);
-
-        std::size_t idx = static_cast<std::size_t>(n[1].number());
-        if (idx >= n[0].list().size())
-            throw std::runtime_error(LIST_RMAT_OOR);
-
-        n[0].list().erase(n[0].list().begin () + idx);
-        return n[0];
-    }
-
     Value sliceList(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size () != 4)
