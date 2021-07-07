@@ -556,19 +556,17 @@ namespace Ark
                         ++m_ip;
                         uint16_t count = readNumber();
 
-                        Value* list = pop();
-                        bool is_ref = list->valueType() == ValueType::Reference;
-                        list = is_ref ? list->reference() : list;
-
-                        if (list->isConst())
-                            throwVMError("can not modify a constant list using `append'");
+                        Value* list = popAndResolveAsPtr();
                         if (list->valueType() != ValueType::List)
                             throw Ark::TypeError("append needs a List and then whatever you want");
+                        const uint16_t size = list->constList().size();
+
+                        Value obj = Value(*list);
+                        obj.list().reserve(size + count);
 
                         for (uint16_t i = 0; i < count; ++i)
-                            list->push_back(*popAndResolveAsPtr());
-
-                        push(Nil);
+                            obj.push_back(*popAndResolveAsPtr());
+                        push(std::move(obj));
 
                         COZ_PROGRESS_NAMED("ark vm append");
                         break;
@@ -579,14 +577,11 @@ namespace Ark
                         ++m_ip;
                         uint16_t count = readNumber();
 
-                        Value* list = pop();
-                        bool is_ref = list->valueType() == ValueType::Reference;
-                        list = is_ref ? list->reference() : list;
-
-                        if (list->isConst())
-                            throwVMError("can not modify a constant list using `concat'");
+                        Value *list = popAndResolveAsPtr();
                         if (list->valueType() != ValueType::List)
                             throw Ark::TypeError("concat needs lists, got " + types_to_str[static_cast<unsigned>(list->valueType())]);
+
+                        Value obj = Value(*list);
 
                         for (uint16_t i = 0; i < count; ++i)
                         {
@@ -595,12 +590,74 @@ namespace Ark
                                 throw Ark::TypeError("concat needs lists");
 
                             for (auto it = next->list().begin(), end = next->list().end(); it != end; ++it)
+                                obj.push_back(*it);
+                        }
+                        push(std::move(obj));
+
+                        COZ_PROGRESS_NAMED("ark vm concat");
+                        break;
+                    }
+
+                    case Instruction::APPEND_IN_PLACE:
+                    {
+                        ++m_ip;
+                        uint16_t count = readNumber();
+
+                        Value* list = pop();
+                        bool is_ref = list->valueType() == ValueType::Reference;
+                        list = is_ref ? list->reference() : list;
+
+                        if (list->isConst())
+                            throwVMError("can not modify a constant list using `append!'");
+                        if (list->valueType() != ValueType::List)
+                            throw Ark::TypeError("append! needs a List and then whatever you want");
+
+                        for (uint16_t i = 0; i < count; ++i)
+                            list->push_back(*popAndResolveAsPtr());
+
+                        push(Nil);
+
+                        COZ_PROGRESS_NAMED("ark vm append!");
+                        break;
+                    }
+
+                    case Instruction::CONCAT_IN_PLACE:
+                    {
+                        ++m_ip;
+                        uint16_t count = readNumber();
+
+                        Value* list = pop();
+                        bool is_ref = list->valueType() == ValueType::Reference;
+                        list = is_ref ? list->reference() : list;
+
+                        if (list->isConst())
+                            throwVMError("can not modify a constant list using `concat!'");
+                        if (list->valueType() != ValueType::List)
+                            throw Ark::TypeError("concat! needs lists, got " + types_to_str[static_cast<unsigned>(list->valueType())]);
+
+                        for (uint16_t i = 0; i < count; ++i)
+                        {
+                            Value* next = popAndResolveAsPtr();
+                            if (next->valueType() != ValueType::List)
+                                throw Ark::TypeError("concat! needs lists");
+
+                            for (auto it = next->list().begin(), end = next->list().end(); it != end; ++it)
                                 list->push_back(*it);
                         }
 
                         push(Nil);
 
-                        COZ_PROGRESS_NAMED("ark vm concat");
+                        COZ_PROGRESS_NAMED("ark vm concat!");
+                        break;
+                    }
+
+                    case Instruction::POP_LIST:
+                    {
+                        break;
+                    }
+
+                    case Instruction::POP_LIST_IN_PLACE:
+                    {
                         break;
                     }
 
