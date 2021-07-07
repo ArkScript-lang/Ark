@@ -5,7 +5,7 @@
     (mut i 0)
     (while (< i (len lst)) {
         (if (cond (@ lst i))
-            (append output (@ lst i)))
+            (append! output (@ lst i)))
         (set i (+ 1 i))
     })
     output
@@ -26,7 +26,7 @@
             # and after that, call quicksort on a smaller array containing all the elements greater or equal to the pivot
             (let more (quicksort (filter (tail array) (fun (e) (>= e pivot)))))
 
-            (concat less [pivot] more)
+            (concat! less [pivot] more)
             # return a concatenation of arrays
             less
         })
