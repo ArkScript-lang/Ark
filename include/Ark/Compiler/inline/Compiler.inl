@@ -57,6 +57,15 @@ inline std::optional<internal::Instruction> Compiler::isSpecific(const std::stri
     return {};
 }
 
+inline void Compiler::pushSpecificInstArgc(internal::Instruction inst, uint16_t previous, int p) noexcept
+{
+    if (inst == internal::Instruction::LIST)
+        pushNumber(previous, &page(p));
+    else if (inst == internal::Instruction::APPEND || inst == internal::Instruction::APPEND_IN_PLACE ||
+             inst == internal::Instruction::CONCAT || inst == internal::Instruction::CONCAT_IN_PLACE)
+        pushNumber(previous - 1, &page(p));
+}
+
 inline bool Compiler::mayBeFromPlugin(const std::string& name) noexcept
 {
     std::string splitted = Utils::splitString(name, ':')[0];

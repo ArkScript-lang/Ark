@@ -320,10 +320,7 @@ namespace Ark
 
         // put inst and number of arguments
         page(p).emplace_back(inst);
-        if (inst == Instruction::LIST)
-            pushNumber(argc, &page(p));
-        else if (inst == Instruction::APPEND || inst == Instruction::APPEND_IN_PLACE || inst == Instruction::CONCAT || inst == Instruction::CONCAT_IN_PLACE)
-            pushNumber(argc - 1, &page(p));
+        pushSpecificInstArgc(inst, argc, p);
     }
 
     void Compiler::compileIf(const Node& x, int p)

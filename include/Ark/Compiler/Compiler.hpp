@@ -151,6 +151,15 @@ namespace Ark
         inline std::optional<internal::Instruction> isSpecific(const std::string& name) noexcept;
 
         /**
+         * @brief Compute specific instruction argument count
+         * 
+         * @param inst 
+         * @param previous 
+         * @param p 
+         */
+        inline void pushSpecificInstArgc(internal::Instruction inst, uint16_t previous, int p) noexcept;
+
+        /**
          * @brief Checking if a symbol may be coming from a plugin
          * 
          * @param name symbol name
