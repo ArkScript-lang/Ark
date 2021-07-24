@@ -8,6 +8,16 @@
 
 namespace Ark::internal::Builtins::List
 {
+    /**
+     * @name list:reverse
+     * @brief Reverse a given list and return a new one
+     * @details The original list is not modified
+     * @param list the list to reverse
+     * =begin
+     * (list:reverse [1 2 3])  # [3 2 1]
+     * =end
+     * @author https://github.com/SuperFola
+     */
     Value reverseList(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n[0].valueType() != ValueType::List)
@@ -20,6 +30,18 @@ namespace Ark::internal::Builtins::List
         return n[0];
     }
 
+    /**
+     * @name list:find
+     * @brief Search an element in a List
+     * @details The original list is not modified
+     * @param list the List to search in
+     * @param el the element to search
+     * =begin
+     * (list:find [1 2 3] 1)  # 0
+     * (list:find [1 2 3] 0)  # -1
+     * =end
+     * @author https://github.com/SuperFola
+     */
     Value findInList(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 2)
@@ -37,6 +59,18 @@ namespace Ark::internal::Builtins::List
         return Value(-1);
     }
 
+    /**
+     * @name list:removeAt
+     * @brief Remove an element in a List and return a new one
+     * @details The original list is not modified
+     * @param list the list to remove an element from
+     * @param index the index of the element to remove (can be negative to search from the end)
+     * =begin
+     * (list:removeAt [1 2 3] 0)  # [2 3]
+     * (list:removeAt [1 2 3] -1)  # [1 2]
+     * =end
+     * @author https://github.com/SuperFola
+     */
     Value removeAtList(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 2)
@@ -54,6 +88,19 @@ namespace Ark::internal::Builtins::List
         return n[0];
     }
 
+    /**
+     * @name list:slice
+     * @brief Get a slice from a List
+     * @details The original list is not modified
+     * @param list the list to reverse
+     * @param start included, must be positive
+     * @param end not included, must be positive and smaller than the list
+     * @param step must be greater than 0
+     * =begin
+     * (list:reverse [1 2 3])  # [3 2 1]
+     * =end
+     * @author https://github.com/SuperFola
+     */
     Value sliceList(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size () != 4)
@@ -68,7 +115,7 @@ namespace Ark::internal::Builtins::List
             throw Ark::TypeError(LIST_SLICE_TE3);
 
         long step = static_cast<long>(n[3].number());
-        if (step == 0)
+        if (step <= 0)
             throw std::runtime_error(LIST_SLICE_STEP);
 
         long start = static_cast<long>(n[1].number());
@@ -86,6 +133,16 @@ namespace Ark::internal::Builtins::List
         return Value(std::move(retlist));
     }
 
+    /**
+     * @name list:sort
+     * @brief Sort a List and return a new one
+     * @details The original list is not modified
+     * @param list the list to sort
+     * =begin
+     * (list:sort [4 2 3])  # [1 2 4]
+     * =end
+     * @author https://github.com/SuperFola
+     */
     Value sort_(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 1)
@@ -97,13 +154,23 @@ namespace Ark::internal::Builtins::List
         return n[0];
     }
 
+    /**
+     * @name list:fill
+     * @brief Generate a List of n copies of an element
+     * @param count the number of copies
+     * @param el the element to copy
+     * =begin
+     * (list:fill 4 nil)  # [nil nil nil nil]
+     * =end
+     * @author https://github.com/SuperFola
+     */
     Value fill(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 2)
             throw std::runtime_error(LIST_FILL_ARITY);
         if (n[0].valueType() != ValueType::Number)
             throw Ark::TypeError(LIST_FILL_TE0);
-        
+
         std::size_t c = static_cast<std::size_t>(n[0].number());
         std::vector<Value> l;
         for (std::size_t i = 0; i < c; i++)
@@ -112,6 +179,18 @@ namespace Ark::internal::Builtins::List
         return Value(std::move(l));
     }
 
+    /**
+     * @name list:setAt
+     * @brief Modify a given list and return a new one
+     * @details The original list is not modified
+     * @param list the list to modify
+     * @param index the index of the element to modify
+     * @param el the new element
+     * =begin
+     * (list:setAt [1 2 3] 0 5)  # [5 2 3]
+     * =end
+     * @author https://github.com/SuperFola
+     */
     Value setListAt(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 3)
