@@ -58,6 +58,7 @@ jobs:
       run: |
         mkdir -p artifact/lib
         cp build/$BUILD_TYPE/ark.exe artifact
+        cp build/$BUILD_TYPE/arkscript.exe artifact
         cp build/$BUILD_TYPE/ArkReactor.lib artifact
         cp lib/*.arkm artifact/lib
         cp -r lib/std/ artifact/lib
