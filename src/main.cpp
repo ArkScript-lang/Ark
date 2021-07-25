@@ -3,6 +3,7 @@
 #include <cstdio>
 #include <iostream>
 #include <optional>
+#include <filesystem>
 
 #include <clipp.hpp>
 #include <termcolor.hpp>
@@ -14,6 +15,15 @@
 int main(int argc, char** argv)
 {
     using namespace clipp;
+
+    {
+        namespace fs = std::filesystem;
+        fs::path program(argv[0]);
+
+        if (program.stem() == "ark")
+            std::cout << termcolor::yellow << "Warning" << termcolor::reset << " the command `ark' is being deprecated in favor of `arkscript'" << std::endl;
+    }
+
 
     enum class mode { help, dev_info, bytecode_reader, version, run, repl, compile, eval };
     mode selected = mode::repl;
