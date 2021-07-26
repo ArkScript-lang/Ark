@@ -1,5 +1,12 @@
 # Change Log
 
+## [Unreleased changes]
+### Added
+
+### Changed
+
+### Removed
+
 ## [3.1.0] - 2021-06-29
 ### Added
 - adding of new string function for manipulation of utf8 string (str:ord and str:chr)

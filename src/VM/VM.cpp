@@ -778,7 +778,7 @@ namespace Ark
 
                         if (a->valueType() == ValueType::List)
                         {
-                            if (a->constList().size() < 2)
+                            if (a->constList().size() == 0)
                             {
                                 push(Builtins::nil);
                                 break;
@@ -789,7 +789,7 @@ namespace Ark
                         }
                         else if (a->valueType() == ValueType::String)
                         {
-                            if (a->string().size() < 2)
+                            if (a->string().size() == 0)
                             {
                                 push(Value(ValueType::String));
                                 break;
