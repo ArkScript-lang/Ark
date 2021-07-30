@@ -30,7 +30,4 @@ jobs:
         if: ${{ startsWith(github.event.comment.body, '/lizard') && github.event.issue.pull_request }}
         with:
           github_token: ${{ secrets.github_token }}
-          body: |
-            Lizard Report
-            ---
-            ${{ steps.lizard.outputs.report }}
+          body: ${{ steps.lizard.outputs.report }}
