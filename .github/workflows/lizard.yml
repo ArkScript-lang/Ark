@@ -33,6 +33,4 @@ jobs:
           body: |
             Lizard Report
             ---
-            ```
             ${{ steps.lizard.outputs.report }}
-            ```
