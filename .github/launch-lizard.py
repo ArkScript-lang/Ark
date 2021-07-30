@@ -10,8 +10,8 @@ print(f"""Lizard report
 
 Listing only functions with cyclomatic complexity >= 15 or NLOC >= 100 or parameters >= 10.
 
-Filename | Start line:end line | Function name | Parameters | NLOC | CCN
----------+---------------------+---------------+------------+------+-----""")
+| Filename | Start line:end line | Function name | Parameters | NLOC | CCN |
+| -------- | ------------------- | ------------- | ---------- | ---- | --- |""")
 
 data = []
 
@@ -26,4 +26,4 @@ for file in i:
             ])
 
 for line in sorted(data, key=lambda e: e[1], reverse=True):
-    print(f"{line[0]} | {line[1]}")
+    print(f"| {line[0]} | {line[1]} |")
