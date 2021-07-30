@@ -20,7 +20,7 @@ jobs:
         id: lizard
         shell: bash
         run: |
-          content=$(python ./github/launch-lizard.py)
+          content=$(python .github/launch-lizard.py)
           content="${content//'%'/'%25'}"
           content="${content//$'\n'/'%0A'}"
           content="${content//$'\r'/'%0D'}"
