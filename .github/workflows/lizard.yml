@@ -20,7 +20,7 @@ jobs:
         id: lizard
         shell: bash
         run: |
-          content=$(python -c "import os; os.system('lizard -x./lib/* -x./build/* -w')")
+          content=$(python ./github/launch-lizard.py)
           content="${content//'%'/'%25'}"
           content="${content//$'\n'/'%0A'}"
           content="${content//$'\r'/'%0D'}"
