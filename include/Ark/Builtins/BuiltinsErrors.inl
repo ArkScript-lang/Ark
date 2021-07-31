@@ -33,6 +33,13 @@
 #define LIST_FIND_ARITY "list:find needs 2 arguments: list, value"
 #define LIST_FIND_TE0   "list:find: list must be a List"
 
+// TO BE DEPRECATED
+#define LIST_RMAT_ARITY "list:removeAt needs 2 arguments: list, index"
+#define LIST_RMAT_TE0   "list:removeAt: list must be a List"
+#define LIST_RMAT_TE1   "list:removeAt: index must be a Number"
+#define LIST_RMAT_OOR   "list:removeAt: index out of range"
+// --
+
 #define LIST_SLICE_ARITY "list:slice needs 4 arguments: list, start, end, step"
 #define LIST_SLICE_TE0   "list:slice: list must be a List"
 #define LIST_SLICE_TE1   "list:slice: start must be a Number"
