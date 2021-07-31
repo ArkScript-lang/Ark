@@ -30,6 +30,9 @@
     (set tests (assert-eq (pop a 1) [1 3] "pop" tests))
     (set tests (assert-eq (pop a 2) [1 2] "pop" tests))
     (set tests (assert-eq a [1 2 3] "unmodified list" tests))
+    (set tests (assert-eq (list:removeAt a 0) [2 3] "remove" tests))  # DEPRECATED
+    (set tests (assert-eq (list:removeAt a 2) [1 2] "remove" tests))  # DEPRECATED
+    (set tests (assert-eq a [1 2 3] "unmodified list" tests))
     (set tests (assert-eq (list:reverse a) [3 2 1] "reverse" tests))
     (set tests (assert-eq a [1 2 3] "unmodified list" tests))
     (set tests (assert-eq (list:reverse []) [] "reverse" tests))

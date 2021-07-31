@@ -28,6 +28,7 @@ namespace Ark::internal::Builtins
         // List
         { "list:reverse", Value(List::reverseList) },
         { "list:find", Value(List::findInList) },
+        { "list:removeAt", Value(List::removeAtList) },  // DEPRECATED
         { "list:slice", Value(List::sliceList) },
         { "list:sort", Value(List::sort_) },
         { "list:fill", Value(List::fill) },
