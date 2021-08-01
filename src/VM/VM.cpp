@@ -558,7 +558,7 @@ namespace Ark
 
                         Value* list = popAndResolveAsPtr();
                         if (list->valueType() != ValueType::List)
-                            throw Ark::TypeError("append needs a List and then whatever you want");
+                            throw TypeError("Argument 1 of append should be a List, got " + types_to_str[static_cast<unsigned>(list->valueType())]);
                         const uint16_t size = list->constList().size();
 
                         Value obj = Value(*list);
@@ -579,7 +579,7 @@ namespace Ark
 
                         Value *list = popAndResolveAsPtr();
                         if (list->valueType() != ValueType::List)
-                            throw Ark::TypeError("concat needs lists, got " + types_to_str[static_cast<unsigned>(list->valueType())]);
+                            throw TypeError("Argument 1 of concat should be a List, got " + types_to_str[static_cast<unsigned>(list->valueType())]);
 
                         Value obj = Value(*list);
 
@@ -587,7 +587,7 @@ namespace Ark
                         {
                             Value* next = popAndResolveAsPtr();
                             if (next->valueType() != ValueType::List)
-                                throw Ark::TypeError("concat needs lists");
+                                throw TypeError("Arguments of concat should be Lists, got " + types_to_str[static_cast<unsigned>(next->valueType())]);
 
                             for (auto it = next->list().begin(), end = next->list().end(); it != end; ++it)
                                 obj.push_back(*it);
@@ -595,6 +595,96 @@ namespace Ark
                         push(std::move(obj));
 
                         COZ_PROGRESS_NAMED("ark vm concat");
+                        break;
+                    }
+
+                    case Instruction::APPEND_IN_PLACE:
+                    {
+                        ++m_ip;
+                        uint16_t count = readNumber();
+
+                        Value* list = popAndResolveAsPtr();
+
+                        if (list->isConst())
+                            throwVMError("can not modify a constant list using `append!'");
+                        if (list->valueType() != ValueType::List)
+                            throw TypeError("Argument 1 of append! should be a List, got " + types_to_str[static_cast<unsigned>(list->valueType())]);
+
+                        for (uint16_t i = 0; i < count; ++i)
+                            list->push_back(*popAndResolveAsPtr());
+
+                        push(Nil);
+
+                        COZ_PROGRESS_NAMED("ark vm append!");
+                        break;
+                    }
+
+                    case Instruction::CONCAT_IN_PLACE:
+                    {
+                        ++m_ip;
+                        uint16_t count = readNumber();
+
+                        Value* list = popAndResolveAsPtr();
+
+                        if (list->isConst())
+                            throwVMError("can not modify a constant list using `concat!'");
+                        if (list->valueType() != ValueType::List)
+                            throw TypeError("Argument 1 of concat! should be a List, got " + types_to_str[static_cast<unsigned>(list->valueType())]);
+
+                        for (uint16_t i = 0; i < count; ++i)
+                        {
+                            Value* next = popAndResolveAsPtr();
+                            if (next->valueType() != ValueType::List)
+                                throw TypeError("Arguments of concat! should be Lists, got " + types_to_str[static_cast<unsigned>(next->valueType())]);
+
+                            for (auto it = next->list().begin(), end = next->list().end(); it != end; ++it)
+                                list->push_back(*it);
+                        }
+
+                        push(Nil);
+
+                        COZ_PROGRESS_NAMED("ark vm concat!");
+                        break;
+                    }
+
+                    case Instruction::POP_LIST:
+                    {
+                        Value list = *popAndResolveAsPtr();
+                        Value number = *popAndResolveAsPtr();
+
+                        if (list.valueType() != ValueType::List)
+                            throw TypeError("Argument 1 of pop should be a List, got " + types_to_str[static_cast<unsigned>(list.valueType())]);
+                        if (number.valueType() != ValueType::Number)
+                            throw TypeError("Argument 2 of pop should be a Number, got " + types_to_str[static_cast<unsigned>(number.valueType())]);
+
+                        long idx = static_cast<long>(number.number());
+                        idx = (idx < 0 ? list.list().size() + idx : idx);
+                        if (idx >= list.list().size())
+                            throw std::runtime_error("pop: index out of range");
+
+                        list.list().erase(list.list().begin() + idx);
+                        push(list);
+                        break;
+                    }
+
+                    case Instruction::POP_LIST_IN_PLACE:
+                    {
+                        Value *list = popAndResolveAsPtr();
+                        Value number = *popAndResolveAsPtr();
+
+                        if (list->isConst())
+                            throwVMError("can not modify a constant list using `pop!'");
+                        if (list->valueType() != ValueType::List)
+                            throw TypeError("Argument 1 of pop! should be a List, got " + types_to_str[static_cast<unsigned>(list->valueType())]);
+                        if (number.valueType() != ValueType::Number)
+                            throw TypeError("Argument 2 of pop! should be a Number, got " + types_to_str[static_cast<unsigned>(number.valueType())]);
+
+                        long idx = static_cast<long>(number.number());
+                        idx = (idx < 0 ? list->list().size() + idx : idx);
+                        if (idx >= list->list().size())
+                            throw std::runtime_error("pop!: index out of range");
+
+                        list->list().erase(list->list().begin() + idx);
                         break;
                     }
 
@@ -609,7 +699,7 @@ namespace Ark
                         if (a->valueType() == ValueType::Number)
                         {
                             if (b->valueType() != ValueType::Number)
-                                throw Ark::TypeError("Arguments of + should have the same type");
+                                throw TypeError("Arguments of + should have the same type");
 
                             push(Value(a->number() + b->number()));
                             break;
@@ -617,12 +707,12 @@ namespace Ark
                         else if (a->valueType() == ValueType::String)
                         {
                             if (b->valueType() != ValueType::String)
-                                throw Ark::TypeError("Arguments of + should have the same type");
+                                throw TypeError("Arguments of + should have the same type");
 
                             push(Value(a->string() + b->string()));
                             break;
                         }
-                        throw Ark::TypeError("Arguments of + should be Numbers or Strings");
+                        throw TypeError("Arguments of + should be Numbers or Strings");
                     }
 
                     case Instruction::SUB:
@@ -630,7 +720,7 @@ namespace Ark
                         Value *b = popAndResolveAsPtr(), *a = popAndResolveAsPtr();
 
                         if (a->valueType() != ValueType::Number || b->valueType() != ValueType::Number)
-                            throw Ark::TypeError("Arguments of - should be Numbers");
+                            throw TypeError("Arguments of - should be Numbers");
 
                         push(Value(a->number() - b->number()));
                         break;
@@ -641,7 +731,7 @@ namespace Ark
                         Value *b = popAndResolveAsPtr(), *a = popAndResolveAsPtr();
 
                         if (a->valueType() != ValueType::Number || b->valueType() != ValueType::Number)
-                            throw Ark::TypeError("Arguments of * should be Numbers");
+                            throw TypeError("Arguments of * should be Numbers");
 
                         push(Value(a->number() * b->number()));
                         break;
@@ -652,11 +742,11 @@ namespace Ark
                         Value *b = popAndResolveAsPtr(), *a = popAndResolveAsPtr();
 
                         if (a->valueType() != ValueType::Number || b->valueType() != ValueType::Number)
-                            throw Ark::TypeError("Arguments of / should be Numbers");
+                            throw TypeError("Arguments of / should be Numbers");
 
                         auto d = b->number();
                         if (d == 0)
-                            throw Ark::ZeroDivisionError();
+                            throw ZeroDivisionError();
 
                         push(Value(a->number() / d));
                         break;
@@ -719,7 +809,7 @@ namespace Ark
                         else if (a->valueType() == ValueType::String)
                             push(Value(static_cast<int>(a->string().size())));
                         else
-                            throw Ark::TypeError("Argument of len must be a List or a String");
+                            throw TypeError("Argument of len must be a List or a String");
                         break;
                     }
 
@@ -732,7 +822,7 @@ namespace Ark
                         else if (a->valueType() == ValueType::String)
                             push((a->string().size() == 0) ? Builtins::trueSym : Builtins::falseSym);
                         else
-                            throw Ark::TypeError("Argument of empty? must be a List or a String");
+                            throw TypeError("Argument of empty? must be a List or a String");
 
                         break;
                     }
@@ -767,7 +857,7 @@ namespace Ark
                             push(std::move(b));
                         }
                         else
-                            throw Ark::TypeError("Argument of tail must be a List or a String");
+                            throw TypeError("Argument of tail must be a List or a String");
 
                         break;
                     }
@@ -798,7 +888,7 @@ namespace Ark
                             push(Value(std::string(1, a->stringRef()[0])));
                         }
                         else
-                            throw Ark::TypeError("Argument of head must be a List or a String");
+                            throw TypeError("Argument of head must be a List or a String");
 
                         break;
                     }
@@ -817,9 +907,9 @@ namespace Ark
                         if (*a == Builtins::falseSym)
                         {
                             if (b->valueType() != ValueType::String)
-                                throw Ark::TypeError("Second argument of assert must be a String");
+                                throw TypeError("Second argument of assert must be a String");
 
-                            throw Ark::AssertionFailed(b->stringRef().toString());
+                            throw AssertionFailed(b->stringRef().toString());
                         }
                         break;
                     }
@@ -829,7 +919,7 @@ namespace Ark
                         Value* a = popAndResolveAsPtr();
 
                         if (a->valueType() != ValueType::String)
-                            throw Ark::TypeError("Argument of toNumber must be a String");
+                            throw TypeError("Argument of toNumber must be a String");
 
                         double val;
                         if (Utils::isDouble(a->string().c_str(), &val))
@@ -854,7 +944,7 @@ namespace Ark
                         Value a = *popAndResolveAsPtr();  // be careful, it's not a pointer
 
                         if (b->valueType() != ValueType::Number)
-                            throw Ark::TypeError("Argument 2 of @ should be a Number");
+                            throw TypeError("Argument 2 of @ should be a Number");
 
                         long idx = static_cast<long>(b->number());
 
@@ -863,7 +953,7 @@ namespace Ark
                         else if (a.valueType() == ValueType::String)
                             push(Value(std::string(1, a.string()[idx < 0 ? a.string().size() + idx : idx])));
                         else
-                            throw Ark::TypeError("Argument 1 of @ should be a List or a String");
+                            throw TypeError("Argument 1 of @ should be a List or a String");
                         break;
                     }
 
@@ -888,9 +978,9 @@ namespace Ark
                         Value *b = popAndResolveAsPtr(), *a = popAndResolveAsPtr();
 
                         if (a->valueType() != ValueType::Number)
-                            throw Ark::TypeError("Arguments of mod should be Numbers");
+                            throw TypeError("Arguments of mod should be Numbers");
                         if (b->valueType() != ValueType::Number)
-                            throw Ark::TypeError("Arguments of mod should be Numbers");
+                            throw TypeError("Arguments of mod should be Numbers");
 
                         push(Value(std::fmod(a->number(), b->number())));
                         break;
@@ -909,9 +999,9 @@ namespace Ark
                         Value *field = popAndResolveAsPtr(), *closure = popAndResolveAsPtr();
 
                         if (closure->valueType() != ValueType::Closure)
-                            throw Ark::TypeError("Argument no 1 of hasField should be a Closure");
+                            throw TypeError("Argument no 1 of hasField should be a Closure");
                         if (field->valueType() != ValueType::String)
-                            throw Ark::TypeError("Argument no 2 of hasField should be a String");
+                            throw TypeError("Argument no 2 of hasField should be a String");
 
                         auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), field->stringRef().toString());
                         if (it == m_state->m_symbols.end())

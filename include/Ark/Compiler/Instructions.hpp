@@ -57,7 +57,11 @@ namespace Ark::internal
             LIST              = 0x12,
             APPEND            = 0x13,
             CONCAT            = 0x14,
-        LAST_COMMAND          = 0x14,
+            APPEND_IN_PLACE   = 0x15,
+            CONCAT_IN_PLACE   = 0x16,
+            POP_LIST          = 0x17,
+            POP_LIST_IN_PLACE = 0x18,
+        LAST_COMMAND          = 0x18,
 
         FIRST_OPERATOR = 0x20,
             ADD        = 0x20,

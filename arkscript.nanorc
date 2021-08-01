@@ -10,7 +10,7 @@ color brightgreen "&[a-zA-Z_][a-zA-Z0-9_\-?']*"
 color brightblue "\<(set|del|import|quote|begin|let|mut|fun|if|while)\>"
 
 ## builtins list
-color brightcyan "\<(append|concat|list|list:reverse|list:find|list:removeAt|list:slice|list:sort|list:fill|list:setAt)\>"
+color brightcyan "\<(append|concat|list|list:reverse|list:find|list:slice|list:sort|list:fill|list:setAt)\>"
 ## builtins io
 color brightcyan "\<(print|puts|input|io:writeFile|io:readFile|io:fileExists?|io:listFiles|io:dir?|io:makeDir|io:removeFiles)\>"
 ## builtins time
