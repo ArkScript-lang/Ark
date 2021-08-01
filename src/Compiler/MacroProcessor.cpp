@@ -367,7 +367,7 @@ namespace Ark::internal
                     {
                         if (sublist.constList().size() > 1)
                         {
-                            const Node sublistCopy = sublist.constList()[1]; 
+                            const Node sublistCopy = sublist.constList()[1];
                             node = sublistCopy;
                         }
                         else
