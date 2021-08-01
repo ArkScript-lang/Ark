@@ -1,5 +1,16 @@
 (import "List.ark")
 
+(let filter (fun (lst cond) {
+    (mut output [])
+    (mut i 0)
+    (while (< i (len lst)) {
+        (if (cond (@ lst i))
+            (append! output (@ lst i)))
+        (set i (+ 1 i))
+    })
+    output
+}))
+
 # a quicksort function in ArkScript, a lot smaller than its C++ version!
 # and according to me, a lot simpler to understand
 (let quicksort (fun (array) {
@@ -10,16 +21,14 @@
         {
             # the pivot will be the first element
             (let pivot (head array))
+            # call quicksort on a smaller array containing all the elements less than the pivot
+            (mut less (quicksort (filter (tail array) (fun (e) (< e pivot)))))
+            # and after that, call quicksort on a smaller array containing all the elements greater or equal to the pivot
+            (let more (quicksort (filter (tail array) (fun (e) (>= e pivot)))))
+
+            (concat! less [pivot] more)
             # return a concatenation of arrays
-            (concat
-                # call quicksort on a smaller array containing all the elements less than the pivot
-                (quicksort
-                    (list:filter (tail array) (fun (e) (< e pivot))))
-                # put the pivot in the middle
-                [pivot]
-                # and after that, call quicksort on a smaller array containing all the elements greater or equal to the pivot
-                (quicksort
-                    (list:filter (tail array) (fun (e) (>= e pivot)))))
+            less
         })
 }))
 

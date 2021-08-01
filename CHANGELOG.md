@@ -9,6 +9,15 @@
 
 ## [3.1.0] - 2021-06-29
 ### Added
+- lists are mutated in place if they are mutable, through `append!` and `concat!`
+- instructions for `pop` and `pop!` were added, to replace `list:removeAt`
+
+### Changed
+- `list:removeAt` was deprecated
+### Removed
+
+## [3.1.0] - 2021-06-29
+### Added
 - adding of new string function for manipulation of utf8 string (str:ord and str:chr)
 - utf8 support for lexer
 - `UserType::del()`, used only by the virtual machine to free memory
@@ -63,6 +72,7 @@
 - moving ArkScript tests from `tests/*.ark` to `tests/arkscript/*.ark`
 - fixed macros adding useless begin blocks, sometimes breaking code generation from macros
 - moving std lib related tests into std/tests/
+- lists are mutated in place if they are mutable, through `append` and `concat`
 - fixed macro chaining
 - fixed lexer, which wasn't adding the last token it read under some specific conditions
 

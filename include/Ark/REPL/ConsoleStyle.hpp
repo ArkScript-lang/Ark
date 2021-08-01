@@ -35,7 +35,7 @@ namespace Ark
         // Functions
             // List
         "append", "concat", "list", "list:reverse",
-        "list:find", "list:removeAt", "list:slice", "list:sort",
+        "list:find", "list:slice", "list:sort",
         "list:fill", "list:setAt",
             // IO
         "print", "puts", "input", "io:writeFile",
@@ -113,7 +113,6 @@ namespace Ark
         { "list", Replxx::Color::BRIGHTGREEN },
         { "list:reverse", Replxx::Color::BRIGHTGREEN },
         { "list:find", Replxx::Color::BRIGHTGREEN },
-        { "list:removeAt", Replxx::Color::BRIGHTGREEN },
         { "list:slice", Replxx::Color::BRIGHTGREEN },
         { "list:sort", Replxx::Color::BRIGHTGREEN },
         { "list:fill", Replxx::Color::BRIGHTGREEN },

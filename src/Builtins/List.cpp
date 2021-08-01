@@ -39,6 +39,13 @@ namespace Ark::internal::Builtins::List
 
     Value removeAtList(std::vector<Value>& n, Ark::VM* vm)
     {
+        static bool has_warned = false;
+        if (!has_warned)
+        {
+            std::cout << "list:removeAt will be deprecated in ArkScript 4.0.0, consider using pop! or pop\n";
+            has_warned = true;
+        }
+
         if (n.size() != 2)
             throw std::runtime_error(LIST_RMAT_ARITY);
         if (n[0].valueType() != ValueType::List)

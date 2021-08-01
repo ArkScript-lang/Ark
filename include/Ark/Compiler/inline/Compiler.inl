@@ -37,6 +37,35 @@ inline std::optional<std::size_t> Compiler::isBuiltin(const std::string& name) n
     return {};
 }
 
+inline std::optional<internal::Instruction> Compiler::isSpecific(const std::string& name) noexcept
+{
+    if (name == "list")
+        return internal::Instruction::LIST;
+    else if (name == "append")
+        return internal::Instruction::APPEND;
+    else if (name == "concat")
+        return internal::Instruction::CONCAT;
+    else if (name == "append!")
+        return internal::Instruction::APPEND_IN_PLACE;
+    else if (name == "concat!")
+        return internal::Instruction::CONCAT_IN_PLACE;
+    else if (name == "pop")
+        return internal::Instruction::POP_LIST;
+    else if (name == "pop!")
+        return internal::Instruction::POP_LIST_IN_PLACE;
+
+    return {};
+}
+
+inline void Compiler::pushSpecificInstArgc(internal::Instruction inst, uint16_t previous, int p) noexcept
+{
+    if (inst == internal::Instruction::LIST)
+        pushNumber(previous, &page(p));
+    else if (inst == internal::Instruction::APPEND || inst == internal::Instruction::APPEND_IN_PLACE ||
+             inst == internal::Instruction::CONCAT || inst == internal::Instruction::CONCAT_IN_PLACE)
+        pushNumber(previous - 1, &page(p));
+}
+
 inline bool Compiler::mayBeFromPlugin(const std::string& name) noexcept
 {
     std::string splitted = Utils::splitString(name, ':')[0];
