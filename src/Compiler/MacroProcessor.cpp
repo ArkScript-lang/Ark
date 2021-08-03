@@ -145,16 +145,29 @@ namespace Ark::internal
                 if (node.list()[i].nodeType() == NodeType::Macro)
                 {
                     // create a scope only if needed
-                    if ((!m_macros.empty() && !m_macros.back().empty()) || !has_created)
+                    if ((!m_macros.empty() && !m_macros.back().empty() && static_cast<unsigned>(m_macros.back()["#depth"].number()) < depth)
+                        || !has_created)
                     {
                         has_created = true;
                         m_macros.emplace_back();
                         m_macros.back()["#depth"] = Node(static_cast<double>(depth));
                     }
 
+                    bool had = hadBegin(node.list()[i]);
+                    bool removed_begin = false;
+                    std::size_t old = i;
+
                     registerMacro(node.list()[i]);
-                    if (node.list()[i].nodeType() == NodeType::Macro || node.list()[i].nodeType() == NodeType::Unused)
+                    if (hadBegin(node.list()[i]) && !had)
+                    {
+                        removeBegin(node, i);
+                        removed_begin = true;
+                    }
+                    else if (node.list()[i].nodeType() == NodeType::Macro || node.list()[i].nodeType() == NodeType::Unused)
                         node.list().erase(node.constList().begin() + i);
+
+                    if (removed_begin)
+                        i = old;
                 }
                 else  // running on non-macros
                 {
