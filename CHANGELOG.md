@@ -5,6 +5,7 @@
 - ArkDoc documentation for the builtins
 
 ### Changed
+- the macro processor can now handle multiple macro definitions in a if-macro: `!{if true { !{a 1} !{b 2} }}` is finally working
 
 ### Removed
 
