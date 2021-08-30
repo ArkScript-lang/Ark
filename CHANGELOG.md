@@ -2,6 +2,7 @@
 
 ## [Unreleased changes]
 ### Added
+- ArkDoc documentation for the builtins
 
 ### Changed
 
