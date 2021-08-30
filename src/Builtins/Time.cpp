@@ -8,6 +8,14 @@
 
 namespace Ark::internal::Builtins::Time
 {
+    /**
+     * @name time
+     * @brief Return the time of the computer since epoch, in seconds, with at least milliseconds precision
+     * =begin
+     * (time)  # 1627134107.837558031082153
+     * =end
+     * @author https://github.com/SuperFola
+     */
     Value timeSinceEpoch(std::vector<Value>& n, Ark::VM* vm)
     {
         const auto now = std::chrono::system_clock::now();

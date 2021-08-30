@@ -9,6 +9,21 @@
 
 namespace Ark::internal::Builtins::String
 {
+    /**
+     * @name str:format
+     * @brief Format a String given replacements
+     * @details The format is %% for anything, and %x for hex numbers
+     * @param format the String to format
+     * @param values as any argument as you need, of any valid ArkScript type
+     * =begin
+     * (str:format "Hello %%, my name is %%" "world" "ArkScript")
+     * # Hello world, my name is ArkScript
+     * 
+     * (str:format "Test %% with %%" "1")
+     * # Test 1 with %%
+     * =end
+     * @author https://github.com/SuperFola
+     */
     Value format(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() == 0)
@@ -46,6 +61,18 @@ namespace Ark::internal::Builtins::String
         return n[0];
     }
 
+    /**
+     * @name str:find
+     * @brief Search a substring in a given String
+     * @details The original String is not modified. Return -1 when not found
+     * @param string the String to search in
+     * @param substr the substring to search for
+     * =begin
+     * (str:find "hello world" "hello")  # 0
+     * (str:find "hello world" "aworld")  # -1
+     * =end
+     * @author https://github.com/SuperFola
+     */
     Value findSubStr(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 2)
@@ -58,6 +85,18 @@ namespace Ark::internal::Builtins::String
         return Value(n[0].stringRef().find(n[1].stringRef()));
     }
 
+    /**
+     * @name str:removeAt
+     * @brief Remove a character from a String given an index
+     * @details The original String is not modified
+     * @param string the String to modify
+     * @param index the index of the character to remove (can be negative to search from the end)
+     * =begin
+     * (str:removeAt "hello world" 0)  # "ello world"
+     * (str:removeAt "hello world" -1)  # "hello worl"
+     * =end
+     * @author https://github.com/SuperFola
+     */
     Value removeAtStr(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 2)
@@ -75,6 +114,16 @@ namespace Ark::internal::Builtins::String
         return n[0];
     }
 
+    /**
+     * @name str:ord
+     * @brief Get the ordinal of a given character
+     * @param char a String with a single UTF8 character
+     * =begin
+     * (str:ord "h")  # 104
+     * (str:ord "Ô")  # 212
+     * =end
+     * @author https://github.com/SuperFola
+     */
     Value ord(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 1)
@@ -87,6 +136,16 @@ namespace Ark::internal::Builtins::String
         return Value(ord);
     }
 
+    /**
+     * @name str:chr
+     * @brief Create a character from an UTF8 codepoint
+     * @param codepoint an UTF8 codepoint (Number)
+     * =begin
+     * (str:chr 104)  # "h"
+     * (str:chr 212)  # "Ô"
+     * =end
+     * @author https://github.com/SuperFola
+     */
     Value chr(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 1)

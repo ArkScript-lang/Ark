@@ -10,6 +10,16 @@
 
 namespace Ark::internal::Builtins::IO
 {
+    /**
+     * @name print
+     * @brief Print value(s) in the terminal
+     * @details No separator is put between the values. Adds a \n at the end
+     * @param values the values to print
+     * =begin
+     * (print "hello")
+     * =end
+     * @author https://github.com/SuperFola
+     */
     Value print(std::vector<Value>& n, Ark::VM* vm)
     {
         for (Value::Iterator it = n.begin(), it_end = n.end(); it != it_end; ++it)
@@ -19,6 +29,16 @@ namespace Ark::internal::Builtins::IO
         return nil;
     }
 
+    /**
+     * @name puts
+     * @brief Print value(s) in the terminal
+     * @details No separator is put between the values, no \n at the end
+     * @param values the values to print
+     * =begin
+     * (puts "hello")
+     * =end
+     * @author https://github.com/SuperFola
+     */
     Value puts_(std::vector<Value>& n, Ark::VM* vm)
     {
         for (Value::Iterator it = n.begin(), it_end = n.end(); it != it_end; ++it)
@@ -27,6 +47,17 @@ namespace Ark::internal::Builtins::IO
         return nil;
     }
 
+
+    /**
+     * @name input
+     * @brief Request a value from the user
+     * @details Return the value as a string
+     * @param prompt (optional) printed before asking for the user input
+     * =begin
+     * (input "put a number> ")
+     * =end
+     * @author https://github.com/SuperFola
+     */
     Value input(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() == 1)
@@ -42,6 +73,18 @@ namespace Ark::internal::Builtins::IO
         return Value(line);
     }
 
+    /**
+     * @name io:writeFile
+     * @brief Write content to a file, given an optional mode (default: "w"). Return nil
+     * @param filename path to the file to open
+     * @param mode (optional), either "a" (append) or "w" (write)
+     * @param content can be any valid ArkScript value
+     * =begin
+     * (io:writeFile "hello.json" "{\"key\": 12}")
+     * (io:writeFile "truc.txt" "a" 12)
+     * =end
+     * @author https://github.com/SuperFola
+     */
     Value writeFile(std::vector<Value>& n, Ark::VM* vm)
     {
         // filename, content
@@ -70,7 +113,7 @@ namespace Ark::internal::Builtins::IO
             auto mode = n[1].string().c_str();
             if (mode != "w" && mode != "a")
                 throw std::runtime_error(IO_WRITE_VE_1);
-            
+
             auto ios_mode = std::ios::out | std::ios::trunc;
             if (mode == "a")
                 ios_mode = std::ios::out | std::ios::app;
@@ -89,6 +132,15 @@ namespace Ark::internal::Builtins::IO
         return nil;
     }
 
+    /**
+     * @name io:readFile
+     * @brief Read the content from a file as a String
+     * @param filename the path of the file to read
+     * =begin
+     * (io:readFile "hello.json")
+     * =end
+     * @author https://github.com/SuperFola
+     */
     Value readFile(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 1)
@@ -103,6 +155,15 @@ namespace Ark::internal::Builtins::IO
         return Value(Ark::Utils::readFile(filename));
     }
 
+    /**
+     * @name io:fileExists?
+     * @brief Check if a file exists, return True or False
+     * @param filename the path of the file
+     * =begin
+     * (io:fileExists? "hello.json")
+     * =end
+     * @author https://github.com/SuperFola
+     */
     Value fileExists(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 1)
@@ -113,6 +174,15 @@ namespace Ark::internal::Builtins::IO
         return Ark::Utils::fileExists(n[0].string().c_str()) ? trueSym : falseSym;
     }
 
+    /**
+     * @name io:listFiles
+     * @brief List files in a folder, as a List of String
+     * @param path A directory
+     * =begin
+     * (io:listFiles "/tmp/hello")
+     * =end
+     * @author https://github.com/SuperFola
+     */
     Value listFiles(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 1)
@@ -127,6 +197,15 @@ namespace Ark::internal::Builtins::IO
         return Value(std::move(r));
     }
 
+    /**
+     * @name io:dir?
+     * @brief Check if a path represents a directory
+     * @param path A directory
+     * =begin
+     * (io:dir? "/tmp/hello")
+     * =end
+     * @author https://github.com/SuperFola
+     */
     Value isDirectory(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 1)
@@ -137,6 +216,15 @@ namespace Ark::internal::Builtins::IO
         return (std::filesystem::is_directory(std::filesystem::path(n[0].string().c_str()))) ? trueSym : falseSym;
     }
 
+    /**
+     * @name io:makeDir
+     * @brief Create a directory
+     * @param path A directory
+     * =begin
+     * (io:makeDir "/tmp/myDir")
+     * =end
+     * @author https://github.com/SuperFola
+     */
     Value makeDir(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() != 1)
@@ -148,6 +236,16 @@ namespace Ark::internal::Builtins::IO
         return nil;
     }
 
+    /**
+     * @name io:removeFiles
+     * @brief Delete files
+     * @details Take multiple arguments, all String, each one representing a path to a file
+     * @param values path to file
+     * =begin
+     * (io:removeFiles "/tmp/test.ark" "hello.json")
+     * =end
+     * @author https://github.com/SuperFola
+     */
     Value removeFiles(std::vector<Value>& n, Ark::VM* vm)
     {
         if (n.size() == 0)
