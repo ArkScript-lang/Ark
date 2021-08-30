@@ -8,6 +8,9 @@
 
 ### Removed
 
+### Deprecated
+- `ark` command is now marked as deprecated, in favor of `arkscript`
+
 ## [3.1.0] - 2021-06-29
 ### Added
 - lists are mutated in place if they are mutable, through `append!` and `concat!`

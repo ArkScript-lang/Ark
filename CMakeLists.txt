@@ -187,6 +187,21 @@ if (ARK_BUILD_EXE)
             CXX_EXTENSIONS OFF
     )
 
+    add_executable(arkscript ${EXE_SOURCES})
+    target_include_directories(arkscript PUBLIC
+        ${ark_SOURCE_DIR}/include
+        ${ark_SOURCE_DIR}/thirdparties
+    )
+    target_link_libraries(arkscript PUBLIC ArkReactor replxx)
+
+    set_target_properties(
+        arkscript
+        PROPERTIES
+            CXX_STANDARD 17
+            CXX_STANDARD_REQUIRED ON
+            CXX_EXTENSIONS OFF
+    )
+
     # setting up installation directory
 
     install(TARGETS ark
