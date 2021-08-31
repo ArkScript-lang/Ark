@@ -206,7 +206,7 @@ For performance reasons, some functions might be written in C++, in `include/Ark
 
 ### Code structure
 
-![ArkScript code structure](images/arkscript-code-structure.png)
+![ArkScript code structure](images/diagram.svg)
 
 ## Building
 
