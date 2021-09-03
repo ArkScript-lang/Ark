@@ -17,7 +17,7 @@ jobs:
             - uses: actions/checkout@v2
 
             - name: Run clang-format check for C++
-              uses: jidicula/clang-format-action@v3.4.0
+              uses: HorstBaerbel/action-clang-format@1.5
               with:
-                  clang-format-version: '10'
-                  check-path: ${{ matrix.path }}
+                  scandir: ${{ matrix.path }}
+                  style: 'file'
