@@ -26,7 +26,8 @@ namespace Ark
     public:
         explicit TypeError(const std::string& message) :
             m_msg("TypeError: " + message)
-        {}
+        {
+        }
 
         virtual const char* what() const throw()
         {
@@ -46,11 +47,10 @@ namespace Ark
     public:
         virtual const char* what() const throw()
         {
-            return 
-                "ZeroDivisionError: In ordonary arithmetic, the expression has no meaning, "
-                "as there is no number which, when multiplied by 0, gives a (assuming a != 0), "
-                "and so division by zero is undefined. Since any number multiplied by 0 is 0, "
-                "the expression 0/0 is also undefined.";
+            return "ZeroDivisionError: In ordonary arithmetic, the expression has no meaning, "
+                   "as there is no number which, when multiplied by 0, gives a (assuming a != 0), "
+                   "and so division by zero is undefined. Since any number multiplied by 0 is 0, "
+                   "the expression 0/0 is also undefined.";
         }
     };
 
@@ -63,9 +63,8 @@ namespace Ark
     public:
         virtual const char* what() const throw()
         {
-            return
-                "PowError: Can not pow the given number (a) to the given exponent (b) because "
-                "a^b, with b being a member of the rational numbers, isn't supported.";
+            return "PowError: Can not pow the given number (a) to the given exponent (b) because "
+                   "a^b, with b being a member of the rational numbers, isn't supported.";
         }
     };
 
@@ -78,7 +77,8 @@ namespace Ark
     public:
         explicit AssertionFailed(const std::string& message) :
             m_msg("AssertionFailed: " + message)
-        {}
+        {
+        }
 
         virtual const char* what() const throw()
         {
@@ -98,7 +98,8 @@ namespace Ark
     public:
         explicit SyntaxError(const std::string& message) :
             m_msg("SyntaxError: " + message)
-        {}
+        {
+        }
 
         virtual const char* what() const throw()
         {
@@ -118,7 +119,8 @@ namespace Ark
     public:
         explicit ParseError(const std::string& message) :
             m_msg("ParseError: " + message)
-        {}
+        {
+        }
 
         virtual const char* what() const throw()
         {
@@ -138,7 +140,8 @@ namespace Ark
     public:
         explicit OptimizerError(const std::string& message) :
             m_msg("OptimizerError: " + message)
-        {}
+        {
+        }
 
         virtual const char* what() const throw()
         {
@@ -158,7 +161,8 @@ namespace Ark
     public:
         explicit MacroProcessingError(const std::string& message) :
             m_msg("MacroProcessingError: " + message)
-        {}
+        {
+        }
 
         virtual const char* what() const throw()
         {
@@ -178,7 +182,8 @@ namespace Ark
     public:
         explicit CompilationError(const std::string& message) :
             m_msg("CompilationError: " + message)
-        {}
+        {
+        }
 
         virtual const char* what() const throw()
         {
