@@ -52,8 +52,8 @@ namespace Ark
          */
         struct ControlFuncs
         {
-            std::ostream& (*ostream_func) (std::ostream&, const UserType&) = nullptr;
-            void          (*deleter) (void*)                               = nullptr;
+            std::ostream& (*ostream_func)(std::ostream&, const UserType&) = nullptr;
+            void (*deleter)(void*) = nullptr;
         };
 
         /**
@@ -67,7 +67,8 @@ namespace Ark
             m_data(static_cast<void*>(data)),
             m_funcs(nullptr),
             m_type_id(internal::type_uid<T>::value)
-        {}
+        {
+        }
 
         /**
          * @brief Destroy the User Type object
@@ -140,7 +141,7 @@ namespace Ark
         ControlFuncs* m_funcs;
     };
 
-    #include "inline/UserType.inl"
+#include "inline/UserType.inl"
 }
 
 #endif

@@ -191,7 +191,7 @@ namespace Ark::internal::Builtins::IO
             throw Ark::TypeError(IO_LS_TE0);
 
         std::vector<Value> r;
-        for (const auto& entry: std::filesystem::directory_iterator(n[0].string().c_str()))
+        for (const auto& entry : std::filesystem::directory_iterator(n[0].string().c_str()))
             r.emplace_back(entry.path().string().c_str());
 
         return Value(std::move(r));
@@ -212,7 +212,7 @@ namespace Ark::internal::Builtins::IO
             throw std::runtime_error(IO_ISDIR_ARITY);
         if (n[0].valueType() != ValueType::String)
             throw Ark::TypeError(IO_ISDIR_TE0);
-        
+
         return (std::filesystem::is_directory(std::filesystem::path(n[0].string().c_str()))) ? trueSym : falseSym;
     }
 
@@ -231,7 +231,7 @@ namespace Ark::internal::Builtins::IO
             throw std::runtime_error(IO_MKD_ARITY);
         if (n[0].valueType() != ValueType::String)
             throw Ark::TypeError(IO_MKD_TE0);
-        
+
         std::filesystem::create_directories(std::filesystem::path(n[0].string().c_str()));
         return nil;
     }
@@ -250,7 +250,7 @@ namespace Ark::internal::Builtins::IO
     {
         if (n.size() == 0)
             throw std::runtime_error(IO_RM_ARITY);
-        
+
         for (Value::Iterator it = n.begin(), it_end = n.end(); it != it_end; ++it)
         {
             if (it->valueType() != ValueType::String)

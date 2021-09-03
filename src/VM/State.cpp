@@ -3,8 +3,8 @@
 #include <Ark/Constants.hpp>
 
 #ifdef _MSC_VER
-    #pragma warning(push)
-    #pragma warning(disable:4996)
+#pragma warning(push)
+#pragma warning(disable : 4996)
 #endif
 #include <stdlib.h>
 #include <picosha2.hpp>
@@ -113,7 +113,8 @@ namespace Ark
     {
         if (!Ark::Utils::fileExists(file))
         {
-            std::cerr << termcolor::red << "Can not find file '" << file << "'\n" << termcolor::reset;
+            std::cerr << termcolor::red << "Can not find file '" << file << "'\n"
+                      << termcolor::reset;
             return false;
         }
 
@@ -134,7 +135,7 @@ namespace Ark
             // check if it's in the arkscript cache
             std::string short_filename = Ark::Utils::getFilenameFromPath(file);
             std::string filename = short_filename.substr(0, short_filename.find_last_of('.')) + ".arkc";
-            std::filesystem::path directory =  (std::filesystem::path(file)).parent_path() / ARK_CACHE_DIRNAME;
+            std::filesystem::path directory = (std::filesystem::path(file)).parent_path() / ARK_CACHE_DIRNAME;
             std::string path = (directory / filename).string();
 
             if (!std::filesystem::exists(directory))  // create ark cache directory
@@ -144,7 +145,7 @@ namespace Ark
             if (compiled_successfuly && feed(path))
                 return true;
         }
-        else if (feed(file)) // it's a bytecode file
+        else if (feed(file))  // it's a bytecode file
             return true;
         return false;
     }
@@ -206,21 +207,25 @@ namespace Ark
         // configure tables and pages
         std::size_t i = 0;
 
-        auto readNumber = [&, this] (std::size_t& i) -> uint16_t {
-            uint16_t x = (static_cast<uint16_t>(m_bytecode[i]) << 8); ++i;
+        auto readNumber = [&, this](std::size_t& i) -> uint16_t {
+            uint16_t x = (static_cast<uint16_t>(m_bytecode[i]) << 8);
+            ++i;
             uint16_t y = static_cast<uint16_t>(m_bytecode[i]);
             return x + y;
         };
 
         // read tables and check if bytecode is valid
         if (!(m_bytecode.size() > 4 && m_bytecode[i++] == 'a' &&
-            m_bytecode[i++] == 'r' && m_bytecode[i++] == 'k' &&
-            m_bytecode[i++] == Instruction::NOP))
+              m_bytecode[i++] == 'r' && m_bytecode[i++] == 'k' &&
+              m_bytecode[i++] == Instruction::NOP))
             throwStateError("invalid format: couldn't find magic constant");
 
-        uint16_t major = readNumber(i); i++;
-        uint16_t minor = readNumber(i); i++;
-        uint16_t patch = readNumber(i); i++;
+        uint16_t major = readNumber(i);
+        i++;
+        uint16_t minor = readNumber(i);
+        i++;
+        uint16_t patch = readNumber(i);
+        i++;
 
         if (major != ARK_VERSION_MAJOR)
         {
@@ -232,14 +237,14 @@ namespace Ark
 
         using timestamp_t = unsigned long long;
         timestamp_t timestamp = 0;
-        auto aa = (static_cast<timestamp_t>(m_bytecode[  i]) << 56),
-            ba = (static_cast<timestamp_t>(m_bytecode[++i]) << 48),
-            ca = (static_cast<timestamp_t>(m_bytecode[++i]) << 40),
-            da = (static_cast<timestamp_t>(m_bytecode[++i]) << 32),
-            ea = (static_cast<timestamp_t>(m_bytecode[++i]) << 24),
-            fa = (static_cast<timestamp_t>(m_bytecode[++i]) << 16),
-            ga = (static_cast<timestamp_t>(m_bytecode[++i]) <<  8),
-            ha = (static_cast<timestamp_t>(m_bytecode[++i]));
+        auto aa = (static_cast<timestamp_t>(m_bytecode[i]) << 56),
+             ba = (static_cast<timestamp_t>(m_bytecode[++i]) << 48),
+             ca = (static_cast<timestamp_t>(m_bytecode[++i]) << 40),
+             da = (static_cast<timestamp_t>(m_bytecode[++i]) << 32),
+             ea = (static_cast<timestamp_t>(m_bytecode[++i]) << 24),
+             fa = (static_cast<timestamp_t>(m_bytecode[++i]) << 16),
+             ga = (static_cast<timestamp_t>(m_bytecode[++i]) << 8),
+             ha = (static_cast<timestamp_t>(m_bytecode[++i]));
         i++;
         timestamp = aa + ba + ca + da + ea + fa + ga + ha;
 
@@ -328,7 +333,7 @@ namespace Ark
 
             for (uint16_t j = 0; j < size; ++j)
                 m_pages.back().push_back(m_bytecode[i++]);
-            
+
             if (i == m_bytecode.size())
                 break;
         }
@@ -339,10 +344,10 @@ namespace Ark
         m_symbols.clear();
         m_constants.clear();
         m_pages.clear();
-        m_binded.clear(); 
+        m_binded.clear();
     }
 }
 
 #ifdef _MSC_VER
-    #pragma warning(pop)
+#pragma warning(pop)
 #endif

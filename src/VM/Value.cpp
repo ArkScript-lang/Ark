@@ -8,7 +8,8 @@ namespace Ark
 {
     Value::Value() noexcept :
         m_const_type(init_const_type(false, ValueType::Undefined))
-    {}
+    {
+    }
 
     // --------------------------
 
@@ -20,9 +21,9 @@ namespace Ark
         else if (type == ValueType::String)
             m_value = "";
 
-        #ifdef ARK_PROFILER_COUNT
-            value_creations++;
-        #endif
+#ifdef ARK_PROFILER_COUNT
+        value_creations++;
+#endif
     }
 
 #ifdef ARK_PROFILER_COUNT
@@ -61,51 +62,63 @@ namespace Ark
 
     Value::Value(int value) noexcept :
         m_value(static_cast<double>(value)), m_const_type(init_const_type(false, ValueType::Number))
-    {}
+    {
+    }
 
     Value::Value(float value) noexcept :
         m_value(static_cast<double>(value)), m_const_type(init_const_type(false, ValueType::Number))
-    {}
+    {
+    }
 
     Value::Value(double value) noexcept :
         m_value(value), m_const_type(init_const_type(false, ValueType::Number))
-    {}
+    {
+    }
 
     Value::Value(const std::string& value) noexcept :
         m_value(value.c_str()), m_const_type(init_const_type(false, ValueType::String))
-    {}
+    {
+    }
 
     Value::Value(const String& value) noexcept :
         m_value(value), m_const_type(init_const_type(false, ValueType::String))
-    {}
+    {
+    }
 
     Value::Value(const char* value) noexcept :
         m_value(value), m_const_type(init_const_type(false, ValueType::String))
-    {}
+    {
+    }
 
     Value::Value(internal::PageAddr_t value) noexcept :
         m_value(value), m_const_type(init_const_type(false, ValueType::PageAddr))
-    {}
+    {
+    }
 
     Value::Value(Value::ProcType value) noexcept :
         m_value(value), m_const_type(init_const_type(false, ValueType::CProc))
-    {}
+    {
+    }
 
     Value::Value(std::vector<Value>&& value) noexcept :
         m_value(value), m_const_type(init_const_type(false, ValueType::List))
-    {}
+    {
+    }
 
     Value::Value(internal::Closure&& value) noexcept :
         m_value(value), m_const_type(init_const_type(false, ValueType::Closure))
-    {}
+    {
+    }
 
     Value::Value(UserType&& value) noexcept :
         m_value(value), m_const_type(init_const_type(false, ValueType::User))
-    {}
+    {
+    }
 
     Value::Value(Value* ref) noexcept :
         m_value(ref), m_const_type(init_const_type(true, ValueType::Reference))
-    {}
+    {
+    }
 
     // --------------------------
 
@@ -152,77 +165,77 @@ namespace Ark
     {
         switch (V.valueType())
         {
-        case ValueType::Number:
-        {
-            double d = V.number();
-            os.precision(Utils::digPlaces(d) + Utils::decPlaces(d));
-            os << d;
-            break;
-        }
-
-        case ValueType::String:
-            os << V.string().c_str();
-            break;
-
-        case ValueType::PageAddr:
-            os << "Function @ " << V.pageAddr();
-            break;
-
-        case ValueType::CProc:
-            os << "CProcedure";
-            break;
-
-        case ValueType::List:
-        {
-            os << "[";
-            for (auto it = V.constList().begin(), it_end = V.constList().end(); it != it_end; ++it)
+            case ValueType::Number:
             {
-                if (it->valueType() == ValueType::String)
-                    os << "\"" << (*it) << "\"";
-                else
-                    os << (*it);
-                if (it + 1 != it_end)
-                    os << " ";
+                double d = V.number();
+                os.precision(Utils::digPlaces(d) + Utils::decPlaces(d));
+                os << d;
+                break;
             }
-            os << "]";
-            break;
-        }
 
-        case ValueType::Closure:
-            os << V.closure();
-            break;
+            case ValueType::String:
+                os << V.string().c_str();
+                break;
 
-        case ValueType::User:
-            os << V.usertype();
-            break;
+            case ValueType::PageAddr:
+                os << "Function @ " << V.pageAddr();
+                break;
 
-        case ValueType::Nil:
-            os << "nil";
-            break;
+            case ValueType::CProc:
+                os << "CProcedure";
+                break;
 
-        case ValueType::True:
-            os << "true";
-            break;
+            case ValueType::List:
+            {
+                os << "[";
+                for (auto it = V.constList().begin(), it_end = V.constList().end(); it != it_end; ++it)
+                {
+                    if (it->valueType() == ValueType::String)
+                        os << "\"" << (*it) << "\"";
+                    else
+                        os << (*it);
+                    if (it + 1 != it_end)
+                        os << " ";
+                }
+                os << "]";
+                break;
+            }
 
-        case ValueType::False:
-            os << "false";
-            break;
+            case ValueType::Closure:
+                os << V.closure();
+                break;
 
-        case ValueType::Undefined:
-            os << "undefined";
-            break;
+            case ValueType::User:
+                os << V.usertype();
+                break;
 
-        case ValueType::Reference:
-            os << (*V.reference());
-            break;
+            case ValueType::Nil:
+                os << "nil";
+                break;
 
-        case ValueType::InstPtr:
-            os << "Instruction @ " << V.pageAddr();
-            break;
+            case ValueType::True:
+                os << "true";
+                break;
 
-        default:
-            os << "~\\._./~";
-            break;
+            case ValueType::False:
+                os << "false";
+                break;
+
+            case ValueType::Undefined:
+                os << "undefined";
+                break;
+
+            case ValueType::Reference:
+                os << (*V.reference());
+                break;
+
+            case ValueType::InstPtr:
+                os << "Instruction @ " << V.pageAddr();
+                break;
+
+            default:
+                os << "~\\._./~";
+                break;
         }
 
         return os;

@@ -10,7 +10,8 @@ namespace Ark
 {
     Repl::Repl(uint16_t options, const std::string& lib_dir) :
         m_options(options), m_lib_dir(lib_dir), m_lines(1), m_old_ip(0)
-    {}
+    {
+    }
 
     int Repl::run()
     {
@@ -53,20 +54,20 @@ namespace Ark
                 if (line == "(quit)")
                     return 1;
 
-                if(!line.empty())
+                if (!line.empty())
                     tmp_code << line << "\n";
                 open_parentheses += count_open_parentheses(line);
                 open_braces += count_open_braces(line);
 
                 // lines number incrementation
-                ++ m_lines;
+                ++m_lines;
                 if (open_parentheses == 0 && open_braces == 0)
                     break;
             }
 
             // save a valid ip if execution failed
             m_old_ip = vm.m_ip;
-            if(!tmp_code.str().empty())
+            if (!tmp_code.str().empty())
             {
                 if (state.doString(tmp_code.str()))
                 {
@@ -76,12 +77,12 @@ namespace Ark
                         vm.init();
                         init = true;
                     }
-                   if (vm.safeRun() == 0)
+                    if (vm.safeRun() == 0)
                     {
                         // save good code
                         code = tmp_code.str();
                         // place ip to end of bytecode intruction (HALT)
-                        -- vm.m_ip;
+                        --vm.m_ip;
                     }
                     else
                     {
@@ -106,8 +107,7 @@ namespace Ark
             "Type \"(quit)\" to quit.\n",
             ARK_VERSION_MAJOR,
             ARK_VERSION_MINOR,
-            ARK_VERSION_PATCH
-        );
+            ARK_VERSION_PATCH);
     }
 
     int Repl::count_open_parentheses(const std::string& line)
@@ -118,8 +118,8 @@ namespace Ark
         {
             switch (c)
             {
-                case '(' : ++open_parentheses; break;
-                case ')' : --open_parentheses; break;
+                case '(': ++open_parentheses; break;
+                case ')': --open_parentheses; break;
             }
         }
 
@@ -134,8 +134,8 @@ namespace Ark
         {
             switch (c)
             {
-                case '{' : ++open_braces; break;
-                case '}' : --open_braces; break;
+                case '{': ++open_braces; break;
+                case '}': --open_braces; break;
             }
         }
 

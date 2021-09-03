@@ -91,7 +91,7 @@ namespace Ark::internal::Builtins::List
         if (idx >= n[0].list().size())
             throw std::runtime_error(LIST_RMAT_OOR);
 
-        n[0].list().erase(n[0].list().begin () + idx);
+        n[0].list().erase(n[0].list().begin() + idx);
         return n[0];
     }
 
@@ -110,7 +110,7 @@ namespace Ark::internal::Builtins::List
      */
     Value sliceList(std::vector<Value>& n, Ark::VM* vm)
     {
-        if (n.size () != 4)
+        if (n.size() != 4)
             throw std::runtime_error(LIST_SLICE_ARITY);
         if (n[0].valueType() != ValueType::List)
             throw Ark::TypeError(LIST_SLICE_TE0);

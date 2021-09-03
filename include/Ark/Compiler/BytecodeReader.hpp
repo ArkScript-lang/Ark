@@ -25,7 +25,8 @@ namespace Ark
 {
     using bytecode_t = std::vector<uint8_t>;
 
-    enum class BytecodeSegment {
+    enum class BytecodeSegment
+    {
         All,
         Symbols,
         Values,

@@ -8,7 +8,8 @@ namespace Ark::internal
 {
     Lexer::Lexer(unsigned debug) noexcept :
         m_debug(debug)
-    {}
+    {
+    }
 
     void Lexer::feed(const std::string& code)
     {
@@ -19,7 +20,7 @@ namespace Ark::internal
         // buffers
         std::string buffer, ctrl_char;
 
-        auto append_token_from_buffer = [&](){
+        auto append_token_from_buffer = [&]() {
             TokenType type = guessType(buffer);
             // tokenizing error management
             if (type == TokenType::Mismatch)
@@ -37,8 +38,7 @@ namespace Ark::internal
             if (m_debug >= 5)
                 std::printf(
                     "buffer: %s - ctrl_char: %s - current: '%c' - line: %zu, char: %zu\n",
-                    buffer.c_str(), ctrl_char.c_str(), current, line, character
-                );
+                    buffer.c_str(), ctrl_char.c_str(), current, line, character);
 
             if (!in_string)
             {
@@ -140,15 +140,15 @@ namespace Ark::internal
                         {
                             switch (ctrl_char[0])
                             {
-                                case '"' : buffer +=  '"'; break;
-                                case 'n' : buffer += '\n'; break;
-                                case 'a' : buffer += '\a'; break;
-                                case 'b' : buffer += '\b'; break;
-                                case 't' : buffer += '\t'; break;
-                                case 'r' : buffer += '\r'; break;
-                                case 'f' : buffer += '\f'; break;
+                                case '"': buffer += '"'; break;
+                                case 'n': buffer += '\n'; break;
+                                case 'a': buffer += '\a'; break;
+                                case 'b': buffer += '\b'; break;
+                                case 't': buffer += '\t'; break;
+                                case 'r': buffer += '\r'; break;
+                                case 'f': buffer += '\f'; break;
                                 case '\\': buffer += '\\'; break;
-                                case '0' : buffer += '\0'; break;
+                                case '0': buffer += '\0'; break;
 
                                 default:
                                     throwTokenizingError("unknown control character '\\" + ctrl_char + "' in string", buffer, line, character, code);
@@ -159,7 +159,7 @@ namespace Ark::internal
                         {
                             switch (ctrl_char[0])
                             {
-                                case 'x': break; /// @todo
+                                case 'x': break;  /// @todo
 
                                 case 'u':
                                 {
@@ -174,7 +174,8 @@ namespace Ark::internal
                                 case 'U':
                                 {
                                     short begin = 1;
-                                    for (; ctrl_char[begin] == '0'; ++ begin);
+                                    for (; ctrl_char[begin] == '0'; ++begin)
+                                        ;
                                     char utf8_str[5];
                                     utf8decode(ctrl_char.c_str() + begin, utf8_str);
                                     if (*utf8_str == '\0')
@@ -192,14 +193,14 @@ namespace Ark::internal
                         ctrl_char.clear();
                         in_ctrl_char = false;
 
-                        if (current == '"') // end of string
+                        if (current == '"')  // end of string
                         {
                             buffer += current;
                             in_string = false;
                             m_tokens.emplace_back(TokenType::String, buffer, saved_line, saved_char);
                             buffer.clear();
                         }
-                        else if (current == '\\') // new escape code
+                        else if (current == '\\')  // new escape code
                             in_ctrl_char = true;
                         else
                             buffer += current;
@@ -213,7 +214,7 @@ namespace Ark::internal
             if (current == '\n')
             {
                 line++;
-                character = 0; // before first character
+                character = 0;  // before first character
 
                 // close comments, don't append them
                 if (in_comment)
@@ -244,8 +245,7 @@ namespace Ark::internal
                     tokentype_string[static_cast<std::size_t>(last_token.type)].c_str(),
                     last_token.line,
                     last_token.col,
-                    last_token.token.c_str()
-                );
+                    last_token.token.c_str());
             }
         }
     }

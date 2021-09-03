@@ -1,7 +1,7 @@
 #include <Ark/VM/Scope.hpp>
 
 #ifdef ARK_SCOPE_DICHOTOMY
-    #include <algorithm>
+#include <algorithm>
 #endif
 
 #define push_pair(id, val) m_data.emplace_back(std::pair<uint16_t, Value>(id, val))
@@ -11,15 +11,15 @@ namespace Ark::internal
 {
     Scope::Scope() noexcept
     {
-    #ifndef ARK_SCOPE_DICHOTOMY
+#ifndef ARK_SCOPE_DICHOTOMY
         // PERF costs a lot
         m_data.reserve(4);
-    #endif
+#endif
     }
 
     void Scope::push_back(uint16_t id, Value&& val) noexcept
     {
-    #ifdef ARK_SCOPE_DICHOTOMY
+#ifdef ARK_SCOPE_DICHOTOMY
         switch (m_data.size())
         {
             case 0:
@@ -40,15 +40,15 @@ namespace Ark::internal
                 insert_pair(lower, std::move(id), std::move(val));
                 break;
         }
-    #else
+#else
         // PERF faster on ackermann, compared to the dichotomic version
         push_pair(std::move(id), std::move(val));
-    #endif
+#endif
     }
 
     void Scope::push_back(uint16_t id, const Value& val) noexcept
     {
-    #ifdef ARK_SCOPE_DICHOTOMY
+#ifdef ARK_SCOPE_DICHOTOMY
         switch (m_data.size())
         {
             case 0:
@@ -69,9 +69,9 @@ namespace Ark::internal
                 insert_pair(lower, id, val);
                 break;
         }
-    #else
+#else
         push_pair(id, val);
-    #endif
+#endif
     }
 
     bool Scope::has(uint16_t id) noexcept
@@ -81,7 +81,7 @@ namespace Ark::internal
 
     Value* Scope::operator[](uint16_t id) noexcept
     {
-    #ifdef ARK_SCOPE_DICHOTOMY
+#ifdef ARK_SCOPE_DICHOTOMY
         switch (m_data.size())
         {
             case 0:
@@ -100,14 +100,14 @@ namespace Ark::internal
                     return &lower->second;
                 return nullptr;
         }
-    #else
+#else
         for (std::size_t i = 0, end = m_data.size(); i < end; ++i)
         {
             if (m_data[i].first == id)
                 return &m_data[i].second;
         }
         return nullptr;
-    #endif
+#endif
     }
 
     uint16_t Scope::idFromValue(Value&& val) noexcept

@@ -99,15 +99,15 @@ namespace Ark::internal::Builtins
         extern const Value inf_;
         extern const Value nan_;
 
-        Value cos_(std::vector<Value>& n, Ark::VM* vm);   // math:cos, 1 argument
-        Value sin_(std::vector<Value>& n, Ark::VM* vm);   // math:sin, 1 argument
-        Value tan_(std::vector<Value>& n, Ark::VM* vm);   // math:tan, 1 argument
-        Value acos_(std::vector<Value>& n, Ark::VM* vm);  // math:arccos, 1 argument
-        Value asin_(std::vector<Value>& n, Ark::VM* vm);  // math:arcsin, 1 argument
-        Value atan_(std::vector<Value>& n, Ark::VM* vm);  // math:arctan, 1 argument
-        Value cosh_(std::vector<Value>& n, Ark::VM* vm);  // math:cosh, 1 argument
-        Value sinh_(std::vector<Value>& n, Ark::VM* vm);  // math:sinh, 1 argument
-        Value tanh_(std::vector<Value>& n, Ark::VM* vm);  // math:tanh, 1 argument
+        Value cos_(std::vector<Value>& n, Ark::VM* vm);    // math:cos, 1 argument
+        Value sin_(std::vector<Value>& n, Ark::VM* vm);    // math:sin, 1 argument
+        Value tan_(std::vector<Value>& n, Ark::VM* vm);    // math:tan, 1 argument
+        Value acos_(std::vector<Value>& n, Ark::VM* vm);   // math:arccos, 1 argument
+        Value asin_(std::vector<Value>& n, Ark::VM* vm);   // math:arcsin, 1 argument
+        Value atan_(std::vector<Value>& n, Ark::VM* vm);   // math:arctan, 1 argument
+        Value cosh_(std::vector<Value>& n, Ark::VM* vm);   // math:cosh, 1 argument
+        Value sinh_(std::vector<Value>& n, Ark::VM* vm);   // math:sinh, 1 argument
+        Value tanh_(std::vector<Value>& n, Ark::VM* vm);   // math:tanh, 1 argument
         Value acosh_(std::vector<Value>& n, Ark::VM* vm);  // math:acosh, 1 argument
         Value asinh_(std::vector<Value>& n, Ark::VM* vm);  // math:asinh, 1 argument
         Value atanh_(std::vector<Value>& n, Ark::VM* vm);  // math:atanh, 1 argument
