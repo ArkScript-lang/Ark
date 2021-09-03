@@ -6,7 +6,8 @@ namespace Ark
 
     Optimizer::Optimizer(uint16_t options) noexcept :
         m_options(options)
-    {}
+    {
+    }
 
     void Optimizer::feed(const Node& ast)
     {
@@ -27,17 +28,16 @@ namespace Ark
         if (m_ast.nodeType() != NodeType::List)
             return;
 
-        runOnGlobalScopeVars(m_ast, [this](Node& node, Node& parent, int idx){
+        runOnGlobalScopeVars(m_ast, [this](Node& node, Node& parent, int idx) {
             m_sym_appearances[node.constList()[1].string()] = 0;
         });
         countOccurences(m_ast);
 
         // logic: remove piece of code with only 1 reference, if they aren't function calls
-        runOnGlobalScopeVars(m_ast, [this](Node& node, Node& parent, int idx){
+        runOnGlobalScopeVars(m_ast, [this](Node& node, Node& parent, int idx) {
             std::string name = node.constList()[1].string();
             // a variable was only declared and never used
-            if (m_sym_appearances.find(name) != m_sym_appearances.end() && m_sym_appearances[name] == 1
-                && parent.list()[idx].list()[2].nodeType() != NodeType::List)
+            if (m_sym_appearances.find(name) != m_sym_appearances.end() && m_sym_appearances[name] == 1 && parent.list()[idx].list()[2].nodeType() != NodeType::List)
                 parent.list().erase(parent.list().begin() + idx);  // erase the node from the list
         });
     }

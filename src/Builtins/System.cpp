@@ -6,8 +6,8 @@
 #include <thread>
 
 #ifdef _MSC_VER
-    #define popen _popen
-    #define pclose _pclose
+#define popen _popen
+#define pclose _pclose
 #endif
 
 #undef abs
@@ -36,16 +36,16 @@ namespace Ark::internal::Builtins::System
         if (n[0].valueType() != ValueType::String)
             throw Ark::TypeError(SYS_SYS_TE0);
 
-        #ifdef ARK_ENABLE_SYSTEM
-            std::array<char, 128> buffer;
-            std::string result;
-            std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(n[0].string().c_str(), "r"), pclose);
-            if (!pipe)
-                throw std::runtime_error("sys:exec: couldn't retrieve command output");
-            while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr)
-                result += buffer.data();
-            return Value(result);
-        #endif  // ARK_ENABLE_SYSTEM
+#ifdef ARK_ENABLE_SYSTEM
+        std::array<char, 128> buffer;
+        std::string result;
+        std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(n[0].string().c_str(), "r"), pclose);
+        if (!pipe)
+            throw std::runtime_error("sys:exec: couldn't retrieve command output");
+        while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr)
+            result += buffer.data();
+        return Value(result);
+#endif  // ARK_ENABLE_SYSTEM
 
         return nil;
     }

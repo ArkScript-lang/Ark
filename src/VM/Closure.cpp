@@ -7,17 +7,20 @@ namespace Ark::internal
     Closure::Closure() noexcept :
         m_scope(nullptr),
         m_page_addr(0)
-    {}
+    {
+    }
 
     Closure::Closure(Scope_t&& scope_ptr, PageAddr_t pa) noexcept :
         m_scope(scope_ptr),
         m_page_addr(pa)
-    {}
+    {
+    }
 
     Closure::Closure(const Scope_t& scope_ptr, PageAddr_t pa) noexcept :
         m_scope(scope_ptr),
         m_page_addr(pa)
-    {}
+    {
+    }
 
     const Scope_t& Closure::scope() const noexcept
     {

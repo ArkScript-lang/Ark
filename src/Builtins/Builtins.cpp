@@ -7,13 +7,13 @@
 namespace Ark::internal::Builtins
 {
     extern const Value falseSym = Value(ValueType::False);
-    extern const Value trueSym  = Value(ValueType::True);
-    extern const Value nil      = Value(ValueType::Nil);
+    extern const Value trueSym = Value(ValueType::True);
+    extern const Value nil = Value(ValueType::Nil);
 
     namespace Mathematics
     {
-        extern const Value pi_  = Value(M_PI);
-        extern const Value e_   = Value(std::exp(1.0));
+        extern const Value pi_ = Value(M_PI);
+        extern const Value e_ = Value(std::exp(1.0));
         extern const Value tau_ = Value(M_PI * 2.0);
         extern const Value inf_ = Value(HUGE_VAL);
         extern const Value nan_ = Value(std::numeric_limits<double>::signaling_NaN());
@@ -21,9 +21,9 @@ namespace Ark::internal::Builtins
 
     extern const std::vector<std::pair<std::string, Value>> builtins = {
         // builtin variables or constants
-        { "false",  falseSym },
-        { "true",   trueSym },
-        { "nil",    nil },
+        { "false", falseSym },
+        { "true", trueSym },
+        { "nil", nil },
 
         // List
         { "list:reverse", Value(List::reverseList) },
@@ -35,9 +35,9 @@ namespace Ark::internal::Builtins
         { "list:setAt", Value(List::setListAt) },
 
         // IO
-        { "print",  Value(IO::print) },
+        { "print", Value(IO::print) },
         { "puts", Value(IO::puts_) },
-        { "input",  Value(IO::input) },
+        { "input", Value(IO::input) },
         { "io:writeFile", Value(IO::writeFile) },
         { "io:readFile", Value(IO::readFile) },
         { "io:fileExists?", Value(IO::fileExists) },

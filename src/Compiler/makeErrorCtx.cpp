@@ -46,8 +46,7 @@ namespace Ark::internal
         ss << "On line " << (node.line() + 1) << ":" << node.col() << ", got `" << node << "'\n";
 
         std::size_t ssize = 1;
-        if (node.nodeType() == NodeType::Symbol || node.nodeType() == NodeType::String
-            || node.nodeType() == NodeType::Spread)
+        if (node.nodeType() == NodeType::Symbol || node.nodeType() == NodeType::String || node.nodeType() == NodeType::Spread)
             ssize = node.string().size();
 
         if (node.filename() != ARK_NO_NAME_FILE)
