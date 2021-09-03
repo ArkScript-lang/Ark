@@ -1,0 +1,14 @@
+BasedOnStyle: WebKit
+AlignAfterOpenBracket: Align
+AlignTrailingComments: true
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortIfStatementsOnASingleLine: true
+BreakBeforeBinaryOperators: None
+BreakBeforeBraces: Allman
+BreakConstructorInitializers: AfterColon
+IndentCaseLabels: true
+MaxEmptyLinesToKeep: 2
+NamespaceIndentation: All
+SortIncludes: false
+SpacesBeforeTrailingComments: 2
+
