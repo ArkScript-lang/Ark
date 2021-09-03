@@ -4,7 +4,8 @@ namespace Ark::internal
 {
     ConditionalExecutor::ConditionalExecutor(MacroProcessor* macroprocessor, unsigned debug) :
         MacroExecutor(macroprocessor, debug)
-    {}
+    {
+    }
 
     bool ConditionalExecutor::applyMacro(Node& node)
     {
