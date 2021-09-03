@@ -53,7 +53,8 @@ namespace Ark::internal::Builtins::String
                 f.format(f.size() + 5, std::string_view("false"));
             else
             {
-                std::stringstream ss; ss << (*it);
+                std::stringstream ss;
+                ss << (*it);
                 f.format(f.size() + ss.str().size(), std::string_view(ss.str().c_str()));
             }
         }

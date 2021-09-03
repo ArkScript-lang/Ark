@@ -62,8 +62,8 @@ namespace Ark::internal
     {
     public:
         using Iterator = std::vector<Node>::const_iterator;
-        using Map      = std::unordered_map<std::string, Node>;
-        using Value    = mpark::variant<double, std::string, Keyword>;
+        using Map = std::unordered_map<std::string, Node>;
+        using Value = mpark::variant<double, std::string, Keyword>;
 
         static Node TrueNode, FalseNode, NilNode, ListNode;
 
@@ -244,7 +244,7 @@ namespace Ark::internal
         std::string m_filename = "";
     };
 
-    #include "inline/Node.inl"
+#include "inline/Node.inl"
 
     std::ostream& operator<<(std::ostream& os, const std::vector<Node>& N) noexcept;
 }

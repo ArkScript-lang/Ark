@@ -14,7 +14,8 @@ namespace Ark
     Compiler::Compiler(unsigned debug, const std::string& lib_dir, uint16_t options) :
         m_parser(debug, lib_dir, options), m_optimizer(options),
         m_options(options), m_debug(debug)
-    {}
+    {
+    }
 
     void Compiler::feed(const std::string& code, const std::string& filename)
     {
@@ -120,8 +121,8 @@ namespace Ark
 
         // push timestamp
         unsigned long long timestamp = std::chrono::duration_cast<std::chrono::seconds>(
-            std::chrono::system_clock::now().time_since_epoch()
-        ).count();
+                                           std::chrono::system_clock::now().time_since_epoch())
+                                           .count();
         for (char c = 0; c < 8; c++)
         {
             unsigned d = 56 - 8 * c;
@@ -332,21 +333,21 @@ namespace Ark
         std::size_t jump_to_if_pos = page(p).size();
         // absolute address to jump to if condition is true
         pushNumber(static_cast<uint16_t>(0x00), &page(p));
-            // else code
-            if (x.constList().size() == 4)  // we have an else clause
-                _compile(x.constList()[3], p);
-            // when else is finished, jump to end
-            page(p).emplace_back(Instruction::JUMP);
-            std::size_t jump_to_end_pos = page(p).size();
-            pushNumber(static_cast<uint16_t>(0x00), &page(p));
+        // else code
+        if (x.constList().size() == 4)  // we have an else clause
+            _compile(x.constList()[3], p);
+        // when else is finished, jump to end
+        page(p).emplace_back(Instruction::JUMP);
+        std::size_t jump_to_end_pos = page(p).size();
+        pushNumber(static_cast<uint16_t>(0x00), &page(p));
         // set jump to if pos
-        page(p)[jump_to_if_pos]     = (static_cast<uint16_t>(page(p).size()) & 0xff00) >> 8;
-        page(p)[jump_to_if_pos + 1] =  static_cast<uint16_t>(page(p).size()) & 0x00ff;
+        page(p)[jump_to_if_pos] = (static_cast<uint16_t>(page(p).size()) & 0xff00) >> 8;
+        page(p)[jump_to_if_pos + 1] = static_cast<uint16_t>(page(p).size()) & 0x00ff;
         // if code
         _compile(x.constList()[2], p);
         // set jump to end pos
-        page(p)[jump_to_end_pos]     = (static_cast<uint16_t>(page(p).size()) & 0xff00) >> 8;
-        page(p)[jump_to_end_pos + 1] =  static_cast<uint16_t>(page(p).size()) & 0x00ff;
+        page(p)[jump_to_end_pos] = (static_cast<uint16_t>(page(p).size()) & 0xff00) >> 8;
+        page(p)[jump_to_end_pos + 1] = static_cast<uint16_t>(page(p).size()) & 0x00ff;
     }
 
     void Compiler::compileFunction(const Node& x, int p)
@@ -423,14 +424,14 @@ namespace Ark
         // absolute address to jump to if condition is false
         pushNumber(static_cast<uint16_t>(0x00), &page(p));
         // push code to page
-            _compile(x.constList()[2], p);
-            // loop, jump to the condition
-            page(p).emplace_back(Instruction::JUMP);
-            // abosolute address
-            pushNumber(static_cast<uint16_t>(current), &page(p));
+        _compile(x.constList()[2], p);
+        // loop, jump to the condition
+        page(p).emplace_back(Instruction::JUMP);
+        // abosolute address
+        pushNumber(static_cast<uint16_t>(current), &page(p));
         // set jump to end pos
-        page(p)[jump_to_end_pos]     = (static_cast<uint16_t>(page(p).size()) & 0xff00) >> 8;
-        page(p)[jump_to_end_pos + 1] =  static_cast<uint16_t>(page(p).size()) & 0x00ff;
+        page(p)[jump_to_end_pos] = (static_cast<uint16_t>(page(p).size()) & 0xff00) >> 8;
+        page(p)[jump_to_end_pos + 1] = static_cast<uint16_t>(page(p).size()) & 0x00ff;
     }
 
     void Compiler::compileSet(const Node& x, int p)
@@ -544,8 +545,8 @@ namespace Ark
                 _compile(x.constList()[index], p);
 
                 if ((index + 1 < size &&
-                    x.constList()[index + 1].nodeType() != NodeType::GetField &&
-                    x.constList()[index + 1].nodeType() != NodeType::Capture) ||
+                     x.constList()[index + 1].nodeType() != NodeType::GetField &&
+                     x.constList()[index + 1].nodeType() != NodeType::Capture) ||
                     index + 1 == size)
                     exp_count++;
 
@@ -575,8 +576,9 @@ namespace Ark
 
                     default:
                         throwCompilerError("can not create a chained expression (of length " + std::to_string(exp_count) +
-                            ") for operator `" + Builtins::operators[static_cast<std::size_t>(op_inst - Instruction::FIRST_OPERATOR)] +
-                            "'. You most likely forgot a `)'.", x);
+                                               ") for operator `" + Builtins::operators[static_cast<std::size_t>(op_inst - Instruction::FIRST_OPERATOR)] +
+                                               "'. You most likely forgot a `)'.",
+                                           x);
                 }
             }
         }

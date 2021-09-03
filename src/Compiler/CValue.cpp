@@ -5,17 +5,20 @@ namespace Ark::internal
     CValue::CValue(double value) noexcept :
         value(value),
         type(CValueType::Number)
-    {}
+    {
+    }
 
     CValue::CValue(long value) noexcept :
         value(static_cast<double>(value)),
         type(CValueType::Number)
-    {}
+    {
+    }
 
     CValue::CValue(const std::string& value) noexcept :
         value(value),
         type(CValueType::String)
-    {}
+    {
+    }
 
     CValue::CValue(const Node& v) noexcept
     {
@@ -34,7 +37,8 @@ namespace Ark::internal
     CValue::CValue(std::size_t value) noexcept :
         value(value),
         type(CValueType::PageAddr)
-    {}
+    {
+    }
 
     bool CValue::operator==(const CValue& A) noexcept
     {

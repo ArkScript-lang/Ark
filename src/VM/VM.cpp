@@ -90,8 +90,8 @@ namespace Ark
 
         // if it's already loaded don't do anything
         if (std::find_if(m_shared_lib_objects.begin(), m_shared_lib_objects.end(), [&, this](const auto& val) {
-            return (val->path() == path || val->path() == lib_path);
-        }) != m_shared_lib_objects.end())
+                return (val->path() == path || val->path() == lib_path);
+            }) != m_shared_lib_objects.end())
             return;
 
         // if it exists alongside the .arkc file
@@ -113,8 +113,7 @@ namespace Ark
         {
             throwVMError(
                 "An error occurred while loading module '" + file + "': " + std::string(e.what()) + "\n" +
-                "It is most likely because the versions of the module and the language don't match."
-            );
+                "It is most likely because the versions of the module and the language don't match.");
         }
 
         // load the mapping data
@@ -187,7 +186,7 @@ namespace Ark
                 // and it's time to du-du-du-du-duel!
                 switch (inst)
                 {
-                #pragma region "Instructions"
+#pragma region "Instructions"
 
                     case Instruction::LOAD_SYMBOL:
                     {
@@ -359,7 +358,7 @@ namespace Ark
                             do
                             {
                                 ip = popAndResolveAsPtr();
-                            } while(ip->valueType() != ValueType::InstPtr);
+                            } while (ip->valueType() != ValueType::InstPtr);
 
                             m_ip = ip->pageAddr();
                             m_pp = pop()->pageAddr();
@@ -577,7 +576,7 @@ namespace Ark
                         ++m_ip;
                         uint16_t count = readNumber();
 
-                        Value *list = popAndResolveAsPtr();
+                        Value* list = popAndResolveAsPtr();
                         if (list->valueType() != ValueType::List)
                             throw TypeError("Argument 1 of concat should be a List, got " + types_to_str[static_cast<unsigned>(list->valueType())]);
 
@@ -669,7 +668,7 @@ namespace Ark
 
                     case Instruction::POP_LIST_IN_PLACE:
                     {
-                        Value *list = popAndResolveAsPtr();
+                        Value* list = popAndResolveAsPtr();
                         Value number = *popAndResolveAsPtr();
 
                         if (list->isConst())
@@ -688,9 +687,9 @@ namespace Ark
                         break;
                     }
 
-                #pragma endregion
+#pragma endregion
 
-                #pragma region "Operators"
+#pragma region "Operators"
 
                     case Instruction::ADD:
                     {
@@ -802,7 +801,7 @@ namespace Ark
 
                     case Instruction::LEN:
                     {
-                        Value *a = popAndResolveAsPtr();
+                        Value* a = popAndResolveAsPtr();
 
                         if (a->valueType() == ValueType::List)
                             push(Value(static_cast<int>(a->constList().size())));
@@ -940,7 +939,7 @@ namespace Ark
 
                     case Instruction::AT:
                     {
-                        Value *b = popAndResolveAsPtr();
+                        Value* b = popAndResolveAsPtr();
                         Value a = *popAndResolveAsPtr();  // be careful, it's not a pointer
 
                         if (b->valueType() != ValueType::Number)
@@ -988,7 +987,7 @@ namespace Ark
 
                     case Instruction::TYPE:
                     {
-                        Value *a = popAndResolveAsPtr();
+                        Value* a = popAndResolveAsPtr();
 
                         push(Value(types_to_str[static_cast<unsigned>(a->valueType())]));
                         break;
@@ -1024,7 +1023,7 @@ namespace Ark
                         break;
                     }
 
-                #pragma endregion
+#pragma endregion
 
                     default:
                         throwVMError("unknown instruction: " + std::to_string(static_cast<std::size_t>(inst)));
@@ -1090,8 +1089,7 @@ namespace Ark
                 if (m_pp != 0)
                 {
                     uint16_t id = findNearestVariableIdWithValue(
-                        Value(static_cast<PageAddr_t>(m_pp))
-                    );
+                        Value(static_cast<PageAddr_t>(m_pp)));
 
                     if (id < m_state->m_symbols.size())
                         std::cerr << "In function `" << termcolor::green << m_state->m_symbols[id] << termcolor::reset << "'\n";

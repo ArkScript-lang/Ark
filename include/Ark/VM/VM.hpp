@@ -121,11 +121,11 @@ namespace Ark
     private:
         State* m_state;
 
-        int m_exit_code;     ///< VM exit code, defaults to 0. Can be changed through `sys:exit`
-        int m_ip;           ///< instruction pointer
-        std::size_t m_pp;   ///< page pointer
-        uint16_t m_sp;      ///< stack pointer
-        uint16_t m_fc;      ///< current frames count
+        int m_exit_code;   ///< VM exit code, defaults to 0. Can be changed through `sys:exit`
+        int m_ip;          ///< instruction pointer
+        std::size_t m_pp;  ///< page pointer
+        uint16_t m_sp;     ///< stack pointer
+        uint16_t m_fc;     ///< current frames count
         bool m_running;
         uint16_t m_last_sym_loaded;
         std::size_t m_until_frame_count;
@@ -141,7 +141,7 @@ namespace Ark
         // just a nice little trick for operator[] and for pop
         Value m_no_value = internal::Builtins::nil;
 
-        void* m_user_pointer; ///< needed to pass data around when binding ArkScript in a program
+        void* m_user_pointer;  ///< needed to pass data around when binding ArkScript in a program
 
         /**
          * @brief Run ArkScript bytecode inside a try catch to retrieve all the exceptions and display a stack trace if needed
@@ -279,7 +279,7 @@ namespace Ark
         inline void call(int16_t argc_ = -1);
     };
 
-    #include "inline/VM.inl"
+#include "inline/VM.inl"
 
     /// ArkScript Nil value
     const Value Nil = Value(ValueType::Nil);

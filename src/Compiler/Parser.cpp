@@ -16,7 +16,8 @@ namespace Ark
         m_options(options),
         m_lexer(debug),
         m_file(ARK_NO_NAME_FILE)
-    {}
+    {
+    }
 
     void Parser::feed(const std::string& code, const std::string& filename)
     {
@@ -52,7 +53,8 @@ namespace Ark
         checkForInclude(m_ast, m_ast);
 
         if (m_debug >= 3)
-            std::cout << "(Parser) AST\n" << m_ast << "\n\n";
+            std::cout << "(Parser) AST\n"
+                      << m_ast << "\n\n";
     }
 
     const Node& Parser::ast() const noexcept
@@ -163,9 +165,9 @@ namespace Ark
                         throwParseError("unimplemented keyword `" + token.token + "'. If you see this error please report it on GitHub.", token);
                 }
                 else if (token.type == TokenType::Identifier || token.type == TokenType::Operator ||
-                        (token.type == TokenType::Capture && authorize_capture) ||
-                        (token.type == TokenType::GetField && authorize_field_read) ||
-                        (token.type == TokenType::Spread && in_macro))
+                         (token.type == TokenType::Capture && authorize_capture) ||
+                         (token.type == TokenType::GetField && authorize_field_read) ||
+                         (token.type == TokenType::Spread && in_macro))
                 {
                     while (tokens.front().token != ")")
                         block.push_back(parse(tokens, /* authorize_capture */ false, /* authorize_field_read */ true, in_macro));
@@ -194,7 +196,7 @@ namespace Ark
         if (temp.type == TokenType::Grouping)
             block.push_back(parse(tokens, false, false, in_macro));
         else if (temp.type == TokenType::Identifier || temp.type == TokenType::Number ||
-                    temp.type == TokenType::String || (in_macro && temp.type == TokenType::Spread))
+                 temp.type == TokenType::String || (in_macro && temp.type == TokenType::Spread))
             block.push_back(atom(nextToken(tokens)));
         else
             throwParseError("found invalid token after keyword `if', expected function call, value or Identifier", temp);
@@ -229,8 +231,7 @@ namespace Ark
         expect(
             block.list().size() <= 3 || std::all_of(block.list().begin() + 3, block.list().end(), [](const Node& n) -> bool { return n.nodeType() == NodeType::GetField; }),
             "too many arguments given to keyword `" + token.token + "', got " + std::to_string(block.list().size() - 1) + ", expected at most 3",
-            m_last_token
-        );
+            m_last_token);
     }
 
     void Parser::parseSet(Node& block, Token& token, std::list<Token>& tokens, bool authorize_capture, bool authorize_field_read, bool in_macro)
@@ -255,8 +256,7 @@ namespace Ark
         expect(
             block.list().size() <= 3 || std::all_of(block.list().begin() + 3, block.list().end(), [](const Node& n) -> bool { return n.nodeType() == NodeType::GetField; }),
             "too many arguments given to keyword `" + token.token + "', got " + std::to_string(block.list().size() - 1) + ", expected at most 3",
-            m_last_token
-        );
+            m_last_token);
     }
 
     void Parser::parseFun(Node& block, Token& token, std::list<Token>& tokens, bool authorize_capture, bool authorize_field_read, bool in_macro)
@@ -281,7 +281,7 @@ namespace Ark
         if (temp.type == TokenType::Grouping)
             block.push_back(parse(tokens, false, false, in_macro));
         else if (temp.type == TokenType::Identifier || temp.type == TokenType::Number ||
-                    temp.type == TokenType::String)
+                 temp.type == TokenType::String)
             block.push_back(atom(nextToken(tokens)));
         else
             throwParseError("found invalid token after keyword `while', expected function call, value or Identifier", temp);
@@ -365,7 +365,8 @@ namespace Ark
     void Parser::checkForInvalidTokens(Node& atomized, Token& token, bool previous_token_was_lparen, bool authorize_capture, bool authorize_field_read)
     {
         if ((atomized.nodeType() == NodeType::String || atomized.nodeType() == NodeType::Number ||
-                atomized.nodeType() == NodeType::List) && previous_token_was_lparen)
+             atomized.nodeType() == NodeType::List) &&
+            previous_token_was_lparen)
         {
             std::stringstream ss;
             ss << "found invalid token after `(', expected Keyword, Identifier";
@@ -415,16 +416,26 @@ namespace Ark
             case TokenType::Keyword:
             {
                 std::optional<Keyword> kw;
-                if      (token.token == "if")     kw = Keyword::If;
-                else if (token.token == "set")    kw = Keyword::Set;
-                else if (token.token == "let")    kw = Keyword::Let;
-                else if (token.token == "mut")    kw = Keyword::Mut;
-                else if (token.token == "fun")    kw = Keyword::Fun;
-                else if (token.token == "while")  kw = Keyword::While;
-                else if (token.token == "begin")  kw = Keyword::Begin;
-                else if (token.token == "import") kw = Keyword::Import;
-                else if (token.token == "quote")  kw = Keyword::Quote;
-                else if (token.token == "del")    kw = Keyword::Del;
+                if (token.token == "if")
+                    kw = Keyword::If;
+                else if (token.token == "set")
+                    kw = Keyword::Set;
+                else if (token.token == "let")
+                    kw = Keyword::Let;
+                else if (token.token == "mut")
+                    kw = Keyword::Mut;
+                else if (token.token == "fun")
+                    kw = Keyword::Fun;
+                else if (token.token == "while")
+                    kw = Keyword::While;
+                else if (token.token == "begin")
+                    kw = Keyword::Begin;
+                else if (token.token == "import")
+                    kw = Keyword::Import;
+                else if (token.token == "quote")
+                    kw = Keyword::Quote;
+                else if (token.token == "del")
+                    kw = Keyword::Del;
 
                 if (kw)
                     return make_node(kw.value(), token.line, token.col, m_file);
@@ -541,7 +552,7 @@ namespace Ark
         else if (std::string f = m_libdir + "/std/" + file; Ark::Utils::fileExists(f))
             return f;
         // then in the standard library root directory
-        else if (std::string f = m_libdir + "/" + file;     Ark::Utils::fileExists(f))
+        else if (std::string f = m_libdir + "/" + file; Ark::Utils::fileExists(f))
             return f;
 
         // fallback, we couldn't find the file
@@ -558,7 +569,8 @@ namespace Ark
                 std::cout << (i++) << ": " << node << '\n';
         }
         else
-            os << "Single item\n" << P.m_ast << std::endl;
+            os << "Single item\n"
+               << P.m_ast << std::endl;
         return os;
     }
 }

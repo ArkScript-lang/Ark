@@ -61,7 +61,7 @@ namespace Ark::internal
     private:
         unsigned m_debug;  ///< The debug level
         uint16_t m_options;
-        Node m_ast;  ///< The modified AST
+        Node m_ast;                                                   ///< The modified AST
         std::vector<std::unordered_map<std::string, Node>> m_macros;  ///< Handling macros in a scope fashion
         std::unique_ptr<MacroExecutorPipeline> m_executor_pipeline;
         std::vector<std::string> m_predefined_macros;  ///< Already existing macros, non-keywords, non-builtins
@@ -196,7 +196,7 @@ namespace Ark::internal
         }
     };
 
-    #include "inline/MacroProcessor.inl"
+#include "inline/MacroProcessor.inl"
 }
 
 #endif

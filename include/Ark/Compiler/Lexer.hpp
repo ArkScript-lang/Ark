@@ -73,7 +73,8 @@ namespace Ark::internal
          */
         Token(TokenType type, const std::string& tok, std::size_t line, std::size_t col) noexcept :
             type(type), token(tok), line(line), col(col)
-        {}
+        {
+        }
 
         /**
          * @brief Construct a new Token object from another one
@@ -180,7 +181,7 @@ namespace Ark::internal
         inline void throwTokenizingError(const std::string& message, const std::string& match, std::size_t line, std::size_t col, const std::string& context);
     };
 
-    #include "inline/Lexer.inl"
+#include "inline/Lexer.inl"
 }
 
 #endif

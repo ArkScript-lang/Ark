@@ -43,20 +43,23 @@ namespace Ark
         if (!(b.size() > 4 && b[i++] == 'a' && b[i++] == 'r' && b[i++] == 'k' && b[i++] == Instruction::NOP))
             return 0;
 
-        uint16_t major = readNumber(i); i++;
-        uint16_t minor = readNumber(i); i++;
-        uint16_t patch = readNumber(i); i++;
+        uint16_t major = readNumber(i);
+        i++;
+        uint16_t minor = readNumber(i);
+        i++;
+        uint16_t patch = readNumber(i);
+        i++;
 
         // reading the timestamp in big endian
         using timestamp_t = unsigned long long;
         timestamp_t timestamp = 0;
-        auto aa = (static_cast<timestamp_t>(m_bytecode[  i]) << 56),
+        auto aa = (static_cast<timestamp_t>(m_bytecode[i]) << 56),
              ba = (static_cast<timestamp_t>(m_bytecode[++i]) << 48),
              ca = (static_cast<timestamp_t>(m_bytecode[++i]) << 40),
              da = (static_cast<timestamp_t>(m_bytecode[++i]) << 32),
              ea = (static_cast<timestamp_t>(m_bytecode[++i]) << 24),
              fa = (static_cast<timestamp_t>(m_bytecode[++i]) << 16),
-             ga = (static_cast<timestamp_t>(m_bytecode[++i]) <<  8),
+             ga = (static_cast<timestamp_t>(m_bytecode[++i]) << 8),
              ha = (static_cast<timestamp_t>(m_bytecode[++i]));
         i++;
         timestamp = aa + ba + ca + da + ea + fa + ga + ha;
@@ -80,20 +83,23 @@ namespace Ark
             return;
         }
 
-        uint16_t major = readNumber(i); i++;
-        uint16_t minor = readNumber(i); i++;
-        uint16_t patch = readNumber(i); i++;
+        uint16_t major = readNumber(i);
+        i++;
+        uint16_t minor = readNumber(i);
+        i++;
+        uint16_t patch = readNumber(i);
+        i++;
         os << "Version:   " << major << "." << minor << "." << patch << "\n";
 
         using timestamp_t = unsigned long long;
         timestamp_t timestamp = 0;
-        auto aa = (static_cast<timestamp_t>(m_bytecode[  i]) << 56),
+        auto aa = (static_cast<timestamp_t>(m_bytecode[i]) << 56),
              ba = (static_cast<timestamp_t>(m_bytecode[++i]) << 48),
              ca = (static_cast<timestamp_t>(m_bytecode[++i]) << 40),
              da = (static_cast<timestamp_t>(m_bytecode[++i]) << 32),
              ea = (static_cast<timestamp_t>(m_bytecode[++i]) << 24),
              fa = (static_cast<timestamp_t>(m_bytecode[++i]) << 16),
-             ga = (static_cast<timestamp_t>(m_bytecode[++i]) <<  8),
+             ga = (static_cast<timestamp_t>(m_bytecode[++i]) << 8),
              ha = (static_cast<timestamp_t>(m_bytecode[++i]));
         i++;
         timestamp = aa + ba + ca + da + ea + fa + ga + ha;
@@ -114,19 +120,22 @@ namespace Ark
 
         if ((sStart.has_value() && !sEnd.has_value()) || (!sStart.has_value() && sEnd.has_value()))
         {
-            os << termcolor::red << "Both start and end parameter need to be provided together\n" << termcolor::reset;
+            os << termcolor::red << "Both start and end parameter need to be provided together\n"
+               << termcolor::reset;
             return;
         }
         else if (sStart.has_value() && sEnd.has_value() && sStart.value() >= sEnd.value())
         {
-            os << termcolor::red << "Invalid slice start and end arguments\n" << termcolor::reset;
+            os << termcolor::red << "Invalid slice start and end arguments\n"
+               << termcolor::reset;
             return;
         }
 
         if (b[i] == Instruction::SYM_TABLE_START)
         {
             i++;
-            uint16_t size = readNumber(i); i++;
+            uint16_t size = readNumber(i);
+            i++;
             uint16_t sliceSize = size;
             bool showSym = (segment == BytecodeSegment::All || segment == BytecodeSegment::Symbols);
 
@@ -161,7 +170,8 @@ namespace Ark
         }
         else
         {
-            os << termcolor::red << "Missing symbole table entry point\n" << termcolor::reset;
+            os << termcolor::red << "Missing symbole table entry point\n"
+               << termcolor::reset;
             return;
         }
 
@@ -171,7 +181,8 @@ namespace Ark
         if (b[i] == Instruction::VAL_TABLE_START)
         {
             i++;
-            uint16_t size = readNumber(i); i++;
+            uint16_t size = readNumber(i);
+            i++;
             uint16_t sliceSize = size;
 
             bool showVal = (segment == BytecodeSegment::All || segment == BytecodeSegment::Values);
@@ -239,7 +250,8 @@ namespace Ark
         }
         else
         {
-            os << termcolor::red << "Missing constant table entry point\n" << termcolor::reset;
+            os << termcolor::red << "Missing constant table entry point\n"
+               << termcolor::reset;
             return;
         }
 
@@ -251,7 +263,8 @@ namespace Ark
         while (b[i] == Instruction::CODE_SEGMENT_START && (segment == BytecodeSegment::All || segment == BytecodeSegment::Code || segment == BytecodeSegment::HeadersOnly))
         {
             i++;
-            uint16_t size = readNumber(i); i++;
+            uint16_t size = readNumber(i);
+            i++;
             uint16_t sliceSize = size;
 
             if (sStart.has_value() && sEnd.has_value())
@@ -280,7 +293,7 @@ namespace Ark
                     uint16_t line_number = i - j;
                     if (sStart.has_value() && sEnd.has_value() && ((sStart.value() > size) || (sEnd.value() > size)))
                     {
-                        os << termcolor::red << "Slice start or end can't be greater than the segment size: "  << size << termcolor::reset << "\n";
+                        os << termcolor::red << "Slice start or end can't be greater than the segment size: " << size << termcolor::reset << "\n";
                         return;
                     }
                     else if (sStart.has_value() && sEnd.has_value() && cPage.has_value())
@@ -558,7 +571,8 @@ namespace Ark
                     else
                     {
                         if (displayLine)
-                            os << termcolor::reset << "Unknown instruction: " << static_cast<int>(inst) << '\n' << termcolor::reset;
+                            os << termcolor::reset << "Unknown instruction: " << static_cast<int>(inst) << '\n'
+                               << termcolor::reset;
                         return;
                     }
 
@@ -567,7 +581,8 @@ namespace Ark
                 }
             }
             if (displayCode && segment != BytecodeSegment::HeadersOnly)
-                os << "\n" << termcolor::reset;
+                os << "\n"
+                   << termcolor::reset;
 
             if (cPage.has_value() && pp == cPage)
                 return;
@@ -581,7 +596,7 @@ namespace Ark
 
     uint16_t BytecodeReader::readNumber(std::size_t& i)
     {
-        uint16_t x = (static_cast<uint16_t>(m_bytecode[  i]) << 8),
+        uint16_t x = (static_cast<uint16_t>(m_bytecode[i]) << 8),
                  y = static_cast<uint16_t>(m_bytecode[++i]);
         return x + y;
     }
