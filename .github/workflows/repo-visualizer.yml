@@ -19,3 +19,5 @@ jobs:
       with:
         output_file: 'images/diagram.svg'
         excluded_paths: 'dist,node_modules,submodules'
+        branch: 'diagram'
+        commit_message: 'Updating diagram [skip ci]'
