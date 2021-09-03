@@ -25,7 +25,17 @@ int main(int argc, char** argv)
     }
 
 
-    enum class mode { help, dev_info, bytecode_reader, version, run, repl, compile, eval };
+    enum class mode
+    {
+        help,
+        dev_info,
+        bytecode_reader,
+        version,
+        run,
+        repl,
+        compile,
+        eval
+    };
     mode selected = mode::repl;
     uint16_t options = Ark::DefaultFeatures;
 
@@ -35,13 +45,14 @@ int main(int argc, char** argv)
 
     unsigned debug = 0;
 
-    uint16_t bcr_page  = ~0,
+    uint16_t bcr_page = ~0,
              bcr_start = ~0,
-             bcr_end   = ~0;
+             bcr_end = ~0;
     Ark::BytecodeSegment segment = Ark::BytecodeSegment::All;
 
     std::vector<std::string> wrong, script_args;
 
+    // clang-format off
     auto cli = (
         option("-h", "--help").set(selected, mode::help).doc("Display this message")
         | option("-v", "--version").set(selected, mode::version).doc("Display ArkScript version and exit")
@@ -105,6 +116,7 @@ int main(int argc, char** argv)
         )
         , any_other(wrong)
     );
+    // // clang-format on
 
     auto fmt = doc_formatting{}
         .start_column(8)           // column where usage lines and documentation starts

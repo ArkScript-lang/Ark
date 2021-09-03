@@ -13,7 +13,7 @@ namespace Ark::Utils
             d *= 10;
             temp = d - static_cast<int>(d);
             decimal_places++;
-        } while(temp > precision && decimal_places < std::numeric_limits<double>::digits10);
+        } while (temp > precision && decimal_places < std::numeric_limits<double>::digits10);
 
         return decimal_places;
     }
