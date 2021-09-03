@@ -42,7 +42,7 @@ namespace Ark::Utils
         std::string::size_type lastPos = 0;
         std::string::size_type findPos;
 
-        while(std::string::npos != (findPos = source.find(from, lastPos)))
+        while (std::string::npos != (findPos = source.find(from, lastPos)))
         {
             newString.append(source, lastPos, findPos - lastPos);
             newString += to;
@@ -163,8 +163,7 @@ namespace Ark::Utils
         // admitting the file exists
         return std::string(
             (std::istreambuf_iterator<char>(f)),
-            std::istreambuf_iterator<char>()
-        );
+            std::istreambuf_iterator<char>());
     }
 
     /**
