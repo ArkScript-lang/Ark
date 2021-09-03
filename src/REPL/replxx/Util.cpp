@@ -2,14 +2,14 @@
 #include <cstring>
 #include <regex>
 
-int utf8str_codepoint_len(char const *s, int utf8len)
+int utf8str_codepoint_len(char const* s, int utf8len)
 {
     int codepointLen = 0;
     unsigned char m4 = 128 + 64 + 32 + 16;
     unsigned char m3 = 128 + 64 + 32;
     unsigned char m2 = 128 + 64;
 
-    for(int i = 0; i < utf8len; ++i, ++codepointLen)
+    for (int i = 0; i < utf8len; ++i, ++codepointLen)
     {
         char c = s[i];
 
@@ -24,7 +24,7 @@ int utf8str_codepoint_len(char const *s, int utf8len)
     return codepointLen;
 }
 
-int context_len(char const *prefix)
+int context_len(char const* prefix)
 {
     char const wb[] = " \t\n\r\v\f-=+*&^%$#@!,./?<>;:`~'\"[]{}()\\|";
     int i = std::strlen(prefix) - 1;
@@ -82,7 +82,7 @@ void hook_color(std::string const& context, Replxx::colors_t& colors, std::vecto
             pos += utf8str_codepoint_len(prefix.c_str(), static_cast<int>(prefix.length()));
             int len = utf8str_codepoint_len(c.c_str(), static_cast<int>(c.length()));
 
-            for (int i = 0; i < len; ++ i)
+            for (int i = 0; i < len; ++i)
                 colors.at(pos + i) = e.second;
 
             pos += len;
