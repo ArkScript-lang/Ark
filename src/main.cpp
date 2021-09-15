@@ -1,16 +1,14 @@
-#ifndef ark_ark
+#include <cstdio>
+#include <iostream>
+#include <optional>
+#include <filesystem>
 
-#    include <cstdio>
-#    include <iostream>
-#    include <optional>
-#    include <filesystem>
+#include <clipp.hpp>
+#include <termcolor.hpp>
 
-#    include <clipp.hpp>
-#    include <termcolor.hpp>
-
-#    include <Ark/Ark.hpp>
-#    include <Ark/REPL/Repl.hpp>
-#    include <Ark/Profiling.hpp>
+#include <Ark/Ark.hpp>
+#include <Ark/REPL/Repl.hpp>
+#include <Ark/Profiling.hpp>
 
 int main(int argc, char** argv)
 {
@@ -118,13 +116,13 @@ int main(int argc, char** argv)
     );
     // clang-format on
 
-    auto fmt = doc_formatting{}
-        .start_column(8)           // column where usage lines and documentation starts
-        .doc_column(36)            // parameter docstring start col
-        .indent_size(2)            // indent of documentation lines for children of a documented group
-        .split_alternatives(true)  // split usage into several lines for large alternatives
-        .merge_alternative_flags_with_common_prefix(true)  // [-fok] [-fno-ok] becomes [-f(ok|no-ok)]
-    ;
+    auto fmt = doc_formatting {}
+                   .start_column(8)                                   // column where usage lines and documentation starts
+                   .doc_column(36)                                    // parameter docstring start col
+                   .indent_size(2)                                    // indent of documentation lines for children of a documented group
+                   .split_alternatives(true)                          // split usage into several lines for large alternatives
+                   .merge_alternative_flags_with_common_prefix(true)  // [-fok] [-fno-ok] becomes [-f(ok|no-ok)]
+        ;
 
     if (parse(argc, argv, cli) && wrong.empty())
     {
@@ -135,8 +133,8 @@ int main(int argc, char** argv)
             case mode::help:
                 // clipp only supports streams
                 std::cout << make_man_page(cli, "ark", fmt)
-                            .prepend_section("DESCRIPTION", "        ArkScript programming language")
-                            .append_section("LICENSE", "        Mozilla Public License 2.0")
+                                 .prepend_section("DESCRIPTION", "        ArkScript programming language")
+                                 .append_section("LICENSE", "        Mozilla Public License 2.0")
                           << std::endl;
                 break;
 
@@ -162,25 +160,24 @@ int main(int argc, char** argv)
                     "    sizeof(vector<Ark::Value>) = %zuB\n"
                     "    sizeof(std::string)   = %zuB\n"
                     "    sizeof(String)        = %zuB\n"
-                    "    sizeof(char)          = %zuB\n"
-                    , ARK_COMPILER, ARK_COMPILATION_OPTIONS,
+                    "    sizeof(char)          = %zuB\n",
+                    ARK_COMPILER, ARK_COMPILATION_OPTIONS,
                     // value
                     sizeof(Ark::Value),
-                        sizeof(Ark::Value::Value_t),
-                        sizeof(Ark::ValueType),
-                        sizeof(Ark::Value::ProcType),
-                        sizeof(Ark::internal::Closure),
-                        sizeof(Ark::UserType),
+                    sizeof(Ark::Value::Value_t),
+                    sizeof(Ark::ValueType),
+                    sizeof(Ark::Value::ProcType),
+                    sizeof(Ark::internal::Closure),
+                    sizeof(Ark::UserType),
                     // vm
                     sizeof(Ark::VM),
-                        sizeof(Ark::State),
-                        sizeof(Ark::internal::Scope),
+                    sizeof(Ark::State),
+                    sizeof(Ark::internal::Scope),
                     // misc
-                        sizeof(std::vector<Ark::Value>),
-                        sizeof(std::string),
-                        sizeof(String),
-                        sizeof(char)
-                );
+                    sizeof(std::vector<Ark::Value>),
+                    sizeof(std::string),
+                    sizeof(String),
+                    sizeof(char));
                 break;
             }
 
@@ -198,7 +195,8 @@ int main(int argc, char** argv)
 
                 if (!state.doFile(file))
                 {
-                    std::cerr << termcolor::red << "Ark::State.doFile(" << file << ") failed\n" << termcolor::reset;
+                    std::cerr << termcolor::red << "Ark::State.doFile(" << file << ") failed\n"
+                              << termcolor::reset;
                     return -1;
                 }
 
@@ -213,14 +211,15 @@ int main(int argc, char** argv)
 
                 if (!state.doFile(file))
                 {
-                    std::cerr << termcolor::red << "Ark::State.doFile(" << file << ") failed\n" << termcolor::reset;
+                    std::cerr << termcolor::red << "Ark::State.doFile(" << file << ") failed\n"
+                              << termcolor::reset;
                     return -1;
                 }
 
                 Ark::VM vm(&state);
                 int out = vm.run();
 
-                #ifdef ARK_PROFILER_COUNT
+#ifdef ARK_PROFILER_COUNT
                 std::printf(
                     "\n\nValue\n"
                     "=====\n"
@@ -228,9 +227,8 @@ int main(int argc, char** argv)
                     Ark::internal::value_creations,
                     Ark::internal::value_copies,
                     Ark::internal::value_moves,
-                    static_cast<float>(Ark::internal::value_copies) / Ark::internal::value_creations
-                );
-                #endif
+                    static_cast<float>(Ark::internal::value_copies) / Ark::internal::value_creations);
+#endif
 
                 return out;
             }
@@ -242,8 +240,9 @@ int main(int argc, char** argv)
 
                 if (!state.doString(eval_expresion))
                 {
-                    std::cerr << termcolor::red << "Ark::State.doString(" << eval_expresion << ") failed\n" << termcolor::reset;
-                    return  -1;
+                    std::cerr << termcolor::red << "Ark::State.doString(" << eval_expresion << ") failed\n"
+                              << termcolor::reset;
+                    return -1;
                 }
 
                 Ark::VM vm(&state);
@@ -253,7 +252,8 @@ int main(int argc, char** argv)
             case mode::bytecode_reader:
             {
                 uint16_t not_0 = ~0;
-                try {
+                try
+                {
                     Ark::BytecodeReader bcr;
                     bcr.feed(file);
 
@@ -265,7 +265,9 @@ int main(int argc, char** argv)
                         bcr.display(segment, bcr_start, bcr_end);
                     else
                         bcr.display(segment, bcr_start, bcr_end, bcr_page);
-                } catch (const std::exception& e) {
+                }
+                catch (const std::exception& e)
+                {
                     std::printf("%s\n", e.what());
                 }
                 break;
@@ -279,12 +281,10 @@ int main(int argc, char** argv)
 
         // clipp only supports streams
         std::cout << make_man_page(cli, "ark", fmt)
-                    .prepend_section("DESCRIPTION", "        ArkScript programming language")
-                    .append_section("LICENSE", "        Mozilla Public License 2.0")
-                    << std::endl;
+                         .prepend_section("DESCRIPTION", "        ArkScript programming language")
+                         .append_section("LICENSE", "        Mozilla Public License 2.0")
+                  << std::endl;
     }
 
     return 0;
 }
-
-#endif
