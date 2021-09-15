@@ -3,10 +3,12 @@
 // ------------------------------------------
 
 #define resolveRef(valptr) (((valptr)->valueType() == ValueType::Reference) ? *((valptr)->reference()) : *(valptr))
-#define resolveRefInPlace(val) if (val.valueType() == ValueType::Reference) {       \
-                                    val.m_const_type = val.reference()->m_const_type; \
-                                    val.m_value = val.reference()->m_value;         \
-                                }
+#define resolveRefInPlace(val)                            \
+    if (val.valueType() == ValueType::Reference)          \
+    {                                                     \
+        val.m_const_type = val.reference()->m_const_type; \
+        val.m_value = val.reference()->m_value;           \
+    }
 
 // profiler
 #include <Ark/Profiling.hpp>
@@ -39,11 +41,11 @@ Value VM::call(const std::string& name, Args&&... args)
     {
         ValueType vt = var->valueType();
 
-        if (vt != ValueType::PageAddr    &&
-            vt != ValueType::Closure     &&
+        if (vt != ValueType::PageAddr &&
+            vt != ValueType::Closure &&
             !(vt == ValueType::Reference &&
-                (var->reference()->valueType() == ValueType::PageAddr ||
-                 var->reference()->valueType() == ValueType::Closure)))
+              (var->reference()->valueType() == ValueType::PageAddr ||
+               var->reference()->valueType() == ValueType::Closure)))
             throwVMError("Can't call '" + name + "': it isn't a Function but a " + types_to_str[static_cast<int>(vt)]);
 
         push(Value(var));
@@ -111,8 +113,8 @@ Value VM::resolve(const Value* val, Args&&... args)
 inline uint16_t VM::readNumber()
 {
     uint16_t tmp =
-        (static_cast<uint16_t>(m_state->m_pages[m_pp][m_ip    ]) << 8) +
-         static_cast<uint16_t>(m_state->m_pages[m_pp][m_ip + 1]);
+        (static_cast<uint16_t>(m_state->m_pages[m_pp][m_ip]) << 8) +
+        static_cast<uint16_t>(m_state->m_pages[m_pp][m_ip + 1]);
 
     ++m_ip;
     return tmp;
@@ -163,11 +165,11 @@ inline void VM::swapStackForFunCall(uint16_t argc)
     using namespace internal;
 
     // move values around and invert them
-    // 
+    //
     // values:     1,  2, 3, _, _
     // wanted:    pp, ip, 3, 2, 1
     // positions:  0,  1, 2, 3, 4
-    // 
+    //
     // move values first, from position x to y, with
     //    y = argc - x + 1
     // then place pp and ip
@@ -197,7 +199,7 @@ inline void VM::swapStackForFunCall(uint16_t argc)
             resolveRefInPlace((*m_stack)[m_sp + 0]);
             // move the rest, if any
             int16_t x = 2;
-            const int16_t stop  = ((argc % 2 == 0) ? argc : (argc - 1)) / 2;
+            const int16_t stop = ((argc % 2 == 0) ? argc : (argc - 1)) / 2;
             while (x <= stop)
             {
                 //        destination          , origin
@@ -361,8 +363,7 @@ inline void VM::call(int16_t argc_)
         if (needed_argc != argc)
             throwVMError(
                 "Function '" + m_state->m_symbols[m_last_sym_loaded] + "' needs " + std::to_string(needed_argc) +
-                " arguments, but it received " + std::to_string(argc)
-            );
+                " arguments, but it received " + std::to_string(argc));
     }
 
     COZ_END("ark vm::call");

@@ -10,7 +10,7 @@ inline bool Value::isFunction() const noexcept  // if it's a function we can res
 {
     auto type = valueType();
     return type == ValueType::PageAddr || type == ValueType::Closure || type == ValueType::CProc ||
-            (type == ValueType::Reference && reference()->isFunction());
+        (type == ValueType::Reference && reference()->isFunction());
 }
 
 inline double Value::number() const

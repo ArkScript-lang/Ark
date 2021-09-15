@@ -16,12 +16,12 @@
 
 #if defined(ARK_OS_WINDOWS)
 // do not include winsock.h
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
+#    define WIN32_LEAN_AND_MEAN
+#    include <Windows.h>
 #elif defined(ARK_OS_LINUX)
-#include <dlfcn.h>
+#    include <dlfcn.h>
 #else
-#error "Can not identify the platform on which you are running, aborting"
+#    error "Can not identify the platform on which you are running, aborting"
 #endif
 
 #include <string>
