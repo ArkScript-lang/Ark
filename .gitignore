@@ -1,25 +1,59 @@
-build/
-tests/cpp/out/
-tests/cpp/ark/
-gitstats/
-__arkscript__/
-packages/
-.idea/
 # user settings
 .vscode/settings.json
 .vscode/c_cpp_properties.json
 
-# files
-gmon.out
-include/Ark/Constants.hpp
+# Personal utilities
 build.sh
 deploy.ps1
-build-package.sh
+cformat.ps1
 
-*.so
-*.dll
+# ArkScript
+include/Ark/Constants.hpp
+__arkscript__/
 *.arkc
-*.lib
 *.arkm
+
+# Tests results
+tests/cpp/out/
+tests/cpp/ark/
+
+# Coz profiler
 *.coz
+
+# Folders
 .vs/
+.idea/
+build/
+
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
