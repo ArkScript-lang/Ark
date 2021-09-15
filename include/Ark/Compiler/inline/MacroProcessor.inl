@@ -38,8 +38,7 @@ inline bool MacroProcessor::isPredefined(const std::string& symbol)
     auto it = std::find(
         m_predefined_macros.begin(),
         m_predefined_macros.end(),
-        symbol
-    );
+        symbol);
 
     return it != m_predefined_macros.end();
 }
@@ -58,9 +57,9 @@ inline void MacroProcessor::recurApply(Node& node)
 inline bool MacroProcessor::hadBegin(const Node& node)
 {
     return node.nodeType() == NodeType::List &&
-            node.constList().size() > 0 &&
-            node.constList()[0].nodeType() == NodeType::Keyword &&
-            node.constList()[0].keyword() == Keyword::Begin;
+        node.constList().size() > 0 &&
+        node.constList()[0].nodeType() == NodeType::Keyword &&
+        node.constList()[0].keyword() == Keyword::Begin;
 }
 
 inline void MacroProcessor::removeBegin(Node& node, std::size_t& i)
@@ -91,14 +90,14 @@ inline bool MacroProcessor::canBeCompileTimeEvaluated(const Node& node) const
         {
             auto it = std::find(internal::Builtins::operators.begin(), internal::Builtins::operators.end(), node.string());
             auto it2 = std::find_if(internal::Builtins::builtins.begin(), internal::Builtins::builtins.end(),
-                [&node](const std::pair<std::string, Value>& element) -> bool {
-                    return node.string() == element.first;
-            });
+                                    [&node](const std::pair<std::string, Value>& element) -> bool {
+                                        return node.string() == element.first;
+                                    });
 
-            return it != internal::Builtins::operators.end()  ||
-                    it2 != internal::Builtins::builtins.end()  ||
-                    const_cast<MacroProcessor*>(this)->findNearestMacro(node.string()) != nullptr ||
-                    node.string() == "list";
+            return it != internal::Builtins::operators.end() ||
+                it2 != internal::Builtins::builtins.end() ||
+                const_cast<MacroProcessor*>(this)->findNearestMacro(node.string()) != nullptr ||
+                node.string() == "list";
         }
 
         case NodeType::List:

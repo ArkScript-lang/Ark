@@ -3,8 +3,8 @@
 #include <Ark/Constants.hpp>
 
 #ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable : 4996)
+#    pragma warning(push)
+#    pragma warning(disable : 4996)
 #endif
 #include <stdlib.h>
 #include <picosha2.hpp>
@@ -349,5 +349,5 @@ namespace Ark
 }
 
 #ifdef _MSC_VER
-#pragma warning(pop)
+#    pragma warning(pop)
 #endif

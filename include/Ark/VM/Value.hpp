@@ -14,13 +14,13 @@
 
 #include <vector>
 #ifndef USE_MPARK
-#include <variant>
-#define variant_t std::variant
-#define variant_get std::get
+#    include <variant>
+#    define variant_t std::variant
+#    define variant_get std::get
 #else
-#include <variant.hpp>
-#define variant_t mpark::variant
-#define variant_get mpark::get
+#    include <variant.hpp>
+#    define variant_t mpark::variant
+#    define variant_get mpark::get
 #endif
 #include <string>  // for conversions
 #include <cinttypes>

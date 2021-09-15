@@ -6,8 +6,8 @@
 #include <thread>
 
 #ifdef _MSC_VER
-#define popen _popen
-#define pclose _pclose
+#    define popen _popen
+#    define pclose _pclose
 #endif
 
 #undef abs

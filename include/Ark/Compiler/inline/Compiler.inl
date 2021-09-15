@@ -29,9 +29,9 @@ inline std::optional<std::size_t> Compiler::isOperator(const std::string& name) 
 inline std::optional<std::size_t> Compiler::isBuiltin(const std::string& name) noexcept
 {
     auto it = std::find_if(internal::Builtins::builtins.begin(), internal::Builtins::builtins.end(),
-        [&name](const std::pair<std::string, Value>& element) -> bool {
-            return name == element.first;
-    });
+                           [&name](const std::pair<std::string, Value>& element) -> bool {
+                               return name == element.first;
+                           });
     if (it != internal::Builtins::builtins.end())
         return std::distance(internal::Builtins::builtins.begin(), it);
     return {};
@@ -70,8 +70,8 @@ inline bool Compiler::mayBeFromPlugin(const std::string& name) noexcept
 {
     std::string splitted = Utils::splitString(name, ':')[0];
     auto it = std::find_if(m_plugins.begin(), m_plugins.end(),
-        [&splitted](const std::string& plugin) -> bool {
-            return std::filesystem::path(plugin).stem().string() == splitted;
-    });
+                           [&splitted](const std::string& plugin) -> bool {
+                               return std::filesystem::path(plugin).stem().string() == splitted;
+                           });
     return it != m_plugins.end();
 }

@@ -1,7 +1,7 @@
 #include <Ark/VM/Scope.hpp>
 
 #ifdef ARK_SCOPE_DICHOTOMY
-#include <algorithm>
+#    include <algorithm>
 #endif
 
 #define push_pair(id, val) m_data.emplace_back(std::pair<uint16_t, Value>(id, val))
