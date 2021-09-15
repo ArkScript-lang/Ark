@@ -67,8 +67,7 @@ namespace Ark
             m_data(static_cast<void*>(data)),
             m_funcs(nullptr),
             m_type_id(internal::type_uid<T>::value)
-        {
-        }
+        {}
 
         /**
          * @brief Destroy the User Type object

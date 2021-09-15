@@ -120,8 +120,7 @@ namespace Ark
         Value(ValueType type, T&& value) noexcept :
             m_const_type(static_cast<uint8_t>(type)),
             m_value(value)
-        {
-        }
+        {}
 
 #ifdef ARK_PROFILER_COUNT
         Value(const Value& val) noexcept;

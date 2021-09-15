@@ -8,8 +8,7 @@ namespace Ark::internal
 {
     Lexer::Lexer(unsigned debug) noexcept :
         m_debug(debug)
-    {
-    }
+    {}
 
     void Lexer::feed(const std::string& code)
     {

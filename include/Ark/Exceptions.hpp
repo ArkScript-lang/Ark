@@ -26,8 +26,7 @@ namespace Ark
     public:
         explicit TypeError(const std::string& message) :
             m_msg("TypeError: " + message)
-        {
-        }
+        {}
 
         virtual const char* what() const throw()
         {
@@ -77,8 +76,7 @@ namespace Ark
     public:
         explicit AssertionFailed(const std::string& message) :
             m_msg("AssertionFailed: " + message)
-        {
-        }
+        {}
 
         virtual const char* what() const throw()
         {
@@ -98,8 +96,7 @@ namespace Ark
     public:
         explicit SyntaxError(const std::string& message) :
             m_msg("SyntaxError: " + message)
-        {
-        }
+        {}
 
         virtual const char* what() const throw()
         {
@@ -119,8 +116,7 @@ namespace Ark
     public:
         explicit ParseError(const std::string& message) :
             m_msg("ParseError: " + message)
-        {
-        }
+        {}
 
         virtual const char* what() const throw()
         {
@@ -140,8 +136,7 @@ namespace Ark
     public:
         explicit OptimizerError(const std::string& message) :
             m_msg("OptimizerError: " + message)
-        {
-        }
+        {}
 
         virtual const char* what() const throw()
         {
@@ -161,8 +156,7 @@ namespace Ark
     public:
         explicit MacroProcessingError(const std::string& message) :
             m_msg("MacroProcessingError: " + message)
-        {
-        }
+        {}
 
         virtual const char* what() const throw()
         {
@@ -182,8 +176,7 @@ namespace Ark
     public:
         explicit CompilationError(const std::string& message) :
             m_msg("CompilationError: " + message)
-        {
-        }
+        {}
 
         virtual const char* what() const throw()
         {

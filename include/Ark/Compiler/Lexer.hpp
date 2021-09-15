@@ -73,8 +73,7 @@ namespace Ark::internal
          */
         Token(TokenType type, const std::string& tok, std::size_t line, std::size_t col) noexcept :
             type(type), token(tok), line(line), col(col)
-        {
-        }
+        {}
 
         /**
          * @brief Construct a new Token object from another one

@@ -6,8 +6,7 @@ namespace Ark
 
     Optimizer::Optimizer(uint16_t options) noexcept :
         m_options(options)
-    {
-    }
+    {}
 
     void Optimizer::feed(const Node& ast)
     {
