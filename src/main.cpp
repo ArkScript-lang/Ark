@@ -116,7 +116,7 @@ int main(int argc, char** argv)
         )
         , any_other(wrong)
     );
-    // // clang-format on
+    // clang-format on
 
     auto fmt = doc_formatting{}
         .start_column(8)           // column where usage lines and documentation starts
