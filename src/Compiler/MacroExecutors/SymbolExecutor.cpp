@@ -4,8 +4,7 @@ namespace Ark::internal
 {
     SymbolExecutor::SymbolExecutor(MacroProcessor* macroprocessor, unsigned debug) :
         MacroExecutor(macroprocessor, debug)
-    {
-    }
+    {}
 
     bool SymbolExecutor::canHandle(Node& node)
     {

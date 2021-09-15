@@ -8,8 +8,7 @@ namespace Ark
 {
     Value::Value() noexcept :
         m_const_type(init_const_type(false, ValueType::Undefined))
-    {
-    }
+    {}
 
     // --------------------------
 
@@ -62,63 +61,51 @@ namespace Ark
 
     Value::Value(int value) noexcept :
         m_value(static_cast<double>(value)), m_const_type(init_const_type(false, ValueType::Number))
-    {
-    }
+    {}
 
     Value::Value(float value) noexcept :
         m_value(static_cast<double>(value)), m_const_type(init_const_type(false, ValueType::Number))
-    {
-    }
+    {}
 
     Value::Value(double value) noexcept :
         m_value(value), m_const_type(init_const_type(false, ValueType::Number))
-    {
-    }
+    {}
 
     Value::Value(const std::string& value) noexcept :
         m_value(value.c_str()), m_const_type(init_const_type(false, ValueType::String))
-    {
-    }
+    {}
 
     Value::Value(const String& value) noexcept :
         m_value(value), m_const_type(init_const_type(false, ValueType::String))
-    {
-    }
+    {}
 
     Value::Value(const char* value) noexcept :
         m_value(value), m_const_type(init_const_type(false, ValueType::String))
-    {
-    }
+    {}
 
     Value::Value(internal::PageAddr_t value) noexcept :
         m_value(value), m_const_type(init_const_type(false, ValueType::PageAddr))
-    {
-    }
+    {}
 
     Value::Value(Value::ProcType value) noexcept :
         m_value(value), m_const_type(init_const_type(false, ValueType::CProc))
-    {
-    }
+    {}
 
     Value::Value(std::vector<Value>&& value) noexcept :
         m_value(value), m_const_type(init_const_type(false, ValueType::List))
-    {
-    }
+    {}
 
     Value::Value(internal::Closure&& value) noexcept :
         m_value(value), m_const_type(init_const_type(false, ValueType::Closure))
-    {
-    }
+    {}
 
     Value::Value(UserType&& value) noexcept :
         m_value(value), m_const_type(init_const_type(false, ValueType::User))
-    {
-    }
+    {}
 
     Value::Value(Value* ref) noexcept :
         m_value(ref), m_const_type(init_const_type(true, ValueType::Reference))
-    {
-    }
+    {}
 
     // --------------------------
 
