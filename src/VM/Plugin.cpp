@@ -10,8 +10,7 @@ namespace Ark::internal
         m_instance(NULL),
         m_path(""),
         m_loaded(false)
-    {
-    }
+    {}
 
     SharedLibrary::SharedLibrary(const std::string& path) :
         m_instance(NULL),

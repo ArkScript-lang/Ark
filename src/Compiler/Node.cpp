@@ -21,31 +21,26 @@ namespace Ark::internal
     Node::Node(long value) noexcept :
         m_type(NodeType::Number),
         m_value(static_cast<double>(value))
-    {
-    }
+    {}
 
     Node::Node(double value) noexcept :
         m_type(NodeType::Number),
         m_value(value)
-    {
-    }
+    {}
 
     Node::Node(const std::string& value) noexcept :
         m_type(NodeType::String),
         m_value(value)
-    {
-    }
+    {}
 
     Node::Node(Keyword value) noexcept :
         m_type(NodeType::Keyword),
         m_value(value)
-    {
-    }
+    {}
 
     Node::Node(NodeType type) noexcept :
         m_type(type)
-    {
-    }
+    {}
 
     Node::Node(const Node& other) noexcept :
         m_type(other.m_type),
@@ -54,8 +49,7 @@ namespace Ark::internal
         m_line(other.m_line),
         m_col(other.m_col),
         m_filename(other.m_filename)
-    {
-    }
+    {}
 
     // -------------------------
 

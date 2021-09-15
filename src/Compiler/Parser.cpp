@@ -16,8 +16,7 @@ namespace Ark
         m_options(options),
         m_lexer(debug),
         m_file(ARK_NO_NAME_FILE)
-    {
-    }
+    {}
 
     void Parser::feed(const std::string& code, const std::string& filename)
     {
