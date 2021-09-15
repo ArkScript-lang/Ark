@@ -229,9 +229,10 @@ namespace Ark
 
         // the block size can exceed 3 only if we have a serie of getfields
         expect(
-            block.list().size() <= 3 || std::all_of(block.list().begin() + 3, block.list().end(), [](const Node& n) -> bool { return n.nodeType() == NodeType::GetField; }),
-            "too many arguments given to keyword `" + token.token + "', got " + std::to_string(block.list().size() - 1) + ", expected at most 3",
-            m_last_token);
+            block.list().size() <= 3 || std::all_of(block.list().begin() + 3, block.list().end(), [](const Node& n) -> bool {
+                return n.nodeType() == NodeType::GetField;
+            }),
+            "too many arguments given to keyword `" + token.token + "', got " + std::to_string(block.list().size() - 1) + ", expected at most 3", m_last_token);
     }
 
     void Parser::parseSet(Node& block, Token& token, std::list<Token>& tokens, bool authorize_capture, bool authorize_field_read, bool in_macro)
@@ -254,9 +255,10 @@ namespace Ark
 
         // the block size can exceed 3 only if we have a serie of getfields
         expect(
-            block.list().size() <= 3 || std::all_of(block.list().begin() + 3, block.list().end(), [](const Node& n) -> bool { return n.nodeType() == NodeType::GetField; }),
-            "too many arguments given to keyword `" + token.token + "', got " + std::to_string(block.list().size() - 1) + ", expected at most 3",
-            m_last_token);
+            block.list().size() <= 3 || std::all_of(block.list().begin() + 3, block.list().end(), [](const Node& n) -> bool {
+                return n.nodeType() == NodeType::GetField;
+            }),
+            "too many arguments given to keyword `" + token.token + "', got " + std::to_string(block.list().size() - 1) + ", expected at most 3", m_last_token);
     }
 
     void Parser::parseFun(Node& block, Token& token, std::list<Token>& tokens, bool authorize_capture, bool authorize_field_read, bool in_macro)

@@ -1,16 +1,16 @@
 #ifndef ark_ark
 
-#include <cstdio>
-#include <iostream>
-#include <optional>
-#include <filesystem>
+#    include <cstdio>
+#    include <iostream>
+#    include <optional>
+#    include <filesystem>
 
-#include <clipp.hpp>
-#include <termcolor.hpp>
+#    include <clipp.hpp>
+#    include <termcolor.hpp>
 
-#include <Ark/Ark.hpp>
-#include <Ark/REPL/Repl.hpp>
-#include <Ark/Profiling.hpp>
+#    include <Ark/Ark.hpp>
+#    include <Ark/REPL/Repl.hpp>
+#    include <Ark/Profiling.hpp>
 
 int main(int argc, char** argv)
 {
