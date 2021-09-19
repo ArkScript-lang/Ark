@@ -2,12 +2,18 @@
 
 ## [Unreleased changes]
 ### Added
+
+### Changed
+
+### Removed
+
+## [3.1.1] - 2021-09-19
+### Added
 - ArkDoc documentation for the builtins
+- Now using clang-format to ensure the code is correctly formatted
 
 ### Changed
 - the macro processor can now handle multiple macro definitions in a if-macro: `!{if true { !{a 1} !{b 2} }}` is finally working
-
-### Removed
 
 ### Deprecated
 - `ark` command is now marked as deprecated, in favor of `arkscript`
@@ -19,7 +25,6 @@
 
 ### Changed
 - `list:removeAt` was deprecated
-### Removed
 
 ## [3.1.0] - 2021-06-29
 ### Added
