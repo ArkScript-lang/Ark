@@ -22,7 +22,7 @@ jobs:
       - name: Download artifact Linux GCC
         uses: dawidd6/action-download-artifact@v2
         with:
-          workflow: linux-gcc.yml
+          workflow: ci.yml
           branch: dev
           name: ark-linux-gcc-version
           path: ark-linux-gcc-version
@@ -30,7 +30,7 @@ jobs:
       - name: Download artifact Windows MSVC
         uses: dawidd6/action-download-artifact@v2
         with:
-          workflow: msvc.yml
+          workflow: ci.yml
           branch: dev
           name: ark-windows-msvc-version
           path: ark-windows-msvc-version
