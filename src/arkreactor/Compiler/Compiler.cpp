@@ -2,7 +2,7 @@
 
 #include <fstream>
 #include <chrono>
-#include <picosha2.hpp>
+#include <picosha2.h>
 
 #include <Ark/Builtins/Builtins.hpp>
 #include <Ark/Compiler/MacroProcessor.hpp>

@@ -2,7 +2,7 @@
 
 #include <Ark/String.hpp>
 #include <Ark/Utils.hpp>
-#include <utf8_decoder/utf8_decoder.h>
+#include <utf8_decoder.h>
 
 #include <Ark/Builtins/BuiltinsErrors.inl>
 #include <Ark/VM/VM.hpp>
