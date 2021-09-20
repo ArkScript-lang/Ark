@@ -8,143 +8,47 @@ on:
 
 env:
   BUILD_TYPE: Release
-  CC_LLVM: clang-10
-  CXX_LLVM: clang++-10
-  CC_GNU: gcc-8
-  CXX_GNU: g++-8
-  CC_MS: cl
-  CXX_MS: cl
-  CC_APPLE: clang
-  CXX_APPLE: clang++
 
 jobs:
-  clang-build:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v2
-      if: ${{ contains(github.event.head_commit.message, '[skip ci]') != true }}
-      with:
-        submodules: recursive
-
-    - name: Update compilers
-      shell: bash
-      run: |
-        sudo apt-get install -y clang-10 lld-10 libc++-10-dev libc++abi-10-dev clang-tools-10
-
-    - name: Configure CMake Ark
-      shell: bash
-      run: |
-        cmake -Bbuild -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_C_COMPILER=$CC_LLVM -DCMAKE_CXX_COMPILER=$CXX_LLVM -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=On -DARK_MOD_ALL=On
-
-    - name: Configure CMake Integration tests
-      shell: bash
-      run: |
-        cd tests/cpp
-        cmake -Bbuild -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_C_COMPILER=$CC_LLVM -DCMAKE_CXX_COMPILER=$CXX_LLVM
-
-    - name: Build Ark
-      shell: bash
-      run: |
-        cmake --build build --config $BUILD_TYPE
-
-    - name: Build Integration tests
-      shell: bash
-      run: |
-        cd tests/cpp
-        cmake --build build --config $BUILD_TYPE
-
-    - name: Tests
-      shell: bash
-      run: bash .github/launch-tests
-
-    - name: Organize files for upload
-      shell: bash
-      run: |
-        mkdir -p artifact/lib
-        cp build/ark artifact
-        cp build/arkscript artifact
-        cp build/libArkReactor.a artifact
-        cp lib/*.arkm artifact/lib
-        cp -r lib/std/ artifact/lib
-        rm -rf artifact/lib/std/{.git,.github,tests/__arkscript__}
-
-    - name: Upload artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: ark-linux-clang-version
-        path: artifact
-
-  gcc-build:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v2
-      if: ${{ contains(github.event.head_commit.message, '[skip ci]') != true }}
-      with:
-        submodules: recursive
-
-    - name: Update compilers
-      shell: bash
-      run: |
-        sudo apt-add-repository -y ppa:ubuntu-toolchain-r/test
-        sudo apt-get -yq install g++-8 gcc-8
-
-    - name: Configure CMake Ark
-      shell: bash
-      run: |
-        cmake -Bbuild -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_C_COMPILER=$CC_GNU -DCMAKE_CXX_COMPILER=$CXX_GNU -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=On -DARK_MOD_ALL=On
-
-    - name: Configure CMake Integration tests
-      shell: bash
-      run: |
-        cd tests/cpp
-        cmake -Bbuild -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_C_COMPILER=$CC_GNU -DCMAKE_CXX_COMPILER=$CXX_GNU
-
-    - name: Build Ark
-      shell: bash
-      run: |
-        cmake --build build --config $BUILD_TYPE
-
-    - name: Build Integration tests
-      shell: bash
-      run: |
-        cd tests/cpp
-        cmake --build build --config $BUILD_TYPE
-
-    - name: Tests
-      shell: bash
-      run: bash .github/launch-tests
-
-    - name: Organize files for upload
-      shell: bash
-      run: |
-        mkdir -p artifact/lib
-        cp build/ark artifact
-        cp build/arkscript artifact
-        cp build/libArkReactor.a artifact
-        cp lib/*.arkm artifact/lib
-        cp -r lib/std/ artifact/lib
-        rm -rf artifact/lib/std/{.git,.github,tests/__arkscript__}
-
-    - name: Upload artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: ark-linux-gcc-version
-        path: artifact
-
-  ms-build:
-    runs-on: windows-latest
+  build:
+    runs-on: ${{ matrix.config.os }}
+    name: ${{ matrix.config.name }}
 
     strategy:
       fail-fast: false
       matrix:
         config:
-        - {
+          - {
+            os: ubuntu-latest, name: "Ubuntu Clang 10",
+            cc: "clang-10", cxx: "clang++-10",
+            artifact: "ark-linux-clang-10"
+          }
+          - {
+            os: ubuntu-latest, name: "Ubuntu g++ 8",
+            cc: "gcc-8", cxx: "g++-8",
+            artifact: "ark-linux-gcc-8"
+          }
+          - {
+            os: ubuntu-latest, name: "Ubuntu g++ 9",
+            cc: "gcc-9", cxx: "g++-9",
+            artifact: "ark-linux-gcc-9"
+          }
+          - {
+            os: windows-latest, name: "Windows VS 2019",
+            cc: "cl", cxx: "cl",
+            artifact: "ark-windows-msvc-19",
             environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
           }
-        - {
+          - {
+            os: windows-latest, name: "Windows VS 2017",
+            cc: "cl", cxx: "cl",
+            artifact: "ark-windows-msvc-17",
             environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
+          }
+          - {
+            os: macos-latest, name: "MacOS Clang",
+            cc: "clang", cxx: "clang++",
+            artifact: "ark-macos-clang"
           }
 
     steps:
@@ -153,33 +57,71 @@ jobs:
       with:
         submodules: recursive
 
+    - name: Update GNU compilers
+      if: startsWith(matrix.config.name, 'Ubuntu') && startsWith(matrix.config.cc, 'gcc')
+      shell: bash
+      run: |
+        sudo apt-add-repository -y ppa:ubuntu-toolchain-r/test
+        sudo apt-get -yq install ${{ matrix.config.cc }} ${{ matrix.config.cxx }}
+
+    - name: Update LLVM compilers
+      if: startsWith(matrix.config.name, 'Ubuntu') && startsWith(matrix.config.cc, 'clang')
+      shell: bash
+      run: |
+        sudo apt-get install -y clang-10 lld-10 libc++-10-dev libc++abi-10-dev clang-tools-10
+
+    - name: Update MacOS compilers
+      if: startsWith(matrix.config.name, 'MacOS')
+      shell: bash
+      run: |
+        brew install gcc && brew link gcc && CXX=/usr/local/bin/g++-9
+        brew install openssl
+        export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/
+
     - name: Configure CMake Ark
       shell: bash
       run: |
-        cmake -Bbuild -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_C_COMPILER=$CC_MS -DCMAKE_CXX_COMPILER=$CXX_MS -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=On -DARK_MOD_ALL=On
+        cmake -Bbuild \
+          -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
+          -DCMAKE_C_COMPILER=${{ matrix.config.cc }} \
+          -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }} \
+          -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=On -DARK_MOD_ALL=On
 
     - name: Configure CMake Integration tests
       shell: bash
       run: |
         cd tests/cpp
-        cmake -Bbuild -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_C_COMPILER=$CC_MS -DCMAKE_CXX_COMPILER=$CXX_MS
+        cmake -Bbuild \
+          -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
+          -DCMAKE_C_COMPILER=${{ matrix.config.cc }} \
+          -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }}
 
-    - name: Build Ark
+    - name: Build ArkScript
       shell: bash
-      run: |
-        cmake --build build --config $BUILD_TYPE
+      run: cmake --build build --config $BUILD_TYPE
 
     - name: Build Integration tests
       shell: bash
-      run: |
-        cd tests/cpp
-        cmake --build build --config $BUILD_TYPE
+      run: cd tests/cpp && cmake --build build --config $BUILD_TYPE
 
     - name: Tests
       shell: bash
       run: bash .github/launch-tests
 
     - name: Organize files for upload
+      if: startsWith(matrix.config.name, 'Ubuntu')
+      shell: bash
+      run: |
+        mkdir -p artifact/lib
+        cp build/ark artifact
+        cp build/arkscript artifact
+        cp build/libArkReactor.a artifact
+        cp lib/*.arkm artifact/lib
+        cp -r lib/std/ artifact/lib
+        rm -rf artifact/lib/std/{.git,.github,tests/__arkscript__}
+
+    - name: Organize files for upload
+      if: startsWith(matrix.config.name, 'Windows')
       shell: bash
       run: |
         mkdir -p artifact/lib
@@ -193,63 +135,5 @@ jobs:
     - name: Upload artifact
       uses: actions/upload-artifact@v2
       with:
-        name: ark-windows-msvc-version
-        path: artifact
-
-  macos-build:
-    runs-on: macos-latest
-
-    steps:
-    - uses: actions/checkout@v2
-      with:
-        submodules: recursive
-
-    - name: Update compilers
-      shell: bash
-      run: |
-        brew install gcc && brew link gcc && CXX=/usr/local/bin/g++-9
-        brew install openssl
-        export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/
-
-    - name: Configure CMake Ark
-      shell: bash
-      run: |
-        cmake -Bbuild -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_C_COMPILER=$CC_APPLE -DCMAKE_CXX_COMPILER=$CXX_APPLE -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=On
-
-    - name: Configure CMake Integration tests
-      shell: bash
-      run: |
-        cd tests/cpp
-        cmake -Bbuild -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_C_COMPILER=$CC_APPLE -DCMAKE_CXX_COMPILER=$CXX_APPLE
-
-    - name: Build Ark
-      shell: bash
-      run: |
-        cmake --build build --config $BUILD_TYPE
-
-    - name: Build Integration tests
-      shell: bash
-      run: |
-        cd tests/cpp
-        cmake --build build --config $BUILD_TYPE
-
-    - name: Tests
-      shell: bash
-      run: bash .github/launch-tests
-
-    - name: Organize files for upload
-      shell: bash
-      run: |
-        mkdir -p artifact/lib
-        cp build/ark artifact
-        cp build/arkscript artifact
-        cp build/libArkReactor.a artifact
-        cp lib/*.arkm artifact/lib
-        cp -r lib/std/ artifact/lib
-        rm -rf artifact/lib/std/{.git,.github,tests/__arkscript__}
-
-    - name: Upload artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: ark-macos-clang-version
+        name: ${{ matrix.config.artifact }}
         path: artifact

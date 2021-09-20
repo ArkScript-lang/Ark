@@ -24,22 +24,22 @@ jobs:
         with:
           workflow: ci.yml
           branch: dev
-          name: ark-linux-gcc-version
-          path: ark-linux-gcc-version
+          name: ark-linux-gcc-9
+          path: ark-linux-gcc-9
 
       - name: Download artifact Windows MSVC
         uses: dawidd6/action-download-artifact@v2
         with:
           workflow: ci.yml
           branch: dev
-          name: ark-windows-msvc-version
-          path: ark-windows-msvc-version
+          name: ark-windows-msvc-19
+          path: ark-windows-msvc-19
 
       - name: Make ZIPs
         shell: bash
         run: |
-          (cd ark-linux-gcc-version && zip -r ../linux64.zip ./)
-          (cd ark-windows-msvc-version && zip -r ../win64.zip ./)
+          (cd ark-linux-gcc-9 && zip -r ../linux64.zip ./)
+          (cd ark-windows-msvc-19 && zip -r ../win64.zip ./)
 
       - name: Extract release notes
         id: extract-release-notes
