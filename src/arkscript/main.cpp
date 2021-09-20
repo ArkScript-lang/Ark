@@ -3,8 +3,8 @@
 #include <optional>
 #include <filesystem>
 
-#include <clipp.hpp>
-#include <termcolor.hpp>
+#include <clipp.h>
+#include <termcolor/termcolor.hpp>
 
 #include <Ark/Ark.hpp>
 #include <Ark/REPL/Repl.hpp>
