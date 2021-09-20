@@ -19,7 +19,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Download artifact Linux GCC
+      - name: Download artifact Linux GCC 9
         uses: dawidd6/action-download-artifact@v2
         with:
           workflow: ci.yml
@@ -27,7 +27,23 @@ jobs:
           name: ark-linux-gcc-9
           path: ark-linux-gcc-9
 
-      - name: Download artifact Windows MSVC
+      - name: Download artifact Linux GCC 8
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: ci.yml
+          branch: dev
+          name: ark-linux-gcc-8
+          path: ark-linux-gcc-8
+
+      - name: Download artifact Linux Clang 10
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: ci.yml
+          branch: dev
+          name: ark-linux-clang-10
+          path: ark-linux-clang-10
+
+      - name: Download artifact Windows MSVC 19
         uses: dawidd6/action-download-artifact@v2
         with:
           workflow: ci.yml
@@ -35,11 +51,29 @@ jobs:
           name: ark-windows-msvc-19
           path: ark-windows-msvc-19
 
+      - name: Download artifact Windows MSVC 17
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: ci.yml
+          branch: dev
+          name: ark-windows-msvc-17
+          path: ark-windows-msvc-17
+
+      - name: Download artifact MacOS Clang
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: ci.yml
+          branch: dev
+          name: ark-macos-clang
+          path: ark-macos-clang
+
       - name: Make ZIPs
         shell: bash
         run: |
-          (cd ark-linux-gcc-9 && zip -r ../linux64.zip ./)
-          (cd ark-windows-msvc-19 && zip -r ../win64.zip ./)
+          for i in ark-*; do
+            name=`echo $i | cut -c 5-`
+            (cd ${i} && zip -r ../${name}.zip ./)
+          done
 
       - name: Extract release notes
         id: extract-release-notes
@@ -69,22 +103,62 @@ jobs:
           nodetail: true
           username: GitHub Actions
 
-      - name: Upload Linux artifact
+      - name: Upload artifact
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./linux64.zip
-          asset_name: linux64.zip
+          asset_path: ./macos-clang.zip
+          asset_name: macos-clang.zip
           asset_content_type: application/zip
 
-      - name: Upload Windows artifact
+      - name: Upload artifact
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./win64.zip
-          asset_name: win64.zip
+          asset_path: ./linux-gcc-8.zip
+          asset_name: linux-gcc-8.zip
+          asset_content_type: application/zip
+
+      - name: Upload artifact
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./linux-gcc-9.zip
+          asset_name: linux-gcc-9.zip
+          asset_content_type: application/zip
+
+      - name: Upload artifact
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./linux-clang-10.zip
+          asset_name: linux-clang-10.zip
+          asset_content_type: application/zip
+
+      - name: Upload artifact
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./windows-msvc-19.zip
+          asset_name: windows-msvc-19.zip
+          asset_content_type: application/zip
+
+      - name: Upload artifact
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./windows-msvc-17.zip
+          asset_name: windows-msvc-17.zip
           asset_content_type: application/zip
