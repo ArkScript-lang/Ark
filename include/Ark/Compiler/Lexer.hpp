@@ -22,7 +22,7 @@
 #include <Ark/Utils.hpp>
 #include <Ark/Compiler/makeErrorCtx.hpp>
 
-#include <utf8_decoder/utf8_decoder.h>
+#include <utf8_decoder.h>
 
 namespace Ark::internal
 {

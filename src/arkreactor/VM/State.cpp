@@ -7,8 +7,8 @@
 #    pragma warning(disable : 4996)
 #endif
 #include <stdlib.h>
-#include <picosha2.hpp>
-#include <termcolor.hpp>
+#include <picosha2.h>
+#include <termcolor/termcolor.hpp>
 
 namespace Ark
 {

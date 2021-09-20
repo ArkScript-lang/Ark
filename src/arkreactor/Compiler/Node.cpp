@@ -1,6 +1,6 @@
 #include <Ark/Compiler/Node.hpp>
 
-#include <termcolor.hpp>
+#include <termcolor/termcolor.hpp>
 
 namespace Ark::internal
 {

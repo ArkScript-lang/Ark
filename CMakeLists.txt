@@ -2,9 +2,13 @@ cmake_minimum_required(VERSION 3.8)
 
 project(ark CXX)
 
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-    set(CMAKE_COMPILER_IS_CLANG ON)
-endif()
+# VERSION
+set(ARK_VERSION_MAJOR 3)
+set(ARK_VERSION_MINOR 1)
+set(ARK_VERSION_PATCH 1)
+
+# Uses GNU Install directory variables
+include(GNUInstallDirs)
 
 # setting up compilations options
 
@@ -19,11 +23,84 @@ elseif (MSVC)
 
     add_compile_options(/wd4267)  # disable warning about data loss (size_t -> int)
     add_compile_options(/wd4244)  # disable warning about data loss (size_t -> char)
-elseif (CMAKE_COMPILER_IS_CLANG)
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     set_property(GLOBAL PROPERTY ArkDebugFlags "${CMAKE_CXX_FLAGS} -stdlib=libc++")
     set_property(GLOBAL PROPERTY ArkReleaseFlags "${CMAKE_CXX_FLAGS} -stdlib=libc++")
     set_property(GLOBAL PROPERTY ArkLinkerFlags "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++abi")
 endif()
+
+# files needed for the library ArkReactor
+file(GLOB_RECURSE SOURCE_FILES
+    ${ark_SOURCE_DIR}/src/arkreactor/*.cpp
+)
+
+add_library(ArkReactor
+    SHARED
+    ${SOURCE_FILES}
+)
+
+
+# Adds variant header project to includes.
+target_include_directories(ArkReactor PUBLIC "${ark_SOURCE_DIR}/lib/variant/")
+
+# Adds utf8_decoder header project to includes.
+target_include_directories(ArkReactor PUBLIC "${ark_SOURCE_DIR}/lib/utf8_decoder/")
+
+# Adds picosha2 header project to includes.
+target_include_directories(ArkReactor PUBLIC "${ark_SOURCE_DIR}/lib/picosha2/")
+
+# Adds termcolor source project for static linking
+add_subdirectory("${ark_SOURCE_DIR}/lib/termcolor" EXCLUDE_FROM_ALL)
+# Links to the target ArkReactor
+target_link_libraries(ArkReactor PUBLIC termcolor)
+
+# Adds String source project for static linking
+add_subdirectory("${ark_SOURCE_DIR}/lib/String/" EXCLUDE_FROM_ALL)
+# Adds String headers project to includes.
+target_include_directories(ArkReactor PUBLIC "${ark_SOURCE_DIR}/lib/String/include/")
+# Links to the target ArkReactor
+target_link_libraries(ArkReactor PUBLIC ArkScriptString)
+
+
+# coz-profiler
+if (ARK_PROFILER)
+    find_package(coz-profiler REQUIRED PATHS ${ark_SOURCE_DIR}/lib/coz/)
+    target_include_directories(ArkReactor PUBLIC ${COZ_INCLUDE_DIR})
+    target_link_libraries(ArkReactor PUBLIC ${COZ_LIBRARY})
+endif()
+
+
+# including content of project
+target_include_directories(ArkReactor
+    PUBLIC
+    ${ark_SOURCE_DIR}/include
+)
+
+# setting up project properties
+set_target_properties(
+    ArkReactor
+    PROPERTIES
+        CXX_STANDARD 17
+        CXX_STANDARD_REQUIRED ON
+)
+
+# Installs the dynamic library file.
+install(TARGETS ArkReactor
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
+# Install header files
+install(DIRECTORY ${ark_SOURCE_DIR}/include/
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+# Install the standard library
+if(NOT ARK_NO_STD)
+    install(DIRECTORY ${ark_SOURCE_DIR}/lib/std/
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/Ark/std
+        FILES_MATCHING PATTERN "*.ark"
+        PATTERN "std/tests" EXCLUDE
+        PATTERN "std/.github" EXCLUDE)
+endif()
+
 
 # set debug compilation flags
 get_property(DebugFlags GLOBAL PROPERTY ArkDebugFlags)
@@ -43,21 +120,7 @@ if (LinkerFlags)
     set(CMAKE_EXE_LINKER_FLAGS "${LinkerFlags}" CACHE STRING "Linker options" FORCE)
 endif()
 
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-
-# submodules
-add_subdirectory("${ark_SOURCE_DIR}/submodules/String")
-# replxx
-add_subdirectory("${ark_SOURCE_DIR}/submodules/replxx")
-set(REPLXX_INCLUDE_DIR "${ark_SOURCE_DIR}/submodules/replxx/include")
-
 # configuring Constants.hpp
-
-# VERSION
-set(ARK_VERSION_MAJOR 3)
-set(ARK_VERSION_MINOR 1)
-set(ARK_VERSION_PATCH 1)
-
 message(STATUS "ArkScript version ${ARK_VERSION_MAJOR}.${ARK_VERSION_MINOR}.${ARK_VERSION_PATCH}")
 if (ARK_PROFILER)
     message(STATUS "Coz Profiler is enabled")
@@ -74,7 +137,9 @@ set(ARK_ENABLE_SYSTEM   On  CACHE BOOL "Enable sys:exec")  # enable use of (sys:
 set(ARK_PROFILER        Off CACHE BOOL "Enable coz profiler")
 set(ARK_PROFILER_COUNT  Off CACHE BOOL "Enable creations/copies/moves counting on the Value")
 set(ARK_SCOPE_DICHOTOMY Off CACHE BOOL "Change the behaviour of the scopes from linear (off) to dichotomic (On)")
+set(ARK_NO_STDLIB       Off CACHE BOOL "Do not install the standard library with the Ark library")
 set(ARK_BUILD_MODULES   Off CACHE BOOL "Build the std library modules or not")
+
 
 if (ARK_SCOPE_DICHOTOMY)
     add_definitions(-DARK_SCOPE_DICHOTOMY)
@@ -90,109 +155,49 @@ if (ARK_ENABLE_SYSTEM)
 endif()
 if (ARK_BUILD_MODULES)
     # submodules
-    add_subdirectory(${ark_SOURCE_DIR}/lib/ext)
+    add_subdirectory(${ark_SOURCE_DIR}/lib/modules)
 endif()
+
+# linking libraries
+find_package(Threads)
+
+if (UNIX OR LINUX)
+    target_link_libraries(ArkReactor PUBLIC ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+endif()
+
 
 configure_file(
     ${ark_SOURCE_DIR}/include/Ark/Constants.hpp.in
     ${ark_SOURCE_DIR}/include/Ark/Constants.hpp
 )
 
-# files needed for the library ArkReactor
-file(GLOB_RECURSE SOURCE_FILES
-    ${ark_SOURCE_DIR}/src/Builtins/*.cpp
-    ${ark_SOURCE_DIR}/src/Compiler/*.cpp
-    ${ark_SOURCE_DIR}/src/Parser/*.cpp
-    ${ark_SOURCE_DIR}/src/VM/*.cpp
-)
-list(APPEND SOURCE_FILES
-    ${ark_SOURCE_DIR}/src/Ark.cpp
-    ${ark_SOURCE_DIR}/src/Utils.cpp
-)
-
-add_library(ArkReactor
-    STATIC
-        ${SOURCE_FILES}
-        ${STRING_SOURCES}
-)
-
-# including content of project
-
-target_include_directories(ArkReactor
-    PUBLIC
-        ${ark_SOURCE_DIR}/include
-        ${ark_SOURCE_DIR}/thirdparties
-        ${STRING_INCLUDES}
-)
-
-# include the profiler on demand
-if (ARK_PROFILER)
-    target_include_directories(ArkReactor PUBLIC ${Ark_SOURCE_DIR}/submodules/coz/include)
-endif()
-
-# linking libraries
-
-find_package(Threads)
-
-if (UNIX OR LINUX)
-    if (CMAKE_COMPILER_IS_GNUCXX)
-        target_link_libraries(ArkReactor PUBLIC stdc++fs)
-    elseif (CMAKE_COMPILER_IS_CLANG)
-        target_link_libraries(ArkReactor PUBLIC stdc++fs)
-    endif()
-
-    target_link_libraries(ArkReactor PUBLIC ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
-endif()
-
-# coz-profiler
-if (ARK_PROFILER)
-    find_package(coz-profiler REQUIRED PATHS ${Ark_SOURCE_DIR}/submodules/coz/)
-    target_include_directories(ArkReactor PUBLIC ${COZ_INCLUDE_DIR})
-    target_link_libraries(ArkReactor PUBLIC ${COZ_LIBRARY})
-endif()
-
-# setting up project properties
-
-set_target_properties(
-    ArkReactor
-    PROPERTIES
-        CXX_STANDARD 17
-        CXX_STANDARD_REQUIRED ON
-        CXX_EXTENSIONS OFF
-)
-
-# building exe
-
 if (ARK_BUILD_EXE)
+
+
     # additional files needed for the exe (repl, command line and stuff)
     set(EXE_SOURCES
-        ${ark_SOURCE_DIR}/src/REPL/replxx/Util.cpp
-        ${ark_SOURCE_DIR}/src/REPL/Repl.cpp
-        ${ark_SOURCE_DIR}/src/main.cpp
+        ${ark_SOURCE_DIR}/src/arkscript/REPL/Utils.cpp
+        ${ark_SOURCE_DIR}/src/arkscript/REPL/Repl.cpp
+        ${ark_SOURCE_DIR}/src/arkscript/main.cpp
     )
 
-    include_directories(${REPLXX_INCLUDE_DIR})
-    add_executable(ark ${EXE_SOURCES})
-    target_include_directories(ark PUBLIC
-        ${ark_SOURCE_DIR}/include
-        ${ark_SOURCE_DIR}/thirdparties
-    )
-    target_link_libraries(ark PUBLIC ArkReactor replxx)
+    add_executable (arkscript ${EXE_SOURCES})
 
-    set_target_properties(
-        ark
-        PROPERTIES
-            CXX_STANDARD 17
-            CXX_STANDARD_REQUIRED ON
-            CXX_EXTENSIONS OFF
-    )
+    # Adds replxx source project for static linking
+    add_subdirectory("${ark_SOURCE_DIR}/lib/replxx" EXCLUDE_FROM_ALL)
+    # Links to the target ArkReactor
+    target_link_libraries(arkscript PUBLIC replxx)
 
-    add_executable(arkscript ${EXE_SOURCES})
-    target_include_directories(arkscript PUBLIC
-        ${ark_SOURCE_DIR}/include
-        ${ark_SOURCE_DIR}/thirdparties
-    )
-    target_link_libraries(arkscript PUBLIC ArkReactor replxx)
+    target_include_directories(arkscript PUBLIC "${ark_SOURCE_DIR}/src/arkscript/")
+
+    # Adds clipp source project for static linking
+    add_subdirectory("${ark_SOURCE_DIR}/lib/clipp" EXCLUDE_FROM_ALL)
+    # Links to the target arkscript
+    target_link_libraries(arkscript PRIVATE clipp)
+
+
+    # Links to the target arkscript
+    target_link_libraries(arkscript PRIVATE termcolor)
 
     set_target_properties(
         arkscript
@@ -202,18 +207,11 @@ if (ARK_BUILD_EXE)
             CXX_EXTENSIONS OFF
     )
 
-    # setting up installation directory
+    target_link_libraries(arkscript PUBLIC ArkReactor)
 
-    install(TARGETS ark
-            DESTINATION bin
-            PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
-                        GROUP_EXECUTE GROUP_READ
-    )
-    install(DIRECTORY ${ark_SOURCE_DIR}/lib/
-            DESTINATION lib
-            PATTERN "lib/ext" EXCLUDE
-            REGEX ".+\.md$" EXCLUDE
-            PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
-                        GROUP_EXECUTE GROUP_READ
-    )
+
+    # Installs the arkscript executable.
+    install(TARGETS arkscript
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
 endif()
