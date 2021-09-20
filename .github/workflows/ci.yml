@@ -21,34 +21,40 @@ jobs:
           - {
             os: ubuntu-latest, name: "Ubuntu Clang 10",
             cc: "clang-10", cxx: "clang++-10",
-            artifact: "ark-linux-clang-10"
+            artifact: "ark-linux-clang-10",
+            preconfigure: ""
           }
           - {
             os: ubuntu-latest, name: "Ubuntu g++ 8",
             cc: "gcc-8", cxx: "g++-8",
-            artifact: "ark-linux-gcc-8"
+            artifact: "ark-linux-gcc-8",
+            preconfigure: ""
           }
           - {
             os: ubuntu-latest, name: "Ubuntu g++ 9",
             cc: "gcc-9", cxx: "g++-9",
-            artifact: "ark-linux-gcc-9"
+            artifact: "ark-linux-gcc-9",
+            preconfigure: ""
           }
           - {
             os: windows-latest, name: "Windows VS 2019",
             cc: "cl", cxx: "cl",
             artifact: "ark-windows-msvc-19",
-            environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
+            environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat",
+            preconfigure: ""
           }
           - {
             os: windows-latest, name: "Windows VS 2017",
             cc: "cl", cxx: "cl",
             artifact: "ark-windows-msvc-17",
-            environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
+            environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/VC/Auxiliary/Build/vcvars64.bat",
+            preconfigure: ""
           }
           - {
             os: macos-latest, name: "MacOS Clang",
             cc: "clang", cxx: "clang++",
-            artifact: "ark-macos-clang"
+            artifact: "ark-macos-clang",
+            preconfigure: "export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/"
           }
 
     steps:
@@ -76,11 +82,11 @@ jobs:
       run: |
         brew install gcc && brew link gcc && CXX=/usr/local/bin/g++-9
         brew install openssl
-        export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/
 
     - name: Configure CMake Ark
       shell: bash
       run: |
+        ${{ matrix.config.preconfigure }}
         cmake -Bbuild \
           -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
           -DCMAKE_C_COMPILER=${{ matrix.config.cc }} \
