@@ -75,9 +75,27 @@ jobs:
             preconfigure: ""
           }
           - {
-            os: macos-latest, name: "MacOS Clang",
-            cc: "clang", cxx: "clang++",
-            artifact: "ark-macos-clang",
+            os: macos-latest, name: "MacOS Clang 10",
+            cc: "clang-10", cxx: "clang++-10",
+            artifact: "ark-macos-clang-10",
+            preconfigure: "export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/"
+          }
+          - {
+            os: macos-latest, name: "MacOS GCC 10",
+            cc: "gcc-10", cxx: "g++-10",
+            artifact: "ark-macos-gcc-10",
+            preconfigure: "export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/"
+          }
+          - {
+            os: macos-latest, name: "MacOS GCC 9",
+            cc: "gcc-9", cxx: "g++-9",
+            artifact: "ark-macos-gcc-9",
+            preconfigure: "export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/"
+          }
+          - {
+            os: macos-latest, name: "MacOS GCC 8",
+            cc: "gcc-8", cxx: "g++-8",
+            artifact: "ark-macos-gcc-8",
             preconfigure: "export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/"
           }
 
@@ -101,12 +119,17 @@ jobs:
         version=`echo ${{ matrix.config.cc }} | cut -c 7-`
         sudo apt-get install -y clang-${version} lld-${version} libc++-${version}-dev libc++abi-${version}-dev clang-tools-${version}
 
-    - name: Update MacOS compilers
-      if: startsWith(matrix.config.name, 'MacOS')
+    - name: Update MacOS GCC compilers
+      if: startsWith(matrix.config.name, 'MacOS') && startsWith(matrix.config.cc, 'gcc')
       shell: bash
       run: |
-        brew install gcc && brew link gcc && CXX=/usr/local/bin/g++-9
-        brew install openssl
+        version=`echo ${{ matrix.config.cc }} | cut -c 5-`
+        brew install gcc@${version}
+
+    - name: Install MacOS dependencies
+      if: startsWith(matrix.config.name, 'MacOS')
+      shell: bash
+      run: brew install openssl
 
     - name: Configure CMake Ark
       shell: bash
