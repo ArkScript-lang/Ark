@@ -144,6 +144,9 @@ jobs:
       run: |
         version=`echo ${{ matrix.config.cc }} | cut -c 7-`
         brew install llvm@${version}
+        export PATH="/usr/local/opt/llvm@${version}/bin:$PATH"
+        export LDFLAGS="-L/usr/local/opt/llvm@${version}/lib"
+        export CPPFLAGS="-I/usr/local/opt/llvm@${version}/include"
 
     - name: Install MacOS dependencies
       if: startsWith(matrix.config.name, 'MacOS')
