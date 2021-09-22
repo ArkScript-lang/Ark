@@ -43,6 +43,12 @@ jobs:
             preconfigure: ""
           }
           - {
+            os: ubuntu-latest, name: "Ubuntu g++ 10",
+            cc: "gcc-10", cxx: "g++-10",
+            artifact: "ark-linux-gcc-10",
+            preconfigure: ""
+          }
+          - {
             os: ubuntu-latest, name: "Ubuntu g++ 9",
             cc: "gcc-9", cxx: "g++-9",
             artifact: "ark-linux-gcc-9",
