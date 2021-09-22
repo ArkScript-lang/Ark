@@ -2,7 +2,21 @@ name: "CMake"
 
 on:
   push:
-    branches: [dev]
+    paths-ignore:
+      - '.github/workflows/clang-format.yml'
+      - '.github/workflows/docker.yml'
+      - '.github/workflows/label.yml'
+      - '.github/workflows/lizard.yml'
+      - '.github/workflows/release.yml'
+      - '.github/workflows/repo-visualizer.yml'
+      - '.github/*.*'
+      - '.vscode/*.*'
+      - 'examples/*.ark'
+      - 'images/*.*'
+      - '*.md'
+      - 'Dockerfile'
+      - 'LICENCE'
+      - '.gitignore'
   pull_request:
     branches: [dev]
 
@@ -78,19 +92,22 @@ jobs:
             os: macos-latest, name: "MacOS Clang 11",
             cc: "clang-11", cxx: "clang++-11",
             artifact: "macos-clang-11",
-            preconfigure: "export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/"
+            preconfigure: "export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/ ; export PATH=\"/usr/local/opt/llvm@11/bin:$PATH\" ; export LDFLAGS=\"-L/usr/local/opt/llvm@11/lib\" ; export CPPFLAGS=\"-I/usr/local/opt/llvm@11/include\"
+"
           }
           - {
             os: macos-latest, name: "MacOS Clang 9",
             cc: "clang-9", cxx: "clang++-9",
             artifact: "macos-clang-9",
-            preconfigure: "export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/"
+            preconfigure: "export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/ ; export PATH=\"/usr/local/opt/llvm@9/bin:$PATH\" ; export LDFLAGS=\"-L/usr/local/opt/llvm@9/lib\" ; export CPPFLAGS=\"-I/usr/local/opt/llvm@9/include\"
+"
           }
           - {
             os: macos-latest, name: "MacOS Clang 8",
             cc: "clang-8", cxx: "clang++-8",
             artifact: "macos-clang-8",
-            preconfigure: "export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/"
+            preconfigure: "export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/ ; export PATH=\"/usr/local/opt/llvm@8/bin:$PATH\" ; export LDFLAGS=\"-L/usr/local/opt/llvm@8/lib\" ; export CPPFLAGS=\"-I/usr/local/opt/llvm@8/include\"
+"
           }
           - {
             os: macos-latest, name: "MacOS GCC 10",
@@ -144,9 +161,6 @@ jobs:
       run: |
         version=`echo ${{ matrix.config.cc }} | cut -c 7-`
         brew install llvm@${version}
-        export PATH="/usr/local/opt/llvm@${version}/bin:$PATH"
-        export LDFLAGS="-L/usr/local/opt/llvm@${version}/lib"
-        export CPPFLAGS="-I/usr/local/opt/llvm@${version}/include"
 
     - name: Install MacOS dependencies
       if: startsWith(matrix.config.name, 'MacOS')
@@ -185,7 +199,7 @@ jobs:
       run: bash .github/launch-tests
 
     - name: Organize files for upload
-      if: startsWith(matrix.config.name, 'Ubuntu')
+      if: startsWith(matrix.config.name, 'Ubuntu') || startsWith(matrix.config.name, 'MacOS')
       shell: bash
       run: |
         mkdir -p artifact/lib
