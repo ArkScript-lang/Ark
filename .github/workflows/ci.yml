@@ -2,6 +2,7 @@ name: "CMake"
 
 on:
   push:
+    branches: [dev, master]
     paths-ignore:
       - '.github/workflows/clang-format.yml'
       - '.github/workflows/docker.yml'
