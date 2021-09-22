@@ -19,83 +19,95 @@ jobs:
       matrix:
         config:
           - {
+            os: ubuntu-latest, name: "Ubuntu Clang 11",
+            cc: "clang-11", cxx: "clang++-11",
+            artifact: "ubuntu-clang-11",
+            preconfigure: ""
+          }
+          - {
             os: ubuntu-latest, name: "Ubuntu Clang 10",
             cc: "clang-10", cxx: "clang++-10",
-            artifact: "ark-linux-clang-10",
+            artifact: "ubuntu-clang-10",
             preconfigure: ""
           }
           - {
             os: ubuntu-latest, name: "Ubuntu Clang 9",
             cc: "clang-9", cxx: "clang++-9",
-            artifact: "ark-linux-clang-9",
+            artifact: "ubuntu-clang-9",
             preconfigure: ""
           }
           - {
-            os: ubuntu-latest, name: "Ubuntu Clang 8",
-            cc: "clang-8", cxx: "clang++-8",
-            artifact: "ark-linux-clang-8",
+            os: ubuntu-latest, name: "Ubuntu GCC 11",
+            cc: "gcc-11", cxx: "g++-11",
+            artifact: "ubuntu-gcc-11",
             preconfigure: ""
           }
           - {
-            os: ubuntu-latest, name: "Ubuntu Clang 7",
-            cc: "clang-7", cxx: "clang++-7",
-            artifact: "ark-linux-clang-7",
-            preconfigure: ""
-          }
-          - {
-            os: ubuntu-latest, name: "Ubuntu g++ 10",
+            os: ubuntu-latest, name: "Ubuntu GCC 10",
             cc: "gcc-10", cxx: "g++-10",
-            artifact: "ark-linux-gcc-10",
+            artifact: "ubuntu-gcc-10",
             preconfigure: ""
           }
           - {
-            os: ubuntu-latest, name: "Ubuntu g++ 9",
+            os: ubuntu-latest, name: "Ubuntu GCC 9",
             cc: "gcc-9", cxx: "g++-9",
-            artifact: "ark-linux-gcc-9",
+            artifact: "ubuntu-gcc-9",
             preconfigure: ""
           }
           - {
-            os: ubuntu-latest, name: "Ubuntu g++ 8",
+            os: ubuntu-latest, name: "Ubuntu GCC 8",
             cc: "gcc-8", cxx: "g++-8",
-            artifact: "ark-linux-gcc-8",
+            artifact: "ubuntu-gcc-8",
             preconfigure: ""
           }
           - {
             os: windows-latest, name: "Windows VS 2019",
             cc: "cl", cxx: "cl",
-            artifact: "ark-windows-msvc-19",
+            artifact: "windows-msvc-19",
             environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat",
             preconfigure: ""
           }
           - {
             os: windows-latest, name: "Windows VS 2017",
             cc: "cl", cxx: "cl",
-            artifact: "ark-windows-msvc-17",
+            artifact: "windows-msvc-17",
             environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/VC/Auxiliary/Build/vcvars64.bat",
             preconfigure: ""
           }
           - {
-            os: macos-latest, name: "MacOS Clang 10",
-            cc: "clang-10", cxx: "clang++-10",
-            artifact: "ark-macos-clang-10",
+            os: macos-latest, name: "MacOS Clang 11",
+            cc: "clang-11", cxx: "clang++-11",
+            artifact: "macos-clang-11",
+            preconfigure: "export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/"
+          }
+          - {
+            os: macos-latest, name: "MacOS Clang 9",
+            cc: "clang-9", cxx: "clang++-9",
+            artifact: "macos-clang-9",
+            preconfigure: "export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/"
+          }
+          - {
+            os: macos-latest, name: "MacOS Clang 8",
+            cc: "clang-8", cxx: "clang++-8",
+            artifact: "macos-clang-8",
             preconfigure: "export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/"
           }
           - {
             os: macos-latest, name: "MacOS GCC 10",
             cc: "gcc-10", cxx: "g++-10",
-            artifact: "ark-macos-gcc-10",
+            artifact: "macos-gcc-10",
             preconfigure: "export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/"
           }
           - {
             os: macos-latest, name: "MacOS GCC 9",
             cc: "gcc-9", cxx: "g++-9",
-            artifact: "ark-macos-gcc-9",
+            artifact: "macos-gcc-9",
             preconfigure: "export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/"
           }
           - {
             os: macos-latest, name: "MacOS GCC 8",
             cc: "gcc-8", cxx: "g++-8",
-            artifact: "ark-macos-gcc-8",
+            artifact: "macos-gcc-8",
             preconfigure: "export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/"
           }
 
@@ -119,12 +131,19 @@ jobs:
         version=`echo ${{ matrix.config.cc }} | cut -c 7-`
         sudo apt-get install -y clang-${version} lld-${version} libc++-${version}-dev libc++abi-${version}-dev clang-tools-${version}
 
-    - name: Update MacOS GCC compilers
+    - name: Update MacOS GNU compilers
       if: startsWith(matrix.config.name, 'MacOS') && startsWith(matrix.config.cc, 'gcc')
       shell: bash
       run: |
         version=`echo ${{ matrix.config.cc }} | cut -c 5-`
         brew install gcc@${version}
+
+    - name: Update MacOS LLVM compilers
+      if: startsWith(matrix.config.name, 'MacOS') && startsWith(matrix.config.cc, 'clang')
+      shell: bash
+      run: |
+        version=`echo ${{ matrix.config.cc }} | cut -c 7-`
+        brew install llvm@${version}
 
     - name: Install MacOS dependencies
       if: startsWith(matrix.config.name, 'MacOS')
