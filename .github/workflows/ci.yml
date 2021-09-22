@@ -43,21 +43,15 @@ jobs:
             preconfigure: ""
           }
           - {
-            os: ubuntu-latest, name: "Ubuntu g++ 7",
-            cc: "gcc-7", cxx: "g++-7",
-            artifact: "ark-linux-gcc-7",
+            os: ubuntu-latest, name: "Ubuntu g++ 9",
+            cc: "gcc-9", cxx: "g++-9",
+            artifact: "ark-linux-gcc-9",
             preconfigure: ""
           }
           - {
             os: ubuntu-latest, name: "Ubuntu g++ 8",
             cc: "gcc-8", cxx: "g++-8",
             artifact: "ark-linux-gcc-8",
-            preconfigure: ""
-          }
-          - {
-            os: ubuntu-latest, name: "Ubuntu g++ 9",
-            cc: "gcc-9", cxx: "g++-9",
-            artifact: "ark-linux-gcc-9",
             preconfigure: ""
           }
           - {
@@ -95,10 +89,11 @@ jobs:
         sudo apt-get -yq install ${{ matrix.config.cc }} ${{ matrix.config.cxx }}
 
     - name: Update LLVM compilers
-      if: startsWith(matrix.config.name, 'Ubuntu') && startsWith(matrix.config.cc, 'clang-10')
+      if: startsWith(matrix.config.name, 'Ubuntu') && startsWith(matrix.config.cc, 'clang')
       shell: bash
       run: |
-        sudo apt-get install -y clang-10 lld-10 libc++-10-dev libc++abi-10-dev clang-tools-10
+        version=`echo ${{ matrix.config.cc }} | cut -c 7-`
+        sudo apt-get install -y clang-${version} lld-${version} libc++-${version}-dev libc++abi-${version}-dev clang-tools-${version}
 
     - name: Update MacOS compilers
       if: startsWith(matrix.config.name, 'MacOS')
