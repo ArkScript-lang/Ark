@@ -25,6 +25,30 @@ jobs:
             preconfigure: ""
           }
           - {
+            os: ubuntu-latest, name: "Ubuntu Clang 9",
+            cc: "clang-9", cxx: "clang++-9",
+            artifact: "ark-linux-clang-9",
+            preconfigure: ""
+          }
+          - {
+            os: ubuntu-latest, name: "Ubuntu Clang 8",
+            cc: "clang-8", cxx: "clang++-8",
+            artifact: "ark-linux-clang-8",
+            preconfigure: ""
+          }
+          - {
+            os: ubuntu-latest, name: "Ubuntu Clang 7",
+            cc: "clang-7", cxx: "clang++-7",
+            artifact: "ark-linux-clang-7",
+            preconfigure: ""
+          }
+          - {
+            os: ubuntu-latest, name: "Ubuntu g++ 7",
+            cc: "gcc-7", cxx: "g++-7",
+            artifact: "ark-linux-gcc-7",
+            preconfigure: ""
+          }
+          - {
             os: ubuntu-latest, name: "Ubuntu g++ 8",
             cc: "gcc-8", cxx: "g++-8",
             artifact: "ark-linux-gcc-8",
@@ -71,7 +95,7 @@ jobs:
         sudo apt-get -yq install ${{ matrix.config.cc }} ${{ matrix.config.cxx }}
 
     - name: Update LLVM compilers
-      if: startsWith(matrix.config.name, 'Ubuntu') && startsWith(matrix.config.cc, 'clang')
+      if: startsWith(matrix.config.name, 'Ubuntu') && startsWith(matrix.config.cc, 'clang-10')
       shell: bash
       run: |
         sudo apt-get install -y clang-10 lld-10 libc++-10-dev libc++abi-10-dev clang-tools-10
