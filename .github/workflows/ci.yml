@@ -90,42 +90,15 @@ jobs:
             preconfigure: ""
           }
           - {
-            os: macos-latest, name: "MacOS Clang 11",
-            cc: "clang-11", cxx: "clang++-11",
-            artifact: "macos-clang-11",
-            preconfigure: "export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/ ; export PATH=\"/usr/local/opt/llvm@11/bin:$PATH\" ; export LDFLAGS=\"-L/usr/local/opt/llvm@11/lib\" ; export CPPFLAGS=\"-I/usr/local/opt/llvm@11/include\"
-"
-          }
-          - {
-            os: macos-latest, name: "MacOS Clang 9",
-            cc: "clang-9", cxx: "clang++-9",
-            artifact: "macos-clang-9",
-            preconfigure: "export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/ ; export PATH=\"/usr/local/opt/llvm@9/bin:$PATH\" ; export LDFLAGS=\"-L/usr/local/opt/llvm@9/lib\" ; export CPPFLAGS=\"-I/usr/local/opt/llvm@9/include\"
-"
-          }
-          - {
-            os: macos-latest, name: "MacOS Clang 8",
-            cc: "clang-8", cxx: "clang++-8",
-            artifact: "macos-clang-8",
-            preconfigure: "export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/ ; export PATH=\"/usr/local/opt/llvm@8/bin:$PATH\" ; export LDFLAGS=\"-L/usr/local/opt/llvm@8/lib\" ; export CPPFLAGS=\"-I/usr/local/opt/llvm@8/include\"
-"
+            os: macos-latest, name: "MacOS Clang 12",
+            cc: "clang", cxx: "clang++",
+            artifact: "macos-clang-12",
+            preconfigure: "export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/"
           }
           - {
             os: macos-latest, name: "MacOS GCC 10",
             cc: "gcc-10", cxx: "g++-10",
             artifact: "macos-gcc-10",
-            preconfigure: "export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/"
-          }
-          - {
-            os: macos-latest, name: "MacOS GCC 9",
-            cc: "gcc-9", cxx: "g++-9",
-            artifact: "macos-gcc-9",
-            preconfigure: "export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/"
-          }
-          - {
-            os: macos-latest, name: "MacOS GCC 8",
-            cc: "gcc-8", cxx: "g++-8",
-            artifact: "macos-gcc-8",
             preconfigure: "export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/"
           }
 
@@ -155,13 +128,6 @@ jobs:
       run: |
         version=`echo ${{ matrix.config.cc }} | cut -c 5-`
         brew install gcc@${version}
-
-    - name: Update MacOS LLVM compilers
-      if: startsWith(matrix.config.name, 'MacOS') && startsWith(matrix.config.cc, 'clang')
-      shell: bash
-      run: |
-        version=`echo ${{ matrix.config.cc }} | cut -c 7-`
-        brew install llvm@${version}
 
     - name: Install MacOS dependencies
       if: startsWith(matrix.config.name, 'MacOS')
@@ -203,24 +169,24 @@ jobs:
       if: startsWith(matrix.config.name, 'Ubuntu') || startsWith(matrix.config.name, 'MacOS')
       shell: bash
       run: |
-        mkdir -p artifact/lib
+        mkdir -p artifact/lib/std
         cp build/ark artifact
         cp build/arkscript artifact
         cp build/libArkReactor.a artifact
         cp lib/*.arkm artifact/lib
-        cp -r lib/std/ artifact/lib
+        cp lib/std/*.ark artifact/lib/std
         rm -rf artifact/lib/std/{.git,.github,tests/__arkscript__}
 
     - name: Organize files for upload
       if: startsWith(matrix.config.name, 'Windows')
       shell: bash
       run: |
-        mkdir -p artifact/lib
+        mkdir -p artifact/lib/std
         cp build/$BUILD_TYPE/ark.exe artifact
         cp build/$BUILD_TYPE/arkscript.exe artifact
         cp build/$BUILD_TYPE/ArkReactor.lib artifact
         cp lib/*.arkm artifact/lib
-        cp -r lib/std/ artifact/lib
+        cp lib/std/*.ark artifact/lib/std
         rm -rf artifact/lib/std/{.git,.github,tests/__arkscript__}
 
     - name: Upload artifact
