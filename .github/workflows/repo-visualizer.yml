@@ -17,7 +17,7 @@ jobs:
     - name: Update diagram
       uses: githubocto/repo-visualizer@main
       with:
-        output_file: 'images/diagram.svg'
         excluded_paths: 'dist,node_modules,submodules'
-        branch: 'diagram'
-        commit_message: 'Updating diagram [skip ci]'
+        should_push: false
+        output_file: 'diagram.svg'
+        artifact_name: 'diagram'
