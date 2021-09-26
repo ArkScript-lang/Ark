@@ -38,7 +38,7 @@ namespace Ark
      * @brief The ArkScript bytecode compiler
      * 
      */
-    class ARK_API_EXPORT Compiler
+    class ARK_API Compiler
     {
     public:
         /**

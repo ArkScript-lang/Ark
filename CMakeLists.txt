@@ -164,6 +164,8 @@ if (ARK_BUILD_MODULES)
     add_subdirectory(${ark_SOURCE_DIR}/lib/modules)
 endif()
 
+target_compile_definitions(ArkReactor PRIVATE ARK_EXPORT)
+
 # linking libraries
 find_package(Threads)
 
@@ -178,8 +180,6 @@ configure_file(
 )
 
 if (ARK_BUILD_EXE)
-
-
     # additional files needed for the exe (repl, command line and stuff)
     set(EXE_SOURCES
         ${ark_SOURCE_DIR}/src/arkscript/REPL/Utils.cpp
@@ -187,11 +187,11 @@ if (ARK_BUILD_EXE)
         ${ark_SOURCE_DIR}/src/arkscript/main.cpp
     )
 
-    add_executable (arkscript ${EXE_SOURCES})
+    add_executable(arkscript ${EXE_SOURCES})
 
     # Adds replxx source project for static linking
     add_subdirectory("${ark_SOURCE_DIR}/lib/replxx" EXCLUDE_FROM_ALL)
-    # Links to the target ArkReactor
+    # Links to the target arkscript
     target_link_libraries(arkscript PUBLIC replxx)
 
     target_include_directories(arkscript PUBLIC "${ark_SOURCE_DIR}/src/arkscript/")
@@ -200,7 +200,6 @@ if (ARK_BUILD_EXE)
     add_subdirectory("${ark_SOURCE_DIR}/lib/clipp" EXCLUDE_FROM_ALL)
     # Links to the target arkscript
     target_link_libraries(arkscript PRIVATE clipp)
-
 
     # Links to the target arkscript
     target_link_libraries(arkscript PRIVATE termcolor)
@@ -215,9 +214,7 @@ if (ARK_BUILD_EXE)
 
     target_link_libraries(arkscript PUBLIC ArkReactor)
 
-
     # Installs the arkscript executable.
     install(TARGETS arkscript
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-
 endif()
