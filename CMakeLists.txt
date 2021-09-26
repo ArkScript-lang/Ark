@@ -12,6 +12,10 @@ include(GNUInstallDirs)
 
 # setting up compilations options
 
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    set(CMAKE_COMPILER_IS_CLANG ON)
+endif()
+
 if (CMAKE_COMPILER_IS_GNUCXX)
     set_property(GLOBAL PROPERTY ArkDebugFlags "${CMAKE_CXX_FLAGS_DEBUG} -pg -g -no-pie")
     set_property(GLOBAL PROPERTY ArkReleaseFlags "-DNDEBUG -O3 -s")
@@ -23,11 +27,13 @@ elseif (MSVC)
 
     add_compile_options(/wd4267)  # disable warning about data loss (size_t -> int)
     add_compile_options(/wd4244)  # disable warning about data loss (size_t -> char)
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+elseif (CMAKE_COMPILER_IS_CLANG)
     set_property(GLOBAL PROPERTY ArkDebugFlags "${CMAKE_CXX_FLAGS} -stdlib=libc++")
     set_property(GLOBAL PROPERTY ArkReleaseFlags "${CMAKE_CXX_FLAGS} -stdlib=libc++")
     set_property(GLOBAL PROPERTY ArkLinkerFlags "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++abi")
 endif()
+
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # files needed for the library ArkReactor
 file(GLOB_RECURSE SOURCE_FILES
@@ -162,7 +168,7 @@ endif()
 find_package(Threads)
 
 if (UNIX OR LINUX)
-    target_link_libraries(ArkReactor PUBLIC ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+    target_link_libraries(ArkReactor PUBLIC ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} stdc++fs)
 endif()
 
 
