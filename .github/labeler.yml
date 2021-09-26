@@ -1,26 +1,26 @@
 compiler:
   - include/Ark/Compiler/*
-  - src/Compiler/*
+  - src/arkreactor/Compiler/*
 
 parser:
   - include/Ark/Compiler/Lexer.*
   - include/Ark/Compiler/Node.*
   - include/Ark/Compiler/Parser.*
-  - src/Compiler/Lexer.*
-  - src/Compiler/Parser.*
-  - src/Compiler/Node.*
+  - src/arkreactor/Compiler/Lexer.*
+  - src/arkreactor/Compiler/Parser.*
+  - src/arkreactor/Compiler/Node.*
 
 repl:
   - include/Ark/REPL/**/*
-  - src/REPL/**/*
+  - src/arkscript/REPL/**/*
 
 modules:
-  - lib/ext/**/*
+  - lib/modules/**/*
 
 virtual machine:
   - include/Ark/VM/**/*
-  - src/VM/**/*
+  - src/arkreactor/VM/**/*
 
 macros:
   - include/Ark/Compiler/MacroProcessor.*
-  - src/Compiler/MacroProcessor.*
+  - src/arkreactor/Compiler/MacroProcessor.*
