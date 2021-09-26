@@ -39,7 +39,7 @@ namespace Ark
      * - display it in a human readable way by using the opcode names
      * 
      */
-    class ARK_API_EXPORT BytecodeReader
+    class ARK_API BytecodeReader
     {
     public:
         /**

@@ -27,7 +27,7 @@ namespace Ark
      * @brief Ark state to handle the dirty job of loading and compiling ArkScript code
      * 
      */
-    class State
+    class ARK_API State
     {
     public:
         /**
