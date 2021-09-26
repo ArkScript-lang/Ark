@@ -75,7 +75,7 @@ namespace Ark
     extern unsigned value_creations, value_copies, value_moves;
 #endif
 
-    class ARK_API_EXPORT Value
+    class ARK_API Value
     {
     public:
         using ProcType = Value (*)(std::vector<Value>&, Ark::VM*);  // std::function<Value (std::vector<Value>&, Ark::VM*)>

@@ -43,7 +43,7 @@ namespace Ark
      * @brief The ArkScript virtual machine, executing ArkScript bytecode
      * 
      */
-    class ARK_API_EXPORT VM
+    class ARK_API VM
     {
     public:
         /**
