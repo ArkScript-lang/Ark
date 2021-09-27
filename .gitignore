@@ -3,8 +3,7 @@
 .vscode/c_cpp_properties.json
 
 # Personal utilities
-build.sh
-deploy.ps1
+warnings.log
 cformat.ps1
 
 # ArkScript
