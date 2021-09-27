@@ -348,23 +348,20 @@ inline void VM::call(int16_t argc_)
     }
 
     // checking function arity
-    if (m_state->m_options & FeatureFunctionArityCheck)
+    std::size_t index = 0,
+                needed_argc = 0;
+
+    // every argument is a MUT declaration in the bytecode
+    while (m_state->m_pages[m_pp][index] == Instruction::MUT)
     {
-        std::size_t index = 0,
-                    needed_argc = 0;
-
-        // every argument is a MUT declaration in the bytecode
-        while (m_state->m_pages[m_pp][index] == Instruction::MUT)
-        {
-            needed_argc += 1;
-            index += 3;  // jump the argument of MUT (integer on 2 bits, big endian)
-        }
-
-        if (needed_argc != argc)
-            throwVMError(
-                "Function '" + m_state->m_symbols[m_last_sym_loaded] + "' needs " + std::to_string(needed_argc) +
-                " arguments, but it received " + std::to_string(argc));
+        needed_argc += 1;
+        index += 3;  // jump the argument of MUT (integer on 2 bits, big endian)
     }
+
+    if (needed_argc != argc)
+        throwVMError(
+            "Function '" + m_state->m_symbols[m_last_sym_loaded] + "' needs " + std::to_string(needed_argc) +
+            " arguments, but it received " + std::to_string(argc));
 
     COZ_END("ark vm::call");
 }

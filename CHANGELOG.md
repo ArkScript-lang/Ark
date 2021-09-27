@@ -12,6 +12,7 @@
 - removing `download-arkscript.sh` from the repo
 - removed `isFraction`, `isInteger`, `isFloat` from Ark/Utils.hpp (worked on strings and used regex)
 - removed mpark variant to use standard variant
+- `Ark::FeatureFunctionArityCheck` was removed, making arity checks mandatory
 
 ## [3.1.1] - 2021-09-19
 ### Added
