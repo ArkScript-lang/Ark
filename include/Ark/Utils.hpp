@@ -158,9 +158,7 @@ namespace Ark::Utils
      */
     inline std::string canonicalRelPath(const std::string& path)
     {
-        auto temp = (std::filesystem::relative(std::filesystem::path(path))).string();
-        std::replace(temp.begin(), temp.end(), '\\', '/');
-        return temp;
+        return std::filesystem::relative(std::filesystem::path(path)).generic_string();
     }
 
     /**
