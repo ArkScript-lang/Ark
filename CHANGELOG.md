@@ -6,6 +6,7 @@
 ### Changed
 
 ### Removed
+- removed `ARK_SCOPE_DICHOTOMY` flag so that scopes don't use dichotomic search but a linear one, since it proved to be faster on small sets of values. This goes toward prioritizing small functions, and code being cut in multiple smaller scopes
 
 ## [3.1.1] - 2021-09-19
 ### Added
