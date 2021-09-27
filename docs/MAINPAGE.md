@@ -1,3 +1,5 @@
+@mainpage Home
+
 # ArkScript
 
 This is the **implementation** documentation of the ArkScript programming language, if you want to contribute to it in any way.
