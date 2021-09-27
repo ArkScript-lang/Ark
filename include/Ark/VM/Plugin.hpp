@@ -110,5 +110,4 @@ namespace Ark::internal
     };
 }
 
-
 #endif
