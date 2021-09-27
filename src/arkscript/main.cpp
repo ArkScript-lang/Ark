@@ -95,19 +95,6 @@ int main(int argc, char** argv)
                 (
                     option("-L", "--lib").doc("Set the location of the ArkScript standard library")
                     & value("lib_dir", lib_dir)
-                ),
-                // feature flags
-                with_prefix("-f",
-                    // a single feature should always be defined with an ON and an OFF version, and documentation
-                    // all features must be separated by commas as following
-                    // exclusing feature flags (ON/OFF) should be separated by pipes
-                    ( option("fac"   ).call([&]{ options |= Ark::FeatureFunctionArityCheck; })
-                    | option("no-fac").call([&]{ options &= ~Ark::FeatureFunctionArityCheck; })
-                    ).doc("Toggle function arity checks (default: ON)")
-                    ,
-                    ( option("ruv"   ).call([&]{ options |= Ark::FeatureRemoveUnusedVars; })
-                    | option("no-ruv").call([&]{ options &= ~Ark::FeatureRemoveUnusedVars; })
-                    ).doc("Remove unused variables (default: ON)")
                 )
             )
             , any_other(script_args)
@@ -195,8 +182,7 @@ int main(int argc, char** argv)
 
                 if (!state.doFile(file))
                 {
-                    std::cerr << termcolor::red << "Ark::State.doFile(" << file << ") failed\n"
-                              << termcolor::reset;
+                    std::cerr << "Could not compile file at " << file << "\n";
                     return -1;
                 }
 
@@ -211,8 +197,7 @@ int main(int argc, char** argv)
 
                 if (!state.doFile(file))
                 {
-                    std::cerr << termcolor::red << "Ark::State.doFile(" << file << ") failed\n"
-                              << termcolor::reset;
+                    std::cerr << "Could not run file at " << file << "\n";
                     return -1;
                 }
 
@@ -240,8 +225,7 @@ int main(int argc, char** argv)
 
                 if (!state.doString(eval_expresion))
                 {
-                    std::cerr << termcolor::red << "Ark::State.doString(" << eval_expresion << ") failed\n"
-                              << termcolor::reset;
+                    std::cerr << "Could not evaluate expression\n";
                     return -1;
                 }
 
