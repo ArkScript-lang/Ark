@@ -16,7 +16,7 @@
 #include <vector>
 #include <iostream>
 
-#include <Ark/Config.hpp>
+#include <Ark/Platform.hpp>
 
 namespace Ark::internal
 {

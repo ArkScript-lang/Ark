@@ -19,7 +19,7 @@
 #include <vector>
 #include <unordered_map>
 
-#include <Ark/Config.hpp>
+#include <Ark/Platform.hpp>
 #include <Ark/Exceptions.hpp>
 
 namespace Ark::internal
