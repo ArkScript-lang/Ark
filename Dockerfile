@@ -9,7 +9,7 @@ RUN apk --no-cache add git
 
 WORKDIR /out
 COPY .git .git
-COPY submodules submodules
+COPY lib lib
 COPY .gitmodules .
 
 # Get submodules and remove unneccesery files
@@ -24,14 +24,12 @@ RUN apk --no-cache add cmake clang clang-dev make gcc g++ libc-dev linux-headers
 
 # Build
 COPY include include
-COPY lib lib
 COPY src src
 COPY thirdparties thirdparties
 COPY CMakeLists.txt .
 COPY --from=submodule-initializor /out .
-RUN cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release -DARK_BUILD_EXE=1 \
-    && cmake --build build --target ark \
-    && rm -rf lib/ext
+RUN cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release -DARK_BUILD_EXE=On \
+    && cmake --build build --target ark
 
 FROM alpine:3.12 AS organizer
 
