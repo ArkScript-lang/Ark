@@ -20,6 +20,7 @@
 #include <cinttypes>
 #include <sstream>
 
+#include <Ark/Config.hpp>
 #include <Ark/Exceptions.hpp>
 #include <Ark/Compiler/Lexer.hpp>
 #include <Ark/Compiler/Node.hpp>
@@ -67,7 +68,7 @@ namespace Ark
          */
         const std::vector<std::string>& getImports() const noexcept;
 
-        friend std::ostream& operator<<(std::ostream& os, const Parser& P) noexcept;
+        friend ARK_API std::ostream& operator<<(std::ostream& os, const Parser& P) noexcept;
 
     private:
         unsigned m_debug;

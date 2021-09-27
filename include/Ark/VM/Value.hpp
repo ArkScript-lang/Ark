@@ -297,10 +297,10 @@ namespace Ark
          */
         void push_back(Value&& value);
 
-        friend std::ostream& operator<<(std::ostream& os, const Value& V) noexcept;
-        friend inline bool operator==(const Value& A, const Value& B) noexcept;
-        friend inline bool operator<(const Value& A, const Value& B) noexcept;
-        friend inline bool operator!(const Value& A) noexcept;
+        friend ARK_API std::ostream& operator<<(std::ostream& os, const Value& V) noexcept;
+        friend ARK_API inline bool operator==(const Value& A, const Value& B) noexcept;
+        friend ARK_API inline bool operator<(const Value& A, const Value& B) noexcept;
+        friend ARK_API inline bool operator!(const Value& A) noexcept;
 
         friend class Ark::VM;
 

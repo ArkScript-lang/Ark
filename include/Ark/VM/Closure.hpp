@@ -16,6 +16,8 @@
 #include <vector>
 #include <iostream>
 
+#include <Ark/Config.hpp>
+
 namespace Ark::internal
 {
     class Scope;
@@ -80,9 +82,9 @@ namespace Ark::internal
          */
         inline PageAddr_t pageAddr() const { return m_page_addr; }
 
-        friend inline bool operator==(const Closure& A, const Closure& B) noexcept;
-        friend inline bool operator<(const Closure& A, const Closure& B) noexcept;
-        friend std::ostream& operator<<(std::ostream& os, const Closure& C) noexcept;
+        friend ARK_API inline bool operator==(const Closure& A, const Closure& B) noexcept;
+        friend ARK_API inline bool operator<(const Closure& A, const Closure& B) noexcept;
+        friend ARK_API std::ostream& operator<<(std::ostream& os, const Closure& C) noexcept;
 
     private:
         Scope_t m_scope;
