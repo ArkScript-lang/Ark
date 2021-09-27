@@ -164,7 +164,9 @@ jobs:
     - name: Pre-test
       if: startsWith(matrix.config.name, 'Windows')
       shell: bash
-      run: cp build/${BUILD_TYPE}/*.dll tests/cpp/
+      run: |
+        mkdir -p out
+        cd tests/cpp && cp ark/${BUILD_TYPE}/*.dll out/
 
     - name: Tests
       shell: bash
@@ -177,7 +179,7 @@ jobs:
         mkdir -p artifact/lib/std
         cp build/ark artifact
         cp build/arkscript artifact
-        cp build/libArkReactor.so artifact
+        cp build/libArkReactor.* artifact
         cp lib/*.arkm artifact/lib
         cp lib/std/*.ark artifact/lib/std
         rm -rf artifact/lib/std/{.git,.github,tests/__arkscript__}
