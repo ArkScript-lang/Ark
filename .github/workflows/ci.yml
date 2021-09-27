@@ -172,7 +172,7 @@ jobs:
         mkdir -p artifact/lib/std
         cp build/ark artifact
         cp build/arkscript artifact
-        cp build/libArkReactor.a artifact
+        cp build/libArkReactor.so artifact
         cp lib/*.arkm artifact/lib
         cp lib/std/*.ark artifact/lib/std
         rm -rf artifact/lib/std/{.git,.github,tests/__arkscript__}
@@ -184,7 +184,7 @@ jobs:
         mkdir -p artifact/lib/std
         cp build/$BUILD_TYPE/ark.exe artifact
         cp build/$BUILD_TYPE/arkscript.exe artifact
-        cp build/$BUILD_TYPE/ArkReactor.lib artifact
+        cp build/$BUILD_TYPE/ArkReactor.dll artifact
         cp lib/*.arkm artifact/lib
         cp lib/std/*.ark artifact/lib/std
         rm -rf artifact/lib/std/{.git,.github,tests/__arkscript__}
