@@ -10,6 +10,8 @@
 ### Removed
 - removed `ARK_SCOPE_DICHOTOMY` flag so that scopes don't use dichotomic search but a linear one, since it proved to be faster on small sets of values. This goes toward prioritizing small functions, and code being cut in multiple smaller scopes
 - removing `download-arkscript.sh` from the repo
+- removed `isFraction`, `isInteger`, `isFloat` from Ark/Utils.hpp (worked on strings and used regex)
+- removed mpark variant to use standard variant
 
 ## [3.1.1] - 2021-09-19
 ### Added

@@ -55,17 +55,17 @@ namespace Ark::internal
 
     const std::string& Node::string() const noexcept
     {
-        return mpark::get<std::string>(m_value);
+        return std::get<std::string>(m_value);
     }
 
     double Node::number() const noexcept
     {
-        return mpark::get<double>(m_value);
+        return std::get<double>(m_value);
     }
 
     Keyword Node::keyword() const noexcept
     {
-        return mpark::get<Keyword>(m_value);
+        return std::get<Keyword>(m_value);
     }
 
     // -------------------------

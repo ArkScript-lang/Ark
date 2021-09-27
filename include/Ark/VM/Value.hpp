@@ -13,15 +13,7 @@
 #define ARK_VM_VALUE_HPP
 
 #include <vector>
-#ifndef USE_MPARK
-#    include <variant>
-#    define variant_t std::variant
-#    define variant_get std::get
-#else
-#    include <variant.hpp>
-#    define variant_t mpark::variant
-#    define variant_get mpark::get
-#endif
+#include <variant>
 #include <string>  // for conversions
 #include <cinttypes>
 #include <iostream>
@@ -82,7 +74,7 @@ namespace Ark
         using Iterator = std::vector<Value>::iterator;
         using ConstIterator = std::vector<Value>::const_iterator;
 
-        using Value_t = variant_t<
+        using Value_t = std::variant<
             double,                //  8 bytes
             String,                // 16 bytes
             internal::PageAddr_t,  //  2 bytes

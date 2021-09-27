@@ -47,7 +47,6 @@ namespace Ark::internal::Builtins::IO
         return nil;
     }
 
-
     /**
      * @name input
      * @brief Request a value from the user

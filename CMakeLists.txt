@@ -46,9 +46,6 @@ add_library(ArkReactor
 )
 
 
-# Adds variant header project to includes.
-target_include_directories(ArkReactor PUBLIC "${ark_SOURCE_DIR}/lib/variant/")
-
 # Adds utf8_decoder header project to includes.
 target_include_directories(ArkReactor PUBLIC "${ark_SOURCE_DIR}/lib/utf8_decoder/")
 
