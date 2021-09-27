@@ -12,7 +12,7 @@
 #ifndef ARK_COMPILER_NODE_HPP
 #define ARK_COMPILER_NODE_HPP
 
-#include <variant.hpp>
+#include <variant>
 #include <iostream>
 #include <array>
 #include <string>
@@ -64,7 +64,7 @@ namespace Ark::internal
     public:
         using Iterator = std::vector<Node>::const_iterator;
         using Map = std::unordered_map<std::string, Node>;
-        using Value = mpark::variant<double, std::string, Keyword>;
+        using Value = std::variant<double, std::string, Keyword>;
 
         static Node TrueNode, FalseNode, NilNode, ListNode;
 
