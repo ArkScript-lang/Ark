@@ -188,21 +188,26 @@ if (ARK_BUILD_EXE)
     )
 
     add_executable(arkscript ${EXE_SOURCES})
+    add_executable(ark ${EXE_SOURCES})
 
     # Adds replxx source project for static linking
     add_subdirectory("${ark_SOURCE_DIR}/lib/replxx" EXCLUDE_FROM_ALL)
     # Links to the target arkscript
     target_link_libraries(arkscript PUBLIC replxx)
+    target_link_libraries(ark PUBLIC replxx)
 
     target_include_directories(arkscript PUBLIC "${ark_SOURCE_DIR}/src/arkscript/")
+    target_include_directories(ark PUBLIC "${ark_SOURCE_DIR}/src/arkscript/")
 
     # Adds clipp source project for static linking
     add_subdirectory("${ark_SOURCE_DIR}/lib/clipp" EXCLUDE_FROM_ALL)
     # Links to the target arkscript
     target_link_libraries(arkscript PRIVATE clipp)
+    target_link_libraries(ark PRIVATE clipp)
 
     # Links to the target arkscript
     target_link_libraries(arkscript PRIVATE termcolor)
+    target_link_libraries(ark PRIVATE termcolor)
 
     set_target_properties(
         arkscript
@@ -211,8 +216,16 @@ if (ARK_BUILD_EXE)
             CXX_STANDARD_REQUIRED ON
             CXX_EXTENSIONS OFF
     )
+    set_target_properties(
+        ark
+        PROPERTIES
+            CXX_STANDARD 17
+            CXX_STANDARD_REQUIRED ON
+            CXX_EXTENSIONS OFF
+    )
 
     target_link_libraries(arkscript PUBLIC ArkReactor)
+    target_link_libraries(ark PUBLIC ArkReactor)
 
     # Installs the arkscript executable.
     install(TARGETS arkscript
