@@ -19,6 +19,7 @@
 #include <vector>
 #include <unordered_map>
 
+#include <Ark/Config.hpp>
 #include <Ark/Exceptions.hpp>
 
 namespace Ark::internal
@@ -230,10 +231,10 @@ namespace Ark::internal
          */
         const std::string& filename() const noexcept;
 
-        friend std::ostream& operator<<(std::ostream& os, const Node& N) noexcept;
-        friend inline bool operator==(const Node& A, const Node& B);
-        friend inline bool operator<(const Node& A, const Node& B);
-        friend inline bool operator!(const Node& A);
+        friend ARK_API std::ostream& operator<<(std::ostream& os, const Node& N) noexcept;
+        friend ARK_API inline bool operator==(const Node& A, const Node& B);
+        friend ARK_API inline bool operator<(const Node& A, const Node& B);
+        friend ARK_API inline bool operator!(const Node& A);
 
     private:
         NodeType m_type;

@@ -16,6 +16,8 @@
 #include <vector>
 #include <utility>
 
+#include <Ark/Config.hpp>
+
 namespace Ark
 {
     namespace internal
@@ -130,9 +132,9 @@ namespace Ark
             return *static_cast<T*>(m_data);
         }
 
-        friend bool operator==(const UserType& A, const UserType& B) noexcept;
-        friend bool operator<(const UserType& A, const UserType& B) noexcept;
-        friend std::ostream& operator<<(std::ostream& os, const UserType& A) noexcept;
+        friend ARK_API bool operator==(const UserType& A, const UserType& B) noexcept;
+        friend ARK_API bool operator<(const UserType& A, const UserType& B) noexcept;
+        friend ARK_API std::ostream& operator<<(std::ostream& os, const UserType& A) noexcept;
 
     private:
         uint16_t m_type_id;
