@@ -117,7 +117,7 @@ int main(int argc, char** argv)
     // clang-format on
 
     auto fmt = doc_formatting {}
-                   .start_column(8)                                   // column where usage lines and documentation starts
+                   .first_column(8)                                   // column where usage lines and documentation starts
                    .doc_column(36)                                    // parameter docstring start col
                    .indent_size(2)                                    // indent of documentation lines for children of a documented group
                    .split_alternatives(true)                          // split usage into several lines for large alternatives
