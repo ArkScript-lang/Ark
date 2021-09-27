@@ -170,7 +170,10 @@ target_compile_definitions(ArkReactor PRIVATE ARK_EXPORT)
 find_package(Threads)
 
 if (UNIX OR LINUX)
-    target_link_libraries(ArkReactor PUBLIC ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} stdc++fs)
+    if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
+        target_link_libraries(ArkReactor PUBLIC stdc++fs)
+    endif()
+    target_link_libraries(ArkReactor PRIVATE ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 endif()
 
 
