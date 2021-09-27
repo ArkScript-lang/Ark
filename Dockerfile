@@ -28,13 +28,14 @@ COPY src src
 COPY CMakeLists.txt .
 COPY --from=submodule-initializor /out .
 RUN cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release -DARK_BUILD_EXE=On \
-    && cmake --build build --target ark
+    && cmake --build build --target arkscript
 
 FROM alpine:3.12 AS organizer
 
 # Files needed to run Ark
 WORKDIR /out/ark
 COPY --from=builder build build
+COPY --from=builder include include
 COPY --from=builder lib lib
 
 FROM alpine:3.12 AS runner
@@ -43,7 +44,7 @@ FROM alpine:3.12 AS runner
 RUN apk --no-cache add cmake
 
 # Install Ark
-COPY --from=organizer /out/ark .
+COPY --from=organizer /out/arkscript .
 RUN cmake --install build --config Release
 
-ENTRYPOINT [ "ark" ]
+ENTRYPOINT [ "arkscript" ]
