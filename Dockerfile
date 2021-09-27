@@ -44,7 +44,7 @@ FROM alpine:3.12 AS runner
 RUN apk --no-cache add cmake
 
 # Install Ark
-COPY --from=organizer /out/arkscript .
+COPY --from=organizer /out/ark .
 RUN cmake --install build --config Release
 
 ENTRYPOINT [ "arkscript" ]
