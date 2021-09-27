@@ -26,7 +26,7 @@
 #include <Ark/VM/Closure.hpp>
 #include <Ark/Exceptions.hpp>
 #include <Ark/VM/UserType.hpp>
-#include <Ark/Config.hpp>
+#include <Ark/Platform.hpp>
 #include <Ark/Profiling.hpp>
 
 namespace Ark

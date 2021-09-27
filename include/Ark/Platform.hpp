@@ -1,16 +1,16 @@
 /**
- * @file Config.hpp
+ * @file Platform.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief ArkScript configuration macros
- * @version 0.1
+ * @version 0.2
  * @date 2020-10-27
  * 
  * @copyright Copyright (c) 2020-2021
  * 
  */
 
-#ifndef INCLUDE_ARK_CONFIG_HPP
-#define INCLUDE_ARK_CONFIG_HPP
+#ifndef INCLUDE_ARK_PLATFORM_HPP
+#define INCLUDE_ARK_PLATFORM_HPP
 
 #if defined(_WIN32) || defined(_WIN64)
 #    define ARK_OS_WINDOWS

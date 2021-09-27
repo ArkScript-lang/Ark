@@ -6,6 +6,7 @@
 ### Changed
 - using `doc_formatting.first_column` instead of `doc_formatting.start_column` when displaying the CLI help
 - brand new cmake build system
+- renaming `Ark/Config.hpp` to `Ark/Platform.hpp`
 
 ### Removed
 - removed `ARK_SCOPE_DICHOTOMY` flag so that scopes don't use dichotomic search but a linear one, since it proved to be faster on small sets of values. This goes toward prioritizing small functions, and code being cut in multiple smaller scopes

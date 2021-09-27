@@ -27,7 +27,7 @@
 #include <Ark/VM/Scope.hpp>
 #include <Ark/VM/State.hpp>
 #include <Ark/Builtins/Builtins.hpp>
-#include <Ark/Config.hpp>
+#include <Ark/Platform.hpp>
 #include <Ark/VM/Plugin.hpp>
 
 #undef abs

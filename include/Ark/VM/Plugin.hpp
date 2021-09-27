@@ -12,7 +12,7 @@
 #ifndef ARK_VM_PLUGIN_HPP
 #define ARK_VM_PLUGIN_HPP
 
-#include <Ark/Config.hpp>
+#include <Ark/Platform.hpp>
 
 #if defined(ARK_OS_WINDOWS)
 // do not include winsock.h

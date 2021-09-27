@@ -20,7 +20,7 @@
 #include <cinttypes>
 #include <sstream>
 
-#include <Ark/Config.hpp>
+#include <Ark/Platform.hpp>
 #include <Ark/Exceptions.hpp>
 #include <Ark/Compiler/Lexer.hpp>
 #include <Ark/Compiler/Node.hpp>
