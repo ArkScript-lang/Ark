@@ -161,6 +161,11 @@ jobs:
       shell: bash
       run: cd tests/cpp && cmake --build build --config $BUILD_TYPE
 
+    - name: Pre-test
+      if: startsWith(matrix.config.name, 'Windows')
+      shell: bash
+      run: cp build/${BUILD_TYPE}/*.dll tests/cpp/
+
     - name: Tests
       shell: bash
       run: bash .github/launch-tests
