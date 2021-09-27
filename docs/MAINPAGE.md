@@ -1,7 +1,5 @@
 @mainpage Home
 
-# ArkScript
-
 This is the **implementation** documentation of the ArkScript programming language, if you want to contribute to it in any way.
 
 # Key features of the language
@@ -25,7 +23,7 @@ Also it has:
     * [stable](https://hub.docker.com/r/arkscript/stable), images built after each release
     * [nightly](https://hub.docker.com/r/arkscript/nightly), image built after each commit
 
-## Links
+# Links
 
 - [Source code](https://github.com/ArkScript-lang/Ark)
 - @ref tutorials
