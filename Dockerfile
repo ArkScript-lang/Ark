@@ -25,7 +25,6 @@ RUN apk --no-cache add cmake clang clang-dev make gcc g++ libc-dev linux-headers
 # Build
 COPY include include
 COPY src src
-COPY thirdparties thirdparties
 COPY CMakeLists.txt .
 COPY --from=submodule-initializor /out .
 RUN cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release -DARK_BUILD_EXE=On \
@@ -36,7 +35,6 @@ FROM alpine:3.12 AS organizer
 # Files needed to run Ark
 WORKDIR /out/ark
 COPY --from=builder build build
-COPY --from=builder submodules submodules
 COPY --from=builder lib lib
 
 FROM alpine:3.12 AS runner
