@@ -79,42 +79,6 @@ namespace Ark::Utils
     }
 
     /**
-     * @brief Checks if a string represents a valid integer
-     * 
-     * @param s the string
-     * @return true on success
-     * @return false on failure
-     */
-    inline bool isInteger(const std::string& s)
-    {
-        return std::regex_match(s, std::regex("^((\\+|-)?[[:digit:]]+)$"));
-    }
-
-    /**
-     * @brief Checks if a string represents a valid floating point number
-     * 
-     * @param s the string
-     * @return true on success
-     * @return false on failure
-     */
-    inline bool isFloat(const std::string& s)
-    {
-        return std::regex_match(s, std::regex("^((\\+|-)?[[:digit:]]+)(\\.(([[:digit:]]+)?))$"));
-    }
-
-    /**
-     * @brief Checks if a string represents a valid fractional number
-     * 
-     * @param s the string
-     * @return true on success
-     * @return false on failure
-     */
-    inline bool isFraction(const std::string& s)
-    {
-        return std::regex_match(s, std::regex("^((\\+|-)?[[:digit:]]+)(/(([[:digit:]]+)?))$"));
-    }
-
-    /**
      * @brief Checks if a string is a valid double
      * 
      * @param s the string
