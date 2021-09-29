@@ -2,7 +2,7 @@
  * @file Node.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief AST node used by the parser, optimizer and compiler
- * @version 0.2
+ * @version 0.3
  * @date 2020-10-27
  * 
  * @copyright Copyright (c) 2020-2021
@@ -52,7 +52,8 @@ namespace Ark::internal
         Begin,
         Import,
         Quote,
-        Del
+        Del,
+        Pop
     };
 
     /**

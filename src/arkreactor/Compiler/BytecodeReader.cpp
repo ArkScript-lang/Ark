@@ -443,6 +443,39 @@ namespace Ark
                             os << "CONCAT " << termcolor::reset << "(" << value << ")\n";
                         i++;
                     }
+                    else if (inst == Instruction::APPEND_IN_PLACE)
+                    {
+                        uint16_t value = readNumber(i);
+                        if (displayLine)
+                            os << "APPEND_IN_PLACE " << termcolor::reset << "(" << value << ")\n";
+                        i++;
+                    }
+                    else if (inst == Instruction::CONCAT_IN_PLACE)
+                    {
+                        uint16_t value = readNumber(i);
+                        if (displayLine)
+                            os << "CONCAT_IN_PLACE " << termcolor::reset << "(" << value << ")\n";
+                        i++;
+                    }
+                    else if (inst == Instruction::POP_LIST)
+                    {
+                        uint16_t value = readNumber(i);
+                        if (displayLine)
+                            os << "POP_LIST " << termcolor::reset << "(" << value << ")\n";
+                        i++;
+                    }
+                    else if (inst == Instruction::POP_LIST_IN_PLACE)
+                    {
+                        uint16_t value = readNumber(i);
+                        if (displayLine)
+                            os << "POP_LIST_IN_PLACE " << termcolor::reset << "(" << value << ")\n";
+                        i++;
+                    }
+                    else if (inst == Instruction::POP)
+                    {
+                        if (displayLine)
+                            os << "POP\n";
+                    }
                     else if (inst == Instruction::ADD)
                     {
                         if (displayLine)

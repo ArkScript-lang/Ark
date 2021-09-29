@@ -2,7 +2,7 @@
  * @file Instructions.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief The different instructions used by the compiler and virtual machine
- * @version 0.1
+ * @version 0.2
  * @date 2020-10-27
  * 
  * @copyright Copyright (c) 2020-2021
@@ -61,7 +61,8 @@ namespace Ark::internal
         CONCAT_IN_PLACE = 0x16,
         POP_LIST = 0x17,
         POP_LIST_IN_PLACE = 0x18,
-        LAST_COMMAND = 0x18,
+        POP = 0x19,
+        LAST_COMMAND = 0x19,
 
         FIRST_OPERATOR = 0x20,
         ADD = 0x20,
