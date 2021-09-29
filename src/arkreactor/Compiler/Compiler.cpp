@@ -196,10 +196,7 @@ namespace Ark
 
         // register symbols
         if (x.nodeType() == NodeType::Symbol)
-        {
             compileSymbol(x, p);
-            return;
-        }
         else if (x.nodeType() == NodeType::GetField)
         {
             std::string name = x.string();
@@ -208,8 +205,6 @@ namespace Ark
 
             page(p).emplace_back(Instruction::GET_FIELD);
             pushNumber(static_cast<uint16_t>(i), &page(p));
-
-            return;
         }
         // register values
         else if (x.nodeType() == NodeType::String || x.nodeType() == NodeType::Number)
@@ -218,8 +213,6 @@ namespace Ark
 
             page(p).emplace_back(Instruction::LOAD_CONST);
             pushNumber(static_cast<uint16_t>(i), &page(p));
-
-            return;
         }
         // empty code block should be nil
         else if (x.constList().empty())
@@ -227,48 +220,70 @@ namespace Ark
             auto it_builtin = isBuiltin("nil");
             page(p).emplace_back(Instruction::BUILTIN);
             pushNumber(static_cast<uint16_t>(it_builtin.value()), &page(p));
-            return;
         }
         // specific instructions
         else if (auto c0 = x.constList()[0]; c0.nodeType() == NodeType::Symbol && isSpecific(c0.string()).has_value())
-        {
             compileSpecific(c0, x, p);
-            return;
-        }
         // registering structures
         else if (x.constList()[0].nodeType() == NodeType::Keyword)
         {
             Keyword n = x.constList()[0].keyword();
 
-            if (n == Keyword::If)
-                compileIf(x, p);
-            else if (n == Keyword::Set)
-                compileSet(x, p);
-            else if (n == Keyword::Let || n == Keyword::Mut)
-                compileLetMut(n, x, p);
-            else if (n == Keyword::Fun)
-                compileFunction(x, p);
-            else if (n == Keyword::Begin)
+            switch (n)
             {
-                for (std::size_t i = 1, size = x.constList().size(); i < size; ++i)
-                    _compile(x.constList()[i], p);
+                case Keyword::If:
+                    compileIf(x, p);
+                    break;
+
+                case Keyword::Set:
+                    compileSet(x, p);
+                    break;
+
+                case Keyword::Let:
+                    [[fallthrough]];
+                case Keyword::Mut:
+                    compileLetMut(n, x, p);
+                    break;
+
+                case Keyword::Fun:
+                    compileFunction(x, p);
+                    break;
+
+                case Keyword::Begin:
+                {
+                    for (std::size_t i = 1, size = x.constList().size(); i < size; ++i)
+                        _compile(x.constList()[i], p);
+                    break;
+                }
+
+                case Keyword::While:
+                    compileWhile(x, p);
+                    break;
+
+                case Keyword::Import:
+                    compilePluginImport(x, p);
+                    break;
+
+                case Keyword::Quote:
+                    compileQuote(x, p);
+                    break;
+
+                case Keyword::Del:
+                    compileDel(x, p);
+                    break;
+
+                case Keyword::Pop:
+                    _compile(x.constList()[1], p);
+                    page(p).emplace_back(Instruction::POP);
+                    break;
             }
-            else if (n == Keyword::While)
-                compileWhile(x, p);
-            else if (n == Keyword::Import)
-                compilePluginImport(x, p);
-            else if (n == Keyword::Quote)
-                compileQuote(x, p);
-            else if (n == Keyword::Del)
-                compileDel(x, p);
-
-            return;
         }
-
-        // if we are here, we should have a function name
-        // push arguments first, then function name, then call it
-        handleCalls(x, p);
-        return;
+        else
+        {
+            // if we are here, we should have a function name
+            // push arguments first, then function name, then call it
+            handleCalls(x, p);
+        }
     }
 
     void Compiler::compileSymbol(const Node& x, int p)
@@ -327,6 +342,7 @@ namespace Ark
     {
         // compile condition
         _compile(x.constList()[1], p);
+
         // jump only if needed to the x.list()[2] part
         page(p).emplace_back(Instruction::POP_JUMP_IF_TRUE);
         std::size_t jump_to_if_pos = page(p).size();
@@ -400,11 +416,11 @@ namespace Ark
 
         // put value before symbol id
         // trying to handle chained closure.field.field.field...
-        std::size_t pos = 2;
-        while (pos < x.constList().size())
+        std::size_t idx = 2;
+        while (idx < x.constList().size())
         {
-            _compile(x.constList()[pos], p);
-            pos++;
+            _compile(x.constList()[idx], p);
+            idx++;
         }
 
         page(p).emplace_back(n == Keyword::Let ? Instruction::LET : Instruction::MUT);
@@ -417,6 +433,7 @@ namespace Ark
         std::size_t current = page(p).size();
         // push condition
         _compile(x.constList()[1], p);
+
         // absolute jump to end of block if condition is false
         page(p).emplace_back(Instruction::POP_JUMP_IF_FALSE);
         std::size_t jump_to_end_pos = page(p).size();
@@ -440,11 +457,11 @@ namespace Ark
 
         // put value before symbol id
         // trying to handle chained closure.field.field.field...
-        std::size_t pos = 2;
-        while (pos < x.constList().size())
+        std::size_t idx = 2;
+        while (idx < x.constList().size())
         {
-            _compile(x.constList()[pos], p);
-            pos++;
+            _compile(x.constList()[idx], p);
+            idx++;
         }
 
         page(p).emplace_back(Instruction::STORE);
