@@ -25,3 +25,6 @@
 [submodule "lib/replxx"]
 	path = lib/replxx
 	url = https://github.com/AmokHuginnsson/replxx.git
+[submodule "lib/spdlog"]
+	path = lib/spdlog
+	url = https://github.com/gabime/spdlog.git

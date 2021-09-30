@@ -17,12 +17,12 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 endif()
 
 if (CMAKE_COMPILER_IS_GNUCXX)
-    set_property(GLOBAL PROPERTY ArkDebugFlags "${CMAKE_CXX_FLAGS_DEBUG} -pg -g -no-pie")
+    set_property(GLOBAL PROPERTY ArkDebugFlags "${CMAKE_CXX_FLAGS_DEBUG} -pg -g -no-pie -Wall -Wextra")
     set_property(GLOBAL PROPERTY ArkReleaseFlags "-DNDEBUG -O3 -s")
     set_property(GLOBAL PROPERTY ArkLinkerFlags "")
 elseif (MSVC)
-    set_property(GLOBAL PROPERTY ArkDebugFlags "/Z7 /DWIN32 /D_WINDOWS /W3 /GR /EHa /MDd")
-    set_property(GLOBAL PROPERTY ArkReleaseFlags "/DNDEBUG /DWIN32 /D_WINDOWS /W3 /GR /EHa /Ox /Ob2 /Oi /Ot /Oy /MD")
+    set_property(GLOBAL PROPERTY ArkDebugFlags "/Z7 /DWIN32 /D_WINDOWS /W4 /GR /EHa /MDd /MP4")
+    set_property(GLOBAL PROPERTY ArkReleaseFlags "/DNDEBUG /DWIN32 /D_WINDOWS /W4 /GR /EHa /Ox /Ob2 /Oi /Ot /Oy /MD /MP4")
     set_property(GLOBAL PROPERTY ArkLinkerFlags "")
 
     add_compile_options(/wd4267)  # disable warning about data loss (size_t -> int)
@@ -56,6 +56,11 @@ target_include_directories(ArkReactor PUBLIC "${ark_SOURCE_DIR}/lib/picosha2/")
 add_subdirectory("${ark_SOURCE_DIR}/lib/termcolor" EXCLUDE_FROM_ALL)
 # Links to the target ArkReactor
 target_link_libraries(ArkReactor PUBLIC termcolor)
+
+# Adds spdlog source project
+add_subdirectory("${ark_SOURCE_DIR}/lib/spdlog" EXCLUDE_FROM_ALL)
+# Links to the target ArkReactor
+target_link_libraries(ArkReactor PUBLIC spdlog::spdlog)
 
 # Adds String source project for static linking
 add_subdirectory("${ark_SOURCE_DIR}/lib/String/" EXCLUDE_FROM_ALL)
