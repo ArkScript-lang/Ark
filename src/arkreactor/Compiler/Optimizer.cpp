@@ -1,11 +1,13 @@
 #include <Ark/Compiler/Optimizer.hpp>
 
+#include <spdlog/spdlog.h>
+
 namespace Ark
 {
     using namespace internal;
 
-    Optimizer::Optimizer(uint16_t options) noexcept :
-        m_options(options)
+    Optimizer::Optimizer(unsigned debug, uint16_t options) noexcept :
+        m_debug(debug), m_options(options)
     {}
 
     void Optimizer::feed(const Node& ast)
@@ -13,7 +15,10 @@ namespace Ark
         m_ast = ast;
 
         if (m_options & FeatureRemoveUnusedVars)
+        {
+            spdlog::info("removing unused");
             remove_unused();
+        }
     }
 
     const Node& Optimizer::ast() const noexcept
