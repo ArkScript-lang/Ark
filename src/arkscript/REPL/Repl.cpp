@@ -1,10 +1,8 @@
 #include <functional>
 #include <sstream>
-#include <cstdio>
 
 #include <Ark/REPL/Repl.hpp>
 #include <Ark/REPL/replxx/Util.hpp>
-
 
 namespace Ark
 {
@@ -92,7 +90,7 @@ namespace Ark
                     state.reset();
                 }
                 else
-                    std::printf("Ark::State::doString failed");
+                    std::cout << "Ark::State::doString failed\n";
             }
         }
 
@@ -101,12 +99,8 @@ namespace Ark
 
     inline void Repl::print_repl_header()
     {
-        std::printf(
-            "ArkScript REPL -- Version %i.%i.%i [LICENSE: Mozilla Public License 2.0]\n"
-            "Type \"(quit)\" to quit.\n",
-            ARK_VERSION_MAJOR,
-            ARK_VERSION_MINOR,
-            ARK_VERSION_PATCH);
+        std::cout << "ArkScript REPL -- Version " << ARK_VERSION_MAJOR << "." << ARK_VERSION_MINOR << "." << ARK_VERSION_PATCH << " [LICENSE: Mozilla Public License 2.0]\n"
+                  << "Type \"(quit)\" to quit.\n";
     }
 
     int Repl::count_open_parentheses(const std::string& line)

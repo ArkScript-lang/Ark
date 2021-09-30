@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <picosha2.h>
 #include <termcolor/termcolor.hpp>
+#include <spdlog/spdlog.h>
 
 namespace Ark
 {
@@ -38,6 +39,8 @@ namespace Ark
             // check in the current working directory
             else if (Ark::Utils::fileExists("./lib"))
                 m_libdir = Ark::Utils::canonicalRelPath("./lib");
+
+            spdlog::info("<State> Found lib in {}", m_libdir);
         }
     }
 
@@ -56,7 +59,7 @@ namespace Ark
         catch (const std::exception& e)
         {
             result = false;
-            std::printf("%s\n", e.what());
+            spdlog::error("<State> {}", e.what());
         }
 
         return result;
@@ -73,7 +76,7 @@ namespace Ark
         catch (const std::exception& e)
         {
             result = false;
-            std::printf("%s\n", e.what());
+            spdlog::error("<State> {}", e.what());
         }
 
         return result;
@@ -97,12 +100,12 @@ namespace Ark
         }
         catch (const std::exception& e)
         {
-            std::printf("%s\n", e.what());
+            spdlog::error("<State> {}", e.what());
             return false;
         }
         catch (...)
         {
-            std::printf("Unknown lexer-parser-or-compiler error (%s)\n", file.c_str());
+            spdlog::error("<State> Unknown error in file {}", file);
             return false;
         }
 
@@ -113,8 +116,7 @@ namespace Ark
     {
         if (!Ark::Utils::fileExists(file))
         {
-            std::cerr << termcolor::red << "Can not find file '" << file << "'\n"
-                      << termcolor::reset;
+            spdlog::error("<State> Could not find file {}", file);
             return false;
         }
 
@@ -126,7 +128,7 @@ namespace Ark
         }
         catch (const std::exception& e)
         {
-            std::printf("%s\n", e.what());
+            spdlog::error("<State> {}", e.what());
             return false;
         }
 
@@ -163,12 +165,12 @@ namespace Ark
         }
         catch (const std::exception& e)
         {
-            std::printf("%s\n", e.what());
+            spdlog::error("<State> {}", e.what());
             return false;
         }
         catch (...)
         {
-            std::printf("Unknown lexer-parser-or-compiler error\n");
+            spdlog::error("<State> Unknown error");
             return false;
         }
 

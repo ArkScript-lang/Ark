@@ -5,6 +5,7 @@
 
 #include <Ark/Utils.hpp>
 #include <Ark/Builtins/Builtins.hpp>
+#include <spdlog/spdlog.h>
 
 namespace Ark
 {
@@ -24,8 +25,7 @@ namespace Ark
         if (filename != ARK_NO_NAME_FILE)
         {
             m_file = Ark::Utils::canonicalRelPath(filename);
-            if (m_debug >= 2)
-                std::cout << "New parser: " << m_file << '\n';
+            spdlog::info("<Parser> New instance for {}", m_file);
             m_parent_include.push_back(m_file);
         }
 
@@ -51,8 +51,8 @@ namespace Ark
         // include files if needed
         checkForInclude(m_ast, m_ast);
 
-        if (m_debug >= 3)
-            std::cout << "(Parser) AST\n"
+        if (m_debug >= 3)  // TODO use spdlog
+            std::cout << "<Parser> AST\n"
                       << m_ast << "\n\n";
     }
 
@@ -342,8 +342,7 @@ namespace Ark
         }
         else if (token.token == "!")
         {
-            if (m_debug >= 2)
-                std::cout << "Found a macro at " << token.line << ':' << token.col << " in " << m_file << '\n';
+            spdlog::debug("<Parser> Found a macro at {}:{} in {}", token.line, token.col, m_file);
 
             // macros
             Node block = make_node(NodeType::Macro, token.line, token.col, m_file);
@@ -479,8 +478,7 @@ namespace Ark
 
             if (first.nodeType() == NodeType::Keyword && first.keyword() == Keyword::Import)
             {
-                if (m_debug >= 2)
-                    std::cout << "Import found in file: " << m_file << '\n';
+                spdlog::trace("<Parser> Import found in file {}", m_file);
 
                 std::string file;
                 if (n.constList()[1].nodeType() == NodeType::String)
@@ -514,9 +512,7 @@ namespace Ark
                     }
 
                     for (std::size_t j = 1, end = p.ast().constList().size(); j < end; ++j)
-                    {
                         parent.list().insert(parent.list().begin() + pos + j, p.ast().constList()[j]);
-                    }
 
                     return true;
                 }
@@ -540,11 +536,7 @@ namespace Ark
         const std::string current_dir = Ark::Utils::getDirectoryFromPath(m_file) + "/";
         const std::string path = (current_dir != "/") ? current_dir + file : file;
 
-        if (m_debug >= 2)
-        {
-            std::cout << "path: " << path << " ; file: " << file << " ; libdir: " << m_libdir << '\n';
-            std::cout << "filename: " << Ark::Utils::getFilenameFromPath(file) << '\n';
-        }
+        spdlog::debug("<Parser> Importing {}; file: {}; filename: {}; libdir: {}", path, file, Ark::Utils::getFilenameFromPath(file), m_libdir);
 
         // search in the current directory
         if (Ark::Utils::fileExists(path))

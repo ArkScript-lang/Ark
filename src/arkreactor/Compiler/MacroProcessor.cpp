@@ -5,6 +5,9 @@
 #include <Ark/Compiler/MacroExecutors/ConditionalExecutor.hpp>
 #include <Ark/Compiler/Node.hpp>
 
+#include <spdlog/spdlog.h>
+#include <spdlog/stopwatch.h>
+
 namespace Ark::internal
 {
     MacroProcessor::MacroProcessor(unsigned debug, uint16_t options) noexcept :
@@ -29,18 +32,16 @@ namespace Ark::internal
 
     void MacroProcessor::feed(const Node& ast)
     {
-        if (m_debug >= 2)
-            std::cout << "Processing macros...\n";
+        spdlog::stopwatch sw;
 
         // to be able to modify it
         m_ast = ast;
         process(m_ast, 0);
 
         if (m_debug >= 3)
-        {
-            std::cout << "(MacroProcessor) AST after processing macros\n";
-            std::cout << m_ast << '\n';
-        }
+            std::cout << m_ast << '\n';  // TODO
+
+        spdlog::trace("<MacroProcessor> Processing done in {}sec", sw);
     }
 
     const Node& MacroProcessor::ast() const noexcept

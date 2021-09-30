@@ -3,6 +3,7 @@
 ## [Unreleased changes]
 ### Added
 - internal hidden keyword `Pop` to use in the stack trashing
+- added spdlog
 
 ### Changed
 - using `doc_formatting.first_column` instead of `doc_formatting.start_column` when displaying the CLI help

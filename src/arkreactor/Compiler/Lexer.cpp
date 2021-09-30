@@ -1,7 +1,6 @@
 #include <Ark/Compiler/Lexer.hpp>
 
-#include <cstdio>
-
+#include <spdlog/spdlog.h>
 #include <Ark/Utils.hpp>
 
 namespace Ark::internal
@@ -33,11 +32,7 @@ namespace Ark::internal
         for (std::size_t pos = 0, end = code.size(); pos < end; ++pos)
         {
             char current = code[pos];
-
-            if (m_debug >= 5)
-                std::printf(
-                    "buffer: %s - ctrl_char: %s - current: '%c' - line: %zu, char: %zu\n",
-                    buffer.c_str(), ctrl_char.c_str(), current, line, character);
+            spdlog::debug("<Lexer> buffer: {} - ctrl_char: {} - current: '{}' - line: {}, char: {}", buffer, ctrl_char, current, line, character);
 
             if (!in_string)
             {
@@ -236,16 +231,8 @@ namespace Ark::internal
         // debugging information
         if (m_debug > 3)
         {
-            auto last_token = m_tokens.back();
             for (auto& last_token : m_tokens)
-            {
-                std::printf(
-                    "TokenType: %s\tLine: %zu\n[%zu\t]\tToken: %s\n",
-                    tokentype_string[static_cast<std::size_t>(last_token.type)].c_str(),
-                    last_token.line,
-                    last_token.col,
-                    last_token.token.c_str());
-            }
+                spdlog::debug("<Lexer> TokenType: {}\tLine: {}\n[{}\t]\tToken: {}", tokentype_string[static_cast<std::size_t>(last_token.type)], last_token.line, last_token.col, last_token.token);
         }
     }
 

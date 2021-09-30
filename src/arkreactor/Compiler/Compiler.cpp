@@ -3,6 +3,8 @@
 #include <fstream>
 #include <chrono>
 #include <picosha2.h>
+#include <spdlog/spdlog.h>
+#include <spdlog/stopwatch.h>
 
 #include <Ark/Builtins/Builtins.hpp>
 #include <Ark/Compiler/MacroProcessor.hpp>
@@ -24,20 +26,20 @@ namespace Ark
         mp.feed(m_parser.ast());
         m_optimizer.feed(mp.ast());
 
+        spdlog::trace("<Compiler> {} is importing {} files", filename, m_parser.getImports().size());
+
         if (m_debug >= 2)
         {
-            std::cout << filename << " is importing " << std::to_string(m_parser.getImports().size()) << " files:\n";
             for (auto&& import : m_parser.getImports())
-                std::cout << '\t' << import << '\n';
+                std::cout << '\t' << import << '\n';  // TODO
         }
     }
 
     void Compiler::compile()
     {
-        pushHeadersPhase1();
+        spdlog::stopwatch sw;
 
-        if (m_debug >= 1)
-            std::cout << "Compiling\n";
+        pushHeadersPhase1();
 
         // gather symbols, values, and start to create code segments
         m_code_pages.emplace_back();  // create empty page
@@ -81,12 +83,13 @@ namespace Ark
         std::vector<unsigned char> hash(picosha2::k_digest_size);
         picosha2::hash256(m_bytecode.begin() + header_size, m_bytecode.end(), hash);
         m_bytecode.insert(m_bytecode.begin() + header_size, hash.begin(), hash.end());
+
+        spdlog::trace("<Compiler> Compiled finished after {}sec", sw);
     }
 
     void Compiler::saveTo(const std::string& file)
     {
-        if (m_debug >= 1)
-            std::cout << "Final bytecode size: " << m_bytecode.size() * sizeof(uint8_t) << "B\n";
+        spdlog::debug("<Compiler> Final bytecode size: {}B", sizeof(uint8_t) * m_bytecode.size());
 
         std::ofstream output(file, std::ofstream::binary);
         output.write(reinterpret_cast<char*>(&m_bytecode[0]), m_bytecode.size() * sizeof(uint8_t));
@@ -129,8 +132,7 @@ namespace Ark
             m_bytecode.push_back(b);
         }
 
-        if (m_debug >= 1)
-            std::cout << "Timestamp: " << timestamp << '\n';
+        spdlog::info("<Compiler> Timestamp {}", timestamp);
     }
 
     void Compiler::pushHeadersPhase2()
@@ -191,7 +193,7 @@ namespace Ark
 
     void Compiler::_compile(const Node& x, int p)
     {
-        if (m_debug >= 4)
+        if (m_debug >= 4)  // TODO spdlog
             std::cout << x << '\n';
 
         // register symbols

@@ -5,6 +5,7 @@
 
 #include <Ark/Builtins/BuiltinsErrors.inl>
 #include <Ark/VM/VM.hpp>
+#include <spdlog/spdlog.h>
 
 namespace Ark::internal::Builtins::List
 {
@@ -76,7 +77,7 @@ namespace Ark::internal::Builtins::List
         static bool has_warned = false;
         if (!has_warned)
         {
-            std::cout << "list:removeAt will be deprecated in ArkScript 4.0.0, consider using pop! or pop\n";
+            spdlog::warn("list:removeAt will be deprecated in ArkScript 4.0.0, consider using pop! or pop");
             has_warned = true;
         }
 

@@ -1,14 +1,26 @@
-#include <cstdio>
 #include <iostream>
 #include <optional>
 #include <filesystem>
 
 #include <clipp.h>
 #include <termcolor/termcolor.hpp>
+#include <spdlog/spdlog.h>
 
 #include <Ark/Ark.hpp>
 #include <Ark/REPL/Repl.hpp>
 #include <Ark/Profiling.hpp>
+
+enum class mode
+{
+    help,
+    dev_info,
+    bytecode_reader,
+    version,
+    run,
+    repl,
+    compile,
+    eval
+};
 
 int main(int argc, char** argv)
 {
@@ -19,21 +31,9 @@ int main(int argc, char** argv)
         fs::path program(argv[0]);
 
         if (program.stem() == "ark")
-            std::cout << termcolor::yellow << "Warning" << termcolor::reset << " the command `ark' is being deprecated in favor of `arkscript'" << std::endl;
+            spdlog::warn("The command `ark' is being deprecated in favor of `arkscript'");
     }
 
-
-    enum class mode
-    {
-        help,
-        dev_info,
-        bytecode_reader,
-        version,
-        run,
-        repl,
-        compile,
-        eval
-    };
     mode selected = mode::repl;
     uint16_t options = Ark::DefaultFeatures;
 
@@ -43,9 +43,9 @@ int main(int argc, char** argv)
 
     unsigned debug = 0;
 
-    uint16_t bcr_page = ~0,
-             bcr_start = ~0,
-             bcr_end = ~0;
+    uint16_t bcr_page = ~0u,
+             bcr_start = ~0u,
+             bcr_end = ~0u;
     Ark::BytecodeSegment segment = Ark::BytecodeSegment::All;
 
     std::vector<std::string> wrong, script_args;
@@ -126,28 +126,28 @@ int main(int argc, char** argv)
                 break;
 
             case mode::version:
-                std::printf("Version %i.%i.%i\n", ARK_VERSION_MAJOR, ARK_VERSION_MINOR, ARK_VERSION_PATCH);
+                std::cout << "Version " << ARK_VERSION_MAJOR << "." << ARK_VERSION_MINOR << "." << ARK_VERSION_PATCH << "\n";
                 break;
 
             case mode::dev_info:
             {
-                std::printf(
-                    "Have been compiled with %s, options: %s\n\n"
-                    "sizeof(Ark::Value)    = %zuB\n"
-                    "      sizeof(Value_t) = %zuB\n"
-                    "      sizeof(ValueType) = %zuB\n"
-                    "      sizeof(ProcType)  = %zuB\n"
-                    "      sizeof(Ark::Closure)  = %zuB\n"
-                    "      sizeof(Ark::UserType) = %zuB\n"
+                spdlog::info(
+                    "Have been compiled with {}, options: {}\n\n"
+                    "sizeof(Ark::Value)    = {}B\n"
+                    "      sizeof(Value_t) = {}B\n"
+                    "      sizeof(ValueType) = {}B\n"
+                    "      sizeof(ProcType)  = {}B\n"
+                    "      sizeof(Ark::Closure)  = {}B\n"
+                    "      sizeof(Ark::UserType) = {}B\n"
                     "\nVirtual Machine\n"
-                    "sizeof(Ark::VM)       = %zuB\n"
-                    "      sizeof(Ark::State)    = %zuB\n"
-                    "      sizeof(Ark::Scope)    = %zuB\n"
+                    "sizeof(Ark::VM)       = {}B\n"
+                    "      sizeof(Ark::State)    = {}B\n"
+                    "      sizeof(Ark::Scope)    = {}B\n"
                     "\nMisc\n"
-                    "    sizeof(vector<Ark::Value>) = %zuB\n"
-                    "    sizeof(std::string)   = %zuB\n"
-                    "    sizeof(String)        = %zuB\n"
-                    "    sizeof(char)          = %zuB\n",
+                    "    sizeof(vector<Ark::Value>) = {}B\n"
+                    "    sizeof(std::string)   = {}B\n"
+                    "    sizeof(String)        = {}B\n"
+                    "    sizeof(char)          = {}B\n",
                     ARK_COMPILER, ARK_COMPILATION_OPTIONS,
                     // value
                     sizeof(Ark::Value),
@@ -181,10 +181,7 @@ int main(int argc, char** argv)
                 state.setDebug(debug);
 
                 if (!state.doFile(file))
-                {
-                    std::cerr << "Could not compile file at " << file << "\n";
                     return -1;
-                }
 
                 break;
             }
@@ -196,19 +193,16 @@ int main(int argc, char** argv)
                 state.setArgs(script_args);
 
                 if (!state.doFile(file))
-                {
-                    std::cerr << "Could not run file at " << file << "\n";
                     return -1;
-                }
 
                 Ark::VM vm(&state);
                 int out = vm.run();
 
 #ifdef ARK_PROFILER_COUNT
-                std::printf(
-                    "\n\nValue\n"
+                spdlog::info(
+                    "Value\n"
                     "=====\n"
-                    "\tCreations: %u\n\tCopies: %u\n\tMoves: %u\n\n\tCopy coeff: %f",
+                    "\tCreations: {}\n\tCopies: {}\n\tMoves: {}\n\n\tCopy coeff: {}",
                     Ark::internal::value_creations,
                     Ark::internal::value_copies,
                     Ark::internal::value_moves,
@@ -224,10 +218,7 @@ int main(int argc, char** argv)
                 state.setDebug(debug);
 
                 if (!state.doString(eval_expresion))
-                {
-                    std::cerr << "Could not evaluate expression\n";
                     return -1;
-                }
 
                 Ark::VM vm(&state);
                 return vm.run();
@@ -252,7 +243,7 @@ int main(int argc, char** argv)
                 }
                 catch (const std::exception& e)
                 {
-                    std::printf("%s\n", e.what());
+                    spdlog::error("<BytecodeReader> {}", e.what());
                 }
                 break;
             }
@@ -261,7 +252,7 @@ int main(int argc, char** argv)
     else
     {
         for (const auto& arg : wrong)
-            std::printf("'%s' ins't a valid argument\n", arg.c_str());
+            std::cout << "'" << arg.c_str() << "' ins't a valid argument\n";
 
         // clipp only supports streams
         std::cout << make_man_page(cli, "ark", fmt)
