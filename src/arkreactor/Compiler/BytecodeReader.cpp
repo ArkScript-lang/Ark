@@ -43,11 +43,11 @@ namespace Ark
         if (!(b.size() > 4 && b[i++] == 'a' && b[i++] == 'r' && b[i++] == 'k' && b[i++] == Instruction::NOP))
             return 0;
 
-        uint16_t major = readNumber(i);
+        /* uint16_t major = */ readNumber(i);
         i++;
-        uint16_t minor = readNumber(i);
+        /* uint16_t minor = */ readNumber(i);
         i++;
-        uint16_t patch = readNumber(i);
+        /* uint16_t patch = */ readNumber(i);
         i++;
 
         // reading the timestamp in big endian
@@ -194,7 +194,7 @@ namespace Ark
             if (showVal || segment == BytecodeSegment::HeadersOnly)
                 os << termcolor::green << "Constants table" << termcolor::reset << " (length: " << sliceSize << ")\n";
 
-            bool showLine = true;
+            [[maybe_unused]] bool showLine = true;
             for (uint16_t j = 0; j < size; ++j)
             {
                 if (auto start = sStart; auto end = sEnd)

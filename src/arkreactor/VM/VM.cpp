@@ -108,6 +108,24 @@ namespace Ark
         try
         {
             map = m_shared_lib_objects.back()->template get<mapping* (*)()>("getFunctionsMapping")();
+
+            // load the mapping data
+            std::size_t i = 0;
+            while (map[i].name != nullptr)
+            {
+                // put it in the global frame, aka the first one
+                auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), std::string(map[i].name));
+                if (it != m_state->m_symbols.end())
+                    (*m_locals[0]).push_back(static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it)), Value(map[i].value));
+
+                // free memory because we have used it and don't need it anymore
+                // no need to free map[i].value since it's a pointer to a function in the DLL
+                delete[] map[i].name;
+                ++i;
+            }
+
+            // free memory
+            delete[] map;
         }
         catch (const std::system_error& e)
         {
@@ -115,24 +133,6 @@ namespace Ark
                 "An error occurred while loading module '" + file + "': " + std::string(e.what()) + "\n" +
                 "It is most likely because the versions of the module and the language don't match.");
         }
-
-        // load the mapping data
-        std::size_t i = 0;
-        while (map[i].name != nullptr)
-        {
-            // put it in the global frame, aka the first one
-            auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), std::string(map[i].name));
-            if (it != m_state->m_symbols.end())
-                (*m_locals[0]).push_back(static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it)), Value(map[i].value));
-
-            // free memory because we have used it and don't need it anymore
-            // no need to free map[i].value since it's a pointer to a function in the DLL
-            delete[] map[i].name;
-            ++i;
-        }
-
-        // free memory
-        delete[] map;
     }
 
     void VM::exit(int code) noexcept
