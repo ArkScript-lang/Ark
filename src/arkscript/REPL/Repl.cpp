@@ -92,7 +92,7 @@ namespace Ark
                     state.reset();
                 }
                 else
-                    std::printf("Ark::State::doString failed");
+                    std::cout << "Ark::State::doString failed\n";
             }
         }
 
