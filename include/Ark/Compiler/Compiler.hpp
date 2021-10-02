@@ -283,8 +283,6 @@ namespace Ark
          */
         void pushNumber(uint16_t n, std::vector<uint8_t>* page = nullptr) noexcept;
     };
-
-#include "Compiler.inl"
 }
 
 #endif
