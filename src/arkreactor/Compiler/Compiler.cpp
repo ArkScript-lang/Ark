@@ -148,7 +148,7 @@ namespace Ark
         // push elements (separated with 0x00)
         for (auto val : m_values)
         {
-            if (val.type == CValueType::Number)
+            if (val.type == ValTableElemType::Number)
             {
                 m_bytecode.push_back(Instruction::NUMBER_TYPE);
                 auto n = std::get<double>(val.value);
@@ -156,14 +156,14 @@ namespace Ark
                 for (std::size_t i = 0, size = t.size(); i < size; ++i)
                     m_bytecode.push_back(t[i]);
             }
-            else if (val.type == CValueType::String)
+            else if (val.type == ValTableElemType::String)
             {
                 m_bytecode.push_back(Instruction::STRING_TYPE);
                 std::string t = std::get<std::string>(val.value);
                 for (std::size_t i = 0, size = t.size(); i < size; ++i)
                     m_bytecode.push_back(t[i]);
             }
-            else if (val.type == CValueType::PageAddr)
+            else if (val.type == ValTableElemType::PageAddr)
             {
                 m_bytecode.push_back(Instruction::FUNC_TYPE);
                 pushNumber(static_cast<uint16_t>(std::get<std::size_t>(val.value)));
@@ -644,7 +644,7 @@ namespace Ark
 
     uint16_t Compiler::addValue(const Node& x)
     {
-        CValue v(x);
+        ValTableElem v(x);
         auto it = std::find(m_values.begin(), m_values.end(), v);
         if (it == m_values.end())
         {
@@ -661,7 +661,7 @@ namespace Ark
 
     uint16_t Compiler::addValue(std::size_t page_id, const Node& current)
     {
-        CValue v(page_id);
+        ValTableElem v(page_id);
         auto it = std::find(m_values.begin(), m_values.end(), v);
         if (it == m_values.end())
         {
