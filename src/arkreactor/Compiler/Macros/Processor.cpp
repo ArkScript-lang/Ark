@@ -19,11 +19,10 @@ namespace Ark::internal
         Node::init();
 
         // create executors pipeline
-        m_executor_pipeline = MacroExecutorPipeline({
-            std::make_shared<SymbolExecutor>(this),
-            std::make_shared<ConditionalExecutor>(this),
-            std::make_shared<ListExecutor>(this)
-        });
+        m_executor_pipeline = MacroExecutorPipeline(
+            { std::make_shared<SymbolExecutor>(this),
+              std::make_shared<ConditionalExecutor>(this),
+              std::make_shared<ListExecutor>(this) });
 
         m_predefined_macros = {
             "symcat",
