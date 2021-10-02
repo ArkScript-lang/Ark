@@ -174,7 +174,7 @@ namespace Ark::internal
          * @param message 
          * @param token 
          */
-        void throwParseError(const std::string& message, Token token);
+        [[noreturn]] void throwParseError(const std::string& message, Token token);
     };
 }
 
