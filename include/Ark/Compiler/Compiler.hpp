@@ -89,8 +89,8 @@ namespace Ark
         std::vector<std::string> m_defined_symbols;
         std::vector<std::string> m_plugins;
         std::vector<internal::CValue> m_values;
-        std::vector<std::vector<internal::Inst_t>> m_code_pages;
-        std::vector<std::vector<internal::Inst_t>> m_temp_pages;  ///< we need temporary code pages for some compilations passes
+        std::vector<std::vector<uint8_t>> m_code_pages;
+        std::vector<std::vector<uint8_t>> m_temp_pages;  ///< we need temporary code pages for some compilations passes
 
         bytecode_t m_bytecode;
         unsigned m_debug;  ///< the debug level of the compiler
@@ -112,9 +112,9 @@ namespace Ark
          * @brief helper functions to get a temp or finalized code page
          * 
          * @param i page index, if negative, refers to a temporay code page
-         * @return std::vector<internal::Inst_t>& 
+         * @return std::vector<uint8_t>& 
          */
-        inline std::vector<internal::Inst_t>& page(int i) noexcept;
+        inline std::vector<uint8_t>& page(int i) noexcept;
 
         /**
          * @brief Count the number of "valid" ark objects in a node
@@ -200,6 +200,14 @@ namespace Ark
         void handleCalls(const internal::Node& x, int p);
 
         /**
+         * @brief Put a value in the bytecode, handling the closures chains
+         * 
+         * @param x 
+         * @param p 
+         */
+        void putValue(const internal::Node& x, int p);
+
+        /**
          * @brief Register a given node in the symbol table
          * 
          * @param sym 
@@ -242,7 +250,7 @@ namespace Ark
          * @param n the number to push
          * @param page the page where it should land, nullptr for current page
          */
-        void pushNumber(uint16_t n, std::vector<internal::Inst_t>* page = nullptr) noexcept;
+        void pushNumber(uint16_t n, std::vector<uint8_t>* page = nullptr) noexcept;
     };
 
 #include "inline/Compiler.inl"
