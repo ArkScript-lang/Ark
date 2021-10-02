@@ -1,5 +1,16 @@
-#ifndef ARK_COMPILER_MAKEERRORCTX_HPP
-#define ARK_COMPILER_MAKEERRORCTX_HPP
+/**
+ * @file makeErrorCtx.hpp
+ * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @brief Create string error context for AST errors
+ * @version 0.1
+ * @date 2020-10-27
+ * 
+ * @copyright Copyright (c) 2020-2021
+ * 
+ */
+
+#ifndef COMPILER_AST_MAKEERRORCTX_HPP
+#define COMPILER_AST_MAKEERRORCTX_HPP
 
 #include <sstream>
 #include <string>
@@ -17,7 +28,7 @@ namespace Ark::internal
      * @param node 
      * @return std::string the complete generated error message
      */
-    std::string makeNodeBasedErrorCtx(const std::string& message, const Ark::internal::Node& node);
+    std::string makeNodeBasedErrorCtx(const std::string& message, const Node& node);
 
     /**
      * @brief Construct an error message based on a given match in the code

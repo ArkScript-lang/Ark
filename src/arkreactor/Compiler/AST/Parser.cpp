@@ -7,12 +7,10 @@
 #include <Ark/Utils.hpp>
 #include <Ark/Exceptions.hpp>
 #include <Ark/Builtins/Builtins.hpp>
-#include <Ark/Compiler/makeErrorCtx.hpp>
+#include <Ark/Compiler/AST/makeErrorCtx.hpp>
 
-namespace Ark
+namespace Ark::internal
 {
-    using namespace internal;
-
     Parser::Parser(unsigned debug, const std::string& lib_dir, uint16_t options) noexcept :
         m_debug(debug),
         m_libdir(lib_dir),

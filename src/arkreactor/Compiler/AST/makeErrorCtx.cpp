@@ -1,4 +1,4 @@
-#include <Ark/Compiler/makeErrorCtx.hpp>
+#include <Ark/Compiler/AST/makeErrorCtx.hpp>
 
 #include <vector>
 #include <iomanip>

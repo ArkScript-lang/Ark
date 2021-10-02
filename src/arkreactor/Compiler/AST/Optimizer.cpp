@@ -1,9 +1,7 @@
-#include <Ark/Compiler/Optimizer.hpp>
+#include <Ark/Compiler/AST/Optimizer.hpp>
 
-namespace Ark
+namespace Ark::internal
 {
-    using namespace internal;
-
     Optimizer::Optimizer(uint16_t options) noexcept :
         m_options(options)
     {}
