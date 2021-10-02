@@ -21,7 +21,7 @@
 #include <Ark/Compiler/Instructions.hpp>
 #include <Ark/Compiler/AST/Parser.hpp>
 #include <Ark/Compiler/AST/Node.hpp>
-#include <Ark/Compiler/CValue.hpp>
+#include <Ark/Compiler/ValTableElem.hpp>
 #include <Ark/Compiler/Optimizer.hpp>
 #include <Ark/Builtins/Builtins.hpp>
 
@@ -83,7 +83,7 @@ namespace Ark
         std::vector<internal::Node> m_symbols;
         std::vector<std::string> m_defined_symbols;
         std::vector<std::string> m_plugins;
-        std::vector<internal::CValue> m_values;
+        std::vector<internal::ValTableElem> m_values;
         std::vector<std::vector<uint8_t>> m_code_pages;
         std::vector<std::vector<uint8_t>> m_temp_pages;  ///< we need temporary code pages for some compilations passes
 
