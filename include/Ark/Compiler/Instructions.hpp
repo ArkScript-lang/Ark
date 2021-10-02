@@ -19,7 +19,7 @@ namespace Ark::internal
     /**
      * @brief The different bytecodes are stored here
      * @par Adding an operator
-     * It must be referenced as well under src/VM/Builtins/Builtins.cpp, in
+     * It must be referenced as well under include/Ark/Compiler/Common.hpp, in
      * the operators table. The order of the operators below <code>FIRST_OPERATOR</code>
      * must be the same as the one in the operators table from the aforementioned file.
      * 

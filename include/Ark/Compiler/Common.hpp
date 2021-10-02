@@ -83,12 +83,18 @@ namespace Ark::internal
         "del"
     };
 
-    constexpr std::array<std::string_view, 12> operators = {
+    // This list is related to include/Ark/Compiler/Instructions.hpp
+    // from FIRST_OPERATOR, to LAST_OPERATOR
+    // The order is very important
+    constexpr std::array<std::string_view, 25> operators = {
         "+", "-", "*", "/",
-        "<=", ">=", "!=", "<", ">",
-        "@",
-        "=",
-        "^"
+        ">", "<", "<=", ">=", "!=", "=",
+        "len", "empty?", "tail", "head",
+        "nil?", "assert",
+        "toNumber", "toString",
+        "@", "and", "or", "mod",
+        "type", "hasField",
+        "not"
     };
 }
 

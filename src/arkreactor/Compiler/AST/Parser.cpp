@@ -6,7 +6,6 @@
 
 #include <Ark/Utils.hpp>
 #include <Ark/Exceptions.hpp>
-#include <Ark/Builtins/Builtins.hpp>
 #include <Ark/Compiler/AST/makeErrorCtx.hpp>
 
 namespace Ark::internal
@@ -184,7 +183,7 @@ namespace Ark::internal
         else if (token.type == TokenType::Grouping)
             throwParseError("Found a lonely `" + token.token + "', you most likely have too much parenthesis.", token);
         else if ((token.type == TokenType::Operator || token.type == TokenType::Identifier) &&
-                 std::find(Builtins::operators.begin(), Builtins::operators.end(), token.token) != Builtins::operators.end())
+                 std::find(internal::operators.begin(), internal::operators.end(), token.token) != internal::operators.end())
             throwParseError("Found a free flying operator, which isn't authorized. Operators should always immediatly follow a `('.", token);
         return atom(token);
     }

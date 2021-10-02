@@ -587,14 +587,14 @@ namespace Ark::internal
         {
             case NodeType::Symbol:
             {
-                auto it = std::find(internal::Builtins::operators.begin(), internal::Builtins::operators.end(), node.string());
-                auto it2 = std::find_if(internal::Builtins::builtins.begin(), internal::Builtins::builtins.end(),
+                auto it = std::find(operators.begin(), operators.end(), node.string());
+                auto it2 = std::find_if(Builtins::builtins.begin(), Builtins::builtins.end(),
                                         [&node](const std::pair<std::string, Value>& element) -> bool {
                                             return node.string() == element.first;
                                         });
 
-                return it != internal::Builtins::operators.end() ||
-                    it2 != internal::Builtins::builtins.end() ||
+                return it != operators.end() ||
+                    it2 != Builtins::builtins.end() ||
                     const_cast<MacroProcessor*>(this)->findNearestMacro(node.string()) != nullptr ||
                     node.string() == "list";
             }

@@ -188,9 +188,9 @@ namespace Ark
 
     std::optional<std::size_t> Compiler::isOperator(const std::string& name) noexcept
     {
-        auto it = std::find(Builtins::operators.begin(), Builtins::operators.end(), name);
-        if (it != Builtins::operators.end())
-            return std::distance(Builtins::operators.begin(), it);
+        auto it = std::find(internal::operators.begin(), internal::operators.end(), name);
+        if (it != internal::operators.end())
+            return std::distance(internal::operators.begin(), it);
         return {};
     }
 
@@ -607,10 +607,11 @@ namespace Ark
                         break;
 
                     default:
-                        throwCompilerError("can not create a chained expression (of length " + std::to_string(exp_count) +
-                                               ") for operator `" + Builtins::operators[static_cast<std::size_t>(op_inst - Instruction::FIRST_OPERATOR)] +
-                                               "'. You most likely forgot a `)'.",
-                                           x);
+                        throwCompilerError(
+                            "can not create a chained expression (of length " + std::to_string(exp_count) +
+                                ") for operator `" + std::string(internal::operators[static_cast<std::size_t>(op_inst - Instruction::FIRST_OPERATOR)]) +
+                                "'. You most likely forgot a `)'.",
+                            x);
                 }
             }
         }
