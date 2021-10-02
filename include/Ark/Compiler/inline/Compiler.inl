@@ -1,6 +1,6 @@
 // return a code page between the finalized ones and the temporary ones
 // based on index sent
-inline std::vector<internal::Inst_t>& Compiler::page(int i) noexcept
+inline std::vector<uint8_t>& Compiler::page(int i) noexcept
 {
     if (i >= 0)
         return m_code_pages[i];
