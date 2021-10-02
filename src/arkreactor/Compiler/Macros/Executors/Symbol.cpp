@@ -1,11 +1,7 @@
-#include <Ark/Compiler/Macros/Executors/SymbolExecutor.hpp>
+#include <Ark/Compiler/Macros/Executors/Symbol.hpp>
 
 namespace Ark::internal
 {
-    SymbolExecutor::SymbolExecutor(MacroProcessor* macroprocessor, unsigned debug) :
-        MacroExecutor(macroprocessor, debug)
-    {}
-
     bool SymbolExecutor::canHandle(Node& node)
     {
         return node.nodeType() == NodeType::Symbol;

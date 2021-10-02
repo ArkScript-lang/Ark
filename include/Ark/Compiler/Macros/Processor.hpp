@@ -2,7 +2,7 @@
  * @file Processor.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Handles the macros and their expansion in ArkScript source code
- * @version 0.5
+ * @version 0.6
  * @date 2021-02-18
  * 
  * @copyright Copyright (c) 2021
@@ -14,11 +14,9 @@
 
 #include <Ark/Compiler/AST/Node.hpp>
 #include <Ark/Compiler/Macros/Executor.hpp>
-#include <Ark/Compiler/Macros/Executors/Pipeline.hpp>
+#include <Ark/Compiler/Macros/Pipeline.hpp>
 
-#include <algorithm>
 #include <unordered_map>
-#include <utility>
 #include <string>
 #include <cinttypes>
 

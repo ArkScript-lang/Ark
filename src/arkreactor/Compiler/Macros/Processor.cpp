@@ -1,11 +1,14 @@
 #include <Ark/Compiler/Macros/Processor.hpp>
 
+#include <algorithm>
+#include <utility>
+
 #include <Ark/Exceptions.hpp>
 #include <Ark/Compiler/makeErrorCtx.hpp>
 #include <Ark/Builtins/Builtins.hpp>
-#include <Ark/Compiler/Macros/Executors/SymbolExecutor.hpp>
-#include <Ark/Compiler/Macros/Executors/ListExecutor.hpp>
-#include <Ark/Compiler/Macros/Executors/ConditionalExecutor.hpp>
+#include <Ark/Compiler/Macros/Executors/Symbol.hpp>
+#include <Ark/Compiler/Macros/Executors/List.hpp>
+#include <Ark/Compiler/Macros/Executors/Conditional.hpp>
 
 namespace Ark::internal
 {

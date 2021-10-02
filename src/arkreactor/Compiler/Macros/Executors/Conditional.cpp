@@ -1,11 +1,7 @@
-#include <Ark/Compiler/Macros/Executors/ConditionalExecutor.hpp>
+#include <Ark/Compiler/Macros/Executors/Conditional.hpp>
 
 namespace Ark::internal
 {
-    ConditionalExecutor::ConditionalExecutor(MacroProcessor* macroprocessor, unsigned debug) :
-        MacroExecutor(macroprocessor, debug)
-    {}
-
     bool ConditionalExecutor::applyMacro(Node& node)
     {
         Node& first = node.list()[0];
