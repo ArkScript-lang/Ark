@@ -1,4 +1,4 @@
-#include <Ark/Compiler/Parser.hpp>
+#include <Ark/Compiler/AST/Parser.hpp>
 
 #include <optional>
 #include <algorithm>
@@ -8,7 +8,7 @@
 
 namespace Ark
 {
-    using namespace Ark::internal;
+    using namespace internal;
 
     Parser::Parser(unsigned debug, const std::string& lib_dir, uint16_t options) noexcept :
         m_debug(debug),

@@ -3,7 +3,7 @@
 #include <Ark/Compiler/MacroExecutors/SymbolExecutor.hpp>
 #include <Ark/Compiler/MacroExecutors/ListExecutor.hpp>
 #include <Ark/Compiler/MacroExecutors/ConditionalExecutor.hpp>
-#include <Ark/Compiler/Node.hpp>
+#include <Ark/Compiler/AST/Node.hpp>
 
 namespace Ark::internal
 {

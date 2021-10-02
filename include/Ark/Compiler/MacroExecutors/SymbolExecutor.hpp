@@ -13,7 +13,7 @@
 #define ARK_COMPILER_SYMBOLEXECUTOR_HPP
 
 #include <Ark/Compiler/MacroExecutor.hpp>
-#include <Ark/Compiler/Node.hpp>
+#include <Ark/Compiler/AST/Node.hpp>
 
 namespace Ark::internal
 {

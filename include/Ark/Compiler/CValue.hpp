@@ -15,7 +15,7 @@
 #include <variant>
 #include <string>
 
-#include <Ark/Compiler/Node.hpp>
+#include <Ark/Compiler/AST/Node.hpp>
 
 namespace Ark::internal
 {

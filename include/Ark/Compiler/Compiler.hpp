@@ -19,8 +19,8 @@
 #include <optional>
 #include <functional>
 
-#include <Ark/Compiler/Parser.hpp>
-#include <Ark/Compiler/Node.hpp>
+#include <Ark/Compiler/AST/Parser.hpp>
+#include <Ark/Compiler/AST/Node.hpp>
 #include <Ark/Compiler/CValue.hpp>
 #include <Ark/Compiler/Optimizer.hpp>
 #include <Ark/Compiler/Instructions.hpp>

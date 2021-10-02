@@ -15,7 +15,7 @@
 #include <unordered_map>
 #include <vector>
 #include <memory>
-#include <Ark/Compiler/Node.hpp>
+#include <Ark/Compiler/AST/Node.hpp>
 
 namespace Ark::internal
 {
