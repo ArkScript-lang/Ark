@@ -2,9 +2,12 @@
 
 #include <optional>
 #include <algorithm>
+#include <sstream>
 
 #include <Ark/Utils.hpp>
+#include <Ark/Exceptions.hpp>
 #include <Ark/Builtins/Builtins.hpp>
+#include <Ark/Compiler/makeErrorCtx.hpp>
 
 namespace Ark
 {
@@ -23,7 +26,7 @@ namespace Ark
         // not the default value
         if (filename != ARK_NO_NAME_FILE)
         {
-            m_file = Ark::Utils::canonicalRelPath(filename);
+            m_file = Utils::canonicalRelPath(filename);
             if (m_debug >= 2)
                 std::cout << "New parser: " << m_file << '\n';
             m_parent_include.push_back(m_file);
@@ -35,7 +38,7 @@ namespace Ark
         // apply syntactic sugar
         std::vector<Token>& t = m_lexer.tokens();
         if (t.empty())
-            throwParseError_("empty file");
+            throw ParseError("empty file");
         sugar(t);
 
         // create program
@@ -447,7 +450,7 @@ namespace Ark
             case TokenType::GetField:
             case TokenType::Spread:
             {
-                Node n = make_node(similar_nodetype_from_tokentype(token.type), token.line, token.col, m_file);
+                Node n = make_node(internal::similarNodetypeFromTokentype(token.type), token.line, token.col, m_file);
                 n.setString(token.type != TokenType::Spread ? token.token : token.token.substr(3));
                 return n;
             }
@@ -486,7 +489,7 @@ namespace Ark
                 if (n.constList()[1].nodeType() == NodeType::String)
                     file = n.constList()[1].string();
                 else
-                    throw Ark::TypeError("Arguments of import must be of type String");
+                    throw TypeError("Arguments of import must be of type String");
 
                 // check if we are not loading a plugin
                 if (fs::path(file).extension().string() == ".ark")
@@ -496,7 +499,7 @@ namespace Ark
 
                     // if the file isn't in the include list, then we can include it
                     // this avoids cyclic includes
-                    if (std::find(m_parent_include.begin(), m_parent_include.end(), Ark::Utils::canonicalRelPath(included_file)) != m_parent_include.end())
+                    if (std::find(m_parent_include.begin(), m_parent_include.end(), Utils::canonicalRelPath(included_file)) != m_parent_include.end())
                         return true;
 
                     Parser p(m_debug, m_libdir, m_options);
@@ -504,7 +507,7 @@ namespace Ark
                     for (auto&& pi : m_parent_include)
                         p.m_parent_include.push_back(pi);  // new parser, we can assume that the parent include list is empty
                     p.m_parent_include.push_back(m_file);  // add the current file to avoid importing it again
-                    p.feed(Ark::Utils::readFile(included_file), included_file);
+                    p.feed(Utils::readFile(included_file), included_file);
 
                     // update our list of included files
                     for (auto&& inc : p.m_parent_include)
@@ -537,27 +540,45 @@ namespace Ark
 
     std::string Parser::seekFile(const std::string& file)
     {
-        const std::string current_dir = Ark::Utils::getDirectoryFromPath(m_file) + "/";
+        const std::string current_dir = Utils::getDirectoryFromPath(m_file) + "/";
         const std::string path = (current_dir != "/") ? current_dir + file : file;
 
         if (m_debug >= 2)
         {
             std::cout << "path: " << path << " ; file: " << file << " ; libdir: " << m_libdir << '\n';
-            std::cout << "filename: " << Ark::Utils::getFilenameFromPath(file) << '\n';
+            std::cout << "filename: " << Utils::getFilenameFromPath(file) << '\n';
         }
 
         // search in the current directory
-        if (Ark::Utils::fileExists(path))
+        if (Utils::fileExists(path))
             return path;
         // then search in the standard library directory
-        else if (std::string f = m_libdir + "/std/" + file; Ark::Utils::fileExists(f))
+        else if (std::string f = m_libdir + "/std/" + file; Utils::fileExists(f))
             return f;
         // then in the standard library root directory
-        else if (std::string f = m_libdir + "/" + file; Ark::Utils::fileExists(f))
+        else if (std::string f = m_libdir + "/" + file; Utils::fileExists(f))
             return f;
 
         // fallback, we couldn't find the file
         throw std::runtime_error("While processing file " + m_file + ", couldn't import " + file + ": file not found");
+    }
+
+    void Parser::expect(bool pred, const std::string& message, internal::Token token)
+    {
+        if (!pred)
+            throwParseError(message, token);
+    }
+
+    void Parser::throwParseError(const std::string& message, internal::Token token)
+    {
+        std::stringstream ss;
+        ss << message << "\nGot TokenType::" << internal::tokentype_string[static_cast<unsigned>(token.type)] << "\n";
+
+        if (m_file != ARK_NO_NAME_FILE)
+            ss << "In file " << m_file << "\n";
+        ss << internal::makeTokenBasedErrorCtx(token.token, token.line, token.col, m_code);
+
+        throw ParseError(ss.str());
     }
 
     std::ostream& operator<<(std::ostream& os, const Parser& P) noexcept
