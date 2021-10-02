@@ -2,9 +2,10 @@
 
 #include <termcolor/termcolor.hpp>
 
+#include <Ark/Exceptions.hpp>
+
 namespace Ark::internal
 {
-
     Node Node::TrueNode = Node("true");
     Node Node::FalseNode = Node("false");
     Node Node::NilNode = Node("nil");
@@ -142,11 +143,12 @@ namespace Ark::internal
 
     // -------------------------
 
-    auto colors = std::vector({ termcolor::blue,
-                                termcolor::red,
-                                termcolor::green,
-                                termcolor::cyan,
-                                termcolor::magenta });
+    auto colors = std::vector(
+        { termcolor::blue,
+          termcolor::red,
+          termcolor::green,
+          termcolor::cyan,
+          termcolor::magenta });
 
     std::ostream& operator<<(std::ostream& os, const Node& N) noexcept
     {
@@ -239,5 +241,68 @@ namespace Ark::internal
         os << ")";
 
         return os;
+    }
+
+    bool operator==(const Node& A, const Node& B)
+    {
+        if (A.m_type != B.m_type)  // should have the same types
+            return false;
+
+        if (A.m_type != NodeType::List &&
+            A.m_type != NodeType::Closure)
+            return A.m_value == B.m_value;
+
+        if (A.m_type == NodeType::List)
+            throw TypeError("Can not compare lists");
+
+        // any other type => false (here, Closure)
+        return false;
+    }
+
+    bool operator<(const Node& A, const Node& B)
+    {
+        if (A.nodeType() != B.nodeType())
+            return (static_cast<int>(A.nodeType()) - static_cast<int>(B.nodeType())) < 0;
+
+        switch (A.nodeType())
+        {
+            case NodeType::Number:
+            case NodeType::Symbol:
+            case NodeType::String:
+                return A.m_value < B.m_value;
+
+            case NodeType::List:
+                return A.m_list < B.m_list;
+
+            default:
+                return false;
+        }
+    }
+
+    bool operator!(const Node& A)
+    {
+        switch (A.nodeType())
+        {
+            case NodeType::List:
+                return A.constList().empty();
+
+            case NodeType::Number:
+                return !A.number();
+
+            case NodeType::GetField:
+            case NodeType::Capture:
+            case NodeType::String:
+                return A.string().size() == 0;
+
+            case NodeType::Symbol:
+                if (A.string() == "true")
+                    return false;
+                else if (A.string() == "false" || A.string() == "nil")
+                    return true;
+                return false;
+
+            default:
+                return false;
+        }
     }
 }

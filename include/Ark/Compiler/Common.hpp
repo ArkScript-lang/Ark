@@ -2,7 +2,7 @@
  * @file Common.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Common code for the compiler
- * @version 0.1
+ * @version 0.2
  * @date 2021-10-02
  * 
  * @copyright Copyright (c) 2021
@@ -17,6 +17,36 @@
 
 namespace Ark::internal
 {
+    /// The different node types available
+    enum class NodeType
+    {
+        Symbol,
+        Capture,
+        GetField,
+        Keyword,
+        String,
+        Number,
+        List,
+        Closure,
+        Macro,
+        Spread,
+        Unused
+    };
+
+    constexpr std::array<std::string_view, 11> nodeTypes = {
+        "Symbol",
+        "Capture",
+        "GetField",
+        "Keyword",
+        "String",
+        "Number",
+        "List",
+        "Closure",
+        "Macro",
+        "Spread",
+        "Unused"
+    };
+
     /// The different keywords available
     enum class Keyword
     {
