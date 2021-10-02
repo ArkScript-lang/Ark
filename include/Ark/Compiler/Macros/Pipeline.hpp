@@ -13,6 +13,7 @@
 #define COMPILER_MACROS_PIPELINE_HPP
 
 #include <vector>
+#include <memory>
 
 #include <Ark/Compiler/Macros/Executor.hpp>
 
