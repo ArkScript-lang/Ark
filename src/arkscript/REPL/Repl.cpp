@@ -43,11 +43,12 @@ namespace Ark
 
                 std::string prompt = "main:" + str_lines + "> ";
                 
-                char const* buf{ nullptr };
+                char const* buf { nullptr };
                 
-                do {
+                do
+                {
                     buf = m_repl.input(prompt);
-                } while ( ( buf == nullptr ) && ( errno == EAGAIN ) );
+                } while ((buf == nullptr) && (errno == EAGAIN));
                 
                 std::string line = (buf != nullptr) ? std::string(buf) : "";
 
@@ -56,7 +57,8 @@ namespace Ark
                 trim_whitespace(line);
 
                 // specific commands handling
-                if (line == "(quit)" || buf == nullptr) {
+                if (line == "(quit)" || buf == nullptr)
+                {
                     std::cout << "\nExiting REPL\n";
                     return 1;
                 }
