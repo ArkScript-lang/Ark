@@ -4,12 +4,14 @@
 #include <chrono>
 #include <picosha2.h>
 
+#include <Ark/Literals.hpp>
 #include <Ark/Builtins/Builtins.hpp>
 #include <Ark/Compiler/MacroProcessor.hpp>
 
 namespace Ark
 {
     using namespace internal;
+    using namespace literals;
 
     Compiler::Compiler(unsigned debug, const std::string& lib_dir, uint16_t options) :
         m_parser(debug, lib_dir, options), m_optimizer(options),
@@ -56,7 +58,7 @@ namespace Ark
         if (!m_code_pages.size())
         {
             m_bytecode.push_back(Instruction::CODE_SEGMENT_START);
-            pushNumber(static_cast<uint16_t>(1));
+            pushNumber(1_u16);
             m_bytecode.push_back(Instruction::HALT);
         }
 
@@ -326,14 +328,14 @@ namespace Ark
         page(p).emplace_back(Instruction::POP_JUMP_IF_TRUE);
         std::size_t jump_to_if_pos = page(p).size();
         // absolute address to jump to if condition is true
-        pushNumber(static_cast<uint16_t>(0x00), &page(p));
+        pushNumber(0_u16, &page(p));
         // else code
         if (x.constList().size() == 4)  // we have an else clause
             _compile(x.constList()[3], p);
         // when else is finished, jump to end
         page(p).emplace_back(Instruction::JUMP);
         std::size_t jump_to_end_pos = page(p).size();
-        pushNumber(static_cast<uint16_t>(0x00), &page(p));
+        pushNumber(0_u16, &page(p));
         // set jump to if pos
         page(p)[jump_to_if_pos] = (static_cast<uint16_t>(page(p).size()) & 0xff00) >> 8;
         page(p)[jump_to_if_pos + 1] = static_cast<uint16_t>(page(p).size()) & 0x00ff;
@@ -410,7 +412,7 @@ namespace Ark
         page(p).emplace_back(Instruction::POP_JUMP_IF_FALSE);
         std::size_t jump_to_end_pos = page(p).size();
         // absolute address to jump to if condition is false
-        pushNumber(static_cast<uint16_t>(0x00), &page(p));
+        pushNumber(0_u16, &page(p));
         // push code to page
         _compile(x.constList()[2], p);
         // loop, jump to the condition
