@@ -2,7 +2,7 @@
  * @file Common.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Common code for the compiler
- * @version 0.2
+ * @version 0.3
  * @date 2021-10-02
  * 
  * @copyright Copyright (c) 2021
@@ -14,6 +14,13 @@
 
 #include <array>
 #include <string_view>
+#include <vector>
+#include <cinttypes>
+
+namespace Ark
+{
+    using bytecode_t = std::vector<uint8_t>;
+}
 
 namespace Ark::internal
 {
