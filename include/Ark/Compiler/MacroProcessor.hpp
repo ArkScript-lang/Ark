@@ -12,7 +12,7 @@
 #ifndef ARK_COMPILER_MACROPROCESSOR_HPP
 #define ARK_COMPILER_MACROPROCESSOR_HPP
 
-#include <Ark/Compiler/Node.hpp>
+#include <Ark/Compiler/AST/Node.hpp>
 #include <Ark/Exceptions.hpp>
 #include <Ark/Compiler/makeErrorCtx.hpp>
 #include <Ark/Compiler/MacroExecutor.hpp>

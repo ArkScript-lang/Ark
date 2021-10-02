@@ -1,5 +1,4 @@
 #include <Ark/Compiler/MacroExecutors/ListExecutor.hpp>
-#include <Ark/Compiler/Node.hpp>
 
 namespace Ark::internal
 {

@@ -20,10 +20,11 @@
 #include <cinttypes>
 #include <sstream>
 
+#include <Ark/Constants.hpp>
 #include <Ark/Platform.hpp>
 #include <Ark/Exceptions.hpp>
-#include <Ark/Compiler/Lexer.hpp>
-#include <Ark/Compiler/Node.hpp>
+#include <Ark/Compiler/AST/Lexer.hpp>
+#include <Ark/Compiler/AST/Node.hpp>
 #include <Ark/Compiler/makeErrorCtx.hpp>
 
 namespace Ark
@@ -176,7 +177,7 @@ namespace Ark
         inline void throwParseError_(const std::string& message);
     };
 
-#include "inline/Parser.inl"
+#include "Parser.inl"
 }
 
 #endif

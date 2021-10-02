@@ -9,18 +9,17 @@
  * 
  */
 
-#ifndef ARK_COMPILER_NODE_HPP
-#define ARK_COMPILER_NODE_HPP
+#ifndef COMPILER_AST_NODE_HPP
+#define COMPILER_AST_NODE_HPP
 
 #include <variant>
 #include <iostream>
-#include <array>
 #include <string>
 #include <vector>
-#include <unordered_map>
 
 #include <Ark/Platform.hpp>
 #include <Ark/Exceptions.hpp>
+#include <Ark/Compiler/Common.hpp>
 
 namespace Ark::internal
 {
@@ -40,21 +39,6 @@ namespace Ark::internal
         Unused
     };
 
-    /// The different keywords available
-    enum class Keyword
-    {
-        Fun,
-        Let,
-        Mut,
-        Set,
-        If,
-        While,
-        Begin,
-        Import,
-        Quote,
-        Del
-    };
-
     /**
      * @brief A node of an Abstract Syntax Tree for ArkScript
      * 
@@ -62,8 +46,6 @@ namespace Ark::internal
     class Node
     {
     public:
-        using Iterator = std::vector<Node>::const_iterator;
-        using Map = std::unordered_map<std::string, Node>;
         using Value = std::variant<double, std::string, Keyword>;
 
         static Node TrueNode, FalseNode, NilNode, ListNode;
@@ -245,7 +227,7 @@ namespace Ark::internal
         std::string m_filename = "";
     };
 
-#include "inline/Node.inl"
+#include "Node.inl"
 
     std::ostream& operator<<(std::ostream& os, const std::vector<Node>& N) noexcept;
 }

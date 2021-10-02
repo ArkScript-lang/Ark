@@ -1,4 +1,4 @@
-#include <Ark/Compiler/Node.hpp>
+#include <Ark/Compiler/AST/Node.hpp>
 
 #include <termcolor/termcolor.hpp>
 
