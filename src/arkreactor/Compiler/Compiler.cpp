@@ -6,6 +6,7 @@
 #include <picosha2.h>
 
 #include <Ark/Literals.hpp>
+#include <Ark/Utils.hpp>
 #include <Ark/Builtins/Builtins.hpp>
 #include <Ark/Compiler/Macros/Processor.hpp>
 
@@ -174,6 +175,60 @@ namespace Ark
         }
     }
 
+    std::size_t Compiler::countArkObjects(const std::vector<Node>& lst) noexcept
+    {
+        std::size_t n = 0;
+        for (const Node& node : lst)
+        {
+            if (node.nodeType() != NodeType::GetField)
+                n++;
+        }
+        return n;
+    }
+
+    std::optional<std::size_t> Compiler::isOperator(const std::string& name) noexcept
+    {
+        auto it = std::find(Builtins::operators.begin(), Builtins::operators.end(), name);
+        if (it != Builtins::operators.end())
+            return std::distance(Builtins::operators.begin(), it);
+        return {};
+    }
+
+    std::optional<std::size_t> Compiler::isBuiltin(const std::string& name) noexcept
+    {
+        auto it = std::find_if(Builtins::builtins.begin(), Builtins::builtins.end(),
+                               [&name](const std::pair<std::string, Value>& element) -> bool {
+                                   return name == element.first;
+                               });
+        if (it != Builtins::builtins.end())
+            return std::distance(Builtins::builtins.begin(), it);
+        return {};
+    }
+
+    void Compiler::pushSpecificInstArgc(Instruction inst, uint16_t previous, int p) noexcept
+    {
+        if (inst == Instruction::LIST)
+            pushNumber(previous, page_ptr(p));
+        else if (inst == Instruction::APPEND || inst == Instruction::APPEND_IN_PLACE ||
+                 inst == Instruction::CONCAT || inst == Instruction::CONCAT_IN_PLACE)
+            pushNumber(previous - 1, page_ptr(p));
+    }
+
+    bool Compiler::mayBeFromPlugin(const std::string& name) noexcept
+    {
+        std::string splitted = Utils::splitString(name, ':')[0];
+        auto it = std::find_if(m_plugins.begin(), m_plugins.end(),
+                               [&splitted](const std::string& plugin) -> bool {
+                                   return std::filesystem::path(plugin).stem().string() == splitted;
+                               });
+        return it != m_plugins.end();
+    }
+
+    void Compiler::throwCompilerError(const std::string& message, const Node& node)
+    {
+        throw CompilationError(makeNodeBasedErrorCtx(message, node));
+    }
+
     void Compiler::_compile(const Node& x, int p)
     {
         // register symbols
@@ -292,7 +347,7 @@ namespace Ark
         uint16_t argc = countArkObjects(x.constList()) - 1;
         // error, can not use append/concat/pop (and their in place versions) with a <2 length argument list
         if (argc < 2 && inst != Instruction::LIST)
-            throw Ark::CompilationError("can not use " + name + " with less than 2 arguments");
+            throw CompilationError("can not use " + name + " with less than 2 arguments");
 
         // compile arguments in reverse order
         for (uint16_t i = x.constList().size() - 1; i > 0; --i)
