@@ -111,10 +111,18 @@ namespace Ark
         /**
          * @brief helper functions to get a temp or finalized code page
          * 
-         * @param i page index, if negative, refers to a temporay code page
+         * @param i page index, if negative, refers to a temporary code page
          * @return std::vector<uint8_t>& 
          */
         inline std::vector<uint8_t>& page(int i) noexcept;
+
+        /**
+         * @brief helper functions to get a temp or finalized code page
+         * 
+         * @param i page index, if negative, refers to a temporary code page
+         * @return std::vector<uint8_t>* 
+         */
+        inline std::vector<uint8_t>* page_ptr(int i) noexcept;
 
         /**
          * @brief Count the number of "valid" ark objects in a node
@@ -209,27 +217,31 @@ namespace Ark
 
         /**
          * @brief Register a given node in the symbol table
+         * @details Can throw if the table is full
          * 
          * @param sym 
-         * @return std::size_t 
+         * @return uint16_t 
          */
-        std::size_t addSymbol(const internal::Node& sym) noexcept;
+        uint16_t addSymbol(const internal::Node& sym);
 
         /**
          * @brief Register a given node in the value table
+         * @details Can throw if the table is full
          * 
          * @param x 
-         * @return std::size_t 
+         * @return uint16_t 
          */
-        std::size_t addValue(const internal::Node& x) noexcept;
+        uint16_t addValue(const internal::Node& x);
 
         /**
          * @brief Register a page id (function reference) in the value table
+         * @details Can throw if the table is full
          * 
          * @param page_id 
+         * @param current A reference to the current node, for context
          * @return std::size_t 
          */
-        std::size_t addValue(std::size_t page_id) noexcept;
+        uint16_t addValue(std::size_t page_id, const internal::Node& current);
 
         /**
          * @brief Register a symbol as defined, so that later we can throw errors on undefined symbols

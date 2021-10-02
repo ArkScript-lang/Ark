@@ -3,6 +3,9 @@
 ## [Unreleased changes]
 ### Added
 - adding support for append_in_place, concat_in_place, pop_list and pop_list_in_place in the bytecode reader
+- added `page_ptr(int)` in the compiler to replace `&page(int)`
+- added literals `_u8` and `_u16`
+- added table overflow detection in the compiler, to avoid creating unusable bytecode (checks if the symbols/values table is full or not)
 
 ### Changed
 - using `doc_formatting.first_column` instead of `doc_formatting.start_column` when displaying the CLI help
