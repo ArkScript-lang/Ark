@@ -9,7 +9,7 @@
 
 namespace Ark
 {
-    using namespace Ark::internal;
+    using namespace internal;
 
     Compiler::Compiler(unsigned debug, const std::string& lib_dir, uint16_t options) :
         m_parser(debug, lib_dir, options), m_optimizer(options),
@@ -23,25 +23,15 @@ namespace Ark
         MacroProcessor mp(m_debug, m_options);
         mp.feed(m_parser.ast());
         m_optimizer.feed(mp.ast());
-
-        if (m_debug >= 2)
-        {
-            std::cout << filename << " is importing " << std::to_string(m_parser.getImports().size()) << " files:\n";
-            for (auto&& import : m_parser.getImports())
-                std::cout << '\t' << import << '\n';
-        }
     }
 
     void Compiler::compile()
     {
         pushHeadersPhase1();
 
-        if (m_debug >= 1)
-            std::cout << "Compiling\n";
-
-        // gather symbols, values, and start to create code segments
         m_code_pages.emplace_back();  // create empty page
 
+        // gather symbols, values, and start to create code segments
         _compile(m_optimizer.ast(), 0);
         // throw an error on undefined symbol uses
         checkForUndefinedSymbol();
@@ -52,13 +42,8 @@ namespace Ark
         for (auto page : m_code_pages)
         {
             m_bytecode.push_back(Instruction::CODE_SEGMENT_START);
+
             // push number of elements
-            if (!page.size())
-            {
-                pushNumber(0x01);
-                m_bytecode.push_back(Instruction::HALT);
-                return;
-            }
             pushNumber(static_cast<uint16_t>(page.size() + 1));
 
             for (auto inst : page)
@@ -492,7 +477,8 @@ namespace Ark
 
         // trying to handle chained closure.field.field.field...
         std::size_t n = 1;  // we need it later
-        for (std::size_t end = x.constList().size(); n < end; ++n)
+        const std::size_t end = x.constList().size();
+        while (n < end)
         {
             if (x.constList()[n].nodeType() == NodeType::GetField)
             {
