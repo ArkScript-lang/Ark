@@ -1,5 +1,6 @@
-#include <Ark/Compiler/MacroProcessor.hpp>
-#include <Ark/Compiler/MacroExecutor.hpp>
+#include <Ark/Compiler/Macros/Executor.hpp>
+
+#include <Ark/Compiler/Macros/Processor.hpp>
 
 namespace Ark::internal
 {

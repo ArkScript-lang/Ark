@@ -7,7 +7,7 @@
 
 #include <Ark/Literals.hpp>
 #include <Ark/Builtins/Builtins.hpp>
-#include <Ark/Compiler/MacroProcessor.hpp>
+#include <Ark/Compiler/Macros/Processor.hpp>
 
 namespace Ark
 {

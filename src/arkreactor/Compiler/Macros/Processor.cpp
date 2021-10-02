@@ -1,9 +1,11 @@
-#include <Ark/Compiler/MacroProcessor.hpp>
-#include <Ark/Compiler/MacroExecutor.hpp>
-#include <Ark/Compiler/MacroExecutors/SymbolExecutor.hpp>
-#include <Ark/Compiler/MacroExecutors/ListExecutor.hpp>
-#include <Ark/Compiler/MacroExecutors/ConditionalExecutor.hpp>
-#include <Ark/Compiler/AST/Node.hpp>
+#include <Ark/Compiler/Macros/Processor.hpp>
+
+#include <Ark/Exceptions.hpp>
+#include <Ark/Compiler/makeErrorCtx.hpp>
+#include <Ark/Builtins/Builtins.hpp>
+#include <Ark/Compiler/Macros/Executors/SymbolExecutor.hpp>
+#include <Ark/Compiler/Macros/Executors/ListExecutor.hpp>
+#include <Ark/Compiler/Macros/Executors/ConditionalExecutor.hpp>
 
 namespace Ark::internal
 {
@@ -14,12 +16,11 @@ namespace Ark::internal
         Node::init();
 
         // create executors pipeline
-        std::vector<std::shared_ptr<MacroExecutor>> executors = {
+        m_executor_pipeline = MacroExecutorPipeline({
             std::make_shared<SymbolExecutor>(this),
             std::make_shared<ConditionalExecutor>(this),
             std::make_shared<ListExecutor>(this)
-        };
-        m_executor_pipeline = std::make_unique<MacroExecutorPipeline>(executors);
+        });
 
         m_predefined_macros = {
             "symcat",
@@ -216,7 +217,7 @@ namespace Ark::internal
 
     bool MacroProcessor::applyMacro(Node& node)
     {
-        return m_executor_pipeline->applyMacro(node);
+        return m_executor_pipeline.applyMacro(node);
     }
 
     void MacroProcessor::unify(const std::unordered_map<std::string, Node>& map, Node& target, Node* parent, std::size_t index)
@@ -335,7 +336,7 @@ namespace Ark::internal
                     throwMacroProcessingError("When expanding `len' inside a macro, got " + std::to_string(node.list().size() - 1) + " arguments, needed only 1", node);
                 else if (Node& lst = node.list()[1]; lst.nodeType() == NodeType::List)  // only apply len at compile time if we can
                 {
-                    if (canBeCompileTimeEvaluated(lst))
+                    if (isConstEval(lst))
                     {
                         if (lst.list().size() > 0 && lst.list()[0] == Node::ListNode)
                             node = Node(static_cast<long>(lst.list().size()) - 1);
@@ -491,5 +492,135 @@ namespace Ark::internal
         else if (node.nodeType() == NodeType::Spread)
             throwMacroProcessingError("Can not determine the truth value of a spreaded symbol", node);
         return false;
+    }
+
+    Node* MacroProcessor::findNearestMacro(const std::string& name)
+    {
+        if (m_macros.empty())
+            return nullptr;
+
+        for (auto it = m_macros.rbegin(); it != m_macros.rend(); ++it)
+        {
+            if (it->size() != 0)
+            {
+                if (auto res = it->find(name); res != it->end())
+                    return &res->second;
+            }
+        }
+        return nullptr;
+    }
+
+    void MacroProcessor::deleteNearestMacro(const std::string& name)
+    {
+        if (m_macros.empty())
+            return;
+
+        for (auto it = m_macros.rbegin(); it != m_macros.rend(); ++it)
+        {
+            if (it->size() != 0)
+            {
+                if (auto res = it->find(name); res != it->end())
+                {
+                    // stop right here because we found one matching macro
+                    it->erase(res);
+                    return;
+                }
+            }
+        }
+    }
+
+    bool MacroProcessor::isPredefined(const std::string& symbol)
+    {
+        auto it = std::find(
+            m_predefined_macros.begin(),
+            m_predefined_macros.end(),
+            symbol);
+
+        return it != m_predefined_macros.end();
+    }
+
+    void MacroProcessor::recurApply(Node& node)
+    {
+        applyMacro(node);
+
+        if (node.nodeType() == NodeType::List)
+        {
+            for (std::size_t i = 0; i < node.list().size(); ++i)
+                recurApply(node.list()[i]);
+        }
+    }
+
+    bool MacroProcessor::hadBegin(const Node& node)
+    {
+        return node.nodeType() == NodeType::List &&
+            node.constList().size() > 0 &&
+            node.constList()[0].nodeType() == NodeType::Keyword &&
+            node.constList()[0].keyword() == Keyword::Begin;
+    }
+
+    void MacroProcessor::removeBegin(Node& node, std::size_t& i)
+    {
+        if (node.nodeType() == NodeType::List && node.list()[i].nodeType() == NodeType::List && node.list()[i].list().size() > 0)
+        {
+            Node lst = node.constList()[i];
+            Node first = lst.constList()[0];
+
+            if (first.nodeType() == NodeType::Keyword && first.keyword() == Keyword::Begin)
+            {
+                std::size_t previous = i;
+
+                for (std::size_t block_idx = 1, end = lst.constList().size(); block_idx < end; ++block_idx)
+                    node.list().insert(node.constList().begin() + i + block_idx, lst.list()[block_idx]);
+
+                i += lst.constList().size() - 2;  // -2 instead of -1 because it get incremented right after
+                node.list().erase(node.constList().begin() + previous);
+            }
+        }
+    }
+
+    bool MacroProcessor::isConstEval(const Node& node) const
+    {
+        switch (node.nodeType())
+        {
+            case NodeType::Symbol:
+            {
+                auto it = std::find(internal::Builtins::operators.begin(), internal::Builtins::operators.end(), node.string());
+                auto it2 = std::find_if(internal::Builtins::builtins.begin(), internal::Builtins::builtins.end(),
+                                        [&node](const std::pair<std::string, Value>& element) -> bool {
+                                            return node.string() == element.first;
+                                        });
+
+                return it != internal::Builtins::operators.end() ||
+                    it2 != internal::Builtins::builtins.end() ||
+                    const_cast<MacroProcessor*>(this)->findNearestMacro(node.string()) != nullptr ||
+                    node.string() == "list";
+            }
+
+            case NodeType::List:
+                return std::all_of(node.constList().begin(), node.constList().end(), [this](const Node& node) {
+                    return isConstEval(node);
+                });
+
+            case NodeType::Capture:
+            case NodeType::GetField:
+            case NodeType::Closure:
+                return false;
+
+            case NodeType::Keyword:
+            case NodeType::String:
+            case NodeType::Number:
+            case NodeType::Macro:
+            case NodeType::Spread:
+            case NodeType::Unused:
+                return true;
+        }
+
+        return false;
+    }
+
+
+    void MacroProcessor::throwMacroProcessingError(const std::string& message, const Node& node)
+    {
+        throw MacroProcessingError(makeNodeBasedErrorCtx(message, node));
     }
 }

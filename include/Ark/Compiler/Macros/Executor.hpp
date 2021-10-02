@@ -1,5 +1,5 @@
 /**
- * @file MacroExecutor.hpp
+ * @file Executor.hpp
  * @author Ray John Alovera (rakista112@gmail.com)
  * @brief The base class for all MacroExecutors
  * @version 0.5
