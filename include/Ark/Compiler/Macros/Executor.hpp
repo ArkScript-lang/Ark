@@ -13,8 +13,7 @@
 #define ARK_COMPILER_EXECUTOR_HPP
 
 #include <unordered_map>
-#include <vector>
-#include <memory>
+
 #include <Ark/Compiler/AST/Node.hpp>
 
 namespace Ark::internal

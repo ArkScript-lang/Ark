@@ -1,11 +1,7 @@
-#include <Ark/Compiler/Macros/Executors/ListExecutor.hpp>
+#include <Ark/Compiler/Macros/Executors/List.hpp>
 
 namespace Ark::internal
 {
-    ListExecutor::ListExecutor(MacroProcessor* macroprocessor, unsigned debug) :
-        MacroExecutor(macroprocessor, debug)
-    {}
-
     bool ListExecutor::canHandle(Node& node)
     {
         return node.nodeType() == NodeType::List && node.constList().size() > 0 && node.constList()[0].nodeType() == NodeType::Symbol;
