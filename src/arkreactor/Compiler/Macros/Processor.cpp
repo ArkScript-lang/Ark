@@ -4,7 +4,7 @@
 #include <utility>
 
 #include <Ark/Exceptions.hpp>
-#include <Ark/Compiler/makeErrorCtx.hpp>
+#include <Ark/Compiler/AST/makeErrorCtx.hpp>
 #include <Ark/Builtins/Builtins.hpp>
 #include <Ark/Compiler/Macros/Executors/Symbol.hpp>
 #include <Ark/Compiler/Macros/Executors/List.hpp>

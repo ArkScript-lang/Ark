@@ -19,10 +19,10 @@
 
 #include <Ark/Platform.hpp>
 #include <Ark/Compiler/Instructions.hpp>
-#include <Ark/Compiler/AST/Parser.hpp>
 #include <Ark/Compiler/AST/Node.hpp>
+#include <Ark/Compiler/AST/Parser.hpp>
+#include <Ark/Compiler/AST/Optimizer.hpp>
 #include <Ark/Compiler/ValTableElem.hpp>
-#include <Ark/Compiler/Optimizer.hpp>
 #include <Ark/Builtins/Builtins.hpp>
 
 namespace Ark
@@ -76,8 +76,8 @@ namespace Ark
         friend class Ark::State;
 
     private:
-        Parser m_parser;
-        Optimizer m_optimizer;
+        internal::Parser m_parser;
+        internal::Optimizer m_optimizer;
         uint16_t m_options;
         // tables: symbols, values, plugins and codes
         std::vector<internal::Node> m_symbols;

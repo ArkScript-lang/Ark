@@ -9,8 +9,8 @@
  * 
  */
 
-#ifndef ARK_COMPILER_OPTIMIZER_HPP
-#define ARK_COMPILER_OPTIMIZER_HPP
+#ifndef COMPILER_AST_OPTIMIZER_HPP
+#define COMPILER_AST_OPTIMIZER_HPP
 
 #include <functional>
 #include <unordered_map>
@@ -20,9 +20,9 @@
 #include <Ark/Compiler/AST/Node.hpp>
 #include <Ark/Exceptions.hpp>
 #include <Ark/Constants.hpp>
-#include <Ark/Compiler/makeErrorCtx.hpp>
+#include <Ark/Compiler/AST/makeErrorCtx.hpp>
 
-namespace Ark
+namespace Ark::internal
 {
     /**
      * @brief The ArkScript AST optimizer
@@ -42,17 +42,17 @@ namespace Ark
          * 
          * @param ast 
          */
-        void feed(const internal::Node& ast);
+        void feed(const Node& ast);
 
         /**
          * @brief Returns the modified AST
          * 
-         * @return const internal::Node& 
+         * @return const Node& 
          */
-        const internal::Node& ast() const noexcept;
+        const Node& ast() const noexcept;
 
     private:
-        internal::Node m_ast;
+        Node m_ast;
         uint16_t m_options;
         std::unordered_map<std::string, unsigned> m_sym_appearances;
 
@@ -62,9 +62,9 @@ namespace Ark
          * @param message 
          * @param node 
          */
-        inline void throwOptimizerError(const std::string& message, const internal::Node& node)
+        inline void throwOptimizerError(const std::string& message, const Node& node)
         {
-            throw OptimizerError(internal::makeNodeBasedErrorCtx(message, node));
+            throw OptimizerError(makeNodeBasedErrorCtx(message, node));
         }
 
         /**
@@ -79,14 +79,14 @@ namespace Ark
          * @param node 
          * @param func 
          */
-        void runOnGlobalScopeVars(internal::Node& node, const std::function<void(internal::Node&, internal::Node&, int)>& func);
+        void runOnGlobalScopeVars(Node& node, const std::function<void(Node&, Node&, int)>& func);
 
         /**
          * @brief Count the occurences of each symbol in the AST, recursively
          * 
          * @param node 
          */
-        void countOccurences(internal::Node& node);
+        void countOccurences(Node& node);
     };
 }
 

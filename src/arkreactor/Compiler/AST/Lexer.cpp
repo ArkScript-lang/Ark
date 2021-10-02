@@ -8,7 +8,7 @@
 
 #include <Ark/Exceptions.hpp>
 #include <Ark/Utils.hpp>
-#include <Ark/Compiler/makeErrorCtx.hpp>
+#include <Ark/Compiler/AST/makeErrorCtx.hpp>
 
 namespace Ark::internal
 {

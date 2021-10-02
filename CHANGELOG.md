@@ -16,6 +16,8 @@
 - moved everything related to the AST in `Ark/Compiler/AST/`
 - moved everything related to the macros in `Ark/Compiler/Macros/`
 - renamed unclear file `CValue` to `ValTableElem`
+- the parser is now an internal class
+- the AST Optimizer was moved to `Compiler/AST`
 
 ### Removed
 - removed `ARK_SCOPE_DICHOTOMY` flag so that scopes don't use dichotomic search but a linear one, since it proved to be faster on small sets of values. This goes toward prioritizing small functions, and code being cut in multiple smaller scopes

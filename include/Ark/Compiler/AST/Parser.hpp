@@ -1,7 +1,7 @@
 /**
  * @file Parser.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
- * @brief Parses a token stream into an AST by using the Ark::internal::Node
+ * @brief Parses a token stream into an AST by using the Ark::Node
  * @version 0.4
  * @date 2020-10-27
  * 
@@ -19,25 +19,21 @@
 #include <cinttypes>
 
 #include <Ark/Constants.hpp>
-#include <Ark/Platform.hpp>
 #include <Ark/Compiler/AST/Lexer.hpp>
 #include <Ark/Compiler/AST/Node.hpp>
 
-namespace Ark
+namespace Ark::internal
 {
-    namespace internal
+    inline NodeType similarNodetypeFromTokentype(TokenType tt)
     {
-        inline NodeType similarNodetypeFromTokentype(TokenType tt)
-        {
-            if (tt == TokenType::Capture)
-                return NodeType::Capture;
-            else if (tt == TokenType::GetField)
-                return NodeType::GetField;
-            else if (tt == TokenType::Spread)
-                return NodeType::Spread;
+        if (tt == TokenType::Capture)
+            return NodeType::Capture;
+        else if (tt == TokenType::GetField)
+            return NodeType::GetField;
+        else if (tt == TokenType::Spread)
+            return NodeType::Spread;
 
-            return NodeType::Symbol;
-        }
+        return NodeType::Symbol;
     }
 
     /**
@@ -67,9 +63,9 @@ namespace Ark
         /**
          * @brief Return the generated AST
          * 
-         * @return const internal::Node& 
+         * @return const Node& 
          */
-        const internal::Node& ast() const noexcept;
+        const Node& ast() const noexcept;
 
         /**
          * @brief Return the list of files imported by the code given to the parser
@@ -80,15 +76,15 @@ namespace Ark
          */
         const std::vector<std::string>& getImports() const noexcept;
 
-        friend ARK_API std::ostream& operator<<(std::ostream& os, const Parser& P) noexcept;
+        friend std::ostream& operator<<(std::ostream& os, const Parser& P) noexcept;
 
     private:
         unsigned m_debug;
         std::string m_libdir;
         uint16_t m_options;
-        internal::Lexer m_lexer;
-        internal::Node m_ast;
-        internal::Token m_last_token;
+        Lexer m_lexer;
+        Node m_ast;
+        Token m_last_token;
 
         // path of the current file
         std::string m_file;
@@ -102,7 +98,7 @@ namespace Ark
          * 
          * @param tokens a list of tokens
          */
-        void sugar(std::vector<internal::Token>& tokens) noexcept;
+        void sugar(std::vector<Token>& tokens) noexcept;
 
         /**
          * @brief Parse a list of tokens recursively
@@ -111,21 +107,21 @@ namespace Ark
          * @param authorize_capture if we are authorized to consume TokenType::Capture tokens
          * @param authorize_field_read if we are authorized to consume TokenType::GetField tokens
          * @param in_macro if we are in a macro, there a bunch of things we can tolerate
-         * @return internal::Node 
+         * @return Node 
          */
-        internal::Node parse(std::list<internal::Token>& tokens, bool authorize_capture = false, bool authorize_field_read = false, bool in_macro = false);
+        Node parse(std::list<Token>& tokens, bool authorize_capture = false, bool authorize_field_read = false, bool in_macro = false);
 
-        void parseIf(internal::Node&, internal::Token&, std::list<internal::Token>&, bool, bool, bool);
-        void parseLetMut(internal::Node&, internal::Token&, std::list<internal::Token>&, bool, bool, bool);
-        void parseSet(internal::Node&, internal::Token&, std::list<internal::Token>&, bool, bool, bool);
-        void parseFun(internal::Node&, internal::Token&, std::list<internal::Token>&, bool, bool, bool);
-        void parseWhile(internal::Node&, internal::Token&, std::list<internal::Token>&, bool, bool, bool);
-        void parseBegin(internal::Node&, internal::Token&, std::list<internal::Token>&, bool, bool, bool);
-        void parseImport(internal::Node&, internal::Token&, std::list<internal::Token>&, bool, bool, bool);
-        void parseQuote(internal::Node&, internal::Token&, std::list<internal::Token>&, bool, bool, bool);
-        void parseDel(internal::Node&, internal::Token&, std::list<internal::Token>&, bool, bool, bool);
-        internal::Node parseShorthand(internal::Token&, std::list<internal::Token>&, bool, bool, bool);
-        void checkForInvalidTokens(internal::Node&, internal::Token&, bool, bool, bool);
+        void parseIf(Node&, Token&, std::list<Token>&, bool, bool, bool);
+        void parseLetMut(Node&, Token&, std::list<Token>&, bool, bool, bool);
+        void parseSet(Node&, Token&, std::list<Token>&, bool, bool, bool);
+        void parseFun(Node&, Token&, std::list<Token>&, bool, bool, bool);
+        void parseWhile(Node&, Token&, std::list<Token>&, bool, bool, bool);
+        void parseBegin(Node&, Token&, std::list<Token>&, bool, bool, bool);
+        void parseImport(Node&, Token&, std::list<Token>&, bool, bool, bool);
+        void parseQuote(Node&, Token&, std::list<Token>&, bool, bool, bool);
+        void parseDel(Node&, Token&, std::list<Token>&, bool, bool, bool);
+        Node parseShorthand(Token&, std::list<Token>&, bool, bool, bool);
+        void checkForInvalidTokens(Node&, Token&, bool, bool, bool);
 
         /**
          * @brief Get the next token if possible, from a list of tokens
@@ -133,17 +129,17 @@ namespace Ark
          * The list of tokens is modified.
          * 
          * @param tokens list of tokens to get the next token from
-         * @return internal::Token 
+         * @return Token 
          */
-        internal::Token nextToken(std::list<internal::Token>& tokens);
+        Token nextToken(std::list<Token>& tokens);
 
         /**
          * @brief Convert a token to a node
          * 
          * @param token the token to converts
-         * @return internal::Node 
+         * @return Node 
          */
-        internal::Node atom(const internal::Token& token);
+        Node atom(const Token& token);
 
         /**
          * @brief Search for all the includes in a given node, in its sub-nodes and replace them by the code of the included file
@@ -153,7 +149,7 @@ namespace Ark
          * @param pos the position of the child node in the parent node list
          * @return true if we found an import and replaced it by the corresponding code
          */
-        bool checkForInclude(internal::Node& n, internal::Node& parent, std::size_t pos = 0);
+        bool checkForInclude(Node& n, Node& parent, std::size_t pos = 0);
 
         /**
          * @brief Seek a file in the lib folder and everywhere
@@ -170,7 +166,7 @@ namespace Ark
          * @param message error message to use
          * @param token concerned token
          */
-        void expect(bool pred, const std::string& message, internal::Token token);
+        void expect(bool pred, const std::string& message, Token token);
 
         /**
          * @brief Throw a parse error related to a token (seek it in the related file and highlight the error)
@@ -178,7 +174,7 @@ namespace Ark
          * @param message 
          * @param token 
          */
-        void throwParseError(const std::string& message, internal::Token token);
+        void throwParseError(const std::string& message, Token token);
     };
 }
 
