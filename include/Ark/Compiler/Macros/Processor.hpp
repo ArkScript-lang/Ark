@@ -185,7 +185,7 @@ namespace Ark::internal
          * @param message the error
          * @param node the node in which there is an error
          */
-        void throwMacroProcessingError(const std::string& message, const Node& node);
+        [[noreturn]] void throwMacroProcessingError(const std::string& message, const Node& node);
     };
 }
 

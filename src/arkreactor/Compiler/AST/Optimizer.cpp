@@ -19,6 +19,11 @@ namespace Ark::internal
         return m_ast;
     }
 
+    void Optimizer::throwOptimizerError(const std::string& message, const Node& node)
+    {
+        throw OptimizerError(makeNodeBasedErrorCtx(message, node));
+    }
+
     void Optimizer::remove_unused()
     {
         // do not handle non-list nodes

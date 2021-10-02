@@ -109,7 +109,7 @@ namespace Ark::internal
          * @param col
          * @param context
          */
-        void throwTokenizingError(const std::string& message, const std::string& match, std::size_t line, std::size_t col, const std::string& context);
+        [[noreturn]] void throwTokenizingError(const std::string& message, const std::string& match, std::size_t line, std::size_t col, const std::string& context);
     };
 }
 

@@ -204,7 +204,7 @@ namespace Ark
          * @param message 
          * @param node 
          */
-        void throwCompilerError(const std::string& message, const internal::Node& node);
+        [[noreturn]] void throwCompilerError(const std::string& message, const internal::Node& node);
 
         /**
          * @brief Compile a single node recursively

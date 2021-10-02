@@ -62,10 +62,7 @@ namespace Ark::internal
          * @param message 
          * @param node 
          */
-        inline void throwOptimizerError(const std::string& message, const Node& node)
-        {
-            throw OptimizerError(makeNodeBasedErrorCtx(message, node));
-        }
+        [[noreturn]] void throwOptimizerError(const std::string& message, const Node& node);
 
         /**
          * @brief Iterate over the AST and remove unused top level functions and constants
