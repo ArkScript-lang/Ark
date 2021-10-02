@@ -23,7 +23,6 @@
 #include <Ark/Compiler/AST/Parser.hpp>
 #include <Ark/Compiler/AST/Optimizer.hpp>
 #include <Ark/Compiler/ValTableElem.hpp>
-#include <Ark/Builtins/Builtins.hpp>
 
 namespace Ark
 {
