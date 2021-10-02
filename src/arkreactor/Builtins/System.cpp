@@ -29,7 +29,7 @@ namespace Ark::internal::Builtins::System
      * =end
      * @author https://github.com/SuperFola
      */
-    Value system_(std::vector<Value>& n, Ark::VM* vm)
+    Value system_(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
     {
         if (n.size() != 1)
             throw std::runtime_error(SYS_SYS_ARITY);
@@ -60,7 +60,7 @@ namespace Ark::internal::Builtins::System
      * =end
      * @author https://github.com/SuperFola
      */
-    Value sleep(std::vector<Value>& n, Ark::VM* vm)
+    Value sleep(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
     {
         if (n.size() != 1)
             throw std::runtime_error(SYS_SLEEP_ARITY);
