@@ -2,33 +2,44 @@
  * @file Parser.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Parses a token stream into an AST by using the Ark::internal::Node
- * @version 0.3
+ * @version 0.4
  * @date 2020-10-27
  * 
  * @copyright Copyright (c) 2020-2021
  * 
  */
 
-#ifndef ARK_COMPILER_PARSER_HPP
-#define ARK_COMPILER_PARSER_HPP
+#ifndef COMPILER_AST_PARSER_HPP
+#define COMPILER_AST_PARSER_HPP
 
 #include <string>
 #include <list>
-#include <iostream>
+#include <ostream>
 #include <vector>
-#include <utility>
 #include <cinttypes>
-#include <sstream>
 
 #include <Ark/Constants.hpp>
 #include <Ark/Platform.hpp>
-#include <Ark/Exceptions.hpp>
 #include <Ark/Compiler/AST/Lexer.hpp>
 #include <Ark/Compiler/AST/Node.hpp>
-#include <Ark/Compiler/makeErrorCtx.hpp>
 
 namespace Ark
 {
+    namespace internal
+    {
+        inline NodeType similarNodetypeFromTokentype(TokenType tt)
+        {
+            if (tt == TokenType::Capture)
+                return NodeType::Capture;
+            else if (tt == TokenType::GetField)
+                return NodeType::GetField;
+            else if (tt == TokenType::Spread)
+                return NodeType::Spread;
+
+            return NodeType::Symbol;
+        }
+    }
+
     /**
      * @brief The parser is responsible of constructing the Abstract Syntax Tree from a token list
      * 
@@ -159,7 +170,7 @@ namespace Ark
          * @param message error message to use
          * @param token concerned token
          */
-        inline void expect(bool pred, const std::string& message, internal::Token token);
+        void expect(bool pred, const std::string& message, internal::Token token);
 
         /**
          * @brief Throw a parse error related to a token (seek it in the related file and highlight the error)
@@ -167,17 +178,8 @@ namespace Ark
          * @param message 
          * @param token 
          */
-        inline void throwParseError(const std::string& message, internal::Token token);
-
-        /**
-         * @brief Throw a parse error unrelated to any token
-         * 
-         * @param message 
-         */
-        inline void throwParseError_(const std::string& message);
+        void throwParseError(const std::string& message, internal::Token token);
     };
-
-#include "Parser.inl"
 }
 
 #endif
