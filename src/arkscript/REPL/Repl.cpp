@@ -42,14 +42,11 @@ namespace Ark
                     str_lines = std::to_string(m_lines);
 
                 std::string prompt = "main:" + str_lines + "> ";
-                
                 char const* buf { nullptr };
-                
                 do
                 {
                     buf = m_repl.input(prompt);
                 } while ((buf == nullptr) && (errno == EAGAIN));
-                
                 std::string line = (buf != nullptr) ? std::string(buf) : "";
 
                 // line history
