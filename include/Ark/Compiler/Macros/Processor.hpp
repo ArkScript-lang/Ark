@@ -1,23 +1,20 @@
 /**
- * @file MacroProcessor.hpp
+ * @file Processor.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Handles the macros and their expansion in ArkScript source code
- * @version 0.4
+ * @version 0.5
  * @date 2021-02-18
  * 
  * @copyright Copyright (c) 2021
  * 
  */
 
-#ifndef ARK_COMPILER_MACROPROCESSOR_HPP
-#define ARK_COMPILER_MACROPROCESSOR_HPP
+#ifndef COMPILER_MACROS_PROCESSOR_HPP
+#define COMPILER_MACROS_PROCESSOR_HPP
 
 #include <Ark/Compiler/AST/Node.hpp>
-#include <Ark/Exceptions.hpp>
-#include <Ark/Compiler/makeErrorCtx.hpp>
-#include <Ark/Compiler/MacroExecutor.hpp>
-#include <Ark/Compiler/MacroExecutors/MacroExecutorPipeline.hpp>
-#include <Ark/Builtins/Builtins.hpp>
+#include <Ark/Compiler/Macros/Executor.hpp>
+#include <Ark/Compiler/Macros/Executors/Pipeline.hpp>
 
 #include <algorithm>
 #include <unordered_map>
@@ -63,7 +60,7 @@ namespace Ark::internal
         uint16_t m_options;
         Node m_ast;                                                   ///< The modified AST
         std::vector<std::unordered_map<std::string, Node>> m_macros;  ///< Handling macros in a scope fashion
-        std::unique_ptr<MacroExecutorPipeline> m_executor_pipeline;
+        MacroExecutorPipeline m_executor_pipeline;
         std::vector<std::string> m_predefined_macros;  ///< Already existing macros, non-keywords, non-builtins
         std::unordered_map<std::string, Node> m_defined_functions;
 
@@ -73,14 +70,14 @@ namespace Ark::internal
          * @param name 
          * @return Node* nullptr if no macro was found
          */
-        inline Node* findNearestMacro(const std::string& name);
+        Node* findNearestMacro(const std::string& name);
 
         /**
          * @brief Find the nearest macro matching a given name and delete it
          * 
          * @param name 
          */
-        inline void deleteNearestMacro(const std::string& name);
+        void deleteNearestMacro(const std::string& name);
 
         /**
          * @brief Check if a given symbol is a predefined macro or not
@@ -89,14 +86,14 @@ namespace Ark::internal
          * @return true 
          * @return false 
          */
-        inline bool isPredefined(const std::string& symbol);
+        bool isPredefined(const std::string& symbol);
 
         /**
          * @brief Recursively apply macros on a given node
          * 
          * @param node 
          */
-        inline void recurApply(Node& node);
+        void recurApply(Node& node);
 
         /**
          * @brief Check if a given node is a list node, and starts with a Begin
@@ -105,7 +102,7 @@ namespace Ark::internal
          * @return true if it starts with a Begin
          * @return false 
          */
-        inline bool hadBegin(const Node& node);
+        bool hadBegin(const Node& node);
 
         /**
          * @brief Remove a begin block added by a macro
@@ -113,7 +110,7 @@ namespace Ark::internal
          * @param node 
          * @param i 
          */
-        inline void removeBegin(Node& node, std::size_t& i);
+        void removeBegin(Node& node, std::size_t& i);
 
         /**
          * @brief Check if a node can be evaluated at compile time
@@ -122,7 +119,7 @@ namespace Ark::internal
          * @return true 
          * @return false 
          */
-        inline bool canBeCompileTimeEvaluated(const Node& node) const;
+        bool isConstEval(const Node& node) const;
 
         /**
          * @brief Registers macros based on their type
@@ -190,13 +187,8 @@ namespace Ark::internal
          * @param message the error
          * @param node the node in which there is an error
          */
-        inline void throwMacroProcessingError(const std::string& message, const Node& node)
-        {
-            throw MacroProcessingError(makeNodeBasedErrorCtx(message, node));
-        }
+        void throwMacroProcessingError(const std::string& message, const Node& node);
     };
-
-#include "inline/MacroProcessor.inl"
 }
 
 #endif

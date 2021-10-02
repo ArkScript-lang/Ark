@@ -1,6 +1,4 @@
-#include <Ark/Compiler/MacroExecutors/ListExecutor.hpp>
-
-#include <iostream>
+#include <Ark/Compiler/Macros/Executors/ListExecutor.hpp>
 
 namespace Ark::internal
 {
@@ -20,9 +18,6 @@ namespace Ark::internal
 
         if (macro != nullptr)
         {
-            if (m_debug >= 3)
-                std::clog << "Found macro for " << first.string() << std::endl;
-
             if (macro->constList().size() == 2)
                 applyMacroProxy(first);
             // !{name (args) body}

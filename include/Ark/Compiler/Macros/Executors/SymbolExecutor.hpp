@@ -9,10 +9,10 @@
  * 
  */
 
-#ifndef ARK_COMPILER_SYMBOLEXECUTOR_HPP
-#define ARK_COMPILER_SYMBOLEXECUTOR_HPP
+#ifndef MACROS_EXECUTORS_SYMBOLEXECUTOR_HPP
+#define MACROS_EXECUTORS_SYMBOLEXECUTOR_HPP
 
-#include <Ark/Compiler/MacroExecutor.hpp>
+#include <Ark/Compiler/Macros/Executor.hpp>
 #include <Ark/Compiler/AST/Node.hpp>
 
 namespace Ark::internal

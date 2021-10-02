@@ -14,6 +14,7 @@
 - refactored compiler handling of keywords
 - removed `using Inst_t = uint8_t` in the compiler
 - moved everything related to the AST in `Ark/Compiler/AST/`
+- moved everything related to the macros in `Ark/Compiler/Macros/`
 
 ### Removed
 - removed `ARK_SCOPE_DICHOTOMY` flag so that scopes don't use dichotomic search but a linear one, since it proved to be faster on small sets of values. This goes toward prioritizing small functions, and code being cut in multiple smaller scopes
