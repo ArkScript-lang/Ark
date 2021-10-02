@@ -7,6 +7,13 @@ inline std::vector<uint8_t>& Compiler::page(int i) noexcept
     return m_temp_pages[-i - 1];
 }
 
+inline std::vector<uint8_t>* Compiler::page_ptr(int i) noexcept
+{
+    if (i >= 0)
+        return &m_code_pages[i];
+    return &m_temp_pages[-i - 1];
+}
+
 inline std::size_t Compiler::countArkObjects(const std::vector<internal::Node>& lst) noexcept
 {
     std::size_t n = 0;
