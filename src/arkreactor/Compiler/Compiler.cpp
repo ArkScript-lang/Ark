@@ -291,7 +291,7 @@ namespace Ark
             pushNumber(static_cast<uint16_t>(it_builtin.value()), &page(p));
         }
         else if (auto it_operator = isOperator(name))
-            page(p).emplace_back(static_cast<Inst_t>(Instruction::FIRST_OPERATOR + it_operator.value()));
+            page(p).emplace_back(static_cast<uint8_t>(Instruction::FIRST_OPERATOR + it_operator.value()));
         else  // var-use
         {
             std::size_t i = addSymbol(x);
@@ -409,13 +409,7 @@ namespace Ark
         addDefinedSymbol(name);
 
         // put value before symbol id
-        // trying to handle chained closure.field.field.field...
-        std::size_t idx = 2;
-        while (idx < x.constList().size())
-        {
-            _compile(x.constList()[idx], p);
-            idx++;
-        }
+        putValue(x, p);
 
         page(p).emplace_back(n == Keyword::Let ? Instruction::LET : Instruction::MUT);
         pushNumber(static_cast<uint16_t>(i), &page(p));
@@ -449,13 +443,7 @@ namespace Ark
         std::size_t i = addSymbol(x.constList()[1]);
 
         // put value before symbol id
-        // trying to handle chained closure.field.field.field...
-        std::size_t idx = 2;
-        while (idx < x.constList().size())
-        {
-            _compile(x.constList()[idx], p);
-            idx++;
-        }
+        putValue(x, p);
 
         page(p).emplace_back(Instruction::STORE);
         pushNumber(static_cast<uint16_t>(i), &page(p));
@@ -471,7 +459,6 @@ namespace Ark
 
         // call it
         std::size_t id = addValue(page_id);  // save page_id into the constants table as PageAddr
-        // page(p).emplace_back(Instruction::SAVE_ENV);
         page(p).emplace_back(Instruction::LOAD_CONST);
         pushNumber(static_cast<uint16_t>(id), &page(p));
     }
@@ -504,8 +491,8 @@ namespace Ark
         _compile(x.constList()[0], proc_page);  // storing proc
 
         // trying to handle chained closure.field.field.field...
-        std::size_t n = 1;
-        while (n < x.constList().size())
+        std::size_t n = 1;  // we need it later
+        for (std::size_t end = x.constList().size(); n < end; ++n)
         {
             if (x.constList()[n].nodeType() == NodeType::GetField)
             {
@@ -593,6 +580,13 @@ namespace Ark
         }
     }
 
+    void Compiler::putValue(const Node& x, int p)
+    {
+        // starting at index = 2 because x is a (let|mut|set variable ...) node
+        for (std::size_t idx = 2, end = x.constList().size(); idx < end; ++idx)
+            _compile(x.constList()[idx], p);
+    }
+
     std::size_t Compiler::addSymbol(const Node& sym) noexcept
     {
         // otherwise, add the symbol, and return its id in the table
@@ -652,7 +646,7 @@ namespace Ark
         }
     }
 
-    void Compiler::pushNumber(uint16_t n, std::vector<Inst_t>* page) noexcept
+    void Compiler::pushNumber(uint16_t n, std::vector<uint8_t>* page) noexcept
     {
         if (page == nullptr)
         {
