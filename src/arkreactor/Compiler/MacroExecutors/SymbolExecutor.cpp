@@ -1,5 +1,7 @@
 #include <Ark/Compiler/MacroExecutors/SymbolExecutor.hpp>
 
+#include <iostream>
+
 namespace Ark::internal
 {
     SymbolExecutor::SymbolExecutor(MacroProcessor* macroprocessor, unsigned debug) :

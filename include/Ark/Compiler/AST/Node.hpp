@@ -2,7 +2,7 @@
  * @file Node.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief AST node used by the parser, optimizer and compiler
- * @version 0.2
+ * @version 0.3
  * @date 2020-10-27
  * 
  * @copyright Copyright (c) 2020-2021
@@ -13,32 +13,14 @@
 #define COMPILER_AST_NODE_HPP
 
 #include <variant>
-#include <iostream>
+#include <ostream>
 #include <string>
 #include <vector>
 
-#include <Ark/Platform.hpp>
-#include <Ark/Exceptions.hpp>
 #include <Ark/Compiler/Common.hpp>
 
 namespace Ark::internal
 {
-    /// The different node types available
-    enum class NodeType
-    {
-        Symbol,
-        Capture,
-        GetField,
-        Keyword,
-        String,
-        Number,
-        List,
-        Closure,
-        Macro,
-        Spread,
-        Unused
-    };
-
     /**
      * @brief A node of an Abstract Syntax Tree for ArkScript
      * 
@@ -213,10 +195,10 @@ namespace Ark::internal
          */
         const std::string& filename() const noexcept;
 
-        friend ARK_API std::ostream& operator<<(std::ostream& os, const Node& N) noexcept;
-        friend ARK_API inline bool operator==(const Node& A, const Node& B);
-        friend ARK_API inline bool operator<(const Node& A, const Node& B);
-        friend ARK_API inline bool operator!(const Node& A);
+        friend std::ostream& operator<<(std::ostream& os, const Node& N) noexcept;
+        friend bool operator==(const Node& A, const Node& B);
+        friend bool operator<(const Node& A, const Node& B);
+        friend bool operator!(const Node& A);
 
     private:
         NodeType m_type;
@@ -227,9 +209,38 @@ namespace Ark::internal
         std::string m_filename = "";
     };
 
-#include "Node.inl"
-
     std::ostream& operator<<(std::ostream& os, const std::vector<Node>& N) noexcept;
+
+    template <typename T>
+    Node make_node(T&& value, std::size_t line, std::size_t col, const std::string& file)
+    {
+        Node n(std::forward<T>(value));
+        n.setPos(line, col);
+        n.setFilename(file);
+        return n;
+    }
+
+    inline Node make_node_list(std::size_t line, std::size_t col, const std::string& file)
+    {
+        Node n(NodeType::List);
+        n.setPos(line, col);
+        n.setFilename(file);
+        return n;
+    }
+
+    inline std::string typeToString(const Node& node) noexcept
+    {
+        if (node.nodeType() == NodeType::Symbol)
+        {
+            if (node.string() == "nil")
+                return "Nil";
+            else if (node.string() == "true" || node.string() == "false")
+                return "Bool";
+        }
+
+        auto c = static_cast<std::size_t>(node.nodeType());
+        return (c < nodeTypes.size()) ? std::string(nodeTypes[c]) : "???";
+    }
 }
 
 #endif

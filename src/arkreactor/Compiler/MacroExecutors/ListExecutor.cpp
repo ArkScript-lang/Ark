@@ -1,5 +1,7 @@
 #include <Ark/Compiler/MacroExecutors/ListExecutor.hpp>
 
+#include <iostream>
+
 namespace Ark::internal
 {
     ListExecutor::ListExecutor(MacroProcessor* macroprocessor, unsigned debug) :
