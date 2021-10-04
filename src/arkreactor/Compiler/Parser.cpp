@@ -104,11 +104,13 @@ namespace Ark
         using namespace std::string_literals;
 
         Token token = nextToken(tokens);
+        
+        bool previous_token_was_lparen = false;
 
         // parse block
         if (token.token == "(")
         {
-            bool previous_token_was_lparen = true;
+            previous_token_was_lparen = true;
             // create a list node to host the block
             Node block = make_node_list(token.line, token.col, m_file);
 
@@ -125,6 +127,14 @@ namespace Ark
             // return an empty block
             if (token.token == ")")
                 return block;
+            
+            // check for unexpected keywords between expressions
+            if ((token.type == TokenType::Operator ||
+                 token.type == TokenType::Identifier ||
+                 token.type == TokenType::Number ||
+                 token.type == TokenType::String) &&
+                tokens.front().type == TokenType::Keyword)
+                throwParseError("Unexpected keyword `" + tokens.front().token + "' in the middle of an expression", token);
 
             // loop until we reach the end of the block
             do
@@ -185,6 +195,13 @@ namespace Ark
         else if ((token.type == TokenType::Operator || token.type == TokenType::Identifier) &&
                  std::find(Builtins::operators.begin(), Builtins::operators.end(), token.token) != Builtins::operators.end())
             throwParseError("Found a free flying operator, which isn't authorized. Operators should always immediatly follow a `('.", token);
+        else if ((token.type == TokenType::Number ||
+                  token.type == TokenType::String) &&
+                 tokens.front().type == TokenType::Keyword)
+            throwParseError("Unexpected keyword `" + tokens.front().token + "' in the middle of an expression", token);
+        else if (token.type == TokenType::Keyword &&
+                 !previous_token_was_lparen)
+            throwParseError("Unexpected keyword `" + token.token + "' in the middle of an expression", token);
         return atom(token);
     }
 
