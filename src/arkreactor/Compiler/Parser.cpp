@@ -104,7 +104,7 @@ namespace Ark
         using namespace std::string_literals;
 
         Token token = nextToken(tokens);
-        
+
         bool previous_token_was_lparen = false;
 
         // parse block
@@ -127,7 +127,7 @@ namespace Ark
             // return an empty block
             if (token.token == ")")
                 return block;
-            
+
             // check for unexpected keywords between expressions
             if ((token.type == TokenType::Operator ||
                  token.type == TokenType::Identifier ||
