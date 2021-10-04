@@ -134,7 +134,7 @@ namespace Ark
                  token.type == TokenType::Number ||
                  token.type == TokenType::String) &&
                 tokens.front().type == TokenType::Keyword)
-                throwParseError("Unexpected keyword `" + tokens.front().token + "' in the middle of an expression", token);
+                throwParseError("Unexpected keyword `" + tokens.front().token + "' in the middle of an expression", tokens.front());
 
             // loop until we reach the end of the block
             do
@@ -198,7 +198,7 @@ namespace Ark
         else if ((token.type == TokenType::Number ||
                   token.type == TokenType::String) &&
                  tokens.front().type == TokenType::Keyword)
-            throwParseError("Unexpected keyword `" + tokens.front().token + "' in the middle of an expression", token);
+            throwParseError("Unexpected keyword `" + tokens.front().token + "' in the middle of an expression", tokens.front());
         else if (token.type == TokenType::Keyword &&
                  !previous_token_was_lparen)
             throwParseError("Unexpected keyword `" + token.token + "' in the middle of an expression", token);
