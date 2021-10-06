@@ -45,10 +45,9 @@ namespace Ark
          * @brief Construct a new Compiler object
          * 
          * @param debug the debug level
-         * @param lib_dir the path to the standard library
          * @param options the compilers options
          */
-        Compiler(unsigned debug, const std::string& lib_dir, uint16_t options = DefaultFeatures);
+        Compiler(unsigned debug, uint16_t options = DefaultFeatures);
 
         /**
          * @brief Feed the differents variables with information taken from the given source code file

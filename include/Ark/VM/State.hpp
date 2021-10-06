@@ -33,10 +33,10 @@ namespace Ark
         /**
          * @brief Construct a new State object
          * 
+         * @param libenv  list of library search paths
          * @param options the options for the virtual machine, compiler, and parser
-         * @param libdir the path to the standard library, defaults to "?" which means: search in environment variables
          */
-        State(uint16_t options = DefaultFeatures, const std::string& libdir = "?") noexcept;
+        State(std::vector<std::string> libenv, uint16_t options = DefaultFeatures) noexcept;
 
         /**
          * @brief Feed the state by giving it the path to an existing bytecode file
@@ -97,13 +97,6 @@ namespace Ark
         void setDebug(unsigned level) noexcept;
 
         /**
-         * @brief Set the Lib Dir path
-         * 
-         * @param libDir 
-         */
-        void setLibDir(const std::string& libDir) noexcept;
-
-        /**
          * @brief Reset State (all member variables related to execution)
          * 
          */
@@ -137,7 +130,7 @@ namespace Ark
         unsigned m_debug_level;
 
         bytecode_t m_bytecode;
-        std::string m_libdir;
+        std::vector<std::string> m_libenv;
         std::string m_filename;
         uint16_t m_options;
 

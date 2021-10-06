@@ -12,34 +12,10 @@
 
 namespace Ark
 {
-    State::State(uint16_t options, const std::string& libdir) noexcept :
-        m_libdir(libdir), m_filename(ARK_NO_NAME_FILE),
+    State::State(std::vector<std::string> libenv, uint16_t options) noexcept :
+        m_libenv(libenv), m_filename(ARK_NO_NAME_FILE),
         m_options(options), m_debug_level(0)
-    {
-        // read environment variable to locate ark std lib, *only* if the standard library folder wasn't provided
-        // or if it doesn't exist
-        if (m_libdir == "?" || m_libdir.size() == 0 || !Ark::Utils::fileExists(m_libdir))
-        {
-            // first, check in the environment variable, pointing to something like
-            // /folder/where/ark/is
-            // |___________________ ark
-            // |___________________ lib/
-            // |                    |___ std/
-            // |                    |___ file.arkm
-            // |                    |___ ...
-            // |___________________ libArkReactor.so
-
-            char* val = getenv("ARKSCRIPT_PATH");
-            m_libdir = val == nullptr ? "" : std::string(val);
-
-            // check that the environment variable does point to an existing folder
-            if (m_libdir != "" && Ark::Utils::fileExists(m_libdir + "/lib"))
-                m_libdir += "/lib";
-            // check in the current working directory
-            else if (Ark::Utils::fileExists("./lib"))
-                m_libdir = Ark::Utils::canonicalRelPath("./lib");
-        }
-    }
+    { }
 
     bool State::feed(const std::string& bytecode_filename)
     {
@@ -81,7 +57,7 @@ namespace Ark
 
     bool State::compile(const std::string& file, const std::string& output)
     {
-        Compiler compiler(m_debug_level, m_libdir, m_options);
+        Compiler compiler(m_debug_level, m_options);
 
         try
         {
@@ -152,7 +128,7 @@ namespace Ark
 
     bool State::doString(const std::string& code)
     {
-        Compiler compiler(m_debug_level, m_libdir, m_options);
+        Compiler compiler(m_debug_level, m_options);
 
         try
         {
@@ -193,11 +169,6 @@ namespace Ark
     void State::setDebug(unsigned level) noexcept
     {
         m_debug_level = level;
-    }
-
-    void State::setLibDir(const std::string& libDir) noexcept
-    {
-        m_libdir = libDir;
     }
 
     void State::configure()
