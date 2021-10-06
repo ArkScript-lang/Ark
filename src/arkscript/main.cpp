@@ -41,6 +41,8 @@ int main(int argc, char** argv)
                 lib_dir = "?",
                 eval_expresion = "";
 
+    std::vector<std::string> lib_env;
+
     unsigned debug = 0;
 
     uint16_t bcr_page = ~0,
@@ -111,6 +113,12 @@ int main(int argc, char** argv)
                    .merge_alternative_flags_with_common_prefix(true)  // [-fok] [-fno-ok] becomes [-f(ok|no-ok)]
         ;
 
+    const char *arkpath = getenv("ARKSCRIPT_PATH");
+    if(arkpath)
+    {
+        lib_env = Ark::Utils::splitString(arkpath, ':');
+    }
+
     if (parse(argc, argv, cli) && wrong.empty())
     {
         using namespace Ark;
@@ -171,13 +179,13 @@ int main(int argc, char** argv)
             case mode::repl:
             {
                 // send default features without FeatureRemoveUnusedVars to avoid deleting code which will be used later on
-                Ark::Repl repl(Ark::DefaultFeatures & ~Ark::FeatureRemoveUnusedVars, lib_dir);
+                Ark::Repl repl(Ark::DefaultFeatures & ~Ark::FeatureRemoveUnusedVars, lib_env);
                 return repl.run();
             }
 
             case mode::compile:
             {
-                Ark::State state(options, lib_dir);
+                Ark::State state(lib_env, options);
                 state.setDebug(debug);
 
                 if (!state.doFile(file))
@@ -191,7 +199,7 @@ int main(int argc, char** argv)
 
             case mode::run:
             {
-                Ark::State state(options, lib_dir);
+                Ark::State state(lib_env, options);
                 state.setDebug(debug);
                 state.setArgs(script_args);
 
@@ -220,7 +228,7 @@ int main(int argc, char** argv)
 
             case mode::eval:
             {
-                Ark::State state(options, lib_dir);
+                Ark::State state(lib_env, options);
                 state.setDebug(debug);
 
                 if (!state.doString(eval_expresion))

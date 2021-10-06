@@ -86,22 +86,37 @@ namespace Ark
         if (m_state->m_filename != ARK_NO_NAME_FILE)
             path = (fs::path(m_state->m_filename).parent_path() / fs::path(file)).relative_path().string();
 
-        std::string lib_path = (fs::path(m_state->m_libdir) / fs::path(file)).string();
+        std::shared_ptr<SharedLibrary> lib = NULL;
+        for(auto &&v : m_state->m_libenv)
+        {
+            std::string lib_path = (fs::path(v) / fs::path(file)).string();
+    
+            // if it's already loaded don't do anything
+            if (std::find_if(m_shared_lib_objects.begin(), m_shared_lib_objects.end(), [&, this](const auto& val) {
+                    return (val->path() == path || val->path() == lib_path);
+                }) != m_shared_lib_objects.end())
+                return;
+    
+            // if it exists alongside the .arkc file
+            if (Utils::fileExists(path))
+            {
+                lib = std::make_shared<SharedLibrary>(path);
+                break;
+            }
+            // check in lib_path otherwise
+            else if (Utils::fileExists(lib_path))
+            {
+                lib = std::make_shared<SharedLibrary>(lib_path);
+                break;
+            }
+        }
 
-        // if it's already loaded don't do anything
-        if (std::find_if(m_shared_lib_objects.begin(), m_shared_lib_objects.end(), [&, this](const auto& val) {
-                return (val->path() == path || val->path() == lib_path);
-            }) != m_shared_lib_objects.end())
-            return;
+        if(lib == NULL)
+        {
+            throwVMError("Could not find module '" + file + "'. Searched in\n\t- " + path + "\n\t- " + Ark::Utils::joinString(m_state->m_libenv));
+        }
 
-        // if it exists alongside the .arkc file
-        if (Utils::fileExists(path))
-            m_shared_lib_objects.emplace_back(std::make_shared<SharedLibrary>(path));
-        // check in lib_path otherwise
-        else if (Utils::fileExists(lib_path))
-            m_shared_lib_objects.emplace_back(std::make_shared<SharedLibrary>(lib_path));
-        else
-            throwVMError("Could not find module '" + file + "'. Searched in\n\t- " + path + "\n\t- " + lib_path);
+        m_shared_lib_objects.emplace_back(lib);
 
         // load the mapping from the dynamic library
         mapping* map;
