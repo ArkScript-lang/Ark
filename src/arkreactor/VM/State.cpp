@@ -15,7 +15,7 @@ namespace Ark
     State::State(std::vector<std::string> libenv, uint16_t options) noexcept :
         m_libenv(libenv), m_filename(ARK_NO_NAME_FILE),
         m_options(options), m_debug_level(0)
-    { }
+    {}
 
     bool State::feed(const std::string& bytecode_filename)
     {

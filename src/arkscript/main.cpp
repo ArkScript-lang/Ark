@@ -38,7 +38,6 @@ int main(int argc, char** argv)
     uint16_t options = Ark::DefaultFeatures;
 
     std::string file = "",
-                lib_dir = "?",
                 eval_expresion = "";
 
     std::vector<std::string> lib_env;
@@ -92,12 +91,6 @@ int main(int argc, char** argv)
             value("file", file).set(selected, mode::run)
             , (
                 joinable(repeatable(option("-d", "--debug").call([&]{ debug++; })))
-                ,
-                // shouldn't change now, the lib option is fine and working
-                (
-                    option("-L", "--lib").doc("Set the location of the ArkScript standard library")
-                    & value("lib_dir", lib_dir)
-                )
             )
             , any_other(script_args)
         )
@@ -113,8 +106,8 @@ int main(int argc, char** argv)
                    .merge_alternative_flags_with_common_prefix(true)  // [-fok] [-fno-ok] becomes [-f(ok|no-ok)]
         ;
 
-    const char *arkpath = getenv("ARKSCRIPT_PATH");
-    if(arkpath)
+    const char* arkpath = getenv("ARKSCRIPT_PATH");
+    if (arkpath)
     {
         lib_env = Ark::Utils::splitString(arkpath, ':');
     }
