@@ -90,7 +90,8 @@ namespace Ark::Utils
         for (auto it = source.begin(), end = source.end(); it != end; ++it)
         {
             output += *it;
-            if(it != end) {
+            if (it != end)
+            {
                 output += sep;
             }
         }
