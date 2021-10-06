@@ -232,7 +232,7 @@ namespace Ark
             std::string str_version = std::to_string(major) + "." +
                 std::to_string(minor) + "." +
                 std::to_string(patch);
-            throwStateError("Compiler and VM versions don't match: " + str_version + " and " + ARK_VERSION_STR);
+            throwStateError("Compiler and VM versions don't match: " + str_version + " and " + std::string(ARK_VERSION_STR, sizeof(ARK_VERSION_STR)));
         }
 
         using timestamp_t = unsigned long long;
