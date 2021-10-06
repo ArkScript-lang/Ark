@@ -16,10 +16,10 @@ namespace Ark
         m_lexer(debug),
         m_file(ARK_NO_NAME_FILE)
     {
-        const char *ark_env = getenv("ARKSCRIPT_PATH");
+        const char* ark_env = getenv("ARKSCRIPT_PATH");
 
         // getenv can return NULL, if variable is not defined
-        if(ark_env != NULL)
+        if (ark_env != NULL)
         {
             m_libenv = Ark::Utils::splitString(ark_env, ':');
         }
@@ -577,7 +577,7 @@ namespace Ark
             return path;
 
         // search in all folders in environment path
-        for(auto &&p : m_libenv)
+        for (auto &&p : m_libenv)
         {
             // then search in the standard library directory
             if (std::string f = p + "/std/" + file; Ark::Utils::fileExists(f))
