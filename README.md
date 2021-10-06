@@ -122,9 +122,11 @@ We have other projects tightly related to ArkScript, which aren't necessarily C+
 
 [Full list here](https://github.com/ArkScript-lang/Ark/graphs/contributors).
 
-### Contributing to the ArkScript standard library
+### Coding guidelines for contributing
 
-See [Coding guidelines](https://github.com/ArkScript-lang/Ark/blob/dev/CONTRIBUTING.md#c-coding-guidelines) if you want to write ArkScript for the library (see folder `lib/std/`).
+See [C++ Coding guidelines](https://github.com/ArkScript-lang/Ark/blob/dev/CONTRIBUTING.md#c-coding-guidelines) if you want to write ArkScript for the library (see folder `lib/std/`).
+
+Also, see [ArkScript Coding guidelines](https://github.com/ArkScript-lang/rfc/blob/master/001-coding-guidelines.md) for other files, written in ArkScript.
 
 For performance reasons, some functions might be written in C++, in `include/Ark/Builtins/Builtins.hpp` and `src/Builtins/`.
 
