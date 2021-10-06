@@ -232,9 +232,9 @@ namespace Ark::internal
         const std::string& filename() const noexcept;
 
         friend ARK_API std::ostream& operator<<(std::ostream& os, const Node& N) noexcept;
-        friend ARK_API inline bool operator==(const Node& A, const Node& B);
-        friend ARK_API inline bool operator<(const Node& A, const Node& B);
-        friend ARK_API inline bool operator!(const Node& A);
+        friend ARK_API_INLINE bool operator==(const Node& A, const Node& B);
+        friend ARK_API_INLINE bool operator<(const Node& A, const Node& B);
+        friend ARK_API_INLINE bool operator!(const Node& A);
 
     private:
         NodeType m_type;
