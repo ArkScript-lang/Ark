@@ -124,7 +124,7 @@ We have other projects tightly related to ArkScript, which aren't necessarily C+
 
 ### Coding guidelines for contributing
 
-See [C++ Coding guidelines](https://github.com/ArkScript-lang/Ark/blob/dev/CONTRIBUTING.md#c-coding-guidelines) if you want to write ArkScript for the library (see folder `lib/std/`).
+See [C++ Coding guidelines](https://github.com/ArkScript-lang/Ark/blob/dev/CONTRIBUTING.md#c-coding-guidelines) if you want to contribute to ArkScript compiler / runtime.
 
 Also, see [ArkScript Coding guidelines](https://github.com/ArkScript-lang/rfc/blob/master/001-coding-guidelines.md) for other files, written in ArkScript.
 
