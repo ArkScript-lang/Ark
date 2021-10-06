@@ -10,13 +10,24 @@ namespace Ark
 {
     using namespace Ark::internal;
 
-    Parser::Parser(unsigned debug, const std::string& lib_dir, uint16_t options) noexcept :
+    Parser::Parser(unsigned debug, const std::string& lib_dir, uint16_t options, std::vector<std::string> lib_env) noexcept :
         m_debug(debug),
         m_libdir(lib_dir),
         m_options(options),
         m_lexer(debug),
         m_file(ARK_NO_NAME_FILE)
-    {}
+    {
+        const char *ark_env = getenv("ARKSCRIPT_PATH");
+
+        // add integrated library directory
+        m_libenv.push_back(m_libdir);
+
+        // getenv can return NULL, if variable is not defined
+        if(ark_env != NULL)
+        {
+            m_libenv = Ark::Utils::splitString(ark_env, ':');
+        }
+    }
 
     void Parser::feed(const std::string& code, const std::string& filename)
     {
@@ -516,7 +527,7 @@ namespace Ark
                     if (std::find(m_parent_include.begin(), m_parent_include.end(), Ark::Utils::canonicalRelPath(included_file)) != m_parent_include.end())
                         return true;
 
-                    Parser p(m_debug, m_libdir, m_options);
+                    Parser p(m_debug, m_libdir, m_options, m_libenv);
                     // feed the new parser with our parent includes
                     for (auto&& pi : m_parent_include)
                         p.m_parent_include.push_back(pi);  // new parser, we can assume that the parent include list is empty
@@ -566,12 +577,17 @@ namespace Ark
         // search in the current directory
         if (Ark::Utils::fileExists(path))
             return path;
-        // then search in the standard library directory
-        else if (std::string f = m_libdir + "/std/" + file; Ark::Utils::fileExists(f))
-            return f;
-        // then in the standard library root directory
-        else if (std::string f = m_libdir + "/" + file; Ark::Utils::fileExists(f))
-            return f;
+
+        // search in all folders in environment path
+        for(auto &&p : m_libenv)
+        {
+            // then search in the standard library directory
+            if (std::string f = p + "/std/" + file; Ark::Utils::fileExists(f))
+                return f;
+            // then in the standard library root directory
+            else if (std::string f = p + "/" + file; Ark::Utils::fileExists(f))
+                return f;
+        }
 
         // fallback, we couldn't find the file
         throw std::runtime_error("While processing file " + m_file + ", couldn't import " + file + ": file not found");
