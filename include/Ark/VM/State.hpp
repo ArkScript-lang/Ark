@@ -33,10 +33,9 @@ namespace Ark
         /**
          * @brief Construct a new State object
          * 
-         * @param libenv  list of library search paths
          * @param options the options for the virtual machine, compiler, and parser
          */
-        State(std::vector<std::string> libenv = {}, uint16_t options = DefaultFeatures) noexcept;
+        State(uint16_t options = DefaultFeatures) noexcept;
 
         /**
          * @brief Feed the state by giving it the path to an existing bytecode file
