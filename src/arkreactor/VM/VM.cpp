@@ -90,13 +90,13 @@ namespace Ark
         for (auto&& v : m_state->m_libenv)
         {
             std::string lib_path = (fs::path(v) / fs::path(file)).string();
-    
+
             // if it's already loaded don't do anything
             if (std::find_if(m_shared_lib_objects.begin(), m_shared_lib_objects.end(), [&, this](const auto& val) {
                     return (val->path() == path || val->path() == lib_path);
                 }) != m_shared_lib_objects.end())
                 return;
-    
+
             // if it exists alongside the .arkc file
             if (Utils::fileExists(path))
             {
