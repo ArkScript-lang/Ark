@@ -10,20 +10,13 @@ namespace Ark
 {
     using namespace Ark::internal;
 
-    Parser::Parser(unsigned debug, uint16_t options, std::vector<std::string> lib_env) noexcept :
+    Parser::Parser(unsigned debug, uint16_t options, const std::vector<std::string>& lib_env) noexcept :
         m_debug(debug),
+        m_libenv(lib_env),
         m_options(options),
         m_lexer(debug),
         m_file(ARK_NO_NAME_FILE)
-    {
-        const char* ark_env = getenv("ARKSCRIPT_PATH");
-
-        // getenv can return NULL, if variable is not defined
-        if (ark_env != NULL)
-        {
-            m_libenv = Ark::Utils::splitString(ark_env, ':');
-        }
-    }
+    {}
 
     void Parser::feed(const std::string& code, const std::string& filename)
     {

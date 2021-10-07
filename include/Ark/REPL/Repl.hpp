@@ -29,9 +29,8 @@ namespace Ark
          * @brief Construct a new Repl object
          *
          * @param options the REPL options
-         * @param lib_env the search path of the standard library
          */
-        Repl(uint16_t options, std::vector<std::string> lib_env);
+        Repl(uint16_t options);
 
         /**
          * @brief Start the REPL
@@ -40,7 +39,6 @@ namespace Ark
         int run();
 
     private:
-        std::vector<std::string> m_lib_env;
         uint16_t m_options;
         Replxx m_repl;
         unsigned m_lines;
