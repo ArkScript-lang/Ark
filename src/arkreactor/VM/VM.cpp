@@ -86,7 +86,7 @@ namespace Ark
         if (m_state->m_filename != ARK_NO_NAME_FILE)
             path = (fs::path(m_state->m_filename).parent_path() / fs::path(file)).relative_path().string();
 
-        std::shared_ptr<SharedLibrary> lib = NULL;
+        std::shared_ptr<SharedLibrary> lib;
         for (auto&& v : m_state->m_libenv)
         {
             std::string lib_path = (fs::path(v) / fs::path(file)).string();
@@ -111,7 +111,7 @@ namespace Ark
             }
         }
 
-        if (lib == NULL)
+        if (!lib)
         {
             throwVMError("Could not find module '" + file + "'. Searched in\n\t- " + path + "\n\t- " + Ark::Utils::joinString(m_state->m_libenv));
         }
