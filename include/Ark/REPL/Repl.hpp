@@ -29,8 +29,9 @@ namespace Ark
          * @brief Construct a new Repl object
          *
          * @param options the REPL options
+         * @param libenv search path for the std library
          */
-        Repl(uint16_t options);
+        Repl(uint16_t options, const std::vector<std::string>& libenv);
 
         /**
          * @brief Start the REPL
@@ -43,6 +44,7 @@ namespace Ark
         Replxx m_repl;
         unsigned m_lines;
         int m_old_ip;
+        std::vector<std::string> m_libenv;
 
         inline void print_repl_header();
         int count_open_parentheses(const std::string& line);

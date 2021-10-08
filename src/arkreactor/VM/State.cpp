@@ -16,6 +16,10 @@ namespace Ark
         m_filename(ARK_NO_NAME_FILE),
         m_options(options), m_debug_level(0)
     {
+        for(const auto &v : libenv) {
+            std::cout << "LIBENV: " << v << std::endl;
+        }
+
         if (libenv.size() > 0)
         {
             m_libenv = libenv;
@@ -24,8 +28,13 @@ namespace Ark
         {
             const char* arkpath = getenv("ARKSCRIPT_PATH");
             if (arkpath)
-            {
                 m_libenv = Ark::Utils::splitString(arkpath, ':');
+            else if (Ark::Utils::fileExists("./lib"))
+                m_libenv.push_back(Ark::Utils::canonicalRelPath("./lib"));
+            else
+            {
+                if (m_debug_level >= 1)
+                    std::cout << termcolor::yellow << "Warning" << termcolor::reset << " no std library was found and ARKSCRIPT_PATH was not supplied" << std::endl;
             }
         }
     }
