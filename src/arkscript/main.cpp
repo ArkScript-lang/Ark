@@ -38,7 +38,6 @@ int main(int argc, char** argv)
     uint16_t options = Ark::DefaultFeatures;
 
     std::string file = "",
-                lib_dir = "?",
                 eval_expresion = "";
 
     unsigned debug = 0;
@@ -49,6 +48,9 @@ int main(int argc, char** argv)
     Ark::BytecodeSegment segment = Ark::BytecodeSegment::All;
 
     std::vector<std::string> wrong, script_args;
+
+    std::string libdir = "";
+    std::vector<std::string> libenv;
 
     // clang-format off
     auto cli = (
@@ -94,7 +96,7 @@ int main(int argc, char** argv)
                 // shouldn't change now, the lib option is fine and working
                 (
                     option("-L", "--lib").doc("Set the location of the ArkScript standard library")
-                    & value("lib_dir", lib_dir)
+                    & value("lib_dir", libdir)
                 )
             )
             , any_other(script_args)
@@ -114,6 +116,9 @@ int main(int argc, char** argv)
     if (parse(argc, argv, cli) && wrong.empty())
     {
         using namespace Ark;
+
+        if (!libdir.empty())
+            libenv.push_back(libdir);
 
         switch (selected)
         {
@@ -171,13 +176,13 @@ int main(int argc, char** argv)
             case mode::repl:
             {
                 // send default features without FeatureRemoveUnusedVars to avoid deleting code which will be used later on
-                Ark::Repl repl(Ark::DefaultFeatures & ~Ark::FeatureRemoveUnusedVars, lib_dir);
+                Ark::Repl repl(Ark::DefaultFeatures & ~Ark::FeatureRemoveUnusedVars, libenv);
                 return repl.run();
             }
 
             case mode::compile:
             {
-                Ark::State state(options, lib_dir);
+                Ark::State state(options, libenv);
                 state.setDebug(debug);
 
                 if (!state.doFile(file))
@@ -191,7 +196,7 @@ int main(int argc, char** argv)
 
             case mode::run:
             {
-                Ark::State state(options, lib_dir);
+                Ark::State state(options, libenv);
                 state.setDebug(debug);
                 state.setArgs(script_args);
 
@@ -220,7 +225,7 @@ int main(int argc, char** argv)
 
             case mode::eval:
             {
-                Ark::State state(options, lib_dir);
+                Ark::State state(options, libenv);
                 state.setDebug(debug);
 
                 if (!state.doString(eval_expresion))

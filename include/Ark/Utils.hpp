@@ -77,6 +77,29 @@ namespace Ark::Utils
     }
 
     /**
+     * @brief Concatenate string with separator
+     * 
+     * @param source 
+     * @param sep 
+     * @return std::string
+     */
+    inline std::string joinString(std::vector<std::string> source, char sep = ' ')
+    {
+        std::string output;
+
+        for (auto it = source.begin(), end = source.end(); it != end; ++it)
+        {
+            output += *it;
+            if (it != end)
+            {
+                output += sep;
+            }
+        }
+
+        return output;
+    }
+
+    /**
      * @brief Checks if a string is a valid double
      * 
      * @param s the string

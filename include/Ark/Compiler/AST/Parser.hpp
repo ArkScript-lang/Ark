@@ -47,10 +47,10 @@ namespace Ark::internal
          * @brief Construct a new Parser object
          * 
          * @param debug the debug level
-         * @param lib_dir the path to the standard library
          * @param options the parsing options
+         * @param lib_env fallback library search path
          */
-        Parser(unsigned debug, const std::string& lib_dir, uint16_t options) noexcept;
+        Parser(unsigned debug, uint16_t options, const std::vector<std::string>& lib_env) noexcept;
 
         /**
          * @brief Give the code to parse
@@ -80,7 +80,7 @@ namespace Ark::internal
 
     private:
         unsigned m_debug;
-        std::string m_libdir;
+        std::vector<std::string> m_libenv;
         uint16_t m_options;
         Lexer m_lexer;
         Node m_ast;

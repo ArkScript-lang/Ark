@@ -10,9 +10,9 @@
 
 namespace Ark::internal
 {
-    Parser::Parser(unsigned debug, const std::string& lib_dir, uint16_t options) noexcept :
+    Parser::Parser(unsigned debug, uint16_t options, const std::vector<std::string>& lib_env) noexcept :
         m_debug(debug),
-        m_libdir(lib_dir),
+        m_libenv(lib_env),
         m_options(options),
         m_lexer(debug),
         m_file(ARK_NO_NAME_FILE)
@@ -105,10 +105,12 @@ namespace Ark::internal
 
         Token token = nextToken(tokens);
 
+        bool previous_token_was_lparen = false;
+
         // parse block
         if (token.token == "(")
         {
-            bool previous_token_was_lparen = true;
+            previous_token_was_lparen = true;
             // create a list node to host the block
             Node block = make_node_list(token.line, token.col, m_file);
 
@@ -125,6 +127,14 @@ namespace Ark::internal
             // return an empty block
             if (token.token == ")")
                 return block;
+
+            // check for unexpected keywords between expressions
+            if ((token.type == TokenType::Operator ||
+                 token.type == TokenType::Identifier ||
+                 token.type == TokenType::Number ||
+                 token.type == TokenType::String) &&
+                tokens.front().type == TokenType::Keyword)
+                throwParseError("Unexpected keyword `" + tokens.front().token + "' in the middle of an expression", tokens.front());
 
             // loop until we reach the end of the block
             do
@@ -185,6 +195,13 @@ namespace Ark::internal
         else if ((token.type == TokenType::Operator || token.type == TokenType::Identifier) &&
                  std::find(internal::operators.begin(), internal::operators.end(), token.token) != internal::operators.end())
             throwParseError("Found a free flying operator, which isn't authorized. Operators should always immediatly follow a `('.", token);
+        else if ((token.type == TokenType::Number ||
+                  token.type == TokenType::String) &&
+                 tokens.front().type == TokenType::Keyword)
+            throwParseError("Unexpected keyword `" + tokens.front().token + "' in the middle of an expression", tokens.front());
+        else if (token.type == TokenType::Keyword &&
+                 !previous_token_was_lparen)
+            throwParseError("Unexpected keyword `" + token.token + "' in the middle of an expression", token);
         return atom(token);
     }
 
@@ -499,7 +516,7 @@ namespace Ark::internal
                     if (std::find(m_parent_include.begin(), m_parent_include.end(), Utils::canonicalRelPath(included_file)) != m_parent_include.end())
                         return true;
 
-                    Parser p(m_debug, m_libdir, m_options);
+                    Parser p(m_debug, m_options, m_libenv);
                     // feed the new parser with our parent includes
                     for (auto&& pi : m_parent_include)
                         p.m_parent_include.push_back(pi);  // new parser, we can assume that the parent include list is empty
@@ -542,19 +559,26 @@ namespace Ark::internal
 
         if (m_debug >= 2)
         {
-            std::cout << "path: " << path << " ; file: " << file << " ; libdir: " << m_libdir << '\n';
+            const std::string libpath = Utils::joinString(m_libenv);
+
+            std::cout << "path: " << path << " ; file: " << file << " ; libpath: " << libpath << '\n';
             std::cout << "filename: " << Utils::getFilenameFromPath(file) << '\n';
         }
 
         // search in the current directory
         if (Utils::fileExists(path))
             return path;
-        // then search in the standard library directory
-        else if (std::string f = m_libdir + "/std/" + file; Utils::fileExists(f))
-            return f;
-        // then in the standard library root directory
-        else if (std::string f = m_libdir + "/" + file; Utils::fileExists(f))
-            return f;
+
+        // search in all folders in environment path
+        for (auto&& p : m_libenv)
+        {
+            // then search in the standard library directory
+            if (std::string f = p + "/std/" + file; Utils::fileExists(f))
+                return f;
+            // then in the standard library root directory
+            else if (std::string f2 = p + "/" + file; Utils::fileExists(f2))
+                return f2;
+        }
 
         // fallback, we couldn't find the file
         throw std::runtime_error("While processing file " + m_file + ", couldn't import " + file + ": file not found");
