@@ -16,10 +16,6 @@ namespace Ark
         m_filename(ARK_NO_NAME_FILE),
         m_options(options), m_debug_level(0)
     {
-        for(const auto &v : libenv) {
-            std::cout << "LIBENV: " << v << std::endl;
-        }
-
         if (libenv.size() > 0)
         {
             m_libenv = libenv;
