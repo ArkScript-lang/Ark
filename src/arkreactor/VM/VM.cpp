@@ -113,7 +113,7 @@ namespace Ark
 
         if (!lib)
         {
-            throwVMError("Could not find module '" + file + "'. Searched in\n\t- " + path + "\n\t- " + Ark::Utils::joinString(m_state->m_libenv));
+            throwVMError("Could not find module '" + file + "'. Searched in\n\t- " + path + "\n\t- " + Utils::joinString(m_state->m_libenv));
         }
 
         m_shared_lib_objects.emplace_back(lib);

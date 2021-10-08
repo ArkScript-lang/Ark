@@ -561,7 +561,7 @@ namespace Ark
         {
             const std::string libpath = Ark::Utils::joinString(m_libenv);
 
-            std::cout << "path: " << path << " ; file: " << file << " ; libpath: " << libpath.size() << '\n';
+            std::cout << "path: " << path << " ; file: " << file << " ; libpath: " << libpath << '\n';
             std::cout << "filename: " << Ark::Utils::getFilenameFromPath(file) << '\n';
         }
 

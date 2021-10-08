@@ -8,13 +8,13 @@
 
 namespace Ark
 {
-    Repl::Repl(uint16_t options) :
-        m_options(options), m_lines(1), m_old_ip(0)
+    Repl::Repl(uint16_t options, const std::vector<std::string>& libenv) :
+        m_options(options), m_lines(1), m_old_ip(0), m_libenv(libenv)
     {}
 
     int Repl::run()
     {
-        Ark::State state(m_options);
+        Ark::State state(m_options, m_libenv);
         Ark::VM vm(&state);
         state.setDebug(0);
         std::string code;
