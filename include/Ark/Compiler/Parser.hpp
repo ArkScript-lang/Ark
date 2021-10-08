@@ -42,7 +42,7 @@ namespace Ark
          * @param options the parsing options
          * @param lib_env fallback library search path
          */
-        Parser(unsigned debug, uint16_t options, const std::vector<std::string>& lib_env = {}) noexcept;
+        Parser(unsigned debug, uint16_t options, const std::vector<std::string>& lib_env) noexcept;
 
         /**
          * @brief Give the code to parse
