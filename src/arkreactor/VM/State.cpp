@@ -79,7 +79,7 @@ namespace Ark
 
     bool State::compile(const std::string& file, const std::string& output)
     {
-        Compiler compiler(m_debug_level, m_options, m_libenv);
+        Compiler compiler(m_debug_level, m_libenv, m_options);
 
         try
         {
@@ -150,7 +150,7 @@ namespace Ark
 
     bool State::doString(const std::string& code)
     {
-        Compiler compiler(m_debug_level, m_options, m_libenv);
+        Compiler compiler(m_debug_level, m_libenv, m_options);
 
         try
         {
