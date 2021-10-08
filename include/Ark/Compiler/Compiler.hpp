@@ -47,7 +47,7 @@ namespace Ark
          * @param debug the debug level
          * @param options the compilers options
          */
-        Compiler(unsigned debug, uint16_t options = DefaultFeatures);
+        Compiler(unsigned debug, uint16_t options = DefaultFeatures, const std::vector<std::string>& libenv = {});
 
         /**
          * @brief Feed the differents variables with information taken from the given source code file
