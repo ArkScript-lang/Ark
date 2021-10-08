@@ -12,14 +12,21 @@
 
 namespace Ark
 {
-    State::State(uint16_t options) noexcept :
+    State::State(uint16_t options, const std::vector<std::string>& libenv) noexcept :
         m_filename(ARK_NO_NAME_FILE),
         m_options(options), m_debug_level(0)
     {
-        const char* arkpath = getenv("ARKSCRIPT_PATH");
-        if (arkpath)
+        if (libenv.size() > 0)
         {
-            m_libenv = Ark::Utils::splitString(arkpath, ':');
+            m_libenv = libenv;
+        }
+        else
+        {
+            const char* arkpath = getenv("ARKSCRIPT_PATH");
+            if (arkpath)
+            {
+                m_libenv = Ark::Utils::splitString(arkpath, ':');
+            }
         }
     }
 
@@ -63,7 +70,7 @@ namespace Ark
 
     bool State::compile(const std::string& file, const std::string& output)
     {
-        Compiler compiler(m_debug_level, m_options);
+        Compiler compiler(m_debug_level, m_options, m_libenv);
 
         try
         {
@@ -134,7 +141,7 @@ namespace Ark
 
     bool State::doString(const std::string& code)
     {
-        Compiler compiler(m_debug_level, m_options);
+        Compiler compiler(m_debug_level, m_options, m_libenv);
 
         try
         {
@@ -175,6 +182,11 @@ namespace Ark
     void State::setDebug(unsigned level) noexcept
     {
         m_debug_level = level;
+    }
+
+    void State::setLibDirs(const std::vector<std::string>& libenv) noexcept
+    {
+        m_libenv = libenv;
     }
 
     void State::configure()

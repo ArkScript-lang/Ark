@@ -11,8 +11,8 @@ namespace Ark
 {
     using namespace Ark::internal;
 
-    Compiler::Compiler(unsigned debug, uint16_t options) :
-        m_parser(debug, options), m_optimizer(options),
+    Compiler::Compiler(unsigned debug, uint16_t options, const std::vector<std::string>& libenv) :
+        m_parser(debug, options, libenv), m_optimizer(options),
         m_options(options), m_debug(debug)
     {}
 
