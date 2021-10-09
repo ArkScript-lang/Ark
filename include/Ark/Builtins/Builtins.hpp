@@ -29,7 +29,6 @@ namespace Ark::internal::Builtins
     extern const Value nil;
 
     extern const std::vector<std::pair<std::string, Value>> builtins;
-    extern const std::vector<std::string> operators;
 
     // ------------------------------
     // builtins functions: we must use the instruction `BUILTIN index`
