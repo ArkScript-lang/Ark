@@ -1,6 +1,7 @@
 #include <Ark/VM/VM.hpp>
 
 #include <termcolor/termcolor.hpp>
+#include <Ark/Utils.hpp>
 
 struct mapping
 {
