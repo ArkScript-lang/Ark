@@ -24,7 +24,6 @@
 #include <array>
 
 #include <Ark/VM/Closure.hpp>
-#include <Ark/Exceptions.hpp>
 #include <Ark/VM/UserType.hpp>
 #include <Ark/Platform.hpp>
 #include <Ark/Profiling.hpp>
