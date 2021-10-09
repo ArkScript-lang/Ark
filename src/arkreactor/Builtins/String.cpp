@@ -24,7 +24,7 @@ namespace Ark::internal::Builtins::String
      * =end
      * @author https://github.com/SuperFola
      */
-    Value format(std::vector<Value>& n, Ark::VM* vm)
+    Value format(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
     {
         if (n.size() == 0)
             throw std::runtime_error(STR_FORMAT_ARITY);
@@ -74,7 +74,7 @@ namespace Ark::internal::Builtins::String
      * =end
      * @author https://github.com/SuperFola
      */
-    Value findSubStr(std::vector<Value>& n, Ark::VM* vm)
+    Value findSubStr(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
     {
         if (n.size() != 2)
             throw std::runtime_error(STR_FIND_ARITY);
@@ -98,7 +98,7 @@ namespace Ark::internal::Builtins::String
      * =end
      * @author https://github.com/SuperFola
      */
-    Value removeAtStr(std::vector<Value>& n, Ark::VM* vm)
+    Value removeAtStr(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
     {
         if (n.size() != 2)
             throw std::runtime_error(STR_RM_ARITY);
@@ -125,7 +125,7 @@ namespace Ark::internal::Builtins::String
      * =end
      * @author https://github.com/SuperFola
      */
-    Value ord(std::vector<Value>& n, Ark::VM* vm)
+    Value ord(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
     {
         if (n.size() != 1)
             throw std::runtime_error(STR_ORD_ARITY);
@@ -147,7 +147,7 @@ namespace Ark::internal::Builtins::String
      * =end
      * @author https://github.com/SuperFola
      */
-    Value chr(std::vector<Value>& n, Ark::VM* vm)
+    Value chr(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
     {
         if (n.size() != 1)
             throw std::runtime_error(STR_CHR_ARITY);

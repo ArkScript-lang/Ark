@@ -1,11 +1,13 @@
 #include <Ark/VM/State.hpp>
 
 #include <Ark/Constants.hpp>
+#include <Ark/Utils.hpp>
 
 #ifdef _MSC_VER
 #    pragma warning(push)
 #    pragma warning(disable : 4996)
 #endif
+
 #include <stdlib.h>
 #include <picosha2.h>
 #include <termcolor/termcolor.hpp>
