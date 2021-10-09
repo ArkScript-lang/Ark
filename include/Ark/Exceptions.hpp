@@ -14,9 +14,66 @@
 
 #include <exception>
 #include <string>
+#include <vector>
+
+#include <termcolor/termcolor.hpp>
+#include <Ark/VM/Value.hpp>
 
 namespace Ark
 {
+    class Error : public std::exception
+    {
+    public:
+        Error(std::string_view name, std::size_t eargc, const std::vector<Value>& args) :
+            m_index(0), m_eargc(eargc), m_args(args)
+        {}
+
+        virtual Error& withArg(std::string view, ValueType type) = 0;
+
+    protected:
+        std::size_t m_index;
+        std::size_t m_eargc;
+        std::vector<Value> m_args;
+    };
+
+    /**
+     * @brief A type error triggered when types don't match
+     * 
+     */
+    class BetterTypeError : public Error
+    {
+    public:
+        BetterTypeError(std::string_view name, std::size_t eargc, const std::vector<Value>& args) :
+            Error(name, eargc, args)
+        {
+            std::cout << name << ": needs " << eargc << " argument(s), got " << args.size() << std::endl;
+        }
+
+        virtual BetterTypeError& withArg(std::string view, ValueType type) override
+        {
+            // argument has been provided
+            if (m_index < m_args.size())
+            {
+                const ValueType prov_type = m_args[m_index].valueType();
+                if (prov_type != type)
+                {
+                    std::cout << termcolor::yellow;
+                }
+
+                std::cout << "  -> " << view << " (" << types_to_str.at((int)type) << ") was of type " << types_to_str.at((int)prov_type) << termcolor::reset << std::endl;
+            }
+            // argument was not provided
+            else
+            {
+                std::cout << termcolor::yellow;
+                std::cout << "  -> " << view << " (" << types_to_str.at((int)type) << ") was not provided" << termcolor::reset << std::endl;
+            }
+
+            m_index++;
+            return *this;
+        }
+    };
+
     /**
      * @brief A type error triggered when types don't match
      * 
