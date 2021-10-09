@@ -13,22 +13,16 @@
 #define ARK_COMPILER_COMPILER_HPP
 
 #include <vector>
-#include <iostream>
 #include <string>
 #include <cinttypes>
 #include <optional>
-#include <functional>
 
-#include <Ark/Compiler/Parser.hpp>
-#include <Ark/Compiler/Node.hpp>
-#include <Ark/Compiler/CValue.hpp>
-#include <Ark/Compiler/Optimizer.hpp>
-#include <Ark/Compiler/Instructions.hpp>
-#include <Ark/Compiler/BytecodeReader.hpp>
-#include <Ark/Builtins/Builtins.hpp>
-#include <Ark/Utils.hpp>
 #include <Ark/Platform.hpp>
-#include <Ark/Compiler/makeErrorCtx.hpp>
+#include <Ark/Compiler/Instructions.hpp>
+#include <Ark/Compiler/AST/Node.hpp>
+#include <Ark/Compiler/AST/Parser.hpp>
+#include <Ark/Compiler/AST/Optimizer.hpp>
+#include <Ark/Compiler/ValTableElem.hpp>
 
 namespace Ark
 {
@@ -80,16 +74,16 @@ namespace Ark
         friend class Ark::State;
 
     private:
-        Parser m_parser;
-        Optimizer m_optimizer;
+        internal::Parser m_parser;
+        internal::Optimizer m_optimizer;
         uint16_t m_options;
         // tables: symbols, values, plugins and codes
         std::vector<internal::Node> m_symbols;
         std::vector<std::string> m_defined_symbols;
         std::vector<std::string> m_plugins;
-        std::vector<internal::CValue> m_values;
-        std::vector<std::vector<internal::Inst_t>> m_code_pages;
-        std::vector<std::vector<internal::Inst_t>> m_temp_pages;  ///< we need temporary code pages for some compilations passes
+        std::vector<internal::ValTableElem> m_values;
+        std::vector<std::vector<uint8_t>> m_code_pages;
+        std::vector<std::vector<uint8_t>> m_temp_pages;  ///< we need temporary code pages for some compilations passes
 
         bytecode_t m_bytecode;
         unsigned m_debug;  ///< the debug level of the compiler
@@ -110,10 +104,28 @@ namespace Ark
         /**
          * @brief helper functions to get a temp or finalized code page
          * 
-         * @param i page index, if negative, refers to a temporay code page
-         * @return std::vector<internal::Inst_t>& 
+         * @param i page index, if negative, refers to a temporary code page
+         * @return std::vector<uint8_t>& 
          */
-        inline std::vector<internal::Inst_t>& page(int i) noexcept;
+        inline std::vector<uint8_t>& page(int i) noexcept
+        {
+            if (i >= 0)
+                return m_code_pages[i];
+            return m_temp_pages[-i - 1];
+        }
+
+        /**
+         * @brief helper functions to get a temp or finalized code page
+         * 
+         * @param i page index, if negative, refers to a temporary code page
+         * @return std::vector<uint8_t>* 
+         */
+        inline std::vector<uint8_t>* page_ptr(int i) noexcept
+        {
+            if (i >= 0)
+                return &m_code_pages[i];
+            return &m_temp_pages[-i - 1];
+        }
 
         /**
          * @brief Count the number of "valid" ark objects in a node
@@ -123,7 +135,7 @@ namespace Ark
          * @param lst 
          * @return std::size_t 
          */
-        inline std::size_t countArkObjects(const std::vector<internal::Node>& lst) noexcept;
+        std::size_t countArkObjects(const std::vector<internal::Node>& lst) noexcept;
 
         /**
          * @brief Checking if a symbol is an operator
@@ -131,7 +143,7 @@ namespace Ark
          * @param name symbol name
          * @return std::optional<std::size_t> position in the operators' list
          */
-        inline std::optional<std::size_t> isOperator(const std::string& name) noexcept;
+        std::optional<std::size_t> isOperator(const std::string& name) noexcept;
 
         /**
          * @brief Checking if a symbol is a builtin
@@ -139,7 +151,7 @@ namespace Ark
          * @param name symbol name
          * @return std::optional<std::size_t> position in the builtins' list
          */
-        inline std::optional<std::size_t> isBuiltin(const std::string& name) noexcept;
+        std::optional<std::size_t> isBuiltin(const std::string& name) noexcept;
 
         /**
          * @brief Check if a symbol needs to be compiled to a specific instruction
@@ -147,7 +159,25 @@ namespace Ark
          * @param name 
          * @return std::optional<internal::Instruction> corresponding instruction if it exists
          */
-        inline std::optional<internal::Instruction> isSpecific(const std::string& name) noexcept;
+        inline std::optional<internal::Instruction> isSpecific(const std::string& name) noexcept
+        {
+            if (name == "list")
+                return internal::Instruction::LIST;
+            else if (name == "append")
+                return internal::Instruction::APPEND;
+            else if (name == "concat")
+                return internal::Instruction::CONCAT;
+            else if (name == "append!")
+                return internal::Instruction::APPEND_IN_PLACE;
+            else if (name == "concat!")
+                return internal::Instruction::CONCAT_IN_PLACE;
+            else if (name == "pop")
+                return internal::Instruction::POP_LIST;
+            else if (name == "pop!")
+                return internal::Instruction::POP_LIST_IN_PLACE;
+
+            return {};
+        }
 
         /**
          * @brief Compute specific instruction argument count
@@ -156,7 +186,7 @@ namespace Ark
          * @param previous 
          * @param p 
          */
-        inline void pushSpecificInstArgc(internal::Instruction inst, uint16_t previous, int p) noexcept;
+        void pushSpecificInstArgc(internal::Instruction inst, uint16_t previous, int p) noexcept;
 
         /**
          * @brief Checking if a symbol may be coming from a plugin
@@ -165,7 +195,7 @@ namespace Ark
          * @return true the symbol may be from a plugin, loaded at runtime
          * @return false 
          */
-        inline bool mayBeFromPlugin(const std::string& name) noexcept;
+        bool mayBeFromPlugin(const std::string& name) noexcept;
 
         /**
          * @brief Throw a nice error message
@@ -173,10 +203,7 @@ namespace Ark
          * @param message 
          * @param node 
          */
-        inline void throwCompilerError(const std::string& message, const internal::Node& node)
-        {
-            throw CompilationError(internal::makeNodeBasedErrorCtx(message, node));
-        }
+        [[noreturn]] void throwCompilerError(const std::string& message, const internal::Node& node);
 
         /**
          * @brief Compile a single node recursively
@@ -199,28 +226,40 @@ namespace Ark
         void handleCalls(const internal::Node& x, int p);
 
         /**
+         * @brief Put a value in the bytecode, handling the closures chains
+         * 
+         * @param x 
+         * @param p 
+         */
+        void putValue(const internal::Node& x, int p);
+
+        /**
          * @brief Register a given node in the symbol table
+         * @details Can throw if the table is full
          * 
          * @param sym 
-         * @return std::size_t 
+         * @return uint16_t 
          */
-        std::size_t addSymbol(const internal::Node& sym) noexcept;
+        uint16_t addSymbol(const internal::Node& sym);
 
         /**
          * @brief Register a given node in the value table
+         * @details Can throw if the table is full
          * 
          * @param x 
-         * @return std::size_t 
+         * @return uint16_t 
          */
-        std::size_t addValue(const internal::Node& x) noexcept;
+        uint16_t addValue(const internal::Node& x);
 
         /**
          * @brief Register a page id (function reference) in the value table
+         * @details Can throw if the table is full
          * 
          * @param page_id 
+         * @param current A reference to the current node, for context
          * @return std::size_t 
          */
-        std::size_t addValue(std::size_t page_id) noexcept;
+        uint16_t addValue(std::size_t page_id, const internal::Node& current);
 
         /**
          * @brief Register a symbol as defined, so that later we can throw errors on undefined symbols
@@ -241,10 +280,8 @@ namespace Ark
          * @param n the number to push
          * @param page the page where it should land, nullptr for current page
          */
-        void pushNumber(uint16_t n, std::vector<internal::Inst_t>* page = nullptr) noexcept;
+        void pushNumber(uint16_t n, std::vector<uint8_t>* page = nullptr) noexcept;
     };
-
-#include "inline/Compiler.inl"
 }
 
 #endif

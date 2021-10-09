@@ -87,18 +87,4 @@ namespace Ark::internal::Builtins
         { "math:asinh", Value(Mathematics::asinh_) },
         { "math:atanh", Value(Mathematics::atanh_) }
     };
-
-    // This list is related to include/Ark/Compiler/Instructions.hpp
-    // from FIRST_OPERATOR, to LAST_OPERATOR
-    // The order is very important
-    extern const std::vector<std::string> operators = {
-        "+", "-", "*", "/",
-        ">", "<", "<=", ">=", "!=", "=",
-        "len", "empty?", "tail", "head",
-        "nil?", "assert",
-        "toNumber", "toString",
-        "@", "and", "or", "mod",
-        "type", "hasField",
-        "not"
-    };
 }
