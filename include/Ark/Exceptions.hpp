@@ -16,7 +16,6 @@
 #include <string>
 #include <vector>
 
-#include <termcolor/termcolor.hpp>
 #include <Ark/VM/Value.hpp>
 
 namespace Ark
@@ -24,15 +23,16 @@ namespace Ark
     class Error : public std::exception
     {
     public:
-        Error(std::string_view name, std::size_t eargc, const std::vector<Value>& args) :
-            m_index(0), m_eargc(eargc), m_args(args)
+        Error(std::string_view func_name, std::size_t expected_argc, const std::vector<Value>& args) :
+            m_funcname(func_name), m_arg_index(0), m_expected_argc(expected_argc), m_args(args)
         {}
 
-        virtual Error& withArg(std::string view, ValueType type) = 0;
+        virtual Error& withArg(std::string_view view, ValueType type) = 0;
 
     protected:
-        std::size_t m_index;
-        std::size_t m_eargc;
+        std::string_view m_funcname;
+        std::size_t m_arg_index;
+        std::size_t m_expected_argc;
         std::vector<Value> m_args;
     };
 
@@ -43,35 +43,9 @@ namespace Ark
     class BetterTypeError : public Error
     {
     public:
-        BetterTypeError(std::string_view name, std::size_t eargc, const std::vector<Value>& args) :
-            Error(name, eargc, args)
-        {
-            std::cout << name << ": needs " << eargc << " argument(s), got " << args.size() << std::endl;
-        }
+        BetterTypeError(std::string_view func_name, std::size_t expected_argc, const std::vector<Value>& args);
 
-        virtual BetterTypeError& withArg(std::string view, ValueType type) override
-        {
-            // argument has been provided
-            if (m_index < m_args.size())
-            {
-                const ValueType prov_type = m_args[m_index].valueType();
-                if (prov_type != type)
-                {
-                    std::cout << termcolor::yellow;
-                }
-
-                std::cout << "  -> " << view << " (" << types_to_str.at((int)type) << ") was of type " << types_to_str.at((int)prov_type) << termcolor::reset << std::endl;
-            }
-            // argument was not provided
-            else
-            {
-                std::cout << termcolor::yellow;
-                std::cout << "  -> " << view << " (" << types_to_str.at((int)type) << ") was not provided" << termcolor::reset << std::endl;
-            }
-
-            m_index++;
-            return *this;
-        }
+        virtual BetterTypeError& withArg(std::string_view arg_name, ValueType arg_type) override;
     };
 
     /**
