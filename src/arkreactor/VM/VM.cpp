@@ -1,5 +1,7 @@
 #include <Ark/VM/VM.hpp>
 
+#include <numeric>
+
 #include <termcolor/termcolor.hpp>
 #include <Ark/Utils.hpp>
 
@@ -114,7 +116,14 @@ namespace Ark
 
         if (!lib)
         {
-            throwVMError("Could not find module '" + file + "'. Searched in\n\t- " + path + "\n\t- " + Utils::joinString(m_state->m_libenv));
+            auto lib_path = std::accumulate(
+                std::next(m_state->m_libenv.begin()),
+                m_state->m_libenv.end(),
+                m_state->m_libenv[0],
+                [](const std::string& a, const std::string& b) -> std::string {
+                    return a + "\n\t- " + b;
+                });
+            throwVMError("Could not find module '" + file + "'. Searched in\n\t- " + path + "\n\t- " + lib_path);
         }
 
         m_shared_lib_objects.emplace_back(lib);
