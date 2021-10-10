@@ -48,6 +48,6 @@ namespace Ark
 
     BetterTypeError& BetterTypeError::withArg(std::string_view arg_name, ValueType arg_type)
     {
-        return withArg(arg_name, std::vector<ValueType>{ arg_type });
+        return withArg(arg_name, std::vector<ValueType> { arg_type });
     }
 }
