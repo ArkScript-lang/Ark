@@ -1,0 +1,109 @@
+[Setup]
+AppName=ArkScript
+AppVersion=3.1.1
+AppPublisher=Alexandre Plateau
+AppPublisherURL=https://arkscript-lang.github.io
+DefaultDirName={autopf}\ArkScript
+DefaultGroupName=ArkScript
+UninstallDisplayIcon={app}\MyProg.exe
+Compression=lzma2
+SolidCompression=yes
+LicenseFile=LICENCE
+ChangesEnvironment=yes
+; "ArchitecturesAllowed=x64" specifies that Setup cannot run on
+; anything but x64.
+ArchitecturesAllowed=x64
+; "ArchitecturesInstallIn64BitMode=x64" requests that the install be
+; done in "64-bit mode" on x64, meaning it should use the native
+; 64-bit Program Files directory and the 64-bit view of the registry.
+ArchitecturesInstallIn64BitMode=x64
+
+[Dirs]
+Name: "{app}\bin"
+Name: "{app}\lib"
+Name: "{app}\modules"
+
+[Files]
+Source: "build/Release/arkscript.exe"; DestDir: "{app}\bin"
+Source: "build/Release/ArkReactor.dll"; DestDir: "{app}\bin"
+Source: "lib/std/*.ark"; DestDir: "{app}\lib"
+Source: "lib/std/LICENSE"; DestDir: "{app}\lib"
+Source: "lib/*.arkm"; DestDir: "{app}\modules"
+Source: "LICENCE"; DestDir: "{app}"
+Source: "README.md"; DestDir: "{app}"; Flags: isreadme
+
+[Icons]
+Name: "{group}\ArkScript"; Filename: "{app}\bin\arkscript.exe"
+
+[Registry]
+Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; \
+    ValueType: expandsz; ValueName: "PATH"; ValueData: "{olddata};{app}\bin"; \
+    Check: NeedsAddPath('{app}\bin')
+Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; \
+    ValueType: string; ValueName: "ARKSCRIPT_PATH"; ValueData: "{app}:{app}/lib:{app}/modules"; \
+    Flags: preservestringtype
+
+[Code]
+function NeedsAddPath(Param: string): boolean;
+var
+  OrigPath: string;
+begin
+  if not RegQueryStringValue(HKEY_LOCAL_MACHINE,
+    'SYSTEM\CurrentControlSet\Control\Session Manager\Environment',
+    'Path', OrigPath)
+  then begin
+    Result := True;
+    exit;
+  end;
+  { look for the path with leading and trailing semicolon }
+  { Pos() returns 0 if not found }
+  Result := Pos(';' + Param + ';', ';' + OrigPath + ';') = 0;
+end;
+
+const
+  EnvironmentKey = 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment';
+
+procedure RemovePath(Path: string);
+var
+  Paths: string;
+  P: Integer;
+begin
+  if not RegQueryStringValue(HKEY_LOCAL_MACHINE, EnvironmentKey, 'Path', Paths) then
+  begin
+    Log('PATH not found');
+  end
+    else
+  begin
+    Log(Format('PATH is [%s]', [Paths]));
+
+    P := Pos(';' + Uppercase(Path) + ';', ';' + Uppercase(Paths) + ';');
+    if P = 0 then
+    begin
+      Log(Format('Path [%s] not found in PATH', [Path]));
+    end
+      else
+    begin
+      if P > 1 then P := P - 1;
+      Delete(Paths, P, Length(Path) + 1);
+      Log(Format('Path [%s] removed from PATH => [%s]', [Path, Paths]));
+
+      if RegWriteStringValue(HKEY_LOCAL_MACHINE, EnvironmentKey, 'Path', Paths) then
+      begin
+        Log('PATH written');
+      end
+        else
+      begin
+        Log('Error writing PATH');
+      end;
+    end;
+  end;
+end;
+
+procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+begin
+  if CurUninstallStep = usUninstall then
+  begin
+    RemovePath(ExpandConstant('{app}\bin'));
+  end;
+end;
+
