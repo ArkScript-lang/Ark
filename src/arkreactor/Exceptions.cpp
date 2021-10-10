@@ -7,7 +7,7 @@ namespace Ark
     BetterTypeError::BetterTypeError(std::string_view func_name, std::size_t expected_argc, const std::vector<Value>& args) :
         Error(), m_funcname(func_name), m_arg_index(0), m_expected_argc(expected_argc), m_args(args)
     {
-        std::cout << func_name << ": needs " << expected_argc << " argument(s), got " << args.size() << std::endl;
+        std::cout << func_name << ": needs " << expected_argc << " argument(s)," << (args.size() == expected_argc ? "" : " but") << " got " << args.size() << std::endl;
     }
 
     BetterTypeError& BetterTypeError::withArg(std::string_view arg_name, const std::vector<ValueType>& arg_types)
