@@ -23,17 +23,8 @@ namespace Ark
     class Error : public std::exception
     {
     public:
-        Error(std::string_view func_name, std::size_t expected_argc, const std::vector<Value>& args) :
-            m_funcname(func_name), m_arg_index(0), m_expected_argc(expected_argc), m_args(args)
+        explicit Error(void)
         {}
-
-        virtual Error& withArg(std::string_view view, ValueType type) = 0;
-
-    protected:
-        std::string_view m_funcname;
-        std::size_t m_arg_index;
-        std::size_t m_expected_argc;
-        std::vector<Value> m_args;
     };
 
     /**
@@ -45,7 +36,13 @@ namespace Ark
     public:
         BetterTypeError(std::string_view func_name, std::size_t expected_argc, const std::vector<Value>& args);
 
-        virtual BetterTypeError& withArg(std::string_view arg_name, ValueType arg_type) override;
+        BetterTypeError& withArg(std::string_view arg_name, ValueType arg_type);
+
+    protected:
+        std::string_view m_funcname;
+        std::size_t m_arg_index;
+        std::size_t m_expected_argc;
+        std::vector<Value> m_args;
     };
 
     /**
