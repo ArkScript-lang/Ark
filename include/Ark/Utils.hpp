@@ -83,14 +83,14 @@ namespace Ark::Utils
      * @param sep 
      * @return std::string
      */
-    inline std::string joinString(std::vector<std::string> source, char sep = ' ')
+    inline std::string joinString(std::vector<std::string> source, std::string_view sep = " ")
     {
         std::string output;
 
         for (auto it = source.begin(), end = source.end(); it != end; ++it)
         {
             output += *it;
-            if (it != end)
+            if (it != end - 1)
             {
                 output += sep;
             }
