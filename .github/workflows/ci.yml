@@ -197,6 +197,13 @@ jobs:
         cp lib/std/*.ark artifact/lib/std
         rm -rf artifact/lib/std/{.git,.github,tests/__arkscript__}
 
+    - name: Generate InnoSetup installer
+      if: startsWith(matrix.config.name, 'Windows')
+      uses: SuperFola/is-build-action@master
+      with:
+        path-to-script: 'Installer.iss'
+        artifact-name: 'arkscript.exe'
+
     - name: Upload artifact
       uses: actions/upload-artifact@v2
       with:
