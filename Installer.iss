@@ -36,12 +36,8 @@ Source: "README.md"; DestDir: "{app}"; Flags: isreadme
 Name: "{group}\ArkScript"; Filename: "{app}\bin\arkscript.exe"
 
 [Registry]
-Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; \
-    ValueType: expandsz; ValueName: "PATH"; ValueData: "{olddata};{app}\bin"; \
-    Check: NeedsAddPath('{app}\bin')
-Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; \
-    ValueType: string; ValueName: "ARKSCRIPT_PATH"; ValueData: "{app}:{app}/lib:{app}/modules"; \
-    Flags: preservestringtype
+Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: expandsz; ValueName: "PATH"; ValueData: "{olddata};{app}\bin"; Check: NeedsAddPath('{app}\bin')
+Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: string; ValueName: "ARKSCRIPT_PATH"; ValueData: "{app}:{app}/lib:{app}/modules"; Flags: preservestringtype
 
 [Code]
 function NeedsAddPath(Param: string): boolean;
