@@ -23,7 +23,7 @@ namespace Ark
     class Error : public std::exception
     {
     public:
-        explicit Error(void)
+        explicit Error()
         {}
     };
 
