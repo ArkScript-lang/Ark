@@ -313,7 +313,7 @@ namespace Ark
                         val.setConst(true);
                         (*m_locals.back()).push_back(id, val);
 
-                        COZ_PROGRESS("ark vm let");
+                        COZ_PROGRESS_NAMED("ark vm let");
                         break;
                     }
 
@@ -492,7 +492,7 @@ namespace Ark
                         */
                         m_saved_scope = m_locals.back();
 
-                        COZ_PROGRESS("ark vm save_scope");
+                        COZ_PROGRESS_NAMED("ark vm save_scope");
                         break;
                     }
 
@@ -541,7 +541,7 @@ namespace Ark
 
                         loadPlugin(id);
 
-                        COZ_PROGRESS("ark vm plugin");
+                        COZ_PROGRESS_NAMED("ark vm plugin");
                         break;
                     }
 
