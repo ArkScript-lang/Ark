@@ -15,9 +15,6 @@ namespace Ark::internal
     MacroProcessor::MacroProcessor(unsigned debug, uint16_t options) noexcept :
         m_debug(debug), m_options(options)
     {
-        // initialize default Nodes
-        Node::init();
-
         // create executors pipeline
         m_executor_pipeline = MacroExecutorPipeline(
             { std::make_shared<SymbolExecutor>(this),
@@ -275,7 +272,7 @@ namespace Ark::internal
     throwMacroProcessingError("Interpreting a `" str_name "' condition with " +                         \
                                   std::to_string(node.list().size() - 1) + " arguments, instead of 2.", \
                               node),                                                                    \
-    (cond) ? Node::TrueNode : Node::FalseNode)
+    (cond) ? Node::getTrueNode() : Node::getFalseNode())
 
 #define GEN_OP(str_name, op) GEN_NOT_BODY(                                                              \
     str_name,                                                                                           \
@@ -306,7 +303,7 @@ namespace Ark::internal
                 if (node.list().size() != 2)
                     throwMacroProcessingError("Interpreting a `not' condition with " + std::to_string(node.list().size() - 1) + " arguments, instead of 1.", node);
 
-                return (!isTruthy(evaluate(node.list()[1], is_not_body))) ? Node::TrueNode : Node::FalseNode;
+                return (!isTruthy(evaluate(node.list()[1], is_not_body))) ? Node::getTrueNode() : Node::getFalseNode();
             }
             else if (name == "and" && is_not_body)
             {
@@ -316,9 +313,9 @@ namespace Ark::internal
                 for (std::size_t i = 1, end = node.list().size(); i < end; ++i)
                 {
                     if (!isTruthy(evaluate(node.list()[i], is_not_body)))
-                        return Node::FalseNode;
+                        return Node::getFalseNode();
                 }
-                return Node::TrueNode;
+                return Node::getTrueNode();
             }
             else if (name == "or" && is_not_body)
             {
@@ -328,9 +325,9 @@ namespace Ark::internal
                 for (std::size_t i = 1, end = node.list().size(); i < end; ++i)
                 {
                     if (isTruthy(evaluate(node.list()[i], is_not_body)))
-                        return Node::TrueNode;
+                        return Node::getTrueNode();
                 }
-                return Node::FalseNode;
+                return Node::getFalseNode();
             }
             else if (name == "len")
             {
@@ -340,7 +337,7 @@ namespace Ark::internal
                 {
                     if (isConstEval(lst))
                     {
-                        if (lst.list().size() > 0 && lst.list()[0] == Node::ListNode)
+                        if (lst.list().size() > 0 && lst.list()[0] == Node::getListNode())
                             node = Node(static_cast<long>(lst.list().size()) - 1);
                         else
                             node = Node(static_cast<long>(lst.list().size()));
@@ -360,7 +357,7 @@ namespace Ark::internal
                     long num_idx = static_cast<long>(idx.number());
                     long sz = static_cast<long>(sublist.list().size());
                     long offset = 0;
-                    if (sz > 0 && sublist.list()[0] == Node::ListNode)
+                    if (sz > 0 && sublist.list()[0] == Node::getListNode())
                     {
                         num_idx = (num_idx >= 0) ? num_idx + 1 : num_idx;
                         offset = -1;
@@ -379,7 +376,7 @@ namespace Ark::internal
                 else if (node.list()[1].nodeType() == NodeType::List)
                 {
                     Node& sublist = node.list()[1];
-                    if (sublist.constList().size() > 0 && sublist.constList()[0] == Node::ListNode)
+                    if (sublist.constList().size() > 0 && sublist.constList()[0] == Node::getListNode())
                     {
                         if (sublist.constList().size() > 1)
                         {
@@ -387,12 +384,12 @@ namespace Ark::internal
                             node = sublistCopy;
                         }
                         else
-                            node = Node::NilNode;
+                            node = Node::getNilNode();
                     }
                     else if (sublist.list().size() > 0)
                         node = sublist.constList()[0];
                     else
-                        node = Node::NilNode;
+                        node = Node::getNilNode();
                 }
             }
             else if (name == "tail")
@@ -402,7 +399,7 @@ namespace Ark::internal
                 else if (node.list()[1].nodeType() == NodeType::List)
                 {
                     Node sublist = node.list()[1];
-                    if (sublist.list().size() > 0 && sublist.list()[0] == Node::ListNode)
+                    if (sublist.list().size() > 0 && sublist.list()[0] == Node::getListNode())
                     {
                         if (sublist.list().size() > 1)
                         {
@@ -412,7 +409,7 @@ namespace Ark::internal
                         else
                         {
                             node = Node(NodeType::List);
-                            node.push_back(Node::ListNode);
+                            node.push_back(Node::getListNode());
                         }
                     }
                     else if (sublist.list().size() > 0)
@@ -423,7 +420,7 @@ namespace Ark::internal
                     else
                     {
                         node = Node(NodeType::List);
-                        node.push_back(Node::ListNode);
+                        node.push_back(Node::getListNode());
                     }
                 }
             }
