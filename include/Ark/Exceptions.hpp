@@ -15,15 +15,17 @@
 #include <exception>
 #include <string>
 #include <vector>
+#include <stdexcept>
 
 #include <Ark/VM/Value.hpp>
 
 namespace Ark
 {
-    class Error : public std::exception
+    class Error : public std::runtime_error
     {
     public:
-        explicit Error()
+        explicit Error(const std::string& message = "") :
+            std::runtime_error(message)
         {}
     };
 
@@ -50,170 +52,114 @@ namespace Ark
      * @brief A type error triggered when types don't match
      * 
      */
-    class TypeError : public std::exception
+    class TypeError : public std::runtime_error
     {
     public:
         explicit TypeError(const std::string& message) :
-            m_msg("TypeError: " + message)
+            std::runtime_error("TypeError: " + message)
         {}
-
-        virtual const char* what() const throw()
-        {
-            return m_msg.c_str();
-        }
-
-    protected:
-        std::string m_msg;
     };
 
     /**
      * @brief A special zero division error triggered when a number is divided by 0
      * 
      */
-    class ZeroDivisionError : public std::exception
+    class ZeroDivisionError : public std::runtime_error
     {
     public:
-        virtual const char* what() const throw()
-        {
-            return "ZeroDivisionError: In ordonary arithmetic, the expression has no meaning, "
-                   "as there is no number which, when multiplied by 0, gives a (assuming a != 0), "
-                   "and so division by zero is undefined. Since any number multiplied by 0 is 0, "
-                   "the expression 0/0 is also undefined.";
-        }
+        ZeroDivisionError() :
+            std::runtime_error(
+                "ZeroDivisionError: In ordonary arithmetic, the expression has no meaning, "
+                "as there is no number which, when multiplied by 0, gives a (assuming a != 0), "
+                "and so division by zero is undefined. Since any number multiplied by 0 is 0, "
+                "the expression 0/0 is also undefined.")
+        {}
     };
 
     /**
      * @brief A pow error triggered when we can't do a pow b
      * 
      */
-    class PowError : public std::exception
+    class PowError : public std::runtime_error
     {
     public:
-        virtual const char* what() const throw()
-        {
-            return "PowError: Can not pow the given number (a) to the given exponent (b) because "
-                   "a^b, with b being a member of the rational numbers, isn't supported.";
-        }
+        PowError() :
+            std::runtime_error(
+                "PowError: Can not pow the given number (a) to the given exponent (b) because "
+                "a^b, with b being a member of the rational numbers, isn't supported.")
+        {}
     };
 
     /**
      * @brief An assertion error, only triggered from ArkScript code through (assert expr error-message)
      * 
      */
-    class AssertionFailed : public std::exception
+    class AssertionFailed : public std::runtime_error
     {
     public:
         explicit AssertionFailed(const std::string& message) :
-            m_msg("AssertionFailed: " + message)
+            std::runtime_error("AssertionFailed: " + message)
         {}
-
-        virtual const char* what() const throw()
-        {
-            return m_msg.c_str();
-        }
-
-    protected:
-        std::string m_msg;
     };
 
     /**
      * @brief SyntaxError thrown by the lexer
      * 
      */
-    class SyntaxError : public std::exception
+    class SyntaxError : public std::runtime_error
     {
     public:
         explicit SyntaxError(const std::string& message) :
-            m_msg("SyntaxError: " + message)
+            std::runtime_error("SyntaxError: " + message)
         {}
-
-        virtual const char* what() const throw()
-        {
-            return m_msg.c_str();
-        }
-
-    protected:
-        std::string m_msg;
     };
 
     /**
      * @brief ParseError thrown by the parser
      * 
      */
-    class ParseError : public std::exception
+    class ParseError : public std::runtime_error
     {
     public:
         explicit ParseError(const std::string& message) :
-            m_msg("ParseError: " + message)
+            std::runtime_error("ParseError: " + message)
         {}
-
-        virtual const char* what() const throw()
-        {
-            return m_msg.c_str();
-        }
-
-    protected:
-        std::string m_msg;
     };
 
     /**
      * @brief OptimizerError thrown by the AST optimizer
      * 
      */
-    class OptimizerError : public std::exception
+    class OptimizerError : public std::runtime_error
     {
     public:
         explicit OptimizerError(const std::string& message) :
-            m_msg("OptimizerError: " + message)
+            std::runtime_error("OptimizerError: " + message)
         {}
-
-        virtual const char* what() const throw()
-        {
-            return m_msg.c_str();
-        }
-
-    protected:
-        std::string m_msg;
     };
 
     /**
      * @brief MacroProcessingError thrown by the compiler
      * 
      */
-    class MacroProcessingError : public std::exception
+    class MacroProcessingError : public std::runtime_error
     {
     public:
         explicit MacroProcessingError(const std::string& message) :
-            m_msg("MacroProcessingError: " + message)
+            std::runtime_error("MacroProcessingError: " + message)
         {}
-
-        virtual const char* what() const throw()
-        {
-            return m_msg.c_str();
-        }
-
-    protected:
-        std::string m_msg;
     };
 
     /**
      * @brief CompilationError thrown by the compiler
      * 
      */
-    class CompilationError : public std::exception
+    class CompilationError : public std::runtime_error
     {
     public:
         explicit CompilationError(const std::string& message) :
-            m_msg("CompilationError: " + message)
+            std::runtime_error("CompilationError: " + message)
         {}
-
-        virtual const char* what() const throw()
-        {
-            return m_msg.c_str();
-        }
-
-    protected:
-        std::string m_msg;
     };
 }
 
