@@ -6,6 +6,32 @@
 
 namespace Ark::internal
 {
+    // Static methods.
+    const Node& Node::getTrueNode()
+    {
+        static const Node TrueNode { "true", NodeType::Symbol };
+        return TrueNode;
+    }
+
+    const Node& Node::getFalseNode()
+    {
+        static const Node FalseNode { "false", NodeType::Symbol };
+        return FalseNode;
+    }
+
+    const Node& Node::getNilNode()
+    {
+        static const Node NilNode { "nil", NodeType::Symbol };
+        return NilNode;
+    }
+
+    const Node& Node::getListNode()
+    {
+        static const Node ListNode { "list", NodeType::Symbol };
+        return ListNode;
+    }
+
+    // Normal Methods
     Node::Node(long value) noexcept :
         m_type(NodeType::Number),
         m_value(static_cast<double>(value))
@@ -19,6 +45,10 @@ namespace Ark::internal
     Node::Node(const std::string& value, NodeType const& type) noexcept :
         m_type(type),
         m_value(value)
+    {}
+
+    Node::Node(const std::string& value) noexcept :
+        Node(value, NodeType::String)
     {}
 
     Node::Node(Keyword value) noexcept :

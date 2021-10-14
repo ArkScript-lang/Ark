@@ -33,31 +33,22 @@ namespace Ark::internal
         /**
          * @brief Provide a statically initialized / correct and guaranteed to be initialized Node representing "true"
          */
-        static const Node& getTrueNode() {
-            static const Node TrueNode = Node("true", NodeType::Symbol);
-            return TrueNode;
-        }
+        static const Node& getTrueNode();
+
         /**
          * @brief Provide a statically initialized / correct and guaranteed to be initialized Node representing "false"
          */
-        static const Node& getFalseNode() {
-            static const Node FalseNode = Node("false", NodeType::Symbol);
-            return FalseNode;
-        }
+        static const Node& getFalseNode();
+
         /**
          * @brief Provide a statically initialized / correct and guaranteed to be initialized Node representing "Nil"
          */
-        static const Node& getNilNode() {
-            static const Node NilNode = Node("nil", NodeType::Symbol);
-            return NilNode;
-        }
+        static const Node& getNilNode();
+
         /**
          * @brief Provide a statically initialized / correct and guaranteed to be initialized Node representing "Empty List"
          */
-        static const Node& getListNode() {
-            static const Node ListNode = Node("list", NodeType::Symbol);
-            return ListNode;
-        }
+        static const Node& getListNode();
 
         Node() = default;
 
@@ -77,11 +68,10 @@ namespace Ark::internal
 
         /**
          * @brief Construct a new Node object
-         * This version simply forwards construction to a expanded constructor version.
          * 
          * @param value 
          */
-        explicit Node(const std::string& value) noexcept: Node(value, NodeType::String) {}
+        explicit Node(const std::string& value) noexcept;
 
         /**
          * @brief Construct a new Node object
