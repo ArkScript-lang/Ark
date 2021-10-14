@@ -6,19 +6,6 @@
 
 namespace Ark::internal
 {
-    Node Node::TrueNode = Node("true");
-    Node Node::FalseNode = Node("false");
-    Node Node::NilNode = Node("nil");
-    Node Node::ListNode = Node("list");
-
-    void Node::init() noexcept
-    {
-        Node::TrueNode.setNodeType(NodeType::Symbol);
-        Node::FalseNode.setNodeType(NodeType::Symbol);
-        Node::NilNode.setNodeType(NodeType::Symbol);
-        Node::ListNode.setNodeType(NodeType::Symbol);
-    }
-
     Node::Node(long value) noexcept :
         m_type(NodeType::Number),
         m_value(static_cast<double>(value))
@@ -29,8 +16,8 @@ namespace Ark::internal
         m_value(value)
     {}
 
-    Node::Node(const std::string& value) noexcept :
-        m_type(NodeType::String),
+    Node::Node(const std::string& value, NodeType const& type) noexcept :
+        m_type(type),
         m_value(value)
     {}
 
