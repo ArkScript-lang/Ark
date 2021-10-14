@@ -38,7 +38,7 @@ namespace Ark::internal
                         if (args_applied.find(arg_name) == args_applied.end())
                         {
                             args_applied[arg_name] = Node(NodeType::List);
-                            args_applied[arg_name].push_back(Node::ListNode);
+                            args_applied[arg_name].push_back(Node::getListNode());
                         }
                         // do not move j because we checked before that the spread is always the last one
                         args_applied[arg_name].push_back(node.constList()[i]);
@@ -50,7 +50,7 @@ namespace Ark::internal
                 {
                     // just a spread we didn't assign
                     args_applied[args.list().back().string()] = Node(NodeType::List);
-                    args_applied[args.list().back().string()].push_back(Node::ListNode);
+                    args_applied[args.list().back().string()].push_back(Node::getListNode());
                 }
                 else if (args_applied.size() != args.list().size())
                 {

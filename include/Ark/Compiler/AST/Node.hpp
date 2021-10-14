@@ -30,13 +30,34 @@ namespace Ark::internal
     public:
         using Value = std::variant<double, std::string, Keyword>;
 
-        static Node TrueNode, FalseNode, NilNode, ListNode;
-
         /**
-         * @brief Initialize static default nodes
-         * 
+         * @brief Provide a statically initialized / correct and guaranteed to be initialized Node representing "true"
          */
-        static void init() noexcept;
+        static const Node& getTrueNode() {
+            static const Node TrueNode = Node("true", NodeType::Symbol);
+            return TrueNode;
+        }
+        /**
+         * @brief Provide a statically initialized / correct and guaranteed to be initialized Node representing "false"
+         */
+        static const Node& getFalseNode() {
+            static const Node FalseNode = Node("false", NodeType::Symbol);
+            return FalseNode;
+        }
+        /**
+         * @brief Provide a statically initialized / correct and guaranteed to be initialized Node representing "Nil"
+         */
+        static const Node& getNilNode() {
+            static const Node NilNode = Node("nil", NodeType::Symbol);
+            return NilNode;
+        }
+        /**
+         * @brief Provide a statically initialized / correct and guaranteed to be initialized Node representing "Empty List"
+         */
+        static const Node& getListNode() {
+            static const Node ListNode = Node("list", NodeType::Symbol);
+            return ListNode;
+        }
 
         Node() = default;
 
@@ -56,10 +77,11 @@ namespace Ark::internal
 
         /**
          * @brief Construct a new Node object
+         * This version simply forwards construction to a expanded constructor version.
          * 
          * @param value 
          */
-        explicit Node(const std::string& value) noexcept;
+        explicit Node(const std::string& value) noexcept: Node(value, NodeType::String) {}
 
         /**
          * @brief Construct a new Node object
@@ -201,6 +223,15 @@ namespace Ark::internal
         friend bool operator!(const Node& A);
 
     private:
+        /**
+         * @brief Construct a new Node object.
+         * This is private because it is only used by the static member of this class
+         * to generate specialized versions of the node.
+         * 
+         * @param value 
+         * @param type
+         */
+        explicit Node(const std::string& value, NodeType const& type) noexcept;
         NodeType m_type;
         Value m_value;
         std::vector<Node> m_list;
