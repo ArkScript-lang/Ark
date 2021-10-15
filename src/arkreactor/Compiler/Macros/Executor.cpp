@@ -9,7 +9,6 @@ namespace Ark::internal
         m_macroprocessor(macroprocessor)
     {}
 
-    // Needed because it is virtual.
     MacroExecutor::~MacroExecutor()
     {}
 
