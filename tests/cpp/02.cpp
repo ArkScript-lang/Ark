@@ -5,7 +5,7 @@
 
 #include "Tests.hpp"
 
-Ark::Value my_function(std::vector<Ark::Value>& args, Ark::VM* vm)
+Ark::Value my_function(std::vector<Ark::Value>& args, Ark::VM* vm [[maybe_unused]])
 {
     // checking argument number
     if (args.size() != 4)
