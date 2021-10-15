@@ -93,7 +93,7 @@ namespace Ark
             std::string lib_path = (fs::path(v) / fs::path(file)).string();
 
             // if it's already loaded don't do anything
-            if (std::find_if(m_shared_lib_objects.begin(), m_shared_lib_objects.end(), [&, this](const auto& val) {
+            if (std::find_if(m_shared_lib_objects.begin(), m_shared_lib_objects.end(), [&](const auto& val) {
                     return (val->path() == path || val->path() == lib_path);
                 }) != m_shared_lib_objects.end())
                 return;
@@ -514,7 +514,7 @@ namespace Ark
                         if (Value* field = (*var->refClosure().scope())[id]; field != nullptr)
                         {
                             // check for CALL instruction
-                            if (m_ip + 1 < m_state->m_pages[m_pp].size() && m_state->m_pages[m_pp][m_ip + 1] == Instruction::CALL)
+                            if (static_cast<std::size_t>(m_ip) + 1 < m_state->m_pages[m_pp].size() && m_state->m_pages[m_pp][m_ip + 1] == Instruction::CALL)
                             {
                                 m_locals.push_back(var->refClosure().scope());
                                 ++m_scope_count_to_delete.back();
@@ -683,7 +683,7 @@ namespace Ark
 
                         long idx = static_cast<long>(number.number());
                         idx = (idx < 0 ? list.list().size() + idx : idx);
-                        if (idx >= list.list().size())
+                        if (static_cast<std::size_t>(idx) >= list.list().size())
                             throw std::runtime_error("pop: index out of range");
 
                         list.list().erase(list.list().begin() + idx);
@@ -705,7 +705,7 @@ namespace Ark
 
                         long idx = static_cast<long>(number.number());
                         idx = (idx < 0 ? list->list().size() + idx : idx);
-                        if (idx >= list->list().size())
+                        if (static_cast<std::size_t>(idx) >= list->list().size())
                             throw std::runtime_error("pop!: index out of range");
 
                         list->list().erase(list->list().begin() + idx);
