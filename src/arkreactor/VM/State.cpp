@@ -15,8 +15,9 @@
 namespace Ark
 {
     State::State(uint16_t options, const std::vector<std::string>& libenv) noexcept :
+        m_debug_level(0),
         m_filename(ARK_NO_NAME_FILE),
-        m_options(options), m_debug_level(0)
+        m_options(options)
     {
         if (libenv.size() > 0)
         {

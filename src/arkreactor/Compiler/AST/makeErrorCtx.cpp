@@ -11,17 +11,16 @@ namespace Ark::internal
     void makeContext(std::ostream& os, const std::string& code, std::size_t line, std::size_t col_start, std::size_t sym_size)
     {
         std::vector<std::string> ctx = Utils::splitString(code, '\n');
-        int iline = static_cast<int>(line);
 
         std::size_t col_end = std::min(col_start + sym_size, ctx[line].size());
+        std::size_t first = line >= 3 ? line - 3 : 0;
+        std::size_t last = (line + 3) <= ctx.size() ? line + 3 : ctx.size();
 
-        for (int i = 3; i > -3; --i)
+        for (std::size_t loop = first; loop < last; ++loop)
         {
-            if (iline - i >= 0 && iline - i < ctx.size())
-                // + 1 to display real lines numbers
-                os << std::setw(5) << (iline - i + 1) << " | " << ctx[iline - i] << "\n";
+            os << std::setw(5) << (loop + 1) << " | " << ctx[loop] << "\n";
 
-            if (i == 0)  // line of the error
+            if (loop == line)
             {
                 os << "      | ";
 

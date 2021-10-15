@@ -14,7 +14,7 @@ namespace Ark
         return (A.m_type_id == B.m_type_id) && (A.m_data == B.m_data);
     }
 
-    bool operator<(const UserType& A, const UserType& B) noexcept
+    bool operator<(const UserType& /*A*/, const UserType& /*B*/) noexcept
     {
         return false;
     }

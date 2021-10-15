@@ -36,6 +36,13 @@ namespace Ark::internal
         MacroExecutor(MacroProcessor* macroprocessor, unsigned debug = 0);
 
         /**
+         * @brief Need a virtual destructor to correctly destory object.
+         *
+         */
+        virtual ~MacroExecutor();
+
+
+        /**
          * @brief Executes macros in the Node if the Executor can handle it
          * 
          * @param node the node that contains a macro
