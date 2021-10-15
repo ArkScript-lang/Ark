@@ -335,7 +335,7 @@ namespace Ark
          * @return true 
          * @return false 
          */
-        inline const bool isConst() const noexcept;
+        inline bool isConst() const noexcept;
 
         /**
          * @brief Set the Const object

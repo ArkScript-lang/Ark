@@ -95,6 +95,20 @@ namespace Ark::internal
         Node(const Node& other) noexcept;
 
         /**
+         * @brief Construct a new Node object
+         * 
+         * @param other 
+         */
+        Node& operator=(Node other) noexcept;
+
+        /**
+         * @brief Construct a new Node object
+         * 
+         * @param other 
+         */
+        void swap(Node& other) noexcept;
+
+        /**
          * @brief Return the string held by the value (if the node type allows it)
          * 
          * @return const std::string& 
@@ -208,6 +222,7 @@ namespace Ark::internal
         const std::string& filename() const noexcept;
 
         friend std::ostream& operator<<(std::ostream& os, const Node& N) noexcept;
+        friend void swap(Node& lhs, Node& rhs) noexcept;
         friend bool operator==(const Node& A, const Node& B);
         friend bool operator<(const Node& A, const Node& B);
         friend bool operator!(const Node& A);

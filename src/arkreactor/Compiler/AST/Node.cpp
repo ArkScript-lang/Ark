@@ -69,6 +69,24 @@ namespace Ark::internal
         m_filename(other.m_filename)
     {}
 
+    Node& Node::operator=(Node other) noexcept
+    {
+        swap(other);
+        return *this;
+    }
+
+    void Node::swap(Node& other) noexcept
+    {
+        using std::swap;
+
+        swap(m_type, other.m_type);
+        swap(m_value, other.m_value);
+        swap(m_list, other.m_list);
+        swap(m_line, other.m_line);
+        swap(m_col, other.m_col);
+        swap(m_filename, other.m_filename);
+    }
+
     // -------------------------
 
     const std::string& Node::string() const noexcept
@@ -167,6 +185,10 @@ namespace Ark::internal
           termcolor::cyan,
           termcolor::magenta });
 
+    void swap(Node& lhs, Node& rhs) noexcept
+    {
+        lhs.swap(rhs);
+    }
     std::ostream& operator<<(std::ostream& os, const Node& N) noexcept
     {
         static int index = 0;
