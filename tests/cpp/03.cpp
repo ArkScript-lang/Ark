@@ -36,7 +36,7 @@ int main()
 {
     Ark::State state;
 
-    state.loadFunction("getBreakfast", [](std::vector<Ark::Value>& n, Ark::VM* vm) -> Ark::Value {
+    state.loadFunction("getBreakfast", [](std::vector<Ark::Value>& n [[maybe_unused]], Ark::VM* vm [[maybe_unused]]) -> Ark::Value {
         // we need to send the address of the object, which will be casted
         // to void* internally
         Ark::Value v = Ark::Value(Ark::UserType(&getBreakfast()));
@@ -48,7 +48,7 @@ int main()
         return v;
     });
 
-    state.loadFunction("useBreakfast", [](std::vector<Ark::Value>& n, Ark::VM* vm) -> Ark::Value {
+    state.loadFunction("useBreakfast", [](std::vector<Ark::Value>& n, Ark::VM* vm [[maybe_unused]]) -> Ark::Value {
         if (n[0].valueType() == Ark::ValueType::User && n[0].usertype().is<Breakfast>())
         {
             std::cout << "UserType detected as an enum class Breakfast" << "\n";
