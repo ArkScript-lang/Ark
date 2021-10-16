@@ -10,6 +10,9 @@ set(ARK_VERSION_PATCH 1)
 # Uses GNU Install directory variables
 include(GNUInstallDirs)
 
+# configure installer.is
+configure_file("Installer.iss.in" "${CMAKE_SOURCE_DIR}/Installer.iss")
+
 # setting up compilations options
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")

@@ -1,6 +1,6 @@
 [Setup]
 AppName=ArkScript
-AppVersion=3.1.1
+AppVersion=@ARK_VERSION_MAJOR@.@ARK_VERSION_MINOR@.@ARK_VERSION_PATCH@
 AppPublisher=Alexandre Plateau
 AppPublisherURL=https://arkscript-lang.github.io
 DefaultDirName={autopf}\ArkScript
