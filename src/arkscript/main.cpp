@@ -42,9 +42,9 @@ int main(int argc, char** argv)
 
     unsigned debug = 0;
 
-    uint16_t bcr_page = ~0,
-             bcr_start = ~0,
-             bcr_end = ~0;
+    uint16_t bcr_page = static_cast<uint16_t>(~0),
+             bcr_start = static_cast<uint16_t>(~0),
+             bcr_end = static_cast<uint16_t>(~0);
     Ark::BytecodeSegment segment = Ark::BytecodeSegment::All;
 
     std::vector<std::string> wrong, script_args;
@@ -240,7 +240,7 @@ int main(int argc, char** argv)
 
             case mode::bytecode_reader:
             {
-                uint16_t not_0 = ~0;
+                uint16_t not_0 = static_cast<uint16_t>(~0);
                 try
                 {
                     Ark::BytecodeReader bcr;

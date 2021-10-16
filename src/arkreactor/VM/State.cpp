@@ -244,6 +244,8 @@ namespace Ark
              ha = (static_cast<timestamp_t>(m_bytecode[++i]));
         i++;
         timestamp = aa + ba + ca + da + ea + fa + ga + ha;
+        // Prevent compiler warnings while we get the build working.
+        ((void)timestamp);
 
         std::vector<unsigned char> hash(picosha2::k_digest_size);
         picosha2::hash256(m_bytecode.begin() + i + picosha2::k_digest_size, m_bytecode.end(), hash);

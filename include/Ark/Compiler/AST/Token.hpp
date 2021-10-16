@@ -82,6 +82,7 @@ namespace Ark::internal
          *
          */
         Token(const Token&) = default;
+        Token& operator=(const Token&) = default;
     };
 }
 

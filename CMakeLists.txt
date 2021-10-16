@@ -24,19 +24,81 @@ file(GLOB_RECURSE SOURCE_FILES
 
 add_library(ArkReactor SHARED ${SOURCE_FILES})
 
-if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
+set_target_properties(
+    ArkReactor
+    PROPERTIES
+        CXX_STANDARD 17
+        CXX_STANDARD_REQUIRED ON
+        CXX_EXTENSIONS OFF)
+
+if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG OR APPLE)
     target_compile_options(ArkReactor
         PUBLIC
-        -Wall -Wextra -pedantic -Wstrict-aliasing)
+        -Wall -Wextra -pedantic -Wstrict-aliasing -Werror)
+
+    if (CMAKE_COMPILER_IS_GNUCXX)
+        target_compile_options(ArkReactor PUBLIC -Wno-unknown-pragmas)
+
+        #
+        # The package utf8_decoder has an issues with constant overflow.
+        # Once thisis fixed remove this flag: 
+        target_compile_options(ArkReactor PUBLIC -Wno-overflow)
+    endif()
+
+    #
+    # Disable warnings about unknown warning flags and pragmas
+    if (CMAKE_COMPILER_IS_CLANG OR APPLE)
+        target_compile_options(ArkReactor PUBLIC -Wno-unknown-warning-option -Wno-unknown-pragmas)
+    endif()
+    if (CMAKE_COMPILER_IS_GNUCXX)
+        target_compile_options(ArkReactor PUBLIC -Wno-unknown-pragmas)
+
+        #
+        # The package utf8_decoder has an issues with constant overflow.
+        # Once thisis fixed remove this flag: 
+        target_compile_options(ArkReactor PUBLIC -Wno-overflow)
+    endif()
+
+    if (APPLE)
+        #
+        # The standard SSH libraries are depreciate on APPLE.
+        # Thus they currently generate a warning that we have to ignore for now.
+        # Though we should look to fix that in the future.
+        target_compile_options(ArkReactor PUBLIC -Wno-deprecated-declarations)
+    endif()
+    #
+    # The following sub-modules link with -L/usr/local/lib
+    # This causes a warning that is fatal. To prevent this
+    # we disable this warning until this issue is fixed.
+    #
+    #   lib/modules/msgpack/CMakeFiles/msgpack.dir/__/submodules/msgpack-cpp/src/objectc.c.o
+    #   lib/modules/msgpack/CMakeFiles/msgpack.dir/__/submodules/msgpack-cpp/src/version.c.o
+    #   lib/modules/msgpack/CMakeFiles/msgpack.dir/__/submodules/msgpack-cpp/src/vrefbuffer.c.o
+    #   lib/modules/msgpack/CMakeFiles/msgpack.dir/__/submodules/msgpack-cpp/src/zone.c.o
+    target_compile_options(ArkReactor
+        PUBLIC
+        -Wno-unused-command-line-argument)
+
+    # The nlohmann/json.hpp external project has unsied typedefs in the code
+    # to compensate for this error we remove the following warning.
+    if (CMAKE_COMPILER_IS_CLANG OR APPLE)
+        target_compile_options(ArkReactor PUBLIC -Wno-unused-local-typedef)
+    endif()
+    if (CMAKE_COMPILER_IS_GNUCXX)
+        target_compile_options(ArkReactor PUBLIC -Wno-unused-local-typedefs)
+    endif()
+
 elseif (MSVC)
     target_compile_options(ArkReactor
         PUBLIC
         /W4
+        /WX
         /MP4      # build multiple source files concurrently
         /EHa      # set exception model to standard C++ stack unwinding
         /wd4267   # disable warning about data loss (size_t -> int)
         /wd4244   # disable warning about data loss (size_t -> char)
-        /wd4505)  # disable warning about unused static function was deleted
+        /wd4505   # disable warning about unused static function was deleted
+        /wd4068)  # disable warnings about unknown pragmas.
 endif()
 
 # options specific to clang
@@ -138,8 +200,15 @@ if (ARK_BUILD_MODULES)
     add_subdirectory(${ark_SOURCE_DIR}/lib/modules)
 endif()
 
+set(CMAKE_VERBOSE_MAKEFILE ON)
 
 if (ARK_BUILD_EXE)
+
+    if (CMAKE_COMPILER_IS_CLANG)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++" CACHE STRING "Extra compilation options" FORCE)
+        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++abi" CACHE STRING "Linker options" FORCE)
+    endif()
+
     # additional files needed for the exe (repl, command line and stuff)
     set(EXE_SOURCES
         ${ark_SOURCE_DIR}/src/arkscript/REPL/Utils.cpp
@@ -148,6 +217,10 @@ if (ARK_BUILD_EXE)
 
     add_executable(arkscript ${EXE_SOURCES})
     add_executable(ark ${EXE_SOURCES})
+
+    if (MSVC)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4267 /wd4244")
+    endif()
 
     add_subdirectory("${ark_SOURCE_DIR}/lib/replxx" EXCLUDE_FROM_ALL)
     add_subdirectory("${ark_SOURCE_DIR}/lib/clipp" EXCLUDE_FROM_ALL)
