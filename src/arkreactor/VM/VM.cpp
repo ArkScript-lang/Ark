@@ -120,7 +120,7 @@ namespace Ark
         m_shared_lib_objects.emplace_back(lib);
 
         // load the mapping from the dynamic library
-        mapping* map;
+        mapping* map = nullptr;
         try
         {
             map = m_shared_lib_objects.back()->template get<mapping* (*)()>("getFunctionsMapping")();
