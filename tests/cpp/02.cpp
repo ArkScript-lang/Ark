@@ -35,7 +35,7 @@ int main()
     // we can also load C++ lambdas
     // we could have done this after creating the VM, it would still works
     // we just need to do that BEFORE we call vm.run()
-    state.loadFunction("foo", [](std::vector<Ark::Value>& args, Ark::VM* vm) {
+    state.loadFunction("foo", [](std::vector<Ark::Value>& args, Ark::VM* /*vm*/) {
         return Ark::Value(static_cast<int>(args.size()));
     });
 
