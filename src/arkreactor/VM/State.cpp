@@ -233,7 +233,7 @@ namespace Ark
         }
 
         using timestamp_t = unsigned long long;
-        timestamp_t timestamp = 0;
+        timestamp_t timestamp [[maybe_unused]] = 0;
         auto aa = (static_cast<timestamp_t>(m_bytecode[i]) << 56),
              ba = (static_cast<timestamp_t>(m_bytecode[++i]) << 48),
              ca = (static_cast<timestamp_t>(m_bytecode[++i]) << 40),
