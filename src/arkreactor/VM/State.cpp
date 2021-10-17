@@ -233,7 +233,7 @@ namespace Ark
         }
 
         using timestamp_t = unsigned long long;
-        timestamp_t timestamp = 0;
+        timestamp_t timestamp [[maybe_unused]] = 0;
         auto aa = (static_cast<timestamp_t>(m_bytecode[i]) << 56),
              ba = (static_cast<timestamp_t>(m_bytecode[++i]) << 48),
              ca = (static_cast<timestamp_t>(m_bytecode[++i]) << 40),
@@ -244,8 +244,6 @@ namespace Ark
              ha = (static_cast<timestamp_t>(m_bytecode[++i]));
         i++;
         timestamp = aa + ba + ca + da + ea + fa + ga + ha;
-        // Prevent compiler warnings while we get the build working.
-        ((void)timestamp);
 
         std::vector<unsigned char> hash(picosha2::k_digest_size);
         picosha2::hash256(m_bytecode.begin() + i + picosha2::k_digest_size, m_bytecode.end(), hash);
