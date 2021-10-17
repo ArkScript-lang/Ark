@@ -77,12 +77,6 @@ namespace Ark::internal
             type(type), token(tok), line(line), col(col)
         {}
 
-        /**
-         * @brief Construct a new Token object from another one
-         *
-         */
-        Token(const Token&) = default;
-        Token& operator=(const Token&) = default;
     };
 }
 
