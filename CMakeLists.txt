@@ -40,6 +40,10 @@ if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG OR APPLE)
         -Wno-unknown-warning-option     # Disable warnings about disabling warnings we have
                                         # disabled.
         )
+    #
+    # utf8decode sub-module has an outstanding pull request.
+    # https://github.com/PierrePharel/utf8_decoder/pull/13
+    target_compile_options(ArkReactor PUBLIC -Wno-unused-function)
 
     if (CMAKE_COMPILER_IS_GNUCXX)
         #
