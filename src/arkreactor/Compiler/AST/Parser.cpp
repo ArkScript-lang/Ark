@@ -205,7 +205,7 @@ namespace Ark::internal
         return atom(token);
     }
 
-    void Parser::parseIf(Node& block, Token& token, std::list<Token>& tokens, bool authorize_capture, bool authorize_field_read, bool in_macro)
+    void Parser::parseIf(Node& block, Token& token [[maybe_unused]], std::list<Token>& tokens, bool authorize_capture [[maybe_unused]], bool authorize_field_read [[maybe_unused]], bool in_macro)
     {
         auto temp = tokens.front();
         // parse condition
@@ -228,7 +228,7 @@ namespace Ark::internal
         }
     }
 
-    void Parser::parseLetMut(Node& block, Token& token, std::list<Token>& tokens, bool authorize_capture, bool authorize_field_read, bool in_macro)
+    void Parser::parseLetMut(Node& block, Token& token, std::list<Token>& tokens, bool authorize_capture [[maybe_unused]], bool authorize_field_read [[maybe_unused]], bool in_macro)
     {
         auto temp = tokens.front();
         // parse identifier
@@ -251,7 +251,7 @@ namespace Ark::internal
             "too many arguments given to keyword `" + token.token + "', got " + std::to_string(block.list().size() - 1) + ", expected at most 3", m_last_token);
     }
 
-    void Parser::parseSet(Node& block, Token& token, std::list<Token>& tokens, bool authorize_capture, bool authorize_field_read, bool in_macro)
+    void Parser::parseSet(Node& block, Token& token, std::list<Token>& tokens, bool authorize_capture [[maybe_unused]], bool authorize_field_read [[maybe_unused]], bool in_macro)
     {
         auto temp = tokens.front();
         // parse identifier
@@ -277,7 +277,7 @@ namespace Ark::internal
             "too many arguments given to keyword `" + token.token + "', got " + std::to_string(block.list().size() - 1) + ", expected at most 3", m_last_token);
     }
 
-    void Parser::parseFun(Node& block, Token& token, std::list<Token>& tokens, bool authorize_capture, bool authorize_field_read, bool in_macro)
+    void Parser::parseFun(Node& block, Token& token, std::list<Token>& tokens, bool authorize_capture [[maybe_unused]], bool authorize_field_read [[maybe_unused]], bool in_macro)
     {
         // parse arguments
         if (tokens.front().type == TokenType::Grouping || in_macro)
@@ -292,7 +292,7 @@ namespace Ark::internal
         expect(block.list().size() == 3, "got too many arguments after keyword `" + token.token + "', expected an argument list and a body", m_last_token);
     }
 
-    void Parser::parseWhile(Node& block, Token& token, std::list<Token>& tokens, bool authorize_capture, bool authorize_field_read, bool in_macro)
+    void Parser::parseWhile(Node& block, Token& token, std::list<Token>& tokens, bool authorize_capture [[maybe_unused]], bool authorize_field_read [[maybe_unused]], bool in_macro)
     {
         auto temp = tokens.front();
         // parse condition
@@ -309,7 +309,7 @@ namespace Ark::internal
         expect(block.list().size() == 3, "got too many arguments after keyword `" + token.token + "', expected a condition and a body", temp);
     }
 
-    void Parser::parseBegin(Node& block, Token& token, std::list<Token>& tokens, bool authorize_capture, bool authorize_field_read, bool in_macro)
+    void Parser::parseBegin(Node& block, Token& token [[maybe_unused]], std::list<Token>& tokens, bool authorize_capture [[maybe_unused]], bool authorize_field_read [[maybe_unused]], bool in_macro)
     {
         while (true)
         {
@@ -322,7 +322,7 @@ namespace Ark::internal
         }
     }
 
-    void Parser::parseImport(Node& block, Token& token, std::list<Token>& tokens, bool authorize_capture, bool authorize_field_read, bool in_macro)
+    void Parser::parseImport(Node& block, Token& token [[maybe_unused]], std::list<Token>& tokens, bool authorize_capture [[maybe_unused]], bool authorize_field_read [[maybe_unused]], bool in_macro [[maybe_unused]])
     {
         if (tokens.front().type == TokenType::String)
             block.push_back(atom(nextToken(tokens)));
@@ -331,13 +331,13 @@ namespace Ark::internal
         expect(tokens.front().token == ")", "got too many arguments after keyword `import', expected a single filename as String", tokens.front());
     }
 
-    void Parser::parseQuote(Node& block, Token& token, std::list<Token>& tokens, bool authorize_capture, bool authorize_field_read, bool in_macro)
+    void Parser::parseQuote(Node& block, Token& token [[maybe_unused]], std::list<Token>& tokens, bool authorize_capture [[maybe_unused]], bool authorize_field_read [[maybe_unused]], bool in_macro)
     {
         block.push_back(parse(tokens, false, false, in_macro));
         expect(tokens.front().token == ")", "got too many arguments after keyword `quote', expected a single block or value", tokens.front());
     }
 
-    void Parser::parseDel(Node& block, Token& token, std::list<Token>& tokens, bool authorize_capture, bool authorize_field_read, bool in_macro)
+    void Parser::parseDel(Node& block, Token& token [[maybe_unused]], std::list<Token>& tokens, bool authorize_capture [[maybe_unused]], bool authorize_field_read [[maybe_unused]], bool in_macro [[maybe_unused]])
     {
         if (tokens.front().type == TokenType::Identifier)
             block.push_back(atom(nextToken(tokens)));
@@ -346,7 +346,7 @@ namespace Ark::internal
         expect(tokens.front().token == ")", "got too many arguments after keyword `del', expected a single identifier", tokens.front());
     }
 
-    Node Parser::parseShorthand(Token& token, std::list<Token>& tokens, bool authorize_capture, bool authorize_field_read, bool in_macro)
+    Node Parser::parseShorthand(Token& token, std::list<Token>& tokens, bool authorize_capture [[maybe_unused]], bool authorize_field_read [[maybe_unused]], bool in_macro)
     {
         if (token.token == "'")
         {
