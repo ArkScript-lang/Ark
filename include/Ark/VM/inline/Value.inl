@@ -50,7 +50,7 @@ inline const internal::Closure& Value::closure() const
     return std::get<internal::Closure>(m_value);
 }
 
-inline const bool Value::isConst() const noexcept
+inline bool Value::isConst() const noexcept
 {
     return m_const_type & (1 << 7);
 }

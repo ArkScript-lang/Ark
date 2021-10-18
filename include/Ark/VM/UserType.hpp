@@ -66,9 +66,9 @@ namespace Ark
          */
         template <typename T>
         explicit UserType(T* data = nullptr) noexcept :
+            m_type_id(internal::type_uid<T>::value),
             m_data(static_cast<void*>(data)),
-            m_funcs(nullptr),
-            m_type_id(internal::type_uid<T>::value)
+            m_funcs(nullptr)
         {}
 
         /**

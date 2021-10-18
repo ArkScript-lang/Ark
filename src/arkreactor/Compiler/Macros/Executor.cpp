@@ -5,7 +5,11 @@
 namespace Ark::internal
 {
     MacroExecutor::MacroExecutor(MacroProcessor* macroprocessor, unsigned debug) :
-        m_macroprocessor(macroprocessor), m_debug(debug)
+        m_debug(debug),
+        m_macroprocessor(macroprocessor)
+    {}
+
+    MacroExecutor::~MacroExecutor()
     {}
 
     Node* MacroExecutor::findNearestMacro(const std::string& name)

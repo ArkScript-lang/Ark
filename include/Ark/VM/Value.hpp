@@ -24,7 +24,6 @@
 #include <array>
 
 #include <Ark/VM/Closure.hpp>
-#include <Ark/Exceptions.hpp>
 #include <Ark/VM/UserType.hpp>
 #include <Ark/Platform.hpp>
 #include <Ark/Profiling.hpp>
@@ -336,7 +335,7 @@ namespace Ark
          * @return true 
          * @return false 
          */
-        inline const bool isConst() const noexcept;
+        inline bool isConst() const noexcept;
 
         /**
          * @brief Set the Const object
