@@ -2,7 +2,7 @@
  * @file BytecodeReader.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief A bytecode disassembler for ArkScript
- * @version 0.2
+ * @version 0.3
  * @date 2020-10-27
  * 
  * @copyright Copyright (c) 2020-2021
@@ -20,11 +20,10 @@
 #include <optional>
 
 #include <Ark/Platform.hpp>
+#include <Ark/Compiler/Common.hpp>
 
 namespace Ark
 {
-    using bytecode_t = std::vector<uint8_t>;
-
     enum class BytecodeSegment
     {
         All,
@@ -33,6 +32,7 @@ namespace Ark
         Code,
         HeadersOnly
     };
+
     /**
      * @brief This class is just a helper to
      * - check if a bytecode is valid

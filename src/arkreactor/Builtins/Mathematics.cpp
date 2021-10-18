@@ -17,7 +17,7 @@ namespace Ark::internal::Builtins::Mathematics
      * =end
      * @author https://github.com/SuperFola
      */
-    Value exponential(std::vector<Value>& n, Ark::VM* vm)
+    Value exponential(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
     {
         if (n.size() != 1)
             throw std::runtime_error(MATH_ARITY("math:exp"));
@@ -37,7 +37,7 @@ namespace Ark::internal::Builtins::Mathematics
      * =end
      * @author https://github.com/SuperFola
      */
-    Value logarithm(std::vector<Value>& n, Ark::VM* vm)
+    Value logarithm(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
     {
         if (n.size() != 1)
             throw std::runtime_error(MATH_ARITY("math:log"));
@@ -59,7 +59,7 @@ namespace Ark::internal::Builtins::Mathematics
      * =end
      * @author https://github.com/SuperFola
      */
-    Value ceil_(std::vector<Value>& n, Ark::VM* vm)
+    Value ceil_(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
     {
         if (n.size() != 1)
             throw std::runtime_error(MATH_ARITY("math:ceil"));
@@ -79,7 +79,7 @@ namespace Ark::internal::Builtins::Mathematics
      * =end
      * @author https://github.com/SuperFola
      */
-    Value floor_(std::vector<Value>& n, Ark::VM* vm)
+    Value floor_(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
     {
         if (n.size() != 1)
             throw std::runtime_error(MATH_ARITY("math:floor"));
@@ -100,7 +100,7 @@ namespace Ark::internal::Builtins::Mathematics
      * =end
      * @author https://github.com/SuperFola
      */
-    Value round_(std::vector<Value>& n, Ark::VM* vm)
+    Value round_(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
     {
         if (n.size() != 1)
             throw std::runtime_error(MATH_ARITY("math:round"));
@@ -121,7 +121,7 @@ namespace Ark::internal::Builtins::Mathematics
      * =end
      * @author https://github.com/SuperFola
      */
-    Value isnan_(std::vector<Value>& n, Ark::VM* vm)
+    Value isnan_(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
     {
         if (n.size() != 1)
             throw std::runtime_error(MATH_ARITY("math:NaN?"));
@@ -141,7 +141,7 @@ namespace Ark::internal::Builtins::Mathematics
      * =end
      * @author https://github.com/SuperFola
      */
-    Value isinf_(std::vector<Value>& n, Ark::VM* vm)
+    Value isinf_(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
     {
         if (n.size() != 1)
             throw std::runtime_error(MATH_ARITY("math:Inf?"));
@@ -161,7 +161,7 @@ namespace Ark::internal::Builtins::Mathematics
      * =end
      * @author https://github.com/SuperFola
      */
-    Value cos_(std::vector<Value>& n, Ark::VM* vm)
+    Value cos_(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
     {
         if (n.size() != 1)
             throw std::runtime_error(MATH_ARITY("math:cos"));
@@ -182,7 +182,7 @@ namespace Ark::internal::Builtins::Mathematics
      * =end
      * @author https://github.com/SuperFola
      */
-    Value sin_(std::vector<Value>& n, Ark::VM* vm)
+    Value sin_(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
     {
         if (n.size() != 1)
             throw std::runtime_error(MATH_ARITY("math:sin"));
@@ -203,7 +203,7 @@ namespace Ark::internal::Builtins::Mathematics
      * =end
      * @author https://github.com/SuperFola
      */
-    Value tan_(std::vector<Value>& n, Ark::VM* vm)
+    Value tan_(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
     {
         if (n.size() != 1)
             throw std::runtime_error(MATH_ARITY("math:tan"));
@@ -223,7 +223,7 @@ namespace Ark::internal::Builtins::Mathematics
      * =end
      * @author https://github.com/SuperFola
      */
-    Value acos_(std::vector<Value>& n, Ark::VM* vm)
+    Value acos_(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
     {
         if (n.size() != 1)
             throw std::runtime_error(MATH_ARITY("math:arccos"));
@@ -243,7 +243,7 @@ namespace Ark::internal::Builtins::Mathematics
      * =end
      * @author https://github.com/SuperFola
      */
-    Value asin_(std::vector<Value>& n, Ark::VM* vm)
+    Value asin_(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
     {
         if (n.size() != 1)
             throw std::runtime_error(MATH_ARITY("math:arcsin"));
@@ -263,7 +263,7 @@ namespace Ark::internal::Builtins::Mathematics
      * =end
      * @author https://github.com/SuperFola
      */
-    Value atan_(std::vector<Value>& n, Ark::VM* vm)
+    Value atan_(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
     {
         if (n.size() != 1)
             throw std::runtime_error(MATH_ARITY("math:arctan"));
@@ -280,7 +280,7 @@ namespace Ark::internal::Builtins::Mathematics
      * @param n the Number
      * @author https://github.com/Gryfenfer97
      */
-    Value cosh_(std::vector<Value>& n, Ark::VM* vm)
+    Value cosh_(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
     {
         if (n.size() != 1)
             throw std::runtime_error(MATH_ARITY("math:cosh"));
@@ -297,7 +297,7 @@ namespace Ark::internal::Builtins::Mathematics
      * @param n the Number
      * @author https://github.com/Gryfenfer97
      */
-    Value sinh_(std::vector<Value>& n, Ark::VM* vm)
+    Value sinh_(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
     {
         if (n.size() != 1)
             throw std::runtime_error(MATH_ARITY("math:sinh"));
@@ -314,7 +314,7 @@ namespace Ark::internal::Builtins::Mathematics
      * @param n the Number
      * @author https://github.com/Gryfenfer97
      */
-    Value tanh_(std::vector<Value>& n, Ark::VM* vm)
+    Value tanh_(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
     {
         if (n.size() != 1)
             throw std::runtime_error(MATH_ARITY("math:tanh"));
@@ -331,7 +331,7 @@ namespace Ark::internal::Builtins::Mathematics
      * @param n the Number
      * @author https://github.com/Gryfenfer97
      */
-    Value acosh_(std::vector<Value>& n, Ark::VM* vm)
+    Value acosh_(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
     {
         if (n.size() != 1)
             throw std::runtime_error(MATH_ARITY("math:acosh"));
@@ -348,7 +348,7 @@ namespace Ark::internal::Builtins::Mathematics
      * @param n the Number
      * @author https://github.com/Gryfenfer97
      */
-    Value asinh_(std::vector<Value>& n, Ark::VM* vm)
+    Value asinh_(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
     {
         if (n.size() != 1)
             throw std::runtime_error(MATH_ARITY("math:asinh"));
@@ -365,7 +365,7 @@ namespace Ark::internal::Builtins::Mathematics
      * @param n the Number
      * @author https://github.com/Gryfenfer97
      */
-    Value atanh_(std::vector<Value>& n, Ark::VM* vm)
+    Value atanh_(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
     {
         if (n.size() != 1)
             throw std::runtime_error(MATH_ARITY("math:atanh"));

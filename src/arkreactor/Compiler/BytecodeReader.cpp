@@ -43,11 +43,12 @@ namespace Ark
         if (!(b.size() > 4 && b[i++] == 'a' && b[i++] == 'r' && b[i++] == 'k' && b[i++] == Instruction::NOP))
             return 0;
 
-        uint16_t major = readNumber(i);
+        // read major, minor and patch
+        readNumber(i);
         i++;
-        uint16_t minor = readNumber(i);
+        readNumber(i);
         i++;
-        uint16_t patch = readNumber(i);
+        readNumber(i);
         i++;
 
         // reading the timestamp in big endian
@@ -194,7 +195,6 @@ namespace Ark
             if (showVal || segment == BytecodeSegment::HeadersOnly)
                 os << termcolor::green << "Constants table" << termcolor::reset << " (length: " << sliceSize << ")\n";
 
-            bool showLine = true;
             for (uint16_t j = 0; j < size; ++j)
             {
                 if (auto start = sStart; auto end = sEnd)
@@ -441,6 +441,34 @@ namespace Ark
                         uint16_t value = readNumber(i);
                         if (displayLine)
                             os << "CONCAT " << termcolor::reset << "(" << value << ")\n";
+                        i++;
+                    }
+                    else if (inst == Instruction::APPEND_IN_PLACE)
+                    {
+                        uint16_t value = readNumber(i);
+                        if (displayLine)
+                            os << "APPEND_IN_PLACE " << termcolor::reset << "(" << value << ")\n";
+                        i++;
+                    }
+                    else if (inst == Instruction::CONCAT_IN_PLACE)
+                    {
+                        uint16_t value = readNumber(i);
+                        if (displayLine)
+                            os << "CONCAT_IN_PLACE " << termcolor::reset << "(" << value << ")\n";
+                        i++;
+                    }
+                    else if (inst == Instruction::POP_LIST)
+                    {
+                        uint16_t value = readNumber(i);
+                        if (displayLine)
+                            os << "POP_LIST " << termcolor::reset << "(" << value << ")\n";
+                        i++;
+                    }
+                    else if (inst == Instruction::POP_LIST_IN_PLACE)
+                    {
+                        uint16_t value = readNumber(i);
+                        if (displayLine)
+                            os << "POP_LIST_IN_PLACE " << termcolor::reset << "(" << value << ")\n";
                         i++;
                     }
                     else if (inst == Instruction::ADD)

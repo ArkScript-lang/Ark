@@ -16,7 +16,7 @@ namespace Ark::internal::Builtins::Time
      * =end
      * @author https://github.com/SuperFola
      */
-    Value timeSinceEpoch(std::vector<Value>& n, Ark::VM* vm)
+    Value timeSinceEpoch(std::vector<Value>& n [[maybe_unused]], Ark::VM* vm [[maybe_unused]])
     {
         const auto now = std::chrono::system_clock::now();
         const auto epoch = now.time_since_epoch();
