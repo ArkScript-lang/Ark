@@ -23,6 +23,7 @@ tests/cpp/ark/
 .vs/
 .idea/
 build/
+ninja/
 
 # Prerequisites
 *.d
