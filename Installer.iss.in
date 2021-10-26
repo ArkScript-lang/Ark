@@ -6,6 +6,8 @@ AppPublisherURL=https://arkscript-lang.github.io
 DefaultDirName={autopf}\ArkScript
 DefaultGroupName=ArkScript
 UninstallDisplayIcon={app}\MyProg.exe
+; Show installation directory page
+DisableDirPage=no
 Compression=lzma2
 SolidCompression=yes
 LicenseFile=LICENCE
