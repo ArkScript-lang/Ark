@@ -11,7 +11,9 @@ set(ARK_VERSION_PATCH 1)
 include(GNUInstallDirs)
 
 # configure installer.iss
-configure_file("Installer.iss.in" "${ark_SOURCE_DIR}/Installer.iss")
+configure_file(
+    ${ark_SOURCE_DIR}/Installer.iss.in
+    ${ark_SOURCE_DIR}/Installer.iss)
 
 # setting up compilations options
 
