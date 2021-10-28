@@ -6,19 +6,32 @@
 
 namespace Ark::internal
 {
-    Node Node::TrueNode = Node("true");
-    Node Node::FalseNode = Node("false");
-    Node Node::NilNode = Node("nil");
-    Node Node::ListNode = Node("list");
-
-    void Node::init() noexcept
+    // Static methods.
+    const Node& Node::getTrueNode()
     {
-        Node::TrueNode.setNodeType(NodeType::Symbol);
-        Node::FalseNode.setNodeType(NodeType::Symbol);
-        Node::NilNode.setNodeType(NodeType::Symbol);
-        Node::ListNode.setNodeType(NodeType::Symbol);
+        static const Node TrueNode { "true", NodeType::Symbol };
+        return TrueNode;
     }
 
+    const Node& Node::getFalseNode()
+    {
+        static const Node FalseNode { "false", NodeType::Symbol };
+        return FalseNode;
+    }
+
+    const Node& Node::getNilNode()
+    {
+        static const Node NilNode { "nil", NodeType::Symbol };
+        return NilNode;
+    }
+
+    const Node& Node::getListNode()
+    {
+        static const Node ListNode { "list", NodeType::Symbol };
+        return ListNode;
+    }
+
+    // Normal Methods
     Node::Node(long value) noexcept :
         m_type(NodeType::Number),
         m_value(static_cast<double>(value))
@@ -29,9 +42,13 @@ namespace Ark::internal
         m_value(value)
     {}
 
-    Node::Node(const std::string& value) noexcept :
-        m_type(NodeType::String),
+    Node::Node(const std::string& value, NodeType const& type) noexcept :
+        m_type(type),
         m_value(value)
+    {}
+
+    Node::Node(const std::string& value) noexcept :
+        Node(value, NodeType::String)
     {}
 
     Node::Node(Keyword value) noexcept :
@@ -51,6 +68,24 @@ namespace Ark::internal
         m_col(other.m_col),
         m_filename(other.m_filename)
     {}
+
+    Node& Node::operator=(Node other) noexcept
+    {
+        swap(other);
+        return *this;
+    }
+
+    void Node::swap(Node& other) noexcept
+    {
+        using std::swap;
+
+        swap(m_type, other.m_type);
+        swap(m_value, other.m_value);
+        swap(m_list, other.m_list);
+        swap(m_line, other.m_line);
+        swap(m_col, other.m_col);
+        swap(m_filename, other.m_filename);
+    }
 
     // -------------------------
 
@@ -150,6 +185,10 @@ namespace Ark::internal
           termcolor::cyan,
           termcolor::magenta });
 
+    void swap(Node& lhs, Node& rhs) noexcept
+    {
+        lhs.swap(rhs);
+    }
     std::ostream& operator<<(std::ostream& os, const Node& N) noexcept
     {
         static int index = 0;

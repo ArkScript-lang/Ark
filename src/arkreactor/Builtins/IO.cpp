@@ -109,7 +109,7 @@ namespace Ark::internal::Builtins::IO
             if (n[1].valueType() != ValueType::String)
                 throw Ark::TypeError(IO_WRITE_TE1);
 
-            auto mode = n[1].string().c_str();
+            auto mode = n[1].string();
             if (mode != "w" && mode != "a")
                 throw std::runtime_error(IO_WRITE_VE_1);
 

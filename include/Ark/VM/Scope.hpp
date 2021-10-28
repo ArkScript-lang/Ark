@@ -79,7 +79,7 @@ namespace Ark::internal
          * 
          * @return const std::size_t 
          */
-        const std::size_t size() const noexcept;
+        std::size_t size() const noexcept;
 
         friend class Ark::VM;
 
