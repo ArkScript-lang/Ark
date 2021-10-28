@@ -6,6 +6,8 @@
 - added `page_ptr(int)` in the compiler to replace `&page(int)`
 - added literals `_u8` and `_u16`
 - added table overflow detection in the compiler, to avoid creating unusable bytecode (checks if the symbols/values table is full or not)
+- new Installer.iss (inno setup script) to generate a Windows installer
+- new exceptions for type errors
 
 ### Changed
 - using `doc_formatting.first_column` instead of `doc_formatting.start_column` when displaying the CLI help
@@ -19,6 +21,7 @@
 - the parser is now an internal class
 - the AST Optimizer was moved to `Compiler/AST`
 - changed the ARKSCRIPT_PATH to be a collection of paths to look into, separated by `;`
+- updating replxx to avoid a bug when compiling with clang
 
 ### Removed
 - removed `ARK_SCOPE_DICHOTOMY` flag so that scopes don't use dichotomic search but a linear one, since it proved to be faster on small sets of values. This goes toward prioritizing small functions, and code being cut in multiple smaller scopes

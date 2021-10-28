@@ -10,6 +10,9 @@ set(ARK_VERSION_PATCH 1)
 # Uses GNU Install directory variables
 include(GNUInstallDirs)
 
+# configure installer.is
+configure_file("Installer.iss.in" "${CMAKE_SOURCE_DIR}/Installer.iss")
+
 # setting up compilations options
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
@@ -34,33 +37,26 @@ set_target_properties(
 if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG OR APPLE)
     target_compile_options(ArkReactor
         PUBLIC
-        -Wall -Wextra -pedantic -Wstrict-aliasing -Werror
+        -Wall -Wextra -pedantic -Wstrict-aliasing
         -Wno-unknown-pragmas            # We use pragmas to disable warnings we understand.
                                         # So we need to disable the warning about pragmas.
         -Wno-unknown-warning-option     # Disable warnings about disabling warnings we have
                                         # disabled.
         )
-    #
-    # utf8decode sub-module has an outstanding pull request.
-    # https://github.com/PierrePharel/utf8_decoder/pull/13
-    target_compile_options(ArkReactor PUBLIC -Wno-unused-function)
 
     if (CMAKE_COMPILER_IS_GNUCXX)
-        #
         # The package utf8_decoder has an issues with constant overflow.
         # Once thisis fixed remove this flag: 
         target_compile_options(ArkReactor PUBLIC -Wno-overflow)
     endif()
 
     if (APPLE)
-        #
         # The standard SSH libraries are depreciate on APPLE.
         # Thus they currently generate a warning that we have to ignore for now.
         # Though we should look to fix that in the future.
         target_compile_options(ArkReactor PUBLIC -Wno-deprecated-declarations)
     endif()
 
-    #
     # The following sub-modules link with -L/usr/local/lib
     # This causes a warning that is fatal. To prevent this
     # we disable this warning until this issue is fixed.
@@ -85,19 +81,12 @@ elseif (MSVC)
     target_compile_options(ArkReactor
         PUBLIC
         /W4
-        /WX
         /MP4      # build multiple source files concurrently
         /EHa      # set exception model to standard C++ stack unwinding
         /wd4267   # disable warning about data loss (size_t -> int)
         /wd4244   # disable warning about data loss (size_t -> char)
         /wd4505   # disable warning about unused static function was deleted
         /wd4068)  # disable warnings about unknown pragmas.
-endif()
-
-# options specific to clang
-if (CMAKE_COMPILER_IS_CLANG)
-    target_compile_options(ArkReactor PUBLIC -Wunreachable-code -Wdeprecated -stdlib=libc++)
-    target_link_options(ArkReactor PUBLIC -stdlib=libc++ -lc++abi)
 endif()
 
 # Link libraries
@@ -194,15 +183,6 @@ if (ARK_BUILD_MODULES)
 endif()
 
 if (ARK_BUILD_EXE)
-
-    if (CMAKE_COMPILER_IS_CLANG)
-        #
-        # This should probably be converted to use targets.
-        # I could not get it to work for these executables.
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++" CACHE STRING "Extra compilation options" FORCE)
-        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++abi" CACHE STRING "Linker options" FORCE)
-    endif()
-
     # additional files needed for the exe (repl, command line and stuff)
     set(EXE_SOURCES
         ${ark_SOURCE_DIR}/src/arkscript/REPL/Utils.cpp
