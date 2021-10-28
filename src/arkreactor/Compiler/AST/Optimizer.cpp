@@ -30,7 +30,7 @@ namespace Ark::internal
         if (m_ast.nodeType() != NodeType::List)
             return;
 
-        runOnGlobalScopeVars(m_ast, [this](Node& node, Node& parent, int idx) {
+        runOnGlobalScopeVars(m_ast, [this](Node& node, Node& parent [[maybe_unused]], int idx [[maybe_unused]]) {
             m_sym_appearances[node.constList()[1].string()] = 0;
         });
         countOccurences(m_ast);

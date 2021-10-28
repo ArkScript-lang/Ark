@@ -43,7 +43,7 @@ namespace Ark::internal
         return static_cast<uint16_t>(~0);
     }
 
-    const std::size_t Scope::size() const noexcept
+    std::size_t Scope::size() const noexcept
     {
         return m_data.size();
     }

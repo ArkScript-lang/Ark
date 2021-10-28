@@ -2,8 +2,10 @@
 #include <iostream>
 #include <optional>
 #include <filesystem>
+#include <limits>
 
 #include <clipp.h>
+#define NOMINMAX
 #include <termcolor/termcolor.hpp>
 
 #include <Ark/Ark.hpp>
@@ -42,9 +44,9 @@ int main(int argc, char** argv)
 
     unsigned debug = 0;
 
-    uint16_t bcr_page = ~0,
-             bcr_start = ~0,
-             bcr_end = ~0;
+    uint16_t bcr_page = std::numeric_limits<uint16_t>::max();
+    uint16_t bcr_start = std::numeric_limits<uint16_t>::max();
+    uint16_t bcr_end = std::numeric_limits<uint16_t>::max();
     Ark::BytecodeSegment segment = Ark::BytecodeSegment::All;
 
     std::vector<std::string> wrong, script_args;
@@ -240,7 +242,7 @@ int main(int argc, char** argv)
 
             case mode::bytecode_reader:
             {
-                uint16_t not_0 = ~0;
+                uint16_t not_0 = static_cast<uint16_t>(~0);
                 try
                 {
                     Ark::BytecodeReader bcr;
