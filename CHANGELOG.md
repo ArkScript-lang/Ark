@@ -6,6 +6,7 @@
 - added `page_ptr(int)` in the compiler to replace `&page(int)`
 - added literals `_u8` and `_u16`
 - added table overflow detection in the compiler, to avoid creating unusable bytecode (checks if the symbols/values table is full or not)
+- new Installer.iss (inno setup script) to generate a Windows installer
 - new exceptions for type errors
 
 ### Changed
