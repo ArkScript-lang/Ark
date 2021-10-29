@@ -18,7 +18,7 @@ namespace Ark
     using namespace literals;
 
     Compiler::Compiler(unsigned debug, const std::vector<std::string>& libenv, uint16_t options) :
-        m_parser(debug, options, libenv), m_optimizer(options),
+        m_parser(debug, options, libenv), m_optimizer(debug, options),
         m_options(options), m_debug(debug)
     {}
 

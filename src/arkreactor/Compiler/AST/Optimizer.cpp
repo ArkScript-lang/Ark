@@ -2,8 +2,8 @@
 
 namespace Ark::internal
 {
-    Optimizer::Optimizer(uint16_t options) noexcept :
-        m_options(options)
+    Optimizer::Optimizer(unsigned debug, uint16_t options) noexcept :
+        m_debug(debug), m_options(options)
     {}
 
     void Optimizer::feed(const Node& ast)

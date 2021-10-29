@@ -35,7 +35,7 @@ namespace Ark::internal
          * @brief Construct a new Optimizer
          * 
          */
-        explicit Optimizer(uint16_t options) noexcept;
+        Optimizer(unsigned debug, uint16_t options) noexcept;
 
         /**
          * @brief Send the AST to the optimizer, then run the different optimization strategies on it
@@ -53,6 +53,7 @@ namespace Ark::internal
 
     private:
         Node m_ast;
+        unsigned m_debug;
         uint16_t m_options;
         std::unordered_map<std::string, unsigned> m_sym_appearances;
 
