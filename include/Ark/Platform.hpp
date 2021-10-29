@@ -45,4 +45,10 @@
 #    define ARK_API
 #endif
 
+#ifdef ARK_OS_WINDOWS
+#    define ARK_API_INLINE ARK_API
+#else
+#    define ARK_API_INLINE ARK_API inline
+#endif
+
 #endif

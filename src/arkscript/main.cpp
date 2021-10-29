@@ -1,8 +1,10 @@
 #include <iostream>
 #include <optional>
 #include <filesystem>
+#include <limits>
 
 #include <clipp.h>
+#define NOMINMAX
 #include <termcolor/termcolor.hpp>
 #include <spdlog/spdlog.h>
 
@@ -38,18 +40,20 @@ int main(int argc, char** argv)
     uint16_t options = Ark::DefaultFeatures;
 
     std::string file = "",
-                lib_dir = "?",
                 eval_expresion = "";
 
     unsigned debug = 0;
-    constexpr uint16_t not_0 = static_cast<uint16_t>(~0);
+    constexpr uint16_t not_0 = std::numeric_limits<uint16_t>::max();
 
-    uint16_t bcr_page = not_0,
-             bcr_start = not_0,
-             bcr_end = not_0;
+    uint16_t bcr_page = not_0;
+    uint16_t bcr_start = not_0;
+    uint16_t bcr_end = not_0;
     Ark::BytecodeSegment segment = Ark::BytecodeSegment::All;
 
     std::vector<std::string> wrong, script_args;
+
+    std::string libdir = "";
+    std::vector<std::string> libenv;
 
     // clang-format off
     auto cli = (
@@ -95,7 +99,7 @@ int main(int argc, char** argv)
                 // shouldn't change now, the lib option is fine and working
                 (
                     option("-L", "--lib").doc("Set the location of the ArkScript standard library")
-                    & value("lib_dir", lib_dir)
+                    & value("lib_dir", libdir)
                 )
             )
             , any_other(script_args)
@@ -116,6 +120,9 @@ int main(int argc, char** argv)
     {
         using namespace Ark;
 
+        if (!libdir.empty())
+            libenv.push_back(libdir);
+
         switch (selected)
         {
             case mode::help:
@@ -132,7 +139,7 @@ int main(int argc, char** argv)
 
             case mode::dev_info:
             {
-                spdlog::info(
+                spdlog::debug(
                     "Have been compiled with {}, options: {}\n\n"
                     "sizeof(Ark::Value)    = {}B\n"
                     "      sizeof(Value_t) = {}B\n"
@@ -172,13 +179,13 @@ int main(int argc, char** argv)
             case mode::repl:
             {
                 // send default features without FeatureRemoveUnusedVars to avoid deleting code which will be used later on
-                Ark::Repl repl(Ark::DefaultFeatures & ~Ark::FeatureRemoveUnusedVars, lib_dir);
+                Ark::Repl repl(Ark::DefaultFeatures & ~Ark::FeatureRemoveUnusedVars, libenv);
                 return repl.run();
             }
 
             case mode::compile:
             {
-                Ark::State state(options, lib_dir);
+                Ark::State state(options, libenv);
                 state.setDebug(debug);
 
                 if (!state.doFile(file))
@@ -189,7 +196,7 @@ int main(int argc, char** argv)
 
             case mode::run:
             {
-                Ark::State state(options, lib_dir);
+                Ark::State state(options, libenv);
                 state.setDebug(debug);
                 state.setArgs(script_args);
 
@@ -200,7 +207,7 @@ int main(int argc, char** argv)
                 int out = vm.run();
 
 #ifdef ARK_PROFILER_COUNT
-                spdlog::info(
+                spdlog::debug(
                     "Value\n"
                     "=====\n"
                     "\tCreations: {}\n\tCopies: {}\n\tMoves: {}\n\n\tCopy coeff: {}",
@@ -215,7 +222,7 @@ int main(int argc, char** argv)
 
             case mode::eval:
             {
-                Ark::State state(options, lib_dir);
+                Ark::State state(options, libenv);
                 state.setDebug(debug);
 
                 if (!state.doString(eval_expresion))

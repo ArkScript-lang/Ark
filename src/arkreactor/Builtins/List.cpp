@@ -131,11 +131,11 @@ namespace Ark::internal::Builtins::List
 
         if (start > end)
             throw std::runtime_error(LIST_SLICE_ORDER);
-        if (start < 0 || end > n[0].list().size())
+        if (start < 0 || static_cast<std::size_t>(end) > n[0].list().size())
             throw std::runtime_error(LIST_SLICE_OOR);
 
         std::vector<Value> retlist;
-        for (std::size_t i = start; i < end; i += step)
+        for (long i = start; i < end; i += step)
             retlist.push_back(n[0].list()[i]);
 
         return Value(std::move(retlist));

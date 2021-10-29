@@ -16,17 +16,15 @@
 
 namespace Ark::internal
 {
-    using Inst_t = uint8_t;
-
     /**
      * @brief The different bytecodes are stored here
      * @par Adding an operator
-     * It must be referenced as well under src/VM/Builtins/Builtins.cpp, in
+     * It must be referenced as well under include/Ark/Compiler/Common.hpp, in
      * the operators table. The order of the operators below <code>FIRST_OPERATOR</code>
      * must be the same as the one in the operators table from the aforementioned file.
      * 
      */
-    enum Instruction : Inst_t
+    enum Instruction : uint8_t
     {
         NOP = 0x00,
         SYM_TABLE_START = 0x01,

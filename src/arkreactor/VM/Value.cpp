@@ -60,51 +60,51 @@ namespace Ark
 #endif
 
     Value::Value(int value) noexcept :
-        m_value(static_cast<double>(value)), m_const_type(init_const_type(false, ValueType::Number))
+        m_const_type(init_const_type(false, ValueType::Number)), m_value(static_cast<double>(value))
     {}
 
     Value::Value(float value) noexcept :
-        m_value(static_cast<double>(value)), m_const_type(init_const_type(false, ValueType::Number))
+        m_const_type(init_const_type(false, ValueType::Number)), m_value(static_cast<double>(value))
     {}
 
     Value::Value(double value) noexcept :
-        m_value(value), m_const_type(init_const_type(false, ValueType::Number))
+        m_const_type(init_const_type(false, ValueType::Number)), m_value(value)
     {}
 
     Value::Value(const std::string& value) noexcept :
-        m_value(value.c_str()), m_const_type(init_const_type(false, ValueType::String))
+        m_const_type(init_const_type(false, ValueType::String)), m_value(value.c_str())
     {}
 
     Value::Value(const String& value) noexcept :
-        m_value(value), m_const_type(init_const_type(false, ValueType::String))
+        m_const_type(init_const_type(false, ValueType::String)), m_value(value)
     {}
 
     Value::Value(const char* value) noexcept :
-        m_value(value), m_const_type(init_const_type(false, ValueType::String))
+        m_const_type(init_const_type(false, ValueType::String)), m_value(value)
     {}
 
     Value::Value(internal::PageAddr_t value) noexcept :
-        m_value(value), m_const_type(init_const_type(false, ValueType::PageAddr))
+        m_const_type(init_const_type(false, ValueType::PageAddr)), m_value(value)
     {}
 
     Value::Value(Value::ProcType value) noexcept :
-        m_value(value), m_const_type(init_const_type(false, ValueType::CProc))
+        m_const_type(init_const_type(false, ValueType::CProc)), m_value(value)
     {}
 
     Value::Value(std::vector<Value>&& value) noexcept :
-        m_value(value), m_const_type(init_const_type(false, ValueType::List))
+        m_const_type(init_const_type(false, ValueType::List)), m_value(value)
     {}
 
     Value::Value(internal::Closure&& value) noexcept :
-        m_value(value), m_const_type(init_const_type(false, ValueType::Closure))
+        m_const_type(init_const_type(false, ValueType::Closure)), m_value(value)
     {}
 
     Value::Value(UserType&& value) noexcept :
-        m_value(value), m_const_type(init_const_type(false, ValueType::User))
+        m_const_type(init_const_type(false, ValueType::User)), m_value(value)
     {}
 
     Value::Value(Value* ref) noexcept :
-        m_value(ref), m_const_type(init_const_type(true, ValueType::Reference))
+        m_const_type(init_const_type(true, ValueType::Reference)), m_value(ref)
     {}
 
     // --------------------------

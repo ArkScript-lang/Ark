@@ -82,8 +82,8 @@ namespace Ark::internal
          */
         inline PageAddr_t pageAddr() const { return m_page_addr; }
 
-        friend ARK_API inline bool operator==(const Closure& A, const Closure& B) noexcept;
-        friend ARK_API inline bool operator<(const Closure& A, const Closure& B) noexcept;
+        friend ARK_API_INLINE bool operator==(const Closure& A, const Closure& B) noexcept;
+        friend ARK_API_INLINE bool operator<(const Closure& A, const Closure& B) noexcept;
         friend ARK_API std::ostream& operator<<(std::ostream& os, const Closure& C) noexcept;
 
     private:

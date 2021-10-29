@@ -11,6 +11,7 @@ include/Ark/Constants.hpp
 __arkscript__/
 *.arkc
 *.arkm
+/Installer.iss
 
 # Tests results
 tests/cpp/out/
@@ -23,6 +24,7 @@ tests/cpp/ark/
 .vs/
 .idea/
 build/
+ninja/
 
 # Prerequisites
 *.d

@@ -24,7 +24,6 @@
 #include <array>
 
 #include <Ark/VM/Closure.hpp>
-#include <Ark/Exceptions.hpp>
 #include <Ark/VM/UserType.hpp>
 #include <Ark/Platform.hpp>
 #include <Ark/Profiling.hpp>
@@ -290,9 +289,9 @@ namespace Ark
         void push_back(Value&& value);
 
         friend ARK_API std::ostream& operator<<(std::ostream& os, const Value& V) noexcept;
-        friend ARK_API inline bool operator==(const Value& A, const Value& B) noexcept;
-        friend ARK_API inline bool operator<(const Value& A, const Value& B) noexcept;
-        friend ARK_API inline bool operator!(const Value& A) noexcept;
+        friend ARK_API_INLINE bool operator==(const Value& A, const Value& B) noexcept;
+        friend ARK_API_INLINE bool operator<(const Value& A, const Value& B) noexcept;
+        friend ARK_API_INLINE bool operator!(const Value& A) noexcept;
 
         friend class Ark::VM;
 
@@ -336,7 +335,7 @@ namespace Ark
          * @return true 
          * @return false 
          */
-        inline const bool isConst() const noexcept;
+        inline bool isConst() const noexcept;
 
         /**
          * @brief Set the Const object
