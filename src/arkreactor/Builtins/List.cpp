@@ -18,7 +18,7 @@ namespace Ark::internal::Builtins::List
      * =end
      * @author https://github.com/SuperFola
      */
-    Value reverseList(std::vector<Value>& n, Ark::VM* vm)
+    Value reverseList(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
     {
         if (n[0].valueType() != ValueType::List)
             throw Ark::TypeError(LIST_REVERSE_ARITY);
@@ -42,7 +42,7 @@ namespace Ark::internal::Builtins::List
      * =end
      * @author https://github.com/SuperFola
      */
-    Value findInList(std::vector<Value>& n, Ark::VM* vm)
+    Value findInList(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
     {
         if (n.size() != 2)
             throw std::runtime_error(LIST_FIND_ARITY);
@@ -71,7 +71,7 @@ namespace Ark::internal::Builtins::List
      * =end
      * @author https://github.com/SuperFola
      */
-    Value removeAtList(std::vector<Value>& n, Ark::VM* vm)
+    Value removeAtList(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
     {
         static bool has_warned = false;
         if (!has_warned)
@@ -108,7 +108,7 @@ namespace Ark::internal::Builtins::List
      * =end
      * @author https://github.com/SuperFola
      */
-    Value sliceList(std::vector<Value>& n, Ark::VM* vm)
+    Value sliceList(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
     {
         if (n.size() != 4)
             throw std::runtime_error(LIST_SLICE_ARITY);
@@ -130,11 +130,11 @@ namespace Ark::internal::Builtins::List
 
         if (start > end)
             throw std::runtime_error(LIST_SLICE_ORDER);
-        if (start < 0 || end > n[0].list().size())
+        if (start < 0 || static_cast<std::size_t>(end) > n[0].list().size())
             throw std::runtime_error(LIST_SLICE_OOR);
 
         std::vector<Value> retlist;
-        for (std::size_t i = start; i < end; i += step)
+        for (long i = start; i < end; i += step)
             retlist.push_back(n[0].list()[i]);
 
         return Value(std::move(retlist));
@@ -150,7 +150,7 @@ namespace Ark::internal::Builtins::List
      * =end
      * @author https://github.com/SuperFola
      */
-    Value sort_(std::vector<Value>& n, Ark::VM* vm)
+    Value sort_(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
     {
         if (n.size() != 1)
             throw std::runtime_error(LIST_SORT_ARITY);
@@ -171,7 +171,7 @@ namespace Ark::internal::Builtins::List
      * =end
      * @author https://github.com/SuperFola
      */
-    Value fill(std::vector<Value>& n, Ark::VM* vm)
+    Value fill(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
     {
         if (n.size() != 2)
             throw std::runtime_error(LIST_FILL_ARITY);
@@ -198,7 +198,7 @@ namespace Ark::internal::Builtins::List
      * =end
      * @author https://github.com/SuperFola
      */
-    Value setListAt(std::vector<Value>& n, Ark::VM* vm)
+    Value setListAt(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
     {
         if (n.size() != 3)
             throw std::runtime_error(LIST_SETAT_ARITY);

@@ -5,21 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "(Win) Macros",
-            "type": "cppvsdbg",
-            "request": "launch",
-            "program": "${command:cmake.launchTargetPath}",
-            "symbolSearchPath": "${workspaceFolder}/build/Debug/",
-            "args": ["examples/macros/argcount.ark", "-ddd"],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}",
-            "environment": [
-                {"name": "ARKSCRIPT_PATH", "value": "${workspaceFolder}/"}
-            ],
-            "console": "externalTerminal"
-        },
-        {
-            "name": "(Win) Launch",
+            "name": "(Win) Unit Tests",
             "type": "cppvsdbg",
             "request": "launch",
             "program": "${command:cmake.launchTargetPath}",
@@ -27,9 +13,22 @@
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [
-                {"name": "ARKSCRIPT_PATH", "value": "${workspaceFolder}/"}
+                {"name": "ARKSCRIPT_PATH", "value": "${workspaceFolder}/;${workspaceFolder}/lib/std;${workspaceFolder}/lib"}
             ],
-            "console": "internalConsole"
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "(Win) Lib tests",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${command:cmake.launchTargetPath}",
+            "args": ["lib/std/tests/all.ark"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [
+                {"name": "ARKSCRIPT_PATH", "value": "${workspaceFolder}/;${workspaceFolder}/lib/std;${workspaceFolder}/lib"}
+            ],
+            "console": "integratedTerminal"
         }
     ]
 }
