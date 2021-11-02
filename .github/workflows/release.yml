@@ -24,24 +24,24 @@ jobs:
         with:
           workflow: ci.yml
           branch: dev
-          name: linux-gcc-9
-          path: ark-linux-gcc-9
+          name: ubuntu-gcc-9
+          path: ark-ubuntu-gcc-9
 
       - name: Download artifact Linux GCC 8
         uses: dawidd6/action-download-artifact@v2
         with:
           workflow: ci.yml
           branch: dev
-          name: linux-gcc-8
-          path: ark-linux-gcc-8
+          name: ubuntu-gcc-8
+          path: ark-ubuntu-gcc-8
 
       - name: Download artifact Linux Clang 10
         uses: dawidd6/action-download-artifact@v2
         with:
           workflow: ci.yml
           branch: dev
-          name: linux-clang-10
-          path: ark-linux-clang-10
+          name: ubuntu-clang-10
+          path: ark-ubuntu-clang-10
 
       - name: Download artifact Windows MSVC 19
         uses: dawidd6/action-download-artifact@v2
@@ -127,8 +127,8 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./linux-gcc-8.zip
-          asset_name: linux-gcc-8.zip
+          asset_path: ./ubuntu-gcc-8.zip
+          asset_name: ubuntu-gcc-8.zip
           asset_content_type: application/zip
 
       - name: Upload artifact
@@ -137,8 +137,8 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./linux-gcc-9.zip
-          asset_name: linux-gcc-9.zip
+          asset_path: ./ubuntu-gcc-9.zip
+          asset_name: ubuntu-gcc-9.zip
           asset_content_type: application/zip
 
       - name: Upload artifact
@@ -147,8 +147,8 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./linux-clang-10.zip
-          asset_name: linux-clang-10.zip
+          asset_path: ./ubuntu-clang-10.zip
+          asset_name: ubuntu-clang-10.zip
           asset_content_type: application/zip
 
       - name: Upload artifact
