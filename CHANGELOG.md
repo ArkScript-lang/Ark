@@ -1,6 +1,13 @@
 # Change Log
 
-## [Unreleased changes]
+## [Unreleased]
+### Added
+
+### Changed
+
+### Removed
+
+## [3.1.2] - 2021-11-02
 ### Added
 - adding support for append_in_place, concat_in_place, pop_list and pop_list_in_place in the bytecode reader
 - added `page_ptr(int)` in the compiler to replace `&page(int)`
