@@ -117,18 +117,8 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./macos-clang.zip
-          asset_name: macos-clang.zip
-          asset_content_type: application/zip
-
-      - name: Upload artifact
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./ubuntu-gcc-8.zip
-          asset_name: ubuntu-gcc-8.zip
+          asset_name: linux-gcc-8.zip
           asset_content_type: application/zip
 
       - name: Upload artifact
@@ -138,7 +128,7 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./ubuntu-gcc-9.zip
-          asset_name: ubuntu-gcc-9.zip
+          asset_name: linux-gcc-9.zip
           asset_content_type: application/zip
 
       - name: Upload artifact
@@ -148,7 +138,7 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./ubuntu-clang-10.zip
-          asset_name: ubuntu-clang-10.zip
+          asset_name: linux-clang-10.zip
           asset_content_type: application/zip
 
       - name: Upload artifact
@@ -177,9 +167,9 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./macos-clang-12.zip
-          asset_name: macos-clang-12.zip
-          asset_content_type: application/zip
+          asset_path: ./ark-windows-installer/arkscript.exe
+          asset_name: windows-installer.exe
+          asset_content_type: application/vnd.microsoft.portable-executable
 
       - name: Upload artifact
         uses: actions/upload-release-asset@v1
@@ -187,6 +177,6 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./windows-installer.zip
-          asset_name: windows-installer.zip
+          asset_path: ./macos-clang-12.zip
+          asset_name: macos-clang-12.zip
           asset_content_type: application/zip
