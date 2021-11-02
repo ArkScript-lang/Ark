@@ -16,6 +16,7 @@ on:
       - 'images/*.*'
       - '*.md'
       - 'Dockerfile'
+      - '.dockerignore'
       - 'LICENCE'
       - '.gitignore'
   pull_request:
