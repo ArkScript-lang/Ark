@@ -1,0 +1,44 @@
+BasedOnStyle: WebKit
+
+AlignAfterOpenBracket: Align
+AlignTrailingComments: true
+
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortIfStatementsOnASingleLine: true
+AllowShortLambdasOnASingleLine: Empty
+AllowShortFunctionsOnASingleLine: true
+
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterClass: true
+  AfterCaseLabel: true
+  AfterControlStatement: true
+  AfterEnum: true
+  AfterFunction: true
+  AfterNamespace: true
+  AfterStruct: true
+  BeforeCatch: true
+  BeforeElse: true
+  BeforeLambdaBody: false
+  SplitEmptyFunction: false
+  SplitEmptyRecord: false
+  SplitEmptyNamespace: false
+
+BreakBeforeBinaryOperators: None
+BreakConstructorInitializers: AfterColon
+
+ColumnLimit: 0
+
+IndentPPDirectives: AfterHash
+IndentCaseLabels: true
+
+MaxEmptyLinesToKeep: 2
+NamespaceIndentation: All
+
+SortIncludes: false
+
+SpaceInEmptyBlock: false
+SpacesBeforeTrailingComments: 2
+
+UseTab: Never
+TabWidth: 4

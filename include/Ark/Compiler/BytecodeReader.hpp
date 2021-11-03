@@ -2,7 +2,7 @@
  * @file BytecodeReader.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief A bytecode disassembler for ArkScript
- * @version 0.2
+ * @version 0.3
  * @date 2020-10-27
  * 
  * @copyright Copyright (c) 2020-2021
@@ -19,26 +19,27 @@
 #include <cinttypes>
 #include <optional>
 
-#include <Ark/Config.hpp>
+#include <Ark/Platform.hpp>
+#include <Ark/Compiler/Common.hpp>
 
 namespace Ark
 {
-    using bytecode_t = std::vector<uint8_t>;
-
-    enum class BytecodeSegment {
+    enum class BytecodeSegment
+    {
         All,
         Symbols,
         Values,
         Code,
         HeadersOnly
     };
+
     /**
      * @brief This class is just a helper to
      * - check if a bytecode is valid
      * - display it in a human readable way by using the opcode names
      * 
      */
-    class ARK_API_EXPORT BytecodeReader
+    class ARK_API BytecodeReader
     {
     public:
         /**

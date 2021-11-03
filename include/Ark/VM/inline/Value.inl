@@ -10,47 +10,47 @@ inline bool Value::isFunction() const noexcept  // if it's a function we can res
 {
     auto type = valueType();
     return type == ValueType::PageAddr || type == ValueType::Closure || type == ValueType::CProc ||
-            (type == ValueType::Reference && reference()->isFunction());
+        (type == ValueType::Reference && reference()->isFunction());
 }
 
 inline double Value::number() const
 {
-    return variant_get<double>(m_value);
+    return std::get<double>(m_value);
 }
 
 inline const String& Value::string() const
 {
-    return variant_get<String>(m_value);
+    return std::get<String>(m_value);
 }
 
 inline const std::vector<Value>& Value::constList() const
 {
-    return variant_get<std::vector<Value>>(m_value);
+    return std::get<std::vector<Value>>(m_value);
 }
 
 inline const UserType& Value::usertype() const
 {
-    return variant_get<UserType>(m_value);
+    return std::get<UserType>(m_value);
 }
 
 // private getters
 
 inline internal::PageAddr_t Value::pageAddr() const
 {
-    return variant_get<internal::PageAddr_t>(m_value);
+    return std::get<internal::PageAddr_t>(m_value);
 }
 
 inline const Value::ProcType& Value::proc() const
 {
-    return variant_get<Value::ProcType>(m_value);
+    return std::get<Value::ProcType>(m_value);
 }
 
 inline const internal::Closure& Value::closure() const
 {
-    return variant_get<internal::Closure>(m_value);
+    return std::get<internal::Closure>(m_value);
 }
 
-inline const bool Value::isConst() const noexcept
+inline bool Value::isConst() const noexcept
 {
     return m_const_type & (1 << 7);
 }

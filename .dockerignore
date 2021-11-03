@@ -4,8 +4,6 @@
 !include
 !lib
 !src
-!submodules
-!thirdparties
 !.gitmodules
 !CMakeLists.txt
-!docker-entrypoint.sh
+!Installer.iss.in

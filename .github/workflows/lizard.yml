@@ -1,0 +1,33 @@
+name: Lizard PR reporter
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  lizard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+
+      - run: pip install lizard
+
+      - name: Create lizard report
+        id: lizard
+        shell: bash
+        run: |
+          content=$(python .github/launch-lizard.py)
+          content="${content//'%'/'%25'}"
+          content="${content//$'\n'/'%0A'}"
+          content="${content//$'\r'/'%0D'}"
+          echo ::set-output name=report::$content
+
+      - uses: actions-ecosystem/action-create-comment@v1
+        if: ${{ startsWith(github.event.comment.body, '/lizard') && github.event.issue.pull_request }}
+        with:
+          github_token: ${{ secrets.github_token }}
+          body: ${{ steps.lizard.outputs.report }}

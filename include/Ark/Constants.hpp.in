@@ -12,44 +12,42 @@
 #ifndef INCLUDE_ARK_CONSTANTS_HPP_IN
 #define INCLUDE_ARK_CONSTANTS_HPP_IN
 
+// clang-format off
 constexpr int ARK_VERSION_MAJOR = @ARK_VERSION_MAJOR@;
 constexpr int ARK_VERSION_MINOR = @ARK_VERSION_MINOR@;
 constexpr int ARK_VERSION_PATCH = @ARK_VERSION_PATCH@;
+// clang-format on
 constexpr int ARK_VERSION = (ARK_VERSION_MAJOR << 16) + (ARK_VERSION_MINOR << 8) + ARK_VERSION_PATCH;
-constexpr char ARK_VERSION_STR[3] = {ARK_VERSION_MAJOR + '0', ARK_VERSION_MINOR + '0', ARK_VERSION_PATCH + '0'};
+constexpr char ARK_VERSION_STR[4] = { ARK_VERSION_MAJOR + '0', ARK_VERSION_MINOR + '0', ARK_VERSION_PATCH + '0', 0x00 };
 
-#define ARK_COMPILATION_OPTIONS "@ARK_COMPILATION_OPTIONS@"
-#define ARK_COMPILER "@ARK_COMPILER@"
+#define ARK_COMPILATION_OPTIONS "@CMAKE_CXX_FLAGS@"
+#define ARK_COMPILER "@CMAKE_CXX_COMPILER_ID@"
 #define ARK_CACHE_DIRNAME "__arkscript__"
 #define ARK_NO_NAME_FILE "FILE"
 
 #if defined(_WIN32) || defined(_WIN64)
-    #define ARK_PLATFORM_NAME "Windows"
+#    define ARK_PLATFORM_NAME "Windows"
 #elif defined(__APPLE__) || defined(__MACH__)
-    #define ARK_PLATFORM_NAME "Mac OSX"
+#    define ARK_PLATFORM_NAME "Mac OSX"
 #elif defined(__linux__)
-    #define ARK_PLATFORM_NAME "Linux"
+#    define ARK_PLATFORM_NAME "Linux"
 #elif defined(__FreeBSD__)
-    #define ARK_PLATFORM_NAME "FreeBSD"
+#    define ARK_PLATFORM_NAME "FreeBSD"
 #elif defined(__unix) || defined(__unix__)
-    #define ARK_PLATFORM_NAME "Unix"
+#    define ARK_PLATFORM_NAME "Unix"
 #else
-    #define ARK_PLATFORM_NAME "Other"
+#    define ARK_PLATFORM_NAME "Other"
 #endif
 
 #include <cinttypes>
 
 namespace Ark
 {
-    // VM options
-    constexpr uint16_t FeatureFunctionArityCheck = 1 << 1;
     // Compiler options
-    constexpr uint16_t FeatureRemoveUnusedVars   = 1 << 4;
+    constexpr uint16_t FeatureRemoveUnusedVars = 1 << 4;
 
     // Default features for the VM x Compiler x Parser
-    constexpr uint16_t DefaultFeatures =
-        FeatureFunctionArityCheck
-        | FeatureRemoveUnusedVars;
+    constexpr uint16_t DefaultFeatures = FeatureRemoveUnusedVars;
 }
 
 #endif

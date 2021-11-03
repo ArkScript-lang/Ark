@@ -12,16 +12,16 @@
 #ifndef ARK_VM_PLUGIN_HPP
 #define ARK_VM_PLUGIN_HPP
 
-#include <Ark/Config.hpp>
+#include <Ark/Platform.hpp>
 
 #if defined(ARK_OS_WINDOWS)
-    // do not include winsock.h
-    #define WIN32_LEAN_AND_MEAN
-    #include <Windows.h>
+// do not include winsock.h
+#    define WIN32_LEAN_AND_MEAN
+#    include <Windows.h>
 #elif defined(ARK_OS_LINUX)
-    #include <dlfcn.h>
+#    include <dlfcn.h>
 #else
-    #error "Can not identify the platform on which you are running, aborting"
+#    error "Can not identify the platform on which you are running, aborting"
 #endif
 
 #include <string>
@@ -87,17 +87,13 @@ namespace Ark::internal
             if (NULL == (funcptr = reinterpret_cast<T>(GetProcAddress(m_instance, procname.c_str()))))
             {
                 throw std::system_error(
-                    std::error_code(::GetLastError(), std::system_category())
-                    , std::string("PluginError: Couldn't find ") + procname
-                );
+                    std::error_code(::GetLastError(), std::system_category()), std::string("PluginError: Couldn't find ") + procname);
             }
 #elif defined(ARK_OS_LINUX)
             if (NULL == (funcptr = reinterpret_cast<T>(dlsym(m_instance, procname.c_str()))))
             {
                 throw std::system_error(
-                    std::error_code(errno, std::system_category())
-                    , std::string("PluginError: Couldn't find ") + procname + ", " + std::string(dlerror())
-                );
+                    std::error_code(errno, std::system_category()), std::string("PluginError: Couldn't find ") + procname + ", " + std::string(dlerror()));
             }
 #endif
             return funcptr;
@@ -113,6 +109,5 @@ namespace Ark::internal
         bool m_loaded;
     };
 }
-
 
 #endif
