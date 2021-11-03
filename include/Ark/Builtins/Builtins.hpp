@@ -13,12 +13,9 @@
 #define ARK_BUILTINS_BUILTINS_HPP
 
 #include <vector>
-#include <utility>
-#include <sstream>
 
 #include <Ark/VM/Value.hpp>
 #include <Ark/Exceptions.hpp>
-#include <Ark/Utils.hpp>
 
 namespace Ark
 {
@@ -32,7 +29,6 @@ namespace Ark::internal::Builtins
     extern const Value nil;
 
     extern const std::vector<std::pair<std::string, Value>> builtins;
-    extern const std::vector<std::string> operators;
 
     // ------------------------------
     // builtins functions: we must use the instruction `BUILTIN index`
@@ -41,7 +37,7 @@ namespace Ark::internal::Builtins
     {
         Value reverseList(std::vector<Value>& n, Ark::VM* vm);   // list:reverse, single arg
         Value findInList(std::vector<Value>& n, Ark::VM* vm);    // list:find, 2 arguments
-        Value removeAtList(std::vector<Value>& n, Ark::VM* vm);  // list:removeAt, 2 arguments
+        Value removeAtList(std::vector<Value>& n, Ark::VM* vm);  // list:removeAt, 2 arguments -- DEPRECATED
         Value sliceList(std::vector<Value>& n, Ark::VM* vm);     // list:slice, 4 arguments
         Value sort_(std::vector<Value>& n, Ark::VM* vm);         // list:sort, 1 argument
         Value fill(std::vector<Value>& n, Ark::VM* vm);          // list:fill, 2 arguments
@@ -99,15 +95,15 @@ namespace Ark::internal::Builtins
         extern const Value inf_;
         extern const Value nan_;
 
-        Value cos_(std::vector<Value>& n, Ark::VM* vm);   // math:cos, 1 argument
-        Value sin_(std::vector<Value>& n, Ark::VM* vm);   // math:sin, 1 argument
-        Value tan_(std::vector<Value>& n, Ark::VM* vm);   // math:tan, 1 argument
-        Value acos_(std::vector<Value>& n, Ark::VM* vm);  // math:arccos, 1 argument
-        Value asin_(std::vector<Value>& n, Ark::VM* vm);  // math:arcsin, 1 argument
-        Value atan_(std::vector<Value>& n, Ark::VM* vm);  // math:arctan, 1 argument
-        Value cosh_(std::vector<Value>& n, Ark::VM* vm);  // math:cosh, 1 argument
-        Value sinh_(std::vector<Value>& n, Ark::VM* vm);  // math:sinh, 1 argument
-        Value tanh_(std::vector<Value>& n, Ark::VM* vm);  // math:tanh, 1 argument
+        Value cos_(std::vector<Value>& n, Ark::VM* vm);    // math:cos, 1 argument
+        Value sin_(std::vector<Value>& n, Ark::VM* vm);    // math:sin, 1 argument
+        Value tan_(std::vector<Value>& n, Ark::VM* vm);    // math:tan, 1 argument
+        Value acos_(std::vector<Value>& n, Ark::VM* vm);   // math:arccos, 1 argument
+        Value asin_(std::vector<Value>& n, Ark::VM* vm);   // math:arcsin, 1 argument
+        Value atan_(std::vector<Value>& n, Ark::VM* vm);   // math:arctan, 1 argument
+        Value cosh_(std::vector<Value>& n, Ark::VM* vm);   // math:cosh, 1 argument
+        Value sinh_(std::vector<Value>& n, Ark::VM* vm);   // math:sinh, 1 argument
+        Value tanh_(std::vector<Value>& n, Ark::VM* vm);   // math:tanh, 1 argument
         Value acosh_(std::vector<Value>& n, Ark::VM* vm);  // math:acosh, 1 argument
         Value asinh_(std::vector<Value>& n, Ark::VM* vm);  // math:asinh, 1 argument
         Value atanh_(std::vector<Value>& n, Ark::VM* vm);  // math:atanh, 1 argument

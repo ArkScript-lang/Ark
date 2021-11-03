@@ -13,15 +13,7 @@
 #define ARK_VM_VALUE_HPP
 
 #include <vector>
-#ifndef USE_MPARK
-    #include <variant>
-    #define variant_t std::variant
-    #define variant_get std::get
-#else
-    #include <variant.hpp>
-    #define variant_t mpark::variant
-    #define variant_get mpark::get
-#endif
+#include <variant>
 #include <string>  // for conversions
 #include <cinttypes>
 #include <iostream>
@@ -32,9 +24,8 @@
 #include <array>
 
 #include <Ark/VM/Closure.hpp>
-#include <Ark/Exceptions.hpp>
 #include <Ark/VM/UserType.hpp>
-#include <Ark/Config.hpp>
+#include <Ark/Platform.hpp>
 #include <Ark/Profiling.hpp>
 
 namespace Ark
@@ -47,26 +38,26 @@ namespace Ark
     // of types based on their integer values.
     enum class ValueType
     {
-        List      = 0,
-        Number    = 1,
-        String    = 2,
-        PageAddr  = 3,
-        CProc     = 4,
-        Closure   = 5,
-        User      = 6,
+        List = 0,
+        Number = 1,
+        String = 2,
+        PageAddr = 3,
+        CProc = 4,
+        Closure = 5,
+        User = 6,
 
-        Nil       = 7,
-        True      = 8,
-        False     = 9,
+        Nil = 7,
+        True = 8,
+        False = 9,
         Undefined = 10,
         Reference = 11,
-        InstPtr   = 12
+        InstPtr = 12
     };
 
     const std::array<std::string, 13> types_to_str = {
-        "List",  "Number",  "String",    "Function",
-        "CProc", "Closure", "UserType",  "Nil",
-        "Bool",  "Bool",    "Undefined", "Reference",
+        "List", "Number", "String", "Function",
+        "CProc", "Closure", "UserType", "Nil",
+        "Bool", "Bool", "Undefined", "Reference",
         "InstPtr"
     };
 
@@ -75,14 +66,14 @@ namespace Ark
     extern unsigned value_creations, value_copies, value_moves;
 #endif
 
-    class ARK_API_EXPORT Value
+    class ARK_API Value
     {
     public:
-        using ProcType = Value (*) (std::vector<Value>&, Ark::VM*);  // std::function<Value (std::vector<Value>&, Ark::VM*)>
+        using ProcType = Value (*)(std::vector<Value>&, Ark::VM*);  // std::function<Value (std::vector<Value>&, Ark::VM*)>
         using Iterator = std::vector<Value>::iterator;
         using ConstIterator = std::vector<Value>::const_iterator;
 
-        using Value_t  = variant_t<
+        using Value_t = std::variant<
             double,                //  8 bytes
             String,                // 16 bytes
             internal::PageAddr_t,  //  2 bytes
@@ -91,7 +82,7 @@ namespace Ark
             UserType,              // 24 bytes
             std::vector<Value>,    // 24 bytes
             Value*                 //  8 bytes
-        >;                         // +8 bytes overhead
+            >;                     // +8 bytes overhead
         //                      total 32 bytes
 
         /**
@@ -116,7 +107,7 @@ namespace Ark
          * @param type value type wanted
          * @param value value needed
          */
-        template<typename T>
+        template <typename T>
         Value(ValueType type, T&& value) noexcept :
             m_const_type(static_cast<uint8_t>(type)),
             m_value(value)
@@ -297,10 +288,10 @@ namespace Ark
          */
         void push_back(Value&& value);
 
-        friend std::ostream& operator<<(std::ostream& os, const Value& V) noexcept;
-        friend inline bool operator==(const Value& A, const Value& B) noexcept;
-        friend inline bool operator<(const Value& A, const Value& B) noexcept;
-        friend inline bool operator!(const Value& A) noexcept;
+        friend ARK_API std::ostream& operator<<(std::ostream& os, const Value& V) noexcept;
+        friend ARK_API_INLINE bool operator==(const Value& A, const Value& B) noexcept;
+        friend ARK_API_INLINE bool operator<(const Value& A, const Value& B) noexcept;
+        friend ARK_API_INLINE bool operator!(const Value& A) noexcept;
 
         friend class Ark::VM;
 
@@ -344,7 +335,7 @@ namespace Ark
          * @return true 
          * @return false 
          */
-        inline const bool isConst() const noexcept;
+        inline bool isConst() const noexcept;
 
         /**
          * @brief Set the Const object
@@ -354,7 +345,7 @@ namespace Ark
         inline void setConst(bool value) noexcept;
     };
 
-    #include "inline/Value.inl"
+#include "inline/Value.inl"
 }
 
 #endif

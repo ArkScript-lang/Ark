@@ -1,26 +1,38 @@
 compiler:
   - include/Ark/Compiler/*
-  - src/Compiler/*
+  - src/arkreactor/Compiler/*
 
 parser:
-  - include/Ark/Compiler/Lexer.*
-  - include/Ark/Compiler/Node.*
-  - include/Ark/Compiler/Parser.*
-  - src/Compiler/Lexer.*
-  - src/Compiler/Parser.*
-  - src/Compiler/Node.*
+  - include/Ark/Compiler/AST/Lexer.*
+  - include/Ark/Compiler/AST/Node.*
+  - include/Ark/Compiler/AST/Parser.*
+  - src/arkreactor/Compiler/AST/Lexer.*
+  - src/arkreactor/Compiler/AST/Parser.*
+  - src/arkreactor/Compiler/AST/Node.*
 
 repl:
   - include/Ark/REPL/**/*
-  - src/REPL/**/*
+  - src/arkscript/REPL/**/*
 
 modules:
-  - lib/ext/**/*
+  - lib/modules/**/*
 
 virtual machine:
   - include/Ark/VM/**/*
-  - src/VM/**/*
+  - src/arkreactor/VM/**/*
 
 macros:
-  - include/Ark/Compiler/MacroProcessor.*
-  - src/Compiler/MacroProcessor.*
+  - include/Ark/Compiler/Macros/*
+  - src/arkreactor/Compiler/Macros/*
+
+documentation:
+  - docs/*
+  - README.md
+
+ci:
+  - .github/workflows/*
+
+tests:
+  - tests/arkscript/*.ark
+  - tests/cpp/*.cpp
+  - tests/cpp/expected/*.txt

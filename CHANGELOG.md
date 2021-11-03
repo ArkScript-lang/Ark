@@ -1,5 +1,61 @@
 # Change Log
 
+## [Unreleased]
+### Added
+
+### Changed
+
+### Removed
+
+## [3.1.2] - 2021-11-02
+### Added
+- adding support for append_in_place, concat_in_place, pop_list and pop_list_in_place in the bytecode reader
+- added `page_ptr(int)` in the compiler to replace `&page(int)`
+- added literals `_u8` and `_u16`
+- added table overflow detection in the compiler, to avoid creating unusable bytecode (checks if the symbols/values table is full or not)
+- new Installer.iss (inno setup script) to generate a Windows installer
+- new exceptions for type errors
+
+### Changed
+- using `doc_formatting.first_column` instead of `doc_formatting.start_column` when displaying the CLI help
+- brand new cmake build system
+- renaming `Ark/Config.hpp` to `Ark/Platform.hpp`
+- refactored compiler handling of keywords
+- removed `using Inst_t = uint8_t` in the compiler
+- moved everything related to the AST in `Ark/Compiler/AST/`
+- moved everything related to the macros in `Ark/Compiler/Macros/`
+- renamed unclear file `CValue` to `ValTableElem`
+- the parser is now an internal class
+- the AST Optimizer was moved to `Compiler/AST`
+- changed the ARKSCRIPT_PATH to be a collection of paths to look into, separated by `;`
+- updating replxx to avoid a bug when compiling with clang
+
+### Removed
+- removed `ARK_SCOPE_DICHOTOMY` flag so that scopes don't use dichotomic search but a linear one, since it proved to be faster on small sets of values. This goes toward prioritizing small functions, and code being cut in multiple smaller scopes
+- removing `download-arkscript.sh` from the repo
+- removed `isFraction`, `isInteger`, `isFloat` from Ark/Utils.hpp (worked on strings and used regex)
+- removed mpark variant to use standard variant
+- `Ark::FeatureFunctionArityCheck` was removed, making arity checks mandatory
+
+## [3.1.1] - 2021-09-19
+### Added
+- ArkDoc documentation for the builtins
+- Now using clang-format to ensure the code is correctly formatted
+
+### Changed
+- the macro processor can now handle multiple macro definitions in a if-macro: `!{if true { !{a 1} !{b 2} }}` is finally working
+
+### Deprecated
+- `ark` command is now marked as deprecated, in favor of `arkscript`
+
+## [3.1.0] - 2021-06-29
+### Added
+- lists are mutated in place if they are mutable, through `append!` and `concat!`
+- instructions for `pop` and `pop!` were added, to replace `list:removeAt`
+
+### Changed
+- `list:removeAt` was deprecated
+
 ## [3.1.0] - 2021-06-29
 ### Added
 - adding of new string function for manipulation of utf8 string (str:ord and str:chr)
@@ -56,6 +112,7 @@
 - moving ArkScript tests from `tests/*.ark` to `tests/arkscript/*.ark`
 - fixed macros adding useless begin blocks, sometimes breaking code generation from macros
 - moving std lib related tests into std/tests/
+- lists are mutated in place if they are mutable, through `append` and `concat`
 - fixed macro chaining
 - fixed lexer, which wasn't adding the last token it read under some specific conditions
 

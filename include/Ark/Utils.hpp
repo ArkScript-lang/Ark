@@ -13,11 +13,9 @@
 #define INCLUDE_ARK_UTILS_HPP
 
 #include <string>
-#include <sstream>
 #include <iostream>
 #include <streambuf>
 #include <fstream>
-#include <regex>
 #include <filesystem>
 #include <vector>
 
@@ -42,7 +40,7 @@ namespace Ark::Utils
         std::string::size_type lastPos = 0;
         std::string::size_type findPos;
 
-        while(std::string::npos != (findPos = source.find(from, lastPos)))
+        while (std::string::npos != (findPos = source.find(from, lastPos)))
         {
             newString.append(source, lastPos, findPos - lastPos);
             newString += to;
@@ -79,39 +77,26 @@ namespace Ark::Utils
     }
 
     /**
-     * @brief Checks if a string represents a valid integer
+     * @brief Concatenate string with separator
      * 
-     * @param s the string
-     * @return true on success
-     * @return false on failure
+     * @param source 
+     * @param sep 
+     * @return std::string
      */
-    inline bool isInteger(const std::string& s)
+    inline std::string joinString(std::vector<std::string> source, std::string_view sep = " ")
     {
-        return std::regex_match(s, std::regex("^((\\+|-)?[[:digit:]]+)$"));
-    }
+        std::string output;
 
-    /**
-     * @brief Checks if a string represents a valid floating point number
-     * 
-     * @param s the string
-     * @return true on success
-     * @return false on failure
-     */
-    inline bool isFloat(const std::string& s)
-    {
-        return std::regex_match(s, std::regex("^((\\+|-)?[[:digit:]]+)(\\.(([[:digit:]]+)?))$"));
-    }
+        for (auto it = source.begin(), end = source.end(); it != end; ++it)
+        {
+            output += *it;
+            if (it != end - 1)
+            {
+                output += sep;
+            }
+        }
 
-    /**
-     * @brief Checks if a string represents a valid fractional number
-     * 
-     * @param s the string
-     * @return true on success
-     * @return false on failure
-     */
-    inline bool isFraction(const std::string& s)
-    {
-        return std::regex_match(s, std::regex("^((\\+|-)?[[:digit:]]+)(/(([[:digit:]]+)?))$"));
+        return output;
     }
 
     /**
@@ -163,8 +148,7 @@ namespace Ark::Utils
         // admitting the file exists
         return std::string(
             (std::istreambuf_iterator<char>(f)),
-            std::istreambuf_iterator<char>()
-        );
+            std::istreambuf_iterator<char>());
     }
 
     /**
@@ -197,9 +181,7 @@ namespace Ark::Utils
      */
     inline std::string canonicalRelPath(const std::string& path)
     {
-        auto temp = (std::filesystem::relative(std::filesystem::path(path))).string();
-        std::replace(temp.begin(), temp.end(), '\\', '/');
-        return temp;
+        return std::filesystem::relative(std::filesystem::path(path)).generic_string();
     }
 
     /**

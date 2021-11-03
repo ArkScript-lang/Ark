@@ -61,6 +61,13 @@
         (set tests (assert-val true "macro if @" tests))
         (set tests (assert-val false "macro if @" tests))
     }
+    !{if true {
+        !{in_if_1 true}
+        !{in_if_2 true}
+    }}
+    (set tests (assert-val (and in_if_1 in_if_2) "macro if multiple definitions" tests))
+    !{undef in_if_1}
+    !{undef in_if_2}
 
     {
         !{val (+ 1 2 3)}

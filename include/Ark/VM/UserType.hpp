@@ -16,6 +16,8 @@
 #include <vector>
 #include <utility>
 
+#include <Ark/Platform.hpp>
+
 namespace Ark
 {
     namespace internal
@@ -52,8 +54,8 @@ namespace Ark
          */
         struct ControlFuncs
         {
-            std::ostream& (*ostream_func) (std::ostream&, const UserType&) = nullptr;
-            void          (*deleter) (void*)                               = nullptr;
+            std::ostream& (*ostream_func)(std::ostream&, const UserType&) = nullptr;
+            void (*deleter)(void*) = nullptr;
         };
 
         /**
@@ -64,9 +66,9 @@ namespace Ark
          */
         template <typename T>
         explicit UserType(T* data = nullptr) noexcept :
+            m_type_id(internal::type_uid<T>::value),
             m_data(static_cast<void*>(data)),
-            m_funcs(nullptr),
-            m_type_id(internal::type_uid<T>::value)
+            m_funcs(nullptr)
         {}
 
         /**
@@ -130,9 +132,9 @@ namespace Ark
             return *static_cast<T*>(m_data);
         }
 
-        friend bool operator==(const UserType& A, const UserType& B) noexcept;
-        friend bool operator<(const UserType& A, const UserType& B) noexcept;
-        friend std::ostream& operator<<(std::ostream& os, const UserType& A) noexcept;
+        friend ARK_API bool operator==(const UserType& A, const UserType& B) noexcept;
+        friend ARK_API bool operator<(const UserType& A, const UserType& B) noexcept;
+        friend ARK_API std::ostream& operator<<(std::ostream& os, const UserType& A) noexcept;
 
     private:
         uint16_t m_type_id;
@@ -140,7 +142,7 @@ namespace Ark
         ControlFuncs* m_funcs;
     };
 
-    #include "inline/UserType.inl"
+#include "inline/UserType.inl"
 }
 
 #endif

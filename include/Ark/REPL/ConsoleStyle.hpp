@@ -33,21 +33,21 @@ namespace Ark
         "true", "false", "nil", "math:pi",
         "math:e", "math:tau", "math:Inf", "math:NaN",
         // Functions
-            // List
+        // List
         "append", "concat", "list", "list:reverse",
-        "list:find", "list:removeAt", "list:slice", "list:sort",
+        "list:find", "list:slice", "list:sort",
         "list:fill", "list:setAt",
-            // IO
+        // IO
         "print", "puts", "input", "io:writeFile",
         "io:readFile", "io:fileExists?", "io:listFiles", "io:dir?",
         "io:makeDir", "io:removeFiles",
-            // Times
+        // Times
         "time",
-            // System
+        // System
         "sys:exec", "sys:sleep",
-            // String
+        // String
         "str:format", "str:find", "str:removeAt",
-            // Mathematics
+        // Mathematics
         "math:exp", "math:ln", "math:ceil", "math:floor",
         "math:round", "math:NaN?", "Inf?", "math:cos",
         "math:sin", "math:tan", "math:arccos", "math:arcsin",
@@ -107,18 +107,17 @@ namespace Ark
         { "math:Inf", Replxx::Color::BLUE },
         { "math:NaN", Replxx::Color::BLUE },
         // Functions
-            // List
+        // List
         { "append", Replxx::Color::BRIGHTGREEN },
         { "concat", Replxx::Color::BRIGHTGREEN },
         { "list", Replxx::Color::BRIGHTGREEN },
         { "list:reverse", Replxx::Color::BRIGHTGREEN },
         { "list:find", Replxx::Color::BRIGHTGREEN },
-        { "list:removeAt", Replxx::Color::BRIGHTGREEN },
         { "list:slice", Replxx::Color::BRIGHTGREEN },
         { "list:sort", Replxx::Color::BRIGHTGREEN },
         { "list:fill", Replxx::Color::BRIGHTGREEN },
         { "list:setAt", Replxx::Color::BRIGHTGREEN },
-            // IO
+        // IO
         { "print", Replxx::Color::GREEN },
         { "puts", Replxx::Color::GREEN },
         { "input", Replxx::Color::GREEN },
@@ -129,16 +128,16 @@ namespace Ark
         { "io:dir?", Replxx::Color::GREEN },
         { "io:makeDir", Replxx::Color::GREEN },
         { "io:removeFiles", Replxx::Color::GREEN },
-            // Times
+        // Times
         { "time", Replxx::Color::GREEN },
-            // System
+        // System
         { "sys:exec", Replxx::Color::GREEN },
         { "sys:sleep", Replxx::Color::GREEN },
-            // String
+        // String
         { "str:format", Replxx::Color::BRIGHTGREEN },
         { "str:find", Replxx::Color::BRIGHTGREEN },
         { "str:removeAt", Replxx::Color::BRIGHTGREEN },
-            // Mathematics
+        // Mathematics
         { "math:exp", Replxx::Color::BRIGHTCYAN },
         { "math:ln", Replxx::Color::BRIGHTCYAN },
         { "math:ceil", Replxx::Color::BRIGHTCYAN },
@@ -159,7 +158,7 @@ namespace Ark
         // Strings
         { "\".*?\"", Replxx::Color::BRIGHTGREEN },
         /* Commands */
-        { "quit", Replxx::Color::BRIGHTMAGENTA}
+        { "quit", Replxx::Color::BRIGHTMAGENTA }
     };
 }
 

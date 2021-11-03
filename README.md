@@ -21,8 +21,8 @@ ArkScript is
 * a functional language: every parameter is passed by value, everything is immutable unless you use `mut` to specify your need of mutability
 * powerful: it can handle object-oriented programming in a very elegant way with its closures and explicit captures (see `examples/closures.ark`)
 * promoting functionalities before performances: expressiveness often brings more productivity, even though performances aren't left behind
-* easy to compile: it takes less than 200ms to compile and check a complex code with a lot of branches and sub-branches of 200 lines.
-* a Lisp-like, but with fewer parentheses: `[...]` is expanded to `(list ...)` and `{}` to `(begin ...)`. More shorthands will come in the future.
+* easy to compile: it takes less than 200ms to compile and check a complex code with a lot of branches and sub-branches of 200 lines
+* a Lisp-like, but with fewer parentheses: `[...]` is expanded to `(list ...)` and `{}` to `(begin ...)`. More shorthands will come in the future
 * extensible: it is very easy to create a C++ module to use it in the language, adding functionalities
 
 Also it has:
@@ -81,67 +81,23 @@ Also it has:
 (print "You won in " tries " tries")
 ```
 
-More examples are available under the folder `examples/`.
+More examples are available inside `examples/`.
 
 ## Installation
 
-### Through the latest release
-
-*Linux only*
-
-**Important**: this method will add the folder where ArkScript will be downloaded to your PATH. The executable being named `ark` you can have **conflicts** with another existing program named `ark` as well, [a KDE archiving tool](https://linux.die.net/man/1/ark).
-
-Save the following code as `install_arkscript.sh` and run `bash install_arkscript.sh`.
+You can either use docker:
 
 ```bash
-#!/usr/bin/env bash
-set -euo pipefail
-mkdir -p "${HOME}/.ark"
-cd "${HOME}/.ark"
-install_dir=`pwd`
+docker pull arkscript/stable:latest
 
-current=`curl -s https://github.com/ArkScript-lang/Ark/releases/latest | egrep -o "tag/(?[^\"]+)" | cut -c 5- -`
-url="https://github.com/ArkScript-lang/Ark/releases/download/$current/linux64.zip"
-wget --quiet $url
-
-if [ -f linux64.zip ]; then
-    unzip -o linux64.zip
-    rm linux64.zip
-fi
-
-# export arkscript path to your PATH variable to call it from everywhere
-# export also ARKSCRIPT_PATH for arkscript to find its standard library
-shellrc=""
-path_update="export PATH=\"\$PATH:${install_dir}\""
-SHELL=$(echo $SHELL | rev | cut -d'/' -f 1 | rev)
-case $SHELL in
-   "fish")
-      shellrc="$HOME/.config/fish/config.fish"
-      path_update="set PATH $install_dir \$PATH"
-      ;;
-   "zsh")
-      shellrc="$HOME/.zshrc"
-      ;;
-   "bash")
-      shellrc="$HOME/.bashrc"
-      ;;
-   *)
-      echo "Unsupported shell: $SHELL. Please open an issue at <https://github.com/ArkScript-lang/Ark/issues/new> to request it."
-      exit 1
-      ;;
- esac
-
-cat >> ${shellrc}<< EOF
-$path_update
-export ARKSCRIPT_PATH="${install_dir}"
-EOF
-echo "Don't forget to reload your shell configuration (\`source ${shellrc}\`) to refresh your path."
+# or use the most updated repo
+docker pull arkscript/nightly:latest
 ```
 
-### Through docker
+or [build the project with CMake](#building) and install it with CMake:
 
 ```bash
-$ docker pull arkscript/stable:latest
+cmake --install build
 ```
 
 ## Contributing
@@ -151,7 +107,7 @@ $ docker pull arkscript/stable:latest
 * Create a branch for your feature: `git checkout -b feat-my-awesome-idea`
 * When you're done, push it to your fork and submit a pull request!
 
-Don't know what to work on? No worries, we have a [list of things to do](https://github.com/ArkScript-lang/Ark/projects) :wink:
+Don't know what to work on? No worries, we have a [list of things to do](https://github.com/ArkScript-lang/Ark/issues) :wink:
 
 ### Related projects
 
@@ -159,54 +115,24 @@ We have other projects tightly related to ArkScript, which aren't necessarily C+
 * the [Request For Comments](https://github.com/ArkScript-lang/rfc), where we discuss new features for the language
 * the [standard library](https://github.com/ArkScript-lang/std), written in ArkScript itself
 * the [standard library modules](https://github.com/ArkScript-lang/modules), extending the capacities of the language, written in C++
-* [ArkDoc](https://github.com/ArkScript-lang/ArkDoc), a documentation generator à la doxygen, for ArkScript, written in Ruby
+* [ArkDoc](https://github.com/ArkScript-lang/ArkDoc), a documentation generator à la doxygen, for ArkScript, written in Python 3
 * our [website](https://github.com/ArkScript-lang/arkscript-lang.github.io) written in HTML, CSS and JavaScript
 
 ### Our beloved contributors
 
-Who worked on
-* the standard library
-    * [@SuperFola](https://github.com/SuperFola)
-    * [@Natendrtfm](https://github.com/Natendrtfm)
-    * [@rinz13r](https://github.com/rinz13r)
-    * [@FrenchMasterSword](https://github.com/FrenchMasterSword)
-    * [@rstefanic](https://github.com/rstefanic)
-    * [@PierrePharel](https://github.com/PierrePharel)
-    * [@Wafelack](https://github.com/Wafelack)
-* the builtins
-    * [@SuperFola](https://github.com/SuperFola)
-    * [@rinz13r](https://github.com/rinz13r)
-    * [@PierrePharel](https://github.com/PierrePharel)
-* the REPL
-    * [@rstefanic](https://github.com/rstefanic)
-    * [@PierrePharel](https://github.com/PierrePharel)
-* the CLI
-    * [@SuperFola](https://github.com/SuperFola)
-    * [@DontBelieveMe](https://github.com/DontBelieveMe)
-    * [@PierrePharel](https://github.com/PierrePharel)
-* the documentation
-    * [@SuperFola](https://github.com/SuperFola)
-    * [@OfficePop](https://github.com/OfficePop)
-    * [@PierrePharel](https://github.com/PierrePharel)
-* the language specification
-    * [@SuperFola](https://github.com/SuperFola)
-    * [@FrenchMasterSword](https://github.com/FrenchMasterSword)
-    * [@PierrePharel](https://github.com/PierrePharel)
-* the logo
-    * [@mazzdevs](https://github.com/mazzlabs)
-* the docker integration
-    * [@yardenshoham](https://github.com/yardenshoham)
-    * [@SuperFola](https://github.com/SuperFola)
+[Full list here](https://github.com/ArkScript-lang/Ark/graphs/contributors).
 
-### Contributing to the ArkScript standard library
+### Coding guidelines for contributing
 
-See [Coding guidelines](https://github.com/ArkScript-lang/Ark/wiki/Coding-guidelines#coding-in-ark) if you want to write ArkScript for the library (see folder `lib/std/`).
+See [C++ Coding guidelines](https://github.com/ArkScript-lang/Ark/blob/dev/CONTRIBUTING.md#c-coding-guidelines) if you want to contribute to ArkScript compiler / runtime.
+
+Also, see [ArkScript Coding guidelines](https://github.com/ArkScript-lang/rfc/blob/master/001-coding-guidelines.md) for other files, written in ArkScript.
 
 For performance reasons, some functions might be written in C++, in `include/Ark/Builtins/Builtins.hpp` and `src/Builtins/`.
 
 ### Code structure
 
-![ArkScript code structure](images/arkscript-code-structure.png)
+![ArkScript code structure](images/diagram.svg)
 
 ## Building
 
@@ -228,31 +154,36 @@ Different CMake switches are available to customize the build:
 * `-DARK_ENABLE_SYSTEM` to enable `sys:exec` (execute shell commands without restrictions), defaults to On
 * `-DARK_PROFILER` to enable the [coz](https://github.com/plasma-umass/coz) profiler, defaults to Off
 * `-DARK_PROFILER_COUNT` to count every creation/copy/move of the internal value type, defaults to Off
-* `-DARK_SCOPE_DICHOTOMY` to activate the dichotomic mode of the scope, defaults to Off
+* `-DARK_NO_STDLIB` to avoid the installation of the ArkScript standard library
+* `-DARK_BUILD_MODULES` to trigger the modules build
 
 ```bash
 # first, clone it
-~$ git clone --depth=50 --branch=dev https://github.com/ArkScript-lang/Ark.git
-~/Ark$ cd Ark
-~/Ark$ git submodule update --init --recursive
+git clone --depth=50 --branch=dev https://github.com/ArkScript-lang/Ark.git
+cd Ark
+git submodule update --init --recursive
 # building Ark
-~/Ark$ cmake . -Bbuild -DCMAKE_BUILD_TYPE=Release -DARK_BUILD_EXE=On
-~/Ark$ cmake --build build --config Release
+cmake . -Bbuild -DCMAKE_BUILD_TYPE=Release -DARK_BUILD_EXE=On
+cmake --build build --config Release
 # installing Ark (might need administrative privileges)
-~/Ark$ cmake --install build --config Release
-# running
-~/Ark$ ark --help
+cmake --install build --config Release
+```
+
+Desired output of `arkscript --help`:
+```bash
 DESCRIPTION
         ArkScript programming language
 
 SYNOPSIS
-        ark -h 
-        ark -v 
-        ark --dev-info 
-        ark -e <expression> 
-        ark -c <file> [-d] 
-        ark -bcr <file> [-(a|st|vt|cs)] [-p <page>] [-s <start> <end>] 
-        ark <file> [-d] [-L <lib_dir>] [-f(fac|no-fac)] [-f(ruv|no-ruv)] 
+        ark -h
+        ark -v
+        ark --dev-info
+        ark -e <expression>
+        ark -c <file> [-d]
+        ark -bcr <file> -on
+        ark -bcr <file> [-(a|st|vt)] [-s <start> <end>]
+        ark -bcr <file> [-cs] [-p <page>]
+        ark <file> [-d] [-L <lib_dir>] [-f(fac|no-fac)] [-f(ruv|no-ruv)]
 
 OPTIONS
         -h, --help                  Display this message
@@ -262,13 +193,14 @@ OPTIONS
         -c, --compile               Compile the given program to bytecode, but do not run
         -d, --debug...              Increase debug level (default: 0)
         -bcr, --bytecode-reader     Launch the bytecode reader
+        -on, --only-names           Display only the bytecode segments names and sizes
         -a, --all                   Display all the bytecode segments (default)
         -st, --symbols              Display only the symbols table
         -vt, --values               Display only the values table
+        -s, --slice                 Select a slice of instructions in the bytecode
         -cs, --code                 Display only the code segments
-        -p, --page                  Set the bytecode reader code segment to display      
-        -s, --slice                 Select a slice of instructions in the bytecode       
-        -L, --lib                   Set the location of the ArkScript standard library   
+        -p, --page                  Set the bytecode reader code segment to display
+        -L, --lib                   Set the location of the ArkScript standard library
         -f(fac|no-fac)              Toggle function arity checks (default: ON)
         -f(ruv|no-ruv)              Remove unused variables (default: ON)
 

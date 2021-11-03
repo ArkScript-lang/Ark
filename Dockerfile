@@ -9,7 +9,7 @@ RUN apk --no-cache add git
 
 WORKDIR /out
 COPY .git .git
-COPY submodules submodules
+COPY lib lib
 COPY .gitmodules .
 
 # Get submodules and remove unneccesery files
@@ -24,21 +24,19 @@ RUN apk --no-cache add cmake clang clang-dev make gcc g++ libc-dev linux-headers
 
 # Build
 COPY include include
-COPY lib lib
 COPY src src
-COPY thirdparties thirdparties
+COPY Installer.iss.in .
 COPY CMakeLists.txt .
 COPY --from=submodule-initializor /out .
-RUN cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release -DARK_BUILD_EXE=1 \
-    && cmake --build build --target ark \
-    && rm -rf lib/ext
+RUN cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release -DARK_BUILD_EXE=On \
+    && cmake --build build --target arkscript
 
 FROM alpine:3.12 AS organizer
 
 # Files needed to run Ark
 WORKDIR /out/ark
 COPY --from=builder build build
-COPY --from=builder submodules submodules
+COPY --from=builder include include
 COPY --from=builder lib lib
 
 FROM alpine:3.12 AS runner
@@ -50,4 +48,4 @@ RUN apk --no-cache add cmake
 COPY --from=organizer /out/ark .
 RUN cmake --install build --config Release
 
-ENTRYPOINT [ "ark" ]
+ENTRYPOINT [ "arkscript" ]
