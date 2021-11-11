@@ -138,8 +138,11 @@ namespace Ark
         {
             // put it in the global frame, aka the first one
             auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), std::string(map[i].name));
-            if (it != m_state->m_symbols.end())
-                (*m_locals[0]).push_back(static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it)), Value(map[i].value));
+            if (it == m_state->m_symbols.end())
+            {
+                it = m_state->m_symbols.insert(m_state->m_symbols.end(), map[i].name);
+            }
+            m_locals[0]->push_back(static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it)), Value(map[i].value));
 
             // free memory because we have used it and don't need it anymore
             // no need to free map[i].value since it's a pointer to a function in the DLL
