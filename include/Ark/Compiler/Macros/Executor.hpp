@@ -60,7 +60,7 @@ namespace Ark::internal
 
     protected:
         unsigned int m_debug;
-        MacroProcessor* m_macroprocessor;
+        MacroProcessor* m_macroprocessor;       // Note: None owned pointer.
 
         /**
          * @brief Find the nearest macro matching a giving name
