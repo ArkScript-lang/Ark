@@ -33,7 +33,7 @@ namespace Ark::internal
         return nullptr;
     }
 
-    uint16_t Scope::idFromValue(Value&& val) noexcept
+    uint16_t Scope::idFromValue(const Value& val) const noexcept
     {
         for (std::size_t i = 0, end = m_data.size(); i < end; ++i)
         {
