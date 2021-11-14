@@ -256,7 +256,7 @@ namespace Ark
          * @param value the value to search for
          * @return uint16_t 
          */
-        uint16_t findNearestVariableIdWithValue(Value&& value) noexcept;
+        uint16_t findNearestVariableIdWithValue(const Value& value) const noexcept;
 
         /**
          * @brief Throw a VM error message
