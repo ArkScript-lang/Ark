@@ -548,7 +548,7 @@ namespace Ark
             for (auto exp = x.constList().begin() + n, exp_end = x.constList().end(); exp != exp_end; ++exp)
                 _compile(*exp, p);
             // push proc from temp page
-            for (auto&& inst : m_temp_pages.back())
+            for (auto const& inst : m_temp_pages.back())
                 page(p).push_back(inst);
             m_temp_pages.pop_back();
 
