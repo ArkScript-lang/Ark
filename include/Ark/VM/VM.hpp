@@ -119,7 +119,9 @@ namespace Ark
         friend class Repl;
 
     private:
-        State* m_state;
+        State* m_state;     // Note: This is a non owned pointer.
+                            //       This should probably be changed to be a reference to
+                            //       show that the object does not take ownership.
 
         int m_exit_code;   ///< VM exit code, defaults to 0. Can be changed through `sys:exit`
         int m_ip;          ///< instruction pointer
@@ -142,6 +144,7 @@ namespace Ark
         Value m_no_value = internal::Builtins::nil;
 
         void* m_user_pointer;  ///< needed to pass data around when binding ArkScript in a program
+                               // Note: This is a non owned pointer.
 
         /**
          * @brief Run ArkScript bytecode inside a try catch to retrieve all the exceptions and display a stack trace if needed
