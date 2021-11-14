@@ -88,7 +88,7 @@ namespace Ark
             path = (fs::path(m_state->m_filename).parent_path() / fs::path(file)).relative_path().string();
 
         std::shared_ptr<SharedLibrary> lib;
-        for (auto&& v : m_state->m_libenv)
+        for (auto const& v : m_state->m_libenv)
         {
             std::string lib_path = (fs::path(v) / fs::path(file)).string();
 
@@ -1103,11 +1103,11 @@ namespace Ark
     //             error handling
     // ------------------------------------------
 
-    uint16_t VM::findNearestVariableIdWithValue(Value&& value) noexcept
+    uint16_t VM::findNearestVariableIdWithValue(const Value& value) const noexcept
     {
         for (auto it = m_locals.rbegin(), it_end = m_locals.rend(); it != it_end; ++it)
         {
-            if (auto id = (*it)->idFromValue(std::move(value)); id < m_state->m_symbols.size())
+            if (auto id = (*it)->idFromValue(value); id < m_state->m_symbols.size())
                 return id;
         }
         return static_cast<uint16_t>(~0);
