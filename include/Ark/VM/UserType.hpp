@@ -75,13 +75,6 @@ namespace Ark
         {}
 
         /**
-         * @brief Set the control functions structure
-         * 
-         * @param block A pointer to an instance of this block
-         */
-        // inline void setControlFuncs(ControlFuncs* block) noexcept;
-
-        /**
          * @brief Get the pointer to the object
          * 
          * @return void* 
