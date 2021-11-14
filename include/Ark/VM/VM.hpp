@@ -119,9 +119,9 @@ namespace Ark
         friend class Repl;
 
     private:
-        State* m_state;     // Note: This is a non owned pointer.
-                            //       This should probably be changed to be a reference to
-                            //       show that the object does not take ownership.
+        State* m_state;  // Note: This is a non owned pointer.
+                         //       This should probably be changed to be a reference to
+                         //       show that the object does not take ownership.
 
         int m_exit_code;   ///< VM exit code, defaults to 0. Can be changed through `sys:exit`
         int m_ip;          ///< instruction pointer
