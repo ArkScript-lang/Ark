@@ -110,7 +110,7 @@ namespace Ark
         template <typename T>
         Value(ValueType type, T&& value) noexcept :
             m_const_type(static_cast<uint8_t>(type)),
-            m_value(value)
+            m_value(std::move(value))
         {}
 
 #ifdef ARK_PROFILER_COUNT
