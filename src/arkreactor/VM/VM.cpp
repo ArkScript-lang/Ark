@@ -471,9 +471,6 @@ namespace Ark
 
                         if (Value* var = findNearestVariable(id); var != nullptr)
                         {
-                            // free usertypes
-                            if (var->valueType() == ValueType::User)
-                                var->usertypeRef().del();
                             *var = Value();
                             break;
                         }
@@ -1180,8 +1177,7 @@ namespace Ark
                 Value* tmp = pop();
                 if (tmp->valueType() == ValueType::InstPtr)
                     --m_fc;
-                else if (tmp->valueType() == ValueType::User)
-                    tmp->usertypeRef().del();
+                *tmp = m_no_value;
             }
             // pop the PP as well
             pop();

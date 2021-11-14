@@ -2,13 +2,6 @@
 
 namespace Ark
 {
-    void UserType::del()
-    {
-        // call a custom deleter on the data held by the usertype
-        if (m_funcs != nullptr && m_funcs->deleter != nullptr)
-            m_funcs->deleter(m_data);
-    }
-
     bool operator==(const UserType& A, const UserType& B) noexcept
     {
         return (A.m_type_id == B.m_type_id) && (A.m_data == B.m_data);
