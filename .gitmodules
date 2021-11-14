@@ -6,7 +6,7 @@
 	url = https://github.com/ArkScript-lang/std.git
 [submodule "lib/modules"]
 	path = lib/modules
-	url = https://github.com/Loki-Astari/modules.git
+	url = https://github.com/ArkScript-lang/modules.git
 [submodule "lib/String"]
 	path = lib/String
 	url = https://github.com/ArkScript-lang/String.git
