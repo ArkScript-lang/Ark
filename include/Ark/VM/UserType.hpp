@@ -68,7 +68,9 @@ namespace Ark
         template <typename T>
         explicit UserType(T* data = nullptr, ControlFuncs* block = nullptr) noexcept :
             m_type_id(internal::type_uid<T>::value),
-            m_data(reinterpret_cast<void*>(data), [block](void *data){ if (block && block->deleter){block->deleter(data);}}),
+            m_data(reinterpret_cast<void*>(data), [block](void* data) {
+                if (block && block->deleter) { block->deleter(data); }
+            }),
             m_funcs(block)
         {}
 
@@ -135,8 +137,8 @@ namespace Ark
 
     private:
         uint16_t m_type_id;
-        std::shared_ptr<void>  m_data;
-        ControlFuncs* m_funcs;          // Not none owned pointer.
+        std::shared_ptr<void> m_data;
+        ControlFuncs* m_funcs;  // Not none owned pointer.
     };
 
 }
