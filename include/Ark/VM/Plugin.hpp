@@ -44,6 +44,13 @@ namespace Ark::internal
         SharedLibrary();
 
         /**
+         * @brief Disable copy semantics as this contains a pointer.
+         * 
+         */
+        SharedLibrary(const SharedLibrary&) = delete;
+        SharedLibrary& operator=(const SharedLibrary&) = delete;
+
+        /**
          * @brief Construct a new Shared Library object
          * 
          * @param path path to the shared library
