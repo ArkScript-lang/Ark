@@ -52,8 +52,7 @@ namespace Ark
          */
         explicit VM(State& state) noexcept;
 
-        [[deprecated("Use VM(State&) instead of VM(State*)")]]
-        explicit VM(State* state) noexcept :
+        [[deprecated("Use VM(State&) instead of VM(State*)")]] explicit VM(State* state) noexcept :
             VM(*state)
         {}
 
