@@ -23,8 +23,8 @@
 #include <Ark/String.hpp>  // our string implementation
 #include <array>
 
-#include <Ark/VM/Closure.hpp>
-#include <Ark/VM/UserType.hpp>
+#include <Ark/VM/Value/Closure.hpp>
+#include <Ark/VM/Value/UserType.hpp>
 #include <Ark/Platform.hpp>
 #include <Ark/Profiling.hpp>
 

@@ -2,9 +2,6 @@
 
 #include <limits>
 
-#define push_pair(id, val) m_data.emplace_back(std::pair<uint16_t, Value>(id, val))
-#define insert_pair(place, id, val) m_data.insert(place, std::pair<uint16_t, Value>(id, val))
-
 namespace Ark::internal
 {
     Scope::Scope() noexcept
@@ -12,12 +9,12 @@ namespace Ark::internal
 
     void Scope::push_back(uint16_t id, Value&& val) noexcept
     {
-        push_pair(std::move(id), std::move(val));
+        m_data.emplace_back(std::pair<uint16_t, Value>(std::move(id), std::move(val)));
     }
 
     void Scope::push_back(uint16_t id, const Value& val) noexcept
     {
-        push_pair(id, val);
+        m_data.emplace_back(std::pair<uint16_t, Value>(id, val));
     }
 
     bool Scope::has(uint16_t id) noexcept
