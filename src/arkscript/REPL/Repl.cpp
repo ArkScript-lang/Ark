@@ -72,7 +72,7 @@ namespace Ark
             }
 
             // save a valid ip if execution failed
-            m_old_ip = vm.m_ip;
+            m_old_ip = vm.m_exec.ip;
             if (!tmp_code.str().empty())
             {
                 if (state.doString(tmp_code.str()))
@@ -88,12 +88,12 @@ namespace Ark
                         // save good code
                         code = tmp_code.str();
                         // place ip to end of bytecode intruction (HALT)
-                        --vm.m_ip;
+                        --vm.m_exec.ip;
                     }
                     else
                     {
                         // reset ip if execution failed
-                        vm.m_ip = m_old_ip;
+                        vm.m_exec.ip = m_old_ip;
                     }
 
                     state.reset();
