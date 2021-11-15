@@ -1,3 +1,14 @@
+/**
+ * @file ExecutionHandler.hpp
+ * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @brief Keeping track of the internal data needed by the VM
+ * @version 0.1
+ * @date 2021-11-15
+ * 
+ * @copyright Copyright (c) 2021
+ * 
+ */
+
 #ifndef ARK_VM_VMRUNTIME_HPP
 #define ARK_VM_VMRUNTIME_HPP
 
