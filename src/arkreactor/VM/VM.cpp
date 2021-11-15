@@ -1,7 +1,11 @@
+#define NOMINMAX
+
 #include <Ark/VM/VM.hpp>
 
 #include <termcolor/termcolor.hpp>
 #include <Ark/Utils.hpp>
+
+#include <limits>
 
 struct mapping
 {
@@ -1107,7 +1111,7 @@ namespace Ark
             if (auto id = (*it)->idFromValue(value); id < m_state.m_symbols.size())
                 return id;
         }
-        return static_cast<uint16_t>(~0);
+        return std::numeric_limits<uint16_t>::max();
     }
 
     void VM::throwVMError(const std::string& message)

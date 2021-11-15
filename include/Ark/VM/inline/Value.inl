@@ -3,7 +3,7 @@
 inline ValueType Value::valueType() const noexcept
 {
     // the type is stored on the right most bits
-    return static_cast<ValueType>(m_const_type & (0b01111111));
+    return static_cast<ValueType>(m_const_type & 0b01111111);
 }
 
 inline bool Value::isFunction() const noexcept  // if it's a function we can resolve it
@@ -71,7 +71,7 @@ inline bool operator==(const Value& A, const Value& B) noexcept
     if (A.valueType() != B.valueType())
         return false;
     // all the types >= Nil are Nil itself, True, False, Undefined
-    else if ((A.m_const_type & 0b01111111) >= static_cast<int>(ValueType::Nil))
+    else if ((A.m_const_type & 0b01111111) >= static_cast<uint8_t>(ValueType::Nil))
         return true;
 
     return A.m_value == B.m_value;
@@ -80,7 +80,7 @@ inline bool operator==(const Value& A, const Value& B) noexcept
 inline bool operator<(const Value& A, const Value& B) noexcept
 {
     if (A.valueType() != B.valueType())
-        return (static_cast<int>(A.valueType()) - static_cast<int>(B.valueType())) < 0;
+        return (static_cast<uint8_t>(A.valueType()) - static_cast<uint8_t>(B.valueType())) < 0;
     return A.m_value < B.m_value;
 }
 

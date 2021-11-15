@@ -46,7 +46,7 @@ Value VM::call(const std::string& name, Args&&... args)
             !(vt == ValueType::Reference &&
               (var->reference()->valueType() == ValueType::PageAddr ||
                var->reference()->valueType() == ValueType::Closure)))
-            throwVMError("Can't call '" + name + "': it isn't a Function but a " + types_to_str[static_cast<int>(vt)]);
+            throwVMError("Can't call '" + name + "': it isn't a Function but a " + types_to_str[static_cast<std::size_t>(vt)]);
 
         push(Value(var));
         m_last_sym_loaded = id;
@@ -344,7 +344,7 @@ inline void VM::call(int16_t argc_)
         }
 
         default:
-            throwVMError("Can't call '" + m_state.m_symbols[m_last_sym_loaded] + "': it isn't a Function but a " + types_to_str[static_cast<int>(function.valueType())]);
+            throwVMError("Can't call '" + m_state.m_symbols[m_last_sym_loaded] + "': it isn't a Function but a " + types_to_str[static_cast<std::size_t>(function.valueType())]);
     }
 
     // checking function arity

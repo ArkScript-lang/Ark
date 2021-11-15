@@ -1,5 +1,7 @@
 #include <Ark/VM/Scope.hpp>
 
+#include <limits>
+
 #define push_pair(id, val) m_data.emplace_back(std::pair<uint16_t, Value>(id, val))
 #define insert_pair(place, id, val) m_data.insert(place, std::pair<uint16_t, Value>(id, val))
 
@@ -40,7 +42,7 @@ namespace Ark::internal
             if (m_data[i].second == val)
                 return m_data[i].first;
         }
-        return static_cast<uint16_t>(~0);
+        return std::numeric_limits<uint16_t>::max();
     }
 
     std::size_t Scope::size() const noexcept
