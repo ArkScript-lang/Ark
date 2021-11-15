@@ -25,8 +25,8 @@ Value VM::call(const std::string& name, Args&&... args)
     m_pp = 0;
 
     // find id of function
-    auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), name);
-    if (it == m_state->m_symbols.end())
+    auto it = std::find(m_state.m_symbols.begin(), m_state.m_symbols.end(), name);
+    if (it == m_state.m_symbols.end())
         throwVMError("unbound variable: " + name);
 
     // convert and push arguments in reverse order
@@ -35,7 +35,7 @@ Value VM::call(const std::string& name, Args&&... args)
         push(*it2);
 
     // find function object and push it if it's a pageaddr/closure
-    uint16_t id = static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it));
+    uint16_t id = static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it));
     Value* var = findNearestVariable(id);
     if (var != nullptr)
     {
@@ -113,8 +113,8 @@ Value VM::resolve(const Value* val, Args&&... args)
 inline uint16_t VM::readNumber()
 {
     uint16_t tmp =
-        (static_cast<uint16_t>(m_state->m_pages[m_pp][m_ip]) << 8) +
-        static_cast<uint16_t>(m_state->m_pages[m_pp][m_ip + 1]);
+        (static_cast<uint16_t>(m_state.m_pages[m_pp][m_ip]) << 8) +
+        static_cast<uint16_t>(m_state.m_pages[m_pp][m_ip + 1]);
 
     ++m_ip;
     return tmp;
@@ -282,7 +282,7 @@ inline void VM::call(int16_t argc_)
     if (argc_ <= -1)
     {
         ++m_ip;
-        argc = (static_cast<uint16_t>(m_state->m_pages[m_pp][m_ip]) << 8) + static_cast<uint16_t>(m_state->m_pages[m_pp][m_ip + 1]);
+        argc = (static_cast<uint16_t>(m_state.m_pages[m_pp][m_ip]) << 8) + static_cast<uint16_t>(m_state.m_pages[m_pp][m_ip + 1]);
         ++m_ip;
     }
     else
@@ -316,7 +316,7 @@ inline void VM::call(int16_t argc_)
             swapStackForFunCall(argc);
 
             // store "reference" to the function to speed the recursive functions
-            if (m_last_sym_loaded < m_state->m_symbols.size())
+            if (m_last_sym_loaded < m_state.m_symbols.size())
                 m_locals.back()->push_back(m_last_sym_loaded, function);
 
             m_pp = new_page_pointer;
@@ -344,7 +344,7 @@ inline void VM::call(int16_t argc_)
         }
 
         default:
-            throwVMError("Can't call '" + m_state->m_symbols[m_last_sym_loaded] + "': it isn't a Function but a " + types_to_str[static_cast<int>(function.valueType())]);
+            throwVMError("Can't call '" + m_state.m_symbols[m_last_sym_loaded] + "': it isn't a Function but a " + types_to_str[static_cast<int>(function.valueType())]);
     }
 
     // checking function arity
@@ -352,7 +352,7 @@ inline void VM::call(int16_t argc_)
                 needed_argc = 0;
 
     // every argument is a MUT declaration in the bytecode
-    while (m_state->m_pages[m_pp][index] == Instruction::MUT)
+    while (m_state.m_pages[m_pp][index] == Instruction::MUT)
     {
         needed_argc += 1;
         index += 3;  // jump the argument of MUT (integer on 2 bits, big endian)
@@ -360,7 +360,7 @@ inline void VM::call(int16_t argc_)
 
     if (needed_argc != argc)
         throwVMError(
-            "Function '" + m_state->m_symbols[m_last_sym_loaded] + "' needs " + std::to_string(needed_argc) +
+            "Function '" + m_state.m_symbols[m_last_sym_loaded] + "' needs " + std::to_string(needed_argc) +
             " arguments, but it received " + std::to_string(argc));
 
     COZ_END("ark vm::call");
