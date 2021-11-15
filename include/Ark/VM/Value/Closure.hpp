@@ -9,8 +9,8 @@
  * 
  */
 
-#ifndef ARK_VM_CLOSURE_HPP
-#define ARK_VM_CLOSURE_HPP
+#ifndef VM_VALUE_CLOSURE_HPP
+#define VM_VALUE_CLOSURE_HPP
 
 #include <memory>
 #include <vector>
