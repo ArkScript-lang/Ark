@@ -16,6 +16,10 @@ int main(int argc, char** argv)
 {
     using namespace clipp;
 
+// TODO remove once next major version of ArkScript is available
+#if ARK_VERSION_MAJOR == 4
+#    error "this code block should be removed from ArkScript 4.x.y"
+#endif
     {
         namespace fs = std::filesystem;
         fs::path program(argv[0]);
@@ -44,9 +48,11 @@ int main(int argc, char** argv)
 
     unsigned debug = 0;
 
-    uint16_t bcr_page = std::numeric_limits<uint16_t>::max();
-    uint16_t bcr_start = std::numeric_limits<uint16_t>::max();
-    uint16_t bcr_end = std::numeric_limits<uint16_t>::max();
+    constexpr uint16_t max_uint16 = std::numeric_limits<uint16_t>::max();
+
+    uint16_t bcr_page = max_uint16;
+    uint16_t bcr_start = max_uint16;
+    uint16_t bcr_end = max_uint16;
     Ark::BytecodeSegment segment = Ark::BytecodeSegment::All;
 
     std::vector<std::string> wrong, script_args;
@@ -208,7 +214,7 @@ int main(int argc, char** argv)
                     return -1;
                 }
 
-                Ark::VM vm(&state);
+                Ark::VM vm(state);
                 int out = vm.run();
 
 #ifdef ARK_PROFILER_COUNT
@@ -236,23 +242,22 @@ int main(int argc, char** argv)
                     return -1;
                 }
 
-                Ark::VM vm(&state);
+                Ark::VM vm(state);
                 return vm.run();
             }
 
             case mode::bytecode_reader:
             {
-                uint16_t not_0 = static_cast<uint16_t>(~0);
                 try
                 {
                     Ark::BytecodeReader bcr;
                     bcr.feed(file);
 
-                    if (bcr_page == not_0 && bcr_start == not_0)
+                    if (bcr_page == max_uint16 && bcr_start == max_uint16)
                         bcr.display(segment);
-                    else if (bcr_page != not_0 && bcr_start == not_0)
+                    else if (bcr_page != max_uint16 && bcr_start == max_uint16)
                         bcr.display(segment, std::nullopt, std::nullopt, bcr_page);
-                    else if (bcr_page == not_0 && bcr_start != not_0)
+                    else if (bcr_page == max_uint16 && bcr_start != max_uint16)
                         bcr.display(segment, bcr_start, bcr_end);
                     else
                         bcr.display(segment, bcr_start, bcr_end, bcr_page);
@@ -271,7 +276,7 @@ int main(int argc, char** argv)
             std::printf("'%s' ins't a valid argument\n", arg.c_str());
 
         // clipp only supports streams
-        std::cout << make_man_page(cli, "ark", fmt)
+        std::cout << make_man_page(cli, "arkscript", fmt)
                          .prepend_section("DESCRIPTION", "        ArkScript programming language")
                          .append_section("LICENSE", "        Mozilla Public License 2.0")
                   << std::endl;
