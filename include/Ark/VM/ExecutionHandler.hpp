@@ -10,6 +10,10 @@
 #include <Ark/VM/Value.hpp>
 #include <Ark/VM/Scope.hpp>
 
+#ifdef max
+#    undef max
+#endif
+
 namespace Ark::internal
 {
     struct ExecutionHandler
