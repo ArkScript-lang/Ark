@@ -60,7 +60,7 @@ int main()
     });
 
     state.doString("(let a (getBreakfast)) (print a) (useBreakfast a)");
-    Ark::VM vm(&state);
+    Ark::VM vm(state);
     CHECK_VM_RUN(vm)
 
     /*
