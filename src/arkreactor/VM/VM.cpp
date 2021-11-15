@@ -1093,6 +1093,9 @@ namespace Ark
             m_exit_code = 1;
         }
 
+        if (m_state.m_debug_level > 0)
+            std::cout << "Estimated stack trashing: " << m_exec.stack.size() << "/" << VMStackSize << "\n";
+
         return m_exit_code;
     }
 
