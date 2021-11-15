@@ -13,7 +13,7 @@ namespace Ark
 {
     using namespace internal;
 
-    VM::VM(State* state) noexcept :
+    VM::VM(State& state) noexcept :
         m_state(state), m_exit_code(0), m_ip(0), m_pp(0), m_sp(0), m_fc(0),
         m_running(false), m_last_sym_loaded(0),
         m_until_frame_count(0), m_stack(nullptr), m_user_pointer(nullptr)
@@ -48,11 +48,11 @@ namespace Ark
 
         // loading binded stuff
         // put them in the global frame if we can, aka the first one
-        for (auto name_val : m_state->m_binded)
+        for (auto name_val : m_state.m_binded)
         {
-            auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), name_val.first);
-            if (it != m_state->m_symbols.end())
-                (*m_locals[0]).push_back(static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it)), name_val.second);
+            auto it = std::find(m_state.m_symbols.begin(), m_state.m_symbols.end(), name_val.first);
+            if (it != m_state.m_symbols.end())
+                (*m_locals[0]).push_back(static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it)), name_val.second);
         }
     }
 
@@ -61,14 +61,14 @@ namespace Ark
         const std::lock_guard<std::mutex> lock(m_mutex);
 
         // find id of object
-        auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), name);
-        if (it == m_state->m_symbols.end())
+        auto it = std::find(m_state.m_symbols.begin(), m_state.m_symbols.end(), name);
+        if (it == m_state.m_symbols.end())
         {
             m_no_value = Builtins::nil;
             return m_no_value;
         }
 
-        uint16_t id = static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it));
+        uint16_t id = static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it));
         Value* var = findNearestVariable(id);
         if (var != nullptr)
             return *var;
@@ -80,15 +80,15 @@ namespace Ark
     {
         namespace fs = std::filesystem;
 
-        const std::string file = m_state->m_constants[id].stringRef().toString();
+        const std::string file = m_state.m_constants[id].stringRef().toString();
 
         std::string path = file;
         // bytecode loaded from file
-        if (m_state->m_filename != ARK_NO_NAME_FILE)
-            path = (fs::path(m_state->m_filename).parent_path() / fs::path(file)).relative_path().string();
+        if (m_state.m_filename != ARK_NO_NAME_FILE)
+            path = (fs::path(m_state.m_filename).parent_path() / fs::path(file)).relative_path().string();
 
         std::shared_ptr<SharedLibrary> lib;
-        for (auto const& v : m_state->m_libenv)
+        for (auto const& v : m_state.m_libenv)
         {
             std::string lib_path = (fs::path(v) / fs::path(file)).string();
 
@@ -114,7 +114,7 @@ namespace Ark
 
         if (!lib)
         {
-            throwVMError("Could not find module '" + file + "'. Searched in\n\t- " + path + "\n\t- " + Utils::joinString(m_state->m_libenv));
+            throwVMError("Could not find module '" + file + "'. Searched in\n\t- " + path + "\n\t- " + Utils::joinString(m_state.m_libenv));
         }
 
         m_shared_lib_objects.emplace_back(lib);
@@ -137,9 +137,9 @@ namespace Ark
         while (map[i].name != nullptr)
         {
             // put it in the global frame, aka the first one
-            auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), std::string(map[i].name));
-            if (it != m_state->m_symbols.end())
-                (*m_locals[0]).push_back(static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it)), Value(map[i].value));
+            auto it = std::find(m_state.m_symbols.begin(), m_state.m_symbols.end(), std::string(map[i].name));
+            if (it != m_state.m_symbols.end())
+                (*m_locals[0]).push_back(static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it)), Value(map[i].value));
 
             // free memory because we have used it and don't need it anymore
             // no need to free map[i].value since it's a pointer to a function in the DLL
@@ -197,7 +197,7 @@ namespace Ark
             while (m_running && m_fc > m_until_frame_count)
             {
                 // get current instruction
-                uint8_t inst = m_state->m_pages[m_pp][m_ip];
+                uint8_t inst = m_state.m_pages[m_pp][m_ip];
 
                 // and it's time to du-du-du-du-duel!
                 switch (inst)
@@ -218,7 +218,7 @@ namespace Ark
                             // push internal reference, shouldn't break anything so far
                             push(var);
                         else
-                            throwVMError("unbound variable: " + m_state->m_symbols[m_last_sym_loaded]);
+                            throwVMError("unbound variable: " + m_state.m_symbols[m_last_sym_loaded]);
 
                         COZ_PROGRESS_NAMED("ark vm load_symbol");
                         break;
@@ -235,15 +235,15 @@ namespace Ark
                         ++m_ip;
                         uint16_t id = readNumber();
 
-                        if (m_saved_scope && m_state->m_constants[id].valueType() == ValueType::PageAddr)
+                        if (m_saved_scope && m_state.m_constants[id].valueType() == ValueType::PageAddr)
                         {
-                            push(Value(Closure(m_saved_scope.value(), m_state->m_constants[id].pageAddr())));
+                            push(Value(Closure(m_saved_scope.value(), m_state.m_constants[id].pageAddr())));
                             m_saved_scope.reset();
                         }
                         else
                         {
                             // push internal ref
-                            push(&(m_state->m_constants[id]));
+                            push(&(m_state.m_constants[id]));
                         }
 
                         COZ_PROGRESS_NAMED("ark vm load_const");
@@ -281,7 +281,7 @@ namespace Ark
                         if (Value* var = findNearestVariable(id); var != nullptr)
                         {
                             if (var->isConst())
-                                throwVMError("can not modify a constant: " + m_state->m_symbols[id]);
+                                throwVMError("can not modify a constant: " + m_state.m_symbols[id]);
 
                             *var = *popAndResolveAsPtr();
                             var->setConst(false);
@@ -290,7 +290,7 @@ namespace Ark
 
                         COZ_PROGRESS_NAMED("ark vm store");
 
-                        throwVMError("unbound variable " + m_state->m_symbols[id] + ", can not change its value");
+                        throwVMError("unbound variable " + m_state.m_symbols[id] + ", can not change its value");
                         break;
                     }
 
@@ -307,7 +307,7 @@ namespace Ark
 
                         // check if we are redefining a variable
                         if (auto val = (*m_locals.back())[id]; val != nullptr)
-                            throwVMError("can not use 'let' to redefine the variable " + m_state->m_symbols[id]);
+                            throwVMError("can not use 'let' to redefine the variable " + m_state.m_symbols[id]);
 
                         Value val = *popAndResolveAsPtr();
                         val.setConst(true);
@@ -477,7 +477,7 @@ namespace Ark
 
                         COZ_PROGRESS_NAMED("ark vm del");
 
-                        throwVMError("unbound variable: " + m_state->m_symbols[id]);
+                        throwVMError("unbound variable: " + m_state.m_symbols[id]);
                         break;
                     }
 
@@ -506,12 +506,12 @@ namespace Ark
 
                         Value* var = popAndResolveAsPtr();
                         if (var->valueType() != ValueType::Closure)
-                            throwVMError("the variable `" + m_state->m_symbols[m_last_sym_loaded] + "' isn't a closure, can not get the field `" + m_state->m_symbols[id] + "' from it");
+                            throwVMError("the variable `" + m_state.m_symbols[m_last_sym_loaded] + "' isn't a closure, can not get the field `" + m_state.m_symbols[id] + "' from it");
 
                         if (Value* field = (*var->refClosure().scope())[id]; field != nullptr)
                         {
                             // check for CALL instruction
-                            if (static_cast<std::size_t>(m_ip) + 1 < m_state->m_pages[m_pp].size() && m_state->m_pages[m_pp][m_ip + 1] == Instruction::CALL)
+                            if (static_cast<std::size_t>(m_ip) + 1 < m_state.m_pages[m_pp].size() && m_state.m_pages[m_pp][m_ip + 1] == Instruction::CALL)
                             {
                                 m_locals.push_back(var->refClosure().scope());
                                 ++m_scope_count_to_delete.back();
@@ -521,7 +521,7 @@ namespace Ark
                             break;
                         }
 
-                        throwVMError("couldn't find the variable " + m_state->m_symbols[id] + " in the closure enviroment");
+                        throwVMError("couldn't find the variable " + m_state.m_symbols[id] + " in the closure enviroment");
                         break;
                     }
 
@@ -1048,14 +1048,14 @@ namespace Ark
                         if (field->valueType() != ValueType::String)
                             throw TypeError("Argument no 2 of hasField should be a String");
 
-                        auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), field->stringRef().toString());
-                        if (it == m_state->m_symbols.end())
+                        auto it = std::find(m_state.m_symbols.begin(), m_state.m_symbols.end(), field->stringRef().toString());
+                        if (it == m_state.m_symbols.end())
                         {
                             push(Builtins::falseSym);
                             break;
                         }
 
-                        uint16_t id = static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it));
+                        uint16_t id = static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it));
                         push((*closure->refClosure().refScope())[id] != nullptr ? Builtins::trueSym : Builtins::falseSym);
 
                         break;
@@ -1104,7 +1104,7 @@ namespace Ark
     {
         for (auto it = m_locals.rbegin(), it_end = m_locals.rend(); it != it_end; ++it)
         {
-            if (auto id = (*it)->idFromValue(value); id < m_state->m_symbols.size())
+            if (auto id = (*it)->idFromValue(value); id < m_state.m_symbols.size())
                 return id;
         }
         return static_cast<uint16_t>(~0);
@@ -1137,8 +1137,8 @@ namespace Ark
                     uint16_t id = findNearestVariableIdWithValue(
                         Value(static_cast<PageAddr_t>(m_pp)));
 
-                    if (id < m_state->m_symbols.size())
-                        std::cerr << "In function `" << termcolor::green << m_state->m_symbols[id] << termcolor::reset << "'\n";
+                    if (id < m_state.m_symbols.size())
+                        std::cerr << "In function `" << termcolor::green << m_state.m_symbols[id] << termcolor::reset << "'\n";
                     else  // should never happen
                         std::cerr << "In function `" << termcolor::yellow << "???" << termcolor::reset << "'\n";
 
@@ -1169,7 +1169,7 @@ namespace Ark
             // display variables values in the current scope
             std::printf("\nCurrent scope variables values:\n");
             for (std::size_t i = 0, size = old_scope.size(); i < size; ++i)
-                std::cerr << termcolor::cyan << m_state->m_symbols[old_scope.m_data[i].first] << termcolor::reset
+                std::cerr << termcolor::cyan << m_state.m_symbols[old_scope.m_data[i].first] << termcolor::reset
                           << " = " << old_scope.m_data[i].second << "\n";
 
             while (m_fc != 1)

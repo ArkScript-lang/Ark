@@ -49,9 +49,9 @@ namespace Ark
         /**
          * @brief Construct a new vm t object
          * 
-         * @param state a pointer to an ArkScript state, which can be reused for multiple VMs
+         * @param state a reference to an ArkScript state, which can be reused for multiple VMs
          */
-        explicit VM(State* state) noexcept;
+        explicit VM(State& state) noexcept;
 
         /**
          * @brief Run the bytecode held in the state
@@ -119,10 +119,7 @@ namespace Ark
         friend class Repl;
 
     private:
-        // TODO
-        State* m_state;  // Note: This is a non owned pointer.
-                         //       This should probably be changed to be a reference to
-                         //       show that the object does not take ownership.
+        State& m_state;
 
         int m_exit_code;   ///< VM exit code, defaults to 0. Can be changed through `sys:exit`
         int m_ip;          ///< instruction pointer
