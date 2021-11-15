@@ -40,6 +40,7 @@ constexpr char ARK_VERSION_STR[4] = { ARK_VERSION_MAJOR + '0', ARK_VERSION_MINOR
 #endif
 
 #include <cinttypes>
+#include <cstddef>
 
 namespace Ark
 {
@@ -48,6 +49,8 @@ namespace Ark
 
     // Default features for the VM x Compiler x Parser
     constexpr uint16_t DefaultFeatures = FeatureRemoveUnusedVars;
+
+    constexpr std::size_t VMStackSize = 8192;
 }
 
 #endif

@@ -21,8 +21,8 @@ Value VM::call(const std::string& name, Args&&... args)
     const std::lock_guard<std::mutex> lock(m_mutex);
 
     // reset ip and pp
-    m_ip = 0;
-    m_pp = 0;
+    m_exec.ip = 0;
+    m_exec.pp = 0;
 
     // find id of function
     auto it = std::find(m_state.m_symbols.begin(), m_state.m_symbols.end(), name);
@@ -49,7 +49,7 @@ Value VM::call(const std::string& name, Args&&... args)
             throwVMError("Can't call '" + name + "': it isn't a Function but a " + types_to_str[static_cast<std::size_t>(vt)]);
 
         push(Value(var));
-        m_last_sym_loaded = id;
+        m_exec.last_symbol = id;
     }
     else
         throwVMError("Couldn't find variable " + name);
@@ -58,9 +58,9 @@ Value VM::call(const std::string& name, Args&&... args)
     // call it
     call(static_cast<int16_t>(sizeof...(Args)));
     // reset instruction pointer, otherwise the safeRun method will start at ip = -1
-    // without doing m_ip++ as intended (done right after the call() in the loop, but here
+    // without doing m_exec.ip++ as intended (done right after the call() in the loop, but here
     // we start outside this loop)
-    m_ip = 0;
+    m_exec.ip = 0;
 
     // run until the function returns
     safeRun(/* untilFrameCount */ frames_count);
@@ -79,8 +79,8 @@ Value VM::resolve(const Value* val, Args&&... args)
     if (!val->isFunction())
         throw TypeError("Value::resolve couldn't resolve a non-function");
 
-    int ip = m_ip;
-    std::size_t pp = m_pp;
+    int ip = m_exec.ip;
+    std::size_t pp = m_exec.pp;
 
     // convert and push arguments in reverse order
     std::vector<Value> fnargs { { Value(std::forward<Args>(args))... } };
@@ -93,16 +93,16 @@ Value VM::resolve(const Value* val, Args&&... args)
     // call it
     call(static_cast<int16_t>(sizeof...(Args)));
     // reset instruction pointer, otherwise the safeRun method will start at ip = -1
-    // without doing m_ip++ as intended (done right after the call() in the loop, but here
+    // without doing m_exec.ip++ as intended (done right after the call() in the loop, but here
     // we start outside this loop)
-    m_ip = 0;
+    m_exec.ip = 0;
 
     // run until the function returns
     safeRun(/* untilFrameCount */ frames_count);
 
     // restore VM state
-    m_ip = ip;
-    m_pp = pp;
+    m_exec.ip = ip;
+    m_exec.pp = pp;
 
     // get result
     return *popAndResolveAsPtr();
@@ -113,19 +113,19 @@ Value VM::resolve(const Value* val, Args&&... args)
 inline uint16_t VM::readNumber()
 {
     uint16_t tmp =
-        (static_cast<uint16_t>(m_state.m_pages[m_pp][m_ip]) << 8) +
-        static_cast<uint16_t>(m_state.m_pages[m_pp][m_ip + 1]);
+        (static_cast<uint16_t>(m_state.m_pages[m_exec.pp][m_exec.ip]) << 8) +
+        static_cast<uint16_t>(m_state.m_pages[m_exec.pp][m_exec.ip + 1]);
 
-    ++m_ip;
+    ++m_exec.ip;
     return tmp;
 }
 
 inline Value* VM::pop()
 {
-    if (m_sp > 0)
+    if (m_exec.sp > 0)
     {
-        --m_sp;
-        return &(*m_stack)[m_sp];
+        --m_exec.sp;
+        return &m_exec.stack[m_exec.sp];
     }
     else
         return &m_no_value;
@@ -133,23 +133,23 @@ inline Value* VM::pop()
 
 inline void VM::push(const Value& value)
 {
-    (*m_stack)[m_sp].m_const_type = value.m_const_type;
-    (*m_stack)[m_sp].m_value = value.m_value;
-    ++m_sp;
+    m_exec.stack[m_exec.sp].m_const_type = value.m_const_type;
+    m_exec.stack[m_exec.sp].m_value = value.m_value;
+    ++m_exec.sp;
 }
 
 inline void VM::push(Value&& value)
 {
-    (*m_stack)[m_sp].m_const_type = std::move(value.m_const_type);
-    (*m_stack)[m_sp].m_value = std::move(value.m_value);
-    ++m_sp;
+    m_exec.stack[m_exec.sp].m_const_type = std::move(value.m_const_type);
+    m_exec.stack[m_exec.sp].m_value = std::move(value.m_value);
+    ++m_exec.sp;
 }
 
 inline void VM::push(Value* valptr)
 {
-    (*m_stack)[m_sp].m_const_type = static_cast<uint8_t>(ValueType::Reference);
-    (*m_stack)[m_sp].m_value = valptr;
-    ++m_sp;
+    m_exec.stack[m_exec.sp].m_const_type = static_cast<uint8_t>(ValueType::Reference);
+    m_exec.stack[m_exec.sp].m_value = valptr;
+    ++m_exec.sp;
 }
 
 inline Value* VM::popAndResolveAsPtr()
@@ -176,59 +176,59 @@ inline void VM::swapStackForFunCall(uint16_t argc)
     switch (argc)  // must be positive
     {
         case 0:
-            push(Value(static_cast<PageAddr_t>(m_pp)));
-            push(Value(ValueType::InstPtr, static_cast<PageAddr_t>(m_ip)));
+            push(Value(static_cast<PageAddr_t>(m_exec.pp)));
+            push(Value(ValueType::InstPtr, static_cast<PageAddr_t>(m_exec.ip)));
             break;
 
         case 1:
-            (*m_stack)[m_sp + 1] = (*m_stack)[m_sp - 1];
-            resolveRefInPlace((*m_stack)[m_sp + 1]);
-            (*m_stack)[m_sp - 1] = Value(static_cast<PageAddr_t>(m_pp));
-            (*m_stack)[m_sp + 0] = Value(ValueType::InstPtr, static_cast<PageAddr_t>(m_ip));
-            m_sp += 2;
+            m_exec.stack[m_exec.sp + 1] = m_exec.stack[m_exec.sp - 1];
+            resolveRefInPlace(m_exec.stack[m_exec.sp + 1]);
+            m_exec.stack[m_exec.sp - 1] = Value(static_cast<PageAddr_t>(m_exec.pp));
+            m_exec.stack[m_exec.sp + 0] = Value(ValueType::InstPtr, static_cast<PageAddr_t>(m_exec.ip));
+            m_exec.sp += 2;
             break;
 
         default:  // 2 or more elements
         {
-            const int16_t first = m_sp - argc;
+            const int16_t first = m_exec.sp - argc;
             // move first argument to the very end
-            (*m_stack)[m_sp + 1] = (*m_stack)[first + 0];
-            resolveRefInPlace((*m_stack)[m_sp + 1]);
+            m_exec.stack[m_exec.sp + 1] = m_exec.stack[first + 0];
+            resolveRefInPlace(m_exec.stack[m_exec.sp + 1]);
             // move second argument right before the last one
-            (*m_stack)[m_sp + 0] = (*m_stack)[first + 1];
-            resolveRefInPlace((*m_stack)[m_sp + 0]);
+            m_exec.stack[m_exec.sp + 0] = m_exec.stack[first + 1];
+            resolveRefInPlace(m_exec.stack[m_exec.sp + 0]);
             // move the rest, if any
             int16_t x = 2;
             const int16_t stop = ((argc % 2 == 0) ? argc : (argc - 1)) / 2;
             while (x <= stop)
             {
                 //        destination          , origin
-                std::swap((*m_stack)[m_sp - x + 1], (*m_stack)[first + x]);
-                resolveRefInPlace((*m_stack)[m_sp - x + 1]);
-                resolveRefInPlace((*m_stack)[first + x]);
+                std::swap(m_exec.stack[m_exec.sp - x + 1], m_exec.stack[first + x]);
+                resolveRefInPlace(m_exec.stack[m_exec.sp - x + 1]);
+                resolveRefInPlace(m_exec.stack[first + x]);
                 ++x;
             }
-            (*m_stack)[first + 0] = Value(static_cast<PageAddr_t>(m_pp));
-            (*m_stack)[first + 1] = Value(ValueType::InstPtr, static_cast<PageAddr_t>(m_ip));
-            m_sp += 2;
+            m_exec.stack[first + 0] = Value(static_cast<PageAddr_t>(m_exec.pp));
+            m_exec.stack[first + 1] = Value(ValueType::InstPtr, static_cast<PageAddr_t>(m_exec.ip));
+            m_exec.sp += 2;
             break;
         }
     }
 
     m_fc++;
-    m_scope_count_to_delete.emplace_back(0);
+    m_exec.scope_count_to_delete.emplace_back(0);
 }
 
 #pragma endregion
 
 inline void VM::createNewScope() noexcept
 {
-    m_locals.emplace_back(std::make_shared<internal::Scope>());
+    m_exec.locals.emplace_back(std::make_shared<internal::Scope>());
 }
 
 inline Value* VM::findNearestVariable(uint16_t id) noexcept
 {
-    for (auto it = m_locals.rbegin(), it_end = m_locals.rend(); it != it_end; ++it)
+    for (auto it = m_exec.locals.rbegin(), it_end = m_exec.locals.rend(); it != it_end; ++it)
     {
         if (auto val = (**it)[id]; val != nullptr)
             return val;
@@ -242,19 +242,19 @@ inline void VM::returnFromFuncCall()
 
     --m_fc;
 
-    m_scope_count_to_delete.pop_back();
-    uint8_t del_counter = m_scope_count_to_delete.back();
+    m_exec.scope_count_to_delete.pop_back();
+    uint8_t del_counter = m_exec.scope_count_to_delete.back();
 
     // PERF high cpu cost because destroying variants cost
-    m_locals.pop_back();
+    m_exec.locals.pop_back();
 
     while (del_counter != 0)
     {
-        m_locals.pop_back();
+        m_exec.locals.pop_back();
         del_counter--;
     }
 
-    m_scope_count_to_delete.back() = 0;
+    m_exec.scope_count_to_delete.back() = 0;
 
     // stop the executing if we reach the wanted frame count
     if (m_fc == m_until_frame_count)
@@ -281,9 +281,9 @@ inline void VM::call(int16_t argc_)
     // handling calls from C++ code
     if (argc_ <= -1)
     {
-        ++m_ip;
-        argc = (static_cast<uint16_t>(m_state.m_pages[m_pp][m_ip]) << 8) + static_cast<uint16_t>(m_state.m_pages[m_pp][m_ip + 1]);
-        ++m_ip;
+        ++m_exec.ip;
+        argc = (static_cast<uint16_t>(m_state.m_pages[m_exec.pp][m_exec.ip]) << 8) + static_cast<uint16_t>(m_state.m_pages[m_exec.pp][m_exec.ip + 1]);
+        ++m_exec.ip;
     }
     else
         argc = argc_;
@@ -316,11 +316,11 @@ inline void VM::call(int16_t argc_)
             swapStackForFunCall(argc);
 
             // store "reference" to the function to speed the recursive functions
-            if (m_last_sym_loaded < m_state.m_symbols.size())
-                m_locals.back()->push_back(m_last_sym_loaded, function);
+            if (m_exec.last_symbol < m_state.m_symbols.size())
+                m_exec.locals.back()->push_back(m_exec.last_symbol, function);
 
-            m_pp = new_page_pointer;
-            m_ip = -1;  // because we are doing a m_ip++ right after that
+            m_exec.pp = new_page_pointer;
+            m_exec.ip = -1;  // because we are doing a m_exec.ip++ right after that
             break;
         }
 
@@ -331,20 +331,20 @@ inline void VM::call(int16_t argc_)
             PageAddr_t new_page_pointer = c.pageAddr();
 
             // load saved scope
-            m_locals.push_back(c.scope());
+            m_exec.locals.push_back(c.scope());
             // create dedicated frame
             createNewScope();
-            ++m_scope_count_to_delete.back();
+            ++m_exec.scope_count_to_delete.back();
 
             swapStackForFunCall(argc);
 
-            m_pp = new_page_pointer;
-            m_ip = -1;  // because we are doing a m_ip++ right after that
+            m_exec.pp = new_page_pointer;
+            m_exec.ip = -1;  // because we are doing a m_exec.ip++ right after that
             break;
         }
 
         default:
-            throwVMError("Can't call '" + m_state.m_symbols[m_last_sym_loaded] + "': it isn't a Function but a " + types_to_str[static_cast<std::size_t>(function.valueType())]);
+            throwVMError("Can't call '" + m_state.m_symbols[m_exec.last_symbol] + "': it isn't a Function but a " + types_to_str[static_cast<std::size_t>(function.valueType())]);
     }
 
     // checking function arity
@@ -352,7 +352,7 @@ inline void VM::call(int16_t argc_)
                 needed_argc = 0;
 
     // every argument is a MUT declaration in the bytecode
-    while (m_state.m_pages[m_pp][index] == Instruction::MUT)
+    while (m_state.m_pages[m_exec.pp][index] == Instruction::MUT)
     {
         needed_argc += 1;
         index += 3;  // jump the argument of MUT (integer on 2 bits, big endian)
@@ -360,7 +360,7 @@ inline void VM::call(int16_t argc_)
 
     if (needed_argc != argc)
         throwVMError(
-            "Function '" + m_state.m_symbols[m_last_sym_loaded] + "' needs " + std::to_string(needed_argc) +
+            "Function '" + m_state.m_symbols[m_exec.last_symbol] + "' needs " + std::to_string(needed_argc) +
             " arguments, but it received " + std::to_string(argc));
 
     COZ_END("ark vm::call");

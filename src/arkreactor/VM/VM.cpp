@@ -18,33 +18,29 @@ namespace Ark
     using namespace internal;
 
     VM::VM(State& state) noexcept :
-        m_state(state), m_exit_code(0), m_ip(0), m_pp(0), m_sp(0), m_fc(0),
-        m_running(false), m_last_sym_loaded(0),
-        m_until_frame_count(0), m_stack(nullptr), m_user_pointer(nullptr)
+        m_state(state), m_exit_code(0), m_fc(0),
+        m_running(false),
+        m_until_frame_count(0), m_user_pointer(nullptr)
     {
-        m_locals.reserve(4);
+        m_exec.locals.reserve(4);
     }
 
     void VM::init() noexcept
     {
-        // initialize the stack
-        if (m_stack == nullptr)
-            m_stack = std::make_unique<std::array<Value, ArkVMStackSize>>();
-
-        m_sp = 0;
+        m_exec.sp = 0;
         m_fc = 1;
 
         m_shared_lib_objects.clear();
-        m_scope_count_to_delete.clear();
-        m_scope_count_to_delete.emplace_back(0);
+        m_exec.scope_count_to_delete.clear();
+        m_exec.scope_count_to_delete.emplace_back(0);
 
-        m_saved_scope.reset();
+        m_exec.saved_scope.reset();
         m_exit_code = 0;
 
-        m_locals.clear();
+        m_exec.locals.clear();
         createNewScope();
 
-        if (m_locals.size() == 0)
+        if (m_exec.locals.size() == 0)
         {
             // if persistance is set but not scopes are present, add one
             createNewScope();
@@ -56,7 +52,7 @@ namespace Ark
         {
             auto it = std::find(m_state.m_symbols.begin(), m_state.m_symbols.end(), name_val.first);
             if (it != m_state.m_symbols.end())
-                (*m_locals[0]).push_back(static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it)), name_val.second);
+                (*m_exec.locals[0]).push_back(static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it)), name_val.second);
         }
     }
 
@@ -143,7 +139,7 @@ namespace Ark
             // put it in the global frame, aka the first one
             auto it = std::find(m_state.m_symbols.begin(), m_state.m_symbols.end(), std::string(map[i].name));
             if (it != m_state.m_symbols.end())
-                (*m_locals[0]).push_back(static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it)), Value(map[i].value));
+                (*m_exec.locals[0]).push_back(static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it)), Value(map[i].value));
 
             // free memory because we have used it and don't need it anymore
             // no need to free map[i].value since it's a pointer to a function in the DLL
@@ -185,8 +181,8 @@ namespace Ark
         safeRun();
 
         // reset VM after each run
-        m_ip = 0;
-        m_pp = 0;
+        m_exec.ip = 0;
+        m_exec.pp = 0;
 
         return m_exit_code;
     }
@@ -201,7 +197,7 @@ namespace Ark
             while (m_running && m_fc > m_until_frame_count)
             {
                 // get current instruction
-                uint8_t inst = m_state.m_pages[m_pp][m_ip];
+                uint8_t inst = m_state.m_pages[m_exec.pp][m_exec.ip];
 
                 // and it's time to du-du-du-du-duel!
                 switch (inst)
@@ -215,14 +211,14 @@ namespace Ark
                             Job: Load a symbol from its id onto the stack
                         */
 
-                        ++m_ip;
-                        m_last_sym_loaded = readNumber();
+                        ++m_exec.ip;
+                        m_exec.last_symbol = readNumber();
 
-                        if (Value* var = findNearestVariable(m_last_sym_loaded); var != nullptr)
+                        if (Value* var = findNearestVariable(m_exec.last_symbol); var != nullptr)
                             // push internal reference, shouldn't break anything so far
                             push(var);
                         else
-                            throwVMError("unbound variable: " + m_state.m_symbols[m_last_sym_loaded]);
+                            throwVMError("unbound variable: " + m_state.m_symbols[m_exec.last_symbol]);
 
                         COZ_PROGRESS_NAMED("ark vm load_symbol");
                         break;
@@ -236,13 +232,13 @@ namespace Ark
                                     and push a Closure with the page address + environment instead of the constant
                         */
 
-                        ++m_ip;
+                        ++m_exec.ip;
                         uint16_t id = readNumber();
 
-                        if (m_saved_scope && m_state.m_constants[id].valueType() == ValueType::PageAddr)
+                        if (m_exec.saved_scope && m_state.m_constants[id].valueType() == ValueType::PageAddr)
                         {
-                            push(Value(Closure(m_saved_scope.value(), m_state.m_constants[id].pageAddr())));
-                            m_saved_scope.reset();
+                            push(Value(Closure(m_exec.saved_scope.value(), m_state.m_constants[id].pageAddr())));
+                            m_exec.saved_scope.reset();
                         }
                         else
                         {
@@ -262,11 +258,11 @@ namespace Ark
                                     Remove the value from the stack no matter what it is
                         */
 
-                        ++m_ip;
+                        ++m_exec.ip;
                         uint16_t id = readNumber();
 
                         if (*popAndResolveAsPtr() == Builtins::trueSym)
-                            m_ip = static_cast<int16_t>(id) - 1;  // because we are doing a ++m_ip right after this
+                            m_exec.ip = static_cast<int16_t>(id) - 1;  // because we are doing a ++m_exec.ip right after this
                         break;
                     }
 
@@ -279,7 +275,7 @@ namespace Ark
                                     couldn't find a scope where the variable exists
                         */
 
-                        ++m_ip;
+                        ++m_exec.ip;
                         uint16_t id = readNumber();
 
                         if (Value* var = findNearestVariable(id); var != nullptr)
@@ -306,16 +302,16 @@ namespace Ark
                                     following the given symbol id (cf symbols table)
                         */
 
-                        ++m_ip;
+                        ++m_exec.ip;
                         uint16_t id = readNumber();
 
                         // check if we are redefining a variable
-                        if (auto val = (*m_locals.back())[id]; val != nullptr)
+                        if (auto val = (*m_exec.locals.back())[id]; val != nullptr)
                             throwVMError("can not use 'let' to redefine the variable " + m_state.m_symbols[id]);
 
                         Value val = *popAndResolveAsPtr();
                         val.setConst(true);
-                        (*m_locals.back()).push_back(id, val);
+                        (*m_exec.locals.back()).push_back(id, val);
 
                         COZ_PROGRESS_NAMED("ark vm let");
                         break;
@@ -329,11 +325,11 @@ namespace Ark
                                     the value from the stack no matter what it is
                         */
 
-                        ++m_ip;
+                        ++m_exec.ip;
                         uint16_t id = readNumber();
 
                         if (*popAndResolveAsPtr() == Builtins::falseSym)
-                            m_ip = static_cast<int16_t>(id) - 1;  // because we are doing a ++m_ip right after this
+                            m_exec.ip = static_cast<int16_t>(id) - 1;  // because we are doing a ++m_exec.ip right after this
                         break;
                     }
 
@@ -344,10 +340,10 @@ namespace Ark
                             Job: Jump to the provided address
                         */
 
-                        ++m_ip;
+                        ++m_exec.ip;
                         uint16_t id = readNumber();
 
-                        m_ip = static_cast<int16_t>(id) - 1;  // because we are doing a ++m_ip right after this
+                        m_exec.ip = static_cast<int16_t>(id) - 1;  // because we are doing a ++m_exec.ip right after this
                         break;
                     }
 
@@ -363,10 +359,10 @@ namespace Ark
                         // no return value on the stack
                         if (ip_or_val.valueType() == ValueType::InstPtr)
                         {
-                            m_ip = ip_or_val.pageAddr();
+                            m_exec.ip = ip_or_val.pageAddr();
                             // we always push PP then IP, thus the next value
                             // MUST be the page pointer
-                            m_pp = pop()->pageAddr();
+                            m_exec.pp = pop()->pageAddr();
 
                             returnFromFuncCall();
                             push(Builtins::nil);
@@ -380,8 +376,8 @@ namespace Ark
                                 ip = popAndResolveAsPtr();
                             } while (ip->valueType() != ValueType::InstPtr);
 
-                            m_ip = ip->pageAddr();
-                            m_pp = pop()->pageAddr();
+                            m_exec.ip = ip->pageAddr();
+                            m_exec.pp = pop()->pageAddr();
 
                             returnFromFuncCall();
                             push(std::move(ip_or_val));
@@ -408,15 +404,15 @@ namespace Ark
                                 they were created
                         */
 
-                        ++m_ip;
+                        ++m_exec.ip;
                         uint16_t id = readNumber();
 
-                        if (!m_saved_scope)
-                            m_saved_scope = std::make_shared<Scope>();
+                        if (!m_exec.saved_scope)
+                            m_exec.saved_scope = std::make_shared<Scope>();
                         // if it's a captured variable, it can not be nullptr
-                        Value* ptr = (*m_locals.back())[id];
+                        Value* ptr = (*m_exec.locals.back())[id];
                         ptr = ptr->valueType() == ValueType::Reference ? ptr->reference() : ptr;
-                        (*m_saved_scope.value()).push_back(id, *ptr);
+                        (*m_exec.saved_scope.value()).push_back(id, *ptr);
 
                         COZ_PROGRESS_NAMED("ark vm capture");
                         break;
@@ -429,7 +425,7 @@ namespace Ark
                             Job: Push the builtin function object on the stack
                         */
 
-                        ++m_ip;
+                        ++m_exec.ip;
                         uint16_t id = readNumber();
 
                         push(Builtins::builtins[id].second);
@@ -446,16 +442,16 @@ namespace Ark
                                 named following the given symbol id (cf symbols table)
                         */
 
-                        ++m_ip;
+                        ++m_exec.ip;
                         uint16_t id = readNumber();
 
                         Value val = *popAndResolveAsPtr();
                         val.setConst(false);
 
                         // avoid adding the pair (id, _) multiple times, with different values
-                        Value* local = (*m_locals.back())[id];
+                        Value* local = (*m_exec.locals.back())[id];
                         if (local == nullptr)
-                            (*m_locals.back()).push_back(id, val);
+                            (*m_exec.locals.back()).push_back(id, val);
                         else
                             *local = val;
 
@@ -470,7 +466,7 @@ namespace Ark
                             Job: Remove a variable/constant named following the given symbol id (cf symbols table)
                         */
 
-                        ++m_ip;
+                        ++m_exec.ip;
                         uint16_t id = readNumber();
 
                         if (Value* var = findNearestVariable(id); var != nullptr)
@@ -491,7 +487,7 @@ namespace Ark
                             Argument: none
                             Job: Save the current environment, useful for quoted code
                         */
-                        m_saved_scope = m_locals.back();
+                        m_exec.saved_scope = m_exec.locals.back();
 
                         COZ_PROGRESS_NAMED("ark vm save_scope");
                         break;
@@ -505,20 +501,20 @@ namespace Ark
                                 stored in TS. Pop TS and push the value of field read on the stack
                         */
 
-                        ++m_ip;
+                        ++m_exec.ip;
                         uint16_t id = readNumber();
 
                         Value* var = popAndResolveAsPtr();
                         if (var->valueType() != ValueType::Closure)
-                            throwVMError("the variable `" + m_state.m_symbols[m_last_sym_loaded] + "' isn't a closure, can not get the field `" + m_state.m_symbols[id] + "' from it");
+                            throwVMError("the variable `" + m_state.m_symbols[m_exec.last_symbol] + "' isn't a closure, can not get the field `" + m_state.m_symbols[id] + "' from it");
 
                         if (Value* field = (*var->refClosure().scope())[id]; field != nullptr)
                         {
                             // check for CALL instruction
-                            if (static_cast<std::size_t>(m_ip) + 1 < m_state.m_pages[m_pp].size() && m_state.m_pages[m_pp][m_ip + 1] == Instruction::CALL)
+                            if (static_cast<std::size_t>(m_exec.ip) + 1 < m_state.m_pages[m_exec.pp].size() && m_state.m_pages[m_exec.pp][m_exec.ip + 1] == Instruction::CALL)
                             {
-                                m_locals.push_back(var->refClosure().scope());
-                                ++m_scope_count_to_delete.back();
+                                m_exec.locals.push_back(var->refClosure().scope());
+                                ++m_exec.scope_count_to_delete.back();
                             }
 
                             push(field);
@@ -537,7 +533,7 @@ namespace Ark
                                  Raise an error if it couldn't find the module.
                         */
 
-                        ++m_ip;
+                        ++m_exec.ip;
                         uint16_t id = readNumber();
 
                         loadPlugin(id);
@@ -552,7 +548,7 @@ namespace Ark
                             Takes at least 0 arguments and push a list on the stack.
                             The content is pushed in reverse order
                         */
-                        ++m_ip;
+                        ++m_exec.ip;
                         uint16_t count = readNumber();
 
                         Value l(ValueType::List);
@@ -569,7 +565,7 @@ namespace Ark
 
                     case Instruction::APPEND:
                     {
-                        ++m_ip;
+                        ++m_exec.ip;
                         uint16_t count = readNumber();
 
                         Value* list = popAndResolveAsPtr();
@@ -591,7 +587,7 @@ namespace Ark
 
                     case Instruction::CONCAT:
                     {
-                        ++m_ip;
+                        ++m_exec.ip;
                         uint16_t count = readNumber();
 
                         Value* list = popAndResolveAsPtr();
@@ -620,7 +616,7 @@ namespace Ark
 
                     case Instruction::APPEND_IN_PLACE:
                     {
-                        ++m_ip;
+                        ++m_exec.ip;
                         uint16_t count = readNumber();
 
                         Value* list = popAndResolveAsPtr();
@@ -642,7 +638,7 @@ namespace Ark
 
                     case Instruction::CONCAT_IN_PLACE:
                     {
-                        ++m_ip;
+                        ++m_exec.ip;
                         uint16_t count = readNumber();
 
                         Value* list = popAndResolveAsPtr();
@@ -1081,7 +1077,7 @@ namespace Ark
                 }
 
                 // move forward
-                ++m_ip;
+                ++m_exec.ip;
             }
         }
         catch (const std::exception& e)
@@ -1106,7 +1102,7 @@ namespace Ark
 
     uint16_t VM::findNearestVariableIdWithValue(const Value& value) const noexcept
     {
-        for (auto it = m_locals.rbegin(), it_end = m_locals.rend(); it != it_end; ++it)
+        for (auto it = m_exec.locals.rbegin(), it_end = m_exec.locals.rend(); it != it_end; ++it)
         {
             if (auto id = (*it)->idFromValue(value); id < m_state.m_symbols.size())
                 return id;
@@ -1122,24 +1118,24 @@ namespace Ark
     void VM::backtrace() noexcept
     {
         std::cerr << termcolor::reset
-                  << "At IP: " << (m_ip != -1 ? m_ip : 0)
-                  << ", PP: " << m_pp
-                  << ", SP: " << m_sp
+                  << "At IP: " << (m_exec.ip != -1 ? m_exec.ip : 0)
+                  << ", PP: " << m_exec.pp
+                  << ", SP: " << m_exec.sp
                   << "\n";
 
         if (m_fc > 1)
         {
             // display call stack trace
             uint16_t it = m_fc;
-            Scope old_scope = *m_locals.back().get();
+            Scope old_scope = *m_exec.locals.back().get();
 
             while (it != 0)
             {
                 std::cerr << "[" << termcolor::cyan << it << termcolor::reset << "] ";
-                if (m_pp != 0)
+                if (m_exec.pp != 0)
                 {
                     uint16_t id = findNearestVariableIdWithValue(
-                        Value(static_cast<PageAddr_t>(m_pp)));
+                        Value(static_cast<PageAddr_t>(m_exec.pp)));
 
                     if (id < m_state.m_symbols.size())
                         std::cerr << "In function `" << termcolor::green << m_state.m_symbols[id] << termcolor::reset << "'\n";
@@ -1152,8 +1148,8 @@ namespace Ark
                         ip = popAndResolveAsPtr();
                     } while (ip->valueType() != ValueType::InstPtr);
 
-                    m_ip = ip->pageAddr();
-                    m_pp = pop()->pageAddr();
+                    m_exec.ip = ip->pageAddr();
+                    m_exec.pp = pop()->pageAddr();
                     returnFromFuncCall();
                     --it;
                 }
