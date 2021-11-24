@@ -27,7 +27,7 @@ namespace Ark
         {
             const char* arkpath = getenv("ARKSCRIPT_PATH");
             if (arkpath)
-                m_libenv = Ark::Utils::splitString(arkpath, ':');
+                m_libenv = Ark::Utils::splitString(arkpath, ';');
             else if (Ark::Utils::fileExists("./lib"))
                 m_libenv.push_back(Ark::Utils::canonicalRelPath("./lib"));
             else

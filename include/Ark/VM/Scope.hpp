@@ -72,7 +72,7 @@ namespace Ark::internal
          * @param val 
          * @return uint16_t 
          */
-        uint16_t idFromValue(Value&& val) noexcept;
+        uint16_t idFromValue(const Value& val) const noexcept;
 
         /**
          * @brief Return the size of the scope

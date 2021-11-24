@@ -24,31 +24,31 @@ jobs:
         with:
           workflow: ci.yml
           branch: dev
-          name: ark-linux-gcc-9
-          path: ark-linux-gcc-9
+          name: ubuntu-gcc-9
+          path: ark-ubuntu-gcc-9
 
       - name: Download artifact Linux GCC 8
         uses: dawidd6/action-download-artifact@v2
         with:
           workflow: ci.yml
           branch: dev
-          name: ark-linux-gcc-8
-          path: ark-linux-gcc-8
+          name: ubuntu-gcc-8
+          path: ark-ubuntu-gcc-8
 
       - name: Download artifact Linux Clang 10
         uses: dawidd6/action-download-artifact@v2
         with:
           workflow: ci.yml
           branch: dev
-          name: ark-linux-clang-10
-          path: ark-linux-clang-10
+          name: ubuntu-clang-10
+          path: ark-ubuntu-clang-10
 
       - name: Download artifact Windows MSVC 19
         uses: dawidd6/action-download-artifact@v2
         with:
           workflow: ci.yml
           branch: dev
-          name: ark-windows-msvc-19
+          name: windows-msvc-19
           path: ark-windows-msvc-19
 
       - name: Download artifact Windows MSVC 17
@@ -56,7 +56,7 @@ jobs:
         with:
           workflow: ci.yml
           branch: dev
-          name: ark-windows-msvc-17
+          name: windows-msvc-17
           path: ark-windows-msvc-17
 
       - name: Download artifact MacOS Clang
@@ -64,8 +64,16 @@ jobs:
         with:
           workflow: ci.yml
           branch: dev
-          name: ark-macos-clang
-          path: ark-macos-clang
+          name: macos-clang-12
+          path: ark-macos-clang-12
+
+      - name: Download artifact Windows InnoSetup installer
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: ci.yml
+          branch: dev
+          name: arkscript.exe
+          path: ark-windows-installer
 
       - name: Make ZIPs
         shell: bash
@@ -109,17 +117,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./macos-clang.zip
-          asset_name: macos-clang.zip
-          asset_content_type: application/zip
-
-      - name: Upload artifact
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./linux-gcc-8.zip
+          asset_path: ./ubuntu-gcc-8.zip
           asset_name: linux-gcc-8.zip
           asset_content_type: application/zip
 
@@ -129,7 +127,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./linux-gcc-9.zip
+          asset_path: ./ubuntu-gcc-9.zip
           asset_name: linux-gcc-9.zip
           asset_content_type: application/zip
 
@@ -139,7 +137,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./linux-clang-10.zip
+          asset_path: ./ubuntu-clang-10.zip
           asset_name: linux-clang-10.zip
           asset_content_type: application/zip
 
@@ -161,4 +159,24 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./windows-msvc-17.zip
           asset_name: windows-msvc-17.zip
+          asset_content_type: application/zip
+
+      - name: Upload artifact
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./ark-windows-installer/arkscript.exe
+          asset_name: windows-installer.exe
+          asset_content_type: application/vnd.microsoft.portable-executable
+
+      - name: Upload artifact
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./macos-clang-12.zip
+          asset_name: macos-clang-12.zip
           asset_content_type: application/zip
