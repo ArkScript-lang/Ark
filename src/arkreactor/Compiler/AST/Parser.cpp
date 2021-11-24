@@ -518,13 +518,13 @@ namespace Ark::internal
 
                     Parser p(m_debug, m_options, m_libenv);
                     // feed the new parser with our parent includes
-                    for (auto&& pi : m_parent_include)
+                    for (auto const& pi : m_parent_include)
                         p.m_parent_include.push_back(pi);  // new parser, we can assume that the parent include list is empty
                     p.m_parent_include.push_back(m_file);  // add the current file to avoid importing it again
                     p.feed(Utils::readFile(included_file), included_file);
 
                     // update our list of included files
-                    for (auto&& inc : p.m_parent_include)
+                    for (auto const& inc : p.m_parent_include)
                     {
                         if (std::find(m_parent_include.begin(), m_parent_include.end(), inc) == m_parent_include.end())
                             m_parent_include.push_back(inc);
@@ -570,7 +570,7 @@ namespace Ark::internal
             return path;
 
         // search in all folders in environment path
-        for (auto&& p : m_libenv)
+        for (auto const& p : m_libenv)
         {
             // then search in the standard library directory
             if (std::string f = p + "/std/" + file; Utils::fileExists(f))

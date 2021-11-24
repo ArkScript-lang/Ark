@@ -15,6 +15,7 @@
 #include <iostream>
 #include <vector>
 #include <utility>
+#include <memory>
 
 #include <Ark/Platform.hpp>
 
@@ -65,32 +66,23 @@ namespace Ark
          * @param data a pointer to the data to store in the object
          */
         template <typename T>
-        explicit UserType(T* data = nullptr) noexcept :
+        explicit UserType(T* data = nullptr, ControlFuncs* block = nullptr) noexcept :
             m_type_id(internal::type_uid<T>::value),
-            m_data(static_cast<void*>(data)),
-            m_funcs(nullptr)
+            m_data(reinterpret_cast<void*>(data), [block](void* data) {
+                if (block && block->deleter) { block->deleter(data); }
+            }),
+            m_funcs(block)
         {}
-
-        /**
-         * @brief Destroy the User Type object
-         * @details Called by the VM when `(del obj)` is found or when the object goes
-         *          out of scope.
-         */
-        void del();
-
-        /**
-         * @brief Set the control functions structure
-         * 
-         * @param block A pointer to an instance of this block
-         */
-        inline void setControlFuncs(ControlFuncs* block) noexcept;
 
         /**
          * @brief Get the pointer to the object
          * 
          * @return void* 
          */
-        inline void* data() const noexcept;
+        void* data() const noexcept
+        {
+            return m_data.get();
+        }
 
         /**
          * @brief Check if the object held is of a given type
@@ -123,13 +115,13 @@ namespace Ark
         template <typename T>
         T& as() noexcept
         {
-            return *static_cast<T*>(m_data);
+            return *reinterpret_cast<T*>(m_data.get());
         }
 
         template <typename T>
         const T& as() const noexcept
         {
-            return *static_cast<T*>(m_data);
+            return *reinterpret_cast<T*>(m_data.get());
         }
 
         friend ARK_API bool operator==(const UserType& A, const UserType& B) noexcept;
@@ -138,11 +130,10 @@ namespace Ark
 
     private:
         uint16_t m_type_id;
-        void* m_data;
-        ControlFuncs* m_funcs;
+        std::shared_ptr<void> m_data;
+        ControlFuncs* m_funcs;  // Not none owned pointer.
     };
 
-#include "inline/UserType.inl"
 }
 
 #endif
