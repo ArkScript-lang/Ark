@@ -4,7 +4,7 @@
 #include <iostream>
 #include <filesystem>
 
-#include <Ark/Utils.hpp>
+#include <Ark/Files.hpp>
 #include <Ark/VM/VM.hpp>
 #include <Ark/Builtins/BuiltinsErrors.inl>
 
@@ -20,7 +20,7 @@ namespace Ark::internal::Builtins::IO
      * =end
      * @author https://github.com/SuperFola
      */
-    Value print(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
+    Value print(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         for (Value::Iterator it = n.begin(), it_end = n.end(); it != it_end; ++it)
             std::cout << (*it);
@@ -39,7 +39,7 @@ namespace Ark::internal::Builtins::IO
      * =end
      * @author https://github.com/SuperFola
      */
-    Value puts_(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
+    Value puts_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         for (Value::Iterator it = n.begin(), it_end = n.end(); it != it_end; ++it)
             std::cout << (*it);
@@ -57,12 +57,12 @@ namespace Ark::internal::Builtins::IO
      * =end
      * @author https://github.com/SuperFola
      */
-    Value input(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
+    Value input(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (n.size() == 1)
         {
             if (n[0].valueType() != ValueType::String)
-                throw Ark::TypeError(IO_INPUT_TE);
+                throw TypeError(IO_INPUT_TE);
             std::printf("%s", n[0].string().c_str());
         }
 
@@ -84,13 +84,13 @@ namespace Ark::internal::Builtins::IO
      * =end
      * @author https://github.com/SuperFola
      */
-    Value writeFile(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
+    Value writeFile(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         // filename, content
         if (n.size() == 2)
         {
             if (n[0].valueType() != ValueType::String)
-                throw Ark::TypeError(IO_WRITE_TE0);
+                throw TypeError(IO_WRITE_TE0);
 
             std::ofstream f(n[0].string().c_str());
             if (f.is_open())
@@ -105,9 +105,9 @@ namespace Ark::internal::Builtins::IO
         else if (n.size() == 3)
         {
             if (n[0].valueType() != ValueType::String)
-                throw Ark::TypeError(IO_WRITE_TE0);
+                throw TypeError(IO_WRITE_TE0);
             if (n[1].valueType() != ValueType::String)
-                throw Ark::TypeError(IO_WRITE_TE1);
+                throw TypeError(IO_WRITE_TE1);
 
             auto mode = n[1].string();
             if (mode != "w" && mode != "a")
@@ -140,18 +140,18 @@ namespace Ark::internal::Builtins::IO
      * =end
      * @author https://github.com/SuperFola
      */
-    Value readFile(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
+    Value readFile(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (n.size() != 1)
             throw std::runtime_error(IO_READ_ARITY);
         if (n[0].valueType() != ValueType::String)
-            throw Ark::TypeError(IO_READ_TE0);
+            throw TypeError(IO_READ_TE0);
 
         auto filename = n[0].string().c_str();
-        if (!Ark::Utils::fileExists(filename))
+        if (!Utils::fileExists(filename))
             throw std::runtime_error("Couldn't read file \"" + std::string(filename) + "\": it doesn't exist");
 
-        return Value(Ark::Utils::readFile(filename));
+        return Value(Utils::readFile(filename));
     }
 
     /**
@@ -163,14 +163,14 @@ namespace Ark::internal::Builtins::IO
      * =end
      * @author https://github.com/SuperFola
      */
-    Value fileExists(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
+    Value fileExists(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (n.size() != 1)
             throw std::runtime_error(IO_EXISTS_ARITY);
         if (n[0].valueType() != ValueType::String)
-            throw Ark::TypeError(IO_EXISTS_TE0);
+            throw TypeError(IO_EXISTS_TE0);
 
-        return Ark::Utils::fileExists(n[0].string().c_str()) ? trueSym : falseSym;
+        return Utils::fileExists(n[0].string().c_str()) ? trueSym : falseSym;
     }
 
     /**
@@ -182,12 +182,12 @@ namespace Ark::internal::Builtins::IO
      * =end
      * @author https://github.com/SuperFola
      */
-    Value listFiles(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
+    Value listFiles(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (n.size() != 1)
             throw std::runtime_error(IO_LS_ARITY);
         if (n[0].valueType() != ValueType::String)
-            throw Ark::TypeError(IO_LS_TE0);
+            throw TypeError(IO_LS_TE0);
 
         std::vector<Value> r;
         for (const auto& entry : std::filesystem::directory_iterator(n[0].string().c_str()))
@@ -205,12 +205,12 @@ namespace Ark::internal::Builtins::IO
      * =end
      * @author https://github.com/SuperFola
      */
-    Value isDirectory(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
+    Value isDirectory(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (n.size() != 1)
             throw std::runtime_error(IO_ISDIR_ARITY);
         if (n[0].valueType() != ValueType::String)
-            throw Ark::TypeError(IO_ISDIR_TE0);
+            throw TypeError(IO_ISDIR_TE0);
 
         return (std::filesystem::is_directory(std::filesystem::path(n[0].string().c_str()))) ? trueSym : falseSym;
     }
@@ -224,12 +224,12 @@ namespace Ark::internal::Builtins::IO
      * =end
      * @author https://github.com/SuperFola
      */
-    Value makeDir(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
+    Value makeDir(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (n.size() != 1)
             throw std::runtime_error(IO_MKD_ARITY);
         if (n[0].valueType() != ValueType::String)
-            throw Ark::TypeError(IO_MKD_TE0);
+            throw TypeError(IO_MKD_TE0);
 
         std::filesystem::create_directories(std::filesystem::path(n[0].string().c_str()));
         return nil;
@@ -245,7 +245,7 @@ namespace Ark::internal::Builtins::IO
      * =end
      * @author https://github.com/SuperFola
      */
-    Value removeFiles(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
+    Value removeFiles(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (n.size() == 0)
             throw std::runtime_error(IO_RM_ARITY);
@@ -253,7 +253,7 @@ namespace Ark::internal::Builtins::IO
         for (Value::Iterator it = n.begin(), it_end = n.end(); it != it_end; ++it)
         {
             if (it->valueType() != ValueType::String)
-                throw Ark::TypeError(IO_RM_TE0);
+                throw TypeError(IO_RM_TE0);
             std::filesystem::remove_all(std::filesystem::path(it->string().c_str()));
         }
 
