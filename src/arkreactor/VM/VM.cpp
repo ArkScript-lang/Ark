@@ -3,6 +3,7 @@
 #include <numeric>
 
 #include <termcolor/termcolor.hpp>
+#include <Ark/Files.hpp>
 #include <Ark/Utils.hpp>
 
 struct mapping

@@ -14,8 +14,8 @@ namespace Ark
 
     int Repl::run()
     {
-        Ark::State state(m_options, m_libenv);
-        Ark::VM vm(&state);
+        State state(m_options, m_libenv);
+        VM vm(&state);
         state.setDebug(0);
         std::string code;
         bool init = false;

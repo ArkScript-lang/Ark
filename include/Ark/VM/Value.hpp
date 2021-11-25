@@ -69,7 +69,7 @@ namespace Ark
     class ARK_API Value
     {
     public:
-        using ProcType = Value (*)(std::vector<Value>&, Ark::VM*);  // std::function<Value (std::vector<Value>&, Ark::VM*)>
+        using ProcType = Value (*)(std::vector<Value>&, VM*);  // std::function<Value (std::vector<Value>&, VM*)>
         using Iterator = std::vector<Value>::iterator;
         using ConstIterator = std::vector<Value>::const_iterator;
 

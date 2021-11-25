@@ -1,6 +1,7 @@
 #include <Ark/VM/State.hpp>
 
 #include <Ark/Constants.hpp>
+#include <Ark/Files.hpp>
 #include <Ark/Utils.hpp>
 
 #ifdef _MSC_VER
@@ -27,9 +28,9 @@ namespace Ark
         {
             const char* arkpath = getenv("ARKSCRIPT_PATH");
             if (arkpath)
-                m_libenv = Ark::Utils::splitString(arkpath, ';');
-            else if (Ark::Utils::fileExists("./lib"))
-                m_libenv.push_back(Ark::Utils::canonicalRelPath("./lib"));
+                m_libenv = Utils::splitString(arkpath, ';');
+            else if (Utils::fileExists("./lib"))
+                m_libenv.push_back(Utils::canonicalRelPath("./lib"));
             else
             {
                 if (m_debug_level >= 1)
@@ -43,7 +44,7 @@ namespace Ark
         bool result = true;
         try
         {
-            Ark::BytecodeReader bcr;
+            BytecodeReader bcr;
             bcr.feed(bytecode_filename);
             m_bytecode = bcr.bytecode();
 
@@ -108,7 +109,7 @@ namespace Ark
 
     bool State::doFile(const std::string& file)
     {
-        if (!Ark::Utils::fileExists(file))
+        if (!Utils::fileExists(file))
         {
             std::cerr << termcolor::red << "Can not find file '" << file << "'\n"
                       << termcolor::reset;
@@ -116,7 +117,7 @@ namespace Ark
         }
 
         // check if it's a bytecode file or a source code file
-        Ark::BytecodeReader bcr;
+        BytecodeReader bcr;
         try
         {
             bcr.feed(file);
@@ -130,7 +131,7 @@ namespace Ark
         if (bcr.timestamp() == 0)  // couldn't read magic number, it's a source file
         {
             // check if it's in the arkscript cache
-            std::string short_filename = Ark::Utils::getFilenameFromPath(file);
+            std::string short_filename = Utils::getFilenameFromPath(file);
             std::string filename = short_filename.substr(0, short_filename.find_last_of('.')) + ".arkc";
             std::filesystem::path directory = (std::filesystem::path(file)).parent_path() / ARK_CACHE_DIRNAME;
             std::string path = (directory / filename).string();

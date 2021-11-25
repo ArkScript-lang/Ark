@@ -24,12 +24,12 @@ namespace Ark::internal::Builtins::String
      * =end
      * @author https://github.com/SuperFola
      */
-    Value format(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
+    Value format(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (n.size() == 0)
             throw std::runtime_error(STR_FORMAT_ARITY);
         if (n[0].valueType() != ValueType::String)
-            throw Ark::TypeError(STR_FORMAT_TE0);
+            throw TypeError(STR_FORMAT_TE0);
 
         ::String f(n[0].string().c_str());
 
@@ -74,14 +74,14 @@ namespace Ark::internal::Builtins::String
      * =end
      * @author https://github.com/SuperFola
      */
-    Value findSubStr(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
+    Value findSubStr(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (n.size() != 2)
             throw std::runtime_error(STR_FIND_ARITY);
         if (n[0].valueType() != ValueType::String)
-            throw Ark::TypeError(STR_FIND_TE0);
+            throw TypeError(STR_FIND_TE0);
         if (n[1].valueType() != ValueType::String)
-            throw Ark::TypeError(STR_FIND_TE1);
+            throw TypeError(STR_FIND_TE1);
 
         return Value(n[0].stringRef().find(n[1].stringRef()));
     }
@@ -98,14 +98,14 @@ namespace Ark::internal::Builtins::String
      * =end
      * @author https://github.com/SuperFola
      */
-    Value removeAtStr(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
+    Value removeAtStr(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (n.size() != 2)
             throw std::runtime_error(STR_RM_ARITY);
         if (n[0].valueType() != ValueType::String)
-            throw Ark::TypeError(STR_RM_TE0);
+            throw TypeError(STR_RM_TE0);
         if (n[1].valueType() != ValueType::Number)
-            throw Ark::TypeError(STR_RM_TE1);
+            throw TypeError(STR_RM_TE1);
 
         long id = static_cast<long>(n[1].number());
         if (id < 0 || static_cast<std::size_t>(id) >= n[0].stringRef().size())
@@ -125,12 +125,12 @@ namespace Ark::internal::Builtins::String
      * =end
      * @author https://github.com/SuperFola
      */
-    Value ord(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
+    Value ord(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (n.size() != 1)
             throw std::runtime_error(STR_ORD_ARITY);
         if (n[0].valueType() != ValueType::String)
-            throw Ark::TypeError(STR_ORD_TE0);
+            throw TypeError(STR_ORD_TE0);
 
         int ord = utf8codepoint(n[0].stringRef().c_str());
 
@@ -147,12 +147,12 @@ namespace Ark::internal::Builtins::String
      * =end
      * @author https://github.com/SuperFola
      */
-    Value chr(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
+    Value chr(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (n.size() != 1)
             throw std::runtime_error(STR_CHR_ARITY);
         if (n[0].valueType() != ValueType::Number)
-            throw Ark::TypeError(STR_CHR_TE0);
+            throw TypeError(STR_CHR_TE0);
 
         std::array<char, 5> sutf8;
 

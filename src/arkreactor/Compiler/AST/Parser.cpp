@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <sstream>
 
-#include <Ark/Utils.hpp>
+#include <Ark/Files.hpp>
 #include <Ark/Exceptions.hpp>
 #include <Ark/Compiler/AST/makeErrorCtx.hpp>
 
