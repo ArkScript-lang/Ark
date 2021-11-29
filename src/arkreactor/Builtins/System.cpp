@@ -45,9 +45,9 @@ namespace Ark::internal::Builtins::System
         while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr)
             result += buffer.data();
         return Value(result);
-#endif  // ARK_ENABLE_SYSTEM
-
+#else
         return nil;
+#endif  // ARK_ENABLE_SYSTEM
     }
 
     /**
