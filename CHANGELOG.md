@@ -2,7 +2,8 @@
 
 ## [Unreleased]
 ### Added
-- adding an ExecutionHandler to host the pointers (instruction, page, stack) and execution related structures (stack, locals, scopes), to ease the transition to a parallelized VM
+- adding an ExecutionContext to host the pointers (instruction, page, stack) and execution related structures (stack, locals, scopes), to ease the transition to a parallelized VM
+    - the VM can have multiple independant context running on the same bytecode
 - the VM now takes a reference to an `Ark::State` instead of a raw non-owning pointer
 
 ### Changed
