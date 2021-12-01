@@ -559,10 +559,10 @@ namespace Ark::internal
 
         if (m_debug >= 2)
         {
-            const std::string libpath = Utils::joinString(m_libenv);
-
-            std::cout << "path: " << path << " ; file: " << file << " ; libpath: " << libpath << '\n';
-            std::cout << "filename: " << Utils::getFilenameFromPath(file) << '\n';
+            std::cout << "path: " << path << " ; file: " << file << " ; libpath: ";
+            for (auto&& lib : m_libenv)
+                std::cout << lib << ":";
+            std::cout << "\nfilename: " << Utils::getFilenameFromPath(file) << '\n';
         }
 
         // search in the current directory
