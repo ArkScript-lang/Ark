@@ -16,13 +16,15 @@
 template <typename... Args>
 Value VM::call(const std::string& name, Args&&... args)
 {
+    internal::ExecutionContext& context = *m_execution_contexts.back();
+
     using namespace internal;
 
     const std::lock_guard<std::mutex> lock(m_mutex);
 
     // reset ip and pp
-    m_exec.ip = 0;
-    m_exec.pp = 0;
+    context.ip = 0;
+    context.pp = 0;
 
     // find id of function
     auto it = std::find(m_state.m_symbols.begin(), m_state.m_symbols.end(), name);
@@ -32,11 +34,11 @@ Value VM::call(const std::string& name, Args&&... args)
     // convert and push arguments in reverse order
     std::vector<Value> fnargs { { Value(std::forward<Args>(args))... } };
     for (auto it2 = fnargs.rbegin(), it_end = fnargs.rend(); it2 != it_end; ++it2)
-        push(*it2);
+        push(*it2, context);
 
     // find function object and push it if it's a pageaddr/closure
     uint16_t id = static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it));
-    Value* var = findNearestVariable(id);
+    Value* var = findNearestVariable(id, context);
     if (var != nullptr)
     {
         ValueType vt = var->valueType();
@@ -48,25 +50,25 @@ Value VM::call(const std::string& name, Args&&... args)
                var->reference()->valueType() == ValueType::Closure)))
             throwVMError("Can't call '" + name + "': it isn't a Function but a " + types_to_str[static_cast<std::size_t>(vt)]);
 
-        push(Value(var));
-        m_exec.last_symbol = id;
+        push(Value(var), context);
+        context.last_symbol = id;
     }
     else
         throwVMError("Couldn't find variable " + name);
 
     std::size_t frames_count = m_fc;
     // call it
-    call(static_cast<int16_t>(sizeof...(Args)));
+    call(context, static_cast<int16_t>(sizeof...(Args)));
     // reset instruction pointer, otherwise the safeRun method will start at ip = -1
-    // without doing m_exec.ip++ as intended (done right after the call() in the loop, but here
+    // without doing context.ip++ as intended (done right after the call() in the loop, but here
     // we start outside this loop)
-    m_exec.ip = 0;
+    context.ip = 0;
 
     // run until the function returns
-    safeRun(/* untilFrameCount */ frames_count);
+    safeRun(context, /* untilFrameCount */ frames_count);
 
     // get result
-    return *popAndResolveAsPtr();
+    return *popAndResolveAsPtr(context);
 }
 
 template <typename... Args>
@@ -74,93 +76,96 @@ Value VM::resolve(const Value* val, Args&&... args)
 {
     using namespace internal;
 
+    // TODO get the right one
+    internal::ExecutionContext& context = *m_execution_contexts.back();
+
     const std::lock_guard<std::mutex> lock(m_mutex);
 
     if (!val->isFunction())
         throw TypeError("Value::resolve couldn't resolve a non-function");
 
-    int ip = m_exec.ip;
-    std::size_t pp = m_exec.pp;
+    int ip = context.ip;
+    std::size_t pp = context.pp;
 
     // convert and push arguments in reverse order
     std::vector<Value> fnargs { { Value(std::forward<Args>(args))... } };
     for (auto it = fnargs.rbegin(), it_end = fnargs.rend(); it != it_end; ++it)
-        push(resolveRef(it));
+        push(resolveRef(it), context);
     // push function
-    push(resolveRef(val));
+    push(resolveRef(val), context);
 
     std::size_t frames_count = m_fc;
     // call it
-    call(static_cast<int16_t>(sizeof...(Args)));
+    call(context, static_cast<int16_t>(sizeof...(Args)));
     // reset instruction pointer, otherwise the safeRun method will start at ip = -1
-    // without doing m_exec.ip++ as intended (done right after the call() in the loop, but here
+    // without doing context.ip++ as intended (done right after the call() in the loop, but here
     // we start outside this loop)
-    m_exec.ip = 0;
+    context.ip = 0;
 
     // run until the function returns
-    safeRun(/* untilFrameCount */ frames_count);
+    safeRun(context, /* untilFrameCount */ frames_count);
 
     // restore VM state
-    m_exec.ip = ip;
-    m_exec.pp = pp;
+    context.ip = ip;
+    context.pp = pp;
 
     // get result
-    return *popAndResolveAsPtr();
+    return *popAndResolveAsPtr(context);
 }
 
 #pragma region "stack management"
 
-inline uint16_t VM::readNumber()
+inline uint16_t VM::readNumber(internal::ExecutionContext& context)
 {
     uint16_t tmp =
-        (static_cast<uint16_t>(m_state.m_pages[m_exec.pp][m_exec.ip]) << 8) +
-        static_cast<uint16_t>(m_state.m_pages[m_exec.pp][m_exec.ip + 1]);
+        (static_cast<uint16_t>(m_state.m_pages[context.pp][context.ip]) << 8) +
+        static_cast<uint16_t>(m_state.m_pages[context.pp][context.ip + 1]);
 
-    ++m_exec.ip;
+    ++context.ip;
     return tmp;
 }
 
-inline Value* VM::pop()
+inline Value* VM::pop(internal::ExecutionContext& context)
 {
-    if (m_exec.sp > 0)
+    if (context.sp > 0)
     {
-        --m_exec.sp;
-        return &m_exec.stack[m_exec.sp];
+        --context.sp;
+        return &context.stack[context.sp];
     }
     else
         return &m_no_value;
 }
 
-inline void VM::push(const Value& value)
+inline void VM::push(const Value& value, internal::ExecutionContext& context)
 {
-    m_exec.stack[m_exec.sp].m_const_type = value.m_const_type;
-    m_exec.stack[m_exec.sp].m_value = value.m_value;
-    ++m_exec.sp;
+    context.stack[context.sp].m_const_type = value.m_const_type;
+    context.stack[context.sp].m_value = value.m_value;
+    ++context.sp;
 }
 
-inline void VM::push(Value&& value)
+inline void VM::push(Value&& value, internal::ExecutionContext& context)
 {
-    m_exec.stack[m_exec.sp].m_const_type = std::move(value.m_const_type);
-    m_exec.stack[m_exec.sp].m_value = std::move(value.m_value);
-    ++m_exec.sp;
+    context.stack[context.sp].m_const_type = std::move(value.m_const_type);
+    context.stack[context.sp].m_value = std::move(value.m_value);
+    ++context.sp;
 }
 
-inline void VM::push(Value* valptr)
+inline void VM::push(Value* valptr, internal::ExecutionContext& context)
 {
-    m_exec.stack[m_exec.sp].m_const_type = static_cast<uint8_t>(ValueType::Reference);
-    m_exec.stack[m_exec.sp].m_value = valptr;
-    ++m_exec.sp;
+    context.stack[context.sp].m_const_type = static_cast<uint8_t>(ValueType::Reference);
+    context.stack[context.sp].m_value = valptr;
+    ++context.sp;
 }
 
-inline Value* VM::popAndResolveAsPtr()
+inline Value* VM::popAndResolveAsPtr(internal::ExecutionContext& context)
 {
-    Value* tmp = pop();
+    Value* tmp = pop(context);
     if (tmp->valueType() == ValueType::Reference)
         return tmp->reference();
     return tmp;
 }
 
-inline void VM::swapStackForFunCall(uint16_t argc)
+inline void VM::swapStackForFunCall(uint16_t argc, internal::ExecutionContext& context)
 {
     using namespace internal;
 
@@ -176,59 +181,59 @@ inline void VM::swapStackForFunCall(uint16_t argc)
     switch (argc)  // must be positive
     {
         case 0:
-            push(Value(static_cast<PageAddr_t>(m_exec.pp)));
-            push(Value(ValueType::InstPtr, static_cast<PageAddr_t>(m_exec.ip)));
+            push(Value(static_cast<PageAddr_t>(context.pp)), context);
+            push(Value(ValueType::InstPtr, static_cast<PageAddr_t>(context.ip)), context);
             break;
 
         case 1:
-            m_exec.stack[m_exec.sp + 1] = m_exec.stack[m_exec.sp - 1];
-            resolveRefInPlace(m_exec.stack[m_exec.sp + 1]);
-            m_exec.stack[m_exec.sp - 1] = Value(static_cast<PageAddr_t>(m_exec.pp));
-            m_exec.stack[m_exec.sp + 0] = Value(ValueType::InstPtr, static_cast<PageAddr_t>(m_exec.ip));
-            m_exec.sp += 2;
+            context.stack[context.sp + 1] = context.stack[context.sp - 1];
+            resolveRefInPlace(context.stack[context.sp + 1]);
+            context.stack[context.sp - 1] = Value(static_cast<PageAddr_t>(context.pp));
+            context.stack[context.sp + 0] = Value(ValueType::InstPtr, static_cast<PageAddr_t>(context.ip));
+            context.sp += 2;
             break;
 
         default:  // 2 or more elements
         {
-            const int16_t first = m_exec.sp - argc;
+            const int16_t first = context.sp - argc;
             // move first argument to the very end
-            m_exec.stack[m_exec.sp + 1] = m_exec.stack[first + 0];
-            resolveRefInPlace(m_exec.stack[m_exec.sp + 1]);
+            context.stack[context.sp + 1] = context.stack[first + 0];
+            resolveRefInPlace(context.stack[context.sp + 1]);
             // move second argument right before the last one
-            m_exec.stack[m_exec.sp + 0] = m_exec.stack[first + 1];
-            resolveRefInPlace(m_exec.stack[m_exec.sp + 0]);
+            context.stack[context.sp + 0] = context.stack[first + 1];
+            resolveRefInPlace(context.stack[context.sp + 0]);
             // move the rest, if any
             int16_t x = 2;
             const int16_t stop = ((argc % 2 == 0) ? argc : (argc - 1)) / 2;
             while (x <= stop)
             {
                 //        destination          , origin
-                std::swap(m_exec.stack[m_exec.sp - x + 1], m_exec.stack[first + x]);
-                resolveRefInPlace(m_exec.stack[m_exec.sp - x + 1]);
-                resolveRefInPlace(m_exec.stack[first + x]);
+                std::swap(context.stack[context.sp - x + 1], context.stack[first + x]);
+                resolveRefInPlace(context.stack[context.sp - x + 1]);
+                resolveRefInPlace(context.stack[first + x]);
                 ++x;
             }
-            m_exec.stack[first + 0] = Value(static_cast<PageAddr_t>(m_exec.pp));
-            m_exec.stack[first + 1] = Value(ValueType::InstPtr, static_cast<PageAddr_t>(m_exec.ip));
-            m_exec.sp += 2;
+            context.stack[first + 0] = Value(static_cast<PageAddr_t>(context.pp));
+            context.stack[first + 1] = Value(ValueType::InstPtr, static_cast<PageAddr_t>(context.ip));
+            context.sp += 2;
             break;
         }
     }
 
     m_fc++;
-    m_exec.scope_count_to_delete.emplace_back(0);
+    context.scope_count_to_delete.emplace_back(0);
 }
 
 #pragma endregion
 
-inline void VM::createNewScope() noexcept
+inline void VM::createNewScope(internal::ExecutionContext& context) noexcept
 {
-    m_exec.locals.emplace_back(std::make_shared<internal::Scope>());
+    context.locals.emplace_back(std::make_shared<internal::Scope>());
 }
 
-inline Value* VM::findNearestVariable(uint16_t id) noexcept
+inline Value* VM::findNearestVariable(uint16_t id, internal::ExecutionContext& context) noexcept
 {
-    for (auto it = m_exec.locals.rbegin(), it_end = m_exec.locals.rend(); it != it_end; ++it)
+    for (auto it = context.locals.rbegin(), it_end = context.locals.rend(); it != it_end; ++it)
     {
         if (auto val = (**it)[id]; val != nullptr)
             return val;
@@ -236,25 +241,25 @@ inline Value* VM::findNearestVariable(uint16_t id) noexcept
     return nullptr;
 }
 
-inline void VM::returnFromFuncCall()
+inline void VM::returnFromFuncCall(internal::ExecutionContext& context)
 {
     COZ_BEGIN("ark vm returnFromFuncCall");
 
     --m_fc;
 
-    m_exec.scope_count_to_delete.pop_back();
-    uint8_t del_counter = m_exec.scope_count_to_delete.back();
+    context.scope_count_to_delete.pop_back();
+    uint8_t del_counter = context.scope_count_to_delete.back();
 
     // PERF high cpu cost because destroying variants cost
-    m_exec.locals.pop_back();
+    context.locals.pop_back();
 
     while (del_counter != 0)
     {
-        m_exec.locals.pop_back();
+        context.locals.pop_back();
         del_counter--;
     }
 
-    m_exec.scope_count_to_delete.back() = 0;
+    context.scope_count_to_delete.back() = 0;
 
     // stop the executing if we reach the wanted frame count
     if (m_fc == m_until_frame_count)
@@ -263,7 +268,7 @@ inline void VM::returnFromFuncCall()
     COZ_END("ark vm returnFromFuncCall");
 }
 
-inline void VM::call(int16_t argc_)
+inline void VM::call(internal::ExecutionContext& context, int16_t argc_)
 {
     /*
         Argument: number of arguments when calling the function
@@ -281,14 +286,14 @@ inline void VM::call(int16_t argc_)
     // handling calls from C++ code
     if (argc_ <= -1)
     {
-        ++m_exec.ip;
-        argc = (static_cast<uint16_t>(m_state.m_pages[m_exec.pp][m_exec.ip]) << 8) + static_cast<uint16_t>(m_state.m_pages[m_exec.pp][m_exec.ip + 1]);
-        ++m_exec.ip;
+        ++context.ip;
+        argc = (static_cast<uint16_t>(m_state.m_pages[context.pp][context.ip]) << 8) + static_cast<uint16_t>(m_state.m_pages[context.pp][context.ip + 1]);
+        ++context.ip;
     }
     else
         argc = argc_;
 
-    Value function = *popAndResolveAsPtr();
+    Value function = *popAndResolveAsPtr(context);
 
     switch (function.valueType())
     {
@@ -298,10 +303,10 @@ inline void VM::call(int16_t argc_)
             // drop arguments from the stack
             std::vector<Value> args(argc);
             for (uint16_t j = 0; j < argc; ++j)
-                args[argc - 1 - j] = *popAndResolveAsPtr();
+                args[argc - 1 - j] = *popAndResolveAsPtr(context);
 
             // call proc
-            push(function.proc()(args, this));
+            push(function.proc()(args, this), context);
             return;
         }
 
@@ -311,16 +316,16 @@ inline void VM::call(int16_t argc_)
             PageAddr_t new_page_pointer = function.pageAddr();
 
             // create dedicated frame
-            createNewScope();
+            createNewScope(context);
 
-            swapStackForFunCall(argc);
+            swapStackForFunCall(argc, context);
 
             // store "reference" to the function to speed the recursive functions
-            if (m_exec.last_symbol < m_state.m_symbols.size())
-                m_exec.locals.back()->push_back(m_exec.last_symbol, function);
+            if (context.last_symbol < m_state.m_symbols.size())
+                context.locals.back()->push_back(context.last_symbol, function);
 
-            m_exec.pp = new_page_pointer;
-            m_exec.ip = -1;  // because we are doing a m_exec.ip++ right after that
+            context.pp = new_page_pointer;
+            context.ip = -1;  // because we are doing a context.ip++ right after that
             break;
         }
 
@@ -331,20 +336,20 @@ inline void VM::call(int16_t argc_)
             PageAddr_t new_page_pointer = c.pageAddr();
 
             // load saved scope
-            m_exec.locals.push_back(c.scope());
+            context.locals.push_back(c.scope());
             // create dedicated frame
-            createNewScope();
-            ++m_exec.scope_count_to_delete.back();
+            createNewScope(context);
+            ++context.scope_count_to_delete.back();
 
-            swapStackForFunCall(argc);
+            swapStackForFunCall(argc, context);
 
-            m_exec.pp = new_page_pointer;
-            m_exec.ip = -1;  // because we are doing a m_exec.ip++ right after that
+            context.pp = new_page_pointer;
+            context.ip = -1;  // because we are doing a context.ip++ right after that
             break;
         }
 
         default:
-            throwVMError("Can't call '" + m_state.m_symbols[m_exec.last_symbol] + "': it isn't a Function but a " + types_to_str[static_cast<std::size_t>(function.valueType())]);
+            throwVMError("Can't call '" + m_state.m_symbols[context.last_symbol] + "': it isn't a Function but a " + types_to_str[static_cast<std::size_t>(function.valueType())]);
     }
 
     // checking function arity
@@ -352,7 +357,7 @@ inline void VM::call(int16_t argc_)
                 needed_argc = 0;
 
     // every argument is a MUT declaration in the bytecode
-    while (m_state.m_pages[m_exec.pp][index] == Instruction::MUT)
+    while (m_state.m_pages[context.pp][index] == Instruction::MUT)
     {
         needed_argc += 1;
         index += 3;  // jump the argument of MUT (integer on 2 bits, big endian)
@@ -360,7 +365,7 @@ inline void VM::call(int16_t argc_)
 
     if (needed_argc != argc)
         throwVMError(
-            "Function '" + m_state.m_symbols[m_exec.last_symbol] + "' needs " + std::to_string(needed_argc) +
+            "Function '" + m_state.m_symbols[context.last_symbol] + "' needs " + std::to_string(needed_argc) +
             " arguments, but it received " + std::to_string(argc));
 
     COZ_END("ark vm::call");

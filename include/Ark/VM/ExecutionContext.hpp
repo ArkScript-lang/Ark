@@ -1,5 +1,5 @@
 /**
- * @file ExecutionHandler.hpp
+ * @file ExecutionContext.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Keeping track of the internal data needed by the VM
  * @version 0.1
@@ -27,8 +27,11 @@
 
 namespace Ark::internal
 {
-    struct ExecutionHandler
+    struct ExecutionContext
     {
+        static inline unsigned Count = 0;
+
+        const bool primary;  ///< Tells if the current ExecutionContext is the primary one or not
         int ip = 0;          ///< Instruction pointer
         std::size_t pp = 0;  ///< Page pointer
         uint16_t sp = 0;     ///< Stack pointer
@@ -38,6 +41,12 @@ namespace Ark::internal
         std::vector<uint8_t> scope_count_to_delete;
         std::optional<Scope_t> saved_scope;
         std::vector<Scope_t> locals;
+
+        ExecutionContext() noexcept :
+            primary(ExecutionContext::Count == 0)
+        {
+            ExecutionContext::Count++;
+        }
     };
 }
 
