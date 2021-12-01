@@ -1,5 +1,8 @@
-#include <termcolor/termcolor.hpp>
 #include <Ark/Exceptions.hpp>
+
+#include <numeric>
+#include <termcolor/termcolor.hpp>
+
 #include <Ark/Utils.hpp>
 
 namespace Ark
@@ -21,7 +24,13 @@ namespace Ark
             args_str.push_back(types_to_str[expected_type]);
         }
 
-        arg_str = Utils::joinString(args_str, ", ");
+        arg_str = std::accumulate(
+            std::next(args_str.begin()),
+            args_str.end(),
+            args_str[0],
+            [](const std::string& a, const std::string& b) -> std::string {
+                return a + ", " + b;
+            });
 
         // argument has been provided
         if (m_arg_index < m_args.size())
