@@ -8,6 +8,10 @@
 #include <termcolor/termcolor.hpp>
 #include <Ark/Utils.hpp>
 
+#ifdef ARK_PROFILER_MIPS
+#    include <chrono>
+#endif
+
 struct mapping
 {
     char* name;
@@ -205,6 +209,11 @@ namespace Ark
     int VM::safeRun(ExecutionContext& context, std::size_t untilFrameCount)
     {
         m_until_frame_count = untilFrameCount;
+
+#ifdef ARK_PROFILER_MIPS
+        auto start_time = std::chrono::system_clock::now();
+        unsigned long long instructions_executed = 0;
+#endif
 
         try
         {
@@ -1093,6 +1102,10 @@ namespace Ark
 
                 // move forward
                 ++context.ip;
+
+#ifdef ARK_PROFILER_MIPS
+                ++instructions_executed;
+#endif
             }
         }
         catch (const std::exception& e)
@@ -1110,6 +1123,15 @@ namespace Ark
 
         if (m_state.m_debug_level > 0)
             std::cout << "Estimated stack trashing: " << context.stack.size() << "/" << VMStackSize << "\n";
+
+#ifdef ARK_PROFILER_MIPS
+        auto end_time = std::chrono::system_clock::now();
+        auto d = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
+
+        std::cout << "\nInstructions executed: " << instructions_executed << "\n"
+                  << "Time spent: " << d.count() << " us\n"
+                  << (static_cast<double>(instructions_executed) / d.count()) << " MIPS\n";
+#endif
 
         return m_exit_code;
     }
