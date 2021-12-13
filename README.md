@@ -63,16 +63,12 @@ Also it has:
     (set value (toNumber (input "Input a numeric value: ")))
 
     (if (< value number)
-        # then
         (print "More!")
-        # else
         (if (= value number)
-            # then
             {
                 (print "Bingo!")
                 (set continue false)
             }
-            # else
             (print "Less!")))
 
     (set tries (+ 1 tries))
@@ -154,6 +150,7 @@ Different CMake switches are available to customize the build:
 * `-DARK_ENABLE_SYSTEM` to enable `sys:exec` (execute shell commands without restrictions), defaults to On
 * `-DARK_PROFILER` to enable the [coz](https://github.com/plasma-umass/coz) profiler, defaults to Off
 * `-DARK_PROFILER_COUNT` to count every creation/copy/move of the internal value type, defaults to Off
+* `-DARK_PROFILER_MIPS` to enable the MIPS counting, defaults to Off
 * `-DARK_NO_STDLIB` to avoid the installation of the ArkScript standard library
 * `-DARK_BUILD_MODULES` to trigger the modules build
 
@@ -183,7 +180,7 @@ SYNOPSIS
         ark -bcr <file> -on
         ark -bcr <file> [-(a|st|vt)] [-s <start> <end>]
         ark -bcr <file> [-cs] [-p <page>]
-        ark <file> [-d] [-L <lib_dir>] [-f(fac|no-fac)] [-f(ruv|no-ruv)]
+        ark <file> [-d] [-L <lib_dir>]
 
 OPTIONS
         -h, --help                  Display this message
@@ -201,8 +198,6 @@ OPTIONS
         -cs, --code                 Display only the code segments
         -p, --page                  Set the bytecode reader code segment to display
         -L, --lib                   Set the location of the ArkScript standard library
-        -f(fac|no-fac)              Toggle function arity checks (default: ON)
-        -f(ruv|no-ruv)              Remove unused variables (default: ON)
 
 LICENSE
         Mozilla Public License 2.0
