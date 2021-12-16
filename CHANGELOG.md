@@ -8,6 +8,7 @@
 - adding `ARK_PROFILER_MIPS` to toggle instruction per second calculation
 
 ### Changed
+- reserving a default scope size of 3, which yields really good performance results compared to nothing being reserved
 
 ### Removed
 

@@ -168,6 +168,7 @@ option(ARK_BUILD_EXE        "Build a standalone arkscript executable" Off)
 option(ARK_ENABLE_SYSTEM    "Enable sys:exec" On)  # enable use of (sys:exec "command here")
 option(ARK_PROFILER         "Enable coz profiler" Off)
 option(ARK_PROFILER_COUNT   "Enable creations/copies/moves counting on the Value" Off)
+option(ARK_PROFILER_MIPS    "Enable MIPS calculation" Off)
 option(ARK_NO_STDLIB        "Do not install the standard library with the Ark library" Off)
 option(ARK_BUILD_MODULES    "Build the std library modules or not" Off)
 

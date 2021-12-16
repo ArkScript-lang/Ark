@@ -5,7 +5,9 @@
 namespace Ark::internal
 {
     Scope::Scope() noexcept
-    {}
+    {
+        m_data.reserve(3);
+    }
 
     void Scope::push_back(uint16_t id, Value&& val) noexcept
     {
