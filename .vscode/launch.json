@@ -5,6 +5,19 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "(Win) REPL",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${command:cmake.launchTargetPath}",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [
+                {"name": "ARKSCRIPT_PATH", "value": "${workspaceFolder}/lib"}
+            ],
+            "console": "integratedTerminal"
+        },
+        {
             "name": "(Win) Unit Tests",
             "type": "cppvsdbg",
             "request": "launch",
@@ -13,7 +26,7 @@
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [
-                {"name": "ARKSCRIPT_PATH", "value": "${workspaceFolder}/"}
+                {"name": "ARKSCRIPT_PATH", "value": "${workspaceFolder}/lib"}
             ],
             "console": "integratedTerminal"
         },
@@ -26,7 +39,7 @@
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [
-                {"name": "ARKSCRIPT_PATH", "value": "${workspaceFolder}/"}
+                {"name": "ARKSCRIPT_PATH", "value": "${workspaceFolder}/lib"}
             ],
             "console": "integratedTerminal"
         }
