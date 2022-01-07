@@ -6,6 +6,7 @@
 #include <limits>
 
 #include <termcolor/termcolor.hpp>
+#include <Ark/Files.hpp>
 #include <Ark/Utils.hpp>
 
 #ifdef ARK_PROFILER_MIPS

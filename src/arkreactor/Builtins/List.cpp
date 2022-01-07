@@ -18,12 +18,12 @@ namespace Ark::internal::Builtins::List
      * =end
      * @author https://github.com/SuperFola
      */
-    Value reverseList(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
+    Value reverseList(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (n[0].valueType() != ValueType::List)
-            throw Ark::TypeError(LIST_REVERSE_ARITY);
+            throw TypeError(LIST_REVERSE_ARITY);
         if (n.size() != 1)  // arity error
-            throw Ark::TypeError(LIST_REVERSE_TE0);
+            throw TypeError(LIST_REVERSE_TE0);
 
         std::reverse(n[0].list().begin(), n[0].list().end());
 
@@ -42,12 +42,12 @@ namespace Ark::internal::Builtins::List
      * =end
      * @author https://github.com/SuperFola
      */
-    Value findInList(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
+    Value findInList(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (n.size() != 2)
             throw std::runtime_error(LIST_FIND_ARITY);
         if (n[0].valueType() != ValueType::List)
-            throw Ark::TypeError(LIST_FIND_TE0);
+            throw TypeError(LIST_FIND_TE0);
 
         std::vector<Value>& l = n[0].list();
         for (Value::Iterator it = l.begin(), it_end = l.end(); it != it_end; ++it)
@@ -71,7 +71,7 @@ namespace Ark::internal::Builtins::List
      * =end
      * @author https://github.com/SuperFola
      */
-    Value removeAtList(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
+    Value removeAtList(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         static bool has_warned = false;
         if (!has_warned)
@@ -83,9 +83,9 @@ namespace Ark::internal::Builtins::List
         if (n.size() != 2)
             throw std::runtime_error(LIST_RMAT_ARITY);
         if (n[0].valueType() != ValueType::List)
-            throw Ark::TypeError(LIST_RMAT_TE0);
+            throw TypeError(LIST_RMAT_TE0);
         if (n[1].valueType() != ValueType::Number)
-            throw Ark::TypeError(LIST_RMAT_TE1);
+            throw TypeError(LIST_RMAT_TE1);
 
         std::size_t idx = static_cast<std::size_t>(n[1].number());
         if (idx >= n[0].list().size())
@@ -108,18 +108,18 @@ namespace Ark::internal::Builtins::List
      * =end
      * @author https://github.com/SuperFola
      */
-    Value sliceList(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
+    Value sliceList(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (n.size() != 4)
             throw std::runtime_error(LIST_SLICE_ARITY);
         if (n[0].valueType() != ValueType::List)
-            throw Ark::TypeError(LIST_SLICE_TE0);
+            throw TypeError(LIST_SLICE_TE0);
         if (n[1].valueType() != ValueType::Number)
-            throw Ark::TypeError(LIST_SLICE_TE1);
+            throw TypeError(LIST_SLICE_TE1);
         if (n[2].valueType() != ValueType::Number)
-            throw Ark::TypeError(LIST_SLICE_TE2);
+            throw TypeError(LIST_SLICE_TE2);
         if (n[3].valueType() != ValueType::Number)
-            throw Ark::TypeError(LIST_SLICE_TE3);
+            throw TypeError(LIST_SLICE_TE3);
 
         long step = static_cast<long>(n[3].number());
         if (step <= 0)
@@ -150,12 +150,12 @@ namespace Ark::internal::Builtins::List
      * =end
      * @author https://github.com/SuperFola
      */
-    Value sort_(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
+    Value sort_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (n.size() != 1)
             throw std::runtime_error(LIST_SORT_ARITY);
         if (n[0].valueType() != ValueType::List)
-            throw Ark::TypeError(LIST_SORT_TE0);
+            throw TypeError(LIST_SORT_TE0);
 
         std::sort(n[0].list().begin(), n[0].list().end());
         return n[0];
@@ -171,12 +171,12 @@ namespace Ark::internal::Builtins::List
      * =end
      * @author https://github.com/SuperFola
      */
-    Value fill(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
+    Value fill(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (n.size() != 2)
             throw std::runtime_error(LIST_FILL_ARITY);
         if (n[0].valueType() != ValueType::Number)
-            throw Ark::TypeError(LIST_FILL_TE0);
+            throw TypeError(LIST_FILL_TE0);
 
         std::size_t c = static_cast<std::size_t>(n[0].number());
         std::vector<Value> l;
@@ -198,14 +198,14 @@ namespace Ark::internal::Builtins::List
      * =end
      * @author https://github.com/SuperFola
      */
-    Value setListAt(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
+    Value setListAt(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (n.size() != 3)
             throw std::runtime_error(LIST_SETAT_ARITY);
         if (n[0].valueType() != ValueType::List)
-            throw Ark::TypeError(LIST_SETAT_TE0);
+            throw TypeError(LIST_SETAT_TE0);
         if (n[1].valueType() != ValueType::Number)
-            throw Ark::TypeError(LIST_SETAT_TE1);
+            throw TypeError(LIST_SETAT_TE1);
 
         n[0].list()[static_cast<std::size_t>(n[1].number())] = n[2];
         return n[0];
