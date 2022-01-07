@@ -2,11 +2,19 @@
 
 ## [Unreleased]
 ### Added
+- adding an ExecutionContext to host the pointers (instruction, page, stack) and execution related structures (stack, locals, scopes), to ease the transition to a parallelized VM
+    - the VM can have multiple independant context running on the same bytecode
+- the VM now takes a reference to an `Ark::State` instead of a raw non-owning pointer
+- adding `ARK_PROFILER_MIPS` to toggle instruction per second calculation
 
 ### Changed
 - splitting Utils.hpp into multiple files for easier maintenance and contextualisation
+- reserving a default scope size of 3, which yields really good performance results compared to nothing being reserved
 
 ### Removed
+
+### Deprecated
+- deprecating `VM(State*)` in favor of `VM(State&)`
 
 ## [3.1.2] - 2021-11-02
 ### Added
