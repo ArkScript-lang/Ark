@@ -4,6 +4,7 @@
 #include <iomanip>
 
 #include <Ark/Constants.hpp>
+#include <Ark/Files.hpp>
 #include <Ark/Utils.hpp>
 
 namespace Ark::internal

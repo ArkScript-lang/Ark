@@ -3,6 +3,7 @@
 #include <fstream>
 #include <chrono>
 #include <limits>
+#include <filesystem>
 #include <picosha2.h>
 
 #include <Ark/Literals.hpp>
