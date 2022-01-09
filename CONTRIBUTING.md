@@ -13,6 +13,31 @@ You will find here a summary of the different things you should do / look up to 
 
 Don't know what to work on? No worries, we have a [list of things to do](https://github.com/ArkScript-lang/Ark/projects). Also, you can check the issues to find something to do!
 
+## Submitting a pull request
+
+### Checking the enforcement of the coding style
+
+If it is a C++ project, it is strongly advised to run clang-format on your code *before* submitting a pull request.
+
+You can do as follows if you are a Windows user:
+```powershell
+Function run-on {
+    param (
+        $folder
+    )
+    Get-ChildItem -Path $folder -File -Recurse | Foreach {clang-format -style=file -i $_.fullname}
+}
+
+run-on .\include\Ark
+run-on .\src
+```
+
+### Running the test suite
+
+ArkScript test suite should be ran from the root folder and the console module should have been compiled (it is used for colors). You can then run `./build/ark tests/arkscripts/unittests.ark --lib ./lib`.
+
+The standard library test suite should be ran from the root folder of the project (the console module needs to be copied to the folder). You can then run `./ark tests/all.ark --lib ./`.
+
 ## C++ coding guidelines
 
 * Avoid `auto` whenever possible. Using it is tolerated for complex types such as iterators
@@ -21,6 +46,17 @@ Don't know what to work on? No worries, we have a [list of things to do](https:/
 * Conditions with a single statement (`if (condition) do_this();`) do not need to be enclosed in braces
 * Put a space between `for`, `while`, `if` and `(...)`, around each `=` sign (wherever it is, even in for-loops), between `#include` and the file to include
 * Prefer `enum class` over `enum`
+* Left-const over right-const
+* The `*` and `&` are part of the type:
+```cpp
+// AVOID THIS
+int *i = new int(5);
+int &j = k;
+
+// PREFERRED
+int* i = new int(5);
+int& j = k;
+```
 * Naming:
     * Methods and functions: camelCase
     * Variables: snake_case
@@ -28,7 +64,7 @@ Don't know what to work on? No worries, we have a [list of things to do](https:/
     * Enumeration members: PascalCase
 * For-each loops should use const references or rvalue references instead of plain copies:
 ```cpp
-// DEPRECATED
+// AVOID THIS
 for (auto value : container)
 
 // PREFERRED
@@ -37,7 +73,7 @@ for (auto&& value : container)
 ```
 * For-loops should be optimized whenever possible, as follows:
 ```cpp
-// DEPRECATED
+// AVOID THIS
 for (std::size_t i = 0; i < container.size(); ++i)
     ...
 
@@ -106,8 +142,9 @@ namespace Ark
         /**
          * @brief doxygen documentation here
          * 
+         * @param a_parameter defines the power of the flux capacitor
          */
-        void aMethod();
+        void aMethod(const std::string& a_parameter);
 
     private:
         int m_member;  ///< This is a doxygen comment
@@ -116,23 +153,6 @@ namespace Ark
 
 #endif  // Adding an empty line at the end of each file is strongly advised
 
-```
-
-### Checking the enforcement of the coding style
-
-It is strongly advised to run clang-format on your code *before* submitting a pull request.
-
-You can do as follows if you are a Windows user:
-```powershell
-Function run-on {
-    param (
-        $folder
-    )
-    Get-ChildItem -Path $folder -File -Recurse | Foreach {clang-format -style=file -i $_.fullname}
-}
-
-run-on .\include\Ark
-run-on .\src
 ```
 
 ## ArkScript coding guidelines
