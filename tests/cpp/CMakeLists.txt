@@ -6,7 +6,14 @@ project(integration CXX)
 set(OUT_DIR ${PROJECT_SOURCE_DIR}/out)
 file(MAKE_DIRECTORY ${OUT_DIR})
 
-find_library(ArkReactor NAMES ArkReactor PATHS "../../build/Release" "../../build" "../../build/Debug")
+find_library(ArkReactor
+    NAMES
+        ArkReactor
+        libArkReactor
+    PATHS
+        "../../build/Release"
+        "../../build"
+        "../../build/Debug")
 
 set(TARGET_LIST "01;02;03")
 
@@ -26,7 +33,7 @@ foreach(ELEM ${TARGET_LIST})
     add_custom_command(
         TARGET ${FNAME}
         POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${FNAME}> ${OUT_DIR}/${FNAME}.exe
+        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${FNAME}> ${OUT_DIR}/${FNAME}
     )
 
     # request C++17
