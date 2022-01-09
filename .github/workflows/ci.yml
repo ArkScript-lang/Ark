@@ -168,7 +168,7 @@ jobs:
       shell: bash
       run: |
         mkdir -p out
-        cd tests/cpp && cp ark/${BUILD_TYPE}/*.dll out/
+        cp build/${BUILD_TYPE}/*.dll tests/cpp/out/
 
     - name: Tests
       shell: bash
