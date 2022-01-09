@@ -13,6 +13,12 @@ You will find here a summary of the different things you should do / look up to 
 
 Don't know what to work on? No worries, we have a [list of things to do](https://github.com/ArkScript-lang/Ark/projects). Also, you can check the issues to find something to do!
 
+## Contributing to a module (or creating one)
+
+The repository for this is [ArkScript-lang/modules](https://github.com/ArkScript-lang/modules), and the language used is C++.
+
+See the guide [to create a module](https://arkscript-lang.dev/impl/d1/d8c/modules.html).
+
 ## Submitting a pull request
 
 ### Checking the enforcement of the coding style
