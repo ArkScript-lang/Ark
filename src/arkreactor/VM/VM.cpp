@@ -1158,11 +1158,9 @@ namespace Ark
 
     void VM::backtrace(ExecutionContext& context) noexcept
     {
-        std::cerr << termcolor::reset
-                  << "At IP: " << (context.ip != -1 ? context.ip : 0)
-                  << ", PP: " << context.pp
-                  << ", SP: " << context.sp
-                  << "\n";
+        int saved_ip = context.ip;
+        std::size_t saved_pp = context.pp;
+        uint16_t saved_sp = context.sp;
 
         if (m_fc > 1)
         {
@@ -1224,5 +1222,11 @@ namespace Ark
             // pop the PP as well
             pop(context);
         }
+
+        std::cerr << termcolor::reset
+                  << "At IP: " << (saved_ip != -1 ? saved_ip : 0)
+                  << ", PP: " << saved_pp
+                  << ", SP: " << saved_sp
+                  << "\n";
     }
 }
