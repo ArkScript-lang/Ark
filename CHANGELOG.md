@@ -10,6 +10,7 @@
 ### Changed
 - splitting Utils.hpp into multiple files for easier maintenance and contextualisation
 - reserving a default scope size of 3, which yields really good performance results compared to nothing being reserved
+- upgrading the builtins error handling to use the `BetterTypeError`
 
 ### Removed
 
