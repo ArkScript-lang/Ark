@@ -14,7 +14,7 @@
 #include <chrono>
 
 #include <Ark/Constants.hpp>
-#include <Ark/Builtins/BuiltinsErrors.inl>
+#include <Ark/TypeChecker.hpp>
 #include <Ark/VM/VM.hpp>
 
 namespace Ark::internal::Builtins::System
@@ -31,9 +31,7 @@ namespace Ark::internal::Builtins::System
      */
     Value system_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 1 || n[0].valueType() != ValueType::String)
-            throw BetterTypeError("sys:exec", 1, n)
-                .withArg("command", ValueType::String);
+        types::checker("sys:exec", types::Contract { { types::Typedef("command", ValueType::String) } }, n);
 
 #ifdef ARK_ENABLE_SYSTEM
         std::array<char, 128> buffer;
@@ -61,9 +59,7 @@ namespace Ark::internal::Builtins::System
      */
     Value sleep(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 1 || n[0].valueType() != ValueType::Number)
-            throw BetterTypeError("sys:sleep", 1, n)
-                .withArg("duration", ValueType::Number);
+        types::checker("sys:sleep", types::Contract { { types::Typedef("duration", ValueType::Number) } }, n);
 
         auto duration = std::chrono::duration<double, std::ratio<1, 1000>>(n[0].number());
         std::this_thread::sleep_for(duration);
@@ -83,9 +79,7 @@ namespace Ark::internal::Builtins::System
      */
     Value exit_(std::vector<Value>& n, VM* vm)
     {
-        if (n.size() != 1 || n[0].valueType() != ValueType::Number)
-            throw BetterTypeError("sys:exit", 1, n)
-                .withArg("exitCode", ValueType::Number);
+        types::checker("sys:exit", types::Contract { { types::Typedef("exitCode", ValueType::Number) } }, n);
 
         vm->exit(static_cast<int>(n[0].number()));
         return nil;

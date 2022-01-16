@@ -7,7 +7,7 @@
 #include <Ark/Files.hpp>
 #include <Ark/VM/VM.hpp>
 #include <Ark/Exceptions.hpp>
-#include <Ark/Builtins/BuiltinsErrors.inl>
+#include <Ark/TypeChecker.hpp>
 
 namespace Ark::internal::Builtins::IO
 {
@@ -60,12 +60,14 @@ namespace Ark::internal::Builtins::IO
      */
     Value input(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() == 1)
-        {
-            if (n[0].valueType() != ValueType::String)
-                throw BetterTypeError("input", 1, n).withArg("prompt", ValueType::String);
+        std::size_t alt = types::checker(
+            "input",
+            { { types::Contract {},
+                types::Contract { { types::Typedef("prompt", ValueType::String) } } } },
+            n);
+
+        if (alt == 1)
             std::printf("%s", n[0].string().c_str());
-        }
 
         std::string line = "";
         std::getline(std::cin, line);
@@ -87,14 +89,14 @@ namespace Ark::internal::Builtins::IO
      */
     Value writeFile(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        // filename, content
-        if (n.size() == 2)
-        {
-            if (n[0].valueType() != ValueType::String)
-                throw BetterTypeError("io:writeFile", 2, n)
-                    .withArg("filename", ValueType::String)
-                    .withArg("content", {});
+        std::size_t alt = types::checker(
+            "io:writeFile",
+            { { types::Contract { { types::Typedef("filename", ValueType::String), types::Typedef("content", types::AnyType) } },
+                types::Contract { { types::Typedef("filename", ValueType::String), types::Typedef("mode", ValueType::String), types::Typedef("content", types::AnyType) } } } },
+            n);
 
+        if (alt == 0)
+        {
             std::ofstream f(n[0].string().c_str());
             if (f.is_open())
             {
@@ -104,18 +106,11 @@ namespace Ark::internal::Builtins::IO
             else
                 throw std::runtime_error("Couldn't write to file \"" + n[0].stringRef().toString() + "\"");
         }
-        // filename, mode (a or w), content
-        else if (n.size() == 3)
+        else  // alt == 1
         {
-            if (n[0].valueType() != ValueType::String || n[1].valueType() != ValueType::String)
-                throw BetterTypeError("io:writeFile", 3, n)
-                    .withArg("filename", ValueType::String)
-                    .withArg("mode", ValueType::String)
-                    .withArg("content", {});
-
             auto mode = n[1].string();
             if (mode != "w" && mode != "a")
-                throw std::runtime_error(IO_WRITE_VE_1);
+                throw std::runtime_error("io:writeFile: mode must be equal to \"a\" or \"w\"");
 
             auto ios_mode = std::ios::out | std::ios::trunc;
             if (mode == "a")
@@ -130,11 +125,7 @@ namespace Ark::internal::Builtins::IO
             else
                 throw std::runtime_error("Couldn't write to file \"" + n[0].stringRef().toString() + "\"");
         }
-        else
-            throw BetterTypeError("io:writeFile", 3, n)
-                .withArg("filename", ValueType::String)
-                .withArg("mode", ValueType::String)
-                .withArg("content", {});
+
         return nil;
     }
 
@@ -149,9 +140,7 @@ namespace Ark::internal::Builtins::IO
      */
     Value readFile(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 1 || n[0].valueType() != ValueType::String)
-            throw BetterTypeError("io:readFile", 1, n)
-                .withArg("filename", ValueType::String);
+        types::checker("io:readFile", types::Contract { { types::Typedef("filename", ValueType::String) } }, n);
 
         auto filename = n[0].string().c_str();
         if (!Utils::fileExists(filename))
@@ -171,9 +160,7 @@ namespace Ark::internal::Builtins::IO
      */
     Value fileExists(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 1 || n[0].valueType() != ValueType::String)
-            throw BetterTypeError("io:fileExists?", 1, n)
-                .withArg("filename", ValueType::String);
+        types::checker("io:fileExists?", types::Contract { { types::Typedef("filename", ValueType::String) } }, n);
 
         return Utils::fileExists(n[0].string().c_str()) ? trueSym : falseSym;
     }
@@ -189,9 +176,7 @@ namespace Ark::internal::Builtins::IO
      */
     Value listFiles(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 1 || n[0].valueType() != ValueType::String)
-            throw BetterTypeError("io:listFiles", 1, n)
-                .withArg("path", ValueType::String);
+        types::checker("io:listFiles", types::Contract { { types::Typedef("path", ValueType::String) } }, n);
 
         std::vector<Value> r;
         for (const auto& entry : std::filesystem::directory_iterator(n[0].string().c_str()))
@@ -211,9 +196,7 @@ namespace Ark::internal::Builtins::IO
      */
     Value isDirectory(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 1 || n[0].valueType() != ValueType::String)
-            throw BetterTypeError("io:dir?", 1, n)
-                .withArg("path", ValueType::String);
+        types::checker("io:dir?", types::Contract { { types::Typedef("path", ValueType::String) } }, n);
 
         return (std::filesystem::is_directory(std::filesystem::path(n[0].string().c_str()))) ? trueSym : falseSym;
     }
@@ -229,9 +212,7 @@ namespace Ark::internal::Builtins::IO
      */
     Value makeDir(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 1 || n[0].valueType() != ValueType::String)
-            throw BetterTypeError("io:makeDir", 1, n)
-                .withArg("name", ValueType::String);
+        types::checker("io:makeDir", types::Contract { { types::Typedef("name", ValueType::String) } }, n);
 
         std::filesystem::create_directories(std::filesystem::path(n[0].string().c_str()));
         return nil;
@@ -249,18 +230,11 @@ namespace Ark::internal::Builtins::IO
      */
     Value removeFiles(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() == 0)
-            throw BetterTypeError("io:removeFiles", 1, n)
-                .withArg("filename", ValueType::String);
+        static const types::Contract c = { { types::Typedef("filename", ValueType::String), types::Typedef("filename", ValueType::String, /* variadic */ true) } };
+        types::checker("io:removeFiles", c, n);
 
         for (Value::Iterator it = n.begin(), it_end = n.end(); it != it_end; ++it)
-        {
-            if (it->valueType() != ValueType::String)
-                // TODO find a way to make it work with variadic argument functions
-                throw BetterTypeError("io:listFiles", n.size(), n)
-                    .withArg("filename", ValueType::String);
             std::filesystem::remove_all(std::filesystem::path(it->string().c_str()));
-        }
 
         return nil;
     }

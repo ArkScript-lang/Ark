@@ -6,6 +6,7 @@
     - the VM can have multiple independant context running on the same bytecode
 - the VM now takes a reference to an `Ark::State` instead of a raw non-owning pointer
 - adding `ARK_PROFILER_MIPS` to toggle instruction per second calculation
+- adding new way to typecheck in builtins
 
 ### Changed
 - splitting Utils.hpp into multiple files for easier maintenance and contextualisation
