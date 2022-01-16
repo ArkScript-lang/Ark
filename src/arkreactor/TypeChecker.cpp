@@ -16,10 +16,12 @@ namespace Ark::internal::types
             return "any";
 
         return std::accumulate(
-            std::next(types.begin()),
+            types.begin(),
             types.end(),
             std::string(""),
             [](const std::string& a, ValueType type) -> std::string {
+                if (a.empty())
+                    return types_to_str[static_cast<std::size_t>(type)];
                 return a + ", " + types_to_str[static_cast<std::size_t>(type)];
             });
     }
@@ -89,6 +91,7 @@ namespace Ark::internal::types
                     const Typedef& td = c.arguments[j];
                     if (std::find(td.types.begin(), td.types.end(), provided_arguments[j].valueType()) == td.types.end())
                     {
+                        std::cout << "TypeError\n";
                         displayContract(c, provided_arguments);
                         throw Error("");
                     }
@@ -103,6 +106,7 @@ namespace Ark::internal::types
                     {
                         if (std::find(var_td.types.begin(), var_td.types.end(), provided_arguments[j].valueType()) == var_td.types.end())
                         {
+                            std::cout << "TypeError\n";
                             displayContract(c, provided_arguments);
                             throw Error("");
                         }
