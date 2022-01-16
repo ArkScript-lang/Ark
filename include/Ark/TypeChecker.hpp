@@ -77,7 +77,7 @@ namespace Ark::internal::types
 
     inline std::size_t checker(std::string_view funcname, const Contract& contract, const std::vector<Value>& provided_arguments)
     {
-        return checker(funcname, {{ contract }}, provided_arguments);
+        return checker(funcname, { { contract } }, provided_arguments);
     }
 }
 
