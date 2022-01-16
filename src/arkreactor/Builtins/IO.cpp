@@ -6,6 +6,7 @@
 
 #include <Ark/Files.hpp>
 #include <Ark/VM/VM.hpp>
+#include <Ark/Exceptions.hpp>
 #include <Ark/Builtins/BuiltinsErrors.inl>
 
 namespace Ark::internal::Builtins::IO
@@ -62,7 +63,7 @@ namespace Ark::internal::Builtins::IO
         if (n.size() == 1)
         {
             if (n[0].valueType() != ValueType::String)
-                throw TypeError(IO_INPUT_TE);
+                throw BetterTypeError("input", 1, n).withArg("prompt", ValueType::String);
             std::printf("%s", n[0].string().c_str());
         }
 
@@ -90,7 +91,9 @@ namespace Ark::internal::Builtins::IO
         if (n.size() == 2)
         {
             if (n[0].valueType() != ValueType::String)
-                throw TypeError(IO_WRITE_TE0);
+                throw BetterTypeError("io:writeFile", 2, n)
+                    .withArg("filename", ValueType::String)
+                    .withArg("content", {});
 
             std::ofstream f(n[0].string().c_str());
             if (f.is_open())
@@ -104,10 +107,11 @@ namespace Ark::internal::Builtins::IO
         // filename, mode (a or w), content
         else if (n.size() == 3)
         {
-            if (n[0].valueType() != ValueType::String)
-                throw TypeError(IO_WRITE_TE0);
-            if (n[1].valueType() != ValueType::String)
-                throw TypeError(IO_WRITE_TE1);
+            if (n[0].valueType() != ValueType::String || n[1].valueType() != ValueType::String)
+                throw BetterTypeError("io:writeFile", 3, n)
+                    .withArg("filename", ValueType::String)
+                    .withArg("mode", ValueType::String)
+                    .withArg("content", {});
 
             auto mode = n[1].string();
             if (mode != "w" && mode != "a")
@@ -127,7 +131,10 @@ namespace Ark::internal::Builtins::IO
                 throw std::runtime_error("Couldn't write to file \"" + n[0].stringRef().toString() + "\"");
         }
         else
-            throw std::runtime_error(IO_WRITE_ARITY);
+            throw BetterTypeError("io:writeFile", 3, n)
+                .withArg("filename", ValueType::String)
+                .withArg("mode", ValueType::String)
+                .withArg("content", {});
         return nil;
     }
 
@@ -142,10 +149,9 @@ namespace Ark::internal::Builtins::IO
      */
     Value readFile(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 1)
-            throw std::runtime_error(IO_READ_ARITY);
-        if (n[0].valueType() != ValueType::String)
-            throw TypeError(IO_READ_TE0);
+        if (n.size() != 1 || n[0].valueType() != ValueType::String)
+            throw BetterTypeError("io:readFile", 1, n)
+                .withArg("filename", ValueType::String);
 
         auto filename = n[0].string().c_str();
         if (!Utils::fileExists(filename))
@@ -165,10 +171,9 @@ namespace Ark::internal::Builtins::IO
      */
     Value fileExists(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 1)
-            throw std::runtime_error(IO_EXISTS_ARITY);
-        if (n[0].valueType() != ValueType::String)
-            throw TypeError(IO_EXISTS_TE0);
+        if (n.size() != 1 || n[0].valueType() != ValueType::String)
+            throw BetterTypeError("io:fileExists?", 1, n)
+                .withArg("filename", ValueType::String);
 
         return Utils::fileExists(n[0].string().c_str()) ? trueSym : falseSym;
     }
@@ -184,10 +189,9 @@ namespace Ark::internal::Builtins::IO
      */
     Value listFiles(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 1)
-            throw std::runtime_error(IO_LS_ARITY);
-        if (n[0].valueType() != ValueType::String)
-            throw TypeError(IO_LS_TE0);
+        if (n.size() != 1 || n[0].valueType() != ValueType::String)
+            throw BetterTypeError("io:listFiles", 1, n)
+                .withArg("path", ValueType::String);
 
         std::vector<Value> r;
         for (const auto& entry : std::filesystem::directory_iterator(n[0].string().c_str()))
@@ -207,10 +211,9 @@ namespace Ark::internal::Builtins::IO
      */
     Value isDirectory(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 1)
-            throw std::runtime_error(IO_ISDIR_ARITY);
-        if (n[0].valueType() != ValueType::String)
-            throw TypeError(IO_ISDIR_TE0);
+        if (n.size() != 1 || n[0].valueType() != ValueType::String)
+            throw BetterTypeError("io:dir?", 1, n)
+                .withArg("path", ValueType::String);
 
         return (std::filesystem::is_directory(std::filesystem::path(n[0].string().c_str()))) ? trueSym : falseSym;
     }
@@ -226,10 +229,9 @@ namespace Ark::internal::Builtins::IO
      */
     Value makeDir(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 1)
-            throw std::runtime_error(IO_MKD_ARITY);
-        if (n[0].valueType() != ValueType::String)
-            throw TypeError(IO_MKD_TE0);
+        if (n.size() != 1 || n[0].valueType() != ValueType::String)
+            throw BetterTypeError("io:makeDir", 1, n)
+                .withArg("name", ValueType::String);
 
         std::filesystem::create_directories(std::filesystem::path(n[0].string().c_str()));
         return nil;
@@ -248,12 +250,15 @@ namespace Ark::internal::Builtins::IO
     Value removeFiles(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (n.size() == 0)
-            throw std::runtime_error(IO_RM_ARITY);
+            throw BetterTypeError("io:removeFiles", 1, n)
+                .withArg("filename", ValueType::String);
 
         for (Value::Iterator it = n.begin(), it_end = n.end(); it != it_end; ++it)
         {
             if (it->valueType() != ValueType::String)
-                throw TypeError(IO_RM_TE0);
+                // TODO find a way to make it work with variadic argument functions
+                throw BetterTypeError("io:listFiles", n.size(), n)
+                    .withArg("filename", ValueType::String);
             std::filesystem::remove_all(std::filesystem::path(it->string().c_str()));
         }
 
