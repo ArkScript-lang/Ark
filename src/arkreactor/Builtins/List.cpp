@@ -20,10 +20,9 @@ namespace Ark::internal::Builtins::List
      */
     Value reverseList(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n[0].valueType() != ValueType::List)
-            throw TypeError(LIST_REVERSE_ARITY);
-        if (n.size() != 1)  // arity error
-            throw TypeError(LIST_REVERSE_TE0);
+        if (n[0].valueType() != ValueType::List || n.size() != 1)
+            throw BetterTypeError("list:reverse", 1, n)
+                .withArg("list", ValueType::List);
 
         std::reverse(n[0].list().begin(), n[0].list().end());
 
@@ -44,10 +43,10 @@ namespace Ark::internal::Builtins::List
      */
     Value findInList(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 2)
-            throw std::runtime_error(LIST_FIND_ARITY);
-        if (n[0].valueType() != ValueType::List)
-            throw TypeError(LIST_FIND_TE0);
+        if (n.size() != 2 || n[0].valueType() != ValueType::List)
+            throw BetterTypeError("list:find", 2, n)
+                .withArg("list", ValueType::List)
+                .withArg("value", {});
 
         std::vector<Value>& l = n[0].list();
         for (Value::Iterator it = l.begin(), it_end = l.end(); it != it_end; ++it)
@@ -80,6 +79,8 @@ namespace Ark::internal::Builtins::List
             has_warned = true;
         }
 
+        // TEMP: not fixing the errors here because this will be deprecated and removed
+
         if (n.size() != 2)
             throw std::runtime_error(LIST_RMAT_ARITY);
         if (n[0].valueType() != ValueType::List)
@@ -110,16 +111,15 @@ namespace Ark::internal::Builtins::List
      */
     Value sliceList(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 4)
-            throw std::runtime_error(LIST_SLICE_ARITY);
-        if (n[0].valueType() != ValueType::List)
-            throw TypeError(LIST_SLICE_TE0);
-        if (n[1].valueType() != ValueType::Number)
-            throw TypeError(LIST_SLICE_TE1);
-        if (n[2].valueType() != ValueType::Number)
-            throw TypeError(LIST_SLICE_TE2);
-        if (n[3].valueType() != ValueType::Number)
-            throw TypeError(LIST_SLICE_TE3);
+        if (n.size() != 4 || n[0].valueType() != ValueType::List ||
+            n[1].valueType() != ValueType::Number ||
+            n[2].valueType() != ValueType::Number ||
+            n[3].valueType() != ValueType::Number)
+            throw BetterTypeError("list:slice", 4, n)
+                .withArg("list", ValueType::List)
+                .withArg("start", ValueType::Number)
+                .withArg("end", ValueType::Number)
+                .withArg("step", ValueType::Number);
 
         long step = static_cast<long>(n[3].number());
         if (step <= 0)
@@ -152,10 +152,9 @@ namespace Ark::internal::Builtins::List
      */
     Value sort_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 1)
-            throw std::runtime_error(LIST_SORT_ARITY);
-        if (n[0].valueType() != ValueType::List)
-            throw TypeError(LIST_SORT_TE0);
+        if (n.size() != 1 || n[0].valueType() != ValueType::List)
+            throw BetterTypeError("list:sort", 1, n)
+                .withArg("list", ValueType::List);
 
         std::sort(n[0].list().begin(), n[0].list().end());
         return n[0];
@@ -173,10 +172,10 @@ namespace Ark::internal::Builtins::List
      */
     Value fill(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 2)
-            throw std::runtime_error(LIST_FILL_ARITY);
-        if (n[0].valueType() != ValueType::Number)
-            throw TypeError(LIST_FILL_TE0);
+        if (n.size() != 2 || n[0].valueType() != ValueType::Number)
+            throw BetterTypeError("list:fill", 2, n)
+                .withArg("size", ValueType::Number)
+                .withArg("value", {});
 
         std::size_t c = static_cast<std::size_t>(n[0].number());
         std::vector<Value> l;
@@ -200,12 +199,12 @@ namespace Ark::internal::Builtins::List
      */
     Value setListAt(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 3)
-            throw std::runtime_error(LIST_SETAT_ARITY);
-        if (n[0].valueType() != ValueType::List)
-            throw TypeError(LIST_SETAT_TE0);
-        if (n[1].valueType() != ValueType::Number)
-            throw TypeError(LIST_SETAT_TE1);
+        if (n.size() != 3 || n[0].valueType() != ValueType::List ||
+            n[1].valueType() != ValueType::Number)
+            throw BetterTypeError("list:setAt", 3, n)
+                .withArg("list", ValueType::List)
+                .withArg("index", ValueType::Number)
+                .withArg("value", {});
 
         n[0].list()[static_cast<std::size_t>(n[1].number())] = n[2];
         return n[0];
