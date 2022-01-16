@@ -26,6 +26,7 @@ namespace Ark::internal::Builtins::String
      */
     Value format(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
+        // TODO find a way to use BetterTypeError with variadic functions
         if (n.size() == 0)
             throw std::runtime_error(STR_FORMAT_ARITY);
         if (n[0].valueType() != ValueType::String)
@@ -76,12 +77,11 @@ namespace Ark::internal::Builtins::String
      */
     Value findSubStr(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 2)
-            throw std::runtime_error(STR_FIND_ARITY);
-        if (n[0].valueType() != ValueType::String)
-            throw TypeError(STR_FIND_TE0);
-        if (n[1].valueType() != ValueType::String)
-            throw TypeError(STR_FIND_TE1);
+        if (n.size() != 2 || n[0].valueType() != ValueType::String ||
+            n[1].valueType() != ValueType::String)
+            throw BetterTypeError("str:find", 2, n)
+                .withArg("string", ValueType::String)
+                .withArg("substr", ValueType::String);
 
         return Value(n[0].stringRef().find(n[1].stringRef()));
     }
@@ -100,12 +100,11 @@ namespace Ark::internal::Builtins::String
      */
     Value removeAtStr(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 2)
-            throw std::runtime_error(STR_RM_ARITY);
-        if (n[0].valueType() != ValueType::String)
-            throw TypeError(STR_RM_TE0);
-        if (n[1].valueType() != ValueType::Number)
-            throw TypeError(STR_RM_TE1);
+        if (n.size() != 2 || n[0].valueType() != ValueType::String ||
+            n[1].valueType() != ValueType::Number)
+            throw BetterTypeError("str:removeAt", 2, n)
+                .withArg("string", ValueType::String)
+                .withArg("index", ValueType::Number);
 
         long id = static_cast<long>(n[1].number());
         if (id < 0 || static_cast<std::size_t>(id) >= n[0].stringRef().size())
@@ -127,10 +126,9 @@ namespace Ark::internal::Builtins::String
      */
     Value ord(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 1)
-            throw std::runtime_error(STR_ORD_ARITY);
-        if (n[0].valueType() != ValueType::String)
-            throw TypeError(STR_ORD_TE0);
+        if (n.size() != 1 || n[0].valueType() != ValueType::String)
+            throw BetterTypeError("str:ord", 1, n)
+                .withArg("string", ValueType::String);
 
         int ord = utf8codepoint(n[0].stringRef().c_str());
 
@@ -149,10 +147,9 @@ namespace Ark::internal::Builtins::String
      */
     Value chr(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 1)
-            throw std::runtime_error(STR_CHR_ARITY);
-        if (n[0].valueType() != ValueType::Number)
-            throw TypeError(STR_CHR_TE0);
+        if (n.size() != 1 || n[0].valueType() != ValueType::String)
+            throw BetterTypeError("str:chr", 1, n)
+                .withArg("codepoint", ValueType::Number);
 
         std::array<char, 5> sutf8;
 
