@@ -63,10 +63,42 @@ namespace Ark::internal::types
         }
     }
 
+    void displaySignature(std::string_view funcname, const std::vector<Contract>& contracts)
+    {
+        std::cout << termcolor::green << funcname << termcolor::reset << " expected ";
+
+        if (contracts.size() > 1)
+        {
+            std::size_t min_argc = std::numeric_limits<std::size_t>::max(), max_argc = 0;
+            for (const Contract& c : contracts)
+            {
+                if (c.arguments.size() < min_argc)
+                    min_argc = c.arguments.size();
+                if (c.arguments.size() > max_argc)
+                    max_argc = c.arguments.size();
+            }
+
+            if (min_argc != max_argc)
+            {
+                std::cout << "between "
+                          << termcolor::yellow << min_argc << termcolor::reset
+                          << " argument" << (min_argc > 1 ? "s" : "") << " and "
+                          << termcolor::yellow << max_argc << termcolor::reset
+                          << " argument" << (max_argc > 1 ? "s" : "");
+                return;
+            }
+        }
+
+        std::size_t expected_argc = contracts[0].arguments.size();
+        std::cout << termcolor::yellow << expected_argc << termcolor::reset
+                  << " argument" << (expected_argc > 1 ? "s" : "");
+    }
+
     std::size_t checker(std::string_view funcname, const std::vector<Contract>& contracts, const std::vector<Value>& provided_arguments)
     {
         for (std::size_t i = 0, end = contracts.size(); i < end; ++i)
         {
+            bool try_next = false;
             const Contract& c = contracts[i];
 
             // not checking if we have only one variadic argument and if it's placed at the end only
@@ -91,7 +123,26 @@ namespace Ark::internal::types
                     const Typedef& td = c.arguments[j];
                     if (std::find(td.types.begin(), td.types.end(), provided_arguments[j].valueType()) == td.types.end())
                     {
+                        // raise error only if we don't have another version taking the same amount of arguments
+                        {
+                            bool others = false;
+                            for (std::size_t k = i + 1; k < end; ++k)
+                            {
+                                if (contracts[k].arguments.size() == c.arguments.size())
+                                {
+                                    others = true;
+                                    break;
+                                }
+                            }
+                            if (others)
+                            {
+                                try_next = true;
+                                break;
+                            }
+                        }
                         std::cout << "TypeError\n";
+                        displaySignature(funcname, contracts);
+                        std::cout << "\n";
                         displayContract(c, provided_arguments);
                         throw Error("");
                     }
@@ -107,42 +158,21 @@ namespace Ark::internal::types
                         if (std::find(var_td.types.begin(), var_td.types.end(), provided_arguments[j].valueType()) == var_td.types.end())
                         {
                             std::cout << "TypeError\n";
+                            displaySignature(funcname, contracts);
+                            std::cout << "\n";
                             displayContract(c, provided_arguments);
                             throw Error("");
                         }
                     }
                 }
 
-                return i;
+                if (!try_next)
+                    return i;
             }
         }
 
         // no match, the user most likely provided the wrong number of arguments
-        std::cout << termcolor::green << funcname << termcolor::reset << " expected ";
-
-        if (contracts.size() == 1)
-        {
-            std::size_t expected_argc = contracts[0].arguments.size();
-            std::cout << termcolor::yellow << expected_argc << termcolor::reset
-                      << " argument" << (expected_argc > 1 ? "s" : "");
-        }
-        else
-        {
-            std::size_t min_argc = std::numeric_limits<std::size_t>::max(), max_argc = 0;
-            for (const Contract& c : contracts)
-            {
-                if (c.arguments.size() < min_argc)
-                    min_argc = c.arguments.size();
-                if (c.arguments.size() > max_argc)
-                    max_argc = c.arguments.size();
-            }
-
-            std::cout << "between "
-                      << termcolor::yellow << min_argc << termcolor::reset
-                      << " argument" << (min_argc > 1 ? "s" : "") << " and "
-                      << termcolor::yellow << max_argc << termcolor::reset
-                      << " argument" << (max_argc > 1 ? "s" : "");
-        }
+        displaySignature(funcname, contracts);
         std::cout << " but got " << provided_arguments.size() << "\n";
 
         displayContract(contracts[0], provided_arguments);
