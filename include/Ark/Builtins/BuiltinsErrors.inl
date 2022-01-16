@@ -40,15 +40,4 @@
 #define STR_CHR_ARITY "str:chr needs at least 1 argument: codepoint"
 #define STR_CHR_TE0 "str:chr: codepoint must be a Number"
 
-// System
-
-#define SYS_SYS_ARITY "sys:exec needs 1 argument: command"
-#define SYS_SYS_TE0 "sys:exec: command must be a String"
-
-#define SYS_SLEEP_ARITY "sleep needs 1 argument: duration (milliseconds)"
-#define SYS_SLEEP_TE0 "sleep: duration must be a Number"
-
-#define SYS_EXIT_ARITY "sys:exit needs 1 argument: exit code"
-#define SYS_EXIT_TE0 "sys:exit: exit code must be a Number"
-
 // Time
