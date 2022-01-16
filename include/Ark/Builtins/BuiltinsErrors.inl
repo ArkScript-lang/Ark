@@ -25,19 +25,4 @@
 #define STR_FORMAT_ARITY "str:format needs at least 1 argument: string, [values...]"
 #define STR_FORMAT_TE0 "str:format: string must be a String"
 
-#define STR_FIND_ARITY "str:find needs 2 arguments: string, substr"
-#define STR_FIND_TE0 "str:find: string must be a String"
-#define STR_FIND_TE1 "str:find: substr must be a String"
-
-#define STR_RM_ARITY "str:removeAt needs 2 arguments: string, index"
-#define STR_RM_TE0 "str:removeAt: string must be a String"
-#define STR_RM_TE1 "str:removeAt: index must be a Number"
 #define STR_RM_OOR "str:removeAt: index out of range"
-
-#define STR_ORD_ARITY "str:ord needs at least 1 argument: string"
-#define STR_ORD_TE0 "str:ord: string must be a String"
-
-#define STR_CHR_ARITY "str:chr needs at least 1 argument: codepoint"
-#define STR_CHR_TE0 "str:chr: codepoint must be a Number"
-
-// Time
