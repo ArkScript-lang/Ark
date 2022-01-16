@@ -4,6 +4,7 @@
 #include <algorithm>
 
 #include <Ark/Builtins/BuiltinsErrors.inl>
+#include <Ark/TypeChecker.hpp>
 #include <Ark/VM/VM.hpp>
 
 namespace Ark::internal::Builtins::List
@@ -20,9 +21,7 @@ namespace Ark::internal::Builtins::List
      */
     Value reverseList(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n[0].valueType() != ValueType::List || n.size() != 1)
-            throw BetterTypeError("list:reverse", 1, n)
-                .withArg("list", ValueType::List);
+        types::checker("list:reverse", types::Contract { { types::Typedef("list", ValueType::List) } }, n);
 
         std::reverse(n[0].list().begin(), n[0].list().end());
 
@@ -43,10 +42,10 @@ namespace Ark::internal::Builtins::List
      */
     Value findInList(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 2 || n[0].valueType() != ValueType::List)
-            throw BetterTypeError("list:find", 2, n)
-                .withArg("list", ValueType::List)
-                .withArg("value", {});
+        static const types::Contract c = types::Contract(
+            { { types::Typedef("list", ValueType::List),
+                types::Typedef("value", types::AnyType) } });
+        types::checker("list:find", c, n);
 
         std::vector<Value>& l = n[0].list();
         for (Value::Iterator it = l.begin(), it_end = l.end(); it != it_end; ++it)
@@ -111,27 +110,24 @@ namespace Ark::internal::Builtins::List
      */
     Value sliceList(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 4 || n[0].valueType() != ValueType::List ||
-            n[1].valueType() != ValueType::Number ||
-            n[2].valueType() != ValueType::Number ||
-            n[3].valueType() != ValueType::Number)
-            throw BetterTypeError("list:slice", 4, n)
-                .withArg("list", ValueType::List)
-                .withArg("start", ValueType::Number)
-                .withArg("end", ValueType::Number)
-                .withArg("step", ValueType::Number);
+        static const types::Contract c = types::Contract(
+            { { types::Typedef("list", ValueType::List),
+                types::Typedef("start", ValueType::Number),
+                types::Typedef("end", ValueType::Number),
+                types::Typedef("step", ValueType::Number) } });
+        types::checker("list:slice", c, n);
 
         long step = static_cast<long>(n[3].number());
         if (step <= 0)
-            throw std::runtime_error(LIST_SLICE_STEP);
+            throw std::runtime_error("list:slice: step can not be null");
 
         long start = static_cast<long>(n[1].number());
         long end = static_cast<long>(n[2].number());
 
         if (start > end)
-            throw std::runtime_error(LIST_SLICE_ORDER);
+            throw std::runtime_error("list:slice: start position must be less or equal to the end position");
         if (start < 0 || static_cast<std::size_t>(end) > n[0].list().size())
-            throw std::runtime_error(LIST_SLICE_OOR);
+            throw std::runtime_error("list:slice: indices out of range");
 
         std::vector<Value> retlist;
         for (long i = start; i < end; i += step)
@@ -152,9 +148,7 @@ namespace Ark::internal::Builtins::List
      */
     Value sort_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 1 || n[0].valueType() != ValueType::List)
-            throw BetterTypeError("list:sort", 1, n)
-                .withArg("list", ValueType::List);
+        types::checker("list:sort", types::Contract { { types::Typedef("list", ValueType::List) } }, n);
 
         std::sort(n[0].list().begin(), n[0].list().end());
         return n[0];
@@ -172,10 +166,7 @@ namespace Ark::internal::Builtins::List
      */
     Value fill(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 2 || n[0].valueType() != ValueType::Number)
-            throw BetterTypeError("list:fill", 2, n)
-                .withArg("size", ValueType::Number)
-                .withArg("value", {});
+        types::checker("list:fill", types::Contract { { types::Typedef("size", ValueType::Number), types::Typedef("value", types::AnyType) } }, n);
 
         std::size_t c = static_cast<std::size_t>(n[0].number());
         std::vector<Value> l;
@@ -199,12 +190,7 @@ namespace Ark::internal::Builtins::List
      */
     Value setListAt(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 3 || n[0].valueType() != ValueType::List ||
-            n[1].valueType() != ValueType::Number)
-            throw BetterTypeError("list:setAt", 3, n)
-                .withArg("list", ValueType::List)
-                .withArg("index", ValueType::Number)
-                .withArg("value", {});
+        types::checker("list:setAt", types::Contract { { types::Typedef("list", ValueType::List), types::Typedef("index", ValueType::Number), types::Typedef("value", types::AnyType) } }, n);
 
         n[0].list()[static_cast<std::size_t>(n[1].number())] = n[2];
         return n[0];

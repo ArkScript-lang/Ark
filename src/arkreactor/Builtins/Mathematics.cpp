@@ -4,6 +4,7 @@
 #include <Ark/Builtins/Builtins.hpp>
 
 #include <Ark/Builtins/BuiltinsErrors.inl>
+#include <Ark/TypeChecker.hpp>
 #include <Ark/VM/VM.hpp>
 
 namespace Ark::internal::Builtins::Mathematics
@@ -19,9 +20,7 @@ namespace Ark::internal::Builtins::Mathematics
      */
     Value exponential(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 1 || n[0].valueType() != ValueType::Number)
-            throw BetterTypeError("math:exp", 1, n)
-                .withArg("value", ValueType::Number);
+        types::checker("math:exp", types::Contract { { types::Typedef("value", ValueType::Number) } }, n);
 
         Value r(std::exp(n[0].number()));
         return r;
@@ -38,11 +37,10 @@ namespace Ark::internal::Builtins::Mathematics
      */
     Value logarithm(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 1 || n[0].valueType() != ValueType::Number)
-            throw BetterTypeError("math:log", 1, n)
-                .withArg("value", ValueType::Number);
+        types::checker("math:log", types::Contract { { types::Typedef("value", ValueType::Number) } }, n);
+
         if (n[0].number() <= 0.0)
-            throw std::runtime_error("Argument of math:log must be greater than 0");
+            throw std::runtime_error("math:log: value must be greater than 0");
 
         Value r(std::log(n[0].number()));
         return r;
@@ -59,9 +57,7 @@ namespace Ark::internal::Builtins::Mathematics
      */
     Value ceil_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 1 || n[0].valueType() != ValueType::Number)
-            throw BetterTypeError("math:ceil", 1, n)
-                .withArg("value", ValueType::Number);
+        types::checker("math:ceil", types::Contract { { types::Typedef("value", ValueType::Number) } }, n);
 
         Value r(std::ceil(n[0].number()));
         return r;
@@ -78,9 +74,7 @@ namespace Ark::internal::Builtins::Mathematics
      */
     Value floor_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 1 || n[0].valueType() != ValueType::Number)
-            throw BetterTypeError("math:floor", 1, n)
-                .withArg("value", ValueType::Number);
+        types::checker("math:floor", types::Contract { { types::Typedef("value", ValueType::Number) } }, n);
 
         Value r(std::floor(n[0].number()));
         return r;
@@ -98,9 +92,7 @@ namespace Ark::internal::Builtins::Mathematics
      */
     Value round_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 1 || n[0].valueType() != ValueType::Number)
-            throw BetterTypeError("math:round", 1, n)
-                .withArg("value", ValueType::Number);
+        types::checker("math:round", types::Contract { { types::Typedef("value", ValueType::Number) } }, n);
 
         Value r(std::round(n[0].number()));
         return r;
@@ -118,9 +110,7 @@ namespace Ark::internal::Builtins::Mathematics
      */
     Value isnan_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 1 || n[0].valueType() != ValueType::Number)
-            throw BetterTypeError("math:NaN?", 1, n)
-                .withArg("value", {});
+        types::checker("math:NaN?", types::Contract { { types::Typedef("value", ValueType::Number) } }, n);
 
         if (n[0].valueType() != ValueType::Number)
             return falseSym;
@@ -140,9 +130,7 @@ namespace Ark::internal::Builtins::Mathematics
      */
     Value isinf_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 1 || n[0].valueType() != ValueType::Number)
-            throw BetterTypeError("math:Inf?", 1, n)
-                .withArg("value", {});
+        types::checker("math:Inf?", types::Contract { { types::Typedef("value", ValueType::Number) } }, n);
 
         if (n[0].valueType() != ValueType::Number)
             return falseSym;
@@ -162,9 +150,7 @@ namespace Ark::internal::Builtins::Mathematics
      */
     Value cos_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 1 || n[0].valueType() != ValueType::Number)
-            throw BetterTypeError("math:cos", 1, n)
-                .withArg("value", ValueType::Number);
+        types::checker("math:cos", types::Contract { { types::Typedef("value", ValueType::Number) } }, n);
 
         Value r(std::cos(n[0].number()));
         return r;
@@ -182,9 +168,7 @@ namespace Ark::internal::Builtins::Mathematics
      */
     Value sin_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 1 || n[0].valueType() != ValueType::Number)
-            throw BetterTypeError("math:sin", 1, n)
-                .withArg("value", ValueType::Number);
+        types::checker("math:sin", types::Contract { { types::Typedef("value", ValueType::Number) } }, n);
 
         Value r(std::sin(n[0].number()));
         return r;
@@ -202,9 +186,7 @@ namespace Ark::internal::Builtins::Mathematics
      */
     Value tan_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 1 || n[0].valueType() != ValueType::Number)
-            throw BetterTypeError("math:tan", 1, n)
-                .withArg("value", ValueType::Number);
+        types::checker("math:tan", types::Contract { { types::Typedef("value", ValueType::Number) } }, n);
 
         Value r(std::tan(n[0].number()));
         return r;
@@ -221,9 +203,7 @@ namespace Ark::internal::Builtins::Mathematics
      */
     Value acos_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 1 || n[0].valueType() != ValueType::Number)
-            throw BetterTypeError("math:arccos", 1, n)
-                .withArg("value", ValueType::Number);
+        types::checker("math:arccos", types::Contract { { types::Typedef("value", ValueType::Number) } }, n);
 
         Value r(std::acos(n[0].number()));
         return r;
@@ -240,9 +220,7 @@ namespace Ark::internal::Builtins::Mathematics
      */
     Value asin_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 1 || n[0].valueType() != ValueType::Number)
-            throw BetterTypeError("math:arcsin", 1, n)
-                .withArg("value", ValueType::Number);
+        types::checker("math:arcsin", types::Contract { { types::Typedef("value", ValueType::Number) } }, n);
 
         Value r(std::asin(n[0].number()));
         return r;
@@ -259,9 +237,7 @@ namespace Ark::internal::Builtins::Mathematics
      */
     Value atan_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 1 || n[0].valueType() != ValueType::Number)
-            throw BetterTypeError("math:arctan", 1, n)
-                .withArg("value", ValueType::Number);
+        types::checker("math:arctan", types::Contract { { types::Typedef("value", ValueType::Number) } }, n);
 
         Value r(std::atan(n[0].number()));
         return r;
@@ -275,9 +251,7 @@ namespace Ark::internal::Builtins::Mathematics
      */
     Value cosh_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 1 || n[0].valueType() != ValueType::Number)
-            throw BetterTypeError("math:cosh", 1, n)
-                .withArg("value", ValueType::Number);
+        types::checker("math:cosh", types::Contract { { types::Typedef("value", ValueType::Number) } }, n);
 
         Value r(std::cosh(n[0].number()));
         return r;
@@ -291,9 +265,7 @@ namespace Ark::internal::Builtins::Mathematics
      */
     Value sinh_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 1 || n[0].valueType() != ValueType::Number)
-            throw BetterTypeError("math:sinh", 1, n)
-                .withArg("value", ValueType::Number);
+        types::checker("math:sinh", types::Contract { { types::Typedef("value", ValueType::Number) } }, n);
 
         Value r(std::sinh(n[0].number()));
         return r;
@@ -307,9 +279,7 @@ namespace Ark::internal::Builtins::Mathematics
      */
     Value tanh_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 1 || n[0].valueType() != ValueType::Number)
-            throw BetterTypeError("math:tanh", 1, n)
-                .withArg("value", ValueType::Number);
+        types::checker("math:tanh", types::Contract { { types::Typedef("value", ValueType::Number) } }, n);
 
         Value r(std::tanh(n[0].number()));
         return r;
@@ -323,9 +293,7 @@ namespace Ark::internal::Builtins::Mathematics
      */
     Value acosh_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 1 || n[0].valueType() != ValueType::Number)
-            throw BetterTypeError("math:acosh", 1, n)
-                .withArg("value", ValueType::Number);
+        types::checker("math:acosh", types::Contract { { types::Typedef("value", ValueType::Number) } }, n);
 
         Value r(std::acosh(n[0].number()));
         return r;
@@ -339,9 +307,7 @@ namespace Ark::internal::Builtins::Mathematics
      */
     Value asinh_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 1 || n[0].valueType() != ValueType::Number)
-            throw BetterTypeError("math:asinh", 1, n)
-                .withArg("value", ValueType::Number);
+        types::checker("math:asinh", types::Contract { { types::Typedef("value", ValueType::Number) } }, n);
 
         Value r(std::asinh(n[0].number()));
         return r;
@@ -355,9 +321,7 @@ namespace Ark::internal::Builtins::Mathematics
      */
     Value atanh_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 1 || n[0].valueType() != ValueType::Number)
-            throw BetterTypeError("math:atanh", 1, n)
-                .withArg("value", ValueType::Number);
+        types::checker("math:atanh", types::Contract { { types::Typedef("value", ValueType::Number) } }, n);
 
         Value r(std::atanh(n[0].number()));
         return r;
