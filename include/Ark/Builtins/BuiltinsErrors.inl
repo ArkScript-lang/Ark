@@ -1,34 +1,8 @@
 // IO
 
-#define IO_INPUT_TE "input: prompt must be a String"
-
-#define IO_WRITE_ARITY "writeFile needs 2 to 3 arguments: filename, [mode], content"
-#define IO_WRITE_TE0 "writeFile: filename must be a String"
-#define IO_WRITE_TE1 "writeFile: mode must be a String"
 #define IO_WRITE_VE_1 "writeFile: mode must be equal to \"a\" or \"w\""
 
-#define IO_READ_ARITY "readFile needs 1 argument: filename"
-#define IO_READ_TE0 "readFile: filename must be a String"
-
-#define IO_EXISTS_ARITY "fileExists? needs 1 argument: filename"
-#define IO_EXISTS_TE0 "fileExists?: filename must be a String"
-
-#define IO_LS_ARITY "listFiles needs 1 argument: filename"
-#define IO_LS_TE0 "listFiles: filename must be a String"
-
-#define IO_ISDIR_ARITY "isDir? needs 1 argument: path"
-#define IO_ISDIR_TE0 "isDir?: path must be a String"
-
-#define IO_MKD_ARITY "makeDir needs 1 argument: filename"
-#define IO_MKD_TE0 "makeDir: filename must be a String"
-
-#define IO_RM_ARITY "removeFiles needs at least 1 argument: filename [...]"
-#define IO_RM_TE0 "removeFiles: filename must be a String"
-
 // List
-
-#define LIST_REVERSE_ARITY "list:reverse needs 1 argument: list"
-#define LIST_REVERSE_TE0 "list:reverse: list must be a List"
 
 #define LIST_FIND_ARITY "list:find needs 2 arguments: list, value"
 #define LIST_FIND_TE0 "list:find: list must be a List"
