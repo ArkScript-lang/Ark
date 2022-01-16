@@ -15,11 +15,6 @@
 #define LIST_SLICE_ORDER "list:slice: start position must be less or equal to the end position"
 #define LIST_SLICE_OOR "list:slice: indices out of range"
 
-// Mathematics
-
-#define MATH_ARITY(name) (name " needs 1 argument: value")
-#define MATH_TE0(name) (name ": value must be a Number")
-
 // String
 
 #define STR_FORMAT_ARITY "str:format needs at least 1 argument: string, [values...]"
