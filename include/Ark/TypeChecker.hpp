@@ -2,7 +2,7 @@
  * @file TypeChecker.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief 
- * @version 0.2
+ * @version 0.3
  * @date 2022-01-16
  * 
  * @copyright Copyright (c) 2022
@@ -12,9 +12,15 @@
 #ifndef INCLUDE_ARK_TYPECHECKER_HPP
 #define INCLUDE_ARK_TYPECHECKER_HPP
 
+#include <limits>
 #include <string>
 #include <vector>
+#define NOMINMAX
 #include <Ark/VM/Value.hpp>
+
+#ifdef max
+    #undef max
+#endif
 
 namespace Ark::internal::types
 {
@@ -25,16 +31,14 @@ namespace Ark::internal::types
     struct Typedef
     {
         std::string_view name;
-        std::vector<ValueType> types;
+        uint32_t types;
         bool variadic;
 
         Typedef(std::string_view name, ValueType type, bool variadic = false) :
-            name(name), variadic(variadic)
-        {
-            types.emplace_back(type);
-        }
+            name(name), types(1 << static_cast<uint32_t>(type)), variadic(variadic)
+        {}
 
-        Typedef(std::string_view name, const std::vector<ValueType>& types, bool variadic = false) :
+        Typedef(std::string_view name, uint32_t types, bool variadic = false) :
             name(name), types(types), variadic(variadic)
         {}
     };
@@ -52,18 +56,7 @@ namespace Ark::internal::types
      * @brief Define all the types we can use in contracts
      * 
      */
-    const std::vector<ValueType> AnyType {
-        { ValueType::List,
-          ValueType::Number,
-          ValueType::String,
-          ValueType::PageAddr,
-          ValueType::CProc,
-          ValueType::Closure,
-          ValueType::User,
-          ValueType::Nil,
-          ValueType::True,
-          ValueType::False }
-    };
+    constexpr uint32_t AnyType = std::numeric_limits<uint32_t>::max();
 
     /**
      * @brief Applies type checks and arity check to the provided argument, following a set of contracts the function can follow
