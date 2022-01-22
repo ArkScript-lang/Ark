@@ -144,17 +144,6 @@ jobs:
       shell: bash
       run: cd tests/cpp && cmake --build build --config $BUILD_TYPE
 
-    - name: Pre-test
-      if: startsWith(matrix.config.name, 'Windows')
-      shell: bash
-      run: |
-        mkdir -p out
-        cp build/${BUILD_TYPE}/*.dll tests/cpp/out/
-
-    - name: Tests
-      shell: bash
-      run: bash .github/launch-tests
-
     - name: Organize files for upload
       if: startsWith(matrix.config.name, 'Ubuntu') || startsWith(matrix.config.name, 'MacOS')
       shell: bash
@@ -191,6 +180,52 @@ jobs:
       with:
         name: ${{ matrix.config.artifact }}
         path: artifact
+
+  tests:
+    runs-on: ${{ matrix.config.os }}
+    name: Test on ${{ matrix.config.name }}
+    needs: [build]
+
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - { os: ubuntu-latest,  name: "Ubuntu Clang 11", artifact: "ubuntu-clang-11" }
+          - { os: ubuntu-latest,  name: "Ubuntu Clang 10", artifact: "ubuntu-clang-10" }
+          - { os: ubuntu-latest,  name: "Ubuntu Clang 9",  artifact: "ubuntu-clang-9" }
+          - { os: ubuntu-latest,  name: "Ubuntu GCC 11",   artifact: "ubuntu-gcc-11" }
+          - { os: ubuntu-latest,  name: "Ubuntu GCC 10",   artifact: "ubuntu-gcc-10" }
+          - { os: ubuntu-latest,  name: "Ubuntu GCC 9",    artifact: "ubuntu-gcc-9" }
+          - { os: ubuntu-latest,  name: "Ubuntu GCC 8",    artifact: "ubuntu-gcc-8" }
+          - { os: windows-latest, name: "Windows VS 2019", artifact: "windows-msvc-19", }
+          - { os: windows-latest, name: "Windows VS 2017", artifact: "windows-msvc-17", }
+          - { os: macos-latest,   name: "MacOS Clang 12",  artifact: "macos-clang-12", }
+
+    steps:
+    - uses: actions/checkout@v2
+      if: contains(github.event.head_commit.message, '[skip ci]') == false
+      with:
+        submodules: recursive
+
+    - name: Download artifact
+      id: download
+      uses: actions/download-artifact@v2
+      with:
+        name: ${{ matrix.config.artifact }}
+        path: build
+
+    - name: Pre-test
+      if: startsWith(matrix.config.name, 'Windows')
+      shell: bash
+      run: |
+        mkdir -p out
+        cp build/*.dll tests/cpp/out/
+        chmod u+x build/ark build/arkscript
+
+    - name: Tests
+      if: steps.download.outcome == 'success'
+      shell: bash
+      run: bash .github/launch-tests
 
   valgrind:
     runs-on: ubuntu-latest
