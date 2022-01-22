@@ -222,4 +222,10 @@ jobs:
 
     - name: Valgrind checks for memory leaks
       shell: bash
-      run: valgrind --trace-children=yes -s build/arkscript tests/arkscript/unittests.ark -L ./lib
+      run: |
+        valgrind --leak-check=full --show-leak-kinds=all \
+          --track-origins=yes --track-fds=yes \
+          --trace-children=yes \
+          --verbose -s \
+          --error-exitcode=1 \
+          build/arkscript tests/arkscript/unittests.ark -L ./lib
