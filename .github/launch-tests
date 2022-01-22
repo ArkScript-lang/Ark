@@ -4,10 +4,12 @@
 #             Unit tests
 #########################################
 
-if [ -f build/Release/ark.exe ]; then
-    ark=./build/Release/ark.exe
-elif [ -f build/ark ]; then
-    ark=./build/ark
+file=arkscript
+
+if [ -f build/Release/${file}.exe ]; then
+    ark=./build/Release/${file}.exe
+elif [ -f build/${file} ]; then
+    ark=./build/${file}
 else
     echo "No ark executable found" && exit 1
 fi
