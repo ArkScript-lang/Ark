@@ -112,10 +112,26 @@ jobs:
         version=`echo ${{ matrix.config.cc }} | cut -c 5-`
         brew install gcc@${version}
 
+    # - name: Update Homebrew
+    #   if: startsWith(matrix.config.name, 'MacOS')
+    #   run: |
+    #     brew update --preinstall
+    #     cat "$(brew --repository)/Library/Taps/homebrew/homebrew-core/Formula/openssl.rb" > .github/brew-formulae
+
+    # - name: Configure Homebrew cache
+    #   if: startsWith(matrix.config.name, 'MacOS')
+    #   uses: actions/cache@v2
+    #   with:
+    #     path: |
+    #       ~/Library/Caches/Homebrew/openssl--*
+    #       ~/Library/Caches/Homebrew/downloads/*--openssl-*
+    #     key: brew-${{ hashFiles('.github/brew-formulae') }}
+    #     restore-keys: brew-
+
     - name: Install MacOS dependencies
       if: startsWith(matrix.config.name, 'MacOS')
       shell: bash
-      run: brew install openssl
+      run: env HOMEBREW_NO_AUTO_UPDATE=1 brew install openssl
 
     - name: Configure CMake Ark
       shell: bash
@@ -236,12 +252,9 @@ jobs:
 
     - shell: bash
       run: |
-        mv temp/* tests/cpp/
-        cp -r lib/std/tests/* lib-tests/
-        rm -r lib
-        mv build/lib ./
-        mv lib-tests/* lib/std/tests/
-        chmod u+x build/ark build/arkscript
+        mv temp/cpp/out tests/cpp/
+        mv build/lib/*.arkm lib/
+        chmod u+x build/ark build/arkscript tests/cpp/out/*
 
     - name: Pre-test
       if: startsWith(matrix.config.name, 'Windows')
