@@ -35,78 +35,59 @@ jobs:
       matrix:
         config:
           - {
-            os: ubuntu-latest, name: "Ubuntu Clang 11",
-            cc: "clang-11", cxx: "clang++-11",
-            artifact: "ubuntu-clang-11",
-            preconfigure: ""
+            os: ubuntu-latest, name: "Ubuntu Clang 11", cc: "clang-11", cxx: "clang++-11",
+            artifact: "ubuntu-clang-11", preconfigure: ""
           }
           - {
-            os: ubuntu-latest, name: "Ubuntu Clang 10",
-            cc: "clang-10", cxx: "clang++-10",
-            artifact: "ubuntu-clang-10",
-            preconfigure: ""
+            os: ubuntu-latest, name: "Ubuntu Clang 10", cc: "clang-10", cxx: "clang++-10",
+            artifact: "ubuntu-clang-10", preconfigure: ""
           }
           - {
-            os: ubuntu-latest, name: "Ubuntu Clang 9",
-            cc: "clang-9", cxx: "clang++-9",
-            artifact: "ubuntu-clang-9",
-            preconfigure: ""
+            os: ubuntu-latest, name: "Ubuntu Clang 9", cc: "clang-9", cxx: "clang++-9",
+            artifact: "ubuntu-clang-9", preconfigure: ""
           }
           - {
-            os: ubuntu-latest, name: "Ubuntu GCC 11",
-            cc: "gcc-11", cxx: "g++-11",
-            artifact: "ubuntu-gcc-11",
-            preconfigure: ""
+            os: ubuntu-latest, name: "Ubuntu GCC 11", cc: "gcc-11", cxx: "g++-11",
+            artifact: "ubuntu-gcc-11", preconfigure: ""
           }
           - {
-            os: ubuntu-latest, name: "Ubuntu GCC 10",
-            cc: "gcc-10", cxx: "g++-10",
-            artifact: "ubuntu-gcc-10",
-            preconfigure: ""
+            os: ubuntu-latest, name: "Ubuntu GCC 10", cc: "gcc-10", cxx: "g++-10",
+            artifact: "ubuntu-gcc-10", preconfigure: ""
           }
           - {
-            os: ubuntu-latest, name: "Ubuntu GCC 9",
-            cc: "gcc-9", cxx: "g++-9",
-            artifact: "ubuntu-gcc-9",
-            preconfigure: ""
+            os: ubuntu-latest, name: "Ubuntu GCC 9", cc: "gcc-9", cxx: "g++-9",
+            artifact: "ubuntu-gcc-9", preconfigure: ""
           }
           - {
-            os: ubuntu-latest, name: "Ubuntu GCC 8",
-            cc: "gcc-8", cxx: "g++-8",
-            artifact: "ubuntu-gcc-8",
-            preconfigure: ""
+            os: ubuntu-latest, name: "Ubuntu GCC 8", cc: "gcc-8", cxx: "g++-8",
+            artifact: "ubuntu-gcc-8", preconfigure: ""
           }
           - {
-            os: windows-latest, name: "Windows VS 2019",
-            cc: "cl", cxx: "cl",
+            os: windows-latest, name: "Windows VS 2019", cc: "cl", cxx: "cl",
             artifact: "windows-msvc-19",
             environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat",
             preconfigure: ""
           }
           - {
-            os: windows-latest, name: "Windows VS 2017",
-            cc: "cl", cxx: "cl",
+            os: windows-latest, name: "Windows VS 2017", cc: "cl", cxx: "cl",
             artifact: "windows-msvc-17",
             environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/VC/Auxiliary/Build/vcvars64.bat",
             preconfigure: ""
           }
           - {
-            os: macos-latest, name: "MacOS Clang 12",
-            cc: "clang", cxx: "clang++",
+            os: macos-latest, name: "MacOS Clang 12", cc: "clang", cxx: "clang++",
             artifact: "macos-clang-12",
             preconfigure: "export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/"
           }
           # TODO currently undebuggable segfault only with this compiler
           # - {
-          #   os: macos-latest, name: "MacOS GCC 10",
-          #   cc: "gcc-10", cxx: "g++-10",
-          #   artifact: "macos-gcc-10",
+          #   os: macos-latest, name: "MacOS GCC 10", cc: "gcc-10", cxx: "g++-10", artifact: "macos-gcc-10",
           #   preconfigure: "export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/"
           # }
 
     steps:
     - uses: actions/checkout@v2
-      if: ${{ contains(github.event.head_commit.message, '[skip ci]') != true }}
+      if: contains(github.event.head_commit.message, '[skip ci]') == false
       with:
         submodules: recursive
 
@@ -210,3 +191,35 @@ jobs:
       with:
         name: ${{ matrix.config.artifact }}
         path: artifact
+
+  valgrind:
+    runs-on: ubuntu-latest
+    name: Ubuntu Clang 11 Valgrind
+    needs: [build]
+
+    steps:
+    - uses: actions/checkout@v2
+      if: contains(github.event.head_commit.message, '[skip ci]') == false
+      with:
+        submodules: recursive
+
+    - name: Update LLVM compilers
+      shell: bash
+      run: sudo apt-get install -y clang-11 lld-11 libc++-11-dev libc++abi-11-dev clang-tools-11 valgrind
+
+    - name: Configure CMake Ark
+      shell: bash
+      run: |
+        cmake -Bbuild \
+          -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
+          -DCMAKE_C_COMPILER=clang-11 \
+          -DCMAKE_CXX_COMPILER=clang++-11 \
+          -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=On
+
+    - name: Build ArkScript
+      shell: bash
+      run: cmake --build build --config $BUILD_TYPE
+
+    - name: Valgrind checks for memory leaks
+      shell: bash
+      run: valgrind --trace-children=yes -s build/arkscript tests/arkscript/unittests.ark -L ./lib
