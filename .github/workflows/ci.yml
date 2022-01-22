@@ -112,22 +112,6 @@ jobs:
         version=`echo ${{ matrix.config.cc }} | cut -c 5-`
         brew install gcc@${version}
 
-    # - name: Update Homebrew
-    #   if: startsWith(matrix.config.name, 'MacOS')
-    #   run: |
-    #     brew update --preinstall
-    #     cat "$(brew --repository)/Library/Taps/homebrew/homebrew-core/Formula/openssl.rb" > .github/brew-formulae
-
-    # - name: Configure Homebrew cache
-    #   if: startsWith(matrix.config.name, 'MacOS')
-    #   uses: actions/cache@v2
-    #   with:
-    #     path: |
-    #       ~/Library/Caches/Homebrew/openssl--*
-    #       ~/Library/Caches/Homebrew/downloads/*--openssl-*
-    #     key: brew-${{ hashFiles('.github/brew-formulae') }}
-    #     restore-keys: brew-
-
     - name: Install MacOS dependencies
       if: startsWith(matrix.config.name, 'MacOS')
       shell: bash
@@ -249,6 +233,13 @@ jobs:
       with:
         name: temp-${{ matrix.config.artifact }}
         path: temp
+
+    - name: Update GNU compilers
+      if: startsWith(matrix.config.name, 'Ubuntu GCC')
+      shell: bash
+      run: |
+        sudo apt-add-repository -y ppa:ubuntu-toolchain-r/test
+        sudo apt-get -yq install libstdc++6
 
     - shell: bash
       run: |
