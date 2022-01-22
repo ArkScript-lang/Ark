@@ -175,12 +175,15 @@ option(ARK_BUILD_MODULES    "Build the std library modules or not" Off)
 if (ARK_PROFILER_COUNT)
     target_compile_definitions(ArkReactor PRIVATE -DARK_PROFILER_COUNT)
 endif()
+
 if (ARK_PROFILER)
     target_compile_definitions(ArkReactor PRIVATE -DARK_PROFILER)
 endif()
+
 if (ARK_ENABLE_SYSTEM)
     target_compile_definitions(ArkReactor PRIVATE -DARK_ENABLE_SYSTEM)
 endif()
+
 if (ARK_BUILD_MODULES)
     add_subdirectory(${ark_SOURCE_DIR}/lib/modules)
 endif()
