@@ -168,6 +168,12 @@ jobs:
         cp lib/std/*.ark artifact/lib/std
         rm -rf artifact/lib/std/{.git,.github,tests/__arkscript__}
 
+    - name: Organize temp artifact
+      shell: bash
+      run: |
+        mkdir -p temp/
+        cp -r tests/cpp temp/
+
     - name: Generate InnoSetup installer
       if: startsWith(matrix.config.name, 'Windows')
       uses: SuperFola/is-build-action@master
@@ -180,6 +186,13 @@ jobs:
       with:
         name: ${{ matrix.config.artifact }}
         path: artifact
+
+    - name: Upload temp artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: temp-${{ matrix.config.artifact }}
+        path: temp
+        retention-days: 1
 
   tests:
     runs-on: ${{ matrix.config.os }}
@@ -214,16 +227,31 @@ jobs:
         name: ${{ matrix.config.artifact }}
         path: build
 
+    - name: Download temp artifact
+      id: download-temp
+      uses: actions/download-artifact@v2
+      with:
+        name: temp-${{ matrix.config.artifact }}
+        path: temp
+
+    - shell: bash
+      run: |
+        mv temp/* tests/cpp/
+        cp -r lib/std/tests/* lib-tests/
+        rm -r lib
+        mv build/lib ./
+        mv lib-tests/* lib/std/tests/
+        chmod u+x build/ark build/arkscript
+
     - name: Pre-test
       if: startsWith(matrix.config.name, 'Windows')
       shell: bash
       run: |
-        mkdir -p out
+        mkdir -p tests/cpp/out
         cp build/*.dll tests/cpp/out/
-        chmod u+x build/ark build/arkscript
 
     - name: Tests
-      if: steps.download.outcome == 'success'
+      if: steps.download.outcome == 'success' && steps.download-temp.outcome == 'success'
       shell: bash
       run: bash .github/launch-tests
 
