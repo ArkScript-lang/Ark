@@ -60,14 +60,10 @@ namespace Ark::internal::Builtins::IO
      */
     Value input(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        std::size_t alt = types::checker(
-            "input",
-            { { types::Contract {},
-                types::Contract { { types::Typedef("prompt", ValueType::String) } } } },
-            n);
-
-        if (alt == 1)
+        if (types::check(n, ValueType::String))
             std::printf("%s", n[0].string().c_str());
+        else if (n.size() != 0)
+            types::generateError("input", { { types::Contract {}, types::Contract { { types::Typedef("prompt", ValueType::String) } } } }, n);
 
         std::string line = "";
         std::getline(std::cin, line);
@@ -89,13 +85,7 @@ namespace Ark::internal::Builtins::IO
      */
     Value writeFile(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        std::size_t alt = types::checker(
-            "io:writeFile",
-            { { types::Contract { { types::Typedef("filename", ValueType::String), types::Typedef("content", types::AnyType) } },
-                types::Contract { { types::Typedef("filename", ValueType::String), types::Typedef("mode", ValueType::String), types::Typedef("content", types::AnyType) } } } },
-            n);
-
-        if (alt == 0)
+        if (types::check(n, ValueType::String, ValueType::Any))
         {
             std::ofstream f(n[0].string().c_str());
             if (f.is_open())
@@ -106,7 +96,7 @@ namespace Ark::internal::Builtins::IO
             else
                 throw std::runtime_error("Couldn't write to file \"" + n[0].stringRef().toString() + "\"");
         }
-        else  // alt == 1
+        else if (types::check(n, ValueType::String, ValueType::String, ValueType::Any))
         {
             auto mode = n[1].string();
             if (mode != "w" && mode != "a")
@@ -125,6 +115,12 @@ namespace Ark::internal::Builtins::IO
             else
                 throw std::runtime_error("Couldn't write to file \"" + n[0].stringRef().toString() + "\"");
         }
+        else
+            types::generateError(
+                "io:writeFile",
+                { { types::Contract { { types::Typedef("filename", ValueType::String), types::Typedef("content", ValueType::Any) } },
+                    types::Contract { { types::Typedef("filename", ValueType::String), types::Typedef("mode", ValueType::String), types::Typedef("content", ValueType::Any) } } } },
+                n);
 
         return nil;
     }
@@ -140,7 +136,11 @@ namespace Ark::internal::Builtins::IO
      */
     Value readFile(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        types::checker("io:readFile", types::Contract { { types::Typedef("filename", ValueType::String) } }, n);
+        if (!types::check(n, ValueType::String))
+            types::generateError(
+                "io:readFile",
+                { { types::Contract { { types::Typedef("filename", ValueType::String) } } } },
+                n);
 
         auto filename = n[0].string().c_str();
         if (!Utils::fileExists(filename))
@@ -160,7 +160,11 @@ namespace Ark::internal::Builtins::IO
      */
     Value fileExists(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        types::checker("io:fileExists?", types::Contract { { types::Typedef("filename", ValueType::String) } }, n);
+        if (!types::check(n, ValueType::String))
+            types::generateError(
+                "io:fileExists?",
+                { { types::Contract { { types::Typedef("filename", ValueType::String) } } } },
+                n);
 
         return Utils::fileExists(n[0].string().c_str()) ? trueSym : falseSym;
     }
@@ -176,7 +180,11 @@ namespace Ark::internal::Builtins::IO
      */
     Value listFiles(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        types::checker("io:listFiles", types::Contract { { types::Typedef("path", ValueType::String) } }, n);
+        if (!types::check(n, ValueType::String))
+            types::generateError(
+                "io:listFiles",
+                { { types::Contract { { types::Typedef("path", ValueType::String) } } } },
+                n);
 
         std::vector<Value> r;
         for (const auto& entry : std::filesystem::directory_iterator(n[0].string().c_str()))
@@ -196,7 +204,11 @@ namespace Ark::internal::Builtins::IO
      */
     Value isDirectory(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        types::checker("io:dir?", types::Contract { { types::Typedef("path", ValueType::String) } }, n);
+        if (!types::check(n, ValueType::String))
+            types::generateError(
+                "io:dir?",
+                { { types::Contract { { types::Typedef("path", ValueType::String) } } } },
+                n);
 
         return (std::filesystem::is_directory(std::filesystem::path(n[0].string().c_str()))) ? trueSym : falseSym;
     }
@@ -212,7 +224,11 @@ namespace Ark::internal::Builtins::IO
      */
     Value makeDir(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        types::checker("io:makeDir", types::Contract { { types::Typedef("name", ValueType::String) } }, n);
+        if (!types::check(n, ValueType::String))
+            types::generateError(
+                "io:makeDir",
+                { { types::Contract { { types::Typedef("path", ValueType::String) } } } },
+                n);
 
         std::filesystem::create_directories(std::filesystem::path(n[0].string().c_str()));
         return nil;
@@ -222,7 +238,7 @@ namespace Ark::internal::Builtins::IO
      * @name io:removeFiles
      * @brief Delete files
      * @details Take multiple arguments, all String, each one representing a path to a file
-     * @param values path to file
+     * @param filenames path to file
      * =begin
      * (io:removeFiles "/tmp/test.ark" "hello.json")
      * =end
@@ -230,11 +246,22 @@ namespace Ark::internal::Builtins::IO
      */
     Value removeFiles(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        static const types::Contract c = { { types::Typedef("filename", ValueType::String), types::Typedef("filename", ValueType::String, /* variadic */ true) } };
-        types::checker("io:removeFiles", c, n);
+        if (n.size() < 2 || n[0].valueType() != ValueType::String)
+            types::generateError(
+                "io:removeFiles",
+                { { types::Contract { { types::Typedef("filename", ValueType::String), types::Typedef("filenames", ValueType::String, /* variadic */ true) } } } },
+                n);
 
         for (Value::Iterator it = n.begin(), it_end = n.end(); it != it_end; ++it)
+        {
+            if (it->valueType() != ValueType::String)
+                types::generateError(
+                    "io:removeFiles",
+                    { { types::Contract { { types::Typedef("filename", ValueType::String), types::Typedef("filenames", ValueType::String, /* variadic */ true) } } } },
+                    n);
+
             std::filesystem::remove_all(std::filesystem::path(it->string().c_str()));
+        }
 
         return nil;
     }

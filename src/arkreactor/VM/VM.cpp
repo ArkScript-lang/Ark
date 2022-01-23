@@ -949,7 +949,7 @@ namespace Ark
 
                         types::checker(
                             "assert",
-                            types::Contract { { types::Typedef("expr", types::AnyType), types::Typedef("message", ValueType::String) } },
+                            types::Contract { { types::Typedef("expr", ValueType::Any), types::Typedef("message", ValueType::String) } },
                             { *a, *b });
 
                         if (*a == Builtins::falseSym)

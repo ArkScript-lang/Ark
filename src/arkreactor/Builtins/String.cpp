@@ -26,7 +26,12 @@ namespace Ark::internal::Builtins::String
      */
     Value format(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        types::checker("str:format", types::Contract { { types::Typedef("string", ValueType::String), types::Typedef("value", types::AnyType, /* variadic */ true) } }, n);
+        if (n.size() < 2 || n[0].valueType() != ValueType::String)
+            types::generateError(
+                "str:format",
+                { { types::Contract { { types::Typedef("string", ValueType::String),
+                                        types::Typedef("value", ValueType::Any, /* variadic */ true) } } } },
+                n);
 
         ::String f(n[0].string().c_str());
 
@@ -73,7 +78,11 @@ namespace Ark::internal::Builtins::String
      */
     Value findSubStr(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        types::checker("str:find", types::Contract { { types::Typedef("string", ValueType::String), types::Typedef("substr", ValueType::String) } }, n);
+        if (!types::check(n, ValueType::String, ValueType::String))
+            types::generateError(
+                "str:find",
+                { { types::Contract { { types::Typedef("string", ValueType::String), types::Typedef("substr", ValueType::String) } } } },
+                n);
 
         return Value(n[0].stringRef().find(n[1].stringRef()));
     }
@@ -92,7 +101,11 @@ namespace Ark::internal::Builtins::String
      */
     Value removeAtStr(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        types::checker("str:removeAt", types::Contract { { types::Typedef("string", ValueType::String), types::Typedef("index", ValueType::Number) } }, n);
+        if (!types::check(n, ValueType::String, ValueType::Number))
+            types::generateError(
+                "str:removeAt",
+                { { types::Contract { { types::Typedef("string", ValueType::String), types::Typedef("index", ValueType::Number) } } } },
+                n);
 
         long id = static_cast<long>(n[1].number());
         if (id < 0 || static_cast<std::size_t>(id) >= n[0].stringRef().size())
@@ -114,10 +127,13 @@ namespace Ark::internal::Builtins::String
      */
     Value ord(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        types::checker("str:ord", types::Contract { { types::Typedef("string", ValueType::String) } }, n);
+        if (!types::check(n, ValueType::String))
+            types::generateError(
+                "str:ord",
+                { { types::Contract { { types::Typedef("string", ValueType::String) } } } },
+                n);
 
         int ord = utf8codepoint(n[0].stringRef().c_str());
-
         return Value(ord);
     }
 
@@ -133,7 +149,11 @@ namespace Ark::internal::Builtins::String
      */
     Value chr(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        types::checker("str:chr", types::Contract { { types::Typedef("codepoint", ValueType::Number) } }, n);
+        if (!types::check(n, ValueType::Number))
+            types::generateError(
+                "str:chr",
+                { { types::Contract { { types::Typedef("codepoint", ValueType::Number) } } } },
+                n);
 
         std::array<char, 5> sutf8;
 

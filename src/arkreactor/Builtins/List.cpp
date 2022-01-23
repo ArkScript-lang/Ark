@@ -21,10 +21,13 @@ namespace Ark::internal::Builtins::List
      */
     Value reverseList(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        types::checker("list:reverse", types::Contract { { types::Typedef("list", ValueType::List) } }, n);
+        if (!types::check(n, ValueType::List))
+            types::generateError(
+                "list:reverse",
+                { { types::Contract { { types::Typedef("list", ValueType::List) } } } },
+                n);
 
         std::reverse(n[0].list().begin(), n[0].list().end());
-
         return n[0];
     }
 
@@ -33,7 +36,7 @@ namespace Ark::internal::Builtins::List
      * @brief Search an element in a List
      * @details The original list is not modified
      * @param list the List to search in
-     * @param el the element to search
+     * @param value the element to search
      * =begin
      * (list:find [1 2 3] 1)  # 0
      * (list:find [1 2 3] 0)  # -1
@@ -42,10 +45,11 @@ namespace Ark::internal::Builtins::List
      */
     Value findInList(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        static const types::Contract c = types::Contract(
-            { { types::Typedef("list", ValueType::List),
-                types::Typedef("value", types::AnyType) } });
-        types::checker("list:find", c, n);
+        if (!types::check(n, ValueType::List, ValueType::Any))
+            types::generateError(
+                "list:find",
+                { { types::Contract { { types::Typedef("list", ValueType::List), types::Typedef("value", ValueType::Any) } } } },
+                n);
 
         std::vector<Value>& l = n[0].list();
         for (Value::Iterator it = l.begin(), it_end = l.end(); it != it_end; ++it)
@@ -110,12 +114,14 @@ namespace Ark::internal::Builtins::List
      */
     Value sliceList(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        static const types::Contract c = types::Contract(
-            { { types::Typedef("list", ValueType::List),
-                types::Typedef("start", ValueType::Number),
-                types::Typedef("end", ValueType::Number),
-                types::Typedef("step", ValueType::Number) } });
-        types::checker("list:slice", c, n);
+        if (!types::check(n, ValueType::List, ValueType::Number, ValueType::Number, ValueType::Number))
+            types::generateError(
+                "list:slice",
+                { { types::Contract { { types::Typedef("list", ValueType::List),
+                                        types::Typedef("start", ValueType::Number),
+                                        types::Typedef("end", ValueType::Number),
+                                        types::Typedef("step", ValueType::Number) } } } },
+                n);
 
         long step = static_cast<long>(n[3].number());
         if (step <= 0)
@@ -148,7 +154,11 @@ namespace Ark::internal::Builtins::List
      */
     Value sort_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        types::checker("list:sort", types::Contract { { types::Typedef("list", ValueType::List) } }, n);
+        if (!types::check(n, ValueType::List))
+            types::generateError(
+                "list:sort",
+                { { types::Contract { { types::Typedef("list", ValueType::List) } } } },
+                n);
 
         std::sort(n[0].list().begin(), n[0].list().end());
         return n[0];
@@ -158,7 +168,7 @@ namespace Ark::internal::Builtins::List
      * @name list:fill
      * @brief Generate a List of n copies of an element
      * @param count the number of copies
-     * @param el the element to copy
+     * @param value the element to copy
      * =begin
      * (list:fill 4 nil)  # [nil nil nil nil]
      * =end
@@ -166,7 +176,12 @@ namespace Ark::internal::Builtins::List
      */
     Value fill(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        types::checker("list:fill", types::Contract { { types::Typedef("size", ValueType::Number), types::Typedef("value", types::AnyType) } }, n);
+        if (!types::check(n, ValueType::List, ValueType::Any))
+            types::generateError(
+                "list:fill",
+                { { types::Contract { { types::Typedef("size", ValueType::Number),
+                                        types::Typedef("value", ValueType::Any) } } } },
+                n);
 
         std::size_t c = static_cast<std::size_t>(n[0].number());
         std::vector<Value> l;
@@ -182,7 +197,7 @@ namespace Ark::internal::Builtins::List
      * @details The original list is not modified
      * @param list the list to modify
      * @param index the index of the element to modify
-     * @param el the new element
+     * @param value the new element
      * =begin
      * (list:setAt [1 2 3] 0 5)  # [5 2 3]
      * =end
@@ -190,7 +205,13 @@ namespace Ark::internal::Builtins::List
      */
     Value setListAt(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        types::checker("list:setAt", types::Contract { { types::Typedef("list", ValueType::List), types::Typedef("index", ValueType::Number), types::Typedef("value", types::AnyType) } }, n);
+        if (!types::check(n, ValueType::List, ValueType::Number, ValueType::Any))
+            types::generateError(
+                "list:setAt",
+                { { types::Contract { { types::Typedef("list", ValueType::List),
+                                        types::Typedef("index", ValueType::Number),
+                                        types::Typedef("value", ValueType::Any) } } } },
+                n);
 
         n[0].list()[static_cast<std::size_t>(n[1].number())] = n[2];
         return n[0];
