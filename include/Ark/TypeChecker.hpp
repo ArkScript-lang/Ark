@@ -15,15 +15,55 @@
 #include <limits>
 #include <string>
 #include <vector>
+#include <type_traits>
+
 #define NOMINMAX
 #include <Ark/VM/Value.hpp>
 
 #ifdef max
-    #undef max
+#    undef max
 #endif
 
-namespace Ark::internal::types
+namespace Ark::types
 {
+    namespace details
+    {
+        template <typename T, typename... Ts>
+        using AllSame = std::enable_if_t<std::conjunction_v<std::is_same<T, Ts>...>>;
+
+        template <int I>
+        bool checkN([[maybe_unused]] const std::vector<Value>& args)
+        {
+            return true;
+        }
+
+        template <int I, typename T, typename... Ts>
+        bool checkN(const std::vector<Value>& args, T type, Ts... xs)
+        {
+            if (I >= args.size() || args[I].valueType() != type)
+                return false;
+            else
+                return checkN<I + 1>(args, xs...);
+        }
+    }
+
+    /**
+     * @brief Helper to see if a builtin has been given a wanted set of types
+     * 
+     * @tparam Ts Variadic argument list composed of ValueTypes
+     * @param args arguments passed to the function
+     * @param types accepted types
+     * @return true if the contract is respected
+     * @return false otherwise
+     */
+    template <typename... Ts, typename = details::AllSame<ValueType, Ts...>>
+    bool check(const std::vector<Value>& args, Ts... types)
+    {
+        if (sizeof...(types) != args.size())
+            return false;
+        return details::checkN<0>(args, types...);
+    }
+
     /**
      * @brief A type definition within a contract
      * 
@@ -31,14 +71,14 @@ namespace Ark::internal::types
     struct Typedef
     {
         std::string_view name;
-        uint32_t types;
+        std::vector<ValueType> types;
         bool variadic;
 
         Typedef(std::string_view name, ValueType type, bool variadic = false) :
-            name(name), types(1 << static_cast<uint32_t>(type)), variadic(variadic)
+            name(name), types { { type } }, variadic(variadic)
         {}
 
-        Typedef(std::string_view name, uint32_t types, bool variadic = false) :
+        Typedef(std::string_view name, const std::vector<ValueType>& types, bool variadic = false) :
             name(name), types(types), variadic(variadic)
         {}
     };
@@ -56,22 +96,27 @@ namespace Ark::internal::types
      * @brief Define all the types we can use in contracts
      * 
      */
-    constexpr uint32_t AnyType = std::numeric_limits<uint32_t>::max();
+    const std::vector<ValueType> AnyType = {
+        ValueType::List,
+        ValueType::Number,
+        ValueType::String,
+        ValueType::PageAddr,
+        ValueType::CProc,
+        ValueType::Closure,
+        ValueType::User,
+        ValueType::Nil,
+        ValueType::True,
+        ValueType::False,
+    };
 
     /**
-     * @brief Applies type checks and arity check to the provided argument, following a set of contracts the function can follow
+     * @brief Generate an error message based on a given set of types contracts provided argument list
      * 
-     * @param funcname 
-     * @param contracts 
-     * @param provided_arguments 
-     * @return std::size_t the index of the contract used
+     * @param funcname ArkScript name of the function
+     * @param contracts types contracts the function can follow
+     * @param args provided argument list
      */
-    std::size_t checker(std::string_view funcname, const std::vector<Contract>& contracts, const std::vector<Value>& provided_arguments);
-
-    inline std::size_t checker(std::string_view funcname, const Contract& contract, const std::vector<Value>& provided_arguments)
-    {
-        return checker(funcname, { { contract } }, provided_arguments);
-    }
+    void generateError(std::string_view funcname, const std::vector<Contract>& contracts, const std::vector<Value>& args);
 }
 
 #endif
