@@ -51,9 +51,7 @@ namespace Ark
         False = 9,
         Undefined = 10,
         Reference = 11,
-        InstPtr = 12,
-
-        Max = 12
+        InstPtr = 12
     };
 
     const std::array<std::string, 13> types_to_str = {
