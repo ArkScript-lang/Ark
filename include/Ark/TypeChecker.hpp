@@ -40,10 +40,9 @@ namespace Ark::types
         template <int I, typename T, typename... Ts>
         bool checkN(const std::vector<Value>& args, T type, Ts... xs)
         {
-            if (I >= args.size() || type != ValueType::Any && args[I].valueType() != type)
+            if (I >= args.size() || (type != ValueType::Any && args[I].valueType() != type))
                 return false;
-            else
-                return checkN<I + 1>(args, xs...);
+            return checkN<I + 1>(args, xs...);
         }
     }
 
