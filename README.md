@@ -15,24 +15,23 @@
 ## Key features
 
 ArkScript is
-* small: the compiler and the virtual machines fit under 8000 lines, but also small in terms of keywords (it has only 10)!
-* a scripting language: it's very easy to embed it in your application. The builtin construction is quite easy to understand, so adding your own functions to the virtual machine is effortless
-* portable: it produces a bytecode which is run by its virtual machine, the same way Java does it (with a smaller memory footprint)
-* a functional language: every parameter is passed by value, everything is immutable unless you use `mut` to specify your need of mutability
-* powerful: it can handle object-oriented programming in a very elegant way with its closures and explicit captures (see `examples/closures.ark`)
-* promoting functionalities before performances: expressiveness often brings more productivity, even though performances aren't left behind
-* easy to compile: it takes less than 200ms to compile and check a complex code with a lot of branches and sub-branches of 200 lines
-* a Lisp-like, but with fewer parentheses: `[...]` is expanded to `(list ...)` and `{}` to `(begin ...)`. More shorthands will come in the future
-* extensible: it is very easy to create a C++ module to use it in the language, adding functionalities
+* **small**: the core fit under 8000 lines of code ; also small in terms of keywords (only 10)
+* **a scripting language**: very easy to embed it in your projects. Registering your own functions in the language is made easy
+* **portable**: a unique bytecode which can be run everywhere the virtual machine is
+* **a functional language**: every parameter is passed by value, everything is immutable unless specified
+* **powerful**: provides closures and explicit capture
+* **promoting functionalities before performances**: expressiveness often brings more productivity, though performances aren't left behind
+* **a Lisp inspired language**, with fewer parentheses: `[...]` is expanded to `(list ...)` and `{}` to `(begin ...)`
+* **extensible**: supports C++ module to use it in the language, adding functionalities
 
 Also it has:
-* macros: if/else, values, and functions
+* **macros**: if/else, values, and functions
 * a REPL with autocompletion and coloration
 * a growing standard library, composed of ArkScript code (under `lib/std/`) and C++ (under `lib/ext/`)
-* a lot of unit tests (but never enough), which are ran before every release to ensure everything work as intended
-* docker images to try the language without compiling it:
-    * [stable](https://hub.docker.com/r/arkscript/stable), images built after each release
-    * [nightly](https://hub.docker.com/r/arkscript/nightly), image built after each commit
+* a lot of unit tests (but never enough), which are ran before every release to ensure everything works as expected
+* docker images:
+    * [stable](https://hub.docker.com/r/arkscript/stable), built after each release
+    * [nightly](https://hub.docker.com/r/arkscript/nightly), built after each commit
 
 ## Examples
 
@@ -101,7 +100,9 @@ cmake --install build
 * First, [fork](https://github.com/ArkScript-lang/Ark/fork) the repository
 * Then, clone your fork: `git clone git@github.com:username/Ark.git`
 * Create a branch for your feature: `git checkout -b feat-my-awesome-idea`
-* When you're done, push it to your fork and submit a pull request!
+* When you're done, push it to your fork and submit a pull request
+
+Make sure you follow the [contribution guidelines](CONTRIBUTING.md) before submitting your pull request!
 
 Don't know what to work on? No worries, we have a [list of things to do](https://github.com/ArkScript-lang/Ark/issues) :wink:
 
@@ -111,7 +112,7 @@ We have other projects tightly related to ArkScript, which aren't necessarily C+
 * the [Request For Comments](https://github.com/ArkScript-lang/rfc), where we discuss new features for the language
 * the [standard library](https://github.com/ArkScript-lang/std), written in ArkScript itself
 * the [standard library modules](https://github.com/ArkScript-lang/modules), extending the capacities of the language, written in C++
-* [ArkDoc](https://github.com/ArkScript-lang/ArkDoc), a documentation generator à la doxygen, for ArkScript, written in Python 3
+* [ArkDoc](https://github.com/ArkScript-lang/ArkDoc), a documentation generator *à la doxygen* for ArkScript, written in Python 3
 * our [website](https://github.com/ArkScript-lang/arkscript-lang.github.io) written in HTML, CSS and JavaScript
 
 ### Our beloved contributors
