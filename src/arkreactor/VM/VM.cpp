@@ -774,13 +774,13 @@ namespace Ark
                     {
                         Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
 
-                        if (a->valueType() == ValueType::Number && b->valueType() == ValueType::Number)
-                            push(Value(a->number() - b->number()), context);
-                        else
+                        if (a->valueType() != ValueType::Number || b->valueType() != ValueType::Number)
                             types::generateError(
                                 "-",
                                 { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
                                 { *a, *b });
+                        else
+                            push(Value(a->number() - b->number()), context);
                         break;
                     }
 
@@ -788,13 +788,13 @@ namespace Ark
                     {
                         Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
 
-                        if (a->valueType() == ValueType::Number && b->valueType() == ValueType::Number)
-                            push(Value(a->number() * b->number()), context);
-                        else
+                        if (a->valueType() != ValueType::Number || b->valueType() != ValueType::Number)
                             types::generateError(
                                 "*",
                                 { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
                                 { *a, *b });
+                        else
+                            push(Value(a->number() * b->number()), context);
                         break;
                     }
 
@@ -802,7 +802,12 @@ namespace Ark
                     {
                         Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
 
-                        if (a->valueType() == ValueType::Number && b->valueType() == ValueType::Number)
+                        if (a->valueType() != ValueType::Number || b->valueType() != ValueType::Number)
+                            types::generateError(
+                                "/",
+                                { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
+                                { *a, *b });
+                        else
                         {
                             auto d = b->number();
                             if (d == 0)
@@ -810,11 +815,6 @@ namespace Ark
 
                             push(Value(a->number() / d), context);
                         }
-                        else
-                            types::generateError(
-                                "/",
-                                { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
-                                { *a, *b });
                         break;
                     }
 
