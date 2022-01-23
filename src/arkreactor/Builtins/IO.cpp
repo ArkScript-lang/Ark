@@ -246,7 +246,7 @@ namespace Ark::internal::Builtins::IO
      */
     Value removeFiles(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() < 2 || n[0].valueType() != ValueType::String)
+        if (n.size() < 1 || n[0].valueType() != ValueType::String)
             types::generateError(
                 "io:removeFiles",
                 { { types::Contract { { types::Typedef("filename", ValueType::String), types::Typedef("filenames", ValueType::String, /* variadic */ true) } } } },

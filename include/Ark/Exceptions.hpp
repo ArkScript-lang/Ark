@@ -21,33 +21,6 @@
 
 namespace Ark
 {
-    class Error : public std::runtime_error
-    {
-    public:
-        explicit Error(const std::string& message = "") :
-            std::runtime_error(message)
-        {}
-    };
-
-    /**
-     * @brief A type error triggered when types don't match
-     * 
-     */
-    class BetterTypeError : public Error
-    {
-    public:
-        BetterTypeError(std::string_view func_name, std::size_t expected_argc, const std::vector<Value>& args);
-
-        BetterTypeError& withArg(std::string_view arg_name, ValueType arg_type);
-        BetterTypeError& withArg(std::string_view arg_name, const std::vector<ValueType>& arg_type);
-
-    protected:
-        std::string_view m_funcname;
-        std::size_t m_arg_index;
-        std::size_t m_expected_argc;
-        std::vector<Value> m_args;
-    };
-
     /**
      * @brief A type error triggered when types don't match
      * 

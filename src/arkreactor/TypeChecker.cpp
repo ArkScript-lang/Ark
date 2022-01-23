@@ -53,7 +53,7 @@ namespace Ark::types
             else
             {
                 // provided argument but wrong type
-                if (i < args.size() && td.types[i] != ValueType::Any && td.types[i] != args[i].valueType())
+                if (i < args.size() && td.types[0] != ValueType::Any && std::find(td.types.begin(), td.types.end(), args[i].valueType()) == td.types.end())
                     std::cout << "was of type " << termcolor::yellow << types_to_str[static_cast<std::size_t>(args[i].valueType())];
                 // non-provided argument
                 else if (i >= args.size())
@@ -86,7 +86,7 @@ namespace Ark::types
                       << " argument" << (max_argc > 1 ? "s" : "");
 
             if (args.size() < min_argc || args.size() > max_argc)
-                std::cout << " but got " << args.size() << "\n";
+                std::cout << " but got " << args.size();
         }
         else
         {
@@ -95,8 +95,10 @@ namespace Ark::types
                       << " argument" << (expected_argc > 1 ? "s" : "");
 
             if (args.size() != expected_argc)
-                std::cout << " but got " << args.size() << "\n";
+                std::cout << " but got " << args.size();
         }
+
+        std::cout << "\n";
 
         displayContract(contracts[0], args);
         for (std::size_t i = 1, end = contracts.size(); i < end; ++i)
@@ -105,6 +107,6 @@ namespace Ark::types
             displayContract(contracts[i], args);
         }
 
-        throw Error("");
+        throw TypeError("");
     }
 }

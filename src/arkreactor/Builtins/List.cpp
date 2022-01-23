@@ -176,7 +176,7 @@ namespace Ark::internal::Builtins::List
      */
     Value fill(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (!types::check(n, ValueType::List, ValueType::Any))
+        if (!types::check(n, ValueType::Number, ValueType::Any))
             types::generateError(
                 "list:fill",
                 { { types::Contract { { types::Typedef("size", ValueType::Number),
