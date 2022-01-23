@@ -12,7 +12,7 @@ namespace Ark::types
 {
     std::string typeListToString(const std::vector<ValueType>& types)
     {
-        if (types.size() == AnyType.size())  // without more checks we'll assume they are the same
+        if (types.size() == 1 && types[0] == ValueType::Any)
             return "any";
 
         std::string acc = "";
@@ -42,7 +42,7 @@ namespace Ark::types
                 std::size_t bad_type = 0;
                 for (std::size_t j = i, args_end = args.size(); j < args_end; ++j)
                 {
-                    if (td.types[j] != args[j].valueType())
+                    if (td.types[j] != ValueType::Any && td.types[j] != args[j].valueType())
                         bad_type++;
                 }
 
@@ -53,7 +53,7 @@ namespace Ark::types
             else
             {
                 // provided argument but wrong type
-                if (i < args.size() && td.types[i] != args[i].valueType())
+                if (i < args.size() && td.types[i] != ValueType::Any && td.types[i] != args[i].valueType())
                     std::cout << "was of type " << termcolor::yellow << types_to_str[static_cast<std::size_t>(args[i].valueType())];
                 // non-provided argument
                 else if (i >= args.size())
@@ -62,7 +62,6 @@ namespace Ark::types
             std::cout << termcolor::reset << "\n";
         }
     }
-
 
     void generateError(std::string_view funcname, const std::vector<Contract>& contracts, const std::vector<Value>& args)
     {
