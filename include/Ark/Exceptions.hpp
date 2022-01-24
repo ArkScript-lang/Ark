@@ -29,7 +29,7 @@ namespace Ark
     {
     public:
         explicit TypeError(const std::string& message) :
-            std::runtime_error("TypeError: " + message)
+            std::runtime_error(message)
         {}
     };
 
