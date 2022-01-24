@@ -21,20 +21,23 @@ namespace Ark::types
         {
             if (i > 0)
                 acc += ", ";
-            acc += types_to_str[i];
+            acc += types_to_str[static_cast<std::size_t>(types[i])];
         }
         return acc;
     }
 
     void displayContract(const Contract& contract, const std::vector<Value>& args)
     {
-        for (std::size_t i = 0, end = contract.arguments.size(); i < end; ++i)
-        {
-            const Typedef& td = contract.arguments[i];
+        auto displayArg = [](const Typedef& td, bool correct) {
             std::string arg_str = typeListToString(td.types);
 
             std::cout << "  -> " << (td.variadic ? "variadic " : "")
-                      << termcolor::green << td.name << termcolor::reset << " (" << arg_str << ") ";
+                      << (correct ? termcolor::green : termcolor::magenta) << td.name << termcolor::reset << " (" << arg_str << ") ";
+        };
+
+        for (std::size_t i = 0, end = contract.arguments.size(); i < end; ++i)
+        {
+            const Typedef& td = contract.arguments[i];
 
             if (td.variadic && i < args.size())
             {
@@ -42,22 +45,35 @@ namespace Ark::types
                 std::size_t bad_type = 0;
                 for (std::size_t j = i, args_end = args.size(); j < args_end; ++j)
                 {
-                    if (td.types[j] != ValueType::Any && td.types[j] != args[j].valueType())
+                    if (td.types[0] != ValueType::Any && std::find(td.types.begin(), td.types.end(), args[j].valueType()) == td.types.end())
                         bad_type++;
                 }
 
                 if (bad_type)
+                {
+                    displayArg(td, false);
                     std::cout << termcolor::red << bad_type << termcolor::reset
                               << " argument" << (bad_type > 1 ? "s" : "") << " do not match";
+                }
+                else
+                    displayArg(td, true);
             }
             else
             {
                 // provided argument but wrong type
                 if (i < args.size() && td.types[0] != ValueType::Any && std::find(td.types.begin(), td.types.end(), args[i].valueType()) == td.types.end())
-                    std::cout << "was of type " << termcolor::yellow << types_to_str[static_cast<std::size_t>(args[i].valueType())];
+                {
+                    displayArg(td, false);
+                    std::cout << "was of type " << termcolor::red << types_to_str[static_cast<std::size_t>(args[i].valueType())];
+                }
                 // non-provided argument
                 else if (i >= args.size())
+                {
+                    displayArg(td, false);
                     std::cout << termcolor::red << "was not provided";
+                }
+                else
+                    displayArg(td, true);
             }
             std::cout << termcolor::reset << "\n";
         }
@@ -65,7 +81,7 @@ namespace Ark::types
 
     void generateError(std::string_view funcname, const std::vector<Contract>& contracts, const std::vector<Value>& args)
     {
-        std::cout << termcolor::green << funcname << termcolor::reset << " expected ";
+        std::cout << termcolor::blue << funcname << termcolor::reset << " expected ";
 
         // get expected arguments count
         std::size_t min_argc = std::numeric_limits<std::size_t>::max(), max_argc = 0;
@@ -77,6 +93,8 @@ namespace Ark::types
                 max_argc = c.arguments.size();
         }
 
+        bool correct_argcount = true;
+
         if (min_argc != max_argc)
         {
             std::cout << "between "
@@ -86,19 +104,21 @@ namespace Ark::types
                       << " argument" << (max_argc > 1 ? "s" : "");
 
             if (args.size() < min_argc || args.size() > max_argc)
-                std::cout << " but got " << args.size();
+                correct_argcount = false;
         }
         else
         {
-            std::size_t expected_argc = contracts[0].arguments.size();
-            std::cout << termcolor::yellow << expected_argc << termcolor::reset
-                      << " argument" << (expected_argc > 1 ? "s" : "");
+            std::cout << termcolor::yellow << min_argc << termcolor::reset
+                      << " argument" << (min_argc > 1 ? "s" : "");
 
-            if (args.size() != expected_argc)
-                std::cout << " but got " << args.size();
+            if (args.size() != min_argc)
+                correct_argcount = false;
         }
 
-        std::cout << "\n";
+        if (!correct_argcount)
+            std::cout << " but got " << termcolor::red << args.size();
+
+        std::cout << termcolor::reset << "\n";
 
         displayContract(contracts[0], args);
         for (std::size_t i = 1, end = contracts.size(); i < end; ++i)

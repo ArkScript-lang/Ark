@@ -8,6 +8,8 @@
 - adding `ARK_PROFILER_MIPS` to toggle instruction per second calculation
 - adding new way to typecheck in builtins
 - new CI build step now running valgrind to check for memory leaks
+- new type checker (to be used by builtins)
+- better type errors generation (with the list of arguments, if they are matching or not, and more)
 
 ### Changed
 - splitting Utils.hpp into multiple files for easier maintenance and contextualisation
@@ -16,6 +18,7 @@
 - the VM now displays the debug info (ip, pp, sp) at the end of the backtrace instead of the beginning
 
 ### Removed
+- `BetterTypeError` has been removed in favor of a type checker using templates and an error generator
 
 ### Deprecated
 - deprecating `VM(State*)` in favor of `VM(State&)`
