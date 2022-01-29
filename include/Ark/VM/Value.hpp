@@ -2,7 +2,7 @@
  * @file Value.hpp
  * @author Default value type handled by the virtual machine
  * @brief 
- * @version 0.2
+ * @version 0.3
  * @date 2020-10-27
  * 
  * @copyright Copyright (c) 2020-2021
@@ -23,8 +23,8 @@
 #include <Ark/String.hpp>  // our string implementation
 #include <array>
 
-#include <Ark/VM/Closure.hpp>
-#include <Ark/VM/UserType.hpp>
+#include <Ark/VM/Value/Closure.hpp>
+#include <Ark/VM/Value/UserType.hpp>
 #include <Ark/Platform.hpp>
 #include <Ark/Profiling.hpp>
 
@@ -51,7 +51,9 @@ namespace Ark
         False = 9,
         Undefined = 10,
         Reference = 11,
-        InstPtr = 12
+        InstPtr = 12,
+
+        Any = 99
     };
 
     const std::array<std::string, 13> types_to_str = {
@@ -69,7 +71,7 @@ namespace Ark
     class ARK_API Value
     {
     public:
-        using ProcType = Value (*)(std::vector<Value>&, Ark::VM*);  // std::function<Value (std::vector<Value>&, Ark::VM*)>
+        using ProcType = Value (*)(std::vector<Value>&, VM*);  // std::function<Value (std::vector<Value>&, VM*)>
         using Iterator = std::vector<Value>::iterator;
         using ConstIterator = std::vector<Value>::const_iterator;
 
@@ -110,7 +112,7 @@ namespace Ark
         template <typename T>
         Value(ValueType type, T&& value) noexcept :
             m_const_type(static_cast<uint8_t>(type)),
-            m_value(value)
+            m_value(std::move(value))
         {}
 
 #ifdef ARK_PROFILER_COUNT

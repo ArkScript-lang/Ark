@@ -1,11 +1,27 @@
 # Change Log
 
-## [Unreleased]
+## [3.1.3] - 2022-01-29
 ### Added
+- adding an ExecutionContext to host the pointers (instruction, page, stack) and execution related structures (stack, locals, scopes), to ease the transition to a parallelized VM
+    - the VM can have multiple independant context running on the same bytecode
+- the VM now takes a reference to an `Ark::State` instead of a raw non-owning pointer
+- adding `ARK_PROFILER_MIPS` to toggle instruction per second calculation
+- adding new way to typecheck in builtins
+- new CI build step now running valgrind to check for memory leaks
+- new type checker (to be used by builtins)
+- better type errors generation (with the list of arguments, if they are matching or not, and more)
 
 ### Changed
+- splitting Utils.hpp into multiple files for easier maintenance and contextualisation
+- reserving a default scope size of 3, which yields really good performance results compared to nothing being reserved
+- upgrading the builtins error handling to use the `BetterTypeError`
+- the VM now displays the debug info (ip, pp, sp) at the end of the backtrace instead of the beginning
 
 ### Removed
+- `BetterTypeError` has been removed in favor of a type checker using templates and an error generator
+
+### Deprecated
+- deprecating `VM(State*)` in favor of `VM(State&)`
 
 ## [3.1.2] - 2021-11-02
 ### Added

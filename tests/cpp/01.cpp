@@ -13,7 +13,7 @@ int main()
     // Will automatically compile the file if needed (if not, will take it from the ark cache)
     state.doString("(let foo (fun (x y) (+ x y 2)))");
 
-    Ark::VM vm(&state);
+    Ark::VM vm(state);
     CHECK_VM_RUN(vm)
 
     /*

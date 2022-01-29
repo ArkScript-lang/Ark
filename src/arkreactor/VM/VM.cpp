@@ -1,7 +1,18 @@
+#define NOMINMAX
+
 #include <Ark/VM/VM.hpp>
 
+#include <numeric>
+#include <limits>
+
 #include <termcolor/termcolor.hpp>
+#include <Ark/Files.hpp>
 #include <Ark/Utils.hpp>
+#include <Ark/TypeChecker.hpp>
+
+#ifdef ARK_PROFILER_MIPS
+#    include <chrono>
+#endif
 
 struct mapping
 {
@@ -13,82 +24,82 @@ namespace Ark
 {
     using namespace internal;
 
-    VM::VM(State* state) noexcept :
-        m_state(state), m_exit_code(0), m_ip(0), m_pp(0), m_sp(0), m_fc(0),
-        m_running(false), m_last_sym_loaded(0),
-        m_until_frame_count(0), m_stack(nullptr), m_user_pointer(nullptr)
+    VM::VM(State& state) noexcept :
+        m_state(state), m_exit_code(0), m_fc(0),
+        m_running(false),
+        m_until_frame_count(0), m_user_pointer(nullptr)
     {
-        m_locals.reserve(4);
+        m_execution_contexts.emplace_back(std::make_unique<ExecutionContext>())->locals.reserve(4);
     }
 
     void VM::init() noexcept
     {
-        // initialize the stack
-        if (m_stack == nullptr)
-            m_stack = std::make_unique<std::array<Value, ArkVMStackSize>>();
+        ExecutionContext& context = *m_execution_contexts.back();
 
-        m_sp = 0;
+        context.sp = 0;
         m_fc = 1;
 
         m_shared_lib_objects.clear();
-        m_scope_count_to_delete.clear();
-        m_scope_count_to_delete.emplace_back(0);
+        context.scope_count_to_delete.clear();
+        context.scope_count_to_delete.emplace_back(0);
 
-        m_saved_scope.reset();
+        context.saved_scope.reset();
         m_exit_code = 0;
 
-        m_locals.clear();
-        createNewScope();
+        context.locals.clear();
+        createNewScope(context);
 
-        if (m_locals.size() == 0)
+        if (context.locals.size() == 0)
         {
             // if persistance is set but not scopes are present, add one
-            createNewScope();
+            createNewScope(context);
         }
 
         // loading binded stuff
         // put them in the global frame if we can, aka the first one
-        for (auto name_val : m_state->m_binded)
+        for (auto name_val : m_state.m_binded)
         {
-            auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), name_val.first);
-            if (it != m_state->m_symbols.end())
-                (*m_locals[0]).push_back(static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it)), name_val.second);
+            auto it = std::find(m_state.m_symbols.begin(), m_state.m_symbols.end(), name_val.first);
+            if (it != m_state.m_symbols.end())
+                (*context.locals[0]).push_back(static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it)), name_val.second);
         }
     }
 
     Value& VM::operator[](const std::string& name) noexcept
     {
+        ExecutionContext& context = *m_execution_contexts.back();
+
         const std::lock_guard<std::mutex> lock(m_mutex);
 
         // find id of object
-        auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), name);
-        if (it == m_state->m_symbols.end())
+        auto it = std::find(m_state.m_symbols.begin(), m_state.m_symbols.end(), name);
+        if (it == m_state.m_symbols.end())
         {
             m_no_value = Builtins::nil;
             return m_no_value;
         }
 
-        uint16_t id = static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it));
-        Value* var = findNearestVariable(id);
+        uint16_t id = static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it));
+        Value* var = findNearestVariable(id, context);
         if (var != nullptr)
             return *var;
         m_no_value = Builtins::nil;
         return m_no_value;
     }
 
-    void VM::loadPlugin(uint16_t id)
+    void VM::loadPlugin(uint16_t id, ExecutionContext& context)
     {
         namespace fs = std::filesystem;
 
-        const std::string file = m_state->m_constants[id].stringRef().toString();
+        const std::string file = m_state.m_constants[id].stringRef().toString();
 
         std::string path = file;
         // bytecode loaded from file
-        if (m_state->m_filename != ARK_NO_NAME_FILE)
-            path = (fs::path(m_state->m_filename).parent_path() / fs::path(file)).relative_path().string();
+        if (m_state.m_filename != ARK_NO_NAME_FILE)
+            path = (fs::path(m_state.m_filename).parent_path() / fs::path(file)).relative_path().string();
 
         std::shared_ptr<SharedLibrary> lib;
-        for (auto&& v : m_state->m_libenv)
+        for (auto const& v : m_state.m_libenv)
         {
             std::string lib_path = (fs::path(v) / fs::path(file)).string();
 
@@ -114,7 +125,14 @@ namespace Ark
 
         if (!lib)
         {
-            throwVMError("Could not find module '" + file + "'. Searched in\n\t- " + path + "\n\t- " + Utils::joinString(m_state->m_libenv));
+            auto lib_path = std::accumulate(
+                std::next(m_state.m_libenv.begin()),
+                m_state.m_libenv.end(),
+                m_state.m_libenv[0],
+                [](const std::string& a, const std::string& b) -> std::string {
+                    return a + "\n\t- " + b;
+                });
+            throwVMError("Could not find module '" + file + "'. Searched in\n\t- " + path + "\n\t- " + lib_path);
         }
 
         m_shared_lib_objects.emplace_back(lib);
@@ -137,9 +155,9 @@ namespace Ark
         while (map[i].name != nullptr)
         {
             // put it in the global frame, aka the first one
-            auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), std::string(map[i].name));
-            if (it != m_state->m_symbols.end())
-                (*m_locals[0]).push_back(static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it)), Value(map[i].value));
+            auto it = std::find(m_state.m_symbols.begin(), m_state.m_symbols.end(), std::string(map[i].name));
+            if (it != m_state.m_symbols.end())
+                (*context.locals[0]).push_back(static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it)), Value(map[i].value));
 
             // free memory because we have used it and don't need it anymore
             // no need to free map[i].value since it's a pointer to a function in the DLL
@@ -178,18 +196,26 @@ namespace Ark
     int VM::run() noexcept
     {
         init();
-        safeRun();
+        safeRun(*m_execution_contexts[0]);
 
         // reset VM after each run
-        m_ip = 0;
-        m_pp = 0;
+        for (auto& context : m_execution_contexts)
+        {
+            context->ip = 0;
+            context->pp = 0;
+        }
 
         return m_exit_code;
     }
 
-    int VM::safeRun(std::size_t untilFrameCount)
+    int VM::safeRun(ExecutionContext& context, std::size_t untilFrameCount)
     {
         m_until_frame_count = untilFrameCount;
+
+#ifdef ARK_PROFILER_MIPS
+        auto start_time = std::chrono::system_clock::now();
+        unsigned long long instructions_executed = 0;
+#endif
 
         try
         {
@@ -197,7 +223,7 @@ namespace Ark
             while (m_running && m_fc > m_until_frame_count)
             {
                 // get current instruction
-                uint8_t inst = m_state->m_pages[m_pp][m_ip];
+                uint8_t inst = m_state.m_pages[context.pp][context.ip];
 
                 // and it's time to du-du-du-du-duel!
                 switch (inst)
@@ -211,14 +237,14 @@ namespace Ark
                             Job: Load a symbol from its id onto the stack
                         */
 
-                        ++m_ip;
-                        m_last_sym_loaded = readNumber();
+                        ++context.ip;
+                        context.last_symbol = readNumber(context);
 
-                        if (Value* var = findNearestVariable(m_last_sym_loaded); var != nullptr)
+                        if (Value* var = findNearestVariable(context.last_symbol, context); var != nullptr)
                             // push internal reference, shouldn't break anything so far
-                            push(var);
+                            push(var, context);
                         else
-                            throwVMError("unbound variable: " + m_state->m_symbols[m_last_sym_loaded]);
+                            throwVMError("unbound variable: " + m_state.m_symbols[context.last_symbol]);
 
                         COZ_PROGRESS_NAMED("ark vm load_symbol");
                         break;
@@ -232,18 +258,18 @@ namespace Ark
                                     and push a Closure with the page address + environment instead of the constant
                         */
 
-                        ++m_ip;
-                        uint16_t id = readNumber();
+                        ++context.ip;
+                        uint16_t id = readNumber(context);
 
-                        if (m_saved_scope && m_state->m_constants[id].valueType() == ValueType::PageAddr)
+                        if (context.saved_scope && m_state.m_constants[id].valueType() == ValueType::PageAddr)
                         {
-                            push(Value(Closure(m_saved_scope.value(), m_state->m_constants[id].pageAddr())));
-                            m_saved_scope.reset();
+                            push(Value(Closure(context.saved_scope.value(), m_state.m_constants[id].pageAddr())), context);
+                            context.saved_scope.reset();
                         }
                         else
                         {
                             // push internal ref
-                            push(&(m_state->m_constants[id]));
+                            push(&(m_state.m_constants[id]), context);
                         }
 
                         COZ_PROGRESS_NAMED("ark vm load_const");
@@ -258,11 +284,11 @@ namespace Ark
                                     Remove the value from the stack no matter what it is
                         */
 
-                        ++m_ip;
-                        uint16_t id = readNumber();
+                        ++context.ip;
+                        uint16_t id = readNumber(context);
 
-                        if (*popAndResolveAsPtr() == Builtins::trueSym)
-                            m_ip = static_cast<int16_t>(id) - 1;  // because we are doing a ++m_ip right after this
+                        if (*popAndResolveAsPtr(context) == Builtins::trueSym)
+                            context.ip = static_cast<int16_t>(id) - 1;  // because we are doing a ++context.ip right after this
                         break;
                     }
 
@@ -275,22 +301,22 @@ namespace Ark
                                     couldn't find a scope where the variable exists
                         */
 
-                        ++m_ip;
-                        uint16_t id = readNumber();
+                        ++context.ip;
+                        uint16_t id = readNumber(context);
 
-                        if (Value* var = findNearestVariable(id); var != nullptr)
+                        if (Value* var = findNearestVariable(id, context); var != nullptr)
                         {
                             if (var->isConst())
-                                throwVMError("can not modify a constant: " + m_state->m_symbols[id]);
+                                throwVMError("can not modify a constant: " + m_state.m_symbols[id]);
 
-                            *var = *popAndResolveAsPtr();
+                            *var = *popAndResolveAsPtr(context);
                             var->setConst(false);
                             break;
                         }
 
                         COZ_PROGRESS_NAMED("ark vm store");
 
-                        throwVMError("unbound variable " + m_state->m_symbols[id] + ", can not change its value");
+                        throwVMError("unbound variable " + m_state.m_symbols[id] + ", can not change its value");
                         break;
                     }
 
@@ -302,16 +328,16 @@ namespace Ark
                                     following the given symbol id (cf symbols table)
                         */
 
-                        ++m_ip;
-                        uint16_t id = readNumber();
+                        ++context.ip;
+                        uint16_t id = readNumber(context);
 
                         // check if we are redefining a variable
-                        if (auto val = (*m_locals.back())[id]; val != nullptr)
-                            throwVMError("can not use 'let' to redefine the variable " + m_state->m_symbols[id]);
+                        if (auto val = (*context.locals.back())[id]; val != nullptr)
+                            throwVMError("can not use 'let' to redefine the variable " + m_state.m_symbols[id]);
 
-                        Value val = *popAndResolveAsPtr();
+                        Value val = *popAndResolveAsPtr(context);
                         val.setConst(true);
-                        (*m_locals.back()).push_back(id, val);
+                        (*context.locals.back()).push_back(id, val);
 
                         COZ_PROGRESS_NAMED("ark vm let");
                         break;
@@ -325,11 +351,11 @@ namespace Ark
                                     the value from the stack no matter what it is
                         */
 
-                        ++m_ip;
-                        uint16_t id = readNumber();
+                        ++context.ip;
+                        uint16_t id = readNumber(context);
 
-                        if (*popAndResolveAsPtr() == Builtins::falseSym)
-                            m_ip = static_cast<int16_t>(id) - 1;  // because we are doing a ++m_ip right after this
+                        if (*popAndResolveAsPtr(context) == Builtins::falseSym)
+                            context.ip = static_cast<int16_t>(id) - 1;  // because we are doing a ++context.ip right after this
                         break;
                     }
 
@@ -340,10 +366,10 @@ namespace Ark
                             Job: Jump to the provided address
                         */
 
-                        ++m_ip;
-                        uint16_t id = readNumber();
+                        ++context.ip;
+                        uint16_t id = readNumber(context);
 
-                        m_ip = static_cast<int16_t>(id) - 1;  // because we are doing a ++m_ip right after this
+                        context.ip = static_cast<int16_t>(id) - 1;  // because we are doing a ++context.ip right after this
                         break;
                     }
 
@@ -355,17 +381,17 @@ namespace Ark
                                     the stack to the new stack ; should as well delete the current environment.
                         */
 
-                        Value ip_or_val = *popAndResolveAsPtr();
+                        Value ip_or_val = *popAndResolveAsPtr(context);
                         // no return value on the stack
                         if (ip_or_val.valueType() == ValueType::InstPtr)
                         {
-                            m_ip = ip_or_val.pageAddr();
+                            context.ip = ip_or_val.pageAddr();
                             // we always push PP then IP, thus the next value
                             // MUST be the page pointer
-                            m_pp = pop()->pageAddr();
+                            context.pp = pop(context)->pageAddr();
 
-                            returnFromFuncCall();
-                            push(Builtins::nil);
+                            returnFromFuncCall(context);
+                            push(Builtins::nil, context);
                         }
                         // value on the stack
                         else
@@ -373,14 +399,14 @@ namespace Ark
                             Value* ip;
                             do
                             {
-                                ip = popAndResolveAsPtr();
+                                ip = popAndResolveAsPtr(context);
                             } while (ip->valueType() != ValueType::InstPtr);
 
-                            m_ip = ip->pageAddr();
-                            m_pp = pop()->pageAddr();
+                            context.ip = ip->pageAddr();
+                            context.pp = pop(context)->pageAddr();
 
-                            returnFromFuncCall();
-                            push(std::move(ip_or_val));
+                            returnFromFuncCall(context);
+                            push(std::move(ip_or_val), context);
                         }
 
                         COZ_PROGRESS_NAMED("ark vm ret");
@@ -392,7 +418,7 @@ namespace Ark
                         break;
 
                     case Instruction::CALL:
-                        call();
+                        call(context);
                         break;
 
                     case Instruction::CAPTURE:
@@ -404,15 +430,15 @@ namespace Ark
                                 they were created
                         */
 
-                        ++m_ip;
-                        uint16_t id = readNumber();
+                        ++context.ip;
+                        uint16_t id = readNumber(context);
 
-                        if (!m_saved_scope)
-                            m_saved_scope = std::make_shared<Scope>();
+                        if (!context.saved_scope)
+                            context.saved_scope = std::make_shared<Scope>();
                         // if it's a captured variable, it can not be nullptr
-                        Value* ptr = (*m_locals.back())[id];
+                        Value* ptr = (*context.locals.back())[id];
                         ptr = ptr->valueType() == ValueType::Reference ? ptr->reference() : ptr;
-                        (*m_saved_scope.value()).push_back(id, *ptr);
+                        (*context.saved_scope.value()).push_back(id, *ptr);
 
                         COZ_PROGRESS_NAMED("ark vm capture");
                         break;
@@ -425,10 +451,10 @@ namespace Ark
                             Job: Push the builtin function object on the stack
                         */
 
-                        ++m_ip;
-                        uint16_t id = readNumber();
+                        ++context.ip;
+                        uint16_t id = readNumber(context);
 
-                        push(Builtins::builtins[id].second);
+                        push(Builtins::builtins[id].second, context);
 
                         COZ_PROGRESS_NAMED("ark vm builtin");
                         break;
@@ -442,16 +468,16 @@ namespace Ark
                                 named following the given symbol id (cf symbols table)
                         */
 
-                        ++m_ip;
-                        uint16_t id = readNumber();
+                        ++context.ip;
+                        uint16_t id = readNumber(context);
 
-                        Value val = *popAndResolveAsPtr();
+                        Value val = *popAndResolveAsPtr(context);
                         val.setConst(false);
 
                         // avoid adding the pair (id, _) multiple times, with different values
-                        Value* local = (*m_locals.back())[id];
+                        Value* local = (*context.locals.back())[id];
                         if (local == nullptr)
-                            (*m_locals.back()).push_back(id, val);
+                            (*context.locals.back()).push_back(id, val);
                         else
                             *local = val;
 
@@ -466,21 +492,18 @@ namespace Ark
                             Job: Remove a variable/constant named following the given symbol id (cf symbols table)
                         */
 
-                        ++m_ip;
-                        uint16_t id = readNumber();
+                        ++context.ip;
+                        uint16_t id = readNumber(context);
 
-                        if (Value* var = findNearestVariable(id); var != nullptr)
+                        if (Value* var = findNearestVariable(id, context); var != nullptr)
                         {
-                            // free usertypes
-                            if (var->valueType() == ValueType::User)
-                                var->usertypeRef().del();
                             *var = Value();
                             break;
                         }
 
                         COZ_PROGRESS_NAMED("ark vm del");
 
-                        throwVMError("unbound variable: " + m_state->m_symbols[id]);
+                        throwVMError("unbound variable: " + m_state.m_symbols[id]);
                         break;
                     }
 
@@ -490,7 +513,7 @@ namespace Ark
                             Argument: none
                             Job: Save the current environment, useful for quoted code
                         */
-                        m_saved_scope = m_locals.back();
+                        context.saved_scope = context.locals.back();
 
                         COZ_PROGRESS_NAMED("ark vm save_scope");
                         break;
@@ -504,27 +527,27 @@ namespace Ark
                                 stored in TS. Pop TS and push the value of field read on the stack
                         */
 
-                        ++m_ip;
-                        uint16_t id = readNumber();
+                        ++context.ip;
+                        uint16_t id = readNumber(context);
 
-                        Value* var = popAndResolveAsPtr();
+                        Value* var = popAndResolveAsPtr(context);
                         if (var->valueType() != ValueType::Closure)
-                            throwVMError("the variable `" + m_state->m_symbols[m_last_sym_loaded] + "' isn't a closure, can not get the field `" + m_state->m_symbols[id] + "' from it");
+                            throwVMError("the variable `" + m_state.m_symbols[context.last_symbol] + "' isn't a closure, can not get the field `" + m_state.m_symbols[id] + "' from it");
 
                         if (Value* field = (*var->refClosure().scope())[id]; field != nullptr)
                         {
                             // check for CALL instruction
-                            if (static_cast<std::size_t>(m_ip) + 1 < m_state->m_pages[m_pp].size() && m_state->m_pages[m_pp][m_ip + 1] == Instruction::CALL)
+                            if (static_cast<std::size_t>(context.ip) + 1 < m_state.m_pages[context.pp].size() && m_state.m_pages[context.pp][context.ip + 1] == Instruction::CALL)
                             {
-                                m_locals.push_back(var->refClosure().scope());
-                                ++m_scope_count_to_delete.back();
+                                context.locals.push_back(var->refClosure().scope());
+                                ++context.scope_count_to_delete.back();
                             }
 
-                            push(field);
+                            push(field, context);
                             break;
                         }
 
-                        throwVMError("couldn't find the variable " + m_state->m_symbols[id] + " in the closure enviroment");
+                        throwVMError("couldn't find the variable " + m_state.m_symbols[id] + " in the closure enviroment");
                         break;
                     }
 
@@ -536,10 +559,10 @@ namespace Ark
                                  Raise an error if it couldn't find the module.
                         */
 
-                        ++m_ip;
-                        uint16_t id = readNumber();
+                        ++context.ip;
+                        uint16_t id = readNumber(context);
 
-                        loadPlugin(id);
+                        loadPlugin(id, context);
 
                         COZ_PROGRESS_NAMED("ark vm plugin");
                         break;
@@ -551,16 +574,16 @@ namespace Ark
                             Takes at least 0 arguments and push a list on the stack.
                             The content is pushed in reverse order
                         */
-                        ++m_ip;
-                        uint16_t count = readNumber();
+                        ++context.ip;
+                        uint16_t count = readNumber(context);
 
                         Value l(ValueType::List);
                         if (count != 0)
                             l.list().reserve(count);
 
                         for (uint16_t i = 0; i < count; ++i)
-                            l.push_back(*popAndResolveAsPtr());
-                        push(std::move(l));
+                            l.push_back(*popAndResolveAsPtr(context));
+                        push(std::move(l), context);
 
                         COZ_PROGRESS_NAMED("ark vm list");
                         break;
@@ -568,21 +591,24 @@ namespace Ark
 
                     case Instruction::APPEND:
                     {
-                        ++m_ip;
-                        uint16_t count = readNumber();
+                        ++context.ip;
+                        uint16_t count = readNumber(context);
 
-                        Value* list = popAndResolveAsPtr();
+                        Value* list = popAndResolveAsPtr(context);
                         if (list->valueType() != ValueType::List)
-                            throw BetterTypeError("append", 1, { *list })
-                                .withArg("list", ValueType::List);
+                            types::generateError(
+                                "append",
+                                { { types::Contract { { types::Typedef("list", ValueType::List) } } } },
+                                { *list });
+
                         const uint16_t size = list->constList().size();
 
                         Value obj = Value(*list);
                         obj.list().reserve(size + count);
 
                         for (uint16_t i = 0; i < count; ++i)
-                            obj.push_back(*popAndResolveAsPtr());
-                        push(std::move(obj));
+                            obj.push_back(*popAndResolveAsPtr(context));
+                        push(std::move(obj), context);
 
                         COZ_PROGRESS_NAMED("ark vm append");
                         break;
@@ -590,28 +616,32 @@ namespace Ark
 
                     case Instruction::CONCAT:
                     {
-                        ++m_ip;
-                        uint16_t count = readNumber();
+                        ++context.ip;
+                        uint16_t count = readNumber(context);
 
-                        Value* list = popAndResolveAsPtr();
+                        Value* list = popAndResolveAsPtr(context);
                         if (list->valueType() != ValueType::List)
-                            throw BetterTypeError("concat", 1, { *list })
-                                .withArg("dst", ValueType::List);
+                            types::generateError(
+                                "concat",
+                                { { types::Contract { { types::Typedef("list", ValueType::List) } } } },
+                                { *list });
 
                         Value obj = Value(*list);
 
                         for (uint16_t i = 0; i < count; ++i)
                         {
-                            Value* next = popAndResolveAsPtr();
-                            if (next->valueType() != ValueType::List)
-                                throw BetterTypeError("concat", 2, { *list, *next })
-                                    .withArg("dst", ValueType::List)
-                                    .withArg("src", ValueType::List);
+                            Value* next = popAndResolveAsPtr(context);
+
+                            if (list->valueType() != ValueType::List || next->valueType() != ValueType::List)
+                                types::generateError(
+                                    "concat",
+                                    { { types::Contract { { types::Typedef("dst", ValueType::List), types::Typedef("src", ValueType::List) } } } },
+                                    { *list, *next });
 
                             for (auto it = next->list().begin(), end = next->list().end(); it != end; ++it)
                                 obj.push_back(*it);
                         }
-                        push(std::move(obj));
+                        push(std::move(obj), context);
 
                         COZ_PROGRESS_NAMED("ark vm concat");
                         break;
@@ -619,21 +649,23 @@ namespace Ark
 
                     case Instruction::APPEND_IN_PLACE:
                     {
-                        ++m_ip;
-                        uint16_t count = readNumber();
+                        ++context.ip;
+                        uint16_t count = readNumber(context);
 
-                        Value* list = popAndResolveAsPtr();
+                        Value* list = popAndResolveAsPtr(context);
 
                         if (list->isConst())
                             throwVMError("can not modify a constant list using `append!'");
                         if (list->valueType() != ValueType::List)
-                            throw BetterTypeError("append!", 1, { *list })
-                                .withArg("dst", ValueType::List);
+                            types::generateError(
+                                "append!",
+                                { { types::Contract { { types::Typedef("list", ValueType::List) } } } },
+                                { *list });
 
                         for (uint16_t i = 0; i < count; ++i)
-                            list->push_back(*popAndResolveAsPtr());
+                            list->push_back(*popAndResolveAsPtr(context));
 
-                        push(Nil);
+                        push(Nil, context);
 
                         COZ_PROGRESS_NAMED("ark vm append!");
                         break;
@@ -641,30 +673,34 @@ namespace Ark
 
                     case Instruction::CONCAT_IN_PLACE:
                     {
-                        ++m_ip;
-                        uint16_t count = readNumber();
+                        ++context.ip;
+                        uint16_t count = readNumber(context);
 
-                        Value* list = popAndResolveAsPtr();
+                        Value* list = popAndResolveAsPtr(context);
 
                         if (list->isConst())
                             throwVMError("can not modify a constant list using `concat!'");
                         if (list->valueType() != ValueType::List)
-                            throw BetterTypeError("concat!", 1, { *list })
-                                .withArg("dst", ValueType::List);
+                            types::generateError(
+                                "concat",
+                                { { types::Contract { { types::Typedef("list", ValueType::List) } } } },
+                                { *list });
 
                         for (uint16_t i = 0; i < count; ++i)
                         {
-                            Value* next = popAndResolveAsPtr();
-                            if (next->valueType() != ValueType::List)
-                                throw BetterTypeError("concat!", 2, { *list, *next })
-                                    .withArg("dst", ValueType::List)
-                                    .withArg("src", ValueType::List);
+                            Value* next = popAndResolveAsPtr(context);
+
+                            if (list->valueType() != ValueType::List || next->valueType() != ValueType::List)
+                                types::generateError(
+                                    "concat!",
+                                    { { types::Contract { { types::Typedef("dst", ValueType::List), types::Typedef("src", ValueType::List) } } } },
+                                    { *list, *next });
 
                             for (auto it = next->list().begin(), end = next->list().end(); it != end; ++it)
                                 list->push_back(*it);
                         }
 
-                        push(Nil);
+                        push(Nil, context);
 
                         COZ_PROGRESS_NAMED("ark vm concat!");
                         break;
@@ -672,14 +708,14 @@ namespace Ark
 
                     case Instruction::POP_LIST:
                     {
-                        Value list = *popAndResolveAsPtr();
-                        Value number = *popAndResolveAsPtr();
+                        Value list = *popAndResolveAsPtr(context);
+                        Value number = *popAndResolveAsPtr(context);
 
                         if (list.valueType() != ValueType::List || number.valueType() != ValueType::Number)
-                            throw BetterTypeError("pop", 2, { list, number })
-                                .withArg("list", ValueType::List)
-                                .withArg("idx", ValueType::Number);
-
+                            types::generateError(
+                                "pop",
+                                { { types::Contract { { types::Typedef("list", ValueType::List), types::Typedef("index", ValueType::Number) } } } },
+                                { list, number });
 
                         long idx = static_cast<long>(number.number());
                         idx = (idx < 0 ? list.list().size() + idx : idx);
@@ -687,21 +723,22 @@ namespace Ark
                             throw std::runtime_error("pop: index out of range");
 
                         list.list().erase(list.list().begin() + idx);
-                        push(list);
+                        push(list, context);
                         break;
                     }
 
                     case Instruction::POP_LIST_IN_PLACE:
                     {
-                        Value* list = popAndResolveAsPtr();
-                        Value number = *popAndResolveAsPtr();
+                        Value* list = popAndResolveAsPtr(context);
+                        Value number = *popAndResolveAsPtr(context);
 
                         if (list->isConst())
                             throwVMError("can not modify a constant list using `pop!'");
                         if (list->valueType() != ValueType::List || number.valueType() != ValueType::Number)
-                            throw BetterTypeError("pop!", 2, { *list, number })
-                                .withArg("list", ValueType::List)
-                                .withArg("idx", ValueType::Number);
+                            types::generateError(
+                                "pop!",
+                                { { types::Contract { { types::Typedef("list", ValueType::List), types::Typedef("index", ValueType::Number) } } } },
+                                { *list, number });
 
                         long idx = static_cast<long>(number.number());
                         idx = (idx < 0 ? list->list().size() + idx : idx);
@@ -718,357 +755,359 @@ namespace Ark
 
                     case Instruction::ADD:
                     {
-                        Value *b = popAndResolveAsPtr(), *a = popAndResolveAsPtr();
+                        Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
 
-                        if (a->valueType() == ValueType::Number)
-                        {
-                            if (b->valueType() != ValueType::Number)
-                                throw BetterTypeError("+", 2, { *a, *b })
-                                    .withArg("a", ValueType::Number)
-                                    .withArg("b", ValueType::Number);
-
-                            push(Value(a->number() + b->number()));
-                            break;
-                        }
-                        else if (a->valueType() == ValueType::String)
-                        {
-                            if (b->valueType() != ValueType::String)
-                                throw BetterTypeError("+", 2, { *a, *b })
-                                    .withArg("a", ValueType::String)
-                                    .withArg("b", ValueType::String);
-
-                            push(Value(a->string() + b->string()));
-                            break;
-                        }
-                        throw BetterTypeError("+", 2, { *a, *b })
-                            .withArg("a", { ValueType::Number, ValueType::String })
-                            .withArg("b", { ValueType::Number, ValueType::String });
+                        if (a->valueType() == ValueType::Number && b->valueType() == ValueType::Number)
+                            push(Value(a->number() + b->number()), context);
+                        else if (a->valueType() == ValueType::String && b->valueType() == ValueType::String)
+                            push(Value(a->string() + b->string()), context);
+                        else
+                            types::generateError(
+                                "+",
+                                { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } },
+                                    types::Contract { { types::Typedef("a", ValueType::String), types::Typedef("b", ValueType::String) } } } },
+                                { *a, *b });
+                        break;
                     }
 
                     case Instruction::SUB:
                     {
-                        Value *b = popAndResolveAsPtr(), *a = popAndResolveAsPtr();
+                        Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
 
                         if (a->valueType() != ValueType::Number || b->valueType() != ValueType::Number)
-                            throw BetterTypeError("-", 2, { *a, *b })
-                                .withArg("a", ValueType::Number)
-                                .withArg("b", ValueType::Number);
-
-                        push(Value(a->number() - b->number()));
+                            types::generateError(
+                                "-",
+                                { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
+                                { *a, *b });
+                        else
+                            push(Value(a->number() - b->number()), context);
                         break;
                     }
 
                     case Instruction::MUL:
                     {
-                        Value *b = popAndResolveAsPtr(), *a = popAndResolveAsPtr();
+                        Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
 
                         if (a->valueType() != ValueType::Number || b->valueType() != ValueType::Number)
-                            throw BetterTypeError("*", 2, { *a, *b })
-                                .withArg("a", ValueType::Number)
-                                .withArg("b", ValueType::Number);
-
-                        push(Value(a->number() * b->number()));
+                            types::generateError(
+                                "*",
+                                { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
+                                { *a, *b });
+                        else
+                            push(Value(a->number() * b->number()), context);
                         break;
                     }
 
                     case Instruction::DIV:
                     {
-                        Value *b = popAndResolveAsPtr(), *a = popAndResolveAsPtr();
+                        Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
 
                         if (a->valueType() != ValueType::Number || b->valueType() != ValueType::Number)
-                            throw BetterTypeError("/", 2, { *a, *b })
-                                .withArg("a", ValueType::Number)
-                                .withArg("b", ValueType::Number);
+                            types::generateError(
+                                "/",
+                                { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
+                                { *a, *b });
+                        else
+                        {
+                            auto d = b->number();
+                            if (d == 0)
+                                throw ZeroDivisionError();
 
-                        auto d = b->number();
-                        if (d == 0)
-                            throw ZeroDivisionError();
-
-                        push(Value(a->number() / d));
+                            push(Value(a->number() / d), context);
+                        }
                         break;
                     }
 
                     case Instruction::GT:
                     {
-                        Value *b = popAndResolveAsPtr(), *a = popAndResolveAsPtr();
+                        Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
 
-                        push((!(*a == *b) && !(*a < *b)) ? Builtins::trueSym : Builtins::falseSym);
+                        push((!(*a == *b) && !(*a < *b)) ? Builtins::trueSym : Builtins::falseSym, context);
                         break;
                     }
 
                     case Instruction::LT:
                     {
-                        Value *b = popAndResolveAsPtr(), *a = popAndResolveAsPtr();
+                        Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
 
-                        push((*a < *b) ? Builtins::trueSym : Builtins::falseSym);
+                        push((*a < *b) ? Builtins::trueSym : Builtins::falseSym, context);
                         break;
                     }
 
                     case Instruction::LE:
                     {
-                        Value *b = popAndResolveAsPtr(), *a = popAndResolveAsPtr();
+                        Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
 
-                        push(((*a < *b) || (*a == *b)) ? Builtins::trueSym : Builtins::falseSym);
+                        push((((*a < *b) || (*a == *b)) ? Builtins::trueSym : Builtins::falseSym), context);
                         break;
                     }
 
                     case Instruction::GE:
                     {
-                        Value *b = popAndResolveAsPtr(), *a = popAndResolveAsPtr();
+                        Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
 
-                        push(!(*a < *b) ? Builtins::trueSym : Builtins::falseSym);
+                        push(!(*a < *b) ? Builtins::trueSym : Builtins::falseSym, context);
                         break;
                     }
 
                     case Instruction::NEQ:
                     {
-                        Value *b = popAndResolveAsPtr(), *a = popAndResolveAsPtr();
+                        Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
 
-                        push((*a != *b) ? Builtins::trueSym : Builtins::falseSym);
+                        push((*a != *b) ? Builtins::trueSym : Builtins::falseSym, context);
                         break;
                     }
 
                     case Instruction::EQ:
                     {
-                        Value *b = popAndResolveAsPtr(), *a = popAndResolveAsPtr();
+                        Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
 
-                        push((*a == *b) ? Builtins::trueSym : Builtins::falseSym);
+                        push((*a == *b) ? Builtins::trueSym : Builtins::falseSym, context);
                         break;
                     }
 
                     case Instruction::LEN:
                     {
-                        Value* a = popAndResolveAsPtr();
+                        Value* a = popAndResolveAsPtr(context);
 
                         if (a->valueType() == ValueType::List)
-                            push(Value(static_cast<int>(a->constList().size())));
+                            push(Value(static_cast<int>(a->constList().size())), context);
                         else if (a->valueType() == ValueType::String)
-                            push(Value(static_cast<int>(a->string().size())));
+                            push(Value(static_cast<int>(a->string().size())), context);
                         else
-                            throw BetterTypeError("len", 1, { *a })
-                                .withArg("src", { ValueType::List, ValueType::String });
+                            types::generateError(
+                                "len",
+                                { { types::Contract { { types::Typedef("value", ValueType::List) } },
+                                    types::Contract { { types::Typedef("value", ValueType::String) } } } },
+                                { *a });
                         break;
                     }
 
                     case Instruction::EMPTY:
                     {
-                        Value* a = popAndResolveAsPtr();
+                        Value* a = popAndResolveAsPtr(context);
 
                         if (a->valueType() == ValueType::List)
-                            push((a->constList().size() == 0) ? Builtins::trueSym : Builtins::falseSym);
+                            push((a->constList().size() == 0) ? Builtins::trueSym : Builtins::falseSym, context);
                         else if (a->valueType() == ValueType::String)
-                            push((a->string().size() == 0) ? Builtins::trueSym : Builtins::falseSym);
+                            push((a->string().size() == 0) ? Builtins::trueSym : Builtins::falseSym, context);
                         else
-                            throw BetterTypeError("empty?", 1, { *a })
-                                .withArg("src", { ValueType::List, ValueType::String });
-
+                            types::generateError(
+                                "empty?",
+                                { { types::Contract { { types::Typedef("value", ValueType::List) } },
+                                    types::Contract { { types::Typedef("value", ValueType::String) } } } },
+                                { *a });
                         break;
                     }
 
                     case Instruction::TAIL:
                     {
-                        Value* a = popAndResolveAsPtr();
+                        Value* a = popAndResolveAsPtr(context);
 
                         if (a->valueType() == ValueType::List)
                         {
                             if (a->constList().size() < 2)
+                                push(Value(ValueType::List), context);
+                            else
                             {
-                                push(Value(ValueType::List));
-                                break;
+                                std::vector<Value> tmp(a->constList().size() - 1);
+                                for (std::size_t i = 1, end = a->constList().size(); i < end; ++i)
+                                    tmp[i - 1] = a->constList()[i];
+                                push(Value(std::move(tmp)), context);
                             }
-
-                            std::vector<Value> tmp(a->constList().size() - 1);
-                            for (std::size_t i = 1, end = a->constList().size(); i < end; ++i)
-                                tmp[i - 1] = a->constList()[i];
-                            push(Value(std::move(tmp)));
                         }
                         else if (a->valueType() == ValueType::String)
                         {
                             if (a->string().size() < 2)
+                                push(Value(ValueType::String), context);
+                            else
                             {
-                                push(Value(ValueType::String));
-                                break;
+                                Value b = *a;
+                                b.stringRef().erase_front(0);
+                                push(std::move(b), context);
                             }
-
-                            Value b = *a;
-                            b.stringRef().erase_front(0);
-                            push(std::move(b));
                         }
                         else
-                            throw BetterTypeError("tail", 1, { *a })
-                                .withArg("src", { ValueType::List, ValueType::String });
+                            types::generateError(
+                                "tail",
+                                { { types::Contract { { types::Typedef("value", ValueType::List) } },
+                                    types::Contract { { types::Typedef("value", ValueType::String) } } } },
+                                { *a });
 
                         break;
                     }
 
                     case Instruction::HEAD:
                     {
-                        Value* a = popAndResolveAsPtr();
+                        Value* a = popAndResolveAsPtr(context);
 
                         if (a->valueType() == ValueType::List)
                         {
                             if (a->constList().size() == 0)
+                                push(Builtins::nil, context);
+                            else
                             {
-                                push(Builtins::nil);
-                                break;
+                                Value b = a->constList()[0];
+                                push(b, context);
                             }
-
-                            Value b = a->constList()[0];
-                            push(b);
                         }
                         else if (a->valueType() == ValueType::String)
                         {
                             if (a->string().size() == 0)
-                            {
-                                push(Value(ValueType::String));
-                                break;
-                            }
-
-                            push(Value(std::string(1, a->stringRef()[0])));
+                                push(Value(ValueType::String), context);
+                            else
+                                push(Value(std::string(1, a->stringRef()[0])), context);
                         }
                         else
-                            throw BetterTypeError("head", 1, { *a })
-                                .withArg("src", { ValueType::List, ValueType::String });
+                            types::generateError(
+                                "head",
+                                { { types::Contract { { types::Typedef("value", ValueType::List) } },
+                                    types::Contract { { types::Typedef("value", ValueType::String) } } } },
+                                { *a });
 
                         break;
                     }
 
                     case Instruction::ISNIL:
                     {
-                        Value* a = popAndResolveAsPtr();
-                        push((*a == Builtins::nil) ? Builtins::trueSym : Builtins::falseSym);
+                        Value* a = popAndResolveAsPtr(context);
+                        push((*a == Builtins::nil) ? Builtins::trueSym : Builtins::falseSym, context);
                         break;
                     }
 
                     case Instruction::ASSERT:
                     {
-                        Value *b = popAndResolveAsPtr(), *a = popAndResolveAsPtr();
+                        Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
 
+                        if (b->valueType() != ValueType::String)
+                            types::generateError(
+                                "assert",
+                                { { types::Contract { { types::Typedef("expr", ValueType::Any), types::Typedef("message", ValueType::String) } } } },
+                                { *a, *b });
 
                         if (*a == Builtins::falseSym)
-                        {
-                            if (b->valueType() != ValueType::String)
-                                throw BetterTypeError("assert", 2, { *a, *b })
-                                    .withArg("expr", ValueType::False)
-                                    .withArg("msg", ValueType::String);
-
                             throw AssertionFailed(b->stringRef().toString());
-                        }
                         break;
                     }
 
                     case Instruction::TO_NUM:
                     {
-                        Value* a = popAndResolveAsPtr();
+                        Value* a = popAndResolveAsPtr(context);
 
                         if (a->valueType() != ValueType::String)
-                            throw BetterTypeError("toNumber", 1, { *a })
-                                .withArg("x", ValueType::String);
+                            types::generateError(
+                                "toNumber",
+                                { { types::Contract { { types::Typedef("value", ValueType::String) } } } },
+                                { *a });
 
                         double val;
                         if (Utils::isDouble(a->string().c_str(), &val))
-                            push(Value(val));
+                            push(Value(val), context);
                         else
-                            push(Builtins::nil);
+                            push(Builtins::nil, context);
                         break;
                     }
 
                     case Instruction::TO_STR:
                     {
                         std::stringstream ss;
-                        Value* a = popAndResolveAsPtr();
+                        Value* a = popAndResolveAsPtr(context);
                         ss << (*a);
-                        push(Value(ss.str()));
+                        push(Value(ss.str()), context);
                         break;
                     }
 
                     case Instruction::AT:
                     {
-                        Value* b = popAndResolveAsPtr();
-                        Value a = *popAndResolveAsPtr();  // be careful, it's not a pointer
+                        Value* b = popAndResolveAsPtr(context);
+                        Value a = *popAndResolveAsPtr(context);  // be careful, it's not a pointer
 
                         if (b->valueType() != ValueType::Number)
-                            throw BetterTypeError("@", 2, { *b, a })
-                                .withArg("src", { ValueType::List, ValueType::String })
-                                .withArg("idx", ValueType::Number);
+                            types::generateError(
+                                "@",
+                                { { types::Contract { { types::Typedef("src", ValueType::List), types::Typedef("idx", ValueType::Number) } },
+                                    types::Contract { { types::Typedef("src", ValueType::String), types::Typedef("idx", ValueType::Number) } } } },
+                                { a, *b });
 
                         long idx = static_cast<long>(b->number());
 
                         if (a.valueType() == ValueType::List)
-                            push(a.list()[idx < 0 ? a.list().size() + idx : idx]);
+                            push(a.list()[idx < 0 ? a.list().size() + idx : idx], context);
                         else if (a.valueType() == ValueType::String)
-                            push(Value(std::string(1, a.string()[idx < 0 ? a.string().size() + idx : idx])));
+                            push(Value(std::string(1, a.string()[idx < 0 ? a.string().size() + idx : idx])), context);
                         else
-                            throw BetterTypeError("@", 2, { *b, a })
-                                .withArg("src", { ValueType::List, ValueType::String })
-                                .withArg("idx", ValueType::Number);
+                            types::generateError(
+                                "@",
+                                { { types::Contract { { types::Typedef("src", ValueType::List), types::Typedef("idx", ValueType::Number) } },
+                                    types::Contract { { types::Typedef("src", ValueType::String), types::Typedef("idx", ValueType::Number) } } } },
+                                { a, *b });
                         break;
                     }
 
                     case Instruction::AND_:
                     {
-                        Value *a = popAndResolveAsPtr(), *b = popAndResolveAsPtr();
+                        Value *a = popAndResolveAsPtr(context), *b = popAndResolveAsPtr(context);
 
-                        push((*a == Builtins::trueSym && *b == Builtins::trueSym) ? Builtins::trueSym : Builtins::falseSym);
+                        push((*a == Builtins::trueSym && *b == Builtins::trueSym) ? Builtins::trueSym : Builtins::falseSym, context);
                         break;
                     }
 
                     case Instruction::OR_:
                     {
-                        Value *a = popAndResolveAsPtr(), *b = popAndResolveAsPtr();
+                        Value *a = popAndResolveAsPtr(context), *b = popAndResolveAsPtr(context);
 
-                        push((*b == Builtins::trueSym || *a == Builtins::trueSym) ? Builtins::trueSym : Builtins::falseSym);
+                        push((*b == Builtins::trueSym || *a == Builtins::trueSym) ? Builtins::trueSym : Builtins::falseSym, context);
                         break;
                     }
 
                     case Instruction::MOD:
                     {
-                        Value *b = popAndResolveAsPtr(), *a = popAndResolveAsPtr();
+                        Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
 
                         if (a->valueType() != ValueType::Number)
                             throw TypeError("Arguments of mod should be Numbers");
                         if (b->valueType() != ValueType::Number)
                             throw TypeError("Arguments of mod should be Numbers");
 
-                        push(Value(std::fmod(a->number(), b->number())));
+                        push(Value(std::fmod(a->number(), b->number())), context);
                         break;
                     }
 
                     case Instruction::TYPE:
                     {
-                        Value* a = popAndResolveAsPtr();
+                        Value* a = popAndResolveAsPtr(context);
 
-                        push(Value(types_to_str[static_cast<unsigned>(a->valueType())]));
+                        push(Value(types_to_str[static_cast<unsigned>(a->valueType())]), context);
                         break;
                     }
 
                     case Instruction::HASFIELD:
                     {
-                        Value *field = popAndResolveAsPtr(), *closure = popAndResolveAsPtr();
+                        Value *field = popAndResolveAsPtr(context), *closure = popAndResolveAsPtr(context);
 
                         if (closure->valueType() != ValueType::Closure)
                             throw TypeError("Argument no 1 of hasField should be a Closure");
                         if (field->valueType() != ValueType::String)
                             throw TypeError("Argument no 2 of hasField should be a String");
 
-                        auto it = std::find(m_state->m_symbols.begin(), m_state->m_symbols.end(), field->stringRef().toString());
-                        if (it == m_state->m_symbols.end())
+                        auto it = std::find(m_state.m_symbols.begin(), m_state.m_symbols.end(), field->stringRef().toString());
+                        if (it == m_state.m_symbols.end())
                         {
-                            push(Builtins::falseSym);
+                            push(Builtins::falseSym, context);
                             break;
                         }
 
-                        uint16_t id = static_cast<uint16_t>(std::distance(m_state->m_symbols.begin(), it));
-                        push((*closure->refClosure().refScope())[id] != nullptr ? Builtins::trueSym : Builtins::falseSym);
+                        uint16_t id = static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it));
+                        push((*closure->refClosure().refScope())[id] != nullptr ? Builtins::trueSym : Builtins::falseSym, context);
 
                         break;
                     }
 
                     case Instruction::NOT:
                     {
-                        Value* a = popAndResolveAsPtr();
+                        Value* a = popAndResolveAsPtr(context);
 
-                        push(!(*a) ? Builtins::trueSym : Builtins::falseSym);
+                        push(!(*a) ? Builtins::trueSym : Builtins::falseSym, context);
                         break;
                     }
 
@@ -1080,21 +1119,37 @@ namespace Ark
                 }
 
                 // move forward
-                ++m_ip;
+                ++context.ip;
+
+#ifdef ARK_PROFILER_MIPS
+                ++instructions_executed;
+#endif
             }
         }
         catch (const std::exception& e)
         {
             std::printf("%s\n", e.what());
-            backtrace();
+            backtrace(context);
             m_exit_code = 1;
         }
         catch (...)
         {
             std::printf("Unknown error\n");
-            backtrace();
+            backtrace(context);
             m_exit_code = 1;
         }
+
+        if (m_state.m_debug_level > 0)
+            std::cout << "Estimated stack trashing: " << context.stack.size() << "/" << VMStackSize << "\n";
+
+#ifdef ARK_PROFILER_MIPS
+        auto end_time = std::chrono::system_clock::now();
+        auto d = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
+
+        std::cout << "\nInstructions executed: " << instructions_executed << "\n"
+                  << "Time spent: " << d.count() << " us\n"
+                  << (static_cast<double>(instructions_executed) / d.count()) << " MIPS\n";
+#endif
 
         return m_exit_code;
     }
@@ -1103,14 +1158,14 @@ namespace Ark
     //             error handling
     // ------------------------------------------
 
-    uint16_t VM::findNearestVariableIdWithValue(Value&& value) noexcept
+    uint16_t VM::findNearestVariableIdWithValue(const Value& value, ExecutionContext& context) const noexcept
     {
-        for (auto it = m_locals.rbegin(), it_end = m_locals.rend(); it != it_end; ++it)
+        for (auto it = context.locals.rbegin(), it_end = context.locals.rend(); it != it_end; ++it)
         {
-            if (auto id = (*it)->idFromValue(std::move(value)); id < m_state->m_symbols.size())
+            if (auto id = (*it)->idFromValue(value); id < m_state.m_symbols.size())
                 return id;
         }
-        return static_cast<uint16_t>(~0);
+        return std::numeric_limits<uint16_t>::max();
     }
 
     void VM::throwVMError(const std::string& message)
@@ -1118,42 +1173,41 @@ namespace Ark
         throw std::runtime_error(message);
     }
 
-    void VM::backtrace() noexcept
+    void VM::backtrace(ExecutionContext& context) noexcept
     {
-        std::cerr << termcolor::reset
-                  << "At IP: " << (m_ip != -1 ? m_ip : 0)
-                  << ", PP: " << m_pp
-                  << ", SP: " << m_sp
-                  << "\n";
+        int saved_ip = context.ip;
+        std::size_t saved_pp = context.pp;
+        uint16_t saved_sp = context.sp;
 
         if (m_fc > 1)
         {
             // display call stack trace
             uint16_t it = m_fc;
-            Scope old_scope = *m_locals.back().get();
+            Scope old_scope = *context.locals.back().get();
 
             while (it != 0)
             {
                 std::cerr << "[" << termcolor::cyan << it << termcolor::reset << "] ";
-                if (m_pp != 0)
+                if (context.pp != 0)
                 {
                     uint16_t id = findNearestVariableIdWithValue(
-                        Value(static_cast<PageAddr_t>(m_pp)));
+                        Value(static_cast<PageAddr_t>(context.pp)),
+                        context);
 
-                    if (id < m_state->m_symbols.size())
-                        std::cerr << "In function `" << termcolor::green << m_state->m_symbols[id] << termcolor::reset << "'\n";
+                    if (id < m_state.m_symbols.size())
+                        std::cerr << "In function `" << termcolor::green << m_state.m_symbols[id] << termcolor::reset << "'\n";
                     else  // should never happen
                         std::cerr << "In function `" << termcolor::yellow << "???" << termcolor::reset << "'\n";
 
                     Value* ip;
                     do
                     {
-                        ip = popAndResolveAsPtr();
+                        ip = popAndResolveAsPtr(context);
                     } while (ip->valueType() != ValueType::InstPtr);
 
-                    m_ip = ip->pageAddr();
-                    m_pp = pop()->pageAddr();
-                    returnFromFuncCall();
+                    context.ip = ip->pageAddr();
+                    context.pp = pop(context)->pageAddr();
+                    returnFromFuncCall(context);
                     --it;
                 }
                 else
@@ -1172,19 +1226,24 @@ namespace Ark
             // display variables values in the current scope
             std::printf("\nCurrent scope variables values:\n");
             for (std::size_t i = 0, size = old_scope.size(); i < size; ++i)
-                std::cerr << termcolor::cyan << m_state->m_symbols[old_scope.m_data[i].first] << termcolor::reset
+                std::cerr << termcolor::cyan << m_state.m_symbols[old_scope.m_data[i].first] << termcolor::reset
                           << " = " << old_scope.m_data[i].second << "\n";
 
             while (m_fc != 1)
             {
-                Value* tmp = pop();
+                Value* tmp = pop(context);
                 if (tmp->valueType() == ValueType::InstPtr)
                     --m_fc;
-                else if (tmp->valueType() == ValueType::User)
-                    tmp->usertypeRef().del();
+                *tmp = m_no_value;
             }
             // pop the PP as well
-            pop();
+            pop(context);
         }
+
+        std::cerr << termcolor::reset
+                  << "At IP: " << (saved_ip != -1 ? saved_ip : 0)
+                  << ", PP: " << saved_pp
+                  << ", SP: " << saved_sp
+                  << "\n";
     }
 }

@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <sstream>
 
-#include <Ark/Utils.hpp>
+#include <Ark/Files.hpp>
 #include <Ark/Exceptions.hpp>
 #include <Ark/Compiler/AST/makeErrorCtx.hpp>
 
@@ -376,8 +376,6 @@ namespace Ark::internal
         }
 
         throwParseError("unknown shorthand", token);
-
-        return Node();
     }
 
     void Parser::checkForInvalidTokens(Node& atomized, Token& token, bool previous_token_was_lparen, bool authorize_capture, bool authorize_field_read)
@@ -518,13 +516,13 @@ namespace Ark::internal
 
                     Parser p(m_debug, m_options, m_libenv);
                     // feed the new parser with our parent includes
-                    for (auto&& pi : m_parent_include)
+                    for (auto const& pi : m_parent_include)
                         p.m_parent_include.push_back(pi);  // new parser, we can assume that the parent include list is empty
                     p.m_parent_include.push_back(m_file);  // add the current file to avoid importing it again
                     p.feed(Utils::readFile(included_file), included_file);
 
                     // update our list of included files
-                    for (auto&& inc : p.m_parent_include)
+                    for (auto const& inc : p.m_parent_include)
                     {
                         if (std::find(m_parent_include.begin(), m_parent_include.end(), inc) == m_parent_include.end())
                             m_parent_include.push_back(inc);
@@ -559,10 +557,10 @@ namespace Ark::internal
 
         if (m_debug >= 2)
         {
-            const std::string libpath = Utils::joinString(m_libenv);
-
-            std::cout << "path: " << path << " ; file: " << file << " ; libpath: " << libpath << '\n';
-            std::cout << "filename: " << Utils::getFilenameFromPath(file) << '\n';
+            std::cout << "path: " << path << " ; file: " << file << " ; libpath: ";
+            for (auto&& lib : m_libenv)
+                std::cout << lib << ":";
+            std::cout << "\nfilename: " << Utils::getFilenameFromPath(file) << '\n';
         }
 
         // search in the current directory
@@ -570,7 +568,7 @@ namespace Ark::internal
             return path;
 
         // search in all folders in environment path
-        for (auto&& p : m_libenv)
+        for (auto const& p : m_libenv)
         {
             // then search in the standard library directory
             if (std::string f = p + "/std/" + file; Utils::fileExists(f))

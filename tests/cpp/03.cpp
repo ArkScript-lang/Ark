@@ -39,11 +39,9 @@ int main()
     state.loadFunction("getBreakfast", [](std::vector<Ark::Value>& n [[maybe_unused]], Ark::VM* vm [[maybe_unused]]) -> Ark::Value {
         // we need to send the address of the object, which will be casted
         // to void* internally
-        Ark::Value v = Ark::Value(Ark::UserType(&getBreakfast()));
-
         // register the unique control functions block for this usertype
         // this cfs block can be shared between multiple usertype to reduce memory usage
-        v.usertypeRef().setControlFuncs(get_cfs());
+        Ark::Value v = Ark::Value(Ark::UserType(&getBreakfast(), get_cfs()));
 
         return v;
     });
@@ -62,7 +60,7 @@ int main()
     });
 
     state.doString("(let a (getBreakfast)) (print a) (useBreakfast a)");
-    Ark::VM vm(&state);
+    Ark::VM vm(state);
     CHECK_VM_RUN(vm)
 
     /*

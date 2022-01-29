@@ -14,7 +14,7 @@
 #include <chrono>
 
 #include <Ark/Constants.hpp>
-#include <Ark/Builtins/BuiltinsErrors.inl>
+#include <Ark/TypeChecker.hpp>
 #include <Ark/VM/VM.hpp>
 
 namespace Ark::internal::Builtins::System
@@ -29,12 +29,13 @@ namespace Ark::internal::Builtins::System
      * =end
      * @author https://github.com/SuperFola
      */
-    Value system_(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
+    Value system_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 1)
-            throw std::runtime_error(SYS_SYS_ARITY);
-        if (n[0].valueType() != ValueType::String)
-            throw Ark::TypeError(SYS_SYS_TE0);
+        if (!types::check(n, ValueType::String))
+            types::generateError(
+                "sys:exec",
+                { { types::Contract { { types::Typedef("command", ValueType::String) } } } },
+                n);
 
 #ifdef ARK_ENABLE_SYSTEM
         std::array<char, 128> buffer;
@@ -45,9 +46,9 @@ namespace Ark::internal::Builtins::System
         while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr)
             result += buffer.data();
         return Value(result);
-#endif  // ARK_ENABLE_SYSTEM
-
+#else
         return nil;
+#endif  // ARK_ENABLE_SYSTEM
     }
 
     /**
@@ -60,12 +61,13 @@ namespace Ark::internal::Builtins::System
      * =end
      * @author https://github.com/SuperFola
      */
-    Value sleep(std::vector<Value>& n, Ark::VM* vm [[maybe_unused]])
+    Value sleep(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 1)
-            throw std::runtime_error(SYS_SLEEP_ARITY);
-        if (n[0].valueType() != ValueType::Number)
-            throw Ark::TypeError(SYS_SLEEP_TE0);
+        if (!types::check(n, ValueType::Number))
+            types::generateError(
+                "sys:sleep",
+                { { types::Contract { { types::Typedef("duration", ValueType::Number) } } } },
+                n);
 
         auto duration = std::chrono::duration<double, std::ratio<1, 1000>>(n[0].number());
         std::this_thread::sleep_for(duration);
@@ -77,18 +79,19 @@ namespace Ark::internal::Builtins::System
      * @name sys:exit
      * @brief Reverse a given list and return a new one
      * @details Any code after this function call won't be executed
-     * @param exit_code usually 0 for success and 1 for errors
+     * @param exitCode usually 0 for success and 1 for errors
      * =begin
      * (sys:exit 0)  # halt the virtual machine with given exit code (success)
      * =end
      * @author https://github.com/SuperFola
      */
-    Value exit_(std::vector<Value>& n, Ark::VM* vm)
+    Value exit_(std::vector<Value>& n, VM* vm)
     {
-        if (n.size() != 1)
-            throw std::runtime_error(SYS_EXIT_ARITY);
-        if (n[0].valueType() != ValueType::Number)
-            throw Ark::TypeError(SYS_EXIT_TE0);
+        if (!types::check(n, ValueType::Number))
+            types::generateError(
+                "sys:exit",
+                { { types::Contract { { types::Typedef("exitCode", ValueType::Number) } } } },
+                n);
 
         vm->exit(static_cast<int>(n[0].number()));
         return nil;

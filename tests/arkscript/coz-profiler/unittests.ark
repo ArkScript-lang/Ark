@@ -9,13 +9,10 @@
 
 (import "../vm-tests.ark")
 (import "../builtins-tests.ark")
-(import "../exceptions-tests.ark")
-(import "../functional-tests.ark")
+(import "../utf8-tests.ark")
+(import "../macro-tests.ark")
 (import "../list-tests.ark")
-(import "../math-tests.ark")
-(import "../range-tests.ark")
 (import "../string-tests.ark")
-(import "../switch-tests.ark")
 
 (let limit (if (!= 0 (len sys:args))
     (if (not (nil? (toNumber (@ sys:args 0))))
@@ -27,13 +24,10 @@
 (while (< i limit) (begin
     (vm-tests)
     (builtin-tests)
-    (exceptions-tests)
-    (functional-tests)
+    (utf8-tests)
+    (macro-tests)
     (list-tests)
-    (math-tests)
-    (range-tests)
     (string-tests)
-    (switch-tests)
 
     (set i (+ 1 i))
 ))
