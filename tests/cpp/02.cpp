@@ -41,7 +41,7 @@ int main()
 
     state.doString("(let bar (my_function 1 2 3 1)) (let egg (foo 1 2 3))");  // we can call state.doFile() before or after state.loadFunction()
 
-    Ark::VM vm(&state);
+    Ark::VM vm(state);
     CHECK_VM_RUN(vm)
 
     auto bar = vm["bar"];

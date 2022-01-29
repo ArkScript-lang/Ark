@@ -92,15 +92,15 @@ namespace Ark
     {}
 
     Value::Value(std::vector<Value>&& value) noexcept :
-        m_const_type(init_const_type(false, ValueType::List)), m_value(value)
+        m_const_type(init_const_type(false, ValueType::List)), m_value(std::move(value))
     {}
 
     Value::Value(internal::Closure&& value) noexcept :
-        m_const_type(init_const_type(false, ValueType::Closure)), m_value(value)
+        m_const_type(init_const_type(false, ValueType::Closure)), m_value(std::move(value))
     {}
 
     Value::Value(UserType&& value) noexcept :
-        m_const_type(init_const_type(false, ValueType::User)), m_value(value)
+        m_const_type(init_const_type(false, ValueType::User)), m_value(std::move(value))
     {}
 
     Value::Value(Value* ref) noexcept :
@@ -143,7 +143,7 @@ namespace Ark
 
     void Value::push_back(Value&& value)
     {
-        list().push_back(value);
+        list().push_back(std::move(value));
     }
 
     // --------------------------
