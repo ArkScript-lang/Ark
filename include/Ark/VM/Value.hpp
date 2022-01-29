@@ -2,7 +2,7 @@
  * @file Value.hpp
  * @author Default value type handled by the virtual machine
  * @brief 
- * @version 0.2
+ * @version 0.3
  * @date 2020-10-27
  * 
  * @copyright Copyright (c) 2020-2021
@@ -51,7 +51,9 @@ namespace Ark
         False = 9,
         Undefined = 10,
         Reference = 11,
-        InstPtr = 12
+        InstPtr = 12,
+
+        Any = 99
     };
 
     const std::array<std::string, 13> types_to_str = {

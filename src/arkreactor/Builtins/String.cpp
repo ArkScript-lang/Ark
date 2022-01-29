@@ -4,7 +4,7 @@
 #include <Ark/Utils.hpp>
 #include <utf8_decoder.h>
 
-#include <Ark/Builtins/BuiltinsErrors.inl>
+#include <Ark/TypeChecker.hpp>
 #include <Ark/VM/VM.hpp>
 
 namespace Ark::internal::Builtins::String
@@ -26,10 +26,12 @@ namespace Ark::internal::Builtins::String
      */
     Value format(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() == 0)
-            throw std::runtime_error(STR_FORMAT_ARITY);
-        if (n[0].valueType() != ValueType::String)
-            throw TypeError(STR_FORMAT_TE0);
+        if (n.size() < 2 || n[0].valueType() != ValueType::String)
+            types::generateError(
+                "str:format",
+                { { types::Contract { { types::Typedef("string", ValueType::String),
+                                        types::Typedef("value", ValueType::Any, /* variadic */ true) } } } },
+                n);
 
         ::String f(n[0].string().c_str());
 
@@ -76,12 +78,11 @@ namespace Ark::internal::Builtins::String
      */
     Value findSubStr(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 2)
-            throw std::runtime_error(STR_FIND_ARITY);
-        if (n[0].valueType() != ValueType::String)
-            throw TypeError(STR_FIND_TE0);
-        if (n[1].valueType() != ValueType::String)
-            throw TypeError(STR_FIND_TE1);
+        if (!types::check(n, ValueType::String, ValueType::String))
+            types::generateError(
+                "str:find",
+                { { types::Contract { { types::Typedef("string", ValueType::String), types::Typedef("substr", ValueType::String) } } } },
+                n);
 
         return Value(n[0].stringRef().find(n[1].stringRef()));
     }
@@ -100,16 +101,15 @@ namespace Ark::internal::Builtins::String
      */
     Value removeAtStr(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 2)
-            throw std::runtime_error(STR_RM_ARITY);
-        if (n[0].valueType() != ValueType::String)
-            throw TypeError(STR_RM_TE0);
-        if (n[1].valueType() != ValueType::Number)
-            throw TypeError(STR_RM_TE1);
+        if (!types::check(n, ValueType::String, ValueType::Number))
+            types::generateError(
+                "str:removeAt",
+                { { types::Contract { { types::Typedef("string", ValueType::String), types::Typedef("index", ValueType::Number) } } } },
+                n);
 
         long id = static_cast<long>(n[1].number());
         if (id < 0 || static_cast<std::size_t>(id) >= n[0].stringRef().size())
-            throw std::runtime_error(STR_RM_OOR);
+            throw std::runtime_error("str:removeAt: index out of range");
 
         n[0].stringRef().erase(id, id + 1);
         return n[0];
@@ -127,13 +127,13 @@ namespace Ark::internal::Builtins::String
      */
     Value ord(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 1)
-            throw std::runtime_error(STR_ORD_ARITY);
-        if (n[0].valueType() != ValueType::String)
-            throw TypeError(STR_ORD_TE0);
+        if (!types::check(n, ValueType::String))
+            types::generateError(
+                "str:ord",
+                { { types::Contract { { types::Typedef("string", ValueType::String) } } } },
+                n);
 
         int ord = utf8codepoint(n[0].stringRef().c_str());
-
         return Value(ord);
     }
 
@@ -149,10 +149,11 @@ namespace Ark::internal::Builtins::String
      */
     Value chr(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 1)
-            throw std::runtime_error(STR_CHR_ARITY);
-        if (n[0].valueType() != ValueType::Number)
-            throw TypeError(STR_CHR_TE0);
+        if (!types::check(n, ValueType::Number))
+            types::generateError(
+                "str:chr",
+                { { types::Contract { { types::Typedef("codepoint", ValueType::Number) } } } },
+                n);
 
         std::array<char, 5> sutf8;
 

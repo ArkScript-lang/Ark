@@ -270,22 +270,21 @@ jobs:
       with:
         submodules: recursive
 
+    - name: Download artifact
+      id: download
+      uses: actions/download-artifact@v2
+      with:
+        name: "ubuntu-clang-11"
+        path: build
+
+    - shell: bash
+      run: |
+        mv build/lib/*.arkm lib/
+        chmod u+x build/ark build/arkscript
+
     - name: Update LLVM compilers
       shell: bash
       run: sudo apt-get install -y clang-11 lld-11 libc++-11-dev libc++abi-11-dev clang-tools-11 valgrind
-
-    - name: Configure CMake Ark
-      shell: bash
-      run: |
-        cmake -Bbuild \
-          -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
-          -DCMAKE_C_COMPILER=clang-11 \
-          -DCMAKE_CXX_COMPILER=clang++-11 \
-          -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=On
-
-    - name: Build ArkScript
-      shell: bash
-      run: cmake --build build --config $BUILD_TYPE
 
     - name: Valgrind checks for memory leaks
       shell: bash

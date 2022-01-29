@@ -4,6 +4,7 @@
 #include <algorithm>
 
 #include <Ark/Builtins/BuiltinsErrors.inl>
+#include <Ark/TypeChecker.hpp>
 #include <Ark/VM/VM.hpp>
 
 namespace Ark::internal::Builtins::List
@@ -20,13 +21,13 @@ namespace Ark::internal::Builtins::List
      */
     Value reverseList(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n[0].valueType() != ValueType::List)
-            throw TypeError(LIST_REVERSE_ARITY);
-        if (n.size() != 1)  // arity error
-            throw TypeError(LIST_REVERSE_TE0);
+        if (!types::check(n, ValueType::List))
+            types::generateError(
+                "list:reverse",
+                { { types::Contract { { types::Typedef("list", ValueType::List) } } } },
+                n);
 
         std::reverse(n[0].list().begin(), n[0].list().end());
-
         return n[0];
     }
 
@@ -35,7 +36,7 @@ namespace Ark::internal::Builtins::List
      * @brief Search an element in a List
      * @details The original list is not modified
      * @param list the List to search in
-     * @param el the element to search
+     * @param value the element to search
      * =begin
      * (list:find [1 2 3] 1)  # 0
      * (list:find [1 2 3] 0)  # -1
@@ -44,10 +45,11 @@ namespace Ark::internal::Builtins::List
      */
     Value findInList(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 2)
-            throw std::runtime_error(LIST_FIND_ARITY);
-        if (n[0].valueType() != ValueType::List)
-            throw TypeError(LIST_FIND_TE0);
+        if (!types::check(n, ValueType::List, ValueType::Any))
+            types::generateError(
+                "list:find",
+                { { types::Contract { { types::Typedef("list", ValueType::List), types::Typedef("value", ValueType::Any) } } } },
+                n);
 
         std::vector<Value>& l = n[0].list();
         for (Value::Iterator it = l.begin(), it_end = l.end(); it != it_end; ++it)
@@ -80,6 +82,8 @@ namespace Ark::internal::Builtins::List
             has_warned = true;
         }
 
+        // TEMP: not fixing the errors here because this will be deprecated and removed
+
         if (n.size() != 2)
             throw std::runtime_error(LIST_RMAT_ARITY);
         if (n[0].valueType() != ValueType::List)
@@ -110,28 +114,26 @@ namespace Ark::internal::Builtins::List
      */
     Value sliceList(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 4)
-            throw std::runtime_error(LIST_SLICE_ARITY);
-        if (n[0].valueType() != ValueType::List)
-            throw TypeError(LIST_SLICE_TE0);
-        if (n[1].valueType() != ValueType::Number)
-            throw TypeError(LIST_SLICE_TE1);
-        if (n[2].valueType() != ValueType::Number)
-            throw TypeError(LIST_SLICE_TE2);
-        if (n[3].valueType() != ValueType::Number)
-            throw TypeError(LIST_SLICE_TE3);
+        if (!types::check(n, ValueType::List, ValueType::Number, ValueType::Number, ValueType::Number))
+            types::generateError(
+                "list:slice",
+                { { types::Contract { { types::Typedef("list", ValueType::List),
+                                        types::Typedef("start", ValueType::Number),
+                                        types::Typedef("end", ValueType::Number),
+                                        types::Typedef("step", ValueType::Number) } } } },
+                n);
 
         long step = static_cast<long>(n[3].number());
         if (step <= 0)
-            throw std::runtime_error(LIST_SLICE_STEP);
+            throw std::runtime_error("list:slice: step can not be null");
 
         long start = static_cast<long>(n[1].number());
         long end = static_cast<long>(n[2].number());
 
         if (start > end)
-            throw std::runtime_error(LIST_SLICE_ORDER);
+            throw std::runtime_error("list:slice: start position must be less or equal to the end position");
         if (start < 0 || static_cast<std::size_t>(end) > n[0].list().size())
-            throw std::runtime_error(LIST_SLICE_OOR);
+            throw std::runtime_error("list:slice: indices out of range");
 
         std::vector<Value> retlist;
         for (long i = start; i < end; i += step)
@@ -152,10 +154,11 @@ namespace Ark::internal::Builtins::List
      */
     Value sort_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 1)
-            throw std::runtime_error(LIST_SORT_ARITY);
-        if (n[0].valueType() != ValueType::List)
-            throw TypeError(LIST_SORT_TE0);
+        if (!types::check(n, ValueType::List))
+            types::generateError(
+                "list:sort",
+                { { types::Contract { { types::Typedef("list", ValueType::List) } } } },
+                n);
 
         std::sort(n[0].list().begin(), n[0].list().end());
         return n[0];
@@ -165,7 +168,7 @@ namespace Ark::internal::Builtins::List
      * @name list:fill
      * @brief Generate a List of n copies of an element
      * @param count the number of copies
-     * @param el the element to copy
+     * @param value the element to copy
      * =begin
      * (list:fill 4 nil)  # [nil nil nil nil]
      * =end
@@ -173,10 +176,12 @@ namespace Ark::internal::Builtins::List
      */
     Value fill(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 2)
-            throw std::runtime_error(LIST_FILL_ARITY);
-        if (n[0].valueType() != ValueType::Number)
-            throw TypeError(LIST_FILL_TE0);
+        if (!types::check(n, ValueType::Number, ValueType::Any))
+            types::generateError(
+                "list:fill",
+                { { types::Contract { { types::Typedef("size", ValueType::Number),
+                                        types::Typedef("value", ValueType::Any) } } } },
+                n);
 
         std::size_t c = static_cast<std::size_t>(n[0].number());
         std::vector<Value> l;
@@ -192,7 +197,7 @@ namespace Ark::internal::Builtins::List
      * @details The original list is not modified
      * @param list the list to modify
      * @param index the index of the element to modify
-     * @param el the new element
+     * @param value the new element
      * =begin
      * (list:setAt [1 2 3] 0 5)  # [5 2 3]
      * =end
@@ -200,12 +205,13 @@ namespace Ark::internal::Builtins::List
      */
     Value setListAt(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() != 3)
-            throw std::runtime_error(LIST_SETAT_ARITY);
-        if (n[0].valueType() != ValueType::List)
-            throw TypeError(LIST_SETAT_TE0);
-        if (n[1].valueType() != ValueType::Number)
-            throw TypeError(LIST_SETAT_TE1);
+        if (!types::check(n, ValueType::List, ValueType::Number, ValueType::Any))
+            types::generateError(
+                "list:setAt",
+                { { types::Contract { { types::Typedef("list", ValueType::List),
+                                        types::Typedef("index", ValueType::Number),
+                                        types::Typedef("value", ValueType::Any) } } } },
+                n);
 
         n[0].list()[static_cast<std::size_t>(n[1].number())] = n[2];
         return n[0];
