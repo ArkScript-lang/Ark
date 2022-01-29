@@ -1,6 +1,6 @@
 # Change Log
 
-## [Unreleased]
+## [3.1.3] - 2022-01-29
 ### Added
 - adding an ExecutionContext to host the pointers (instruction, page, stack) and execution related structures (stack, locals, scopes), to ease the transition to a parallelized VM
     - the VM can have multiple independant context running on the same bytecode
