@@ -184,6 +184,10 @@ if (ARK_ENABLE_SYSTEM)
     target_compile_definitions(ArkReactor PRIVATE -DARK_ENABLE_SYSTEM)
 endif()
 
+if (ARK_PROFILER_MIPS)
+    target_compile_definitions(ArkReactor PRIVATE -DARK_PROFILER_MIPS)
+endif()
+
 if (ARK_BUILD_MODULES)
     add_subdirectory(${ark_SOURCE_DIR}/lib/modules)
 endif()

@@ -8,6 +8,7 @@
 #include <termcolor/termcolor.hpp>
 #include <Ark/Files.hpp>
 #include <Ark/Utils.hpp>
+#include <Ark/TypeChecker.hpp>
 
 #ifdef ARK_PROFILER_MIPS
 #    include <chrono>
@@ -595,8 +596,11 @@ namespace Ark
 
                         Value* list = popAndResolveAsPtr(context);
                         if (list->valueType() != ValueType::List)
-                            throw BetterTypeError("append", 1, { *list })
-                                .withArg("list", ValueType::List);
+                            types::generateError(
+                                "append",
+                                { { types::Contract { { types::Typedef("list", ValueType::List) } } } },
+                                { *list });
+
                         const uint16_t size = list->constList().size();
 
                         Value obj = Value(*list);
@@ -617,18 +621,22 @@ namespace Ark
 
                         Value* list = popAndResolveAsPtr(context);
                         if (list->valueType() != ValueType::List)
-                            throw BetterTypeError("concat", 1, { *list })
-                                .withArg("dst", ValueType::List);
+                            types::generateError(
+                                "concat",
+                                { { types::Contract { { types::Typedef("list", ValueType::List) } } } },
+                                { *list });
 
                         Value obj = Value(*list);
 
                         for (uint16_t i = 0; i < count; ++i)
                         {
                             Value* next = popAndResolveAsPtr(context);
-                            if (next->valueType() != ValueType::List)
-                                throw BetterTypeError("concat", 2, { *list, *next })
-                                    .withArg("dst", ValueType::List)
-                                    .withArg("src", ValueType::List);
+
+                            if (list->valueType() != ValueType::List || next->valueType() != ValueType::List)
+                                types::generateError(
+                                    "concat",
+                                    { { types::Contract { { types::Typedef("dst", ValueType::List), types::Typedef("src", ValueType::List) } } } },
+                                    { *list, *next });
 
                             for (auto it = next->list().begin(), end = next->list().end(); it != end; ++it)
                                 obj.push_back(*it);
@@ -649,8 +657,10 @@ namespace Ark
                         if (list->isConst())
                             throwVMError("can not modify a constant list using `append!'");
                         if (list->valueType() != ValueType::List)
-                            throw BetterTypeError("append!", 1, { *list })
-                                .withArg("dst", ValueType::List);
+                            types::generateError(
+                                "append!",
+                                { { types::Contract { { types::Typedef("list", ValueType::List) } } } },
+                                { *list });
 
                         for (uint16_t i = 0; i < count; ++i)
                             list->push_back(*popAndResolveAsPtr(context));
@@ -671,16 +681,20 @@ namespace Ark
                         if (list->isConst())
                             throwVMError("can not modify a constant list using `concat!'");
                         if (list->valueType() != ValueType::List)
-                            throw BetterTypeError("concat!", 1, { *list })
-                                .withArg("dst", ValueType::List);
+                            types::generateError(
+                                "concat",
+                                { { types::Contract { { types::Typedef("list", ValueType::List) } } } },
+                                { *list });
 
                         for (uint16_t i = 0; i < count; ++i)
                         {
                             Value* next = popAndResolveAsPtr(context);
-                            if (next->valueType() != ValueType::List)
-                                throw BetterTypeError("concat!", 2, { *list, *next })
-                                    .withArg("dst", ValueType::List)
-                                    .withArg("src", ValueType::List);
+
+                            if (list->valueType() != ValueType::List || next->valueType() != ValueType::List)
+                                types::generateError(
+                                    "concat!",
+                                    { { types::Contract { { types::Typedef("dst", ValueType::List), types::Typedef("src", ValueType::List) } } } },
+                                    { *list, *next });
 
                             for (auto it = next->list().begin(), end = next->list().end(); it != end; ++it)
                                 list->push_back(*it);
@@ -698,10 +712,10 @@ namespace Ark
                         Value number = *popAndResolveAsPtr(context);
 
                         if (list.valueType() != ValueType::List || number.valueType() != ValueType::Number)
-                            throw BetterTypeError("pop", 2, { list, number })
-                                .withArg("list", ValueType::List)
-                                .withArg("idx", ValueType::Number);
-
+                            types::generateError(
+                                "pop",
+                                { { types::Contract { { types::Typedef("list", ValueType::List), types::Typedef("index", ValueType::Number) } } } },
+                                { list, number });
 
                         long idx = static_cast<long>(number.number());
                         idx = (idx < 0 ? list.list().size() + idx : idx);
@@ -721,9 +735,10 @@ namespace Ark
                         if (list->isConst())
                             throwVMError("can not modify a constant list using `pop!'");
                         if (list->valueType() != ValueType::List || number.valueType() != ValueType::Number)
-                            throw BetterTypeError("pop!", 2, { *list, number })
-                                .withArg("list", ValueType::List)
-                                .withArg("idx", ValueType::Number);
+                            types::generateError(
+                                "pop!",
+                                { { types::Contract { { types::Typedef("list", ValueType::List), types::Typedef("index", ValueType::Number) } } } },
+                                { *list, number });
 
                         long idx = static_cast<long>(number.number());
                         idx = (idx < 0 ? list->list().size() + idx : idx);
@@ -742,29 +757,17 @@ namespace Ark
                     {
                         Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
 
-                        if (a->valueType() == ValueType::Number)
-                        {
-                            if (b->valueType() != ValueType::Number)
-                                throw BetterTypeError("+", 2, { *a, *b })
-                                    .withArg("a", ValueType::Number)
-                                    .withArg("b", ValueType::Number);
-
+                        if (a->valueType() == ValueType::Number && b->valueType() == ValueType::Number)
                             push(Value(a->number() + b->number()), context);
-                            break;
-                        }
-                        else if (a->valueType() == ValueType::String)
-                        {
-                            if (b->valueType() != ValueType::String)
-                                throw BetterTypeError("+", 2, { *a, *b })
-                                    .withArg("a", ValueType::String)
-                                    .withArg("b", ValueType::String);
-
+                        else if (a->valueType() == ValueType::String && b->valueType() == ValueType::String)
                             push(Value(a->string() + b->string()), context);
-                            break;
-                        }
-                        throw BetterTypeError("+", 2, { *a, *b })
-                            .withArg("a", { ValueType::Number, ValueType::String })
-                            .withArg("b", { ValueType::Number, ValueType::String });
+                        else
+                            types::generateError(
+                                "+",
+                                { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } },
+                                    types::Contract { { types::Typedef("a", ValueType::String), types::Typedef("b", ValueType::String) } } } },
+                                { *a, *b });
+                        break;
                     }
 
                     case Instruction::SUB:
@@ -772,11 +775,12 @@ namespace Ark
                         Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
 
                         if (a->valueType() != ValueType::Number || b->valueType() != ValueType::Number)
-                            throw BetterTypeError("-", 2, { *a, *b })
-                                .withArg("a", ValueType::Number)
-                                .withArg("b", ValueType::Number);
-
-                        push(Value(a->number() - b->number()), context);
+                            types::generateError(
+                                "-",
+                                { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
+                                { *a, *b });
+                        else
+                            push(Value(a->number() - b->number()), context);
                         break;
                     }
 
@@ -785,11 +789,12 @@ namespace Ark
                         Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
 
                         if (a->valueType() != ValueType::Number || b->valueType() != ValueType::Number)
-                            throw BetterTypeError("*", 2, { *a, *b })
-                                .withArg("a", ValueType::Number)
-                                .withArg("b", ValueType::Number);
-
-                        push(Value(a->number() * b->number()), context);
+                            types::generateError(
+                                "*",
+                                { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
+                                { *a, *b });
+                        else
+                            push(Value(a->number() * b->number()), context);
                         break;
                     }
 
@@ -798,15 +803,18 @@ namespace Ark
                         Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
 
                         if (a->valueType() != ValueType::Number || b->valueType() != ValueType::Number)
-                            throw BetterTypeError("/", 2, { *a, *b })
-                                .withArg("a", ValueType::Number)
-                                .withArg("b", ValueType::Number);
+                            types::generateError(
+                                "/",
+                                { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
+                                { *a, *b });
+                        else
+                        {
+                            auto d = b->number();
+                            if (d == 0)
+                                throw ZeroDivisionError();
 
-                        auto d = b->number();
-                        if (d == 0)
-                            throw ZeroDivisionError();
-
-                        push(Value(a->number() / d), context);
+                            push(Value(a->number() / d), context);
+                        }
                         break;
                     }
 
@@ -867,8 +875,11 @@ namespace Ark
                         else if (a->valueType() == ValueType::String)
                             push(Value(static_cast<int>(a->string().size())), context);
                         else
-                            throw BetterTypeError("len", 1, { *a })
-                                .withArg("src", { ValueType::List, ValueType::String });
+                            types::generateError(
+                                "len",
+                                { { types::Contract { { types::Typedef("value", ValueType::List) } },
+                                    types::Contract { { types::Typedef("value", ValueType::String) } } } },
+                                { *a });
                         break;
                     }
 
@@ -881,9 +892,11 @@ namespace Ark
                         else if (a->valueType() == ValueType::String)
                             push((a->string().size() == 0) ? Builtins::trueSym : Builtins::falseSym, context);
                         else
-                            throw BetterTypeError("empty?", 1, { *a })
-                                .withArg("src", { ValueType::List, ValueType::String });
-
+                            types::generateError(
+                                "empty?",
+                                { { types::Contract { { types::Typedef("value", ValueType::List) } },
+                                    types::Contract { { types::Typedef("value", ValueType::String) } } } },
+                                { *a });
                         break;
                     }
 
@@ -894,31 +907,32 @@ namespace Ark
                         if (a->valueType() == ValueType::List)
                         {
                             if (a->constList().size() < 2)
-                            {
                                 push(Value(ValueType::List), context);
-                                break;
+                            else
+                            {
+                                std::vector<Value> tmp(a->constList().size() - 1);
+                                for (std::size_t i = 1, end = a->constList().size(); i < end; ++i)
+                                    tmp[i - 1] = a->constList()[i];
+                                push(Value(std::move(tmp)), context);
                             }
-
-                            std::vector<Value> tmp(a->constList().size() - 1);
-                            for (std::size_t i = 1, end = a->constList().size(); i < end; ++i)
-                                tmp[i - 1] = a->constList()[i];
-                            push(Value(std::move(tmp)), context);
                         }
                         else if (a->valueType() == ValueType::String)
                         {
                             if (a->string().size() < 2)
-                            {
                                 push(Value(ValueType::String), context);
-                                break;
+                            else
+                            {
+                                Value b = *a;
+                                b.stringRef().erase_front(0);
+                                push(std::move(b), context);
                             }
-
-                            Value b = *a;
-                            b.stringRef().erase_front(0);
-                            push(std::move(b), context);
                         }
                         else
-                            throw BetterTypeError("tail", 1, { *a })
-                                .withArg("src", { ValueType::List, ValueType::String });
+                            types::generateError(
+                                "tail",
+                                { { types::Contract { { types::Typedef("value", ValueType::List) } },
+                                    types::Contract { { types::Typedef("value", ValueType::String) } } } },
+                                { *a });
 
                         break;
                     }
@@ -930,27 +944,26 @@ namespace Ark
                         if (a->valueType() == ValueType::List)
                         {
                             if (a->constList().size() == 0)
-                            {
                                 push(Builtins::nil, context);
-                                break;
+                            else
+                            {
+                                Value b = a->constList()[0];
+                                push(b, context);
                             }
-
-                            Value b = a->constList()[0];
-                            push(b, context);
                         }
                         else if (a->valueType() == ValueType::String)
                         {
                             if (a->string().size() == 0)
-                            {
                                 push(Value(ValueType::String), context);
-                                break;
-                            }
-
-                            push(Value(std::string(1, a->stringRef()[0])), context);
+                            else
+                                push(Value(std::string(1, a->stringRef()[0])), context);
                         }
                         else
-                            throw BetterTypeError("head", 1, { *a })
-                                .withArg("src", { ValueType::List, ValueType::String });
+                            types::generateError(
+                                "head",
+                                { { types::Contract { { types::Typedef("value", ValueType::List) } },
+                                    types::Contract { { types::Typedef("value", ValueType::String) } } } },
+                                { *a });
 
                         break;
                     }
@@ -966,16 +979,14 @@ namespace Ark
                     {
                         Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
 
+                        if (b->valueType() != ValueType::String)
+                            types::generateError(
+                                "assert",
+                                { { types::Contract { { types::Typedef("expr", ValueType::Any), types::Typedef("message", ValueType::String) } } } },
+                                { *a, *b });
 
                         if (*a == Builtins::falseSym)
-                        {
-                            if (b->valueType() != ValueType::String)
-                                throw BetterTypeError("assert", 2, { *a, *b })
-                                    .withArg("expr", ValueType::False)
-                                    .withArg("msg", ValueType::String);
-
                             throw AssertionFailed(b->stringRef().toString());
-                        }
                         break;
                     }
 
@@ -984,8 +995,10 @@ namespace Ark
                         Value* a = popAndResolveAsPtr(context);
 
                         if (a->valueType() != ValueType::String)
-                            throw BetterTypeError("toNumber", 1, { *a })
-                                .withArg("x", ValueType::String);
+                            types::generateError(
+                                "toNumber",
+                                { { types::Contract { { types::Typedef("value", ValueType::String) } } } },
+                                { *a });
 
                         double val;
                         if (Utils::isDouble(a->string().c_str(), &val))
@@ -1010,9 +1023,11 @@ namespace Ark
                         Value a = *popAndResolveAsPtr(context);  // be careful, it's not a pointer
 
                         if (b->valueType() != ValueType::Number)
-                            throw BetterTypeError("@", 2, { *b, a })
-                                .withArg("src", { ValueType::List, ValueType::String })
-                                .withArg("idx", ValueType::Number);
+                            types::generateError(
+                                "@",
+                                { { types::Contract { { types::Typedef("src", ValueType::List), types::Typedef("idx", ValueType::Number) } },
+                                    types::Contract { { types::Typedef("src", ValueType::String), types::Typedef("idx", ValueType::Number) } } } },
+                                { a, *b });
 
                         long idx = static_cast<long>(b->number());
 
@@ -1021,9 +1036,11 @@ namespace Ark
                         else if (a.valueType() == ValueType::String)
                             push(Value(std::string(1, a.string()[idx < 0 ? a.string().size() + idx : idx])), context);
                         else
-                            throw BetterTypeError("@", 2, { *b, a })
-                                .withArg("src", { ValueType::List, ValueType::String })
-                                .withArg("idx", ValueType::Number);
+                            types::generateError(
+                                "@",
+                                { { types::Contract { { types::Typedef("src", ValueType::List), types::Typedef("idx", ValueType::Number) } },
+                                    types::Contract { { types::Typedef("src", ValueType::String), types::Typedef("idx", ValueType::Number) } } } },
+                                { a, *b });
                         break;
                     }
 
@@ -1158,11 +1175,9 @@ namespace Ark
 
     void VM::backtrace(ExecutionContext& context) noexcept
     {
-        std::cerr << termcolor::reset
-                  << "At IP: " << (context.ip != -1 ? context.ip : 0)
-                  << ", PP: " << context.pp
-                  << ", SP: " << context.sp
-                  << "\n";
+        int saved_ip = context.ip;
+        std::size_t saved_pp = context.pp;
+        uint16_t saved_sp = context.sp;
 
         if (m_fc > 1)
         {
@@ -1224,5 +1239,11 @@ namespace Ark
             // pop the PP as well
             pop(context);
         }
+
+        std::cerr << termcolor::reset
+                  << "At IP: " << (saved_ip != -1 ? saved_ip : 0)
+                  << ", PP: " << saved_pp
+                  << ", SP: " << saved_sp
+                  << "\n";
     }
 }
