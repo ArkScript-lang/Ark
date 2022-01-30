@@ -67,7 +67,7 @@ namespace Ark::types
      * @brief A type definition within a contract
      * 
      */
-    struct Typedef
+    struct ARK_API Typedef
     {
         std::string_view name;
         std::vector<ValueType> types;
@@ -86,7 +86,7 @@ namespace Ark::types
      * @brief A contract is a list of typed arguments that a function can follow
      * 
      */
-    struct Contract
+    struct ARK_API Contract
     {
         std::vector<Typedef> arguments;
     };
@@ -98,7 +98,7 @@ namespace Ark::types
      * @param contracts types contracts the function can follow
      * @param args provided argument list
      */
-    void generateError(std::string_view funcname, const std::vector<Contract>& contracts, const std::vector<Value>& args);
+    ARK_API void generateError(std::string_view funcname, const std::vector<Contract>& contracts, const std::vector<Value>& args);
 }
 
 #endif
