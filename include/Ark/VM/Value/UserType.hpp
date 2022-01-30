@@ -68,7 +68,10 @@ namespace Ark
         template <typename T>
         explicit UserType(T* data = nullptr, ControlFuncs* block = nullptr) noexcept :
             m_type_id(internal::type_uid<T>::value),
-            m_data(reinterpret_cast<void*>(data)),
+            m_data(reinterpret_cast<void*>(data), [block](void* data) {
+                if (block && block->deleter)
+                    block->deleter(data);
+            }),
             m_funcs(block)
         {}
 
@@ -79,7 +82,7 @@ namespace Ark
          */
         void* data() const noexcept
         {
-            return m_data;
+            return m_data.get();
         }
 
         /**
@@ -113,13 +116,13 @@ namespace Ark
         template <typename T>
         T& as() noexcept
         {
-            return *reinterpret_cast<T*>(m_data);
+            return *reinterpret_cast<T*>(m_data.get());
         }
 
         template <typename T>
         const T& as() const noexcept
         {
-            return *reinterpret_cast<T*>(m_data);
+            return *reinterpret_cast<T*>(m_data.get());
         }
 
         friend ARK_API bool operator==(const UserType& A, const UserType& B) noexcept;
@@ -128,7 +131,7 @@ namespace Ark
 
     private:
         uint16_t m_type_id;
-        void* m_data;
+        std::shared_ptr<void> m_data;
         ControlFuncs* m_funcs;
     };
 
