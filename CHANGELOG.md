@@ -1,5 +1,15 @@
 # Change Log
 
+## [Unreleased]
+### Added
+- running the modules tests in the CI
+
+### Changed
+
+### Removed
+
+### Deprecated
+
 ## [3.1.3] - 2022-01-29
 ### Added
 - adding an ExecutionContext to host the pointers (instruction, page, stack) and execution related structures (stack, locals, scopes), to ease the transition to a parallelized VM

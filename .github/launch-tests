@@ -18,6 +18,14 @@ $ark tests/arkscript/unittests.ark --lib lib/ || exit 1
 $ark lib/std/tests/all.ark         --lib lib/ || exit 1
 
 #########################################
+#             Module tests
+#########################################
+
+# blank line for formatting
+echo
+bash ./lib/modules/.github/run-tests
+
+#########################################
 #          Integration tests
 #########################################
 
