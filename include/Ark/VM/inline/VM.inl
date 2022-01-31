@@ -255,6 +255,11 @@ inline void VM::returnFromFuncCall(internal::ExecutionContext& context)
 
     while (del_counter != 0)
     {
+        for (auto& [_, v] : context.locals.back()->m_data)
+        {
+            if (v.valueType() == ValueType::User)
+                v.usertypeRef().del();
+        }
         context.locals.pop_back();
         del_counter--;
     }

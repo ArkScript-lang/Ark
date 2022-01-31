@@ -497,6 +497,8 @@ namespace Ark
 
                         if (Value* var = findNearestVariable(id, context); var != nullptr)
                         {
+                            if (var->valueType() == ValueType::User)
+                                var->usertypeRef().del();
                             *var = Value();
                             break;
                         }
