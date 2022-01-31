@@ -23,7 +23,7 @@ $ark lib/std/tests/all.ark         --lib lib/ || exit 1
 
 # blank line for formatting
 echo
-bash ./lib/modules/.github/run-tests
+source ./lib/modules/.github/run-tests
 
 #########################################
 #          Integration tests
