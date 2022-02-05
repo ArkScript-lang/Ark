@@ -471,6 +471,11 @@ namespace Ark
                             os << "POP_LIST_IN_PLACE " << termcolor::reset << "(" << value << ")\n";
                         i++;
                     }
+                    else if (inst == Instruction::POP)
+                    {
+                        if (displayLine)
+                            os << "POP\n";
+                    }
                     else if (inst == Instruction::ADD)
                     {
                         if (displayLine)
