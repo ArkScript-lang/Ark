@@ -589,6 +589,9 @@ namespace Ark
             auto op_inst = m_temp_pages.back()[0];
             m_temp_pages.pop_back();
 
+            if (op_inst == Instruction::ASSERT)
+                produces_result = false;
+
             // push arguments on current page
             std::size_t exp_count = 0;
             for (std::size_t index = n, size = x.constList().size(); index < size; ++index)
