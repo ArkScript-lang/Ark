@@ -379,7 +379,7 @@ namespace Ark
         page(p).emplace_back(inst);
         pushSpecificInstArgc(inst, argc, p);
 
-        if (produces_result)
+        if (produces_result && name != "pop!")  // pop! never pushes a value
             page(p).push_back(Instruction::POP);
     }
 
