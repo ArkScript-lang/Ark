@@ -3,8 +3,10 @@
 ## [Unreleased]
 ### Added
 - running the modules tests in the CI
+- new bytecode instruction `POP`, removing the last value from the stack
 
 ### Changed
+- the compiler can now remove unused values from the stack
 
 ### Removed
 
