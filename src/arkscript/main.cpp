@@ -132,7 +132,7 @@ int main(int argc, char** argv)
         {
             case mode::help:
                 // clipp only supports streams
-                std::cout << make_man_page(cli, "ark", fmt)
+                std::cout << make_man_page(cli, "arkscript", fmt)
                                  .prepend_section("DESCRIPTION", "        ArkScript programming language")
                                  .append_section("LICENSE", "        Mozilla Public License 2.0")
                           << std::endl;
