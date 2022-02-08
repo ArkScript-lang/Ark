@@ -173,15 +173,15 @@ DESCRIPTION
         ArkScript programming language
 
 SYNOPSIS
-        ark -h
-        ark -v
-        ark --dev-info
-        ark -e <expression>
-        ark -c <file> [-d]
-        ark -bcr <file> -on
-        ark -bcr <file> [-(a|st|vt)] [-s <start> <end>]
-        ark -bcr <file> [-cs] [-p <page>]
-        ark <file> [-d] [-L <lib_dir>]
+        arkscript -h
+        arkscript -v
+        arkscript --dev-info
+        arkscript -e <expression>
+        arkscript -c <file> [-d]
+        arkscript -bcr <file> -on
+        arkscript -bcr <file> [-(a|st|vt)] [-s <start> <end>]
+        arkscript -bcr <file> [-cs] [-p <page>]
+        arkscript <file> [-d] [-L <lib_dir>]
 
 OPTIONS
         -h, --help                  Display this message
