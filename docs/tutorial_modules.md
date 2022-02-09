@@ -1,4 +1,4 @@
-@page modules Creating modules
+@page tutorial_modules Creating modules
 
 # Before starting
 

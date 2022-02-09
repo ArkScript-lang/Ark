@@ -1,4 +1,4 @@
-@page builtins The ArkScript builtins
+@page tutorial_builtins The ArkScript builtins
 
 Those are C++ functions, using the ArkScript virtual machine API to communicate with it. They can be used as any other function in ArkScript code.
 

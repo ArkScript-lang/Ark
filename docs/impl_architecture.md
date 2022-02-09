@@ -1,4 +1,4 @@
-@page brief_architecture Understanding the project architecture
+@page impl_architecture Understanding the project architecture
 
 * everything under Builtins is related to builtin functions, used with the bytecode instructions `BUILTIN id`
     * adding one will need to reference it in `include/Ark/Builtins/Builtins.hpp` and in `src/arkreactor/Builtins/Builtins.cpp`, + implementing it accordingly under `src/arkreactor/Builtins/[file].cpp`
