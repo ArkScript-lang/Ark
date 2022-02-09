@@ -6,7 +6,7 @@
 
 <img align="right" src="images/ArkTransparent-by-mazz.png" width=200px>
 
-* [Documentation](https://arkscript-lang.github.io/documentation.html)
+* [Documentation](https://arkscript-lang.dev/documentation.html)
 * Discord server: [invite link](https://discord.gg/YT5yDwn), to discuss the specification of the language and receive help
 * [Modules](https://github.com/ArkScript-lang/modules)
 
