@@ -1,4 +1,4 @@
-@page embedding Embedding ArkScript in C++ code
+@page tutorial_embedding Embedding ArkScript in C++ code
 
 # Using ArkScript
 

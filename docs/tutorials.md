@@ -1,6 +1,5 @@
 @page tutorials Tutorials
 
-1. @subpage brief_architecture
-2. @subpage embedding
-3. @subpage modules
-4. @subpage builtins
+1. @subpage tutorial_embedding
+2. @subpage tutorial_modules
+3. @subpage tutorial_builtins
