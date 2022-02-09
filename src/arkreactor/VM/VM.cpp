@@ -751,6 +751,12 @@ namespace Ark
                         break;
                     }
 
+                    case Instruction::POP:
+                    {
+                        pop(context);
+                        break;
+                    }
+
 #pragma endregion
 
 #pragma region "Operators"
@@ -1142,7 +1148,7 @@ namespace Ark
         }
 
         if (m_state.m_debug_level > 0)
-            std::cout << "Estimated stack trashing: " << context.stack.size() << "/" << VMStackSize << "\n";
+            std::cout << "Estimated stack trashing: " << context.sp << "/" << VMStackSize << "\n";
 
 #ifdef ARK_PROFILER_MIPS
         auto end_time = std::chrono::system_clock::now();
