@@ -48,9 +48,9 @@ run-on .\src
 
 ### Running the test suite
 
-ArkScript test suite should be ran from the root folder and the console module should have been compiled (it is used for colors). You can then run `./build/ark tests/arkscripts/unittests.ark --lib ./lib`.
+The ArkScript test suite requires the console module for text colors. You can build all the modules by including the `-DARK_BUILD_MODULES` CMake switch when building ArkScript. Once you have the modules built, you can run the ArkScript test suite from the root folder using `./build/arkscript tests/arkscript/unittests.ark --lib ./lib`.
 
-The standard library test suite should be ran from the root folder of the project (the console module needs to be copied to the folder). You can then run `./ark tests/all.ark --lib ./`.
+The standard library test suite should be ran from the root folder of the standard library project (the console module will need to be copied to the folder). You can run standard library test suite using `./arkscript tests/all.ark --lib ./`.
 
 ## C++ coding guidelines
 

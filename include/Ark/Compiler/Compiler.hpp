@@ -211,19 +211,19 @@ namespace Ark
          * @param x the internal::Node to compile
          * @param p the current page number we're on
          */
-        void _compile(const internal::Node& x, int p);
+        void _compile(const internal::Node& x, int p, bool produces_result);
 
-        void compileSymbol(const internal::Node& x, int p);
-        void compileSpecific(const internal::Node& c0, const internal::Node& x, int p);
-        void compileIf(const internal::Node& x, int p);
-        void compileFunction(const internal::Node& x, int p);
+        void compileSymbol(const internal::Node& x, int p, bool produces_result);
+        void compileSpecific(const internal::Node& c0, const internal::Node& x, int p, bool produces_result);
+        void compileIf(const internal::Node& x, int p, bool produces_result);
+        void compileFunction(const internal::Node& x, int p, bool produces_result);
         void compileLetMut(internal::Keyword n, const internal::Node& x, int p);
         void compileWhile(const internal::Node& x, int p);
         void compileSet(const internal::Node& x, int p);
-        void compileQuote(const internal::Node& x, int p);
+        void compileQuote(const internal::Node& x, int p, bool produces_result);
         void compilePluginImport(const internal::Node& x, int p);
         void compileDel(const internal::Node& x, int p);
-        void handleCalls(const internal::Node& x, int p);
+        void handleCalls(const internal::Node& x, int p, bool produces_result);
 
         /**
          * @brief Put a value in the bytecode, handling the closures chains
@@ -231,7 +231,7 @@ namespace Ark
          * @param x 
          * @param p 
          */
-        void putValue(const internal::Node& x, int p);
+        void putValue(const internal::Node& x, int p, bool produces_result);
 
         /**
          * @brief Register a given node in the symbol table

@@ -459,17 +459,20 @@ namespace Ark
                     }
                     else if (inst == Instruction::POP_LIST)
                     {
-                        uint16_t value = readNumber(i);
                         if (displayLine)
-                            os << "POP_LIST " << termcolor::reset << "(" << value << ")\n";
+                            os << "POP_LIST " << termcolor::reset << "\n";
                         i++;
                     }
                     else if (inst == Instruction::POP_LIST_IN_PLACE)
                     {
-                        uint16_t value = readNumber(i);
                         if (displayLine)
-                            os << "POP_LIST_IN_PLACE " << termcolor::reset << "(" << value << ")\n";
+                            os << "POP_LIST_IN_PLACE " << termcolor::reset << "\n";
                         i++;
+                    }
+                    else if (inst == Instruction::POP)
+                    {
+                        if (displayLine)
+                            os << "POP\n";
                     }
                     else if (inst == Instruction::ADD)
                     {
