@@ -89,17 +89,16 @@ namespace Ark
         unsigned m_debug;  ///< the debug level of the compiler
 
         /**
-         * @brief Push the first headers of the bytecode file
+         * @brief Push the file headers (magic, version used, timestamp)
          * 
          */
-        void pushHeadersPhase1() noexcept;
+        void pushFileHeader() noexcept;
 
         /**
-         * @brief Push the other headers, after having compile the file
-         * (it's needed because we read the symbol/value tables, populated by compilation)
+         * @brief Push the symbols and values tables
          * 
          */
-        void pushHeadersPhase2();
+        void pushSymAndValTables();
 
         /**
          * @brief helper functions to get a temp or finalized code page
@@ -176,7 +175,7 @@ namespace Ark
             else if (name == "pop!")
                 return internal::Instruction::POP_LIST_IN_PLACE;
 
-            return {};
+            return std::nullopt;
         }
 
         /**

@@ -32,7 +32,7 @@ namespace Ark
 
     void Compiler::compile()
     {
-        pushHeadersPhase1();
+        pushFileHeader();
 
         m_code_pages.emplace_back();  // create empty page
 
@@ -41,10 +41,10 @@ namespace Ark
         // throw an error on undefined symbol uses
         checkForUndefinedSymbol();
 
-        pushHeadersPhase2();
+        pushSymAndValTables();
 
-        // start code segments
-        for (auto page : m_code_pages)
+        // push the different code segments
+        for (const bytecode_t& page : m_code_pages)
         {
             m_bytecode.push_back(Instruction::CODE_SEGMENT_START);
 
@@ -68,9 +68,9 @@ namespace Ark
         constexpr std::size_t header_size = 18;
 
         // generate a hash of the tables + bytecode
-        std::vector<unsigned char> hash(picosha2::k_digest_size);
-        picosha2::hash256(m_bytecode.begin() + header_size, m_bytecode.end(), hash);
-        m_bytecode.insert(m_bytecode.begin() + header_size, hash.begin(), hash.end());
+        std::vector<unsigned char> hash_out(picosha2::k_digest_size);
+        picosha2::hash256(m_bytecode.begin() + header_size, m_bytecode.end(), hash_out);
+        m_bytecode.insert(m_bytecode.begin() + header_size, hash_out.begin(), hash_out.end());
     }
 
     void Compiler::saveTo(const std::string& file)
@@ -88,7 +88,7 @@ namespace Ark
         return m_bytecode;
     }
 
-    void Compiler::pushHeadersPhase1() noexcept
+    void Compiler::pushFileHeader() noexcept
     {
         /*
             Generating headers:
@@ -114,13 +114,13 @@ namespace Ark
                                            .count();
         for (char c = 0; c < 8; c++)
         {
-            unsigned d = 56 - 8 * c;
-            uint8_t b = (timestamp & (0xffULL << d)) >> d;
-            m_bytecode.push_back(b);
+            unsigned shift = 7 * (8 - c);
+            uint8_t ts_byte = (timestamp & (0xffULL << shift)) >> shift;
+            m_bytecode.push_back(ts_byte);
         }
     }
 
-    void Compiler::pushHeadersPhase2()
+    void Compiler::pushSymAndValTables()
     {
         /*
             - symbols table
@@ -192,7 +192,7 @@ namespace Ark
         auto it = std::find(internal::operators.begin(), internal::operators.end(), name);
         if (it != internal::operators.end())
             return std::distance(internal::operators.begin(), it);
-        return {};
+        return std::nullopt;
     }
 
     std::optional<std::size_t> Compiler::isBuiltin(const std::string& name) noexcept
@@ -203,7 +203,7 @@ namespace Ark
                                });
         if (it != Builtins::builtins.end())
             return std::distance(Builtins::builtins.begin(), it);
-        return {};
+        return std::nullopt;
     }
 
     void Compiler::pushSpecificInstArgc(Instruction inst, uint16_t previous, int p) noexcept
@@ -387,11 +387,13 @@ namespace Ark
     {
         // compile condition
         _compile(x.constList()[1], p, false);
-        // jump only if needed to the x.list()[2] part
+        // jump only if needed to the else (x.list()[2])
         page(p).emplace_back(Instruction::POP_JUMP_IF_TRUE);
+
         std::size_t jump_to_if_pos = page(p).size();
         // absolute address to jump to if condition is true
         pushNumber(0_u16, page_ptr(p));
+
         // else code
         if (x.constList().size() == 4)  // we have an else clause
             _compile(x.constList()[3], p, produces_result);
@@ -399,6 +401,7 @@ namespace Ark
         page(p).emplace_back(Instruction::JUMP);
         std::size_t jump_to_end_pos = page(p).size();
         pushNumber(0_u16, page_ptr(p));
+
         // set jump to if pos
         page(p)[jump_to_if_pos] = (static_cast<uint16_t>(page(p).size()) & 0xff00) >> 8;
         page(p)[jump_to_if_pos + 1] = static_cast<uint16_t>(page(p).size()) & 0x00ff;
