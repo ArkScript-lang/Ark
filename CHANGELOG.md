@@ -7,6 +7,8 @@
 
 ### Changed
 - the compiler can now remove unused values from the stack
+- enhancing the compiler code
+- debloating the parser methods argument's lists
 
 ### Removed
 
