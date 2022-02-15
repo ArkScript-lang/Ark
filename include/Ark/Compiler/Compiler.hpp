@@ -126,6 +126,12 @@ namespace Ark
             return &m_temp_pages[-i - 1];
         }
 
+        inline void setNumberAt(int p, std::size_t at_inst, std::size_t number)
+        {
+            page(p)[at_inst] = (number & 0xff00) >> 8;
+            page(p)[at_inst + 1] = number & 0x00ff;
+        }
+
         /**
          * @brief Count the number of "valid" ark objects in a node
          * @details Isn't considered valid a GetField, because we use

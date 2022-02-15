@@ -114,7 +114,7 @@ namespace Ark
                                            .count();
         for (char c = 0; c < 8; c++)
         {
-            unsigned shift = 7 * (8 - c);
+            unsigned shift = 8 * (7 - c);
             uint8_t ts_byte = (timestamp & (0xffULL << shift)) >> shift;
             m_bytecode.push_back(ts_byte);
         }
@@ -387,9 +387,9 @@ namespace Ark
     {
         // compile condition
         _compile(x.constList()[1], p, false);
-        // jump only if needed to the else (x.list()[2])
-        page(p).emplace_back(Instruction::POP_JUMP_IF_TRUE);
 
+        // jump only if needed to the if
+        page(p).emplace_back(Instruction::POP_JUMP_IF_TRUE);
         std::size_t jump_to_if_pos = page(p).size();
         // absolute address to jump to if condition is true
         pushNumber(0_u16, page_ptr(p));
@@ -397,19 +397,18 @@ namespace Ark
         // else code
         if (x.constList().size() == 4)  // we have an else clause
             _compile(x.constList()[3], p, produces_result);
+
         // when else is finished, jump to end
         page(p).emplace_back(Instruction::JUMP);
         std::size_t jump_to_end_pos = page(p).size();
         pushNumber(0_u16, page_ptr(p));
 
         // set jump to if pos
-        page(p)[jump_to_if_pos] = (static_cast<uint16_t>(page(p).size()) & 0xff00) >> 8;
-        page(p)[jump_to_if_pos + 1] = static_cast<uint16_t>(page(p).size()) & 0x00ff;
+        setNumberAt(p, jump_to_if_pos, page(p).size());
         // if code
         _compile(x.constList()[2], p, produces_result);
         // set jump to end pos
-        page(p)[jump_to_end_pos] = (static_cast<uint16_t>(page(p).size()) & 0xff00) >> 8;
-        page(p)[jump_to_end_pos + 1] = static_cast<uint16_t>(page(p).size()) & 0x00ff;
+        setNumberAt(p, jump_to_end_pos, page(p).size());
     }
 
     void Compiler::compileFunction(const Node& x, int p, bool produces_result)
@@ -489,8 +488,7 @@ namespace Ark
         // abosolute address
         pushNumber(static_cast<uint16_t>(current), page_ptr(p));
         // set jump to end pos
-        page(p)[jump_to_end_pos] = (static_cast<uint16_t>(page(p).size()) & 0xff00) >> 8;
-        page(p)[jump_to_end_pos + 1] = static_cast<uint16_t>(page(p).size()) & 0x00ff;
+        setNumberAt(p, jump_to_end_pos, page(p).size());
     }
 
     void Compiler::compileSet(const Node& x, int p)
