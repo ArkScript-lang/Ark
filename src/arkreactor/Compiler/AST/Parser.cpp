@@ -481,6 +481,7 @@ namespace Ark::internal
     {
         namespace fs = std::filesystem;
 
+        // if we have a list, we may find an import statement inside
         if (n.nodeType() == NodeType::List)
         {
             if (n.constList().size() == 0)
@@ -488,19 +489,17 @@ namespace Ark::internal
 
             const Node& first = n.constList()[0];
 
+            // if we found an import statement, inspect it
             if (first.nodeType() == NodeType::Keyword && first.keyword() == Keyword::Import)
             {
                 if (m_debug >= 2)
                     std::cout << "Import found in file: " << m_file << '\n';
 
-                std::string file;
-                if (n.constList()[1].nodeType() == NodeType::String)
-                    file = n.constList()[1].string();
-                else
+                if (n.constList()[1].nodeType() != NodeType::String)
                     throw TypeError("Arguments of import must be of type String");
 
                 // check if we are not loading a plugin
-                if (fs::path(file).extension().string() == ".ark")
+                if (std::string file = n.constList()[1].string(); fs::path(file).extension().string() == ".ark")
                 {
                     // search for the source file everywhere
                     std::string included_file = seekFile(file);
@@ -510,8 +509,8 @@ namespace Ark::internal
                     if (std::find(m_parent_include.begin(), m_parent_include.end(), Utils::canonicalRelPath(included_file)) != m_parent_include.end())
                         return true;
 
+                    // feed a new parser with our parent includes
                     Parser p(m_debug, m_options, m_libenv);
-                    // feed the new parser with our parent includes
                     for (auto const& pi : m_parent_include)
                         p.m_parent_include.push_back(pi);  // new parser, we can assume that the parent include list is empty
                     p.m_parent_include.push_back(m_file);  // add the current file to avoid importing it again
@@ -525,14 +524,13 @@ namespace Ark::internal
                     }
 
                     for (std::size_t j = 1, end = p.ast().constList().size(); j < end; ++j)
-                    {
                         parent.list().insert(parent.list().begin() + pos + j, p.ast().constList()[j]);
-                    }
 
                     return true;
                 }
             }
 
+            // inspect every other node in the list
             for (std::size_t i = 0; i < n.list().size(); ++i)
             {
                 if (checkForInclude(n.list()[i], n, i))
