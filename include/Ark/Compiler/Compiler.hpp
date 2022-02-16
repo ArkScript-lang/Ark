@@ -215,6 +215,7 @@ namespace Ark
          * 
          * @param x the internal::Node to compile
          * @param p the current page number we're on
+         * @param produces_result 
          */
         void _compile(const internal::Node& x, int p, bool produces_result);
 
@@ -222,9 +223,8 @@ namespace Ark
         void compileSpecific(const internal::Node& c0, const internal::Node& x, int p, bool produces_result);
         void compileIf(const internal::Node& x, int p, bool produces_result);
         void compileFunction(const internal::Node& x, int p, bool produces_result);
-        void compileLetMut(internal::Keyword n, const internal::Node& x, int p);
+        void compileLetMutSet(internal::Keyword n, const internal::Node& x, int p);
         void compileWhile(const internal::Node& x, int p);
-        void compileSet(const internal::Node& x, int p);
         void compileQuote(const internal::Node& x, int p, bool produces_result);
         void compilePluginImport(const internal::Node& x, int p);
         void compileDel(const internal::Node& x, int p);
@@ -233,8 +233,9 @@ namespace Ark
         /**
          * @brief Put a value in the bytecode, handling the closures chains
          * 
-         * @param x 
-         * @param p 
+         * @param x value node
+         * @param p current page index
+         * @param produces_result 
          */
         void putValue(const internal::Node& x, int p, bool produces_result);
 

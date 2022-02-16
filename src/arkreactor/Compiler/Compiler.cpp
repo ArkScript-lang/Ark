@@ -280,13 +280,11 @@ namespace Ark
                     break;
 
                 case Keyword::Set:
-                    compileSet(x, p);
-                    break;
-
+                    [[fallthrough]];
                 case Keyword::Let:
                     [[fallthrough]];
                 case Keyword::Mut:
-                    compileLetMut(n, x, p);
+                    compileLetMutSet(n, x, p);
                     break;
 
                 case Keyword::Fun:
@@ -457,16 +455,21 @@ namespace Ark
             page(p).push_back(Instruction::POP);
     }
 
-    void Compiler::compileLetMut(Keyword n, const Node& x, int p)
+    void Compiler::compileLetMutSet(Keyword n, const Node& x, int p)
     {
-        std::string name = x.constList()[1].string();
         uint16_t i = addSymbol(x.constList()[1]);
-        addDefinedSymbol(name);
+        if (n != Keyword::Set)
+            addDefinedSymbol(x.constList()[1].string());
 
         // put value before symbol id
         putValue(x, p, false);
 
-        page(p).emplace_back(n == Keyword::Let ? Instruction::LET : Instruction::MUT);
+        if (n == Keyword::Let)
+            page(p).push_back(Instruction::LET);
+        else if (n == Keyword::Mut)
+            page(p).push_back(Instruction::MUT);
+        else
+            page(p).push_back(Instruction::STORE);
         pushNumber(i, page_ptr(p));
     }
 
@@ -477,29 +480,18 @@ namespace Ark
         // push condition
         _compile(x.constList()[1], p, false);
         // absolute jump to end of block if condition is false
-        page(p).emplace_back(Instruction::POP_JUMP_IF_FALSE);
+        page(p).push_back(Instruction::POP_JUMP_IF_FALSE);
         std::size_t jump_to_end_pos = page(p).size();
         // absolute address to jump to if condition is false
         pushNumber(0_u16, page_ptr(p));
         // push code to page
         _compile(x.constList()[2], p, true);
         // loop, jump to the condition
-        page(p).emplace_back(Instruction::JUMP);
+        page(p).push_back(Instruction::JUMP);
         // abosolute address
         pushNumber(static_cast<uint16_t>(current), page_ptr(p));
         // set jump to end pos
         setNumberAt(p, jump_to_end_pos, page(p).size());
-    }
-
-    void Compiler::compileSet(const Node& x, int p)
-    {
-        uint16_t i = addSymbol(x.constList()[1]);
-
-        // put value before symbol id
-        putValue(x, p, false);
-
-        page(p).emplace_back(Instruction::STORE);
-        pushNumber(i, page_ptr(p));
     }
 
     void Compiler::compileQuote(const Node& x, int p, bool produces_result)
@@ -645,6 +637,8 @@ namespace Ark
 
     void Compiler::putValue(const Node& x, int p, bool produces_result)
     {
+        std::string name = x.constList()[1].string();
+
         // starting at index = 2 because x is a (let|mut|set variable ...) node
         for (std::size_t idx = 2, end = x.constList().size(); idx < end; ++idx)
             _compile(x.constList()[idx], p, produces_result);
