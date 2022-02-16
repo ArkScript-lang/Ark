@@ -387,7 +387,7 @@ namespace Ark
         _compile(x.constList()[1], p, false);
 
         // jump only if needed to the if
-        page(p).emplace_back(Instruction::POP_JUMP_IF_TRUE);
+        page(p).push_back(Instruction::POP_JUMP_IF_TRUE);
         std::size_t jump_to_if_pos = page(p).size();
         // absolute address to jump to if condition is true
         pushNumber(0_u16, page_ptr(p));
@@ -397,7 +397,7 @@ namespace Ark
             _compile(x.constList()[3], p, produces_result);
 
         // when else is finished, jump to end
-        page(p).emplace_back(Instruction::JUMP);
+        page(p).push_back(Instruction::JUMP);
         std::size_t jump_to_end_pos = page(p).size();
         pushNumber(0_u16, page_ptr(p));
 
@@ -428,13 +428,15 @@ namespace Ark
                 pushNumber(var_id, page_ptr(p));
             }
         }
+
         // create new page for function body
         m_code_pages.emplace_back();
         std::size_t page_id = m_code_pages.size() - 1;
         // load value on the stack
         page(p).emplace_back(Instruction::LOAD_CONST);
-        uint16_t id = addValue(page_id, x);  // save page_id into the constants table as PageAddr
-        pushNumber(id, page_ptr(p));
+        // save page_id into the constants table as PageAddr
+        pushNumber(addValue(page_id, x), page_ptr(p));
+
         // pushing arguments from the stack into variables in the new scope
         for (auto it = x.constList()[1].constList().begin(), it_end = x.constList()[1].constList().end(); it != it_end; ++it)
         {
@@ -446,8 +448,10 @@ namespace Ark
                 pushNumber(var_id, page_ptr(page_id));
             }
         }
+
         // push body of the function
         _compile(x.constList()[2], page_id, false);
+
         // return last value on the stack
         page(page_id).emplace_back(Instruction::RET);
 
@@ -556,25 +560,43 @@ namespace Ark
         // it's a builtin/function
         if (proc_page_len > 1)
         {
-            // push arguments on current page
-            for (auto exp = x.constList().begin() + n, exp_end = x.constList().end(); exp != exp_end; ++exp)
-                _compile(*exp, p, false);
-            // push proc from temp page
-            for (auto const& inst : m_temp_pages.back())
-                page(p).push_back(inst);
-            m_temp_pages.pop_back();
-
-            // call the procedure
-            page(p).push_back(Instruction::CALL);
-            // number of arguments
-            std::size_t args_count = 0;
-            for (auto it = x.constList().begin() + 1, it_end = x.constList().end(); it != it_end; ++it)
+            if (/* is_terminal_call */ false && /* is_tail_call */ false)
             {
-                if (it->nodeType() != NodeType::GetField &&
-                    it->nodeType() != NodeType::Capture)
-                    args_count++;
+                // we can drop the temp page as we won't be using it
+                m_temp_pages.pop_back();
+
+                // push the arguments
+                for (auto exp = x.constList().begin() + n, exp_end = x.constList().end(); exp != exp_end; ++exp)
+                    _compile(*exp, p, false);
+
+                // jump to the top of the function
+                page(p).push_back(Instruction::JUMP);
+                pushNumber(0_u16, page_ptr(p));
+
+                return;  // skip the possible Instruction::POP at the end
             }
-            pushNumber(static_cast<uint16_t>(args_count), page_ptr(p));
+            else
+            {
+                // push arguments on current page
+                for (auto exp = x.constList().begin() + n, exp_end = x.constList().end(); exp != exp_end; ++exp)
+                    _compile(*exp, p, false);
+                // push proc from temp page
+                for (auto const& inst : m_temp_pages.back())
+                    page(p).push_back(inst);
+                m_temp_pages.pop_back();
+
+                // call the procedure
+                page(p).push_back(Instruction::CALL);
+                // number of arguments
+                std::size_t args_count = 0;
+                for (auto it = x.constList().begin() + 1, it_end = x.constList().end(); it != it_end; ++it)
+                {
+                    if (it->nodeType() != NodeType::GetField &&
+                        it->nodeType() != NodeType::Capture)
+                        args_count++;
+                }
+                pushNumber(static_cast<uint16_t>(args_count), page_ptr(p));
+            }
         }
         else  // operator
         {
@@ -612,13 +634,13 @@ namespace Ark
                 switch (op_inst)
                 {
                     // authorized instructions
-                    case Instruction::ADD:
-                    case Instruction::SUB:
-                    case Instruction::DIV:
-                    case Instruction::MUL:
+                    case Instruction::ADD: [[fallthrough]];
+                    case Instruction::SUB: [[fallthrough]];
+                    case Instruction::MUL: [[fallthrough]];
+                    case Instruction::DIV: [[fallthrough]];
+                    case Instruction::AND_: [[fallthrough]];
+                    case Instruction::OR_: [[fallthrough]];
                     case Instruction::MOD:
-                    case Instruction::AND_:
-                    case Instruction::OR_:
                         break;
 
                     default:
