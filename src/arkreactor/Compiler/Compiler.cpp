@@ -37,7 +37,7 @@ namespace Ark
         m_code_pages.emplace_back();  // create empty page
 
         // gather symbols, values, and start to create code segments
-        _compile(m_optimizer.ast(), 0, false);
+        _compile(m_optimizer.ast(), /* current_page */ 0, /* produces_result */ false, /* is_terminal */ false);
         // throw an error on undefined symbol uses
         checkForUndefinedSymbol();
 
@@ -230,7 +230,7 @@ namespace Ark
         throw CompilationError(makeNodeBasedErrorCtx(message, node));
     }
 
-    void Compiler::_compile(const Node& x, int p, bool produces_result)
+    void Compiler::_compile(const Node& x, int p, bool produces_result, bool is_terminal, const std::string& var_name)
     {
         // register symbols
         if (x.nodeType() == NodeType::Symbol)
@@ -276,7 +276,7 @@ namespace Ark
             switch (n)
             {
                 case Keyword::If:
-                    compileIf(x, p, produces_result);
+                    compileIf(x, p, produces_result, is_terminal, var_name);
                     break;
 
                 case Keyword::Set:
@@ -288,13 +288,20 @@ namespace Ark
                     break;
 
                 case Keyword::Fun:
-                    compileFunction(x, p, produces_result);
+                    compileFunction(x, p, produces_result, var_name);
                     break;
 
                 case Keyword::Begin:
                 {
                     for (std::size_t i = 1, size = x.constList().size(); i < size; ++i)
-                        _compile(x.constList()[i], p, (i != size - 1) ? true : produces_result);
+                        _compile(
+                            x.constList()[i],
+                            p,
+                            // All the nodes in a begin (except for the last one) are producing a result that we want to drop.
+                            (i != size - 1) ? true : produces_result,
+                            // If the begin is a terminal node, only its last node is terminal.
+                            is_terminal ? (i == size - 1) : false,
+                            var_name);
                     break;
                 }
 
@@ -307,7 +314,7 @@ namespace Ark
                     break;
 
                 case Keyword::Quote:
-                    compileQuote(x, p, produces_result);
+                    compileQuote(x, p, produces_result, is_terminal, var_name);
                     break;
 
                 case Keyword::Del:
@@ -319,7 +326,7 @@ namespace Ark
         {
             // if we are here, we should have a function name
             // push arguments first, then function name, then call it
-            handleCalls(x, p, produces_result);
+            handleCalls(x, p, produces_result, is_terminal, var_name);
         }
     }
 
@@ -366,10 +373,10 @@ namespace Ark
             uint16_t diff = i - j;
             while (j < i)
             {
-                _compile(x.constList()[j], p, false);
+                _compile(x.constList()[j], p, false, false);
                 ++j;
             }
-            _compile(x.constList()[i], p, false);
+            _compile(x.constList()[i], p, false, false);
             i -= diff;
         }
 
@@ -381,10 +388,10 @@ namespace Ark
             page(p).push_back(Instruction::POP);
     }
 
-    void Compiler::compileIf(const Node& x, int p, bool produces_result)
+    void Compiler::compileIf(const Node& x, int p, bool produces_result, bool is_terminal, const std::string& var_name)
     {
         // compile condition
-        _compile(x.constList()[1], p, false);
+        _compile(x.constList()[1], p, false, false);
 
         // jump only if needed to the if
         page(p).push_back(Instruction::POP_JUMP_IF_TRUE);
@@ -394,7 +401,7 @@ namespace Ark
 
         // else code
         if (x.constList().size() == 4)  // we have an else clause
-            _compile(x.constList()[3], p, produces_result);
+            _compile(x.constList()[3], p, produces_result, is_terminal, var_name);
 
         // when else is finished, jump to end
         page(p).push_back(Instruction::JUMP);
@@ -404,12 +411,12 @@ namespace Ark
         // set jump to if pos
         setNumberAt(p, jump_to_if_pos, page(p).size());
         // if code
-        _compile(x.constList()[2], p, produces_result);
+        _compile(x.constList()[2], p, produces_result, is_terminal, var_name);
         // set jump to end pos
         setNumberAt(p, jump_to_end_pos, page(p).size());
     }
 
-    void Compiler::compileFunction(const Node& x, int p, bool produces_result)
+    void Compiler::compileFunction(const Node& x, int p, bool produces_result, const std::string& var_name)
     {
         // capture, if needed
         for (auto it = x.constList()[1].constList().begin(), it_end = x.constList()[1].constList().end(); it != it_end; ++it)
@@ -450,7 +457,7 @@ namespace Ark
         }
 
         // push body of the function
-        _compile(x.constList()[2], page_id, false);
+        _compile(x.constList()[2], page_id, false, true, var_name);
 
         // return last value on the stack
         page(page_id).emplace_back(Instruction::RET);
@@ -482,14 +489,14 @@ namespace Ark
         // save current position to jump there at the end of the loop
         std::size_t current = page(p).size();
         // push condition
-        _compile(x.constList()[1], p, false);
+        _compile(x.constList()[1], p, false, false);
         // absolute jump to end of block if condition is false
         page(p).push_back(Instruction::POP_JUMP_IF_FALSE);
         std::size_t jump_to_end_pos = page(p).size();
         // absolute address to jump to if condition is false
         pushNumber(0_u16, page_ptr(p));
         // push code to page
-        _compile(x.constList()[2], p, true);
+        _compile(x.constList()[2], p, true, false);
         // loop, jump to the condition
         page(p).push_back(Instruction::JUMP);
         // abosolute address
@@ -498,12 +505,12 @@ namespace Ark
         setNumberAt(p, jump_to_end_pos, page(p).size());
     }
 
-    void Compiler::compileQuote(const Node& x, int p, bool produces_result)
+    void Compiler::compileQuote(const Node& x, int p, bool produces_result, bool is_terminal, const std::string& var_name)
     {
         // create new page for quoted code
         m_code_pages.emplace_back();
         std::size_t page_id = m_code_pages.size() - 1;
-        _compile(x.constList()[1], page_id, false);
+        _compile(x.constList()[1], page_id, false, is_terminal, var_name);
         page(page_id).emplace_back(Instruction::RET);  // return to the last frame
 
         // call it
@@ -535,11 +542,11 @@ namespace Ark
         pushNumber(i, page_ptr(p));
     }
 
-    void Compiler::handleCalls(const Node& x, int p, bool produces_result)
+    void Compiler::handleCalls(const Node& x, int p, bool produces_result, bool is_terminal, const std::string& var_name)
     {
         m_temp_pages.emplace_back();
         int proc_page = -static_cast<int>(m_temp_pages.size());
-        _compile(x.constList()[0], proc_page, false);  // storing proc
+        _compile(x.constList()[0], proc_page, false, false);  // storing proc
 
         // trying to handle chained closure.field.field.field...
         std::size_t n = 1;  // we need it later
@@ -548,7 +555,7 @@ namespace Ark
         {
             if (x.constList()[n].nodeType() == NodeType::GetField)
             {
-                _compile(x.constList()[n], proc_page, false);
+                _compile(x.constList()[n], proc_page, false, false);
                 n++;
             }
             else
@@ -560,14 +567,14 @@ namespace Ark
         // it's a builtin/function
         if (proc_page_len > 1)
         {
-            if (/* is_terminal_call */ false && /* is_tail_call */ false)
+            if (is_terminal && x.constList()[0].nodeType() == NodeType::Symbol && var_name == x.constList()[0].string())
             {
                 // we can drop the temp page as we won't be using it
                 m_temp_pages.pop_back();
 
-                // push the arguments
-                for (auto exp = x.constList().begin() + n, exp_end = x.constList().end(); exp != exp_end; ++exp)
-                    _compile(*exp, p, false);
+                // push the arguments in reverse order
+                for (std::size_t i = x.constList().size() - 1; i >= n; --i)
+                    _compile(x.constList()[i], p, false, false);
 
                 // jump to the top of the function
                 page(p).push_back(Instruction::JUMP);
@@ -579,7 +586,7 @@ namespace Ark
             {
                 // push arguments on current page
                 for (auto exp = x.constList().begin() + n, exp_end = x.constList().end(); exp != exp_end; ++exp)
-                    _compile(*exp, p, false);
+                    _compile(*exp, p, false, false);
                 // push proc from temp page
                 for (auto const& inst : m_temp_pages.back())
                     page(p).push_back(inst);
@@ -611,7 +618,7 @@ namespace Ark
             std::size_t exp_count = 0;
             for (std::size_t index = n, size = x.constList().size(); index < size; ++index)
             {
-                _compile(x.constList()[index], p, false);
+                _compile(x.constList()[index], p, false, false);
 
                 if ((index + 1 < size &&
                      x.constList()[index + 1].nodeType() != NodeType::GetField &&
@@ -663,7 +670,7 @@ namespace Ark
 
         // starting at index = 2 because x is a (let|mut|set variable ...) node
         for (std::size_t idx = 2, end = x.constList().size(); idx < end; ++idx)
-            _compile(x.constList()[idx], p, produces_result);
+            _compile(x.constList()[idx], p, produces_result, false, name);
     }
 
     uint16_t Compiler::addSymbol(const Node& sym)
