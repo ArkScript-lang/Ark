@@ -216,19 +216,21 @@ namespace Ark
          * @param x the internal::Node to compile
          * @param p the current page number we're on
          * @param produces_result 
+         * @param is_terminal 
+         * @param var_name 
          */
-        void _compile(const internal::Node& x, int p, bool produces_result);
+        void _compile(const internal::Node& x, int p, bool produces_result, bool is_terminal, const std::string& var_name = "");
 
         void compileSymbol(const internal::Node& x, int p, bool produces_result);
         void compileSpecific(const internal::Node& c0, const internal::Node& x, int p, bool produces_result);
-        void compileIf(const internal::Node& x, int p, bool produces_result);
-        void compileFunction(const internal::Node& x, int p, bool produces_result);
+        void compileIf(const internal::Node& x, int p, bool produces_result, bool is_terminal, const std::string& var_name);
+        void compileFunction(const internal::Node& x, int p, bool produces_result, const std::string& var_name);
         void compileLetMutSet(internal::Keyword n, const internal::Node& x, int p);
         void compileWhile(const internal::Node& x, int p);
-        void compileQuote(const internal::Node& x, int p, bool produces_result);
+        void compileQuote(const internal::Node& x, int p, bool produces_result, bool is_terminal, const std::string& var_name);
         void compilePluginImport(const internal::Node& x, int p);
         void compileDel(const internal::Node& x, int p);
-        void handleCalls(const internal::Node& x, int p, bool produces_result);
+        void handleCalls(const internal::Node& x, int p, bool produces_result, bool is_terminal, const std::string& var_name);
 
         /**
          * @brief Put a value in the bytecode, handling the closures chains

@@ -4,6 +4,7 @@
 ### Added
 - running the modules tests in the CI
 - new bytecode instruction `POP`, removing the last value from the stack
+- the compiler can finally optimize tail calls
 
 ### Changed
 - the compiler can now remove unused values from the stack
