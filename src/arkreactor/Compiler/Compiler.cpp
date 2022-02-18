@@ -743,8 +743,33 @@ namespace Ark
 
             auto it = std::find(m_defined_symbols.begin(), m_defined_symbols.end(), str);
             if (it == m_defined_symbols.end() && !is_plugin)
-                throwCompilerError("Unbound variable error (variable is used but not defined)", sym);
+            {
+                std::string suggestion = offerSuggestion(str);
+                if (suggestion.empty())
+                    throwCompilerError("Unbound variable error \"" + str + "\" (variable is used but not defined)", sym);
+
+                throwCompilerError("Unbound variable error \"" + str + "\" (did you mean \"" + suggestion + "\"?)", sym);
+            }
         }
+    }
+
+    std::string Compiler::offerSuggestion(const std::string& str)
+    {
+        std::string suggestion;
+        // our suggestion shouldn't require more than half the string to change
+        std::size_t suggestion_distance = str.size() / 2;
+
+        for (const std::string& symbol : m_defined_symbols)
+        {
+            std::size_t current_distance = Utils::levenshteinDistance(str, symbol);
+            if (current_distance <= suggestion_distance)
+            {
+                suggestion_distance = current_distance;
+                suggestion = symbol;
+            }
+        }
+
+        return suggestion;
     }
 
     void Compiler::pushNumber(uint16_t n, std::vector<uint8_t>* page) noexcept

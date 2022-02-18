@@ -289,6 +289,14 @@ namespace Ark
          * @param page the page where it should land, nullptr for current page
          */
         void pushNumber(uint16_t n, std::vector<uint8_t>* page = nullptr) noexcept;
+
+        /**
+         * @brief Suggest a symbol of what the user may have meant to input
+         *
+         * @param str the string
+         * @return std::string
+         */
+        std::string offerSuggestion(const std::string& str);
     };
 }
 
