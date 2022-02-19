@@ -4,8 +4,8 @@ project(ark CXX)
 
 # VERSION
 set(ARK_VERSION_MAJOR 3)
-set(ARK_VERSION_MINOR 1)
-set(ARK_VERSION_PATCH 3)
+set(ARK_VERSION_MINOR 2)
+set(ARK_VERSION_PATCH 0)
 
 # Uses GNU Install directory variables
 include(GNUInstallDirs)
