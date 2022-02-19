@@ -11,6 +11,7 @@ namespace Ark::internal
 {
     void makeContext(std::ostream& os, const std::string& code, std::size_t line, std::size_t col_start, std::size_t sym_size)
     {
+        os << termcolor::colorize;
         std::vector<std::string> ctx = Utils::splitString(code, '\n');
 
         std::size_t col_end = std::min(col_start + sym_size, ctx[line].size());
@@ -19,7 +20,7 @@ namespace Ark::internal
 
         for (std::size_t loop = first; loop < last; ++loop)
         {
-            os << std::setw(5) << (loop + 1) << " | " << ctx[loop] << "\n";
+            os << termcolor::green << std::setw(5) << (loop + 1) << termcolor::reset << " | " << ctx[loop] << "\n";
 
             if (loop == line)
             {
@@ -30,9 +31,9 @@ namespace Ark::internal
                     if (j < col_start)  // padding of spaces
                         os << " ";
                     else if (j >= col_start && j <= col_end)  // underline the error
-                        os << "^";
+                        os << termcolor::red << "^";
                 }
-                os << "\n";
+                os << termcolor::reset << "\n";
             }
         }
     }
