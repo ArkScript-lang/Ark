@@ -15,7 +15,7 @@ namespace Ark::internal
         os << termcolor::colorize;
         std::vector<std::string> ctx = Utils::splitString(code, '\n');
 
-        std::size_t col_end = std::min(col_start + sym_size, ctx[line].size());
+        std::size_t col_end = std::min<std::size_t>(col_start + sym_size, ctx[line].size());
         std::size_t first = line >= 3 ? line - 3 : 0;
         std::size_t last = (line + 3) <= ctx.size() ? line + 3 : ctx.size();
         LineColorContextCounts line_color_context_counts;
