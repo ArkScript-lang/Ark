@@ -28,13 +28,15 @@ namespace Ark::internal
             {
                 os << "      | ";
 
-                for (std::size_t j = 0; (sym_size > col_start) ? false : (j < col_start); ++j)
-                {
-                    if (j < col_start)  // padding of spaces
-                        os << " ";
-                    else if (j >= col_start && j <= col_end)  // underline the error
-                        os << termcolor::red << "^";
-                }
+                // padding of spaces
+                for (std::size_t i = 0; i < col_start; ++i)
+                    os << " ";
+
+                // underline the error
+                os << termcolor::red;
+                for (std::size_t i = col_start; i < col_end; ++i)
+                    os << "^";
+
                 os << termcolor::reset << "\n";
             }
         }
