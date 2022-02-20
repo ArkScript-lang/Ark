@@ -45,7 +45,7 @@ namespace Ark::internal
 
     std::string colorizeLine(const std::string& line, LineColorContextCounts& line_color_context_counts)
     {
-        std::vector<std::ostream& (*)(std::ostream & stream)> pairing_color {
+        constexpr std::array<std::ostream& (*)(std::ostream & stream), 3> pairing_color {
             termcolor::bright_blue,
             termcolor::bright_green,
             termcolor::bright_yellow
