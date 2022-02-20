@@ -16,7 +16,6 @@
 #include <string>
 
 #include <Ark/Compiler/AST/Node.hpp>
-#include <termcolor/termcolor.hpp>
 
 namespace Ark::internal
 {

@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <iomanip>
+#include <termcolor/termcolor.hpp>
 
 #include <Ark/Constants.hpp>
 #include <Ark/Files.hpp>
