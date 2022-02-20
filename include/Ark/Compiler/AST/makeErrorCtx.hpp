@@ -64,7 +64,7 @@ namespace Ark::internal
      * @param c
      * @return bool
      */
-    inline bool isPairableChar(const char& c)
+    inline bool isPairableChar(const char c)
     {
         return c == '(' || c == ')' || c == '[' || c == ']' || c == '{' || c == '}';
     }
