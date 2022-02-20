@@ -1,5 +1,16 @@
 # Change Log
 
+## [Unreleased changes]
+### Added
+- added lines and code coloration in the error context
+
+### Changed
+- fixed underline bug in the error context
+
+### Deprecated
+
+### Removed
+
 ## [3.2.0] - 2022-02-19
 ### Added
 - running the modules tests in the CI
