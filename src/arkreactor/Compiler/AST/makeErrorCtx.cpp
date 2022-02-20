@@ -17,10 +17,12 @@ namespace Ark::internal
         std::size_t col_end = std::min(col_start + sym_size, ctx[line].size());
         std::size_t first = line >= 3 ? line - 3 : 0;
         std::size_t last = (line + 3) <= ctx.size() ? line + 3 : ctx.size();
+        LineColorContextCounts line_color_context_counts;
 
         for (std::size_t loop = first; loop < last; ++loop)
         {
-            os << termcolor::green << std::setw(5) << (loop + 1) << termcolor::reset << " | " << ctx[loop] << "\n";
+            std::string current_line = colorizeLine(ctx[loop], line_color_context_counts);
+            os << termcolor::green << std::setw(5) << (loop + 1) << termcolor::reset << " | " << current_line << "\n";
 
             if (loop == line)
             {
@@ -36,6 +38,61 @@ namespace Ark::internal
                 os << termcolor::reset << "\n";
             }
         }
+    }
+
+    std::string colorizeLine(const std::string& line, LineColorContextCounts& line_color_context_counts)
+    {
+        std::vector<std::ostream& (*)(std::ostream & stream)> pairing_color {
+            termcolor::bright_blue,
+            termcolor::bright_green,
+            termcolor::bright_yellow
+        };
+        std::size_t pairing_color_size = pairing_color.size();
+
+        std::stringstream colorized_line;
+        colorized_line << termcolor::colorize;
+
+        for (const char& c : line)
+        {
+            if (isPairableChar(c))
+            {
+                std::size_t pairing_color_index = 0;
+
+                switch (c)
+                {
+                    case '(':
+                        pairing_color_index = std::abs(line_color_context_counts.open_parentheses) % pairing_color_size;
+                        line_color_context_counts.open_parentheses++;
+                        break;
+                    case ')':
+                        line_color_context_counts.open_parentheses--;
+                        pairing_color_index = std::abs(line_color_context_counts.open_parentheses) % pairing_color_size;
+                        break;
+                    case '[':
+                        pairing_color_index = std::abs(line_color_context_counts.open_square_braces) % pairing_color_size;
+                        line_color_context_counts.open_square_braces++;
+                        break;
+                    case ']':
+                        line_color_context_counts.open_square_braces--;
+                        pairing_color_index = std::abs(line_color_context_counts.open_square_braces) % pairing_color_size;
+                        break;
+                    case '{':
+                        pairing_color_index = std::abs(line_color_context_counts.open_curly_braces) % pairing_color_size;
+                        line_color_context_counts.open_curly_braces++;
+                        break;
+                    case '}':
+                        line_color_context_counts.open_curly_braces--;
+                        pairing_color_index = std::abs(line_color_context_counts.open_curly_braces) % pairing_color_size;
+                        break;
+                }
+
+                colorized_line << pairing_color[pairing_color_index] << c << termcolor::reset;
+            }
+            else
+                colorized_line << c;
+        }
+
+        return colorized_line.str();
     }
 
     std::string makeNodeBasedErrorCtx(const std::string& message, const Node& node)
