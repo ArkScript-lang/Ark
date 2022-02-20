@@ -148,28 +148,24 @@ namespace Ark::internal
 
                 if (token.type == TokenType::Keyword)
                 {
-                    void (Parser::*fun_ptr)(Node&, Token&, std::list<Token>&, bool, bool, bool) = nullptr;
                     if (token.token == "if")
-                        fun_ptr = &Parser::parseIf;
+                        parseIf(block, tokens, in_macro);
                     else if (token.token == "let" || token.token == "mut")
-                        fun_ptr = &Parser::parseLetMut;
+                        parseLetMut(block, token, tokens, in_macro);
                     else if (token.token == "set")
-                        fun_ptr = &Parser::parseSet;
+                        parseSet(block, token, tokens, in_macro);
                     else if (token.token == "fun")
-                        fun_ptr = &Parser::parseFun;
+                        parseFun(block, token, tokens, in_macro);
                     else if (token.token == "while")
-                        fun_ptr = &Parser::parseWhile;
+                        parseWhile(block, token, tokens, in_macro);
                     else if (token.token == "begin")
-                        fun_ptr = &Parser::parseBegin;
+                        parseBegin(block, tokens, in_macro);
                     else if (token.token == "import")
-                        fun_ptr = &Parser::parseImport;
+                        parseImport(block, tokens);
                     else if (token.token == "quote")
-                        fun_ptr = &Parser::parseQuote;
+                        parseQuote(block, tokens, in_macro);
                     else if (token.token == "del")
-                        fun_ptr = &Parser::parseDel;
-
-                    if (fun_ptr != nullptr)
-                        (this->*fun_ptr)(block, token, tokens, authorize_capture, authorize_field_read, in_macro);
+                        parseDel(block, tokens);
                     else
                         throwParseError("unimplemented keyword `" + token.token + "'. If you see this error please report it on GitHub.", token);
                 }
@@ -188,7 +184,7 @@ namespace Ark::internal
             return block;
         }
         else if (token.type == TokenType::Shorthand)
-            return parseShorthand(token, tokens, authorize_capture, authorize_field_read, in_macro);
+            return parseShorthand(token, tokens, in_macro);
         // error, we shouldn't have grouping token here
         else if (token.type == TokenType::Grouping)
             throwParseError("Found a lonely `" + token.token + "', you most likely have too much parenthesis.", token);
@@ -205,7 +201,7 @@ namespace Ark::internal
         return atom(token);
     }
 
-    void Parser::parseIf(Node& block, Token& token [[maybe_unused]], std::list<Token>& tokens, bool authorize_capture [[maybe_unused]], bool authorize_field_read [[maybe_unused]], bool in_macro)
+    void Parser::parseIf(Node& block, std::list<Token>& tokens, bool in_macro)
     {
         auto temp = tokens.front();
         // parse condition
@@ -228,7 +224,7 @@ namespace Ark::internal
         }
     }
 
-    void Parser::parseLetMut(Node& block, Token& token, std::list<Token>& tokens, bool authorize_capture [[maybe_unused]], bool authorize_field_read [[maybe_unused]], bool in_macro)
+    void Parser::parseLetMut(Node& block, Token& token, std::list<Token>& tokens, bool in_macro)
     {
         auto temp = tokens.front();
         // parse identifier
@@ -251,7 +247,7 @@ namespace Ark::internal
             "too many arguments given to keyword `" + token.token + "', got " + std::to_string(block.list().size() - 1) + ", expected at most 3", m_last_token);
     }
 
-    void Parser::parseSet(Node& block, Token& token, std::list<Token>& tokens, bool authorize_capture [[maybe_unused]], bool authorize_field_read [[maybe_unused]], bool in_macro)
+    void Parser::parseSet(Node& block, Token& token, std::list<Token>& tokens, bool in_macro)
     {
         auto temp = tokens.front();
         // parse identifier
@@ -277,7 +273,7 @@ namespace Ark::internal
             "too many arguments given to keyword `" + token.token + "', got " + std::to_string(block.list().size() - 1) + ", expected at most 3", m_last_token);
     }
 
-    void Parser::parseFun(Node& block, Token& token, std::list<Token>& tokens, bool authorize_capture [[maybe_unused]], bool authorize_field_read [[maybe_unused]], bool in_macro)
+    void Parser::parseFun(Node& block, Token& token, std::list<Token>& tokens, bool in_macro)
     {
         // parse arguments
         if (tokens.front().type == TokenType::Grouping || in_macro)
@@ -292,7 +288,7 @@ namespace Ark::internal
         expect(block.list().size() == 3, "got too many arguments after keyword `" + token.token + "', expected an argument list and a body", m_last_token);
     }
 
-    void Parser::parseWhile(Node& block, Token& token, std::list<Token>& tokens, bool authorize_capture [[maybe_unused]], bool authorize_field_read [[maybe_unused]], bool in_macro)
+    void Parser::parseWhile(Node& block, Token& token, std::list<Token>& tokens, bool in_macro)
     {
         auto temp = tokens.front();
         // parse condition
@@ -309,7 +305,7 @@ namespace Ark::internal
         expect(block.list().size() == 3, "got too many arguments after keyword `" + token.token + "', expected a condition and a body", temp);
     }
 
-    void Parser::parseBegin(Node& block, Token& token [[maybe_unused]], std::list<Token>& tokens, bool authorize_capture [[maybe_unused]], bool authorize_field_read [[maybe_unused]], bool in_macro)
+    void Parser::parseBegin(Node& block, std::list<Token>& tokens, bool in_macro)
     {
         while (true)
         {
@@ -322,7 +318,7 @@ namespace Ark::internal
         }
     }
 
-    void Parser::parseImport(Node& block, Token& token [[maybe_unused]], std::list<Token>& tokens, bool authorize_capture [[maybe_unused]], bool authorize_field_read [[maybe_unused]], bool in_macro [[maybe_unused]])
+    void Parser::parseImport(Node& block, std::list<Token>& tokens)
     {
         if (tokens.front().type == TokenType::String)
             block.push_back(atom(nextToken(tokens)));
@@ -331,13 +327,13 @@ namespace Ark::internal
         expect(tokens.front().token == ")", "got too many arguments after keyword `import', expected a single filename as String", tokens.front());
     }
 
-    void Parser::parseQuote(Node& block, Token& token [[maybe_unused]], std::list<Token>& tokens, bool authorize_capture [[maybe_unused]], bool authorize_field_read [[maybe_unused]], bool in_macro)
+    void Parser::parseQuote(Node& block, std::list<Token>& tokens, bool in_macro)
     {
         block.push_back(parse(tokens, false, false, in_macro));
         expect(tokens.front().token == ")", "got too many arguments after keyword `quote', expected a single block or value", tokens.front());
     }
 
-    void Parser::parseDel(Node& block, Token& token [[maybe_unused]], std::list<Token>& tokens, bool authorize_capture [[maybe_unused]], bool authorize_field_read [[maybe_unused]], bool in_macro [[maybe_unused]])
+    void Parser::parseDel(Node& block, std::list<Token>& tokens)
     {
         if (tokens.front().type == TokenType::Identifier)
             block.push_back(atom(nextToken(tokens)));
@@ -346,7 +342,7 @@ namespace Ark::internal
         expect(tokens.front().token == ")", "got too many arguments after keyword `del', expected a single identifier", tokens.front());
     }
 
-    Node Parser::parseShorthand(Token& token, std::list<Token>& tokens, bool authorize_capture [[maybe_unused]], bool authorize_field_read [[maybe_unused]], bool in_macro)
+    Node Parser::parseShorthand(Token& token, std::list<Token>& tokens, bool in_macro)
     {
         if (token.token == "'")
         {
@@ -485,6 +481,7 @@ namespace Ark::internal
     {
         namespace fs = std::filesystem;
 
+        // if we have a list, we may find an import statement inside
         if (n.nodeType() == NodeType::List)
         {
             if (n.constList().size() == 0)
@@ -492,19 +489,17 @@ namespace Ark::internal
 
             const Node& first = n.constList()[0];
 
+            // if we found an import statement, inspect it
             if (first.nodeType() == NodeType::Keyword && first.keyword() == Keyword::Import)
             {
                 if (m_debug >= 2)
                     std::cout << "Import found in file: " << m_file << '\n';
 
-                std::string file;
-                if (n.constList()[1].nodeType() == NodeType::String)
-                    file = n.constList()[1].string();
-                else
+                if (n.constList()[1].nodeType() != NodeType::String)
                     throw TypeError("Arguments of import must be of type String");
 
                 // check if we are not loading a plugin
-                if (fs::path(file).extension().string() == ".ark")
+                if (std::string file = n.constList()[1].string(); fs::path(file).extension().string() == ".ark")
                 {
                     // search for the source file everywhere
                     std::string included_file = seekFile(file);
@@ -514,8 +509,8 @@ namespace Ark::internal
                     if (std::find(m_parent_include.begin(), m_parent_include.end(), Utils::canonicalRelPath(included_file)) != m_parent_include.end())
                         return true;
 
+                    // feed a new parser with our parent includes
                     Parser p(m_debug, m_options, m_libenv);
-                    // feed the new parser with our parent includes
                     for (auto const& pi : m_parent_include)
                         p.m_parent_include.push_back(pi);  // new parser, we can assume that the parent include list is empty
                     p.m_parent_include.push_back(m_file);  // add the current file to avoid importing it again
@@ -529,14 +524,13 @@ namespace Ark::internal
                     }
 
                     for (std::size_t j = 1, end = p.ast().constList().size(); j < end; ++j)
-                    {
                         parent.list().insert(parent.list().begin() + pos + j, p.ast().constList()[j]);
-                    }
 
                     return true;
                 }
             }
 
+            // inspect every other node in the list
             for (std::size_t i = 0; i < n.list().size(); ++i)
             {
                 if (checkForInclude(n.list()[i], n, i))
