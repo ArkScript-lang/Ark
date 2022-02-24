@@ -14,7 +14,7 @@ Ark::Value myBuiltin(std::vector<Ark::Value>& parameters, Ark::VM* vm)
 }
 ~~~~
 
-See @ref embedding for more details on how to use them.
+See @ref tutorial_embedding for more details on how to use them.
 
 # Builtins category
 
