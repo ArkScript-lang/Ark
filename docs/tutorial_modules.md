@@ -55,3 +55,52 @@ endif()
 ~~~~
 
 Then, run `cmake . -Build -DARK_BUILD_MODULES=On -DARK_MOD_MODULE_NAME=On`, and build only your module with `cmake --build build --target module_name`.
+
+## Common problems
+
+### Storing values in a C++ module
+
+Lets say you are making a module to handle a window (to draw on it). You will open it with the API for your system, for example the WinAPI, and get an handle to it. Now you want to be able to modify this window in ArkScript, the solution is simple: creating an UserType holding your handle, and then getting this user type back in your functions and playing with the handle.
+
+If you try this as is, it won't work. Or at least, it won't work for more than a function call, because the UserType doesn't become the *owner of the handle*, it only holds a view (observer pointer) to your ressource. That means your ressource must continue to live on its own in your module. Because it's a dynamic library, making a global and storing your handle in it will be complicated and in a lot of cases it won't work at all.
+
+Here is the trick:
+
+~~~~{.cpp}
+// will always return the same handle once its created
+Handle& get_me_a_window_handle()
+{
+    static Handle handle = WinApi_Do_Complex_Stuff(12);
+    // ...
+    return handle;
+}
+
+Ark::UserType::ControlFuncs* get_cfs_window()
+{
+    static Ark::UserType::ControlFuncs cfs;
+    cfs.ostream_func = [](std::ostream& os, const UserType& a) -> std::ostream& {
+        // do stuff
+        return os;
+    };
+    cfs.deleter = [](void* data) {
+        // do stuff
+    };
+    return &cfs;
+}
+
+Ark::Value create_window_handle([[maybe_unused]] std::vector<Ark::Value>& args, [[maybe_unused]] Ark::VM* vm)
+{
+    Handle& handle = get_me_a_window_handle();
+    return Ark::Value(
+        Ark::UserType(&handle, get_cfs_window())
+    );
+}
+~~~~
+
+There is a lot of things to unpack here.
+
+First, we have a function returning a reference to a static object, which will get initialized only once, even if we call the function a thousand times. Great, we solved the lifetime problem!
+
+Then, we have a `get_cfs_window` functions. *cfs* is the abbreviation for *control functions* in ArkScript, they are designed as a shared block of function pointers to handle an object in ArkScript (how to display it on the screen, how to delete it once the memory needs to be fred...)
+
+Finally, we have our C++ function which will be bind to ArkScript, creating/receiving the window handle and returning an UserType with the control functions block.
