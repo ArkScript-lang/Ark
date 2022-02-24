@@ -26,6 +26,7 @@ ArkScript is
 
 Also it has:
 * **macros**: if/else, values, and functions
+* tail call optimization
 * a REPL with autocompletion and coloration
 * a growing standard library, composed of ArkScript code (under `lib/std/`) and C++ (under `lib/ext/`)
 * a lot of unit tests (but never enough), which are ran before every release to ensure everything works as expected
@@ -52,28 +53,31 @@ Also it has:
 (import "random.arkm")
 (import "Math.ark")
 
-(let number (mod (abs (random)) 10000))
+(let number (mod (math:abs (random)) 10000))
 
-(mut value 0)
-(mut tries 0)
-(mut continue true)
+(let game (fun () {
+    (let impl (fun (tries) {
+        (let guess (toNumber (input "Input a numeric value: ")))
 
-(while continue {
-    (set value (toNumber (input "Input a numeric value: ")))
+        (if (< guess number) {
+            (print "It's more than " guess)
+            (impl (+ tries 1))
+        }
+            (if (= guess number) {
+                (print "You found it!")
+                tries
+            } {
+                (print "It's less than " guess)
+                (impl (+ tries 1))
+            }))
+    }))
 
-    (if (< value number)
-        (print "More!")
-        (if (= value number)
-            {
-                (print "Bingo!")
-                (set continue false)
-            }
-            (print "Less!")))
+    (let tries (impl 0))
+    (print "You won in " tries " tries.")
+}))
 
-    (set tries (+ 1 tries))
-})
+(game)
 
-(print "You won in " tries " tries")
 ```
 
 More examples are available inside `examples/`.
