@@ -16,7 +16,7 @@ int main()
     // Will automatically compile the file if needed (if not, will take it from the ark cache)
     state.doString("(let foo (fun (x y) (+ x y 2)))");
 
-    Ark::VM vm(&state);
+    Ark::VM vm(state);
     vm.run();
 
     /*
@@ -24,7 +24,7 @@ int main()
 
         Ark::State state;
         state.feed("mybytecode.arkc");
-        Ark::VM vm(&state);
+        Ark::VM vm(state);
         vm.run();
     */
 
@@ -50,17 +50,21 @@ Ark::Value my_function(std::vector<Ark::Value>& args, Ark::VM* vm)
     if (args.size() != 4)
         throw std::runtime_error("my_function needs 4 arguments!");
 
+    if (!types::check(args, Ark::ValueType::Number, Ark::ValueType::Number, Ark::ValueType::Number, Ark::ValueType::Number))
+        Ark::types::generateError(
+            "my_function",
+            { { Ark::types::Contract { {
+                Ark::types::Typedef("a", ValueType::Number),
+                Ark::types::Typedef("b", ValueType::Number),
+                Ark::types::Typedef("c", ValueType::Number),
+                Ark::types::Typedef("d", ValueType::Number)
+                } } } },
+            args);
+
     auto a = args[0],
         b = args[1],
         c = args[2],
         d = args[3];
-
-    // checking arguments type
-    if (a.valueType() != Ark::ValueType::Number ||
-        b.valueType() != Ark::ValueType::Number ||
-        c.valueType() != Ark::ValueType::Number ||
-        d.valueType() != Ark::ValueType::Number)
-        throw Ark::TypeError("Type mismatch for my_function: need only numbers");
 
     // type is automatically deducted from the argument
     return Ark::Value(a.number() * b.number() - c.number() / d.number());
@@ -80,7 +84,7 @@ int main()
 
     state.doString("(let bar (my_function 1 2 3 1)) (let egg (foo 1 2 3))");  // we can call state.doFile() before or after state.loadFunction()
 
-    Ark::VM vm(&state);
+    Ark::VM vm(state);
     vm.run();
 
     auto bar = vm["bar"];

@@ -16,6 +16,7 @@ ArkScript is
 
 Also it has:
 * **macros**: if/else, values, and functions
+* tail call optimization
 * a REPL with autocompletion and coloration
 * a growing standard library, composed of ArkScript code (under `lib/std/`) and C++ (under `lib/ext/`)
 * a lot of unit tests (but never enough), which are ran before every release to ensure everything works as expected

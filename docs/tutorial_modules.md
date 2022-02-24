@@ -46,7 +46,7 @@ Clone ArkScript, then copy your modules fork to lib/modules. This is required fo
 
 You will need to update `lib/modules/CMakeLists.txt` to add the following code:
 
-~~~~{CMakeLists.txt}
+~~~~{cmake}
 set(ARK_MOD_MODULE_NAME Off CACHE BOOL "Build the module_name module")
 
 if (ARK_MOD_MODULE_NAME OR ARK_MOD_ALL)
