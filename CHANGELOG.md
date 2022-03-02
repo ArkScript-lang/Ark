@@ -4,6 +4,7 @@
 ### Added
 - running the modules tests in the CI
 - new bytecode instruction `POP`, removing the last value from the stack
+- more documentation about ArkScript and its modules
 
 ### Changed
 - the compiler can now remove unused values from the stack
