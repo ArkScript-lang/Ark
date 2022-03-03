@@ -1,17 +1,30 @@
 # Change Log
 
-## [Unreleased]
+## [Unreleased changes]
 ### Added
 - running the modules tests in the CI
 - new bytecode instruction `POP`, removing the last value from the stack
 - more documentation about ArkScript and its modules
+- added lines and code coloration in the error context
 
 ### Changed
-- the compiler can now remove unused values from the stack
+- fixed underline bug in the error context
+
+### Deprecated
 
 ### Removed
 
-### Deprecated
+## [3.2.0] - 2022-02-19
+### Added
+- running the modules tests in the CI
+- new bytecode instruction `POP`, removing the last value from the stack
+- the compiler can finally optimize tail calls
+- suggesting symbols to the user when the compiler encounters an unbound symbol
+
+### Changed
+- the compiler can now remove unused values from the stack
+- enhancing the compiler code
+- debloating the parser methods argument's lists
 
 ## [3.1.3] - 2022-01-29
 ### Added

@@ -89,17 +89,16 @@ namespace Ark
         unsigned m_debug;  ///< the debug level of the compiler
 
         /**
-         * @brief Push the first headers of the bytecode file
+         * @brief Push the file headers (magic, version used, timestamp)
          * 
          */
-        void pushHeadersPhase1() noexcept;
+        void pushFileHeader() noexcept;
 
         /**
-         * @brief Push the other headers, after having compile the file
-         * (it's needed because we read the symbol/value tables, populated by compilation)
+         * @brief Push the symbols and values tables
          * 
          */
-        void pushHeadersPhase2();
+        void pushSymAndValTables();
 
         /**
          * @brief helper functions to get a temp or finalized code page
@@ -125,6 +124,12 @@ namespace Ark
             if (i >= 0)
                 return &m_code_pages[i];
             return &m_temp_pages[-i - 1];
+        }
+
+        inline void setNumberAt(int p, std::size_t at_inst, std::size_t number)
+        {
+            page(p)[at_inst] = (number & 0xff00) >> 8;
+            page(p)[at_inst + 1] = number & 0x00ff;
         }
 
         /**
@@ -176,7 +181,7 @@ namespace Ark
             else if (name == "pop!")
                 return internal::Instruction::POP_LIST_IN_PLACE;
 
-            return {};
+            return std::nullopt;
         }
 
         /**
@@ -210,26 +215,29 @@ namespace Ark
          * 
          * @param x the internal::Node to compile
          * @param p the current page number we're on
+         * @param produces_result 
+         * @param is_terminal 
+         * @param var_name 
          */
-        void _compile(const internal::Node& x, int p, bool produces_result);
+        void _compile(const internal::Node& x, int p, bool produces_result, bool is_terminal, const std::string& var_name = "");
 
         void compileSymbol(const internal::Node& x, int p, bool produces_result);
         void compileSpecific(const internal::Node& c0, const internal::Node& x, int p, bool produces_result);
-        void compileIf(const internal::Node& x, int p, bool produces_result);
-        void compileFunction(const internal::Node& x, int p, bool produces_result);
-        void compileLetMut(internal::Keyword n, const internal::Node& x, int p);
+        void compileIf(const internal::Node& x, int p, bool produces_result, bool is_terminal, const std::string& var_name);
+        void compileFunction(const internal::Node& x, int p, bool produces_result, const std::string& var_name);
+        void compileLetMutSet(internal::Keyword n, const internal::Node& x, int p);
         void compileWhile(const internal::Node& x, int p);
-        void compileSet(const internal::Node& x, int p);
-        void compileQuote(const internal::Node& x, int p, bool produces_result);
+        void compileQuote(const internal::Node& x, int p, bool produces_result, bool is_terminal, const std::string& var_name);
         void compilePluginImport(const internal::Node& x, int p);
         void compileDel(const internal::Node& x, int p);
-        void handleCalls(const internal::Node& x, int p, bool produces_result);
+        void handleCalls(const internal::Node& x, int p, bool produces_result, bool is_terminal, const std::string& var_name);
 
         /**
          * @brief Put a value in the bytecode, handling the closures chains
          * 
-         * @param x 
-         * @param p 
+         * @param x value node
+         * @param p current page index
+         * @param produces_result 
          */
         void putValue(const internal::Node& x, int p, bool produces_result);
 
@@ -281,6 +289,14 @@ namespace Ark
          * @param page the page where it should land, nullptr for current page
          */
         void pushNumber(uint16_t n, std::vector<uint8_t>* page = nullptr) noexcept;
+
+        /**
+         * @brief Suggest a symbol of what the user may have meant to input
+         *
+         * @param str the string
+         * @return std::string
+         */
+        std::string offerSuggestion(const std::string& str);
     };
 }
 

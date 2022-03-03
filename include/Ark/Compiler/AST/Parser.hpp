@@ -111,16 +111,16 @@ namespace Ark::internal
          */
         Node parse(std::list<Token>& tokens, bool authorize_capture = false, bool authorize_field_read = false, bool in_macro = false);
 
-        void parseIf(Node&, Token&, std::list<Token>&, bool, bool, bool);
-        void parseLetMut(Node&, Token&, std::list<Token>&, bool, bool, bool);
-        void parseSet(Node&, Token&, std::list<Token>&, bool, bool, bool);
-        void parseFun(Node&, Token&, std::list<Token>&, bool, bool, bool);
-        void parseWhile(Node&, Token&, std::list<Token>&, bool, bool, bool);
-        void parseBegin(Node&, Token&, std::list<Token>&, bool, bool, bool);
-        void parseImport(Node&, Token&, std::list<Token>&, bool, bool, bool);
-        void parseQuote(Node&, Token&, std::list<Token>&, bool, bool, bool);
-        void parseDel(Node&, Token&, std::list<Token>&, bool, bool, bool);
-        Node parseShorthand(Token&, std::list<Token>&, bool, bool, bool);
+        void parseIf(Node&, std::list<Token>&, bool);
+        void parseLetMut(Node&, Token&, std::list<Token>&, bool);
+        void parseSet(Node&, Token&, std::list<Token>&, bool);
+        void parseFun(Node&, Token&, std::list<Token>&, bool);
+        void parseWhile(Node&, Token&, std::list<Token>&, bool);
+        void parseBegin(Node&, std::list<Token>&, bool);
+        void parseImport(Node&, std::list<Token>&);
+        void parseQuote(Node&, std::list<Token>&, bool);
+        void parseDel(Node&, std::list<Token>&);
+        Node parseShorthand(Token&, std::list<Token>&, bool);
         void checkForInvalidTokens(Node&, Token&, bool, bool, bool);
 
         /**
