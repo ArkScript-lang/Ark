@@ -2,6 +2,7 @@
 
 ## [Unreleased changes]
 ### Added
+- more tests for the io builtins
 - added lines and code coloration in the error context
 
 ### Changed

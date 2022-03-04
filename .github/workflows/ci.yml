@@ -228,11 +228,11 @@ jobs:
         path: build
 
     - name: Download temp artifact
-      id: download-temp
+      id: download-artifact
       uses: actions/download-artifact@v2
       with:
         name: temp-${{ matrix.config.artifact }}
-        path: temp
+        path: artifact
 
     - name: Update GNU compilers
       if: startsWith(matrix.config.name, 'Ubuntu GCC')
@@ -243,7 +243,7 @@ jobs:
 
     - shell: bash
       run: |
-        mv temp/cpp/out tests/cpp/
+        mv artifact/cpp/out tests/cpp/
         mv build/lib/*.arkm lib/
         chmod u+x build/ark build/arkscript tests/cpp/out/*
 
@@ -255,7 +255,7 @@ jobs:
         cp build/*.dll tests/cpp/out/
 
     - name: Tests
-      if: steps.download.outcome == 'success' && steps.download-temp.outcome == 'success'
+      if: steps.download.outcome == 'success' && steps.download-artifact.outcome == 'success'
       shell: bash
       run: bash .github/launch-tests
 

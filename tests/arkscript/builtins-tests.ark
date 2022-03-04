@@ -40,11 +40,12 @@
     (io:writeFile "test.txt" "hello, world!")
     (set tests (assert-val (io:fileExists? "test.txt") "io:fileExists? after io:writeFile" tests))
     (set tests (assert-eq (io:readFile "test.txt") "hello, world!" "io:readFile after io:writeFile" tests))
-    # todo: fix me! the program crash without reporting any error
-    # (set tests (assert-eq (> (len (io:listFiles "/")) 0) "len io:listFiles" tests))
-    # todo: fix me! unknown error
-    # (set tests (assert-eq (not (io:dir? "test.txt")) "not io:dir?" tests))
-    # todo: test io:makeDir
+    (set tests (assert-val (> (len (io:listFiles "./")) 0) "len io:listFiles" tests))
+    (set tests (assert-val (not (io:dir? "test.txt")) "not io:dir?" tests))
+    (set tests (assert-val (not (io:fileExists? "temp")) "not fileExist temp/" tests))
+    (io:makeDir "temp")
+    (set tests (assert-val (io:fileExists? "temp") "fileExist temp/" tests))
+    (set tests (assert-val (io:dir? "temp") "io:dir? temp/" tests))
     (let old (time))
     (sys:sleep 1)
     (set tests (assert-lt old (time) "time and sys:sleep" tests))
@@ -67,7 +68,7 @@
     (recap "Builtins operations passed" tests (- (time) start-time))
 
     # clean up
-    (io:removeFiles "test.txt")
+    (io:removeFiles "test.txt" "temp/")
 
     tests
 }))
