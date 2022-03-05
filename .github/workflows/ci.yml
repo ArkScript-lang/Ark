@@ -284,7 +284,9 @@ jobs:
 
     - name: Update LLVM compilers
       shell: bash
-      run: sudo apt-get install -y clang-11 lld-11 libc++-11-dev libc++abi-11-dev clang-tools-11 valgrind
+      run: |
+        sudo apt-get update --fix-missing
+        sudo apt-get install -y clang-11 lld-11 libc++-11-dev libc++abi-11-dev clang-tools-11 valgrind
 
     - name: Valgrind checks for memory leaks
       shell: bash
