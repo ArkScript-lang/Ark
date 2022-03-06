@@ -4,13 +4,16 @@
 ### Added
 - more tests for the io builtins
 - added lines and code coloration in the error context
+- new dependency: fmtlib
 
 ### Changed
 - fixed underline bug in the error context
+- the str:format functions now expects strings following this syntax: https://fmt.dev/latest/syntax.html
 
 ### Deprecated
 
 ### Removed
+- removing the custom string, replacing it with std::string (the format engine of the custom string had a lot of memory leaks)
 
 ## [3.2.0] - 2022-02-19
 ### Added

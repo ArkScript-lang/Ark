@@ -33,29 +33,37 @@ namespace Ark::internal::Builtins::String
                                         types::Typedef("value", ValueType::Any, /* variadic */ true) } } } },
                 n);
 
-        std::string f(n[0].string());
+        std::string all_str = n[0].stringRef();
+        std::string f;
+        std::size_t previous = 0;
 
         for (Value::Iterator it = n.begin() + 1, it_end = n.end(); it != it_end; ++it)
         {
+            std::size_t len = all_str.find_first_of('}', previous);
+            std::string current = all_str.substr(previous, len + 1);
+            previous += len + 1;
+
             if (it->valueType() == ValueType::String)
-                f = fmt::format(f, it->stringRef());
+                current = fmt::format(current, it->stringRef());
             else if (it->valueType() == ValueType::Number)
-                f = fmt::format(f, it->number());
+                current = fmt::format(current, it->number());
             else if (it->valueType() == ValueType::Nil)
-                f = fmt::format(f, "nil");
+                current = fmt::format(current, "nil");
             else if (it->valueType() == ValueType::True)
-                f = fmt::format(f, "true");
+                current = fmt::format(current, "true");
             else if (it->valueType() == ValueType::False)
-                f = fmt::format(f, "false");
+                current = fmt::format(current, "false");
             else
             {
                 std::stringstream ss;
                 ss << (*it);
-                f = fmt::format(f, ss.str());
+                current = fmt::format(current, ss.str());
             }
+
+            f += current;
         }
-        n[0].stringRef() = f;
-        return n[0];
+
+        return Value(f);
     }
 
     /**
@@ -108,7 +116,7 @@ namespace Ark::internal::Builtins::String
         if (id < 0 || static_cast<std::size_t>(id) >= n[0].stringRef().size())
             throw std::runtime_error("str:removeAt: index out of range");
 
-        n[0].stringRef().erase(id, id + 1);
+        n[0].stringRef().erase(id, 1);
         return n[0];
     }
 
