@@ -159,7 +159,6 @@ int main(int argc, char** argv)
                     "\nMisc\n"
                     "    sizeof(vector<Ark::Value>) = %zuB\n"
                     "    sizeof(std::string)   = %zuB\n"
-                    "    sizeof(String)        = %zuB\n"
                     "    sizeof(char)          = %zuB\n",
                     ARK_COMPILER, ARK_COMPILATION_OPTIONS,
                     // value
@@ -176,7 +175,6 @@ int main(int argc, char** argv)
                     // misc
                     sizeof(std::vector<Ark::Value>),
                     sizeof(std::string),
-                    sizeof(String),
                     sizeof(char));
                 break;
             }

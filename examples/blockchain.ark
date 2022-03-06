@@ -106,9 +106,9 @@
     (let new (json:fromString request))
     (set nodes_transactions (append nodes_transactions new))
     (print "New transaction")
-    (print (str:format "FROM:   %%" (json:get new "from")))
-    (print (str:format "TO:     %%" (json:get new "to")))
-    (print (str:format "AMOUNT: %%" (json:get new "amount")))
+    (print (str:format "FROM:   {}" (json:get new "from")))
+    (print (str:format "TO:     {}" (json:get new "to")))
+    (print (str:format "AMOUNT: {}" (json:get new "amount")))
 
     # return value
     [200 "transaction submission successful" "text/plain"]

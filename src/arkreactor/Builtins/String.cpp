@@ -1,8 +1,8 @@
 #include <Ark/Builtins/Builtins.hpp>
 
-#include <Ark/String.hpp>
 #include <Ark/Utils.hpp>
 #include <utf8_decoder.h>
+#include <fmt/format.h>
 
 #include <Ark/TypeChecker.hpp>
 #include <Ark/VM/VM.hpp>
@@ -12,15 +12,15 @@ namespace Ark::internal::Builtins::String
     /**
      * @name str:format
      * @brief Format a String given replacements
-     * @details The format is %% for anything, and %x for hex numbers
+     * @details https://fmt.dev/latest/syntax.html
      * @param format the String to format
      * @param values as any argument as you need, of any valid ArkScript type
      * =begin
-     * (str:format "Hello %%, my name is %%" "world" "ArkScript")
+     * (str:format "Hello {}, my name is {}" "world" "ArkScript")
      * # Hello world, my name is ArkScript
      * 
-     * (str:format "Test %% with %%" "1")
-     * # Test 1 with %%
+     * (str:format "Test {} with {}" "1")
+     * # Test 1 with {}
      * =end
      * @author https://github.com/SuperFola
      */
@@ -33,31 +33,25 @@ namespace Ark::internal::Builtins::String
                                         types::Typedef("value", ValueType::Any, /* variadic */ true) } } } },
                 n);
 
-        ::String f(n[0].string().c_str());
+        std::string f(n[0].string());
 
         for (Value::Iterator it = n.begin() + 1, it_end = n.end(); it != it_end; ++it)
         {
             if (it->valueType() == ValueType::String)
-            {
-                ::String& obj = it->stringRef();
-                f.format(f.size() + obj.size(), obj.c_str());
-            }
+                f = fmt::format(f, it->stringRef());
             else if (it->valueType() == ValueType::Number)
-            {
-                double obj = it->number();
-                f.format(f.size() + Utils::digPlaces(obj) + Utils::decPlaces(obj) + 1, obj);
-            }
+                f = fmt::format(f, it->number());
             else if (it->valueType() == ValueType::Nil)
-                f.format(f.size() + 5, std::string_view("nil"));
+                f = fmt::format(f, "nil");
             else if (it->valueType() == ValueType::True)
-                f.format(f.size() + 5, std::string_view("true"));
+                f = fmt::format(f, "true");
             else if (it->valueType() == ValueType::False)
-                f.format(f.size() + 5, std::string_view("false"));
+                f = fmt::format(f, "false");
             else
             {
                 std::stringstream ss;
                 ss << (*it);
-                f.format(f.size() + ss.str().size(), std::string_view(ss.str().c_str()));
+                f = fmt::format(f, ss.str());
             }
         }
         n[0].stringRef() = f;
@@ -84,7 +78,10 @@ namespace Ark::internal::Builtins::String
                 { { types::Contract { { types::Typedef("string", ValueType::String), types::Typedef("substr", ValueType::String) } } } },
                 n);
 
-        return Value(n[0].stringRef().find(n[1].stringRef()));
+        std::size_t index = n[0].stringRef().find(n[1].stringRef());
+        if (index != std::string::npos)
+            return Value(static_cast<long>(index));
+        return Value(-1);
     }
 
     /**

@@ -25,7 +25,8 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # files needed for the library ArkReactor
 file(GLOB_RECURSE SOURCE_FILES
-    ${ark_SOURCE_DIR}/src/arkreactor/*.cpp)
+    ${ark_SOURCE_DIR}/src/arkreactor/*.cpp
+    ${ark_SOURCE_DIR}/lib/fmt/src/*.cc)
 
 add_library(ArkReactor SHARED ${SOURCE_FILES})
 
@@ -94,15 +95,14 @@ endif()
 # Link libraries
 
 add_subdirectory("${ark_SOURCE_DIR}/lib/termcolor" EXCLUDE_FROM_ALL)
-add_subdirectory("${ark_SOURCE_DIR}/lib/String/" EXCLUDE_FROM_ALL)
 
 target_include_directories(ArkReactor
     PUBLIC
     "${ark_SOURCE_DIR}/lib/utf8_decoder/"
     "${ark_SOURCE_DIR}/lib/picosha2/"
-    "${ark_SOURCE_DIR}/lib/String/include/")
+    "${ark_SOURCE_DIR}/lib/fmt/include")
 
-target_link_libraries(ArkReactor PUBLIC termcolor ArkScriptString)
+target_link_libraries(ArkReactor PUBLIC termcolor)
 
 if (UNIX OR LINUX)
     if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
