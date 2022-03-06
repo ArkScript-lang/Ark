@@ -88,7 +88,7 @@ namespace Ark::internal::Builtins::String
 
         std::size_t index = n[0].stringRef().find(n[1].stringRef());
         if (index != std::string::npos)
-            return Value(static_cast<long>(index));
+            return Value(static_cast<int>(index));
         return Value(-1);
     }
 
