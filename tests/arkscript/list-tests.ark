@@ -1,8 +1,5 @@
 (import "tests-tools.ark")
 
-(import "List.ark")
-(import "Math.ark")  # for math:even
-
 (let list-tests (fun () {
     (mut tests 0)
     (let start-time (time))
