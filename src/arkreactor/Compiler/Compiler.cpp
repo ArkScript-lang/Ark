@@ -546,15 +546,8 @@ namespace Ark
         uint16_t id = addValue(page_id, x);  // save page_id into the constants table as PageAddr
         page(p).emplace_back(Instruction::LOAD_CONST, id);
 
-<<<<<<< HEAD
-        if (produces_result)
-        {
-            compilerWarning("Unused quote expression", x);
-=======
         if (is_result_unused)
->>>>>>> 9906a7f8 (refactor: renaming methods and removing useless ones in the compiler)
             page(p).push_back(Instruction::POP);
-        }
     }
 
     void Compiler::compilePluginImport(const Node& x, int p)
