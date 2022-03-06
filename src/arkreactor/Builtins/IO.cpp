@@ -94,7 +94,7 @@ namespace Ark::internal::Builtins::IO
                 f.close();
             }
             else
-                throw std::runtime_error("Couldn't write to file \"" + n[0].stringRef().toString() + "\"");
+                throw std::runtime_error("Couldn't write to file \"" + n[0].stringRef() + "\"");
         }
         else if (types::check(n, ValueType::String, ValueType::String, ValueType::Any))
         {
@@ -113,7 +113,7 @@ namespace Ark::internal::Builtins::IO
                 f.close();
             }
             else
-                throw std::runtime_error("Couldn't write to file \"" + n[0].stringRef().toString() + "\"");
+                throw std::runtime_error("Couldn't write to file \"" + n[0].stringRef() + "\"");
         }
         else
             types::generateError(
