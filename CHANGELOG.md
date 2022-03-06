@@ -2,10 +2,16 @@
 
 ## 4.0
 ### Added
+- more tests for the io builtins
+- added lines and code coloration in the error context
+- new dependency: fmtlib
 ### Changed
 - added the padding/instruction/argumentation values when displaying instructions in the bytecode reader
+- fixed underline bug in the error context
+- the str:format functions now expects strings following this syntax: https://fmt.dev/latest/syntax.html
 ### Removed
 - removed unused `NodeType::Closure`
+- removing the custom string, replacing it with std::string (the format engine of the custom string had a lot of memory leaks)
 
 ## [Unreleased version]
 ### Added
