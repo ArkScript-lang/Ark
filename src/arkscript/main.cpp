@@ -171,8 +171,6 @@ int main(int argc, char** argv)
                     "      sizeof(ExecutionContext) = %zuB\n"
                     "\nMisc\n"
                     "    sizeof(vector<Ark::Value>) = %zuB\n"
-                    "    sizeof(std::string)   = %zuB\n"
-                    "    sizeof(String)        = %zuB\n"
                     "    sizeof(char)          = %zuB\n"
                     "\nsizeof(Node)           = %zuB\n",
                     ARK_COMPILER, ARK_COMPILATION_OPTIONS,
@@ -190,8 +188,6 @@ int main(int argc, char** argv)
                     sizeof(Ark::internal::ExecutionContext),
                     // misc
                     sizeof(std::vector<Ark::Value>),
-                    sizeof(std::string),
-                    sizeof(String),
                     sizeof(char),
                     sizeof(Ark::internal::Node));
                 break;

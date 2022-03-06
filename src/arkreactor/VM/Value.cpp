@@ -75,10 +75,6 @@ namespace Ark
         m_const_type(init_const_type(false, ValueType::String)), m_value(value.c_str())
     {}
 
-    Value::Value(const String& value) noexcept :
-        m_const_type(init_const_type(false, ValueType::String)), m_value(value)
-    {}
-
     Value::Value(const char* value) noexcept :
         m_const_type(init_const_type(false, ValueType::String)), m_value(value)
     {}
@@ -119,9 +115,9 @@ namespace Ark
         return std::get<internal::Closure>(m_value);
     }
 
-    String& Value::stringRef()
+    std::string& Value::stringRef()
     {
-        return std::get<String>(m_value);
+        return std::get<std::string>(m_value);
     }
 
     UserType& Value::usertypeRef()
