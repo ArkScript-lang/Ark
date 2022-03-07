@@ -990,7 +990,7 @@ namespace Ark
                                 { *a });
 
                         double val;
-                        if (Utils::isDouble(a->string().c_str(), &val))
+                        if (Utils::isDouble(a->string(), &val))
                             push(Value(val), context);
                         else
                             push(Builtins::nil, context);
