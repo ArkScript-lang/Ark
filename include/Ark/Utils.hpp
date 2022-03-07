@@ -65,24 +65,6 @@ namespace Ark::Utils
     }
 
     /**
-     * @brief Count the number of decimals for a double
-     * @todo remove when migrating to libfmt
-     *
-     * @param d
-     * @return int
-     */
-    int decPlaces(double d);
-
-    /**
-     * @brief Count the number of digits for a double
-     * @todo remove when migrating to libfmt
-     *
-     * @param d
-     * @return int
-     */
-    int digPlaces(double d);
-
-    /**
      * @brief Calculate the Levenshtein distance between two strings
      *
      * @param str1

@@ -14,6 +14,7 @@
 
 ### Removed
 - removing the custom string, replacing it with std::string (the format engine of the custom string had a lot of memory leaks)
+- `Utils::digPlaces` and `Utils::decPlaces` got removed as they were no longer needed
 
 ## [3.2.0] - 2022-02-19
 ### Added

@@ -1,6 +1,6 @@
 #include <Ark/VM/Value.hpp>
 
-#include <Ark/Utils.hpp>
+#include <fmt/format.h>
 
 #define init_const_type(is_const, type) ((is_const ? (1 << 7) : 0) | static_cast<uint8_t>(type))
 
@@ -151,8 +151,7 @@ namespace Ark
             case ValueType::Number:
             {
                 double d = V.number();
-                os.precision(Utils::digPlaces(d) + Utils::decPlaces(d));
-                os << d;
+                os << fmt::format("{}", d);
                 break;
             }
 
