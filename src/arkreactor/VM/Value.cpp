@@ -72,7 +72,7 @@ namespace Ark
     {}
 
     Value::Value(const std::string& value) noexcept :
-        m_const_type(init_const_type(false, ValueType::String)), m_value(value.c_str())
+        m_const_type(init_const_type(false, ValueType::String)), m_value(value)
     {}
 
     Value::Value(const char* value) noexcept :
@@ -155,7 +155,7 @@ namespace Ark
             }
 
             case ValueType::String:
-                os << string().c_str();
+                os << V.string();
                 break;
 
             case ValueType::PageAddr:
