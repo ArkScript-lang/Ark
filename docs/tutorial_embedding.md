@@ -1,5 +1,35 @@
 @page tutorial_embedding Embedding ArkScript in C++ code
 
+# CMake setup
+
+Here is a minimal CMakeLists.txt to integrate ArkScript in a project:
+
+~~~~
+cmake_minimum_required(VERSION 3.11)
+
+project(IntegrateArk)
+
+# setting flags to build only what we need in ArkScript
+#  - no executable
+#  - no modules (console, http, random...)
+#  - disallowing access to the sys:exec command
+set(ARK_BUILD_EXE       OFF)
+set(ARK_BUILD_MODULES   OFF)
+set(ARK_ENABLE_SYSTEM   OFF)
+
+add_subdirectory(ArkScript)
+
+# creating our executable
+add_executable(${PROJECT_NAME} main.cpp)
+
+# adding ArkScript includes to the executable,
+# linking it to the dynamic library for the language
+target_include_directories(${PROJECT_NAME} PUBLIC ArkScript/include)
+target_link_libraries(${PROJECT_NAME} PUBLIC ArkReactor)
+
+set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17)
+~~~~
+
 # Using ArkScript
 
 An example is often worth a thousands words:
