@@ -4,7 +4,7 @@
 ![Downloads](https://img.shields.io/github/downloads/arkscript-lang/ark/total?color=%2324cc24&style=for-the-badge&logo=github)
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/ArkScript-lang/Ark/CMake?logo=cmake&style=for-the-badge)
 
-<img align="right" src="images/ArkTransparent-by-mazz.png" width=200px>
+<img align="right" src="images/ArkTransparent-by-mazz.png" width=200px alt="ArkScript log by Mazz">
 
 * [Documentation](https://arkscript-lang.dev/documentation.html)
 * Discord server: [invite link](https://discord.gg/YT5yDwn), to discuss the specification of the language and receive help
