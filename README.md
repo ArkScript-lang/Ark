@@ -208,6 +208,10 @@ LICENSE
         Mozilla Public License 2.0
 ```
 
+### In your own project
+
+Please refer to the [embedding ArkScript](https://arkscript-lang.dev/impl/d7/dea/tutorial_embedding.html) tutorial.
+
 ## Performances
 
 See https://github.com/ArkScript-lang/benchmarks
