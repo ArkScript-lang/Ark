@@ -1,4 +1,34 @@
-@page embedding Embedding ArkScript in C++ code
+@page tutorial_embedding Embedding ArkScript in C++ code
+
+# CMake setup
+
+Here is a minimal CMakeLists.txt to integrate ArkScript in a project:
+
+~~~~
+cmake_minimum_required(VERSION 3.11)
+
+project(IntegrateArk)
+
+# setting flags to build only what we need in ArkScript
+#  - no executable
+#  - no modules (console, http, random...)
+#  - disallowing access to the sys:exec command
+set(ARK_BUILD_EXE       OFF)
+set(ARK_BUILD_MODULES   OFF)
+set(ARK_ENABLE_SYSTEM   OFF)
+
+add_subdirectory(ArkScript)
+
+# creating our executable
+add_executable(${PROJECT_NAME} main.cpp)
+
+# adding ArkScript includes to the executable,
+# linking it to the dynamic library for the language
+target_include_directories(${PROJECT_NAME} PUBLIC ArkScript/include)
+target_link_libraries(${PROJECT_NAME} PUBLIC ArkReactor)
+
+set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17)
+~~~~
 
 # Using ArkScript
 
@@ -16,7 +46,7 @@ int main()
     // Will automatically compile the file if needed (if not, will take it from the ark cache)
     state.doString("(let foo (fun (x y) (+ x y 2)))");
 
-    Ark::VM vm(&state);
+    Ark::VM vm(state);
     vm.run();
 
     /*
@@ -24,7 +54,7 @@ int main()
 
         Ark::State state;
         state.feed("mybytecode.arkc");
-        Ark::VM vm(&state);
+        Ark::VM vm(state);
         vm.run();
     */
 
@@ -50,17 +80,21 @@ Ark::Value my_function(std::vector<Ark::Value>& args, Ark::VM* vm)
     if (args.size() != 4)
         throw std::runtime_error("my_function needs 4 arguments!");
 
+    if (!types::check(args, Ark::ValueType::Number, Ark::ValueType::Number, Ark::ValueType::Number, Ark::ValueType::Number))
+        Ark::types::generateError(
+            "my_function",
+            { { Ark::types::Contract { {
+                Ark::types::Typedef("a", ValueType::Number),
+                Ark::types::Typedef("b", ValueType::Number),
+                Ark::types::Typedef("c", ValueType::Number),
+                Ark::types::Typedef("d", ValueType::Number)
+                } } } },
+            args);
+
     auto a = args[0],
         b = args[1],
         c = args[2],
         d = args[3];
-
-    // checking arguments type
-    if (a.valueType() != Ark::ValueType::Number ||
-        b.valueType() != Ark::ValueType::Number ||
-        c.valueType() != Ark::ValueType::Number ||
-        d.valueType() != Ark::ValueType::Number)
-        throw Ark::TypeError("Type mismatch for my_function: need only numbers");
 
     // type is automatically deducted from the argument
     return Ark::Value(a.number() * b.number() - c.number() / d.number());
@@ -80,7 +114,7 @@ int main()
 
     state.doString("(let bar (my_function 1 2 3 1)) (let egg (foo 1 2 3))");  // we can call state.doFile() before or after state.loadFunction()
 
-    Ark::VM vm(&state);
+    Ark::VM vm(state);
     vm.run();
 
     auto bar = vm["bar"];
