@@ -110,6 +110,7 @@ namespace Ark
         void reset() noexcept;
 
         friend class VM;
+        friend class internal::Closure;
         friend class Repl;
 
     private:

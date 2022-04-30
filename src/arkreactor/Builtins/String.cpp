@@ -24,7 +24,7 @@ namespace Ark::internal::Builtins::String
      * =end
      * @author https://github.com/SuperFola
      */
-    Value format(std::vector<Value>& n, VM* vm [[maybe_unused]])
+    Value format(std::vector<Value>& n, VM* vm)
     {
         if (n.size() < 2 || n[0].valueType() != ValueType::String)
             types::generateError(
@@ -56,7 +56,7 @@ namespace Ark::internal::Builtins::String
             else
             {
                 std::stringstream ss;
-                ss << (*it);
+                it->toString(ss, *vm);
                 f.format(f.size() + ss.str().size(), std::string_view(ss.str().c_str()));
             }
         }

@@ -7,10 +7,12 @@
 
 ### Changed
 - fixed underline bug in the error context
+- printing a closure will now print its fields instead of `Closure<1432>`
 
 ### Deprecated
 
 ### Removed
+- removed the `std::ostream& operator<<` of the Value, now using the `.toString(stream, vm reference)`
 
 ## [3.2.0] - 2022-02-19
 ### Added

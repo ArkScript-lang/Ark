@@ -1,6 +1,8 @@
 #include <Ark/VM/Value/Closure.hpp>
 
 #include <Ark/VM/Scope.hpp>
+#include <Ark/VM/Value.hpp>
+#include <Ark/VM/VM.hpp>
 
 namespace Ark::internal
 {
@@ -29,9 +31,17 @@ namespace Ark::internal
         return m_scope;
     }
 
-    std::ostream& operator<<(std::ostream& os, const Closure& C) noexcept
+    void Closure::toString(std::ostream& os, VM& vm) const noexcept
     {
-        os << "Closure<" << C.m_page_addr << ">";
-        return os;
+        os << "(";
+        for (std::size_t i = 0, end = m_scope->m_data.size(); i < end; ++i)
+        {
+            if (i != 0)
+                os << ' ';
+
+            os << '.' << vm.m_state.m_symbols[m_scope->m_data[i].first] << '=';
+            m_scope->m_data[i].second.toString(os, vm);
+        }
+        os << ")";
     }
 }

@@ -1020,7 +1020,7 @@ namespace Ark
                     {
                         std::stringstream ss;
                         Value* a = popAndResolveAsPtr(context);
-                        ss << (*a);
+                        a->toString(ss, *this);
                         push(Value(ss.str()), context);
                         break;
                     }
@@ -1234,8 +1234,12 @@ namespace Ark
             // display variables values in the current scope
             std::printf("\nCurrent scope variables values:\n");
             for (std::size_t i = 0, size = old_scope.size(); i < size; ++i)
+            {
                 std::cerr << termcolor::cyan << m_state.m_symbols[old_scope.m_data[i].first] << termcolor::reset
-                          << " = " << old_scope.m_data[i].second << "\n";
+                          << " = ";
+                old_scope.m_data[i].second.toString(std::cerr, *this);
+                std::cerr << "\n";
+            }
 
             while (m_fc != 1)
             {
