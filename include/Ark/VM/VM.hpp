@@ -119,6 +119,7 @@ namespace Ark
         void* getUserPointer() noexcept;
 
         friend class Value;
+        friend class internal::Closure;
         friend class Repl;
 
     private:

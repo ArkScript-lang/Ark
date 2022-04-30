@@ -18,6 +18,11 @@
 
 #include <Ark/Platform.hpp>
 
+namespace Ark
+{
+    class VM;
+}
+
 namespace Ark::internal
 {
     class Scope;
@@ -82,9 +87,16 @@ namespace Ark::internal
          */
         inline PageAddr_t pageAddr() const { return m_page_addr; }
 
+        /**
+         * @brief Print the closure to a string
+         * 
+         * @param os 
+         * @param vm 
+         */
+        void toString(std::ostream& os, VM& vm) const noexcept;
+
         friend ARK_API_INLINE bool operator==(const Closure& A, const Closure& B) noexcept;
         friend ARK_API_INLINE bool operator<(const Closure& A, const Closure& B) noexcept;
-        friend ARK_API std::ostream& operator<<(std::ostream& os, const Closure& C) noexcept;
 
     private:
         Scope_t m_scope;
