@@ -2,8 +2,13 @@
 
 ## [Unreleased changes]
 ### Added
+- running the modules tests in the CI
+- new bytecode instruction `POP`, removing the last value from the stack
+- more documentation about ArkScript and its modules
 - more tests for the io builtins
 - added lines and code coloration in the error context
+- added documentation about the compiler implementation
+- added documentation about the virtual machine
 
 ### Changed
 - fixed underline bug in the error context
