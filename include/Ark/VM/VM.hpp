@@ -88,15 +88,25 @@ namespace Ark
         // ================================================
 
         /**
-         * @brief Resolving a function call (called by plugins)
+         * @brief Resolving a function call (called by plugins and builtins)
          * 
          * @tparam Args 
+         * @param context the execution context to use
          * @param val the ArkScript function object
          * @param args C++ argument list
          * @return Value 
          */
         template <typename... Args>
-        Value resolve(const Value* val, Args&&... args);
+        Value resolve(internal::ExecutionContext& context, const Value* val, Args&&... args);
+
+        /**
+         * @brief Resolves a function call (called by plugins and builtins)
+         * 
+         * @param context the execution context to use
+         * @param n the function and its arguments
+         * @return Value 
+         */
+        inline Value resolve(internal::ExecutionContext* context, std::vector<Value>& n);
 
         /**
          * @brief Ask the VM to exit with a given exit code
@@ -119,6 +129,31 @@ namespace Ark
          */
         void* getUserPointer() noexcept;
 
+        /**
+         * @brief Create an execution context and returns it
+         * @details This method is thread-safe VM wise.
+         * 
+         * @return internal::ExecutionContext* 
+         */
+        internal::ExecutionContext* createAndGetContext();
+
+        /**
+         * @brief Free a given execution context
+         * @details This method is thread-safe VM wise.
+         * 
+         * @param ec 
+         */
+        void deleteContext(internal::ExecutionContext* ec);
+
+        /**
+         * @brief Create a Future object from a function and its arguments and return a managed pointer to it
+         * @details This method is thread-safe VM wise.
+         * 
+         * @param args 
+         * @return internal::Future* 
+         */
+        internal::Future* createFuture(std::vector<Value>& args);
+
         friend class Value;
         friend class Repl;
 
@@ -126,11 +161,10 @@ namespace Ark
         State& m_state;
         std::vector<std::unique_ptr<internal::ExecutionContext>> m_execution_contexts;
         int m_exit_code;  ///< VM exit code, defaults to 0. Can be changed through `sys:exit`
-        uint16_t m_fc;    ///< current frames count
         bool m_running;
-        std::size_t m_until_frame_count;
         std::mutex m_mutex;
         std::vector<std::shared_ptr<internal::SharedLibrary>> m_shared_lib_objects;
+        std::vector<std::unique_ptr<internal::Future>> m_futures;  ///< Storing the promises while we are resolving them
 
         // just a nice little trick for operator[] and for pop
         Value m_no_value = internal::Builtins::nil;
