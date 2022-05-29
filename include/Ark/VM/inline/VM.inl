@@ -20,8 +20,6 @@ Value VM::call(const std::string& name, Args&&... args)
 
     using namespace internal;
 
-    const std::lock_guard<std::mutex> lock(m_mutex);
-
     // reset ip and pp
     context.ip = 0;
     context.pp = 0;
@@ -56,7 +54,7 @@ Value VM::call(const std::string& name, Args&&... args)
     else
         throwVMError("Couldn't find variable " + name);
 
-    std::size_t frames_count = m_fc;
+    std::size_t frames_count = context.fc;
     // call it
     call(context, static_cast<int16_t>(sizeof...(Args)));
     // reset instruction pointer, otherwise the safeRun method will start at ip = -1
@@ -72,14 +70,9 @@ Value VM::call(const std::string& name, Args&&... args)
 }
 
 template <typename... Args>
-Value VM::resolve(const Value* val, Args&&... args)
+Value VM::resolve(internal::ExecutionContext& context, const Value* val, Args&&... args)
 {
     using namespace internal;
-
-    // TODO get the right one
-    internal::ExecutionContext& context = *m_execution_contexts.back();
-
-    const std::lock_guard<std::mutex> lock(m_mutex);
 
     if (!val->isFunction())
         throw TypeError("Value::resolve couldn't resolve a non-function");
@@ -94,7 +87,7 @@ Value VM::resolve(const Value* val, Args&&... args)
     // push function
     push(resolveRef(val), context);
 
-    std::size_t frames_count = m_fc;
+    std::size_t frames_count = context.fc;
     // call it
     call(context, static_cast<int16_t>(sizeof...(Args)));
     // reset instruction pointer, otherwise the safeRun method will start at ip = -1
@@ -111,6 +104,38 @@ Value VM::resolve(const Value* val, Args&&... args)
 
     // get result
     return *popAndResolveAsPtr(context);
+}
+
+inline Value VM::resolve(internal::ExecutionContext* context, std::vector<Value>& n)
+{
+    if (!n[0].isFunction())
+        throw TypeError("Value::resolve couldn't resolve a non-function");
+
+    int ip = context->ip;
+    std::size_t pp = context->pp;
+
+    // convert and push arguments in reverse order
+    for (auto it = n.begin() + 1, it_end = n.end(); it != it_end; ++it)
+        push(*it, *context);  // todo use resolveRef
+    push(n[0], *context);
+
+    std::size_t frames_count = context->fc;
+    // call it
+    call(*context, static_cast<int16_t>(n.size() - 1));
+    // reset instruction pointer, otherwise the safeRun method will start at ip = -1
+    // without doing context.ip++ as intended (done right after the call() in the loop, but here
+    // we start outside this loop)
+    context->ip = 0;
+
+    // run until the function returns
+    safeRun(*context, /* untilFrameCount */ frames_count);
+
+    // restore VM state
+    context->ip = ip;
+    context->pp = pp;
+
+    // get result
+    return *popAndResolveAsPtr(*context);
 }
 
 #pragma region "stack management"
@@ -220,7 +245,7 @@ inline void VM::swapStackForFunCall(uint16_t argc, internal::ExecutionContext& c
         }
     }
 
-    m_fc++;
+    context.fc++;
     context.scope_count_to_delete.emplace_back(0);
 }
 
@@ -245,7 +270,7 @@ inline void VM::returnFromFuncCall(internal::ExecutionContext& context)
 {
     COZ_BEGIN("ark vm returnFromFuncCall");
 
-    --m_fc;
+    --context.fc;
 
     context.scope_count_to_delete.pop_back();
     uint8_t del_counter = context.scope_count_to_delete.back();
@@ -265,10 +290,6 @@ inline void VM::returnFromFuncCall(internal::ExecutionContext& context)
     }
 
     context.scope_count_to_delete.back() = 0;
-
-    // stop the executing if we reach the wanted frame count
-    if (m_fc == m_until_frame_count)
-        m_running = false;
 
     COZ_END("ark vm returnFromFuncCall");
 }

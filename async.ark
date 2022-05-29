@@ -1,0 +1,28 @@
+(let foo (fun (start end data) {
+    (mut acc 0)
+    (while (< start end) {
+        (set acc (+ acc (@ data start)))
+        (set start (+ 1 start))
+    })
+
+    acc
+}))
+
+(let blob (list:fill 1000 1))
+
+(let start (time))
+(let sum (foo 0 1000 blob))
+(print (* 1000 (- (time) start)) "ms used - " sum)
+
+(let start_async (time))
+(let w1 (async foo 0 250 blob))
+(let w2 (async foo 250 500 blob))
+(let w3 (async foo 500 750 blob))
+(let w4 (async foo 750 1000 blob))
+(let res (+
+    (await w1)
+    (await w2)
+    (await w3)
+    (await w4)
+))
+(print (* 1000 (- (time) start_async)) "ms used - " res)
