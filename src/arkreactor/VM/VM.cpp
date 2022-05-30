@@ -224,6 +224,20 @@ namespace Ark
         return m_futures.back().get();
     }
 
+    void VM::deleteFuture(Future* f)
+    {
+        const std::lock_guard<std::mutex> lock(m_mutex);
+
+        auto it = std::remove_if(
+            m_futures.begin(),
+            m_futures.end(),
+            [f](const std::unique_ptr<Future>& future) {
+                return future.get() == f;
+            }
+        );
+        m_futures.erase(it);
+    }
+
     // ------------------------------------------
     //                 execution
     // ------------------------------------------
