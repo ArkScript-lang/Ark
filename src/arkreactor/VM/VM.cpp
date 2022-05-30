@@ -193,9 +193,7 @@ namespace Ark
     {
         const std::lock_guard<std::mutex> lock(m_mutex);
 
-        return m_execution_contexts.emplace_back(
-            std::make_unique<ExecutionContext>()
-        ).get();
+        return m_execution_contexts.emplace_back(std::make_unique<ExecutionContext>()).get();
     }
 
     void VM::deleteContext(ExecutionContext* ec)
@@ -207,8 +205,7 @@ namespace Ark
             m_execution_contexts.end(),
             [ec](const std::unique_ptr<ExecutionContext>& ctx) {
                 return ctx.get() == ec;
-            }
-        );
+            });
         m_execution_contexts.erase(it);
     }
 
@@ -233,8 +230,7 @@ namespace Ark
             m_futures.end(),
             [f](const std::unique_ptr<Future>& future) {
                 return future.get() == f;
-            }
-        );
+            });
         m_futures.erase(it);
     }
 
