@@ -154,6 +154,14 @@ namespace Ark
          */
         internal::Future* createFuture(std::vector<Value>& args);
 
+        /**
+         * @brief Free a given future
+         * @details This method is thread-safe VM wise.
+         * 
+         * @param f 
+         */
+        void deleteFuture(internal::Future* f);
+
         friend class Value;
         friend class Repl;
 
