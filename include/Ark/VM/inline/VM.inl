@@ -109,7 +109,7 @@ Value VM::resolve(internal::ExecutionContext& context, const Value* val, Args&&.
 inline Value VM::resolve(internal::ExecutionContext* context, std::vector<Value>& n)
 {
     if (!n[0].isFunction())
-        throw TypeError("Value::resolve couldn't resolve a non-function");
+        throw TypeError("Value::resolve couldn't resolve a non-function (" + types_to_str[static_cast<std::size_t>(n[0].valueType())] + ")");
 
     int ip = context->ip;
     std::size_t pp = context->pp;
