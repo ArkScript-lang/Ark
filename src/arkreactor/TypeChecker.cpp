@@ -79,9 +79,14 @@ namespace Ark::types
         }
     }
 
-    void generateError(std::string_view funcname, const std::vector<Contract>& contracts, const std::vector<Value>& args)
+    [[noreturn]] void generateError(std::string_view funcname, const std::vector<Contract>& contracts, const std::vector<Value>& args)
     {
-        std::cout << termcolor::blue << funcname << termcolor::reset << " expected ";
+        std::cout << "Function " << termcolor::blue << funcname << termcolor::reset << " expected ";
+
+        std::vector<Value> sanitizedArgs;
+        std::copy_if(args.begin(), args.end(), std::back_inserter(sanitizedArgs), [](const Value& value) -> bool {
+            return value.valueType() != ValueType::Undefined;
+        });
 
         // get expected arguments count
         std::size_t min_argc = std::numeric_limits<std::size_t>::max(), max_argc = 0;
@@ -103,7 +108,7 @@ namespace Ark::types
                       << termcolor::yellow << max_argc << termcolor::reset
                       << " argument" << (max_argc > 1 ? "s" : "");
 
-            if (args.size() < min_argc || args.size() > max_argc)
+            if (sanitizedArgs.size() < min_argc || sanitizedArgs.size() > max_argc)
                 correct_argcount = false;
         }
         else
@@ -111,20 +116,20 @@ namespace Ark::types
             std::cout << termcolor::yellow << min_argc << termcolor::reset
                       << " argument" << (min_argc > 1 ? "s" : "");
 
-            if (args.size() != min_argc)
+            if (sanitizedArgs.size() != min_argc)
                 correct_argcount = false;
         }
 
         if (!correct_argcount)
-            std::cout << " but got " << termcolor::red << args.size();
+            std::cout << " but got " << termcolor::red << sanitizedArgs.size();
 
         std::cout << termcolor::reset << "\n";
 
-        displayContract(contracts[0], args);
+        displayContract(contracts[0], sanitizedArgs);
         for (std::size_t i = 1, end = contracts.size(); i < end; ++i)
         {
             std::cout << "Alternative " << (i + 1) << ":\n";
-            displayContract(contracts[i], args);
+            displayContract(contracts[i], sanitizedArgs);
         }
 
         throw TypeError("");
