@@ -12,6 +12,7 @@
 
 ### Changed
 - fixed underline bug in the error context
+- changing the way we count received arguments in arity / type errors for failed function call
 - the CLI can now take a list of paths to the standard library, separated by ';'
 
 ### Deprecated
