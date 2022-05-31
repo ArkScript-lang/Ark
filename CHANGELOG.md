@@ -12,6 +12,7 @@
 
 ### Changed
 - fixed underline bug in the error context
+- the CLI can now take a list of paths to the standard library, separated by ';'
 
 ### Deprecated
 
