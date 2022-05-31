@@ -98,7 +98,7 @@ namespace Ark::types
      * @param contracts types contracts the function can follow
      * @param args provided argument list
      */
-    ARK_API void generateError(std::string_view funcname, const std::vector<Contract>& contracts, const std::vector<Value>& args);
+    ARK_API void generateError [[noreturn]] (std::string_view funcname, const std::vector<Contract>& contracts, const std::vector<Value>& args);
 }
 
 #endif

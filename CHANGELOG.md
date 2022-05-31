@@ -13,6 +13,8 @@
 ### Changed
 - fixed underline bug in the error context
 - printing a closure will now print its fields instead of `Closure<1432>`
+- changing the way we count received arguments in arity / type errors for failed function call
+- the CLI can now take a list of paths to the standard library, separated by ';'
 
 ### Deprecated
 

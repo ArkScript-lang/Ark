@@ -134,6 +134,7 @@ namespace Ark
 
         // just a nice little trick for operator[] and for pop
         Value m_no_value = internal::Builtins::nil;
+        Value m_undefined_value;
 
         void* m_user_pointer;  ///< needed to pass data around when binding ArkScript in a program
                                // Note: This is a non owned pointer.

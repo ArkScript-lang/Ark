@@ -202,7 +202,8 @@ OPTIONS
         -s, --slice                 Select a slice of instructions in the bytecode
         -cs, --code                 Display only the code segments
         -p, --page                  Set the bytecode reader code segment to display
-        -L, --lib                   Set the location of the ArkScript standard library
+        -L, --lib                   Set the location of the ArkScript standard library. Paths can be
+                                    delimited by ';'
 
 LICENSE
         Mozilla Public License 2.0
