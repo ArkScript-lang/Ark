@@ -70,9 +70,12 @@ Value VM::call(const std::string& name, Args&&... args)
 }
 
 template <typename... Args>
-Value VM::resolve(internal::ExecutionContext& context, const Value* val, Args&&... args)
+Value VM::resolve(const Value* val, Args&&... args)
 {
     using namespace internal;
+
+    // TODO: deprecate resolve(const Value*, Args&&...) and add a resolve(ExecutionContext*, const Value*, Args&&...)
+    ExecutionContext& context = *m_execution_contexts.front().get();
 
     if (!val->isFunction())
         throw TypeError("Value::resolve couldn't resolve a non-function");
