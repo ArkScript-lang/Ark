@@ -74,27 +74,34 @@
 
 (print "Demonstrating a threading macro")
 
-!{thread-this (first ...args) {
-    !{if (> (len args) 0)
-        ((thread-this ...args) first)
-        first
+!{-> (arg fn1 ...fn) {
+    !{if (> (len fn) 0)
+        (-> (fn1 arg) ...fn)
+        (fn1 arg)
     }
 }}
 
 (let filename "hello.json")
-(let io:resource (fun (file) (print "io:resource\ncontent: " file)))
-(let io:file (fun (name) {
-    (print "io:file")
-    name
-}))
-(let slurp (fun (a) {
-    (print "slurp")
-    a
-}))
-(let read-string (fun (a) {
-    (print "read-string")
-    a
+
+(let f1 (fun (data) {
+    (print ">>f1 " data)
+    (+ data "-f1")
 }))
 
-(print "We expected calls to go like this: io:resource <- io:file <- slurp <- read-string")
-(thread-this filename io:resource io:file slurp read-string)
+(let f2 (fun (data) {
+    (print ">>f2 " data)
+    (+ data "-f2")
+}))
+
+(let f3 (fun (data) {
+    (print ">>f3 " data)
+    (+ data "-f3")
+}))
+
+(let f4 (fun (data) {
+    (print ">>f4 " data)
+    (+ data "-f4")
+}))
+
+(print "We expected calls to go like this: f1, f2, f3, f4")
+(print (-> filename f1 f2 f3 f4))  # (f4 (f3 (f2 (f1 filename))))

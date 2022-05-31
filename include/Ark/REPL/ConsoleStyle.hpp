@@ -2,10 +2,10 @@
  * @file ConsoleStyle.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Colors per token used by replxx
- * @version 0.1
+ * @version 0.2
  * @date 2020-10-27
  *
- * @copyright Copyright (c) 2020-2021
+ * @copyright Copyright (c) 2020-2022
  *
  */
 
@@ -19,16 +19,15 @@ using Replxx = replxx::Replxx;
 namespace Ark
 {
     const std::vector<std::string> KeywordsDict {
-        /* Keywords */
+        // Keywords
         "if", "let", "mut", "set",
         "fun", "while", "begin", "import",
         "quote", "del",
-        /* Operators */
+        // Operators
         "len", "empty?", "tail", "head",
         "nil?", "assert", "toNumber",
         "toString", "and", "or", "mod",
         "type", "hasField", "not",
-        /* Builtins */
         // Constants
         "true", "false", "nil", "math:pi",
         "math:e", "math:tau", "math:Inf", "math:NaN",
@@ -52,12 +51,12 @@ namespace Ark
         "math:round", "math:NaN?", "Inf?", "math:cos",
         "math:sin", "math:tan", "math:arccos", "math:arcsin",
         "math:arctan",
-        /* Commands */
+        // Commands
         "quit"
     };
 
     const std::vector<std::pair<std::string, Replxx::Color>> ColorsRegexDict {
-        /* Keywords */
+        // Keywords
         { "if", Replxx::Color::BRIGHTRED },
         { "let", Replxx::Color::BRIGHTRED },
         { "mut", Replxx::Color::BRIGHTRED },
@@ -68,8 +67,7 @@ namespace Ark
         { "import", Replxx::Color::BRIGHTRED },
         { "quote", Replxx::Color::BRIGHTRED },
         { "del", Replxx::Color::BRIGHTRED },
-        /* Single chars or Operators */
-        // Single chars (sometine operators)
+        // Operators
         { "\\\"", Replxx::Color::BRIGHTBLUE },
         { "\\-", Replxx::Color::BRIGHTBLUE },
         { "\\+", Replxx::Color::BRIGHTBLUE },
@@ -81,7 +79,7 @@ namespace Ark
         { "\\!", Replxx::Color::BRIGHTBLUE },
         { "\\[", Replxx::Color::BRIGHTBLUE },
         { "\\]", Replxx::Color::BRIGHTBLUE },
-        // Operators
+        { "@", Replxx::Color::BRIGHTBLUE },
         { "len", Replxx::Color::BRIGHTBLUE },
         { "empty?", Replxx::Color::BRIGHTBLUE },
         { "tail", Replxx::Color::BRIGHTBLUE },
@@ -96,7 +94,6 @@ namespace Ark
         { "type", Replxx::Color::BRIGHTBLUE },
         { "hasField", Replxx::Color::BRIGHTBLUE },
         { "not", Replxx::Color::BRIGHTBLUE },
-        /* Builtins */
         // Constants
         { "true", Replxx::Color::RED },
         { "false", Replxx::Color::RED },
@@ -110,6 +107,10 @@ namespace Ark
         // List
         { "append", Replxx::Color::BRIGHTGREEN },
         { "concat", Replxx::Color::BRIGHTGREEN },
+        { "pop", Replxx::Color::BRIGHTGREEN },
+        { "append!", Replxx::Color::BRIGHTGREEN },
+        { "concat!", Replxx::Color::BRIGHTGREEN },
+        { "pop!", Replxx::Color::BRIGHTGREEN },
         { "list", Replxx::Color::BRIGHTGREEN },
         { "list:reverse", Replxx::Color::BRIGHTGREEN },
         { "list:find", Replxx::Color::BRIGHTGREEN },
@@ -133,10 +134,13 @@ namespace Ark
         // System
         { "sys:exec", Replxx::Color::GREEN },
         { "sys:sleep", Replxx::Color::GREEN },
+        { "sys:exit", Replxx::Color::GREEN },
         // String
         { "str:format", Replxx::Color::BRIGHTGREEN },
         { "str:find", Replxx::Color::BRIGHTGREEN },
         { "str:removeAt", Replxx::Color::BRIGHTGREEN },
+        { "str:ord", Replxx::Color::BRIGHTGREEN },
+        { "str:chr", Replxx::Color::BRIGHTGREEN },
         // Mathematics
         { "math:exp", Replxx::Color::BRIGHTCYAN },
         { "math:ln", Replxx::Color::BRIGHTCYAN },
@@ -151,13 +155,17 @@ namespace Ark
         { "math:arccos", Replxx::Color::BRIGHTCYAN },
         { "math:arcsin", Replxx::Color::BRIGHTCYAN },
         { "math:arctan", Replxx::Color::BRIGHTCYAN },
-        /* Objects */
+        { "math:cosh", Replxx::Color::BRIGHTCYAN },
+        { "math:sinh", Replxx::Color::BRIGHTCYAN },
+        { "math:tanh", Replxx::Color::BRIGHTCYAN },
+        { "math:acosh", Replxx::Color::BRIGHTCYAN },
+        { "math:asinh", Replxx::Color::BRIGHTCYAN },
+        { "math:atanh", Replxx::Color::BRIGHTCYAN },
         // Numbers
-        { "[\\-|+]{0,1}[0-9]+", Replxx::Color::YELLOW },
-        { "[\\-|+]{0,1}[0-9]*\\.[0-9]+", Replxx::Color::YELLOW },
+        { "[\\-|+]{0,1}[0-9]+(\\.[0-9]+)?", Replxx::Color::YELLOW },
         // Strings
         { "\".*?\"", Replxx::Color::BRIGHTGREEN },
-        /* Commands */
+        // Commands
         { "quit", Replxx::Color::BRIGHTMAGENTA }
     };
 }
