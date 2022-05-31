@@ -91,13 +91,12 @@ namespace Ark
          * @brief Resolving a function call (called by plugins and builtins)
          * 
          * @tparam Args 
-         * @param context the execution context to use
          * @param val the ArkScript function object
          * @param args C++ argument list
          * @return Value 
          */
         template <typename... Args>
-        Value resolve(internal::ExecutionContext& context, const Value* val, Args&&... args);
+        Value resolve(const Value* val, Args&&... args);
 
         /**
          * @brief Resolves a function call (called by plugins and builtins)
