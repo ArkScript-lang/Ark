@@ -9,13 +9,17 @@
 - added lines and code coloration in the error context
 - added documentation about the compiler implementation
 - added documentation about the virtual machine
+- added new `async` and `await` builtins
+- added methods to create and destroy an execution context and a future in the VM
 
 ### Changed
 - fixed underline bug in the error context
+- moved the frame counter of the VM to the ExecutionContext as this should be local to the context, not to the VM
 
 ### Deprecated
 
 ### Removed
+- removed the global VM lock
 
 ## [3.2.0] - 2022-02-19
 ### Added
