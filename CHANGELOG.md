@@ -2,6 +2,9 @@
 
 ## [Unreleased changes]
 ### Added
+- running the modules tests in the CI
+- new bytecode instruction `POP`, removing the last value from the stack
+- more documentation about ArkScript and its modules
 - more tests for the io builtins
 - added lines and code coloration in the error context
 - new dependency: fmtlib
@@ -9,6 +12,10 @@
 ### Changed
 - fixed underline bug in the error context
 - the str:format functions now expects strings following this syntax: https://fmt.dev/latest/syntax.html
+- added documentation about the compiler implementation
+- added documentation about the virtual machine
+- changing the way we count received arguments in arity / type errors for failed function call
+- the CLI can now take a list of paths to the standard library, separated by ';'
 
 ### Deprecated
 

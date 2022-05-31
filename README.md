@@ -4,7 +4,7 @@
 ![Downloads](https://img.shields.io/github/downloads/arkscript-lang/ark/total?color=%2324cc24&style=for-the-badge&logo=github)
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/ArkScript-lang/Ark/CMake?logo=cmake&style=for-the-badge)
 
-<img align="right" src="images/ArkTransparent-by-mazz.png" width=200px>
+<img align="right" src="images/ArkTransparent-by-mazz.png" width=200px alt="ArkScript log by Mazz">
 
 * [Documentation](https://arkscript-lang.dev/documentation.html)
 * Discord server: [invite link](https://discord.gg/YT5yDwn), to discuss the specification of the language and receive help
@@ -26,6 +26,7 @@ ArkScript is
 
 Also it has:
 * **macros**: if/else, values, and functions
+* tail call optimization
 * a REPL with autocompletion and coloration
 * a growing standard library, composed of ArkScript code (under `lib/std/`) and C++ (under `lib/ext/`)
 * a lot of unit tests (but never enough), which are ran before every release to ensure everything works as expected
@@ -52,28 +53,31 @@ Also it has:
 (import "random.arkm")
 (import "Math.ark")
 
-(let number (mod (abs (random)) 10000))
+(let number (mod (math:abs (random)) 10000))
 
-(mut value 0)
-(mut tries 0)
-(mut continue true)
+(let game (fun () {
+    (let impl (fun (tries) {
+        (let guess (toNumber (input "Input a numeric value: ")))
 
-(while continue {
-    (set value (toNumber (input "Input a numeric value: ")))
+        (if (< guess number) {
+            (print "It's more than " guess)
+            (impl (+ tries 1))
+        }
+            (if (= guess number) {
+                (print "You found it!")
+                tries
+            } {
+                (print "It's less than " guess)
+                (impl (+ tries 1))
+            }))
+    }))
 
-    (if (< value number)
-        (print "More!")
-        (if (= value number)
-            {
-                (print "Bingo!")
-                (set continue false)
-            }
-            (print "Less!")))
+    (let tries (impl 0))
+    (print "You won in " tries " tries.")
+}))
 
-    (set tries (+ 1 tries))
-})
+(game)
 
-(print "You won in " tries " tries")
 ```
 
 More examples are available inside `examples/`.
@@ -198,11 +202,16 @@ OPTIONS
         -s, --slice                 Select a slice of instructions in the bytecode
         -cs, --code                 Display only the code segments
         -p, --page                  Set the bytecode reader code segment to display
-        -L, --lib                   Set the location of the ArkScript standard library
+        -L, --lib                   Set the location of the ArkScript standard library. Paths can be
+                                    delimited by ';'
 
 LICENSE
         Mozilla Public License 2.0
 ```
+
+### In your own project
+
+Please refer to the [embedding ArkScript](https://arkscript-lang.dev/impl/d7/dea/tutorial_embedding.html) tutorial.
 
 ## Performances
 
@@ -221,6 +230,8 @@ Controls are the arrows (left, right, up and down), the game closes itself when 
 Huge thanks to those people for their donations to support the project:
 * [TheCountVEVO](https://github.com/TheCountVEVO)
 * [llexto](https://github.com/llexto)
+* COUR Eloïse
+* [AKPINAR Dylan](https://github.com/DylanAkp)
 
 ## Credits
 
