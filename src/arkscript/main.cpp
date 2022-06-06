@@ -103,7 +103,7 @@ int main(int argc, char** argv)
                 ,
                 // shouldn't change now, the lib option is fine and working
                 (
-                    option("-L", "--lib").doc("Set the location of the ArkScript standard library")
+                    option("-L", "--lib").doc("Set the location of the ArkScript standard library. Paths can be delimited by ';'")
                     & value("lib_dir", libdir)
                 )
             )
@@ -126,7 +126,7 @@ int main(int argc, char** argv)
         using namespace Ark;
 
         if (!libdir.empty())
-            libenv.push_back(libdir);
+            libenv = Utils::splitString(libdir, ';');
 
         switch (selected)
         {

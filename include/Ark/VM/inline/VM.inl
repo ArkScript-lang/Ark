@@ -161,7 +161,7 @@ inline Value* VM::pop(internal::ExecutionContext& context)
         return &context.stack[context.sp];
     }
     else
-        return &m_no_value;
+        return &m_undefined_value;
 }
 
 inline void VM::push(const Value& value, internal::ExecutionContext& context)
