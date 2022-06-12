@@ -193,7 +193,11 @@ namespace Ark
     {
         const std::lock_guard<std::mutex> lock(m_mutex);
 
-        return m_execution_contexts.emplace_back(std::make_unique<ExecutionContext>()).get();
+        m_execution_contexts.push_back(std::make_unique<ExecutionContext>());
+        ExecutionContext* ctx = m_execution_contexts.back().get();
+        ctx->scope_count_to_delete.emplace_back(0);
+
+        return ctx;
     }
 
     void VM::deleteContext(ExecutionContext* ec)
