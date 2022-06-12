@@ -36,7 +36,6 @@
     (let res-async (list:reduce (list:map workers (fun (w) (await w))) (fun (a b) (+ a b))))
     (let time-async (- (time) start-async))
 
-    (set tests (assert-lt time-async time-non-async "Using async is faster" tests))
     (set tests (assert-eq 1000 res-async "async computed value is 1000" tests))
     (set tests (assert-eq 1000 res-non-async "computed value is 1000" tests))
 
