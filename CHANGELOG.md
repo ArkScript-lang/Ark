@@ -9,6 +9,8 @@
 - added lines and code coloration in the error context
 - added documentation about the compiler implementation
 - added documentation about the virtual machine
+- ArkScript now supports LTO if the compiler can do it
+    - this is disabled in GCC 8 as [this causes a runtime crash](https://github.com/ArkScript-lang/Ark/pull/385#issuecomment-1163597951) due to an ABI breakage
 
 ### Changed
 - fixed underline bug in the error context
