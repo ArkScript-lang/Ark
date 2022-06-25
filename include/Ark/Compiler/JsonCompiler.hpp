@@ -4,14 +4,15 @@
 #include <vector>
 #include <string>
 
-#include <Ark/Compiler/AST/Node.hpp>
 #include <Ark/Constants.hpp>
+#include <Ark/Platform.hpp>
+#include <Ark/Compiler/AST/Node.hpp>
 #include <Ark/Compiler/AST/Parser.hpp>
 #include <Ark/Compiler/AST/Optimizer.hpp>
 
 namespace Ark
 {
-    class JsonCompiler
+    class ARK_API JsonCompiler
     {
     public:
         /**
