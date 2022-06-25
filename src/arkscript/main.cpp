@@ -12,6 +12,9 @@
 #include <Ark/REPL/Repl.hpp>
 #include <Ark/Profiling.hpp>
 
+#include <Ark/Files.hpp>
+#include <Ark/Compiler/JsonCompiler.hpp>
+
 int main(int argc, char** argv)
 {
     using namespace clipp;
@@ -38,7 +41,8 @@ int main(int argc, char** argv)
         run,
         repl,
         compile,
-        eval
+        eval,
+        ast
     };
     mode selected = mode::repl;
     uint16_t options = Ark::DefaultFeatures;
@@ -109,6 +113,11 @@ int main(int argc, char** argv)
             )
             , any_other(script_args)
         )
+        | (
+            required("--ast").set(selected, mode::ast).doc("Compile the given program and output its AST as JSON to stdout")
+            & value("file", file)
+            , joinable(repeatable(option("-d", "--debug").call([&]{ debug++; }).doc("Increase debug level (default: 0)")))
+        )
         , any_other(wrong)
     );
     // clang-format on
@@ -161,7 +170,8 @@ int main(int argc, char** argv)
                     "    sizeof(vector<Ark::Value>) = %zuB\n"
                     "    sizeof(std::string)   = %zuB\n"
                     "    sizeof(String)        = %zuB\n"
-                    "    sizeof(char)          = %zuB\n",
+                    "    sizeof(char)          = %zuB\n"
+                    "\nsizeof(Node)           = %zuB\n",
                     ARK_COMPILER, ARK_COMPILATION_OPTIONS,
                     // value
                     sizeof(Ark::Value),
@@ -179,7 +189,8 @@ int main(int argc, char** argv)
                     sizeof(std::vector<Ark::Value>),
                     sizeof(std::string),
                     sizeof(String),
-                    sizeof(char));
+                    sizeof(char),
+                    sizeof(Ark::internal::Node));
                 break;
             }
 
@@ -246,6 +257,14 @@ int main(int argc, char** argv)
 
                 Ark::VM vm(state);
                 return vm.run();
+            }
+
+            case mode::ast:
+            {
+                Ark::JsonCompiler jcompiler(debug, libenv, options);
+                jcompiler.feed(Ark::Utils::readFile(file), file);
+                std::cout << jcompiler.compile() << std::endl;
+                break;
             }
 
             case mode::bytecode_reader:
