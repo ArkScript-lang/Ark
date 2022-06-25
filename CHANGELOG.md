@@ -9,6 +9,7 @@
 - added lines and code coloration in the error context
 - added documentation about the compiler implementation
 - added documentation about the virtual machine
+- added JSON output to frontend's AST using --ast
 
 ### Changed
 - fixed underline bug in the error context
