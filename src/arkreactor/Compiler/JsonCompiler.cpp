@@ -30,7 +30,7 @@ namespace Ark
         return _compile(m_optimizer.ast());
     }
 
-    template<typename... Args>
+    template <typename... Args>
     std::string string_format(const std::string& format, Args&&... args)
     {
         constexpr size_t buffer_size = 8192;
@@ -53,7 +53,8 @@ namespace Ark
                 json += string_format(R"({
                     "type": "Symbol",
                     "name": "%s"
-                })", node.string().c_str());
+                })",
+                                      node.string().c_str());
                 break;
             }
 
@@ -62,7 +63,8 @@ namespace Ark
                 json += string_format(R"({
                     "type": "Capture",
                     "name": "%s"
-                })", node.string().c_str());
+                })",
+                                      node.string().c_str());
                 break;
             }
 
@@ -71,7 +73,8 @@ namespace Ark
                 json += string_format(R"({
                     "type": "GetField",
                     "name": "%s"
-                })", node.string().c_str());
+                })",
+                                      node.string().c_str());
                 break;
             }
 
@@ -80,7 +83,8 @@ namespace Ark
                 json += string_format(R"({
                     "type": "String",
                     "value": "%s"
-                })", node.string().c_str());
+                })",
+                                      node.string().c_str());
                 break;
             }
 
@@ -89,7 +93,8 @@ namespace Ark
                 json += string_format(R"({
                     "type": "Number",
                     "value": %f
-                })", node.number());
+                })",
+                                      node.number());
                 break;
             }
 
@@ -107,7 +112,8 @@ namespace Ark
                                 "type": "Fun",
                                 "args": %s,
                                 "body": %s
-                            })", _compile(node.constList()[1]).c_str(), _compile(node.constList()[2]).c_str());
+                            })",
+                                                  _compile(node.constList()[1]).c_str(), _compile(node.constList()[2]).c_str());
                             break;
                         }
                         case Keyword::Let:
@@ -117,7 +123,8 @@ namespace Ark
                                 "type": "Let",
                                 "name": %s,
                                 "value": %s
-                            })", _compile(node.constList()[1]).c_str(), _compile(node.constList()[2]).c_str());
+                            })",
+                                                  _compile(node.constList()[1]).c_str(), _compile(node.constList()[2]).c_str());
                             break;
                         }
                         case Keyword::Mut:
@@ -127,7 +134,8 @@ namespace Ark
                                 "type": "Mut",
                                 "name": %s,
                                 "value": %s
-                            })", _compile(node.constList()[1]).c_str(), _compile(node.constList()[2]).c_str());
+                            })",
+                                                  _compile(node.constList()[1]).c_str(), _compile(node.constList()[2]).c_str());
                             break;
                         }
                         case Keyword::Set:
@@ -137,7 +145,8 @@ namespace Ark
                                 "type": "Set",
                                 "name": %s,
                                 "value": %s
-                            })", _compile(node.constList()[1]).c_str(), _compile(node.constList()[2]).c_str());
+                            })",
+                                                  _compile(node.constList()[1]).c_str(), _compile(node.constList()[2]).c_str());
                             break;
                         }
                         case Keyword::If:
@@ -148,7 +157,8 @@ namespace Ark
                                 "condition": %s,
                                 "then": %s,
                                 "else": %s
-                            })", _compile(node.constList()[1]).c_str(), _compile(node.constList()[2]).c_str(), _compile(node.constList()[3]).c_str());
+                            })",
+                                                  _compile(node.constList()[1]).c_str(), _compile(node.constList()[2]).c_str(), _compile(node.constList()[3]).c_str());
                             break;
                         }
                         case Keyword::While:
@@ -158,7 +168,8 @@ namespace Ark
                                 "type": "While",
                                 "condition": %s,
                                 "body": %s
-                            })", _compile(node.constList()[1]).c_str(), _compile(node.constList()[2]).c_str());
+                            })",
+                                                  _compile(node.constList()[1]).c_str(), _compile(node.constList()[2]).c_str());
                             break;
                         }
                         case Keyword::Begin:
@@ -176,7 +187,8 @@ namespace Ark
                             json += string_format(R"({
                                 "type": "Import",
                                 "value": %s
-                            })", _compile(node.constList()[1]).c_str());
+                            })",
+                                                  _compile(node.constList()[1]).c_str());
                             break;
                         }
                         case Keyword::Quote:
@@ -185,7 +197,8 @@ namespace Ark
                             json += string_format(R"({
                                 "type": "Quote",
                                 "value": %s
-                            })", _compile(node.constList()[1]).c_str());
+                            })",
+                                                  _compile(node.constList()[1]).c_str());
                             break;
                         }
                         case Keyword::Del:
@@ -194,7 +207,8 @@ namespace Ark
                             json += string_format(R"({
                                 "type": "Del",
                                 "value": %s
-                            })", _compile(node.constList()[1]).c_str());
+                            })",
+                                                  _compile(node.constList()[1]).c_str());
                             break;
                         }
                     }
@@ -206,7 +220,8 @@ namespace Ark
                         "type": "FunctionCall",
                         "name": %s,
                         "args":
-                    )", _compile(node.constList()[0]).c_str());
+                    )",
+                                          _compile(node.constList()[0]).c_str());
 
                     json += toJsonList(node, 1) + "}";
                 }
@@ -218,7 +233,6 @@ namespace Ark
 
             default:
                 throw std::runtime_error("Not handled NodeType, please report this error on GitHub");
-
         }
         return json;
     }
