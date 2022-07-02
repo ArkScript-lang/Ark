@@ -1,5 +1,17 @@
 # Change Log
 
+## [Unreleased]
+### Added
+- new dependency: fmtlib
+
+### Changed
+
+### Deprecated
+
+### Removed
+- removing the custom string, replacing it with std::string (the format engine of the custom string had a lot of memory leaks)
+- `Utils::digPlaces` and `Utils::decPlaces` got removed as they were no longer needed
+
 ## [3.3.0] - 2022-07-02
 ### Added
 - running the modules tests in the CI
@@ -14,6 +26,9 @@
 
 ### Changed
 - fixed underline bug in the error context
+- the str:format functions now expects strings following this syntax: https://fmt.dev/latest/syntax.html
+- added documentation about the compiler implementation
+- added documentation about the virtual machine
 - changing the way we count received arguments in arity / type errors for failed function call
 - the CLI can now take a list of paths to the standard library, separated by ';'
 
