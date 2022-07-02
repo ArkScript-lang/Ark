@@ -586,11 +586,9 @@ namespace Ark
             else
                 break;
         }
-        std::size_t proc_page_len = m_temp_pages.back().size();
 
-        // we know that operators take only 1 instruction, so if there are more
         // it's a builtin/function
-        if (proc_page_len > 1)
+        if (m_temp_pages.back()[0].opcode < Instruction::FIRST_OPERATOR)
         {
             if (is_terminal && x.constList()[0].nodeType() == NodeType::Symbol && var_name == x.constList()[0].string())
             {
