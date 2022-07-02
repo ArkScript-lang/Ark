@@ -2,7 +2,7 @@
  * @file Word.hpp
  * @author  Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Describe an instruction and its immediate argument
- * @version 0.1
+ * @version 0.2
  * @date 2022-07-02
  * 
  * @copyright Copyright (c) 2022
@@ -22,19 +22,21 @@ namespace Ark::internal
         uint8_t padding = 0;  ///< Padding reserved for future use
         uint8_t opcode;       ///< Instruction opcode
         union {
-            uint16_t value;  ///< Immediate data, interpreted differently for different instructions
+            uint16_t data;  ///< Immediate data, interpreted differently for different instructions
             struct
             {
-                uint8_t first_half;
-                uint8_t second_half;
-            };
-        } data;
+                uint8_t first;
+                uint8_t second;
+            } bytes;
+        };
 
-        Word(Instruction inst, uint16_t arg = 0)
-        {
-            opcode = inst;
-            data.value = arg;
-        }
+        Word() :
+            opcode(0), data(0)
+        {}
+
+        Word(uint8_t inst, uint16_t arg = 0) :
+            opcode(inst), data(arg)
+        {}
     };
 }
 
