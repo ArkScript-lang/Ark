@@ -4,7 +4,7 @@ project(ark CXX)
 
 # VERSION
 set(ARK_VERSION_MAJOR 3)
-set(ARK_VERSION_MINOR 2)
+set(ARK_VERSION_MINOR 3)
 set(ARK_VERSION_PATCH 0)
 
 include(CheckIPOSupported)
