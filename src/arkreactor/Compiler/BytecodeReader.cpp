@@ -5,6 +5,7 @@
 #undef abs
 #include <Ark/Utils.hpp>
 
+#include <iomanip>
 #include <termcolor/proxy.hpp>
 #include <picosha2.h>
 
@@ -295,14 +296,23 @@ namespace Ark
 
                     for (std::size_t j = sStart.value_or(0), end = sEnd.value_or(size); j < end; ++j)
                     {
-                        os << termcolor::cyan << j << termcolor::reset << " " << termcolor::yellow;
-
                         [[maybe_unused]] uint8_t padding = b[i];
                         ++i;
                         uint8_t inst = b[i];
                         ++i;
                         uint16_t arg = readNumber(i);
                         ++i;
+
+                        // instruction number
+                        os << termcolor::cyan << j << " ";
+                        // padding inst arg arg
+                        os << termcolor::reset << std::hex
+                            << std::setw(2) << std::setfill('0') << static_cast<int>(padding) << " "
+                            << std::setw(2) << std::setfill('0') << static_cast<int>(inst) << " "
+                            << std::setw(2) << std::setfill('0') << static_cast<int>(b[i - 2]) << " "
+                            << std::setw(2) << std::setfill('0') << static_cast<int>(b[i - 1]) << " ";
+                        // reset stream
+                        os << std::dec << termcolor::yellow;
 
                         if (inst == Instruction::NOP)
                             os << "NOP\n";
