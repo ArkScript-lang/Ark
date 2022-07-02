@@ -2,7 +2,7 @@
  * @file Compiler.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief ArkScript compiler is in charge of transforming the AST into bytecode
- * @version 1.1
+ * @version 1.2
  * @date 2020-10-27
  * 
  * @copyright Copyright (c) 2020-2021
@@ -218,31 +218,21 @@ namespace Ark
          * 
          * @param x the internal::Node to compile
          * @param p the current page number we're on
-         * @param produces_result 
+         * @param is_result_unused 
          * @param is_terminal 
          * @param var_name 
          */
-        void compileExpression(const internal::Node& x, int p, bool produces_result, bool is_terminal, const std::string& var_name = "");
+        void compileExpression(const internal::Node& x, int p, bool is_result_unused, bool is_terminal, const std::string& var_name = "");
 
-        void compileSymbol(const internal::Node& x, int p, bool produces_result);
-        void compileSpecific(const internal::Node& c0, const internal::Node& x, int p, bool produces_result);
-        void compileIf(const internal::Node& x, int p, bool produces_result, bool is_terminal, const std::string& var_name);
-        void compileFunction(const internal::Node& x, int p, bool produces_result, const std::string& var_name);
+        void compileSymbol(const internal::Node& x, int p, bool is_result_unused);
+        void compileSpecific(const internal::Node& c0, const internal::Node& x, int p, bool is_result_unused);
+        void compileIf(const internal::Node& x, int p, bool is_result_unused, bool is_terminal, const std::string& var_name);
+        void compileFunction(const internal::Node& x, int p, bool is_result_unused, const std::string& var_name);
         void compileLetMutSet(internal::Keyword n, const internal::Node& x, int p);
         void compileWhile(const internal::Node& x, int p);
-        void compileQuote(const internal::Node& x, int p, bool produces_result, bool is_terminal, const std::string& var_name);
+        void compileQuote(const internal::Node& x, int p, bool is_result_unused, bool is_terminal, const std::string& var_name);
         void compilePluginImport(const internal::Node& x, int p);
-        void compileDel(const internal::Node& x, int p);
-        void handleCalls(const internal::Node& x, int p, bool produces_result, bool is_terminal, const std::string& var_name);
-
-        /**
-         * @brief Put a value in the bytecode, handling the closures chains
-         * 
-         * @param x value node
-         * @param p current page index
-         * @param produces_result 
-         */
-        void putValue(const internal::Node& x, int p, bool produces_result);
+        void handleCalls(const internal::Node& x, int p, bool is_result_unused, bool is_terminal, const std::string& var_name);
 
         /**
          * @brief Register a given node in the symbol table
