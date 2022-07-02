@@ -1,5 +1,12 @@
 # Change Log
 
+## 4.0
+### Added
+### Changed
+- added the padding/instruction/argumentation values when displaying instructions in the bytecode reader
+### Removed
+- removed unused `NodeType::Closure`
+
 ## [Unreleased version]
 ### Added
 - added fuzzing tools and corpus for [AFL](https://github.com/AFLplusplus/AFLplusplus)
@@ -19,7 +26,6 @@
 - better arity check for macros
 
 ### Removed
-- removed unused `NodeType::Closure`
 
 ### Deprecated
 
