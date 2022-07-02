@@ -9,6 +9,7 @@
 - added lines and code coloration in the error context
 - added documentation about the compiler implementation
 - added documentation about the virtual machine
+- added the padding/instruction/argumentation values when displaying instructions in the bytecode reader
 
 ### Changed
 - fixed underline bug in the error context

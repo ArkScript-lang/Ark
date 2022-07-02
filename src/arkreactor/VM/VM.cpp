@@ -223,9 +223,11 @@ namespace Ark
             while (m_running && m_fc > m_until_frame_count)
             {
                 // get current instruction
-                uint8_t inst = m_state.m_pages[context.pp][context.ip];
+                [[maybe_unused]] uint8_t padding = m_state.m_pages[context.pp][context.ip];
+                uint8_t inst = m_state.m_pages[context.pp][context.ip + 1];
+                uint16_t arg = (static_cast<uint16_t>(m_state.m_pages[context.pp][context.ip + 2]) << 8) + static_cast<uint16_t>(m_state.m_pages[context.pp][context.ip + 3]);
+                context.ip += 4;
 
-                // and it's time to du-du-du-du-duel!
                 switch (inst)
                 {
 #pragma region "Instructions"
@@ -237,8 +239,7 @@ namespace Ark
                             Job: Load a symbol from its id onto the stack
                         */
 
-                        ++context.ip;
-                        context.last_symbol = readNumber(context);
+                        context.last_symbol = arg;
 
                         if (Value* var = findNearestVariable(context.last_symbol, context); var != nullptr)
                             // push internal reference, shouldn't break anything so far
@@ -258,18 +259,15 @@ namespace Ark
                                     and push a Closure with the page address + environment instead of the constant
                         */
 
-                        ++context.ip;
-                        uint16_t id = readNumber(context);
-
-                        if (context.saved_scope && m_state.m_constants[id].valueType() == ValueType::PageAddr)
+                        if (context.saved_scope && m_state.m_constants[arg].valueType() == ValueType::PageAddr)
                         {
-                            push(Value(Closure(context.saved_scope.value(), m_state.m_constants[id].pageAddr())), context);
+                            push(Value(Closure(context.saved_scope.value(), m_state.m_constants[arg].pageAddr())), context);
                             context.saved_scope.reset();
                         }
                         else
                         {
                             // push internal ref
-                            push(&(m_state.m_constants[id]), context);
+                            push(&(m_state.m_constants[arg]), context);
                         }
 
                         COZ_PROGRESS_NAMED("ark vm load_const");
@@ -284,11 +282,8 @@ namespace Ark
                                     Remove the value from the stack no matter what it is
                         */
 
-                        ++context.ip;
-                        uint16_t id = readNumber(context);
-
                         if (*popAndResolveAsPtr(context) == Builtins::trueSym)
-                            context.ip = static_cast<int16_t>(id) - 1;  // because we are doing a ++context.ip right after this
+                            context.ip = static_cast<int16_t>(arg) * 4;  // instructions are 4 bytes
                         break;
                     }
 
@@ -301,13 +296,10 @@ namespace Ark
                                     couldn't find a scope where the variable exists
                         */
 
-                        ++context.ip;
-                        uint16_t id = readNumber(context);
-
-                        if (Value* var = findNearestVariable(id, context); var != nullptr)
+                        if (Value* var = findNearestVariable(arg, context); var != nullptr)
                         {
                             if (var->isConst())
-                                throwVMError("can not modify a constant: " + m_state.m_symbols[id]);
+                                throwVMError("can not modify a constant: " + m_state.m_symbols[arg]);
 
                             *var = *popAndResolveAsPtr(context);
                             var->setConst(false);
@@ -316,7 +308,7 @@ namespace Ark
 
                         COZ_PROGRESS_NAMED("ark vm store");
 
-                        throwVMError("unbound variable " + m_state.m_symbols[id] + ", can not change its value");
+                        throwVMError("unbound variable " + m_state.m_symbols[arg] + ", can not change its value");
                         break;
                     }
 
@@ -328,16 +320,13 @@ namespace Ark
                                     following the given symbol id (cf symbols table)
                         */
 
-                        ++context.ip;
-                        uint16_t id = readNumber(context);
-
                         // check if we are redefining a variable
-                        if (auto val = (*context.locals.back())[id]; val != nullptr)
-                            throwVMError("can not use 'let' to redefine the variable " + m_state.m_symbols[id]);
+                        if (auto val = (*context.locals.back())[arg]; val != nullptr)
+                            throwVMError("can not use 'let' to redefine the variable " + m_state.m_symbols[arg]);
 
                         Value val = *popAndResolveAsPtr(context);
                         val.setConst(true);
-                        (*context.locals.back()).push_back(id, val);
+                        (*context.locals.back()).push_back(arg, val);
 
                         COZ_PROGRESS_NAMED("ark vm let");
                         break;
@@ -351,11 +340,8 @@ namespace Ark
                                     the value from the stack no matter what it is
                         */
 
-                        ++context.ip;
-                        uint16_t id = readNumber(context);
-
                         if (*popAndResolveAsPtr(context) == Builtins::falseSym)
-                            context.ip = static_cast<int16_t>(id) - 1;  // because we are doing a ++context.ip right after this
+                            context.ip = static_cast<int16_t>(arg) * 4;  // instructions are 4 bytes
                         break;
                     }
 
@@ -366,10 +352,7 @@ namespace Ark
                             Job: Jump to the provided address
                         */
 
-                        ++context.ip;
-                        uint16_t id = readNumber(context);
-
-                        context.ip = static_cast<int16_t>(id) - 1;  // because we are doing a ++context.ip right after this
+                        context.ip = static_cast<int16_t>(arg) * 4;  // instructions are 4 bytes
                         break;
                     }
 
@@ -418,7 +401,7 @@ namespace Ark
                         break;
 
                     case Instruction::CALL:
-                        call(context);
+                        call(context, arg);
                         break;
 
                     case Instruction::CAPTURE:
@@ -430,15 +413,12 @@ namespace Ark
                                 they were created
                         */
 
-                        ++context.ip;
-                        uint16_t id = readNumber(context);
-
                         if (!context.saved_scope)
                             context.saved_scope = std::make_shared<Scope>();
                         // if it's a captured variable, it can not be nullptr
-                        Value* ptr = (*context.locals.back())[id];
+                        Value* ptr = (*context.locals.back())[arg];
                         ptr = ptr->valueType() == ValueType::Reference ? ptr->reference() : ptr;
-                        (*context.saved_scope.value()).push_back(id, *ptr);
+                        (*context.saved_scope.value()).push_back(arg, *ptr);
 
                         COZ_PROGRESS_NAMED("ark vm capture");
                         break;
@@ -451,10 +431,7 @@ namespace Ark
                             Job: Push the builtin function object on the stack
                         */
 
-                        ++context.ip;
-                        uint16_t id = readNumber(context);
-
-                        push(Builtins::builtins[id].second, context);
+                        push(Builtins::builtins[arg].second, context);
 
                         COZ_PROGRESS_NAMED("ark vm builtin");
                         break;
@@ -468,16 +445,13 @@ namespace Ark
                                 named following the given symbol id (cf symbols table)
                         */
 
-                        ++context.ip;
-                        uint16_t id = readNumber(context);
-
                         Value val = *popAndResolveAsPtr(context);
                         val.setConst(false);
 
                         // avoid adding the pair (id, _) multiple times, with different values
-                        Value* local = (*context.locals.back())[id];
+                        Value* local = (*context.locals.back())[arg];
                         if (local == nullptr)
-                            (*context.locals.back()).push_back(id, val);
+                            (*context.locals.back()).push_back(arg, val);
                         else
                             *local = val;
 
@@ -492,10 +466,7 @@ namespace Ark
                             Job: Remove a variable/constant named following the given symbol id (cf symbols table)
                         */
 
-                        ++context.ip;
-                        uint16_t id = readNumber(context);
-
-                        if (Value* var = findNearestVariable(id, context); var != nullptr)
+                        if (Value* var = findNearestVariable(arg, context); var != nullptr)
                         {
                             if (var->valueType() == ValueType::User)
                                 var->usertypeRef().del();
@@ -505,7 +476,7 @@ namespace Ark
 
                         COZ_PROGRESS_NAMED("ark vm del");
 
-                        throwVMError("unbound variable: " + m_state.m_symbols[id]);
+                        throwVMError("unbound variable: " + m_state.m_symbols[arg]);
                         break;
                     }
 
@@ -529,16 +500,14 @@ namespace Ark
                                 stored in TS. Pop TS and push the value of field read on the stack
                         */
 
-                        ++context.ip;
-                        uint16_t id = readNumber(context);
-
                         Value* var = popAndResolveAsPtr(context);
                         if (var->valueType() != ValueType::Closure)
-                            throwVMError("the variable `" + m_state.m_symbols[context.last_symbol] + "' isn't a closure, can not get the field `" + m_state.m_symbols[id] + "' from it");
+                            throwVMError("the variable `" + m_state.m_symbols[context.last_symbol] + "' isn't a closure, can not get the field `" + m_state.m_symbols[arg] + "' from it");
 
-                        if (Value* field = (*var->refClosure().scope())[id]; field != nullptr)
+                        if (Value* field = (*var->refClosure().scope())[arg]; field != nullptr)
                         {
                             // check for CALL instruction
+                            // doing a +1 on the IP to read the instruction because context.ip is already on the next instruction word (the padding)
                             if (static_cast<std::size_t>(context.ip) + 1 < m_state.m_pages[context.pp].size() && m_state.m_pages[context.pp][context.ip + 1] == Instruction::CALL)
                             {
                                 context.locals.push_back(var->refClosure().scope());
@@ -549,7 +518,7 @@ namespace Ark
                             break;
                         }
 
-                        throwVMError("couldn't find the variable " + m_state.m_symbols[id] + " in the closure enviroment");
+                        throwVMError("couldn't find the variable " + m_state.m_symbols[arg] + " in the closure enviroment");
                         break;
                     }
 
@@ -561,10 +530,7 @@ namespace Ark
                                  Raise an error if it couldn't find the module.
                         */
 
-                        ++context.ip;
-                        uint16_t id = readNumber(context);
-
-                        loadPlugin(id, context);
+                        loadPlugin(arg, context);
 
                         COZ_PROGRESS_NAMED("ark vm plugin");
                         break;
@@ -576,14 +542,12 @@ namespace Ark
                             Takes at least 0 arguments and push a list on the stack.
                             The content is pushed in reverse order
                         */
-                        ++context.ip;
-                        uint16_t count = readNumber(context);
 
                         Value l(ValueType::List);
-                        if (count != 0)
-                            l.list().reserve(count);
+                        if (arg != 0)
+                            l.list().reserve(arg);
 
-                        for (uint16_t i = 0; i < count; ++i)
+                        for (uint16_t i = 0; i < arg; ++i)
                             l.push_back(*popAndResolveAsPtr(context));
                         push(std::move(l), context);
 
@@ -593,9 +557,6 @@ namespace Ark
 
                     case Instruction::APPEND:
                     {
-                        ++context.ip;
-                        uint16_t count = readNumber(context);
-
                         Value* list = popAndResolveAsPtr(context);
                         if (list->valueType() != ValueType::List)
                             types::generateError(
@@ -606,9 +567,9 @@ namespace Ark
                         const uint16_t size = list->constList().size();
 
                         Value obj = Value(*list);
-                        obj.list().reserve(size + count);
+                        obj.list().reserve(size + arg);
 
-                        for (uint16_t i = 0; i < count; ++i)
+                        for (uint16_t i = 0; i < arg; ++i)
                             obj.push_back(*popAndResolveAsPtr(context));
                         push(std::move(obj), context);
 
@@ -618,9 +579,6 @@ namespace Ark
 
                     case Instruction::CONCAT:
                     {
-                        ++context.ip;
-                        uint16_t count = readNumber(context);
-
                         Value* list = popAndResolveAsPtr(context);
                         if (list->valueType() != ValueType::List)
                             types::generateError(
@@ -630,7 +588,7 @@ namespace Ark
 
                         Value obj = Value(*list);
 
-                        for (uint16_t i = 0; i < count; ++i)
+                        for (uint16_t i = 0; i < arg; ++i)
                         {
                             Value* next = popAndResolveAsPtr(context);
 
@@ -651,9 +609,6 @@ namespace Ark
 
                     case Instruction::APPEND_IN_PLACE:
                     {
-                        ++context.ip;
-                        uint16_t count = readNumber(context);
-
                         Value* list = popAndResolveAsPtr(context);
 
                         if (list->isConst())
@@ -664,7 +619,7 @@ namespace Ark
                                 { { types::Contract { { types::Typedef("list", ValueType::List) } } } },
                                 { *list });
 
-                        for (uint16_t i = 0; i < count; ++i)
+                        for (uint16_t i = 0; i < arg; ++i)
                             list->push_back(*popAndResolveAsPtr(context));
 
                         push(Nil, context);
@@ -675,9 +630,6 @@ namespace Ark
 
                     case Instruction::CONCAT_IN_PLACE:
                     {
-                        ++context.ip;
-                        uint16_t count = readNumber(context);
-
                         Value* list = popAndResolveAsPtr(context);
 
                         if (list->isConst())
@@ -688,7 +640,7 @@ namespace Ark
                                 { { types::Contract { { types::Typedef("list", ValueType::List) } } } },
                                 { *list });
 
-                        for (uint16_t i = 0; i < count; ++i)
+                        for (uint16_t i = 0; i < arg; ++i)
                         {
                             Value* next = popAndResolveAsPtr(context);
 
@@ -1126,9 +1078,6 @@ namespace Ark
                         break;
                 }
 
-                // move forward
-                ++context.ip;
-
 #ifdef ARK_PROFILER_MIPS
                 ++instructions_executed;
 #endif
@@ -1249,7 +1198,7 @@ namespace Ark
         }
 
         std::cerr << termcolor::reset
-                  << "At IP: " << (saved_ip != -1 ? saved_ip : 0)
+                  << "At IP: " << (saved_ip != -1 ? saved_ip / 4 : 0)  // dividing by 4 because the instructions are actually on 4 bytes
                   << ", PP: " << saved_pp
                   << ", SP: " << saved_sp
                   << "\n";
