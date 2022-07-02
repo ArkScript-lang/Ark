@@ -2,7 +2,7 @@
  * @file Compiler.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief ArkScript compiler is in charge of transforming the AST into bytecode
- * @version 1.0
+ * @version 1.1
  * @date 2020-10-27
  * 
  * @copyright Copyright (c) 2020-2021
@@ -143,7 +143,7 @@ namespace Ark
          * @param name symbol name
          * @return std::optional<std::size_t> position in the operators' list
          */
-        std::optional<std::size_t> isOperator(const std::string& name) noexcept;
+        std::optional<std::size_t> getOperator(const std::string& name) noexcept;
 
         /**
          * @brief Checking if a symbol is a builtin
@@ -151,7 +151,7 @@ namespace Ark
          * @param name symbol name
          * @return std::optional<std::size_t> position in the builtins' list
          */
-        std::optional<std::size_t> isBuiltin(const std::string& name) noexcept;
+        std::optional<std::size_t> getBuiltin(const std::string& name) noexcept;
 
         /**
          * @brief Check if a symbol needs to be compiled to a specific instruction
@@ -159,7 +159,7 @@ namespace Ark
          * @param name 
          * @return std::optional<internal::Instruction> corresponding instruction if it exists
          */
-        inline std::optional<internal::Instruction> isSpecific(const std::string& name) noexcept
+        inline std::optional<internal::Instruction> getSpecific(const std::string& name) noexcept
         {
             if (name == "list")
                 return internal::Instruction::LIST;
@@ -214,15 +214,7 @@ namespace Ark
         [[noreturn]] void throwCompilerError(const std::string& message, const internal::Node& node);
 
         /**
-         * @brief Display a warning message
-         * 
-         * @param message 
-         * @param node 
-         */
-        void compilerWarning(const std::string& message, const internal::Node& node);
-
-        /**
-         * @brief Compile a single node recursively
+         * @brief Compile an expression (a node) recursively
          * 
          * @param x the internal::Node to compile
          * @param p the current page number we're on
@@ -230,7 +222,7 @@ namespace Ark
          * @param is_terminal 
          * @param var_name 
          */
-        void _compile(const internal::Node& x, int p, bool produces_result, bool is_terminal, const std::string& var_name = "");
+        void compileExpression(const internal::Node& x, int p, bool produces_result, bool is_terminal, const std::string& var_name = "");
 
         void compileSymbol(const internal::Node& x, int p, bool produces_result);
         void compileSpecific(const internal::Node& c0, const internal::Node& x, int p, bool produces_result);
