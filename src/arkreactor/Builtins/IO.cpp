@@ -8,6 +8,7 @@
 #include <Ark/VM/VM.hpp>
 #include <Ark/Exceptions.hpp>
 #include <Ark/TypeChecker.hpp>
+#include <fmt/format.h>
 
 namespace Ark::internal::Builtins::IO
 {
@@ -61,7 +62,7 @@ namespace Ark::internal::Builtins::IO
     Value input(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (types::check(n, ValueType::String))
-            std::printf("%s", n[0].string().c_str());
+            fmt::print(n[0].string());
         else if (n.size() != 0)
             types::generateError("input", { { types::Contract {}, types::Contract { { types::Typedef("prompt", ValueType::String) } } } }, n);
 
@@ -87,14 +88,14 @@ namespace Ark::internal::Builtins::IO
     {
         if (types::check(n, ValueType::String, ValueType::Any))
         {
-            std::ofstream f(n[0].string().c_str());
+            std::ofstream f(n[0].string());
             if (f.is_open())
             {
                 f << n[1];
                 f.close();
             }
             else
-                throw std::runtime_error("Couldn't write to file \"" + n[0].stringRef().toString() + "\"");
+                throw std::runtime_error("Couldn't write to file \"" + n[0].stringRef() + "\"");
         }
         else if (types::check(n, ValueType::String, ValueType::String, ValueType::Any))
         {
@@ -106,14 +107,14 @@ namespace Ark::internal::Builtins::IO
             if (mode == "a")
                 ios_mode = std::ios::out | std::ios::app;
 
-            std::ofstream f(n[0].string().c_str(), ios_mode);
+            std::ofstream f(n[0].string(), ios_mode);
             if (f.is_open())
             {
                 f << n[2];
                 f.close();
             }
             else
-                throw std::runtime_error("Couldn't write to file \"" + n[0].stringRef().toString() + "\"");
+                throw std::runtime_error("Couldn't write to file \"" + n[0].stringRef() + "\"");
         }
         else
             types::generateError(
@@ -142,7 +143,7 @@ namespace Ark::internal::Builtins::IO
                 { { types::Contract { { types::Typedef("filename", ValueType::String) } } } },
                 n);
 
-        auto filename = n[0].string().c_str();
+        std::string filename = n[0].string();
         if (!Utils::fileExists(filename))
             throw std::runtime_error("Couldn't read file \"" + std::string(filename) + "\": it doesn't exist");
 
@@ -166,7 +167,7 @@ namespace Ark::internal::Builtins::IO
                 { { types::Contract { { types::Typedef("filename", ValueType::String) } } } },
                 n);
 
-        return Utils::fileExists(n[0].string().c_str()) ? trueSym : falseSym;
+        return Utils::fileExists(n[0].string()) ? trueSym : falseSym;
     }
 
     /**
@@ -187,8 +188,8 @@ namespace Ark::internal::Builtins::IO
                 n);
 
         std::vector<Value> r;
-        for (const auto& entry : std::filesystem::directory_iterator(n[0].string().c_str()))
-            r.emplace_back(entry.path().string().c_str());
+        for (const auto& entry : std::filesystem::directory_iterator(n[0].string()))
+            r.emplace_back(entry.path().string());
 
         return Value(std::move(r));
     }
@@ -210,7 +211,7 @@ namespace Ark::internal::Builtins::IO
                 { { types::Contract { { types::Typedef("path", ValueType::String) } } } },
                 n);
 
-        return (std::filesystem::is_directory(std::filesystem::path(n[0].string().c_str()))) ? trueSym : falseSym;
+        return (std::filesystem::is_directory(std::filesystem::path(n[0].string()))) ? trueSym : falseSym;
     }
 
     /**
@@ -230,7 +231,7 @@ namespace Ark::internal::Builtins::IO
                 { { types::Contract { { types::Typedef("path", ValueType::String) } } } },
                 n);
 
-        std::filesystem::create_directories(std::filesystem::path(n[0].string().c_str()));
+        std::filesystem::create_directories(std::filesystem::path(n[0].string()));
         return nil;
     }
 
@@ -260,7 +261,7 @@ namespace Ark::internal::Builtins::IO
                     { { types::Contract { { types::Typedef("filename", ValueType::String), types::Typedef("filenames", ValueType::String, /* variadic */ true) } } } },
                     n);
 
-            std::filesystem::remove_all(std::filesystem::path(it->string().c_str()));
+            std::filesystem::remove_all(std::filesystem::path(it->string()));
         }
 
         return nil;

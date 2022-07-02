@@ -91,7 +91,7 @@ namespace Ark
     {
         namespace fs = std::filesystem;
 
-        const std::string file = m_state.m_constants[id].stringRef().toString();
+        const std::string file = m_state.m_constants[id].stringRef();
 
         std::string path = file;
         // bytecode loaded from file
@@ -883,7 +883,7 @@ namespace Ark
                             else
                             {
                                 Value b = *a;
-                                b.stringRef().erase_front(0);
+                                b.stringRef().erase(b.stringRef().begin());
                                 push(std::move(b), context);
                             }
                         }
@@ -946,7 +946,7 @@ namespace Ark
                                 { *a, *b });
 
                         if (*a == Builtins::falseSym)
-                            throw AssertionFailed(b->stringRef().toString());
+                            throw AssertionFailed(b->stringRef());
                         break;
                     }
 
@@ -961,7 +961,7 @@ namespace Ark
                                 { *a });
 
                         double val;
-                        if (Utils::isDouble(a->string().c_str(), &val))
+                        if (Utils::isDouble(a->string(), &val))
                             push(Value(val), context);
                         else
                             push(Builtins::nil, context);
@@ -1050,7 +1050,7 @@ namespace Ark
                         if (field->valueType() != ValueType::String)
                             throw TypeError("Argument no 2 of hasField should be a String");
 
-                        auto it = std::find(m_state.m_symbols.begin(), m_state.m_symbols.end(), field->stringRef().toString());
+                        auto it = std::find(m_state.m_symbols.begin(), m_state.m_symbols.end(), field->stringRef());
                         if (it == m_state.m_symbols.end())
                         {
                             push(Builtins::falseSym, context);

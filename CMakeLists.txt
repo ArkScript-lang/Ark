@@ -1,11 +1,26 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.9)
 
 project(ark CXX)
 
 # VERSION
 set(ARK_VERSION_MAJOR 3)
-set(ARK_VERSION_MINOR 2)
+set(ARK_VERSION_MINOR 3)
 set(ARK_VERSION_PATCH 0)
+
+include(CheckIPOSupported)
+check_ipo_supported(RESULT ipo_supported)
+
+function(enable_ipo target_name)
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND (CMAKE_CXX_COMPILER_VERSION MATCHES "^8\..+"))
+        message(WARNING "LTO/IPO supported but not enabled to prevent https://github.com/ArkScript-lang/Ark/pull/385#issuecomment-1163597951")
+    else()
+        message(STATUS "LTO/IPO enabled")
+        set_target_properties(
+            ${target_name}
+            PROPERTIES
+                INTERPROCEDURAL_OPTIMIZATION TRUE)
+    endif()
+endfunction()
 
 # Uses GNU Install directory variables
 include(GNUInstallDirs)
@@ -25,7 +40,8 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # files needed for the library ArkReactor
 file(GLOB_RECURSE SOURCE_FILES
-    ${ark_SOURCE_DIR}/src/arkreactor/*.cpp)
+    ${ark_SOURCE_DIR}/src/arkreactor/*.cpp
+    ${ark_SOURCE_DIR}/lib/fmt/src/*.cc)
 
 add_library(ArkReactor SHARED ${SOURCE_FILES})
 
@@ -35,6 +51,8 @@ set_target_properties(
         CXX_STANDARD 17
         CXX_STANDARD_REQUIRED ON
         CXX_EXTENSIONS OFF)
+
+enable_ipo(ArkReactor)
 
 if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG OR APPLE)
     target_compile_options(ArkReactor
@@ -94,20 +112,20 @@ endif()
 # Link libraries
 
 add_subdirectory("${ark_SOURCE_DIR}/lib/termcolor" EXCLUDE_FROM_ALL)
-add_subdirectory("${ark_SOURCE_DIR}/lib/String/" EXCLUDE_FROM_ALL)
 
 target_include_directories(ArkReactor
     PUBLIC
     "${ark_SOURCE_DIR}/lib/utf8_decoder/"
     "${ark_SOURCE_DIR}/lib/picosha2/"
-    "${ark_SOURCE_DIR}/lib/String/include/")
+    "${ark_SOURCE_DIR}/lib/fmt/include")
 
-target_link_libraries(ArkReactor PUBLIC termcolor ArkScriptString)
+target_link_libraries(ArkReactor PUBLIC termcolor)
 
 if (UNIX OR LINUX)
     if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
         target_link_libraries(ArkReactor PUBLIC stdc++fs)
     endif()
+
     find_package(Threads)
     target_link_libraries(ArkReactor PRIVATE ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 endif()
@@ -232,6 +250,9 @@ if (ARK_BUILD_EXE)
             CXX_STANDARD 17
             CXX_STANDARD_REQUIRED ON
             CXX_EXTENSIONS OFF)
+
+    enable_ipo(ark)
+    enable_ipo(arkscript)
 
     # Installs the arkscript executable.
     install(TARGETS arkscript

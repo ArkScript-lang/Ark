@@ -1,6 +1,20 @@
 # Change Log
 
-## [Unreleased changes]
+## [Unreleased]
+### Added
+- new dependency: fmtlib
+- added the padding/instruction/argumentation values when displaying instructions in the bytecode reader
+
+### Changed
+
+### Deprecated
+
+### Removed
+- removing the custom string, replacing it with std::string (the format engine of the custom string had a lot of memory leaks)
+- `Utils::digPlaces` and `Utils::decPlaces` got removed as they were no longer needed
+- removed unused `NodeType::Closure`
+
+## [3.3.0] - 2022-07-02
 ### Added
 - running the modules tests in the CI
 - new bytecode instruction `POP`, removing the last value from the stack
@@ -9,19 +23,18 @@
 - added lines and code coloration in the error context
 - added documentation about the compiler implementation
 - added documentation about the virtual machine
-- added the padding/instruction/argumentation values when displaying instructions in the bytecode reader
+- ArkScript now supports LTO if the compiler can do it
+    - this is disabled in GCC 8 as [this causes a runtime crash](https://github.com/ArkScript-lang/Ark/pull/385#issuecomment-1163597951) due to an ABI breakage
 
 ### Changed
 - fixed underline bug in the error context
+- the str:format functions now expects strings following this syntax: https://fmt.dev/latest/syntax.html
+- added documentation about the compiler implementation
+- added documentation about the virtual machine
 - changing the way we count received arguments in arity / type errors for failed function call
 - the CLI can now take a list of paths to the standard library, separated by ';'
 - instructions are on 4 bytes: 1 byte for the instruction, 1 byte of padding, 2 bytes for an immediate argument
 - enhanced the bytecode reader and its command line interface
-
-### Deprecated
-
-### Removed
-- removed unused `NodeType::Closure`
 
 ## [3.2.0] - 2022-02-19
 ### Added
