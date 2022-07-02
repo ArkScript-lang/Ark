@@ -19,6 +19,7 @@
 ### Deprecated
 
 ### Removed
+- removed unused `NodeType::Closure`
 
 ## [3.2.0] - 2022-02-19
 ### Added
