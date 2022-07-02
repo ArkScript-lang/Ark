@@ -7,9 +7,6 @@
 [submodule "lib/modules"]
 	path = lib/modules
 	url = https://github.com/ArkScript-lang/modules.git
-[submodule "lib/String"]
-	path = lib/String
-	url = https://github.com/ArkScript-lang/String.git
 [submodule "lib/clipp"]
 	path = lib/clipp
 	url = https://github.com/muellan/clipp.git
@@ -25,3 +22,6 @@
 [submodule "lib/replxx"]
 	path = lib/replxx
 	url = https://github.com/AmokHuginnsson/replxx.git
+[submodule "lib/fmt"]
+	path = lib/fmt
+	url = https://github.com/fmtlib/fmt.git

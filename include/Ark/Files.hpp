@@ -26,7 +26,7 @@ namespace Ark::Utils
      * @return true on success
      * @return false on failure
      */
-    inline bool fileExists(const std::string& name) noexcept  // 11
+    inline bool fileExists(const std::string& name) noexcept
     {
         try
         {
@@ -47,7 +47,7 @@ namespace Ark::Utils
      */
     inline std::string readFile(const std::string& name)
     {
-        std::ifstream f(name.c_str());
+        std::ifstream f(name);
         // admitting the file exists
         return std::string(
             (std::istreambuf_iterator<char>(f)),
