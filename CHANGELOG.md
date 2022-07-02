@@ -14,6 +14,7 @@
 - fixed underline bug in the error context
 - changing the way we count received arguments in arity / type errors for failed function call
 - the CLI can now take a list of paths to the standard library, separated by ';'
+- instructions are on 4 bytes: 1 byte for the instruction, 1 byte of padding, 2 bytes for an immediate argument
 
 ### Deprecated
 
