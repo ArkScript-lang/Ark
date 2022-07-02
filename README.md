@@ -174,15 +174,17 @@ DESCRIPTION
         ArkScript programming language
 
 SYNOPSIS
-        arkscript -h
-        arkscript -v
-        arkscript --dev-info
-        arkscript -e <expression>
-        arkscript -c <file> [-d]
-        arkscript -bcr <file> -on
-        arkscript -bcr <file> [-(a|st|vt)] [-s <start> <end>]
-        arkscript -bcr <file> [-cs] [-p <page>]
-        arkscript <file> [-d] [-L <lib_dir>]
+        arkscript -h 
+        arkscript -v 
+        arkscript --dev-info 
+        arkscript -e <expression> 
+        arkscript -c <file> [-d] 
+        arkscript -bcr <file> -on 
+        arkscript -bcr <file> -a [-s <start> <end>] 
+        arkscript -bcr <file> -st [-s <start> <end>] 
+        arkscript -bcr <file> -vt [-s <start> <end>] 
+        arkscript -bcr <file> [-cs] [-p <page>] [-s <start> <end>] 
+        arkscript <file> [-d] [-L <lib_dir>]  
 
 OPTIONS
         -h, --help                  Display this message
@@ -196,9 +198,9 @@ OPTIONS
         -a, --all                   Display all the bytecode segments (default)
         -st, --symbols              Display only the symbols table
         -vt, --values               Display only the values table
-        -s, --slice                 Select a slice of instructions in the bytecode
         -cs, --code                 Display only the code segments
         -p, --page                  Set the bytecode reader code segment to display
+        -s, --slice                 Select a slice of instructions in the bytecode
         -L, --lib                   Set the location of the ArkScript standard library. Paths can be
                                     delimited by ';'
 

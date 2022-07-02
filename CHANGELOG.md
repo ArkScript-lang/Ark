@@ -64,6 +64,7 @@
 - changing the way we count received arguments in arity / type errors for failed function call
 - the CLI can now take a list of paths to the standard library, separated by ';'
 - instructions are on 4 bytes: 1 byte for the instruction, 1 byte of padding, 2 bytes for an immediate argument
+- enhanced the bytecode reader and its command line interface
 
 ## [3.2.0] - 2022-02-19
 ### Added
