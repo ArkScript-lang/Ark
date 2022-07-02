@@ -43,6 +43,12 @@
 - fixed a bug in the macro processor where macros were deleted when they shouldn't
 - fixed a bug where macro functions with no argument would crash the macro processor
 
+### Removed
+- removed unused `NodeType::Closure`
+
+### Deprecated
+
+
 ## [3.4.0] - 2022-09-12
 ### Added
 - added new `async` and `await` builtins
