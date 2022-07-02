@@ -2,7 +2,7 @@
  * @file VM.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief The ArkScript virtual machine
- * @version 0.3
+ * @version 1.0
  * @date 2020-10-27
  * 
  * @copyright Copyright (c) 2020-2021
@@ -195,15 +195,6 @@ namespace Ark
          * 
          */
         void init() noexcept;
-
-        /**
-         * @brief Read a 2 bytes number from the current bytecode page, starting at the current instruction
-         * @details Modify the instruction pointer to point on the instruction right after the number.
-         * 
-         * @param context
-         * @return uint16_t 
-         */
-        inline uint16_t readNumber(internal::ExecutionContext& context);
 
         // ================================================
         //                 stack related
