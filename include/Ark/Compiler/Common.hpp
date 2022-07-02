@@ -2,10 +2,10 @@
  * @file Common.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Common code for the compiler
- * @version 0.3
+ * @version 0.4
  * @date 2021-10-02
  * 
- * @copyright Copyright (c) 2021
+ * @copyright Copyright (c) 2021-2022
  * 
  */
 
@@ -34,13 +34,12 @@ namespace Ark::internal
         String,
         Number,
         List,
-        Closure,
         Macro,
         Spread,
         Unused
     };
 
-    constexpr std::array<std::string_view, 11> nodeTypes = {
+    constexpr std::array<std::string_view, 10> nodeTypes = {
         "Symbol",
         "Capture",
         "GetField",
@@ -48,7 +47,6 @@ namespace Ark::internal
         "String",
         "Number",
         "List",
-        "Closure",
         "Macro",
         "Spread",
         "Unused"

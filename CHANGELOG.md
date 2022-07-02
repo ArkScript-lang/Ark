@@ -18,7 +18,7 @@
 - better arity check for macros
 
 ### Removed
-
+- removed unused `NodeType::Closure`
 
 ### Deprecated
 

@@ -610,7 +610,6 @@ namespace Ark::internal
 
             case NodeType::Capture:
             case NodeType::GetField:
-            case NodeType::Closure:
                 return false;
 
             case NodeType::Keyword:
