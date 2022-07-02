@@ -2,7 +2,7 @@
  * @file Word.hpp
  * @author  Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Describe an instruction and its immediate argument
- * @version 0.2
+ * @version 0.3
  * @date 2022-07-02
  * 
  * @copyright Copyright (c) 2022
@@ -25,8 +25,8 @@ namespace Ark::internal
             uint16_t data;  ///< Immediate data, interpreted differently for different instructions
             struct
             {
-                uint8_t first;
                 uint8_t second;
+                uint8_t first;
             } bytes;
         };
 
