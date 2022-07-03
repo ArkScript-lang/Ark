@@ -172,24 +172,20 @@ namespace Ark::internal
                 {
                     bool added_begin = false;
 
-                    // apply macro only if we have registered macros
-                    if ((m_macros.size() == 1 && m_macros[0].size() > 0) || m_macros.size() > 1)
-                    {
-                        bool had = hadBegin(node.list()[i]);
-                        bool applied = applyMacro(node.list()[i]);
+                    bool had = hadBegin(node.list()[i]);
+                    bool applied = applyMacro(node.list()[i]);
 
-                        // remove unused blocks
-                        if (node.list()[i].nodeType() == NodeType::Unused)
-                            node.list().erase(node.constList().begin() + i);
-                        // if we got `macro`, it was replaced but not entirely applied.
-                        // but `(macro)` would get entirely applied because it's in a list,
-                        // thus we need to evaluate the node if we have list[i].list[0] as a macro
-                        if (applied)
-                            recurApply(node.list()[i]);
+                    // remove unused blocks
+                    if (node.list()[i].nodeType() == NodeType::Unused)
+                        node.list().erase(node.constList().begin() + i);
+                    // if we got `macro`, it was replaced but not entirely applied.
+                    // but `(macro)` would get entirely applied because it's in a list,
+                    // thus we need to evaluate the node if we have list[i].list[0] as a macro
+                    if (applied)
+                        recurApply(node.list()[i]);
 
-                        if (hadBegin(node.list()[i]) && !had)
-                            added_begin = true;
-                    }
+                    if (hadBegin(node.list()[i]) && !had)
+                        added_begin = true;
 
                     if (node.nodeType() == NodeType::List)
                     {
@@ -459,10 +455,17 @@ namespace Ark::internal
             else if (name == "argcount")
             {
                 Node sym = node.constList()[1];
-                if (auto it = m_defined_functions.find(sym.string()); it != m_defined_functions.end())
-                    node = Node(static_cast<long>(it->second.constList().size()));
+                if (sym.nodeType() == NodeType::Symbol)
+                {
+                    if (auto it = m_defined_functions.find(sym.string()); it != m_defined_functions.end())
+                        node = Node(static_cast<long>(it->second.constList().size()));
+                    else
+                        throwMacroProcessingError("When expanding `argcount', expected a known function name, got unbound variable " + sym.string(), sym);
+                }
+                else if (sym.nodeType() == NodeType::List && sym.list().size() == 3 && sym.list()[0].nodeType() == NodeType::Keyword && sym.list()[0].keyword() == Keyword::Fun)
+                    node = Node(static_cast<long>(sym.list()[1].list().size()));
                 else
-                    throwMacroProcessingError("When expanding `argcount', expected a known function name, got unbound variable " + sym.string(), node);
+                    throwMacroProcessingError("When trying to apply `argcount', got a " + std::string(nodeTypes[static_cast<std::size_t>(sym.nodeType())]) + " instead of a Symbol or Function", sym);
             }
         }
 
