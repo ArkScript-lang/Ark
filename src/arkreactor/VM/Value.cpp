@@ -146,26 +146,25 @@ namespace Ark
         list().push_back(std::move(value));
     }
 
-    // --------------------------
 
-    std::ostream& operator<<(std::ostream& os, const Value& V) noexcept
+    void Value::toString(std::ostream& os, VM& vm) const noexcept
     {
-        switch (V.valueType())
+        switch (valueType())
         {
             case ValueType::Number:
             {
-                double d = V.number();
+                double d = number();
                 os.precision(Utils::digPlaces(d) + Utils::decPlaces(d));
                 os << d;
                 break;
             }
 
             case ValueType::String:
-                os << V.string().c_str();
+                os << string().c_str();
                 break;
 
             case ValueType::PageAddr:
-                os << "Function @ " << V.pageAddr();
+                os << "Function @ " << pageAddr();
                 break;
 
             case ValueType::CProc:
@@ -175,12 +174,16 @@ namespace Ark
             case ValueType::List:
             {
                 os << "[";
-                for (auto it = V.constList().begin(), it_end = V.constList().end(); it != it_end; ++it)
+                for (auto it = constList().begin(), it_end = constList().end(); it != it_end; ++it)
                 {
                     if (it->valueType() == ValueType::String)
-                        os << "\"" << (*it) << "\"";
+                    {
+                        os << "\"";
+                        it->toString(os, vm);
+                        os << "\"";
+                    }
                     else
-                        os << (*it);
+                        it->toString(os, vm);
                     if (it + 1 != it_end)
                         os << " ";
                 }
@@ -189,11 +192,11 @@ namespace Ark
             }
 
             case ValueType::Closure:
-                os << V.closure();
+                closure().toString(os, vm);
                 break;
 
             case ValueType::User:
-                os << V.usertype();
+                os << usertype();
                 break;
 
             case ValueType::Nil:
@@ -213,18 +216,16 @@ namespace Ark
                 break;
 
             case ValueType::Reference:
-                os << (*V.reference());
+                reference()->toString(os, vm);
                 break;
 
             case ValueType::InstPtr:
-                os << "Instruction @ " << V.pageAddr();
+                os << "Instruction @ " << pageAddr();
                 break;
 
             default:
                 os << "~\\._./~";
                 break;
         }
-
-        return os;
     }
 }
