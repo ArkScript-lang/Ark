@@ -17,6 +17,7 @@ ArkScript language
 (import "macro-tests.ark")
 (import "list-tests.ark")
 (import "string-tests.ark")
+(import "async-tests.ark")
 
 (print "  ------------------------------")
 
@@ -27,6 +28,7 @@ ArkScript language
     passed-macro
     passed-list
     passed-string
+    passed-async
 ))
 
 (print "Completed in " (* 1000 (- (time) start_time)) "ms")
