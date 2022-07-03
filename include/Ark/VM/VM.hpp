@@ -162,6 +162,7 @@ namespace Ark
         void deleteFuture(internal::Future* f);
 
         friend class Value;
+        friend class internal::Closure;
         friend class Repl;
 
     private:

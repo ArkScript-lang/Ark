@@ -7,10 +7,12 @@
 - added methods to create and destroy an execution context and a future in the VM
 
 ### Changed
+- printing a closure will now print its fields instead of `Closure<1432>`
 
 ### Deprecated
 
 ### Removed
+- removed the `std::ostream& operator<<` of the Value, now using the `.toString(stream, vm reference)`
 - removed the global VM lock
 
 ## [3.3.0] - 2022-07-02
