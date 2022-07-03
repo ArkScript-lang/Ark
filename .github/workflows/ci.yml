@@ -18,7 +18,6 @@ on:
       - 'LICENCE'
       - '.gitignore'
   pull_request:
-    branches: [dev]
 
 env:
   BUILD_TYPE: Debug
