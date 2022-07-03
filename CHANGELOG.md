@@ -1,5 +1,18 @@
 # Change Log
 
+## [Unreleased]
+### Added
+- added new `async` and `await` builtins
+     - they can access the outer scope
+- added methods to create and destroy an execution context and a future in the VM
+
+### Changed
+
+### Deprecated
+
+### Removed
+- removed the global VM lock
+
 ## [3.3.0] - 2022-07-02
 ### Added
 - running the modules tests in the CI
@@ -14,6 +27,7 @@
 
 ### Changed
 - fixed underline bug in the error context
+- moved the frame counter of the VM to the ExecutionContext as this should be local to the context, not to the VM
 - changing the way we count received arguments in arity / type errors for failed function call
 - the CLI can now take a list of paths to the standard library, separated by ';'
 

@@ -1,0 +1,47 @@
+(import "tests-tools.ark")
+(import "List.ark")
+
+(let async-tests (fun () {
+    (mut tests 0)
+    (let start-time (time))
+
+    (let foo (fun (a b) (+ a b)))
+    (let async-foo (async foo 1 2))
+
+    (set tests (assert-eq (type async-foo) "UserType" "async foo type" tests))
+    (set tests (assert-eq (await async-foo) 3 "await" tests))
+
+    (let size 1000)
+    (let data (list:fill size 1))
+    (let sum (fun (a b src) {
+        (mut acc 0)
+        (while (< a b) {
+            (set acc (+ acc (@ src a)))
+            (set a (+ 1 a))
+        })
+        acc
+    }))
+
+    (let start-non-async (time))
+    (let res-non-async (sum 0 size data))
+    (let time-non-async (- (time) start-non-async))
+
+    (let start-async (time))
+    (let workers [
+        (async sum 0 (/ size 4) data)
+        (async sum (/ size 4) (/ size 2) data)
+        (async sum (/ size 2) (- size (/ size 4)) data)
+        (async sum (- size (/ size 4)) size data)
+    ])
+    (let res-async (list:reduce (list:map workers (fun (w) (await w))) (fun (a b) (+ a b))))
+    (let time-async (- (time) start-async))
+
+    (set tests (assert-eq 1000 res-async "async computed value is 1000" tests))
+    (set tests (assert-eq 1000 res-non-async "computed value is 1000" tests))
+
+    (recap "Async/await tests passed" tests (- (time) start-time))
+
+    tests
+}))
+
+(let passed-async (async-tests))
