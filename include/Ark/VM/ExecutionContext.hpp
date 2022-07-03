@@ -9,8 +9,8 @@
  * 
  */
 
-#ifndef ARK_VM_VMRUNTIME_HPP
-#define ARK_VM_VMRUNTIME_HPP
+#ifndef ARK_VM_EXECUTIONCONTEXT_HPP
+#define ARK_VM_EXECUTIONCONTEXT_HPP
 
 #include <array>
 #include <limits>

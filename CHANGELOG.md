@@ -3,6 +3,7 @@
 ## [Unreleased]
 ### Added
 - added new `async` and `await` builtins
+     - they can access the outer scope
 - added methods to create and destroy an execution context and a future in the VM
 
 ### Changed

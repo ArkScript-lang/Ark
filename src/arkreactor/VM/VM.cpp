@@ -197,6 +197,13 @@ namespace Ark
         ExecutionContext* ctx = m_execution_contexts.back().get();
         ctx->scope_count_to_delete.emplace_back(0);
 
+        ctx->locals.reserve(m_execution_contexts.front()->locals.size());
+        for (std::size_t i = 0, end = m_execution_contexts.front()->locals.size(); i < end; ++i)
+        {
+            ctx->locals.push_back(
+                std::make_shared<Scope>(*m_execution_contexts.front()->locals[i]));
+        }
+
         return ctx;
     }
 
