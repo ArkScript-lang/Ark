@@ -157,6 +157,9 @@
     (set tests (assert-eq (argcount test_func) 3 "macro argcount" tests))
     (set tests (assert-eq (argcount test_func1) 2 "macro argcount" tests))
     (set tests (assert-eq (argcount test_func1_2) 1 "macro argcount" tests))
+    (set tests (assert-eq (argcount (fun () ())) 0 "macro argcount" tests))
+    (set tests (assert-eq (argcount (fun (a) ())) 1 "macro argcount" tests))
+    (set tests (assert-eq (argcount (fun (a b g h u t) ())) 6 "macro argcount" tests))
     (set tests (assert-eq (test_func 1 2 3) (test_func1 2 3) "macro partial" tests))
     (set tests (assert-eq (test_func 1 2 3) (test_func1_2 3) "macro partial" tests))
 
