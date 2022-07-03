@@ -4,8 +4,14 @@
 ### Added
 - new dependency: fmtlib
 - added the padding/instruction/argumentation values when displaying instructions in the bytecode reader
+- added new `async` and `await` builtins
+     - they can access the outer scope
+- added methods to create and destroy an execution context and a future in the VM
 
 ### Changed
+- the str:format functions now expects strings following this syntax: https://fmt.dev/latest/syntax.html
+- added documentation about the compiler implementation
+- added documentation about the virtual machine
 
 ### Deprecated
 
@@ -13,6 +19,7 @@
 - removing the custom string, replacing it with std::string (the format engine of the custom string had a lot of memory leaks)
 - `Utils::digPlaces` and `Utils::decPlaces` got removed as they were no longer needed
 - removed unused `NodeType::Closure`
+- removed the global VM lock
 
 ## [3.3.0] - 2022-07-02
 ### Added
@@ -28,9 +35,7 @@
 
 ### Changed
 - fixed underline bug in the error context
-- the str:format functions now expects strings following this syntax: https://fmt.dev/latest/syntax.html
-- added documentation about the compiler implementation
-- added documentation about the virtual machine
+- moved the frame counter of the VM to the ExecutionContext as this should be local to the context, not to the VM
 - changing the way we count received arguments in arity / type errors for failed function call
 - the CLI can now take a list of paths to the standard library, separated by ';'
 - instructions are on 4 bytes: 1 byte for the instruction, 1 byte of padding, 2 bytes for an immediate argument

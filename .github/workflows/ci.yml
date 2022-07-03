@@ -295,4 +295,4 @@ jobs:
           --trace-children=yes \
           --verbose -s \
           --error-exitcode=1 \
-          build/arkscript tests/arkscript/unittests.ark -L ./lib
+          build/arkscript tests/arkscript/unittests.ark -L ./lib valgrind

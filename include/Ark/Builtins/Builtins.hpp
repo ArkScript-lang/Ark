@@ -108,6 +108,12 @@ namespace Ark::internal::Builtins
         Value asinh_(std::vector<Value>& n, VM* vm);  // math:asinh, 1 argument
         Value atanh_(std::vector<Value>& n, VM* vm);  // math:atanh, 1 argument
     }
+
+    namespace Async
+    {
+        Value async(std::vector<Value>& n, VM* vm);  // async, 1+ arguments
+        Value await(std::vector<Value>& n, VM* vm);  // await, 1 argument
+    }
 }
 
 #endif
