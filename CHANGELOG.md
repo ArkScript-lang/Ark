@@ -1,6 +1,18 @@
 # Change Log
 
-## [Unreleased changes]
+## [Unreleased]
+### Added
+- added new `async` and `await` builtins
+- added methods to create and destroy an execution context and a future in the VM
+
+### Changed
+
+### Deprecated
+
+### Removed
+- removed the global VM lock
+
+## [3.3.0] - 2022-07-02
 ### Added
 - running the modules tests in the CI
 - new bytecode instruction `POP`, removing the last value from the stack
@@ -9,19 +21,14 @@
 - added lines and code coloration in the error context
 - added documentation about the compiler implementation
 - added documentation about the virtual machine
-- added new `async` and `await` builtins
-- added methods to create and destroy an execution context and a future in the VM
+- ArkScript now supports LTO if the compiler can do it
+    - this is disabled in GCC 8 as [this causes a runtime crash](https://github.com/ArkScript-lang/Ark/pull/385#issuecomment-1163597951) due to an ABI breakage
 
 ### Changed
 - fixed underline bug in the error context
 - moved the frame counter of the VM to the ExecutionContext as this should be local to the context, not to the VM
 - changing the way we count received arguments in arity / type errors for failed function call
 - the CLI can now take a list of paths to the standard library, separated by ';'
-
-### Deprecated
-
-### Removed
-- removed the global VM lock
 
 ## [3.2.0] - 2022-02-19
 ### Added
