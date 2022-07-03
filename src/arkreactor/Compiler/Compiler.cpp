@@ -37,32 +37,49 @@ namespace Ark
         m_code_pages.emplace_back();  // create empty page
 
         // gather symbols, values, and start to create code segments
-        _compile(m_optimizer.ast(), /* current_page */ 0, /* produces_result */ false, /* is_terminal */ false);
+        compileExpression(m_optimizer.ast(), /* current_page */ 0, /* is_result_unused */ false, /* is_terminal */ false);
         // throw an error on undefined symbol uses
         checkForUndefinedSymbol();
 
         pushSymAndValTables();
 
         // push the different code segments
-        for (const bytecode_t& page : m_code_pages)
+        for (std::size_t i = 0, end = m_code_pages.size(); i < end; ++i)
         {
-            m_bytecode.push_back(Instruction::CODE_SEGMENT_START);
-
-            // push number of elements
-            pushNumber(static_cast<uint16_t>(page.size() + 1));
-
-            for (auto inst : page)
-                m_bytecode.push_back(inst);
+            std::vector<Word>& page = m_code_pages[i];
             // just in case we got too far, always add a HALT to be sure the
             // VM won't do anything crazy
-            m_bytecode.push_back(Instruction::HALT);
+            page.push_back(Instruction::HALT);
+
+            // push number of elements
+            std::size_t page_size = page.size();
+            if (page_size > std::numeric_limits<uint16_t>::max())
+                throw std::overflow_error("Size of page " + std::to_string(i) + " exceeds the maximum size of 2^16 - 1");
+
+            m_bytecode.push_back(Instruction::CODE_SEGMENT_START);
+            m_bytecode.push_back(static_cast<uint16_t>((page_size & 0xff00) >> 8));
+            m_bytecode.push_back(static_cast<uint16_t>(page_size & 0x00ff));
+
+            for (auto inst : page)
+            {
+                m_bytecode.push_back(inst.padding);
+                m_bytecode.push_back(inst.opcode);
+                m_bytecode.push_back(inst.bytes.first);
+                m_bytecode.push_back(inst.bytes.second);
+            }
         }
 
         if (!m_code_pages.size())
         {
+            // code segment with a single instruction
             m_bytecode.push_back(Instruction::CODE_SEGMENT_START);
-            pushNumber(1_u16);
+            m_bytecode.push_back(0_u8);
+            m_bytecode.push_back(1_u8);
+
+            m_bytecode.push_back(0_u8);
             m_bytecode.push_back(Instruction::HALT);
+            m_bytecode.push_back(0_u8);
+            m_bytecode.push_back(0_u8);
         }
 
         constexpr std::size_t header_size = 18;
@@ -104,17 +121,19 @@ namespace Ark
         m_bytecode.push_back(0_u8);
 
         // push version
-        pushNumber(ARK_VERSION_MAJOR);
-        pushNumber(ARK_VERSION_MINOR);
-        pushNumber(ARK_VERSION_PATCH);
+        for (int n : std::array<int, 3> { ARK_VERSION_MAJOR, ARK_VERSION_MINOR, ARK_VERSION_PATCH })
+        {
+            m_bytecode.push_back(static_cast<uint16_t>((n & 0xff00) >> 8));
+            m_bytecode.push_back(static_cast<uint16_t>(n & 0x00ff));
+        }
 
         // push timestamp
         unsigned long long timestamp = std::chrono::duration_cast<std::chrono::seconds>(
                                            std::chrono::system_clock::now().time_since_epoch())
                                            .count();
-        for (char c = 0; c < 8; c++)
+        for (std::size_t i = 0; i < 8; ++i)
         {
-            unsigned shift = 8 * (7 - c);
+            unsigned shift = 8 * (7 - i);
             uint8_t ts_byte = (timestamp & (0xffULL << shift)) >> shift;
             m_bytecode.push_back(ts_byte);
         }
@@ -122,17 +141,14 @@ namespace Ark
 
     void Compiler::pushSymAndValTables()
     {
-        /*
-            - symbols table
-                + elements
-            - values table header
-                + elements
-         */
+        std::size_t symbol_size = m_symbols.size();
+        if (symbol_size > std::numeric_limits<uint16_t>::max())
+            throw std::overflow_error("Too many symbols: " + std::to_string(symbol_size) + ", exceeds the maximum size of 2^16 - 1");
 
         m_bytecode.push_back(Instruction::SYM_TABLE_START);
-        // push size
-        pushNumber(static_cast<uint16_t>(m_symbols.size()));
-        // push elements
+        m_bytecode.push_back(static_cast<uint16_t>((symbol_size & 0xff00) >> 8));
+        m_bytecode.push_back(static_cast<uint16_t>(symbol_size & 0x00ff));
+
         for (auto sym : m_symbols)
         {
             // push the string, null terminated
@@ -142,12 +158,15 @@ namespace Ark
             m_bytecode.push_back(0_u8);
         }
 
-        // values table
+        std::size_t value_size = m_values.size();
+        if (value_size > std::numeric_limits<uint16_t>::max())
+            throw std::overflow_error("Too many values: " + std::to_string(value_size) + ", exceeds the maximum size of 2^16 - 1");
+
         m_bytecode.push_back(Instruction::VAL_TABLE_START);
-        // push size
-        pushNumber(static_cast<uint16_t>(m_values.size()));
-        // push elements (separated with 0x00)
-        for (auto val : m_values)
+        m_bytecode.push_back(static_cast<uint16_t>((value_size & 0xff00) >> 8));
+        m_bytecode.push_back(static_cast<uint16_t>(value_size & 0x00ff));
+
+        for (const ValTableElem& val : m_values)
         {
             if (val.type == ValTableElemType::Number)
             {
@@ -167,7 +186,9 @@ namespace Ark
             else if (val.type == ValTableElemType::PageAddr)
             {
                 m_bytecode.push_back(Instruction::FUNC_TYPE);
-                pushNumber(static_cast<uint16_t>(std::get<std::size_t>(val.value)));
+                std::size_t addr = std::get<std::size_t>(val.value);
+                m_bytecode.push_back(static_cast<uint16_t>((addr & 0xff00) >> 8));
+                m_bytecode.push_back(static_cast<uint16_t>(addr & 0x00ff));
             }
             else
                 throw CompilationError("trying to put a value in the value table, but the type isn't handled.\nCertainly a logic problem in the compiler source code");
@@ -187,7 +208,7 @@ namespace Ark
         return n;
     }
 
-    std::optional<std::size_t> Compiler::isOperator(const std::string& name) noexcept
+    std::optional<std::size_t> Compiler::getOperator(const std::string& name) noexcept
     {
         auto it = std::find(internal::operators.begin(), internal::operators.end(), name);
         if (it != internal::operators.end())
@@ -195,7 +216,7 @@ namespace Ark
         return std::nullopt;
     }
 
-    std::optional<std::size_t> Compiler::isBuiltin(const std::string& name) noexcept
+    std::optional<std::size_t> Compiler::getBuiltin(const std::string& name) noexcept
     {
         auto it = std::find_if(Builtins::builtins.begin(), Builtins::builtins.end(),
                                [&name](const std::pair<std::string, Value>& element) -> bool {
@@ -206,13 +227,22 @@ namespace Ark
         return std::nullopt;
     }
 
-    void Compiler::pushSpecificInstArgc(Instruction inst, uint16_t previous, int p) noexcept
+    uint16_t Compiler::computeSpecificInstArgc(Instruction inst, uint16_t previous) noexcept
     {
-        if (inst == Instruction::LIST)
-            pushNumber(previous, page_ptr(p));
-        else if (inst == Instruction::APPEND || inst == Instruction::APPEND_IN_PLACE ||
-                 inst == Instruction::CONCAT || inst == Instruction::CONCAT_IN_PLACE)
-            pushNumber(previous - 1, page_ptr(p));
+        switch (inst)
+        {
+            case Instruction::LIST:
+                return previous;
+
+            case Instruction::APPEND:
+            case Instruction::APPEND_IN_PLACE:
+            case Instruction::CONCAT:
+            case Instruction::CONCAT_IN_PLACE:
+                return previous - 1;
+
+            default:
+                return 0;
+        }
     }
 
     bool Compiler::mayBeFromPlugin(const std::string& name) noexcept
@@ -230,44 +260,36 @@ namespace Ark
         throw CompilationError(makeNodeBasedErrorCtx(message, node));
     }
 
-    void Compiler::_compile(const Node& x, int p, bool produces_result, bool is_terminal, const std::string& var_name)
+    void Compiler::compileExpression(const Node& x, int p, bool is_result_unused, bool is_terminal, const std::string& var_name)
     {
         // register symbols
         if (x.nodeType() == NodeType::Symbol)
-            compileSymbol(x, p, produces_result);
+            compileSymbol(x, p, is_result_unused);
         else if (x.nodeType() == NodeType::GetField)
         {
-            std::string name = x.string();
-            // 'name' shouldn't be a builtin/operator, we can use it as-is
             uint16_t i = addSymbol(x);
-
-            page(p).emplace_back(Instruction::GET_FIELD);
-            pushNumber(i, page_ptr(p));
+            page(p).emplace_back(Instruction::GET_FIELD, i);
         }
         // register values
         else if (x.nodeType() == NodeType::String || x.nodeType() == NodeType::Number)
         {
             uint16_t i = addValue(x);
 
-            if (!produces_result)
-            {
-                page(p).emplace_back(Instruction::LOAD_CONST);
-                pushNumber(i, page_ptr(p));
-            }
+            if (!is_result_unused)
+                page(p).emplace_back(Instruction::LOAD_CONST, i);
         }
         // empty code block should be nil
         else if (x.constList().empty())
         {
-            if (!produces_result)
+            if (!is_result_unused)
             {
-                auto it_builtin = isBuiltin("nil");
-                page(p).emplace_back(Instruction::BUILTIN);
-                pushNumber(static_cast<uint16_t>(it_builtin.value()), page_ptr(p));
+                static const std::optional<std::size_t> nil = getBuiltin("nil");
+                page(p).emplace_back(Instruction::BUILTIN, static_cast<uint16_t>(nil.value()));
             }
         }
         // specific instructions
-        else if (auto c0 = x.constList()[0]; c0.nodeType() == NodeType::Symbol && isSpecific(c0.string()).has_value())
-            compileSpecific(c0, x, p, produces_result);
+        else if (auto c0 = x.constList()[0]; c0.nodeType() == NodeType::Symbol && getSpecific(c0.string()).has_value())
+            compileSpecific(c0, x, p, is_result_unused);
         // registering structures
         else if (x.constList()[0].nodeType() == NodeType::Keyword)
         {
@@ -276,7 +298,7 @@ namespace Ark
             switch (n)
             {
                 case Keyword::If:
-                    compileIf(x, p, produces_result, is_terminal, var_name);
+                    compileIf(x, p, is_result_unused, is_terminal, var_name);
                     break;
 
                 case Keyword::Set:
@@ -288,17 +310,17 @@ namespace Ark
                     break;
 
                 case Keyword::Fun:
-                    compileFunction(x, p, produces_result, var_name);
+                    compileFunction(x, p, is_result_unused, var_name);
                     break;
 
                 case Keyword::Begin:
                 {
                     for (std::size_t i = 1, size = x.constList().size(); i < size; ++i)
-                        _compile(
+                        compileExpression(
                             x.constList()[i],
                             p,
                             // All the nodes in a begin (except for the last one) are producing a result that we want to drop.
-                            (i != size - 1) ? true : produces_result,
+                            (i != size - 1) ? true : is_result_unused,
                             // If the begin is a terminal node, only its last node is terminal.
                             is_terminal ? (i == size - 1) : false,
                             var_name);
@@ -314,11 +336,11 @@ namespace Ark
                     break;
 
                 case Keyword::Quote:
-                    compileQuote(x, p, produces_result, is_terminal, var_name);
+                    compileQuote(x, p, is_result_unused, is_terminal, var_name);
                     break;
 
                 case Keyword::Del:
-                    compileDel(x, p);
+                    page(p).emplace_back(Instruction::DEL, addSymbol(x.constList()[1]));
                     break;
             }
         }
@@ -326,37 +348,29 @@ namespace Ark
         {
             // if we are here, we should have a function name
             // push arguments first, then function name, then call it
-            handleCalls(x, p, produces_result, is_terminal, var_name);
+            handleCalls(x, p, is_result_unused, is_terminal, var_name);
         }
     }
 
-    void Compiler::compileSymbol(const Node& x, int p, bool produces_result)
+    void Compiler::compileSymbol(const Node& x, int p, bool is_result_unused)
     {
         std::string name = x.string();
 
-        if (auto it_builtin = isBuiltin(name))
-        {
-            page(p).emplace_back(Instruction::BUILTIN);
-            pushNumber(static_cast<uint16_t>(it_builtin.value()), page_ptr(p));
-        }
-        else if (auto it_operator = isOperator(name))
+        if (auto it_builtin = getBuiltin(name))
+            page(p).emplace_back(Instruction::BUILTIN, static_cast<uint16_t>(it_builtin.value()));
+        else if (auto it_operator = getOperator(name))
             page(p).emplace_back(static_cast<uint8_t>(Instruction::FIRST_OPERATOR + it_operator.value()));
-        else  // var-use
-        {
-            uint16_t i = addSymbol(x);
+        else
+            page(p).emplace_back(Instruction::LOAD_SYMBOL, addSymbol(x));  // using the variable
 
-            page(p).emplace_back(Instruction::LOAD_SYMBOL);
-            pushNumber(i, page_ptr(p));
-        }
-
-        if (produces_result)
+        if (is_result_unused)
             page(p).push_back(Instruction::POP);
     }
 
-    void Compiler::compileSpecific(const Node& c0, const Node& x, int p, bool produces_result)
+    void Compiler::compileSpecific(const Node& c0, const Node& x, int p, bool is_result_unused)
     {
         std::string name = c0.string();
-        Instruction inst = isSpecific(name).value();
+        Instruction inst = getSpecific(name).value();
 
         // length of at least 1 since we got a symbol name
         uint16_t argc = countArkObjects(x.constList()) - 1;
@@ -373,50 +387,46 @@ namespace Ark
             uint16_t diff = i - j;
             while (j < i)
             {
-                _compile(x.constList()[j], p, false, false);
+                compileExpression(x.constList()[j], p, false, false);
                 ++j;
             }
-            _compile(x.constList()[i], p, false, false);
+            compileExpression(x.constList()[i], p, false, false);
             i -= diff;
         }
 
         // put inst and number of arguments
-        page(p).emplace_back(inst);
-        pushSpecificInstArgc(inst, argc, p);
+        page(p).emplace_back(inst, computeSpecificInstArgc(inst, argc));
 
-        if (produces_result && name != "pop!")  // pop! never pushes a value
+        if (is_result_unused && name != "pop!")  // pop! never pushes a value
             page(p).push_back(Instruction::POP);
     }
 
-    void Compiler::compileIf(const Node& x, int p, bool produces_result, bool is_terminal, const std::string& var_name)
+    void Compiler::compileIf(const Node& x, int p, bool is_result_unused, bool is_terminal, const std::string& var_name)
     {
         // compile condition
-        _compile(x.constList()[1], p, false, false);
+        compileExpression(x.constList()[1], p, false, false);
 
         // jump only if needed to the if
-        page(p).push_back(Instruction::POP_JUMP_IF_TRUE);
         std::size_t jump_to_if_pos = page(p).size();
-        // absolute address to jump to if condition is true
-        pushNumber(0_u16, page_ptr(p));
+        page(p).push_back(Instruction::POP_JUMP_IF_TRUE);
 
         // else code
         if (x.constList().size() == 4)  // we have an else clause
-            _compile(x.constList()[3], p, produces_result, is_terminal, var_name);
+            compileExpression(x.constList()[3], p, is_result_unused, is_terminal, var_name);
 
         // when else is finished, jump to end
-        page(p).push_back(Instruction::JUMP);
         std::size_t jump_to_end_pos = page(p).size();
-        pushNumber(0_u16, page_ptr(p));
+        page(p).push_back(Instruction::JUMP);
 
-        // set jump to if pos
-        setNumberAt(p, jump_to_if_pos, page(p).size());
+        // absolute address to jump to if condition is true
+        page(p)[jump_to_if_pos].data = static_cast<uint16_t>(page(p).size());
         // if code
-        _compile(x.constList()[2], p, produces_result, is_terminal, var_name);
+        compileExpression(x.constList()[2], p, is_result_unused, is_terminal, var_name);
         // set jump to end pos
-        setNumberAt(p, jump_to_end_pos, page(p).size());
+        page(p)[jump_to_end_pos].data = static_cast<uint16_t>(page(p).size());
     }
 
-    void Compiler::compileFunction(const Node& x, int p, bool produces_result, const std::string& var_name)
+    void Compiler::compileFunction(const Node& x, int p, bool is_result_unused, const std::string& var_name)
     {
         // capture, if needed
         for (auto it = x.constList()[1].constList().begin(), it_end = x.constList()[1].constList().end(); it != it_end; ++it)
@@ -429,59 +439,57 @@ namespace Ark
                     // we didn't find it in the defined symbol list, thus we can't capture it
                     throwCompilerError("Can not capture " + it->string() + " because it is referencing an unbound variable.", *it);
                 }
-                page(p).emplace_back(Instruction::CAPTURE);
+
                 addDefinedSymbol(it->string());
-                uint16_t var_id = addSymbol(*it);
-                pushNumber(var_id, page_ptr(p));
+                page(p).emplace_back(Instruction::CAPTURE, addSymbol(*it));
             }
         }
 
         // create new page for function body
         m_code_pages.emplace_back();
         std::size_t page_id = m_code_pages.size() - 1;
-        // load value on the stack
-        page(p).emplace_back(Instruction::LOAD_CONST);
-        // save page_id into the constants table as PageAddr
-        pushNumber(addValue(page_id, x), page_ptr(p));
+        // save page_id into the constants table as PageAddr and load the const
+        page(p).emplace_back(Instruction::LOAD_CONST, addValue(page_id, x));
 
         // pushing arguments from the stack into variables in the new scope
         for (auto it = x.constList()[1].constList().begin(), it_end = x.constList()[1].constList().end(); it != it_end; ++it)
         {
             if (it->nodeType() == NodeType::Symbol)
             {
-                page(page_id).emplace_back(Instruction::MUT);
-                uint16_t var_id = addSymbol(*it);
                 addDefinedSymbol(it->string());
-                pushNumber(var_id, page_ptr(page_id));
+                page(page_id).emplace_back(Instruction::MUT, addSymbol(*it));
             }
         }
 
         // push body of the function
-        _compile(x.constList()[2], page_id, false, true, var_name);
+        compileExpression(x.constList()[2], page_id, false, true, var_name);
 
         // return last value on the stack
         page(page_id).emplace_back(Instruction::RET);
 
-        if (produces_result)
+        // if the computed function is unused, pop it
+        if (is_result_unused)
             page(p).push_back(Instruction::POP);
     }
 
     void Compiler::compileLetMutSet(Keyword n, const Node& x, int p)
     {
+        std::string name = x.constList()[1].string();
         uint16_t i = addSymbol(x.constList()[1]);
         if (n != Keyword::Set)
-            addDefinedSymbol(x.constList()[1].string());
+            addDefinedSymbol(name);
 
         // put value before symbol id
-        putValue(x, p, false);
+        // starting at index = 2 because x is a (let|mut|set variable ...) node
+        for (std::size_t idx = 2, end = x.constList().size(); idx < end; ++idx)
+            compileExpression(x.constList()[idx], p, false, false, name);
 
         if (n == Keyword::Let)
-            page(p).push_back(Instruction::LET);
+            page(p).emplace_back(Instruction::LET, i);
         else if (n == Keyword::Mut)
-            page(p).push_back(Instruction::MUT);
+            page(p).emplace_back(Instruction::MUT, i);
         else
-            page(p).push_back(Instruction::STORE);
-        pushNumber(i, page_ptr(p));
+            page(p).emplace_back(Instruction::STORE, i);
     }
 
     void Compiler::compileWhile(const Node& x, int p)
@@ -489,36 +497,33 @@ namespace Ark
         // save current position to jump there at the end of the loop
         std::size_t current = page(p).size();
         // push condition
-        _compile(x.constList()[1], p, false, false);
+        compileExpression(x.constList()[1], p, false, false);
         // absolute jump to end of block if condition is false
-        page(p).push_back(Instruction::POP_JUMP_IF_FALSE);
         std::size_t jump_to_end_pos = page(p).size();
-        // absolute address to jump to if condition is false
-        pushNumber(0_u16, page_ptr(p));
+        page(p).push_back(Instruction::POP_JUMP_IF_FALSE);
         // push code to page
-        _compile(x.constList()[2], p, true, false);
+        compileExpression(x.constList()[2], p, true, false);
+
         // loop, jump to the condition
-        page(p).push_back(Instruction::JUMP);
-        // abosolute address
-        pushNumber(static_cast<uint16_t>(current), page_ptr(p));
-        // set jump to end pos
-        setNumberAt(p, jump_to_end_pos, page(p).size());
+        page(p).emplace_back(Instruction::JUMP, current);
+
+        // absolute address to jump to if condition is false
+        page(p)[jump_to_end_pos].data = static_cast<uint16_t>(page(p).size());
     }
 
-    void Compiler::compileQuote(const Node& x, int p, bool produces_result, bool is_terminal, const std::string& var_name)
+    void Compiler::compileQuote(const Node& x, int p, bool is_result_unused, bool is_terminal, const std::string& var_name)
     {
         // create new page for quoted code
         m_code_pages.emplace_back();
         std::size_t page_id = m_code_pages.size() - 1;
-        _compile(x.constList()[1], page_id, false, is_terminal, var_name);
+        compileExpression(x.constList()[1], page_id, false, is_terminal, var_name);
         page(page_id).emplace_back(Instruction::RET);  // return to the last frame
 
         // call it
         uint16_t id = addValue(page_id, x);  // save page_id into the constants table as PageAddr
-        page(p).emplace_back(Instruction::LOAD_CONST);
-        pushNumber(id, page_ptr(p));
+        page(p).emplace_back(Instruction::LOAD_CONST, id);
 
-        if (produces_result)
+        if (is_result_unused)
             page(p).push_back(Instruction::POP);
     }
 
@@ -529,24 +534,14 @@ namespace Ark
         // save plugin name to use it later
         m_plugins.push_back(x.constList()[1].string());
         // add plugin instruction + id of the constant refering to the plugin path
-        page(p).emplace_back(Instruction::PLUGIN);
-        pushNumber(id, page_ptr(p));
+        page(p).emplace_back(Instruction::PLUGIN, id);
     }
 
-    void Compiler::compileDel(const Node& x, int p)
-    {
-        // get id of symbol to delete
-        uint16_t i = addSymbol(x.constList()[1]);
-
-        page(p).emplace_back(Instruction::DEL);
-        pushNumber(i, page_ptr(p));
-    }
-
-    void Compiler::handleCalls(const Node& x, int p, bool produces_result, bool is_terminal, const std::string& var_name)
+    void Compiler::handleCalls(const Node& x, int p, bool is_result_unused, bool is_terminal, const std::string& var_name)
     {
         m_temp_pages.emplace_back();
         int proc_page = -static_cast<int>(m_temp_pages.size());
-        _compile(x.constList()[0], proc_page, false, false);  // storing proc
+        compileExpression(x.constList()[0], proc_page, false, false);  // storing proc
 
         // trying to handle chained closure.field.field.field...
         std::size_t n = 1;  // we need it later
@@ -555,17 +550,15 @@ namespace Ark
         {
             if (x.constList()[n].nodeType() == NodeType::GetField)
             {
-                _compile(x.constList()[n], proc_page, false, false);
+                compileExpression(x.constList()[n], proc_page, false, false);
                 n++;
             }
             else
                 break;
         }
-        std::size_t proc_page_len = m_temp_pages.back().size();
 
-        // we know that operators take only 1 instruction, so if there are more
         // it's a builtin/function
-        if (proc_page_len > 1)
+        if (m_temp_pages.back()[0].opcode < Instruction::FIRST_OPERATOR)
         {
             if (is_terminal && x.constList()[0].nodeType() == NodeType::Symbol && var_name == x.constList()[0].string())
             {
@@ -574,26 +567,22 @@ namespace Ark
 
                 // push the arguments in reverse order
                 for (std::size_t i = x.constList().size() - 1; i >= n; --i)
-                    _compile(x.constList()[i], p, false, false);
+                    compileExpression(x.constList()[i], p, false, false);
 
                 // jump to the top of the function
-                page(p).push_back(Instruction::JUMP);
-                pushNumber(0_u16, page_ptr(p));
-
+                page(p).emplace_back(Instruction::JUMP, 0_u16);
                 return;  // skip the possible Instruction::POP at the end
             }
             else
             {
                 // push arguments on current page
                 for (auto exp = x.constList().begin() + n, exp_end = x.constList().end(); exp != exp_end; ++exp)
-                    _compile(*exp, p, false, false);
+                    compileExpression(*exp, p, false, false);
                 // push proc from temp page
-                for (auto const& inst : m_temp_pages.back())
-                    page(p).push_back(inst);
+                for (const Word& word : m_temp_pages.back())
+                    page(p).push_back(word);
                 m_temp_pages.pop_back();
 
-                // call the procedure
-                page(p).push_back(Instruction::CALL);
                 // number of arguments
                 std::size_t args_count = 0;
                 for (auto it = x.constList().begin() + 1, it_end = x.constList().end(); it != it_end; ++it)
@@ -602,23 +591,24 @@ namespace Ark
                         it->nodeType() != NodeType::Capture)
                         args_count++;
                 }
-                pushNumber(static_cast<uint16_t>(args_count), page_ptr(p));
+                // call the procedure
+                page(p).emplace_back(Instruction::CALL, args_count);
             }
         }
         else  // operator
         {
             // retrieve operator
-            auto op_inst = m_temp_pages.back()[0];
+            auto op = m_temp_pages.back()[0];
             m_temp_pages.pop_back();
 
-            if (op_inst == Instruction::ASSERT)
-                produces_result = false;
+            if (op.opcode == Instruction::ASSERT)
+                is_result_unused = false;
 
             // push arguments on current page
             std::size_t exp_count = 0;
             for (std::size_t index = n, size = x.constList().size(); index < size; ++index)
             {
-                _compile(x.constList()[index], p, false, false);
+                compileExpression(x.constList()[index], p, false, false);
 
                 if ((index + 1 < size &&
                      x.constList()[index + 1].nodeType() != NodeType::GetField &&
@@ -629,16 +619,16 @@ namespace Ark
                 // in order to be able to handle things like (op A B C D...)
                 // which should be transformed into A B op C op D op...
                 if (exp_count >= 2)
-                    page(p).push_back(op_inst);
+                    page(p).emplace_back(op.opcode, 2);  // TODO generalize to n arguments (n >= 2)
             }
 
             if (exp_count == 1)
-                page(p).push_back(op_inst);
+                page(p).push_back(op);
 
             // need to check we didn't push the (op A B C D...) things for operators not supporting it
             if (exp_count > 2)
             {
-                switch (op_inst)
+                switch (op.opcode)
                 {
                     // authorized instructions
                     case Instruction::ADD: [[fallthrough]];
@@ -653,24 +643,15 @@ namespace Ark
                     default:
                         throwCompilerError(
                             "can not create a chained expression (of length " + std::to_string(exp_count) +
-                                ") for operator `" + std::string(internal::operators[static_cast<std::size_t>(op_inst - Instruction::FIRST_OPERATOR)]) +
+                                ") for operator `" + std::string(internal::operators[static_cast<std::size_t>(op.opcode - Instruction::FIRST_OPERATOR)]) +
                                 "'. You most likely forgot a `)'.",
                             x);
                 }
             }
         }
 
-        if (produces_result)
+        if (is_result_unused)
             page(p).push_back(Instruction::POP);
-    }
-
-    void Compiler::putValue(const Node& x, int p, bool produces_result)
-    {
-        std::string name = x.constList()[1].string();
-
-        // starting at index = 2 because x is a (let|mut|set variable ...) node
-        for (std::size_t idx = 2, end = x.constList().size(); idx < end; ++idx)
-            _compile(x.constList()[idx], p, produces_result, false, name);
     }
 
     uint16_t Compiler::addSymbol(const Node& sym)
@@ -770,19 +751,5 @@ namespace Ark
         }
 
         return suggestion;
-    }
-
-    void Compiler::pushNumber(uint16_t n, std::vector<uint8_t>* page) noexcept
-    {
-        if (page == nullptr)
-        {
-            m_bytecode.push_back((n & 0xff00) >> 8);
-            m_bytecode.push_back(n & 0x00ff);
-        }
-        else
-        {
-            page->emplace_back((n & 0xff00) >> 8);
-            page->emplace_back(n & 0x00ff);
-        }
     }
 }

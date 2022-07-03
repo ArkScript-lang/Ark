@@ -323,7 +323,7 @@ namespace Ark
         while (m_bytecode[i] == Instruction::CODE_SEGMENT_START)
         {
             i++;
-            uint16_t size = readNumber(i);
+            uint16_t size = readNumber(i) * 4;  // because the instructions are on 4 bytes
             i++;
 
             m_pages.emplace_back();

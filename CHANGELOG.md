@@ -3,6 +3,7 @@
 ## [Unreleased]
 ### Added
 - new dependency: fmtlib
+- added the padding/instruction/argumentation values when displaying instructions in the bytecode reader
 
 ### Changed
 
@@ -11,6 +12,7 @@
 ### Removed
 - removing the custom string, replacing it with std::string (the format engine of the custom string had a lot of memory leaks)
 - `Utils::digPlaces` and `Utils::decPlaces` got removed as they were no longer needed
+- removed unused `NodeType::Closure`
 
 ## [3.3.0] - 2022-07-02
 ### Added
@@ -31,6 +33,8 @@
 - added documentation about the virtual machine
 - changing the way we count received arguments in arity / type errors for failed function call
 - the CLI can now take a list of paths to the standard library, separated by ';'
+- instructions are on 4 bytes: 1 byte for the instruction, 1 byte of padding, 2 bytes for an immediate argument
+- enhanced the bytecode reader and its command line interface
 
 ## [3.2.0] - 2022-02-19
 ### Added
