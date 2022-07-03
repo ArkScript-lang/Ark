@@ -8,6 +8,8 @@
 
 ### Changed
 - printing a closure will now print its fields instead of `Closure<1432>`
+- macros are always evaluated, even when they aren't any user defined macro
+- argcount works on symbols and anonymous functions
 
 ### Deprecated
 
