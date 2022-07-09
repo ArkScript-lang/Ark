@@ -3,7 +3,6 @@
 
 #include <Ark/Builtins/Builtins.hpp>
 
-#include <Ark/Builtins/BuiltinsErrors.inl>
 #include <Ark/TypeChecker.hpp>
 #include <Ark/VM/VM.hpp>
 
