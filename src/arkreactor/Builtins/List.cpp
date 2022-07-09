@@ -3,7 +3,6 @@
 #include <iterator>
 #include <algorithm>
 
-#include <Ark/Builtins/BuiltinsErrors.inl>
 #include <Ark/TypeChecker.hpp>
 #include <Ark/VM/VM.hpp>
 
@@ -59,44 +58,6 @@ namespace Ark::internal::Builtins::List
         }
 
         return Value(-1);
-    }
-
-    /**
-     * @name list:removeAt
-     * @brief Remove an element in a List and return a new one
-     * @details The original list is not modified
-     * @param list the list to remove an element from
-     * @param index the index of the element to remove (can be negative to search from the end)
-     * =begin
-     * (list:removeAt [1 2 3] 0)  # [2 3]
-     * (list:removeAt [1 2 3] -1)  # [1 2]
-     * =end
-     * @author https://github.com/SuperFola
-     */
-    Value removeAtList(std::vector<Value>& n, VM* vm [[maybe_unused]])
-    {
-        static bool has_warned = false;
-        if (!has_warned)
-        {
-            std::cout << "list:removeAt will be deprecated in ArkScript 4.0.0, consider using pop! or pop\n";
-            has_warned = true;
-        }
-
-        // TEMP: not fixing the errors here because this will be deprecated and removed
-
-        if (n.size() != 2)
-            throw std::runtime_error(LIST_RMAT_ARITY);
-        if (n[0].valueType() != ValueType::List)
-            throw TypeError(LIST_RMAT_TE0);
-        if (n[1].valueType() != ValueType::Number)
-            throw TypeError(LIST_RMAT_TE1);
-
-        std::size_t idx = static_cast<std::size_t>(n[1].number());
-        if (idx >= n[0].list().size())
-            throw std::runtime_error(LIST_RMAT_OOR);
-
-        n[0].list().erase(n[0].list().begin() + idx);
-        return n[0];
     }
 
     /**

@@ -20,6 +20,7 @@
 - `Utils::digPlaces` and `Utils::decPlaces` got removed as they were no longer needed
 - removed unused `NodeType::Closure`
 - removed the global VM lock
+- removed deprecated code (`list:removeAt`, `ark` executable now replaced by `arkscript`)
 
 ## [3.3.0] - 2022-07-02
 ### Added
