@@ -17,19 +17,6 @@ int main(int argc, char** argv)
 {
     using namespace clipp;
 
-// TODO remove once next major version of ArkScript is available
-#if ARK_VERSION_MAJOR == 4
-#    error "this code block should be removed from ArkScript 4.x.y"
-#endif
-    {
-        namespace fs = std::filesystem;
-        fs::path program(argv[0]);
-
-        if (program.stem() == "ark")
-            std::cout << termcolor::yellow << "Warning" << termcolor::reset << " the command `ark' is being deprecated in favor of `arkscript'" << std::endl;
-    }
-
-
     enum class mode
     {
         help,
