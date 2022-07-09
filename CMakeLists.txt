@@ -3,8 +3,8 @@ cmake_minimum_required(VERSION 3.9)
 project(ark CXX)
 
 # VERSION
-set(ARK_VERSION_MAJOR 3)
-set(ARK_VERSION_MINOR 4)
+set(ARK_VERSION_MAJOR 4)
+set(ARK_VERSION_MINOR 0)
 set(ARK_VERSION_PATCH 0)
 
 include(cmake/link_time_optimization.cmake)
@@ -184,7 +184,6 @@ if (ARK_BUILD_EXE)
         ${ark_SOURCE_DIR}/src/arkscript/main.cpp)
 
     add_executable(arkscript ${EXE_SOURCES})
-    add_executable(ark ${EXE_SOURCES})
 
     if (MSVC)
         # Disable warnings for lib/replxx
@@ -199,16 +198,11 @@ if (ARK_BUILD_EXE)
     add_subdirectory("${ark_SOURCE_DIR}/lib/clipp" EXCLUDE_FROM_ALL)
 
     target_include_directories(arkscript PUBLIC "${ark_SOURCE_DIR}/src/arkscript/")
-    target_include_directories(ark PUBLIC "${ark_SOURCE_DIR}/src/arkscript/")
-
     target_link_libraries(arkscript PUBLIC ArkReactor replxx clipp termcolor)
-    target_link_libraries(ark PUBLIC ArkReactor replxx clipp termcolor)
 
     target_compile_features(arkscript PRIVATE cxx_std_17)
-    target_compile_features(ark PRIVATE cxx_std_17)
 
-    enable_lto(ark)
-    enable_lto(arkscript)
+    enable_ipo(arkscript)
 
     # Installs the arkscript executable.
     install(TARGETS arkscript

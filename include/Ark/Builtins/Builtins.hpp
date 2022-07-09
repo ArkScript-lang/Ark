@@ -37,7 +37,6 @@ namespace Ark::internal::Builtins
     {
         Value reverseList(std::vector<Value>& n, VM* vm);   // list:reverse, single arg
         Value findInList(std::vector<Value>& n, VM* vm);    // list:find, 2 arguments
-        Value removeAtList(std::vector<Value>& n, VM* vm);  // list:removeAt, 2 arguments -- DEPRECATED
         Value sliceList(std::vector<Value>& n, VM* vm);     // list:slice, 4 arguments
         Value sort_(std::vector<Value>& n, VM* vm);         // list:sort, 1 argument
         Value fill(std::vector<Value>& n, VM* vm);          // list:fill, 2 arguments

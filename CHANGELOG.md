@@ -14,6 +14,7 @@
 - removing the custom string, replacing it with std::string (the format engine of the custom string had a lot of memory leaks)
 - removing the custom string, replacing it with std::string (the format engine of the custom string had a lot of memory leaks)
 - `Utils::digPlaces` and `Utils::decPlaces` got removed as they were no longer needed
+- removed deprecated code (`list:removeAt`, `ark` executable now replaced by `arkscript`)
 
 ## [Unreleased version]
 ### Added
