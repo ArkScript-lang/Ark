@@ -153,7 +153,6 @@ All the external libraries we use are already included in [thirdparties](https:/
 Different CMake switches are available to customize the build:
 * `-DARK_BUILD_EXE` to generate an executable, defaults to Off, building a shared library only
 * `-DARK_ENABLE_SYSTEM` to enable `sys:exec` (execute shell commands without restrictions), defaults to On
-* `-DARK_PROFILER` to enable the [coz](https://github.com/plasma-umass/coz) profiler, defaults to Off
 * `-DARK_PROFILER_COUNT` to count every creation/copy/move of the internal value type, defaults to Off
 * `-DARK_PROFILER_MIPS` to enable the MIPS counting, defaults to Off
 * `-DARK_NO_STDLIB` to avoid the installation of the ArkScript standard library
