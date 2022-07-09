@@ -26,7 +26,6 @@
 #include <Ark/VM/Value/Closure.hpp>
 #include <Ark/VM/Value/UserType.hpp>
 #include <Ark/Platform.hpp>
-#include <Ark/Profiling.hpp>
 
 namespace Ark
 {

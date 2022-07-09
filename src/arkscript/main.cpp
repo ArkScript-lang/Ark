@@ -10,7 +10,6 @@
 
 #include <Ark/Ark.hpp>
 #include <Ark/REPL/Repl.hpp>
-#include <Ark/Profiling.hpp>
 
 int main(int argc, char** argv)
 {
