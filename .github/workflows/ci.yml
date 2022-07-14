@@ -126,13 +126,19 @@ jobs:
         ref: ${{ env.SQLITE_VERSION }}
         path: sqlite
 
-    - name: Download Windows dependencies
+    - uses: ilammy/msvc-dev-cmd@v1
       if: startsWith(matrix.config.name, 'Windows')
-      shell: bash
+
+    - name: Build Windows dependencies
+      if: startsWith(matrix.config.name, 'Windows')
+      shell: cmd
       run: |
         cd sqlite
-        ${{ matrix.config.preconfigure }}
-        "C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.32.31326/bin/Hostx64/x64/cl.exe" sqlite3.c -link -dll -out:sqlite3.dll
+        nmake /f makefile.msc sqlite3.c
+        cl sqlite3.c -link -dll -out:sqlite3.dll
+        cd ..
+        echo set(SQLite3_INCLUDE_DIR %cd%\sqlite) >> FindSQLite3.cmake
+        echo set(SQLite3_LIBRARY %cd%\sqlite\sqlite3.dll) >> FindSQLite3.cmake
 
     - name: Cache SQLite
       if: startsWith(matrix.config.name, 'Windows')
