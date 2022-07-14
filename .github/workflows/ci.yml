@@ -24,7 +24,7 @@ on:
 
 env:
   BUILD_TYPE: Release
-  SQLITE_VERSION: version-3.39.1
+  SQLITE_VERSION: 3390100  # 3.39.1
 
 jobs:
   build:
@@ -118,32 +118,19 @@ jobs:
       shell: bash
       run: env HOMEBREW_NO_AUTO_UPDATE=1 brew install openssl
 
+    - uses: ilammy/msvc-dev-cmd@v1
+      if: startsWith(matrix.config.name, 'Windows')
+
     - name: Download Windows dependencies
       if: startsWith(matrix.config.name, 'Windows')
-      uses: actions/checkout@v2
-      with:
-        repository: sqlite/sqlite
-        ref: ${{ env.SQLITE_VERSION }}
-        path: sqlite
-
-    - uses: ilammy/msvc-dev-cmd@v1
-      if: startsWith(matrix.config.name, 'Windows') && steps.cache-sqlite.outputs.cache-hit != 'true'
-
-    - name: Cache SQLite
-      if: startsWith(matrix.config.name, 'Windows') && steps.cache-sqlite.outputs.cache-hit != 'true'
-      id: cache-sqlite
-      uses: actions/cache@v3
-      with:
-        path: sqlite
-        key: ${{ runner.os }}-sqlite
-
-    - name: Build Windows dependencies
-      if: startsWith(matrix.config.name, 'Windows') && steps.cache-sqlite.outputs.cache-hit != 'true'
-      shell: cmd
+      shell: pwsh
       run: |
-        cd sqlite
-        nmake /f makefile.msc sqlite3.c
-        cl sqlite3.c -link -dll -out:sqlite3.dll
+        Invoke-RestMethod -Uri https://www.sqlite.org/2022/sqlite-dll-win64-x64-${Env:SQLITE_VERSION}.zip -OutFile sqlite.zip
+        Invoke-RestMethod -Uri https://www.sqlite.org/2022/sqlite-amalgamation-${Env:SQLITE_VERSION}.zip  -OutFile amalgation.zip
+        Expand-Archive sqlite.zip -DestinationPath sqlite_lib
+        Expand-Archive amalgation.zip -DestinationPath sqlite_code
+        cd sqlite_lib
+        lib /DEF:sqlite3.def /OUT:sqlite3.lib /MACHINE:x64
 
     - name: Configure CMake Ark
       shell: bash
@@ -160,9 +147,8 @@ jobs:
       shell: bash
       run: |
         cmake -Bbuild \
-          -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
-          -DSQLite3_INCLUDE_DIR=$(pwd)/sqlite/ \
-          -DSQLite3_LIBRARY=$(pwd)/sqlite/sqlite3.dll
+          -DSQLite3_INCLUDE_DIR=$(pwd)/sqlite_code/sqlite-amalgamation-${SQLITE_VERSION} \
+          -DSQLite3_LIBRARY=$(pwd)/sqlite_lib/sqlite3.lib
 
     - name: Build ArkScript
       shell: bash
