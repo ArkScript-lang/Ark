@@ -131,7 +131,7 @@ jobs:
       shell: bash
       run: |
         cd sqlite
-        nmake /f Makefile.msc sqlite3.dll TOP=.
+        cl sqlite3.c -link -dll -out:sqlite3.dll
 
     - name: Cache SQLite
       if: startsWith(matrix.config.name, 'Windows')
