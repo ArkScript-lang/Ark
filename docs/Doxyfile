@@ -47,12 +47,13 @@ WARN_LOGFILE           = warnings.log
 INPUT                  = ../include \
                          ../src     \
                          ./         \
-                         ../lib/modules/bitwise/documentation \
-                         ../lib/modules/console/documentation \
-                         ../lib/modules/hash/documentation    \
-                         ../lib/modules/http/documentation    \
-                         ../lib/modules/json/documentation    \
-                         ../lib/modules/msgpack/documentation \
+                         ../lib/modules/bitwise/documentation  \
+                         ../lib/modules/console/documentation  \
+                         ../lib/modules/database/documentation \
+                         ../lib/modules/hash/documentation     \
+                         ../lib/modules/http/documentation     \
+                         ../lib/modules/json/documentation     \
+                         ../lib/modules/msgpack/documentation  \
                          ../lib/modules/random/documentation
 FILE_PATTERNS          = *.hpp *.cpp *.md
 RECURSIVE              = YES
