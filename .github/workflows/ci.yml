@@ -131,6 +131,7 @@ jobs:
       shell: bash
       run: |
         cd sqlite
+        ${{ matrix.config.preconfigure }}
         cl sqlite3.c -link -dll -out:sqlite3.dll
 
     - name: Cache SQLite
