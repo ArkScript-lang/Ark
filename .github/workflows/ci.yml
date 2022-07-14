@@ -24,6 +24,7 @@ on:
 
 env:
   BUILD_TYPE: Release
+  SQLITE_VERSION: version-3.39.1
 
 jobs:
   build:
@@ -116,6 +117,28 @@ jobs:
       if: startsWith(matrix.config.name, 'MacOS')
       shell: bash
       run: env HOMEBREW_NO_AUTO_UPDATE=1 brew install openssl
+
+    - name: Download Windows dependencies
+      if: startsWith(matrix.config.name, 'Windows')
+      uses: actions/checkout@v2
+      with:
+        repository: sqlite/sqlite
+        ref: ${{ env.SQLITE_VERSION }}
+
+    - name: Download Windows dependencies
+      if: startsWith(matrix.config.name, 'Windows')
+      shell: bash
+      run: |
+        ls ; ls *
+        cd sqlite
+        nmake /f Makefile.msc sqlite3.dll TOP=.
+
+    - name: Cache SQLite
+      if: startsWith(matrix.config.name, 'Windows')
+      uses: actions/cache@v3
+      with:
+        path: sqlite
+        key: ${{ runner.os }}-sqlite
 
     - name: Configure CMake Ark
       shell: bash
