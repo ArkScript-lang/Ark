@@ -124,12 +124,12 @@ jobs:
       with:
         repository: sqlite/sqlite
         ref: ${{ env.SQLITE_VERSION }}
+        path: sqlite
 
     - name: Download Windows dependencies
       if: startsWith(matrix.config.name, 'Windows')
       shell: bash
       run: |
-        ls ; ls *
         cd sqlite
         nmake /f Makefile.msc sqlite3.dll TOP=.
 
