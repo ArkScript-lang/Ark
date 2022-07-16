@@ -7,6 +7,8 @@ The compiler is divided in multiple parts, interacting with other in sequence:
 * the optimizer, removing unused symbols from the AST
 * the compiler, generating bytecode from the AST
 
+There exists another compiler, the json compiler, converting a given code to JSON by iterating through the AST. It follows the same process as the compiler to generate the AST.
+
 ## Lexer
 
 Its role is quite simple: following a small set of rules, it will cut through a given input (the source code) in tokens:
@@ -109,3 +111,39 @@ Given an input node, we make a decision based on its type (`Compiler::_compile`)
     - the tail call optimization is handled here if applicable
     - we push the computed expression for the function call and discard the temporary page
     - we add the `CALL` instruction, the number of arguments
+
+## JSON Compiler
+
+Given an input node, we generate the corresponding JSON structure:
+- Symbol: `{"type": "Symbol", "name": "..."}`
+- Capture: `{"type": "Capture", "name": "..."}`
+- GetField: `{"type": "GetField", "name": "..."}`
+- String: `{"type": "String", "value": "..."}`
+- Number: `{"type": "Number", "value": ...}`
+- Function call: `{"type": "FunctionCall", "name": "...", "args": [{"type": "Symbol", "name": "..."} ...]}`
+- Keywords:
+    - Function declaration: `{"type": "Fun", "args": [{"type": "Symbol", "name": "..."} ...], "body": [...] | {...}}`
+    - Variable declaration/modification: `{"type": "Let|Mut|Set", "name": {"type": "Symbol", "name": "..."}, "value": {...}}`
+    - Condition: `{"type": "If", "condition": [...], "then": [...] | {}, "else": [...] | {}}`
+    - While loop: `{"type": "While", "condition": [...], "body": [...] | {}}`
+    - Begin: `{"type": "Begin", "children": [...]}`
+    - Import: `{"type": "Import", "value": {"type": "String", "value": "..."}}`
+    - Quote: `{"type": "Quote", "value": [...] | {}}`
+    - Del: `{"type": "Del", "value": {"type": "Symbol", "name": "..."}}`
+
+Some fields have been filled to give you an idea of what the `value` should look like in most cases. One should note that function arguments can have `Capture` nodes as well as `Symbol` nodes.
+
+Generic structure:
+~~~~{.json}
+{
+    "type": "<name>",
+    "value": ... || "..." || {...},  // optional
+    "name": "...",  // optional
+    "args": [{...}, ...],  // optional
+    "condition": [{...}, ...] || {...},  // optional
+    "then": [{...}, ...] || {...},  // optional
+    "else": [{...}, ...] || {...},  // optional
+    "body": [{...}, ...] || {...},  // optional
+    "children": [{...}, ...]  // optional
+}
+~~~~

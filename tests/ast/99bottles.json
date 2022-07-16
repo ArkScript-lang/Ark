@@ -1,0 +1,220 @@
+{
+    "type": "Begin",
+    "children": [
+        {
+            "type": "Let",
+            "name": {
+                "type": "Symbol",
+                "name": "arg"
+            },
+            "value": {
+                "type": "If",
+                "condition": {
+                    "type": "FunctionCall",
+                    "name": {
+                        "type": "Symbol",
+                        "name": ">="
+                    },
+                    "args": [
+                        {
+                            "type": "FunctionCall",
+                            "name": {
+                                "type": "Symbol",
+                                "name": "len"
+                            },
+                            "args": [
+                                {
+                                    "type": "Symbol",
+                                    "name": "sys:args"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "Number",
+                            "value": 1.000000
+                        }
+                    ]
+                },
+                "then": {
+                    "type": "FunctionCall",
+                    "name": {
+                        "type": "Symbol",
+                        "name": "toNumber"
+                    },
+                    "args": [
+                        {
+                            "type": "FunctionCall",
+                            "name": {
+                                "type": "Symbol",
+                                "name": "@"
+                            },
+                            "args": [
+                                {
+                                    "type": "Symbol",
+                                    "name": "sys:args"
+                                },
+                                {
+                                    "type": "Number",
+                                    "value": 0.000000
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "else": {
+                    "type": "Symbol",
+                    "name": "nil"
+                }
+            }
+        },
+        {
+            "type": "Let",
+            "name": {
+                "type": "Symbol",
+                "name": "i"
+            },
+            "value": {
+                "type": "If",
+                "condition": {
+                    "type": "FunctionCall",
+                    "name": {
+                        "type": "Symbol",
+                        "name": "nil?"
+                    },
+                    "args": [
+                        {
+                            "type": "Symbol",
+                            "name": "arg"
+                        }
+                    ]
+                },
+                "then": {
+                    "type": "Number",
+                    "value": 100.000000
+                },
+                "else": {
+                    "type": "Symbol",
+                    "name": "arg"
+                }
+            }
+        },
+        {
+            "type": "Mut",
+            "name": {
+                "type": "Symbol",
+                "name": "n"
+            },
+            "value": {
+                "type": "Symbol",
+                "name": "i"
+            }
+        },
+        {
+            "type": "While",
+            "condition": {
+                "type": "FunctionCall",
+                "name": {
+                    "type": "Symbol",
+                    "name": ">"
+                },
+                "args": [
+                    {
+                        "type": "Symbol",
+                        "name": "n"
+                    },
+                    {
+                        "type": "Number",
+                        "value": 1.000000
+                    }
+                ]
+            },
+            "body": {
+                "type": "Begin",
+                "children": [
+                    {
+                        "type": "FunctionCall",
+                        "name": {
+                            "type": "Symbol",
+                            "name": "print"
+                        },
+                        "args": [
+                            {
+                                "type": "FunctionCall",
+                                "name": {
+                                    "type": "Symbol",
+                                    "name": "str:format"
+                                },
+                                "args": [
+                                    {
+                                        "type": "String",
+                                        "value": "%% Bottles of beer on the wall
+%% bottles of beer
+Take one down, pass it around"
+                                    },
+                                    {
+                                        "type": "Symbol",
+                                        "name": "n"
+                                    },
+                                    {
+                                        "type": "Symbol",
+                                        "name": "n"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "Set",
+                        "name": {
+                            "type": "Symbol",
+                            "name": "n"
+                        },
+                        "value": {
+                            "type": "FunctionCall",
+                            "name": {
+                                "type": "Symbol",
+                                "name": "-"
+                            },
+                            "args": [
+                                {
+                                    "type": "Symbol",
+                                    "name": "n"
+                                },
+                                {
+                                    "type": "Number",
+                                    "value": 1.000000
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "type": "FunctionCall",
+                        "name": {
+                            "type": "Symbol",
+                            "name": "print"
+                        },
+                        "args": [
+                            {
+                                "type": "FunctionCall",
+                                "name": {
+                                    "type": "Symbol",
+                                    "name": "str:format"
+                                },
+                                "args": [
+                                    {
+                                        "type": "String",
+                                        "value": "%% Bottles of beer on the wall."
+                                    },
+                                    {
+                                        "type": "Symbol",
+                                        "name": "n"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    ]
+}

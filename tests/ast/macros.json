@@ -1,0 +1,1115 @@
+{
+    "type": "Begin",
+    "children": [
+        {
+            "type": "Let",
+            "name": {
+                "type": "Symbol",
+                "name": "test_func"
+            },
+            "value": {
+                "type": "Fun",
+                "args": [
+                    {
+                        "type": "Symbol",
+                        "name": "a"
+                    },
+                    {
+                        "type": "Symbol",
+                        "name": "b"
+                    },
+                    {
+                        "type": "Symbol",
+                        "name": "c"
+                    }
+                ],
+                "body": {
+                    "type": "FunctionCall",
+                    "name": {
+                        "type": "Symbol",
+                        "name": "*"
+                    },
+                    "args": [
+                        {
+                            "type": "Symbol",
+                            "name": "a"
+                        },
+                        {
+                            "type": "Symbol",
+                            "name": "b"
+                        },
+                        {
+                            "type": "Symbol",
+                            "name": "c"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "type": "Let",
+            "name": {
+                "type": "Symbol",
+                "name": "test_func1"
+            },
+            "value": {
+                "type": "Fun",
+                "args": [
+                    {
+                        "type": "Symbol",
+                        "name": "a1"
+                    },
+                    {
+                        "type": "Symbol",
+                        "name": "a2"
+                    }
+                ],
+                "body": {
+                    "type": "FunctionCall",
+                    "name": {
+                        "type": "Symbol",
+                        "name": "test_func"
+                    },
+                    "args": [
+                        {
+                            "type": "Number",
+                            "value": 1.000000
+                        },
+                        {
+                            "type": "Symbol",
+                            "name": "a1"
+                        },
+                        {
+                            "type": "Symbol",
+                            "name": "a2"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "type": "FunctionCall",
+            "name": {
+                "type": "Symbol",
+                "name": "print"
+            },
+            "args": [
+                {
+                    "type": "String",
+                    "value": "Generated partial functions for test_func (a b c) => (* a b c)"
+                }
+            ]
+        },
+        {
+            "type": "FunctionCall",
+            "name": {
+                "type": "Symbol",
+                "name": "print"
+            },
+            "args": [
+                {
+                    "type": "String",
+                    "value": "Expected arguments for test_func:  "
+                },
+                {
+                    "type": "Number",
+                    "value": 3.000000
+                },
+                {
+                    "type": "String",
+                    "value": ", expected "
+                },
+                {
+                    "type": "Number",
+                    "value": 3.000000
+                }
+            ]
+        },
+        {
+            "type": "FunctionCall",
+            "name": {
+                "type": "Symbol",
+                "name": "print"
+            },
+            "args": [
+                {
+                    "type": "String",
+                    "value": "Expected arguments for test_func1: "
+                },
+                {
+                    "type": "Number",
+                    "value": 2.000000
+                },
+                {
+                    "type": "String",
+                    "value": ", expected "
+                },
+                {
+                    "type": "Number",
+                    "value": 2.000000
+                }
+            ]
+        },
+        {
+            "type": "FunctionCall",
+            "name": {
+                "type": "Symbol",
+                "name": "print"
+            },
+            "args": [
+                {
+                    "type": "String",
+                    "value": "Calling them: "
+                },
+                {
+                    "type": "FunctionCall",
+                    "name": {
+                        "type": "Symbol",
+                        "name": "test_func"
+                    },
+                    "args": [
+                        {
+                            "type": "Number",
+                            "value": 1.000000
+                        },
+                        {
+                            "type": "Number",
+                            "value": 2.000000
+                        },
+                        {
+                            "type": "Number",
+                            "value": 3.000000
+                        }
+                    ]
+                },
+                {
+                    "type": "String",
+                    "value": " "
+                },
+                {
+                    "type": "FunctionCall",
+                    "name": {
+                        "type": "Symbol",
+                        "name": "test_func1"
+                    },
+                    "args": [
+                        {
+                            "type": "Number",
+                            "value": 2.000000
+                        },
+                        {
+                            "type": "Number",
+                            "value": 3.000000
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "FunctionCall",
+            "name": {
+                "type": "Symbol",
+                "name": "print"
+            },
+            "args": [
+                {
+                    "type": "String",
+                    "value": "Using macro foo (a b) => (+ a b): "
+                },
+                {
+                    "type": "FunctionCall",
+                    "name": {
+                        "type": "Symbol",
+                        "name": "+"
+                    },
+                    "args": [
+                        {
+                            "type": "Number",
+                            "value": 1.000000
+                        },
+                        {
+                            "type": "Number",
+                            "value": 2.000000
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "FunctionCall",
+            "name": {
+                "type": "Symbol",
+                "name": "print"
+            },
+            "args": [
+                {
+                    "type": "String",
+                    "value": "Using macro constant var=12: "
+                },
+                {
+                    "type": "Number",
+                    "value": 12.000000
+                }
+            ]
+        },
+        {
+            "type": "FunctionCall",
+            "name": {
+                "type": "Symbol",
+                "name": "print"
+            },
+            "args": [
+                {
+                    "type": "String",
+                    "value": "This was executed in a if macro, testing var == 12"
+                }
+            ]
+        },
+        {
+            "type": "FunctionCall",
+            "name": {
+                "type": "Symbol",
+                "name": "print"
+            },
+            "args": [
+                {
+                    "type": "String",
+                    "value": "This was executed in a if macro, testing (and true true)"
+                }
+            ]
+        },
+        {
+            "type": "Let",
+            "name": {
+                "type": "Symbol",
+                "name": "a_func"
+            },
+            "value": {
+                "type": "Fun",
+                "args": [
+                    {
+                        "type": "Symbol",
+                        "name": "a"
+                    },
+                    {
+                        "type": "Symbol",
+                        "name": "b"
+                    }
+                ],
+                "body": {
+                    "type": "FunctionCall",
+                    "name": {
+                        "type": "Symbol",
+                        "name": "+"
+                    },
+                    "args": [
+                        {
+                            "type": "Symbol",
+                            "name": "a"
+                        },
+                        {
+                            "type": "Symbol",
+                            "name": "b"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "type": "FunctionCall",
+            "name": {
+                "type": "Symbol",
+                "name": "print"
+            },
+            "args": [
+                {
+                    "type": "String",
+                    "value": "Generated a function with a macro, a_func (a b) => (+ a b)"
+                }
+            ]
+        },
+        {
+            "type": "FunctionCall",
+            "name": {
+                "type": "Symbol",
+                "name": "print"
+            },
+            "args": [
+                {
+                    "type": "String",
+                    "value": "Calling (a_func 1 2): "
+                },
+                {
+                    "type": "FunctionCall",
+                    "name": {
+                        "type": "Symbol",
+                        "name": "a_func"
+                    },
+                    "args": [
+                        {
+                            "type": "Number",
+                            "value": 1.000000
+                        },
+                        {
+                            "type": "Number",
+                            "value": 2.000000
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "FunctionCall",
+            "name": {
+                "type": "Symbol",
+                "name": "print"
+            },
+            "args": [
+                {
+                    "type": "String",
+                    "value": "Macro 'one', returns the 2nd argument given in "
+                },
+                {
+                    "type": "FunctionCall",
+                    "name": {
+                        "type": "Symbol",
+                        "name": "list"
+                    },
+                    "args": [
+                        {
+                            "type": "Number",
+                            "value": 1.000000
+                        },
+                        {
+                            "type": "Number",
+                            "value": 2.000000
+                        }
+                    ]
+                },
+                {
+                    "type": "String",
+                    "value": " => "
+                },
+                {
+                    "type": "Number",
+                    "value": 2.000000
+                }
+            ]
+        },
+        {
+            "type": "FunctionCall",
+            "name": {
+                "type": "Symbol",
+                "name": "print"
+            },
+            "args": [
+                {
+                    "type": "String",
+                    "value": "Macro 'one', returns the 2nd argument given in "
+                },
+                {
+                    "type": "FunctionCall",
+                    "name": {
+                        "type": "Symbol",
+                        "name": "list"
+                    },
+                    "args": [
+                        {
+                            "type": "Number",
+                            "value": 1.000000
+                        },
+                        {
+                            "type": "Number",
+                            "value": 3.000000
+                        },
+                        {
+                            "type": "Number",
+                            "value": 4.000000
+                        }
+                    ]
+                },
+                {
+                    "type": "String",
+                    "value": " => "
+                },
+                {
+                    "type": "Number",
+                    "value": 3.000000
+                }
+            ]
+        },
+        {
+            "type": "FunctionCall",
+            "name": {
+                "type": "Symbol",
+                "name": "print"
+            },
+            "args": [
+                {
+                    "type": "String",
+                    "value": "Macro 'one', returns the 2nd argument given in "
+                },
+                {
+                    "type": "FunctionCall",
+                    "name": {
+                        "type": "Symbol",
+                        "name": "list"
+                    },
+                    "args": [
+                        {
+                            "type": "Number",
+                            "value": 1.000000
+                        },
+                        {
+                            "type": "Number",
+                            "value": 5.000000
+                        },
+                        {
+                            "type": "Number",
+                            "value": 6.000000
+                        },
+                        {
+                            "type": "Number",
+                            "value": 7.000000
+                        },
+                        {
+                            "type": "Number",
+                            "value": 8.000000
+                        }
+                    ]
+                },
+                {
+                    "type": "String",
+                    "value": " => "
+                },
+                {
+                    "type": "Number",
+                    "value": 5.000000
+                }
+            ]
+        },
+        {
+            "type": "FunctionCall",
+            "name": {
+                "type": "Symbol",
+                "name": "print"
+            },
+            "args": [
+                {
+                    "type": "String",
+                    "value": "Macro 'last', returns the last argument given in "
+                },
+                {
+                    "type": "FunctionCall",
+                    "name": {
+                        "type": "Symbol",
+                        "name": "list"
+                    },
+                    "args": [
+                        {
+                            "type": "Number",
+                            "value": 1.000000
+                        },
+                        {
+                            "type": "Number",
+                            "value": 2.000000
+                        }
+                    ]
+                },
+                {
+                    "type": "String",
+                    "value": " => "
+                },
+                {
+                    "type": "Number",
+                    "value": 2.000000
+                }
+            ]
+        },
+        {
+            "type": "FunctionCall",
+            "name": {
+                "type": "Symbol",
+                "name": "print"
+            },
+            "args": [
+                {
+                    "type": "String",
+                    "value": "Macro 'last', returns the last argument given in "
+                },
+                {
+                    "type": "FunctionCall",
+                    "name": {
+                        "type": "Symbol",
+                        "name": "list"
+                    },
+                    "args": [
+                        {
+                            "type": "Number",
+                            "value": 1.000000
+                        },
+                        {
+                            "type": "Number",
+                            "value": 3.000000
+                        },
+                        {
+                            "type": "Number",
+                            "value": 4.000000
+                        }
+                    ]
+                },
+                {
+                    "type": "String",
+                    "value": " => "
+                },
+                {
+                    "type": "Number",
+                    "value": 4.000000
+                }
+            ]
+        },
+        {
+            "type": "FunctionCall",
+            "name": {
+                "type": "Symbol",
+                "name": "print"
+            },
+            "args": [
+                {
+                    "type": "String",
+                    "value": "Macro 'last', returns the last argument given in "
+                },
+                {
+                    "type": "FunctionCall",
+                    "name": {
+                        "type": "Symbol",
+                        "name": "list"
+                    },
+                    "args": [
+                        {
+                            "type": "Number",
+                            "value": 1.000000
+                        },
+                        {
+                            "type": "Number",
+                            "value": 5.000000
+                        },
+                        {
+                            "type": "Number",
+                            "value": 6.000000
+                        },
+                        {
+                            "type": "Number",
+                            "value": 7.000000
+                        },
+                        {
+                            "type": "Number",
+                            "value": 8.000000
+                        }
+                    ]
+                },
+                {
+                    "type": "String",
+                    "value": " => "
+                },
+                {
+                    "type": "Number",
+                    "value": 8.000000
+                }
+            ]
+        },
+        {
+            "type": "Begin",
+            "children": [
+                {
+                    "type": "FunctionCall",
+                    "name": {
+                        "type": "Symbol",
+                        "name": "print"
+                    },
+                    "args": [
+                        {
+                            "type": "String",
+                            "value": "Testing macros in scopes and macro shadowing"
+                        }
+                    ]
+                },
+                {
+                    "type": "FunctionCall",
+                    "name": {
+                        "type": "Symbol",
+                        "name": "print"
+                    },
+                    "args": [
+                        {
+                            "type": "String",
+                            "value": "(global) Reading macro 'test', expected 6, "
+                        },
+                        {
+                            "type": "FunctionCall",
+                            "name": {
+                                "type": "Symbol",
+                                "name": "+"
+                            },
+                            "args": [
+                                {
+                                    "type": "Number",
+                                    "value": 1.000000
+                                },
+                                {
+                                    "type": "Number",
+                                    "value": 2.000000
+                                },
+                                {
+                                    "type": "Number",
+                                    "value": 3.000000
+                                }
+                            ]
+                        }
+                    ]
+                },
+                [
+                    {
+                        "type": "Fun",
+                        "args": [],
+                        "body": {
+                            "type": "Begin",
+                            "children": [
+                                {
+                                    "type": "FunctionCall",
+                                    "name": {
+                                        "type": "Symbol",
+                                        "name": "print"
+                                    },
+                                    "args": [
+                                        {
+                                            "type": "String",
+                                            "value": "(sub scope) Reading macro 'test', expected -4, "
+                                        },
+                                        {
+                                            "type": "FunctionCall",
+                                            "name": {
+                                                "type": "Symbol",
+                                                "name": "-"
+                                            },
+                                            "args": [
+                                                {
+                                                    "type": "Number",
+                                                    "value": 1.000000
+                                                },
+                                                {
+                                                    "type": "Number",
+                                                    "value": 2.000000
+                                                },
+                                                {
+                                                    "type": "Number",
+                                                    "value": 3.000000
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                ],
+                {
+                    "type": "FunctionCall",
+                    "name": {
+                        "type": "Symbol",
+                        "name": "print"
+                    },
+                    "args": [
+                        {
+                            "type": "String",
+                            "value": "(global) Reading macro 'test', expected 6, "
+                        },
+                        {
+                            "type": "FunctionCall",
+                            "name": {
+                                "type": "Symbol",
+                                "name": "+"
+                            },
+                            "args": [
+                                {
+                                    "type": "Number",
+                                    "value": 1.000000
+                                },
+                                {
+                                    "type": "Number",
+                                    "value": 2.000000
+                                },
+                                {
+                                    "type": "Number",
+                                    "value": 3.000000
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "Begin",
+                    "children": [
+                        {
+                            "type": "FunctionCall",
+                            "name": {
+                                "type": "Symbol",
+                                "name": "print"
+                            },
+                            "args": [
+                                {
+                                    "type": "String",
+                                    "value": "(subscope) Reading macro 'test', expected 555, "
+                                },
+                                {
+                                    "type": "Number",
+                                    "value": 555.000000
+                                }
+                            ]
+                        },
+                        {
+                            "type": "FunctionCall",
+                            "name": {
+                                "type": "Symbol",
+                                "name": "print"
+                            },
+                            "args": [
+                                {
+                                    "type": "String",
+                                    "value": "(subscope, undef test) Reading macro 'test', expected 6, "
+                                },
+                                {
+                                    "type": "FunctionCall",
+                                    "name": {
+                                        "type": "Symbol",
+                                        "name": "+"
+                                    },
+                                    "args": [
+                                        {
+                                            "type": "Number",
+                                            "value": 1.000000
+                                        },
+                                        {
+                                            "type": "Number",
+                                            "value": 2.000000
+                                        },
+                                        {
+                                            "type": "Number",
+                                            "value": 3.000000
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "FunctionCall",
+            "name": {
+                "type": "Symbol",
+                "name": "print"
+            },
+            "args": [
+                {
+                    "type": "String",
+                    "value": "Demonstrating a threading macro"
+                }
+            ]
+        },
+        {
+            "type": "Let",
+            "name": {
+                "type": "Symbol",
+                "name": "filename"
+            },
+            "value": {
+                "type": "String",
+                "value": "hello.json"
+            }
+        },
+        {
+            "type": "Let",
+            "name": {
+                "type": "Symbol",
+                "name": "f1"
+            },
+            "value": {
+                "type": "Fun",
+                "args": [
+                    {
+                        "type": "Symbol",
+                        "name": "data"
+                    }
+                ],
+                "body": {
+                    "type": "Begin",
+                    "children": [
+                        {
+                            "type": "FunctionCall",
+                            "name": {
+                                "type": "Symbol",
+                                "name": "print"
+                            },
+                            "args": [
+                                {
+                                    "type": "String",
+                                    "value": ">>f1 "
+                                },
+                                {
+                                    "type": "Symbol",
+                                    "name": "data"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "FunctionCall",
+                            "name": {
+                                "type": "Symbol",
+                                "name": "+"
+                            },
+                            "args": [
+                                {
+                                    "type": "Symbol",
+                                    "name": "data"
+                                },
+                                {
+                                    "type": "String",
+                                    "value": "-f1"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "type": "Let",
+            "name": {
+                "type": "Symbol",
+                "name": "f2"
+            },
+            "value": {
+                "type": "Fun",
+                "args": [
+                    {
+                        "type": "Symbol",
+                        "name": "data"
+                    }
+                ],
+                "body": {
+                    "type": "Begin",
+                    "children": [
+                        {
+                            "type": "FunctionCall",
+                            "name": {
+                                "type": "Symbol",
+                                "name": "print"
+                            },
+                            "args": [
+                                {
+                                    "type": "String",
+                                    "value": ">>f2 "
+                                },
+                                {
+                                    "type": "Symbol",
+                                    "name": "data"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "FunctionCall",
+                            "name": {
+                                "type": "Symbol",
+                                "name": "+"
+                            },
+                            "args": [
+                                {
+                                    "type": "Symbol",
+                                    "name": "data"
+                                },
+                                {
+                                    "type": "String",
+                                    "value": "-f2"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "type": "Let",
+            "name": {
+                "type": "Symbol",
+                "name": "f3"
+            },
+            "value": {
+                "type": "Fun",
+                "args": [
+                    {
+                        "type": "Symbol",
+                        "name": "data"
+                    }
+                ],
+                "body": {
+                    "type": "Begin",
+                    "children": [
+                        {
+                            "type": "FunctionCall",
+                            "name": {
+                                "type": "Symbol",
+                                "name": "print"
+                            },
+                            "args": [
+                                {
+                                    "type": "String",
+                                    "value": ">>f3 "
+                                },
+                                {
+                                    "type": "Symbol",
+                                    "name": "data"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "FunctionCall",
+                            "name": {
+                                "type": "Symbol",
+                                "name": "+"
+                            },
+                            "args": [
+                                {
+                                    "type": "Symbol",
+                                    "name": "data"
+                                },
+                                {
+                                    "type": "String",
+                                    "value": "-f3"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "type": "Let",
+            "name": {
+                "type": "Symbol",
+                "name": "f4"
+            },
+            "value": {
+                "type": "Fun",
+                "args": [
+                    {
+                        "type": "Symbol",
+                        "name": "data"
+                    }
+                ],
+                "body": {
+                    "type": "Begin",
+                    "children": [
+                        {
+                            "type": "FunctionCall",
+                            "name": {
+                                "type": "Symbol",
+                                "name": "print"
+                            },
+                            "args": [
+                                {
+                                    "type": "String",
+                                    "value": ">>f4 "
+                                },
+                                {
+                                    "type": "Symbol",
+                                    "name": "data"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "FunctionCall",
+                            "name": {
+                                "type": "Symbol",
+                                "name": "+"
+                            },
+                            "args": [
+                                {
+                                    "type": "Symbol",
+                                    "name": "data"
+                                },
+                                {
+                                    "type": "String",
+                                    "value": "-f4"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "type": "FunctionCall",
+            "name": {
+                "type": "Symbol",
+                "name": "print"
+            },
+            "args": [
+                {
+                    "type": "String",
+                    "value": "We expected calls to go like this: f1, f2, f3, f4"
+                }
+            ]
+        },
+        {
+            "type": "FunctionCall",
+            "name": {
+                "type": "Symbol",
+                "name": "print"
+            },
+            "args": [
+                {
+                    "type": "FunctionCall",
+                    "name": {
+                        "type": "Symbol",
+                        "name": "f4"
+                    },
+                    "args": [
+                        {
+                            "type": "FunctionCall",
+                            "name": {
+                                "type": "Symbol",
+                                "name": "f3"
+                            },
+                            "args": [
+                                {
+                                    "type": "FunctionCall",
+                                    "name": {
+                                        "type": "Symbol",
+                                        "name": "f2"
+                                    },
+                                    "args": [
+                                        {
+                                            "type": "FunctionCall",
+                                            "name": {
+                                                "type": "Symbol",
+                                                "name": "f1"
+                                            },
+                                            "args": [
+                                                {
+                                                    "type": "Symbol",
+                                                    "name": "filename"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
