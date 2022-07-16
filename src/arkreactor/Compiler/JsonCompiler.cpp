@@ -202,7 +202,7 @@ namespace Ark
             default:
                 throw std::runtime_error(string_format(
                     "Not handled NodeType::%s (%s at %zu:%zu), please report this error on GitHub",
-                    nodeTypes[static_cast<std::size_t>(node.nodeType())].c_str(),
+                    nodeTypes[static_cast<std::size_t>(node.nodeType())].data(),
                     node.filename().c_str(),
                     node.line(),
                     node.col()));
