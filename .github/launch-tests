@@ -21,24 +21,16 @@ $ark lib/std/tests/all.ark         --lib lib/ || exit 1
 #          Integration tests
 #########################################
 
-cd tests/cpp/
-# blank line for formatting (and easier CI logs analysis)
-echo
-bash ./run-tests
+(cd tests/cpp/ ; echo ; bash ./run-tests)
 
 #########################################
 #              AST tests
 #########################################
 
-cd tests/ast/
-# blank line for formatting (and easier CI logs analysis)
-echo
-bash ./run-tests
+(cd tests/ast/ ; echo ; bash ./run-tests)
 
 #########################################
 #             Module tests
 #########################################
 
-# blank line for formatting
-echo
-source ./lib/modules/.github/run-tests
+(echo ; source ./lib/modules/.github/run-tests)
