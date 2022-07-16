@@ -1,0 +1,367 @@
+{
+    "type": "Begin",
+    "children": [
+        {
+            "type": "Let",
+            "name": {
+                "type": "Symbol",
+                "name": "create-human"
+            },
+            "value": {
+                "type": "Fun",
+                "args": [
+                    {
+                        "type": "Symbol",
+                        "name": "name"
+                    },
+                    {
+                        "type": "Symbol",
+                        "name": "age"
+                    },
+                    {
+                        "type": "Symbol",
+                        "name": "weight"
+                    }
+                ],
+                "body": {
+                    "type": "Begin",
+                    "children": [
+                        {
+                            "type": "Let",
+                            "name": {
+                                "type": "Symbol",
+                                "name": "set-age"
+                            },
+                            "value": {
+                                "type": "Fun",
+                                "args": [
+                                    {
+                                        "type": "Symbol",
+                                        "name": "new-age"
+                                    }
+                                ],
+                                "body": {
+                                    "type": "Set",
+                                    "name": {
+                                        "type": "Symbol",
+                                        "name": "age"
+                                    },
+                                    "value": {
+                                        "type": "Symbol",
+                                        "name": "new-age"
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "type": "Fun",
+                            "args": [
+                                {
+                                    "type": "Capture",
+                                    "name": "set-age"
+                                },
+                                {
+                                    "type": "Capture",
+                                    "name": "name"
+                                },
+                                {
+                                    "type": "Capture",
+                                    "name": "age"
+                                },
+                                {
+                                    "type": "Capture",
+                                    "name": "weight"
+                                }
+                            ],
+                            "body": []
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "type": "Let",
+            "name": {
+                "type": "Symbol",
+                "name": "bob"
+            },
+            "value": {
+                "type": "FunctionCall",
+                "name": {
+                    "type": "Symbol",
+                    "name": "create-human"
+                },
+                "args": [
+                    {
+                        "type": "String",
+                        "value": "Bob"
+                    },
+                    {
+                        "type": "Number",
+                        "value": 0.000000
+                    },
+                    {
+                        "type": "Number",
+                        "value": 144.000000
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Let",
+            "name": {
+                "type": "Symbol",
+                "name": "john"
+            },
+            "value": {
+                "type": "FunctionCall",
+                "name": {
+                    "type": "Symbol",
+                    "name": "create-human"
+                },
+                "args": [
+                    {
+                        "type": "String",
+                        "value": "John"
+                    },
+                    {
+                        "type": "Number",
+                        "value": 12.000000
+                    },
+                    {
+                        "type": "Number",
+                        "value": 15.000000
+                    }
+                ]
+            }
+        },
+        {
+            "type": "FunctionCall",
+            "name": {
+                "type": "Symbol",
+                "name": "print"
+            },
+            "args": [
+                {
+                    "type": "String",
+                    "value": "Bob's age: "
+                },
+                {
+                    "type": "Symbol",
+                    "name": "bob"
+                },
+                {
+                    "type": "GetField",
+                    "name": "age"
+                }
+            ]
+        },
+        {
+            "type": "FunctionCall",
+            "name": {
+                "type": "Symbol",
+                "name": "print"
+            },
+            "args": [
+                {
+                    "type": "String",
+                    "value": "Setting Bob's age to 10"
+                }
+            ]
+        },
+        {
+            "type": "FunctionCall",
+            "name": {
+                "type": "Symbol",
+                "name": "bob"
+            },
+            "args": [
+                {
+                    "type": "GetField",
+                    "name": "set-age"
+                },
+                {
+                    "type": "Number",
+                    "value": 10.000000
+                }
+            ]
+        },
+        {
+            "type": "FunctionCall",
+            "name": {
+                "type": "Symbol",
+                "name": "print"
+            },
+            "args": [
+                {
+                    "type": "String",
+                    "value": "New age: "
+                },
+                {
+                    "type": "Symbol",
+                    "name": "bob"
+                },
+                {
+                    "type": "GetField",
+                    "name": "age"
+                }
+            ]
+        },
+        {
+            "type": "FunctionCall",
+            "name": {
+                "type": "Symbol",
+                "name": "print"
+            },
+            "args": [
+                {
+                    "type": "String",
+                    "value": "John's age, didn't change: "
+                },
+                {
+                    "type": "Symbol",
+                    "name": "john"
+                },
+                {
+                    "type": "GetField",
+                    "name": "age"
+                }
+            ]
+        },
+        {
+            "type": "Let",
+            "name": {
+                "type": "Symbol",
+                "name": "countdown-from"
+            },
+            "value": {
+                "type": "Fun",
+                "args": [
+                    {
+                        "type": "Symbol",
+                        "name": "number"
+                    }
+                ],
+                "body": {
+                    "type": "Fun",
+                    "args": [
+                        {
+                            "type": "Capture",
+                            "name": "number"
+                        }
+                    ],
+                    "body": {
+                        "type": "Begin",
+                        "children": [
+                            {
+                                "type": "Set",
+                                "name": {
+                                    "type": "Symbol",
+                                    "name": "number"
+                                },
+                                "value": {
+                                    "type": "FunctionCall",
+                                    "name": {
+                                        "type": "Symbol",
+                                        "name": "-"
+                                    },
+                                    "args": [
+                                        {
+                                            "type": "Symbol",
+                                            "name": "number"
+                                        },
+                                        {
+                                            "type": "Number",
+                                            "value": 1.000000
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "type": "Symbol",
+                                "name": "number"
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "type": "Let",
+            "name": {
+                "type": "Symbol",
+                "name": "countdown-from-3"
+            },
+            "value": {
+                "type": "FunctionCall",
+                "name": {
+                    "type": "Symbol",
+                    "name": "countdown-from"
+                },
+                "args": [
+                    {
+                        "type": "Number",
+                        "value": 3.000000
+                    }
+                ]
+            }
+        },
+        {
+            "type": "FunctionCall",
+            "name": {
+                "type": "Symbol",
+                "name": "print"
+            },
+            "args": [
+                {
+                    "type": "String",
+                    "value": "Countdown "
+                },
+                [
+                    {
+                        "type": "Symbol",
+                        "name": "countdown-from-3"
+                    }
+                ]
+            ]
+        },
+        {
+            "type": "FunctionCall",
+            "name": {
+                "type": "Symbol",
+                "name": "print"
+            },
+            "args": [
+                {
+                    "type": "String",
+                    "value": "Countdown "
+                },
+                [
+                    {
+                        "type": "Symbol",
+                        "name": "countdown-from-3"
+                    }
+                ]
+            ]
+        },
+        {
+            "type": "FunctionCall",
+            "name": {
+                "type": "Symbol",
+                "name": "print"
+            },
+            "args": [
+                {
+                    "type": "String",
+                    "value": "Countdown "
+                },
+                [
+                    {
+                        "type": "Symbol",
+                        "name": "countdown-from-3"
+                    }
+                ]
+            ]
+        }
+    ]
+}

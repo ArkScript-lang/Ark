@@ -24,16 +24,16 @@ passed=0
 failed=0
 
 for f in ./*.json; do
-    output=$($ark --ast ../../examples/${f%.*}.ark)
+    output=$($ark --ast ../../examples/${f%.*}.ark --lib ../../lib)
     expected=$(cat $f)
 
     if [[ $(diff -w <(echo -n $output) <(echo -n $expected)) != "" ]]; then
-        echo -e "${Red}FAILED${Reset} "
+        echo -e "${Red}FAILED${Reset} ${f%.*}"
         ((failed=failed+1))
         echo -e "    ${Yellow}Output${Reset}:"
         diff --color=always -w <(echo -n $output) <(echo -n $expected)
     else
-        echo -e "${Green}PASSED${Reset} "
+        echo -e "${Green}PASSED${Reset} ${f%.*}"
         ((passed=passed+1))
     fi
 
