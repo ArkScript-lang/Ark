@@ -50,51 +50,41 @@ namespace Ark
         {
             case NodeType::Symbol:
             {
-                json += string_format(R"({
-                    "type": "Symbol",
-                    "name": "%s"
-                })",
-                                      node.string().c_str());
+                json += string_format(
+                    R"({"type": "Symbol", "name": "%s"})",
+                    node.string().c_str());
                 break;
             }
 
             case NodeType::Capture:
             {
-                json += string_format(R"({
-                    "type": "Capture",
-                    "name": "%s"
-                })",
-                                      node.string().c_str());
+                json += string_format(
+                    R"({"type": "Capture", "name": "%s"})",
+                    node.string().c_str());
                 break;
             }
 
             case NodeType::GetField:
             {
-                json += string_format(R"({
-                    "type": "GetField",
-                    "name": "%s"
-                })",
-                                      node.string().c_str());
+                json += string_format(
+                    R"({"type": "GetField", "name": "%s"})",
+                    node.string().c_str());
                 break;
             }
 
             case NodeType::String:
             {
-                json += string_format(R"({
-                    "type": "String",
-                    "value": "%s"
-                })",
-                                      node.string().c_str());
+                json += string_format(
+                    R"({"type": "String", "value": "%s"})",
+                    node.string().c_str());
                 break;
             }
 
             case NodeType::Number:
             {
-                json += string_format(R"({
-                    "type": "Number",
-                    "value": %f
-                })",
-                                      node.number());
+                json += string_format(
+                    R"({"type": "Number", "value": %f})",
+                    node.number());
                 break;
             }
 
@@ -108,107 +98,89 @@ namespace Ark
                         case Keyword::Fun:
                         {
                             // (fun (args) (body))
-                            json += string_format(R"({
-                                "type": "Fun",
-                                "args": %s,
-                                "body": %s
-                            })",
-                                                  _compile(node.constList()[1]).c_str(), _compile(node.constList()[2]).c_str());
+                            json += string_format(
+                                R"({"type": "Fun", "args": %s, "body": %s})",
+                                _compile(node.constList()[1]).c_str(), _compile(node.constList()[2]).c_str());
                             break;
                         }
+
                         case Keyword::Let:
                         {
                             // (let name value)
-                            json += string_format(R"({
-                                "type": "Let",
-                                "name": %s,
-                                "value": %s
-                            })",
-                                                  _compile(node.constList()[1]).c_str(), _compile(node.constList()[2]).c_str());
+                            json += string_format(
+                                R"({"type": "Let", "name": %s, "value": %s})",
+                                _compile(node.constList()[1]).c_str(), _compile(node.constList()[2]).c_str());
                             break;
                         }
+
                         case Keyword::Mut:
                         {
                             // (mut name value)
-                            json += string_format(R"({
-                                "type": "Mut",
-                                "name": %s,
-                                "value": %s
-                            })",
-                                                  _compile(node.constList()[1]).c_str(), _compile(node.constList()[2]).c_str());
+                            json += string_format(
+                                R"({"type": "Mut", "name": %s, "value": %s})",
+                                _compile(node.constList()[1]).c_str(), _compile(node.constList()[2]).c_str());
                             break;
                         }
+
                         case Keyword::Set:
                         {
                             // (set name value)
-                            json += string_format(R"({
-                                "type": "Set",
-                                "name": %s,
-                                "value": %s
-                            })",
-                                                  _compile(node.constList()[1]).c_str(), _compile(node.constList()[2]).c_str());
+                            json += string_format(
+                                R"({"type": "Set", "name": %s, "value": %s})",
+                                _compile(node.constList()[1]).c_str(), _compile(node.constList()[2]).c_str());
                             break;
                         }
+
                         case Keyword::If:
                         {
                             // (if condition then else)
-                            json += string_format(R"({
-                                "type": "If",
-                                "condition": %s,
-                                "then": %s,
-                                "else": %s
-                            })",
-                                                  _compile(node.constList()[1]).c_str(), _compile(node.constList()[2]).c_str(), _compile(node.constList()[3]).c_str());
+                            json += string_format(
+                                R"({"type": "If", "condition": %s, "then": %s, "else": %s})",
+                                _compile(node.constList()[1]).c_str(), _compile(node.constList()[2]).c_str(), _compile(node.constList()[3]).c_str());
                             break;
                         }
+
                         case Keyword::While:
                         {
                             // (while condition body)
-                            json += string_format(R"({
-                                "type": "While",
-                                "condition": %s,
-                                "body": %s
-                            })",
-                                                  _compile(node.constList()[1]).c_str(), _compile(node.constList()[2]).c_str());
+                            json += string_format(
+                                R"({"type": "While", "condition": %s, "body": %s})",
+                                _compile(node.constList()[1]).c_str(), _compile(node.constList()[2]).c_str());
                             break;
                         }
+
                         case Keyword::Begin:
                         {
                             // (begin body)
-                            json += R"({
-                                "type": "Begin",
-                                "children": )";
+                            json += R"({"type": "Begin", "children": )";
                             json += toJsonList(node, 1) + "}";
                             break;
                         }
+
                         case Keyword::Import:
                         {
                             // (import value)
-                            json += string_format(R"({
-                                "type": "Import",
-                                "value": %s
-                            })",
-                                                  _compile(node.constList()[1]).c_str());
+                            json += string_format(
+                                R"({"type": "Import", "value": %s})",
+                                _compile(node.constList()[1]).c_str());
                             break;
                         }
+
                         case Keyword::Quote:
                         {
                             // (quote value)
-                            json += string_format(R"({
-                                "type": "Quote",
-                                "value": %s
-                            })",
-                                                  _compile(node.constList()[1]).c_str());
+                            json += string_format(
+                                R"({"type": "Quote", "value": %s})",
+                                _compile(node.constList()[1]).c_str());
                             break;
                         }
+
                         case Keyword::Del:
                         {
                             // (del value)
-                            json += string_format(R"({
-                                "type": "Del",
-                                "value": %s
-                            })",
-                                                  _compile(node.constList()[1]).c_str());
+                            json += string_format(
+                                R"({"type": "Del", "value": %s})",
+                                _compile(node.constList()[1]).c_str());
                             break;
                         }
                     }
@@ -216,13 +188,9 @@ namespace Ark
                 else if (node.constList().size() > 1 && node.constList()[0].nodeType() == NodeType::Symbol)
                 {
                     // (foo bar 1)
-                    json += string_format(R"({
-                        "type": "FunctionCall",
-                        "name": %s,
-                        "args":
-                    )",
-                                          _compile(node.constList()[0]).c_str());
-
+                    json += string_format(
+                        R"({"type": "FunctionCall", "name": %s, "args": )",
+                        _compile(node.constList()[0]).c_str());
                     json += toJsonList(node, 1) + "}";
                 }
                 else
@@ -232,7 +200,12 @@ namespace Ark
             }
 
             default:
-                throw std::runtime_error("Not handled NodeType, please report this error on GitHub");
+                throw std::runtime_error(string_format(
+                    "Not handled NodeType::%s (%s at %zu:%zu), please report this error on GitHub",
+                    nodeTypes[static_cast<std::size_t>(node.nodeType())].c_str(),
+                    node.filename().c_str(),
+                    node.line(),
+                    node.col()));
         }
         return json;
     }
