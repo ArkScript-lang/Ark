@@ -30,7 +30,7 @@ int main()
         we will say the code is (let foo (fun (x y) (+ x y 2)))
     */
     auto value = vm.call("foo", 5, 6.0);
-    std::cout << value << "\n";  // displays 13
+    value.toString(std::cout, vm);
     CHECK_VALUE_NUMBER(value, 13.0)
 
     RETURN_PASSED()

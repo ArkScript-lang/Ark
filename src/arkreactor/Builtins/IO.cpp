@@ -21,10 +21,10 @@ namespace Ark::internal::Builtins::IO
      * =end
      * @author https://github.com/SuperFola
      */
-    Value print(std::vector<Value>& n, VM* vm [[maybe_unused]])
+    Value print(std::vector<Value>& n, VM* vm)
     {
         for (Value::Iterator it = n.begin(), it_end = n.end(); it != it_end; ++it)
-            std::cout << (*it);
+            it->toString(std::cout, *vm);
         std::cout << '\n';
 
         return nil;
@@ -40,10 +40,10 @@ namespace Ark::internal::Builtins::IO
      * =end
      * @author https://github.com/SuperFola
      */
-    Value puts_(std::vector<Value>& n, VM* vm [[maybe_unused]])
+    Value puts_(std::vector<Value>& n, VM* vm)
     {
         for (Value::Iterator it = n.begin(), it_end = n.end(); it != it_end; ++it)
-            std::cout << (*it);
+            it->toString(std::cout, *vm);
 
         return nil;
     }
@@ -83,14 +83,14 @@ namespace Ark::internal::Builtins::IO
      * =end
      * @author https://github.com/SuperFola
      */
-    Value writeFile(std::vector<Value>& n, VM* vm [[maybe_unused]])
+    Value writeFile(std::vector<Value>& n, VM* vm)
     {
         if (types::check(n, ValueType::String, ValueType::Any))
         {
             std::ofstream f(n[0].string().c_str());
             if (f.is_open())
             {
-                f << n[1];
+                n[1].toString(f, *vm);
                 f.close();
             }
             else
@@ -109,7 +109,7 @@ namespace Ark::internal::Builtins::IO
             std::ofstream f(n[0].string().c_str(), ios_mode);
             if (f.is_open())
             {
-                f << n[2];
+                n[2].toString(f, *vm);
                 f.close();
             }
             else

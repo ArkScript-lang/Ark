@@ -86,6 +86,7 @@
     (set tests (assert-eq (type false) "Bool" "type" tests))
     (set tests (assert-val (hasField closure "tests") "hasField" tests))
     (set tests (assert-val (not (hasField closure "12")) "not hasField" tests))
+    (set tests (assert-eq (toString closure) "(.tests=0)" "toString closure" tests))
 
     (recap "VM operations passed" tests (- (time) start-time))
 

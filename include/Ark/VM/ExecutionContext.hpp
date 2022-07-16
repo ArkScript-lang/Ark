@@ -9,8 +9,8 @@
  * 
  */
 
-#ifndef ARK_VM_VMRUNTIME_HPP
-#define ARK_VM_VMRUNTIME_HPP
+#ifndef ARK_VM_EXECUTIONCONTEXT_HPP
+#define ARK_VM_EXECUTIONCONTEXT_HPP
 
 #include <array>
 #include <limits>
@@ -35,6 +35,7 @@ namespace Ark::internal
         int ip = 0;          ///< Instruction pointer
         std::size_t pp = 0;  ///< Page pointer
         uint16_t sp = 0;     ///< Stack pointer
+        uint16_t fc = 0;     ///< Frame count
         uint16_t last_symbol = std::numeric_limits<uint16_t>::max();
 
         std::array<Value, VMStackSize> stack;
