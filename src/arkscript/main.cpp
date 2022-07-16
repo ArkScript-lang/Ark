@@ -117,6 +117,11 @@ int main(int argc, char** argv)
             required("--ast").set(selected, mode::ast).doc("Compile the given program and output its AST as JSON to stdout")
             & value("file", file)
             , joinable(repeatable(option("-d", "--debug").call([&]{ debug++; }).doc("Increase debug level (default: 0)")))
+            ,
+            (
+                option("-L", "--lib").doc("Set the location of the ArkScript standard library. Paths can be delimited by ';'")
+                & value("lib_dir", libdir)
+            )
         )
         , any_other(wrong)
     );
