@@ -98,9 +98,18 @@ namespace Ark
                         case Keyword::Fun:
                         {
                             // (fun (args) (body))
+                            std::string args = "";
+                            Node args_node = node.constList()[1];
+                            for (std::size_t i = 0, end = args_node.constList().size(); i < end; ++i)
+                            {
+                                args += _compile(args_node.constList()[i]);
+                                if (end > 1 && i != end - 1)
+                                    args += ", ";
+                            }
+
                             json += string_format(
-                                R"({"type": "Fun", "args": %s, "body": %s})",
-                                _compile(node.constList()[1]).c_str(), _compile(node.constList()[2]).c_str());
+                                R"({"type": "Fun", "args": [%s], "body": %s})",
+                                args.c_str(), _compile(node.constList()[2]).c_str());
                             break;
                         }
 
