@@ -82,6 +82,7 @@ namespace Ark::internal
         std::size_t size() const noexcept;
 
         friend class Ark::VM;
+        friend class Ark::internal::Closure;
 
     private:
         std::vector<std::pair<uint16_t, Value>> m_data;

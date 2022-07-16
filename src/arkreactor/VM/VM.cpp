@@ -25,9 +25,9 @@ namespace Ark
     using namespace internal;
 
     VM::VM(State& state) noexcept :
-        m_state(state), m_exit_code(0), m_fc(0),
+        m_state(state), m_exit_code(0),
         m_running(false),
-        m_until_frame_count(0), m_user_pointer(nullptr)
+        m_user_pointer(nullptr)
     {
         m_execution_contexts.emplace_back(std::make_unique<ExecutionContext>())->locals.reserve(4);
     }
@@ -37,7 +37,7 @@ namespace Ark
         ExecutionContext& context = *m_execution_contexts.back();
 
         context.sp = 0;
-        m_fc = 1;
+        context.fc = 1;
 
         m_shared_lib_objects.clear();
         context.scope_count_to_delete.clear();
@@ -67,9 +67,9 @@ namespace Ark
 
     Value& VM::operator[](const std::string& name) noexcept
     {
-        ExecutionContext& context = *m_execution_contexts.back();
+        ExecutionContext& context = *m_execution_contexts.front();
 
-        const std::lock_guard<std::mutex> lock(m_mutex);
+        // const std::lock_guard<std::mutex> lock(m_mutex);
 
         // find id of object
         auto it = std::find(m_state.m_symbols.begin(), m_state.m_symbols.end(), name);
@@ -189,6 +189,62 @@ namespace Ark
         return m_user_pointer;
     }
 
+    ExecutionContext* VM::createAndGetContext()
+    {
+        const std::lock_guard<std::mutex> lock(m_mutex);
+
+        m_execution_contexts.push_back(std::make_unique<ExecutionContext>());
+        ExecutionContext* ctx = m_execution_contexts.back().get();
+        ctx->scope_count_to_delete.emplace_back(0);
+
+        ctx->locals.reserve(m_execution_contexts.front()->locals.size());
+        for (std::size_t i = 0, end = m_execution_contexts.front()->locals.size(); i < end; ++i)
+        {
+            ctx->locals.push_back(
+                std::make_shared<Scope>(*m_execution_contexts.front()->locals[i]));
+        }
+
+        return ctx;
+    }
+
+    void VM::deleteContext(ExecutionContext* ec)
+    {
+        const std::lock_guard<std::mutex> lock(m_mutex);
+
+        auto it = std::remove_if(
+            m_execution_contexts.begin(),
+            m_execution_contexts.end(),
+            [ec](const std::unique_ptr<ExecutionContext>& ctx) {
+                return ctx.get() == ec;
+            });
+        m_execution_contexts.erase(it);
+    }
+
+    Future* VM::createFuture(std::vector<Value>& args)
+    {
+        ExecutionContext* ctx = createAndGetContext();
+
+        // doing this after having created the context
+        // because the context uses the mutex and we don't want a deadlock
+        const std::lock_guard<std::mutex> lock(m_mutex);
+        m_futures.push_back(std::make_unique<Future>(ctx, this, args));
+
+        return m_futures.back().get();
+    }
+
+    void VM::deleteFuture(Future* f)
+    {
+        const std::lock_guard<std::mutex> lock(m_mutex);
+
+        auto it = std::remove_if(
+            m_futures.begin(),
+            m_futures.end(),
+            [f](const std::unique_ptr<Future>& future) {
+                return future.get() == f;
+            });
+        m_futures.erase(it);
+    }
+
     // ------------------------------------------
     //                 execution
     // ------------------------------------------
@@ -210,8 +266,6 @@ namespace Ark
 
     int VM::safeRun(ExecutionContext& context, std::size_t untilFrameCount)
     {
-        m_until_frame_count = untilFrameCount;
-
 #ifdef ARK_PROFILER_MIPS
         auto start_time = std::chrono::system_clock::now();
         unsigned long long instructions_executed = 0;
@@ -220,7 +274,7 @@ namespace Ark
         try
         {
             m_running = true;
-            while (m_running && m_fc > m_until_frame_count)
+            while (m_running && context.fc > untilFrameCount)
             {
                 // get current instruction
                 uint8_t inst = m_state.m_pages[context.pp][context.ip];
@@ -1020,7 +1074,7 @@ namespace Ark
                     {
                         std::stringstream ss;
                         Value* a = popAndResolveAsPtr(context);
-                        ss << (*a);
+                        a->toString(ss, *this);
                         push(Value(ss.str()), context);
                         break;
                     }
@@ -1187,10 +1241,10 @@ namespace Ark
         std::size_t saved_pp = context.pp;
         uint16_t saved_sp = context.sp;
 
-        if (m_fc > 1)
+        if (context.fc > 1)
         {
             // display call stack trace
-            uint16_t it = m_fc;
+            uint16_t it = context.fc;
             Scope old_scope = *context.locals.back().get();
 
             while (it != 0)
@@ -1224,7 +1278,7 @@ namespace Ark
                     break;
                 }
 
-                if (m_fc - it > 7)
+                if (context.fc - it > 7)
                 {
                     std::printf("...\n");
                     break;
@@ -1234,14 +1288,18 @@ namespace Ark
             // display variables values in the current scope
             std::printf("\nCurrent scope variables values:\n");
             for (std::size_t i = 0, size = old_scope.size(); i < size; ++i)
+            {
                 std::cerr << termcolor::cyan << m_state.m_symbols[old_scope.m_data[i].first] << termcolor::reset
-                          << " = " << old_scope.m_data[i].second << "\n";
+                          << " = ";
+                old_scope.m_data[i].second.toString(std::cerr, *this);
+                std::cerr << "\n";
+            }
 
-            while (m_fc != 1)
+            while (context.fc != 1)
             {
                 Value* tmp = pop(context);
                 if (tmp->valueType() == ValueType::InstPtr)
-                    --m_fc;
+                    --context.fc;
                 *tmp = m_no_value;
             }
             // pop the PP as well

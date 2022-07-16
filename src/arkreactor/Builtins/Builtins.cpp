@@ -85,6 +85,10 @@ namespace Ark::internal::Builtins
         { "math:tanh", Value(Mathematics::tanh_) },
         { "math:acosh", Value(Mathematics::acosh_) },
         { "math:asinh", Value(Mathematics::asinh_) },
-        { "math:atanh", Value(Mathematics::atanh_) }
+        { "math:atanh", Value(Mathematics::atanh_) },
+
+        // Async
+        { "async", Value(Async::async) },
+        { "await", Value(Async::await) }
     };
 }
