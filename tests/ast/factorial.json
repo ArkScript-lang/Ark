@@ -1,0 +1,151 @@
+{
+    "type": "Begin",
+    "children": [
+        {
+            "type": "Let",
+            "name": {
+                "type": "Symbol",
+                "name": "fact"
+            },
+            "value": {
+                "type": "Fun",
+                "args": [
+                    {
+                        "type": "Symbol",
+                        "name": "n"
+                    }
+                ],
+                "body": {
+                    "type": "Begin",
+                    "children": [
+                        {
+                            "type": "Mut",
+                            "name": {
+                                "type": "Symbol",
+                                "name": "a"
+                            },
+                            "value": {
+                                "type": "Number",
+                                "value": 1.000000
+                            }
+                        },
+                        {
+                            "type": "Mut",
+                            "name": {
+                                "type": "Symbol",
+                                "name": "acc"
+                            },
+                            "value": {
+                                "type": "Number",
+                                "value": 2.000000
+                            }
+                        },
+                        {
+                            "type": "While",
+                            "condition": {
+                                "type": "FunctionCall",
+                                "name": {
+                                    "type": "Symbol",
+                                    "name": "<="
+                                },
+                                "args": [
+                                    {
+                                        "type": "Symbol",
+                                        "name": "acc"
+                                    },
+                                    {
+                                        "type": "Symbol",
+                                        "name": "n"
+                                    }
+                                ]
+                            },
+                            "body": {
+                                "type": "Begin",
+                                "children": [
+                                    {
+                                        "type": "Set",
+                                        "name": {
+                                            "type": "Symbol",
+                                            "name": "a"
+                                        },
+                                        "value": {
+                                            "type": "FunctionCall",
+                                            "name": {
+                                                "type": "Symbol",
+                                                "name": "*"
+                                            },
+                                            "args": [
+                                                {
+                                                    "type": "Symbol",
+                                                    "name": "a"
+                                                },
+                                                {
+                                                    "type": "Symbol",
+                                                    "name": "acc"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "type": "Set",
+                                        "name": {
+                                            "type": "Symbol",
+                                            "name": "acc"
+                                        },
+                                        "value": {
+                                            "type": "FunctionCall",
+                                            "name": {
+                                                "type": "Symbol",
+                                                "name": "+"
+                                            },
+                                            "args": [
+                                                {
+                                                    "type": "Number",
+                                                    "value": 1.000000
+                                                },
+                                                {
+                                                    "type": "Symbol",
+                                                    "name": "acc"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "type": "Symbol",
+                            "name": "a"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "type": "FunctionCall",
+            "name": {
+                "type": "Symbol",
+                "name": "print"
+            },
+            "args": [
+                {
+                    "type": "String",
+                    "value": "Factorial 6 (with loop and acc): "
+                },
+                {
+                    "type": "FunctionCall",
+                    "name": {
+                        "type": "Symbol",
+                        "name": "fact"
+                    },
+                    "args": [
+                        {
+                            "type": "Number",
+                            "value": 6.000000
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
