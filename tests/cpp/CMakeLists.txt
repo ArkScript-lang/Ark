@@ -2,6 +2,15 @@ cmake_minimum_required(VERSION 3.8)
 
 project(integration CXX)
 
+include(../../cmake/sanitizers.cmake)
+option(ARK_SANITIZERS "Enable ASAN and UBSAN" Off)
+
+if (ARK_SANITIZERS)
+    message(STATUS "Enabling address sanitizer and undefined behavior sanitizer")
+    add_address_sanitizer()
+    add_undefined_sanitizer()
+endif()
+
 # create special directory for our executables
 set(OUT_DIR ${PROJECT_SOURCE_DIR}/out)
 file(MAKE_DIRECTORY ${OUT_DIR})
