@@ -37,48 +37,53 @@ jobs:
         config:
           - {
             os: ubuntu-latest, name: "Ubuntu Clang 11", cc: "clang-11", cxx: "clang++-11",
-            artifact: "ubuntu-clang-11", preconfigure: ""
+            artifact: "ubuntu-clang-11", preconfigure: "", sanitizers: "On"
+          }
+          - {
+            os: ubuntu-latest, name: "Ubuntu Clang 11", cc: "clang-11", cxx: "clang++-11",
+            artifact: "ubuntu-clang-11-valgrind", preconfigure: "", sanitizers: "Off"
           }
           - {
             os: ubuntu-latest, name: "Ubuntu Clang 10", cc: "clang-10", cxx: "clang++-10",
-            artifact: "ubuntu-clang-10", preconfigure: ""
+            artifact: "ubuntu-clang-10", preconfigure: "", sanitizers: "On"
           }
           - {
             os: ubuntu-latest, name: "Ubuntu Clang 9", cc: "clang-9", cxx: "clang++-9",
-            artifact: "ubuntu-clang-9", preconfigure: ""
+            artifact: "ubuntu-clang-9", preconfigure: "", sanitizers: "On"
           }
           - {
             os: ubuntu-latest, name: "Ubuntu GCC 11", cc: "gcc-11", cxx: "g++-11",
-            artifact: "ubuntu-gcc-11", preconfigure: ""
+            artifact: "ubuntu-gcc-11", preconfigure: "", sanitizers: "On"
           }
           - {
             os: ubuntu-latest, name: "Ubuntu GCC 10", cc: "gcc-10", cxx: "g++-10",
-            artifact: "ubuntu-gcc-10", preconfigure: ""
+            artifact: "ubuntu-gcc-10", preconfigure: "", sanitizers: "On"
           }
           - {
             os: ubuntu-latest, name: "Ubuntu GCC 9", cc: "gcc-9", cxx: "g++-9",
-            artifact: "ubuntu-gcc-9", preconfigure: ""
+            artifact: "ubuntu-gcc-9", preconfigure: "", sanitizers: "On"
           }
           - {
             os: ubuntu-latest, name: "Ubuntu GCC 8", cc: "gcc-8", cxx: "g++-8",
-            artifact: "ubuntu-gcc-8", preconfigure: ""
+            artifact: "ubuntu-gcc-8", preconfigure: "", sanitizers: "On"
           }
           - {
             os: windows-latest, name: "Windows VS 2019", cc: "cl", cxx: "cl",
             artifact: "windows-msvc-19",
             environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat",
-            preconfigure: ""
+            preconfigure: "", sanitizers: "On"
           }
           - {
             os: windows-latest, name: "Windows VS 2017", cc: "cl", cxx: "cl",
             artifact: "windows-msvc-17",
             environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/VC/Auxiliary/Build/vcvars64.bat",
-            preconfigure: ""
+            preconfigure: "", sanitizers: "On"
           }
           - {
             os: macos-latest, name: "MacOS Clang 12", cc: "clang", cxx: "clang++",
             artifact: "macos-clang-12",
-            preconfigure: "export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/"
+            preconfigure: "export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/",
+            sanitizers: "On"
           }
 
     steps:
@@ -135,7 +140,7 @@ jobs:
           -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
           -DCMAKE_C_COMPILER=${{ matrix.config.cc }} \
           -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }} \
-          -DARK_SANITIZERS=On \
+          -DARK_SANITIZERS=${{ matrix.config.sanitizers }} \
           -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=On -DARK_MOD_ALL=On
 
     - name: Add SQLite deps
@@ -158,7 +163,7 @@ jobs:
           -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
           -DCMAKE_C_COMPILER=${{ matrix.config.cc }} \
           -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }} \
-          -DARK_SANITIZERS=On
+          -DARK_SANITIZERS=${{ matrix.config.sanitizers }}
 
     - name: Build Integration tests
       shell: bash
@@ -287,7 +292,7 @@ jobs:
       id: download
       uses: actions/download-artifact@v2
       with:
-        name: "ubuntu-clang-11"
+        name: "ubuntu-clang-11-valgrind"
         path: build
 
     - shell: bash
