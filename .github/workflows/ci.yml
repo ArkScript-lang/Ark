@@ -40,7 +40,7 @@ jobs:
             artifact: "ubuntu-clang-11", preconfigure: "", sanitizers: "On"
           }
           - {
-            os: ubuntu-latest, name: "Ubuntu Clang 11", cc: "clang-11", cxx: "clang++-11",
+            os: ubuntu-latest, name: "Ubuntu Clang 11 (valgrind)", cc: "clang-11", cxx: "clang++-11",
             artifact: "ubuntu-clang-11-valgrind", preconfigure: "", sanitizers: "Off"
           }
           - {
@@ -53,19 +53,19 @@ jobs:
           }
           - {
             os: ubuntu-latest, name: "Ubuntu GCC 11", cc: "gcc-11", cxx: "g++-11",
-            artifact: "ubuntu-gcc-11", preconfigure: "", sanitizers: "On"
+            artifact: "ubuntu-gcc-11", preconfigure: "", sanitizers: "Off"
           }
           - {
             os: ubuntu-latest, name: "Ubuntu GCC 10", cc: "gcc-10", cxx: "g++-10",
-            artifact: "ubuntu-gcc-10", preconfigure: "", sanitizers: "On"
+            artifact: "ubuntu-gcc-10", preconfigure: "", sanitizers: "Off"
           }
           - {
             os: ubuntu-latest, name: "Ubuntu GCC 9", cc: "gcc-9", cxx: "g++-9",
-            artifact: "ubuntu-gcc-9", preconfigure: "", sanitizers: "On"
+            artifact: "ubuntu-gcc-9", preconfigure: "", sanitizers: "Off"
           }
           - {
             os: ubuntu-latest, name: "Ubuntu GCC 8", cc: "gcc-8", cxx: "g++-8",
-            artifact: "ubuntu-gcc-8", preconfigure: "", sanitizers: "On"
+            artifact: "ubuntu-gcc-8", preconfigure: "", sanitizers: "Off"
           }
           - {
             os: windows-latest, name: "Windows VS 2019", cc: "cl", cxx: "cl",
@@ -275,7 +275,9 @@ jobs:
     - name: Tests
       if: steps.download.outcome == 'success' && steps.download-artifact.outcome == 'success'
       shell: bash
-      run: bash .github/launch-tests
+      run: |
+        export ASAN_OPTIONS=use_odr_indicator=1
+        bash .github/launch-tests
 
   valgrind:
     runs-on: ubuntu-latest
