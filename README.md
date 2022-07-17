@@ -158,6 +158,7 @@ Different CMake switches are available to customize the build:
 * `-DARK_PROFILER_MIPS` to enable the MIPS counting, defaults to Off
 * `-DARK_NO_STDLIB` to avoid the installation of the ArkScript standard library
 * `-DARK_BUILD_MODULES` to trigger the modules build
+* `-DARK_SANITIZERS` to enable ASAN and UBSAN
 
 ```bash
 # first, clone it
