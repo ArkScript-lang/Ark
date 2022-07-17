@@ -183,14 +183,14 @@ jobs:
 
     - name: Download artifact
       id: download
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: ${{ matrix.config.artifact }}
         path: build
 
     - name: Download temp artifact
       id: download-artifact
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: temp-${{ matrix.config.artifact }}
         path: artifact
@@ -232,31 +232,31 @@ jobs:
         run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
 
       - name: Download artifact Linux GCC 11
-        uses: dawidd6/action-download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: ubuntu-gcc-11
           path: ark-ubuntu-gcc-11
 
       - name: Download artifact Linux Clang 11
-        uses: dawidd6/action-download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: ubuntu-clang-11
           path: ark-ubuntu-clang-11
 
       - name: Download artifact Windows MSVC 19
-        uses: dawidd6/action-download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: windows-msvc-19
           path: ark-windows-msvc-19
 
       - name: Download artifact MacOS Clang
-        uses: dawidd6/action-download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: macos-clang-12
           path: ark-macos-clang-12
 
       - name: Download artifact Windows InnoSetup installer
-        uses: dawidd6/action-download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: arkscript.exe
           path: ark-windows-installer
