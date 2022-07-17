@@ -1,17 +1,169 @@
 name: "Create a release"
 
 on:
-  workflow_dispatch:
-    inputs:
-      versionName:
-        description: 'Name of version  (ie 5.5.0)'
-        required: true
-      isDraft:
-        description: 'Should we create a draft release?'
-        required: false
-        default: 'true'
+  push:
+    tags:
+      - '*'
 
 jobs:
+  build:
+    runs-on: ${{ matrix.config.os }}
+    name: ${{ matrix.config.name }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - {
+            os: ubuntu-latest, name: "Ubuntu Clang 11", cc: "clang-11", cxx: "clang++-11",
+            artifact: "ubuntu-clang-11", preconfigure: ""
+          }
+          - {
+            os: ubuntu-latest, name: "Ubuntu Clang 10", cc: "clang-10", cxx: "clang++-10",
+            artifact: "ubuntu-clang-10", preconfigure: ""
+          }
+          - {
+            os: ubuntu-latest, name: "Ubuntu Clang 9", cc: "clang-9", cxx: "clang++-9",
+            artifact: "ubuntu-clang-9", preconfigure: ""
+          }
+          - {
+            os: ubuntu-latest, name: "Ubuntu GCC 11", cc: "gcc-11", cxx: "g++-11",
+            artifact: "ubuntu-gcc-11", preconfigure: ""
+          }
+          - {
+            os: ubuntu-latest, name: "Ubuntu GCC 10", cc: "gcc-10", cxx: "g++-10",
+            artifact: "ubuntu-gcc-10", preconfigure: ""
+          }
+          - {
+            os: ubuntu-latest, name: "Ubuntu GCC 9", cc: "gcc-9", cxx: "g++-9",
+            artifact: "ubuntu-gcc-9", preconfigure: ""
+          }
+          - {
+            os: ubuntu-latest, name: "Ubuntu GCC 8", cc: "gcc-8", cxx: "g++-8",
+            artifact: "ubuntu-gcc-8", preconfigure: ""
+          }
+          - {
+            os: windows-latest, name: "Windows VS 2019", cc: "cl", cxx: "cl",
+            artifact: "windows-msvc-19",
+            environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat",
+            preconfigure: ""
+          }
+          - {
+            os: windows-latest, name: "Windows VS 2017", cc: "cl", cxx: "cl",
+            artifact: "windows-msvc-17",
+            environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/VC/Auxiliary/Build/vcvars64.bat",
+            preconfigure: ""
+          }
+          - {
+            os: macos-latest, name: "MacOS Clang 12", cc: "clang", cxx: "clang++",
+            artifact: "macos-clang-12",
+            preconfigure: "export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/"
+          }
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+
+    - name: Update GNU compilers
+      if: startsWith(matrix.config.name, 'Ubuntu') && startsWith(matrix.config.cc, 'gcc')
+      shell: bash
+      run: |
+        sudo apt-add-repository -y ppa:ubuntu-toolchain-r/test
+        sudo apt-get -yq install ${{ matrix.config.cc }} ${{ matrix.config.cxx }}
+
+    - name: Update LLVM compilers
+      if: startsWith(matrix.config.name, 'Ubuntu') && startsWith(matrix.config.cc, 'clang')
+      shell: bash
+      run: |
+        version=`echo ${{ matrix.config.cc }} | cut -c 7-`
+        sudo apt-get install -y clang-${version} lld-${version} libc++-${version}-dev libc++abi-${version}-dev clang-tools-${version}
+
+    - name: Update MacOS GNU compilers
+      if: startsWith(matrix.config.name, 'MacOS') && startsWith(matrix.config.cc, 'gcc')
+      shell: bash
+      run: |
+        version=`echo ${{ matrix.config.cc }} | cut -c 5-`
+        brew install gcc@${version}
+
+    - name: Install MacOS dependencies
+      if: startsWith(matrix.config.name, 'MacOS')
+      shell: bash
+      run: env HOMEBREW_NO_AUTO_UPDATE=1 brew install openssl
+
+    - uses: ilammy/msvc-dev-cmd@v1
+      if: startsWith(matrix.config.name, 'Windows')
+
+    - name: Download Windows dependencies
+      if: startsWith(matrix.config.name, 'Windows')
+      shell: pwsh
+      run: |
+        Invoke-RestMethod -Uri https://www.sqlite.org/2022/sqlite-dll-win64-x64-${Env:SQLITE_VERSION}.zip -OutFile sqlite.zip
+        Invoke-RestMethod -Uri https://www.sqlite.org/2022/sqlite-amalgamation-${Env:SQLITE_VERSION}.zip  -OutFile amalgation.zip
+        Expand-Archive sqlite.zip -DestinationPath sqlite_lib
+        Expand-Archive amalgation.zip -DestinationPath sqlite_code
+        cd sqlite_lib
+        lib /DEF:sqlite3.def /OUT:sqlite3.lib /MACHINE:x64
+
+    - name: Configure CMake Ark
+      shell: bash
+      run: |
+        ${{ matrix.config.preconfigure }}
+        cmake -Bbuild \
+          -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
+          -DCMAKE_C_COMPILER=${{ matrix.config.cc }} \
+          -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }} \
+          -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=On -DARK_MOD_ALL=On
+
+    - name: Add SQLite deps
+      if: startsWith(matrix.config.name, 'Windows')
+      shell: bash
+      run: |
+        cmake -Bbuild \
+          -DSQLite3_INCLUDE_DIR=$(pwd)/sqlite_code/sqlite-amalgamation-${SQLITE_VERSION} \
+          -DSQLite3_LIBRARY=$(pwd)/sqlite_lib/sqlite3.lib
+
+    - name: Build ArkScript
+      shell: bash
+      run: cmake --build build --config $BUILD_TYPE
+
+    - name: Organize files for upload
+      if: startsWith(matrix.config.name, 'Ubuntu') || startsWith(matrix.config.name, 'MacOS')
+      shell: bash
+      run: |
+        mkdir -p artifact/lib/std
+        cp build/ark artifact
+        cp build/arkscript artifact
+        cp build/libArkReactor.* artifact
+        cp lib/*.arkm artifact/lib
+        cp lib/std/*.ark artifact/lib/std
+        rm -rf artifact/lib/std/{.git,.github,tests/__arkscript__}
+
+    - name: Organize files for upload
+      if: startsWith(matrix.config.name, 'Windows')
+      shell: bash
+      run: |
+        mkdir -p artifact/lib/std
+        cp build/$BUILD_TYPE/ark.exe artifact
+        cp build/$BUILD_TYPE/arkscript.exe artifact
+        cp build/$BUILD_TYPE/ArkReactor.dll artifact
+        cp lib/*.arkm artifact/lib
+        cp lib/std/*.ark artifact/lib/std
+        rm -rf artifact/lib/std/{.git,.github,tests/__arkscript__}
+
+    - name: Generate InnoSetup installer
+      if: startsWith(matrix.config.name, 'Windows')
+      uses: SuperFola/is-build-action@master
+      with:
+        path-to-script: 'Installer.iss'
+        artifact-name: 'arkscript.exe'
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ matrix.config.artifact }}
+        path: artifact
+
   release:
     runs-on: ubuntu-latest
 
