@@ -9,6 +9,7 @@ jobs:
 
     steps:
     - uses: actions/labeler@master
+      continue-on-error: true
       with:
         repo-token: "${{ secrets.GITHUB_TOKEN }}"
         sync-labels: true
