@@ -279,8 +279,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v${{ env.RELEASE_VERSION }}
-          release_name: ArkScript v$${{ env.RELEASE_VERSION }}
+          tag_name: ${{ env.RELEASE_VERSION }}
+          release_name: ArkScript ${{ env.RELEASE_VERSION }}
           draft: true
           prerelease: false
           body: ${{ steps.extract-release-notes.outputs.release_notes }}
@@ -288,7 +288,7 @@ jobs:
       - uses: sarisia/actions-status-discord@v1
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
-          title: "A new release (v${{ env.RELEASE_VERSION }}) has been drafted"
+          title: "A new release (${{ env.RELEASE_VERSION }}) has been drafted"
           description: |
             Please review it **before publishing it**, as this action would trigger workflows and GitHub webhooks,
             notifying everyone of a new release! You want to be sure **everything** is correct
