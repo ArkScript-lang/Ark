@@ -7,23 +7,9 @@ set(ARK_VERSION_MAJOR 3)
 set(ARK_VERSION_MINOR 3)
 set(ARK_VERSION_PATCH 0)
 
-include(CheckIPOSupported)
-check_ipo_supported(RESULT ipo_supported)
-
-function(enable_ipo target_name)
-    if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND (CMAKE_CXX_COMPILER_VERSION MATCHES "^8\..+"))
-        message(WARNING "LTO/IPO supported but not enabled to prevent https://github.com/ArkScript-lang/Ark/pull/385#issuecomment-1163597951")
-    else()
-        message(STATUS "LTO/IPO enabled")
-        set_target_properties(
-            ${target_name}
-            PROPERTIES
-                INTERPROCEDURAL_OPTIMIZATION TRUE)
-    endif()
-endfunction()
-
-# Uses GNU Install directory variables
-include(GNUInstallDirs)
+include(cmake/link_time_optimization.cmake)
+include(cmake/sanitizers.cmake)
+include(GNUInstallDirs)  # Uses GNU Install directory variables
 
 # configure installer.iss
 configure_file(
@@ -51,7 +37,7 @@ set_target_properties(
         CXX_STANDARD_REQUIRED ON
         CXX_EXTENSIONS OFF)
 
-enable_ipo(ArkReactor)
+enable_lto(ArkReactor)
 
 if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG OR APPLE)
     target_compile_options(ArkReactor
@@ -189,6 +175,7 @@ option(ARK_PROFILER_COUNT   "Enable creations/copies/moves counting on the Value
 option(ARK_PROFILER_MIPS    "Enable MIPS calculation" Off)
 option(ARK_NO_STDLIB        "Do not install the standard library with the Ark library" Off)
 option(ARK_BUILD_MODULES    "Build the std library modules or not" Off)
+option(ARK_SANITIZERS       "Enable ASAN and UBSAN" Off)
 
 if (ARK_PROFILER_COUNT)
     target_compile_definitions(ArkReactor PRIVATE -DARK_PROFILER_COUNT)
@@ -251,10 +238,16 @@ if (ARK_BUILD_EXE)
             CXX_STANDARD_REQUIRED ON
             CXX_EXTENSIONS OFF)
 
-    enable_ipo(ark)
-    enable_ipo(arkscript)
+    enable_lto(ark)
+    enable_lto(arkscript)
 
     # Installs the arkscript executable.
     install(TARGETS arkscript
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+endif()
+
+if (ARK_SANITIZERS)
+    message(STATUS "Enabling address sanitizer and undefined behavior sanitizer")
+    add_address_sanitizer()
+    add_undefined_sanitizer()
 endif()
