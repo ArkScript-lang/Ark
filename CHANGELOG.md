@@ -7,11 +7,16 @@
 - added new `async` and `await` builtins
      - they can access the outer scope
 - added methods to create and destroy an execution context and a future in the VM
+- added new CLI option `--ast` to generate JSON from the generated abstract syntax tree
+- added an AST to JSON compiler
 
 ### Changed
 - the str:format functions now expects strings following this syntax: https://fmt.dev/latest/syntax.html
 - added documentation about the compiler implementation
 - added documentation about the virtual machine
+- printing a closure will now print its fields instead of `Closure<1432>`
+- macros are always evaluated, even when they aren't any user defined macro
+- argcount works on symbols and anonymous functions
 
 ### Deprecated
 
@@ -19,6 +24,7 @@
 - removing the custom string, replacing it with std::string (the format engine of the custom string had a lot of memory leaks)
 - `Utils::digPlaces` and `Utils::decPlaces` got removed as they were no longer needed
 - removed unused `NodeType::Closure`
+- removed the `std::ostream& operator<<` of the Value, now using the `.toString(stream, vm reference)`
 - removed the global VM lock
 - removed deprecated code (`list:removeAt`, `ark` executable now replaced by `arkscript`)
 

@@ -1,6 +1,7 @@
 **
 
 !.git
+!cmake
 !include
 !lib
 !src

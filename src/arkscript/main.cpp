@@ -12,6 +12,9 @@
 #include <Ark/REPL/Repl.hpp>
 #include <Ark/Profiling.hpp>
 
+#include <Ark/Files.hpp>
+#include <Ark/Compiler/JsonCompiler.hpp>
+
 int main(int argc, char** argv)
 {
     using namespace clipp;
@@ -25,7 +28,8 @@ int main(int argc, char** argv)
         run,
         repl,
         compile,
-        eval
+        eval,
+        ast
     };
     mode selected = mode::repl;
     uint16_t options = Ark::DefaultFeatures;
@@ -95,6 +99,16 @@ int main(int argc, char** argv)
                 )
             )
             , any_other(script_args)
+        )
+        | (
+            required("--ast").set(selected, mode::ast).doc("Compile the given program and output its AST as JSON to stdout")
+            & value("file", file)
+            , joinable(repeatable(option("-d", "--debug").call([&]{ debug++; }).doc("Increase debug level (default: 0)")))
+            ,
+            (
+                option("-L", "--lib").doc("Set the location of the ArkScript standard library. Paths can be delimited by ';'")
+                & value("lib_dir", libdir)
+            )
         )
         , any_other(wrong)
     );
@@ -231,6 +245,14 @@ int main(int argc, char** argv)
 
                 Ark::VM vm(state);
                 return vm.run();
+            }
+
+            case mode::ast:
+            {
+                Ark::JsonCompiler jcompiler(debug, libenv, options);
+                jcompiler.feed(Ark::Utils::readFile(file), file);
+                std::cout << jcompiler.compile() << std::endl;
+                break;
             }
 
             case mode::bytecode_reader:

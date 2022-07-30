@@ -22,7 +22,8 @@ on:
   pull_request:
 
 env:
-  BUILD_TYPE: Release
+  BUILD_TYPE: Debug
+  SQLITE_VERSION: 3390100  # 3.39.1
 
 jobs:
   build:
@@ -35,58 +36,57 @@ jobs:
         config:
           - {
             os: ubuntu-latest, name: "Ubuntu Clang 11", cc: "clang-11", cxx: "clang++-11",
-            artifact: "ubuntu-clang-11", preconfigure: ""
+            artifact: "ubuntu-clang-11", preconfigure: "", sanitizers: "On"
+          }
+          - {
+            os: ubuntu-latest, name: "Ubuntu Clang 11 (valgrind)", cc: "clang-11", cxx: "clang++-11",
+            artifact: "ubuntu-clang-11-valgrind", preconfigure: "", sanitizers: "Off"
           }
           - {
             os: ubuntu-latest, name: "Ubuntu Clang 10", cc: "clang-10", cxx: "clang++-10",
-            artifact: "ubuntu-clang-10", preconfigure: ""
+            artifact: "ubuntu-clang-10", preconfigure: "", sanitizers: "On"
           }
           - {
             os: ubuntu-latest, name: "Ubuntu Clang 9", cc: "clang-9", cxx: "clang++-9",
-            artifact: "ubuntu-clang-9", preconfigure: ""
+            artifact: "ubuntu-clang-9", preconfigure: "", sanitizers: "On"
           }
           - {
             os: ubuntu-latest, name: "Ubuntu GCC 11", cc: "gcc-11", cxx: "g++-11",
-            artifact: "ubuntu-gcc-11", preconfigure: ""
+            artifact: "ubuntu-gcc-11", preconfigure: "", sanitizers: "Off"
           }
           - {
             os: ubuntu-latest, name: "Ubuntu GCC 10", cc: "gcc-10", cxx: "g++-10",
-            artifact: "ubuntu-gcc-10", preconfigure: ""
+            artifact: "ubuntu-gcc-10", preconfigure: "", sanitizers: "Off"
           }
           - {
             os: ubuntu-latest, name: "Ubuntu GCC 9", cc: "gcc-9", cxx: "g++-9",
-            artifact: "ubuntu-gcc-9", preconfigure: ""
+            artifact: "ubuntu-gcc-9", preconfigure: "", sanitizers: "Off"
           }
           - {
             os: ubuntu-latest, name: "Ubuntu GCC 8", cc: "gcc-8", cxx: "g++-8",
-            artifact: "ubuntu-gcc-8", preconfigure: ""
+            artifact: "ubuntu-gcc-8", preconfigure: "", sanitizers: "Off"
           }
           - {
             os: windows-latest, name: "Windows VS 2019", cc: "cl", cxx: "cl",
             artifact: "windows-msvc-19",
             environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat",
-            preconfigure: ""
+            preconfigure: "", sanitizers: "On"
           }
           - {
             os: windows-latest, name: "Windows VS 2017", cc: "cl", cxx: "cl",
             artifact: "windows-msvc-17",
             environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/VC/Auxiliary/Build/vcvars64.bat",
-            preconfigure: ""
+            preconfigure: "", sanitizers: "On"
           }
           - {
             os: macos-latest, name: "MacOS Clang 12", cc: "clang", cxx: "clang++",
             artifact: "macos-clang-12",
-            preconfigure: "export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/"
+            preconfigure: "export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/",
+            sanitizers: "On"
           }
-          # TODO currently undebuggable segfault only with this compiler
-          # - {
-          #   os: macos-latest, name: "MacOS GCC 10", cc: "gcc-10", cxx: "g++-10", artifact: "macos-gcc-10",
-          #   preconfigure: "export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/"
-          # }
 
     steps:
     - uses: actions/checkout@v2
-      if: contains(github.event.head_commit.message, '[skip ci]') == false
       with:
         submodules: recursive
 
@@ -104,17 +104,24 @@ jobs:
         version=`echo ${{ matrix.config.cc }} | cut -c 7-`
         sudo apt-get install -y clang-${version} lld-${version} libc++-${version}-dev libc++abi-${version}-dev clang-tools-${version}
 
-    - name: Update MacOS GNU compilers
-      if: startsWith(matrix.config.name, 'MacOS') && startsWith(matrix.config.cc, 'gcc')
-      shell: bash
-      run: |
-        version=`echo ${{ matrix.config.cc }} | cut -c 5-`
-        brew install gcc@${version}
-
     - name: Install MacOS dependencies
       if: startsWith(matrix.config.name, 'MacOS')
       shell: bash
       run: env HOMEBREW_NO_AUTO_UPDATE=1 brew install openssl
+
+    - uses: ilammy/msvc-dev-cmd@v1
+      if: startsWith(matrix.config.name, 'Windows')
+
+    - name: Download Windows dependencies
+      if: startsWith(matrix.config.name, 'Windows')
+      shell: pwsh
+      run: |
+        Invoke-RestMethod -Uri https://www.sqlite.org/2022/sqlite-dll-win64-x64-${Env:SQLITE_VERSION}.zip -OutFile sqlite.zip
+        Invoke-RestMethod -Uri https://www.sqlite.org/2022/sqlite-amalgamation-${Env:SQLITE_VERSION}.zip  -OutFile amalgation.zip
+        Expand-Archive sqlite.zip -DestinationPath sqlite_lib
+        Expand-Archive amalgation.zip -DestinationPath sqlite_code
+        cd sqlite_lib
+        lib /DEF:sqlite3.def /OUT:sqlite3.lib /MACHINE:x64
 
     - name: Configure CMake Ark
       shell: bash
@@ -124,7 +131,16 @@ jobs:
           -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
           -DCMAKE_C_COMPILER=${{ matrix.config.cc }} \
           -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }} \
+          -DARK_SANITIZERS=${{ matrix.config.sanitizers }} \
           -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=On -DARK_MOD_ALL=On
+
+    - name: Add SQLite deps
+      if: startsWith(matrix.config.name, 'Windows')
+      shell: bash
+      run: |
+        cmake -Bbuild \
+          -DSQLite3_INCLUDE_DIR=$(pwd)/sqlite_code/sqlite-amalgamation-${SQLITE_VERSION} \
+          -DSQLite3_LIBRARY=$(pwd)/sqlite_lib/sqlite3.lib
 
     - name: Build ArkScript
       shell: bash
@@ -137,7 +153,8 @@ jobs:
         cmake -Bbuild \
           -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
           -DCMAKE_C_COMPILER=${{ matrix.config.cc }} \
-          -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }}
+          -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }} \
+          -DARK_SANITIZERS=${{ matrix.config.sanitizers }}
 
     - name: Build Integration tests
       shell: bash
@@ -172,13 +189,6 @@ jobs:
       run: |
         mkdir -p temp/
         cp -r tests/cpp temp/
-
-    - name: Generate InnoSetup installer
-      if: startsWith(matrix.config.name, 'Windows')
-      uses: SuperFola/is-build-action@master
-      with:
-        path-to-script: 'Installer.iss'
-        artifact-name: 'arkscript.exe'
 
     - name: Upload artifact
       uses: actions/upload-artifact@v2
@@ -215,7 +225,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-      if: contains(github.event.head_commit.message, '[skip ci]') == false
       with:
         submodules: recursive
 
@@ -256,7 +265,9 @@ jobs:
     - name: Tests
       if: steps.download.outcome == 'success' && steps.download-artifact.outcome == 'success'
       shell: bash
-      run: bash .github/launch-tests
+      run: |
+        export ASAN_OPTIONS=use_odr_indicator=1
+        bash .github/launch-tests
 
   valgrind:
     runs-on: ubuntu-latest
@@ -265,7 +276,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-      if: contains(github.event.head_commit.message, '[skip ci]') == false
       with:
         submodules: recursive
 
@@ -273,7 +283,7 @@ jobs:
       id: download
       uses: actions/download-artifact@v2
       with:
-        name: "ubuntu-clang-11"
+        name: "ubuntu-clang-11-valgrind"
         path: build
 
     - shell: bash

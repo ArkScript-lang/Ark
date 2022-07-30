@@ -1,0 +1,203 @@
+{
+    "type": "Begin",
+    "children": [
+        {
+            "type": "Let",
+            "name": {
+                "type": "Symbol",
+                "name": "ackermann"
+            },
+            "value": {
+                "type": "Fun",
+                "args": [
+                    {
+                        "type": "Symbol",
+                        "name": "m"
+                    },
+                    {
+                        "type": "Symbol",
+                        "name": "n"
+                    }
+                ],
+                "body": {
+                    "type": "Begin",
+                    "children": [
+                        {
+                            "type": "If",
+                            "condition": {
+                                "type": "FunctionCall",
+                                "name": {
+                                    "type": "Symbol",
+                                    "name": ">"
+                                },
+                                "args": [
+                                    {
+                                        "type": "Symbol",
+                                        "name": "m"
+                                    },
+                                    {
+                                        "type": "Number",
+                                        "value": 0.000000
+                                    }
+                                ]
+                            },
+                            "then": {
+                                "type": "If",
+                                "condition": {
+                                    "type": "FunctionCall",
+                                    "name": {
+                                        "type": "Symbol",
+                                        "name": "="
+                                    },
+                                    "args": [
+                                        {
+                                            "type": "Number",
+                                            "value": 0.000000
+                                        },
+                                        {
+                                            "type": "Symbol",
+                                            "name": "n"
+                                        }
+                                    ]
+                                },
+                                "then": {
+                                    "type": "FunctionCall",
+                                    "name": {
+                                        "type": "Symbol",
+                                        "name": "ackermann"
+                                    },
+                                    "args": [
+                                        {
+                                            "type": "FunctionCall",
+                                            "name": {
+                                                "type": "Symbol",
+                                                "name": "-"
+                                            },
+                                            "args": [
+                                                {
+                                                    "type": "Symbol",
+                                                    "name": "m"
+                                                },
+                                                {
+                                                    "type": "Number",
+                                                    "value": 1.000000
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "type": "Number",
+                                            "value": 1.000000
+                                        }
+                                    ]
+                                },
+                                "else": {
+                                    "type": "FunctionCall",
+                                    "name": {
+                                        "type": "Symbol",
+                                        "name": "ackermann"
+                                    },
+                                    "args": [
+                                        {
+                                            "type": "FunctionCall",
+                                            "name": {
+                                                "type": "Symbol",
+                                                "name": "-"
+                                            },
+                                            "args": [
+                                                {
+                                                    "type": "Symbol",
+                                                    "name": "m"
+                                                },
+                                                {
+                                                    "type": "Number",
+                                                    "value": 1.000000
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "type": "FunctionCall",
+                                            "name": {
+                                                "type": "Symbol",
+                                                "name": "ackermann"
+                                            },
+                                            "args": [
+                                                {
+                                                    "type": "Symbol",
+                                                    "name": "m"
+                                                },
+                                                {
+                                                    "type": "FunctionCall",
+                                                    "name": {
+                                                        "type": "Symbol",
+                                                        "name": "-"
+                                                    },
+                                                    "args": [
+                                                        {
+                                                            "type": "Symbol",
+                                                            "name": "n"
+                                                        },
+                                                        {
+                                                            "type": "Number",
+                                                            "value": 1.000000
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            },
+                            "else": {
+                                "type": "FunctionCall",
+                                "name": {
+                                    "type": "Symbol",
+                                    "name": "+"
+                                },
+                                "args": [
+                                    {
+                                        "type": "Number",
+                                        "value": 1.000000
+                                    },
+                                    {
+                                        "type": "Symbol",
+                                        "name": "n"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "type": "FunctionCall",
+            "name": {
+                "type": "Symbol",
+                "name": "print"
+            },
+            "args": [
+                {
+                    "type": "String",
+                    "value": "Ackermann-Péter function, m=3, n=6: "
+                },
+                {
+                    "type": "FunctionCall",
+                    "name": {
+                        "type": "Symbol",
+                        "name": "ackermann"
+                    },
+                    "args": [
+                        {
+                            "type": "Number",
+                            "value": 3.000000
+                        },
+                        {
+                            "type": "Number",
+                            "value": 6.000000
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
