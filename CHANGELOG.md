@@ -14,6 +14,7 @@
 - argcount works on symbols and anonymous functions
 
 ### Deprecated
+- deprecating `Value VM::resolve(const Value* val, Args&&... args)`
 
 ### Removed
 - removed the `std::ostream& operator<<` of the Value, now using the `.toString(stream, vm reference)`

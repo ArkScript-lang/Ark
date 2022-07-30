@@ -96,6 +96,7 @@ namespace Ark
          * @return Value 
          */
         template <typename... Args>
+        [[deprecated("Use resolve(ExecutionContext*, vector<Value>&) instead")]]
         Value resolve(const Value* val, Args&&... args);
 
         /**
