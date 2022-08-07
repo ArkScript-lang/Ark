@@ -5,6 +5,7 @@
 #include <limits>
 #include <filesystem>
 #include <picosha2.h>
+#include <termcolor/termcolor.hpp>
 
 #include <Ark/Literals.hpp>
 #include <Ark/Utils.hpp>
@@ -230,6 +231,12 @@ namespace Ark
         throw CompilationError(makeNodeBasedErrorCtx(message, node));
     }
 
+    void Compiler::compilerWarning(const std::string& message, const Node& node)
+    {
+        if (m_options & FeatureShowWarnings)
+            std::cerr << termcolor::yellow << "Warning " << termcolor::reset << makeNodeBasedErrorCtx(message, node) << "\n";
+    }
+
     void Compiler::_compile(const Node& x, int p, bool produces_result, bool is_terminal, const std::string& var_name)
     {
         // register symbols
@@ -350,7 +357,10 @@ namespace Ark
         }
 
         if (produces_result)
+        {
+            compilerWarning("Statement has no effect", x);
             page(p).push_back(Instruction::POP);
+        }
     }
 
     void Compiler::compileSpecific(const Node& c0, const Node& x, int p, bool produces_result)
@@ -384,8 +394,11 @@ namespace Ark
         page(p).emplace_back(inst);
         pushSpecificInstArgc(inst, argc, p);
 
-        if (produces_result && name != "pop!")  // pop! never pushes a value
+        if (produces_result && name.back() != '!')  // in-place functions never push a value
+        {
+            compilerWarning("Ignoring return value of function", x);
             page(p).push_back(Instruction::POP);
+        }
     }
 
     void Compiler::compileIf(const Node& x, int p, bool produces_result, bool is_terminal, const std::string& var_name)
@@ -463,7 +476,10 @@ namespace Ark
         page(page_id).emplace_back(Instruction::RET);
 
         if (produces_result)
+        {
+            compilerWarning("Found unused declared function", x);
             page(p).push_back(Instruction::POP);
+        }
     }
 
     void Compiler::compileLetMutSet(Keyword n, const Node& x, int p)
@@ -519,7 +535,10 @@ namespace Ark
         pushNumber(id, page_ptr(p));
 
         if (produces_result)
+        {
+            compilerWarning("Found unused quote expression", x);
             page(p).push_back(Instruction::POP);
+        }
     }
 
     void Compiler::compilePluginImport(const Node& x, int p)

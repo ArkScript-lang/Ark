@@ -721,8 +721,6 @@ namespace Ark
                         for (uint16_t i = 0; i < count; ++i)
                             list->push_back(*popAndResolveAsPtr(context));
 
-                        push(Nil, context);
-
                         COZ_PROGRESS_NAMED("ark vm append!");
                         break;
                     }
@@ -755,8 +753,6 @@ namespace Ark
                             for (auto it = next->list().begin(), end = next->list().end(); it != end; ++it)
                                 list->push_back(*it);
                         }
-
-                        push(Nil, context);
 
                         COZ_PROGRESS_NAMED("ark vm concat!");
                         break;
