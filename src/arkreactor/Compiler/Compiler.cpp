@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <picosha2.h>
 #include <termcolor/termcolor.hpp>
+#undef max
 
 #include <Ark/Literals.hpp>
 #include <Ark/Utils.hpp>
