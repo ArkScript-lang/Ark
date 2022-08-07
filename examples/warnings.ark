@@ -1,0 +1,3 @@
+(let a 1)
+a
+(fun (q w e) (+ q w e))
