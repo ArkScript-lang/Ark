@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+
+file=arkscript
+
+if [ -f ../../build/Release/${file}.exe ]; then
+    ark=../../build/Release/${file}.exe
+elif [ -f ../../build/${file} ]; then
+    ark=../../build/${file}
+else
+    echo "No ark executable found" && exit 1
+fi
+
+Reset='\033[0m'
+Black='\033[0;30m'
+Red='\033[0;31m'
+Green='\033[0;32m'
+Yellow='\033[0;33m'
+Blue='\033[0;34m'
+Purple='\033[0;35m'
+Cyan='\033[0;36m'
+White='\033[0;37m'
+
+passed=0
+failed=0
+
+for f in ./*.json; do
+    output=$($ark --ast ../../examples/${f%.*}.ark --lib ../../lib)
+    expected=$(cat $f)
+
+    if [[ $(diff -w <(echo -n $output) <(echo -n $expected)) != "" ]]; then
+        echo -e "${Red}FAILED${Reset} ${f%.*}"
+        ((failed=failed+1))
+        echo -e "    ${Yellow}Output${Reset}:"
+        diff --color=always -w <(echo -n $output) <(echo -n $expected)
+    else
+        echo -e "${Green}PASSED${Reset} ${f%.*}"
+        ((passed=passed+1))
+    fi
+
+done
+
+echo "  ------------------------------"
+echo -e "  ${Cyan}${passed}${Reset} passed, ${Purple}${failed}${Reset} failed"
+
+if [[ $failed != 0 ]]; then
+    exit 1
+else
+    exit 0
+fi
