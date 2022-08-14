@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: ArkScript community discord server
+    url: https://discord.gg/YT5yDwn
+    about: Please ask and answer questions here.
+  - name: ArkScript standard library issue tracker
+    url: https://github.com/ArkScript-lang/std/issues
+    about: Issues related to the standard library should go on the corresponding issue tracker
+  - name: ArkScript modules issue tracker
+    url: https://github.com/ArkScript-lang/modules/issues
+    about: Issues related to the modules should go on the corresponding issue tracker
+  - name: The project documentation
+    url: https://arkscript-lang.dev/impl/
+    about: Not sure where to look? Check out the documentation first!

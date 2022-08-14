@@ -18,18 +18,19 @@ $ark tests/arkscript/unittests.ark --lib lib/ || exit 1
 $ark lib/std/tests/all.ark         --lib lib/ || exit 1
 
 #########################################
-#             Module tests
-#########################################
-
-# blank line for formatting
-echo
-source ./lib/modules/.github/run-tests
-
-#########################################
 #          Integration tests
 #########################################
 
-cd tests/cpp/
-# blank line for formatting (and easier CI logs analysis)
-echo
-bash ./run-tests
+(cd tests/cpp/ ; echo ; bash ./run-tests)
+
+#########################################
+#              AST tests
+#########################################
+
+(cd tests/ast/ ; echo ; bash ./run-tests)
+
+#########################################
+#             Module tests
+#########################################
+
+(echo ; source ./lib/modules/.github/run-tests)

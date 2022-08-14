@@ -1,0 +1,284 @@
+{
+    "type": "Begin",
+    "children": [
+        {
+            "type": "Let",
+            "name": {
+                "type": "Symbol",
+                "name": "throw"
+            },
+            "value": {
+                "type": "Fun",
+                "args": [
+                    {
+                        "type": "Symbol",
+                        "name": "_x"
+                    }
+                ],
+                "body": {
+                    "type": "Fun",
+                    "args": [
+                        {
+                            "type": "Symbol",
+                            "name": "_injl"
+                        },
+                        {
+                            "type": "Symbol",
+                            "name": "_injr"
+                        },
+                        {
+                            "type": "Capture",
+                            "name": "_x"
+                        }
+                    ],
+                    "body": {
+                        "type": "FunctionCall",
+                        "name": {
+                            "type": "Symbol",
+                            "name": "_injl"
+                        },
+                        "args": [
+                            {
+                                "type": "Symbol",
+                                "name": "_x"
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "type": "Let",
+            "name": {
+                "type": "Symbol",
+                "name": "return"
+            },
+            "value": {
+                "type": "Fun",
+                "args": [
+                    {
+                        "type": "Symbol",
+                        "name": "_y"
+                    }
+                ],
+                "body": {
+                    "type": "Fun",
+                    "args": [
+                        {
+                            "type": "Symbol",
+                            "name": "_injl"
+                        },
+                        {
+                            "type": "Symbol",
+                            "name": "_injr"
+                        },
+                        {
+                            "type": "Capture",
+                            "name": "_y"
+                        }
+                    ],
+                    "body": {
+                        "type": "FunctionCall",
+                        "name": {
+                            "type": "Symbol",
+                            "name": "_injr"
+                        },
+                        "args": [
+                            {
+                                "type": "Symbol",
+                                "name": "_y"
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "type": "Let",
+            "name": {
+                "type": "Symbol",
+                "name": "try"
+            },
+            "value": {
+                "type": "Fun",
+                "args": [
+                    {
+                        "type": "Symbol",
+                        "name": "_either"
+                    },
+                    {
+                        "type": "Symbol",
+                        "name": "_continue"
+                    },
+                    {
+                        "type": "Symbol",
+                        "name": "_handle"
+                    }
+                ],
+                "body": {
+                    "type": "FunctionCall",
+                    "name": {
+                        "type": "Symbol",
+                        "name": "_either"
+                    },
+                    "args": [
+                        {
+                            "type": "Symbol",
+                            "name": "_handle"
+                        },
+                        {
+                            "type": "Symbol",
+                            "name": "_continue"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "type": "Let",
+            "name": {
+                "type": "Symbol",
+                "name": "invert"
+            },
+            "value": {
+                "type": "Fun",
+                "args": [
+                    {
+                        "type": "Symbol",
+                        "name": "x"
+                    }
+                ],
+                "body": {
+                    "type": "Begin",
+                    "children": [
+                        {
+                            "type": "If",
+                            "condition": {
+                                "type": "FunctionCall",
+                                "name": {
+                                    "type": "Symbol",
+                                    "name": "="
+                                },
+                                "args": [
+                                    {
+                                        "type": "Symbol",
+                                        "name": "x"
+                                    },
+                                    {
+                                        "type": "Number",
+                                        "value": 0.000000
+                                    }
+                                ]
+                            },
+                            "then": {
+                                "type": "FunctionCall",
+                                "name": {
+                                    "type": "Symbol",
+                                    "name": "throw"
+                                },
+                                "args": [
+                                    {
+                                        "type": "String",
+                                        "value": "cannot divide by zero"
+                                    }
+                                ]
+                            },
+                            "else": {
+                                "type": "FunctionCall",
+                                "name": {
+                                    "type": "Symbol",
+                                    "name": "return"
+                                },
+                                "args": [
+                                    {
+                                        "type": "FunctionCall",
+                                        "name": {
+                                            "type": "Symbol",
+                                            "name": "/"
+                                        },
+                                        "args": [
+                                            {
+                                                "type": "Number",
+                                                "value": 1.000000
+                                            },
+                                            {
+                                                "type": "Symbol",
+                                                "name": "x"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "type": "FunctionCall",
+            "name": {
+                "type": "Symbol",
+                "name": "try"
+            },
+            "args": [
+                {
+                    "type": "FunctionCall",
+                    "name": {
+                        "type": "Symbol",
+                        "name": "invert"
+                    },
+                    "args": [
+                        {
+                            "type": "Number",
+                            "value": 0.000000
+                        }
+                    ]
+                },
+                {
+                    "type": "Fun",
+                    "args": [
+                        {
+                            "type": "Symbol",
+                            "name": "inverted"
+                        }
+                    ],
+                    "body": {
+                        "type": "FunctionCall",
+                        "name": {
+                            "type": "Symbol",
+                            "name": "print"
+                        },
+                        "args": [
+                            {
+                                "type": "Symbol",
+                                "name": "inverted"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "type": "Fun",
+                    "args": [
+                        {
+                            "type": "Symbol",
+                            "name": "err"
+                        }
+                    ],
+                    "body": {
+                        "type": "FunctionCall",
+                        "name": {
+                            "type": "Symbol",
+                            "name": "print"
+                        },
+                        "args": [
+                            {
+                                "type": "Symbol",
+                                "name": "err"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ]
+}

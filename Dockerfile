@@ -27,6 +27,7 @@ COPY include include
 COPY src src
 COPY Installer.iss.in .
 COPY CMakeLists.txt .
+COPY cmake cmake
 COPY --from=submodule-initializor /out .
 RUN cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release -DARK_BUILD_EXE=On \
     && cmake --build build --target arkscript

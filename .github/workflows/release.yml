@@ -1,77 +1,263 @@
 name: "Create a release"
 
 on:
-  workflow_dispatch:
-    inputs:
-      versionName:
-        description: 'Name of version  (ie 5.5.0)'
-        required: true
-      isDraft:
-        description: 'Should we create a draft release?'
-        required: false
-        default: 'true'
+  push:
+    tags:
+      - '*'
+
+env:
+  BUILD_TYPE: Release
+  SQLITE_VERSION: 3390100  # 3.39.1
 
 jobs:
+  build:
+    runs-on: ${{ matrix.config.os }}
+    name: ${{ matrix.config.name }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - {
+            os: ubuntu-latest, name: "Ubuntu Clang 11", cc: "clang-11", cxx: "clang++-11",
+            artifact: "ubuntu-clang-11", preconfigure: ""
+          }
+          - {
+            os: ubuntu-latest, name: "Ubuntu GCC 11", cc: "gcc-11", cxx: "g++-11",
+            artifact: "ubuntu-gcc-11", preconfigure: ""
+          }
+          - {
+            os: windows-latest, name: "Windows VS 2019", cc: "cl", cxx: "cl",
+            artifact: "windows-msvc-19",
+            environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat",
+            preconfigure: ""
+          }
+          - {
+            os: macos-latest, name: "MacOS Clang 12", cc: "clang", cxx: "clang++",
+            artifact: "macos-clang-12",
+            preconfigure: "export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/"
+          }
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+
+    - name: Update GNU compilers
+      if: startsWith(matrix.config.name, 'Ubuntu') && startsWith(matrix.config.cc, 'gcc')
+      shell: bash
+      run: |
+        sudo apt-add-repository -y ppa:ubuntu-toolchain-r/test
+        sudo apt-get -yq install ${{ matrix.config.cc }} ${{ matrix.config.cxx }}
+
+    - name: Update LLVM compilers
+      if: startsWith(matrix.config.name, 'Ubuntu') && startsWith(matrix.config.cc, 'clang')
+      shell: bash
+      run: |
+        version=`echo ${{ matrix.config.cc }} | cut -c 7-`
+        sudo apt-get install -y clang-${version} lld-${version} libc++-${version}-dev libc++abi-${version}-dev clang-tools-${version}
+
+    - name: Install MacOS dependencies
+      if: startsWith(matrix.config.name, 'MacOS')
+      shell: bash
+      run: env HOMEBREW_NO_AUTO_UPDATE=1 brew install openssl
+
+    - uses: ilammy/msvc-dev-cmd@v1
+      if: startsWith(matrix.config.name, 'Windows')
+
+    - name: Download Windows dependencies
+      if: startsWith(matrix.config.name, 'Windows')
+      shell: pwsh
+      run: |
+        Invoke-RestMethod -Uri https://www.sqlite.org/2022/sqlite-dll-win64-x64-${Env:SQLITE_VERSION}.zip -OutFile sqlite.zip
+        Invoke-RestMethod -Uri https://www.sqlite.org/2022/sqlite-amalgamation-${Env:SQLITE_VERSION}.zip  -OutFile amalgation.zip
+        Expand-Archive sqlite.zip -DestinationPath sqlite_lib
+        Expand-Archive amalgation.zip -DestinationPath sqlite_code
+        cd sqlite_lib
+        lib /DEF:sqlite3.def /OUT:sqlite3.lib /MACHINE:x64
+
+    - name: Configure CMake Ark
+      shell: bash
+      run: |
+        ${{ matrix.config.preconfigure }}
+        cmake -Bbuild \
+          -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
+          -DCMAKE_C_COMPILER=${{ matrix.config.cc }} \
+          -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }} \
+          -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=On -DARK_MOD_ALL=On
+
+    - name: Add SQLite deps
+      if: startsWith(matrix.config.name, 'Windows')
+      shell: bash
+      run: |
+        cmake -Bbuild \
+          -DSQLite3_INCLUDE_DIR=$(pwd)/sqlite_code/sqlite-amalgamation-${SQLITE_VERSION} \
+          -DSQLite3_LIBRARY=$(pwd)/sqlite_lib/sqlite3.lib
+
+    - name: Build ArkScript
+      shell: bash
+      run: cmake --build build --config $BUILD_TYPE
+
+    - name: Configure CMake Integration tests
+      shell: bash
+      run: |
+        cd tests/cpp
+        cmake -Bbuild \
+          -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
+          -DCMAKE_C_COMPILER=${{ matrix.config.cc }} \
+          -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }}
+
+    - name: Build Integration tests
+      shell: bash
+      run: cd tests/cpp && cmake --build build --config $BUILD_TYPE
+
+    - name: Organize files for upload
+      if: startsWith(matrix.config.name, 'Ubuntu') || startsWith(matrix.config.name, 'MacOS')
+      shell: bash
+      run: |
+        mkdir -p artifact/lib/std
+        cp build/ark artifact
+        cp build/arkscript artifact
+        cp build/libArkReactor.* artifact
+        cp lib/*.arkm artifact/lib
+        cp lib/std/*.ark artifact/lib/std
+        rm -rf artifact/lib/std/{.git,.github,tests/__arkscript__}
+
+    - name: Organize files for upload
+      if: startsWith(matrix.config.name, 'Windows')
+      shell: bash
+      run: |
+        mkdir -p artifact/lib/std
+        cp build/$BUILD_TYPE/ark.exe artifact
+        cp build/$BUILD_TYPE/arkscript.exe artifact
+        cp build/$BUILD_TYPE/ArkReactor.dll artifact
+        cp lib/*.arkm artifact/lib
+        cp lib/std/*.ark artifact/lib/std
+        rm -rf artifact/lib/std/{.git,.github,tests/__arkscript__}
+
+    - name: Organize temp artifact
+      shell: bash
+      run: |
+        mkdir -p temp/
+        cp -r tests/cpp temp/
+
+    - name: Generate InnoSetup installer
+      if: startsWith(matrix.config.name, 'Windows')
+      uses: SuperFola/is-build-action@master
+      with:
+        path-to-script: 'Installer.iss'
+        artifact-name: 'arkscript.exe'
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ matrix.config.artifact }}
+        path: artifact
+        retention-days: 1
+
+    - name: Upload temp artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: temp-${{ matrix.config.artifact }}
+        path: temp
+        retention-days: 1
+
+  tests:
+    runs-on: ${{ matrix.config.os }}
+    name: Test on ${{ matrix.config.name }}
+    needs: [build]
+
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - { os: ubuntu-latest,  name: "Ubuntu Clang 11", artifact: "ubuntu-clang-11" }
+          - { os: ubuntu-latest,  name: "Ubuntu GCC 11",   artifact: "ubuntu-gcc-11" }
+          - { os: windows-latest, name: "Windows VS 2019", artifact: "windows-msvc-19", }
+          - { os: macos-latest,   name: "MacOS Clang 12",  artifact: "macos-clang-12", }
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+
+    - name: Download artifact
+      id: download
+      uses: actions/download-artifact@v3
+      with:
+        name: ${{ matrix.config.artifact }}
+        path: build
+
+    - name: Download temp artifact
+      id: download-artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: temp-${{ matrix.config.artifact }}
+        path: artifact
+
+    - name: Update GNU compilers
+      if: startsWith(matrix.config.name, 'Ubuntu GCC')
+      shell: bash
+      run: |
+        sudo apt-add-repository -y ppa:ubuntu-toolchain-r/test
+        sudo apt-get -yq install libstdc++6
+
+    - shell: bash
+      run: |
+        mv artifact/cpp/out tests/cpp/
+        mv build/lib/*.arkm lib/
+        chmod u+x build/ark build/arkscript tests/cpp/out/*
+
+    - name: Pre-test
+      if: startsWith(matrix.config.name, 'Windows')
+      shell: bash
+      run: |
+        mkdir -p tests/cpp/out
+        cp build/*.dll tests/cpp/out/
+
+    - name: Tests
+      if: steps.download.outcome == 'success' && steps.download-artifact.outcome == 'success'
+      shell: bash
+      run: bash .github/launch-tests
+
   release:
     runs-on: ubuntu-latest
+    needs: [build, tests]
 
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Download artifact Linux GCC 9
-        uses: dawidd6/action-download-artifact@v2
-        with:
-          workflow: ci.yml
-          branch: dev
-          name: ubuntu-gcc-9
-          path: ark-ubuntu-gcc-9
+      - name: Set env
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
 
-      - name: Download artifact Linux GCC 8
-        uses: dawidd6/action-download-artifact@v2
+      - name: Download artifact Linux GCC 11
+        uses: actions/download-artifact@v3
         with:
-          workflow: ci.yml
-          branch: dev
-          name: ubuntu-gcc-8
-          path: ark-ubuntu-gcc-8
+          name: ubuntu-gcc-11
+          path: ark-ubuntu-gcc-11
 
-      - name: Download artifact Linux Clang 10
-        uses: dawidd6/action-download-artifact@v2
+      - name: Download artifact Linux Clang 11
+        uses: actions/download-artifact@v3
         with:
-          workflow: ci.yml
-          branch: dev
-          name: ubuntu-clang-10
-          path: ark-ubuntu-clang-10
+          name: ubuntu-clang-11
+          path: ark-ubuntu-clang-11
 
       - name: Download artifact Windows MSVC 19
-        uses: dawidd6/action-download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
-          workflow: ci.yml
-          branch: dev
           name: windows-msvc-19
           path: ark-windows-msvc-19
 
-      - name: Download artifact Windows MSVC 17
-        uses: dawidd6/action-download-artifact@v2
-        with:
-          workflow: ci.yml
-          branch: dev
-          name: windows-msvc-17
-          path: ark-windows-msvc-17
-
       - name: Download artifact MacOS Clang
-        uses: dawidd6/action-download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
-          workflow: ci.yml
-          branch: dev
           name: macos-clang-12
           path: ark-macos-clang-12
 
       - name: Download artifact Windows InnoSetup installer
-        uses: dawidd6/action-download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
-          workflow: ci.yml
-          branch: dev
           name: arkscript.exe
           path: ark-windows-installer
 
@@ -93,17 +279,16 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v${{ github.event.inputs.versionName }}
-          release_name: ArkScript v${{ github.event.inputs.versionName }}
-          draft: ${{ github.event.inputs.isDraft }}
+          tag_name: ${{ env.RELEASE_VERSION }}
+          release_name: ArkScript ${{ env.RELEASE_VERSION }}
+          draft: true
           prerelease: false
           body: ${{ steps.extract-release-notes.outputs.release_notes }}
 
       - uses: sarisia/actions-status-discord@v1
-        if: ${{ github.event.inputs.isDraft }} == 'true'
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
-          title: "A new release (v${{ github.event.inputs.versionName }}) has been drafted"
+          title: "A new release (${{ env.RELEASE_VERSION }}) has been drafted"
           description: |
             Please review it **before publishing it**, as this action would trigger workflows and GitHub webhooks,
             notifying everyone of a new release! You want to be sure **everything** is correct
@@ -117,8 +302,8 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./ubuntu-gcc-8.zip
-          asset_name: linux-gcc-8.zip
+          asset_path: ./ubuntu-gcc-11.zip
+          asset_name: linux-gcc-11.zip
           asset_content_type: application/zip
 
       - name: Upload artifact
@@ -127,18 +312,8 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./ubuntu-gcc-9.zip
-          asset_name: linux-gcc-9.zip
-          asset_content_type: application/zip
-
-      - name: Upload artifact
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./ubuntu-clang-10.zip
-          asset_name: linux-clang-10.zip
+          asset_path: ./ubuntu-clang-11.zip
+          asset_name: linux-clang-11.zip
           asset_content_type: application/zip
 
       - name: Upload artifact
@@ -149,16 +324,6 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./windows-msvc-19.zip
           asset_name: windows-msvc-19.zip
-          asset_content_type: application/zip
-
-      - name: Upload artifact
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./windows-msvc-17.zip
-          asset_name: windows-msvc-17.zip
           asset_content_type: application/zip
 
       - name: Upload artifact
