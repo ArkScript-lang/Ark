@@ -10,7 +10,6 @@
 
 #include <Ark/Ark.hpp>
 #include <Ark/REPL/Repl.hpp>
-#include <Ark/Profiling.hpp>
 
 #include <Ark/Files.hpp>
 #include <Ark/Compiler/JsonCompiler.hpp>
