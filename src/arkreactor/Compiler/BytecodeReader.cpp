@@ -5,7 +5,7 @@
 #undef abs
 #include <Ark/Utils.hpp>
 
-#include <termcolor/termcolor.hpp>
+#include <termcolor/proxy.hpp>
 #include <picosha2.h>
 
 namespace Ark
