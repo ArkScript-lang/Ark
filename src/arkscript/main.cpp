@@ -5,8 +5,7 @@
 #include <limits>
 
 #include <clipp.h>
-#define NOMINMAX
-#include <termcolor/termcolor.hpp>
+#include <termcolor/proxy.hpp>
 
 #include <Ark/Ark.hpp>
 #include <Ark/REPL/Repl.hpp>
