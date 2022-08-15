@@ -7,6 +7,7 @@
 - added methods to create and destroy an execution context and a future in the VM
 - added new CLI option `--ast` to generate JSON from the generated abstract syntax tree
 - added an AST to JSON compiler
+- added warnings on unused functions/quotes and statements without any effect
 
 ### Changed
 - printing a closure will now print its fields instead of `Closure<1432>`

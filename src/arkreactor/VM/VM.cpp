@@ -697,7 +697,6 @@ namespace Ark
                         for (uint16_t i = 0; i < count; ++i)
                             list->push_back(*popAndResolveAsPtr(context));
 
-                        push(Nil, context);
                         break;
                     }
 
@@ -730,7 +729,6 @@ namespace Ark
                                 list->push_back(*it);
                         }
 
-                        push(Nil, context);
                         break;
                     }
 
