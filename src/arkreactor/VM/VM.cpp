@@ -1,11 +1,9 @@
-#define NOMINMAX
-
 #include <Ark/VM/VM.hpp>
 
 #include <numeric>
 #include <limits>
 
-#include <termcolor/termcolor.hpp>
+#include <termcolor/proxy.hpp>
 #include <Ark/Files.hpp>
 #include <Ark/Utils.hpp>
 #include <Ark/TypeChecker.hpp>
