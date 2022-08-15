@@ -20,6 +20,7 @@
 ### Removed
 - removed the `std::ostream& operator<<` of the Value, now using the `.toString(stream, vm reference)`
 - removed the global VM lock
+- removed coz and ARK_PROFILER
 
 ## [3.3.0] - 2022-07-02
 ### Added

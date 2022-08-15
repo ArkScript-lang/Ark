@@ -3,8 +3,7 @@
 #include <limits>
 #include <numeric>
 #include <algorithm>
-#define NOMINMAX
-#include <termcolor/termcolor.hpp>
+#include <termcolor/proxy.hpp>
 
 #include <Ark/Exceptions.hpp>
 

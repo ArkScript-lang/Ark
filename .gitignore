@@ -17,9 +17,6 @@ __arkscript__/
 tests/cpp/out/
 tests/cpp/ark/
 
-# Coz profiler
-*.coz
-
 # Folders
 .vs/
 .idea/

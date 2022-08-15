@@ -1,11 +1,9 @@
-#define NOMINMAX
-
 #include <Ark/VM/VM.hpp>
 
 #include <numeric>
 #include <limits>
 
-#include <termcolor/termcolor.hpp>
+#include <termcolor/proxy.hpp>
 #include <Ark/Files.hpp>
 #include <Ark/Utils.hpp>
 #include <Ark/TypeChecker.hpp>
@@ -300,7 +298,6 @@ namespace Ark
                         else
                             throwVMError("unbound variable: " + m_state.m_symbols[context.last_symbol]);
 
-                        COZ_PROGRESS_NAMED("ark vm load_symbol");
                         break;
                     }
 
@@ -326,7 +323,6 @@ namespace Ark
                             push(&(m_state.m_constants[id]), context);
                         }
 
-                        COZ_PROGRESS_NAMED("ark vm load_const");
                         break;
                     }
 
@@ -368,8 +364,6 @@ namespace Ark
                             break;
                         }
 
-                        COZ_PROGRESS_NAMED("ark vm store");
-
                         throwVMError("unbound variable " + m_state.m_symbols[id] + ", can not change its value");
                         break;
                     }
@@ -393,7 +387,6 @@ namespace Ark
                         val.setConst(true);
                         (*context.locals.back()).push_back(id, val);
 
-                        COZ_PROGRESS_NAMED("ark vm let");
                         break;
                     }
 
@@ -463,7 +456,6 @@ namespace Ark
                             push(std::move(ip_or_val), context);
                         }
 
-                        COZ_PROGRESS_NAMED("ark vm ret");
                         break;
                     }
 
@@ -494,7 +486,6 @@ namespace Ark
                         ptr = ptr->valueType() == ValueType::Reference ? ptr->reference() : ptr;
                         (*context.saved_scope.value()).push_back(id, *ptr);
 
-                        COZ_PROGRESS_NAMED("ark vm capture");
                         break;
                     }
 
@@ -509,8 +500,6 @@ namespace Ark
                         uint16_t id = readNumber(context);
 
                         push(Builtins::builtins[id].second, context);
-
-                        COZ_PROGRESS_NAMED("ark vm builtin");
                         break;
                     }
 
@@ -535,7 +524,6 @@ namespace Ark
                         else
                             *local = val;
 
-                        COZ_PROGRESS_NAMED("ark vm mut");
                         break;
                     }
 
@@ -557,8 +545,6 @@ namespace Ark
                             break;
                         }
 
-                        COZ_PROGRESS_NAMED("ark vm del");
-
                         throwVMError("unbound variable: " + m_state.m_symbols[id]);
                         break;
                     }
@@ -570,8 +556,6 @@ namespace Ark
                             Job: Save the current environment, useful for quoted code
                         */
                         context.saved_scope = context.locals.back();
-
-                        COZ_PROGRESS_NAMED("ark vm save_scope");
                         break;
                     }
 
@@ -619,8 +603,6 @@ namespace Ark
                         uint16_t id = readNumber(context);
 
                         loadPlugin(id, context);
-
-                        COZ_PROGRESS_NAMED("ark vm plugin");
                         break;
                     }
 
@@ -640,8 +622,6 @@ namespace Ark
                         for (uint16_t i = 0; i < count; ++i)
                             l.push_back(*popAndResolveAsPtr(context));
                         push(std::move(l), context);
-
-                        COZ_PROGRESS_NAMED("ark vm list");
                         break;
                     }
 
@@ -665,8 +645,6 @@ namespace Ark
                         for (uint16_t i = 0; i < count; ++i)
                             obj.push_back(*popAndResolveAsPtr(context));
                         push(std::move(obj), context);
-
-                        COZ_PROGRESS_NAMED("ark vm append");
                         break;
                     }
 
@@ -698,8 +676,6 @@ namespace Ark
                                 obj.push_back(*it);
                         }
                         push(std::move(obj), context);
-
-                        COZ_PROGRESS_NAMED("ark vm concat");
                         break;
                     }
 
@@ -721,7 +697,6 @@ namespace Ark
                         for (uint16_t i = 0; i < count; ++i)
                             list->push_back(*popAndResolveAsPtr(context));
 
-                        COZ_PROGRESS_NAMED("ark vm append!");
                         break;
                     }
 
@@ -754,7 +729,6 @@ namespace Ark
                                 list->push_back(*it);
                         }
 
-                        COZ_PROGRESS_NAMED("ark vm concat!");
                         break;
                     }
 
