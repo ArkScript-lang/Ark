@@ -478,7 +478,7 @@ namespace Ark
 
         if (produces_result)
         {
-            compilerWarning("Found unused declared function", x);
+            compilerWarning("Unused declared function", x);
             page(p).push_back(Instruction::POP);
         }
     }
@@ -537,7 +537,7 @@ namespace Ark
 
         if (produces_result)
         {
-            compilerWarning("Found unused quote expression", x);
+            compilerWarning("Unused quote expression", x);
             page(p).push_back(Instruction::POP);
         }
     }
