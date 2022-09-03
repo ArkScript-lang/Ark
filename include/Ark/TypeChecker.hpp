@@ -74,7 +74,7 @@ namespace Ark::types
         bool variadic;
 
         Typedef(std::string_view name, ValueType type, bool variadic = false) :
-            name(name), types { { type } }, variadic(variadic)
+            name(name), types { type }, variadic(variadic)
         {}
 
         Typedef(std::string_view name, const std::vector<ValueType>& types, bool variadic = false) :
