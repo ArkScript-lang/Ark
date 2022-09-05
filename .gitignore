@@ -55,3 +55,6 @@ ninja/
 *.exe
 *.out
 *.app
+
+# MacOS files
+.DS_store
