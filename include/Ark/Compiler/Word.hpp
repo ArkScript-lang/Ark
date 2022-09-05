@@ -4,9 +4,9 @@
  * @brief Describe an instruction and its immediate argument
  * @version 0.3
  * @date 2022-07-02
- * 
+ *
  * @copyright Copyright (c) 2022
- * 
+ *
  */
 
 #ifndef ARK_COMPILER_WORD_HPP
@@ -17,7 +17,8 @@
 
 namespace Ark::internal
 {
-    struct bytes_t {
+    struct bytes_t
+    {
         uint8_t second;
         uint8_t first;
     };

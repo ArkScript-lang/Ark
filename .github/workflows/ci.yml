@@ -225,7 +225,6 @@ jobs:
       shell: bash
       run: |
         mkdir -p artifact/lib/std
-        cp build/$BUILD_TYPE/ark.exe artifact
         cp build/$BUILD_TYPE/arkscript.exe artifact
         cp build/$BUILD_TYPE/ArkReactor.dll artifact
         cp lib/*.arkm artifact/lib
