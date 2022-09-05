@@ -214,7 +214,6 @@ jobs:
       shell: bash
       run: |
         mkdir -p artifact/lib/std
-        cp build/ark artifact
         cp build/arkscript artifact
         cp build/libArkReactor.* artifact
         cp lib/*.arkm artifact/lib
@@ -306,7 +305,7 @@ jobs:
       run: |
         mv artifact/cpp/out tests/cpp/
         mv build/lib/*.arkm lib/
-        chmod u+x build/ark build/arkscript tests/cpp/out/*
+        chmod u+x build/arkscript tests/cpp/out/*
 
     - name: Pre-test
       if: startsWith(matrix.config.name, 'Windows')
@@ -342,7 +341,7 @@ jobs:
     - shell: bash
       run: |
         mv build/lib/*.arkm lib/
-        chmod u+x build/ark build/arkscript
+        chmod u+x build/arkscript
 
     - name: Update LLVM compilers
       shell: bash
