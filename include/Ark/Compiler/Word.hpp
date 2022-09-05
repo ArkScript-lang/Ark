@@ -17,17 +17,18 @@
 
 namespace Ark::internal
 {
+    struct bytes_t {
+        uint8_t second;
+        uint8_t first;
+    };
+
     struct Word
     {
         uint8_t padding = 0;  ///< Padding reserved for future use
         uint8_t opcode;       ///< Instruction opcode
         union {
             uint16_t data;  ///< Immediate data, interpreted differently for different instructions
-            struct
-            {
-                uint8_t second;
-                uint8_t first;
-            } bytes;
+            bytes_t bytes;
         };
 
         Word() :
