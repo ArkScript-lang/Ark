@@ -116,17 +116,6 @@ if (UNIX OR LINUX)
     target_link_libraries(ArkReactor PRIVATE ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 endif()
 
-# coz-profiler
-if (ARK_PROFILER)
-    message(STATUS "Coz Profiler is enabled")
-
-    find_package(coz-profiler REQUIRED PATHS ${ark_SOURCE_DIR}/lib/coz/)
-    target_include_directories(ArkReactor PUBLIC ${COZ_INCLUDE_DIR})
-    target_link_libraries(ArkReactor PUBLIC ${COZ_LIBRARY})
-else()
-    message(STATUS "Coz Profiler is NOT enabled")
-endif()
-
 # configuring Constants.hpp
 message(STATUS "ArkScript version ${ARK_VERSION_MAJOR}.${ARK_VERSION_MINOR}.${ARK_VERSION_PATCH}")
 configure_file(
@@ -170,7 +159,6 @@ target_compile_definitions(ArkReactor PRIVATE ARK_EXPORT)
 
 option(ARK_BUILD_EXE        "Build a standalone arkscript executable" Off)
 option(ARK_ENABLE_SYSTEM    "Enable sys:exec" On)  # enable use of (sys:exec "command here")
-option(ARK_PROFILER         "Enable coz profiler" Off)
 option(ARK_PROFILER_COUNT   "Enable creations/copies/moves counting on the Value" Off)
 option(ARK_PROFILER_MIPS    "Enable MIPS calculation" Off)
 option(ARK_NO_STDLIB        "Do not install the standard library with the Ark library" Off)
@@ -179,10 +167,6 @@ option(ARK_SANITIZERS       "Enable ASAN and UBSAN" Off)
 
 if (ARK_PROFILER_COUNT)
     target_compile_definitions(ArkReactor PRIVATE -DARK_PROFILER_COUNT)
-endif()
-
-if (ARK_PROFILER)
-    target_compile_definitions(ArkReactor PRIVATE -DARK_PROFILER)
 endif()
 
 if (ARK_ENABLE_SYSTEM)

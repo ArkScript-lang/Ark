@@ -9,6 +9,7 @@
 - added methods to create and destroy an execution context and a future in the VM
 - added new CLI option `--ast` to generate JSON from the generated abstract syntax tree
 - added an AST to JSON compiler
+- added warnings on unused functions/quotes and statements without any effect
 
 ### Changed
 - the str:format functions now expects strings following this syntax: https://fmt.dev/latest/syntax.html
@@ -19,6 +20,7 @@
 - argcount works on symbols and anonymous functions
 
 ### Deprecated
+- deprecating `Value VM::resolve(const Value* val, Args&&... args)`
 
 ### Removed
 - removing the custom string, replacing it with std::string (the format engine of the custom string had a lot of memory leaks)
@@ -27,6 +29,7 @@
 - removed the `std::ostream& operator<<` of the Value, now using the `.toString(stream, vm reference)`
 - removed the global VM lock
 - removed deprecated code (`list:removeAt`, `ark` executable now replaced by `arkscript`)
+- removed coz and ARK_PROFILER
 
 ## [3.3.0] - 2022-07-02
 ### Added

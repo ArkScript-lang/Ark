@@ -1,6 +1,6 @@
 #include <Ark/Compiler/AST/Node.hpp>
 
-#include <termcolor/termcolor.hpp>
+#include <termcolor/proxy.hpp>
 
 #include <Ark/Exceptions.hpp>
 

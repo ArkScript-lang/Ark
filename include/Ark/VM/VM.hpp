@@ -92,7 +92,7 @@ namespace Ark
          * @return Value 
          */
         template <typename... Args>
-        Value resolve(const Value* val, Args&&... args);
+        [[deprecated("Use resolve(ExecutionContext*, vector<Value>&) instead")]] Value resolve(const Value* val, Args&&... args);
 
         /**
          * @brief Resolves a function call (called by plugins and builtins)

@@ -10,8 +10,6 @@
         val.m_value = val.reference()->m_value;           \
     }
 
-// profiler
-#include <Ark/Profiling.hpp>
 
 template <typename... Args>
 Value VM::call(const std::string& name, Args&&... args)
@@ -261,8 +259,6 @@ inline Value* VM::findNearestVariable(uint16_t id, internal::ExecutionContext& c
 
 inline void VM::returnFromFuncCall(internal::ExecutionContext& context)
 {
-    COZ_BEGIN("ark vm returnFromFuncCall");
-
     --context.fc;
 
     context.scope_count_to_delete.pop_back();
@@ -283,8 +279,6 @@ inline void VM::returnFromFuncCall(internal::ExecutionContext& context)
     }
 
     context.scope_count_to_delete.back() = 0;
-
-    COZ_END("ark vm returnFromFuncCall");
 }
 
 inline void VM::call(internal::ExecutionContext& context, int16_t argc_)
@@ -297,8 +291,6 @@ inline void VM::call(internal::ExecutionContext& context, int16_t argc_)
                 of its arguments, from the first to the last one
     */
     using namespace internal;
-
-    COZ_BEGIN("ark vm::call");
 
     uint16_t argc = 0;
 
@@ -387,8 +379,6 @@ inline void VM::call(internal::ExecutionContext& context, int16_t argc_)
         throwVMError(
             "Function '" + m_state.m_symbols[context.last_symbol] + "' needs " + std::to_string(needed_argc) +
             " arguments, but it received " + std::to_string(argc));
-
-    COZ_END("ark vm::call");
 }
 
 #undef resolveRef

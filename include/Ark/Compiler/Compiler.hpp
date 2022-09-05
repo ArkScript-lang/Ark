@@ -205,7 +205,15 @@ namespace Ark
         [[noreturn]] void throwCompilerError(const std::string& message, const internal::Node& node);
 
         /**
-         * @brief Compile an expression (a node) recursively
+         * @brief Display a warning message
+         * 
+         * @param message 
+         * @param node 
+         */
+        void compilerWarning(const std::string& message, const internal::Node& node);
+
+        /**
+         * @brief Compile a single node recursively
          * 
          * @param x the internal::Node to compile
          * @param p the current page number we're on

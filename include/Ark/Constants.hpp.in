@@ -46,9 +46,10 @@ namespace Ark
 {
     // Compiler options
     constexpr uint16_t FeatureRemoveUnusedVars = 1 << 4;
+    constexpr uint16_t FeatureShowWarnings     = 1 << 5;
 
     // Default features for the VM x Compiler x Parser
-    constexpr uint16_t DefaultFeatures = FeatureRemoveUnusedVars;
+    constexpr uint16_t DefaultFeatures = FeatureRemoveUnusedVars | FeatureShowWarnings;
 
     constexpr std::size_t VMStackSize = 8192;
 }

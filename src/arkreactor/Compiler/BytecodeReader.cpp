@@ -6,7 +6,7 @@
 #include <Ark/Utils.hpp>
 
 #include <iomanip>
-#include <termcolor/termcolor.hpp>
+#include <termcolor/proxy.hpp>
 #include <picosha2.h>
 
 namespace Ark

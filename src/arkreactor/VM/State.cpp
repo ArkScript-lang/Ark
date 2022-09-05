@@ -11,7 +11,7 @@
 
 #include <stdlib.h>
 #include <picosha2.h>
-#include <termcolor/termcolor.hpp>
+#include <termcolor/proxy.hpp>
 
 namespace Ark
 {
