@@ -356,8 +356,7 @@ namespace Ark
                             break;
                         }
 
-
-                        throwVMError("unbound variable " + m_state.m_symbols[id] + ", can not change its value");
+                        throwVMError("unbound variable " + m_state.m_symbols[arg] + ", can not change its value");
                         break;
                     }
 
@@ -477,8 +476,7 @@ namespace Ark
                             Job: Push the builtin function object on the stack
                         */
 
-
-                        push(Builtins::builtins[id].second, context);
+                        push(Builtins::builtins[arg].second, context);
                         break;
                     }
 
@@ -518,7 +516,7 @@ namespace Ark
                             break;
                         }
 
-                        throwVMError("unbound variable: " + m_state.m_symbols[id]);
+                        throwVMError("unbound variable: " + m_state.m_symbols[arg]);
                         break;
                     }
 
