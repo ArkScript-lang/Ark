@@ -1,6 +1,6 @@
 # Change Log
 
-## [Unreleased]
+## [3.4.0] - 2022-09-12
 ### Added
 - added new `async` and `await` builtins
      - they can access the outer scope
