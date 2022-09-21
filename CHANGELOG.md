@@ -1,9 +1,23 @@
 # Change Log
 
-## [Unreleased]
-### Added
+## [4.0.0] - 20XX-XX-XX
+### Added
 - new dependency: fmtlib
 - added the padding/instruction/argumentation values when displaying instructions in the bytecode reader
+
+### Changed
+- the str:format functions now expects strings following this syntax: https://fmt.dev/latest/syntax.html
+- more documentation about the compiler implementation
+- more documentation about the virtual machine
+
+### Removed
+- removing the custom string, replacing it with std::string (the format engine of the custom string had a lot of memory leaks)
+- `Utils::digPlaces` and `Utils::decPlaces` got removed as they were no longer needed
+- removed unused `NodeType::Closure`
+- removed deprecated code (`list:removeAt`, `ark` executable now replaced by `arkscript`)
+
+## [3.4.0] - 2022-09-12
+### Added
 - added new `async` and `await` builtins
      - they can access the outer scope
 - added methods to create and destroy an execution context and a future in the VM
@@ -12,9 +26,6 @@
 - added warnings on unused functions/quotes and statements without any effect
 
 ### Changed
-- the str:format functions now expects strings following this syntax: https://fmt.dev/latest/syntax.html
-- added documentation about the compiler implementation
-- added documentation about the virtual machine
 - printing a closure will now print its fields instead of `Closure<1432>`
 - macros are always evaluated, even when they aren't any user defined macro
 - argcount works on symbols and anonymous functions
@@ -23,12 +34,8 @@
 - deprecating `Value VM::resolve(const Value* val, Args&&... args)`
 
 ### Removed
-- removing the custom string, replacing it with std::string (the format engine of the custom string had a lot of memory leaks)
-- `Utils::digPlaces` and `Utils::decPlaces` got removed as they were no longer needed
-- removed unused `NodeType::Closure`
 - removed the `std::ostream& operator<<` of the Value, now using the `.toString(stream, vm reference)`
 - removed the global VM lock
-- removed deprecated code (`list:removeAt`, `ark` executable now replaced by `arkscript`)
 - removed coz and ARK_PROFILER
 
 ## [3.3.0] - 2022-07-02
