@@ -15,7 +15,9 @@ else
 fi
 
 $ark tests/arkscript/unittests.ark --lib lib/ || exit 1
-$ark lib/std/tests/all.ark         --lib lib/ || exit 1
+for file in lib/std/tests/*.ark; do
+    $ark $file --lib lib/
+done
 
 #########################################
 #          Integration tests
