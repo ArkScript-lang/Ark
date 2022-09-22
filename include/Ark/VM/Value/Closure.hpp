@@ -95,7 +95,7 @@ namespace Ark::internal
          */
         void toString(std::ostream& os, VM& vm) const noexcept;
 
-        friend ARK_API_INLINE bool operator==(const Closure& A, const Closure& B) noexcept;
+        friend ARK_API bool operator==(const Closure& A, const Closure& B) noexcept;
         friend ARK_API_INLINE bool operator<(const Closure& A, const Closure& B) noexcept;
 
     private:
@@ -103,11 +103,6 @@ namespace Ark::internal
         // keep track of the code page number, in case we need it later
         PageAddr_t m_page_addr;
     };
-
-    inline bool operator==(const Closure& A, const Closure& B) noexcept
-    {
-        return A.m_scope == B.m_scope;
-    }
 
     inline bool operator<(const Closure& A, const Closure& B) noexcept
     {
