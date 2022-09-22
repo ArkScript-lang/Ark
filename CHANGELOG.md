@@ -5,10 +5,15 @@
 - more tests for the io builtins
 - added lines and code coloration in the error context
 - new dependency: fmtlib
+
 ### Changed
 - added the padding/instruction/argumentation values when displaying instructions in the bytecode reader
 - fixed underline bug in the error context
 - the str:format functions now expects strings following this syntax: https://fmt.dev/latest/syntax.html
+- more documentation about the compiler implementation
+- more documentation about the virtual machine
+- closures can be now be compared field per field: `(= closure1 closure2)` will work only if they have the same fields (name) and if the values match
+
 ### Removed
 - removed unused `NodeType::Closure`
 - removing the custom string, replacing it with std::string (the format engine of the custom string had a lot of memory leaks)
