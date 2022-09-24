@@ -65,11 +65,10 @@ namespace Ark::internal
         if (size != B.size())
             return false;
 
+        // assuming we have the same closure page address, the element should be in the same order
         for (std::size_t i = 0; i < size; ++i)
         {
-            const Value* b_value = B[A.m_data[i].first];
-
-            if (b_value == nullptr || *b_value != A.m_data[i].second)
+            if (A.m_data[i] != B.m_data[i])
                 return false;
         }
 
