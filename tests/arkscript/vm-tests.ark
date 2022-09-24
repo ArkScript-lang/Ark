@@ -5,6 +5,15 @@
     (let start-time (time))
 
     (let closure (fun (&tests) ()))
+    (let make (fun (a b c)
+        (fun (&a &b &c) ())))
+    (let make2 (fun (a b c)
+        (fun (&a &b &c) ())))
+    (let closure_1 (make 1 2 3))
+    (let closure_1_bis closure_1)
+    (let closure_2 (make 1 2 3))
+    (let closure_3 (make 3 2 3))
+    (let closure_4 (make2 1 2 3))
 
     (set tests (assert-eq (+ 1 2) 3 "addition" tests))
     (set tests (assert-eq (+ 1.5 2.5) 4.0 "addition (double)" tests))
@@ -87,6 +96,12 @@
     (set tests (assert-val (hasField closure "tests") "hasField" tests))
     (set tests (assert-val (not (hasField closure "12")) "not hasField" tests))
     (set tests (assert-eq (toString closure) "(.tests=0)" "toString closure" tests))
+    (set tests (assert-eq closure_1 closure_1_bis "closure comparison" tests))
+    (set tests (assert-eq closure_1 closure_2 "closure comparison" tests))
+    (set tests (assert-neq closure_1 closure_4 "closure comparison" tests))
+    (set tests (assert-neq closure_2 closure_3 "closure comparison" tests))
+    (set tests (assert-neq closure_1 closure_3 "closure comparison" tests))
+    (set tests (assert-neq closure closure_1 "closure comparison" tests))
 
     (recap "VM operations passed" tests (- (time) start-time))
 
