@@ -34,6 +34,16 @@ namespace Ark::internal
         return nullptr;
     }
 
+    const Value* Scope::operator[](uint16_t id) const noexcept
+    {
+        for (std::size_t i = 0, end = m_data.size(); i < end; ++i)
+        {
+            if (m_data[i].first == id)
+                return &m_data[i].second;
+        }
+        return nullptr;
+    }
+
     uint16_t Scope::idFromValue(const Value& val) const noexcept
     {
         for (std::size_t i = 0, end = m_data.size(); i < end; ++i)
@@ -47,5 +57,21 @@ namespace Ark::internal
     std::size_t Scope::size() const noexcept
     {
         return m_data.size();
+    }
+
+    bool operator==(const Scope& A, const Scope& B) noexcept
+    {
+        const std::size_t size = A.size();
+        if (size != B.size())
+            return false;
+
+        // assuming we have the same closure page address, the element should be in the same order
+        for (std::size_t i = 0; i < size; ++i)
+        {
+            if (A.m_data[i] != B.m_data[i])
+                return false;
+        }
+
+        return true;
     }
 }
