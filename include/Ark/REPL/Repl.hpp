@@ -47,8 +47,7 @@ namespace Ark
         std::vector<std::string> m_libenv;
 
         inline void print_repl_header();
-        int count_open_parentheses(const std::string& line);
-        int count_open_braces(const std::string& line);
+        int count_open_group(const std::string& line, char left, char right);
         void trim_whitespace(std::string& line);
         void cui_setup();
     };

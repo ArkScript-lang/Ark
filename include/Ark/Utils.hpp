@@ -12,7 +12,7 @@
 #ifndef INCLUDE_ARK_UTILS_HPP
 #define INCLUDE_ARK_UTILS_HPP
 
-#include <algorithm>  // std::min
+#include <algorithm>
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -41,7 +41,7 @@ namespace Ark::Utils
             if (c != sep)
                 output.back() += c;
             else
-                output.emplace_back();  // add empty string
+                output.emplace_back();
         }
 
         return output;

@@ -27,7 +27,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 # files needed for the library ArkReactor
 file(GLOB_RECURSE SOURCE_FILES
     ${ark_SOURCE_DIR}/src/arkreactor/*.cpp
-    ${ark_SOURCE_DIR}/lib/fmt/src/*.cc)
+    ${ark_SOURCE_DIR}/lib/fmt/src/format.cc)
 
 add_library(ArkReactor SHARED ${SOURCE_FILES})
 

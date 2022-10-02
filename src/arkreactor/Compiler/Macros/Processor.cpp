@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <utility>
+#include <fmt/ostream.h>
 
 #include <Ark/Exceptions.hpp>
 #include <Ark/Compiler/AST/makeErrorCtx.hpp>
@@ -29,18 +30,13 @@ namespace Ark::internal
 
     void MacroProcessor::feed(const Node& ast)
     {
-        if (m_debug >= 2)
-            std::cout << "Processing macros...\n";
-
         // to be able to modify it
         m_ast = ast;
         process(m_ast, 0);
 
-        if (m_debug >= 3)
-        {
-            std::cout << "(MacroProcessor) AST after processing macros\n";
-            std::cout << m_ast << '\n';
-        }
+        // FIXME
+        // if (m_debug >= 2)
+        //     fmt::print("MacroProcessor - AST after processing macros\n{}\n", m_ast);
     }
 
     const Node& MacroProcessor::ast() const noexcept

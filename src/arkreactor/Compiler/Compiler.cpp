@@ -5,8 +5,7 @@
 #include <limits>
 #include <filesystem>
 #include <picosha2.h>
-#include <termcolor/termcolor.hpp>
-#undef max
+#include <fmt/color.h>
 
 #include <Ark/Literals.hpp>
 #include <Ark/Utils.hpp>
@@ -95,7 +94,7 @@ namespace Ark
     void Compiler::saveTo(const std::string& file)
     {
         if (m_debug >= 1)
-            std::cout << "Final bytecode size: " << m_bytecode.size() * sizeof(uint8_t) << "B\n";
+            fmt::print("Final bytecode size: {}B\n", m_bytecode.size() * sizeof(uint8_t));
 
         std::ofstream output(file, std::ofstream::binary);
         output.write(reinterpret_cast<char*>(&m_bytecode[0]), m_bytecode.size() * sizeof(uint8_t));
@@ -265,7 +264,7 @@ namespace Ark
     void Compiler::compilerWarning(const std::string& message, const Node& node)
     {
         if (m_options & FeatureShowWarnings)
-            std::cerr << termcolor::yellow << "Warning " << termcolor::reset << makeNodeBasedErrorCtx(message, node) << "\n";
+            fmt::print("{} {}\n", fmt::styled("Warning", fmt::fg(fmt::color::yellow)), makeNodeBasedErrorCtx(message, node));
     }
 
     void Compiler::compileExpression(const Node& x, int p, bool is_result_unused, bool is_terminal, const std::string& var_name)

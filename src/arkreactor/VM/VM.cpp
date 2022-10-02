@@ -2,8 +2,8 @@
 
 #include <numeric>
 #include <limits>
+#include <fmt/color.h>
 
-#include <termcolor/proxy.hpp>
 #include <Ark/Files.hpp>
 #include <Ark/Utils.hpp>
 #include <Ark/TypeChecker.hpp>
@@ -66,8 +66,6 @@ namespace Ark
     Value& VM::operator[](const std::string& name) noexcept
     {
         ExecutionContext& context = *m_execution_contexts.front();
-
-        // const std::lock_guard<std::mutex> lock(m_mutex);
 
         // find id of object
         auto it = std::find(m_state.m_symbols.begin(), m_state.m_symbols.end(), name);
@@ -1109,27 +1107,28 @@ namespace Ark
         }
         catch (const std::exception& e)
         {
-            std::printf("%s\n", e.what());
+            fmt::print("{}\n", e.what());
             backtrace(context);
             m_exit_code = 1;
         }
         catch (...)
         {
-            std::printf("Unknown error\n");
+            fmt::print("Unknown error\n");
             backtrace(context);
             m_exit_code = 1;
         }
 
         if (m_state.m_debug_level > 0)
-            std::cout << "Estimated stack trashing: " << context.sp << "/" << VMStackSize << "\n";
+            fmt::print("Estimated stack trashing: {}/{}\n", context.sp, VMStackSize);
 
 #ifdef ARK_PROFILER_MIPS
         auto end_time = std::chrono::system_clock::now();
         auto d = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
 
-        std::cout << "\nInstructions executed: " << instructions_executed << "\n"
-                  << "Time spent: " << d.count() << " us\n"
-                  << (static_cast<double>(instructions_executed) / d.count()) << " MIPS\n";
+        fmt::print("\nInstructions executed: {}\nTime spent: {} us\n{} MIPS\n",
+            instructions_executed,
+            d.count(),
+            static_cast<double>(instructions_executed) / d.count());
 #endif
 
         return m_exit_code;
@@ -1168,7 +1167,7 @@ namespace Ark
 
             while (it != 0)
             {
-                std::cerr << "[" << termcolor::cyan << it << termcolor::reset << "] ";
+                fmt::print("[{}] ", fmt::styled(it, fmt::fg(fmt::color::cyan)));
                 if (context.pp != 0)
                 {
                     uint16_t id = findNearestVariableIdWithValue(
@@ -1176,9 +1175,9 @@ namespace Ark
                         context);
 
                     if (id < m_state.m_symbols.size())
-                        std::cerr << "In function `" << termcolor::green << m_state.m_symbols[id] << termcolor::reset << "'\n";
+                        fmt::print("In function `{}'\n", fmt::styled(m_state.m_symbols[id], fmt::fg(fmt::color::green)));
                     else  // should never happen
-                        std::cerr << "In function `" << termcolor::yellow << "???" << termcolor::reset << "'\n";
+                        fmt::print("In function `{}'\n", fmt::styled("???", fmt::fg(fmt::color::yellow)));
 
                     Value* ip;
                     do
@@ -1193,25 +1192,24 @@ namespace Ark
                 }
                 else
                 {
-                    std::printf("In global scope\n");
+                    fmt::print("In global scope\n");
                     break;
                 }
 
                 if (context.fc - it > 7)
                 {
-                    std::printf("...\n");
+                    fmt::print("...\n");
                     break;
                 }
             }
 
             // display variables values in the current scope
-            std::printf("\nCurrent scope variables values:\n");
+            fmt::print("\nCurrent scope variables values:\n");
             for (std::size_t i = 0, size = old_scope.size(); i < size; ++i)
             {
-                std::cerr << termcolor::cyan << m_state.m_symbols[old_scope.m_data[i].first] << termcolor::reset
-                          << " = ";
-                old_scope.m_data[i].second.toString(std::cerr, *this);
-                std::cerr << "\n";
+                fmt::print("{} = ", fmt::styled(m_state.m_symbols[old_scope.m_data[i].first], fmt::fg(fmt::color::cyan)));
+                old_scope.m_data[i].second.toString(std::cout, *this);
+                fmt::print("\n");
             }
 
             while (context.fc != 1)
@@ -1225,10 +1223,7 @@ namespace Ark
             pop(context);
         }
 
-        std::cerr << termcolor::reset
-                  << "At IP: " << (saved_ip != -1 ? saved_ip / 4 : 0)  // dividing by 4 because the instructions are actually on 4 bytes
-                  << ", PP: " << saved_pp
-                  << ", SP: " << saved_sp
-                  << "\n";
+        // dividing by 4 because the instructions are actually on 4 bytes
+        fmt::print("At IP: {}, PP: {}, SP: {}\n", (saved_ip != -1 ? saved_ip / 4 : 0), saved_pp, saved_sp);
     }
 }

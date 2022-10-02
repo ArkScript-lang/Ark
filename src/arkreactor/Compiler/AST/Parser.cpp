@@ -3,6 +3,7 @@
 #include <optional>
 #include <algorithm>
 #include <sstream>
+#include <fmt/ostream.h>
 
 #include <Ark/Files.hpp>
 #include <Ark/Exceptions.hpp>
@@ -24,8 +25,6 @@ namespace Ark::internal
         if (filename != ARK_NO_NAME_FILE)
         {
             m_file = Utils::canonicalRelPath(filename);
-            if (m_debug >= 2)
-                std::cout << "New parser: " << m_file << '\n';
             m_parent_include.push_back(m_file);
         }
 
@@ -51,9 +50,9 @@ namespace Ark::internal
         // include files if needed
         checkForInclude(m_ast, m_ast);
 
-        if (m_debug >= 3)
-            std::cout << "(Parser) AST\n"
-                      << m_ast << "\n\n";
+        // FIXME
+        // if (m_debug >= 2)
+        //     fmt::print("Parser - AST\n{}\n\n", m_ast);
     }
 
     const Node& Parser::ast() const noexcept
@@ -355,8 +354,8 @@ namespace Ark::internal
         }
         else if (token.token == "!")
         {
-            if (m_debug >= 2)
-                std::cout << "Found a macro at " << token.line << ':' << token.col << " in " << m_file << '\n';
+            if (m_debug >= 3)
+                fmt::print("Found a macro at {}:{} in {}\n", token.line, token.col, m_file);
 
             // macros
             Node block = make_node(NodeType::Macro, token.line, token.col, m_file);
@@ -492,9 +491,6 @@ namespace Ark::internal
             // if we found an import statement, inspect it
             if (first.nodeType() == NodeType::Keyword && first.keyword() == Keyword::Import)
             {
-                if (m_debug >= 2)
-                    std::cout << "Import found in file: " << m_file << '\n';
-
                 if (n.constList()[1].nodeType() != NodeType::String)
                     throw TypeError("Arguments of import must be of type String");
 
@@ -549,14 +545,6 @@ namespace Ark::internal
         const std::string current_dir = Utils::getDirectoryFromPath(m_file) + "/";
         const std::string path = (current_dir != "/") ? current_dir + file : file;
 
-        if (m_debug >= 2)
-        {
-            std::cout << "path: " << path << " ; file: " << file << " ; libpath: ";
-            for (auto&& lib : m_libenv)
-                std::cout << lib << ":";
-            std::cout << "\nfilename: " << Utils::getFilenameFromPath(file) << '\n';
-        }
-
         // search in the current directory
         if (Utils::fileExists(path))
             return path;
@@ -601,7 +589,7 @@ namespace Ark::internal
         {
             int i = 0;
             for (const auto& node : P.ast().constList())
-                std::cout << (i++) << ": " << node << '\n';
+                os << (i++) << ": " << node << '\n';
         }
         else
             os << "Single item\n"

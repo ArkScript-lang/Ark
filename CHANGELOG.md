@@ -10,6 +10,7 @@
 - more documentation about the compiler implementation
 - more documentation about the virtual machine
 - closures can be now be compared field per field: `(= closure1 closure2)` will work only if they have the same fields (name) and if the values match
+- upgraded lib fmt to 9.1.0
 
 ### Removed
 - removing the custom string, replacing it with std::string (the format engine of the custom string had a lot of memory leaks)

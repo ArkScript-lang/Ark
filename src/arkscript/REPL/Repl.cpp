@@ -1,10 +1,9 @@
 #include <functional>
 #include <sstream>
-#include <cstdio>
+#include <fmt/core.h>
 
 #include <Ark/REPL/Repl.hpp>
 #include <Ark/REPL/replxx/Util.hpp>
-
 
 namespace Ark
 {
@@ -32,14 +31,9 @@ namespace Ark
             tmp_code << code;
             while (true)
             {
-                std::string str_lines = "000";
-                if (std::to_string(m_lines).size() < 3)
-                {
-                    std::size_t size = std::to_string(m_lines).size();
-                    str_lines.replace((str_lines.size() - size), size, std::to_string(m_lines));
-                }
-                else
-                    str_lines = std::to_string(m_lines);
+                std::string str_lines = std::to_string(m_lines);
+                if (str_lines.size() < 3)
+                    str_lines.insert(0, 3 - str_lines.size(), '0');
 
                 std::string prompt = "main:" + str_lines + "> ";
                 char const* buf { nullptr };
@@ -56,14 +50,14 @@ namespace Ark
                 // specific commands handling
                 if (line == "(quit)" || buf == nullptr)
                 {
-                    std::cout << "\nExiting REPL\n";
-                    return 1;
+                    fmt::print("\nExiting REPL\n");
+                    return 0;
                 }
 
                 if (!line.empty())
                     tmp_code << line << "\n";
-                open_parentheses += count_open_parentheses(line);
-                open_braces += count_open_braces(line);
+                open_parentheses += count_open_group(line, '(', ')');
+                open_braces += count_open_group(line, '{', '}');
 
                 // lines number incrementation
                 ++m_lines;
@@ -99,7 +93,7 @@ namespace Ark
                     state.reset();
                 }
                 else
-                    std::cout << "Ark::State::doString failed\n";
+                    fmt::print("Execution failed\n");
             }
         }
 
@@ -108,44 +102,27 @@ namespace Ark
 
     inline void Repl::print_repl_header()
     {
-        std::printf(
-            "ArkScript REPL -- Version %i.%i.%i [LICENSE: Mozilla Public License 2.0]\n"
+        fmt::print(
+            "ArkScript REPL -- Version {}.{}.{} [LICENSE: Mozilla Public License 2.0]\n"
             "Type \"(quit)\" to quit.\n",
             ARK_VERSION_MAJOR,
             ARK_VERSION_MINOR,
             ARK_VERSION_PATCH);
     }
 
-    int Repl::count_open_parentheses(const std::string& line)
+    int Repl::count_open_group(const std::string& line, char left, char right)
     {
         int open_parentheses = 0;
 
-        for (const char& c : line)
+        for (char c : line)
         {
-            switch (c)
-            {
-                case '(': ++open_parentheses; break;
-                case ')': --open_parentheses; break;
-            }
+            if (c == left)
+                ++open_parentheses;
+            else if (c == right)
+                --open_parentheses;
         }
 
         return open_parentheses;
-    }
-
-    int Repl::count_open_braces(const std::string& line)
-    {
-        int open_braces = 0;
-
-        for (const char& c : line)
-        {
-            switch (c)
-            {
-                case '{': ++open_braces; break;
-                case '}': --open_braces; break;
-            }
-        }
-
-        return open_braces;
     }
 
     void Repl::trim_whitespace(std::string& line)
@@ -166,7 +143,7 @@ namespace Ark
         m_repl.set_highlighter_callback(std::bind(&hook_color, _1, _2, std::cref(ColorsRegexDict)));
         m_repl.set_hint_callback(std::bind(&hook_hint, _1, _2, _3, std::cref(KeywordsDict)));
 
-        m_repl.set_word_break_characters(" \t.,-%!;:=*~^'\"/?<>|[](){}");
+        m_repl.set_word_break_characters(" \t.,%!;:=*~^'\"/?<>|[](){}");
         m_repl.set_completion_count_cutoff(128);
         m_repl.set_double_tab_completion(false);
         m_repl.set_complete_on_empty(true);

@@ -1,6 +1,5 @@
 #include <Ark/Compiler/AST/Lexer.hpp>
 
-#include <cstdio>  // TODO remove
 #include <algorithm>
 #include <utility>
 #include <sstream>
@@ -39,11 +38,6 @@ namespace Ark::internal
         for (std::size_t pos = 0, end = code.size(); pos < end; ++pos)
         {
             char current = code[pos];
-
-            if (m_debug >= 5)
-                std::printf(
-                    "buffer: %s - ctrl_char: %s - current: '%c' - line: %zu, char: %zu\n",
-                    buffer.c_str(), ctrl_char.c_str(), current, line, character);
 
             if (!in_string)
             {
@@ -238,20 +232,6 @@ namespace Ark::internal
 
         if (!buffer.empty() && buffer[0] != '#')
             append_token_from_buffer();
-
-        // debugging information
-        if (m_debug > 3)
-        {
-            for (auto& last_token : m_tokens)
-            {
-                std::printf(
-                    "TokenType: %s\tLine: %zu\n[%zu\t]\tToken: %s\n",
-                    tokentype_string[static_cast<std::size_t>(last_token.type)].data(),
-                    last_token.line,
-                    last_token.col,
-                    last_token.token.c_str());
-            }
-        }
     }
 
     std::vector<Token>& Lexer::tokens() noexcept

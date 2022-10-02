@@ -9,9 +9,8 @@
 #    pragma warning(disable : 4996)
 #endif
 
-#include <stdlib.h>
+#include <fmt/color.h>
 #include <picosha2.h>
-#include <termcolor/proxy.hpp>
 
 namespace Ark
 {
@@ -34,7 +33,7 @@ namespace Ark
             else
             {
                 if (m_debug_level >= 1)
-                    std::cout << termcolor::yellow << "Warning" << termcolor::reset << " no std library was found and ARKSCRIPT_PATH was not supplied" << std::endl;
+                    fmt::print("{} no std library was found and ARKSCRIPT_PATH was not supplied\n", fmt::styled("Warning", fmt::fg(fmt::color::yellow)));
             }
         }
     }
@@ -54,7 +53,7 @@ namespace Ark
         catch (const std::exception& e)
         {
             result = false;
-            std::printf("%s\n", e.what());
+            fmt::print("{}\n", e.what());
         }
 
         return result;
@@ -71,7 +70,7 @@ namespace Ark
         catch (const std::exception& e)
         {
             result = false;
-            std::printf("%s\n", e.what());
+            fmt::print("{}\n", e.what());
         }
 
         return result;
@@ -95,12 +94,12 @@ namespace Ark
         }
         catch (const std::exception& e)
         {
-            std::printf("%s\n", e.what());
+            fmt::print("{}\n", e.what());
             return false;
         }
         catch (...)
         {
-            std::printf("Unknown lexer-parser-or-compiler error (%s)\n", file.c_str());
+            fmt::print("Unknown lexer-parser-or-compiler error ({})\n", file);
             return false;
         }
 
@@ -111,8 +110,7 @@ namespace Ark
     {
         if (!Utils::fileExists(file))
         {
-            std::cerr << termcolor::red << "Can not find file '" << file << "'\n"
-                      << termcolor::reset;
+            fmt::print(fmt::fg(fmt::color::red), "Can not find file '{}'\n", file);
             return false;
         }
 
@@ -124,7 +122,7 @@ namespace Ark
         }
         catch (const std::exception& e)
         {
-            std::printf("%s\n", e.what());
+            fmt::print("{}\n", e.what());
             return false;
         }
 
@@ -161,12 +159,12 @@ namespace Ark
         }
         catch (const std::exception& e)
         {
-            std::printf("%s\n", e.what());
+            fmt::print("{}\n", e.what());
             return false;
         }
         catch (...)
         {
-            std::printf("Unknown lexer-parser-or-compiler error\n");
+            fmt::print("Unknown lexer-parser-or-compiler error\n");
             return false;
         }
 
