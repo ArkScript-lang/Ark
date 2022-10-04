@@ -4,8 +4,7 @@
 
 namespace Ark::internal
 {
-    MacroExecutor::MacroExecutor(MacroProcessor* macroprocessor, unsigned debug) :
-        m_debug(debug),
+    MacroExecutor::MacroExecutor(MacroProcessor* macroprocessor) :
         m_macroprocessor(macroprocessor)
     {}
 

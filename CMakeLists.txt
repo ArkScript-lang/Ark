@@ -186,7 +186,8 @@ if (ARK_BUILD_EXE)
     set(EXE_SOURCES
         ${ark_SOURCE_DIR}/src/arkscript/REPL/Utils.cpp
         ${ark_SOURCE_DIR}/src/arkscript/REPL/Repl.cpp
-        ${ark_SOURCE_DIR}/src/arkscript/main.cpp)
+        ${ark_SOURCE_DIR}/src/arkscript/main.cpp
+        ${ark_SOURCE_DIR}/lib/fmt/src/format.cc)
 
     add_executable(arkscript ${EXE_SOURCES})
 

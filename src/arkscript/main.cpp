@@ -207,7 +207,7 @@ int main(int argc, char** argv)
 
                 if (!state.doFile(file))
                 {
-                    fmt::print("Could not run file at {}\n");
+                    fmt::print("Could not run file at {}\n", file);
                     return -1;
                 }
 

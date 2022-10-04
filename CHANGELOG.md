@@ -11,12 +11,14 @@
 - more documentation about the virtual machine
 - closures can be now be compared field per field: `(= closure1 closure2)` will work only if they have the same fields (name) and if the values match
 - upgraded lib fmt to 9.1.0
+- using fmtlib nearly everywhere possible to replace streams and printf mixed with termcolor
 
 ### Removed
 - removing the custom string, replacing it with std::string (the format engine of the custom string had a lot of memory leaks)
 - `Utils::digPlaces` and `Utils::decPlaces` got removed as they were no longer needed
 - removed unused `NodeType::Closure`
 - removed deprecated code (`list:removeAt`, `ark` executable now replaced by `arkscript`)
+- removed unused debug level attribute from the lexer, macro executor, macro processor, json compiler and compiler
 
 ## [3.4.0] - 2022-09-12
 ### Added

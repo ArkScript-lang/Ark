@@ -78,6 +78,11 @@ namespace Ark::types
             }
             fmt::print("\n");
         }
+
+        if (contract.arguments.size() == 0)
+        {
+            fmt::print(" -> no argument\n");
+        }
     }
 
     [[noreturn]] void generateError(std::string_view funcname, const std::vector<Contract>& contracts, const std::vector<Value>& args)
@@ -104,7 +109,7 @@ namespace Ark::types
         if (min_argc != max_argc)
         {
             fmt::print(
-                "between {} argument{} and {} argument{}\n",
+                "between {} argument{} and {} argument{}",
                 fmt::styled(min_argc, fmt::fg(fmt::color::yellow)),
                 (min_argc > 1 ? "s" : ""),
                 fmt::styled(max_argc, fmt::fg(fmt::color::yellow)),
@@ -115,7 +120,7 @@ namespace Ark::types
         }
         else
         {
-            fmt::print("{} argument{}\n", fmt::styled(min_argc, fmt::fg(fmt::color::yellow)), (min_argc > 1 ? "s" : ""));
+            fmt::print("{} argument{}", fmt::styled(min_argc, fmt::fg(fmt::color::yellow)), (min_argc > 1 ? "s" : ""));
 
             if (sanitizedArgs.size() != min_argc)
                 correct_argcount = false;
@@ -123,11 +128,13 @@ namespace Ark::types
 
         if (!correct_argcount)
             fmt::print(" but got {}\n", fmt::styled(sanitizedArgs.size(), fmt::fg(fmt::color::red)));
+        else
+            fmt::print("\n");
 
         displayContract(contracts[0], sanitizedArgs);
         for (std::size_t i = 1, end = contracts.size(); i < end; ++i)
         {
-            fmt::print("Alternative {}:\n", i + 1);
+            fmt::print("Alternative {}:\n", i);
             displayContract(contracts[i], sanitizedArgs);
         }
 

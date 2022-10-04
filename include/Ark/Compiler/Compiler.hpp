@@ -85,9 +85,7 @@ namespace Ark
         std::vector<internal::ValTableElem> m_values;
         std::vector<std::vector<internal::Word>> m_code_pages;
         std::vector<std::vector<internal::Word>> m_temp_pages;  ///< we need temporary code pages for some compilations passes
-
         bytecode_t m_bytecode;
-        unsigned m_debug;  ///< the debug level of the compiler
 
         /**
          * @brief Push the file headers (magic, version used, timestamp)

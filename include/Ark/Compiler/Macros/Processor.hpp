@@ -32,10 +32,9 @@ namespace Ark::internal
         /**
          * @brief Construct a new Macro Processor object
          * 
-         * @param debug the debug level
          * @param options the options flags
          */
-        MacroProcessor(unsigned debug, uint16_t options) noexcept;
+        MacroProcessor(uint16_t options) noexcept;
 
         /**
          * @brief Send the complete AST (after the inclusions and stuff), and work on it
@@ -54,7 +53,6 @@ namespace Ark::internal
         friend class MacroExecutor;
 
     private:
-        unsigned m_debug;  ///< The debug level
         uint16_t m_options;
         Node m_ast;                                                   ///< The modified AST
         std::vector<std::unordered_map<std::string, Node>> m_macros;  ///< Handling macros in a scope fashion

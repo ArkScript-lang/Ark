@@ -1126,9 +1126,9 @@ namespace Ark
         auto d = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
 
         fmt::print("\nInstructions executed: {}\nTime spent: {} us\n{} MIPS\n",
-            instructions_executed,
-            d.count(),
-            static_cast<double>(instructions_executed) / d.count());
+                   instructions_executed,
+                   d.count(),
+                   static_cast<double>(instructions_executed) / d.count());
 #endif
 
         return m_exit_code;

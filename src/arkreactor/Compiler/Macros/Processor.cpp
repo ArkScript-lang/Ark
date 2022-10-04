@@ -13,8 +13,8 @@
 
 namespace Ark::internal
 {
-    MacroProcessor::MacroProcessor(unsigned debug, uint16_t options) noexcept :
-        m_debug(debug), m_options(options)
+    MacroProcessor::MacroProcessor(uint16_t options) noexcept :
+        m_options(options)
     {
         // create executors pipeline
         m_executor_pipeline = MacroExecutorPipeline(
@@ -33,10 +33,6 @@ namespace Ark::internal
         // to be able to modify it
         m_ast = ast;
         process(m_ast, 0);
-
-        // FIXME
-        // if (m_debug >= 2)
-        //     fmt::print("MacroProcessor - AST after processing macros\n{}\n", m_ast);
     }
 
     const Node& MacroProcessor::ast() const noexcept

@@ -13,14 +13,14 @@ namespace Ark
 
     JsonCompiler::JsonCompiler(unsigned debug, const std::vector<std::string>& libenv, uint16_t options) :
         m_parser(debug, options, libenv), m_optimizer(options),
-        m_options(options), m_debug(debug)
+        m_options(options)
     {}
 
     void JsonCompiler::feed(const std::string& code, const std::string& filename)
     {
         m_parser.feed(code, filename);
 
-        MacroProcessor mp(m_debug, m_options);
+        MacroProcessor mp(m_options);
         mp.feed(m_parser.ast());
         m_optimizer.feed(mp.ast());
     }

@@ -225,10 +225,10 @@ namespace Ark
 
         if (major != ARK_VERSION_MAJOR)
         {
-            std::string str_version = std::to_string(major) + "." +
-                std::to_string(minor) + "." +
-                std::to_string(patch);
-            throwStateError("Compiler and VM versions don't match: " + str_version + " and " + ARK_VERSION_STR);
+            throwStateError(
+                fmt::format("Compiler and VM versions don't match: {}.{}.{} and {}.{}.{}\n",
+                            major, minor, patch,
+                            ARK_VERSION_MAJOR, ARK_VERSION_MINOR, ARK_VERSION_PATCH));
         }
 
         using timestamp_t = unsigned long long;

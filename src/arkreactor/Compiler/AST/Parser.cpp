@@ -15,7 +15,7 @@ namespace Ark::internal
         m_debug(debug),
         m_libenv(lib_env),
         m_options(options),
-        m_lexer(debug),
+        m_lexer(),
         m_file(ARK_NO_NAME_FILE)
     {}
 

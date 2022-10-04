@@ -42,7 +42,6 @@ namespace Ark
         internal::Parser m_parser;
         internal::Optimizer m_optimizer;
         uint16_t m_options;
-        unsigned m_debug;  ///< the debug level of the compiler
 
         /**
          * @brief Compile a single node and return its representation

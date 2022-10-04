@@ -11,8 +11,7 @@
 
 namespace Ark::internal
 {
-    Lexer::Lexer(unsigned debug) noexcept :
-        m_debug(debug)
+    Lexer::Lexer() noexcept
     {}
 
     void Lexer::feed(const std::string& code)

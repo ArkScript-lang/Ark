@@ -31,9 +31,8 @@ namespace Ark::internal
          * @brief Construct a new Macro Executor object
          * 
          * @param macroprocessor 
-         * @param debug 
          */
-        MacroExecutor(MacroProcessor* macroprocessor, unsigned debug = 0);
+        explicit MacroExecutor(MacroProcessor* macroprocessor);
 
         /**
          * @brief Need a virtual destructor to correctly destory object.
@@ -59,7 +58,6 @@ namespace Ark::internal
         virtual bool canHandle(Node& node) = 0;
 
     protected:
-        unsigned int m_debug;
         MacroProcessor* m_macroprocessor;  // Note: Non owned pointer.
 
         /**

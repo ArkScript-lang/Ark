@@ -19,14 +19,14 @@ namespace Ark
 
     Compiler::Compiler(unsigned debug, const std::vector<std::string>& libenv, uint16_t options) :
         m_parser(debug, options, libenv), m_optimizer(options),
-        m_options(options), m_debug(debug)
+        m_options(options)
     {}
 
     void Compiler::feed(const std::string& code, const std::string& filename)
     {
         m_parser.feed(code, filename);
 
-        MacroProcessor mp(m_debug, m_options);
+        MacroProcessor mp(m_options);
         mp.feed(m_parser.ast());
         m_optimizer.feed(mp.ast());
     }
@@ -93,9 +93,6 @@ namespace Ark
 
     void Compiler::saveTo(const std::string& file)
     {
-        if (m_debug >= 1)
-            fmt::print("Final bytecode size: {}B\n", m_bytecode.size() * sizeof(uint8_t));
-
         std::ofstream output(file, std::ofstream::binary);
         output.write(reinterpret_cast<char*>(&m_bytecode[0]), m_bytecode.size() * sizeof(uint8_t));
         output.close();

@@ -29,9 +29,8 @@ namespace Ark::internal
         /**
          * @brief Construct a new Lexer object
          *
-         * @param debug the debug level
          */
-        explicit Lexer(unsigned debug) noexcept;
+        Lexer() noexcept;
 
         /**
          * @brief Give code to tokenize and create the list of tokens
@@ -48,7 +47,6 @@ namespace Ark::internal
         std::vector<Token>& tokens() noexcept;
 
     private:
-        unsigned m_debug;
         std::vector<Token> m_tokens;
 
         inline constexpr bool isHexChar(char chr)
