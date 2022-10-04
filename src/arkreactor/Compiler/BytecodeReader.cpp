@@ -2,12 +2,11 @@
 
 #include <Ark/Compiler/Instructions.hpp>
 #include <Ark/Builtins/Builtins.hpp>
-#undef abs
 #include <Ark/Utils.hpp>
 
 #include <iomanip>
-#include <termcolor/proxy.hpp>
 #include <picosha2.h>
+#include <fmt/color.h>
 
 namespace Ark
 {
@@ -17,7 +16,7 @@ namespace Ark
     {
         std::ifstream ifs(file, std::ios::binary | std::ios::ate);
         if (!ifs.good())
-            throw std::runtime_error("[BytecodeReader] Couldn't open file '" + file + "'");
+            throw std::runtime_error("BytecodeReader - Couldn't open file '" + file + "'");
         std::size_t pos = ifs.tellg();
         // reserve appropriate number of bytes
         std::vector<char> temp(pos);
@@ -44,17 +43,10 @@ namespace Ark
         if (!(b.size() > 4 && b[i++] == 'a' && b[i++] == 'r' && b[i++] == 'k' && b[i++] == Instruction::NOP))
             return 0;
 
-        // read major, minor and patch
-        readNumber(i);
-        i++;
-        readNumber(i);
-        i++;
-        readNumber(i);
-        i++;
+        i += 6;  // skip the version
 
         // reading the timestamp in big endian
         using timestamp_t = unsigned long long;
-        timestamp_t timestamp = 0;
         auto aa = (static_cast<timestamp_t>(m_bytecode[i]) << 56),
              ba = (static_cast<timestamp_t>(m_bytecode[++i]) << 48),
              ca = (static_cast<timestamp_t>(m_bytecode[++i]) << 40),
@@ -63,10 +55,8 @@ namespace Ark
              fa = (static_cast<timestamp_t>(m_bytecode[++i]) << 16),
              ga = (static_cast<timestamp_t>(m_bytecode[++i]) << 8),
              ha = (static_cast<timestamp_t>(m_bytecode[++i]));
-        i++;
-        timestamp = aa + ba + ca + da + ea + fa + ga + ha;
 
-        return timestamp;
+        return (aa + ba + ca + da + ea + fa + ga + ha);
     }
 
     void BytecodeReader::display(const BytecodeSegment segment,
@@ -77,11 +67,9 @@ namespace Ark
         bytecode_t b = bytecode();
         std::size_t i = 0;
 
-        std::ostream& os = std::cout;
-
         if (!(b.size() > 4 && b[i++] == 'a' && b[i++] == 'r' && b[i++] == 'k' && b[i++] == Instruction::NOP))
         {
-            os << "Invalid format";
+            fmt::print("Invalid format\n");
             return;
         }
 
@@ -91,30 +79,18 @@ namespace Ark
         i++;
         uint16_t patch = readNumber(i);
         i++;
-        os << "Version:   " << major << "." << minor << "." << patch << "\n";
 
-        using timestamp_t = unsigned long long;
-        timestamp_t timestamp = 0;
-        auto aa = (static_cast<timestamp_t>(m_bytecode[i]) << 56),
-             ba = (static_cast<timestamp_t>(m_bytecode[++i]) << 48),
-             ca = (static_cast<timestamp_t>(m_bytecode[++i]) << 40),
-             da = (static_cast<timestamp_t>(m_bytecode[++i]) << 32),
-             ea = (static_cast<timestamp_t>(m_bytecode[++i]) << 24),
-             fa = (static_cast<timestamp_t>(m_bytecode[++i]) << 16),
-             ga = (static_cast<timestamp_t>(m_bytecode[++i]) << 8),
-             ha = (static_cast<timestamp_t>(m_bytecode[++i]));
-        i++;
-        timestamp = aa + ba + ca + da + ea + fa + ga + ha;
-        os << "Timestamp: " << timestamp << "\n";
+        fmt::print("Version:   {}.{}.{}\n", major, minor, patch);
+        fmt::print("Timestamp: {}\n", timestamp());
+        i += 8;  // jump over the timestamp
 
-        os << "SHA256:    ";
+        fmt::print("SHA256:    ");
         for (std::size_t j = 0; j < picosha2::k_digest_size; ++j)
         {
-            os << std::hex << static_cast<int>(m_bytecode[i]);
+            fmt::print("{:x}", m_bytecode[i]);
             ++i;
         }
-        os << "\n\n"
-           << std::dec;
+        fmt::print("\n\n");
 
         std::vector<std::string> symbols;
         std::vector<std::string> values;
@@ -123,14 +99,12 @@ namespace Ark
 
         if ((sStart.has_value() && !sEnd.has_value()) || (!sStart.has_value() && sEnd.has_value()))
         {
-            os << termcolor::red << "Both start and end parameter need to be provided together\n"
-               << termcolor::reset;
+            fmt::print(fmt::fg(fmt::color::red), "Both start and end parameter need to be provided together\n");
             return;
         }
         else if (sStart.has_value() && sEnd.has_value() && sStart.value() >= sEnd.value())
         {
-            os << termcolor::red << "Invalid slice start and end arguments\n"
-               << termcolor::reset;
+            fmt::print(fmt::fg(fmt::color::red), "Invalid slice start and end arguments\n");
             return;
         }
 
@@ -143,12 +117,12 @@ namespace Ark
             bool showSym = (segment == BytecodeSegment::All || segment == BytecodeSegment::Symbols);
 
             if (showSym && sStart.has_value() && sEnd.has_value() && (sStart.value() > size || sEnd.value() > size))
-                os << termcolor::red << "Slice start or end can't be greater than the segment size: " << size << "\n";
+                fmt::print(fmt::fg(fmt::color::red), "Slice start or end can't be greater than the segment size: {}\n", size);
             else if (showSym && sStart.has_value() && sEnd.has_value())
                 sliceSize = sEnd.value() - sStart.value() + 1;
 
             if (showSym || segment == BytecodeSegment::HeadersOnly)
-                os << termcolor::cyan << "Symbols table" << termcolor::reset << " (length: " << sliceSize << ")\n";
+                fmt::print("{} (length: {})\n", fmt::styled("Symbols table", fmt::fg(fmt::color::cyan)), sliceSize);
 
             for (uint16_t j = 0; j < size; ++j)
             {
@@ -161,20 +135,16 @@ namespace Ark
                 i++;
 
                 if (showSym)
-                {
-                    os << static_cast<int>(j) << ") ";
-                    os << content << "\n";
-                }
+                    fmt::print("{}) {}\n", j, content);
 
                 symbols.push_back(content);
             }
             if (showSym)
-                os << "\n";
+                fmt::print("\n");
         }
         else
         {
-            os << termcolor::red << "Missing symbole table entry point\n"
-               << termcolor::reset;
+            fmt::print(fmt::fg(fmt::color::red), "Missing symbole table entry point\n");
             return;
         }
 
@@ -190,12 +160,12 @@ namespace Ark
 
             bool showVal = (segment == BytecodeSegment::All || segment == BytecodeSegment::Values);
             if (showVal && sStart.has_value() && sEnd.has_value() && (sStart.value() > size || sEnd.value() > size))
-                os << termcolor::red << "Slice start or end can't be greater than the segment size: " << size << "\n";
+                fmt::print(fmt::fg(fmt::color::red), "Slice start or end can't be greater than the segment size: {}\n", size);
             else if (showVal && sStart.has_value() && sEnd.has_value())
                 sliceSize = sEnd.value() - sStart.value() + 1;
 
             if (showVal || segment == BytecodeSegment::HeadersOnly)
-                os << termcolor::green << "Constants table" << termcolor::reset << " (length: " << sliceSize << ")\n";
+                fmt::print("{} (length: {})\n", fmt::styled("Constants table", fmt::fg(fmt::color::green)), sliceSize);
 
             for (uint16_t j = 0; j < size; ++j)
             {
@@ -203,7 +173,7 @@ namespace Ark
                     showVal = showVal && (j >= start.value() && j <= end.value());
 
                 if (showVal)
-                    os << static_cast<int>(j) << ") ";
+                    fmt::print("{}) ", j);
                 uint8_t type = b[i];
                 i++;
 
@@ -214,7 +184,7 @@ namespace Ark
                         val.push_back(b[i++]);
                     i++;
                     if (showVal)
-                        os << "(Number) " << val;
+                        fmt::print("(Number) {}", val);
                     values.push_back("(Number) " + val);
                 }
                 else if (type == Instruction::STRING_TYPE)
@@ -224,7 +194,7 @@ namespace Ark
                         val.push_back(b[i++]);
                     i++;
                     if (showVal)
-                        os << "(String) " << val;
+                        fmt::print("(String) {}", val);
                     values.push_back("(String) " + val);
                 }
                 else if (type == Instruction::FUNC_TYPE)
@@ -232,28 +202,26 @@ namespace Ark
                     uint16_t addr = readNumber(i);
                     i++;
                     if (showVal)
-                        os << "(PageAddr) " << addr;
+                        fmt::print("(PageAddr) {}", addr);
                     values.push_back("(PageAddr) " + std::to_string(addr));
                     i++;
                 }
                 else
                 {
-                    os << termcolor::red << "Unknown value type: " << static_cast<int>(type) << '\n'
-                       << termcolor::reset;
+                    fmt::print(fmt::fg(fmt::color::red), "Unknown value type: {}\n", type);
                     return;
                 }
 
                 if (showVal)
-                    os << "\n";
+                    fmt::print("\n");
             }
 
             if (showVal)
-                os << "\n";
+                fmt::print("\n");
         }
         else
         {
-            os << termcolor::red << "Missing constant table entry point\n"
-               << termcolor::reset;
+            fmt::print(fmt::fg(fmt::color::red), "Missing constant table entry point\n");
             return;
         }
 
@@ -275,13 +243,10 @@ namespace Ark
                 displayCode = pp == page.value();
 
             if (displayCode)
-                os << termcolor::magenta << "Code segment " << pp << termcolor::reset << " (length: " << size << ")\n";
+                fmt::print("{} {} (length: {})\n", fmt::styled("Code segment", fmt::fg(fmt::color::magenta)), pp, size);
 
-            if (size == 0)
-            {
-                if (displayCode)
-                    os << "NOP";
-            }
+            if (size == 0 && displayCode)
+                fmt::print("NOP");
             else
             {
                 i += 4 * sStart.value_or(0);
@@ -290,7 +255,7 @@ namespace Ark
                 {
                     if (sStart.has_value() && sEnd.has_value() && ((sStart.value() > size) || (sEnd.value() > size)))
                     {
-                        os << termcolor::red << "Slice start or end can't be greater than the segment size: " << size << termcolor::reset << "\n";
+                        fmt::print(fmt::fg(fmt::color::red), "Slice start or end can't be greater than the segment size: {}\n", size);
                         return;
                     }
 
@@ -303,123 +268,121 @@ namespace Ark
                         uint16_t arg = readNumber(i);
                         ++i;
 
-                        // instruction number
-                        os << termcolor::cyan << j << " ";
-                        // padding inst arg arg
-                        os << termcolor::reset << std::hex
-                           << std::setw(2) << std::setfill('0') << static_cast<int>(padding) << " "
-                           << std::setw(2) << std::setfill('0') << static_cast<int>(inst) << " "
-                           << std::setw(2) << std::setfill('0') << static_cast<int>(b[i - 2]) << " "
-                           << std::setw(2) << std::setfill('0') << static_cast<int>(b[i - 1]) << " ";
-                        // reset stream
-                        os << std::dec << termcolor::yellow;
+                        // instruction number followed by padding, inst, arg arg
+                        fmt::print(fmt::fg(fmt::color::cyan), "{:>3} {:0>2x} {:0>2x} {:0>2x}{:0>2x} ", j, padding, inst, b[i - 2], b[i - 1]);
+
+                        auto print_inst = [](const std::string& name) {
+                            fmt::print(fmt::fg(fmt::color::yellow), "{}\n", name);
+                        };
+                        auto print_inst_with_arg = [](const std::string& name, auto arg, fmt::color color = fmt::color::white) {
+                            fmt::print("{} ({})\n", fmt::styled(name, fmt::fg(fmt::color::yellow)), fmt::styled(arg, fmt::fg(color)));
+                        };
 
                         if (inst == Instruction::NOP)
-                            os << "NOP\n";
+                            print_inst("NOP");
                         else if (inst == Instruction::LOAD_SYMBOL)
-                            os << "LOAD_SYMBOL " << termcolor::green << symbols[arg] << "\n";
+                            print_inst_with_arg("LOAD_SYMBOL", symbols[arg], fmt::color::green);
                         else if (inst == Instruction::LOAD_CONST)
-                            os << "LOAD_CONST " << termcolor::magenta << values[arg] << "\n";
+                            print_inst_with_arg("LOAD_CONST", values[arg], fmt::color::magenta);
                         else if (inst == Instruction::POP_JUMP_IF_TRUE)
-                            os << "POP_JUMP_IF_TRUE " << termcolor::red << "(" << arg << ")\n";
+                            print_inst_with_arg("POP_JUMP_IF_TRUE", arg, fmt::color::red);
                         else if (inst == Instruction::STORE)
-                            os << "STORE " << termcolor::green << symbols[arg] << "\n";
+                            print_inst_with_arg("STORE", symbols[arg], fmt::color::green);
                         else if (inst == Instruction::LET)
-                            os << "LET " << termcolor::green << symbols[arg] << "\n";
+                            print_inst_with_arg("LET", symbols[arg], fmt::color::green);
                         else if (inst == Instruction::POP_JUMP_IF_FALSE)
-                            os << "POP_JUMP_IF_FALSE " << termcolor::red << "(" << arg << ")\n";
+                            print_inst_with_arg("POP_JUMP_IF_FALSE", arg, fmt::color::red);
                         else if (inst == Instruction::JUMP)
-                            os << "JUMP " << termcolor::red << "(" << arg << ")\n";
+                            print_inst_with_arg("JUMP", arg, fmt::color::red);
                         else if (inst == Instruction::RET)
-                            os << "RET\n";
+                            print_inst("RET");
                         else if (inst == Instruction::HALT)
-                            os << "HALT\n";
+                            print_inst("HALT");
                         else if (inst == Instruction::CALL)
-                            os << "CALL " << termcolor::reset << "(" << arg << ")\n";
+                            print_inst_with_arg("CALL", arg);
                         else if (inst == Instruction::CAPTURE)
-                            os << "CAPTURE " << termcolor::reset << symbols[arg] << "\n";
+                            print_inst_with_arg("CAPTURE", symbols[arg]);
                         else if (inst == Instruction::BUILTIN)
-                            os << "BUILTIN " << termcolor::reset << Builtins::builtins[arg].first << "\n";
+                            print_inst_with_arg("BUILTIN", Builtins::builtins[arg].first);
                         else if (inst == Instruction::MUT)
-                            os << "MUT " << termcolor::green << symbols[arg] << "\n";
+                            print_inst_with_arg("MUT", symbols[arg], fmt::color::green);
                         else if (inst == Instruction::DEL)
-                            os << "DEL " << termcolor::green << symbols[arg] << "\n";
+                            print_inst_with_arg("DEL", symbols[arg], fmt::color::green);
                         else if (inst == Instruction::SAVE_ENV)
-                            os << "SAVE_ENV\n";
+                            print_inst("SAVE_ENV");
                         else if (inst == Instruction::GET_FIELD)
-                            os << "GET_FIELD " << termcolor::green << symbols[arg] << "\n";
+                            print_inst_with_arg("GET_FIELD", symbols[arg], fmt::color::green);
                         else if (inst == Instruction::PLUGIN)
-                            os << "PLUGIN " << termcolor::magenta << values[arg] << "\n";
+                            print_inst_with_arg("PLUGIN", values[arg], fmt::color::magenta);
                         else if (inst == Instruction::LIST)
-                            os << "LIST " << termcolor::reset << "(" << arg << ")\n";
+                            print_inst_with_arg("LIST", arg);
                         else if (inst == Instruction::APPEND)
-                            os << "APPEND " << termcolor::reset << "(" << arg << ")\n";
+                            print_inst_with_arg("APPEND", arg);
                         else if (inst == Instruction::CONCAT)
-                            os << "CONCAT " << termcolor::reset << "(" << arg << ")\n";
+                            print_inst_with_arg("CONCAT", arg);
                         else if (inst == Instruction::APPEND_IN_PLACE)
-                            os << "APPEND_IN_PLACE " << termcolor::reset << "(" << arg << ")\n";
+                            print_inst_with_arg("APPEND_IN_PLACE", arg);
                         else if (inst == Instruction::CONCAT_IN_PLACE)
-                            os << "CONCAT_IN_PLACE " << termcolor::reset << "(" << arg << ")\n";
+                            print_inst_with_arg("CONCAT_IN_PLACE", arg);
                         else if (inst == Instruction::POP_LIST)
-                            os << "POP_LIST " << termcolor::reset << "\n";
+                            print_inst("POP_LIST");
                         else if (inst == Instruction::POP_LIST_IN_PLACE)
-                            os << "POP_LIST_IN_PLACE " << termcolor::reset << "\n";
+                            print_inst("POP_LIST_IN_PLACE");
                         else if (inst == Instruction::POP)
-                            os << "POP\n";
+                            print_inst("POP");
                         else if (inst == Instruction::ADD)
-                            os << "ADD\n";
+                            print_inst("ADD");
                         else if (inst == Instruction::SUB)
-                            os << "SUB\n";
+                            print_inst("SUB");
                         else if (inst == Instruction::MUL)
-                            os << "MUL\n";
+                            print_inst("MUL");
                         else if (inst == Instruction::DIV)
-                            os << "DIV\n";
+                            print_inst("DIV");
                         else if (inst == Instruction::GT)
-                            os << "GT\n";
+                            print_inst("GT");
                         else if (inst == Instruction::LT)
-                            os << "LT\n";
+                            print_inst("LT");
                         else if (inst == Instruction::LE)
-                            os << "LE\n";
+                            print_inst("LE");
                         else if (inst == Instruction::GE)
-                            os << "GE\n";
+                            print_inst("GE");
                         else if (inst == Instruction::NEQ)
-                            os << "NEQ\n";
+                            print_inst("NEQ");
                         else if (inst == Instruction::EQ)
-                            os << "EQ\n";
+                            print_inst("EQ");
                         else if (inst == Instruction::LEN)
-                            os << "LEN\n";
+                            print_inst("LEN");
                         else if (inst == Instruction::EMPTY)
-                            os << "EMPTY\n";
+                            print_inst("EMPTY");
                         else if (inst == Instruction::TAIL)
-                            os << "TAIL\n";
+                            print_inst("TAIL");
                         else if (inst == Instruction::HEAD)
-                            os << "HEAD\n";
+                            print_inst("HEAD");
                         else if (inst == Instruction::ISNIL)
-                            os << "ISNIL\n";
+                            print_inst("ISNIL");
                         else if (inst == Instruction::ASSERT)
-                            os << "ASSERT\n";
+                            print_inst("ASSERT");
                         else if (inst == Instruction::TO_NUM)
-                            os << "TO_NUM\n";
+                            print_inst("TO_NUM");
                         else if (inst == Instruction::TO_STR)
-                            os << "TO_STR\n";
+                            print_inst("TO_STR");
                         else if (inst == Instruction::AT)
-                            os << "AT\n";
+                            print_inst("AT");
                         else if (inst == Instruction::AND_)
-                            os << "AND_\n";
+                            print_inst("AND_");
                         else if (inst == Instruction::OR_)
-                            os << "OR_\n";
+                            print_inst("OR_");
                         else if (inst == Instruction::MOD)
-                            os << "MOD\n";
+                            print_inst("MOD");
                         else if (inst == Instruction::TYPE)
-                            os << "TYPE\n";
+                            print_inst("TYPE");
                         else if (inst == Instruction::HASFIELD)
-                            os << "HASFIELD\n";
+                            print_inst("HASFIELD");
                         else if (inst == Instruction::NOT)
-                            os << "NOT\n";
+                            print_inst("NOT");
                         else
                         {
-                            os << termcolor::reset << "Unknown instruction: " << static_cast<int>(inst) << '\n'
-                               << termcolor::reset;
+                            fmt::print(fmt::fg(fmt::color::red), "Unknown instruction: {}\n", inst);
                             return;
                         }
                     }
@@ -429,8 +392,7 @@ namespace Ark
                 cumulated_segment_size += size * 4 + 3;
             }
             if (displayCode && segment != BytecodeSegment::HeadersOnly)
-                os << "\n"
-                   << termcolor::reset;
+                fmt::print("\n");
 
             ++pp;
 

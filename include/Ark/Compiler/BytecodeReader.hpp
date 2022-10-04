@@ -2,10 +2,10 @@
  * @file BytecodeReader.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief A bytecode disassembler for ArkScript
- * @version 0.3
+ * @version 0.4
  * @date 2020-10-27
  * 
- * @copyright Copyright (c) 2020-2021
+ * @copyright Copyright (c) 2020-2022
  * 
  */
 
