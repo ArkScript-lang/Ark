@@ -64,7 +64,7 @@ namespace Ark::internal::Builtins::IO
         if (types::check(n, ValueType::String))
             fmt::print(n[0].string());
         else if (n.size() != 0)
-            types::generateError("input", { { types::Contract {{}}, types::Contract { { types::Typedef("prompt", ValueType::String) } } } }, n);
+            types::generateError("input", { { types::Contract {}, types::Contract { { types::Typedef("prompt", ValueType::String) } } } }, n);
 
         std::string line = "";
         std::getline(std::cin, line);
