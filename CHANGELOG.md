@@ -1,5 +1,19 @@
 # Change Log
 
+## [Unreleased version]
+### Added
+
+
+### Changed
+- plugins can be constructed from outside ArkScript lib/modules folder, easing the development process
+- plugins loading now works as intended: look alongside the given file/bytecode file, then in the std lib folder
+
+### Removed
+
+
+### Deprecated
+
+
 ## [3.4.0] - 2022-09-12
 ### Added
 - added new `async` and `await` builtins
