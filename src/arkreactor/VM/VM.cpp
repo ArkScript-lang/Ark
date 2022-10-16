@@ -97,27 +97,27 @@ namespace Ark
             path = (fs::path(m_state.m_filename).parent_path() / fs::path(file)).relative_path().string();
 
         std::shared_ptr<SharedLibrary> lib;
-        for (auto const& v : m_state.m_libenv)
+        // if it exists alongside the .arkc file
+        if (Utils::fileExists(path))
+            lib = std::make_shared<SharedLibrary>(path);
+        else
         {
-            std::string lib_path = (fs::path(v) / fs::path(file)).string();
-
-            // if it's already loaded don't do anything
-            if (std::find_if(m_shared_lib_objects.begin(), m_shared_lib_objects.end(), [&](const auto& val) {
-                    return (val->path() == path || val->path() == lib_path);
-                }) != m_shared_lib_objects.end())
-                return;
-
-            // if it exists alongside the .arkc file
-            if (Utils::fileExists(path))
+            for (auto const& v : m_state.m_libenv)
             {
-                lib = std::make_shared<SharedLibrary>(path);
-                break;
-            }
-            // check in lib_path otherwise
-            else if (Utils::fileExists(lib_path))
-            {
-                lib = std::make_shared<SharedLibrary>(lib_path);
-                break;
+                std::string lib_path = (fs::path(v) / fs::path(file)).string();
+
+                // if it's already loaded don't do anything
+                if (std::find_if(m_shared_lib_objects.begin(), m_shared_lib_objects.end(), [&](const auto& val) {
+                        return (val->path() == path || val->path() == lib_path);
+                    }) != m_shared_lib_objects.end())
+                    return;
+
+                // check in lib_path
+                if (Utils::fileExists(lib_path))
+                {
+                    lib = std::make_shared<SharedLibrary>(lib_path);
+                    break;
+                }
             }
         }
 
