@@ -48,7 +48,6 @@ namespace Ark
             bcr.feed(bytecode_filename);
             m_bytecode = bcr.bytecode();
 
-            m_filename = bytecode_filename;
             configure();
         }
         catch (const std::exception& e)
@@ -115,6 +114,7 @@ namespace Ark
                       << termcolor::reset;
             return false;
         }
+        m_filename = file;
 
         // check if it's a bytecode file or a source code file
         BytecodeReader bcr;
