@@ -25,8 +25,12 @@ Ark::Value foo(std::vector<Ark::Value>& n [[maybe_unused]], Ark::VM* vm [[maybe_
 
 ARK_API Ark::mapping* getFunctionsMapping()
 {
-    Ark::mapping* map = Ark::mapping_create(1);
-    Ark::apping_add(map[0], "test:foo", foo);
+    static Ark::mapping map[] = {
+        { "test:foo", foo },
+
+        // sentinel
+        { nullptr, nullptr }
+    };
 
     return map;
 }
@@ -36,9 +40,10 @@ Let's walk through this line by line:
 - `#include <Ark/Module.hpp>` includes basic files from ArkScript to be able to use the VM, instanciate values, and generate the entry point of the module
 - `Ark::Value foo(std::vector<Ark::Value>& n [[maybe_unused]], Ark::VM* vm [[maybe_unused]]) {...}` defines a function for our module, taking an argument list from the VM, and a non-owning pointer to the VM
 - `ARK_API Ark::mapping* getFunctionsMapping()` declares the entrypoint of our module
-- `Ark::mapping* map = Ark::mapping_create(1);` creates a mapping of a single element to hold the name -> function pointer association, defining the module
-- `Ark::mapping_add(map[0], "test:foo", foo);` adds an element at position 0 in our mapping, using the previously defining function
+- `static Ark::mapping map[] = {...};` creates a mapping of elements to hold the name -> function pointer association, defining the module
+- `{ "test:foo", foo }` adds an element at position 0 in our mapping, using the previously defining function
     - note that the given name is `"test:foo"`: this is a convention in ArkScript, every module's function must be prefixed by the module name
+- `{ nullptr, nullptr }`: a sentinel so that the virtual machine where the end of mapping is
 
 ## Building your module
 
