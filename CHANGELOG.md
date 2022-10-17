@@ -7,6 +7,7 @@
 ### Changed
 - plugins can be constructed from outside ArkScript lib/modules folder, easing the development process
 - plugins loading now works as intended: look alongside the given file/bytecode file, then in the std lib folder
+- new way to create modules, easier to use
 
 ### Removed
 

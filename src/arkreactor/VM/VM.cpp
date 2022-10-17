@@ -157,14 +157,8 @@ namespace Ark
             if (it != m_state.m_symbols.end())
                 (*context.locals[0]).push_back(static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it)), Value(map[i].value));
 
-            // free memory because we have used it and don't need it anymore
-            // no need to free map[i].value since it's a pointer to a function in the DLL
-            delete[] map[i].name;
             ++i;
         }
-
-        // free memory
-        delete[] map;
     }
 
     void VM::exit(int code) noexcept
