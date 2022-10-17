@@ -18,15 +18,19 @@ Create a `Main.cpp` file in `module_name/src/` with the following content:
 ~~~~{.cpp}
 #include <Ark/Module.hpp>
 
-Value foo(std::vector<Value>& n [[maybe_unused]], Ark::VM* vm [[maybe_unused]])
+Ark::Value foo(std::vector<Ark::Value>& n [[maybe_unused]], Ark::VM* vm [[maybe_unused]])
 {
-    return Value(1);
+    return Ark::Value(1);
 }
 
-ARK_API mapping* getFunctionsMapping()
+ARK_API Ark::mapping* getFunctionsMapping()
 {
-    mapping* map = mapping_create(1);
-    mapping_add(map[0], "test:foo", foo);
+    static Ark::mapping map[] = {
+        { "test:foo", foo },
+
+        // sentinel
+        { nullptr, nullptr }
+    };
 
     return map;
 }
@@ -34,27 +38,22 @@ ARK_API mapping* getFunctionsMapping()
 
 Let's walk through this line by line:
 - `#include <Ark/Module.hpp>` includes basic files from ArkScript to be able to use the VM, instanciate values, and generate the entry point of the module
-- `Value foo(std::vector<Value>& n [[maybe_unused]], Ark::VM* vm [[maybe_unused]]) {...}` defines a function for our module, taking an argument list from the VM, and a non-owning pointer to the VM
-- `ARK_API mapping* getFunctionsMapping()` declares the entrypoint of our module
-- `mapping* map = mapping_create(1);` creates a mapping of a single element to hold the name -> function pointer association, defining the module
-- `mapping_add(map[0], "test:foo", foo);` adds an element at position 0 in our mapping, using the previously defining function
-    - note that the given name is `"test:foo"`: this is a convention in ArkScript, every module function must be prefixed by the module name's
+- `Ark::Value foo(std::vector<Ark::Value>& n [[maybe_unused]], Ark::VM* vm [[maybe_unused]]) {...}` defines a function for our module, taking an argument list from the VM, and a non-owning pointer to the VM
+- `ARK_API Ark::mapping* getFunctionsMapping()` declares the entrypoint of our module
+- `static Ark::mapping map[] = {...};` creates a mapping of elements to hold the name -> function pointer association, defining the module
+- `{ "test:foo", foo }` adds an element at position 0 in our mapping, using the previously defining function
+    - note that the given name is `"test:foo"`: this is a convention in ArkScript, every module's function must be prefixed by the module name
+- `{ nullptr, nullptr }`: a sentinel so that the virtual machine where the end of mapping is
 
 ## Building your module
 
-Clone ArkScript, then copy your modules fork to lib/modules. This is required for CMake to be able to find ArkScript headers.
-
-You will need to update `lib/modules/CMakeLists.txt` to add the following code:
+Clone ArkScript wherever you like. Then, you will need to update your CMakeLists.txt to add the following code:
 
 ~~~~{cmake}
-set(ARK_MOD_MODULE_NAME Off CACHE BOOL "Build the module_name module")
-
-if (ARK_MOD_MODULE_NAME OR ARK_MOD_ALL)
-    add_subdirectory(${PROJECT_SOURCE_DIR}/module_name)
-endif()
+add_subdirectory(path/to/arkscript/ Ark)
 ~~~~
 
-Then, run `cmake . -Build -DARK_BUILD_MODULES=On -DARK_MOD_MODULE_NAME=On`, and build only your module with `cmake --build build --target module_name`.
+Then, run `cmake . -Build`, and build your module with `cmake --build build`. It should output a `.arkm` file in the current working directory.
 
 ## Common problems
 
@@ -78,7 +77,7 @@ Handle& get_me_a_window_handle()
 Ark::UserType::ControlFuncs* get_cfs_window()
 {
     static Ark::UserType::ControlFuncs cfs;
-    cfs.ostream_func = [](std::ostream& os, const UserType& a) -> std::ostream& {
+    cfs.ostream_func = [](std::ostream& os, const Ark::UserType& a) -> std::ostream& {
         // do stuff
         return os;
     };

@@ -5,8 +5,8 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "(Win) REPL",
-            "type": "cppvsdbg",
+            "name": "REPL",
+            "type": "cppdbg",
             "request": "launch",
             "program": "${command:cmake.launchTargetPath}",
             "args": [],
@@ -15,11 +15,11 @@
             "environment": [
                 {"name": "ARKSCRIPT_PATH", "value": "${workspaceFolder}/lib"}
             ],
-            "console": "integratedTerminal"
+            "MIMode": "lldb"
         },
         {
-            "name": "(Win) Unit Tests",
-            "type": "cppvsdbg",
+            "name": "Unit Tests",
+            "type": "cppdbg",
             "request": "launch",
             "program": "${command:cmake.launchTargetPath}",
             "args": ["tests/arkscript/unittests.ark"],
@@ -28,11 +28,11 @@
             "environment": [
                 {"name": "ARKSCRIPT_PATH", "value": "${workspaceFolder}/lib"}
             ],
-            "console": "integratedTerminal"
+            "MIMode": "lldb"
         },
         {
-            "name": "(Win) Lib tests",
-            "type": "cppvsdbg",
+            "name": "Lib tests",
+            "type": "cppdbg",
             "request": "launch",
             "program": "${command:cmake.launchTargetPath}",
             "args": ["lib/std/tests/all.ark"],
@@ -41,7 +41,7 @@
             "environment": [
                 {"name": "ARKSCRIPT_PATH", "value": "${workspaceFolder}/lib"}
             ],
-            "console": "integratedTerminal"
+            "MIMode": "lldb"
         }
     ]
 }
