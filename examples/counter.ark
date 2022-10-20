@@ -5,5 +5,4 @@
     (puts "\rHere is a counter: " i "/100")
     (set i (+ 1 i))
     # sleep for 50ms
-    (sys:sleep 50)
-})
+    (sys:sleep 50)})
