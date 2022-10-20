@@ -90,7 +90,6 @@
 
     (recap "VM operations passed" tests (- (time) start-time))
 
-    tests
-}))
+    tests }))
 
 (let passed-vm (vm-tests))

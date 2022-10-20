@@ -11,60 +11,60 @@
     (set tests (assert-eq (add_two nice_value 2) 14 "macro add_two and macro value" tests))
     !{if (and true true)
         (set tests (assert-val true "macro if" tests))
-        (set tests (assert-val false "macro if" tests))
-    }
+        (set tests (assert-val false "macro if" tests))}
+
     !{if (= nice_value 12)
         (set tests (assert-val true "macro if" tests))
-        (set tests (assert-val false "macro if" tests))
-    }
+        (set tests (assert-val false "macro if" tests))}
+
     !{if (and true (= nice_value 12))
         (set tests (assert-val true "macro if" tests))
-        (set tests (assert-val false "macro if" tests))
-    }
+        (set tests (assert-val false "macro if" tests))}
+
     !{if (and false (= nice_value 12))
         (set tests (assert-val false "macro if" tests))
-        (set tests (assert-val true "macro if" tests))
-    }
+        (set tests (assert-val true "macro if" tests))}
+
     !{if (or false (= nice_value 12))
         (set tests (assert-val true "macro if" tests))
-        (set tests (assert-val false "macro if" tests))
-    }
+        (set tests (assert-val false "macro if" tests))}
+
     !{if (or false (!= nice_value 12))
         (set tests (assert-val false "macro if" tests))
-        (set tests (assert-val true "macro if" tests))
-    }
+        (set tests (assert-val true "macro if" tests))}
+
     !{if (not (= nice_value 12))
         (set tests (assert-val false "macro if" tests))
-        (set tests (assert-val true "macro if" tests))
-    }
+        (set tests (assert-val true "macro if" tests))}
+
     !{if (< nice_value 14)
         (set tests (assert-val true "macro comparison <" tests))
-        (set tests (assert-val false "macro comparison <" tests))
-    }
+        (set tests (assert-val false "macro comparison <" tests))}
+
     !{if (> nice_value 14)
         (set tests (assert-val false "macro comparison >" tests))
-        (set tests (assert-val true "macro comparison >" tests))
-    }
+        (set tests (assert-val true "macro comparison >" tests))}
+
     !{if (<= nice_value 12)
         (set tests (assert-val true "macro comparison <=" tests))
-        (set tests (assert-val false "macro comparison <=" tests))
-    }
+        (set tests (assert-val false "macro comparison <=" tests))}
+
     !{if (>= nice_value 12)
         (set tests (assert-val true "macro comparison >=" tests))
-        (set tests (assert-val false "macro comparison >=" tests))
-    }
+        (set tests (assert-val false "macro comparison >=" tests))}
+
     !{if (@ [true false] 0)
         (set tests (assert-val true "macro if @" tests))
-        (set tests (assert-val false "macro if @" tests))
-    }
+        (set tests (assert-val false "macro if @" tests))}
+
     !{if (@ [true false] -2)
         (set tests (assert-val true "macro if @" tests))
-        (set tests (assert-val false "macro if @" tests))
-    }
+        (set tests (assert-val false "macro if @" tests))}
+
     !{if true {
         !{in_if_1 true}
-        !{in_if_2 true}
-    }}
+        !{in_if_2 true}}}
+
     (set tests (assert-val (and in_if_1 in_if_2) "macro if multiple definitions" tests))
     !{undef in_if_1}
     !{undef in_if_2}
@@ -78,11 +78,9 @@
             (set tests (assert-eq val 0 "macro value scoping" tests))
             !{undef val}
             (set tests (assert-eq val 6 "macro value undefine" tests))
-            !{undef a}  # shouldn't yield an error on unknown macros
-        }
+            !{undef a}}  # shouldn't yield an error on unknown macros
 
-        (set tests (assert-eq val 6 "macro value scoping" tests))
-    }
+        (set tests (assert-eq val 6 "macro value scoping" tests))}
 
     !{bar (a ...args) (+ a (len args))}
     (set tests (assert-eq (bar 1) 1 "macro bar spreading" tests))
@@ -138,18 +136,15 @@
 
     !{suffix-dup (sym x) {
         !{if (> x 1)
-            (suffix-dup sym (- x 1))
-        }
-        (symcat sym x)
-    }}
+            (suffix-dup sym (- x 1))}
+        (symcat sym x)}}
     (let magic_func (fun ((suffix-dup a 3)) (- a1 a2 a3)))
     (set tests (assert-eq (magic_func 1 2 3) (- 1 2 3) "macro symdup" tests))
 
     !{partial (func ...defargs) {
         !{bloc (suffix-dup a (- (argcount func) (len defargs)))}
         (fun (bloc) (func ...defargs bloc))
-        !{undef bloc}
-    }}
+        !{undef bloc}}}
 
     (let test_func (fun (a b c) (* a b c)))
     (let test_func1 (partial test_func 1))
@@ -165,7 +160,6 @@
 
     (recap "Macro tests passed" tests (- (time) start-time))
 
-    tests
-}))
+    tests }))
 
 (let passed-macro (macro-tests))
