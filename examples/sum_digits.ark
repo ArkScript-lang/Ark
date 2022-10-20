@@ -9,16 +9,14 @@
             (- o 87)
         (if (and (>= o 65) (<= 90))
             (- o 55)
-            o))))
-    (mod v base)
-}))
+            o ))))
+    (mod v base)}))
 
 (let sum-digits (fun (n base) {
     (let number (if (not (= "String" (type n))) (toString n) n))
     (list:reduce
         (list:map number (fun (e) (to-base e base)))
-        (fun (a b) (+ a b)))
-}))
+        (fun (a b) (+ a b)))}))
 
 (print (sum-digits 1 10))       # 1
 (print (sum-digits 1234 10))    # 10
