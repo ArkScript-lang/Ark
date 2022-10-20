@@ -9,8 +9,7 @@
     # the return value, our closure
     # the &name notation is used in the argument list to explicitly capture
     # a variable (using deep copy)
-    (fun (&set-age &name &age &weight) ())
-}))
+    (fun (&set-age &name &age &weight) ())}))
 
 # we create 2 humans using such construction, just a nice function call
 (let bob (create-human "Bob" 0 144))
@@ -38,9 +37,7 @@
 (let countdown-from (fun (number)
     (fun (&number) {
         (set number (- number 1))
-        number
-    }))
-)
+        number })))
 
 (let countdown-from-3 (countdown-from 3))
 

@@ -8,11 +8,9 @@
     (while (<= acc n) {
         (set a (* a acc))
         # thus we need to increment the accumulator ourselves
-        (set acc (+ 1 acc))
-    })
+        (set acc (+ 1 acc))})
     # the return value
-    a
-}))
+    a }))
 
 # then we call the function we just created
 (print "Factorial 6 (with loop and acc): " (fact 6))

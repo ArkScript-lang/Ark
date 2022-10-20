@@ -10,9 +10,7 @@
         # then
         (throw "cannot divide by zero")  # the value we should return in case of an error
         # else
-        (return (/ 1 x))  # the value returned if everything is ok (if (!= x 0))
-    )
-}))
+        (return (/ 1 x)))}))  # the value returned if everything is ok (if (!= x 0))
 
 # this function (try) is implemented in Exceptions.ark (in lib/std/)
 # and will check the return value of (invert 0)
@@ -21,5 +19,4 @@
 # it works the same way as a try: { function then } catch { do_something }
 (try (invert 0)
     (fun (inverted) (print inverted))
-    (fun (err) (print err))
-)
+    (fun (err) (print err)))

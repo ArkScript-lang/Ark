@@ -59,25 +59,22 @@ Also it has:
     (let impl (fun (tries) {
         (let guess (toNumber (input "Input a numeric value: ")))
 
-        (if (< guess number) {
-            (print "It's more than " guess)
-            (impl (+ tries 1))
-        }
-            (if (= guess number) {
-                (print "You found it!")
-                tries
-            } {
-                (print "It's less than " guess)
-                (impl (+ tries 1))
-            }))
-    }))
+        (if (< guess number)
+            {
+                (print "It's more than " guess)
+                (impl (+ tries 1))}
+            (if (= guess number)
+                {
+                    (print "You found it!")
+                    tries }
+                {
+                    (print "It's less than " guess)
+                    (impl (+ tries 1))}))}))
 
     (let tries (impl 0))
-    (print "You won in " tries " tries.")
-}))
+    (print "You won in " tries " tries.")}))
 
 (game)
-
 ```
 
 More examples are available inside `examples/`.

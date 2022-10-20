@@ -2,43 +2,38 @@
 
 (let assert-eq (fun (val1 val2 message tests) {
     (assert (= val1 val2) (str:format "%% (%%) - %% SHOULD BE EQUAL TO %%" message tests val1 val2))
-    (+ 1 tests)
-}))
+    (+ 1 tests)}))
 
 (let assert-neq (fun (val1 val2 message tests) {
     (assert (!= val1 val2) (str:format "%% (%%) - %% SHOULD BE NOT EQUAL TO %%" message tests val1 val2))
-    (+ 1 tests)
-}))
+    (+ 1 tests)}))
 
 (let assert-gt (fun (val1 val2 message tests) {
     (assert (> val1 val2) (str:format "%% (%%) - %% SHOULD BE GREATER THAN %%" message tests val1 val2))
-    (+ 1 tests)
-}))
+    (+ 1 tests)}))
 
 (let assert-ge (fun (val1 val2 message tests) {
     (assert (>= val1 val2) (str:format "%% (%%) - %% SHOULD BE GREATER OR EQUAL TO %%" message tests val1 val2))
-    (+ 1 tests)
-}))
+    (+ 1 tests)}))
 
 (let assert-lt (fun (val1 val2 message tests) {
     (assert (< val1 val2) (str:format "%% (%%) - %% SHOULD BE LESSER THAN %%" message tests val1 val2))
-    (+ 1 tests)
-}))
+    (+ 1 tests)}))
 
 (let assert-le (fun (val1 val2 message tests) {
     (assert (<= val1 val2) (str:format "%% (%%) - %% SHOULD BE LESSER OR EQUAL TO %%" message tests val1 val2))
-    (+ 1 tests)
-}))
+    (+ 1 tests)}))
 
 (let assert-val (fun (val0 message tests) {
     (assert val0 (str:format "%% (%%) - %% SHOULD BE TRUTHY" message tests val0))
-    (+ 1 tests)
-}))
+    (+ 1 tests)}))
 
 (let recap (fun (test-name tests time_) {
     (console:color "yellow")
     (puts "  " test-name " ")
-    (if (<= (len test-name) 20) (puts "\t\t") (puts "\t"))
+    (if (<= (len test-name) 20)
+        (puts "\t\t")
+        (puts "\t"))
 
     (console:color "reset")
     (puts "(")
@@ -52,5 +47,4 @@
     (console:color "green")
     (puts (* 1000 time_) "ms\n")
 
-    (console:color "reset")
-}))
+    (console:color "reset")}))
