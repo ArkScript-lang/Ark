@@ -1157,10 +1157,6 @@ namespace Ark
             std::printf("%s\n", e.what());
             backtrace(context);
             m_exit_code = 1;
-
-#ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
-            throw;
-#endif
         }
         catch (...)
         {

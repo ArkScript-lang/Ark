@@ -10,13 +10,17 @@ cformat.ps1
 include/Ark/Constants.hpp
 __arkscript__/
 *.arkc
-!fuzzing/**/*.arkc
 *.arkm
 /Installer.iss
 
 # Tests results
 tests/cpp/out/
 tests/cpp/ark/
+
+# Fuzzing
+!fuzzing/**/*.arkc
+fuzzing/output
+afl/
 
 # Folders
 .vs/
