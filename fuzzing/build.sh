@@ -8,5 +8,5 @@ buildFolder=afl
 
 cmake -B${buildFolder} \
     -DCMAKE_C_COMPILER=afl-cc -DCMAKE_CXX_COMPILER=afl-c++ -DCMAKE_BUILD_TYPE=Release \
-    -DARK_BUILD_EXE=On -DARK_BUILD_MODULE=On
+    -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=On
 cmake --build ${buildFolder} --config Release
