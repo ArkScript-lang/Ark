@@ -1,0 +1,1 @@
+(let a0kermann(fun(m n){(if(> m 0)(if(= 0 n)(a0kermann(- m 1)1)(a0kermann(- m 1)(a0kermann m(- n 1))))(+ 1 n))}))(print"0000000000000000000000000000000000"(a0kermann 3 6))
