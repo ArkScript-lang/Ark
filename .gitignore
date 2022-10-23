@@ -10,6 +10,7 @@ cformat.ps1
 include/Ark/Constants.hpp
 __arkscript__/
 *.arkc
+!fuzzing/**/*.arkc
 *.arkm
 /Installer.iss
 
