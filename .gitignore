@@ -19,7 +19,7 @@ tests/cpp/ark/
 
 # Fuzzing
 !fuzzing/**/*.arkc
-fuzzing/output
+fuzzing/output*
 afl/
 
 # Folders
