@@ -64,7 +64,6 @@
 
     (recap "List tests passed" tests (- (time) start-time))
 
-    tests
-}))
+    tests }))
 
 (let passed-list (list-tests))

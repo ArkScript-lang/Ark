@@ -29,8 +29,7 @@
     (mut i 0)
     (while (< i 12) {
         (set tests (assert-eq (@ lst i) nil "list:fill @" tests))
-        (set i (+ 1 i))
-    })
+        (set i (+ 1 i))})
     (del i)
 
     (set tests (assert-eq (@ (list:setAt lst 5 "a") 5) "a" "list:setAt" tests))
@@ -70,7 +69,6 @@
     # clean up
     (io:removeFiles "test.txt" "temp/")
 
-    tests
-}))
+    tests }))
 
 (let passed-builtins (builtin-tests))

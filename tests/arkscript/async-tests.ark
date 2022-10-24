@@ -17,10 +17,8 @@
         (mut acc 0)
         (while (< a b) {
             (set acc (+ acc (@ src a)))
-            (set a (+ 1 a))
-        })
-        acc
-    }))
+            (set a (+ 1 a))})
+        acc }))
 
     (let start-non-async (time))
     (let res-non-async (sum 0 size data))
@@ -31,8 +29,7 @@
         (async sum 0 (/ size 4) data)
         (async sum (/ size 4) (/ size 2) data)
         (async sum (/ size 2) (- size (/ size 4)) data)
-        (async sum (- size (/ size 4)) size data)
-    ])
+        (async sum (- size (/ size 4)) size data)])
     (let res-async (list:reduce (list:map workers (fun (w) (await w))) (fun (a b) (+ a b))))
     (let time-async (- (time) start-async))
 
@@ -41,7 +38,6 @@
 
     (recap "Async/await tests passed" tests (- (time) start-time))
 
-    tests
-}))
+    tests }))
 
 (let passed-async (async-tests))

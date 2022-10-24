@@ -14,8 +14,7 @@
     # by putting in it closures that captured d, an element of `data`
     # and call the function egg on it
     (set callbacks (append callbacks (fun (&d) (egg d))))
-    (set acc (+ 1 acc))
-})
+    (set acc (+ 1 acc))})
 
 # then we reset the accumulator
 (set acc 0)
@@ -26,5 +25,4 @@
     # thus we need to put it in another pair of parens to call the callback)
     (puts "Calling callback number " acc ": ")
     ((@ callbacks acc))
-    (set acc (+ 1 acc))
-})
+    (set acc (+ 1 acc))})

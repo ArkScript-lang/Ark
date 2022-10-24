@@ -34,13 +34,11 @@
     (let emotes [
         "🥳" "😅" "😥" "👿" "🟢" "🙊"
         "💡" "💻" "🌟" "🔹" "🌐" "🤖"
-        "🖐" "🤔" "🤩" "🤠" "😊"
-    ])
+        "🖐" "🤔" "🤩" "🤠" "😊"])
     (mut i 0)
     (while (< i (len emotes)) {
         (set tests (assert-eq (len (@ emotes i)) 4 "checking emotes length" tests))
-        (set i (+ 1 i))
-    })
+        (set i (+ 1 i))})
 
     (set tests (assert-eq "\U0001f47f" "👿" "checking conversion pattern \\U and its emote" tests))
     (set tests (assert-eq "\U0001F47F" "👿" "checking conversion pattern \\U and its emote" tests))
@@ -55,7 +53,6 @@
 
     (recap "UTF8 tests passed" tests (- (time) start-time))
 
-    tests
-}))
+    tests }))
 
 (let passed-utf8 (utf8-tests))

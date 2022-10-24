@@ -6,10 +6,8 @@
     (while (< i (len lst)) {
         (if (cond (@ lst i))
             (append! output (@ lst i)))
-        (set i (+ 1 i))
-    })
-    output
-}))
+        (set i (+ 1 i))})
+    output }))
 
 # a quicksort function in ArkScript, a lot smaller than its C++ version!
 # and according to me, a lot simpler to understand
@@ -28,9 +26,7 @@
 
             (concat! less [pivot] more)
             # return a concatenation of arrays
-            less
-        })
-}))
+            less })}))
 
 # an unsorted list to sort
 (let a [3 6 1 5 1 65 324 765 1 6 3 0 6 9 6 5 3 2 5 6 7 64 645 7 345 432 432 4 324 23])
@@ -44,13 +40,11 @@
     (mut i 0)
     (while (< i rep) {
         (code)
-        (set i (+ 1 i))
-    })
+        (set i (+ 1 i))})
 
     (let t (/ (* 1000 (- (time) start)) rep))
     (print name " average: " t "ms")
-    t
-}))
+    t }))
 
 (print a)
 # use a quoted argument to defer evaluation and be able to call it multiple times in a fresh context

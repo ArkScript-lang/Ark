@@ -17,14 +17,12 @@
                     "hello world"
                     (+ "hello, " (toString (http:params:toList data))))
                 "text/plain"
-            ]
-        }))
+            ]}))
         # configure the route and the handler, we can also give a string instead of a function
         (http:server:get srv "/hi" f)
         (print "starting on localhost:80")
         # make the server listen forever on the port 80
-        (http:server:listen srv "localhost" 80)
-    }
+        (http:server:listen srv "localhost" 80)}
     # else, client
     {
         # we give the website and the port
@@ -35,8 +33,7 @@
         # if we got nil, then we couldn't reach the destination
         (if (nil? output)
             (print "couldn't reach the server")
-            (print output)
-        )
+            (print output))
 
         # we can create multiple clients at the same time
         (let cli2 (http:client:create "yahoo.com" 80))
@@ -52,6 +49,4 @@
         # it should work now
         (if (nil? output)
             (print "error")
-            (print (@ output 0))  # status: 200
-        )
-    })
+            (print (@ output 0)))}) # status: 200
