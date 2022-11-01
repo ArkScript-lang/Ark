@@ -1,38 +1,7 @@
 #!/usr/bin/env bash
 
-#########################################
-#             Unit tests
-#########################################
-
-file=arkscript
-
-if [ -f build/Release/${file}.exe ]; then
-    ark=./build/Release/${file}.exe
-elif [ -f build/${file} ]; then
-    ark=./build/${file}
-else
-    echo "No ark executable found" && exit 1
-fi
-
-$ark tests/arkscript/unittests.ark --lib lib/ || exit 1
-for file in lib/std/tests/*.ark; do
-    $ark $file --lib lib/
-done
-
-#########################################
-#          Integration tests
-#########################################
-
+(cd tests/arkscript ; echo ; bash ./run-tests)
 (cd tests/cpp/ ; echo ; bash ./run-tests)
-
-#########################################
-#              AST tests
-#########################################
-
+(cd tests/errors ; echo ; bash ./run-tests)
 (cd tests/ast/ ; echo ; bash ./run-tests)
-
-#########################################
-#             Module tests
-#########################################
-
-(echo ; source ./lib/modules/.github/run-tests)
+(source ./lib/modules/.github/run-tests)
