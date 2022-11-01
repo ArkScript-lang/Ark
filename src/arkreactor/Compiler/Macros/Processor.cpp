@@ -98,7 +98,7 @@ namespace Ark::internal
             }
         }
         // !{if cond then else}
-        else if (std::size_t sz = node.constList().size(); sz == 3 || sz == 4)
+        else if (std::size_t size = node.constList().size(); size == 3 || size == 4)
         {
             if (first_node.nodeType() == NodeType::Keyword && first_node.keyword() == Keyword::If)
             {
@@ -117,6 +117,7 @@ namespace Ark::internal
         if (node.nodeType() == NodeType::List && node.constList().size() > 0 && node.constList()[0].nodeType() == NodeType::Keyword)
         {
             Keyword kw = node.constList()[0].keyword();
+            // checking for function definition, which can occur only inside an assignment node
             if (kw != Keyword::Let && kw != Keyword::Mut && kw != Keyword::Set)
                 return;
 
@@ -124,7 +125,7 @@ namespace Ark::internal
             if (inner.nodeType() != NodeType::List)
                 return;
 
-            if (inner.constList()[0].nodeType() == NodeType::Keyword && inner.constList()[0].keyword() == Keyword::Fun)
+            if (inner.constList().size() > 0 && inner.constList()[0].nodeType() == NodeType::Keyword && inner.constList()[0].keyword() == Keyword::Fun)
                 m_defined_functions[node.constList()[1].string()] = inner.constList()[1];
         }
     }
@@ -350,19 +351,23 @@ namespace Ark::internal
 
                 if (sublist.nodeType() == NodeType::List && idx.nodeType() == NodeType::Number)
                 {
+                    long size = static_cast<long>(sublist.list().size());
+                    long real_size = size;
                     long num_idx = static_cast<long>(idx.number());
-                    long sz = static_cast<long>(sublist.list().size());
-                    long offset = 0;
-                    if (sz > 0 && sublist.list()[0] == Node::getListNode())
-                    {
-                        num_idx = (num_idx >= 0) ? num_idx + 1 : num_idx;
-                        offset = -1;
-                    }
 
-                    if (num_idx < 0 && sz + num_idx >= 0 && -num_idx < sz)
-                        return sublist.list()[sz + num_idx];
-                    else if (num_idx >= 0 && num_idx + offset < sz)
+                    // if the first node is the function call to "list", don't count it
+                    if (size > 0 && sublist.list()[0] == Node::getListNode())
+                    {
+                        real_size--;
+                        if (num_idx >= 0)
+                            ++num_idx;
+                    }
+                    num_idx = num_idx >= 0 ? num_idx : size + num_idx;
+
+                    if (num_idx < size)
                         return sublist.list()[num_idx];
+                    else
+                        throwMacroProcessingError("Index (" + std::to_string(static_cast<long>(idx.number())) + ") out of range (list size: " + std::to_string(real_size) + ")", node);
                 }
             }
             else if (name == "head")

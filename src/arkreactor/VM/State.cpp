@@ -251,8 +251,10 @@ namespace Ark
         // checking integrity
         for (std::size_t j = 0; j < picosha2::k_digest_size; ++j)
         {
+#ifndef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
             if (hash[j] != m_bytecode[i])
                 throwStateError("Integrity check failed");
+#endif
             ++i;
         }
 

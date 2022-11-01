@@ -1,0 +1,1 @@
+(let arg(if(>=(len sys:args)1)(toNumber(@ sys:args 0))nil))(let i(if(nil? arg)100 arg))(mut n i)(while(> n 1){(print(str:format"%%0000000000000%%000000000000000000000000000000000000000000000"n n))(set n(- n 1))(print(str:format"%%00000000000000000000000000000"n))})
