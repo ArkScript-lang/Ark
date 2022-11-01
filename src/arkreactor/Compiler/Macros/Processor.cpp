@@ -117,6 +117,7 @@ namespace Ark::internal
         if (node.nodeType() == NodeType::List && node.constList().size() > 0 && node.constList()[0].nodeType() == NodeType::Keyword)
         {
             Keyword kw = node.constList()[0].keyword();
+            // checking for function definition, which can occur only inside an assignment node
             if (kw != Keyword::Let && kw != Keyword::Mut && kw != Keyword::Set)
                 return;
 
@@ -124,7 +125,7 @@ namespace Ark::internal
             if (inner.nodeType() != NodeType::List)
                 return;
 
-            if (inner.constList()[0].nodeType() == NodeType::Keyword && inner.constList()[0].keyword() == Keyword::Fun)
+            if (inner.constList().size() > 0 && inner.constList()[0].nodeType() == NodeType::Keyword && inner.constList()[0].keyword() == Keyword::Fun)
                 m_defined_functions[node.constList()[1].string()] = inner.constList()[1];
         }
     }
