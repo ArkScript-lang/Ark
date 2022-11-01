@@ -475,8 +475,10 @@ namespace Ark
 
                         if (!context.saved_scope)
                             context.saved_scope = std::make_shared<Scope>();
-                        // if it's a captured variable, it can not be nullptr
+
                         Value* ptr = (*context.locals.back())[id];
+                        if (!ptr)
+                            throwVMError("Couldn't capture '" + m_state.m_symbols[id] + "' as it is currently unbound");
                         ptr = ptr->valueType() == ValueType::Reference ? ptr->reference() : ptr;
                         (*context.saved_scope.value()).push_back(id, *ptr);
 
@@ -1058,9 +1060,19 @@ namespace Ark
                         long idx = static_cast<long>(b->number());
 
                         if (a.valueType() == ValueType::List)
-                            push(a.list()[idx < 0 ? a.list().size() + idx : idx], context);
+                        {
+                            if (static_cast<std::size_t>(std::abs(idx)) < a.list().size())
+                                push(a.list()[idx < 0 ? a.list().size() + idx : idx], context);
+                            else
+                                throwVMError("Index (" + std::to_string(idx) + ") out of range (list size: " + std::to_string(a.list().size()) + ")");
+                        }
                         else if (a.valueType() == ValueType::String)
-                            push(Value(std::string(1, a.string()[idx < 0 ? a.string().size() + idx : idx])), context);
+                        {
+                            if (static_cast<std::size_t>(std::abs(idx)) < a.string().size())
+                                push(Value(std::string(1, a.string()[idx < 0 ? a.string().size() + idx : idx])), context);
+                            else
+                                throwVMError("Index (" + std::to_string(idx) + ") out of range (string size: " + std::to_string(a.string().size()) + ")");
+                        }
                         else
                             types::generateError(
                                 "@",
@@ -1163,6 +1175,10 @@ namespace Ark
             std::printf("Unknown error\n");
             backtrace(context);
             m_exit_code = 1;
+
+#ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
+            throw;
+#endif
         }
 
         if (m_state.m_debug_level > 0)

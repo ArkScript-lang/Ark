@@ -2,12 +2,19 @@
 
 ## [Unreleased version]
 ### Added
-
+- added fuzzing tools and corpus for [AFL](https://github.com/AFLplusplus/AFLplusplus)
+- added some tests for errors
 
 ### Changed
 - plugins can be constructed from outside ArkScript lib/modules folder, easing the development process
 - plugins loading now works as intended: look alongside the given file/bytecode file, then in the std lib folder
 - new way to create modules, easier to use
+- calling a non-callable anonymous object do not result in a segfault
+- macro processor function registering now handles empty nodes
+- added a fix to avoid crashes when capturing unbound variables
+- checking if the given operator takes one or more arguments at compile time
+- adding bound checking on operator @
+- adding bound checking on operator @ when used in macros
 
 ### Removed
 
