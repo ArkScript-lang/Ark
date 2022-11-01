@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+file=arkscript
+
+if [ -f ../../build/Release/${file}.exe ]; then
+    ark=../../build/Release/${file}.exe
+elif [ -f ../../build/${file} ]; then
+    ark=../../build/${file}
+else
+    echo "No $file executable found" && exit 1
+fi
+
+$ark unittests.ark --lib ../../lib/ || exit 1
+for file in ../../lib/std/tests/*.ark; do
+    $ark $file --lib ../../lib/
+done

@@ -3,6 +3,7 @@
 ## [Unreleased version]
 ### Added
 - added fuzzing tools and corpus for [AFL](https://github.com/AFLplusplus/AFLplusplus)
+- added some tests for errors
 
 ### Changed
 - plugins can be constructed from outside ArkScript lib/modules folder, easing the development process
