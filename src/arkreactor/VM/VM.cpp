@@ -1060,9 +1060,19 @@ namespace Ark
                         long idx = static_cast<long>(b->number());
 
                         if (a.valueType() == ValueType::List)
-                            push(a.list()[idx < 0 ? a.list().size() + idx : idx], context);
+                        {
+                            if (static_cast<std::size_t>(std::abs(idx)) < a.list().size())
+                                push(a.list()[idx < 0 ? a.list().size() + idx : idx], context);
+                            else
+                                throwVMError("Index (" + std::to_string(idx) + ") out of range (list size: " + std::to_string(a.list().size()) + ")");
+                        }
                         else if (a.valueType() == ValueType::String)
-                            push(Value(std::string(1, a.string()[idx < 0 ? a.string().size() + idx : idx])), context);
+                        {
+                            if (static_cast<std::size_t>(std::abs(idx)) < a.string().size())
+                                push(Value(std::string(1, a.string()[idx < 0 ? a.string().size() + idx : idx])), context);
+                            else
+                                throwVMError("Index (" + std::to_string(idx) + ") out of range (string size: " + std::to_string(a.string().size()) + ")");
+                        }
                         else
                             types::generateError(
                                 "@",
