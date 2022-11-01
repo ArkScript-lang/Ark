@@ -13,6 +13,7 @@
 - added a fix to avoid crashes when capturing unbound variables
 - checking if the given operator takes one or more arguments at compile time
 - adding bound checking on operator @
+- adding bound checking on operator @ when used in macros
 
 ### Removed
 
