@@ -475,8 +475,10 @@ namespace Ark
 
                         if (!context.saved_scope)
                             context.saved_scope = std::make_shared<Scope>();
-                        // if it's a captured variable, it can not be nullptr
+
                         Value* ptr = (*context.locals.back())[id];
+                        if (!ptr)
+                            throwVMError("Couldn't capture '" + m_state.m_symbols[id] + "' as it is currently unbound");
                         ptr = ptr->valueType() == ValueType::Reference ? ptr->reference() : ptr;
                         (*context.saved_scope.value()).push_back(id, *ptr);
 
