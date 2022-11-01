@@ -10,6 +10,7 @@
 - new way to create modules, easier to use
 - calling a non-callable anonymous object do not result in a segfault
 - macro processor function registering now handles empty nodes
+- added a fix to avoid crashes when capturing unbound variables
 
 ### Removed
 
