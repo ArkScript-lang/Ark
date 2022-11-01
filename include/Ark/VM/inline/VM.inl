@@ -370,7 +370,12 @@ inline void VM::call(internal::ExecutionContext& context, int16_t argc_)
         }
 
         default:
-            throwVMError("Can't call '" + m_state.m_symbols[context.last_symbol] + "': it isn't a Function but a " + types_to_str[static_cast<std::size_t>(function.valueType())]);
+        {
+            if (m_state.m_symbols.size() > 0)
+                throwVMError("Can't call '" + m_state.m_symbols[context.last_symbol] + "': it isn't a Function but a " + types_to_str[static_cast<std::size_t>(function.valueType())]);
+            else
+                throwVMError("A " + types_to_str[static_cast<std::size_t>(function.valueType())] + " isn't a callable");
+        }
     }
 
     // checking function arity
