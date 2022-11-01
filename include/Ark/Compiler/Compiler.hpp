@@ -185,6 +185,15 @@ namespace Ark
         }
 
         /**
+         * @brief Check if a given instruction is unary (takes only one argument)
+         * 
+         * @param inst 
+         * @return true the instruction is unary
+         * @return false 
+         */
+        bool isUnaryInst(internal::Instruction inst) noexcept;
+
+        /**
          * @brief Compute specific instruction argument count
          * 
          * @param inst 

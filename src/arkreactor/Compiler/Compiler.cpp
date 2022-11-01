@@ -208,6 +208,27 @@ namespace Ark
         return std::nullopt;
     }
 
+    bool Compiler::isUnaryInst(Instruction inst) noexcept
+    {
+        switch (inst)
+        {
+            case Instruction::NOT: [[fallthrough]];
+            case Instruction::LEN: [[fallthrough]];
+            case Instruction::EMPTY: [[fallthrough]];
+            case Instruction::TAIL: [[fallthrough]];
+            case Instruction::HEAD: [[fallthrough]];
+            case Instruction::ISNIL: [[fallthrough]];
+            case Instruction::TO_NUM: [[fallthrough]];
+            case Instruction::TO_STR: [[fallthrough]];
+            case Instruction::TYPE: [[fallthrough]];
+            case Instruction::HASFIELD:
+                return true;
+
+            default:
+                return false;
+        }
+    }
+
     void Compiler::pushSpecificInstArgc(Instruction inst, uint16_t previous, int p) noexcept
     {
         if (inst == Instruction::LIST)
@@ -653,7 +674,12 @@ namespace Ark
             }
 
             if (exp_count == 1)
-                page(p).push_back(op_inst);
+            {
+                if (isUnaryInst(static_cast<Instruction>(op_inst)))
+                    page(p).push_back(op_inst);
+                else
+                    throwCompilerError("Operator needs two arguments, but was called with only one", x.constList()[0]);
+            }
 
             // need to check we didn't push the (op A B C D...) things for operators not supporting it
             if (exp_count > 2)
