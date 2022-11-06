@@ -307,10 +307,10 @@ namespace Ark
                         os << termcolor::cyan << j << " ";
                         // padding inst arg arg
                         os << termcolor::reset << std::hex
-                            << std::setw(2) << std::setfill('0') << static_cast<int>(padding) << " "
-                            << std::setw(2) << std::setfill('0') << static_cast<int>(inst) << " "
-                            << std::setw(2) << std::setfill('0') << static_cast<int>(b[i - 2]) << " "
-                            << std::setw(2) << std::setfill('0') << static_cast<int>(b[i - 1]) << " ";
+                           << std::setw(2) << std::setfill('0') << static_cast<int>(padding) << " "
+                           << std::setw(2) << std::setfill('0') << static_cast<int>(inst) << " "
+                           << std::setw(2) << std::setfill('0') << static_cast<int>(b[i - 2]) << " "
+                           << std::setw(2) << std::setfill('0') << static_cast<int>(b[i - 1]) << " ";
                         // reset stream
                         os << std::dec << termcolor::yellow;
 
