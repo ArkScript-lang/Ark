@@ -563,7 +563,7 @@ namespace Ark
     void Compiler::handleCalls(const Node& x, int p, bool is_result_unused, bool is_terminal, const std::string& var_name)
     {
         m_temp_pages.emplace_back();
-        int proc_page = - static_cast<int>(m_temp_pages.size());
+        int proc_page = -static_cast<int>(m_temp_pages.size());
         compileExpression(x.constList()[0], proc_page, false, false);  // storing proc
 
         // trying to handle chained closure.field.field.field...
