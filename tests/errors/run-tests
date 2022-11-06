@@ -23,7 +23,7 @@ White='\033[0;37m'
 passed=0
 failed=0
 
-for f in ./*.ark; do
+for f in ./**/*.ark; do
     output=$($ark $f --lib ../../lib 2>&1)
     expected=$(cat ${f%.*}.expected)
 
