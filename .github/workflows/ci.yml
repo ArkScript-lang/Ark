@@ -1,15 +1,13 @@
-name: "CMake"
+name: "Building and testing ArkScript"
 
 on:
   push:
     branches: [dev, master]
     paths-ignore:
-      - '.github/workflows/clang-format.yml'
       - '.github/workflows/docker.yml'
       - '.github/workflows/label.yml'
       - '.github/workflows/lizard.yml'
       - '.github/workflows/release.yml'
-      - '.github/workflows/repo-visualizer.yml'
       - '.vscode/*.*'
       - 'examples/*.ark'
       - 'images/*.*'
@@ -27,9 +25,45 @@ env:
   SQLITE_VERSION: 3390100  # 3.39.1
 
 jobs:
+  check:
+    name: Formatting check
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        path:
+          - 'src'
+          - 'include'
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Run clang-format check for C++
+        uses: HorstBaerbel/action-clang-format@master
+        with:
+          scandir: ${{ matrix.path }}
+          style: 'file'
+
+  repo_visualizer:
+    runs-on: ubuntu-latest
+    needs: []
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Update diagram
+      uses: githubocto/repo-visualizer@main
+      with:
+        excluded_paths: 'dist,node_modules,submodules'
+        should_push: false
+        output_file: 'diagram.svg'
+        artifact_name: 'diagram'
+
   build:
     runs-on: ${{ matrix.config.os }}
     name: ${{ matrix.config.name }}
+    needs: [check]
 
     strategy:
       fail-fast: false
@@ -87,7 +121,7 @@ jobs:
           }
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: recursive
 
@@ -192,13 +226,13 @@ jobs:
         cp -r tests/cpp temp/
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3.1.1
       with:
         name: ${{ matrix.config.artifact }}
         path: artifact
 
     - name: Upload temp artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3.1.1
       with:
         name: temp-${{ matrix.config.artifact }}
         path: temp
@@ -225,20 +259,20 @@ jobs:
           - { os: macos-latest,   name: "MacOS Clang 12",  artifact: "macos-clang-12", }
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: recursive
 
     - name: Download artifact
       id: download
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3.0.1
       with:
         name: ${{ matrix.config.artifact }}
         path: build
 
     - name: Download temp artifact
       id: download-artifact
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3.0.1
       with:
         name: temp-${{ matrix.config.artifact }}
         path: artifact
@@ -276,13 +310,13 @@ jobs:
     needs: [build]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: recursive
 
     - name: Download artifact
       id: download
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3.0.1
       with:
         name: "ubuntu-clang-11-valgrind"
         path: build
