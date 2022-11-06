@@ -206,6 +206,14 @@ namespace Ark
         bool mayBeFromPlugin(const std::string& name) noexcept;
 
         /**
+         * @brief Display a warning message
+         * 
+         * @param message 
+         * @param node 
+         */
+        void compilerWarning(const std::string& message, const internal::Node& node);
+
+        /**
          * @brief Throw a nice error message
          * 
          * @param message 

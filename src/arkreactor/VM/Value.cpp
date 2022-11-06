@@ -149,13 +149,13 @@ namespace Ark
         {
             case ValueType::Number:
             {
-                double d = V.number();
+                double d = number();
                 os << fmt::format("{}", d);
                 break;
             }
 
             case ValueType::String:
-                os << V.string();
+                os << string();
                 break;
 
             case ValueType::PageAddr:
