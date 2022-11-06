@@ -212,7 +212,7 @@ if (ARK_BUILD_EXE)
             CXX_STANDARD_REQUIRED ON
             CXX_EXTENSIONS OFF)
 
-    enable_ipo(arkscript)
+    enable_lto(arkscript)
 
     # Installs the arkscript executable.
     install(TARGETS arkscript

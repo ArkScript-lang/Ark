@@ -467,7 +467,7 @@ namespace Ark
 
                         Value* ptr = (*context.locals.back())[arg];
                         if (!ptr)
-                            throwVMError(ErrorKind::Scope, "Couldn't capture '" + m_state.m_symbols[id] + "' as it is currently unbound");
+                            throwVMError(ErrorKind::Scope, "Couldn't capture '" + m_state.m_symbols[arg] + "' as it is currently unbound");
                         ptr = ptr->valueType() == ValueType::Reference ? ptr->reference() : ptr;
                         (*context.saved_scope.value()).push_back(arg, *ptr);
 

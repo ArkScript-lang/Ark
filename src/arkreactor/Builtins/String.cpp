@@ -56,7 +56,7 @@ namespace Ark::internal::Builtins::String
             else
             {
                 std::stringstream ss;
-                ss << (*it);
+                it->toString(ss, *vm);
                 current = fmt::format(current, ss.str());
             }
 

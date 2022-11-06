@@ -7,6 +7,8 @@
 - new dependency: fmtlib
 
 ### Changed
+- instructions are on 4 bytes: 1 byte for the instruction, 1 byte of padding, 2 bytes for an immediate argument
+- enhanced the bytecode reader and its command line interface
 - added the padding/instruction/argumentation values when displaying instructions in the bytecode reader
 - fixed underline bug in the error context
 - the str:format functions now expects strings following this syntax: https://fmt.dev/latest/syntax.html
@@ -83,8 +85,6 @@
 - moved the frame counter of the VM to the ExecutionContext as this should be local to the context, not to the VM
 - changing the way we count received arguments in arity / type errors for failed function call
 - the CLI can now take a list of paths to the standard library, separated by ';'
-- instructions are on 4 bytes: 1 byte for the instruction, 1 byte of padding, 2 bytes for an immediate argument
-- enhanced the bytecode reader and its command line interface
 
 ## [3.2.0] - 2022-02-19
 ### Added
