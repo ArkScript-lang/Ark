@@ -36,7 +36,7 @@ jobs:
           - 'include'
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Run clang-format check for C++
         uses: HorstBaerbel/action-clang-format@master
@@ -50,7 +50,7 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@master
+      uses: actions/checkout@v3
 
     - name: Update diagram
       uses: githubocto/repo-visualizer@main
@@ -121,7 +121,7 @@ jobs:
           }
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: recursive
 
@@ -226,13 +226,13 @@ jobs:
         cp -r tests/cpp temp/
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3.1.1
       with:
         name: ${{ matrix.config.artifact }}
         path: artifact
 
     - name: Upload temp artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3.1.1
       with:
         name: temp-${{ matrix.config.artifact }}
         path: temp
@@ -259,20 +259,20 @@ jobs:
           - { os: macos-latest,   name: "MacOS Clang 12",  artifact: "macos-clang-12", }
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: recursive
 
     - name: Download artifact
       id: download
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3.0.1
       with:
         name: ${{ matrix.config.artifact }}
         path: build
 
     - name: Download temp artifact
       id: download-artifact
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3.0.1
       with:
         name: temp-${{ matrix.config.artifact }}
         path: artifact
@@ -310,13 +310,13 @@ jobs:
     needs: [build]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: recursive
 
     - name: Download artifact
       id: download
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3.0.1
       with:
         name: "ubuntu-clang-11-valgrind"
         path: build
