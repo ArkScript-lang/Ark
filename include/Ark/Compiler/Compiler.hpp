@@ -2,7 +2,7 @@
  * @file Compiler.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief ArkScript compiler is in charge of transforming the AST into bytecode
- * @version 0.3
+ * @version 1.0
  * @date 2020-10-27
  * 
  * @copyright Copyright (c) 2020-2021
@@ -19,6 +19,7 @@
 
 #include <Ark/Platform.hpp>
 #include <Ark/Compiler/Instructions.hpp>
+#include <Ark/Compiler/Word.hpp>
 #include <Ark/Compiler/AST/Node.hpp>
 #include <Ark/Compiler/AST/Parser.hpp>
 #include <Ark/Compiler/AST/Optimizer.hpp>
@@ -82,8 +83,8 @@ namespace Ark
         std::vector<std::string> m_defined_symbols;
         std::vector<std::string> m_plugins;
         std::vector<internal::ValTableElem> m_values;
-        std::vector<std::vector<uint8_t>> m_code_pages;
-        std::vector<std::vector<uint8_t>> m_temp_pages;  ///< we need temporary code pages for some compilations passes
+        std::vector<std::vector<internal::Word>> m_code_pages;
+        std::vector<std::vector<internal::Word>> m_temp_pages;  ///< we need temporary code pages for some compilations passes
 
         bytecode_t m_bytecode;
         unsigned m_debug;  ///< the debug level of the compiler
@@ -104,9 +105,9 @@ namespace Ark
          * @brief helper functions to get a temp or finalized code page
          * 
          * @param i page index, if negative, refers to a temporary code page
-         * @return std::vector<uint8_t>& 
+         * @return std::vector<internal::Word>& 
          */
-        inline std::vector<uint8_t>& page(int i) noexcept
+        inline std::vector<internal::Word>& page(int i) noexcept
         {
             if (i >= 0)
                 return m_code_pages[i];
@@ -117,19 +118,13 @@ namespace Ark
          * @brief helper functions to get a temp or finalized code page
          * 
          * @param i page index, if negative, refers to a temporary code page
-         * @return std::vector<uint8_t>* 
+         * @return std::vector<internal::Word>* 
          */
-        inline std::vector<uint8_t>* page_ptr(int i) noexcept
+        inline std::vector<internal::Word>* page_ptr(int i) noexcept
         {
             if (i >= 0)
                 return &m_code_pages[i];
             return &m_temp_pages[-i - 1];
-        }
-
-        inline void setNumberAt(int p, std::size_t at_inst, std::size_t number)
-        {
-            page(p)[at_inst] = (number & 0xff00) >> 8;
-            page(p)[at_inst + 1] = number & 0x00ff;
         }
 
         /**
@@ -198,9 +193,8 @@ namespace Ark
          * 
          * @param inst 
          * @param previous 
-         * @param p 
          */
-        void pushSpecificInstArgc(internal::Instruction inst, uint16_t previous, int p) noexcept;
+        uint16_t computeSpecificInstArgc(internal::Instruction inst, uint16_t previous) noexcept;
 
         /**
          * @brief Checking if a symbol may be coming from a plugin
@@ -298,14 +292,6 @@ namespace Ark
          * 
          */
         void checkForUndefinedSymbol();
-
-        /**
-         * @brief Push a number on stack (need 2 bytes)
-         * 
-         * @param n the number to push
-         * @param page the page where it should land, nullptr for current page
-         */
-        void pushNumber(uint16_t n, std::vector<uint8_t>* page = nullptr) noexcept;
 
         /**
          * @brief Suggest a symbol of what the user may have meant to input
