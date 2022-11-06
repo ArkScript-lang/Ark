@@ -250,7 +250,7 @@ namespace Ark
         }
     }
 
-    void Compiler::pushSpecificInstArgc(Instruction inst, uint16_t previous, int p) noexcept
+    uint16_t Compiler::computeSpecificInstArgc(Instruction inst, uint16_t previous) noexcept
     {
         switch (inst)
         {
@@ -276,6 +276,12 @@ namespace Ark
                                    return std::filesystem::path(plugin).stem().string() == splitted;
                                });
         return it != m_plugins.end();
+    }
+
+    void Compiler::compilerWarning(const std::string& message, const Node& node)
+    {
+        if (m_options & FeatureShowWarnings)
+            std::cout << termcolor::yellow << "Warning " << termcolor::reset << makeNodeBasedErrorCtx(message, node) << "\n";
     }
 
     void Compiler::throwCompilerError(const std::string& message, const Node& node)
@@ -387,7 +393,10 @@ namespace Ark
             page(p).emplace_back(Instruction::LOAD_SYMBOL, addSymbol(x));  // using the variable
 
         if (is_result_unused)
+        {
+            compilerWarning("Statement has no effect", x);
             page(p).push_back(Instruction::POP);
+        }
     }
 
     void Compiler::compileSpecific(const Node& c0, const Node& x, int p, bool is_result_unused)
@@ -420,8 +429,11 @@ namespace Ark
         // put inst and number of arguments
         page(p).emplace_back(inst, computeSpecificInstArgc(inst, argc));
 
-        if (is_result_unused && name != "pop!")  // pop! never pushes a value
+        if (is_result_unused && name.back() != '!')  // in-place functions never push a value
+        {
+            compilerWarning("Ignoring return value of function", x);
             page(p).push_back(Instruction::POP);
+        }
     }
 
     void Compiler::compileIf(const Node& x, int p, bool is_result_unused, bool is_terminal, const std::string& var_name)
@@ -492,7 +504,10 @@ namespace Ark
 
         // if the computed function is unused, pop it
         if (is_result_unused)
+        {
+            compilerWarning("Unused declared function", x);
             page(p).push_back(Instruction::POP);
+        }
     }
 
     void Compiler::compileLetMutSet(Keyword n, const Node& x, int p)
@@ -547,7 +562,10 @@ namespace Ark
         page(p).emplace_back(Instruction::LOAD_CONST, id);
 
         if (is_result_unused)
+        {
+            compilerWarning("Unused quote expression", x);
             page(p).push_back(Instruction::POP);
+        }
     }
 
     void Compiler::compilePluginImport(const Node& x, int p)
@@ -647,8 +665,8 @@ namespace Ark
 
             if (exp_count == 1)
             {
-                if (isUnaryInst(static_cast<Instruction>(op_inst)))
-                    page(p).push_back(op_inst);
+                if (isUnaryInst(static_cast<Instruction>(op.opcode)))
+                    page(p).push_back(op.opcode);
                 else
                     throwCompilerError("Operator needs two arguments, but was called with only one", x.constList()[0]);
             }

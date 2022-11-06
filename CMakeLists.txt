@@ -202,7 +202,7 @@ if (ARK_BUILD_EXE)
 
     target_compile_features(arkscript PRIVATE cxx_std_17)
 
-    enable_ipo(arkscript)
+    enable_lto(arkscript)
 
     # Installs the arkscript executable.
     install(TARGETS arkscript
