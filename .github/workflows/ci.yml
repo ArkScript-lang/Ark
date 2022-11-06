@@ -1,15 +1,13 @@
-name: "CMake"
+name: "Building and testing ArkScript"
 
 on:
   push:
     branches: [dev, master]
     paths-ignore:
-      - '.github/workflows/clang-format.yml'
       - '.github/workflows/docker.yml'
       - '.github/workflows/label.yml'
       - '.github/workflows/lizard.yml'
       - '.github/workflows/release.yml'
-      - '.github/workflows/repo-visualizer.yml'
       - '.vscode/*.*'
       - 'examples/*.ark'
       - 'images/*.*'
@@ -27,9 +25,45 @@ env:
   SQLITE_VERSION: 3390100  # 3.39.1
 
 jobs:
+  check:
+    name: Formatting check
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        path:
+          - 'src'
+          - 'include'
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Run clang-format check for C++
+        uses: HorstBaerbel/action-clang-format@master
+        with:
+          scandir: ${{ matrix.path }}
+          style: 'file'
+
+  repo_visualizer:
+    runs-on: ubuntu-latest
+    needs: []
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@master
+
+    - name: Update diagram
+      uses: githubocto/repo-visualizer@main
+      with:
+        excluded_paths: 'dist,node_modules,submodules'
+        should_push: false
+        output_file: 'diagram.svg'
+        artifact_name: 'diagram'
+
   build:
     runs-on: ${{ matrix.config.os }}
     name: ${{ matrix.config.name }}
+    needs: [check]
 
     strategy:
       fail-fast: false
