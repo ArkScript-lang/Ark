@@ -15,6 +15,7 @@
 - checking if the given operator takes one or more arguments at compile time
 - adding bound checking on operator @
 - adding bound checking on operator @ when used in macros
+- better arity check for macros
 
 ### Removed
 
