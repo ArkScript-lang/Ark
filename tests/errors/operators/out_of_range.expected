@@ -1,1 +1,1 @@
-Index (0) out of range (list size: 0)
+IndexError: Index (0) out of range (list size: 0)

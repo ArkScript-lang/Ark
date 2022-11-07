@@ -1,1 +1,1 @@
-Couldn't capture 'd' as it is currently unbound
+ScopeError: Couldn't capture 'd' as it is currently unbound
