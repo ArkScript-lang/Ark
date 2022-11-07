@@ -13,16 +13,18 @@ namespace Ark::internal
         Mutability,
         Scope,
         Type,
-        Index
+        Index,
+        Arity,
     };
 
-    constexpr std::array<std::string_view, 6> errorKinds = {
+    constexpr std::array<std::string_view, 7> errorKinds = {
         "VMError",
         "ModuleError",
         "MutabilityError",
         "ScopeError",
         "TypeError",
-        "IndexError"
+        "IndexError",
+        "ArityError"
     };
 }
 

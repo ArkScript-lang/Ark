@@ -146,7 +146,7 @@ namespace Ark
             throwVMError(
                 ErrorKind::Module,
                 "An error occurred while loading module '" + file + "': " + std::string(e.what()) + "\n" +
-                "It is most likely because the versions of the module and the language don't match.");
+                    "It is most likely because the versions of the module and the language don't match.");
         }
 
         // load the mapping data
@@ -462,7 +462,10 @@ namespace Ark
                     {
                         // stack pointer + 2 because we push IP and PP
                         if (context.sp + 2 >= VMStackSize)
-                            throwVMError(ErrorKind::VM, "Maximum recursion depth exceeded");
+                            throwVMError(
+                                ErrorKind::VM,
+                                "Maximum recursion depth exceeded.\n"
+                                "You could consider rewriting your function to make use of tail-call optimization.");
                         call(context);
                         break;
                     }
@@ -1227,7 +1230,7 @@ namespace Ark
         std::size_t saved_pp = context.pp;
         uint16_t saved_sp = context.sp;
 
-        if (uint16_t original_frame_count = context.fc; original_frame_count> 1)
+        if (uint16_t original_frame_count = context.fc; original_frame_count > 1)
         {
             // display call stack trace
             Scope old_scope = *context.locals.back().get();
