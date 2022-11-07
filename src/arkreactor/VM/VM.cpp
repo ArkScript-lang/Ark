@@ -458,8 +458,13 @@ namespace Ark
                         break;
 
                     case Instruction::CALL:
+                    {
+                        // stack pointer + 2 because we push IP and PP
+                        if (context.sp + 2 >= VMStackSize)
+                            throwVMError("VMError: maximum recursion depth exceeded");
                         call(context);
                         break;
+                    }
 
                     case Instruction::CAPTURE:
                     {
@@ -1221,15 +1226,14 @@ namespace Ark
         std::size_t saved_pp = context.pp;
         uint16_t saved_sp = context.sp;
 
-        if (context.fc > 1)
+        if (uint16_t original_frame_count = context.fc; original_frame_count> 1)
         {
             // display call stack trace
-            uint16_t it = context.fc;
             Scope old_scope = *context.locals.back().get();
 
-            while (it != 0)
+            while (context.fc != 0)
             {
-                std::cerr << "[" << termcolor::cyan << it << termcolor::reset << "] ";
+                std::cerr << "[" << termcolor::cyan << context.fc << termcolor::reset << "] ";
                 if (context.pp != 0)
                 {
                     uint16_t id = findNearestVariableIdWithValue(
@@ -1250,7 +1254,6 @@ namespace Ark
                     context.ip = ip->pageAddr();
                     context.pp = pop(context)->pageAddr();
                     returnFromFuncCall(context);
-                    --it;
                 }
                 else
                 {
@@ -1258,7 +1261,7 @@ namespace Ark
                     break;
                 }
 
-                if (context.fc - it > 7)
+                if (original_frame_count - context.fc > 7)
                 {
                     std::printf("...\n");
                     break;
