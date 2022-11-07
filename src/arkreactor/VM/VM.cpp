@@ -130,7 +130,7 @@ namespace Ark
                 [](const std::string& a, const std::string& b) -> std::string {
                     return a + "\n\t- " + b;
                 });
-            throwVMError("Could not find module '" + file + "'. Searched in\n\t- " + path + "\n\t- " + lib_path);
+            throwVMError("ModuleError: Could not find module '" + file + "'. Searched in\n\t- " + path + "\n\t- " + lib_path);
         }
 
         m_shared_lib_objects.emplace_back(lib);
@@ -144,7 +144,7 @@ namespace Ark
         catch (const std::system_error& e)
         {
             throwVMError(
-                "An error occurred while loading module '" + file + "': " + std::string(e.what()) + "\n" +
+                "ModuleError: An error occurred while loading module '" + file + "': " + std::string(e.what()) + "\n" +
                 "It is most likely because the versions of the module and the language don't match.");
         }
 
@@ -290,7 +290,7 @@ namespace Ark
                             // push internal reference, shouldn't break anything so far
                             push(var, context);
                         else
-                            throwVMError("unbound variable: " + m_state.m_symbols[context.last_symbol]);
+                            throwVMError("ScopeError: unbound variable: " + m_state.m_symbols[context.last_symbol]);
 
                         break;
                     }
@@ -351,14 +351,14 @@ namespace Ark
                         if (Value* var = findNearestVariable(id, context); var != nullptr)
                         {
                             if (var->isConst())
-                                throwVMError("can not modify a constant: " + m_state.m_symbols[id]);
+                                throwVMError("MutabilityError: can not modify a constant: " + m_state.m_symbols[id]);
 
                             *var = *popAndResolveAsPtr(context);
                             var->setConst(false);
                             break;
                         }
 
-                        throwVMError("unbound variable " + m_state.m_symbols[id] + ", can not change its value");
+                        throwVMError("ScopeError: unbound variable " + m_state.m_symbols[id] + ", can not change its value");
                         break;
                     }
 
@@ -375,7 +375,7 @@ namespace Ark
 
                         // check if we are redefining a variable
                         if (auto val = (*context.locals.back())[id]; val != nullptr)
-                            throwVMError("can not use 'let' to redefine the variable " + m_state.m_symbols[id]);
+                            throwVMError("MutabilityError: can not use 'let' to redefine the variable " + m_state.m_symbols[id]);
 
                         Value val = *popAndResolveAsPtr(context);
                         val.setConst(true);
@@ -483,7 +483,7 @@ namespace Ark
 
                         Value* ptr = (*context.locals.back())[id];
                         if (!ptr)
-                            throwVMError("Couldn't capture '" + m_state.m_symbols[id] + "' as it is currently unbound");
+                            throwVMError("ScopeError: couldn't capture '" + m_state.m_symbols[id] + "' as it is currently unbound");
                         ptr = ptr->valueType() == ValueType::Reference ? ptr->reference() : ptr;
                         (*context.saved_scope.value()).push_back(id, *ptr);
 
@@ -546,7 +546,7 @@ namespace Ark
                             break;
                         }
 
-                        throwVMError("unbound variable: " + m_state.m_symbols[id]);
+                        throwVMError("ScopeError: unbound variable: " + m_state.m_symbols[id]);
                         break;
                     }
 
@@ -573,7 +573,7 @@ namespace Ark
 
                         Value* var = popAndResolveAsPtr(context);
                         if (var->valueType() != ValueType::Closure)
-                            throwVMError("the variable `" + m_state.m_symbols[context.last_symbol] + "' isn't a closure, can not get the field `" + m_state.m_symbols[id] + "' from it");
+                            throwVMError("TypeError: the variable `" + m_state.m_symbols[context.last_symbol] + "' isn't a closure, can not get the field `" + m_state.m_symbols[id] + "' from it");
 
                         if (Value* field = (*var->refClosure().scope())[id]; field != nullptr)
                         {
@@ -588,7 +588,7 @@ namespace Ark
                             break;
                         }
 
-                        throwVMError("couldn't find the variable " + m_state.m_symbols[id] + " in the closure enviroment");
+                        throwVMError("ScopeError: couldn't find the variable " + m_state.m_symbols[id] + " in the closure enviroment");
                         break;
                     }
 
@@ -688,7 +688,7 @@ namespace Ark
                         Value* list = popAndResolveAsPtr(context);
 
                         if (list->isConst())
-                            throwVMError("can not modify a constant list using `append!'");
+                            throwVMError("MutabilityError: can not modify a constant list using `append!'");
                         if (list->valueType() != ValueType::List)
                             types::generateError(
                                 "append!",
@@ -709,7 +709,7 @@ namespace Ark
                         Value* list = popAndResolveAsPtr(context);
 
                         if (list->isConst())
-                            throwVMError("can not modify a constant list using `concat!'");
+                            throwVMError("MutabilityError: can not modify a constant list using `concat!'");
                         if (list->valueType() != ValueType::List)
                             types::generateError(
                                 "concat",
@@ -760,7 +760,7 @@ namespace Ark
                         Value number = *popAndResolveAsPtr(context);
 
                         if (list->isConst())
-                            throwVMError("can not modify a constant list using `pop!'");
+                            throwVMError("MutabilityError: can not modify a constant list using `pop!'");
                         if (list->valueType() != ValueType::List || number.valueType() != ValueType::Number)
                             types::generateError(
                                 "pop!",
@@ -1069,14 +1069,14 @@ namespace Ark
                             if (static_cast<std::size_t>(std::abs(idx)) < a.list().size())
                                 push(a.list()[idx < 0 ? a.list().size() + idx : idx], context);
                             else
-                                throwVMError("Index (" + std::to_string(idx) + ") out of range (list size: " + std::to_string(a.list().size()) + ")");
+                                throwVMError("IndexError: index (" + std::to_string(idx) + ") out of range (list size: " + std::to_string(a.list().size()) + ")");
                         }
                         else if (a.valueType() == ValueType::String)
                         {
                             if (static_cast<std::size_t>(std::abs(idx)) < a.string().size())
                                 push(Value(std::string(1, a.string()[idx < 0 ? a.string().size() + idx : idx])), context);
                             else
-                                throwVMError("Index (" + std::to_string(idx) + ") out of range (string size: " + std::to_string(a.string().size()) + ")");
+                                throwVMError("IndexError: index (" + std::to_string(idx) + ") out of range (string size: " + std::to_string(a.string().size()) + ")");
                         }
                         else
                             types::generateError(
@@ -1157,7 +1157,7 @@ namespace Ark
 #pragma endregion
 
                     default:
-                        throwVMError("unknown instruction: " + std::to_string(static_cast<std::size_t>(inst)));
+                        throwVMError("VMError: unknown instruction: " + std::to_string(static_cast<std::size_t>(inst)));
                         break;
                 }
 
@@ -1217,7 +1217,7 @@ namespace Ark
 
     void VM::throwVMError(const std::string& message)
     {
-        throw std::runtime_error(message);
+        throw std::runtime_error(message + "\n");
     }
 
     void VM::backtrace(ExecutionContext& context) noexcept
