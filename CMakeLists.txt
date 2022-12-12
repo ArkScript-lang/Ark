@@ -30,12 +30,7 @@ file(GLOB_RECURSE SOURCE_FILES
 
 add_library(ArkReactor SHARED ${SOURCE_FILES})
 
-set_target_properties(
-    ArkReactor
-    PROPERTIES
-        CXX_STANDARD 17
-        CXX_STANDARD_REQUIRED ON
-        CXX_EXTENSIONS OFF)
+target_compile_features(ArkReactor PRIVATE cxx_std_17)
 
 enable_lto(ArkReactor)
 
@@ -209,18 +204,8 @@ if (ARK_BUILD_EXE)
     target_link_libraries(arkscript PUBLIC ArkReactor replxx clipp termcolor)
     target_link_libraries(ark PUBLIC ArkReactor replxx clipp termcolor)
 
-    set_target_properties(
-        arkscript
-        PROPERTIES
-            CXX_STANDARD 17
-            CXX_STANDARD_REQUIRED ON
-            CXX_EXTENSIONS OFF)
-    set_target_properties(
-        ark
-        PROPERTIES
-            CXX_STANDARD 17
-            CXX_STANDARD_REQUIRED ON
-            CXX_EXTENSIONS OFF)
+    target_compile_features(arkscript PRIVATE cxx_std_17)
+    target_compile_features(ark PRIVATE cxx_std_17)
 
     enable_lto(ark)
     enable_lto(arkscript)
