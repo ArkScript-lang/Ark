@@ -11,7 +11,7 @@ namespace Ark::Utils
         do
         {
             d *= 10;
-            temp = d - static_cast<int>(d);
+            temp = d - static_cast<long>(d);
             decimal_places++;
         } while (temp > precision && decimal_places < std::numeric_limits<double>::digits10);
 
