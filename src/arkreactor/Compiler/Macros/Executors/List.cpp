@@ -11,7 +11,7 @@ namespace Ark::internal
     bool ListExecutor::applyMacro(Node& node)
     {
         Node& first = node.list()[0];
-        Node* macro = findNearestMacro(first.string());
+        const Node* macro = findNearestMacro(first.string());
 
         if (macro != nullptr)
         {

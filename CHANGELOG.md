@@ -17,6 +17,7 @@
 - adding bound checking on operator @
 - adding bound checking on operator @ when used in macros
 - better arity check for macros
+- fixed a bug in the macro processor where macros were deleted when they shouldn't
 
 ### Removed
 
