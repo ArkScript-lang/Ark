@@ -25,7 +25,7 @@ namespace Ark::internal
                 std::size_t args_needed = args.list().size();
                 std::size_t args_given = node.constList().size() - 1;  // remove the first (the name of the macro)
                 std::string macro_name = macro->constList()[0].string();
-                bool has_spread = args.list().back().nodeType() == NodeType::Spread;
+                bool has_spread = args_needed > 0 && args.list().back().nodeType() == NodeType::Spread;
 
                 // bind node->list() to temp_body using macro->constList()[1]
                 std::unordered_map<std::string, Node> args_applied;
