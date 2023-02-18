@@ -13,6 +13,7 @@
 #define COMPILER_MACROS_PROCESSOR_HPP
 
 #include <Ark/Compiler/AST/Node.hpp>
+#include <Ark/Compiler/Macros/MacroScope.hpp>
 #include <Ark/Compiler/Macros/Executor.hpp>
 #include <Ark/Compiler/Macros/Pipeline.hpp>
 
@@ -56,8 +57,8 @@ namespace Ark::internal
     private:
         unsigned m_debug;  ///< The debug level
         uint16_t m_options;
-        Node m_ast;                                                   ///< The modified AST
-        std::vector<std::unordered_map<std::string, Node>> m_macros;  ///< Handling macros in a scope fashion
+        Node m_ast;                        ///< The modified AST
+        std::vector<MacroScope> m_macros;  ///< Handling macros in a scope fashion
         MacroExecutorPipeline m_executor_pipeline;
         std::vector<std::string> m_predefined_macros;  ///< Already existing macros, non-keywords, non-builtins
         std::unordered_map<std::string, Node> m_defined_functions;
@@ -66,9 +67,9 @@ namespace Ark::internal
          * @brief Find the nearest macro matching a given name
          * 
          * @param name 
-         * @return Node* nullptr if no macro was found
+         * @return const Node* nullptr if no macro was found
          */
-        Node* findNearestMacro(const std::string& name);
+        const Node* findNearestMacro(const std::string& name) const;
 
         /**
          * @brief Find the nearest macro matching a given name and delete it

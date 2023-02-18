@@ -68,9 +68,9 @@ namespace Ark::internal
          * @details Proxy function for MacroProcessor::findNearestMacro
          * 
          * @param name 
-         * @return Node* nullptr if no macro was found
+         * @return const Node* nullptr if no macro was found
          */
-        Node* findNearestMacro(const std::string& name);
+        const Node* findNearestMacro(const std::string& name) const;
 
         /**
          * @brief Registers macros based on their type

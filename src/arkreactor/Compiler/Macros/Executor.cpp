@@ -12,7 +12,7 @@ namespace Ark::internal
     MacroExecutor::~MacroExecutor()
     {}
 
-    Node* MacroExecutor::findNearestMacro(const std::string& name)
+    const Node* MacroExecutor::findNearestMacro(const std::string& name) const
     {
         return m_macroprocessor->findNearestMacro(name);
     }
