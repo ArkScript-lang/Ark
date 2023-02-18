@@ -18,6 +18,7 @@
 - adding bound checking on operator @ when used in macros
 - better arity check for macros
 - fixed a bug in the macro processor where macros were deleted when they shouldn't
+- fixed a bug where macro functions with no argument would crash the macro processor
 
 ### Removed
 

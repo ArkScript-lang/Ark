@@ -4,6 +4,9 @@
     (mut tests 0)
     (let start-time (time))
 
+    !{void () nil}
+    (set tests (assert-eq (void) nil "macro void with no arguments" tests))
+
     !{add_two (a b) (+ a b)}
     !{nice_value 12}
 
