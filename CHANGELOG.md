@@ -23,7 +23,7 @@
 - `Utils::digPlaces` and `Utils::decPlaces` got removed as they were no longer needed
 - removed deprecated code (`list:removeAt`, `ark` executable now replaced by `arkscript`)
 
-## [Unreleased version]
+## [3.5.0] - 2022-02-19
 ### Added
 - added fuzzing tools and corpus for [AFL](https://github.com/AFLplusplus/AFLplusplus)
 - added some tests for errors
