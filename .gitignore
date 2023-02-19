@@ -25,6 +25,7 @@ afl/
 # Folders
 .vs/
 .idea/
+.cache/
 build/
 ninja/
 
