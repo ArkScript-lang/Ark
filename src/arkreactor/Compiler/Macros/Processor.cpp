@@ -7,7 +7,7 @@
 #include <Ark/Compiler/AST/makeErrorCtx.hpp>
 #include <Ark/Builtins/Builtins.hpp>
 #include <Ark/Compiler/Macros/Executors/Symbol.hpp>
-#include <Ark/Compiler/Macros/Executors/List.hpp>
+#include <Ark/Compiler/Macros/Executors/Function.hpp>
 #include <Ark/Compiler/Macros/Executors/Conditional.hpp>
 
 namespace Ark::internal
@@ -19,7 +19,7 @@ namespace Ark::internal
         m_executor_pipeline = MacroExecutorPipeline(
             { std::make_shared<SymbolExecutor>(this),
               std::make_shared<ConditionalExecutor>(this),
-              std::make_shared<ListExecutor>(this) });
+              std::make_shared<FunctionExecutor>(this) });
 
         m_predefined_macros = {
             "symcat",
@@ -63,11 +63,11 @@ namespace Ark::internal
             if (first_node.nodeType() == NodeType::Symbol)
             {
                 if (first_node.string() != "undef")
-                    m_macros.back()[first_node.string()] = node;
+                    m_macros.back().add(first_node.string(), node);
                 else if (second_node.nodeType() == NodeType::Symbol)  // undefine a macro
                     deleteNearestMacro(second_node.string());
                 else  // used undef on a non-symbol
-                    throwMacroProcessingError("can not undefine a macro without it's name", second_node);
+                    throwMacroProcessingError("can not undefine a macro without a name", second_node);
                 return;
             }
             throwMacroProcessingError("can not define a macro without a symbol", first_node);
@@ -93,12 +93,12 @@ namespace Ark::internal
                     else if (had_spread && n.nodeType() == NodeType::Symbol)
                         throwMacroProcessingError("got another argument after a spread argument, which is invalid", n);
                 }
-                m_macros.back()[first_node.string()] = node;
+                m_macros.back().add(first_node.string(), node);
                 return;
             }
         }
         // !{if cond then else}
-        else if (std::size_t sz = node.constList().size(); sz == 3 || sz == 4)
+        else if (std::size_t size = node.constList().size(); size == 3 || size == 4)
         {
             if (first_node.nodeType() == NodeType::Keyword && first_node.keyword() == Keyword::If)
             {
@@ -117,6 +117,7 @@ namespace Ark::internal
         if (node.nodeType() == NodeType::List && node.constList().size() > 0 && node.constList()[0].nodeType() == NodeType::Keyword)
         {
             Keyword kw = node.constList()[0].keyword();
+            // checking for function definition, which can occur only inside an assignment node
             if (kw != Keyword::Let && kw != Keyword::Mut && kw != Keyword::Set)
                 return;
 
@@ -124,7 +125,7 @@ namespace Ark::internal
             if (inner.nodeType() != NodeType::List)
                 return;
 
-            if (inner.constList()[0].nodeType() == NodeType::Keyword && inner.constList()[0].keyword() == Keyword::Fun)
+            if (inner.constList().size() > 0 && inner.constList()[0].nodeType() == NodeType::Keyword && inner.constList()[0].keyword() == Keyword::Fun)
                 m_defined_functions[node.constList()[1].string()] = inner.constList()[1];
         }
     }
@@ -145,11 +146,10 @@ namespace Ark::internal
                 if (node.list()[i].nodeType() == NodeType::Macro)
                 {
                     // create a scope only if needed
-                    if ((!m_macros.empty() && !m_macros.back().empty() && static_cast<unsigned>(m_macros.back()["#depth"].number()) < depth) || !has_created)
+                    if ((!m_macros.empty() && !m_macros.back().empty() && m_macros.back().depth() < depth) || !has_created)
                     {
                         has_created = true;
-                        m_macros.emplace_back();
-                        m_macros.back()["#depth"] = Node(static_cast<double>(depth));
+                        m_macros.emplace_back(depth);
                     }
 
                     bool had = hadBegin(node.list()[i]);
@@ -205,7 +205,7 @@ namespace Ark::internal
             }
 
             // delete a scope only if needed
-            if (!m_macros.empty() && !m_macros.back().empty() && static_cast<unsigned>(m_macros.back()["#depth"].number()) == depth)
+            if (!m_macros.empty() && m_macros.back().depth() == depth)
                 m_macros.pop_back();
         }
     }
@@ -246,9 +246,9 @@ namespace Ark::internal
     {
         if (node.nodeType() == NodeType::Symbol)
         {
-            Node* macro = findNearestMacro(node.string());
-            if (macro != nullptr && macro->list().size() == 2)
-                return macro->list()[1];
+            const Node* macro = findNearestMacro(node.string());
+            if (macro != nullptr && macro->constList().size() == 2)
+                return macro->constList()[1];
             else
                 return node;
         }
@@ -278,7 +278,7 @@ namespace Ark::internal
     (one.nodeType() == two.nodeType() && two.nodeType() == NodeType::Number) ? Node(one.number() op two.number()) : node)
 
             const std::string& name = node.list()[0].string();
-            if (Node* macro = findNearestMacro(name); macro != nullptr)
+            if (const Node* macro = findNearestMacro(name); macro != nullptr)
             {
                 applyMacro(node.list()[0]);
                 if (node.list()[0].nodeType() == NodeType::Unused)
@@ -350,19 +350,23 @@ namespace Ark::internal
 
                 if (sublist.nodeType() == NodeType::List && idx.nodeType() == NodeType::Number)
                 {
+                    long size = static_cast<long>(sublist.list().size());
+                    long real_size = size;
                     long num_idx = static_cast<long>(idx.number());
-                    long sz = static_cast<long>(sublist.list().size());
-                    long offset = 0;
-                    if (sz > 0 && sublist.list()[0] == Node::getListNode())
-                    {
-                        num_idx = (num_idx >= 0) ? num_idx + 1 : num_idx;
-                        offset = -1;
-                    }
 
-                    if (num_idx < 0 && sz + num_idx >= 0 && -num_idx < sz)
-                        return sublist.list()[sz + num_idx];
-                    else if (num_idx >= 0 && num_idx + offset < sz)
+                    // if the first node is the function call to "list", don't count it
+                    if (size > 0 && sublist.list()[0] == Node::getListNode())
+                    {
+                        real_size--;
+                        if (num_idx >= 0)
+                            ++num_idx;
+                    }
+                    num_idx = num_idx >= 0 ? num_idx : size + num_idx;
+
+                    if (num_idx < size)
                         return sublist.list()[num_idx];
+                    else
+                        throwMacroProcessingError("Index (" + std::to_string(static_cast<long>(idx.number())) + ") out of range (list size: " + std::to_string(real_size) + ")", node);
                 }
             }
             else if (name == "head")
@@ -496,18 +500,15 @@ namespace Ark::internal
         return false;
     }
 
-    Node* MacroProcessor::findNearestMacro(const std::string& name)
+    const Node* MacroProcessor::findNearestMacro(const std::string& name) const
     {
         if (m_macros.empty())
             return nullptr;
 
         for (auto it = m_macros.rbegin(); it != m_macros.rend(); ++it)
         {
-            if (it->size() != 0)
-            {
-                if (auto res = it->find(name); res != it->end())
-                    return &res->second;
-            }
+            if (auto res = it->has(name); res != nullptr)
+                return res;
         }
         return nullptr;
     }
@@ -519,14 +520,10 @@ namespace Ark::internal
 
         for (auto it = m_macros.rbegin(); it != m_macros.rend(); ++it)
         {
-            if (it->size() != 0)
+            if (it->remove(name))
             {
-                if (auto res = it->find(name); res != it->end())
-                {
-                    // stop right here because we found one matching macro
-                    it->erase(res);
-                    return;
-                }
+                // stop right here because we found one matching macro
+                return;
             }
         }
     }
@@ -594,7 +591,7 @@ namespace Ark::internal
 
                 return it != operators.end() ||
                     it2 != Builtins::builtins.end() ||
-                    const_cast<MacroProcessor*>(this)->findNearestMacro(node.string()) != nullptr ||
+                    findNearestMacro(node.string()) != nullptr ||
                     node.string() == "list";
             }
 

@@ -97,27 +97,27 @@ namespace Ark
             path = (fs::path(m_state.m_filename).parent_path() / fs::path(file)).relative_path().string();
 
         std::shared_ptr<SharedLibrary> lib;
-        for (auto const& v : m_state.m_libenv)
+        // if it exists alongside the .arkc file
+        if (Utils::fileExists(path))
+            lib = std::make_shared<SharedLibrary>(path);
+        else
         {
-            std::string lib_path = (fs::path(v) / fs::path(file)).string();
-
-            // if it's already loaded don't do anything
-            if (std::find_if(m_shared_lib_objects.begin(), m_shared_lib_objects.end(), [&](const auto& val) {
-                    return (val->path() == path || val->path() == lib_path);
-                }) != m_shared_lib_objects.end())
-                return;
-
-            // if it exists alongside the .arkc file
-            if (Utils::fileExists(path))
+            for (auto const& v : m_state.m_libenv)
             {
-                lib = std::make_shared<SharedLibrary>(path);
-                break;
-            }
-            // check in lib_path otherwise
-            else if (Utils::fileExists(lib_path))
-            {
-                lib = std::make_shared<SharedLibrary>(lib_path);
-                break;
+                std::string lib_path = (fs::path(v) / fs::path(file)).string();
+
+                // if it's already loaded don't do anything
+                if (std::find_if(m_shared_lib_objects.begin(), m_shared_lib_objects.end(), [&](const auto& val) {
+                        return (val->path() == path || val->path() == lib_path);
+                    }) != m_shared_lib_objects.end())
+                    return;
+
+                // check in lib_path
+                if (Utils::fileExists(lib_path))
+                {
+                    lib = std::make_shared<SharedLibrary>(lib_path);
+                    break;
+                }
             }
         }
 
@@ -130,7 +130,7 @@ namespace Ark
                 [](const std::string& a, const std::string& b) -> std::string {
                     return a + "\n\t- " + b;
                 });
-            throwVMError("Could not find module '" + file + "'. Searched in\n\t- " + path + "\n\t- " + lib_path);
+            throwVMError(ErrorKind::Module, "Could not find module '" + file + "'. Searched in\n\t- " + path + "\n\t- " + lib_path);
         }
 
         m_shared_lib_objects.emplace_back(lib);
@@ -144,8 +144,9 @@ namespace Ark
         catch (const std::system_error& e)
         {
             throwVMError(
+                ErrorKind::Module,
                 "An error occurred while loading module '" + file + "': " + std::string(e.what()) + "\n" +
-                "It is most likely because the versions of the module and the language don't match.");
+                    "It is most likely because the versions of the module and the language don't match.");
         }
 
         // load the mapping data
@@ -157,14 +158,8 @@ namespace Ark
             if (it != m_state.m_symbols.end())
                 (*context.locals[0]).push_back(static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it)), Value(map[i].value));
 
-            // free memory because we have used it and don't need it anymore
-            // no need to free map[i].value since it's a pointer to a function in the DLL
-            delete[] map[i].name;
             ++i;
         }
-
-        // free memory
-        delete[] map;
     }
 
     void VM::exit(int code) noexcept
@@ -296,7 +291,7 @@ namespace Ark
                             // push internal reference, shouldn't break anything so far
                             push(var, context);
                         else
-                            throwVMError("unbound variable: " + m_state.m_symbols[context.last_symbol]);
+                            throwVMError(ErrorKind::Scope, "Unbound variable: " + m_state.m_symbols[context.last_symbol]);
 
                         break;
                     }
@@ -357,14 +352,14 @@ namespace Ark
                         if (Value* var = findNearestVariable(id, context); var != nullptr)
                         {
                             if (var->isConst())
-                                throwVMError("can not modify a constant: " + m_state.m_symbols[id]);
+                                throwVMError(ErrorKind::Mutability, "Can not modify a constant: " + m_state.m_symbols[id]);
 
                             *var = *popAndResolveAsPtr(context);
                             var->setConst(false);
                             break;
                         }
 
-                        throwVMError("unbound variable " + m_state.m_symbols[id] + ", can not change its value");
+                        throwVMError(ErrorKind::Scope, "Unbound variable " + m_state.m_symbols[id] + ", can not change its value");
                         break;
                     }
 
@@ -381,7 +376,7 @@ namespace Ark
 
                         // check if we are redefining a variable
                         if (auto val = (*context.locals.back())[id]; val != nullptr)
-                            throwVMError("can not use 'let' to redefine the variable " + m_state.m_symbols[id]);
+                            throwVMError(ErrorKind::Mutability, "Can not use 'let' to redefine the variable " + m_state.m_symbols[id]);
 
                         Value val = *popAndResolveAsPtr(context);
                         val.setConst(true);
@@ -464,8 +459,16 @@ namespace Ark
                         break;
 
                     case Instruction::CALL:
+                    {
+                        // stack pointer + 2 because we push IP and PP
+                        if (context.sp + 2 >= VMStackSize)
+                            throwVMError(
+                                ErrorKind::VM,
+                                "Maximum recursion depth exceeded.\n"
+                                "You could consider rewriting your function to make use of tail-call optimization.");
                         call(context);
                         break;
+                    }
 
                     case Instruction::CAPTURE:
                     {
@@ -481,8 +484,10 @@ namespace Ark
 
                         if (!context.saved_scope)
                             context.saved_scope = std::make_shared<Scope>();
-                        // if it's a captured variable, it can not be nullptr
+
                         Value* ptr = (*context.locals.back())[id];
+                        if (!ptr)
+                            throwVMError(ErrorKind::Scope, "Couldn't capture '" + m_state.m_symbols[id] + "' as it is currently unbound");
                         ptr = ptr->valueType() == ValueType::Reference ? ptr->reference() : ptr;
                         (*context.saved_scope.value()).push_back(id, *ptr);
 
@@ -545,7 +550,7 @@ namespace Ark
                             break;
                         }
 
-                        throwVMError("unbound variable: " + m_state.m_symbols[id]);
+                        throwVMError(ErrorKind::Scope, "Unbound variable: " + m_state.m_symbols[id]);
                         break;
                     }
 
@@ -572,7 +577,7 @@ namespace Ark
 
                         Value* var = popAndResolveAsPtr(context);
                         if (var->valueType() != ValueType::Closure)
-                            throwVMError("the variable `" + m_state.m_symbols[context.last_symbol] + "' isn't a closure, can not get the field `" + m_state.m_symbols[id] + "' from it");
+                            throwVMError(ErrorKind::Type, "The variable `" + m_state.m_symbols[context.last_symbol] + "' isn't a closure, can not get the field `" + m_state.m_symbols[id] + "' from it");
 
                         if (Value* field = (*var->refClosure().scope())[id]; field != nullptr)
                         {
@@ -587,7 +592,7 @@ namespace Ark
                             break;
                         }
 
-                        throwVMError("couldn't find the variable " + m_state.m_symbols[id] + " in the closure enviroment");
+                        throwVMError(ErrorKind::Scope, "Couldn't find the variable " + m_state.m_symbols[id] + " in the closure enviroment");
                         break;
                     }
 
@@ -687,7 +692,7 @@ namespace Ark
                         Value* list = popAndResolveAsPtr(context);
 
                         if (list->isConst())
-                            throwVMError("can not modify a constant list using `append!'");
+                            throwVMError(ErrorKind::Mutability, "Can not modify a constant list using `append!'");
                         if (list->valueType() != ValueType::List)
                             types::generateError(
                                 "append!",
@@ -708,7 +713,7 @@ namespace Ark
                         Value* list = popAndResolveAsPtr(context);
 
                         if (list->isConst())
-                            throwVMError("can not modify a constant list using `concat!'");
+                            throwVMError(ErrorKind::Mutability, "Can not modify a constant list using `concat!'");
                         if (list->valueType() != ValueType::List)
                             types::generateError(
                                 "concat",
@@ -759,7 +764,7 @@ namespace Ark
                         Value number = *popAndResolveAsPtr(context);
 
                         if (list->isConst())
-                            throwVMError("can not modify a constant list using `pop!'");
+                            throwVMError(ErrorKind::Mutability, "Can not modify a constant list using `pop!'");
                         if (list->valueType() != ValueType::List || number.valueType() != ValueType::Number)
                             types::generateError(
                                 "pop!",
@@ -1064,9 +1069,19 @@ namespace Ark
                         long idx = static_cast<long>(b->number());
 
                         if (a.valueType() == ValueType::List)
-                            push(a.list()[idx < 0 ? a.list().size() + idx : idx], context);
+                        {
+                            if (static_cast<std::size_t>(std::abs(idx)) < a.list().size())
+                                push(a.list()[idx < 0 ? a.list().size() + idx : idx], context);
+                            else
+                                throwVMError(ErrorKind::Index, "Index (" + std::to_string(idx) + ") out of range (list size: " + std::to_string(a.list().size()) + ")");
+                        }
                         else if (a.valueType() == ValueType::String)
-                            push(Value(std::string(1, a.string()[idx < 0 ? a.string().size() + idx : idx])), context);
+                        {
+                            if (static_cast<std::size_t>(std::abs(idx)) < a.string().size())
+                                push(Value(std::string(1, a.string()[idx < 0 ? a.string().size() + idx : idx])), context);
+                            else
+                                throwVMError(ErrorKind::Index, "Index (" + std::to_string(idx) + ") out of range (string size: " + std::to_string(a.string().size()) + ")");
+                        }
                         else
                             types::generateError(
                                 "@",
@@ -1146,7 +1161,7 @@ namespace Ark
 #pragma endregion
 
                     default:
-                        throwVMError("unknown instruction: " + std::to_string(static_cast<std::size_t>(inst)));
+                        throwVMError(ErrorKind::VM, "Unknown instruction: " + std::to_string(static_cast<std::size_t>(inst)));
                         break;
                 }
 
@@ -1169,6 +1184,10 @@ namespace Ark
             std::printf("Unknown error\n");
             backtrace(context);
             m_exit_code = 1;
+
+#ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
+            throw;
+#endif
         }
 
         if (m_state.m_debug_level > 0)
@@ -1200,9 +1219,9 @@ namespace Ark
         return std::numeric_limits<uint16_t>::max();
     }
 
-    void VM::throwVMError(const std::string& message)
+    void VM::throwVMError(ErrorKind kind, const std::string& message)
     {
-        throw std::runtime_error(message);
+        throw std::runtime_error(std::string(errorKinds[static_cast<std::size_t>(kind)]) + ": " + message + "\n");
     }
 
     void VM::backtrace(ExecutionContext& context) noexcept
@@ -1211,15 +1230,14 @@ namespace Ark
         std::size_t saved_pp = context.pp;
         uint16_t saved_sp = context.sp;
 
-        if (context.fc > 1)
+        if (uint16_t original_frame_count = context.fc; original_frame_count > 1)
         {
             // display call stack trace
-            uint16_t it = context.fc;
             Scope old_scope = *context.locals.back().get();
 
-            while (it != 0)
+            while (context.fc != 0)
             {
-                std::cerr << "[" << termcolor::cyan << it << termcolor::reset << "] ";
+                std::cerr << "[" << termcolor::cyan << context.fc << termcolor::reset << "] ";
                 if (context.pp != 0)
                 {
                     uint16_t id = findNearestVariableIdWithValue(
@@ -1240,7 +1258,6 @@ namespace Ark
                     context.ip = ip->pageAddr();
                     context.pp = pop(context)->pageAddr();
                     returnFromFuncCall(context);
-                    --it;
                 }
                 else
                 {
@@ -1248,7 +1265,7 @@ namespace Ark
                     break;
                 }
 
-                if (context.fc - it > 7)
+                if (original_frame_count - context.fc > 7)
                 {
                     std::printf("...\n");
                     break;

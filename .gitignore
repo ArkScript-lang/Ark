@@ -17,6 +17,11 @@ __arkscript__/
 tests/cpp/out/
 tests/cpp/ark/
 
+# Fuzzing
+!fuzzing/**/*.arkc
+fuzzing/output*
+afl/
+
 # Folders
 .vs/
 .idea/

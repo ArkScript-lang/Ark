@@ -101,7 +101,7 @@ namespace Ark::internal
     std::string makeNodeBasedErrorCtx(const std::string& message, const Node& node)
     {
         std::stringstream ss;
-        ss << message << "\n";
+        ss << message << "\n\n";
         if (node.filename() != ARK_NO_NAME_FILE)
             ss << "In file " << node.filename() << "\n";
         ss << "On line " << (node.line() + 1) << ":" << node.col() << ", got `" << node << "'\n";

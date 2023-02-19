@@ -1,0 +1,49 @@
+# Inspired by
+# Closures and object are equivalent: http://wiki.c2.com/?ClosuresAndObjectsAreEquivalent
+
+# this will construct a closure capturing the 3 arguments, plus a function to set the age
+(let create-human (fun (name age weight) {
+    # functions can be invoked in the closure scope
+    (let set-age (fun (new-age) (set age new-age)))
+
+    # the return value, our closure
+    # the &name notation is used in the argument list to explicitly capture
+    # a variable (using deep copy)
+    (fun (&set-age &name &age &weight) ())
+}))
+
+# we create 2 humans using such construction, just a nice function call
+(let bob (create-human "Bob" 0 144))
+(let john (create-human "John" 12 15))
+
+# using the dot notation on a closure object, we can have a **read only** access to its fields
+(print "Bob's age: " bob.age)
+# and even call the captured functions, which will enter the closure, and be given a **read write** access
+# meaning that, even if the fields are read only (eg, we can not do (set bob.age 14)), the "object" can be modified
+(print "Setting Bob's age to 10")
+(bob.set-age 10)
+# the age changed
+(print "New age: " bob.age)
+
+# but john age didn't change, because we created 2 separated closures
+(print "John's age, didn't change: " john.age)
+
+
+
+# Another example to simulate a python range(x, y)
+
+# this function will return a closure capturing the number given
+# and modifying its value each time we'll call the closure, returning
+# the new number
+(let countdown-from (fun (number)
+    (fun (&number) {
+        (set number (- number 1))
+        number
+    }))
+)
+
+(let countdown-from-3 (countdown-from 3))
+
+(print "Countdown " (countdown-from-3))  # 2
+(print "Countdown " (countdown-from-3))  # 1
+(print "Countdown " (countdown-from-3))  # 0

@@ -1,15 +1,13 @@
-name: "CMake"
+name: "Building and testing ArkScript"
 
 on:
   push:
     branches: [dev, master]
     paths-ignore:
-      - '.github/workflows/clang-format.yml'
       - '.github/workflows/docker.yml'
       - '.github/workflows/label.yml'
       - '.github/workflows/lizard.yml'
       - '.github/workflows/release.yml'
-      - '.github/workflows/repo-visualizer.yml'
       - '.vscode/*.*'
       - 'examples/*.ark'
       - 'images/*.*'
@@ -27,79 +25,130 @@ env:
   SQLITE_VERSION: 3390100  # 3.39.1
 
 jobs:
+  check:
+    name: Formatting check
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        path:
+          - 'src'
+          - 'include'
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Run clang-format check for C++
+        uses: HorstBaerbel/action-clang-format@master
+        with:
+          scandir: ${{ matrix.path }}
+          style: 'file'
+
+  repo_visualizer:
+    runs-on: ubuntu-latest
+    needs: []
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Update diagram
+      uses: githubocto/repo-visualizer@main
+      with:
+        excluded_paths: 'dist,node_modules,submodules'
+        should_push: false
+        output_file: 'diagram.svg'
+        artifact_name: 'diagram'
+
   build:
     runs-on: ${{ matrix.config.os }}
     name: ${{ matrix.config.name }}
+    needs: [check]
 
     strategy:
       fail-fast: false
       matrix:
         config:
           - {
-            os: ubuntu-latest, name: "Ubuntu Clang 11", cc: "clang-11", cxx: "clang++-11",
-            artifact: "ubuntu-clang-11", preconfigure: "", sanitizers: "On"
+            os: ubuntu-latest, name: "Ubuntu Clang 14", cc: "clang-14", cxx: "clang++-14",
+            artifact: "ubuntu-clang-14", sanitizers: "On", preconfigure: ""
+          }
+          - {
+            os: ubuntu-latest, name: "Ubuntu Clang 13", cc: "clang-13", cxx: "clang++-13",
+            artifact: "ubuntu-clang-13", sanitizers: "On", preconfigure: ""
+          }
+          - {
+            os: ubuntu-latest, name: "Ubuntu Clang 12", cc: "clang-12", cxx: "clang++-12",
+            artifact: "ubuntu-clang-12", sanitizers: "On", preconfigure: ""
+          }
+          - {
+            os: ubuntu-20.04, name: "Ubuntu Clang 11", cc: "clang-11", cxx: "clang++-11",
+            artifact: "ubuntu-clang-11", sanitizers: "On", preconfigure: ""
           }
           - {
             os: ubuntu-latest, name: "Ubuntu Clang 11 (valgrind)", cc: "clang-11", cxx: "clang++-11",
-            artifact: "ubuntu-clang-11-valgrind", preconfigure: "", sanitizers: "Off"
+            artifact: "ubuntu-clang-11-valgrind", sanitizers: "Off", preconfigure: ""
           }
           - {
-            os: ubuntu-latest, name: "Ubuntu Clang 10", cc: "clang-10", cxx: "clang++-10",
-            artifact: "ubuntu-clang-10", preconfigure: "", sanitizers: "On"
+            os: ubuntu-20.04, name: "Ubuntu Clang 10", cc: "clang-10", cxx: "clang++-10",
+            artifact: "ubuntu-clang-10", sanitizers: "On", preconfigure: ""
           }
           - {
-            os: ubuntu-latest, name: "Ubuntu Clang 9", cc: "clang-9", cxx: "clang++-9",
-            artifact: "ubuntu-clang-9", preconfigure: "", sanitizers: "On"
+            os: ubuntu-20.04, name: "Ubuntu Clang 9", cc: "clang-9", cxx: "clang++-9",
+            artifact: "ubuntu-clang-9", sanitizers: "On", preconfigure: ""
+          }
+          - {
+            os: ubuntu-latest, name: "Ubuntu GCC 12", cc: "gcc-12", cxx: "g++-12",
+            artifact: "ubuntu-gcc-12", sanitizers: "Off", preconfigure: ""
           }
           - {
             os: ubuntu-latest, name: "Ubuntu GCC 11", cc: "gcc-11", cxx: "g++-11",
-            artifact: "ubuntu-gcc-11", preconfigure: "", sanitizers: "Off"
+            artifact: "ubuntu-gcc-11", sanitizers: "Off", preconfigure: ""
           }
           - {
             os: ubuntu-latest, name: "Ubuntu GCC 10", cc: "gcc-10", cxx: "g++-10",
-            artifact: "ubuntu-gcc-10", preconfigure: "", sanitizers: "Off"
+            artifact: "ubuntu-gcc-10", sanitizers: "Off", preconfigure: ""
           }
           - {
             os: ubuntu-latest, name: "Ubuntu GCC 9", cc: "gcc-9", cxx: "g++-9",
-            artifact: "ubuntu-gcc-9", preconfigure: "", sanitizers: "Off"
+            artifact: "ubuntu-gcc-9", sanitizers: "Off", preconfigure: ""
           }
           - {
-            os: ubuntu-latest, name: "Ubuntu GCC 8", cc: "gcc-8", cxx: "g++-8",
-            artifact: "ubuntu-gcc-8", preconfigure: "", sanitizers: "Off"
+            os: ubuntu-20.04, name: "Ubuntu GCC 8", cc: "gcc-8", cxx: "g++-8",
+            artifact: "ubuntu-gcc-8", sanitizers: "Off", preconfigure: ""
           }
           - {
             os: windows-latest, name: "Windows VS 2019", cc: "cl", cxx: "cl",
             artifact: "windows-msvc-19",
             environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat",
-            preconfigure: "", sanitizers: "On"
+            sanitizers: "On", preconfigure: ""
           }
           - {
             os: windows-latest, name: "Windows VS 2017", cc: "cl", cxx: "cl",
             artifact: "windows-msvc-17",
             environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/VC/Auxiliary/Build/vcvars64.bat",
-            preconfigure: "", sanitizers: "On"
+            sanitizers: "On", preconfigure: ""
           }
           - {
             os: macos-latest, name: "MacOS Clang 12", cc: "clang", cxx: "clang++",
             artifact: "macos-clang-12",
-            preconfigure: "export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/",
-            sanitizers: "On"
+            sanitizers: "On", preconfigure: "export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/"
           }
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: recursive
 
     - name: Update GNU compilers
-      if: startsWith(matrix.config.name, 'Ubuntu') && startsWith(matrix.config.cc, 'gcc')
+      if: startsWith(matrix.config.name, 'Ubuntu GCC')
       shell: bash
       run: |
         sudo apt-add-repository -y ppa:ubuntu-toolchain-r/test
         sudo apt-get -yq install ${{ matrix.config.cc }} ${{ matrix.config.cxx }}
 
     - name: Update LLVM compilers
-      if: startsWith(matrix.config.name, 'Ubuntu') && startsWith(matrix.config.cc, 'clang')
+      if: startsWith(matrix.config.name, 'Ubuntu Clang')
       shell: bash
       run: |
         version=`echo ${{ matrix.config.cc }} | cut -c 7-`
@@ -192,13 +241,13 @@ jobs:
         cp -r tests/cpp temp/
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3.1.1
       with:
         name: ${{ matrix.config.artifact }}
         path: artifact
 
     - name: Upload temp artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3.1.1
       with:
         name: temp-${{ matrix.config.artifact }}
         path: temp
@@ -213,32 +262,36 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - { os: ubuntu-latest,  name: "Ubuntu Clang 11", artifact: "ubuntu-clang-11" }
-          - { os: ubuntu-latest,  name: "Ubuntu Clang 10", artifact: "ubuntu-clang-10" }
-          - { os: ubuntu-latest,  name: "Ubuntu Clang 9",  artifact: "ubuntu-clang-9" }
+          - { os: ubuntu-latest,  name: "Ubuntu Clang 14", artifact: "ubuntu-clang-14" }
+          - { os: ubuntu-latest,  name: "Ubuntu Clang 13", artifact: "ubuntu-clang-13" }
+          - { os: ubuntu-latest,  name: "Ubuntu Clang 12", artifact: "ubuntu-clang-12" }
+          - { os: ubuntu-20.04,   name: "Ubuntu Clang 11", artifact: "ubuntu-clang-11" }
+          - { os: ubuntu-20.04,   name: "Ubuntu Clang 10", artifact: "ubuntu-clang-10" }
+          - { os: ubuntu-20.04,   name: "Ubuntu Clang 9",  artifact: "ubuntu-clang-9" }
+          - { os: ubuntu-latest,  name: "Ubuntu GCC 12",   artifact: "ubuntu-gcc-12" }
           - { os: ubuntu-latest,  name: "Ubuntu GCC 11",   artifact: "ubuntu-gcc-11" }
           - { os: ubuntu-latest,  name: "Ubuntu GCC 10",   artifact: "ubuntu-gcc-10" }
           - { os: ubuntu-latest,  name: "Ubuntu GCC 9",    artifact: "ubuntu-gcc-9" }
-          - { os: ubuntu-latest,  name: "Ubuntu GCC 8",    artifact: "ubuntu-gcc-8" }
+          - { os: ubuntu-20.04,   name: "Ubuntu GCC 8",    artifact: "ubuntu-gcc-8" }
           - { os: windows-latest, name: "Windows VS 2019", artifact: "windows-msvc-19", }
           - { os: windows-latest, name: "Windows VS 2017", artifact: "windows-msvc-17", }
           - { os: macos-latest,   name: "MacOS Clang 12",  artifact: "macos-clang-12", }
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: recursive
 
     - name: Download artifact
       id: download
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3.0.1
       with:
         name: ${{ matrix.config.artifact }}
         path: build
 
     - name: Download temp artifact
       id: download-artifact
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3.0.1
       with:
         name: temp-${{ matrix.config.artifact }}
         path: artifact
@@ -276,13 +329,13 @@ jobs:
     needs: [build]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: recursive
 
     - name: Download artifact
       id: download
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3.0.1
       with:
         name: "ubuntu-clang-11-valgrind"
         path: build

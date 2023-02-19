@@ -25,7 +25,7 @@ Value VM::call(const std::string& name, Args&&... args)
     // find id of function
     auto it = std::find(m_state.m_symbols.begin(), m_state.m_symbols.end(), name);
     if (it == m_state.m_symbols.end())
-        throwVMError("unbound variable: " + name);
+        throwVMError(ErrorKind::Scope, "Unbound variable: " + name);
 
     // convert and push arguments in reverse order
     std::vector<Value> fnargs { { Value(std::forward<Args>(args))... } };
@@ -44,13 +44,13 @@ Value VM::call(const std::string& name, Args&&... args)
             !(vt == ValueType::Reference &&
               (var->reference()->valueType() == ValueType::PageAddr ||
                var->reference()->valueType() == ValueType::Closure)))
-            throwVMError("Can't call '" + name + "': it isn't a Function but a " + types_to_str[static_cast<std::size_t>(vt)]);
+            throwVMError(ErrorKind::Type, "Can't call '" + name + "': it isn't a Function but a " + types_to_str[static_cast<std::size_t>(vt)]);
 
         push(Value(var), context);
         context.last_symbol = id;
     }
     else
-        throwVMError("Couldn't find variable " + name);
+        throwVMError(ErrorKind::Scope, "Couldn't find variable " + name);
 
     std::size_t frames_count = context.fc;
     // call it
@@ -370,7 +370,12 @@ inline void VM::call(internal::ExecutionContext& context, int16_t argc_)
         }
 
         default:
-            throwVMError("Can't call '" + m_state.m_symbols[context.last_symbol] + "': it isn't a Function but a " + types_to_str[static_cast<std::size_t>(function.valueType())]);
+        {
+            if (m_state.m_symbols.size() > 0)
+                throwVMError(ErrorKind::Type, "Can't call '" + m_state.m_symbols[context.last_symbol] + "': it isn't a Function but a " + types_to_str[static_cast<std::size_t>(function.valueType())]);
+            else
+                throwVMError(ErrorKind::Type, "A " + types_to_str[static_cast<std::size_t>(function.valueType())] + " isn't a callable");
+        }
     }
 
     // checking function arity
@@ -386,6 +391,7 @@ inline void VM::call(internal::ExecutionContext& context, int16_t argc_)
 
     if (needed_argc != argc)
         throwVMError(
+            ErrorKind::Arity,
             "Function '" + m_state.m_symbols[context.last_symbol] + "' needs " + std::to_string(needed_argc) +
             " arguments, but it received " + std::to_string(argc));
 }

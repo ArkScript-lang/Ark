@@ -48,7 +48,6 @@ namespace Ark
             bcr.feed(bytecode_filename);
             m_bytecode = bcr.bytecode();
 
-            m_filename = bytecode_filename;
             configure();
         }
         catch (const std::exception& e)
@@ -115,6 +114,7 @@ namespace Ark
                       << termcolor::reset;
             return false;
         }
+        m_filename = file;
 
         // check if it's a bytecode file or a source code file
         BytecodeReader bcr;
@@ -251,8 +251,10 @@ namespace Ark
         // checking integrity
         for (std::size_t j = 0; j < picosha2::k_digest_size; ++j)
         {
+#ifndef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
             if (hash[j] != m_bytecode[i])
                 throwStateError("Integrity check failed");
+#endif
             ++i;
         }
 

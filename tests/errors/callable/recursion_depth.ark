@@ -1,0 +1,7 @@
+(let foo (fun (a) {
+    # hack to avoid getting TCO-ed
+    (let tmp (foo (+ a 1)))
+    tmp
+}))
+
+(foo 0)

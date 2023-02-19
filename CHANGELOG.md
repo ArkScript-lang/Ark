@@ -1,5 +1,25 @@
 # Change Log
 
+## [3.5.0] - 2023-02-19
+### Added
+- added fuzzing tools and corpus for [AFL](https://github.com/AFLplusplus/AFLplusplus)
+- added some tests for errors
+- added recursion limit reached detection
+
+### Changed
+- plugins can be constructed from outside ArkScript lib/modules folder, easing the development process
+- plugins loading now works as intended: look alongside the given file/bytecode file, then in the std lib folder
+- new way to create modules, easier to use
+- calling a non-callable anonymous object do not result in a segfault
+- macro processor function registering now handles empty nodes
+- added a fix to avoid crashes when capturing unbound variables
+- checking if the given operator takes one or more arguments at compile time
+- adding bound checking on operator @
+- adding bound checking on operator @ when used in macros
+- better arity check for macros
+- fixed a bug in the macro processor where macros were deleted when they shouldn't
+- fixed a bug where macro functions with no argument would crash the macro processor
+
 ## [3.4.0] - 2022-09-12
 ### Added
 - added new `async` and `await` builtins

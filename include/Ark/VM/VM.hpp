@@ -26,6 +26,7 @@
 #include <Ark/VM/Value.hpp>
 #include <Ark/VM/Scope.hpp>
 #include <Ark/VM/State.hpp>
+#include <Ark/VM/ErrorKind.hpp>
 #include <Ark/VM/ExecutionContext.hpp>
 #include <Ark/Builtins/Builtins.hpp>
 #include <Ark/Platform.hpp>
@@ -311,9 +312,10 @@ namespace Ark
         /**
          * @brief Throw a VM error message
          * 
+         * @param kind type of VM error
          * @param message 
          */
-        void throwVMError(const std::string& message);
+        void throwVMError(internal::ErrorKind kind, const std::string& message);
 
         /**
          * @brief Display a backtrace when the VM encounter an exception
