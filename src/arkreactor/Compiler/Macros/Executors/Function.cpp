@@ -1,14 +1,13 @@
-#include <Ark/Compiler/Macros/Executors/List.hpp>
-#include <iostream>
+#include <Ark/Compiler/Macros/Executors/Function.hpp>
 
 namespace Ark::internal
 {
-    bool ListExecutor::canHandle(Node& node)
+    bool FunctionExecutor::canHandle(Node& node)
     {
         return node.nodeType() == NodeType::List && node.constList().size() > 0 && node.constList()[0].nodeType() == NodeType::Symbol;
     }
 
-    bool ListExecutor::applyMacro(Node& node)
+    bool FunctionExecutor::applyMacro(Node& node)
     {
         Node& first = node.list()[0];
         const Node* macro = findNearestMacro(first.string());

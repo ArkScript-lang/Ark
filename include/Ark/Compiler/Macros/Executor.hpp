@@ -41,7 +41,6 @@ namespace Ark::internal
          */
         virtual ~MacroExecutor();
 
-
         /**
          * @brief Executes macros in the Node if the Executor can handle it
          * 

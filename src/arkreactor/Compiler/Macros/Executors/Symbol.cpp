@@ -9,10 +9,7 @@ namespace Ark::internal
 
     bool SymbolExecutor::applyMacro(Node& node)
     {
-        // error ?
-        const Node* macro = findNearestMacro(node.string());
-
-        if (macro != nullptr)
+        if (const Node* macro = findNearestMacro(node.string()); macro != nullptr)
         {
             // !{name value}
             if (macro->constList().size() == 2)
