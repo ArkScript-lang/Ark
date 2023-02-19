@@ -7,7 +7,7 @@
 #include <Ark/Compiler/AST/makeErrorCtx.hpp>
 #include <Ark/Builtins/Builtins.hpp>
 #include <Ark/Compiler/Macros/Executors/Symbol.hpp>
-#include <Ark/Compiler/Macros/Executors/List.hpp>
+#include <Ark/Compiler/Macros/Executors/Function.hpp>
 #include <Ark/Compiler/Macros/Executors/Conditional.hpp>
 
 namespace Ark::internal
@@ -19,7 +19,7 @@ namespace Ark::internal
         m_executor_pipeline = MacroExecutorPipeline(
             { std::make_shared<SymbolExecutor>(this),
               std::make_shared<ConditionalExecutor>(this),
-              std::make_shared<ListExecutor>(this) });
+              std::make_shared<FunctionExecutor>(this) });
 
         m_predefined_macros = {
             "symcat",
@@ -210,7 +210,7 @@ namespace Ark::internal
         }
     }
 
-    bool MacroProcessor::applyMacro(Node& node)  // TODO remove
+    bool MacroProcessor::applyMacro(Node& node)
     {
         return m_executor_pipeline.applyMacro(node);
     }
