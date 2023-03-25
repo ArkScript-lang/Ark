@@ -32,6 +32,7 @@
 #include <Ark/Platform.hpp>
 #include <Ark/VM/Plugin.hpp>
 #include <Ark/VM/Future.hpp>
+#include <Ark/Compiler/Instructions.hpp>
 
 #undef abs
 #include <cmath>

@@ -4,9 +4,9 @@
  * @brief ArkScript homemade exceptions
  * @version 0.2
  * @date 2020-10-27
- * 
+ *
  * @copyright Copyright (c) 2020-2021
- * 
+ *
  */
 
 #ifndef INCLUDE_ARK_EXCEPTIONS_HPP
@@ -16,32 +16,47 @@
 #include <string>
 #include <vector>
 #include <stdexcept>
+#include <optional>
+#include <ostream>
 
-#include <Ark/VM/Value.hpp>
+#include <Ark/Compiler/AST/utf8_char.hpp>
 
 namespace Ark
 {
-    /**
-     * @brief A type error triggered when types don't match
-     * 
-     */
-    class TypeError : public std::runtime_error
+    namespace internal
+    {
+        class Node;
+    }
+
+    class Error : public std::runtime_error
     {
     public:
-        explicit TypeError(const std::string& message) :
+        explicit Error(const std::string& message) :
             std::runtime_error(message)
         {}
     };
 
     /**
-     * @brief A special zero division error triggered when a number is divided by 0
-     * 
+     * @brief A type error triggered when types don't match
+     *
      */
-    class ZeroDivisionError : public std::runtime_error
+    class TypeError : public Error
+    {
+    public:
+        explicit TypeError(const std::string& message) :
+            Error(message)
+        {}
+    };
+
+    /**
+     * @brief A special zero division error triggered when a number is divided by 0
+     *
+     */
+    class ZeroDivisionError : public Error
     {
     public:
         ZeroDivisionError() :
-            std::runtime_error(
+            Error(
                 "ZeroDivisionError: In ordonary arithmetic, the expression has no meaning, "
                 "as there is no number which, when multiplied by 0, gives a (assuming a != 0), "
                 "and so division by zero is undefined. Since any number multiplied by 0 is 0, "
@@ -51,13 +66,13 @@ namespace Ark
 
     /**
      * @brief A pow error triggered when we can't do a pow b
-     * 
+     *
      */
-    class PowError : public std::runtime_error
+    class PowError : public Error
     {
     public:
         PowError() :
-            std::runtime_error(
+            Error(
                 "PowError: Can not pow the given number (a) to the given exponent (b) because "
                 "a^b, with b being a member of the rational numbers, isn't supported.")
         {}
@@ -65,75 +80,70 @@ namespace Ark
 
     /**
      * @brief An assertion error, only triggered from ArkScript code through (assert expr error-message)
-     * 
+     *
      */
-    class AssertionFailed : public std::runtime_error
+    class AssertionFailed : public Error
     {
     public:
         explicit AssertionFailed(const std::string& message) :
-            std::runtime_error("AssertionFailed: " + message)
+            Error("AssertionFailed: " + message)
         {}
     };
 
     /**
-     * @brief SyntaxError thrown by the lexer
-     * 
+     * @brief CodeError thrown by the compiler (parser, macro processor, optimizer, and compiler itself)
+     *
      */
-    class SyntaxError : public std::runtime_error
+    struct CodeError : public Error
     {
-    public:
-        explicit SyntaxError(const std::string& message) :
-            std::runtime_error("SyntaxError: " + message)
+        const std::string filename;
+        const std::size_t line;
+        const std::size_t col;
+        const std::string expr;
+        const std::optional<internal::utf8_char_t> symbol;
+
+        CodeError(
+            const std::string& what,
+            const std::string& filename,
+            std::size_t lineNum,
+            std::size_t column,
+            std::string exp,
+            std::optional<internal::utf8_char_t> opt_sym = std::nullopt) :
+            Error(what),
+            filename(filename), line(lineNum), col(column), expr(std::move(exp)), symbol(opt_sym)
         {}
     };
 
-    /**
-     * @brief ParseError thrown by the parser
-     * 
-     */
-    class ParseError : public std::runtime_error
+    namespace Diagnostics
     {
-    public:
-        explicit ParseError(const std::string& message) :
-            std::runtime_error("ParseError: " + message)
-        {}
-    };
+        /**
+         * @brief Helper to create a colorized context to report errors to the user
+         * 
+         * @param os stream in which the error will be written
+         * @param code content of the source file where the error is
+         * @param line line where the error is
+         * @param col_start where the error starts on the given line
+         * @param sym_size bad expression that triggered the error
+         */
+        void makeContext(std::ostream& os, const std::string& code, std::size_t line, std::size_t col_start, std::size_t sym_size);
+    
+        /**
+         * @brief Helper used by the compiler to generate a colorized context from a node
+         * 
+         * @param message error message to be included in the context
+         * @param node AST node with the error
+         * @return std::string 
+         */
+        std::string makeContextWithNode(const std::string& message, const internal::Node& node);
 
-    /**
-     * @brief OptimizerError thrown by the AST optimizer
-     * 
-     */
-    class OptimizerError : public std::runtime_error
-    {
-    public:
-        explicit OptimizerError(const std::string& message) :
-            std::runtime_error("OptimizerError: " + message)
-        {}
-    };
-
-    /**
-     * @brief MacroProcessingError thrown by the compiler
-     * 
-     */
-    class MacroProcessingError : public std::runtime_error
-    {
-    public:
-        explicit MacroProcessingError(const std::string& message) :
-            std::runtime_error("MacroProcessingError: " + message)
-        {}
-    };
-
-    /**
-     * @brief CompilationError thrown by the compiler
-     * 
-     */
-    class CompilationError : public std::runtime_error
-    {
-    public:
-        explicit CompilationError(const std::string& message) :
-            std::runtime_error("CompilationError: " + message)
-        {}
-    };
+        /**
+         * @brief Generate a diagnostic from an error and print it to the standard output
+         * 
+         * @param e code error
+         * @param code code of the file in which the error occured
+         */
+        void generate(const CodeError& e, std::string code = "");
+    }
 }
 
 #endif

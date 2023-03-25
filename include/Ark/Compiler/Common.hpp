@@ -29,26 +29,26 @@ namespace Ark::internal
     {
         Symbol,
         Capture,
-        GetField,
         Keyword,
         String,
         Number,
         List,
-        Macro,
         Spread,
+        Field,
+        Macro,
         Unused
     };
 
     constexpr std::array<std::string_view, 10> nodeTypes = {
         "Symbol",
         "Capture",
-        "GetField",
         "Keyword",
         "String",
         "Number",
         "List",
-        "Macro",
         "Spread",
+        "Field",
+        "Macro",
         "Unused"
     };
 
@@ -63,12 +63,11 @@ namespace Ark::internal
         While,
         Begin,
         Import,
-        Quote,
         Del
     };
 
     /// List of available keywords in ArkScript
-    constexpr std::array<std::string_view, 10> keywords = {
+    constexpr std::array<std::string_view, 9> keywords = {
         "fun",
         "let",
         "mut",
@@ -77,7 +76,6 @@ namespace Ark::internal
         "while",
         "begin",
         "import",
-        "quote",
         "del"
     };
 

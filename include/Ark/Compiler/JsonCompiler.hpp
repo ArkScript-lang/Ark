@@ -7,29 +7,26 @@
 #include <Ark/Constants.hpp>
 #include <Ark/Platform.hpp>
 #include <Ark/Compiler/AST/Node.hpp>
-#include <Ark/Compiler/AST/Parser.hpp>
-#include <Ark/Compiler/AST/Optimizer.hpp>
+#include <Ark/Compiler/Welder.hpp>
 
 namespace Ark
 {
-    class ARK_API JsonCompiler
+    class ARK_API JsonCompiler final
     {
     public:
         /**
          * @brief Construct a new JsonCompiler object
          *
          * @param debug the debug level
-         * @param options the compilers options
          */
-        JsonCompiler(unsigned debug, const std::vector<std::string>& libenv, uint16_t options = DefaultFeatures);
+        JsonCompiler(unsigned debug, const std::vector<std::string>& libenv);
 
         /**
          * @brief Feed the differents variables with information taken from the given source code file
          *
-         * @param code the code of the file
          * @param filename the name of the file
          */
-        void feed(const std::string& code, const std::string& filename = ARK_NO_NAME_FILE);
+        void feed(const std::string& filename);
 
         /**
          * @brief Start the compilation
@@ -39,10 +36,7 @@ namespace Ark
         std::string compile();
 
     private:
-        internal::Parser m_parser;
-        internal::Optimizer m_optimizer;
-        uint16_t m_options;
-        unsigned m_debug;  ///< the debug level of the compiler
+        Welder m_welder;
 
         /**
          * @brief Compile a single node and return its representation

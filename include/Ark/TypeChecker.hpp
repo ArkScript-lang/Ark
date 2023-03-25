@@ -17,12 +17,7 @@
 #include <vector>
 #include <type_traits>
 
-#define NOMINMAX
 #include <Ark/VM/Value.hpp>
-
-#ifdef max
-#    undef max
-#endif
 
 namespace Ark::types
 {
@@ -34,7 +29,7 @@ namespace Ark::types
         template <int I>
         bool checkN([[maybe_unused]] const std::vector<Value>& args)
         {
-            return true;
+            return I >= args.size();
         }
 
         template <int I, typename T, typename... Ts>

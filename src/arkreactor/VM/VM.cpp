@@ -2,6 +2,7 @@
 
 #include <numeric>
 #include <limits>
+#include <sstream>
 
 #include <termcolor/proxy.hpp>
 #include <Ark/Files.hpp>

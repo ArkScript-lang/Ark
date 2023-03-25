@@ -2,7 +2,7 @@
  * @file Repl.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief ArkScript REPL - Read Eval Print Loop
- * @version 0.1
+ * @version 0.2
  * @date 2020-10-27
  *
  * @copyright Copyright (c) 2020-2021
@@ -28,10 +28,9 @@ namespace Ark
         /**
          * @brief Construct a new Repl object
          *
-         * @param options the REPL options
          * @param libenv search path for the std library
          */
-        Repl(uint16_t options, const std::vector<std::string>& libenv);
+        Repl(const std::vector<std::string>& libenv);
 
         /**
          * @brief Start the REPL
@@ -40,7 +39,6 @@ namespace Ark
         int run();
 
     private:
-        uint16_t m_options;
         Replxx m_repl;
         unsigned m_lines;
         int m_old_ip;

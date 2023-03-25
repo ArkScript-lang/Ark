@@ -20,7 +20,6 @@
 #include <Ark/Compiler/AST/Node.hpp>
 #include <Ark/Exceptions.hpp>
 #include <Ark/Constants.hpp>
-#include <Ark/Compiler/AST/makeErrorCtx.hpp>
 
 namespace Ark::internal
 {
@@ -42,7 +41,7 @@ namespace Ark::internal
          * 
          * @param ast 
          */
-        void feed(const Node& ast);
+        void process(const Node& ast);
 
         /**
          * @brief Returns the modified AST

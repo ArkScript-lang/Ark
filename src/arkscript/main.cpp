@@ -11,6 +11,7 @@
 #include <Ark/REPL/Repl.hpp>
 
 #include <Ark/Files.hpp>
+#include <Ark/Compiler/BytecodeReader.hpp>
 #include <Ark/Compiler/JsonCompiler.hpp>
 
 int main(int argc, char** argv)
@@ -30,7 +31,6 @@ int main(int argc, char** argv)
         ast
     };
     mode selected = mode::repl;
-    uint16_t options = Ark::DefaultFeatures;
 
     std::string file = "",
                 eval_expresion = "";
@@ -124,8 +124,16 @@ int main(int argc, char** argv)
     {
         using namespace Ark;
 
+        // if arkscript lib paths were provided by the CLI, bypass the environment variable
         if (!libdir.empty())
             libenv = Utils::splitString(libdir, ';');
+        else
+        {
+            const char* arkpath = getenv("ARKSCRIPT_PATH");  // TODO harden this, this might be bug prone
+            if (arkpath)
+                libenv = Utils::splitString(arkpath, ';');
+            std::cerr << termcolor::yellow << "Warning" << termcolor::reset << "Couldn't read ARKSCRIPT_PATH environment variable" << std::endl;
+        }
 
         switch (selected)
         {
@@ -183,13 +191,13 @@ int main(int argc, char** argv)
             case mode::repl:
             {
                 // send default features without FeatureRemoveUnusedVars to avoid deleting code which will be used later on
-                Ark::Repl repl(Ark::DefaultFeatures & ~Ark::FeatureRemoveUnusedVars, libenv);
+                Ark::Repl repl(libenv);
                 return repl.run();
             }
 
             case mode::compile:
             {
-                Ark::State state(options, libenv);
+                Ark::State state(libenv);
                 state.setDebug(debug);
 
                 if (!state.doFile(file))
@@ -203,7 +211,7 @@ int main(int argc, char** argv)
 
             case mode::run:
             {
-                Ark::State state(options, libenv);
+                Ark::State state(libenv);
                 state.setDebug(debug);
                 state.setArgs(script_args);
 
@@ -232,7 +240,7 @@ int main(int argc, char** argv)
 
             case mode::eval:
             {
-                Ark::State state(options, libenv);
+                Ark::State state(libenv);
                 state.setDebug(debug);
 
                 if (!state.doString(eval_expresion))
@@ -247,8 +255,8 @@ int main(int argc, char** argv)
 
             case mode::ast:
             {
-                Ark::JsonCompiler jcompiler(debug, libenv, options);
-                jcompiler.feed(Ark::Utils::readFile(file), file);
+                Ark::JsonCompiler jcompiler(debug, libenv);
+                jcompiler.feed(file);
                 std::cout << jcompiler.compile() << std::endl;
                 break;
             }

@@ -3,6 +3,7 @@
 #include <Ark/Utils.hpp>
 #include <utf8_decoder.h>
 #include <fmt/format.h>
+#include <sstream>
 
 #include <Ark/TypeChecker.hpp>
 #include <Ark/VM/VM.hpp>
