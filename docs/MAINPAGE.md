@@ -24,9 +24,15 @@ Also it has:
     * [stable](https://hub.docker.com/r/arkscript/stable), built after each release
     * [nightly](https://hub.docker.com/r/arkscript/nightly), built after each commit
 
+# Guidelines
+
+- @subpage guidelines_coding "Coding guidelines in ArkScript"
+- @subpage guidelines_naming "Naming guidelines in ArkScript"
+- @subpage guidelines_moduleserrorhandling "How to do error handling in your modules"
+
 # Links
 
 - [Source code](https://github.com/ArkScript-lang/Ark)
-- @ref tutorials
-- @ref implementation
+- @ref tutorials "Tutorials on the language"
+- @ref implementation "Implementation details of the language"
 - [Main website](https://arkscript-lang.github.io)

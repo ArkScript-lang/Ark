@@ -7,7 +7,7 @@ You will still need to dive a bit into the documentation of the project, to know
 * the possibilities of the Value type (comparisons, creations)
 * how to use the `UserType`
 
-Also, read the @ref guidelines_moduleserrorhandling about module error handling to use the same conventions as the other modules, and the @ref guidelines_naming about naming conventions in ArkScript (specifically see the *Modules (C++)* section).
+Also, read @ref guidelines_moduleserrorhandling "the guidelines about module error handling" to use the same conventions as the other modules, and @ref guidelines_naming "the guidlines about naming conventions" in ArkScript (specifically see the *Modules (C++)* section).
 
 ## Creating a new module
 

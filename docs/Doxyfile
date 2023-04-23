@@ -44,6 +44,7 @@ WARN_LOGFILE           = warnings.log
 #---------------------------------------------------------------------------
 # Configuration options related to the input files
 #---------------------------------------------------------------------------
+LAYOUT_FILE = DoxygenLayout.xml
 INPUT                  = ../include \
                          ../src     \
                          ./         \

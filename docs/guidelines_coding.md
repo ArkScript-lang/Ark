@@ -15,7 +15,7 @@ The general rule of thumb is that a closing parenthesis should never be to the l
 
 ## Naming convention
 
-Functions and constants (the ones in the lib and in the builtins) are named following the `first:second` convention, described in @ref guidelines_naming.
+Functions and constants (the ones in the lib and in the builtins) are named following the `first:second` convention, described in @ref guidelines_naming "the naming guidelines".
 
 ## Block definitions
 
