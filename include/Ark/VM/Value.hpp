@@ -20,7 +20,6 @@
 #include <memory>
 #include <functional>
 #include <utility>
-#include <Ark/String.hpp>  // our string implementation
 #include <array>
 
 #include <Ark/VM/Value/Closure.hpp>
@@ -76,7 +75,7 @@ namespace Ark
 
         using Value_t = std::variant<
             double,                //  8 bytes
-            String,                // 16 bytes
+            std::string,           // 32 bytes
             internal::PageAddr_t,  //  2 bytes
             ProcType,              //  8 bytes
             internal::Closure,     // 24 bytes
@@ -84,7 +83,7 @@ namespace Ark
             std::vector<Value>,    // 24 bytes
             Value*                 //  8 bytes
             >;                     // +8 bytes overhead
-        //                      total 32 bytes
+        //                      total 40 bytes
 
         /**
          * @brief Construct a new Value object
@@ -147,13 +146,6 @@ namespace Ark
          * @param value 
          */
         explicit Value(const std::string& value) noexcept;
-
-        /**
-         * @brief Construct a new Value object as a String
-         * 
-         * @param value 
-         */
-        explicit Value(const String& value) noexcept;
 
         /**
          * @brief Construct a new Value object as a String
@@ -229,9 +221,9 @@ namespace Ark
         /**
          * @brief Return the stored string
          * 
-         * @return const String& 
+         * @return const std::string& 
          */
-        inline const String& string() const;
+        inline const std::string& string() const;
 
         /**
          * @brief Return the stored list
@@ -257,9 +249,9 @@ namespace Ark
         /**
          * @brief Return the stored string as a reference
          * 
-         * @return String& 
+         * @return std::string& 
          */
-        String& stringRef();
+        std::string& stringRef();
 
         /**
          * @brief Return the stored user type as a reference

@@ -10,11 +10,11 @@ Purple='\033[0;35m'
 Cyan='\033[0;36m'
 White='\033[0;37m'
 
-maybe_ark=$(which ark)
+maybe_ark=$(which arkscript)
 if [[ $($maybe_ark --help | grep "ArkScript programming language") != "" ]]; then
     ark=$maybe_ark
-elif [ -f ../build/ark ]; then
-    ark=../build/ark
+elif [ -f ../build/arkscript ]; then
+    ark=../build/arkscript
 else
     echo -e "${Red}Couldn't find ark${Reset}"
     exit 1

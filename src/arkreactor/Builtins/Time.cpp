@@ -3,7 +3,6 @@
 #undef abs
 #include <chrono>
 
-#include <Ark/Builtins/BuiltinsErrors.inl>
 #include <Ark/VM/VM.hpp>
 
 namespace Ark::internal::Builtins::Time

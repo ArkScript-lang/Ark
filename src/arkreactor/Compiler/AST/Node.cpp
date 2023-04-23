@@ -226,10 +226,6 @@ namespace Ark::internal
                 break;
             }
 
-            case NodeType::Closure:
-                os << "Closure";
-                break;
-
             case NodeType::Keyword:
                 switch (N.keyword())
                 {
@@ -287,8 +283,7 @@ namespace Ark::internal
         if (A.m_type != B.m_type)  // should have the same types
             return false;
 
-        if (A.m_type != NodeType::List &&
-            A.m_type != NodeType::Closure)
+        if (A.m_type != NodeType::List)
             return A.m_value == B.m_value;
 
         if (A.m_type == NodeType::List)

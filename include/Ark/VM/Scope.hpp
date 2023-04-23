@@ -16,6 +16,7 @@
 #include <utility>
 #include <cinttypes>
 
+#include <Ark/Platform.hpp>
 #include <Ark/VM/Value.hpp>
 
 namespace Ark::internal
@@ -67,6 +68,14 @@ namespace Ark::internal
         Value* operator[](uint16_t id) noexcept;
 
         /**
+         * @brief Get a value from its symbol id
+         * 
+         * @param id 
+         * @return const Value* Returns nullptr if the value can not be found
+         */
+        const Value* operator[](uint16_t id) const noexcept;
+
+        /**
          * @brief Get the id of a variable based on its value ; used for debug only
          * 
          * @param val 
@@ -81,11 +90,15 @@ namespace Ark::internal
          */
         std::size_t size() const noexcept;
 
+        friend ARK_API bool operator==(const Scope& A, const Scope& B) noexcept;
+
         friend class Ark::VM;
         friend class Ark::internal::Closure;
 
     private:
         std::vector<std::pair<uint16_t, Value>> m_data;
+        uint16_t m_min_id;
+        uint16_t m_max_id;
     };
 }
 

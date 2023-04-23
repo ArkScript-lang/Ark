@@ -1,6 +1,6 @@
 #include <Ark/VM/Value.hpp>
 
-#include <Ark/Utils.hpp>
+#include <fmt/format.h>
 
 #define init_const_type(is_const, type) ((is_const ? (1 << 7) : 0) | static_cast<uint8_t>(type))
 
@@ -72,10 +72,6 @@ namespace Ark
     {}
 
     Value::Value(const std::string& value) noexcept :
-        m_const_type(init_const_type(false, ValueType::String)), m_value(value.c_str())
-    {}
-
-    Value::Value(const String& value) noexcept :
         m_const_type(init_const_type(false, ValueType::String)), m_value(value)
     {}
 
@@ -119,9 +115,9 @@ namespace Ark
         return std::get<internal::Closure>(m_value);
     }
 
-    String& Value::stringRef()
+    std::string& Value::stringRef()
     {
-        return std::get<String>(m_value);
+        return std::get<std::string>(m_value);
     }
 
     UserType& Value::usertypeRef()
@@ -154,13 +150,12 @@ namespace Ark
             case ValueType::Number:
             {
                 double d = number();
-                os.precision(Utils::digPlaces(d) + Utils::decPlaces(d));
-                os << d;
+                os << fmt::format("{}", d);
                 break;
             }
 
             case ValueType::String:
-                os << string().c_str();
+                os << string();
                 break;
 
             case ValueType::PageAddr:

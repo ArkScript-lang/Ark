@@ -1,5 +1,28 @@
 # Change Log
 
+## [4.0.0] - 20XX-XX-XX
+### Added
+- more tests for the io builtins
+- added lines and code coloration in the error context
+- new dependency: fmtlib
+
+### Changed
+- instructions are on 4 bytes: 1 byte for the instruction, 1 byte of padding, 2 bytes for an immediate argument
+- enhanced the bytecode reader and its command line interface
+- added the padding/instruction/argumentation values when displaying instructions in the bytecode reader
+- fixed underline bug in the error context
+- the str:format functions now expects strings following this syntax: https://fmt.dev/latest/syntax.html
+- more documentation about the compiler implementation
+- more documentation about the virtual machine
+- closures can be now be compared field per field: `(= closure1 closure2)` will work only if they have the same fields (name) and if the values match
+
+### Removed
+- removed unused `NodeType::Closure`
+- removing the custom string, replacing it with std::string (the format engine of the custom string had a lot of memory leaks)
+- removing the custom string, replacing it with std::string (the format engine of the custom string had a lot of memory leaks)
+- `Utils::digPlaces` and `Utils::decPlaces` got removed as they were no longer needed
+- removed deprecated code (`list:removeAt`, `ark` executable now replaced by `arkscript`)
+
 ## [3.5.0] - 2023-02-19
 ### Added
 - added fuzzing tools and corpus for [AFL](https://github.com/AFLplusplus/AFLplusplus)

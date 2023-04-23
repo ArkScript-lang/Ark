@@ -4,9 +4,9 @@
  * @brief Host the declaration of all the ArkScript builtins
  * @version 0.1
  * @date 2020-10-27
- * 
+ *
  * @copyright Copyright (c) 2020-2021
- * 
+ *
  */
 
 #ifndef ARK_BUILTINS_BUILTINS_HPP
@@ -35,13 +35,12 @@ namespace Ark::internal::Builtins
     // ------------------------------
     namespace List
     {
-        Value reverseList(std::vector<Value>& n, VM* vm);   // list:reverse, single arg
-        Value findInList(std::vector<Value>& n, VM* vm);    // list:find, 2 arguments
-        Value removeAtList(std::vector<Value>& n, VM* vm);  // list:removeAt, 2 arguments -- DEPRECATED
-        Value sliceList(std::vector<Value>& n, VM* vm);     // list:slice, 4 arguments
-        Value sort_(std::vector<Value>& n, VM* vm);         // list:sort, 1 argument
-        Value fill(std::vector<Value>& n, VM* vm);          // list:fill, 2 arguments
-        Value setListAt(std::vector<Value>& n, VM* vm);     // list:setAt, 3 arguments
+        Value reverseList(std::vector<Value>& n, VM* vm);  // list:reverse, single arg
+        Value findInList(std::vector<Value>& n, VM* vm);   // list:find, 2 arguments
+        Value sliceList(std::vector<Value>& n, VM* vm);    // list:slice, 4 arguments
+        Value sort_(std::vector<Value>& n, VM* vm);        // list:sort, 1 argument
+        Value fill(std::vector<Value>& n, VM* vm);         // list:fill, 2 arguments
+        Value setListAt(std::vector<Value>& n, VM* vm);    // list:setAt, 3 arguments
     }
 
     namespace IO
