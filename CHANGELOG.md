@@ -23,7 +23,7 @@
 - `Utils::digPlaces` and `Utils::decPlaces` got removed as they were no longer needed
 - removed deprecated code (`list:removeAt`, `ark` executable now replaced by `arkscript`)
 
-## [3.5.0] - 2022-02-19
+## [3.5.0] - 2023-02-19
 ### Added
 - added fuzzing tools and corpus for [AFL](https://github.com/AFLplusplus/AFLplusplus)
 - added some tests for errors
@@ -42,11 +42,6 @@
 - better arity check for macros
 - fixed a bug in the macro processor where macros were deleted when they shouldn't
 - fixed a bug where macro functions with no argument would crash the macro processor
-
-### Removed
-
-### Deprecated
-
 
 ## [3.4.0] - 2022-09-12
 ### Added
