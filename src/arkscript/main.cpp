@@ -17,19 +17,6 @@ int main(int argc, char** argv)
 {
     using namespace clipp;
 
-// TODO remove once next major version of ArkScript is available
-#if ARK_VERSION_MAJOR == 4
-#    error "this code block should be removed from ArkScript 4.x.y"
-#endif
-    {
-        namespace fs = std::filesystem;
-        fs::path program(argv[0]);
-
-        if (program.stem() == "ark")
-            std::cout << termcolor::yellow << "Warning" << termcolor::reset << " the command `ark' is being deprecated in favor of `arkscript'" << std::endl;
-    }
-
-
     enum class mode
     {
         help,
@@ -86,15 +73,15 @@ int main(int argc, char** argv)
                         option("-a", "--all").set(segment, Ark::BytecodeSegment::All).doc("Display all the bytecode segments (default)")
                         | option("-st", "--symbols").set(segment, Ark::BytecodeSegment::Symbols).doc("Display only the symbols table")
                         | option("-vt", "--values").set(segment, Ark::BytecodeSegment::Values).doc("Display only the values table")
+                        | (
+                            option("-cs", "--code").set(segment, Ark::BytecodeSegment::Code).doc("Display only the code segments")
+                            , option("-p", "--page").set(segment, Ark::BytecodeSegment::Code).doc("Set the bytecode reader code segment to display")
+                            & value("page", bcr_page)
+                        )
                     )
                     , option("-s", "--slice").doc("Select a slice of instructions in the bytecode")
                         & value("start", bcr_start)
                         & value("end", bcr_end)
-                )
-                | (
-                    option("-cs", "--code").set(segment, Ark::BytecodeSegment::Code).doc("Display only the code segments")
-                    , option("-p", "--page").doc("Set the bytecode reader code segment to display")
-                        & value("page", bcr_page)
                 )
             )
         )
@@ -171,8 +158,6 @@ int main(int argc, char** argv)
                     "      sizeof(ExecutionContext) = %zuB\n"
                     "\nMisc\n"
                     "    sizeof(vector<Ark::Value>) = %zuB\n"
-                    "    sizeof(std::string)   = %zuB\n"
-                    "    sizeof(String)        = %zuB\n"
                     "    sizeof(char)          = %zuB\n"
                     "\nsizeof(Node)           = %zuB\n",
                     ARK_COMPILER, ARK_COMPILATION_OPTIONS,
@@ -190,8 +175,6 @@ int main(int argc, char** argv)
                     sizeof(Ark::internal::ExecutionContext),
                     // misc
                     sizeof(std::vector<Ark::Value>),
-                    sizeof(std::string),
-                    sizeof(String),
                     sizeof(char),
                     sizeof(Ark::internal::Node));
                 break;

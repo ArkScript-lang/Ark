@@ -44,4 +44,13 @@ namespace Ark::internal
         }
         os << ")";
     }
+
+    bool operator==(const Closure& A, const Closure& B) noexcept
+    {
+        // they do not come from the same closure builder
+        if (A.m_page_addr != B.m_page_addr)
+            return false;
+
+        return *A.m_scope == *B.m_scope;
+    }
 }

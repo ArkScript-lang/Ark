@@ -18,9 +18,9 @@ inline double Value::number() const
     return std::get<double>(m_value);
 }
 
-inline const String& Value::string() const
+inline const std::string& Value::string() const
 {
-    return std::get<String>(m_value);
+    return std::get<std::string>(m_value);
 }
 
 inline const std::vector<Value>& Value::constList() const
@@ -100,7 +100,7 @@ inline bool operator!(const Value& A) noexcept
             return !A.number();
 
         case ValueType::String:
-            return A.string().size() == 0;
+            return A.string().empty();
 
         case ValueType::User:
         case ValueType::Nil:

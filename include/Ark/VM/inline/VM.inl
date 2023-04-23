@@ -141,16 +141,6 @@ inline Value VM::resolve(internal::ExecutionContext* context, std::vector<Value>
 
 #pragma region "stack management"
 
-inline uint16_t VM::readNumber(internal::ExecutionContext& context)
-{
-    uint16_t tmp =
-        (static_cast<uint16_t>(m_state.m_pages[context.pp][context.ip]) << 8) +
-        static_cast<uint16_t>(m_state.m_pages[context.pp][context.ip + 1]);
-
-    ++context.ip;
-    return tmp;
-}
-
 inline Value* VM::pop(internal::ExecutionContext& context)
 {
     if (context.sp > 0)
@@ -346,7 +336,7 @@ inline void VM::call(internal::ExecutionContext& context, int16_t argc_)
                 context.locals.back()->push_back(context.last_symbol, function);
 
             context.pp = new_page_pointer;
-            context.ip = -1;  // because we are doing a context.ip++ right after that
+            context.ip = 0;
             break;
         }
 
@@ -365,7 +355,7 @@ inline void VM::call(internal::ExecutionContext& context, int16_t argc_)
             swapStackForFunCall(argc, context);
 
             context.pp = new_page_pointer;
-            context.ip = -1;  // because we are doing a context.ip++ right after that
+            context.ip = 0;
             break;
         }
 
@@ -383,10 +373,11 @@ inline void VM::call(internal::ExecutionContext& context, int16_t argc_)
                 needed_argc = 0;
 
     // every argument is a MUT declaration in the bytecode
-    while (m_state.m_pages[context.pp][index] == Instruction::MUT)
+    // index+1 to skip the padding
+    while (m_state.m_pages[context.pp][index + 1] == Instruction::MUT)
     {
         needed_argc += 1;
-        index += 3;  // jump the argument of MUT (integer on 2 bits, big endian)
+        index += 4;  // instructions are on 4 bytes
     }
 
     if (needed_argc != argc)

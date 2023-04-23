@@ -116,7 +116,6 @@ jobs:
       shell: bash
       run: |
         mkdir -p artifact/lib/std
-        cp build/ark artifact
         cp build/arkscript artifact
         cp build/libArkReactor.* artifact
         cp lib/*.arkm artifact/lib
@@ -128,7 +127,6 @@ jobs:
       shell: bash
       run: |
         mkdir -p artifact/lib/std
-        cp build/$BUILD_TYPE/ark.exe artifact
         cp build/$BUILD_TYPE/arkscript.exe artifact
         cp build/$BUILD_TYPE/ArkReactor.dll artifact
         cp lib/*.arkm artifact/lib
@@ -206,7 +204,7 @@ jobs:
       run: |
         mv artifact/cpp/out tests/cpp/
         mv build/lib/*.arkm lib/
-        chmod u+x build/ark build/arkscript tests/cpp/out/*
+        chmod u+x build/arkscript tests/cpp/out/*
 
     - name: Pre-test
       if: startsWith(matrix.config.name, 'Windows')
