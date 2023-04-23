@@ -171,4 +171,4 @@ namespace Ark
 
 ## ArkScript coding guidelines
 
-Check out the [ArkScript RFC 001](https://github.com/ArkScript-lang/rfc/blob/master/001-coding-guidelines.md). We are quite flexible about it, those are just general guidelines to produce a readable ArkScript code.
+Check out the [Coding guidelines](https://github.com/ArkScript-lang/Ark/blob/dev/docs/guidelines_coding.md). We are quite flexible about it, those are just general guidelines to produce a readable ArkScript code.

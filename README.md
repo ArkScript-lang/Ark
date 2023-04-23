@@ -110,7 +110,6 @@ Don't know what to work on? No worries, we have a [list of things to do](https:/
 ### Related projects
 
 We have other projects tightly related to ArkScript, which aren't necessarily C++ oriented:
-* the [Request For Comments](https://github.com/ArkScript-lang/rfc), where we discuss new features for the language
 * the [standard library](https://github.com/ArkScript-lang/std), written in ArkScript itself
 * the [standard library modules](https://github.com/ArkScript-lang/modules), extending the capacities of the language, written in C++
 * [ArkDoc](https://github.com/ArkScript-lang/ArkDoc), a documentation generator *à la doxygen* for ArkScript, written in Python 3
@@ -124,7 +123,7 @@ We have other projects tightly related to ArkScript, which aren't necessarily C+
 
 See [C++ Coding guidelines](https://github.com/ArkScript-lang/Ark/blob/dev/CONTRIBUTING.md#c-coding-guidelines) if you want to contribute to ArkScript compiler / runtime.
 
-Also, see [ArkScript Coding guidelines](https://github.com/ArkScript-lang/rfc/blob/master/001-coding-guidelines.md) for other files, written in ArkScript.
+Also, see [ArkScript Coding guidelines](https://github.com/ArkScript-lang/Ark/blob/dev/docs/guidelines_coding.md) for other files, written in ArkScript.
 
 For performance reasons, some functions might be written in C++, in `include/Ark/Builtins/Builtins.hpp` and `src/Builtins/`.
 
