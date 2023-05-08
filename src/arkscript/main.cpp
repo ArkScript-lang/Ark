@@ -1,11 +1,12 @@
-#include <cstdio>
 #include <iostream>
 #include <optional>
 #include <filesystem>
 #include <limits>
+#include <cstdlib>
 
 #include <clipp.h>
 #include <termcolor/proxy.hpp>
+#include <fmt/core.h>
 
 #include <Ark/Ark.hpp>
 #include <Ark/REPL/Repl.hpp>
@@ -39,6 +40,7 @@ int main(int argc, char** argv)
 
     constexpr uint16_t max_uint16 = std::numeric_limits<uint16_t>::max();
 
+    // by default, select all pages and segment types, without slicing anything
     uint16_t bcr_page = max_uint16;
     uint16_t bcr_start = max_uint16;
     uint16_t bcr_end = max_uint16;
@@ -46,7 +48,7 @@ int main(int argc, char** argv)
 
     std::vector<std::string> wrong, script_args;
 
-    std::string libdir = "";
+    std::string libdir;
     std::vector<std::string> libenv;
 
     // clang-format off
@@ -89,9 +91,7 @@ int main(int argc, char** argv)
             value("file", file).set(selected, mode::run)
             , (
                 joinable(repeatable(option("-d", "--debug").call([&]{ debug++; })))
-                ,
-                // shouldn't change now, the lib option is fine and working
-                (
+                , (
                     option("-L", "--lib").doc("Set the location of the ArkScript standard library. Paths can be delimited by ';'")
                     & value("lib_dir", libdir)
                 )
@@ -102,8 +102,7 @@ int main(int argc, char** argv)
             required("--ast").set(selected, mode::ast).doc("Compile the given program and output its AST as JSON to stdout")
             & value("file", file)
             , joinable(repeatable(option("-d", "--debug").call([&]{ debug++; }).doc("Increase debug level (default: 0)")))
-            ,
-            (
+            , (
                 option("-L", "--lib").doc("Set the location of the ArkScript standard library. Paths can be delimited by ';'")
                 & value("lib_dir", libdir)
             )
@@ -124,14 +123,15 @@ int main(int argc, char** argv)
     {
         using namespace Ark;
 
-        // if arkscript lib paths were provided by the CLI, bypass the environment variable
+        // if arkscript lib paths were provided by the CLI, bypass the automatic lookup
         if (!libdir.empty())
             libenv = Utils::splitString(libdir, ';');
         else
         {
-            const char* arkpath = getenv("ARKSCRIPT_PATH");  // TODO harden this, this might be bug prone
-            if (arkpath)
+            if (const char* arkpath = std::getenv("ARKSCRIPT_PATH"))
                 libenv = Utils::splitString(arkpath, ';');
+            else if (Utils::fileExists("./lib"))
+                libenv.push_back(Utils::canonicalRelPath("./lib"));
             std::cerr << termcolor::yellow << "Warning" << termcolor::reset << "Couldn't read ARKSCRIPT_PATH environment variable" << std::endl;
         }
 
@@ -141,33 +141,34 @@ int main(int argc, char** argv)
                 // clipp only supports streams
                 std::cout << make_man_page(cli, "arkscript", fmt)
                                  .prepend_section("DESCRIPTION", "        ArkScript programming language")
+                                 .append_section("VERSION", fmt::format("        {}.{}.{}", ARK_VERSION_MAJOR, ARK_VERSION_MINOR, ARK_VERSION_PATCH))
                                  .append_section("LICENSE", "        Mozilla Public License 2.0")
                           << std::endl;
                 break;
 
             case mode::version:
-                std::printf("Version %i.%i.%i\n", ARK_VERSION_MAJOR, ARK_VERSION_MINOR, ARK_VERSION_PATCH);
+                std::cout << fmt::format("Version {}.{}.{}\n", ARK_VERSION_MAJOR, ARK_VERSION_MINOR, ARK_VERSION_PATCH);
                 break;
 
             case mode::dev_info:
             {
-                std::printf(
-                    "Have been compiled with %s, options: %s\n\n"
-                    "sizeof(Ark::Value)    = %zuB\n"
-                    "      sizeof(Value_t) = %zuB\n"
-                    "      sizeof(ValueType) = %zuB\n"
-                    "      sizeof(ProcType)  = %zuB\n"
-                    "      sizeof(Ark::Closure)  = %zuB\n"
-                    "      sizeof(Ark::UserType) = %zuB\n"
+                std::cout << fmt::format(
+                    "Have been compiled with {}, options: {}\n\n"
+                    "sizeof(Ark::Value)    = {}B\n"
+                    "      sizeof(Value_t) = {}B\n"
+                    "      sizeof(ValueType) = {}B\n"
+                    "      sizeof(ProcType)  = {}B\n"
+                    "      sizeof(Ark::Closure)  = {}B\n"
+                    "      sizeof(Ark::UserType) = {}B\n"
                     "\nVirtual Machine\n"
-                    "sizeof(Ark::VM)       = %zuB\n"
-                    "      sizeof(Ark::State)    = %zuB\n"
-                    "      sizeof(Ark::Scope)    = %zuB\n"
-                    "      sizeof(ExecutionContext) = %zuB\n"
+                    "sizeof(Ark::VM)       = {}B\n"
+                    "      sizeof(Ark::State)    = {}B\n"
+                    "      sizeof(Ark::Scope)    = {}B\n"
+                    "      sizeof(ExecutionContext) = {}B\n"
                     "\nMisc\n"
-                    "    sizeof(vector<Ark::Value>) = %zuB\n"
-                    "    sizeof(char)          = %zuB\n"
-                    "\nsizeof(Node)           = %zuB\n",
+                    "    sizeof(vector<Ark::Value>) = {}B\n"
+                    "    sizeof(char)          = {}B\n"
+                    "\nsizeof(Node)           = {}B\n",
                     ARK_COMPILER, ARK_COMPILATION_OPTIONS,
                     // value
                     sizeof(Ark::Value),
@@ -190,7 +191,6 @@ int main(int argc, char** argv)
 
             case mode::repl:
             {
-                // send default features without FeatureRemoveUnusedVars to avoid deleting code which will be used later on
                 Ark::Repl repl(libenv);
                 return repl.run();
             }
@@ -201,10 +201,7 @@ int main(int argc, char** argv)
                 state.setDebug(debug);
 
                 if (!state.doFile(file))
-                {
-                    std::cerr << "Could not compile file at " << file << "\n";
                     return -1;
-                }
 
                 break;
             }
@@ -216,23 +213,17 @@ int main(int argc, char** argv)
                 state.setArgs(script_args);
 
                 if (!state.doFile(file))
-                {
-                    std::cerr << "Could not run file at " << file << "\n";
                     return -1;
-                }
 
                 Ark::VM vm(state);
                 int out = vm.run();
 
 #ifdef ARK_PROFILER_COUNT
-                std::printf(
-                    "\n\nValue\n"
-                    "=====\n"
-                    "\tCreations: %u\n\tCopies: %u\n\tMoves: %u\n\n\tCopy coeff: %f",
-                    Ark::internal::value_creations,
-                    Ark::internal::value_copies,
-                    Ark::internal::value_moves,
-                    static_cast<float>(Ark::internal::value_copies) / Ark::internal::value_creations);
+                std::cout << "\n\nValue\n=====\n"
+                          << "\tCreations: " << Ark::internal::value_creations
+                          << "\n\tCopies: " << Ark::internal::value_copies
+                          << "\n\tMoves: " << Ark::internal::value_moves
+                          << "\n\n\tCopy coeff: " << static_cast<float>(Ark::internal::value_copies) / Ark::internal::value_creations;
 #endif
 
                 return out;
@@ -279,7 +270,8 @@ int main(int argc, char** argv)
                 }
                 catch (const std::exception& e)
                 {
-                    std::printf("%s\n", e.what());
+                    std::cerr << e.what() << std::endl;
+                    return -1;
                 }
                 break;
             }
@@ -288,11 +280,12 @@ int main(int argc, char** argv)
     else
     {
         for (const auto& arg : wrong)
-            std::printf("'%s' ins't a valid argument\n", arg.c_str());
+            std::cerr << "'" << arg.c_str() << "' ins't a valid argument\n";
 
         // clipp only supports streams
         std::cout << make_man_page(cli, "arkscript", fmt)
                          .prepend_section("DESCRIPTION", "        ArkScript programming language")
+                         .append_section("VERSION", fmt::format("        {}.{}.{}", ARK_VERSION_MAJOR, ARK_VERSION_MINOR, ARK_VERSION_PATCH))
                          .append_section("LICENSE", "        Mozilla Public License 2.0")
                   << std::endl;
     }

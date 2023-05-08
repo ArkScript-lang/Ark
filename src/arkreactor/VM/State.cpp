@@ -19,15 +19,9 @@ namespace Ark
 {
     State::State(const std::vector<std::string>& libenv) noexcept :
         m_debug_level(0),
+        m_libenv(libenv),
         m_filename(ARK_NO_NAME_FILE)
-    {
-        if (libenv.size() > 0)
-            m_libenv = libenv;
-        else if (Utils::fileExists("./lib"))
-            m_libenv.push_back(Utils::canonicalRelPath("./lib"));
-        else if (m_debug_level >= 1)
-            std::cout << termcolor::yellow << "Warning" << termcolor::reset << " no std library was found/provided" << std::endl;
-    }
+    {}
 
     bool State::feed(const std::string& bytecode_filename)
     {
