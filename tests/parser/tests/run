@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+
+file=parser
+
+if [ -f ../build/Release/${file}.exe ]; then
+    cmd=../build/Release/${file}.exe
+elif [ -f ../build/${file} ]; then
+    cmd=../build/${file}
+else
+    echo "No $file executable found" && exit 1
+fi
+
+Reset='\033[0m'
+Black='\033[0;30m'
+Red='\033[0;31m'
+Green='\033[0;32m'
+Yellow='\033[0;33m'
+Blue='\033[0;34m'
+Purple='\033[0;35m'
+Cyan='\033[0;36m'
+White='\033[0;37m'
+
+passed=0
+failed=0
+
+for f in ./*.ark; do
+    output=$($cmd $f 2>&1)
+    expected=$(cat ${f%.*}.expected)
+    diff=$(diff <(echo "$output" | sed -r "s/\x1B\[([0-9]{1,3}(;[0-9]{1,2};?)?)?[mGK]//g") <(echo "$expected"))
+
+    if [[ $diff != "" ]]; then
+        echo -e "${Red}FAILED${Reset} ${f%.*}"
+        ((failed=failed+1))
+        echo -e "    ${Yellow}Output${Reset}:"
+        echo "$diff"
+    else
+        echo -e "${Green}PASSED${Reset} ${f%.*}"
+        ((passed=passed+1))
+    fi
+done
+
+echo "  ------------------------------"
+echo -e "  ${Cyan}${passed}${Reset} passed, ${Purple}${failed}${Reset} failed"
+
+if [[ $failed != 0 ]]; then
+    exit 1
+else
+    exit 0
+fi

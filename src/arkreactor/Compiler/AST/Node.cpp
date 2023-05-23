@@ -159,6 +159,13 @@ namespace Ark::internal
                 os << ")";
                 break;
 
+            case NodeType::Macro:
+                os << "( Macro ";
+                for (std::size_t i = 0, end = node.constList().size(); i < end; ++i)
+                    os << node.constList()[i] << " ";
+                os << ")";
+                break;
+
             case NodeType::Spread:
                 os << "Spread:" << node.string();
                 break;

@@ -1,0 +1,8 @@
+( Macro Symbol:a Number:1 )
+( Macro Symbol:b ( ) Number:2 )
+( Macro Symbol:c ( Symbol:d Symbol:e ) Number:3 )
+( Macro Symbol:f ( Symbol:g ) Number:4 )
+( Macro Symbol:h ( Symbol:i Symbol:j ) ( Keyword:Let Symbol:a Number:1 ) )
+( Macro Symbol:h ( Symbol:i Symbol:j ) ( Keyword:Let Symbol:a ( Keyword:If Symbol:i Number:2 Number:3 ) ) )
+( Macro Symbol:k ( Symbol:l Spread:m ) ( Symbol:print Symbol:l Symbol:m ) )
+( Macro Symbol:n ( Spread:p ) ( Symbol:print Symbol:p ) )

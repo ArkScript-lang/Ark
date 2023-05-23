@@ -1,0 +1,5 @@
+In file ./incomplete_macro.ark
+At ( @ 1:8
+    1 | (macro (a) a)
+      |        ^~~
+        macro needs a symbol

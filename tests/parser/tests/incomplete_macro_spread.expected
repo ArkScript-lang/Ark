@@ -1,0 +1,5 @@
+In file ./incomplete_macro_spread.ark
+At ) @ 1:20
+    1 | (macro foo (bar ...) (bar))
+      |                    ^
+        Expected a name for the variadic arguments list

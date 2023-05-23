@@ -76,32 +76,35 @@ namespace Ark::Diagnostics
         return colorized_line.str();
     }
 
-    void makeContext(std::ostream& os, const std::string& code, std::size_t line, std::size_t col_start, std::size_t sym_size)
+    void makeContext(std::ostream& os, const std::string& code, std::size_t target_line, std::size_t col_start, std::size_t sym_size)
     {
         os << termcolor::colorize;
         std::vector<std::string> ctx = Utils::splitString(code, '\n');
 
-        std::size_t first = line >= 3 ? line - 3 : 0;
-        std::size_t last = (line + 3) <= ctx.size() ? line + 3 : ctx.size();
-        std::size_t overflow = (col_start + sym_size < ctx[line].size()) ? 0 : col_start + sym_size - ctx[line].size();  // number of characters that are on more lines below
+        std::size_t first_line = target_line >= 3 ? target_line - 3 : 0;
+        std::size_t last_line = (target_line + 3) <= ctx.size() ? target_line + 3 : ctx.size();
+        std::size_t overflow = (col_start + sym_size < ctx[target_line].size()) ? 0 : col_start + sym_size - ctx[target_line].size();  // number of characters that are on more lines below
         LineColorContextCounts line_color_context_counts;
 
-        for (std::size_t loop = first; loop < last; ++loop)
+        for (std::size_t i = first_line; i < last_line; ++i)
         {
-            std::string current_line = colorizeLine(ctx[loop], line_color_context_counts);
-            os << termcolor::green << std::setw(5) << (loop + 1) << termcolor::reset
-               << " | " << current_line << "\n";
+            os << termcolor::green << std::setw(5) << (i + 1) << termcolor::reset
+               << " | " << colorizeLine(ctx[i], line_color_context_counts) << "\n";
 
-            if (loop == line || (loop > line && overflow > 0))
+            if (i == target_line || (i > target_line && overflow > 0))
             {
-                os << "      | ";
+                os << "      |";
                 // if we have an overflow then we start at the beginning of the line
                 std::size_t curr_col_start = (overflow == 0) ? col_start : 0;
                 // if we have an overflow, it is used as the end of the line
-                std::size_t col_end = (loop == line) ? std::min<std::size_t>(col_start + sym_size, ctx[line].size())
-                                                     : std::min<std::size_t>(overflow, ctx[loop].size());
+                std::size_t col_end = (i == target_line) ? std::min<std::size_t>(col_start + sym_size, ctx[target_line].size())
+                                                         : std::min<std::size_t>(overflow, ctx[i].size());
                 // update the overflow to avoid going here again if not needed
-                overflow = (overflow > ctx[loop].size()) ? overflow - ctx[loop].size() : 0;
+                overflow = (overflow > ctx[i].size()) ? overflow - ctx[i].size() : 0;
+
+                // fixing padding when the error is on the first character
+                if (curr_col_start == 0)
+                    os << " ";
 
                 // padding of spaces
                 for (std::size_t i = 0; i < curr_col_start; ++i)
@@ -109,7 +112,7 @@ namespace Ark::Diagnostics
 
                 // underline the error
                 os << termcolor::red << "^";
-                for (std::size_t i = curr_col_start + 1; i <= col_end; ++i)
+                for (std::size_t i = curr_col_start + 1; i < col_end; ++i)
                     os << "~";
 
                 os << termcolor::reset << "\n";
@@ -122,7 +125,7 @@ namespace Ark::Diagnostics
     {
         if (filename != ARK_NO_NAME_FILE)
             os << "In file " << filename << "\n";
-        os << "At " << expr << " @ " << line << ":" << column << "\n";
+        os << "At " << expr << " @ " << (line + 1) << ":" << column << "\n";
 
         if (!code.empty())
             makeContext(os, std::move(code), line, column, sym_size);
@@ -184,8 +187,8 @@ namespace Ark::Diagnostics
             e.filename,
             file_content,
             escaped_symbol,
-            e.line + 1,
-            e.col + 1,
+            e.line,
+            e.col,
             e.expr.size());
     }
 }

@@ -1,0 +1,5 @@
+In file ./incomplete_fun.ark
+At ) @ 1:14
+    1 | (fun (a b &c))
+      | ^~~~~~~~~~~~~~
+        Expected a value

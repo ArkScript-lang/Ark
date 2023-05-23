@@ -1,0 +1,5 @@
+In file ./incomplete_import_1.ark
+At ) @ 1:8
+    1 | (import)
+      | ^~~~~~~~
+        Import expected a package name

@@ -209,6 +209,20 @@ jobs:
       shell: bash
       run: cd tests/cpp && cmake --build build --config $BUILD_TYPE
 
+    - name: Configure CMake parser tests
+      shell: bash
+      run: |
+        cd tests/cpp
+        cmake -Bbuild \
+          -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
+          -DCMAKE_C_COMPILER=${{ matrix.config.cc }} \
+          -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }} \
+          -DARK_SANITIZERS=${{ matrix.config.sanitizers }}
+
+    - name: Build parser tests
+      shell: bash
+      run: cd tests/parser && cmake --build build --config $BUILD_TYPE
+
     - name: Organize files for upload
       if: startsWith(matrix.config.name, 'Ubuntu') || startsWith(matrix.config.name, 'MacOS')
       shell: bash
@@ -236,6 +250,7 @@ jobs:
       run: |
         mkdir -p temp/
         cp -r tests/cpp temp/
+        cp -r tests/parser temp/
 
     - name: Upload artifact
       uses: actions/upload-artifact@v3.1.1
@@ -303,6 +318,7 @@ jobs:
     - shell: bash
       run: |
         mv artifact/cpp/out tests/cpp/
+        mv artifact/parser/ tests/parser
         mv build/lib/*.arkm lib/
         chmod u+x build/arkscript tests/cpp/out/*
 
