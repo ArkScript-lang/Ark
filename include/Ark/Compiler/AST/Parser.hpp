@@ -3,6 +3,7 @@
 
 #include <Ark/Compiler/AST/BaseParser.hpp>
 #include <Ark/Compiler/AST/Node.hpp>
+#include <Ark/Compiler/AST/Import.hpp>
 #include <Ark/Utils.hpp>
 
 #include <string>
@@ -24,6 +25,7 @@ namespace Ark::internal
 
     private:
         Node m_ast;
+        std::vector<Import> m_imports;
 
         void run();
 

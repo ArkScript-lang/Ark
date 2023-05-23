@@ -5,7 +5,7 @@
 namespace Ark::internal
 {
     Parser::Parser() :
-        BaseParser(), m_ast(NodeType::List)
+        BaseParser(), m_ast(NodeType::List), m_imports({})
     {
         m_ast.push_back(Node(Keyword::Begin));
     }
@@ -219,12 +219,13 @@ namespace Ark::internal
         Node leaf(NodeType::List);
         leaf.push_back(Node(Keyword::Import));
 
-        std::string package;
-        if (!packageName(&package))
+        Import import_data;
+
+        if (!packageName(&import_data.package))
             errorWithNextToken("Import expected a package name");
 
         Node packageNode(NodeType::List);
-        packageNode.push_back(Node(NodeType::String, package));
+        packageNode.push_back(Node(NodeType::String, import_data.package));
         Node symbols(NodeType::List);
 
         // first, parse the package name
@@ -237,7 +238,10 @@ namespace Ark::internal
                 if (!packageName(&path))
                     errorWithNextToken("Package name expected after '.'");
                 else
+                {
                     packageNode.push_back(Node(NodeType::String, path));
+                    import_data.package = path;  // in the end we will store the last element of the package, which is what we want
+                }
             }
             else if (accept(IsChar(':')) && accept(IsChar('*')))  // parsing :*
             {
@@ -246,6 +250,10 @@ namespace Ark::internal
 
                 leaf.push_back(packageNode);
                 leaf.push_back(Node(NodeType::Symbol, "*"));
+
+                // save the import data structure to know we encounter an import node, and retrieve its data more easily later on
+                import_data.with_prefix = false;
+                m_imports.push_back(import_data);
 
                 return leaf;
             }
@@ -266,11 +274,12 @@ namespace Ark::internal
 
                     if (symbol.size() >= 2 && symbol[symbol.size() - 2] == ':' && symbol.back() == '*')
                     {
-                        backtrack(getCount() - 2);  // we can backtrack n-2 safely here because we know the previos chars were ":*"
-                        error("Star pattern can not follow a symbol to import", ":*");
+                        backtrack(getCount() - 2);  // we can backtrack n-2 safely here because we know the previous chars were ":*"
+                        error("Glob pattern can not follow a symbol to import", ":*");
                     }
 
                     symbols.push_back(Node(NodeType::Symbol, symbol));
+                    import_data.symbols.push_back(symbol);
                 }
 
                 if (!newlineOrComment())
@@ -280,6 +289,8 @@ namespace Ark::internal
 
         leaf.push_back(packageNode);
         leaf.push_back(symbols);
+        // save the import data
+        m_imports.push_back(import_data);
 
         newlineOrComment();
         expect(IsChar(')'));
