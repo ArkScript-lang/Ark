@@ -4,9 +4,9 @@
  * @brief In charge of welding everything needed to compile code
  * @version 0.2
  * @date 2023-03-26
- * 
+ *
  * @copyright Copyright (c) 2023
- * 
+ *
  */
 
 #ifndef ARK_COMPILER_WELDER_HPP
@@ -33,8 +33,8 @@ namespace Ark
 
         /**
          * @brief Register a symbol as a global in the compiler
-         * 
-         * @param name 
+         *
+         * @param name
          */
         void registerSymbol(const std::string& name);
 
@@ -59,6 +59,6 @@ namespace Ark
         internal::Optimizer m_optimizer;
         Compiler m_compiler;
     };
-} // namespace Ark
+}  // namespace Ark
 
 #endif

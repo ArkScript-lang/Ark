@@ -118,7 +118,7 @@ namespace Ark
     {
         /**
          * @brief Helper to create a colorized context to report errors to the user
-         * 
+         *
          * @param os stream in which the error will be written
          * @param code content of the source file where the error is
          * @param line line where the error is
@@ -126,19 +126,19 @@ namespace Ark
          * @param sym_size bad expression that triggered the error
          */
         void makeContext(std::ostream& os, const std::string& code, std::size_t line, std::size_t col_start, std::size_t sym_size);
-    
+
         /**
          * @brief Helper used by the compiler to generate a colorized context from a node
-         * 
+         *
          * @param message error message to be included in the context
          * @param node AST node with the error
-         * @return std::string 
+         * @return std::string
          */
         std::string makeContextWithNode(const std::string& message, const internal::Node& node);
 
         /**
          * @brief Generate a diagnostic from an error and print it to the standard output
-         * 
+         *
          * @param e code error
          * @param code code of the file in which the error occured
          */
