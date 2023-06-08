@@ -5,6 +5,7 @@
 #include <Ark/Compiler/AST/Node.hpp>
 #include <Ark/Compiler/AST/Import.hpp>
 #include <Ark/Utils.hpp>
+#include <Ark/Platform.hpp>
 
 #include <string>
 #include <optional>
@@ -13,7 +14,7 @@
 
 namespace Ark::internal
 {
-    class Parser : public BaseParser
+    class ARK_API Parser : public BaseParser
     {
     public:
         Parser();

@@ -18,6 +18,7 @@
 #include <vector>
 
 #include <Ark/Compiler/Common.hpp>
+#include <Ark/Platform.hpp>
 
 namespace Ark::internal
 {
@@ -25,7 +26,7 @@ namespace Ark::internal
      * @brief A node of an Abstract Syntax Tree for ArkScript
      *
      */
-    class Node
+    class ARK_API Node
     {
     public:
         using Value = std::variant<double, std::string, Keyword, std::vector<Node>>;
@@ -140,7 +141,7 @@ namespace Ark::internal
          */
         const std::string& filename() const noexcept;
 
-        friend std::ostream& operator<<(std::ostream& os, const Node& N) noexcept;
+        friend ARK_API std::ostream& operator<<(std::ostream& os, const Node& N) noexcept;
         friend void swap(Node& lhs, Node& rhs) noexcept;
         friend bool operator==(const Node& A, const Node& B);
         friend bool operator<(const Node& A, const Node& B);
@@ -154,7 +155,7 @@ namespace Ark::internal
         std::string m_filename = "";
     };
 
-    std::ostream& operator<<(std::ostream& os, const std::vector<Node>& node) noexcept;
+    ARK_API std::ostream& operator<<(std::ostream& os, const std::vector<Node>& node) noexcept;
 
     const Node& getTrueNode();
     const Node& getFalseNode();

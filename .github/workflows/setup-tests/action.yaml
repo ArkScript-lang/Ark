@@ -1,0 +1,39 @@
+---
+name: "Setup tests"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Download artifact
+      id: download
+      uses: actions/download-artifact@v3.0.1
+      with:
+        name: ${{ matrix.config.artifact }}
+        path: build
+
+    - name: Download temp artifact
+      id: download-artifact
+      uses: actions/download-artifact@v3.0.1
+      with:
+        name: temp-${{ matrix.config.artifact }}
+        path: artifact
+
+    - name: Update GNU compilers
+      if: startsWith(matrix.config.name, 'Ubuntu GCC')
+      shell: bash
+      run: |
+        sudo apt-add-repository -y ppa:ubuntu-toolchain-r/test
+        sudo apt-get -yq install libstdc++6
+
+    - shell: bash
+      run: |
+        mv artifact/cpp/out tests/cpp/
+        mv build/lib/*.arkm lib/
+        chmod u+x build/arkscript tests/cpp/out/*
+        cp -r artifact/parser/* tests/parser/
+        chmod u+x tests/parser/build/parser
+
+    - shell: bash
+      if: startsWith(matrix.config.name, 'Windows')
+      run: |
+        cp build/*.dll tests/cpp/out/

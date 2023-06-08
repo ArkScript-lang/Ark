@@ -18,8 +18,10 @@
 #include <stdexcept>
 #include <optional>
 #include <ostream>
+#include <iomanip>
 
 #include <Ark/Compiler/AST/utf8_char.hpp>
+#include <Ark/Platform.hpp>
 
 namespace Ark
 {
@@ -125,7 +127,7 @@ namespace Ark
          * @param col_start where the error starts on the given line
          * @param sym_size bad expression that triggered the error
          */
-        void makeContext(std::ostream& os, const std::string& code, std::size_t line, std::size_t col_start, std::size_t sym_size);
+        ARK_API void makeContext(std::ostream& os, const std::string& code, std::size_t line, std::size_t col_start, std::size_t sym_size);
 
         /**
          * @brief Helper used by the compiler to generate a colorized context from a node
@@ -134,7 +136,7 @@ namespace Ark
          * @param node AST node with the error
          * @return std::string
          */
-        std::string makeContextWithNode(const std::string& message, const internal::Node& node);
+        ARK_API std::string makeContextWithNode(const std::string& message, const internal::Node& node);
 
         /**
          * @brief Generate a diagnostic from an error and print it to the standard output
@@ -142,7 +144,7 @@ namespace Ark
          * @param e code error
          * @param code code of the file in which the error occured
          */
-        void generate(const CodeError& e, std::string code = "");
+        ARK_API void generate(const CodeError& e, std::string code = "");
     }
 }
 

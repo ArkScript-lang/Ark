@@ -1,0 +1,22 @@
+---
+name: "Update compilers"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Update GNU compilers
+      if: startsWith(matrix.config.name, 'Ubuntu GCC')
+      shell: bash
+      run: |
+        sudo apt-add-repository -y ppa:ubuntu-toolchain-r/test
+        sudo apt-get -yq install ${{ matrix.config.cc }} ${{ matrix.config.cxx }}
+
+    - name: Update LLVM compilers
+      if: startsWith(matrix.config.name, 'Ubuntu Clang')
+      shell: bash
+      run: |
+        version=`echo ${{ matrix.config.cc }} | cut -c 7-`
+        sudo apt-get install -y clang-${version} lld-${version} libc++-${version}-dev libc++abi-${version}-dev clang-tools-${version}
+
+    - uses: ilammy/msvc-dev-cmd@v1
+      if: startsWith(matrix.config.name, 'Windows')

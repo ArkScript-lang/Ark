@@ -178,9 +178,10 @@ endif()
 
 if (ARK_BUILD_EXE)
     # additional files needed for the exe (repl, command line and stuff)
-    set(EXE_SOURCES
+    file(GLOB_RECURSE EXE_SOURCES
         ${ark_SOURCE_DIR}/src/arkscript/REPL/Utils.cpp
         ${ark_SOURCE_DIR}/src/arkscript/REPL/Repl.cpp
+        ${ark_SOURCE_DIR}/lib/fmt/src/*.cc
         ${ark_SOURCE_DIR}/src/arkscript/main.cpp)
 
     add_executable(arkscript ${EXE_SOURCES})

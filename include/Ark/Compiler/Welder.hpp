@@ -26,7 +26,7 @@
 
 namespace Ark
 {
-    class Welder final
+    class ARK_API Welder final
     {
     public:
         Welder(unsigned debug, const std::vector<std::string>& libenv);

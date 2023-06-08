@@ -64,3 +64,6 @@ ninja/
 
 # MacOS files
 .DS_store
+
+# Visual Studio
+CmakeSettings.json

@@ -139,38 +139,11 @@ jobs:
       with:
         submodules: recursive
 
-    - name: Update GNU compilers
-      if: startsWith(matrix.config.name, 'Ubuntu GCC')
-      shell: bash
-      run: |
-        sudo apt-add-repository -y ppa:ubuntu-toolchain-r/test
-        sudo apt-get -yq install ${{ matrix.config.cc }} ${{ matrix.config.cxx }}
+    - name: Setup compilers
+      uses: ./.github/workflows/setup-compilers
 
-    - name: Update LLVM compilers
-      if: startsWith(matrix.config.name, 'Ubuntu Clang')
-      shell: bash
-      run: |
-        version=`echo ${{ matrix.config.cc }} | cut -c 7-`
-        sudo apt-get install -y clang-${version} lld-${version} libc++-${version}-dev libc++abi-${version}-dev clang-tools-${version}
-
-    - name: Install MacOS dependencies
-      if: startsWith(matrix.config.name, 'MacOS')
-      shell: bash
-      run: env HOMEBREW_NO_AUTO_UPDATE=1 brew install openssl
-
-    - uses: ilammy/msvc-dev-cmd@v1
-      if: startsWith(matrix.config.name, 'Windows')
-
-    - name: Download Windows dependencies
-      if: startsWith(matrix.config.name, 'Windows')
-      shell: pwsh
-      run: |
-        Invoke-RestMethod -Uri https://www.sqlite.org/2022/sqlite-dll-win64-x64-${Env:SQLITE_VERSION}.zip -OutFile sqlite.zip
-        Invoke-RestMethod -Uri https://www.sqlite.org/2022/sqlite-amalgamation-${Env:SQLITE_VERSION}.zip  -OutFile amalgation.zip
-        Expand-Archive sqlite.zip -DestinationPath sqlite_lib
-        Expand-Archive amalgation.zip -DestinationPath sqlite_code
-        cd sqlite_lib
-        lib /DEF:sqlite3.def /OUT:sqlite3.lib /MACHINE:x64
+    - name: Setup dependencies
+      uses: ./.github/workflows/setup-deps
 
     - name: Configure CMake Ark
       shell: bash
@@ -195,7 +168,7 @@ jobs:
       shell: bash
       run: cmake --build build --config $BUILD_TYPE
 
-    - name: Configure CMake Integration tests
+    - name: Configure & build CMake Integration tests
       shell: bash
       run: |
         cd tests/cpp
@@ -204,43 +177,30 @@ jobs:
           -DCMAKE_C_COMPILER=${{ matrix.config.cc }} \
           -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }} \
           -DARK_SANITIZERS=${{ matrix.config.sanitizers }}
+        cmake --build build --config $BUILD_TYPE
 
-    - name: Build Integration tests
-      shell: bash
-      run: cd tests/cpp && cmake --build build --config $BUILD_TYPE
-
-    - name: Configure CMake parser tests
+    - name: Configure & build CMake parser tests
       shell: bash
       run: |
-        cd tests/cpp
+        cd tests/parser
         cmake -Bbuild \
           -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
           -DCMAKE_C_COMPILER=${{ matrix.config.cc }} \
           -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }} \
           -DARK_SANITIZERS=${{ matrix.config.sanitizers }}
-
-    - name: Build parser tests
-      shell: bash
-      run: cd tests/parser && cmake --build build --config $BUILD_TYPE
+        cmake --build build --config $BUILD_TYPE
 
     - name: Organize files for upload
-      if: startsWith(matrix.config.name, 'Ubuntu') || startsWith(matrix.config.name, 'MacOS')
       shell: bash
       run: |
         mkdir -p artifact/lib/std
-        cp build/arkscript artifact
-        cp build/libArkReactor.* artifact
-        cp lib/*.arkm artifact/lib
-        cp lib/std/*.ark artifact/lib/std
-        rm -rf artifact/lib/std/{.git,.github,tests/__arkscript__}
-
-    - name: Organize files for upload
-      if: startsWith(matrix.config.name, 'Windows')
-      shell: bash
-      run: |
-        mkdir -p artifact/lib/std
-        cp build/$BUILD_TYPE/arkscript.exe artifact
-        cp build/$BUILD_TYPE/ArkReactor.dll artifact
+        # Linux/MacOS
+        cp build/arkscript artifact || true
+        cp build/libArkReactor.* artifact || true
+        # Windows
+        cp build/$BUILD_TYPE/arkscript.exe artifact || true
+        cp build/$BUILD_TYPE/ArkReactor.dll artifact  || true
+        # Generic
         cp lib/*.arkm artifact/lib
         cp lib/std/*.ark artifact/lib/std
         rm -rf artifact/lib/std/{.git,.github,tests/__arkscript__}
@@ -248,7 +208,7 @@ jobs:
     - name: Organize temp artifact
       shell: bash
       run: |
-        mkdir -p temp/
+        mkdir -p temp/parser/
         cp -r tests/cpp temp/
         cp -r tests/parser temp/
 
@@ -267,11 +227,11 @@ jobs:
 
   tests:
     runs-on: ${{ matrix.config.os }}
-    name: Test on ${{ matrix.config.name }}
+    name: Tests on ${{ matrix.config.name }}
     needs: [build]
 
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         config:
           - { os: ubuntu-latest,  name: "Ubuntu Clang 14", artifact: "ubuntu-clang-14" }
@@ -294,47 +254,44 @@ jobs:
       with:
         submodules: recursive
 
-    - name: Download artifact
-      id: download
-      uses: actions/download-artifact@v3.0.1
-      with:
-        name: ${{ matrix.config.artifact }}
-        path: build
+    - name: Setup tests
+      uses: ./.github/workflows/setup-tests
 
-    - name: Download temp artifact
-      id: download-artifact
-      uses: actions/download-artifact@v3.0.1
-      with:
-        name: temp-${{ matrix.config.artifact }}
-        path: artifact
-
-    - name: Update GNU compilers
-      if: startsWith(matrix.config.name, 'Ubuntu GCC')
+    - name: Parser tests
       shell: bash
       run: |
-        sudo apt-add-repository -y ppa:ubuntu-toolchain-r/test
-        sudo apt-get -yq install libstdc++6
+        export ASAN_OPTIONS=detect_odr_violation=0
+        (cd tests/parser/tests ; bash ./run)
 
-    - shell: bash
-      run: |
-        mv artifact/cpp/out tests/cpp/
-        mv artifact/parser/ tests/parser
-        mv build/lib/*.arkm lib/
-        chmod u+x build/arkscript tests/cpp/out/*
-
-    - name: Pre-test
-      if: startsWith(matrix.config.name, 'Windows')
+    - name: Integration tests
       shell: bash
       run: |
-        mkdir -p tests/cpp/out
-        cp build/*.dll tests/cpp/out/
+        export ASAN_OPTIONS=detect_odr_violation=0
+        (cd tests/cpp ; bash ./run-tests)
 
-    - name: Tests
-      if: steps.download.outcome == 'success' && steps.download-artifact.outcome == 'success'
+    - name: AST tests
       shell: bash
       run: |
         export ASAN_OPTIONS=use_odr_indicator=1
-        bash .github/launch-tests
+        (cd tests/ast ; bash ./run-tests)
+
+    - name: Unit tests
+      shell: bash
+      run: |
+        export ASAN_OPTIONS=detect_odr_violation=0
+        (cd tests/arkscript ; bash ./run-tests)
+
+    - name: Modules tests
+      shell: bash
+      run: |
+        export ASAN_OPTIONS=detect_odr_violation=0
+        (source ./lib/modules/.github/run-tests)
+
+    - name: Runtime error message generation tests
+      shell: bash
+      run: |
+        export ASAN_OPTIONS=detect_odr_violation=0
+        (cd tests/errors ; bash ./run-tests)
 
   valgrind:
     runs-on: ubuntu-latest
@@ -353,14 +310,11 @@ jobs:
         name: "ubuntu-clang-11-valgrind"
         path: build
 
-    - shell: bash
-      run: |
-        mv build/lib/*.arkm lib/
-        chmod u+x build/arkscript
-
     - name: Update LLVM compilers
       shell: bash
       run: |
+        mv build/lib/*.arkm lib/
+        chmod u+x build/arkscript
         sudo apt-get update --fix-missing
         sudo apt-get install -y clang-11 lld-11 libc++-11-dev libc++abi-11-dev clang-tools-11 valgrind
 

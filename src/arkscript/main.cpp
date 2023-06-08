@@ -7,6 +7,7 @@
 #include <clipp.h>
 #include <termcolor/proxy.hpp>
 #include <fmt/core.h>
+#include <fmt/format.h>
 
 #include <Ark/Ark.hpp>
 #include <Ark/REPL/Repl.hpp>

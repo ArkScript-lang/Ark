@@ -4,9 +4,11 @@
 #include <vector>
 #include <string>
 
+#include <Ark/Platform.hpp>
+
 namespace Ark::internal
 {
-    struct Import
+    struct ARK_API Import
     {
         /**
          * @brief The filename without the extension
