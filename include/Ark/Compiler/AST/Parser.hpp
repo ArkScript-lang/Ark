@@ -22,6 +22,7 @@ namespace Ark::internal
         void processString(const std::string& code);
 
         const Node& ast() const;
+        const std::vector<Import>& imports() const;
 
     private:
         Node m_ast;

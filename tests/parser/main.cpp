@@ -1,4 +1,3 @@
-#define private public
 #include <Ark/Compiler/AST/Parser.hpp>
 #include <Ark/Exceptions.hpp>
 
@@ -29,11 +28,13 @@ int main(int argc, char* argv[])
         for (auto it = ast.begin() + 1, end = ast.end(); it != end; ++it)
             std::cout << *it << std::endl;
 
-        if (!parser.m_imports.empty())
+        const auto& imports = parser.imports();
+
+        if (!imports.empty())
             std::cout << "\n";
-        for (std::size_t i = 0, end = parser.m_imports.size(); i < end; ++i)
+        for (std::size_t i = 0, end = imports.size(); i < end; ++i)
         {
-            Import data = parser.m_imports[i];
+            Import data = imports[i];
             std::cout << i << ") " << data.package;
             if (data.isBasic())
                 std::cout << " (basic)";

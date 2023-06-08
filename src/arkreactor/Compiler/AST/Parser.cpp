@@ -28,6 +28,11 @@ namespace Ark::internal
         return m_ast;
     }
 
+    const std::vector<Import>& Parser::imports() const
+    {
+        return m_imports;
+    }
+
     void Parser::run()
     {
         while (!isEOF())
