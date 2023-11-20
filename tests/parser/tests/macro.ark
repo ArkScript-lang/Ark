@@ -1,6 +1,6 @@
-(macro a 1)
-(macro b () 2)
-(macro
+($ a 1)
+($ b () 2)
+($
 c # macro name
 ( # arg list
 d # macro argument
@@ -8,11 +8,11 @@ e
 )
 3 # body
 )
-(macro f(g)4)
-(macro h(i j) (let a 1))
+($ f(g)4)
+($ h(i j) (let a 1))
 
-(macro h (i j) (let a (if i 2 3)))
-(macro k (l ...m) (print l m))
-(macro n (
+($ h (i j) (let a (if i 2 3)))
+($ k (l ...m) (print l m))
+($ n (
 ...p
 ) (print p))

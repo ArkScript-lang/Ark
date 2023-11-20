@@ -73,7 +73,10 @@
                                     "name": "weight"
                                 }
                             ],
-                            "body": []
+                            "body": {
+                                "type": "Symbol",
+                                "name": "nil"
+                            }
                         }
                     ]
                 }
@@ -98,11 +101,11 @@
                     },
                     {
                         "type": "Number",
-                        "value": 0.000000
+                        "value": 0
                     },
                     {
                         "type": "Number",
-                        "value": 144.000000
+                        "value": 144
                     }
                 ]
             }
@@ -126,11 +129,11 @@
                     },
                     {
                         "type": "Number",
-                        "value": 12.000000
+                        "value": 12
                     },
                     {
                         "type": "Number",
-                        "value": 15.000000
+                        "value": 15
                     }
                 ]
             }
@@ -147,12 +150,17 @@
                     "value": "Bob's age: "
                 },
                 {
-                    "type": "Symbol",
-                    "name": "bob"
-                },
-                {
-                    "type": "GetField",
-                    "name": "age"
+                    "type": "Field",
+                    "children": [
+                        {
+                            "type": "Symbol",
+                            "name": "bob"
+                        },
+                        {
+                            "type": "Symbol",
+                            "name": "age"
+                        }
+                    ]
                 }
             ]
         },
@@ -169,23 +177,25 @@
                 }
             ]
         },
-        {
-            "type": "FunctionCall",
-            "name": {
-                "type": "Symbol",
-                "name": "bob"
+        [
+            {
+                "type": "Field",
+                "children": [
+                    {
+                        "type": "Symbol",
+                        "name": "bob"
+                    },
+                    {
+                        "type": "Symbol",
+                        "name": "set-age"
+                    }
+                ]
             },
-            "args": [
-                {
-                    "type": "GetField",
-                    "name": "set-age"
-                },
-                {
-                    "type": "Number",
-                    "value": 10.000000
-                }
-            ]
-        },
+            {
+                "type": "Number",
+                "value": 10
+            }
+        ],
         {
             "type": "FunctionCall",
             "name": {
@@ -198,12 +208,17 @@
                     "value": "New age: "
                 },
                 {
-                    "type": "Symbol",
-                    "name": "bob"
-                },
-                {
-                    "type": "GetField",
-                    "name": "age"
+                    "type": "Field",
+                    "children": [
+                        {
+                            "type": "Symbol",
+                            "name": "bob"
+                        },
+                        {
+                            "type": "Symbol",
+                            "name": "age"
+                        }
+                    ]
                 }
             ]
         },
@@ -219,12 +234,17 @@
                     "value": "John's age, didn't change: "
                 },
                 {
-                    "type": "Symbol",
-                    "name": "john"
-                },
-                {
-                    "type": "GetField",
-                    "name": "age"
+                    "type": "Field",
+                    "children": [
+                        {
+                            "type": "Symbol",
+                            "name": "john"
+                        },
+                        {
+                            "type": "Symbol",
+                            "name": "age"
+                        }
+                    ]
                 }
             ]
         },
@@ -272,7 +292,7 @@
                                         },
                                         {
                                             "type": "Number",
-                                            "value": 1.000000
+                                            "value": 1
                                         }
                                     ]
                                 }
@@ -301,7 +321,7 @@
                 "args": [
                     {
                         "type": "Number",
-                        "value": 3.000000
+                        "value": 3
                     }
                 ]
             }

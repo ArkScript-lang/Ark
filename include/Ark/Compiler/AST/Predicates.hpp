@@ -48,6 +48,16 @@ namespace Ark::internal
         }
     } IsDigit;
 
+    inline struct IsHex : public CharPred
+    {
+        IsHex() :
+            CharPred("hex") {}
+        virtual bool operator()(const utf8_char_t::codepoint_t c) const override
+        {
+            return 0 <= c && c <= 255 && std::isxdigit(c) != 0;
+        }
+    } IsHex;
+
     inline struct IsUpper : public CharPred
     {
         IsUpper() :

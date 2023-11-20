@@ -73,7 +73,7 @@
                     "args": [
                         {
                             "type": "Number",
-                            "value": 1.000000
+                            "value": 1
                         },
                         {
                             "type": "Symbol",
@@ -113,7 +113,7 @@
                 },
                 {
                     "type": "Number",
-                    "value": 3.000000
+                    "value": 3
                 },
                 {
                     "type": "String",
@@ -121,7 +121,7 @@
                 },
                 {
                     "type": "Number",
-                    "value": 3.000000
+                    "value": 3
                 }
             ]
         },
@@ -138,7 +138,7 @@
                 },
                 {
                     "type": "Number",
-                    "value": 2.000000
+                    "value": 2
                 },
                 {
                     "type": "String",
@@ -146,7 +146,7 @@
                 },
                 {
                     "type": "Number",
-                    "value": 2.000000
+                    "value": 2
                 }
             ]
         },
@@ -170,15 +170,15 @@
                     "args": [
                         {
                             "type": "Number",
-                            "value": 1.000000
+                            "value": 1
                         },
                         {
                             "type": "Number",
-                            "value": 2.000000
+                            "value": 2
                         },
                         {
                             "type": "Number",
-                            "value": 3.000000
+                            "value": 3
                         }
                     ]
                 },
@@ -195,11 +195,11 @@
                     "args": [
                         {
                             "type": "Number",
-                            "value": 2.000000
+                            "value": 2
                         },
                         {
                             "type": "Number",
-                            "value": 3.000000
+                            "value": 3
                         }
                     ]
                 }
@@ -225,11 +225,11 @@
                     "args": [
                         {
                             "type": "Number",
-                            "value": 1.000000
+                            "value": 1
                         },
                         {
                             "type": "Number",
-                            "value": 2.000000
+                            "value": 2
                         }
                     ]
                 }
@@ -248,7 +248,7 @@
                 },
                 {
                     "type": "Number",
-                    "value": 12.000000
+                    "value": 12
                 }
             ]
         },
@@ -348,11 +348,11 @@
                     "args": [
                         {
                             "type": "Number",
-                            "value": 1.000000
+                            "value": 1
                         },
                         {
                             "type": "Number",
-                            "value": 2.000000
+                            "value": 2
                         }
                     ]
                 }
@@ -378,11 +378,11 @@
                     "args": [
                         {
                             "type": "Number",
-                            "value": 1.000000
+                            "value": 1
                         },
                         {
                             "type": "Number",
-                            "value": 2.000000
+                            "value": 2
                         }
                     ]
                 },
@@ -392,7 +392,7 @@
                 },
                 {
                     "type": "Number",
-                    "value": 2.000000
+                    "value": 2
                 }
             ]
         },
@@ -416,15 +416,15 @@
                     "args": [
                         {
                             "type": "Number",
-                            "value": 1.000000
+                            "value": 1
                         },
                         {
                             "type": "Number",
-                            "value": 3.000000
+                            "value": 3
                         },
                         {
                             "type": "Number",
-                            "value": 4.000000
+                            "value": 4
                         }
                     ]
                 },
@@ -434,7 +434,7 @@
                 },
                 {
                     "type": "Number",
-                    "value": 3.000000
+                    "value": 3
                 }
             ]
         },
@@ -458,23 +458,23 @@
                     "args": [
                         {
                             "type": "Number",
-                            "value": 1.000000
+                            "value": 1
                         },
                         {
                             "type": "Number",
-                            "value": 5.000000
+                            "value": 5
                         },
                         {
                             "type": "Number",
-                            "value": 6.000000
+                            "value": 6
                         },
                         {
                             "type": "Number",
-                            "value": 7.000000
+                            "value": 7
                         },
                         {
                             "type": "Number",
-                            "value": 8.000000
+                            "value": 8
                         }
                     ]
                 },
@@ -484,7 +484,7 @@
                 },
                 {
                     "type": "Number",
-                    "value": 5.000000
+                    "value": 5
                 }
             ]
         },
@@ -508,11 +508,11 @@
                     "args": [
                         {
                             "type": "Number",
-                            "value": 1.000000
+                            "value": 1
                         },
                         {
                             "type": "Number",
-                            "value": 2.000000
+                            "value": 2
                         }
                     ]
                 },
@@ -522,7 +522,7 @@
                 },
                 {
                     "type": "Number",
-                    "value": 2.000000
+                    "value": 2
                 }
             ]
         },
@@ -546,15 +546,15 @@
                     "args": [
                         {
                             "type": "Number",
-                            "value": 1.000000
+                            "value": 1
                         },
                         {
                             "type": "Number",
-                            "value": 3.000000
+                            "value": 3
                         },
                         {
                             "type": "Number",
-                            "value": 4.000000
+                            "value": 4
                         }
                     ]
                 },
@@ -564,7 +564,7 @@
                 },
                 {
                     "type": "Number",
-                    "value": 4.000000
+                    "value": 4
                 }
             ]
         },
@@ -588,23 +588,23 @@
                     "args": [
                         {
                             "type": "Number",
-                            "value": 1.000000
+                            "value": 1
                         },
                         {
                             "type": "Number",
-                            "value": 5.000000
+                            "value": 5
                         },
                         {
                             "type": "Number",
-                            "value": 6.000000
+                            "value": 6
                         },
                         {
                             "type": "Number",
-                            "value": 7.000000
+                            "value": 7
                         },
                         {
                             "type": "Number",
-                            "value": 8.000000
+                            "value": 8
                         }
                     ]
                 },
@@ -614,7 +614,7 @@
                 },
                 {
                     "type": "Number",
-                    "value": 8.000000
+                    "value": 8
                 }
             ]
         },
@@ -654,15 +654,15 @@
                             "args": [
                                 {
                                     "type": "Number",
-                                    "value": 1.000000
+                                    "value": 1
                                 },
                                 {
                                     "type": "Number",
-                                    "value": 2.000000
+                                    "value": 2
                                 },
                                 {
                                     "type": "Number",
-                                    "value": 3.000000
+                                    "value": 3
                                 }
                             ]
                         }
@@ -695,15 +695,15 @@
                                             "args": [
                                                 {
                                                     "type": "Number",
-                                                    "value": 1.000000
+                                                    "value": 1
                                                 },
                                                 {
                                                     "type": "Number",
-                                                    "value": 2.000000
+                                                    "value": 2
                                                 },
                                                 {
                                                     "type": "Number",
-                                                    "value": 3.000000
+                                                    "value": 3
                                                 }
                                             ]
                                         }
@@ -733,15 +733,15 @@
                             "args": [
                                 {
                                     "type": "Number",
-                                    "value": 1.000000
+                                    "value": 1
                                 },
                                 {
                                     "type": "Number",
-                                    "value": 2.000000
+                                    "value": 2
                                 },
                                 {
                                     "type": "Number",
-                                    "value": 3.000000
+                                    "value": 3
                                 }
                             ]
                         }
@@ -763,7 +763,7 @@
                                 },
                                 {
                                     "type": "Number",
-                                    "value": 555.000000
+                                    "value": 555
                                 }
                             ]
                         },
@@ -779,25 +779,8 @@
                                     "value": "(subscope, undef test) Reading macro 'test', expected 6, "
                                 },
                                 {
-                                    "type": "FunctionCall",
-                                    "name": {
-                                        "type": "Symbol",
-                                        "name": "+"
-                                    },
-                                    "args": [
-                                        {
-                                            "type": "Number",
-                                            "value": 1.000000
-                                        },
-                                        {
-                                            "type": "Number",
-                                            "value": 2.000000
-                                        },
-                                        {
-                                            "type": "Number",
-                                            "value": 3.000000
-                                        }
-                                    ]
+                                    "type": "Number",
+                                    "value": 555
                                 }
                             ]
                         }

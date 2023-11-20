@@ -83,7 +83,7 @@ namespace Ark::internal
         auto pos = getCount();
         std::string next_token;
 
-        anyUntil(IsInlineSpace, &next_token);
+        anyUntil(IsEither(IsInlineSpace, IsEither(IsChar('('), IsChar(')'))), &next_token);
         backtrack(pos);
 
         error(message, next_token);
@@ -206,7 +206,7 @@ namespace Ark::internal
         if (accept(IsDigit, s))
         {
             // consume all the digits available,
-            // stop when the symbole isn't a digit anymore
+            // stop when the symbol isn't a digit anymore
             while (accept(IsDigit, s))
                 ;
             return true;
@@ -232,11 +232,23 @@ namespace Ark::internal
         return true;
     }
 
+    bool BaseParser::hexNumber(unsigned int length, std::string* s)
+    {
+        while (length != 0)
+        {
+            if (!accept(IsHex, s))
+                return false;
+            --length;
+        }
+        return true;
+    }
+
     bool BaseParser::name(std::string* s)
     {
+        auto alpha_symbols = IsEither(IsAlpha, IsSymbol);
         auto alnum_symbols = IsEither(IsAlnum, IsSymbol);
 
-        if (accept(alnum_symbols, s))
+        if (accept(alpha_symbols, s))
         {
             while (accept(alnum_symbols, s))
                 ;
@@ -259,7 +271,7 @@ namespace Ark::internal
     {
         if (accept(IsAlnum, s))
         {
-            while (accept(IsEither(IsAlnum, IsChar('_')), s))
+            while (accept(IsEither(IsAlnum, IsEither(IsChar('_'), IsChar('-'))), s))
                 ;
             return true;
         }

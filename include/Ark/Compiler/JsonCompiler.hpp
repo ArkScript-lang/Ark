@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <filesystem>
 
 #include <Ark/Constants.hpp>
 #include <Ark/Platform.hpp>
@@ -19,7 +20,7 @@ namespace Ark
          *
          * @param debug the debug level
          */
-        JsonCompiler(unsigned debug, const std::vector<std::string>& libenv);
+        JsonCompiler(unsigned debug, const std::vector<std::filesystem::path>& libenv);
 
         /**
          * @brief Feed the differents variables with information taken from the given source code file

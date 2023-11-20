@@ -6,6 +6,8 @@ if [ -f ../../build/Release/${file}.exe ]; then
     ark=../../build/Release/${file}.exe
 elif [ -f ../../build/${file} ]; then
     ark=../../build/${file}
+elif [ -f ../../cmake-build-debug/${file} ]; then
+    ark=../../cmake-build-debug/${file}
 else
     echo "No $file executable found" && exit 1
 fi

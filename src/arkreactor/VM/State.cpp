@@ -17,7 +17,7 @@
 
 namespace Ark
 {
-    State::State(const std::vector<std::string>& libenv) noexcept :
+    State::State(const std::vector<std::filesystem::path>& libenv) noexcept :
         m_debug_level(0),
         m_libenv(libenv),
         m_filename(ARK_NO_NAME_FILE)
@@ -54,7 +54,9 @@ namespace Ark
     {
         Welder welder(m_debug_level, m_libenv);
 
-        welder.computeASTFromFile(file);
+        if (!welder.computeASTFromFile(file))
+            return false;
+
         for (auto& p : m_binded)
             welder.registerSymbol(p.first);
         welder.generateBytecode();
@@ -100,7 +102,9 @@ namespace Ark
     {
         Welder welder(m_debug_level, m_libenv);
 
-        welder.computeASTFromString(code);
+        if (!welder.computeASTFromString(code))
+            return false;
+
         for (auto& p : m_binded)
             welder.registerSymbol(p.first);
         welder.generateBytecode();
@@ -128,7 +132,7 @@ namespace Ark
         m_debug_level = level;
     }
 
-    void State::setLibDirs(const std::vector<std::string>& libenv) noexcept
+    void State::setLibDirs(const std::vector<std::filesystem::path>& libenv) noexcept
     {
         m_libenv = libenv;
     }

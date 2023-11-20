@@ -7,8 +7,8 @@
 
 namespace Ark
 {
-    Welder::Welder(unsigned debug, [[maybe_unused]] const std::vector<std::string>&) :
-        m_debug(debug), m_macro_processor(debug), m_optimizer(debug), m_compiler(debug)
+    Welder::Welder(unsigned debug, const std::vector<std::filesystem::path>& libenv) :
+        m_debug(debug), m_importer(debug, libenv), m_macro_processor(debug), m_optimizer(debug), m_compiler(debug)
     {}
 
     void Welder::registerSymbol(const std::string& name)
@@ -16,28 +16,27 @@ namespace Ark
         m_compiler.addDefinedSymbol(name);
     }
 
-    void Welder::computeASTFromFile(const std::string& filename)
+    bool Welder::computeASTFromFile(const std::string& filename)
     {
         m_root_file = std::filesystem::path(filename);
 
         try
         {
-            m_parser.processFile(m_root_file.string());  // we could have something like m_parser.imports()
-            // TODO solve imports
-            // needs: root ast+path+imports (vector<T>, T = {withPrefix: boolean, vector<string>: symbolsToImport})
-            // 1st draft: ignore symbolsToImport and prefix (current behavior)
-            // symbolsToImport -> need to hide all other symbols (prefix with '#') (ast visitor)
-            //                 -> use modules/namespaces to do name resolution
-            m_macro_processor.process(m_parser.ast());
+            m_parser.processFile(m_root_file.string());
+            m_importer.process(m_root_file.parent_path(), m_parser.ast(), m_parser.imports());
+            m_macro_processor.process(m_importer.ast());
             m_optimizer.process(m_macro_processor.ast());
+
+            return true;
         }
         catch (const CodeError& e)
         {
             Diagnostics::generate(e);
+            return false;
         }
     }
 
-    void Welder::computeASTFromString(const std::string& code)
+    bool Welder::computeASTFromString(const std::string& code)
     {
         m_root_file = std::filesystem::current_path();  // No filename given, take the current working directory
 
@@ -47,10 +46,13 @@ namespace Ark
             // TODO mutualise this piece of code
             m_macro_processor.process(m_parser.ast());
             m_optimizer.process(m_macro_processor.ast());
+
+            return true;
         }
         catch (const CodeError& e)
         {
             Diagnostics::generate(e, code);
+            return false;
         }
     }
 

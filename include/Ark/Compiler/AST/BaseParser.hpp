@@ -74,6 +74,7 @@ namespace Ark::internal
         bool suffix(char c);
         bool number(std::string* s = nullptr);
         bool signedNumber(std::string* s = nullptr);
+        bool hexNumber(unsigned length, std::string* s = nullptr);
         bool name(std::string* s = nullptr);
         bool sequence(const std::string& s);
         bool packageName(std::string* s = nullptr);

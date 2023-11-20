@@ -13,6 +13,7 @@
 #define ARK_REPL_REPL_HPP
 
 #include <iostream>
+#include <filesystem>
 
 #include <Ark/Constants.hpp>
 #include <Ark/Compiler/Compiler.hpp>
@@ -30,7 +31,7 @@ namespace Ark
          *
          * @param libenv search path for the std library
          */
-        Repl(const std::vector<std::string>& libenv);
+        Repl(const std::vector<std::filesystem::path>& libenv);
 
         /**
          * @brief Start the REPL
@@ -42,7 +43,7 @@ namespace Ark
         Replxx m_repl;
         unsigned m_lines;
         int m_old_ip;
-        std::vector<std::string> m_libenv;
+        std::vector<std::filesystem::path> m_libenv;
 
         inline void print_repl_header();
         int count_open_parentheses(const std::string& line);

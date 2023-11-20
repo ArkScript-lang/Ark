@@ -26,7 +26,7 @@ failed=0
 for f in ./*.ark; do
     output=$($cmd $f 2>&1)
     expected=$(cat ${f%.*}.expected)
-    diff=$(diff <(echo "$output" | sed -r "s/\x1B\[([0-9]{1,3}(;[0-9]{1,2};?)?)?[mGK]//g") <(echo "$expected"))
+    diff=$(diff --strip-trailing-cr <(echo "$output" | sed -r "s/\x1B\[([0-9]{1,3}(;[0-9]{1,2};?)?)?[mGK]//g") <(echo "$expected"))
 
     if [[ $diff != "" ]]; then
         echo -e "${Red}FAILED${Reset} ${f%.*}"

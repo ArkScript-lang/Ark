@@ -1,5 +1,5 @@
-(import "tests-tools.ark")
-(import "List.ark")
+(import tests-tools)
+(import std.List)
 
 (let async-tests (fun () {
     (mut tests 0)

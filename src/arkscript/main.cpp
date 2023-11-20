@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <limits>
 #include <cstdlib>
+#include <algorithm>
 
 #include <clipp.h>
 #include <termcolor/proxy.hpp>
@@ -50,7 +51,6 @@ int main(int argc, char** argv)
     std::vector<std::string> wrong, script_args;
 
     std::string libdir;
-    std::vector<std::string> libenv;
 
     // clang-format off
     auto cli = (
@@ -124,16 +124,33 @@ int main(int argc, char** argv)
     {
         using namespace Ark;
 
+        std::vector<std::filesystem::path> lib_paths;
         // if arkscript lib paths were provided by the CLI, bypass the automatic lookup
         if (!libdir.empty())
-            libenv = Utils::splitString(libdir, ';');
+        {
+            for (const auto& path : Utils::splitString(libdir, ';'))
+            {
+                lib_paths.push_back(std::filesystem::path(path));
+                lib_paths.push_back(std::filesystem::path(path) / "std");
+            }
+        }
         else
         {
             if (const char* arkpath = std::getenv("ARKSCRIPT_PATH"))
-                libenv = Utils::splitString(arkpath, ';');
+            {
+                for (const auto& path : Utils::splitString(arkpath, ';'))
+                {
+                    lib_paths.push_back(std::filesystem::path(path));
+                    lib_paths.push_back(std::filesystem::path(path) / "std");
+                }
+            }
             else if (Utils::fileExists("./lib"))
-                libenv.push_back(Utils::canonicalRelPath("./lib"));
-            std::cerr << termcolor::yellow << "Warning" << termcolor::reset << "Couldn't read ARKSCRIPT_PATH environment variable" << std::endl;
+            {
+                lib_paths.push_back(std::filesystem::path("./lib"));
+                lib_paths.push_back(std::filesystem::path("./lib/std"));
+            }
+            else
+                std::cerr << termcolor::yellow << "Warning" << termcolor::reset << " Couldn't read ARKSCRIPT_PATH environment variable" << std::endl;
         }
 
         switch (selected)
@@ -192,13 +209,13 @@ int main(int argc, char** argv)
 
             case mode::repl:
             {
-                Ark::Repl repl(libenv);
+                Ark::Repl repl(lib_paths);
                 return repl.run();
             }
 
             case mode::compile:
             {
-                Ark::State state(libenv);
+                Ark::State state(lib_paths);
                 state.setDebug(debug);
 
                 if (!state.doFile(file))
@@ -209,7 +226,7 @@ int main(int argc, char** argv)
 
             case mode::run:
             {
-                Ark::State state(libenv);
+                Ark::State state(lib_paths);
                 state.setDebug(debug);
                 state.setArgs(script_args);
 
@@ -232,7 +249,7 @@ int main(int argc, char** argv)
 
             case mode::eval:
             {
-                Ark::State state(libenv);
+                Ark::State state(lib_paths);
                 state.setDebug(debug);
 
                 if (!state.doString(eval_expresion))
@@ -247,7 +264,7 @@ int main(int argc, char** argv)
 
             case mode::ast:
             {
-                Ark::JsonCompiler jcompiler(debug, libenv);
+                Ark::JsonCompiler jcompiler(debug, lib_paths);
                 jcompiler.feed(file);
                 std::cout << jcompiler.compile() << std::endl;
                 break;

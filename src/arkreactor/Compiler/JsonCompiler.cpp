@@ -11,7 +11,7 @@ namespace Ark
 {
     using namespace internal;
 
-    JsonCompiler::JsonCompiler(unsigned debug, const std::vector<std::string>& libenv) :
+    JsonCompiler::JsonCompiler(unsigned debug, const std::vector<std::filesystem::path>& libenv) :
         m_welder(debug, libenv)
     {}
 

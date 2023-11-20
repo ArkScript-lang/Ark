@@ -4,7 +4,6 @@
 
 # Personal utilities
 warnings.log
-cformat.ps1
 
 # ArkScript
 include/Ark/Constants.hpp
@@ -28,6 +27,7 @@ afl/
 .cache/
 build/
 ninja/
+cmake-build-*/
 
 # Prerequisites
 *.d
@@ -46,10 +46,6 @@ ninja/
 *.so
 *.dylib
 *.dll
-
-# Fortran module files
-*.mod
-*.smod
 
 # Compiled Static libraries
 *.lai

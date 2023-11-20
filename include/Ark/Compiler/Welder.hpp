@@ -20,6 +20,7 @@
 #include <Ark/Compiler/Common.hpp>
 #include <Ark/Compiler/AST/Node.hpp>
 #include <Ark/Compiler/AST/Parser.hpp>
+#include <Ark/Compiler/ImportSolver.hpp>
 #include <Ark/Compiler/AST/Optimizer.hpp>
 #include <Ark/Compiler/Macros/Processor.hpp>
 #include <Ark/Compiler/Compiler.hpp>
@@ -29,7 +30,7 @@ namespace Ark
     class ARK_API Welder final
     {
     public:
-        Welder(unsigned debug, const std::vector<std::string>& libenv);
+        Welder(unsigned debug, const std::vector<std::filesystem::path>& libenv);
 
         /**
          * @brief Register a symbol as a global in the compiler
@@ -38,8 +39,8 @@ namespace Ark
          */
         void registerSymbol(const std::string& name);
 
-        void computeASTFromFile(const std::string& filename);
-        void computeASTFromString(const std::string& code);
+        bool computeASTFromFile(const std::string& filename);
+        bool computeASTFromString(const std::string& code);
 
         void generateBytecode();
         void saveBytecodeToFile(const std::string& filename);
@@ -54,7 +55,7 @@ namespace Ark
         bytecode_t m_bytecode;
 
         internal::Parser m_parser;
-        // todo: import solver
+        internal::ImportSolver m_importer;
         internal::MacroProcessor m_macro_processor;
         internal::Optimizer m_optimizer;
         Compiler m_compiler;

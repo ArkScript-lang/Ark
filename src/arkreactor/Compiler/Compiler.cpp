@@ -510,11 +510,21 @@ namespace Ark
 
     void Compiler::compilePluginImport(const Node& x, int p)
     {
+        std::string path;
+        Node package_node = x.constList()[1];
+        for (std::size_t i = 0, end = package_node.constList().size(); i < end; ++i)
+        {
+            path += package_node.constList()[i].string();
+            if (i + 1 != end)
+                path += "/";
+        }
+        path += ".arkm";
+
         // register plugin path in the constants table
-        uint16_t id = addValue(x.constList()[1]);
+        uint16_t id = addValue(Node(NodeType::String, path));
         // save plugin name to use it later
-        m_plugins.push_back(x.constList()[1].string());
-        // add plugin instruction + id of the constant refering to the plugin path
+        m_plugins.push_back(path);
+        // add plugin instruction + id of the constant referring to the plugin path
         page(p).emplace_back(Instruction::PLUGIN, id);
     }
 

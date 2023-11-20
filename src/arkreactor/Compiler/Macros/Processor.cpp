@@ -11,6 +11,9 @@
 #include <Ark/Compiler/Macros/Executors/Function.hpp>
 #include <Ark/Compiler/Macros/Executors/Conditional.hpp>
 
+// fixme
+#include <iostream>
+
 namespace Ark::internal
 {
     MacroProcessor::MacroProcessor(unsigned debug) noexcept :
@@ -58,12 +61,12 @@ namespace Ark::internal
         Node& first_node = node.list()[0];
         Node& second_node = node.list()[1];
 
-        // !{name value}
+        // ($ name value)
         if (node.constList().size() == 2)
         {
             if (first_node.nodeType() == NodeType::Symbol)
             {
-                if (first_node.string() != "undef")
+                if (first_node.string() != "$undef")
                     m_macros.back().add(first_node.string(), node);
                 else if (second_node.nodeType() == NodeType::Symbol)  // undefine a macro
                     deleteNearestMacro(second_node.string());
@@ -73,7 +76,7 @@ namespace Ark::internal
             }
             throwMacroProcessingError("Can not define a macro without a symbol", first_node);
         }
-        // !{name (args) body}
+        // ($ name (args) body)
         else if (node.constList().size() == 3 && first_node.nodeType() == NodeType::Symbol)
         {
             if (second_node.nodeType() != NodeType::List)
@@ -98,7 +101,7 @@ namespace Ark::internal
                 return;
             }
         }
-        // !{if cond then else}
+        // ($if cond then else)
         else if (std::size_t size = node.constList().size(); size == 3 || size == 4)
         {
             if (first_node.nodeType() == NodeType::Keyword && first_node.keyword() == Keyword::If)  // FIXME when we change the keyword for conditions inside macros

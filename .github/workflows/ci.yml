@@ -154,7 +154,7 @@ jobs:
           -DCMAKE_C_COMPILER=${{ matrix.config.cc }} \
           -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }} \
           -DARK_SANITIZERS=${{ matrix.config.sanitizers }} \
-          -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=On -DARK_MOD_ALL=On
+          -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=On -DARK_MOD_ALL=On -DARK_BUILD_PARSER_TESTS=On
 
     - name: Add SQLite deps
       if: startsWith(matrix.config.name, 'Windows')
@@ -179,26 +179,17 @@ jobs:
           -DARK_SANITIZERS=${{ matrix.config.sanitizers }}
         cmake --build build --config $BUILD_TYPE
 
-    - name: Configure & build CMake parser tests
-      shell: bash
-      run: |
-        cd tests/parser
-        cmake -Bbuild \
-          -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
-          -DCMAKE_C_COMPILER=${{ matrix.config.cc }} \
-          -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }} \
-          -DARK_SANITIZERS=${{ matrix.config.sanitizers }}
-        cmake --build build --config $BUILD_TYPE
-
     - name: Organize files for upload
       shell: bash
       run: |
         mkdir -p artifact/lib/std
         # Linux/MacOS
         cp build/arkscript artifact || true
+        cp build/parser artifact || true
         cp build/libArkReactor.* artifact || true
         # Windows
         cp build/$BUILD_TYPE/arkscript.exe artifact || true
+        cp build/$BUILD_TYPE/parser.exe artifact || true
         cp build/$BUILD_TYPE/ArkReactor.dll artifact  || true
         # Generic
         cp lib/*.arkm artifact/lib
@@ -231,7 +222,7 @@ jobs:
     needs: [build]
 
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         config:
           - { os: ubuntu-latest,  name: "Ubuntu Clang 14", artifact: "ubuntu-clang-14" }

@@ -12,6 +12,8 @@
 #include <vector>
 #include <functional>
 
+#include <utf8.hpp>
+
 namespace Ark::internal
 {
     class ARK_API Parser : public BaseParser
@@ -28,6 +30,7 @@ namespace Ark::internal
     private:
         Node m_ast;
         std::vector<Import> m_imports;
+        unsigned m_allow_macro_behavior;  ///< Toggled on when inside a macro definition, off afterward
 
         void run();
 
@@ -38,7 +41,11 @@ namespace Ark::internal
         std::optional<Node> loop();
         std::optional<Node> import_();
         std::optional<Node> block();
+        std::optional<Node> functionArgs();
         std::optional<Node> function();
+        std::optional<Node> macroCondition();
+        std::optional<Node> macroBlock();
+        std::optional<Node> macroArgs();
         std::optional<Node> macro();
         std::optional<Node> functionCall();
         std::optional<Node> list();
@@ -89,6 +96,39 @@ namespace Ark::internal
                             res += '\b';
                         else if (accept(IsChar('0')))
                             res += '\0';
+                        else if (accept(IsChar('f')))
+                            res += '\f';
+                        else if (accept(IsChar('u')))
+                        {
+                            std::string seq;
+                            if (hexNumber(4, &seq))
+                            {
+                                char utf8_str[5];
+                                utf8::decode(seq.c_str(), utf8_str);
+                                if (*utf8_str == '\0')
+                                    error("Invalid escape sequence", "\\u" + seq);
+                                res += utf8_str;
+                            }
+                            else
+                                error("Invalid escape sequence", "\\u");
+                        }
+                        else if (accept(IsChar('U')))
+                        {
+                            std::string seq;
+                            if (hexNumber(8, &seq))
+                            {
+                                std::size_t begin = 0;
+                                for (; seq[begin] == '0'; ++begin)
+                                    ;
+                                char utf8_str[5];
+                                utf8::decode(seq.c_str() + begin, utf8_str);
+                                if (*utf8_str == '\0')
+                                    error("Invalid escape sequence", "\\U" + seq);
+                                res += utf8_str;
+                            }
+                            else
+                                error("Invalid escape sequence", "\\U");
+                        }
                         else
                         {
                             backtrack(getCount() - 1);
@@ -102,7 +142,6 @@ namespace Ark::internal
                         break;
                     else if (isEOF())
                         errorMissingSuffix('"', "string");
-                    // TODO accept(\Uxxxxx), accept(\uxxxxx)
                 }
 
                 return Node(NodeType::String, res);
@@ -121,7 +160,6 @@ namespace Ark::internal
 
             while (true)
             {
-                space();
                 if (leaf.list().size() == 1 && !accept(IsChar('.')))  // Symbol:abc
                     return std::nullopt;
 
@@ -142,6 +180,18 @@ namespace Ark::internal
             if (!name(&res))
                 return std::nullopt;
             return Node(NodeType::Symbol, res);
+        }
+
+        inline std::optional<Node> spread()
+        {
+            std::string res;
+            if (sequence("..."))
+            {
+                if (!name(&res))
+                    errorWithNextToken("Expected a name for the variadic");
+                return Node(NodeType::Spread, res);
+            }
+            return std::nullopt;
         }
 
         inline std::optional<Node> nil()

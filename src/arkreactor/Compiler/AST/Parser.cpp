@@ -5,7 +5,7 @@
 namespace Ark::internal
 {
     Parser::Parser() :
-        BaseParser(), m_ast(NodeType::List), m_imports({})
+        BaseParser(), m_ast(NodeType::List), m_imports({}), m_allow_macro_behavior(0)
     {
         m_ast.push_back(Node(Keyword::Begin));
     }
@@ -82,7 +82,17 @@ namespace Ark::internal
         else
             backtrack(position);
 
-        if (auto result = wrapped(&Parser::macro, "macro", '(', ')'))
+        if (auto result = wrapped(&Parser::macroCondition, "$if", '(', ')'))
+            return result;
+        else
+            backtrack(position);
+
+        if (auto result = macroBlock())
+            return result;
+        else
+            backtrack(position);
+
+        if (auto result = macro(); result.has_value())
             return result;
         else
             backtrack(position);
@@ -112,11 +122,6 @@ namespace Ark::internal
             return std::nullopt;
         newlineOrComment();
 
-        std::string symbol;
-        if (!name(&symbol))
-            errorWithNextToken(token + " needs a symbol");
-        newlineOrComment();
-
         Node leaf(NodeType::List);
         if (token == "let")
             leaf.push_back(Node(Keyword::Let));
@@ -124,7 +129,27 @@ namespace Ark::internal
             leaf.push_back(Node(Keyword::Mut));
         else  // "set"
             leaf.push_back(Node(Keyword::Set));
-        leaf.push_back(Node(NodeType::Symbol, symbol));
+
+        if (m_allow_macro_behavior > 0)
+        {
+            auto position = getCount();
+            if (auto value = nodeOrValue(); value.has_value())
+                leaf.push_back(value.value());
+            else
+                backtrack(position);
+        }
+
+        if (leaf.constList().size() == 1)
+        {
+            // we haven't parsed anything while in "macro state"
+            std::string symbol;
+            if (!name(&symbol))
+                errorWithNextToken(token + " needs a symbol");
+
+            leaf.push_back(Node(NodeType::Symbol, symbol));
+        }
+
+        newlineOrComment();
 
         if (auto value = nodeOrValue(); value.has_value())
             leaf.push_back(value.value());
@@ -226,12 +251,12 @@ namespace Ark::internal
 
         Import import_data;
 
-        if (!packageName(&import_data.package))
+        if (!packageName(&import_data.prefix))
             errorWithNextToken("Import expected a package name");
+        import_data.package.push_back(import_data.prefix);
 
         Node packageNode(NodeType::List);
-        packageNode.push_back(Node(NodeType::String, import_data.package));
-        Node symbols(NodeType::List);
+        packageNode.push_back(Node(NodeType::String, import_data.prefix));
 
         // first, parse the package name
         while (!isEOF())
@@ -245,7 +270,8 @@ namespace Ark::internal
                 else
                 {
                     packageNode.push_back(Node(NodeType::String, path));
-                    import_data.package = path;  // in the end we will store the last element of the package, which is what we want
+                    import_data.package.push_back(path);
+                    import_data.prefix = path;  // in the end we will store the last element of the package, which is what we want
                 }
             }
             else if (accept(IsChar(':')) && accept(IsChar('*')))  // parsing :*
@@ -266,7 +292,8 @@ namespace Ark::internal
                 break;
         }
 
-        // then parse the symbols to import, it any
+        Node symbols(NodeType::List);
+        // then parse the symbols to import, if any
         if (newlineOrComment())
         {
             while (!isEOF())
@@ -336,12 +363,8 @@ namespace Ark::internal
         return leaf;
     }
 
-    std::optional<Node> Parser::function()
+    std::optional<Node> Parser::functionArgs()
     {
-        if (!oneOf({ "fun" }))
-            return std::nullopt;
-        newlineOrComment();
-
         expect(IsChar('('));
         newlineOrComment();
 
@@ -382,36 +405,128 @@ namespace Ark::internal
             }
         }
 
-        expect(IsChar(')'));
+        if (accept(IsChar(')')))
+            return args;
+        return std::nullopt;
+    }
+
+    std::optional<Node> Parser::function()
+    {
+        if (!oneOf({ "fun" }))
+            return std::nullopt;
         newlineOrComment();
+
+        while (m_allow_macro_behavior > 0)
+        {
+            auto position = getCount();
+
+            Node leaf(NodeType::List);
+            leaf.push_back(Node(Keyword::Fun));
+            // args
+            if (auto value = nodeOrValue(); value.has_value())
+                leaf.push_back(value.value());
+            else
+            {
+                backtrack(position);
+                break;
+            }
+            newlineOrComment();
+            // body
+            if (auto value = nodeOrValue(); value.has_value())
+                leaf.push_back(value.value());
+            else
+                errorWithNextToken("Expected a body for the function");
+            return leaf;
+        }
 
         Node leaf(NodeType::List);
         leaf.push_back(Node(Keyword::Fun));
-        leaf.push_back(args);
+
+        auto position = getCount();
+        if (auto args = functionArgs(); args.has_value())
+            leaf.push_back(args.value());
+        else
+        {
+            backtrack(position);
+
+            if (auto value = nodeOrValue(); value.has_value())
+                leaf.push_back(value.value());
+            else
+                errorWithNextToken("Expected an argument list");
+        }
+
+        newlineOrComment();
 
         if (auto value = nodeOrValue(); value.has_value())
             leaf.push_back(value.value());
         else
-            errorWithNextToken("Expected a value");
+            errorWithNextToken("Expected a body for the function");
 
         return leaf;
     }
 
-    std::optional<Node> Parser::macro()
+    std::optional<Node> Parser::macroCondition()
     {
-        if (!oneOf({ "macro" }))
+        if (!oneOf({ "$if" }))
             return std::nullopt;
         newlineOrComment();
 
-        // TODO handle if macros
-        std::string symbol;
-        if (!name(&symbol))
-            errorWithNextToken("macro needs a symbol");
+        Node leaf(NodeType::Macro);
+        leaf.push_back(Node(Keyword::If));
+
+        if (auto condition = nodeOrValue(); condition.has_value())
+            leaf.push_back(condition.value());
+        else
+            errorWithNextToken("$if need a valid condition");
+
         newlineOrComment();
 
-        Node leaf(NodeType::Macro);
-        leaf.push_back(Node(NodeType::Symbol, symbol));
+        if (auto value_if_true = nodeOrValue(); value_if_true.has_value())
+            leaf.push_back(value_if_true.value());
+        else
+            errorWithNextToken("Expected a value");
 
+        newlineOrComment();
+
+        if (auto value_if_false = nodeOrValue(); value_if_false.has_value())
+        {
+            leaf.push_back(value_if_false.value());
+            newlineOrComment();
+        }
+
+        return leaf;
+    }
+
+    std::optional<Node> Parser::macroBlock()
+    {
+        if (!accept(IsChar('(')))
+            return std::nullopt;
+        newlineOrComment();
+
+        if (!oneOf({ "$*" }))
+            return std::nullopt;
+        newlineOrComment();
+
+        Node leaf(NodeType::List);
+
+        while (!isEOF())
+        {
+            if (auto value = nodeOrValue(); value.has_value())
+            {
+                leaf.push_back(value.value());
+                newlineOrComment();
+            }
+            else
+                break;
+        }
+
+        newlineOrComment();
+        expect(IsChar(')'));
+        return leaf;
+    }
+
+    std::optional<Node> Parser::macroArgs()
+    {
         if (accept(IsChar('(')))
         {
             newlineOrComment();
@@ -438,17 +553,65 @@ namespace Ark::internal
                 newlineOrComment();
             }
 
-            expect(IsChar(')'));
+            if (!accept(IsChar(')')))
+                return std::nullopt;
             newlineOrComment();
 
-            leaf.push_back(args);
+            return args;
         }
 
-        if (auto value = nodeOrValue(); value.has_value())
+        return std::nullopt;
+    }
+
+    std::optional<Node> Parser::macro()
+    {
+        if (!accept(IsChar('(')))
+            return std::nullopt;
+        newlineOrComment();
+
+        if (!oneOf({ "$" }))
+            return std::nullopt;
+        newlineOrComment();
+
+        std::string symbol;
+        if (!name(&symbol))
+            errorWithNextToken("$ needs a symbol to declare a macro");
+        newlineOrComment();
+
+        Node leaf(NodeType::Macro);
+        leaf.push_back(Node(NodeType::Symbol, symbol));
+
+        auto position = getCount();
+        if (auto args = macroArgs(); args.has_value())
+            leaf.push_back(args.value());
+        else
+        {
+            backtrack(position);
+
+            ++m_allow_macro_behavior;
+            auto value = nodeOrValue();
+            --m_allow_macro_behavior;
+
+            if (value.has_value())
+                leaf.push_back(value.value());
+            else
+                errorWithNextToken("Expected an argument list, atom or node while defining macro `" + symbol + "'");
+
+            if (accept(IsChar(')')))
+                return leaf;
+        }
+
+        ++m_allow_macro_behavior;
+        auto value = nodeOrValue();
+        --m_allow_macro_behavior;
+
+        if (value.has_value())
             leaf.push_back(value.value());
         else
-            errorWithNextToken("Expected a value");
+            errorWithNextToken("Expected a value while defining macro `" + symbol + "'");
 
+        newlineOrComment();
+        expect(IsChar(')'));
         return leaf;
     }
 
@@ -467,7 +630,15 @@ namespace Ark::internal
             return std::nullopt;
         newlineOrComment();
 
-        Node leaf(NodeType::List);
+        NodeType call_type = NodeType::List;
+        if (auto node = func.value(); node.nodeType() == NodeType::Symbol)
+        {
+            // TODO enhance this to work with more/all macros
+            if (node.string() == "$undef")
+                call_type = NodeType::Macro;
+        }
+
+        Node leaf(call_type);
         leaf.push_back(func.value());
 
         while (!isEOF())
@@ -521,6 +692,11 @@ namespace Ark::internal
             backtrack(pos);
 
         if (auto res = Parser::string(); res.has_value())
+            return res;
+        else
+            backtrack(pos);
+
+        if (auto res = Parser::spread(); m_allow_macro_behavior > 0 && res.has_value())
             return res;
         else
             backtrack(pos);

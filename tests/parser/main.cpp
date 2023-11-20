@@ -35,7 +35,7 @@ int main(int argc, char* argv[])
         for (std::size_t i = 0, end = imports.size(); i < end; ++i)
         {
             Import data = imports[i];
-            std::cout << i << ") " << data.package;
+            std::cout << i << ") " << data.prefix;
             if (data.isBasic())
                 std::cout << " (basic)";
             else if (data.isGlob())

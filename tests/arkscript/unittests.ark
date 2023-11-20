@@ -11,13 +11,13 @@ ArkScript language
 # We *must* use functions for our tests because they create a new scope,
 # to avoid collisions with other tests, and avoid false positive tests.
 
-(import "vm-tests.ark")
-(import "builtins-tests.ark")
-(import "utf8-tests.ark")
-(import "macro-tests.ark")
-(import "list-tests.ark")
-(import "string-tests.ark")
-(import "async-tests.ark")
+(import vm-tests)
+(import builtins-tests)
+(import utf8-tests)
+(import macro-tests)
+(import list-tests)
+(import string-tests)
+(import async-tests)
 
 (print "  ------------------------------")
 
@@ -28,6 +28,7 @@ ArkScript language
     passed-macro
     passed-list
     passed-string
-    passed-async ))
+    passed-async
+))
 
 (print "Completed in " (* 1000 (- (time) start_time)) "ms")

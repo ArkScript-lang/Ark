@@ -8,7 +8,7 @@
 
 namespace Ark
 {
-    Repl::Repl(const std::vector<std::string>& libenv) :
+    Repl::Repl(const std::vector<std::filesystem::path>& libenv) :
         m_lines(1), m_old_ip(0), m_libenv(libenv)
     {}
 
