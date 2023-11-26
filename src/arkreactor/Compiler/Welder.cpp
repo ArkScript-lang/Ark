@@ -56,27 +56,34 @@ namespace Ark
         }
     }
 
-    void Welder::generateBytecode()
+    bool Welder::generateBytecode()
     {
         try
         {
             m_compiler.process(m_optimizer.ast());
             m_bytecode = m_compiler.bytecode();
+
+            return true;
         }
         catch (const CodeError& e)
         {
             Diagnostics::generate(e);
+            return false;
         }
     }
 
-    void Welder::saveBytecodeToFile(const std::string& filename)
+    bool Welder::saveBytecodeToFile(const std::string& filename)
     {
         if (m_debug >= 1)
             std::cout << "Final bytecode size: " << m_bytecode.size() * sizeof(uint8_t) << "B\n";
 
+        if (m_bytecode.empty())
+            return false;
+
         std::ofstream output(filename, std::ofstream::binary);
         output.write(reinterpret_cast<char*>(&m_bytecode[0]), m_bytecode.size() * sizeof(uint8_t));
         output.close();
+        return true;
     }
 
     const internal::Node& Welder::ast() const noexcept

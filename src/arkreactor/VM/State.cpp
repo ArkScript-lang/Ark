@@ -59,10 +59,13 @@ namespace Ark
 
         for (auto& p : m_binded)
             welder.registerSymbol(p.first);
-        welder.generateBytecode();
+
+        if (!welder.generateBytecode())
+            return false;
 
         std::string destination = output.empty() ? (file.substr(0, file.find_last_of('.')) + ".arkc") : output;
-        welder.saveBytecodeToFile(destination);
+        if (!welder.saveBytecodeToFile(destination))
+            return false;
 
         return true;
     }

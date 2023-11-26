@@ -42,8 +42,8 @@ namespace Ark
         bool computeASTFromFile(const std::string& filename);
         bool computeASTFromString(const std::string& code);
 
-        void generateBytecode();
-        void saveBytecodeToFile(const std::string& filename);
+        bool generateBytecode();
+        bool saveBytecodeToFile(const std::string& filename);
 
         const internal::Node& ast() const noexcept;
         const bytecode_t& bytecode() const noexcept;
