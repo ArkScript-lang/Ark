@@ -11,6 +11,4 @@ else
 fi
 
 $ark unittests.ark --lib ../../lib/ || exit 1
-for file in ../../lib/std/tests/*.ark; do
-    $ark $file --lib ../../lib/
-done
+$ark ../../lib/std/tests/all.ark --lib ../../lib/ || exit 1

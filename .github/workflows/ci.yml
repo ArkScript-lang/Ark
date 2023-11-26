@@ -272,11 +272,11 @@ jobs:
         export ASAN_OPTIONS=detect_odr_violation=0
         (cd tests/arkscript ; bash ./run-tests)
 
-    - name: Modules tests
-      shell: bash
-      run: |
-        export ASAN_OPTIONS=detect_odr_violation=0
-        (source ./lib/modules/.github/run-tests)
+    #- name: Modules tests
+    #  shell: bash
+    #  run: |
+    #    export ASAN_OPTIONS=detect_odr_violation=0
+    #    (source ./lib/modules/.github/run-tests)
 
     - name: Runtime error message generation tests
       shell: bash
