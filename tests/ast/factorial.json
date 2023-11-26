@@ -26,7 +26,7 @@
                             },
                             "value": {
                                 "type": "Number",
-                                "value": 1.000000
+                                "value": 1
                             }
                         },
                         {
@@ -37,7 +37,7 @@
                             },
                             "value": {
                                 "type": "Number",
-                                "value": 2.000000
+                                "value": 2
                             }
                         },
                         {
@@ -101,7 +101,7 @@
                                             "args": [
                                                 {
                                                     "type": "Number",
-                                                    "value": 1.000000
+                                                    "value": 1
                                                 },
                                                 {
                                                     "type": "Symbol",
@@ -141,7 +141,7 @@
                     "args": [
                         {
                             "type": "Number",
-                            "value": 6.000000
+                            "value": 6
                         }
                     ]
                 }

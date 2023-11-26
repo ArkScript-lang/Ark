@@ -2,7 +2,7 @@
 # very often, and this is a convention,
 # if an imported file starts with a capital letter,
 # it shall be a file in the standard library.
-(import "Exceptions.ark")
+(import std.Exceptions)
 
 # the function which should do a "safe number invertion"
 (let invert (fun (x) {

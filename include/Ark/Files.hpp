@@ -4,9 +4,9 @@
  * @brief Lots of utilities about the filesystem
  * @version 0.1
  * @date 2021-11-25
- * 
+ *
  * @copyright Copyright (c) 2021
- * 
+ *
  */
 
 #ifndef INCLUDE_ARK_FILES_HPP
@@ -21,7 +21,7 @@ namespace Ark::Utils
 {
     /**
      * @brief Checks if a file exists
-     * 
+     *
      * @param name the file name
      * @return true on success
      * @return false on failure
@@ -41,9 +41,9 @@ namespace Ark::Utils
 
     /**
      * @brief Helper to read a file
-     * 
+     *
      * @param name the file name
-     * @return std::string 
+     * @return std::string
      */
     inline std::string readFile(const std::string& name)
     {
@@ -54,33 +54,32 @@ namespace Ark::Utils
             std::istreambuf_iterator<char>());
     }
 
-    /**
-     * @brief Get the directory from a path
-     * 
-     * @param path 
-     * @return std::string 
-     */
-    inline std::string getDirectoryFromPath(const std::string& path)
+    inline std::vector<uint8_t> readFileAsBytes(const std::string& name)
     {
-        return (std::filesystem::path(path)).parent_path().string();
-    }
+        // admitting the file exists
+        std::ifstream ifs(name, std::ios::binary | std::ios::ate);
+        if (!ifs.good())
+            return std::vector<uint8_t> {};
 
-    /**
-     * @brief Get the filename from a path
-     * 
-     * @param path 
-     * @return std::string 
-     */
-    inline std::string getFilenameFromPath(const std::string& path)
-    {
-        return (std::filesystem::path(path)).filename().string();
+        std::size_t pos = ifs.tellg();
+        // reserve appropriate number of bytes
+        std::vector<char> temp(pos);
+        ifs.seekg(0, std::ios::beg);
+        ifs.read(&temp[0], pos);
+        ifs.close();
+
+        auto bytecode = std::vector<uint8_t>(pos);
+        // TODO would it be faster to memcpy?
+        for (std::size_t i = 0; i < pos; ++i)
+            bytecode[i] = static_cast<uint8_t>(temp[i]);
+        return bytecode;
     }
 
     /**
      * @brief Get the canonical relative path from a path
-     * 
-     * @param path 
-     * @return std::string 
+     *
+     * @param path
+     * @return std::string
      */
     inline std::string canonicalRelPath(const std::string& path)
     {

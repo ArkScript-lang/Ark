@@ -35,7 +35,6 @@ foreach(ELEM ${TARGET_LIST})
         ${FNAME}
         PUBLIC
         ${PROJECT_SOURCE_DIR}/../../include
-        ${PROJECT_SOURCE_DIR}/../../lib/String/include
     )
 
     # copy to a special folder
@@ -46,11 +45,5 @@ foreach(ELEM ${TARGET_LIST})
     )
 
     # request C++17
-    set_target_properties(
-        ${FNAME}
-        PROPERTIES
-            CXX_STANDARD 17
-            CXX_STANDARD_REQUIRED ON
-            CXX_EXTENSIONS OFF
-    )
+    target_compile_features(${FNAME} PRIVATE cxx_std_17)
 endforeach()

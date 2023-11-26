@@ -3,6 +3,8 @@
 #include <Ark/Constants.hpp>
 #include <Ark/Files.hpp>
 #include <Ark/Utils.hpp>
+#include <Ark/Compiler/BytecodeReader.hpp>
+#include <Ark/Compiler/Welder.hpp>
 
 #ifdef _MSC_VER
 #    pragma warning(push)
@@ -15,93 +17,55 @@
 
 namespace Ark
 {
-    State::State(uint16_t options, const std::vector<std::string>& libenv) noexcept :
+    State::State(const std::vector<std::filesystem::path>& libenv) noexcept :
         m_debug_level(0),
-        m_filename(ARK_NO_NAME_FILE),
-        m_options(options)
-    {
-        if (libenv.size() > 0)
-        {
-            m_libenv = libenv;
-        }
-        else
-        {
-            const char* arkpath = getenv("ARKSCRIPT_PATH");
-            if (arkpath)
-                m_libenv = Utils::splitString(arkpath, ';');
-            else if (Utils::fileExists("./lib"))
-                m_libenv.push_back(Utils::canonicalRelPath("./lib"));
-            else
-            {
-                if (m_debug_level >= 1)
-                    std::cout << termcolor::yellow << "Warning" << termcolor::reset << " no std library was found and ARKSCRIPT_PATH was not supplied" << std::endl;
-            }
-        }
-    }
+        m_libenv(libenv),
+        m_filename(ARK_NO_NAME_FILE)
+    {}
 
     bool State::feed(const std::string& bytecode_filename)
     {
-        bool result = true;
-        try
-        {
-            BytecodeReader bcr;
-            bcr.feed(bytecode_filename);
-            m_bytecode = bcr.bytecode();
+        if (!Utils::fileExists(bytecode_filename))
+            return false;
 
-            configure();
-        }
-        catch (const std::exception& e)
-        {
-            result = false;
-            std::printf("%s\n", e.what());
-        }
-
-        return result;
+        return feed(Utils::readFileAsBytes(bytecode_filename));
     }
 
     bool State::feed(const bytecode_t& bytecode)
     {
-        bool result = true;
+        if (!checkMagic(bytecode))
+            return false;
+
+        m_bytecode = bytecode;
+
         try
         {
-            m_bytecode = bytecode;
             configure();
+            return true;
         }
-        catch (const std::exception& e)
+        catch (const std::exception& e)  // FIXME I don't like this shit
         {
-            result = false;
-            std::printf("%s\n", e.what());
+            std::cout << e.what() << std::endl;
+            return false;
         }
-
-        return result;
     }
 
     bool State::compile(const std::string& file, const std::string& output)
     {
-        Compiler compiler(m_debug_level, m_libenv, m_options);
+        Welder welder(m_debug_level, m_libenv);
 
-        try
-        {
-            compiler.feed(Utils::readFile(file), file);
-            for (auto& p : m_binded)
-                compiler.m_defined_symbols.push_back(p.first);
-            compiler.compile();
+        if (!welder.computeASTFromFile(file))
+            return false;
 
-            if (output != "")
-                compiler.saveTo(output);
-            else
-                compiler.saveTo(file.substr(0, file.find_last_of('.')) + ".arkc");
-        }
-        catch (const std::exception& e)
-        {
-            std::printf("%s\n", e.what());
+        for (auto& p : m_binded)
+            welder.registerSymbol(p.first);
+
+        if (!welder.generateBytecode())
             return false;
-        }
-        catch (...)
-        {
-            std::printf("Unknown lexer-parser-or-compiler error (%s)\n", file.c_str());
+
+        std::string destination = output.empty() ? (file.substr(0, file.find_last_of('.')) + ".arkc") : output;
+        if (!welder.saveBytecodeToFile(destination))
             return false;
-        }
 
         return true;
     }
@@ -116,22 +80,11 @@ namespace Ark
         }
         m_filename = file;
 
-        // check if it's a bytecode file or a source code file
-        BytecodeReader bcr;
-        try
-        {
-            bcr.feed(file);
-        }
-        catch (const std::exception& e)
-        {
-            std::printf("%s\n", e.what());
-            return false;
-        }
-
-        if (bcr.timestamp() == 0)  // couldn't read magic number, it's a source file
+        bytecode_t bytecode = Utils::readFileAsBytes(file);
+        if (!checkMagic(bytecode))  // couldn't read magic number, it's a source file
         {
             // check if it's in the arkscript cache
-            std::string short_filename = Utils::getFilenameFromPath(file);
+            std::string short_filename = (std::filesystem::path(file)).filename().string();
             std::string filename = short_filename.substr(0, short_filename.find_last_of('.')) + ".arkc";
             std::filesystem::path directory = (std::filesystem::path(file)).parent_path() / ARK_CACHE_DIRNAME;
             std::string path = (directory / filename).string();
@@ -143,34 +96,23 @@ namespace Ark
             if (compiled_successfuly && feed(path))
                 return true;
         }
-        else if (feed(file))  // it's a bytecode file
+        else if (feed(bytecode))  // it's a bytecode file
             return true;
         return false;
     }
 
     bool State::doString(const std::string& code)
     {
-        Compiler compiler(m_debug_level, m_libenv, m_options);
+        Welder welder(m_debug_level, m_libenv);
 
-        try
-        {
-            compiler.feed(code);
-            for (auto& p : m_binded)
-                compiler.m_defined_symbols.push_back(p.first);
-            compiler.compile();
-        }
-        catch (const std::exception& e)
-        {
-            std::printf("%s\n", e.what());
+        if (!welder.computeASTFromString(code))
             return false;
-        }
-        catch (...)
-        {
-            std::printf("Unknown lexer-parser-or-compiler error\n");
-            return false;
-        }
 
-        return feed(compiler.bytecode());
+        for (auto& p : m_binded)
+            welder.registerSymbol(p.first);
+        welder.generateBytecode();
+
+        return feed(welder.bytecode());
     }
 
     void State::loadFunction(const std::string& name, Value::ProcType function) noexcept
@@ -193,13 +135,21 @@ namespace Ark
         m_debug_level = level;
     }
 
-    void State::setLibDirs(const std::vector<std::string>& libenv) noexcept
+    void State::setLibDirs(const std::vector<std::filesystem::path>& libenv) noexcept
     {
         m_libenv = libenv;
     }
 
+    bool State::checkMagic(const bytecode_t& bytecode)
+    {
+        return (bytecode.size() > 4 && bytecode[0] == 'a' &&
+                bytecode[1] == 'r' && bytecode[2] == 'k' &&
+                bytecode[3] == internal::Instruction::NOP);
+    }
+
     void State::configure()
     {
+        // FIXME refactor this crap and try to mutualise with the bytecode reader??
         using namespace internal;
 
         // configure tables and pages

@@ -5,8 +5,8 @@
 #include <limits>
 #include <filesystem>
 #include <picosha2.h>
-#include <termcolor/termcolor.hpp>
-#undef max
+#include <termcolor/proxy.hpp>
+#include <fmt/core.h>
 
 #include <Ark/Literals.hpp>
 #include <Ark/Utils.hpp>
@@ -18,28 +18,18 @@ namespace Ark
     using namespace internal;
     using namespace literals;
 
-    Compiler::Compiler(unsigned debug, const std::vector<std::string>& libenv, uint16_t options) :
-        m_parser(debug, options, libenv), m_optimizer(options),
-        m_options(options), m_debug(debug)
+    Compiler::Compiler(unsigned debug) :
+        m_debug(debug)
     {}
 
-    void Compiler::feed(const std::string& code, const std::string& filename)
-    {
-        m_parser.feed(code, filename);
-
-        MacroProcessor mp(m_debug, m_options);
-        mp.feed(m_parser.ast());
-        m_optimizer.feed(mp.ast());
-    }
-
-    void Compiler::compile()
+    void Compiler::process(const internal::Node& ast)
     {
         pushFileHeader();
 
         m_code_pages.emplace_back();  // create empty page
 
         // gather symbols, values, and start to create code segments
-        compileExpression(m_optimizer.ast(), /* current_page */ 0, /* is_result_unused */ false, /* is_terminal */ false);
+        compileExpression(ast, /* current_page */ 0, /* is_result_unused */ false, /* is_terminal */ false);
         // throw an error on undefined symbol uses
         checkForUndefinedSymbol();
 
@@ -92,17 +82,7 @@ namespace Ark
         m_bytecode.insert(m_bytecode.begin() + header_size, hash_out.begin(), hash_out.end());
     }
 
-    void Compiler::saveTo(const std::string& file)
-    {
-        if (m_debug >= 1)
-            std::cout << "Final bytecode size: " << m_bytecode.size() * sizeof(uint8_t) << "B\n";
-
-        std::ofstream output(file, std::ofstream::binary);
-        output.write(reinterpret_cast<char*>(&m_bytecode[0]), m_bytecode.size() * sizeof(uint8_t));
-        output.close();
-    }
-
-    const bytecode_t& Compiler::bytecode() noexcept
+    const bytecode_t& Compiler::bytecode() const noexcept
     {
         return m_bytecode;
     }
@@ -193,21 +173,10 @@ namespace Ark
                 m_bytecode.push_back(static_cast<uint16_t>(addr & 0x00ff));
             }
             else
-                throw CompilationError("trying to put a value in the value table, but the type isn't handled.\nCertainly a logic problem in the compiler source code");
+                throw Error("The compiler is trying to put a value in the value table, but the type isn't handled.\nCertainly a logic problem in the compiler source code");
 
             m_bytecode.push_back(0_u8);
         }
-    }
-
-    std::size_t Compiler::countArkObjects(const std::vector<Node>& lst) noexcept
-    {
-        std::size_t n = 0;
-        for (const Node& node : lst)
-        {
-            if (node.nodeType() != NodeType::GetField)
-                n++;
-        }
-        return n;
     }
 
     std::optional<std::size_t> Compiler::getOperator(const std::string& name) noexcept
@@ -280,13 +249,14 @@ namespace Ark
 
     void Compiler::compilerWarning(const std::string& message, const Node& node)
     {
-        if (m_options & FeatureShowWarnings)
-            std::cout << termcolor::yellow << "Warning " << termcolor::reset << makeNodeBasedErrorCtx(message, node) << "\n";
+        std::cout << termcolor::yellow << "Warning " << termcolor::reset << Diagnostics::makeContextWithNode(message, node) << "\n";
     }
 
     void Compiler::throwCompilerError(const std::string& message, const Node& node)
     {
-        throw CompilationError(makeNodeBasedErrorCtx(message, node));
+        std::stringstream ss;
+        ss << node;
+        throw CodeError(message, node.filename(), node.line(), node.col(), ss.str());
     }
 
     void Compiler::compileExpression(const Node& x, int p, bool is_result_unused, bool is_terminal, const std::string& var_name)
@@ -294,10 +264,15 @@ namespace Ark
         // register symbols
         if (x.nodeType() == NodeType::Symbol)
             compileSymbol(x, p, is_result_unused);
-        else if (x.nodeType() == NodeType::GetField)
+        else if (x.nodeType() == NodeType::Field)
         {
-            uint16_t i = addSymbol(x);
-            page(p).emplace_back(Instruction::GET_FIELD, i);
+            // the parser guarantees us that there is at least 2 elements (eg: a.b)
+            compileSymbol(x.constList()[0], p, is_result_unused);
+            for (auto it = x.constList().begin() + 1, end = x.constList().end(); it != end; ++it)
+            {
+                uint16_t i = addSymbol(*it);
+                page(p).emplace_back(Instruction::GET_FIELD, i);
+            }
         }
         // register values
         else if (x.nodeType() == NodeType::String || x.nodeType() == NodeType::Number)
@@ -364,10 +339,6 @@ namespace Ark
                     compilePluginImport(x, p);
                     break;
 
-                case Keyword::Quote:
-                    compileQuote(x, p, is_result_unused, is_terminal, var_name);
-                    break;
-
                 case Keyword::Del:
                     page(p).emplace_back(Instruction::DEL, addSymbol(x.constList()[1]));
                     break;
@@ -405,26 +376,14 @@ namespace Ark
         Instruction inst = getSpecific(name).value();
 
         // length of at least 1 since we got a symbol name
-        uint16_t argc = countArkObjects(x.constList()) - 1;
+        uint16_t argc = x.constList().size() - 1;
         // error, can not use append/concat/pop (and their in place versions) with a <2 length argument list
         if (argc < 2 && inst != Instruction::LIST)
-            throw CompilationError("can not use " + name + " with less than 2 arguments");
+            throwCompilerError(fmt::format("Can not use {} with less than 2 arguments", name), c0);
 
         // compile arguments in reverse order
         for (uint16_t i = x.constList().size() - 1; i > 0; --i)
-        {
-            uint16_t j = i;
-            while (x.constList()[j].nodeType() == NodeType::GetField)
-                --j;
-            uint16_t diff = i - j;
-            while (j < i)
-            {
-                compileExpression(x.constList()[j], p, false, false);
-                ++j;
-            }
             compileExpression(x.constList()[i], p, false, false);
-            i -= diff;
-        }
 
         // put inst and number of arguments
         page(p).emplace_back(inst, computeSpecificInstArgc(inst, argc));
@@ -549,32 +508,23 @@ namespace Ark
         page(p)[jump_to_end_pos].data = static_cast<uint16_t>(page(p).size());
     }
 
-    void Compiler::compileQuote(const Node& x, int p, bool is_result_unused, bool is_terminal, const std::string& var_name)
-    {
-        // create new page for quoted code
-        m_code_pages.emplace_back();
-        std::size_t page_id = m_code_pages.size() - 1;
-        compileExpression(x.constList()[1], page_id, false, is_terminal, var_name);
-        page(page_id).emplace_back(Instruction::RET);  // return to the last frame
-
-        // call it
-        uint16_t id = addValue(page_id, x);  // save page_id into the constants table as PageAddr
-        page(p).emplace_back(Instruction::LOAD_CONST, id);
-
-        if (is_result_unused)
-        {
-            compilerWarning("Unused quote expression", x);
-            page(p).push_back(Instruction::POP);
-        }
-    }
-
     void Compiler::compilePluginImport(const Node& x, int p)
     {
+        std::string path;
+        Node package_node = x.constList()[1];
+        for (std::size_t i = 0, end = package_node.constList().size(); i < end; ++i)
+        {
+            path += package_node.constList()[i].string();
+            if (i + 1 != end)
+                path += "/";
+        }
+        path += ".arkm";
+
         // register plugin path in the constants table
-        uint16_t id = addValue(x.constList()[1]);
+        uint16_t id = addValue(Node(NodeType::String, path));
         // save plugin name to use it later
-        m_plugins.push_back(x.constList()[1].string());
-        // add plugin instruction + id of the constant refering to the plugin path
+        m_plugins.push_back(path);
+        // add plugin instruction + id of the constant referring to the plugin path
         page(p).emplace_back(Instruction::PLUGIN, id);
     }
 
@@ -582,21 +532,10 @@ namespace Ark
     {
         m_temp_pages.emplace_back();
         int proc_page = -static_cast<int>(m_temp_pages.size());
-        compileExpression(x.constList()[0], proc_page, false, false);  // storing proc
+        std::size_t n = 1;
 
-        // trying to handle chained closure.field.field.field...
-        std::size_t n = 1;  // we need it later
-        const std::size_t end = x.constList().size();
-        while (n < end)
-        {
-            if (x.constList()[n].nodeType() == NodeType::GetField)
-            {
-                compileExpression(x.constList()[n], proc_page, false, false);
-                n++;
-            }
-            else
-                break;
-        }
+        compileExpression(x.constList()[0], proc_page, false, false);  // storing proc
+        // closure chains have been handled: closure.field.field.function
 
         // it's a builtin/function
         if (m_temp_pages.back()[0].opcode < Instruction::FIRST_OPERATOR)
@@ -628,8 +567,7 @@ namespace Ark
                 std::size_t args_count = 0;
                 for (auto it = x.constList().begin() + 1, it_end = x.constList().end(); it != it_end; ++it)
                 {
-                    if (it->nodeType() != NodeType::GetField &&
-                        it->nodeType() != NodeType::Capture)
+                    if (it->nodeType() != NodeType::Capture)
                         args_count++;
                 }
                 // call the procedure
@@ -651,10 +589,7 @@ namespace Ark
             {
                 compileExpression(x.constList()[index], p, false, false);
 
-                if ((index + 1 < size &&
-                     x.constList()[index + 1].nodeType() != NodeType::GetField &&
-                     x.constList()[index + 1].nodeType() != NodeType::Capture) ||
-                    index + 1 == size)
+                if ((index + 1 < size && x.constList()[index + 1].nodeType() != NodeType::Capture) || index + 1 == size)
                     exp_count++;
 
                 // in order to be able to handle things like (op A B C D...)

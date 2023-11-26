@@ -1,6 +1,3 @@
-[submodule "lib/utf8_decoder"]
-	path = lib/utf8_decoder
-	url = https://github.com/PierrePharel/utf8_decoder.git
 [submodule "lib/std"]
 	path = lib/std
 	url = https://github.com/ArkScript-lang/std.git

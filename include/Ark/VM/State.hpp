@@ -16,10 +16,11 @@
 #include <vector>
 #include <cinttypes>
 #include <unordered_map>
+#include <filesystem>
 
 #include <Ark/VM/Value.hpp>
-#include <Ark/Compiler/BytecodeReader.hpp>
-#include <Ark/Compiler/Compiler.hpp>
+#include <Ark/Compiler/Common.hpp>
+#include <Ark/Exceptions.hpp>
 
 namespace Ark
 {
@@ -33,10 +34,9 @@ namespace Ark
         /**
          * @brief Construct a new State object
          * 
-         * @param options the options for the virtual machine, compiler, and parser
          * @param libpath a list of search paths for the std library
          */
-        State(uint16_t options = DefaultFeatures, const std::vector<std::string>& libpath = {}) noexcept;
+        State(const std::vector<std::filesystem::path>& libpath = {}) noexcept;
 
         /**
          * @brief Feed the state by giving it the path to an existing bytecode file
@@ -101,7 +101,7 @@ namespace Ark
          * 
          * @param libenv the list of std search paths to set
          */
-        void setLibDirs(const std::vector<std::string>& libenv) noexcept;
+        void setLibDirs(const std::vector<std::filesystem::path>& libenv) noexcept;
 
         /**
          * @brief Reset State (all member variables related to execution)
@@ -114,6 +114,8 @@ namespace Ark
         friend class Repl;
 
     private:
+        bool checkMagic(const bytecode_t& bytecode);
+
         /**
          * @brief Called to configure the state (set the bytecode, debug level, call the compiler...)
          * 
@@ -132,15 +134,14 @@ namespace Ark
 
         inline void throwStateError(const std::string& message)
         {
-            throw std::runtime_error("StateError: " + message);
+            throw Error("StateError: " + message);
         }
 
         unsigned m_debug_level;
 
         bytecode_t m_bytecode;
-        std::vector<std::string> m_libenv;
+        std::vector<std::filesystem::path> m_libenv;
         std::string m_filename;
-        uint16_t m_options;
 
         // related to the bytecode
         std::vector<std::string> m_symbols;

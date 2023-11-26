@@ -5,6 +5,7 @@
 - more tests for the io builtins
 - added lines and code coloration in the error context
 - new dependency: fmtlib
+- added the padding/instruction/argumentation values when displaying instructions in the bytecode reader
 
 ### Changed
 - instructions are on 4 bytes: 1 byte for the instruction, 1 byte of padding, 2 bytes for an immediate argument
@@ -42,6 +43,11 @@
 - better arity check for macros
 - fixed a bug in the macro processor where macros were deleted when they shouldn't
 - fixed a bug where macro functions with no argument would crash the macro processor
+
+### Removed
+
+### Deprecated
+
 
 ## [3.4.0] - 2022-09-12
 ### Added

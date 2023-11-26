@@ -27,7 +27,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 # files needed for the library ArkReactor
 file(GLOB_RECURSE SOURCE_FILES
     ${ark_SOURCE_DIR}/src/arkreactor/*.cpp
-    ${ark_SOURCE_DIR}/lib/fmt/src/*.cc)
+    ${ark_SOURCE_DIR}/lib/fmt/src/format.cc)
 
 add_library(ArkReactor SHARED ${SOURCE_FILES})
 
@@ -46,8 +46,8 @@ if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG OR APPLE)
         )
 
     if (CMAKE_COMPILER_IS_GNUCXX)
-        # The package utf8_decoder has an issues with constant overflow.
-        # Once thisis fixed remove this flag: 
+        # The package utf8 has an issue with constant overflow.
+        # Once this is fixed remove this flag:
         target_compile_options(ArkReactor PUBLIC -Wno-overflow)
     endif()
 
@@ -96,7 +96,6 @@ add_subdirectory("${ark_SOURCE_DIR}/lib/termcolor" EXCLUDE_FROM_ALL)
 
 target_include_directories(ArkReactor
     PUBLIC
-    "${ark_SOURCE_DIR}/lib/utf8_decoder/"
     "${ark_SOURCE_DIR}/lib/picosha2/"
     "${ark_SOURCE_DIR}/lib/fmt/include")
 
@@ -122,12 +121,7 @@ target_include_directories(ArkReactor
     PUBLIC
     ${ark_SOURCE_DIR}/include)
 
-# setting up project properties
-set_target_properties(
-    ArkReactor
-    PROPERTIES
-        CXX_STANDARD 17
-        CXX_STANDARD_REQUIRED ON)
+target_compile_features(ArkReactor PRIVATE cxx_std_17)
 
 # Installation rules
 
@@ -176,11 +170,18 @@ if (ARK_BUILD_MODULES)
     add_subdirectory(${ark_SOURCE_DIR}/lib/modules)
 endif()
 
+if (ARK_BUILD_PARSER_TESTS)
+    add_executable(parser ${ark_SOURCE_DIR}/tests/parser/main.cpp)
+    target_link_libraries(parser PUBLIC ArkReactor)
+    target_compile_features(parser PRIVATE cxx_std_17)
+endif()
+
 if (ARK_BUILD_EXE)
     # additional files needed for the exe (repl, command line and stuff)
-    set(EXE_SOURCES
+    file(GLOB_RECURSE EXE_SOURCES
         ${ark_SOURCE_DIR}/src/arkscript/REPL/Utils.cpp
         ${ark_SOURCE_DIR}/src/arkscript/REPL/Repl.cpp
+        ${ark_SOURCE_DIR}/lib/fmt/src/format.cc
         ${ark_SOURCE_DIR}/src/arkscript/main.cpp)
 
     add_executable(arkscript ${EXE_SOURCES})

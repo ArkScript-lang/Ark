@@ -4,7 +4,6 @@
 
 # Personal utilities
 warnings.log
-cformat.ps1
 
 # ArkScript
 include/Ark/Constants.hpp
@@ -28,6 +27,7 @@ afl/
 .cache/
 build/
 ninja/
+cmake-build-*/
 
 # Prerequisites
 *.d
@@ -47,10 +47,6 @@ ninja/
 *.dylib
 *.dll
 
-# Fortran module files
-*.mod
-*.smod
-
 # Compiled Static libraries
 *.lai
 *.la
@@ -64,3 +60,6 @@ ninja/
 
 # MacOS files
 .DS_store
+
+# Visual Studio
+CmakeSettings.json

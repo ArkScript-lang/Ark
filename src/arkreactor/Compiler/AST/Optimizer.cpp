@@ -1,12 +1,14 @@
 #include <Ark/Compiler/AST/Optimizer.hpp>
 
+#include <sstream>
+
 namespace Ark::internal
 {
     Optimizer::Optimizer(uint16_t options) noexcept :
         m_options(options)
     {}
 
-    void Optimizer::feed(const Node& ast)
+    void Optimizer::process(const Node& ast)
     {
         m_ast = ast;
 
@@ -21,7 +23,10 @@ namespace Ark::internal
 
     void Optimizer::throwOptimizerError(const std::string& message, const Node& node)
     {
-        throw OptimizerError(makeNodeBasedErrorCtx(message, node));
+        std::stringstream ss;
+        ss << node;
+
+        throw CodeError(message, node.filename(), node.line(), node.col(), ss.str());
     }
 
     void Optimizer::remove_unused()

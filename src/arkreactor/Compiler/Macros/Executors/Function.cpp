@@ -1,5 +1,7 @@
 #include <Ark/Compiler/Macros/Executors/Function.hpp>
 
+#include <fmt/core.h>
+
 namespace Ark::internal
 {
     bool FunctionExecutor::canHandle(Node& node)
@@ -46,7 +48,7 @@ namespace Ark::internal
                         if (args_applied.find(arg_name) == args_applied.end())
                         {
                             args_applied[arg_name] = Node(NodeType::List);
-                            args_applied[arg_name].push_back(Node::getListNode());
+                            args_applied[arg_name].push_back(getListNode());
                         }
                         // do not move j because we checked before that the spread is always the last one
                         args_applied[arg_name].push_back(node.constList()[i]);
@@ -58,14 +60,14 @@ namespace Ark::internal
                 {
                     // just a spread we didn't assign
                     args_applied[args.list().back().string()] = Node(NodeType::List);
-                    args_applied[args.list().back().string()].push_back(Node::getListNode());
+                    args_applied[args.list().back().string()].push_back(getListNode());
                 }
 
                 if (args_given != args_needed && !has_spread)
-                    throwMacroProcessingError("Macro `" + macro_name + "' got " + std::to_string(args_given) + " argument(s) but needed " + std::to_string(args_needed), node);
+                    throwMacroProcessingError(fmt::format("Macro `{}' got {} argument(s) but needed {}", macro_name, args_given, args_needed), node);
                 else if (args_applied.size() != args_needed && has_spread)
                     // args_needed - 1 because we do not count the spread as a required argument
-                    throwMacroProcessingError("Macro `" + macro_name + "' got " + std::to_string(args_applied.size()) + " argument(s) but needed at least " + std::to_string(args_needed - 1), node);
+                    throwMacroProcessingError(fmt::format("Macro `{}' got {} argument(s) but needed at least {}", macro_name, args_applied.size(), args_needed - 1), node);
 
                 if (!args_applied.empty())
                     unify(args_applied, temp_body, nullptr);

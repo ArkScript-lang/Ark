@@ -1,4 +1,4 @@
-(import "console.arkm")
+(import console)
 
 (let assert-eq (fun (val1 val2 message tests) {
     (assert (= val1 val2) (str:format "{} ({}) - {} SHOULD BE EQUAL TO {}" message tests val1 val2))

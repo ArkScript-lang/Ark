@@ -1,0 +1,6 @@
+( Symbol:list Number:1 Number:2 Number:3 )
+( Symbol:list )
+( Symbol:list ( Symbol:list Number:1 ) )
+( Symbol:list )
+( Symbol:list Number:1 )
+( Symbol:list ( Symbol:list Number:1 Symbol:a ) )

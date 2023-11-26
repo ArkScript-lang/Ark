@@ -1,0 +1,5 @@
+In file ./incomplete_import_2.ark
+At ' ' @ 1:11
+    1 | (import a. )
+      |           ^
+        Package name expected after '.'

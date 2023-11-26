@@ -31,7 +31,7 @@
                         },
                         {
                             "type": "Number",
-                            "value": 1.000000
+                            "value": 1
                         }
                     ]
                 },
@@ -55,7 +55,7 @@
                                 },
                                 {
                                     "type": "Number",
-                                    "value": 0.000000
+                                    "value": 0
                                 }
                             ]
                         }
@@ -90,7 +90,7 @@
                 },
                 "then": {
                     "type": "Number",
-                    "value": 100.000000
+                    "value": 100
                 },
                 "else": {
                     "type": "Symbol",
@@ -124,7 +124,7 @@
                     },
                     {
                         "type": "Number",
-                        "value": 1.000000
+                        "value": 1
                     }
                 ]
             },
@@ -147,8 +147,8 @@
                                 "args": [
                                     {
                                         "type": "String",
-                                        "value": "%% Bottles of beer on the wall
-%% bottles of beer
+                                        "value": "{} Bottles of beer on the wall
+{} bottles of beer
 Take one down, pass it around"
                                     },
                                     {
@@ -182,7 +182,7 @@ Take one down, pass it around"
                                 },
                                 {
                                     "type": "Number",
-                                    "value": 1.000000
+                                    "value": 1
                                 }
                             ]
                         }
@@ -203,7 +203,7 @@ Take one down, pass it around"
                                 "args": [
                                     {
                                         "type": "String",
-                                        "value": "%% Bottles of beer on the wall."
+                                        "value": "{} Bottles of beer on the wall."
                                     },
                                     {
                                         "type": "Symbol",

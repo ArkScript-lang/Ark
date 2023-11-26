@@ -37,7 +37,7 @@
                                     },
                                     {
                                         "type": "Number",
-                                        "value": 0.000000
+                                        "value": 0
                                     }
                                 ]
                             },
@@ -52,7 +52,7 @@
                                     "args": [
                                         {
                                             "type": "Number",
-                                            "value": 0.000000
+                                            "value": 0
                                         },
                                         {
                                             "type": "Symbol",
@@ -80,13 +80,13 @@
                                                 },
                                                 {
                                                     "type": "Number",
-                                                    "value": 1.000000
+                                                    "value": 1
                                                 }
                                             ]
                                         },
                                         {
                                             "type": "Number",
-                                            "value": 1.000000
+                                            "value": 1
                                         }
                                     ]
                                 },
@@ -110,7 +110,7 @@
                                                 },
                                                 {
                                                     "type": "Number",
-                                                    "value": 1.000000
+                                                    "value": 1
                                                 }
                                             ]
                                         },
@@ -138,7 +138,7 @@
                                                         },
                                                         {
                                                             "type": "Number",
-                                                            "value": 1.000000
+                                                            "value": 1
                                                         }
                                                     ]
                                                 }
@@ -156,7 +156,7 @@
                                 "args": [
                                     {
                                         "type": "Number",
-                                        "value": 1.000000
+                                        "value": 1
                                     },
                                     {
                                         "type": "Symbol",
@@ -189,11 +189,11 @@
                     "args": [
                         {
                             "type": "Number",
-                            "value": 3.000000
+                            "value": 3
                         },
                         {
                             "type": "Number",
-                            "value": 6.000000
+                            "value": 6
                         }
                     ]
                 }

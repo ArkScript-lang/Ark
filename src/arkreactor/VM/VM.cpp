@@ -2,6 +2,7 @@
 
 #include <numeric>
 #include <limits>
+#include <sstream>
 
 #include <termcolor/proxy.hpp>
 #include <Ark/Files.hpp>
@@ -126,9 +127,9 @@ namespace Ark
             auto lib_path = std::accumulate(
                 std::next(m_state.m_libenv.begin()),
                 m_state.m_libenv.end(),
-                m_state.m_libenv[0],
-                [](const std::string& a, const std::string& b) -> std::string {
-                    return a + "\n\t- " + b;
+                m_state.m_libenv[0].string(),
+                [](const std::string& a, const fs::path& b) -> std::string {
+                    return a + "\n\t- " + b.string();
                 });
             throwVMError(ErrorKind::Module, "Could not find module '" + file + "'. Searched in\n\t- " + path + "\n\t- " + lib_path);
         }

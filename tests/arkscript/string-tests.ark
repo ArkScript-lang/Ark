@@ -1,6 +1,6 @@
-(import "tests-tools.ark")
+(import tests-tools)
 
-(import "String.ark")
+(import std.String)
 
 (let string-tests (fun () {
     (mut tests 0)

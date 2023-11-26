@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-
-(cd tests/arkscript ; echo ; bash ./run-tests)
-(cd tests/cpp/ ; echo ; bash ./run-tests)
-(cd tests/errors ; echo ; bash ./run-tests)
-(cd tests/ast/ ; echo ; bash ./run-tests)
-(source ./lib/modules/.github/run-tests)

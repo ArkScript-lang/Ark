@@ -5,6 +5,15 @@
 #    define NOMINMAX
 #endif
 
+#ifdef max
+#    undef max
+#endif
+
+#ifdef abs
+#    undef abs
+#endif
+
+#include <cstdint>
 #include <termcolor/termcolor.hpp>
 
 #endif

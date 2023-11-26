@@ -1,611 +1,760 @@
 #include <Ark/Compiler/AST/Parser.hpp>
 
-#include <optional>
-#include <algorithm>
-#include <sstream>
-
 #include <Ark/Files.hpp>
-#include <Ark/Exceptions.hpp>
-#include <Ark/Compiler/AST/makeErrorCtx.hpp>
 
 namespace Ark::internal
 {
-    Parser::Parser(unsigned debug, uint16_t options, const std::vector<std::string>& lib_env) noexcept :
-        m_debug(debug),
-        m_libenv(lib_env),
-        m_options(options),
-        m_lexer(debug),
-        m_file(ARK_NO_NAME_FILE)
-    {}
-
-    void Parser::feed(const std::string& code, const std::string& filename)
+    Parser::Parser() :
+        BaseParser(), m_ast(NodeType::List), m_imports({}), m_allow_macro_behavior(0)
     {
-        // not the default value
-        if (filename != ARK_NO_NAME_FILE)
-        {
-            m_file = Utils::canonicalRelPath(filename);
-            if (m_debug >= 2)
-                std::cout << "New parser: " << m_file << '\n';
-            m_parent_include.push_back(m_file);
-        }
-
-        m_code = code;
-
-        m_lexer.feed(code);
-        // apply syntactic sugar
-        std::vector<Token>& t = m_lexer.tokens();
-        if (t.empty())
-            throw ParseError("empty file");
-        sugar(t);
-
-        // create program
-        std::list<Token> tokens(t.begin(), t.end());
-        m_last_token = tokens.front();
-
-        // accept every nodes in the file
-        m_ast = Node(NodeType::List);
-        m_ast.setFilename(m_file);
-        m_ast.list().emplace_back(Keyword::Begin);
-        while (!tokens.empty())
-            m_ast.list().push_back(parse(tokens));
-        // include files if needed
-        checkForInclude(m_ast, m_ast);
-
-        if (m_debug >= 3)
-            std::cout << "(Parser) AST\n"
-                      << m_ast << "\n\n";
+        m_ast.push_back(Node(Keyword::Begin));
     }
 
-    const Node& Parser::ast() const noexcept
+    void Parser::processFile(const std::string& filename)
+    {
+        const std::string code = Utils::readFile(filename);
+        initParser(filename, code);
+        run();
+    }
+
+    void Parser::processString(const std::string& code)
+    {
+        initParser(ARK_NO_NAME_FILE, code);
+        run();
+    }
+
+    const Node& Parser::ast() const
     {
         return m_ast;
     }
 
-    const std::vector<std::string>& Parser::getImports() const noexcept
+    const std::vector<Import>& Parser::imports() const
     {
-        return m_parent_include;
+        return m_imports;
     }
 
-    void Parser::sugar(std::vector<Token>& tokens) noexcept
+    void Parser::run()
     {
-        std::size_t i = 0;
-        while (true)
+        while (!isEOF())
         {
-            std::size_t line = tokens[i].line;
-            std::size_t col = tokens[i].col;
-
-            if (tokens[i].token == "{")
-            {
-                tokens[i] = Token(TokenType::Grouping, "(", line, col);
-                // handle macros
-                if (i > 0 && tokens[i - 1].token != "!")
-                    tokens.insert(tokens.begin() + i + 1, Token(TokenType::Keyword, "begin", line, col));
-                else if (i == 0)
-                    tokens.insert(tokens.begin() + i + 1, Token(TokenType::Keyword, "begin", line, col));
-            }
-            else if (tokens[i].token == "}" || tokens[i].token == "]")
-                tokens[i] = Token(TokenType::Grouping, ")", line, col);
-            else if (tokens[i].token == "[")
-            {
-                tokens[i] = Token(TokenType::Grouping, "(", line, col);
-                tokens.insert(tokens.begin() + i + 1, Token(TokenType::Identifier, "list", line, col));
-            }
-
-            ++i;
-
-            if (i == tokens.size())
+            newlineOrComment();
+            if (isEOF())
                 break;
+
+            auto n = node();
+            if (n)
+                m_ast.push_back(n.value());
         }
     }
 
-    // sugar() was called before, so it's safe to assume we only have ( and )
-    Node Parser::parse(std::list<Token>& tokens, bool authorize_capture, bool authorize_field_read, bool in_macro)
+    std::optional<Node> Parser::node()
     {
-        using namespace std::string_literals;
+        // save current position in buffer to be able to go back if needed
+        auto position = getCount();
 
-        Token token = nextToken(tokens);
+        if (auto result = wrapped(&Parser::letMutSet, "let/mut/set", '(', ')'))
+            return result;
+        else
+            backtrack(position);
 
-        bool previous_token_was_lparen = false;
+        if (auto result = wrapped(&Parser::function, "function", '(', ')'))
+            return result;
+        else
+            backtrack(position);
 
-        // parse block
-        if (token.token == "(")
+        if (auto result = wrapped(&Parser::condition, "condition", '(', ')'))
+            return result;
+        else
+            backtrack(position);
+
+        if (auto result = wrapped(&Parser::loop, "loop", '(', ')'))
+            return result;
+        else
+            backtrack(position);
+
+        if (auto result = import_(); result.has_value())
+            return result;
+        else
+            backtrack(position);
+
+        if (auto result = block(); result.has_value())
+            return result;
+        else
+            backtrack(position);
+
+        if (auto result = wrapped(&Parser::macroCondition, "$if", '(', ')'))
+            return result;
+        else
+            backtrack(position);
+
+        if (auto result = macroBlock())
+            return result;
+        else
+            backtrack(position);
+
+        if (auto result = macro(); result.has_value())
+            return result;
+        else
+            backtrack(position);
+
+        if (auto result = wrapped(&Parser::del, "del", '(', ')'))
+            return result;
+        else
+            backtrack(position);
+
+        if (auto result = functionCall(); result.has_value())
+            return result;
+        else
+            backtrack(position);
+
+        if (auto result = list(); result.has_value())
+            return result;
+        else
+            backtrack(position);
+
+        return std::nullopt;  // will never reach
+    }
+
+    std::optional<Node> Parser::letMutSet()
+    {
+        std::string token;
+        if (!oneOf({ "let", "mut", "set" }, &token))
+            return std::nullopt;
+        newlineOrComment();
+
+        Node leaf(NodeType::List);
+        if (token == "let")
+            leaf.push_back(Node(Keyword::Let));
+        else if (token == "mut")
+            leaf.push_back(Node(Keyword::Mut));
+        else  // "set"
+            leaf.push_back(Node(Keyword::Set));
+
+        if (m_allow_macro_behavior > 0)
         {
-            previous_token_was_lparen = true;
-            // create a list node to host the block
-            Node block = make_node_list(token.line, token.col, m_file);
-
-            // handle sub-blocks
-            if (tokens.front().token == "(")
-            {
-                block.push_back(parse(tokens, false, false, in_macro));
-                previous_token_was_lparen = false;
-            }
-
-            // take next token, we don't want to play with a "("
-            token = nextToken(tokens);
-
-            // return an empty block
-            if (token.token == ")")
-                return block;
-
-            // check for unexpected keywords between expressions
-            if ((token.type == TokenType::Operator ||
-                 token.type == TokenType::Identifier ||
-                 token.type == TokenType::Number ||
-                 token.type == TokenType::String) &&
-                tokens.front().type == TokenType::Keyword)
-                throwParseError("Unexpected keyword `" + tokens.front().token + "' in the middle of an expression", tokens.front());
-
-            // loop until we reach the end of the block
-            do
-            {
-                Node atomized = atom(token);
-                checkForInvalidTokens(atomized, token, previous_token_was_lparen, authorize_capture, authorize_field_read);
-                block.push_back(atomized);
-
-                expect(!tokens.empty(), "expected more tokens after `" + token.token + "'", m_last_token);
-                m_last_token = tokens.front();
-
-                if (token.type == TokenType::Keyword)
-                {
-                    if (token.token == "if")
-                        parseIf(block, tokens, in_macro);
-                    else if (token.token == "let" || token.token == "mut")
-                        parseLetMut(block, token, tokens, in_macro);
-                    else if (token.token == "set")
-                        parseSet(block, token, tokens, in_macro);
-                    else if (token.token == "fun")
-                        parseFun(block, token, tokens, in_macro);
-                    else if (token.token == "while")
-                        parseWhile(block, token, tokens, in_macro);
-                    else if (token.token == "begin")
-                        parseBegin(block, tokens, in_macro);
-                    else if (token.token == "import")
-                        parseImport(block, tokens);
-                    else if (token.token == "quote")
-                        parseQuote(block, tokens, in_macro);
-                    else if (token.token == "del")
-                        parseDel(block, tokens);
-                    else
-                        throwParseError("unimplemented keyword `" + token.token + "'. If you see this error please report it on GitHub.", token);
-                }
-                else if (token.type == TokenType::Identifier || token.type == TokenType::Operator ||
-                         (token.type == TokenType::Capture && authorize_capture) ||
-                         (token.type == TokenType::GetField && authorize_field_read) ||
-                         (token.type == TokenType::Spread && in_macro))
-                {
-                    while (tokens.front().token != ")")
-                        block.push_back(parse(tokens, /* authorize_capture */ false, /* authorize_field_read */ true, in_macro));
-                }
-            } while (tokens.front().token != ")");
-
-            // pop the ")"
-            tokens.pop_front();
-            return block;
-        }
-        else if (token.type == TokenType::Shorthand)
-            return parseShorthand(token, tokens, in_macro);
-        // error, we shouldn't have grouping token here
-        else if (token.type == TokenType::Grouping)
-            throwParseError("Found a lonely `" + token.token + "', you most likely have too much parenthesis.", token);
-        else if ((token.type == TokenType::Operator || token.type == TokenType::Identifier) &&
-                 std::find(internal::operators.begin(), internal::operators.end(), token.token) != internal::operators.end())
-            throwParseError("Found a free flying operator, which isn't authorized. Operators should always immediatly follow a `('.", token);
-        else if ((token.type == TokenType::Number ||
-                  token.type == TokenType::String) &&
-                 tokens.front().type == TokenType::Keyword)
-            throwParseError("Unexpected keyword `" + tokens.front().token + "' in the middle of an expression", tokens.front());
-        else if (token.type == TokenType::Keyword &&
-                 !previous_token_was_lparen)
-            throwParseError("Unexpected keyword `" + token.token + "' in the middle of an expression", token);
-        return atom(token);
-    }
-
-    void Parser::parseIf(Node& block, std::list<Token>& tokens, bool in_macro)
-    {
-        auto temp = tokens.front();
-        // parse condition
-        if (temp.type == TokenType::Grouping)
-            block.push_back(parse(tokens, false, false, in_macro));
-        else if (temp.type == TokenType::Identifier || temp.type == TokenType::Number ||
-                 temp.type == TokenType::String || (in_macro && temp.type == TokenType::Spread))
-            block.push_back(atom(nextToken(tokens)));
-        else
-            throwParseError("found invalid token after keyword `if', expected function call, value or Identifier", temp);
-        // parse 'then'
-        expect(!tokens.empty() && tokens.front().token != ")", "expected a statement after the condition", temp);
-        block.push_back(parse(tokens, false, false, in_macro));
-        // parse 'else', if there is one
-        if (tokens.front().token != ")")
-        {
-            block.push_back(parse(tokens, false, false, in_macro));
-            // error handling if the if is ill-formed
-            expect(tokens.front().token == ")", "if block is ill-formed, got more than the 3 required arguments (condition, then, else)", m_last_token);
-        }
-    }
-
-    void Parser::parseLetMut(Node& block, Token& token, std::list<Token>& tokens, bool in_macro)
-    {
-        auto temp = tokens.front();
-        // parse identifier
-        if (temp.type == TokenType::Identifier)
-            block.push_back(atom(nextToken(tokens)));
-        else if (in_macro)
-            block.push_back(parse(tokens, false, false, in_macro));
-        else
-            throwParseError(std::string("missing identifier to define a ") + (token.token == "let" ? "constant" : "variable") + ", after keyword `" + token.token + "'", temp);
-        expect(!tokens.empty() && tokens.front().token != ")", "expected a value after the identifier", temp);
-        // value
-        while (tokens.front().token != ")")
-            block.push_back(parse(tokens, /* authorize_capture */ false, /* authorize_field_read */ true, in_macro));
-
-        // the block size can exceed 3 only if we have a serie of getfields
-        expect(
-            block.list().size() <= 3 || std::all_of(block.list().begin() + 3, block.list().end(), [](const Node& n) -> bool {
-                return n.nodeType() == NodeType::GetField;
-            }),
-            "too many arguments given to keyword `" + token.token + "', got " + std::to_string(block.list().size() - 1) + ", expected at most 3", m_last_token);
-    }
-
-    void Parser::parseSet(Node& block, Token& token, std::list<Token>& tokens, bool in_macro)
-    {
-        auto temp = tokens.front();
-        // parse identifier
-        if (temp.type == TokenType::Identifier)
-            block.push_back(atom(nextToken(tokens)));
-        else if (in_macro)
-            block.push_back(parse(tokens, false, false, in_macro));
-        else
-            throwParseError("missing identifier to assign a value to, after keyword `set'", temp);
-        expect(!tokens.empty() && tokens.front().token != ")", "expected a value after the identifier", temp);
-        // set can not accept a.b...c as an identifier
-        if (tokens.front().type == TokenType::GetField)
-            throwParseError("found invalid token after keyword `set', expected an identifier, got a closure field reading expression", tokens.front());
-        // value
-        while (tokens.front().token != ")")
-            block.push_back(parse(tokens, /* authorize_capture */ false, /* authorize_field_read */ true, in_macro));
-
-        // the block size can exceed 3 only if we have a serie of getfields
-        expect(
-            block.list().size() <= 3 || std::all_of(block.list().begin() + 3, block.list().end(), [](const Node& n) -> bool {
-                return n.nodeType() == NodeType::GetField;
-            }),
-            "too many arguments given to keyword `" + token.token + "', got " + std::to_string(block.list().size() - 1) + ", expected at most 3", m_last_token);
-    }
-
-    void Parser::parseFun(Node& block, Token& token, std::list<Token>& tokens, bool in_macro)
-    {
-        // parse arguments
-        if (tokens.front().type == TokenType::Grouping || in_macro)
-            block.push_back(parse(tokens, /* authorize_capture */ true, false, in_macro));
-        else
-            throwParseError("found invalid token after keyword `fun', expected a block to define the argument list of the function\nThe block can be empty if it doesn't have arguments: `()'", tokens.front());
-        // parse body
-        if (tokens.front().type == TokenType::Grouping || in_macro)
-            block.push_back(parse(tokens, false, false, in_macro));
-        else
-            throwParseError("the body of a function must be a block, even an empty one `()'", tokens.front());
-        expect(block.list().size() == 3, "got too many arguments after keyword `" + token.token + "', expected an argument list and a body", m_last_token);
-    }
-
-    void Parser::parseWhile(Node& block, Token& token, std::list<Token>& tokens, bool in_macro)
-    {
-        auto temp = tokens.front();
-        // parse condition
-        if (temp.type == TokenType::Grouping)
-            block.push_back(parse(tokens, false, false, in_macro));
-        else if (temp.type == TokenType::Identifier || temp.type == TokenType::Number ||
-                 temp.type == TokenType::String)
-            block.push_back(atom(nextToken(tokens)));
-        else
-            throwParseError("found invalid token after keyword `while', expected function call, value or Identifier", temp);
-        expect(!tokens.empty() && tokens.front().token != ")", "expected a body after the condition", temp);
-        // parse 'do'
-        block.push_back(parse(tokens, false, false, in_macro));
-        expect(block.list().size() == 3, "got too many arguments after keyword `" + token.token + "', expected a condition and a body", temp);
-    }
-
-    void Parser::parseBegin(Node& block, std::list<Token>& tokens, bool in_macro)
-    {
-        while (true)
-        {
-            expect(!tokens.empty(), "a `begin' block was opened but never closed\nYou most likely forgot a `}' or `)'", m_last_token);
-            if (tokens.front().token == ")")
-                break;
-            m_last_token = tokens.front();
-
-            block.push_back(parse(tokens, false, false, in_macro));
-        }
-    }
-
-    void Parser::parseImport(Node& block, std::list<Token>& tokens)
-    {
-        if (tokens.front().type == TokenType::String)
-            block.push_back(atom(nextToken(tokens)));
-        else
-            throwParseError("found invalid token after keyword `import', expected String (path to the file or module to import)", tokens.front());
-        expect(tokens.front().token == ")", "got too many arguments after keyword `import', expected a single filename as String", tokens.front());
-    }
-
-    void Parser::parseQuote(Node& block, std::list<Token>& tokens, bool in_macro)
-    {
-        block.push_back(parse(tokens, false, false, in_macro));
-        expect(tokens.front().token == ")", "got too many arguments after keyword `quote', expected a single block or value", tokens.front());
-    }
-
-    void Parser::parseDel(Node& block, std::list<Token>& tokens)
-    {
-        if (tokens.front().type == TokenType::Identifier)
-            block.push_back(atom(nextToken(tokens)));
-        else
-            throwParseError("found invalid token after keyword `del', expected Identifier", tokens.front());
-        expect(tokens.front().token == ")", "got too many arguments after keyword `del', expected a single identifier", tokens.front());
-    }
-
-    Node Parser::parseShorthand(Token& token, std::list<Token>& tokens, bool in_macro)
-    {
-        if (token.token == "'")
-        {
-            // create a list node to host the block
-            Node block = make_node_list(token.line, token.col, m_file);
-
-            block.push_back(make_node(Keyword::Quote, token.line, token.col, m_file));
-            block.push_back(parse(tokens, false, false, in_macro));
-            return block;
-        }
-        else if (token.token == "!")
-        {
-            if (m_debug >= 2)
-                std::cout << "Found a macro at " << token.line << ':' << token.col << " in " << m_file << '\n';
-
-            // macros
-            Node block = make_node(NodeType::Macro, token.line, token.col, m_file);
-
-            Node parsed = parse(tokens, /* authorize_capture */ false, /* authorize_field_read */ false, /* in_macro */ true);
-            if (parsed.nodeType() != NodeType::List || parsed.list().size() < 2 || parsed.list().size() > 4)
-                throwParseError("Macros can only defined using the !{ name value } or !{ name (args) value } syntax", token);
-
-            // append the nodes of the parsed node to the current macro node
-            for (std::size_t i = 0, end = parsed.list().size(); i < end; ++i)
-                block.push_back(parsed.list()[i]);
-            return block;
-        }
-
-        throwParseError("unknown shorthand", token);
-    }
-
-    void Parser::checkForInvalidTokens(Node& atomized, Token& token, bool previous_token_was_lparen, bool authorize_capture, bool authorize_field_read)
-    {
-        if ((atomized.nodeType() == NodeType::String || atomized.nodeType() == NodeType::Number ||
-             atomized.nodeType() == NodeType::List) &&
-            previous_token_was_lparen)
-        {
-            std::stringstream ss;
-            ss << "found invalid token after `(', expected Keyword, Identifier";
-            if (!authorize_capture && !authorize_field_read)
-                ss << " or Operator";
+            auto position = getCount();
+            if (auto value = nodeOrValue(); value.has_value())
+                leaf.push_back(value.value());
             else
+                backtrack(position);
+        }
+
+        if (leaf.constList().size() == 1)
+        {
+            // we haven't parsed anything while in "macro state"
+            std::string symbol;
+            if (!name(&symbol))
+                errorWithNextToken(token + " needs a symbol");
+
+            leaf.push_back(Node(NodeType::Symbol, symbol));
+        }
+
+        newlineOrComment();
+
+        if (auto value = nodeOrValue(); value.has_value())
+            leaf.push_back(value.value());
+        else
+            errorWithNextToken("Expected a value");
+
+        return leaf;
+    }
+
+    std::optional<Node> Parser::del()
+    {
+        std::string keyword;
+        if (!oneOf({ "del" }, &keyword))
+            return std::nullopt;
+
+        newlineOrComment();
+
+        std::string symbol;
+        if (!name(&symbol))
+            errorWithNextToken(keyword + " needs a symbol");
+
+        Node leaf(NodeType::List);
+        leaf.push_back(Node(Keyword::Del));
+        leaf.push_back(Node(NodeType::Symbol, symbol));
+
+        return leaf;
+    }
+
+    std::optional<Node> Parser::condition()
+    {
+        if (!oneOf({ "if" }))
+            return std::nullopt;
+
+        newlineOrComment();
+
+        Node leaf(NodeType::List);
+        leaf.push_back(Node(Keyword::If));
+
+        if (auto condition = nodeOrValue(); condition.has_value())
+            leaf.push_back(condition.value());
+        else
+            errorWithNextToken("If need a valid condition");
+
+        newlineOrComment();
+
+        if (auto value_if_true = nodeOrValue(); value_if_true.has_value())
+            leaf.push_back(value_if_true.value());
+        else
+            errorWithNextToken("Expected a value");
+
+        newlineOrComment();
+
+        if (auto value_if_false = nodeOrValue(); value_if_false.has_value())
+        {
+            leaf.push_back(value_if_false.value());
+            newlineOrComment();
+        }
+
+        return leaf;
+    }
+
+    std::optional<Node> Parser::loop()
+    {
+        if (!oneOf({ "while" }))
+            return std::nullopt;
+
+        newlineOrComment();
+
+        Node leaf(NodeType::List);
+        leaf.push_back(Node(Keyword::While));
+
+        if (auto condition = nodeOrValue(); condition.has_value())
+            leaf.push_back(condition.value());
+        else
+            errorWithNextToken("While need a valid condition");
+
+        newlineOrComment();
+
+        if (auto body = nodeOrValue(); body.has_value())
+            leaf.push_back(body.value());
+        else
+            errorWithNextToken("Expected a value");
+
+        return leaf;
+    }
+
+    std::optional<Node> Parser::import_()
+    {
+        if (!accept(IsChar('(')))
+            return std::nullopt;
+        newlineOrComment();
+
+        if (!oneOf({ "import" }))
+            return std::nullopt;
+        newlineOrComment();
+
+        Node leaf(NodeType::List);
+        leaf.push_back(Node(Keyword::Import));
+
+        Import import_data;
+
+        if (!packageName(&import_data.prefix))
+            errorWithNextToken("Import expected a package name");
+        import_data.package.push_back(import_data.prefix);
+
+        Node packageNode(NodeType::List);
+        packageNode.push_back(Node(NodeType::String, import_data.prefix));
+
+        // first, parse the package name
+        while (!isEOF())
+        {
+            // parsing package folder.foo.bar.yes
+            if (accept(IsChar('.')))
             {
-                ss << ", Operator";
-                if (authorize_capture && !authorize_field_read)
-                    ss << " or Capture";
-                else if (!authorize_capture && authorize_field_read)
-                    ss << " or GetField";
+                std::string path;
+                if (!packageName(&path))
+                    errorWithNextToken("Package name expected after '.'");
                 else
-                    ss << ", Capture or GetField";
-            }
-            throwParseError(ss.str(), token);
-        }
-    }
-
-    Token Parser::nextToken(std::list<Token>& tokens)
-    {
-        expect(!tokens.empty(), "no more token to consume", m_last_token);
-        m_last_token = tokens.front();
-
-        const Token out = std::move(tokens.front());
-        tokens.pop_front();
-        return out;
-    }
-
-    Node Parser::atom(const Token& token)
-    {
-        switch (token.type)
-        {
-            case TokenType::Number:
-                return make_node(std::stod(token.token), token.line, token.col, m_file);
-
-            case TokenType::String:
-            {
-                std::string str = token.token;
-                // remove the " at the beginning and at the end
-                str.erase(0, 1);
-                str.erase(token.token.size() - 2, 1);
-
-                return make_node(str, token.line, token.col, m_file);
-            }
-
-            case TokenType::Keyword:
-            {
-                std::optional<Keyword> kw;
-                if (token.token == "if")
-                    kw = Keyword::If;
-                else if (token.token == "set")
-                    kw = Keyword::Set;
-                else if (token.token == "let")
-                    kw = Keyword::Let;
-                else if (token.token == "mut")
-                    kw = Keyword::Mut;
-                else if (token.token == "fun")
-                    kw = Keyword::Fun;
-                else if (token.token == "while")
-                    kw = Keyword::While;
-                else if (token.token == "begin")
-                    kw = Keyword::Begin;
-                else if (token.token == "import")
-                    kw = Keyword::Import;
-                else if (token.token == "quote")
-                    kw = Keyword::Quote;
-                else if (token.token == "del")
-                    kw = Keyword::Del;
-
-                if (kw)
-                    return make_node(kw.value(), token.line, token.col, m_file);
-                throwParseError("unknown keyword", token);
-            }
-
-            case TokenType::Capture:
-            case TokenType::GetField:
-            case TokenType::Spread:
-            {
-                Node n = make_node(internal::similarNodetypeFromTokentype(token.type), token.line, token.col, m_file);
-                n.setString(token.type != TokenType::Spread ? token.token : token.token.substr(3));
-                return n;
-            }
-
-            case TokenType::Shorthand:
-                throwParseError("got a shorthand to atomize, and that's not normal. If you see this error please report it on GitHub.", token);
-
-            default:
-            {
-                // assuming it is a TokenType::Identifier, thus a Symbol
-                Node n = make_node(NodeType::Symbol, token.line, token.col, m_file);
-                n.setString(token.token);
-                return n;
-            }
-        }
-    }
-
-    // high cpu cost
-    bool Parser::checkForInclude(Node& n, Node& parent, std::size_t pos)
-    {
-        namespace fs = std::filesystem;
-
-        // if we have a list, we may find an import statement inside
-        if (n.nodeType() == NodeType::List)
-        {
-            if (n.constList().size() == 0)
-                return false;
-
-            const Node& first = n.constList()[0];
-
-            // if we found an import statement, inspect it
-            if (first.nodeType() == NodeType::Keyword && first.keyword() == Keyword::Import)
-            {
-                if (m_debug >= 2)
-                    std::cout << "Import found in file: " << m_file << '\n';
-
-                if (n.constList()[1].nodeType() != NodeType::String)
-                    throw TypeError("Arguments of import must be of type String");
-
-                // check if we are not loading a plugin
-                if (std::string file = n.constList()[1].string(); fs::path(file).extension().string() == ".ark")
                 {
-                    // search for the source file everywhere
-                    std::string included_file = seekFile(file);
+                    packageNode.push_back(Node(NodeType::String, path));
+                    import_data.package.push_back(path);
+                    import_data.prefix = path;  // in the end we will store the last element of the package, which is what we want
+                }
+            }
+            else if (accept(IsChar(':')) && accept(IsChar('*')))  // parsing :*
+            {
+                space();
+                expect(IsChar(')'));
 
-                    // if the file isn't in the include list, then we can include it
-                    // this avoids cyclic includes
-                    if (std::find(m_parent_include.begin(), m_parent_include.end(), Utils::canonicalRelPath(included_file)) != m_parent_include.end())
-                        return true;
+                leaf.push_back(packageNode);
+                leaf.push_back(Node(NodeType::Symbol, "*"));
 
-                    // feed a new parser with our parent includes
-                    Parser p(m_debug, m_options, m_libenv);
-                    for (auto const& pi : m_parent_include)
-                        p.m_parent_include.push_back(pi);  // new parser, we can assume that the parent include list is empty
-                    p.m_parent_include.push_back(m_file);  // add the current file to avoid importing it again
-                    p.feed(Utils::readFile(included_file), included_file);
+                // save the import data structure to know we encounter an import node, and retrieve its data more easily later on
+                import_data.with_prefix = false;
+                m_imports.push_back(import_data);
 
-                    // update our list of included files
-                    for (auto const& inc : p.m_parent_include)
+                return leaf;
+            }
+            else
+                break;
+        }
+
+        Node symbols(NodeType::List);
+        // then parse the symbols to import, if any
+        if (newlineOrComment())
+        {
+            while (!isEOF())
+            {
+                if (accept(IsChar(':')))  // parsing potential :a :b :c
+                {
+                    std::string symbol;
+                    if (!name(&symbol))
+                        errorWithNextToken("Expected a valid symbol to import");
+
+                    if (symbol.size() >= 2 && symbol[symbol.size() - 2] == ':' && symbol.back() == '*')
                     {
-                        if (std::find(m_parent_include.begin(), m_parent_include.end(), inc) == m_parent_include.end())
-                            m_parent_include.push_back(inc);
+                        backtrack(getCount() - 2);  // we can backtrack n-2 safely here because we know the previous chars were ":*"
+                        error("Glob pattern can not follow a symbol to import", ":*");
                     }
 
-                    for (std::size_t j = 1, end = p.ast().constList().size(); j < end; ++j)
-                        parent.list().insert(parent.list().begin() + pos + j, p.ast().constList()[j]);
-
-                    return true;
+                    symbols.push_back(Node(NodeType::Symbol, symbol));
+                    import_data.symbols.push_back(symbol);
                 }
-            }
 
-            // inspect every other node in the list
-            for (std::size_t i = 0; i < n.list().size(); ++i)
-            {
-                if (checkForInclude(n.list()[i], n, i))
-                {
-                    n.list().erase(n.list().begin() + i);
-                    --i;
-                }
+                if (!newlineOrComment())
+                    break;
             }
         }
 
-        return false;
+        leaf.push_back(packageNode);
+        leaf.push_back(symbols);
+        // save the import data
+        m_imports.push_back(import_data);
+
+        newlineOrComment();
+        expect(IsChar(')'));
+        return leaf;
     }
 
-    std::string Parser::seekFile(const std::string& file)
+    std::optional<Node> Parser::block()
     {
-        const std::string current_dir = Utils::getDirectoryFromPath(m_file) + "/";
-        const std::string path = (current_dir != "/") ? current_dir + file : file;
-
-        if (m_debug >= 2)
+        bool alt_syntax = false;
+        if (accept(IsChar('(')))
         {
-            std::cout << "path: " << path << " ; file: " << file << " ; libpath: ";
-            for (auto&& lib : m_libenv)
-                std::cout << lib << ":";
-            std::cout << "\nfilename: " << Utils::getFilenameFromPath(file) << '\n';
+            newlineOrComment();
+            if (!oneOf({ "begin" }))
+                return std::nullopt;
         }
-
-        // search in the current directory
-        if (Utils::fileExists(path))
-            return path;
-
-        // search in all folders in environment path
-        for (auto const& p : m_libenv)
-        {
-            // then search in the standard library directory
-            if (std::string f = p + "/std/" + file; Utils::fileExists(f))
-                return f;
-            // then in the standard library root directory
-            else if (std::string f2 = p + "/" + file; Utils::fileExists(f2))
-                return f2;
-        }
-
-        // fallback, we couldn't find the file
-        throw std::runtime_error("While processing file " + m_file + ", couldn't import " + file + ": file not found");
-    }
-
-    void Parser::expect(bool pred, const std::string& message, internal::Token token)
-    {
-        if (!pred)
-            throwParseError(message, token);
-    }
-
-    void Parser::throwParseError(const std::string& message, internal::Token token)
-    {
-        std::stringstream ss;
-        ss << message << "\nGot TokenType::" << internal::tokentype_string[static_cast<unsigned>(token.type)] << "\n";
-
-        if (m_file != ARK_NO_NAME_FILE)
-            ss << "In file " << m_file << "\n";
-        ss << internal::makeTokenBasedErrorCtx(token.token, token.line, token.col, m_code);
-
-        throw ParseError(ss.str());
-    }
-
-    std::ostream& operator<<(std::ostream& os, const Parser& P) noexcept
-    {
-        os << "AST\n";
-        if (P.ast().nodeType() == NodeType::List)
-        {
-            int i = 0;
-            for (const auto& node : P.ast().constList())
-                std::cout << (i++) << ": " << node << '\n';
-        }
+        else if (accept(IsChar('{')))
+            alt_syntax = true;
         else
-            os << "Single item\n"
-               << P.m_ast << std::endl;
-        return os;
+            return std::nullopt;
+        newlineOrComment();
+
+        Node leaf(NodeType::List);
+        leaf.push_back(Node(Keyword::Begin));
+
+        while (!isEOF())
+        {
+            if (auto value = nodeOrValue(); value.has_value())
+            {
+                leaf.push_back(value.value());
+                newlineOrComment();
+            }
+            else
+                break;
+        }
+
+        newlineOrComment();
+        expect(IsChar(!alt_syntax ? ')' : '}'));
+        return leaf;
+    }
+
+    std::optional<Node> Parser::functionArgs()
+    {
+        expect(IsChar('('));
+        newlineOrComment();
+
+        Node args(NodeType::List);
+        bool has_captures = false;
+
+        while (!isEOF())
+        {
+            if (accept(IsChar('&')))  // captures
+            {
+                has_captures = true;
+                std::string capture;
+                if (!name(&capture))
+                    break;
+                else
+                {
+                    newlineOrComment();
+                    args.push_back(Node(NodeType::Capture, capture));
+                }
+            }
+            else
+            {
+                auto pos = getCount();
+                std::string symbol;
+                if (!name(&symbol))
+                    break;
+                else
+                {
+                    if (has_captures)
+                    {
+                        backtrack(pos);
+                        error("Captured variables should be at the end of the argument list", symbol);
+                    }
+
+                    newlineOrComment();
+                    args.push_back(Node(NodeType::Symbol, symbol));
+                }
+            }
+        }
+
+        if (accept(IsChar(')')))
+            return args;
+        return std::nullopt;
+    }
+
+    std::optional<Node> Parser::function()
+    {
+        if (!oneOf({ "fun" }))
+            return std::nullopt;
+        newlineOrComment();
+
+        while (m_allow_macro_behavior > 0)
+        {
+            auto position = getCount();
+
+            Node leaf(NodeType::List);
+            leaf.push_back(Node(Keyword::Fun));
+            // args
+            if (auto value = nodeOrValue(); value.has_value())
+                leaf.push_back(value.value());
+            else
+            {
+                backtrack(position);
+                break;
+            }
+            newlineOrComment();
+            // body
+            if (auto value = nodeOrValue(); value.has_value())
+                leaf.push_back(value.value());
+            else
+                errorWithNextToken("Expected a body for the function");
+            return leaf;
+        }
+
+        Node leaf(NodeType::List);
+        leaf.push_back(Node(Keyword::Fun));
+
+        auto position = getCount();
+        if (auto args = functionArgs(); args.has_value())
+            leaf.push_back(args.value());
+        else
+        {
+            backtrack(position);
+
+            if (auto value = nodeOrValue(); value.has_value())
+                leaf.push_back(value.value());
+            else
+                errorWithNextToken("Expected an argument list");
+        }
+
+        newlineOrComment();
+
+        if (auto value = nodeOrValue(); value.has_value())
+            leaf.push_back(value.value());
+        else
+            errorWithNextToken("Expected a body for the function");
+
+        return leaf;
+    }
+
+    std::optional<Node> Parser::macroCondition()
+    {
+        if (!oneOf({ "$if" }))
+            return std::nullopt;
+        newlineOrComment();
+
+        Node leaf(NodeType::Macro);
+        leaf.push_back(Node(Keyword::If));
+
+        if (auto condition = nodeOrValue(); condition.has_value())
+            leaf.push_back(condition.value());
+        else
+            errorWithNextToken("$if need a valid condition");
+
+        newlineOrComment();
+
+        if (auto value_if_true = nodeOrValue(); value_if_true.has_value())
+            leaf.push_back(value_if_true.value());
+        else
+            errorWithNextToken("Expected a value");
+
+        newlineOrComment();
+
+        if (auto value_if_false = nodeOrValue(); value_if_false.has_value())
+        {
+            leaf.push_back(value_if_false.value());
+            newlineOrComment();
+        }
+
+        return leaf;
+    }
+
+    std::optional<Node> Parser::macroBlock()
+    {
+        if (!accept(IsChar('(')))
+            return std::nullopt;
+        newlineOrComment();
+
+        if (!oneOf({ "$*" }))
+            return std::nullopt;
+        newlineOrComment();
+
+        Node leaf(NodeType::List);
+
+        while (!isEOF())
+        {
+            if (auto value = nodeOrValue(); value.has_value())
+            {
+                leaf.push_back(value.value());
+                newlineOrComment();
+            }
+            else
+                break;
+        }
+
+        newlineOrComment();
+        expect(IsChar(')'));
+        return leaf;
+    }
+
+    std::optional<Node> Parser::macroArgs()
+    {
+        if (accept(IsChar('(')))
+        {
+            newlineOrComment();
+            Node args = Node(NodeType::List);
+
+            while (!isEOF())
+            {
+                std::string arg_name;
+                if (!name(&arg_name))
+                    break;
+                else
+                {
+                    newlineOrComment();
+                    args.push_back(Node(NodeType::Symbol, arg_name));
+                }
+            }
+
+            if (sequence("..."))
+            {
+                std::string spread_name;
+                if (!name(&spread_name))
+                    errorWithNextToken("Expected a name for the variadic arguments list");
+                args.push_back(Node(NodeType::Spread, spread_name));
+                newlineOrComment();
+            }
+
+            if (!accept(IsChar(')')))
+                return std::nullopt;
+            newlineOrComment();
+
+            return args;
+        }
+
+        return std::nullopt;
+    }
+
+    std::optional<Node> Parser::macro()
+    {
+        if (!accept(IsChar('(')))
+            return std::nullopt;
+        newlineOrComment();
+
+        if (!oneOf({ "$" }))
+            return std::nullopt;
+        newlineOrComment();
+
+        std::string symbol;
+        if (!name(&symbol))
+            errorWithNextToken("$ needs a symbol to declare a macro");
+        newlineOrComment();
+
+        Node leaf(NodeType::Macro);
+        leaf.push_back(Node(NodeType::Symbol, symbol));
+
+        auto position = getCount();
+        if (auto args = macroArgs(); args.has_value())
+            leaf.push_back(args.value());
+        else
+        {
+            backtrack(position);
+
+            ++m_allow_macro_behavior;
+            auto value = nodeOrValue();
+            --m_allow_macro_behavior;
+
+            if (value.has_value())
+                leaf.push_back(value.value());
+            else
+                errorWithNextToken("Expected an argument list, atom or node while defining macro `" + symbol + "'");
+
+            if (accept(IsChar(')')))
+                return leaf;
+        }
+
+        ++m_allow_macro_behavior;
+        auto value = nodeOrValue();
+        --m_allow_macro_behavior;
+
+        if (value.has_value())
+            leaf.push_back(value.value());
+        else
+            errorWithNextToken("Expected a value while defining macro `" + symbol + "'");
+
+        newlineOrComment();
+        expect(IsChar(')'));
+        return leaf;
+    }
+
+    std::optional<Node> Parser::functionCall()
+    {
+        if (!accept(IsChar('(')))
+            return std::nullopt;
+        newlineOrComment();
+
+        std::optional<Node> func = std::nullopt;
+        if (auto atom = anyAtomOf({ NodeType::Symbol, NodeType::Field }); atom.has_value())
+            func = atom;
+        else if (auto nested = node(); nested.has_value())
+            func = nested;
+        else
+            return std::nullopt;
+        newlineOrComment();
+
+        NodeType call_type = NodeType::List;
+        if (auto node = func.value(); node.nodeType() == NodeType::Symbol)
+        {
+            // TODO enhance this to work with more/all macros
+            if (node.string() == "$undef")
+                call_type = NodeType::Macro;
+        }
+
+        Node leaf(call_type);
+        leaf.push_back(func.value());
+
+        while (!isEOF())
+        {
+            if (auto arg = nodeOrValue(); arg.has_value())
+            {
+                newlineOrComment();
+                leaf.push_back(arg.value());
+            }
+            else
+                break;
+        }
+
+        newlineOrComment();
+        expect(IsChar(')'));
+        return leaf;
+    }
+
+    std::optional<Node> Parser::list()
+    {
+        if (!accept(IsChar('[')))
+            return std::nullopt;
+        newlineOrComment();
+
+        Node leaf(NodeType::List);
+        leaf.push_back(Node(NodeType::Symbol, "list"));
+
+        while (!isEOF())
+        {
+            if (auto value = nodeOrValue(); value.has_value())
+            {
+                leaf.push_back(value.value());
+                newlineOrComment();
+            }
+            else
+                break;
+        }
+
+        newlineOrComment();
+        expect(IsChar(']'));
+        return leaf;
+    }
+
+    std::optional<Node> Parser::atom()
+    {
+        auto pos = getCount();
+
+        if (auto res = Parser::number(); res.has_value())
+            return res;
+        else
+            backtrack(pos);
+
+        if (auto res = Parser::string(); res.has_value())
+            return res;
+        else
+            backtrack(pos);
+
+        if (auto res = Parser::spread(); m_allow_macro_behavior > 0 && res.has_value())
+            return res;
+        else
+            backtrack(pos);
+
+        if (auto res = Parser::field(); res.has_value())
+            return res;
+        else
+            backtrack(pos);
+
+        if (auto res = Parser::symbol(); res.has_value())
+            return res;
+        else
+            backtrack(pos);
+
+        if (auto res = Parser::nil(); res.has_value())
+            return res;
+        else
+            backtrack(pos);
+
+        return std::nullopt;
+    }
+
+    std::optional<Node> Parser::anyAtomOf(std::initializer_list<NodeType> types)
+    {
+        auto value = atom();
+        if (value.has_value())
+        {
+            for (auto type : types)
+            {
+                if (value->nodeType() == type)
+                    return value;
+            }
+        }
+        return std::nullopt;
+    }
+
+    std::optional<Node> Parser::nodeOrValue()
+    {
+        if (auto value = atom(); value.has_value())
+            return value;
+        else if (auto sub_node = node(); sub_node.has_value())
+            return sub_node;
+
+        return std::nullopt;
+    }
+
+    std::optional<Node> Parser::wrapped(std::optional<Node> (Parser::*parser)(), const std::string& name, char a, char b)
+    {
+        if (!prefix(a))
+            return std::nullopt;
+
+        if (auto result = (this->*parser)(); result.has_value())
+        {
+            if (!suffix(b))
+                errorMissingSuffix(b, name);
+            return result;
+        }
+
+        return std::nullopt;
     }
 }

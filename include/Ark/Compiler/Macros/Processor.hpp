@@ -34,16 +34,15 @@ namespace Ark::internal
          * @brief Construct a new Macro Processor object
          * 
          * @param debug the debug level
-         * @param options the options flags
          */
-        MacroProcessor(unsigned debug, uint16_t options) noexcept;
+        MacroProcessor(unsigned debug) noexcept;
 
         /**
-         * @brief Send the complete AST (after the inclusions and stuff), and work on it
+         * @brief Send the complete AST and work on it
          * 
          * @param ast 
          */
-        void feed(const Node& ast);
+        void process(const Node& ast);
 
         /**
          * @brief Return the modified AST
@@ -141,7 +140,7 @@ namespace Ark::internal
          * @param node node on which to operate
          * @param depth
          */
-        void process(Node& node, unsigned depth);
+        void processNode(Node& node, unsigned depth);
 
         /**
          * @brief Apply a macro on a given node

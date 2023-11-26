@@ -1,4 +1,4 @@
-(import "tests-tools.ark")
+(import tests-tools)
 
 (let vm-tests (fun () {
     (mut tests 0)

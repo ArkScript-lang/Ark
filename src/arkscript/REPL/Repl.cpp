@@ -8,13 +8,13 @@
 
 namespace Ark
 {
-    Repl::Repl(uint16_t options, const std::vector<std::string>& libenv) :
-        m_options(options), m_lines(1), m_old_ip(0), m_libenv(libenv)
+    Repl::Repl(const std::vector<std::filesystem::path>& libenv) :
+        m_lines(1), m_old_ip(0), m_libenv(libenv)
     {}
 
     int Repl::run()
     {
-        Ark::State state(m_options, m_libenv);
+        Ark::State state(m_libenv);
         Ark::VM vm(state);
         state.setDebug(0);
         std::string code;
@@ -88,7 +88,7 @@ namespace Ark
                         // save good code
                         code = tmp_code.str();
                         // place ip to end of bytecode intruction (HALT)
-                        --vm.m_execution_contexts[0]->ip;
+                        vm.m_execution_contexts[0]->ip -= 4;
                     }
                     else
                     {

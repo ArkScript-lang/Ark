@@ -1,8 +1,9 @@
 #include <Ark/Builtins/Builtins.hpp>
 
 #include <Ark/Utils.hpp>
-#include <utf8_decoder.h>
+#include <utf8.hpp>
 #include <fmt/format.h>
+#include <sstream>
 
 #include <Ark/TypeChecker.hpp>
 #include <Ark/VM/VM.hpp>
@@ -138,7 +139,7 @@ namespace Ark::internal::Builtins::String
                 { { types::Contract { { types::Typedef("string", ValueType::String) } } } },
                 n);
 
-        int ord = utf8codepoint(n[0].stringRef().c_str());
+        int ord = utf8::codepoint(n[0].stringRef().c_str());
         return Value(ord);
     }
 
@@ -162,7 +163,7 @@ namespace Ark::internal::Builtins::String
 
         std::array<char, 5> sutf8;
 
-        utf8chr(static_cast<int>(n[0].number()), sutf8.data());
+        utf8::codepointToUtf8(static_cast<int>(n[0].number()), sutf8.data());
         return Value(std::string(sutf8.data()));
     }
 }

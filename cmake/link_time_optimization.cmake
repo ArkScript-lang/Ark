@@ -3,7 +3,7 @@ include(CheckIPOSupported)
 check_ipo_supported(RESULT ipo_supported)
 
 function(enable_lto target_name)
-    if (ipo_supported)
+    if (ipo_supported AND (${CMAKE_BUILD_TYPE} STREQUAL "Release"))
         if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND (CMAKE_CXX_COMPILER_VERSION MATCHES "^8\..+"))
             message(WARNING "LTO supported but not enabled to prevent https://github.com/ArkScript-lang/Ark/pull/385#issuecomment-1163597951")
         else()

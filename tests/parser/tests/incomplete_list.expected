@@ -1,0 +1,7 @@
+In file ./incomplete_list.ark
+At EOF @ 3:7
+    1 | [
+    2 |     1
+    3 |     2 3
+      |       ^
+        Expected ']'

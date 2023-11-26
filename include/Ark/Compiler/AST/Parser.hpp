@@ -1,180 +1,214 @@
-/**
- * @file Parser.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
- * @brief Parses a token stream into an AST by using the Ark::Node
- * @version 0.4
- * @date 2020-10-27
- * 
- * @copyright Copyright (c) 2020-2021
- * 
- */
-
 #ifndef COMPILER_AST_PARSER_HPP
 #define COMPILER_AST_PARSER_HPP
 
-#include <string>
-#include <list>
-#include <ostream>
-#include <vector>
-#include <cinttypes>
-
-#include <Ark/Constants.hpp>
-#include <Ark/Compiler/AST/Lexer.hpp>
+#include <Ark/Compiler/AST/BaseParser.hpp>
 #include <Ark/Compiler/AST/Node.hpp>
+#include <Ark/Compiler/AST/Import.hpp>
+#include <Ark/Utils.hpp>
+#include <Ark/Platform.hpp>
+
+#include <string>
+#include <optional>
+#include <vector>
+#include <functional>
+
+#include <utf8.hpp>
 
 namespace Ark::internal
 {
-    inline NodeType similarNodetypeFromTokentype(TokenType tt)
-    {
-        if (tt == TokenType::Capture)
-            return NodeType::Capture;
-        else if (tt == TokenType::GetField)
-            return NodeType::GetField;
-        else if (tt == TokenType::Spread)
-            return NodeType::Spread;
-
-        return NodeType::Symbol;
-    }
-
-    /**
-     * @brief The parser is responsible of constructing the Abstract Syntax Tree from a token list
-     * 
-     */
-    class Parser
+    class ARK_API Parser : public BaseParser
     {
     public:
-        /**
-         * @brief Construct a new Parser object
-         * 
-         * @param debug the debug level
-         * @param options the parsing options
-         * @param lib_env fallback library search path
-         */
-        Parser(unsigned debug, uint16_t options, const std::vector<std::string>& lib_env) noexcept;
+        Parser();
 
-        /**
-         * @brief Give the code to parse
-         * 
-         * @param code the ArkScript code
-         * @param filename the name of the file
-         */
-        void feed(const std::string& code, const std::string& filename = ARK_NO_NAME_FILE);
+        void processFile(const std::string& filename);
+        void processString(const std::string& code);
 
-        /**
-         * @brief Return the generated AST
-         * 
-         * @return const Node& 
-         */
-        const Node& ast() const noexcept;
-
-        /**
-         * @brief Return the list of files imported by the code given to the parser
-         * 
-         * Each path of each imported file is relative to the filename given when feeding the parser.
-         * 
-         * @return const std::vector<std::string>& 
-         */
-        const std::vector<std::string>& getImports() const noexcept;
-
-        friend std::ostream& operator<<(std::ostream& os, const Parser& P) noexcept;
+        const Node& ast() const;
+        const std::vector<Import>& imports() const;
 
     private:
-        unsigned m_debug;
-        std::vector<std::string> m_libenv;
-        uint16_t m_options;
-        Lexer m_lexer;
         Node m_ast;
-        Token m_last_token;
+        std::vector<Import> m_imports;
+        unsigned m_allow_macro_behavior;  ///< Toggled on when inside a macro definition, off afterward
 
-        // path of the current file
-        std::string m_file;
-        // source code of the current file
-        std::string m_code;
-        // the files included by the "includer" to avoid multiple includes
-        std::vector<std::string> m_parent_include;
+        void run();
 
-        /**
-         * @brief Applying syntactic sugar: {...} => (begin...), [...] => (list ...)
-         * 
-         * @param tokens a list of tokens
-         */
-        void sugar(std::vector<Token>& tokens) noexcept;
+        std::optional<Node> node();
+        std::optional<Node> letMutSet();
+        std::optional<Node> del();
+        std::optional<Node> condition();
+        std::optional<Node> loop();
+        std::optional<Node> import_();
+        std::optional<Node> block();
+        std::optional<Node> functionArgs();
+        std::optional<Node> function();
+        std::optional<Node> macroCondition();
+        std::optional<Node> macroBlock();
+        std::optional<Node> macroArgs();
+        std::optional<Node> macro();
+        std::optional<Node> functionCall();
+        std::optional<Node> list();
 
-        /**
-         * @brief Parse a list of tokens recursively
-         * 
-         * @param tokens 
-         * @param authorize_capture if we are authorized to consume TokenType::Capture tokens
-         * @param authorize_field_read if we are authorized to consume TokenType::GetField tokens
-         * @param in_macro if we are in a macro, there a bunch of things we can tolerate
-         * @return Node 
-         */
-        Node parse(std::list<Token>& tokens, bool authorize_capture = false, bool authorize_field_read = false, bool in_macro = false);
+        inline std::optional<Node> number()
+        {
+            auto pos = getCount();
 
-        void parseIf(Node&, std::list<Token>&, bool);
-        void parseLetMut(Node&, Token&, std::list<Token>&, bool);
-        void parseSet(Node&, Token&, std::list<Token>&, bool);
-        void parseFun(Node&, Token&, std::list<Token>&, bool);
-        void parseWhile(Node&, Token&, std::list<Token>&, bool);
-        void parseBegin(Node&, std::list<Token>&, bool);
-        void parseImport(Node&, std::list<Token>&);
-        void parseQuote(Node&, std::list<Token>&, bool);
-        void parseDel(Node&, std::list<Token>&);
-        Node parseShorthand(Token&, std::list<Token>&, bool);
-        void checkForInvalidTokens(Node&, Token&, bool, bool, bool);
+            std::string res;
+            if (signedNumber(&res))
+            {
+                double output;
+                if (Utils::isDouble(res, &output))
+                    return Node(output);
+                else
+                {
+                    backtrack(pos);
+                    error("Is not a valid number", res);
+                }
+            }
+            return std::nullopt;
+        }
 
-        /**
-         * @brief Get the next token if possible, from a list of tokens
-         * 
-         * The list of tokens is modified.
-         * 
-         * @param tokens list of tokens to get the next token from
-         * @return Token 
-         */
-        Token nextToken(std::list<Token>& tokens);
+        inline std::optional<Node> string()
+        {
+            std::string res;
+            if (accept(IsChar('"')))
+            {
+                while (true)
+                {
+                    if (accept(IsChar('\\')))
+                    {
+                        if (accept(IsChar('"')))
+                            res += '\"';
+                        else if (accept(IsChar('\\')))
+                            res += '\\';
+                        else if (accept(IsChar('n')))
+                            res += '\n';
+                        else if (accept(IsChar('t')))
+                            res += '\t';
+                        else if (accept(IsChar('v')))
+                            res += '\v';
+                        else if (accept(IsChar('r')))
+                            res += '\r';
+                        else if (accept(IsChar('a')))
+                            res += '\a';
+                        else if (accept(IsChar('b')))
+                            res += '\b';
+                        else if (accept(IsChar('0')))
+                            res += '\0';
+                        else if (accept(IsChar('f')))
+                            res += '\f';
+                        else if (accept(IsChar('u')))
+                        {
+                            std::string seq;
+                            if (hexNumber(4, &seq))
+                            {
+                                char utf8_str[5];
+                                utf8::decode(seq.c_str(), utf8_str);
+                                if (*utf8_str == '\0')
+                                    error("Invalid escape sequence", "\\u" + seq);
+                                res += utf8_str;
+                            }
+                            else
+                                error("Invalid escape sequence", "\\u");
+                        }
+                        else if (accept(IsChar('U')))
+                        {
+                            std::string seq;
+                            if (hexNumber(8, &seq))
+                            {
+                                std::size_t begin = 0;
+                                for (; seq[begin] == '0'; ++begin)
+                                    ;
+                                char utf8_str[5];
+                                utf8::decode(seq.c_str() + begin, utf8_str);
+                                if (*utf8_str == '\0')
+                                    error("Invalid escape sequence", "\\U" + seq);
+                                res += utf8_str;
+                            }
+                            else
+                                error("Invalid escape sequence", "\\U");
+                        }
+                        else
+                        {
+                            backtrack(getCount() - 1);
+                            error("Unknown escape sequence", "\\");
+                        }
+                    }
+                    else
+                        accept(IsNot(IsEither(IsChar('\\'), IsChar('"'))), &res);
 
-        /**
-         * @brief Convert a token to a node
-         * 
-         * @param token the token to converts
-         * @return Node 
-         */
-        Node atom(const Token& token);
+                    if (accept(IsChar('"')))
+                        break;
+                    else if (isEOF())
+                        errorMissingSuffix('"', "string");
+                }
 
-        /**
-         * @brief Search for all the includes in a given node, in its sub-nodes and replace them by the code of the included file
-         * 
-         * @param n 
-         * @param parent the parent node of the current one
-         * @param pos the position of the child node in the parent node list
-         * @return true if we found an import and replaced it by the corresponding code
-         */
-        bool checkForInclude(Node& n, Node& parent, std::size_t pos = 0);
+                return Node(NodeType::String, res);
+            }
+            return std::nullopt;
+        }
 
-        /**
-         * @brief Seek a file in the lib folder and everywhere
-         * 
-         * @param file 
-         * @return std::string 
-         */
-        std::string seekFile(const std::string& file);
+        inline std::optional<Node> field()
+        {
+            std::string symbol;
+            if (!name(&symbol))
+                return std::nullopt;
 
-        /**
-         * @brief Throw a parse exception is the given predicated is false
-         * 
-         * @param pred 
-         * @param message error message to use
-         * @param token concerned token
-         */
-        void expect(bool pred, const std::string& message, Token token);
+            Node leaf = Node(NodeType::Field);
+            leaf.push_back(Node(NodeType::Symbol, symbol));
 
-        /**
-         * @brief Throw a parse error related to a token (seek it in the related file and highlight the error)
-         * 
-         * @param message 
-         * @param token 
-         */
-        [[noreturn]] void throwParseError(const std::string& message, Token token);
+            while (true)
+            {
+                if (leaf.list().size() == 1 && !accept(IsChar('.')))  // Symbol:abc
+                    return std::nullopt;
+
+                if (leaf.list().size() > 1 && !accept(IsChar('.')))
+                    break;
+                std::string res;
+                if (!name(&res))
+                    errorWithNextToken("Expected a field name: <symbol>.<field>");
+                leaf.push_back(Node(NodeType::Symbol, res));
+            }
+
+            return leaf;
+        }
+
+        inline std::optional<Node> symbol()
+        {
+            std::string res;
+            if (!name(&res))
+                return std::nullopt;
+            return Node(NodeType::Symbol, res);
+        }
+
+        inline std::optional<Node> spread()
+        {
+            std::string res;
+            if (sequence("..."))
+            {
+                if (!name(&res))
+                    errorWithNextToken("Expected a name for the variadic");
+                return Node(NodeType::Spread, res);
+            }
+            return std::nullopt;
+        }
+
+        inline std::optional<Node> nil()
+        {
+            if (!accept(IsChar('(')))
+                return std::nullopt;
+            newlineOrComment();
+            if (!accept(IsChar(')')))
+                return std::nullopt;
+
+            return Node(NodeType::Symbol, "nil");
+        }
+
+        std::optional<Node> atom();
+        std::optional<Node> anyAtomOf(std::initializer_list<NodeType> types);
+        std::optional<Node> nodeOrValue();
+        std::optional<Node> wrapped(std::optional<Node> (Parser::*parser)(), const std::string& name, char prefix, char suffix);
     };
 }
 
