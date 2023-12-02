@@ -39,7 +39,7 @@ namespace Ark::internal
 
         FilePosition getCursor();
 
-        void error(const std::string& error, const std::string exp);
+        void error(const std::string& error, std::string exp);
         void errorWithNextToken(const std::string& message);
         void errorMissingSuffix(char suffix, const std::string& node_name);
 

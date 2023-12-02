@@ -2,7 +2,7 @@
  * @file UserType.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Subtype of the value, capable of handling any C++ type
- * @version 0.3
+ * @version 0.4
  * @date 2020-10-27
  * 
  * @copyright Copyright (c) 2020-2021
@@ -83,7 +83,7 @@ namespace Ark
          * 
          * @return void* 
          */
-        void* data() const noexcept
+        [[nodiscard]] void* data() const noexcept
         {
             return m_data;
         }
@@ -105,7 +105,7 @@ namespace Ark
          * @return false 
          */
         template <typename T>
-        bool is() const noexcept
+        [[nodiscard]] bool is() const noexcept
         {
             return internal::type_uid<T>::value == m_type_id;
         }

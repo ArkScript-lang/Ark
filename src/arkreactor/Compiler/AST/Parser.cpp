@@ -52,22 +52,22 @@ namespace Ark::internal
         // save current position in buffer to be able to go back if needed
         auto position = getCount();
 
-        if (auto result = wrapped(&Parser::letMutSet, "let/mut/set", '(', ')'))
+        if (auto result = wrapped(&Parser::letMutSet, "let/mut/set"))
             return result;
         else
             backtrack(position);
 
-        if (auto result = wrapped(&Parser::function, "function", '(', ')'))
+        if (auto result = wrapped(&Parser::function, "function"))
             return result;
         else
             backtrack(position);
 
-        if (auto result = wrapped(&Parser::condition, "condition", '(', ')'))
+        if (auto result = wrapped(&Parser::condition, "condition"))
             return result;
         else
             backtrack(position);
 
-        if (auto result = wrapped(&Parser::loop, "loop", '(', ')'))
+        if (auto result = wrapped(&Parser::loop, "loop"))
             return result;
         else
             backtrack(position);
@@ -82,7 +82,7 @@ namespace Ark::internal
         else
             backtrack(position);
 
-        if (auto result = wrapped(&Parser::macroCondition, "$if", '(', ')'))
+        if (auto result = wrapped(&Parser::macroCondition, "$if"))
             return result;
         else
             backtrack(position);
@@ -97,7 +97,7 @@ namespace Ark::internal
         else
             backtrack(position);
 
-        if (auto result = wrapped(&Parser::del, "del", '(', ')'))
+        if (auto result = wrapped(&Parser::del, "del"))
             return result;
         else
             backtrack(position);
@@ -621,7 +621,7 @@ namespace Ark::internal
             return std::nullopt;
         newlineOrComment();
 
-        std::optional<Node> func = std::nullopt;
+        std::optional<Node> func;
         if (auto atom = anyAtomOf({ NodeType::Symbol, NodeType::Field }); atom.has_value())
             func = atom;
         else if (auto nested = node(); nested.has_value())
@@ -743,15 +743,15 @@ namespace Ark::internal
         return std::nullopt;
     }
 
-    std::optional<Node> Parser::wrapped(std::optional<Node> (Parser::*parser)(), const std::string& name, char a, char b)
+    std::optional<Node> Parser::wrapped(std::optional<Node> (Parser::*parser)(), const std::string& name)
     {
-        if (!prefix(a))
+        if (!prefix('('))
             return std::nullopt;
 
         if (auto result = (this->*parser)(); result.has_value())
         {
-            if (!suffix(b))
-                errorMissingSuffix(b, name);
+            if (!suffix(')'))
+                errorMissingSuffix(')', name);
             return result;
         }
 

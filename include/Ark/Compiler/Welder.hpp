@@ -2,7 +2,7 @@
  * @file Welder.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief In charge of welding everything needed to compile code
- * @version 0.2
+ * @version 0.3
  * @date 2023-03-26
  *
  * @copyright Copyright (c) 2023
@@ -45,8 +45,8 @@ namespace Ark
         bool generateBytecode();
         bool saveBytecodeToFile(const std::string& filename);
 
-        const internal::Node& ast() const noexcept;
-        const bytecode_t& bytecode() const noexcept;
+        [[nodiscard]] const internal::Node& ast() const noexcept;
+        [[nodiscard]] const bytecode_t& bytecode() const noexcept;
 
     private:
         unsigned m_debug;  ///< The debug level

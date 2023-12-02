@@ -1,8 +1,8 @@
 /**
  * @file Executor.hpp
- * @author Ray John Alovera (rakista112@gmail.com)
+ * @author Ray John Alovera (rakista112@gmail.com), Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief The base class for all MacroExecutors
- * @version 0.5
+ * @version 0.6
  * @date 2021-05-04
  * 
  * @copyright Copyright (c) 2021
@@ -30,13 +30,13 @@ namespace Ark::internal
         /**
          * @brief Construct a new Macro Executor object
          * 
-         * @param macroprocessor 
+         * @param processor
          * @param debug 
          */
-        MacroExecutor(MacroProcessor* macroprocessor, unsigned debug = 0);
+        MacroExecutor(MacroProcessor* processor, unsigned debug = 0);
 
         /**
-         * @brief Need a virtual destructor to correctly destory object.
+         * @brief Need a virtual destructor to correctly destroy object.
          *
          */
         virtual ~MacroExecutor();
@@ -59,7 +59,7 @@ namespace Ark::internal
 
     protected:
         unsigned int m_debug;
-        MacroProcessor* m_macroprocessor;  // Note: Non owned pointer.
+        MacroProcessor* m_processor;  ///< This is a non-owned pointer.
 
         /**
          * @brief Find the nearest macro matching a giving name

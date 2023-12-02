@@ -48,15 +48,15 @@ namespace Ark
         context.locals.clear();
         createNewScope(context);
 
-        if (context.locals.size() == 0)
+        if (context.locals.empty())
         {
-            // if persistance is set but not scopes are present, add one
+            // if persistence is set but not scopes are present, add one
             createNewScope(context);
         }
 
-        // loading binded stuff
+        // loading bound stuff
         // put them in the global frame if we can, aka the first one
-        for (auto name_val : m_state.m_binded)
+        for (const auto& name_val : m_state.m_binded)
         {
             auto it = std::find(m_state.m_symbols.begin(), m_state.m_symbols.end(), name_val.first);
             if (it != m_state.m_symbols.end())
@@ -78,7 +78,7 @@ namespace Ark
             return m_no_value;
         }
 
-        uint16_t id = static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it));
+        auto id = static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it));
         Value* var = findNearestVariable(id, context);
         if (var != nullptr)
             return *var;
@@ -192,11 +192,8 @@ namespace Ark
         ctx->scope_count_to_delete.emplace_back(0);
 
         ctx->locals.reserve(m_execution_contexts.front()->locals.size());
-        for (std::size_t i = 0, end = m_execution_contexts.front()->locals.size(); i < end; ++i)
-        {
-            ctx->locals.push_back(
-                std::make_shared<Scope>(*m_execution_contexts.front()->locals[i]));
-        }
+        for (const auto& local : m_execution_contexts.front()->locals)
+            ctx->locals.push_back(std::make_shared<Scope>(*local));
 
         return ctx;
     }
@@ -636,8 +633,8 @@ namespace Ark
                                     { { types::Contract { { types::Typedef("dst", ValueType::List), types::Typedef("src", ValueType::List) } } } },
                                     { *list, *next });
 
-                            for (auto it = next->list().begin(), end = next->list().end(); it != end; ++it)
-                                obj.push_back(*it);
+                            for (auto& val : next->list())
+                                obj.push_back(val);
                         }
                         push(std::move(obj), context);
                         break;
@@ -878,9 +875,9 @@ namespace Ark
                         Value* a = popAndResolveAsPtr(context);
 
                         if (a->valueType() == ValueType::List)
-                            push((a->constList().size() == 0) ? Builtins::trueSym : Builtins::falseSym, context);
+                            push(a->constList().empty() ? Builtins::trueSym : Builtins::falseSym, context);
                         else if (a->valueType() == ValueType::String)
-                            push((a->string().size() == 0) ? Builtins::trueSym : Builtins::falseSym, context);
+                            push(a->string().empty() ? Builtins::trueSym : Builtins::falseSym, context);
                         else
                             types::generateError(
                                 "empty?",
@@ -933,7 +930,7 @@ namespace Ark
 
                         if (a->valueType() == ValueType::List)
                         {
-                            if (a->constList().size() == 0)
+                            if (a->constList().empty())
                                 push(Builtins::nil, context);
                             else
                             {
@@ -943,7 +940,7 @@ namespace Ark
                         }
                         else if (a->valueType() == ValueType::String)
                         {
-                            if (a->string().size() == 0)
+                            if (a->string().empty())
                                 push(Value(ValueType::String), context);
                             else
                                 push(Value(std::string(1, a->stringRef()[0])), context);
@@ -1097,7 +1094,7 @@ namespace Ark
                             break;
                         }
 
-                        uint16_t id = static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it));
+                        auto id = static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it));
                         push((*closure->refClosure().refScope())[id] != nullptr ? Builtins::trueSym : Builtins::falseSym, context);
 
                         break;

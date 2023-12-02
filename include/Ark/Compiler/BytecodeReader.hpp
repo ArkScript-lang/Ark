@@ -2,7 +2,7 @@
  * @file BytecodeReader.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief A bytecode disassembler for ArkScript
- * @version 0.3
+ * @version 0.4
  * @date 2020-10-27
  * 
  * @copyright Copyright (c) 2020-2021
@@ -60,14 +60,14 @@ namespace Ark
          * 
          * @return const bytecode_t& 
          */
-        const bytecode_t& bytecode() noexcept;
+        [[nodiscard]] const bytecode_t& bytecode() noexcept;
 
         /**
          * @brief Return the read timestamp from the bytecode file
-         * 
-         * @return unsigned long long 
+         *
+         * @return unsigned long long
          */
-        unsigned long long timestamp();
+        [[nodiscard]] unsigned long long timestamp();
 
         /**
          * @brief Display the bytecode opcode in a human friendly way.
@@ -91,7 +91,7 @@ namespace Ark
          * @param i this parameter is being modified to point to the next value
          * @return uint16_t the number we read (big endian)
          */
-        uint16_t readNumber(std::size_t& i);
+        [[nodiscard]] uint16_t readNumber(std::size_t& i);
     };
 }
 

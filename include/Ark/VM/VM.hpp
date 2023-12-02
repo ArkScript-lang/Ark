@@ -303,7 +303,7 @@ namespace Ark
          * @param kind type of VM error
          * @param message 
          */
-        void throwVMError(internal::ErrorKind kind, const std::string& message);
+        static void throwVMError(internal::ErrorKind kind, const std::string& message);
 
         /**
          * @brief Display a backtrace when the VM encounter an exception

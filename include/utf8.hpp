@@ -138,7 +138,7 @@ namespace utf8
     {
         const char* s = str;
 
-        if (str == 0)
+        if (str == nullptr)
             return false;
 
         while (*s != 0)
@@ -194,7 +194,7 @@ namespace utf8
 
         if (isValid(str))
         {
-            if (str == 0)
+            if (str == nullptr)
                 return -1;
 
             while (*s != 0)

@@ -57,7 +57,7 @@ namespace Ark::internal
         {
             i--;
 
-            if (it->constList().size() > 0 && it->constList()[0].nodeType() == NodeType::Keyword)
+            if (!it->constList().empty() && it->constList()[0].nodeType() == NodeType::Keyword)
             {
                 Keyword kw = it->constList()[0].keyword();
 
@@ -79,7 +79,7 @@ namespace Ark::internal
     {
         if (node.nodeType() == NodeType::Symbol || node.nodeType() == NodeType::Capture)
         {
-            std::string name = node.string();
+            const std::string& name = node.string();
             // check if it's the name of something declared in global scope
             if (m_sym_appearances.find(name) != m_sym_appearances.end())
                 m_sym_appearances[name]++;

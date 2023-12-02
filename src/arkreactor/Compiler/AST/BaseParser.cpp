@@ -1,5 +1,6 @@
 #include <Ark/Compiler/AST/BaseParser.hpp>
 #include <Ark/Exceptions.hpp>
+#include <utility>
 
 namespace Ark::internal
 {
@@ -23,7 +24,7 @@ namespace Ark::internal
         m_filename = filename;
 
         // if the input string is empty, raise an error
-        if (code.size() == 0)
+        if (code.empty())
         {
             m_sym = utf8_char_t();
             error("Expected symbol, got empty string", "");
@@ -72,10 +73,10 @@ namespace Ark::internal
         return pos;
     }
 
-    void BaseParser::error(const std::string& error, const std::string exp)
+    void BaseParser::error(const std::string& error, std::string exp)
     {
         FilePosition pos = getCursor();
-        throw CodeError(error, m_filename, pos.row, pos.col, exp, m_sym);
+        throw CodeError(error, m_filename, pos.row, pos.col, std::move(exp), m_sym);
     }
 
     void BaseParser::errorWithNextToken(const std::string& message)
@@ -259,11 +260,12 @@ namespace Ark::internal
 
     bool BaseParser::sequence(const std::string& s)
     {
-        for (std::size_t i = 0, end = s.size(); i < end; ++i)
+        for (char i : s)
         {
-            if (!accept(IsChar(s[i])))
+            if (!accept(IsChar(i)))
                 return false;
         }
+
         return true;
     }
 
@@ -298,7 +300,7 @@ namespace Ark::internal
         if (s)
             *s = buffer;
 
-        for (auto word : words)
+        for (const auto& word : words)
         {
             if (word == buffer)
                 return true;

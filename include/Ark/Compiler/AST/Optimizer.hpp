@@ -2,7 +2,7 @@
  * @file Optimizer.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Optimizes a given ArkScript AST
- * @version 0.3
+ * @version 0.4
  * @date 2020-10-27
  * 
  * @copyright Copyright (c) 2020-2021
@@ -48,7 +48,7 @@ namespace Ark::internal
          * 
          * @return const Node& 
          */
-        const Node& ast() const noexcept;
+        [[nodiscard]] const Node& ast() const noexcept;
 
     private:
         Node m_ast;
@@ -61,7 +61,7 @@ namespace Ark::internal
          * @param message 
          * @param node 
          */
-        [[noreturn]] void throwOptimizerError(const std::string& message, const Node& node);
+        [[noreturn]] static void throwOptimizerError(const std::string& message, const Node& node);
 
         /**
          * @brief Iterate over the AST and remove unused top level functions and constants
@@ -78,7 +78,7 @@ namespace Ark::internal
         void runOnGlobalScopeVars(Node& node, const std::function<void(Node&, Node&, int)>& func);
 
         /**
-         * @brief Count the occurences of each symbol in the AST, recursively
+         * @brief Count the occurrences of each symbol in the AST, recursively
          * 
          * @param node 
          */

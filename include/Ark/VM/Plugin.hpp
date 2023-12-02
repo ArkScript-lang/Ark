@@ -2,7 +2,7 @@
  * @file Plugin.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Loads .dll/.so/.dynlib files
- * @version 0.3
+ * @version 0.4
  * @date 2020-10-27
  * 
  * @copyright Copyright (c) 2020-2021
@@ -76,7 +76,7 @@ namespace Ark::internal
          */
         void unload();
 
-        inline const std::string& path() const { return m_path; }
+        [[nodiscard]] inline const std::string& path() const { return m_path; }
 
         /**
          * @brief Return a function from the shared library

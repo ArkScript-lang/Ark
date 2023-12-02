@@ -2,7 +2,7 @@
  * @file Compiler.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief ArkScript compiler is in charge of transforming the AST into bytecode
- * @version 1.3
+ * @version 2.0
  * @date 2020-10-27
  * 
  * @copyright Copyright (c) 2020-2021
@@ -40,7 +40,7 @@ namespace Ark
          * 
          * @param debug the debug level
          */
-        Compiler(unsigned debug);
+        explicit Compiler(unsigned debug);
 
         /**
          * @brief Start the compilation
@@ -54,7 +54,7 @@ namespace Ark
          * 
          * @return const bytecode_t& 
          */
-        const bytecode_t& bytecode() const noexcept;
+        [[nodiscard]] const bytecode_t& bytecode() const noexcept;
 
         friend class Ark::State;
         friend class Ark::Welder;
@@ -115,7 +115,7 @@ namespace Ark
          * @param name symbol name
          * @return std::optional<std::size_t> position in the operators' list
          */
-        std::optional<std::size_t> getOperator(const std::string& name) noexcept;
+        static std::optional<std::size_t> getOperator(const std::string& name) noexcept;
 
         /**
          * @brief Checking if a symbol is a builtin
@@ -123,7 +123,7 @@ namespace Ark
          * @param name symbol name
          * @return std::optional<std::size_t> position in the builtins' list
          */
-        std::optional<std::size_t> getBuiltin(const std::string& name) noexcept;
+        static std::optional<std::size_t> getBuiltin(const std::string& name) noexcept;
 
         /**
          * @brief Check if a symbol needs to be compiled to a specific instruction
@@ -131,7 +131,7 @@ namespace Ark
          * @param name 
          * @return std::optional<internal::Instruction> corresponding instruction if it exists
          */
-        inline std::optional<internal::Instruction> getSpecific(const std::string& name) noexcept
+        static inline std::optional<internal::Instruction> getSpecific(const std::string& name) noexcept
         {
             if (name == "list")
                 return internal::Instruction::LIST;
@@ -158,7 +158,7 @@ namespace Ark
          * @return true the instruction is unary
          * @return false 
          */
-        bool isUnaryInst(internal::Instruction inst) noexcept;
+        static bool isUnaryInst(internal::Instruction inst) noexcept;
 
         /**
          * @brief Compute specific instruction argument count
@@ -166,7 +166,7 @@ namespace Ark
          * @param inst 
          * @param previous 
          */
-        uint16_t computeSpecificInstArgc(internal::Instruction inst, uint16_t previous) noexcept;
+        static uint16_t computeSpecificInstArgc(internal::Instruction inst, uint16_t previous) noexcept;
 
         /**
          * @brief Checking if a symbol may be coming from a plugin
@@ -183,7 +183,7 @@ namespace Ark
          * @param message 
          * @param node 
          */
-        void compilerWarning(const std::string& message, const internal::Node& node);
+        static void compilerWarning(const std::string& message, const internal::Node& node);
 
         /**
          * @brief Throw a nice error message
@@ -191,7 +191,7 @@ namespace Ark
          * @param message 
          * @param node 
          */
-        [[noreturn]] void throwCompilerError(const std::string& message, const internal::Node& node);
+        [[noreturn]] static void throwCompilerError(const std::string& message, const internal::Node& node);
 
         /**
          * @brief Compile an expression (a node) recursively

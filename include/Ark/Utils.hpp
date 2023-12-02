@@ -2,7 +2,7 @@
  * @file Utils.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Lots of utilities about string, filesystem and more
- * @version 0.3
+ * @version 0.4
  * @date 2020-10-27
  *
  * @copyright Copyright (c) 2020-2021
@@ -57,7 +57,7 @@ namespace Ark::Utils
      */
     inline bool isDouble(const std::string& s, double* output = nullptr)
     {
-        char* end = 0;
+        char* end = nullptr;
         double val = strtod(s.c_str(), &end);
         if (output != nullptr)
             *output = val;

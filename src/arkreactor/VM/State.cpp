@@ -2,8 +2,6 @@
 
 #include <Ark/Constants.hpp>
 #include <Ark/Files.hpp>
-#include <Ark/Utils.hpp>
-#include <Ark/Compiler/BytecodeReader.hpp>
 #include <Ark/Compiler/Welder.hpp>
 
 #ifdef _MSC_VER
@@ -11,7 +9,6 @@
 #    pragma warning(disable : 4996)
 #endif
 
-#include <stdlib.h>
 #include <picosha2.h>
 #include <termcolor/proxy.hpp>
 
@@ -92,8 +89,8 @@ namespace Ark
             if (!std::filesystem::exists(directory))  // create ark cache directory
                 std::filesystem::create_directory(directory);
 
-            bool compiled_successfuly = compile(file, path);
-            if (compiled_successfuly && feed(path))
+            bool compiled_successfully = compile(file, path);
+            if (compiled_successfully && feed(path))
                 return true;
         }
         else if (feed(bytecode))  // it's a bytecode file
@@ -117,7 +114,7 @@ namespace Ark
 
     void State::loadFunction(const std::string& name, Value::ProcType function) noexcept
     {
-        m_binded[name] = Value(std::move(function));
+        m_binded[name] = Value(function);
     }
 
     void State::setArgs(const std::vector<std::string>& args) noexcept
@@ -156,9 +153,9 @@ namespace Ark
         std::size_t i = 0;
 
         auto readNumber = [&, this](std::size_t& i) -> uint16_t {
-            uint16_t x = (static_cast<uint16_t>(m_bytecode[i]) << 8);
+            auto x = (static_cast<uint16_t>(m_bytecode[i]) << 8);
             ++i;
-            uint16_t y = static_cast<uint16_t>(m_bytecode[i]);
+            auto y = static_cast<uint16_t>(m_bytecode[i]);
             return x + y;
         };
 
@@ -217,7 +214,7 @@ namespace Ark
 
             for (uint16_t j = 0; j < size; ++j)
             {
-                std::string symbol = "";
+                std::string symbol;
                 while (m_bytecode[i] != 0)
                     symbol.push_back(m_bytecode[i++]);
                 i++;
@@ -242,7 +239,7 @@ namespace Ark
 
                 if (type == Instruction::NUMBER_TYPE)
                 {
-                    std::string val = "";
+                    std::string val;
                     while (m_bytecode[i] != 0)
                         val.push_back(m_bytecode[i++]);
                     i++;
@@ -251,7 +248,7 @@ namespace Ark
                 }
                 else if (type == Instruction::STRING_TYPE)
                 {
-                    std::string val = "";
+                    std::string val;
                     while (m_bytecode[i] != 0)
                         val.push_back(m_bytecode[i++]);
                     i++;

@@ -21,7 +21,7 @@ namespace Ark
 #    define ARK_API extern "C" __declspec(dllexport)
 #else  // Linux, FreeBSD, Mac OS X
 #    if __GNUC__ >= 4
-// GCC 4 has special keywords for showing/hidding symbols,
+// GCC 4 has special keywords for showing/hiding symbols,
 // the same keyword is used for both importing and exporting
 #        define ARK_API extern "C" __attribute__((__visibility__("default")))
 #    else

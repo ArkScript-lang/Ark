@@ -8,7 +8,6 @@
 #include <clipp.h>
 #include <termcolor/proxy.hpp>
 #include <fmt/core.h>
-#include <fmt/format.h>
 
 #include <Ark/Ark.hpp>
 #include <Ark/REPL/Repl.hpp>
@@ -35,8 +34,7 @@ int main(int argc, char** argv)
     };
     mode selected = mode::repl;
 
-    std::string file = "",
-                eval_expresion = "";
+    std::string file, eval_expression;
 
     unsigned debug = 0;
 
@@ -59,7 +57,7 @@ int main(int argc, char** argv)
         | option("--dev-info").set(selected, mode::dev_info).doc("Display development information and exit")
         | (
             required("-e", "--eval").set(selected, mode::eval).doc("Evaluate ArkScript expression")
-            & value("expression", eval_expresion)
+            & value("expression", eval_expression)
         )
         | (
             required("-c", "--compile").set(selected, mode::compile).doc("Compile the given program to bytecode, but do not run")
@@ -130,7 +128,7 @@ int main(int argc, char** argv)
         {
             for (const auto& path : Utils::splitString(libdir, ';'))
             {
-                lib_paths.push_back(std::filesystem::path(path));
+                lib_paths.emplace_back(path);
                 lib_paths.push_back(std::filesystem::path(path) / "std");
             }
         }
@@ -140,14 +138,14 @@ int main(int argc, char** argv)
             {
                 for (const auto& path : Utils::splitString(arkpath, ';'))
                 {
-                    lib_paths.push_back(std::filesystem::path(path));
+                    lib_paths.emplace_back(path);
                     lib_paths.push_back(std::filesystem::path(path) / "std");
                 }
             }
             else if (Utils::fileExists("./lib"))
             {
-                lib_paths.push_back(std::filesystem::path("./lib"));
-                lib_paths.push_back(std::filesystem::path("./lib/std"));
+                lib_paths.emplace_back("lib");
+                lib_paths.emplace_back("lib/std");
             }
             else
                 std::cerr << termcolor::yellow << "Warning" << termcolor::reset << " Couldn't read ARKSCRIPT_PATH environment variable" << std::endl;
@@ -252,7 +250,7 @@ int main(int argc, char** argv)
                 Ark::State state(lib_paths);
                 state.setDebug(debug);
 
-                if (!state.doString(eval_expresion))
+                if (!state.doString(eval_expression))
                 {
                     std::cerr << "Could not evaluate expression\n";
                     return -1;
@@ -264,9 +262,9 @@ int main(int argc, char** argv)
 
             case mode::ast:
             {
-                Ark::JsonCompiler jcompiler(debug, lib_paths);
-                jcompiler.feed(file);
-                std::cout << jcompiler.compile() << std::endl;
+                Ark::JsonCompiler compiler(debug, lib_paths);
+                compiler.feed(file);
+                std::cout << compiler.compile() << std::endl;
                 break;
             }
 

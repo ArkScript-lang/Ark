@@ -1,8 +1,6 @@
 #include <Ark/Compiler/Common.hpp>
 #include <Ark/Compiler/AST/Node.hpp>
 
-#include <termcolor/proxy.hpp>
-
 #include <Ark/Exceptions.hpp>
 
 namespace Ark::internal
@@ -147,22 +145,22 @@ namespace Ark::internal
 
             case NodeType::List:
                 os << "( ";
-                for (std::size_t i = 0, end = node.constList().size(); i < end; ++i)
-                    os << node.constList()[i] << " ";
+                for (const auto& i : node.constList())
+                    os << i << " ";
                 os << ")";
                 break;
 
             case NodeType::Field:
                 os << "( Field ";
-                for (std::size_t i = 0, end = node.constList().size(); i < end; ++i)
-                    os << node.constList()[i] << " ";
+                for (const auto& i : node.constList())
+                    os << i << " ";
                 os << ")";
                 break;
 
             case NodeType::Macro:
                 os << "( Macro ";
-                for (std::size_t i = 0, end = node.constList().size(); i < end; ++i)
-                    os << node.constList()[i] << " ";
+                for (const auto& i : node.constList())
+                    os << i << " ";
                 os << ")";
                 break;
 
@@ -229,12 +227,14 @@ namespace Ark::internal
         switch (A.nodeType())
         {
             case NodeType::Number:
+                [[fallthrough]];
             case NodeType::Symbol:
+                [[fallthrough]];
             case NodeType::String:
                 return A.m_value < B.m_value;
 
             case NodeType::List:
-                //return A.m_list < B.m_list;  // fixme
+                // return A.m_list < B.m_list;  // fixme
 
             default:
                 return false;
@@ -252,6 +252,7 @@ namespace Ark::internal
                 return !A.number();
 
             case NodeType::Capture:
+                [[fallthrough]];
             case NodeType::String:
                 return A.string().size() == 0;
 

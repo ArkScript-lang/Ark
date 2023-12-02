@@ -5,7 +5,6 @@
 #include <Ark/REPL/Repl.hpp>
 #include <Ark/REPL/replxx/Util.hpp>
 
-
 namespace Ark
 {
     Repl::Repl(const std::vector<std::filesystem::path>& libenv) :
@@ -78,7 +77,7 @@ namespace Ark
                 if (state.doString(tmp_code.str()))
                 {
                     // for only one vm init
-                    if (init == false)
+                    if (!init)
                     {
                         vm.init();
                         init = true;
@@ -87,7 +86,7 @@ namespace Ark
                     {
                         // save good code
                         code = tmp_code.str();
-                        // place ip to end of bytecode intruction (HALT)
+                        // place ip to end of bytecode instruction (HALT)
                         vm.m_execution_contexts[0]->ip -= 4;
                     }
                     else
@@ -126,6 +125,7 @@ namespace Ark
             {
                 case '(': ++open_parentheses; break;
                 case ')': --open_parentheses; break;
+                default: break;
             }
         }
 
@@ -142,6 +142,7 @@ namespace Ark
             {
                 case '{': ++open_braces; break;
                 case '}': --open_braces; break;
+                default: break;
             }
         }
 

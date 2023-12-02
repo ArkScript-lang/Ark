@@ -24,8 +24,8 @@ namespace Ark::internal
         void processFile(const std::string& filename);
         void processString(const std::string& code);
 
-        const Node& ast() const;
-        const std::vector<Import>& imports() const;
+        [[nodiscard]] const Node& ast() const;
+        [[nodiscard]] const std::vector<Import>& imports() const;
 
     private:
         Node m_ast;
@@ -208,7 +208,7 @@ namespace Ark::internal
         std::optional<Node> atom();
         std::optional<Node> anyAtomOf(std::initializer_list<NodeType> types);
         std::optional<Node> nodeOrValue();
-        std::optional<Node> wrapped(std::optional<Node> (Parser::*parser)(), const std::string& name, char prefix, char suffix);
+        std::optional<Node> wrapped(std::optional<Node> (Parser::*parser)(), const std::string& name);
     };
 }
 

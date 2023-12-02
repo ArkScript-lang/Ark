@@ -2,7 +2,7 @@
  * @file Closure.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Subtype of the value type, handling closures
- * @version 0.1
+ * @version 0.2
  * @date 2020-10-27
  * 
  * @copyright Copyright (c) 2020-2021
@@ -71,10 +71,10 @@ namespace Ark::internal
          * 
          * @return const Scope_t& 
          */
-        const Scope_t& scope() const noexcept;
+        [[nodiscard]] const Scope_t& scope() const noexcept;
 
         /**
-         * @brief Return a reference to the scpoe held by the object
+         * @brief Return a reference to the scope held by the object
          * 
          * @return Scope_t& 
          */
@@ -85,7 +85,7 @@ namespace Ark::internal
          * 
          * @return PageAddr_t 
          */
-        inline PageAddr_t pageAddr() const { return m_page_addr; }
+        [[nodiscard]] inline PageAddr_t pageAddr() const { return m_page_addr; }
 
         /**
          * @brief Print the closure to a string

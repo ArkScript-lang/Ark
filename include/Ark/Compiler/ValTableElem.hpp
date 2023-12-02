@@ -20,7 +20,7 @@
 namespace Ark::internal
 {
     /**
-     * @brief Enumeration to keep track of the type of a C(ompiler)Value
+     * @brief Enumeration to keep track of the type of a Compiler Value
      * 
      */
     enum class ValTableElemType
@@ -49,7 +49,7 @@ namespace Ark::internal
         // Functions
         explicit ValTableElem(std::size_t value) noexcept;
 
-        bool operator==(const ValTableElem& A) noexcept;
+        bool operator==(const ValTableElem& A) const noexcept;
     };
 }
 

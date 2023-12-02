@@ -2,7 +2,7 @@
  * @file State.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief State used by the virtual machine: it loads the bytecode, can compile it if needed, load C++ functions...
- * @version 0.2
+ * @version 0.3
  * @date 2020-10-27
  * 
  * @copyright Copyright (c) 2020-2021
@@ -36,7 +36,7 @@ namespace Ark
          * 
          * @param libpath a list of search paths for the std library
          */
-        State(const std::vector<std::filesystem::path>& libpath = {}) noexcept;
+        explicit State(const std::vector<std::filesystem::path>& libpath = {}) noexcept;
 
         /**
          * @brief Feed the state by giving it the path to an existing bytecode file
@@ -114,7 +114,7 @@ namespace Ark
         friend class Repl;
 
     private:
-        bool checkMagic(const bytecode_t& bytecode);
+        static bool checkMagic(const bytecode_t& bytecode);
 
         /**
          * @brief Called to configure the state (set the bytecode, debug level, call the compiler...)
@@ -132,7 +132,7 @@ namespace Ark
          */
         bool compile(const std::string& file, const std::string& output);
 
-        inline void throwStateError(const std::string& message)
+        static inline void throwStateError(const std::string& message)
         {
             throw Error("StateError: " + message);
         }

@@ -20,14 +20,14 @@ namespace Ark::internal
         utf8_char_t() :
             m_codepoint(0), m_length(0), m_repr({ 0 }) {}
 
-        utf8_char_t(codepoint_t cp, length_t len, repr_t&& repr) :
+        utf8_char_t(codepoint_t cp, length_t len, repr_t repr) :
             m_codepoint(cp), m_length(len), m_repr(repr) {}
 
         // https://github.com/sheredom/utf8.h/blob/4e4d828174c35e4564c31a9e35580c299c69a063/utf8.h#L1178
         static std::pair<std::string::iterator, utf8_char_t> at(std::string::iterator it)
         {
-            codepoint_t codepoint = 0;
-            length_t length = 0;
+            codepoint_t codepoint {};
+            length_t length {};
             repr_t repr = { 0 };
 
             if (0xf0 == (0xf8 & *it))  // 4 byte utf8 codepoint
@@ -61,19 +61,19 @@ namespace Ark::internal
                 repr[i] = static_cast<unsigned char>(*(it + static_cast<int>(i)));
 
             return std::make_pair(it + static_cast<long>(length),
-                                  utf8_char_t(codepoint, length, std::move(repr)));
+                                  utf8_char_t(codepoint, length, repr));
         }
 
-        bool isPrintable() const
+        [[nodiscard]] bool isPrintable() const
         {
             if (m_codepoint < std::numeric_limits<char>::max())
                 return std::isprint(m_codepoint);
             return true;
         }
 
-        const char* c_str() const { return reinterpret_cast<const char*>(m_repr.data()); }
-        std::size_t size() const { return static_cast<std::size_t>(m_length); }
-        codepoint_t codepoint() const { return m_codepoint; }
+        [[nodiscard]] const char* c_str() const { return reinterpret_cast<const char*>(m_repr.data()); }
+        [[nodiscard]] std::size_t size() const { return static_cast<std::size_t>(m_length); }
+        [[nodiscard]] codepoint_t codepoint() const { return m_codepoint; }
 
     private:
         codepoint_t m_codepoint;

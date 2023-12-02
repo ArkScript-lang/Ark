@@ -2,7 +2,7 @@
  * @file MacroScope.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Defines tools to handle macro definitions
- * @version 0.1
+ * @version 0.2
  * @date 2023-02-18
  * 
  * @copyright Copyright (c) 2023
@@ -37,7 +37,7 @@ namespace Ark::internal
          * @param name 
          * @return Node* pointer to the value if found, nullptr otherwise
          */
-        const Node* has(const std::string& name) const;
+        [[nodiscard]] const Node* has(const std::string& name) const;
 
         /**
          * @brief Add a new entry in the scope
@@ -62,12 +62,12 @@ namespace Ark::internal
          * @return true 
          * @return false 
          */
-        inline bool empty() const
+        [[nodiscard]] inline bool empty() const
         {
             return m_macros.empty();
         }
 
-        inline unsigned int depth() const
+        [[nodiscard]] inline unsigned int depth() const
         {
             return m_depth;
         }

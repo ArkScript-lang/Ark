@@ -1,8 +1,5 @@
 #include <Ark/Compiler/JsonCompiler.hpp>
 
-#include <utility>
-#include <exception>
-#include <stdexcept>
 #include <string>
 
 #include <fmt/core.h>
@@ -27,7 +24,7 @@ namespace Ark
 
     std::string JsonCompiler::_compile(const Node& node)
     {
-        std::string json = "";
+        std::string json;
 
         switch (node.nodeType())
         {
@@ -80,7 +77,7 @@ namespace Ark
                         case Keyword::Fun:
                         {
                             // (fun (args) (body))
-                            std::string args = "";
+                            std::string args;
                             Node args_node = node.constList()[1];
                             for (std::size_t i = 0, end = args_node.constList().size(); i < end; ++i)
                             {

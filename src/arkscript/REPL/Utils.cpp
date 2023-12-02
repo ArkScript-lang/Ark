@@ -32,7 +32,7 @@ int context_len(char const* prefix)
 
     while (i >= 0)
     {
-        if (std::strchr(wb, prefix[i]) != NULL)
+        if (std::strchr(wb, prefix[i]) != nullptr)
             break;
 
         ++cl;

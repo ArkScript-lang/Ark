@@ -2,7 +2,7 @@
  * @file Word.hpp
  * @author  Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Describe an instruction and its immediate argument
- * @version 0.3
+ * @version 0.4
  * @date 2022-07-02
  *
  * @copyright Copyright (c) 2022
@@ -36,7 +36,7 @@ namespace Ark::internal
             opcode(0), data(0)
         {}
 
-        Word(uint8_t inst, uint16_t arg = 0) :
+        explicit Word(uint8_t inst, uint16_t arg = 0) :
             opcode(inst), data(arg)
         {}
     };

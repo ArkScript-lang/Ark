@@ -4,9 +4,9 @@
 
 namespace Ark::internal
 {
-    MacroExecutor::MacroExecutor(MacroProcessor* macroprocessor, unsigned debug) :
+    MacroExecutor::MacroExecutor(MacroProcessor* processor, unsigned debug) :
         m_debug(debug),
-        m_macroprocessor(macroprocessor)
+        m_processor(processor)
     {}
 
     MacroExecutor::~MacroExecutor()
@@ -14,41 +14,41 @@ namespace Ark::internal
 
     const Node* MacroExecutor::findNearestMacro(const std::string& name) const
     {
-        return m_macroprocessor->findNearestMacro(name);
+        return m_processor->findNearestMacro(name);
     }
 
     void MacroExecutor::registerMacro(Node& node)
     {
-        m_macroprocessor->registerMacro(node);
+        m_processor->registerMacro(node);
     }
 
     bool MacroExecutor::isTruthy(const Node& node)
     {
-        return m_macroprocessor->isTruthy(node);
+        return m_processor->isTruthy(node);
     }
 
     Node MacroExecutor::evaluate(Node& node, bool is_not_body)
     {
-        return m_macroprocessor->evaluate(node, is_not_body);
+        return m_processor->evaluate(node, is_not_body);
     }
 
     void MacroExecutor::unify(const std::unordered_map<std::string, Node>& map, Node& target, Node* parent)
     {
-        m_macroprocessor->unify(map, target, parent);
+        m_processor->unify(map, target, parent);
     }
 
     void MacroExecutor::throwMacroProcessingError(const std::string& message, const Node& node)
     {
-        m_macroprocessor->throwMacroProcessingError(message, node);
+        m_processor->throwMacroProcessingError(message, node);
     }
 
     bool MacroExecutor::applyMacroProxy(Node& node)
     {
-        return m_macroprocessor->applyMacro(node);
+        return m_processor->applyMacro(node);
     }
 
     bool MacroExecutor::isPredefined(const std::string& symbol)
     {
-        return m_macroprocessor->isPredefined(symbol);
+        return m_processor->isPredefined(symbol);
     }
 }

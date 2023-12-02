@@ -2,7 +2,7 @@
  * @file Node.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief AST node used by the parser, optimizer and compiler
- * @version 0.3
+ * @version 0.4
  * @date 2020-10-27
  *
  * @copyright Copyright (c) 2020-2021
@@ -47,21 +47,21 @@ namespace Ark::internal
          *
          * @return const std::string&
          */
-        const std::string& string() const noexcept;
+        [[nodiscard]] const std::string& string() const noexcept;
 
         /**
          * @brief Return the number held by the value (if the node type allows it)
          *
          * @return double
          */
-        double number() const noexcept;
+        [[nodiscard]] double number() const noexcept;
 
         /**
          * @brief Return the keyword held by the value (if the node type allows it)
          *
          * @return Keyword
          */
-        Keyword keyword() const noexcept;
+        [[nodiscard]] Keyword keyword() const noexcept;
 
         /**
          * @brief Every node has a list as well as a value so we can push_back on all node no matter their type
@@ -82,14 +82,14 @@ namespace Ark::internal
          *
          * @return const std::vector<Node>&
          */
-        const std::vector<Node>& constList() const noexcept;
+        [[nodiscard]] const std::vector<Node>& constList() const noexcept;
 
         /**
          * @brief Return the node type
          *
          * @return NodeType
          */
-        NodeType nodeType() const noexcept;
+        [[nodiscard]] NodeType nodeType() const noexcept;
 
         /**
          * @brief Set the Node Type object
@@ -125,24 +125,23 @@ namespace Ark::internal
          *
          * @return std::size_t
          */
-        std::size_t line() const noexcept;
+        [[nodiscard]] std::size_t line() const noexcept;
 
         /**
          * @brief Get the column at which this node was created
          *
          * @return std::size_t
          */
-        std::size_t col() const noexcept;
+        [[nodiscard]] std::size_t col() const noexcept;
 
         /**
          * @brief Return the filename in which this node was created
          *
          * @return const std::string&
          */
-        const std::string& filename() const noexcept;
+        [[nodiscard]] const std::string& filename() const noexcept;
 
         friend ARK_API std::ostream& operator<<(std::ostream& os, const Node& N) noexcept;
-        friend void swap(Node& lhs, Node& rhs) noexcept;
         friend bool operator==(const Node& A, const Node& B);
         friend bool operator<(const Node& A, const Node& B);
         friend bool operator!(const Node& A);
@@ -152,7 +151,7 @@ namespace Ark::internal
         Value m_value;
         // position of the node in the original code, useful when it comes to parser errors
         std::size_t m_line = 0, m_col = 0;
-        std::string m_filename = "";
+        std::string m_filename;
     };
 
     ARK_API std::ostream& operator<<(std::ostream& os, const std::vector<Node>& node) noexcept;

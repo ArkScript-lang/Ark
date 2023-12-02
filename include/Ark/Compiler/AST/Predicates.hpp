@@ -5,6 +5,7 @@
 #include <cctype>
 
 #include <Ark/Compiler/AST/utf8_char.hpp>
+#include <utility>
 
 namespace Ark::internal
 {
@@ -12,17 +13,17 @@ namespace Ark::internal
     {
         const std::string name;
 
-        CharPred(const std::string& n) :
-            name(n) {}
+        explicit CharPred(std::string n) :
+            name(std::move(n)) {}
 
-        virtual bool operator()(const utf8_char_t::codepoint_t c) const = 0;
+        virtual bool operator()(utf8_char_t::codepoint_t c) const = 0;
     };
 
     inline struct IsSpace : public CharPred
     {
         IsSpace() :
             CharPred("space") {}
-        virtual bool operator()(const utf8_char_t::codepoint_t c) const override
+        bool operator()(const utf8_char_t::codepoint_t c) const override
         {
             return 0 <= c && c <= 255 && std::isspace(c) != 0;
         }
@@ -32,7 +33,7 @@ namespace Ark::internal
     {
         IsInlineSpace() :
             CharPred("inline space") {}
-        virtual bool operator()(const utf8_char_t::codepoint_t c) const override
+        bool operator()(const utf8_char_t::codepoint_t c) const override
         {
             return 0 <= c && c <= 255 && (std::isspace(c) != 0) && (c != '\n') && (c != '\r');
         }
@@ -42,7 +43,7 @@ namespace Ark::internal
     {
         IsDigit() :
             CharPred("digit") {}
-        virtual bool operator()(const utf8_char_t::codepoint_t c) const override
+        bool operator()(const utf8_char_t::codepoint_t c) const override
         {
             return 0 <= c && c <= 255 && std::isdigit(c) != 0;
         }
@@ -52,7 +53,7 @@ namespace Ark::internal
     {
         IsHex() :
             CharPred("hex") {}
-        virtual bool operator()(const utf8_char_t::codepoint_t c) const override
+        bool operator()(const utf8_char_t::codepoint_t c) const override
         {
             return 0 <= c && c <= 255 && std::isxdigit(c) != 0;
         }
@@ -62,7 +63,7 @@ namespace Ark::internal
     {
         IsUpper() :
             CharPred("uppercase") {}
-        virtual bool operator()(const utf8_char_t::codepoint_t c) const override
+        bool operator()(const utf8_char_t::codepoint_t c) const override
         {
             return 0 <= c && c <= 255 && std::isupper(c) != 0;
         }
@@ -72,7 +73,7 @@ namespace Ark::internal
     {
         IsLower() :
             CharPred("lowercase") {}
-        virtual bool operator()(const utf8_char_t::codepoint_t c) const override
+        bool operator()(const utf8_char_t::codepoint_t c) const override
         {
             return 0 <= c && c <= 255 && std::islower(c) != 0;
         }
@@ -82,7 +83,7 @@ namespace Ark::internal
     {
         IsAlpha() :
             CharPred("alphabetic") {}
-        virtual bool operator()(const utf8_char_t::codepoint_t c) const override
+        bool operator()(const utf8_char_t::codepoint_t c) const override
         {
             return 0 <= c && c <= 255 && std::isalpha(c) != 0;
         }
@@ -92,7 +93,7 @@ namespace Ark::internal
     {
         IsAlnum() :
             CharPred("alphanumeric") {}
-        virtual bool operator()(const utf8_char_t::codepoint_t c) const override
+        bool operator()(const utf8_char_t::codepoint_t c) const override
         {
             return 0 <= c && c <= 255 && std::isalnum(c) != 0;
         }
@@ -102,7 +103,7 @@ namespace Ark::internal
     {
         IsPrint() :
             CharPred("printable") {}
-        virtual bool operator()(const utf8_char_t::codepoint_t c) const override
+        bool operator()(const utf8_char_t::codepoint_t c) const override
         {
             return 0 <= c && c <= 255 && std::isprint(c) != 0;
         }
@@ -116,7 +117,7 @@ namespace Ark::internal
         explicit IsChar(const utf8_char_t c) :
             CharPred(std::string(c.c_str())), m_k(c.codepoint())
         {}
-        virtual bool operator()(const utf8_char_t::codepoint_t c) const override
+        bool operator()(const utf8_char_t::codepoint_t c) const override
         {
             return m_k == c;
         }
@@ -130,7 +131,7 @@ namespace Ark::internal
         explicit IsEither(const CharPred& a, const CharPred& b) :
             CharPred("(" + a.name + " | " + b.name + ")"), m_a(a), m_b(b)
         {}
-        virtual bool operator()(const utf8_char_t::codepoint_t c) const override
+        bool operator()(const utf8_char_t::codepoint_t c) const override
         {
             return m_a(c) || m_b(c);
         }
@@ -145,7 +146,7 @@ namespace Ark::internal
         explicit IsNot(const CharPred& a) :
             CharPred("~" + a.name), m_a(a)
         {}
-        virtual bool operator()(const utf8_char_t::codepoint_t c) const override
+        bool operator()(const utf8_char_t::codepoint_t c) const override
         {
             return !m_a(c);
         }
@@ -158,7 +159,7 @@ namespace Ark::internal
     {
         IsSymbol() :
             CharPred("sym") {}
-        virtual bool operator()(const utf8_char_t::codepoint_t c) const override
+        bool operator()(const utf8_char_t::codepoint_t c) const override
         {
             switch (c)
             {
@@ -189,7 +190,7 @@ namespace Ark::internal
     {
         IsAny() :
             CharPred("any") {}
-        virtual bool operator()(const utf8_char_t::codepoint_t) const override
+        bool operator()(const utf8_char_t::codepoint_t) const override
         {
             return true;
         }

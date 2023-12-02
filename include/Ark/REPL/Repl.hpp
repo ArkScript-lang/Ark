@@ -31,7 +31,7 @@ namespace Ark
          *
          * @param libenv search path for the std library
          */
-        Repl(const std::vector<std::filesystem::path>& libenv);
+        explicit Repl(const std::vector<std::filesystem::path>& libenv);
 
         /**
          * @brief Start the REPL
@@ -45,10 +45,10 @@ namespace Ark
         int m_old_ip;
         std::vector<std::filesystem::path> m_libenv;
 
-        inline void print_repl_header();
-        int count_open_parentheses(const std::string& line);
-        int count_open_braces(const std::string& line);
-        void trim_whitespace(std::string& line);
+        static inline void print_repl_header();
+        static int count_open_parentheses(const std::string& line);
+        static int count_open_braces(const std::string& line);
+        static void trim_whitespace(std::string& line);
         void cui_setup();
     };
 }

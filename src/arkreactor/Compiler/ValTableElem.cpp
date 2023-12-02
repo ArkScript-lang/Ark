@@ -36,7 +36,7 @@ namespace Ark::internal
         type(ValTableElemType::PageAddr)
     {}
 
-    bool ValTableElem::operator==(const ValTableElem& A) noexcept
+    bool ValTableElem::operator==(const ValTableElem& A) const noexcept
     {
         return A.value == value && A.type == type;
     }

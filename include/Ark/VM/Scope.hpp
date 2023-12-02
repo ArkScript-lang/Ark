@@ -2,7 +2,7 @@
  * @file Scope.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief The virtual machine scope system
- * @version 0.1
+ * @version 0.2
  * @date 2020-10-27
  * 
  * @copyright Copyright (c) 2020-2021
@@ -81,14 +81,14 @@ namespace Ark::internal
          * @param val 
          * @return uint16_t 
          */
-        uint16_t idFromValue(const Value& val) const noexcept;
+        [[nodiscard]] uint16_t idFromValue(const Value& val) const noexcept;
 
         /**
          * @brief Return the size of the scope
          * 
          * @return const std::size_t 
          */
-        std::size_t size() const noexcept;
+        [[nodiscard]] std::size_t size() const noexcept;
 
         friend ARK_API bool operator==(const Scope& A, const Scope& B) noexcept;
 

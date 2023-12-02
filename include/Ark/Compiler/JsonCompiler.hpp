@@ -23,7 +23,7 @@ namespace Ark
         JsonCompiler(unsigned debug, const std::vector<std::filesystem::path>& libenv);
 
         /**
-         * @brief Feed the differents variables with information taken from the given source code file
+         * @brief Feed the different variables with information taken from the given source code file
          *
          * @param filename the name of the file
          */

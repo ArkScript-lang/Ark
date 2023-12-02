@@ -11,9 +11,6 @@
 #include <Ark/Compiler/Macros/Executors/Function.hpp>
 #include <Ark/Compiler/Macros/Executors/Conditional.hpp>
 
-// fixme
-#include <iostream>
-
 namespace Ark::internal
 {
     MacroProcessor::MacroProcessor(unsigned debug) noexcept :
@@ -68,10 +65,10 @@ namespace Ark::internal
             {
                 if (first_node.string() != "$undef")
                     m_macros.back().add(first_node.string(), node);
-                else if (second_node.nodeType() == NodeType::Symbol)  // undefine a macro
+                else if (second_node.nodeType() == NodeType::Symbol)  // un-define a macro
                     deleteNearestMacro(second_node.string());
                 else  // used undef on a non-symbol
-                    throwMacroProcessingError("Can not undefine a macro without a name", second_node);
+                    throwMacroProcessingError("Can not un-define a macro without a name", second_node);
                 return;
             }
             throwMacroProcessingError("Can not define a macro without a symbol", first_node);
@@ -116,7 +113,7 @@ namespace Ark::internal
 
     void MacroProcessor::registerFuncDef(Node& node)
     {
-        if (node.nodeType() == NodeType::List && node.constList().size() > 0 && node.constList()[0].nodeType() == NodeType::Keyword)
+        if (node.nodeType() == NodeType::List && !node.constList().empty() && node.constList()[0].nodeType() == NodeType::Keyword)
         {
             Keyword kw = node.constList()[0].keyword();
             // checking for function definition, which can occur only inside an assignment node
@@ -127,7 +124,7 @@ namespace Ark::internal
             if (inner.nodeType() != NodeType::List)
                 return;
 
-            if (inner.constList().size() > 0 && inner.constList()[0].nodeType() == NodeType::Keyword && inner.constList()[0].keyword() == Keyword::Fun)
+            if (!inner.constList().empty() && inner.constList()[0].nodeType() == NodeType::Keyword && inner.constList()[0].keyword() == Keyword::Fun)
                 m_defined_functions[node.constList()[1].string()] = inner.constList()[1];
         }
     }
@@ -231,15 +228,15 @@ namespace Ark::internal
         }
         else if (target.nodeType() == NodeType::Spread)
         {
-            Node subnode = target;
-            subnode.setNodeType(NodeType::Symbol);
-            unify(map, subnode, parent);
+            Node sub_node = target;
+            sub_node.setNodeType(NodeType::Symbol);
+            unify(map, sub_node, parent);
 
-            if (subnode.nodeType() != NodeType::List)
-                throwMacroProcessingError(fmt::format("Can not unify a {} to a Spread", typeToString(subnode)), subnode);
+            if (sub_node.nodeType() != NodeType::List)
+                throwMacroProcessingError(fmt::format("Can not unify a {} to a Spread", typeToString(sub_node)), sub_node);
 
-            for (std::size_t i = 1, end = subnode.list().size(); i < end; ++i)
-                parent->list().insert(parent->list().begin() + index + i, subnode.list()[i]);
+            for (std::size_t i = 1, end = sub_node.list().size(); i < end; ++i)
+                parent->list().insert(parent->list().begin() + index + i, sub_node.list()[i]);
             parent->list().erase(parent->list().begin() + index);  // remove the spread
         }
     }
@@ -336,7 +333,7 @@ namespace Ark::internal
                 {
                     if (isConstEval(lst))
                     {
-                        if (lst.list().size() > 0 && lst.list()[0] == getListNode())
+                        if (!lst.list().empty() && lst.list()[0] == getListNode())
                             node = Node(static_cast<long>(lst.list().size()) - 1);
                         else
                             node = Node(static_cast<long>(lst.list().size()));
@@ -379,7 +376,7 @@ namespace Ark::internal
                 else if (node.list()[1].nodeType() == NodeType::List)
                 {
                     Node& sublist = node.list()[1];
-                    if (sublist.constList().size() > 0 && sublist.constList()[0] == getListNode())
+                    if (!sublist.constList().empty() && sublist.constList()[0] == getListNode())
                     {
                         if (sublist.constList().size() > 1)
                         {
@@ -389,7 +386,7 @@ namespace Ark::internal
                         else
                             node = getNilNode();
                     }
-                    else if (sublist.list().size() > 0)
+                    else if (!sublist.list().empty())
                         node = sublist.constList()[0];
                     else
                         node = getNilNode();
@@ -402,7 +399,7 @@ namespace Ark::internal
                 else if (node.list()[1].nodeType() == NodeType::List)
                 {
                     Node sublist = node.list()[1];
-                    if (sublist.list().size() > 0 && sublist.list()[0] == getListNode())
+                    if (!sublist.list().empty() && sublist.list()[0] == getListNode())
                     {
                         if (sublist.list().size() > 1)
                         {
@@ -415,7 +412,7 @@ namespace Ark::internal
                             node.push_back(getListNode());
                         }
                     }
-                    else if (sublist.list().size() > 0)
+                    else if (!sublist.list().empty())
                     {
                         sublist.list().erase(sublist.constList().begin());
                         node = sublist;
@@ -476,10 +473,10 @@ namespace Ark::internal
             }
         }
 
-        if (node.nodeType() == NodeType::List && node.constList().size() >= 1)
+        if (node.nodeType() == NodeType::List && !node.constList().empty())
         {
-            for (std::size_t i = 0; i < node.list().size(); ++i)
-                node.list()[i] = evaluate(node.list()[i], is_not_body);
+            for (auto& child : node.list())
+                child = evaluate(child, is_not_body);
         }
 
         return node;
@@ -496,7 +493,7 @@ namespace Ark::internal
         }
         else if (node.nodeType() == NodeType::Number && node.number() != 0.0)
             return true;
-        else if (node.nodeType() == NodeType::String && node.string().size() != 0)
+        else if (node.nodeType() == NodeType::String && !node.string().empty())
             return true;
         else if (node.nodeType() == NodeType::Spread)
             throwMacroProcessingError("Can not determine the truth value of a spreaded symbol", node);
@@ -547,22 +544,22 @@ namespace Ark::internal
 
         if (node.nodeType() == NodeType::List)
         {
-            for (std::size_t i = 0; i < node.list().size(); ++i)
-                recurApply(node.list()[i]);
+            for (auto& child : node.list())
+                recurApply(child);
         }
     }
 
     bool MacroProcessor::hadBegin(const Node& node)
     {
         return node.nodeType() == NodeType::List &&
-            node.constList().size() > 0 &&
+            !node.constList().empty() &&
             node.constList()[0].nodeType() == NodeType::Keyword &&
             node.constList()[0].keyword() == Keyword::Begin;
     }
 
     void MacroProcessor::removeBegin(Node& node, std::size_t& i)
     {
-        if (node.nodeType() == NodeType::List && node.list()[i].nodeType() == NodeType::List && node.list()[i].list().size() > 0)
+        if (node.nodeType() == NodeType::List && node.list()[i].nodeType() == NodeType::List && !node.list()[i].list().empty())
         {
             Node lst = node.constList()[i];
             Node first = lst.constList()[0];
@@ -574,7 +571,7 @@ namespace Ark::internal
                 for (std::size_t block_idx = 1, end = lst.constList().size(); block_idx < end; ++block_idx)
                     node.list().insert(node.constList().begin() + i + block_idx, lst.list()[block_idx]);
 
-                i += lst.constList().size() - 2;  // -2 instead of -1 because it get incremented right after
+                i += lst.constList().size() - 2;  // -2 instead of -1 because it gets incremented right after
                 node.list().erase(node.constList().begin() + previous);
             }
         }

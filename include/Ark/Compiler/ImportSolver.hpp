@@ -19,7 +19,7 @@ namespace Ark::internal
 
         void process(const std::filesystem::path& root, const Node& origin_ast, const std::vector<Import>& origin_imports);
 
-        const Node& ast() const noexcept;
+        [[nodiscard]] const Node& ast() const noexcept;
 
     private:
         unsigned m_debug;

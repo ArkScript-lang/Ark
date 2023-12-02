@@ -96,7 +96,7 @@ namespace Ark
     {}
 
     Value::Value(UserType&& value) noexcept :
-        m_const_type(init_const_type(false, ValueType::User)), m_value(std::move(value))
+        m_const_type(init_const_type(false, ValueType::User)), m_value(value)
     {}
 
     Value::Value(Value* ref) noexcept :

@@ -65,6 +65,8 @@ namespace Ark::Diagnostics
                         line_color_context_counts.open_curly_braces--;
                         pairing_color_index = std::abs(line_color_context_counts.open_curly_braces) % pairing_color_size;
                         break;
+                    default:
+                        break;
                 }
 
                 colorized_line << pairing_color[pairing_color_index] << c << termcolor::reset;
@@ -86,7 +88,7 @@ namespace Ark::Diagnostics
         std::size_t overflow = (col_start + sym_size < ctx[target_line].size()) ? 0 : col_start + sym_size - ctx[target_line].size();  // number of characters that are on more lines below
         LineColorContextCounts line_color_context_counts;
 
-        for (std::size_t i = first_line; i < last_line; ++i)
+        for (auto i = first_line; i < last_line; ++i)
         {
             os << termcolor::green << std::setw(5) << (i + 1) << termcolor::reset
                << " | " << colorizeLine(ctx[i], line_color_context_counts) << "\n";
@@ -107,12 +109,12 @@ namespace Ark::Diagnostics
                     os << " ";
 
                 // padding of spaces
-                for (std::size_t i = 0; i < curr_col_start; ++i)
+                for (std::size_t j = 0; j < curr_col_start; ++j)
                     os << " ";
 
                 // underline the error
                 os << termcolor::red << "^";
-                for (std::size_t i = curr_col_start + 1; i < col_end; ++i)
+                for (std::size_t j = curr_col_start + 1; j < col_end; ++j)
                     os << "~";
 
                 os << termcolor::reset << "\n";
@@ -128,7 +130,7 @@ namespace Ark::Diagnostics
         os << "At " << expr << " @ " << (line + 1) << ":" << column << "\n";
 
         if (!code.empty())
-            makeContext(os, std::move(code), line, column, sym_size);
+            makeContext(os, code, line, column, sym_size);
         os << "        " << message;
     }
 

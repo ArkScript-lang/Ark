@@ -2,7 +2,7 @@
  * @file Exceptions.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com), Max (madstk1@pm.me)
  * @brief ArkScript homemade exceptions
- * @version 0.2
+ * @version 1.0
  * @date 2020-10-27
  *
  * @copyright Copyright (c) 2020-2021
@@ -14,6 +14,7 @@
 
 #include <exception>
 #include <string>
+#include <utility>
 #include <vector>
 #include <stdexcept>
 #include <optional>
@@ -59,7 +60,7 @@ namespace Ark
     public:
         ZeroDivisionError() :
             Error(
-                "ZeroDivisionError: In ordonary arithmetic, the expression has no meaning, "
+                "ZeroDivisionError: In ordinary arithmetic, the expression has no meaning, "
                 "as there is no number which, when multiplied by 0, gives a (assuming a != 0), "
                 "and so division by zero is undefined. Since any number multiplied by 0 is 0, "
                 "the expression 0/0 is also undefined.")
@@ -106,13 +107,13 @@ namespace Ark
 
         CodeError(
             const std::string& what,
-            const std::string& filename,
+            std::string filename,
             std::size_t lineNum,
             std::size_t column,
             std::string exp,
             std::optional<internal::utf8_char_t> opt_sym = std::nullopt) :
             Error(what),
-            filename(filename), line(lineNum), col(column), expr(std::move(exp)), symbol(opt_sym)
+            filename(std::move(filename)), line(lineNum), col(column), expr(std::move(exp)), symbol(opt_sym)
         {}
     };
 
@@ -142,7 +143,7 @@ namespace Ark
          * @brief Generate a diagnostic from an error and print it to the standard output
          *
          * @param e code error
-         * @param code code of the file in which the error occured
+         * @param code code of the file in which the error occurred
          */
         ARK_API void generate(const CodeError& e, std::string code = "");
     }

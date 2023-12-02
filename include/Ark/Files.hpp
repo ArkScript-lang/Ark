@@ -2,7 +2,7 @@
  * @file Files.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Lots of utilities about the filesystem
- * @version 0.1
+ * @version 0.2
  * @date 2021-11-25
  *
  * @copyright Copyright (c) 2021
@@ -49,9 +49,10 @@ namespace Ark::Utils
     {
         std::ifstream f(name);
         // admitting the file exists
-        return std::string(
+        return {
             (std::istreambuf_iterator<char>(f)),
-            std::istreambuf_iterator<char>());
+            std::istreambuf_iterator<char>()
+        };
     }
 
     inline std::vector<uint8_t> readFileAsBytes(const std::string& name)

@@ -1,7 +1,6 @@
 #include <Ark/TypeChecker.hpp>
 
 #include <limits>
-#include <numeric>
 #include <algorithm>
 #include <termcolor/proxy.hpp>
 
@@ -14,7 +13,7 @@ namespace Ark::types
         if (types.size() == 1 && types[0] == ValueType::Any)
             return "any";
 
-        std::string acc = "";
+        std::string acc;
 
         for (std::size_t i = 0, end = types.size(); i < end; ++i)
         {

@@ -2,8 +2,6 @@
 
 #include <Ark/Compiler/Instructions.hpp>
 #include <Ark/Builtins/Builtins.hpp>
-#undef abs
-#include <Ark/Utils.hpp>
 
 #include <iomanip>
 #include <termcolor/proxy.hpp>
@@ -45,11 +43,11 @@ namespace Ark
             return 0;
 
         // read major, minor and patch
-        readNumber(i);
+        std::ignore = readNumber(i);
         i++;
-        readNumber(i);
+        std::ignore = readNumber(i);
         i++;
-        readNumber(i);
+        std::ignore = readNumber(i);
         i++;
 
         // reading the timestamp in big endian
