@@ -6,10 +6,12 @@
 warnings.log
 
 # ArkScript
-include/Ark/Constants.hpp
 __arkscript__/
 *.arkc
 *.arkm
+
+# Generated files
+include/Ark/Constants.hpp
 /Installer.iss
 
 # Tests results
@@ -28,6 +30,7 @@ afl/
 build/
 ninja/
 cmake-build-*/
+out/
 
 # Prerequisites
 *.d
