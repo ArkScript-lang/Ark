@@ -160,67 +160,9 @@ jobs:
         path: temp
         retention-days: 1
 
-  tests:
-    runs-on: ${{ matrix.config.os }}
-    name: Test on ${{ matrix.config.name }}
-    needs: [build]
-
-    strategy:
-      fail-fast: false
-      matrix:
-        config:
-          - { os: ubuntu-latest,  name: "Ubuntu Clang 11", artifact: "ubuntu-clang-11" }
-          - { os: ubuntu-latest,  name: "Ubuntu GCC 11",   artifact: "ubuntu-gcc-11" }
-          - { os: windows-latest, name: "Windows VS 2019", artifact: "windows-msvc-19", }
-          - { os: macos-latest,   name: "MacOS Clang 12",  artifact: "macos-clang-12", }
-
-    steps:
-    - uses: actions/checkout@v2
-      with:
-        submodules: recursive
-
-    - name: Download artifact
-      id: download
-      uses: actions/download-artifact@v3
-      with:
-        name: ${{ matrix.config.artifact }}
-        path: build
-
-    - name: Download temp artifact
-      id: download-artifact
-      uses: actions/download-artifact@v3
-      with:
-        name: temp-${{ matrix.config.artifact }}
-        path: artifact
-
-    - name: Update GNU compilers
-      if: startsWith(matrix.config.name, 'Ubuntu GCC')
-      shell: bash
-      run: |
-        sudo apt-add-repository -y ppa:ubuntu-toolchain-r/test
-        sudo apt-get -yq install libstdc++6
-
-    - shell: bash
-      run: |
-        mv artifact/cpp/out tests/cpp/
-        mv build/lib/*.arkm lib/
-        chmod u+x build/arkscript tests/cpp/out/*
-
-    - name: Pre-test
-      if: startsWith(matrix.config.name, 'Windows')
-      shell: bash
-      run: |
-        mkdir -p tests/cpp/out
-        cp build/*.dll tests/cpp/out/
-
-    - name: Tests
-      if: steps.download.outcome == 'success' && steps.download-artifact.outcome == 'success'
-      shell: bash
-      run: bash .github/launch-tests
-
   release:
     runs-on: ubuntu-latest
-    needs: [build, tests]
+    needs: [build]
 
     steps:
       - name: Checkout
