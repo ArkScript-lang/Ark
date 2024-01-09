@@ -140,7 +140,9 @@ For performance reasons, some functions might be written in C++, in `include/Ark
 * Visual Studio >= 11 (on Windows)
 * On macOS versions prior to 10.15, `libc++` lacks `filesystem` in the standard library.
     * Install a newer compiler using [Homebrew](https://docs.brew.sh/): `brew install gcc && brew link gcc`
-    * Pass compiler path to `cmake` in the build step: `-DCMAKE_CXX_COMPILER=/usr/local/bin/g++-9`
+    * Pass compiler path to `cmake` in the build step: `-DCMAKE_CXX_COMPILER=/usr/local/bin/g++-9 -DCMAKE_C_COMPILER=/usr/local/bin/gcc-9`
+
+:warning: When passing a specific C++ compiler to CMake, add the corresponding C compiler as ArkScript relies on C code as well ; otherwise you'll cryptic get compilation/linking errors (using `CMAKE_CXX_COMPILER` and `CMAKE_C_COMPILER`).
 
 All the external libraries we use are already included in [thirdparties](https://github.com/ArkScript-lang/thirdparties).
 
