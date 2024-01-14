@@ -1,7 +1,0 @@
-( Keyword:If Number:1 Number:2 Number:3 )
-( Keyword:If Number:1 Number:2 Number:3 )
-( Keyword:If String:a Number:1 Number:2 )
-( Keyword:If Number:1 Number:2 )
-( Keyword:If Number:3 Symbol:nil )
-( Keyword:If ( Symbol:func Symbol:a Symbol:b ) Symbol:a Symbol:b )
-( Keyword:If ( Symbol:a Symbol:b Symbol:c ) ( Symbol:d Symbol:e ) ( Symbol:f ) )

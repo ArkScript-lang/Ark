@@ -153,6 +153,7 @@ option(ARK_PROFILER_MIPS    "Enable MIPS calculation" Off)
 option(ARK_NO_STDLIB        "Do not install the standard library with the Ark library" Off)
 option(ARK_BUILD_MODULES    "Build the std library modules or not" Off)
 option(ARK_SANITIZERS       "Enable ASAN and UBSAN" Off)
+option(ARK_TESTS            "Build ArkScript unit tests" Off)
 
 if (ARK_PROFILER_COUNT)
     target_compile_definitions(ArkReactor PRIVATE -DARK_PROFILER_COUNT)
@@ -170,10 +171,16 @@ if (ARK_BUILD_MODULES)
     add_subdirectory(${ark_SOURCE_DIR}/lib/modules)
 endif()
 
-if (ARK_BUILD_PARSER_TESTS)
-    add_executable(parser ${ark_SOURCE_DIR}/tests/parser/main.cpp)
-    target_link_libraries(parser PUBLIC ArkReactor)
-    target_compile_features(parser PRIVATE cxx_std_17)
+# TODO: consider using ctest
+if (ARK_TESTS)
+    file(GLOB_RECURSE UT_SOURCES ${ark_SOURCE_DIR}/tests/unittests/*.cpp)
+    add_executable(unittests ${UT_SOURCES})
+
+    add_subdirectory(${ark_SOURCE_DIR}/lib/ut)
+    target_link_libraries(unittests PUBLIC ArkReactor termcolor ut)
+
+    add_compile_definitions(BOOST_UT_DISABLE_MODULE)
+    target_compile_features(unittests PRIVATE cxx_std_20)
 endif()
 
 if (ARK_BUILD_EXE)

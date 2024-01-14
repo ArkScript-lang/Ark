@@ -1,5 +1,0 @@
-In file ./incorrect_arg_capture.ark
-At c @ 1:12
-    1 | (fun (a &b c) 1)
-      |            ^
-        Captured variables should be at the end of the argument list

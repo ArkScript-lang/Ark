@@ -1,0 +1,2 @@
+( Symbol:print String:abc String:123"test )
+( Symbol:print String:\ 123aéoÒ )

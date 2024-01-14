@@ -1,5 +1,0 @@
-In file ./incomplete_arguments.ark
-At EOF @ 1:7
-    1 | (fun (a
-      |       ^
-        Expected ')'

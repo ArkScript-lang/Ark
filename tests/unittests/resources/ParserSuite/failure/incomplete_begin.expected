@@ -1,0 +1,5 @@
+In file tests/unittests/resources/ParserSuite/failure/incomplete_begin.ark
+At EOF @ 1:15
+    1 | { a b (let c d)
+      |               ^
+        Expected '}'

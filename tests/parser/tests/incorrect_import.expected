@@ -1,5 +1,0 @@
-In file ./incorrect_import.ark
-At : @ 1:15
-    1 | (import a.b :c:*)
-      |               ^~
-        Glob pattern can not follow a symbol to import

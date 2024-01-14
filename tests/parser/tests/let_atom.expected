@@ -1,6 +1,0 @@
-( Keyword:Let Symbol:aaaaaaa Number:12 )
-( Keyword:Mut Symbol:b Number:13 )
-( Keyword:Set Symbol:c String: )
-( Keyword:Let Symbol:b String:12 )
-( Keyword:Let Symbol:d ( Keyword:If Number:1 Number:2 Number:3 ) )
-( Keyword:Let Symbol:e ( Keyword:While Number:4 Number:5 ) )

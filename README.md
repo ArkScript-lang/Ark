@@ -156,6 +156,7 @@ Different CMake switches are available to customize the build:
 * `-DARK_NO_STDLIB` to avoid the installation of the ArkScript standard library
 * `-DARK_BUILD_MODULES` to trigger the modules build
 * `-DARK_SANITIZERS` to enable ASAN and UBSAN
+* `-DARK_TESTS` to build the unit tests (separate target named `unittests`)
 
 ```bash
 # first, clone it
@@ -240,6 +241,6 @@ This project was inspired by [gameprogramingpatterns](http://gameprogrammingpatt
 
 ## Copyright and Licence information
 
-Copyright (c) 2019-2021 Alexandre Plateau. All rights reserved.
+Copyright (c) 2019-2024 Alexandre Plateau. All rights reserved.
 
 This ArkScript distribution contains no GNU GPL code, which means it can be used in proprietary projects.

@@ -1,5 +1,0 @@
-In file ./incomplete_call.ark
-At EOF @ 1:25
-    1 | (a b c (if (ok true) 1 2)
-      |                         ^
-        Expected ')'

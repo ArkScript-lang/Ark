@@ -2,10 +2,10 @@
  * @file Exceptions.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com), Max (madstk1@pm.me)
  * @brief ArkScript homemade exceptions
- * @version 1.0
+ * @version 1.1
  * @date 2020-10-27
  *
- * @copyright Copyright (c) 2020-2021
+ * @copyright Copyright (c) 2020-2024
  *
  */
 
@@ -20,6 +20,7 @@
 #include <optional>
 #include <ostream>
 #include <iomanip>
+#include <iostream>
 
 #include <Ark/Compiler/AST/utf8_char.hpp>
 #include <Ark/Platform.hpp>
@@ -144,8 +145,9 @@ namespace Ark
          *
          * @param e code error
          * @param code code of the file in which the error occurred
+         * @param os output stream
          */
-        ARK_API void generate(const CodeError& e, std::string code = "");
+        ARK_API void generate(const CodeError& e, std::string code = "", std::ostream& os = std::cout);
     }
 }
 

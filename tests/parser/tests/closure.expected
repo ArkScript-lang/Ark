@@ -1,4 +1,0 @@
-( Keyword:Fun ( Capture:a ) Number:1 )
-( Keyword:Fun ( Capture:a Capture:b ) Number:2 )
-( Keyword:Fun ( Symbol:a Capture:b ) Number:3 )
-( Keyword:Fun ( Symbol:a Symbol:b Capture:c Capture:d ) Number:4 )

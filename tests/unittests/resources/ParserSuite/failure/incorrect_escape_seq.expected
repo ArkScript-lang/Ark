@@ -1,0 +1,5 @@
+In file tests/unittests/resources/ParserSuite/failure/incorrect_escape_seq.ark
+At \ @ 1:9
+    1 | (print "\i bla bla bla")
+      |         ^
+        Unknown escape sequence
