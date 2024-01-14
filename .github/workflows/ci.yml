@@ -72,7 +72,7 @@ jobs:
           }
           - {
             os: ubuntu-latest, name: "Ubuntu Clang 15 (valgrind)", cc: "clang-15", cxx: "clang++-15",
-            artifact: "ubuntu-clang-15-valgrind", sanitizers: "Off", preconfigure: ""
+            artifact: "ubuntu-clang-valgrind", sanitizers: "Off", preconfigure: ""
           }
           - {
             os: ubuntu-latest, name: "Ubuntu GCC 13", cc: "gcc-13", cxx: "g++-13",
@@ -110,7 +110,7 @@ jobs:
             -DCMAKE_C_COMPILER=${{ matrix.config.cc }} \
             -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }} \
             -DARK_SANITIZERS=${{ matrix.config.sanitizers }} \
-            -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=On -DARK_MOD_ALL=On -DARK_BUILD_PARSER_TESTS=On
+            -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=On -DARK_MOD_ALL=On -DARK_TESTS=On
 
       - name: Add SQLite deps
         if: startsWith(matrix.config.name, 'Windows')
@@ -124,6 +124,7 @@ jobs:
         shell: bash
         run: cmake --build build --config $BUILD_TYPE
 
+      # TODO: remove this to put all the tests under tests/unittests
       - name: Configure & build CMake Integration tests
         shell: bash
         run: |
@@ -141,11 +142,9 @@ jobs:
           mkdir -p artifact/lib/std
           # Linux/MacOS
           cp build/arkscript artifact || true
-          cp build/parser artifact || true
           cp build/libArkReactor.* artifact || true
           # Windows
           cp build/$BUILD_TYPE/arkscript.exe artifact || true
-          cp build/$BUILD_TYPE/parser.exe artifact || true
           cp build/$BUILD_TYPE/ArkReactor.dll artifact  || true
           # Generic
           cp lib/*.arkm artifact/lib
@@ -155,9 +154,11 @@ jobs:
       - name: Organize temp artifact
         shell: bash
         run: |
-          mkdir -p temp/parser/
+          mkdir -p temp/tests/unittests/
+          cp build/unittests temp/ || true
+          cp build/$BUILD_TYPE/unittests.exe temp/ || true
           cp -r tests/cpp temp/
-          cp -r tests/parser temp/
+          cp -r tests/unittests temp/tests/unittests
 
       - name: Upload artifact
         uses: actions/upload-artifact@v3.1.1
@@ -194,18 +195,20 @@ jobs:
       - name: Setup tests
         uses: ./.github/workflows/setup-tests
 
-      - name: Parser tests
+      - name: Unit tests
         shell: bash
         run: |
           export ASAN_OPTIONS=detect_odr_violation=0
-          (cd tests/parser/tests ; bash ./run)
+          ./unittests '*'
 
+      # TODO: move to tests/unittests
       - name: Integration tests
         shell: bash
         run: |
           export ASAN_OPTIONS=detect_odr_violation=0
           (cd tests/cpp ; bash ./run-tests)
 
+      # TODO: move to tests/unittests
       - name: AST tests
         shell: bash
         run: |
@@ -218,12 +221,14 @@ jobs:
           export ASAN_OPTIONS=detect_odr_violation=0
           (cd tests/arkscript ; bash ./run-tests)
 
+      # FIXME: re-enable later on
       #- name: Modules tests
       #  shell: bash
       #  run: |
       #    export ASAN_OPTIONS=detect_odr_violation=0
       #    (source ./lib/modules/.github/run-tests)
 
+      # TODO: move to tests/unittests
       - name: Runtime error message generation tests
         shell: bash
         run: |
@@ -232,7 +237,7 @@ jobs:
 
   valgrind:
     runs-on: ubuntu-latest
-    name: Ubuntu Clang 15 Valgrind
+    name: Ubuntu Clang Valgrind
     needs: [ build ]
 
     steps:
@@ -244,7 +249,7 @@ jobs:
         id: download
         uses: actions/download-artifact@v3.0.1
         with:
-          name: "ubuntu-clang-15-valgrind"
+          name: "ubuntu-clang-valgrind"
           path: build
 
       - name: Update LLVM compilers
@@ -253,7 +258,9 @@ jobs:
           mv build/lib/*.arkm lib/
           chmod u+x build/arkscript
           sudo apt-get update --fix-missing
-          sudo apt-get install -y clang-15 lld-15 libc++-15-dev libc++abi-15-dev clang-tools-15 valgrind
+          wget --no-check-certificate http://ftp.us.debian.org/debian/pool/main/v/valgrind/valgrind_3.20.0-2.1_amd64.deb
+          sudo apt install ./valgrind_3.20.0-2.1_amd64.deb
+          sudo apt-get install -y clang-15 lld-15 libc++-15-dev libc++abi-15-dev clang-tools-15
 
       - name: Valgrind checks for memory leaks
         shell: bash
