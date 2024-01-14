@@ -19,3 +19,6 @@
 [submodule "lib/fmt"]
 	path = lib/fmt
 	url = https://github.com/fmtlib/fmt.git
+[submodule "lib/ut"]
+	path = lib/ut
+	url = https://github.com/boost-ext/ut.git
