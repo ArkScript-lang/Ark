@@ -2,7 +2,7 @@ name: "Building and testing ArkScript"
 
 on:
   push:
-    branches: [dev, master]
+    branches: [ dev, master ]
     paths-ignore:
       - '.github/workflows/docker.yml'
       - '.github/workflows/label.yml'
@@ -45,76 +45,40 @@ jobs:
 
   repo_visualizer:
     runs-on: ubuntu-latest
-    needs: []
+    needs: [ ]
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Update diagram
-      uses: githubocto/repo-visualizer@main
-      with:
-        excluded_paths: 'dist,node_modules,submodules'
-        should_push: false
-        output_file: 'diagram.svg'
-        artifact_name: 'diagram'
+      - name: Update diagram
+        uses: githubocto/repo-visualizer@main
+        with:
+          excluded_paths: 'dist,node_modules,submodules'
+          should_push: false
+          output_file: 'diagram.svg'
+          artifact_name: 'diagram'
 
   build:
     runs-on: ${{ matrix.config.os }}
     name: ${{ matrix.config.name }}
-    needs: [check]
+    needs: [ check ]
 
     strategy:
       fail-fast: false
       matrix:
         config:
           - {
-            os: ubuntu-latest, name: "Ubuntu Clang 14", cc: "clang-14", cxx: "clang++-14",
-            artifact: "ubuntu-clang-14", sanitizers: "On", preconfigure: ""
+            os: ubuntu-latest, name: "Ubuntu Clang 15", cc: "clang-15", cxx: "clang++-15",
+            artifact: "ubuntu-clang-15", sanitizers: "On", preconfigure: ""
           }
           - {
-            os: ubuntu-latest, name: "Ubuntu Clang 13", cc: "clang-13", cxx: "clang++-13",
-            artifact: "ubuntu-clang-13", sanitizers: "On", preconfigure: ""
+            os: ubuntu-latest, name: "Ubuntu Clang 15 (valgrind)", cc: "clang-15", cxx: "clang++-15",
+            artifact: "ubuntu-clang-15-valgrind", sanitizers: "Off", preconfigure: ""
           }
           - {
-            os: ubuntu-latest, name: "Ubuntu Clang 12", cc: "clang-12", cxx: "clang++-12",
-            artifact: "ubuntu-clang-12", sanitizers: "On", preconfigure: ""
-          }
-          - {
-            os: ubuntu-20.04, name: "Ubuntu Clang 11", cc: "clang-11", cxx: "clang++-11",
-            artifact: "ubuntu-clang-11", sanitizers: "On", preconfigure: ""
-          }
-          - {
-            os: ubuntu-latest, name: "Ubuntu Clang 11 (valgrind)", cc: "clang-11", cxx: "clang++-11",
-            artifact: "ubuntu-clang-11-valgrind", sanitizers: "Off", preconfigure: ""
-          }
-          - {
-            os: ubuntu-20.04, name: "Ubuntu Clang 10", cc: "clang-10", cxx: "clang++-10",
-            artifact: "ubuntu-clang-10", sanitizers: "On", preconfigure: ""
-          }
-          - {
-            os: ubuntu-20.04, name: "Ubuntu Clang 9", cc: "clang-9", cxx: "clang++-9",
-            artifact: "ubuntu-clang-9", sanitizers: "On", preconfigure: ""
-          }
-          - {
-            os: ubuntu-latest, name: "Ubuntu GCC 12", cc: "gcc-12", cxx: "g++-12",
-            artifact: "ubuntu-gcc-12", sanitizers: "Off", preconfigure: ""
-          }
-          - {
-            os: ubuntu-latest, name: "Ubuntu GCC 11", cc: "gcc-11", cxx: "g++-11",
-            artifact: "ubuntu-gcc-11", sanitizers: "Off", preconfigure: ""
-          }
-          - {
-            os: ubuntu-latest, name: "Ubuntu GCC 10", cc: "gcc-10", cxx: "g++-10",
-            artifact: "ubuntu-gcc-10", sanitizers: "Off", preconfigure: ""
-          }
-          - {
-            os: ubuntu-latest, name: "Ubuntu GCC 9", cc: "gcc-9", cxx: "g++-9",
-            artifact: "ubuntu-gcc-9", sanitizers: "Off", preconfigure: ""
-          }
-          - {
-            os: ubuntu-20.04, name: "Ubuntu GCC 8", cc: "gcc-8", cxx: "g++-8",
-            artifact: "ubuntu-gcc-8", sanitizers: "Off", preconfigure: ""
+            os: ubuntu-latest, name: "Ubuntu GCC 13", cc: "gcc-13", cxx: "g++-13",
+            artifact: "ubuntu-gcc-13", sanitizers: "Off", preconfigure: ""
           }
           - {
             os: windows-latest, name: "Windows VS 2019", cc: "cl", cxx: "cl",
@@ -123,198 +87,182 @@ jobs:
             sanitizers: "On", preconfigure: ""
           }
           - {
-            os: windows-latest, name: "Windows VS 2017", cc: "cl", cxx: "cl",
-            artifact: "windows-msvc-17",
-            environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/VC/Auxiliary/Build/vcvars64.bat",
-            sanitizers: "On", preconfigure: ""
-          }
-          - {
-            os: macos-latest, name: "MacOS Clang 12", cc: "clang", cxx: "clang++",
-            artifact: "macos-clang-12",
+            os: macos-latest, name: "MacOS Clang 14", cc: "clang", cxx: "clang++",
+            artifact: "macos-clang-14",
             sanitizers: "On", preconfigure: "export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/"
           }
 
     steps:
-    - uses: actions/checkout@v3
-      with:
-        submodules: recursive
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
 
-    - name: Setup compilers
-      uses: ./.github/workflows/setup-compilers
+      - name: Setup compilers
+        uses: ./.github/workflows/setup-compilers
 
-    - name: Setup dependencies
-      uses: ./.github/workflows/setup-deps
+      - name: Setup dependencies
+        uses: ./.github/workflows/setup-deps
 
-    - name: Configure CMake Ark
-      shell: bash
-      run: |
-        ${{ matrix.config.preconfigure }}
-        cmake -Bbuild \
-          -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
-          -DCMAKE_C_COMPILER=${{ matrix.config.cc }} \
-          -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }} \
-          -DARK_SANITIZERS=${{ matrix.config.sanitizers }} \
-          -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=On -DARK_MOD_ALL=On -DARK_BUILD_PARSER_TESTS=On
+      - name: Configure CMake Ark
+        shell: bash
+        run: |
+          ${{ matrix.config.preconfigure }}
+          cmake -Bbuild \
+            -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
+            -DCMAKE_C_COMPILER=${{ matrix.config.cc }} \
+            -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }} \
+            -DARK_SANITIZERS=${{ matrix.config.sanitizers }} \
+            -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=On -DARK_MOD_ALL=On -DARK_BUILD_PARSER_TESTS=On
 
-    - name: Add SQLite deps
-      if: startsWith(matrix.config.name, 'Windows')
-      shell: bash
-      run: |
-        cmake -Bbuild \
-          -DSQLite3_INCLUDE_DIR=$(pwd)/sqlite_code/sqlite-amalgamation-${SQLITE_VERSION} \
-          -DSQLite3_LIBRARY=$(pwd)/sqlite_lib/sqlite3.lib
+      - name: Add SQLite deps
+        if: startsWith(matrix.config.name, 'Windows')
+        shell: bash
+        run: |
+          cmake -Bbuild \
+            -DSQLite3_INCLUDE_DIR=$(pwd)/sqlite_code/sqlite-amalgamation-${SQLITE_VERSION} \
+            -DSQLite3_LIBRARY=$(pwd)/sqlite_lib/sqlite3.lib
 
-    - name: Build ArkScript
-      shell: bash
-      run: cmake --build build --config $BUILD_TYPE
+      - name: Build ArkScript
+        shell: bash
+        run: cmake --build build --config $BUILD_TYPE
 
-    - name: Configure & build CMake Integration tests
-      shell: bash
-      run: |
-        cd tests/cpp
-        cmake -Bbuild \
-          -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
-          -DCMAKE_C_COMPILER=${{ matrix.config.cc }} \
-          -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }} \
-          -DARK_SANITIZERS=${{ matrix.config.sanitizers }}
-        cmake --build build --config $BUILD_TYPE
+      - name: Configure & build CMake Integration tests
+        shell: bash
+        run: |
+          cd tests/cpp
+          cmake -Bbuild \
+            -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
+            -DCMAKE_C_COMPILER=${{ matrix.config.cc }} \
+            -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }} \
+            -DARK_SANITIZERS=${{ matrix.config.sanitizers }}
+          cmake --build build --config $BUILD_TYPE
 
-    - name: Organize files for upload
-      shell: bash
-      run: |
-        mkdir -p artifact/lib/std
-        # Linux/MacOS
-        cp build/arkscript artifact || true
-        cp build/parser artifact || true
-        cp build/libArkReactor.* artifact || true
-        # Windows
-        cp build/$BUILD_TYPE/arkscript.exe artifact || true
-        cp build/$BUILD_TYPE/parser.exe artifact || true
-        cp build/$BUILD_TYPE/ArkReactor.dll artifact  || true
-        # Generic
-        cp lib/*.arkm artifact/lib
-        cp lib/std/*.ark artifact/lib/std
-        rm -rf artifact/lib/std/{.git,.github,tests/__arkscript__}
+      - name: Organize files for upload
+        shell: bash
+        run: |
+          mkdir -p artifact/lib/std
+          # Linux/MacOS
+          cp build/arkscript artifact || true
+          cp build/parser artifact || true
+          cp build/libArkReactor.* artifact || true
+          # Windows
+          cp build/$BUILD_TYPE/arkscript.exe artifact || true
+          cp build/$BUILD_TYPE/parser.exe artifact || true
+          cp build/$BUILD_TYPE/ArkReactor.dll artifact  || true
+          # Generic
+          cp lib/*.arkm artifact/lib
+          cp lib/std/*.ark artifact/lib/std
+          rm -rf artifact/lib/std/{.git,.github,tests/__arkscript__}
 
-    - name: Organize temp artifact
-      shell: bash
-      run: |
-        mkdir -p temp/parser/
-        cp -r tests/cpp temp/
-        cp -r tests/parser temp/
+      - name: Organize temp artifact
+        shell: bash
+        run: |
+          mkdir -p temp/parser/
+          cp -r tests/cpp temp/
+          cp -r tests/parser temp/
 
-    - name: Upload artifact
-      uses: actions/upload-artifact@v3.1.1
-      with:
-        name: ${{ matrix.config.artifact }}
-        path: artifact
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3.1.1
+        with:
+          name: ${{ matrix.config.artifact }}
+          path: artifact
 
-    - name: Upload temp artifact
-      uses: actions/upload-artifact@v3.1.1
-      with:
-        name: temp-${{ matrix.config.artifact }}
-        path: temp
-        retention-days: 1
+      - name: Upload temp artifact
+        uses: actions/upload-artifact@v3.1.1
+        with:
+          name: temp-${{ matrix.config.artifact }}
+          path: temp
+          retention-days: 1
 
   tests:
     runs-on: ${{ matrix.config.os }}
     name: Tests on ${{ matrix.config.name }}
-    needs: [build]
+    needs: [ build ]
 
     strategy:
       fail-fast: false
       matrix:
         config:
-          - { os: ubuntu-latest,  name: "Ubuntu Clang 14", artifact: "ubuntu-clang-14" }
-          - { os: ubuntu-latest,  name: "Ubuntu Clang 13", artifact: "ubuntu-clang-13" }
-          - { os: ubuntu-latest,  name: "Ubuntu Clang 12", artifact: "ubuntu-clang-12" }
-          - { os: ubuntu-20.04,   name: "Ubuntu Clang 11", artifact: "ubuntu-clang-11" }
-          - { os: ubuntu-20.04,   name: "Ubuntu Clang 10", artifact: "ubuntu-clang-10" }
-          - { os: ubuntu-20.04,   name: "Ubuntu Clang 9",  artifact: "ubuntu-clang-9" }
-          - { os: ubuntu-latest,  name: "Ubuntu GCC 12",   artifact: "ubuntu-gcc-12" }
-          - { os: ubuntu-latest,  name: "Ubuntu GCC 11",   artifact: "ubuntu-gcc-11" }
-          - { os: ubuntu-latest,  name: "Ubuntu GCC 10",   artifact: "ubuntu-gcc-10" }
-          - { os: ubuntu-latest,  name: "Ubuntu GCC 9",    artifact: "ubuntu-gcc-9" }
-          - { os: ubuntu-20.04,   name: "Ubuntu GCC 8",    artifact: "ubuntu-gcc-8" }
+          - { os: ubuntu-latest,  name: "Ubuntu Clang 15", artifact: "ubuntu-clang-15" }
+          - { os: ubuntu-latest,  name: "Ubuntu GCC 13",   artifact: "ubuntu-gcc-13" }
           - { os: windows-latest, name: "Windows VS 2019", artifact: "windows-msvc-19", }
-          - { os: windows-latest, name: "Windows VS 2017", artifact: "windows-msvc-17", }
-          - { os: macos-latest,   name: "MacOS Clang 12",  artifact: "macos-clang-12", }
+          - { os: macos-latest,   name: "MacOS Clang 14",  artifact: "macos-clang-14", }
 
     steps:
-    - uses: actions/checkout@v3
-      with:
-        submodules: recursive
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
 
-    - name: Setup tests
-      uses: ./.github/workflows/setup-tests
+      - name: Setup tests
+        uses: ./.github/workflows/setup-tests
 
-    - name: Parser tests
-      shell: bash
-      run: |
-        export ASAN_OPTIONS=detect_odr_violation=0
-        (cd tests/parser/tests ; bash ./run)
+      - name: Parser tests
+        shell: bash
+        run: |
+          export ASAN_OPTIONS=detect_odr_violation=0
+          (cd tests/parser/tests ; bash ./run)
 
-    - name: Integration tests
-      shell: bash
-      run: |
-        export ASAN_OPTIONS=detect_odr_violation=0
-        (cd tests/cpp ; bash ./run-tests)
+      - name: Integration tests
+        shell: bash
+        run: |
+          export ASAN_OPTIONS=detect_odr_violation=0
+          (cd tests/cpp ; bash ./run-tests)
 
-    - name: AST tests
-      shell: bash
-      run: |
-        export ASAN_OPTIONS=use_odr_indicator=1
-        (cd tests/ast ; bash ./run-tests)
+      - name: AST tests
+        shell: bash
+        run: |
+          export ASAN_OPTIONS=use_odr_indicator=1
+          (cd tests/ast ; bash ./run-tests)
 
-    - name: Unit tests
-      shell: bash
-      run: |
-        export ASAN_OPTIONS=detect_odr_violation=0
-        (cd tests/arkscript ; bash ./run-tests)
+      - name: Unit tests
+        shell: bash
+        run: |
+          export ASAN_OPTIONS=detect_odr_violation=0
+          (cd tests/arkscript ; bash ./run-tests)
 
-    #- name: Modules tests
-    #  shell: bash
-    #  run: |
-    #    export ASAN_OPTIONS=detect_odr_violation=0
-    #    (source ./lib/modules/.github/run-tests)
+      #- name: Modules tests
+      #  shell: bash
+      #  run: |
+      #    export ASAN_OPTIONS=detect_odr_violation=0
+      #    (source ./lib/modules/.github/run-tests)
 
-    - name: Runtime error message generation tests
-      shell: bash
-      run: |
-        export ASAN_OPTIONS=detect_odr_violation=0
-        (cd tests/errors ; bash ./run-tests)
+      - name: Runtime error message generation tests
+        shell: bash
+        run: |
+          export ASAN_OPTIONS=detect_odr_violation=0
+          (cd tests/errors ; bash ./run-tests)
 
   valgrind:
     runs-on: ubuntu-latest
-    name: Ubuntu Clang 11 Valgrind
-    needs: [build]
+    name: Ubuntu Clang 15 Valgrind
+    needs: [ build ]
 
     steps:
-    - uses: actions/checkout@v3
-      with:
-        submodules: recursive
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
 
-    - name: Download artifact
-      id: download
-      uses: actions/download-artifact@v3.0.1
-      with:
-        name: "ubuntu-clang-11-valgrind"
-        path: build
+      - name: Download artifact
+        id: download
+        uses: actions/download-artifact@v3.0.1
+        with:
+          name: "ubuntu-clang-15-valgrind"
+          path: build
 
-    - name: Update LLVM compilers
-      shell: bash
-      run: |
-        mv build/lib/*.arkm lib/
-        chmod u+x build/arkscript
-        sudo apt-get update --fix-missing
-        sudo apt-get install -y clang-11 lld-11 libc++-11-dev libc++abi-11-dev clang-tools-11 valgrind
+      - name: Update LLVM compilers
+        shell: bash
+        run: |
+          mv build/lib/*.arkm lib/
+          chmod u+x build/arkscript
+          sudo apt-get update --fix-missing
+          sudo apt-get install -y clang-15 lld-15 libc++-15-dev libc++abi-15-dev clang-tools-15 valgrind
 
-    - name: Valgrind checks for memory leaks
-      shell: bash
-      run: |
-        valgrind --leak-check=full --show-leak-kinds=all \
-          --track-origins=yes --track-fds=yes \
-          --trace-children=yes \
-          --verbose -s \
-          --error-exitcode=1 \
-          build/arkscript tests/arkscript/unittests.ark -L ./lib valgrind
+      - name: Valgrind checks for memory leaks
+        shell: bash
+        run: |
+          valgrind --leak-check=full --show-leak-kinds=all \
+            --track-origins=yes --track-fds=yes \
+            --trace-children=yes \
+            --verbose -s \
+            --error-exitcode=1 \
+            build/arkscript tests/arkscript/unittests.ark -L ./lib valgrind

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.9)
+cmake_minimum_required(VERSION 3.12)
 
 project(ark CXX)
 
@@ -31,7 +31,7 @@ file(GLOB_RECURSE SOURCE_FILES
 
 add_library(ArkReactor SHARED ${SOURCE_FILES})
 
-target_compile_features(ArkReactor PRIVATE cxx_std_17)
+target_compile_features(ArkReactor PRIVATE cxx_std_20)
 
 enable_lto(ArkReactor)
 
@@ -70,7 +70,7 @@ if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG OR APPLE)
         PUBLIC
         -Wno-unused-command-line-argument)
 
-    # The nlohmann/json.hpp external project has unsied typedefs in the code
+    # The nlohmann/json.hpp external project has unused typedefs in the code
     # to compensate for this error we remove the following warning.
     if (CMAKE_COMPILER_IS_CLANG OR APPLE)
         target_compile_options(ArkReactor PUBLIC -Wno-unused-local-typedef)
@@ -121,7 +121,7 @@ target_include_directories(ArkReactor
     PUBLIC
     ${ark_SOURCE_DIR}/include)
 
-target_compile_features(ArkReactor PRIVATE cxx_std_17)
+target_compile_features(ArkReactor PRIVATE cxx_std_20)
 
 # Installation rules
 
@@ -201,7 +201,7 @@ if (ARK_BUILD_EXE)
     target_include_directories(arkscript PUBLIC "${ark_SOURCE_DIR}/src/arkscript/")
     target_link_libraries(arkscript PUBLIC ArkReactor replxx clipp termcolor)
 
-    target_compile_features(arkscript PRIVATE cxx_std_17)
+    target_compile_features(arkscript PRIVATE cxx_std_20)
 
     enable_lto(arkscript)
 

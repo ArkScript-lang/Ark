@@ -62,7 +62,7 @@ namespace Ark::internal::Builtins::IO
     Value input(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (types::check(n, ValueType::String))
-            fmt::print(n[0].string());
+            fmt::print("{}", n[0].string());
         else if (n.size() != 0)
             types::generateError("input", { { types::Contract {}, types::Contract { { types::Typedef("prompt", ValueType::String) } } } }, n);
 
