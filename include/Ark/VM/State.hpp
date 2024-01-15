@@ -4,9 +4,9 @@
  * @brief State used by the virtual machine: it loads the bytecode, can compile it if needed, load C++ functions...
  * @version 0.3
  * @date 2020-10-27
- * 
+ *
  * @copyright Copyright (c) 2020-2021
- * 
+ *
  */
 
 #ifndef ARK_VM_STATE_HPP
@@ -26,22 +26,22 @@ namespace Ark
 {
     /**
      * @brief Ark state to handle the dirty job of loading and compiling ArkScript code
-     * 
+     *
      */
     class ARK_API State
     {
     public:
         /**
          * @brief Construct a new State object
-         * 
+         *
          * @param libpath a list of search paths for the std library
          */
         explicit State(const std::vector<std::filesystem::path>& libpath = {}) noexcept;
 
         /**
          * @brief Feed the state by giving it the path to an existing bytecode file
-         * 
-         * @param bytecode_filename 
+         *
+         * @param bytecode_filename
          * @return true on success
          * @return false on failure
          */
@@ -49,8 +49,8 @@ namespace Ark
 
         /**
          * @brief Feed the state with ArkScript bytecode
-         * 
-         * @param bytecode 
+         *
+         * @param bytecode
          * @return true on success
          * @return false on failure
          */
@@ -58,7 +58,7 @@ namespace Ark
 
         /**
          * @brief Compile a file, and use the resulting bytecode
-         * 
+         *
          * @param filename path to an ArkScript code file
          * @return true on success
          * @return false on failure
@@ -67,7 +67,7 @@ namespace Ark
 
         /**
          * @brief Compile a string (representing ArkScript code) and store resulting bytecode in m_bytecode
-         * 
+         *
          * @param code the ArkScript code
          * @return true on success
          * @return false on failure
@@ -76,7 +76,7 @@ namespace Ark
 
         /**
          * @brief Register a function in the virtual machine
-         * 
+         *
          * @param name the name of the function in ArkScript
          * @param function the code of the function
          */
@@ -84,28 +84,28 @@ namespace Ark
 
         /**
          * @brief Set the script arguments in sys:args
-         * 
-         * @param args 
+         *
+         * @param args
          */
         void setArgs(const std::vector<std::string>& args) noexcept;
 
         /**
          * @brief Set the debug level
-         * 
+         *
          * @param level between 0 (nothing) and 3 (maximum verbosity)
          */
         void setDebug(unsigned level) noexcept;
 
         /**
          * @brief Set the std search paths
-         * 
+         *
          * @param libenv the list of std search paths to set
          */
         void setLibDirs(const std::vector<std::filesystem::path>& libenv) noexcept;
 
         /**
          * @brief Reset State (all member variables related to execution)
-         * 
+         *
          */
         void reset() noexcept;
 
@@ -118,14 +118,14 @@ namespace Ark
 
         /**
          * @brief Called to configure the state (set the bytecode, debug level, call the compiler...)
-         * 
+         *
          */
         void configure();
 
         /**
          * @brief Reads and compiles code of file
-         * 
-         * @param file the path of file code to compile 
+         *
+         * @param file the path of file code to compile
          * @param output set path of .arkc file
          * @return true on success
          * @return false on failure and raise an exception

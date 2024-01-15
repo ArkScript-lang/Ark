@@ -25,27 +25,25 @@ env:
 
 jobs:
   check:
-    name: Formatting check
+    name: Formatting Check
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
         path:
           - 'src'
           - 'include'
-
     steps:
       - uses: actions/checkout@v3
-
-      - name: Run clang-format check for C++
-        uses: HorstBaerbel/action-clang-format@master
+      - name: Run clang-format style check for C/C++/Protobuf programs.
+        uses: jidicula/clang-format-action@v4.11.0
         with:
-          scandir: ${{ matrix.path }}
-          style: 'file'
+          clang-format-version: '13'
+          check-path: ${{ matrix.path }}
+          fallback-style: 'Mozilla' # optional
 
   repo_visualizer:
     runs-on: ubuntu-latest
-    needs: [ ]
+    needs: [ check ]
 
     steps:
       - name: Checkout code

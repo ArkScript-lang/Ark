@@ -4,9 +4,9 @@
  * @brief User defined literals for Ark internals
  * @version 0.2
  * @date 2021-10-2
- * 
+ *
  * @copyright Copyright (c) 2020-2021
- * 
+ *
  */
 
 namespace Ark::literals

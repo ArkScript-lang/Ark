@@ -4,9 +4,9 @@
  * @brief The Chain of Responsibility class for running nodes through MacroExecutors
  * @version 0.4
  * @date 2021-05-04
- * 
+ *
  * @copyright Copyright (c) 2021
- * 
+ *
  */
 
 #ifndef COMPILER_MACROS_PIPELINE_HPP
@@ -22,8 +22,8 @@ namespace Ark::internal
     class MacroProcessor;
 
     /**
-     * @brief The class that initializes the MacroExecutors 
-     * 
+     * @brief The class that initializes the MacroExecutors
+     *
      */
     class MacroExecutorPipeline
     {
@@ -32,17 +32,17 @@ namespace Ark::internal
 
         /**
          * @brief Construct a new Macro Executor Pipeline object
-         * 
-         * @param executors 
+         *
+         * @param executors
          */
         explicit MacroExecutorPipeline(const std::vector<std::shared_ptr<MacroExecutor>>& executors);
 
         /**
          * @brief Passes node through all MacroExecutors sequentially
-         * 
+         *
          * @param node node on which to operate
          * @return true if a macro was applied
-         * @return false 
+         * @return false
          */
         bool applyMacro(Node& node);
 

@@ -4,9 +4,9 @@
  * @brief Common code for the compiler
  * @version 0.4
  * @date 2021-10-02
- * 
+ *
  * @copyright Copyright (c) 2021-2022
- * 
+ *
  */
 
 #ifndef ARK_COMPILER_COMMON_HPP

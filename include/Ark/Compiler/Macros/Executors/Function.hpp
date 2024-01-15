@@ -4,9 +4,9 @@
  * @brief Executor for List Macros
  * @version 1.0
  * @date 2021-05-04
- * 
+ *
  * @copyright Copyright (c) 2021-2023
- * 
+ *
  */
 
 #ifndef MACROS_EXECUTORS_LIST_HPP
@@ -19,8 +19,8 @@ namespace Ark::internal
 {
     /**
      * @brief Handles function macros
-     * 
-    */
+     *
+     */
     class FunctionExecutor : public MacroExecutor
     {
     public:

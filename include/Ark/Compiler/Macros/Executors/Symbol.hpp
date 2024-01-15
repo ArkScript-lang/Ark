@@ -4,9 +4,9 @@
  * @brief Executor for Symbol Macros
  * @version 0.3
  * @date 2021-05-04
- * 
+ *
  * @copyright Copyright (c) 2021
- * 
+ *
  */
 
 #ifndef MACROS_EXECUTORS_SYMBOL_HPP
@@ -19,7 +19,7 @@ namespace Ark::internal
 {
     /**
      * @brief Handles Symbol macros
-     * 
+     *
      */
     class SymbolExecutor : public MacroExecutor
     {

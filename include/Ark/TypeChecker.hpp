@@ -1,12 +1,12 @@
 /**
  * @file TypeChecker.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
- * @brief 
+ * @brief
  * @version 0.3
  * @date 2022-01-16
- * 
+ *
  * @copyright Copyright (c) 2022
- * 
+ *
  */
 
 #ifndef INCLUDE_ARK_TYPECHECKER_HPP
@@ -43,7 +43,7 @@ namespace Ark::types
 
     /**
      * @brief Helper to see if a builtin has been given a wanted set of types
-     * 
+     *
      * @tparam Ts Variadic argument list composed of ValueTypes
      * @param args arguments passed to the function
      * @param types accepted types
@@ -60,7 +60,7 @@ namespace Ark::types
 
     /**
      * @brief A type definition within a contract
-     * 
+     *
      */
     struct ARK_API Typedef
     {
@@ -79,7 +79,7 @@ namespace Ark::types
 
     /**
      * @brief A contract is a list of typed arguments that a function can follow
-     * 
+     *
      */
     struct ARK_API Contract
     {
@@ -88,7 +88,7 @@ namespace Ark::types
 
     /**
      * @brief Generate an error message based on a given set of types contracts provided argument list
-     * 
+     *
      * @param funcname ArkScript name of the function
      * @param contracts types contracts the function can follow
      * @param args provided argument list

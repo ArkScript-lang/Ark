@@ -23,11 +23,13 @@ namespace Ark::Diagnostics
 
     std::string colorizeLine(const std::string& line, LineColorContextCounts& line_color_context_counts)
     {
-        constexpr std::array<std::ostream& (*)(std::ostream & stream), 3> pairing_color {
+        // clang-format off
+        constexpr std::array<std::ostream& (*)(std::ostream& stream), 3> pairing_color {
             termcolor::bright_blue,
             termcolor::bright_green,
             termcolor::bright_yellow
         };
+        // clang-format on
         std::size_t pairing_color_size = pairing_color.size();
 
         std::stringstream colorized_line;

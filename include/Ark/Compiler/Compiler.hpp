@@ -4,9 +4,9 @@
  * @brief ArkScript compiler is in charge of transforming the AST into bytecode
  * @version 2.0
  * @date 2020-10-27
- * 
+ *
  * @copyright Copyright (c) 2020-2021
- * 
+ *
  */
 
 #ifndef ARK_COMPILER_COMPILER_HPP
@@ -30,29 +30,29 @@ namespace Ark
 
     /**
      * @brief The ArkScript bytecode compiler
-     * 
+     *
      */
     class ARK_API Compiler
     {
     public:
         /**
          * @brief Construct a new Compiler object
-         * 
+         *
          * @param debug the debug level
          */
         explicit Compiler(unsigned debug);
 
         /**
          * @brief Start the compilation
-         * 
-         * @param ast 
+         *
+         * @param ast
          */
         void process(const internal::Node& ast);
 
         /**
          * @brief Return the constructed bytecode object
-         * 
-         * @return const bytecode_t& 
+         *
+         * @return const bytecode_t&
          */
         [[nodiscard]] const bytecode_t& bytecode() const noexcept;
 
@@ -73,21 +73,21 @@ namespace Ark
 
         /**
          * @brief Push the file headers (magic, version used, timestamp)
-         * 
+         *
          */
         void pushFileHeader() noexcept;
 
         /**
          * @brief Push the symbols and values tables
-         * 
+         *
          */
         void pushSymAndValTables();
 
         /**
          * @brief helper functions to get a temp or finalized code page
-         * 
+         *
          * @param i page index, if negative, refers to a temporary code page
-         * @return std::vector<internal::Word>& 
+         * @return std::vector<internal::Word>&
          */
         inline std::vector<internal::Word>& page(int i) noexcept
         {
@@ -98,9 +98,9 @@ namespace Ark
 
         /**
          * @brief helper functions to get a temp or finalized code page
-         * 
+         *
          * @param i page index, if negative, refers to a temporary code page
-         * @return std::vector<internal::Word>* 
+         * @return std::vector<internal::Word>*
          */
         inline std::vector<internal::Word>* page_ptr(int i) noexcept
         {
@@ -111,7 +111,7 @@ namespace Ark
 
         /**
          * @brief Checking if a symbol is an operator
-         * 
+         *
          * @param name symbol name
          * @return std::optional<std::size_t> position in the operators' list
          */
@@ -119,7 +119,7 @@ namespace Ark
 
         /**
          * @brief Checking if a symbol is a builtin
-         * 
+         *
          * @param name symbol name
          * @return std::optional<std::size_t> position in the builtins' list
          */
@@ -127,8 +127,8 @@ namespace Ark
 
         /**
          * @brief Check if a symbol needs to be compiled to a specific instruction
-         * 
-         * @param name 
+         *
+         * @param name
          * @return std::optional<internal::Instruction> corresponding instruction if it exists
          */
         static inline std::optional<internal::Instruction> getSpecific(const std::string& name) noexcept
@@ -153,54 +153,54 @@ namespace Ark
 
         /**
          * @brief Check if a given instruction is unary (takes only one argument)
-         * 
-         * @param inst 
+         *
+         * @param inst
          * @return true the instruction is unary
-         * @return false 
+         * @return false
          */
         static bool isUnaryInst(internal::Instruction inst) noexcept;
 
         /**
          * @brief Compute specific instruction argument count
-         * 
-         * @param inst 
-         * @param previous 
+         *
+         * @param inst
+         * @param previous
          */
         static uint16_t computeSpecificInstArgc(internal::Instruction inst, uint16_t previous) noexcept;
 
         /**
          * @brief Checking if a symbol may be coming from a plugin
-         * 
+         *
          * @param name symbol name
          * @return true the symbol may be from a plugin, loaded at runtime
-         * @return false 
+         * @return false
          */
         bool mayBeFromPlugin(const std::string& name) noexcept;
 
         /**
          * @brief Display a warning message
-         * 
-         * @param message 
-         * @param node 
+         *
+         * @param message
+         * @param node
          */
         static void compilerWarning(const std::string& message, const internal::Node& node);
 
         /**
          * @brief Throw a nice error message
-         * 
-         * @param message 
-         * @param node 
+         *
+         * @param message
+         * @param node
          */
         [[noreturn]] static void throwCompilerError(const std::string& message, const internal::Node& node);
 
         /**
          * @brief Compile an expression (a node) recursively
-         * 
+         *
          * @param x the internal::Node to compile
          * @param p the current page number we're on
-         * @param is_result_unused 
-         * @param is_terminal 
-         * @param var_name 
+         * @param is_result_unused
+         * @param is_terminal
+         * @param var_name
          */
         void compileExpression(const internal::Node& x, int p, bool is_result_unused, bool is_terminal, const std::string& var_name = "");
 
@@ -216,41 +216,41 @@ namespace Ark
         /**
          * @brief Register a given node in the symbol table
          * @details Can throw if the table is full
-         * 
-         * @param sym 
-         * @return uint16_t 
+         *
+         * @param sym
+         * @return uint16_t
          */
         uint16_t addSymbol(const internal::Node& sym);
 
         /**
          * @brief Register a given node in the value table
          * @details Can throw if the table is full
-         * 
-         * @param x 
-         * @return uint16_t 
+         *
+         * @param x
+         * @return uint16_t
          */
         uint16_t addValue(const internal::Node& x);
 
         /**
          * @brief Register a page id (function reference) in the value table
          * @details Can throw if the table is full
-         * 
-         * @param page_id 
+         *
+         * @param page_id
          * @param current A reference to the current node, for context
-         * @return std::size_t 
+         * @return std::size_t
          */
         uint16_t addValue(std::size_t page_id, const internal::Node& current);
 
         /**
          * @brief Register a symbol as defined, so that later we can throw errors on undefined symbols
-         * 
-         * @param sym 
+         *
+         * @param sym
          */
         void addDefinedSymbol(const std::string& sym);
 
         /**
          * @brief Checks for undefined symbols, not present in the defined symbols table
-         * 
+         *
          */
         void checkForUndefinedSymbol();
 

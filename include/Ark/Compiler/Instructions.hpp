@@ -4,9 +4,9 @@
  * @brief The different instructions used by the compiler and virtual machine
  * @version 0.1
  * @date 2020-10-27
- * 
+ *
  * @copyright Copyright (c) 2020-2021
- * 
+ *
  */
 
 #ifndef ARK_COMPILER_INSTRUCTIONS_HPP
@@ -22,7 +22,7 @@ namespace Ark::internal
      * It must be referenced as well under include/Ark/Compiler/Common.hpp, in
      * the operators table. The order of the operators below <code>FIRST_OPERATOR</code>
      * must be the same as the one in the operators table from the aforementioned file.
-     * 
+     *
      */
     enum Instruction : uint8_t
     {

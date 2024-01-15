@@ -4,9 +4,9 @@
  * @brief Loads .dll/.so/.dynlib files
  * @version 0.4
  * @date 2020-10-27
- * 
+ *
  * @copyright Copyright (c) 2020-2021
- * 
+ *
  */
 
 #ifndef ARK_VM_PLUGIN_HPP
@@ -32,47 +32,47 @@ namespace Ark::internal
 {
     /**
      * @brief Handling a shared library as an ArkScript plugin
-     * 
+     *
      */
     class SharedLibrary
     {
     public:
         /**
          * @brief Construct a new Shared Library object
-         * 
+         *
          */
         SharedLibrary();
 
         /**
          * @brief Disable copy semantics as this contains a pointer.
-         * 
+         *
          */
         SharedLibrary(const SharedLibrary&) = delete;
         SharedLibrary& operator=(const SharedLibrary&) = delete;
 
         /**
          * @brief Construct a new Shared Library object
-         * 
+         *
          * @param path path to the shared library
          */
         explicit SharedLibrary(const std::string& path);
 
         /**
          * @brief Destroy the Shared Library object
-         * 
+         *
          */
         ~SharedLibrary();
 
         /**
          * @brief Load a shared library
-         * 
+         *
          * @param path path to the shared library
          */
         void load(const std::string& path);
 
         /**
          * @brief Unload the shared library
-         * 
+         *
          */
         void unload();
 
@@ -80,7 +80,7 @@ namespace Ark::internal
 
         /**
          * @brief Return a function from the shared library
-         * 
+         *
          * @tparam T the type of the function to retrieve
          * @param procname the name of the function to retrieve
          * @return T the function from the shared library, if it was found
