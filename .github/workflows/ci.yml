@@ -62,6 +62,7 @@ jobs:
     name: ${{ matrix.config.name }}
     needs: [ check ]
 
+    # todo: try and redo with https://github.com/cpp-best-practices/cmake_template/blob/main/.github/workflows/ci.yml
     strategy:
       fail-fast: false
       matrix:
@@ -79,10 +80,8 @@ jobs:
             artifact: "ubuntu-gcc-13", sanitizers: "Off", preconfigure: ""
           }
           - {
-            os: windows-latest, name: "Windows VS 2019", cc: "cl", cxx: "cl",
-            artifact: "windows-msvc-19",
-            environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat",
-            sanitizers: "On", preconfigure: ""
+            os: windows-latest, name: "Windows VS 2022", cc: "cl", cxx: "cl",
+            artifact: "windows-msvc-22", sanitizers: "On", preconfigure: ""
           }
           - {
             os: macos-latest, name: "MacOS Clang 14", cc: "clang", cxx: "clang++",
@@ -102,6 +101,7 @@ jobs:
         uses: ./.github/workflows/setup-deps
 
       - name: Configure CMake Ark
+        if: ${{ !startsWith(matrix.config.name, 'Windows') }}
         shell: bash
         run: |
           ${{ matrix.config.preconfigure }}
@@ -110,15 +110,20 @@ jobs:
             -DCMAKE_C_COMPILER=${{ matrix.config.cc }} \
             -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }} \
             -DARK_SANITIZERS=${{ matrix.config.sanitizers }} \
-            -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=On -DARK_MOD_ALL=On -DARK_TESTS=On
+            -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=On -DARK_MOD_ALL=Off -DARK_TESTS=On
 
-      - name: Add SQLite deps
+      # todo: consider -T ClangCl
+      - name: Configure CMake Ark
         if: startsWith(matrix.config.name, 'Windows')
         shell: bash
         run: |
           cmake -Bbuild \
-            -DSQLite3_INCLUDE_DIR=$(pwd)/sqlite_code/sqlite-amalgamation-${SQLITE_VERSION} \
-            -DSQLite3_LIBRARY=$(pwd)/sqlite_lib/sqlite3.lib
+            -G "Visual Studio 17 2022" -T v143 \
+            -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
+            -DARK_SANITIZERS=${{ matrix.config.sanitizers }} \
+            -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=On -DARK_MOD_ALL=Off -DARK_TESTS=On
+            #-DSQLite3_INCLUDE_DIR=$(pwd)/sqlite_code/sqlite-amalgamation-${SQLITE_VERSION}
+            #-DSQLite3_LIBRARY=$(pwd)/sqlite_lib/sqlite3.lib
 
       - name: Build ArkScript
         shell: bash
@@ -184,7 +189,7 @@ jobs:
         config:
           - { os: ubuntu-latest,  name: "Ubuntu Clang 15", artifact: "ubuntu-clang-15" }
           - { os: ubuntu-latest,  name: "Ubuntu GCC 13",   artifact: "ubuntu-gcc-13" }
-          - { os: windows-latest, name: "Windows VS 2019", artifact: "windows-msvc-19", }
+          - { os: windows-latest, name: "Windows VS 2022", artifact: "windows-msvc-22", }
           - { os: macos-latest,   name: "MacOS Clang 14",  artifact: "macos-clang-14", }
 
     steps:
