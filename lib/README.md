@@ -1,7 +1,8 @@
 # ArkScript thirdparties
 
 Includes
-* [clipp](https://github.com/muellan/clipp), MIT License
+
+* [clipp](https://github.com/GerHobbelt/clipp), MIT License
 * [fmt](https://github.com/fmtlib/fmt), MIT License
 * [picosha2](https://github.com/okdshin/PicoSHA2), MIT License
 * [replxx](https://github.com/AmokHuginnsson/replxx/blob/master/LICENSE.md), MIT License + specifities
