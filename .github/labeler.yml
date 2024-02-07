@@ -34,5 +34,4 @@ ci:
 
 tests:
   - tests/arkscript/*.ark
-  - tests/cpp/*.cpp
-  - tests/cpp/expected/*.txt
+  - tests/unittests/*

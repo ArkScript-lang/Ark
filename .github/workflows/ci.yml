@@ -129,18 +129,6 @@ jobs:
         shell: bash
         run: cmake --build build --config $BUILD_TYPE
 
-      # TODO: remove this to put all the tests under tests/unittests
-      - name: Configure & build CMake Integration tests
-        shell: bash
-        run: |
-          cd tests/cpp
-          cmake -Bbuild \
-            -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
-            -DCMAKE_C_COMPILER=${{ matrix.config.cc }} \
-            -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }} \
-            -DARK_SANITIZERS=${{ matrix.config.sanitizers }}
-          cmake --build build --config $BUILD_TYPE
-
       - name: Organize files for upload
         shell: bash
         run: |
@@ -162,7 +150,6 @@ jobs:
           mkdir -p temp/tests/unittests/
           cp build/unittests temp/ || true
           cp build/$BUILD_TYPE/unittests.exe temp/ || true
-          cp -r tests/cpp temp/
           cp -r tests/unittests temp/tests/unittests
 
       - name: Upload artifact
@@ -205,13 +192,6 @@ jobs:
         run: |
           export ASAN_OPTIONS=detect_odr_violation=0
           ./unittests '*'
-
-      # TODO: move to tests/unittests
-      - name: Integration tests
-        shell: bash
-        run: |
-          export ASAN_OPTIONS=detect_odr_violation=0
-          (cd tests/cpp ; bash ./run-tests)
 
       # TODO: move to tests/unittests
       - name: AST tests

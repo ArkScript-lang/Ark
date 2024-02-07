@@ -28,9 +28,8 @@ runs:
 
     - shell: bash
       run: |
-        mv artifact/cpp/out tests/cpp/
         mv build/lib/*.arkm lib/
-        chmod u+x build/arkscript tests/cpp/out/*
+        chmod u+x build/arkscript
         cp -r artifact/tests/unittests/* tests/unittests/
         cp artifact/unittests .
         chmod u+x unittests
@@ -38,5 +37,4 @@ runs:
     - shell: bash
       if: startsWith(matrix.config.name, 'Windows')
       run: |
-        cp build/*.dll tests/cpp/out/
         cp build/*.dll .

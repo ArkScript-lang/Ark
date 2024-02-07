@@ -44,7 +44,7 @@ std::string astToString(Ark::internal::Parser& parser)
     return ss.str();
 }
 
-ut::suite<"Parser"> errors = [] {
+ut::suite<"Parser"> parser_suite = [] {
     using namespace ut;
 
     "[successful parsing]"_test = [] {
