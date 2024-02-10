@@ -193,13 +193,6 @@ jobs:
           export ASAN_OPTIONS=detect_odr_violation=0
           ./unittests '*'
 
-      # TODO: move to tests/unittests
-      - name: AST tests
-        shell: bash
-        run: |
-          export ASAN_OPTIONS=use_odr_indicator=1
-          (cd tests/ast ; bash ./run-tests)
-
       - name: Unit tests
         shell: bash
         run: |
