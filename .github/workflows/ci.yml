@@ -187,13 +187,13 @@ jobs:
       - name: Setup tests
         uses: ./.github/workflows/setup-tests
 
-      - name: Unit tests
+      - name: C++ unit tests
         shell: bash
         run: |
           export ASAN_OPTIONS=detect_odr_violation=0
-          ./unittests '*'
+          ./unittests
 
-      - name: Unit tests
+      - name: ArkScript unit tests
         shell: bash
         run: |
           export ASAN_OPTIONS=detect_odr_violation=0

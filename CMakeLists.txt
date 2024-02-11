@@ -181,6 +181,7 @@ if (ARK_TESTS)
 
     add_compile_definitions(BOOST_UT_DISABLE_MODULE)
     target_compile_features(unittests PRIVATE cxx_std_20)
+    target_compile_definitions(unittests PRIVATE ARK_TESTS_ROOT="${CMAKE_CURRENT_SOURCE_DIR}/")
 endif()
 
 if (ARK_BUILD_EXE)

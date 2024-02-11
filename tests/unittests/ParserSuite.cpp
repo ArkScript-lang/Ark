@@ -2,13 +2,12 @@
 
 #include <Ark/Compiler/AST/Parser.hpp>
 #include <Ark/Exceptions.hpp>
-#include <Ark/Files.hpp>
 #include <termcolor/proxy.hpp>
 
 #include <sstream>
-#include <filesystem>
 
-namespace fs = std::filesystem;
+#include "TestsHelper.hpp"
+
 using namespace boost;
 
 std::string astToString(Ark::internal::Parser& parser)
@@ -48,64 +47,53 @@ ut::suite<"Parser"> parser_suite = [] {
     using namespace ut;
 
     "[successful parsing]"_test = [] {
-        for (const auto& entry : fs::directory_iterator("tests/unittests/resources/ParserSuite/success"))
-        {
-            if (entry.path().extension() != ".ark")
-                continue;
+        iter_test_files(
+            "ParserSuite/success",
+            [](TestData&& data) {
+                Ark::internal::Parser parser;
 
-            Ark::internal::Parser parser;
+                should("parse " + data.stem) = [&] {
+                    expect(nothrow([&] {
+                        mut(parser).processFile(data.path);
+                    }));
+                };
 
-            std::string path = entry.path().string();
-            std::string stem = entry.path().stem().string();
-            fs::path expected_path = entry.path();
-            expected_path.replace_extension("expected");
+                std::string ast = astToString(parser);
 
-            should("parse " + stem) = [&] {
-                expect(nothrow([&] {
-                    mut(parser).processFile(path);
-                }));
-            };
-
-            // expect(that % parser.ast().constList().size() >= 1_u);
-            std::string ast = astToString(parser);
-
-            should("output the same AST and imports (" + stem + ")") = [&] {
-                expect(that % ast == Ark::Utils::readFile(expected_path.string()));
-            };
-        }
+                should("output the same AST and imports (" + data.stem + ")") = [&] {
+                    expect(that % ast == data.expected);
+                };
+            });
     };
 
     "[error reporting]"_test = [] {
-        for (const auto& entry : fs::directory_iterator("tests/unittests/resources/ParserSuite/failure"))
-        {
-            if (entry.path().extension() != ".ark")
-                continue;
+        iter_test_files(
+            "ParserSuite/failure",
+            [](TestData&& data) {
+                Ark::internal::Parser parser;
 
-            Ark::internal::Parser parser;
+                try
+                {
+                    parser.processFile(data.path);
+                }
+                catch (const Ark::CodeError& e)
+                {
+                    std::stringstream ss;
+                    ss << termcolor::nocolorize;
+                    Ark::Diagnostics::generate(e, "", ss);
 
-            std::string path = entry.path().string();
-            std::string stem = entry.path().stem().string();
-            fs::path expected_path = entry.path();
-            expected_path.replace_extension("expected");
+                    should("output the same error message (" + data.stem + ")") = [&] {
+                        std::string tested = ss.str();
+                        tested.erase(std::remove(tested.begin(), tested.end(), '\r'), tested.end());
+                        tested.erase(tested.find(ARK_TESTS_ROOT), std::size(ARK_TESTS_ROOT) - 1);
 
-            try
-            {
-                parser.processFile(path);
-            }
-            catch (const Ark::CodeError& e)
-            {
-                std::stringstream ss;
-                ss << termcolor::nocolorize;
-                Ark::Diagnostics::generate(e, "", ss);
-
-                should("output the same error message (" + stem + ")") = [&] {
-                    expect(that % ss.str() == Ark::Utils::readFile(expected_path.string()));
-                };
-            }
-            catch (...)
-            {
-                expect(fatal(false)) << "parsing " << stem << " should have thrown a CodeError exception";
-            }
-        }
+                        expect(that % tested == data.expected);
+                    };
+                }
+                catch (...)
+                {
+                    expect(fatal(false)) << "parsing " << data.stem << " should have thrown a CodeError exception";
+                }
+            });
     };
 };

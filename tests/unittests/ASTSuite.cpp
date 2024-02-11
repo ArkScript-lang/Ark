@@ -1,38 +1,33 @@
 #include <boost/ut.hpp>
 
 #include <Ark/Compiler/JsonCompiler.hpp>
-#include <Ark/Files.hpp>
-
 #include <string>
-#include <filesystem>
 
-namespace fs = std::filesystem;
+#include "TestsHelper.hpp"
+
 using namespace boost;
 
 ut::suite<"AST"> ast_suite = [] {
     using namespace ut;
 
     "[generate valid ast]"_test = [] {
-        for (const auto& entry : fs::directory_iterator("tests/unittests/resources/ASTSuite"))
-        {
-            if (entry.path().extension() != ".ark")
-                continue;
+        iter_test_files(
+            "ASTSuite",
+            [](TestData&& data) {
+                Ark::JsonCompiler compiler(false, { ARK_TESTS_ROOT "lib/std/" });
 
-            std::string path = entry.path().string();
-            std::string stem = entry.path().stem().string();
-            fs::path expected_path = entry.path();
-            expected_path.replace_extension("json");
+                std::string json;
+                should("parse " + data.stem) = [&] {
+                    expect(nothrow([&] {
+                        mut(compiler).feed(data.path);
+                        json = mut(compiler).compile();
+                    }));
+                };
 
-            Ark::JsonCompiler compiler(false, { "lib/std/" });
-
-            should("parse " + stem + " and generate a valid AST") = [&] {
-                expect(nothrow([&] {
-                    mut(compiler).feed(path);
-                }));
-
-                std::string json = compiler.compile();
-                expect(that % json == Ark::Utils::readFile(expected_path.string()));
-            };
-        }
+                should("output the expected AST for " + data.stem) = [&] {
+                    expect(that % json == data.expected);
+                };
+            },
+            /* expected_ext= */ "json");
     };
 };
