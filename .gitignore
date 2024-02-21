@@ -14,10 +14,6 @@ __arkscript__/
 include/Ark/Constants.hpp
 /Installer.iss
 
-# Tests results
-tests/cpp/out/
-tests/cpp/ark/
-
 # Fuzzing
 !fuzzing/**/*.arkc
 fuzzing/output*

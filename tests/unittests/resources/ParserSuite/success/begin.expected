@@ -1,0 +1,8 @@
+( Keyword:Begin Number:1 Number:2 Number:3 )
+( Keyword:Begin )
+( Keyword:Begin ( Keyword:Let Symbol:a Number:1 ) )
+( Keyword:Begin ( Keyword:Let Symbol:b Number:2 ) Number:3 )
+( Keyword:Begin )
+( Keyword:Begin Number:1 )
+( Keyword:Begin ( Keyword:Let Symbol:c Number:4 ) )
+( Keyword:Begin ( Keyword:If Number:5 Number:6 Number:7 ) ( Keyword:Mut Symbol:d Number:8 ) )

@@ -1,5 +1,0 @@
-In file ./incomplete_macro_arguments.ark
-At EOF @ 1:9
-    1 | ($ foo (a
-      |         ^
-        Expected ')'

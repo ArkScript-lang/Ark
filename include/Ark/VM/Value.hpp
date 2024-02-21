@@ -1,12 +1,12 @@
 /**
  * @file Value.hpp
  * @author Default value type handled by the virtual machine
- * @brief 
+ * @brief
  * @version 0.3
  * @date 2020-10-27
- * 
+ *
  * @copyright Copyright (c) 2020-2021
- * 
+ *
  */
 
 #ifndef ARK_VM_VALUE_HPP
@@ -87,13 +87,13 @@ namespace Ark
 
         /**
          * @brief Construct a new Value object
-         * 
+         *
          */
         Value() noexcept;
 
         /**
          * @brief Construct a new Value object
-         * 
+         *
          * @param type the value type which is going to be held
          */
         explicit Value(ValueType type) noexcept;
@@ -103,7 +103,7 @@ namespace Ark
          * @details Use at your own risks. Asking for a value type N and putting a non-matching value
          *          will result in errors at runtime.
          *
-         * @tparam T 
+         * @tparam T
          * @param type value type wanted
          * @param value value needed
          */
@@ -121,91 +121,91 @@ namespace Ark
 
         /**
          * @brief Construct a new Value object as a Number
-         * 
-         * @param value 
+         *
+         * @param value
          */
         explicit Value(int value) noexcept;
 
         /**
          * @brief Construct a new Value object as a Number
-         * 
-         * @param value 
+         *
+         * @param value
          */
         explicit Value(float value) noexcept;
 
         /**
          * @brief Construct a new Value object as a Number
-         * 
-         * @param value 
+         *
+         * @param value
          */
         explicit Value(double value) noexcept;
 
         /**
          * @brief Construct a new Value object as a String
-         * 
-         * @param value 
+         *
+         * @param value
          */
         explicit Value(const std::string& value) noexcept;
 
         /**
          * @brief Construct a new Value object as a String
-         * 
-         * @param value 
+         *
+         * @param value
          */
         explicit Value(const char* value) noexcept;
 
         /**
          * @brief Construct a new Value object as a Function
-         * 
-         * @param value 
+         *
+         * @param value
          */
         explicit Value(internal::PageAddr_t value) noexcept;
 
         /**
          * @brief Construct a new Value object from a C++ function
-         * 
-         * @param value 
+         *
+         * @param value
          */
         explicit Value(Value::ProcType value) noexcept;
 
         /**
          * @brief Construct a new Value object as a List
-         * 
-         * @param value 
+         *
+         * @param value
          */
         explicit Value(std::vector<Value>&& value) noexcept;
 
         /**
          * @brief Construct a new Value object as a Closure
-         * 
-         * @param value 
+         *
+         * @param value
          */
         explicit Value(internal::Closure&& value) noexcept;
 
         /**
          * @brief Construct a new Value object as a UserType
-         * 
-         * @param value 
+         *
+         * @param value
          */
         explicit Value(UserType&& value) noexcept;
 
         /**
          * @brief Construct a new Value object as a reference to an internal object
-         * 
-         * @param ref 
+         *
+         * @param ref
          */
         explicit Value(Value* ref) noexcept;
 
         /**
          * @brief Return the value type
-         * 
-         * @return ValueType 
+         *
+         * @return ValueType
          */
         inline ValueType valueType() const noexcept;
 
         /**
          * @brief Check if a function is held
-         * 
+         *
          * @return true on success
          * @return false on failure
          */
@@ -213,71 +213,71 @@ namespace Ark
 
         /**
          * @brief Return the stored number
-         * 
-         * @return double 
+         *
+         * @return double
          */
         inline double number() const;
 
         /**
          * @brief Return the stored string
-         * 
-         * @return const std::string& 
+         *
+         * @return const std::string&
          */
         inline const std::string& string() const;
 
         /**
          * @brief Return the stored list
-         * 
-         * @return const std::vector<Value>& 
+         *
+         * @return const std::vector<Value>&
          */
         inline const std::vector<Value>& constList() const;
 
         /**
          * @brief Return the stored user type
-         * 
-         * @return const UserType& 
+         *
+         * @return const UserType&
          */
         inline const UserType& usertype() const;
 
         /**
          * @brief Return the stored list as a reference
-         * 
-         * @return std::vector<Value>& 
+         *
+         * @return std::vector<Value>&
          */
         std::vector<Value>& list();
 
         /**
          * @brief Return the stored string as a reference
-         * 
-         * @return std::string& 
+         *
+         * @return std::string&
          */
         std::string& stringRef();
 
         /**
          * @brief Return the stored user type as a reference
-         * 
-         * @return UserType& 
+         *
+         * @return UserType&
          */
         UserType& usertypeRef();
 
         /**
          * @brief Return the stored internal object reference
-         * 
-         * @return Value* 
+         *
+         * @return Value*
          */
         Value* reference() const;
 
         /**
          * @brief Add an element to the list held by the value (if the value type is set to list)
-         * 
-         * @param value 
+         *
+         * @param value
          */
         void push_back(const Value& value);
 
         /**
          * @brief Add an element to the list held by the value (if the value type is set to list)
-         * 
-         * @param value 
+         *
+         * @param value
          */
         void push_back(Value&& value);
 
@@ -297,44 +297,44 @@ namespace Ark
 
         /**
          * @brief Return the page address held by the value
-         * 
-         * @return internal::PageAddr_t 
+         *
+         * @return internal::PageAddr_t
          */
         inline internal::PageAddr_t pageAddr() const;
 
         /**
          * @brief Return the C Function held by the value
-         * 
-         * @return const ProcType& 
+         *
+         * @return const ProcType&
          */
         inline const ProcType& proc() const;
 
         /**
          * @brief Return the closure held by the value
-         * 
-         * @return const internal::Closure& 
+         *
+         * @return const internal::Closure&
          */
         inline const internal::Closure& closure() const;
 
         /**
          * @brief Return a reference to the closure held by the value
-         * 
-         * @return internal::Closure& 
+         *
+         * @return internal::Closure&
          */
         internal::Closure& refClosure();
 
         /**
          * @brief Check if the value is const or not
-         * 
-         * @return true 
-         * @return false 
+         *
+         * @return true
+         * @return false
          */
         inline bool isConst() const noexcept;
 
         /**
          * @brief Set the Const object
-         * 
-         * @param value 
+         *
+         * @param value
          */
         inline void setConst(bool value) noexcept;
     };

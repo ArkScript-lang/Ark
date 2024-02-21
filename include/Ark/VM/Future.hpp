@@ -1,12 +1,12 @@
 /**
  * @file Future.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
- * @brief 
+ * @brief
  * @version 0.1
  * @date 2022-05-28
- * 
+ *
  * @copyright Copyright (c) 2022
- * 
+ *
  */
 
 #ifndef ARK_VM_FUTURE_HPP

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.9)
+cmake_minimum_required(VERSION 3.12)
 
 project(ark CXX)
 
@@ -31,7 +31,7 @@ file(GLOB_RECURSE SOURCE_FILES
 
 add_library(ArkReactor SHARED ${SOURCE_FILES})
 
-target_compile_features(ArkReactor PRIVATE cxx_std_17)
+target_compile_features(ArkReactor PRIVATE cxx_std_20)
 
 enable_lto(ArkReactor)
 
@@ -70,7 +70,7 @@ if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG OR APPLE)
         PUBLIC
         -Wno-unused-command-line-argument)
 
-    # The nlohmann/json.hpp external project has unsied typedefs in the code
+    # The nlohmann/json.hpp external project has unused typedefs in the code
     # to compensate for this error we remove the following warning.
     if (CMAKE_COMPILER_IS_CLANG OR APPLE)
         target_compile_options(ArkReactor PUBLIC -Wno-unused-local-typedef)
@@ -121,7 +121,7 @@ target_include_directories(ArkReactor
     PUBLIC
     ${ark_SOURCE_DIR}/include)
 
-target_compile_features(ArkReactor PRIVATE cxx_std_17)
+target_compile_features(ArkReactor PRIVATE cxx_std_20)
 
 # Installation rules
 
@@ -153,6 +153,7 @@ option(ARK_PROFILER_MIPS    "Enable MIPS calculation" Off)
 option(ARK_NO_STDLIB        "Do not install the standard library with the Ark library" Off)
 option(ARK_BUILD_MODULES    "Build the std library modules or not" Off)
 option(ARK_SANITIZERS       "Enable ASAN and UBSAN" Off)
+option(ARK_TESTS            "Build ArkScript unit tests" Off)
 
 if (ARK_PROFILER_COUNT)
     target_compile_definitions(ArkReactor PRIVATE -DARK_PROFILER_COUNT)
@@ -170,10 +171,17 @@ if (ARK_BUILD_MODULES)
     add_subdirectory(${ark_SOURCE_DIR}/lib/modules)
 endif()
 
-if (ARK_BUILD_PARSER_TESTS)
-    add_executable(parser ${ark_SOURCE_DIR}/tests/parser/main.cpp)
-    target_link_libraries(parser PUBLIC ArkReactor)
-    target_compile_features(parser PRIVATE cxx_std_17)
+# TODO: consider using ctest
+if (ARK_TESTS)
+    file(GLOB_RECURSE UT_SOURCES ${ark_SOURCE_DIR}/tests/unittests/*.cpp)
+    add_executable(unittests ${UT_SOURCES})
+
+    add_subdirectory(${ark_SOURCE_DIR}/lib/ut)
+    target_link_libraries(unittests PUBLIC ArkReactor termcolor ut)
+
+    add_compile_definitions(BOOST_UT_DISABLE_MODULE)
+    target_compile_features(unittests PRIVATE cxx_std_20)
+    target_compile_definitions(unittests PRIVATE ARK_TESTS_ROOT="${CMAKE_CURRENT_SOURCE_DIR}/")
 endif()
 
 if (ARK_BUILD_EXE)
@@ -201,7 +209,7 @@ if (ARK_BUILD_EXE)
     target_include_directories(arkscript PUBLIC "${ark_SOURCE_DIR}/src/arkscript/")
     target_link_libraries(arkscript PUBLIC ArkReactor replxx clipp termcolor)
 
-    target_compile_features(arkscript PRIVATE cxx_std_17)
+    target_compile_features(arkscript PRIVATE cxx_std_20)
 
     enable_lto(arkscript)
 

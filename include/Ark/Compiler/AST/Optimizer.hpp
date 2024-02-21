@@ -4,9 +4,9 @@
  * @brief Optimizes a given ArkScript AST
  * @version 0.4
  * @date 2020-10-27
- * 
+ *
  * @copyright Copyright (c) 2020-2021
- * 
+ *
  */
 
 #ifndef COMPILER_AST_OPTIMIZER_HPP
@@ -25,28 +25,28 @@ namespace Ark::internal
 {
     /**
      * @brief The ArkScript AST optimizer
-     * 
+     *
      */
     class Optimizer
     {
     public:
         /**
          * @brief Construct a new Optimizer
-         * 
+         *
          */
         explicit Optimizer(uint16_t options) noexcept;
 
         /**
          * @brief Send the AST to the optimizer, then run the different optimization strategies on it
-         * 
-         * @param ast 
+         *
+         * @param ast
          */
         void process(const Node& ast);
 
         /**
          * @brief Returns the modified AST
-         * 
-         * @return const Node& 
+         *
+         * @return const Node&
          */
         [[nodiscard]] const Node& ast() const noexcept;
 
@@ -57,30 +57,30 @@ namespace Ark::internal
 
         /**
          * @brief Generate a fancy error message
-         * 
-         * @param message 
-         * @param node 
+         *
+         * @param message
+         * @param node
          */
         [[noreturn]] static void throwOptimizerError(const std::string& message, const Node& node);
 
         /**
          * @brief Iterate over the AST and remove unused top level functions and constants
-         * 
+         *
          */
         void remove_unused();
 
         /**
          * @brief Run a given functor on the global scope symbols
-         * 
-         * @param node 
-         * @param func 
+         *
+         * @param node
+         * @param func
          */
         void runOnGlobalScopeVars(Node& node, const std::function<void(Node&, Node&, int)>& func);
 
         /**
          * @brief Count the occurrences of each symbol in the AST, recursively
-         * 
-         * @param node 
+         *
+         * @param node
          */
         void countOccurences(Node& node);
     };

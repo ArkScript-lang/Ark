@@ -3,6 +3,8 @@
 #include <Ark/Utils.hpp>
 #include <utf8.hpp>
 #include <fmt/format.h>
+#include <fmt/args.h>
+#include <fmt/core.h>
 #include <sstream>
 
 #include <Ark/TypeChecker.hpp>
@@ -19,7 +21,7 @@ namespace Ark::internal::Builtins::String
      * =begin
      * (str:format "Hello {}, my name is {}" "world" "ArkScript")
      * # Hello world, my name is ArkScript
-     * 
+     *
      * (str:format "Test {} with {}" "1")
      * # Test 1 with {}
      * =end
@@ -34,37 +36,29 @@ namespace Ark::internal::Builtins::String
                                         types::Typedef("value", ValueType::Any, /* variadic */ true) } } } },
                 n);
 
-        std::string all_str = n[0].stringRef();
-        std::string f;
-        std::size_t previous = 0;
+        fmt::dynamic_format_arg_store<fmt::format_context> store;
 
-        for (Value::Iterator it = n.begin() + 1, it_end = n.end(); it != it_end; ++it)
+        for (auto it = n.begin() + 1, it_end = n.end(); it != it_end; ++it)
         {
-            std::size_t len = all_str.find_first_of('}', previous);
-            std::string current = all_str.substr(previous, len + 1);
-            previous += len + 1;
-
             if (it->valueType() == ValueType::String)
-                current = fmt::format(current, it->stringRef());
+                store.push_back(it->stringRef());
             else if (it->valueType() == ValueType::Number)
-                current = fmt::format(current, it->number());
+                store.push_back(it->number());
             else if (it->valueType() == ValueType::Nil)
-                current = fmt::format(current, "nil");
+                store.push_back("nil");
             else if (it->valueType() == ValueType::True)
-                current = fmt::format(current, "true");
+                store.push_back("true");
             else if (it->valueType() == ValueType::False)
-                current = fmt::format(current, "false");
+                store.push_back("false");
             else
             {
                 std::stringstream ss;
                 it->toString(ss, *vm);
-                current = fmt::format(current, ss.str());
+                store.push_back(ss.str());
             }
-
-            f += current;
         }
 
-        return Value(f);
+        return Value(fmt::vformat(n[0].stringRef(), store));
     }
 
     /**

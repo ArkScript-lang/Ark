@@ -1,5 +1,0 @@
-In file ./huge_number.ark
-At 1 @ 1:8
-    1 | (let a 1e+4932)
-      |        ^~~~~~~
-        Is not a valid number

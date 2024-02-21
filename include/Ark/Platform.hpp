@@ -4,9 +4,9 @@
  * @brief ArkScript configuration macros
  * @version 0.2
  * @date 2020-10-27
- * 
+ *
  * @copyright Copyright (c) 2020-2021
- * 
+ *
  */
 
 #ifndef INCLUDE_ARK_PLATFORM_HPP

@@ -1,0 +1,5 @@
+In file tests/unittests/resources/ParserSuite/failure/incomplete_macro.ark
+At ( @ 1:4
+    1 | ($ (a) a)
+      |    ^
+        $ needs a symbol to declare a macro

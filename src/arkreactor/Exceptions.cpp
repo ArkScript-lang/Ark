@@ -21,17 +21,16 @@ namespace Ark::Diagnostics
         return c == '(' || c == ')' || c == '[' || c == ']' || c == '{' || c == '}';
     }
 
-    std::string colorizeLine(const std::string& line, LineColorContextCounts& line_color_context_counts)
+    void colorizeLine(const std::string& line, LineColorContextCounts& line_color_context_counts, std::ostream& ss)
     {
-        constexpr std::array<std::ostream& (*)(std::ostream & stream), 3> pairing_color {
+        // clang-format off
+        constexpr std::array<std::ostream& (*)(std::ostream& stream), 3> pairing_color {
             termcolor::bright_blue,
             termcolor::bright_green,
             termcolor::bright_yellow
         };
+        // clang-format on
         std::size_t pairing_color_size = pairing_color.size();
-
-        std::stringstream colorized_line;
-        colorized_line << termcolor::colorize;
 
         for (const char& c : line)
         {
@@ -69,18 +68,15 @@ namespace Ark::Diagnostics
                         break;
                 }
 
-                colorized_line << pairing_color[pairing_color_index] << c << termcolor::reset;
+                ss << pairing_color[pairing_color_index] << c << termcolor::reset;
             }
             else
-                colorized_line << c;
+                ss << c;
         }
-
-        return colorized_line.str();
     }
 
     void makeContext(std::ostream& os, const std::string& code, std::size_t target_line, std::size_t col_start, std::size_t sym_size)
     {
-        os << termcolor::colorize;
         std::vector<std::string> ctx = Utils::splitString(code, '\n');
 
         std::size_t first_line = target_line >= 3 ? target_line - 3 : 0;
@@ -90,8 +86,9 @@ namespace Ark::Diagnostics
 
         for (auto i = first_line; i < last_line; ++i)
         {
-            os << termcolor::green << std::setw(5) << (i + 1) << termcolor::reset
-               << " | " << colorizeLine(ctx[i], line_color_context_counts) << "\n";
+            os << termcolor::green << std::setw(5) << (i + 1) << termcolor::reset << " | ";
+            colorizeLine(ctx[i], line_color_context_counts, os);
+            os << "\n";
 
             if (i == target_line || (i > target_line && overflow > 0))
             {
@@ -156,7 +153,7 @@ namespace Ark::Diagnostics
         return ss.str();
     }
 
-    void generate(const CodeError& e, std::string code)
+    void generate(const CodeError& e, std::string code, std::ostream& os)
     {
         std::string escaped_symbol;
         if (e.symbol.has_value())
@@ -184,7 +181,7 @@ namespace Ark::Diagnostics
 
         // TODO enhance the error messages
         helper(
-            std::cout,
+            os,
             e.what(),
             e.filename,
             file_content,

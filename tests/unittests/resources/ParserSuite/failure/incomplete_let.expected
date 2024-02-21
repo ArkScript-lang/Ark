@@ -1,0 +1,6 @@
+In file tests/unittests/resources/ParserSuite/failure/incomplete_let.ark
+At EOF @ 2:3
+    1 | (
+    2 | let
+      |   ^
+        let needs a symbol

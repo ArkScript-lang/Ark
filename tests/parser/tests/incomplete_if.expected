@@ -1,6 +1,0 @@
-In file ./incomplete_if.ark
-At EOF @ 2:0
-    1 | (if 1 2 3
-    2 | 
-      | ^
-        Missing ')' after condition

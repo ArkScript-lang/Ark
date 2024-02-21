@@ -2,17 +2,20 @@ BasedOnStyle: WebKit
 
 AlignAfterOpenBracket: Align
 AlignTrailingComments: true
+AlignConsecutiveDeclarations: None
+PointerAlignment: Left
+ReferenceAlignment: Left
 
 AllowShortCaseLabelsOnASingleLine: true
 AllowShortIfStatementsOnASingleLine: true
 AllowShortLambdasOnASingleLine: Empty
-AllowShortFunctionsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: All
 
 BreakBeforeBraces: Custom
 BraceWrapping:
   AfterClass: true
   AfterCaseLabel: true
-  AfterControlStatement: true
+  AfterControlStatement: Always
   AfterEnum: true
   AfterFunction: true
   AfterNamespace: true
@@ -35,7 +38,7 @@ IndentCaseLabels: true
 MaxEmptyLinesToKeep: 2
 NamespaceIndentation: All
 
-SortIncludes: false
+SortIncludes: Never
 
 SpaceInEmptyBlock: false
 SpacesBeforeTrailingComments: 2

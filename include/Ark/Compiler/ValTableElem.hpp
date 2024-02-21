@@ -4,9 +4,9 @@
  * @brief The basic value type handled by the compiler
  * @version 0.2
  * @date 2020-10-27
- * 
+ *
  * @copyright Copyright (c) 2020-2021
- * 
+ *
  */
 
 #ifndef ARK_COMPILER_VALTABLEELEM_HPP
@@ -21,7 +21,7 @@ namespace Ark::internal
 {
     /**
      * @brief Enumeration to keep track of the type of a Compiler Value
-     * 
+     *
      */
     enum class ValTableElemType
     {
@@ -32,7 +32,7 @@ namespace Ark::internal
 
     /**
      * @brief A Compiler Value class helper to handle multiple types
-     * 
+     *
      */
     struct ValTableElem
     {

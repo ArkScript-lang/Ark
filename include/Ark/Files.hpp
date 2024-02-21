@@ -13,6 +13,7 @@
 #define INCLUDE_ARK_FILES_HPP
 
 #include <string>
+#include <vector>
 #include <fstream>
 #include <streambuf>
 #include <filesystem>

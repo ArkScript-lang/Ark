@@ -1,4 +1,0 @@
-( Symbol:func Symbol:a Symbol:b )
-( Symbol:func ( Keyword:If Number:1 Number:2 Number:3 ) String:hello )
-( ( Symbol:foo Symbol:bar ) ( Symbol:test ) Number:1 )
-( ( ( Symbol:foo ) ) )

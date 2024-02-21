@@ -4,9 +4,9 @@
  * @brief Subtype of the value type, handling closures
  * @version 0.2
  * @date 2020-10-27
- * 
+ *
  * @copyright Copyright (c) 2020-2021
- * 
+ *
  */
 
 #ifndef VM_VALUE_CLOSURE_HPP
@@ -29,7 +29,7 @@ namespace Ark::internal
 
     /**
      * @brief Scope handling
-     * 
+     *
      * A scope is defined as a shared pointer to a list of local variables
      *  because a Closure could continue to leave when the local variables list
      *  has been closed by the virtual machine
@@ -39,20 +39,20 @@ namespace Ark::internal
 
     /**
      * @brief Closure management
-     * 
+     *
      */
     class Closure
     {
     public:
         /**
          * @brief Construct a new Closure object
-         * 
+         *
          */
         Closure() noexcept;
 
         /**
          * @brief Construct a new Closure object
-         * 
+         *
          * @param scope_ptr the scope of the function turned into a closure
          * @param pa the current page address of the function turned into a closure
          */
@@ -60,7 +60,7 @@ namespace Ark::internal
 
         /**
          * @brief Construct a new Closure object
-         * 
+         *
          * @param scope_ptr the scope of the function turned into a closure
          * @param pa the current page address of the function turned into a closure
          */
@@ -68,30 +68,30 @@ namespace Ark::internal
 
         /**
          * @brief Return the scope held by the object
-         * 
-         * @return const Scope_t& 
+         *
+         * @return const Scope_t&
          */
         [[nodiscard]] const Scope_t& scope() const noexcept;
 
         /**
          * @brief Return a reference to the scope held by the object
-         * 
-         * @return Scope_t& 
+         *
+         * @return Scope_t&
          */
         Scope_t& refScope() noexcept;
 
         /**
          * @brief Return the page address of the object
-         * 
-         * @return PageAddr_t 
+         *
+         * @return PageAddr_t
          */
         [[nodiscard]] inline PageAddr_t pageAddr() const { return m_page_addr; }
 
         /**
          * @brief Print the closure to a string
-         * 
-         * @param os 
-         * @param vm 
+         *
+         * @param os
+         * @param vm
          */
         void toString(std::ostream& os, VM& vm) const noexcept;
 

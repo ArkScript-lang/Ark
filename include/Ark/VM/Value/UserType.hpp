@@ -4,9 +4,9 @@
  * @brief Subtype of the value, capable of handling any C++ type
  * @version 0.4
  * @date 2020-10-27
- * 
+ *
  * @copyright Copyright (c) 2020-2021
- * 
+ *
  */
 
 #ifndef VM_VALUE_USERTYPE_HPP
@@ -41,17 +41,17 @@ namespace Ark
 
     /**
      * @brief A class to be use C++ objects in ArkScript
-     * 
+     *
      * A pointer to the value you want to store
      * must be sent, thus the value must not be destroyed while the UserType lives,
      * otherwise it would result in an UB when trying to use the object
-    */
+     */
     class UserType
     {
     public:
         /**
          * @brief A structure holding a bunch of pointers to different useful functions related to this usertype
-         * 
+         *
          */
         struct ControlFuncs
         {
@@ -61,7 +61,7 @@ namespace Ark
 
         /**
          * @brief Construct a new User Type object
-         * 
+         *
          * @tparam T the type of the pointer
          * @param data a pointer to the data to store in the object
          */
@@ -74,14 +74,14 @@ namespace Ark
 
         /**
          * @brief Free memory through the control functions block
-         * 
+         *
          */
         void del();
 
         /**
          * @brief Get the pointer to the object
-         * 
-         * @return void* 
+         *
+         * @return void*
          */
         [[nodiscard]] void* data() const noexcept
         {
@@ -99,10 +99,10 @@ namespace Ark
          * else
          *     // otherwise...
          * @endcode
-         * 
+         *
          * @tparam T the type to use for the test
-         * @return true 
-         * @return false 
+         * @return true
+         * @return false
          */
         template <typename T>
         [[nodiscard]] bool is() const noexcept
@@ -112,9 +112,9 @@ namespace Ark
 
         /**
          * @brief Return the underlying object as a given type
-         * 
+         *
          * @tparam T the type in which the underlying data pointer should be converted to
-         * @return T& 
+         * @return T&
          */
         template <typename T>
         T& as() noexcept

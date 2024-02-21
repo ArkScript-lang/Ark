@@ -384,7 +384,7 @@ inline void VM::call(internal::ExecutionContext& context, int16_t argc_)
         throwVMError(
             ErrorKind::Arity,
             "Function '" + m_state.m_symbols[context.last_symbol] + "' needs " + std::to_string(needed_argc) +
-            " arguments, but it received " + std::to_string(argc));
+                " arguments, but it received " + std::to_string(argc));
 }
 
 #undef resolveRef

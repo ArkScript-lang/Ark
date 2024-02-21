@@ -1,5 +1,0 @@
-In file ./incomplete_string.ark
-At EOF @ 1:14
-    1 | (let a "1 2 3)
-      |              ^
-        Missing '"' after string

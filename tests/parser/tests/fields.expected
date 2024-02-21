@@ -1,6 +1,0 @@
-( Keyword:Let Symbol:a ( Field Symbol:b Symbol:c ) )
-( Keyword:Mut Symbol:d ( Field Symbol:e Symbol:f Symbol:g ) )
-( Keyword:If ( ( Field Symbol:hi Symbol:jk ) ) ( Field Symbol:l Symbol:m ) ( Field Symbol:n Symbol:o Symbol:p ) )
-( Keyword:While ( Field Symbol:q Symbol:r ) ( Field Symbol:s Symbol:t ) )
-( Keyword:Fun ( ) ( Field Symbol:u Symbol:v ) )
-( Keyword:Begin ( Field Symbol:x Symbol:y Symbol:z ) )

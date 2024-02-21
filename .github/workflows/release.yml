@@ -19,12 +19,12 @@ jobs:
       matrix:
         config:
           - {
-            os: ubuntu-latest, name: "Ubuntu Clang 11", cc: "clang-11", cxx: "clang++-11",
-            artifact: "ubuntu-clang-11", preconfigure: ""
+            os: ubuntu-latest, name: "Ubuntu Clang 15", cc: "clang-15", cxx: "clang++-15",
+            artifact: "ubuntu-clang-15", preconfigure: ""
           }
           - {
-            os: ubuntu-latest, name: "Ubuntu GCC 11", cc: "gcc-11", cxx: "g++-11",
-            artifact: "ubuntu-gcc-11", preconfigure: ""
+            os: ubuntu-latest, name: "Ubuntu GCC 13", cc: "gcc-13", cxx: "g++-13",
+            artifact: "ubuntu-gcc-13", preconfigure: ""
           }
           - {
             os: windows-latest, name: "Windows VS 2019", cc: "cl", cxx: "cl",
@@ -33,136 +33,110 @@ jobs:
             preconfigure: ""
           }
           - {
-            os: macos-latest, name: "MacOS Clang 12", cc: "clang", cxx: "clang++",
-            artifact: "macos-clang-12",
+            os: macos-latest, name: "MacOS Clang 14", cc: "clang", cxx: "clang++",
+            artifact: "macos-clang-14",
             preconfigure: "export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/"
           }
 
     steps:
-    - uses: actions/checkout@v2
-      with:
-        submodules: recursive
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
 
-    - name: Update GNU compilers
-      if: startsWith(matrix.config.name, 'Ubuntu') && startsWith(matrix.config.cc, 'gcc')
-      shell: bash
-      run: |
-        sudo apt-add-repository -y ppa:ubuntu-toolchain-r/test
-        sudo apt-get -yq install ${{ matrix.config.cc }} ${{ matrix.config.cxx }}
+      - name: Update GNU compilers
+        if: startsWith(matrix.config.name, 'Ubuntu') && startsWith(matrix.config.cc, 'gcc')
+        shell: bash
+        run: |
+          sudo apt-add-repository -y ppa:ubuntu-toolchain-r/test
+          sudo apt-get -yq install ${{ matrix.config.cc }} ${{ matrix.config.cxx }}
 
-    - name: Update LLVM compilers
-      if: startsWith(matrix.config.name, 'Ubuntu') && startsWith(matrix.config.cc, 'clang')
-      shell: bash
-      run: |
-        version=`echo ${{ matrix.config.cc }} | cut -c 7-`
-        sudo apt-get install -y clang-${version} lld-${version} libc++-${version}-dev libc++abi-${version}-dev clang-tools-${version}
+      - name: Update LLVM compilers
+        if: startsWith(matrix.config.name, 'Ubuntu') && startsWith(matrix.config.cc, 'clang')
+        shell: bash
+        run: |
+          version=`echo ${{ matrix.config.cc }} | cut -c 7-`
+          sudo apt-get install -y clang-${version} lld-${version} libc++-${version}-dev libc++abi-${version}-dev clang-tools-${version}
 
-    - name: Install MacOS dependencies
-      if: startsWith(matrix.config.name, 'MacOS')
-      shell: bash
-      run: env HOMEBREW_NO_AUTO_UPDATE=1 brew install openssl
+      - name: Install MacOS dependencies
+        if: startsWith(matrix.config.name, 'MacOS')
+        shell: bash
+        run: env HOMEBREW_NO_AUTO_UPDATE=1 brew install openssl
 
-    - uses: ilammy/msvc-dev-cmd@v1
-      if: startsWith(matrix.config.name, 'Windows')
+      - uses: ilammy/msvc-dev-cmd@v1
+        if: startsWith(matrix.config.name, 'Windows')
 
-    - name: Download Windows dependencies
-      if: startsWith(matrix.config.name, 'Windows')
-      shell: pwsh
-      run: |
-        Invoke-RestMethod -Uri https://www.sqlite.org/2022/sqlite-dll-win64-x64-${Env:SQLITE_VERSION}.zip -OutFile sqlite.zip
-        Invoke-RestMethod -Uri https://www.sqlite.org/2022/sqlite-amalgamation-${Env:SQLITE_VERSION}.zip  -OutFile amalgation.zip
-        Expand-Archive sqlite.zip -DestinationPath sqlite_lib
-        Expand-Archive amalgation.zip -DestinationPath sqlite_code
-        cd sqlite_lib
-        lib /DEF:sqlite3.def /OUT:sqlite3.lib /MACHINE:x64
+      - name: Download Windows dependencies
+        if: startsWith(matrix.config.name, 'Windows')
+        shell: pwsh
+        run: |
+          Invoke-RestMethod -Uri https://www.sqlite.org/2022/sqlite-dll-win64-x64-${Env:SQLITE_VERSION}.zip -OutFile sqlite.zip
+          Invoke-RestMethod -Uri https://www.sqlite.org/2022/sqlite-amalgamation-${Env:SQLITE_VERSION}.zip  -OutFile amalgation.zip
+          Expand-Archive sqlite.zip -DestinationPath sqlite_lib
+          Expand-Archive amalgation.zip -DestinationPath sqlite_code
+          cd sqlite_lib
+          lib /DEF:sqlite3.def /OUT:sqlite3.lib /MACHINE:x64
 
-    - name: Configure CMake Ark
-      shell: bash
-      run: |
-        ${{ matrix.config.preconfigure }}
-        cmake -Bbuild \
-          -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
-          -DCMAKE_C_COMPILER=${{ matrix.config.cc }} \
-          -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }} \
-          -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=On -DARK_MOD_ALL=On
+      - name: Configure CMake Ark
+        shell: bash
+        run: |
+          ${{ matrix.config.preconfigure }}
+          cmake -Bbuild \
+            -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
+            -DCMAKE_C_COMPILER=${{ matrix.config.cc }} \
+            -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }} \
+            -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=On -DARK_MOD_ALL=On
 
-    - name: Add SQLite deps
-      if: startsWith(matrix.config.name, 'Windows')
-      shell: bash
-      run: |
-        cmake -Bbuild \
-          -DSQLite3_INCLUDE_DIR=$(pwd)/sqlite_code/sqlite-amalgamation-${SQLITE_VERSION} \
-          -DSQLite3_LIBRARY=$(pwd)/sqlite_lib/sqlite3.lib
+      - name: Add SQLite deps
+        if: startsWith(matrix.config.name, 'Windows')
+        shell: bash
+        run: |
+          cmake -Bbuild \
+            -DSQLite3_INCLUDE_DIR=$(pwd)/sqlite_code/sqlite-amalgamation-${SQLITE_VERSION} \
+            -DSQLite3_LIBRARY=$(pwd)/sqlite_lib/sqlite3.lib
 
-    - name: Build ArkScript
-      shell: bash
-      run: cmake --build build --config $BUILD_TYPE
+      - name: Build ArkScript
+        shell: bash
+        run: cmake --build build --config $BUILD_TYPE
 
-    - name: Configure CMake Integration tests
-      shell: bash
-      run: |
-        cd tests/cpp
-        cmake -Bbuild \
-          -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
-          -DCMAKE_C_COMPILER=${{ matrix.config.cc }} \
-          -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }}
+      - name: Organize files for upload
+        if: startsWith(matrix.config.name, 'Ubuntu') || startsWith(matrix.config.name, 'MacOS')
+        shell: bash
+        run: |
+          mkdir -p artifact/lib/std
+          cp build/arkscript artifact
+          cp build/libArkReactor.* artifact
+          cp lib/*.arkm artifact/lib
+          cp lib/std/*.ark artifact/lib/std
+          rm -rf artifact/lib/std/{.git,.github,tests/__arkscript__}
 
-    - name: Build Integration tests
-      shell: bash
-      run: cd tests/cpp && cmake --build build --config $BUILD_TYPE
+      - name: Organize files for upload
+        if: startsWith(matrix.config.name, 'Windows')
+        shell: bash
+        run: |
+          mkdir -p artifact/lib/std
+          cp build/$BUILD_TYPE/arkscript.exe artifact
+          cp build/$BUILD_TYPE/ArkReactor.dll artifact
+          cp lib/*.arkm artifact/lib
+          cp lib/std/*.ark artifact/lib/std
+          rm -rf artifact/lib/std/{.git,.github,tests/__arkscript__}
 
-    - name: Organize files for upload
-      if: startsWith(matrix.config.name, 'Ubuntu') || startsWith(matrix.config.name, 'MacOS')
-      shell: bash
-      run: |
-        mkdir -p artifact/lib/std
-        cp build/arkscript artifact
-        cp build/libArkReactor.* artifact
-        cp lib/*.arkm artifact/lib
-        cp lib/std/*.ark artifact/lib/std
-        rm -rf artifact/lib/std/{.git,.github,tests/__arkscript__}
+      - name: Generate InnoSetup installer
+        if: startsWith(matrix.config.name, 'Windows')
+        uses: SuperFola/is-build-action@master
+        with:
+          path-to-script: 'Installer.iss'
+          artifact-name: 'arkscript.exe'
 
-    - name: Organize files for upload
-      if: startsWith(matrix.config.name, 'Windows')
-      shell: bash
-      run: |
-        mkdir -p artifact/lib/std
-        cp build/$BUILD_TYPE/arkscript.exe artifact
-        cp build/$BUILD_TYPE/ArkReactor.dll artifact
-        cp lib/*.arkm artifact/lib
-        cp lib/std/*.ark artifact/lib/std
-        rm -rf artifact/lib/std/{.git,.github,tests/__arkscript__}
-
-    - name: Organize temp artifact
-      shell: bash
-      run: |
-        mkdir -p temp/
-        cp -r tests/cpp temp/
-
-    - name: Generate InnoSetup installer
-      if: startsWith(matrix.config.name, 'Windows')
-      uses: SuperFola/is-build-action@master
-      with:
-        path-to-script: 'Installer.iss'
-        artifact-name: 'arkscript.exe'
-
-    - name: Upload artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: ${{ matrix.config.artifact }}
-        path: artifact
-        retention-days: 1
-
-    - name: Upload temp artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: temp-${{ matrix.config.artifact }}
-        path: temp
-        retention-days: 1
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.config.artifact }}
+          path: artifact
+          retention-days: 1
 
   release:
     runs-on: ubuntu-latest
-    needs: [build]
+    needs: [ build ]
 
     steps:
       - name: Checkout
@@ -171,17 +145,17 @@ jobs:
       - name: Set env
         run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
 
-      - name: Download artifact Linux GCC 11
+      - name: Download artifact Linux GCC 13
         uses: actions/download-artifact@v3
         with:
-          name: ubuntu-gcc-11
-          path: ark-ubuntu-gcc-11
+          name: ubuntu-gcc-13
+          path: ark-ubuntu-gcc-13
 
-      - name: Download artifact Linux Clang 11
+      - name: Download artifact Linux Clang 15
         uses: actions/download-artifact@v3
         with:
-          name: ubuntu-clang-11
-          path: ark-ubuntu-clang-11
+          name: ubuntu-clang-15
+          path: ark-ubuntu-clang-15
 
       - name: Download artifact Windows MSVC 19
         uses: actions/download-artifact@v3
@@ -192,8 +166,8 @@ jobs:
       - name: Download artifact MacOS Clang
         uses: actions/download-artifact@v3
         with:
-          name: macos-clang-12
-          path: ark-macos-clang-12
+          name: macos-clang-14
+          path: ark-macos-clang-14
 
       - name: Download artifact Windows InnoSetup installer
         uses: actions/download-artifact@v3
@@ -242,8 +216,8 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./ubuntu-gcc-11.zip
-          asset_name: linux-gcc-11.zip
+          asset_path: ./ubuntu-gcc-13.zip
+          asset_name: linux-gcc-13.zip
           asset_content_type: application/zip
 
       - name: Upload artifact
@@ -252,8 +226,8 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./ubuntu-clang-11.zip
-          asset_name: linux-clang-11.zip
+          asset_path: ./ubuntu-clang-15.zip
+          asset_name: linux-clang-15.zip
           asset_content_type: application/zip
 
       - name: Upload artifact
@@ -282,6 +256,6 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./macos-clang-12.zip
-          asset_name: macos-clang-12.zip
+          asset_path: ./macos-clang-14.zip
+          asset_name: macos-clang-14.zip
           asset_content_type: application/zip

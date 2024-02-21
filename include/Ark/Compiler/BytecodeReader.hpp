@@ -4,9 +4,9 @@
  * @brief A bytecode disassembler for ArkScript
  * @version 0.4
  * @date 2020-10-27
- * 
+ *
  * @copyright Copyright (c) 2020-2021
- * 
+ *
  */
 
 #ifndef ARK_COMPILER_BYTECODEREADER_HPP
@@ -37,28 +37,28 @@ namespace Ark
      * @brief This class is just a helper to
      * - check if a bytecode is valid
      * - display it in a human readable way by using the opcode names
-     * 
+     *
      */
     class ARK_API BytecodeReader
     {
     public:
         /**
          * @brief Construct a new Bytecode Reader object
-         * 
+         *
          */
         BytecodeReader() = default;
 
         /**
          * @brief Construct needed data before displaying information about a given file
-         * 
+         *
          * @param file filename of the bytecode file
          */
         void feed(const std::string& file);
 
         /**
          * @brief Return the bytecode object constructed
-         * 
-         * @return const bytecode_t& 
+         *
+         * @return const bytecode_t&
          */
         [[nodiscard]] const bytecode_t& bytecode() noexcept;
 
@@ -87,7 +87,7 @@ namespace Ark
 
         /**
          * @brief Read a number from the bytecode, under the instruction pointer i
-         * 
+         *
          * @param i this parameter is being modified to point to the next value
          * @return uint16_t the number we read (big endian)
          */

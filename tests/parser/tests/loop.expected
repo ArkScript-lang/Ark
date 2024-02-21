@@ -1,4 +1,0 @@
-( Keyword:While Number:1 Number:1 )
-( Keyword:While Number:2 Number:2 )
-( Keyword:While Number:3 Number:3 )
-( Keyword:While ( Symbol:isGood Number:1 ) ( Symbol:doStuff Symbol:a ( Keyword:If Symbol:b Symbol:c Symbol:d ) ) )
