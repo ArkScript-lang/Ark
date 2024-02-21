@@ -15,6 +15,7 @@
 ## Key features
 
 ArkScript is
+
 * **small**: the core fit under 8000 lines of code ; also small in terms of keywords (only 10)
 * **a scripting language**: very easy to embed it in your projects. Registering your own functions in the language is made easy
 * **portable**: a unique bytecode which can be run everywhere the virtual machine is
@@ -25,6 +26,7 @@ ArkScript is
 * **extensible**: supports C++ module to use it in the language, adding functionalities
 
 Also it has:
+
 * **macros**: if/else, values, and functions
 * tail call optimization
 * a REPL with autocompletion and coloration
@@ -110,6 +112,7 @@ Don't know what to work on? No worries, we have a [list of things to do](https:/
 ### Related projects
 
 We have other projects tightly related to ArkScript, which aren't necessarily C++ oriented:
+
 * the [standard library](https://github.com/ArkScript-lang/std), written in ArkScript itself
 * the [standard library modules](https://github.com/ArkScript-lang/modules), extending the capacities of the language, written in C++
 * [ArkDoc](https://github.com/ArkScript-lang/ArkDoc), a documentation generator *à la doxygen* for ArkScript, written in Python 3
@@ -135,8 +138,8 @@ For performance reasons, some functions might be written in C++, in `include/Ark
 
 ### Dependencies
 
-* C++17
-* CMake >= 3.12
+* C++20
+* CMake >= 3.15
 * Visual Studio >= 11 (on Windows)
 * On macOS versions prior to 10.15, `libc++` lacks `filesystem` in the standard library.
     * Install a newer compiler using [Homebrew](https://docs.brew.sh/): `brew install gcc && brew link gcc`
@@ -149,6 +152,7 @@ All the external libraries we use are already included in [thirdparties](https:/
 ### Through CMake
 
 Different CMake switches are available to customize the build:
+
 * `-DARK_BUILD_EXE` to generate an executable, defaults to Off, building a shared library only
 * `-DARK_ENABLE_SYSTEM` to enable `sys:exec` (execute shell commands without restrictions), defaults to On
 * `-DARK_PROFILER_COUNT` to count every creation/copy/move of the internal value type, defaults to Off
@@ -171,6 +175,7 @@ cmake --install build --config Release
 ```
 
 Desired output of `arkscript --help`:
+
 ```bash
 DESCRIPTION
         ArkScript programming language
@@ -226,9 +231,10 @@ You can find a snake created in ArkScript in the folder examples/games/snake (ru
 
 Controls are the arrows (left, right, up and down), the game closes itself when you successfully collect the 3 apples.
 
-## The donators
+## The donors
 
 Huge thanks to those people for their donations to support the project:
+
 * [TheCountVEVO](https://github.com/TheCountVEVO)
 * [llexto](https://github.com/llexto)
 * COUR Eloïse
