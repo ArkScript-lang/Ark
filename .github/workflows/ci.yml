@@ -112,7 +112,6 @@ jobs:
             -DARK_SANITIZERS=${{ matrix.config.sanitizers }} \
             -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=On -DARK_MOD_ALL=Off -DARK_TESTS=On
 
-      # todo: consider -T ClangCl
       - name: Configure CMake Ark
         if: startsWith(matrix.config.name, 'Windows')
         shell: bash
@@ -206,7 +205,6 @@ jobs:
       #    export ASAN_OPTIONS=detect_odr_violation=0
       #    (source ./lib/modules/.github/run-tests)
 
-      # TODO: move to tests/unittests
       - name: Runtime error message generation tests
         shell: bash
         run: |
