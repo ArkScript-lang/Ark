@@ -107,6 +107,72 @@ namespace Ark::internal
         return m_filename;
     }
 
+    std::string Node::repr() const noexcept
+    {
+        std::string data;
+        switch (m_type)
+        {
+            case NodeType::Symbol:
+                data += string();
+                break;
+
+            case NodeType::Capture:
+                data += "&" + string();
+                break;
+
+            case NodeType::Keyword:
+                data += keywords[static_cast<std::size_t>(keyword())];
+                break;
+
+            case NodeType::String:
+                data += "\"" + string() + "\"";
+                break;
+
+            case NodeType::Number:
+                data += std::to_string(number());
+                break;
+
+            case NodeType::List:
+                data += "(";
+                for (std::size_t i = 0, end = constList().size(); i < end; ++i)
+                {
+                    data += constList()[i].repr();
+                    if (i < end - 1)
+                        data += " ";
+                }
+                data += ")";
+                break;
+
+            case NodeType::Field:
+                for (std::size_t i = 0, end = constList().size(); i < end; ++i)
+                {
+                    data += constList()[i].repr();
+                    if (i < end - 1)
+                        data += ".";
+                }
+                break;
+
+            case NodeType::Macro:
+                data += "($ ";
+                for (std::size_t i = 0, end = constList().size(); i < end; ++i)
+                {
+                    data += constList()[i].repr();
+                    if (i < end - 1)
+                        data += " ";
+                }
+                data += ")";
+                break;
+
+            case NodeType::Spread:
+                data += "..." + string();
+                break;
+
+            case NodeType::Unused:
+                break;
+        }
+        return data;
+    }
+
     std::ostream& operator<<(std::ostream& os, const Node& node) noexcept
     {
         switch (node.m_type)

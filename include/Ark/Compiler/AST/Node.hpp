@@ -141,6 +141,12 @@ namespace Ark::internal
          */
         [[nodiscard]] const std::string& filename() const noexcept;
 
+        /**
+         * @brief Compute a representation of the node without any comments or additional sugar, colors, types
+         * @return String representation of the node
+         */
+        [[nodiscard]] std::string repr() const noexcept;
+
         friend ARK_API std::ostream& operator<<(std::ostream& os, const Node& N) noexcept;
         friend bool operator==(const Node& A, const Node& B);
         friend bool operator<(const Node& A, const Node& B);

@@ -24,7 +24,8 @@ namespace Ark::internal
 
         m_predefined_macros = {
             "symcat",
-            "argcount"
+            "argcount",
+            "$repr"  // TODO: unify predefined macro names (update documentation and examples and tests)
         };
     }
 
@@ -470,6 +471,11 @@ namespace Ark::internal
                     node = Node(static_cast<long>(sym.list()[1].list().size()));
                 else
                     throwMacroProcessingError(fmt::format("When trying to apply `argcount', got a {} instead of a Symbol or Function", typeToString(sym)), sym);
+            }
+            else if (name == "$repr")
+            {
+                Node ast = node.constList()[1];
+                node = Node(NodeType::String, ast.repr());
             }
         }
 
