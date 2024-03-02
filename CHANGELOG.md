@@ -6,6 +6,8 @@
 - added lines and code coloration in the error context
 - new dependency: fmtlib
 - added the padding/instruction/argumentation values when displaying instructions in the bytecode reader
+- `$repr` macro to get a string representation of a given node
+- added boost-ext/ut to write unit tests in C++
 
 ### Changed
 - instructions are on 4 bytes: 1 byte for the instruction, 1 byte of padding, 2 bytes for an immediate argument
@@ -16,10 +18,12 @@
 - more documentation about the compiler implementation
 - more documentation about the virtual machine
 - closures can be now be compared field per field: `(= closure1 closure2)` will work only if they have the same fields (name) and if the values match
+- macros are now defined like `($ name value)` / `($ name (args args args) body)` / `($if cond then else)`
+- upgraded from C++17 to C++20
+- new parser, new syntax for imports: `(import package.sub.file)`
 
 ### Removed
 - removed unused `NodeType::Closure`
-- removing the custom string, replacing it with std::string (the format engine of the custom string had a lot of memory leaks)
 - removing the custom string, replacing it with std::string (the format engine of the custom string had a lot of memory leaks)
 - `Utils::digPlaces` and `Utils::decPlaces` got removed as they were no longer needed
 - removed deprecated code (`list:removeAt`, `ark` executable now replaced by `arkscript`)
