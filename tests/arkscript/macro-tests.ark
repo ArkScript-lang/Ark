@@ -107,6 +107,11 @@
     (set tests (assert-eq (g 1 2) [2] "macro g spreading" tests))
     (set tests (assert-eq (g 1 2 3) [2 3] "macro g spreading" tests))
 
+    ($ make-func (retval) (fun () retval))
+    (let a-func (make-func 1))
+    (set tests (assert-eq (type a-func) "Function" "macro define function with no args" tests))
+    (set tests (assert-eq (a-func) 1 "macro define function with no argument" tests))
+
     ($ defun (name args body) (let name (fun args body)))
     (defun foo (a b) (+ a b))
     (set tests (assert-eq (type foo) "Function" "macro define function" tests))

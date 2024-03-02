@@ -424,7 +424,15 @@ namespace Ark::internal
             leaf.push_back(Node(Keyword::Fun));
             // args
             if (auto value = nodeOrValue(); value.has_value())
-                leaf.push_back(value.value());
+            {
+                // if value is nil, just add an empty argument bloc to prevent bugs when
+                // declaring functions inside macros
+                Node args = value.value();
+                if (args.nodeType() == NodeType::Symbol && args.string() == "nil")
+                    leaf.push_back(Node(NodeType::List));
+                else
+                    leaf.push_back(args);
+            }
             else
             {
                 backtrack(position);
