@@ -7,7 +7,7 @@
 <img align="right" src="images/ArkTransparent-by-mazz.png" width=200px alt="ArkScript log by Mazz">
 
 * [Documentation](https://arkscript-lang.dev/documentation.html)
-* Discord server: [invite link](https://discord.gg/YT5yDwn), to discuss the specification of the language and receive help
+* [Discussions](https://github.com/orgs/ArkScript-lang/discussions): to receive help with the language, discuss new features and ideas
 * [Modules](https://github.com/ArkScript-lang/modules)
 
 **Nota bene**: the project is referred as "Ark" and as "ArkScript". The official public name is "ArkScript" since "Ark" is already being used by [another language](https://github.com/ark-lang/ark)
