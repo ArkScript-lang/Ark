@@ -9,9 +9,6 @@ namespace Ark::internal
         m_processor(processor)
     {}
 
-    MacroExecutor::~MacroExecutor()
-    {}
-
     const Node* MacroExecutor::findNearestMacro(const std::string& name) const
     {
         return m_processor->findNearestMacro(name);

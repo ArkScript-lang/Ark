@@ -2,10 +2,10 @@
  * @file Executor.hpp
  * @author Ray John Alovera (rakista112@gmail.com), Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief The base class for all MacroExecutors
- * @version 0.6
- * @date 2021-05-04
+ * @version 1.0
+ * @date 2024-03-03
  *
- * @copyright Copyright (c) 2021
+ * @copyright Copyright (c) 2021-2024
  *
  */
 
@@ -33,13 +33,13 @@ namespace Ark::internal
          * @param processor
          * @param debug
          */
-        MacroExecutor(MacroProcessor* processor, unsigned debug = 0);
+        explicit MacroExecutor(MacroProcessor* processor, unsigned debug = 0);
 
         /**
          * @brief Need a virtual destructor to correctly destroy object.
          *
          */
-        virtual ~MacroExecutor();
+        virtual ~MacroExecutor() = default;
 
         /**
          * @brief Executes macros in the Node if the Executor can handle it
