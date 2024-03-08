@@ -12,7 +12,7 @@ COPY .git .git
 COPY lib lib
 COPY .gitmodules .
 
-# Get submodules and remove unneccesery files
+# Get submodules and remove unneccesary files
 RUN git submodule update --init --recursive \
     && rm -rf `find . -type d -name ".git"` \
     && rm .gitmodules
@@ -29,7 +29,7 @@ COPY Installer.iss.in .
 COPY CMakeLists.txt .
 COPY cmake cmake
 COPY --from=submodule-initializor /out .
-RUN cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release -DARK_BUILD_EXE=On \
+RUN cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DARK_BUILD_EXE=On \
     && cmake --build build --target arkscript
 
 FROM alpine:3.12 AS organizer
@@ -48,5 +48,6 @@ RUN apk --no-cache add cmake
 # Install Ark
 COPY --from=organizer /out/ark .
 RUN cmake --install build --config Release
+ENV LD_LIBRARY_PATH=/usr/local/lib64
 
 ENTRYPOINT [ "arkscript" ]
