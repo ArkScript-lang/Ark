@@ -3,6 +3,8 @@
 
 #include <Ark/Exceptions.hpp>
 
+#include <fmt/core.h>
+
 namespace Ark::internal
 {
     Node::Node(NodeType node_type, const std::string& value) :
@@ -129,7 +131,7 @@ namespace Ark::internal
                 break;
 
             case NodeType::Number:
-                data += std::to_string(number());
+                data += fmt::format("{}", number());
                 break;
 
             case NodeType::List:
