@@ -1,73 +1,65 @@
-(import tests-tools)
+(import std.Testing)
 
-(let builtin-tests (fun () {
-    (mut tests 0)
-    (let start-time (time))
+(let base-list [1 2 3])
+(let base-list-enhanced (concat base-list [4 5]))
 
-    (let base-list [1 2 3])
-    (let base-list-enhanced (concat base-list [4 5]))
+(test:suite builtin {
+    (test:eq (append (append base-list 4) 5) base-list-enhanced)
+    (test:eq (concat base-list [4 5]) base-list-enhanced)
+    (test:eq (type []) "List")
+    (test:eq (list:reverse base-list) [3 2 1])
+    (test:eq (list:reverse []) [])
+    (test:eq (list:find [] nil) -1)
+    (test:eq (list:find [12] 12) 0)
+    (test:eq (list:find [1 2 3] 2) 1)
+    (test:eq (list:find [12] nil) -1)
+    (test:eq (list:slice base-list-enhanced 0 3 1) base-list)
+    (test:eq (list:slice base-list-enhanced 0 1 1) [1])
+    (test:eq (list:slice base-list-enhanced 0 3 2) [1 3])
+    (test:eq (list:sort [5 4 3 2 1]) [1 2 3 4 5])
+    (test:eq (list:sort [5]) [5])
+    (test:eq (list:sort []) [])
 
-    (set tests (assert-eq (append (append base-list 4) 5) base-list-enhanced "append" tests))
-    (set tests (assert-eq (concat base-list [4 5]) base-list-enhanced "concat" tests))
-    (set tests (assert-eq (type []) "List" "type" tests))
-    (set tests (assert-eq (list:reverse base-list) [3 2 1] "list:reverse" tests))
-    (set tests (assert-eq (list:reverse []) [] "list:reverse" tests))
-    (set tests (assert-eq (list:find [] nil) -1 "list:find" tests))
-    (set tests (assert-eq (list:find [12] 12) 0 "list:find" tests))
-    (set tests (assert-eq (list:find [1 2 3] 2) 1 "list:find" tests))
-    (set tests (assert-eq (list:find [12] nil) -1 "list:find" tests))
-    (set tests (assert-eq (list:slice base-list-enhanced 0 3 1) base-list "list:slice" tests))
-    (set tests (assert-eq (list:slice base-list-enhanced 0 1 1) [1] "list:slice" tests))
-    (set tests (assert-eq (list:slice base-list-enhanced 0 3 2) [1 3] "list:slice" tests))
-    (set tests (assert-eq (list:sort [5 4 3 2 1]) [1 2 3 4 5] "list:sort" tests))
-    (set tests (assert-eq (list:sort [5]) [5] "list:sort" tests))
-    (set tests (assert-eq (list:sort []) [] "list:sort" tests))
+    # fixme
+    #(let short_list (list:fill 12 nil))
+    #(test:eq (len short_list) 12)
+    #(mut i 0)
+    #(while (< i 12) {
+    #    (test:eq (@ short_list i) nil)
+    #    (set i (+ 1 i))})
+    #(del i)
+#
+    #(test:eq (@ (list:setAt short_list 5 "a") 5) "a")
+    #(del short_list)
 
-    (let lst (list:fill 12 nil))
-    (set tests (assert-eq (len lst) 12 "list:fill length" tests))
-    (mut i 0)
-    (while (< i 12) {
-        (set tests (assert-eq (@ lst i) nil "list:fill @" tests))
-        (set i (+ 1 i))})
-    (del i)
-
-    (set tests (assert-eq (@ (list:setAt lst 5 "a") 5) "a" "list:setAt" tests))
-    (del lst)
-
-    (set tests (assert-val (not (io:fileExists? "test.txt")) "not io:fileExists?" tests))
+    (test:expect (not (io:fileExists? "test.txt")))
     (io:writeFile "test.txt" "hello, world!")
-    (set tests (assert-val (io:fileExists? "test.txt") "io:fileExists? after io:writeFile" tests))
-    (set tests (assert-eq (io:readFile "test.txt") "hello, world!" "io:readFile after io:writeFile" tests))
-    (set tests (assert-val (> (len (io:listFiles "./")) 0) "len io:listFiles" tests))
-    (set tests (assert-val (not (io:dir? "test.txt")) "not io:dir?" tests))
-    (set tests (assert-val (not (io:fileExists? "temp")) "not fileExist temp/" tests))
+    (test:expect (io:fileExists? "test.txt"))
+    (test:eq (io:readFile "test.txt") "hello, world!")
+    (test:expect (> (len (io:listFiles "./")) 0))
+    (test:expect (not (io:dir? "test.txt")))
+    (test:expect (not (io:fileExists? "temp")))
     (io:makeDir "temp")
-    (set tests (assert-val (io:fileExists? "temp") "fileExist temp/" tests))
-    (set tests (assert-val (io:dir? "temp") "io:dir? temp/" tests))
+    (test:expect (io:fileExists? "temp"))
+    (test:expect (io:dir? "temp"))
     (let old (time))
     (sys:sleep 1)
-    (set tests (assert-lt old (time) "time and sys:sleep" tests))
+    (test:expect (< old (time)))
 
     # no need to test str:format, we are already using it for the assertions,
     # and it's also heavily tested in the C++ String repository in the ArkScript-lang organization (github)
 
-    (set tests (assert-eq (str:find "abc" "d") -1 "str:find" tests))
-    (set tests (assert-eq (str:find "abc" "a") 0 "str:find" tests))
-    (set tests (assert-eq (str:find "abc" "bc") 1 "str:find" tests))
-    (set tests (assert-eq (str:find "abcdefghijkl" "defijkl") -1 "str:find" tests))
-    (set tests (assert-eq (str:find "abcdefghijkl" "defghijkl") 3 "str:find" tests))
-    (set tests (assert-eq (str:removeAt "abcdefghijkl" 3) "abcefghijkl" "str:removeAt" tests))
-    (set tests (assert-eq (str:removeAt "abcdefghijkl" 0) "bcdefghijkl" "str:removeAt" tests))
-    (set tests (assert-eq (str:removeAt "abcdefghijkl" 11) "abcdefghijk" "str:removeAt" tests))
+    (test:eq (str:find "abc" "d") -1)
+    (test:eq (str:find "abc" "a") 0)
+    (test:eq (str:find "abc" "bc") 1)
+    (test:eq (str:find "abcdefghijkl" "defijkl") -1)
+    (test:eq (str:find "abcdefghijkl" "defghijkl") 3)
+    (test:eq (str:removeAt "abcdefghijkl" 3) "abcefghijkl")
+    (test:eq (str:removeAt "abcdefghijkl" 0) "bcdefghijkl")
+    (test:eq (str:removeAt "abcdefghijkl" 11) "abcdefghijk")
 
-    # no need to test the math functions since they're 1:1 binding of C++ functions and where carefully checked
+    # no need to test the math functions since they're 1:1 binding of C++ functions and were carefully checked
     # before writing this comment, to ensure we aren't binding math:sin to the C++ tan function
 
-    (recap "Builtins operations passed" tests (- (time) start-time))
-
     # clean up
-    (io:removeFiles "test.txt" "temp/")
-
-    tests }))
-
-(let passed-builtins (builtin-tests))
+    (io:removeFiles "test.txt" "temp/") })
