@@ -6,7 +6,7 @@
 	url = https://github.com/ArkScript-lang/modules.git
 [submodule "lib/clipp"]
 	path = lib/clipp
-	url = https://github.com/GerHobbelt/clipp
+	url = https://github.com/SuperFola/clipp
 [submodule "lib/picosha2"]
 	path = lib/picosha2
 	url = https://github.com/okdshin/PicoSHA2.git
