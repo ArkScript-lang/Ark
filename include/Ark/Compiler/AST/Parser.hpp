@@ -44,7 +44,6 @@ namespace Ark::internal
         std::optional<Node> functionArgs();
         std::optional<Node> function();
         std::optional<Node> macroCondition();
-        std::optional<Node> macroBlock();
         std::optional<Node> macroArgs();
         std::optional<Node> macro();
         std::optional<Node> functionCall();

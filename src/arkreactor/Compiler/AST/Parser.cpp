@@ -87,11 +87,6 @@ namespace Ark::internal
         else
             backtrack(position);
 
-        if (auto result = macroBlock())
-            return result;
-        else
-            backtrack(position);
-
         if (auto result = macro(); result.has_value())
             return result;
         else
@@ -502,34 +497,6 @@ namespace Ark::internal
             newlineOrComment();
         }
 
-        return leaf;
-    }
-
-    std::optional<Node> Parser::macroBlock()
-    {
-        if (!accept(IsChar('(')))
-            return std::nullopt;
-        newlineOrComment();
-
-        if (!oneOf({ "$*" }))
-            return std::nullopt;
-        newlineOrComment();
-
-        Node leaf(NodeType::List);
-
-        while (!isEOF())
-        {
-            if (auto value = nodeOrValue(); value.has_value())
-            {
-                leaf.push_back(value.value());
-                newlineOrComment();
-            }
-            else
-                break;
-        }
-
-        newlineOrComment();
-        expect(IsChar(')'));
         return leaf;
     }
 
