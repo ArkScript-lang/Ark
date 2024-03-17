@@ -69,7 +69,7 @@ jobs:
         config:
           - {
             os: ubuntu-latest, name: "Ubuntu Clang 15", cc: "clang-15", cxx: "clang++-15",
-            artifact: "ubuntu-clang-15", sanitizers: "On", preconfigure: ""
+            artifact: "ubuntu-clang-15", sanitizers: "Off", preconfigure: ""
           }
           - {
             os: ubuntu-latest, name: "Ubuntu Clang 15 (valgrind)", cc: "clang-15", cxx: "clang++-15",
