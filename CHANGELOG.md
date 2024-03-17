@@ -21,6 +21,7 @@
 - macros are now defined like `($ name value)` / `($ name (args args args) body)` / `($if cond then else)`
 - upgraded from C++17 to C++20
 - new parser, new syntax for imports: `(import package.sub.file)`
+- allow nodes to be empty when dumping the AST to JSON
 - macros can be declared inside a begin block within a cond macro and used in the scope surrounding the cond macro
 
 ### Removed
