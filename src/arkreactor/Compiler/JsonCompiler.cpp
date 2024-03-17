@@ -69,7 +69,7 @@ namespace Ark
 
             case NodeType::List:
             {
-                if (node.constList().size() > 1 && node.constList()[0].nodeType() == NodeType::Keyword)
+                if (!node.constList().empty() && node.constList()[0].nodeType() == NodeType::Keyword)
                 {
                     Node keyword = node.constList()[0];
                     switch (keyword.keyword())
