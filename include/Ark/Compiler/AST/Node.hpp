@@ -92,6 +92,13 @@ namespace Ark::internal
         [[nodiscard]] NodeType nodeType() const noexcept;
 
         /**
+         * @brief Check if the node is a list like node
+         * @return true if the node is either a list or a macro
+         * @return false
+         */
+        [[nodiscard]] bool isListLike() const noexcept;
+
+        /**
          * @brief Set the Node Type object
          *
          * @param type
