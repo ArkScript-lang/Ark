@@ -11,7 +11,7 @@ namespace Ark::internal
     {
         if (const Node* macro = findNearestMacro(node.string()); macro != nullptr)
         {
-            // !{name value}
+            // ($ name value)
             if (macro->constList().size() == 2)
             {
                 node = macro->constList()[1];

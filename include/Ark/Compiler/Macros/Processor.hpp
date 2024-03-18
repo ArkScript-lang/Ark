@@ -107,7 +107,7 @@ namespace Ark::internal
          * @param node
          * @param i
          */
-        static void removeBegin(Node& node, std::size_t& i);
+        static void removeBegin(Node& node, std::size_t i);
 
         /**
          * @brief Check if a node can be evaluated at compile time
@@ -176,7 +176,7 @@ namespace Ark::internal
          * @return true
          * @return false
          */
-        bool isTruthy(const Node& node);
+        static bool isTruthy(const Node& node);
 
         /**
          * @brief Throw a macro processing error

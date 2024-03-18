@@ -9,6 +9,7 @@ warnings.log
 __arkscript__/
 *.arkc
 *.arkm
+/*.ark
 
 # Generated files
 include/Ark/Constants.hpp
