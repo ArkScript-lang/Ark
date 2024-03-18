@@ -49,14 +49,10 @@ namespace Ark::internal
 
         [[nodiscard]] inline std::string packageToPath() const
         {
-            std::size_t offset = 0;
-            if (package.front() == "std")
-                offset = 1;
-
             return std::accumulate(
-                std::next(package.begin() + offset),
+                std::next(package.begin()),
                 package.end(),
-                package[offset],
+                package[0],
                 [](const std::string& a, const std::string& b) {
                     return a + "/" + b;
                 });
