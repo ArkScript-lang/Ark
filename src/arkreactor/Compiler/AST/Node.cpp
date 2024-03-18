@@ -73,6 +73,11 @@ namespace Ark::internal
         return m_type;
     }
 
+    bool Node::isListLike() const noexcept
+    {
+        return m_type == NodeType::List || m_type == NodeType::Macro;
+    }
+
     void Node::setNodeType(NodeType type) noexcept
     {
         m_type = type;

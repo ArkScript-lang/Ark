@@ -18,7 +18,7 @@ namespace Ark::internal
         {
             if (macro->constList().size() == 2)
                 applyMacroProxy(first);
-            // !{name (args) body}
+            // ($ name (args) body)
             else if (macro->constList().size() == 3)
             {
                 Node temp_body = macro->constList()[2];
@@ -73,7 +73,7 @@ namespace Ark::internal
                     unify(args_applied, temp_body, nullptr);
 
                 node = evaluate(temp_body, false);
-                applyMacroProxy(node);
+                applyMacroProxy(node);  // todo: this seems useless
                 return true;
             }
         }

@@ -56,8 +56,8 @@ namespace Ark::internal
         if (node.constList().size() < 2)
             throwMacroProcessingError("Invalid macro, missing value", node);
 
-        Node& first_node = node.list()[0];
-        Node& second_node = node.list()[1];
+        const Node& first_node = node.list()[0];
+        const Node& second_node = node.list()[1];
 
         // ($ name value)
         if (node.constList().size() == 2)
@@ -70,9 +70,9 @@ namespace Ark::internal
                     deleteNearestMacro(second_node.string());
                 else  // used undef on a non-symbol
                     throwMacroProcessingError("Can not un-define a macro without a name", second_node);
-                return;
             }
-            throwMacroProcessingError("Can not define a macro without a symbol", first_node);
+            else
+                throwMacroProcessingError("Can not define a macro without a symbol", first_node);
         }
         // ($ name (args) body)
         else if (node.constList().size() == 3 && first_node.nodeType() == NodeType::Symbol)
@@ -89,27 +89,15 @@ namespace Ark::internal
                     else if (n.nodeType() == NodeType::Spread)
                     {
                         if (had_spread)
-                            throwMacroProcessingError("Invalid macro, multiple spread in argument list while only one is allowed", n);
+                            throwMacroProcessingError("Invalid macro, multiple spread detected in argument list but only one is allowed", n);
                         had_spread = true;
                     }
                     else if (had_spread && n.nodeType() == NodeType::Symbol)
                         throwMacroProcessingError(fmt::format("Invalid macro, a spread should mark the end of an argument list, but found another argument: {}", n.string()), n);
                 }
                 m_macros.back().add(first_node.string(), node);
-                return;
             }
         }
-        // ($if cond then else)
-        else if (std::size_t size = node.constList().size(); size == 3 || size == 4)
-        {
-            if (first_node.nodeType() == NodeType::Keyword && first_node.keyword() == Keyword::If)  // FIXME when we change the keyword for conditions inside macros
-            {
-                applyMacro(node);
-                return;
-            }
-        }
-        // if we are here, it means we couldn't recognize the given macro, thus making it invalid
-        throwMacroProcessingError("Unrecognized macro form", node);
     }
 
     void MacroProcessor::registerFuncDef(Node& node)
@@ -136,9 +124,6 @@ namespace Ark::internal
 
         if (node.nodeType() == NodeType::List)
         {
-            // register known functions
-            registerFuncDef(node);
-
             // recursive call
             std::size_t i = 0;
             while (i < node.list().size())
@@ -153,39 +138,28 @@ namespace Ark::internal
                     }
 
                     bool had = hadBegin(node.list()[i]);
-                    bool removed_begin = false;
-                    std::size_t old = i;
 
                     registerMacro(node.list()[i]);
+                    if (node.list()[i].nodeType() == NodeType::Macro)
+                        recurApply(node.list()[i]);
+
                     if (hadBegin(node.list()[i]) && !had)
-                    {
                         removeBegin(node, i);
-                        removed_begin = true;
-                    }
                     else if (node.list()[i].nodeType() == NodeType::Macro || node.list()[i].nodeType() == NodeType::Unused)
                         node.list().erase(node.constList().begin() + i);
-
-                    if (removed_begin)
-                        i = old;
                 }
                 else  // running on non-macros
                 {
                     bool added_begin = false;
 
                     bool had = hadBegin(node.list()[i]);
-                    bool applied = applyMacro(node.list()[i]);
-
-                    // remove unused blocks
-                    if (node.list()[i].nodeType() == NodeType::Unused)
-                        node.list().erase(node.constList().begin() + i);
-                    // if we got `macro`, it was replaced but not entirely applied.
-                    // but `(macro)` would get entirely applied because it's in a list,
-                    // thus we need to evaluate the node if we have list[i].list[0] as a macro
-                    if (applied)
-                        recurApply(node.list()[i]);
+                    applyMacro(node.list()[i]);
+                    recurApply(node.list()[i]);
 
                     if (hadBegin(node.list()[i]) && !had)
                         added_begin = true;
+                    else if (node.list()[i].nodeType() == NodeType::Unused)
+                        node.list().erase(node.constList().begin() + i);
 
                     if (node.nodeType() == NodeType::List)
                     {
@@ -222,7 +196,7 @@ namespace Ark::internal
             if (auto p = map.find(target.string()); p != map.end())
                 target = p->second;
         }
-        else if (target.nodeType() == NodeType::List || target.nodeType() == NodeType::Macro)
+        else if (target.isListLike())
         {
             for (std::size_t i = 0, end = target.list().size(); i < end; ++i)
                 unify(map, target.list()[i], &target, i);
@@ -497,9 +471,7 @@ namespace Ark::internal
             else if (node.string() == "false" || node.string() == "nil")
                 return false;
         }
-        else if (node.nodeType() == NodeType::Number && node.number() != 0.0)
-            return true;
-        else if (node.nodeType() == NodeType::String && !node.string().empty())
+        else if ((node.nodeType() == NodeType::Number && node.number() != 0.0) || (node.nodeType() == NodeType::String && !node.string().empty()))
             return true;
         else if (node.nodeType() == NodeType::Spread)
             throwMacroProcessingError("Can not determine the truth value of a spreaded symbol", node);
@@ -546,9 +518,9 @@ namespace Ark::internal
 
     void MacroProcessor::recurApply(Node& node)
     {
-        applyMacro(node);
+        bool applied = applyMacro(node);
 
-        if (node.nodeType() == NodeType::List)
+        if (applied && node.isListLike())
         {
             for (auto& child : node.list())
                 recurApply(child);
@@ -563,9 +535,9 @@ namespace Ark::internal
             node.constList()[0].keyword() == Keyword::Begin;
     }
 
-    void MacroProcessor::removeBegin(Node& node, std::size_t& i)
+    void MacroProcessor::removeBegin(Node& node, std::size_t i)
     {
-        if (node.nodeType() == NodeType::List && node.list()[i].nodeType() == NodeType::List && !node.list()[i].list().empty())
+        if (node.isListLike() && node.list()[i].nodeType() == NodeType::List && !node.list()[i].list().empty())
         {
             Node lst = node.constList()[i];
             Node first = lst.constList()[0];
@@ -577,7 +549,6 @@ namespace Ark::internal
                 for (std::size_t block_idx = 1, end = lst.constList().size(); block_idx < end; ++block_idx)
                     node.list().insert(node.constList().begin() + i + block_idx, lst.list()[block_idx]);
 
-                i += lst.constList().size() - 2;  // -2 instead of -1 because it gets incremented right after
                 node.list().erase(node.constList().begin() + previous);
             }
         }
@@ -622,11 +593,8 @@ namespace Ark::internal
         return false;
     }
 
-
     void MacroProcessor::throwMacroProcessingError(const std::string& message, const Node& node)
     {
-        std::stringstream ss;
-        ss << node;
-        throw CodeError(message, node.filename(), node.line(), node.col(), ss.str());
+        throw CodeError(message, node.filename(), node.line(), node.col(), node.repr());
     }
 }
