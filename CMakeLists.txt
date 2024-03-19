@@ -213,9 +213,7 @@ if (ARK_BUILD_EXE)
     add_subdirectory("${ark_SOURCE_DIR}/lib/replxx" EXCLUDE_FROM_ALL)
     add_subdirectory("${ark_SOURCE_DIR}/lib/clipp" EXCLUDE_FROM_ALL)
 
-    target_include_directories(arkscript PUBLIC "${ark_SOURCE_DIR}/src/arkscript/")
     target_link_libraries(arkscript PUBLIC ArkReactor replxx clipp termcolor)
-
     target_compile_features(arkscript PRIVATE cxx_std_20)
 
     enable_lto(arkscript)

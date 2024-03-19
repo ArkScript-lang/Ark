@@ -14,7 +14,7 @@
 
 #include <Ark/Files.hpp>
 #include <Ark/Compiler/BytecodeReader.hpp>
-#include <Ark/Compiler/JsonCompiler.hpp>
+#include <CLI/JsonCompiler.hpp>
 
 int main(int argc, char** argv)
 {
@@ -252,7 +252,7 @@ int main(int argc, char** argv)
 
             case mode::ast:
             {
-                Ark::JsonCompiler compiler(debug, lib_paths);
+                JsonCompiler compiler(debug, lib_paths);
                 compiler.feed(file);
                 std::cout << compiler.compile() << std::endl;
                 break;
