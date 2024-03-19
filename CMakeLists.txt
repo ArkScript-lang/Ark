@@ -184,6 +184,7 @@ if (ARK_TESTS)
     add_executable(unittests ${UT_SOURCES})
 
     add_subdirectory(${ark_SOURCE_DIR}/lib/ut)
+    target_include_directories(unittests PUBLIC ${ark_SOURCE_DIR}/include)
     target_link_libraries(unittests PUBLIC ArkReactor termcolor ut)
 
     add_compile_definitions(BOOST_UT_DISABLE_MODULE)

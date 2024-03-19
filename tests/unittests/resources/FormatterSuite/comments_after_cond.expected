@@ -1,0 +1,9 @@
+(if true
+  # a condition
+  ok) # ok
+(if true ok) # ok
+(if true ok) # ok
+(if true
+  ok
+  no # dont go
+)

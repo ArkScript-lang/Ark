@@ -3,18 +3,16 @@
 #include <filesystem>
 #include <limits>
 #include <cstdlib>
-#include <algorithm>
 
 #include <clipp.h>
 #include <termcolor/proxy.hpp>
 #include <fmt/core.h>
 
-#include <Ark/Ark.hpp>
-#include <CLI/REPL/Repl.hpp>
-
 #include <Ark/Files.hpp>
 #include <Ark/Compiler/BytecodeReader.hpp>
 #include <CLI/JsonCompiler.hpp>
+#include <CLI/REPL/Repl.hpp>
+#include <CLI/Formatter.hpp>
 
 int main(int argc, char** argv)
 {
@@ -30,25 +28,28 @@ int main(int argc, char** argv)
         repl,
         compile,
         eval,
-        ast
+        ast,
+        format
     };
     mode selected = mode::repl;
-
-    std::string file, eval_expression;
 
     unsigned debug = 0;
 
     constexpr uint16_t max_uint16 = std::numeric_limits<uint16_t>::max();
 
+    // Bytecode reader
     // by default, select all pages and segment types, without slicing anything
     uint16_t bcr_page = max_uint16;
     uint16_t bcr_start = max_uint16;
     uint16_t bcr_end = max_uint16;
     Ark::BytecodeSegment segment = Ark::BytecodeSegment::All;
-
-    std::vector<std::string> wrong, script_args;
-
+    // Eval / Run / AST dump
+    std::string file, eval_expression;
     std::string libdir;
+    // Formatting
+    bool dry_run = false;
+    // Generic arguments
+    std::vector<std::string> wrong, script_args;
 
     // clang-format off
     auto cli = (
@@ -74,6 +75,11 @@ int main(int argc, char** argv)
                 )
             )
             , any_other(script_args)
+        )
+        | (
+            required("-f", "--format").set(selected, mode::format).doc("Format the given source file in place")
+            & value("file", file)
+            , option("--dry-run").set(dry_run, true).doc("Do not modify the file, only print out the changes\n")
         )
         | (
             required("--ast").set(selected, mode::ast).doc("Compile the given program and output its AST as JSON to stdout")
@@ -281,6 +287,14 @@ int main(int argc, char** argv)
                     return -1;
                 }
                 break;
+            }
+
+            case mode::format:
+            {
+                Formatter formatter(file, dry_run);
+                formatter.run();
+                if (dry_run)
+                    std::cout << formatter.output() << std::endl;
             }
         }
     }

@@ -186,20 +186,35 @@ SYNOPSIS
         arkscript --dev-info 
         arkscript -e <expression> 
         arkscript -c <file> [-d] 
+        arkscript <file> [-d] [-L <lib_dir>]  
+        arkscript -f <file> [--dry-run] 
+        arkscript --ast <file> [-d] [-L <lib_dir>] 
         arkscript -bcr <file> -on 
         arkscript -bcr <file> -a [-s <start> <end>] 
         arkscript -bcr <file> -st [-s <start> <end>] 
         arkscript -bcr <file> -vt [-s <start> <end>] 
         arkscript -bcr <file> [-cs] [-p <page>] [-s <start> <end>] 
-        arkscript <file> [-d] [-L <lib_dir>]  
 
 OPTIONS
         -h, --help                  Display this message
         -v, --version               Display ArkScript version and exit
         --dev-info                  Display development information and exit
         -e, --eval                  Evaluate ArkScript expression
+
         -c, --compile               Compile the given program to bytecode, but do not run
         -d, --debug...              Increase debug level (default: 0)
+
+        -L, --lib                   Set the location of the ArkScript standard library. Paths can be
+                                    delimited by ';'
+
+        -f, --format                Format the given source file in place
+        --dry-run                   Do not modify the file, only print out the changes
+
+        --ast                       Compile the given program and output its AST as JSON to stdout
+        -d, --debug...              Increase debug level (default: 0)
+        -L, --lib                   Set the location of the ArkScript standard library. Paths can be
+                                    delimited by ';'
+
         -bcr, --bytecode-reader     Launch the bytecode reader
         -on, --only-names           Display only the bytecode segments names and sizes
         -a, --all                   Display all the bytecode segments (default)
@@ -208,8 +223,9 @@ OPTIONS
         -cs, --code                 Display only the code segments
         -p, --page                  Set the bytecode reader code segment to display
         -s, --slice                 Select a slice of instructions in the bytecode
-        -L, --lib                   Set the location of the ArkScript standard library. Paths can be
-                                    delimited by ';'
+
+VERSION
+        4.0.0-86587c14
 
 LICENSE
         Mozilla Public License 2.0

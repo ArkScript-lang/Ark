@@ -110,7 +110,7 @@ namespace Ark::internal
         if (!m_after_comment.empty())
             m_after_comment += "\n";
         m_after_comment += comment;
-        if (m_after_comment.back() == '\n')
+        if (!m_after_comment.empty() && m_after_comment.back() == '\n')
             m_after_comment.pop_back();
         return *this;
     }
