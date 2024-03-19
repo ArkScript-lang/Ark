@@ -127,26 +127,17 @@ int main(int argc, char** argv)
         if (!libdir.empty())
         {
             for (const auto& path : Utils::splitString(libdir, ';'))
-            {
                 lib_paths.emplace_back(path);
-                lib_paths.push_back(std::filesystem::path(path) / "std");
-            }
         }
         else
         {
             if (const char* arkpath = std::getenv("ARKSCRIPT_PATH"))
             {
                 for (const auto& path : Utils::splitString(arkpath, ';'))
-                {
                     lib_paths.emplace_back(path);
-                    lib_paths.push_back(std::filesystem::path(path) / "std");
-                }
             }
             else if (Utils::fileExists("./lib"))
-            {
                 lib_paths.emplace_back("lib");
-                lib_paths.emplace_back("lib/std");
-            }
             else
                 std::cerr << termcolor::yellow << "Warning" << termcolor::reset << " Couldn't read ARKSCRIPT_PATH environment variable" << std::endl;
         }
