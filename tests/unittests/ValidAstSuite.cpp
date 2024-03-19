@@ -14,7 +14,7 @@ ut::suite<"AST"> ast_suite = [] {
         iter_test_files(
             "ASTSuite",
             [](TestData&& data) {
-                Ark::JsonCompiler compiler(false, { ARK_TESTS_ROOT "lib/std/" });
+                Ark::JsonCompiler compiler(false, { ARK_TESTS_ROOT "lib/" });
 
                 std::string json;
                 should("parse " + data.stem) = [&] {
