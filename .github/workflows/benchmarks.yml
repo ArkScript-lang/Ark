@@ -1,0 +1,74 @@
+name: "Run benchmarks on each commit and track performance changes"
+
+on:
+  push:
+    branches: [ dev ]
+
+jobs:
+  bench:
+    name: Run benchmark
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout ArkScript
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Checkout Arkscript-lang/benchmarks
+        uses: actions/checkout@v4
+        with:
+          repository: ArkScript-lang/benchmarks
+          path: './benchmarks'
+          ref: 'master'
+
+      - name: Setup compilers and tools
+        shell: bash
+        run: |
+          sudo apt-get install -y clang-15 lld-15 libc++-15-dev libc++abi-15-dev clang-tools-15 hyperfine jq
+
+      - name: Build ArkScript release
+        shell: bash
+        run: |
+          cmake -Bbuild -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_C_COMPILER=clang-15 -DCMAKE_CXX_COMPILER=clang++-15 \
+            -DARK_SANITIZERS=Off -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=Off
+          cmake --build build --config Release -- -j 4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - uses: leafo/gh-actions-lua@v10
+        with:
+          luaVersion: "5.4.1"
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+
+      - name: Gather performances
+        shell: bash
+        run: |
+          export ARKSCRIPT_COMMIT=$(git log --format="%H" -n 1)
+          chmod u+x ./benchmarks/run.sh
+          for f in ./benchmarks/benchmarks/*/; do
+            ./benchmarks/run.sh "$(basename $f)"
+          done
+
+      - name: Commit and push
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.BENCHMARKS_GITHUB_TOKEN }}
+        run: |
+          cd benchmarks
+          git config --unset-all http.https://github.com/.extraheader
+          git config user.name "Benchmark bot"
+          git config user.email ""
+          git config remote.origin.url 'https://${{ secrets.BENCHMARKS_GITHUB_TOKEN }}@github.com/ArkScript-lang/benchmarks.git'
+          git add data/*.json
+          git commit -m "Update benchmarks"
+          git push -u origin master
