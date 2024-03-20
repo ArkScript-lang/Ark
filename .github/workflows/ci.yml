@@ -4,6 +4,7 @@ on:
   push:
     branches: [ dev, master ]
     paths-ignore:
+      - '.github/workflows/benchmarks.yml'
       - '.github/workflows/docker.yml'
       - '.github/workflows/label.yml'
       - '.github/workflows/lizard.yml'
