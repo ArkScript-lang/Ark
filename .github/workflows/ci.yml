@@ -69,25 +69,29 @@ jobs:
       matrix:
         config:
           - {
-            os: ubuntu-latest, name: "Ubuntu Clang 15", cc: "clang-15", cxx: "clang++-15",
-            artifact: "ubuntu-clang-15", sanitizers: "Off", preconfigure: ""
+            os: ubuntu-latest, name: "Ubuntu Clang 15",
+            compiler: clang, compiler_version: 15, sanitizers: "Off",
+            artifact: "ubuntu-clang-15"
           }
           - {
-            os: ubuntu-latest, name: "Ubuntu Clang 15 (valgrind)", cc: "clang-15", cxx: "clang++-15",
-            artifact: "ubuntu-clang-valgrind", sanitizers: "Off", preconfigure: ""
+            os: ubuntu-latest, name: "Ubuntu Clang 15 (valgrind)",
+            compiler: clang, compiler_version: 15, sanitizers: "Off",
+            artifact: "ubuntu-clang-valgrind"
           }
           - {
-            os: ubuntu-latest, name: "Ubuntu GCC 13", cc: "gcc-13", cxx: "g++-13",
-            artifact: "ubuntu-gcc-13", sanitizers: "Off", preconfigure: ""
+            os: ubuntu-latest, name: "Ubuntu GCC 13",
+            compiler: gcc, compiler_version: 13, sanitizers: "Off",
+            artifact: "ubuntu-gcc-13"
           }
           - {
-            os: windows-latest, name: "Windows VS 2022", cc: "cl", cxx: "cl",
-            artifact: "windows-msvc-22", sanitizers: "On", preconfigure: ""
+            os: windows-latest, name: "Windows VS 2022",
+            compiler: msvc, compiler_version: "", sanitizers: "On",
+            artifact: "windows-msvc-22"
           }
           - {
-            os: macos-latest, name: "MacOS Clang 14", cc: "clang", cxx: "clang++",
+            os: macos-latest, name: "MacOS Clang 14",
             artifact: "macos-clang-14",
-            sanitizers: "On", preconfigure: "export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/"
+            compiler: clang, compiler_version: 14, sanitizers: "On"
           }
 
     steps:
@@ -95,39 +99,14 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Setup compilers
+      - name: Setup compilers, dependencies, project and build
         uses: ./.github/workflows/setup-compilers
-
-      - name: Setup dependencies
-        uses: ./.github/workflows/setup-deps
-
-      - name: Configure CMake Ark
-        if: ${{ !startsWith(matrix.config.name, 'Windows') }}
-        shell: bash
-        run: |
-          ${{ matrix.config.preconfigure }}
-          cmake -Bbuild \
-            -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
-            -DCMAKE_C_COMPILER=${{ matrix.config.cc }} \
-            -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }} \
-            -DARK_SANITIZERS=${{ matrix.config.sanitizers }} \
-            -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=On -DARK_MOD_ALL=Off -DARK_TESTS=On
-
-      - name: Configure CMake Ark
-        if: startsWith(matrix.config.name, 'Windows')
-        shell: bash
-        run: |
-          cmake -Bbuild \
-            -G "Visual Studio 17 2022" -T v143 \
-            -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
-            -DARK_SANITIZERS=${{ matrix.config.sanitizers }} \
-            -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=On -DARK_MOD_ALL=Off -DARK_TESTS=On
-            #-DSQLite3_INCLUDE_DIR=$(pwd)/sqlite_code/sqlite-amalgamation-${SQLITE_VERSION}
-            #-DSQLite3_LIBRARY=$(pwd)/sqlite_lib/sqlite3.lib
-
-      - name: Build ArkScript
-        shell: bash
-        run: cmake --build build --config $BUILD_TYPE
+        with:
+          os_name: ${{ matrix.config.os }}
+          compiler: ${{ matrix.config.compiler }}
+          compiler_version: ${{ matrix.config.compiler_version }}
+          sanitizers: ${{ matrix.config.sanitizers }}
+          with_deps: true
 
       - name: Organize files for upload
         shell: bash

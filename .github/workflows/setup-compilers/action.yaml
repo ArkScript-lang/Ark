@@ -1,22 +1,101 @@
 ---
 name: "Update compilers"
+inputs:
+  os_name:
+    description: 'OS name the CI runs on ; Ubuntu|Windows|MacOS'
+    required: true
+  compiler:
+    description: 'mscv|gcc|clang'
+    required: true
+  compiler_version:
+    description: 'version of the compiler'
+    required: true
+  sanitizers:
+    description: 'On|Off'
+    default: 'Off'
+  with_deps:
+    description: 'Download and configure dependencies or not (false|true)'
+    default: 'false'
 
 runs:
   using: "composite"
   steps:
+    - name: Detect compilers
+      if: ${{ !startsWith(inputs.os_name, 'windows') }}
+      id: compilers
+      shell: bash
+      run: |
+        if [[ '${{ startsWith(inputs.os_name, 'macos') }}' == 'true' ]]; then
+          echo "cc=${{ inputs.compiler }}" >> $GITHUB_OUTPUT
+          echo "cxx=${{ inputs.compiler }}++" >> $GITHUB_OUTPUT
+        elif [[ '${{ inputs.compiler }}' == 'clang' ]]; then
+          echo "cc=clang-${{ inputs.compiler_version }}" >> $GITHUB_OUTPUT
+          echo "cxx=clang++-${{ inputs.compiler_version }}" >> $GITHUB_OUTPUT
+        elif [[ '${{ inputs.compiler }}' == 'gcc' ]]; then
+          echo "cc=gcc-${{ inputs.compiler_version }}" >> $GITHUB_OUTPUT
+          echo "cxx=g++-${{ inputs.compiler_version }}" >> $GITHUB_OUTPUT
+        fi
+
     - name: Update GNU compilers
-      if: startsWith(matrix.config.name, 'Ubuntu GCC')
+      if: startsWith(inputs.os_name, 'ubuntu') && inputs.compiler == 'gcc'
       shell: bash
       run: |
         sudo apt-add-repository -y ppa:ubuntu-toolchain-r/test
-        sudo apt-get -yq install ${{ matrix.config.cc }} ${{ matrix.config.cxx }}
+        sudo apt-get -yq install gcc-${{ inputs.compiler_version }} g++-${{ inputs.compiler_version }}
 
     - name: Update LLVM compilers
-      if: startsWith(matrix.config.name, 'Ubuntu Clang')
+      if: startsWith(inputs.os_name, 'ubuntu') && inputs.compiler == 'clang'
       shell: bash
       run: |
-        version=`echo ${{ matrix.config.cc }} | cut -c 7-`
-        sudo apt-get install -y clang-${version} lld-${version} libc++-${version}-dev libc++abi-${version}-dev clang-tools-${version}
+        sudo apt-get install -y clang-${{ inputs.compiler_version }} lld-${{ inputs.compiler_version }} \
+          libc++-${{ inputs.compiler_version }}-dev libc++abi-${{ inputs.compiler_version }}-dev  \
+          clang-tools-${{ inputs.compiler_version }}
 
-    - uses: ilammy/msvc-dev-cmd@v1
-      if: startsWith(matrix.config.name, 'Windows')
+    - name: Setup Windows environment
+      uses: ilammy/msvc-dev-cmd@v1
+      if: startsWith(inputs.os_name, 'windows')
+
+    - name: Install MacOS dependencies
+      if: startsWith(inputs.os_name, 'macos') && inputs.with_deps == 'true'
+      shell: bash
+      run: env HOMEBREW_NO_AUTO_UPDATE=1 brew install openssl
+
+    - name: Install Windows dependencies
+      if: startsWith(inputs.os_name, 'windows') && inputs.with_deps == 'true'
+      shell: pwsh
+      run: |
+        Invoke-RestMethod -Uri https://www.sqlite.org/2022/sqlite-dll-win64-x64-${Env:SQLITE_VERSION}.zip -OutFile sqlite.zip
+        Invoke-RestMethod -Uri https://www.sqlite.org/2022/sqlite-amalgamation-${Env:SQLITE_VERSION}.zip  -OutFile amalgation.zip
+        Expand-Archive sqlite.zip -DestinationPath sqlite_lib
+        Expand-Archive amalgation.zip -DestinationPath sqlite_code
+        cd sqlite_lib
+        lib /DEF:sqlite3.def /OUT:sqlite3.lib /MACHINE:x64
+
+    - name: CMake Ark
+      if: ${{ !startsWith(inputs.os_name, 'windows') }}
+      shell: bash
+      run: |
+        if [[ '${{ startsWith(inputs.os_name, 'macos') }}' == 'true' ]]; then
+          export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/
+        fi
+        cmake -Bbuild \
+         -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
+         -DCMAKE_C_COMPILER=${{ steps.compilers.outputs.cc }} \
+         -DCMAKE_CXX_COMPILER=${{ steps.compilers.outputs.cxx }} \
+         -DARK_SANITIZERS=${{ inputs.sanitizers }} \
+         -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=On -DARK_MOD_ALL=Off -DARK_TESTS=On
+        cmake --build build --config $BUILD_TYPE -- -j $(nproc)
+
+    - name: Configure CMake Ark
+      if: startsWith(inputs.os_name, 'windows')
+      shell: bash
+      run: |
+        if [[ '${{ inputs.with_deps }}' == 'true' ]]; then
+          additional_args="-DSQLite3_INCLUDE_DIR=$(pwd)/sqlite_code/sqlite-amalgamation-${SQLITE_VERSION} -DSQLite3_LIBRARY=$(pwd)/sqlite_lib/sqlite3.lib"
+        fi
+        cmake -Bbuild \
+          -G "Visual Studio 17 2022" -T v143 \
+          -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
+          -DARK_SANITIZERS=${{ matrix.config.sanitizers }} \
+          -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=On -DARK_MOD_ALL=Off -DARK_TESTS=On $additional_args
+        cmake --build build --config $BUILD_TYPE
