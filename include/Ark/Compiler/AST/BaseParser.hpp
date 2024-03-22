@@ -7,6 +7,7 @@
 #include <utility>
 #include <initializer_list>
 
+#include <Ark/Platform.hpp>
 #include <Ark/Compiler/AST/Predicates.hpp>
 #include <Ark/Compiler/AST/utf8_char.hpp>
 
@@ -18,7 +19,7 @@ namespace Ark::internal
         std::size_t col;
     };
 
-    class BaseParser
+    class ARK_API BaseParser
     {
     public:
         BaseParser() = default;
