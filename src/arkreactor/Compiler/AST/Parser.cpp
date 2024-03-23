@@ -37,13 +37,14 @@ namespace Ark::internal
     {
         while (!isEOF())
         {
-            newlineOrComment();
+            std::string comment;
+            newlineOrComment(&comment);
             if (isEOF())
                 break;
 
             auto n = node();
             if (n)
-                m_ast.push_back(n.value());
+                m_ast.push_back(n.value().attachNearestCommentBefore(comment));
         }
     }
 
@@ -122,10 +123,11 @@ namespace Ark::internal
         std::string token;
         if (!oneOf({ "let", "mut", "set" }, &token))
             return std::nullopt;
-        newlineOrComment();
+        std::string comment;
+        newlineOrComment(&comment);
 
         Node leaf(NodeType::List);
-        setNodePosAndFilename(leaf);
+        setNodePosAndFilename(leaf.attachNearestCommentBefore(comment));
         if (token == "let")
             leaf.push_back(Node(Keyword::Let));
         else if (token == "mut")
@@ -152,10 +154,11 @@ namespace Ark::internal
             leaf.push_back(Node(NodeType::Symbol, symbol));
         }
 
-        newlineOrComment();
+        comment.clear();
+        newlineOrComment(&comment);
 
         if (auto value = nodeOrValue(); value.has_value())
-            leaf.push_back(value.value());
+            leaf.push_back(value.value().attachNearestCommentBefore(comment));
         else
             errorWithNextToken("Expected a value");
 
@@ -168,14 +171,15 @@ namespace Ark::internal
         if (!oneOf({ "del" }, &keyword))
             return std::nullopt;
 
-        newlineOrComment();
+        std::string comment;
+        newlineOrComment(&comment);
 
         std::string symbol;
         if (!name(&symbol))
             errorWithNextToken(keyword + " needs a symbol");
 
         Node leaf(NodeType::List);
-        setNodePosAndFilename(leaf);
+        setNodePosAndFilename(leaf.attachNearestCommentBefore(comment));
         leaf.push_back(Node(Keyword::Del));
         leaf.push_back(Node(NodeType::Symbol, symbol));
 
@@ -187,10 +191,11 @@ namespace Ark::internal
         if (!oneOf({ "if" }))
             return std::nullopt;
 
-        newlineOrComment();
+        std::string comment;
+        newlineOrComment(&comment);
 
         Node leaf(NodeType::List);
-        setNodePosAndFilename(leaf);
+        setNodePosAndFilename(leaf.attachNearestCommentBefore(comment));
         leaf.push_back(Node(Keyword::If));
 
         if (auto condition = nodeOrValue(); condition.has_value())
@@ -198,19 +203,21 @@ namespace Ark::internal
         else
             errorWithNextToken("If need a valid condition");
 
-        newlineOrComment();
+        comment.clear();
+        newlineOrComment(&comment);
 
         if (auto value_if_true = nodeOrValue(); value_if_true.has_value())
-            leaf.push_back(value_if_true.value());
+            leaf.push_back(value_if_true.value().attachNearestCommentBefore(comment));
         else
             errorWithNextToken("Expected a value");
 
-        newlineOrComment();
+        comment.clear();
+        newlineOrComment(&comment);
 
         if (auto value_if_false = nodeOrValue(); value_if_false.has_value())
         {
-            leaf.push_back(value_if_false.value());
-            newlineOrComment();
+            leaf.push_back(value_if_false.value().attachNearestCommentBefore(comment));
+            newlineOrComment();  // FIXME how to attach a comment after the node? another field?
         }
 
         return leaf;
@@ -221,10 +228,11 @@ namespace Ark::internal
         if (!oneOf({ "while" }))
             return std::nullopt;
 
-        newlineOrComment();
+        std::string comment;
+        newlineOrComment(&comment);
 
         Node leaf(NodeType::List);
-        setNodePosAndFilename(leaf);
+        setNodePosAndFilename(leaf.attachNearestCommentBefore(comment));
         leaf.push_back(Node(Keyword::While));
 
         if (auto condition = nodeOrValue(); condition.has_value())
@@ -232,10 +240,11 @@ namespace Ark::internal
         else
             errorWithNextToken("While need a valid condition");
 
-        newlineOrComment();
+        comment.clear();
+        newlineOrComment(&comment);
 
         if (auto body = nodeOrValue(); body.has_value())
-            leaf.push_back(body.value());
+            leaf.push_back(body.value().attachNearestCommentBefore(comment));
         else
             errorWithNextToken("Expected a value");
 
@@ -246,15 +255,17 @@ namespace Ark::internal
     {
         if (!accept(IsChar('(')))
             return std::nullopt;
-        newlineOrComment();
-
-        if (!oneOf({ "import" }))
-            return std::nullopt;
-        newlineOrComment();
+        std::string comment;
+        newlineOrComment(&comment);
 
         Node leaf(NodeType::List);
         setNodePosAndFilename(leaf);
-        leaf.push_back(Node(Keyword::Import));
+
+        if (!oneOf({ "import" }))
+            return std::nullopt;
+        comment.clear();
+        newlineOrComment(&comment);
+        leaf.push_back(Node(Keyword::Import).attachNearestCommentBefore(comment));
 
         Import import_data;
 
@@ -303,7 +314,8 @@ namespace Ark::internal
         Node symbols(NodeType::List);
         setNodePosAndFilename(symbols);
         // then parse the symbols to import, if any
-        if (newlineOrComment())
+        comment.clear();
+        if (newlineOrComment(&comment))
         {
             while (!isEOF())
             {
@@ -319,11 +331,12 @@ namespace Ark::internal
                         error("Glob pattern can not follow a symbol to import", ":*");
                     }
 
-                    symbols.push_back(Node(NodeType::Symbol, symbol));
+                    symbols.push_back(Node(NodeType::Symbol, symbol).attachNearestCommentBefore(comment));
                     import_data.symbols.push_back(symbol);
                 }
 
-                if (!newlineOrComment())
+                comment.clear();
+                if (!newlineOrComment(&comment))  // TODO what to do?
                     break;
             }
         }
@@ -333,7 +346,7 @@ namespace Ark::internal
         // save the import data
         m_imports.push_back(import_data);
 
-        newlineOrComment();
+        newlineOrComment();  // FIXME: attach comment after the node
         expect(IsChar(')'));
         return leaf;
     }
@@ -341,9 +354,10 @@ namespace Ark::internal
     std::optional<Node> Parser::block()
     {
         bool alt_syntax = false;
+        std::string comment;
         if (accept(IsChar('(')))
         {
-            newlineOrComment();
+            newlineOrComment(&comment);
             if (!oneOf({ "begin" }))
                 return std::nullopt;
         }
@@ -351,24 +365,27 @@ namespace Ark::internal
             alt_syntax = true;
         else
             return std::nullopt;
-        newlineOrComment();
 
         Node leaf(NodeType::List);
         setNodePosAndFilename(leaf);
-        leaf.push_back(Node(Keyword::Begin));
+        leaf.push_back(Node(Keyword::Begin).attachNearestCommentBefore(comment));
+
+        comment.clear();
+        newlineOrComment(&comment);
 
         while (!isEOF())
         {
             if (auto value = nodeOrValue(); value.has_value())
             {
-                leaf.push_back(value.value());
-                newlineOrComment();
+                leaf.push_back(value.value().attachNearestCommentBefore(comment));
+                comment.clear();
+                newlineOrComment(&comment);
             }
             else
                 break;
         }
 
-        newlineOrComment();
+        newlineOrComment(&comment);  // FIXME: attach comment after last node
         expect(IsChar(!alt_syntax ? ')' : '}'));
         return leaf;
     }
@@ -376,10 +393,11 @@ namespace Ark::internal
     std::optional<Node> Parser::functionArgs()
     {
         expect(IsChar('('));
-        newlineOrComment();
+        std::string comment;
+        newlineOrComment(&comment);
 
         Node args(NodeType::List);
-        setNodePosAndFilename(args);
+        setNodePosAndFilename(args.attachNearestCommentBefore(comment));
         bool has_captures = false;
 
         while (!isEOF())
@@ -392,8 +410,9 @@ namespace Ark::internal
                     break;
                 else
                 {
-                    newlineOrComment();
-                    args.push_back(Node(NodeType::Capture, capture));
+                    comment.clear();
+                    newlineOrComment(&comment);
+                    args.push_back(Node(NodeType::Capture, capture).attachNearestCommentBefore(comment));
                 }
             }
             else
@@ -410,8 +429,9 @@ namespace Ark::internal
                         error("Captured variables should be at the end of the argument list", symbol);
                     }
 
-                    newlineOrComment();
-                    args.push_back(Node(NodeType::Symbol, symbol));
+                    comment.clear();
+                    newlineOrComment(&comment);
+                    args.push_back(Node(NodeType::Symbol, symbol).attachNearestCommentBefore(comment));
                 }
             }
         }
@@ -425,14 +445,15 @@ namespace Ark::internal
     {
         if (!oneOf({ "fun" }))
             return std::nullopt;
-        newlineOrComment();
+        std::string comment;
+        newlineOrComment(&comment);
 
         while (m_allow_macro_behavior > 0)
         {
             auto position = getCount();
 
             Node leaf(NodeType::List);
-            setNodePosAndFilename(leaf);
+            setNodePosAndFilename(leaf.attachNearestCommentBefore(comment));
             leaf.push_back(Node(Keyword::Fun));
             // args
             if (auto value = nodeOrValue(); value.has_value())
@@ -451,17 +472,19 @@ namespace Ark::internal
                 backtrack(position);
                 break;
             }
-            newlineOrComment();
+
+            comment.clear();
+            newlineOrComment(&comment);
             // body
             if (auto value = nodeOrValue(); value.has_value())
-                leaf.push_back(value.value());
+                leaf.push_back(value.value().attachNearestCommentBefore(comment));
             else
                 errorWithNextToken("Expected a body for the function");
             return leaf;
         }
 
         Node leaf(NodeType::List);
-        setNodePosAndFilename(leaf);
+        setNodePosAndFilename(leaf.attachNearestCommentBefore(comment));
         leaf.push_back(Node(Keyword::Fun));
 
         auto position = getCount();
@@ -477,10 +500,11 @@ namespace Ark::internal
                 errorWithNextToken("Expected an argument list");
         }
 
-        newlineOrComment();
+        comment.clear();
+        newlineOrComment(&comment);
 
         if (auto value = nodeOrValue(); value.has_value())
-            leaf.push_back(value.value());
+            leaf.push_back(value.value().attachNearestCommentBefore(comment));
         else
             errorWithNextToken("Expected a body for the function");
 
@@ -491,10 +515,11 @@ namespace Ark::internal
     {
         if (!oneOf({ "$if" }))
             return std::nullopt;
-        newlineOrComment();
+        std::string comment;
+        newlineOrComment(&comment);
 
         Node leaf(NodeType::Macro);
-        setNodePosAndFilename(leaf);
+        setNodePosAndFilename(leaf.attachNearestCommentBefore(comment));
         leaf.push_back(Node(Keyword::If));
 
         if (auto condition = nodeOrValue(); condition.has_value())
@@ -502,19 +527,22 @@ namespace Ark::internal
         else
             errorWithNextToken("$if need a valid condition");
 
-        newlineOrComment();
+        comment.clear();
+        newlineOrComment(&comment);
 
         if (auto value_if_true = nodeOrValue(); value_if_true.has_value())
-            leaf.push_back(value_if_true.value());
+            leaf.push_back(value_if_true.value().attachNearestCommentBefore(comment));
         else
             errorWithNextToken("Expected a value");
 
-        newlineOrComment();
+        comment.clear();
+        newlineOrComment(&comment);
 
         if (auto value_if_false = nodeOrValue(); value_if_false.has_value())
         {
-            leaf.push_back(value_if_false.value());
-            newlineOrComment();
+            leaf.push_back(value_if_false.value().attachNearestCommentBefore(comment));
+            comment.clear();
+            newlineOrComment(&comment);  // FIXME: attach comment after node
         }
 
         return leaf;
@@ -524,9 +552,10 @@ namespace Ark::internal
     {
         if (accept(IsChar('(')))
         {
-            newlineOrComment();
+            std::string comment;
+            newlineOrComment(&comment);
             Node args = Node(NodeType::List);
-            setNodePosAndFilename(args);
+            setNodePosAndFilename(args.attachNearestCommentBefore(comment));
 
             while (!isEOF())
             {
@@ -535,8 +564,9 @@ namespace Ark::internal
                     break;
                 else
                 {
-                    newlineOrComment();
-                    args.push_back(Node(NodeType::Symbol, arg_name));
+                    comment.clear();
+                    newlineOrComment(&comment);
+                    args.push_back(Node(NodeType::Symbol, arg_name).attachNearestCommentBefore(comment));
                 }
             }
 
@@ -546,12 +576,14 @@ namespace Ark::internal
                 if (!name(&spread_name))
                     errorWithNextToken("Expected a name for the variadic arguments list");
                 args.push_back(Node(NodeType::Spread, spread_name));
-                newlineOrComment();
+                comment.clear();
+                newlineOrComment(&comment);  // FIXME: attach comment after node
             }
 
             if (!accept(IsChar(')')))
                 return std::nullopt;
-            newlineOrComment();
+            comment.clear();
+            newlineOrComment(&comment);  // FIXME: attach comment after node
 
             return args;
         }
@@ -563,20 +595,23 @@ namespace Ark::internal
     {
         if (!accept(IsChar('(')))
             return std::nullopt;
-        newlineOrComment();
+        std::string comment;
+        newlineOrComment(&comment);
 
         if (!oneOf({ "$" }))
             return std::nullopt;
-        newlineOrComment();
+        newlineOrComment(&comment);
+
+        Node leaf(NodeType::Macro);
+        setNodePosAndFilename(leaf.attachNearestCommentBefore(comment));
 
         std::string symbol;
         if (!name(&symbol))
             errorWithNextToken("$ needs a symbol to declare a macro");
-        newlineOrComment();
+        comment.clear();
+        newlineOrComment(&comment);
 
-        Node leaf(NodeType::Macro);
-        setNodePosAndFilename(leaf);
-        leaf.push_back(Node(NodeType::Symbol, symbol));
+        leaf.push_back(Node(NodeType::Symbol, symbol).attachNearestCommentBefore(comment));
 
         auto position = getCount();
         if (auto args = macroArgs(); args.has_value())
@@ -607,7 +642,8 @@ namespace Ark::internal
         else
             errorWithNextToken("Expected a value while defining macro `" + symbol + "'");
 
-        newlineOrComment();
+        comment.clear();
+        newlineOrComment(&comment);  // FIXME: attach comment after node
         expect(IsChar(')'));
         return leaf;
     }
@@ -616,16 +652,18 @@ namespace Ark::internal
     {
         if (!accept(IsChar('(')))
             return std::nullopt;
-        newlineOrComment();
+        std::string comment;
+        newlineOrComment(&comment);
 
         std::optional<Node> func;
         if (auto atom = anyAtomOf({ NodeType::Symbol, NodeType::Field }); atom.has_value())
-            func = atom;
+            func = atom->attachNearestCommentBefore(comment);
         else if (auto nested = node(); nested.has_value())
-            func = nested;
+            func = nested->attachNearestCommentBefore(comment);
         else
             return std::nullopt;
-        newlineOrComment();
+        comment.clear();
+        newlineOrComment(&comment);
 
         NodeType call_type = NodeType::List;
         if (auto node = func.value(); node.nodeType() == NodeType::Symbol)
@@ -636,21 +674,23 @@ namespace Ark::internal
         }
 
         Node leaf(call_type);
-        setNodePosAndFilename(leaf);
+        setNodePosAndFilename(leaf.attachNearestCommentBefore(comment));
         leaf.push_back(func.value());
 
         while (!isEOF())
         {
             if (auto arg = nodeOrValue(); arg.has_value())
             {
-                newlineOrComment();
-                leaf.push_back(arg.value());
+                comment.clear();
+                newlineOrComment(&comment);
+                leaf.push_back(arg.value().attachNearestCommentBefore(comment));
             }
             else
                 break;
         }
 
-        newlineOrComment();
+        comment.clear();
+        newlineOrComment(&comment);  // FIXME: attach comment after node
         expect(IsChar(')'));
         return leaf;
     }
@@ -659,25 +699,28 @@ namespace Ark::internal
     {
         if (!accept(IsChar('[')))
             return std::nullopt;
-        newlineOrComment();
+        std::string comment;
+        newlineOrComment(&comment);
 
         Node leaf(NodeType::List);
-        setNodePosAndFilename(leaf);
+        setNodePosAndFilename(leaf.attachNearestCommentBefore(comment));
         leaf.push_back(Node(NodeType::Symbol, "list"));
 
+        comment.clear();
         while (!isEOF())
         {
             if (auto value = nodeOrValue(); value.has_value())
             {
-                leaf.push_back(value.value());
-                newlineOrComment();
+                leaf.push_back(value.value().attachNearestCommentBefore(comment));
+                comment.clear();
+                newlineOrComment(&comment);
             }
             else
                 break;
         }
 
-        newlineOrComment();
-        expect(IsChar(']'));
+        newlineOrComment(&comment);
+        expect(IsChar(']'));  // FIXME: attach comment after node
         return leaf;
     }
 
@@ -746,9 +789,14 @@ namespace Ark::internal
     {
         if (!prefix('('))
             return std::nullopt;
+        std::string comment;
+        newlineOrComment(&comment);
 
         if (auto result = (this->*parser)(); result.has_value())
         {
+            result->attachNearestCommentBefore(comment);
+            comment.clear();
+            newlineOrComment(&comment);  // FIXME: attach comment after node
             if (!suffix(')'))
                 errorMissingSuffix(')', name);
             return result;

@@ -25,7 +25,6 @@ namespace Ark::internal
         BaseParser() = default;
 
     private:
-        bool m_remove_comments;
         std::string m_str;
         std::string::iterator m_it, m_next_it;
         utf8_char_t m_sym;
@@ -71,8 +70,8 @@ namespace Ark::internal
         bool space(std::string* s = nullptr);
         bool inlineSpace(std::string* s = nullptr);
         bool endOfLine(std::string* s = nullptr);
-        bool comment();
-        bool newlineOrComment();
+        bool comment(std::string* s = nullptr);
+        bool newlineOrComment(std::string* s = nullptr);
         bool prefix(char c);
         bool suffix(char c);
         bool number(std::string* s = nullptr);

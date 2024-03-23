@@ -164,22 +164,22 @@ namespace Ark::internal
         return false;
     }
 
-    bool BaseParser::comment()
+    bool BaseParser::comment(std::string* s)
     {
-        if (accept(IsChar('#')))
+        if (accept(IsChar('#'), s))
         {
-            while (accept(IsNot(IsChar('\n'))))
+            while (accept(IsNot(IsChar('\n')), s))
                 ;
-            accept(IsChar('\n'));
+            accept(IsChar('\n'), s);
             return true;
         }
         return false;
     }
 
-    bool BaseParser::newlineOrComment()
+    bool BaseParser::newlineOrComment(std::string* s)
     {
         bool matched = space();
-        while (!isEOF() && comment())
+        while (!isEOF() && comment(s))
         {
             space();
             matched = true;
@@ -192,13 +192,11 @@ namespace Ark::internal
     {
         if (!accept(IsChar(c)))
             return false;
-        newlineOrComment();
         return true;
     }
 
     bool BaseParser::suffix(char c)
     {
-        newlineOrComment();
         return accept(IsChar(c));
     }
 

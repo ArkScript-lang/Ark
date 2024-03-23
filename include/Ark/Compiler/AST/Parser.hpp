@@ -21,7 +21,7 @@ namespace Ark::internal
     public:
         /**
          * @brief Constructs a new Parser object
-         * @param interpret
+         * @param interpret interpret escape codes in strings
          */
         explicit Parser(bool interpret = true);
 
@@ -218,14 +218,16 @@ namespace Ark::internal
         {
             if (!accept(IsChar('(')))
                 return std::nullopt;
-            newlineOrComment();
+
+            std::string comment;
+            newlineOrComment(&comment);
             if (!accept(IsChar(')')))
                 return std::nullopt;
 
             if (m_interpret)
-                return Node(NodeType::Symbol, "nil");
+                return Node(NodeType::Symbol, "nil").attachNearestCommentBefore(comment);
             else
-                return Node(NodeType::List);
+                return Node(NodeType::List).attachNearestCommentBefore(comment);
         }
 
         std::optional<Node> atom();
