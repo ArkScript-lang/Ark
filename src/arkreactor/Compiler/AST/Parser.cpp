@@ -47,6 +47,13 @@ namespace Ark::internal
         }
     }
 
+    void Parser::setNodePosAndFilename(Node& node)
+    {
+        auto position = getCursor();
+        node.setPos(position.row, position.col);
+        node.setFilename(m_filename);
+    }
+
     std::optional<Node> Parser::node()
     {
         // save current position in buffer to be able to go back if needed
@@ -118,6 +125,7 @@ namespace Ark::internal
         newlineOrComment();
 
         Node leaf(NodeType::List);
+        setNodePosAndFilename(leaf);
         if (token == "let")
             leaf.push_back(Node(Keyword::Let));
         else if (token == "mut")
@@ -167,6 +175,7 @@ namespace Ark::internal
             errorWithNextToken(keyword + " needs a symbol");
 
         Node leaf(NodeType::List);
+        setNodePosAndFilename(leaf);
         leaf.push_back(Node(Keyword::Del));
         leaf.push_back(Node(NodeType::Symbol, symbol));
 
@@ -181,6 +190,7 @@ namespace Ark::internal
         newlineOrComment();
 
         Node leaf(NodeType::List);
+        setNodePosAndFilename(leaf);
         leaf.push_back(Node(Keyword::If));
 
         if (auto condition = nodeOrValue(); condition.has_value())
@@ -214,6 +224,7 @@ namespace Ark::internal
         newlineOrComment();
 
         Node leaf(NodeType::List);
+        setNodePosAndFilename(leaf);
         leaf.push_back(Node(Keyword::While));
 
         if (auto condition = nodeOrValue(); condition.has_value())
@@ -242,6 +253,7 @@ namespace Ark::internal
         newlineOrComment();
 
         Node leaf(NodeType::List);
+        setNodePosAndFilename(leaf);
         leaf.push_back(Node(Keyword::Import));
 
         Import import_data;
@@ -251,6 +263,7 @@ namespace Ark::internal
         import_data.package.push_back(import_data.prefix);
 
         Node packageNode(NodeType::List);
+        setNodePosAndFilename(packageNode);
         packageNode.push_back(Node(NodeType::String, import_data.prefix));
 
         // first, parse the package name
@@ -288,6 +301,7 @@ namespace Ark::internal
         }
 
         Node symbols(NodeType::List);
+        setNodePosAndFilename(symbols);
         // then parse the symbols to import, if any
         if (newlineOrComment())
         {
@@ -340,6 +354,7 @@ namespace Ark::internal
         newlineOrComment();
 
         Node leaf(NodeType::List);
+        setNodePosAndFilename(leaf);
         leaf.push_back(Node(Keyword::Begin));
 
         while (!isEOF())
@@ -364,6 +379,7 @@ namespace Ark::internal
         newlineOrComment();
 
         Node args(NodeType::List);
+        setNodePosAndFilename(args);
         bool has_captures = false;
 
         while (!isEOF())
@@ -416,6 +432,7 @@ namespace Ark::internal
             auto position = getCount();
 
             Node leaf(NodeType::List);
+            setNodePosAndFilename(leaf);
             leaf.push_back(Node(Keyword::Fun));
             // args
             if (auto value = nodeOrValue(); value.has_value())
@@ -423,6 +440,7 @@ namespace Ark::internal
                 // if value is nil, just add an empty argument bloc to prevent bugs when
                 // declaring functions inside macros
                 Node args = value.value();
+                setNodePosAndFilename(args);
                 if (args.nodeType() == NodeType::Symbol && args.string() == "nil")
                     leaf.push_back(Node(NodeType::List));
                 else
@@ -443,6 +461,7 @@ namespace Ark::internal
         }
 
         Node leaf(NodeType::List);
+        setNodePosAndFilename(leaf);
         leaf.push_back(Node(Keyword::Fun));
 
         auto position = getCount();
@@ -475,6 +494,7 @@ namespace Ark::internal
         newlineOrComment();
 
         Node leaf(NodeType::Macro);
+        setNodePosAndFilename(leaf);
         leaf.push_back(Node(Keyword::If));
 
         if (auto condition = nodeOrValue(); condition.has_value())
@@ -506,6 +526,7 @@ namespace Ark::internal
         {
             newlineOrComment();
             Node args = Node(NodeType::List);
+            setNodePosAndFilename(args);
 
             while (!isEOF())
             {
@@ -554,6 +575,7 @@ namespace Ark::internal
         newlineOrComment();
 
         Node leaf(NodeType::Macro);
+        setNodePosAndFilename(leaf);
         leaf.push_back(Node(NodeType::Symbol, symbol));
 
         auto position = getCount();
@@ -614,6 +636,7 @@ namespace Ark::internal
         }
 
         Node leaf(call_type);
+        setNodePosAndFilename(leaf);
         leaf.push_back(func.value());
 
         while (!isEOF())
@@ -639,6 +662,7 @@ namespace Ark::internal
         newlineOrComment();
 
         Node leaf(NodeType::List);
+        setNodePosAndFilename(leaf);
         leaf.push_back(Node(NodeType::Symbol, "list"));
 
         while (!isEOF())

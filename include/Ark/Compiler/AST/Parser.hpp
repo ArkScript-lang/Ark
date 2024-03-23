@@ -39,6 +39,8 @@ namespace Ark::internal
 
         void run();
 
+        void setNodePosAndFilename(Node& node);
+
         std::optional<Node> node();
         std::optional<Node> letMutSet();
         std::optional<Node> del();
@@ -173,6 +175,7 @@ namespace Ark::internal
                 return std::nullopt;
 
             Node leaf = Node(NodeType::Field);
+            setNodePosAndFilename(leaf);
             leaf.push_back(Node(NodeType::Symbol, symbol));
 
             while (true)

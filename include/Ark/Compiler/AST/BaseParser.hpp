@@ -25,7 +25,7 @@ namespace Ark::internal
         BaseParser() = default;
 
     private:
-        std::string m_filename;
+        bool m_remove_comments;
         std::string m_str;
         std::string::iterator m_it, m_next_it;
         utf8_char_t m_sym;
@@ -36,6 +36,8 @@ namespace Ark::internal
         void next();
 
     protected:
+        std::string m_filename;
+
         void initParser(const std::string& filename, const std::string& code);
 
         FilePosition getCursor();
