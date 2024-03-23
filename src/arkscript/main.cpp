@@ -56,13 +56,33 @@ int main(int argc, char** argv)
         | option("-v", "--version").set(selected, mode::version).doc("Display ArkScript version and exit")
         | option("--dev-info").set(selected, mode::dev_info).doc("Display development information and exit")
         | (
-            required("-e", "--eval").set(selected, mode::eval).doc("Evaluate ArkScript expression")
+            required("-e", "--eval").set(selected, mode::eval).doc("Evaluate ArkScript expression\n")
             & value("expression", eval_expression)
         )
         | (
             required("-c", "--compile").set(selected, mode::compile).doc("Compile the given program to bytecode, but do not run")
             & value("file", file)
+            , joinable(repeatable(option("-d", "--debug").call([&]{ debug++; }).doc("Increase debug level (default: 0)\n")))
+        )
+        | (
+            value("file", file).set(selected, mode::run)
+            , (
+                joinable(repeatable(option("-d", "--debug").call([&]{ debug++; })))
+                , (
+                    option("-L", "--lib").doc("Set the location of the ArkScript standard library. Paths can be delimited by ';'\n")
+                    & value("lib_dir", libdir)
+                )
+            )
+            , any_other(script_args)
+        )
+        | (
+            required("--ast").set(selected, mode::ast).doc("Compile the given program and output its AST as JSON to stdout")
+            & value("file", file)
             , joinable(repeatable(option("-d", "--debug").call([&]{ debug++; }).doc("Increase debug level (default: 0)")))
+            , (
+                option("-L", "--lib").doc("Set the location of the ArkScript standard library. Paths can be delimited by ';'")
+                & value("lib_dir", libdir)
+            )
         )
         | (
             required("-bcr", "--bytecode-reader").set(selected, mode::bytecode_reader).doc("Launch the bytecode reader")
@@ -86,26 +106,6 @@ int main(int argc, char** argv)
                 )
             )
         )
-        | (
-            value("file", file).set(selected, mode::run)
-            , (
-                joinable(repeatable(option("-d", "--debug").call([&]{ debug++; })))
-                , (
-                    option("-L", "--lib").doc("Set the location of the ArkScript standard library. Paths can be delimited by ';'")
-                    & value("lib_dir", libdir)
-                )
-            )
-            , any_other(script_args)
-        )
-        | (
-            required("--ast").set(selected, mode::ast).doc("Compile the given program and output its AST as JSON to stdout")
-            & value("file", file)
-            , joinable(repeatable(option("-d", "--debug").call([&]{ debug++; }).doc("Increase debug level (default: 0)")))
-            , (
-                option("-L", "--lib").doc("Set the location of the ArkScript standard library. Paths can be delimited by ';'")
-                & value("lib_dir", libdir)
-            )
-        )
         , any_other(wrong)
     );
     // clang-format on
@@ -116,7 +116,8 @@ int main(int argc, char** argv)
                    .indent_size(2)                                    // indent of documentation lines for children of a documented group
                    .split_alternatives(true)                          // split usage into several lines for large alternatives
                    .merge_alternative_flags_with_common_prefix(true)  // [-fok] [-fno-ok] becomes [-f(ok|no-ok)]
-        ;
+                   .paragraph_spacing(1)
+                   .ignore_newline_chars(false);
     const auto man_page = make_man_page(cli, "arkscript", fmt)
                               .prepend_section("DESCRIPTION", "        ArkScript programming language")
                               .append_section("VERSION", fmt::format("        {}", ARK_FULL_VERSION))
@@ -288,7 +289,7 @@ int main(int argc, char** argv)
         for (const auto& arg : wrong)
             std::cerr << "'" << arg.c_str() << "' isn't a valid argument\n";
 
-        std::cout << man_page << std::endl;
+        std::cout << usage_lines(cli, fmt) << std::endl;
     }
 
     return 0;
