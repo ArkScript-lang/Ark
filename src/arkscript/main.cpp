@@ -10,7 +10,7 @@
 #include <fmt/core.h>
 
 #include <Ark/Ark.hpp>
-#include <Ark/REPL/Repl.hpp>
+#include <CLI/REPL/Repl.hpp>
 
 #include <Ark/Files.hpp>
 #include <Ark/Compiler/BytecodeReader.hpp>

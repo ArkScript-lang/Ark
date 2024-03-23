@@ -177,7 +177,7 @@ std::string JsonCompiler::_compile(const Node& node)
         }
 
         default:
-            throw Error(fmt::format(
+            throw Ark::Error(fmt::format(
                 "Not handled NodeType::{} ({} at {}:{}), please report this error on GitHub",
                 nodeTypes[static_cast<std::size_t>(node.nodeType())].data(),
                 node.filename().c_str(),

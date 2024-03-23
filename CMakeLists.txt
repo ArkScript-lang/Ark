@@ -180,7 +180,11 @@ endif()
 
 # TODO: consider using ctest
 if (ARK_TESTS)
-    file(GLOB_RECURSE UT_SOURCES ${ark_SOURCE_DIR}/tests/unittests/*.cpp)
+    file(GLOB_RECURSE UT_SOURCES
+            ${ark_SOURCE_DIR}/tests/unittests/*.cpp
+            ${ark_SOURCE_DIR}/lib/fmt/src/format.cc
+            ${ark_SOURCE_DIR}/src/arkscript/Formatter.cpp
+            ${ark_SOURCE_DIR}/src/arkscript/JsonCompiler.cpp)
     add_executable(unittests ${UT_SOURCES})
 
     add_subdirectory(${ark_SOURCE_DIR}/lib/ut)
@@ -194,11 +198,8 @@ endif()
 if (ARK_BUILD_EXE)
     # additional files needed for the exe (repl, command line and stuff)
     file(GLOB_RECURSE EXE_SOURCES
-        ${ark_SOURCE_DIR}/src/arkscript/REPL/Utils.cpp
-        ${ark_SOURCE_DIR}/src/arkscript/REPL/Repl.cpp
-        ${ark_SOURCE_DIR}/lib/fmt/src/format.cc
-        ${ark_SOURCE_DIR}/src/arkscript/main.cpp)
-
+        ${ark_SOURCE_DIR}/src/arkscript/*.cpp
+        ${ark_SOURCE_DIR}/lib/fmt/src/format.cc)
     add_executable(arkscript ${EXE_SOURCES})
 
     if (MSVC)

@@ -19,7 +19,7 @@
 #include <Ark/Compiler/Compiler.hpp>
 #include <Ark/VM/VM.hpp>
 #include <Ark/VM/State.hpp>
-#include <Ark/REPL/ConsoleStyle.hpp>
+#include <CLI/REPL/ConsoleStyle.hpp>
 
 namespace Ark
 {
