@@ -11,6 +11,7 @@
 
 #include <picosha2.h>
 #include <termcolor/proxy.hpp>
+#include <fmt/core.h>
 
 namespace Ark
 {
@@ -177,7 +178,7 @@ namespace Ark
             std::string str_version = std::to_string(major) + "." +
                 std::to_string(minor) + "." +
                 std::to_string(patch);
-            throwStateError("Compiler and VM versions don't match: " + str_version + " and " + ARK_VERSION_STR);
+            throwStateError(fmt::format("Compiler and VM versions don't match: got {} while running {}", str_version, ARK_VERSION));
         }
 
         using timestamp_t = unsigned long long;

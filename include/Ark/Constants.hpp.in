@@ -2,10 +2,10 @@
  * @file Constants.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Constants used by ArkScript
- * @version 0.1
+ * @version 0.2
  * @date 2020-10-27
  * 
- * @copyright Copyright (c) 2020
+ * @copyright Copyright (c) 2020-2024
  * 
  */
 
@@ -17,10 +17,9 @@ constexpr int ARK_VERSION_MAJOR = @ARK_VERSION_MAJOR@;
 constexpr int ARK_VERSION_MINOR = @ARK_VERSION_MINOR@;
 constexpr int ARK_VERSION_PATCH = @ARK_VERSION_PATCH@;
 // clang-format on
-constexpr int ARK_VERSION = (ARK_VERSION_MAJOR << 16) + (ARK_VERSION_MINOR << 8) + ARK_VERSION_PATCH;
-constexpr char ARK_VERSION_STR[4] = { ARK_VERSION_MAJOR + '0', ARK_VERSION_MINOR + '0', ARK_VERSION_PATCH + '0', 0x00 };
+constexpr std::string_view ARK_VERSION { "@ARK_VERSION_MAJOR@.@ARK_VERSION_MINOR@.@ARK_VERSION_PATCH@" };
+constexpr std::string_view ARK_FULL_VERSION { "@ARK_VERSION_MAJOR@.@ARK_VERSION_MINOR@.@ARK_VERSION_PATCH@-@ARK_COMMIT@" };
 
-#define ARK_COMPILATION_OPTIONS "@CMAKE_CXX_FLAGS@"
 #define ARK_COMPILER "@CMAKE_CXX_COMPILER_ID@"
 #define ARK_CACHE_DIRNAME "__arkscript__"
 #define ARK_NO_NAME_FILE "FILE"

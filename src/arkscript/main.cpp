@@ -117,6 +117,10 @@ int main(int argc, char** argv)
                    .split_alternatives(true)                          // split usage into several lines for large alternatives
                    .merge_alternative_flags_with_common_prefix(true)  // [-fok] [-fno-ok] becomes [-f(ok|no-ok)]
         ;
+    const auto man_page = make_man_page(cli, "arkscript", fmt)
+                              .prepend_section("DESCRIPTION", "        ArkScript programming language")
+                              .append_section("VERSION", fmt::format("        {}", ARK_FULL_VERSION))
+                              .append_section("LICENSE", "        Mozilla Public License 2.0");
 
     if (parse(argc, argv, cli) && wrong.empty())
     {
@@ -145,22 +149,17 @@ int main(int argc, char** argv)
         switch (selected)
         {
             case mode::help:
-                // clipp only supports streams
-                std::cout << make_man_page(cli, "arkscript", fmt)
-                                 .prepend_section("DESCRIPTION", "        ArkScript programming language")
-                                 .append_section("VERSION", fmt::format("        {}.{}.{}", ARK_VERSION_MAJOR, ARK_VERSION_MINOR, ARK_VERSION_PATCH))
-                                 .append_section("LICENSE", "        Mozilla Public License 2.0")
-                          << std::endl;
+                std::cout << man_page << std::endl;
                 break;
 
             case mode::version:
-                std::cout << fmt::format("Version {}.{}.{}\n", ARK_VERSION_MAJOR, ARK_VERSION_MINOR, ARK_VERSION_PATCH);
+                std::cout << fmt::format("{}\n", ARK_FULL_VERSION);
                 break;
 
             case mode::dev_info:
             {
                 std::cout << fmt::format(
-                    "Have been compiled with {}, options: {}\n\n"
+                    "Have been compiled with {}\n\n"
                     "sizeof(Ark::Value)    = {}B\n"
                     "      sizeof(Value_t) = {}B\n"
                     "      sizeof(ValueType) = {}B\n"
@@ -176,7 +175,7 @@ int main(int argc, char** argv)
                     "    sizeof(vector<Ark::Value>) = {}B\n"
                     "    sizeof(char)          = {}B\n"
                     "\nsizeof(Node)           = {}B\n",
-                    ARK_COMPILER, ARK_COMPILATION_OPTIONS,
+                    ARK_COMPILER,
                     // value
                     sizeof(Ark::Value),
                     sizeof(Ark::Value::Value_t),
@@ -287,14 +286,9 @@ int main(int argc, char** argv)
     else
     {
         for (const auto& arg : wrong)
-            std::cerr << "'" << arg.c_str() << "' ins't a valid argument\n";
+            std::cerr << "'" << arg.c_str() << "' isn't a valid argument\n";
 
-        // clipp only supports streams
-        std::cout << make_man_page(cli, "arkscript", fmt)
-                         .prepend_section("DESCRIPTION", "        ArkScript programming language")
-                         .append_section("VERSION", fmt::format("        {}.{}.{}", ARK_VERSION_MAJOR, ARK_VERSION_MINOR, ARK_VERSION_PATCH))
-                         .append_section("LICENSE", "        Mozilla Public License 2.0")
-                  << std::endl;
+        std::cout << man_page << std::endl;
     }
 
     return 0;

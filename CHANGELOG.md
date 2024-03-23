@@ -23,6 +23,7 @@
 - new parser, new syntax for imports: `(import package.sub.file)`
 - allow nodes to be empty when dumping the AST to JSON
 - macros can be declared inside a begin block within a cond macro and used in the scope surrounding the cond macro
+- `arkscript --version` and `arkscript --help` now output ArkScript version with the commit hash
 
 ### Removed
 - removed unused `NodeType::Closure`

@@ -7,6 +7,13 @@ set(ARK_VERSION_MAJOR 4)
 set(ARK_VERSION_MINOR 0)
 set(ARK_VERSION_PATCH 0)
 
+execute_process(
+        COMMAND git rev-parse --short=8 HEAD
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        OUTPUT_VARIABLE GIT_COMMIT_HASH
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
+set(ARK_COMMIT ${GIT_COMMIT_HASH})
+
 include(cmake/link_time_optimization.cmake)
 include(cmake/sanitizers.cmake)
 include(GNUInstallDirs)  # Uses GNU Install directory variables
