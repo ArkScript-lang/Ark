@@ -39,7 +39,7 @@ namespace Ark::internal
 
         void run();
 
-        void setNodePosAndFilename(Node& node);
+        Node& setNodePosAndFilename(Node& node, std::optional<FilePosition> cursor = std::nullopt);
 
         std::optional<Node> node();
         std::optional<Node> letMutSet();
@@ -65,7 +65,7 @@ namespace Ark::internal
             {
                 double output;
                 if (Utils::isDouble(res, &output))
-                    return Node(output);
+                    return std::optional<Node>(output);
                 else
                 {
                     backtrack(pos);
@@ -163,7 +163,7 @@ namespace Ark::internal
                         errorMissingSuffix('"', "string");
                 }
 
-                return Node(NodeType::String, res);
+                return { Node(NodeType::String, res) };
             }
             return std::nullopt;
         }
@@ -174,21 +174,21 @@ namespace Ark::internal
             if (!name(&symbol))
                 return std::nullopt;
 
-            Node leaf = Node(NodeType::Field);
-            setNodePosAndFilename(leaf);
-            leaf.push_back(Node(NodeType::Symbol, symbol));
+            std::optional<Node> leaf { Node(NodeType::Field) };
+            setNodePosAndFilename(leaf.value());
+            leaf->push_back(Node(NodeType::Symbol, symbol));
 
             while (true)
             {
-                if (leaf.list().size() == 1 && !accept(IsChar('.')))  // Symbol:abc
+                if (leaf->list().size() == 1 && !accept(IsChar('.')))  // Symbol:abc
                     return std::nullopt;
 
-                if (leaf.list().size() > 1 && !accept(IsChar('.')))
+                if (leaf->list().size() > 1 && !accept(IsChar('.')))
                     break;
                 std::string res;
                 if (!name(&res))
                     errorWithNextToken("Expected a field name: <symbol>.<field>");
-                leaf.push_back(Node(NodeType::Symbol, res));
+                leaf->push_back(Node(NodeType::Symbol, res));
             }
 
             return leaf;
@@ -199,7 +199,7 @@ namespace Ark::internal
             std::string res;
             if (!name(&res))
                 return std::nullopt;
-            return Node(NodeType::Symbol, res);
+            return { Node(NodeType::Symbol, res) };
         }
 
         inline std::optional<Node> spread()
@@ -209,7 +209,7 @@ namespace Ark::internal
             {
                 if (!name(&res))
                     errorWithNextToken("Expected a name for the variadic");
-                return Node(NodeType::Spread, res);
+                return { Node(NodeType::Spread, res) };
             }
             return std::nullopt;
         }
@@ -225,9 +225,9 @@ namespace Ark::internal
                 return std::nullopt;
 
             if (m_interpret)
-                return Node(NodeType::Symbol, "nil").attachNearestCommentBefore(comment);
+                return { Node(NodeType::Symbol, "nil").attachNearestCommentBefore(comment) };
             else
-                return Node(NodeType::List).attachNearestCommentBefore(comment);
+                return { Node(NodeType::List).attachNearestCommentBefore(comment) };
         }
 
         std::optional<Node> atom();
