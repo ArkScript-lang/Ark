@@ -1,0 +1,61 @@
+name: Static analysis
+
+on:
+  pull_request:
+
+jobs:
+  static_analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+
+      - run: |
+          sudo apt install -yq cppcheck
+          pip install lizard
+
+      - name: Create lizard report
+        id: lizard
+        shell: bash
+        run: |
+          content=$(python .github/launch-lizard.py)
+          content="${content//'%'/'%25'}"
+          content="${content//$'\n'/'%0A'}"
+          content="${content//$'\r'/'%0D'}"
+          # echo "report=$content" >> $GITHUB_OUTPUT
+          echo ::set-output name=report::$content
+
+      - name: Run cppcheck
+        id: cppcheck
+        shell: bash
+        run: |
+          cppcheck --platform=unix64 --template="{file}:{line}: {severity}: {message}" \
+            --output-file=cppcheck.txt -j $(nproc) \
+            -I include src
+          cat cppcheck.txt | sort > cppcheck_sorted.txt
+          echo "report=$(cat cppcheck_sorted.txt)" >> $GITHUB_OUTPUT
+
+      - name: Find Comment
+        uses: peter-evans/find-comment@v3
+        id: fc
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: Build output
+
+      - name: Create or update comment
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            ${{ steps.lizard.outputs.report }}
+            ---
+            ## CppCheck report
+            ```
+            ${{ steps.cppcheck.outputs.report }}
+            ```
+          edit-mode: replace
