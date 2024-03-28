@@ -5,7 +5,7 @@ files = glob.glob("./include/*", recursive=True) + glob.glob("./src/*", recursiv
 
 i = lizard.analyze(files)
 
-print(f"""Lizard report
+print(f"""### Lizard report
 ---
 
 Listing only functions with cyclomatic complexity >= 15 or NLOC >= 100 or parameters >= 10.
@@ -22,7 +22,8 @@ for file in i:
 
         if func.cyclomatic_complexity >= 15 or func.nloc >= 100 or param_count >= 10:
             data.append([
-                f"{filename} | {func.start_line}:{func.end_line} | `{func.name}` | {param_count} | {func.nloc}", func.cyclomatic_complexity
+                f"{filename} | {func.start_line}:{func.end_line} | `{func.name}` | {param_count} | {func.nloc}",
+                func.cyclomatic_complexity
             ])
 
 for line in sorted(data, key=lambda e: e[1], reverse=True):
