@@ -1,6 +1,6 @@
 #include <boost/ut.hpp>
 
-#include <Ark/Compiler/JsonCompiler.hpp>
+#include <CLI/JsonCompiler.hpp>
 #include <string>
 
 #include "TestsHelper.hpp"
@@ -14,7 +14,7 @@ ut::suite<"AST"> ast_suite = [] {
         iter_test_files(
             "ASTSuite",
             [](TestData&& data) {
-                Ark::JsonCompiler compiler(false, { ARK_TESTS_ROOT "lib/" });
+                JsonCompiler compiler(false, { ARK_TESTS_ROOT "lib/" });
 
                 std::string json;
                 should("parse " + data.stem) = [&] {

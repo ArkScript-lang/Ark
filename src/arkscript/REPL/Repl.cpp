@@ -2,8 +2,8 @@
 #include <sstream>
 #include <cstdio>
 
-#include <Ark/REPL/Repl.hpp>
-#include <Ark/REPL/replxx/Util.hpp>
+#include <CLI/REPL/Repl.hpp>
+#include <CLI/REPL/replxx/Util.hpp>
 
 namespace Ark
 {

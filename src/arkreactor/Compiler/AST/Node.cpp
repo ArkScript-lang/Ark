@@ -99,6 +99,12 @@ namespace Ark::internal
         m_filename = filename;
     }
 
+    Node& Node::attachNearestCommentBefore(const std::string& comment)
+    {
+        m_comment = comment;
+        return *this;
+    }
+
     std::size_t Node::line() const noexcept
     {
         return m_line;
@@ -112,6 +118,11 @@ namespace Ark::internal
     const std::string& Node::filename() const noexcept
     {
         return m_filename;
+    }
+
+    const std::string& Node::comment() const noexcept
+    {
+        return m_comment;
     }
 
     std::string Node::repr() const noexcept

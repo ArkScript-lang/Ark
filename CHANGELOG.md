@@ -8,6 +8,8 @@
 - added the padding/instruction/argumentation values when displaying instructions in the bytecode reader
 - `$repr` macro to get a string representation of a given node
 - added boost-ext/ut to write unit tests in C++
+- basic ArkScript code formatter, available through the CLI: `arkscript -f|--format`
+- comments are now tracked in the AST and attached to the nearest node below them
 
 ### Changed
 - instructions are on 4 bytes: 1 byte for the instruction, 1 byte of padding, 2 bytes for an immediate argument
