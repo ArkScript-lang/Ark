@@ -109,10 +109,6 @@ target_include_directories(ArkReactor
 target_link_libraries(ArkReactor PUBLIC termcolor)
 
 if (UNIX OR LINUX)
-    if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
-        target_link_libraries(ArkReactor PUBLIC stdc++fs)
-    endif()
-
     find_package(Threads)
     target_link_libraries(ArkReactor PRIVATE ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 endif()

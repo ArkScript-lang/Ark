@@ -89,9 +89,9 @@ jobs:
             artifact: "windows-msvc-22"
           }
           - {
-            os: macos-latest, name: "MacOS Clang 14",
-            artifact: "macos-clang-14",
-            compiler: clang, compiler_version: 14, sanitizers: "On"
+            os: macos-latest, name: "MacOS Clang 15",
+            artifact: "macos-clang-15",
+            compiler: clang, compiler_version: 15, sanitizers: "On"
           }
 
     steps:
@@ -156,7 +156,7 @@ jobs:
           - { os: ubuntu-latest,  name: "Ubuntu Clang 15", artifact: "ubuntu-clang-15" }
           - { os: ubuntu-latest,  name: "Ubuntu GCC 13",   artifact: "ubuntu-gcc-13" }
           - { os: windows-latest, name: "Windows VS 2022", artifact: "windows-msvc-22", }
-          - { os: macos-latest,   name: "MacOS Clang 14",  artifact: "macos-clang-14", }
+          - { os: macos-latest,   name: "MacOS Clang 15",  artifact: "macos-clang-15", }
 
     steps:
       - uses: actions/checkout@v4
