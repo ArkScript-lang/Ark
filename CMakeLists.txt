@@ -109,10 +109,6 @@ target_include_directories(ArkReactor
 target_link_libraries(ArkReactor PUBLIC termcolor)
 
 if (UNIX OR LINUX)
-    if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
-        target_link_libraries(ArkReactor PUBLIC stdc++fs)
-    endif()
-
     find_package(Threads)
     target_link_libraries(ArkReactor PRIVATE ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 endif()
@@ -180,10 +176,15 @@ endif()
 
 # TODO: consider using ctest
 if (ARK_TESTS)
-    file(GLOB_RECURSE UT_SOURCES ${ark_SOURCE_DIR}/tests/unittests/*.cpp)
+    file(GLOB_RECURSE UT_SOURCES
+            ${ark_SOURCE_DIR}/tests/unittests/*.cpp
+            ${ark_SOURCE_DIR}/lib/fmt/src/format.cc
+            ${ark_SOURCE_DIR}/src/arkscript/Formatter.cpp
+            ${ark_SOURCE_DIR}/src/arkscript/JsonCompiler.cpp)
     add_executable(unittests ${UT_SOURCES})
 
     add_subdirectory(${ark_SOURCE_DIR}/lib/ut)
+    target_include_directories(unittests PUBLIC ${ark_SOURCE_DIR}/include)
     target_link_libraries(unittests PUBLIC ArkReactor termcolor ut)
 
     add_compile_definitions(BOOST_UT_DISABLE_MODULE)
@@ -194,11 +195,8 @@ endif()
 if (ARK_BUILD_EXE)
     # additional files needed for the exe (repl, command line and stuff)
     file(GLOB_RECURSE EXE_SOURCES
-        ${ark_SOURCE_DIR}/src/arkscript/REPL/Utils.cpp
-        ${ark_SOURCE_DIR}/src/arkscript/REPL/Repl.cpp
-        ${ark_SOURCE_DIR}/lib/fmt/src/format.cc
-        ${ark_SOURCE_DIR}/src/arkscript/main.cpp)
-
+        ${ark_SOURCE_DIR}/src/arkscript/*.cpp
+        ${ark_SOURCE_DIR}/lib/fmt/src/format.cc)
     add_executable(arkscript ${EXE_SOURCES})
 
     if (MSVC)
@@ -213,9 +211,7 @@ if (ARK_BUILD_EXE)
     add_subdirectory("${ark_SOURCE_DIR}/lib/replxx" EXCLUDE_FROM_ALL)
     add_subdirectory("${ark_SOURCE_DIR}/lib/clipp" EXCLUDE_FROM_ALL)
 
-    target_include_directories(arkscript PUBLIC "${ark_SOURCE_DIR}/src/arkscript/")
     target_link_libraries(arkscript PUBLIC ArkReactor replxx clipp termcolor)
-
     target_compile_features(arkscript PRIVATE cxx_std_20)
 
     enable_lto(arkscript)

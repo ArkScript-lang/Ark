@@ -3,18 +3,16 @@
 #include <filesystem>
 #include <limits>
 #include <cstdlib>
-#include <algorithm>
 
 #include <clipp.h>
 #include <termcolor/proxy.hpp>
 #include <fmt/core.h>
 
-#include <Ark/Ark.hpp>
-#include <Ark/REPL/Repl.hpp>
-
 #include <Ark/Files.hpp>
 #include <Ark/Compiler/BytecodeReader.hpp>
-#include <Ark/Compiler/JsonCompiler.hpp>
+#include <CLI/JsonCompiler.hpp>
+#include <CLI/REPL/Repl.hpp>
+#include <CLI/Formatter.hpp>
 
 int main(int argc, char** argv)
 {
@@ -30,25 +28,28 @@ int main(int argc, char** argv)
         repl,
         compile,
         eval,
-        ast
+        ast,
+        format
     };
     mode selected = mode::repl;
-
-    std::string file, eval_expression;
 
     unsigned debug = 0;
 
     constexpr uint16_t max_uint16 = std::numeric_limits<uint16_t>::max();
 
+    // Bytecode reader
     // by default, select all pages and segment types, without slicing anything
     uint16_t bcr_page = max_uint16;
     uint16_t bcr_start = max_uint16;
     uint16_t bcr_end = max_uint16;
     Ark::BytecodeSegment segment = Ark::BytecodeSegment::All;
-
-    std::vector<std::string> wrong, script_args;
-
+    // Eval / Run / AST dump
+    std::string file, eval_expression;
     std::string libdir;
+    // Formatting
+    bool dry_run = false;
+    // Generic arguments
+    std::vector<std::string> wrong, script_args;
 
     // clang-format off
     auto cli = (
@@ -56,13 +57,38 @@ int main(int argc, char** argv)
         | option("-v", "--version").set(selected, mode::version).doc("Display ArkScript version and exit")
         | option("--dev-info").set(selected, mode::dev_info).doc("Display development information and exit")
         | (
-            required("-e", "--eval").set(selected, mode::eval).doc("Evaluate ArkScript expression")
+            required("-e", "--eval").set(selected, mode::eval).doc("Evaluate ArkScript expression\n")
             & value("expression", eval_expression)
         )
         | (
             required("-c", "--compile").set(selected, mode::compile).doc("Compile the given program to bytecode, but do not run")
             & value("file", file)
+            , joinable(repeatable(option("-d", "--debug").call([&]{ debug++; }).doc("Increase debug level (default: 0)\n")))
+        )
+        | (
+            value("file", file).set(selected, mode::run)
+            , (
+                joinable(repeatable(option("-d", "--debug").call([&]{ debug++; })))
+                , (
+                    option("-L", "--lib").doc("Set the location of the ArkScript standard library. Paths can be delimited by ';'\n")
+                    & value("lib_dir", libdir)
+                )
+            )
+            , any_other(script_args)
+        )
+        | (
+            required("-f", "--format").set(selected, mode::format).doc("Format the given source file in place")
+            & value("file", file)
+            , option("--dry-run").set(dry_run, true).doc("Do not modify the file, only print out the changes\n")
+        )
+        | (
+            required("--ast").set(selected, mode::ast).doc("Compile the given program and output its AST as JSON to stdout")
+            & value("file", file)
             , joinable(repeatable(option("-d", "--debug").call([&]{ debug++; }).doc("Increase debug level (default: 0)")))
+            , (
+                option("-L", "--lib").doc("Set the location of the ArkScript standard library. Paths can be delimited by ';'")
+                & value("lib_dir", libdir)
+            )
         )
         | (
             required("-bcr", "--bytecode-reader").set(selected, mode::bytecode_reader).doc("Launch the bytecode reader")
@@ -86,26 +112,6 @@ int main(int argc, char** argv)
                 )
             )
         )
-        | (
-            value("file", file).set(selected, mode::run)
-            , (
-                joinable(repeatable(option("-d", "--debug").call([&]{ debug++; })))
-                , (
-                    option("-L", "--lib").doc("Set the location of the ArkScript standard library. Paths can be delimited by ';'")
-                    & value("lib_dir", libdir)
-                )
-            )
-            , any_other(script_args)
-        )
-        | (
-            required("--ast").set(selected, mode::ast).doc("Compile the given program and output its AST as JSON to stdout")
-            & value("file", file)
-            , joinable(repeatable(option("-d", "--debug").call([&]{ debug++; }).doc("Increase debug level (default: 0)")))
-            , (
-                option("-L", "--lib").doc("Set the location of the ArkScript standard library. Paths can be delimited by ';'")
-                & value("lib_dir", libdir)
-            )
-        )
         , any_other(wrong)
     );
     // clang-format on
@@ -116,7 +122,8 @@ int main(int argc, char** argv)
                    .indent_size(2)                                    // indent of documentation lines for children of a documented group
                    .split_alternatives(true)                          // split usage into several lines for large alternatives
                    .merge_alternative_flags_with_common_prefix(true)  // [-fok] [-fno-ok] becomes [-f(ok|no-ok)]
-        ;
+                   .paragraph_spacing(1)
+                   .ignore_newline_chars(false);
     const auto man_page = make_man_page(cli, "arkscript", fmt)
                               .prepend_section("DESCRIPTION", "        ArkScript programming language")
                               .append_section("VERSION", fmt::format("        {}", ARK_FULL_VERSION))
@@ -252,7 +259,7 @@ int main(int argc, char** argv)
 
             case mode::ast:
             {
-                Ark::JsonCompiler compiler(debug, lib_paths);
+                JsonCompiler compiler(debug, lib_paths);
                 compiler.feed(file);
                 std::cout << compiler.compile() << std::endl;
                 break;
@@ -281,6 +288,14 @@ int main(int argc, char** argv)
                 }
                 break;
             }
+
+            case mode::format:
+            {
+                Formatter formatter(file, dry_run);
+                formatter.run();
+                if (dry_run)
+                    std::cout << formatter.output() << std::endl;
+            }
         }
     }
     else
@@ -288,7 +303,7 @@ int main(int argc, char** argv)
         for (const auto& arg : wrong)
             std::cerr << "'" << arg.c_str() << "' isn't a valid argument\n";
 
-        std::cout << man_page << std::endl;
+        std::cout << usage_lines(cli, fmt) << std::endl;
     }
 
     return 0;

@@ -5,6 +5,7 @@
 #include <exception>
 #include <stdexcept>
 #include <utility>
+#include <vector>
 #include <initializer_list>
 
 #include <Ark/Platform.hpp>
@@ -15,8 +16,8 @@ namespace Ark::internal
 {
     struct FilePosition
     {
-        std::size_t row;
-        std::size_t col;
+        std::size_t row = 0;
+        std::size_t col = 0;
     };
 
     class ARK_API BaseParser
@@ -25,10 +26,13 @@ namespace Ark::internal
         BaseParser() = default;
 
     private:
-        std::string m_filename;
         std::string m_str;
+        std::vector<std::pair<std::string::iterator, std::size_t>> m_it_to_row;
         std::string::iterator m_it, m_next_it;
         utf8_char_t m_sym;
+        FilePosition m_filepos;
+
+        void registerNewLine(std::string::iterator it, std::size_t row);
 
         /*
             getting next character and changing the values of count/row/col/sym
@@ -36,6 +40,8 @@ namespace Ark::internal
         void next();
 
     protected:
+        std::string m_filename;
+
         void initParser(const std::string& filename, const std::string& code);
 
         FilePosition getCursor();
@@ -69,8 +75,9 @@ namespace Ark::internal
         bool space(std::string* s = nullptr);
         bool inlineSpace(std::string* s = nullptr);
         bool endOfLine(std::string* s = nullptr);
-        bool comment();
-        bool newlineOrComment();
+        bool comment(std::string* s = nullptr);
+        bool spaceComment(std::string* s = nullptr);
+        bool newlineOrComment(std::string* s = nullptr);
         bool prefix(char c);
         bool suffix(char c);
         bool number(std::string* s = nullptr);

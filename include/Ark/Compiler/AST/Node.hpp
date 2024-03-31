@@ -128,6 +128,15 @@ namespace Ark::internal
         void setFilename(const std::string& filename) noexcept;
 
         /**
+         * @brief Set the comment field with the nearest comment before this node
+         * @param comment
+         * @return Node& reference to this node after updating it
+         */
+        Node& attachNearestCommentBefore(const std::string& comment);
+
+        Node& attachCommentAfter(const std::string& comment);
+
+        /**
          * @brief Get the line at which this node was created
          *
          * @return std::size_t
@@ -149,6 +158,14 @@ namespace Ark::internal
         [[nodiscard]] const std::string& filename() const noexcept;
 
         /**
+         * @brief Return the comment attached to this node, if any
+         * @return const std::string&
+         */
+        [[nodiscard]] const std::string& comment() const noexcept;
+
+        [[nodiscard]] const std::string& commentAfter() const noexcept;
+
+        /**
          * @brief Compute a representation of the node without any comments or additional sugar, colors, types
          * @return String representation of the node
          */
@@ -165,6 +182,8 @@ namespace Ark::internal
         // position of the node in the original code, useful when it comes to parser errors
         std::size_t m_line = 0, m_col = 0;
         std::string m_filename;
+        std::string m_comment;
+        std::string m_after_comment;  ///< Comment after node
     };
 
     ARK_API std::ostream& operator<<(std::ostream& os, const std::vector<Node>& node) noexcept;

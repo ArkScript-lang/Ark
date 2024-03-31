@@ -1,0 +1,23 @@
+(if true
+  # test
+  0
+  # value
+  1)
+(if (cond)
+  (do)
+  (stuff))
+# conditions in functions are on their own line
+(fun ()
+  (if true 0))
+(fun ()
+  (if true
+    0
+    1))
+(if
+  # true
+  true
+  true
+  false)
+(if (= 1 2) {
+  (foo)
+  (bar) })

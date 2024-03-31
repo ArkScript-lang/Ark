@@ -1,0 +1,4 @@
+(del a)
+(del
+  # comment
+  b)

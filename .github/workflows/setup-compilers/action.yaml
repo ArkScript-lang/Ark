@@ -26,8 +26,8 @@ runs:
       shell: bash
       run: |
         if [[ '${{ startsWith(inputs.os_name, 'macos') }}' == 'true' ]]; then
-          echo "cc=${{ inputs.compiler }}" >> $GITHUB_OUTPUT
-          echo "cxx=${{ inputs.compiler }}++" >> $GITHUB_OUTPUT
+          echo "cc=/usr/local/opt/llvm@${{ inputs.compiler_version }}/bin/${{ inputs.compiler }}" >> $GITHUB_OUTPUT
+          echo "cxx=/usr/local/opt/llvm@${{ inputs.compiler_version }}/bin/${{ inputs.compiler }}++" >> $GITHUB_OUTPUT
         elif [[ '${{ inputs.compiler }}' == 'clang' ]]; then
           echo "cc=clang-${{ inputs.compiler_version }}" >> $GITHUB_OUTPUT
           echo "cxx=clang++-${{ inputs.compiler_version }}" >> $GITHUB_OUTPUT
@@ -50,6 +50,12 @@ runs:
         sudo apt-get install -y clang-${{ inputs.compiler_version }} lld-${{ inputs.compiler_version }} \
           libc++-${{ inputs.compiler_version }}-dev libc++abi-${{ inputs.compiler_version }}-dev  \
           clang-tools-${{ inputs.compiler_version }}
+
+    - name: Update LLVM compilers
+      if: startsWith(inputs.os_name, 'macos')
+      shell: bash
+      run: |
+        brew install llvm@${{ inputs.compiler_version }}
 
     - name: Setup Windows environment
       uses: ilammy/msvc-dev-cmd@v1

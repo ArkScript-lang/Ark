@@ -1,0 +1,10 @@
+(let newlist (list:filter _listeners (fun (element) (!= typ (@ element 0)))))
+
+# a badly aligned method below
+# this comment bloc is also a test
+(list:forEach
+  _listeners
+  (fun (element)
+    (if (= typ (@ element 0)) {
+      ((@ element 1) val)
+      (set found true) })))

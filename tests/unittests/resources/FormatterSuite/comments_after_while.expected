@@ -1,0 +1,6 @@
+(while true
+  # cond
+  1) # body
+
+(while true {}) # no body
+# infinite loop

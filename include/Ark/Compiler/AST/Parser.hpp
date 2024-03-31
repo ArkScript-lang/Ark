@@ -19,7 +19,11 @@ namespace Ark::internal
     class ARK_API Parser : public BaseParser
     {
     public:
-        Parser();
+        /**
+         * @brief Constructs a new Parser object
+         * @param interpret interpret escape codes in strings
+         */
+        explicit Parser(bool interpret = true);
 
         void processFile(const std::string& filename);
         void processString(const std::string& code);
@@ -28,11 +32,14 @@ namespace Ark::internal
         [[nodiscard]] const std::vector<Import>& imports() const;
 
     private:
+        bool m_interpret;
         Node m_ast;
         std::vector<Import> m_imports;
         unsigned m_allow_macro_behavior;  ///< Toggled on when inside a macro definition, off afterward
 
         void run();
+
+        Node& setNodePosAndFilename(Node& node, std::optional<FilePosition> cursor = std::nullopt);
 
         std::optional<Node> node();
         std::optional<Node> letMutSet();
@@ -58,7 +65,7 @@ namespace Ark::internal
             {
                 double output;
                 if (Utils::isDouble(res, &output))
-                    return Node(output);
+                    return std::optional<Node>(output);
                 else
                 {
                     backtrack(pos);
@@ -77,36 +84,44 @@ namespace Ark::internal
                 {
                     if (accept(IsChar('\\')))
                     {
+                        if (!m_interpret)
+                            res += '\\';
+
                         if (accept(IsChar('"')))
-                            res += '\"';
+                            res += '"';
                         else if (accept(IsChar('\\')))
                             res += '\\';
                         else if (accept(IsChar('n')))
-                            res += '\n';
+                            res += m_interpret ? '\n' : 'n';
                         else if (accept(IsChar('t')))
-                            res += '\t';
+                            res += m_interpret ? '\t' : 't';
                         else if (accept(IsChar('v')))
-                            res += '\v';
+                            res += m_interpret ? '\v' : 'v';
                         else if (accept(IsChar('r')))
-                            res += '\r';
+                            res += m_interpret ? '\r' : 'r';
                         else if (accept(IsChar('a')))
-                            res += '\a';
+                            res += m_interpret ? '\a' : 'a';
                         else if (accept(IsChar('b')))
-                            res += '\b';
+                            res += m_interpret ? '\b' : 'b';
                         else if (accept(IsChar('0')))
-                            res += '\0';
+                            res += m_interpret ? '\0' : '0';
                         else if (accept(IsChar('f')))
-                            res += '\f';
+                            res += m_interpret ? '\f' : 'f';
                         else if (accept(IsChar('u')))
                         {
                             std::string seq;
                             if (hexNumber(4, &seq))
                             {
-                                char utf8_str[5];
-                                utf8::decode(seq.c_str(), utf8_str);
-                                if (*utf8_str == '\0')
-                                    error("Invalid escape sequence", "\\u" + seq);
-                                res += utf8_str;
+                                if (m_interpret)
+                                {
+                                    char utf8_str[5];
+                                    utf8::decode(seq.c_str(), utf8_str);
+                                    if (*utf8_str == '\0')
+                                        error("Invalid escape sequence", "\\u" + seq);
+                                    res += utf8_str;
+                                }
+                                else
+                                    res += seq;
                             }
                             else
                                 error("Invalid escape sequence", "\\u");
@@ -116,14 +131,19 @@ namespace Ark::internal
                             std::string seq;
                             if (hexNumber(8, &seq))
                             {
-                                std::size_t begin = 0;
-                                for (; seq[begin] == '0'; ++begin)
-                                    ;
-                                char utf8_str[5];
-                                utf8::decode(seq.c_str() + begin, utf8_str);
-                                if (*utf8_str == '\0')
-                                    error("Invalid escape sequence", "\\U" + seq);
-                                res += utf8_str;
+                                if (m_interpret)
+                                {
+                                    std::size_t begin = 0;
+                                    for (; seq[begin] == '0'; ++begin)
+                                        ;
+                                    char utf8_str[5];
+                                    utf8::decode(seq.c_str() + begin, utf8_str);
+                                    if (*utf8_str == '\0')
+                                        error("Invalid escape sequence", "\\U" + seq);
+                                    res += utf8_str;
+                                }
+                                else
+                                    res += seq;
                             }
                             else
                                 error("Invalid escape sequence", "\\U");
@@ -143,7 +163,7 @@ namespace Ark::internal
                         errorMissingSuffix('"', "string");
                 }
 
-                return Node(NodeType::String, res);
+                return { Node(NodeType::String, res) };
             }
             return std::nullopt;
         }
@@ -154,20 +174,21 @@ namespace Ark::internal
             if (!name(&symbol))
                 return std::nullopt;
 
-            Node leaf = Node(NodeType::Field);
-            leaf.push_back(Node(NodeType::Symbol, symbol));
+            std::optional<Node> leaf { Node(NodeType::Field) };
+            setNodePosAndFilename(leaf.value());
+            leaf->push_back(Node(NodeType::Symbol, symbol));
 
             while (true)
             {
-                if (leaf.list().size() == 1 && !accept(IsChar('.')))  // Symbol:abc
+                if (leaf->list().size() == 1 && !accept(IsChar('.')))  // Symbol:abc
                     return std::nullopt;
 
-                if (leaf.list().size() > 1 && !accept(IsChar('.')))
+                if (leaf->list().size() > 1 && !accept(IsChar('.')))
                     break;
                 std::string res;
                 if (!name(&res))
                     errorWithNextToken("Expected a field name: <symbol>.<field>");
-                leaf.push_back(Node(NodeType::Symbol, res));
+                leaf->push_back(Node(NodeType::Symbol, res));
             }
 
             return leaf;
@@ -178,7 +199,7 @@ namespace Ark::internal
             std::string res;
             if (!name(&res))
                 return std::nullopt;
-            return Node(NodeType::Symbol, res);
+            return { Node(NodeType::Symbol, res) };
         }
 
         inline std::optional<Node> spread()
@@ -188,7 +209,7 @@ namespace Ark::internal
             {
                 if (!name(&res))
                     errorWithNextToken("Expected a name for the variadic");
-                return Node(NodeType::Spread, res);
+                return { Node(NodeType::Spread, res) };
             }
             return std::nullopt;
         }
@@ -197,11 +218,16 @@ namespace Ark::internal
         {
             if (!accept(IsChar('(')))
                 return std::nullopt;
-            newlineOrComment();
+
+            std::string comment;
+            newlineOrComment(&comment);
             if (!accept(IsChar(')')))
                 return std::nullopt;
 
-            return Node(NodeType::Symbol, "nil");
+            if (m_interpret)
+                return { Node(NodeType::Symbol, "nil").attachNearestCommentBefore(comment) };
+            else
+                return { Node(NodeType::List).attachNearestCommentBefore(comment) };
         }
 
         std::optional<Node> atom();

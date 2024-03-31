@@ -1,0 +1,18 @@
+(fun () ())
+(fun (a b) (+ a b))
+
+(fun (a) {
+  a })
+(call me maybe)
+(call
+  (fun () {
+    hello })
+  maybe)
+(fun (
+  # a
+  a
+  b
+  # capture
+  &c)
+  # body
+  {})
