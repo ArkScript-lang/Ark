@@ -42,11 +42,20 @@ namespace Ark::internal
             std::string comment;
             newlineOrComment(&comment);
             if (isEOF())
+            {
+                if (!comment.empty())
+                    m_ast.list().back().attachCommentAfter(comment);
                 break;
+            }
 
             auto n = node();
             if (n)
+            {
                 m_ast.push_back(n.value().attachNearestCommentBefore(comment));
+                comment.clear();
+                if (spaceComment(&comment))
+                    m_ast.list().back().attachCommentAfter(comment);
+            }
         }
     }
 
@@ -225,8 +234,12 @@ namespace Ark::internal
         if (auto value_if_false = nodeOrValue(); value_if_false.has_value())
         {
             leaf->push_back(value_if_false.value().attachNearestCommentBefore(comment));
-            newlineOrComment();  // FIXME how to attach a comment after the node? another field?
+            comment.clear();
+            if (newlineOrComment(&comment))
+                leaf->list().back().attachCommentAfter(comment);
         }
+        else if (!comment.empty())
+            leaf->attachCommentAfter(comment);
 
         setNodePosAndFilename(leaf->list().back());
         return leaf;
@@ -328,9 +341,11 @@ namespace Ark::internal
         Node symbols(NodeType::List);
         setNodePosAndFilename(symbols);
         // then parse the symbols to import, if any
-        comment.clear();
-        if (newlineOrComment(&comment))
+        if (space())  // fixme: potential regression introduced here
         {
+            comment.clear();
+            newlineOrComment(&comment);
+
             while (!isEOF())
             {
                 if (accept(IsChar(':')))  // parsing potential :a :b :c
@@ -352,9 +367,10 @@ namespace Ark::internal
                     import_data.symbols.push_back(symbol);
                 }
 
-                comment.clear();
-                if (!newlineOrComment(&comment))  // TODO what to do?
+                if (!space())
                     break;
+                comment.clear();
+                newlineOrComment(&comment);
             }
         }
 
@@ -363,7 +379,10 @@ namespace Ark::internal
         // save the import data
         m_imports.push_back(import_data);
 
-        newlineOrComment();  // FIXME: attach comment after the node
+        comment.clear();
+        if (newlineOrComment(&comment))
+            leaf->list().back().attachCommentAfter(comment);
+
         expect(IsChar(')'));
         return leaf;
     }
@@ -604,14 +623,17 @@ namespace Ark::internal
             if (!name(&spread_name))
                 errorWithNextToken("Expected a name for the variadic arguments list");
             args->push_back(Node(NodeType::Spread, spread_name));
+
             comment.clear();
-            newlineOrComment(&comment);  // FIXME: attach comment after node
+            if (newlineOrComment(&comment))
+                args->list().back().attachCommentAfter(comment);
         }
 
         if (!accept(IsChar(')')))
             return std::nullopt;
         comment.clear();
-        newlineOrComment(&comment);  // FIXME: attach comment after node
+        if (newlineOrComment(&comment))
+            args->list().back().attachCommentAfter(comment);
 
         return args;
     }
@@ -669,10 +691,12 @@ namespace Ark::internal
         else
             errorWithNextToken("Expected a value while defining macro `" + symbol + "'");
 
-        comment.clear();
-        newlineOrComment(&comment);  // FIXME: attach comment after node
-        expect(IsChar(')'));
         setNodePosAndFilename(leaf->list().back());
+        comment.clear();
+        if (newlineOrComment(&comment))
+            leaf->list().back().attachCommentAfter(comment);
+
+        expect(IsChar(')'));
         return leaf;
     }
 
@@ -717,9 +741,13 @@ namespace Ark::internal
                 break;
         }
 
-        comment.clear();
-        newlineOrComment(&comment);  // FIXME: attach comment after node
+        leaf->list().back().attachCommentAfter(comment);
         setNodePosAndFilename(leaf->list().back());
+
+        comment.clear();
+        if (newlineOrComment(&comment))
+            leaf->list().back().attachCommentAfter(comment);
+
         expect(IsChar(')'));
         return leaf;
     }
@@ -749,10 +777,11 @@ namespace Ark::internal
             else
                 break;
         }
+        leaf->list().back().attachCommentAfter(comment);
 
-        newlineOrComment(&comment);
-        expect(IsChar(']'));  // FIXME: attach comment after node
         setNodePosAndFilename(leaf->list().back());
+
+        expect(IsChar(']'));
         return leaf;
     }
 
@@ -837,9 +866,18 @@ namespace Ark::internal
             setNodePosAndFilename(result.value(), cursor);
 
             comment.clear();
-            newlineOrComment(&comment);  // FIXME: attach comment after node
+            if (newlineOrComment(&comment))
+                result.value().attachCommentAfter(comment);
+
             if (!suffix(')'))
                 errorMissingSuffix(')', name);
+            if (result->isListLike())
+                setNodePosAndFilename(result->list().back());
+
+            comment.clear();
+            if (spaceComment(&comment))
+                result.value().attachCommentAfter(comment);
+
             return result;
         }
 

@@ -134,6 +134,8 @@ namespace Ark::internal
          */
         Node& attachNearestCommentBefore(const std::string& comment);
 
+        Node& attachCommentAfter(const std::string& comment);
+
         /**
          * @brief Get the line at which this node was created
          *
@@ -161,6 +163,8 @@ namespace Ark::internal
          */
         [[nodiscard]] const std::string& comment() const noexcept;
 
+        [[nodiscard]] const std::string& commentAfter() const noexcept;
+
         /**
          * @brief Compute a representation of the node without any comments or additional sugar, colors, types
          * @return String representation of the node
@@ -179,6 +183,7 @@ namespace Ark::internal
         std::size_t m_line = 0, m_col = 0;
         std::string m_filename;
         std::string m_comment;
+        std::string m_after_comment;  ///< Comment after node
     };
 
     ARK_API std::ostream& operator<<(std::ostream& os, const std::vector<Node>& node) noexcept;

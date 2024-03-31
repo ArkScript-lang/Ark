@@ -208,9 +208,25 @@ namespace Ark::internal
         return false;
     }
 
+    bool BaseParser::spaceComment(std::string* s)
+    {
+        bool matched = false;
+
+        inlineSpace();
+        while (!isEOF() && comment(s))
+        {
+            inlineSpace();
+            matched = true;
+        }
+
+        return matched;
+    }
+
     bool BaseParser::newlineOrComment(std::string* s)
     {
-        bool matched = space();
+        bool matched = false;
+
+        space();
         while (!isEOF() && comment(s))
         {
             space();
