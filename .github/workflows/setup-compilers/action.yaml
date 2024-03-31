@@ -89,8 +89,8 @@ runs:
          -DCMAKE_C_COMPILER=${{ steps.compilers.outputs.cc }} \
          -DCMAKE_CXX_COMPILER=${{ steps.compilers.outputs.cxx }} \
          -DARK_SANITIZERS=${{ inputs.sanitizers }} \
-         -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=On -DARK_MOD_ALL=Off -DARK_TESTS=On
-        cmake --build build --config $BUILD_TYPE -- -j $(nproc)
+         -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=On -DARK_MOD_ALL=On -DARK_MOD_DRAFT=On -DARK_TESTS=On
+        cmake --build build --config $BUILD_TYPE -j $(nproc)
 
     - name: Configure CMake Ark
       if: startsWith(inputs.os_name, 'windows')
@@ -103,5 +103,5 @@ runs:
           -G "Visual Studio 17 2022" -T v143 \
           -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
           -DARK_SANITIZERS=${{ matrix.config.sanitizers }} \
-          -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=On -DARK_MOD_ALL=Off -DARK_TESTS=On $additional_args
-        cmake --build build --config $BUILD_TYPE
+          -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=On -DARK_MOD_ALL=On -DARK_MOD_DRAFT=On -DARK_TESTS=On $additional_args
+        cmake --build build --config $BUILD_TYPE -j $(nproc)
