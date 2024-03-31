@@ -34,9 +34,9 @@ jobs:
             artifact: "windows-msvc-22"
           }
           - {
-            os: macos-latest, name: "MacOS Clang 14",
-            artifact: "macos-clang-14",
-            compiler: clang, compiler_version: 14,
+            os: macos-latest, name: "MacOS Clang 15",
+            artifact: "macos-clang-15",
+            compiler: clang, compiler_version: 15,
           }
 
     steps:
@@ -121,8 +121,8 @@ jobs:
       - name: Download artifact MacOS Clang
         uses: actions/download-artifact@v3
         with:
-          name: macos-clang-14
-          path: ark-macos-clang-14
+          name: macos-clang-15
+          path: ark-macos-clang-15
 
       - name: Download artifact Windows InnoSetup installer
         uses: actions/download-artifact@v3
@@ -211,6 +211,6 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./macos-clang-14.zip
-          asset_name: macos-clang-14.zip
+          asset_path: ./macos-clang-15.zip
+          asset_name: macos-clang-15.zip
           asset_content_type: application/zip
