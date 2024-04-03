@@ -869,10 +869,10 @@ namespace Ark::internal
             if (newlineOrComment(&comment))
                 result.value().attachCommentAfter(comment);
 
-            if (!suffix(')'))
-                errorMissingSuffix(')', name);
             if (result->isListLike())
                 setNodePosAndFilename(result->list().back());
+            if (!suffix(')'))
+                errorMissingSuffix(')', name);
 
             comment.clear();
             if (spaceComment(&comment))
