@@ -50,6 +50,12 @@ jobs:
         with:
           ruby-version: '3.3'
 
+      - name: Download wren 0.4.0
+        run: |
+          wget https://github.com/wren-lang/wren-cli/releases/download/0.4.0/wren-cli-linux-0.4.0.zip
+          unzip wren-cli-linux-0.4.0.zip
+          cp wren-cli-linux-0.4.0/wren_cli .
+
       - name: Gather performances
         shell: bash
         run: |
