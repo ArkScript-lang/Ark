@@ -1,6 +1,6 @@
 name: Bug Report
 description: File a bug report
-labels: ["bug"]
+labels: [ "bug" ]
 body:
   - type: markdown
     attributes:
@@ -18,9 +18,43 @@ body:
     id: version
     attributes:
       label: What ArkScript version are you seeing the problem on?
-      placeholder: master, dev, v3.2.0...
+      placeholder: master, dev, v3.5.0...
     validations:
       required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating System
+      description: What operating system are you running?
+      options:
+        - Windows
+        - Linux
+        - MacOS
+        - Android
+      default: 0
+    validations:
+      required: true
+  - type: dropdown
+    id: compiler
+    attributes:
+      label: Compiler used
+      description: In case you compiled ArkScript yourself, what compiler did you use?
+      options:
+        - Clang
+        - GCC
+        - MSVC
+        - Clang-Cl
+        - MinGw
+        - Other (please specify)
+    validations:
+      required: false
+  - type: input
+    id: compiler_version
+    attributes:
+      label: Compiler version used
+      description: What was the version of your compiler used to compile ArkScript?
+    validations:
+      required: false
   - type: textarea
     id: logs
     attributes:

@@ -1,8 +1,6 @@
-# Pull request template
-
 ## Description
 
-Please include a summary of the changes and which issue is fixed, as well as context and relevant motivation.
+<!-- Please include a summary of the changes and which issue is fixed, as well as context and relevant motivation. -->
 
 Closes # (issue)
 
