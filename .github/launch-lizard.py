@@ -1,30 +1,53 @@
+import sys
 import glob
 import lizard
 
 files = glob.glob("./include/*", recursive=True) + glob.glob("./src/*", recursive=True)
 
-i = lizard.analyze(files)
+UPDATED_FILES = sys.argv[1:]
+MAX_CCN = 15
+MAX_NLOC = 100
+MAX_PARAM = 6
 
-print(f"""### Lizard report
----
+TABLE_HEADERS = """| Filename | Start line:end line | Function name | Parameters | NLOC | CCN |
+| -------- | ------------------- | ------------- | ---------- | ---- | --- |"""
 
-Listing only functions with cyclomatic complexity >= 15 or NLOC >= 100 or parameters >= 10.
+updated = []
+anything_else = []
 
-| Filename | Start line:end line | Function name | Parameters | NLOC | CCN |
-| -------- | ------------------- | ------------- | ---------- | ---- | --- |""")
-
-data = []
-
-for file in i:
+for file in lizard.analyze(files):
     for func in file.function_list:
         filename = func.filename.replace('\\', '/')
         param_count = len(func.parameters)
 
-        if func.cyclomatic_complexity >= 15 or func.nloc >= 100 or param_count >= 10:
-            data.append([
+        if func.cyclomatic_complexity >= MAX_CCN or func.nloc >= MAX_NLOC or param_count >= MAX_PARAM:
+            line = [
                 f"{filename} | {func.start_line}:{func.end_line} | `{func.name}` | {param_count} | {func.nloc}",
                 func.cyclomatic_complexity
-            ])
+            ]
+            if filename in UPDATED_FILES:
+                updated.append(line)
+            else:
+                anything_else.append(line)
 
-for line in sorted(data, key=lambda e: e[1], reverse=True):
-    print(f"| {line[0]} | {line[1]} |")
+
+def make_sorted_table_lines(lines_with_ccn):
+    output = ""
+    for line in sorted(lines_with_ccn, key=lambda e: e[1], reverse=True):
+        output += f"| {line[0]} | {line[1]} |\n"
+    return output
+
+
+print(f"""### Lizard report
+
+Listing only functions with cyclomatic complexity >= {MAX_CCN} or NLOC >= {MAX_NLOC} or parameters >= {MAX_PARAM}.
+{TABLE_HEADERS}
+{make_sorted_table_lines(updated)}
+
+<details>
+<summary>Report about files you didn't modify in this PR</summary>
+
+{TABLE_HEADERS}
+{make_sorted_table_lines(anything_else)}
+</details>
+""")
