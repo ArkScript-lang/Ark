@@ -21,12 +21,10 @@ jobs:
         id: lizard
         shell: bash
         run: |
-          content=$(python .github/launch-lizard.py)
-          content="${content//'%'/'%25'}"
-          content="${content//$'\n'/'%0A'}"
-          content="${content//$'\r'/'%0D'}"
-          # echo "report=$content" >> $GITHUB_OUTPUT
-          echo ::set-output name=report::$content
+          content=$(python .github/launch-lizard.py $(git diff HEAD..dev --name-only))
+          echo "LIZARD_REPORT<<EOF" >> $GITHUB_ENV
+          echo "$content" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
       - name: Run cppcheck
         id: cppcheck
@@ -53,9 +51,12 @@ jobs:
           issue-number: ${{ github.event.pull_request.number }}
           body: |
             ## Static analysis report
-            ${{ steps.lizard.outputs.report }}
+            ${{ env.LIZARD_REPORT }}
+            
             ---
+            
             ### CppCheck report
+            
             ```
             ${{ steps.cppcheck.outputs.report }}
             ```
