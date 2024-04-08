@@ -1,14 +1,14 @@
 blank_issues_enabled: false
 contact_links:
-  - name: The project documentation
+  - name: 📚 The project documentation
     url: https://arkscript-lang.dev/impl/
     about: Not sure where to look? Check out the documentation first!
-  - name: Discussions
+  - name: 💬 Discussions
     url: https://github.com/orgs/ArkScript-lang/discussions
     about: In case you're unsure your question is a bug, or your feature request needs refining before opening an issue, open a new discussion!
-  - name: ArkScript standard library issue tracker
+  - name: ✨ ArkScript standard library issue tracker
     url: https://github.com/ArkScript-lang/std/issues
     about: Issues related to the standard library should go on the corresponding issue tracker
-  - name: ArkScript modules issue tracker
+  - name: ⚙️ ArkScript modules issue tracker
     url: https://github.com/ArkScript-lang/modules/issues
     about: Issues related to the modules should go on the corresponding issue tracker
