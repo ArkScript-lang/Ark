@@ -1,8 +1,8 @@
-compiler:
+ark/compiler:
   - include/Ark/Compiler/*
   - src/arkreactor/Compiler/*
 
-parser:
+ark/parser:
   - include/Ark/Compiler/AST/Lexer.*
   - include/Ark/Compiler/AST/Node.*
   - include/Ark/Compiler/AST/Parser.*
@@ -10,18 +10,22 @@ parser:
   - src/arkreactor/Compiler/AST/Parser.*
   - src/arkreactor/Compiler/AST/Node.*
 
-repl:
-  - include/Ark/REPL/**/*
+ark/repl:
+  - include/CLI/REPL/**/*
   - src/arkscript/REPL/**/*
 
-modules:
+ark/formatter:
+  - include/CLI/Formatter.*
+  - src/arkscript/Formatter.*
+
+ark/modules:
   - lib/modules/**/*
 
-virtual machine:
+ark/virtual machine:
   - include/Ark/VM/**/*
   - src/arkreactor/VM/**/*
 
-macros:
+ark/macros:
   - include/Ark/Compiler/Macros/*
   - src/arkreactor/Compiler/Macros/*
 
@@ -29,9 +33,9 @@ documentation:
   - docs/*
   - README.md
 
-ci:
+👷 ci:
   - .github/workflows/*
 
-tests:
+🧪 tests:
   - tests/arkscript/*.ark
   - tests/unittests/*
