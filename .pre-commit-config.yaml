@@ -14,7 +14,7 @@ repos:
     rev: '336fdd7c3cab698ead0b1c95157b9e74d3906b62'
     hooks:
       - id: cppcheck
-        args: [ "--platform=unix64", "-j", "4", "-I include src" ]
+        args: [ "--platform=unix64", "--inline-suppr" ]
   - repo: https://github.com/compilerla/conventional-pre-commit
     rev: 'v3.2.0'
     hooks:
