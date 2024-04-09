@@ -1,0 +1,21 @@
+(let filter (fun (lst cond) {
+    (mut output [])
+    (mut i 0)
+    (while (< i (len lst)) {
+        (if (cond (@ lst i))
+            (append! output (@ lst i)))
+        (set i (+ 1 i))})
+    output }))
+
+(let quicksort (fun (array) {
+    (if (empty? array)
+        []
+        {
+            (let pivot (head array))
+            (mut less (quicksort (filter (tail array) (fun (e) (< e pivot)))))
+            (let more (quicksort (filter (tail array) (fun (e) (>= e pivot)))))
+            (concat! less [pivot] more)
+            less })}))
+
+(let a [3 6 1 5 1 65 324 765 1 6 3 0 6 9 6 5 3 2 5 6 7 64 645 7 345 432 432 4 324 23])
+(quicksort a)
