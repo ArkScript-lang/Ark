@@ -37,20 +37,14 @@ namespace Ark
         context.fc = 1;
 
         m_shared_lib_objects.clear();
-        context.scope_count_to_delete.clear();
-        context.scope_count_to_delete.emplace_back(0);
+        context.stacked_closure_scopes.clear();
+        context.stacked_closure_scopes.emplace_back(nullptr);
 
         context.saved_scope.reset();
         m_exit_code = 0;
 
         context.locals.clear();
-        createNewScope(context);
-
-        if (context.locals.empty())
-        {
-            // if persistence is set but not scopes are present, add one
-            createNewScope(context);
-        }
+        context.locals.emplace_back();
 
         // loading bound stuff
         // put them in the global frame if we can, aka the first one
@@ -58,7 +52,7 @@ namespace Ark
         {
             auto it = std::find(m_state.m_symbols.begin(), m_state.m_symbols.end(), name_val.first);
             if (it != m_state.m_symbols.end())
-                (*context.locals[0]).push_back(static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it)), name_val.second);
+                (context.locals[0]).push_back(static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it)), name_val.second);
         }
     }
 
@@ -153,7 +147,7 @@ namespace Ark
             // put it in the global frame, aka the first one
             auto it = std::find(m_state.m_symbols.begin(), m_state.m_symbols.end(), std::string(map[i].name));
             if (it != m_state.m_symbols.end())
-                (*context.locals[0]).push_back(static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it)), Value(map[i].value));
+                (context.locals[0]).push_back(static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it)), Value(map[i].value));
 
             ++i;
         }
@@ -171,11 +165,11 @@ namespace Ark
 
         m_execution_contexts.push_back(std::make_unique<ExecutionContext>());
         ExecutionContext* ctx = m_execution_contexts.back().get();
-        ctx->scope_count_to_delete.emplace_back(0);
+        ctx->stacked_closure_scopes.emplace_back(nullptr);
 
         ctx->locals.reserve(m_execution_contexts.front()->locals.size());
         for (const auto& local : m_execution_contexts.front()->locals)
-            ctx->locals.push_back(std::make_shared<Scope>(*local));
+            ctx->locals.push_back(local);
 
         return ctx;
     }
@@ -269,8 +263,13 @@ namespace Ark
                         context.last_symbol = arg;
 
                         if (Value* var = findNearestVariable(context.last_symbol, context); var != nullptr)
-                            // push internal reference, shouldn't break anything so far
-                            push(var, context);
+                        {
+                            // push internal reference, shouldn't break anything so far, unless it's already a ref
+                            if (var->valueType() == ValueType::Reference)
+                                push(var->reference(), context);
+                            else
+                                push(var, context);
+                        }
                         else
                             throwVMError(ErrorKind::Scope, "Unbound variable: " + m_state.m_symbols[context.last_symbol]);
 
@@ -323,11 +322,16 @@ namespace Ark
 
                         if (Value* var = findNearestVariable(arg, context); var != nullptr)
                         {
-                            if (var->isConst())
+                            if (var->isConst() && var->valueType() != ValueType::Reference)
                                 throwVMError(ErrorKind::Mutability, "Can not modify a constant: " + m_state.m_symbols[arg]);
 
-                            *var = *popAndResolveAsPtr(context);
-                            var->setConst(false);
+                            if (var->valueType() == ValueType::Reference)
+                                *var->reference() = *popAndResolveAsPtr(context);
+                            else
+                            {
+                                *var = *popAndResolveAsPtr(context);
+                                var->setConst(false);
+                            }
                             break;
                         }
 
@@ -344,12 +348,12 @@ namespace Ark
                         */
 
                         // check if we are redefining a variable
-                        if (auto val = (*context.locals.back())[arg]; val != nullptr)
+                        if (auto val = (context.locals.back())[arg]; val != nullptr)
                             throwVMError(ErrorKind::Mutability, "Can not use 'let' to redefine the variable " + m_state.m_symbols[arg]);
 
                         Value val = *popAndResolveAsPtr(context);
                         val.setConst(true);
-                        (*context.locals.back()).push_back(arg, val);
+                        (context.locals.back()).push_back(arg, val);
 
                         break;
                     }
@@ -443,13 +447,13 @@ namespace Ark
                         */
 
                         if (!context.saved_scope)
-                            context.saved_scope = std::make_shared<Scope>();
+                            context.saved_scope = Scope();
 
-                        Value* ptr = (*context.locals.back())[arg];
+                        Value* ptr = (context.locals.back())[arg];
                         if (!ptr)
                             throwVMError(ErrorKind::Scope, "Couldn't capture '" + m_state.m_symbols[arg] + "' as it is currently unbound");
                         ptr = ptr->valueType() == ValueType::Reference ? ptr->reference() : ptr;
-                        (*context.saved_scope.value()).push_back(arg, *ptr);
+                        (context.saved_scope.value()).push_back(arg, *ptr);
 
                         break;
                     }
@@ -477,9 +481,9 @@ namespace Ark
                         val.setConst(false);
 
                         // avoid adding the pair (id, _) multiple times, with different values
-                        Value* local = (*context.locals.back())[arg];
+                        Value* local = (context.locals.back())[arg];
                         if (local == nullptr)
-                            (*context.locals.back()).push_back(arg, val);
+                            (context.locals.back()).push_back(arg, val);
                         else
                             *local = val;
 
@@ -527,21 +531,18 @@ namespace Ark
                         if (var->valueType() != ValueType::Closure)
                             throwVMError(ErrorKind::Type, "The variable `" + m_state.m_symbols[context.last_symbol] + "' isn't a closure, can not get the field `" + m_state.m_symbols[arg] + "' from it");
 
-                        if (Value* field = (*var->refClosure().scope())[arg]; field != nullptr)
+                        if (Value* field = (var->refClosure().refScope())[arg]; field != nullptr)
                         {
                             // check for CALL instruction
                             // doing a +1 on the IP to read the instruction because context.ip is already on the next instruction word (the padding)
                             if (static_cast<std::size_t>(context.ip) + 1 < m_state.m_pages[context.pp].size() && m_state.m_pages[context.pp][context.ip + 1] == Instruction::CALL)
-                            {
-                                context.locals.push_back(var->refClosure().scope());
-                                ++context.scope_count_to_delete.back();
-                            }
-
-                            push(field, context);
+                                push(Value(Closure(var->refClosure().scopePtr(), field->pageAddr())), context);
+                            else
+                                push(field, context);
                             break;
                         }
 
-                        throwVMError(ErrorKind::Scope, "Couldn't find the variable " + m_state.m_symbols[arg] + " in the closure enviroment");
+                        throwVMError(ErrorKind::Scope, "Couldn't find the variable " + m_state.m_symbols[arg] + " in the closure environment");
                         break;
                     }
 
@@ -1077,7 +1078,7 @@ namespace Ark
                         }
 
                         auto id = static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it));
-                        push((*closure->refClosure().refScope())[id] != nullptr ? Builtins::trueSym : Builtins::falseSym, context);
+                        push((closure->refClosure().refScope())[id] != nullptr ? Builtins::trueSym : Builtins::falseSym, context);
 
                         break;
                     }
@@ -1142,7 +1143,7 @@ namespace Ark
     {
         for (auto it = context.locals.rbegin(), it_end = context.locals.rend(); it != it_end; ++it)
         {
-            if (auto id = (*it)->idFromValue(value); id < m_state.m_symbols.size())
+            if (auto id = (it)->idFromValue(value); id < m_state.m_symbols.size())
                 return id;
         }
         return std::numeric_limits<uint16_t>::max();
@@ -1162,7 +1163,7 @@ namespace Ark
         if (uint16_t original_frame_count = context.fc; original_frame_count > 1)
         {
             // display call stack trace
-            Scope old_scope = *context.locals.back().get();
+            Scope old_scope = context.locals.back();
 
             while (context.fc != 0)
             {

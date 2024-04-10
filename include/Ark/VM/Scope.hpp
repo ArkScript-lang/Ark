@@ -35,6 +35,13 @@ namespace Ark::internal
         Scope() noexcept;
 
         /**
+         * @brief Merge values from this scope as refs in the other scope
+         * @details This scope must be kept alive for the ref to be used
+         * @param other
+         */
+        void mergeRefInto(Scope& other);
+
+        /**
          * @brief Put a value in the scope
          *
          * @param id The symbol id of the variable

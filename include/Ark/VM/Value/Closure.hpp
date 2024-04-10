@@ -27,14 +27,6 @@ namespace Ark::internal
 {
     class Scope;
 
-    /**
-     * @brief Scope handling
-     *
-     * A scope is defined as a shared pointer to a list of local variables
-     *  because a Closure could continue to leave when the local variables list
-     *  has been closed by the virtual machine
-     */
-    using Scope_t = std::shared_ptr<Scope>;
     using PageAddr_t = uint16_t;
 
     /**
@@ -53,32 +45,47 @@ namespace Ark::internal
         /**
          * @brief Construct a new Closure object
          *
-         * @param scope_ptr the scope of the function turned into a closure
+         * @param scope the scope of the function turned into a closure
          * @param pa the current page address of the function turned into a closure
          */
-        Closure(Scope_t&& scope_ptr, PageAddr_t pa) noexcept;
+        Closure(Scope&& scope, PageAddr_t pa) noexcept;
 
         /**
          * @brief Construct a new Closure object
          *
-         * @param scope_ptr the scope of the function turned into a closure
+         * @param scope the scope of the function turned into a closure
          * @param pa the current page address of the function turned into a closure
          */
-        Closure(const Scope_t& scope_ptr, PageAddr_t pa) noexcept;
+        Closure(const Scope& scope, PageAddr_t pa) noexcept;
+
+        /**
+         * @brief Construct a new Closure object
+         * @param scope_ptr a shared pointer to the scope of the function turned into a closure
+         * @param pa the current page address of the function turned into a closure
+         */
+        Closure(const std::shared_ptr<Scope>& scope_ptr, PageAddr_t pa) noexcept;
 
         /**
          * @brief Return the scope held by the object
          *
-         * @return const Scope_t&
+         * @return const Scope&
          */
-        [[nodiscard]] const Scope_t& scope() const noexcept;
+        [[nodiscard]] inline const Scope& scope() const noexcept { return *m_scope.get(); }
 
         /**
          * @brief Return a reference to the scope held by the object
          *
-         * @return Scope_t&
+         * @return Scope&
          */
-        Scope_t& refScope() noexcept;
+        [[nodiscard]] inline Scope& refScope() noexcept { return *m_scope.get(); }
+
+        /**
+         * @brief Return a reference to the shared pointer representing the scope
+         * @details The scope has to be kept alive somewhere or all its variables will be destroyed.
+         *
+         * @return const std::shared_ptr<Scope>&
+         */
+        [[nodiscard]] inline const std::shared_ptr<Scope>& scopePtr() const { return m_scope; }
 
         /**
          * @brief Return the page address of the object
@@ -99,7 +106,7 @@ namespace Ark::internal
         friend ARK_API_INLINE bool operator<(const Closure& A, const Closure& B) noexcept;
 
     private:
-        Scope_t m_scope;
+        std::shared_ptr<Scope> m_scope;
         // keep track of the code page number, in case we need it later
         PageAddr_t m_page_addr;
     };

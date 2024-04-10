@@ -236,8 +236,6 @@ namespace Ark
         //                locals related
         // ================================================
 
-        inline void createNewScope(internal::ExecutionContext& context) noexcept;
-
         /**
          * @brief Find the nearest variable of a given id
          *

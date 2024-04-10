@@ -10,6 +10,17 @@ namespace Ark::internal
         m_data.reserve(3);
     }
 
+    void Scope::mergeRefInto(Ark::internal::Scope& other)
+    {
+        for (auto& [id, val] : m_data)
+        {
+            if (val.valueType() == ValueType::Reference)
+                other.push_back(id, val);
+            else
+                other.push_back(id, Value(&val));
+        }
+    }
+
     void Scope::push_back(uint16_t id, Value&& val) noexcept
     {
         if (id < m_min_id)
@@ -17,7 +28,7 @@ namespace Ark::internal
         if (id > m_max_id)
             m_max_id = id;
 
-        m_data.emplace_back(std::move(id), std::move(val));
+        m_data.emplace_back(id, std::move(val));
     }
 
     void Scope::push_back(uint16_t id, const Value& val) noexcept
@@ -32,35 +43,35 @@ namespace Ark::internal
 
     bool Scope::has(uint16_t id) noexcept
     {
-        return m_min_id <= id && m_max_id <= id && operator[](id) != nullptr;
+        return m_min_id <= id && id <= m_max_id && operator[](id) != nullptr;
     }
 
     Value* Scope::operator[](uint16_t id) noexcept
     {
-        for (std::size_t i = 0, end = m_data.size(); i < end; ++i)
+        for (auto& val : m_data)
         {
-            if (m_data[i].first == id)
-                return &m_data[i].second;
+            if (val.first == id)
+                return &val.second;
         }
         return nullptr;
     }
 
     const Value* Scope::operator[](uint16_t id) const noexcept
     {
-        for (std::size_t i = 0, end = m_data.size(); i < end; ++i)
+        for (const auto& val : m_data)
         {
-            if (m_data[i].first == id)
-                return &m_data[i].second;
+            if (val.first == id)
+                return &val.second;
         }
         return nullptr;
     }
 
     uint16_t Scope::idFromValue(const Value& val) const noexcept
     {
-        for (std::size_t i = 0, end = m_data.size(); i < end; ++i)
+        for (const auto& [id, data] : m_data)
         {
-            if (m_data[i].second == val)
-                return m_data[i].first;
+            if (data == val)
+                return id;
         }
         return std::numeric_limits<uint16_t>::max();
     }

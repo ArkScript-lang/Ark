@@ -12,6 +12,20 @@
 (let closure_3 (make 3 2 3))
 (let closure_4 (make2 1 2 3))
 
+(let inner 0)
+(let call (fun () {
+    (set val 5)
+    (set inner 12) }))
+(let get (fun () [val inner]))
+(let child (fun (&inner &call &get) ()))
+(mut val 1)
+(let parent (fun (&val &child) ()))
+
+(let create-human (fun (name age) {
+    (let set-age (fun (new-age) (set age new-age)))
+    (fun (&set-age &name &age) ()) }))
+(let bob (create-human "Bob" 38))
+
 (test:suite vm {
     (test:case "arithmetic operations" {
         (test:eq (+ 1 2) 3)
@@ -114,4 +128,12 @@
         (test:neq closure_1 closure_4)
         (test:neq closure_2 closure_3)
         (test:neq closure_1 closure_3)
-        (test:neq closure closure_1) })})
+        (test:neq closure closure_1)
+
+        (test:eq bob.age 38)
+        (bob.set-age 40)
+        (test:eq bob.age 40)
+
+        (test:eq (parent.child.get) [1 0])
+        (parent.child.call)
+        (test:eq (parent.child.get) [5 12]) })})
