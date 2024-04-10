@@ -37,14 +37,8 @@ Value VM::call(const std::string& name, Args&&... args)
     Value* var = findNearestVariable(id, context);
     if (var != nullptr)
     {
-        ValueType vt = var->valueType();
-
-        if (vt != ValueType::PageAddr &&
-            vt != ValueType::Closure &&
-            !(vt == ValueType::Reference &&
-              (var->reference()->valueType() == ValueType::PageAddr ||
-               var->reference()->valueType() == ValueType::Closure)))
-            throwVMError(ErrorKind::Type, "Can't call '" + name + "': it isn't a Function but a " + types_to_str[static_cast<std::size_t>(vt)]);
+        if (!var->isFunction())
+            throwVMError(ErrorKind::Type, "Can't call '" + name + "': it isn't a Function but a " + types_to_str[static_cast<std::size_t>(var->valueType())]);
 
         push(Value(var), context);
         context.last_symbol = id;
@@ -237,21 +231,15 @@ inline void VM::swapStackForFunCall(uint16_t argc, internal::ExecutionContext& c
     }
 
     context.fc++;
-    context.scope_count_to_delete.emplace_back(0);
 }
 
 #pragma endregion
-
-inline void VM::createNewScope(internal::ExecutionContext& context) noexcept
-{
-    context.locals.emplace_back(std::make_shared<internal::Scope>());
-}
 
 inline Value* VM::findNearestVariable(uint16_t id, internal::ExecutionContext& context) noexcept
 {
     for (auto it = context.locals.rbegin(), it_end = context.locals.rend(); it != it_end; ++it)
     {
-        if (auto val = (**it)[id]; val != nullptr)
+        if (auto val = (*it)[id]; val != nullptr)
             return val;
     }
     return nullptr;
@@ -260,25 +248,9 @@ inline Value* VM::findNearestVariable(uint16_t id, internal::ExecutionContext& c
 inline void VM::returnFromFuncCall(internal::ExecutionContext& context)
 {
     --context.fc;
-
-    context.scope_count_to_delete.pop_back();
-    uint8_t del_counter = context.scope_count_to_delete.back();
-
-    // PERF high cpu cost because destroying variants cost
+    context.stacked_closure_scopes.pop_back();
+    // NOTE: high cpu cost because destroying variants cost
     context.locals.pop_back();
-
-    while (del_counter != 0)
-    {
-        for (auto& [_, v] : context.locals.back()->m_data)
-        {
-            if (v.valueType() == ValueType::User)
-                v.usertypeRef().del();
-        }
-        context.locals.pop_back();
-        del_counter--;
-    }
-
-    context.scope_count_to_delete.back() = 0;
 }
 
 inline void VM::call(internal::ExecutionContext& context, int16_t argc_)
@@ -305,6 +277,7 @@ inline void VM::call(internal::ExecutionContext& context, int16_t argc_)
         argc = argc_;
 
     Value function = *popAndResolveAsPtr(context);
+    context.stacked_closure_scopes.emplace_back(nullptr);
 
     switch (function.valueType())
     {
@@ -327,13 +300,12 @@ inline void VM::call(internal::ExecutionContext& context, int16_t argc_)
             PageAddr_t new_page_pointer = function.pageAddr();
 
             // create dedicated frame
-            createNewScope(context);
-
+            context.locals.emplace_back();
             swapStackForFunCall(argc, context);
 
             // store "reference" to the function to speed the recursive functions
             if (context.last_symbol < m_state.m_symbols.size())
-                context.locals.back()->push_back(context.last_symbol, function);
+                context.locals.back().push_back(context.last_symbol, function);
 
             context.pp = new_page_pointer;
             context.ip = 0;
@@ -346,11 +318,11 @@ inline void VM::call(internal::ExecutionContext& context, int16_t argc_)
             Closure& c = function.refClosure();
             PageAddr_t new_page_pointer = c.pageAddr();
 
-            // load saved scope
-            context.locals.push_back(c.scope());
             // create dedicated frame
-            createNewScope(context);
-            ++context.scope_count_to_delete.back();
+            context.locals.emplace_back();
+            // load saved scope
+            c.refScope().mergeRefInto(context.locals.back());
+            context.stacked_closure_scopes.back() = c.scopePtr();
 
             swapStackForFunCall(argc, context);
 

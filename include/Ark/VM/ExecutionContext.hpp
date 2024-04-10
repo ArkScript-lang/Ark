@@ -14,6 +14,7 @@
 
 #include <array>
 #include <limits>
+#include <memory>
 #include <optional>
 #include <cinttypes>
 
@@ -39,9 +40,9 @@ namespace Ark::internal
         uint16_t last_symbol = std::numeric_limits<uint16_t>::max();
 
         std::array<Value, VMStackSize> stack;
-        std::vector<uint8_t> scope_count_to_delete;
-        std::optional<Scope_t> saved_scope;
-        std::vector<Scope_t> locals;
+        std::vector<std::shared_ptr<Scope>> stacked_closure_scopes;
+        std::optional<Scope> saved_scope;
+        std::vector<Scope> locals;
 
         ExecutionContext() noexcept :
             primary(ExecutionContext::Count == 0)

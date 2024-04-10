@@ -11,25 +11,20 @@ namespace Ark::internal
         m_page_addr(0)
     {}
 
-    Closure::Closure(Scope_t&& scope_ptr, PageAddr_t pa) noexcept :
-        m_scope(scope_ptr),
+    Closure::Closure(Scope&& scope, PageAddr_t pa) noexcept :
+        m_scope(std::make_shared<Scope>(scope)),
         m_page_addr(pa)
     {}
 
-    Closure::Closure(const Scope_t& scope_ptr, PageAddr_t pa) noexcept :
-        m_scope(scope_ptr),
+    Closure::Closure(const Scope& scope, PageAddr_t pa) noexcept :
+        m_scope(std::make_shared<Scope>(scope)),
         m_page_addr(pa)
     {}
 
-    const Scope_t& Closure::scope() const noexcept
-    {
-        return m_scope;
-    }
-
-    Scope_t& Closure::refScope() noexcept
-    {
-        return m_scope;
-    }
+    Closure::Closure(const std::shared_ptr<Scope>& scope_ptr, Ark::internal::PageAddr_t pa) noexcept :
+        m_scope(scope_ptr),
+        m_page_addr(pa)
+    {}
 
     void Closure::toString(std::ostream& os, VM& vm) const noexcept
     {
