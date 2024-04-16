@@ -113,20 +113,6 @@ namespace Ark
         void exit(int code) noexcept;
 
         /**
-         * @brief Set the User Pointer object
-         *
-         * @param ptr Pointer to data NOT owned by the VM, to be used later
-         */
-        void setUserPointer(void* ptr) noexcept;
-
-        /**
-         * @brief Retrieves the stored pointer
-         *
-         * @return void*
-         */
-        void* getUserPointer() noexcept;
-
-        /**
          * @brief Create an execution context and returns it
          * @details This method is thread-safe VM wise.
          *
@@ -175,9 +161,6 @@ namespace Ark
         // just a nice little trick for operator[] and for pop
         Value m_no_value = internal::Builtins::nil;
         Value m_undefined_value;
-
-        void* m_user_pointer;  ///< needed to pass data around when binding ArkScript in a program
-                               // Note: This is a non owned pointer.
 
         /**
          * @brief Run ArkScript bytecode inside a try catch to retrieve all the exceptions and display a stack trace if needed
