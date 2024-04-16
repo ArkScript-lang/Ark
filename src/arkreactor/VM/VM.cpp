@@ -24,9 +24,7 @@ namespace Ark
     using namespace internal;
 
     VM::VM(State& state) noexcept :
-        m_state(state), m_exit_code(0),
-        m_running(false),
-        m_user_pointer(nullptr)
+        m_state(state), m_exit_code(0), m_running(false)
     {
         m_execution_contexts.emplace_back(std::make_unique<ExecutionContext>())->locals.reserve(4);
     }
@@ -67,8 +65,6 @@ namespace Ark
     Value& VM::operator[](const std::string& name) noexcept
     {
         ExecutionContext& context = *m_execution_contexts.front();
-
-        // const std::lock_guard<std::mutex> lock(m_mutex);
 
         // find id of object
         auto it = std::find(m_state.m_symbols.begin(), m_state.m_symbols.end(), name);
@@ -167,20 +163,6 @@ namespace Ark
     {
         m_exit_code = code;
         m_running = false;
-    }
-
-    // ------------------------------------------
-    //               user pointer
-    // ------------------------------------------
-
-    void VM::setUserPointer(void* ptr) noexcept
-    {
-        m_user_pointer = ptr;
-    }
-
-    void* VM::getUserPointer() noexcept
-    {
-        return m_user_pointer;
     }
 
     ExecutionContext* VM::createAndGetContext()
