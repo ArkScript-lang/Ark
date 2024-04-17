@@ -9,7 +9,7 @@ _module_: C++ plugin for the ArkScript virtual machine, allowing use of C++ code
 
 ## Precisions
 
-Indentation matters to us, programmers (but not to the compiler): 4 spaces or a single tab, but it should stay consistent accross a project/file.
+Indentation matters to us, programmers (but not to the compiler): 4 spaces or a single tab, but it should stay consistent across a project/file.
 
 The general rule of thumb is that a closing parenthesis should never be to the left of its matching opening parenthesis. All new lines should be a couple of spaces to the right of the opening parenthesis of the list they're in.
 
@@ -21,7 +21,7 @@ Functions and constants (the ones in the lib and in the builtins) are named foll
 
 * Indent the content of every `begin` block
 * When using begin blocks in if (then, else), they should appear clearly as a block, each opening brace on its own line
-* When using begin blocks in functions (body), they can appear as an indenpendant block (initial `(begin` or `{` on its own line) or not (initial `(begin` or `{` on the same line as the `fun` keyword)
+* When using begin blocks in functions (body), they can appear as an independent block (initial `(begin` or `{` on its own line) or not (initial `(begin` or `{` on the same line as the `fun` keyword)
 * closing braces are stacked together, and never preceded by a newline
     * if the last instruction wasn't a function call but a variable, a space should be put between those two
 

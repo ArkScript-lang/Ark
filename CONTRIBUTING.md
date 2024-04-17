@@ -5,9 +5,10 @@ You will find here a summary of the different things you should do / look up to 
 ## Starting
 
 * First, [fork](https://github.com/ArkScript-lang/Ark/fork) the repository
-* Then, clone your fork: 
+* Then, clone your fork:
     * HTTPS: `git clone https://github.com/<username>/Ark.git`
     * or SSH: `git clone git@github.com:<username>/Ark.git`
+* Install the pre-commit hooks: `pre-commit install` (you may need to [install pre-commit](https://pre-commit.com/#install) first)
 * Create a branch for your feature: `git checkout -b feat/my-awesome-idea`
 * When you're done, push it to your fork and submit a pull request
 
@@ -29,35 +30,21 @@ See the guide [to create a module](https://arkscript-lang.dev/impl/d1/d8c/module
 
 ## Submitting a pull request
 
-### Checking the enforcement of the coding style
-
-If it is a C++ project, it is strongly advised to run clang-format on your code *before* submitting a pull request.
-
-You can do as follows if you are a Windows user:
-```powershell
-Function run-on {
-    param (
-        $folder
-    )
-    Get-ChildItem -Path $folder -File -Recurse | Foreach {clang-format -style=file -i $_.fullname}
-}
-
-run-on .\include\Ark
-run-on .\src
-```
+Code formatting as well as static analysis is handled through `pre-commit` and its hooks. If you don't have it installed, refer back to [Contributing#Starting](#starting).
 
 ### Running the test suite
 
-The ArkScript test suite requires the console module for text colors. You can build all the modules by including the `-DARK_BUILD_MODULES` CMake switch when building ArkScript. Once you have the modules built, you can run the ArkScript test suite from the root folder using `./build/arkscript tests/arkscript/unittests.ark --lib ./lib`.
-
-The standard library test suite should be ran from the root folder of the standard library project (the console module will need to be copied to the folder). You can run standard library test suite using `./arkscript tests/all.ark --lib ./`.
+Build and run the `arkscript` and `unittests` targets:
+- `arkscript tests/arkscript/unittests.ark` (ArkScript unit tests for the VM and builtins)
+- `arkscript lib/std/tests/all.ark` (ArkScript unit tests for the standard library)
+- `unittests` (various C++ unit tests, testing error messages, AST, parsing...)
 
 ## C++ coding guidelines
 
 * Avoid `auto` whenever possible. Using it is tolerated for complex types such as iterators
 * Indent with **4 spaces**
 * Every brace (`{`, `}`) must be on its own line
-* Conditions with a single statement (`if (condition) do_this();`) do not need to be enclosed in braces
+* Conditions with a single statement (eg `if (condition) do_this();`) do not need to be enclosed in braces
 * Put a space between `for`, `while`, `if` and `(...)`, around each `=` sign (wherever it is, even in for-loops), between `#include` and the file to include
 * Prefer `enum class` over `enum`
 * Left-const over right-const
@@ -108,11 +95,11 @@ for (std::size_t i = 0, end = container.size(); i < end; i++)
  * @brief Tokenize ArkScript code
  * @version 0.1
  * @date 2020-10-27
- * 
+ *
  * @copyright Copyright (c) 2020
- * 
+ *
  */
- 
+
 #include <bla>
 
 code...
@@ -127,9 +114,9 @@ Snippet to recapitulate guidelines for headers:
  * @brief Tokenize ArkScript code
  * @version 0.1
  * @date 2020-10-27
- * 
+ *
  * @copyright Copyright (c) 2020
- * 
+ *
  */
 
 #ifndef HEADER_GUARD
@@ -149,13 +136,13 @@ namespace Ark
     public:
         /**
          * @brief doxygen documentation here
-         * 
+         *
          */
         Lexer();
 
         /**
          * @brief doxygen documentation here
-         * 
+         *
          * @param a_parameter defines the power of the flux capacitor
          */
         void aMethod(const std::string& a_parameter);
