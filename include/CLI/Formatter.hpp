@@ -14,9 +14,11 @@ constexpr struct FormatterConfig
 class Formatter final
 {
 public:
+    explicit Formatter(bool dry_run);
     Formatter(std::string filename, bool dry_run);
 
     void run();
+    void runWithString(const std::string& code);
 
     [[nodiscard]] const std::string& output() const;
 
@@ -25,6 +27,8 @@ private:
     bool m_dry_run;  ///< If true, only prints the formatted file instead of saving it to disk
     Ark::internal::Parser m_parser;
     std::string m_output;
+
+    void processAst(const Ark::internal::Node& ast);
 
     static bool isListStartingWithKeyword(const Ark::internal::Node& node, Ark::internal::Keyword keyword);
     static bool isBeginBlock(const Ark::internal::Node& node);
