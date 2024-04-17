@@ -32,7 +32,9 @@ jobs:
         run: |
           cppcheck --platform=unix64 --template="{file}:{line}: {severity}: {message}" \
             --output-file=cppcheck.txt -j $(nproc) \
-            -I include src
+            -I include src \
+            --enable=all --inline-suppr \
+            --suppressions-list=cppcheck-suppressions.txt
           cat cppcheck.txt | sort > cppcheck_sorted.txt
           echo "report=$(cat cppcheck_sorted.txt)" >> $GITHUB_OUTPUT
 
@@ -52,11 +54,11 @@ jobs:
           body: |
             ## Static analysis report
             ${{ env.LIZARD_REPORT }}
-            
+
             ---
-            
+
             ### CppCheck report
-            
+
             ```
             ${{ steps.cppcheck.outputs.report }}
             ```
