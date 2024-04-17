@@ -1,0 +1,23 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v3.2.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+  - repo: https://github.com/pre-commit/mirrors-clang-format
+    rev: 'ad270fb9db427f956ce8eb50c74617ed117b9bfc'
+    hooks:
+      - id: clang-format
+  - repo: https://github.com/pocc/pre-commit-hooks
+    rev: '336fdd7c3cab698ead0b1c95157b9e74d3906b62'
+    hooks:
+      - id: cppcheck
+        args: [ "--platform=unix64", "-j", "4", "-I include src" ]
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: 'v3.2.0'
+    hooks:
+      - id: conventional-pre-commit
+        stages: [ commit-msg ]
+        args: [ ]
