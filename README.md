@@ -102,6 +102,7 @@ cmake --install build
 
 * First, [fork](https://github.com/ArkScript-lang/Ark/fork) the repository
 * Then, clone your fork: `git clone git@github.com:username/Ark.git`
+* Install the pre-commit hooks: `pre-commit install` (you may need to [install pre-commit](https://pre-commit.com/#install) first)
 * Create a branch for your feature: `git checkout -b feat-my-awesome-idea`
 * When you're done, push it to your fork and submit a pull request
 
@@ -181,19 +182,19 @@ DESCRIPTION
         ArkScript programming language
 
 SYNOPSIS
-        arkscript -h 
-        arkscript -v 
-        arkscript --dev-info 
-        arkscript -e <expression> 
-        arkscript -c <file> [-d] 
-        arkscript <file> [-d] [-L <lib_dir>]  
-        arkscript -f <file> [--dry-run] 
-        arkscript --ast <file> [-d] [-L <lib_dir>] 
-        arkscript -bcr <file> -on 
-        arkscript -bcr <file> -a [-s <start> <end>] 
-        arkscript -bcr <file> -st [-s <start> <end>] 
-        arkscript -bcr <file> -vt [-s <start> <end>] 
-        arkscript -bcr <file> [-cs] [-p <page>] [-s <start> <end>] 
+        arkscript -h
+        arkscript -v
+        arkscript --dev-info
+        arkscript -e <expression>
+        arkscript -c <file> [-d]
+        arkscript <file> [-d] [-L <lib_dir>]
+        arkscript -f <file> [--dry-run]
+        arkscript --ast <file> [-d] [-L <lib_dir>]
+        arkscript -bcr <file> -on
+        arkscript -bcr <file> -a [-s <start> <end>]
+        arkscript -bcr <file> -st [-s <start> <end>]
+        arkscript -bcr <file> -vt [-s <start> <end>]
+        arkscript -bcr <file> [-cs] [-p <page>] [-s <start> <end>]
 
 OPTIONS
         -h, --help                  Display this message
