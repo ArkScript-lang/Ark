@@ -116,7 +116,8 @@ def main(files: List[str]):
                 "real_time\ncpu_time",
                 f"{baseline.real_time}{baseline.time_unit}\n{baseline.cpu_time}{baseline.time_unit}"
             ] + [
-                f"{diff.dt_real_time} ({diff.dt_rt_percent})\n{diff.dt_cpu_time} ({diff.dt_ct_percent})" for
+                f"{diff.dt_real_time:.3f} ({diff.dt_rt_percent:.4f}%)\n{diff.dt_cpu_time:.3f} ({diff.dt_ct_percent:.4f}%)"
+                for
                 diff in diffs
             ])
     print(tabulate(data, headers, tablefmt="presto"))
