@@ -124,7 +124,7 @@ inline Value VM::resolve(internal::ExecutionContext* context, std::vector<Value>
 
 inline Value* VM::pop(internal::ExecutionContext& context)
 {
-    if (context.sp > 0)
+    if (context.sp > 0) [[likely]]
     {
         --context.sp;
         return &context.stack[context.sp];
@@ -249,7 +249,7 @@ inline void VM::call(internal::ExecutionContext& context, int16_t argc_)
     uint16_t argc = 0;
 
     // handling calls from C++ code
-    if (argc_ <= -1)
+    if (argc_ <= -1) [[unlikely]]
     {
         ++context.ip;
         argc = (static_cast<uint16_t>(m_state.m_pages[context.pp][context.ip]) << 8) + static_cast<uint16_t>(m_state.m_pages[context.pp][context.ip + 1]);
@@ -286,7 +286,7 @@ inline void VM::call(internal::ExecutionContext& context, int16_t argc_)
             swapStackForFunCall(argc, context);
 
             // store "reference" to the function to speed the recursive functions
-            if (context.last_symbol < m_state.m_symbols.size())
+            if (context.last_symbol < m_state.m_symbols.size()) [[likely]]
                 context.locals.back().push_back(context.last_symbol, function);
 
             context.pp = new_page_pointer;
@@ -334,7 +334,7 @@ inline void VM::call(internal::ExecutionContext& context, int16_t argc_)
         index += 4;  // instructions are on 4 bytes
     }
 
-    if (needed_argc != argc)
+    if (needed_argc != argc) [[unlikely]]
         throwVMError(
             ErrorKind::Arity,
             "Function '" + m_state.m_symbols[context.last_symbol] + "' needs " + std::to_string(needed_argc) +

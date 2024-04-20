@@ -73,7 +73,7 @@ class Run:
             dt_real_time=self.real_time - baseline.real_time,
             dt_rt_percent=(self.real_time - baseline.real_time) / baseline.real_time * 100.0,
             dt_cpu_time=self.cpu_time - baseline.cpu_time,
-            dt_ct_percent=(self.cpu_time - baseline.cpu_time) / baseline.cpu_time,
+            dt_ct_percent=(self.cpu_time - baseline.cpu_time) / baseline.cpu_time * 100.0,
             time_unit=baseline.time_unit
         )
 

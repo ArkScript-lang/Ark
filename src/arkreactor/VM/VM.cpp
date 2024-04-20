@@ -249,7 +249,7 @@ namespace Ark
                     {
                         context.last_symbol = arg;
 
-                        if (Value* var = findNearestVariable(context.last_symbol, context); var != nullptr)
+                        if (Value* var = findNearestVariable(context.last_symbol, context); var != nullptr) [[likely]]
                         {
                             // push internal reference, shouldn't break anything so far, unless it's already a ref
                             if (var->valueType() == ValueType::Reference)
@@ -257,7 +257,7 @@ namespace Ark
                             else
                                 push(var, context);
                         }
-                        else
+                        else [[unlikely]]
                             throwVMError(ErrorKind::Scope, "Unbound variable: " + m_state.m_symbols[context.last_symbol]);
 
                         break;
@@ -270,11 +270,8 @@ namespace Ark
                             push(Value(Closure(context.saved_scope.value(), m_state.m_constants[arg].pageAddr())), context);
                             context.saved_scope.reset();
                         }
-                        else
-                        {
-                            // push internal ref
+                        else [[likely]]  // push internal ref
                             push(&(m_state.m_constants[arg]), context);
-                        }
 
                         break;
                     }
@@ -288,14 +285,14 @@ namespace Ark
 
                     case Instruction::STORE:
                     {
-                        if (Value* var = findNearestVariable(arg, context); var != nullptr)
+                        if (Value* var = findNearestVariable(arg, context); var != nullptr) [[likely]]
                         {
                             if (var->isConst() && var->valueType() != ValueType::Reference)
                                 throwVMError(ErrorKind::Mutability, "Can not modify a constant: " + m_state.m_symbols[arg]);
 
                             if (var->valueType() == ValueType::Reference)
                                 *var->reference() = *popAndResolveAsPtr(context);
-                            else
+                            else [[likely]]
                             {
                                 *var = *popAndResolveAsPtr(context);
                                 var->setConst(false);
@@ -310,12 +307,12 @@ namespace Ark
                     case Instruction::LET:
                     {
                         // check if we are redefining a variable
-                        if (auto val = (context.locals.back())[arg]; val != nullptr)
+                        if (auto val = (context.locals.back())[arg]; val != nullptr) [[unlikely]]
                             throwVMError(ErrorKind::Mutability, "Can not use 'let' to redefine the variable " + m_state.m_symbols[arg]);
 
                         Value val = *popAndResolveAsPtr(context);
                         val.setConst(true);
-                        (context.locals.back()).push_back(arg, val);
+                        context.locals.back().push_back(arg, val);
 
                         break;
                     }
@@ -337,7 +334,7 @@ namespace Ark
                     {
                         Value ip_or_val = *popAndResolveAsPtr(context);
                         // no return value on the stack
-                        if (ip_or_val.valueType() == ValueType::InstPtr)
+                        if (ip_or_val.valueType() == ValueType::InstPtr) [[unlikely]]
                         {
                             context.ip = ip_or_val.pageAddr();
                             // we always push PP then IP, thus the next value
@@ -348,7 +345,7 @@ namespace Ark
                             push(Builtins::nil, context);
                         }
                         // value on the stack
-                        else
+                        else [[likely]]
                         {
                             Value* ip;
                             do
@@ -373,7 +370,7 @@ namespace Ark
                     case Instruction::CALL:
                     {
                         // stack pointer + 2 because we push IP and PP
-                        if (context.sp + 2 >= VMStackSize)
+                        if (context.sp + 2 >= VMStackSize) [[unlikely]]
                             throwVMError(
                                 ErrorKind::VM,
                                 "Maximum recursion depth exceeded.\n"
@@ -409,8 +406,8 @@ namespace Ark
 
                         // avoid adding the pair (id, _) multiple times, with different values
                         Value* local = (context.locals.back())[arg];
-                        if (local == nullptr)
-                            (context.locals.back()).push_back(arg, val);
+                        if (local == nullptr) [[likely]]
+                            context.locals.back().push_back(arg, val);
                         else
                             *local = val;
 
