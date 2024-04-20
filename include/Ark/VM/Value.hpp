@@ -2,10 +2,10 @@
  * @file Value.hpp
  * @author Default value type handled by the virtual machine
  * @brief
- * @version 0.3
- * @date 2020-10-27
+ * @version 1.0
+ * @date 2024-04-20
  *
- * @copyright Copyright (c) 2020-2021
+ * @copyright Copyright (c) 2020-2024
  *
  */
 
@@ -14,7 +14,7 @@
 
 #include <vector>
 #include <variant>
-#include <string>  // for conversions
+#include <string>
 #include <cinttypes>
 #include <iostream>
 #include <memory>
@@ -30,10 +30,10 @@ namespace Ark
 {
     class VM;
 
-    // Note from the creator: we can have at most 0b01111111 (127) different types
-    // because type index is stored on the 7 right most bits of a uint8_t in the class Value.
-    // Order is also important because we are doing some optimizations to check ranges
-    // of types based on their integer values.
+    // Note: we can have at most 0x7f (127) different types
+    //     because type index is stored on the 7 right most bits of a uint8_t in the class Value.
+    //     Order is also important because we are doing some optimizations to check ranges
+    //     of types based on their integer values.
     enum class ValueType
     {
         List = 0,
@@ -51,7 +51,7 @@ namespace Ark
         Reference = 11,
         InstPtr = 12,
 
-        Any = 99
+        Any = 99  ///< Used only for typechecking
     };
 
     const std::array<std::string, 13> types_to_str = {
@@ -108,153 +108,34 @@ namespace Ark
             m_value(value)
         {}
 
-        /**
-         * @brief Construct a new Value object as a Number
-         *
-         * @param value
-         */
         explicit Value(int value) noexcept;
-
-        /**
-         * @brief Construct a new Value object as a Number
-         *
-         * @param value
-         */
         explicit Value(float value) noexcept;
-
-        /**
-         * @brief Construct a new Value object as a Number
-         *
-         * @param value
-         */
         explicit Value(double value) noexcept;
-
-        /**
-         * @brief Construct a new Value object as a String
-         *
-         * @param value
-         */
         explicit Value(const std::string& value) noexcept;
-
-        /**
-         * @brief Construct a new Value object as a String
-         *
-         * @param value
-         */
         explicit Value(const char* value) noexcept;
-
-        /**
-         * @brief Construct a new Value object as a Function
-         *
-         * @param value
-         */
         explicit Value(internal::PageAddr_t value) noexcept;
-
-        /**
-         * @brief Construct a new Value object from a C++ function
-         *
-         * @param value
-         */
         explicit Value(Value::ProcType value) noexcept;
-
-        /**
-         * @brief Construct a new Value object as a List
-         *
-         * @param value
-         */
         explicit Value(std::vector<Value>&& value) noexcept;
-
-        /**
-         * @brief Construct a new Value object as a Closure
-         *
-         * @param value
-         */
         explicit Value(internal::Closure&& value) noexcept;
-
-        /**
-         * @brief Construct a new Value object as a UserType
-         *
-         * @param value
-         */
         explicit Value(UserType&& value) noexcept;
-
-        /**
-         * @brief Construct a new Value object as a reference to an internal object
-         *
-         * @param ref
-         */
         explicit Value(Value* ref) noexcept;
 
-        /**
-         * @brief Return the value type
-         *
-         * @return ValueType
-         */
-        inline ValueType valueType() const noexcept;
+        [[nodiscard]] inline ValueType valueType() const noexcept { return static_cast<ValueType>(type_num()); }
+        [[nodiscard]] inline bool isFunction() const noexcept
+        {
+            auto type = valueType();
+            return type == ValueType::PageAddr || type == ValueType::Closure || type == ValueType::CProc ||
+                (type == ValueType::Reference && reference()->isFunction());
+        }
 
-        /**
-         * @brief Check if a function is held
-         *
-         * @return true on success
-         * @return false on failure
-         */
-        inline bool isFunction() const noexcept;
-
-        /**
-         * @brief Return the stored number
-         *
-         * @return double
-         */
-        inline double number() const;
-
-        /**
-         * @brief Return the stored string
-         *
-         * @return const std::string&
-         */
-        inline const std::string& string() const;
-
-        /**
-         * @brief Return the stored list
-         *
-         * @return const std::vector<Value>&
-         */
-        inline const std::vector<Value>& constList() const;
-
-        /**
-         * @brief Return the stored user type
-         *
-         * @return const UserType&
-         */
-        inline const UserType& usertype() const;
-
-        /**
-         * @brief Return the stored list as a reference
-         *
-         * @return std::vector<Value>&
-         */
-        std::vector<Value>& list();
-
-        /**
-         * @brief Return the stored string as a reference
-         *
-         * @return std::string&
-         */
-        std::string& stringRef();
-
-        /**
-         * @brief Return the stored user type as a reference
-         *
-         * @return UserType&
-         */
-        UserType& usertypeRef();
-
-        /**
-         * @brief Return the stored internal object reference
-         *
-         * @return Value*
-         */
-        Value* reference() const;
+        [[nodiscard]] inline double number() const { return std::get<double>(m_value); }
+        [[nodiscard]] inline const std::string& string() const { return std::get<std::string>(m_value); }
+        [[nodiscard]] inline const std::vector<Value>& constList() const { return std::get<std::vector<Value>>(m_value); }
+        [[nodiscard]] inline const UserType& usertype() const { return std::get<UserType>(m_value); }
+        [[nodiscard]] inline std::vector<Value>& list() { return std::get<std::vector<Value>>(m_value); }
+        [[nodiscard]] inline std::string& stringRef() { return std::get<std::string>(m_value); }
+        [[nodiscard]] inline UserType& usertypeRef() { return std::get<UserType>(m_value); }
+        [[nodiscard]] inline Value* reference() const { return std::get<Value*>(m_value); }
 
         /**
          * @brief Add an element to the list held by the value (if the value type is set to list)
@@ -282,50 +163,21 @@ namespace Ark
         uint8_t m_const_type;  ///< First bit if for constness, right most bits are for type
         Value_t m_value;
 
-        // private getters only for the virtual machine
+        [[nodiscard]] inline constexpr uint8_t type_num() const noexcept { return m_const_type & 0x7f; }
 
-        /**
-         * @brief Return the page address held by the value
-         *
-         * @return internal::PageAddr_t
-         */
-        inline internal::PageAddr_t pageAddr() const;
+        [[nodiscard]] inline internal::PageAddr_t pageAddr() const { return std::get<internal::PageAddr_t>(m_value); }
+        [[nodiscard]] inline const ProcType& proc() const { return std::get<Value::ProcType>(m_value); }
+        [[nodiscard]] inline const internal::Closure& closure() const { return std::get<internal::Closure>(m_value); }
+        [[nodiscard]] inline internal::Closure& refClosure() { return std::get<internal::Closure>(m_value); }
 
-        /**
-         * @brief Return the C Function held by the value
-         *
-         * @return const ProcType&
-         */
-        inline const ProcType& proc() const;
-
-        /**
-         * @brief Return the closure held by the value
-         *
-         * @return const internal::Closure&
-         */
-        inline const internal::Closure& closure() const;
-
-        /**
-         * @brief Return a reference to the closure held by the value
-         *
-         * @return internal::Closure&
-         */
-        internal::Closure& refClosure();
-
-        /**
-         * @brief Check if the value is const or not
-         *
-         * @return true
-         * @return false
-         */
-        inline bool isConst() const noexcept;
-
-        /**
-         * @brief Set the Const object
-         *
-         * @param value
-         */
-        inline void setConst(bool value) noexcept;
+        [[nodiscard]] inline bool isConst() const noexcept { return m_const_type & (1 << 7); }
+        inline void setConst(bool value) noexcept
+        {
+            if (value)
+                m_const_type |= 1 << 7;
+            else
+                m_const_type = type_num();
+        }
     };
 
 #include "inline/Value.inl"

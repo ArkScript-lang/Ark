@@ -1,77 +1,10 @@
-// public getters
-
-inline ValueType Value::valueType() const noexcept
-{
-    // the type is stored on the right most bits
-    return static_cast<ValueType>(m_const_type & 0b01111111);
-}
-
-inline bool Value::isFunction() const noexcept  // if it's a function we can resolve it
-{
-    auto type = valueType();
-    return type == ValueType::PageAddr || type == ValueType::Closure || type == ValueType::CProc ||
-        (type == ValueType::Reference && reference()->isFunction());
-}
-
-inline double Value::number() const
-{
-    return std::get<double>(m_value);
-}
-
-inline const std::string& Value::string() const
-{
-    return std::get<std::string>(m_value);
-}
-
-inline const std::vector<Value>& Value::constList() const
-{
-    return std::get<std::vector<Value>>(m_value);
-}
-
-inline const UserType& Value::usertype() const
-{
-    return std::get<UserType>(m_value);
-}
-
-// private getters
-
-inline internal::PageAddr_t Value::pageAddr() const
-{
-    return std::get<internal::PageAddr_t>(m_value);
-}
-
-inline const Value::ProcType& Value::proc() const
-{
-    return std::get<Value::ProcType>(m_value);
-}
-
-inline const internal::Closure& Value::closure() const
-{
-    return std::get<internal::Closure>(m_value);
-}
-
-inline bool Value::isConst() const noexcept
-{
-    return m_const_type & (1 << 7);
-}
-
-inline void Value::setConst(bool value) noexcept
-{
-    if (value)
-        m_const_type |= 1 << 7;
-    else
-        m_const_type &= 0b01111111;  // keep only the right most bits
-}
-
-// operators
-
 inline bool operator==(const Value& A, const Value& B) noexcept
 {
     // values should have the same type
-    if (A.valueType() != B.valueType())
+    if (A.type_num() != B.type_num())
         return false;
     // all the types >= Nil are Nil itself, True, False, Undefined
-    else if ((A.m_const_type & 0b01111111) >= static_cast<uint8_t>(ValueType::Nil))
+    else if (A.type_num() >= static_cast<uint8_t>(ValueType::Nil))
         return true;
 
     return A.m_value == B.m_value;
@@ -79,8 +12,8 @@ inline bool operator==(const Value& A, const Value& B) noexcept
 
 inline bool operator<(const Value& A, const Value& B) noexcept
 {
-    if (A.valueType() != B.valueType())
-        return (static_cast<uint8_t>(A.valueType()) - static_cast<uint8_t>(B.valueType())) < 0;
+    if (A.type_num() != B.type_num())
+        return (A.type_num() - B.type_num()) < 0;
     return A.m_value < B.m_value;
 }
 

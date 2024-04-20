@@ -63,45 +63,15 @@ namespace Ark
         m_const_type(init_const_type(true, ValueType::Reference)), m_value(ref)
     {}
 
-    // --------------------------
-
-    std::vector<Value>& Value::list()
-    {
-        return std::get<std::vector<Value>>(m_value);
-    }
-
-    internal::Closure& Value::refClosure()
-    {
-        return std::get<internal::Closure>(m_value);
-    }
-
-    std::string& Value::stringRef()
-    {
-        return std::get<std::string>(m_value);
-    }
-
-    UserType& Value::usertypeRef()
-    {
-        return std::get<UserType>(m_value);
-    }
-
-    Value* Value::reference() const
-    {
-        return std::get<Value*>(m_value);
-    }
-
-    // --------------------------
-
     void Value::push_back(const Value& value)
     {
-        list().push_back(value);
+        list().emplace_back(value);
     }
 
     void Value::push_back(Value&& value)
     {
-        list().push_back(std::move(value));
+        list().emplace_back(std::move(value));
     }
-
 
     void Value::toString(std::ostream& os, VM& vm) const noexcept
     {
