@@ -1,5 +1,3 @@
-#define resolveRef(valptr) (((valptr)->valueType() == ValueType::Reference) ? *((valptr)->reference()) : *(valptr))
-
 template <typename... Args>
 Value VM::call(const std::string& name, Args&&... args)
 {
@@ -67,9 +65,9 @@ Value VM::resolve(const Value* val, Args&&... args)
     // convert and push arguments in reverse order
     std::vector<Value> fnargs { { Value(std::forward<Args>(args))... } };
     for (auto it = fnargs.rbegin(), it_end = fnargs.rend(); it != it_end; ++it)
-        push(resolveRef(it), context);
+        push(*it, context);
     // push function
-    push(resolveRef(val), context);
+    push(*val, context);
 
     std::size_t frames_count = context.fc;
     // call it
@@ -100,7 +98,7 @@ inline Value VM::resolve(internal::ExecutionContext* context, std::vector<Value>
 
     // convert and push arguments in reverse order
     for (auto it = n.begin() + 1, it_end = n.end(); it != it_end; ++it)
-        push(*it, *context);  // todo use resolveRef
+        push(*it, *context);
     push(n[0], *context);
 
     std::size_t frames_count = context->fc;
@@ -342,5 +340,3 @@ inline void VM::call(internal::ExecutionContext& context, int16_t argc_)
             "Function '" + m_state.m_symbols[context.last_symbol] + "' needs " + std::to_string(needed_argc) +
                 " arguments, but it received " + std::to_string(argc));
 }
-
-#undef resolveRef
