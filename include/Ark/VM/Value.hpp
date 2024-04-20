@@ -61,15 +61,10 @@ namespace Ark
         "InstPtr"
     };
 
-// for debugging purposes only
-#ifdef ARK_PROFILER_COUNT
-    extern unsigned value_creations, value_copies, value_moves;
-#endif
-
     class ARK_API Value
     {
     public:
-        using ProcType = Value (*)(std::vector<Value>&, VM*);  // std::function<Value (std::vector<Value>&, VM*)>
+        using ProcType = Value (*)(std::vector<Value>&, VM*);
         using Iterator = std::vector<Value>::iterator;
         using ConstIterator = std::vector<Value>::const_iterator;
 
@@ -110,14 +105,8 @@ namespace Ark
         template <typename T>
         Value(ValueType type, T&& value) noexcept :
             m_const_type(static_cast<uint8_t>(type)),
-            m_value(std::move(value))
+            m_value(value)
         {}
-
-#ifdef ARK_PROFILER_COUNT
-        Value(const Value& val) noexcept;
-        Value(Value&& other) noexcept;
-        Value& operator=(const Value& other) noexcept;
-#endif
 
         /**
          * @brief Construct a new Value object as a Number

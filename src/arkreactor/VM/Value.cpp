@@ -2,15 +2,13 @@
 
 #include <fmt/format.h>
 
-#define init_const_type(is_const, type) ((is_const ? (1 << 7) : 0) | static_cast<uint8_t>(type))
+#define init_const_type(is_const, type) (((is_const) ? (1 << 7) : 0) | static_cast<uint8_t>(type))
 
 namespace Ark
 {
     Value::Value() noexcept :
         m_const_type(init_const_type(false, ValueType::Undefined))
     {}
-
-    // --------------------------
 
     Value::Value(ValueType type) noexcept :
         m_const_type(init_const_type(false, type))
@@ -19,45 +17,7 @@ namespace Ark
             m_value = std::vector<Value>();
         else if (type == ValueType::String)
             m_value = "";
-
-#ifdef ARK_PROFILER_COUNT
-        value_creations++;
-#endif
     }
-
-#ifdef ARK_PROFILER_COUNT
-    extern unsigned value_creations = 0;
-    extern unsigned value_copies = 0;
-    extern unsigned value_moves = 0;
-
-    Value::Value(const Value& val) noexcept :
-        m_value(val.m_value),
-        m_const_type(val.m_const_type)
-    {
-        if (valueType() != ValueType::Reference)
-            value_copies++;
-    }
-
-    Value::Value(Value&& other) noexcept
-    {
-        m_value = std::move(other.m_value);
-        m_const_type = std::move(other.m_const_type);
-
-        if (valueType() != ValueType::Reference)
-            value_moves++;
-    }
-
-    Value& Value::operator=(const Value& other) noexcept
-    {
-        m_value = other.m_value;
-        m_const_type = other.m_const_type;
-
-        if (valueType() != ValueType::Reference)
-            value_copies++;
-
-        return *this;
-    }
-#endif
 
     Value::Value(int value) noexcept :
         m_const_type(init_const_type(false, ValueType::Number)), m_value(static_cast<double>(value))
