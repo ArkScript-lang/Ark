@@ -229,17 +229,7 @@ int main(int argc, char** argv)
                     return -1;
 
                 Ark::VM vm(state);
-                int out = vm.run();
-
-#ifdef ARK_PROFILER_COUNT
-                std::cout << "\n\nValue\n=====\n"
-                          << "\tCreations: " << Ark::internal::value_creations
-                          << "\n\tCopies: " << Ark::internal::value_copies
-                          << "\n\tMoves: " << Ark::internal::value_moves
-                          << "\n\n\tCopy coeff: " << static_cast<float>(Ark::internal::value_copies) / Ark::internal::value_creations;
-#endif
-
-                return out;
+                return vm.run();
             }
 
             case mode::eval:

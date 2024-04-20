@@ -1,16 +1,3 @@
-// ------------------------------------------
-//               instructions
-// ------------------------------------------
-
-#define resolveRef(valptr) (((valptr)->valueType() == ValueType::Reference) ? *((valptr)->reference()) : *(valptr))
-#define resolveRefInPlace(val)                            \
-    if (val.valueType() == ValueType::Reference)          \
-    {                                                     \
-        val.m_const_type = val.reference()->m_const_type; \
-        val.m_value = val.reference()->m_value;           \
-    }
-
-
 template <typename... Args>
 Value VM::call(const std::string& name, Args&&... args)
 {
@@ -78,9 +65,9 @@ Value VM::resolve(const Value* val, Args&&... args)
     // convert and push arguments in reverse order
     std::vector<Value> fnargs { { Value(std::forward<Args>(args))... } };
     for (auto it = fnargs.rbegin(), it_end = fnargs.rend(); it != it_end; ++it)
-        push(resolveRef(it), context);
+        push(*it, context);
     // push function
-    push(resolveRef(val), context);
+    push(*val, context);
 
     std::size_t frames_count = context.fc;
     // call it
@@ -104,14 +91,14 @@ Value VM::resolve(const Value* val, Args&&... args)
 inline Value VM::resolve(internal::ExecutionContext* context, std::vector<Value>& n)
 {
     if (!n[0].isFunction())
-        throw TypeError("Value::resolve couldn't resolve a non-function (" + types_to_str[static_cast<std::size_t>(n[0].valueType())] + ")");
+        throw TypeError("VM::resolve couldn't resolve a non-function (" + types_to_str[static_cast<std::size_t>(n[0].valueType())] + ")");
 
     int ip = context->ip;
     std::size_t pp = context->pp;
 
     // convert and push arguments in reverse order
     for (auto it = n.begin() + 1, it_end = n.end(); it != it_end; ++it)
-        push(*it, *context);  // todo use resolveRef
+        push(*it, *context);
     push(n[0], *context);
 
     std::size_t frames_count = context->fc;
@@ -137,7 +124,7 @@ inline Value VM::resolve(internal::ExecutionContext* context, std::vector<Value>
 
 inline Value* VM::pop(internal::ExecutionContext& context)
 {
-    if (context.sp > 0)
+    if (context.sp > 0) [[likely]]
     {
         --context.sp;
         return &context.stack[context.sp];
@@ -197,7 +184,6 @@ inline void VM::swapStackForFunCall(uint16_t argc, internal::ExecutionContext& c
 
         case 1:
             context.stack[context.sp + 1] = context.stack[context.sp - 1];
-            resolveRefInPlace(context.stack[context.sp + 1]);
             context.stack[context.sp - 1] = Value(static_cast<PageAddr_t>(context.pp));
             context.stack[context.sp + 0] = Value(ValueType::InstPtr, static_cast<PageAddr_t>(context.ip));
             context.sp += 2;
@@ -208,19 +194,15 @@ inline void VM::swapStackForFunCall(uint16_t argc, internal::ExecutionContext& c
             const int16_t first = context.sp - argc;
             // move first argument to the very end
             context.stack[context.sp + 1] = context.stack[first + 0];
-            resolveRefInPlace(context.stack[context.sp + 1]);
-            // move second argument right before the last one
+            //  move second argument right before the last one
             context.stack[context.sp + 0] = context.stack[first + 1];
-            resolveRefInPlace(context.stack[context.sp + 0]);
-            // move the rest, if any
+            //  move the rest, if any
             int16_t x = 2;
             const int16_t stop = ((argc % 2 == 0) ? argc : (argc - 1)) / 2;
             while (x <= stop)
             {
                 //        destination          , origin
                 std::swap(context.stack[context.sp - x + 1], context.stack[first + x]);
-                resolveRefInPlace(context.stack[context.sp - x + 1]);
-                resolveRefInPlace(context.stack[first + x]);
                 ++x;
             }
             context.stack[first + 0] = Value(static_cast<PageAddr_t>(context.pp));
@@ -267,7 +249,7 @@ inline void VM::call(internal::ExecutionContext& context, int16_t argc_)
     uint16_t argc = 0;
 
     // handling calls from C++ code
-    if (argc_ <= -1)
+    if (argc_ <= -1) [[unlikely]]
     {
         ++context.ip;
         argc = (static_cast<uint16_t>(m_state.m_pages[context.pp][context.ip]) << 8) + static_cast<uint16_t>(m_state.m_pages[context.pp][context.ip + 1]);
@@ -304,7 +286,7 @@ inline void VM::call(internal::ExecutionContext& context, int16_t argc_)
             swapStackForFunCall(argc, context);
 
             // store "reference" to the function to speed the recursive functions
-            if (context.last_symbol < m_state.m_symbols.size())
+            if (context.last_symbol < m_state.m_symbols.size()) [[likely]]
                 context.locals.back().push_back(context.last_symbol, function);
 
             context.pp = new_page_pointer;
@@ -352,12 +334,9 @@ inline void VM::call(internal::ExecutionContext& context, int16_t argc_)
         index += 4;  // instructions are on 4 bytes
     }
 
-    if (needed_argc != argc)
+    if (needed_argc != argc) [[unlikely]]
         throwVMError(
             ErrorKind::Arity,
             "Function '" + m_state.m_symbols[context.last_symbol] + "' needs " + std::to_string(needed_argc) +
                 " arguments, but it received " + std::to_string(argc));
 }
-
-#undef resolveRef
-#undef resolveRefInPlace
