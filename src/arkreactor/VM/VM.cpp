@@ -32,6 +32,12 @@ namespace Ark
     void VM::init() noexcept
     {
         ExecutionContext& context = *m_execution_contexts.back();
+        for (auto& c : m_execution_contexts)
+        {
+            c->ip = 0;
+            c->pp = 0;
+            c->sp = 0;
+        }
 
         context.sp = 0;
         context.fc = 1;
@@ -127,10 +133,20 @@ namespace Ark
         m_shared_lib_objects.emplace_back(lib);
 
         // load the mapping from the dynamic library
-        mapping* map = nullptr;
         try
         {
-            map = m_shared_lib_objects.back()->template get<mapping* (*)()>("getFunctionsMapping")();
+            mapping* map = m_shared_lib_objects.back()->template get<mapping* (*)()>("getFunctionsMapping")();
+            // load the mapping data
+            std::size_t i = 0;
+            while (map[i].name != nullptr)
+            {
+                // put it in the global frame, aka the first one
+                auto it = std::find(m_state.m_symbols.begin(), m_state.m_symbols.end(), std::string(map[i].name));
+                if (it != m_state.m_symbols.end())
+                    (context.locals[0]).push_back(static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it)), Value(map[i].value));
+
+                ++i;
+            }
         }
         catch (const std::system_error& e)
         {
@@ -138,18 +154,6 @@ namespace Ark
                 ErrorKind::Module,
                 "An error occurred while loading module '" + file + "': " + std::string(e.what()) + "\n" +
                     "It is most likely because the versions of the module and the language don't match.");
-        }
-
-        // load the mapping data
-        std::size_t i = 0;
-        while (map[i].name != nullptr)
-        {
-            // put it in the global frame, aka the first one
-            auto it = std::find(m_state.m_symbols.begin(), m_state.m_symbols.end(), std::string(map[i].name));
-            if (it != m_state.m_symbols.end())
-                (context.locals[0]).push_back(static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it)), Value(map[i].value));
-
-            ++i;
         }
     }
 
@@ -212,22 +216,10 @@ namespace Ark
         m_futures.erase(it);
     }
 
-    // ------------------------------------------
-    //                 execution
-    // ------------------------------------------
-
     int VM::run() noexcept
     {
         init();
         safeRun(*m_execution_contexts[0]);
-
-        // reset VM after each run
-        for (auto& context : m_execution_contexts)
-        {
-            context->ip = 0;
-            context->pp = 0;
-        }
-
         return m_exit_code;
     }
 
@@ -255,11 +247,6 @@ namespace Ark
 
                     case Instruction::LOAD_SYMBOL:
                     {
-                        /*
-                            Argument: symbol id (two bytes, big endian)
-                            Job: Load a symbol from its id onto the stack
-                        */
-
                         context.last_symbol = arg;
 
                         if (Value* var = findNearestVariable(context.last_symbol, context); var != nullptr)
@@ -278,12 +265,6 @@ namespace Ark
 
                     case Instruction::LOAD_CONST:
                     {
-                        /*
-                            Argument: constant id (two bytes, big endian)
-                            Job: Load a constant from its id onto the stack. Should check for a saved environment
-                                    and push a Closure with the page address + environment instead of the constant
-                        */
-
                         if (context.saved_scope && m_state.m_constants[arg].valueType() == ValueType::PageAddr)
                         {
                             push(Value(Closure(context.saved_scope.value(), m_state.m_constants[arg].pageAddr())), context);
@@ -300,12 +281,6 @@ namespace Ark
 
                     case Instruction::POP_JUMP_IF_TRUE:
                     {
-                        /*
-                            Argument: absolute address to jump to (two bytes, big endian)
-                            Job: Jump to the provided address if the last value on the stack was equal to true.
-                                    Remove the value from the stack no matter what it is
-                        */
-
                         if (*popAndResolveAsPtr(context) == Builtins::trueSym)
                             context.ip = static_cast<int16_t>(arg) * 4;  // instructions are 4 bytes
                         break;
@@ -313,13 +288,6 @@ namespace Ark
 
                     case Instruction::STORE:
                     {
-                        /*
-                            Argument: symbol id (two bytes, big endian)
-                            Job: Take the value on top of the stack and put it inside a variable named following
-                                    the symbol id (cf symbols table), in the nearest scope. Raise an error if it
-                                    couldn't find a scope where the variable exists
-                        */
-
                         if (Value* var = findNearestVariable(arg, context); var != nullptr)
                         {
                             if (var->isConst() && var->valueType() != ValueType::Reference)
@@ -341,12 +309,6 @@ namespace Ark
 
                     case Instruction::LET:
                     {
-                        /*
-                            Argument: symbol id (two bytes, big endian)
-                            Job: Take the value on top of the stack and create a constant in the current scope, named
-                                    following the given symbol id (cf symbols table)
-                        */
-
                         // check if we are redefining a variable
                         if (auto val = (context.locals.back())[arg]; val != nullptr)
                             throwVMError(ErrorKind::Mutability, "Can not use 'let' to redefine the variable " + m_state.m_symbols[arg]);
@@ -360,12 +322,6 @@ namespace Ark
 
                     case Instruction::POP_JUMP_IF_FALSE:
                     {
-                        /*
-                            Argument: absolute address to jump to (two bytes, big endian)
-                            Job: Jump to the provided address if the last value on the stack was equal to false. Remove
-                                    the value from the stack no matter what it is
-                        */
-
                         if (*popAndResolveAsPtr(context) == Builtins::falseSym)
                             context.ip = static_cast<int16_t>(arg) * 4;  // instructions are 4 bytes
                         break;
@@ -373,23 +329,12 @@ namespace Ark
 
                     case Instruction::JUMP:
                     {
-                        /*
-                            Argument: absolute address to jump to (two byte, big endian)
-                            Job: Jump to the provided address
-                        */
-
                         context.ip = static_cast<int16_t>(arg) * 4;  // instructions are 4 bytes
                         break;
                     }
 
                     case Instruction::RET:
                     {
-                        /*
-                            Argument: none
-                            Job: If in a code segment other than the main one, quit it, and push the value on top of
-                                    the stack to the new stack ; should as well delete the current environment.
-                        */
-
                         Value ip_or_val = *popAndResolveAsPtr(context);
                         // no return value on the stack
                         if (ip_or_val.valueType() == ValueType::InstPtr)
@@ -439,13 +384,6 @@ namespace Ark
 
                     case Instruction::CAPTURE:
                     {
-                        /*
-                            Argument: symbol id (two bytes, big endian)
-                            Job: Used to tell the Virtual Machine to capture the variable from the current environment.
-                                Main goal is to be able to handle closures, which need to save the environment in which
-                                they were created
-                        */
-
                         if (!context.saved_scope)
                             context.saved_scope = Scope();
 
@@ -460,23 +398,12 @@ namespace Ark
 
                     case Instruction::BUILTIN:
                     {
-                        /*
-                            Argument: id of builtin (two bytes, big endian)
-                            Job: Push the builtin function object on the stack
-                        */
-
                         push(Builtins::builtins[arg].second, context);
                         break;
                     }
 
                     case Instruction::MUT:
                     {
-                        /*
-                            Argument: symbol id (two bytes, big endian)
-                            Job: Take the value on top of the stack and create a variable in the current scope,
-                                named following the given symbol id (cf symbols table)
-                        */
-
                         Value val = *popAndResolveAsPtr(context);
                         val.setConst(false);
 
@@ -492,11 +419,6 @@ namespace Ark
 
                     case Instruction::DEL:
                     {
-                        /*
-                            Argument: symbol id (two bytes, big endian)
-                            Job: Remove a variable/constant named following the given symbol id (cf symbols table)
-                        */
-
                         if (Value* var = findNearestVariable(arg, context); var != nullptr)
                         {
                             if (var->valueType() == ValueType::User)
@@ -511,22 +433,12 @@ namespace Ark
 
                     case Instruction::SAVE_ENV:
                     {
-                        /*
-                            Argument: none
-                            Job: Save the current environment, useful for quoted code
-                        */
                         context.saved_scope = context.locals.back();
                         break;
                     }
 
                     case Instruction::GET_FIELD:
                     {
-                        /*
-                            Argument: symbol id (two bytes, big endian)
-                            Job: Used to read the field named following the given symbol id (cf symbols table) of a `Closure`
-                                stored in TS. Pop TS and push the value of field read on the stack
-                        */
-
                         Value* var = popAndResolveAsPtr(context);
                         if (var->valueType() != ValueType::Closure)
                             throwVMError(ErrorKind::Type, "The variable `" + m_state.m_symbols[context.last_symbol] + "' isn't a closure, can not get the field `" + m_state.m_symbols[arg] + "' from it");
@@ -548,23 +460,12 @@ namespace Ark
 
                     case Instruction::PLUGIN:
                     {
-                        /*
-                            Argument: constant id (two bytes, big endian)
-                            Job: Load a module named following the constant id (cf constants table).
-                                 Raise an error if it couldn't find the module.
-                        */
-
                         loadPlugin(arg, context);
                         break;
                     }
 
                     case Instruction::LIST:
                     {
-                        /*
-                            Takes at least 0 arguments and push a list on the stack.
-                            The content is pushed in reverse order
-                        */
-
                         Value l(ValueType::List);
                         if (arg != 0)
                             l.list().reserve(arg);
@@ -1120,9 +1021,6 @@ namespace Ark
 #endif
         }
 
-        if (m_state.m_debug_level > 0)
-            std::cout << "Estimated stack trashing: " << context.sp << "/" << VMStackSize << "\n";
-
 #ifdef ARK_PROFILER_MIPS
         auto end_time = std::chrono::system_clock::now();
         auto d = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
@@ -1134,10 +1032,6 @@ namespace Ark
 
         return m_exit_code;
     }
-
-    // ------------------------------------------
-    //             error handling
-    // ------------------------------------------
 
     uint16_t VM::findNearestVariableIdWithValue(const Value& value, ExecutionContext& context) const noexcept
     {
