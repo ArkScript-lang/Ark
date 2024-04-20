@@ -1,15 +1,4 @@
-// ------------------------------------------
-//               instructions
-// ------------------------------------------
-
 #define resolveRef(valptr) (((valptr)->valueType() == ValueType::Reference) ? *((valptr)->reference()) : *(valptr))
-#define resolveRefInPlace(val)                            \
-    if (val.valueType() == ValueType::Reference)          \
-    {                                                     \
-        val.m_const_type = val.reference()->m_const_type; \
-        val.m_value = val.reference()->m_value;           \
-    }
-
 
 template <typename... Args>
 Value VM::call(const std::string& name, Args&&... args)
@@ -197,7 +186,6 @@ inline void VM::swapStackForFunCall(uint16_t argc, internal::ExecutionContext& c
 
         case 1:
             context.stack[context.sp + 1] = context.stack[context.sp - 1];
-            resolveRefInPlace(context.stack[context.sp + 1]);
             context.stack[context.sp - 1] = Value(static_cast<PageAddr_t>(context.pp));
             context.stack[context.sp + 0] = Value(ValueType::InstPtr, static_cast<PageAddr_t>(context.ip));
             context.sp += 2;
@@ -208,19 +196,15 @@ inline void VM::swapStackForFunCall(uint16_t argc, internal::ExecutionContext& c
             const int16_t first = context.sp - argc;
             // move first argument to the very end
             context.stack[context.sp + 1] = context.stack[first + 0];
-            resolveRefInPlace(context.stack[context.sp + 1]);
-            // move second argument right before the last one
+            //  move second argument right before the last one
             context.stack[context.sp + 0] = context.stack[first + 1];
-            resolveRefInPlace(context.stack[context.sp + 0]);
-            // move the rest, if any
+            //  move the rest, if any
             int16_t x = 2;
             const int16_t stop = ((argc % 2 == 0) ? argc : (argc - 1)) / 2;
             while (x <= stop)
             {
                 //        destination          , origin
                 std::swap(context.stack[context.sp - x + 1], context.stack[first + x]);
-                resolveRefInPlace(context.stack[context.sp - x + 1]);
-                resolveRefInPlace(context.stack[first + x]);
                 ++x;
             }
             context.stack[first + 0] = Value(static_cast<PageAddr_t>(context.pp));
@@ -360,4 +344,3 @@ inline void VM::call(internal::ExecutionContext& context, int16_t argc_)
 }
 
 #undef resolveRef
-#undef resolveRefInPlace
