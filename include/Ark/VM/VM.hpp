@@ -22,6 +22,7 @@
 #include <unordered_map>
 #include <utility>
 #include <mutex>
+#include <fmt/core.h>
 
 #include <Ark/VM/Value.hpp>
 #include <Ark/VM/Scope.hpp>

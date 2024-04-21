@@ -1,0 +1,1 @@
+TypeError: `a' is a Number, not a closure, can not get the field `c' from it

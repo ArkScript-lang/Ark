@@ -1,1 +1,1 @@
-TypeError: A Nil isn't a callable
+TypeError: nil is not a Function but a Nil

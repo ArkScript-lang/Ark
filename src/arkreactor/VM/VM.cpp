@@ -289,9 +289,9 @@ namespace Ark
 
                     case Instruction::STORE:
                     {
+                        Value val = *popAndResolveAsPtr(context);
                         if (Value* var = findNearestVariable(arg, context); var != nullptr) [[likely]]
                         {
-                            Value val = *popAndResolveAsPtr(context);
                             if (var->isConst() && var->valueType() != ValueType::Reference)
                                 throwVMError(ErrorKind::Mutability, fmt::format("Can not set the constant `{}' to {}", m_state.m_symbols[arg], val.toString(*this)));
 
@@ -305,7 +305,7 @@ namespace Ark
                             break;
                         }
 
-                        throwVMError(ErrorKind::Scope, fmt::format("Unbound variable {}, can not change its value", m_state.m_symbols[arg]));
+                        throwVMError(ErrorKind::Scope, fmt::format("Unbound variable `{}', can not change its value to {}", m_state.m_symbols[arg], val.toString(*this)));
                         break;
                     }
 
@@ -313,7 +313,7 @@ namespace Ark
                     {
                         // check if we are redefining a variable
                         if (auto val = (context.locals.back())[arg]; val != nullptr) [[unlikely]]
-                            throwVMError(ErrorKind::Mutability, fmt::format("Can not use 'let' to redefine the variable {}", m_state.m_symbols[arg]));
+                            throwVMError(ErrorKind::Mutability, fmt::format("Can not use 'let' to redefine variable `{}'", m_state.m_symbols[arg]));
 
                         Value val = *popAndResolveAsPtr(context);
                         val.setConst(true);
@@ -378,8 +378,9 @@ namespace Ark
                         if (context.sp + 2 >= VMStackSize) [[unlikely]]
                             throwVMError(
                                 ErrorKind::VM,
-                                "Maximum recursion depth exceeded.\n"
-                                "You could consider rewriting your function to make use of tail-call optimization.");
+                                fmt::format(
+                                    "Maximum recursion depth exceeded. You could consider rewriting your function `{}' to make use of tail-call optimization.",
+                                    m_state.m_symbols[context.last_symbol]));
                         call(context, arg);
                         break;
                     }
@@ -391,7 +392,7 @@ namespace Ark
 
                         Value* ptr = (context.locals.back())[arg];
                         if (!ptr)
-                            throwVMError(ErrorKind::Scope, fmt::format("Couldn't capture '{}' as it is currently unbound", m_state.m_symbols[arg]));
+                            throwVMError(ErrorKind::Scope, fmt::format("Couldn't capture `{}' as it is currently unbound", m_state.m_symbols[arg]));
                         ptr = ptr->valueType() == ValueType::Reference ? ptr->reference() : ptr;
                         (context.saved_scope.value()).push_back(arg, *ptr);
 
@@ -429,7 +430,7 @@ namespace Ark
                             break;
                         }
 
-                        throwVMError(ErrorKind::Scope, fmt::format("Can not delete unbound variable '{}'", m_state.m_symbols[arg]));
+                        throwVMError(ErrorKind::Scope, fmt::format("Can not delete unbound variable `{}'", m_state.m_symbols[arg]));
                         break;
                     }
 
@@ -443,11 +444,10 @@ namespace Ark
                     {
                         Value* var = popAndResolveAsPtr(context);
                         if (var->valueType() != ValueType::Closure)
-                            // fixme generate error
                             throwVMError(
                                 ErrorKind::Type,
-                                fmt::format("The variable `{}' isn't a closure, can not get the field `{}' from it",
-                                            m_state.m_symbols[context.last_symbol], m_state.m_symbols[arg]));
+                                fmt::format("`{}' is a {}, not a closure, can not get the field `{}' from it",
+                                            m_state.m_symbols[context.last_symbol], types_to_str[static_cast<std::size_t>(var->valueType())], m_state.m_symbols[arg]));
 
                         if (Value* field = (var->refClosure().refScope())[arg]; field != nullptr)
                         {
@@ -460,7 +460,7 @@ namespace Ark
                             break;
                         }
 
-                        throwVMError(ErrorKind::Scope, fmt::format("Couldn't find the variable {} in the closure environment", m_state.m_symbols[arg]));
+                        throwVMError(ErrorKind::Scope, fmt::format("`{}' isn't in the closure environment: {}", m_state.m_symbols[arg], var->refClosure().toString(*this)));
                         break;
                     }
 
@@ -692,7 +692,7 @@ namespace Ark
                         {
                             auto d = b->number();
                             if (d == 0)
-                                throwVMError(ErrorKind::DivisionByZero, "Can not compute expression ");  // todo add a->number / 0
+                                throwVMError(ErrorKind::DivisionByZero, fmt::format("Can not compute expression (/ {} {})", a->toString(*this), b->toString(*this)));
 
                             push(Value(a->number() / d), context);
                         }
@@ -914,7 +914,7 @@ namespace Ark
                             else
                                 throwVMError(
                                     ErrorKind::Index,
-                                    fmt::format("Index ({}) out of range (list size: {})", idx, a.list().size()));
+                                    fmt::format("{} out of range {} (length {})", idx, a.toString(*this), a.list().size()));
                         }
                         else if (a.valueType() == ValueType::String)
                         {
@@ -923,7 +923,7 @@ namespace Ark
                             else
                                 throwVMError(
                                     ErrorKind::Index,
-                                    fmt::format("Index ({}) out of range (string size: {})", idx, a.string().size()));
+                                    fmt::format("{} out of range \"{}\" (length {})", idx, a.string(), a.string().size()));
                         }
                         else
                             types::generateError(
