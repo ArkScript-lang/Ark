@@ -69,20 +69,6 @@ namespace Ark
     };
 
     /**
-     * @brief A pow error triggered when we can't do a pow b
-     *
-     */
-    class PowError : public Error
-    {
-    public:
-        PowError() :
-            Error(
-                "PowError: Can not pow the given number (a) to the given exponent (b) because "
-                "a^b, with b being a member of the rational numbers, isn't supported.")
-        {}
-    };
-
-    /**
      * @brief An assertion error, only triggered from ArkScript code through (assert expr error-message)
      *
      */

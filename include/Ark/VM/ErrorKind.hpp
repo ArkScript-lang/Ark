@@ -15,16 +15,18 @@ namespace Ark::internal
         Type,
         Index,
         Arity,
+        DivisionByZero,
     };
 
-    constexpr std::array<std::string_view, 7> errorKinds = {
+    constexpr std::array<std::string_view, 8> errorKinds = {
         "VMError",
         "ModuleError",
         "MutabilityError",
         "ScopeError",
         "TypeError",
         "IndexError",
-        "ArityError"
+        "ArityError",
+        "DivisionByZero"
     };
 }
 

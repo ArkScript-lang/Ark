@@ -2,6 +2,7 @@
 
 #include <Ark/Compiler/AST/Parser.hpp>
 #include <stack>
+#include <fmt/core.h>
 
 namespace Ark::internal
 {
@@ -185,7 +186,7 @@ namespace Ark::internal
 
         // fallback, we couldn't find the file
         throw std::runtime_error(
-            "While processing file " + std::filesystem::relative(file, m_root).generic_string() +
-            ", couldn't import " + import.toPackageString() + ": file not found");
+            fmt::format("While processing file {}, couldn't import {}: file not found",
+                        file.generic_string(), import.toPackageString()));
     }
 }
