@@ -888,10 +888,8 @@ namespace Ark
 
                     case Instruction::TO_STR:
                     {
-                        std::stringstream ss;
                         Value* a = popAndResolveAsPtr(context);
-                        a->toString(ss, *this);
-                        push(Value(ss.str()), context);
+                        push(Value(a->toString(*this)), context);
                         break;
                     }
 
@@ -1112,8 +1110,7 @@ namespace Ark
             for (std::size_t i = 0, size = old_scope.size(); i < size; ++i)
             {
                 std::cerr << termcolor::cyan << m_state.m_symbols[old_scope.m_data[i].first] << termcolor::reset
-                          << " = ";
-                old_scope.m_data[i].second.toString(std::cerr, *this);
+                          << " = " << old_scope.m_data[i].second.toString(*this);
                 std::cerr << "\n";
             }
 

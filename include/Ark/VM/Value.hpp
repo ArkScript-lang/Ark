@@ -151,7 +151,7 @@ namespace Ark
          */
         void push_back(Value&& value);
 
-        void toString(std::ostream& os, VM& vm) const noexcept;
+        std::string toString(VM& vm) const noexcept;
 
         friend ARK_API_INLINE bool operator==(const Value& A, const Value& B) noexcept;
         friend ARK_API_INLINE bool operator<(const Value& A, const Value& B) noexcept;

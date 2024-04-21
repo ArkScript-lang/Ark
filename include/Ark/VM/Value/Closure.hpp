@@ -2,10 +2,10 @@
  * @file Closure.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Subtype of the value type, handling closures
- * @version 0.2
- * @date 2020-10-27
+ * @version 1.0
+ * @date 2024-04-21
  *
- * @copyright Copyright (c) 2020-2021
+ * @copyright Copyright (c) 2020-2024
  *
  */
 
@@ -15,6 +15,7 @@
 #include <memory>
 #include <vector>
 #include <iostream>
+#include <string>
 
 #include <Ark/Platform.hpp>
 
@@ -65,33 +66,10 @@ namespace Ark::internal
          */
         Closure(const std::shared_ptr<Scope>& scope_ptr, PageAddr_t pa) noexcept;
 
-        /**
-         * @brief Return the scope held by the object
-         *
-         * @return const Scope&
-         */
         [[nodiscard]] inline const Scope& scope() const noexcept { return *m_scope.get(); }
-
-        /**
-         * @brief Return a reference to the scope held by the object
-         *
-         * @return Scope&
-         */
         [[nodiscard]] inline Scope& refScope() noexcept { return *m_scope.get(); }
-
-        /**
-         * @brief Return a reference to the shared pointer representing the scope
-         * @details The scope has to be kept alive somewhere or all its variables will be destroyed.
-         *
-         * @return const std::shared_ptr<Scope>&
-         */
         [[nodiscard]] inline const std::shared_ptr<Scope>& scopePtr() const { return m_scope; }
 
-        /**
-         * @brief Return the page address of the object
-         *
-         * @return PageAddr_t
-         */
         [[nodiscard]] inline PageAddr_t pageAddr() const { return m_page_addr; }
 
         /**
@@ -100,7 +78,7 @@ namespace Ark::internal
          * @param os
          * @param vm
          */
-        void toString(std::ostream& os, VM& vm) const noexcept;
+        std::string toString(VM& vm) const noexcept;
 
         friend ARK_API bool operator==(const Closure& A, const Closure& B) noexcept;
         friend ARK_API_INLINE bool operator<(const Closure& A, const Closure& B) noexcept;

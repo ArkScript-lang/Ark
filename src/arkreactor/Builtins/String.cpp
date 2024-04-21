@@ -1,11 +1,8 @@
 #include <Ark/Builtins/Builtins.hpp>
 
-#include <Ark/Utils.hpp>
 #include <utf8.hpp>
-#include <fmt/format.h>
 #include <fmt/args.h>
 #include <fmt/core.h>
-#include <sstream>
 
 #include <Ark/TypeChecker.hpp>
 #include <Ark/VM/VM.hpp>
@@ -51,11 +48,7 @@ namespace Ark::internal::Builtins::String
             else if (it->valueType() == ValueType::False)
                 store.push_back("false");
             else
-            {
-                std::stringstream ss;
-                it->toString(ss, *vm);
-                store.push_back(ss.str());
-            }
+                store.push_back(it->toString(*vm));
         }
 
         return Value(fmt::vformat(n[0].stringRef(), store));

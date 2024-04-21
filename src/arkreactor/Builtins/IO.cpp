@@ -24,8 +24,8 @@ namespace Ark::internal::Builtins::IO
      */
     Value print(std::vector<Value>& n, VM* vm)
     {
-        for (Value::Iterator it = n.begin(), it_end = n.end(); it != it_end; ++it)
-            it->toString(std::cout, *vm);
+        for (auto& value : n)
+            std::cout << value.toString(*vm);
         std::cout << '\n';
 
         return nil;
@@ -43,8 +43,8 @@ namespace Ark::internal::Builtins::IO
      */
     Value puts_(std::vector<Value>& n, VM* vm)
     {
-        for (Value::Iterator it = n.begin(), it_end = n.end(); it != it_end; ++it)
-            it->toString(std::cout, *vm);
+        for (auto& value : n)
+            std::cout << value.toString(*vm);
 
         return nil;
     }
@@ -91,7 +91,7 @@ namespace Ark::internal::Builtins::IO
             std::ofstream f(n[0].string());
             if (f.is_open())
             {
-                n[1].toString(f, *vm);
+                f << n[1].toString(*vm);
                 f.close();
             }
             else
@@ -110,7 +110,7 @@ namespace Ark::internal::Builtins::IO
             std::ofstream f(n[0].string(), ios_mode);
             if (f.is_open())
             {
-                n[2].toString(f, *vm);
+                f << n[2].toString(*vm);
                 f.close();
             }
             else

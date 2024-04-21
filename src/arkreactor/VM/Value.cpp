@@ -1,6 +1,7 @@
 #include <Ark/VM/Value.hpp>
 
 #include <fmt/format.h>
+#include <fmt/ostream.h>
 
 #define init_const_type(is_const, type) (((is_const) ? (1 << 7) : 0) | static_cast<uint8_t>(type))
 
@@ -73,84 +74,63 @@ namespace Ark
         list().emplace_back(std::move(value));
     }
 
-    void Value::toString(std::ostream& os, VM& vm) const noexcept
+    std::string Value::toString(VM& vm) const noexcept
     {
         switch (valueType())
         {
             case ValueType::Number:
-            {
-                double d = number();
-                os << fmt::format("{}", d);
-                break;
-            }
+                return fmt::format("{}", number());
 
             case ValueType::String:
-                os << string();
-                break;
+                return string();
 
             case ValueType::PageAddr:
-                os << "Function @ " << pageAddr();
-                break;
+                return fmt::format("Function @ {}", pageAddr());
 
             case ValueType::CProc:
-                os << "CProcedure";
-                break;
+                return "CProcedure";
 
             case ValueType::List:
             {
-                os << "[";
+                std::string out = "[";
                 for (auto it = constList().begin(), it_end = constList().end(); it != it_end; ++it)
                 {
                     if (it->valueType() == ValueType::String)
-                    {
-                        os << "\"";
-                        it->toString(os, vm);
-                        os << "\"";
-                    }
+                        out += "\"" + it->toString(vm) + "\"";
                     else
-                        it->toString(os, vm);
+                        out += it->toString(vm);
                     if (it + 1 != it_end)
-                        os << " ";
+                        out += " ";
                 }
-                os << "]";
-                break;
+                return out + "]";
             }
 
             case ValueType::Closure:
-                closure().toString(os, vm);
-                break;
+                return closure().toString(vm);
 
             case ValueType::User:
-                os << usertype();
-                break;
+                return fmt::format("{}", fmt::streamed(usertype()));
 
             case ValueType::Nil:
-                os << "nil";
-                break;
+                return "nil";
 
             case ValueType::True:
-                os << "true";
-                break;
+                return "true";
 
             case ValueType::False:
-                os << "false";
-                break;
+                return "false";
 
             case ValueType::Undefined:
-                os << "undefined";
-                break;
+                return "undefined";
 
             case ValueType::Reference:
-                reference()->toString(os, vm);
-                break;
+                return reference()->toString(vm);
 
             case ValueType::InstPtr:
-                os << "Instruction @ " << pageAddr();
-                break;
+                return fmt::format("Instruction @ {}", pageAddr());
 
             default:
-                os << "~\\._./~";
-                break;
+                return "~\\._./~";
         }
     }
 }
