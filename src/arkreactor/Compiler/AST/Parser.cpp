@@ -48,6 +48,7 @@ namespace Ark::internal
                 break;
             }
 
+            auto pos = getCount();
             auto n = node();
             if (n)
             {
@@ -55,6 +56,11 @@ namespace Ark::internal
                 comment.clear();
                 if (spaceComment(&comment))
                     m_ast.list().back().attachCommentAfter(comment);
+            }
+            else
+            {
+                backtrack(pos);
+                errorWithNextToken("invalid syntax, expected node");
             }
         }
     }
@@ -72,7 +78,7 @@ namespace Ark::internal
         // save current position in buffer to be able to go back if needed
         auto position = getCount();
 
-        if (auto result = wrapped(&Parser::letMutSet, "let/mut/set"))
+        if (auto result = wrapped(&Parser::letMutSet, "variable assignment or declaration"))
             return result;
         else
             backtrack(position);

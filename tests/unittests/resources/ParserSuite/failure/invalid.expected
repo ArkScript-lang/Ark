@@ -1,0 +1,5 @@
+In file tests/unittests/resources/ParserSuite/failure/invalid.ark
+At ) @ 1:10
+    1 | (print 1))
+      |          ^
+        invalid syntax, expected node
