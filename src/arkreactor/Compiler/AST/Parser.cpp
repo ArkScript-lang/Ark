@@ -428,9 +428,10 @@ namespace Ark::internal
                 break;
         }
 
-        newlineOrComment(&comment);  // FIXME: attach comment after last node
+        newlineOrComment(&comment);
         expect(IsChar(!alt_syntax ? ')' : '}'));
         setNodePosAndFilename(leaf->list().back());
+        leaf->list().back().attachCommentAfter(comment);
         return leaf;
     }
 
@@ -591,7 +592,8 @@ namespace Ark::internal
         {
             leaf->push_back(value_if_false.value().attachNearestCommentBefore(comment));
             comment.clear();
-            newlineOrComment(&comment);  // FIXME: attach comment after node
+            newlineOrComment(&comment);
+            leaf->list().back().attachCommentAfter(comment);
         }
 
         setNodePosAndFilename(leaf->list().back());
