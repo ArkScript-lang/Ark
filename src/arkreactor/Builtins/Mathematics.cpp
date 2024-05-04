@@ -1,5 +1,6 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
+#include <fmt/core.h>
 
 #include <Ark/Builtins/Builtins.hpp>
 
@@ -25,8 +26,7 @@ namespace Ark::internal::Builtins::Mathematics
                 { { types::Contract { { types::Typedef("value", ValueType::Number) } } } },
                 n);
 
-        Value r(std::exp(n[0].number()));
-        return r;
+        return Value(std::exp(n[0].number()));
     }
 
     /**
@@ -47,10 +47,9 @@ namespace Ark::internal::Builtins::Mathematics
                 n);
 
         if (n[0].number() <= 0.0)
-            throw std::runtime_error("math:log: value must be greater than 0");
+            throw std::runtime_error(fmt::format("math:log: value {} must be greater than 0", n[0].number()));
 
-        Value r(std::log(n[0].number()));
-        return r;
+        return Value(std::log(n[0].number()));
     }
 
     /**
@@ -70,8 +69,7 @@ namespace Ark::internal::Builtins::Mathematics
                 { { types::Contract { { types::Typedef("value", ValueType::Number) } } } },
                 n);
 
-        Value r(std::ceil(n[0].number()));
-        return r;
+        return Value(std::ceil(n[0].number()));
     }
 
     /**
@@ -91,8 +89,7 @@ namespace Ark::internal::Builtins::Mathematics
                 { { types::Contract { { types::Typedef("value", ValueType::Number) } } } },
                 n);
 
-        Value r(std::floor(n[0].number()));
-        return r;
+        return Value(std::floor(n[0].number()));
     }
 
     /**
@@ -113,8 +110,7 @@ namespace Ark::internal::Builtins::Mathematics
                 { { types::Contract { { types::Typedef("value", ValueType::Number) } } } },
                 n);
 
-        Value r(std::round(n[0].number()));
-        return r;
+        return Value(std::round(n[0].number()));
     }
 
     /**
@@ -183,8 +179,7 @@ namespace Ark::internal::Builtins::Mathematics
                 { { types::Contract { { types::Typedef("value", ValueType::Number) } } } },
                 n);
 
-        Value r(std::cos(n[0].number()));
-        return r;
+        return Value(std::cos(n[0].number()));
     }
 
     /**
@@ -205,8 +200,7 @@ namespace Ark::internal::Builtins::Mathematics
                 { { types::Contract { { types::Typedef("value", ValueType::Number) } } } },
                 n);
 
-        Value r(std::sin(n[0].number()));
-        return r;
+        return Value(std::sin(n[0].number()));
     }
 
     /**
@@ -227,13 +221,12 @@ namespace Ark::internal::Builtins::Mathematics
                 { { types::Contract { { types::Typedef("value", ValueType::Number) } } } },
                 n);
 
-        Value r(std::tan(n[0].number()));
-        return r;
+        return Value(std::tan(n[0].number()));
     }
 
     /**
      * @name math:arccos
-     * @brief Calculate the arccosinus of a number
+     * @brief Calculate the arc cosinus of a number
      * @param value the Number
      * =begin
      * (math:arccos 1)  # 0
@@ -248,13 +241,12 @@ namespace Ark::internal::Builtins::Mathematics
                 { { types::Contract { { types::Typedef("value", ValueType::Number) } } } },
                 n);
 
-        Value r(std::acos(n[0].number()));
-        return r;
+        return Value(std::acos(n[0].number()));
     }
 
     /**
      * @name math:arcsin
-     * @brief Calculate the arcsinus of a number
+     * @brief Calculate the arc sinus of a number
      * @param value the Number
      * =begin
      * (math:arcsin 1)  # 1.570796326794897 (/ math:pi 2)
@@ -269,13 +261,12 @@ namespace Ark::internal::Builtins::Mathematics
                 { { types::Contract { { types::Typedef("value", ValueType::Number) } } } },
                 n);
 
-        Value r(std::asin(n[0].number()));
-        return r;
+        return Value(std::asin(n[0].number()));
     }
 
     /**
      * @name math:arctan
-     * @brief Calculate the arctangent of a number
+     * @brief Calculate the arc tangent of a number
      * @param value the Number
      * =begin
      * (math:arctan 0)  # 0
@@ -290,8 +281,7 @@ namespace Ark::internal::Builtins::Mathematics
                 { { types::Contract { { types::Typedef("value", ValueType::Number) } } } },
                 n);
 
-        Value r(std::atan(n[0].number()));
-        return r;
+        return Value(std::atan(n[0].number()));
     }
 
     /**
@@ -308,8 +298,7 @@ namespace Ark::internal::Builtins::Mathematics
                 { { types::Contract { { types::Typedef("value", ValueType::Number) } } } },
                 n);
 
-        Value r(std::cosh(n[0].number()));
-        return r;
+        return Value(std::cosh(n[0].number()));
     }
 
     /**
@@ -326,8 +315,7 @@ namespace Ark::internal::Builtins::Mathematics
                 { { types::Contract { { types::Typedef("value", ValueType::Number) } } } },
                 n);
 
-        Value r(std::sinh(n[0].number()));
-        return r;
+        return Value(std::sinh(n[0].number()));
     }
 
     /**
@@ -344,13 +332,12 @@ namespace Ark::internal::Builtins::Mathematics
                 { { types::Contract { { types::Typedef("value", ValueType::Number) } } } },
                 n);
 
-        Value r(std::tanh(n[0].number()));
-        return r;
+        return Value(std::tanh(n[0].number()));
     }
 
     /**
      * @name math:acosh
-     * @brief Calculate the hyperbolic arccosinus of a number
+     * @brief Calculate the hyperbolic arc cosinus of a number
      * @param value the Number
      * @author https://github.com/Gryfenfer97
      */
@@ -362,13 +349,12 @@ namespace Ark::internal::Builtins::Mathematics
                 { { types::Contract { { types::Typedef("value", ValueType::Number) } } } },
                 n);
 
-        Value r(std::acosh(n[0].number()));
-        return r;
+        return Value(std::acosh(n[0].number()));
     }
 
     /**
      * @name math:asinh
-     * @brief Calculate the hyperbolic arcsinus of a number
+     * @brief Calculate the hyperbolic arc sinus of a number
      * @param value the Number
      * @author https://github.com/Gryfenfer97
      */
@@ -380,13 +366,12 @@ namespace Ark::internal::Builtins::Mathematics
                 { { types::Contract { { types::Typedef("value", ValueType::Number) } } } },
                 n);
 
-        Value r(std::asinh(n[0].number()));
-        return r;
+        return Value(std::asinh(n[0].number()));
     }
 
     /**
      * @name math:atanh
-     * @brief Calculate the hyperbolic arctangent of a number
+     * @brief Calculate the hyperbolic arc tangent of a number
      * @param value the Number
      * @author https://github.com/Gryfenfer97
      */
@@ -398,7 +383,6 @@ namespace Ark::internal::Builtins::Mathematics
                 { { types::Contract { { types::Typedef("value", ValueType::Number) } } } },
                 n);
 
-        Value r(std::atanh(n[0].number()));
-        return r;
+        return Value(std::atanh(n[0].number()));
     }
 }

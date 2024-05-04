@@ -1,14 +1,13 @@
 #include <Ark/Builtins/Builtins.hpp>
 
-#include <cstdio>
 #include <iostream>
 #include <filesystem>
+#include <fmt/core.h>
 
 #include <Ark/Files.hpp>
 #include <Ark/VM/VM.hpp>
 #include <Ark/Exceptions.hpp>
 #include <Ark/TypeChecker.hpp>
-#include <fmt/format.h>
 
 namespace Ark::internal::Builtins::IO
 {
@@ -63,10 +62,10 @@ namespace Ark::internal::Builtins::IO
     {
         if (types::check(n, ValueType::String))
             fmt::print("{}", n[0].string());
-        else if (n.size() != 0)
+        else if (!n.empty())
             types::generateError("input", { { types::Contract {}, types::Contract { { types::Typedef("prompt", ValueType::String) } } } }, n);
 
-        std::string line = "";
+        std::string line;
         std::getline(std::cin, line);
 
         return Value(line);
@@ -95,13 +94,13 @@ namespace Ark::internal::Builtins::IO
                 f.close();
             }
             else
-                throw std::runtime_error("Couldn't write to file \"" + n[0].stringRef() + "\"");
+                throw std::runtime_error(fmt::format("io:writeFile: couldn't write to file \"{}\"", n[0].stringRef()));
         }
         else if (types::check(n, ValueType::String, ValueType::String, ValueType::Any))
         {
             auto mode = n[1].string();
             if (mode != "w" && mode != "a")
-                throw std::runtime_error("io:writeFile: mode must be equal to \"a\" or \"w\"");
+                throw std::runtime_error(fmt::format("io:writeFile: mode must be equal to \"a\" or \"w\", not \"{}\"", mode));
 
             auto ios_mode = std::ios::out | std::ios::trunc;
             if (mode == "a")
@@ -114,7 +113,7 @@ namespace Ark::internal::Builtins::IO
                 f.close();
             }
             else
-                throw std::runtime_error("Couldn't write to file \"" + n[0].stringRef() + "\"");
+                throw std::runtime_error(fmt::format("io:writeFile: couldn't write to file \"{}\"", n[0].stringRef()));
         }
         else
             types::generateError(
@@ -145,7 +144,8 @@ namespace Ark::internal::Builtins::IO
 
         std::string filename = n[0].string();
         if (!Utils::fileExists(filename))
-            throw std::runtime_error("Couldn't read file \"" + std::string(filename) + "\": it doesn't exist");
+            throw std::runtime_error(
+                fmt::format("io:readFile: couldn't read file \"{}\" because it doesn't exist", filename));
 
         return Value(Utils::readFile(filename));
     }
@@ -247,13 +247,13 @@ namespace Ark::internal::Builtins::IO
      */
     Value removeFiles(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.size() < 1 || n[0].valueType() != ValueType::String)
+        if (n.empty() || n[0].valueType() != ValueType::String)
             types::generateError(
                 "io:removeFiles",
                 { { types::Contract { { types::Typedef("filename", ValueType::String), types::Typedef("filenames", ValueType::String, /* variadic */ true) } } } },
                 n);
 
-        for (Value::Iterator it = n.begin(), it_end = n.end(); it != it_end; ++it)
+        for (auto it = n.begin(), it_end = n.end(); it != it_end; ++it)
         {
             if (it->valueType() != ValueType::String)
                 types::generateError(
