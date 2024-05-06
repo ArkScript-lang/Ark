@@ -3,6 +3,7 @@
 #include <utf8.hpp>
 #include <fmt/args.h>
 #include <fmt/core.h>
+#include <fmt/format.h>
 
 #include <Ark/TypeChecker.hpp>
 #include <Ark/VM/VM.hpp>
@@ -51,7 +52,20 @@ namespace Ark::internal::Builtins::String
                 store.push_back(it->toString(*vm));
         }
 
-        return Value(fmt::vformat(n[0].stringRef(), store));
+        try
+        {
+            return Value(fmt::vformat(n[0].stringRef(), store));
+        }
+        catch (fmt::format_error& e)
+        {
+            throw std::runtime_error(
+                fmt::format("str:format: can not format \"{}\" ({} argument{} provided) because of {}",
+                            n[0].stringRef(),
+                            n.size() - 1,
+                            // if we have more than one argument (not counting the string to format), plural form
+                            n.size() > 2 ? "s" : "",
+                            e.what()));
+        }
     }
 
     /**
