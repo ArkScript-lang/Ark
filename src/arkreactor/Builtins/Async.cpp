@@ -23,7 +23,7 @@ namespace Ark::internal::Builtins::Async
      */
     Value async(std::vector<Value>& n, VM* vm)
     {
-        if (n.size() == 0)
+        if (n.empty())
             types::generateError(
                 "async", { { types::Contract { { types::Typedef("function", ValueType::PageAddr) } }, types::Contract { { types::Typedef("function", ValueType::CProc) } }, types::Contract { { types::Typedef("function", ValueType::Closure) } } } }, n);
 
@@ -35,7 +35,7 @@ namespace Ark::internal::Builtins::Async
      * @name await
      * @brief Blocks until the result becomes available
      * @details
-     * @param future the future to wait for its result to be avaible
+     * @param future the future to wait for its result to be available
      * =begin
      * (let foo (fun (a b) (+ a b)))
      * (let async-foo (async foo 1 2))
@@ -48,7 +48,7 @@ namespace Ark::internal::Builtins::Async
         if (!types::check(n, ValueType::User) || !n[0].usertypeRef().is<Future>())
             types::generateError("await", { { types::Contract { { types::Typedef("future", ValueType::User) } } } }, n);
 
-        Future& f = n[0].usertypeRef().as<Future>();
+        auto& f = n[0].usertypeRef().as<Future>();
         Value res = f.resolve();
         vm->deleteFuture(&f);
 

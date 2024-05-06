@@ -4,6 +4,7 @@
 #include <limits>
 #include <sstream>
 
+#include <fmt/core.h>
 #include <termcolor/proxy.hpp>
 #include <Ark/Files.hpp>
 #include <Ark/Utils.hpp>
@@ -127,7 +128,9 @@ namespace Ark
                 [](const std::string& a, const fs::path& b) -> std::string {
                     return a + "\n\t- " + b.string();
                 });
-            throwVMError(ErrorKind::Module, "Could not find module '" + file + "'. Searched in\n\t- " + path + "\n\t- " + lib_path);
+            throwVMError(
+                ErrorKind::Module,
+                fmt::format("Could not find module '{}'. Searched under\n\t- {}\n\t- {}", file, path, lib_path));
         }
 
         m_shared_lib_objects.emplace_back(lib);
@@ -152,8 +155,9 @@ namespace Ark
         {
             throwVMError(
                 ErrorKind::Module,
-                "An error occurred while loading module '" + file + "': " + std::string(e.what()) + "\n" +
-                    "It is most likely because the versions of the module and the language don't match.");
+                fmt::format(
+                    "An error occurred while loading module '{}': {}\nIt is most likely because the versions of the module and the language don't match.",
+                    file, e.what()));
         }
     }
 
@@ -258,7 +262,7 @@ namespace Ark
                                 push(var, context);
                         }
                         else [[unlikely]]
-                            throwVMError(ErrorKind::Scope, "Unbound variable: " + m_state.m_symbols[context.last_symbol]);
+                            throwVMError(ErrorKind::Scope, fmt::format("Unbound variable `{}'", m_state.m_symbols[context.last_symbol]));
 
                         break;
                     }
@@ -285,22 +289,23 @@ namespace Ark
 
                     case Instruction::STORE:
                     {
+                        Value val = *popAndResolveAsPtr(context);
                         if (Value* var = findNearestVariable(arg, context); var != nullptr) [[likely]]
                         {
                             if (var->isConst() && var->valueType() != ValueType::Reference)
-                                throwVMError(ErrorKind::Mutability, "Can not modify a constant: " + m_state.m_symbols[arg]);
+                                throwVMError(ErrorKind::Mutability, fmt::format("Can not set the constant `{}' to {}", m_state.m_symbols[arg], val.toString(*this)));
 
                             if (var->valueType() == ValueType::Reference)
-                                *var->reference() = *popAndResolveAsPtr(context);
+                                *var->reference() = val;
                             else [[likely]]
                             {
-                                *var = *popAndResolveAsPtr(context);
+                                *var = val;
                                 var->setConst(false);
                             }
                             break;
                         }
 
-                        throwVMError(ErrorKind::Scope, "Unbound variable " + m_state.m_symbols[arg] + ", can not change its value");
+                        throwVMError(ErrorKind::Scope, fmt::format("Unbound variable `{}', can not change its value to {}", m_state.m_symbols[arg], val.toString(*this)));
                         break;
                     }
 
@@ -308,7 +313,7 @@ namespace Ark
                     {
                         // check if we are redefining a variable
                         if (auto val = (context.locals.back())[arg]; val != nullptr) [[unlikely]]
-                            throwVMError(ErrorKind::Mutability, "Can not use 'let' to redefine the variable " + m_state.m_symbols[arg]);
+                            throwVMError(ErrorKind::Mutability, fmt::format("Can not use 'let' to redefine variable `{}'", m_state.m_symbols[arg]));
 
                         Value val = *popAndResolveAsPtr(context);
                         val.setConst(true);
@@ -373,8 +378,9 @@ namespace Ark
                         if (context.sp + 2 >= VMStackSize) [[unlikely]]
                             throwVMError(
                                 ErrorKind::VM,
-                                "Maximum recursion depth exceeded.\n"
-                                "You could consider rewriting your function to make use of tail-call optimization.");
+                                fmt::format(
+                                    "Maximum recursion depth exceeded. You could consider rewriting your function `{}' to make use of tail-call optimization.",
+                                    m_state.m_symbols[context.last_symbol]));
                         call(context, arg);
                         break;
                     }
@@ -386,7 +392,7 @@ namespace Ark
 
                         Value* ptr = (context.locals.back())[arg];
                         if (!ptr)
-                            throwVMError(ErrorKind::Scope, "Couldn't capture '" + m_state.m_symbols[arg] + "' as it is currently unbound");
+                            throwVMError(ErrorKind::Scope, fmt::format("Couldn't capture `{}' as it is currently unbound", m_state.m_symbols[arg]));
                         ptr = ptr->valueType() == ValueType::Reference ? ptr->reference() : ptr;
                         (context.saved_scope.value()).push_back(arg, *ptr);
 
@@ -405,7 +411,7 @@ namespace Ark
                         val.setConst(false);
 
                         // avoid adding the pair (id, _) multiple times, with different values
-                        Value* local = (context.locals.back())[arg];
+                        Value* local = context.locals.back()[arg];
                         if (local == nullptr) [[likely]]
                             context.locals.back().push_back(arg, val);
                         else
@@ -424,7 +430,7 @@ namespace Ark
                             break;
                         }
 
-                        throwVMError(ErrorKind::Scope, "Unbound variable: " + m_state.m_symbols[arg]);
+                        throwVMError(ErrorKind::Scope, fmt::format("Can not delete unbound variable `{}'", m_state.m_symbols[arg]));
                         break;
                     }
 
@@ -438,7 +444,10 @@ namespace Ark
                     {
                         Value* var = popAndResolveAsPtr(context);
                         if (var->valueType() != ValueType::Closure)
-                            throwVMError(ErrorKind::Type, "The variable `" + m_state.m_symbols[context.last_symbol] + "' isn't a closure, can not get the field `" + m_state.m_symbols[arg] + "' from it");
+                            throwVMError(
+                                ErrorKind::Type,
+                                fmt::format("`{}' is a {}, not a closure, can not get the field `{}' from it",
+                                            m_state.m_symbols[context.last_symbol], types_to_str[static_cast<std::size_t>(var->valueType())], m_state.m_symbols[arg]));
 
                         if (Value* field = (var->refClosure().refScope())[arg]; field != nullptr)
                         {
@@ -451,7 +460,7 @@ namespace Ark
                             break;
                         }
 
-                        throwVMError(ErrorKind::Scope, "Couldn't find the variable " + m_state.m_symbols[arg] + " in the closure environment");
+                        throwVMError(ErrorKind::Scope, fmt::format("`{}' isn't in the closure environment: {}", m_state.m_symbols[arg], var->refClosure().toString(*this)));
                         break;
                     }
 
@@ -484,7 +493,7 @@ namespace Ark
 
                         const uint16_t size = list->constList().size();
 
-                        Value obj = Value(*list);
+                        Value obj { *list };
                         obj.list().reserve(size + arg);
 
                         for (uint16_t i = 0; i < arg; ++i)
@@ -502,7 +511,7 @@ namespace Ark
                                 { { types::Contract { { types::Typedef("list", ValueType::List) } } } },
                                 { *list });
 
-                        Value obj = Value(*list);
+                        Value obj { *list };
 
                         for (uint16_t i = 0; i < arg; ++i)
                         {
@@ -582,7 +591,9 @@ namespace Ark
                         long idx = static_cast<long>(number.number());
                         idx = (idx < 0 ? list.list().size() + idx : idx);
                         if (static_cast<std::size_t>(idx) >= list.list().size())
-                            throw std::runtime_error("pop: index out of range");
+                            throwVMError(
+                                ErrorKind::Index,
+                                fmt::format("pop index ({}) out of range (list size: {})", idx, list.list().size()));
 
                         list.list().erase(list.list().begin() + idx);
                         push(list, context);
@@ -605,7 +616,9 @@ namespace Ark
                         long idx = static_cast<long>(number.number());
                         idx = (idx < 0 ? list->list().size() + idx : idx);
                         if (static_cast<std::size_t>(idx) >= list->list().size())
-                            throw std::runtime_error("pop!: index out of range");
+                            throwVMError(
+                                ErrorKind::Index,
+                                fmt::format("pop! index ({}) out of range (list size: {})", idx, list->list().size()));
 
                         list->list().erase(list->list().begin() + idx);
                         break;
@@ -679,7 +692,7 @@ namespace Ark
                         {
                             auto d = b->number();
                             if (d == 0)
-                                throw ZeroDivisionError();
+                                throwVMError(ErrorKind::DivisionByZero, fmt::format("Can not compute expression (/ {} {})", a->toString(*this), b->toString(*this)));
 
                             push(Value(a->number() / d), context);
                         }
@@ -790,7 +803,7 @@ namespace Ark
                                 push(Value(ValueType::String), context);
                             else
                             {
-                                Value b = *a;
+                                Value b { *a };
                                 b.stringRef().erase(b.stringRef().begin());
                                 push(std::move(b), context);
                             }
@@ -814,10 +827,7 @@ namespace Ark
                             if (a->constList().empty())
                                 push(Builtins::nil, context);
                             else
-                            {
-                                Value b = a->constList()[0];
-                                push(b, context);
-                            }
+                                push(a->constList()[0], context);
                         }
                         else if (a->valueType() == ValueType::String)
                         {
@@ -878,10 +888,8 @@ namespace Ark
 
                     case Instruction::TO_STR:
                     {
-                        std::stringstream ss;
                         Value* a = popAndResolveAsPtr(context);
-                        a->toString(ss, *this);
-                        push(Value(ss.str()), context);
+                        push(Value(a->toString(*this)), context);
                         break;
                     }
 
@@ -904,14 +912,18 @@ namespace Ark
                             if (static_cast<std::size_t>(std::abs(idx)) < a.list().size())
                                 push(a.list()[idx < 0 ? a.list().size() + idx : idx], context);
                             else
-                                throwVMError(ErrorKind::Index, "Index (" + std::to_string(idx) + ") out of range (list size: " + std::to_string(a.list().size()) + ")");
+                                throwVMError(
+                                    ErrorKind::Index,
+                                    fmt::format("{} out of range {} (length {})", idx, a.toString(*this), a.list().size()));
                         }
                         else if (a.valueType() == ValueType::String)
                         {
                             if (static_cast<std::size_t>(std::abs(idx)) < a.string().size())
                                 push(Value(std::string(1, a.string()[idx < 0 ? a.string().size() + idx : idx])), context);
                             else
-                                throwVMError(ErrorKind::Index, "Index (" + std::to_string(idx) + ") out of range (string size: " + std::to_string(a.string().size()) + ")");
+                                throwVMError(
+                                    ErrorKind::Index,
+                                    fmt::format("{} out of range \"{}\" (length {})", idx, a.string(), a.string().size()));
                         }
                         else
                             types::generateError(
@@ -941,11 +953,11 @@ namespace Ark
                     case Instruction::MOD:
                     {
                         Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
-
-                        if (a->valueType() != ValueType::Number)
-                            throw TypeError("Arguments of mod should be Numbers");
-                        if (b->valueType() != ValueType::Number)
-                            throw TypeError("Arguments of mod should be Numbers");
+                        if (a->valueType() != ValueType::Number || b->valueType() != ValueType::Number)
+                            types::generateError(
+                                "mod",
+                                { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
+                                { *a, *b });
 
                         push(Value(std::fmod(a->number(), b->number())), context);
                         break;
@@ -962,11 +974,11 @@ namespace Ark
                     case Instruction::HASFIELD:
                     {
                         Value *field = popAndResolveAsPtr(context), *closure = popAndResolveAsPtr(context);
-
-                        if (closure->valueType() != ValueType::Closure)
-                            throw TypeError("Argument no 1 of hasField should be a Closure");
-                        if (field->valueType() != ValueType::String)
-                            throw TypeError("Argument no 2 of hasField should be a String");
+                        if (closure->valueType() != ValueType::Closure || field->valueType() != ValueType::String)
+                            types::generateError(
+                                "hasField",
+                                { { types::Contract { { types::Typedef("closure", ValueType::Closure), types::Typedef("field", ValueType::String) } } } },
+                                { *closure, *field });
 
                         auto it = std::find(m_state.m_symbols.begin(), m_state.m_symbols.end(), field->stringRef());
                         if (it == m_state.m_symbols.end())
@@ -992,7 +1004,7 @@ namespace Ark
 #pragma endregion
 
                     default:
-                        throwVMError(ErrorKind::VM, "Unknown instruction: " + std::to_string(static_cast<std::size_t>(inst)));
+                        throwVMError(ErrorKind::VM, fmt::format("Unknown instruction: {:x}{:x}{:x}", padding, inst, arg));
                         break;
                 }
 
@@ -1098,8 +1110,7 @@ namespace Ark
             for (std::size_t i = 0, size = old_scope.size(); i < size; ++i)
             {
                 std::cerr << termcolor::cyan << m_state.m_symbols[old_scope.m_data[i].first] << termcolor::reset
-                          << " = ";
-                old_scope.m_data[i].second.toString(std::cerr, *this);
+                          << " = " << old_scope.m_data[i].second.toString(*this);
                 std::cerr << "\n";
             }
 

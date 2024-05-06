@@ -253,9 +253,7 @@ namespace Ark
 
     void Compiler::throwCompilerError(const std::string& message, const Node& node)
     {
-        std::stringstream ss;
-        ss << node;
-        throw CodeError(message, node.filename(), node.line(), node.col(), ss.str());
+        throw CodeError(message, node.filename(), node.line(), node.col(), node.repr());
     }
 
     void Compiler::compileExpression(const Node& x, int p, bool is_result_unused, bool is_terminal, const std::string& var_name)

@@ -26,8 +26,8 @@ runs:
       shell: bash
       run: |
         if [[ '${{ startsWith(inputs.os_name, 'macos') }}' == 'true' ]]; then
-          echo "cc=/usr/local/opt/llvm@${{ inputs.compiler_version }}/bin/${{ inputs.compiler }}" >> $GITHUB_OUTPUT
-          echo "cxx=/usr/local/opt/llvm@${{ inputs.compiler_version }}/bin/${{ inputs.compiler }}++" >> $GITHUB_OUTPUT
+          echo "cc=/opt/homebrew/opt/llvm@${{ inputs.compiler_version }}/bin/${{ inputs.compiler }}" >> $GITHUB_OUTPUT
+          echo "cxx=/opt/homebrew/opt/llvm@${{ inputs.compiler_version }}/bin/${{ inputs.compiler }}++" >> $GITHUB_OUTPUT
         elif [[ '${{ inputs.compiler }}' == 'clang' ]]; then
           echo "cc=clang-${{ inputs.compiler_version }}" >> $GITHUB_OUTPUT
           echo "cxx=clang++-${{ inputs.compiler_version }}" >> $GITHUB_OUTPUT

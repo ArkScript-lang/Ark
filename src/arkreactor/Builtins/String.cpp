@@ -1,11 +1,9 @@
 #include <Ark/Builtins/Builtins.hpp>
 
-#include <Ark/Utils.hpp>
 #include <utf8.hpp>
-#include <fmt/format.h>
 #include <fmt/args.h>
 #include <fmt/core.h>
-#include <sstream>
+#include <fmt/format.h>
 
 #include <Ark/TypeChecker.hpp>
 #include <Ark/VM/VM.hpp>
@@ -22,7 +20,7 @@ namespace Ark::internal::Builtins::String
      * (str:format "Hello {}, my name is {}" "world" "ArkScript")
      * # Hello world, my name is ArkScript
      *
-     * (str:format "Test {} with {}" "1")
+     * (str:format "Test {} with {{}}" "1")
      * # Test 1 with {}
      * =end
      * @author https://github.com/SuperFola
@@ -51,14 +49,23 @@ namespace Ark::internal::Builtins::String
             else if (it->valueType() == ValueType::False)
                 store.push_back("false");
             else
-            {
-                std::stringstream ss;
-                it->toString(ss, *vm);
-                store.push_back(ss.str());
-            }
+                store.push_back(it->toString(*vm));
         }
 
-        return Value(fmt::vformat(n[0].stringRef(), store));
+        try
+        {
+            return Value(fmt::vformat(n[0].stringRef(), store));
+        }
+        catch (fmt::format_error& e)
+        {
+            throw std::runtime_error(
+                fmt::format("str:format: can not format \"{}\" ({} argument{} provided) because of {}",
+                            n[0].stringRef(),
+                            n.size() - 1,
+                            // if we have more than one argument (not counting the string to format), plural form
+                            n.size() > 2 ? "s" : "",
+                            e.what()));
+        }
     }
 
     /**
@@ -109,7 +116,7 @@ namespace Ark::internal::Builtins::String
 
         long id = static_cast<long>(n[1].number());
         if (id < 0 || static_cast<std::size_t>(id) >= n[0].stringRef().size())
-            throw std::runtime_error("str:removeAt: index out of range");
+            throw std::runtime_error(fmt::format("str:removeAt: index {} out of range (length: {})", id, n[0].stringRef().size()));
 
         n[0].stringRef().erase(id, 1);
         return n[0];
@@ -155,9 +162,8 @@ namespace Ark::internal::Builtins::String
                 { { types::Contract { { types::Typedef("codepoint", ValueType::Number) } } } },
                 n);
 
-        std::array<char, 5> sutf8;
-
-        utf8::codepointToUtf8(static_cast<int>(n[0].number()), sutf8.data());
-        return Value(std::string(sutf8.data()));
+        std::array<char, 5> utf8 {};
+        utf8::codepointToUtf8(static_cast<int>(n[0].number()), utf8.data());
+        return Value(std::string(utf8.data()));
     }
 }

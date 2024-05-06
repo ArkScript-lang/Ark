@@ -17,7 +17,7 @@ anything_else = []
 
 for file in lizard.analyze(files):
     for func in file.function_list:
-        filename = func.filename.replace('\\', '/')
+        filename = func.filename.replace('\\', '/').lstrip('./')
         param_count = len(func.parameters)
 
         if func.cyclomatic_complexity >= MAX_CCN or func.nloc >= MAX_NLOC or param_count >= MAX_PARAM:

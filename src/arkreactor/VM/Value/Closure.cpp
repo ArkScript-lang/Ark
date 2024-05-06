@@ -26,18 +26,18 @@ namespace Ark::internal
         m_page_addr(pa)
     {}
 
-    void Closure::toString(std::ostream& os, VM& vm) const noexcept
+    std::string Closure::toString(VM& vm) const noexcept
     {
-        os << "(";
+        std::string out = "(";
         for (std::size_t i = 0, end = m_scope->m_data.size(); i < end; ++i)
         {
             if (i != 0)
-                os << ' ';
+                out += ' ';
 
-            os << '.' << vm.m_state.m_symbols[m_scope->m_data[i].first] << '=';
-            m_scope->m_data[i].second.toString(os, vm);
+            out += '.' + vm.m_state.m_symbols[m_scope->m_data[i].first] + '=';
+            out += m_scope->m_data[i].second.toString(vm);
         }
-        os << ")";
+        return out + ")";
     }
 
     bool operator==(const Closure& A, const Closure& B) noexcept

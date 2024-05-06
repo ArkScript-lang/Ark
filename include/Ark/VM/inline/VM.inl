@@ -316,9 +316,17 @@ inline void VM::call(internal::ExecutionContext& context, int16_t argc_)
         default:
         {
             if (m_state.m_symbols.size() > 0)
-                throwVMError(ErrorKind::Type, "Can't call '" + m_state.m_symbols[context.last_symbol] + "': it isn't a Function but a " + types_to_str[static_cast<std::size_t>(function.valueType())]);
+                throwVMError(
+                    ErrorKind::Type,
+                    fmt::format(
+                        "`{}' is not a Function but a {}",
+                        m_state.m_symbols[context.last_symbol], types_to_str[static_cast<std::size_t>(function.valueType())]));
             else
-                throwVMError(ErrorKind::Type, "A " + types_to_str[static_cast<std::size_t>(function.valueType())] + " isn't a callable");
+                throwVMError(
+                    ErrorKind::Type,
+                    fmt::format(
+                        "{} is not a Function but a {}",
+                        function.toString(*this), types_to_str[static_cast<std::size_t>(function.valueType())]));
         }
     }
 
@@ -337,6 +345,7 @@ inline void VM::call(internal::ExecutionContext& context, int16_t argc_)
     if (needed_argc != argc) [[unlikely]]
         throwVMError(
             ErrorKind::Arity,
-            "Function '" + m_state.m_symbols[context.last_symbol] + "' needs " + std::to_string(needed_argc) +
-                " arguments, but it received " + std::to_string(argc));
+            fmt::format(
+                "Function `{}' needs {} arguments, but it received {}",
+                m_state.m_symbols[context.last_symbol], needed_argc, argc));
 }

@@ -2,7 +2,7 @@
  * @file Value.hpp
  * @author Default value type handled by the virtual machine
  * @brief
- * @version 1.0
+ * @version 1.1
  * @date 2024-04-20
  *
  * @copyright Copyright (c) 2020-2024
@@ -66,7 +66,6 @@ namespace Ark
     public:
         using ProcType = Value (*)(std::vector<Value>&, VM*);
         using Iterator = std::vector<Value>::iterator;
-        using ConstIterator = std::vector<Value>::const_iterator;
 
         using Value_t = std::variant<
             double,                //  8 bytes
@@ -151,7 +150,7 @@ namespace Ark
          */
         void push_back(Value&& value);
 
-        void toString(std::ostream& os, VM& vm) const noexcept;
+        std::string toString(VM& vm) const noexcept;
 
         friend ARK_API_INLINE bool operator==(const Value& A, const Value& B) noexcept;
         friend ARK_API_INLINE bool operator<(const Value& A, const Value& B) noexcept;

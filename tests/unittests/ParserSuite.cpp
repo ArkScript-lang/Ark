@@ -16,7 +16,7 @@ std::string astToString(Ark::internal::Parser& parser)
 
     std::stringstream ss;
     for (auto it = parser.ast().constList().begin() + 1, end = parser.ast().constList().end(); it != end; ++it)
-        ss << *it << "\n";
+        it->debugPrint(ss) << "\n";
 
     const auto& imports = parser.imports();
 

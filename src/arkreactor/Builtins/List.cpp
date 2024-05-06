@@ -2,6 +2,7 @@
 
 #include <iterator>
 #include <algorithm>
+#include <fmt/core.h>
 
 #include <Ark/TypeChecker.hpp>
 #include <Ark/VM/VM.hpp>
@@ -51,7 +52,7 @@ namespace Ark::internal::Builtins::List
                 n);
 
         std::vector<Value>& l = n[0].list();
-        for (Value::Iterator it = l.begin(), it_end = l.end(); it != it_end; ++it)
+        for (auto it = l.begin(), it_end = l.end(); it != it_end; ++it)
         {
             if (*it == n[1])
                 return Value(static_cast<int>(std::distance<Value::Iterator>(l.begin(), it)));
@@ -69,7 +70,7 @@ namespace Ark::internal::Builtins::List
      * @param end not included, must be positive and smaller than the list
      * @param step must be greater than 0
      * =begin
-     * (list:reverse [1 2 3])  # [3 2 1]
+     * (list:slice [1 2 3 4 5] 1 4 2)  # [2 4]
      * =end
      * @author https://github.com/SuperFola
      */
@@ -88,19 +89,21 @@ namespace Ark::internal::Builtins::List
         if (step <= 0)
             throw std::runtime_error("list:slice: step can not be null");
 
-        long start = static_cast<long>(n[1].number());
-        long end = static_cast<long>(n[2].number());
+        auto start = static_cast<long>(n[1].number());
+        auto end = static_cast<long>(n[2].number());
 
         if (start > end)
-            throw std::runtime_error("list:slice: start position must be less or equal to the end position");
-        if (start < 0 || static_cast<std::size_t>(end) > n[0].list().size())
-            throw std::runtime_error("list:slice: indices out of range");
+            throw std::runtime_error(fmt::format("list:slice: start position ({}) must be less or equal to the end position ({})", start, end));
+        if (start < 0)
+            throw std::runtime_error(fmt::format("list:slice: start index {} can not be less than 0", start));
+        if (static_cast<std::size_t>(end) > n[0].list().size())
+            throw std::runtime_error(fmt::format("list:slice: end index {} out of range (length: {})", end, n[0].list().size()));
 
-        std::vector<Value> retlist;
+        std::vector<Value> list;
         for (long i = start; i < end; i += step)
-            retlist.push_back(n[0].list()[i]);
+            list.push_back(n[0].list()[i]);
 
-        return Value(std::move(retlist));
+        return Value(std::move(list));
     }
 
     /**
@@ -144,7 +147,7 @@ namespace Ark::internal::Builtins::List
                                         types::Typedef("value", ValueType::Any) } } } },
                 n);
 
-        std::size_t c = static_cast<std::size_t>(n[0].number());
+        auto c = static_cast<std::size_t>(n[0].number());
         std::vector<Value> l;
         for (std::size_t i = 0; i < c; i++)
             l.push_back(n[1]);

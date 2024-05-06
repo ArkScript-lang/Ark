@@ -1,1 +1,1 @@
-VMError: Maximum recursion depth exceeded
+VMError: Maximum recursion depth exceeded. You could consider rewriting your function `foo' to make use of tail-call optimization.

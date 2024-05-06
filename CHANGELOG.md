@@ -26,6 +26,8 @@
 - allow nodes to be empty when dumping the AST to JSON
 - macros can be declared inside a begin block within a cond macro and used in the scope surrounding the cond macro
 - `arkscript --version` and `arkscript --help` now output ArkScript version with the commit hash
+- `void Value::toString(std::ostream&, VM&)` now becomes `std::string Value::toString(VM&)`
+- removed `Node::operator<<` to replace it with `Node::debugPrint`
 
 ### Removed
 - removed unused `NodeType::Closure`

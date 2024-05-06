@@ -48,6 +48,7 @@ namespace Ark::internal
                 break;
             }
 
+            auto pos = getCount();
             auto n = node();
             if (n)
             {
@@ -55,6 +56,11 @@ namespace Ark::internal
                 comment.clear();
                 if (spaceComment(&comment))
                     m_ast.list().back().attachCommentAfter(comment);
+            }
+            else
+            {
+                backtrack(pos);
+                errorWithNextToken("invalid syntax, expected node");
             }
         }
     }
@@ -72,7 +78,7 @@ namespace Ark::internal
         // save current position in buffer to be able to go back if needed
         auto position = getCount();
 
-        if (auto result = wrapped(&Parser::letMutSet, "let/mut/set"))
+        if (auto result = wrapped(&Parser::letMutSet, "variable assignment or declaration"))
             return result;
         else
             backtrack(position);
@@ -422,9 +428,10 @@ namespace Ark::internal
                 break;
         }
 
-        newlineOrComment(&comment);  // FIXME: attach comment after last node
+        newlineOrComment(&comment);
         expect(IsChar(!alt_syntax ? ')' : '}'));
         setNodePosAndFilename(leaf->list().back());
+        leaf->list().back().attachCommentAfter(comment);
         return leaf;
     }
 
@@ -585,7 +592,8 @@ namespace Ark::internal
         {
             leaf->push_back(value_if_false.value().attachNearestCommentBefore(comment));
             comment.clear();
-            newlineOrComment(&comment);  // FIXME: attach comment after node
+            newlineOrComment(&comment);
+            leaf->list().back().attachCommentAfter(comment);
         }
 
         setNodePosAndFilename(leaf->list().back());

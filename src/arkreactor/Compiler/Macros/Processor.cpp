@@ -41,7 +41,7 @@ namespace Ark::internal
         if (m_debug >= 3)
         {
             std::cout << "(MacroProcessor) AST after processing macros\n";
-            std::cout << m_ast << '\n';
+            m_ast.debugPrint(std::cout) << '\n';
         }
     }
 

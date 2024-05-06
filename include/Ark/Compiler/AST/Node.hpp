@@ -171,7 +171,13 @@ namespace Ark::internal
          */
         [[nodiscard]] std::string repr() const noexcept;
 
-        friend ARK_API std::ostream& operator<<(std::ostream& os, const Node& N) noexcept;
+        /**
+         * @brief Print a node to an output stream with added type annotations
+         * @param os
+         * @return
+         */
+        [[nodiscard]] std::ostream& debugPrint(std::ostream& os) const noexcept;
+
         friend bool operator==(const Node& A, const Node& B);
         friend bool operator<(const Node& A, const Node& B);
         friend bool operator!(const Node& A);
@@ -185,8 +191,6 @@ namespace Ark::internal
         std::string m_comment;
         std::string m_after_comment;  ///< Comment after node
     };
-
-    ARK_API std::ostream& operator<<(std::ostream& os, const std::vector<Node>& node) noexcept;
 
     const Node& getTrueNode();
     const Node& getFalseNode();

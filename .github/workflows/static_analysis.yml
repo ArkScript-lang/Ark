@@ -8,6 +8,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
 
       - uses: actions/setup-python@v5
         with:
@@ -21,7 +23,7 @@ jobs:
         id: lizard
         shell: bash
         run: |
-          content=$(python .github/launch-lizard.py $(git diff HEAD..dev --name-only))
+          content=$(python .github/launch-lizard.py $(echo $(git diff --name-only -r HEAD^1 HEAD)))
           echo "LIZARD_REPORT<<EOF" >> $GITHUB_ENV
           echo "$content" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
