@@ -145,7 +145,7 @@ namespace Ark::Diagnostics
             message,
             node.filename(),
             (node.filename() == ARK_NO_NAME_FILE) ? "" : Utils::readFile(node.filename()),
-            node,
+            node.repr(),
             node.line(),
             node.col(),
             size);

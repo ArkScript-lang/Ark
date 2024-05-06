@@ -1,7 +1,5 @@
 #include <Ark/Compiler/AST/Optimizer.hpp>
 
-#include <sstream>
-
 namespace Ark::internal
 {
     Optimizer::Optimizer(uint16_t options) noexcept :
@@ -23,10 +21,7 @@ namespace Ark::internal
 
     void Optimizer::throwOptimizerError(const std::string& message, const Node& node)
     {
-        std::stringstream ss;
-        ss << node;
-
-        throw CodeError(message, node.filename(), node.line(), node.col(), ss.str());
+        throw CodeError(message, node.filename(), node.line(), node.col(), node.repr());
     }
 
     void Optimizer::remove_unused()

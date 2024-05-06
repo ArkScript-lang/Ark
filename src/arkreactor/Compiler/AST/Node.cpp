@@ -206,21 +206,21 @@ namespace Ark::internal
         return data;
     }
 
-    std::ostream& operator<<(std::ostream& os, const Node& node) noexcept
+    std::ostream& Node::debugPrint(std::ostream& os) const noexcept
     {
-        switch (node.m_type)
+        switch (m_type)
         {
             case NodeType::Symbol:
-                os << "Symbol:" << node.string();
+                os << "Symbol:" << string();
                 break;
 
             case NodeType::Capture:
-                os << "Capture:" << node.string();
+                os << "Capture:" << string();
                 break;
 
             case NodeType::Keyword:
                 os << "Keyword:";
-                switch (node.keyword())
+                switch (keyword())
                 {
                     case Keyword::Fun: os << "Fun"; break;
                     case Keyword::Let: os << "Let"; break;
@@ -235,40 +235,40 @@ namespace Ark::internal
                 break;
 
             case NodeType::String:
-                os << "String:" << node.string();
+                os << "String:" << string();
                 break;
 
             case NodeType::Number:
-                os << "Number:" << node.number();
+                os << "Number:" << number();
                 break;
 
             case NodeType::List:
                 os << "( ";
-                for (const auto& i : node.constList())
-                    os << i << " ";
+                for (const auto& i : constList())
+                    i.debugPrint(os) << " ";
                 os << ")";
                 break;
 
             case NodeType::Field:
                 os << "( Field ";
-                for (const auto& i : node.constList())
-                    os << i << " ";
+                for (const auto& i : constList())
+                    i.debugPrint(os) << " ";
                 os << ")";
                 break;
 
             case NodeType::Macro:
                 os << "( Macro ";
-                for (const auto& i : node.constList())
-                    os << i << " ";
+                for (const auto& i : constList())
+                    i.debugPrint(os) << " ";
                 os << ")";
                 break;
 
             case NodeType::Spread:
-                os << "Spread:" << node.string();
+                os << "Spread:" << string();
                 break;
 
             case NodeType::Unused:
-                os << "Unused:" << node.string();
+                os << "Unused:" << string();
                 break;
 
             default:
