@@ -113,11 +113,15 @@ jobs:
         run: |
           mkdir -p artifact/lib/std
           # Linux/MacOS
-          cp build/arkscript artifact || true
-          cp build/libArkReactor.* artifact || true
+          if [[ '${{ startsWith(matrix.config.os, 'ubuntu') }}' == 'true' ]] || [[ '${{ startsWith(matrix.config.os, 'macos') }}' == 'true' ]]; then
+            cp build/arkscript artifact || true
+            cp build/libArkReactor.* artifact || true
+          fi
           # Windows
-          cp build/$BUILD_TYPE/arkscript.exe artifact || true
-          cp build/$BUILD_TYPE/ArkReactor.dll artifact  || true
+          if [[ '${{ startsWith(matrix.config.os, 'windows') }}' == 'true' ]]; then
+            cp build/$BUILD_TYPE/arkscript.exe artifact || true
+            cp build/$BUILD_TYPE/ArkReactor.dll artifact  || true
+          fi
           # Generic
           cp lib/*.arkm artifact/lib
           cp lib/std/*.ark artifact/lib/std
@@ -178,12 +182,12 @@ jobs:
           export ASAN_OPTIONS=detect_odr_violation=0
           (cd tests/arkscript ; bash ./run-tests)
 
-      # FIXME: re-enable later on
-      #- name: Modules tests
-      #  shell: bash
-      #  run: |
-      #    export ASAN_OPTIONS=detect_odr_violation=0
-      #    (source ./lib/modules/.github/run-tests)
+      - name: Modules tests
+        shell: bash
+        run: |
+          export ASAN_OPTIONS=detect_odr_violation=0
+          chmod u+x ./lib/modules/.github/run-tests
+          (./lib/modules/.github/run-tests src)
 
       - name: Runtime error message generation tests
         shell: bash

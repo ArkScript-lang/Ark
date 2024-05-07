@@ -115,7 +115,7 @@ if (UNIX OR LINUX)
 endif ()
 
 # configuring Constants.hpp
-message(STATUS "ArkScript version ${ARK_VERSION_MAJOR}.${ARK_VERSION_MINOR}.${ARK_VERSION_PATCH}")
+message(STATUS "ArkScript version ${ARK_VERSION_MAJOR}.${ARK_VERSION_MINOR}.${ARK_VERSION_PATCH}-${ARK_COMMIT}")
 configure_file(
         ${ark_SOURCE_DIR}/include/Ark/Constants.hpp.in
         ${ark_SOURCE_DIR}/include/Ark/Constants.hpp)
