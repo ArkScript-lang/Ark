@@ -11,7 +11,7 @@
 - basic ArkScript code formatter, available through the CLI: `arkscript -f|--format`
 - comments are now tracked in the AST and attached to the nearest node below them
 - `VM::forceReloadPlugins`, to be used by the REPL to force reload the plugins and be sure that their symbols are all define
-- added `help` and `save` commands to the REPL
+- added `help`, `save` (save history to disk), `history` (print history), `reset` (reset vm and code) commands to the REPL
 - REPL can now show when a code block isn't terminated (prompt changes from `>` to `:`)
 - more controls available inside the REPL
 

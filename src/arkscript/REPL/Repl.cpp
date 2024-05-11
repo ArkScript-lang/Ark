@@ -11,17 +11,14 @@ namespace Ark
     using namespace internal;
 
     Repl::Repl(const std::vector<std::filesystem::path>& lib_env) :
-        m_old_ip(0), m_lib_env(lib_env), m_line_count(1), m_running(true)
+        m_line_count(1), m_running(true),
+        m_old_ip(0), m_lib_env(lib_env),
+        m_state(m_lib_env), m_vm(m_state), m_has_init_vm(false)
     {}
 
     int Repl::run()
     {
-        Ark::State state(m_lib_env);
-        Ark::VM vm(state);
-        state.setDebug(0);
-        bool init = false;
-
-        fmt::print("ArkScript REPL -- Version {} [LICENSE: Mozilla Public License 2.0]\nType \"quit\" to quit. Try \"help\" for more informations\n", ARK_FULL_VERSION);
+        fmt::print("ArkScript REPL -- Version {} [LICENSE: Mozilla Public License 2.0]\nType \"quit\" to quit. Try \"help\" for more information\n", ARK_FULL_VERSION);
         cuiSetup();
 
         while (m_running)
@@ -29,38 +26,38 @@ namespace Ark
             auto maybe_block = getCodeBlock();
 
             // save a valid ip if execution failed
-            m_old_ip = vm.m_execution_contexts[0]->ip;
+            m_old_ip = m_vm.m_execution_contexts[0]->ip;
             if (maybe_block.has_value() && !maybe_block.value().empty())
             {
                 std::string new_code = m_code + maybe_block.value();
-                if (state.doString(new_code))
+                if (m_state.doString(new_code))
                 {
                     // for only one vm init
-                    if (!init)
+                    if (!m_has_init_vm)
                     {
-                        vm.init();
-                        init = true;
+                        m_vm.init();
+                        m_has_init_vm = true;
                     }
                     else
-                        vm.forceReloadPlugins();
+                        m_vm.forceReloadPlugins();
 
-                    if (vm.safeRun(*vm.m_execution_contexts[0]) == 0)
+                    if (m_vm.safeRun(*m_vm.m_execution_contexts[0]) == 0)
                     {
                         // save good code
                         m_code = new_code;
                         // place ip to end of bytecode instruction (HALT)
-                        vm.m_execution_contexts[0]->ip -= 4;
+                        m_vm.m_execution_contexts[0]->ip -= 4;
                     }
                     else
                     {
                         // reset ip if execution failed
-                        vm.m_execution_contexts[0]->ip = m_old_ip;
+                        m_vm.m_execution_contexts[0]->ip = m_old_ip;
                     }
 
-                    state.reset();
+                    m_state.reset();
                 }
                 else
-                    std::cout << "Couldn't run code\n";
+                    std::cout << "\nCouldn't run code\n";
             }
         }
 
@@ -129,6 +126,7 @@ namespace Ark
             std::cout << "  quit -- quit the REPL\n";
             std::cout << "  save -- save the history to disk\n";
             std::cout << "  history -- print saved code\n";
+            std::cout << "  reset -- reset the VM state\n";
 
             return std::nullopt;
         }
@@ -145,6 +143,14 @@ namespace Ark
         {
             std::cout << "\n"
                       << m_code << "\n";
+
+            return std::nullopt;
+        }
+        else if (line == "reset")
+        {
+            m_state.reset();
+            m_has_init_vm = false;
+            m_code.clear();
 
             return std::nullopt;
         }

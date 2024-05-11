@@ -42,11 +42,15 @@ namespace Ark
 
     private:
         replxx::Replxx m_repl;
-        int m_old_ip;
-        std::vector<std::filesystem::path> m_lib_env;
         unsigned m_line_count;
         std::string m_code;
         bool m_running;
+
+        int m_old_ip;
+        std::vector<std::filesystem::path> m_lib_env;
+        State m_state;
+        VM m_vm;
+        bool m_has_init_vm;
 
         /**
          * @brief Configure replxx
