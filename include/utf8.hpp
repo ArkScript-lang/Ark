@@ -194,9 +194,6 @@ namespace utf8
 
         if (isValid(str))
         {
-            if (str == nullptr)
-                return -1;
-
             while (*s != 0)
             {
                 if (0xf0 == (0xf8 & *s))
