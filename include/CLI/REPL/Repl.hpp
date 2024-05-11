@@ -12,8 +12,7 @@
 #ifndef ARK_REPL_REPL_HPP
 #define ARK_REPL_REPL_HPP
 
-#include <iostream>
-#include <filesystem>
+#include <string>
 #include <optional>
 
 #include <Ark/Constants.hpp>
@@ -46,11 +45,20 @@ namespace Ark
         int m_old_ip;
         std::vector<std::filesystem::path> m_lib_env;
         unsigned m_line_count;
+        std::string m_code;
         bool m_running;
 
+        /**
+         * @brief Configure replxx
+         */
         void cuiSetup();
 
-        std::optional<std::string> getLine();
+        /**
+         * @brief Get a line via replxx and handle commands
+         * @param continuation if the prompt needs to be modified because a code block isn't entirely closed, set to true
+         * @return
+         */
+        std::optional<std::string> getLine(bool continuation);
         std::optional<std::string> getCodeBlock();
     };
 }

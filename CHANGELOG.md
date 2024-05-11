@@ -12,6 +12,7 @@
 - comments are now tracked in the AST and attached to the nearest node below them
 - `VM::forceReloadPlugins`, to be used by the REPL to force reload the plugins and be sure that their symbols are all define
 - added `help` and `save` commands to the REPL
+- REPL can now show when a code block isn't terminated (prompt changes from `>` to `:`)
 
 ### Changed
 - instructions are on 4 bytes: 1 byte for the instruction, 1 byte of padding, 2 bytes for an immediate argument
