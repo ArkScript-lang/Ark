@@ -10,7 +10,8 @@
 - added boost-ext/ut to write unit tests in C++
 - basic ArkScript code formatter, available through the CLI: `arkscript -f|--format`
 - comments are now tracked in the AST and attached to the nearest node below them
-- `VM::forceReloadPlugins`, to be used by the REPL to force reload the plugins and be sure that their symbols are all defined
+- `VM::forceReloadPlugins`, to be used by the REPL to force reload the plugins and be sure that their symbols are all define
+- added `help` and `save` commands to the REPL
 
 ### Changed
 - instructions are on 4 bytes: 1 byte for the instruction, 1 byte of padding, 2 bytes for an immediate argument

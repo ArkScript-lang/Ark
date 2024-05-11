@@ -1,3 +1,4 @@
+#include <fstream>
 #include <fmt/core.h>
 
 #include <CLI/REPL/Repl.hpp>
@@ -18,7 +19,7 @@ namespace Ark
         state.setDebug(0);
         bool init = false;
 
-        fmt::print("ArkScript REPL -- Version {} [LICENSE: Mozilla Public License 2.0]\nType \"(quit)\" to quit.\n", ARK_FULL_VERSION);
+        fmt::print("ArkScript REPL -- Version {} [LICENSE: Mozilla Public License 2.0]\nType \"quit\" to quit. Try \"help\" for more informations\n", ARK_FULL_VERSION);
         cuiSetup();
 
         std::string code;
@@ -95,10 +96,29 @@ namespace Ark
         trimWhitespace(line);
 
         // specific commands handling
-        if (line == "(quit)" || buf == nullptr)
+        if (line == "quit" || buf == nullptr)
         {
             std::cout << "\nExiting REPL\n";
             m_running = false;
+
+            return std::nullopt;
+        }
+        else if (line == "help")
+        {
+            std::cout << "Available commands:\n";
+            std::cout << "  help -- display this message\n";
+            std::cout << "  quit -- quit the REPL\n";
+            std::cout << "  save -- save the history to disk\n";
+
+            return std::nullopt;
+        }
+        else if (line == "save")
+        {
+            std::ofstream history_file("arkscript_repl_history.ark");
+            m_repl.history_save(history_file);
+
+            fmt::print("Saved {} lines of history to arkscript_repl_history.ark\n", m_line_count);
+
             return std::nullopt;
         }
 
