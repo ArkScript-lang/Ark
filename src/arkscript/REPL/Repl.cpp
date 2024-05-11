@@ -39,6 +39,8 @@ namespace Ark
                         vm.init();
                         init = true;
                     }
+                    else
+                        vm.forceReloadPlugins();
 
                     if (vm.safeRun(*vm.m_execution_contexts[0]) == 0)
                     {

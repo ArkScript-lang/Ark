@@ -220,6 +220,35 @@ namespace Ark
         m_futures.erase(it);
     }
 
+    bool VM::forceReloadPlugins()
+    {
+        // load the mapping from the dynamic library
+        try
+        {
+            for (auto& shared_lib : m_shared_lib_objects)
+            {
+                mapping* map = shared_lib->template get<mapping* (*)()>("getFunctionsMapping")();
+                // load the mapping data
+                std::size_t i = 0;
+                while (map[i].name != nullptr)
+                {
+                    // put it in the global frame, aka the first one
+                    auto it = std::find(m_state.m_symbols.begin(), m_state.m_symbols.end(), std::string(map[i].name));
+                    if (it != m_state.m_symbols.end())
+                        (m_execution_contexts[0]->locals[0]).push_back(static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it)), Value(map[i].value));
+
+                    ++i;
+                }
+            }
+
+            return true;
+        }
+        catch (const std::system_error& e)
+        {
+            return false;
+        }
+    }
+
     int VM::run() noexcept
     {
         init();

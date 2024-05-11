@@ -146,6 +146,14 @@ namespace Ark
          */
         void deleteFuture(internal::Future* f);
 
+        /**
+         * @brief Used by the REPL to force reload all the plugins and their bound methods
+         *
+         * @return true on success
+         * @return false if one or more plugins couldn't be reloaded
+         */
+        bool forceReloadPlugins();
+
         friend class Value;
         friend class internal::Closure;
         friend class Repl;
