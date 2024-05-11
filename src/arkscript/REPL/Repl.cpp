@@ -79,6 +79,24 @@ namespace Ark
         m_repl.set_complete_on_empty(true);
         m_repl.set_beep_on_ambiguous_completion(false);
         m_repl.set_no_color(false);
+
+        m_repl.bind_key_internal(replxx::Replxx::KEY::HOME, "move_cursor_to_begining_of_line");
+        m_repl.bind_key_internal(replxx::Replxx::KEY::END, "move_cursor_to_end_of_line");
+        m_repl.bind_key_internal(replxx::Replxx::KEY::TAB, "complete_line");
+        m_repl.bind_key_internal(replxx::Replxx::KEY::control(replxx::Replxx::KEY::LEFT), "move_cursor_one_word_left");
+        m_repl.bind_key_internal(replxx::Replxx::KEY::control(replxx::Replxx::KEY::RIGHT), "move_cursor_one_word_right");
+        m_repl.bind_key_internal(replxx::Replxx::KEY::control(replxx::Replxx::KEY::UP), "hint_previous");
+        m_repl.bind_key_internal(replxx::Replxx::KEY::control(replxx::Replxx::KEY::DOWN), "hint_next");
+        m_repl.bind_key_internal(replxx::Replxx::KEY::control(replxx::Replxx::KEY::ENTER), "commit_line");
+        m_repl.bind_key_internal(replxx::Replxx::KEY::control('R'), "history_incremental_search");
+        m_repl.bind_key_internal(replxx::Replxx::KEY::control('W'), "kill_to_begining_of_word");
+        m_repl.bind_key_internal(replxx::Replxx::KEY::control('U'), "kill_to_begining_of_line");
+        m_repl.bind_key_internal(replxx::Replxx::KEY::control('K'), "kill_to_end_of_line");
+        m_repl.bind_key_internal(replxx::Replxx::KEY::control('Y'), "yank");
+        m_repl.bind_key_internal(replxx::Replxx::KEY::control('L'), "clear_screen");
+        m_repl.bind_key_internal(replxx::Replxx::KEY::control('D'), "send_eof");
+        m_repl.bind_key_internal(replxx::Replxx::KEY::control('C'), "abort_line");
+        m_repl.bind_key_internal(replxx::Replxx::KEY::control('T'), "transpose_characters");
     }
 
     std::optional<std::string> Repl::getLine(bool continuation)
@@ -110,7 +128,7 @@ namespace Ark
             std::cout << "  help -- display this message\n";
             std::cout << "  quit -- quit the REPL\n";
             std::cout << "  save -- save the history to disk\n";
-            std::cout << "  code -- print saved code\n";
+            std::cout << "  history -- print saved code\n";
 
             return std::nullopt;
         }
@@ -123,7 +141,7 @@ namespace Ark
 
             return std::nullopt;
         }
-        else if (line == "code")
+        else if (line == "history")
         {
             std::cout << "\n"
                       << m_code << "\n";
