@@ -1,177 +1,190 @@
-#include <functional>
-#include <sstream>
-#include <cstdio>
+#include <fstream>
+#include <iostream>
+#include <filesystem>
+#include <fmt/core.h>
 
 #include <CLI/REPL/Repl.hpp>
-#include <CLI/REPL/replxx/Util.hpp>
+#include <CLI/REPL/Utils.hpp>
 
 namespace Ark
 {
-    Repl::Repl(const std::vector<std::filesystem::path>& libenv) :
-        m_lines(1), m_old_ip(0), m_libenv(libenv)
+    using namespace internal;
+
+    Repl::Repl(const std::vector<std::filesystem::path>& lib_env) :
+        m_line_count(1), m_running(true),
+        m_old_ip(0), m_lib_env(lib_env),
+        m_state(m_lib_env), m_vm(m_state), m_has_init_vm(false)
     {}
 
     int Repl::run()
     {
-        Ark::State state(m_libenv);
-        Ark::VM vm(state);
-        state.setDebug(0);
-        std::string code;
-        bool init = false;
+        fmt::print("ArkScript REPL -- Version {} [LICENSE: Mozilla Public License 2.0]\nType \"quit\" to quit. Try \"help\" for more information\n", ARK_FULL_VERSION);
+        cuiSetup();
 
-        print_repl_header();
-        cui_setup();
-
-        while (true)
+        while (m_running)
         {
-            std::stringstream tmp_code;
-            unsigned open_parentheses = 0;
-            unsigned open_braces = 0;
-
-            tmp_code << code;
-            while (true)
-            {
-                std::string str_lines = "000";
-                if (std::to_string(m_lines).size() < 3)
-                {
-                    std::size_t size = std::to_string(m_lines).size();
-                    str_lines.replace((str_lines.size() - size), size, std::to_string(m_lines));
-                }
-                else
-                    str_lines = std::to_string(m_lines);
-
-                std::string prompt = "main:" + str_lines + "> ";
-                char const* buf { nullptr };
-                do
-                {
-                    buf = m_repl.input(prompt);
-                } while ((buf == nullptr) && (errno == EAGAIN));
-                std::string line = (buf != nullptr) ? std::string(buf) : "";
-
-                // line history
-                m_repl.history_add(line);
-                trim_whitespace(line);
-
-                // specific commands handling
-                if (line == "(quit)" || buf == nullptr)
-                {
-                    std::cout << "\nExiting REPL\n";
-                    return 1;
-                }
-
-                if (!line.empty())
-                    tmp_code << line << "\n";
-                open_parentheses += count_open_parentheses(line);
-                open_braces += count_open_braces(line);
-
-                // lines number incrementation
-                ++m_lines;
-                if (open_parentheses == 0 && open_braces == 0)
-                    break;
-            }
+            auto maybe_block = getCodeBlock();
 
             // save a valid ip if execution failed
-            m_old_ip = vm.m_execution_contexts[0]->ip;
-            if (!tmp_code.str().empty())
+            m_old_ip = m_vm.m_execution_contexts[0]->ip;
+            if (maybe_block.has_value() && !maybe_block.value().empty())
             {
-                if (state.doString(tmp_code.str()))
+                std::string new_code = m_code + maybe_block.value();
+                if (m_state.doString(new_code))
                 {
                     // for only one vm init
-                    if (!init)
+                    if (!m_has_init_vm)
                     {
-                        vm.init();
-                        init = true;
+                        m_vm.init();
+                        m_has_init_vm = true;
                     }
-                    if (vm.safeRun(*vm.m_execution_contexts[0]) == 0)
+                    else
+                        m_vm.forceReloadPlugins();
+
+                    if (m_vm.safeRun(*m_vm.m_execution_contexts[0]) == 0)
                     {
                         // save good code
-                        code = tmp_code.str();
+                        m_code = new_code;
                         // place ip to end of bytecode instruction (HALT)
-                        vm.m_execution_contexts[0]->ip -= 4;
+                        m_vm.m_execution_contexts[0]->ip -= 4;
                     }
                     else
                     {
                         // reset ip if execution failed
-                        vm.m_execution_contexts[0]->ip = m_old_ip;
+                        m_vm.m_execution_contexts[0]->ip = m_old_ip;
                     }
 
-                    state.reset();
+                    m_state.reset();
                 }
                 else
-                    std::cout << "Ark::State::doString failed\n";
+                    std::cout << "\nCouldn't run code\n";
             }
         }
 
         return 0;
     }
 
-    inline void Repl::print_repl_header()
+    void Repl::cuiSetup()
     {
-        std::printf(
-            "ArkScript REPL -- Version %i.%i.%i [LICENSE: Mozilla Public License 2.0]\n"
-            "Type \"(quit)\" to quit.\n",
-            ARK_VERSION_MAJOR,
-            ARK_VERSION_MINOR,
-            ARK_VERSION_PATCH);
-    }
-
-    int Repl::count_open_parentheses(const std::string& line)
-    {
-        int open_parentheses = 0;
-
-        for (const char& c : line)
-        {
-            switch (c)
-            {
-                case '(': ++open_parentheses; break;
-                case ')': --open_parentheses; break;
-                default: break;
-            }
-        }
-
-        return open_parentheses;
-    }
-
-    int Repl::count_open_braces(const std::string& line)
-    {
-        int open_braces = 0;
-
-        for (const char& c : line)
-        {
-            switch (c)
-            {
-                case '{': ++open_braces; break;
-                case '}': --open_braces; break;
-                default: break;
-            }
-        }
-
-        return open_braces;
-    }
-
-    void Repl::trim_whitespace(std::string& line)
-    {
-        size_t string_begin = line.find_first_not_of(" \t");
-        if (std::string::npos != string_begin)
-        {
-            size_t string_end = line.find_last_not_of(" \t");
-            line = line.substr(string_begin, string_end - string_begin + 1);
-        }
-    }
-
-    void Repl::cui_setup()
-    {
-        using namespace std::placeholders;
-
-        m_repl.set_completion_callback(std::bind(&hook_completion, _1, _2, std::cref(KeywordsDict)));
-        m_repl.set_highlighter_callback(std::bind(&hook_color, _1, _2, std::cref(ColorsRegexDict)));
-        m_repl.set_hint_callback(std::bind(&hook_hint, _1, _2, _3, std::cref(KeywordsDict)));
+        m_repl.set_completion_callback(hookCompletion);
+        m_repl.set_highlighter_callback(hookColor);
+        m_repl.set_hint_callback(hookHint);
 
         m_repl.set_word_break_characters(" \t.,-%!;:=*~^'\"/?<>|[](){}");
         m_repl.set_completion_count_cutoff(128);
-        m_repl.set_double_tab_completion(false);
+        m_repl.set_double_tab_completion(true);
         m_repl.set_complete_on_empty(true);
         m_repl.set_beep_on_ambiguous_completion(false);
         m_repl.set_no_color(false);
+
+        m_repl.bind_key_internal(replxx::Replxx::KEY::HOME, "move_cursor_to_begining_of_line");
+        m_repl.bind_key_internal(replxx::Replxx::KEY::END, "move_cursor_to_end_of_line");
+        m_repl.bind_key_internal(replxx::Replxx::KEY::TAB, "complete_line");
+        m_repl.bind_key_internal(replxx::Replxx::KEY::control(replxx::Replxx::KEY::LEFT), "move_cursor_one_word_left");
+        m_repl.bind_key_internal(replxx::Replxx::KEY::control(replxx::Replxx::KEY::RIGHT), "move_cursor_one_word_right");
+        m_repl.bind_key_internal(replxx::Replxx::KEY::control(replxx::Replxx::KEY::UP), "hint_previous");
+        m_repl.bind_key_internal(replxx::Replxx::KEY::control(replxx::Replxx::KEY::DOWN), "hint_next");
+        m_repl.bind_key_internal(replxx::Replxx::KEY::control(replxx::Replxx::KEY::ENTER), "commit_line");
+        m_repl.bind_key_internal(replxx::Replxx::KEY::control('R'), "history_incremental_search");
+        m_repl.bind_key_internal(replxx::Replxx::KEY::control('W'), "kill_to_begining_of_word");
+        m_repl.bind_key_internal(replxx::Replxx::KEY::control('U'), "kill_to_begining_of_line");
+        m_repl.bind_key_internal(replxx::Replxx::KEY::control('K'), "kill_to_end_of_line");
+        m_repl.bind_key_internal(replxx::Replxx::KEY::control('Y'), "yank");
+        m_repl.bind_key_internal(replxx::Replxx::KEY::control('L'), "clear_screen");
+        m_repl.bind_key_internal(replxx::Replxx::KEY::control('D'), "send_eof");
+        m_repl.bind_key_internal(replxx::Replxx::KEY::control('C'), "abort_line");
+        m_repl.bind_key_internal(replxx::Replxx::KEY::control('T'), "transpose_characters");
+    }
+
+    std::optional<std::string> Repl::getLine(bool continuation)
+    {
+        std::string prompt = fmt::format("main:{:0>3}{} ", m_line_count, continuation ? ":" : ">");
+
+        const char* buf { nullptr };
+        do
+        {
+            buf = m_repl.input(prompt);
+        } while ((buf == nullptr) && (errno == EAGAIN));
+        std::string line = (buf != nullptr) ? std::string(buf) : "";
+
+        // line history
+        m_repl.history_add(line);
+        trimWhitespace(line);
+
+        // specific commands handling
+        if (line == "quit" || buf == nullptr)
+        {
+            std::cout << "\nExiting REPL\n";
+            m_running = false;
+
+            return std::nullopt;
+        }
+        else if (line == "help")
+        {
+            std::cout << "Available commands:\n";
+            std::cout << "  help -- display this message\n";
+            std::cout << "  quit -- quit the REPL\n";
+            std::cout << "  save -- save the history to disk\n";
+            std::cout << "  history -- print saved code\n";
+            std::cout << "  reset -- reset the VM state\n";
+
+            return std::nullopt;
+        }
+        else if (line == "save")
+        {
+            std::ofstream history_file("arkscript_repl_history.ark");
+            m_repl.history_save(history_file);
+
+            fmt::print("Saved {} lines of history to arkscript_repl_history.ark\n", m_line_count);
+
+            return std::nullopt;
+        }
+        else if (line == "history")
+        {
+            std::cout << "\n"
+                      << m_code << "\n";
+
+            return std::nullopt;
+        }
+        else if (line == "reset")
+        {
+            m_state.reset();
+            m_has_init_vm = false;
+            m_code.clear();
+
+            return std::nullopt;
+        }
+
+        return line;
+    }
+
+    std::optional<std::string> Repl::getCodeBlock()
+    {
+        std::string code_block;
+        long open_parentheses = 0;
+        long open_braces = 0;
+
+        while (m_running)
+        {
+            bool unfinished_block = open_parentheses != 0 || open_braces != 0;
+
+            auto maybe_line = getLine(unfinished_block);
+            if (!maybe_line.has_value() && !unfinished_block)
+                return std::nullopt;
+
+            if (maybe_line.has_value() && !maybe_line.value().empty())
+            {
+                code_block += maybe_line.value() + "\n";
+                open_parentheses += countOpenEnclosures(maybe_line.value(), '(', ')');
+                open_braces += countOpenEnclosures(maybe_line.value(), '{', '}');
+
+                // lines number incrementation
+                ++m_line_count;
+                if (open_parentheses == 0 && open_braces == 0)
+                    break;
+            }
+        }
+
+        return code_block;
     }
 }
