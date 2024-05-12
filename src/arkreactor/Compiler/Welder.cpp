@@ -44,7 +44,8 @@ namespace Ark
         {
             m_parser.processString(code);
             // TODO mutualise this piece of code
-            m_macro_processor.process(m_parser.ast());
+            m_importer.process(m_root_file, m_parser.ast(), m_parser.imports());
+            m_macro_processor.process(m_importer.ast());
             m_optimizer.process(m_macro_processor.ast());
 
             return true;
