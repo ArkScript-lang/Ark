@@ -5,7 +5,7 @@
  * @version 0.4
  * @date 2020-10-27
  *
- * @copyright Copyright (c) 2020-2021
+ * @copyright Copyright (c) 2020-2024
  *
  */
 
@@ -13,8 +13,6 @@
 #define ARK_COMPILER_BYTECODEREADER_HPP
 
 #include <vector>
-#include <fstream>
-#include <iostream>
 #include <string>
 #include <cinttypes>
 #include <optional>
@@ -91,7 +89,7 @@ namespace Ark
          * @param i this parameter is being modified to point to the next value
          * @return uint16_t the number we read (big endian)
          */
-        [[nodiscard]] uint16_t readNumber(std::size_t& i);
+        [[nodiscard]] uint16_t readNumber(std::size_t& i) const;
     };
 }
 

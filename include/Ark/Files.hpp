@@ -5,7 +5,7 @@
  * @version 0.2
  * @date 2021-11-25
  *
- * @copyright Copyright (c) 2021
+ * @copyright Copyright (c) 2021-2024
  *
  */
 
@@ -15,7 +15,6 @@
 #include <string>
 #include <vector>
 #include <fstream>
-#include <streambuf>
 #include <filesystem>
 
 namespace Ark::Utils
@@ -63,7 +62,7 @@ namespace Ark::Utils
         if (!ifs.good())
             return std::vector<uint8_t> {};
 
-        std::size_t pos = ifs.tellg();
+        const std::size_t pos = ifs.tellg();
         // reserve appropriate number of bytes
         std::vector<char> temp(pos);
         ifs.seekg(0, std::ios::beg);
@@ -85,7 +84,7 @@ namespace Ark::Utils
      */
     inline std::string canonicalRelPath(const std::string& path)
     {
-        return std::filesystem::relative(std::filesystem::path(path)).generic_string();
+        return relative(std::filesystem::path(path)).generic_string();
     }
 }
 

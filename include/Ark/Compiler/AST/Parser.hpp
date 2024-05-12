@@ -21,7 +21,6 @@
 #include <string>
 #include <optional>
 #include <vector>
-#include <functional>
 
 #include <utf8.hpp>
 
@@ -49,7 +48,7 @@ namespace Ark::internal
 
         void run();
 
-        Node& setNodePosAndFilename(Node& node, std::optional<FilePosition> cursor = std::nullopt);
+        Node& setNodePosAndFilename(Node& node, const std::optional<FilePosition>& cursor = std::nullopt);
 
         std::optional<Node> node();
         std::optional<Node> letMutSet();
@@ -66,7 +65,7 @@ namespace Ark::internal
         std::optional<Node> functionCall();
         std::optional<Node> list();
 
-        inline std::optional<Node> number()
+        std::optional<Node> number()
         {
             auto pos = getCount();
 
@@ -76,16 +75,13 @@ namespace Ark::internal
                 double output;
                 if (Utils::isDouble(res, &output))
                     return std::optional<Node>(output);
-                else
-                {
-                    backtrack(pos);
-                    error("Is not a valid number", res);
-                }
+                backtrack(pos);
+                error("Is not a valid number", res);
             }
             return std::nullopt;
         }
 
-        inline std::optional<Node> string()
+        std::optional<Node> string()
         {
             std::string res;
             if (accept(IsChar('"')))
@@ -169,7 +165,7 @@ namespace Ark::internal
 
                     if (accept(IsChar('"')))
                         break;
-                    else if (isEOF())
+                    if (isEOF())
                         errorMissingSuffix('"', "string");
                 }
 
@@ -178,7 +174,7 @@ namespace Ark::internal
             return std::nullopt;
         }
 
-        inline std::optional<Node> field()
+        std::optional<Node> field()
         {
             std::string symbol;
             if (!name(&symbol))
@@ -204,7 +200,7 @@ namespace Ark::internal
             return leaf;
         }
 
-        inline std::optional<Node> symbol()
+        std::optional<Node> symbol()
         {
             std::string res;
             if (!name(&res))
@@ -212,7 +208,7 @@ namespace Ark::internal
             return { Node(NodeType::Symbol, res) };
         }
 
-        inline std::optional<Node> spread()
+        std::optional<Node> spread()
         {
             std::string res;
             if (sequence("..."))
@@ -224,7 +220,7 @@ namespace Ark::internal
             return std::nullopt;
         }
 
-        inline std::optional<Node> nil()
+        std::optional<Node> nil()
         {
             if (!accept(IsChar('(')))
                 return std::nullopt;
@@ -236,8 +232,7 @@ namespace Ark::internal
 
             if (m_interpret)
                 return { Node(NodeType::Symbol, "nil").attachNearestCommentBefore(comment) };
-            else
-                return { Node(NodeType::List).attachNearestCommentBefore(comment) };
+            return { Node(NodeType::List).attachNearestCommentBefore(comment) };
         }
 
         std::optional<Node> atom();

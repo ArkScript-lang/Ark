@@ -5,7 +5,7 @@
  * @version 0.2
  * @date 2020-10-27
  *
- * @copyright Copyright (c) 2020-2021
+ * @copyright Copyright (c) 2020-2024
  *
  */
 
@@ -13,7 +13,6 @@
 #define ARK_VM_SCOPE_HPP
 
 #include <vector>
-#include <utility>
 #include <cinttypes>
 
 #include <Ark/Platform.hpp>
@@ -69,18 +68,18 @@ namespace Ark::internal
         /**
          * @brief Get a value from its symbol id
          *
-         * @param id
+         * @param id_to_look_for
          * @return Value* Returns nullptr if the value can not be found
          */
-        Value* operator[](uint16_t id) noexcept;
+        Value* operator[](uint16_t id_to_look_for) noexcept;
 
         /**
          * @brief Get a value from its symbol id
          *
-         * @param id
+         * @param id_to_look_for
          * @return const Value* Returns nullptr if the value can not be found
          */
-        const Value* operator[](uint16_t id) const noexcept;
+        const Value* operator[](uint16_t id_to_look_for) const noexcept;
 
         /**
          * @brief Get the id of a variable based on its value ; used for debug only

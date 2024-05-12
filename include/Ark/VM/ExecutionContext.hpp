@@ -5,7 +5,7 @@
  * @version 0.1
  * @date 2021-11-15
  *
- * @copyright Copyright (c) 2021
+ * @copyright Copyright (c) 2021-2024
  *
  */
 
@@ -16,7 +16,6 @@
 #include <limits>
 #include <memory>
 #include <optional>
-#include <cinttypes>
 
 #include <Ark/Constants.hpp>
 #include <Ark/VM/Value.hpp>
@@ -45,9 +44,9 @@ namespace Ark::internal
         std::vector<Scope> locals;
 
         ExecutionContext() noexcept :
-            primary(ExecutionContext::Count == 0)
+            primary(Count == 0)
         {
-            ExecutionContext::Count++;
+            Count++;
         }
     };
 }

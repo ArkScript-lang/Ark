@@ -2,10 +2,10 @@
  * @file VM.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief The ArkScript virtual machine
- * @version 1.0
+ * @version 1.1
  * @date 2020-10-27
  *
- * @copyright Copyright (c) 2020-2021
+ * @copyright Copyright (c) 2020-2024
  *
  */
 
@@ -16,16 +16,11 @@
 #include <vector>
 #include <string>
 #include <cinttypes>
-#include <algorithm>
-#include <optional>
-#include <memory>
 #include <unordered_map>
-#include <utility>
-#include <mutex>
 #include <fmt/core.h>
 
+#include <Ark/Compiler/Instructions.hpp>
 #include <Ark/VM/Value.hpp>
-#include <Ark/VM/Scope.hpp>
 #include <Ark/VM/State.hpp>
 #include <Ark/VM/ErrorKind.hpp>
 #include <Ark/VM/ExecutionContext.hpp>
@@ -33,10 +28,6 @@
 #include <Ark/Platform.hpp>
 #include <Ark/VM/Plugin.hpp>
 #include <Ark/VM/Future.hpp>
-#include <Ark/Compiler/Instructions.hpp>
-
-#undef abs
-#include <cmath>
 
 namespace Ark
 {
@@ -152,7 +143,7 @@ namespace Ark
          * @return true on success
          * @return false if one or more plugins couldn't be reloaded
          */
-        bool forceReloadPlugins();
+        bool forceReloadPlugins() const;
 
         friend class Value;
         friend class internal::Closure;
@@ -201,18 +192,18 @@ namespace Ark
         /**
          * @brief Push a value on the stack
          *
-         * @param val
+         * @param value
          * @param context
          */
-        inline void push(const Value& val, internal::ExecutionContext& context);
+        inline void push(const Value& value, internal::ExecutionContext& context);
 
         /**
          * @brief Push a value on the stack
          *
-         * @param val
+         * @param value
          * @param context
          */
-        inline void push(Value&& val, internal::ExecutionContext& context);
+        inline void push(Value&& value, internal::ExecutionContext& context);
 
         /**
          * @brief Push a value on the stack as a reference
@@ -314,11 +305,11 @@ namespace Ark
 #include "inline/VM.inl"
 
     /// ArkScript Nil value
-    const Value Nil = Value(ValueType::Nil);
+    const auto Nil = Value(ValueType::Nil);
     /// ArkScript False value
-    const Value False = Value(ValueType::False);
+    const auto False = Value(ValueType::False);
     /// ArkScript True value
-    const Value True = Value(ValueType::True);
+    const auto True = Value(ValueType::True);
 }
 
 #endif

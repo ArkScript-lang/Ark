@@ -1,11 +1,11 @@
 /**
  * @file Symbol.hpp
- * @author Ray John Alovera (rakista112@gmail.com)
+ * @author Ray John Alovera (rakista112@gmail.com), Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Executor for Symbol Macros
- * @version 0.3
+ * @version 0.4
  * @date 2021-05-04
  *
- * @copyright Copyright (c) 2021
+ * @copyright Copyright (c) 2021-2024
  *
  */
 
@@ -21,7 +21,7 @@ namespace Ark::internal
      * @brief Handles Symbol macros
      *
      */
-    class SymbolExecutor : public MacroExecutor
+    class SymbolExecutor final : public MacroExecutor
     {
     public:
         using MacroExecutor::MacroExecutor;

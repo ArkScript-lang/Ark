@@ -4,7 +4,7 @@
 
 namespace Ark::internal
 {
-    Parser::Parser(bool interpret) :
+    Parser::Parser(const bool interpret) :
         BaseParser(), m_interpret(interpret), m_ast(NodeType::List), m_imports({}), m_allow_macro_behavior(0)
     {
         m_ast.push_back(Node(Keyword::Begin));
@@ -39,9 +39,8 @@ namespace Ark::internal
                 break;
             }
 
-            auto pos = getCount();
-            auto n = node();
-            if (n)
+            const auto pos = getCount();
+            if (auto n = node())
             {
                 m_ast.push_back(n.value().attachNearestCommentBefore(comment));
                 comment.clear();
@@ -56,10 +55,10 @@ namespace Ark::internal
         }
     }
 
-    Node& Parser::setNodePosAndFilename(Node& node, std::optional<FilePosition> cursor)
+    Node& Parser::setNodePosAndFilename(Node& node, const std::optional<FilePosition>& cursor)
     {
-        auto position = cursor.value_or(getCursor());
-        node.setPos(position.row, position.col);
+        const auto [row, col] = cursor.value_or(getCursor());
+        node.setPos(row, col);
         node.setFilename(m_filename);
         return node;
     }
@@ -67,62 +66,51 @@ namespace Ark::internal
     std::optional<Node> Parser::node()
     {
         // save current position in buffer to be able to go back if needed
-        auto position = getCount();
+        const auto position = getCount();
 
         if (auto result = wrapped(&Parser::letMutSet, "variable assignment or declaration"))
             return result;
-        else
-            backtrack(position);
+        backtrack(position);
 
         if (auto result = wrapped(&Parser::function, "function"))
             return result;
-        else
-            backtrack(position);
+        backtrack(position);
 
         if (auto result = wrapped(&Parser::condition, "condition"))
             return result;
-        else
-            backtrack(position);
+        backtrack(position);
 
         if (auto result = wrapped(&Parser::loop, "loop"))
             return result;
-        else
-            backtrack(position);
+        backtrack(position);
 
         if (auto result = import_(); result.has_value())
             return result;
-        else
-            backtrack(position);
+        backtrack(position);
 
         if (auto result = block(); result.has_value())
             return result;
-        else
-            backtrack(position);
+        backtrack(position);
 
         if (auto result = wrapped(&Parser::macroCondition, "$if"))
             return result;
-        else
-            backtrack(position);
+        backtrack(position);
 
         if (auto result = macro(); result.has_value())
             return result;
-        else
-            backtrack(position);
+        backtrack(position);
 
         if (auto result = wrapped(&Parser::del, "del"))
             return result;
-        else
-            backtrack(position);
+        backtrack(position);
 
         if (auto result = functionCall(); result.has_value())
             return result;
-        else
-            backtrack(position);
+        backtrack(position);
 
         if (auto result = list(); result.has_value())
             return result;
-        else
-            backtrack(position);
+        backtrack(position);
 
         return std::nullopt;  // will never reach
     }
@@ -148,8 +136,8 @@ namespace Ark::internal
 
         if (m_allow_macro_behavior > 0)
         {
-            auto position = getCount();
-            if (auto value = nodeOrValue(); value.has_value())
+            const auto position = getCount();
+            if (const auto value = nodeOrValue(); value.has_value())
                 leaf->push_back(value.value());
             else
                 backtrack(position);
@@ -446,31 +434,25 @@ namespace Ark::internal
                 std::string capture;
                 if (!name(&capture))
                     break;
-                else
-                {
-                    args->push_back(Node(NodeType::Capture, capture).attachNearestCommentBefore(comment));
-                    comment.clear();
-                    newlineOrComment(&comment);
-                }
+                args->push_back(Node(NodeType::Capture, capture).attachNearestCommentBefore(comment));
+                comment.clear();
+                newlineOrComment(&comment);
             }
             else
             {
-                auto pos = getCount();
+                const auto pos = getCount();
                 std::string symbol;
                 if (!name(&symbol))
                     break;
-                else
+                if (has_captures)
                 {
-                    if (has_captures)
-                    {
-                        backtrack(pos);
-                        error("Captured variables should be at the end of the argument list", symbol);
-                    }
-
-                    args->push_back(Node(NodeType::Symbol, symbol).attachNearestCommentBefore(comment));
-                    comment.clear();
-                    newlineOrComment(&comment);
+                    backtrack(pos);
+                    error("Captured variables should be at the end of the argument list", symbol);
                 }
+
+                args->push_back(Node(NodeType::Symbol, symbol).attachNearestCommentBefore(comment));
+                comment.clear();
+                newlineOrComment(&comment);
             }
         }
 
@@ -494,10 +476,10 @@ namespace Ark::internal
 
         while (m_allow_macro_behavior > 0)
         {
-            auto position = getCount();
+            const auto position = getCount();
 
             // args
-            if (auto value = nodeOrValue(); value.has_value())
+            if (const auto value = nodeOrValue(); value.has_value())
             {
                 // if value is nil, just add an empty argument bloc to prevent bugs when
                 // declaring functions inside macros
@@ -525,14 +507,14 @@ namespace Ark::internal
             return leaf;
         }
 
-        auto position = getCount();
-        if (auto args = functionArgs(); args.has_value())
+        const auto position = getCount();
+        if (const auto args = functionArgs(); args.has_value())
             leaf->push_back(args.value());
         else
         {
             backtrack(position);
 
-            if (auto value = nodeOrValue(); value.has_value())
+            if (const auto value = nodeOrValue(); value.has_value())
                 leaf->push_back(value.value());
             else
                 errorWithNextToken("Expected an argument list");
@@ -563,7 +545,7 @@ namespace Ark::internal
         newlineOrComment(&comment);
         leaf->attachNearestCommentBefore(comment);
 
-        if (auto condition = nodeOrValue(); condition.has_value())
+        if (const auto condition = nodeOrValue(); condition.has_value())
             leaf->push_back(condition.value());
         else
             errorWithNextToken("$if need a valid condition");
@@ -608,12 +590,9 @@ namespace Ark::internal
             std::string arg_name;
             if (!name(&arg_name))
                 break;
-            else
-            {
-                comment.clear();
-                newlineOrComment(&comment);
-                args->push_back(Node(NodeType::Symbol, arg_name).attachNearestCommentBefore(comment));
-            }
+            comment.clear();
+            newlineOrComment(&comment);
+            args->push_back(Node(NodeType::Symbol, arg_name).attachNearestCommentBefore(comment));
         }
 
         if (sequence("..."))
@@ -660,15 +639,15 @@ namespace Ark::internal
 
         leaf->push_back(Node(NodeType::Symbol, symbol).attachNearestCommentBefore(comment));
 
-        auto position = getCount();
-        if (auto args = macroArgs(); args.has_value())
+        const auto position = getCount();
+        if (const auto args = macroArgs(); args.has_value())
             leaf->push_back(args.value());
         else
         {
             backtrack(position);
 
             ++m_allow_macro_behavior;
-            auto value = nodeOrValue();
+            const auto value = nodeOrValue();
             --m_allow_macro_behavior;
 
             if (value.has_value())
@@ -682,7 +661,7 @@ namespace Ark::internal
         }
 
         ++m_allow_macro_behavior;
-        auto value = nodeOrValue();
+        const auto value = nodeOrValue();
         --m_allow_macro_behavior;
 
         if (value.has_value())
@@ -716,8 +695,8 @@ namespace Ark::internal
         comment.clear();
         newlineOrComment(&comment);
 
-        NodeType call_type = NodeType::List;
-        if (auto node = func.value(); node.nodeType() == NodeType::Symbol)
+        auto call_type = NodeType::List;
+        if (const auto node = func.value(); node.nodeType() == NodeType::Symbol)
         {
             // TODO enhance this to work with more/all macros
             if (node.string() == "$undef")
@@ -786,47 +765,40 @@ namespace Ark::internal
 
     std::optional<Node> Parser::atom()
     {
-        auto pos = getCount();
+        const auto pos = getCount();
 
         if (auto res = Parser::number(); res.has_value())
             return res;
-        else
-            backtrack(pos);
+        backtrack(pos);
 
         if (auto res = Parser::string(); res.has_value())
             return res;
-        else
-            backtrack(pos);
+        backtrack(pos);
 
         if (auto res = Parser::spread(); m_allow_macro_behavior > 0 && res.has_value())
             return res;
-        else
-            backtrack(pos);
+        backtrack(pos);
 
         if (auto res = Parser::field(); res.has_value())
             return res;
-        else
-            backtrack(pos);
+        backtrack(pos);
 
         if (auto res = Parser::symbol(); res.has_value())
             return res;
-        else
-            backtrack(pos);
+        backtrack(pos);
 
         if (auto res = Parser::nil(); res.has_value())
             return res;
-        else
-            backtrack(pos);
+        backtrack(pos);
 
         return std::nullopt;
     }
 
-    std::optional<Node> Parser::anyAtomOf(std::initializer_list<NodeType> types)
+    std::optional<Node> Parser::anyAtomOf(const std::initializer_list<NodeType> types)
     {
-        auto value = atom();
-        if (value.has_value())
+        if (auto value = atom(); value.has_value())
         {
-            for (auto type : types)
+            for (const auto type : types)
             {
                 if (value->nodeType() == type)
                     return value;
@@ -842,7 +814,7 @@ namespace Ark::internal
             setNodePosAndFilename(value.value());
             return value;
         }
-        else if (auto sub_node = node(); sub_node.has_value())
+        if (auto sub_node = node(); sub_node.has_value())
         {
             setNodePosAndFilename(sub_node.value());
             return sub_node;

@@ -5,7 +5,7 @@
  * @version 0.3
  * @date 2020-10-27
  *
- * @copyright Copyright (c) 2020-2021
+ * @copyright Copyright (c) 2020-2024
  *
  */
 
@@ -14,7 +14,6 @@
 
 #include <string>
 #include <vector>
-#include <cinttypes>
 #include <unordered_map>
 #include <filesystem>
 
@@ -132,7 +131,7 @@ namespace Ark
          */
         bool compile(const std::string& file, const std::string& output);
 
-        static inline void throwStateError(const std::string& message)
+        static void throwStateError(const std::string& message)
         {
             throw Error("StateError: " + message);
         }

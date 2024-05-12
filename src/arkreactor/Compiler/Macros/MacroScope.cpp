@@ -6,13 +6,13 @@ namespace Ark::internal
         m_depth(0)
     {}
 
-    MacroScope::MacroScope(unsigned int depth) :
+    MacroScope::MacroScope(const unsigned int depth) :
         m_depth(depth)
     {}
 
     const Node* MacroScope::has(const std::string& name) const
     {
-        if (auto res = m_macros.find(name); res != m_macros.end())
+        if (const auto res = m_macros.find(name); res != m_macros.end())
             return &res->second;
         return nullptr;
     }
@@ -24,7 +24,7 @@ namespace Ark::internal
 
     bool MacroScope::remove(const std::string& name)
     {
-        if (auto res = m_macros.find(name); res != m_macros.end())
+        if (const auto res = m_macros.find(name); res != m_macros.end())
         {
             m_macros.erase(res);
             return true;

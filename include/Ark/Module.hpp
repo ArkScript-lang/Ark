@@ -2,7 +2,6 @@
 #define INCLUDE_ARK_MODULE_HPP
 
 #include <Ark/VM/VM.hpp>
-#include <Ark/Platform.hpp>
 #include <Ark/TypeChecker.hpp>
 
 namespace Ark
@@ -10,7 +9,7 @@ namespace Ark
     struct mapping
     {
         const char* name;
-        Value (*value)(std::vector<Value>&, Ark::VM*);
+        Value (*value)(std::vector<Value>&, VM*);
     };
 }
 

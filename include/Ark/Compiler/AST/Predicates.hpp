@@ -5,7 +5,6 @@
 #include <cctype>
 
 #include <Ark/Compiler/AST/utf8_char.hpp>
-#include <utility>
 
 namespace Ark::internal
 {
@@ -15,11 +14,12 @@ namespace Ark::internal
 
         explicit CharPred(std::string n) :
             name(std::move(n)) {}
+        virtual ~CharPred() = default;
 
         virtual bool operator()(utf8_char_t::codepoint_t c) const = 0;
     };
 
-    inline struct IsSpace : public CharPred
+    inline struct IsSpace final : CharPred
     {
         IsSpace() :
             CharPred("space") {}
@@ -29,7 +29,7 @@ namespace Ark::internal
         }
     } IsSpace;
 
-    inline struct IsInlineSpace : public CharPred
+    inline struct IsInlineSpace final : CharPred
     {
         IsInlineSpace() :
             CharPred("inline space") {}
@@ -39,7 +39,7 @@ namespace Ark::internal
         }
     } IsInlineSpace;
 
-    inline struct IsDigit : public CharPred
+    inline struct IsDigit final : CharPred
     {
         IsDigit() :
             CharPred("digit") {}
@@ -49,7 +49,7 @@ namespace Ark::internal
         }
     } IsDigit;
 
-    inline struct IsHex : public CharPred
+    inline struct IsHex final : CharPred
     {
         IsHex() :
             CharPred("hex") {}
@@ -59,7 +59,7 @@ namespace Ark::internal
         }
     } IsHex;
 
-    inline struct IsUpper : public CharPred
+    inline struct IsUpper final : CharPred
     {
         IsUpper() :
             CharPred("uppercase") {}
@@ -69,7 +69,7 @@ namespace Ark::internal
         }
     } IsUpper;
 
-    inline struct IsLower : public CharPred
+    inline struct IsLower final : CharPred
     {
         IsLower() :
             CharPred("lowercase") {}
@@ -79,7 +79,7 @@ namespace Ark::internal
         }
     } IsLower;
 
-    inline struct IsAlpha : public CharPred
+    inline struct IsAlpha final : CharPred
     {
         IsAlpha() :
             CharPred("alphabetic") {}
@@ -89,7 +89,7 @@ namespace Ark::internal
         }
     } IsAlpha;
 
-    inline struct IsAlnum : public CharPred
+    inline struct IsAlnum final : CharPred
     {
         IsAlnum() :
             CharPred("alphanumeric") {}
@@ -99,7 +99,7 @@ namespace Ark::internal
         }
     } IsAlnum;
 
-    inline struct IsPrint : public CharPred
+    inline struct IsPrint final : CharPred
     {
         IsPrint() :
             CharPred("printable") {}
@@ -109,7 +109,7 @@ namespace Ark::internal
         }
     } IsPrint;
 
-    struct IsChar : public CharPred
+    struct IsChar final : CharPred
     {
         explicit IsChar(const char c) :
             CharPred("'" + std::string(1, c) + "'"), m_k(c)
@@ -126,7 +126,7 @@ namespace Ark::internal
         const utf8_char_t::codepoint_t m_k;
     };
 
-    struct IsEither : public CharPred
+    struct IsEither final : CharPred
     {
         explicit IsEither(const CharPred& a, const CharPred& b) :
             CharPred("(" + a.name + " | " + b.name + ")"), m_a(a), m_b(b)
@@ -141,7 +141,7 @@ namespace Ark::internal
         const CharPred& m_b;
     };
 
-    struct IsNot : public CharPred
+    struct IsNot final : CharPred
     {
         explicit IsNot(const CharPred& a) :
             CharPred("~" + a.name), m_a(a)
@@ -155,7 +155,7 @@ namespace Ark::internal
         const CharPred& m_a;
     };
 
-    inline struct IsSymbol : public CharPred
+    inline struct IsSymbol final : CharPred
     {
         IsSymbol() :
             CharPred("sym") {}
@@ -186,7 +186,7 @@ namespace Ark::internal
         }
     } IsSymbol;
 
-    inline struct IsAny : public CharPred
+    inline struct IsAny final : CharPred
     {
         IsAny() :
             CharPred("any") {}

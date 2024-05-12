@@ -11,17 +11,17 @@ namespace Ark::internal
         m_page_addr(0)
     {}
 
-    Closure::Closure(Scope&& scope, PageAddr_t pa) noexcept :
+    Closure::Closure(Scope&& scope, const PageAddr_t pa) noexcept :
         m_scope(std::make_shared<Scope>(scope)),
         m_page_addr(pa)
     {}
 
-    Closure::Closure(const Scope& scope, PageAddr_t pa) noexcept :
+    Closure::Closure(const Scope& scope, const PageAddr_t pa) noexcept :
         m_scope(std::make_shared<Scope>(scope)),
         m_page_addr(pa)
     {}
 
-    Closure::Closure(const std::shared_ptr<Scope>& scope_ptr, Ark::internal::PageAddr_t pa) noexcept :
+    Closure::Closure(const std::shared_ptr<Scope>& scope_ptr, const PageAddr_t pa) noexcept :
         m_scope(scope_ptr),
         m_page_addr(pa)
     {}

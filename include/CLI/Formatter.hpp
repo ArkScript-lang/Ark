@@ -26,28 +26,28 @@ private:
     Ark::internal::Parser m_parser;
     std::string m_output;
 
-    bool isListStartingWithKeyword(const Ark::internal::Node& node, Ark::internal::Keyword keyword);
-    bool isBeginBlock(const Ark::internal::Node& node);
-    bool isFuncDef(const Ark::internal::Node& node);
-    bool isFuncCall(const Ark::internal::Node& node);
+    static bool isListStartingWithKeyword(const Ark::internal::Node& node, Ark::internal::Keyword keyword);
+    static bool isBeginBlock(const Ark::internal::Node& node);
+    static bool isFuncDef(const Ark::internal::Node& node);
+    static bool isFuncCall(const Ark::internal::Node& node);
 
     /**
      * @param node
      * @return true if the node is a String|Number|Symbol|Field
      * @return false
      */
-    bool isPlainValue(const Ark::internal::Node& node);
+    static bool isPlainValue(const Ark::internal::Node& node);
 
     /**
      * @brief Compute the line on which the deepest right most node of node is at
      * @param node
      * @return
      */
-    std::size_t lineOfLastNodeIn(const Ark::internal::Node& node);
+    static std::size_t lineOfLastNodeIn(const Ark::internal::Node& node);
 
     bool should_split_on_newline(const Ark::internal::Node& node);
 
-    inline constexpr std::string prefix(std::size_t indent) const
+    static constexpr std::string prefix(const std::size_t indent)
     {
         return std::string(indent * FormatterConfig.SpacePerIndent, ' ');
     }
@@ -61,7 +61,7 @@ private:
      */
     std::string format(const Ark::internal::Node& node, std::size_t indent, bool after_newline);
 
-    std::string formatComment(const std::string& comment, std::size_t indent);
+    std::string formatComment(const std::string& comment, std::size_t indent) const;
 
     std::string formatBlock(const Ark::internal::Node& node, std::size_t indent, bool after_newline);
 

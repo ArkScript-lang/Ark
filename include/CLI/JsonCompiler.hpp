@@ -15,8 +15,9 @@ public:
      * @brief Construct a new JsonCompiler object
      *
      * @param debug the debug level
+     * @param lib_env list of path to the directories of the std lib
      */
-    JsonCompiler(unsigned debug, const std::vector<std::filesystem::path>& libenv);
+    JsonCompiler(unsigned debug, const std::vector<std::filesystem::path>& lib_env);
 
     /**
      * @brief Feed the different variables with information taken from the given source code file

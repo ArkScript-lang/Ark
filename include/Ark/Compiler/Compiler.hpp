@@ -2,10 +2,10 @@
  * @file Compiler.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief ArkScript compiler is in charge of transforming the AST into bytecode
- * @version 2.0
+ * @version 2.1
  * @date 2020-10-27
  *
- * @copyright Copyright (c) 2020-2021
+ * @copyright Copyright (c) 2020-2024
  *
  */
 
@@ -56,8 +56,8 @@ namespace Ark
          */
         [[nodiscard]] const bytecode_t& bytecode() const noexcept;
 
-        friend class Ark::State;
-        friend class Ark::Welder;
+        friend class State;
+        friend class Welder;
 
     private:
         // tables: symbols, values, plugins and codes
@@ -89,7 +89,7 @@ namespace Ark
          * @param i page index, if negative, refers to a temporary code page
          * @return std::vector<internal::Word>&
          */
-        inline std::vector<internal::Word>& page(int i) noexcept
+        std::vector<internal::Word>& page(const int i) noexcept
         {
             if (i >= 0)
                 return m_code_pages[i];
@@ -102,7 +102,7 @@ namespace Ark
          * @param i page index, if negative, refers to a temporary code page
          * @return std::vector<internal::Word>*
          */
-        inline std::vector<internal::Word>* page_ptr(int i) noexcept
+        std::vector<internal::Word>* page_ptr(const int i) noexcept
         {
             if (i >= 0)
                 return &m_code_pages[i];
@@ -131,21 +131,21 @@ namespace Ark
          * @param name
          * @return std::optional<internal::Instruction> corresponding instruction if it exists
          */
-        static inline std::optional<internal::Instruction> getSpecific(const std::string& name) noexcept
+        static std::optional<internal::Instruction> getSpecific(const std::string& name) noexcept
         {
             if (name == "list")
                 return internal::Instruction::LIST;
-            else if (name == "append")
+            if (name == "append")
                 return internal::Instruction::APPEND;
-            else if (name == "concat")
+            if (name == "concat")
                 return internal::Instruction::CONCAT;
-            else if (name == "append!")
+            if (name == "append!")
                 return internal::Instruction::APPEND_IN_PLACE;
-            else if (name == "concat!")
+            if (name == "concat!")
                 return internal::Instruction::CONCAT_IN_PLACE;
-            else if (name == "pop")
+            if (name == "pop")
                 return internal::Instruction::POP_LIST;
-            else if (name == "pop!")
+            if (name == "pop!")
                 return internal::Instruction::POP_LIST_IN_PLACE;
 
             return std::nullopt;
@@ -260,7 +260,7 @@ namespace Ark
          * @param str the string
          * @return std::string
          */
-        std::string offerSuggestion(const std::string& str);
+        std::string offerSuggestion(const std::string& str) const;
     };
 }
 

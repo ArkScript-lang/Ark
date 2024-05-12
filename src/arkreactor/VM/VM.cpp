@@ -2,13 +2,14 @@
 
 #include <numeric>
 #include <limits>
-#include <sstream>
 
 #include <fmt/core.h>
+#include <ranges>
 #include <termcolor/proxy.hpp>
 #include <Ark/Files.hpp>
 #include <Ark/Utils.hpp>
 #include <Ark/TypeChecker.hpp>
+#include <Ark/Compiler/Instructions.hpp>
 
 #ifdef ARK_PROFILER_MIPS
 #    include <chrono>
@@ -33,7 +34,7 @@ namespace Ark
     void VM::init() noexcept
     {
         ExecutionContext& context = *m_execution_contexts.back();
-        for (auto& c : m_execution_contexts)
+        for (const auto& c : m_execution_contexts)
         {
             c->ip = 0;
             c->pp = 0;
@@ -55,11 +56,11 @@ namespace Ark
 
         // loading bound stuff
         // put them in the global frame if we can, aka the first one
-        for (const auto& name_val : m_state.m_binded)
+        for (const auto& [sym_id, value] : m_state.m_binded)
         {
-            auto it = std::find(m_state.m_symbols.begin(), m_state.m_symbols.end(), name_val.first);
+            auto it = std::ranges::find(m_state.m_symbols, sym_id);
             if (it != m_state.m_symbols.end())
-                (context.locals[0]).push_back(static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it)), name_val.second);
+                context.locals[0].push_back(static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it)), value);
         }
     }
 
@@ -68,14 +69,14 @@ namespace Ark
         ExecutionContext& context = *m_execution_contexts.front();
 
         // find id of object
-        auto it = std::find(m_state.m_symbols.begin(), m_state.m_symbols.end(), name);
+        const auto it = std::ranges::find(m_state.m_symbols, name);
         if (it == m_state.m_symbols.end())
         {
             m_no_value = Builtins::nil;
             return m_no_value;
         }
 
-        auto id = static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it));
+        const auto id = static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it));
         Value* var = findNearestVariable(id, context);
         if (var != nullptr)
             return *var;
@@ -83,7 +84,7 @@ namespace Ark
         return m_no_value;
     }
 
-    void VM::loadPlugin(uint16_t id, ExecutionContext& context)
+    void VM::loadPlugin(const uint16_t id, ExecutionContext& context)
     {
         namespace fs = std::filesystem;
 
@@ -105,7 +106,7 @@ namespace Ark
                 std::string lib_path = (fs::path(v) / fs::path(file)).string();
 
                 // if it's already loaded don't do anything
-                if (std::find_if(m_shared_lib_objects.begin(), m_shared_lib_objects.end(), [&](const auto& val) {
+                if (std::ranges::find_if(m_shared_lib_objects, [&](const auto& val) {
                         return (val->path() == path || val->path() == lib_path);
                     }) != m_shared_lib_objects.end())
                     return;
@@ -138,13 +139,13 @@ namespace Ark
         // load the mapping from the dynamic library
         try
         {
-            mapping* map = m_shared_lib_objects.back()->template get<mapping* (*)()>("getFunctionsMapping")();
+            const mapping* map = m_shared_lib_objects.back()->get<mapping* (*)()>("getFunctionsMapping")();
             // load the mapping data
             std::size_t i = 0;
             while (map[i].name != nullptr)
             {
                 // put it in the global frame, aka the first one
-                auto it = std::find(m_state.m_symbols.begin(), m_state.m_symbols.end(), std::string(map[i].name));
+                auto it = std::ranges::find(m_state.m_symbols, std::string(map[i].name));
                 if (it != m_state.m_symbols.end())
                     (context.locals[0]).push_back(static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it)), Value(map[i].value));
 
@@ -161,7 +162,7 @@ namespace Ark
         }
     }
 
-    void VM::exit(int code) noexcept
+    void VM::exit(const int code) noexcept
     {
         m_exit_code = code;
         m_running = false;
@@ -169,7 +170,7 @@ namespace Ark
 
     ExecutionContext* VM::createAndGetContext()
     {
-        const std::lock_guard<std::mutex> lock(m_mutex);
+        const std::lock_guard lock(m_mutex);
 
         m_execution_contexts.push_back(std::make_unique<ExecutionContext>());
         ExecutionContext* ctx = m_execution_contexts.back().get();
@@ -184,14 +185,13 @@ namespace Ark
 
     void VM::deleteContext(ExecutionContext* ec)
     {
-        const std::lock_guard<std::mutex> lock(m_mutex);
+        const std::lock_guard lock(m_mutex);
 
-        auto it = std::remove_if(
-            m_execution_contexts.begin(),
-            m_execution_contexts.end(),
-            [ec](const std::unique_ptr<ExecutionContext>& ctx) {
-                return ctx.get() == ec;
-            });
+        const auto it = std::ranges::remove_if(m_execution_contexts,
+                                               [ec](const std::unique_ptr<ExecutionContext>& ctx) {
+                                                   return ctx.get() == ec;
+                                               })
+                            .begin();
         m_execution_contexts.erase(it);
     }
 
@@ -201,7 +201,7 @@ namespace Ark
 
         // doing this after having created the context
         // because the context uses the mutex and we don't want a deadlock
-        const std::lock_guard<std::mutex> lock(m_mutex);
+        const std::lock_guard lock(m_mutex);
         m_futures.push_back(std::make_unique<Future>(ctx, this, args));
 
         return m_futures.back().get();
@@ -209,33 +209,32 @@ namespace Ark
 
     void VM::deleteFuture(Future* f)
     {
-        const std::lock_guard<std::mutex> lock(m_mutex);
+        const std::lock_guard lock(m_mutex);
 
-        auto it = std::remove_if(
-            m_futures.begin(),
-            m_futures.end(),
-            [f](const std::unique_ptr<Future>& future) {
-                return future.get() == f;
-            });
+        const auto it = std::ranges::remove_if(m_futures,
+                                               [f](const std::unique_ptr<Future>& future) {
+                                                   return future.get() == f;
+                                               })
+                            .begin();
         m_futures.erase(it);
     }
 
-    bool VM::forceReloadPlugins()
+    bool VM::forceReloadPlugins() const
     {
         // load the mapping from the dynamic library
         try
         {
             for (auto& shared_lib : m_shared_lib_objects)
             {
-                mapping* map = shared_lib->template get<mapping* (*)()>("getFunctionsMapping")();
+                const mapping* map = shared_lib->template get<mapping* (*)()>("getFunctionsMapping")();
                 // load the mapping data
                 std::size_t i = 0;
                 while (map[i].name != nullptr)
                 {
                     // put it in the global frame, aka the first one
-                    auto it = std::find(m_state.m_symbols.begin(), m_state.m_symbols.end(), std::string(map[i].name));
+                    auto it = std::ranges::find(m_state.m_symbols, std::string(map[i].name));
                     if (it != m_state.m_symbols.end())
-                        (m_execution_contexts[0]->locals[0]).push_back(static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it)), Value(map[i].value));
+                        m_execution_contexts[0]->locals[0].push_back(static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it)), Value(map[i].value));
 
                     ++i;
                 }
@@ -278,7 +277,7 @@ namespace Ark
                 {
 #pragma region "Instructions"
 
-                    case Instruction::LOAD_SYMBOL:
+                    case LOAD_SYMBOL:
                     {
                         context.last_symbol = arg;
 
@@ -296,7 +295,7 @@ namespace Ark
                         break;
                     }
 
-                    case Instruction::LOAD_CONST:
+                    case LOAD_CONST:
                     {
                         if (context.saved_scope && m_state.m_constants[arg].valueType() == ValueType::PageAddr)
                         {
@@ -309,14 +308,14 @@ namespace Ark
                         break;
                     }
 
-                    case Instruction::POP_JUMP_IF_TRUE:
+                    case POP_JUMP_IF_TRUE:
                     {
                         if (*popAndResolveAsPtr(context) == Builtins::trueSym)
                             context.ip = static_cast<int16_t>(arg) * 4;  // instructions are 4 bytes
                         break;
                     }
 
-                    case Instruction::STORE:
+                    case STORE:
                     {
                         Value val = *popAndResolveAsPtr(context);
                         if (Value* var = findNearestVariable(arg, context); var != nullptr) [[likely]]
@@ -338,7 +337,7 @@ namespace Ark
                         break;
                     }
 
-                    case Instruction::LET:
+                    case LET:
                     {
                         // check if we are redefining a variable
                         if (auto val = (context.locals.back())[arg]; val != nullptr) [[unlikely]]
@@ -351,20 +350,20 @@ namespace Ark
                         break;
                     }
 
-                    case Instruction::POP_JUMP_IF_FALSE:
+                    case POP_JUMP_IF_FALSE:
                     {
                         if (*popAndResolveAsPtr(context) == Builtins::falseSym)
                             context.ip = static_cast<int16_t>(arg) * 4;  // instructions are 4 bytes
                         break;
                     }
 
-                    case Instruction::JUMP:
+                    case JUMP:
                     {
                         context.ip = static_cast<int16_t>(arg) * 4;  // instructions are 4 bytes
                         break;
                     }
 
-                    case Instruction::RET:
+                    case RET:
                     {
                         Value ip_or_val = *popAndResolveAsPtr(context);
                         // no return value on the stack
@@ -397,11 +396,11 @@ namespace Ark
                         break;
                     }
 
-                    case Instruction::HALT:
+                    case HALT:
                         m_running = false;
                         break;
 
-                    case Instruction::CALL:
+                    case CALL:
                     {
                         // stack pointer + 2 because we push IP and PP
                         if (context.sp + 2 >= VMStackSize) [[unlikely]]
@@ -414,7 +413,7 @@ namespace Ark
                         break;
                     }
 
-                    case Instruction::CAPTURE:
+                    case CAPTURE:
                     {
                         if (!context.saved_scope)
                             context.saved_scope = Scope();
@@ -423,18 +422,18 @@ namespace Ark
                         if (!ptr)
                             throwVMError(ErrorKind::Scope, fmt::format("Couldn't capture `{}' as it is currently unbound", m_state.m_symbols[arg]));
                         ptr = ptr->valueType() == ValueType::Reference ? ptr->reference() : ptr;
-                        (context.saved_scope.value()).push_back(arg, *ptr);
+                        context.saved_scope.value().push_back(arg, *ptr);
 
                         break;
                     }
 
-                    case Instruction::BUILTIN:
+                    case BUILTIN:
                     {
                         push(Builtins::builtins[arg].second, context);
                         break;
                     }
 
-                    case Instruction::MUT:
+                    case MUT:
                     {
                         Value val = *popAndResolveAsPtr(context);
                         val.setConst(false);
@@ -449,7 +448,7 @@ namespace Ark
                         break;
                     }
 
-                    case Instruction::DEL:
+                    case DEL:
                     {
                         if (Value* var = findNearestVariable(arg, context); var != nullptr)
                         {
@@ -463,13 +462,13 @@ namespace Ark
                         break;
                     }
 
-                    case Instruction::SAVE_ENV:
+                    case SAVE_ENV:
                     {
                         context.saved_scope = context.locals.back();
                         break;
                     }
 
-                    case Instruction::GET_FIELD:
+                    case GET_FIELD:
                     {
                         Value* var = popAndResolveAsPtr(context);
                         if (var->valueType() != ValueType::Closure)
@@ -482,7 +481,7 @@ namespace Ark
                         {
                             // check for CALL instruction
                             // doing a +1 on the IP to read the instruction because context.ip is already on the next instruction word (the padding)
-                            if (static_cast<std::size_t>(context.ip) + 1 < m_state.m_pages[context.pp].size() && m_state.m_pages[context.pp][context.ip + 1] == Instruction::CALL)
+                            if (static_cast<std::size_t>(context.ip) + 1 < m_state.m_pages[context.pp].size() && m_state.m_pages[context.pp][context.ip + 1] == CALL)
                                 push(Value(Closure(var->refClosure().scopePtr(), field->pageAddr())), context);
                             else
                                 push(field, context);
@@ -493,13 +492,13 @@ namespace Ark
                         break;
                     }
 
-                    case Instruction::PLUGIN:
+                    case PLUGIN:
                     {
                         loadPlugin(arg, context);
                         break;
                     }
 
-                    case Instruction::LIST:
+                    case LIST:
                     {
                         Value l(ValueType::List);
                         if (arg != 0)
@@ -511,7 +510,7 @@ namespace Ark
                         break;
                     }
 
-                    case Instruction::APPEND:
+                    case APPEND:
                     {
                         Value* list = popAndResolveAsPtr(context);
                         if (list->valueType() != ValueType::List)
@@ -531,7 +530,7 @@ namespace Ark
                         break;
                     }
 
-                    case Instruction::CONCAT:
+                    case CONCAT:
                     {
                         Value* list = popAndResolveAsPtr(context);
                         if (list->valueType() != ValueType::List)
@@ -559,7 +558,7 @@ namespace Ark
                         break;
                     }
 
-                    case Instruction::APPEND_IN_PLACE:
+                    case APPEND_IN_PLACE:
                     {
                         Value* list = popAndResolveAsPtr(context);
 
@@ -577,7 +576,7 @@ namespace Ark
                         break;
                     }
 
-                    case Instruction::CONCAT_IN_PLACE:
+                    case CONCAT_IN_PLACE:
                     {
                         Value* list = popAndResolveAsPtr(context);
 
@@ -599,14 +598,14 @@ namespace Ark
                                     { { types::Contract { { types::Typedef("dst", ValueType::List), types::Typedef("src", ValueType::List) } } } },
                                     { *list, *next });
 
-                            for (auto it = next->list().begin(), end = next->list().end(); it != end; ++it)
-                                list->push_back(*it);
+                            for (auto& it : next->list())
+                                list->push_back(it);
                         }
 
                         break;
                     }
 
-                    case Instruction::POP_LIST:
+                    case POP_LIST:
                     {
                         Value list = *popAndResolveAsPtr(context);
                         Value number = *popAndResolveAsPtr(context);
@@ -629,7 +628,7 @@ namespace Ark
                         break;
                     }
 
-                    case Instruction::POP_LIST_IN_PLACE:
+                    case POP_LIST_IN_PLACE:
                     {
                         Value* list = popAndResolveAsPtr(context);
                         Value number = *popAndResolveAsPtr(context);
@@ -653,7 +652,7 @@ namespace Ark
                         break;
                     }
 
-                    case Instruction::POP:
+                    case POP:
                     {
                         pop(context);
                         break;
@@ -663,7 +662,7 @@ namespace Ark
 
 #pragma region "Operators"
 
-                    case Instruction::ADD:
+                    case ADD:
                     {
                         Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
 
@@ -680,7 +679,7 @@ namespace Ark
                         break;
                     }
 
-                    case Instruction::SUB:
+                    case SUB:
                     {
                         Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
 
@@ -689,12 +688,11 @@ namespace Ark
                                 "-",
                                 { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
                                 { *a, *b });
-                        else
-                            push(Value(a->number() - b->number()), context);
+                        push(Value(a->number() - b->number()), context);
                         break;
                     }
 
-                    case Instruction::MUL:
+                    case MUL:
                     {
                         Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
 
@@ -703,12 +701,11 @@ namespace Ark
                                 "*",
                                 { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
                                 { *a, *b });
-                        else
-                            push(Value(a->number() * b->number()), context);
+                        push(Value(a->number() * b->number()), context);
                         break;
                     }
 
-                    case Instruction::DIV:
+                    case DIV:
                     {
                         Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
 
@@ -717,26 +714,23 @@ namespace Ark
                                 "/",
                                 { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
                                 { *a, *b });
-                        else
-                        {
-                            auto d = b->number();
-                            if (d == 0)
-                                throwVMError(ErrorKind::DivisionByZero, fmt::format("Can not compute expression (/ {} {})", a->toString(*this), b->toString(*this)));
+                        auto d = b->number();
+                        if (d == 0)
+                            throwVMError(ErrorKind::DivisionByZero, fmt::format("Can not compute expression (/ {} {})", a->toString(*this), b->toString(*this)));
 
-                            push(Value(a->number() / d), context);
-                        }
+                        push(Value(a->number() / d), context);
                         break;
                     }
 
-                    case Instruction::GT:
+                    case GT:
                     {
                         Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
 
-                        push((!(*a == *b) && !(*a < *b)) ? Builtins::trueSym : Builtins::falseSym, context);
+                        push((*a != *b && !(*a < *b)) ? Builtins::trueSym : Builtins::falseSym, context);
                         break;
                     }
 
-                    case Instruction::LT:
+                    case LT:
                     {
                         Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
 
@@ -744,7 +738,7 @@ namespace Ark
                         break;
                     }
 
-                    case Instruction::LE:
+                    case LE:
                     {
                         Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
 
@@ -752,7 +746,7 @@ namespace Ark
                         break;
                     }
 
-                    case Instruction::GE:
+                    case GE:
                     {
                         Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
 
@@ -760,7 +754,7 @@ namespace Ark
                         break;
                     }
 
-                    case Instruction::NEQ:
+                    case NEQ:
                     {
                         Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
 
@@ -768,7 +762,7 @@ namespace Ark
                         break;
                     }
 
-                    case Instruction::EQ:
+                    case EQ:
                     {
                         Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
 
@@ -776,7 +770,7 @@ namespace Ark
                         break;
                     }
 
-                    case Instruction::LEN:
+                    case LEN:
                     {
                         Value* a = popAndResolveAsPtr(context);
 
@@ -793,7 +787,7 @@ namespace Ark
                         break;
                     }
 
-                    case Instruction::EMPTY:
+                    case EMPTY:
                     {
                         Value* a = popAndResolveAsPtr(context);
 
@@ -810,7 +804,7 @@ namespace Ark
                         break;
                     }
 
-                    case Instruction::TAIL:
+                    case TAIL:
                     {
                         Value* a = popAndResolveAsPtr(context);
 
@@ -847,7 +841,7 @@ namespace Ark
                         break;
                     }
 
-                    case Instruction::HEAD:
+                    case HEAD:
                     {
                         Value* a = popAndResolveAsPtr(context);
 
@@ -875,14 +869,14 @@ namespace Ark
                         break;
                     }
 
-                    case Instruction::ISNIL:
+                    case ISNIL:
                     {
                         Value* a = popAndResolveAsPtr(context);
                         push((*a == Builtins::nil) ? Builtins::trueSym : Builtins::falseSym, context);
                         break;
                     }
 
-                    case Instruction::ASSERT:
+                    case ASSERT:
                     {
                         Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
 
@@ -897,7 +891,7 @@ namespace Ark
                         break;
                     }
 
-                    case Instruction::TO_NUM:
+                    case TO_NUM:
                     {
                         Value* a = popAndResolveAsPtr(context);
 
@@ -915,14 +909,14 @@ namespace Ark
                         break;
                     }
 
-                    case Instruction::TO_STR:
+                    case TO_STR:
                     {
                         Value* a = popAndResolveAsPtr(context);
                         push(Value(a->toString(*this)), context);
                         break;
                     }
 
-                    case Instruction::AT:
+                    case AT:
                     {
                         Value* b = popAndResolveAsPtr(context);
                         Value a = *popAndResolveAsPtr(context);  // be careful, it's not a pointer
@@ -963,7 +957,7 @@ namespace Ark
                         break;
                     }
 
-                    case Instruction::AND_:
+                    case AND_:
                     {
                         Value *a = popAndResolveAsPtr(context), *b = popAndResolveAsPtr(context);
 
@@ -971,7 +965,7 @@ namespace Ark
                         break;
                     }
 
-                    case Instruction::OR_:
+                    case OR_:
                     {
                         Value *a = popAndResolveAsPtr(context), *b = popAndResolveAsPtr(context);
 
@@ -979,7 +973,7 @@ namespace Ark
                         break;
                     }
 
-                    case Instruction::MOD:
+                    case MOD:
                     {
                         Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
                         if (a->valueType() != ValueType::Number || b->valueType() != ValueType::Number)
@@ -992,7 +986,7 @@ namespace Ark
                         break;
                     }
 
-                    case Instruction::TYPE:
+                    case TYPE:
                     {
                         Value* a = popAndResolveAsPtr(context);
 
@@ -1000,7 +994,7 @@ namespace Ark
                         break;
                     }
 
-                    case Instruction::HASFIELD:
+                    case HASFIELD:
                     {
                         Value *field = popAndResolveAsPtr(context), *closure = popAndResolveAsPtr(context);
                         if (closure->valueType() != ValueType::Closure || field->valueType() != ValueType::String)
@@ -1022,7 +1016,7 @@ namespace Ark
                         break;
                     }
 
-                    case Instruction::NOT:
+                    case NOT:
                     {
                         Value* a = popAndResolveAsPtr(context);
 
@@ -1073,9 +1067,9 @@ namespace Ark
 
     uint16_t VM::findNearestVariableIdWithValue(const Value& value, ExecutionContext& context) const noexcept
     {
-        for (auto it = context.locals.rbegin(), it_end = context.locals.rend(); it != it_end; ++it)
+        for (auto& local : std::ranges::reverse_view(context.locals))
         {
-            if (auto id = (it)->idFromValue(value); id < m_state.m_symbols.size())
+            if (const auto id = local.idFromValue(value); id < m_state.m_symbols.size())
                 return id;
         }
         return std::numeric_limits<uint16_t>::max();
@@ -1088,21 +1082,21 @@ namespace Ark
 
     void VM::backtrace(ExecutionContext& context) noexcept
     {
-        int saved_ip = context.ip;
-        std::size_t saved_pp = context.pp;
-        uint16_t saved_sp = context.sp;
+        const int saved_ip = context.ip;
+        const std::size_t saved_pp = context.pp;
+        const uint16_t saved_sp = context.sp;
 
-        if (uint16_t original_frame_count = context.fc; original_frame_count > 1)
+        if (const uint16_t original_frame_count = context.fc; original_frame_count > 1)
         {
             // display call stack trace
-            Scope old_scope = context.locals.back();
+            const Scope old_scope = context.locals.back();
 
             while (context.fc != 0)
             {
                 std::cerr << "[" << termcolor::cyan << context.fc << termcolor::reset << "] ";
                 if (context.pp != 0)
                 {
-                    uint16_t id = findNearestVariableIdWithValue(
+                    const uint16_t id = findNearestVariableIdWithValue(
                         Value(static_cast<PageAddr_t>(context.pp)),
                         context);
 

@@ -2,7 +2,7 @@
  * @file Exceptions.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com), Max (madstk1@pm.me)
  * @brief ArkScript homemade exceptions
- * @version 1.1
+ * @version 1.2
  * @date 2020-10-27
  *
  * @copyright Copyright (c) 2020-2024
@@ -12,14 +12,11 @@
 #ifndef INCLUDE_ARK_EXCEPTIONS_HPP
 #define INCLUDE_ARK_EXCEPTIONS_HPP
 
-#include <exception>
 #include <string>
-#include <utility>
 #include <vector>
 #include <stdexcept>
 #include <optional>
 #include <ostream>
-#include <iomanip>
 #include <iostream>
 
 #include <Ark/Compiler/AST/utf8_char.hpp>
@@ -44,7 +41,7 @@ namespace Ark
      * @brief A type error triggered when types don't match
      *
      */
-    class TypeError : public Error
+    class TypeError final : public Error
     {
     public:
         explicit TypeError(const std::string& message) :
@@ -56,7 +53,7 @@ namespace Ark
      * @brief A special zero division error triggered when a number is divided by 0
      *
      */
-    class ZeroDivisionError : public Error
+    class ZeroDivisionError final : public Error
     {
     public:
         ZeroDivisionError() :
@@ -72,7 +69,7 @@ namespace Ark
      * @brief An assertion error, only triggered from ArkScript code through (assert expr error-message)
      *
      */
-    class AssertionFailed : public Error
+    class AssertionFailed final : public Error
     {
     public:
         explicit AssertionFailed(const std::string& message) :
@@ -84,7 +81,7 @@ namespace Ark
      * @brief CodeError thrown by the compiler (parser, macro processor, optimizer, and compiler itself)
      *
      */
-    struct CodeError : public Error
+    struct CodeError final : Error
     {
         const std::string filename;
         const std::size_t line;
@@ -95,10 +92,10 @@ namespace Ark
         CodeError(
             const std::string& what,
             std::string filename,
-            std::size_t lineNum,
-            std::size_t column,
+            const std::size_t lineNum,
+            const std::size_t column,
             std::string exp,
-            std::optional<internal::utf8_char_t> opt_sym = std::nullopt) :
+            const std::optional<internal::utf8_char_t> opt_sym = std::nullopt) :
             Error(what),
             filename(std::move(filename)), line(lineNum), col(column), expr(std::move(exp)), symbol(opt_sym)
         {}
@@ -111,11 +108,11 @@ namespace Ark
          *
          * @param os stream in which the error will be written
          * @param code content of the source file where the error is
-         * @param line line where the error is
+         * @param target_line line where the error is
          * @param col_start where the error starts on the given line
          * @param sym_size bad expression that triggered the error
          */
-        ARK_API void makeContext(std::ostream& os, const std::string& code, std::size_t line, std::size_t col_start, std::size_t sym_size);
+        ARK_API void makeContext(std::ostream& os, const std::string& code, std::size_t target_line, std::size_t col_start, std::size_t sym_size);
 
         /**
          * @brief Helper used by the compiler to generate a colorized context from a node

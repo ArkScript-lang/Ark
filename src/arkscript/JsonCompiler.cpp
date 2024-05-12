@@ -6,8 +6,8 @@
 
 using namespace Ark::internal;
 
-JsonCompiler::JsonCompiler(unsigned debug, const std::vector<std::filesystem::path>& libenv) :
-    m_welder(debug, libenv)
+JsonCompiler::JsonCompiler(unsigned debug, const std::vector<std::filesystem::path>& lib_env) :
+    m_welder(debug, lib_env)
 {}
 
 void JsonCompiler::feed(const std::string& filename)

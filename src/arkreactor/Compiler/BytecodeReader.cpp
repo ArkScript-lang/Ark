@@ -16,7 +16,7 @@ namespace Ark
         std::ifstream ifs(file, std::ios::binary | std::ios::ate);
         if (!ifs.good())
             throw std::runtime_error("[BytecodeReader] Couldn't open file '" + file + "'");
-        std::size_t pos = ifs.tellg();
+        const std::size_t pos = ifs.tellg();
         // reserve appropriate number of bytes
         std::vector<char> temp(pos);
         ifs.seekg(0, std::ios::beg);
@@ -53,14 +53,14 @@ namespace Ark
         // reading the timestamp in big endian
         using timestamp_t = unsigned long long;
         timestamp_t timestamp = 0;
-        auto aa = (static_cast<timestamp_t>(m_bytecode[i]) << 56),
-             ba = (static_cast<timestamp_t>(m_bytecode[++i]) << 48),
-             ca = (static_cast<timestamp_t>(m_bytecode[++i]) << 40),
-             da = (static_cast<timestamp_t>(m_bytecode[++i]) << 32),
-             ea = (static_cast<timestamp_t>(m_bytecode[++i]) << 24),
-             fa = (static_cast<timestamp_t>(m_bytecode[++i]) << 16),
-             ga = (static_cast<timestamp_t>(m_bytecode[++i]) << 8),
-             ha = (static_cast<timestamp_t>(m_bytecode[++i]));
+        const auto aa = (static_cast<timestamp_t>(m_bytecode[i]) << 56),
+                   ba = (static_cast<timestamp_t>(m_bytecode[++i]) << 48),
+                   ca = (static_cast<timestamp_t>(m_bytecode[++i]) << 40),
+                   da = (static_cast<timestamp_t>(m_bytecode[++i]) << 32),
+                   ea = (static_cast<timestamp_t>(m_bytecode[++i]) << 24),
+                   fa = (static_cast<timestamp_t>(m_bytecode[++i]) << 16),
+                   ga = (static_cast<timestamp_t>(m_bytecode[++i]) << 8),
+                   ha = (static_cast<timestamp_t>(m_bytecode[++i]));
         i++;
         timestamp = aa + ba + ca + da + ea + fa + ga + ha;
 
@@ -77,7 +77,7 @@ namespace Ark
 
         std::ostream& os = std::cout;
 
-        if (!(b.size() > 4 && b[i++] == 'a' && b[i++] == 'r' && b[i++] == 'k' && b[i++] == Instruction::NOP))
+        if (!(b.size() > 4 && b[i++] == 'a' && b[i++] == 'r' && b[i++] == 'k' && b[i++] == NOP))
         {
             os << "Invalid format";
             return;
@@ -125,14 +125,14 @@ namespace Ark
                << termcolor::reset;
             return;
         }
-        else if (sStart.has_value() && sEnd.has_value() && sStart.value() >= sEnd.value())
+        if (sStart.has_value() && sEnd.has_value() && sStart.value() >= sEnd.value())
         {
             os << termcolor::red << "Invalid slice start and end arguments\n"
                << termcolor::reset;
             return;
         }
 
-        if (b[i] == Instruction::SYM_TABLE_START)
+        if (b[i] == SYM_TABLE_START)
         {
             i++;
             uint16_t size = readNumber(i);
@@ -179,7 +179,7 @@ namespace Ark
         if (segment == BytecodeSegment::Symbols)
             return;
 
-        if (b[i] == Instruction::VAL_TABLE_START)
+        if (b[i] == VAL_TABLE_START)
         {
             i++;
             uint16_t size = readNumber(i);
@@ -312,107 +312,107 @@ namespace Ark
                         // reset stream
                         os << std::dec << termcolor::yellow;
 
-                        if (inst == Instruction::NOP)
+                        if (inst == NOP)
                             os << "NOP\n";
-                        else if (inst == Instruction::LOAD_SYMBOL)
+                        else if (inst == LOAD_SYMBOL)
                             os << "LOAD_SYMBOL " << termcolor::green << symbols[arg] << "\n";
-                        else if (inst == Instruction::LOAD_CONST)
+                        else if (inst == LOAD_CONST)
                             os << "LOAD_CONST " << termcolor::magenta << values[arg] << "\n";
-                        else if (inst == Instruction::POP_JUMP_IF_TRUE)
+                        else if (inst == POP_JUMP_IF_TRUE)
                             os << "POP_JUMP_IF_TRUE " << termcolor::red << "(" << arg << ")\n";
-                        else if (inst == Instruction::STORE)
+                        else if (inst == STORE)
                             os << "STORE " << termcolor::green << symbols[arg] << "\n";
-                        else if (inst == Instruction::LET)
+                        else if (inst == LET)
                             os << "LET " << termcolor::green << symbols[arg] << "\n";
-                        else if (inst == Instruction::POP_JUMP_IF_FALSE)
+                        else if (inst == POP_JUMP_IF_FALSE)
                             os << "POP_JUMP_IF_FALSE " << termcolor::red << "(" << arg << ")\n";
-                        else if (inst == Instruction::JUMP)
+                        else if (inst == JUMP)
                             os << "JUMP " << termcolor::red << "(" << arg << ")\n";
-                        else if (inst == Instruction::RET)
+                        else if (inst == RET)
                             os << "RET\n";
-                        else if (inst == Instruction::HALT)
+                        else if (inst == HALT)
                             os << "HALT\n";
-                        else if (inst == Instruction::CALL)
+                        else if (inst == CALL)
                             os << "CALL " << termcolor::reset << "(" << arg << ")\n";
-                        else if (inst == Instruction::CAPTURE)
+                        else if (inst == CAPTURE)
                             os << "CAPTURE " << termcolor::reset << symbols[arg] << "\n";
-                        else if (inst == Instruction::BUILTIN)
+                        else if (inst == BUILTIN)
                             os << "BUILTIN " << termcolor::reset << Builtins::builtins[arg].first << "\n";
-                        else if (inst == Instruction::MUT)
+                        else if (inst == MUT)
                             os << "MUT " << termcolor::green << symbols[arg] << "\n";
-                        else if (inst == Instruction::DEL)
+                        else if (inst == DEL)
                             os << "DEL " << termcolor::green << symbols[arg] << "\n";
-                        else if (inst == Instruction::SAVE_ENV)
+                        else if (inst == SAVE_ENV)
                             os << "SAVE_ENV\n";
-                        else if (inst == Instruction::GET_FIELD)
+                        else if (inst == GET_FIELD)
                             os << "GET_FIELD " << termcolor::green << symbols[arg] << "\n";
-                        else if (inst == Instruction::PLUGIN)
+                        else if (inst == PLUGIN)
                             os << "PLUGIN " << termcolor::magenta << values[arg] << "\n";
-                        else if (inst == Instruction::LIST)
+                        else if (inst == LIST)
                             os << "LIST " << termcolor::reset << "(" << arg << ")\n";
-                        else if (inst == Instruction::APPEND)
+                        else if (inst == APPEND)
                             os << "APPEND " << termcolor::reset << "(" << arg << ")\n";
-                        else if (inst == Instruction::CONCAT)
+                        else if (inst == CONCAT)
                             os << "CONCAT " << termcolor::reset << "(" << arg << ")\n";
-                        else if (inst == Instruction::APPEND_IN_PLACE)
+                        else if (inst == APPEND_IN_PLACE)
                             os << "APPEND_IN_PLACE " << termcolor::reset << "(" << arg << ")\n";
-                        else if (inst == Instruction::CONCAT_IN_PLACE)
+                        else if (inst == CONCAT_IN_PLACE)
                             os << "CONCAT_IN_PLACE " << termcolor::reset << "(" << arg << ")\n";
-                        else if (inst == Instruction::POP_LIST)
+                        else if (inst == POP_LIST)
                             os << "POP_LIST " << termcolor::reset << "\n";
-                        else if (inst == Instruction::POP_LIST_IN_PLACE)
+                        else if (inst == POP_LIST_IN_PLACE)
                             os << "POP_LIST_IN_PLACE " << termcolor::reset << "\n";
-                        else if (inst == Instruction::POP)
+                        else if (inst == POP)
                             os << "POP\n";
-                        else if (inst == Instruction::ADD)
+                        else if (inst == ADD)
                             os << "ADD\n";
-                        else if (inst == Instruction::SUB)
+                        else if (inst == SUB)
                             os << "SUB\n";
-                        else if (inst == Instruction::MUL)
+                        else if (inst == MUL)
                             os << "MUL\n";
-                        else if (inst == Instruction::DIV)
+                        else if (inst == DIV)
                             os << "DIV\n";
-                        else if (inst == Instruction::GT)
+                        else if (inst == GT)
                             os << "GT\n";
-                        else if (inst == Instruction::LT)
+                        else if (inst == LT)
                             os << "LT\n";
-                        else if (inst == Instruction::LE)
+                        else if (inst == LE)
                             os << "LE\n";
-                        else if (inst == Instruction::GE)
+                        else if (inst == GE)
                             os << "GE\n";
-                        else if (inst == Instruction::NEQ)
+                        else if (inst == NEQ)
                             os << "NEQ\n";
-                        else if (inst == Instruction::EQ)
+                        else if (inst == EQ)
                             os << "EQ\n";
-                        else if (inst == Instruction::LEN)
+                        else if (inst == LEN)
                             os << "LEN\n";
-                        else if (inst == Instruction::EMPTY)
+                        else if (inst == EMPTY)
                             os << "EMPTY\n";
-                        else if (inst == Instruction::TAIL)
+                        else if (inst == TAIL)
                             os << "TAIL\n";
-                        else if (inst == Instruction::HEAD)
+                        else if (inst == HEAD)
                             os << "HEAD\n";
-                        else if (inst == Instruction::ISNIL)
+                        else if (inst == ISNIL)
                             os << "ISNIL\n";
-                        else if (inst == Instruction::ASSERT)
+                        else if (inst == ASSERT)
                             os << "ASSERT\n";
-                        else if (inst == Instruction::TO_NUM)
+                        else if (inst == TO_NUM)
                             os << "TO_NUM\n";
-                        else if (inst == Instruction::TO_STR)
+                        else if (inst == TO_STR)
                             os << "TO_STR\n";
-                        else if (inst == Instruction::AT)
+                        else if (inst == AT)
                             os << "AT\n";
-                        else if (inst == Instruction::AND_)
+                        else if (inst == AND_)
                             os << "AND_\n";
-                        else if (inst == Instruction::OR_)
+                        else if (inst == OR_)
                             os << "OR_\n";
-                        else if (inst == Instruction::MOD)
+                        else if (inst == MOD)
                             os << "MOD\n";
-                        else if (inst == Instruction::TYPE)
+                        else if (inst == TYPE)
                             os << "TYPE\n";
-                        else if (inst == Instruction::HASFIELD)
+                        else if (inst == HASFIELD)
                             os << "HASFIELD\n";
-                        else if (inst == Instruction::NOT)
+                        else if (inst == NOT)
                             os << "NOT\n";
                         else
                         {
@@ -437,10 +437,10 @@ namespace Ark
         }
     }
 
-    uint16_t BytecodeReader::readNumber(std::size_t& i)
+    uint16_t BytecodeReader::readNumber(std::size_t& i) const
     {
-        uint16_t x = (static_cast<uint16_t>(m_bytecode[i]) << 8),
-                 y = static_cast<uint16_t>(m_bytecode[++i]);
+        const uint16_t x = static_cast<uint16_t>(m_bytecode[i]) << 8;
+        const uint16_t y = m_bytecode[++i];
         return x + y;
     }
 }

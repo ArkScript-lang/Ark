@@ -78,7 +78,7 @@ namespace Ark::internal
          *
          * @param node A node of type Macro
          */
-        void registerMacro(Node& node);
+        void registerMacro(Node& node) const;
 
         /**
          * @brief Check if a node can be evaluated to true
@@ -88,7 +88,7 @@ namespace Ark::internal
          * @return true
          * @return false
          */
-        bool isTruthy(const Node& node);
+        bool isTruthy(const Node& node) const;
 
         /**
          * @brief Evaluate only the macros
@@ -98,13 +98,13 @@ namespace Ark::internal
          * @param is_not_body true if the method is run on a non-body code (eg a condition of an if-macro)
          * @return Node
          */
-        Node evaluate(Node& node, bool is_not_body);
+        Node evaluate(Node& node, bool is_not_body) const;
 
         /**
          * @brief Applies the spread operator
          * @details Proxy function for MacroProcessor::unify
          */
-        void unify(const std::unordered_map<std::string, Node>&, Node&, Node*);
+        void unify(const std::unordered_map<std::string, Node>&, Node&, Node*) const;
 
         /**
          * @brief Throw a macro processing error
@@ -113,7 +113,7 @@ namespace Ark::internal
          * @param message the error
          * @param node the node in which there is an error
          */
-        [[noreturn]] void throwMacroProcessingError(const std::string& message, const Node& node);
+        [[noreturn]] void throwMacroProcessingError(const std::string& message, const Node& node) const;
 
         /**
          * @brief Execute a node, trying to emplace macros calls
@@ -123,7 +123,7 @@ namespace Ark::internal
          * @return true
          * @return false
          */
-        bool applyMacroProxy(Node& node);
+        bool applyMacroProxy(Node& node) const;
 
         /**
          * @brief Check if a given symbol is a predefined macro
@@ -133,7 +133,7 @@ namespace Ark::internal
          * @return true
          * @return false
          */
-        bool isPredefined(const std::string& symbol);
+        bool isPredefined(const std::string& symbol) const;
     };
 
 }

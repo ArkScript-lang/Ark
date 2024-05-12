@@ -1,3 +1,4 @@
+#include <Ark/Constants.hpp>
 #include <Ark/Compiler/Welder.hpp>
 
 #include <termcolor/proxy.hpp>
@@ -7,7 +8,7 @@
 
 namespace Ark
 {
-    Welder::Welder(unsigned debug, const std::vector<std::filesystem::path>& lib_env) :
+    Welder::Welder(const unsigned debug, const std::vector<std::filesystem::path>& lib_env) :
         m_debug(debug), m_importer(debug, lib_env), m_macro_processor(debug), m_optimizer(debug), m_compiler(debug)
     {}
 

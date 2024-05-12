@@ -1,15 +1,12 @@
 #include <Ark/Compiler/AST/BaseParser.hpp>
 #include <Ark/Exceptions.hpp>
 
-#include <algorithm>
-#include <utility>
-
 namespace Ark::internal
 {
     void BaseParser::registerNewLine(std::string::iterator it, std::size_t row)
     {
         // search for an existing new line position
-        if (std::find_if(m_it_to_row.begin(), m_it_to_row.end(), [it](const auto& pair) {
+        if (std::ranges::find_if(m_it_to_row, [it](const auto& pair) {
                 return pair.first == it;
             }) != m_it_to_row.end())
             return;
@@ -68,7 +65,7 @@ namespace Ark::internal
         next();
     }
 
-    void BaseParser::backtrack(long n)
+    void BaseParser::backtrack(const long n)
     {
         if (static_cast<std::size_t>(n) >= m_str.size())
             return;
@@ -91,29 +88,29 @@ namespace Ark::internal
         }
         // compute the position in the line
         std::string_view view = m_str;
-        auto it_pos = std::distance(m_str.begin(), m_it);
+        const auto it_pos = std::distance(m_str.begin(), m_it);
         view = view.substr(0, it_pos);
-        auto nearest_newline_index = view.find_last_of('\n');
+        const auto nearest_newline_index = view.find_last_of('\n');
         if (nearest_newline_index != std::string_view::npos)
             m_filepos.col = it_pos - nearest_newline_index + 1;
         else
             m_filepos.col = it_pos + 1;
     }
 
-    FilePosition BaseParser::getCursor()
+    FilePosition BaseParser::getCursor() const
     {
         return m_filepos;
     }
 
     void BaseParser::error(const std::string& error, std::string exp)
     {
-        FilePosition pos = getCursor();
-        throw CodeError(error, m_filename, pos.row, pos.col, std::move(exp), m_sym);
+        const auto [row, col] = getCursor();
+        throw CodeError(error, m_filename, row, col, std::move(exp), m_sym);
     }
 
     void BaseParser::errorWithNextToken(const std::string& message)
     {
-        auto pos = getCount();
+        const auto pos = getCount();
         std::string next_token;
 
         anyUntil(IsEither(IsInlineSpace, IsEither(IsChar('('), IsChar(')'))), &next_token);
@@ -122,7 +119,7 @@ namespace Ark::internal
         error(message, next_token);
     }
 
-    void BaseParser::errorMissingSuffix(char suffix, const std::string& node_name)
+    void BaseParser::errorMissingSuffix(const char suffix, const std::string& node_name)
     {
         errorWithNextToken("Missing '" + std::string(1, suffix) + "' after " + node_name);
     }
@@ -236,14 +233,14 @@ namespace Ark::internal
         return matched;
     }
 
-    bool BaseParser::prefix(char c)
+    bool BaseParser::prefix(const char c)
     {
         if (!accept(IsChar(c)))
             return false;
         return true;
     }
 
-    bool BaseParser::suffix(char c)
+    bool BaseParser::suffix(const char c)
     {
         return accept(IsChar(c));
     }
@@ -292,8 +289,8 @@ namespace Ark::internal
 
     bool BaseParser::name(std::string* s)
     {
-        auto alpha_symbols = IsEither(IsAlpha, IsSymbol);
-        auto alnum_symbols = IsEither(IsAlnum, IsSymbol);
+        const auto alpha_symbols = IsEither(IsAlpha, IsSymbol);
+        const auto alnum_symbols = IsEither(IsAlnum, IsSymbol);
 
         if (accept(alpha_symbols, s))
         {
@@ -306,7 +303,7 @@ namespace Ark::internal
 
     bool BaseParser::sequence(const std::string& s)
     {
-        for (char i : s)
+        for (const char i : s)
         {
             if (!accept(IsChar(i)))
                 return false;
@@ -337,7 +334,7 @@ namespace Ark::internal
         return false;
     }
 
-    bool BaseParser::oneOf(std::initializer_list<std::string> words, std::string* s)
+    bool BaseParser::oneOf(const std::initializer_list<std::string> words, std::string* s)
     {
         std::string buffer;
         if (!name(&buffer))

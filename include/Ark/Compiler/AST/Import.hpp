@@ -40,14 +40,14 @@ namespace Ark::internal
          */
         std::vector<std::string> symbols;
 
-        [[nodiscard]] inline std::string toPackageString() const
+        [[nodiscard]] std::string toPackageString() const
         {
             return std::accumulate(package.begin() + 1, package.end(), package.front(), [](const std::string& left, const std::string& right) {
                 return left + "." + right;
             });
         }
 
-        [[nodiscard]] inline std::string packageToPath() const
+        [[nodiscard]] std::string packageToPath() const
         {
             return std::accumulate(
                 std::next(package.begin()),
@@ -64,7 +64,7 @@ namespace Ark::internal
          * @return true if all symbols of the file should be imported in the importer scope
          * @return false otherwise
          */
-        [[nodiscard]] inline bool isGlob() const
+        [[nodiscard]] bool isGlob() const
         {
             return !with_prefix && symbols.empty();
         }
@@ -75,7 +75,7 @@ namespace Ark::internal
          * @return true
          * @return false
          */
-        [[nodiscard]] inline bool isBasic() const
+        [[nodiscard]] bool isBasic() const
         {
             return with_prefix && symbols.empty();
         }

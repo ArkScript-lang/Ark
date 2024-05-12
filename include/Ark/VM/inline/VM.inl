@@ -10,7 +10,7 @@ Value VM::call(const std::string& name, Args&&... args)
     context.pp = 0;
 
     // find id of function
-    auto it = std::find(m_state.m_symbols.begin(), m_state.m_symbols.end(), name);
+    const auto it = std::ranges::find(m_state.m_symbols, name);
     if (it == m_state.m_symbols.end())
         throwVMError(ErrorKind::Scope, "Unbound variable: " + name);
 
@@ -20,7 +20,7 @@ Value VM::call(const std::string& name, Args&&... args)
         push(*it2, context);
 
     // find function object and push it if it's a pageaddr/closure
-    uint16_t id = static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it));
+    const uint16_t id = static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it));
     Value* var = findNearestVariable(id, context);
     if (var != nullptr)
     {
@@ -33,7 +33,7 @@ Value VM::call(const std::string& name, Args&&... args)
     else
         throwVMError(ErrorKind::Scope, "Couldn't find variable " + name);
 
-    std::size_t frames_count = context.fc;
+    const std::size_t frames_count = context.fc;
     // call it
     call(context, static_cast<int16_t>(sizeof...(Args)));
     // reset instruction pointer, otherwise the safeRun method will start at ip = -1
@@ -59,8 +59,8 @@ Value VM::resolve(const Value* val, Args&&... args)
     if (!val->isFunction())
         throw TypeError("Value::resolve couldn't resolve a non-function");
 
-    int ip = context.ip;
-    std::size_t pp = context.pp;
+    const int ip = context.ip;
+    const std::size_t pp = context.pp;
 
     // convert and push arguments in reverse order
     std::vector<Value> fnargs { { Value(std::forward<Args>(args))... } };
@@ -69,7 +69,7 @@ Value VM::resolve(const Value* val, Args&&... args)
     // push function
     push(*val, context);
 
-    std::size_t frames_count = context.fc;
+    const std::size_t frames_count = context.fc;
     // call it
     call(context, static_cast<int16_t>(sizeof...(Args)));
     // reset instruction pointer, otherwise the safeRun method will start at ip = -1
@@ -93,15 +93,15 @@ inline Value VM::resolve(internal::ExecutionContext* context, std::vector<Value>
     if (!n[0].isFunction())
         throw TypeError("VM::resolve couldn't resolve a non-function (" + types_to_str[static_cast<std::size_t>(n[0].valueType())] + ")");
 
-    int ip = context->ip;
-    std::size_t pp = context->pp;
+    const int ip = context->ip;
+    const std::size_t pp = context->pp;
 
     // convert and push arguments in reverse order
     for (auto it = n.begin() + 1, it_end = n.end(); it != it_end; ++it)
         push(*it, *context);
     push(n[0], *context);
 
-    std::size_t frames_count = context->fc;
+    const std::size_t frames_count = context->fc;
     // call it
     call(*context, static_cast<int16_t>(n.size() - 1));
     // reset instruction pointer, otherwise the safeRun method will start at ip = -1
@@ -129,8 +129,7 @@ inline Value* VM::pop(internal::ExecutionContext& context)
         --context.sp;
         return &context.stack[context.sp];
     }
-    else
-        return &m_undefined_value;
+    return &m_undefined_value;
 }
 
 inline void VM::push(const Value& value, internal::ExecutionContext& context)
@@ -162,7 +161,7 @@ inline Value* VM::popAndResolveAsPtr(internal::ExecutionContext& context)
     return tmp;
 }
 
-inline void VM::swapStackForFunCall(uint16_t argc, internal::ExecutionContext& context)
+inline void VM::swapStackForFunCall(const uint16_t argc, internal::ExecutionContext& context)
 {
     using namespace internal;
 
@@ -217,11 +216,11 @@ inline void VM::swapStackForFunCall(uint16_t argc, internal::ExecutionContext& c
 
 #pragma endregion
 
-inline Value* VM::findNearestVariable(uint16_t id, internal::ExecutionContext& context) noexcept
+inline Value* VM::findNearestVariable(const uint16_t id, internal::ExecutionContext& context) noexcept
 {
     for (auto it = context.locals.rbegin(), it_end = context.locals.rend(); it != it_end; ++it)
     {
-        if (auto val = (*it)[id]; val != nullptr)
+        if (const auto val = (*it)[id]; val != nullptr)
             return val;
     }
     return nullptr;
@@ -235,7 +234,7 @@ inline void VM::returnFromFuncCall(internal::ExecutionContext& context)
     context.locals.pop_back();
 }
 
-inline void VM::call(internal::ExecutionContext& context, int16_t argc_)
+inline void VM::call(internal::ExecutionContext& context, const int16_t argc_)
 {
     /*
         Argument: number of arguments when calling the function
@@ -279,7 +278,7 @@ inline void VM::call(internal::ExecutionContext& context, int16_t argc_)
         // is it a user defined function?
         case ValueType::PageAddr:
         {
-            PageAddr_t new_page_pointer = function.pageAddr();
+            const PageAddr_t new_page_pointer = function.pageAddr();
 
             // create dedicated frame
             context.locals.emplace_back();
@@ -298,7 +297,7 @@ inline void VM::call(internal::ExecutionContext& context, int16_t argc_)
         case ValueType::Closure:
         {
             Closure& c = function.refClosure();
-            PageAddr_t new_page_pointer = c.pageAddr();
+            const PageAddr_t new_page_pointer = c.pageAddr();
 
             // create dedicated frame
             context.locals.emplace_back();
@@ -336,7 +335,7 @@ inline void VM::call(internal::ExecutionContext& context, int16_t argc_)
 
     // every argument is a MUT declaration in the bytecode
     // index+1 to skip the padding
-    while (m_state.m_pages[context.pp][index + 1] == Instruction::MUT)
+    while (m_state.m_pages[context.pp][index + 1] == MUT)
     {
         needed_argc += 1;
         index += 4;  // instructions are on 4 bytes

@@ -2,7 +2,7 @@
  * @file Closure.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Subtype of the value type, handling closures
- * @version 1.0
+ * @version 1.1
  * @date 2024-04-21
  *
  * @copyright Copyright (c) 2020-2024
@@ -13,7 +13,6 @@
 #define VM_VALUE_CLOSURE_HPP
 
 #include <memory>
-#include <vector>
 #include <iostream>
 #include <string>
 
@@ -66,16 +65,15 @@ namespace Ark::internal
          */
         Closure(const std::shared_ptr<Scope>& scope_ptr, PageAddr_t pa) noexcept;
 
-        [[nodiscard]] inline const Scope& scope() const noexcept { return *m_scope.get(); }
-        [[nodiscard]] inline Scope& refScope() noexcept { return *m_scope.get(); }
-        [[nodiscard]] inline const std::shared_ptr<Scope>& scopePtr() const { return m_scope; }
+        [[nodiscard]] const Scope& scope() const noexcept { return *m_scope; }
+        [[nodiscard]] Scope& refScope() const noexcept { return *m_scope; }
+        [[nodiscard]] const std::shared_ptr<Scope>& scopePtr() const { return m_scope; }
 
-        [[nodiscard]] inline PageAddr_t pageAddr() const { return m_page_addr; }
+        [[nodiscard]] PageAddr_t pageAddr() const { return m_page_addr; }
 
         /**
          * @brief Print the closure to a string
          *
-         * @param os
          * @param vm
          */
         std::string toString(VM& vm) const noexcept;

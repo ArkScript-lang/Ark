@@ -2,10 +2,10 @@
  * @file Function.hpp
  * @author Ray John Alovera (rakista112@gmail.com), Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Executor for List Macros
- * @version 1.0
+ * @version 1.1
  * @date 2021-05-04
  *
- * @copyright Copyright (c) 2021-2023
+ * @copyright Copyright (c) 2021-2024
  *
  */
 
@@ -21,7 +21,7 @@ namespace Ark::internal
      * @brief Handles function macros
      *
      */
-    class FunctionExecutor : public MacroExecutor
+    class FunctionExecutor final : public MacroExecutor
     {
     public:
         using MacroExecutor::MacroExecutor;

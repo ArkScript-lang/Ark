@@ -2,7 +2,7 @@
  * @file Value.hpp
  * @author Default value type handled by the virtual machine
  * @brief
- * @version 1.1
+ * @version 1.2
  * @date 2024-04-20
  *
  * @copyright Copyright (c) 2020-2024
@@ -16,10 +16,6 @@
 #include <variant>
 #include <string>
 #include <cinttypes>
-#include <iostream>
-#include <memory>
-#include <functional>
-#include <utility>
 #include <array>
 
 #include <Ark/VM/Value/Closure.hpp>
@@ -113,28 +109,28 @@ namespace Ark
         explicit Value(const std::string& value) noexcept;
         explicit Value(const char* value) noexcept;
         explicit Value(internal::PageAddr_t value) noexcept;
-        explicit Value(Value::ProcType value) noexcept;
+        explicit Value(ProcType value) noexcept;
         explicit Value(std::vector<Value>&& value) noexcept;
         explicit Value(internal::Closure&& value) noexcept;
         explicit Value(UserType&& value) noexcept;
         explicit Value(Value* ref) noexcept;
 
-        [[nodiscard]] inline ValueType valueType() const noexcept { return static_cast<ValueType>(type_num()); }
-        [[nodiscard]] inline bool isFunction() const noexcept
+        [[nodiscard]] ValueType valueType() const noexcept { return static_cast<ValueType>(type_num()); }
+        [[nodiscard]] bool isFunction() const noexcept
         {
-            auto type = valueType();
+            const auto type = valueType();
             return type == ValueType::PageAddr || type == ValueType::Closure || type == ValueType::CProc ||
                 (type == ValueType::Reference && reference()->isFunction());
         }
 
-        [[nodiscard]] inline double number() const { return std::get<double>(m_value); }
-        [[nodiscard]] inline const std::string& string() const { return std::get<std::string>(m_value); }
-        [[nodiscard]] inline const std::vector<Value>& constList() const { return std::get<std::vector<Value>>(m_value); }
-        [[nodiscard]] inline const UserType& usertype() const { return std::get<UserType>(m_value); }
-        [[nodiscard]] inline std::vector<Value>& list() { return std::get<std::vector<Value>>(m_value); }
-        [[nodiscard]] inline std::string& stringRef() { return std::get<std::string>(m_value); }
-        [[nodiscard]] inline UserType& usertypeRef() { return std::get<UserType>(m_value); }
-        [[nodiscard]] inline Value* reference() const { return std::get<Value*>(m_value); }
+        [[nodiscard]] double number() const { return std::get<double>(m_value); }
+        [[nodiscard]] const std::string& string() const { return std::get<std::string>(m_value); }
+        [[nodiscard]] const std::vector<Value>& constList() const { return std::get<std::vector<Value>>(m_value); }
+        [[nodiscard]] const UserType& usertype() const { return std::get<UserType>(m_value); }
+        [[nodiscard]] std::vector<Value>& list() { return std::get<std::vector<Value>>(m_value); }
+        [[nodiscard]] std::string& stringRef() { return std::get<std::string>(m_value); }
+        [[nodiscard]] UserType& usertypeRef() { return std::get<UserType>(m_value); }
+        [[nodiscard]] Value* reference() const { return std::get<Value*>(m_value); }
 
         /**
          * @brief Add an element to the list held by the value (if the value type is set to list)
@@ -162,15 +158,15 @@ namespace Ark
         uint8_t m_const_type;  ///< First bit if for constness, right most bits are for type
         Value_t m_value;
 
-        [[nodiscard]] inline constexpr uint8_t type_num() const noexcept { return m_const_type & 0x7f; }
+        [[nodiscard]] constexpr uint8_t type_num() const noexcept { return m_const_type & 0x7f; }
 
-        [[nodiscard]] inline internal::PageAddr_t pageAddr() const { return std::get<internal::PageAddr_t>(m_value); }
-        [[nodiscard]] inline const ProcType& proc() const { return std::get<Value::ProcType>(m_value); }
-        [[nodiscard]] inline const internal::Closure& closure() const { return std::get<internal::Closure>(m_value); }
-        [[nodiscard]] inline internal::Closure& refClosure() { return std::get<internal::Closure>(m_value); }
+        [[nodiscard]] internal::PageAddr_t pageAddr() const { return std::get<internal::PageAddr_t>(m_value); }
+        [[nodiscard]] const ProcType& proc() const { return std::get<ProcType>(m_value); }
+        [[nodiscard]] const internal::Closure& closure() const { return std::get<internal::Closure>(m_value); }
+        [[nodiscard]] internal::Closure& refClosure() { return std::get<internal::Closure>(m_value); }
 
-        [[nodiscard]] inline bool isConst() const noexcept { return m_const_type & (1 << 7); }
-        inline void setConst(bool value) noexcept
+        [[nodiscard]] bool isConst() const noexcept { return m_const_type & (1 << 7); }
+        void setConst(const bool value) noexcept
         {
             if (value)
                 m_const_type |= 1 << 7;
@@ -179,7 +175,55 @@ namespace Ark
         }
     };
 
-#include "inline/Value.inl"
+    inline bool operator==(const Value& A, const Value& B) noexcept
+    {
+        // values should have the same type
+        if (A.type_num() != B.type_num())
+            return false;
+        // all the types >= Nil are Nil itself, True, False, Undefined
+        if (A.type_num() >= static_cast<uint8_t>(ValueType::Nil))
+            return true;
+
+        return A.m_value == B.m_value;
+    }
+
+    inline bool operator<(const Value& A, const Value& B) noexcept
+    {
+        if (A.type_num() != B.type_num())
+            return (A.type_num() - B.type_num()) < 0;
+        return A.m_value < B.m_value;
+    }
+
+    inline bool operator!=(const Value& A, const Value& B) noexcept
+    {
+        return !(A == B);
+    }
+
+    inline bool operator!(const Value& A) noexcept
+    {
+        switch (A.valueType())
+        {
+            case ValueType::List:
+                return A.constList().empty();
+
+            case ValueType::Number:
+                return !A.number();
+
+            case ValueType::String:
+                return A.string().empty();
+
+            case ValueType::User:
+            case ValueType::Nil:
+            case ValueType::False:
+                return true;
+
+            case ValueType::True:
+                return false;
+
+            default:
+                return false;
+        }
+    }
 }
 
 #endif

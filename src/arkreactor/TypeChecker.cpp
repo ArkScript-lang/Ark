@@ -27,7 +27,7 @@ namespace Ark::types
     void displayContract(const Contract& contract, const std::vector<Value>& args)
     {
         auto displayArg = [](const Typedef& td, bool correct) {
-            std::string arg_str = typeListToString(td.types);
+            const std::string arg_str = typeListToString(td.types);
 
             std::cout << "  -> " << (td.variadic ? "variadic " : "")
                       << (correct ? termcolor::green : termcolor::magenta) << td.name << termcolor::reset << " (" << arg_str << ") ";
@@ -43,7 +43,7 @@ namespace Ark::types
                 std::size_t bad_type = 0;
                 for (std::size_t j = i, args_end = args.size(); j < args_end; ++j)
                 {
-                    if (td.types[0] != ValueType::Any && std::find(td.types.begin(), td.types.end(), args[j].valueType()) == td.types.end())
+                    if (td.types[0] != ValueType::Any && std::ranges::find(td.types, args[j].valueType()) == td.types.end())
                         bad_type++;
                 }
 
@@ -59,7 +59,7 @@ namespace Ark::types
             else
             {
                 // provided argument but wrong type
-                if (i < args.size() && td.types[0] != ValueType::Any && std::find(td.types.begin(), td.types.end(), args[i].valueType()) == td.types.end())
+                if (i < args.size() && td.types[0] != ValueType::Any && std::ranges::find(td.types, args[i].valueType()) == td.types.end())
                 {
                     displayArg(td, false);
                     std::cout << "was of type " << termcolor::red << types_to_str[static_cast<std::size_t>(args[i].valueType())];
@@ -82,18 +82,18 @@ namespace Ark::types
         std::cout << "Function " << termcolor::blue << funcname << termcolor::reset << " expected ";
 
         std::vector<Value> sanitizedArgs;
-        std::copy_if(args.begin(), args.end(), std::back_inserter(sanitizedArgs), [](const Value& value) -> bool {
+        std::ranges::copy_if(args, std::back_inserter(sanitizedArgs), [](const Value& value) -> bool {
             return value.valueType() != ValueType::Undefined;
         });
 
         // get expected arguments count
         std::size_t min_argc = std::numeric_limits<std::size_t>::max(), max_argc = 0;
-        for (const Contract& c : contracts)
+        for (const auto& [arguments] : contracts)
         {
-            if (c.arguments.size() < min_argc)
-                min_argc = c.arguments.size();
-            if (c.arguments.size() > max_argc)
-                max_argc = c.arguments.size();
+            if (arguments.size() < min_argc)
+                min_argc = arguments.size();
+            if (arguments.size() > max_argc)
+                max_argc = arguments.size();
         }
 
         bool correct_argcount = true;

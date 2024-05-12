@@ -20,11 +20,11 @@ namespace Ark
             m_value = "";
     }
 
-    Value::Value(int value) noexcept :
+    Value::Value(const int value) noexcept :
         m_const_type(init_const_type(false, ValueType::Number)), m_value(static_cast<double>(value))
     {}
 
-    Value::Value(float value) noexcept :
+    Value::Value(const float value) noexcept :
         m_const_type(init_const_type(false, ValueType::Number)), m_value(static_cast<double>(value))
     {}
 

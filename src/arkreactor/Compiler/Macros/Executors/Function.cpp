@@ -6,15 +6,14 @@ namespace Ark::internal
 {
     bool FunctionExecutor::canHandle(Node& node)
     {
-        return node.nodeType() == NodeType::List && node.constList().size() > 0 && node.constList()[0].nodeType() == NodeType::Symbol;
+        return node.nodeType() == NodeType::List && !node.constList().empty() && node.constList()[0].nodeType() == NodeType::Symbol;
     }
 
     bool FunctionExecutor::applyMacro(Node& node)
     {
         Node& first = node.list()[0];
-        const Node* macro = findNearestMacro(first.string());
 
-        if (macro != nullptr)
+        if (const Node* macro = findNearestMacro(first.string()); macro != nullptr)
         {
             if (macro->constList().size() == 2)
                 applyMacroProxy(first);
@@ -26,7 +25,7 @@ namespace Ark::internal
                 std::size_t args_needed = args.list().size();
                 std::size_t args_given = node.constList().size() - 1;  // remove the first (the name of the macro)
                 std::string macro_name = macro->constList()[0].string();
-                bool has_spread = args_needed > 0 && args.list().back().nodeType() == NodeType::Spread;
+                const bool has_spread = args_needed > 0 && args.list().back().nodeType() == NodeType::Spread;
 
                 // bind node->list() to temp_body using macro->constList()[1]
                 std::unordered_map<std::string, Node> args_applied;
@@ -45,7 +44,7 @@ namespace Ark::internal
                     }
                     else if (args.list()[j].nodeType() == NodeType::Spread)
                     {
-                        if (args_applied.find(arg_name) == args_applied.end())
+                        if (!args_applied.contains(arg_name))
                         {
                             args_applied[arg_name] = Node(NodeType::List);
                             args_applied[arg_name].push_back(getListNode());
@@ -65,7 +64,7 @@ namespace Ark::internal
 
                 if (args_given != args_needed && !has_spread)
                     throwMacroProcessingError(fmt::format("Macro `{}' got {} argument(s) but needed {}", macro_name, args_given, args_needed), node);
-                else if (args_applied.size() != args_needed && has_spread)
+                if (args_applied.size() != args_needed && has_spread)
                     // args_needed - 1 because we do not count the spread as a required argument
                     throwMacroProcessingError(fmt::format("Macro `{}' got {} argument(s) but needed at least {}", macro_name, args_applied.size(), args_needed - 1), node);
 

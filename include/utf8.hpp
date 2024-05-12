@@ -49,11 +49,11 @@ namespace utf8
 
         if (codepoint_ >= 0x0000 && codepoint_ <= 0x007f)
             return Utf8Type::Ascii;
-        else if (codepoint_ > 0x007f && codepoint_ <= 0x07ff)
+        if (codepoint_ > 0x007f && codepoint_ <= 0x07ff)
             return Utf8Type::LatinExtra;
-        else if (codepoint_ > 0x07ff && codepoint_ <= 0xffff)
+        if (codepoint_ > 0x07ff && codepoint_ <= 0xffff)
             return Utf8Type::BasicMultiLingual;
-        else if (codepoint_ > 0xffff && codepoint_ <= 0x10ffff)
+        if (codepoint_ > 0xffff && codepoint_ <= 0x10ffff)
             return Utf8Type::OthersPlanesUnicode;
 
         return Utf8Type::OutRange;
@@ -67,11 +67,11 @@ namespace utf8
     inline void decode(const char* input, char* dest)
     {
         int32_t cdp = 0;
-        Utf8Type type = utf8type(input, &cdp);
-        char c0 = details::ASCIIHexToInt[input[0]];
-        char c1 = details::ASCIIHexToInt[input[1]];
-        char c2 = details::ASCIIHexToInt[input[2]];
-        char c3 = details::ASCIIHexToInt[input[3]];
+        const Utf8Type type = utf8type(input, &cdp);
+        const char c0 = details::ASCIIHexToInt[input[0]];
+        const char c1 = details::ASCIIHexToInt[input[1]];
+        const char c2 = details::ASCIIHexToInt[input[2]];
+        const char c3 = details::ASCIIHexToInt[input[3]];
 
         switch (type)
         {
@@ -101,7 +101,7 @@ namespace utf8
 
             case Utf8Type::OthersPlanesUnicode:
             {
-                char c4 = details::ASCIIHexToInt[input[4]];
+                const char c4 = details::ASCIIHexToInt[input[4]];
 
                 if (cdp <= 0xfffff)
                 {
@@ -113,7 +113,7 @@ namespace utf8
                 }
                 else
                 {
-                    char c5 = details::ASCIIHexToInt[input[5]];
+                    const char c5 = details::ASCIIHexToInt[input[5]];
 
                     dest[0] = (0xf0 | ((c0 & 0x1) << 2)) | ((c1 & 0xc) >> 2);
                     dest[1] = ((0x80 | ((c1 & 0x3) << 4)) | ((c1 & 0xc) >> 2)) | c2;
@@ -148,9 +148,9 @@ namespace utf8
             {
                 if ((0x80 != (0xc0 & s[1])) || (0x80 != (0xc0 & s[2])) || (0x80 != (0xc0 & s[3])))
                     return false;
-                else if (0x80 == (0xc0 & s[4]))
+                if (0x80 == (0xc0 & s[4]))
                     return false;
-                else if ((0 == (0x07 & s[0])) && (0 == (0x30 & s[1])))
+                if ((0 == (0x07 & s[0])) && (0 == (0x30 & s[1])))
                     return false;
                 s += 4;
             }
@@ -158,9 +158,9 @@ namespace utf8
             {
                 if ((0x80 != (0xc0 & s[1])) || (0x80 != (0xc0 & s[2])))
                     return false;
-                else if (0x80 == (0xc0 & s[3]))
+                if (0x80 == (0xc0 & s[3]))
                     return false;
-                else if ((0 == (0x0f & s[0])) && (0 == (0x20 & s[1])))
+                if ((0 == (0x0f & s[0])) && (0 == (0x20 & s[1])))
                     return false;
                 s += 3;
             }
@@ -168,9 +168,9 @@ namespace utf8
             {
                 if (0x80 != (0xc0 & s[1]))
                     return false;
-                else if (0x80 == (0xc0 & s[2]))
+                if (0x80 == (0xc0 & s[2]))
                     return false;
-                else if (0 == (0x1e & s[0]))
+                if (0 == (0x1e & s[0]))
                     return false;
                 s += 2;
             }
