@@ -7,7 +7,7 @@ namespace Ark::internal
         type(ValTableElemType::Number)
     {}
 
-    ValTableElem::ValTableElem(long value) noexcept :
+    ValTableElem::ValTableElem(const long value) noexcept :
         value(static_cast<double>(value)),
         type(ValTableElemType::Number)
     {}

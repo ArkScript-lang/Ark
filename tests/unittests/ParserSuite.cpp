@@ -1,5 +1,6 @@
 #include <boost/ut.hpp>
 
+#include <Ark/Files.hpp>
 #include <Ark/Compiler/AST/Parser.hpp>
 #include <Ark/Exceptions.hpp>
 #include <termcolor/proxy.hpp>
@@ -54,11 +55,12 @@ ut::suite<"Parser"> parser_suite = [] {
 
                 should("parse " + data.stem) = [&] {
                     expect(nothrow([&] {
-                        mut(parser).processFile(data.path);
+                        const std::string code = Ark::Utils::readFile(data.path);
+                        mut(parser).process(data.path, code);
                     }));
                 };
 
-                std::string ast = astToString(parser);
+                const std::string ast = astToString(parser);
 
                 should("output the same AST and imports (" + data.stem + ")") = [&] {
                     expect(that % ast == data.expected);
@@ -70,11 +72,11 @@ ut::suite<"Parser"> parser_suite = [] {
         iter_test_files(
             "ParserSuite/failure",
             [](TestData&& data) {
-                Ark::internal::Parser parser;
-
                 try
                 {
-                    parser.processFile(data.path);
+                    Ark::internal::Parser parser;
+                    const std::string code = Ark::Utils::readFile(data.path);
+                    parser.process(data.path, code);
                 }
                 catch (const Ark::CodeError& e)
                 {
@@ -84,7 +86,7 @@ ut::suite<"Parser"> parser_suite = [] {
 
                     should("output the same error message (" + data.stem + ")") = [&] {
                         std::string tested = ss.str();
-                        tested.erase(std::remove(tested.begin(), tested.end(), '\r'), tested.end());
+                        tested.erase(std::ranges::remove(tested, '\r').begin(), tested.end());
                         tested.erase(tested.find(ARK_TESTS_ROOT), std::size(ARK_TESTS_ROOT) - 1);
 
                         expect(that % tested == data.expected);

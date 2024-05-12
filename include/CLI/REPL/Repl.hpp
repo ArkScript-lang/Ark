@@ -15,8 +15,6 @@
 #include <string>
 #include <optional>
 
-#include <Ark/Constants.hpp>
-#include <Ark/Compiler/Compiler.hpp>
 #include <Ark/VM/VM.hpp>
 #include <Ark/VM/State.hpp>
 

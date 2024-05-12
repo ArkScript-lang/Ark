@@ -3,7 +3,6 @@
 
 #include <array>
 #include <string>
-#include <utility>
 #include <limits>
 
 #undef max
@@ -26,9 +25,9 @@ namespace Ark::internal
         // https://github.com/sheredom/utf8.h/blob/4e4d828174c35e4564c31a9e35580c299c69a063/utf8.h#L1178
         static std::pair<std::string::iterator, utf8_char_t> at(std::string::iterator it)
         {
-            codepoint_t codepoint {};
-            length_t length {};
-            repr_t repr = { 0 };
+            codepoint_t codepoint;
+            length_t length;
+            repr_t repr = {};
 
             if (0xf0 == (0xf8 & *it))  // 4 byte utf8 codepoint
             {
@@ -72,7 +71,7 @@ namespace Ark::internal
         }
 
         [[nodiscard]] const char* c_str() const { return reinterpret_cast<const char*>(m_repr.data()); }
-        [[nodiscard]] std::size_t size() const { return static_cast<std::size_t>(m_length); }
+        [[nodiscard]] std::size_t size() const { return m_length; }
         [[nodiscard]] codepoint_t codepoint() const { return m_codepoint; }
 
     private:

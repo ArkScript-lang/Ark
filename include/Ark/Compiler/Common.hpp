@@ -5,7 +5,7 @@
  * @version 0.4
  * @date 2021-10-02
  *
- * @copyright Copyright (c) 2021-2022
+ * @copyright Copyright (c) 2021-2024
  *
  */
 
@@ -15,7 +15,6 @@
 #include <array>
 #include <string_view>
 #include <vector>
-#include <cinttypes>
 
 namespace Ark
 {

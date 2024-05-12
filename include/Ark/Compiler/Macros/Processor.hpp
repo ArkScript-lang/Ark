@@ -5,7 +5,7 @@
  * @version 1.0
  * @date 2021-02-18
  *
- * @copyright Copyright (c) 2021
+ * @copyright Copyright (c) 2021-2024
  *
  */
 
@@ -14,12 +14,10 @@
 
 #include <Ark/Compiler/AST/Node.hpp>
 #include <Ark/Compiler/Macros/MacroScope.hpp>
-#include <Ark/Compiler/Macros/Executor.hpp>
 #include <Ark/Compiler/Macros/Pipeline.hpp>
 
 #include <unordered_map>
 #include <string>
-#include <cinttypes>
 
 namespace Ark::internal
 {
@@ -131,7 +129,7 @@ namespace Ark::internal
          *
          * @param node
          */
-        void registerFuncDef(Node& node);
+        void registerFuncDef(const Node& node);
 
         /**
          * @brief Register macros in scopes and apply them as needed
@@ -148,7 +146,7 @@ namespace Ark::internal
          * @return true if a macro was applied
          * @return false
          */
-        bool applyMacro(Node& node);
+        bool applyMacro(Node& node) const;
 
         /**
          * @brief Unify a target node with a given map symbol => replacement node, recursively

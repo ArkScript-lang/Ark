@@ -61,7 +61,7 @@ namespace Ark
         if (!welder.generateBytecode())
             return false;
 
-        std::string destination = output.empty() ? (file.substr(0, file.find_last_of('.')) + ".arkc") : output;
+        const std::string destination = output.empty() ? (file.substr(0, file.find_last_of('.')) + ".arkc") : output;
         if (!welder.saveBytecodeToFile(destination))
             return false;
 
@@ -82,16 +82,15 @@ namespace Ark
         if (!checkMagic(bytecode))  // couldn't read magic number, it's a source file
         {
             // check if it's in the arkscript cache
-            std::string short_filename = (std::filesystem::path(file)).filename().string();
-            std::string filename = short_filename.substr(0, short_filename.find_last_of('.')) + ".arkc";
-            std::filesystem::path directory = (std::filesystem::path(file)).parent_path() / ARK_CACHE_DIRNAME;
-            std::string path = (directory / filename).string();
+            const std::string short_filename = (std::filesystem::path(file)).filename().string();
+            const std::string filename = short_filename.substr(0, short_filename.find_last_of('.')) + ".arkc";
+            const std::filesystem::path directory = (std::filesystem::path(file)).parent_path() / ARK_CACHE_DIRNAME;
+            const std::string path = (directory / filename).string();
 
-            if (!std::filesystem::exists(directory))  // create ark cache directory
-                std::filesystem::create_directory(directory);
+            if (!exists(directory))  // create ark cache directory
+                create_directory(directory);
 
-            bool compiled_successfully = compile(file, path);
-            if (compiled_successfully && feed(path))
+            if (compile(file, path) && feed(path))
                 return true;
         }
         else if (feed(bytecode))  // it's a bytecode file
@@ -128,7 +127,7 @@ namespace Ark
         m_binded["sys:platform"] = Value(ARK_PLATFORM_NAME);
     }
 
-    void State::setDebug(unsigned level) noexcept
+    void State::setDebug(const unsigned level) noexcept
     {
         m_debug_level = level;
     }
@@ -206,7 +205,7 @@ namespace Ark
             ++i;
         }
 
-        if (m_bytecode[i] == Instruction::SYM_TABLE_START)
+        if (m_bytecode[i] == SYM_TABLE_START)
         {
             i++;
             uint16_t size = readNumber(i);
@@ -226,7 +225,7 @@ namespace Ark
         else
             throwStateError("Couldn't find symbols table");
 
-        if (m_bytecode[i] == Instruction::VAL_TABLE_START)
+        if (m_bytecode[i] == VAL_TABLE_START)
         {
             i++;
             uint16_t size = readNumber(i);
@@ -238,7 +237,7 @@ namespace Ark
                 uint8_t type = m_bytecode[i];
                 i++;
 
-                if (type == Instruction::NUMBER_TYPE)
+                if (type == NUMBER_TYPE)
                 {
                     std::string val;
                     while (m_bytecode[i] != 0)
@@ -247,7 +246,7 @@ namespace Ark
 
                     m_constants.emplace_back(std::stod(val));
                 }
-                else if (type == Instruction::STRING_TYPE)
+                else if (type == STRING_TYPE)
                 {
                     std::string val;
                     while (m_bytecode[i] != 0)
@@ -256,7 +255,7 @@ namespace Ark
 
                     m_constants.emplace_back(val);
                 }
-                else if (type == Instruction::FUNC_TYPE)
+                else if (type == FUNC_TYPE)
                 {
                     uint16_t addr = readNumber(i);
                     i++;
@@ -270,7 +269,7 @@ namespace Ark
         else
             throwStateError("Couldn't find constants table");
 
-        while (m_bytecode[i] == Instruction::CODE_SEGMENT_START)
+        while (m_bytecode[i] == CODE_SEGMENT_START)
         {
             i++;
             uint16_t size = readNumber(i) * 4;  // because the instructions are on 4 bytes

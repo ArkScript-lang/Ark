@@ -7,11 +7,11 @@
 
 namespace Ark::internal
 {
-    Node::Node(NodeType node_type, const std::string& value) :
+    Node::Node(const NodeType node_type, const std::string& value) :
         m_type(node_type), m_value(value)
     {}
 
-    Node::Node(NodeType node_type) :
+    Node::Node(const NodeType node_type) :
         m_type(node_type)
     {
         if (m_type == NodeType::List || m_type == NodeType::Macro || m_type == NodeType::Field)
@@ -22,11 +22,11 @@ namespace Ark::internal
         m_type(NodeType::Number), m_value(value)
     {}
 
-    Node::Node(long value) :
+    Node::Node(const long value) :
         m_type(NodeType::Number), m_value(static_cast<double>(value))
     {}
 
-    Node::Node(int value) :
+    Node::Node(const int value) :
         m_type(NodeType::Number), m_value(static_cast<double>(value))
     {}
 
@@ -78,7 +78,7 @@ namespace Ark::internal
         return m_type == NodeType::List || m_type == NodeType::Macro;
     }
 
-    void Node::setNodeType(NodeType type) noexcept
+    void Node::setNodeType(const NodeType type) noexcept
     {
         m_type = type;
     }
@@ -88,7 +88,7 @@ namespace Ark::internal
         m_value = value;
     }
 
-    void Node::setPos(std::size_t line, std::size_t col) noexcept
+    void Node::setPos(const std::size_t line, const std::size_t col) noexcept
     {
         m_line = line;
         m_col = col;
@@ -351,10 +351,12 @@ namespace Ark::internal
                 return A.string().size() == 0;
 
             case NodeType::Symbol:
+            {
                 if (A.string() == "true")
                     return false;
-                else if (A.string() == "false" || A.string() == "nil")
+                if (A.string() == "false" || A.string() == "nil")
                     return true;
+            }
                 return false;
 
             default:

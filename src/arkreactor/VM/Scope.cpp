@@ -10,7 +10,7 @@ namespace Ark::internal
         m_data.reserve(3);
     }
 
-    void Scope::mergeRefInto(Ark::internal::Scope& other)
+    void Scope::mergeRefInto(Scope& other)
     {
         for (auto& [id, val] : m_data)
         {
@@ -41,27 +41,27 @@ namespace Ark::internal
         m_data.emplace_back(id, val);
     }
 
-    bool Scope::has(uint16_t id) noexcept
+    bool Scope::has(const uint16_t id) noexcept
     {
         return m_min_id <= id && id <= m_max_id && operator[](id) != nullptr;
     }
 
-    Value* Scope::operator[](uint16_t id) noexcept
+    Value* Scope::operator[](const uint16_t id_to_look_for) noexcept
     {
-        for (auto& val : m_data)
+        for (auto& [id, value] : m_data)
         {
-            if (val.first == id)
-                return &val.second;
+            if (id == id_to_look_for)
+                return &value;
         }
         return nullptr;
     }
 
-    const Value* Scope::operator[](uint16_t id) const noexcept
+    const Value* Scope::operator[](const uint16_t id_to_look_for) const noexcept
     {
-        for (const auto& val : m_data)
+        for (const auto& [id, value] : m_data)
         {
-            if (val.first == id)
-                return &val.second;
+            if (id == id_to_look_for)
+                return &value;
         }
         return nullptr;
     }

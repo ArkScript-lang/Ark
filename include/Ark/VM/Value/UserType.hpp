@@ -5,7 +5,7 @@
  * @version 0.4
  * @date 2020-10-27
  *
- * @copyright Copyright (c) 2020-2021
+ * @copyright Copyright (c) 2020-2024
  *
  */
 
@@ -14,8 +14,6 @@
 
 #include <iostream>
 #include <vector>
-#include <utility>
-#include <memory>
 
 #include <Ark/Platform.hpp>
 
@@ -64,6 +62,7 @@ namespace Ark
          *
          * @tparam T the type of the pointer
          * @param data a pointer to the data to store in the object
+         * @param block control function block for the usertype, can be nullptr
          */
         template <typename T>
         explicit UserType(T* data = nullptr, ControlFuncs* block = nullptr) noexcept :
@@ -119,13 +118,13 @@ namespace Ark
         template <typename T>
         T& as() noexcept
         {
-            return *reinterpret_cast<T*>(m_data);
+            return *static_cast<T*>(m_data);
         }
 
         template <typename T>
         const T& as() const noexcept
         {
-            return *reinterpret_cast<T*>(m_data);
+            return *static_cast<T*>(m_data);
         }
 
         friend ARK_API bool operator==(const UserType& A, const UserType& B) noexcept;

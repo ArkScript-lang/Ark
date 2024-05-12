@@ -5,14 +5,12 @@
  * @version 0.1
  * @date 2020-10-27
  *
- * @copyright Copyright (c) 2020-2021
+ * @copyright Copyright (c) 2020-2024
  *
  */
 
 #ifndef ARK_COMPILER_INSTRUCTIONS_HPP
 #define ARK_COMPILER_INSTRUCTIONS_HPP
-
-#include <cinttypes>
 
 namespace Ark::internal
 {

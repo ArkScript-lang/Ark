@@ -1,20 +1,18 @@
 #include <Ark/VM/Plugin.hpp>
 
 #include <sstream>
-#include <iomanip>
 #include <iostream>
 
 namespace Ark::internal
 {
     SharedLibrary::SharedLibrary() :
-        m_instance(NULL),
-        m_path(""),
+        m_instance(nullptr),
         m_loaded(false)
     {}
 
-    SharedLibrary::SharedLibrary(const std::string& path) :
-        m_instance(NULL),
-        m_path(path),
+    SharedLibrary::SharedLibrary(std::string path) :
+        m_instance(nullptr),
+        m_path(std::move(path)),
         m_loaded(false)
     {
         load(m_path);
@@ -39,7 +37,7 @@ namespace Ark::internal
                 std::error_code(::GetLastError(), std::system_category()), "Couldn't load the library at " + path);
         }
 #elif defined(ARK_OS_LINUX)
-        if (NULL == (m_instance = dlopen(m_path.c_str(), RTLD_LAZY | RTLD_GLOBAL)))
+        if (nullptr == (m_instance = dlopen(m_path.c_str(), RTLD_LAZY | RTLD_GLOBAL)))
         {
             throw std::system_error(
                 std::error_code(errno, std::system_category()), "Couldn't load the library at " + path + ", " + std::string(dlerror()));
@@ -48,7 +46,7 @@ namespace Ark::internal
         m_loaded = true;
     }
 
-    void SharedLibrary::unload()
+    void SharedLibrary::unload() const
     {
         if (m_loaded)
         {

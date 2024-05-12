@@ -13,7 +13,6 @@
 #define REPL_REPLXX_UTIL_HPP
 
 #include <vector>
-#include <utility>
 #include <string>
 
 #include <replxx.hxx>
@@ -186,7 +185,7 @@ namespace Ark::internal
 
     replxx::Replxx::completions_t hookCompletion(const std::string& context, int& length);
 
-    void hookColor(const std::string& str, replxx::Replxx::colors_t& colors);
+    void hookColor(const std::string& context, replxx::Replxx::colors_t& colors);
 
     replxx::Replxx::hints_t hookHint(const std::string& context, int& length, replxx::Replxx::Color& color);
 }

@@ -31,7 +31,7 @@ int main(int argc, char** argv)
         ast,
         format
     };
-    mode selected = mode::repl;
+    auto selected = mode::repl;
 
     unsigned debug = 0;
 

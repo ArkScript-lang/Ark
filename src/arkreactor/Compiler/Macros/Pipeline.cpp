@@ -6,7 +6,7 @@ namespace Ark::internal
         m_executors(executors)
     {}
 
-    bool MacroExecutorPipeline::applyMacro(Node& node)
+    bool MacroExecutorPipeline::applyMacro(Node& node) const
     {
         for (const std::shared_ptr<MacroExecutor>& executor : m_executors)
         {

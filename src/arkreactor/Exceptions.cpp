@@ -2,6 +2,7 @@
 
 #include <termcolor/proxy.hpp>
 #include <sstream>
+#include <Ark/Constants.hpp>
 
 #include <Ark/Utils.hpp>
 #include <Ark/Files.hpp>
@@ -24,13 +25,13 @@ namespace Ark::Diagnostics
     void colorizeLine(const std::string& line, LineColorContextCounts& line_color_context_counts, std::ostream& ss)
     {
         // clang-format off
-        constexpr std::array<std::ostream& (*)(std::ostream& stream), 3> pairing_color {
+        constexpr std::array pairing_color {
             termcolor::bright_blue,
             termcolor::bright_green,
             termcolor::bright_yellow
         };
         // clang-format on
-        std::size_t pairing_color_size = pairing_color.size();
+        constexpr std::size_t pairing_color_size = pairing_color.size();
 
         for (const char& c : line)
         {
@@ -75,12 +76,12 @@ namespace Ark::Diagnostics
         }
     }
 
-    void makeContext(std::ostream& os, const std::string& code, std::size_t target_line, std::size_t col_start, std::size_t sym_size)
+    void makeContext(std::ostream& os, const std::string& code, const std::size_t target_line, const std::size_t col_start, const std::size_t sym_size)
     {
-        std::vector<std::string> ctx = Utils::splitString(code, '\n');
+        const std::vector<std::string> ctx = Utils::splitString(code, '\n');
 
-        std::size_t first_line = target_line >= 3 ? target_line - 3 : 0;
-        std::size_t last_line = (target_line + 3) <= ctx.size() ? target_line + 3 : ctx.size();
+        const std::size_t first_line = target_line >= 3 ? target_line - 3 : 0;
+        const std::size_t last_line = (target_line + 3) <= ctx.size() ? target_line + 3 : ctx.size();
         std::size_t overflow = (col_start + sym_size < ctx[target_line].size()) ? 0 : col_start + sym_size - ctx[target_line].size();  // number of characters that are on more lines below
         LineColorContextCounts line_color_context_counts;
 
@@ -94,10 +95,10 @@ namespace Ark::Diagnostics
             {
                 os << "      |";
                 // if we have an overflow then we start at the beginning of the line
-                std::size_t curr_col_start = (overflow == 0) ? col_start : 0;
+                const std::size_t curr_col_start = (overflow == 0) ? col_start : 0;
                 // if we have an overflow, it is used as the end of the line
-                std::size_t col_end = (i == target_line) ? std::min<std::size_t>(col_start + sym_size, ctx[target_line].size())
-                                                         : std::min<std::size_t>(overflow, ctx[i].size());
+                const std::size_t col_end = (i == target_line) ? std::min<std::size_t>(col_start + sym_size, ctx[target_line].size())
+                                                               : std::min<std::size_t>(overflow, ctx[i].size());
                 // update the overflow to avoid going here again if not needed
                 overflow = (overflow > ctx[i].size()) ? overflow - ctx[i].size() : 0;
 
@@ -120,7 +121,7 @@ namespace Ark::Diagnostics
     }
 
     template <typename T>
-    void helper(std::ostream& os, const std::string& message, const std::string& filename, const std::string& code, const T& expr, std::size_t line, std::size_t column, std::size_t sym_size)
+    void helper(std::ostream& os, const std::string& message, const std::string& filename, const std::string& code, const T& expr, const std::size_t line, std::size_t column, const std::size_t sym_size)
     {
         if (filename != ARK_NO_NAME_FILE)
             os << "In file " << filename << "\n";

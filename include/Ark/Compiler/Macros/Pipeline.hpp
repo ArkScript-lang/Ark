@@ -5,7 +5,7 @@
  * @version 0.4
  * @date 2021-05-04
  *
- * @copyright Copyright (c) 2021
+ * @copyright Copyright (c) 2021-2024
  *
  */
 
@@ -13,7 +13,6 @@
 #define COMPILER_MACROS_PIPELINE_HPP
 
 #include <vector>
-#include <memory>
 
 #include <Ark/Compiler/Macros/Executor.hpp>
 
@@ -44,7 +43,7 @@ namespace Ark::internal
          * @return true if a macro was applied
          * @return false
          */
-        bool applyMacro(Node& node);
+        bool applyMacro(Node& node) const;
 
     private:
         std::vector<std::shared_ptr<MacroExecutor>> m_executors;

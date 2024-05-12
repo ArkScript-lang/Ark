@@ -4,13 +4,15 @@
  * @brief Constants used by ArkScript
  * @version 0.2
  * @date 2020-10-27
- * 
+ *
  * @copyright Copyright (c) 2020-2024
- * 
+ *
  */
 
 #ifndef INCLUDE_ARK_CONSTANTS_HPP_IN
 #define INCLUDE_ARK_CONSTANTS_HPP_IN
+
+#include <string_view>
 
 // clang-format off
 constexpr int ARK_VERSION_MAJOR = @ARK_VERSION_MAJOR@;

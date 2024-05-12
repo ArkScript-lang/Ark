@@ -2,9 +2,6 @@
 #define SRC_BASEPARSER_HPP
 
 #include <string>
-#include <exception>
-#include <stdexcept>
-#include <utility>
 #include <vector>
 #include <initializer_list>
 
@@ -44,15 +41,15 @@ namespace Ark::internal
 
         void initParser(const std::string& filename, const std::string& code);
 
-        FilePosition getCursor();
+        FilePosition getCursor() const;
 
         void error(const std::string& error, std::string exp);
         void errorWithNextToken(const std::string& message);
         void errorMissingSuffix(char suffix, const std::string& node_name);
 
-        inline long getCount() { return std::distance(m_str.begin(), m_it); }
-        inline std::size_t getSize() { return m_str.size(); }
-        inline bool isEOF() { return m_it == m_str.end(); }
+        long getCount() { return std::distance(m_str.begin(), m_it); }
+        std::size_t getSize() const { return m_str.size(); }
+        bool isEOF() { return m_it == m_str.end(); }
 
         void backtrack(long n);
 

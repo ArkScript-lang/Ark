@@ -39,7 +39,7 @@ namespace Ark
                         m_has_init_vm = true;
                     }
                     else
-                        m_vm.forceReloadPlugins();
+                        std::ignore = m_vm.forceReloadPlugins();
 
                     if (m_vm.safeRun(*m_vm.m_execution_contexts[0]) == 0)
                     {
@@ -96,9 +96,9 @@ namespace Ark
         m_repl.bind_key_internal(replxx::Replxx::KEY::control('T'), "transpose_characters");
     }
 
-    std::optional<std::string> Repl::getLine(bool continuation)
+    std::optional<std::string> Repl::getLine(const bool continuation)
     {
-        std::string prompt = fmt::format("main:{:0>3}{} ", m_line_count, continuation ? ":" : ">");
+        const std::string prompt = fmt::format("main:{:0>3}{} ", m_line_count, continuation ? ":" : ">");
 
         const char* buf { nullptr };
         do
@@ -119,7 +119,7 @@ namespace Ark
 
             return std::nullopt;
         }
-        else if (line == "help")
+        if (line == "help")
         {
             std::cout << "Available commands:\n";
             std::cout << "  help -- display this message\n";
@@ -130,7 +130,7 @@ namespace Ark
 
             return std::nullopt;
         }
-        else if (line == "save")
+        if (line == "save")
         {
             std::ofstream history_file("arkscript_repl_history.ark");
             m_repl.history_save(history_file);
@@ -139,14 +139,14 @@ namespace Ark
 
             return std::nullopt;
         }
-        else if (line == "history")
+        if (line == "history")
         {
             std::cout << "\n"
                       << m_code << "\n";
 
             return std::nullopt;
         }
-        else if (line == "reset")
+        if (line == "reset")
         {
             m_state.reset();
             m_has_init_vm = false;
@@ -166,7 +166,7 @@ namespace Ark
 
         while (m_running)
         {
-            bool unfinished_block = open_parentheses != 0 || open_braces != 0;
+            const bool unfinished_block = open_parentheses != 0 || open_braces != 0;
 
             auto maybe_line = getLine(unfinished_block);
             if (!maybe_line.has_value() && !unfinished_block)

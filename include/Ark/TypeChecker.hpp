@@ -2,20 +2,18 @@
  * @file TypeChecker.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief
- * @version 0.3
+ * @version 0.4
  * @date 2022-01-16
  *
- * @copyright Copyright (c) 2022
+ * @copyright Copyright (c) 2022-2024
  *
  */
 
 #ifndef INCLUDE_ARK_TYPECHECKER_HPP
 #define INCLUDE_ARK_TYPECHECKER_HPP
 
-#include <limits>
 #include <string>
 #include <vector>
-#include <type_traits>
 
 #include <Ark/VM/Value.hpp>
 
@@ -68,11 +66,11 @@ namespace Ark::types
         std::vector<ValueType> types;
         bool variadic;
 
-        Typedef(std::string_view name, ValueType type, bool variadic = false) :
+        Typedef(const std::string_view name, const ValueType type, const bool variadic = false) :
             name(name), types { type }, variadic(variadic)
         {}
 
-        Typedef(std::string_view name, const std::vector<ValueType>& types, bool variadic = false) :
+        Typedef(const std::string_view name, const std::vector<ValueType>& types, const bool variadic = false) :
             name(name), types(types), variadic(variadic)
         {}
     };

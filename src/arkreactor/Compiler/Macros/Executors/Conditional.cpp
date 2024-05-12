@@ -5,9 +5,9 @@ namespace Ark::internal
     bool ConditionalExecutor::applyMacro(Node& node)
     {
         Node cond = node.list()[1];
-        Node temp = evaluate(cond, /* is_not_body */ true);
-        Node if_true = node.list()[2];
-        Node if_false = node.constList().size() > 3 ? node.list()[3] : getNilNode();
+        const Node temp = evaluate(cond, /* is_not_body */ true);
+        const Node if_true = node.list()[2];
+        const Node if_false = node.constList().size() > 3 ? node.list()[3] : getNilNode();
 
         // evaluate cond
         if (isTruthy(temp))

@@ -2,10 +2,10 @@
  * @file Plugin.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Loads .dll/.so/.dynlib files
- * @version 0.4
+ * @version 1.0
  * @date 2020-10-27
  *
- * @copyright Copyright (c) 2020-2021
+ * @copyright Copyright (c) 2020-2024
  *
  */
 
@@ -26,7 +26,6 @@
 
 #include <string>
 #include <system_error>
-#include <exception>
 
 namespace Ark::internal
 {
@@ -55,7 +54,7 @@ namespace Ark::internal
          *
          * @param path path to the shared library
          */
-        explicit SharedLibrary(const std::string& path);
+        explicit SharedLibrary(std::string path);
 
         /**
          * @brief Destroy the Shared Library object
@@ -74,9 +73,9 @@ namespace Ark::internal
          * @brief Unload the shared library
          *
          */
-        void unload();
+        void unload() const;
 
-        [[nodiscard]] inline const std::string& path() const { return m_path; }
+        [[nodiscard]] const std::string& path() const { return m_path; }
 
         /**
          * @brief Return a function from the shared library

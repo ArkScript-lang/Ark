@@ -19,7 +19,6 @@
 
 #include <Ark/Compiler/AST/Node.hpp>
 #include <Ark/Exceptions.hpp>
-#include <Ark/Constants.hpp>
 
 namespace Ark::internal
 {

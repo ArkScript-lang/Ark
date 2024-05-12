@@ -1,7 +1,5 @@
 #include <CLI/Formatter.hpp>
 
-#include <iostream>
-#include <utility>
 #include <fmt/core.h>
 
 #include <Ark/Files.hpp>
@@ -55,7 +53,7 @@ const std::string& Formatter::output() const
     return m_output;
 }
 
-bool Formatter::isListStartingWithKeyword(const Ark::internal::Node& node, Ark::internal::Keyword keyword)
+bool Formatter::isListStartingWithKeyword(const Node& node, const Keyword keyword)
 {
     return node.isListLike() && !node.constList().empty() && node.constList()[0].nodeType() == NodeType::Keyword && node.constList()[0].keyword() == keyword;
 }
@@ -65,17 +63,17 @@ bool Formatter::isBeginBlock(const Node& node)
     return isListStartingWithKeyword(node, Keyword::Begin);
 }
 
-bool Formatter::isFuncDef(const Ark::internal::Node& node)
+bool Formatter::isFuncDef(const Node& node)
 {
     return isListStartingWithKeyword(node, Keyword::Fun);
 }
 
-bool Formatter::isFuncCall(const Ark::internal::Node& node)
+bool Formatter::isFuncCall(const Node& node)
 {
     return node.isListLike() && !node.constList().empty() && node.constList()[0].nodeType() == NodeType::Symbol;
 }
 
-bool Formatter::isPlainValue(const Ark::internal::Node& node)
+bool Formatter::isPlainValue(const Node& node)
 {
     switch (node.nodeType())
     {
@@ -89,34 +87,32 @@ bool Formatter::isPlainValue(const Ark::internal::Node& node)
     }
 }
 
-std::size_t Formatter::lineOfLastNodeIn(const Ark::internal::Node& node)
+std::size_t Formatter::lineOfLastNodeIn(const Node& node)
 {
     if (node.isListLike() && !node.constList().empty())
     {
         std::size_t child_line = lineOfLastNodeIn(node.constList().back());
         if (child_line < node.line())
             return node.line();
-        else
-            return child_line;
+        return child_line;
     }
-    else
-        return node.line();
+    return node.line();
 }
 
-bool Formatter::should_split_on_newline(const Ark::internal::Node& node)
+bool Formatter::should_split_on_newline(const Node& node)
 {
-    std::string formatted = format(node, 0, false);
-    std::string::size_type sz = formatted.find_first_of('\n');
+    const std::string formatted = format(node, 0, false);
+    const std::string::size_type sz = formatted.find_first_of('\n');
 
-    bool is_long_line = !((sz < FormatterConfig.LongLineLength || (sz == std::string::npos && formatted.size() < FormatterConfig.LongLineLength)));
+    const bool is_long_line = !((sz < FormatterConfig.LongLineLength || (sz == std::string::npos && formatted.size() < FormatterConfig.LongLineLength)));
     if (node.comment().empty() && (isBeginBlock(node) || isFuncCall(node)))
         return false;
-    else if (is_long_line || (node.isListLike() && node.constList().size() > 1) || !node.comment().empty())
+    if (is_long_line || (node.isListLike() && node.constList().size() > 1) || !node.comment().empty())
         return true;
     return false;
 }
 
-std::string Formatter::format(const Ark::internal::Node& node, std::size_t indent, bool after_newline)
+std::string Formatter::format(const Node& node, std::size_t indent, bool after_newline)
 {
     std::string output;
     if (!node.comment().empty())
@@ -171,7 +167,7 @@ std::string Formatter::format(const Ark::internal::Node& node, std::size_t inden
     return output;
 }
 
-std::string Formatter::formatComment(const std::string& comment, std::size_t indent)
+std::string Formatter::formatComment(const std::string& comment, const std::size_t indent) const
 {
     std::string output = prefix(indent);
     for (std::size_t i = 0, end = comment.size(); i < end; ++i)
@@ -184,7 +180,7 @@ std::string Formatter::formatComment(const std::string& comment, std::size_t ind
     return output;
 }
 
-std::string Formatter::formatBlock(const Ark::internal::Node& node, std::size_t indent, bool after_newline)
+std::string Formatter::formatBlock(const Node& node, const std::size_t indent, const bool after_newline)
 {
     if (node.constList().empty())
         return "()";
@@ -218,22 +214,21 @@ std::string Formatter::formatBlock(const Ark::internal::Node& node, std::size_t 
         return formatCall(node, indent);
 }
 
-std::string Formatter::formatFunction(const Ark::internal::Node& node, std::size_t indent)
+std::string Formatter::formatFunction(const Node& node, const std::size_t indent)
 {
     const Node args_node = node.constList()[1];
     const Node body_node = node.constList()[2];
 
     std::string formatted_args;
-    bool comment_in_args = false;
 
     if (args_node.isListLike())
     {
+        bool comment_in_args = false;
         std::string args;
         for (std::size_t i = 0, end = args_node.constList().size(); i < end; ++i)
         {
             const Node arg_i = args_node.constList()[i];
-            bool has_comment = !arg_i.comment().empty();
-            if (has_comment)
+            if (!arg_i.comment().empty())
                 comment_in_args = true;
 
             args += format(arg_i, indent + (comment_in_args ? 1 : 0), comment_in_args);
@@ -248,11 +243,10 @@ std::string Formatter::formatFunction(const Ark::internal::Node& node, std::size
 
     if (!should_split_on_newline(body_node))
         return fmt::format("(fun {} {})", formatted_args, format(body_node, indent + 1, false));
-    else
-        return fmt::format("(fun {}\n{})", formatted_args, format(body_node, indent + 1, true));
+    return fmt::format("(fun {}\n{})", formatted_args, format(body_node, indent + 1, true));
 }
 
-std::string Formatter::formatVariable(const Ark::internal::Node& node, std::size_t indent)
+std::string Formatter::formatVariable(const Node& node, const std::size_t indent)
 {
     std::string keyword = std::string(keywords[static_cast<std::size_t>(node.constList()[0].keyword())]);
 
@@ -261,11 +255,10 @@ std::string Formatter::formatVariable(const Ark::internal::Node& node, std::size
 
     if (!should_split_on_newline(body_node) || isFuncDef(body_node))
         return fmt::format("({} {} {})", keyword, format(node.constList()[1], indent, false), formatted_body);
-    else
-        return fmt::format("({} {}\n{})", keyword, format(node.constList()[1], indent, false), format(node.constList()[2], indent + 1, true));
+    return fmt::format("({} {}\n{})", keyword, format(node.constList()[1], indent, false), format(node.constList()[2], indent + 1, true));
 }
 
-std::string Formatter::formatCondition(const Ark::internal::Node& node, std::size_t indent, bool is_macro)
+std::string Formatter::formatCondition(const Node& node, const std::size_t indent, const bool is_macro)
 {
     const Node cond_node = node.constList()[1];
     const Node then_node = node.constList()[2];
@@ -281,26 +274,25 @@ std::string Formatter::formatCondition(const Ark::internal::Node& node, std::siz
         cond_on_newline ? "\n" : " ",
         formatted_cond);
 
-    bool split_then_newline = should_split_on_newline(then_node);
+    const bool split_then_newline = should_split_on_newline(then_node);
 
     // (if cond then)
     if (node.constList().size() == 3)
     {
         if (cond_on_newline || split_then_newline)
             return fmt::format("{}\n{})", if_cond_formatted, format(then_node, indent + 1, true));
-        else
-            return fmt::format("{} {})", if_cond_formatted, format(then_node, indent + 1, false));
+        return fmt::format("{} {})", if_cond_formatted, format(then_node, indent + 1, false));
     }
-    else  // (if cond then else)
-        return fmt::format(
-            "{}\n{}\n{}{})",
-            if_cond_formatted,
-            format(then_node, indent + 1, true),
-            format(node.constList()[3], indent + 1, true),
-            node.constList()[3].commentAfter().empty() ? "" : ("\n" + prefix(indent)));
+    // (if cond then else)
+    return fmt::format(
+        "{}\n{}\n{}{})",
+        if_cond_formatted,
+        format(then_node, indent + 1, true),
+        format(node.constList()[3], indent + 1, true),
+        node.constList()[3].commentAfter().empty() ? "" : ("\n" + prefix(indent)));
 }
 
-std::string Formatter::formatLoop(const Ark::internal::Node& node, std::size_t indent)
+std::string Formatter::formatLoop(const Node& node, const std::size_t indent)
 {
     const Node cond_node = node.constList()[1];
     const Node body_node = node.constList()[2];
@@ -316,14 +308,13 @@ std::string Formatter::formatLoop(const Ark::internal::Node& node, std::size_t i
             cond_on_newline ? "\n" : " ",
             formatted_cond,
             format(body_node, indent + 1, true));
-    else
-        return fmt::format(
-            "(while {} {})",
-            formatted_cond,
-            format(body_node, indent + 1, false));
+    return fmt::format(
+        "(while {} {})",
+        formatted_cond,
+        format(body_node, indent + 1, false));
 }
 
-std::string Formatter::formatBegin(const Ark::internal::Node& node, std::size_t indent, bool after_newline)
+std::string Formatter::formatBegin(const Node& node, const std::size_t indent, const bool after_newline)
 {
     // only the keyword begin is present
     if (node.constList().size() == 1)
@@ -349,7 +340,7 @@ std::string Formatter::formatBegin(const Ark::internal::Node& node, std::size_t 
     return output;
 }
 
-std::string Formatter::formatImport(const Ark::internal::Node& node, std::size_t indent)
+std::string Formatter::formatImport(const Node& node, const std::size_t indent)
 {
     const Node package_node = node.constList()[1];
     std::string package;
@@ -385,16 +376,15 @@ std::string Formatter::formatImport(const Ark::internal::Node& node, std::size_t
     return fmt::format("(import{})", package);
 }
 
-std::string Formatter::formatDel(const Ark::internal::Node& node, std::size_t indent)
+std::string Formatter::formatDel(const Node& node, const std::size_t indent)
 {
     std::string formatted_sym = format(node.constList()[1], indent + 1, false);
     if (formatted_sym.find('\n') != std::string::npos)
         return fmt::format("(del\n{})", formatted_sym);
-    else
-        return fmt::format("(del {})", formatted_sym);
+    return fmt::format("(del {})", formatted_sym);
 }
 
-std::string Formatter::formatCall(const Ark::internal::Node& node, std::size_t indent)
+std::string Formatter::formatCall(const Node& node, const std::size_t indent)
 {
     bool is_list = false;
     if (!node.constList().empty() && node.constList().front().nodeType() == NodeType::Symbol &&
@@ -427,7 +417,7 @@ std::string Formatter::formatCall(const Ark::internal::Node& node, std::size_t i
     return output;
 }
 
-std::string Formatter::formatMacro(const Ark::internal::Node& node, std::size_t indent)
+std::string Formatter::formatMacro(const Node& node, const std::size_t indent)
 {
     if (isListStartingWithKeyword(node, Keyword::If))
         return formatCondition(node, indent, /* is_macro= */ true);

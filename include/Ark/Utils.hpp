@@ -5,22 +5,18 @@
  * @version 0.4
  * @date 2020-10-27
  *
- * @copyright Copyright (c) 2020-2021
+ * @copyright Copyright (c) 2020-2024
  *
  */
 
 #ifndef INCLUDE_ARK_UTILS_HPP
 #define INCLUDE_ARK_UTILS_HPP
 
-#include <algorithm>  // std::min
+#include <algorithm>
 #include <string>
-#include <iostream>
-#include <fstream>
 #include <vector>
 
 #include <cmath>
-
-#include <Ark/Constants.hpp>
 
 namespace Ark::Utils
 {
@@ -31,12 +27,12 @@ namespace Ark::Utils
      * @param sep
      * @return std::vector<std::string>
      */
-    inline std::vector<std::string> splitString(const std::string& source, char sep)
+    inline std::vector<std::string> splitString(const std::string& source, const char sep)
     {
         std::vector<std::string> output;
         output.emplace_back();
 
-        for (char c : source)
+        for (const char c : source)
         {
             if (c != sep)
                 output.back() += c;
@@ -58,7 +54,7 @@ namespace Ark::Utils
     inline bool isDouble(const std::string& s, double* output = nullptr)
     {
         char* end = nullptr;
-        double val = strtod(s.c_str(), &end);
+        const double val = strtod(s.c_str(), &end);
         if (output != nullptr)
             *output = val;
         return end != s.c_str() && *end == '\0' && val != HUGE_VAL;

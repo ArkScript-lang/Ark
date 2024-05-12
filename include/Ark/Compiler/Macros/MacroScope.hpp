@@ -5,7 +5,7 @@
  * @version 0.2
  * @date 2023-02-18
  *
- * @copyright Copyright (c) 2023
+ * @copyright Copyright (c) 2023-2024
  *
  */
 
@@ -62,12 +62,12 @@ namespace Ark::internal
          * @return true
          * @return false
          */
-        [[nodiscard]] inline bool empty() const
+        [[nodiscard]] bool empty() const
         {
             return m_macros.empty();
         }
 
-        [[nodiscard]] inline unsigned int depth() const
+        [[nodiscard]] unsigned int depth() const
         {
             return m_depth;
         }

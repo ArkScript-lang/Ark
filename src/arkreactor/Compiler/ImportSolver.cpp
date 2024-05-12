@@ -1,5 +1,6 @@
 #include <Ark/Compiler/ImportSolver.hpp>
 
+#include <ranges>
 #include <stack>
 #include <fmt/core.h>
 
@@ -8,8 +9,8 @@
 
 namespace Ark::internal
 {
-    ImportSolver::ImportSolver(unsigned debug, const std::vector<std::filesystem::path>& libenv) :
-        m_debug(debug), m_libenv(libenv)
+    ImportSolver::ImportSolver(const unsigned debug, const std::vector<std::filesystem::path>& libenv) :
+        m_debug(debug), m_libenv(libenv), m_ast()
     {}
 
     void ImportSolver::process(const std::filesystem::path& root, const Node& origin_ast, const std::vector<Import>& origin_imports)
@@ -17,8 +18,8 @@ namespace Ark::internal
         m_root = root;
 
         std::stack<Import> imports;
-        for (auto it = origin_imports.rbegin(), end = origin_imports.rend(); it != end; ++it)
-            imports.push(*it);
+        for (const auto& origin_import : std::ranges::reverse_view(origin_imports))
+            imports.push(origin_import);
 
         while (!imports.empty())
         {
@@ -29,7 +30,7 @@ namespace Ark::internal
             imports.pop();
 
             // TODO: add special handling for each type of import (prefixed, with symbols, glob pattern)
-            if (m_modules.find(import.toPackageString()) == m_modules.end())
+            if (!m_modules.contains(import.toPackageString()))
             {
                 // NOTE: since the "file" (=root) argument doesn't change between all calls, we could get rid of it
                 std::vector<Import> additional_imports = parseImport(root, import);
@@ -40,8 +41,8 @@ namespace Ark::internal
                 //      OR we could have a map<import, module>, update the module
                 //      accordingly, and once we are done concat all the nodes
                 //      in a single AST.
-                for (auto it = additional_imports.rbegin(), end = additional_imports.rend(); it != end; ++it)
-                    imports.push(*it);
+                for (auto& additional_import : std::ranges::reverse_view(additional_imports))
+                    imports.push(additional_import);
             }
             else
             {
@@ -72,7 +73,7 @@ namespace Ark::internal
                         return acc + "." + elem.string();
                     });
 
-                if (std::find(m_imported.begin(), m_imported.end(), package) == m_imported.end())
+                if (std::ranges::find(m_imported, package) == m_imported.end())
                 {
                     m_imported.push_back(package);
                     // modules are already handled, we can safely replace the node
@@ -81,12 +82,10 @@ namespace Ark::internal
                         x = findAndReplaceImports(x).first;  // FIXME?
                     return std::make_pair(x, !m_modules[package].has_been_processed);
                 }
-                else
-                {
-                    // Replace by empty node to avoid breaking the code gen
-                    x = Node(NodeType::List);
-                    x.push_back(Node(Keyword::Begin));
-                }
+
+                // Replace by empty node to avoid breaking the code gen
+                x = Node(NodeType::List);
+                x.push_back(Node(Keyword::Begin));
             }
             else
             {
@@ -136,10 +135,10 @@ namespace Ark::internal
         {
             // Creating an import node that will stay there when visiting the AST and
             // replacing the imports with their parsed module
-            Node module_node = Node(NodeType::List);
+            auto module_node = Node(NodeType::List);
             module_node.push_back(Node(Keyword::Import));
 
-            Node package_node = Node(NodeType::List);
+            auto package_node = Node(NodeType::List);
             for (const std::string& stem : import.package)
                 package_node.push_back(Node(NodeType::String, stem));
             module_node.push_back(package_node);
@@ -169,7 +168,7 @@ namespace Ark::internal
     {
         if (auto code_path = folder / (package_path + ".ark"); std::filesystem::exists(code_path))
             return code_path;
-        else if (auto module_path = folder / (package_path + ".arkm"); std::filesystem::exists(module_path))
+        if (auto module_path = folder / (package_path + ".arkm"); std::filesystem::exists(module_path))
             return module_path;
         return {};
     }

@@ -203,11 +203,11 @@ namespace Ark::internal
         {
             if (node.string() == "nil")
                 return "Nil";
-            else if (node.string() == "true" || node.string() == "false")
+            if (node.string() == "true" || node.string() == "false")
                 return "Bool";
         }
 
-        auto c = static_cast<std::size_t>(node.nodeType());
+        const auto c = static_cast<std::size_t>(node.nodeType());
         return (c < nodeTypes.size()) ? std::string(nodeTypes[c]) : "???";
     }
 }

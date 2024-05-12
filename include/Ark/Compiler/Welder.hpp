@@ -13,7 +13,6 @@
 #define ARK_COMPILER_WELDER_HPP
 
 #include <string>
-#include <memory>
 #include <vector>
 #include <filesystem>
 
