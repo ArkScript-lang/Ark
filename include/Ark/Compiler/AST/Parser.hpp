@@ -1,3 +1,14 @@
+/**
+ * @file Parser.hpp
+ * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @brief Parse ArkScript code, but do not handle any import declarations
+ * @version 0.1
+ * @date 2024-05-12
+ *
+ * @copyright Copyright (c) 2024
+ *
+ */
+
 #ifndef COMPILER_AST_PARSER_HPP
 #define COMPILER_AST_PARSER_HPP
 
@@ -25,8 +36,7 @@ namespace Ark::internal
          */
         explicit Parser(bool interpret = true);
 
-        void processFile(const std::string& filename);
-        void processString(const std::string& code);
+        void process(const std::string& filename, const std::string& code);
 
         [[nodiscard]] const Node& ast() const;
         [[nodiscard]] const std::vector<Import>& imports() const;

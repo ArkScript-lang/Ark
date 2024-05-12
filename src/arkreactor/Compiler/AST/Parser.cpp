@@ -1,7 +1,5 @@
 #include <Ark/Compiler/AST/Parser.hpp>
 
-#include <Ark/Files.hpp>
-
 #include <fmt/core.h>
 
 namespace Ark::internal
@@ -12,16 +10,9 @@ namespace Ark::internal
         m_ast.push_back(Node(Keyword::Begin));
     }
 
-    void Parser::processFile(const std::string& filename)
+    void Parser::process(const std::string& filename, const std::string& code)
     {
-        const std::string code = Utils::readFile(filename);
         initParser(filename, code);
-        run();
-    }
-
-    void Parser::processString(const std::string& code)
-    {
-        initParser(ARK_NO_NAME_FILE, code);
         run();
     }
 

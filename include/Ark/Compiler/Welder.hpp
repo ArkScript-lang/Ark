@@ -2,10 +2,10 @@
  * @file Welder.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief In charge of welding everything needed to compile code
- * @version 0.3
+ * @version 0.4
  * @date 2023-03-26
  *
- * @copyright Copyright (c) 2023
+ * @copyright Copyright (c) 2023-2024
  *
  */
 
@@ -30,7 +30,7 @@ namespace Ark
     class ARK_API Welder final
     {
     public:
-        Welder(unsigned debug, const std::vector<std::filesystem::path>& libenv);
+        Welder(unsigned debug, const std::vector<std::filesystem::path>& lib_env);
 
         /**
          * @brief Register a symbol as a global in the compiler
@@ -59,6 +59,8 @@ namespace Ark
         internal::MacroProcessor m_macro_processor;
         internal::Optimizer m_optimizer;
         Compiler m_compiler;
+
+        bool computeAST(const std::string& filename, const std::string& code);
     };
 }  // namespace Ark
 
