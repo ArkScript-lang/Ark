@@ -37,3 +37,14 @@ jobs:
           # tag with the git commit SHA
           tag_with_sha: true
           tags: latest
+
+      - name: Build and push harden Docker image
+        uses: docker/build-push-action@v1.1.0
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          repository: arkscript/harden
+          dockerfile: harden.dockerfile
+          # tag with the git commit SHA
+          tag_with_sha: true
+          tags: latest

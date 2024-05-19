@@ -33,7 +33,7 @@ COPY --from=submodule-initializor /out .
 COPY --from=submodule-initializor /rev .
 RUN cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ \
-    -DARK_BUILD_EXE=On -DARK_COMMIT="$(cat rev)" \
+    -DARK_BUILD_EXE=On -DARK_ENABLE_SYSTEM=Off -DARK_COMMIT="$(cat rev)" \
     && cmake --build build --target arkscript -- -j $(nproc)
 
 FROM alpine:3.19 AS organizer
@@ -48,6 +48,7 @@ FROM alpine:3.19 AS runner
 
 # Install cmake
 RUN apk --no-cache add cmake
+RUN apk add --update duo_unix
 
 # Install Ark
 COPY --from=organizer /out/ark .
@@ -55,4 +56,10 @@ RUN cmake --install build --config Release
 ENV LD_LIBRARY_PATH=/usr/local/lib64
 ENV ARKSCRIPT_PATH=/usr/local/lib/Ark
 
+COPY harden_docker.sh /usr/sbin/harden.sh
+RUN chmod u+x /usr/sbin/harden.sh
+RUN /usr/sbin/harden.sh
+
+USER user
+WORKDIR /home/user
 ENTRYPOINT [ "arkscript" ]

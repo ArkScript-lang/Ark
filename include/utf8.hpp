@@ -18,41 +18,42 @@ namespace utf8
     namespace details
     {
         // clang-format off
+        constexpr char no = static_cast<char>(-1);
         constexpr std::array<char, 128> ASCIIHexToInt =
             {
-                -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-                -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-                -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-                 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, -1, -1, -1, -1, -1, -1,
-                -1, 10, 11, 12, 13, 14, 15, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-                -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-                -1, 10, 11, 12, 13, 14, 15, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-                -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+                no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no,
+                no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no,
+                no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no,
+                 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, no, no, no, no, no, no,
+                no, 10, 11, 12, 13, 14, 15, no, no, no, no, no, no, no, no, no,
+                no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no,
+                no, 10, 11, 12, 13, 14, 15, no, no, no, no, no, no, no, no, no,
+                no, no, no, no, no, no, no, no, no, no, no, no, no, no, no, no,
             };
         // clang-format on
     }
 
     inline Utf8Type utf8type(const char* input, int32_t* out = nullptr)
     {
-        int32_t codepoint = 0;
+        int32_t codepoint_ = 0;
         int shift = 0;
 
         for (const char* s = input; *s != 0; ++s)
         {
-            codepoint = ((codepoint << shift) | details::ASCIIHexToInt[*s]);
+            codepoint_ = ((codepoint_ << shift) | details::ASCIIHexToInt[*s]);
             shift = 4;
         }
 
         if (out != nullptr)
-            *out = codepoint;
+            *out = codepoint_;
 
-        if (codepoint >= 0x0000 && codepoint <= 0x007f)
+        if (codepoint_ >= 0x0000 && codepoint_ <= 0x007f)
             return Utf8Type::Ascii;
-        else if (codepoint > 0x007f && codepoint <= 0x07ff)
+        else if (codepoint_ > 0x007f && codepoint_ <= 0x07ff)
             return Utf8Type::LatinExtra;
-        else if (codepoint > 0x07ff && codepoint <= 0xffff)
+        else if (codepoint_ > 0x07ff && codepoint_ <= 0xffff)
             return Utf8Type::BasicMultiLingual;
-        else if (codepoint > 0xffff && codepoint <= 0x10ffff)
+        else if (codepoint_ > 0xffff && codepoint_ <= 0x10ffff)
             return Utf8Type::OthersPlanesUnicode;
 
         return Utf8Type::OutRange;
