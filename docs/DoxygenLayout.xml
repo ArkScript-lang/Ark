@@ -4,11 +4,6 @@
   <navindex>
     <tab type="mainpage" visible="yes" title=""/>
 
-    <tab type="usergroup" title="Tutorials">
-      <tab type="user" url="@ref tutorial_builtins" title="The ArkScript builtins"/>
-      <tab type="user" url="@ref tutorial_embedding" title="Embedding ArkScript in C++ code"/>
-      <tab type="user" url="@ref tutorial_modules" title="Creating modules"/>
-    </tab>
     <tab type="usergroup" title="ArkScript modules">
       <tab type="user" url="@ref bitwise_module" title="Bitwise"/>
       <tab type="user" url="@ref console_module" title="Console"/>
@@ -18,16 +13,6 @@
       <tab type="user" url="@ref json_module" title="JSON"/>
       <tab type="user" url="@ref msgpack_module" title="MsgPack"/>
       <tab type="user" url="@ref random_module" title="Random"/>
-    </tab>
-    <tab type="usergroup" title="Guidelines">
-      <tab type="user" url="@ref guidelines_coding" title="Coding guidelines"/>
-      <tab type="user" url="@ref guidelines_naming" title="Naming guidelines"/>
-      <tab type="user" url="@ref guidelines_moduleserrorhandling" title="Error handling in modules"/>
-    </tab>
-    <tab type="usergroup" title="Implementation details">
-      <tab type="user" url="@ref impl_architecture" title="The project architecture"/>
-      <tab type="user" url="@ref impl_compiler" title="Compiler implementation details"/>
-      <tab type="user" url="@ref impl_vm" title="Virtual Machine implementation details"/>
     </tab>
 
     <tab type="pages" visible="no" title="" intro=""/>

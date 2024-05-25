@@ -33,6 +33,4 @@ Also it has:
 # Links
 
 - [Source code](https://github.com/ArkScript-lang/Ark)
-- @ref tutorials "Tutorials on the language"
-- @ref implementation "Implementation details of the language"
 - [Main website](https://arkscript-lang.github.io)
