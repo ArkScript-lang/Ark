@@ -35,6 +35,7 @@
 - removed `Node::operator<<` to replace it with `Node::debugPrint`
 - fixed a bug in the compiler where one could pass a non symbol to `let`, `mut` or `set`, resulting in a compiler crash
 - fixed a bug in the macro processor where one could pass an unknown symbol to `argcount` and crash the processor
+- fixed a bug in the compiler where one could pass something other than a list to `(fun)` as the argument block, resulting in a crash
 
 ### Removed
 - removed unused `NodeType::Closure`
