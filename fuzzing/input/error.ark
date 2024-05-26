@@ -1,1 +1,0 @@
-(import"Exceptions.ark")(let invert(fun(x){(if(= x 0)(throw"000000000000000000000")(return(/ 1 x)))}))(try(invert 0)(fun(inverte0)(print inverte0))(fun(err)(print err)))
