@@ -17,6 +17,7 @@
 #include <string>
 #include <cinttypes>
 #include <unordered_map>
+#include <algorithm>
 #include <fmt/core.h>
 
 #include <Ark/Compiler/Instructions.hpp>

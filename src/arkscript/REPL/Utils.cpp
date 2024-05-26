@@ -1,6 +1,7 @@
 #include <CLI/REPL/Utils.hpp>
 
 #include <regex>
+#include <algorithm>
 
 namespace Ark::internal
 {

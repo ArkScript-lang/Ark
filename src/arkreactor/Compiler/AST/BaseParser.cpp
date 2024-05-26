@@ -1,6 +1,8 @@
 #include <Ark/Compiler/AST/BaseParser.hpp>
 #include <Ark/Exceptions.hpp>
 
+#include <algorithm>
+
 namespace Ark::internal
 {
     void BaseParser::registerNewLine(std::string::iterator it, std::size_t row)

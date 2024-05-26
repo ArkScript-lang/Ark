@@ -6,6 +6,7 @@
 #include <termcolor/proxy.hpp>
 
 #include <sstream>
+#include <algorithm>
 
 #include "TestsHelper.hpp"
 
