@@ -419,6 +419,9 @@ namespace Ark
 
     void Compiler::compileFunction(const Node& x, const int p, const bool is_result_unused, const std::string& var_name)
     {
+        if (const auto args = x.constList()[1]; args.nodeType() != NodeType::List)
+            throwCompilerError(fmt::format("Expected a well formed argument(s) list, got a {}", typeToString(args)), args);
+
         // capture, if needed
         for (const auto& node : x.constList()[1].constList())
         {
