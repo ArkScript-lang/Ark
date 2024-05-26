@@ -1,5 +1,5 @@
 # here we import the http module of the standard library
-(import "http.arkm")
+(import std.http)
 
 # a toggle to try the client and the server
 (let server false)

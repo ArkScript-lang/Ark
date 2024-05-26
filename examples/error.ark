@@ -4,7 +4,7 @@
 # it shall be a file in the standard library.
 (import std.Exceptions)
 
-# the function which should do a "safe number invertion"
+# the function which should do a "safe number inversion"
 (let invert (fun (x) {
     (if (= x 0)
         # then

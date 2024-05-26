@@ -1,9 +1,9 @@
-(import "hash.arkm")
-(import "http.arkm")
-(import "json.arkm")
+(import std.hash)
+(import std.http)
+(import std.json)
 
-(import "Range.ark")
-(import "List.ark")
+(import std.Range)
+(import std.List)
 
 # define what an ArkCoin block is
 (let make:block (fun (index timestamp data previous_hash) {

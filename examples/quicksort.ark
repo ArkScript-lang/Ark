@@ -1,4 +1,4 @@
-(import "List.ark")
+(import std.List)
 
 (let filter (fun (lst cond) {
     (mut output [])
@@ -48,6 +48,6 @@
 
 (print a)
 # use a quoted argument to defer evaluation and be able to call it multiple times in a fresh context
-(let ark (bench "ark" '(quicksort a)))
-(let cpp (bench "cpp" '(list:sort a)))
+(let ark (bench "ark" (fun () (quicksort a))))
+(let cpp (bench "cpp" (fun () (list:sort a))))
 (print "ratio ark/cpp: " (/ ark cpp))
