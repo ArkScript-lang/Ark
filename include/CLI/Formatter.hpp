@@ -47,7 +47,7 @@ private:
 
     bool should_split_on_newline(const Ark::internal::Node& node);
 
-    static constexpr std::string prefix(const std::size_t indent)
+    static std::string prefix(const std::size_t indent)
     {
         return std::string(indent * FormatterConfig.SpacePerIndent, ' ');
     }

@@ -1,5 +1,0 @@
-# quoting a block of code will create an anonymous function taking no arguments
-# allowing us to defer its evaluation
-(let test '{(let a 12) (print a)})
-# and call the quoted code block later on, using the function call syntax
-(test)

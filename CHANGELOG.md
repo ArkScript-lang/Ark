@@ -14,6 +14,7 @@
 - added `help`, `save` (save history to disk), `history` (print history), `reset` (reset vm and code) commands to the REPL
 - REPL can now show when a code block isn't terminated (prompt changes from `>` to `:`)
 - more controls available inside the REPL
+- fuzzing step in the CI
 
 ### Changed
 - instructions are on 4 bytes: 1 byte for the instruction, 1 byte of padding, 2 bytes for an immediate argument

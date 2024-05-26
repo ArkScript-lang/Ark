@@ -195,6 +195,82 @@ jobs:
           export ASAN_OPTIONS=detect_odr_violation=0
           (cd tests/errors ; bash ./run-tests)
 
+  fuzzing:
+    runs-on: ubuntu-latest
+    name: Fuzz testing
+
+    container:
+      image: aflplusplus/aflplusplus:v4.20c
+      env:
+        BUILD_FOLDER: afl
+        FUZZER_SEED: 0
+        FUZZ_TIME_SEC: 300
+        FUZZER_TIMEOUT_EXEC_MS: 500
+        AFL_NO_STARTUP_CALIBRATION: 1
+        AFL_CMPLOG_ONLY_NEW: 1
+        AFL_MAP_SIZE: 223723
+      volumes:
+        - ${{ github.workspace }}:/src
+      options: --cpus 4
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Build with AFL
+        run: |
+          cd /src
+          cmake -B${BUILD_FOLDER} \
+            -DCMAKE_C_COMPILER=/AFLplusplus/afl-cc \
+            -DCMAKE_CXX_COMPILER=/AFLplusplus/afl-c++ \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DARK_BUILD_EXE=On \
+            -DARK_SANITIZERS=On
+          cmake --build ${BUILD_FOLDER} --config Release -j $(nproc)
+
+      - name: Generate corpus
+        run: |
+          mkdir -p unique
+          mkdir -p tmp
+          cp examples/*.ark tmp/
+          cp tests/arkscript/*.ark tmp/
+          cp tests/errors/capture/*.ark tmp/
+          cp tests/errors/callable/*.ark tmp/
+          cp tests/errors/mutability/*.ark tmp/
+          cp tests/errors/index/*.ark tmp/
+          cp tests/errors/type/*.ark tmp/
+          cp tests/errors/operators/*.ark tmp/
+          afl-cmin -i tmp -o unique -- ${BUILD_FOLDER}/arkscript @@ -L ./lib
+
+      - name: Fuzz
+        run: |
+          afl-fuzz -i unique \
+            -o output \
+            -s $FUZZER_SEED \
+            -t $FUZZER_TIMEOUT_EXEC_MS \
+            -V $FUZZ_TIME_SEC \
+            -- ${BUILD_FOLDER}/arkscript @@ -L ./lib
+
+      - name: Summarize
+        run: |
+          afl-whatsup -s -d output
+          afl-showmap -C -i output -o /dev/null -- ./${BUILD_FOLDER}/arkscript @@ -L ./lib
+
+      - name: Sort files for upload
+        continue-on-error: true
+        run: |
+          mkdir crashes
+          cp output/default/crashes/id:* crashes/
+          tar -czvf crashes.tar.gz crashes
+
+      - name: Upload crashes
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: crashes
+          path: crashes.tar.gz
+
   valgrind:
     runs-on: ubuntu-latest
     name: Ubuntu Clang Valgrind

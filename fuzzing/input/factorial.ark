@@ -1,1 +1,0 @@
-(let fa0t(fun(n){(mut a 1)(mut a00 2)(while(<= a00 n){(set a(* a a00))(set a00(+ 1 a00))})a}))(print"000000000000000000000000000000000"(fa0t 6))

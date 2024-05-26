@@ -1,8 +1,0 @@
-#!/usr/bin/env bash
-
-for crash in fuzzing/output/$1/crashes/id*; do
-    file="${1}-$(basename -- "$crash")"
-    touch fuzzing/output_triage/$file
-    afl-tmin -m 64 -i $crash -o fuzzing/output_triage/$file -- ./afl/arkscript @@ -L ./lib
-done
-
