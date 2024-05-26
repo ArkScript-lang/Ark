@@ -7,7 +7,7 @@ on:
 jobs:
   bench:
     name: Run benchmark
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout ArkScript
         uses: actions/checkout@v4
@@ -24,13 +24,13 @@ jobs:
       - name: Setup compilers and tools
         shell: bash
         run: |
-          sudo apt-get install -y clang-15 lld-15 libc++-15-dev libc++abi-15-dev clang-tools-15 hyperfine jq
+          sudo apt-get install -y clang-16 lld-16 libc++-16-dev libc++abi-16-dev clang-tools-16 hyperfine jq
 
       - name: Build ArkScript release
         shell: bash
         run: |
           cmake -Bbuild -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_C_COMPILER=clang-15 -DCMAKE_CXX_COMPILER=clang++-15 \
+            -DCMAKE_C_COMPILER=clang-16 -DCMAKE_CXX_COMPILER=clang++-16 \
             -DARK_SANITIZERS=Off -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=Off
           cmake --build build --config Release -- -j 4
 

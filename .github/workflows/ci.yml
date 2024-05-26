@@ -27,7 +27,7 @@ env:
 jobs:
   check:
     name: Formatting Check
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         path:
@@ -43,7 +43,7 @@ jobs:
           fallback-style: 'Mozilla' # optional
 
   repo_visualizer:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: [ check ]
 
     steps:
@@ -69,19 +69,19 @@ jobs:
       matrix:
         config:
           - {
-            os: ubuntu-latest, name: "Ubuntu Clang 15",
-            compiler: clang, compiler_version: 15, sanitizers: "Off",
-            artifact: "ubuntu-clang-15"
+            os: ubuntu-24.04, name: "Ubuntu Clang 16",
+            compiler: clang, compiler_version: 16, sanitizers: "Off",
+            artifact: "ubuntu-clang-16"
           }
           - {
-            os: ubuntu-latest, name: "Ubuntu Clang 15 (valgrind)",
-            compiler: clang, compiler_version: 15, sanitizers: "Off",
+            os: ubuntu-24.04, name: "Ubuntu Clang 16 (valgrind)",
+            compiler: clang, compiler_version: 16, sanitizers: "Off",
             artifact: "ubuntu-clang-valgrind"
           }
           - {
-            os: ubuntu-latest, name: "Ubuntu GCC 13",
-            compiler: gcc, compiler_version: 13, sanitizers: "Off",
-            artifact: "ubuntu-gcc-13"
+            os: ubuntu-24.04, name: "Ubuntu GCC 14",
+            compiler: gcc, compiler_version: 14, sanitizers: "Off",
+            artifact: "ubuntu-gcc-14"
           }
           - {
             os: windows-latest, name: "Windows VS 2022",
@@ -89,9 +89,9 @@ jobs:
             artifact: "windows-msvc-22"
           }
           - {
-            os: macos-latest, name: "MacOS Clang 15",
-            artifact: "macos-clang-15",
-            compiler: clang, compiler_version: 15, sanitizers: "On"
+            os: macos-latest, name: "MacOS Clang 16",
+            artifact: "macos-clang-16",
+            compiler: clang, compiler_version: 16, sanitizers: "On"
           }
 
     steps:
@@ -157,10 +157,10 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - { os: ubuntu-latest,  name: "Ubuntu Clang 15", artifact: "ubuntu-clang-15" }
-          - { os: ubuntu-latest,  name: "Ubuntu GCC 13",   artifact: "ubuntu-gcc-13" }
-          - { os: windows-latest, name: "Windows VS 2022", artifact: "windows-msvc-22", }
-          - { os: macos-latest,   name: "MacOS Clang 15",  artifact: "macos-clang-15", }
+          - { os: ubuntu-24.04,  name: "Ubuntu Clang 16", artifact: "ubuntu-clang-16", compiler_version: 16, }
+          - { os: ubuntu-24.04,  name: "Ubuntu GCC 14",   artifact: "ubuntu-gcc-14", compiler_version: 14, }
+          - { os: windows-latest, name: "Windows VS 2022", artifact: "windows-msvc-22", compiler_version: 22, }
+          - { os: macos-latest,   name: "MacOS Clang 16",  artifact: "macos-clang-16", compiler_version: 16, }
 
     steps:
       - uses: actions/checkout@v4
@@ -169,6 +169,9 @@ jobs:
 
       - name: Setup tests
         uses: ./.github/workflows/setup-tests
+        with:
+          os_name: ${{ matrix.config.os }}
+          compiler_version: ${{ matrix.config.compiler_version }}
 
       - name: C++ unit tests
         shell: bash
@@ -196,7 +199,7 @@ jobs:
           (cd tests/errors ; bash ./run-tests)
 
   fuzzing:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: Fuzz testing
 
     container:
@@ -272,7 +275,7 @@ jobs:
           path: crashes.tar.gz
 
   valgrind:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: Ubuntu Clang Valgrind
     needs: [ build ]
 
@@ -296,7 +299,7 @@ jobs:
           sudo apt-get update --fix-missing
           wget --no-check-certificate http://ftp.us.debian.org/debian/pool/main/v/valgrind/valgrind_3.20.0-2.1_amd64.deb
           sudo apt install ./valgrind_3.20.0-2.1_amd64.deb
-          sudo apt-get install -y clang-15 lld-15 libc++-15-dev libc++abi-15-dev clang-tools-15
+          sudo apt-get install -y clang-16 lld-16 libc++-16-dev libc++abi-16-dev clang-tools-16
 
       - name: Valgrind checks for memory leaks
         shell: bash
