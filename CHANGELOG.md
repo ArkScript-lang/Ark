@@ -33,6 +33,7 @@
 - `arkscript --version` and `arkscript --help` now output ArkScript version with the commit hash
 - `void Value::toString(std::ostream&, VM&)` now becomes `std::string Value::toString(VM&)`
 - removed `Node::operator<<` to replace it with `Node::debugPrint`
+- fixed a bug in the compiler where one could pass a non symbol to `let`, `mut` or `set`, resulting in a compiler crash
 
 ### Removed
 - removed unused `NodeType::Closure`

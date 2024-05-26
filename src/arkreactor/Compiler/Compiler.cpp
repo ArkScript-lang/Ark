@@ -468,6 +468,9 @@ namespace Ark
 
     void Compiler::compileLetMutSet(const Keyword n, const Node& x, const int p)
     {
+        if (const auto sym = x.constList()[1]; sym.nodeType() != NodeType::Symbol)
+            throwCompilerError(fmt::format("Expected a symbol, got a {}", typeToString(sym)), sym);
+
         const std::string name = x.constList()[1].string();
         uint16_t i = addSymbol(x.constList()[1]);
         if (n != Keyword::Set)
