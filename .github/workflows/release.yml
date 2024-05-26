@@ -19,13 +19,13 @@ jobs:
       matrix:
         config:
           - {
-            os: ubuntu-latest, name: "Ubuntu Clang 15",
-            compiler: clang, compiler_version: 15,
-            artifact: "ubuntu-clang-15"
+            os: ubuntu-24.04, name: "Ubuntu Clang 16",
+            compiler: clang, compiler_version: 16,
+            artifact: "ubuntu-clang-16"
           }
           - {
-            os: ubuntu-latest, name: "Ubuntu GCC 13",
-            compiler: gcc, compiler_version: 13,
+            os: ubuntu-24.04, name: "Ubuntu GCC 14",
+            compiler: gcc, compiler_version: 14,
             artifact: "ubuntu-gcc-13"
           }
           - {
@@ -34,9 +34,9 @@ jobs:
             artifact: "windows-msvc-22"
           }
           - {
-            os: macos-latest, name: "MacOS Clang 15",
-            artifact: "macos-clang-15",
-            compiler: clang, compiler_version: 15,
+            os: macos-latest, name: "MacOS Clang 16",
+            artifact: "macos-clang-16",
+            compiler: clang, compiler_version: 16,
           }
 
     steps:
@@ -100,17 +100,17 @@ jobs:
       - name: Set env
         run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
 
-      - name: Download artifact Linux GCC 13
+      - name: Download artifact Linux GCC 14
         uses: actions/download-artifact@v3
         with:
-          name: ubuntu-gcc-13
-          path: ark-ubuntu-gcc-13
+          name: ubuntu-gcc-14
+          path: ark-ubuntu-gcc-14
 
-      - name: Download artifact Linux Clang 15
+      - name: Download artifact Linux Clang 16
         uses: actions/download-artifact@v3
         with:
-          name: ubuntu-clang-15
-          path: ark-ubuntu-clang-15
+          name: ubuntu-clang-16
+          path: ark-ubuntu-clang-16
 
       - name: Download artifact Windows MSVC 19
         uses: actions/download-artifact@v3
@@ -121,8 +121,8 @@ jobs:
       - name: Download artifact MacOS Clang
         uses: actions/download-artifact@v3
         with:
-          name: macos-clang-15
-          path: ark-macos-clang-15
+          name: macos-clang-16
+          path: ark-macos-clang-16
 
       - name: Download artifact Windows InnoSetup installer
         uses: actions/download-artifact@v3
@@ -171,8 +171,8 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./ubuntu-gcc-13.zip
-          asset_name: linux-gcc-13.zip
+          asset_path: ./ubuntu-gcc-14.zip
+          asset_name: linux-gcc-14.zip
           asset_content_type: application/zip
 
       - name: Upload artifact
@@ -181,8 +181,8 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./ubuntu-clang-15.zip
-          asset_name: linux-clang-15.zip
+          asset_path: ./ubuntu-clang-16.zip
+          asset_name: linux-clang-16.zip
           asset_content_type: application/zip
 
       - name: Upload artifact
@@ -211,6 +211,6 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./macos-clang-15.zip
-          asset_name: macos-clang-15.zip
+          asset_path: ./macos-clang-16.zip
+          asset_name: macos-clang-16.zip
           asset_content_type: application/zip

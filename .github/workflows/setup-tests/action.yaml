@@ -1,6 +1,13 @@
 ---
 name: "Setup tests"
 description: "Unpack necessary artifacts, updates compilers"
+inputs:
+  os_name:
+    description: 'OS name the CI runs on ; Ubuntu|Windows|MacOS'
+    required: true
+  compiler_version:
+    description: 'version of the compiler'
+    required: true
 
 runs:
   using: "composite"
@@ -25,6 +32,12 @@ runs:
       run: |
         sudo apt-add-repository -y ppa:ubuntu-toolchain-r/test
         sudo apt-get -yq install libstdc++6
+
+    - name: Update LLVM compilers
+      if: startsWith(inputs.os_name, 'macos')
+      shell: bash
+      run: |
+        brew install llvm@${{ inputs.compiler_version }}
 
     - shell: bash
       run: |

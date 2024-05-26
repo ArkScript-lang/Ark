@@ -66,6 +66,11 @@ runs:
       shell: bash
       run: env HOMEBREW_NO_AUTO_UPDATE=1 brew install openssl
 
+    - name: Install Ubuntu dependencies
+      if: startsWith(inputs.os_name, 'ubuntu') && inputs.with_deps == 'true'
+      shell: bash
+      run: sudo apt install libsqlite3-dev sqlite3
+
     - name: Install Windows dependencies
       if: startsWith(inputs.os_name, 'windows') && inputs.with_deps == 'true'
       shell: pwsh
