@@ -16,7 +16,7 @@ Don't know what to work on? No worries, we have a [list of things to do](https:/
 
 ## The architecture of the project
 
-For an in-depth explanation: [Understanding the project architecture](https://arkscript-lang.dev/impl/d2/d0b/brief_architecture.html).
+For an in-depth explanation: [Understanding the project architecture](https://arkscript-lang.dev/implementation/architecture.html).
 
 For a quick glance at the organization of the project, check this out:
 
@@ -26,7 +26,7 @@ For a quick glance at the organization of the project, check this out:
 
 The repository for this is [ArkScript-lang/modules](https://github.com/ArkScript-lang/modules), and the language used is C++.
 
-See the guide [to create a module](https://arkscript-lang.dev/impl/d1/d8c/modules.html).
+See the guide [to create a module](https://arkscript-lang.dev/tutorials/modules.html).
 
 ## Submitting a pull request
 
@@ -158,4 +158,4 @@ namespace Ark
 
 ## ArkScript coding guidelines
 
-Check out the [Coding guidelines](https://github.com/ArkScript-lang/Ark/blob/dev/docs/guidelines_coding.md). We are quite flexible about it, those are just general guidelines to produce a readable ArkScript code.
+Check out the [Coding guidelines](https://arkscript-lang.dev/guidelines/coding.html). We are quite flexible about it, those are just general guidelines to produce a readable ArkScript code.

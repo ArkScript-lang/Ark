@@ -127,7 +127,7 @@ We have other projects tightly related to ArkScript, which aren't necessarily C+
 
 See [C++ Coding guidelines](https://github.com/ArkScript-lang/Ark/blob/dev/CONTRIBUTING.md#c-coding-guidelines) if you want to contribute to ArkScript compiler / runtime.
 
-Also, see [ArkScript Coding guidelines](https://github.com/ArkScript-lang/Ark/blob/dev/docs/guidelines_coding.md) for other files, written in ArkScript.
+Also, see [ArkScript Coding guidelines](https://arkscript-lang.dev/guidelines/coding.html) for other files, written in ArkScript.
 
 For performance reasons, some functions might be written in C++, in `include/Ark/Builtins/Builtins.hpp` and `src/Builtins/`.
 
@@ -144,11 +144,9 @@ For performance reasons, some functions might be written in C++, in `include/Ark
 * Visual Studio >= 11 (on Windows)
 * On macOS versions prior to 10.15, `libc++` lacks `filesystem` in the standard library.
     * Install a newer compiler using [Homebrew](https://docs.brew.sh/): `brew install gcc && brew link gcc`
-    * Pass compiler path to `cmake` in the build step: `-DCMAKE_CXX_COMPILER=/usr/local/bin/g++-9 -DCMAKE_C_COMPILER=/usr/local/bin/gcc-9`
+    * Pass compiler path to `cmake` in the build step: `-DCMAKE_CXX_COMPILER=/usr/local/bin/g++-14 -DCMAKE_C_COMPILER=/usr/local/bin/gcc-14`
 
 :warning: When passing a specific C++ compiler to CMake, add the corresponding C compiler as ArkScript relies on C code as well ; otherwise you'll cryptic get compilation/linking errors (using `CMAKE_CXX_COMPILER` and `CMAKE_C_COMPILER`).
-
-All the external libraries we use are already included in [thirdparties](https://github.com/ArkScript-lang/thirdparties).
 
 ### Through CMake
 
@@ -233,7 +231,7 @@ LICENSE
 
 ### In your own project
 
-Please refer to the [embedding ArkScript](https://arkscript-lang.dev/impl/d7/dea/tutorial_embedding.html) tutorial.
+Please refer to the [embedding ArkScript](https://arkscript-lang.dev/tutorials/embedding.html) tutorial.
 
 ## Performances
 
@@ -255,11 +253,11 @@ Huge thanks to those people for their donations to support the project:
 * [llexto](https://github.com/llexto)
 * COUR Eloïse
 * [AKPINAR Dylan](https://github.com/DylanAkp)
-* [Ryan C. Gordon](https://icculus.org) through his [2022 Microgrant](https://twitter.com/icculus/status/1534552918317318144)
+* [Ryan C. Gordon](https://icculus.org) through his [2022 Microgrant](https://web.archive.org/web/20220608150846/https://twitter.com/icculus/status/1534552918317318144)
 
 ## Credits
 
-This project was inspired by [gameprogramingpatterns](http://gameprogrammingpatterns.com/bytecode.html) and [ofan lisp.cpp](https://gist.github.com/ofan/721464)
+This project was inspired by [game programing patterns](http://gameprogrammingpatterns.com/bytecode.html) and [ofan lisp.cpp](https://gist.github.com/ofan/721464)
 
 ## Copyright and Licence information
 
