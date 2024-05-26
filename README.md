@@ -52,8 +52,8 @@ Also it has:
 ## More or less game
 
 ```clojure
-(import "random.arkm")
-(import "Math.ark")
+(import std.random)
+(import std.Math)
 
 (let number (mod (math:abs (random)) 10000))
 

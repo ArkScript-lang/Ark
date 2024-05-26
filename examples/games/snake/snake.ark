@@ -1,6 +1,6 @@
-(import "sf.arkm")
-(import "Exceptions.ark")
-(import "Switch.ark")
+(import std.sf")
+(import std.Exceptions)
+(import std.Switch)
 
 (sf:window:init 600 600 "ArkSnake")
 (sf:window:setFPS 60)
@@ -176,11 +176,11 @@
     (mut event (sf:pollEvent))
 
     (switch event [
-        [(sf:event "quit") '(sf:window:close)]
-        [(sf:event "keyup" "up") '(snake.move 0 -1 board)]
-        [(sf:event "keyup" "down") '(snake.move 0 1 board)]
-        [(sf:event "keyup" "right") '(snake.move 1 0 board)]
-        [(sf:event "keyup" "left") '(snake.move -1 0 board)]
+        [(sf:event "quit") (fun () (sf:window:close))]
+        [(sf:event "keyup" "up") (fun () (snake.move 0 -1 board))]
+        [(sf:event "keyup" "down") (fun () (snake.move 0 1 board))]
+        [(sf:event "keyup" "right") (fun () (snake.move 1 0 board))]
+        [(sf:event "keyup" "left") (fun () (snake.move -1 0 board))]
     ])
 
     # update
