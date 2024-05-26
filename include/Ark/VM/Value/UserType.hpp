@@ -13,7 +13,7 @@
 #define VM_VALUE_USERTYPE_HPP
 
 #include <iostream>
-#include <vector>
+#include <cinttypes>
 
 #include <Ark/Platform.hpp>
 

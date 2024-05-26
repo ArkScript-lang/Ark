@@ -4,10 +4,11 @@
 #include <limits>
 #include <filesystem>
 #include <picosha2.h>
-#include <Ark/Constants.hpp>
+#include <algorithm>
 #include <termcolor/proxy.hpp>
 #include <fmt/core.h>
 
+#include <Ark/Constants.hpp>
 #include <Ark/Literals.hpp>
 #include <Ark/Utils.hpp>
 #include <Ark/Builtins/Builtins.hpp>

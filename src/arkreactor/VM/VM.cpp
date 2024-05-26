@@ -242,7 +242,7 @@ namespace Ark
 
             return true;
         }
-        catch (const std::system_error& e)
+        catch (const std::system_error&)
         {
             return false;
         }

@@ -1,6 +1,7 @@
 #include <Ark/Compiler/ImportSolver.hpp>
 
 #include <ranges>
+#include <algorithm>
 #include <stack>
 #include <fmt/core.h>
 
@@ -154,7 +155,7 @@ namespace Ark::internal
         }
 
         Parser parser;
-        const std::string code = Utils::readFile(path);
+        const std::string code = Utils::readFile(path.generic_string());
         parser.process(path.string(), code);
         m_modules[import.toPackageString()] = Module {
             parser.ast(),

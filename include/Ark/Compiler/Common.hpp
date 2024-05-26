@@ -15,6 +15,7 @@
 #include <array>
 #include <string_view>
 #include <vector>
+#include <cinttypes>
 
 namespace Ark
 {
