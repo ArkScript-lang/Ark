@@ -194,7 +194,7 @@ namespace Ark::internal
         }
         else if (target.isListLike())
         {
-            for (std::size_t i = 0, end = target.list().size(); i < end; ++i)
+            for (std::size_t i = 0; i < target.list().size(); ++i)
                 unify(map, target.list()[i], &target, i);
         }
         else if (target.nodeType() == NodeType::Spread)

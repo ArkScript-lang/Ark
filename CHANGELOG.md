@@ -34,6 +34,7 @@
 - `void Value::toString(std::ostream&, VM&)` now becomes `std::string Value::toString(VM&)`
 - removed `Node::operator<<` to replace it with `Node::debugPrint`
 - fixed a bug in the compiler where one could pass a non symbol to `let`, `mut` or `set`, resulting in a compiler crash
+- fixed a bug in the macro processor where one could pass an unknown symbol to `argcount` and crash the processor
 
 ### Removed
 - removed unused `NodeType::Closure`
