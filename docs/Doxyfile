@@ -6,7 +6,7 @@
 PROJECT_NAME           = ArkScript
 PROJECT_NUMBER         =
 PROJECT_BRIEF          = A small, fast, functional and scripting language for video games
-PROJECT_LOGO           = ../images/ArkTransparent-small.png
+PROJECT_LOGO           = ../.github/images/ArkTransparent-small.png
 OUTPUT_DIRECTORY       = ../../website/
 CREATE_SUBDIRS         = YES
 ABBREVIATE_BRIEF       =

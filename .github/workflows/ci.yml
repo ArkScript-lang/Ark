@@ -11,7 +11,7 @@ on:
       - '.github/workflows/release.yml'
       - '.vscode/*.*'
       - 'examples/*.ark'
-      - 'images/*.*'
+      - '.github/images/*.*'
       - '*.md'
       - 'docs/*.*'
       - 'Dockerfile'

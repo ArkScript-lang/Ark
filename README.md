@@ -4,7 +4,7 @@
 ![Downloads](https://img.shields.io/github/downloads/arkscript-lang/ark/total?color=%2324cc24&style=for-the-badge&logo=github)
 ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/ArkScript-lang/Ark/ci.yml?logo=cmake&style=for-the-badge&branch=4.0)
 
-<img align="right" src="images/ArkTransparent-by-mazz.png" width=200px alt="ArkScript log by Mazz">
+<img align="right" src=".github/images/ArkTransparent-by-mazz.png" width=200px alt="ArkScript log by Mazz">
 
 * [Documentation](https://arkscript-lang.dev/documentation.html)
 * [Discussions](https://github.com/orgs/ArkScript-lang/discussions): to receive help with the language, discuss new features and ideas
@@ -133,7 +133,7 @@ For performance reasons, some functions might be written in C++, in `include/Ark
 
 ### Code structure
 
-![ArkScript code structure](images/diagram.svg)
+![ArkScript code structure](.github/images/diagram.svg)
 
 ## Building
 
@@ -241,7 +241,7 @@ See https://github.com/ArkScript-lang/benchmarks
 
 You can find a snake created in ArkScript in the folder examples/games/snake (run it from there, otherwise it won't find the font and the sprites ; you won't need to install the SFML).
 
-![ArkSnake](images/ArkSnake.png)
+![ArkSnake](.github/images/ArkSnake.png)
 
 Controls are the arrows (left, right, up and down), the game closes itself when you successfully collect the 3 apples.
 

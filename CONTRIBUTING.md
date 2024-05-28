@@ -20,7 +20,7 @@ For an in-depth explanation: [Understanding the project architecture](https://ar
 
 For a quick glance at the organization of the project, check this out:
 
-![diagram of the folders and subfolders in the project](images/diagram.svg)
+![diagram of the folders and subfolders in the project](.github/images/diagram.svg)
 
 ## Contributing to a module (or creating one)
 
