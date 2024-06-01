@@ -1,0 +1,18 @@
+(begin 0 0 0)
+(begin)
+(begin
+#00000
+
+(let a 0)
+)
+
+(begin (let b 2) 3)
+
+{}
+{
+    #00
+0 #00
+}
+
+{(let c 4)}
+{(if 5 6 7)(mut d 8)}

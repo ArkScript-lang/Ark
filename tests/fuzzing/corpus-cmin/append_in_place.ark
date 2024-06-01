@@ -1,0 +1,2 @@
+(let a [])
+(append! a 5)

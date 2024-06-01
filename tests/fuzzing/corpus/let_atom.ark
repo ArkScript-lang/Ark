@@ -1,0 +1,21 @@
+(let aaaaaaa 12)
+(
+    mut   b 13)
+  (
+set c "")
+
+# test comment
+#comment###
+(
+let
+b # my symbol
+"12"#value
+)
+
+(let d (if 1 2 3))
+(let e
+(
+while #keyword
+4
+5
+))

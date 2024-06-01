@@ -1,0 +1,18 @@
+(begin 1 2 3)
+(begin)
+(begin
+# test
+
+(let a 1)
+)
+
+(begin (let b 2) 3)
+
+{}
+{
+    # a
+1 # b
+}
+
+{(let c 4)}
+{(if 5 6 7)(mut d 8)}

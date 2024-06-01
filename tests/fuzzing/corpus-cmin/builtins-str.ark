@@ -1,0 +1,10 @@
+(let foo (fun (a b) ()))
+
+(foo (str:find "abc" "d") -1)
+(foo (str:find "abc" "a") 0)
+(foo (str:find "abc" "bc") 1)
+(foo (str:find "abcdefghijkl" "defijkl") -1)
+(foo (str:find "abcdefghijkl" "defghijkl") 3)
+(foo (str:removeAt "abcdefghijkl" 3) "abcefghijkl")
+(foo (str:removeAt "abcdefghijkl" 0) "bcdefghijkl")
+(foo (str:removeAt "abcdefghijkl" 11) "abcdefghijk")

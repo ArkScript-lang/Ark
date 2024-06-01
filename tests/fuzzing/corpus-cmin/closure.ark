@@ -1,0 +1,5 @@
+(fun (&a) 1)
+(fun (&a #jk
+&b) 2)
+(fun (a &b) 3)
+(fun (a b &c &d) 4)

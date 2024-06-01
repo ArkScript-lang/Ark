@@ -1,0 +1,18 @@
+($ a 1)
+($ b () 2)
+($
+c # macro name
+( # arg list
+d # macro argument
+e
+)
+3 # body
+)
+($ f(g)4)
+($ h(i j) (let a 1))
+
+($ h (i j) (let a (if i 2 3)))
+($ k (l ...m) (print l m))
+($ n (
+...p
+) (print p))
