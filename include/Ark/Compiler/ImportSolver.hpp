@@ -41,11 +41,11 @@ namespace Ark::internal
          * @brief Parse a given file and returns a list of its imports.
          *        The AST is parsed and stored in m_modules[import.prefix]
          *
-         * @param file path to the file containing the import
+         * @param base_path path to the file containing the import
          * @param import current import directive
          * @return std::vector<Import> imports found in the processed file
          */
-        std::vector<Import> parseImport(const std::filesystem::path& file, const Import& import);
+        std::vector<Import> parseImport(const std::filesystem::path& base_path, const Import& import);
 
         /**
          * @brief Search for an import file, using the root file path
@@ -54,7 +54,7 @@ namespace Ark::internal
          * @param import current import directive
          * @return std::filesystem::path
          */
-        std::filesystem::path findFile(const std::filesystem::path& file, const Import& import);
+        std::filesystem::path findFile(const std::filesystem::path& file, const Import& import) const;
     };
 }
 

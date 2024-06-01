@@ -55,7 +55,7 @@ namespace Ark::internal
         }
     }
 
-    Node& Parser::setNodePosAndFilename(Node& node, const std::optional<FilePosition>& cursor)
+    Node& Parser::setNodePosAndFilename(Node& node, const std::optional<FilePosition>& cursor) const
     {
         const auto [row, col] = cursor.value_or(getCursor());
         node.setPos(row, col);
@@ -282,6 +282,10 @@ namespace Ark::internal
         if (!packageName(&import_data.prefix))
             errorWithNextToken("Import expected a package name");
         import_data.package.push_back(import_data.prefix);
+
+        const auto [row, col] = getCursor();
+        import_data.col = col;
+        import_data.line = row;
 
         Node packageNode(NodeType::List);
         setNodePosAndFilename(packageNode.attachNearestCommentBefore(comment));

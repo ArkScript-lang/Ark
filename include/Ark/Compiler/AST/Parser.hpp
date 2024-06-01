@@ -48,7 +48,7 @@ namespace Ark::internal
 
         void run();
 
-        Node& setNodePosAndFilename(Node& node, const std::optional<FilePosition>& cursor = std::nullopt);
+        Node& setNodePosAndFilename(Node& node, const std::optional<FilePosition>& cursor = std::nullopt) const;
 
         std::optional<Node> node();
         std::optional<Node> letMutSet();

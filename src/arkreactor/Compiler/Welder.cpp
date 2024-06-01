@@ -19,8 +19,7 @@ namespace Ark
 
     bool Welder::computeASTFromFile(const std::string& filename)
     {
-        // get the folder where the script is located
-        m_root_file = std::filesystem::path(filename).parent_path();
+        m_root_file = std::filesystem::path(filename);
         const std::string code = Utils::readFile(filename);
 
         return computeAST(filename, code);

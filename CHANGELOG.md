@@ -15,6 +15,7 @@
 - REPL can now show when a code block isn't terminated (prompt changes from `>` to `:`)
 - more controls available inside the REPL
 - fuzzing step in the CI
+- better error reporting on unknown import
 
 ### Changed
 - instructions are on 4 bytes: 1 byte for the instruction, 1 byte of padding, 2 bytes for an immediate argument
