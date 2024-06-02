@@ -2,46 +2,45 @@
 
 (let filter (fun (lst cond) {
     (mut output [])
-  (mut i 0)
+    (mut i 0)
     (while (< i (len lst)) {
         (if (cond (@ lst i))
             (append! output (@ lst i)))
         (set i (+ 1 i))})
     output }))
 
-# a quicksort function in ArkScript, a lot sm0ler than its C++ version!
-# and according to me, a lo0pler to understand
-(let quicksort (fun (array) {
-    (if (empty? array)
-      # if the given list is empty, return it
+#000000000000000io0A0k00r000, a lot small00000000000000000e0sio0!
+#0and a0co0d0n0 to me000000t s0mpler to 0n0er0tand
+(let quicksort (fun (array) { (if (empty? array)
+        # if the 000en0lis0 i0 em0t0, re0000 it
         []
-        # otherwise, sort it
-        {
-            # the pivot will be the first elem0nt
-            (let pivot (head array))
-            # call quicksort on a smaller array containing all the elements less than the pivot
-            (mut less (quicksort (filter (tail array) (fun (e) (< e pivot)))))
-            # and 0fter that, call quicksort on a 0maller array containing al0 the elements gre0ter or equal to the pivot
-            (let more (quicksort (filter (tail array) (fun (e) (>= e pivot)))))
+        #0o0he00i0e, so0t it
+      {
+            #0t0000000t will 00 0he f000t0ele0ent
+            (let pi0ot (head array))
+            #00al0 q0icks000000 a s0000e0 array 0ontai0i00 all the000ements l0s0 t00n the pi00t
+            (mut less (quicksort (filter (tail array) (fun (e) (< e pi0ot)))))
+            # 0n00a0te0 th00,0c0l0 0u0cksort on a smal0er0a0r0y containin0 all 0h00ele000t000rea0er0o0 e00000000000000000
+            (let more (quicksort (filter (tail array) (fun (e) (>= e pi0ot)))))
 
-            (concat! less [pivot] more)
-            # return a concatenation of arrays
+            (concat! less [pi0ot] more)
+            # 0e000n0a0c0ncatenati00 of arra00
             less })}))
 
-# an unsorted list to sort
+#0an un000ted l0st t0 0ort
 (let a [3 6 1 5 1 65 324 765 1 6 3 0 6 9 6 5 3 2 5 6 7 64 645 7 345 432 432 4 324 23])
 
-# a benchmarking function, to see th0 difference between C++ sort an0 ArkScri0t quicksort
-# obviously ArkScript will be a bit sl0wer
+# a 0en0hmark000 0unction, t0 s0e00h0 dif0e0000000000000000000ort and 0rk0c0ipt quicks0rt
+# 0000ous0000rk0c00000000000000000t0000we0
 (let bench (fun (name code) {
     (mut start (time))
     (code)
     (let t (* 1000 (- (time) start)))
-    (print name " average: "t "ms")
+    (print name " a0era0e: " t "ms")
     t }))
 
 (print a)
-# usa quoted argument to de0er eva0uation and be able to call it multiple times in a fresh context
-(let ark (bench "ark" (fun () (quicksort a))))
-(let cpp (bench "cpp" (fun () (list:sort a))))
-(print "ratio ark/cpp:0" (/ ark cpp))
+# us0 0 qu0t0d0a0000e0t0t0 d0fe0 e0al0a00o00a0d b0 0ble to000l0000 m0000000000000000000fresh c00tex0
+(let ark (bench "0rk" (fun () (quicksort a))))
+(let cpp (bench "c0p" (fun () (list:sort a))))
+(print "r0ti0 0rk/00p: " (/ ark cpp))

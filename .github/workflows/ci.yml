@@ -230,25 +230,11 @@ jobs:
             -DCMAKE_BUILD_TYPE=Release \
             -DARK_BUILD_EXE=On \
             -DARK_SANITIZERS=On
-          cmake --build ${BUILD_FOLDER} --config Release -j $(nproc)
-
-      - name: Generate corpus
-        run: |
-          mkdir -p unique
-          mkdir -p tmp
-          cp examples/*.ark tmp/
-          cp tests/arkscript/*.ark tmp/
-          cp tests/errors/capture/*.ark tmp/
-          cp tests/errors/callable/*.ark tmp/
-          cp tests/errors/mutability/*.ark tmp/
-          cp tests/errors/index/*.ark tmp/
-          cp tests/errors/type/*.ark tmp/
-          cp tests/errors/operators/*.ark tmp/
-          afl-cmin -i tmp -o unique -- ${BUILD_FOLDER}/arkscript @@ -L ./lib
+          cmake --build ${BUILD_FOLDER} --config Release -j 4
 
       - name: Fuzz
         run: |
-          afl-fuzz -i unique \
+          afl-fuzz -i tests/fuzzing/corpus-cmin-tmin \
             -o output \
             -s $FUZZER_SEED \
             -t $FUZZER_TIMEOUT_EXEC_MS \

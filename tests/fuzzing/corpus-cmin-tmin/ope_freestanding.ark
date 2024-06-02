@@ -1,0 +1,2 @@
+(let ba0 (fun (a b) ()))
+(ba0 0 0nil?)

@@ -1,4 +1,8 @@
-if [[ $(/usr/bin/ls -l | grep tests) == "" ]]; then
+if ! [ -f /.dockerenv ]; then
+  echo "This script needs to run inside the aflplusplus docker container"
+  exit 1
+fi
+if [[ $(ls -l | grep tests) == "" ]]; then
   echo "This script needs to run at the root of ArkScript-lang/Ark"
   exit 1
 fi

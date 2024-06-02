@@ -16,9 +16,9 @@ include/Ark/Constants.hpp
 /Installer.iss
 
 # Fuzzing
-!fuzzing/**/*.arkc
-fuzzing/output*
-afl/
+/fuzzing/
+/output/
+/tmp/
 
 # Folders
 .vs/
