@@ -1,0 +1,5 @@
+At ((begin)) @ 1:12
+    1 |  (((begin)))
+      | ^~~~~~~~~~~~
+    2 |
+        Can not call (begin)

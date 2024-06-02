@@ -99,7 +99,7 @@ namespace Ark::internal
 
     void MacroProcessor::registerFuncDef(const Node& node)
     {
-        if (node.nodeType() == NodeType::List && !node.constList().empty() && node.constList()[0].nodeType() == NodeType::Keyword)
+        if (node.nodeType() == NodeType::List && node.constList().size() == 3 && node.constList()[0].nodeType() == NodeType::Keyword)
         {
             Keyword kw = node.constList()[0].keyword();
             // checking for function definition, which can occur only inside an assignment node
@@ -331,10 +331,11 @@ namespace Ark::internal
                         if (num_idx >= 0)
                             ++num_idx;
                     }
-                    num_idx = num_idx >= 0 ? num_idx : size + num_idx;
 
-                    if (num_idx < size)
+                    if (num_idx >= 0 && num_idx < size)
                         return sublist.list()[num_idx];
+                    if (const auto c = size + num_idx; num_idx < 0 && c < size && c >= 0)
+                        return sublist.list()[c];
                     throwMacroProcessingError(fmt::format("Index ({}) out of range (list size: {})", num_idx, real_size), node);
                 }
             }

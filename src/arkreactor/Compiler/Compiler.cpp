@@ -341,12 +341,14 @@ namespace Ark
                     break;
             }
         }
-        else
+        else if (x.nodeType() == NodeType::List)
         {
             // if we are here, we should have a function name
             // push arguments first, then function name, then call it
             handleCalls(x, p, is_result_unused, is_terminal, var_name);
         }
+        else
+            throwCompilerError("boop", x);  // FIXME
     }
 
     void Compiler::compileSymbol(const Node& x, const int p, const bool is_result_unused)
@@ -355,8 +357,8 @@ namespace Ark
 
         if (const auto it_builtin = getBuiltin(name))
             page(p).emplace_back(Instruction::BUILTIN, static_cast<uint16_t>(it_builtin.value()));
-        else if (const auto it_operator = getOperator(name))
-            page(p).emplace_back(static_cast<uint8_t>(FIRST_OPERATOR + it_operator.value()));
+        else if (getOperator(name).has_value())
+            throwCompilerError(fmt::format("Found a free standing operator: `{}`", name), x);
         else
             page(p).emplace_back(LOAD_SYMBOL, addSymbol(x));  // using the variable
 
@@ -479,6 +481,9 @@ namespace Ark
         if (n != Keyword::Set)
             addDefinedSymbol(name);
 
+        if (x.constList().size() != 3)
+            throwCompilerError("Invalid node ; if it was computed by a macro, check that a node is returned", x);
+
         // put value before symbol id
         // starting at index = 2 because x is a (let|mut|set variable ...) node
         for (std::size_t idx = 2, end = x.constList().size(); idx < end; ++idx)
@@ -537,8 +542,16 @@ namespace Ark
         const int proc_page = -static_cast<int>(m_temp_pages.size());
         constexpr std::size_t start_index = 1;
 
-        compileExpression(x.constList()[0], proc_page, false, false);  // storing proc
-        // closure chains have been handled: closure.field.field.function
+        const auto node = x.constList()[0];
+        const auto maybe_operator = node.nodeType() == NodeType::Symbol ? getOperator(node.string()) : std::nullopt;
+        if (node.nodeType() == NodeType::Symbol && maybe_operator.has_value())
+            page(proc_page).emplace_back(static_cast<uint8_t>(FIRST_OPERATOR + maybe_operator.value()));
+        else
+            // closure chains have been handled: closure.field.field.function
+            compileExpression(node, proc_page, false, false);  // storing proc
+
+        if (m_temp_pages.back().empty())
+            throwCompilerError(fmt::format("Can not call {}", x.constList()[0].repr()), x);
 
         // it's a builtin/function
         if (m_temp_pages.back()[0].opcode < FIRST_OPERATOR)
@@ -554,7 +567,7 @@ namespace Ark
 
                 // jump to the top of the function
                 page(p).emplace_back(JUMP, 0_u16);
-                return;  // skip the possible Instruction::POP at the end
+                return;  // skip the potential Instruction::POP at the end
             }
             else
             {
@@ -601,12 +614,12 @@ namespace Ark
                     page(p).emplace_back(op.opcode, 2);  // TODO generalize to n arguments (n >= 2)
             }
 
-            if (exp_count == 1)
+            if (exp_count <= 1)
             {
                 if (isUnaryInst(static_cast<Instruction>(op.opcode)))
                     page(p).emplace_back(op.opcode);
                 else
-                    throwCompilerError("Operator needs two arguments, but was called with only one", x.constList()[0]);
+                    throwCompilerError(fmt::format("Operator needs two arguments, but was called with {}", exp_count), x.constList()[0]);
             }
 
             // need to check we didn't push the (op A B C D...) things for operators not supporting it

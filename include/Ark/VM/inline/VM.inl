@@ -314,7 +314,7 @@ inline void VM::call(internal::ExecutionContext& context, const int16_t argc_)
 
         default:
         {
-            if (m_state.m_symbols.size() > 0)
+            if (context.last_symbol < m_state.m_symbols.size())
                 throwVMError(
                     ErrorKind::Type,
                     fmt::format(

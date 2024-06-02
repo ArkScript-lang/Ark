@@ -1,0 +1,7 @@
+($ partial (func ...defargs) {
+    ($ bloc (suffix-dup a (- (argcount func) (len defargs))))
+})
+
+(let test_func (fun (a b c) (* a b c)))
+(let test_func1 (partial test_func 1))
+(test_func1)

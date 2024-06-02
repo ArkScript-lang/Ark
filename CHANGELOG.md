@@ -37,6 +37,13 @@
 - fixed a bug in the compiler where one could pass a non symbol to `let`, `mut` or `set`, resulting in a compiler crash
 - fixed a bug in the macro processor where one could pass an unknown symbol to `argcount` and crash the processor
 - fixed a bug in the compiler where one could pass something other than a list to `(fun)` as the argument block, resulting in a crash
+- fixed a bug in the compiler generating not callable functions
+- fixed a bug in the macro processor generating invalid `let` / `mut` / `set` nodes
+- fixed a bug in the macro processor allowing out of bounds access with `($ test (@ [1 2 3] -5))`
+- fixed a bug in the vm which wrongfully allowed self concat in place: `(concat! lst lst)`
+- fixed a bug in the compiler where one could "use" operators without calling them: `(print nil?)`
+- fixed a bug in the compiler allowing the use of operators without any argument: `(+)`
+- fixed a bug in the vm during error reporting when a non-function was used as a function
 
 ### Removed
 - removed unused `NodeType::Closure`
