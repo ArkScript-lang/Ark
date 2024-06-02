@@ -1,0 +1,17 @@
+(let a [1 2 3])(let b [4 5 6])
+(let bar (fun(a b)()))
+
+(let ma0e (fun(a b)
+    (fun (&a &b) ())))
+(let f00 (ma0e "00000" 0))
+
+(bar (list:find a 0) -1)
+(bar (list:find a 2) 1)
+
+(bar (list:slice a 0 0 1) [])
+(bar a [1 2 3])
+(bar (list:slice a 0 3 2) [1 3])
+(bar a [1 2 3])
+
+(bar (list:sort [3 1 2]) a)
+(bar a [1 2 3])

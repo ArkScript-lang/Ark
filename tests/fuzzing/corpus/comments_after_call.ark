@@ -1,0 +1,10 @@
+($ foo (...args # all the args go there
+) () # the body is empty
+)
+[ a b c # last element
+]
+[a b c] # list
+(foo # func
+    bar # arg
+    egg # arg bis
+    )

@@ -1,0 +1,2 @@
+($ defun  (let n0000(fun a000 y)))
+(defun f000(a b) (+ a b))

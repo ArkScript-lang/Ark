@@ -3,6 +3,7 @@
 #include <ranges>
 #include <algorithm>
 #include <stack>
+#include <Ark/Exceptions.hpp>
 #include <fmt/core.h>
 
 #include <Ark/Files.hpp>
@@ -16,7 +17,10 @@ namespace Ark::internal
 
     void ImportSolver::process(const std::filesystem::path& root, const Node& origin_ast, const std::vector<Import>& origin_imports)
     {
-        m_root = root;
+        if (is_directory(root))
+            m_root = root;
+        else
+            m_root = root.parent_path();
 
         std::stack<Import> imports;
         for (const auto& origin_import : std::ranges::reverse_view(origin_imports))
@@ -129,9 +133,9 @@ namespace Ark::internal
         return m_ast;
     }
 
-    std::vector<Import> ImportSolver::parseImport(const std::filesystem::path& file, const Import& import)
+    std::vector<Import> ImportSolver::parseImport(const std::filesystem::path& base_path, const Import& import)
     {
-        const auto path = findFile(file, import);
+        const auto path = findFile(base_path, import);
         if (path.extension() == ".arkm")  // Nothing to import in case of modules
         {
             // Creating an import node that will stay there when visiting the AST and
@@ -174,7 +178,7 @@ namespace Ark::internal
         return {};
     }
 
-    std::filesystem::path ImportSolver::findFile(const std::filesystem::path& file, const Import& import)
+    std::filesystem::path ImportSolver::findFile(const std::filesystem::path& file, const Import& import) const
     {
         const std::string package_path = import.packageToPath();
         if (auto maybe_path = testExtensions(m_root, package_path); maybe_path.has_value())
@@ -188,8 +192,12 @@ namespace Ark::internal
         }
 
         // fallback, we couldn't find the file
-        throw std::runtime_error(
+        throw CodeError(
             fmt::format("While processing file {}, couldn't import {}: file not found",
-                        file.generic_string(), import.toPackageString()));
+                        file.generic_string(), import.toPackageString()),
+            file.generic_string(),
+            import.line,
+            import.col,
+            fmt::format("(import {})", import.toPackageString()));
     }
 }

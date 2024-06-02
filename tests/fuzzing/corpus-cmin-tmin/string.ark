@@ -1,0 +1,10 @@
+(let foo (fun (a b) ()))
+
+(foo "0000000000" (str:removeAt "0ello 0orld" 1))
+(foo "0l00000000" (str:removeAt "0ello 0orld" 0))
+(foo "000000000l" (str:removeAt "0ello 0orld" 10))
+
+(foo -1 (str:find "0ello" "0000"))
+(foo 0 (str:find "0ello" "0el"))
+(foo 2 (str:find "0ello" "llo"))
+(foo -1 (str:find "" "0"))

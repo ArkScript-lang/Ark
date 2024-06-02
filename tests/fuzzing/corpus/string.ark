@@ -1,0 +1,10 @@
+(let foo (fun (a b) ()))
+
+(foo "hllo world" (str:removeAt "hello world" 1))
+(foo "ello world" (str:removeAt "hello world" 0))
+(foo "hello worl" (str:removeAt "hello world" 10))
+
+(foo -1 (str:find "hello" "help"))
+(foo 0 (str:find "hello" "hel"))
+(foo 2 (str:find "hello" "llo"))
+(foo -1 (str:find "" "1"))

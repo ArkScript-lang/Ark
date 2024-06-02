@@ -1,0 +1,15 @@
+(func a b)
+(
+func# A
+(if 1 2 #c
+3)
+"hello"#d
+) #y
+((foo bar) (test) 1)
+(
+    (
+        (
+            foo
+        )
+    )
+)

@@ -1,0 +1,4 @@
+(let a 5)
+(let c 0)
+(let b(fun(&a)()))
+(print b.c)

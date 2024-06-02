@@ -1,0 +1,22 @@
+# this is how we can import files in ArkScript
+# very often, and this is a convention,
+# if an imported file starts with a capital letter,
+# it shall be a file in the standard library.
+(import std.Exceptions)
+
+# the function which should do a "safe number inversion"
+(let invert (fun (x) {
+    (if (= x 0)
+        # then
+        (throw "cannot divide by zero")  # the value we should return in case of an error
+        # else
+        (return (/ 1 x)))}))  # the value returned if everything is ok (if (!= x 0))
+
+# this function (try) is implemented in Exceptions.ark (in lib/std/)
+# and will check the return value of (invert 0)
+# if it's an error (seen by the use of throw), it will call the second function,
+# if it's a result, it will call the first
+# it works the same way as a try: { function then } catch { do_something }
+(try (invert 0)
+    (fun (inverted) (print inverted))
+    (fun (err) (print err)))

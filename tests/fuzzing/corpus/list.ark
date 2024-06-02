@@ -1,0 +1,9 @@
+(list 1 2 3)
+(list)
+(list (list 1))
+[]#list
+[#content
+1
+    #end
+]
+[[1 a]]

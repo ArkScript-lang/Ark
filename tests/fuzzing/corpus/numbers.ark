@@ -1,0 +1,7 @@
+(let a 1.2)
+(let b -3.4)
+(let c -0)
+(let d 1e4)
+(let e 2e+8)
+(let f 4e-16)
+(let g 8.91e-31)

@@ -1,0 +1,7 @@
+(while false # cond
+    1 # body
+    )
+
+
+(while false {} # no body
+) # infinite loop

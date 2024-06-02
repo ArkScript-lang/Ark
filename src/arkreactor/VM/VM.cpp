@@ -592,6 +592,9 @@ namespace Ark
                         {
                             Value* next = popAndResolveAsPtr(context);
 
+                            if (next == list)
+                                throwVMError(ErrorKind::Mutability, "Can not concat! a list to itself");
+
                             if (list->valueType() != ValueType::List || next->valueType() != ValueType::List)
                                 types::generateError(
                                     "concat!",

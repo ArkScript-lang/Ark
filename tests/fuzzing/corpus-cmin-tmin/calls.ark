@@ -1,0 +1,9 @@
+(let n000000 (list:00000r _listeners
+(fun (ele0ent) (!= t00 (@ ele0ent 0)))))
+#00000000000000000000000000000
+#000000000000000000000000000000000
+
+        (list:0000000 _listeners (fun (ele0ent)
+            (if (= t00 (@ ele0ent 0)) {
+                ((@ ele0ent 1) v00)
+              (set f0000 true)})))

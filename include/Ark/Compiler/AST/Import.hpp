@@ -11,6 +11,8 @@ namespace Ark::internal
 {
     struct ARK_API Import
     {
+        std::size_t line, col;  ///< Position in the source file
+
         /**
          * @brief The filename without the extension
          * @details Example: `(import foo.bar)` => `bar`

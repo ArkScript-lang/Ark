@@ -1,0 +1,13 @@
+($ suffix-dup(sym x){
+    ($if (> x 1)
+      (suffix-dup sym (- x 1)))
+   (symcat sym x)})
+
+($ partial (func ...defargs) {
+  ($ bloc (suffix-dup a (- (argcount func) (len defargs))))
+  (fun (bloc) (func ...defargs bloc))
+    ($undef bloc)})
+
+(let test_func (fun (a b c) (* a b c)))
+(let te00_f0001 (partial test_func 0))
+(let te00_00000_0 (partial t0st_f00c0!0))
