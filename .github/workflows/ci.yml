@@ -283,9 +283,14 @@ jobs:
           mv build/lib/*.arkm lib/
           chmod u+x build/arkscript
           sudo apt-get update --fix-missing
-          wget --no-check-certificate http://ftp.us.debian.org/debian/pool/main/v/valgrind/valgrind_3.20.0-2.1_amd64.deb
-          sudo apt install ./valgrind_3.20.0-2.1_amd64.deb
           sudo apt-get install -y clang-16 lld-16 libc++-16-dev libc++abi-16-dev clang-tools-16
+
+      - name: Install valgrind 3.20.0
+        shell: bash
+        run: |
+          wget --no-check-certificate http://ftp.us.debian.org/debian/pool/main/v/valgrind/valgrind_3.20.0-2.1_amd64.deb
+          sudo apt remove needrestart
+          sudo apt install ./valgrind_3.20.0-2.1_amd64.deb
 
       - name: Valgrind checks for memory leaks
         shell: bash
