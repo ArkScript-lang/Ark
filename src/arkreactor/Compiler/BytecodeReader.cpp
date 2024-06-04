@@ -118,22 +118,20 @@ namespace Ark
         return block;
     }
 
-    Values BytecodeReader::values() const
+    Values BytecodeReader::values(const Symbols& symbols) const
     {
         if (!checkMagic())
             return {};
 
-        const auto data = symbols();
-        std::size_t i = data.end;
+        std::size_t i = symbols.end;
         if (m_bytecode[i] != VAL_TABLE_START)
             return {};
         i++;
 
-
         const uint16_t size = readNumber(i);
         i++;
         Values block;
-        block.start = data.end;
+        block.start = symbols.end;
         block.values.reserve(size);
 
         for (uint16_t j = 0; j < size; ++j)
@@ -170,13 +168,12 @@ namespace Ark
         return block;
     }
 
-    Code BytecodeReader::code() const
+    Code BytecodeReader::code(const Values& values) const
     {
         if (!checkMagic())
             return {};
 
-        const auto data = values();
-        std::size_t i = data.end;
+        std::size_t i = values.end;
 
         Code block;
         block.start = i;
@@ -236,8 +233,8 @@ namespace Ark
         }
 
         const auto syms = symbols();
-        const auto vals = values();
-        const auto code_block = code();
+        const auto vals = values(syms);
+        const auto code_block = code(vals);
 
         // symbols table
         {

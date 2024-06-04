@@ -1,6 +1,7 @@
 #include <boost/ut.hpp>
 
 #include <Ark/Compiler/BytecodeReader.hpp>
+
 #include <string>
 
 using namespace boost;
@@ -35,9 +36,9 @@ ut::suite<"BytecodeReader"> bcr_suite = [] {
             expect(that % sha256 == expected_sha);
         };
 
-        const auto [pages, start_code] = bcr.code();
-        const auto values_block = bcr.values();
         const auto symbols_block = bcr.symbols();
+        const auto values_block = bcr.values(symbols_block);
+        const auto [pages, start_code] = bcr.code(values_block);
 
         should("list all symbols") = [symbols_block] {
             using namespace std::literals::string_literals;

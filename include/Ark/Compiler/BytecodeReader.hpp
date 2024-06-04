@@ -23,6 +23,8 @@
 
 namespace Ark
 {
+    class State;
+
     enum class BytecodeSegment
     {
         All,
@@ -127,16 +129,16 @@ namespace Ark
         [[nodiscard]] Symbols symbols() const;
 
         /**
-         *
+         * @param symbols
          * @return Values
          */
-        [[nodiscard]] Values values() const;
+        [[nodiscard]] Values values(const Symbols& symbols) const;
 
         /**
-         *
+         * @param values
          * @return Code
          */
-        [[nodiscard]] Code code() const;
+        [[nodiscard]] Code code(const Values& values) const;
 
         /**
          * @brief Display the bytecode opcode in a human friendly way.
@@ -150,6 +152,8 @@ namespace Ark
                      std::optional<uint16_t> sStart = std::nullopt,
                      std::optional<uint16_t> sEnd = std::nullopt,
                      std::optional<uint16_t> cPage = std::nullopt);
+
+        friend class Ark::State;
 
     private:
         bytecode_t m_bytecode;

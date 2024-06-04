@@ -168,11 +168,13 @@ namespace Ark
 #endif
         }
 
-        // FIXME: we're going to read the symbols 3 times and the values twice
-        // because code calls values which calls symbols
-        m_symbols = bcr.symbols().symbols;
-        m_constants = bcr.values().values;
-        m_pages = bcr.code().pages;
+        const auto syms = bcr.symbols();
+        const auto vals = bcr.values(syms);
+        const auto code = bcr.code(vals);
+
+        m_symbols = syms.symbols;
+        m_constants = vals.values;
+        m_pages = code.pages;
     }
 
     void State::reset() noexcept
