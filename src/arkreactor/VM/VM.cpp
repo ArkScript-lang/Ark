@@ -1030,7 +1030,7 @@ namespace Ark
 #pragma endregion
 
                     default:
-                        throwVMError(ErrorKind::VM, fmt::format("Unknown instruction: {:x}{:x}{:x}", padding, inst, arg));
+                        throwVMError(ErrorKind::VM, fmt::format("Unknown instruction: {:02x}{:02x}{:04x}", padding, inst, arg));
                         break;
                 }
 

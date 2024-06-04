@@ -2,7 +2,7 @@
  * @file BytecodeReader.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief A bytecode disassembler for ArkScript
- * @version 0.4
+ * @version 0.5
  * @date 2020-10-27
  *
  * @copyright Copyright (c) 2020-2024
@@ -19,6 +19,7 @@
 
 #include <Ark/Platform.hpp>
 #include <Ark/Compiler/Common.hpp>
+#include <Ark/VM/Value.hpp>
 
 namespace Ark
 {
@@ -29,6 +30,33 @@ namespace Ark
         Values,
         Code,
         HeadersOnly
+    };
+
+    struct Version
+    {
+        uint16_t major;
+        uint16_t minor;
+        uint16_t patch;
+    };
+
+    struct Symbols
+    {
+        std::vector<std::string> symbols;
+        std::size_t start;  ///< Point to the SYM_TABLE_START byte in the bytecode
+        std::size_t end;    ///< Point to the byte following the last byte of the table in the bytecode
+    };
+
+    struct Values
+    {
+        std::vector<Value> values;
+        std::size_t start;  ///< Point to the VAL_TABLE_START byte in the bytecode
+        std::size_t end;    ///< Point to the byte following the last byte of the table in the bytecode
+    };
+
+    struct Code
+    {
+        std::vector<bytecode_t> pages;
+        std::size_t start;  ///< Point to the CODE_SEGMENT_START byte in the bytecode
     };
 
     /**
@@ -54,6 +82,12 @@ namespace Ark
         void feed(const std::string& file);
 
         /**
+         * Check for the presence of the magic header
+         * @return true if the magic 'ark\0' was found
+         */
+        [[nodiscard]] bool checkMagic() const;
+
+        /**
          * @brief Return the bytecode object constructed
          *
          * @return const bytecode_t&
@@ -61,11 +95,41 @@ namespace Ark
         [[nodiscard]] const bytecode_t& bytecode() noexcept;
 
         /**
+         *
+         * @return Version compiler version used to create the given bytecode file
+         */
+        [[nodiscard]] Version version() const;
+
+        /**
          * @brief Return the read timestamp from the bytecode file
          *
          * @return unsigned long long
          */
-        [[nodiscard]] unsigned long long timestamp();
+        [[nodiscard]] unsigned long long timestamp() const;
+
+        /**
+         *
+         * @return std::vector<unsigned char> bytecode sha
+         */
+        [[nodiscard]] std::vector<unsigned char> sha256() const;
+
+        /**
+         *
+         * @return Symbols
+         */
+        [[nodiscard]] Symbols symbols() const;
+
+        /**
+         *
+         * @return Values
+         */
+        [[nodiscard]] Values values() const;
+
+        /**
+         *
+         * @return Code
+         */
+        [[nodiscard]] Code code() const;
 
         /**
          * @brief Display the bytecode opcode in a human friendly way.

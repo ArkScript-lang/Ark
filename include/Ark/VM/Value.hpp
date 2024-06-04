@@ -25,6 +25,7 @@
 namespace Ark
 {
     class VM;
+    class BytecodeReader;
 
     // Note: we can have at most 0x7f (127) different types
     //     because type index is stored on the 7 right most bits of a uint8_t in the class Value.
@@ -153,12 +154,13 @@ namespace Ark
         friend ARK_API_INLINE bool operator!(const Value& A) noexcept;
 
         friend class Ark::VM;
+        friend class Ark::BytecodeReader;
 
     private:
         uint8_t m_const_type;  ///< First bit if for constness, right most bits are for type
         Value_t m_value;
 
-        [[nodiscard]] constexpr uint8_t type_num() const noexcept { return m_const_type & 0x7f; }
+        [[nodiscard]] constexpr uint8_t type_num() const noexcept { return m_const_type & 0x7f; }  // TODO: rename typeNum
 
         [[nodiscard]] internal::PageAddr_t pageAddr() const { return std::get<internal::PageAddr_t>(m_value); }
         [[nodiscard]] const ProcType& proc() const { return std::get<ProcType>(m_value); }
