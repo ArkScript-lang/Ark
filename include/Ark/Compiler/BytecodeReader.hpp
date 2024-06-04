@@ -82,6 +82,13 @@ namespace Ark
         void feed(const std::string& file);
 
         /**
+         * @brief Construct needed data before displaying information about a given bytecode
+         *
+         * @param bytecode
+         */
+        void feed(const bytecode_t& bytecode);
+
+        /**
          * Check for the presence of the magic header
          * @return true if the magic 'ark\0' was found
          */

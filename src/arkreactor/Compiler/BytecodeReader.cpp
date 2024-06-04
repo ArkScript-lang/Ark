@@ -4,7 +4,6 @@
 #include <Ark/Builtins/Builtins.hpp>
 
 #include <iomanip>
-#include <numeric>
 #include <termcolor/proxy.hpp>
 #include <picosha2.h>
 #include <fmt/core.h>
@@ -13,7 +12,10 @@ namespace Ark
 {
     using namespace Ark::internal;
 
-    // TODO: add exporters for symbols... so that the state doesn't have to do it all over again
+    void BytecodeReader::feed(const bytecode_t& bytecode)
+    {
+        m_bytecode = bytecode;
+    }
 
     void BytecodeReader::feed(const std::string& file)
     {
