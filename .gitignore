@@ -20,6 +20,9 @@ include/Ark/Constants.hpp
 /fuzzing/
 /output/
 /tmp/
+## Fuzzer crash triage
+/fct-ok/
+/fct-bad/
 
 # Folders
 .vs/
