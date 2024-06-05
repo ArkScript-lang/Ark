@@ -10,6 +10,7 @@ __arkscript__/
 *.arkc
 *.arkm
 /*.ark
+!tests/unittests/resources/BytecodeReaderSuite/*.arkc
 
 # Generated files
 include/Ark/Constants.hpp

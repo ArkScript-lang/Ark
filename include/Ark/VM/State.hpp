@@ -33,9 +33,9 @@ namespace Ark
         /**
          * @brief Construct a new State object
          *
-         * @param libpath a list of search paths for the std library
+         * @param libenv a list of search paths for the std library
          */
-        explicit State(const std::vector<std::filesystem::path>& libpath = {}) noexcept;
+        explicit State(const std::vector<std::filesystem::path>& libenv = {}) noexcept;
 
         /**
          * @brief Feed the state by giving it the path to an existing bytecode file
@@ -113,13 +113,12 @@ namespace Ark
         friend class Repl;
 
     private:
-        static bool checkMagic(const bytecode_t& bytecode);
-
         /**
          * @brief Called to configure the state (set the bytecode, debug level, call the compiler...)
          *
+         * @param bcr reference to a pre-fed bytecode reader
          */
-        void configure();
+        void configure(const BytecodeReader& bcr);
 
         /**
          * @brief Reads and compiles code of file
@@ -129,7 +128,7 @@ namespace Ark
          * @return true on success
          * @return false on failure and raise an exception
          */
-        bool compile(const std::string& file, const std::string& output);
+        bool compile(const std::string& file, const std::string& output) const;
 
         static void throwStateError(const std::string& message)
         {

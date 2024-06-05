@@ -6,16 +6,23 @@
 #include <iomanip>
 #include <termcolor/proxy.hpp>
 #include <picosha2.h>
+#include <fmt/core.h>
 
 namespace Ark
 {
     using namespace Ark::internal;
 
+    void BytecodeReader::feed(const bytecode_t& bytecode)
+    {
+        m_bytecode = bytecode;
+    }
+
     void BytecodeReader::feed(const std::string& file)
     {
         std::ifstream ifs(file, std::ios::binary | std::ios::ate);
         if (!ifs.good())
-            throw std::runtime_error("[BytecodeReader] Couldn't open file '" + file + "'");
+            throw std::runtime_error(fmt::format("[BytecodeReader] Couldn't open file '{}'", file));
+
         const std::size_t pos = ifs.tellg();
         // reserve appropriate number of bytes
         std::vector<char> temp(pos);
@@ -28,94 +35,187 @@ namespace Ark
             m_bytecode[i] = static_cast<uint8_t>(temp[i]);
     }
 
+    bool BytecodeReader::checkMagic() const
+    {
+        return m_bytecode.size() >= 4 && m_bytecode[0] == 'a' &&
+            m_bytecode[1] == 'r' && m_bytecode[2] == 'k' &&
+            m_bytecode[3] == internal::Instruction::NOP;
+    }
+
+
     const bytecode_t& BytecodeReader::bytecode() noexcept
     {
         return m_bytecode;
     }
 
-    unsigned long long BytecodeReader::timestamp()
+    Version BytecodeReader::version() const
     {
-        bytecode_t b = bytecode();
-        std::size_t i = 0;
+        if (!checkMagic() || m_bytecode.size() < 10)
+            return Version { 0, 0, 0 };
 
-        // we want to see a 'ark\0' header
-        if (!(b.size() > 4 && b[i++] == 'a' && b[i++] == 'r' && b[i++] == 'k' && b[i++] == Instruction::NOP))
+        return Version {
+            .major = static_cast<uint16_t>((m_bytecode[4] << 8) + m_bytecode[5]),
+            .minor = static_cast<uint16_t>((m_bytecode[6] << 8) + m_bytecode[7]),
+            .patch = static_cast<uint16_t>((m_bytecode[8] << 8) + m_bytecode[9])
+        };
+    }
+
+
+    unsigned long long BytecodeReader::timestamp() const
+    {
+        // 4 (ark\0) + version (2 bytes / number) + timestamp = 18 bytes
+        if (!checkMagic() || m_bytecode.size() < 18)
             return 0;
-
-        // read major, minor and patch
-        std::ignore = readNumber(i);
-        i++;
-        std::ignore = readNumber(i);
-        i++;
-        std::ignore = readNumber(i);
-        i++;
 
         // reading the timestamp in big endian
         using timestamp_t = unsigned long long;
-        timestamp_t timestamp = 0;
-        const auto aa = (static_cast<timestamp_t>(m_bytecode[i]) << 56),
-                   ba = (static_cast<timestamp_t>(m_bytecode[++i]) << 48),
-                   ca = (static_cast<timestamp_t>(m_bytecode[++i]) << 40),
-                   da = (static_cast<timestamp_t>(m_bytecode[++i]) << 32),
-                   ea = (static_cast<timestamp_t>(m_bytecode[++i]) << 24),
-                   fa = (static_cast<timestamp_t>(m_bytecode[++i]) << 16),
-                   ga = (static_cast<timestamp_t>(m_bytecode[++i]) << 8),
-                   ha = (static_cast<timestamp_t>(m_bytecode[++i]));
-        i++;
-        timestamp = aa + ba + ca + da + ea + fa + ga + ha;
-
-        return timestamp;
+        return (static_cast<timestamp_t>(m_bytecode[10]) << 56) +
+            (static_cast<timestamp_t>(m_bytecode[11]) << 48) +
+            (static_cast<timestamp_t>(m_bytecode[12]) << 40) +
+            (static_cast<timestamp_t>(m_bytecode[13]) << 32) +
+            (static_cast<timestamp_t>(m_bytecode[14]) << 24) +
+            (static_cast<timestamp_t>(m_bytecode[15]) << 16) +
+            (static_cast<timestamp_t>(m_bytecode[16]) << 8) +
+            static_cast<timestamp_t>(m_bytecode[17]);
     }
+
+    std::vector<unsigned char> BytecodeReader::sha256() const
+    {
+        if (!checkMagic() || m_bytecode.size() < 18 + picosha2::k_digest_size)
+            return {};
+
+        std::vector<unsigned char> sha(picosha2::k_digest_size);
+        for (std::size_t i = 0; i < picosha2::k_digest_size; ++i)
+            sha[i] = m_bytecode[18 + i];
+        return sha;
+    }
+
+    Symbols BytecodeReader::symbols() const
+    {
+        if (!checkMagic() || m_bytecode.size() < 18 + picosha2::k_digest_size ||
+            m_bytecode[18 + picosha2::k_digest_size] != SYM_TABLE_START)
+            return {};
+
+        std::size_t i = 18 + picosha2::k_digest_size + 1;
+        const uint16_t size = readNumber(i);
+        i++;
+
+        Symbols block;
+        block.start = 18 + picosha2::k_digest_size;
+        block.symbols.reserve(size);
+
+        for (uint16_t j = 0; j < size; ++j)
+        {
+            std::string content;
+            while (m_bytecode[i] != 0)
+                content += m_bytecode[i++];
+            i++;
+
+            block.symbols.push_back(content);
+        }
+
+        block.end = i;
+        return block;
+    }
+
+    Values BytecodeReader::values(const Symbols& symbols) const
+    {
+        if (!checkMagic())
+            return {};
+
+        std::size_t i = symbols.end;
+        if (m_bytecode[i] != VAL_TABLE_START)
+            return {};
+        i++;
+
+        const uint16_t size = readNumber(i);
+        i++;
+        Values block;
+        block.start = symbols.end;
+        block.values.reserve(size);
+
+        for (uint16_t j = 0; j < size; ++j)
+        {
+            const uint8_t type = m_bytecode[i];
+            i++;
+
+            if (type == NUMBER_TYPE)
+            {
+                std::string val;
+                while (m_bytecode[i] != 0)
+                    val.push_back(m_bytecode[i++]);
+                block.values.emplace_back(std::stod(val));
+            }
+            else if (type == STRING_TYPE)
+            {
+                std::string val;
+                while (m_bytecode[i] != 0)
+                    val.push_back(m_bytecode[i++]);
+                block.values.emplace_back(val);
+            }
+            else if (type == FUNC_TYPE)
+            {
+                const uint16_t addr = readNumber(i);
+                i++;
+                block.values.emplace_back(addr);
+            }
+            else
+                throw std::runtime_error(fmt::format("Unknown value type: {:x}", type));
+            i++;
+        }
+
+        block.end = i;
+        return block;
+    }
+
+    Code BytecodeReader::code(const Values& values) const
+    {
+        if (!checkMagic())
+            return {};
+
+        std::size_t i = values.end;
+
+        Code block;
+        block.start = i;
+
+        while (m_bytecode[i] == CODE_SEGMENT_START)
+        {
+            i++;
+            const std::size_t size = readNumber(i) * 4;
+            i++;
+
+            block.pages.emplace_back().reserve(size);
+            for (std::size_t j = 0; j < size; ++j)
+                block.pages.back().push_back(m_bytecode[i++]);
+
+            if (i == m_bytecode.size())
+                break;
+        }
+
+        return block;
+    }
+
 
     void BytecodeReader::display(const BytecodeSegment segment,
                                  const std::optional<uint16_t> sStart,
                                  const std::optional<uint16_t> sEnd,
                                  const std::optional<uint16_t> cPage)
     {
-        bytecode_t b = bytecode();
-        std::size_t i = 0;
-
         std::ostream& os = std::cout;
 
-        if (!(b.size() > 4 && b[i++] == 'a' && b[i++] == 'r' && b[i++] == 'k' && b[i++] == NOP))
+        if (!checkMagic())
         {
             os << "Invalid format";
             return;
         }
 
-        uint16_t major = readNumber(i);
-        i++;
-        uint16_t minor = readNumber(i);
-        i++;
-        uint16_t patch = readNumber(i);
-        i++;
+        auto [major, minor, patch] = version();
         os << "Version:   " << major << "." << minor << "." << patch << "\n";
-
-        using timestamp_t = unsigned long long;
-        timestamp_t timestamp = 0;
-        auto aa = (static_cast<timestamp_t>(m_bytecode[i]) << 56),
-             ba = (static_cast<timestamp_t>(m_bytecode[++i]) << 48),
-             ca = (static_cast<timestamp_t>(m_bytecode[++i]) << 40),
-             da = (static_cast<timestamp_t>(m_bytecode[++i]) << 32),
-             ea = (static_cast<timestamp_t>(m_bytecode[++i]) << 24),
-             fa = (static_cast<timestamp_t>(m_bytecode[++i]) << 16),
-             ga = (static_cast<timestamp_t>(m_bytecode[++i]) << 8),
-             ha = (static_cast<timestamp_t>(m_bytecode[++i]));
-        i++;
-        timestamp = aa + ba + ca + da + ea + fa + ga + ha;
-        os << "Timestamp: " << timestamp << "\n";
-
+        os << "Timestamp: " << timestamp() << "\n";
         os << "SHA256:    ";
-        for (std::size_t j = 0; j < picosha2::k_digest_size; ++j)
-        {
-            os << std::hex << static_cast<int>(m_bytecode[i]);
-            ++i;
-        }
-        os << "\n\n"
-           << std::dec;
-
-        std::vector<std::string> symbols;
-        std::vector<std::string> values;
+        for (const auto sha = sha256(); unsigned char h : sha)
+            os << fmt::format("{:02x}", h);
+        os << "\n\n";
 
         // reading the different tables, one after another
 
@@ -132,12 +232,14 @@ namespace Ark
             return;
         }
 
-        if (b[i] == SYM_TABLE_START)
+        const auto syms = symbols();
+        const auto vals = values(syms);
+        const auto code_block = code(vals);
+
+        // symbols table
         {
-            i++;
-            uint16_t size = readNumber(i);
-            i++;
-            uint16_t sliceSize = size;
+            std::size_t size = syms.symbols.size();
+            std::size_t sliceSize = size;
             bool showSym = (segment == BytecodeSegment::All || segment == BytecodeSegment::Symbols);
 
             if (showSym && sStart.has_value() && sEnd.has_value() && (sStart.value() > size || sEnd.value() > size))
@@ -148,43 +250,25 @@ namespace Ark
             if (showSym || segment == BytecodeSegment::HeadersOnly)
                 os << termcolor::cyan << "Symbols table" << termcolor::reset << " (length: " << sliceSize << ")\n";
 
-            for (uint16_t j = 0; j < size; ++j)
+            for (std::size_t j = 0; j < size; ++j)
             {
                 if (auto start = sStart; auto end = sEnd)
                     showSym = showSym && (j >= start.value() && j <= end.value());
 
-                std::string content;
-                while (b[i] != 0)
-                    content += b[i++];
-                i++;
-
                 if (showSym)
-                {
-                    os << static_cast<int>(j) << ") ";
-                    os << content << "\n";
-                }
-
-                symbols.push_back(content);
+                    os << fmt::format("{}) {}\n", j, syms.symbols[j]);
             }
+
             if (showSym)
                 os << "\n";
-        }
-        else
-        {
-            os << termcolor::red << "Missing symbole table entry point\n"
-               << termcolor::reset;
-            return;
+            if (segment == BytecodeSegment::Symbols)
+                return;
         }
 
-        if (segment == BytecodeSegment::Symbols)
-            return;
-
-        if (b[i] == VAL_TABLE_START)
+        // values table
         {
-            i++;
-            uint16_t size = readNumber(i);
-            i++;
-            uint16_t sliceSize = size;
+            std::size_t size = vals.values.size();
+            std::size_t sliceSize = size;
 
             bool showVal = (segment == BytecodeSegment::All || segment == BytecodeSegment::Values);
             if (showVal && sStart.has_value() && sEnd.has_value() && (sStart.value() > size || sEnd.value() > size))
@@ -195,245 +279,211 @@ namespace Ark
             if (showVal || segment == BytecodeSegment::HeadersOnly)
                 os << termcolor::green << "Constants table" << termcolor::reset << " (length: " << sliceSize << ")\n";
 
-            for (uint16_t j = 0; j < size; ++j)
+            for (std::size_t j = 0; j < size; ++j)
             {
                 if (auto start = sStart; auto end = sEnd)
                     showVal = showVal && (j >= start.value() && j <= end.value());
 
                 if (showVal)
-                    os << static_cast<int>(j) << ") ";
-                uint8_t type = b[i];
-                i++;
-
-                if (type == Instruction::NUMBER_TYPE)
                 {
-                    std::string val;
-                    while (b[i] != 0)
-                        val.push_back(b[i++]);
-                    i++;
-                    if (showVal)
-                        os << "(Number) " << val;
-                    values.push_back("(Number) " + val);
+                    switch (const auto val = vals.values[j]; val.valueType())
+                    {
+                        case ValueType::Number:
+                            os << fmt::format("{}) (Number) {}\n", j, val.number());
+                            break;
+                        case ValueType::String:
+                            os << fmt::format("{}) (String) {}\n", j, val.string());
+                            break;
+                        case ValueType::PageAddr:
+                            os << fmt::format("{}) (PageAddr) {}\n", j, val.pageAddr());
+                            break;
+                        default:
+                            os << termcolor::red << "Value type not handled: " << types_to_str[static_cast<std::size_t>(val.valueType())]
+                               << '\n'
+                               << termcolor::reset;
+                            break;
+                    }
                 }
-                else if (type == Instruction::STRING_TYPE)
-                {
-                    std::string val;
-                    while (b[i] != 0)
-                        val.push_back(b[i++]);
-                    i++;
-                    if (showVal)
-                        os << "(String) " << val;
-                    values.push_back("(String) " + val);
-                }
-                else if (type == Instruction::FUNC_TYPE)
-                {
-                    uint16_t addr = readNumber(i);
-                    i++;
-                    if (showVal)
-                        os << "(PageAddr) " << addr;
-                    values.push_back("(PageAddr) " + std::to_string(addr));
-                    i++;
-                }
-                else
-                {
-                    os << termcolor::red << "Unknown value type: " << static_cast<int>(type) << '\n'
-                       << termcolor::reset;
-                    return;
-                }
-
-                if (showVal)
-                    os << "\n";
             }
 
             if (showVal)
                 os << "\n";
-        }
-        else
-        {
-            os << termcolor::red << "Missing constant table entry point\n"
-               << termcolor::reset;
-            return;
+            if (segment == BytecodeSegment::Values)
+                return;
         }
 
-        if (segment == BytecodeSegment::Values)
-            return;
-
-        uint16_t pp = 0;
-        std::size_t cumulated_segment_size = i + 3;
-
-        while (b[i] == Instruction::CODE_SEGMENT_START && (segment == BytecodeSegment::All || segment == BytecodeSegment::Code || segment == BytecodeSegment::HeadersOnly))
-        {
-            i++;
-            uint16_t size = readNumber(i);
-            i++;
-
-            bool displayCode = true;
-
-            if (auto page = cPage)
-                displayCode = pp == page.value();
-
-            if (displayCode)
-                os << termcolor::magenta << "Code segment " << pp << termcolor::reset << " (length: " << size << ")\n";
-
-            if (size == 0)
+        const auto stringify_value = [](const Value& val) -> std::string {
+            switch (val.valueType())
             {
-                if (displayCode)
-                    os << "NOP";
+                case ValueType::Number:
+                    return fmt::format("{} (Number)", val.number());
+                case ValueType::String:
+                    return fmt::format("{} (String)", val.string());
+                case ValueType::PageAddr:
+                    return fmt::format("{} (PageAddr)", val.pageAddr());
+                default:
+                    return "";
             }
-            else
+        };
+
+        if (segment == BytecodeSegment::All || segment == BytecodeSegment::Code || segment == BytecodeSegment::HeadersOnly)
+        {
+            uint16_t pp = 0;
+
+            for (const auto& page : code_block.pages)
             {
-                i += 4 * sStart.value_or(0);
+                bool displayCode = true;
 
-                if (cPage.value_or(pp) == pp && segment != BytecodeSegment::HeadersOnly)
+                if (auto wanted_page = cPage)
+                    displayCode = pp == wanted_page.value();
+
+                if (displayCode)
+                    os << termcolor::magenta << "Code segment " << pp << termcolor::reset << " (length: " << page.size() << ")\n";
+
+                if (page.empty())
                 {
-                    if (sStart.has_value() && sEnd.has_value() && ((sStart.value() > size) || (sEnd.value() > size)))
+                    if (displayCode)
+                        os << "NOP";
+                }
+                else
+                {
+                    if (cPage.value_or(pp) == pp && segment != BytecodeSegment::HeadersOnly)
                     {
-                        os << termcolor::red << "Slice start or end can't be greater than the segment size: " << size << termcolor::reset << "\n";
-                        return;
-                    }
-
-                    for (std::size_t j = sStart.value_or(0), end = sEnd.value_or(size); j < end; ++j)
-                    {
-                        [[maybe_unused]] uint8_t padding = b[i];
-                        ++i;
-                        uint8_t inst = b[i];
-                        ++i;
-                        uint16_t arg = readNumber(i);
-                        ++i;
-
-                        // instruction number
-                        os << termcolor::cyan << j << " ";
-                        // padding inst arg arg
-                        os << termcolor::reset << std::hex
-                           << std::setw(2) << std::setfill('0') << static_cast<int>(padding) << " "
-                           << std::setw(2) << std::setfill('0') << static_cast<int>(inst) << " "
-                           << std::setw(2) << std::setfill('0') << static_cast<int>(b[i - 2]) << " "
-                           << std::setw(2) << std::setfill('0') << static_cast<int>(b[i - 1]) << " ";
-                        // reset stream
-                        os << std::dec << termcolor::yellow;
-
-                        if (inst == NOP)
-                            os << "NOP\n";
-                        else if (inst == LOAD_SYMBOL)
-                            os << "LOAD_SYMBOL " << termcolor::green << symbols[arg] << "\n";
-                        else if (inst == LOAD_CONST)
-                            os << "LOAD_CONST " << termcolor::magenta << values[arg] << "\n";
-                        else if (inst == POP_JUMP_IF_TRUE)
-                            os << "POP_JUMP_IF_TRUE " << termcolor::red << "(" << arg << ")\n";
-                        else if (inst == STORE)
-                            os << "STORE " << termcolor::green << symbols[arg] << "\n";
-                        else if (inst == LET)
-                            os << "LET " << termcolor::green << symbols[arg] << "\n";
-                        else if (inst == POP_JUMP_IF_FALSE)
-                            os << "POP_JUMP_IF_FALSE " << termcolor::red << "(" << arg << ")\n";
-                        else if (inst == JUMP)
-                            os << "JUMP " << termcolor::red << "(" << arg << ")\n";
-                        else if (inst == RET)
-                            os << "RET\n";
-                        else if (inst == HALT)
-                            os << "HALT\n";
-                        else if (inst == CALL)
-                            os << "CALL " << termcolor::reset << "(" << arg << ")\n";
-                        else if (inst == CAPTURE)
-                            os << "CAPTURE " << termcolor::reset << symbols[arg] << "\n";
-                        else if (inst == BUILTIN)
-                            os << "BUILTIN " << termcolor::reset << Builtins::builtins[arg].first << "\n";
-                        else if (inst == MUT)
-                            os << "MUT " << termcolor::green << symbols[arg] << "\n";
-                        else if (inst == DEL)
-                            os << "DEL " << termcolor::green << symbols[arg] << "\n";
-                        else if (inst == SAVE_ENV)
-                            os << "SAVE_ENV\n";
-                        else if (inst == GET_FIELD)
-                            os << "GET_FIELD " << termcolor::green << symbols[arg] << "\n";
-                        else if (inst == PLUGIN)
-                            os << "PLUGIN " << termcolor::magenta << values[arg] << "\n";
-                        else if (inst == LIST)
-                            os << "LIST " << termcolor::reset << "(" << arg << ")\n";
-                        else if (inst == APPEND)
-                            os << "APPEND " << termcolor::reset << "(" << arg << ")\n";
-                        else if (inst == CONCAT)
-                            os << "CONCAT " << termcolor::reset << "(" << arg << ")\n";
-                        else if (inst == APPEND_IN_PLACE)
-                            os << "APPEND_IN_PLACE " << termcolor::reset << "(" << arg << ")\n";
-                        else if (inst == CONCAT_IN_PLACE)
-                            os << "CONCAT_IN_PLACE " << termcolor::reset << "(" << arg << ")\n";
-                        else if (inst == POP_LIST)
-                            os << "POP_LIST " << termcolor::reset << "\n";
-                        else if (inst == POP_LIST_IN_PLACE)
-                            os << "POP_LIST_IN_PLACE " << termcolor::reset << "\n";
-                        else if (inst == POP)
-                            os << "POP\n";
-                        else if (inst == ADD)
-                            os << "ADD\n";
-                        else if (inst == SUB)
-                            os << "SUB\n";
-                        else if (inst == MUL)
-                            os << "MUL\n";
-                        else if (inst == DIV)
-                            os << "DIV\n";
-                        else if (inst == GT)
-                            os << "GT\n";
-                        else if (inst == LT)
-                            os << "LT\n";
-                        else if (inst == LE)
-                            os << "LE\n";
-                        else if (inst == GE)
-                            os << "GE\n";
-                        else if (inst == NEQ)
-                            os << "NEQ\n";
-                        else if (inst == EQ)
-                            os << "EQ\n";
-                        else if (inst == LEN)
-                            os << "LEN\n";
-                        else if (inst == EMPTY)
-                            os << "EMPTY\n";
-                        else if (inst == TAIL)
-                            os << "TAIL\n";
-                        else if (inst == HEAD)
-                            os << "HEAD\n";
-                        else if (inst == ISNIL)
-                            os << "ISNIL\n";
-                        else if (inst == ASSERT)
-                            os << "ASSERT\n";
-                        else if (inst == TO_NUM)
-                            os << "TO_NUM\n";
-                        else if (inst == TO_STR)
-                            os << "TO_STR\n";
-                        else if (inst == AT)
-                            os << "AT\n";
-                        else if (inst == AND_)
-                            os << "AND_\n";
-                        else if (inst == OR_)
-                            os << "OR_\n";
-                        else if (inst == MOD)
-                            os << "MOD\n";
-                        else if (inst == TYPE)
-                            os << "TYPE\n";
-                        else if (inst == HASFIELD)
-                            os << "HASFIELD\n";
-                        else if (inst == NOT)
-                            os << "NOT\n";
-                        else
+                        if (sStart.has_value() && sEnd.has_value() && ((sStart.value() > page.size()) || (sEnd.value() > page.size())))
                         {
-                            os << termcolor::reset << "Unknown instruction: " << static_cast<int>(inst) << '\n'
-                               << termcolor::reset;
+                            os << termcolor::red << "Slice start or end can't be greater than the segment size: " << page.size() << termcolor::reset << "\n";
                             return;
+                        }
+
+                        for (std::size_t j = sStart.value_or(0), end = sEnd.value_or(page.size()); j < end; j += 4)
+                        {
+                            const uint8_t padding = page[j];
+                            const uint8_t inst = page[j + 1];
+                            const uint16_t arg = static_cast<uint16_t>((page[j + 2] << 8) + page[j + 3]);
+
+                            // instruction number
+                            os << termcolor::cyan << fmt::format("{:>4}", j / 4) << termcolor::reset;
+                            // padding inst arg arg
+                            os << fmt::format(" {:02x} {:02x} {:02x} {:02x} ", padding, inst, page[j + 2], page[j + 3]);
+                            os << termcolor::yellow;
+
+                            if (inst == NOP)
+                                os << "NOP\n";
+                            else if (inst == LOAD_SYMBOL)
+                                os << "LOAD_SYMBOL " << termcolor::green << syms.symbols[arg] << "\n";
+                            else if (inst == LOAD_CONST)
+                                os << "LOAD_CONST " << termcolor::magenta << stringify_value(vals.values[arg]) << "\n";
+                            else if (inst == POP_JUMP_IF_TRUE)
+                                os << "POP_JUMP_IF_TRUE " << termcolor::red << "(" << arg << ")\n";
+                            else if (inst == STORE)
+                                os << "STORE " << termcolor::green << syms.symbols[arg] << "\n";
+                            else if (inst == LET)
+                                os << "LET " << termcolor::green << syms.symbols[arg] << "\n";
+                            else if (inst == POP_JUMP_IF_FALSE)
+                                os << "POP_JUMP_IF_FALSE " << termcolor::red << "(" << arg << ")\n";
+                            else if (inst == JUMP)
+                                os << "JUMP " << termcolor::red << "(" << arg << ")\n";
+                            else if (inst == RET)
+                                os << "RET\n";
+                            else if (inst == HALT)
+                                os << "HALT\n";
+                            else if (inst == CALL)
+                                os << "CALL " << termcolor::reset << "(" << arg << ")\n";
+                            else if (inst == CAPTURE)
+                                os << "CAPTURE " << termcolor::reset << syms.symbols[arg] << "\n";
+                            else if (inst == BUILTIN)
+                                os << "BUILTIN " << termcolor::reset << Builtins::builtins[arg].first << "\n";
+                            else if (inst == MUT)
+                                os << "MUT " << termcolor::green << syms.symbols[arg] << "\n";
+                            else if (inst == DEL)
+                                os << "DEL " << termcolor::green << syms.symbols[arg] << "\n";
+                            else if (inst == SAVE_ENV)
+                                os << "SAVE_ENV\n";
+                            else if (inst == GET_FIELD)
+                                os << "GET_FIELD " << termcolor::green << syms.symbols[arg] << "\n";
+                            else if (inst == PLUGIN)
+                                os << "PLUGIN " << termcolor::magenta << stringify_value(vals.values[arg]) << "\n";
+                            else if (inst == LIST)
+                                os << "LIST " << termcolor::reset << "(" << arg << ")\n";
+                            else if (inst == APPEND)
+                                os << "APPEND " << termcolor::reset << "(" << arg << ")\n";
+                            else if (inst == CONCAT)
+                                os << "CONCAT " << termcolor::reset << "(" << arg << ")\n";
+                            else if (inst == APPEND_IN_PLACE)
+                                os << "APPEND_IN_PLACE " << termcolor::reset << "(" << arg << ")\n";
+                            else if (inst == CONCAT_IN_PLACE)
+                                os << "CONCAT_IN_PLACE " << termcolor::reset << "(" << arg << ")\n";
+                            else if (inst == POP_LIST)
+                                os << "POP_LIST " << termcolor::reset << "\n";
+                            else if (inst == POP_LIST_IN_PLACE)
+                                os << "POP_LIST_IN_PLACE " << termcolor::reset << "\n";
+                            else if (inst == POP)
+                                os << "POP\n";
+                            else if (inst == ADD)
+                                os << "ADD\n";
+                            else if (inst == SUB)
+                                os << "SUB\n";
+                            else if (inst == MUL)
+                                os << "MUL\n";
+                            else if (inst == DIV)
+                                os << "DIV\n";
+                            else if (inst == GT)
+                                os << "GT\n";
+                            else if (inst == LT)
+                                os << "LT\n";
+                            else if (inst == LE)
+                                os << "LE\n";
+                            else if (inst == GE)
+                                os << "GE\n";
+                            else if (inst == NEQ)
+                                os << "NEQ\n";
+                            else if (inst == EQ)
+                                os << "EQ\n";
+                            else if (inst == LEN)
+                                os << "LEN\n";
+                            else if (inst == EMPTY)
+                                os << "EMPTY\n";
+                            else if (inst == TAIL)
+                                os << "TAIL\n";
+                            else if (inst == HEAD)
+                                os << "HEAD\n";
+                            else if (inst == ISNIL)
+                                os << "ISNIL\n";
+                            else if (inst == ASSERT)
+                                os << "ASSERT\n";
+                            else if (inst == TO_NUM)
+                                os << "TO_NUM\n";
+                            else if (inst == TO_STR)
+                                os << "TO_STR\n";
+                            else if (inst == AT)
+                                os << "AT\n";
+                            else if (inst == AND_)
+                                os << "AND_\n";
+                            else if (inst == OR_)
+                                os << "OR_\n";
+                            else if (inst == MOD)
+                                os << "MOD\n";
+                            else if (inst == TYPE)
+                                os << "TYPE\n";
+                            else if (inst == HASFIELD)
+                                os << "HASFIELD\n";
+                            else if (inst == NOT)
+                                os << "NOT\n";
+                            else
+                            {
+                                os << termcolor::reset << fmt::format("Unknown instruction: {:02x}", inst) << '\n'
+                                   << termcolor::reset;
+                                return;
+                            }
                         }
                     }
                 }
+                if (displayCode && segment != BytecodeSegment::HeadersOnly)
+                    os << "\n"
+                       << termcolor::reset;
 
-                i = cumulated_segment_size + size * 4;
-                cumulated_segment_size += size * 4 + 3;
+                ++pp;
             }
-            if (displayCode && segment != BytecodeSegment::HeadersOnly)
-                os << "\n"
-                   << termcolor::reset;
-
-            ++pp;
-
-            if (i == b.size())
-                break;
         }
     }
 

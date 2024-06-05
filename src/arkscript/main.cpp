@@ -92,7 +92,7 @@ int main(int argc, char** argv)
         )
         | (
             required("-bcr", "--bytecode-reader").set(selected, mode::bytecode_reader).doc("Launch the bytecode reader")
-            & value("file", file)
+            & value("file", file).doc("If file isn't a bytecode file, the cached compiled will be loaded ; if there are none, it will be compiled first")
             , (
                 option("-on", "--only-names").set(segment, Ark::BytecodeSegment::HeadersOnly).doc("Display only the bytecode segments names and sizes")
                 | (
