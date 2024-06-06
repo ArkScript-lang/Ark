@@ -109,8 +109,6 @@ namespace Ark::internal
                             res += m_interpret ? '\a' : 'a';
                         else if (accept(IsChar('b')))
                             res += m_interpret ? '\b' : 'b';
-                        else if (accept(IsChar('0')))
-                            res += m_interpret ? '\0' : '0';
                         else if (accept(IsChar('f')))
                             res += m_interpret ? '\f' : 'f';
                         else if (accept(IsChar('u')))

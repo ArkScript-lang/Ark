@@ -53,6 +53,7 @@
 - removed deprecated code (`list:removeAt`, `ark` executable now replaced by `arkscript`)
 - removed `VM::getUserPointer` and `VM::setUserPointer`
 - removed `ARK_PROFILER_COUNT` define
+- removed useless `\0` escape in strings
 
 ## [3.5.0] - 2023-02-19
 ### Added
