@@ -342,9 +342,18 @@ inline void VM::call(internal::ExecutionContext& context, const int16_t argc_)
     }
 
     if (needed_argc != argc) [[unlikely]]
-        throwVMError(
-            ErrorKind::Arity,
-            fmt::format(
-                "Function `{}' needs {} arguments, but it received {}",
-                m_state.m_symbols[context.last_symbol], needed_argc, argc));
+    {
+        if (context.last_symbol < m_state.m_symbols.size())
+            throwVMError(
+                ErrorKind::Arity,
+                fmt::format(
+                    "Function `{}' needs {} arguments, but it received {}",
+                    m_state.m_symbols[context.last_symbol], needed_argc, argc));
+        else
+            throwVMError(
+                ErrorKind::Arity,
+                fmt::format(
+                    "Function at page {} needs {} arguments, but it received {}",
+                    context.pp, needed_argc, argc));
+    }
 }
