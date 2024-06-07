@@ -87,7 +87,9 @@ namespace Ark::Diagnostics
 
         for (auto i = first_line; i < last_line; ++i)
         {
-            os << termcolor::green << std::setw(5) << (i + 1) << termcolor::reset << " | ";
+            os << termcolor::green << std::setw(5) << (i + 1) << termcolor::reset << " |";
+            if (!ctx[i].empty())
+                os << ' ';
             colorizeLine(ctx[i], line_color_context_counts, os);
             os << "\n";
 
