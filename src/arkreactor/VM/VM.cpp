@@ -992,6 +992,11 @@ namespace Ark
                     case TYPE:
                     {
                         Value* a = popAndResolveAsPtr(context);
+                        if (a == &m_undefined_value) [[unlikely]]
+                            types::generateError(
+                                "type",
+                                { { types::Contract { { types::Typedef("value", ValueType::Any) } } } },
+                                {});
 
                         push(Value(types_to_str[static_cast<unsigned>(a->valueType())]), context);
                         break;
