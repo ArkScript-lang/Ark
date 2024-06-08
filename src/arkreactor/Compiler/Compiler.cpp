@@ -423,6 +423,8 @@ namespace Ark
     {
         if (const auto args = x.constList()[1]; args.nodeType() != NodeType::List)
             throwCompilerError(fmt::format("Expected a well formed argument(s) list, got a {}", typeToString(args)), args);
+        if (x.constList().size() != 3)
+            throwCompilerError("Invalid node ; if it was computed by a macro, check that a node is returned", x);
 
         // capture, if needed
         for (const auto& node : x.constList()[1].constList())

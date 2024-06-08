@@ -48,6 +48,7 @@
 - refactored code inside the bytecode reader to promote code reuse
 - fixed a bug in the compiler generating invalid `while` nodes
 - fixed a bug when passing the wrong number of arguments to a function inside an async call was crashing the VM because the function couldn't be named
+- fixed a bug in the compiler generating invalid `fun` nodes
 
 ### Removed
 - removed unused `NodeType::Closure`
