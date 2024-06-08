@@ -3,6 +3,25 @@ import sys
 import os
 
 
+def handle_command(i: int, count: int, file: str):
+    command = input(f"[{i}/{count}] o,c,s,q,? > ").strip().lower()
+    if command == "o":
+        os.rename(file, f"fct-ok/{os.path.basename(file)}")
+    elif command == "c":
+        os.rename(file, f"fct-bad/{os.path.basename(file)}")
+    elif command == "s":
+        pass
+    elif command == "q":
+        sys.exit(0)
+    elif command == "?":
+        print("\to: ok, not a crash\n\tc: crash\n\ts: skip\n\tq: quit\n\t?: this help message")
+        return True
+    else:
+        print("Unknown command.")
+        return True
+    return False
+
+
 def main():
     arkscript = None
     if os.path.exists("cmake-build-debug/arkscript"):
@@ -19,19 +38,13 @@ def main():
         os.mkdir("fct-bad")
 
     args = sys.argv[1:]
-    for file in args:
+    for i, file in enumerate(args):
         if os.path.exists(file) and os.path.isfile(file):
             print(f"{file}\n{'-' * len(file)}")
             os.system(f"{arkscript} \"{file}\"")
-            command = input("\n\no (ok, not a crash), c (crash), q (quit) > ").strip().lower()
-            if command == "o":
-                os.rename(file, f"fct-ok/{os.path.basename(file)}")
-            elif command == "c":
-                os.rename(file, f"fct-bad/{os.path.basename(file)}")
-            elif command == "q":
-                break
-            else:
-                print("Unknown command. Skipping")
+            print("\n\n")
+            while handle_command(i, len(args), file):
+                pass
             print()
 
 
