@@ -1,0 +1,5 @@
+At type @ 1:13
+    1 | (print (type))
+      | ^~~~~~~~~~~~~~
+    2 |
+        Operator needs one argument, but was called with 0

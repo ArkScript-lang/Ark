@@ -152,6 +152,14 @@ namespace Ark
         }
 
         /**
+         * Checks if a node is a list and has a keyboard as its first node, indicating if it's producing a value on the stack or not
+         * @param node node to check
+         * @return true if the node produces an output on the stack (fun, if, begin)
+         * @return false otherwise (let, mut, set, while, import, del)
+         */
+        static bool nodeProducesOutput(const internal::Node& node);
+
+        /**
          * @brief Check if a given instruction is unary (takes only one argument)
          *
          * @param inst

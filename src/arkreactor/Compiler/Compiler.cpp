@@ -199,6 +199,13 @@ namespace Ark
         return std::nullopt;
     }
 
+    bool Compiler::nodeProducesOutput(const Node& node)
+    {
+        if (node.nodeType() == NodeType::List && !node.constList().empty() && node.constList()[0].nodeType() == NodeType::Keyword)
+            return node.constList()[0].keyword() == Keyword::Begin || node.constList()[0].keyword() == Keyword::Fun || node.constList()[0].keyword() == Keyword::If;
+        return true;  // any other node, function call, symbol, number...
+    }
+
     bool Compiler::isUnaryInst(const Instruction inst) noexcept
     {
         switch (inst)
@@ -211,8 +218,7 @@ namespace Ark
             case ISNIL: [[fallthrough]];
             case TO_NUM: [[fallthrough]];
             case TO_STR: [[fallthrough]];
-            case TYPE: [[fallthrough]];
-            case HASFIELD:
+            case TYPE:
                 return true;
 
             default:
@@ -382,7 +388,13 @@ namespace Ark
 
         // compile arguments in reverse order
         for (uint16_t i = x.constList().size() - 1; i > 0; --i)
-            compileExpression(x.constList()[i], p, false, false);
+        {
+            const auto node = x.constList()[i];
+            if (nodeProducesOutput(node))
+                compileExpression(node, p, false, false);
+            else
+                throwCompilerError(fmt::format("Invalid node inside call to {}", name), node);
+        }
 
         // put inst and number of arguments
         page(p).emplace_back(inst, computeSpecificInstArgc(inst, argc));
@@ -618,12 +630,15 @@ namespace Ark
                     page(p).emplace_back(op.opcode, 2);  // TODO generalize to n arguments (n >= 2)
             }
 
-            if (exp_count <= 1)
+            if (isUnaryInst(static_cast<Instruction>(op.opcode)))
             {
-                if (isUnaryInst(static_cast<Instruction>(op.opcode)))
-                    page(p).emplace_back(op.opcode);
-                else
-                    throwCompilerError(fmt::format("Operator needs two arguments, but was called with {}", exp_count), x.constList()[0]);
+                if (exp_count != 1)
+                    throwCompilerError(fmt::format("Operator needs one argument, but was called with {}", exp_count), x.constList()[0]);
+                page(p).emplace_back(op.opcode);
+            }
+            else if (exp_count <= 1)
+            {
+                throwCompilerError(fmt::format("Operator needs two arguments, but was called with {}", exp_count), x.constList()[0]);
             }
 
             // need to check we didn't push the (op A B C D...) things for operators not supporting it
