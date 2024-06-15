@@ -686,6 +686,7 @@ namespace Ark::internal
     {
         if (!accept(IsChar('(')))
             return std::nullopt;
+        auto cursor = getCursor();
         std::string comment;
         newlineOrComment(&comment);
 
@@ -708,7 +709,7 @@ namespace Ark::internal
         }
 
         std::optional<Node> leaf { call_type };
-        setNodePosAndFilename(leaf.value());
+        setNodePosAndFilename(leaf.value(), cursor);
         leaf->push_back(func.value());
 
         while (!isEOF())

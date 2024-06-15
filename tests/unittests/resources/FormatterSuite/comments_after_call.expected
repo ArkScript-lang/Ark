@@ -8,7 +8,6 @@
   c # last element
 ]
 [a b c] # list
-
 (foo
   # func
   bar
