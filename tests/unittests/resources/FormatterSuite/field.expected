@@ -1,5 +1,4 @@
 (let a foo.closure.name)
-
 (foo.closure.name
   # test
   this.bar.egg.qux)

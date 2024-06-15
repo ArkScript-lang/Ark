@@ -13,6 +13,13 @@ namespace Ark::internal
             }) != m_it_to_row.end())
             return;
 
+        // if the mapping is empty, the loop while never hit and we'll never insert anything
+        if (m_it_to_row.empty())
+        {
+            m_it_to_row.emplace_back(it, row);
+            return;
+        }
+
         for (std::size_t i = 0, end = m_it_to_row.size(); i < end; ++i)
         {
             auto current = m_it_to_row[i].first;

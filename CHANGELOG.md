@@ -17,6 +17,7 @@
 - fuzzing step in the CI
 - better error reporting on unknown import
 - check on number of arguments passed to `type`
+- warning when the formatter deletes comment(s) by mistake
 
 ### Changed
 - instructions are on 4 bytes: 1 byte for the instruction, 1 byte of padding, 2 bytes for an immediate argument
