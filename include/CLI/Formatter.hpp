@@ -29,6 +29,7 @@ private:
     std::string m_output;
 
     void processAst(const Ark::internal::Node& ast);
+    void warnIfCommentsWereRemoved(const std::string& original_code, const std::string& filename);
 
     static bool isListStartingWithKeyword(const Ark::internal::Node& node, Ark::internal::Keyword keyword);
     static bool isBeginBlock(const Ark::internal::Node& node);

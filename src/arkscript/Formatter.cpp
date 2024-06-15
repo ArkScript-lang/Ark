@@ -2,6 +2,7 @@
 #include <CLI/Formatter.hpp>
 
 #include <fmt/core.h>
+#include <termcolor/proxy.hpp>
 
 #include <Ark/Files.hpp>
 #include <Ark/Exceptions.hpp>
@@ -25,6 +26,7 @@ void Formatter::run()
         const std::string code = Utils::readFile(m_filename);
         m_parser.process(m_filename, code);
         processAst(m_parser.ast());
+        warnIfCommentsWereRemoved(code, ARK_NO_NAME_FILE);
     }
     catch (const CodeError& e)
     {
@@ -38,6 +40,7 @@ void Formatter::runWithString(const std::string& code)
     {
         m_parser.process(ARK_NO_NAME_FILE, code);
         processAst(m_parser.ast());
+        warnIfCommentsWereRemoved(code, ARK_NO_NAME_FILE);
     }
     catch (const CodeError& e)
     {
@@ -75,6 +78,18 @@ void Formatter::processAst(const Node& ast)
     }
 }
 
+void Formatter::warnIfCommentsWereRemoved(const std::string& original_code, const std::string& filename)
+{
+    if (std::ranges::count(original_code, '#') != std::ranges::count(m_output, '#'))
+    {
+        std::cout << termcolor::yellow << "Warning" << termcolor::reset << ": one or more comments from the original source code seem to have been removed by mistake while formatting ";
+        if (filename != ARK_NO_NAME_FILE)
+            std::cout << "'" << filename << "'" << std::endl;
+        else
+            std::cout << "file" << std::endl;
+        std::cout << "Please fill an issue on GitHub: https://github.com/ArkScript-lang/Ark" << std::endl;
+    }
+}
 
 bool Formatter::isListStartingWithKeyword(const Node& node, const Keyword keyword)
 {
