@@ -310,8 +310,7 @@ namespace Ark::internal
 
         if (A.m_type != NodeType::List)
             return A.m_value == B.m_value;
-        else
-            throw TypeError("Can not compare lists");
+        return false;
     }
 
     bool operator<(const Node& A, const Node& B)
