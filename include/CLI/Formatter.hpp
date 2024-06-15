@@ -50,7 +50,7 @@ private:
      */
     static std::size_t lineOfLastNodeIn(const Ark::internal::Node& node);
 
-    bool should_split_on_newline(const Ark::internal::Node& node);
+    bool shouldSplitOnNewline(const Ark::internal::Node& node);
 
     static std::string prefix(const std::size_t indent)
     {

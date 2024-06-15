@@ -137,7 +137,7 @@ std::size_t Formatter::lineOfLastNodeIn(const Node& node)
     return node.line();
 }
 
-bool Formatter::should_split_on_newline(const Node& node)
+bool Formatter::shouldSplitOnNewline(const Node& node)
 {
     const std::string formatted = format(node, 0, false);
     const std::string::size_type sz = formatted.find_first_of('\n');
@@ -279,7 +279,7 @@ std::string Formatter::formatFunction(const Node& node, const std::size_t indent
     else
         formatted_args = format(args_node, indent, false);
 
-    if (!should_split_on_newline(body_node))
+    if (!shouldSplitOnNewline(body_node))
         return fmt::format("(fun {} {})", formatted_args, format(body_node, indent + 1, false));
     return fmt::format("(fun {}\n{})", formatted_args, format(body_node, indent + 1, true));
 }
@@ -291,7 +291,7 @@ std::string Formatter::formatVariable(const Node& node, const std::size_t indent
     const Node body_node = node.constList()[2];
     std::string formatted_body = format(body_node, indent + 1, false);
 
-    if (!should_split_on_newline(body_node) || isFuncDef(body_node))
+    if (!shouldSplitOnNewline(body_node) || isFuncDef(body_node))
         return fmt::format("({} {} {})", keyword, format(node.constList()[1], indent, false), formatted_body);
     return fmt::format("({} {}\n{})", keyword, format(node.constList()[1], indent, false), format(node.constList()[2], indent + 1, true));
 }
@@ -312,7 +312,7 @@ std::string Formatter::formatCondition(const Node& node, const std::size_t inden
         cond_on_newline ? "\n" : " ",
         formatted_cond);
 
-    const bool split_then_newline = should_split_on_newline(then_node);
+    const bool split_then_newline = shouldSplitOnNewline(then_node);
 
     // (if cond then)
     if (node.constList().size() == 3)
@@ -340,7 +340,7 @@ std::string Formatter::formatLoop(const Node& node, const std::size_t indent)
     if (formatted_cond.find('\n') != std::string::npos)
         cond_on_newline = true;
 
-    if (cond_on_newline || should_split_on_newline(body_node))
+    if (cond_on_newline || shouldSplitOnNewline(body_node))
         return fmt::format(
             "(while{}{}\n{})",
             cond_on_newline ? "\n" : " ",
