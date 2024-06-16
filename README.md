@@ -1,4 +1,4 @@
-# ArkScript  ![Latest version](https://img.shields.io/github/v/release/arkscript-lang/ark?style=for-the-badge)
+# ArkScript  ![Latest version](https://img.shields.io/github/v/release/arkscript-lang/ark?style=for-the-badge&include_prereleases)
 
 ![Code size](https://img.shields.io/github/languages/code-size/arkscript-lang/ark?style=for-the-badge&logo=github)
 ![Downloads](https://img.shields.io/github/downloads/arkscript-lang/ark/total?color=%2324cc24&style=for-the-badge&logo=github)
@@ -254,6 +254,10 @@ Huge thanks to those people for their donations to support the project:
 * COUR Eloïse
 * [AKPINAR Dylan](https://github.com/DylanAkp)
 * [Ryan C. Gordon](https://icculus.org) through his [2022 Microgrant](https://web.archive.org/web/20220608150846/https://twitter.com/icculus/status/1534552918317318144)
+
+## Cool graphs
+
+[![Star History Chart](https://api.star-history.com/svg?repos=arkscript-lang/ark&type=Date)](https://star-history.com/#arkscript-lang/ark&Date)
 
 ## Credits
 
