@@ -138,7 +138,13 @@ namespace Ark::internal
         {
             const auto position = getCount();
             if (const auto value = nodeOrValue(); value.has_value())
-                leaf->push_back(value.value());
+            {
+                const auto sym = value.value();
+                if (sym.nodeType() == NodeType::List || sym.nodeType() == NodeType::Symbol || sym.nodeType() == NodeType::Macro || sym.nodeType() == NodeType::Spread)
+                    leaf->push_back(sym);
+                else
+                    error(fmt::format("Can not use a {} as a symbol name, even in a macro", nodeTypes[static_cast<std::size_t>(sym.nodeType())]), sym.repr());
+            }
             else
                 backtrack(position);
         }

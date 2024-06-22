@@ -1,0 +1,6 @@
+At ' ' @ 1:36
+    1 | ($ defun (name args body) (let 0000 (fun args body)))
+      |                                    ^
+    2 | (defun a_func (a b) (+ a b))
+    3 | (print (a_func 1 2))
+        Can not use a Number as a symbol name, even in a macro

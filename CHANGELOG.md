@@ -51,6 +51,7 @@
 - fixed a bug in the compiler generating invalid `while` nodes
 - fixed a bug when passing the wrong number of arguments to a function inside an async call was crashing the VM because the function couldn't be named
 - fixed a bug in the compiler generating invalid `fun` nodes
+- fixed a bug when generating `let`, `mut` or `set` nodes inside macros with an invalid node type
 
 ### Removed
 - removed unused `NodeType::Closure`

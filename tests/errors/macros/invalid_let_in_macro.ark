@@ -1,0 +1,3 @@
+($ defun (name args body) (let 0000 (fun args body)))
+(defun a_func (a b) (+ a b))
+(print (a_func 1 2))
