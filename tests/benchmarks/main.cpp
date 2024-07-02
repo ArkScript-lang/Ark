@@ -1,7 +1,9 @@
 #include <benchmark/benchmark.h>
 
 #include <string>
+#include <fstream>
 
+#include <Ark/Compiler/AST/Parser.hpp>
 #include <Ark/VM/State.hpp>
 #include <Ark/VM/VM.hpp>
 
@@ -9,7 +11,7 @@
 void quicksort(benchmark::State& s)
 {
     Ark::State state;
-    state.doFile(std::string(ARK_TESTS_ROOT) + "tests/benchmarks/quicksort.ark");
+    state.doFile(std::string(ARK_TESTS_ROOT) + "tests/benchmarks/resources/runtime/quicksort.ark");
 
     for (auto _ : s)
     {
@@ -23,7 +25,7 @@ BENCHMARK(quicksort)->Unit(benchmark::kMillisecond);
 void ackermann(benchmark::State& s)
 {
     Ark::State state;
-    state.doFile(std::string(ARK_TESTS_ROOT) + "tests/benchmarks/ackermann.ark");
+    state.doFile(std::string(ARK_TESTS_ROOT) + "tests/benchmarks/resources/runtime/ackermann.ark");
 
     for (auto _ : s)
     {
@@ -37,7 +39,7 @@ BENCHMARK(ackermann)->Unit(benchmark::kMillisecond)->Iterations(50);
 void fibonacci(benchmark::State& s)
 {
     Ark::State state;
-    state.doFile(std::string(ARK_TESTS_ROOT) + "tests/benchmarks/fibonacci.ark");
+    state.doFile(std::string(ARK_TESTS_ROOT) + "tests/benchmarks/resources/runtime/fibonacci.ark");
 
     for (auto _ : s)
     {
@@ -51,7 +53,7 @@ BENCHMARK(fibonacci)->Unit(benchmark::kMillisecond)->Iterations(100);
 void man_or_boy(benchmark::State& s)
 {
     Ark::State state;
-    state.doFile(std::string(ARK_TESTS_ROOT) + "tests/benchmarks/man_or_boy_test.ark");
+    state.doFile(std::string(ARK_TESTS_ROOT) + "tests/benchmarks/resources/runtime/man_or_boy_test.ark");
 
     for (auto _ : s)
     {
@@ -60,5 +62,52 @@ void man_or_boy(benchmark::State& s)
     }
 }
 BENCHMARK(man_or_boy)->Unit(benchmark::kMillisecond);
+
+// --------------------------------------------
+// parser benchmarks
+// --------------------------------------------
+
+std::string readFile(const std::string& filename)
+{
+    std::ifstream stream(filename);
+    std::string code((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
+    return code;
+}
+
+constexpr int simple = 0, medium = 1, big = 2;
+
+// cppcheck-suppress constParameterCallback
+static void BM_Parse(benchmark::State& state)
+{
+    using namespace std::string_literals;
+
+    const long selection = state.range(0);
+    const std::string filename = "tests/benchmarks/resources/parser/"s + (selection == simple ? "simple.ark" : (selection == medium ? "medium.ark" : "big.ark"));
+    const std::string code = readFile(filename);
+    long linesCount = 0;
+    for (const char c : code)
+        if (c == '\n')
+            ++linesCount;
+
+    long long nodes = 0;
+    long long lines = 0;
+
+    for (auto _ : state)
+    {
+        Ark::internal::Parser parser;
+        parser.process(ARK_NO_NAME_FILE, code);
+
+        nodes += parser.ast().constList().size();
+        lines += linesCount;
+    }
+
+    state.counters["nodesRate"] = benchmark::Counter(nodes, benchmark::Counter::kIsRate);
+    state.counters["nodesAvg"] = benchmark::Counter(nodes, benchmark::Counter::kAvgThreads);
+    state.counters["uselessLines/sec"] = benchmark::Counter(lines, benchmark::Counter::kIsRate);
+}
+
+BENCHMARK(BM_Parse)->Name("New parser - Simple - 39 nodes")->Arg(simple)->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_Parse)->Name("New parser - Medium - 83 nodes")->Arg(medium)->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_Parse)->Name("New parser - Big - 665 nodes")->Arg(big)->Unit(benchmark::kMillisecond);
 
 BENCHMARK_MAIN();
