@@ -37,11 +37,9 @@ jobs:
             -I include src \
             --enable=all --inline-suppr \
             --suppressions-list=cppcheck-suppressions.txt
-          cat cppcheck.txt | sort > cppcheck_sorted.txt
+          content=$(python .github/generate_cppcheck_report.py $(echo $(git diff --name-only -r HEAD^1 HEAD)))
           echo "CPPCHECK_REPORT<<EOF" >> $GITHUB_ENV
-          echo "| Filename | Line | Type | Description |" >> $GITHUB_ENV
-          echo "| -------- | ---- | ---- | ----------- |" >> $GITHUB_ENV
-          cat cppcheck_sorted.txt | awk -F ":" '{type=$3;out=""; for (i = 4; i <= NF; i++) {out = out " " $i}; print $1 " | " $2 " |" type " |" out}' >> $GITHUB_ENV
+          echo "$content" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
       - name: Find Comment
@@ -63,6 +61,5 @@ jobs:
 
             ---
 
-            ### CppCheck report
             ${{ env.CPPCHECK_REPORT }}
           edit-mode: replace

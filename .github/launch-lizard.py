@@ -32,22 +32,22 @@ for file in lizard.analyze(files):
 
 
 def make_sorted_table_lines(lines_with_ccn):
-    output = ""
-    for line in sorted(lines_with_ccn, key=lambda e: e[1], reverse=True):
-        output += f"| {line[0]} | {line[1]} |\n"
-    return output
+    if lines_with_ccn:
+        output = TABLE_HEADERS + "\n"
+        for line in sorted(lines_with_ccn, key=lambda e: e[1], reverse=True):
+            output += f"| {line[0]} | {line[1]} |\n"
+        return output
+    return ""
 
 
 print(f"""### Lizard report
 
 Listing only functions with cyclomatic complexity >= {MAX_CCN} or NLOC >= {MAX_NLOC} or parameters >= {MAX_PARAM}.
-{TABLE_HEADERS}
 {make_sorted_table_lines(updated)}
 
 <details>
 <summary>Report about files you didn't modify in this PR</summary>
 
-{TABLE_HEADERS}
 {make_sorted_table_lines(anything_else)}
 </details>
 """)
