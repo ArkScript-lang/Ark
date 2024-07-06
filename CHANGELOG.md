@@ -57,6 +57,7 @@
 - futures can be awaited again, they will return nil on all the tries
 - checking for reused argument name in macros during parsing
 - enhanced comment after node handling in macros
+- adding a hard limit on package names length (255 characters, to comply with posix limits)
 
 ### Removed
 - removed unused `NodeType::Closure`

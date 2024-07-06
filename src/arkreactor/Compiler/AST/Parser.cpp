@@ -285,8 +285,15 @@ namespace Ark::internal
 
         Import import_data;
 
+        const auto pos = getCount();
         if (!packageName(&import_data.prefix))
             errorWithNextToken("Import expected a package name");
+
+        if (import_data.prefix.size() > 255)
+        {
+            backtrack(pos);
+            errorWithNextToken(fmt::format("Import name too long, expected at most 255 characters, got {}", import_data.prefix.size()));
+        }
         import_data.package.push_back(import_data.prefix);
 
         const auto [row, col] = getCursor();
@@ -312,6 +319,12 @@ namespace Ark::internal
                     setNodePosAndFilename(packageNode.list().back());
                     import_data.package.push_back(path);
                     import_data.prefix = path;  // in the end we will store the last element of the package, which is what we want
+
+                    if (path.size() > 255)
+                    {
+                        backtrack(pos);
+                        errorWithNextToken(fmt::format("Import name too long, expected at most 255 characters, got {}", path.size()));
+                    }
                 }
             }
             else if (accept(IsChar(':')) && accept(IsChar('*')))  // parsing :*
