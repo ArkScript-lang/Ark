@@ -638,7 +638,12 @@ namespace Ark::internal
             return std::nullopt;
         comment.clear();
         if (newlineOrComment(&comment))
-            args->list().back().attachCommentAfter(comment);
+        {
+            if (args->list().empty())
+                args->attachCommentAfter(comment);
+            else
+                args->list().back().attachCommentAfter(comment);
+        }
 
         return args;
     }

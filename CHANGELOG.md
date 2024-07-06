@@ -56,6 +56,7 @@
 - fixed a bug with recursive macro, exhausting the stack space due to recursive evaluation
 - futures can be awaited again, they will return nil on all the tries
 - checking for reused argument name in macros during parsing
+- enhanced comment after node handling in macros
 
 ### Removed
 - removed unused `NodeType::Closure`
