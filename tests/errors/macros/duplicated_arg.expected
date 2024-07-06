@@ -1,0 +1,6 @@
+At . @ 1:15
+    1 | ($ -> (arg fn ...fn) {
+      |               ^~~~~
+    2 |     ($if (> (len fn) 0)
+    3 |         (-> (fn1 arg) ...fn)
+        Argument names must be unique, can not reuse `fn'

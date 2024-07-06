@@ -595,16 +595,27 @@ namespace Ark::internal
         newlineOrComment(&comment);
         args->attachNearestCommentBefore(comment);
 
+        std::vector<std::string> names;
         while (!isEOF())
         {
+            const auto pos = getCount();
+
             std::string arg_name;
             if (!name(&arg_name))
                 break;
             comment.clear();
             newlineOrComment(&comment);
             args->push_back(Node(NodeType::Symbol, arg_name).attachNearestCommentBefore(comment));
+
+            if (std::ranges::find(names, arg_name) != names.end())
+            {
+                backtrack(pos);
+                errorWithNextToken(fmt::format("Argument names must be unique, can not reuse `{}'", arg_name));
+            }
+            names.push_back(arg_name);
         }
 
+        const auto pos = getCount();
         if (sequence("..."))
         {
             std::string spread_name;
@@ -615,6 +626,12 @@ namespace Ark::internal
             comment.clear();
             if (newlineOrComment(&comment))
                 args->list().back().attachCommentAfter(comment);
+
+            if (std::ranges::find(names, spread_name) != names.end())
+            {
+                backtrack(pos);
+                errorWithNextToken(fmt::format("Argument names must be unique, can not reuse `{}'", spread_name));
+            }
         }
 
         if (!accept(IsChar(')')))
