@@ -70,7 +70,7 @@ jobs:
         config:
           - {
             os: ubuntu-24.04, name: "Ubuntu Clang 16",
-            compiler: clang, compiler_version: 16, sanitizers: "Off",
+            compiler: clang, compiler_version: 16, sanitizers: "On",
             artifact: "ubuntu-clang-16"
           }
           - {
@@ -80,7 +80,7 @@ jobs:
           }
           - {
             os: ubuntu-24.04, name: "Ubuntu GCC 14",
-            compiler: gcc, compiler_version: 14, sanitizers: "Off",
+            compiler: gcc, compiler_version: 14, sanitizers: "On",
             artifact: "ubuntu-gcc-14"
           }
           - {
