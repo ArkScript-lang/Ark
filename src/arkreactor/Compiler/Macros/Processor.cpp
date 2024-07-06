@@ -117,6 +117,9 @@ namespace Ark::internal
 
     void MacroProcessor::processNode(Node& node, unsigned depth)
     {
+        if (depth >= 1024)
+            throwMacroProcessingError("Max recursion depth reached (1024). You most likely have a badly defined recursive macro calling itself without a proper exit condition", node);
+
         if (node.nodeType() == NodeType::List)
         {
             bool has_created = false;
@@ -212,6 +215,13 @@ namespace Ark::internal
         }
     }
 
+    void MacroProcessor::setWithFileAttributes(const Node origin, Node& output, const Node& macro)
+    {
+        output = macro;
+        output.setFilename(origin.filename());
+        output.setPos(origin.line(), origin.col());
+    }
+
     Node MacroProcessor::evaluate(Node& node, const bool is_not_body)
     {
         if (node.nodeType() == NodeType::Symbol)
@@ -304,9 +314,9 @@ namespace Ark::internal
                     if (isConstEval(lst))
                     {
                         if (!lst.list().empty() && lst.list()[0] == getListNode())
-                            node = Node(static_cast<long>(lst.list().size()) - 1);
+                            setWithFileAttributes(node, node, Node(static_cast<long>(lst.list().size()) - 1));
                         else
-                            node = Node(static_cast<long>(lst.list().size()));
+                            setWithFileAttributes(node, node, Node(static_cast<long>(lst.list().size())));
                     }
                 }
             }
@@ -332,11 +342,17 @@ namespace Ark::internal
                             ++num_idx;
                     }
 
+                    Node output;
                     if (num_idx >= 0 && num_idx < size)
-                        return sublist.list()[num_idx];
-                    if (const auto c = size + num_idx; num_idx < 0 && c < size && c >= 0)
-                        return sublist.list()[c];
-                    throwMacroProcessingError(fmt::format("Index ({}) out of range (list size: {})", num_idx, real_size), node);
+                        output = sublist.list()[num_idx];
+                    else if (const auto c = size + num_idx; num_idx < 0 && c < size && c >= 0)
+                        output = sublist.list()[c];
+                    else
+                        throwMacroProcessingError(fmt::format("Index ({}) out of range (list size: {})", num_idx, real_size), node);
+
+                    output.setFilename(node.filename());
+                    output.setPos(node.line(), node.col());
+                    return output;
                 }
             }
             else if (name == "head")
@@ -351,15 +367,15 @@ namespace Ark::internal
                         if (sublist.constList().size() > 1)
                         {
                             const Node sublistCopy = sublist.constList()[1];
-                            node = sublistCopy;
+                            setWithFileAttributes(node, node, sublistCopy);
                         }
                         else
-                            node = getNilNode();
+                            setWithFileAttributes(node, node, getNilNode());
                     }
                     else if (!sublist.list().empty())
-                        node = sublist.constList()[0];
+                        setWithFileAttributes(node, node, sublist.constList()[0]);
                     else
-                        node = getNilNode();
+                        setWithFileAttributes(node, node, getNilNode());
                 }
             }
             else if (name == "tail")
@@ -374,22 +390,22 @@ namespace Ark::internal
                         if (sublist.list().size() > 1)
                         {
                             sublist.list().erase(sublist.constList().begin() + 1);
-                            node = sublist;
+                            setWithFileAttributes(node, node, sublist);
                         }
                         else
                         {
-                            node = Node(NodeType::List);
+                            setWithFileAttributes(node, node, Node(NodeType::List));
                             node.push_back(getListNode());
                         }
                     }
                     else if (!sublist.list().empty())
                     {
                         sublist.list().erase(sublist.constList().begin());
-                        node = sublist;
+                        setWithFileAttributes(node, node, sublist);
                     }
                     else
                     {
-                        node = Node(NodeType::List);
+                        setWithFileAttributes(node, node, Node(NodeType::List));
                         node.push_back(getListNode());
                     }
                 }
@@ -432,26 +448,26 @@ namespace Ark::internal
                 if (sym.nodeType() == NodeType::Symbol)
                 {
                     if (const auto it = m_defined_functions.find(sym.string()); it != m_defined_functions.end())
-                        node = Node(static_cast<long>(it->second.constList().size()));
+                        setWithFileAttributes(node, node, Node(static_cast<long>(it->second.constList().size())));
                     else
                         throwMacroProcessingError(fmt::format("When expanding `argcount', expected a known function name, got unbound variable {}", sym.string()), sym);
                 }
                 else if (sym.nodeType() == NodeType::List && sym.list().size() == 3 && sym.list()[0].nodeType() == NodeType::Keyword && sym.list()[0].keyword() == Keyword::Fun)
-                    node = Node(static_cast<long>(sym.list()[1].list().size()));
+                    setWithFileAttributes(node, node, Node(static_cast<long>(sym.list()[1].list().size())));
                 else
                     throwMacroProcessingError(fmt::format("When trying to apply `argcount', got a {} instead of a Symbol or Function", typeToString(sym)), sym);
             }
             else if (name == "$repr")
             {
                 const Node ast = node.constList()[1];
-                node = Node(NodeType::String, ast.repr());
+                setWithFileAttributes(node, node, Node(NodeType::String, ast.repr()));
             }
         }
 
         if (node.nodeType() == NodeType::List && !node.constList().empty())
         {
             for (auto& child : node.list())
-                child = evaluate(child, is_not_body);
+                setWithFileAttributes(child, child, evaluate(child, is_not_body));
         }
 
         return node;
@@ -584,6 +600,6 @@ namespace Ark::internal
 
     void MacroProcessor::throwMacroProcessingError(const std::string& message, const Node& node)
     {
-        throw CodeError(message, node.filename(), node.line(), node.col(), node.repr());
+        throw CodeError(message, node.filename(), node.line(), node.col(), "");  // node.repr()
     }
 }

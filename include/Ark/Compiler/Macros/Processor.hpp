@@ -158,6 +158,8 @@ namespace Ark::internal
          */
         void unify(const std::unordered_map<std::string, Node>& map, Node& target, Node* parent, std::size_t index = 0);
 
+        void setWithFileAttributes(const Node origin, Node& output, const Node& macro);
+
         /**
          * @brief Evaluate only the macros
          *

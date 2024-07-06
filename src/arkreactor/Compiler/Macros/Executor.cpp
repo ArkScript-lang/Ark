@@ -9,6 +9,13 @@ namespace Ark::internal
         m_processor(processor)
     {}
 
+    void MacroExecutor::setWithFileAttributes(const Node origin, Node& output, const Node& macro)
+    {
+        output = macro;
+        output.setFilename(origin.filename());
+        output.setPos(origin.line(), origin.col());
+    }
+
     const Node* MacroExecutor::findNearestMacro(const std::string& name) const
     {
         return m_processor->findNearestMacro(name);

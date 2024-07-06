@@ -71,14 +71,14 @@ namespace Ark::internal
                 if (!args_applied.empty())
                     unify(args_applied, temp_body, nullptr);
 
-                node = evaluate(temp_body, false);
+                setWithFileAttributes(node, node, evaluate(temp_body, false));
                 applyMacroProxy(node);  // todo: this seems useless
                 return true;
             }
         }
         else if (isPredefined(first.string()))
         {
-            node = evaluate(node, false);
+            setWithFileAttributes(node, node, evaluate(node, false));
             return true;
         }
 

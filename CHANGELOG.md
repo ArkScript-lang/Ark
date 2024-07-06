@@ -53,6 +53,7 @@
 - fixed a bug in the compiler generating invalid `fun` nodes
 - fixed a bug when generating `let`, `mut` or `set` nodes inside macros with an invalid node type
 - fixed a bug when reading invalid UTF8 codepoints in the parser caused out of bounds reads
+- fixed a bug with recursive macro, exhausting the stack space due to recursive evaluation
 
 ### Removed
 - removed unused `NodeType::Closure`
