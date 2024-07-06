@@ -10,6 +10,7 @@ docker run -it --rm --name afldocker \
   --mount type=tmpfs,destination=/ramdisk2 \
   --mount type=tmpfs,destination=/ramdisk3 \
   --mount type=tmpfs,destination=/ramdisk4 \
+  --mount type=tmpfs,destination=/ramdisk5 \
   -e AFL_TMPDIR=/ramdisk \
   -v $(pwd):/src \
   aflplusplus/aflplusplus:v4.20c
