@@ -52,6 +52,7 @@
 - fixed a bug when passing the wrong number of arguments to a function inside an async call was crashing the VM because the function couldn't be named
 - fixed a bug in the compiler generating invalid `fun` nodes
 - fixed a bug when generating `let`, `mut` or `set` nodes inside macros with an invalid node type
+- fixed a bug when reading invalid UTF8 codepoints in the parser caused out of bounds reads
 
 ### Removed
 - removed unused `NodeType::Closure`

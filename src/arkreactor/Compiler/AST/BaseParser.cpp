@@ -42,7 +42,7 @@ namespace Ark::internal
         }
 
         // getting a character from the stream
-        auto [it, sym] = utf8_char_t::at(m_it);
+        auto [it, sym] = utf8_char_t::at(m_it, m_str.end());
         m_next_it = it;
         m_sym = sym;
 
@@ -80,11 +80,10 @@ namespace Ark::internal
             return;
 
         m_it = m_str.begin() + n;
-        auto [it, sym] = utf8_char_t::at(m_it);
+        auto [it, sym] = utf8_char_t::at(m_it, m_str.end());
         m_next_it = it;
         m_sym = sym;
 
-        // TODO: create a kind of map vec<pair<it, row>>
         // search for the nearest it < m_it in the map to know the line number
         for (std::size_t i = 0, end = m_it_to_row.size(); i < end; ++i)
         {

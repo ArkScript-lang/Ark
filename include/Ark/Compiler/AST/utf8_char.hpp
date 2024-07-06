@@ -23,7 +23,7 @@ namespace Ark::internal
             m_codepoint(cp), m_length(len), m_repr(repr) {}
 
         // https://github.com/sheredom/utf8.h/blob/4e4d828174c35e4564c31a9e35580c299c69a063/utf8.h#L1178
-        static std::pair<std::string::iterator, utf8_char_t> at(std::string::iterator it)
+        static std::pair<std::string::iterator, utf8_char_t> at(std::string::iterator it, const std::string::iterator end)
         {
             codepoint_t codepoint;
             length_t length;
@@ -31,6 +31,9 @@ namespace Ark::internal
 
             if (0xf0 == (0xf8 & *it))  // 4 byte utf8 codepoint
             {
+                if (it + 3 == end || it + 2 == end || it + 1 == end)
+                    return std::make_pair(end, utf8_char_t {});
+
                 codepoint = (static_cast<codepoint_t>(0x07 & *it) << 18) |
                     (static_cast<codepoint_t>(0x3f & *(it + 1)) << 12) |
                     (static_cast<codepoint_t>(0x3f & *(it + 2)) << 6) |
@@ -39,6 +42,9 @@ namespace Ark::internal
             }
             else if (0xe0 == (0xf0 & *it))  // 3 byte utf8 codepoint
             {
+                if (it + 2 == end || it + 1 == end)
+                    return std::make_pair(end, utf8_char_t {});
+
                 codepoint = (static_cast<codepoint_t>(0x0f & *it) << 12) |
                     (static_cast<codepoint_t>(0x3f & *(it + 1)) << 6) |
                     static_cast<codepoint_t>(0x3f & *(it + 2));
@@ -46,6 +52,9 @@ namespace Ark::internal
             }
             else if (0xc0 == (0xe0 & *it))  // 2 byte utf8 codepoint
             {
+                if (it + 1 == end)
+                    return std::make_pair(end, utf8_char_t {});
+
                 codepoint = (static_cast<codepoint_t>(0x1f & *it) << 6) |
                     static_cast<codepoint_t>(0x3f & *(it + 1));
                 length = 2;
