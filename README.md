@@ -110,6 +110,8 @@ Make sure you follow the [contribution guidelines](CONTRIBUTING.md) before submi
 
 Don't know what to work on? No worries, we have a [list of things to do](https://github.com/ArkScript-lang/Ark/issues) :wink:
 
+[![GitHub repo Good Issues for newbies](https://img.shields.io/github/issues/ArkScript-lang/Ark/good%20first%20issue?style=flat&logo=github&logoColor=green&label=Good%20First%20issues)](https://github.com/ArkScript-lang/Ark/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22) [![GitHub Help Wanted issues](https://img.shields.io/github/issues/ArkScript-lang/Ark/help%20wanted?style=flat&logo=github&logoColor=b545d1&label=%22Help%20Wanted%22%20issues)](https://github.com/ArkScript-lang/Ark/issues?q=is%3Aopen+is%3Aissue+label%3A%22help+wanted%22) [![GitHub Help Wanted PRs](https://img.shields.io/github/issues-pr/ArkScript-lang/Ark/help%20wanted?style=flat&logo=github&logoColor=b545d1&label=%22Help%20Wanted%22%20PRs)](https://github.com/ArkScript-lang/Ark/pulls?q=is%3Aopen+is%3Aissue+label%3A%22help+wanted%22) [![GitHub repo Issues](https://img.shields.io/github/issues/ArkScript-lang/Ark?style=flat&logo=github&logoColor=red&label=Issues)](https://github.com/ArkScript-lang/Ark/issues?q=is%3Aopen)
+
 ### Related projects
 
 We have other projects tightly related to ArkScript, which aren't necessarily C++ oriented:
