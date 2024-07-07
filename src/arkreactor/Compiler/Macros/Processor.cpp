@@ -470,6 +470,9 @@ namespace Ark::internal
                 setWithFileAttributes(child, child, evaluate(child, is_not_body));
         }
 
+        if (node.nodeType() == NodeType::Spread)
+            throwMacroProcessingError(fmt::format("Found an unevaluated spread: `{}'", node.string()), node);
+
         return node;
     }
 

@@ -1,0 +1,7 @@
+At ...defargs @ 2:29
+    1 | ($ partial {
+    2 |   (fun (a) (func ...defargs)) })
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    3 |
+    4 | (let b (partial))
+        Found an unevaluated spread: `defargs'
