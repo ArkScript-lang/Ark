@@ -79,6 +79,8 @@ namespace Ark::Diagnostics
     void makeContext(std::ostream& os, const std::string& code, const std::size_t target_line, const std::size_t col_start, const std::size_t sym_size)
     {
         const std::vector<std::string> ctx = Utils::splitString(code, '\n');
+        if (target_line >= ctx.size())
+            return;
 
         const std::size_t first_line = target_line >= 3 ? target_line - 3 : 0;
         const std::size_t last_line = (target_line + 3) <= ctx.size() ? target_line + 3 : ctx.size();

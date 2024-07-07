@@ -11,9 +11,9 @@ namespace Ark::internal
 
         // evaluate cond
         if (isTruthy(temp))
-            node = if_true;
+            setWithFileAttributes(node, node, if_true);
         else if (node.constList().size() > 3)
-            node = if_false;
+            setWithFileAttributes(node, node, if_false);
         else
         {
             // remove node because nothing matched

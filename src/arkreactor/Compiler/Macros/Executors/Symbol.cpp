@@ -14,7 +14,8 @@ namespace Ark::internal
             // ($ name value)
             if (macro->constList().size() == 2)
             {
-                node = macro->constList()[1];
+                setWithFileAttributes(node, node, macro->constList()[1]);
+                evaluate(node, false);
                 return true;
             }
         }

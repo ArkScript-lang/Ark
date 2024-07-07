@@ -1,0 +1,20 @@
+($ suffix-dup (sym x){
+    ($if (+ x 1)
+        est_func
+        ($ p (a b c) (* a b c)))
+    (symcat sym x)})
+
+($ partial (func ...defargs) {
+    ($ bloc (suffix-dup a (len defargs)))
+    (fun (bloc) (func ...defargs bloc))
+    ($undef bloc)})
+
+(let test
+    (partial
+        (* a b)
+        (let inner (partial te t_func 0))
+        (let est_func
+                ($ partial (func ...defargs) {
+                    ($ bloc (suffix-dup a (len defargs)))
+                    (fun (bloc) (func ...defargs bloc))
+                    ($undef bloc)}))))

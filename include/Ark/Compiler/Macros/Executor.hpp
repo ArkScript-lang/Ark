@@ -61,6 +61,8 @@ namespace Ark::internal
         unsigned int m_debug;
         MacroProcessor* m_processor;  ///< This is a non-owned pointer.
 
+        void setWithFileAttributes(const Node origin, Node& output, const Node& macro);
+
         /**
          * @brief Find the nearest macro matching a giving name
          *
@@ -69,7 +71,7 @@ namespace Ark::internal
          * @param name
          * @return const Node* nullptr if no macro was found
          */
-        const Node* findNearestMacro(const std::string& name) const;
+        [[nodiscard]] const Node* findNearestMacro(const std::string& name) const;
 
         /**
          * @brief Registers macros based on their type
@@ -88,7 +90,7 @@ namespace Ark::internal
          * @return true
          * @return false
          */
-        bool isTruthy(const Node& node) const;
+        [[nodiscard]] bool isTruthy(const Node& node) const;
 
         /**
          * @brief Evaluate only the macros
@@ -133,7 +135,7 @@ namespace Ark::internal
          * @return true
          * @return false
          */
-        bool isPredefined(const std::string& symbol) const;
+        [[nodiscard]] bool isPredefined(const std::string& symbol) const;
     };
 
 }

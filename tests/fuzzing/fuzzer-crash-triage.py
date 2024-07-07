@@ -37,13 +37,15 @@ def main():
     if not os.path.exists("fct-bad"):
         os.mkdir("fct-bad")
 
-    args = sys.argv[1:]
+    args = [f for f in sys.argv[1:] if "__arkscript__" not in f]
+    files_count = len(args)
+
     for i, file in enumerate(args):
         if os.path.exists(file) and os.path.isfile(file):
             print(f"{file}\n{'-' * len(file)}")
             os.system(f"{arkscript} \"{file}\"")
             print("\n\n")
-            while handle_command(i, len(args), file):
+            while handle_command(i + 1, files_count, file):
                 pass
             print()
 

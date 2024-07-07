@@ -19,6 +19,9 @@
         (test:eq (type async-foo) "UserType")
         (test:eq (await async-foo) 3)})
 
+    (test:case "calling await on async-foo again should not crash but return nil" {
+        (test:eq nil (await async-foo))})
+
     (test:case "async call is faster than non-async" {
         (let start-non-async (time))
         (let res-non-async (sum 0 size data))

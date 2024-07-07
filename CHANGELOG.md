@@ -52,6 +52,16 @@
 - fixed a bug when passing the wrong number of arguments to a function inside an async call was crashing the VM because the function couldn't be named
 - fixed a bug in the compiler generating invalid `fun` nodes
 - fixed a bug when generating `let`, `mut` or `set` nodes inside macros with an invalid node type
+- fixed a bug when reading invalid UTF8 codepoints in the parser caused out of bounds reads
+- fixed a bug with recursive macro, exhausting the stack space due to recursive evaluation
+- futures can be awaited again, they will return nil on all the tries
+- checking for reused argument name in macros during parsing
+- enhanced comment after node handling in macros
+- adding a hard limit on package names length (255 characters, to comply with posix limits)
+- disallow passing invalid nodes as arguments to functions and operators
+- checking for unevaluated spread inside macros
+- checking for invalid symbols when defining a function through a macro
+- added a max macro unification depth
 
 ### Removed
 - removed unused `NodeType::Closure`

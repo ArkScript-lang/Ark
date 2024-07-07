@@ -14,6 +14,9 @@ namespace Ark::internal
 
     Value Future::resolve()
     {
+        if (!m_value.valid())
+            return Nil;
+
         m_value.wait();
         Value res = m_value.get();
 

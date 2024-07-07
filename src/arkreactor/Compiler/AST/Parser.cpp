@@ -285,8 +285,15 @@ namespace Ark::internal
 
         Import import_data;
 
+        const auto pos = getCount();
         if (!packageName(&import_data.prefix))
             errorWithNextToken("Import expected a package name");
+
+        if (import_data.prefix.size() > 255)
+        {
+            backtrack(pos);
+            errorWithNextToken(fmt::format("Import name too long, expected at most 255 characters, got {}", import_data.prefix.size()));
+        }
         import_data.package.push_back(import_data.prefix);
 
         const auto [row, col] = getCursor();
@@ -312,6 +319,12 @@ namespace Ark::internal
                     setNodePosAndFilename(packageNode.list().back());
                     import_data.package.push_back(path);
                     import_data.prefix = path;  // in the end we will store the last element of the package, which is what we want
+
+                    if (path.size() > 255)
+                    {
+                        backtrack(pos);
+                        errorWithNextToken(fmt::format("Import name too long, expected at most 255 characters, got {}", path.size()));
+                    }
                 }
             }
             else if (accept(IsChar(':')) && accept(IsChar('*')))  // parsing :*
@@ -595,16 +608,27 @@ namespace Ark::internal
         newlineOrComment(&comment);
         args->attachNearestCommentBefore(comment);
 
+        std::vector<std::string> names;
         while (!isEOF())
         {
+            const auto pos = getCount();
+
             std::string arg_name;
             if (!name(&arg_name))
                 break;
             comment.clear();
             newlineOrComment(&comment);
             args->push_back(Node(NodeType::Symbol, arg_name).attachNearestCommentBefore(comment));
+
+            if (std::ranges::find(names, arg_name) != names.end())
+            {
+                backtrack(pos);
+                errorWithNextToken(fmt::format("Argument names must be unique, can not reuse `{}'", arg_name));
+            }
+            names.push_back(arg_name);
         }
 
+        const auto pos = getCount();
         if (sequence("..."))
         {
             std::string spread_name;
@@ -615,13 +639,24 @@ namespace Ark::internal
             comment.clear();
             if (newlineOrComment(&comment))
                 args->list().back().attachCommentAfter(comment);
+
+            if (std::ranges::find(names, spread_name) != names.end())
+            {
+                backtrack(pos);
+                errorWithNextToken(fmt::format("Argument names must be unique, can not reuse `{}'", spread_name));
+            }
         }
 
         if (!accept(IsChar(')')))
             return std::nullopt;
         comment.clear();
         if (newlineOrComment(&comment))
-            args->list().back().attachCommentAfter(comment);
+        {
+            if (args->list().empty())
+                args->attachCommentAfter(comment);
+            else
+                args->list().back().attachCommentAfter(comment);
+        }
 
         return args;
     }
