@@ -57,12 +57,6 @@ if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG OR APPLE)
             # disabled.
     )
 
-    if (CMAKE_COMPILER_IS_GNUCXX)
-        # The package utf8 has an issue with constant overflow.
-        # Once this is fixed remove this flag:
-        target_compile_options(ArkReactor PUBLIC -Wno-overflow)
-    endif ()
-
     if (APPLE)
         # The standard SSH libraries are depreciate on APPLE.
         # Thus they currently generate a warning that we have to ignore for now.
