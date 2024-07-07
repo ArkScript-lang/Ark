@@ -21,6 +21,8 @@ fi
 export AFL_IMPORT_FIRST=1
 export AFL_USE_ASAN=1
 export AFL_USE_UBSAN=1
+export AFL_TMPDIR=/ramdisk$1
+export AFL_AUTORESUME=1
 
 export FUZZER_SEED=0
 export FUZZER_TIMEOUT_EXEC_MS=500
