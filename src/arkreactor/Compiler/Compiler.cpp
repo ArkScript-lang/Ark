@@ -202,7 +202,9 @@ namespace Ark
     bool Compiler::nodeProducesOutput(const Node& node)
     {
         if (node.nodeType() == NodeType::List && !node.constList().empty() && node.constList()[0].nodeType() == NodeType::Keyword)
-            return node.constList()[0].keyword() == Keyword::Begin || node.constList()[0].keyword() == Keyword::Fun || node.constList()[0].keyword() == Keyword::If;
+            return (node.constList()[0].keyword() == Keyword::Begin && node.constList().size() > 1) ||
+                node.constList()[0].keyword() == Keyword::Fun ||
+                node.constList()[0].keyword() == Keyword::If;
         return true;  // any other node, function call, symbol, number...
     }
 
@@ -563,7 +565,7 @@ namespace Ark
         if (node.nodeType() == NodeType::Symbol && maybe_operator.has_value())
             page(proc_page).emplace_back(static_cast<uint8_t>(FIRST_OPERATOR + maybe_operator.value()));
         else
-            // closure chains have been handled: closure.field.field.function
+            // closure chains have been handled (eg: closure.field.field.function)
             compileExpression(node, proc_page, false, false);  // storing proc
 
         if (m_temp_pages.back().empty())
@@ -579,7 +581,12 @@ namespace Ark
 
                 // push the arguments in reverse order
                 for (std::size_t i = x.constList().size() - 1; i >= start_index; --i)
-                    compileExpression(x.constList()[i], p, false, false);
+                {
+                    if (nodeProducesOutput(x.constList()[i]))
+                        compileExpression(x.constList()[i], p, false, false);
+                    else
+                        throwCompilerError(fmt::format("Invalid node inside tail call to `{}'", node.repr()), x);
+                }
 
                 // jump to the top of the function
                 page(p).emplace_back(JUMP, 0_u16);
@@ -589,7 +596,12 @@ namespace Ark
             {
                 // push arguments on current page
                 for (auto exp = x.constList().begin() + start_index, exp_end = x.constList().end(); exp != exp_end; ++exp)
-                    compileExpression(*exp, p, false, false);
+                {
+                    if (nodeProducesOutput(*exp))
+                        compileExpression(*exp, p, false, false);
+                    else
+                        throwCompilerError(fmt::format("Invalid node inside call to `{}'", node.repr()), x);
+                }
                 // push proc from temp page
                 for (const Word& word : m_temp_pages.back())
                     page(p).push_back(word);
@@ -619,7 +631,10 @@ namespace Ark
             std::size_t exp_count = 0;
             for (std::size_t index = start_index, size = x.constList().size(); index < size; ++index)
             {
-                compileExpression(x.constList()[index], p, false, false);
+                if (nodeProducesOutput(x.constList()[index]))
+                    compileExpression(x.constList()[index], p, false, false);
+                else
+                    throwCompilerError(fmt::format("Invalid node inside call to operator `{}'", node.repr()), x);
 
                 if ((index + 1 < size && x.constList()[index + 1].nodeType() != NodeType::Capture) || index + 1 == size)
                     exp_count++;
