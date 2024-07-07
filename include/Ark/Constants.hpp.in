@@ -52,7 +52,7 @@ namespace Ark
     // Default features for the VM x Compiler x Parser
     constexpr uint16_t DefaultFeatures = FeatureRemoveUnusedVars | FeatureShowWarnings;
 
-    constexpr std::size_t MaxMacroProcessingDepth = 1024;  ///< Controls the number of recursive calls to MacroProcessor::processNode
+    constexpr std::size_t MaxMacroProcessingDepth = 256;  ///< Controls the number of recursive calls to MacroProcessor::processNode
     constexpr std::size_t MaxMacroUnificationDepth = 256;  ///< Controls the number of recursive calls to MacroProcessor::unify
     constexpr std::size_t VMStackSize = 8192;
 }

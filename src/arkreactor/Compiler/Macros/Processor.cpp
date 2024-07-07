@@ -621,6 +621,6 @@ namespace Ark::internal
 
     void MacroProcessor::throwMacroProcessingError(const std::string& message, const Node& node)
     {
-        throw CodeError(message, node.filename(), node.line(), node.col(), "");  // node.repr()
+        throw CodeError(message, node.filename(), node.line(), node.col(), node.repr());
     }
 }
