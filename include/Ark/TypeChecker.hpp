@@ -66,12 +66,12 @@ namespace Ark::types
         std::vector<ValueType> types;
         bool variadic;
 
-        Typedef(const std::string_view name, const ValueType type, const bool variadic = false) :
-            name(name), types { type }, variadic(variadic)
+        Typedef(const std::string_view type_name, const ValueType type, const bool is_variadic = false) :
+            name(type_name), types { type }, variadic(is_variadic)
         {}
 
-        Typedef(const std::string_view name, const std::vector<ValueType>& types, const bool variadic = false) :
-            name(name), types(types), variadic(variadic)
+        Typedef(const std::string_view type_name, const std::vector<ValueType>& type_list, const bool is_variadic = false) :
+            name(type_name), types(type_list), variadic(is_variadic)
         {}
     };
 

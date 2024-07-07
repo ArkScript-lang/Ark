@@ -29,6 +29,8 @@ namespace Ark::internal
         while (!imports.empty())
         {
             Import import = imports.top();
+            if (m_debug >= 2)
+                std::cout << "Importing " << import.toPackageString() << std::endl;
             // Remove the top element to process the other imports
             // It needs to be removed first because we might be adding
             // other imports later and don't want to pop THEM

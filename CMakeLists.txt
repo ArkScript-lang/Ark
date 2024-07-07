@@ -48,6 +48,9 @@ if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG OR APPLE)
     target_compile_options(ArkReactor
             PUBLIC
             -Wall -Wextra -pedantic -Wstrict-aliasing
+            -Wshadow
+            # -Wconversion # FIXME
+            -Werror
             -Wno-unknown-pragmas            # We use pragmas to disable warnings we understand.
             # So we need to disable the warning about pragmas.
             -Wno-unknown-warning-option     # Disable warnings about disabling warnings we have
