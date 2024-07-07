@@ -5,6 +5,7 @@
 #include <sstream>
 #include <fmt/core.h>
 
+#include <Ark/Constants.hpp>
 #include <Ark/Exceptions.hpp>
 #include <Ark/Builtins/Builtins.hpp>
 #include <Ark/Compiler/Macros/Executors/Symbol.hpp>
@@ -123,8 +124,12 @@ namespace Ark::internal
 
     void MacroProcessor::processNode(Node& node, unsigned depth)
     {
-        if (depth >= 1024)
-            throwMacroProcessingError("Max recursion depth reached (1024). You most likely have a badly defined recursive macro calling itself without a proper exit condition", node);
+        if (depth >= MaxMacroProcessingDepth)
+            throwMacroProcessingError(
+                fmt::format(
+                    "Max recursion depth reached ({}). You most likely have a badly defined recursive macro calling itself without a proper exit condition",
+                    MaxMacroProcessingDepth),
+                node);
 
         if (node.nodeType() == NodeType::List)
         {
@@ -194,8 +199,15 @@ namespace Ark::internal
         return m_executor_pipeline.applyMacro(node);
     }
 
-    void MacroProcessor::unify(const std::unordered_map<std::string, Node>& map, Node& target, Node* parent, const std::size_t index)
+    void MacroProcessor::unify(const std::unordered_map<std::string, Node>& map, Node& target, Node* parent, const std::size_t index, const std::size_t unify_depth)
     {
+        if (unify_depth > MaxMacroUnificationDepth)
+            throwMacroProcessingError(
+                fmt::format(
+                    "Max macro unification depth reached ({}). You may have a macro trying to evaluate itself, try splitting your code in multiple nodes.",
+                    MaxMacroUnificationDepth),
+                *parent);
+
         if (target.nodeType() == NodeType::Symbol)
         {
             if (const auto p = map.find(target.string()); p != map.end())
@@ -204,13 +216,13 @@ namespace Ark::internal
         else if (target.isListLike())
         {
             for (std::size_t i = 0; i < target.list().size(); ++i)
-                unify(map, target.list()[i], &target, i);
+                unify(map, target.list()[i], &target, i, unify_depth + 1);
         }
         else if (target.nodeType() == NodeType::Spread)
         {
             Node sub_node = target;
             sub_node.setNodeType(NodeType::Symbol);
-            unify(map, sub_node, parent);
+            unify(map, sub_node, parent, 0, unify_depth + 1);
 
             if (sub_node.nodeType() != NodeType::List)
                 throwMacroProcessingError(fmt::format("Can not unify a {} to a Spread", typeToString(sub_node)), sub_node);

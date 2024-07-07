@@ -38,7 +38,7 @@ namespace Ark::internal
 
     void MacroExecutor::unify(const std::unordered_map<std::string, Node>& map, Node& target, Node* parent) const
     {
-        m_processor->unify(map, target, parent);
+        m_processor->unify(map, target, parent, /* index= */ 0, /* unify_depth= */ 0);
     }
 
     void MacroExecutor::throwMacroProcessingError(const std::string& message, const Node& node) const

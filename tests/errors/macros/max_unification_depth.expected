@@ -1,0 +1,9 @@
+At ($ partial (func ...defargs) (begin ($ bloc (suffix-dup a (len defargs))) (fun (bloc) (func ...defargs bloc)) ($ $undef bloc))) @ 20:37
+   17 |                 ($ partial (func ...defargs) {
+   18 |                     ($ bloc (suffix-dup a (len defargs)))
+   19 |                     (fun (bloc) (func ...defargs bloc))
+   20 |                     ($undef bloc)}))))
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   21 |
+      | ^
+        Max macro unification depth reached (256). You may have a macro trying to evaluate itself, try splitting your code in multiple nodes.
