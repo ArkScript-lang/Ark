@@ -1,0 +1,6 @@
+At 0 @ 2:10
+    1 | ($ defun (name args body) (let name (fun args body)))
+    2 | (defun 0 (a b) (+ a b))
+      |          ^
+    3 |
+        Can not use a Number to define a variable

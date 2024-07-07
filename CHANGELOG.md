@@ -60,6 +60,7 @@
 - adding a hard limit on package names length (255 characters, to comply with posix limits)
 - disallow passing invalid nodes as arguments to functions and operators
 - checking for unevaluated spread inside macros
+- checking for invalid symbols when defining a function through a macro
 
 ### Removed
 - removed unused `NodeType::Closure`

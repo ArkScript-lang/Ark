@@ -111,7 +111,13 @@ namespace Ark::internal
                 return;
 
             if (!inner.constList().empty() && inner.constList()[0].nodeType() == NodeType::Keyword && inner.constList()[0].keyword() == Keyword::Fun)
-                m_defined_functions[node.constList()[1].string()] = inner.constList()[1];
+            {
+                const Node& symbol = node.constList()[1];
+                if (symbol.nodeType() == NodeType::Symbol)
+                    m_defined_functions[symbol.string()] = inner.constList()[1];
+                else
+                    throwMacroProcessingError(fmt::format("Can not use a {} to define a variable", typeToString(symbol)), symbol);
+            }
         }
     }
 
