@@ -10,6 +10,8 @@ fi
 exe=$(pwd)/build/arkscript
 ark_lib=$(pwd)/lib
 
+export AFL_MAP_SIZE=223723
+
 rm -rf tests/fuzzing/corpus-cmin/*
 rm -rf tests/fuzzing/corpus-cmin-tmin/*
 afl-cmin -i tests/fuzzing/corpus -o tests/fuzzing/corpus-cmin -T all -- "$exe" @@ -L "$ark_lib"
