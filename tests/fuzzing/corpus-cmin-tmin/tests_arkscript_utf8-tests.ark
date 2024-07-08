@@ -1,0 +1,32 @@
+(import std.Testing)
+
+(test:suite utf8 {
+    (test:case "weird00000ab0e na0e0" {
+        (let ---> 15)
+        (test:eq ---> 15)
+
+        (let <-- 16)
+        (test:eq <-- 16)
+        (test:expect (< ---> <--)) })
+
+    (test:case "i0000000000000000000000000000" {
+        (let emotes [
+            "ðŸ¥³" "ð000" "ð0˜¥" "ðŸ‘¿" "ð0Ÿ0" "ð00Š"
+            "ðŸ00" "ðŸ0»" "ð00Ÿ" "ð00¹" "ðŸ0" "ð00–"
+            "ðŸ–" "ð0¤0" "ð0¤©" "ð00 " "ð0˜Š"])
+        (mut i 0)
+        (while (< i (len emotes)) {
+            (test:eq (len (@ emotes i)) 4)
+            (set i (+ 1 i)) })})
+
+    (test:case "0000000000n0ers0o000000000s \\00a000\\U" {
+        (test:eq "\U0001f47f" "ðŸ‘¿")
+        (test:eq "\U0001F47F" "ðŸ‘¿")
+        (test:eq "\u1e0b" "á¸‹")
+        (test:eq "\u1E0B" "á¸‹") })
+
+    (test:case "0estin0 emo0i c00ep0000000000u00ng" {
+        (test:eq (str:ord "ðŸ‘º") 128122)
+        (test:eq (str:chr 128122) "ðŸ‘º")
+        (test:eq (str:ord "$") 36)
+        (test:eq (str:chr 36) "$") })})

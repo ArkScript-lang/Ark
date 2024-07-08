@@ -1,7 +1,0 @@
-(let a b.c)
-(mut d e.f.g)
-(if (# aze
-    hi.jk) l.m n.o.p)
-(while q.r s.t)
-(fun () u.v)
-(begin x.y.z)

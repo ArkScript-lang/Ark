@@ -1,0 +1,21 @@
+# Lyrics from the song:
+#
+# 99 bottles of beer on the wall
+# 99 bottles of beer
+# Take one down, pass it around
+# 98 bottles of beer on the wall
+#
+# 98 bottles of beer on the wall
+# 98 bottles of beer
+# Take one down, pass it around
+# 97 bottles of beer on the wall
+
+
+(let arg (if (>= (len sys:args) 1) (toNumber (@ sys:args 0)) nil))
+(let i (if (nil? arg) 100 arg))
+
+(mut n i)
+(while (> n 1) {
+    (print (str:format "{} Bottles of beer on the wall\n{} bottles of beer\nTake one down, pass it around" n n))
+    (set n (- n 1))
+    (print (str:format "{} Bottles of beer on the wall." n))})

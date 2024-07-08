@@ -1,0 +1,4 @@
+($ partial {
+  (fun (a) (f000 ...d000000)) })
+
+(let b (partial))

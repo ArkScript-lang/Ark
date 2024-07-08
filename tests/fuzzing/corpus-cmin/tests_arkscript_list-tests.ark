@@ -1,0 +1,72 @@
+(import std.Testing)
+
+(let a [1 2 3])
+(let b [4 5 6])
+
+(test:suite list {
+    (let make (fun (a b)
+        (fun (&a &b) ())))
+    (let foo (make "hello" 1))
+
+    # if this is failing, this is most likely to be a compiler problem
+    (test:eq ["hello" 1] [foo.a foo.b])
+    (test:eq 2 (len [foo.a foo.b]))
+    (test:eq ["hello"] (append [] foo.a))
+
+    (test:case "append and return a new list" {
+        (test:eq (append a 4) [1 2 3 4])
+        (test:eq a [1 2 3])
+        (test:eq (append a a) [1 2 3 [1 2 3]])
+        (test:eq a [1 2 3]) })
+
+    (test:case "concat and return a new list" {
+        (test:eq (concat a b) [1 2 3 4 5 6])
+        (test:eq a [1 2 3])
+        (test:eq b [4 5 6]) })
+
+    (test:case "pop and return a new list" {
+        (test:eq (pop a 0) [2 3])
+        (test:eq (pop a 1) [1 3])
+        (test:eq (pop a 2) [1 2])
+        (test:eq a [1 2 3]) })
+
+    (test:case "reverse and return a new list" {
+        (test:eq (list:reverse a) [3 2 1])
+        (test:eq a [1 2 3])
+        (test:eq (list:reverse []) []) })
+
+    (test:case "find element in list" {
+        (test:eq (list:find a 0) -1)
+        (test:eq (list:find a 2) 1) })
+
+    (test:case "slice and return a new list" {
+        (test:eq (list:slice a 0 0 1) [])
+        (test:eq a [1 2 3])
+        (test:eq (list:slice a 0 3 2) [1 3])
+        (test:eq a [1 2 3]) })
+
+    (test:case "sort and return a new list" {
+        (test:eq (list:sort [3 1 2]) a)
+        (test:eq a [1 2 3]) })
+
+    (test:eq (list:fill 5 nil) [nil nil nil nil nil])
+
+    (test:case "modify list at index and return a new list" {
+        (let c (list:setAt a 1 "b"))
+        (test:eq c [1 "b" 3])
+        (test:eq a [1 2 3]) })
+
+    (test:case "in place list mutation" {
+        (mut c a)
+        (mut d b)
+        (append! c 4)
+        (test:eq c [1 2 3 4])
+        (concat! c d)
+        (test:eq c [1 2 3 4 4 5 6])
+        (test:eq d [4 5 6])
+        (pop! c -1)
+        (test:eq c [1 2 3 4 4 5])
+        (pop! c 1)
+        (test:eq c [1 3 4 4 5])
+        (test:eq a [1 2 3])
+        (test:eq b [4 5 6]) })})

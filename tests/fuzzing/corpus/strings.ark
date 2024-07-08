@@ -1,2 +1,0 @@
-(print "abc" "123\"test")
-(print "\\ 123aéoÒ")
