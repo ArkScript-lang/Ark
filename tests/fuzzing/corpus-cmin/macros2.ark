@@ -1,6 +1,0 @@
-($ foo (a b) (+ a b))
-($ var 12)
-($ defun (name args body) (let name (fun args body)))
-($ one (...args) (print "Macro 'one', returns the 2nd argument given in " args " => " (@ args 1)))
-($undef a)
-($repr a)

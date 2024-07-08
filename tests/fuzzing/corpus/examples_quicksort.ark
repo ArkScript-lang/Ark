@@ -31,12 +31,11 @@
 # an unsorted list to sort
 (let a [3 6 1 5 1 65 324 765 1 6 3 0 6 9 6 5 3 2 5 6 7 64 645 7 345 432 432 4 324 23])
 
-(let rep (if (>= (len sys:args) 1) (toNumber (@ sys:args 0)) 1))
-
 # a benchmarking function, to see the difference between C++ sort and ArkScript quicksort
 # obviously ArkScript will be a bit slower
 (let bench (fun (name code) {
     (mut start (time))
+    (let rep 1)
 
     (mut i 0)
     (while (< i rep) {

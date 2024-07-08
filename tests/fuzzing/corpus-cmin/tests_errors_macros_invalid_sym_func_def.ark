@@ -1,0 +1,2 @@
+($ defun (name args body) (let name (fun args body)))
+(defun 0 (a b) (+ a b))

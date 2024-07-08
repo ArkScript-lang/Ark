@@ -1,0 +1,7 @@
+(let a b.c)
+(mut d e.f.g)
+(if (#0000
+    h0.j0)l.m n.o.p)
+(while q.r s.t)
+(fun () u.v)
+(begin x.y.z)

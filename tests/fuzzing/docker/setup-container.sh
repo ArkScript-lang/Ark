@@ -15,7 +15,7 @@ apt install -yq tmux
 ###################################################
 # Build ArkScript
 ###################################################
-source ./tests/fuzzing/docker/1-build-with-afl.sh
+source ./tests/fuzzing/docker/0-build-with-afl.sh
 
 ###################################################
 # Launch the fuzzers

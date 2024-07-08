@@ -1,0 +1,12 @@
+(import some.important :code :base)
+
+(let a (if (equal b c) 1 "4"))
+(if (foo a)
+    (print a " is a very interesting variable"))
+
+(mut foo (fun (bar egg &captured) {
+    (let yes indeed)
+    (add 1 yes)}))
+
+(while true {
+    (foo true nil false)})

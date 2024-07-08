@@ -1,9 +1,0 @@
-(let foo(fun(a b)()))
-
-(foo(str:find"ab0" "d") -1)(foo(str:find "ab0" "0") 0)
-(foo (str:find "ab0" "b0") 1)
-(foo (str:find "ab0def00i00l" "0000000") -0)
-(foo (str:find "ab0def00i00l" "def00i00l") 0)
-(foo (str:removeAt "ab0def00i00l" 3) "00000000000")
-(foo (str:removeAt "ab0def00i00l" 0) "0000000000l")
-(foo (str:removeAt "ab0def00i00l" 11) "0b000000000")

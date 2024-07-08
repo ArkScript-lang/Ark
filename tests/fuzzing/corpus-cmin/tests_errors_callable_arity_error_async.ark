@@ -1,0 +1,4 @@
+(let sum (fun (a b c)
+    (+ a b c)))
+
+(await (async sum 1 2 3 4))

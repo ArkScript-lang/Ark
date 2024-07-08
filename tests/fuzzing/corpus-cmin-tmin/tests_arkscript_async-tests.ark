@@ -1,0 +1,41 @@
+(import std.Testing)
+(import std.List)
+
+(let foo (fun (a b) (+ a b)))
+(let async-foo (async foo 1 2))
+
+(let size 1000)
+(let data (list:fill size 1))
+
+(let sum (fun (a b src) {
+    (mut acc 0)
+    (while (< a b) {
+        (set acc (+ acc (@ src a)))
+        (set a (+ 1 a))})
+    acc }))
+
+(test:suite async {
+    (test:case "async-foo should be an awaitable function returning 3" {
+        (test:eq (type async-foo) "UserType")
+        (test:eq (await async-foo) 3)})
+
+    (test:case "calling await on async-foo again should not crash but return nil" {
+        (test:eq nil (await async-foo))})
+
+    (test:case "async call is faster than non-async" {
+        (let start-non-async (time))
+        (let res-non-async (sum 0 size data))
+        (let time-non-async (- (time) start-non-async))
+
+        (let start-async (time))
+        (let workers [
+            (async sum 0 (/ size 4) data)
+            (async sum (/ size 4) (/ size 2) data)
+            (async sum (/ size 2) (- size (/ size 4)) data)
+            (async sum (- size (/ size 4)) size data)])
+        (let res-async (list:reduce (list:map workers (fun (w) (await w))) (fun (a b) (+ a b))))
+        (let time-async (- (time) start-async))
+
+        (test:eq 1000 res-async)
+        (test:eq 1000 res-non-async)
+        (test:expect (< time-async time-non-async))})})

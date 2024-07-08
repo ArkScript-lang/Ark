@@ -1,5 +1,0 @@
-(fun (&a) 0)
-(fun (&a #00
-&b) 0)
-(fun (a &b) 0)
-(fun (a b &c &d) 0)

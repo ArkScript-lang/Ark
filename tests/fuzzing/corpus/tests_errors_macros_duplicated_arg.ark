@@ -1,0 +1,17 @@
+($ -> (arg fn ...fn) {
+    ($if (> (len fn) 0)
+        (-> (fn1 arg) ...fn)
+        (fn1 arg))})
+
+(let filename "a")
+
+(let f1 (fun (data) {
+    (+ data "000")}))
+(let f2 (fun (data) {
+    (+ data "002")}))
+(let f3 (fun (data) {
+    (+ data "003")}))
+(let f4 (fun (data) {
+    (+ data "004")}))
+
+(print (-> filename f1 f2 f3 f4))

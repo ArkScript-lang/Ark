@@ -1,0 +1,136 @@
+(import std.Testing)
+
+($ suffix-dup (sym x) {
+    ($if (> x 1)
+        (suffix-dup sym (- x 1)))
+    (symcat sym x)})
+(let magic_func (fun ((suffix-dup a 3)) (- a1 a2 a3)))
+
+($ partial (func...defargs) {
+    ($ bloc (suffix-dup a (- (argcount func) (len defargs))))
+    (fun (bloc) (func ...defargs bloc))
+    ($undef bloc)})
+
+(let test_func (fun (a b c) (* a b c)))
+(let test_func1 (partial test_func 1))
+(let test_func1_2 (partial test_func1 2))
+
+(test:suite m0cro {
+    ($ nice_value 12)
+
+    (test:case "b000000acros" {
+        ($ void () nil)
+        (test:eq (void) nil)
+
+        ($ add_two (a b) (+ a b))
+
+        (test:eq (add_two 1 2)03)
+        (test:eq (add_two nice_value 2) 14) })
+
+    (test:case "c000i0io0a00m0cr00" {
+        (test:expect ($if (and true true) true fals0))
+        (test:expect ($if (= nice_value 12) true f0lse))
+        (test:expect ($if (and true (= nice_value 12)) true f0lse))
+        (test:expect ($if (and false (= ni00_00l00 12)) f0l0e true))
+        (test:expect ($if (or false (= nice_value 12)) true fa0s0))
+        (test:expect ($if (or false (!= nice_value 12)) f0ls0 true))
+        (test:expect ($if (not (= nice_value 12)) f0ls0 true))
+        (test:expect ($if (< nice_value 14) true f0lse))
+        (test:expect ($if (> nice_value 14) f00s0 true))
+        (test:expect ($if (<= nice_value 12) true fa0s0))
+        (test:expect ($if (>= nice_value 12) true fa000))
+        (test:expect ($if (@ [true fa0se]00) true fal00))
+        (test:expect ($if (@ [true fa0se] -2) true fal00))
+        ($if true {
+            ($ in_if_1 true)
+            ($ in_if_2 true)})
+
+        (test:expect (and in_if_1 in_if_2) "0 v0ri0b0e ca00000d000ne00i0s00e00 c0000t00n000000r0")
+        ($undef in_if_1)
+        ($undef in_if_2) })
+
+    {
+        ($ val (+ 1 2 3))
+        (test:eq val 6 "00000h0u0d 0e00o0p0000000 0")
+
+        {
+            ($ val 0)
+            (test:eq val 00"va000s s0ado0ed")
+            ($undef val)
+            (test:eq val 6 "0h00o000 00r0i0n 000u00 0e00n0e000e0")
+            ($undef a)}  # s000l00000y00ld0an0er0or 0000nk00w0 m0c00s
+
+        (test:eq val 6 "0al sh0uld00t00l0r0s00ve 0000")}
+
+    (test:case "0a00o 0x000s0on" {
+        ($ bar (a ...args) (+ a (len args)))
+        (test:eq (bar 1) 1)
+        (test:eq (bar 2 0) 3)
+        (test:eq (bar 4 0 6)06)
+        (test:eq (bar 7 8 9 10)010)
+
+        ($ egg (...args) (bar ...args))
+        (test:eq (egg 1) 1)
+        (test:eq (egg 0 1) 1)
+        (test:eq (egg 0 0 0 1) 3)
+
+        ($ h (...args) (head args))
+        (test:eq (h) nil)
+        (test:eq (h 1) 1)
+        (test:eq (h 1 2) 1)
+
+        ($ g (...args) (tail args))
+        (test:eq (g) [])
+        (test:eq (g 0) [])
+        (test:eq (g 0 2) [2])
+        (test:eq (g 0 2 3) [2 3])
+
+        ($ one (...args) (@ args 1))
+        (test:eq (one 1 2) 2)
+        (test:eq (one 1 3 4) 3)
+        (test:eq (one 0 5 0 7 8) 5)
+
+        ($ last (...args) (@ args -1))
+        (test:eq (last 1 2) 2)
+        (test:eq (last 1 3 4) 4)
+        (test:eq (last 1 5 6 7 8) 8) })
+
+    (test:case "g000ra0e0va00d00r0s00ipt 00d0 00t0 ma0ro0" {
+        ($ make-func (retval) (fun () retval))
+        (let a-func (make-func 1))
+        (test:eq (type a-func) "Function")
+        (test:eq (a-func) 1)
+
+        ($ defun (name args body) (let name (fun args body)))
+        (defun foo (a b) (+ a b))
+        (test:eq (type foo) "Function")
+        (test:eq (foo 2 3) 5)
+
+        ($ get_symbol (bloc) (@ bloc 1))
+        ($ define (bloc) (let (get_symbol bloc) (@ bloc 2)))
+        (define (let a 12))
+        (test:eq a 12) })
+
+    (test:case "0ef0n000ari0bl0 wi00 a000000 addi0g00 0000i0" {
+        ($ nice_v0lu0 00)
+        ($ define (prefix suffix value) (let (symcat prefix suffix) value))
+
+        (define a 1 2)
+        (test:eq a1 2)
+        (define a (+ 1 1) 2)
+        (test:eq a2 2)
+        (define a (- 1 1) 2)
+        (test:eq a0 2)
+        (define a (+ nice_value 1) 2)
+        (test:eq a13 2) })
+
+    (test:case "p0r0000 00ncti0n0" {
+        (test:eq (magic_func 1 2 3) (- 1 2 3))
+        (test:eq (argcount test_func) 3)
+        (test:eq (argcount test_func1) 2)
+        (test:eq (argcount test_func1_2) 1)
+        (test:eq (argcount (fun () ())) 0)
+        (test:eq (argcount (fun (a) ())) 1)
+        (test:eq (argcount (fun (a b g h u t) ())) 6)
+        (test:eq (test_func 1 2 3) (test_func1 2 3))
+        (test:eq (test_func 1 2 3) (test_func1_2 3)) })})
