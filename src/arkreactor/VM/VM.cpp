@@ -230,7 +230,7 @@ namespace Ark
         // load the mapping from the dynamic library
         try
         {
-            for (auto& shared_lib : m_shared_lib_objects)
+            for (const auto& shared_lib : m_shared_lib_objects)
             {
                 const mapping* map = shared_lib->template get<mapping* (*)()>("getFunctionsMapping")();
                 // load the mapping data
@@ -429,8 +429,11 @@ namespace Ark
                         Value* ptr = (context.locals.back())[arg];
                         if (!ptr)
                             throwVMError(ErrorKind::Scope, fmt::format("Couldn't capture `{}' as it is currently unbound", m_state.m_symbols[arg]));
-                        ptr = ptr->valueType() == ValueType::Reference ? ptr->reference() : ptr;
-                        context.saved_scope.value().push_back(arg, *ptr);
+                        else
+                        {
+                            ptr = ptr->valueType() == ValueType::Reference ? ptr->reference() : ptr;
+                            context.saved_scope.value().push_back(arg, *ptr);
+                        }
 
                         break;
                     }
