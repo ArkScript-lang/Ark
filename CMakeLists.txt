@@ -49,7 +49,7 @@ if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG OR APPLE)
             PUBLIC
             -Wall -Wextra -pedantic -Wstrict-aliasing
             -Wshadow
-            # -Wconversion # FIXME
+            -Wconversion
             -Werror
             # Allow deprecation warnings to not be treated as errors
             -Wno-error=deprecated-declarations
@@ -105,7 +105,7 @@ add_subdirectory("${ark_SOURCE_DIR}/lib/termcolor" EXCLUDE_FROM_ALL)
 target_link_libraries(ArkReactor PUBLIC termcolor)
 
 target_include_directories(ArkReactor
-        PUBLIC
+        SYSTEM PUBLIC
         "${ark_SOURCE_DIR}/lib/picosha2/"
         "${ark_SOURCE_DIR}/lib/fmt/include")
 
@@ -161,7 +161,10 @@ if (ARK_PROFILER_MIPS)
 endif ()
 
 if (ARK_BUILD_MODULES)
+    get_directory_property(old_dir_compile_options COMPILE_OPTIONS)
+    add_compile_options(-w)
     add_subdirectory(${ark_SOURCE_DIR}/lib/modules)
+    set_directory_properties(PROPERTIES COMPILE_OPTIONS "${old_dir_compile_options}")
 endif ()
 
 # TODO: consider using ctest
@@ -201,18 +204,10 @@ if (ARK_BUILD_EXE)
             ${ark_SOURCE_DIR}/lib/fmt/src/format.cc)
     add_executable(arkscript ${EXE_SOURCES})
 
-    if (MSVC)
-        # Disable warnings for lib/replxx
-        # This is a separate module we don't control so can't fix the code without help.
-        # Disable warnings when compiling this package remove when resolved.
-        #   /wd4267:    conversion from 'size_t' to 'type', possible loss of data
-        #   /wd4244:    conversion from 'type1' to 'type2', possible loss of data
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4267 /wd4244")
-    endif ()
-
     add_subdirectory("${ark_SOURCE_DIR}/lib/replxx" EXCLUDE_FROM_ALL)
     add_subdirectory("${ark_SOURCE_DIR}/lib/clipp" EXCLUDE_FROM_ALL)
 
+    target_include_directories(arkscript SYSTEM PUBLIC "${ark_SOURCE_DIR}/lib/clipp/include")
     target_link_libraries(arkscript PUBLIC ArkReactor replxx clipp termcolor)
     target_compile_features(arkscript PRIVATE cxx_std_20)
 
