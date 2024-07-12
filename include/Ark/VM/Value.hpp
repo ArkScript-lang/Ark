@@ -209,7 +209,7 @@ namespace Ark
                 return A.constList().empty();
 
             case ValueType::Number:
-                return !A.number();
+                return A.number() == 0.0;
 
             case ValueType::String:
                 return A.string().empty();

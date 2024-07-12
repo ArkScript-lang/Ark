@@ -20,18 +20,21 @@ Value VM::call(const std::string& name, Args&&... args)
         push(*it2, context);
 
     // find function object and push it if it's a pageaddr/closure
-    const uint16_t id = static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it));
-    Value* var = findNearestVariable(id, context);
-    if (var != nullptr)
+    if (const auto dist = std::distance(m_state.m_symbols.begin(), it); std::cmp_less(dist, std::numeric_limits<uint16_t>::max()))
     {
-        if (!var->isFunction())
-            throwVMError(ErrorKind::Type, "Can't call '" + name + "': it isn't a Function but a " + types_to_str[static_cast<std::size_t>(var->valueType())]);
+        const uint16_t id = static_cast<uint16_t>(dist);
+        Value* var = findNearestVariable(id, context);
+        if (var != nullptr)
+        {
+            if (!var->isFunction())
+                throwVMError(ErrorKind::Type, "Can't call '" + name + "': it isn't a Function but a " + types_to_str[static_cast<std::size_t>(var->valueType())]);
 
-        push(Value(var), context);
-        context.last_symbol = id;
+            push(Value(var), context);
+            context.last_symbol = id;
+        }
+        else
+            throwVMError(ErrorKind::Scope, "Couldn't find variable " + name);
     }
-    else
-        throwVMError(ErrorKind::Scope, "Couldn't find variable " + name);
 
     const std::size_t frames_count = context.fc;
     // call it
@@ -59,7 +62,7 @@ Value VM::resolve(const Value* val, Args&&... args)
     if (!val->isFunction())
         throw TypeError("Value::resolve couldn't resolve a non-function");
 
-    const int ip = context.ip;
+    const std::size_t ip = context.ip;
     const std::size_t pp = context.pp;
 
     // convert and push arguments in reverse order
@@ -71,7 +74,7 @@ Value VM::resolve(const Value* val, Args&&... args)
 
     const std::size_t frames_count = context.fc;
     // call it
-    call(context, static_cast<int16_t>(sizeof...(Args)));
+    call(context, static_cast<uint16_t>(sizeof...(Args)));
     // reset instruction pointer, otherwise the safeRun method will start at ip = -1
     // without doing context.ip++ as intended (done right after the call() in the loop, but here
     // we start outside this loop)
@@ -90,10 +93,10 @@ Value VM::resolve(const Value* val, Args&&... args)
 
 inline Value VM::resolve(internal::ExecutionContext* context, std::vector<Value>& n)
 {
-    if (!n[0].isFunction())
+    if (!n[0].isFunction())  // TODO use fmt
         throw TypeError("VM::resolve couldn't resolve a non-function (" + types_to_str[static_cast<std::size_t>(n[0].valueType())] + ")");
 
-    const int ip = context->ip;
+    const std::size_t ip = context->ip;
     const std::size_t pp = context->pp;
 
     // convert and push arguments in reverse order
@@ -103,7 +106,7 @@ inline Value VM::resolve(internal::ExecutionContext* context, std::vector<Value>
 
     const std::size_t frames_count = context->fc;
     // call it
-    call(*context, static_cast<int16_t>(n.size() - 1));
+    call(*context, static_cast<uint16_t>(n.size() - 1));
     // reset instruction pointer, otherwise the safeRun method will start at ip = -1
     // without doing context.ip++ as intended (done right after the call() in the loop, but here
     // we start outside this loop)
@@ -190,22 +193,24 @@ inline void VM::swapStackForFunCall(const uint16_t argc, internal::ExecutionCont
 
         default:  // 2 or more elements
         {
-            const int16_t first = context.sp - argc;
+            const auto first = static_cast<int16_t>(context.sp - argc);
             // move first argument to the very end
-            context.stack[context.sp + 1] = context.stack[first + 0];
+            context.stack[context.sp + 1] = context.stack[static_cast<std::size_t>(first + 0)];
             //  move second argument right before the last one
-            context.stack[context.sp + 0] = context.stack[first + 1];
+            context.stack[context.sp + 0] = context.stack[static_cast<std::size_t>(first + 1)];
             //  move the rest, if any
-            int16_t x = 2;
-            const int16_t stop = ((argc % 2 == 0) ? argc : (argc - 1)) / 2;
+            uint16_t x = 2;
+            const uint16_t stop = ((argc % 2 == 0) ? argc : (argc - 1)) / 2;
             while (x <= stop)
             {
-                //        destination          , origin
-                std::swap(context.stack[context.sp - x + 1], context.stack[first + x]);
+                // destination, origin
+                std::swap(
+                    context.stack[static_cast<std::size_t>(context.sp - x + 1)],
+                    context.stack[static_cast<std::size_t>(first + x)]);
                 ++x;
             }
-            context.stack[first + 0] = Value(static_cast<PageAddr_t>(context.pp));
-            context.stack[first + 1] = Value(ValueType::InstPtr, static_cast<PageAddr_t>(context.ip));
+            context.stack[static_cast<std::size_t>(first + 0)] = Value(static_cast<PageAddr_t>(context.pp));
+            context.stack[static_cast<std::size_t>(first + 1)] = Value(ValueType::InstPtr, static_cast<PageAddr_t>(context.ip));
             context.sp += 2;
             break;
         }
@@ -234,7 +239,7 @@ inline void VM::returnFromFuncCall(internal::ExecutionContext& context)
     context.locals.pop_back();
 }
 
-inline void VM::call(internal::ExecutionContext& context, const int16_t argc_)
+inline void VM::call(internal::ExecutionContext& context, const uint16_t argc)
 {
     /*
         Argument: number of arguments when calling the function
@@ -244,18 +249,6 @@ inline void VM::call(internal::ExecutionContext& context, const int16_t argc_)
                 of its arguments, from the first to the last one
     */
     using namespace internal;
-
-    uint16_t argc = 0;
-
-    // handling calls from C++ code
-    if (argc_ <= -1) [[unlikely]]
-    {
-        ++context.ip;
-        argc = (static_cast<uint16_t>(m_state.m_pages[context.pp][context.ip]) << 8) + static_cast<uint16_t>(m_state.m_pages[context.pp][context.ip + 1]);
-        ++context.ip;
-    }
-    else
-        argc = argc_;
 
     Value function = *popAndResolveAsPtr(context);
     context.stacked_closure_scopes.emplace_back(nullptr);

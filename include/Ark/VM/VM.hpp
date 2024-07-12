@@ -15,6 +15,7 @@
 #include <array>
 #include <vector>
 #include <string>
+#include <utility>
 #include <cinttypes>
 #include <unordered_map>
 #include <algorithm>
@@ -298,9 +299,9 @@ namespace Ark
          * @brief Function called when the CALL instruction is met in the bytecode
          *
          * @param context
-         * @param argc_ number of arguments already sent, default to -1 if it needs to search for them by itself
+         * @param argc number of arguments already sent
          */
-        inline void call(internal::ExecutionContext& context, int16_t argc_ = -1);
+        inline void call(internal::ExecutionContext& context, uint16_t argc);
     };
 
 #include "inline/VM.inl"

@@ -29,6 +29,8 @@ namespace Ark::internal
         while (!imports.empty())
         {
             Import import = imports.top();
+            if (m_debug >= 2)
+                std::cout << "Importing " << import.toPackageString() << std::endl;
             // Remove the top element to process the other imports
             // It needs to be removed first because we might be adding
             // other imports later and don't want to pop THEM
@@ -109,7 +111,9 @@ namespace Ark::internal
                             for (std::size_t j = 2, end_j = node.constList().size(); j < end_j; ++j)
                             {
                                 if (i + j - 1 < x.list().size())
-                                    x.list().insert(x.list().begin() + i + j - 1, node.constList()[j]);
+                                    x.list().insert(
+                                        x.list().begin() + static_cast<std::vector<Node>::difference_type>(i + j - 1),
+                                        node.constList()[j]);
                                 else
                                     x.list().push_back(node.constList()[j]);
                             }
@@ -144,8 +148,9 @@ namespace Ark::internal
             module_node.push_back(Node(Keyword::Import));
 
             auto package_node = Node(NodeType::List);
-            for (const std::string& stem : import.package)
-                package_node.push_back(Node(NodeType::String, stem));
+            std::ranges::transform(import.package, std::back_inserter(package_node.list()), [](const std::string& stem) {
+                return Node(NodeType::String, stem);
+            });
             module_node.push_back(package_node);
             // empty symbols list
             module_node.push_back(Node(NodeType::List));

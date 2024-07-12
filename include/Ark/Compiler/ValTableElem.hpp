@@ -40,14 +40,14 @@ namespace Ark::internal
         ValTableElemType type;
 
         // Numbers
-        explicit ValTableElem(double value) noexcept;
-        explicit ValTableElem(long value) noexcept;
+        explicit ValTableElem(double num) noexcept;
+        explicit ValTableElem(long num) noexcept;
         // Strings
-        explicit ValTableElem(const std::string& value) noexcept;
+        explicit ValTableElem(const std::string& str) noexcept;
         // automatic handling (Number/String/Function)
-        explicit ValTableElem(const Node& v) noexcept;
+        explicit ValTableElem(const Node& node) noexcept;
         // Functions
-        explicit ValTableElem(std::size_t value) noexcept;
+        explicit ValTableElem(std::size_t page) noexcept;
 
         bool operator==(const ValTableElem& A) const noexcept;
     };

@@ -1,5 +1,6 @@
 #include <Ark/Compiler/Macros/Processor.hpp>
 
+#include <utility>
 #include <algorithm>
 #include <ranges>
 #include <sstream>
@@ -156,7 +157,7 @@ namespace Ark::internal
                     if (hadBegin(node.list()[i]) && !had)
                         removeBegin(node, i);
                     else if (node.list()[i].nodeType() == NodeType::Macro || node.list()[i].nodeType() == NodeType::Unused)
-                        node.list().erase(node.constList().begin() + i);
+                        node.list().erase(node.constList().begin() + static_cast<std::vector<Node>::difference_type>(i));
                 }
                 else  // running on non-macros
                 {
@@ -169,7 +170,7 @@ namespace Ark::internal
                     if (hadBegin(node.list()[i]) && !had)
                         added_begin = true;
                     else if (node.list()[i].nodeType() == NodeType::Unused)
-                        node.list().erase(node.constList().begin() + i);
+                        node.list().erase(node.constList().begin() + static_cast<std::vector<Node>::difference_type>(i));
 
                     if (node.nodeType() == NodeType::List)
                     {
@@ -228,8 +229,10 @@ namespace Ark::internal
                 throwMacroProcessingError(fmt::format("Can not unify a {} to a Spread", typeToString(sub_node)), sub_node);
 
             for (std::size_t i = 1, end = sub_node.list().size(); i < end; ++i)
-                parent->list().insert(parent->list().begin() + index + i, sub_node.list()[i]);
-            parent->list().erase(parent->list().begin() + index);  // remove the spread
+                parent->list().insert(
+                    parent->list().begin() + static_cast<std::vector<Node>::difference_type>(index + i),
+                    sub_node.list()[i]);
+            parent->list().erase(parent->list().begin() + static_cast<std::vector<Node>::difference_type>(index));  // remove the spread
         }
     }
 
@@ -348,8 +351,8 @@ namespace Ark::internal
 
                 if (sublist.nodeType() == NodeType::List && idx.nodeType() == NodeType::Number)
                 {
-                    const long size = static_cast<long>(sublist.list().size());
-                    long real_size = size;
+                    const std::size_t size = sublist.list().size();
+                    std::size_t real_size = size;
                     long num_idx = static_cast<long>(idx.number());
 
                     // if the first node is the function call to "list", don't count it
@@ -361,10 +364,10 @@ namespace Ark::internal
                     }
 
                     Node output;
-                    if (num_idx >= 0 && num_idx < size)
-                        output = sublist.list()[num_idx];
-                    else if (const auto c = size + num_idx; num_idx < 0 && c < size && c >= 0)
-                        output = sublist.list()[c];
+                    if (num_idx >= 0 && std::cmp_less(num_idx, size))
+                        output = sublist.list()[static_cast<std::size_t>(num_idx)];
+                    else if (const auto c = static_cast<long>(size) + num_idx; num_idx < 0 && std::cmp_less(c, size) && c >= 0)
+                        output = sublist.list()[static_cast<std::size_t>(c)];
                     else
                         throwMacroProcessingError(fmt::format("Index ({}) out of range (list size: {})", num_idx, real_size), node);
 
@@ -443,7 +446,7 @@ namespace Ark::internal
 
                     switch (ev.nodeType())
                     {
-                        case NodeType::Number:
+                        case NodeType::Number:                                          // TODO use fmt
                             sym += std::to_string(static_cast<long int>(ev.number()));  // we don't want '.' in identifiers
                             break;
 
@@ -573,9 +576,11 @@ namespace Ark::internal
                 const std::size_t previous = i;
 
                 for (std::size_t block_idx = 1, end = lst.constList().size(); block_idx < end; ++block_idx)
-                    node.list().insert(node.constList().begin() + i + block_idx, lst.list()[block_idx]);
+                    node.list().insert(
+                        node.constList().begin() + static_cast<std::vector<Node>::difference_type>(i + block_idx),
+                        lst.list()[block_idx]);
 
-                node.list().erase(node.constList().begin() + previous);
+                node.list().erase(node.constList().begin() + static_cast<std::vector<Node>::difference_type>(previous));
             }
         }
     }

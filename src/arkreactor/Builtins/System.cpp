@@ -19,6 +19,17 @@
 
 namespace Ark::internal::Builtins::System
 {
+    namespace
+    {
+        struct close_file_deleter
+        {
+            int operator()(FILE* file) const noexcept
+            {
+                return pclose(file);
+            }
+        };
+    }
+
     /**
      * @name sys:exec
      * @brief Execute a system specific command
@@ -40,7 +51,7 @@ namespace Ark::internal::Builtins::System
 #ifdef ARK_ENABLE_SYSTEM
         std::array<char, 128> buffer;
         std::string result;
-        std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(n[0].string().c_str(), "r"), pclose);
+        std::unique_ptr<FILE, close_file_deleter> pipe(popen(n[0].string().c_str(), "r"), close_file_deleter());
         if (!pipe)
             throw std::runtime_error("sys:exec: couldn't retrieve command output");
         while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr)

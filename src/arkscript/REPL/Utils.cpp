@@ -31,12 +31,12 @@ namespace Ark::internal
     std::size_t contextLen(const std::string& prefix)
     {
         const std::string word_break = " \t\n\r\v\f=+*&^%$#@!,./?<>;`~'\"[]{}()\\|";
-        int i = prefix.size() - 1;
+        long i = static_cast<long>(prefix.size()) - 1;
         std::size_t count = 0;
 
         while (i >= 0)
         {
-            if (word_break.find(prefix[i]) != std::string::npos)
+            if (word_break.find(prefix[static_cast<std::size_t>(i)]) != std::string::npos)
                 break;
 
             ++count;

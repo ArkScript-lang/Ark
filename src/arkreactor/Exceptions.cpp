@@ -42,28 +42,28 @@ namespace Ark::Diagnostics
                 switch (c)
                 {
                     case '(':
-                        pairing_color_index = std::abs(line_color_context_counts.open_parentheses) % pairing_color_size;
+                        pairing_color_index = static_cast<std::size_t>(std::abs(line_color_context_counts.open_parentheses)) % pairing_color_size;
                         line_color_context_counts.open_parentheses++;
                         break;
                     case ')':
                         line_color_context_counts.open_parentheses--;
-                        pairing_color_index = std::abs(line_color_context_counts.open_parentheses) % pairing_color_size;
+                        pairing_color_index = static_cast<std::size_t>(std::abs(line_color_context_counts.open_parentheses)) % pairing_color_size;
                         break;
                     case '[':
-                        pairing_color_index = std::abs(line_color_context_counts.open_square_braces) % pairing_color_size;
+                        pairing_color_index = static_cast<std::size_t>(std::abs(line_color_context_counts.open_square_braces)) % pairing_color_size;
                         line_color_context_counts.open_square_braces++;
                         break;
                     case ']':
                         line_color_context_counts.open_square_braces--;
-                        pairing_color_index = std::abs(line_color_context_counts.open_square_braces) % pairing_color_size;
+                        pairing_color_index = static_cast<std::size_t>(std::abs(line_color_context_counts.open_square_braces)) % pairing_color_size;
                         break;
                     case '{':
-                        pairing_color_index = std::abs(line_color_context_counts.open_curly_braces) % pairing_color_size;
+                        pairing_color_index = static_cast<std::size_t>(std::abs(line_color_context_counts.open_curly_braces)) % pairing_color_size;
                         line_color_context_counts.open_curly_braces++;
                         break;
                     case '}':
                         line_color_context_counts.open_curly_braces--;
-                        pairing_color_index = std::abs(line_color_context_counts.open_curly_braces) % pairing_color_size;
+                        pairing_color_index = static_cast<std::size_t>(std::abs(line_color_context_counts.open_curly_braces)) % pairing_color_size;
                         break;
                     default:
                         break;

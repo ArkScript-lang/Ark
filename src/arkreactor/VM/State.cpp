@@ -125,8 +125,9 @@ namespace Ark
     void State::setArgs(const std::vector<std::string>& args) noexcept
     {
         Value val(ValueType::List);
-        for (const std::string& arg : args)
-            val.push_back(Value(arg));
+        std::ranges::transform(args, std::back_inserter(val.list()), [](const std::string& arg) {
+            return Value(arg);
+        });
         m_binded["sys:args"] = val;
 
         m_binded["sys:platform"] = Value(ARK_PLATFORM_NAME);

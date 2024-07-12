@@ -342,7 +342,7 @@ namespace Ark::internal
                 return A.constList().empty();
 
             case NodeType::Number:
-                return !A.number();
+                return A.number() == 0.0;
 
             case NodeType::Capture:
                 [[fallthrough]];

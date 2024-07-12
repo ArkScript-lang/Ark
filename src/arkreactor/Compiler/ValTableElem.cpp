@@ -2,37 +2,37 @@
 
 namespace Ark::internal
 {
-    ValTableElem::ValTableElem(double value) noexcept :
-        value(value),
+    ValTableElem::ValTableElem(double num) noexcept :
+        value(num),
         type(ValTableElemType::Number)
     {}
 
-    ValTableElem::ValTableElem(const long value) noexcept :
-        value(static_cast<double>(value)),
+    ValTableElem::ValTableElem(const long num) noexcept :
+        value(static_cast<double>(num)),
         type(ValTableElemType::Number)
     {}
 
-    ValTableElem::ValTableElem(const std::string& value) noexcept :
-        value(value),
+    ValTableElem::ValTableElem(const std::string& str) noexcept :
+        value(str),
         type(ValTableElemType::String)
     {}
 
-    ValTableElem::ValTableElem(const Node& v) noexcept
+    ValTableElem::ValTableElem(const Node& node) noexcept
     {
-        if (v.nodeType() == NodeType::Number)
+        if (node.nodeType() == NodeType::Number)
         {
-            value = v.number();
+            value = node.number();
             type = ValTableElemType::Number;
         }
-        else if (v.nodeType() == NodeType::String)
+        else if (node.nodeType() == NodeType::String)
         {
-            value = v.string();
+            value = node.string();
             type = ValTableElemType::String;
         }
     }
 
-    ValTableElem::ValTableElem(std::size_t value) noexcept :
-        value(value),
+    ValTableElem::ValTableElem(std::size_t page) noexcept :
+        value(page),
         type(ValTableElemType::PageAddr)
     {}
 
