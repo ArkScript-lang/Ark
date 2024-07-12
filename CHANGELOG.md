@@ -19,6 +19,7 @@
 - check on number of arguments passed to `type`
 - warning when the formatter deletes comment(s) by mistake
 - check on arguments passed to `list`, `concat`, `append` and friends to only push valid nodes (that produces a value)
+- `$paste` to paste a node inside a maro without evaluating it further ; useful to stop recursive evaluation of nodes inside function macros
 
 ### Changed
 - instructions are on 4 bytes: 1 byte for the instruction, 1 byte of padding, 2 bytes for an immediate argument

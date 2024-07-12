@@ -20,17 +20,16 @@
     (test:eq (list:sort [5]) [5])
     (test:eq (list:sort []) [])
 
-    # fixme
-    #(let short_list (list:fill 12 nil))
-    #(test:eq (len short_list) 12)
-    #(mut i 0)
-    #(while (< i 12) {
-    #    (test:eq (@ short_list i) nil)
-    #    (set i (+ 1 i))})
-    #(del i)
-#
-    #(test:eq (@ (list:setAt short_list 5 "a") 5) "a")
-    #(del short_list)
+    (let short_list (list:fill 12 nil))
+    (test:eq (len short_list) 12)
+    (mut i 0)
+    (while (< i 12) {
+        (test:eq (@ short_list i) nil)
+        (set i (+ 1 i))})
+    (del i)
+
+    (test:eq (@ (list:setAt short_list 5 "a") 5) "a")
+    (del short_list)
 
     (test:expect (not (io:fileExists? "test.txt")))
     (io:writeFile "test.txt" "hello, world!")

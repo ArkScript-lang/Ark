@@ -27,7 +27,8 @@ namespace Ark::internal
         m_predefined_macros = {
             "symcat",
             "argcount",
-            "$repr"  // TODO: unify predefined macro names (update documentation and examples and tests)
+            "$repr",  // TODO: unify predefined macro names (update documentation and examples and tests)
+            "$paste"
         };
     }
 
@@ -482,6 +483,12 @@ namespace Ark::internal
             {
                 const Node ast = node.constList()[1];
                 setWithFileAttributes(node, node, Node(NodeType::String, ast.repr()));
+            }
+            else if (name == "$paste")
+            {
+                if (node.list().size() != 2)
+                    throwMacroProcessingError(fmt::format("When expanding `$paste', expected one argument, got {} arguments", argcount), node);
+                return node.constList()[1];
             }
         }
 
