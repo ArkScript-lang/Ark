@@ -314,13 +314,9 @@ namespace Ark::internal
 
     bool BaseParser::sequence(const std::string& s)
     {
-        for (const char i : s)
-        {
-            if (!accept(IsChar(i)))
-                return false;
-        }
-
-        return true;
+        return std::ranges::all_of(s, [this](const char c) {
+            return accept(IsChar(c));
+        });
     }
 
     bool BaseParser::packageName(std::string* s)
@@ -354,11 +350,8 @@ namespace Ark::internal
         if (s)
             *s = buffer;
 
-        for (const auto& word : words)
-        {
-            if (word == buffer)
-                return true;
-        }
-        return false;
+        return std::ranges::any_of(words, [&buffer](const std::string& word) {
+            return word == buffer;
+        });
     }
 }

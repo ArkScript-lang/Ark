@@ -2,7 +2,7 @@
  * @file TypeChecker.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief
- * @version 0.4
+ * @version 1.0
  * @date 2022-01-16
  *
  * @copyright Copyright (c) 2022-2024
@@ -66,11 +66,11 @@ namespace Ark::types
         std::vector<ValueType> types;
         bool variadic;
 
-        Typedef(const std::string_view type_name, const ValueType type, const bool is_variadic = false) :
+        Typedef(const std::string_view& type_name, const ValueType type, const bool is_variadic = false) :
             name(type_name), types { type }, variadic(is_variadic)
         {}
 
-        Typedef(const std::string_view type_name, const std::vector<ValueType>& type_list, const bool is_variadic = false) :
+        Typedef(const std::string_view& type_name, const std::vector<ValueType>& type_list, const bool is_variadic = false) :
             name(type_name), types(type_list), variadic(is_variadic)
         {}
     };
@@ -91,7 +91,7 @@ namespace Ark::types
      * @param contracts types contracts the function can follow
      * @param args provided argument list
      */
-    ARK_API void generateError [[noreturn]] (std::string_view funcname, const std::vector<Contract>& contracts, const std::vector<Value>& args);
+    ARK_API void generateError [[noreturn]] (const std::string_view& funcname, const std::vector<Contract>& contracts, const std::vector<Value>& args);
 }
 
 #endif

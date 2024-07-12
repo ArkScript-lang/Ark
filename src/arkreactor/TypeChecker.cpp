@@ -77,7 +77,7 @@ namespace Ark::types
         }
     }
 
-    [[noreturn]] void generateError(std::string_view funcname, const std::vector<Contract>& contracts, const std::vector<Value>& args)
+    [[noreturn]] void generateError(const std::string_view& funcname, const std::vector<Contract>& contracts, const std::vector<Value>& args)
     {
         std::cout << "Function " << termcolor::blue << funcname << termcolor::reset << " expected ";
 

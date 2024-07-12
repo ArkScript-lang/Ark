@@ -67,8 +67,6 @@ namespace Ark
 
     Value& VM::operator[](const std::string& name) noexcept
     {
-        ExecutionContext& context = *m_execution_contexts.front();
-
         // find id of object
         const auto it = std::ranges::find(m_state.m_symbols, name);
         if (it == m_state.m_symbols.end())
@@ -80,11 +78,14 @@ namespace Ark
         const auto dist = std::distance(m_state.m_symbols.begin(), it);
         if (std::cmp_less(dist, std::numeric_limits<uint16_t>::max()))
         {
+            ExecutionContext& context = *m_execution_contexts.front();
+
             const auto id = static_cast<uint16_t>(dist);
             Value* var = findNearestVariable(id, context);
             if (var != nullptr)
                 return *var;
         }
+
         m_no_value = Builtins::nil;
         return m_no_value;
     }
@@ -558,8 +559,7 @@ namespace Ark
                                     { { types::Contract { { types::Typedef("dst", ValueType::List), types::Typedef("src", ValueType::List) } } } },
                                     { *list, *next });
 
-                            for (auto& val : next->list())
-                                obj.push_back(val);
+                            std::ranges::copy(next->list(), std::back_inserter(obj.list()));
                         }
                         push(std::move(obj), context);
                         break;
@@ -608,8 +608,7 @@ namespace Ark
                                     { { types::Contract { { types::Typedef("dst", ValueType::List), types::Typedef("src", ValueType::List) } } } },
                                     { *list, *next });
 
-                            for (auto& it : next->list())
-                                list->push_back(it);
+                            std::ranges::copy(next->list(), std::back_inserter(list->list()));
                         }
 
                         break;

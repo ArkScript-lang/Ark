@@ -137,15 +137,17 @@ int main(int argc, char** argv)
         // if arkscript lib paths were provided by the CLI, bypass the automatic lookup
         if (!libdir.empty())
         {
-            for (const auto& path : Utils::splitString(libdir, ';'))
-                lib_paths.emplace_back(path);
+            std::ranges::transform(Utils::splitString(libdir, ';'), std::back_inserter(lib_paths), [](const std::string& path) {
+                return std::filesystem::path(path);
+            });
         }
         else
         {
             if (const char* arkpath = std::getenv("ARKSCRIPT_PATH"))
             {
-                for (const auto& path : Utils::splitString(arkpath, ';'))
-                    lib_paths.emplace_back(path);
+                std::ranges::transform(Utils::splitString(arkpath, ';'), std::back_inserter(lib_paths), [](const std::string& path) {
+                    return std::filesystem::path(path);
+                });
             }
             else if (Utils::fileExists("./lib"))
                 lib_paths.emplace_back("lib");

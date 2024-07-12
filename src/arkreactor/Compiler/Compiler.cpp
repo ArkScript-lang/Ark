@@ -141,8 +141,9 @@ namespace Ark
         {
             // push the string, null terminated
             std::string s = sym.string();
-            for (const char i : s)
-                m_bytecode.push_back(static_cast<uint8_t>(i));
+            std::ranges::transform(s, std::back_inserter(m_bytecode), [](const char i) {
+                return static_cast<uint8_t>(i);
+            });
             m_bytecode.push_back(0_u8);
         }
 
@@ -161,15 +162,17 @@ namespace Ark
                 m_bytecode.push_back(NUMBER_TYPE);
                 const auto n = std::get<double>(val.value);
                 std::string t = std::to_string(n);
-                for (const char i : t)
-                    m_bytecode.push_back(static_cast<uint8_t>(i));
+                std::ranges::transform(t, std::back_inserter(m_bytecode), [](const char i) {
+                    return static_cast<uint8_t>(i);
+                });
             }
             else if (val.type == ValTableElemType::String)
             {
                 m_bytecode.push_back(STRING_TYPE);
                 auto t = std::get<std::string>(val.value);
-                for (const char i : t)
-                    m_bytecode.push_back(static_cast<uint8_t>(i));
+                std::ranges::transform(t, std::back_inserter(m_bytecode), [](const char i) {
+                    return static_cast<uint8_t>(i);
+                });
             }
             else if (val.type == ValTableElemType::PageAddr)
             {

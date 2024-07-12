@@ -148,8 +148,9 @@ namespace Ark::internal
             module_node.push_back(Node(Keyword::Import));
 
             auto package_node = Node(NodeType::List);
-            for (const std::string& stem : import.package)
-                package_node.push_back(Node(NodeType::String, stem));
+            std::ranges::transform(import.package, std::back_inserter(package_node.list()), [](const std::string& stem) {
+                return Node(NodeType::String, stem);
+            });
             module_node.push_back(package_node);
             // empty symbols list
             module_node.push_back(Node(NodeType::List));
