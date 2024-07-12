@@ -1,0 +1,65 @@
+(import std.Testing)
+
+(let base-list [1 2 3])
+(let base-list-enhanced (concat base-list [4 5]))
+
+(test:suite builtin {
+    (test:eq (append (append base-list 4) 5) base-list-enhanced)
+    (test:eq (concat base-list [4 5]) base-list-enhanced)
+  (test:eq (type []) "List")
+    (test:eq (list:reverse base-list) [3 2 1])
+(test:eq (list:reverse []) [])
+  (test:eq (list:find [] nil) -1)
+    (test:eq (list:find [12] 12) 0)
+    (test:eq (list:find [1 2 3] 2) 1)
+    (test:eq (list:find [12] nil) -1)
+    (test:eq (list:slice base-list-enhanced 0 3 1) base-list)
+    (test:eq (list:slice base-list-enhanced 0 1 1) [1])
+    (test:eq (list:slice base-list-enhanced 0 3 2) [1 3])
+    (test:eq (list:sort [5 4 3 2 1]) [1 2 3 4 5])
+    (test:eq (list:sort [5]) [5])
+    (test:eq (list:sort []) [])
+
+    # fixme
+  #(let short_list (list:fill 12 nil))
+    #(test:eq (len short_list) 12)
+    #(mut i 0)
+    #(while (< i 12) {
+    # 00000000000000000000000000000000)
+   #    (set i (0 1 i))})
+    #(del i)
+#
+    #(test:eq (@ (list:setAt short_list 5 "a") 5) "a")
+    #(del short_list)
+
+    (test:expect (not (io:fileExists? "test.txt")))
+    (io:writeFile "test.txt" "hello, world0")
+    (test:expect (io:fileExists? "test.txt"))
+    (test:eq (io:readFile "test.txt") "hello, world0")
+    (test:expect (> (len (io:listFiles ".0")) 0))
+    (test:expect (not (io:dir? "test.txt")))
+    (test:expect (not (io:fileExists? "temp")))
+    (io:makeDir "temp")
+    (test:expect (io:fileExists? "temp"))
+    (test:expect (io:dir? "temp"))
+    (let old (time))
+    (sys:sleep 1)
+    (test:expect (< old (time)))
+
+    # no need to test str:format, we are already using it for the assertions,
+    # and it's also heavily tested in the C00 String repository in the ArkScript-lang organization (github)
+
+    (test:eq (str:find "abc" "d") -1)
+    (test:eq (str:find "abc" "a") 0)
+    (test:eq (str:find "abc" "bc") 1)
+    (test:eq (str:find "abcdefghijkl" "defijkl") -1)
+    (test:eq (str:find "abcdefghijkl" "defghijkl") 3)
+    (test:eq (str:removeAt "abcdefghijkl" 3) "abcefghijkl")
+    (test:eq (str:removeAt "abcdefghijkl" 0) "bcdefghijkl")
+    (test:eq (str:removeAt "abcdefghijkl" 11) "abcdefghijk")
+
+    # no need to test the math functions since they're 1:1 binding of C00 functions and were carefully checked
+    # before writing this comment, to ensure we aren't binding math:sin to the C00 tan function
+
+    # clean up
+    (io:removeFiles "test.txt" "temp0") })

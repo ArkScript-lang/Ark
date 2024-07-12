@@ -114,7 +114,7 @@ namespace Ark::internal
         explicit IsChar(const char c) :
             CharPred("'" + std::string(1, c) + "'"), m_k(c)
         {}
-        explicit IsChar(const utf8_char_t c) :
+        explicit IsChar(const utf8_char_t& c) :
             CharPred(std::string(c.c_str())), m_k(c.codepoint())
         {}
         bool operator()(const utf8_char_t::codepoint_t c) const override

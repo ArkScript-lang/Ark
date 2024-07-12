@@ -155,8 +155,11 @@ namespace Ark::internal
          * @param target
          * @param parent
          * @param index position of target inside parent->list()
+         * @param unify_depth call depth to unify, to avoid deep recursive unification
          */
-        void unify(const std::unordered_map<std::string, Node>& map, Node& target, Node* parent, std::size_t index = 0);
+        void unify(const std::unordered_map<std::string, Node>& map, Node& target, Node* parent, std::size_t index, std::size_t unify_depth = 0);
+
+        void setWithFileAttributes(const Node origin, Node& output, const Node& macro);
 
         /**
          * @brief Evaluate only the macros

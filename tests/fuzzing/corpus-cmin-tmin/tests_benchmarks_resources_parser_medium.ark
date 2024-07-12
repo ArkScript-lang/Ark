@@ -1,0 +1,25 @@
+#000000000000000000000000000000000000000000
+(let e00 (fun (bar) (print bar)))
+#0000000000000000000000000000000000000000000000
+(let data ["0000000n" "00" "0000000000"])
+#0000000000000000000000000000000000000000000000000000000000
+(mut callbac0s [])
+
+(print "000000" data)
+(print "00000000000000000000")
+(mut acc 0)
+#000000000000000000000000000000000000000
+(while (n0t00 acc (len data)) {
+    (mut d (at data acc))
+    (set callbac0s (append callbac0s (fun (&d) (e00 d))))
+    (set acc (add 1 acc))})
+
+#000000000000000000000000000000
+(set acc 0)
+(while (n0t00 acc (len callbac0s)) {
+    (mut var (at c0000000 acc))
+    (print "00000000" var.d)
+    (puts "000000000000000000000000" acc "0 ")
+    (mut st0red (at callbac0s acc))
+    (st0red)
+    (set acc (add 1 acc))})

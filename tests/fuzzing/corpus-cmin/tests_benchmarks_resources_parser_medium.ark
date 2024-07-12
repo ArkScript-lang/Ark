@@ -1,0 +1,25 @@
+# a function which just prints its argument
+(let egg (fun (bar) (print bar)))
+# the data we're going to give to this function
+(let data ["Iron Man" "is" "Tony Stark"])
+# a list of function call which should be executed later on
+(mut callbacks [])
+
+(print "Data: " data)
+(print "Generating callbacks")
+(mut acc 0)
+# here we are filling the list callbacks
+(while (notEq acc (len data)) {
+    (mut d (at data acc))
+    (set callbacks (append callbacks (fun (&d) (egg d))))
+    (set acc (add 1 acc))})
+
+# then we reset the accumulator
+(set acc 0)
+(while (notEq acc (len callbacks)) {
+    (mut var (at callback acc))
+    (print "stored: " var.d)
+    (puts "Calling callback number " acc ": ")
+    (mut stored (at callbacks acc))
+    (stored)
+    (set acc (add 1 acc))})

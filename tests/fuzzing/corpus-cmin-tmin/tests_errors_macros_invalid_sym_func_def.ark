@@ -1,0 +1,2 @@
+($ defun(na0e a000 bod0) (let na0e (fun a000 bod0)))
+(defun 0 (a b) (+ a b))

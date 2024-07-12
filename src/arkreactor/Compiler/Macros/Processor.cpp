@@ -1,10 +1,12 @@
 #include <Ark/Compiler/Macros/Processor.hpp>
 
+#include <utility>
 #include <algorithm>
 #include <ranges>
 #include <sstream>
 #include <fmt/core.h>
 
+#include <Ark/Constants.hpp>
 #include <Ark/Exceptions.hpp>
 #include <Ark/Builtins/Builtins.hpp>
 #include <Ark/Compiler/Macros/Executors/Symbol.hpp>
@@ -112,12 +114,25 @@ namespace Ark::internal
                 return;
 
             if (!inner.constList().empty() && inner.constList()[0].nodeType() == NodeType::Keyword && inner.constList()[0].keyword() == Keyword::Fun)
-                m_defined_functions[node.constList()[1].string()] = inner.constList()[1];
+            {
+                const Node& symbol = node.constList()[1];
+                if (symbol.nodeType() == NodeType::Symbol)
+                    m_defined_functions[symbol.string()] = inner.constList()[1];
+                else
+                    throwMacroProcessingError(fmt::format("Can not use a {} to define a variable", typeToString(symbol)), symbol);
+            }
         }
     }
 
     void MacroProcessor::processNode(Node& node, unsigned depth)
     {
+        if (depth >= MaxMacroProcessingDepth)
+            throwMacroProcessingError(
+                fmt::format(
+                    "Max recursion depth reached ({}). You most likely have a badly defined recursive macro calling itself without a proper exit condition",
+                    MaxMacroProcessingDepth),
+                node);
+
         if (node.nodeType() == NodeType::List)
         {
             bool has_created = false;
@@ -143,7 +158,7 @@ namespace Ark::internal
                     if (hadBegin(node.list()[i]) && !had)
                         removeBegin(node, i);
                     else if (node.list()[i].nodeType() == NodeType::Macro || node.list()[i].nodeType() == NodeType::Unused)
-                        node.list().erase(node.constList().begin() + i);
+                        node.list().erase(node.constList().begin() + static_cast<std::vector<Node>::difference_type>(i));
                 }
                 else  // running on non-macros
                 {
@@ -156,7 +171,7 @@ namespace Ark::internal
                     if (hadBegin(node.list()[i]) && !had)
                         added_begin = true;
                     else if (node.list()[i].nodeType() == NodeType::Unused)
-                        node.list().erase(node.constList().begin() + i);
+                        node.list().erase(node.constList().begin() + static_cast<std::vector<Node>::difference_type>(i));
 
                     if (node.nodeType() == NodeType::List)
                     {
@@ -186,8 +201,15 @@ namespace Ark::internal
         return m_executor_pipeline.applyMacro(node);
     }
 
-    void MacroProcessor::unify(const std::unordered_map<std::string, Node>& map, Node& target, Node* parent, const std::size_t index)
+    void MacroProcessor::unify(const std::unordered_map<std::string, Node>& map, Node& target, Node* parent, const std::size_t index, const std::size_t unify_depth)
     {
+        if (unify_depth > MaxMacroUnificationDepth)
+            throwMacroProcessingError(
+                fmt::format(
+                    "Max macro unification depth reached ({}). You may have a macro trying to evaluate itself, try splitting your code in multiple nodes.",
+                    MaxMacroUnificationDepth),
+                *parent);
+
         if (target.nodeType() == NodeType::Symbol)
         {
             if (const auto p = map.find(target.string()); p != map.end())
@@ -196,21 +218,30 @@ namespace Ark::internal
         else if (target.isListLike())
         {
             for (std::size_t i = 0; i < target.list().size(); ++i)
-                unify(map, target.list()[i], &target, i);
+                unify(map, target.list()[i], &target, i, unify_depth + 1);
         }
         else if (target.nodeType() == NodeType::Spread)
         {
             Node sub_node = target;
             sub_node.setNodeType(NodeType::Symbol);
-            unify(map, sub_node, parent);
+            unify(map, sub_node, parent, 0, unify_depth + 1);
 
             if (sub_node.nodeType() != NodeType::List)
                 throwMacroProcessingError(fmt::format("Can not unify a {} to a Spread", typeToString(sub_node)), sub_node);
 
             for (std::size_t i = 1, end = sub_node.list().size(); i < end; ++i)
-                parent->list().insert(parent->list().begin() + index + i, sub_node.list()[i]);
-            parent->list().erase(parent->list().begin() + index);  // remove the spread
+                parent->list().insert(
+                    parent->list().begin() + static_cast<std::vector<Node>::difference_type>(index + i),
+                    sub_node.list()[i]);
+            parent->list().erase(parent->list().begin() + static_cast<std::vector<Node>::difference_type>(index));  // remove the spread
         }
+    }
+
+    void MacroProcessor::setWithFileAttributes(const Node origin, Node& output, const Node& macro)
+    {
+        output = macro;
+        output.setFilename(origin.filename());
+        output.setPos(origin.line(), origin.col());
     }
 
     Node MacroProcessor::evaluate(Node& node, const bool is_not_body)
@@ -305,9 +336,9 @@ namespace Ark::internal
                     if (isConstEval(lst))
                     {
                         if (!lst.list().empty() && lst.list()[0] == getListNode())
-                            node = Node(static_cast<long>(lst.list().size()) - 1);
+                            setWithFileAttributes(node, node, Node(static_cast<long>(lst.list().size()) - 1));
                         else
-                            node = Node(static_cast<long>(lst.list().size()));
+                            setWithFileAttributes(node, node, Node(static_cast<long>(lst.list().size())));
                     }
                 }
             }
@@ -321,8 +352,8 @@ namespace Ark::internal
 
                 if (sublist.nodeType() == NodeType::List && idx.nodeType() == NodeType::Number)
                 {
-                    const long size = static_cast<long>(sublist.list().size());
-                    long real_size = size;
+                    const std::size_t size = sublist.list().size();
+                    std::size_t real_size = size;
                     long num_idx = static_cast<long>(idx.number());
 
                     // if the first node is the function call to "list", don't count it
@@ -333,11 +364,17 @@ namespace Ark::internal
                             ++num_idx;
                     }
 
-                    if (num_idx >= 0 && num_idx < size)
-                        return sublist.list()[num_idx];
-                    if (const auto c = size + num_idx; num_idx < 0 && c < size && c >= 0)
-                        return sublist.list()[c];
-                    throwMacroProcessingError(fmt::format("Index ({}) out of range (list size: {})", num_idx, real_size), node);
+                    Node output;
+                    if (num_idx >= 0 && std::cmp_less(num_idx, size))
+                        output = sublist.list()[static_cast<std::size_t>(num_idx)];
+                    else if (const auto c = static_cast<long>(size) + num_idx; num_idx < 0 && std::cmp_less(c, size) && c >= 0)
+                        output = sublist.list()[static_cast<std::size_t>(c)];
+                    else
+                        throwMacroProcessingError(fmt::format("Index ({}) out of range (list size: {})", num_idx, real_size), node);
+
+                    output.setFilename(node.filename());
+                    output.setPos(node.line(), node.col());
+                    return output;
                 }
             }
             else if (name == "head")
@@ -352,15 +389,15 @@ namespace Ark::internal
                         if (sublist.constList().size() > 1)
                         {
                             const Node sublistCopy = sublist.constList()[1];
-                            node = sublistCopy;
+                            setWithFileAttributes(node, node, sublistCopy);
                         }
                         else
-                            node = getNilNode();
+                            setWithFileAttributes(node, node, getNilNode());
                     }
                     else if (!sublist.list().empty())
-                        node = sublist.constList()[0];
+                        setWithFileAttributes(node, node, sublist.constList()[0]);
                     else
-                        node = getNilNode();
+                        setWithFileAttributes(node, node, getNilNode());
                 }
             }
             else if (name == "tail")
@@ -375,22 +412,22 @@ namespace Ark::internal
                         if (sublist.list().size() > 1)
                         {
                             sublist.list().erase(sublist.constList().begin() + 1);
-                            node = sublist;
+                            setWithFileAttributes(node, node, sublist);
                         }
                         else
                         {
-                            node = Node(NodeType::List);
+                            setWithFileAttributes(node, node, Node(NodeType::List));
                             node.push_back(getListNode());
                         }
                     }
                     else if (!sublist.list().empty())
                     {
                         sublist.list().erase(sublist.constList().begin());
-                        node = sublist;
+                        setWithFileAttributes(node, node, sublist);
                     }
                     else
                     {
-                        node = Node(NodeType::List);
+                        setWithFileAttributes(node, node, Node(NodeType::List));
                         node.push_back(getListNode());
                     }
                 }
@@ -410,7 +447,7 @@ namespace Ark::internal
 
                     switch (ev.nodeType())
                     {
-                        case NodeType::Number:
+                        case NodeType::Number:                                          // TODO use fmt
                             sym += std::to_string(static_cast<long int>(ev.number()));  // we don't want '.' in identifiers
                             break;
 
@@ -433,19 +470,19 @@ namespace Ark::internal
                 if (sym.nodeType() == NodeType::Symbol)
                 {
                     if (const auto it = m_defined_functions.find(sym.string()); it != m_defined_functions.end())
-                        node = Node(static_cast<long>(it->second.constList().size()));
+                        setWithFileAttributes(node, node, Node(static_cast<long>(it->second.constList().size())));
                     else
                         throwMacroProcessingError(fmt::format("When expanding `argcount', expected a known function name, got unbound variable {}", sym.string()), sym);
                 }
                 else if (sym.nodeType() == NodeType::List && sym.list().size() == 3 && sym.list()[0].nodeType() == NodeType::Keyword && sym.list()[0].keyword() == Keyword::Fun)
-                    node = Node(static_cast<long>(sym.list()[1].list().size()));
+                    setWithFileAttributes(node, node, Node(static_cast<long>(sym.list()[1].list().size())));
                 else
                     throwMacroProcessingError(fmt::format("When trying to apply `argcount', got a {} instead of a Symbol or Function", typeToString(sym)), sym);
             }
             else if (name == "$repr")
             {
                 const Node ast = node.constList()[1];
-                node = Node(NodeType::String, ast.repr());
+                setWithFileAttributes(node, node, Node(NodeType::String, ast.repr()));
             }
             else if (name == "$paste")
             {
@@ -458,8 +495,11 @@ namespace Ark::internal
         if (node.nodeType() == NodeType::List && !node.constList().empty())
         {
             for (auto& child : node.list())
-                child = evaluate(child, is_not_body);
+                setWithFileAttributes(child, child, evaluate(child, is_not_body));
         }
+
+        if (node.nodeType() == NodeType::Spread)
+            throwMacroProcessingError(fmt::format("Found an unevaluated spread: `{}'", node.string()), node);
 
         return node;
     }
@@ -543,9 +583,11 @@ namespace Ark::internal
                 const std::size_t previous = i;
 
                 for (std::size_t block_idx = 1, end = lst.constList().size(); block_idx < end; ++block_idx)
-                    node.list().insert(node.constList().begin() + i + block_idx, lst.list()[block_idx]);
+                    node.list().insert(
+                        node.constList().begin() + static_cast<std::vector<Node>::difference_type>(i + block_idx),
+                        lst.list()[block_idx]);
 
-                node.list().erase(node.constList().begin() + previous);
+                node.list().erase(node.constList().begin() + static_cast<std::vector<Node>::difference_type>(previous));
             }
         }
     }

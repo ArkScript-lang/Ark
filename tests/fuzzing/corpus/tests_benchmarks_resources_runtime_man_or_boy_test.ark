@@ -1,0 +1,9 @@
+(let A (fun (k x1 x2 x3 x4 x5) {
+    (let B (fun () {
+        (set k (- k 1))
+        (A k B x1 x2 x3 x4) }))
+    (if (<= k 0)
+        (+ (x4) (x5))
+        (B)) }))
+
+(A 3 (fun () 1) (fun () -1) (fun () -1) (fun () 1) (fun () 0))

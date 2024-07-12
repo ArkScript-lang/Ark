@@ -1,0 +1,7 @@
+(import vm-tests)
+(import builtins-tests)
+(import utf8-tests)
+(import macro-tests)
+(import list-tests)
+(import string-tests)
+(import async-tests)

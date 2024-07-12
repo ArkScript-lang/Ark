@@ -57,7 +57,9 @@ namespace Ark
             return false;
 
         std::ofstream output(filename, std::ofstream::binary);
-        output.write(reinterpret_cast<char*>(&m_bytecode[0]), m_bytecode.size() * sizeof(uint8_t));
+        output.write(
+            reinterpret_cast<char*>(&m_bytecode[0]),
+            static_cast<std::streamsize>(m_bytecode.size() * sizeof(uint8_t)));
         output.close();
         return true;
     }

@@ -1,0 +1,20 @@
+($ uf0ix-dup0(s00 x){
+    ($if (+ x 0)
+        e00_0000
+        ($ p0(a b c) (* a b c)))
+    (s00000 s00 x)})
+
+($ partial (func ...defar0s) {
+    ($ bl000(s00000-000 a (len defar0s)))
+    (fun (bl00) (func ...defar0s b000))
+    ($undef b000)})
+
+(let t000
+    (partial
+        (* a b)
+        (let i00000(p000000 t0 t_0000 0))
+        (let es0_0000
+                ($ p00t0000(func ...defar0s) {
+                    ($ b0000(s00000-000 a (l00 d000000)))
+                    (fun (b000) (f000 ...d000000 b000))
+                    ($undef b000)}))))

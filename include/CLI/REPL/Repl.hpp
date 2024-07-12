@@ -44,7 +44,7 @@ namespace Ark
         std::string m_code;
         bool m_running;
 
-        int m_old_ip;
+        std::size_t m_old_ip;
         std::vector<std::filesystem::path> m_lib_env;
         State m_state;
         VM m_vm;

@@ -1,0 +1,6 @@
+At (foo (begin)) @ 2:3
+    1 | (let foo (fun (a) ()))
+    2 | (foo {})
+      | ^~~~~~~~
+    3 |
+        Invalid node inside call to `foo'

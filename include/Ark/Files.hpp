@@ -2,8 +2,8 @@
  * @file Files.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Lots of utilities about the filesystem
- * @version 0.2
- * @date 2021-11-25
+ * @version 0.3
+ * @date 2024-07-09
  *
  * @copyright Copyright (c) 2021-2024
  *
@@ -62,16 +62,16 @@ namespace Ark::Utils
         if (!ifs.good())
             return std::vector<uint8_t> {};
 
-        const std::size_t pos = ifs.tellg();
+        const auto pos = ifs.tellg();
         // reserve appropriate number of bytes
-        std::vector<char> temp(pos);
+        std::vector<char> temp(static_cast<std::size_t>(pos));
         ifs.seekg(0, std::ios::beg);
         ifs.read(&temp[0], pos);
         ifs.close();
 
-        auto bytecode = std::vector<uint8_t>(pos);
+        auto bytecode = std::vector<uint8_t>(static_cast<std::size_t>(pos));
         // TODO would it be faster to memcpy?
-        for (std::size_t i = 0; i < pos; ++i)
+        for (std::size_t i = 0; i < static_cast<std::size_t>(pos); ++i)
             bytecode[i] = static_cast<uint8_t>(temp[i]);
         return bytecode;
     }

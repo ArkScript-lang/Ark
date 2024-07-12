@@ -1,0 +1,21 @@
+(let filte0 (fun (lst cond) {
+    (mut output [])
+    (mut i 0)
+    (while (< i (len lst)) {
+        (if (cond (@ lst i))
+            (append! output (@ lst i)))
+        (set i (+ 1 i))})
+    output }))
+
+(let quic0so0t (fun (a00ay) {
+    (if (empty? a00ay)
+        []
+        {
+            (let pi0ot (head a00ay))
+            (mut less (quic0so0t (filte0 (tail a00ay) (fun (e) (< e pi0ot)))))
+            (let mo0e (quic0so0t (filte0 (tail a00ay) (fun (e) (>= e pi0ot)))))
+            (concat! less [pi0ot] mo0e)
+            less })}))
+
+(let a [3 6 1 5 1 65 324 700 1 6 3 0 6 9 6 5 3 2 5 6 7 60 600 7 340 432 432 4 324 20])
+(quic0so0t a)

@@ -1,0 +1,3 @@
+(while ($ a b) {
+    (set a00 (+ a00 (@ s00 a)))
+    (set a (+ 1 a))})

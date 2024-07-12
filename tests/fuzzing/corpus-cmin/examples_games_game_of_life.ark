@@ -1,0 +1,69 @@
+(let board [
+    0 0 0 0
+    0 1 1 1
+    1 1 1 0
+    0 0 0 0])
+(let width 4)
+(let height 4)
+(let dead 0)
+(let alive 1)
+
+(let get (fun (board_ i width height)
+    (if (and (>= i 0) (< i (* width height)))
+        (@ board_ i)
+        dead )))
+
+(let neigh (fun (board_ index width height) {
+    (let x (math:floor (mod index width)))
+    (let y (math:floor (/ index width)))
+    (mut count 0)
+
+    (if (>= (- y 1) 0)
+        (set count (+ count (get board_ (- index width) width height))))
+    (if (< (+ y 1) height)
+        (set count (+ count (get board_ (+ index width) width height))))
+    (if (>= (- x 1) 0)
+        (set count (+ count (get board_ (- index 1) width height))))
+    (if (< (+ x 1) width)
+        (set count (+ count (get board_ (+ index 1) width height))))
+
+    (if (and (>= (- x 1) 0) (>= (- y 1) 0))
+        (set count (+ count (get board_ (- index 1 width) width height))))
+    (if (and (< (+ x 1) width) (< (+ y 1) height))
+        (set count (+ count (get board_ (+ index width 1) width height))))
+    (if (and (>= (- x 1) 0) (< (+ y 1) height))
+        (set count (+ count (get board_ (+ index width -1) width height))))
+    (if (and (< (+ x 1) width) (>= (- y 1) 0))
+        (set count (+ count (get board_ (- index width -1) width height))))
+
+    count }))
+
+(mut copy (list:fill (* height width) dead))
+(mut i 0)
+(while (< i (* width height)) {
+    (mut neighs (neigh board i width height))
+    (if (= 3 neighs)
+        (set copy (list:setAt copy i alive)))
+    (if (= 2 neighs)
+        (set copy (list:setAt copy i (@ board i))))
+    (if (or (< neighs 2) (> neighs 3))
+        (set copy (list:setAt copy i dead)))
+
+    (set i (+ 1 i)) })
+
+(let display (fun (board width height) {
+    (mut i 0)
+    (while (< i (* width height)) {
+        (mut y (math:floor (/ i width)))
+        (mut x (math:floor (mod i width)))
+
+        (if (= 0 x) (puts "\n"))
+        (if (= alive (@ board i)) (puts "x") (puts " "))
+
+        (set i (+ 1 i)) })
+    (puts "\n") }))
+
+(print "initial board:")
+(display board width height)
+(print "new board:")
+(display copy width height)

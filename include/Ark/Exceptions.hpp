@@ -2,7 +2,7 @@
  * @file Exceptions.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com), Max (madstk1@pm.me)
  * @brief ArkScript homemade exceptions
- * @version 1.2
+ * @version 1.3
  * @date 2020-10-27
  *
  * @copyright Copyright (c) 2020-2024
@@ -91,13 +91,13 @@ namespace Ark
 
         CodeError(
             const std::string& what,
-            std::string filename,
+            std::string filename_,
             const std::size_t lineNum,
             const std::size_t column,
             std::string exp,
             const std::optional<internal::utf8_char_t> opt_sym = std::nullopt) :
             Error(what),
-            filename(std::move(filename)), line(lineNum), col(column), expr(std::move(exp)), symbol(opt_sym)
+            filename(std::move(filename_)), line(lineNum), col(column), expr(std::move(exp)), symbol(opt_sym)
         {}
     };
 

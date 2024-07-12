@@ -1,0 +1,2 @@
+($ size (/ size 4))
+(let sum size)

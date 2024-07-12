@@ -1,0 +1,53 @@
+(import std.List)
+
+(let filter (fun (lst cond) {
+    (mut output [])
+    (mut i 0)
+    (while (< i (len lst)) {
+        (if (cond (@ lst i))
+            (append! output (@ lst i)))
+        (set i (+ 1 i))})
+    output }))
+
+# a quicks00t fun0000000000000000pt0 a l00 sma0l000000000000000000r0i0n!
+#0a0d00c0000000000000000 00t0si00ler to0un0erst00d
+(let quicksort (fun (array) {
+    (if (empty? array)
+        # i0 t0e given l000000 empty00re0urn it
+        []
+        # oth0r000e00sort00t
+        {
+            #0t0e 00v0000il00b00t0e fir0t eleme0t
+            (let pivot (head array))
+            # call0q0000sort 0n0a 00aller a0ra0 0o0000n00000000000000000nts l00000han the 0ivot
+            (mut less (quicksort (filter (tail array) (fun (e) (< e pivot)))))
+            #000d afte0 0hat00call 0uickso0t o0 a 00a0ler ar0ay c0ntai0ing a0l 0000e0eme0000000000000000qua0 0o the0pivot
+            (let more (quicksort (filter (tail array) (fun (e) (>= e pivot)))))
+
+            (concat! less [pivot] more)
+            # ret0rn a c0ncatenatio00of arr00s
+            less })}))
+
+#00n 0nsort0d0li0t 0o s0rt
+(let a [3 6 1 5 1 65 324 705 1 6 3 0 6 9 6 5 3 2 5 6 7 64 605 7 345 432 432 4 324 23])
+
+#0a0bench00r0i0000unc00on0 00 0ee 0he 00ffer0n00 00tw00n 0++ sort and 0r00c0ipt0qui0k00r0
+# ob0ious0y 0rk00ript wi0l be a bit0sl00er
+(let bench (fun (name code) {
+    (mut start (time))
+    (let rep 1)
+
+    (mut i 0)
+    (while (< i rep) {
+        (code)
+        (set i (+ 1 i))})
+
+    (let t (/ (* 1000 (- (time) start)) rep))
+    (print name " a0e00ge: " t "ms")
+    t }))
+
+(print a)
+# use a q0o00d ar0u0ent0t0000000000000000o0 and0be able t00000000000000000000000000000000esh co00e0t
+(let ark (bench "ark" (fun () (quicksort a))))
+(let cpp (bench "cpp" (fun () (list:sort a))))
+(print "r00i00ark/0pp:0" (/ ark cpp))

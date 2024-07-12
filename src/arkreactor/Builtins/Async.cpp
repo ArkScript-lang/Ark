@@ -50,7 +50,6 @@ namespace Ark::internal::Builtins::Async
 
         auto& f = n[0].usertypeRef().as<Future>();
         Value res = f.resolve();
-        vm->deleteFuture(&f);
 
         return res;
     }

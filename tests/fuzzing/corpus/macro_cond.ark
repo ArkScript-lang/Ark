@@ -1,2 +1,0 @@
-($ -> (arg fn1 ...fn) {
-    ($if (> (len fn) 0) (-> (fn1 arg) ...fn) (fn1 arg))})

@@ -9,6 +9,13 @@ namespace Ark::internal
         m_processor(processor)
     {}
 
+    void MacroExecutor::setWithFileAttributes(const Node origin, Node& output, const Node& macro)
+    {
+        output = macro;
+        output.setFilename(origin.filename());
+        output.setPos(origin.line(), origin.col());
+    }
+
     const Node* MacroExecutor::findNearestMacro(const std::string& name) const
     {
         return m_processor->findNearestMacro(name);
@@ -31,7 +38,7 @@ namespace Ark::internal
 
     void MacroExecutor::unify(const std::unordered_map<std::string, Node>& map, Node& target, Node* parent) const
     {
-        m_processor->unify(map, target, parent);
+        m_processor->unify(map, target, parent, /* index= */ 0, /* unify_depth= */ 0);
     }
 
     void MacroExecutor::throwMacroProcessingError(const std::string& message, const Node& node) const

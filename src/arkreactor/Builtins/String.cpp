@@ -1,5 +1,6 @@
 #include <Ark/Builtins/Builtins.hpp>
 
+#include <utility>
 #include <utf8.hpp>
 #include <fmt/args.h>
 #include <fmt/core.h>
@@ -115,10 +116,10 @@ namespace Ark::internal::Builtins::String
                 n);
 
         long id = static_cast<long>(n[1].number());
-        if (id < 0 || static_cast<std::size_t>(id) >= n[0].stringRef().size())
+        if (id < 0 || std::cmp_greater_equal(id, n[0].stringRef().size()))
             throw std::runtime_error(fmt::format("str:removeAt: index {} out of range (length: {})", id, n[0].stringRef().size()));
 
-        n[0].stringRef().erase(id, 1);
+        n[0].stringRef().erase(static_cast<std::size_t>(id), 1);
         return n[0];
     }
 

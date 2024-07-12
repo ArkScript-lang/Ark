@@ -174,13 +174,13 @@ namespace Ark::internal
 
         std::optional<Node> field()
         {
-            std::string symbol;
-            if (!name(&symbol))
+            std::string sym;
+            if (!name(&sym))
                 return std::nullopt;
 
             std::optional<Node> leaf { Node(NodeType::Field) };
             setNodePosAndFilename(leaf.value());
-            leaf->push_back(Node(NodeType::Symbol, symbol));
+            leaf->push_back(Node(NodeType::Symbol, sym));
 
             while (true)
             {

@@ -247,9 +247,10 @@ std::string Formatter::formatBlock(const Node& node, const std::size_t indent, c
             case Keyword::Del:
                 return formatDel(node, indent);
         }
+        // HACK: should never reach, but the compiler insists that the function doesn't return in every code path
+        return "";
     }
-    else
-        return formatCall(node, indent);
+    return formatCall(node, indent);
 }
 
 std::string Formatter::formatFunction(const Node& node, const std::size_t indent)
@@ -467,14 +468,21 @@ std::string Formatter::formatMacro(const Node& node, const std::size_t indent)
     else
         output = "($ ";
 
+    bool after_newline = false;
     for (std::size_t i = 0, end = node.constList().size(); i < end; ++i)
     {
-        output += format(node.constList()[i], indent + 1, false);
-        if (i != end - 1)
+        output += format(node.constList()[i], indent + 1, after_newline);
+        if (after_newline)
+            after_newline = false;
+
+        if (!node.constList()[i].commentAfter().empty())
+        {
+            output += "\n";
+            after_newline = true;
+        }
+        else if (i != end - 1)
             output += " ";
     }
-    if (!node.constList().back().commentAfter().empty())
-        output += "\n" + prefix(indent);
 
     return output + ")";
 }

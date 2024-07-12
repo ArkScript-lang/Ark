@@ -2,10 +2,10 @@
  * @file Optimizer.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Optimizes a given ArkScript AST
- * @version 0.4
- * @date 2020-10-27
+ * @version 1.0
+ * @date 2024-07-09
  *
- * @copyright Copyright (c) 2020-2021
+ * @copyright Copyright (c) 2020-2024
  *
  */
 
@@ -32,8 +32,9 @@ namespace Ark::internal
         /**
          * @brief Construct a new Optimizer
          *
+         * @param debug level of debug
          */
-        explicit Optimizer(uint16_t options) noexcept;
+        explicit Optimizer(unsigned debug) noexcept;
 
         /**
          * @brief Send the AST to the optimizer, then run the different optimization strategies on it
@@ -51,7 +52,7 @@ namespace Ark::internal
 
     private:
         Node m_ast;
-        uint16_t m_options;
+        unsigned m_debug;
         std::unordered_map<std::string, unsigned> m_sym_appearances;
 
         /**
@@ -74,7 +75,7 @@ namespace Ark::internal
          * @param node
          * @param func
          */
-        void runOnGlobalScopeVars(Node& node, const std::function<void(Node&, Node&, int)>& func);
+        void runOnGlobalScopeVars(Node& node, const std::function<void(Node&, Node&, std::size_t)>& func);
 
         /**
          * @brief Count the occurrences of each symbol in the AST, recursively

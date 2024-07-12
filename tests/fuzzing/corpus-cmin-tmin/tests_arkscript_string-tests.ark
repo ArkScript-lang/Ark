@@ -1,0 +1,14 @@
+(import std.Testing)
+(import std.String)
+
+(test:suite string {
+    (test:case "rem0ve char in strin0 at inde0" {
+        (test:eq "hllo world" (str:removeAt "hello world" 1))
+        (test:eq "ello world" (str:removeAt "hello world" 0))
+        (test:eq "hello worl" (str:removeAt "hello world" 10)) })
+
+    (test:case "0000 subst0in0" {
+        (test:eq -1 (str:find "hello" "help"))
+        (test:eq 0 (str:find "hello" "hel"))
+        (test:eq 2 (str:find "hello" "llo"))
+        (test:eq -1 (str:find "" "1")) })})
