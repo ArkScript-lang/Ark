@@ -1,5 +1,6 @@
 #include <Ark/VM/VM.hpp>
 
+#include <utility>
 #include <numeric>
 #include <limits>
 
@@ -76,10 +77,14 @@ namespace Ark
             return m_no_value;
         }
 
-        const auto id = static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it));
-        Value* var = findNearestVariable(id, context);
-        if (var != nullptr)
-            return *var;
+        const auto dist = std::distance(m_state.m_symbols.begin(), it);
+        if (std::cmp_less(dist, std::numeric_limits<uint16_t>::max()))
+        {
+            const auto id = static_cast<uint16_t>(dist);
+            Value* var = findNearestVariable(id, context);
+            if (var != nullptr)
+                return *var;
+        }
         m_no_value = Builtins::nil;
         return m_no_value;
     }
@@ -147,7 +152,7 @@ namespace Ark
                 // put it in the global frame, aka the first one
                 auto it = std::ranges::find(m_state.m_symbols, std::string(map[i].name));
                 if (it != m_state.m_symbols.end())
-                    (context.locals[0]).push_back(static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it)), Value(map[i].value));
+                    context.locals[0].push_back(static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it)), Value(map[i].value));
 
                 ++i;
             }
@@ -234,7 +239,9 @@ namespace Ark
                     // put it in the global frame, aka the first one
                     auto it = std::ranges::find(m_state.m_symbols, std::string(map[i].name));
                     if (it != m_state.m_symbols.end())
-                        m_execution_contexts[0]->locals[0].push_back(static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it)), Value(map[i].value));
+                        m_execution_contexts[0]->locals[0].push_back(
+                            static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it)),
+                            Value(map[i].value));
 
                     ++i;
                 }
@@ -270,7 +277,7 @@ namespace Ark
                 // get current instruction
                 [[maybe_unused]] uint8_t padding = m_state.m_pages[context.pp][context.ip];
                 uint8_t inst = m_state.m_pages[context.pp][context.ip + 1];
-                uint16_t arg = (static_cast<uint16_t>(m_state.m_pages[context.pp][context.ip + 2]) << 8) + static_cast<uint16_t>(m_state.m_pages[context.pp][context.ip + 3]);
+                auto arg = static_cast<uint16_t>((m_state.m_pages[context.pp][context.ip + 2] << 8) + m_state.m_pages[context.pp][context.ip + 3]);
                 context.ip += 4;
 
                 switch (inst)
@@ -311,7 +318,7 @@ namespace Ark
                     case POP_JUMP_IF_TRUE:
                     {
                         if (*popAndResolveAsPtr(context) == Builtins::trueSym)
-                            context.ip = static_cast<int16_t>(arg) * 4;  // instructions are 4 bytes
+                            context.ip = arg * 4;  // instructions are 4 bytes
                         break;
                     }
 
@@ -353,13 +360,13 @@ namespace Ark
                     case POP_JUMP_IF_FALSE:
                     {
                         if (*popAndResolveAsPtr(context) == Builtins::falseSym)
-                            context.ip = static_cast<int16_t>(arg) * 4;  // instructions are 4 bytes
+                            context.ip = arg * 4;  // instructions are 4 bytes
                         break;
                     }
 
                     case JUMP:
                     {
-                        context.ip = static_cast<int16_t>(arg) * 4;  // instructions are 4 bytes
+                        context.ip = arg * 4;  // instructions are 4 bytes
                         break;
                     }
 
@@ -403,7 +410,7 @@ namespace Ark
                     case CALL:
                     {
                         // stack pointer + 2 because we push IP and PP
-                        if (context.sp + 2 >= VMStackSize) [[unlikely]]
+                        if (context.sp + 2u >= VMStackSize) [[unlikely]]
                             throwVMError(
                                 ErrorKind::VM,
                                 fmt::format(
@@ -477,11 +484,11 @@ namespace Ark
                                 fmt::format("`{}' is a {}, not a closure, can not get the field `{}' from it",
                                             m_state.m_symbols[context.last_symbol], types_to_str[static_cast<std::size_t>(var->valueType())], m_state.m_symbols[arg]));
 
-                        if (Value* field = (var->refClosure().refScope())[arg]; field != nullptr)
+                        if (Value* field = var->refClosure().refScope()[arg]; field != nullptr)
                         {
                             // check for CALL instruction
                             // doing a +1 on the IP to read the instruction because context.ip is already on the next instruction word (the padding)
-                            if (static_cast<std::size_t>(context.ip) + 1 < m_state.m_pages[context.pp].size() && m_state.m_pages[context.pp][context.ip + 1] == CALL)
+                            if (context.ip + 1 < m_state.m_pages[context.pp].size() && m_state.m_pages[context.pp][context.ip + 1] == CALL)
                                 push(Value(Closure(var->refClosure().scopePtr(), field->pageAddr())), context);
                             else
                                 push(field, context);
@@ -519,7 +526,7 @@ namespace Ark
                                 { { types::Contract { { types::Typedef("list", ValueType::List) } } } },
                                 { *list });
 
-                        const uint16_t size = list->constList().size();
+                        const auto size = static_cast<uint16_t>(list->constList().size());
 
                         Value obj { *list };
                         obj.list().reserve(size + arg);
@@ -620,8 +627,8 @@ namespace Ark
                                 { list, number });
 
                         long idx = static_cast<long>(number.number());
-                        idx = (idx < 0 ? list.list().size() + idx : idx);
-                        if (static_cast<std::size_t>(idx) >= list.list().size())
+                        idx = idx < 0 ? static_cast<long>(list.list().size()) + idx : idx;
+                        if (std::cmp_greater_equal(idx, list.list().size()))
                             throwVMError(
                                 ErrorKind::Index,
                                 fmt::format("pop index ({}) out of range (list size: {})", idx, list.list().size()));
@@ -645,8 +652,8 @@ namespace Ark
                                 { *list, number });
 
                         long idx = static_cast<long>(number.number());
-                        idx = (idx < 0 ? list->list().size() + idx : idx);
-                        if (static_cast<std::size_t>(idx) >= list->list().size())
+                        idx = idx < 0 ? static_cast<long>(list->list().size()) + idx : idx;
+                        if (std::cmp_greater_equal(idx, list->list().size()))
                             throwVMError(
                                 ErrorKind::Index,
                                 fmt::format("pop! index ({}) out of range (list size: {})", idx, list->list().size()));
@@ -935,8 +942,8 @@ namespace Ark
 
                         if (a.valueType() == ValueType::List)
                         {
-                            if (static_cast<std::size_t>(std::abs(idx)) < a.list().size())
-                                push(a.list()[idx < 0 ? a.list().size() + idx : idx], context);
+                            if (std::cmp_less(std::abs(idx), a.list().size()))
+                                push(a.list()[static_cast<std::size_t>(idx < 0 ? static_cast<long>(a.list().size()) + idx : idx)], context);
                             else
                                 throwVMError(
                                     ErrorKind::Index,
@@ -944,8 +951,8 @@ namespace Ark
                         }
                         else if (a.valueType() == ValueType::String)
                         {
-                            if (static_cast<std::size_t>(std::abs(idx)) < a.string().size())
-                                push(Value(std::string(1, a.string()[idx < 0 ? a.string().size() + idx : idx])), context);
+                            if (std::cmp_less(std::abs(idx), a.string().size()))
+                                push(Value(std::string(1, a.string()[static_cast<std::size_t>(idx < 0 ? static_cast<long>(a.string().size()) + idx : idx)])), context);
                             else
                                 throwVMError(
                                     ErrorKind::Index,
@@ -1018,8 +1025,8 @@ namespace Ark
                             break;
                         }
 
-                        auto id = static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it));
-                        push((closure->refClosure().refScope())[id] != nullptr ? Builtins::trueSym : Builtins::falseSym, context);
+                        auto id = static_cast<std::uint16_t>(std::distance(m_state.m_symbols.begin(), it));
+                        push(closure->refClosure().refScope()[id] != nullptr ? Builtins::trueSym : Builtins::falseSym, context);
 
                         break;
                     }
@@ -1095,7 +1102,7 @@ namespace Ark
 
     void VM::backtrace(ExecutionContext& context) noexcept
     {
-        const int saved_ip = context.ip;
+        const std::size_t saved_ip = context.ip;
         const std::size_t saved_pp = context.pp;
         const uint16_t saved_sp = context.sp;
 
@@ -1162,7 +1169,7 @@ namespace Ark
         }
 
         std::cerr << termcolor::reset
-                  << "At IP: " << (saved_ip != -1 ? saved_ip / 4 : 0)  // dividing by 4 because the instructions are actually on 4 bytes
+                  << "At IP: " << (saved_ip / 4)  // dividing by 4 because the instructions are actually on 4 bytes
                   << ", PP: " << saved_pp
                   << ", SP: " << saved_sp
                   << "\n";

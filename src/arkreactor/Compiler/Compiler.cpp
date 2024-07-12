@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <limits>
+#include <utility>
 #include <filesystem>
 #include <picosha2.h>
 #include <algorithm>
@@ -30,7 +31,11 @@ namespace Ark
         m_code_pages.emplace_back();  // create empty page
 
         // gather symbols, values, and start to create code segments
-        compileExpression(ast, /* current_page */ 0, /* is_result_unused */ false, /* is_terminal */ false);
+        compileExpression(
+            ast,
+            /* current_page */ Page { .index = 0, .is_temp = false },
+            /* is_result_unused */ false,
+            /* is_terminal */ false);
         // throw an error on undefined symbol uses
         checkForUndefinedSymbol();
 
@@ -50,8 +55,8 @@ namespace Ark
                 throw std::overflow_error("Size of page " + std::to_string(i) + " exceeds the maximum size of 2^16 - 1");
 
             m_bytecode.push_back(Instruction::CODE_SEGMENT_START);
-            m_bytecode.push_back(static_cast<uint16_t>((page_size & 0xff00) >> 8));
-            m_bytecode.push_back(static_cast<uint16_t>(page_size & 0x00ff));
+            m_bytecode.push_back(static_cast<uint8_t>((page_size & 0xff00) >> 8));
+            m_bytecode.push_back(static_cast<uint8_t>(page_size & 0x00ff));
 
             for (auto inst : page)
             {
@@ -106,18 +111,18 @@ namespace Ark
         // push version
         for (const int n : std::array { ARK_VERSION_MAJOR, ARK_VERSION_MINOR, ARK_VERSION_PATCH })
         {
-            m_bytecode.push_back(static_cast<uint16_t>((n & 0xff00) >> 8));
-            m_bytecode.push_back(static_cast<uint16_t>(n & 0x00ff));
+            m_bytecode.push_back(static_cast<uint8_t>((n & 0xff00) >> 8));
+            m_bytecode.push_back(static_cast<uint8_t>(n & 0x00ff));
         }
 
         // push timestamp
-        const unsigned long long timestamp = std::chrono::duration_cast<std::chrono::seconds>(
-                                                 std::chrono::system_clock::now().time_since_epoch())
-                                                 .count();
-        for (std::size_t i = 0; i < 8; ++i)
+        const long long timestamp = std::chrono::duration_cast<std::chrono::seconds>(
+                                        std::chrono::system_clock::now().time_since_epoch())
+                                        .count();
+        for (long i = 0; i < 8; ++i)
         {
-            const unsigned shift = 8 * (7 - i);
-            uint8_t ts_byte = (timestamp & (0xffULL << shift)) >> shift;
+            const long shift = 8 * (7 - i);
+            const auto ts_byte = static_cast<uint8_t>((timestamp & (0xffLL << shift)) >> shift);
             m_bytecode.push_back(ts_byte);
         }
     }
@@ -125,19 +130,19 @@ namespace Ark
     void Compiler::pushSymAndValTables()
     {
         const std::size_t symbol_size = m_symbols.size();
-        if (symbol_size > std::numeric_limits<uint16_t>::max())
+        if (symbol_size > std::numeric_limits<uint16_t>::max())  // TODO use fmt
             throw std::overflow_error("Too many symbols: " + std::to_string(symbol_size) + ", exceeds the maximum size of 2^16 - 1");
 
         m_bytecode.push_back(SYM_TABLE_START);
-        m_bytecode.push_back(static_cast<uint16_t>((symbol_size & 0xff00) >> 8));
-        m_bytecode.push_back(static_cast<uint16_t>(symbol_size & 0x00ff));
+        m_bytecode.push_back(static_cast<uint8_t>((symbol_size & 0xff00) >> 8));
+        m_bytecode.push_back(static_cast<uint8_t>(symbol_size & 0x00ff));
 
         for (const auto& sym : m_symbols)
         {
             // push the string, null terminated
             std::string s = sym.string();
             for (const char i : s)
-                m_bytecode.push_back(i);
+                m_bytecode.push_back(static_cast<uint8_t>(i));
             m_bytecode.push_back(0_u8);
         }
 
@@ -146,8 +151,8 @@ namespace Ark
             throw std::overflow_error("Too many values: " + std::to_string(value_size) + ", exceeds the maximum size of 2^16 - 1");
 
         m_bytecode.push_back(VAL_TABLE_START);
-        m_bytecode.push_back(static_cast<uint16_t>((value_size & 0xff00) >> 8));
-        m_bytecode.push_back(static_cast<uint16_t>(value_size & 0x00ff));
+        m_bytecode.push_back(static_cast<uint8_t>((value_size & 0xff00) >> 8));
+        m_bytecode.push_back(static_cast<uint8_t>(value_size & 0x00ff));
 
         for (const ValTableElem& val : m_values)
         {
@@ -157,21 +162,21 @@ namespace Ark
                 const auto n = std::get<double>(val.value);
                 std::string t = std::to_string(n);
                 for (const char i : t)
-                    m_bytecode.push_back(i);
+                    m_bytecode.push_back(static_cast<uint8_t>(i));
             }
             else if (val.type == ValTableElemType::String)
             {
                 m_bytecode.push_back(STRING_TYPE);
                 auto t = std::get<std::string>(val.value);
                 for (const char i : t)
-                    m_bytecode.push_back(i);
+                    m_bytecode.push_back(static_cast<uint8_t>(i));
             }
             else if (val.type == ValTableElemType::PageAddr)
             {
                 m_bytecode.push_back(FUNC_TYPE);
                 const std::size_t addr = std::get<std::size_t>(val.value);
-                m_bytecode.push_back(static_cast<uint16_t>((addr & 0xff00) >> 8));
-                m_bytecode.push_back(static_cast<uint16_t>(addr & 0x00ff));
+                m_bytecode.push_back(static_cast<uint8_t>((addr & 0xff00) >> 8));
+                m_bytecode.push_back(static_cast<uint8_t>(addr & 0x00ff));
             }
             else
                 throw Error("The compiler is trying to put a value in the value table, but the type isn't handled.\nCertainly a logic problem in the compiler source code");
@@ -266,7 +271,7 @@ namespace Ark
         throw CodeError(message, node.filename(), node.line(), node.col(), node.repr());
     }
 
-    void Compiler::compileExpression(const Node& x, const int p, const bool is_result_unused, const bool is_terminal, const std::string& var_name)
+    void Compiler::compileExpression(const Node& x, const Page p, const bool is_result_unused, const bool is_terminal, const std::string& var_name)
     {
         // register symbols
         if (x.nodeType() == NodeType::Symbol)
@@ -359,7 +364,7 @@ namespace Ark
             throwCompilerError("boop", x);  // FIXME
     }
 
-    void Compiler::compileSymbol(const Node& x, const int p, const bool is_result_unused)
+    void Compiler::compileSymbol(const Node& x, const Page p, const bool is_result_unused)
     {
         const std::string& name = x.string();
 
@@ -377,19 +382,21 @@ namespace Ark
         }
     }
 
-    void Compiler::compileSpecific(const Node& c0, const Node& x, const int p, const bool is_result_unused)
+    void Compiler::compileSpecific(const Node& c0, const Node& x, const Page p, const bool is_result_unused)
     {
         std::string name = c0.string();
         Instruction inst = getSpecific(name).value();
 
         // length of at least 1 since we got a symbol name
-        const uint16_t argc = x.constList().size() - 1;
+        const auto argc = x.constList().size() - 1u;
         // error, can not use append/concat/pop (and their in place versions) with a <2 length argument list
         if (argc < 2 && inst != LIST)
             throwCompilerError(fmt::format("Can not use {} with less than 2 arguments", name), c0);
+        if (std::cmp_greater(argc, std::numeric_limits<uint16_t>::max()))
+            throwCompilerError(fmt::format("Too many arguments ({}), exceeds 65'535", argc), x);
 
         // compile arguments in reverse order
-        for (uint16_t i = x.constList().size() - 1; i > 0; --i)
+        for (std::size_t i = x.constList().size() - 1u; i > 0; --i)
         {
             const auto node = x.constList()[i];
             if (nodeProducesOutput(node))
@@ -399,7 +406,7 @@ namespace Ark
         }
 
         // put inst and number of arguments
-        page(p).emplace_back(inst, computeSpecificInstArgc(inst, argc));
+        page(p).emplace_back(inst, computeSpecificInstArgc(inst, static_cast<uint16_t>(argc)));
 
         if (is_result_unused && name.back() != '!')  // in-place functions never push a value
         {
@@ -408,7 +415,7 @@ namespace Ark
         }
     }
 
-    void Compiler::compileIf(const Node& x, const int p, const bool is_result_unused, const bool is_terminal, const std::string& var_name)
+    void Compiler::compileIf(const Node& x, const Page p, const bool is_result_unused, const bool is_terminal, const std::string& var_name)
     {
         // compile condition
         compileExpression(x.constList()[1], p, false, false);
@@ -433,7 +440,7 @@ namespace Ark
         page(p)[jump_to_end_pos].data = static_cast<uint16_t>(page(p).size());
     }
 
-    void Compiler::compileFunction(const Node& x, const int p, const bool is_result_unused, const std::string& var_name)
+    void Compiler::compileFunction(const Node& x, const Page p, const bool is_result_unused, const std::string& var_name)
     {
         if (const auto args = x.constList()[1]; args.nodeType() != NodeType::List)
             throwCompilerError(fmt::format("Expected a well formed argument(s) list, got a {}", typeToString(args)), args);
@@ -459,9 +466,9 @@ namespace Ark
 
         // create new page for function body
         m_code_pages.emplace_back();
-        const std::size_t page_id = m_code_pages.size() - 1;
+        const Page function_body_page = Page { .index = m_code_pages.size() - 1, .is_temp = false };
         // save page_id into the constants table as PageAddr and load the const
-        page(p).emplace_back(LOAD_CONST, addValue(page_id, x));
+        page(p).emplace_back(LOAD_CONST, addValue(function_body_page.index, x));
 
         // pushing arguments from the stack into variables in the new scope
         for (const auto& node : x.constList()[1].constList())
@@ -469,15 +476,15 @@ namespace Ark
             if (node.nodeType() == NodeType::Symbol)
             {
                 addDefinedSymbol(node.string());
-                page(page_id).emplace_back(MUT, addSymbol(node));
+                page(function_body_page).emplace_back(MUT, addSymbol(node));
             }
         }
 
         // push body of the function
-        compileExpression(x.constList()[2], page_id, false, true, var_name);
+        compileExpression(x.constList()[2], function_body_page, false, true, var_name);
 
         // return last value on the stack
-        page(page_id).emplace_back(RET);
+        page(function_body_page).emplace_back(RET);
 
         // if the computed function is unused, pop it
         if (is_result_unused)
@@ -487,7 +494,7 @@ namespace Ark
         }
     }
 
-    void Compiler::compileLetMutSet(const Keyword n, const Node& x, const int p)
+    void Compiler::compileLetMutSet(const Keyword n, const Node& x, const Page p)
     {
         if (const auto sym = x.constList()[1]; sym.nodeType() != NodeType::Symbol)
             throwCompilerError(fmt::format("Expected a symbol, got a {}", typeToString(sym)), sym);
@@ -512,7 +519,7 @@ namespace Ark
             page(p).emplace_back(STORE, i);
     }
 
-    void Compiler::compileWhile(const Node& x, const int p)
+    void Compiler::compileWhile(const Node& x, const Page p)
     {
         if (x.constList().size() != 3)
             throwCompilerError("Invalid node ; if it was computed by a macro, check that a node is returned", x);
@@ -534,7 +541,7 @@ namespace Ark
         page(p)[jump_to_end_pos].data = static_cast<uint16_t>(page(p).size());
     }
 
-    void Compiler::compilePluginImport(const Node& x, const int p)
+    void Compiler::compilePluginImport(const Node& x, const Page p)
     {
         std::string path;
         const Node package_node = x.constList()[1];
@@ -554,10 +561,10 @@ namespace Ark
         page(p).emplace_back(PLUGIN, id);
     }
 
-    void Compiler::handleCalls(const Node& x, const int p, bool is_result_unused, const bool is_terminal, const std::string& var_name)
+    void Compiler::handleCalls(const Node& x, const Page p, bool is_result_unused, const bool is_terminal, const std::string& var_name)
     {
         m_temp_pages.emplace_back();
-        const int proc_page = -static_cast<int>(m_temp_pages.size());
+        const Page proc_page = Page { .index = m_temp_pages.size() - 1u, .is_temp = true };
         constexpr std::size_t start_index = 1;
 
         const auto node = x.constList()[0];
@@ -694,7 +701,7 @@ namespace Ark
         if (it == m_symbols.end())
         {
             m_symbols.push_back(sym);
-            it = m_symbols.begin() + m_symbols.size() - 1;
+            it = m_symbols.begin() + static_cast<std::vector<std::string>::difference_type>(m_symbols.size() - 1);
         }
 
         const auto distance = std::distance(m_symbols.begin(), it);
@@ -710,7 +717,7 @@ namespace Ark
         if (it == m_values.end())
         {
             m_values.push_back(v);
-            it = m_values.begin() + m_values.size() - 1;
+            it = m_values.begin() + static_cast<std::vector<ValTableElem>::difference_type>(m_values.size() - 1);
         }
 
         const auto distance = std::distance(m_values.begin(), it);
@@ -726,7 +733,7 @@ namespace Ark
         if (it == m_values.end())
         {
             m_values.push_back(v);
-            it = m_values.begin() + m_values.size() - 1;
+            it = m_values.begin() + static_cast<std::vector<ValTableElem>::difference_type>(m_values.size() - 1);
         }
 
         const auto distance = std::distance(m_values.begin(), it);

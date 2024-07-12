@@ -1,6 +1,7 @@
 #include <Ark/Compiler/AST/BaseParser.hpp>
 #include <Ark/Exceptions.hpp>
 
+#include <utility>
 #include <algorithm>
 
 namespace Ark::internal
@@ -26,7 +27,9 @@ namespace Ark::internal
             auto next = i + 1 < end ? m_it_to_row[i + 1].first : m_str.end();
             if (current < it && it < next)
             {
-                m_it_to_row.insert(m_it_to_row.begin() + i + 1, std::make_pair(it, row));
+                m_it_to_row.insert(
+                    m_it_to_row.begin() + static_cast<decltype(m_it_to_row)::difference_type>(i) + 1,
+                    std::make_pair(it, row));
                 break;
             }
         }
@@ -76,7 +79,7 @@ namespace Ark::internal
 
     void BaseParser::backtrack(const long n)
     {
-        if (static_cast<std::size_t>(n) >= m_str.size())
+        if (std::cmp_greater_equal(n, m_str.size()))
             return;
 
         m_it = m_str.begin() + n;
@@ -96,7 +99,7 @@ namespace Ark::internal
         }
         // compute the position in the line
         std::string_view view = m_str;
-        const auto it_pos = std::distance(m_str.begin(), m_it);
+        const auto it_pos = static_cast<std::size_t>(std::distance(m_str.begin(), m_it));
         view = view.substr(0, it_pos);
         const auto nearest_newline_index = view.find_last_of('\n');
         if (nearest_newline_index != std::string_view::npos)

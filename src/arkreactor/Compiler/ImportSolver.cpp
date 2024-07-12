@@ -111,7 +111,9 @@ namespace Ark::internal
                             for (std::size_t j = 2, end_j = node.constList().size(); j < end_j; ++j)
                             {
                                 if (i + j - 1 < x.list().size())
-                                    x.list().insert(x.list().begin() + i + j - 1, node.constList()[j]);
+                                    x.list().insert(
+                                        x.list().begin() + static_cast<std::vector<Node>::difference_type>(i + j - 1),
+                                        node.constList()[j]);
                                 else
                                     x.list().push_back(node.constList()[j]);
                             }

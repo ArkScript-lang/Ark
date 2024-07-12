@@ -247,9 +247,10 @@ std::string Formatter::formatBlock(const Node& node, const std::size_t indent, c
             case Keyword::Del:
                 return formatDel(node, indent);
         }
+        // HACK: should never reach, but the compiler insists that the function doesn't return in every code path
+        return "";
     }
-    else
-        return formatCall(node, indent);
+    return formatCall(node, indent);
 }
 
 std::string Formatter::formatFunction(const Node& node, const std::size_t indent)

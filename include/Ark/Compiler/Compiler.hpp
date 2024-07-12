@@ -60,6 +60,12 @@ namespace Ark
         friend class Welder;
 
     private:
+        struct Page
+        {
+            std::size_t index;
+            bool is_temp;
+        };
+
         // tables: symbols, values, plugins and codes
         std::vector<internal::Node> m_symbols;
         std::vector<std::string> m_defined_symbols;
@@ -86,27 +92,27 @@ namespace Ark
         /**
          * @brief helper functions to get a temp or finalized code page
          *
-         * @param i page index, if negative, refers to a temporary code page
+         * @param page page descriptor
          * @return std::vector<internal::Word>&
          */
-        std::vector<internal::Word>& page(const int i) noexcept
+        std::vector<internal::Word>& page(const Page page) noexcept
         {
-            if (i >= 0)
-                return m_code_pages[i];
-            return m_temp_pages[-i - 1];
+            if (!page.is_temp)
+                return m_code_pages[page.index];
+            return m_temp_pages[page.index];
         }
 
         /**
          * @brief helper functions to get a temp or finalized code page
          *
-         * @param i page index, if negative, refers to a temporary code page
+         * @param page page descriptor
          * @return std::vector<internal::Word>*
          */
-        std::vector<internal::Word>* page_ptr(const int i) noexcept
+        std::vector<internal::Word>* page_ptr(const Page page) noexcept
         {
-            if (i >= 0)
-                return &m_code_pages[i];
-            return &m_temp_pages[-i - 1];
+            if (!page.is_temp)
+                return &m_code_pages[page.index];
+            return &m_temp_pages[page.index];
         }
 
         /**
@@ -210,16 +216,16 @@ namespace Ark
          * @param is_terminal
          * @param var_name
          */
-        void compileExpression(const internal::Node& x, int p, bool is_result_unused, bool is_terminal, const std::string& var_name = "");
+        void compileExpression(const internal::Node& x, Page p, bool is_result_unused, bool is_terminal, const std::string& var_name = "");
 
-        void compileSymbol(const internal::Node& x, int p, bool is_result_unused);
-        void compileSpecific(const internal::Node& c0, const internal::Node& x, int p, bool is_result_unused);
-        void compileIf(const internal::Node& x, int p, bool is_result_unused, bool is_terminal, const std::string& var_name);
-        void compileFunction(const internal::Node& x, int p, bool is_result_unused, const std::string& var_name);
-        void compileLetMutSet(internal::Keyword n, const internal::Node& x, int p);
-        void compileWhile(const internal::Node& x, int p);
-        void compilePluginImport(const internal::Node& x, int p);
-        void handleCalls(const internal::Node& x, int p, bool is_result_unused, bool is_terminal, const std::string& var_name);
+        void compileSymbol(const internal::Node& x, Page p, bool is_result_unused);
+        void compileSpecific(const internal::Node& c0, const internal::Node& x, Page p, bool is_result_unused);
+        void compileIf(const internal::Node& x, Page p, bool is_result_unused, bool is_terminal, const std::string& var_name);
+        void compileFunction(const internal::Node& x, Page p, bool is_result_unused, const std::string& var_name);
+        void compileLetMutSet(internal::Keyword n, const internal::Node& x, Page p);
+        void compileWhile(const internal::Node& x, Page p);
+        void compilePluginImport(const internal::Node& x, Page p);
+        void handleCalls(const internal::Node& x, Page p, bool is_result_unused, bool is_terminal, const std::string& var_name);
 
         /**
          * @brief Register a given node in the symbol table

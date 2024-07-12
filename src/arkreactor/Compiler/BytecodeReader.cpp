@@ -23,15 +23,15 @@ namespace Ark
         if (!ifs.good())
             throw std::runtime_error(fmt::format("[BytecodeReader] Couldn't open file '{}'", file));
 
-        const std::size_t pos = ifs.tellg();
+        const auto pos = ifs.tellg();
         // reserve appropriate number of bytes
-        std::vector<char> temp(pos);
+        std::vector<char> temp(static_cast<std::size_t>(pos));
         ifs.seekg(0, std::ios::beg);
         ifs.read(&temp[0], pos);
         ifs.close();
 
-        m_bytecode = bytecode_t(pos);
-        for (std::size_t i = 0; i < pos; ++i)
+        m_bytecode = bytecode_t(static_cast<std::size_t>(pos));
+        for (std::size_t i = 0; i < static_cast<std::size_t>(pos); ++i)
             m_bytecode[i] = static_cast<uint8_t>(temp[i]);
     }
 
@@ -108,7 +108,7 @@ namespace Ark
         {
             std::string content;
             while (m_bytecode[i] != 0)
-                content += m_bytecode[i++];
+                content.push_back(static_cast<char>(m_bytecode[i++]));
             i++;
 
             block.symbols.push_back(content);
@@ -143,14 +143,14 @@ namespace Ark
             {
                 std::string val;
                 while (m_bytecode[i] != 0)
-                    val.push_back(m_bytecode[i++]);
+                    val.push_back(static_cast<char>(m_bytecode[i++]));
                 block.values.emplace_back(std::stod(val));
             }
             else if (type == STRING_TYPE)
             {
                 std::string val;
                 while (m_bytecode[i] != 0)
-                    val.push_back(m_bytecode[i++]);
+                    val.push_back(static_cast<char>(m_bytecode[i++]));
                 block.values.emplace_back(val);
             }
             else if (type == FUNC_TYPE)
@@ -489,7 +489,7 @@ namespace Ark
 
     uint16_t BytecodeReader::readNumber(std::size_t& i) const
     {
-        const uint16_t x = static_cast<uint16_t>(m_bytecode[i]) << 8;
+        const uint16_t x = static_cast<uint16_t>(m_bytecode[i] << 8);
         const uint16_t y = m_bytecode[++i];
         return x + y;
     }

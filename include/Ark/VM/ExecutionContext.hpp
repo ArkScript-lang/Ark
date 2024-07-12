@@ -32,7 +32,7 @@ namespace Ark::internal
         static inline unsigned Count = 0;
 
         const bool primary;  ///< Tells if the current ExecutionContext is the primary one or not
-        int ip = 0;          ///< Instruction pointer
+        std::size_t ip = 0;  ///< Instruction pointer
         std::size_t pp = 0;  ///< Page pointer
         uint16_t sp = 0;     ///< Stack pointer
         uint16_t fc = 0;     ///< Frame count

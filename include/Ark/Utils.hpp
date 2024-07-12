@@ -2,8 +2,8 @@
  * @file Utils.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Lots of utilities about string, filesystem and more
- * @version 0.4
- * @date 2020-10-27
+ * @version 1.0
+ * @date 2024-07-09
  *
  * @copyright Copyright (c) 2020-2024
  *
@@ -65,9 +65,9 @@ namespace Ark::Utils
      *
      * @param str1
      * @param str2
-     * @return int
+     * @return std::size_t
      */
-    int levenshteinDistance(const std::string& str1, const std::string& str2);
+    std::size_t levenshteinDistance(const std::string& str1, const std::string& str2);
 }
 
 #endif

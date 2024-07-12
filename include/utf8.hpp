@@ -40,7 +40,7 @@ namespace utf8
 
         for (const char* s = input; *s != 0; ++s)
         {
-            codepoint_ = ((codepoint_ << shift) | details::ASCIIHexToInt[*s]);
+            codepoint_ = ((codepoint_ << shift) | details::ASCIIHexToInt[static_cast<std::size_t>(*s)]);
             shift = 4;
         }
 
@@ -68,10 +68,10 @@ namespace utf8
     {
         int32_t cdp = 0;
         const Utf8Type type = utf8type(input, &cdp);
-        const char c0 = details::ASCIIHexToInt[input[0]];
-        const char c1 = details::ASCIIHexToInt[input[1]];
-        const char c2 = details::ASCIIHexToInt[input[2]];
-        const char c3 = details::ASCIIHexToInt[input[3]];
+        const char c0 = details::ASCIIHexToInt[static_cast<std::size_t>(input[0])];
+        const char c1 = details::ASCIIHexToInt[static_cast<std::size_t>(input[1])];
+        const char c2 = details::ASCIIHexToInt[static_cast<std::size_t>(input[2])];
+        const char c3 = details::ASCIIHexToInt[static_cast<std::size_t>(input[3])];
 
         switch (type)
         {
@@ -84,41 +84,41 @@ namespace utf8
 
             case Utf8Type::LatinExtra:
             {
-                dest[0] = (0xc0 | ((c1 & 0x7) << 2)) | ((c2 & 0xc) >> 2);
-                dest[1] = (0x80 | ((c2 & 0x3) << 4)) | c3;
+                dest[0] = static_cast<char>((0xc0 | ((c1 & 0x7) << 2)) | ((c2 & 0xc) >> 2));
+                dest[1] = static_cast<char>((0x80 | ((c2 & 0x3) << 4)) | c3);
                 dest[2] = 0;
                 break;
             }
 
             case Utf8Type::BasicMultiLingual:
             {
-                dest[0] = 0xe0 | c0;
-                dest[1] = (0x80 | (c1 << 2)) | ((c2 & 0xc) >> 2);
-                dest[2] = (0x80 | ((c2 & 0x3) << 4)) | c3;
+                dest[0] = static_cast<char>(0xe0 | c0);
+                dest[1] = static_cast<char>((0x80 | (c1 << 2)) | ((c2 & 0xc) >> 2));
+                dest[2] = static_cast<char>((0x80 | ((c2 & 0x3) << 4)) | c3);
                 dest[3] = 0;
                 break;
             }
 
             case Utf8Type::OthersPlanesUnicode:
             {
-                const char c4 = details::ASCIIHexToInt[input[4]];
+                const char c4 = details::ASCIIHexToInt[static_cast<std::size_t>(input[4])];
 
                 if (cdp <= 0xfffff)
                 {
-                    dest[0] = 0xf0 | ((c0 & 0xc) >> 2);
-                    dest[1] = (0x80 | ((c0 & 0x3) << 4)) | c1;
-                    dest[2] = (0x80 | (c2 << 2)) | ((c3 & 0xc) >> 2);
-                    dest[3] = (0x80 | ((c3 & 0x3) << 4)) | c4;
+                    dest[0] = static_cast<char>(0xf0 | ((c0 & 0xc) >> 2));
+                    dest[1] = static_cast<char>((0x80 | ((c0 & 0x3) << 4)) | c1);
+                    dest[2] = static_cast<char>((0x80 | (c2 << 2)) | ((c3 & 0xc) >> 2));
+                    dest[3] = static_cast<char>((0x80 | ((c3 & 0x3) << 4)) | c4);
                     dest[4] = 0;
                 }
                 else
                 {
-                    const char c5 = details::ASCIIHexToInt[input[5]];
+                    const char c5 = details::ASCIIHexToInt[static_cast<std::size_t>(input[5])];
 
-                    dest[0] = (0xf0 | ((c0 & 0x1) << 2)) | ((c1 & 0xc) >> 2);
-                    dest[1] = ((0x80 | ((c1 & 0x3) << 4)) | ((c1 & 0xc) >> 2)) | c2;
-                    dest[2] = (0x80 | (c3 << 2)) | ((c4 & 0xc) >> 2);
-                    dest[3] = (0x80 | ((c4 & 0x3) << 4)) | c5;
+                    dest[0] = static_cast<char>((0xf0 | ((c0 & 0x1) << 2)) | ((c1 & 0xc) >> 2));
+                    dest[1] = static_cast<char>(((0x80 | ((c1 & 0x3) << 4)) | ((c1 & 0xc) >> 2)) | c2);
+                    dest[2] = static_cast<char>((0x80 | (c3 << 2)) | ((c4 & 0xc) >> 2));
+                    dest[3] = static_cast<char>((0x80 | ((c4 & 0x3) << 4)) | c5);
                     dest[4] = 0;
                 }
                 break;
@@ -234,36 +234,36 @@ namespace utf8
     {
         if (codepoint >= 0x0000 && codepoint <= 0x007f)
         {
-            dest[0] = codepoint;
+            dest[0] = static_cast<char>(codepoint);
             dest[1] = 0;
         }
         else if (codepoint > 0x007f && codepoint <= 0x07ff)
         {
-            dest[0] = 0x80;
+            dest[0] = -128;
             if (codepoint > 0xff)
-                dest[0] |= (codepoint >> 6);
-            dest[0] |= ((codepoint & 0xc0) >> 6);
-            dest[1] = 0x80 | (codepoint & 0x3f);
+                dest[0] |= static_cast<char>((codepoint >> 6));
+            dest[0] |= static_cast<char>(((codepoint & 0xc0) >> 6));
+            dest[1] = static_cast<char>(0x80 | (codepoint & 0x3f));
             dest[2] = 0;
         }
         else if (codepoint > 0x07ff && codepoint <= 0xffff)
         {
-            dest[0] = 0xe0;
+            dest[0] = -32;
             if (codepoint > 0xfff)
-                dest[0] |= ((codepoint & 0xf000) >> 12);
-            dest[1] = (0x80 | ((codepoint & 0xf00) >> 6)) | ((codepoint & 0xf0) >> 6);
-            dest[2] = (0x80 | (codepoint & 0x30)) | (codepoint & 0xf);
+                dest[0] |= static_cast<char>(((codepoint & 0xf000) >> 12));
+            dest[1] = static_cast<char>((0x80 | ((codepoint & 0xf00) >> 6)) | ((codepoint & 0xf0) >> 6));
+            dest[2] = static_cast<char>((0x80 | (codepoint & 0x30)) | (codepoint & 0xf));
             dest[3] = 0;
         }
         else if (codepoint > 0xffff && codepoint <= 0x10ffff)
         {
-            dest[0] = 0xf0;
+            dest[0] = -16;
             if (codepoint > 0xfffff)
-                dest[0] |= ((codepoint & 0x100000) >> 18);
-            dest[0] |= ((codepoint & 0xc0000) >> 18);
-            dest[1] = (0x80 | ((codepoint & 0x30000) >> 12)) | ((codepoint & 0xf000) >> 12);
-            dest[2] = (0x80 | ((codepoint & 0xf00) >> 6)) | ((codepoint & 0xc0) >> 6);
-            dest[3] = (0x80 | (codepoint & 0x30)) | (codepoint & 0xf);
+                dest[0] |= static_cast<char>(((codepoint & 0x100000) >> 18));
+            dest[0] |= static_cast<char>(((codepoint & 0xc0000) >> 18));
+            dest[1] = static_cast<char>((0x80 | ((codepoint & 0x30000) >> 12)) | ((codepoint & 0xf000) >> 12));
+            dest[2] = static_cast<char>((0x80 | ((codepoint & 0xf00) >> 6)) | ((codepoint & 0xc0) >> 6));
+            dest[3] = static_cast<char>((0x80 | (codepoint & 0x30)) | (codepoint & 0xf));
             dest[4] = 0;
         }
         else

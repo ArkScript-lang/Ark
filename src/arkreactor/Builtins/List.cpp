@@ -1,6 +1,6 @@
 #include <Ark/Builtins/Builtins.hpp>
 
-#include <iterator>
+#include <utility>
 #include <algorithm>
 #include <fmt/core.h>
 
@@ -54,7 +54,7 @@ namespace Ark::internal::Builtins::List
         std::vector<Value>& l = n[0].list();
         for (auto it = l.begin(), it_end = l.end(); it != it_end; ++it)
         {
-            if (*it == n[1])
+            if (*it == n[1])  // FIXME cast
                 return Value(static_cast<int>(std::distance<Value::Iterator>(l.begin(), it)));
         }
 
@@ -96,11 +96,11 @@ namespace Ark::internal::Builtins::List
             throw std::runtime_error(fmt::format("list:slice: start position ({}) must be less or equal to the end position ({})", start, end));
         if (start < 0)
             throw std::runtime_error(fmt::format("list:slice: start index {} can not be less than 0", start));
-        if (static_cast<std::size_t>(end) > n[0].list().size())
+        if (std::cmp_greater(end, n[0].list().size()))
             throw std::runtime_error(fmt::format("list:slice: end index {} out of range (length: {})", end, n[0].list().size()));
 
         std::vector<Value> list;
-        for (long i = start; i < end; i += step)
+        for (auto i = static_cast<std::size_t>(start); std::cmp_less(i, end); i += static_cast<std::size_t>(step))
             list.push_back(n[0].list()[i]);
 
         return Value(std::move(list));
