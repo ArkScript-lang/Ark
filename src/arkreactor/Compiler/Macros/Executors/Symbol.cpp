@@ -7,7 +7,7 @@ namespace Ark::internal
         return node.nodeType() == NodeType::Symbol;
     }
 
-    bool SymbolExecutor::applyMacro(Node& node)
+    bool SymbolExecutor::applyMacro(Node& node, unsigned depth)
     {
         if (const Node* macro = findNearestMacro(node.string()); macro != nullptr)
         {
@@ -15,7 +15,7 @@ namespace Ark::internal
             if (macro->constList().size() == 2)
             {
                 setWithFileAttributes(node, node, macro->constList()[1]);
-                evaluate(node, false);
+                evaluate(node, depth + 1, false);
                 return true;
             }
         }

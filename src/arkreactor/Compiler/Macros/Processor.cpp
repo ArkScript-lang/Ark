@@ -165,7 +165,7 @@ namespace Ark::internal
                     bool added_begin = false;
 
                     const bool had = hadBegin(node.list()[i]);
-                    applyMacro(node.list()[i]);
+                    applyMacro(node.list()[i], 0);
                     recurApply(node.list()[i]);
 
                     if (hadBegin(node.list()[i]) && !had)
@@ -196,9 +196,16 @@ namespace Ark::internal
         }
     }
 
-    bool MacroProcessor::applyMacro(Node& node) const
+    bool MacroProcessor::applyMacro(Node& node, const unsigned depth) const
     {
-        return m_executor_pipeline.applyMacro(node);
+        if (depth > MaxMacroProcessingDepth)
+            throwMacroProcessingError(
+                fmt::format(
+                    "Max macro processing depth reached ({}). You may have a macro trying to evaluate itself, try splitting your code in multiple nodes.",
+                    MaxMacroProcessingDepth),
+                node);
+
+        return m_executor_pipeline.applyMacro(node, depth);
     }
 
     void MacroProcessor::unify(const std::unordered_map<std::string, Node>& map, Node& target, Node* parent, const std::size_t index, const std::size_t unify_depth)
@@ -244,7 +251,7 @@ namespace Ark::internal
         output.setPos(origin.line(), origin.col());
     }
 
-    Node MacroProcessor::evaluate(Node& node, const bool is_not_body)
+    Node MacroProcessor::evaluate(Node& node, unsigned depth, const bool is_not_body)
     {
         if (node.nodeType() == NodeType::Symbol)
         {
@@ -255,13 +262,13 @@ namespace Ark::internal
         }
         if (node.nodeType() == NodeType::List && node.constList().size() > 1 && node.list()[0].nodeType() == NodeType::Symbol)
         {
-#define GEN_NOT_BODY(str_name, error_handler, ret)        \
-    else if (name == (str_name) && is_not_body)           \
-    {                                                     \
-        if (node.list().size() != 3) (error_handler);     \
-        Node one = evaluate(node.list()[1], is_not_body), \
-             two = evaluate(node.list()[2], is_not_body); \
-        return ret;                                       \
+#define GEN_NOT_BODY(str_name, error_handler, ret)                   \
+    else if (name == (str_name) && is_not_body)                      \
+    {                                                                \
+        if (node.list().size() != 3) (error_handler);                \
+        Node one = evaluate(node.list()[1], depth + 1, is_not_body), \
+             two = evaluate(node.list()[2], depth + 1, is_not_body); \
+        return ret;                                                  \
     }
 
 #define GEN_COMPARATOR(str_name, cond) GEN_NOT_BODY(                                                     \
@@ -282,7 +289,7 @@ namespace Ark::internal
             const std::size_t argcount = node.list().size() - 1;
             if (const Node* macro = findNearestMacro(name); macro != nullptr)
             {
-                applyMacro(node.list()[0]);
+                applyMacro(node.list()[0], depth + 1);
                 if (node.list()[0].nodeType() == NodeType::Unused)
                     node.list().erase(node.constList().begin());
             }
@@ -301,7 +308,7 @@ namespace Ark::internal
                 if (node.list().size() != 2)
                     throwMacroProcessingError(fmt::format("Interpreting a `not' condition with {} arguments, expected 1.", argcount), node);
 
-                return (!isTruthy(evaluate(node.list()[1], is_not_body))) ? getTrueNode() : getFalseNode();
+                return (!isTruthy(evaluate(node.list()[1], depth + 1, is_not_body))) ? getTrueNode() : getFalseNode();
             }
             else if (name == "and" && is_not_body)
             {
@@ -310,7 +317,7 @@ namespace Ark::internal
 
                 for (std::size_t i = 1, end = node.list().size(); i < end; ++i)
                 {
-                    if (!isTruthy(evaluate(node.list()[i], is_not_body)))
+                    if (!isTruthy(evaluate(node.list()[i], depth + 1, is_not_body)))
                         return getFalseNode();
                 }
                 return getTrueNode();
@@ -322,7 +329,7 @@ namespace Ark::internal
 
                 for (std::size_t i = 1, end = node.list().size(); i < end; ++i)
                 {
-                    if (isTruthy(evaluate(node.list()[i], is_not_body)))
+                    if (isTruthy(evaluate(node.list()[i], depth + 1, is_not_body)))
                         return getTrueNode();
                 }
                 return getFalseNode();
@@ -347,8 +354,8 @@ namespace Ark::internal
                 if (node.list().size() != 3)
                     throwMacroProcessingError(fmt::format("Interpreting a `@' with {} arguments, expected 2.", argcount), node);
 
-                Node sublist = evaluate(node.list()[1], is_not_body);
-                const Node idx = evaluate(node.list()[2], is_not_body);
+                Node sublist = evaluate(node.list()[1], depth + 1, is_not_body);
+                const Node idx = evaluate(node.list()[2], depth + 1, is_not_body);
 
                 if (sublist.nodeType() == NodeType::List && idx.nodeType() == NodeType::Number)
                 {
@@ -443,7 +450,7 @@ namespace Ark::internal
 
                 for (std::size_t i = 2, end = node.list().size(); i < end; ++i)
                 {
-                    Node ev = evaluate(node.list()[i], /* is_not_body */ true);
+                    Node ev = evaluate(node.list()[i], depth + 1, /* is_not_body */ true);
 
                     switch (ev.nodeType())
                     {
@@ -495,7 +502,7 @@ namespace Ark::internal
         if (node.nodeType() == NodeType::List && !node.constList().empty())
         {
             for (auto& child : node.list())
-                setWithFileAttributes(child, child, evaluate(child, is_not_body));
+                setWithFileAttributes(child, child, evaluate(child, depth + 1, is_not_body));
         }
 
         if (node.nodeType() == NodeType::Spread)
@@ -556,7 +563,7 @@ namespace Ark::internal
 
     void MacroProcessor::recurApply(Node& node)
     {
-        if (applyMacro(node) && node.isListLike())
+        if (applyMacro(node, 0) && node.isListLike())
         {
             for (auto& child : node.list())
                 recurApply(child);

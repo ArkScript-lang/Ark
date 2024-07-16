@@ -9,14 +9,14 @@ namespace Ark::internal
         return node.nodeType() == NodeType::List && !node.constList().empty() && node.constList()[0].nodeType() == NodeType::Symbol;
     }
 
-    bool FunctionExecutor::applyMacro(Node& node)
+    bool FunctionExecutor::applyMacro(Node& node, unsigned depth)
     {
         Node& first = node.list()[0];
 
         if (const Node* macro = findNearestMacro(first.string()); macro != nullptr)
         {
             if (macro->constList().size() == 2)
-                applyMacroProxy(first);
+                applyMacroProxy(first, depth + 1);
             // ($ name (args) body)
             else if (macro->constList().size() == 3)
             {
@@ -71,14 +71,14 @@ namespace Ark::internal
                 if (!args_applied.empty())
                     unify(args_applied, temp_body, nullptr);
 
-                setWithFileAttributes(node, node, evaluate(temp_body, false));
-                applyMacroProxy(node);  // todo: this seems useless
+                setWithFileAttributes(node, node, evaluate(temp_body, depth + 1, false));
+                applyMacroProxy(node, depth + 1);  // todo: this seems useless
                 return true;
             }
         }
         else if (isPredefined(first.string()))
         {
-            setWithFileAttributes(node, node, evaluate(node, false));
+            setWithFileAttributes(node, node, evaluate(node, depth + 1, false));
             return true;
         }
 

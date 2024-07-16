@@ -2,7 +2,7 @@
  * @file Processor.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Handles the macros and their expansion in ArkScript source code
- * @version 1.0
+ * @version 2.0
  * @date 2021-02-18
  *
  * @copyright Copyright (c) 2021-2024
@@ -143,10 +143,11 @@ namespace Ark::internal
          * @brief Apply a macro on a given node
          *
          * @param node
+         * @param depth
          * @return true if a macro was applied
          * @return false
          */
-        bool applyMacro(Node& node) const;
+        bool applyMacro(Node& node, unsigned depth) const;
 
         /**
          * @brief Unify a target node with a given map symbol => replacement node, recursively
@@ -165,10 +166,11 @@ namespace Ark::internal
          * @brief Evaluate only the macros
          *
          * @param node
+         * @param depth
          * @param is_not_body true if the method is run on a non-body code (eg a condition of an if-macro)
          * @return Node
          */
-        Node evaluate(Node& node, bool is_not_body = false);
+        Node evaluate(Node& node, unsigned depth, bool is_not_body = false);
 
         /**
          * @brief Check if a node can be evaluated to true

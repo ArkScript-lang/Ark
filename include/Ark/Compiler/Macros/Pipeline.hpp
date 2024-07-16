@@ -2,7 +2,7 @@
  * @file Pipeline.hpp
  * @author Ray John Alovera (rakista112@gmail.com), Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief The Chain of Responsibility class for running nodes through MacroExecutors
- * @version 0.4
+ * @version 1.0
  * @date 2021-05-04
  *
  * @copyright Copyright (c) 2021-2024
@@ -41,10 +41,11 @@ namespace Ark::internal
          * @brief Passes node through all MacroExecutors sequentially
          *
          * @param node node on which to operate
+         * @param depth
          * @return true if a macro was applied
          * @return false
          */
-        bool applyMacro(Node& node) const;
+        bool applyMacro(Node& node, unsigned depth) const;
 
     private:
         std::vector<std::shared_ptr<MacroExecutor>> m_executors;

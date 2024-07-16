@@ -2,7 +2,7 @@
  * @file Symbol.hpp
  * @author Ray John Alovera (rakista112@gmail.com), Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Executor for Symbol Macros
- * @version 0.4
+ * @version 1.0
  * @date 2021-05-04
  *
  * @copyright Copyright (c) 2021-2024
@@ -26,7 +26,7 @@ namespace Ark::internal
     public:
         using MacroExecutor::MacroExecutor;
 
-        bool applyMacro(Node& node) override;
+        bool applyMacro(Node& node, unsigned depth) override;
         bool canHandle(Node& node) override;
     };
 

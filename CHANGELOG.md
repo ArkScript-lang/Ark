@@ -63,6 +63,7 @@
 - checking for unevaluated spread inside macros
 - checking for invalid symbols when defining a function through a macro
 - added a max macro unification depth
+- added a max macro evaluation depth
 
 ### Removed
 - removed unused `NodeType::Closure`

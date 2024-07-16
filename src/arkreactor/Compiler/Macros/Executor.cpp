@@ -31,9 +31,9 @@ namespace Ark::internal
         return m_processor->isTruthy(node);
     }
 
-    Node MacroExecutor::evaluate(Node& node, const bool is_not_body) const
+    Node MacroExecutor::evaluate(Node& node, const unsigned depth, const bool is_not_body) const
     {
-        return m_processor->evaluate(node, is_not_body);
+        return m_processor->evaluate(node, depth, is_not_body);
     }
 
     void MacroExecutor::unify(const std::unordered_map<std::string, Node>& map, Node& target, Node* parent) const
@@ -46,9 +46,9 @@ namespace Ark::internal
         m_processor->throwMacroProcessingError(message, node);
     }
 
-    bool MacroExecutor::applyMacroProxy(Node& node) const
+    bool MacroExecutor::applyMacroProxy(Node& node, const unsigned depth) const
     {
-        return m_processor->applyMacro(node);
+        return m_processor->applyMacro(node, depth);
     }
 
     bool MacroExecutor::isPredefined(const std::string& symbol) const

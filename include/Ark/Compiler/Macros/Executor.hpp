@@ -2,7 +2,7 @@
  * @file Executor.hpp
  * @author Ray John Alovera (rakista112@gmail.com), Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief The base class for all MacroExecutors
- * @version 1.0
+ * @version 2.0
  * @date 2024-03-03
  *
  * @copyright Copyright (c) 2021-2024
@@ -45,10 +45,11 @@ namespace Ark::internal
          * @brief Executes macros in the Node if the Executor can handle it
          *
          * @param node the node that contains a macro
+         * @param depth
          * @return true if a macro was successfully applied
          * @return false
          */
-        virtual bool applyMacro(Node& node) = 0;
+        virtual bool applyMacro(Node& node, unsigned depth) = 0;
 
         /**
          * @brief Checks if the executor can apply a macro on the passed Node
@@ -97,10 +98,11 @@ namespace Ark::internal
          * @details Proxy function for MacroProcessor::evaluate
          *
          * @param node
+         * @param depth
          * @param is_not_body true if the method is run on a non-body code (eg a condition of an if-macro)
          * @return Node
          */
-        Node evaluate(Node& node, bool is_not_body) const;
+        Node evaluate(Node& node, unsigned depth, bool is_not_body) const;
 
         /**
          * @brief Applies the spread operator
@@ -122,10 +124,11 @@ namespace Ark::internal
          * @details Proxy function for MacroProcessor::applyMacro
          *
          * @param node
+         * @param depth
          * @return true
          * @return false
          */
-        bool applyMacroProxy(Node& node) const;
+        bool applyMacroProxy(Node& node, unsigned depth) const;
 
         /**
          * @brief Check if a given symbol is a predefined macro
