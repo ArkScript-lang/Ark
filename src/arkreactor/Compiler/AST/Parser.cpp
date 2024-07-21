@@ -5,7 +5,8 @@
 namespace Ark::internal
 {
     Parser::Parser(const bool interpret) :
-        BaseParser(), m_interpret(interpret), m_ast(NodeType::List), m_imports({}), m_allow_macro_behavior(0)
+        BaseParser(), Pass("Parser", 0), m_interpret(interpret),
+        m_ast(NodeType::List), m_imports({}), m_allow_macro_behavior(0)
     {
         m_ast.push_back(Node(Keyword::Begin));
     }
@@ -16,7 +17,7 @@ namespace Ark::internal
         run();
     }
 
-    const Node& Parser::ast() const
+    const Node& Parser::ast() const noexcept
     {
         return m_ast;
     }

@@ -2,7 +2,6 @@
 
 #include <ranges>
 #include <algorithm>
-#include <stack>
 #include <Ark/Exceptions.hpp>
 #include <fmt/core.h>
 
@@ -12,35 +11,39 @@
 namespace Ark::internal
 {
     ImportSolver::ImportSolver(const unsigned debug, const std::vector<std::filesystem::path>& libenv) :
-        m_debug(debug), m_libenv(libenv), m_ast()
+        Pass("ImportSolver", debug), m_libenv(libenv), m_ast()
     {}
 
-    void ImportSolver::process(const std::filesystem::path& root, const Node& origin_ast, const std::vector<Import>& origin_imports)
+    ImportSolver& ImportSolver::setup(const std::filesystem::path& root, const std::vector<Import>& origin_imports)
     {
         if (is_directory(root))
             m_root = root;
         else
             m_root = root.parent_path();
 
-        std::stack<Import> imports;
         for (const auto& origin_import : std::ranges::reverse_view(origin_imports))
-            imports.push(origin_import);
+            m_imports.push(origin_import);
 
-        while (!imports.empty())
+        return *this;
+    }
+
+    void ImportSolver::process(const Node& origin_ast)
+    {
+        while (!m_imports.empty())
         {
-            Import import = imports.top();
-            if (m_debug >= 2)
-                std::cout << "Importing " << import.toPackageString() << std::endl;
+            Import import = m_imports.top();
+            logDebug("Importing {}", import.toPackageString());
+
             // Remove the top element to process the other imports
             // It needs to be removed first because we might be adding
             // other imports later and don't want to pop THEM
-            imports.pop();
+            m_imports.pop();
 
             // TODO: add special handling for each type of import (prefixed, with symbols, glob pattern)
             if (!m_modules.contains(import.toPackageString()))
             {
                 // NOTE: since the "file" (=root) argument doesn't change between all calls, we could get rid of it
-                std::vector<Import> additional_imports = parseImport(root, import);
+                std::vector<Import> additional_imports = parseImport(m_root, import);
                 // TODO import and store the new node as a Module node.
                 //      Module nodes should be scoped relatively to their packages
                 //      They should provide specific methods to resolve symbols,
@@ -49,7 +52,7 @@ namespace Ark::internal
                 //      accordingly, and once we are done concat all the nodes
                 //      in a single AST.
                 for (auto& additional_import : std::ranges::reverse_view(additional_imports))
-                    imports.push(additional_import);
+                    m_imports.push(additional_import);
             }
             else
             {

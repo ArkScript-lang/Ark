@@ -1,6 +1,7 @@
 #include <CLI/JsonCompiler.hpp>
 
 #include <string>
+#include <Ark/Exceptions.hpp>
 
 #include <fmt/core.h>
 

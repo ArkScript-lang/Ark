@@ -20,6 +20,7 @@
 - warning when the formatter deletes comment(s) by mistake
 - check on arguments passed to `list`, `concat`, `append` and friends to only push valid nodes (that produces a value)
 - `$paste` to paste a node inside a maro without evaluating it further ; useful to stop recursive evaluation of nodes inside function macros
+- introduced `Ark::internal::Pass` to describe compiler passes: they all output an AST (parser, import solver, macro processor, and optimizer for now)
 
 ### Changed
 - instructions are on 4 bytes: 1 byte for the instruction, 1 byte of padding, 2 bytes for an immediate argument

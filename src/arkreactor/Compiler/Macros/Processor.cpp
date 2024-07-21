@@ -17,7 +17,7 @@
 namespace Ark::internal
 {
     MacroProcessor::MacroProcessor(const unsigned debug) noexcept :
-        m_debug(debug)
+        Pass("MacroProcessor", debug)
     {
         // create executors pipeline
         m_executors = { { std::make_shared<SymbolExecutor>(this),
@@ -34,18 +34,15 @@ namespace Ark::internal
 
     void MacroProcessor::process(const Node& ast)
     {
-        if (m_debug >= 2)
-            std::cout << "Processing macros...\n";
+        logDebug("Processing macros...");
 
         // to be able to modify it
         m_ast = ast;
         processNode(m_ast, 0);
 
-        if (m_debug >= 3)
-        {
-            std::cout << "(MacroProcessor) AST after processing macros\n";
+        logTrace("AST after processing macros");
+        if (shouldTrace())
             m_ast.debugPrint(std::cout) << '\n';
-        }
     }
 
     const Node& MacroProcessor::ast() const noexcept

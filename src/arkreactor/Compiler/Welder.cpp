@@ -1,7 +1,9 @@
 #include <Ark/Constants.hpp>
 #include <Ark/Compiler/Welder.hpp>
 
-#include <termcolor/proxy.hpp>
+#include <Ark/Compiler/ImportSolver.hpp>
+#include <Ark/Compiler/AST/Optimizer.hpp>
+#include <Ark/Compiler/Macros/Processor.hpp>
 
 #include <Ark/Files.hpp>
 #include <Ark/Exceptions.hpp>
@@ -9,7 +11,8 @@
 namespace Ark
 {
     Welder::Welder(const unsigned debug, const std::vector<std::filesystem::path>& lib_env) :
-        m_debug(debug), m_importer(debug, lib_env), m_macro_processor(debug), m_optimizer(debug), m_compiler(debug)
+        Pass("Welder", debug), m_lib_env(lib_env),
+        m_compiler(debug)
     {}
 
     void Welder::registerSymbol(const std::string& name)
@@ -36,7 +39,7 @@ namespace Ark
     {
         try
         {
-            m_compiler.process(m_optimizer.ast());
+            m_compiler.process(m_passes.back()->ast());
             m_bytecode = m_compiler.bytecode();
 
             return true;
@@ -50,8 +53,7 @@ namespace Ark
 
     bool Welder::saveBytecodeToFile(const std::string& filename)
     {
-        if (m_debug >= 1)
-            std::cout << "Final bytecode size: " << m_bytecode.size() * sizeof(uint8_t) << "B\n";
+        log("Final bytecode size: {}B", m_bytecode.size() * sizeof(uint8_t));
 
         if (m_bytecode.empty())
             return false;
@@ -66,7 +68,7 @@ namespace Ark
 
     const internal::Node& Welder::ast() const noexcept
     {
-        return m_optimizer.ast();
+        return m_passes.back()->ast();
     }
 
     const bytecode_t& Welder::bytecode() const noexcept
@@ -79,9 +81,23 @@ namespace Ark
         try
         {
             m_parser.process(filename, code);
-            m_importer.process(m_root_file, m_parser.ast(), m_parser.imports());
-            m_macro_processor.process(m_importer.ast());
-            m_optimizer.process(m_macro_processor.ast());
+
+            {
+                auto import_solver_pass = std::make_unique<internal::ImportSolver>(debugLevel(), m_lib_env);
+                import_solver_pass->setup(m_root_file, m_parser.imports());
+                m_passes.push_back(std::move(import_solver_pass));
+            }
+            m_passes.emplace_back(std::make_unique<internal::MacroProcessor>(debugLevel()));
+            m_passes.emplace_back(std::make_unique<internal::Optimizer>(debugLevel()));
+
+            std::accumulate(
+                m_passes.begin(),
+                m_passes.end(),
+                m_parser.ast(),
+                [](const internal::Node& ast, const std::unique_ptr<internal::Pass>& pass) {
+                    pass->process(ast);
+                    return pass->ast();
+                });
 
             return true;
         }

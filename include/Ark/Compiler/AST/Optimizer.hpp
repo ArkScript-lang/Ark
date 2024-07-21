@@ -2,7 +2,7 @@
  * @file Optimizer.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Optimizes a given ArkScript AST
- * @version 1.0
+ * @version 1.1
  * @date 2024-07-09
  *
  * @copyright Copyright (c) 2020-2024
@@ -17,6 +17,7 @@
 #include <string>
 #include <cinttypes>
 
+#include <Ark/Compiler/Pass.hpp>
 #include <Ark/Compiler/AST/Node.hpp>
 #include <Ark/Exceptions.hpp>
 
@@ -26,7 +27,7 @@ namespace Ark::internal
      * @brief The ArkScript AST optimizer
      *
      */
-    class Optimizer
+    class Optimizer final : public Pass
     {
     public:
         /**
@@ -41,18 +42,17 @@ namespace Ark::internal
          *
          * @param ast
          */
-        void process(const Node& ast);
+        void process(const Node& ast) override;
 
         /**
          * @brief Returns the modified AST
          *
          * @return const Node&
          */
-        [[nodiscard]] const Node& ast() const noexcept;
+        [[nodiscard]] const Node& ast() const noexcept override;
 
     private:
         Node m_ast;
-        unsigned m_debug;
         std::unordered_map<std::string, unsigned> m_sym_appearances;
 
         /**
@@ -67,7 +67,7 @@ namespace Ark::internal
          * @brief Iterate over the AST and remove unused top level functions and constants
          *
          */
-        void remove_unused();
+        void removeUnused();
 
         /**
          * @brief Run a given functor on the global scope symbols
