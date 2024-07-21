@@ -1,1 +1,1 @@
-TypeError: `a' is a Number, not a closure, can not get the field `c' from it
+TypeError: `a' is a Number, not a Closure, can not get the field `c' from it

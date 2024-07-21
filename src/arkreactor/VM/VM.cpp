@@ -483,10 +483,22 @@ namespace Ark
                     {
                         Value* var = popAndResolveAsPtr(context);
                         if (var->valueType() != ValueType::Closure)
-                            throwVMError(
-                                ErrorKind::Type,
-                                fmt::format("`{}' is a {}, not a closure, can not get the field `{}' from it",
-                                            m_state.m_symbols[context.last_symbol], types_to_str[static_cast<std::size_t>(var->valueType())], m_state.m_symbols[arg]));
+                        {
+                            if (context.last_symbol < m_state.m_symbols.size()) [[likely]]
+                                throwVMError(
+                                    ErrorKind::Type,
+                                    fmt::format(
+                                        "`{}' is a {}, not a Closure, can not get the field `{}' from it",
+                                        m_state.m_symbols[context.last_symbol],
+                                        types_to_str[static_cast<std::size_t>(var->valueType())],
+                                        m_state.m_symbols[arg]));
+                            else
+                                throwVMError(ErrorKind::Type,
+                                             fmt::format(
+                                                 "{} is not a Closure, can not get the field `{}' from it",
+                                                 types_to_str[static_cast<std::size_t>(var->valueType())],
+                                                 m_state.m_symbols[arg]));
+                        }
 
                         if (Value* field = var->refClosure().refScope()[arg]; field != nullptr)
                         {
