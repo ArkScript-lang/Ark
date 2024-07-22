@@ -42,7 +42,6 @@ namespace Ark
             m_bytecode[3] == internal::Instruction::NOP;
     }
 
-
     const bytecode_t& BytecodeReader::bytecode() noexcept
     {
         return m_bytecode;
@@ -59,7 +58,6 @@ namespace Ark
             .patch = static_cast<uint16_t>((m_bytecode[8] << 8) + m_bytecode[9])
         };
     }
-
 
     unsigned long long BytecodeReader::timestamp() const
     {
@@ -195,11 +193,10 @@ namespace Ark
         return block;
     }
 
-
     void BytecodeReader::display(const BytecodeSegment segment,
                                  const std::optional<uint16_t> sStart,
                                  const std::optional<uint16_t> sEnd,
-                                 const std::optional<uint16_t> cPage)
+                                 const std::optional<uint16_t> cPage) const
     {
         std::ostream& os = std::cout;
 
@@ -359,7 +356,7 @@ namespace Ark
                         {
                             const uint8_t padding = page[j];
                             const uint8_t inst = page[j + 1];
-                            const uint16_t arg = static_cast<uint16_t>((page[j + 2] << 8) + page[j + 3]);
+                            const auto arg = static_cast<uint16_t>((page[j + 2] << 8) + page[j + 3]);
 
                             // instruction number
                             os << termcolor::cyan << fmt::format("{:>4}", j / 4) << termcolor::reset;
@@ -489,7 +486,7 @@ namespace Ark
 
     uint16_t BytecodeReader::readNumber(std::size_t& i) const
     {
-        const uint16_t x = static_cast<uint16_t>(m_bytecode[i] << 8);
+        const auto x = static_cast<uint16_t>(m_bytecode[i] << 8);
         const uint16_t y = m_bytecode[++i];
         return x + y;
     }

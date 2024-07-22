@@ -21,6 +21,7 @@
 #include <Ark/Compiler/AST/Parser.hpp>
 #include <Ark/Compiler/Compiler.hpp>
 #include <Ark/Compiler/Pass.hpp>
+#include <Ark/Constants.hpp>
 
 namespace Ark
 {
@@ -30,7 +31,7 @@ namespace Ark
     class ARK_API Welder final : public internal::Pass
     {
     public:
-        Welder(unsigned debug, const std::vector<std::filesystem::path>& lib_env);
+        Welder(unsigned debug, const std::vector<std::filesystem::path>& lib_env, uint16_t features = DefaultFeatures);
 
         /**
          * @brief Register a symbol as a global in the compiler
@@ -50,10 +51,12 @@ namespace Ark
 
     private:
         std::vector<std::filesystem::path> m_lib_env;
+        uint16_t m_features;
 
         std::filesystem::path m_root_file;
         std::vector<std::string> m_imports;
         bytecode_t m_bytecode;
+        internal::Node m_computed_ast;
 
         std::vector<std::unique_ptr<internal::Pass>> m_passes;
         internal::Parser m_parser;

@@ -16,6 +16,7 @@
 #include <vector>
 #include <unordered_map>
 #include <filesystem>
+#include <Ark/Constants.hpp>
 
 #include <Ark/VM/Value.hpp>
 #include <Ark/Compiler/Common.hpp>
@@ -59,19 +60,21 @@ namespace Ark
          * @brief Compile a file, and use the resulting bytecode
          *
          * @param filename path to an ArkScript code file
+         * @param features compiler features to enable/disable
          * @return true on success
          * @return false on failure
          */
-        bool doFile(const std::string& filename);
+        bool doFile(const std::string& filename, uint16_t features = DefaultFeatures);
 
         /**
          * @brief Compile a string (representing ArkScript code) and store resulting bytecode in m_bytecode
          *
          * @param code the ArkScript code
+         * @param features compiler features to enable/disable
          * @return true on success
          * @return false on failure
          */
-        bool doString(const std::string& code);
+        bool doString(const std::string& code, uint16_t features = DefaultFeatures);
 
         /**
          * @brief Register a function in the virtual machine
@@ -125,10 +128,11 @@ namespace Ark
          *
          * @param file the path of file code to compile
          * @param output set path of .arkc file
+         * @param features compiler features to enable/disable
          * @return true on success
          * @return false on failure and raise an exception
          */
-        bool compile(const std::string& file, const std::string& output) const;
+        bool compile(const std::string& file, const std::string& output, uint16_t features) const;
 
         static void throwStateError(const std::string& message)
         {

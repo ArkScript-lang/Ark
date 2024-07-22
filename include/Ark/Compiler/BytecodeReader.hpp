@@ -151,7 +151,7 @@ namespace Ark
         void display(BytecodeSegment segment = BytecodeSegment::All,
                      std::optional<uint16_t> sStart = std::nullopt,
                      std::optional<uint16_t> sEnd = std::nullopt,
-                     std::optional<uint16_t> cPage = std::nullopt);
+                     std::optional<uint16_t> cPage = std::nullopt) const;
 
         friend class Ark::State;
 

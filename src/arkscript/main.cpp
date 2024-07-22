@@ -51,7 +51,28 @@ int main(int argc, char** argv)
     // Generic arguments
     std::vector<std::string> wrong, script_args;
 
+    uint16_t passes = Ark::DefaultFeatures;
+
     // clang-format off
+    auto debug_flag = joinable(repeatable(option("-d", "--debug").call([&]{ debug++; })
+                            .doc("Increase debug level (default: 0)\n")));
+    auto lib_dir_flag = option("-L", "--lib").doc("Set the location of the ArkScript standard library. Paths can be delimited by ';'\n")
+                            & value("lib_dir", libdir);
+
+    auto import_solver_pass_flag = (
+        option("-fimportsolver").call([&] { passes |= Ark::FeatureImportSolver; })
+        | option("-fno-importsolver").call([&] { passes &= ~Ark::FeatureImportSolver; })
+    ).doc("Toggle on and off the import solver pass");
+    auto macro_proc_pass_flag = (
+        option("-fmacroprocessor").call([&] { passes |= Ark::FeatureMacroProcessor; })
+        | option("-fno-macroprocessor").call([&] { passes &= ~Ark::FeatureMacroProcessor; })
+    ).doc("Toggle on and off the macro processor pass");
+    auto optimizer_pass_flag = (
+        option("-foptimizer").call([&] { passes |= Ark::FeatureASTOptimizer; })
+        | option("-fno-optimizer").call([&] { passes &= ~Ark::FeatureASTOptimizer; })
+    ).doc("Toggle on and off the optimizer pass");
+    auto compiler_passes_flag = (import_solver_pass_flag, macro_proc_pass_flag, optimizer_pass_flag);
+
     auto cli = (
         option("-h", "--help").set(selected, mode::help).doc("Display this message")
         | option("-v", "--version").set(selected, mode::version).doc("Display ArkScript version and exit")
@@ -63,16 +84,15 @@ int main(int argc, char** argv)
         | (
             required("-c", "--compile").set(selected, mode::compile).doc("Compile the given program to bytecode, but do not run")
             & value("file", file)
-            , joinable(repeatable(option("-d", "--debug").call([&]{ debug++; }).doc("Increase debug level (default: 0)\n")))
+            , debug_flag
+            , compiler_passes_flag
         )
         | (
             value("file", file).set(selected, mode::run)
             , (
-                joinable(repeatable(option("-d", "--debug").call([&]{ debug++; })))
-                , (
-                    option("-L", "--lib").doc("Set the location of the ArkScript standard library. Paths can be delimited by ';'\n")
-                    & value("lib_dir", libdir)
-                )
+                  debug_flag
+                , lib_dir_flag
+                , compiler_passes_flag
             )
             , any_other(script_args)
         )
@@ -84,11 +104,8 @@ int main(int argc, char** argv)
         | (
             required("--ast").set(selected, mode::ast).doc("Compile the given program and output its AST as JSON to stdout")
             & value("file", file)
-            , joinable(repeatable(option("-d", "--debug").call([&]{ debug++; }).doc("Increase debug level (default: 0)")))
-            , (
-                option("-L", "--lib").doc("Set the location of the ArkScript standard library. Paths can be delimited by ';'")
-                & value("lib_dir", libdir)
-            )
+            , debug_flag
+            , lib_dir_flag
         )
         | (
             required("-bcr", "--bytecode-reader").set(selected, mode::bytecode_reader).doc("Launch the bytecode reader")
@@ -215,7 +232,7 @@ int main(int argc, char** argv)
                 Ark::State state(lib_paths);
                 state.setDebug(debug);
 
-                if (!state.doFile(file))
+                if (!state.doFile(file, passes))
                     return -1;
 
                 break;
@@ -227,7 +244,7 @@ int main(int argc, char** argv)
                 state.setDebug(debug);
                 state.setArgs(script_args);
 
-                if (!state.doFile(file))
+                if (!state.doFile(file, passes))
                     return -1;
 
                 Ark::VM vm(state);

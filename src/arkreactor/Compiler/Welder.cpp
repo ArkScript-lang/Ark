@@ -10,9 +10,9 @@
 
 namespace Ark
 {
-    Welder::Welder(const unsigned debug, const std::vector<std::filesystem::path>& lib_env) :
-        Pass("Welder", debug), m_lib_env(lib_env),
-        m_compiler(debug)
+    Welder::Welder(const unsigned debug, const std::vector<std::filesystem::path>& lib_env, const uint16_t features) :
+        Pass("Welder", debug), m_lib_env(lib_env), m_features(features),
+        m_computed_ast(internal::NodeType::Unused), m_compiler(debug)
     {}
 
     void Welder::registerSymbol(const std::string& name)
@@ -39,7 +39,7 @@ namespace Ark
     {
         try
         {
-            m_compiler.process(m_passes.back()->ast());
+            m_compiler.process(m_computed_ast);
             m_bytecode = m_compiler.bytecode();
 
             return true;
@@ -68,7 +68,7 @@ namespace Ark
 
     const internal::Node& Welder::ast() const noexcept
     {
-        return m_passes.back()->ast();
+        return m_computed_ast;
     }
 
     const bytecode_t& Welder::bytecode() const noexcept
@@ -82,15 +82,18 @@ namespace Ark
         {
             m_parser.process(filename, code);
 
+            if ((m_features & FeatureImportSolver) != 0)
             {
                 auto import_solver_pass = std::make_unique<internal::ImportSolver>(debugLevel(), m_lib_env);
                 import_solver_pass->setup(m_root_file, m_parser.imports());
                 m_passes.push_back(std::move(import_solver_pass));
             }
-            m_passes.emplace_back(std::make_unique<internal::MacroProcessor>(debugLevel()));
-            m_passes.emplace_back(std::make_unique<internal::Optimizer>(debugLevel()));
+            if ((m_features & FeatureMacroProcessor) != 0)
+                m_passes.emplace_back(std::make_unique<internal::MacroProcessor>(debugLevel()));
+            if ((m_features & FeatureASTOptimizer) != 0)
+                m_passes.emplace_back(std::make_unique<internal::Optimizer>(debugLevel()));
 
-            std::accumulate(
+            m_computed_ast = std::accumulate(
                 m_passes.begin(),
                 m_passes.end(),
                 m_parser.ast(),
