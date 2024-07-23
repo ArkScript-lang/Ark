@@ -1,3 +1,2 @@
-(while ($ a b) {
-    (set acc (+ acc (@ src a)))
-    (set a (+ 1 a))})
+(while ($ a 1) {
+    (set acc (+ acc (@ [] a)))})

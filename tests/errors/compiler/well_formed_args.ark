@@ -1,2 +1,5 @@
-($ defun  (let name (fun args body)))
+($ defun (let name (fun args nil)))
+(let foo 1)
+(let a 2)
+(let b 3)
 (defun foo (a b) (+ a b))

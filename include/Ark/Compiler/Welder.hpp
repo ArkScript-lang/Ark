@@ -22,6 +22,10 @@
 #include <Ark/Compiler/Compiler.hpp>
 #include <Ark/Compiler/Pass.hpp>
 #include <Ark/Constants.hpp>
+#include <Ark/Compiler/ImportSolver.hpp>
+#include <Ark/Compiler/Macros/Processor.hpp>
+#include <Ark/Compiler/AST/Optimizer.hpp>
+#include <Ark/Compiler/NameResolutionPass.hpp>
 
 namespace Ark
 {
@@ -58,8 +62,12 @@ namespace Ark
         bytecode_t m_bytecode;
         internal::Node m_computed_ast;
 
-        std::vector<std::unique_ptr<internal::Pass>> m_passes;
         internal::Parser m_parser;
+        internal::ImportSolver m_import_solver;
+        internal::MacroProcessor m_macro_processor;
+        internal::Optimizer m_ast_optimizer;
+        internal::NameResolutionPass m_name_resolver;
+
         Compiler m_compiler;
 
         bool computeAST(const std::string& filename, const std::string& code);

@@ -68,7 +68,6 @@ namespace Ark
 
         // tables: symbols, values, plugins and codes
         std::vector<internal::Node> m_symbols;
-        std::vector<std::string> m_defined_symbols;
         std::vector<std::string> m_plugins;
         std::vector<internal::ValTableElem> m_values;
         std::vector<std::vector<internal::Word>> m_code_pages;
@@ -254,27 +253,6 @@ namespace Ark
          * @return std::size_t
          */
         uint16_t addValue(std::size_t page_id, const internal::Node& current);
-
-        /**
-         * @brief Register a symbol as defined, so that later we can throw errors on undefined symbols
-         *
-         * @param sym
-         */
-        void addDefinedSymbol(const std::string& sym);
-
-        /**
-         * @brief Checks for undefined symbols, not present in the defined symbols table
-         *
-         */
-        void checkForUndefinedSymbol();
-
-        /**
-         * @brief Suggest a symbol of what the user may have meant to input
-         *
-         * @param str the string
-         * @return std::string
-         */
-        std::string offerSuggestion(const std::string& str) const;
     };
 }
 

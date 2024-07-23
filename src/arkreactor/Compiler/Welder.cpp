@@ -7,17 +7,23 @@
 
 #include <Ark/Files.hpp>
 #include <Ark/Exceptions.hpp>
+#include <Ark/Compiler/NameResolutionPass.hpp>
 
 namespace Ark
 {
     Welder::Welder(const unsigned debug, const std::vector<std::filesystem::path>& lib_env, const uint16_t features) :
         Pass("Welder", debug), m_lib_env(lib_env), m_features(features),
-        m_computed_ast(internal::NodeType::Unused), m_compiler(debug)
+        m_computed_ast(internal::NodeType::Unused),
+        m_import_solver(debug, lib_env),
+        m_macro_processor(debug),
+        m_ast_optimizer(debug),
+        m_name_resolver(debug),
+        m_compiler(debug)
     {}
 
     void Welder::registerSymbol(const std::string& name)
     {
-        m_compiler.addDefinedSymbol(name);
+        m_name_resolver.addDefinedSymbol(name);
     }
 
     bool Welder::computeASTFromFile(const std::string& filename)
@@ -81,26 +87,29 @@ namespace Ark
         try
         {
             m_parser.process(filename, code);
+            m_computed_ast = m_parser.ast();
 
             if ((m_features & FeatureImportSolver) != 0)
             {
-                auto import_solver_pass = std::make_unique<internal::ImportSolver>(debugLevel(), m_lib_env);
-                import_solver_pass->setup(m_root_file, m_parser.imports());
-                m_passes.push_back(std::move(import_solver_pass));
+                m_import_solver.setup(m_root_file, m_parser.imports());
+                m_import_solver.process(m_computed_ast);
+                m_computed_ast = m_import_solver.ast();
             }
-            if ((m_features & FeatureMacroProcessor) != 0)
-                m_passes.emplace_back(std::make_unique<internal::MacroProcessor>(debugLevel()));
-            if ((m_features & FeatureASTOptimizer) != 0)
-                m_passes.emplace_back(std::make_unique<internal::Optimizer>(debugLevel()));
 
-            m_computed_ast = std::accumulate(
-                m_passes.begin(),
-                m_passes.end(),
-                m_parser.ast(),
-                [](const internal::Node& ast, const std::unique_ptr<internal::Pass>& pass) {
-                    pass->process(ast);
-                    return pass->ast();
-                });
+            if ((m_features & FeatureMacroProcessor) != 0)
+            {
+                m_macro_processor.process(m_computed_ast);
+                m_computed_ast = m_macro_processor.ast();
+            }
+
+            if ((m_features & FeatureASTOptimizer) != 0)
+            {
+                m_ast_optimizer.process(m_computed_ast);
+                m_computed_ast = m_ast_optimizer.ast();
+            }
+
+            // NOTE: ast isn't modified by the name resolver, no need to update m_computed_ast
+            m_name_resolver.process(m_computed_ast);
 
             return true;
         }
