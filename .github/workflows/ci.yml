@@ -242,8 +242,12 @@ jobs:
             -V $FUZZ_TIME_SEC \
             -- ${BUILD_FOLDER}/arkscript @@ -L ./lib
 
-      - name: Summarize
+      - uses: 8BitJonny/gh-get-current-pr@3.0.0
+        id: PR
+
+      - name: Summarize for PR
         id: summary
+        if: ${{ steps.PR.outputs.number != null }}
         shell: bash
         run: |
           echo "FUZZ_SUMMARY<<EOF" >> $GITHUB_ENV
@@ -251,8 +255,16 @@ jobs:
           afl-showmap -C -i output -o /dev/null -- ./${BUILD_FOLDER}/arkscript @@ -L ./lib | sed -r "s/\x1B\[([0-9]{1,3}(;[0-9]{1,2};?)?)?[mGK]//g" | grep -v Reading | grep -v Scanning >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
+      - name: Summarize
+        if: ${{ steps.PR.outputs.number == null }}
+        shell: bash
+        run: |
+          afl-whatsup -s -d output
+          afl-showmap -C -i output -o /dev/null -- ./${BUILD_FOLDER}/arkscript @@ -L ./lib
+
       - name: Find Comment
         uses: peter-evans/find-comment@v3
+        if: ${{ steps.PR.outputs.number != null }}
         id: fc
         with:
           issue-number: ${{ github.event.pull_request.number }}
@@ -261,6 +273,7 @@ jobs:
 
       - name: Create or update comment
         uses: peter-evans/create-or-update-comment@v4
+        if: ${{ steps.PR.outputs.number != null }}
         with:
           comment-id: ${{ steps.fc.outputs.comment-id }}
           issue-number: ${{ github.event.pull_request.number }}
