@@ -163,6 +163,16 @@ namespace Ark::internal
         void setWithFileAttributes(const Node origin, Node& output, const Node& macro);
 
         /**
+         * @brief Check if the given node has exactly the provided argument count, otherwise throws an error
+         *
+         * @param node a list node with a macro application, eg (= a b)
+         * @param expected expected argument count, not counting the macro
+         * @param name the name of the macro being applied
+         * @param kind the macro kind, empty by default (eg "operator", "condition")
+         */
+        void checkMacroArgCount(const Node& node, std::size_t expected, const std::string& name, const std::string& kind = "");
+
+        /**
          * @brief Evaluate only the macros
          *
          * @param node

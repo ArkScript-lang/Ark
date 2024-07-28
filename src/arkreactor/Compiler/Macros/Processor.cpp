@@ -251,6 +251,20 @@ namespace Ark::internal
         output.setPos(origin.line(), origin.col());
     }
 
+    void MacroProcessor::checkMacroArgCount(const Node& node, std::size_t expected, const std::string& name, const std::string& kind)
+    {
+        const std::size_t argcount = node.constList().size();
+        if (argcount != expected + 1)
+            throwMacroProcessingError(
+                fmt::format(
+                    "Interpreting a `{}'{} with {} arguments, expected {}.",
+                    name,
+                    kind.empty() ? kind : " " + kind,
+                    argcount,
+                    expected),
+                node);
+    }
+
     Node MacroProcessor::evaluate(Node& node, unsigned depth, const bool is_not_body)
     {
         if (node.nodeType() == NodeType::Symbol)
@@ -262,29 +276,6 @@ namespace Ark::internal
         }
         if (node.nodeType() == NodeType::List && node.constList().size() > 1 && node.list()[0].nodeType() == NodeType::Symbol)
         {
-#define GEN_NOT_BODY(str_name, error_handler, ret)                   \
-    else if (name == (str_name) && is_not_body)                      \
-    {                                                                \
-        if (node.list().size() != 3) (error_handler);                \
-        Node one = evaluate(node.list()[1], depth + 1, is_not_body), \
-             two = evaluate(node.list()[2], depth + 1, is_not_body); \
-        return ret;                                                  \
-    }
-
-#define GEN_COMPARATOR(str_name, cond) GEN_NOT_BODY(                                                     \
-    str_name,                                                                                            \
-    throwMacroProcessingError(                                                                           \
-        fmt::format("Interpreting a `{}' condition with {} arguments, expected 2.", str_name, argcount), \
-        node),                                                                                           \
-    (cond) ? getTrueNode() : getFalseNode())
-
-#define GEN_OP(str_name, op) GEN_NOT_BODY(                                                               \
-    str_name,                                                                                            \
-    throwMacroProcessingError(                                                                           \
-        fmt::format("Interpreting a `{}' operation with {} arguments, expected 2.", str_name, argcount), \
-        node),                                                                                           \
-    (one.nodeType() == two.nodeType() && two.nodeType() == NodeType::Number) ? Node(one.number() op two.number()) : node)
-
             const std::string& name = node.list()[0].string();
             const std::size_t argcount = node.list().size() - 1;
             if (const Node* macro = findNearestMacro(name); macro != nullptr)
@@ -293,21 +284,79 @@ namespace Ark::internal
                 if (node.list()[0].nodeType() == NodeType::Unused)
                     node.list().erase(node.constList().begin());
             }
-            GEN_COMPARATOR("=", one == two)
-            GEN_COMPARATOR("!=", !(one == two))
-            GEN_COMPARATOR("<", one < two)
-            GEN_COMPARATOR(">", !(one < two) && !(one == two))
-            GEN_COMPARATOR("<=", one < two || one == two)
-            GEN_COMPARATOR(">=", !(one < two))
-            GEN_OP("+", +)
-            GEN_OP("-", -)
-            GEN_OP("*", *)
-            GEN_OP("/", /)
+            else if (name == "=" && is_not_body)
+            {
+                checkMacroArgCount(node, 2, "=", "condition");
+                const Node one = evaluate(node.list()[1], depth + 1, is_not_body);
+                const Node two = evaluate(node.list()[2], depth + 1, is_not_body);
+                return (one == two) ? getTrueNode() : getFalseNode();
+            }
+            else if (name == "!=" && is_not_body)
+            {
+                checkMacroArgCount(node, 2, "!=", "condition");
+                const Node one = evaluate(node.list()[1], depth + 1, is_not_body);
+                const Node two = evaluate(node.list()[2], depth + 1, is_not_body);
+                return (one != two) ? getTrueNode() : getFalseNode();
+            }
+            else if (name == "<" && is_not_body)
+            {
+                checkMacroArgCount(node, 2, "<", "condition");
+                const Node one = evaluate(node.list()[1], depth + 1, is_not_body);
+                const Node two = evaluate(node.list()[2], depth + 1, is_not_body);
+                return (one < two) ? getTrueNode() : getFalseNode();
+            }
+            else if (name == ">" && is_not_body)
+            {
+                checkMacroArgCount(node, 2, ">", "condition");
+                const Node one = evaluate(node.list()[1], depth + 1, is_not_body);
+                const Node two = evaluate(node.list()[2], depth + 1, is_not_body);
+                return !(one < two) && (one != two) ? getTrueNode() : getFalseNode();
+            }
+            else if (name == "<=" && is_not_body)
+            {
+                checkMacroArgCount(node, 2, "<=", "condition");
+                const Node one = evaluate(node.list()[1], depth + 1, is_not_body);
+                const Node two = evaluate(node.list()[2], depth + 1, is_not_body);
+                return one < two || one == two ? getTrueNode() : getFalseNode();
+            }
+            else if (name == ">=" && is_not_body)
+            {
+                checkMacroArgCount(node, 2, ">=", "condition");
+                const Node one = evaluate(node.list()[1], depth + 1, is_not_body);
+                const Node two = evaluate(node.list()[2], depth + 1, is_not_body);
+                return !(one < two) ? getTrueNode() : getFalseNode();
+            }
+            else if (name == "+" && is_not_body)
+            {
+                checkMacroArgCount(node, 2, "+", "operator");
+                const Node one = evaluate(node.list()[1], depth + 1, is_not_body);
+                const Node two = evaluate(node.list()[2], depth + 1, is_not_body);
+                return (one.nodeType() == two.nodeType() && two.nodeType() == NodeType::Number) ? Node(one.number() + two.number()) : node;
+            }
+            else if (name == "-" && is_not_body)
+            {
+                checkMacroArgCount(node, 2, "-", "operator");
+                const Node one = evaluate(node.list()[1], depth + 1, is_not_body);
+                const Node two = evaluate(node.list()[2], depth + 1, is_not_body);
+                return (one.nodeType() == two.nodeType() && two.nodeType() == NodeType::Number) ? Node(one.number() - two.number()) : node;
+            }
+            else if (name == "*" && is_not_body)
+            {
+                checkMacroArgCount(node, 2, "*", "operator");
+                const Node one = evaluate(node.list()[1], depth + 1, is_not_body);
+                const Node two = evaluate(node.list()[2], depth + 1, is_not_body);
+                return (one.nodeType() == two.nodeType() && two.nodeType() == NodeType::Number) ? Node(one.number() * two.number()) : node;
+            }
+            else if (name == "/" && is_not_body)
+            {
+                checkMacroArgCount(node, 2, "/", "operator");
+                const Node one = evaluate(node.list()[1], depth + 1, is_not_body);
+                const Node two = evaluate(node.list()[2], depth + 1, is_not_body);
+                return (one.nodeType() == two.nodeType() && two.nodeType() == NodeType::Number) ? Node(one.number() / two.number()) : node;
+            }
             else if (name == "not" && is_not_body)
             {
-                if (node.list().size() != 2)
-                    throwMacroProcessingError(fmt::format("Interpreting a `not' condition with {} arguments, expected 1.", argcount), node);
-
+                checkMacroArgCount(node, 1, "not", "condition");
                 return (!isTruthy(evaluate(node.list()[1], depth + 1, is_not_body))) ? getTrueNode() : getFalseNode();
             }
             else if (name == "and" && is_not_body)
@@ -351,8 +400,7 @@ namespace Ark::internal
             }
             else if (name == "@")
             {
-                if (node.list().size() != 3)
-                    throwMacroProcessingError(fmt::format("Interpreting a `@' with {} arguments, expected 2.", argcount), node);
+                checkMacroArgCount(node, 2, "@");
 
                 Node sublist = evaluate(node.list()[1], depth + 1, is_not_body);
                 const Node idx = evaluate(node.list()[2], depth + 1, is_not_body);
