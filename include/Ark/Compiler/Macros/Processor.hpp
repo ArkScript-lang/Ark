@@ -14,13 +14,15 @@
 
 #include <Ark/Compiler/AST/Node.hpp>
 #include <Ark/Compiler/Macros/MacroScope.hpp>
-#include <Ark/Compiler/Macros/Pipeline.hpp>
 
 #include <unordered_map>
+#include <memory>
 #include <string>
 
 namespace Ark::internal
 {
+    class MacroExecutor;
+
     /**
      * @brief The class handling the macros definitions and calls, given an AST
      *
@@ -55,7 +57,7 @@ namespace Ark::internal
         unsigned m_debug;                  ///< The debug level
         Node m_ast;                        ///< The modified AST
         std::vector<MacroScope> m_macros;  ///< Handling macros in a scope fashion
-        MacroExecutorPipeline m_executor_pipeline;
+        std::vector<std::shared_ptr<MacroExecutor>> m_executors;
         std::vector<std::string> m_predefined_macros;  ///< Already existing macros, non-keywords, non-builtins
         std::unordered_map<std::string, Node> m_defined_functions;
 
@@ -161,6 +163,16 @@ namespace Ark::internal
         void unify(const std::unordered_map<std::string, Node>& map, Node& target, Node* parent, std::size_t index, std::size_t unify_depth = 0);
 
         void setWithFileAttributes(const Node origin, Node& output, const Node& macro);
+
+        /**
+         * @brief Check if the given node has exactly the provided argument count, otherwise throws an error
+         *
+         * @param node a list node with a macro application, eg (= a b)
+         * @param expected expected argument count, not counting the macro
+         * @param name the name of the macro being applied
+         * @param kind the macro kind, empty by default (eg "operator", "condition")
+         */
+        void checkMacroArgCount(const Node& node, std::size_t expected, const std::string& name, const std::string& kind = "");
 
         /**
          * @brief Evaluate only the macros
