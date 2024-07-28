@@ -14,6 +14,7 @@
 
 #include <vector>
 #include <string>
+#include <unordered_set>
 
 #include <Ark/Compiler/Pass.hpp>
 
@@ -37,8 +38,7 @@ namespace Ark::internal
 
     private:
         Node m_ast;
-        // fixme: use a map/unordered_map/set/unordered_set for faster lookups?
-        //        we can pre compute the operators+builtins+list operators
+        std::unordered_set<std::string> m_language_symbols;
         std::vector<Node> m_symbol_nodes;
         std::vector<std::string> m_defined_symbols;
         std::vector<std::string> m_plugin_names;

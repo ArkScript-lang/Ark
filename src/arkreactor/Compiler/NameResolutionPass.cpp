@@ -11,8 +11,16 @@ namespace Ark::internal
     // todo add scope resolution to this pass
     NameResolutionPass::NameResolutionPass(const unsigned debug) :
         Pass("NameResolution", debug),
-        m_ast()
-    {}
+        m_ast(),
+        m_language_symbols(operators.begin(), operators.end())
+    {
+        for (const auto& builtin : Builtins::builtins)
+            m_language_symbols.emplace(builtin.first);
+
+        // FIXME find a way to mutualise this
+        //       something like name -> instruction so that we can reuse it in the compiler as well
+        m_language_symbols.insert({ "list", "append", "append!", "concat", "concat!", "pop", "pop!" });
+    }
 
     void NameResolutionPass::process(const Node& ast)
     {
@@ -118,22 +126,8 @@ namespace Ark::internal
     {
         const std::string& name = symbol.string();
 
-        // we don't accept builtins as a user symbol
-        const auto it_builtins = std::ranges::find_if(Builtins::builtins,
-                                                      [&name](const std::pair<std::string, Value>& element) -> bool {
-                                                          return name == element.first;
-                                                      });
-        if (it_builtins != Builtins::builtins.end())
-            return;
-
-        // we don't accept operators as a user symbol
-        if (std::ranges::find(operators, name) != operators.end())
-            return;
-
-        // FIXME find a way to mutualise this
-        //       something like name -> instruction so that we can reuse it in the compiler as well
-        if (name == "list" || name == "append" || name == "append!" ||
-            name == "concat" || name == "concat!" || name == "pop" || name == "pop!")
+        // we don't accept builtins/operators as a user symbol
+        if (m_language_symbols.contains(name))
             return;
 
         const auto it = std::ranges::find_if(m_symbol_nodes, [&name](const Node& sym_node) -> bool {
