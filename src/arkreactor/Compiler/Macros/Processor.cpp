@@ -9,6 +9,7 @@
 #include <Ark/Constants.hpp>
 #include <Ark/Exceptions.hpp>
 #include <Ark/Builtins/Builtins.hpp>
+#include <Ark/Compiler/Macros/Executor.hpp>
 #include <Ark/Compiler/Macros/Executors/Symbol.hpp>
 #include <Ark/Compiler/Macros/Executors/Function.hpp>
 #include <Ark/Compiler/Macros/Executors/Conditional.hpp>
@@ -19,10 +20,9 @@ namespace Ark::internal
         m_debug(debug)
     {
         // create executors pipeline
-        m_executor_pipeline = MacroExecutorPipeline(
-            { std::make_shared<SymbolExecutor>(this),
-              std::make_shared<ConditionalExecutor>(this),
-              std::make_shared<FunctionExecutor>(this) });
+        m_executors = { { std::make_shared<SymbolExecutor>(this),
+                          std::make_shared<ConditionalExecutor>(this),
+                          std::make_shared<FunctionExecutor>(this) } };
 
         m_predefined_macros = {
             "symcat",
@@ -205,7 +205,15 @@ namespace Ark::internal
                     MaxMacroProcessingDepth),
                 node);
 
-        return m_executor_pipeline.applyMacro(node, depth);
+        for (const auto& executor : m_executors)
+        {
+            if (executor->canHandle(node))
+            {
+                if (executor->applyMacro(node, depth))
+                    return true;
+            }
+        }
+        return false;
     }
 
     void MacroProcessor::unify(const std::unordered_map<std::string, Node>& map, Node& target, Node* parent, const std::size_t index, const std::size_t unify_depth)

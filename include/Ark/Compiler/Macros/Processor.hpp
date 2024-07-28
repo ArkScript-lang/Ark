@@ -14,13 +14,15 @@
 
 #include <Ark/Compiler/AST/Node.hpp>
 #include <Ark/Compiler/Macros/MacroScope.hpp>
-#include <Ark/Compiler/Macros/Pipeline.hpp>
 
 #include <unordered_map>
+#include <memory>
 #include <string>
 
 namespace Ark::internal
 {
+    class MacroExecutor;
+
     /**
      * @brief The class handling the macros definitions and calls, given an AST
      *
@@ -55,7 +57,7 @@ namespace Ark::internal
         unsigned m_debug;                  ///< The debug level
         Node m_ast;                        ///< The modified AST
         std::vector<MacroScope> m_macros;  ///< Handling macros in a scope fashion
-        MacroExecutorPipeline m_executor_pipeline;
+        std::vector<std::shared_ptr<MacroExecutor>> m_executors;
         std::vector<std::string> m_predefined_macros;  ///< Already existing macros, non-keywords, non-builtins
         std::unordered_map<std::string, Node> m_defined_functions;
 
