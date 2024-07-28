@@ -247,7 +247,7 @@ jobs:
 
       - name: Summarize for PR
         id: summary
-        if: ${{ steps.PR.outputs.number != null }}
+        if: steps.PR.outputs.pr_found == 'true'
         shell: bash
         run: |
           echo "FUZZ_SUMMARY<<EOF" >> $GITHUB_ENV
@@ -256,7 +256,7 @@ jobs:
           echo "EOF" >> $GITHUB_ENV
 
       - name: Summarize
-        if: ${{ steps.PR.outputs.number == null }}
+        if: steps.PR.outputs.pr_found == 'false'
         shell: bash
         run: |
           afl-whatsup -s -d output
@@ -264,7 +264,7 @@ jobs:
 
       - name: Find Comment
         uses: peter-evans/find-comment@v3
-        if: ${{ steps.PR.outputs.number != null }}
+        if: steps.PR.outputs.pr_found == 'true'
         id: fc
         with:
           issue-number: ${{ github.event.pull_request.number }}
@@ -273,7 +273,7 @@ jobs:
 
       - name: Create or update comment
         uses: peter-evans/create-or-update-comment@v4
-        if: ${{ steps.PR.outputs.number != null }}
+        if: steps.PR.outputs.pr_found == 'true'
         with:
           comment-id: ${{ steps.fc.outputs.comment-id }}
           issue-number: ${{ github.event.pull_request.number }}
