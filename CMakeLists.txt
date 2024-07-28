@@ -97,6 +97,7 @@ elseif (MSVC)
             /wd4244   # disable warning about data loss (size_t -> char)
             /wd4505   # disable warning about unused static function was deleted
             /wd4068)  # disable warnings about unknown pragmas.
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /STACK:8000000")  # set stack size to 8MB
 endif ()
 
 # Link libraries
