@@ -2,7 +2,7 @@
  * @file Compiler.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief ArkScript compiler is in charge of transforming the AST into bytecode
- * @version 2.1
+ * @version 3.0
  * @date 2020-10-27
  *
  * @copyright Copyright (c) 2020-2024
@@ -118,43 +118,25 @@ namespace Ark
          * @brief Checking if a symbol is an operator
          *
          * @param name symbol name
-         * @return std::optional<std::size_t> position in the operators' list
+         * @return std::optional<uint8_t> operator instruction
          */
-        static std::optional<std::size_t> getOperator(const std::string& name) noexcept;
+        static std::optional<uint8_t> getOperator(const std::string& name) noexcept;
 
         /**
          * @brief Checking if a symbol is a builtin
          *
          * @param name symbol name
-         * @return std::optional<std::size_t> position in the builtins' list
+         * @return std::optional<uint16_t> builtin number
          */
-        static std::optional<std::size_t> getBuiltin(const std::string& name) noexcept;
+        static std::optional<uint16_t> getBuiltin(const std::string& name) noexcept;
 
         /**
-         * @brief Check if a symbol needs to be compiled to a specific instruction
+         * @brief Checking if a symbol is a list instruction
          *
          * @param name
-         * @return std::optional<internal::Instruction> corresponding instruction if it exists
+         * @return std::optional<internal::Instruction> list instruction
          */
-        static std::optional<internal::Instruction> getSpecific(const std::string& name) noexcept
-        {
-            if (name == "list")
-                return internal::Instruction::LIST;
-            if (name == "append")
-                return internal::Instruction::APPEND;
-            if (name == "concat")
-                return internal::Instruction::CONCAT;
-            if (name == "append!")
-                return internal::Instruction::APPEND_IN_PLACE;
-            if (name == "concat!")
-                return internal::Instruction::CONCAT_IN_PLACE;
-            if (name == "pop")
-                return internal::Instruction::POP_LIST;
-            if (name == "pop!")
-                return internal::Instruction::POP_LIST_IN_PLACE;
-
-            return std::nullopt;
-        }
+        static std::optional<internal::Instruction> getListInstruction(const std::string& name) noexcept;
 
         /**
          * Checks if a node is a list and has a keyboard as its first node, indicating if it's producing a value on the stack or not
@@ -172,14 +154,6 @@ namespace Ark
          * @return false
          */
         static bool isUnaryInst(internal::Instruction inst) noexcept;
-
-        /**
-         * @brief Compute specific instruction argument count
-         *
-         * @param inst
-         * @param previous
-         */
-        static uint16_t computeSpecificInstArgc(internal::Instruction inst, uint16_t previous) noexcept;
 
         /**
          * @brief Checking if a symbol may be coming from a plugin
@@ -218,7 +192,7 @@ namespace Ark
         void compileExpression(const internal::Node& x, Page p, bool is_result_unused, bool is_terminal, const std::string& var_name = "");
 
         void compileSymbol(const internal::Node& x, Page p, bool is_result_unused);
-        void compileSpecific(const internal::Node& c0, const internal::Node& x, Page p, bool is_result_unused);
+        void compileListInstruction(const internal::Node& c0, const internal::Node& x, Page p, bool is_result_unused);
         void compileIf(const internal::Node& x, Page p, bool is_result_unused, bool is_terminal, const std::string& var_name);
         void compileFunction(const internal::Node& x, Page p, bool is_result_unused, const std::string& var_name);
         void compileLetMutSet(internal::Keyword n, const internal::Node& x, Page p);

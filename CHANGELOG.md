@@ -66,6 +66,7 @@
 - checking for invalid symbols when defining a function through a macro
 - added a max macro unification depth
 - added a max macro evaluation depth
+- introduced `internal::listInstructions` with the different instructions, to be used by the compiler and name resolution pass
 
 ### Removed
 - removed unused `NodeType::Closure`

@@ -186,22 +186,30 @@ namespace Ark
         }
     }
 
-    std::optional<std::size_t> Compiler::getOperator(const std::string& name) noexcept
+    std::optional<uint8_t> Compiler::getOperator(const std::string& name) noexcept
     {
         const auto it = std::ranges::find(internal::operators, name);
         if (it != internal::operators.end())
-            return std::distance(internal::operators.begin(), it);
+            return static_cast<uint8_t>(std::distance(internal::operators.begin(), it) + FIRST_OPERATOR);
         return std::nullopt;
     }
 
-    std::optional<std::size_t> Compiler::getBuiltin(const std::string& name) noexcept
+    std::optional<uint16_t> Compiler::getBuiltin(const std::string& name) noexcept
     {
         const auto it = std::ranges::find_if(Builtins::builtins,
                                              [&name](const std::pair<std::string, Value>& element) -> bool {
                                                  return name == element.first;
                                              });
         if (it != Builtins::builtins.end())
-            return std::distance(Builtins::builtins.begin(), it);
+            return static_cast<uint16_t>(std::distance(Builtins::builtins.begin(), it));
+        return std::nullopt;
+    }
+
+    std::optional<Instruction> Compiler::getListInstruction(const std::string& name) noexcept
+    {
+        const auto it = std::ranges::find(internal::listInstructions, name);
+        if (it != internal::listInstructions.end())
+            return static_cast<Instruction>(std::distance(internal::listInstructions.begin(), it) + LIST);
         return std::nullopt;
     }
 
@@ -231,24 +239,6 @@ namespace Ark
 
             default:
                 return false;
-        }
-    }
-
-    uint16_t Compiler::computeSpecificInstArgc(const Instruction inst, const uint16_t previous) noexcept
-    {
-        switch (inst)
-        {
-            case LIST:
-                return previous;
-
-            case APPEND:
-            case APPEND_IN_PLACE:
-            case CONCAT:
-            case CONCAT_IN_PLACE:
-                return previous - 1;
-
-            default:
-                return 0;
         }
     }
 
@@ -300,13 +290,13 @@ namespace Ark
         {
             if (!is_result_unused)
             {
-                static const std::optional<std::size_t> nil = getBuiltin("nil");
-                page(p).emplace_back(BUILTIN, static_cast<uint16_t>(nil.value()));
+                static const std::optional<uint16_t> nil = getBuiltin("nil");
+                page(p).emplace_back(BUILTIN, nil.value());
             }
         }
-        // specific instructions
-        else if (const auto c0 = x.constList()[0]; c0.nodeType() == NodeType::Symbol && getSpecific(c0.string()).has_value())
-            compileSpecific(c0, x, p, is_result_unused);
+        // list instructions
+        else if (const auto c0 = x.constList()[0]; c0.nodeType() == NodeType::Symbol && getListInstruction(c0.string()).has_value())
+            compileListInstruction(c0, x, p, is_result_unused);
         // registering structures
         else if (x.constList()[0].nodeType() == NodeType::Keyword)
         {
@@ -370,7 +360,7 @@ namespace Ark
         const std::string& name = x.string();
 
         if (const auto it_builtin = getBuiltin(name))
-            page(p).emplace_back(Instruction::BUILTIN, static_cast<uint16_t>(it_builtin.value()));
+            page(p).emplace_back(Instruction::BUILTIN, it_builtin.value());
         else if (getOperator(name).has_value())
             throwCompilerError(fmt::format("Found a free standing operator: `{}`", name), x);
         else
@@ -383,10 +373,10 @@ namespace Ark
         }
     }
 
-    void Compiler::compileSpecific(const Node& c0, const Node& x, const Page p, const bool is_result_unused)
+    void Compiler::compileListInstruction(const Node& c0, const Node& x, const Page p, const bool is_result_unused)
     {
         std::string name = c0.string();
-        Instruction inst = getSpecific(name).value();
+        Instruction inst = getListInstruction(name).value();
 
         // length of at least 1 since we got a symbol name
         const auto argc = x.constList().size() - 1u;
@@ -407,7 +397,25 @@ namespace Ark
         }
 
         // put inst and number of arguments
-        page(p).emplace_back(inst, computeSpecificInstArgc(inst, static_cast<uint16_t>(argc)));
+        std::size_t inst_argc;
+        switch (inst)
+        {
+            case LIST:
+                inst_argc = argc;
+                break;
+
+            case APPEND:
+            case APPEND_IN_PLACE:
+            case CONCAT:
+            case CONCAT_IN_PLACE:
+                inst_argc = argc - 1;
+                break;
+
+            default:
+                inst_argc = 0;
+                break;
+        }
+        page(p).emplace_back(inst, static_cast<uint16_t>(inst_argc));
 
         if (is_result_unused && name.back() != '!')  // in-place functions never push a value
         {
@@ -555,8 +563,8 @@ namespace Ark
 
         const auto node = x.constList()[0];
         const auto maybe_operator = node.nodeType() == NodeType::Symbol ? getOperator(node.string()) : std::nullopt;
-        if (node.nodeType() == NodeType::Symbol && maybe_operator.has_value())
-            page(proc_page).emplace_back(static_cast<uint8_t>(FIRST_OPERATOR + maybe_operator.value()));
+        if (maybe_operator.has_value())
+            page(proc_page).emplace_back(maybe_operator.value());
         else
             // closure chains have been handled (eg: closure.field.field.function)
             compileExpression(node, proc_page, false, false);  // storing proc

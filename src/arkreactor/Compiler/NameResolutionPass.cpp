@@ -11,15 +11,14 @@ namespace Ark::internal
     // todo add scope resolution to this pass
     NameResolutionPass::NameResolutionPass(const unsigned debug) :
         Pass("NameResolution", debug),
-        m_ast(),
-        m_language_symbols(operators.begin(), operators.end())
+        m_ast()
     {
         for (const auto& builtin : Builtins::builtins)
             m_language_symbols.emplace(builtin.first);
-
-        // FIXME find a way to mutualise this
-        //       something like name -> instruction so that we can reuse it in the compiler as well
-        m_language_symbols.insert({ "list", "append", "append!", "concat", "concat!", "pop", "pop!" });
+        for (auto ope : operators)
+            m_language_symbols.emplace(ope);
+        for (auto inst : listInstructions)
+            m_language_symbols.emplace(inst);
     }
 
     void NameResolutionPass::process(const Node& ast)
