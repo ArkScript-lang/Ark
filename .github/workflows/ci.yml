@@ -244,6 +244,22 @@ jobs:
 
       - uses: 8BitJonny/gh-get-current-pr@3.0.0
         id: PR
+        with:
+          sha: ${{ github.event.pull_request.head.sha }}
+          # Only return if PR is still open
+          filterOutClosed: true
+
+      - run: |
+          echo "PR found: ${prFound}"
+          echo "PR ${prNumber:-ERROR} ${prTitle:-NOTITLE} is ${prJSON:-NOJSON}"
+        env:
+          # JSON object with the full PR object
+          # toJSON(fromJSON(...pr)) parses it into memory and then format is with pretty-print.
+          prJSON: ${{ toJSON(fromJSON(steps.PR.outputs.pr)) }}
+          # Direct access to common PR properties
+          prNumber: ${{ steps.PR.outputs.number }}
+          prTitle: ${{ steps.PR.outputs.pr_title }}
+          prFound: ${{ steps.PR.outputs.pr_found }}
 
       - name: Summarize for PR
         id: summary
