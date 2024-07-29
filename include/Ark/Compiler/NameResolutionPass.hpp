@@ -40,7 +40,7 @@ namespace Ark::internal
         Node m_ast;
         std::unordered_set<std::string> m_language_symbols;
         std::vector<Node> m_symbol_nodes;
-        std::vector<std::string> m_defined_symbols;
+        std::unordered_set<std::string> m_defined_symbols;
         std::vector<std::string> m_plugin_names;
 
         void visit(const Node& node);

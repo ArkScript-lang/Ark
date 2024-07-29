@@ -35,9 +35,7 @@ namespace Ark::internal
 
     void NameResolutionPass::addDefinedSymbol(const std::string& sym)
     {
-        // otherwise, add the symbol, and return its id in the table
-        if (std::ranges::find(m_defined_symbols, sym) == m_defined_symbols.end())
-            m_defined_symbols.push_back(sym);
+        m_defined_symbols.emplace(sym);
     }
 
     void NameResolutionPass::visit(const Node& node)
@@ -81,10 +79,12 @@ namespace Ark::internal
             case Keyword::Let:
                 [[fallthrough]];
             case Keyword::Mut:
-                if (node.constList().size() > 1 && node.constList()[1].nodeType() == NodeType::Symbol)
-                    addDefinedSymbol(node.constList()[1].string());
+                // first, visit the value, then register the symbol
+                // this allows us to detect things like (let foo (fun (&foo) ()))
                 if (node.constList().size() > 2)
                     visit(node.constList()[2]);
+                if (node.constList().size() > 1 && node.constList()[1].nodeType() == NodeType::Symbol)
+                    addDefinedSymbol(node.constList()[1].string());
                 break;
 
             case Keyword::Import:
@@ -97,17 +97,24 @@ namespace Ark::internal
                 {
                     for (const auto& child : node.constList()[1].constList())
                     {
-                        if (child.nodeType() == NodeType::Capture || child.nodeType() == NodeType::Symbol)
+                        if (child.nodeType() == NodeType::Capture)
                         {
-                            // FIXME first check that the capture is a defined symbol
-                            // if (std::ranges::find(m_defined_symbols, node.string()) == m_defined_symbols.end())
-                            // {
-                            //     // we didn't find node in the defined symbol list, thus we can't capture node
-                            //     throwCompilerError("Can not capture " + node.string() + " because node is referencing an unbound variable.", node);
-                            // }
-
+                            // First, check that the capture is a defined symbol
+                            // TODO add a scope thing to see if we are capturing something in scope
+                            if (!m_defined_symbols.contains(child.string()))
+                            {
+                                // we didn't find node in the defined symbol list, thus we can't capture node
+                                throw CodeError(
+                                    fmt::format("Can not capture {} because node is referencing an unbound variable.", child.string()),
+                                    child.filename(),
+                                    child.line(),
+                                    child.col(),
+                                    child.repr());
+                            }
                             addDefinedSymbol(child.string());
                         }
+                        else if (child.nodeType() == NodeType::Symbol)
+                            addDefinedSymbol(child.string());
                     }
                 }
                 if (node.constList().size() > 2)
@@ -154,7 +161,7 @@ namespace Ark::internal
             const auto& str = sym.string();
             const bool is_plugin = mayBeFromPlugin(str);
 
-            if (auto it = std::ranges::find(m_defined_symbols, str); it == m_defined_symbols.end() && !is_plugin)
+            if (!m_defined_symbols.contains(str) && !is_plugin)
             {
                 std::string message;
 

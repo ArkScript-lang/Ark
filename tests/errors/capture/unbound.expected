@@ -1,1 +1,2 @@
-ScopeError: Couldn't capture `d' as it is currently unbound
+At &d @ 1:0
+        Can not capture d because node is referencing an unbound variable.
