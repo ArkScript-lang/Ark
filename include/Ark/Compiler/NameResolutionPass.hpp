@@ -20,6 +20,38 @@
 
 namespace Ark::internal
 {
+    class ScopeResolver
+    {
+    public:
+        ScopeResolver();
+
+        void createNew();
+
+        void removeLocalScope();
+
+        void registerInCurrent(const std::string& name);
+
+        [[nodiscard]] bool isRegistered(const std::string& name) const;
+
+        [[nodiscard]] bool isLocalVar(const std::string& name) const;
+
+        [[nodiscard]] bool isGlobalVar(const std::string& name) const;
+
+    private:
+        class Scope
+        {
+        public:
+            void add(const std::string& name);
+
+            [[nodiscard]] bool has(const std::string& name) const;
+
+        private:
+            std::unordered_set<std::string> m_vars;
+        };
+
+        std::vector<Scope> m_scopes;
+    };
+
     class NameResolutionPass final : public Pass
     {
     public:
@@ -42,6 +74,7 @@ namespace Ark::internal
         std::vector<Node> m_symbol_nodes;
         std::unordered_set<std::string> m_defined_symbols;
         std::vector<std::string> m_plugin_names;
+        ScopeResolver m_scope_resolver;
 
         void visit(const Node& node);
 

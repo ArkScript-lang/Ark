@@ -1,0 +1,2 @@
+At &cap @ 1:0
+        Can not capture cap because it is referencing a variable defined in an unreachable scope.

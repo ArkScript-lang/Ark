@@ -5,10 +5,66 @@
 #include <Ark/Builtins/Builtins.hpp>
 
 #include <fmt/format.h>
+#include <ranges>
 
 namespace Ark::internal
 {
-    // todo add scope resolution to this pass
+    void ScopeResolver::Scope::add(const std::string& name)
+    {
+        m_vars.emplace(name);
+    }
+
+    bool ScopeResolver::Scope::has(const std::string& name) const
+    {
+        return m_vars.contains(name);
+    }
+
+    ScopeResolver::ScopeResolver()
+    {
+        createNew();
+    }
+
+    void ScopeResolver::createNew()
+    {
+        m_scopes.emplace_back();
+    }
+
+    void ScopeResolver::removeLocalScope()
+    {
+        m_scopes.pop_back();
+    }
+
+    void ScopeResolver::registerInCurrent(const std::string& name)
+    {
+        m_scopes.back().add(name);
+    }
+
+    bool ScopeResolver::isRegistered(const std::string& name) const
+    {
+        return std::ranges::any_of(
+            m_scopes.rbegin(),
+            m_scopes.rend(),
+            [name](const Scope& scope) {
+                return scope.has(name);
+            });
+    }
+
+    bool ScopeResolver::isLocalVar(const std::string& name) const
+    {
+        // only one scope, this is the global one
+        if (m_scopes.size() == 1)
+            return false;
+        return m_scopes.back().has(name);
+    }
+
+    bool ScopeResolver::isGlobalVar(const std::string& name) const
+    {
+        if (m_scopes.size() == 1)
+            return m_scopes[0].has(name);
+        // for a variable to be considered global, it has to not be shadowed in the current local scope
+        return !m_scopes.back().has(name) && m_scopes[0].has(name);
+    }
+
     NameResolutionPass::NameResolutionPass(const unsigned debug) :
         Pass("NameResolution", debug),
         m_ast()
@@ -36,6 +92,7 @@ namespace Ark::internal
     void NameResolutionPass::addDefinedSymbol(const std::string& sym)
     {
         m_defined_symbols.emplace(sym);
+        m_scope_resolver.registerInCurrent(sym);
     }
 
     void NameResolutionPass::visit(const Node& node)
@@ -93,6 +150,8 @@ namespace Ark::internal
                 break;
 
             case Keyword::Fun:
+                // create a new scope to track variables
+                m_scope_resolver.createNew();
                 if (node.constList()[1].nodeType() == NodeType::List)
                 {
                     for (const auto& child : node.constList()[1].constList())
@@ -100,12 +159,20 @@ namespace Ark::internal
                         if (child.nodeType() == NodeType::Capture)
                         {
                             // First, check that the capture is a defined symbol
-                            // TODO add a scope thing to see if we are capturing something in scope
                             if (!m_defined_symbols.contains(child.string()))
                             {
                                 // we didn't find node in the defined symbol list, thus we can't capture node
                                 throw CodeError(
-                                    fmt::format("Can not capture {} because node is referencing an unbound variable.", child.string()),
+                                    fmt::format("Can not capture {} because it is referencing an unbound variable.", child.string()),
+                                    child.filename(),
+                                    child.line(),
+                                    child.col(),
+                                    child.repr());
+                            }
+                            else if (!m_scope_resolver.isRegistered(child.string()))
+                            {
+                                throw CodeError(
+                                    fmt::format("Can not capture {} because it is referencing a variable defined in an unreachable scope.", child.string()),
                                     child.filename(),
                                     child.line(),
                                     child.col(),
@@ -119,6 +186,7 @@ namespace Ark::internal
                 }
                 if (node.constList().size() > 2)
                     visit(node.constList()[2]);
+                m_scope_resolver.removeLocalScope();  // and remove it once the function has been compiled
                 break;
 
             default:
