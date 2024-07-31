@@ -50,7 +50,7 @@ namespace Ark
             // push number of elements
             const std::size_t page_size = page.size();
             if (page_size > std::numeric_limits<uint16_t>::max())
-                throw std::overflow_error("Size of page " + std::to_string(i) + " exceeds the maximum size of 2^16 - 1");
+                throw std::overflow_error(fmt::format("Size of page {} exceeds the maximum size of 2^16 - 1", i));
 
             m_bytecode.push_back(Instruction::CODE_SEGMENT_START);
             m_bytecode.push_back(static_cast<uint8_t>((page_size & 0xff00) >> 8));
@@ -128,8 +128,8 @@ namespace Ark
     void Compiler::pushSymAndValTables()
     {
         const std::size_t symbol_size = m_symbols.size();
-        if (symbol_size > std::numeric_limits<uint16_t>::max())  // TODO use fmt
-            throw std::overflow_error("Too many symbols: " + std::to_string(symbol_size) + ", exceeds the maximum size of 2^16 - 1");
+        if (symbol_size > std::numeric_limits<uint16_t>::max())
+            throw std::overflow_error(fmt::format("Too many symbols: {}, exceeds the maximum size of 2^16 - 1", symbol_size));
 
         m_bytecode.push_back(SYM_TABLE_START);
         m_bytecode.push_back(static_cast<uint8_t>((symbol_size & 0xff00) >> 8));
@@ -147,7 +147,7 @@ namespace Ark
 
         const std::size_t value_size = m_values.size();
         if (value_size > std::numeric_limits<uint16_t>::max())
-            throw std::overflow_error("Too many values: " + std::to_string(value_size) + ", exceeds the maximum size of 2^16 - 1");
+            throw std::overflow_error(fmt::format("Too many values: {}, exceeds the maximum size of 2^16 - 1", value_size));
 
         m_bytecode.push_back(VAL_TABLE_START);
         m_bytecode.push_back(static_cast<uint8_t>((value_size & 0xff00) >> 8));
@@ -674,9 +674,10 @@ namespace Ark
 
                     default:
                         throwCompilerError(
-                            "can not create a chained expression (of length " + std::to_string(exp_count) +
-                                ") for operator `" + std::string(operators[static_cast<std::size_t>(op.opcode - FIRST_OPERATOR)]) +
-                                "'. You most likely forgot a `)'.",
+                            fmt::format(
+                                "can not create a chained expression (of length {}) for operator `{}'. You most likely forgot a `)'.",
+                                exp_count,
+                                operators[static_cast<std::size_t>(op.opcode - FIRST_OPERATOR)]),
                             x);
                 }
             }

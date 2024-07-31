@@ -4,6 +4,8 @@
 #include <utility>
 #include <algorithm>
 
+#include <fmt/core.h>
+
 namespace Ark::internal
 {
     void BaseParser::registerNewLine(std::string::iterator it, std::size_t row)
@@ -132,7 +134,7 @@ namespace Ark::internal
 
     void BaseParser::errorMissingSuffix(const char suffix, const std::string& node_name)
     {
-        errorWithNextToken("Missing '" + std::string(1, suffix) + "' after " + node_name);
+        errorWithNextToken(fmt::format("Missing '{}' after {}", suffix, node_name));
     }
 
     bool BaseParser::accept(const CharPred& t, std::string* s)

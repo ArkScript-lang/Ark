@@ -27,7 +27,7 @@ Value VM::call(const std::string& name, Args&&... args)
         if (var != nullptr)
         {
             if (!var->isFunction())
-                throwVMError(ErrorKind::Type, "Can't call '" + name + "': it isn't a Function but a " + types_to_str[static_cast<std::size_t>(var->valueType())]);
+                throwVMError(ErrorKind::Type, fmt::format("Can't call '{}': it isn't a Function but a {}", name, types_to_str[static_cast<std::size_t>(var->valueType())]));
 
             push(Value(var), context);
             context.last_symbol = id;
@@ -93,8 +93,8 @@ Value VM::resolve(const Value* val, Args&&... args)
 
 inline Value VM::resolve(internal::ExecutionContext* context, std::vector<Value>& n)
 {
-    if (!n[0].isFunction())  // TODO use fmt
-        throw TypeError("VM::resolve couldn't resolve a non-function (" + types_to_str[static_cast<std::size_t>(n[0].valueType())] + ")");
+    if (!n[0].isFunction())
+        throw TypeError(fmt::format("VM::resolve couldn't resolve a non-function ({})", types_to_str[static_cast<std::size_t>(n[0].valueType())]));
 
     const std::size_t ip = context->ip;
     const std::size_t pp = context->pp;

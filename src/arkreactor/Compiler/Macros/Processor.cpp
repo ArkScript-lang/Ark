@@ -507,8 +507,9 @@ namespace Ark::internal
 
                     switch (ev.nodeType())
                     {
-                        case NodeType::Number:                                          // TODO use fmt
-                            sym += std::to_string(static_cast<long int>(ev.number()));  // we don't want '.' in identifiers
+                        case NodeType::Number:
+                            // we don't want '.' in identifiers
+                            sym += std::to_string(static_cast<long int>(ev.number()));
                             break;
 
                         case NodeType::String:

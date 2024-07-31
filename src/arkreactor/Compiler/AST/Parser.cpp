@@ -699,7 +699,7 @@ namespace Ark::internal
             if (value.has_value())
                 leaf->push_back(value.value());
             else
-                errorWithNextToken("Expected an argument list, atom or node while defining macro `" + symbol + "'");
+                errorWithNextToken(fmt::format("Expected an argument list, atom or node while defining macro `{}'", symbol));
 
             setNodePosAndFilename(leaf->list().back());
             if (accept(IsChar(')')))
@@ -713,7 +713,7 @@ namespace Ark::internal
         if (value.has_value())
             leaf->push_back(value.value());
         else
-            errorWithNextToken("Expected a value while defining macro `" + symbol + "'");
+            errorWithNextToken(fmt::format("Expected a value while defining macro `{}'", symbol));
 
         setNodePosAndFilename(leaf->list().back());
         comment.clear();

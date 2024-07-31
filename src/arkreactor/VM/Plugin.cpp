@@ -40,7 +40,7 @@ namespace Ark::internal
         if (nullptr == (m_instance = dlopen(m_path.c_str(), RTLD_LAZY | RTLD_GLOBAL)))
         {
             throw std::system_error(
-                std::error_code(errno, std::system_category()), "Couldn't load the library at " + path + ", " + std::string(dlerror()));
+                std::error_code(errno, std::system_category()), fmt::format("Couldn't load the library at {}, {}", path, dlerror()));
         }
 #endif
         m_loaded = true;

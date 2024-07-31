@@ -28,6 +28,8 @@
 #include <string>
 #include <system_error>
 
+#include <fmt/core.h>
+
 namespace Ark::internal
 {
     /**
@@ -100,7 +102,7 @@ namespace Ark::internal
             if (NULL == (funcptr = reinterpret_cast<T>(dlsym(m_instance, procname.c_str()))))
             {
                 throw std::system_error(
-                    std::error_code(errno, std::system_category()), std::string("PluginError: Couldn't find ") + procname + ", " + std::string(dlerror()));
+                    std::error_code(errno, std::system_category()), fmt::format("PluginError: Couldn't find {}, {}", procname, dlerror()));
             }
 #endif
             return funcptr;
