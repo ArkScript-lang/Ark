@@ -2,7 +2,7 @@
  * @file Parser.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Parse ArkScript code, but do not handle any import declarations
- * @version 0.1
+ * @version 0.2
  * @date 2024-05-12
  *
  * @copyright Copyright (c) 2024
@@ -15,6 +15,7 @@
 #include <Ark/Compiler/AST/BaseParser.hpp>
 #include <Ark/Compiler/AST/Node.hpp>
 #include <Ark/Compiler/AST/Import.hpp>
+#include <Ark/Compiler/Pass.hpp>
 #include <Ark/Utils.hpp>
 #include <Ark/Platform.hpp>
 
@@ -26,7 +27,7 @@
 
 namespace Ark::internal
 {
-    class ARK_API Parser : public BaseParser
+    class ARK_API Parser final : public BaseParser, public Pass
     {
     public:
         /**
@@ -37,7 +38,7 @@ namespace Ark::internal
 
         void process(const std::string& filename, const std::string& code);
 
-        [[nodiscard]] const Node& ast() const;
+        [[nodiscard]] const Node& ast() const noexcept override;
         [[nodiscard]] const std::vector<Import>& imports() const;
 
     private:
@@ -45,6 +46,9 @@ namespace Ark::internal
         Node m_ast;
         std::vector<Import> m_imports;
         unsigned m_allow_macro_behavior;  ///< Toggled on when inside a macro definition, off afterward
+
+        // HACK so that the parser can be a pass and use the loggers
+        void process([[maybe_unused]] const Node&) override {}
 
         void run();
 

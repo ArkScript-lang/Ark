@@ -3,14 +3,13 @@
 namespace Ark::internal
 {
     Optimizer::Optimizer(const unsigned debug) noexcept :
-        m_ast(),
-        m_debug(debug)
+        Pass("Optimizer", debug), m_ast()
     {}
 
     void Optimizer::process(const Node& ast)
     {
         m_ast = ast;
-        // FIXME activate this remove_unused();
+        // FIXME activate this removeUnused();
     }
 
     const Node& Optimizer::ast() const noexcept
@@ -23,7 +22,7 @@ namespace Ark::internal
         throw CodeError(message, node.filename(), node.line(), node.col(), node.repr());
     }
 
-    void Optimizer::remove_unused()
+    void Optimizer::removeUnused()
     {
         // do not handle non-list nodes
         if (m_ast.nodeType() != NodeType::List)
@@ -40,8 +39,7 @@ namespace Ark::internal
             // a variable was only declared and never used
             if (m_sym_appearances.contains(name) && m_sym_appearances[name] == 1 && parent.list()[idx].list()[2].nodeType() != NodeType::List)
             {
-                if (m_debug > 1)
-                    std::cout << "Removing unused variable '" << name << "'" << std::endl;
+                logDebug("Removing unused variable '{}'", name);
                 // erase the node from the list
                 parent.list().erase(parent.list().begin() + static_cast<std::vector<Node>::difference_type>(idx));
             }
@@ -79,9 +77,8 @@ namespace Ark::internal
     {
         if (node.nodeType() == NodeType::Symbol || node.nodeType() == NodeType::Capture)
         {
-            const std::string& name = node.string();
             // check if it's the name of something declared in global scope
-            if (m_sym_appearances.find(name) != m_sym_appearances.end())
+            if (const auto name = node.string(); m_sym_appearances.contains(name))
                 m_sym_appearances[name]++;
         }
         else if (node.nodeType() == NodeType::List)

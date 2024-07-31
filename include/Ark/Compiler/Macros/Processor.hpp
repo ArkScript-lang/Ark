@@ -14,6 +14,7 @@
 
 #include <Ark/Compiler/AST/Node.hpp>
 #include <Ark/Compiler/Macros/MacroScope.hpp>
+#include <Ark/Compiler/Pass.hpp>
 
 #include <unordered_map>
 #include <memory>
@@ -27,7 +28,7 @@ namespace Ark::internal
      * @brief The class handling the macros definitions and calls, given an AST
      *
      */
-    class MacroProcessor
+    class MacroProcessor final : public Pass
     {
     public:
         /**
@@ -42,19 +43,18 @@ namespace Ark::internal
          *
          * @param ast
          */
-        void process(const Node& ast);
+        void process(const Node& ast) override;
 
         /**
          * @brief Return the modified AST
          *
          * @return Node&
          */
-        [[nodiscard]] const Node& ast() const noexcept;
+        [[nodiscard]] const Node& ast() const noexcept override;
 
         friend class MacroExecutor;
 
     private:
-        unsigned m_debug;                  ///< The debug level
         Node m_ast;                        ///< The modified AST
         std::vector<MacroScope> m_macros;  ///< Handling macros in a scope fashion
         std::vector<std::shared_ptr<MacroExecutor>> m_executors;

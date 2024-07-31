@@ -1,20 +1,29 @@
 #include <Ark/Constants.hpp>
 #include <Ark/Compiler/Welder.hpp>
 
-#include <termcolor/proxy.hpp>
+#include <Ark/Compiler/ImportSolver.hpp>
+#include <Ark/Compiler/AST/Optimizer.hpp>
+#include <Ark/Compiler/Macros/Processor.hpp>
 
 #include <Ark/Files.hpp>
 #include <Ark/Exceptions.hpp>
+#include <Ark/Compiler/NameResolutionPass.hpp>
 
 namespace Ark
 {
-    Welder::Welder(const unsigned debug, const std::vector<std::filesystem::path>& lib_env) :
-        m_debug(debug), m_importer(debug, lib_env), m_macro_processor(debug), m_optimizer(debug), m_compiler(debug)
+    Welder::Welder(const unsigned debug, const std::vector<std::filesystem::path>& lib_env, const uint16_t features) :
+        Pass("Welder", debug), m_lib_env(lib_env), m_features(features),
+        m_computed_ast(internal::NodeType::Unused),
+        m_import_solver(debug, lib_env),
+        m_macro_processor(debug),
+        m_ast_optimizer(debug),
+        m_name_resolver(debug),
+        m_compiler(debug)
     {}
 
     void Welder::registerSymbol(const std::string& name)
     {
-        m_compiler.addDefinedSymbol(name);
+        m_name_resolver.addDefinedSymbol(name);
     }
 
     bool Welder::computeASTFromFile(const std::string& filename)
@@ -36,7 +45,7 @@ namespace Ark
     {
         try
         {
-            m_compiler.process(m_optimizer.ast());
+            m_compiler.process(m_computed_ast);
             m_bytecode = m_compiler.bytecode();
 
             return true;
@@ -50,8 +59,7 @@ namespace Ark
 
     bool Welder::saveBytecodeToFile(const std::string& filename)
     {
-        if (m_debug >= 1)
-            std::cout << "Final bytecode size: " << m_bytecode.size() * sizeof(uint8_t) << "B\n";
+        log("Final bytecode size: {}B", m_bytecode.size() * sizeof(uint8_t));
 
         if (m_bytecode.empty())
             return false;
@@ -66,7 +74,7 @@ namespace Ark
 
     const internal::Node& Welder::ast() const noexcept
     {
-        return m_optimizer.ast();
+        return m_computed_ast;
     }
 
     const bytecode_t& Welder::bytecode() const noexcept
@@ -79,9 +87,29 @@ namespace Ark
         try
         {
             m_parser.process(filename, code);
-            m_importer.process(m_root_file, m_parser.ast(), m_parser.imports());
-            m_macro_processor.process(m_importer.ast());
-            m_optimizer.process(m_macro_processor.ast());
+            m_computed_ast = m_parser.ast();
+
+            if ((m_features & FeatureImportSolver) != 0)
+            {
+                m_import_solver.setup(m_root_file, m_parser.imports());
+                m_import_solver.process(m_computed_ast);
+                m_computed_ast = m_import_solver.ast();
+            }
+
+            if ((m_features & FeatureMacroProcessor) != 0)
+            {
+                m_macro_processor.process(m_computed_ast);
+                m_computed_ast = m_macro_processor.ast();
+            }
+
+            if ((m_features & FeatureASTOptimizer) != 0)
+            {
+                m_ast_optimizer.process(m_computed_ast);
+                m_computed_ast = m_ast_optimizer.ast();
+            }
+
+            // NOTE: ast isn't modified by the name resolver, no need to update m_computed_ast
+            m_name_resolver.process(m_computed_ast);
 
             return true;
         }

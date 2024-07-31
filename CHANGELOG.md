@@ -20,6 +20,8 @@
 - warning when the formatter deletes comment(s) by mistake
 - check on arguments passed to `list`, `concat`, `append` and friends to only push valid nodes (that produces a value)
 - `$paste` to paste a node inside a maro without evaluating it further ; useful to stop recursive evaluation of nodes inside function macros
+- introduced `Ark::internal::Pass` to describe compiler passes: they all output an AST (parser, import solver, macro processor, and optimizer for now)
+- add `-f(no-)importsolver`, `-f(no-)macroprocessor` and `-f(no-)optimizer` to toggle on and off those compiler passes
 
 ### Changed
 - instructions are on 4 bytes: 1 byte for the instruction, 1 byte of padding, 2 bytes for an immediate argument
@@ -64,6 +66,7 @@
 - checking for invalid symbols when defining a function through a macro
 - added a max macro unification depth
 - added a max macro evaluation depth
+- introduced `internal::listInstructions` with the different instructions, to be used by the compiler and name resolution pass
 
 ### Removed
 - removed unused `NodeType::Closure`

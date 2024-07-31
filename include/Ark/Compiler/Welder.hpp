@@ -19,17 +19,23 @@
 #include <Ark/Compiler/Common.hpp>
 #include <Ark/Compiler/AST/Node.hpp>
 #include <Ark/Compiler/AST/Parser.hpp>
-#include <Ark/Compiler/ImportSolver.hpp>
-#include <Ark/Compiler/AST/Optimizer.hpp>
-#include <Ark/Compiler/Macros/Processor.hpp>
 #include <Ark/Compiler/Compiler.hpp>
+#include <Ark/Compiler/Pass.hpp>
+#include <Ark/Constants.hpp>
+#include <Ark/Compiler/ImportSolver.hpp>
+#include <Ark/Compiler/Macros/Processor.hpp>
+#include <Ark/Compiler/AST/Optimizer.hpp>
+#include <Ark/Compiler/NameResolutionPass.hpp>
 
 namespace Ark
 {
-    class ARK_API Welder final
+    /**
+     * @brief The welder joins all the compiler passes, being itself one since it can output an AST too
+     */
+    class ARK_API Welder final : public internal::Pass
     {
     public:
-        Welder(unsigned debug, const std::vector<std::filesystem::path>& lib_env);
+        Welder(unsigned debug, const std::vector<std::filesystem::path>& lib_env, uint16_t features = DefaultFeatures);
 
         /**
          * @brief Register a symbol as a global in the compiler
@@ -44,22 +50,30 @@ namespace Ark
         bool generateBytecode();
         bool saveBytecodeToFile(const std::string& filename);
 
-        [[nodiscard]] const internal::Node& ast() const noexcept;
+        [[nodiscard]] const internal::Node& ast() const noexcept override;
         [[nodiscard]] const bytecode_t& bytecode() const noexcept;
 
     private:
-        unsigned m_debug;  ///< The debug level
+        std::vector<std::filesystem::path> m_lib_env;
+        uint16_t m_features;
+
         std::filesystem::path m_root_file;
         std::vector<std::string> m_imports;
         bytecode_t m_bytecode;
+        internal::Node m_computed_ast;
 
         internal::Parser m_parser;
-        internal::ImportSolver m_importer;
+        internal::ImportSolver m_import_solver;
         internal::MacroProcessor m_macro_processor;
-        internal::Optimizer m_optimizer;
+        internal::Optimizer m_ast_optimizer;
+        internal::NameResolutionPass m_name_resolver;
+
         Compiler m_compiler;
 
         bool computeAST(const std::string& filename, const std::string& code);
+
+        // HACK so that the parser can be a pass and use the loggers
+        void process([[maybe_unused]] const internal::Node&) override {}
     };
 }  // namespace Ark
 

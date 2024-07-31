@@ -4,6 +4,7 @@
 #include <fstream>
 
 #include <Ark/Compiler/AST/Parser.hpp>
+#include <Ark/Compiler/Welder.hpp>
 #include <Ark/VM/State.hpp>
 #include <Ark/VM/VM.hpp>
 
@@ -109,5 +110,25 @@ static void BM_Parse(benchmark::State& state)
 BENCHMARK(BM_Parse)->Name("New parser - Simple - 39 nodes")->Arg(simple)->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_Parse)->Name("New parser - Medium - 83 nodes")->Arg(medium)->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_Parse)->Name("New parser - Big - 665 nodes")->Arg(big)->Unit(benchmark::kMillisecond);
+
+// cppcheck-suppress constParameterCallback
+static void BM_Welder(benchmark::State& state)
+{
+    using namespace std::string_literals;
+
+    const long selection = state.range(0);
+    const std::string filename = "tests/benchmarks/resources/parser/"s + (selection == simple ? "simple.ark" : (selection == medium ? "medium.ark" : "big.ark"));
+
+    for (auto _ : state)
+    {
+        Ark::Welder welder(0, { ARK_TESTS_ROOT "lib" });
+        benchmark::DoNotOptimize(welder.computeASTFromFile(filename));
+        benchmark::DoNotOptimize(welder.generateBytecode());
+    }
+}
+
+BENCHMARK(BM_Welder)->Name("Welder - Simple - 39 nodes")->Arg(simple)->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_Welder)->Name("Welder - Medium - 83 nodes")->Arg(medium)->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_Welder)->Name("Welder - Big - 665 nodes")->Arg(big)->Unit(benchmark::kMillisecond);
 
 BENCHMARK_MAIN();

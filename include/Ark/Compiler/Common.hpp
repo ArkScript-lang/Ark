@@ -80,6 +80,18 @@ namespace Ark::internal
     };
 
     // This list is related to include/Ark/Compiler/Instructions.hpp
+    // The order is very important
+    constexpr std::array<std::string_view, 7> listInstructions = {
+        "list",
+        "append",
+        "concat",
+        "append!",
+        "concat!",
+        "pop",
+        "pop!"
+    };
+
+    // This list is related to include/Ark/Compiler/Instructions.hpp
     // from FIRST_OPERATOR, to LAST_OPERATOR
     // The order is very important
     constexpr std::array<std::string_view, 25> operators = {

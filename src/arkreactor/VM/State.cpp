@@ -51,16 +51,14 @@ namespace Ark
         }
     }
 
-    bool State::compile(const std::string& file, const std::string& output) const
+    bool State::compile(const std::string& file, const std::string& output, const uint16_t features) const
     {
-        Welder welder(m_debug_level, m_libenv);
-
-        if (!welder.computeASTFromFile(file))
-            return false;
-
+        Welder welder(m_debug_level, m_libenv, features);
         for (auto& p : m_binded)
             welder.registerSymbol(p.first);
 
+        if (!welder.computeASTFromFile(file))
+            return false;
         if (!welder.generateBytecode())
             return false;
 
@@ -71,7 +69,7 @@ namespace Ark
         return true;
     }
 
-    bool State::doFile(const std::string& file)
+    bool State::doFile(const std::string& file, const uint16_t features)
     {
         if (!Utils::fileExists(file))
         {
@@ -95,7 +93,7 @@ namespace Ark
             if (!exists(directory))  // create ark cache directory
                 create_directory(directory);
 
-            if (compile(file, path) && feed(path))
+            if (compile(file, path, features) && feed(path))
                 return true;
         }
         else if (feed(bytecode))  // it's a bytecode file
@@ -103,17 +101,16 @@ namespace Ark
         return false;
     }
 
-    bool State::doString(const std::string& code)
+    bool State::doString(const std::string& code, const uint16_t features)
     {
-        Welder welder(m_debug_level, m_libenv);
+        Welder welder(m_debug_level, m_libenv, features);
+        for (auto& p : m_binded)
+            welder.registerSymbol(p.first);
 
         if (!welder.computeASTFromString(code))
             return false;
-
-        for (auto& p : m_binded)
-            welder.registerSymbol(p.first);
-        welder.generateBytecode();
-
+        if (!welder.generateBytecode())
+            return false;
         return feed(welder.bytecode());
     }
 

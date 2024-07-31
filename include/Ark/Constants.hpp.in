@@ -46,11 +46,12 @@ constexpr std::string_view ARK_FULL_VERSION { "@ARK_VERSION_MAJOR@.@ARK_VERSION_
 namespace Ark
 {
     // Compiler options
-    constexpr uint16_t FeatureRemoveUnusedVars = 1 << 4;
-    constexpr uint16_t FeatureShowWarnings     = 1 << 5;
+    constexpr uint16_t FeatureImportSolver   = 1 << 0;
+    constexpr uint16_t FeatureMacroProcessor = 1 << 1;
+    constexpr uint16_t FeatureASTOptimizer   = 1 << 2;
 
     // Default features for the VM x Compiler x Parser
-    constexpr uint16_t DefaultFeatures = FeatureRemoveUnusedVars | FeatureShowWarnings;
+    constexpr uint16_t DefaultFeatures = FeatureImportSolver | FeatureMacroProcessor | FeatureASTOptimizer;
 
     constexpr std::size_t MaxMacroProcessingDepth = 256;  ///< Controls the number of recursive calls to MacroProcessor::processNode
     constexpr std::size_t MaxMacroUnificationDepth = 256;  ///< Controls the number of recursive calls to MacroProcessor::unify

@@ -1,31 +1,45 @@
+/**
+ * @file ImportSolver.hpp
+ * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @brief Handle imports, resolve them with modules and everything
+ * @version 2.0
+ * @date 2024-07-21
+ *
+ * @copyright Copyright (c) 2020-2024
+ *
+ */
+
 #ifndef ARK_COMPILER_IMPORTSOLVER_HPP
 #define ARK_COMPILER_IMPORTSOLVER_HPP
 
+#include <stack>
 #include <vector>
 #include <string>
 #include <filesystem>
 #include <unordered_map>
 
+#include <Ark/Compiler/Pass.hpp>
 #include <Ark/Compiler/AST/Node.hpp>
 #include <Ark/Compiler/AST/Import.hpp>
 #include <Ark/Compiler/AST/Module.hpp>
 
 namespace Ark::internal
 {
-    class ImportSolver final
+    class ImportSolver final : public Pass
     {
     public:
         ImportSolver(unsigned debug, const std::vector<std::filesystem::path>& libenv);
 
-        void process(const std::filesystem::path& root, const Node& origin_ast, const std::vector<Import>& origin_imports);
+        ImportSolver& setup(const std::filesystem::path& root, const std::vector<Import>& origin_imports);
+        void process(const Node& origin_ast) override;
 
-        [[nodiscard]] const Node& ast() const noexcept;
+        [[nodiscard]] const Node& ast() const noexcept override;
 
     private:
-        unsigned m_debug;
         std::vector<std::filesystem::path> m_libenv;
         std::filesystem::path m_root;  ///< Folder were the entry file is
         Node m_ast;
+        std::stack<Import> m_imports;
         std::unordered_map<std::string, Module> m_modules;  ///< Package to module map
         // TODO is this ok? is this fine? this is sort of ugly
         std::vector<std::string> m_imported;  ///< List of imports, in the order they were found and parsed
