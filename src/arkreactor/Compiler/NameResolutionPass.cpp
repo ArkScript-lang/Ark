@@ -141,7 +141,17 @@ namespace Ark::internal
                 if (node.constList().size() > 2)
                     visit(node.constList()[2]);
                 if (node.constList().size() > 1 && node.constList()[1].nodeType() == NodeType::Symbol)
-                    addDefinedSymbol(node.constList()[1].string());
+                {
+                    const std::string& name = node.constList()[1].string();
+                    if (m_language_symbols.contains(name))
+                        throw CodeError(
+                            fmt::format("Can not use a reserved identifier ('{}') as a {} name.", name, keyword == Keyword::Let ? "constant" : "variable"),
+                            node.filename(),
+                            node.constList()[1].line(),
+                            node.constList()[1].col(),
+                            name);
+                    addDefinedSymbol(name);
+                }
                 break;
 
             case Keyword::Import:

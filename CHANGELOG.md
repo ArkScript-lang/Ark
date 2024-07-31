@@ -67,6 +67,7 @@
 - added a max macro unification depth
 - added a max macro evaluation depth
 - introduced `internal::listInstructions` with the different instructions, to be used by the compiler and name resolution pass
+- checking for forbidden variable/constant name in the name & scope resolution pass, to give errors to the user before compiling some weird code
 
 ### Removed
 - removed unused `NodeType::Closure`

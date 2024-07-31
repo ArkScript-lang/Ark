@@ -1,0 +1,5 @@
+At print @ 1:0
+    1 | (let print 5)
+      | ^~~~~
+    2 |
+        Can not use a reserved identifier ('print') as a constant name.
