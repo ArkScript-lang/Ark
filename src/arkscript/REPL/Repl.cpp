@@ -2,6 +2,10 @@
 #include <iostream>
 #include <filesystem>
 #include <fmt/core.h>
+#include <ranges>
+
+#include <Ark/Builtins/Builtins.hpp>
+#include <Ark/Compiler/Common.hpp>
 
 #include <CLI/REPL/Repl.hpp>
 #include <CLI/REPL/Utils.hpp>
@@ -9,12 +13,41 @@
 namespace Ark
 {
     using namespace internal;
+    using namespace replxx;
 
     Repl::Repl(const std::vector<std::filesystem::path>& lib_env) :
         m_line_count(1), m_running(true),
         m_old_ip(0), m_lib_env(lib_env),
         m_state(m_lib_env), m_vm(m_state), m_has_init_vm(false)
-    {}
+    {
+        m_keywords.reserve(keywords.size() + listInstructions.size() + operators.size() + Builtins::builtins.size());
+        for (auto keyword : keywords)
+            m_keywords.emplace_back(keyword);
+        for (auto inst : listInstructions)
+            m_keywords.emplace_back(inst);
+        for (auto op : operators)
+            m_keywords.emplace_back(op);
+        for (const auto& builtin : std::ranges::views::keys(Builtins::builtins))
+            m_keywords.push_back(builtin);
+
+        m_words_colors.reserve(keywords.size() + listInstructions.size() + operators.size() + Builtins::builtins.size() + 2);
+        for (auto keyword : keywords)
+            m_words_colors.emplace_back(keyword, Replxx::Color::BRIGHTRED);
+        for (auto inst : listInstructions)
+            m_words_colors.emplace_back(inst, Replxx::Color::GREEN);
+        for (auto op : operators)
+        {
+            auto safe_op = std::string(op);
+            if (const auto it = safe_op.find_first_of(R"(-+=/*<>[]()?")"); it != std::string::npos)
+                safe_op.insert(it, "\\");
+            m_words_colors.emplace_back(safe_op, Replxx::Color::BRIGHTBLUE);
+        }
+        for (const auto& builtin : std::ranges::views::keys(Builtins::builtins))
+            m_words_colors.emplace_back(builtin, Replxx::Color::GREEN);
+
+        m_words_colors.emplace_back("[\\-|+]?[0-9]+(\\.[0-9]+)?", Replxx::Color::YELLOW);
+        m_words_colors.emplace_back("\".*\"", Replxx::Color::MAGENTA);
+    }
 
     int Repl::run()
     {
@@ -66,9 +99,15 @@ namespace Ark
 
     void Repl::cuiSetup()
     {
-        m_repl.set_completion_callback(hookCompletion);
-        m_repl.set_highlighter_callback(hookColor);
-        m_repl.set_hint_callback(hookHint);
+        m_repl.set_completion_callback([this](const std::string& ctx, int& len) {
+            return hookCompletion(m_keywords, ctx, len);
+        });
+        m_repl.set_highlighter_callback([this](const std::string& ctx, Replxx::colors_t& colors) {
+            return hookColor(m_words_colors, ctx, colors);
+        });
+        m_repl.set_hint_callback([this](const std::string& ctx, int& len, Replxx::Color& color) {
+            return hookHint(m_keywords, ctx, len, color);
+        });
 
         m_repl.set_word_break_characters(" \t.,-%!;:=*~^'\"/?<>|[](){}");
         m_repl.set_completion_count_cutoff(128);
@@ -77,23 +116,23 @@ namespace Ark
         m_repl.set_beep_on_ambiguous_completion(false);
         m_repl.set_no_color(false);
 
-        m_repl.bind_key_internal(replxx::Replxx::KEY::HOME, "move_cursor_to_begining_of_line");
-        m_repl.bind_key_internal(replxx::Replxx::KEY::END, "move_cursor_to_end_of_line");
-        m_repl.bind_key_internal(replxx::Replxx::KEY::TAB, "complete_line");
-        m_repl.bind_key_internal(replxx::Replxx::KEY::control(replxx::Replxx::KEY::LEFT), "move_cursor_one_word_left");
-        m_repl.bind_key_internal(replxx::Replxx::KEY::control(replxx::Replxx::KEY::RIGHT), "move_cursor_one_word_right");
-        m_repl.bind_key_internal(replxx::Replxx::KEY::control(replxx::Replxx::KEY::UP), "hint_previous");
-        m_repl.bind_key_internal(replxx::Replxx::KEY::control(replxx::Replxx::KEY::DOWN), "hint_next");
-        m_repl.bind_key_internal(replxx::Replxx::KEY::control(replxx::Replxx::KEY::ENTER), "commit_line");
-        m_repl.bind_key_internal(replxx::Replxx::KEY::control('R'), "history_incremental_search");
-        m_repl.bind_key_internal(replxx::Replxx::KEY::control('W'), "kill_to_begining_of_word");
-        m_repl.bind_key_internal(replxx::Replxx::KEY::control('U'), "kill_to_begining_of_line");
-        m_repl.bind_key_internal(replxx::Replxx::KEY::control('K'), "kill_to_end_of_line");
-        m_repl.bind_key_internal(replxx::Replxx::KEY::control('Y'), "yank");
-        m_repl.bind_key_internal(replxx::Replxx::KEY::control('L'), "clear_screen");
-        m_repl.bind_key_internal(replxx::Replxx::KEY::control('D'), "send_eof");
-        m_repl.bind_key_internal(replxx::Replxx::KEY::control('C'), "abort_line");
-        m_repl.bind_key_internal(replxx::Replxx::KEY::control('T'), "transpose_characters");
+        m_repl.bind_key_internal(Replxx::KEY::HOME, "move_cursor_to_begining_of_line");
+        m_repl.bind_key_internal(Replxx::KEY::END, "move_cursor_to_end_of_line");
+        m_repl.bind_key_internal(Replxx::KEY::TAB, "complete_line");
+        m_repl.bind_key_internal(Replxx::KEY::control(Replxx::KEY::LEFT), "move_cursor_one_word_left");
+        m_repl.bind_key_internal(Replxx::KEY::control(Replxx::KEY::RIGHT), "move_cursor_one_word_right");
+        m_repl.bind_key_internal(Replxx::KEY::control(Replxx::KEY::UP), "hint_previous");
+        m_repl.bind_key_internal(Replxx::KEY::control(Replxx::KEY::DOWN), "hint_next");
+        m_repl.bind_key_internal(Replxx::KEY::control(Replxx::KEY::ENTER), "commit_line");
+        m_repl.bind_key_internal(Replxx::KEY::control('R'), "history_incremental_search");
+        m_repl.bind_key_internal(Replxx::KEY::control('W'), "kill_to_begining_of_word");
+        m_repl.bind_key_internal(Replxx::KEY::control('U'), "kill_to_begining_of_line");
+        m_repl.bind_key_internal(Replxx::KEY::control('K'), "kill_to_end_of_line");
+        m_repl.bind_key_internal(Replxx::KEY::control('Y'), "yank");
+        m_repl.bind_key_internal(Replxx::KEY::control('L'), "clear_screen");
+        m_repl.bind_key_internal(Replxx::KEY::control('D'), "send_eof");
+        m_repl.bind_key_internal(Replxx::KEY::control('C'), "abort_line");
+        m_repl.bind_key_internal(Replxx::KEY::control('T'), "transpose_characters");
     }
 
     std::optional<std::string> Repl::getLine(const bool continuation)

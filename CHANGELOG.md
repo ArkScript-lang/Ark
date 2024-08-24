@@ -68,6 +68,7 @@
 - added a max macro evaluation depth
 - introduced `internal::listInstructions` with the different instructions, to be used by the compiler and name resolution pass
 - checking for forbidden variable/constant name in the name & scope resolution pass, to give errors to the user before compiling some weird code
+- repl completion and colors are now generated automatically from the builtins, keywords & operators
 
 ### Removed
 - removed unused `NodeType::Closure`

@@ -46,7 +46,7 @@ namespace Ark::internal
         return count;
     }
 
-    replxx::Replxx::completions_t hookCompletion(const std::string& context, int& length)
+    replxx::Replxx::completions_t hookCompletion(const std::vector<std::string>& words, const std::string& context, int& length)
     {
         replxx::Replxx::completions_t completions;
         std::size_t utf8_context_len = contextLen(context);
@@ -61,7 +61,7 @@ namespace Ark::internal
         length = static_cast<int>(codepointLength(context.substr(prefix_len, utf8_context_len)));
 
         const std::string prefix = context.substr(prefix_len);
-        for (const auto& e : KeywordsDict)
+        for (const auto& e : words)
         {
             if (e.starts_with(prefix) == 0)
                 completions.emplace_back(e.c_str());
@@ -70,10 +70,10 @@ namespace Ark::internal
         return completions;
     }
 
-    void hookColor(const std::string& context, replxx::Replxx::colors_t& colors)
+    void hookColor(const std::vector<std::pair<std::string, replxx::Replxx::Color>>& words_colors, const std::string& context, replxx::Replxx::colors_t& colors)
     {
         // highlight matching regex sequences
-        for (const auto& [regex, color] : ColorsRegexDict)
+        for (const auto& [regex, color] : words_colors)
         {
             std::size_t pos = 0;
             std::string str = context;
@@ -95,7 +95,7 @@ namespace Ark::internal
         }
     }
 
-    replxx::Replxx::hints_t hookHint(const std::string& context, int& length, replxx::Replxx::Color& color)
+    replxx::Replxx::hints_t hookHint(const std::vector<std::string>& words, const std::string& context, int& length, replxx::Replxx::Color& color)
     {
         replxx::Replxx::hints_t hints;
         // only show hint if prefix is at least 'n' chars long
@@ -107,7 +107,7 @@ namespace Ark::internal
 
         if (prefix.size() >= 2 || (!prefix.empty() && prefix.at(0) == '.'))
         {
-            for (const auto& e : KeywordsDict)
+            for (const auto& e : words)
             {
                 if (e.compare(0, prefix.size(), prefix) == 0)
                     hints.emplace_back(e.c_str());

@@ -49,6 +49,8 @@ namespace Ark
         State m_state;
         VM m_vm;
         bool m_has_init_vm;
+        std::vector<std::string> m_keywords;
+        std::vector<std::pair<std::string, replxx::Replxx::Color>> m_words_colors;
 
         /**
          * @brief Configure replxx
