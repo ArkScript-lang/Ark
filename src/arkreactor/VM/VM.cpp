@@ -1067,7 +1067,7 @@ namespace Ark
         }
         catch (const std::exception& e)
         {
-            std::printf("%s\n", e.what());
+            std::cout << e.what() << "\n";
             backtrace(context);
 #ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
             // don't report a "failed" exit code so that the fuzzers can more accurately triage crashes
@@ -1078,7 +1078,7 @@ namespace Ark
         }
         catch (...)
         {
-            std::printf("Unknown error\n");
+            std::cout << "Unknown error\n";
             backtrace(context);
             m_exit_code = 1;
 
@@ -1151,19 +1151,19 @@ namespace Ark
                 }
                 else
                 {
-                    std::printf("In global scope\n");
+                    std::cout << "In global scope\n";
                     break;
                 }
 
                 if (original_frame_count - context.fc > 7)
                 {
-                    std::printf("...\n");
+                    std::cout << "...\n";
                     break;
                 }
             }
 
             // display variables values in the current scope
-            std::printf("\nCurrent scope variables values:\n");
+            std::cout << "\nCurrent scope variables values:\n";
             for (std::size_t i = 0, size = old_scope.size(); i < size; ++i)
             {
                 std::cerr << termcolor::cyan << m_state.m_symbols[old_scope.m_data[i].first] << termcolor::reset
