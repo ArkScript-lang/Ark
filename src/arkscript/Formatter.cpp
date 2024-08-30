@@ -12,11 +12,11 @@ using namespace Ark;
 using namespace Ark::internal;
 
 Formatter::Formatter(bool dry_run) :
-    m_dry_run(dry_run), m_parser(/* interpret= */ false)
+    m_dry_run(dry_run), m_parser(/* debug= */ 0, /* interpret= */ false)
 {}
 
-Formatter::Formatter(std::string filename, bool dry_run) :
-    m_filename(std::move(filename)), m_dry_run(dry_run), m_parser(/* interpret= */ false)
+Formatter::Formatter(std::string filename, const bool dry_run) :
+    m_filename(std::move(filename)), m_dry_run(dry_run), m_parser(/* debug= */ 0, /* interpret= */ false)
 {}
 
 void Formatter::run()
@@ -472,8 +472,7 @@ std::string Formatter::formatMacro(const Node& node, const std::size_t indent)
     for (std::size_t i = 0, end = node.constList().size(); i < end; ++i)
     {
         output += format(node.constList()[i], indent + 1, after_newline);
-        if (after_newline)
-            after_newline = false;
+        after_newline = false;
 
         if (!node.constList()[i].commentAfter().empty())
         {

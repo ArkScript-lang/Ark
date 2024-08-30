@@ -12,12 +12,14 @@
 namespace Ark
 {
     Welder::Welder(const unsigned debug, const std::vector<std::filesystem::path>& lib_env, const uint16_t features) :
-        Pass("Welder", debug), m_lib_env(lib_env), m_features(features),
+        m_lib_env(lib_env), m_features(features),
         m_computed_ast(internal::NodeType::Unused),
+        m_parser(debug),
         m_import_solver(debug, lib_env),
         m_macro_processor(debug),
         m_ast_optimizer(debug),
         m_name_resolver(debug),
+        m_logger("Welder", debug),
         m_compiler(debug)
     {}
 
@@ -59,7 +61,7 @@ namespace Ark
 
     bool Welder::saveBytecodeToFile(const std::string& filename)
     {
-        log("Final bytecode size: {}B", m_bytecode.size() * sizeof(uint8_t));
+        m_logger.info("Final bytecode size: {}B", m_bytecode.size() * sizeof(uint8_t));
 
         if (m_bytecode.empty())
             return false;

@@ -36,6 +36,7 @@ namespace Ark::internal
         [[nodiscard]] const Node& ast() const noexcept override;
 
     private:
+        unsigned m_debug_level;
         std::vector<std::filesystem::path> m_libenv;
         std::filesystem::path m_root;  ///< Folder were the entry file is
         Node m_ast;

@@ -52,7 +52,7 @@ ut::suite<"Parser"> parser_suite = [] {
         iter_test_files(
             "ParserSuite/success",
             [](TestData&& data) {
-                Ark::internal::Parser parser;
+                Ark::internal::Parser parser(/* debug= */ 0);
 
                 should("parse " + data.stem) = [&] {
                     expect(nothrow([&] {
@@ -75,7 +75,7 @@ ut::suite<"Parser"> parser_suite = [] {
             [](TestData&& data) {
                 try
                 {
-                    Ark::internal::Parser parser;
+                    Ark::internal::Parser parser(/* debug= */ 0);
                     const std::string code = Ark::Utils::readFile(data.path);
                     parser.process(data.path, code);
                 }

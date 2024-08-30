@@ -11,7 +11,7 @@
 namespace Ark::internal
 {
     ImportSolver::ImportSolver(const unsigned debug, const std::vector<std::filesystem::path>& libenv) :
-        Pass("ImportSolver", debug), m_libenv(libenv), m_ast()
+        Pass("ImportSolver", debug), m_debug_level(debug), m_libenv(libenv), m_ast()
     {}
 
     ImportSolver& ImportSolver::setup(const std::filesystem::path& root, const std::vector<Import>& origin_imports)
@@ -32,7 +32,7 @@ namespace Ark::internal
         while (!m_imports.empty())
         {
             Import import = m_imports.top();
-            logDebug("Importing {}", import.toPackageString());
+            m_logger.debug("Importing {}", import.toPackageString());
 
             // Remove the top element to process the other imports
             // It needs to be removed first because we might be adding
@@ -166,7 +166,7 @@ namespace Ark::internal
             return {};
         }
 
-        Parser parser;
+        Parser parser(m_debug_level);
         const std::string code = Utils::readFile(path.generic_string());
         parser.process(path.string(), code);
         m_modules[import.toPackageString()] = Module {
