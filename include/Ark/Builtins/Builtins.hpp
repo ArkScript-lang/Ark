@@ -28,7 +28,7 @@ namespace Ark::internal::Builtins
     extern const Value trueSym;
     extern const Value nil;
 
-    extern const std::vector<std::pair<std::string, Value>> builtins;
+    ARK_API extern const std::vector<std::pair<std::string, Value>> builtins;
 
     // ------------------------------
     // builtins functions: we must use the instruction `BUILTIN index`
