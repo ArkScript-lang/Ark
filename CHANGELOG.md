@@ -22,6 +22,7 @@
 - `$paste` to paste a node inside a maro without evaluating it further ; useful to stop recursive evaluation of nodes inside function macros
 - introduced `Ark::internal::Pass` to describe compiler passes: they all output an AST (parser, import solver, macro processor, and optimizer for now)
 - add `-f(no-)importsolver`, `-f(no-)macroprocessor` and `-f(no-)optimizer` to toggle on and off those compiler passes
+- added resolving `empty?` as a macro when possible
 
 ### Changed
 - instructions are on 4 bytes: 1 byte for the instruction, 1 byte of padding, 2 bytes for an immediate argument

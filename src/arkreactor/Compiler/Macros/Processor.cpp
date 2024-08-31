@@ -403,6 +403,21 @@ namespace Ark::internal
                     }
                 }
             }
+            else if (name == "empty?")
+            {
+                if (node.list().size() > 2)
+                    throwMacroProcessingError(fmt::format("When expanding `empty?' inside a macro, got {} arguments, expected 1", argcount), node);
+                if (Node& lst = node.list()[1]; lst.nodeType() == NodeType::List)  // only apply len at compile time if we can
+                {
+                    if (isConstEval(lst))
+                    {
+                        if (!lst.list().empty() && lst.list()[0] == getListNode())
+                            setWithFileAttributes(node, node, lst.list().size() - 1 == 0 ? getTrueNode() : getFalseNode());
+                        else
+                            setWithFileAttributes(node, node, lst.list().size() == 0 ? getTrueNode() : getFalseNode());
+                    }
+                }
+            }
             else if (name == "@")
             {
                 checkMacroArgCount(node, 2, "@");
