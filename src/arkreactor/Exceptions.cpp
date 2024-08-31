@@ -166,6 +166,9 @@ namespace Ark::Diagnostics
 
     void generate(const CodeError& e, std::ostream& os, bool colorize)
     {
+        if (const char* nocolor = std::getenv("NOCOLOR"); nocolor != nullptr)
+            colorize = false;
+
         std::string escaped_symbol;
         if (e.symbol.has_value())
         {
