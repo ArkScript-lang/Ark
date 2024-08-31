@@ -3,7 +3,6 @@
 #include <Ark/Files.hpp>
 #include <Ark/Compiler/AST/Parser.hpp>
 #include <Ark/Exceptions.hpp>
-#include <termcolor/proxy.hpp>
 
 #include <sstream>
 #include <algorithm>
@@ -52,7 +51,7 @@ ut::suite<"Parser"> parser_suite = [] {
         iter_test_files(
             "ParserSuite/success",
             [](TestData&& data) {
-                Ark::internal::Parser parser;
+                Ark::internal::Parser parser(/* debug= */ 0);
 
                 should("parse " + data.stem) = [&] {
                     expect(nothrow([&] {
@@ -75,15 +74,14 @@ ut::suite<"Parser"> parser_suite = [] {
             [](TestData&& data) {
                 try
                 {
-                    Ark::internal::Parser parser;
+                    Ark::internal::Parser parser(/* debug= */ 0);
                     const std::string code = Ark::Utils::readFile(data.path);
                     parser.process(data.path, code);
                 }
                 catch (const Ark::CodeError& e)
                 {
                     std::stringstream ss;
-                    ss << termcolor::nocolorize;
-                    Ark::Diagnostics::generate(e, "", ss);
+                    Ark::Diagnostics::generate(e, ss, /* colorize= */ false);
 
                     should("output the same error message (" + data.stem + ")") = [&] {
                         std::string tested = ss.str();

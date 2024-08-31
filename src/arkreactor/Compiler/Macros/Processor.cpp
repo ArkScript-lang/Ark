@@ -34,14 +34,14 @@ namespace Ark::internal
 
     void MacroProcessor::process(const Node& ast)
     {
-        logDebug("Processing macros...");
+        m_logger.debug("Processing macros...");
 
         // to be able to modify it
         m_ast = ast;
         processNode(m_ast, 0);
 
-        logTrace("AST after processing macros");
-        if (shouldTrace())
+        m_logger.trace("AST after processing macros");
+        if (m_logger.shouldTrace())
             m_ast.debugPrint(std::cout) << '\n';
     }
 

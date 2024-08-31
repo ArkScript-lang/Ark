@@ -10,9 +10,6 @@
 [submodule "lib/picosha2"]
 	path = lib/picosha2
 	url = https://github.com/okdshin/PicoSHA2.git
-[submodule "lib/termcolor"]
-	path = lib/termcolor
-	url = https://github.com/ikalnytskyi/termcolor.git
 [submodule "lib/replxx"]
 	path = lib/replxx
 	url = https://github.com/AmokHuginnsson/replxx.git

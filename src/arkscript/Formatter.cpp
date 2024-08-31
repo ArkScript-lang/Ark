@@ -2,7 +2,7 @@
 #include <CLI/Formatter.hpp>
 
 #include <fmt/core.h>
-#include <termcolor/proxy.hpp>
+#include <fmt/color.h>
 
 #include <Ark/Files.hpp>
 #include <Ark/Exceptions.hpp>
@@ -12,11 +12,11 @@ using namespace Ark;
 using namespace Ark::internal;
 
 Formatter::Formatter(bool dry_run) :
-    m_dry_run(dry_run), m_parser(/* interpret= */ false)
+    m_dry_run(dry_run), m_parser(/* debug= */ 0, /* interpret= */ false)
 {}
 
-Formatter::Formatter(std::string filename, bool dry_run) :
-    m_filename(std::move(filename)), m_dry_run(dry_run), m_parser(/* interpret= */ false)
+Formatter::Formatter(std::string filename, const bool dry_run) :
+    m_filename(std::move(filename)), m_dry_run(dry_run), m_parser(/* debug= */ 0, /* interpret= */ false)
 {}
 
 void Formatter::run()
@@ -82,12 +82,11 @@ void Formatter::warnIfCommentsWereRemoved(const std::string& original_code, cons
 {
     if (std::ranges::count(original_code, '#') != std::ranges::count(m_output, '#'))
     {
-        std::cout << termcolor::yellow << "Warning" << termcolor::reset << ": one or more comments from the original source code seem to have been removed by mistake while formatting ";
-        if (filename != ARK_NO_NAME_FILE)
-            std::cout << "'" << filename << "'" << std::endl;
-        else
-            std::cout << "file" << std::endl;
-        std::cout << "Please fill an issue on GitHub: https://github.com/ArkScript-lang/Ark" << std::endl;
+        fmt::println(
+            "{}: one or more comments from the original source code seem to have been removed by mistake while formatting {}",
+            fmt::styled("Warning", fmt::fg(fmt::color::dark_orange)),
+            filename != ARK_NO_NAME_FILE ? filename : "file");
+        fmt::println("Please fill an issue on GitHub: https://github.com/ArkScript-lang/Ark");
     }
 }
 
@@ -472,8 +471,7 @@ std::string Formatter::formatMacro(const Node& node, const std::size_t indent)
     for (std::size_t i = 0, end = node.constList().size(); i < end; ++i)
     {
         output += format(node.constList()[i], indent + 1, after_newline);
-        if (after_newline)
-            after_newline = false;
+        after_newline = false;
 
         if (!node.constList()[i].commentAfter().empty())
         {

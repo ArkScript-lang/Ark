@@ -6,8 +6,8 @@
 #include <filesystem>
 #include <picosha2.h>
 #include <algorithm>
-#include <termcolor/proxy.hpp>
 #include <fmt/core.h>
+#include <fmt/color.h>
 
 #include <Ark/Constants.hpp>
 #include <Ark/Literals.hpp>
@@ -254,7 +254,7 @@ namespace Ark
 
     void Compiler::compilerWarning(const std::string& message, const Node& node)
     {
-        std::cout << termcolor::yellow << "Warning " << termcolor::reset << Diagnostics::makeContextWithNode(message, node) << "\n";
+        fmt::println("{} {}", fmt::styled("Warning", fmt::fg(fmt::color::dark_orange)), Diagnostics::makeContextWithNode(message, node));
     }
 
     void Compiler::throwCompilerError(const std::string& message, const Node& node)

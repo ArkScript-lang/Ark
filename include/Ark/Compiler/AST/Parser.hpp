@@ -15,7 +15,7 @@
 #include <Ark/Compiler/AST/BaseParser.hpp>
 #include <Ark/Compiler/AST/Node.hpp>
 #include <Ark/Compiler/AST/Import.hpp>
-#include <Ark/Compiler/Pass.hpp>
+#include <Ark/Logger.hpp>
 #include <Ark/Utils.hpp>
 #include <Ark/Platform.hpp>
 
@@ -27,28 +27,27 @@
 
 namespace Ark::internal
 {
-    class ARK_API Parser final : public BaseParser, public Pass
+    class ARK_API Parser final : public BaseParser
     {
     public:
         /**
          * @brief Constructs a new Parser object
+         * @param debug debug level
          * @param interpret interpret escape codes in strings
          */
-        explicit Parser(bool interpret = true);
+        explicit Parser(unsigned debug, bool interpret = true);
 
         void process(const std::string& filename, const std::string& code);
 
-        [[nodiscard]] const Node& ast() const noexcept override;
+        [[nodiscard]] const Node& ast() const noexcept;
         [[nodiscard]] const std::vector<Import>& imports() const;
 
     private:
         bool m_interpret;
+        Logger m_logger;
         Node m_ast;
         std::vector<Import> m_imports;
         unsigned m_allow_macro_behavior;  ///< Toggled on when inside a macro definition, off afterward
-
-        // HACK so that the parser can be a pass and use the loggers
-        void process([[maybe_unused]] const Node&) override {}
 
         void run();
 

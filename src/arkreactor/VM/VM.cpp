@@ -3,10 +3,10 @@
 #include <utility>
 #include <numeric>
 #include <limits>
-
-#include <fmt/core.h>
 #include <ranges>
-#include <termcolor/proxy.hpp>
+#include <fmt/core.h>
+#include <fmt/color.h>
+
 #include <Ark/Files.hpp>
 #include <Ark/Utils.hpp>
 #include <Ark/TypeChecker.hpp>
@@ -1067,7 +1067,7 @@ namespace Ark
         }
         catch (const std::exception& e)
         {
-            std::printf("%s\n", e.what());
+            fmt::println("{}", e.what());
             backtrace(context);
 #ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
             // don't report a "failed" exit code so that the fuzzers can more accurately triage crashes
@@ -1078,7 +1078,7 @@ namespace Ark
         }
         catch (...)
         {
-            std::printf("Unknown error\n");
+            fmt::println("Unknown error");
             backtrace(context);
             m_exit_code = 1;
 
@@ -1091,9 +1091,9 @@ namespace Ark
         auto end_time = std::chrono::system_clock::now();
         auto d = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
 
-        std::cout << "\nInstructions executed: " << instructions_executed << "\n"
-                  << "Time spent: " << d.count() << " us\n"
-                  << (static_cast<double>(instructions_executed) / d.count()) << " MIPS\n";
+        fmt::println("\nInstructions executed: {}", instructions_executed);
+        fmt::println("Time spent: {} us", d.count());
+        fmt::println("{} MIPS", static_cast<double>(instructions_executed) / d.count());
 #endif
 
         return m_exit_code;
@@ -1127,7 +1127,7 @@ namespace Ark
 
             while (context.fc != 0)
             {
-                std::cerr << "[" << termcolor::cyan << context.fc << termcolor::reset << "] ";
+                fmt::print("[{}] ", fmt::styled(context.fc, fmt::fg(fmt::color::cyan)));
                 if (context.pp != 0)
                 {
                     const uint16_t id = findNearestVariableIdWithValue(
@@ -1135,9 +1135,9 @@ namespace Ark
                         context);
 
                     if (id < m_state.m_symbols.size())
-                        std::cerr << "In function `" << termcolor::green << m_state.m_symbols[id] << termcolor::reset << "'\n";
+                        fmt::println("In function `{}'", fmt::styled(m_state.m_symbols[id], fmt::fg(fmt::color::green)));
                     else  // should never happen
-                        std::cerr << "In function `" << termcolor::yellow << "???" << termcolor::reset << "'\n";
+                        fmt::println("In function `{}'", fmt::styled("???", fmt::fg(fmt::color::gold)));
 
                     Value* ip;
                     do
@@ -1151,24 +1151,25 @@ namespace Ark
                 }
                 else
                 {
-                    std::printf("In global scope\n");
+                    fmt::println("In global scope");
                     break;
                 }
 
                 if (original_frame_count - context.fc > 7)
                 {
-                    std::printf("...\n");
+                    fmt::println("...");
                     break;
                 }
             }
 
             // display variables values in the current scope
-            std::printf("\nCurrent scope variables values:\n");
+            fmt::println("\nCurrent scope variables values:");
             for (std::size_t i = 0, size = old_scope.size(); i < size; ++i)
             {
-                std::cerr << termcolor::cyan << m_state.m_symbols[old_scope.m_data[i].first] << termcolor::reset
-                          << " = " << old_scope.m_data[i].second.toString(*this);
-                std::cerr << "\n";
+                fmt::println(
+                    "{} = {}",
+                    fmt::styled(m_state.m_symbols[old_scope.m_data[i].first], fmt::fg(fmt::color::cyan)),
+                    old_scope.m_data[i].second.toString(*this));
             }
 
             while (context.fc != 1)
@@ -1182,8 +1183,7 @@ namespace Ark
             pop(context);
         }
 
-        std::cerr << termcolor::reset
-                  << "At IP: " << (saved_ip / 4)  // dividing by 4 because the instructions are actually on 4 bytes
+        std::cerr << "At IP: " << (saved_ip / 4)  // dividing by 4 because the instructions are actually on 4 bytes
                   << ", PP: " << saved_pp
                   << ", SP: " << saved_sp
                   << "\n";

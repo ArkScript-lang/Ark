@@ -78,6 +78,7 @@
 - removed `VM::getUserPointer` and `VM::setUserPointer`
 - removed `ARK_PROFILER_COUNT` define
 - removed useless `\0` escape in strings
+- removed `termcolor` dependency to rely on `fmt` for coloring outputs
 
 ## [3.5.0] - 2023-02-19
 ### Added

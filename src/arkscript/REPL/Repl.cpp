@@ -1,5 +1,4 @@
 #include <fstream>
-#include <iostream>
 #include <filesystem>
 #include <fmt/core.h>
 #include <ranges>
@@ -90,7 +89,7 @@ namespace Ark
                     m_state.reset();
                 }
                 else
-                    std::cout << "\nCouldn't run code\n";
+                    fmt::println("\nCouldn't run code");
             }
         }
 
@@ -153,19 +152,19 @@ namespace Ark
         // specific commands handling
         if (line == "quit" || buf == nullptr)
         {
-            std::cout << "\nExiting REPL\n";
+            fmt::println("\nExiting REPL");
             m_running = false;
 
             return std::nullopt;
         }
         if (line == "help")
         {
-            std::cout << "Available commands:\n";
-            std::cout << "  help -- display this message\n";
-            std::cout << "  quit -- quit the REPL\n";
-            std::cout << "  save -- save the history to disk\n";
-            std::cout << "  history -- print saved code\n";
-            std::cout << "  reset -- reset the VM state\n";
+            fmt::println("Available commands:");
+            fmt::println("  help -- display this message");
+            fmt::println("  quit -- quit the REPL");
+            fmt::println("  save -- save the history to disk");
+            fmt::println("  history -- print saved code");
+            fmt::println("  reset -- reset the VM state");
 
             return std::nullopt;
         }
@@ -174,15 +173,12 @@ namespace Ark
             std::ofstream history_file("arkscript_repl_history.ark");
             m_repl.history_save(history_file);
 
-            fmt::print("Saved {} lines of history to arkscript_repl_history.ark\n", m_line_count);
-
+            fmt::println("Saved {} lines of history to arkscript_repl_history.ark", m_line_count);
             return std::nullopt;
         }
         if (line == "history")
         {
-            std::cout << "\n"
-                      << m_code << "\n";
-
+            fmt::println("\n{}", m_code);
             return std::nullopt;
         }
         if (line == "reset")

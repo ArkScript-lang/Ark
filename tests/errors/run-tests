@@ -23,6 +23,7 @@ passed=0
 failed=0
 
 for f in ./**/*.ark; do
+    export NOCOLOR=y
     output=$($ark "$f" --lib ../../lib 2>&1)
     expected=$(cat "${f%.*}.expected")
 

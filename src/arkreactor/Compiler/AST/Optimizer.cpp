@@ -39,7 +39,7 @@ namespace Ark::internal
             // a variable was only declared and never used
             if (m_sym_appearances.contains(name) && m_sym_appearances[name] == 1 && parent.list()[idx].list()[2].nodeType() != NodeType::List)
             {
-                logDebug("Removing unused variable '{}'", name);
+                m_logger.debug("Removing unused variable '{}'", name);
                 // erase the node from the list
                 parent.list().erase(parent.list().begin() + static_cast<std::vector<Node>::difference_type>(idx));
             }
