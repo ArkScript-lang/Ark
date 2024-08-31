@@ -1,11 +1,15 @@
 #include <Ark/Exceptions.hpp>
 
-#include <termcolor/proxy.hpp>
 #include <sstream>
-#include <Ark/Constants.hpp>
+#include <algorithm>
+#include <fmt/core.h>
+#include <fmt/color.h>
+#include <fmt/ostream.h>
 
+#include <Ark/Constants.hpp>
 #include <Ark/Utils.hpp>
 #include <Ark/Files.hpp>
+#include <Ark/Literals.hpp>
 #include <Ark/Compiler/AST/Node.hpp>
 
 namespace Ark::Diagnostics
@@ -26,9 +30,12 @@ namespace Ark::Diagnostics
     {
         // clang-format off
         constexpr std::array pairing_color {
-            termcolor::bright_blue,
-            termcolor::bright_green,
-            termcolor::bright_yellow
+            fmt::color::light_blue,
+            fmt::color::light_green,
+            fmt::color::light_salmon,
+            fmt::color::light_yellow,
+            fmt::color::light_cyan,
+            fmt::color::light_coral
         };
         // clang-format on
         constexpr std::size_t pairing_color_size = pairing_color.size();
@@ -69,15 +76,17 @@ namespace Ark::Diagnostics
                         break;
                 }
 
-                ss << pairing_color[pairing_color_index] << c << termcolor::reset;
+                fmt::print(ss, "{}", fmt::styled(c, fmt::fg(pairing_color[pairing_color_index])));
             }
             else
-                ss << c;
+                fmt::print(ss, "{}", c);
         }
     }
 
-    void makeContext(std::ostream& os, const std::string& code, const std::size_t target_line, const std::size_t col_start, const std::size_t sym_size)
+    void makeContext(std::ostream& os, const std::string& code, const std::size_t target_line, const std::size_t col_start, const std::size_t sym_size, const bool colorize)
     {
+        using namespace Ark::literals;
+
         const std::vector<std::string> ctx = Utils::splitString(code, '\n');
         if (target_line >= ctx.size())
             return;
@@ -89,15 +98,16 @@ namespace Ark::Diagnostics
 
         for (auto i = first_line; i < last_line; ++i)
         {
-            os << termcolor::green << std::setw(5) << (i + 1) << termcolor::reset << " |";
-            if (!ctx[i].empty())
-                os << ' ';
-            colorizeLine(ctx[i], line_color_context_counts, os);
-            os << "\n";
+            fmt::print(os, "{: >5} |{}", i + 1, !ctx[i].empty() ? " " : "");
+            if (colorize)
+                colorizeLine(ctx[i], line_color_context_counts, os);
+            else
+                fmt::print(os, "{}", ctx[i]);
+            fmt::print(os, "\n");
 
             if (i == target_line || (i > target_line && overflow > 0))
             {
-                os << "      |";
+                fmt::print(os, "      |");
                 // if we have an overflow then we start at the beginning of the line
                 const std::size_t curr_col_start = (overflow == 0) ? col_start : 0;
                 // if we have an overflow, it is used as the end of the line
@@ -106,34 +116,29 @@ namespace Ark::Diagnostics
                 // update the overflow to avoid going here again if not needed
                 overflow = (overflow > ctx[i].size()) ? overflow - ctx[i].size() : 0;
 
-                // fixing padding when the error is on the first character
-                if (curr_col_start == 0)
-                    os << " ";
-
-                // padding of spaces
-                for (std::size_t j = 0; j < curr_col_start; ++j)
-                    os << " ";
-
-                // underline the error
-                os << termcolor::red << "^";
-                for (std::size_t j = curr_col_start + 1; j < col_end; ++j)
-                    os << "~";
-
-                os << termcolor::reset << "\n";
+                fmt::print(
+                    os,
+                    "{: <{}}{:~<{}}\n",
+                    // padding of spaces
+                    " ",
+                    std::max(1_z, curr_col_start),  // fixing padding when the error is on the first character
+                    // underline the error in red
+                    fmt::styled("^", colorize ? fmt::fg(fmt::color::red) : fmt::text_style()),
+                    col_end - curr_col_start);
             }
         }
     }
 
     template <typename T>
-    void helper(std::ostream& os, const std::string& message, const std::string& filename, const std::string& code, const T& expr, const std::size_t line, std::size_t column, const std::size_t sym_size)
+    void helper(std::ostream& os, const std::string& message, bool colorize, const std::string& filename, const std::string& code, const T& expr, const std::size_t line, std::size_t column, const std::size_t sym_size)
     {
         if (filename != ARK_NO_NAME_FILE)
-            os << "In file " << filename << "\n";
-        os << "At " << expr << " @ " << (line + 1) << ":" << column << "\n";
+            fmt::print(os, "In file {}\n", filename);
+        fmt::print(os, "At {} @ {}:{}\n", expr, line + 1, column);
 
         if (!code.empty())
-            makeContext(os, code, line, column, sym_size);
-        os << "        " << message;
+            makeContext(os, code, line, column, sym_size, colorize);
+        fmt::print(os, "        {}", message);
     }
 
     std::string makeContextWithNode(const std::string& message, const internal::Node& node)
@@ -148,6 +153,7 @@ namespace Ark::Diagnostics
         helper(
             ss,
             message,
+            true,
             node.filename(),
             (node.filename() == ARK_NO_NAME_FILE) ? "" : Utils::readFile(node.filename()),
             node.repr(),
@@ -158,7 +164,7 @@ namespace Ark::Diagnostics
         return ss.str();
     }
 
-    void generate(const CodeError& e, std::string code, std::ostream& os)
+    void generate(const CodeError& e, std::ostream& os, bool colorize)
     {
         std::string escaped_symbol;
         if (e.symbol.has_value())
@@ -179,15 +185,14 @@ namespace Ark::Diagnostics
             escaped_symbol = e.expr;
 
         std::string file_content;
-        if (e.filename == ARK_NO_NAME_FILE)
-            file_content = std::move(code);
-        else
+        if (e.filename != ARK_NO_NAME_FILE)
             file_content = Utils::readFile(e.filename);
 
         // TODO enhance the error messages
         helper(
             os,
             e.what(),
+            colorize,
             e.filename,
             file_content,
             escaped_symbol,

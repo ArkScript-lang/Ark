@@ -5,8 +5,8 @@
 #include <cstdlib>
 
 #include <clipp.h>
-#include <termcolor/proxy.hpp>
 #include <fmt/core.h>
+#include <fmt/color.h>
 
 #include <Ark/Files.hpp>
 #include <Ark/Compiler/BytecodeReader.hpp>
@@ -71,7 +71,8 @@ int main(int argc, char** argv)
         option("-foptimizer").call([&] { passes |= Ark::FeatureASTOptimizer; })
         | option("-fno-optimizer").call([&] { passes &= ~Ark::FeatureASTOptimizer; })
     ).doc("Toggle on and off the optimizer pass");
-    auto compiler_passes_flag = (import_solver_pass_flag, macro_proc_pass_flag, optimizer_pass_flag);
+    // cppcheck-suppress constStatement
+    const auto compiler_passes_flag = (import_solver_pass_flag, macro_proc_pass_flag, optimizer_pass_flag);
 
     auto cli = (
         option("-h", "--help").set(selected, mode::help).doc("Display this message")
@@ -169,7 +170,7 @@ int main(int argc, char** argv)
             else if (Utils::fileExists("./lib"))
                 lib_paths.emplace_back("lib");
             else
-                std::cerr << termcolor::yellow << "Warning" << termcolor::reset << " Couldn't read ARKSCRIPT_PATH environment variable" << std::endl;
+                fmt::println("{}:  Couldn't read ARKSCRIPT_PATH environment variable", fmt::styled("Warning", fmt::fg(fmt::color::dark_orange)));
         }
 
         switch (selected)
@@ -179,12 +180,12 @@ int main(int argc, char** argv)
                 break;
 
             case mode::version:
-                std::cout << fmt::format("{}\n", ARK_FULL_VERSION);
+                fmt::println(ARK_FULL_VERSION);
                 break;
 
             case mode::dev_info:
             {
-                std::cout << fmt::format(
+                fmt::println(
                     "Have been compiled with {}\n\n"
                     "sizeof(Ark::Value)    = {}B\n"
                     "      sizeof(Value_t) = {}B\n"
@@ -200,7 +201,7 @@ int main(int argc, char** argv)
                     "\nMisc\n"
                     "    sizeof(vector<Ark::Value>) = {}B\n"
                     "    sizeof(char)          = {}B\n"
-                    "\nsizeof(Node)           = {}B\n",
+                    "\nsizeof(Node)           = {}B",
                     ARK_COMPILER,
                     // value
                     sizeof(Ark::Value),
@@ -270,7 +271,7 @@ int main(int argc, char** argv)
             {
                 JsonCompiler compiler(debug, lib_paths);
                 compiler.feed(file);
-                std::cout << compiler.compile() << std::endl;
+                fmt::println("{}", compiler.compile());
                 break;
             }
 
@@ -303,7 +304,7 @@ int main(int argc, char** argv)
                 Formatter formatter(file, dry_run);
                 formatter.run();
                 if (dry_run)
-                    std::cout << formatter.output() << std::endl;
+                    fmt::println("{}", formatter.output());
             }
         }
     }

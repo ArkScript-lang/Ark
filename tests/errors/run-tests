@@ -23,7 +23,7 @@ passed=0
 failed=0
 
 for f in ./**/*.ark; do
-    output=$($ark "$f" --lib ../../lib 2>&1)
+    output=$($ark "$f" --lib ../../lib 2>&1 | sed -r "s/\x1B\[([0-9]{1,3}(;[0-9]+;?)*)?[mGK]//g")
     expected=$(cat "${f%.*}.expected")
 
     case "$output" in

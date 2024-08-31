@@ -47,27 +47,21 @@ namespace Ark::internal
         void info(const char* fmt, Args&&... args)
         {
             if (shouldInfo())
-                std::cout << fmt::format("[INFO ][{}] ", m_name)
-                          << fmt::vformat(fmt, fmt::make_format_args(args...))
-                          << std::endl;
+                fmt::println("[INFO ][{}] {}", m_name, fmt::vformat(fmt, fmt::make_format_args(args...)));
         }
 
         template <typename... Args>
         void debug(const char* fmt, Args&&... args)
         {
             if (shouldDebug())
-                std::cout << fmt::format("[DEBUG][{}] ", m_name)
-                          << fmt::vformat(fmt, fmt::make_format_args(args...))
-                          << std::endl;
+                fmt::println("[DEBUG][{}] {}", m_name, fmt::vformat(fmt, fmt::make_format_args(args...)));
         }
 
         template <typename... Args>
         void trace(const char* fmt, Args&&... args)
         {
             if (shouldTrace())
-                std::cout << fmt::format("[TRACE][{}] ", m_name)
-                          << fmt::vformat(fmt, fmt::make_format_args(args...))
-                          << std::endl;
+                fmt::println("[TRACE][{}] {}", m_name, fmt::vformat(fmt, fmt::make_format_args(args...)));
         }
 
     private:

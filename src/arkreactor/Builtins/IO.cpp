@@ -24,8 +24,8 @@ namespace Ark::internal::Builtins::IO
     Value print(std::vector<Value>& n, VM* vm)
     {
         for (auto& value : n)
-            std::cout << value.toString(*vm);
-        std::cout << '\n';
+            fmt::print("{}", value.toString(*vm));
+        fmt::println("");
 
         return nil;
     }
@@ -43,7 +43,7 @@ namespace Ark::internal::Builtins::IO
     Value puts_(std::vector<Value>& n, VM* vm)
     {
         for (auto& value : n)
-            std::cout << value.toString(*vm);
+            fmt::print("{}", value.toString(*vm));
 
         return nil;
     }
@@ -189,6 +189,8 @@ namespace Ark::internal::Builtins::IO
 
         std::vector<Value> r;
         for (const auto& entry : std::filesystem::directory_iterator(n[0].string()))
+            // cppcheck-suppress useStlAlgorithm
+            // We can't use std::transform with a directory_iterator
             r.emplace_back(entry.path().string());
 
         return Value(std::move(r));

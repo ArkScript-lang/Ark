@@ -11,8 +11,8 @@
 
 #include <picosha2.h>
 #include <Ark/Compiler/BytecodeReader.hpp>
-#include <termcolor/proxy.hpp>
 #include <fmt/core.h>
+#include <fmt/color.h>
 
 namespace Ark
 {
@@ -46,7 +46,7 @@ namespace Ark
         }
         catch (const std::exception& e)  // FIXME I don't like this shit
         {
-            std::cout << e.what() << std::endl;
+            fmt::println("{}", e.what());
             return false;
         }
     }
@@ -73,8 +73,7 @@ namespace Ark
     {
         if (!Utils::fileExists(file))
         {
-            std::cerr << termcolor::red << "Can not find file '" << file << "'\n"
-                      << termcolor::reset;
+            fmt::print(fmt::fg(fmt::color::red), "Can not find file '{}'\n", file);
             return false;
         }
         m_filename = file;

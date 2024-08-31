@@ -4,9 +4,9 @@
 #include <Ark/Builtins/Builtins.hpp>
 
 #include <iomanip>
-#include <termcolor/proxy.hpp>
 #include <picosha2.h>
 #include <fmt/core.h>
+#include <fmt/color.h>
 
 namespace Ark
 {
@@ -198,34 +198,30 @@ namespace Ark
                                  const std::optional<uint16_t> sEnd,
                                  const std::optional<uint16_t> cPage) const
     {
-        std::ostream& os = std::cout;
-
         if (!checkMagic())
         {
-            os << "Invalid format";
+            fmt::print("Invalid format");
             return;
         }
 
         auto [major, minor, patch] = version();
-        os << "Version:   " << major << "." << minor << "." << patch << "\n";
-        os << "Timestamp: " << timestamp() << "\n";
-        os << "SHA256:    ";
+        fmt::println("Version:   {}.{}.{}", major, minor, patch);
+        fmt::println("Timestamp: {}", timestamp());
+        fmt::print("SHA256:    ");
         for (const auto sha = sha256(); unsigned char h : sha)
-            os << fmt::format("{:02x}", h);
-        os << "\n\n";
+            fmt::print("{:02x}", h);
+        fmt::print("\n\n");
 
         // reading the different tables, one after another
 
         if ((sStart.has_value() && !sEnd.has_value()) || (!sStart.has_value() && sEnd.has_value()))
         {
-            os << termcolor::red << "Both start and end parameter need to be provided together\n"
-               << termcolor::reset;
+            fmt::print(fmt::fg(fmt::color::red), "Both start and end parameter need to be provided together\n");
             return;
         }
         if (sStart.has_value() && sEnd.has_value() && sStart.value() >= sEnd.value())
         {
-            os << termcolor::red << "Invalid slice start and end arguments\n"
-               << termcolor::reset;
+            fmt::print(fmt::fg(fmt::color::red), "Invalid slice start and end arguments\n");
             return;
         }
 
@@ -240,12 +236,12 @@ namespace Ark
             bool showSym = (segment == BytecodeSegment::All || segment == BytecodeSegment::Symbols);
 
             if (showSym && sStart.has_value() && sEnd.has_value() && (sStart.value() > size || sEnd.value() > size))
-                os << termcolor::red << "Slice start or end can't be greater than the segment size: " << size << "\n";
+                fmt::print(fmt::fg(fmt::color::red), "Slice start or end can't be greater than the segment size: {}\n", size);
             else if (showSym && sStart.has_value() && sEnd.has_value())
                 sliceSize = sEnd.value() - sStart.value() + 1;
 
             if (showSym || segment == BytecodeSegment::HeadersOnly)
-                os << termcolor::cyan << "Symbols table" << termcolor::reset << " (length: " << sliceSize << ")\n";
+                fmt::println("{} (length: {})", fmt::styled("Symbols table", fmt::fg(fmt::color::cyan)), sliceSize);
 
             for (std::size_t j = 0; j < size; ++j)
             {
@@ -253,11 +249,11 @@ namespace Ark
                     showSym = showSym && (j >= start.value() && j <= end.value());
 
                 if (showSym)
-                    os << fmt::format("{}) {}\n", j, syms.symbols[j]);
+                    fmt::println("{}) {}", j, syms.symbols[j]);
             }
 
             if (showSym)
-                os << "\n";
+                fmt::print("\n");
             if (segment == BytecodeSegment::Symbols)
                 return;
         }
@@ -269,12 +265,12 @@ namespace Ark
 
             bool showVal = (segment == BytecodeSegment::All || segment == BytecodeSegment::Values);
             if (showVal && sStart.has_value() && sEnd.has_value() && (sStart.value() > size || sEnd.value() > size))
-                os << termcolor::red << "Slice start or end can't be greater than the segment size: " << size << "\n";
+                fmt::print(fmt::fg(fmt::color::red), "Slice start or end can't be greater than the segment size: {}\n", size);
             else if (showVal && sStart.has_value() && sEnd.has_value())
                 sliceSize = sEnd.value() - sStart.value() + 1;
 
             if (showVal || segment == BytecodeSegment::HeadersOnly)
-                os << termcolor::green << "Constants table" << termcolor::reset << " (length: " << sliceSize << ")\n";
+                fmt::println("{} (length: {})", fmt::styled("Constants table", fmt::fg(fmt::color::cyan)), sliceSize);
 
             for (std::size_t j = 0; j < size; ++j)
             {
@@ -286,25 +282,23 @@ namespace Ark
                     switch (const auto val = vals.values[j]; val.valueType())
                     {
                         case ValueType::Number:
-                            os << fmt::format("{}) (Number) {}\n", j, val.number());
+                            fmt::println("{}) (Number) {}", j, val.number());
                             break;
                         case ValueType::String:
-                            os << fmt::format("{}) (String) {}\n", j, val.string());
+                            fmt::println("{}) (String) {}", j, val.string());
                             break;
                         case ValueType::PageAddr:
-                            os << fmt::format("{}) (PageAddr) {}\n", j, val.pageAddr());
+                            fmt::println("{}) (PageAddr) {}", j, val.pageAddr());
                             break;
                         default:
-                            os << termcolor::red << "Value type not handled: " << types_to_str[static_cast<std::size_t>(val.valueType())]
-                               << '\n'
-                               << termcolor::reset;
+                            fmt::print(fmt::fg(fmt::color::red), "Value type not handled: {}\n", types_to_str[static_cast<std::size_t>(val.valueType())]);
                             break;
                     }
                 }
             }
 
             if (showVal)
-                os << "\n";
+                fmt::print("\n");
             if (segment == BytecodeSegment::Values)
                 return;
         }
@@ -323,6 +317,44 @@ namespace Ark
             }
         };
 
+        enum class ArgKind
+        {
+            Symbol,
+            Value,
+            Builtin,
+            Raw
+        };
+
+        struct Arg
+        {
+            ArgKind kind;
+            uint16_t arg;
+        };
+
+        const auto color_print_inst = [&syms, &vals, &stringify_value](const std::string& name, std::optional<Arg> arg = std::nullopt) {
+            fmt::print("{}", fmt::styled(name, fmt::fg(fmt::color::gold)));
+            if (arg.has_value())
+            {
+                switch (auto [kind, idx] = arg.value(); kind)
+                {
+                    case ArgKind::Symbol:
+                        fmt::print(fmt::fg(fmt::color::green), " {}\n", syms.symbols[idx]);
+                        break;
+                    case ArgKind::Value:
+                        fmt::print(fmt::fg(fmt::color::magenta), " {}\n", stringify_value(vals.values[idx]));
+                        break;
+                    case ArgKind::Builtin:
+                        fmt::print(" {}\n", Builtins::builtins[idx].first);
+                        break;
+                    case ArgKind::Raw:
+                        fmt::print(fmt::fg(fmt::color::red), " ({})\n", idx);
+                        break;
+                }
+            }
+            else
+                fmt::print("\n");
+        };
+
         if (segment == BytecodeSegment::All || segment == BytecodeSegment::Code || segment == BytecodeSegment::HeadersOnly)
         {
             uint16_t pp = 0;
@@ -335,12 +367,16 @@ namespace Ark
                     displayCode = pp == wanted_page.value();
 
                 if (displayCode)
-                    os << termcolor::magenta << "Code segment " << pp << termcolor::reset << " (length: " << page.size() << ")\n";
+                    fmt::println(
+                        "{} {} (length: {})",
+                        fmt::styled("Code segment", fmt::fg(fmt::color::magenta)),
+                        fmt::styled(pp, fmt::fg(fmt::color::magenta)),
+                        page.size());
 
                 if (page.empty())
                 {
                     if (displayCode)
-                        os << "NOP";
+                        fmt::print("NOP");
                 }
                 else
                 {
@@ -348,7 +384,7 @@ namespace Ark
                     {
                         if (sStart.has_value() && sEnd.has_value() && ((sStart.value() > page.size()) || (sEnd.value() > page.size())))
                         {
-                            os << termcolor::red << "Slice start or end can't be greater than the segment size: " << page.size() << termcolor::reset << "\n";
+                            fmt::print(fmt::fg(fmt::color::red), "Slice start or end can't be greater than the segment size: {}\n", page.size());
                             return;
                         }
 
@@ -359,125 +395,122 @@ namespace Ark
                             const auto arg = static_cast<uint16_t>((page[j + 2] << 8) + page[j + 3]);
 
                             // instruction number
-                            os << termcolor::cyan << fmt::format("{:>4}", j / 4) << termcolor::reset;
+                            fmt::print(fmt::fg(fmt::color::cyan), "{:>4}", j / 4);
                             // padding inst arg arg
-                            os << fmt::format(" {:02x} {:02x} {:02x} {:02x} ", padding, inst, page[j + 2], page[j + 3]);
-                            os << termcolor::yellow;
+                            fmt::print(" {:02x} {:02x} {:02x} {:02x} ", padding, inst, page[j + 2], page[j + 3]);
 
                             if (inst == NOP)
-                                os << "NOP\n";
+                                color_print_inst("NOP");
                             else if (inst == LOAD_SYMBOL)
-                                os << "LOAD_SYMBOL " << termcolor::green << syms.symbols[arg] << "\n";
+                                color_print_inst("LOAD_SYMBOL", Arg { ArgKind::Symbol, arg });
                             else if (inst == LOAD_CONST)
-                                os << "LOAD_CONST " << termcolor::magenta << stringify_value(vals.values[arg]) << "\n";
+                                color_print_inst("LOAD_CONST", Arg { ArgKind::Symbol, arg });
                             else if (inst == POP_JUMP_IF_TRUE)
-                                os << "POP_JUMP_IF_TRUE " << termcolor::red << "(" << arg << ")\n";
+                                color_print_inst("POP_JUMP_IF_TRUE", Arg { ArgKind::Raw, arg });
                             else if (inst == STORE)
-                                os << "STORE " << termcolor::green << syms.symbols[arg] << "\n";
+                                color_print_inst("STORE", Arg { ArgKind::Symbol, arg });
                             else if (inst == LET)
-                                os << "LET " << termcolor::green << syms.symbols[arg] << "\n";
+                                color_print_inst("LET", Arg { ArgKind::Symbol, arg });
                             else if (inst == POP_JUMP_IF_FALSE)
-                                os << "POP_JUMP_IF_FALSE " << termcolor::red << "(" << arg << ")\n";
+                                color_print_inst("POP_JUMP_IF_FALSE", Arg { ArgKind::Raw, arg });
                             else if (inst == JUMP)
-                                os << "JUMP " << termcolor::red << "(" << arg << ")\n";
+                                color_print_inst("JUMP", Arg { ArgKind::Raw, arg });
                             else if (inst == RET)
-                                os << "RET\n";
+                                color_print_inst("RET");
                             else if (inst == HALT)
-                                os << "HALT\n";
+                                color_print_inst("HALT");
                             else if (inst == CALL)
-                                os << "CALL " << termcolor::reset << "(" << arg << ")\n";
+                                color_print_inst("CALL", Arg { ArgKind::Raw, arg });
                             else if (inst == CAPTURE)
-                                os << "CAPTURE " << termcolor::reset << syms.symbols[arg] << "\n";
+                                color_print_inst("CAPTURE", Arg { ArgKind::Symbol, arg });
                             else if (inst == BUILTIN)
-                                os << "BUILTIN " << termcolor::reset << Builtins::builtins[arg].first << "\n";
+                                color_print_inst("BUILTIN", Arg { ArgKind::Builtin, arg });
                             else if (inst == MUT)
-                                os << "MUT " << termcolor::green << syms.symbols[arg] << "\n";
+                                color_print_inst("MUT", Arg { ArgKind::Symbol, arg });
                             else if (inst == DEL)
-                                os << "DEL " << termcolor::green << syms.symbols[arg] << "\n";
+                                color_print_inst("DEL", Arg { ArgKind::Symbol, arg });
                             else if (inst == SAVE_ENV)
-                                os << "SAVE_ENV\n";
+                                color_print_inst("SAVE_ENV");
                             else if (inst == GET_FIELD)
-                                os << "GET_FIELD " << termcolor::green << syms.symbols[arg] << "\n";
+                                color_print_inst("GET_FIELD", Arg { ArgKind::Symbol, arg });
                             else if (inst == PLUGIN)
-                                os << "PLUGIN " << termcolor::magenta << stringify_value(vals.values[arg]) << "\n";
+                                color_print_inst("PLUGIN", Arg { ArgKind::Value, arg });
                             else if (inst == LIST)
-                                os << "LIST " << termcolor::reset << "(" << arg << ")\n";
+                                color_print_inst("LIST", Arg { ArgKind::Raw, arg });
                             else if (inst == APPEND)
-                                os << "APPEND " << termcolor::reset << "(" << arg << ")\n";
+                                color_print_inst("APPEND", Arg { ArgKind::Raw, arg });
                             else if (inst == CONCAT)
-                                os << "CONCAT " << termcolor::reset << "(" << arg << ")\n";
+                                color_print_inst("CONCAT", Arg { ArgKind::Raw, arg });
                             else if (inst == APPEND_IN_PLACE)
-                                os << "APPEND_IN_PLACE " << termcolor::reset << "(" << arg << ")\n";
+                                color_print_inst("APPEND_IN_PLACE", Arg { ArgKind::Raw, arg });
                             else if (inst == CONCAT_IN_PLACE)
-                                os << "CONCAT_IN_PLACE " << termcolor::reset << "(" << arg << ")\n";
+                                color_print_inst("CONCAT_IN_PLACE", Arg { ArgKind::Raw, arg });
                             else if (inst == POP_LIST)
-                                os << "POP_LIST " << termcolor::reset << "\n";
+                                color_print_inst("POP_LIST");
                             else if (inst == POP_LIST_IN_PLACE)
-                                os << "POP_LIST_IN_PLACE " << termcolor::reset << "\n";
+                                color_print_inst("POP_LIST_IN_PLACE");
                             else if (inst == POP)
-                                os << "POP\n";
+                                color_print_inst("POP");
                             else if (inst == ADD)
-                                os << "ADD\n";
+                                color_print_inst("ADD");
                             else if (inst == SUB)
-                                os << "SUB\n";
+                                color_print_inst("SUB");
                             else if (inst == MUL)
-                                os << "MUL\n";
+                                color_print_inst("MUL");
                             else if (inst == DIV)
-                                os << "DIV\n";
+                                color_print_inst("DIV");
                             else if (inst == GT)
-                                os << "GT\n";
+                                color_print_inst("GT");
                             else if (inst == LT)
-                                os << "LT\n";
+                                color_print_inst("LT");
                             else if (inst == LE)
-                                os << "LE\n";
+                                color_print_inst("LE");
                             else if (inst == GE)
-                                os << "GE\n";
+                                color_print_inst("GE");
                             else if (inst == NEQ)
-                                os << "NEQ\n";
+                                color_print_inst("NEQ");
                             else if (inst == EQ)
-                                os << "EQ\n";
+                                color_print_inst("EQ");
                             else if (inst == LEN)
-                                os << "LEN\n";
+                                color_print_inst("LEN");
                             else if (inst == EMPTY)
-                                os << "EMPTY\n";
+                                color_print_inst("EMPTY");
                             else if (inst == TAIL)
-                                os << "TAIL\n";
+                                color_print_inst("TAIL");
                             else if (inst == HEAD)
-                                os << "HEAD\n";
+                                color_print_inst("HEAD");
                             else if (inst == ISNIL)
-                                os << "ISNIL\n";
+                                color_print_inst("ISNIL");
                             else if (inst == ASSERT)
-                                os << "ASSERT\n";
+                                color_print_inst("ASSERT");
                             else if (inst == TO_NUM)
-                                os << "TO_NUM\n";
+                                color_print_inst("TO_NUM");
                             else if (inst == TO_STR)
-                                os << "TO_STR\n";
+                                color_print_inst("TO_STR");
                             else if (inst == AT)
-                                os << "AT\n";
+                                color_print_inst("AT");
                             else if (inst == AND_)
-                                os << "AND_\n";
+                                color_print_inst("AND_");
                             else if (inst == OR_)
-                                os << "OR_\n";
+                                color_print_inst("OR_");
                             else if (inst == MOD)
-                                os << "MOD\n";
+                                color_print_inst("MOD");
                             else if (inst == TYPE)
-                                os << "TYPE\n";
+                                color_print_inst("TYPE");
                             else if (inst == HASFIELD)
-                                os << "HASFIELD\n";
+                                color_print_inst("HASFIELD");
                             else if (inst == NOT)
-                                os << "NOT\n";
+                                color_print_inst("NOT");
                             else
                             {
-                                os << termcolor::reset << fmt::format("Unknown instruction: {:02x}", inst) << '\n'
-                                   << termcolor::reset;
+                                fmt::println("Unknown instruction: {:02x}", inst);
                                 return;
                             }
                         }
                     }
                 }
                 if (displayCode && segment != BytecodeSegment::HeadersOnly)
-                    os << "\n"
-                       << termcolor::reset;
+                    fmt::print("\n");
 
                 ++pp;
             }

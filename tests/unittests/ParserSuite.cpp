@@ -3,7 +3,6 @@
 #include <Ark/Files.hpp>
 #include <Ark/Compiler/AST/Parser.hpp>
 #include <Ark/Exceptions.hpp>
-#include <termcolor/proxy.hpp>
 
 #include <sstream>
 #include <algorithm>
@@ -82,8 +81,7 @@ ut::suite<"Parser"> parser_suite = [] {
                 catch (const Ark::CodeError& e)
                 {
                     std::stringstream ss;
-                    ss << termcolor::nocolorize;
-                    Ark::Diagnostics::generate(e, "", ss);
+                    Ark::Diagnostics::generate(e, ss, /* colorize= */ false);
 
                     should("output the same error message (" + data.stem + ")") = [&] {
                         std::string tested = ss.str();

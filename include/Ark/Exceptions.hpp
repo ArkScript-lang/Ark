@@ -111,8 +111,9 @@ namespace Ark
          * @param target_line line where the error is
          * @param col_start where the error starts on the given line
          * @param sym_size bad expression that triggered the error
+         * @param colorize generate colors or not
          */
-        ARK_API void makeContext(std::ostream& os, const std::string& code, std::size_t target_line, std::size_t col_start, std::size_t sym_size);
+        ARK_API void makeContext(std::ostream& os, const std::string& code, std::size_t target_line, std::size_t col_start, std::size_t sym_size, bool colorize);
 
         /**
          * @brief Helper used by the compiler to generate a colorized context from a node
@@ -127,10 +128,10 @@ namespace Ark
          * @brief Generate a diagnostic from an error and print it to the standard output
          *
          * @param e code error
-         * @param code code of the file in which the error occurred
          * @param os output stream
+         * @param colorize generate colors or not
          */
-        ARK_API void generate(const CodeError& e, std::string code = "", std::ostream& os = std::cout);
+        ARK_API void generate(const CodeError& e, std::ostream& os = std::cout, bool colorize = true);
     }
 }
 

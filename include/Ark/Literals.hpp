@@ -23,6 +23,11 @@ namespace Ark::literals
     {
         return static_cast<uint16_t>(num);
     }
+
+    inline std::size_t operator""_z(const unsigned long long int num)
+    {
+        return static_cast<std::size_t>(num);
+    }
 }
 
 #endif  // ARK_LITERALS

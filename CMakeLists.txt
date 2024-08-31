@@ -102,9 +102,6 @@ endif ()
 
 # Link libraries
 
-add_subdirectory("${ark_SOURCE_DIR}/lib/termcolor" EXCLUDE_FROM_ALL)
-target_link_libraries(ArkReactor PUBLIC termcolor)
-
 target_include_directories(ArkReactor
         SYSTEM PUBLIC
         "${ark_SOURCE_DIR}/lib/picosha2/"
@@ -179,7 +176,7 @@ if (ARK_TESTS)
 
     add_subdirectory(${ark_SOURCE_DIR}/lib/ut)
     target_include_directories(unittests PUBLIC ${ark_SOURCE_DIR}/include)
-    target_link_libraries(unittests PUBLIC ArkReactor termcolor ut)
+    target_link_libraries(unittests PUBLIC ArkReactor ut)
 
     add_compile_definitions(BOOST_UT_DISABLE_MODULE)
     target_compile_features(unittests PRIVATE cxx_std_20)
@@ -192,7 +189,7 @@ if (ARK_BENCHMARKS)
     CPMAddPackage("gh:google/benchmark@1.8.3")
 
     add_executable(bench tests/benchmarks/main.cpp)
-    target_link_libraries(bench PUBLIC ArkReactor termcolor benchmark::benchmark)
+    target_link_libraries(bench PUBLIC ArkReactor benchmark::benchmark)
     target_compile_features(bench PRIVATE cxx_std_20)
     target_compile_definitions(bench PRIVATE ARK_TESTS_ROOT="${CMAKE_CURRENT_SOURCE_DIR}/")
     enable_lto(bench)
@@ -209,7 +206,7 @@ if (ARK_BUILD_EXE)
     add_subdirectory("${ark_SOURCE_DIR}/lib/clipp" EXCLUDE_FROM_ALL)
 
     target_include_directories(arkscript SYSTEM PUBLIC "${ark_SOURCE_DIR}/lib/clipp/include")
-    target_link_libraries(arkscript PUBLIC ArkReactor replxx clipp termcolor)
+    target_link_libraries(arkscript PUBLIC ArkReactor replxx clipp)
     target_compile_features(arkscript PRIVATE cxx_std_20)
 
     enable_lto(arkscript)
