@@ -557,29 +557,16 @@ namespace Ark
 
     void Compiler::handleCalls(const Node& x, const Page p, bool is_result_unused, const bool is_terminal, const std::string& var_name)
     {
-        m_temp_pages.emplace_back();
-        const auto proc_page = Page { .index = m_temp_pages.size() - 1u, .is_temp = true };
         constexpr std::size_t start_index = 1;
 
         const auto node = x.constList()[0];
         const auto maybe_operator = node.nodeType() == NodeType::Symbol ? getOperator(node.string()) : std::nullopt;
-        if (maybe_operator.has_value())
-            page(proc_page).emplace_back(maybe_operator.value());
-        else
-            // closure chains have been handled (eg: closure.field.field.function)
-            compileExpression(node, proc_page, false, false);  // storing proc
-
-        if (m_temp_pages.back().empty())
-            throwCompilerError(fmt::format("Can not call {}", x.constList()[0].repr()), x);
 
         // it's a builtin/function
-        if (m_temp_pages.back()[0].opcode < FIRST_OPERATOR)
+        if (!maybe_operator.has_value())
         {
             if (is_terminal && x.constList()[0].nodeType() == NodeType::Symbol && var_name == x.constList()[0].string())
             {
-                // we can drop the temp page as we won't be using it
-                m_temp_pages.pop_back();
-
                 // push the arguments in reverse order
                 for (std::size_t i = x.constList().size() - 1; i >= start_index; --i)
                 {
@@ -595,6 +582,13 @@ namespace Ark
             }
             else
             {
+                m_temp_pages.emplace_back();
+                const auto proc_page = Page { .index = m_temp_pages.size() - 1u, .is_temp = true };
+                // closure chains have been handled (eg: closure.field.field.function)
+                compileExpression(node, proc_page, false, false);  // storing proc
+                if (m_temp_pages.back().empty())
+                    throwCompilerError(fmt::format("Can not call {}", x.constList()[0].repr()), x);
+
                 // push arguments on current page
                 for (auto exp = x.constList().begin() + start_index, exp_end = x.constList().end(); exp != exp_end; ++exp)
                 {
@@ -622,8 +616,7 @@ namespace Ark
         else  // operator
         {
             // retrieve operator
-            auto op = m_temp_pages.back()[0];
-            m_temp_pages.pop_back();
+            auto op = Word(maybe_operator.value());
 
             if (op.opcode == ASSERT)
                 is_result_unused = false;
