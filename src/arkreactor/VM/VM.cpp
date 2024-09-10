@@ -318,7 +318,7 @@ namespace Ark
 
                     case POP_JUMP_IF_TRUE:
                     {
-                        if (*popAndResolveAsPtr(context) == Builtins::trueSym)
+                        if (Value boolean = *popAndResolveAsPtr(context); !!boolean)
                             context.ip = arg * 4;  // instructions are 4 bytes
                         break;
                     }
@@ -360,7 +360,7 @@ namespace Ark
 
                     case POP_JUMP_IF_FALSE:
                     {
-                        if (*popAndResolveAsPtr(context) == Builtins::falseSym)
+                        if (Value boolean = *popAndResolveAsPtr(context); !boolean)
                             context.ip = arg * 4;  // instructions are 4 bytes
                         break;
                     }
@@ -682,6 +682,13 @@ namespace Ark
                         break;
                     }
 
+                    case DUP:
+                    {
+                        context.stack[context.sp] = context.stack[context.sp - 1];
+                        ++context.sp;
+                        break;
+                    }
+
 #pragma endregion
 
 #pragma region "Operators"
@@ -978,22 +985,6 @@ namespace Ark
                                 { { types::Contract { { types::Typedef("src", ValueType::List), types::Typedef("idx", ValueType::Number) } },
                                     types::Contract { { types::Typedef("src", ValueType::String), types::Typedef("idx", ValueType::Number) } } } },
                                 { a, *b });
-                        break;
-                    }
-
-                    case AND_:
-                    {
-                        Value *a = popAndResolveAsPtr(context), *b = popAndResolveAsPtr(context);
-
-                        push((*a == Builtins::trueSym && *b == Builtins::trueSym) ? Builtins::trueSym : Builtins::falseSym, context);
-                        break;
-                    }
-
-                    case OR_:
-                    {
-                        Value *a = popAndResolveAsPtr(context), *b = popAndResolveAsPtr(context);
-
-                        push((*b == Builtins::trueSym || *a == Builtins::trueSym) ? Builtins::trueSym : Builtins::falseSym, context);
                         break;
                     }
 

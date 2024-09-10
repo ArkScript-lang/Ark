@@ -102,6 +102,13 @@
         (test:eq (@ ["h" "e" "l" "l" "o"] -1) "o")
         (test:eq (@ ["h" "e" "l" "l" "o"] -4) "e") })
 
+    (test:case "Short-circuiting" {
+        (let falsy (fun () {
+            (test:expect false)
+            false }))
+        (test:expect (or true (falsy)))
+        (test:expect (not (and false (falsy)))) })
+
     (test:case "De Morgan's law" {
         (test:expect (and true true true))
         (test:expect (not (and true nil true)))

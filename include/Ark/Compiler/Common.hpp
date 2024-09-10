@@ -100,7 +100,7 @@ namespace Ark::internal
         "len", "empty?", "tail", "head",
         "nil?", "assert",
         "toNumber", "toString",
-        "@", "and", "or", "mod",
+        "@", "mod",
         "type", "hasField",
         "not"
     };

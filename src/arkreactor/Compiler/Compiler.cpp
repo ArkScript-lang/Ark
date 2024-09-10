@@ -562,8 +562,52 @@ namespace Ark
         const auto node = x.constList()[0];
         const auto maybe_operator = node.nodeType() == NodeType::Symbol ? getOperator(node.string()) : std::nullopt;
 
-        // it's a builtin/function
-        if (!maybe_operator.has_value())
+        enum class ShortcircuitOp
+        {
+            And,
+            Or
+        };
+        const std::optional<ShortcircuitOp> maybe_shortcircuit =
+            node.nodeType() == NodeType::Symbol
+            ? (node.string() == "and"
+                   ? std::make_optional(ShortcircuitOp::And)
+                   : (node.string() == "or"
+                          ? std::make_optional(ShortcircuitOp::Or)
+                          : std::nullopt))
+            : std::nullopt;
+
+        if (maybe_shortcircuit.has_value())
+        {
+            // short circuit implementation
+
+            compileExpression(x.constList()[1], p, false, false);
+            page(p).emplace_back(DUP);
+
+            std::vector<std::size_t> to_update;
+            for (std::size_t i = 2, end = x.constList().size(); i < end; ++i)
+            {
+                to_update.push_back(page(p).size());
+
+                switch (maybe_shortcircuit.value())
+                {
+                    case ShortcircuitOp::And:
+                        page(p).emplace_back(POP_JUMP_IF_FALSE);
+                        break;
+                    case ShortcircuitOp::Or:
+                        page(p).emplace_back(POP_JUMP_IF_TRUE);
+                        break;
+                }
+                page(p).emplace_back(POP);
+
+                compileExpression(x.constList()[i], p, false, false);
+                if (i + 1 != end)
+                    page(p).emplace_back(DUP);
+            }
+
+            for (const auto pos : to_update)
+                page(p)[pos].data = static_cast<uint16_t>(page(p).size());
+        }
+        else if (!maybe_operator.has_value())
         {
             if (is_terminal && x.constList()[0].nodeType() == NodeType::Symbol && var_name == x.constList()[0].string())
             {
@@ -660,8 +704,6 @@ namespace Ark
                     case SUB: [[fallthrough]];
                     case MUL: [[fallthrough]];
                     case DIV: [[fallthrough]];
-                    case AND_: [[fallthrough]];
-                    case OR_: [[fallthrough]];
                     case MOD:
                         break;
 
