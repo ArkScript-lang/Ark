@@ -75,6 +75,9 @@ namespace Ark::internal
             m_language_symbols.emplace(ope);
         for (auto inst : listInstructions)
             m_language_symbols.emplace(inst);
+
+        m_language_symbols.emplace("and");
+        m_language_symbols.emplace("or");
     }
 
     void NameResolutionPass::process(const Node& ast)

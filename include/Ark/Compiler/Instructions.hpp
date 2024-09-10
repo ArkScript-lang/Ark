@@ -58,7 +58,8 @@ namespace Ark::internal
         POP_LIST = 0x17,
         POP_LIST_IN_PLACE = 0x18,
         POP = 0x19,
-        LAST_COMMAND = 0x19,
+        DUP = 0x1a,
+        LAST_COMMAND = 0x1a,
 
         FIRST_OPERATOR = 0x20,
         ADD = 0x20,
@@ -80,15 +81,13 @@ namespace Ark::internal
         TO_NUM = 0x30,
         TO_STR = 0x31,
         AT = 0x32,
-        AND_ = 0x33,
-        OR_ = 0x34,
-        MOD = 0x35,
-        TYPE = 0x36,
-        HASFIELD = 0x37,
-        NOT = 0x38,
-        LAST_OPERATOR = 0x38,
+        MOD = 0x33,
+        TYPE = 0x34,
+        HASFIELD = 0x35,
+        NOT = 0x36,
+        LAST_OPERATOR = 0x36,
 
-        LAST_INSTRUCTION = 0x38
+        LAST_INSTRUCTION = 0x36
     };
 }
 

@@ -404,7 +404,7 @@ namespace Ark
                             else if (inst == LOAD_SYMBOL)
                                 color_print_inst("LOAD_SYMBOL", Arg { ArgKind::Symbol, arg });
                             else if (inst == LOAD_CONST)
-                                color_print_inst("LOAD_CONST", Arg { ArgKind::Symbol, arg });
+                                color_print_inst("LOAD_CONST", Arg { ArgKind::Value, arg });
                             else if (inst == POP_JUMP_IF_TRUE)
                                 color_print_inst("POP_JUMP_IF_TRUE", Arg { ArgKind::Raw, arg });
                             else if (inst == STORE)
@@ -451,6 +451,8 @@ namespace Ark
                                 color_print_inst("POP_LIST_IN_PLACE");
                             else if (inst == POP)
                                 color_print_inst("POP");
+                            else if (inst == DUP)
+                                color_print_inst("DUP");
                             else if (inst == ADD)
                                 color_print_inst("ADD");
                             else if (inst == SUB)
@@ -489,10 +491,6 @@ namespace Ark
                                 color_print_inst("TO_STR");
                             else if (inst == AT)
                                 color_print_inst("AT");
-                            else if (inst == AND_)
-                                color_print_inst("AND_");
-                            else if (inst == OR_)
-                                color_print_inst("OR_");
                             else if (inst == MOD)
                                 color_print_inst("MOD");
                             else if (inst == TYPE)
@@ -502,10 +500,7 @@ namespace Ark
                             else if (inst == NOT)
                                 color_print_inst("NOT");
                             else
-                            {
-                                fmt::println("Unknown instruction: {:02x}", inst);
-                                return;
-                            }
+                                fmt::println("Unknown instruction");
                         }
                     }
                 }

@@ -23,6 +23,7 @@
 - introduced `Ark::internal::Pass` to describe compiler passes: they all output an AST (parser, import solver, macro processor, and optimizer for now)
 - add `-f(no-)importsolver`, `-f(no-)macroprocessor` and `-f(no-)optimizer` to toggle on and off those compiler passes
 - added resolving `empty?` as a macro when possible
+- added short circuiting to `and` and `or` implementation
 
 ### Changed
 - instructions are on 4 bytes: 1 byte for the instruction, 1 byte of padding, 2 bytes for an immediate argument
@@ -80,6 +81,7 @@
 - removed `ARK_PROFILER_COUNT` define
 - removed useless `\0` escape in strings
 - removed `termcolor` dependency to rely on `fmt` for coloring outputs
+- removed `and` and `or` instructions in favor of a better implementation to support short circuiting
 
 ## [3.5.0] - 2023-02-19
 ### Added
