@@ -9,7 +9,7 @@ You will find here a summary of the different things you should do / look up to 
     * HTTPS: `git clone https://github.com/<username>/Ark.git`
     * or SSH: `git clone git@github.com:<username>/Ark.git`
 * Install the pre-commit hooks: `pre-commit install` (you may need to [install pre-commit](https://pre-commit.com/#install) first)
-* Create a branch for your feature: `git checkout -b feat/my-awesome-idea`
+* Create a branch for your feature: `git switch -c feat/my-awesome-idea`
 * When you're done, push it to your fork and submit a pull request
 
 Don't know what to work on? No worries, we have a [list of things to do](https://github.com/ArkScript-lang/Ark/projects). Also, you can check the issues to find something to do!
