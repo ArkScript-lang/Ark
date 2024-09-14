@@ -87,6 +87,32 @@ ut::suite<"VM"> vm_suite = [] {
         };
     };
 
+    "[reset the VM and use it to run code again]"_test = [] {
+        Ark::State state;
+
+        should("compile the string without any error") = [&] {
+            expect(mut(state).doString("(let foo (fun (a b) (+ a b))) (let t (time))"));
+        };
+
+        Ark::VM vm(state);
+        double timestamp = 0.0;
+        should("return exit code 0") = [&] {
+            expect(mut(vm).run() == 0_i);
+            timestamp = vm["t"].number();
+        };
+
+        should("have symbol foo registered") = [&] {
+            const auto func = mut(vm)["foo"];
+            expect(func.isFunction());
+        };
+
+        should("reset VM by running code again") = [&] {
+            expect(mut(vm).run() == 0_i);
+            const double new_time = vm["t"].number();
+            expect(that % timestamp < new_time);
+        };
+    };
+
     "[load cpp function and call it from arkscript]"_test = [] {
         Ark::State state;
         state.loadFunction("my_function", my_function);
