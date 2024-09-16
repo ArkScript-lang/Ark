@@ -83,7 +83,7 @@ jobs:
           artifact-name: 'arkscript.exe'
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.config.artifact }}
           path: artifact
@@ -101,31 +101,31 @@ jobs:
         run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
 
       - name: Download artifact Linux GCC 14
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: ubuntu-gcc-14
           path: ark-ubuntu-gcc-14
 
       - name: Download artifact Linux Clang 16
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: ubuntu-clang-16
           path: ark-ubuntu-clang-16
 
       - name: Download artifact Windows MSVC 19
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: windows-msvc-22
           path: ark-windows-msvc-22
 
       - name: Download artifact MacOS Clang
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: macos-clang-16
           path: ark-macos-clang-16
 
       - name: Download artifact Windows InnoSetup installer
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: arkscript.exe
           path: ark-windows-installer
