@@ -183,9 +183,13 @@ SYNOPSIS
         arkscript -v
         arkscript --dev-info
         arkscript -e <expression>
-        arkscript -c <file> [-d]
-        arkscript <file> [-d] [-L <lib_dir>]
-        arkscript -f <file> [--dry-run]
+        arkscript -c <file> [-d] [-f(importsolver|no-importsolver)]
+                  [-f(macroprocessor|no-macroprocessor)] [-f(optimizer|no-optimizer)]
+
+        arkscript <file> [-d] [-L <lib_dir>] [-f(importsolver|no-importsolver)]
+                  [-f(macroprocessor|no-macroprocessor)] [-f(optimizer|no-optimizer)]
+
+        arkscript -f <file> [--(dry-run|check)]
         arkscript --ast <file> [-d] [-L <lib_dir>]
         arkscript -bcr <file> -on
         arkscript -bcr <file> -a [-s <start> <end>]
@@ -202,18 +206,40 @@ OPTIONS
         -c, --compile               Compile the given program to bytecode, but do not run
         -d, --debug...              Increase debug level (default: 0)
 
+        -f(importsolver|no-importsolver)
+                                    Toggle on and off the import solver pass
+
+        -f(macroprocessor|no-macroprocessor)
+                                    Toggle on and off the macro processor pass
+
+        -f(optimizer|no-optimizer)  Toggle on and off the optimizer pass
+        -d, --debug...              Increase debug level (default: 0)
+
         -L, --lib                   Set the location of the ArkScript standard library. Paths can be
                                     delimited by ';'
 
+        -f(importsolver|no-importsolver)
+                                    Toggle on and off the import solver pass
+
+        -f(macroprocessor|no-macroprocessor)
+                                    Toggle on and off the macro processor pass
+
+        -f(optimizer|no-optimizer)  Toggle on and off the optimizer pass
         -f, --format                Format the given source file in place
         --dry-run                   Do not modify the file, only print out the changes
+        --check                     Check if a file formating is correctly, without modifying it.
+                                    Return 1 if formating is needed, 0 otherwise
 
         --ast                       Compile the given program and output its AST as JSON to stdout
         -d, --debug...              Increase debug level (default: 0)
+
         -L, --lib                   Set the location of the ArkScript standard library. Paths can be
                                     delimited by ';'
 
         -bcr, --bytecode-reader     Launch the bytecode reader
+        <file>                      If file isn't a bytecode file, the cached compiled will be
+                                    loaded ; if there are none, it will be compiled first
+
         -on, --only-names           Display only the bytecode segments names and sizes
         -a, --all                   Display all the bytecode segments (default)
         -st, --symbols              Display only the symbols table
@@ -223,7 +249,7 @@ OPTIONS
         -s, --slice                 Select a slice of instructions in the bytecode
 
 VERSION
-        4.0.0-86587c14
+        4.0.0-ff04fd55
 
 LICENSE
         Mozilla Public License 2.0
