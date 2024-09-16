@@ -12,11 +12,11 @@ using namespace Ark;
 using namespace Ark::internal;
 
 Formatter::Formatter(bool dry_run) :
-    m_dry_run(dry_run), m_parser(/* debug= */ 0, /* interpret= */ false)
+    m_dry_run(dry_run), m_parser(/* debug= */ 0, /* interpret= */ false), m_updated(false)
 {}
 
 Formatter::Formatter(std::string filename, const bool dry_run) :
-    m_filename(std::move(filename)), m_dry_run(dry_run), m_parser(/* debug= */ 0, /* interpret= */ false)
+    m_filename(std::move(filename)), m_dry_run(dry_run), m_parser(/* debug= */ 0, /* interpret= */ false), m_updated(false)
 {}
 
 void Formatter::run()
@@ -27,6 +27,8 @@ void Formatter::run()
         m_parser.process(m_filename, code);
         processAst(m_parser.ast());
         warnIfCommentsWereRemoved(code, ARK_NO_NAME_FILE);
+
+        m_updated = code != m_output;
     }
     catch (const CodeError& e)
     {
@@ -41,6 +43,8 @@ void Formatter::runWithString(const std::string& code)
         m_parser.process(ARK_NO_NAME_FILE, code);
         processAst(m_parser.ast());
         warnIfCommentsWereRemoved(code, ARK_NO_NAME_FILE);
+
+        m_updated = code != m_output;
     }
     catch (const CodeError& e)
     {
@@ -51,6 +55,11 @@ void Formatter::runWithString(const std::string& code)
 const std::string& Formatter::output() const
 {
     return m_output;
+}
+
+bool Formatter::codeModified() const
+{
+    return m_updated;
 }
 
 void Formatter::processAst(const Node& ast)

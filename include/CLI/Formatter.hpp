@@ -22,11 +22,14 @@ public:
 
     [[nodiscard]] const std::string& output() const;
 
+    [[nodiscard]] bool codeModified() const;
+
 private:
     const std::string m_filename;
     bool m_dry_run;  ///< If true, only prints the formatted file instead of saving it to disk
     Ark::internal::Parser m_parser;
     std::string m_output;
+    bool m_updated;  ///< True if the original code now difer from the formatted one
 
     void processAst(const Ark::internal::Node& ast);
     void warnIfCommentsWereRemoved(const std::string& original_code, const std::string& filename);

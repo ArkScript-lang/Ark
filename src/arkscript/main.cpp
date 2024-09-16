@@ -47,7 +47,8 @@ int main(int argc, char** argv)
     std::string file, eval_expression;
     std::string libdir;
     // Formatting
-    bool dry_run = false;
+    bool format_dry_run = false;
+    bool format_check = false;
     // Generic arguments
     std::vector<std::string> wrong, script_args;
 
@@ -100,7 +101,10 @@ int main(int argc, char** argv)
         | (
             required("-f", "--format").set(selected, mode::format).doc("Format the given source file in place")
             & value("file", file)
-            , option("--dry-run").set(dry_run, true).doc("Do not modify the file, only print out the changes\n")
+            , (
+                option("--dry-run").set(format_dry_run, true).doc("Do not modify the file, only print out the changes")
+                | option("--check").set(format_check, true).doc("Check if a file formating is correctly, without modifying it. Return 1 if formating is needed, 0 otherwise")
+            )
         )
         | (
             required("--ast").set(selected, mode::ast).doc("Compile the given program and output its AST as JSON to stdout")
@@ -301,10 +305,13 @@ int main(int argc, char** argv)
 
             case mode::format:
             {
-                Formatter formatter(file, dry_run);
+                // dry run and check should not update the file
+                Formatter formatter(file, format_dry_run || format_check);
                 formatter.run();
-                if (dry_run)
+                if (format_dry_run)
                     fmt::println("{}", formatter.output());
+                if (formatter.codeModified())
+                    return 1;
             }
         }
     }
