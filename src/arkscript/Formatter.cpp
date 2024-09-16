@@ -259,6 +259,15 @@ std::string Formatter::formatFunction(const Node& node, const std::size_t indent
 
     std::string formatted_args;
 
+    if (!args_node.comment().empty())
+    {
+        formatted_args += "\n";
+        formatted_args += formatComment(args_node.comment(), indent + 1);
+        formatted_args += prefix(indent + 1);
+    }
+    else
+        formatted_args += " ";
+
     if (args_node.isListLike())
     {
         bool comment_in_args = false;
@@ -274,14 +283,14 @@ std::string Formatter::formatFunction(const Node& node, const std::size_t indent
                 args += comment_in_args ? '\n' : ' ';
         }
 
-        formatted_args = fmt::format("({}{})", (comment_in_args ? "\n" : ""), args);
+        formatted_args += fmt::format("({}{})", (comment_in_args ? "\n" : ""), args);
     }
     else
-        formatted_args = format(args_node, indent, false);
+        formatted_args += format(args_node, indent, false);
 
-    if (!shouldSplitOnNewline(body_node))
-        return fmt::format("(fun {} {})", formatted_args, format(body_node, indent + 1, false));
-    return fmt::format("(fun {}\n{})", formatted_args, format(body_node, indent + 1, true));
+    if (!shouldSplitOnNewline(body_node) && args_node.comment().empty())
+        return fmt::format("(fun{} {})", formatted_args, format(body_node, indent + 1, false));
+    return fmt::format("(fun{}\n{})", formatted_args, format(body_node, indent + 1, true));
 }
 
 std::string Formatter::formatVariable(const Node& node, const std::size_t indent)
