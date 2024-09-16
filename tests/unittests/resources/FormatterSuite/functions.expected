@@ -8,7 +8,9 @@
   (fun () {
     hello })
   maybe)
-(fun (
+(fun
+  # test
+  (
   # a
   a
   b

@@ -43,7 +43,7 @@ namespace Ark::internal
             const auto pos = getCount();
             if (auto n = node())
             {
-                m_ast.push_back(n.value().attachNearestCommentBefore(comment));
+                m_ast.push_back(n->attachNearestCommentBefore(n->comment() + comment));
                 comment.clear();
                 if (spaceComment(&comment))
                     m_ast.list().back().attachCommentAfter(comment);
@@ -494,9 +494,8 @@ namespace Ark::internal
             return std::nullopt;
         leaf->push_back(Node(Keyword::Fun));
 
-        std::string comment;
-        newlineOrComment(&comment);
-        leaf->attachNearestCommentBefore(comment);
+        std::string comment_before_args;
+        newlineOrComment(&comment_before_args);
 
         while (m_allow_macro_behavior > 0)
         {
@@ -520,7 +519,7 @@ namespace Ark::internal
                 break;
             }
 
-            comment.clear();
+            std::string comment;
             newlineOrComment(&comment);
             // body
             if (auto value = nodeOrValue(); value.has_value())
@@ -532,19 +531,19 @@ namespace Ark::internal
         }
 
         const auto position = getCount();
-        if (const auto args = functionArgs(); args.has_value())
-            leaf->push_back(args.value());
+        if (auto args = functionArgs(); args.has_value())
+            leaf->push_back(args.value().attachNearestCommentBefore(comment_before_args));
         else
         {
             backtrack(position);
 
-            if (const auto value = nodeOrValue(); value.has_value())
-                leaf->push_back(value.value());
+            if (auto value = nodeOrValue(); value.has_value())
+                leaf->push_back(value.value().attachNearestCommentBefore(comment_before_args));
             else
                 errorWithNextToken("Expected an argument list");
         }
 
-        comment.clear();
+        std::string comment;
         newlineOrComment(&comment);
 
         if (auto value = nodeOrValue(); value.has_value())
@@ -880,7 +879,7 @@ namespace Ark::internal
 
         if (auto result = (this->*parser)(); result.has_value())
         {
-            result->attachNearestCommentBefore(comment);
+            result->attachNearestCommentBefore(result->comment() + comment);
             setNodePosAndFilename(result.value(), cursor);
 
             comment.clear();
