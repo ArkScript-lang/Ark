@@ -2,7 +2,7 @@
     ($if (+ x 1)
         est_func
         ($ p (a b c) (* a b c)))
-    (symcat sym x)})
+    ($symcat sym x)})
 
 ($ partial (func ...defargs) {
     ($ bloc (suffix-dup a (len defargs)))

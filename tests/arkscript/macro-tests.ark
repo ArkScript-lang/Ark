@@ -3,11 +3,11 @@
 ($ suffix-dup (sym x) {
     ($if (> x 1)
         (suffix-dup sym (- x 1)))
-    (symcat sym x)})
+    ($symcat sym x)})
 (let magic_func (fun ((suffix-dup a 3)) (- a1 a2 a3)))
 
 ($ partial (func ...defargs) {
-    ($ bloc (suffix-dup a (- (argcount func) (len defargs))))
+    ($ bloc (suffix-dup a (- ($argcount func) (len defargs))))
     (fun (bloc) (func ...defargs bloc))
     ($undef bloc)})
 
@@ -113,7 +113,7 @@
 
     (test:case "define variable with a macro adding a suffix" {
         ($ nice_value 12)
-        ($ define (prefix suffix value) (let (symcat prefix suffix) value))
+        ($ define (prefix suffix value) (let ($symcat prefix suffix) value))
 
         (define a 1 2)
         (test:eq a1 2)
@@ -126,11 +126,11 @@
 
     (test:case "partial functions" {
         (test:eq (magic_func 1 2 3) (- 1 2 3))
-        (test:eq (argcount test_func) 3)
-        (test:eq (argcount test_func1) 2)
-        (test:eq (argcount test_func1_2) 1)
-        (test:eq (argcount (fun () ())) 0)
-        (test:eq (argcount (fun (a) ())) 1)
-        (test:eq (argcount (fun (a b g h u t) ())) 6)
+        (test:eq ($argcount test_func) 3)
+        (test:eq ($argcount test_func1) 2)
+        (test:eq ($argcount test_func1_2) 1)
+        (test:eq ($argcount (fun () ())) 0)
+        (test:eq ($argcount (fun (a) ())) 1)
+        (test:eq ($argcount (fun (a b g h u t) ())) 6)
         (test:eq (test_func 1 2 3) (test_func1 2 3))
         (test:eq (test_func 1 2 3) (test_func1_2 3)) })})

@@ -1,5 +1,5 @@
 ($ partial (func ...defargs) {
-    ($ bloc (suffix-dup a (- (argcount func) (len defargs))))
+    ($ bloc (suffix-dup a (- ($argcount func) (len defargs))))
 })
 
 (let test_func (fun (a b c) (* a b c)))

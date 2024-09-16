@@ -1,10 +1,10 @@
 ($ suffix-dup (sym x) {
     ($if (> x 1)
         (suffix-dup sym (- x 1)))
-    (symcat sym x)})
+    ($symcat sym x)})
 
 ($ partial (func ...defargs) {
-    ($ bloc (suffix-dup a (- (argcount func) (len defargs))))
+    ($ bloc (suffix-dup a (- ($argcount func) (len defargs))))
     (fun (bloc) (func ...defargs bloc))
     ($undef bloc)})
 

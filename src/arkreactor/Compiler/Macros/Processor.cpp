@@ -23,13 +23,6 @@ namespace Ark::internal
         m_executors = { { std::make_shared<SymbolExecutor>(this),
                           std::make_shared<ConditionalExecutor>(this),
                           std::make_shared<FunctionExecutor>(this) } };
-
-        m_predefined_macros = {
-            "symcat",
-            "argcount",
-            "$repr",  // TODO: unify predefined macro names (update documentation and examples and tests)
-            "$paste"
-        };
     }
 
     void MacroProcessor::process(const Node& ast)
@@ -364,10 +357,10 @@ namespace Ark::internal
                 checkMacroArgCount(node, 1, "not", "condition");
                 return (!isTruthy(evaluate(node.list()[1], depth + 1, is_not_body))) ? getTrueNode() : getFalseNode();
             }
-            else if (name == "and" && is_not_body)
+            else if (name == Language::And && is_not_body)
             {
                 if (node.list().size() < 3)
-                    throwMacroProcessingError(fmt::format("Interpreting a `and' chain with {} arguments, expected at least 2.", argcount), node);
+                    throwMacroProcessingError(fmt::format("Interpreting a `{}' chain with {} arguments, expected at least 2.", Language::And, argcount), node);
 
                 for (std::size_t i = 1, end = node.list().size(); i < end; ++i)
                 {
@@ -376,10 +369,10 @@ namespace Ark::internal
                 }
                 return getTrueNode();
             }
-            else if (name == "or" && is_not_body)
+            else if (name == Language::Or && is_not_body)
             {
                 if (node.list().size() < 3)
-                    throwMacroProcessingError(fmt::format("Interpreting an `or' chain with {} arguments, expected at least 2.", argcount), node);
+                    throwMacroProcessingError(fmt::format("Interpreting an `{}' chain with {} arguments, expected at least 2.", Language::Or, argcount), node);
 
                 for (std::size_t i = 1, end = node.list().size(); i < end; ++i)
                 {
@@ -507,12 +500,12 @@ namespace Ark::internal
                     }
                 }
             }
-            else if (name == "symcat")
+            else if (name == Language::Symcat)
             {
                 if (node.list().size() <= 2)
-                    throwMacroProcessingError(fmt::format("When expanding `symcat', expected at least 2 arguments, got {} arguments", argcount), node);
+                    throwMacroProcessingError(fmt::format("When expanding `{}', expected at least 2 arguments, got {} arguments", Language::Symcat, argcount), node);
                 if (node.list()[1].nodeType() != NodeType::Symbol)
-                    throwMacroProcessingError(fmt::format("When expanding `symcat', expected the first argument to be a Symbol, got a {}", typeToString(node.list()[1])), node);
+                    throwMacroProcessingError(fmt::format("When expanding `{}', expected the first argument to be a Symbol, got a {}", Language::Symcat, typeToString(node.list()[1])), node);
 
                 std::string sym = node.list()[1].string();
 
@@ -533,14 +526,14 @@ namespace Ark::internal
                             break;
 
                         default:
-                            throwMacroProcessingError(fmt::format("When expanding `symcat', expected either a Number, String or Symbol, got a {}", typeToString(ev)), ev);
+                            throwMacroProcessingError(fmt::format("When expanding `{}', expected either a Number, String or Symbol, got a {}", Language::Symcat, typeToString(ev)), ev);
                     }
                 }
 
                 node.setNodeType(NodeType::Symbol);
                 node.setString(sym);
             }
-            else if (name == "argcount")
+            else if (name == Language::Argcount)
             {
                 Node sym = node.constList()[1];
                 if (sym.nodeType() == NodeType::Symbol)
@@ -548,22 +541,22 @@ namespace Ark::internal
                     if (const auto it = m_defined_functions.find(sym.string()); it != m_defined_functions.end())
                         setWithFileAttributes(node, node, Node(static_cast<long>(it->second.constList().size())));
                     else
-                        throwMacroProcessingError(fmt::format("When expanding `argcount', expected a known function name, got unbound variable {}", sym.string()), sym);
+                        throwMacroProcessingError(fmt::format("When expanding `{}', expected a known function name, got unbound variable {}", Language::Argcount, sym.string()), sym);
                 }
                 else if (sym.nodeType() == NodeType::List && sym.list().size() == 3 && sym.list()[0].nodeType() == NodeType::Keyword && sym.list()[0].keyword() == Keyword::Fun)
                     setWithFileAttributes(node, node, Node(static_cast<long>(sym.list()[1].list().size())));
                 else
-                    throwMacroProcessingError(fmt::format("When trying to apply `argcount', got a {} instead of a Symbol or Function", typeToString(sym)), sym);
+                    throwMacroProcessingError(fmt::format("When trying to apply `{}', got a {} instead of a Symbol or Function", Language::Argcount, typeToString(sym)), sym);
             }
-            else if (name == "$repr")
+            else if (name == Language::Repr)
             {
                 const Node ast = node.constList()[1];
                 setWithFileAttributes(node, node, Node(NodeType::String, ast.repr()));
             }
-            else if (name == "$paste")
+            else if (name == Language::Paste)
             {
                 if (node.list().size() != 2)
-                    throwMacroProcessingError(fmt::format("When expanding `$paste', expected one argument, got {} arguments", argcount), node);
+                    throwMacroProcessingError(fmt::format("When expanding `{}', expected one argument, got {} arguments", Language::Paste, argcount), node);
                 return node.constList()[1];
             }
         }
@@ -626,8 +619,8 @@ namespace Ark::internal
 
     bool MacroProcessor::isPredefined(const std::string& symbol)
     {
-        const auto it = std::ranges::find(m_predefined_macros, symbol);
-        return it != m_predefined_macros.end();
+        const auto it = std::ranges::find(Language::macros, symbol);
+        return it != Language::macros.end();
     }
 
     void MacroProcessor::recurApply(Node& node)
@@ -674,13 +667,13 @@ namespace Ark::internal
         {
             case NodeType::Symbol:
             {
-                const auto it = std::ranges::find(operators, node.string());
+                const auto it = std::ranges::find(Language::operators, node.string());
                 const auto it2 = std::ranges::find_if(Builtins::builtins,
                                                       [&node](const std::pair<std::string, Value>& element) -> bool {
                                                           return node.string() == element.first;
                                                       });
 
-                return it != operators.end() ||
+                return it != Language::operators.end() ||
                     it2 != Builtins::builtins.end() ||
                     findNearestMacro(node.string()) != nullptr ||
                     node.string() == "list";
