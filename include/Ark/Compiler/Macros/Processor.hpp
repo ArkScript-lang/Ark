@@ -58,7 +58,6 @@ namespace Ark::internal
         Node m_ast;                        ///< The modified AST
         std::vector<MacroScope> m_macros;  ///< Handling macros in a scope fashion
         std::vector<std::shared_ptr<MacroExecutor>> m_executors;
-        std::vector<std::string> m_predefined_macros;  ///< Already existing macros, non-keywords, non-builtins
         std::unordered_map<std::string, Node> m_defined_functions;
 
         /**

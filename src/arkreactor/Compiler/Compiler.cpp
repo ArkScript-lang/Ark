@@ -188,9 +188,9 @@ namespace Ark
 
     std::optional<uint8_t> Compiler::getOperator(const std::string& name) noexcept
     {
-        const auto it = std::ranges::find(internal::operators, name);
-        if (it != internal::operators.end())
-            return static_cast<uint8_t>(std::distance(internal::operators.begin(), it) + FIRST_OPERATOR);
+        const auto it = std::ranges::find(internal::Language::operators, name);
+        if (it != internal::Language::operators.end())
+            return static_cast<uint8_t>(std::distance(internal::Language::operators.begin(), it) + FIRST_OPERATOR);
         return std::nullopt;
     }
 
@@ -569,9 +569,9 @@ namespace Ark
         };
         const std::optional<ShortcircuitOp> maybe_shortcircuit =
             node.nodeType() == NodeType::Symbol
-            ? (node.string() == "and"
+            ? (node.string() == Language::And
                    ? std::make_optional(ShortcircuitOp::And)
-                   : (node.string() == "or"
+                   : (node.string() == Language::Or
                           ? std::make_optional(ShortcircuitOp::Or)
                           : std::nullopt))
             : std::nullopt;
@@ -712,7 +712,7 @@ namespace Ark
                             fmt::format(
                                 "can not create a chained expression (of length {}) for operator `{}'. You most likely forgot a `)'.",
                                 exp_count,
-                                operators[static_cast<std::size_t>(op.opcode - FIRST_OPERATOR)]),
+                                Language::operators[static_cast<std::size_t>(op.opcode - FIRST_OPERATOR)]),
                             x);
                 }
             }

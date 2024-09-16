@@ -71,13 +71,13 @@ namespace Ark::internal
     {
         for (const auto& builtin : Builtins::builtins)
             m_language_symbols.emplace(builtin.first);
-        for (auto ope : operators)
+        for (auto ope : Language::operators)
             m_language_symbols.emplace(ope);
         for (auto inst : listInstructions)
             m_language_symbols.emplace(inst);
 
-        m_language_symbols.emplace("and");
-        m_language_symbols.emplace("or");
+        m_language_symbols.emplace(Language::And);
+        m_language_symbols.emplace(Language::Or);
     }
 
     void NameResolutionPass::process(const Node& ast)

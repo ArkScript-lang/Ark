@@ -91,19 +91,37 @@ namespace Ark::internal
         "pop!"
     };
 
-    // This list is related to include/Ark/Compiler/Instructions.hpp
-    // from FIRST_OPERATOR, to LAST_OPERATOR
-    // The order is very important
-    constexpr std::array<std::string_view, 25> operators = {
-        "+", "-", "*", "/",
-        ">", "<", "<=", ">=", "!=", "=",
-        "len", "empty?", "tail", "head",
-        "nil?", "assert",
-        "toNumber", "toString",
-        "@", "mod",
-        "type", "hasField",
-        "not"
-    };
+    namespace Language
+    {
+        constexpr std::string_view And = "and";
+        constexpr std::string_view Or = "or";
+
+        constexpr std::string_view Symcat = "$symcat";
+        constexpr std::string_view Argcount = "$argcount";
+        constexpr std::string_view Repr = "$repr";
+        constexpr std::string_view Paste = "$paste";
+
+        constexpr std::array macros = {
+            Symcat,
+            Argcount,
+            Repr,
+            Paste
+        };
+
+        // This list is related to include/Ark/Compiler/Instructions.hpp
+        // from FIRST_OPERATOR, to LAST_OPERATOR
+        // The order is very important
+        constexpr std::array<std::string_view, 25> operators = {
+            "+", "-", "*", "/",
+            ">", "<", "<=", ">=", "!=", "=",
+            "len", "empty?", "tail", "head",
+            "nil?", "assert",
+            "toNumber", "toString",
+            "@", "mod",
+            "type", "hasField",
+            "not"
+        };
+    }
 }
 
 #endif

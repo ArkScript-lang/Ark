@@ -73,6 +73,7 @@
 - checking for forbidden variable/constant name in the name & scope resolution pass, to give errors to the user before compiling some weird code
 - repl completion and colors are now generated automatically from the builtins, keywords & operators
 - fixed formating of comments inside function declarations
+- renamed the macros `symcat` and `argcount` to `$symcat` and `$argcount` for uniformity
 
 ### Removed
 - removed unused `NodeType::Closure`

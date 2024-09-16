@@ -6,4 +6,4 @@ At test_func1!2 @ 13:41
    13 | (let test_func1_2 (partial test_func1!2))
       | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    14 |
-        When expanding `argcount', expected a known function name, got unbound variable test_func1!2
+        When expanding `$argcount', expected a known function name, got unbound variable test_func1!2
