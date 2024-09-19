@@ -7,88 +7,97 @@
 
 # define what an ArkCoin block is
 (let make:block (fun (index timestamp data previous_hash) {
-    (let hash (hash:sha256 (+ (toString index) (toString (math:floor timestamp)) (json:toString data) previous_hash)))
-    (print "made block " hash)
-    (fun (&index &timestamp &data &previous_hash &hash) ())}))
+  (let hash (hash:sha256 (+ (toString index) (toString (math:floor timestamp)) (json:toString data) previous_hash)))
+  (print "made block " hash)
+  (fun (&index &timestamp &data &previous_hash &hash) ()) }))
 
-(let make:block:fromJSON (fun (data)
-    (make:block (json:get data "index")
-                (json:get data "timestamp")
-                (json:get data "data")
-                (json:get data "hash"))))
+(let make:block:fromJSON (fun (data) (make:block (json:get data "index") (json:get data "timestamp") (json:get data "data") (json:get data "hash"))))
 
 # generate genesis block
-(let make:genesis_block (fun ()
-    (make:block 0 (time) (json:fromList [
-        "type"          "Genesis block"
-        "proof-of-work" 1
-    ]) "deadbeef")))
+(let make:genesis_block (fun () (make:block 0 (time) (json:fromList ["type" "Genesis block" "proof-of-work" 1]) "deadbeef")))
 
 # let the user add their miner address if we can't find it
-(let miner_address (if (not (io:fileExists? "miner.address"))
+(let miner_address
+  (if (not (io:fileExists? "miner.address"))
     (input "miner address> ")
     (io:readFile "miner.address")))
 (io:writeFile "miner.address" miner_address)
+
 # this node's blockchain copy
-(mut blockchain (list (make:genesis_block)))
+(mut blockchain [(make:genesis_block)])
+
 # storing the transactions that this node has
 (mut nodes_transactions [])
+
 # storing the url data of every other node in the network so we can talk with them
 (mut peer_nodes [])
+
 # magic number for the proof of work
 (let magic 12)
 
 (let find_new_chains (fun () {
-    (print "finding new chains")
+  (print "finding new chains")
 
-    # get the blockchains of every other node
-    (mut other_chains [])
-    (list:forEach peer_nodes (fun (url) {
-        (let cli (http:client:create url 80))
-        (let tmp (http:client:get cli "/"))
-        (if (not (nil? tmp))
-            {
-                (let content (make:block:fromJSON (json:fromString (@ tmp 1))))
-                (set other_chains (append other_chains content))})
-        (del cli)}))
-    other_chains }))
+  # get the blockchains of every other node
+  (mut other_chains [])
 
-(let verify_proof_of_work (fun (proof last_proof)
-    (and (> proof last_proof) (= 0 (mod proof magic)) (= 0 (mod proof last_proof)))))
+  (list:forEach
+    peer_nodes
+    (fun (url) {
+      (let cli (http:client:create url 80))
+      (let tmp (http:client:get cli "/"))
+
+      (if (not (nil? tmp)) {
+        (let content (make:block:fromJSON (json:fromString (@ tmp 1))))
+        (set other_chains (append other_chains content)) })
+      (del cli) }))
+  other_chains }))
+
+(let verify_proof_of_work (fun (proof last_proof) (and (> proof last_proof) (= 0 (mod proof magic)) (= 0 (mod proof last_proof)))))
 
 (let verify_chain (fun (chain) {
-    (print "verifying chain")
+  (print "verifying chain")
 
-    (mut previous nil)
-    (mut ok? true)
-    (list:forEach chain (fun (block) {
-        # no need to continue checking the blocks if a block wasn't ok
-        (if (and ok? (not (nil? previous)))
-            (set ok? (verify_proof_of_work (json:get block.data "proof-of-work") (json:get previous.data "proof-of-work"))))
-        (set previous block)}))
-    ok? }))
+  (mut previous nil)
+  (mut ok? true)
+
+  (list:forEach
+    chain
+    (fun (block) {
+      # no need to continue checking the blocks if a block wasn't ok
+      (if (and ok? (not (nil? previous)))
+        (set ok? (verify_proof_of_work (json:get block.data "proof-of-work") (json:get previous.data "proof-of-work"))))
+      (set previous block) }))
+  ok? }))
 
 (let consensus (fun () {
-    (print "consensus running")
+  (print "consensus running")
 
-    (let other_chains (find_new_chains))
-    # if our chain isn't longest, then we store the longest
-    (list:forEach other_chains (fun (chain) {
-        (if (and (< (len blockchain) (len chain)) (verify_chain chain))
-            (set blockchain chain))}))}))
+  (let other_chains (find_new_chains))
+
+  # if our chain isn't longest, then we store the longest
+  (list:forEach
+    other_chains
+    (fun (chain) {
+      (if (and (< (len blockchain) (len chain)) (verify_chain chain))
+        (set blockchain chain)) })) }))
 
 (let proof_of_work (fun (last_proof) {
-    (print "proof of work being generated")
+  (print "proof of work being generated")
 
-    (mut inc (+ 1 last_proof))
-    # keep incrementing until it's equal to a number divisible by 12 and
-    # the proof of work of the previous block in the chain
-    (while (not (and (= 0 (mod inc magic))) (= 0 (mod inc last_proof)))
-        (set inc (+ 1 inc)))
-    inc }))
+  (mut inc (+ 1 last_proof))
+
+  # keep incrementing until it's equal to a number divisible by 12 and
+  # the proof of work of the previous block in the chain
+  (while (not (and (= 0 (mod inc magic))) (= 0 (mod inc last_proof)))
+    (set inc (+ 1 inc)))
+  inc }))
 
 (let srv (http:server:create))
-(http:server:post srv "/transaction" (fun (request) {
+(http:server:post
+  srv
+  "/transaction"
+  (fun (request) {
     (print "posting block " request)
 
     # on each post request, extract transaction data
@@ -100,69 +109,59 @@
     (print (str:format "AMOUNT: {}" (json:get new "amount")))
 
     # return value
-    [200 "transaction submission successful" "text/plain"]}))
+    [200 "transaction submission successful" "text/plain"] }))
 
-(http:server:get srv "/blocks" (fun (_) {
+(http:server:get
+  srv
+  "/blocks"
+  (fun (_) {
     (print "fetching blocks")
 
     (consensus)
     (mut to_send [])
-    (list:forEach blockchain (fun (data) {
-        (set to_send (append to_send (json:fromList [
-            "index"     data.index
-            "timestamp" data.timestamp
-            "data"      data.data
-            "hash"      data.hash])))}))
+
+    (list:forEach
+      blockchain
+      (fun (data) {
+        (set to_send (append to_send (json:fromList ["index" data.index "timestamp" data.timestamp "data" data.data "hash" data.hash]))) }))
 
     (mut str (toString (@ to_send 0)))
-    (list:forEach (tail to_send) (fun (e)
+
+    (list:forEach
+      (tail to_send)
+      (fun (e)
         (set str (+ str ", " (toString e)))))
+    [200 (+ "{\"chain\": [" str "]}") "application/json"] }))
 
-    [200 (+ "{\"chain\": [" str "]}") "application/json"]}))
-
-(http:server:get srv "/mine" (fun (data) {
+(http:server:get
+  srv
+  "/mine"
+  (fun (data) {
     (print "mining block")
     (print (type data))
-    (if (not (nil? data))
-        (print (http:params:toList data)))
+
+    (if (not (nil? data)) (print (http:params:toList data)))
     (set data "")
 
     (let last_block (@ blockchain -1))
     (let last_proof (json:get last_block.data "proof-of-work"))
+
     # find the proof of work for the current block being mined
     # the program will hang here until a new proof of work is found
     (let proof (proof_of_work last_proof))
+
     # once we have the proof of work, we can mine a block so we reward the miner by adding a transaction
-    (set nodes_transactions (append nodes_transactions (json:fromList
-        [
-            "from" "network"
-            "to" miner_address
-            "amount" 1])))
+    (set nodes_transactions (append nodes_transactions (json:fromList ["from" "network" "to" miner_address "amount" 1])))
     (print "make block")
+
     # gather the data needed to create a new block
-    (mut new_block (make:block
-        (+ 1 last_block.index)
-        (time)
-        (json:fromList
-            [
-                "proof-of-work" proof
-                "transactions" nodes_transactions
-                "content" data ])
-        last_block.hash))
+    (mut new_block (make:block (+ 1 last_block.index) (time) (json:fromList ["proof-of-work" proof "transactions" nodes_transactions "content" data]) last_block.hash))
 
     (set blockchain (append blockchain new_block))
+
     # empty transactions list
     (set nodes_transactions [])
-
-    [
-        200
-        (+  "{"
-            "\"index\": "     (toString new_block.index)     ","
-            "\"timestamp\": " (toString new_block.timestamp) ","
-            "\"data\": "      (toString new_block.data)      ","
-            "\"hash\": \""    (toString new_block.hash)      "\""
-            "}")
-        "application/json"]}))
+    [200 (+ "{" "\"index\": " (toString new_block.index) "," "\"timestamp\": " (toString new_block.timestamp) "," "\"data\": " (toString new_block.data) "," "\"hash\": \"" (toString new_block.hash) "\"" "}") "application/json"] }))
 
 (print "Listening on localhost:80 for miner " miner_address)
 (http:server:listen srv "localhost" 80)

@@ -6,16 +6,15 @@
 # Due to its definitions in terms of extremely deep recursion, it can be used as a
 # benchmark of a compiler's ability to optimize recursion, which is the reason why
 # we are using this function to benchmark the language.
-
 (let ackermann (fun (m n) {
-    (if (> m 0)
-        # then
-        (if (= 0 n)
-            # then
-            (ackermann (- m 1) 1)
-            # else
-            (ackermann (- m 1) (ackermann m (- n 1))))
-        # else
-        (+ 1 n))}))
+  (if (> m 0)
+    # then
+    (if (= 0 n)
+      # then
+      (ackermann (- m 1) 1)
+      # else
+      (ackermann (- m 1) (ackermann m (- n 1))))
+    # else
+    (+ 1 n)) }))
 
 (print "Ackermann-Péter function, m=3, n=6: " (ackermann 3 6))
