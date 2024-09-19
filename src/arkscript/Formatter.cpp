@@ -307,11 +307,14 @@ std::string Formatter::formatVariable(const Node& node, const std::size_t indent
     std::string keyword = std::string(keywords[static_cast<std::size_t>(node.constList()[0].keyword())]);
 
     const Node body_node = node.constList()[2];
-    std::string formatted_body = format(body_node, indent + 1, false);
+    const std::string formatted_bind = format(node.constList()[1], indent, false);
 
-    if (!shouldSplitOnNewline(body_node) || isFuncDef(body_node))
-        return fmt::format("({} {} {})", keyword, format(node.constList()[1], indent, false), formatted_body);
-    return fmt::format("({} {}\n{})", keyword, format(node.constList()[1], indent, false), format(node.constList()[2], indent + 1, true));
+    // we don't want to add another indentation level here, because it would result in a (let a (fun ()\n{indent+=4}...))
+    if (isFuncDef(body_node))
+        return fmt::format("({} {} {})", keyword, formatted_bind, format(body_node, indent, false));
+    if (!shouldSplitOnNewline(body_node))
+        return fmt::format("({} {} {})", keyword, formatted_bind, format(body_node, indent + 1, false));
+    return fmt::format("({} {}\n{})", keyword, formatted_bind, format(body_node, indent + 1, true));
 }
 
 std::string Formatter::formatCondition(const Node& node, const std::size_t indent, const bool is_macro)

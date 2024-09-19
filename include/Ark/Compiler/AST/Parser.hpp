@@ -128,7 +128,7 @@ namespace Ark::internal
                                     res += utf8_str;
                                 }
                                 else
-                                    res += seq;
+                                    res += "u" + seq;
                             }
                             else
                                 error("Invalid escape sequence", "\\u");
@@ -150,7 +150,7 @@ namespace Ark::internal
                                     res += utf8_str;
                                 }
                                 else
-                                    res += seq;
+                                    res += "U" + seq;
                             }
                             else
                                 error("Invalid escape sequence", "\\U");
