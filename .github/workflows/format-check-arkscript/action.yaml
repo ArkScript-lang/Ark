@@ -1,0 +1,22 @@
+---
+name: 'Format check ArkScript code'
+description: 'Given a folder, find all .ark files and check that they are correctly formatted'
+inputs:
+  folder:
+    description: 'Folder with .ark files to check'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Check
+      shell: sh
+      run: |
+        failures=0
+        while read -rd $'\0' file; do
+          if ! arkscript --format "$file" --check; then
+            echo "❌ $(basename $file) is not formatted correctly"
+            failures=$((failures+1))
+          fi
+        done < <(find "${{ inputs.folder }}" -type f -name "*.ark" -print0)
+        [ $failures -gt 0 ] && exit 1
