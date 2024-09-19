@@ -1,0 +1,5 @@
+(let a "\r\n\v\t")
+(let b "\\\"")
+(let c "\a\b\f")
+(let d "\u1234")
+(let e "\U12345678")
