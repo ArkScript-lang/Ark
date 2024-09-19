@@ -20,7 +20,8 @@
 (set acc 0)
 (while (!= acc (len callbacks)) {
     # we print what was stored in the closure using dot notation
-    (print "stored: " (@ callbacks acc) .d)
+    (mut stored (@ callbacks acc))
+    (print "stored: " stored.d)
     # and then we call the closure itself (be careful: (@ callbacks acc) only returns the callback,
     # thus we need to put it in another pair of parens to call the callback)
     (puts "Calling callback number " acc ": ")
