@@ -50,18 +50,14 @@ jobs:
       fail-fast: false
       matrix:
         path:
-          - /src/examples
-          - /src/tests/arkscript
-
-    container:
-      image: arkscript/nightly
-      volumes:
-        - ${{ github.workspace }}:/src
+          - examples
+          - examples/games
+          - examples/games/snake
 
     steps:
       - uses: actions/checkout@v4
       - name: Format check
-        uses: ./.github/workflows/format-check-arkscript
+        uses: ArkScript-lang/action-format@master
         with:
           folder: ${{ matrix.path }}
 
