@@ -166,6 +166,44 @@ jobs:
           path: temp
           retention-days: 1
 
+  coverage:
+    runs-on: ubuntu-24.04
+    name: Coverage
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get install -yq -o Acquire::Retries=3 lcov
+          lcov --version
+
+      - name: Setup compilers, dependencies, project and build
+        uses: ./.github/workflows/setup-compilers
+        with:
+          os_name: ubuntu-24.04
+          compiler: clang
+          compiler_version: 16
+          sanitizers: On
+          coverage: On
+          with_deps: false
+
+      - name: Run tests
+        run: |
+          export ASAN_OPTIONS=detect_odr_violation=0
+          ./build/unittests
+
+      - name: Gather coverage
+        run: cmake --build build --target coverage
+
+      - name: Coveralls
+        uses: coverallsapp/github-action@master
+        with:
+          path-to-lcov: build/coverage.info
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
   tests:
     runs-on: ${{ matrix.config.os }}
     name: Tests on ${{ matrix.config.name }}

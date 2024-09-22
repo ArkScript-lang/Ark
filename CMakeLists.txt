@@ -185,7 +185,34 @@ if (ARK_TESTS)
     if (ARK_COVERAGE AND NOT WIN32)
         target_compile_options(unittests PRIVATE -coverage)
         target_link_options(unittests PRIVATE -coverage)
-    endif()
+        target_compile_options(ArkReactor PRIVATE -coverage)
+        target_link_options(ArkReactor PRIVATE -coverage)
+
+        # find required tools
+        find_program(LCOV lcov REQUIRED)
+        find_program(GENHTML genhtml REQUIRED)
+
+        # add coverage target
+        add_custom_target(coverage
+                # gather data
+                COMMAND ${LCOV} --directory . --capture
+                --rc lcov_branch_coverage=1
+                --rc derive_function_end_line=0
+                --ignore-errors inconsistent
+                --filter range
+                --exclude 'tests/*'
+                --exclude 'lib/*'
+                --exclude '/usr/*'
+                --gcov-tool ${ark_SOURCE_DIR}/tests/llvm-gcov.sh
+                --output-file coverage.info
+                # generate report
+                COMMAND ${GENHTML}
+                --demangle-cpp
+                --rc lcov_branch_coverage=1
+                --rc derive_function_end_line=0
+                -o coverage coverage.info
+                WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+    endif ()
 endif ()
 
 if (ARK_BENCHMARKS)

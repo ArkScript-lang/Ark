@@ -1,5 +1,6 @@
 ---
-name: "Update compilers"
+name: "Setup compilers"
+description: "Download the correct compilers versions and compile the project"
 inputs:
   os_name:
     description: 'OS name the CI runs on ; Ubuntu|Windows|MacOS'
@@ -11,6 +12,9 @@ inputs:
     description: 'version of the compiler'
     required: true
   sanitizers:
+    description: 'On|Off'
+    default: 'Off'
+  coverage:
     description: 'On|Off'
     default: 'Off'
   with_deps:
@@ -49,7 +53,7 @@ runs:
       run: |
         sudo apt-get install -y clang-${{ inputs.compiler_version }} lld-${{ inputs.compiler_version }} \
           libc++-${{ inputs.compiler_version }}-dev libc++abi-${{ inputs.compiler_version }}-dev  \
-          clang-tools-${{ inputs.compiler_version }}
+          clang-tools-${{ inputs.compiler_version }} llvm-${{ inputs.compiler_version }}
 
     - name: Update LLVM compilers
       if: startsWith(inputs.os_name, 'macos')
@@ -89,12 +93,16 @@ runs:
         if [[ '${{ startsWith(inputs.os_name, 'macos') }}' == 'true' ]]; then
           export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/
         fi
+        ToggleModules=$([[ '${{ inputs.with_deps }}' == 'true' ]] && echo 'On' || echo 'Off')
         cmake -Bbuild \
          -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
          -DCMAKE_C_COMPILER=${{ steps.compilers.outputs.cc }} \
          -DCMAKE_CXX_COMPILER=${{ steps.compilers.outputs.cxx }} \
          -DARK_SANITIZERS=${{ inputs.sanitizers }} \
-         -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=On -DARK_MOD_ALL=On -DARK_MOD_DRAFT=On -DARK_TESTS=On
+         -DARK_COVERAGE=${{ inputs.coverage }} \
+         -DARK_BUILD_EXE=On \
+         -DARK_BUILD_MODULES=$ToggleModules -DARK_MOD_ALL=$ToggleModules -DARK_MOD_DRAFT=$ToggleModules \
+         -DARK_TESTS=On
         cmake --build build --config $BUILD_TYPE -j $(nproc)
 
     - name: Configure CMake Ark
@@ -104,9 +112,14 @@ runs:
         if [[ '${{ inputs.with_deps }}' == 'true' ]]; then
           additional_args="-DSQLite3_INCLUDE_DIR=$(pwd)/sqlite_code/sqlite-amalgamation-${SQLITE_VERSION} -DSQLite3_LIBRARY=$(pwd)/sqlite_lib/sqlite3.lib"
         fi
+        ToggleModules=$([[ '${{ inputs.with_deps }}' == 'true' ]] && echo 'On' || echo 'Off')
         cmake -Bbuild \
           -G "Visual Studio 17 2022" -T v143 \
           -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
           -DARK_SANITIZERS=${{ matrix.config.sanitizers }} \
-          -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=On -DARK_MOD_ALL=On -DARK_MOD_DRAFT=On -DARK_TESTS=On $additional_args
+          -DARK_COVERAGE=${{ inputs.coverage }} \
+          -DARK_BUILD_EXE=On \
+          -DARK_BUILD_MODULES=$ToggleModules -DARK_MOD_ALL=$ToggleModules -DARK_MOD_DRAFT=$ToggleModules \
+          -DARK_TESTS=On \
+          $additional_args
         cmake --build build --config $BUILD_TYPE -j $(nproc)
