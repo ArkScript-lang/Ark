@@ -62,6 +62,7 @@
     (mut x (math:floor (mod i width)))
 
     (if (= 0 x) (puts "\n"))
+
     (if (= alive (@ board i))
       (puts "x")
       (puts " "))
