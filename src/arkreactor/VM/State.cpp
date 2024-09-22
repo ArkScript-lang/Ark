@@ -57,9 +57,9 @@ namespace Ark
         for (auto& p : m_binded)
             welder.registerSymbol(p.first);
 
-        if (!welder.computeASTFromFile(file))
+        if (!welder.computeASTFromFile(file, (features & FeatureTestFailOnException) > 0))
             return false;
-        if (!welder.generateBytecode())
+        if (!welder.generateBytecode((features & FeatureTestFailOnException) > 0))
             return false;
 
         const std::string destination = output.empty() ? (file.substr(0, file.find_last_of('.')) + ".arkc") : output;
@@ -106,9 +106,9 @@ namespace Ark
         for (auto& p : m_binded)
             welder.registerSymbol(p.first);
 
-        if (!welder.computeASTFromString(code))
+        if (!welder.computeASTFromString(code, (features & FeatureTestFailOnException) > 0))
             return false;
-        if (!welder.generateBytecode())
+        if (!welder.generateBytecode((features & FeatureTestFailOnException) > 0))
             return false;
         return feed(welder.bytecode());
     }
@@ -167,11 +167,11 @@ namespace Ark
 
         const auto syms = bcr.symbols();
         const auto vals = bcr.values(syms);
-        const auto code = bcr.code(vals);
+        const auto [pages, _] = bcr.code(vals);
 
         m_symbols = syms.symbols;
         m_constants = vals.values;
-        m_pages = code.pages;
+        m_pages = pages;
     }
 
     void State::reset() noexcept

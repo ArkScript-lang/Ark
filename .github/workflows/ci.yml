@@ -82,7 +82,6 @@ jobs:
     name: ${{ matrix.config.name }}
     needs: [ check ]
 
-    # todo: try and redo with https://github.com/cpp-best-practices/cmake_template/blob/main/.github/workflows/ci.yml
     strategy:
       fail-fast: false
       matrix:
@@ -192,17 +191,11 @@ jobs:
           os_name: ${{ matrix.config.os }}
           compiler_version: ${{ matrix.config.compiler_version }}
 
-      - name: C++ unit tests
+      - name: Tests
         shell: bash
         run: |
           export ASAN_OPTIONS=detect_odr_violation=0
           ./unittests
-
-      - name: ArkScript unit tests
-        shell: bash
-        run: |
-          export ASAN_OPTIONS=detect_odr_violation=0
-          (cd tests/arkscript ; bash ./run-tests)
 
       - name: Modules tests
         shell: bash
@@ -210,12 +203,6 @@ jobs:
           export ASAN_OPTIONS=detect_odr_violation=0
           chmod u+x ./lib/modules/.github/run-tests
           (./lib/modules/.github/run-tests src)
-
-      - name: Runtime error message generation tests
-        shell: bash
-        run: |
-          export ASAN_OPTIONS=detect_odr_violation=0
-          (cd tests/errors ; bash ./run-tests)
 
   fuzzing:
     runs-on: ubuntu-24.04
@@ -368,4 +355,4 @@ jobs:
             --trace-children=yes \
             --verbose -s \
             --error-exitcode=1 \
-            build/arkscript tests/arkscript/unittests.ark -L ./lib valgrind
+            build/arkscript tests/unittests/resources/LangSuite/unittests.ark -L ./lib valgrind

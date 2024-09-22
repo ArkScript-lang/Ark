@@ -1,6 +1,0 @@
-At ( @ 2:7
-    1 | (let foo (fun () ()))
-    2 | (let (foo a b) 5)
-      |       ^
-    3 |
-        let needs a symbol

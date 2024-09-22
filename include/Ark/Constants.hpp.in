@@ -49,6 +49,7 @@ namespace Ark
     constexpr uint16_t FeatureImportSolver   = 1 << 0;
     constexpr uint16_t FeatureMacroProcessor = 1 << 1;
     constexpr uint16_t FeatureASTOptimizer   = 1 << 2;
+    constexpr uint16_t FeatureTestFailOnException = 1 << 15;
 
     // Default features for the VM x Compiler x Parser
     constexpr uint16_t DefaultFeatures = FeatureImportSolver | FeatureMacroProcessor | FeatureASTOptimizer;

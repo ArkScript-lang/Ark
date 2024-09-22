@@ -1,9 +1,0 @@
-In file ./macros/argcount_unknown_arg.ark
-At test_func1!2 @ 13:41
-   10 |
-   11 | (let test_func (fun (a b c) (* a b c)))
-   12 | (let test_func1 (partial test_func 1))
-   13 | (let test_func1_2 (partial test_func1!2))
-      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   14 |
-        When expanding `$argcount', expected a known function name, got unbound variable test_func1!2

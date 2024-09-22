@@ -1,7 +1,0 @@
-At (while (begin (set acc (+ acc (@ (list) 1))))) @ 1:1
-    1 | (while ($ a 1) {
-      | ^~~~~~~~~~~~~~~~
-    2 |     (set acc (+ acc (@ [] a)))})
-      | ^~~~~~~~~~~~~~~
-    3 |
-        Invalid node ; if it was computed by a macro, check that a node is returned

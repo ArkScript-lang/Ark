@@ -2,7 +2,7 @@
  * @file Welder.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief In charge of welding everything needed to compile code
- * @version 0.4
+ * @version 0.5
  * @date 2023-03-26
  *
  * @copyright Copyright (c) 2023-2024
@@ -44,10 +44,10 @@ namespace Ark
          */
         void registerSymbol(const std::string& name);
 
-        bool computeASTFromFile(const std::string& filename);
-        bool computeASTFromString(const std::string& code);
+        bool computeASTFromFile(const std::string& filename, bool fail_with_exception = false);
+        bool computeASTFromString(const std::string& code, bool fail_with_exception = false);
 
-        bool generateBytecode();
+        bool generateBytecode(bool fail_with_exception = false);
         bool saveBytecodeToFile(const std::string& filename);
 
         [[nodiscard]] const internal::Node& ast() const noexcept;
@@ -71,7 +71,7 @@ namespace Ark
         internal::Logger m_logger;
         Compiler m_compiler;
 
-        bool computeAST(const std::string& filename, const std::string& code);
+        bool computeAST(const std::string& filename, const std::string& code, bool fail_with_exception);
     };
 }  // namespace Ark
 
