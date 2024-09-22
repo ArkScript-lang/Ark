@@ -2,7 +2,7 @@
  * @file VM.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief The ArkScript virtual machine
- * @version 1.1
+ * @version 2.0
  * @date 2020-10-27
  *
  * @copyright Copyright (c) 2020-2024
@@ -52,9 +52,10 @@ namespace Ark
         /**
          * @brief Run the bytecode held in the state
          *
+         * @param fail_with_exception throw if true, display a stacktrace if false
          * @return int the exit code (default to 0 if no error)
          */
-        int run() noexcept;
+        int run(bool fail_with_exception = false);
 
         /**
          * @brief Retrieve a value from the virtual machine, given its symbol name
@@ -145,7 +146,7 @@ namespace Ark
          * @return true on success
          * @return false if one or more plugins couldn't be reloaded
          */
-        bool forceReloadPlugins() const;
+        [[nodiscard]] bool forceReloadPlugins() const;
 
         friend class Value;
         friend class internal::Closure;
@@ -169,9 +170,10 @@ namespace Ark
          *
          * @param context
          * @param untilFrameCount the frame count we need to reach before stopping the VM
+         * @param fail_with_exception throw if true, display a stacktrace if false
          * @return int the exit code
          */
-        int safeRun(internal::ExecutionContext& context, std::size_t untilFrameCount = 0);
+        int safeRun(internal::ExecutionContext& context, std::size_t untilFrameCount = 0, bool fail_with_exception = false);
 
         /**
          * @brief Initialize the VM according to the parameters

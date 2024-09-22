@@ -2,6 +2,7 @@
 #define ARK_TESTSHELPER_HPP
 
 #include <Ark/Files.hpp>
+#include <Ark/Exceptions.hpp>
 
 #include <string>
 #include <algorithm>
@@ -20,5 +21,9 @@ struct TestData
 };
 
 void iter_test_files(const std::string& folder, std::function<void(TestData&&)>&& test, const std::string& expected_ext = "expected");
+
+std::string get_resource_path(const std::string& folder);
+
+std::string sanitize_error(const Ark::CodeError& e, bool remove_in_file_line = false);
 
 #endif  // ARK_TESTSHELPER_HPP

@@ -1,0 +1,6 @@
+At args @ 1:29
+    1 | ($ defun (let name (fun args nil)))
+      |                             ^~~~
+    2 | (let foo 1)
+    3 | (let a 2)
+        Expected a well formed argument(s) list, got a Symbol

@@ -14,6 +14,16 @@ execute_process(
         OUTPUT_STRIP_TRAILING_WHITESPACE)
 set(ARK_COMMIT ${GIT_COMMIT_HASH})
 
+option(ARK_BUILD_EXE "Build a standalone arkscript executable" Off)
+option(ARK_ENABLE_SYSTEM "Enable sys:exec" On)  # enable use of (sys:exec "command here")
+option(ARK_PROFILER_MIPS "Enable MIPS calculation" Off)
+option(ARK_NO_STDLIB "Do not install the standard library with the Ark library" Off)
+option(ARK_BUILD_MODULES "Build the std library modules or not" Off)
+option(ARK_SANITIZERS "Enable ASAN and UBSAN" Off)
+option(ARK_TESTS "Build ArkScript unit tests" Off)
+option(ARK_BENCHMARKS "Build ArkScript benchmarks" Off)
+option(ARK_COVERAGE "Enable coverage while building (clang, gcc) (requires ARK_TESTS to be On)" Off)
+
 include(cmake/link_time_optimization.cmake)
 include(cmake/sanitizers.cmake)
 include(cmake/CPM.cmake)
@@ -129,7 +139,7 @@ install(DIRECTORY ${ark_SOURCE_DIR}/include/
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 # Install the standard library
-if (NOT ARK_NO_STD)
+if (NOT ARK_NO_STDLIB)
     install(DIRECTORY ${ark_SOURCE_DIR}/lib/std/
             DESTINATION ${CMAKE_INSTALL_LIBDIR}/Ark/std
             FILES_MATCHING PATTERN "*.ark"
@@ -140,15 +150,6 @@ endif ()
 # COMPILATION RELATED
 
 target_compile_definitions(ArkReactor PRIVATE ARK_EXPORT)
-
-option(ARK_BUILD_EXE "Build a standalone arkscript executable" Off)
-option(ARK_ENABLE_SYSTEM "Enable sys:exec" On)  # enable use of (sys:exec "command here")
-option(ARK_PROFILER_MIPS "Enable MIPS calculation" Off)
-option(ARK_NO_STDLIB "Do not install the standard library with the Ark library" Off)
-option(ARK_BUILD_MODULES "Build the std library modules or not" Off)
-option(ARK_SANITIZERS "Enable ASAN and UBSAN" Off)
-option(ARK_TESTS "Build ArkScript unit tests" Off)
-option(ARK_BENCHMARKS "Build ArkScript benchmarks" Off)
 
 if (ARK_ENABLE_SYSTEM)
     target_compile_definitions(ArkReactor PRIVATE -DARK_ENABLE_SYSTEM)
@@ -165,7 +166,6 @@ if (ARK_BUILD_MODULES)
     set_directory_properties(PROPERTIES COMPILE_OPTIONS "${old_dir_compile_options}")
 endif ()
 
-# TODO: consider using ctest
 if (ARK_TESTS)
     file(GLOB_RECURSE UT_SOURCES
             ${ark_SOURCE_DIR}/tests/unittests/*.cpp
@@ -181,6 +181,11 @@ if (ARK_TESTS)
     add_compile_definitions(BOOST_UT_DISABLE_MODULE)
     target_compile_features(unittests PRIVATE cxx_std_20)
     target_compile_definitions(unittests PRIVATE ARK_TESTS_ROOT="${CMAKE_CURRENT_SOURCE_DIR}/")
+
+    if (ARK_COVERAGE AND NOT WIN32)
+        target_compile_options(unittests PRIVATE -coverage)
+        target_link_options(unittests PRIVATE -coverage)
+    endif()
 endif ()
 
 if (ARK_BENCHMARKS)

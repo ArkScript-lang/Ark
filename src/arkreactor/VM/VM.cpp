@@ -256,14 +256,14 @@ namespace Ark
         }
     }
 
-    int VM::run() noexcept
+    int VM::run(const bool fail_with_exception)
     {
         init();
-        safeRun(*m_execution_contexts[0]);
+        safeRun(*m_execution_contexts[0], 0, fail_with_exception);
         return m_exit_code;
     }
 
-    int VM::safeRun(ExecutionContext& context, std::size_t untilFrameCount)
+    int VM::safeRun(ExecutionContext& context, std::size_t untilFrameCount, bool fail_with_exception)
     {
 #ifdef ARK_PROFILER_MIPS
         auto start_time = std::chrono::system_clock::now();
@@ -1058,6 +1058,9 @@ namespace Ark
         }
         catch (const std::exception& e)
         {
+            if (fail_with_exception)
+                throw;
+
             fmt::println("{}", e.what());
             backtrace(context);
 #ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
@@ -1069,13 +1072,15 @@ namespace Ark
         }
         catch (...)
         {
-            fmt::println("Unknown error");
-            backtrace(context);
-            m_exit_code = 1;
+            if (fail_with_exception)
+                throw;
 
 #ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
             throw;
 #endif
+            fmt::println("Unknown error");
+            backtrace(context);
+            m_exit_code = 1;
         }
 
 #ifdef ARK_PROFILER_MIPS

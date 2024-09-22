@@ -1,9 +1,0 @@
-At (let test_func1) @ 6:1
-    3 | })
-    4 |
-    5 | (let test_func (fun (a b c) (* a b c)))
-    6 | (let test_func1 (partial test_func 1))
-      | ^~~~~~~~~~~~~~~~
-    7 | (test_func1)
-    8 |
-        Invalid node ; if it was computed by a macro, check that a node is returned

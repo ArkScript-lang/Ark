@@ -1,6 +1,0 @@
-At nil? @ 2:15
-    1 | (let ba0 (fun (a b) ()))
-    2 | (ba0 0 0 nil?)
-      | ^~~~~~~~~~~~~~
-    3 |
-        Found a free standing operator: `nil?`

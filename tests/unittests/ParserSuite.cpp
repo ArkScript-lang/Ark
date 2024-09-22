@@ -80,14 +80,8 @@ ut::suite<"Parser"> parser_suite = [] {
                 }
                 catch (const Ark::CodeError& e)
                 {
-                    std::stringstream ss;
-                    Ark::Diagnostics::generate(e, ss, /* colorize= */ false);
-
                     should("output the same error message (" + data.stem + ")") = [&] {
-                        std::string tested = ss.str();
-                        tested.erase(std::ranges::remove(tested, '\r').begin(), tested.end());
-                        tested.erase(tested.find(ARK_TESTS_ROOT), std::size(ARK_TESTS_ROOT) - 1);
-
+                        const std::string tested = sanitize_error(e);
                         expect(that % tested == data.expected);
                     };
                 }
