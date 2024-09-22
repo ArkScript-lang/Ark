@@ -68,3 +68,6 @@ out/
 
 # Visual Studio
 CmakeSettings.json
+
+# Coverage
+*.profraw
