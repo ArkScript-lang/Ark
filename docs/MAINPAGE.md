@@ -5,7 +5,7 @@ This is the **implementation** documentation of the ArkScript programming langua
 # Key features of the language
 
 ArkScript is
-* **small**: the core fit under 8000 lines of code ; also small in terms of keywords (only 10)
+* **small**: the core fit under 8000 lines of code ; also small in terms of keywords (only 9)
 * **a scripting language**: very easy to embed it in your projects. Registering your own functions in the language is made easy
 * **portable**: a unique bytecode which can be run everywhere the virtual machine is
 * **a functional language**: every parameter is passed by value, everything is immutable unless specified
@@ -14,7 +14,7 @@ ArkScript is
 * **a Lisp inspired language**, with fewer parentheses: `[...]` is expanded to `(list ...)` and `{}` to `(begin ...)`
 * **extensible**: supports C++ module to use it in the language, adding functionalities
 
-Also it has:
+Also, it has:
 * **macros**: if/else, values, and functions
 * tail call optimization
 * a REPL with autocompletion and coloration
@@ -23,12 +23,6 @@ Also it has:
 * docker images:
     * [stable](https://hub.docker.com/r/arkscript/stable), built after each release
     * [nightly](https://hub.docker.com/r/arkscript/nightly), built after each commit
-
-# Guidelines
-
-- @subpage guidelines_coding "Coding guidelines in ArkScript"
-- @subpage guidelines_naming "Naming guidelines in ArkScript"
-- @subpage guidelines_moduleserrorhandling "How to do error handling in your modules"
 
 # Links
 
