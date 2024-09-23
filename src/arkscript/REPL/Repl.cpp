@@ -19,7 +19,7 @@ namespace Ark
         m_old_ip(0), m_lib_env(lib_env),
         m_state(m_lib_env), m_vm(m_state), m_has_init_vm(false)
     {
-        m_keywords.reserve(keywords.size() + listInstructions.size() + Language::operators.size() + Builtins::builtins.size());
+        m_keywords.reserve(keywords.size() + listInstructions.size() + Language::operators.size() + Builtins::builtins.size() + 2);
         for (auto keyword : keywords)
             m_keywords.emplace_back(keyword);
         for (auto inst : listInstructions)
@@ -28,8 +28,10 @@ namespace Ark
             m_keywords.emplace_back(op);
         for (const auto& builtin : std::ranges::views::keys(Builtins::builtins))
             m_keywords.push_back(builtin);
+        m_keywords.emplace_back("and");
+        m_keywords.emplace_back("or");
 
-        m_words_colors.reserve(keywords.size() + listInstructions.size() + Language::operators.size() + Builtins::builtins.size() + 2);
+        m_words_colors.reserve(keywords.size() + listInstructions.size() + Language::operators.size() + Builtins::builtins.size() + 4);
         for (auto keyword : keywords)
             m_words_colors.emplace_back(keyword, Replxx::Color::BRIGHTRED);
         for (auto inst : listInstructions)
@@ -44,6 +46,8 @@ namespace Ark
         for (const auto& builtin : std::ranges::views::keys(Builtins::builtins))
             m_words_colors.emplace_back(builtin, Replxx::Color::GREEN);
 
+        m_words_colors.emplace_back("and", Replxx::Color::BRIGHTBLUE);
+        m_words_colors.emplace_back("or", Replxx::Color::BRIGHTBLUE);
         m_words_colors.emplace_back("[\\-|+]?[0-9]+(\\.[0-9]+)?", Replxx::Color::YELLOW);
         m_words_colors.emplace_back("\".*\"", Replxx::Color::MAGENTA);
     }

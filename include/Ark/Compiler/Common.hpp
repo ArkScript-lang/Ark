@@ -111,7 +111,7 @@ namespace Ark::internal
         // This list is related to include/Ark/Compiler/Instructions.hpp
         // from FIRST_OPERATOR, to LAST_OPERATOR
         // The order is very important
-        constexpr std::array<std::string_view, 25> operators = {
+        constexpr std::array<std::string_view, 23> operators = {
             "+", "-", "*", "/",
             ">", "<", "<=", ">=", "!=", "=",
             "len", "empty?", "tail", "head",
