@@ -12,7 +12,7 @@ You will find here a summary of the different things you should do / look up to 
 * Create a branch for your feature: `git switch -c feat/my-awesome-idea`
 * When you're done, push it to your fork and submit a pull request
 
-Don't know what to work on? No worries, we have a [list of things to do](https://github.com/ArkScript-lang/Ark/projects). Also, you can check the issues to find something to do!
+Don't know what to work on? No worries, we have a [list of things to do](https://github.com/ArkScript-lang/Ark/issues).
 
 ## The architecture of the project
 
@@ -32,12 +32,18 @@ See the guide [to create a module](https://arkscript-lang.dev/tutorials/modules.
 
 Code formatting as well as static analysis is handled through `pre-commit` and its hooks. If you don't have it installed, refer back to [Contributing#Starting](#starting).
 
-### Running the test suite
+### Running the test suites
 
-Build and run the `arkscript` and `unittests` targets:
-- `arkscript tests/arkscript/unittests.ark` (ArkScript unit tests for the VM and builtins)
-- `arkscript lib/std/tests/all.ark` (ArkScript unit tests for the standard library)
-- `unittests` (various C++ unit tests, testing error messages, AST, parsing...)
+Build the tests using `-DARK_TESTS=On`. It is **strongly recommended** to add `-DARK_COVERAGE=On` to generate coverage reports.
+
+Run the `unittests` target to:
+- run various C++ unit tests,
+- run error messages testing,
+- run AST & parsing tests,
+- run formatting tests,
+- run language tests (`tests/unittests/resources/LangSuite/`)
+
+Generate coverage reports with `cmake --build build --target coverage`, it will generate HTML files under `build/coverage/` (main file is `index.html`).
 
 ## C++ coding guidelines
 

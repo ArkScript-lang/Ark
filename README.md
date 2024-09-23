@@ -17,7 +17,7 @@
 
 ArkScript is
 
-* **small**: the core fit under 8000 lines of code ; also small in terms of keywords (only 10)
+* **small**: the core fit under 8000 lines of code ; also small in terms of keywords (only 9)
 * **a scripting language**: very easy to embed it in your projects. Registering your own functions in the language is made easy
 * **portable**: a unique bytecode which can be run everywhere the virtual machine is
 * **a functional language**: every parameter is passed by value, everything is immutable unless specified
@@ -26,7 +26,7 @@ ArkScript is
 * **a Lisp inspired language**, with fewer parentheses: `[...]` is expanded to `(list ...)` and `{}` to `(begin ...)`
 * **extensible**: supports C++ module to use it in the language, adding functionalities
 
-Also it has:
+Also, it has:
 
 * **macros**: if/else, values, and functions
 * tail call optimization
@@ -59,23 +59,22 @@ Also it has:
 (let number (mod (math:abs (random)) 10000))
 
 (let game (fun () {
-    (let impl (fun (tries) {
-        (let guess (toNumber (input "Input a numeric value: ")))
+  (let impl (fun (tries) {
+    (let guess (toNumber (input "Input a numeric value: ")))
+    (if (< guess number)
+      {
+        (print "It's more than " guess)
+        (impl (+ tries 1)) }
+      (if (= guess number)
+        {
+          (print "You found it!")
+          tries }
+        {
+          (print "It's less than " guess)
+          (impl (+ tries 1)) }))}))
 
-        (if (< guess number)
-            {
-                (print "It's more than " guess)
-                (impl (+ tries 1))}
-            (if (= guess number)
-                {
-                    (print "You found it!")
-                    tries }
-                {
-                    (print "It's less than " guess)
-                    (impl (+ tries 1))}))}))
-
-    (let tries (impl 0))
-    (print "You won in " tries " tries.")}))
+  (let tries (impl 0))
+  (print "You won in " tries " tries.") }))
 
 (game)
 ```
@@ -104,7 +103,7 @@ cmake --install build
 * First, [fork](https://github.com/ArkScript-lang/Ark/fork) the repository
 * Then, clone your fork: `git clone git@github.com:username/Ark.git`
 * Install the pre-commit hooks: `pre-commit install` (you may need to [install pre-commit](https://pre-commit.com/#install) first)
-* Create a branch for your feature: `git checkout -b feat-my-awesome-idea`
+* Create a branch for your feature: `git switch -c feat-my-awesome-idea`
 * When you're done, push it to your fork and submit a pull request
 
 Make sure you follow the [contribution guidelines](CONTRIBUTING.md) before submitting your pull request!
@@ -118,7 +117,7 @@ We have other projects tightly related to ArkScript, which aren't necessarily C+
 * the [standard library](https://github.com/ArkScript-lang/std), written in ArkScript itself
 * the [standard library modules](https://github.com/ArkScript-lang/modules), extending the capacities of the language, written in C++
 * [ArkDoc](https://github.com/ArkScript-lang/ArkDoc), a documentation generator *à la doxygen* for ArkScript, written in Python 3
-* our [website](https://github.com/ArkScript-lang/arkscript-lang.github.io) written in HTML, CSS and JavaScript
+* our [website](https://github.com/ArkScript-lang/website) written in HTML, CSS and JavaScript
 
 ### Our beloved contributors
 
@@ -147,7 +146,7 @@ For performance reasons, some functions might be written in C++, in `include/Ark
     * Install a newer compiler using [Homebrew](https://docs.brew.sh/): `brew install gcc && brew link gcc`
     * Pass compiler path to `cmake` in the build step: `-DCMAKE_CXX_COMPILER=/usr/local/bin/g++-14 -DCMAKE_C_COMPILER=/usr/local/bin/gcc-14`
 
-:warning: When passing a specific C++ compiler to CMake, add the corresponding C compiler as ArkScript relies on C code as well ; otherwise you'll cryptic get compilation/linking errors (using `CMAKE_CXX_COMPILER` and `CMAKE_C_COMPILER`).
+⚠️ When passing a specific C++ compiler to CMake, add the corresponding C compiler as ArkScript relies on C code as well ; otherwise you'll cryptic get compilation/linking errors (using `CMAKE_CXX_COMPILER` and `CMAKE_C_COMPILER`).
 
 ### Through CMake
 
@@ -160,6 +159,7 @@ Different CMake switches are available to customize the build:
 * `-DARK_BUILD_MODULES` to trigger the modules build
 * `-DARK_SANITIZERS` to enable ASAN and UBSAN
 * `-DARK_TESTS` to build the unit tests (separate target named `unittests`)
+  * `-DARK_COVERAGE` to enable coverage analysis ; only works in conjunction with `-DARK_TESTS`, enables the `coverage` target: `cmake --build build --target coverage`
 
 ```bash
 # first, clone it
