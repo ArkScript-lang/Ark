@@ -95,7 +95,7 @@ static void BM_Parse(benchmark::State& state)
 
     for (auto _ : state)
     {
-        Ark::internal::Parser parser;
+        Ark::internal::Parser parser(0);
         parser.process(ARK_NO_NAME_FILE, code);
 
         nodes += parser.ast().constList().size();

@@ -270,25 +270,113 @@ namespace Ark
         unsigned long long instructions_executed = 0;
 #endif
 
+#if ARK_USE_COMPUTED_GOTOS
+#    define TARGET(op) TARGET_##op:
+#    define DISPATCH_GOTO()            \
+        _Pragma("GCC diagnostic push") \
+            _Pragma("GCC diagnostic ignored \"-Wpedantic\"") goto* opcode_targets[inst];
+        _Pragma("GCC diagnostic pop")
+#    define GOTO_HALT() goto dispatch_end
+#else
+#    define TARGET(op) case op:
+#    define DISPATCH_GOTO() goto dispatch_opcode
+#    define GOTO_HALT() break
+#endif
+
+#define NEXTOPARG()                                                                      \
+    do                                                                                   \
+    {                                                                                    \
+        padding = m_state.m_pages[context.pp][context.ip];                               \
+        inst = m_state.m_pages[context.pp][context.ip + 1];                              \
+        arg = static_cast<uint16_t>((m_state.m_pages[context.pp][context.ip + 2] << 8) + \
+                                    m_state.m_pages[context.pp][context.ip + 3]);        \
+        context.ip += 4;                                                                 \
+    } while (false)
+#define DISPATCH() \
+    NEXTOPARG();   \
+    DISPATCH_GOTO();
+
+#if ARK_USE_COMPUTED_GOTOS
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wpedantic"
+            const std::array opcode_targets = {
+                &&TARGET_NOP,
+                &&TARGET_LOAD_SYMBOL,
+                &&TARGET_LOAD_CONST,
+                &&TARGET_POP_JUMP_IF_TRUE,
+                &&TARGET_STORE,
+                &&TARGET_LET,
+                &&TARGET_POP_JUMP_IF_FALSE,
+                &&TARGET_JUMP,
+                &&TARGET_RET,
+                &&TARGET_HALT,
+                &&TARGET_CALL,
+                &&TARGET_CAPTURE,
+                &&TARGET_BUILTIN,
+                &&TARGET_MUT,
+                &&TARGET_DEL,
+                &&TARGET_SAVE_ENV,
+                &&TARGET_GET_FIELD,
+                &&TARGET_PLUGIN,
+                &&TARGET_LIST,
+                &&TARGET_APPEND,
+                &&TARGET_CONCAT,
+                &&TARGET_APPEND_IN_PLACE,
+                &&TARGET_CONCAT_IN_PLACE,
+                &&TARGET_POP_LIST,
+                &&TARGET_POP_LIST_IN_PLACE,
+                &&TARGET_POP,
+                &&TARGET_DUP,
+                &&TARGET_ADD,
+                &&TARGET_SUB,
+                &&TARGET_MUL,
+                &&TARGET_DIV,
+                &&TARGET_GT,
+                &&TARGET_LT,
+                &&TARGET_LE,
+                &&TARGET_GE,
+                &&TARGET_NEQ,
+                &&TARGET_EQ,
+                &&TARGET_LEN,
+                &&TARGET_EMPTY,
+                &&TARGET_TAIL,
+                &&TARGET_HEAD,
+                &&TARGET_ISNIL,
+                &&TARGET_ASSERT,
+                &&TARGET_TO_NUM,
+                &&TARGET_TO_STR,
+                &&TARGET_AT,
+                &&TARGET_MOD,
+                &&TARGET_TYPE,
+                &&TARGET_HASFIELD,
+                &&TARGET_NOT,
+            };
+#    pragma GCC diagnostic pop
+#endif
+
         try
         {
+            [[maybe_unused]] uint8_t padding = 0;
+            uint8_t inst = 0;
+            uint16_t arg = 0;
             m_running = true;
-            while (m_running && context.fc > untilFrameCount)
-            {
-                // get current instruction
-                [[maybe_unused]] uint8_t padding = m_state.m_pages[context.pp][context.ip];
-                uint8_t inst = m_state.m_pages[context.pp][context.ip + 1];
-                auto arg = static_cast<uint16_t>((m_state.m_pages[context.pp][context.ip + 2] << 8) + m_state.m_pages[context.pp][context.ip + 3]);
-                context.ip += 4;
 
+            DISPATCH();
+            {
+#if !ARK_USE_COMPUTED_GOTOS
+            dispatch_opcode:
                 switch (inst)
+#endif
                 {
 #pragma region "Instructions"
+                    TARGET(NOP)
+                    {
+                        DISPATCH();
+                    }
 
-                    case LOAD_SYMBOL:
+                    TARGET(LOAD_SYMBOL)
                     {
                         context.last_symbol = arg;
-
                         if (Value* var = findNearestVariable(context.last_symbol, context); var != nullptr) [[likely]]
                         {
                             // push internal reference, shouldn't break anything so far, unless it's already a ref
@@ -299,11 +387,10 @@ namespace Ark
                         }
                         else [[unlikely]]
                             throwVMError(ErrorKind::Scope, fmt::format("Unbound variable `{}'", m_state.m_symbols[context.last_symbol]));
-
-                        break;
+                        DISPATCH();
                     }
 
-                    case LOAD_CONST:
+                    TARGET(LOAD_CONST)
                     {
                         if (context.saved_scope && m_state.m_constants[arg].valueType() == ValueType::PageAddr)
                         {
@@ -313,102 +400,110 @@ namespace Ark
                         else [[likely]]  // push internal ref
                             push(&(m_state.m_constants[arg]), context);
 
-                        break;
+                        DISPATCH();
                     }
 
-                    case POP_JUMP_IF_TRUE:
+                    TARGET(POP_JUMP_IF_TRUE)
                     {
                         if (Value boolean = *popAndResolveAsPtr(context); !!boolean)
                             context.ip = arg * 4;  // instructions are 4 bytes
-                        break;
+                        DISPATCH();
                     }
 
-                    case STORE:
+                    TARGET(STORE)
                     {
-                        Value val = *popAndResolveAsPtr(context);
-                        if (Value* var = findNearestVariable(arg, context); var != nullptr) [[likely]]
                         {
-                            if (var->isConst() && var->valueType() != ValueType::Reference)
-                                throwVMError(ErrorKind::Mutability, fmt::format("Can not set the constant `{}' to {}", m_state.m_symbols[arg], val.toString(*this)));
-
-                            if (var->valueType() == ValueType::Reference)
-                                *var->reference() = val;
-                            else [[likely]]
+                            Value val = *popAndResolveAsPtr(context);
+                            if (Value* var = findNearestVariable(arg, context); var != nullptr) [[likely]]
                             {
-                                *var = val;
-                                var->setConst(false);
-                            }
-                            break;
-                        }
+                                if (var->isConst() && var->valueType() != ValueType::Reference)
+                                    throwVMError(ErrorKind::Mutability, fmt::format("Can not set the constant `{}' to {}", m_state.m_symbols[arg], val.toString(*this)));
 
-                        throwVMError(ErrorKind::Scope, fmt::format("Unbound variable `{}', can not change its value to {}", m_state.m_symbols[arg], val.toString(*this)));
-                        break;
+                                if (var->valueType() == ValueType::Reference)
+                                    *var->reference() = val;
+                                else [[likely]]
+                                {
+                                    *var = val;
+                                    var->setConst(false);
+                                }
+                            }
+                            else
+                                throwVMError(ErrorKind::Scope, fmt::format("Unbound variable `{}', can not change its value to {}", m_state.m_symbols[arg], val.toString(*this)));
+                        }
+                        DISPATCH();
                     }
 
-                    case LET:
+                    TARGET(LET)
                     {
                         // check if we are redefining a variable
                         if (auto val = (context.locals.back())[arg]; val != nullptr) [[unlikely]]
                             throwVMError(ErrorKind::Mutability, fmt::format("Can not use 'let' to redefine variable `{}'", m_state.m_symbols[arg]));
-
-                        Value val = *popAndResolveAsPtr(context);
-                        val.setConst(true);
-                        context.locals.back().push_back(arg, val);
-
-                        break;
+                        {
+                            Value val = *popAndResolveAsPtr(context);
+                            val.setConst(true);
+                            context.locals.back().push_back(arg, val);
+                        }
+                        DISPATCH();
                     }
 
-                    case POP_JUMP_IF_FALSE:
+                    TARGET(POP_JUMP_IF_FALSE)
                     {
                         if (Value boolean = *popAndResolveAsPtr(context); !boolean)
                             context.ip = arg * 4;  // instructions are 4 bytes
-                        break;
+                        DISPATCH();
                     }
 
-                    case JUMP:
+                    TARGET(JUMP)
                     {
                         context.ip = arg * 4;  // instructions are 4 bytes
-                        break;
+                        DISPATCH();
                     }
 
-                    case RET:
+                    TARGET(RET)
                     {
-                        Value ip_or_val = *popAndResolveAsPtr(context);
-                        // no return value on the stack
-                        if (ip_or_val.valueType() == ValueType::InstPtr) [[unlikely]]
                         {
-                            context.ip = ip_or_val.pageAddr();
-                            // we always push PP then IP, thus the next value
-                            // MUST be the page pointer
-                            context.pp = pop(context)->pageAddr();
-
-                            returnFromFuncCall(context);
-                            push(Builtins::nil, context);
-                        }
-                        // value on the stack
-                        else [[likely]]
-                        {
-                            Value* ip;
-                            do
+                            Value ip_or_val = *popAndResolveAsPtr(context);
+                            // no return value on the stack
+                            if (ip_or_val.valueType() == ValueType::InstPtr) [[unlikely]]
                             {
-                                ip = popAndResolveAsPtr(context);
-                            } while (ip->valueType() != ValueType::InstPtr);
+                                context.ip = ip_or_val.pageAddr();
+                                // we always push PP then IP, thus the next value
+                                // MUST be the page pointer
+                                context.pp = pop(context)->pageAddr();
 
-                            context.ip = ip->pageAddr();
-                            context.pp = pop(context)->pageAddr();
+                                returnFromFuncCall(context);
+                                push(Builtins::nil, context);
+                            }
+                            // value on the stack
+                            else [[likely]]
+                            {
+                                Value* ip;
+                                do
+                                {
+                                    ip = popAndResolveAsPtr(context);
+                                } while (ip->valueType() != ValueType::InstPtr);
 
-                            returnFromFuncCall(context);
-                            push(std::move(ip_or_val), context);
+                                context.ip = ip->pageAddr();
+                                context.pp = pop(context)->pageAddr();
+
+                                returnFromFuncCall(context);
+                                push(std::move(ip_or_val), context);
+                            }
+
+                            if (context.fc <= untilFrameCount)
+                                GOTO_HALT();
                         }
 
-                        break;
+                        DISPATCH();
                     }
 
-                    case HALT:
+                    TARGET(HALT)
+                    {
                         m_running = false;
-                        break;
+                        GOTO_HALT();
+                    }
 
-                    case CALL:
+                    TARGET(CALL)
                     {
                         // stack pointer + 2 because we push IP and PP
                         if (context.sp + 2u >= VMStackSize) [[unlikely]]
@@ -418,10 +513,12 @@ namespace Ark
                                     "Maximum recursion depth exceeded. You could consider rewriting your function `{}' to make use of tail-call optimization.",
                                     m_state.m_symbols[context.last_symbol]));
                         call(context, arg);
-                        break;
+                        if (!m_running)
+                            GOTO_HALT();
+                        DISPATCH();
                     }
 
-                    case CAPTURE:
+                    TARGET(CAPTURE)
                     {
                         if (!context.saved_scope)
                             context.saved_scope = Scope();
@@ -435,51 +532,53 @@ namespace Ark
                             context.saved_scope.value().push_back(arg, *ptr);
                         }
 
-                        break;
+                        DISPATCH();
                     }
 
-                    case BUILTIN:
+                    TARGET(BUILTIN)
                     {
                         push(Builtins::builtins[arg].second, context);
-                        break;
+                        DISPATCH();
                     }
 
-                    case MUT:
+                    TARGET(MUT)
                     {
-                        Value val = *popAndResolveAsPtr(context);
-                        val.setConst(false);
+                        {
+                            Value val = *popAndResolveAsPtr(context);
+                            val.setConst(false);
 
-                        // avoid adding the pair (id, _) multiple times, with different values
-                        Value* local = context.locals.back()[arg];
-                        if (local == nullptr) [[likely]]
-                            context.locals.back().push_back(arg, val);
-                        else
-                            *local = val;
+                            // avoid adding the pair (id, _) multiple times, with different values
+                            Value* local = context.locals.back()[arg];
+                            if (local == nullptr) [[likely]]
+                                context.locals.back().push_back(arg, val);
+                            else
+                                *local = val;
+                        }
 
-                        break;
+                        DISPATCH();
                     }
 
-                    case DEL:
+                    TARGET(DEL)
                     {
                         if (Value* var = findNearestVariable(arg, context); var != nullptr)
                         {
                             if (var->valueType() == ValueType::User)
                                 var->usertypeRef().del();
                             *var = Value();
-                            break;
+                            DISPATCH();
                         }
 
                         throwVMError(ErrorKind::Scope, fmt::format("Can not delete unbound variable `{}'", m_state.m_symbols[arg]));
-                        break;
+                        DISPATCH();
                     }
 
-                    case SAVE_ENV:
+                    TARGET(SAVE_ENV)
                     {
                         context.saved_scope = context.locals.back();
-                        break;
+                        DISPATCH();
                     }
 
-                    case GET_FIELD:
+                    TARGET(GET_FIELD)
                     {
                         Value* var = popAndResolveAsPtr(context);
                         if (var->valueType() != ValueType::Closure)
@@ -508,79 +607,84 @@ namespace Ark
                                 push(Value(Closure(var->refClosure().scopePtr(), field->pageAddr())), context);
                             else
                                 push(field, context);
-                            break;
                         }
-
-                        throwVMError(ErrorKind::Scope, fmt::format("`{}' isn't in the closure environment: {}", m_state.m_symbols[arg], var->refClosure().toString(*this)));
-                        break;
+                        else
+                            throwVMError(ErrorKind::Scope, fmt::format("`{}' isn't in the closure environment: {}", m_state.m_symbols[arg], var->refClosure().toString(*this)));
+                        DISPATCH();
                     }
 
-                    case PLUGIN:
+                    TARGET(PLUGIN)
                     {
                         loadPlugin(arg, context);
-                        break;
+                        DISPATCH();
                     }
 
-                    case LIST:
+                    TARGET(LIST)
                     {
-                        Value l(ValueType::List);
-                        if (arg != 0)
-                            l.list().reserve(arg);
-
-                        for (uint16_t i = 0; i < arg; ++i)
-                            l.push_back(*popAndResolveAsPtr(context));
-                        push(std::move(l), context);
-                        break;
-                    }
-
-                    case APPEND:
-                    {
-                        Value* list = popAndResolveAsPtr(context);
-                        if (list->valueType() != ValueType::List)
-                            types::generateError(
-                                "append",
-                                { { types::Contract { { types::Typedef("list", ValueType::List) } } } },
-                                { *list });
-
-                        const auto size = static_cast<uint16_t>(list->constList().size());
-
-                        Value obj { *list };
-                        obj.list().reserve(size + arg);
-
-                        for (uint16_t i = 0; i < arg; ++i)
-                            obj.push_back(*popAndResolveAsPtr(context));
-                        push(std::move(obj), context);
-                        break;
-                    }
-
-                    case CONCAT:
-                    {
-                        Value* list = popAndResolveAsPtr(context);
-                        if (list->valueType() != ValueType::List)
-                            types::generateError(
-                                "concat",
-                                { { types::Contract { { types::Typedef("list", ValueType::List) } } } },
-                                { *list });
-
-                        Value obj { *list };
-
-                        for (uint16_t i = 0; i < arg; ++i)
                         {
-                            Value* next = popAndResolveAsPtr(context);
+                            Value l(ValueType::List);
+                            if (arg != 0)
+                                l.list().reserve(arg);
 
-                            if (list->valueType() != ValueType::List || next->valueType() != ValueType::List)
+                            for (uint16_t i = 0; i < arg; ++i)
+                                l.push_back(*popAndResolveAsPtr(context));
+                            push(std::move(l), context);
+                        }
+                        DISPATCH();
+                    }
+
+                    TARGET(APPEND)
+                    {
+                        {
+                            Value* list = popAndResolveAsPtr(context);
+                            if (list->valueType() != ValueType::List)
+                                types::generateError(
+                                    "append",
+                                    { { types::Contract { { types::Typedef("list", ValueType::List) } } } },
+                                    { *list });
+
+                            const auto size = static_cast<uint16_t>(list->constList().size());
+
+                            Value obj { *list };
+                            obj.list().reserve(size + arg);
+
+                            for (uint16_t i = 0; i < arg; ++i)
+                                obj.push_back(*popAndResolveAsPtr(context));
+                            push(std::move(obj), context);
+                        }
+                        DISPATCH();
+                    }
+
+                    TARGET(CONCAT)
+                    {
+                        {
+                            Value* list = popAndResolveAsPtr(context);
+                            if (list->valueType() != ValueType::List)
                                 types::generateError(
                                     "concat",
-                                    { { types::Contract { { types::Typedef("dst", ValueType::List), types::Typedef("src", ValueType::List) } } } },
-                                    { *list, *next });
+                                    { { types::Contract { { types::Typedef("list", ValueType::List) } } } },
+                                    { *list });
 
-                            std::ranges::copy(next->list(), std::back_inserter(obj.list()));
+                            Value obj { *list };
+
+                            for (uint16_t i = 0; i < arg; ++i)
+                            {
+                                Value* next = popAndResolveAsPtr(context);
+
+                                if (list->valueType() != ValueType::List || next->valueType() != ValueType::List)
+                                    types::generateError(
+                                        "concat",
+                                        { { types::Contract { { types::Typedef("dst", ValueType::List), types::Typedef("src", ValueType::List) } } } },
+                                        { *list, *next });
+
+                                std::ranges::copy(next->list(), std::back_inserter(obj.list()));
+                            }
+                            push(std::move(obj), context);
                         }
-                        push(std::move(obj), context);
-                        break;
+                        DISPATCH();
                     }
 
-                    case APPEND_IN_PLACE:
+                    TARGET(APPEND_IN_PLACE)
                     {
                         Value* list = popAndResolveAsPtr(context);
 
@@ -594,11 +698,10 @@ namespace Ark
 
                         for (uint16_t i = 0; i < arg; ++i)
                             list->push_back(*popAndResolveAsPtr(context));
-
-                        break;
+                        DISPATCH();
                     }
 
-                    case CONCAT_IN_PLACE:
+                    TARGET(CONCAT_IN_PLACE)
                     {
                         Value* list = popAndResolveAsPtr(context);
 
@@ -625,75 +728,78 @@ namespace Ark
 
                             std::ranges::copy(next->list(), std::back_inserter(list->list()));
                         }
-
-                        break;
+                        DISPATCH();
                     }
 
-                    case POP_LIST:
+                    TARGET(POP_LIST)
                     {
-                        Value list = *popAndResolveAsPtr(context);
-                        Value number = *popAndResolveAsPtr(context);
+                        {
+                            Value list = *popAndResolveAsPtr(context);
+                            Value number = *popAndResolveAsPtr(context);
 
-                        if (list.valueType() != ValueType::List || number.valueType() != ValueType::Number)
-                            types::generateError(
-                                "pop",
-                                { { types::Contract { { types::Typedef("list", ValueType::List), types::Typedef("index", ValueType::Number) } } } },
-                                { list, number });
+                            if (list.valueType() != ValueType::List || number.valueType() != ValueType::Number)
+                                types::generateError(
+                                    "pop",
+                                    { { types::Contract { { types::Typedef("list", ValueType::List), types::Typedef("index", ValueType::Number) } } } },
+                                    { list, number });
 
-                        long idx = static_cast<long>(number.number());
-                        idx = idx < 0 ? static_cast<long>(list.list().size()) + idx : idx;
-                        if (std::cmp_greater_equal(idx, list.list().size()))
-                            throwVMError(
-                                ErrorKind::Index,
-                                fmt::format("pop index ({}) out of range (list size: {})", idx, list.list().size()));
+                            long idx = static_cast<long>(number.number());
+                            idx = idx < 0 ? static_cast<long>(list.list().size()) + idx : idx;
+                            if (std::cmp_greater_equal(idx, list.list().size()))
+                                throwVMError(
+                                    ErrorKind::Index,
+                                    fmt::format("pop index ({}) out of range (list size: {})", idx, list.list().size()));
 
-                        list.list().erase(list.list().begin() + idx);
-                        push(list, context);
-                        break;
+                            list.list().erase(list.list().begin() + idx);
+                            push(list, context);
+                        }
+                        DISPATCH();
                     }
 
-                    case POP_LIST_IN_PLACE:
+                    TARGET(POP_LIST_IN_PLACE)
                     {
-                        Value* list = popAndResolveAsPtr(context);
-                        Value number = *popAndResolveAsPtr(context);
+                        {
+                            Value* list = popAndResolveAsPtr(context);
+                            Value number = *popAndResolveAsPtr(context);
 
-                        if (list->isConst())
-                            throwVMError(ErrorKind::Mutability, "Can not modify a constant list using `pop!'");
-                        if (list->valueType() != ValueType::List || number.valueType() != ValueType::Number)
-                            types::generateError(
-                                "pop!",
-                                { { types::Contract { { types::Typedef("list", ValueType::List), types::Typedef("index", ValueType::Number) } } } },
-                                { *list, number });
+                            if (list->isConst())
+                                throwVMError(ErrorKind::Mutability, "Can not modify a constant list using `pop!'");
+                            if (list->valueType() != ValueType::List || number.valueType() != ValueType::Number)
+                                types::generateError(
+                                    "pop!",
+                                    { { types::Contract { { types::Typedef("list", ValueType::List), types::Typedef("index", ValueType::Number) } } } },
+                                    { *list, number });
 
-                        long idx = static_cast<long>(number.number());
-                        idx = idx < 0 ? static_cast<long>(list->list().size()) + idx : idx;
-                        if (std::cmp_greater_equal(idx, list->list().size()))
-                            throwVMError(
-                                ErrorKind::Index,
-                                fmt::format("pop! index ({}) out of range (list size: {})", idx, list->list().size()));
+                            long idx = static_cast<long>(number.number());
+                            idx = idx < 0 ? static_cast<long>(list->list().size()) + idx : idx;
+                            if (std::cmp_greater_equal(idx, list->list().size()))
+                                throwVMError(
+                                    ErrorKind::Index,
+                                    fmt::format("pop! index ({}) out of range (list size: {})", idx, list->list().size()));
 
-                        list->list().erase(list->list().begin() + idx);
-                        break;
+                            list->list().erase(list->list().begin() + idx);
+                        }
+                        DISPATCH();
                     }
 
-                    case POP:
+                    TARGET(POP)
                     {
                         pop(context);
-                        break;
+                        DISPATCH();
                     }
 
-                    case DUP:
+                    TARGET(DUP)
                     {
                         context.stack[context.sp] = context.stack[context.sp - 1];
                         ++context.sp;
-                        break;
+                        DISPATCH();
                     }
 
 #pragma endregion
 
 #pragma region "Operators"
 
-                    case ADD:
+                    TARGET(ADD)
                     {
                         Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
 
@@ -707,10 +813,10 @@ namespace Ark
                                 { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } },
                                     types::Contract { { types::Typedef("a", ValueType::String), types::Typedef("b", ValueType::String) } } } },
                                 { *a, *b });
-                        break;
+                        DISPATCH();
                     }
 
-                    case SUB:
+                    TARGET(SUB)
                     {
                         Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
 
@@ -720,10 +826,10 @@ namespace Ark
                                 { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
                                 { *a, *b });
                         push(Value(a->number() - b->number()), context);
-                        break;
+                        DISPATCH();
                     }
 
-                    case MUL:
+                    TARGET(MUL)
                     {
                         Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
 
@@ -733,10 +839,10 @@ namespace Ark
                                 { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
                                 { *a, *b });
                         push(Value(a->number() * b->number()), context);
-                        break;
+                        DISPATCH();
                     }
 
-                    case DIV:
+                    TARGET(DIV)
                     {
                         Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
 
@@ -750,58 +856,52 @@ namespace Ark
                             throwVMError(ErrorKind::DivisionByZero, fmt::format("Can not compute expression (/ {} {})", a->toString(*this), b->toString(*this)));
 
                         push(Value(a->number() / d), context);
-                        break;
+                        DISPATCH();
                     }
 
-                    case GT:
+                    TARGET(GT)
                     {
                         Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
-
                         push((*a != *b && !(*a < *b)) ? Builtins::trueSym : Builtins::falseSym, context);
-                        break;
+                        DISPATCH();
                     }
 
-                    case LT:
+                    TARGET(LT)
                     {
                         Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
-
                         push((*a < *b) ? Builtins::trueSym : Builtins::falseSym, context);
-                        break;
+                        DISPATCH();
                     }
 
-                    case LE:
+                    TARGET(LE)
                     {
                         Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
-
                         push((((*a < *b) || (*a == *b)) ? Builtins::trueSym : Builtins::falseSym), context);
-                        break;
+                        DISPATCH();
                     }
 
-                    case GE:
+                    TARGET(GE)
                     {
                         Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
-
                         push(!(*a < *b) ? Builtins::trueSym : Builtins::falseSym, context);
-                        break;
+                        DISPATCH();
                     }
 
-                    case NEQ:
+                    TARGET(NEQ)
                     {
                         Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
-
                         push((*a != *b) ? Builtins::trueSym : Builtins::falseSym, context);
-                        break;
+                        DISPATCH();
                     }
 
-                    case EQ:
+                    TARGET(EQ)
                     {
                         Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
-
                         push((*a == *b) ? Builtins::trueSym : Builtins::falseSym, context);
-                        break;
+                        DISPATCH();
                     }
 
-                    case LEN:
+                    TARGET(LEN)
                     {
                         Value* a = popAndResolveAsPtr(context);
 
@@ -815,10 +915,10 @@ namespace Ark
                                 { { types::Contract { { types::Typedef("value", ValueType::List) } },
                                     types::Contract { { types::Typedef("value", ValueType::String) } } } },
                                 { *a });
-                        break;
+                        DISPATCH();
                     }
 
-                    case EMPTY:
+                    TARGET(EMPTY)
                     {
                         Value* a = popAndResolveAsPtr(context);
 
@@ -832,10 +932,10 @@ namespace Ark
                                 { { types::Contract { { types::Typedef("value", ValueType::List) } },
                                     types::Contract { { types::Typedef("value", ValueType::String) } } } },
                                 { *a });
-                        break;
+                        DISPATCH();
                     }
 
-                    case TAIL:
+                    TARGET(TAIL)
                     {
                         Value* a = popAndResolveAsPtr(context);
 
@@ -868,11 +968,10 @@ namespace Ark
                                 { { types::Contract { { types::Typedef("value", ValueType::List) } },
                                     types::Contract { { types::Typedef("value", ValueType::String) } } } },
                                 { *a });
-
-                        break;
+                        DISPATCH();
                     }
 
-                    case HEAD:
+                    TARGET(HEAD)
                     {
                         Value* a = popAndResolveAsPtr(context);
 
@@ -896,18 +995,17 @@ namespace Ark
                                 { { types::Contract { { types::Typedef("value", ValueType::List) } },
                                     types::Contract { { types::Typedef("value", ValueType::String) } } } },
                                 { *a });
-
-                        break;
+                        DISPATCH();
                     }
 
-                    case ISNIL:
+                    TARGET(ISNIL)
                     {
                         Value* a = popAndResolveAsPtr(context);
                         push((*a == Builtins::nil) ? Builtins::trueSym : Builtins::falseSym, context);
-                        break;
+                        DISPATCH();
                     }
 
-                    case ASSERT:
+                    TARGET(ASSERT)
                     {
                         Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
 
@@ -919,10 +1017,10 @@ namespace Ark
 
                         if (*a == Builtins::falseSym)
                             throw AssertionFailed(b->stringRef());
-                        break;
+                        DISPATCH();
                     }
 
-                    case TO_NUM:
+                    TARGET(TO_NUM)
                     {
                         Value* a = popAndResolveAsPtr(context);
 
@@ -937,58 +1035,60 @@ namespace Ark
                             push(Value(val), context);
                         else
                             push(Builtins::nil, context);
-                        break;
+                        DISPATCH();
                     }
 
-                    case TO_STR:
+                    TARGET(TO_STR)
                     {
                         Value* a = popAndResolveAsPtr(context);
                         push(Value(a->toString(*this)), context);
-                        break;
+                        DISPATCH();
                     }
 
-                    case AT:
+                    TARGET(AT)
                     {
-                        Value* b = popAndResolveAsPtr(context);
-                        Value a = *popAndResolveAsPtr(context);  // be careful, it's not a pointer
-
-                        if (b->valueType() != ValueType::Number)
-                            types::generateError(
-                                "@",
-                                { { types::Contract { { types::Typedef("src", ValueType::List), types::Typedef("idx", ValueType::Number) } },
-                                    types::Contract { { types::Typedef("src", ValueType::String), types::Typedef("idx", ValueType::Number) } } } },
-                                { a, *b });
-
-                        long idx = static_cast<long>(b->number());
-
-                        if (a.valueType() == ValueType::List)
                         {
-                            if (std::cmp_less(std::abs(idx), a.list().size()))
-                                push(a.list()[static_cast<std::size_t>(idx < 0 ? static_cast<long>(a.list().size()) + idx : idx)], context);
+                            Value* b = popAndResolveAsPtr(context);
+                            Value a = *popAndResolveAsPtr(context);  // be careful, it's not a pointer
+
+                            if (b->valueType() != ValueType::Number)
+                                types::generateError(
+                                    "@",
+                                    { { types::Contract { { types::Typedef("src", ValueType::List), types::Typedef("idx", ValueType::Number) } },
+                                        types::Contract { { types::Typedef("src", ValueType::String), types::Typedef("idx", ValueType::Number) } } } },
+                                    { a, *b });
+
+                            long idx = static_cast<long>(b->number());
+
+                            if (a.valueType() == ValueType::List)
+                            {
+                                if (std::cmp_less(std::abs(idx), a.list().size()))
+                                    push(a.list()[static_cast<std::size_t>(idx < 0 ? static_cast<long>(a.list().size()) + idx : idx)], context);
+                                else
+                                    throwVMError(
+                                        ErrorKind::Index,
+                                        fmt::format("{} out of range {} (length {})", idx, a.toString(*this), a.list().size()));
+                            }
+                            else if (a.valueType() == ValueType::String)
+                            {
+                                if (std::cmp_less(std::abs(idx), a.string().size()))
+                                    push(Value(std::string(1, a.string()[static_cast<std::size_t>(idx < 0 ? static_cast<long>(a.string().size()) + idx : idx)])), context);
+                                else
+                                    throwVMError(
+                                        ErrorKind::Index,
+                                        fmt::format("{} out of range \"{}\" (length {})", idx, a.string(), a.string().size()));
+                            }
                             else
-                                throwVMError(
-                                    ErrorKind::Index,
-                                    fmt::format("{} out of range {} (length {})", idx, a.toString(*this), a.list().size()));
+                                types::generateError(
+                                    "@",
+                                    { { types::Contract { { types::Typedef("src", ValueType::List), types::Typedef("idx", ValueType::Number) } },
+                                        types::Contract { { types::Typedef("src", ValueType::String), types::Typedef("idx", ValueType::Number) } } } },
+                                    { a, *b });
                         }
-                        else if (a.valueType() == ValueType::String)
-                        {
-                            if (std::cmp_less(std::abs(idx), a.string().size()))
-                                push(Value(std::string(1, a.string()[static_cast<std::size_t>(idx < 0 ? static_cast<long>(a.string().size()) + idx : idx)])), context);
-                            else
-                                throwVMError(
-                                    ErrorKind::Index,
-                                    fmt::format("{} out of range \"{}\" (length {})", idx, a.string(), a.string().size()));
-                        }
-                        else
-                            types::generateError(
-                                "@",
-                                { { types::Contract { { types::Typedef("src", ValueType::List), types::Typedef("idx", ValueType::Number) } },
-                                    types::Contract { { types::Typedef("src", ValueType::String), types::Typedef("idx", ValueType::Number) } } } },
-                                { a, *b });
-                        break;
+                        DISPATCH();
                     }
 
-                    case MOD:
+                    TARGET(MOD)
                     {
                         Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
                         if (a->valueType() != ValueType::Number || b->valueType() != ValueType::Number)
@@ -996,12 +1096,11 @@ namespace Ark
                                 "mod",
                                 { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
                                 { *a, *b });
-
                         push(Value(std::fmod(a->number(), b->number())), context);
-                        break;
+                        DISPATCH();
                     }
 
-                    case TYPE:
+                    TARGET(TYPE)
                     {
                         Value* a = popAndResolveAsPtr(context);
                         if (a == &m_undefined_value) [[unlikely]]
@@ -1011,48 +1110,46 @@ namespace Ark
                                 {});
 
                         push(Value(types_to_str[static_cast<unsigned>(a->valueType())]), context);
-                        break;
+                        DISPATCH();
                     }
 
-                    case HASFIELD:
+                    TARGET(HASFIELD)
                     {
-                        Value *field = popAndResolveAsPtr(context), *closure = popAndResolveAsPtr(context);
-                        if (closure->valueType() != ValueType::Closure || field->valueType() != ValueType::String)
-                            types::generateError(
-                                "hasField",
-                                { { types::Contract { { types::Typedef("closure", ValueType::Closure), types::Typedef("field", ValueType::String) } } } },
-                                { *closure, *field });
-
-                        auto it = std::find(m_state.m_symbols.begin(), m_state.m_symbols.end(), field->stringRef());
-                        if (it == m_state.m_symbols.end())
                         {
-                            push(Builtins::falseSym, context);
-                            break;
+                            Value *field = popAndResolveAsPtr(context), *closure = popAndResolveAsPtr(context);
+                            if (closure->valueType() != ValueType::Closure || field->valueType() != ValueType::String)
+                                types::generateError(
+                                    "hasField",
+                                    { { types::Contract { { types::Typedef("closure", ValueType::Closure), types::Typedef("field", ValueType::String) } } } },
+                                    { *closure, *field });
+
+                            auto it = std::find(m_state.m_symbols.begin(), m_state.m_symbols.end(), field->stringRef());
+                            if (it == m_state.m_symbols.end())
+                            {
+                                push(Builtins::falseSym, context);
+                                DISPATCH();
+                            }
+
+                            auto id = static_cast<std::uint16_t>(std::distance(m_state.m_symbols.begin(), it));
+                            push(closure->refClosure().refScope()[id] != nullptr ? Builtins::trueSym : Builtins::falseSym, context);
                         }
-
-                        auto id = static_cast<std::uint16_t>(std::distance(m_state.m_symbols.begin(), it));
-                        push(closure->refClosure().refScope()[id] != nullptr ? Builtins::trueSym : Builtins::falseSym, context);
-
-                        break;
+                        DISPATCH();
                     }
 
-                    case NOT:
+                    TARGET(NOT)
                     {
                         Value* a = popAndResolveAsPtr(context);
-
                         push(!(*a) ? Builtins::trueSym : Builtins::falseSym, context);
-                        break;
+                        DISPATCH();
                     }
 
 #pragma endregion
-
-                    default:
-                        throwVMError(ErrorKind::VM, fmt::format("Unknown instruction: {:02x}{:02x}{:04x}", padding, inst, arg));
-                        break;
                 }
-
-#ifdef ARK_PROFILER_MIPS
-                ++instructions_executed;
+#if ARK_USE_COMPUTED_GOTOS
+            dispatch_end:
+                do
+                {
+                } while (false);
 #endif
             }
         }
