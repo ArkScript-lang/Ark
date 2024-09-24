@@ -12,10 +12,6 @@
 #include <Ark/TypeChecker.hpp>
 #include <Ark/Compiler/Instructions.hpp>
 
-#ifdef ARK_PROFILER_MIPS
-#    include <chrono>
-#endif
-
 struct mapping
 {
     char* name;
@@ -265,11 +261,6 @@ namespace Ark
 
     int VM::safeRun(ExecutionContext& context, std::size_t untilFrameCount, bool fail_with_exception)
     {
-#ifdef ARK_PROFILER_MIPS
-        auto start_time = std::chrono::system_clock::now();
-        unsigned long long instructions_executed = 0;
-#endif
-
 #if ARK_USE_COMPUTED_GOTOS
 #    define TARGET(op) TARGET_##op:
 #    define DISPATCH_GOTO()            \
@@ -1179,15 +1170,6 @@ namespace Ark
             backtrace(context);
             m_exit_code = 1;
         }
-
-#ifdef ARK_PROFILER_MIPS
-        auto end_time = std::chrono::system_clock::now();
-        auto d = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
-
-        fmt::println("\nInstructions executed: {}", instructions_executed);
-        fmt::println("Time spent: {} us", d.count());
-        fmt::println("{} MIPS", static_cast<double>(instructions_executed) / d.count());
-#endif
 
         return m_exit_code;
     }

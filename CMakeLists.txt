@@ -16,7 +16,6 @@ set(ARK_COMMIT ${GIT_COMMIT_HASH})
 
 option(ARK_BUILD_EXE "Build a standalone arkscript executable" Off)
 option(ARK_ENABLE_SYSTEM "Enable sys:exec" On)  # enable use of (sys:exec "command here")
-option(ARK_PROFILER_MIPS "Enable MIPS calculation" Off)
 option(ARK_NO_STDLIB "Do not install the standard library with the Ark library" Off)
 option(ARK_BUILD_MODULES "Build the std library modules or not" Off)
 option(ARK_SANITIZERS "Enable ASAN and UBSAN" Off)
@@ -159,10 +158,6 @@ target_compile_definitions(ArkReactor PRIVATE ARK_EXPORT)
 
 if (ARK_ENABLE_SYSTEM)
     target_compile_definitions(ArkReactor PRIVATE ARK_ENABLE_SYSTEM)
-endif ()
-
-if (ARK_PROFILER_MIPS)
-    target_compile_definitions(ArkReactor PRIVATE ARK_PROFILER_MIPS)
 endif ()
 
 if (ARK_BUILD_MODULES)
