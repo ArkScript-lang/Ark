@@ -36,7 +36,7 @@ configure_file(
 
 # setting up compilations options
 
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
     set(CMAKE_COMPILER_IS_CLANG ON)
 endif ()
 
@@ -182,11 +182,11 @@ if (ARK_TESTS)
     target_compile_features(unittests PRIVATE cxx_std_20)
     target_compile_definitions(unittests PRIVATE ARK_TESTS_ROOT="${CMAKE_CURRENT_SOURCE_DIR}/")
 
-    if (ARK_COVERAGE AND NOT WIN32)
-        target_compile_options(unittests PRIVATE -coverage)
-        target_link_options(unittests PRIVATE -coverage)
-        target_compile_options(ArkReactor PRIVATE -coverage)
-        target_link_options(ArkReactor PRIVATE -coverage)
+    if (ARK_COVERAGE AND CMAKE_COMPILER_IS_CLANG)
+        target_compile_options(unittests PRIVATE -coverage -fcoverage-mapping -fprofile-instr-generate)
+        target_link_options(unittests PRIVATE -coverage -fcoverage-mapping -fprofile-instr-generate)
+        target_compile_options(ArkReactor PRIVATE -coverage -fcoverage-mapping -fprofile-instr-generate)
+        target_link_options(ArkReactor PRIVATE -coverage -fcoverage-mapping -fprofile-instr-generate)
 
         # find required tools
         find_program(LCOV lcov REQUIRED)
@@ -196,7 +196,6 @@ if (ARK_TESTS)
         add_custom_target(coverage
                 # gather data
                 COMMAND ${LCOV} --directory . --capture
-                --rc lcov_branch_coverage=1
                 --rc derive_function_end_line=0
                 --ignore-errors inconsistent
                 --filter range
@@ -208,7 +207,6 @@ if (ARK_TESTS)
                 # generate report
                 COMMAND ${GENHTML}
                 --demangle-cpp
-                --rc lcov_branch_coverage=1
                 --rc derive_function_end_line=0
                 -o coverage coverage.info
                 WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
