@@ -55,6 +55,9 @@ target_include_directories(ArkReactor
 target_compile_features(ArkReactor PRIVATE cxx_std_20)
 
 if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG OR APPLE)
+    message(STATUS "Enabling computed gotos")
+    target_compile_definitions(ArkReactor PRIVATE ARK_USE_COMPUTED_GOTOS=1)
+
     target_compile_options(ArkReactor
             PUBLIC
             -Wall -Wextra -pedantic -Wstrict-aliasing
@@ -68,6 +71,8 @@ if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG OR APPLE)
             -Wno-unknown-pragmas
             # Disable warnings about disabling warnings we have disabled.
             -Wno-unknown-warning-option
+            # For our computed gotos needs
+            -Wno-gnu-label-as-value
     )
 
     if (APPLE)
@@ -91,13 +96,14 @@ if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG OR APPLE)
 
     # The nlohmann/json.hpp external project has unused typedefs in the code
     # to compensate for this error we remove the following warning.
-    if (CMAKE_COMPILER_IS_CLANG OR APPLE)
+    if (CMAKE_COMPILER_IS_CLANG)
         target_compile_options(ArkReactor PUBLIC -Wno-unused-local-typedef)
     elseif (CMAKE_COMPILER_IS_GNUCXX)
         target_compile_options(ArkReactor PUBLIC -Wno-unused-local-typedefs)
     endif ()
 
 elseif (MSVC)
+    target_compile_definitions(ArkReactor PRIVATE ARK_USE_COMPUTED_GOTOS=0)
     target_compile_options(ArkReactor
             PUBLIC
             /W4
@@ -152,11 +158,11 @@ endif ()
 target_compile_definitions(ArkReactor PRIVATE ARK_EXPORT)
 
 if (ARK_ENABLE_SYSTEM)
-    target_compile_definitions(ArkReactor PRIVATE -DARK_ENABLE_SYSTEM)
+    target_compile_definitions(ArkReactor PRIVATE ARK_ENABLE_SYSTEM)
 endif ()
 
 if (ARK_PROFILER_MIPS)
-    target_compile_definitions(ArkReactor PRIVATE -DARK_PROFILER_MIPS)
+    target_compile_definitions(ArkReactor PRIVATE ARK_PROFILER_MIPS)
 endif ()
 
 if (ARK_BUILD_MODULES)
