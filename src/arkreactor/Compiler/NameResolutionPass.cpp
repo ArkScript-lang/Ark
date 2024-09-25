@@ -9,14 +9,21 @@
 
 namespace Ark::internal
 {
-    void ScopeResolver::Scope::add(const std::string& name)
+    void ScopeResolver::Scope::add(const std::string& name, bool is_mutable)
     {
-        m_vars.emplace(name);
+        m_vars.emplace(name, is_mutable);
+    }
+
+    std::optional<Variable> ScopeResolver::Scope::get(const std::string& name) const
+    {
+        if (const auto it = std::ranges::find(m_vars, name, &Variable::name); it != m_vars.end())
+            return *it;
+        return std::nullopt;
     }
 
     bool ScopeResolver::Scope::has(const std::string& name) const
     {
-        return m_vars.contains(name);
+        return std::ranges::find(m_vars, name, &Variable::name) != m_vars.end();
     }
 
     ScopeResolver::ScopeResolver()
@@ -34,9 +41,19 @@ namespace Ark::internal
         m_scopes.pop_back();
     }
 
-    void ScopeResolver::registerInCurrent(const std::string& name)
+    void ScopeResolver::registerInCurrent(const std::string& name, const bool is_mutable)
     {
-        m_scopes.back().add(name);
+        m_scopes.back().add(name, is_mutable);
+    }
+
+    std::optional<bool> ScopeResolver::isImmutable(const std::string& name) const
+    {
+        for (const auto& m_scope : std::ranges::reverse_view(m_scopes))
+        {
+            if (auto maybe = m_scope.get(name); maybe.has_value())
+                return !maybe.value().is_mutable;
+        }
+        return std::nullopt;
     }
 
     bool ScopeResolver::isRegistered(const std::string& name) const
@@ -63,6 +80,11 @@ namespace Ark::internal
             return m_scopes[0].has(name);
         // for a variable to be considered global, it has to not be shadowed in the current local scope
         return !m_scopes.back().has(name) && m_scopes[0].has(name);
+    }
+
+    bool ScopeResolver::isInScope(const std::string& name) const
+    {
+        return m_scopes.back().has(name);
     }
 
     NameResolutionPass::NameResolutionPass(const unsigned debug) :
@@ -92,10 +114,10 @@ namespace Ark::internal
         return m_ast;
     }
 
-    void NameResolutionPass::addDefinedSymbol(const std::string& sym)
+    void NameResolutionPass::addDefinedSymbol(const std::string& sym, const bool is_mutable)
     {
         m_defined_symbols.emplace(sym);
-        m_scope_resolver.registerInCurrent(sym);
+        m_scope_resolver.registerInCurrent(sym, is_mutable);
     }
 
     void NameResolutionPass::visit(const Node& node)
@@ -153,7 +175,29 @@ namespace Ark::internal
                             node.constList()[1].line(),
                             node.constList()[1].col(),
                             name);
-                    addDefinedSymbol(name);
+
+                    if (m_scope_resolver.isInScope(name) && keyword == Keyword::Let)
+                        throw CodeError(
+                            fmt::format("MutabilityError: Can not use 'let' to redefine variable `{}'", name),
+                            node.filename(),
+                            node.constList()[1].line(),
+                            node.constList()[1].col(),
+                            name);
+                    else if (keyword == Keyword::Set)
+                    {
+                        const auto val = node.constList()[2].repr();
+
+                        if (const auto mutability = m_scope_resolver.isImmutable(name); m_scope_resolver.isRegistered(name) &&
+                            mutability.value_or(false))
+                            throw CodeError(
+                                fmt::format("MutabilityError: Can not set the constant `{}' to {}", name, val),
+                                node.filename(),
+                                node.constList()[1].line(),
+                                node.constList()[1].col(),
+                                name);
+                    }
+                    else
+                        addDefinedSymbol(name, keyword != Keyword::Let);
                 }
                 break;
 
@@ -191,10 +235,10 @@ namespace Ark::internal
                                     child.col(),
                                     child.repr());
                             }
-                            addDefinedSymbol(child.string());
+                            addDefinedSymbol(child.string(), /* is_mutable= */ true);
                         }
                         else if (child.nodeType() == NodeType::Symbol)
-                            addDefinedSymbol(child.string());
+                            addDefinedSymbol(child.string(), /* is_mutable= */ true);
                     }
                 }
                 if (node.constList().size() > 2)

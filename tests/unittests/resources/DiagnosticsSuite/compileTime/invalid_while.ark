@@ -1,2 +1,2 @@
 (while ($ a 1) {
-    (set acc (+ acc (@ [] a)))})
+    (mut acc (+ acc (@ [] a)))})

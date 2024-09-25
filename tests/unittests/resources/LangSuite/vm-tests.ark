@@ -12,7 +12,7 @@
 (let closure_3 (make 3 2 3))
 (let closure_4 (make2 1 2 3))
 
-(let inner 0)
+(mut inner 0)
 (let call (fun () {
     (set val 5)
     (set inner 12) }))

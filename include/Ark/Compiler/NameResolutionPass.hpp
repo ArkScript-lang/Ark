@@ -20,6 +20,26 @@
 
 namespace Ark::internal
 {
+    struct Variable
+    {
+        std::string name;
+        bool is_mutable;
+
+        bool operator==(const Variable& other) const = default;
+    };
+}
+
+template <>
+struct ::std::hash<Ark::internal::Variable>
+{
+    inline size_t operator()(const Ark::internal::Variable& x) const noexcept
+    {
+        return std::hash<std::string> {}(x.name);
+    }
+};
+
+namespace Ark::internal
+{
     class ScopeResolver
     {
     public:
@@ -29,26 +49,62 @@ namespace Ark::internal
 
         void removeLocalScope();
 
-        void registerInCurrent(const std::string& name);
+        void registerInCurrent(const std::string& name, bool is_mutable);
 
+        /**
+         * @brief Checks the scopes in reverse order for 'name' and returns its mutability status
+         * @param name
+         * @return std::nullopt if the variable could not be found
+         * @return true if immutable
+         * @return false if mutable
+         */
+        [[nodiscard]] std::optional<bool> isImmutable(const std::string& name) const;
+
+        /**
+         * @brief Checks if any scope has 'name', in reverse order
+         * @param name
+         * @return
+         */
         [[nodiscard]] bool isRegistered(const std::string& name) const;
 
+        /**
+         * @brief Returns false if we have only one scope (global), checks the scopes recursively for 'name'
+         *
+         * @param name
+         * @return
+         */
         [[nodiscard]] bool isLocalVar(const std::string& name) const;
 
+        /**
+         * @brief 'name' has to be defined only in the first scope to be considered global
+         *
+         * @param name
+         * @return
+         */
         [[nodiscard]] bool isGlobalVar(const std::string& name) const;
 
-    private:
+        /**
+         * @brief Checks if 'name' is in the current scope
+         *
+         * @param name
+         * @return
+         */
+        [[nodiscard]] bool isInScope(const std::string& name) const;
+
         class Scope
         {
         public:
-            void add(const std::string& name);
+            void add(const std::string& name, bool is_mutable);
+
+            [[nodiscard]] std::optional<Variable> get(const std::string& name) const;
 
             [[nodiscard]] bool has(const std::string& name) const;
 
         private:
-            std::unordered_set<std::string> m_vars;
+            std::unordered_set<Variable> m_vars {};
         };
 
+    private:
         std::vector<Scope> m_scopes;
     };
 
@@ -65,8 +121,9 @@ namespace Ark::internal
          * @brief Register a symbol as defined, so that later we can throw errors on undefined symbols
          *
          * @param sym
+         * @param is_mutable true if the symbol is inside mut/set, false otherwise (let)
          */
-        void addDefinedSymbol(const std::string& sym);
+        void addDefinedSymbol(const std::string& sym, bool is_mutable);
 
     private:
         Node m_ast;
