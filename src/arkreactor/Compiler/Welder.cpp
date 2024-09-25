@@ -25,7 +25,7 @@ namespace Ark
 
     void Welder::registerSymbol(const std::string& name)
     {
-        m_name_resolver.addDefinedSymbol(name);
+        m_name_resolver.addDefinedSymbol(name, /* is_mutable= */ false);
     }
 
     bool Welder::computeASTFromFile(const std::string& filename, const bool fail_with_exception)

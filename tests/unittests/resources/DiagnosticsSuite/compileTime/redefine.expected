@@ -1,0 +1,6 @@
+At a @ 1:0
+    1 | (mut a 5)
+      | ^
+    2 | (let a 6)
+    3 |
+        MutabilityError: Can not use 'let' to redefine variable `a'

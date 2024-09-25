@@ -25,6 +25,7 @@
 - added resolving `empty?` as a macro when possible
 - added short-circuiting to `and` and `or` implementation
 - added `--check` to the formatter as an option: returns 0 if the code is correctly formatted, 1 otherwise
+- the name & scope resolution pass now checks for mutability errors
 
 ### Changed
 - instructions are on 4 bytes: 1 byte for the instruction, 1 byte of padding, 2 bytes for an immediate argument
