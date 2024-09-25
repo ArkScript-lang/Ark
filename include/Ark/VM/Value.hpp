@@ -99,9 +99,8 @@ namespace Ark
          * @param value value needed
          */
         template <typename T>
-        Value(ValueType type, T&& value) noexcept :
-            m_const_type(static_cast<uint8_t>(type)),
-            m_value(value)
+        Value(const ValueType type, T&& value) noexcept :
+            m_type(type), m_value(value)
         {}
 
         explicit Value(int value) noexcept;
@@ -116,7 +115,7 @@ namespace Ark
         explicit Value(UserType&& value) noexcept;
         explicit Value(Value* ref) noexcept;
 
-        [[nodiscard]] ValueType valueType() const noexcept { return static_cast<ValueType>(type_num()); }
+        [[nodiscard]] ValueType valueType() const noexcept { return m_type; }
         [[nodiscard]] bool isFunction() const noexcept
         {
             const auto type = valueType();
@@ -157,33 +156,24 @@ namespace Ark
         friend class Ark::BytecodeReader;
 
     private:
-        uint8_t m_const_type;  ///< First bit if for constness, right most bits are for type
+        ValueType m_type;
         Value_t m_value;
 
-        [[nodiscard]] constexpr uint8_t type_num() const noexcept { return m_const_type & 0x7f; }  // TODO: rename typeNum
+        [[nodiscard]] constexpr uint8_t typeNum() const noexcept { return static_cast<uint8_t>(m_type); }
 
         [[nodiscard]] internal::PageAddr_t pageAddr() const { return std::get<internal::PageAddr_t>(m_value); }
         [[nodiscard]] const ProcType& proc() const { return std::get<ProcType>(m_value); }
         [[nodiscard]] const internal::Closure& closure() const { return std::get<internal::Closure>(m_value); }
         [[nodiscard]] internal::Closure& refClosure() { return std::get<internal::Closure>(m_value); }
-
-        [[nodiscard]] bool isConst() const noexcept { return m_const_type & (1 << 7); }
-        void setConst(const bool value) noexcept
-        {
-            if (value)
-                m_const_type |= 1 << 7;
-            else
-                m_const_type = type_num();
-        }
     };
 
     inline bool operator==(const Value& A, const Value& B) noexcept
     {
         // values should have the same type
-        if (A.type_num() != B.type_num())
+        if (A.m_type != B.m_type)
             return false;
         // all the types >= Nil are Nil itself, True, False, Undefined
-        if (A.type_num() >= static_cast<uint8_t>(ValueType::Nil))
+        if (A.typeNum() >= static_cast<uint8_t>(ValueType::Nil))
             return true;
 
         return A.m_value == B.m_value;
@@ -191,8 +181,8 @@ namespace Ark
 
     inline bool operator<(const Value& A, const Value& B) noexcept
     {
-        if (A.type_num() != B.type_num())
-            return (A.type_num() - B.type_num()) < 0;
+        if (A.m_type != B.m_type)
+            return (A.typeNum() - B.typeNum()) < 0;
         return A.m_value < B.m_value;
     }
 
