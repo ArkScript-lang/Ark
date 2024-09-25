@@ -39,7 +39,7 @@ namespace Ark
      * @brief The ArkScript virtual machine, executing ArkScript bytecode
      *
      */
-    class ARK_API VM
+    class ARK_API VM final
     {
     public:
         /**
@@ -306,7 +306,7 @@ namespace Ark
         inline void call(internal::ExecutionContext& context, uint16_t argc);
     };
 
-#include "inline/VM.inl"
+#include "VM.inl"
 
     /// ArkScript Nil value
     const auto Nil = Value(ValueType::Nil);

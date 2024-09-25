@@ -74,6 +74,7 @@
 - repl completion and colors are now generated automatically from the builtins, keywords & operators
 - fixed formating of comments inside function declarations
 - renamed the macros `symcat` and `argcount` to `$symcat` and `$argcount` for uniformity
+- the `Ark::VM` class is now `final`
 
 ### Removed
 - removed unused `NodeType::Closure`
