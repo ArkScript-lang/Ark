@@ -207,9 +207,9 @@ namespace Ark
 
     std::optional<Instruction> Compiler::getListInstruction(const std::string& name) noexcept
     {
-        const auto it = std::ranges::find(internal::listInstructions, name);
-        if (it != internal::listInstructions.end())
-            return static_cast<Instruction>(std::distance(internal::listInstructions.begin(), it) + LIST);
+        const auto it = std::ranges::find(internal::Language::listInstructions, name);
+        if (it != internal::Language::listInstructions.end())
+            return static_cast<Instruction>(std::distance(internal::Language::listInstructions.begin(), it) + LIST);
         return std::nullopt;
     }
 
@@ -473,7 +473,7 @@ namespace Ark
         for (const auto& node : x.constList()[1].constList())
         {
             if (node.nodeType() == NodeType::Symbol)
-                page(function_body_page).emplace_back(MUT, addSymbol(node));
+                page(function_body_page).emplace_back(STORE, addSymbol(node));
         }
 
         // push body of the function
@@ -505,12 +505,10 @@ namespace Ark
         for (std::size_t idx = 2, end = x.constList().size(); idx < end; ++idx)
             compileExpression(x.constList()[idx], p, false, false, name);
 
-        if (n == Keyword::Let)
-            page(p).emplace_back(LET, i);
-        else if (n == Keyword::Mut)
-            page(p).emplace_back(MUT, i);
-        else
+        if (n == Keyword::Let || n == Keyword::Mut)
             page(p).emplace_back(STORE, i);
+        else
+            page(p).emplace_back(SET_VAL, i);
     }
 
     void Compiler::compileWhile(const Node& x, const Page p)

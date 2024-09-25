@@ -1,0 +1,6 @@
+At a @ 2:12
+    1 | (let a [])
+    2 | (append! a 5)
+      |            ^
+    3 |
+        MutabilityError: Can not modify the constant list `a' using `append!'

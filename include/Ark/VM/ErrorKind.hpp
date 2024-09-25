@@ -10,7 +10,6 @@ namespace Ark::internal
     {
         VM,
         Module,
-        Mutability,
         Scope,
         Type,
         Index,
@@ -18,10 +17,9 @@ namespace Ark::internal
         DivisionByZero,
     };
 
-    constexpr std::array<std::string_view, 8> errorKinds = {
+    constexpr std::array<std::string_view, 7> errorKinds = {
         "VMError",
         "ModuleError",
-        "MutabilityError",
         "ScopeError",
         "TypeError",
         "IndexError",

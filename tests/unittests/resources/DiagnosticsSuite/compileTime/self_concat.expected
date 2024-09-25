@@ -1,0 +1,6 @@
+At d @ 2:12
+    1 | (mut d [4 5 6])
+    2 | (concat! d d)
+      |            ^
+    3 |
+        MutabilityError: Can not concat! the list `d' to itself
