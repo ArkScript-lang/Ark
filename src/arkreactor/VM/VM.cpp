@@ -397,8 +397,6 @@ namespace Ark
                     {
                         {
                             Value val = *popAndResolveAsPtr(context);
-                            val.setConst(false);
-
                             // avoid adding the pair (id, _) multiple times, with different values
                             Value* local = context.locals.back()[arg];
                             if (local == nullptr) [[likely]]
@@ -419,10 +417,7 @@ namespace Ark
                                 if (var->valueType() == ValueType::Reference)
                                     *var->reference() = val;
                                 else [[likely]]
-                                {
                                     *var = val;
-                                    var->setConst(false);
-                                }
                             }
                             else
                                 throwVMError(ErrorKind::Scope, fmt::format("Unbound variable `{}', can not change its value to {}", m_state.m_symbols[arg], val.toString(*this)));

@@ -137,21 +137,21 @@ inline Value* VM::pop(internal::ExecutionContext& context)
 
 inline void VM::push(const Value& value, internal::ExecutionContext& context)
 {
-    context.stack[context.sp].m_const_type = value.m_const_type;
+    context.stack[context.sp].m_type = value.m_type;
     context.stack[context.sp].m_value = value.m_value;
     ++context.sp;
 }
 
 inline void VM::push(Value&& value, internal::ExecutionContext& context)
 {
-    context.stack[context.sp].m_const_type = std::move(value.m_const_type);
+    context.stack[context.sp].m_type = std::move(value.m_type);
     context.stack[context.sp].m_value = std::move(value.m_value);
     ++context.sp;
 }
 
 inline void VM::push(Value* valptr, internal::ExecutionContext& context)
 {
-    context.stack[context.sp].m_const_type = static_cast<uint8_t>(ValueType::Reference);
+    context.stack[context.sp].m_type = ValueType::Reference;
     context.stack[context.sp].m_value = valptr;
     ++context.sp;
 }
