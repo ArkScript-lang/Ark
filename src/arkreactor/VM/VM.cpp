@@ -305,7 +305,7 @@ namespace Ark
                 &&TARGET_CAPTURE,
                 &&TARGET_BUILTIN,
                 &&TARGET_DEL,
-                &&TARGET_SAVE_ENV,
+                &&TARGET_MAKE_CLOSURE,
                 &&TARGET_GET_FIELD,
                 &&TARGET_PLUGIN,
                 &&TARGET_LIST,
@@ -382,14 +382,7 @@ namespace Ark
 
                     TARGET(LOAD_CONST)
                     {
-                        if (context.saved_scope && m_state.m_constants[arg].valueType() == ValueType::PageAddr)
-                        {
-                            push(Value(Closure(context.saved_scope.value(), m_state.m_constants[arg].pageAddr())), context);
-                            context.saved_scope.reset();
-                        }
-                        else [[likely]]  // push internal ref
-                            push(&(m_state.m_constants[arg]), context);
-
+                        push(&(m_state.m_constants[arg]), context);
                         DISPATCH();
                     }
 
@@ -546,9 +539,10 @@ namespace Ark
                         DISPATCH();
                     }
 
-                    TARGET(SAVE_ENV)
+                    TARGET(MAKE_CLOSURE)
                     {
-                        context.saved_scope = context.locals.back();
+                        push(Value(Closure(context.saved_scope.value(), m_state.m_constants[arg].pageAddr())), context);
+                        context.saved_scope.reset();
                         DISPATCH();
                     }
 

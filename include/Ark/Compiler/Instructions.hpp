@@ -46,7 +46,7 @@ namespace Ark::internal
         CAPTURE = 0x0b,
         BUILTIN = 0x0c,
         DEL = 0x0d,
-        SAVE_ENV = 0x0e,
+        MAKE_CLOSURE = 0x0e,
         GET_FIELD = 0x0f,
         PLUGIN = 0x10,
         LIST = 0x11,

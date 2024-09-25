@@ -457,17 +457,21 @@ namespace Ark
             throwCompilerError("Invalid node ; if it was computed by a macro, check that a node is returned", x);
 
         // capture, if needed
+        bool is_closure = false;
         for (const auto& node : x.constList()[1].constList())
         {
             if (node.nodeType() == NodeType::Capture)
+            {
                 page(p).emplace_back(CAPTURE, addSymbol(node));
+                is_closure = true;
+            }
         }
 
         // create new page for function body
         m_code_pages.emplace_back();
-        const Page function_body_page = Page { .index = m_code_pages.size() - 1, .is_temp = false };
+        const auto function_body_page = Page { .index = m_code_pages.size() - 1, .is_temp = false };
         // save page_id into the constants table as PageAddr and load the const
-        page(p).emplace_back(LOAD_CONST, addValue(function_body_page.index, x));
+        page(p).emplace_back(is_closure ? MAKE_CLOSURE : LOAD_CONST, addValue(function_body_page.index, x));
 
         // pushing arguments from the stack into variables in the new scope
         for (const auto& node : x.constList()[1].constList())

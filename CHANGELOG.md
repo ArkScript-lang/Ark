@@ -27,6 +27,7 @@
 - added `--check` to the formatter as an option: returns 0 if the code is correctly formatted, 1 otherwise
 - the name & scope resolution pass now checks for mutability errors
 - compile time checks for mutability errors with `append!`, `concat!` and `pop!`
+- new `MAKE_CLOSURE <page addr>` instruction, generated in place of a `LOAD_CONST` when a closure is made
 
 ### Changed
 - instructions are on 4 bytes: 1 byte for the instruction, 1 byte of padding, 2 bytes for an immediate argument
@@ -91,6 +92,7 @@
 - removed `termcolor` dependency to rely on `fmt` for coloring outputs
 - removed `and` and `or` instructions in favor of a better implementation to support short-circuiting
 - removed `LET` and `MUT` instructions in favor of a single new `STORE` instruction
+- removed `SAVE_ENV` instruction
 
 ## [3.5.0] - 2023-02-19
 ### Added
