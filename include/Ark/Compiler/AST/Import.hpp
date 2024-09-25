@@ -42,6 +42,10 @@ namespace Ark::internal
          */
         std::vector<std::string> symbols;
 
+        /**
+         *
+         * @return a package string, eg a.b.c
+         */
         [[nodiscard]] std::string toPackageString() const
         {
             return std::accumulate(package.begin() + 1, package.end(), package.front(), [](const std::string& left, const std::string& right) {
@@ -49,6 +53,10 @@ namespace Ark::internal
             });
         }
 
+        /**
+         *
+         * @return a package as a path, eg a/b/c
+         */
         [[nodiscard]] std::string packageToPath() const
         {
             return std::accumulate(

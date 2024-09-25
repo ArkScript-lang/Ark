@@ -60,8 +60,10 @@ namespace Ark
             {
                 m_bytecode.push_back(inst.padding);
                 m_bytecode.push_back(inst.opcode);
-                m_bytecode.push_back(inst.bytes.first);
-                m_bytecode.push_back(inst.bytes.second);
+
+                auto [first, second] = inst.bytes();
+                m_bytecode.push_back(first);
+                m_bytecode.push_back(second);
             }
         }
 

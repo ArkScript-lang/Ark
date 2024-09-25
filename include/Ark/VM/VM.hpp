@@ -161,7 +161,7 @@ namespace Ark
         std::vector<std::shared_ptr<internal::SharedLibrary>> m_shared_lib_objects;
         std::vector<std::unique_ptr<internal::Future>> m_futures;  ///< Storing the promises while we are resolving them
 
-        // just a nice little trick for operator[] and for pop
+        // a little trick for operator[] and for pop
         Value m_no_value = internal::Builtins::nil;
         Value m_undefined_value;
 

@@ -39,6 +39,7 @@ namespace Ark::internal
         Unused
     };
 
+    /// Node types as string, in the same order as the enum NodeType
     constexpr std::array<std::string_view, 10> nodeTypes = {
         "Symbol",
         "Capture",
@@ -84,6 +85,7 @@ namespace Ark::internal
         constexpr std::string_view AppendInPlace = "append!";
         constexpr std::string_view ConcatInPlace = "concat!";
         constexpr std::string_view PopInPlace = "pop!";
+        /// All the builtins that modify in place a variable
         constexpr std::array UpdateRef = {
             AppendInPlace, ConcatInPlace, PopInPlace
         };

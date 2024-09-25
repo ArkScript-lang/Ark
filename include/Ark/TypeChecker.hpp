@@ -2,7 +2,7 @@
  * @file TypeChecker.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief
- * @version 1.0
+ * @version 1.1
  * @date 2022-01-16
  *
  * @copyright Copyright (c) 2022-2024
@@ -25,13 +25,13 @@ namespace Ark::types
         using AllSame = std::enable_if_t<std::conjunction_v<std::is_same<T, Ts>...>>;
 
         template <int I>
-        bool checkN([[maybe_unused]] const std::vector<Value>& args)
+        [[nodiscard]] bool checkN(const std::vector<Value>& args)
         {
             return I >= args.size();
         }
 
         template <int I, typename T, typename... Ts>
-        bool checkN(const std::vector<Value>& args, T type, Ts... xs)
+        [[nodiscard]] bool checkN(const std::vector<Value>& args, T type, Ts... xs)
         {
             if (I >= args.size() || (type != ValueType::Any && args[I].valueType() != type))
                 return false;
@@ -49,7 +49,7 @@ namespace Ark::types
      * @return false otherwise
      */
     template <typename... Ts, typename = details::AllSame<ValueType, Ts...>>
-    bool check(const std::vector<Value>& args, Ts... types)
+    [[nodiscard]] bool check(const std::vector<Value>& args, Ts... types)
     {
         if (sizeof...(types) != args.size())
             return false;

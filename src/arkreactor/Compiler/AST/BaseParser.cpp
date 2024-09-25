@@ -71,8 +71,8 @@ namespace Ark::internal
             m_sym = utf8_char_t();
             error("Expected symbol, got empty string", "");
         }
-        m_str = code;
 
+        m_str = code;
         m_it = m_next_it = m_str.begin();
 
         // otherwise, get the first symbol

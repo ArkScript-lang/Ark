@@ -121,6 +121,12 @@ namespace Ark
             return *static_cast<T*>(m_data);
         }
 
+        /**
+         * @brief Return the underlying object as a given type
+         *
+         * @tparam T the type in which the underlying data pointer should be converted to
+         * @return T&
+         */
         template <typename T>
         const T& as() const noexcept
         {

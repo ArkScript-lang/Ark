@@ -23,14 +23,24 @@ namespace Ark::internal
     class Future
     {
     public:
+        /**
+         * @brief Create a Future and immediately start it through std::async
+         * @param context a dedicated context for the future to run on
+         * @param vm non owning pointer to the VM
+         * @param args list of (function, arguments...) to create the future
+         */
         Future(ExecutionContext* context, VM* vm, std::vector<Value>& args);
 
+        /**
+         * @brief Await the future, blocking the thread it is ran on
+         * @return Value Nil if the future is invalid (has already been awaited), otherwise the value
+         */
         Value resolve();
 
     private:
         ExecutionContext* m_context;
         VM* m_vm;
-        std::future<Value> m_value;
+        std::future<Value> m_value;  ///< The actual thread
     };
 }
 

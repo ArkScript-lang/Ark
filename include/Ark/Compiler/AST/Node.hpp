@@ -134,6 +134,11 @@ namespace Ark::internal
          */
         Node& attachNearestCommentBefore(const std::string& comment);
 
+        /**
+         * @brief Set the comment_after field with the nearest comment after this node
+         * @param comment
+         * @return Node& reference to this node after updating it
+         */
         Node& attachCommentAfter(const std::string& comment);
 
         /**
@@ -163,6 +168,10 @@ namespace Ark::internal
          */
         [[nodiscard]] const std::string& comment() const noexcept;
 
+        /**
+         * @brief Return the comment attached after this node, if any
+         * @return const std::string&
+         */
         [[nodiscard]] const std::string& commentAfter() const noexcept;
 
         /**
@@ -197,6 +206,11 @@ namespace Ark::internal
     const Node& getNilNode();
     const Node& getListNode();
 
+    /**
+     *
+     * @param node
+     * @return std::string a string corresponding to the node type
+     */
     inline std::string typeToString(const Node& node) noexcept
     {
         if (node.nodeType() == NodeType::Symbol)

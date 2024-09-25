@@ -19,11 +19,17 @@ namespace Ark::internal
         utf8_char_t() :
             m_codepoint(0), m_length(0), m_repr({ 0 }) {}
 
-        utf8_char_t(codepoint_t cp, length_t len, repr_t repr) :
+        utf8_char_t(const codepoint_t cp, const length_t len, const repr_t repr) :
             m_codepoint(cp), m_length(len), m_repr(repr) {}
 
-        // https://github.com/sheredom/utf8.h/blob/4e4d828174c35e4564c31a9e35580c299c69a063/utf8.h#L1178
-        static std::pair<std::string::iterator, utf8_char_t> at(std::string::iterator it, const std::string::iterator end)
+        /**
+         * @brief Parse a codepoint and compute its length and representation
+         * @details https://github.com/sheredom/utf8.h/blob/4e4d828174c35e4564c31a9e35580c299c69a063/utf8.h#L1178
+         * @param it iterator in a string
+         * @param end end iterator, used to avoid going out of bound
+         * @return std::pair<std::string::iterator, utf8_char_t> the iterator points to the beginning of the next codepoint, the utf8_char_t represents the parsed codepoint
+         */
+        static std::pair<std::string::iterator, utf8_char_t> at(const std::string::iterator it, const std::string::iterator end)
         {
             codepoint_t cp;
             length_t length;
@@ -72,6 +78,10 @@ namespace Ark::internal
                                   utf8_char_t(cp, length, repr));
         }
 
+        /**
+         *
+         * @return true if the given codepoint is printable according to std::isprint
+         */
         [[nodiscard]] bool isPrintable() const
         {
             if (m_codepoint < std::numeric_limits<char>::max())

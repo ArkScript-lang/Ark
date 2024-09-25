@@ -2,7 +2,7 @@
  * @file Function.hpp
  * @author Ray John Alovera (rakista112@gmail.com), Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Executor for List Macros
- * @version 2.0
+ * @version 2.1
  * @date 2021-05-04
  *
  * @copyright Copyright (c) 2021-2024
@@ -26,8 +26,20 @@ namespace Ark::internal
     public:
         using MacroExecutor::MacroExecutor;
 
+        /**
+         *
+         * @param node
+         * @param depth depth of the macro processor evalution
+         * @return true if the applying worked
+         */
         bool applyMacro(Node& node, unsigned depth) override;
-        bool canHandle(Node& node) override;
+
+        /**
+         *
+         * @param node
+         * @return true if the executor can handle the given node
+         */
+        [[nodiscard]] bool canHandle(Node& node) override;
     };
 
 }

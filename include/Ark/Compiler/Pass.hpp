@@ -37,6 +37,10 @@ namespace Ark::internal
 
         virtual ~Pass() = default;
 
+        /**
+         * @brief Start processing the given AST
+         * @param ast
+         */
         virtual void process(const Node& ast) = 0;
 
         /**

@@ -17,11 +17,23 @@ public:
     explicit Formatter(bool dry_run);
     Formatter(std::string filename, bool dry_run);
 
+    /**
+     * @brief Read the file and process it. The file isn't modified
+     */
     void run();
+
+    /**
+     *
+     * @param code code to process (bypass reading the file if initialized with a filename)
+     */
     void runWithString(const std::string& code);
 
     [[nodiscard]] const std::string& output() const;
 
+    /**
+     *
+     * @return true if code has been modified by the formatter
+     */
     [[nodiscard]] bool codeModified() const;
 
 private:
@@ -32,12 +44,42 @@ private:
     bool m_updated;  ///< True if the original code now difer from the formatted one
 
     void processAst(const Ark::internal::Node& ast);
+
+    /**
+     * @brief Given the original code, produce a warning if comments from it were removed during formatting
+     * @param original_code
+     * @param filename
+     */
     void warnIfCommentsWereRemoved(const std::string& original_code, const std::string& filename);
 
-    static bool isListStartingWithKeyword(const Ark::internal::Node& node, Ark::internal::Keyword keyword);
-    static bool isBeginBlock(const Ark::internal::Node& node);
-    static bool isFuncDef(const Ark::internal::Node& node);
-    static bool isFuncCall(const Ark::internal::Node& node);
+    /**
+     * @brief Check if a given node starts with a given keyword
+     * @param node
+     * @param keyword
+     * @return bool
+     */
+    [[nodiscard]] static bool isListStartingWithKeyword(const Ark::internal::Node& node, Ark::internal::Keyword keyword);
+
+    /**
+     * @brief Check if a node is a begin block
+     * @param node
+     * @return bool
+     */
+    [[nodiscard]] static bool isBeginBlock(const Ark::internal::Node& node);
+
+    /**
+     * @brief Check if a node is a function definition (fun (args) body)
+     * @param node
+     * @return bool
+     */
+    [[nodiscard]] static bool isFuncDef(const Ark::internal::Node& node);
+
+    /**
+     * @brief Check if a node is a function call (foo bar egg)
+     * @param node
+     * @return bool
+     */
+    [[nodiscard]] static bool isFuncCall(const Ark::internal::Node& node);
 
     /**
      * @param node
@@ -53,8 +95,18 @@ private:
      */
     static std::size_t lineOfLastNodeIn(const Ark::internal::Node& node);
 
-    bool shouldSplitOnNewline(const Ark::internal::Node& node);
+    /**
+     * @brief Decide if a node should be split on a newline or not
+     * @param node
+     * @return bool
+     */
+    [[nodiscard]] bool shouldSplitOnNewline(const Ark::internal::Node& node);
 
+    /**
+     * @brief Compute indentation level
+     * @param indent indentation level
+     * @return std::string
+     */
     static std::string prefix(const std::size_t indent)
     {
         return std::string(indent * FormatterConfig.SpacePerIndent, ' ');

@@ -55,6 +55,11 @@ namespace Ark::Utils
         };
     }
 
+    /**
+     * @brief Helper to read the bytes of a file
+     * @param name filename
+     * @return std::vector<uint8_t>
+     */
     inline std::vector<uint8_t> readFileAsBytes(const std::string& name)
     {
         // admitting the file exists
