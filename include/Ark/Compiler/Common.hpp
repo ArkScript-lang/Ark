@@ -79,20 +79,27 @@ namespace Ark::internal
         "del"
     };
 
-    // This list is related to include/Ark/Compiler/Instructions.hpp
-    // The order is very important
-    constexpr std::array<std::string_view, 7> listInstructions = {
-        "list",
-        "append",
-        "concat",
-        "append!",
-        "concat!",
-        "pop",
-        "pop!"
-    };
-
     namespace Language
     {
+        constexpr std::string_view AppendInPlace = "append!";
+        constexpr std::string_view ConcatInPlace = "concat!";
+        constexpr std::string_view PopInPlace = "pop!";
+        constexpr std::array UpdateRef = {
+            AppendInPlace, ConcatInPlace, PopInPlace
+        };
+
+        // This list is related to include/Ark/Compiler/Instructions.hpp
+        // The order is very important
+        constexpr std::array<std::string_view, 7> listInstructions = {
+            "list",
+            "append",
+            "concat",
+            AppendInPlace,
+            ConcatInPlace,
+            "pop",
+            PopInPlace
+        };
+
         constexpr std::string_view And = "and";
         constexpr std::string_view Or = "or";
 

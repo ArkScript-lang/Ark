@@ -14,6 +14,7 @@
 
 #include <vector>
 #include <string>
+#include <optional>
 #include <unordered_set>
 
 #include <Ark/Compiler/Pass.hpp>
@@ -30,7 +31,7 @@ namespace Ark::internal
 }
 
 template <>
-struct ::std::hash<Ark::internal::Variable>
+struct std::hash<Ark::internal::Variable>
 {
     inline size_t operator()(const Ark::internal::Variable& x) const noexcept
     {

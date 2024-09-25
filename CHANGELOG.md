@@ -26,6 +26,7 @@
 - added short-circuiting to `and` and `or` implementation
 - added `--check` to the formatter as an option: returns 0 if the code is correctly formatted, 1 otherwise
 - the name & scope resolution pass now checks for mutability errors
+- compile time checks for mutability errors with `append!`, `concat!` and `pop!`
 
 ### Changed
 - instructions are on 4 bytes: 1 byte for the instruction, 1 byte of padding, 2 bytes for an immediate argument
@@ -76,6 +77,8 @@
 - fixed formating of comments inside function declarations
 - renamed the macros `symcat` and `argcount` to `$symcat` and `$argcount` for uniformity
 - the `Ark::VM` class is now `final`
+- the `STORE` instruction has been renamed `SET_VAL`
+- the `STORE` instruction is emitted in place of the `LET` and `MUT` instructions, without any mutability checking now
 
 ### Removed
 - removed unused `NodeType::Closure`
@@ -87,6 +90,7 @@
 - removed useless `\0` escape in strings
 - removed `termcolor` dependency to rely on `fmt` for coloring outputs
 - removed `and` and `or` instructions in favor of a better implementation to support short-circuiting
+- removed `LET` and `MUT` instructions in favor of a single new `STORE` instruction
 
 ## [3.5.0] - 2023-02-19
 ### Added

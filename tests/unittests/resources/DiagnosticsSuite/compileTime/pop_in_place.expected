@@ -1,0 +1,6 @@
+At a @ 2:9
+    1 | (let a [])
+    2 | (pop! a 1)
+      |         ^
+    3 |
+        MutabilityError: Can not modify the constant list `a' using `pop!'

@@ -328,7 +328,7 @@ inline void VM::call(internal::ExecutionContext& context, const uint16_t argc)
 
     // every argument is a MUT declaration in the bytecode
     // index+1 to skip the padding
-    while (m_state.m_pages[context.pp][index + 1] == MUT)
+    while (m_state.m_pages[context.pp][index + 1] == STORE)
     {
         needed_argc += 1;
         index += 4;  // instructions are on 4 bytes

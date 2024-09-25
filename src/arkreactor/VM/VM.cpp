@@ -296,7 +296,7 @@ namespace Ark
                 &&TARGET_LOAD_CONST,
                 &&TARGET_POP_JUMP_IF_TRUE,
                 &&TARGET_STORE,
-                &&TARGET_LET,
+                &&TARGET_SET_VAL,
                 &&TARGET_POP_JUMP_IF_FALSE,
                 &&TARGET_JUMP,
                 &&TARGET_RET,
@@ -304,7 +304,6 @@ namespace Ark
                 &&TARGET_CALL,
                 &&TARGET_CAPTURE,
                 &&TARGET_BUILTIN,
-                &&TARGET_MUT,
                 &&TARGET_DEL,
                 &&TARGET_SAVE_ENV,
                 &&TARGET_GET_FIELD,
@@ -405,11 +404,25 @@ namespace Ark
                     {
                         {
                             Value val = *popAndResolveAsPtr(context);
+                            val.setConst(false);
+
+                            // avoid adding the pair (id, _) multiple times, with different values
+                            Value* local = context.locals.back()[arg];
+                            if (local == nullptr) [[likely]]
+                                context.locals.back().push_back(arg, val);
+                            else
+                                *local = val;
+                        }
+
+                        DISPATCH();
+                    }
+
+                    TARGET(SET_VAL)
+                    {
+                        {
+                            Value val = *popAndResolveAsPtr(context);
                             if (Value* var = findNearestVariable(arg, context); var != nullptr) [[likely]]
                             {
-                                if (var->isConst() && var->valueType() != ValueType::Reference)
-                                    throwVMError(ErrorKind::Mutability, fmt::format("Can not set the constant `{}' to {}", m_state.m_symbols[arg], val.toString(*this)));
-
                                 if (var->valueType() == ValueType::Reference)
                                     *var->reference() = val;
                                 else [[likely]]
@@ -420,19 +433,6 @@ namespace Ark
                             }
                             else
                                 throwVMError(ErrorKind::Scope, fmt::format("Unbound variable `{}', can not change its value to {}", m_state.m_symbols[arg], val.toString(*this)));
-                        }
-                        DISPATCH();
-                    }
-
-                    TARGET(LET)
-                    {
-                        // check if we are redefining a variable
-                        if (auto val = (context.locals.back())[arg]; val != nullptr) [[unlikely]]
-                            throwVMError(ErrorKind::Mutability, fmt::format("Can not use 'let' to redefine variable `{}'", m_state.m_symbols[arg]));
-                        {
-                            Value val = *popAndResolveAsPtr(context);
-                            val.setConst(true);
-                            context.locals.back().push_back(arg, val);
                         }
                         DISPATCH();
                     }
@@ -529,23 +529,6 @@ namespace Ark
                     TARGET(BUILTIN)
                     {
                         push(Builtins::builtins[arg].second, context);
-                        DISPATCH();
-                    }
-
-                    TARGET(MUT)
-                    {
-                        {
-                            Value val = *popAndResolveAsPtr(context);
-                            val.setConst(false);
-
-                            // avoid adding the pair (id, _) multiple times, with different values
-                            Value* local = context.locals.back()[arg];
-                            if (local == nullptr) [[likely]]
-                                context.locals.back().push_back(arg, val);
-                            else
-                                *local = val;
-                        }
-
                         DISPATCH();
                     }
 
@@ -679,8 +662,6 @@ namespace Ark
                     {
                         Value* list = popAndResolveAsPtr(context);
 
-                        if (list->isConst())
-                            throwVMError(ErrorKind::Mutability, "Can not modify a constant list using `append!'");
                         if (list->valueType() != ValueType::List)
                             types::generateError(
                                 "append!",
@@ -696,8 +677,6 @@ namespace Ark
                     {
                         Value* list = popAndResolveAsPtr(context);
 
-                        if (list->isConst())
-                            throwVMError(ErrorKind::Mutability, "Can not modify a constant list using `concat!'");
                         if (list->valueType() != ValueType::List)
                             types::generateError(
                                 "concat",
@@ -707,9 +686,6 @@ namespace Ark
                         for (uint16_t i = 0; i < arg; ++i)
                         {
                             Value* next = popAndResolveAsPtr(context);
-
-                            if (next == list)
-                                throwVMError(ErrorKind::Mutability, "Can not concat! a list to itself");
 
                             if (list->valueType() != ValueType::List || next->valueType() != ValueType::List)
                                 types::generateError(
@@ -753,8 +729,6 @@ namespace Ark
                             Value* list = popAndResolveAsPtr(context);
                             Value number = *popAndResolveAsPtr(context);
 
-                            if (list->isConst())
-                                throwVMError(ErrorKind::Mutability, "Can not modify a constant list using `pop!'");
                             if (list->valueType() != ValueType::List || number.valueType() != ValueType::Number)
                                 types::generateError(
                                     "pop!",

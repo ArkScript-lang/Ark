@@ -95,7 +95,7 @@ namespace Ark::internal
             m_language_symbols.emplace(builtin.first);
         for (auto ope : Language::operators)
             m_language_symbols.emplace(ope);
-        for (auto inst : listInstructions)
+        for (auto inst : Language::listInstructions)
             m_language_symbols.emplace(inst);
 
         m_language_symbols.emplace(Language::And);
@@ -141,6 +141,38 @@ namespace Ark::internal
                     else
                     {
                         // function calls
+                        // the UpdateRef function calls kind get a special treatment, like let/mut/set,
+                        // because we need to check for mutability errors
+                        if (node.constList().size() > 1 && node.constList()[0].nodeType() == NodeType::Symbol &&
+                            node.constList()[1].nodeType() == NodeType::Symbol)
+                        {
+                            const auto funcname = node.constList()[0].string();
+                            const auto arg = node.constList()[1].string();
+
+                            if (std::ranges::find(Language::UpdateRef, funcname) != Language::UpdateRef.end() && m_scope_resolver.isImmutable(arg).value_or(false))
+                                throw CodeError(
+                                    fmt::format("MutabilityError: Can not modify the constant list `{}' using `{}'", arg, funcname),
+                                    node.filename(),
+                                    node.constList()[1].line(),
+                                    node.constList()[1].col(),
+                                    arg);
+
+                            // check that we aren't doing a (append! a a) nor a (concat! a a)
+                            if (funcname == Language::AppendInPlace || funcname == Language::ConcatInPlace)
+                            {
+                                for (std::size_t i = 2, end = node.constList().size(); i < end; ++i)
+                                {
+                                    if (node.constList()[i].nodeType() == NodeType::Symbol && node.constList()[i].string() == arg)
+                                        throw CodeError(
+                                            fmt::format("MutabilityError: Can not {} the list `{}' to itself", funcname, arg),
+                                            node.filename(),
+                                            node.constList()[1].line(),
+                                            node.constList()[1].col(),
+                                            arg);
+                                }
+                            }
+                        }
+
                         for (const auto& child : node.constList())
                             visit(child);
                     }

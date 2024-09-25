@@ -19,10 +19,10 @@ namespace Ark
         m_old_ip(0), m_lib_env(lib_env),
         m_state(m_lib_env), m_vm(m_state), m_has_init_vm(false)
     {
-        m_keywords.reserve(keywords.size() + listInstructions.size() + Language::operators.size() + Builtins::builtins.size() + 2);
+        m_keywords.reserve(keywords.size() + Language::listInstructions.size() + Language::operators.size() + Builtins::builtins.size() + 2);
         for (auto keyword : keywords)
             m_keywords.emplace_back(keyword);
-        for (auto inst : listInstructions)
+        for (auto inst : Language::listInstructions)
             m_keywords.emplace_back(inst);
         for (auto op : Language::operators)
             m_keywords.emplace_back(op);
@@ -31,10 +31,10 @@ namespace Ark
         m_keywords.emplace_back("and");
         m_keywords.emplace_back("or");
 
-        m_words_colors.reserve(keywords.size() + listInstructions.size() + Language::operators.size() + Builtins::builtins.size() + 4);
+        m_words_colors.reserve(keywords.size() + Language::listInstructions.size() + Language::operators.size() + Builtins::builtins.size() + 4);
         for (auto keyword : keywords)
             m_words_colors.emplace_back(keyword, Replxx::Color::BRIGHTRED);
-        for (auto inst : listInstructions)
+        for (auto inst : Language::listInstructions)
             m_words_colors.emplace_back(inst, Replxx::Color::GREEN);
         for (auto op : Language::operators)
         {
