@@ -63,6 +63,11 @@ namespace Ark
          * @return
          */
         std::optional<std::string> getLine(bool continuation);
+
+        /**
+         * @brief Prompt the user to enter a complete code block and handle the prompt modifications until the code block is complete
+         * @return std::optional<std::string>
+         */
         std::optional<std::string> getCodeBlock();
     };
 }

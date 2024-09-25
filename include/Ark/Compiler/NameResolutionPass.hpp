@@ -44,12 +44,27 @@ namespace Ark::internal
     class ScopeResolver
     {
     public:
+        /**
+         * @brief Create a ScopeResolver
+         * @details Kickstart by create a default global scope
+         */
         ScopeResolver();
 
+        /**
+         * @brief Create a new scope
+         */
         void createNew();
 
+        /**
+         * @brief Remove the last scope
+         */
         void removeLocalScope();
 
+        /**
+         * @brief Register a variable in the current (last) scope
+         * @param name
+         * @param is_mutable
+         */
         void registerInCurrent(const std::string& name, bool is_mutable);
 
         /**
@@ -95,8 +110,18 @@ namespace Ark::internal
         class Scope
         {
         public:
+            /**
+             * @brief Add a variable to the scope, given a mutability status
+             * @param name
+             * @param is_mutable
+             */
             void add(const std::string& name, bool is_mutable);
 
+            /**
+             * @brief Try to return a variable from this scope with a given name.
+             * @param name
+             * @return std::optional<Variable> std::nullopt if the variable isn't in scope
+             */
             [[nodiscard]] std::optional<Variable> get(const std::string& name) const;
 
             [[nodiscard]] bool has(const std::string& name) const;
@@ -112,10 +137,22 @@ namespace Ark::internal
     class NameResolutionPass final : public Pass
     {
     public:
+        /**
+         * @brief Create a NameResolutionPass
+         * @param debug debug level
+         */
         explicit NameResolutionPass(unsigned debug);
 
+        /**
+         * @brief Start visiting the given AST, checking for mutability violation and unbound variables
+         * @param ast AST to analyze
+         */
         void process(const Node& ast) override;
 
+        /**
+         * @brief Unused overload that return the input AST (untouched as this pass only generates errors)
+         * @return const Node& ast
+         */
         [[nodiscard]] const Node& ast() const noexcept override;
 
         /**
@@ -128,12 +165,16 @@ namespace Ark::internal
 
     private:
         Node m_ast;
-        std::unordered_set<std::string> m_language_symbols;
+        std::unordered_set<std::string> m_language_symbols;  ///< Precomputed set of language symbols that can't be used to define variables
         std::vector<Node> m_symbol_nodes;
         std::unordered_set<std::string> m_defined_symbols;
         std::vector<std::string> m_plugin_names;
         ScopeResolver m_scope_resolver;
 
+        /**
+         * @brief Recursively visit nodes
+         * @param node node to visit
+         */
         void visit(const Node& node);
 
         /**

@@ -27,10 +27,8 @@ namespace Ark
     class VM;
     class BytecodeReader;
 
-    // Note: we can have at most 0x7f (127) different types
-    //     because type index is stored on the 7 right most bits of a uint8_t in the class Value.
-    //     Order is also important because we are doing some optimizations to check ranges
-    //     of types based on their integer values.
+    // Order is important because we are doing some optimizations to check ranges
+    // of types based on their integer values.
     enum class ValueType
     {
         List = 0,

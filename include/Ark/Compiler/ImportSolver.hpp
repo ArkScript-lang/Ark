@@ -2,7 +2,7 @@
  * @file ImportSolver.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Handle imports, resolve them with modules and everything
- * @version 2.0
+ * @version 2.1
  * @date 2024-07-21
  *
  * @copyright Copyright (c) 2020-2024
@@ -28,9 +28,21 @@ namespace Ark::internal
     class ImportSolver final : public Pass
     {
     public:
+        /**
+         * @brief Create a new ImportSolver
+         * @param debug debug level
+         * @param libenv list of paths to the standard library
+         */
         ImportSolver(unsigned debug, const std::vector<std::filesystem::path>& libenv);
 
+        /**
+         * @brief Configure the ImportSolver
+         * @param root path to the root file that imports all others
+         * @param origin_imports the first imports to go through
+         * @return ImportSolver& *this
+         */
         ImportSolver& setup(const std::filesystem::path& root, const std::vector<Import>& origin_imports);
+
         void process(const Node& origin_ast) override;
 
         [[nodiscard]] const Node& ast() const noexcept override;
@@ -69,7 +81,7 @@ namespace Ark::internal
          * @param import current import directive
          * @return std::filesystem::path
          */
-        std::filesystem::path findFile(const std::filesystem::path& file, const Import& import) const;
+        [[nodiscard]] std::filesystem::path findFile(const std::filesystem::path& file, const Import& import) const;
     };
 }
 

@@ -43,6 +43,12 @@ namespace Ark::internal
         [[nodiscard]] inline bool shouldDebug() const { return m_debug >= 2; }
         [[nodiscard]] inline bool shouldTrace() const { return m_debug >= 3; }
 
+        /**
+         * @brief Write an info level log using fmtlib
+         * @tparam Args
+         * @param fmt format string
+         * @param args
+         */
         template <typename... Args>
         void info(const char* fmt, Args&&... args)
         {
@@ -50,6 +56,12 @@ namespace Ark::internal
                 fmt::println("[INFO ][{}] {}", m_name, fmt::vformat(fmt, fmt::make_format_args(args...)));
         }
 
+        /**
+         * @brief Write a debug level log using fmtlib
+         * @tparam Args
+         * @param fmt format string
+         * @param args
+         */
         template <typename... Args>
         void debug(const char* fmt, Args&&... args)
         {
@@ -57,6 +69,12 @@ namespace Ark::internal
                 fmt::println("[DEBUG][{}] {}", m_name, fmt::vformat(fmt, fmt::make_format_args(args...)));
         }
 
+        /**
+         * @brief Write a trace level log using fmtlib
+         * @tparam Args
+         * @param fmt format string
+         * @param args
+         */
         template <typename... Args>
         void trace(const char* fmt, Args&&... args)
         {

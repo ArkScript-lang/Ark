@@ -14,21 +14,7 @@ namespace Ark::internal
     void Parser::process(const std::string& filename, const std::string& code)
     {
         initParser(filename, code);
-        run();
-    }
 
-    const Node& Parser::ast() const noexcept
-    {
-        return m_ast;
-    }
-
-    const std::vector<Import>& Parser::imports() const
-    {
-        return m_imports;
-    }
-
-    void Parser::run()
-    {
         while (!isEOF())
         {
             std::string comment;
@@ -54,6 +40,16 @@ namespace Ark::internal
                 errorWithNextToken("invalid syntax, expected node");
             }
         }
+    }
+
+    const Node& Parser::ast() const noexcept
+    {
+        return m_ast;
+    }
+
+    const std::vector<Import>& Parser::imports() const
+    {
+        return m_imports;
     }
 
     Node& Parser::setNodePosAndFilename(Node& node, const std::optional<FilePosition>& cursor) const

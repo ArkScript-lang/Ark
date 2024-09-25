@@ -103,8 +103,8 @@ namespace Ark::internal
 
     private:
         std::vector<std::pair<uint16_t, Value>> m_data;
-        uint16_t m_min_id;
-        uint16_t m_max_id;
+        uint16_t m_min_id;  ///< Minimum stored ID, used for a basic bloom filter
+        uint16_t m_max_id;  ///< Maximum stored ID, used for a basic bloom filter
     };
 }
 

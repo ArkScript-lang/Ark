@@ -11,6 +11,9 @@
 
 namespace Ark::internal
 {
+    /**
+     * @brief Describe a position in a given file ; handled by the BaseParser
+     */
     struct FilePosition
     {
         std::size_t row = 0;
@@ -24,16 +27,22 @@ namespace Ark::internal
 
     private:
         std::string m_str;
-        std::vector<std::pair<std::string::iterator, std::size_t>> m_it_to_row;
+        std::vector<std::pair<std::string::iterator, std::size_t>> m_it_to_row;  ///< A crude map of \n position to line number to speed up line number computing
         std::string::iterator m_it, m_next_it;
-        utf8_char_t m_sym;
-        FilePosition m_filepos;
+        utf8_char_t m_sym;       ///< The current utf8 character we're on
+        FilePosition m_filepos;  ///< The position of the cursor in the file
 
+        /**
+         * @brief Register the position of a new line, with an iterator pointing to the new line and the row number
+         *
+         * @param it
+         * @param row
+         */
         void registerNewLine(std::string::iterator it, std::size_t row);
 
-        /*
-            getting next character and changing the values of count/row/col/sym
-        */
+        /**
+         * @brief getting next character and changing the values of count/row/col/sym
+         */
         void next();
 
     protected:
@@ -43,32 +52,67 @@ namespace Ark::internal
 
         FilePosition getCursor() const;
 
+        /**
+         *
+         * @param error an error message
+         * @param exp the expression causing the error
+         */
         void error(const std::string& error, std::string exp);
+
+        /**
+         * @brief Fetch the next token (space and paren delimited) to generate an error
+         *
+         * @param message an error message
+         */
         void errorWithNextToken(const std::string& message);
+
+        /**
+         * @brief Generate an error for a given node when a suffix is missing
+         *
+         * @param suffix a suffix char, eg " or )
+         * @param node_name can be "string", "node" ; represents a structure
+         */
         void errorMissingSuffix(char suffix, const std::string& node_name);
 
+        /**
+         *
+         * @return distance in characters from the beginning of the file to the cursor
+         */
         long getCount() { return std::distance(m_str.begin(), m_it); }
+
+        /**
+         *
+         * @return file size in bytes
+         */
         std::size_t getSize() const { return m_str.size(); }
-        bool isEOF() { return m_it == m_str.end(); }
+
+        /**
+         *
+         * @return true if the cursor is positioned at the end of the file
+         */
+        [[nodiscard]] bool isEOF() const { return m_it == m_str.end(); }
 
         void backtrack(long n);
 
-        /*
-            Function to use and check if a Character Predicate was able to parse
-            the current symbol.
-            Add the symbol to the given string (if there was one) and call next()
-        */
+        /**
+         * @brief check if a Character Predicate was able to parse, call next() if matching
+         *
+         * @param t a char predicate to match
+         * @param s optional string to append the matching chars to
+         * @return true if matched
+         */
         bool accept(const CharPred& t, std::string* s = nullptr);
 
-        /*
-            Function to use and check if a Character Predicate was able to parse
-            the current Symbol.
-            Add the symbol to the given string (if there was one) and call next().
-            Throw a CodeError if it couldn't.
-        */
+        /**
+         * @brief heck if a Character Predicate was able to parse, call next() if matching ; throw a CodeError if it doesn't match
+         * @param t a char predicate to match
+         * @param s optional string to append the matching chars to
+         * @return true if matched
+         */
         bool expect(const CharPred& t, std::string* s = nullptr);
 
         // basic parsers
+
         bool space(std::string* s = nullptr);
         bool inlineSpace(std::string* s = nullptr);
         bool endOfLine(std::string* s = nullptr);
@@ -83,8 +127,23 @@ namespace Ark::internal
         bool name(std::string* s = nullptr);
         bool sequence(const std::string& s);
         bool packageName(std::string* s = nullptr);
+
+        /**
+         * @brief Match any char that do not match the predicate
+         *
+         * @param delim delimiter predicate
+         * @param s optional string to append the matching chars to
+         * @return true if matched
+         */
         bool anyUntil(const CharPred& delim, std::string* s = nullptr);
 
+        /**
+         * @brief Fetch a token and try to match one of the given words
+         *
+         * @param words list of words to match against
+         * @param s optional string to append the matching chars to
+         * @return true if matched
+         */
         bool oneOf(std::initializer_list<std::string> words, std::string* s = nullptr);
     };
 }

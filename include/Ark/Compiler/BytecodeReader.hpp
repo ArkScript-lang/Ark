@@ -43,22 +43,22 @@ namespace Ark
 
     struct Symbols
     {
-        std::vector<std::string> symbols;
-        std::size_t start;  ///< Point to the SYM_TABLE_START byte in the bytecode
-        std::size_t end;    ///< Point to the byte following the last byte of the table in the bytecode
+        std::vector<std::string> symbols {};
+        std::size_t start {};  ///< Point to the SYM_TABLE_START byte in the bytecode
+        std::size_t end {};    ///< Point to the byte following the last byte of the table in the bytecode
     };
 
     struct Values
     {
-        std::vector<Value> values;
-        std::size_t start;  ///< Point to the VAL_TABLE_START byte in the bytecode
-        std::size_t end;    ///< Point to the byte following the last byte of the table in the bytecode
+        std::vector<Value> values {};
+        std::size_t start {};  ///< Point to the VAL_TABLE_START byte in the bytecode
+        std::size_t end {};    ///< Point to the byte following the last byte of the table in the bytecode
     };
 
     struct Code
     {
-        std::vector<bytecode_t> pages;
-        std::size_t start;  ///< Point to the CODE_SEGMENT_START byte in the bytecode
+        std::vector<bytecode_t> pages {};
+        std::size_t start {};  ///< Point to the CODE_SEGMENT_START byte in the bytecode
     };
 
     /**
@@ -67,7 +67,7 @@ namespace Ark
      * - display it in a human readable way by using the opcode names
      *
      */
-    class ARK_API BytecodeReader
+    class ARK_API BytecodeReader final
     {
     public:
         /**

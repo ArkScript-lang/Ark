@@ -69,6 +69,10 @@ namespace Ark::internal
         [[nodiscard]] Scope& refScope() const noexcept { return *m_scope; }
         [[nodiscard]] const std::shared_ptr<Scope>& scopePtr() const { return m_scope; }
 
+        /**
+         *
+         * @return PageAddr_t the bytecode page address this closure refers to
+         */
         [[nodiscard]] PageAddr_t pageAddr() const { return m_page_addr; }
 
         /**
