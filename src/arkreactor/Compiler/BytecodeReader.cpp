@@ -429,8 +429,8 @@ namespace Ark
                             color_print_inst("BUILTIN", Arg { ArgKind::Builtin, arg });
                         else if (inst == DEL)
                             color_print_inst("DEL", Arg { ArgKind::Symbol, arg });
-                        else if (inst == SAVE_ENV)
-                            color_print_inst("SAVE_ENV");
+                        else if (inst == MAKE_CLOSURE)
+                            color_print_inst("MAKE_CLOSURE", Arg { ArgKind::Value, arg });
                         else if (inst == GET_FIELD)
                             color_print_inst("GET_FIELD", Arg { ArgKind::Symbol, arg });
                         else if (inst == PLUGIN)
