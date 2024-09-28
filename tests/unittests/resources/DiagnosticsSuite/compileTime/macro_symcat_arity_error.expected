@@ -1,0 +1,6 @@
+At ($symcat b) @ 1:21
+    1 | ($ a { ($symcat b) })
+      | ^~~~~~~~~~~~~~~~~~~~~
+    2 | (print a)
+    3 |
+        When expanding `$symcat', expected at least 2 arguments, got 1 arguments

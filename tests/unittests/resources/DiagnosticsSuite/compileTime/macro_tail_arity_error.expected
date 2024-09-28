@@ -1,0 +1,7 @@
+At (tail 1 2) @ 2:10
+    1 | ($ a (tail 1 2))
+    2 | (print a)
+      | ^~~~~~~~~
+    3 |
+      | ^
+        When expanding `tail' inside a macro, got 2 arguments, expected 1

@@ -1,0 +1,7 @@
+At ($symcat 5 2) @ 2:10
+    1 | ($ a ($symcat 5 2))
+    2 | (print a)
+      | ^~~~~~~~~
+    3 |
+      | ^
+        When expanding `$symcat', expected the first argument to be a Symbol, got a Number

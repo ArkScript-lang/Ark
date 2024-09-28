@@ -1,0 +1,8 @@
+At (foo 1 2) @ 4:3
+    1 | ($ foo (a b c ...d)
+    2 |     (+ a b c ...d))
+    3 |
+    4 | (foo 1 2)
+      | ^~~~~~~~~
+    5 |
+        Macro `foo' got 2 argument(s) but needed at least 3

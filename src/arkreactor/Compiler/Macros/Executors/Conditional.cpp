@@ -21,7 +21,6 @@ namespace Ark::internal
             node.setNodeType(NodeType::Unused);
         }
 
-        // todo: is this still needed? does registerMacro have to call applyMacro???
         if (node.nodeType() == NodeType::Macro)
             registerMacro(node);
 

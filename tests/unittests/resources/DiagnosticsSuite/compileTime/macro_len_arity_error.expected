@@ -1,0 +1,7 @@
+At (len 1 2) @ 2:10
+    1 | ($ a (len 1 2))
+    2 | (print a)
+      | ^~~~~~~~~
+    3 |
+      | ^
+        When expanding `len' inside a macro, got 2 arguments, expected 1

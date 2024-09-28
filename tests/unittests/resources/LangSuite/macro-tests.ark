@@ -25,7 +25,10 @@
         ($ add_two (a b) (+ a b))
 
         (test:eq (add_two 1 2) 3)
-        (test:eq (add_two nice_value 2) 14) })
+        (test:eq (add_two nice_value 2) 14)
+
+        ($ c (* 4 (/ 10 2)))
+        (test:eq c 20) })
 
     (test:case "conditional macros" {
         (test:expect ($if (and true true) true false))
@@ -41,11 +44,14 @@
         (test:expect ($if (>= nice_value 12) true false))
         (test:expect ($if (@ [true false] 0) true false))
         (test:expect ($if (@ [true false] -2) true false))
+        (test:expect ($if 1 true false))
         ($if true {
             ($ in_if_1 true)
             ($ in_if_2 true)})
+        ($if true ($ new_value true))
 
         (test:expect (and in_if_1 in_if_2) "a variable can be defined inside a conditional macro")
+        (test:expect new_value "variable can be defined inside a conditional macro")
         ($undef in_if_1)
         ($undef in_if_2) })
 

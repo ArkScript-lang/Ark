@@ -1,0 +1,5 @@
+At (and true) @ 1:16
+    1 | ($if (and true) {})
+      | ^~~~~~~~~~~~~~~~~~~
+    2 |
+        Interpreting a `and' chain with 1 arguments, expected at least 2.
