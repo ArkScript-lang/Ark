@@ -35,6 +35,8 @@
     (io:writeFile "test.txt" "hello, world!")
     (test:expect (io:fileExists? "test.txt"))
     (test:eq (io:readFile "test.txt") "hello, world!")
+    (io:appendToFile "test.txt" "bis")
+    (test:eq (io:readFile "test.txt") "hello, world!bis")
     (test:expect (> (len (io:listFiles "./")) 0))
     (test:expect (not (io:dir? "test.txt")))
     (test:expect (not (io:fileExists? "temp")))

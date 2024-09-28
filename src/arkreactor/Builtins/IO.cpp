@@ -73,13 +73,11 @@ namespace Ark::internal::Builtins::IO
 
     /**
      * @name io:writeFile
-     * @brief Write content to a file, given an optional mode (default: "w"). Return nil
-     * @param filename path to the file to open
-     * @param mode (optional), either "a" (append) or "w" (write)
+     * @brief Write content to a file. Return nil
+     * @param filename path to the file to write to (will be overwritten if it exists)
      * @param content can be any valid ArkScript value
      * =begin
      * (io:writeFile "hello.json" "{\"key\": 12}")
-     * (io:writeFile "truc.txt" "a" 12)
      * =end
      * @author https://github.com/SuperFola
      */
@@ -96,30 +94,42 @@ namespace Ark::internal::Builtins::IO
             else
                 throw std::runtime_error(fmt::format("io:writeFile: couldn't write to file \"{}\"", n[0].stringRef()));
         }
-        else if (types::check(n, ValueType::String, ValueType::String, ValueType::Any))
-        {
-            auto mode = n[1].string();
-            if (mode != "w" && mode != "a")
-                throw std::runtime_error(fmt::format("io:writeFile: mode must be equal to \"a\" or \"w\", not \"{}\"", mode));
-
-            auto ios_mode = std::ios::out | std::ios::trunc;
-            if (mode == "a")
-                ios_mode = std::ios::out | std::ios::app;
-
-            std::ofstream f(n[0].string(), ios_mode);
-            if (f.is_open())
-            {
-                f << n[2].toString(*vm);
-                f.close();
-            }
-            else
-                throw std::runtime_error(fmt::format("io:writeFile: couldn't write to file \"{}\"", n[0].stringRef()));
-        }
         else
             types::generateError(
                 "io:writeFile",
-                { { types::Contract { { types::Typedef("filename", ValueType::String), types::Typedef("content", ValueType::Any) } },
-                    types::Contract { { types::Typedef("filename", ValueType::String), types::Typedef("mode", ValueType::String), types::Typedef("content", ValueType::Any) } } } },
+                { { types::Contract { { types::Typedef("filename", ValueType::String), types::Typedef("content", ValueType::Any) } } } },
+                n);
+
+        return nil;
+    }
+
+    /**
+     * @name io:appendToFile
+     * @brief Append content to a file. Return nil
+     * @param filename path to the file to append to
+     * @param content can be any valid ArkScript value
+     * =begin
+     * (io:writeFile "hello.json" "{\"key\": 12}")
+     * =end
+     * @author https://github.com/SuperFola
+     */
+    Value appendToFile(std::vector<Value>& n, VM* vm)
+    {
+        if (types::check(n, ValueType::String, ValueType::Any))
+        {
+            std::ofstream f(n[0].string(), std::ios::out | std::ios::app);
+            if (f.is_open())
+            {
+                f << n[1].toString(*vm);
+                f.close();
+            }
+            else
+                throw std::runtime_error(fmt::format("io:appendToFile: couldn't write to file \"{}\"", n[0].stringRef()));
+        }
+        else
+            types::generateError(
+                "io:appendToFile",
+                { { types::Contract { { types::Typedef("filename", ValueType::String), types::Typedef("content", ValueType::Any) } } } },
                 n);
 
         return nil;
