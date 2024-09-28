@@ -26,16 +26,8 @@ namespace Ark::internal
         m_type(NodeType::Number), m_value(static_cast<double>(value))
     {}
 
-    Node::Node(const int value) :
-        m_type(NodeType::Number), m_value(static_cast<double>(value))
-    {}
-
     Node::Node(Keyword value) :
         m_type(NodeType::Keyword), m_value(value)
-    {}
-
-    Node::Node(const std::vector<Node>& nodes) :
-        m_type(NodeType::List), m_value(nodes)
     {}
 
     const std::string& Node::string() const noexcept
@@ -302,7 +294,6 @@ namespace Ark::internal
         return ListNode;
     }
 
-    // todo: do we really need all those operators? maybe for macros?
     bool operator==(const Node& A, const Node& B)
     {
         if (A.m_type != B.m_type)  // should have the same types
@@ -326,37 +317,6 @@ namespace Ark::internal
                 [[fallthrough]];
             case NodeType::String:
                 return A.m_value < B.m_value;
-
-            default:
-                return false;
-        }
-    }
-
-    bool operator!(const Node& A)
-    {
-        switch (A.nodeType())
-        {
-            case NodeType::Field:
-                [[fallthrough]];
-            case NodeType::List:
-                return A.constList().empty();
-
-            case NodeType::Number:
-                return A.number() == 0.0;
-
-            case NodeType::Capture:
-                [[fallthrough]];
-            case NodeType::String:
-                return A.string().size() == 0;
-
-            case NodeType::Symbol:
-            {
-                if (A.string() == "true")
-                    return false;
-                if (A.string() == "false" || A.string() == "nil")
-                    return true;
-            }
-                return false;
 
             default:
                 return false;

@@ -2,10 +2,10 @@
  * @file Node.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief AST node used by the parser, optimizer and compiler
- * @version 0.4
+ * @version 1.0
  * @date 2020-10-27
  *
- * @copyright Copyright (c) 2020-2021
+ * @copyright Copyright (c) 2020-2024
  *
  */
 
@@ -38,9 +38,7 @@ namespace Ark::internal
         explicit Node(NodeType node_type);
         explicit Node(double value);
         explicit Node(long value);
-        explicit Node(int value);
         explicit Node(Keyword value);
-        explicit Node(const std::vector<Node>& nodes);
 
         /**
          * @brief Return the string held by the value (if the node type allows it)
@@ -189,7 +187,6 @@ namespace Ark::internal
 
         friend bool operator==(const Node& A, const Node& B);
         friend bool operator<(const Node& A, const Node& B);
-        friend bool operator!(const Node& A);
 
     private:
         NodeType m_type;
