@@ -45,16 +45,17 @@ namespace Ark::internal::Builtins
 
     namespace IO
     {
-        Value print(std::vector<Value>& n, VM* vm);        // print, multiple arguments
-        Value puts_(std::vector<Value>& n, VM* vm);        // puts, multiple arguments
-        Value input(std::vector<Value>& n, VM* vm);        // input, 0 or 1 argument
-        Value writeFile(std::vector<Value>& n, VM* vm);    // io:writeFile, 2 or 3 arguments
-        Value readFile(std::vector<Value>& n, VM* vm);     // io:readFile, 1 argument
-        Value fileExists(std::vector<Value>& n, VM* vm);   // io:fileExists?, 1 argument
-        Value listFiles(std::vector<Value>& n, VM* vm);    // io:listFiles, 1 argument
-        Value isDirectory(std::vector<Value>& n, VM* vm);  // io:isDir?, 1 argument
-        Value makeDir(std::vector<Value>& n, VM* vm);      // io:makeDir, 1 argument
-        Value removeFiles(std::vector<Value>& n, VM* vm);  // io:removeFiles, multiple arguments
+        Value print(std::vector<Value>& n, VM* vm);         // print, multiple arguments
+        Value puts_(std::vector<Value>& n, VM* vm);         // puts, multiple arguments
+        Value input(std::vector<Value>& n, VM* vm);         // input, 0 or 1 argument
+        Value writeFile(std::vector<Value>& n, VM* vm);     // io:writeFile, 2 arguments
+        Value appendToFile(std::vector<Value>& n, VM* vm);  // io:appendToFile, 2 arguments
+        Value readFile(std::vector<Value>& n, VM* vm);      // io:readFile, 1 argument
+        Value fileExists(std::vector<Value>& n, VM* vm);    // io:fileExists?, 1 argument
+        Value listFiles(std::vector<Value>& n, VM* vm);     // io:listFiles, 1 argument
+        Value isDirectory(std::vector<Value>& n, VM* vm);   // io:isDir?, 1 argument
+        Value makeDir(std::vector<Value>& n, VM* vm);       // io:makeDir, 1 argument
+        Value removeFiles(std::vector<Value>& n, VM* vm);   // io:removeFiles, multiple arguments
     }
 
     namespace Time

@@ -80,6 +80,7 @@
 - the `Ark::VM` class is now `final`
 - the `STORE` instruction has been renamed `SET_VAL`
 - the `STORE` instruction is emitted in place of the `LET` and `MUT` instructions, without any mutability checking now
+- `io:writeFile` no longer takes a mode and has been split into `io:writeFile` and `io:appendToFile`
 
 ### Removed
 - removed unused `NodeType::Closure`

@@ -54,6 +54,7 @@
 "puts"
 "input"
 "io:writeFile"
+"io:appendToFile"
 "io:readFile"
 "io:fileExists?"
 "io:listFiles"

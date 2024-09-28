@@ -38,6 +38,7 @@ namespace Ark::internal::Builtins
         { "puts", Value(IO::puts_) },
         { "input", Value(IO::input) },
         { "io:writeFile", Value(IO::writeFile) },
+        { "io:appendToFile", Value(IO::appendToFile) },
         { "io:readFile", Value(IO::readFile) },
         { "io:fileExists?", Value(IO::fileExists) },
         { "io:listFiles", Value(IO::listFiles) },
