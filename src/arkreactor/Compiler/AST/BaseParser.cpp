@@ -193,19 +193,6 @@ namespace Ark::internal
         return false;
     }
 
-    bool BaseParser::endOfLine(std::string* s)
-    {
-        if ((accept(IsChar('\r')) || true) && accept(IsChar('\n')))
-        {
-            if (s != nullptr)
-                s->push_back('\n');
-            while ((accept(IsChar('\r')) || true) && accept(IsChar('\n')))
-                ;
-            return true;
-        }
-        return false;
-    }
-
     bool BaseParser::comment(std::string* s)
     {
         if (accept(IsChar('#'), s))

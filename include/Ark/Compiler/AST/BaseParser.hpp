@@ -115,7 +115,6 @@ namespace Ark::internal
 
         bool space(std::string* s = nullptr);
         bool inlineSpace(std::string* s = nullptr);
-        bool endOfLine(std::string* s = nullptr);
         bool comment(std::string* s = nullptr);
         bool spaceComment(std::string* s = nullptr);
         bool newlineOrComment(std::string* s = nullptr);
