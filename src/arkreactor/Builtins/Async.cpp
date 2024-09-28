@@ -23,9 +23,9 @@ namespace Ark::internal::Builtins::Async
      */
     Value async(std::vector<Value>& n, VM* vm)
     {
-        if (n.empty())
+        if (n.empty() || (n[0].valueType() != ValueType::PageAddr && n[0].valueType() != ValueType::CProc && n[0].valueType() != ValueType::Closure))
             types::generateError(
-                "async", { { types::Contract { { types::Typedef("function", ValueType::PageAddr) } }, types::Contract { { types::Typedef("function", ValueType::CProc) } }, types::Contract { { types::Typedef("function", ValueType::Closure) } } } }, n);
+                "async", { { types::Contract { { types::Typedef("function", { ValueType::PageAddr, ValueType::CProc, ValueType::Closure }), types::Typedef("args", ValueType::Any, /* is_variadic= */ true) } }, types::Contract { { types::Typedef("function", { ValueType::PageAddr, ValueType::CProc, ValueType::Closure }) } } } }, n);
 
         Future* future = vm->createFuture(n);
         return Value(UserType(future));

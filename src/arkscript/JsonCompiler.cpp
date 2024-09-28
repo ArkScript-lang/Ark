@@ -1,6 +1,8 @@
 #include <CLI/JsonCompiler.hpp>
 
 #include <string>
+#include <vector>
+#include <ranges>
 #include <Ark/Exceptions.hpp>
 
 #include <fmt/core.h>
@@ -146,10 +148,25 @@ std::string JsonCompiler::_compile(const Node& node)
 
                     case Keyword::Import:
                     {
-                        // (import value)
+                        // (import pkg.value)
+                        // (import pkg.value :sym)
+                        // (import pkg.value:*)
+                        std::string package = node.constList()[1].constList().front().string();
+                        for (const auto& sym : node.constList()[1].constList() | std::views::drop(1))
+                            package += "." + sym.string();
+
+                        bool is_glob = node.constList()[2].nodeType() == NodeType::Symbol && node.constList()[2].string() == "*";
+                        std::vector<std::string> syms;
+                        if (node.constList()[2].nodeType() == NodeType::List)
+                        {
+                            for (const auto& sym : node.constList()[2].constList())
+                                syms.push_back('"' + sym.string() + '"');
+                        }
                         json += fmt::format(
-                            R"({{"type": "Import", "value": {}}})",
-                            _compile(node.constList()[1]).c_str());
+                            R"({{"type": "Import", "package": "{}", "glob": {}, "symbols": [{}]}})",
+                            package,
+                            is_glob,
+                            fmt::join(syms, ", "));
                         break;
                     }
 

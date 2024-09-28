@@ -1,0 +1,1 @@
+{"type": "Begin", "children": [{"type": "Import", "package": "foo.bar", "glob": false, "symbols": []}, {"type": "Import", "package": "foo.bar", "glob": false, "symbols": ["egg", "lettuce"]}, {"type": "Import", "package": "foo.bar", "glob": true, "symbols": []}]}
