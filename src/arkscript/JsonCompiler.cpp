@@ -10,7 +10,7 @@
 using namespace Ark::internal;
 
 JsonCompiler::JsonCompiler(unsigned debug, const std::vector<std::filesystem::path>& lib_env) :
-    m_welder(debug, lib_env)
+    m_welder(debug, lib_env, Ark::DefaultFeatures & ~Ark::FeatureImportSolver)
 {}
 
 void JsonCompiler::feed(const std::string& filename)
