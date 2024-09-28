@@ -11,4 +11,9 @@
         (test:eq -1 (str:find "hello" "help"))
         (test:eq 0 (str:find "hello" "hel"))
         (test:eq 2 (str:find "hello" "llo"))
-        (test:eq -1 (str:find "" "1")) })})
+        (test:eq -1 (str:find "" "1")) })
+
+    (test:case "format strings" {
+        (test:eq "nilfalsetrue" (str:format "{}{}{}" nil false true))
+        (test:eq "CProcedure" (str:format "{}" print))
+    })})
