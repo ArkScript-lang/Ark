@@ -1,0 +1,3 @@
+(import foo.bar)
+(import foo.bar :egg :lettuce)
+(import foo.bar:*)

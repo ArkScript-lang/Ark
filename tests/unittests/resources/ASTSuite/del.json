@@ -1,0 +1,1 @@
+{"type": "Begin", "children": [{"type": "Let", "name": {"type": "Symbol", "name": "a"}, "value": {"type": "Number", "value": 1}}, {"type": "Del", "value": {"type": "Symbol", "name": "a"}}]}
