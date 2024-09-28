@@ -87,7 +87,7 @@ namespace Ark::internal::Builtins::List
 
         long step = static_cast<long>(n[3].number());
         if (step <= 0)
-            throw std::runtime_error("list:slice: step can not be null");
+            throw std::runtime_error("list:slice: step can not be null or negative");
 
         auto start = static_cast<long>(n[1].number());
         auto end = static_cast<long>(n[2].number());
