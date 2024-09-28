@@ -62,7 +62,7 @@ namespace Ark::internal
                 else if (second_node.nodeType() == NodeType::Symbol)  // un-define a macro
                     deleteNearestMacro(second_node.string());
                 else  // used undef on a non-symbol
-                    throwMacroProcessingError("Can not un-define a macro without a name", second_node);
+                    throwMacroProcessingError("Can not un-define a macro without a valid name", second_node);
             }
             else
                 throwMacroProcessingError("Can not define a macro without a symbol", first_node);

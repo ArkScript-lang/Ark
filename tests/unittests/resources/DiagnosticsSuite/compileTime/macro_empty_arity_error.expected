@@ -1,0 +1,7 @@
+At (empty? 1 2) @ 2:10
+    1 | ($ a (empty? 1 2))
+    2 | (print a)
+      | ^~~~~~~~~
+    3 |
+      | ^
+        When expanding `empty?' inside a macro, got 2 arguments, expected 1
