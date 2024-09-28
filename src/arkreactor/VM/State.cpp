@@ -124,9 +124,9 @@ namespace Ark
         std::ranges::transform(args, std::back_inserter(val.list()), [](const std::string& arg) {
             return Value(arg);
         });
-        m_binded["sys:args"] = val;
 
-        m_binded["sys:platform"] = Value(ARK_PLATFORM_NAME);
+        m_binded[std::string(internal::Language::SysArgs)] = val;
+        m_binded[std::string(internal::Language::SysPlatform)] = Value(ARK_PLATFORM_NAME);
     }
 
     void State::setDebug(const unsigned level) noexcept
