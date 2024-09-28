@@ -30,6 +30,7 @@
     (test:case "arithmetic operations" {
         (test:eq (+ 1 2) 3)
         (test:eq (+ 1.5 2.5) 4.0)
+        (test:eq (+ "a" "b") "ab")
         (test:eq (- 1 2) -1)
         (test:eq (- 1.5 2) -0.5)
         (test:eq (/ 1 2) 0.5)

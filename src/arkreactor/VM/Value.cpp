@@ -22,19 +22,11 @@ namespace Ark
         m_type(ValueType::Number), m_value(static_cast<double>(value))
     {}
 
-    Value::Value(const float value) noexcept :
-        m_type(ValueType::Number), m_value(static_cast<double>(value))
-    {}
-
     Value::Value(double value) noexcept :
         m_type(ValueType::Number), m_value(value)
     {}
 
     Value::Value(const std::string& value) noexcept :
-        m_type(ValueType::String), m_value(value)
-    {}
-
-    Value::Value(const char* value) noexcept :
         m_type(ValueType::String), m_value(value)
     {}
 

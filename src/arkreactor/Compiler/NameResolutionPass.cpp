@@ -66,22 +66,6 @@ namespace Ark::internal
             });
     }
 
-    bool ScopeResolver::isLocalVar(const std::string& name) const
-    {
-        // only one scope, this is the global one
-        if (m_scopes.size() == 1)
-            return false;
-        return m_scopes.back().has(name);
-    }
-
-    bool ScopeResolver::isGlobalVar(const std::string& name) const
-    {
-        if (m_scopes.size() == 1)
-            return m_scopes[0].has(name);
-        // for a variable to be considered global, it has to not be shadowed in the current local scope
-        return !m_scopes.back().has(name) && m_scopes[0].has(name);
-    }
-
     bool ScopeResolver::isInScope(const std::string& name) const
     {
         return m_scopes.back().has(name);

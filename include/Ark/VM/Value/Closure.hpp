@@ -2,7 +2,7 @@
  * @file Closure.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Subtype of the value type, handling closures
- * @version 1.1
+ * @version 2.0
  * @date 2024-04-21
  *
  * @copyright Copyright (c) 2020-2024
@@ -36,20 +36,6 @@ namespace Ark::internal
     class Closure
     {
     public:
-        /**
-         * @brief Construct a new Closure object
-         *
-         */
-        Closure() noexcept;
-
-        /**
-         * @brief Construct a new Closure object
-         *
-         * @param scope the scope of the function turned into a closure
-         * @param pa the current page address of the function turned into a closure
-         */
-        Closure(Scope&& scope, PageAddr_t pa) noexcept;
-
         /**
          * @brief Construct a new Closure object
          *
