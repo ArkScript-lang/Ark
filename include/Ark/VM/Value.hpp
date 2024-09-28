@@ -2,7 +2,7 @@
  * @file Value.hpp
  * @author Default value type handled by the virtual machine
  * @brief
- * @version 1.2
+ * @version 2.0
  * @date 2024-04-20
  *
  * @copyright Copyright (c) 2020-2024
@@ -102,10 +102,8 @@ namespace Ark
         {}
 
         explicit Value(int value) noexcept;
-        explicit Value(float value) noexcept;
         explicit Value(double value) noexcept;
         explicit Value(const std::string& value) noexcept;
-        explicit Value(const char* value) noexcept;
         explicit Value(internal::PageAddr_t value) noexcept;
         explicit Value(ProcType value) noexcept;
         explicit Value(std::vector<Value>&& value) noexcept;

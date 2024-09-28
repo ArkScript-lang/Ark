@@ -2,7 +2,7 @@
  * @file NameResolutionPass.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief
- * @version 0.1
+ * @version 1.0
  * @date 2024-07-22
  *
  * @copyright Copyright (c) 2024
@@ -82,22 +82,6 @@ namespace Ark::internal
          * @return
          */
         [[nodiscard]] bool isRegistered(const std::string& name) const;
-
-        /**
-         * @brief Returns false if we have only one scope (global), checks the scopes recursively for 'name'
-         *
-         * @param name
-         * @return
-         */
-        [[nodiscard]] bool isLocalVar(const std::string& name) const;
-
-        /**
-         * @brief 'name' has to be defined only in the first scope to be considered global
-         *
-         * @param name
-         * @return
-         */
-        [[nodiscard]] bool isGlobalVar(const std::string& name) const;
 
         /**
          * @brief Checks if 'name' is in the current scope

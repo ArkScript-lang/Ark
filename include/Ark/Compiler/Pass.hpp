@@ -24,11 +24,6 @@ namespace Ark::internal
     public:
         /**
          * @brief Construct a new Pass object
-         */
-        Pass();
-
-        /**
-         * @brief Construct a new Pass object
          *
          * @param name the pass name, used for logging
          * @param debug_level debug level

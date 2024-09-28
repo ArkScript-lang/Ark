@@ -6,16 +6,6 @@
 
 namespace Ark::internal
 {
-    Closure::Closure() noexcept :
-        m_scope(nullptr),
-        m_page_addr(0)
-    {}
-
-    Closure::Closure(Scope&& scope, const PageAddr_t pa) noexcept :
-        m_scope(std::make_shared<Scope>(scope)),
-        m_page_addr(pa)
-    {}
-
     Closure::Closure(const Scope& scope, const PageAddr_t pa) noexcept :
         m_scope(std::make_shared<Scope>(scope)),
         m_page_addr(pa)

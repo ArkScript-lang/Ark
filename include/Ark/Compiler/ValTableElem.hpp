@@ -2,7 +2,7 @@
  * @file ValTableElem.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief The basic value type handled by the compiler
- * @version 0.2
+ * @version 1.0
  * @date 2020-10-27
  *
  * @copyright Copyright (c) 2020-2024
@@ -39,11 +39,6 @@ namespace Ark::internal
         std::variant<double, std::string, std::size_t> value;
         ValTableElemType type;
 
-        // Numbers
-        explicit ValTableElem(double num) noexcept;
-        explicit ValTableElem(long num) noexcept;
-        // Strings
-        explicit ValTableElem(const std::string& str) noexcept;
         // automatic handling (Number/String/Function)
         explicit ValTableElem(const Node& node) noexcept;
         // Functions

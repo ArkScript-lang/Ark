@@ -2,21 +2,6 @@
 
 namespace Ark::internal
 {
-    ValTableElem::ValTableElem(double num) noexcept :
-        value(num),
-        type(ValTableElemType::Number)
-    {}
-
-    ValTableElem::ValTableElem(const long num) noexcept :
-        value(static_cast<double>(num)),
-        type(ValTableElemType::Number)
-    {}
-
-    ValTableElem::ValTableElem(const std::string& str) noexcept :
-        value(str),
-        type(ValTableElemType::String)
-    {}
-
     ValTableElem::ValTableElem(const Node& node) noexcept
     {
         if (node.nodeType() == NodeType::Number)
