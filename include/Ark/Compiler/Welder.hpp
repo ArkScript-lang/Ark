@@ -22,7 +22,7 @@
 #include <Ark/Compiler/Compiler.hpp>
 #include <Ark/Constants.hpp>
 #include <Ark/Logger.hpp>
-#include <Ark/Compiler/ImportSolver.hpp>
+#include <Ark/Compiler/Package/ImportSolver.hpp>
 #include <Ark/Compiler/Macros/Processor.hpp>
 #include <Ark/Compiler/AST/Optimizer.hpp>
 #include <Ark/Compiler/NameResolutionPass.hpp>

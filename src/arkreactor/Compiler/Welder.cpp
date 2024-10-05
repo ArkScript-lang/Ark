@@ -1,7 +1,7 @@
 #include <Ark/Constants.hpp>
 #include <Ark/Compiler/Welder.hpp>
 
-#include <Ark/Compiler/ImportSolver.hpp>
+#include <Ark/Compiler/Package/ImportSolver.hpp>
 #include <Ark/Compiler/AST/Optimizer.hpp>
 #include <Ark/Compiler/Macros/Processor.hpp>
 
