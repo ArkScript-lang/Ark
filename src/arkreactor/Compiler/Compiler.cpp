@@ -4,7 +4,6 @@
 #include <limits>
 #include <utility>
 #include <filesystem>
-#include <picosha2.h>
 #include <algorithm>
 #include <fmt/core.h>
 #include <fmt/color.h>
@@ -15,9 +14,8 @@
 #include <Ark/Builtins/Builtins.hpp>
 #include <Ark/Compiler/Macros/Processor.hpp>
 
-namespace Ark
+namespace Ark::internal
 {
-    using namespace internal;
     using namespace literals;
 
     Compiler::Compiler(const unsigned debug) :
@@ -26,8 +24,6 @@ namespace Ark
 
     void Compiler::process(const Node& ast)
     {
-        pushFileHeader();
-
         m_code_pages.emplace_back();  // create empty page
 
         // gather symbols, values, and start to create code segments
@@ -36,163 +32,28 @@ namespace Ark
             /* current_page */ Page { .index = 0, .is_temp = false },
             /* is_result_unused */ false,
             /* is_terminal */ false);
-
-        pushSymAndValTables();
-
-        // push the different code segments
-        for (std::size_t i = 0, end = m_code_pages.size(); i < end; ++i)
-        {
-            std::vector<Word>& page = m_code_pages[i];
-            // just in case we got too far, always add a HALT to be sure the
-            // VM won't do anything crazy
-            page.emplace_back(Instruction::HALT);
-
-            // push number of elements
-            const std::size_t page_size = page.size();
-            if (page_size > std::numeric_limits<uint16_t>::max())
-                throw std::overflow_error(fmt::format("Size of page {} exceeds the maximum size of 2^16 - 1", i));
-
-            m_bytecode.push_back(Instruction::CODE_SEGMENT_START);
-            m_bytecode.push_back(static_cast<uint8_t>((page_size & 0xff00) >> 8));
-            m_bytecode.push_back(static_cast<uint8_t>(page_size & 0x00ff));
-
-            for (auto inst : page)
-            {
-                m_bytecode.push_back(inst.padding);
-                m_bytecode.push_back(inst.opcode);
-
-                auto [first, second] = inst.bytes();
-                m_bytecode.push_back(first);
-                m_bytecode.push_back(second);
-            }
-        }
-
-        if (m_code_pages.empty())
-        {
-            // code segment with a single instruction
-            m_bytecode.push_back(Instruction::CODE_SEGMENT_START);
-            m_bytecode.push_back(0_u8);
-            m_bytecode.push_back(1_u8);
-
-            m_bytecode.push_back(0_u8);
-            m_bytecode.push_back(Instruction::HALT);
-            m_bytecode.push_back(0_u8);
-            m_bytecode.push_back(0_u8);
-        }
-
-        constexpr std::size_t header_size = 18;
-
-        // generate a hash of the tables + bytecode
-        std::vector<unsigned char> hash_out(picosha2::k_digest_size);
-        picosha2::hash256(m_bytecode.begin() + header_size, m_bytecode.end(), hash_out);
-        m_bytecode.insert(m_bytecode.begin() + header_size, hash_out.begin(), hash_out.end());
     }
 
-    const bytecode_t& Compiler::bytecode() const noexcept
+    const std::vector<IR::Block>& Compiler::intermediateRepresentation() const noexcept
     {
-        return m_bytecode;
+        return m_code_pages;
     }
 
-    void Compiler::pushFileHeader() noexcept
+    const std::vector<std::string>& Compiler::symbols() const noexcept
     {
-        /*
-            Generating headers:
-                - lang name (to be sure we are executing an ArkScript file)
-                    on 4 bytes (ark + padding)
-                - version (major: 2 bytes, minor: 2 bytes, patch: 2 bytes)
-                - timestamp (8 bytes, unix format)
-        */
-
-        m_bytecode.push_back('a');
-        m_bytecode.push_back('r');
-        m_bytecode.push_back('k');
-        m_bytecode.push_back(0_u8);
-
-        // push version
-        for (const int n : std::array { ARK_VERSION_MAJOR, ARK_VERSION_MINOR, ARK_VERSION_PATCH })
-        {
-            m_bytecode.push_back(static_cast<uint8_t>((n & 0xff00) >> 8));
-            m_bytecode.push_back(static_cast<uint8_t>(n & 0x00ff));
-        }
-
-        // push timestamp
-        const long long timestamp = std::chrono::duration_cast<std::chrono::seconds>(
-                                        std::chrono::system_clock::now().time_since_epoch())
-                                        .count();
-        for (long i = 0; i < 8; ++i)
-        {
-            const long shift = 8 * (7 - i);
-            const auto ts_byte = static_cast<uint8_t>((timestamp & (0xffLL << shift)) >> shift);
-            m_bytecode.push_back(ts_byte);
-        }
+        return m_symbols;
     }
 
-    void Compiler::pushSymAndValTables()
+    const std::vector<ValTableElem>& Compiler::values() const noexcept
     {
-        const std::size_t symbol_size = m_symbols.size();
-        if (symbol_size > std::numeric_limits<uint16_t>::max())
-            throw std::overflow_error(fmt::format("Too many symbols: {}, exceeds the maximum size of 2^16 - 1", symbol_size));
-
-        m_bytecode.push_back(SYM_TABLE_START);
-        m_bytecode.push_back(static_cast<uint8_t>((symbol_size & 0xff00) >> 8));
-        m_bytecode.push_back(static_cast<uint8_t>(symbol_size & 0x00ff));
-
-        for (const auto& sym : m_symbols)
-        {
-            // push the string, null terminated
-            std::string s = sym.string();
-            std::ranges::transform(s, std::back_inserter(m_bytecode), [](const char i) {
-                return static_cast<uint8_t>(i);
-            });
-            m_bytecode.push_back(0_u8);
-        }
-
-        const std::size_t value_size = m_values.size();
-        if (value_size > std::numeric_limits<uint16_t>::max())
-            throw std::overflow_error(fmt::format("Too many values: {}, exceeds the maximum size of 2^16 - 1", value_size));
-
-        m_bytecode.push_back(VAL_TABLE_START);
-        m_bytecode.push_back(static_cast<uint8_t>((value_size & 0xff00) >> 8));
-        m_bytecode.push_back(static_cast<uint8_t>(value_size & 0x00ff));
-
-        for (const ValTableElem& val : m_values)
-        {
-            if (val.type == ValTableElemType::Number)
-            {
-                m_bytecode.push_back(NUMBER_TYPE);
-                const auto n = std::get<double>(val.value);
-                std::string t = std::to_string(n);
-                std::ranges::transform(t, std::back_inserter(m_bytecode), [](const char i) {
-                    return static_cast<uint8_t>(i);
-                });
-            }
-            else if (val.type == ValTableElemType::String)
-            {
-                m_bytecode.push_back(STRING_TYPE);
-                auto t = std::get<std::string>(val.value);
-                std::ranges::transform(t, std::back_inserter(m_bytecode), [](const char i) {
-                    return static_cast<uint8_t>(i);
-                });
-            }
-            else if (val.type == ValTableElemType::PageAddr)
-            {
-                m_bytecode.push_back(FUNC_TYPE);
-                const std::size_t addr = std::get<std::size_t>(val.value);
-                m_bytecode.push_back(static_cast<uint8_t>((addr & 0xff00) >> 8));
-                m_bytecode.push_back(static_cast<uint8_t>(addr & 0x00ff));
-            }
-            else
-                throw Error("The compiler is trying to put a value in the value table, but the type isn't handled.\nCertainly a logic problem in the compiler source code");
-
-            m_bytecode.push_back(0_u8);
-        }
+        return m_values;
     }
 
-    std::optional<uint8_t> Compiler::getOperator(const std::string& name) noexcept
+    std::optional<Instruction> Compiler::getOperator(const std::string& name) noexcept
     {
-        const auto it = std::ranges::find(internal::Language::operators, name);
-        if (it != internal::Language::operators.end())
-            return static_cast<uint8_t>(std::distance(internal::Language::operators.begin(), it) + FIRST_OPERATOR);
+        const auto it = std::ranges::find(Language::operators, name);
+        if (it != Language::operators.end())
+            return static_cast<Instruction>(std::distance(Language::operators.begin(), it) + FIRST_OPERATOR);
         return std::nullopt;
     }
 
@@ -209,9 +70,9 @@ namespace Ark
 
     std::optional<Instruction> Compiler::getListInstruction(const std::string& name) noexcept
     {
-        const auto it = std::ranges::find(internal::Language::listInstructions, name);
-        if (it != internal::Language::listInstructions.end())
-            return static_cast<Instruction>(std::distance(internal::Language::listInstructions.begin(), it) + LIST);
+        const auto it = std::ranges::find(Language::listInstructions, name);
+        if (it != Language::listInstructions.end())
+            return static_cast<Instruction>(std::distance(Language::listInstructions.begin(), it) + LIST);
         return std::nullopt;
     }
 
@@ -242,16 +103,6 @@ namespace Ark
             default:
                 return false;
         }
-    }
-
-    bool Compiler::mayBeFromPlugin(const std::string& name) noexcept
-    {
-        std::string splitted = Utils::splitString(name, ':')[0];
-        const auto it = std::ranges::find_if(m_plugins,
-                                             [&splitted](const std::string& plugin) -> bool {
-                                                 return std::filesystem::path(plugin).stem().string() == splitted;
-                                             });
-        return it != m_plugins.end();
     }
 
     void Compiler::compilerWarning(const std::string& message, const Node& node)
@@ -432,23 +283,23 @@ namespace Ark
         compileExpression(x.constList()[1], p, false, false);
 
         // jump only if needed to the if
-        const std::size_t jump_to_if_pos = page(p).size();
-        page(p).emplace_back(Instruction::POP_JUMP_IF_TRUE);
+        const auto label_then = IR::Entity::Label();
+        page(p).emplace_back(IR::Entity::GotoIf(label_then, true));
 
         // else code
         if (x.constList().size() == 4)  // we have an else clause
             compileExpression(x.constList()[3], p, is_result_unused, is_terminal, var_name);
 
         // when else is finished, jump to end
-        const std::size_t jump_to_end_pos = page(p).size();
-        page(p).emplace_back(Instruction::JUMP);
+        const auto label_end = IR::Entity::Label();
+        page(p).emplace_back(IR::Entity::Goto(label_end));
 
         // absolute address to jump to if condition is true
-        page(p)[jump_to_if_pos].data = static_cast<uint16_t>(page(p).size());
+        page(p).emplace_back(label_then);
         // if code
         compileExpression(x.constList()[2], p, is_result_unused, is_terminal, var_name);
         // set jump to end pos
-        page(p)[jump_to_end_pos].data = static_cast<uint16_t>(page(p).size());
+        page(p).emplace_back(label_end);
     }
 
     void Compiler::compileFunction(const Node& x, const Page p, const bool is_result_unused, const std::string& var_name)
@@ -523,20 +374,21 @@ namespace Ark
             throwCompilerError("Invalid node ; if it was computed by a macro, check that a node is returned", x);
 
         // save current position to jump there at the end of the loop
-        std::size_t current = page(p).size();
+        const auto label_loop = IR::Entity::Label();
+        page(p).emplace_back(label_loop);
         // push condition
         compileExpression(x.constList()[1], p, false, false);
         // absolute jump to end of block if condition is false
-        const std::size_t jump_to_end_pos = page(p).size();
-        page(p).emplace_back(POP_JUMP_IF_FALSE);
+        const auto label_end = IR::Entity::Label();
+        page(p).emplace_back(IR::Entity::GotoIf(label_end, false));
         // push code to page
         compileExpression(x.constList()[2], p, true, false);
 
         // loop, jump to the condition
-        page(p).emplace_back(JUMP, current);
+        page(p).emplace_back(IR::Entity::Goto(label_loop));
 
         // absolute address to jump to if condition is false
-        page(p)[jump_to_end_pos].data = static_cast<uint16_t>(page(p).size());
+        page(p).emplace_back(label_end);
     }
 
     void Compiler::compilePluginImport(const Node& x, const Page p)
@@ -553,8 +405,6 @@ namespace Ark
 
         // register plugin path in the constants table
         uint16_t id = addValue(Node(NodeType::String, path));
-        // save plugin name to use it later
-        m_plugins.push_back(path);
         // add plugin instruction + id of the constant referring to the plugin path
         page(p).emplace_back(PLUGIN, id);
     }
@@ -564,7 +414,7 @@ namespace Ark
         constexpr std::size_t start_index = 1;
 
         const auto node = x.constList()[0];
-        const auto maybe_operator = node.nodeType() == NodeType::Symbol ? getOperator(node.string()) : std::nullopt;
+        const std::optional<Instruction> maybe_operator = node.nodeType() == NodeType::Symbol ? getOperator(node.string()) : std::nullopt;
 
         enum class ShortcircuitOp
         {
@@ -587,18 +437,16 @@ namespace Ark
             compileExpression(x.constList()[1], p, false, false);
             page(p).emplace_back(DUP);
 
-            std::vector<std::size_t> to_update;
+            const auto label_shortcircuit = IR::Entity::Label();
             for (std::size_t i = 2, end = x.constList().size(); i < end; ++i)
             {
-                to_update.push_back(page(p).size());
-
                 switch (maybe_shortcircuit.value())
                 {
                     case ShortcircuitOp::And:
-                        page(p).emplace_back(POP_JUMP_IF_FALSE);
+                        page(p).emplace_back(IR::Entity::GotoIf(label_shortcircuit, false));
                         break;
                     case ShortcircuitOp::Or:
-                        page(p).emplace_back(POP_JUMP_IF_TRUE);
+                        page(p).emplace_back(IR::Entity::GotoIf(label_shortcircuit, true));
                         break;
                 }
                 page(p).emplace_back(POP);
@@ -608,8 +456,7 @@ namespace Ark
                     page(p).emplace_back(DUP);
             }
 
-            for (const auto pos : to_update)
-                page(p)[pos].data = static_cast<uint16_t>(page(p).size());
+            page(p).emplace_back(label_shortcircuit);
         }
         else if (!maybe_operator.has_value())
         {
@@ -646,8 +493,8 @@ namespace Ark
                         throwCompilerError(fmt::format("Invalid node inside call to `{}'", node.repr()), x);
                 }
                 // push proc from temp page
-                for (const Word& word : m_temp_pages.back())
-                    page(p).push_back(word);
+                for (const auto& inst : m_temp_pages.back())
+                    page(p).push_back(inst);
                 m_temp_pages.pop_back();
 
                 // number of arguments
@@ -664,9 +511,9 @@ namespace Ark
         else  // operator
         {
             // retrieve operator
-            auto op = Word(maybe_operator.value());
+            auto op = maybe_operator.value();
 
-            if (op.opcode == ASSERT)
+            if (op == ASSERT)
                 is_result_unused = false;
 
             // push arguments on current page
@@ -684,14 +531,14 @@ namespace Ark
                 // in order to be able to handle things like (op A B C D...)
                 // which should be transformed into A B op C op D op...
                 if (exp_count >= 2)
-                    page(p).emplace_back(op.opcode, 2);  // TODO generalize to n arguments (n >= 2)
+                    page(p).emplace_back(op, 2);  // TODO generalize to n arguments (n >= 2)
             }
 
-            if (isUnaryInst(static_cast<Instruction>(op.opcode)))
+            if (isUnaryInst(op))
             {
                 if (exp_count != 1)
                     throwCompilerError(fmt::format("Operator needs one argument, but was called with {}", exp_count), x.constList()[0]);
-                page(p).emplace_back(op.opcode);
+                page(p).emplace_back(op);
             }
             else if (exp_count <= 1)
             {
@@ -701,7 +548,7 @@ namespace Ark
             // need to check we didn't push the (op A B C D...) things for operators not supporting it
             if (exp_count > 2)
             {
-                switch (op.opcode)
+                switch (op)
                 {
                     // authorized instructions
                     case ADD: [[fallthrough]];
@@ -716,7 +563,7 @@ namespace Ark
                             fmt::format(
                                 "can not create a chained expression (of length {}) for operator `{}'. You most likely forgot a `)'.",
                                 exp_count,
-                                Language::operators[static_cast<std::size_t>(op.opcode - FIRST_OPERATOR)]),
+                                Language::operators[static_cast<std::size_t>(op - FIRST_OPERATOR)]),
                             x);
                 }
             }
@@ -729,12 +576,10 @@ namespace Ark
     uint16_t Compiler::addSymbol(const Node& sym)
     {
         // otherwise, add the symbol, and return its id in the table
-        auto it = std::ranges::find_if(m_symbols, [&sym](const Node& sym_node) -> bool {
-            return sym_node.string() == sym.string();
-        });
+        auto it = std::ranges::find(m_symbols, sym.string());
         if (it == m_symbols.end())
         {
-            m_symbols.push_back(sym);
+            m_symbols.push_back(sym.string());
             it = m_symbols.begin() + static_cast<std::vector<std::string>::difference_type>(m_symbols.size() - 1);
         }
 
