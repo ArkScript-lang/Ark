@@ -189,11 +189,13 @@ namespace Ark
     {
         const std::lock_guard lock(m_mutex);
 
-        const auto it = std::ranges::remove_if(m_execution_contexts,
-                                               [ec](const std::unique_ptr<ExecutionContext>& ctx) {
-                                                   return ctx.get() == ec;
-                                               })
-                            .begin();
+        const auto it =
+            std::ranges::remove_if(
+                m_execution_contexts,
+                [ec](const std::unique_ptr<ExecutionContext>& ctx) {
+                    return ctx.get() == ec;
+                })
+                .begin();
         m_execution_contexts.erase(it);
     }
 
@@ -213,11 +215,13 @@ namespace Ark
     {
         const std::lock_guard lock(m_mutex);
 
-        const auto it = std::ranges::remove_if(m_futures,
-                                               [f](const std::unique_ptr<Future>& future) {
-                                                   return future.get() == f;
-                                               })
-                            .begin();
+        const auto it =
+            std::ranges::remove_if(
+                m_futures,
+                [f](const std::unique_ptr<Future>& future) {
+                    return future.get() == f;
+                })
+                .begin();
         m_futures.erase(it);
     }
 

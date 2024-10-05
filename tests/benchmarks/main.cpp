@@ -64,6 +64,20 @@ void man_or_boy(benchmark::State& s)
 }
 BENCHMARK(man_or_boy)->Unit(benchmark::kMillisecond);
 
+// cppcheck-suppress constParameterCallback
+void builtins(benchmark::State& s)
+{
+    Ark::State state;
+    state.doFile(std::string(ARK_TESTS_ROOT) + "tests/benchmarks/resources/runtime/builtins.ark");
+
+    for (auto _ : s)
+    {
+        Ark::VM vm(state);
+        benchmark::DoNotOptimize(vm.run());
+    }
+}
+BENCHMARK(builtins)->Unit(benchmark::kMillisecond);
+
 // --------------------------------------------
 // parser benchmarks
 // --------------------------------------------
