@@ -20,6 +20,7 @@ namespace Ark
         m_ast_optimizer(debug),
         m_name_resolver(debug),
         m_logger("Welder", debug),
+        m_ir_compiler(debug),
         m_compiler(debug)
     {}
 
@@ -48,7 +49,10 @@ namespace Ark
         try
         {
             m_compiler.process(m_computed_ast);
-            m_bytecode = m_compiler.bytecode();
+            m_ir = m_compiler.intermediateRepresentation();
+
+            m_ir_compiler.process(m_ir, m_compiler.symbols(), m_compiler.values());
+            m_bytecode = m_ir_compiler.bytecode();
 
             return true;
         }

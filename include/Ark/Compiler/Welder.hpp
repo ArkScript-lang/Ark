@@ -20,6 +20,7 @@
 #include <Ark/Compiler/AST/Node.hpp>
 #include <Ark/Compiler/AST/Parser.hpp>
 #include <Ark/Compiler/Compiler.hpp>
+#include <Ark/Compiler/IntermediateRepresentation/IRCompiler.hpp>
 #include <Ark/Constants.hpp>
 #include <Ark/Logger.hpp>
 #include <Ark/Compiler/Package/ImportSolver.hpp>
@@ -86,6 +87,7 @@ namespace Ark
 
         std::filesystem::path m_root_file;
         std::vector<std::string> m_imports;
+        std::vector<internal::IR::Block> m_ir;
         bytecode_t m_bytecode;
         internal::Node m_computed_ast;
 
@@ -96,7 +98,8 @@ namespace Ark
         internal::NameResolutionPass m_name_resolver;
 
         internal::Logger m_logger;
-        Compiler m_compiler;
+        internal::IRCompiler m_ir_compiler;
+        internal::Compiler m_compiler;
 
         bool computeAST(const std::string& filename, const std::string& code);
     };
