@@ -1,0 +1,10 @@
+(let in (list 1 2 3 4 5))
+
+(mut i 0)
+(while (< i 1000) {
+  (list:slice in 1 4 2)
+  (math:exp 5)
+  (math:ln 6)
+  (list:sort in)
+
+  (set i (+ i 1)) })
