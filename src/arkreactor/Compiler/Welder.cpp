@@ -28,22 +28,22 @@ namespace Ark
         m_name_resolver.addDefinedSymbol(name, /* is_mutable= */ false);
     }
 
-    bool Welder::computeASTFromFile(const std::string& filename, const bool fail_with_exception)
+    bool Welder::computeASTFromFile(const std::string& filename)
     {
         m_root_file = std::filesystem::path(filename);
         const std::string code = Utils::readFile(filename);
 
-        return computeAST(filename, code, fail_with_exception);
+        return computeAST(filename, code);
     }
 
-    bool Welder::computeASTFromString(const std::string& code, const bool fail_with_exception)
+    bool Welder::computeASTFromString(const std::string& code)
     {
         m_root_file = std::filesystem::current_path();  // No filename given, take the current working directory
 
-        return computeAST(ARK_NO_NAME_FILE, code, fail_with_exception);
+        return computeAST(ARK_NO_NAME_FILE, code);
     }
 
-    bool Welder::generateBytecode(const bool fail_with_exception)
+    bool Welder::generateBytecode()
     {
         try
         {
@@ -54,7 +54,7 @@ namespace Ark
         }
         catch (const CodeError& e)
         {
-            if (fail_with_exception)
+            if ((m_features & FeatureTestFailOnException) > 0)
                 throw;
 
             Diagnostics::generate(e);
@@ -87,7 +87,7 @@ namespace Ark
         return m_bytecode;
     }
 
-    bool Welder::computeAST(const std::string& filename, const std::string& code, const bool fail_with_exception)
+    bool Welder::computeAST(const std::string& filename, const std::string& code)
     {
         try
         {
@@ -120,7 +120,7 @@ namespace Ark
         }
         catch (const CodeError& e)
         {
-            if (fail_with_exception)
+            if ((m_features & FeatureTestFailOnException) > 0)
                 throw;
 
             Diagnostics::generate(e);
