@@ -21,7 +21,7 @@
 #include <Ark/Compiler/Pass.hpp>
 #include <Ark/Compiler/AST/Node.hpp>
 #include <Ark/Compiler/AST/Import.hpp>
-#include <Ark/Compiler/AST/Module.hpp>
+#include <Ark/Compiler/Package/Module.hpp>
 
 namespace Ark::internal
 {
