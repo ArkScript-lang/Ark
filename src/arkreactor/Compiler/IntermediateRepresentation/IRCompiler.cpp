@@ -1,6 +1,7 @@
 #include <Ark/Compiler/IntermediateRepresentation/IRCompiler.hpp>
 
 #include <chrono>
+#include <utility>
 #include <unordered_map>
 #include <picosha2.h>
 
@@ -103,6 +104,8 @@ namespace Ark::internal
                         break;
 
                     case IR::Kind::Opcode:
+                        [[fallthrough]];
+                    case IR::Kind::Opcode2Args:
                         pushWord(inst.bytecode());
                         break;
 
@@ -115,12 +118,10 @@ namespace Ark::internal
 
     void IRCompiler::pushWord(const Word& word)
     {
-        m_bytecode.push_back(word.padding);
         m_bytecode.push_back(word.opcode);
-
-        auto [first, second] = word.bytes();
-        m_bytecode.push_back(first);
-        m_bytecode.push_back(second);
+        m_bytecode.push_back(word.byte_1);
+        m_bytecode.push_back(word.byte_2);
+        m_bytecode.push_back(word.byte_3);
     }
 
     void IRCompiler::pushFileHeader() noexcept

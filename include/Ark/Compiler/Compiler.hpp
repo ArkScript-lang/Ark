@@ -94,19 +94,6 @@ namespace Ark::internal
         }
 
         /**
-         * @brief helper functions to get a temp or finalized code page
-         *
-         * @param page page descriptor
-         * @return std::vector<IR::Block>*
-         */
-        IR::Block* page_ptr(const Page page) noexcept
-        {
-            if (!page.is_temp)
-                return &m_code_pages[page.index];
-            return &m_temp_pages[page.index];
-        }
-
-        /**
          * @brief Checking if a symbol is an operator
          *
          * @param name symbol name

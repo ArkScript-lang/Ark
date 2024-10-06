@@ -14,28 +14,29 @@
 
 namespace Ark::internal
 {
-    struct bytes_t
-    {
-        uint8_t first {};
-        uint8_t second {};
-    };
-
     struct Word
     {
-        uint8_t padding = 0;  ///< Padding reserved for future use
-        uint8_t opcode = 0;   ///< Instruction opcode
-        uint16_t data = 0;    ///< Immediate data, interpreted differently for different instructions
+        uint8_t opcode = 0;  ///< Instruction opcode
+        uint8_t byte_1 = 0;
+        uint8_t byte_2 = 0;
+        uint8_t byte_3 = 0;
 
         explicit Word(const uint8_t inst, const uint16_t arg = 0) :
-            opcode(inst), data(arg)
+            opcode(inst), byte_2(static_cast<uint8_t>(arg >> 8)), byte_3(static_cast<uint8_t>(arg & 0xff))
         {}
 
-        [[nodiscard]] bytes_t bytes() const
+        /**
+         * @brief Construct a word with two arguments, each on 12 bits. It's up to the caller to ensure that no data is lost
+         * @param inst
+         * @param primary_arg argument on 12 bits, the upper 4 bits are lost
+         * @param secondary_arg 2nd argument on 12 bits, the upper 4 bits are lost
+         */
+        Word(const uint8_t inst, const uint16_t primary_arg, const uint16_t secondary_arg) :
+            opcode(inst)
         {
-            return bytes_t {
-                .first = static_cast<uint8_t>((data & 0xff00) >> 8),
-                .second = static_cast<uint8_t>(data & 0x00ff)
-            };
+            byte_1 = static_cast<uint8_t>((primary_arg & 0xff0) >> 4);
+            byte_2 = static_cast<uint8_t>((primary_arg & 0x00f) << 4 | (secondary_arg & 0xf00) >> 8);
+            byte_3 = static_cast<uint8_t>(secondary_arg & 0x0ff);
         }
     };
 }

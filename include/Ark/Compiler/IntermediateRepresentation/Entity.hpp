@@ -26,7 +26,8 @@ namespace Ark::internal::IR
         Goto,
         GotoIfTrue,
         GotoIfFalse,
-        Opcode
+        Opcode,
+        Opcode2Args
     };
 
     using label_t = std::size_t;
@@ -37,6 +38,8 @@ namespace Ark::internal::IR
         explicit Entity(Kind kind);
 
         explicit Entity(Instruction inst, uint16_t arg = 0);
+
+        Entity(Instruction inst, uint16_t primary_arg, uint16_t secondary_arg);
 
         static Entity Label();
 
@@ -56,8 +59,8 @@ namespace Ark::internal::IR
         Kind m_kind;
         label_t m_label { 0 };
         Instruction m_inst;
-        uint8_t m_secondary_arg { 0 };
         uint16_t m_primary_arg { 0 };
+        uint16_t m_secondary_arg { 0 };
     };
 
     using Block = std::vector<Entity>;

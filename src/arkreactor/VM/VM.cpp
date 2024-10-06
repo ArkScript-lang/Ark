@@ -281,8 +281,8 @@ namespace Ark
 #define NEXTOPARG()                                                                      \
     do                                                                                   \
     {                                                                                    \
-        padding = m_state.m_pages[context.pp][context.ip];                               \
-        inst = m_state.m_pages[context.pp][context.ip + 1];                              \
+        inst = m_state.m_pages[context.pp][context.ip];                                  \
+        padding = m_state.m_pages[context.pp][context.ip + 1];                           \
         arg = static_cast<uint16_t>((m_state.m_pages[context.pp][context.ip + 2] << 8) + \
                                     m_state.m_pages[context.pp][context.ip + 3]);        \
         context.ip += 4;                                                                 \
@@ -568,9 +568,8 @@ namespace Ark
 
                         if (Value* field = var->refClosure().refScope()[arg]; field != nullptr)
                         {
-                            // check for CALL instruction
-                            // doing a +1 on the IP to read the instruction because context.ip is already on the next instruction word (the padding)
-                            if (context.ip + 1 < m_state.m_pages[context.pp].size() && m_state.m_pages[context.pp][context.ip + 1] == CALL)
+                            // check for CALL instruction (the instruction because context.ip is already on the next instruction word)
+                            if (m_state.m_pages[context.pp][context.ip] == CALL)
                                 push(Value(Closure(var->refClosure().scopePtr(), field->pageAddr())), context);
                             else
                                 push(field, context);

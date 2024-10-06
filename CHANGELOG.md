@@ -81,6 +81,9 @@
 - the `STORE` instruction has been renamed `SET_VAL`
 - the `STORE` instruction is emitted in place of the `LET` and `MUT` instructions, without any mutability checking now
 - `io:writeFile` no longer takes a mode and has been split into `io:writeFile` and `io:appendToFile`
+- instructions are now positioned like this: `inst byte1 byte2 byte3`
+  - byte1 is 0 if the instruction takes a single argument on 16 bits, split on byte2 and byte3
+  - if the instruction takes two arguments, they each have 12 bits ; the first one is on byte1 and upper half of byte2, the second on lower half of byte2 and then byte3 
 
 ### Removed
 - removed unused `NodeType::Closure`

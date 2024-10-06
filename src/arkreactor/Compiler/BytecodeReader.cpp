@@ -392,14 +392,15 @@ namespace Ark
 
                     for (std::size_t j = sStart.value_or(0), end = sEnd.value_or(page.size()); j < end; j += 4)
                     {
-                        const uint8_t padding = page[j];
-                        const uint8_t inst = page[j + 1];
+                        const uint8_t inst = page[j];
+                        // TEMP
+                        const uint8_t padding = page[j + 1];
                         const auto arg = static_cast<uint16_t>((page[j + 2] << 8) + page[j + 3]);
 
                         // instruction number
                         fmt::print(fmt::fg(fmt::color::cyan), "{:>4}", j / 4);
                         // padding inst arg arg
-                        fmt::print(" {:02x} {:02x} {:02x} {:02x} ", padding, inst, page[j + 2], page[j + 3]);
+                        fmt::print(" {:02x} {:02x} {:02x} {:02x} ", inst, padding, page[j + 2], page[j + 3]);
 
                         if (inst == NOP)
                             color_print_inst("NOP");
