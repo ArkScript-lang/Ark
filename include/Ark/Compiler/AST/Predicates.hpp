@@ -59,26 +59,6 @@ namespace Ark::internal
         }
     } IsHex;
 
-    inline struct IsUpper final : CharPred
-    {
-        IsUpper() :
-            CharPred("uppercase") {}
-        bool operator()(const utf8_char_t::codepoint_t c) const override
-        {
-            return 0 <= c && c <= 255 && std::isupper(c) != 0;
-        }
-    } IsUpper;
-
-    inline struct IsLower final : CharPred
-    {
-        IsLower() :
-            CharPred("lowercase") {}
-        bool operator()(const utf8_char_t::codepoint_t c) const override
-        {
-            return 0 <= c && c <= 255 && std::islower(c) != 0;
-        }
-    } IsLower;
-
     inline struct IsAlpha final : CharPred
     {
         IsAlpha() :
@@ -98,16 +78,6 @@ namespace Ark::internal
             return 0 <= c && c <= 255 && std::isalnum(c) != 0;
         }
     } IsAlnum;
-
-    inline struct IsPrint final : CharPred
-    {
-        IsPrint() :
-            CharPred("printable") {}
-        bool operator()(const utf8_char_t::codepoint_t c) const override
-        {
-            return 0 <= c && c <= 255 && std::isprint(c) != 0;
-        }
-    } IsPrint;
 
     struct IsChar final : CharPred
     {
@@ -185,16 +155,6 @@ namespace Ark::internal
             }
         }
     } IsSymbol;
-
-    inline struct IsAny final : CharPred
-    {
-        IsAny() :
-            CharPred("any") {}
-        bool operator()(const utf8_char_t::codepoint_t) const override
-        {
-            return true;
-        }
-    } IsAny;
 
     const IsChar IsMinus('-');
 }

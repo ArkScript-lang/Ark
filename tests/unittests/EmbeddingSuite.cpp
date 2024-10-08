@@ -76,14 +76,19 @@ ut::suite<"Embedding"> embedding_suite = [] {
         };
 
         should("have symbol foo registered") = [&] {
-            auto func = mut(vm)["foo"];
+            const auto func = mut(vm)["foo"];
             expect(func.isFunction());
         };
 
         should("(foo 5 6.0) have a value of 13") = [&] {
-            auto value = mut(vm).call("foo", 5, 6.0);
+            const auto value = mut(vm).call("foo", 5, 6.0);
             expect(value.valueType() == Ark::ValueType::Number);
             expect(value.number() == 13.0_d);
+        };
+
+        should("get nil when retrieving unbound symbol") = [&] {
+            const auto value = mut(vm)["unknown"];
+            expect(value.valueType() == Ark::ValueType::Nil);
         };
     };
 
