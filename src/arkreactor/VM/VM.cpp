@@ -535,7 +535,6 @@ namespace Ark
                         }
 
                         throwVMError(ErrorKind::Scope, fmt::format("Can not delete unbound variable `{}'", m_state.m_symbols[arg]));
-                        DISPATCH();
                     }
 
                     TARGET(MAKE_CLOSURE)
