@@ -53,6 +53,12 @@ namespace Ark::internal::IR
 
         [[nodiscard]] inline Kind kind() const { return m_kind; }
 
+        [[nodiscard]] inline Instruction inst() const { return m_inst; }
+
+        [[nodiscard]] inline uint16_t primaryArg() const { return m_primary_arg; }
+
+        [[nodiscard]] inline uint16_t secondaryArg() const { return m_secondary_arg; }
+
     private:
         inline static label_t LabelCounter = 0;
 

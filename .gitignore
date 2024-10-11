@@ -11,6 +11,7 @@ __arkscript__/
 *.arkc
 *.arkm
 /*.ark
+/*.ark.ir
 !tests/unittests/resources/BytecodeReaderSuite/*.arkc
 
 # Generated files

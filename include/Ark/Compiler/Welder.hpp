@@ -20,6 +20,7 @@
 #include <Ark/Compiler/AST/Node.hpp>
 #include <Ark/Compiler/AST/Parser.hpp>
 #include <Ark/Compiler/Compiler.hpp>
+#include <Ark/Compiler/IntermediateRepresentation/IROptimizer.hpp>
 #include <Ark/Compiler/IntermediateRepresentation/IRCompiler.hpp>
 #include <Ark/Constants.hpp>
 #include <Ark/Logger.hpp>
@@ -98,10 +99,13 @@ namespace Ark
         internal::NameResolutionPass m_name_resolver;
 
         internal::Logger m_logger;
+        internal::IROptimizer m_ir_optimizer;
         internal::IRCompiler m_ir_compiler;
         internal::Compiler m_compiler;
 
-        bool computeAST(const std::string& filename, const std::string& code);
+        void dumpIRToFile() const;
+
+        bool computeAST(const std::string& filename, const std::string& code, bool fail_with_exception);
     };
 }  // namespace Ark
 

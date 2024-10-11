@@ -28,6 +28,7 @@
 - the name & scope resolution pass now checks for mutability errors
 - compile time checks for mutability errors with `append!`, `concat!` and `pop!`
 - new `MAKE_CLOSURE <page addr>` instruction, generated in place of a `LOAD_CONST` when a closure is made
+- added `-fdump-ir` to dump the IR entities to a file named `{file}.ark.ir`
 
 ### Changed
 - instructions are on 4 bytes: 1 byte for the instruction, 1 byte of padding, 2 bytes for an immediate argument
