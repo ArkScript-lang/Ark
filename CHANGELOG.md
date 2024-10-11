@@ -29,6 +29,7 @@
 - compile time checks for mutability errors with `append!`, `concat!` and `pop!`
 - new `MAKE_CLOSURE <page addr>` instruction, generated in place of a `LOAD_CONST` when a closure is made
 - added `-fdump-ir` to dump the IR entities to a file named `{file}.ark.ir`
+- added 11 super instructions and their implementation to the VM
 
 ### Changed
 - instructions are on 4 bytes: 1 byte for the instruction, 1 byte of padding, 2 bytes for an immediate argument
@@ -84,7 +85,7 @@
 - `io:writeFile` no longer takes a mode and has been split into `io:writeFile` and `io:appendToFile`
 - instructions are now positioned like this: `inst byte1 byte2 byte3`
   - byte1 is 0 if the instruction takes a single argument on 16 bits, split on byte2 and byte3
-  - if the instruction takes two arguments, they each have 12 bits ; the first one is on byte1 and upper half of byte2, the second on lower half of byte2 and then byte3 
+  - if the instruction takes two arguments, they each have 12 bits ; the second one is on byte1 and upper half of byte2, the first on lower half of byte2 and then byte3
 
 ### Removed
 - removed unused `NodeType::Closure`

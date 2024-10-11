@@ -88,7 +88,21 @@ namespace Ark::internal
         NOT = 0x30,
         LAST_OPERATOR = 0x30,
 
-        LAST_INSTRUCTION = 0x30
+        FIRST_SUPER_INSTRUCTION = 0x31,
+        LOAD_CONST_LOAD_CONST = 0x31,
+        LOAD_CONST_STORE = 0x32,
+        LOAD_CONST_SET_VAL = 0x33,
+        STORE_FROM = 0x34,
+        SET_VAL_FROM = 0x35,
+        INCREMENT = 0x36,
+        DECREMENT = 0x37,
+        STORE_TAIL = 0x38,
+        STORE_HEAD = 0x39,
+        SET_VAL_TAIL = 0x3a,
+        SET_VAL_HEAD = 0x3b,
+        LAST_SUPER_INSTRUCTION = 0x3b,
+
+        LAST_INSTRUCTION = 0x3d
     };
 
     constexpr std::array InstructionNames = {
@@ -118,6 +132,7 @@ namespace Ark::internal
         "POP_LIST_IN_PLACE",
         "POP",
         "DUP",
+        // operators
         "ADD",
         "SUB",
         "MUL",
@@ -140,7 +155,19 @@ namespace Ark::internal
         "MOD",
         "TYPE",
         "HASFIELD",
-        "NOT"
+        "NOT",
+        // super instructions
+        "LOAD_CONST_LOAD_CONST",
+        "LOAD_CONST_STORE",
+        "LOAD_CONST_SET_VAL",
+        "STORE_FROM",
+        "SET_VAL_FROM",
+        "INCREMENT",
+        "DECREMENT",
+        "STORE_TAIL",
+        "STORE_HEAD",
+        "SET_VAL_TAIL",
+        "SET_VAL_HEAD",
     };
 }
 

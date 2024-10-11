@@ -344,6 +344,12 @@ namespace Ark
 #define DISPATCH() \
     NEXTOPARG();   \
     DISPATCH_GOTO();
+#define UNPACK_ARGS()                                                                 \
+    do                                                                                \
+    {                                                                                 \
+        secondary_arg = static_cast<uint16_t>((padding << 4) | (arg & 0xf000) >> 12); \
+        primary_arg = arg & 0x0fff;                                                   \
+    } while (false)
 
 #if ARK_USE_COMPUTED_GOTOS
 #    pragma GCC diagnostic push
@@ -398,15 +404,29 @@ namespace Ark
                 &&TARGET_TYPE,
                 &&TARGET_HASFIELD,
                 &&TARGET_NOT,
+                &&TARGET_LOAD_CONST_LOAD_CONST,
+                &&TARGET_LOAD_CONST_STORE,
+                &&TARGET_LOAD_CONST_SET_VAL,
+                &&TARGET_STORE_FROM,
+                &&TARGET_SET_VAL_FROM,
+                &&TARGET_INCREMENT,
+                &&TARGET_DECREMENT,
+                &&TARGET_STORE_TAIL,
+                &&TARGET_STORE_HEAD,
+                &&TARGET_SET_VAL_TAIL,
+                &&TARGET_SET_VAL_HEAD
             };
 #    pragma GCC diagnostic pop
 #endif
 
         try
         {
-            [[maybe_unused]] uint8_t padding = 0;
             uint8_t inst = 0;
+            uint8_t padding = 0;
             uint16_t arg = 0;
+            uint16_t primary_arg = 0;
+            uint16_t secondary_arg = 0;
+
             m_running = true;
 
             DISPATCH();
@@ -1074,6 +1094,130 @@ namespace Ark
                         DISPATCH();
                     }
 
+#pragma endregion
+
+#pragma region "Super Instructions"
+                    TARGET(LOAD_CONST_LOAD_CONST)
+                    {
+                        UNPACK_ARGS();
+                        push(loadConstAsPtr(primary_arg), context);
+                        push(loadConstAsPtr(secondary_arg), context);
+                        DISPATCH();
+                    }
+
+                    TARGET(LOAD_CONST_STORE)
+                    {
+                        UNPACK_ARGS();
+                        store(secondary_arg, loadConstAsPtr(primary_arg), context);
+                        DISPATCH();
+                    }
+
+                    TARGET(LOAD_CONST_SET_VAL)
+                    {
+                        UNPACK_ARGS();
+                        setVal(secondary_arg, loadConstAsPtr(primary_arg), context);
+                        DISPATCH();
+                    }
+
+                    TARGET(STORE_FROM)
+                    {
+                        UNPACK_ARGS();
+                        store(secondary_arg, loadSymbol(primary_arg, context), context);
+                        DISPATCH();
+                    }
+
+                    TARGET(SET_VAL_FROM)
+                    {
+                        UNPACK_ARGS();
+                        setVal(secondary_arg, loadSymbol(primary_arg, context), context);
+                        DISPATCH();
+                    }
+
+                    TARGET(INCREMENT)
+                    {
+                        UNPACK_ARGS();
+                        {
+                            Value* var = loadSymbol(primary_arg, context);
+
+                            // use internal reference, shouldn't break anything so far, unless it's already a ref
+                            if (var->valueType() == ValueType::Reference)
+                                var = var->reference();
+
+                            if (var->valueType() == ValueType::Number)
+                                push(Value(var->number() + 1), context);
+                            else
+                                types::generateError(
+                                    "+",
+                                    { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
+                                    { *var, Value(1) });
+                        }
+                        DISPATCH();
+                    }
+
+                    TARGET(DECREMENT)
+                    {
+                        UNPACK_ARGS();
+                        {
+                            Value* var = loadSymbol(primary_arg, context);
+
+                            // use internal reference, shouldn't break anything so far, unless it's already a ref
+                            if (var->valueType() == ValueType::Reference)
+                                var = var->reference();
+
+                            if (var->valueType() == ValueType::Number)
+                                push(Value(var->number() - 1), context);
+                            else
+                                types::generateError(
+                                    "-",
+                                    { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
+                                    { *var, Value(1) });
+                        }
+                        DISPATCH();
+                    }
+
+                    TARGET(STORE_TAIL)
+                    {
+                        UNPACK_ARGS();
+                        {
+                            Value* list = loadSymbol(primary_arg, context);
+                            Value tail = helper::tail(list);
+                            store(secondary_arg, &tail, context);
+                        }
+                        DISPATCH();
+                    }
+
+                    TARGET(STORE_HEAD)
+                    {
+                        UNPACK_ARGS();
+                        {
+                            Value* list = loadSymbol(primary_arg, context);
+                            Value head = helper::head(list);
+                            store(secondary_arg, &head, context);
+                        }
+                        DISPATCH();
+                    }
+
+                    TARGET(SET_VAL_TAIL)
+                    {
+                        UNPACK_ARGS();
+                        {
+                            Value* list = loadSymbol(primary_arg, context);
+                            Value tail = helper::tail(list);
+                            setVal(secondary_arg, &tail, context);
+                        }
+                        DISPATCH();
+                    }
+
+                    TARGET(SET_VAL_HEAD)
+                    {
+                        UNPACK_ARGS();
+                        {
+                            Value* list = loadSymbol(primary_arg, context);
+                            Value head = helper::head(list);
+                            setVal(secondary_arg, &head, context);
+                        }
+                        DISPATCH();
+                    }
 #pragma endregion
                 }
 #if ARK_USE_COMPUTED_GOTOS
