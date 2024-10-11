@@ -4,10 +4,11 @@
 #include <Ark/Compiler/Package/ImportSolver.hpp>
 #include <Ark/Compiler/AST/Optimizer.hpp>
 #include <Ark/Compiler/Macros/Processor.hpp>
-
+#include <Ark/Compiler/NameResolutionPass.hpp>
 #include <Ark/Files.hpp>
 #include <Ark/Exceptions.hpp>
-#include <Ark/Compiler/NameResolutionPass.hpp>
+
+#include <fmt/ostream.h>
 
 namespace Ark
 {
@@ -20,6 +21,7 @@ namespace Ark
         m_ast_optimizer(debug),
         m_name_resolver(debug),
         m_logger("Welder", debug),
+        m_ir_optimizer(debug),
         m_ir_compiler(debug),
         m_compiler(debug)
     {}
@@ -50,6 +52,15 @@ namespace Ark
         {
             m_compiler.process(m_computed_ast);
             m_ir = m_compiler.intermediateRepresentation();
+
+            if ((m_features & FeatureIROptimizer) != 0)
+            {
+                m_ir_optimizer.process(m_ir, m_compiler.symbols(), m_compiler.values());
+                m_ir = m_ir_optimizer.intermediateRepresentation();
+            }
+
+            if ((m_features & FeatureDumpIR) != 0)
+                dumpIRToFile();
 
             m_ir_compiler.process(m_ir, m_compiler.symbols(), m_compiler.values());
             m_bytecode = m_ir_compiler.bytecode();
@@ -91,7 +102,58 @@ namespace Ark
         return m_bytecode;
     }
 
-    bool Welder::computeAST(const std::string& filename, const std::string& code)
+    void Welder::dumpIRToFile() const
+    {
+        std::filesystem::path path = m_root_file;
+        if (is_directory(m_root_file))
+            path /= "output.ark.ir";
+        else
+            path.replace_extension(".ark.ir");
+
+        std::ofstream output(path);
+
+        std::size_t index = 0;
+        for (const auto& block : m_ir)
+        {
+            fmt::println(output, "page_{}", index);
+            for (const auto entity : block)
+            {
+                switch (entity.kind())
+                {
+                    case internal::IR::Kind::Label:
+                        fmt::println(output, ".L{}:", entity.label());
+                        break;
+
+                    case internal::IR::Kind::Goto:
+                        fmt::println(output, "\tGOTO L{}", entity.label());
+                        break;
+
+                    case internal::IR::Kind::GotoIfTrue:
+                        fmt::println(output, "\tGOTO_IF_TRUE L{}", entity.label());
+                        break;
+
+                    case internal::IR::Kind::GotoIfFalse:
+                        fmt::println(output, "\tGOTO_IF_FALSE L{}", entity.label());
+                        break;
+
+                    case internal::IR::Kind::Opcode:
+                        fmt::println(output, "\t{} {}", internal::InstructionNames[entity.inst()], entity.primaryArg());
+                        break;
+
+                    case internal::IR::Kind::Opcode2Args:
+                        fmt::println(output, "\t{} {} ({})", internal::InstructionNames[entity.inst()], entity.primaryArg(), entity.secondaryArg());
+                        break;
+                }
+            }
+
+            fmt::println(output, "");
+            ++index;
+        }
+
+        output.close();
+    }
+
+    bool Welder::computeAST(const std::string& filename, const std::string& code, const bool fail_with_exception)
     {
         try
         {

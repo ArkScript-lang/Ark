@@ -56,6 +56,11 @@ namespace Ark::internal
          */
         [[nodiscard]] const std::vector<IR::Block>& intermediateRepresentation() const noexcept;
 
+        /**
+         * @brief Return the symbol table pre-computed
+         *
+         * @return const std::vector<std::string>&
+         */
         [[nodiscard]] const std::vector<std::string>& symbols() const noexcept;
 
         /**
