@@ -42,7 +42,7 @@ int main(int argc, char** argv)
     uint16_t bcr_page = max_uint16;
     uint16_t bcr_start = max_uint16;
     uint16_t bcr_end = max_uint16;
-    Ark::BytecodeSegment segment = Ark::BytecodeSegment::All;
+    auto segment = Ark::BytecodeSegment::All;
     // Eval / Run / AST dump
     std::string file, eval_expression;
     std::string libdir;
