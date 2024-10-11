@@ -12,6 +12,8 @@
 #ifndef ARK_COMPILER_INSTRUCTIONS_HPP
 #define ARK_COMPILER_INSTRUCTIONS_HPP
 
+#include <array>
+
 namespace Ark::internal
 {
     /**
@@ -87,6 +89,58 @@ namespace Ark::internal
         LAST_OPERATOR = 0x30,
 
         LAST_INSTRUCTION = 0x30
+    };
+
+    constexpr std::array InstructionNames = {
+        "NOP",
+        "LOAD_SYMBOL",
+        "LOAD_CONST",
+        "POP_JUMP_IF_TRUE",
+        "STORE",
+        "SET_VAL",
+        "POP_JUMP_IF_FALSE",
+        "JUMP",
+        "RET",
+        "HALT",
+        "CALL",
+        "CAPTURE",
+        "BUILTIN",
+        "DEL",
+        "MAKE_CLOSURE",
+        "GET_FIELD",
+        "PLUGIN",
+        "LIST",
+        "APPEND",
+        "CONCAT",
+        "APPEND_IN_PLACE",
+        "CONCAT_IN_PLACE",
+        "POP_LIST",
+        "POP_LIST_IN_PLACE",
+        "POP",
+        "DUP",
+        "ADD",
+        "SUB",
+        "MUL",
+        "DIV",
+        "GT",
+        "LT",
+        "LE",
+        "GE",
+        "NEQ",
+        "EQ",
+        "LEN",
+        "EMPTY",
+        "TAIL",
+        "HEAD",
+        "ISNIL",
+        "ASSERT",
+        "TO_NUM",
+        "TO_STR",
+        "AT",
+        "MOD",
+        "TYPE",
+        "HASFIELD",
+        "NOT"
     };
 }
 

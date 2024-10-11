@@ -4,6 +4,7 @@
 #include <Ark/Builtins/Builtins.hpp>
 
 #include <iomanip>
+#include <unordered_map>
 #include <picosha2.h>
 #include <fmt/core.h>
 #include <fmt/color.h>
@@ -331,6 +332,28 @@ namespace Ark
             uint16_t arg;
         };
 
+        const std::unordered_map<Instruction, ArgKind> arg_kinds = {
+            { LOAD_SYMBOL, ArgKind::Symbol },
+            { LOAD_CONST, ArgKind::Value },
+            { POP_JUMP_IF_TRUE, ArgKind::Raw },
+            { STORE, ArgKind::Symbol },
+            { SET_VAL, ArgKind::Symbol },
+            { POP_JUMP_IF_FALSE, ArgKind::Raw },
+            { JUMP, ArgKind::Raw },
+            { CALL, ArgKind::Raw },
+            { CAPTURE, ArgKind::Symbol },
+            { BUILTIN, ArgKind::Builtin },
+            { DEL, ArgKind::Symbol },
+            { MAKE_CLOSURE, ArgKind::Value },
+            { GET_FIELD, ArgKind::Symbol },
+            { PLUGIN, ArgKind::Value },
+            { LIST, ArgKind::Raw },
+            { APPEND, ArgKind::Raw },
+            { CONCAT, ArgKind::Raw },
+            { APPEND_IN_PLACE, ArgKind::Raw },
+            { CONCAT_IN_PLACE, ArgKind::Raw }
+        };
+
         const auto color_print_inst = [&syms, &vals, &stringify_value](const std::string& name, std::optional<Arg> arg = std::nullopt) {
             fmt::print("{}", fmt::styled(name, fmt::fg(fmt::color::gold)));
             if (arg.has_value())
@@ -402,104 +425,14 @@ namespace Ark
                         // padding inst arg arg
                         fmt::print(" {:02x} {:02x} {:02x} {:02x} ", inst, padding, page[j + 2], page[j + 3]);
 
-                        if (inst == NOP)
-                            color_print_inst("NOP");
-                        else if (inst == LOAD_SYMBOL)
-                            color_print_inst("LOAD_SYMBOL", Arg { ArgKind::Symbol, arg });
-                        else if (inst == LOAD_CONST)
-                            color_print_inst("LOAD_CONST", Arg { ArgKind::Value, arg });
-                        else if (inst == POP_JUMP_IF_TRUE)
-                            color_print_inst("POP_JUMP_IF_TRUE", Arg { ArgKind::Raw, arg });
-                        else if (inst == STORE)
-                            color_print_inst("STORE", Arg { ArgKind::Symbol, arg });
-                        else if (inst == SET_VAL)
-                            color_print_inst("SET_VAL", Arg { ArgKind::Symbol, arg });
-                        else if (inst == POP_JUMP_IF_FALSE)
-                            color_print_inst("POP_JUMP_IF_FALSE", Arg { ArgKind::Raw, arg });
-                        else if (inst == JUMP)
-                            color_print_inst("JUMP", Arg { ArgKind::Raw, arg });
-                        else if (inst == RET)
-                            color_print_inst("RET");
-                        else if (inst == HALT)
-                            color_print_inst("HALT");
-                        else if (inst == CALL)
-                            color_print_inst("CALL", Arg { ArgKind::Raw, arg });
-                        else if (inst == CAPTURE)
-                            color_print_inst("CAPTURE", Arg { ArgKind::Symbol, arg });
-                        else if (inst == BUILTIN)
-                            color_print_inst("BUILTIN", Arg { ArgKind::Builtin, arg });
-                        else if (inst == DEL)
-                            color_print_inst("DEL", Arg { ArgKind::Symbol, arg });
-                        else if (inst == MAKE_CLOSURE)
-                            color_print_inst("MAKE_CLOSURE", Arg { ArgKind::Value, arg });
-                        else if (inst == GET_FIELD)
-                            color_print_inst("GET_FIELD", Arg { ArgKind::Symbol, arg });
-                        else if (inst == PLUGIN)
-                            color_print_inst("PLUGIN", Arg { ArgKind::Value, arg });
-                        else if (inst == LIST)
-                            color_print_inst("LIST", Arg { ArgKind::Raw, arg });
-                        else if (inst == APPEND)
-                            color_print_inst("APPEND", Arg { ArgKind::Raw, arg });
-                        else if (inst == CONCAT)
-                            color_print_inst("CONCAT", Arg { ArgKind::Raw, arg });
-                        else if (inst == APPEND_IN_PLACE)
-                            color_print_inst("APPEND_IN_PLACE", Arg { ArgKind::Raw, arg });
-                        else if (inst == CONCAT_IN_PLACE)
-                            color_print_inst("CONCAT_IN_PLACE", Arg { ArgKind::Raw, arg });
-                        else if (inst == POP_LIST)
-                            color_print_inst("POP_LIST");
-                        else if (inst == POP_LIST_IN_PLACE)
-                            color_print_inst("POP_LIST_IN_PLACE");
-                        else if (inst == POP)
-                            color_print_inst("POP");
-                        else if (inst == DUP)
-                            color_print_inst("DUP");
-                        else if (inst == ADD)
-                            color_print_inst("ADD");
-                        else if (inst == SUB)
-                            color_print_inst("SUB");
-                        else if (inst == MUL)
-                            color_print_inst("MUL");
-                        else if (inst == DIV)
-                            color_print_inst("DIV");
-                        else if (inst == GT)
-                            color_print_inst("GT");
-                        else if (inst == LT)
-                            color_print_inst("LT");
-                        else if (inst == LE)
-                            color_print_inst("LE");
-                        else if (inst == GE)
-                            color_print_inst("GE");
-                        else if (inst == NEQ)
-                            color_print_inst("NEQ");
-                        else if (inst == EQ)
-                            color_print_inst("EQ");
-                        else if (inst == LEN)
-                            color_print_inst("LEN");
-                        else if (inst == EMPTY)
-                            color_print_inst("EMPTY");
-                        else if (inst == TAIL)
-                            color_print_inst("TAIL");
-                        else if (inst == HEAD)
-                            color_print_inst("HEAD");
-                        else if (inst == ISNIL)
-                            color_print_inst("ISNIL");
-                        else if (inst == ASSERT)
-                            color_print_inst("ASSERT");
-                        else if (inst == TO_NUM)
-                            color_print_inst("TO_NUM");
-                        else if (inst == TO_STR)
-                            color_print_inst("TO_STR");
-                        else if (inst == AT)
-                            color_print_inst("AT");
-                        else if (inst == MOD)
-                            color_print_inst("MOD");
-                        else if (inst == TYPE)
-                            color_print_inst("TYPE");
-                        else if (inst == HASFIELD)
-                            color_print_inst("HASFIELD");
-                        else if (inst == NOT)
-                            color_print_inst("NOT");
+                        if (const auto idx = static_cast<std::size_t>(inst); idx < InstructionNames.size())
+                        {
+                            const auto inst_name = InstructionNames[idx];
+                            if (const auto iinst = static_cast<Instruction>(inst); arg_kinds.contains(iinst))
+                                color_print_inst(inst_name, Arg { arg_kinds.at(iinst), arg });
+                            else
+                                color_print_inst(inst_name);
+                        }
                         else
                             fmt::println("Unknown instruction");
                     }
