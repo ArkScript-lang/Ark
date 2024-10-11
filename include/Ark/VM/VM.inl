@@ -123,6 +123,58 @@ inline Value VM::resolve(internal::ExecutionContext* context, std::vector<Value>
     return *popAndResolveAsPtr(*context);
 }
 
+#pragma region "instruction helpers"
+
+inline Value* VM::loadSymbol(const uint16_t id, internal::ExecutionContext& context)
+{
+    context.last_symbol = id;
+    if (Value* var = findNearestVariable(context.last_symbol, context); var != nullptr) [[likely]]
+    {
+        // push internal reference, shouldn't break anything so far, unless it's already a ref
+        if (var->valueType() == ValueType::Reference)
+            return var->reference();
+        return var;
+    }
+    else [[unlikely]]
+        throwVMError(internal::ErrorKind::Scope, fmt::format("Unbound variable `{}'", m_state.m_symbols[context.last_symbol]));
+    return nullptr;
+}
+
+inline Value* VM::loadConstAsPtr(const uint16_t id) const
+{
+    return &m_state.m_constants[id];
+}
+
+inline void VM::store(const uint16_t id, const Value* val, internal::ExecutionContext& context)
+{
+    // avoid adding the pair (id, _) multiple times, with different values
+    Value* local = context.locals.back()[id];
+    if (local == nullptr) [[likely]]
+        context.locals.back().push_back(id, *val);
+    else
+        *local = *val;
+}
+
+inline void VM::setVal(const uint16_t id, const Value* val, internal::ExecutionContext& context)
+{
+    if (Value* var = findNearestVariable(id, context); var != nullptr) [[likely]]
+    {
+        if (var->valueType() == ValueType::Reference)
+            *var->reference() = *val;
+        else [[likely]]
+            *var = *val;
+    }
+    else
+        throwVMError(
+            internal::ErrorKind::Scope,
+            fmt::format(
+                "Unbound variable `{}', can not change its value to {}",
+                m_state.m_symbols[id],
+                val->toString(*this)));
+}
+
+#pragma endregion
+
 #pragma region "stack management"
 
 inline Value* VM::pop(internal::ExecutionContext& context)

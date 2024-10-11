@@ -34,9 +34,9 @@ namespace Ark::internal
         Word(const uint8_t inst, const uint16_t primary_arg, const uint16_t secondary_arg) :
             opcode(inst)
         {
-            byte_1 = static_cast<uint8_t>((primary_arg & 0xff0) >> 4);
-            byte_2 = static_cast<uint8_t>((primary_arg & 0x00f) << 4 | (secondary_arg & 0xf00) >> 8);
-            byte_3 = static_cast<uint8_t>(secondary_arg & 0x0ff);
+            byte_1 = static_cast<uint8_t>((secondary_arg & 0xff0) >> 4);
+            byte_2 = static_cast<uint8_t>((secondary_arg & 0x00f) << 4 | (primary_arg & 0xf00) >> 8);
+            byte_3 = static_cast<uint8_t>(primary_arg & 0x0ff);
         }
     };
 }
