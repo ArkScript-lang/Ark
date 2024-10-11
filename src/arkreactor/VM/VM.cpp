@@ -22,6 +22,60 @@ namespace Ark
 {
     using namespace internal;
 
+    namespace helper
+    {
+        inline Value tail(Value* a)
+        {
+            if (a->valueType() == ValueType::List)
+            {
+                if (a->constList().size() < 2)
+                    return Value(ValueType::List);
+
+                std::vector<Value> tmp(a->constList().size() - 1);
+                for (std::size_t i = 1, end = a->constList().size(); i < end; ++i)
+                    tmp[i - 1] = a->constList()[i];
+                return Value(std::move(tmp));
+            }
+            if (a->valueType() == ValueType::String)
+            {
+                if (a->string().size() < 2)
+                    return Value(ValueType::String);
+
+                Value b { *a };
+                b.stringRef().erase(b.stringRef().begin());
+                return b;
+            }
+
+            types::generateError(
+                "tail",
+                { { types::Contract { { types::Typedef("value", ValueType::List) } },
+                    types::Contract { { types::Typedef("value", ValueType::String) } } } },
+                { *a });
+        }
+
+        inline Value head(Value* a)
+        {
+            if (a->valueType() == ValueType::List)
+            {
+                if (a->constList().empty())
+                    return Builtins::nil;
+                return a->constList()[0];
+            }
+            if (a->valueType() == ValueType::String)
+            {
+                if (a->string().empty())
+                    return Value(ValueType::String);
+                return Value(std::string(1, a->stringRef()[0]));
+            }
+
+            types::generateError(
+                "head",
+                { { types::Contract { { types::Typedef("value", ValueType::List) } },
+                    types::Contract { { types::Typedef("value", ValueType::String) } } } },
+                { *a });
+        }
+    }
+
     VM::VM(State& state) noexcept :
         m_state(state), m_exit_code(0), m_running(false)
     {
@@ -370,23 +424,13 @@ namespace Ark
 
                     TARGET(LOAD_SYMBOL)
                     {
-                        context.last_symbol = arg;
-                        if (Value* var = findNearestVariable(context.last_symbol, context); var != nullptr) [[likely]]
-                        {
-                            // push internal reference, shouldn't break anything so far, unless it's already a ref
-                            if (var->valueType() == ValueType::Reference)
-                                push(var->reference(), context);
-                            else
-                                push(var, context);
-                        }
-                        else [[unlikely]]
-                            throwVMError(ErrorKind::Scope, fmt::format("Unbound variable `{}'", m_state.m_symbols[context.last_symbol]));
+                        push(loadSymbol(arg, context), context);
                         DISPATCH();
                     }
 
                     TARGET(LOAD_CONST)
                     {
-                        push(&(m_state.m_constants[arg]), context);
+                        push(loadConstAsPtr(arg), context);
                         DISPATCH();
                     }
 
@@ -399,33 +443,13 @@ namespace Ark
 
                     TARGET(STORE)
                     {
-                        {
-                            Value val = *popAndResolveAsPtr(context);
-                            // avoid adding the pair (id, _) multiple times, with different values
-                            Value* local = context.locals.back()[arg];
-                            if (local == nullptr) [[likely]]
-                                context.locals.back().push_back(arg, val);
-                            else
-                                *local = val;
-                        }
-
+                        store(arg, popAndResolveAsPtr(context), context);
                         DISPATCH();
                     }
 
                     TARGET(SET_VAL)
                     {
-                        {
-                            Value val = *popAndResolveAsPtr(context);
-                            if (Value* var = findNearestVariable(arg, context); var != nullptr) [[likely]]
-                            {
-                                if (var->valueType() == ValueType::Reference)
-                                    *var->reference() = val;
-                                else [[likely]]
-                                    *var = val;
-                            }
-                            else
-                                throwVMError(ErrorKind::Scope, fmt::format("Unbound variable `{}', can not change its value to {}", m_state.m_symbols[arg], val.toString(*this)));
-                        }
+                        setVal(arg, popAndResolveAsPtr(context), context);
                         DISPATCH();
                     }
 
@@ -894,63 +918,14 @@ namespace Ark
                     TARGET(TAIL)
                     {
                         Value* a = popAndResolveAsPtr(context);
-
-                        if (a->valueType() == ValueType::List)
-                        {
-                            if (a->constList().size() < 2)
-                                push(Value(ValueType::List), context);
-                            else
-                            {
-                                std::vector<Value> tmp(a->constList().size() - 1);
-                                for (std::size_t i = 1, end = a->constList().size(); i < end; ++i)
-                                    tmp[i - 1] = a->constList()[i];
-                                push(Value(std::move(tmp)), context);
-                            }
-                        }
-                        else if (a->valueType() == ValueType::String)
-                        {
-                            if (a->string().size() < 2)
-                                push(Value(ValueType::String), context);
-                            else
-                            {
-                                Value b { *a };
-                                b.stringRef().erase(b.stringRef().begin());
-                                push(std::move(b), context);
-                            }
-                        }
-                        else
-                            types::generateError(
-                                "tail",
-                                { { types::Contract { { types::Typedef("value", ValueType::List) } },
-                                    types::Contract { { types::Typedef("value", ValueType::String) } } } },
-                                { *a });
+                        push(helper::tail(a), context);
                         DISPATCH();
                     }
 
                     TARGET(HEAD)
                     {
                         Value* a = popAndResolveAsPtr(context);
-
-                        if (a->valueType() == ValueType::List)
-                        {
-                            if (a->constList().empty())
-                                push(Builtins::nil, context);
-                            else
-                                push(a->constList()[0], context);
-                        }
-                        else if (a->valueType() == ValueType::String)
-                        {
-                            if (a->string().empty())
-                                push(Value(ValueType::String), context);
-                            else
-                                push(Value(std::string(1, a->stringRef()[0])), context);
-                        }
-                        else
-                            types::generateError(
-                                "head",
-                                { { types::Contract { { types::Typedef("value", ValueType::List) } },
-                                    types::Contract { { types::Typedef("value", ValueType::String) } } } },
-                                { *a });
+                        push(helper::head(a), context);
                         DISPATCH();
                     }
 
