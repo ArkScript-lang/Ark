@@ -64,7 +64,7 @@ namespace Ark::internal::IR
 
         Kind m_kind;
         label_t m_label { 0 };
-        Instruction m_inst;
+        Instruction m_inst { NOP };
         uint16_t m_primary_arg { 0 };
         uint16_t m_secondary_arg { 0 };
     };

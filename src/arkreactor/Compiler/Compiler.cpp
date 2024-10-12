@@ -531,7 +531,7 @@ namespace Ark::internal
                 // in order to be able to handle things like (op A B C D...)
                 // which should be transformed into A B op C op D op...
                 if (exp_count >= 2)
-                    page(p).emplace_back(op, 2);  // TODO generalize to n arguments (n >= 2)
+                    page(p).emplace_back(op);
             }
 
             if (isUnaryInst(op))

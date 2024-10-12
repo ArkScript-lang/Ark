@@ -105,7 +105,7 @@ namespace Ark
 
         void dumpIRToFile() const;
 
-        bool computeAST(const std::string& filename, const std::string& code, bool fail_with_exception);
+        bool computeAST(const std::string& filename, const std::string& code);
     };
 }  // namespace Ark
 

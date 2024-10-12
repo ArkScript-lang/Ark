@@ -141,7 +141,7 @@ namespace Ark
                         break;
 
                     case internal::IR::Kind::Opcode2Args:
-                        fmt::println(output, "\t{} {} ({})", internal::InstructionNames[entity.inst()], entity.primaryArg(), entity.secondaryArg());
+                        fmt::println(output, "\t{} {}, {}", internal::InstructionNames[entity.inst()], entity.primaryArg(), entity.secondaryArg());
                         break;
                 }
             }
@@ -153,7 +153,7 @@ namespace Ark
         output.close();
     }
 
-    bool Welder::computeAST(const std::string& filename, const std::string& code, const bool fail_with_exception)
+    bool Welder::computeAST(const std::string& filename, const std::string& code)
     {
         try
         {
