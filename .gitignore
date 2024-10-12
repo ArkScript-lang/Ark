@@ -5,6 +5,7 @@
 # Personal utilities
 warnings.log
 cppcheck.txt
+*.bak
 
 # ArkScript
 __arkscript__/

@@ -1,16 +1,18 @@
-# Doxyfile 1.8.16
+# Doxyfile 1.12.0
 
 #---------------------------------------------------------------------------
 # Project related configuration options
 #---------------------------------------------------------------------------
 PROJECT_NAME           = ArkScript
 PROJECT_NUMBER         =
-PROJECT_BRIEF          = A small, fast, functional and scripting language for video games
+PROJECT_BRIEF          = "A small, fast, functional and scripting language for video games"
 PROJECT_LOGO           = ../.github/images/ArkTransparent-small.png
 OUTPUT_DIRECTORY       = ../../website/
 CREATE_SUBDIRS         = YES
 ABBREVIATE_BRIEF       =
 BUILTIN_STL_SUPPORT    = YES
+
+TIMESTAMP              = YES
 
 #---------------------------------------------------------------------------
 # Build related configuration options
@@ -23,45 +25,54 @@ EXTRACT_STATIC         = YES
 EXTRACT_LOCAL_CLASSES  = YES
 EXTRACT_LOCAL_METHODS  = YES
 EXTRACT_ANON_NSPACES   = NO
-HIDE_UNDOC_MEMBERS     = NO
-HIDE_UNDOC_CLASSES     = NO
-HIDE_FRIEND_COMPOUNDS  = NO
-HIDE_IN_BODY_DOCS      = NO
+RESOLVE_UNNAMED_PARAMS = YES
 INTERNAL_DOCS          = YES
 CASE_SENSE_NAMES       = YES
-STRICT_PROTO_MATCHING  = NO
+
 GENERATE_TODOLIST      = NO
 GENERATE_TESTLIST      = NO
 GENERATE_BUGLIST       = NO
 GENERATE_DEPRECATEDLIST= YES
 
+LAYOUT_FILE            = DoxygenLayout.xml
+EXTERNAL_TOOL_PATH     =
+
 #---------------------------------------------------------------------------
 # Configuration options related to warning and progress messages
 #---------------------------------------------------------------------------
-WARN_FORMAT            = "$file:$line: $text "
+WARN_FORMAT            = "$file:$line: $text"
+WARN_LINE_FORMAT       = "at line $line of file $file"
 WARN_LOGFILE           = warnings.log
 
 #---------------------------------------------------------------------------
 # Configuration options related to the input files
 #---------------------------------------------------------------------------
-LAYOUT_FILE = DoxygenLayout.xml
 INPUT                  = ../include \
-                         ../src     \
-                         ./         \
-                         ../lib/modules/bitwise/documentation  \
-                         ../lib/modules/console/documentation  \
+                         ../src \
+                         ./ \
+                         ../lib/modules/bitwise/documentation \
+                         ../lib/modules/console/documentation \
                          ../lib/modules/database/documentation \
-                         ../lib/modules/hash/documentation     \
-                         ../lib/modules/http/documentation     \
-                         ../lib/modules/json/documentation     \
-                         ../lib/modules/msgpack/documentation  \
+                         ../lib/modules/hash/documentation \
+                         ../lib/modules/http/documentation \
+                         ../lib/modules/json/documentation \
+                         ../lib/modules/msgpack/documentation \
                          ../lib/modules/random/documentation
-FILE_PATTERNS          = *.hpp *.cpp *.md
+
+INPUT_ENCODING         = UTF-8
+INPUT_FILE_ENCODING    =
+
+FILE_PATTERNS          = *.hpp \
+                         *.cpp \
+                         *.md
 RECURSIVE              = YES
-EXCLUDE                = ../src/arkreactor/Builtins ../lib/modules/submodules
+EXCLUDE                = ../src/arkreactor/Builtins \
+                         ../lib/modules/submodules
 EXCLUDE_PATTERNS       = lib/modules/submodules
+EXCLUDE_SYMBOLS        =
 EXAMPLE_PATTERNS       =
-EXAMPLE_RECURSIVE      = NO
+IMAGE_PATH             =
+USE_MDFILE_AS_MAINPAGE =
 
 #---------------------------------------------------------------------------
 # Configuration options related to source browsing
@@ -70,14 +81,13 @@ SOURCE_BROWSER         = YES
 STRIP_CODE_COMMENTS    = NO
 REFERENCED_BY_RELATION = YES
 REFERENCES_RELATION    = YES
+USE_HTAGS              = NO
 
 #---------------------------------------------------------------------------
 # Configuration options related to the HTML output
 #---------------------------------------------------------------------------
 GENERATE_HTML          = YES
 HTML_OUTPUT            = impl
-HTML_TIMESTAMP         = YES
-HTML_DYNAMIC_SECTIONS  = YES
 GENERATE_TREEVIEW      = YES
 SERVER_BASED_SEARCH    = YES
 
@@ -94,39 +104,21 @@ MACRO_EXPANSION        = YES
 EXPAND_ONLY_PREDEF     = YES
 
 #---------------------------------------------------------------------------
-# Configuration options related to the dot tool
+# Configuration options related to diagram generator tools
 #---------------------------------------------------------------------------
-CLASS_DIAGRAMS         = YES
-DIA_PATH               = "C:/Program Files (x86)/Dia/bin/"
+
 HIDE_UNDOC_RELATIONS   = YES
 HAVE_DOT               = YES
-DOT_NUM_THREADS        = 0
-DOT_FONTNAME           = Helvetica
-DOT_FONTSIZE           = 10
-DOT_FONTPATH           =
-CLASS_GRAPH            = YES
-COLLABORATION_GRAPH    = YES
-GROUP_GRAPHS           = YES
-UML_LOOK               = NO
-UML_LIMIT_NUM_FIELDS   = 10
 TEMPLATE_RELATIONS     = YES
-INCLUDE_GRAPH          = YES
-INCLUDED_BY_GRAPH      = YES
-CALL_GRAPH             = NO
 CALLER_GRAPH           = NO
 GRAPHICAL_HIERARCHY    = YES
 DIRECTORY_GRAPH        = YES
 DOT_IMAGE_FORMAT       = svg
 INTERACTIVE_SVG        = YES
-DOTFILE_DIRS           =
-MSCFILE_DIRS           =
-DIAFILE_DIRS           =
-PLANTUML_JAR_PATH      =
-PLANTUML_CFG_FILE      =
-PLANTUML_INCLUDE_PATH  =
+DOT_PATH               =
+DIA_PATH               = "C:/Program Files (x86)/Dia/bin/"
 DOT_GRAPH_MAX_NODES    = 100
 MAX_DOT_GRAPH_DEPTH    = 0
-DOT_TRANSPARENT        = NO
 DOT_MULTI_TARGETS      = NO
 GENERATE_LEGEND        = YES
 DOT_CLEANUP            = NO
