@@ -54,6 +54,9 @@ namespace Ark::internal
 
     Node& Parser::setNodePosAndFilename(Node& node, const std::optional<FilePosition>& cursor) const
     {
+        if (node.line() != 0 || node.col() != 0)
+            return node;
+
         const auto [row, col] = cursor.value_or(getCursor());
         node.setPos(row, col);
         node.setFilename(m_filename);
