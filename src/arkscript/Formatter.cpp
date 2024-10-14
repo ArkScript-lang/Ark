@@ -379,6 +379,10 @@ std::string Formatter::formatBegin(const Node& node, const std::size_t indent, c
     if (node.constList().size() == 1)
         return "{}";
 
+    // after a new line, we need to increment our indentation level
+    // if the block is a top level one, we also need to increment indentation level
+    const std::size_t inner_indentation = indent + (after_newline ? 1 : 0) + (indent == 0 ? 1 : 0);
+
     std::string output = "{\n";
     std::size_t previous_line = 0;
     // skip begin keyword
@@ -391,11 +395,16 @@ std::string Formatter::formatBegin(const Node& node, const std::size_t indent, c
             output += "\n";
         previous_line = lineOfLastNodeIn(child);
 
-        output += format(child, indent + (after_newline ? 1 : 0), true);
+        output += format(child, inner_indentation, true);
         if (i != end - 1)
             output += "\n";
     }
-    output += " }";
+
+    // if the last node has a comment, add a new line
+    if (!node.constList().empty() && !node.constList().back().commentAfter().empty())
+        output += "\n" + prefix(indent) + "}";
+    else
+        output += " }";
     return output;
 }
 
