@@ -1,0 +1,8 @@
+(if server {
+  # we can create multiple clients at the same time
+  (let cli2 (http:client:create "yahoo.com" 80))
+  (set output (http:client:get cli2 "/"))
+  # the function returns a list: [code content]
+  (print (@ output 0))
+  # status: 301
+  (let a 1) })
