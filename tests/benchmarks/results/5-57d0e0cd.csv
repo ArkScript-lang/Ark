@@ -1,0 +1,5 @@
+name,iterations,real_time,cpu_time,time_unit,bytes_per_second,items_per_second,label,error_occurred,error_message
+"quicksort",3921,0.190424,0.179065,ms,,,,,
+"ackermann/iterations:50",50,78.6985,78.5711,ms,,,,,
+"fibonacci/iterations:100",100,7.43315,7.42263,ms,,,,,
+"man_or_boy",43461,0.016108,0.0160867,ms,,,,,
