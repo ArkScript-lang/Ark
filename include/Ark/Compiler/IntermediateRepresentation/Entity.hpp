@@ -32,6 +32,9 @@ namespace Ark::internal::IR
 
     using label_t = std::size_t;
 
+    /// The maximum value an argument can have when an IR entity has two arguments
+    constexpr uint16_t MaxValueForDualArg = 0x0fff;
+
     class Entity
     {
     public:

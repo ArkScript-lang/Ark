@@ -1,7 +1,15 @@
 #include <Ark/Compiler/IntermediateRepresentation/IROptimizer.hpp>
 
+#include <utility>
+
 namespace Ark::internal
 {
+    struct EntityWithOffset
+    {
+        IR::Entity entity;
+        std::size_t offset;
+    };
+
     IROptimizer::IROptimizer(const unsigned debug) :
         m_logger("IROptimizer", debug)
     {}
@@ -10,6 +18,18 @@ namespace Ark::internal
     {
         m_symbols = symbols;
         m_values = values;
+
+        auto map = []<typename T>(const std::optional<T>& opt, auto&& lambda) -> decltype(std::optional(lambda(opt.value()))) {
+            if (opt.has_value())
+                return lambda(opt.value());
+            return std::nullopt;
+        };
+
+        auto or_else = []<typename T>(const std::optional<T>& opt, auto&& lambda) -> std::optional<T> {
+            if (!opt.has_value())
+                return lambda();
+            return opt;
+        };
 
         for (const auto& block : pages)
         {
@@ -21,107 +41,30 @@ namespace Ark::internal
 
             while (i < end)
             {
-                const Instruction first = block[i].inst();
-                const uint16_t arg_1 = block[i].primaryArg();
+                std::optional<EntityWithOffset> maybe_compacted = std::nullopt;
 
                 if (i + 1 < end)
+                    maybe_compacted = map(
+                        compactEntities(block[i], block[i + 1]),
+                        [](const auto& entity) {
+                            return std::make_optional<EntityWithOffset>(entity, 2);
+                        });
+                if (i + 2 < end)
+                    maybe_compacted = or_else(
+                        maybe_compacted,
+                        [&, this]() {
+                            return map(
+                                compactEntities(block[i], block[i + 1], block[i + 2]),
+                                [](const auto& entity) {
+                                    return std::make_optional<EntityWithOffset>(entity, 3);
+                                });
+                        });
+
+                if (maybe_compacted.has_value())
                 {
-                    const Instruction second = block[i + 1].inst();
-                    const uint16_t arg_2 = block[i + 1].primaryArg();
-
-                    // LOAD_CONST x
-                    // LOAD_CONST y
-                    // ---> LOAD_CONST_LOAD_CONST x y
-                    if (first == LOAD_CONST && second == LOAD_CONST)
-                    {
-                        current_block.emplace_back(LOAD_CONST_LOAD_CONST, arg_1, arg_2);
-                        i += 2;
-                    }
-                    // LOAD_CONST x
-                    // STORE / SET_VAL a
-                    // ---> LOAD_CONST_STORE x a ; LOAD_CONST_SET_VAL x a
-                    else if (first == LOAD_CONST && second == STORE)
-                    {
-                        current_block.emplace_back(LOAD_CONST_STORE, arg_1, arg_2);
-                        i += 2;
-                    }
-                    else if (first == LOAD_CONST && second == SET_VAL)
-                    {
-                        current_block.emplace_back(LOAD_CONST_SET_VAL, arg_1, arg_2);
-                        i += 2;
-                    }
-                    // LOAD_SYMBOL a
-                    // STORE / SET_VAL b
-                    // ---> STORE_FROM a b ; SET_VAL_FROM a b
-                    else if (first == LOAD_SYMBOL && second == STORE)
-                    {
-                        current_block.emplace_back(STORE_FROM, arg_1, arg_2);
-                        i += 2;
-                    }
-                    else if (first == LOAD_SYMBOL && second == SET_VAL)
-                    {
-                        current_block.emplace_back(SET_VAL_FROM, arg_1, arg_2);
-                        i += 2;
-                    }
-                    else if (i + 2 < end)
-                    {
-                        const Instruction third = block[i + 2].inst();
-                        const uint16_t arg_3 = block[i + 2].primaryArg();
-
-                        // LOAD_SYMBOL a
-                        // LOAD_CONST n (1)
-                        // ADD / SUB
-                        // ---> INCREMENT / DECREMENT a
-                        if (third == ADD && first == LOAD_CONST && second == LOAD_SYMBOL && m_values[arg_1].type == ValTableElemType::Number && std::get<double>(m_values[arg_1].value) == 1)
-                        {
-                            current_block.emplace_back(INCREMENT, arg_2);
-                            i += 3;
-                        }
-                        else if (third == ADD && first == LOAD_SYMBOL && second == LOAD_CONST && m_values[arg_2].type == ValTableElemType::Number && std::get<double>(m_values[arg_2].value) == 1)
-                        {
-                            current_block.emplace_back(INCREMENT, arg_1);
-                            i += 3;
-                        }
-                        else if (third == SUB && first == LOAD_SYMBOL && second == LOAD_CONST && m_values[arg_2].type == ValTableElemType::Number && std::get<double>(m_values[arg_2].value) == 1)
-                        {
-                            current_block.emplace_back(DECREMENT, arg_1);
-                            i += 3;
-                        }
-                        // LOAD_SYMBOL list
-                        // TAIL / HEAD
-                        // STORE / SET_VAL a
-                        // ---> STORE_TAIL list a ; STORE_HEAD ; SET_VAL_TAIL ; SET_VAL_HEAD
-                        else if (first == LOAD_SYMBOL && second == TAIL && third == STORE)
-                        {
-                            current_block.emplace_back(STORE_TAIL, arg_1, arg_3);
-                            i += 3;
-                        }
-                        else if (first == LOAD_SYMBOL && second == TAIL && third == SET_VAL)
-                        {
-                            current_block.emplace_back(SET_VAL_TAIL, arg_1, arg_3);
-                            i += 3;
-                        }
-                        else if (first == LOAD_SYMBOL && second == HEAD && third == STORE)
-                        {
-                            current_block.emplace_back(STORE_HEAD, arg_1, arg_3);
-                            i += 3;
-                        }
-                        else if (first == LOAD_SYMBOL && second == HEAD && third == SET_VAL)
-                        {
-                            current_block.emplace_back(SET_VAL_HEAD, arg_1, arg_3);
-                            i += 3;
-                        }
-                        else
-                        {
-                            current_block.emplace_back(block[i]);
-                            ++i;
-                        }
-                    }
-                    else
-                    {
-                        current_block.emplace_back(block[i]);
-                        ++i;
-                    }
+                    auto [entity, offset] = maybe_compacted.value();
+                    current_block.emplace_back(entity);
+                    i += offset;
                 }
                 else
                 {
@@ -135,5 +78,69 @@ namespace Ark::internal
     const std::vector<IR::Block>& IROptimizer::intermediateRepresentation() const noexcept
     {
         return m_ir;
+    }
+
+    std::optional<IR::Entity> IROptimizer::compactEntities(const IR::Entity& first, const IR::Entity& second)
+    {
+        if (first.primaryArg() > IR::MaxValueForDualArg || second.primaryArg() > IR::MaxValueForDualArg)
+            return std::nullopt;
+
+        // LOAD_CONST x
+        // LOAD_CONST y
+        // ---> LOAD_CONST_LOAD_CONST x y
+        if (first.inst() == LOAD_CONST && second.inst() == LOAD_CONST)
+            return IR::Entity(LOAD_CONST_LOAD_CONST, first.primaryArg(), second.primaryArg());
+        // LOAD_CONST x
+        // STORE / SET_VAL a
+        // ---> LOAD_CONST_STORE x a ; LOAD_CONST_SET_VAL x a
+        if (first.inst() == LOAD_CONST && second.inst() == STORE)
+            return IR::Entity(LOAD_CONST_STORE, first.primaryArg(), second.primaryArg());
+        if (first.inst() == LOAD_CONST && second.inst() == SET_VAL)
+            return IR::Entity(LOAD_CONST_SET_VAL, first.primaryArg(), second.primaryArg());
+        // LOAD_SYMBOL a
+        // STORE / SET_VAL b
+        // ---> STORE_FROM a b ; SET_VAL_FROM a b
+        if (first.inst() == LOAD_SYMBOL && second.inst() == STORE)
+            return IR::Entity(STORE_FROM, first.primaryArg(), second.primaryArg());
+        if (first.inst() == LOAD_SYMBOL && second.inst() == SET_VAL)
+            return IR::Entity(SET_VAL_FROM, first.primaryArg(), second.primaryArg());
+
+        return std::nullopt;
+    }
+
+    std::optional<IR::Entity> IROptimizer::compactEntities(const IR::Entity& first, const IR::Entity& second, const IR::Entity& third)
+    {
+        if (first.primaryArg() > IR::MaxValueForDualArg || second.primaryArg() > IR::MaxValueForDualArg || third.primaryArg() > IR::MaxValueForDualArg)
+            return std::nullopt;
+
+        // LOAD_SYMBOL a
+        // LOAD_CONST n (1)
+        // ADD / SUB
+        // ---> INCREMENT / DECREMENT a
+        if (third.inst() == ADD && first.inst() == LOAD_CONST && second.inst() == LOAD_SYMBOL && isNumber(first.primaryArg(), 1))
+            return IR::Entity(INCREMENT, second.primaryArg());
+        if (third.inst() == ADD && first.inst() == LOAD_SYMBOL && second.inst() == LOAD_CONST && isNumber(second.primaryArg(), 1))
+            return IR::Entity(INCREMENT, first.primaryArg());
+        if (third.inst() == SUB && first.inst() == LOAD_SYMBOL && second.inst() == LOAD_CONST && isNumber(second.primaryArg(), 1))
+            return IR::Entity(DECREMENT, first.primaryArg());
+        // LOAD_SYMBOL list
+        // TAIL / HEAD
+        // STORE / SET_VAL a
+        // ---> STORE_TAIL list a ; STORE_HEAD ; SET_VAL_TAIL ; SET_VAL_HEAD
+        if (first.inst() == LOAD_SYMBOL && second.inst() == TAIL && third.inst() == STORE)
+            return IR::Entity(STORE_TAIL, first.primaryArg(), third.primaryArg());
+        if (first.inst() == LOAD_SYMBOL && second.inst() == TAIL && third.inst() == SET_VAL)
+            return IR::Entity(SET_VAL_TAIL, first.primaryArg(), third.primaryArg());
+        if (first.inst() == LOAD_SYMBOL && second.inst() == HEAD && third.inst() == STORE)
+            return IR::Entity(STORE_HEAD, first.primaryArg(), third.primaryArg());
+        if (first.inst() == LOAD_SYMBOL && second.inst() == HEAD && third.inst() == SET_VAL)
+            return IR::Entity(SET_VAL_HEAD, first.primaryArg(), third.primaryArg());
+
+        return std::nullopt;
+    }
+
+    bool IROptimizer::isNumber(const uint16_t id, const double expected_number) const
+    {
+        return std::cmp_less(id, m_values.size()) && m_values[id].type == ValTableElemType::Number && std::get<double>(m_values[id].value) == expected_number;
     }
 }

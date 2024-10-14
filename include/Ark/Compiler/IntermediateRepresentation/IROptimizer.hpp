@@ -2,7 +2,7 @@
  * @file IROptimizer.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Optimize IR based on IR entity grouped by 2 (or more)
- * @version 0.1
+ * @version 0.2
  * @date 2024-10-11
  *
  * @copyright Copyright (c) 2024
@@ -15,6 +15,8 @@
 #include <Ark/Logger.hpp>
 #include <Ark/Compiler/ValTableElem.hpp>
 #include <Ark/Compiler/IntermediateRepresentation/Entity.hpp>
+
+#include <optional>
 
 namespace Ark::internal
 {
@@ -49,6 +51,11 @@ namespace Ark::internal
         std::vector<IR::Block> m_ir;
         std::vector<std::string> m_symbols;
         std::vector<ValTableElem> m_values;
+
+        [[nodiscard]] std::optional<IR::Entity> compactEntities(const IR::Entity& first, const IR::Entity& second);
+        [[nodiscard]] std::optional<IR::Entity> compactEntities(const IR::Entity& first, const IR::Entity& second, const IR::Entity& third);
+
+        [[nodiscard]] bool isNumber(uint16_t id, double expected_number) const;
     };
 }
 
