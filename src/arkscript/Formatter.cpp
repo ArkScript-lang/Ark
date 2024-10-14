@@ -158,10 +158,11 @@ bool Formatter::shouldSplitOnNewline(const Node& node)
 
 bool Formatter::shouldAddNewLineBetweenNodes(const Node& node, const std::size_t at)
 {
+    if (at <= 1)
+        return false;
+
     const auto& list = node.constList();
-    std::size_t previous_line = 0;
-    if (at > 0)
-        previous_line = lineOfLastNodeIn(list[at - 1]);
+    std::size_t previous_line = lineOfLastNodeIn(list[at - 1]);
 
     const auto& child = list[at];
 
@@ -169,11 +170,11 @@ bool Formatter::shouldAddNewLineBetweenNodes(const Node& node, const std::size_t
     // and the line count between the two nodes is more than 1,
     // maybe we should add a new line to preserve user spacing.
     // However, if the current node has a comment, do not add a new line, this is causing the spacing.
-    if (at > 0 && child.line() - previous_line > 1 && child.comment().empty())
+    if (child.line() - previous_line > 1 && child.comment().empty())
         return true;
     // If we do have a comment but the spacing is more than 2,
     // then add a newline to preserve user spacing.
-    if (at > 0 && child.line() - previous_line > 2 && !child.comment().empty())
+    if (child.line() - previous_line > 2 && !child.comment().empty())
         return true;
     return false;
 }

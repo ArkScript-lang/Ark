@@ -1,7 +1,7 @@
-At (while (begin (mut acc (+ acc (@ (list) 1))))) @ 1:1
+At (while (begin (mut acc (+ acc (@ (list) 1))))) @ 1:2
     1 | (while ($ a 1) {
       | ^~~~~~~~~~~~~~~~
     2 |     (mut acc (+ acc (@ [] a)))})
-      | ^~~~~~~~~~~~~~~
+      | ^~~~~~~~~~~~~~~~
     3 |
         Invalid node ; if it was computed by a macro, check that a node is returned

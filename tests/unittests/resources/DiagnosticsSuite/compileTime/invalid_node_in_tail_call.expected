@@ -1,4 +1,4 @@
-At (foo (begin)) @ 1:27
+At (foo (begin)) @ 1:20
     1 | (let foo (fun (a) (foo {})))
       | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
     2 | (foo 1)
