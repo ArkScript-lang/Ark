@@ -263,7 +263,7 @@ namespace Ark::internal
                 node);
     }
 
-    Node MacroProcessor::evaluate(Node& node, unsigned depth, const bool is_not_body)
+    Node MacroProcessor::evaluate(Node& node, const unsigned depth, const bool is_not_body)
     {
         if (node.nodeType() == NodeType::Symbol)
         {
