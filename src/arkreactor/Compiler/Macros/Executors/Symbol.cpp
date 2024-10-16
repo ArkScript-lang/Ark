@@ -7,7 +7,7 @@ namespace Ark::internal
         return node.nodeType() == NodeType::Symbol;
     }
 
-    bool SymbolExecutor::applyMacro(Node& node, unsigned depth)
+    bool SymbolExecutor::applyMacro(Node& node, const unsigned depth)
     {
         if (const Node* macro = findNearestMacro(node.string()); macro != nullptr)
         {

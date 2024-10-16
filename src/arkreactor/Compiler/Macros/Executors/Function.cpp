@@ -1,6 +1,7 @@
 #include <Ark/Compiler/Macros/Executors/Function.hpp>
 
 #include <fmt/core.h>
+#include <ranges>
 
 namespace Ark::internal
 {
@@ -9,7 +10,7 @@ namespace Ark::internal
         return node.nodeType() == NodeType::List && !node.constList().empty() && node.constList()[0].nodeType() == NodeType::Symbol;
     }
 
-    bool FunctionExecutor::applyMacro(Node& node, unsigned depth)
+    bool FunctionExecutor::applyMacro(Node& node, const unsigned depth)
     {
         Node& first = node.list()[0];
 
@@ -76,7 +77,7 @@ namespace Ark::internal
                 return true;
             }
         }
-        else if (isPredefined(first.string()))
+        else if (std::ranges::find(Language::macros, first.string()) != Language::macros.end())
         {
             setWithFileAttributes(node, node, evaluate(node, depth + 1, false));
             return true;
