@@ -12,6 +12,7 @@
 #ifndef ARK_COMPILER_EXECUTOR_HPP
 #define ARK_COMPILER_EXECUTOR_HPP
 
+#include <optional>
 #include <unordered_map>
 
 #include <Ark/Compiler/AST/Node.hpp>
@@ -71,6 +72,14 @@ namespace Ark::internal
         void setWithFileAttributes(const Node origin, Node& output, const Node& macro);
 
         /**
+         * @brief Return std::nullopt if the function isn't registered, otherwise return its node
+         *
+         * @param name function name
+         * @return std::optional<Node>
+         */
+        [[nodiscard]] std::optional<Node> lookupDefinedFunction(const std::string& name) const;
+
+        /**
          * @brief Find the nearest macro matching a giving name
          *
          * @details Proxy function for MacroProcessor::findNearestMacro
@@ -123,7 +132,7 @@ namespace Ark::internal
          * @param message the error
          * @param node the node in which there is an error
          */
-        [[noreturn]] void throwMacroProcessingError(const std::string& message, const Node& node) const;
+        [[noreturn]] static void throwMacroProcessingError(const std::string& message, const Node& node);
 
         /**
          * @brief Execute a node, trying to emplace macros calls
@@ -135,16 +144,6 @@ namespace Ark::internal
          * @return false
          */
         bool applyMacroProxy(Node& node, unsigned depth) const;
-
-        /**
-         * @brief Check if a given symbol is a predefined macro
-         * @details Proxy function for MacroProcessor::isPredefined
-         *
-         * @param symbol
-         * @return true
-         * @return false
-         */
-        [[nodiscard]] bool isPredefined(const std::string& symbol) const;
     };
 
 }

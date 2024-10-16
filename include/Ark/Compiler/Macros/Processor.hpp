@@ -2,7 +2,7 @@
  * @file Processor.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Handles the macros and their expansion in ArkScript source code
- * @version 2.0
+ * @version 2.1
  * @date 2021-02-18
  *
  * @copyright Copyright (c) 2021-2024
@@ -17,7 +17,7 @@
 #include <Ark/Compiler/Pass.hpp>
 
 #include <unordered_map>
-#include <memory>
+#include <optional>
 #include <string>
 
 namespace Ark::internal
@@ -61,6 +61,14 @@ namespace Ark::internal
         std::unordered_map<std::string, Node> m_defined_functions;
 
         /**
+         * @brief Return std::nullopt if the function isn't registered, otherwise return its node
+         *
+         * @param name function name
+         * @return std::optional<Node>
+         */
+        [[nodiscard]] std::optional<Node> lookupDefinedFunction(const std::string& name) const;
+
+        /**
          * @brief Find the nearest macro matching a given name
          *
          * @param name
@@ -74,15 +82,6 @@ namespace Ark::internal
          * @param name
          */
         void deleteNearestMacro(const std::string& name);
-
-        /**
-         * @brief Check if a given symbol is a predefined macro or not
-         *
-         * @param symbol
-         * @return true
-         * @return false
-         */
-        bool isPredefined(const std::string& symbol);
 
         /**
          * @brief Recursively apply macros on a given node

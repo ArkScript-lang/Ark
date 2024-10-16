@@ -538,8 +538,8 @@ namespace Ark::internal
                 Node sym = node.constList()[1];
                 if (sym.nodeType() == NodeType::Symbol)
                 {
-                    if (const auto it = m_defined_functions.find(sym.string()); it != m_defined_functions.end())
-                        setWithFileAttributes(node, node, Node(static_cast<long>(it->second.constList().size())));
+                    if (const auto maybe_func = lookupDefinedFunction(sym.string()); maybe_func.has_value())
+                        setWithFileAttributes(node, node, Node(static_cast<long>(maybe_func->constList().size())));
                     else
                         throwMacroProcessingError(fmt::format("When expanding `{}', expected a known function name, got unbound variable {}", Language::Argcount, sym.string()), sym);
                 }
@@ -589,6 +589,13 @@ namespace Ark::internal
         return false;
     }
 
+    std::optional<Node> MacroProcessor::lookupDefinedFunction(const std::string& name) const
+    {
+        if (m_defined_functions.contains(name))
+            return m_defined_functions.at(name);
+        return std::nullopt;
+    }
+
     const Node* MacroProcessor::findNearestMacro(const std::string& name) const
     {
         if (m_macros.empty())
@@ -615,12 +622,6 @@ namespace Ark::internal
                 return;
             }
         }
-    }
-
-    bool MacroProcessor::isPredefined(const std::string& symbol)
-    {
-        const auto it = std::ranges::find(Language::macros, symbol);
-        return it != Language::macros.end();
     }
 
     void MacroProcessor::recurApply(Node& node)
