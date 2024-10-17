@@ -267,10 +267,11 @@ namespace Ark::internal
                 return macro->constList()[1];
             return node;
         }
-        if (node.nodeType() == NodeType::List && node.constList().size() > 1 && node.list()[0].nodeType() == NodeType::Symbol)
+        if (node.nodeType() == NodeType::List && !node.constList().empty() && node.list()[0].nodeType() == NodeType::Symbol)
         {
             const std::string& name = node.list()[0].string();
             const std::size_t argcount = node.list().size() - 1;
+
             if (const Node* macro = findNearestMacro(name); macro != nullptr)
             {
                 applyMacro(node.list()[0], depth + 1);

@@ -14,6 +14,7 @@ void iter_test_files(const std::string& folder, std::function<void(TestData&&)>&
         std::string expected = Ark::Utils::readFile(expected_path.generic_string());
         // getting rid of the \r because of Windows
         expected.erase(std::remove(expected.begin(), expected.end(), '\r'), expected.end());
+        ltrim(rtrim(expected));
 
         auto data = TestData {
             .path = entry.path().generic_string(),
