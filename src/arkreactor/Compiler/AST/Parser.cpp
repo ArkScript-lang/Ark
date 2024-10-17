@@ -740,15 +740,7 @@ namespace Ark::internal
         comment.clear();
         newlineOrComment(&comment);
 
-        auto call_type = NodeType::List;
-        if (const auto node = func.value(); node.nodeType() == NodeType::Symbol)
-        {
-            // TODO enhance this to work with more/all macros
-            if (node.string() == "$undef")
-                call_type = NodeType::Macro;
-        }
-
-        std::optional<Node> leaf { call_type };
+        std::optional<Node> leaf { NodeType::List };
         setNodePosAndFilename(leaf.value(), cursor);
         leaf->push_back(func.value());
 
