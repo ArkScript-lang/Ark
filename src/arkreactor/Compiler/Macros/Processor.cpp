@@ -56,14 +56,7 @@ namespace Ark::internal
         if (node.constList().size() == 2)
         {
             if (first_node.nodeType() == NodeType::Symbol)
-            {
-                if (first_node.string() != "$undef")
-                    m_macros.back().add(first_node.string(), node);
-                else if (second_node.nodeType() == NodeType::Symbol)  // un-define a macro
-                    deleteNearestMacro(second_node.string());
-                else  // used undef on a non-symbol
-                    throwMacroProcessingError("Can not un-define a macro without a valid name", second_node);
-            }
+                m_macros.back().add(first_node.string(), node);
             else
                 throwMacroProcessingError("Can not define a macro without a symbol", first_node);
         }
@@ -99,15 +92,15 @@ namespace Ark::internal
             if (kw != Keyword::Let && kw != Keyword::Mut && kw != Keyword::Set)
                 return;
 
-            const Node& inner = node.constList()[2];
+            const Node inner = node.constList()[2];
             if (inner.nodeType() != NodeType::List)
                 return;
 
             if (!inner.constList().empty() && inner.constList()[0].nodeType() == NodeType::Keyword && inner.constList()[0].keyword() == Keyword::Fun)
             {
-                const Node& symbol = node.constList()[1];
+                const Node symbol = node.constList()[1];
                 if (symbol.nodeType() == NodeType::Symbol)
-                    m_defined_functions[symbol.string()] = inner.constList()[1];
+                    m_defined_functions.emplace(symbol.string(), inner.constList()[1]);
                 else
                     throwMacroProcessingError(fmt::format("Can not use a {} to define a variable", typeToString(symbol)), symbol);
             }
@@ -141,12 +134,14 @@ namespace Ark::internal
 
                     const bool had = hadBegin(node.list()[i]);
 
+                    // register the macro we encountered
                     registerMacro(node.list()[i]);
-                    if (node.list()[i].nodeType() == NodeType::Macro)
-                        recurApply(node.list()[i]);
+                    recurApply(node.list()[i]);
 
+                    // if we now have a surrounding (begin ...) and didn't have one before, remove it
                     if (hadBegin(node.list()[i]) && !had)
                         removeBegin(node, i);
+                    // if there is an unused node or a leftover macro need, we need to get rid of it in the final ast
                     else if (node.list()[i].nodeType() == NodeType::Macro || node.list()[i].nodeType() == NodeType::Unused)
                         node.list().erase(node.constList().begin() + static_cast<std::vector<Node>::difference_type>(i));
                 }
@@ -163,7 +158,7 @@ namespace Ark::internal
                     else if (node.list()[i].nodeType() == NodeType::Unused)
                         node.list().erase(node.constList().begin() + static_cast<std::vector<Node>::difference_type>(i));
 
-                    if (node.nodeType() == NodeType::List)
+                    if (node.nodeType() == NodeType::List && i < node.constList().size())
                     {
                         processNode(node.list()[i], depth + 1);
                         // needed if we created a function node from a macro
@@ -171,7 +166,7 @@ namespace Ark::internal
                     }
 
                     // remove begins in macros
-                    if (added_begin)
+                    if (added_begin && i < node.constList().size())
                         removeBegin(node, i);
 
                     // go forward only if it isn't a macro, because we delete macros
@@ -186,7 +181,7 @@ namespace Ark::internal
         }
     }
 
-    bool MacroProcessor::applyMacro(Node& node, const unsigned depth) const
+    bool MacroProcessor::applyMacro(Node& node, const unsigned depth)
     {
         if (depth > MaxMacroProcessingDepth)
             throwMacroProcessingError(
@@ -511,7 +506,7 @@ namespace Ark::internal
 
                 for (std::size_t i = 2, end = node.list().size(); i < end; ++i)
                 {
-                    Node ev = evaluate(node.list()[i], depth + 1, /* is_not_body */ true);
+                    const Node ev = evaluate(node.list()[i], depth + 1, /* is_not_body */ true);
 
                     switch (ev.nodeType())
                     {
@@ -535,7 +530,7 @@ namespace Ark::internal
             }
             else if (name == Language::Argcount)
             {
-                Node sym = node.constList()[1];
+                const Node sym = node.constList()[1];
                 if (sym.nodeType() == NodeType::Symbol)
                 {
                     if (const auto maybe_func = lookupDefinedFunction(sym.string()); maybe_func.has_value())
@@ -543,8 +538,8 @@ namespace Ark::internal
                     else
                         throwMacroProcessingError(fmt::format("When expanding `{}', expected a known function name, got unbound variable {}", Language::Argcount, sym.string()), sym);
                 }
-                else if (sym.nodeType() == NodeType::List && sym.list().size() == 3 && sym.list()[0].nodeType() == NodeType::Keyword && sym.list()[0].keyword() == Keyword::Fun)
-                    setWithFileAttributes(node, node, Node(static_cast<long>(sym.list()[1].list().size())));
+                else if (sym.nodeType() == NodeType::List && sym.constList().size() == 3 && sym.constList()[0].nodeType() == NodeType::Keyword && sym.constList()[0].keyword() == Keyword::Fun)
+                    setWithFileAttributes(node, node, Node(static_cast<long>(sym.constList()[1].constList().size())));
                 else
                     throwMacroProcessingError(fmt::format("When trying to apply `{}', got a {} instead of a Symbol or Function", Language::Argcount, typeToString(sym)), sym);
             }
@@ -558,6 +553,25 @@ namespace Ark::internal
                 if (node.list().size() != 2)
                     throwMacroProcessingError(fmt::format("When expanding `{}', expected one argument, got {} arguments", Language::Paste, argcount), node);
                 return node.constList()[1];
+            }
+            else if (name == Language::Undef)
+            {
+                if (node.list().size() != 2)
+                    throwMacroProcessingError(fmt::format("When expanding `{}', expected one argument, got {} arguments", Language::Undef, argcount), node);
+
+                const Node sym = node.constList()[1];
+                if (sym.nodeType() == NodeType::Symbol)
+                {
+                    deleteNearestMacro(sym.string());
+                    node.setNodeType(NodeType::Unused);
+                    return node;
+                }
+
+                throwMacroProcessingError(
+                    fmt::format(
+                        "When expanding `{}', got a {}. Can not un-define a macro without a valid name",
+                        Language::Undef, typeToString(sym)),
+                    sym);
             }
         }
 

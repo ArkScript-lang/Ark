@@ -147,7 +147,7 @@ namespace Ark::internal
          * @return true if a macro was applied
          * @return false
          */
-        bool applyMacro(Node& node, unsigned depth) const;
+        bool applyMacro(Node& node, unsigned depth);
 
         /**
          * @brief Unify a target node with a given map symbol => replacement node, recursively

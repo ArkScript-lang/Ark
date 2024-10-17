@@ -2,4 +2,4 @@ At 1 @ 1:10
     1 | ($undef 1)
       | ^~~~~~~~~~
     2 |
-        Can not un-define a macro without a valid name
+        When expanding `$undef', got a Number. Can not un-define a macro without a valid name
