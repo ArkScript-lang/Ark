@@ -9,8 +9,8 @@
 
 using namespace Ark::internal;
 
-JsonCompiler::JsonCompiler(unsigned debug, const std::vector<std::filesystem::path>& lib_env) :
-    m_welder(debug, lib_env, Ark::DefaultFeatures & ~Ark::FeatureImportSolver)
+JsonCompiler::JsonCompiler(const unsigned debug, const std::vector<std::filesystem::path>& lib_env) :
+    m_welder(debug, lib_env, 0)
 {}
 
 void JsonCompiler::feed(const std::string& filename)
@@ -33,7 +33,15 @@ std::string JsonCompiler::_compile(const Node& node)
         {
             json += fmt::format(
                 R"({{"type": "Symbol", "name": "{}"}})",
-                node.string().c_str());
+                node.string());
+            break;
+        }
+
+        case NodeType::Spread:
+        {
+            json += fmt::format(
+                R"({{"type": "Spread", "name": "{}"}})",
+                node.string());
             break;
         }
 
@@ -41,7 +49,7 @@ std::string JsonCompiler::_compile(const Node& node)
         {
             json += fmt::format(
                 R"({{"type": "Capture", "name": "{}"}})",
-                node.string().c_str());
+                node.string());
             break;
         }
 
@@ -56,7 +64,7 @@ std::string JsonCompiler::_compile(const Node& node)
         {
             json += fmt::format(
                 R"({{"type": "String", "value": "{}"}})",
-                node.string().c_str());
+                node.string());
             break;
         }
 
@@ -80,16 +88,23 @@ std::string JsonCompiler::_compile(const Node& node)
                         // (fun (args) (body))
                         std::string args;
                         Node args_node = node.constList()[1];
-                        for (std::size_t i = 0, end = args_node.constList().size(); i < end; ++i)
+                        if (args_node.nodeType() == NodeType::List)
                         {
-                            args += _compile(args_node.constList()[i]);
-                            if (end > 1 && i != end - 1)
-                                args += ", ";
+                            args = "[";
+                            for (std::size_t i = 0, end = args_node.constList().size(); i < end; ++i)
+                            {
+                                args += _compile(args_node.constList()[i]);
+                                if (end > 1 && i != end - 1)
+                                    args += ", ";
+                            }
+                            args += "]";
                         }
+                        else
+                            args = _compile(args_node);
 
                         json += fmt::format(
-                            R"({{"type": "Fun", "args": [{}], "body": {}}})",
-                            args.c_str(), _compile(node.constList()[2]).c_str());
+                            R"({{"type": "Fun", "args": {}, "body": {}}})",
+                            args, _compile(node.constList()[2]));
                         break;
                     }
 
@@ -98,7 +113,7 @@ std::string JsonCompiler::_compile(const Node& node)
                         // (let name value)
                         json += fmt::format(
                             R"({{"type": "Let", "name": {}, "value": {}}})",
-                            _compile(node.constList()[1]).c_str(), _compile(node.constList()[2]).c_str());
+                            _compile(node.constList()[1]), _compile(node.constList()[2]));
                         break;
                     }
 
@@ -107,7 +122,7 @@ std::string JsonCompiler::_compile(const Node& node)
                         // (mut name value)
                         json += fmt::format(
                             R"({{"type": "Mut", "name": {}, "value": {}}})",
-                            _compile(node.constList()[1]).c_str(), _compile(node.constList()[2]).c_str());
+                            _compile(node.constList()[1]), _compile(node.constList()[2]));
                         break;
                     }
 
@@ -116,7 +131,7 @@ std::string JsonCompiler::_compile(const Node& node)
                         // (set name value)
                         json += fmt::format(
                             R"({{"type": "Set", "name": {}, "value": {}}})",
-                            _compile(node.constList()[1]).c_str(), _compile(node.constList()[2]).c_str());
+                            _compile(node.constList()[1]), _compile(node.constList()[2]));
                         break;
                     }
 
@@ -125,7 +140,7 @@ std::string JsonCompiler::_compile(const Node& node)
                         // (if condition then else)
                         json += fmt::format(
                             R"({{"type": "If", "condition": {}, "then": {}, "else": {}}})",
-                            _compile(node.constList()[1]).c_str(), _compile(node.constList()[2]).c_str(), _compile(node.constList()[3]).c_str());
+                            _compile(node.constList()[1]), _compile(node.constList()[2]), _compile(node.constList()[3]));
                         break;
                     }
 
@@ -134,7 +149,7 @@ std::string JsonCompiler::_compile(const Node& node)
                         // (while condition body)
                         json += fmt::format(
                             R"({{"type": "While", "condition": {}, "body": {}}})",
-                            _compile(node.constList()[1]).c_str(), _compile(node.constList()[2]).c_str());
+                            _compile(node.constList()[1]), _compile(node.constList()[2]));
                         break;
                     }
 
@@ -175,7 +190,7 @@ std::string JsonCompiler::_compile(const Node& node)
                         // (del value)
                         json += fmt::format(
                             R"({{"type": "Del", "value": {}}})",
-                            _compile(node.constList()[1]).c_str());
+                            _compile(node.constList()[1]));
                         break;
                     }
                 }
@@ -184,9 +199,9 @@ std::string JsonCompiler::_compile(const Node& node)
             {
                 // (foo bar 1)
                 json += fmt::format(
-                    R"({{"type": "FunctionCall", "name": {}, "args": )",
-                    _compile(node.constList()[0]).c_str());
-                json += toJsonList(node, 1) + "}";
+                    R"({{"type": "FunctionCall", "name": {}, "args": {}}})",
+                    _compile(node.constList()[0]),
+                    toJsonList(node, 1));
             }
             else
                 json += toJsonList(node, 0);
@@ -194,11 +209,38 @@ std::string JsonCompiler::_compile(const Node& node)
             break;
         }
 
+        case NodeType::Macro:
+        {
+            if (const auto& first = node.constList()[0]; first.nodeType() == NodeType::Symbol)
+            {
+                json += fmt::format(
+                    R"({{"type": "Macro", "name": {}, )",
+                    _compile(node.constList()[0]));
+                if (node.constList().size() == 2)
+                    json += fmt::format(R"("value": {}}})", _compile(node.constList()[1]));
+                else
+                    json += fmt::format(
+                        R"("args": {}, "body": {}}})",
+                        toJsonList(node.constList()[1], 0),
+                        _compile(node.constList()[2]));
+            }
+            else if (first.nodeType() == NodeType::Keyword)
+            {
+                if (first.keyword() == Keyword::If)
+                    json += fmt::format(
+                        R"({{"type": "MacroCondition", "condition": {}, "then": {}, "else": {}}})",
+                        _compile(node.constList()[1]),
+                        _compile(node.constList()[2]),
+                        node.constList().size() == 4 ? _compile(node.constList()[3]) : R"({"type": "Symbol", "name": "nil"})");
+            }
+            break;
+        }
+
         default:
             throw Ark::Error(fmt::format(
                 "Not handled NodeType::{} ({} at {}:{}), please report this error on GitHub",
                 nodeTypes[static_cast<std::size_t>(node.nodeType())].data(),
-                node.filename().c_str(),
+                node.filename(),
                 node.line(),
                 node.col()));
     }

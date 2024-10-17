@@ -179,8 +179,11 @@ namespace Ark
                 m_computed_ast = m_ast_optimizer.ast();
             }
 
-            // NOTE: ast isn't modified by the name resolver, no need to update m_computed_ast
-            m_name_resolver.process(m_computed_ast);
+            if ((m_features & FeatureNameResolver) != 0)
+            {
+                // NOTE: ast isn't modified by the name resolver, no need to update m_computed_ast
+                m_name_resolver.process(m_computed_ast);
+            }
 
             return true;
         }

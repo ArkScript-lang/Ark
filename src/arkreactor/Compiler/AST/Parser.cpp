@@ -54,6 +54,9 @@ namespace Ark::internal
 
     Node& Parser::setNodePosAndFilename(Node& node, const std::optional<FilePosition>& cursor) const
     {
+        if (node.line() != 0 || node.col() != 0)
+            return node;
+
         const auto [row, col] = cursor.value_or(getCursor());
         node.setPos(row, col);
         node.setFilename(m_filename);
@@ -708,7 +711,19 @@ namespace Ark::internal
         if (value.has_value())
             leaf->push_back(value.value());
         else
-            errorWithNextToken(fmt::format("Expected a value while defining macro `{}'", symbol));
+        {
+            backtrack(position);
+
+            if (leaf->list().size() == 2)
+                errorWithNextToken(
+                    fmt::format(
+                        "Expected a body while defined macro `{0}'. If you were trying to define a macro based on a function call, try wrapping it inside a begin node: ($ {0} {{ {1} }})."
+                        "\nWithout the begin node, '{1}' is seen as an argument list.",
+                        symbol,
+                        leaf->list().back().repr()));
+            else
+                errorWithNextToken(fmt::format("Expected a value while defining macro `{}'", symbol));
+        }
 
         setNodePosAndFilename(leaf->list().back());
         comment.clear();
@@ -737,15 +752,7 @@ namespace Ark::internal
         comment.clear();
         newlineOrComment(&comment);
 
-        auto call_type = NodeType::List;
-        if (const auto node = func.value(); node.nodeType() == NodeType::Symbol)
-        {
-            // TODO enhance this to work with more/all macros
-            if (node.string() == "$undef")
-                call_type = NodeType::Macro;
-        }
-
-        std::optional<Node> leaf { call_type };
+        std::optional<Node> leaf { NodeType::List };
         setNodePosAndFilename(leaf.value(), cursor);
         leaf->push_back(func.value());
 

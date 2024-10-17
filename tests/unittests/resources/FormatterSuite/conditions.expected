@@ -6,7 +6,6 @@
 (if (cond)
   (do)
   (stuff))
-
 # conditions in functions are on their own line
 (fun ()
   (if true 0))

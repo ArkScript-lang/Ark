@@ -103,6 +103,14 @@ private:
     [[nodiscard]] bool shouldSplitOnNewline(const Ark::internal::Node& node);
 
     /**
+     * @brief Decide if we should add a newline after a node in a block
+     * @param node a List node
+     * @param at the node we are currently formatting
+     * @return
+     */
+    [[nodiscard]] bool shouldAddNewLineBetweenNodes(const Ark::internal::Node& node, std::size_t at);
+
+    /**
      * @brief Compute indentation level
      * @param indent indentation level
      * @return std::string

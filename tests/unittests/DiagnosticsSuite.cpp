@@ -25,8 +25,9 @@ ut::suite<"Diagnostics"> diagnostics_suite = [] {
                 }
                 catch (const Ark::CodeError& e)
                 {
-                    const std::string diag = sanitize_error(e, /* remove_in_file_line= */ true);
-                    expect(that % (diag + "\n") == data.expected);
+                    std::string diag = sanitize_error(e, /* remove_in_file_line= */ true);
+                    rtrim(diag);
+                    expect(that % diag == data.expected);
                 }
             };
         });
@@ -52,7 +53,8 @@ ut::suite<"Diagnostics"> diagnostics_suite = [] {
                     std::string diag = e.what();
                     if (diag.find_first_of('\n') != std::string::npos)
                         diag.erase(diag.find_first_of('\n'), diag.size() - 1);
-                    expect(that % diag == data.expected or diag + "\n" == data.expected);
+                    ltrim(rtrim(diag));
+                    expect(that % diag == data.expected);
                 }
             };
         });

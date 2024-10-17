@@ -2,7 +2,7 @@
 
 namespace Ark::internal
 {
-    bool ConditionalExecutor::applyMacro(Node& node, unsigned depth)
+    bool ConditionalExecutor::applyMacro(Node& node, const unsigned depth)
     {
         Node cond = node.list()[1];
         const Node temp = evaluate(cond, depth + 1, /* is_not_body */ true);

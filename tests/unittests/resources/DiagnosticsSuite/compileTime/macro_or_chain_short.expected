@@ -1,5 +1,5 @@
-At (or true) @ 1:15
+At (or true) @ 1:7
     1 | ($if (or true) {})
-      | ^~~~~~~~~~~~~~~~~~
+      |       ^~~~~~~~~
     2 |
         Interpreting an `or' chain with 1 arguments, expected at least 2.

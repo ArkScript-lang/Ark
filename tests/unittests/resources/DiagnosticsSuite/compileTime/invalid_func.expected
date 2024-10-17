@@ -1,5 +1,5 @@
-At (fun (a b)) @ 1:29
+At (fun (a b)) @ 1:11
     1 | (let foo (fun (a b) ($ a b)))
-      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |           ^~~~~~~~~~~
     2 |
         Invalid node ; if it was computed by a macro, check that a node is returned

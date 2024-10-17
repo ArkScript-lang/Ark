@@ -8,6 +8,9 @@
 #include <algorithm>
 #include <functional>
 #include <filesystem>
+#include <cctype>
+#include <locale>
+#include <ranges>
 
 #ifndef ARK_TESTS_ROOT
 #    define ARK_TESTS_ROOT ""
@@ -23,6 +26,23 @@ struct TestData
 void iter_test_files(const std::string& folder, std::function<void(TestData&&)>&& test, const std::string& expected_ext = "expected");
 
 std::string get_resource_path(const std::string& folder);
+
+inline std::string& ltrim(std::string& s)
+{
+    s.erase(s.begin(), std::ranges::find_if(s, [](const unsigned char ch) {
+                return !std::isspace(ch);
+            }));
+    return s;
+}
+
+inline std::string& rtrim(std::string& s)
+{
+    s.erase(std::ranges::find_if(s.rbegin(), s.rend(), [](const unsigned char ch) {
+                return !std::isspace(ch);
+            }).base(),
+            s.end());
+    return s;
+}
 
 std::string sanitize_error(const Ark::CodeError& e, bool remove_in_file_line = false);
 

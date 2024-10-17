@@ -130,7 +130,8 @@ namespace Ark::Diagnostics
     }
 
     template <typename T>
-    void helper(std::ostream& os, const std::string& message, bool colorize, const std::string& filename, const std::string& code, const T& expr, const std::size_t line, std::size_t column, const std::size_t sym_size)
+    void helper(std::ostream& os, const std::string& message, const bool colorize, const std::string& filename, const std::string& code, const T& expr,
+                const std::size_t line, std::size_t column, const std::size_t sym_size)
     {
         if (filename != ARK_NO_NAME_FILE)
             fmt::print(os, "In file {}\n", filename);
@@ -138,7 +139,10 @@ namespace Ark::Diagnostics
 
         if (!code.empty())
             makeContext(os, code, line, column, sym_size, colorize);
-        fmt::print(os, "        {}", message);
+
+        const auto message_lines = Utils::splitString(message, '\n');
+        for (const auto& text : message_lines)
+            fmt::print(os, "        {}\n", text);
     }
 
     std::string makeContextWithNode(const std::string& message, const internal::Node& node)

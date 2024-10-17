@@ -1,0 +1,7 @@
+At ( @ 1:6
+    1 | ($ b ($symcat c))
+      |      ^
+    2 | (print b)
+    3 |
+        Expected a body while defined macro `b'. If you were trying to define a macro based on a function call, try wrapping it inside a begin node: ($ b { ($symcat c) }).
+        Without the begin node, '($symcat c)' is seen as an argument list.

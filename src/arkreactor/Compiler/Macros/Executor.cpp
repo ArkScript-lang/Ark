@@ -16,6 +16,11 @@ namespace Ark::internal
         output.setPos(origin.line(), origin.col());
     }
 
+    std::optional<Node> MacroExecutor::lookupDefinedFunction(const std::string& name) const
+    {
+        return m_processor->lookupDefinedFunction(name);
+    }
+
     const Node* MacroExecutor::findNearestMacro(const std::string& name) const
     {
         return m_processor->findNearestMacro(name);
@@ -41,18 +46,13 @@ namespace Ark::internal
         m_processor->unify(map, target, parent, /* index= */ 0, /* unify_depth= */ 0);
     }
 
-    void MacroExecutor::throwMacroProcessingError(const std::string& message, const Node& node) const
+    void MacroExecutor::throwMacroProcessingError(const std::string& message, const Node& node)
     {
-        m_processor->throwMacroProcessingError(message, node);
+        MacroProcessor::throwMacroProcessingError(message, node);
     }
 
     bool MacroExecutor::applyMacroProxy(Node& node, const unsigned depth) const
     {
         return m_processor->applyMacro(node, depth);
-    }
-
-    bool MacroExecutor::isPredefined(const std::string& symbol) const
-    {
-        return m_processor->isPredefined(symbol);
     }
 }

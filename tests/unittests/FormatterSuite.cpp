@@ -21,7 +21,9 @@ ut::suite<"Formatter"> formatter_suite = [] {
                 }));
 
                 formatted_code = formatter.output();
-                expect(that % formatted_code == data.expected);
+                // data.expected is ltrim(rtrim(file content))
+                // we want to ensure that a blank line has been added
+                expect(that % formatted_code == (data.expected + "\n"));
             };
 
             should("not update an already correctly formatted code (" + data.stem + ")") = [&] {
@@ -30,7 +32,7 @@ ut::suite<"Formatter"> formatter_suite = [] {
                     mut(formatter).runWithString(formatted_code);
                 }));
 
-                std::string code = formatter.output();
+                const std::string code = formatter.output();
                 expect(that % code == formatted_code);
             };
         });

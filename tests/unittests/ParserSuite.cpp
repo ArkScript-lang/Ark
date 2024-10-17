@@ -60,7 +60,8 @@ ut::suite<"Parser"> parser_suite = [] {
                     }));
                 };
 
-                const std::string ast = astToString(parser);
+                std::string ast = astToString(parser);
+                ltrim(rtrim(ast));
 
                 should("output the same AST and imports (" + data.stem + ")") = [&] {
                     expect(that % ast == data.expected);
@@ -81,7 +82,8 @@ ut::suite<"Parser"> parser_suite = [] {
                 catch (const Ark::CodeError& e)
                 {
                     should("output the same error message (" + data.stem + ")") = [&] {
-                        const std::string tested = sanitize_error(e);
+                        std::string tested = sanitize_error(e);
+                        ltrim(rtrim(tested));
                         expect(that % tested == data.expected);
                     };
                 }
