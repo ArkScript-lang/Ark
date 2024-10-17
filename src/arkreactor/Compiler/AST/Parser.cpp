@@ -711,7 +711,19 @@ namespace Ark::internal
         if (value.has_value())
             leaf->push_back(value.value());
         else
-            errorWithNextToken(fmt::format("Expected a value while defining macro `{}'", symbol));
+        {
+            backtrack(position);
+
+            if (leaf->list().size() == 2)
+                errorWithNextToken(
+                    fmt::format(
+                        "Expected a body while defined macro `{0}'. If you were trying to define a macro based on a function call, try wrapping it inside a begin node: ($ {0} {{ {1} }})."
+                        "\nWithout the begin node, '{1}' is seen as an argument list.",
+                        symbol,
+                        leaf->list().back().repr()));
+            else
+                errorWithNextToken(fmt::format("Expected a value while defining macro `{}'", symbol));
+        }
 
         setNodePosAndFilename(leaf->list().back());
         comment.clear();

@@ -87,6 +87,7 @@
   - byte1 is 0 if the instruction takes a single argument on 16 bits, split on byte2 and byte3
   - if the instruction takes two arguments, they each have 12 bits ; the second one is on byte1 and upper half of byte2, the first on lower half of byte2 and then byte3
 - ast-to-json dump now supports macros
+- the parser can detect ill-formed macros (that are seen as function macros while being value macros)
 
 ### Removed
 - removed unused `NodeType::Closure`
