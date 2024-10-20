@@ -396,16 +396,16 @@ namespace Ark::internal
             {
                 if (node.list().size() > 2)
                     throwMacroProcessingError(fmt::format("When expanding `empty?' inside a macro, got {} arguments, expected 1", argcount), node);
-                if (Node& lst = node.list()[1]; lst.nodeType() == NodeType::List)  // only apply len at compile time if we can
+                if (Node& lst = node.list()[1]; lst.nodeType() == NodeType::List && isConstEval(lst))
                 {
-                    if (isConstEval(lst))
-                    {
-                        if (!lst.list().empty() && lst.list()[0] == getListNode())
-                            setWithFileAttributes(node, node, lst.list().size() - 1 == 0 ? getTrueNode() : getFalseNode());
-                        else
-                            setWithFileAttributes(node, node, lst.list().size() == 0 ? getTrueNode() : getFalseNode());
-                    }
+                    // only apply len at compile time if we can
+                    if (!lst.list().empty() && lst.list()[0] == getListNode())
+                        setWithFileAttributes(node, node, lst.list().size() - 1 == 0 ? getTrueNode() : getFalseNode());
+                    else
+                        setWithFileAttributes(node, node, lst.list().empty() ? getTrueNode() : getFalseNode());
                 }
+                else if (lst == getNilNode())
+                    setWithFileAttributes(node, node, getTrueNode());
             }
             else if (name == "@")
             {
@@ -487,6 +487,7 @@ namespace Ark::internal
                     else if (!sublist.list().empty())
                     {
                         sublist.list().erase(sublist.constList().begin());
+                        sublist.list().insert(sublist.list().begin(), getListNode());
                         setWithFileAttributes(node, node, sublist);
                     }
                     else
@@ -692,7 +693,8 @@ namespace Ark::internal
                 return it != Language::operators.end() ||
                     it2 != Builtins::builtins.end() ||
                     findNearestMacro(node.string()) != nullptr ||
-                    node.string() == "list";
+                    node.string() == "list" ||
+                    node.string() == "nil";
             }
 
             case NodeType::List:
