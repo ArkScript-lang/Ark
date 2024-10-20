@@ -2,6 +2,7 @@
 
 #include <utility>
 #include <algorithm>
+#include <cassert>
 #include <ranges>
 #include <sstream>
 #include <fmt/core.h>
@@ -46,39 +47,21 @@ namespace Ark::internal
     void MacroProcessor::registerMacro(Node& node)
     {
         // a macro needs at least 2 nodes, name + value is the minimal form
-        if (node.constList().size() < 2)
-            throwMacroProcessingError("Invalid macro, missing value", node);
+        // this is guaranted by the parser
+        assert(node.constList().size() >= 2 && "Invalid macro, missing value");
 
         const Node& first_node = node.list()[0];
-        const Node& second_node = node.list()[1];
 
         // ($ name value)
         if (node.constList().size() == 2)
         {
-            if (first_node.nodeType() == NodeType::Symbol)
-                m_macros.back().add(first_node.string(), node);
-            else
-                throwMacroProcessingError("Can not define a macro without a symbol", first_node);
+            assert(first_node.nodeType() == NodeType::Symbol && "Can not define a macro without a symbol");
+            m_macros.back().add(first_node.string(), node);
         }
         // ($ name (args) body)
         else if (node.constList().size() == 3 && first_node.nodeType() == NodeType::Symbol)
         {
-            if (second_node.nodeType() != NodeType::List)
-                throwMacroProcessingError("Invalid macro argument's list", second_node);
-            bool had_spread = false;
-            for (const Node& n : second_node.constList())
-            {
-                if (n.nodeType() != NodeType::Symbol && n.nodeType() != NodeType::Spread)
-                    throwMacroProcessingError("Invalid macro argument's list, expected symbols", n);
-                if (n.nodeType() == NodeType::Spread)
-                {
-                    if (had_spread)
-                        throwMacroProcessingError("Invalid macro, multiple spread detected in argument list but only one is allowed", n);
-                    had_spread = true;
-                }
-                else if (had_spread && n.nodeType() == NodeType::Symbol)
-                    throwMacroProcessingError(fmt::format("Invalid macro, a spread should mark the end of an argument list, but found another argument: {}", n.string()), n);
-            }
+            assert(node.list()[1].nodeType() == NodeType::List && "Invalid macro argument's list");
             m_macros.back().add(first_node.string(), node);
         }
     }
