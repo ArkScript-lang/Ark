@@ -414,7 +414,8 @@ namespace Ark
                 &&TARGET_STORE_TAIL,
                 &&TARGET_STORE_HEAD,
                 &&TARGET_SET_VAL_TAIL,
-                &&TARGET_SET_VAL_HEAD
+                &&TARGET_SET_VAL_HEAD,
+                &&TARGET_CALL_BUILTIN
             };
 #    pragma GCC diagnostic pop
 #endif
@@ -1216,6 +1217,16 @@ namespace Ark
                             Value head = helper::head(list);
                             setVal(secondary_arg, &head, context);
                         }
+                        DISPATCH();
+                    }
+
+                    TARGET(CALL_BUILTIN)
+                    {
+                        UNPACK_ARGS();
+                        // no stack size check because we do not push IP/PP since we are just calling a builtin
+                        callBuiltin(context, Builtins::builtins[primary_arg].second, secondary_arg);
+                        if (!m_running)
+                            GOTO_HALT();
                         DISPATCH();
                     }
 #pragma endregion

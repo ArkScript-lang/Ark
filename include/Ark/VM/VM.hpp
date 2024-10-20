@@ -313,6 +313,15 @@ namespace Ark
          * @param argc number of arguments already sent
          */
         inline void call(internal::ExecutionContext& context, uint16_t argc);
+
+        /**
+         * @brief Builtin called when the CALL_BUILTIN instruction is met in the bytecode
+         *
+         * @param context
+         * @param builtin the builtin to call
+         * @param argc number of arguments already sent
+         */
+        inline void callBuiltin(internal::ExecutionContext& context, const Value& builtin, uint16_t argc);
     };
 
 #include "VM.inl"

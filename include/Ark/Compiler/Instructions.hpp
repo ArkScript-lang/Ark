@@ -34,7 +34,6 @@ namespace Ark::internal
         FUNC_TYPE = 0x03,
         CODE_SEGMENT_START = 0x03,
 
-        FIRST_COMMAND = 0x01,
         LOAD_SYMBOL = 0x01,
         LOAD_CONST = 0x02,
         POP_JUMP_IF_TRUE = 0x03,
@@ -60,7 +59,6 @@ namespace Ark::internal
         POP_LIST_IN_PLACE = 0x17,
         POP = 0x18,
         DUP = 0x19,
-        LAST_COMMAND = 0x19,
 
         FIRST_OPERATOR = 0x1a,
         ADD = 0x1a,
@@ -86,9 +84,7 @@ namespace Ark::internal
         TYPE = 0x2e,
         HASFIELD = 0x2f,
         NOT = 0x30,
-        LAST_OPERATOR = 0x30,
 
-        FIRST_SUPER_INSTRUCTION = 0x31,
         LOAD_CONST_LOAD_CONST = 0x31,
         LOAD_CONST_STORE = 0x32,
         LOAD_CONST_SET_VAL = 0x33,
@@ -100,9 +96,7 @@ namespace Ark::internal
         STORE_HEAD = 0x39,
         SET_VAL_TAIL = 0x3a,
         SET_VAL_HEAD = 0x3b,
-        LAST_SUPER_INSTRUCTION = 0x3b,
-
-        LAST_INSTRUCTION = 0x3d
+        CALL_BUILTIN = 0x3c
     };
 
     constexpr std::array InstructionNames = {
@@ -168,6 +162,7 @@ namespace Ark::internal
         "STORE_HEAD",
         "SET_VAL_TAIL",
         "SET_VAL_HEAD",
+        "CALL_BUILTIN"
     };
 }
 
