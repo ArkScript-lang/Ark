@@ -72,14 +72,6 @@ namespace Ark::internal
         void setWithFileAttributes(const Node origin, Node& output, const Node& macro);
 
         /**
-         * @brief Return std::nullopt if the function isn't registered, otherwise return its node
-         *
-         * @param name function name
-         * @return std::optional<Node>
-         */
-        [[nodiscard]] std::optional<Node> lookupDefinedFunction(const std::string& name) const;
-
-        /**
          * @brief Find the nearest macro matching a giving name
          *
          * @details Proxy function for MacroProcessor::findNearestMacro

@@ -262,10 +262,6 @@ namespace Ark::internal
             case NodeType::Unused:
                 os << "Unused:" << string();
                 break;
-
-            default:
-                os << "~\\._./~";
-                break;
         }
         return os;
     }
