@@ -1,6 +1,7 @@
 #include <Ark/Compiler/IntermediateRepresentation/IROptimizer.hpp>
 
 #include <utility>
+#include <Ark/Builtins/Builtins.hpp>
 
 namespace Ark::internal
 {
@@ -104,6 +105,11 @@ namespace Ark::internal
             return IR::Entity(STORE_FROM, first.primaryArg(), second.primaryArg());
         if (first.inst() == LOAD_SYMBOL && second.inst() == SET_VAL)
             return IR::Entity(SET_VAL_FROM, first.primaryArg(), second.primaryArg());
+        // BUILTIN i
+        // CALL n
+        // ---> CALL_BUILTIN i n
+        if (first.inst() == BUILTIN && second.inst() == CALL && Builtins::builtins[first.primaryArg()].second.isFunction())
+            return IR::Entity(CALL_BUILTIN, first.primaryArg(), second.primaryArg());
 
         return std::nullopt;
     }

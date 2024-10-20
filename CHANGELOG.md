@@ -88,6 +88,7 @@
   - if the instruction takes two arguments, they each have 12 bits ; the second one is on byte1 and upper half of byte2, the first on lower half of byte2 and then byte3
 - ast-to-json dump now supports macros
 - the parser can detect ill-formed macros (that are seen as function macros while being value macros)
+- adding a `CALL_BUILTIN <builtin> <arg count>` super instruction
 
 ### Removed
 - removed unused `NodeType::Closure`

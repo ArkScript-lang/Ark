@@ -341,6 +341,7 @@ namespace Ark
             { POP_JUMP_IF_FALSE, ArgKind::Raw },
             { JUMP, ArgKind::Raw },
             { CALL, ArgKind::Raw },
+            { CALL_BUILTIN, ArgKind::Raw },
             { CAPTURE, ArgKind::Symbol },
             { BUILTIN, ArgKind::Builtin },
             { DEL, ArgKind::Symbol },
