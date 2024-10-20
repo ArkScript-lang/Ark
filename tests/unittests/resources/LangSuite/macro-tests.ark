@@ -27,8 +27,23 @@
         (test:eq (add_two 1 2) 3)
         (test:eq (add_two nice_value 2) 14)
 
-        ($ c (* 4 (/ 10 2)))
-        (test:eq c 20) })
+        ($ c (a b) (* a b))
+        (test:eq (c 4 10) 40)
+
+        ($ d (a b) (/ a b))
+        (test:eq (d 10 2) 5) })
+
+    (test:case "node manipulation" {
+        ($ node_tail () (tail (begin 1 2 3)))
+        ($ length () (len (fun () 5)))
+        ($ not_empty_node () (empty? (fun () ())))
+        ($ empty_node () (empty? ()))
+
+        (test:eq (length) 3)
+        (test:eq (not_empty_node) false)
+        (test:eq (empty_node) true)
+        # because it removes the "begin"
+        (test:eq (node_tail) [1 2 3]) })
 
     (test:case "conditional macros" {
         (test:expect ($if (and true true) true false))
