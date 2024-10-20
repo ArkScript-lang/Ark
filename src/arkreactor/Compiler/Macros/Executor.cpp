@@ -16,11 +16,6 @@ namespace Ark::internal
         output.setPos(origin.line(), origin.col());
     }
 
-    std::optional<Node> MacroExecutor::lookupDefinedFunction(const std::string& name) const
-    {
-        return m_processor->lookupDefinedFunction(name);
-    }
-
     const Node* MacroExecutor::findNearestMacro(const std::string& name) const
     {
         return m_processor->findNearestMacro(name);
