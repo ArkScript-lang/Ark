@@ -2,10 +2,6 @@
 
 namespace Ark::internal
 {
-    MacroScope::MacroScope() :
-        m_depth(0)
-    {}
-
     MacroScope::MacroScope(const unsigned int depth) :
         m_depth(depth)
     {}
