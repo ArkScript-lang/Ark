@@ -141,8 +141,7 @@ namespace Ark::internal::Builtins::String
                 { { types::Contract { { types::Typedef("string", ValueType::String) } } } },
                 n);
 
-        int ord = utf8::codepoint(n[0].stringRef().c_str());
-        return Value(ord);
+        return Value(utf8::codepoint(n[0].stringRef().c_str()));
     }
 
     /**
