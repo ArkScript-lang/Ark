@@ -12,6 +12,8 @@
 #ifndef INCLUDE_ARK_UTILS_HPP
 #define INCLUDE_ARK_UTILS_HPP
 
+#include <Ark/Platform.hpp>
+
 #include <algorithm>
 #include <string>
 #include <vector>
@@ -67,7 +69,7 @@ namespace Ark::Utils
      * @param str2
      * @return std::size_t
      */
-    std::size_t levenshteinDistance(const std::string& str1, const std::string& str2);
+    ARK_API std::size_t levenshteinDistance(const std::string& str1, const std::string& str2);
 }
 
 #endif
