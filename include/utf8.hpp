@@ -40,7 +40,7 @@ namespace utf8
 
         for (const char* s = input; *s != 0; ++s)
         {
-            codepoint_ = ((codepoint_ << shift) | details::ASCIIHexToInt[static_cast<std::size_t>(*s)]);
+            codepoint_ = (codepoint_ << shift) | details::ASCIIHexToInt[static_cast<std::size_t>(*s)];
             shift = 4;
         }
 

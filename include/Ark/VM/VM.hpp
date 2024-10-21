@@ -15,6 +15,7 @@
 #include <array>
 #include <vector>
 #include <string>
+#include <cassert>
 #include <utility>
 #include <cinttypes>
 #include <unordered_map>

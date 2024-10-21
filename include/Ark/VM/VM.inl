@@ -11,8 +11,7 @@ Value VM::call(const std::string& name, Args&&... args)
 
     // find id of function
     const auto it = std::ranges::find(m_state.m_symbols, name);
-    if (it == m_state.m_symbols.end())
-        throwVMError(ErrorKind::Scope, "Unbound variable: " + name);
+    assert(it != m_state.m_symbols.end() && "Unbound variable");
 
     // convert and push arguments in reverse order
     std::vector<Value> fnargs { { Value(std::forward<Args>(args))... } };
@@ -24,16 +23,13 @@ Value VM::call(const std::string& name, Args&&... args)
     {
         const uint16_t id = static_cast<uint16_t>(dist);
         Value* var = findNearestVariable(id, context);
-        if (var != nullptr)
-        {
-            if (!var->isFunction())
-                throwVMError(ErrorKind::Type, fmt::format("Can't call '{}': it isn't a Function but a {}", name, types_to_str[static_cast<std::size_t>(var->valueType())]));
+        assert(var != nullptr && "Couldn't find variable");
 
-            push(Value(var), context);
-            context.last_symbol = id;
-        }
-        else
-            throwVMError(ErrorKind::Scope, "Couldn't find variable " + name);
+        if (!var->isFunction())
+            throwVMError(ErrorKind::Type, fmt::format("Can't call '{}': it isn't a Function but a {}", name, types_to_str[static_cast<std::size_t>(var->valueType())]));
+
+        push(Value(var), context);
+        context.last_symbol = id;
     }
 
     const std::size_t frames_count = context.fc;
