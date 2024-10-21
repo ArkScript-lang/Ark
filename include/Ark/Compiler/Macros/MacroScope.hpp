@@ -2,7 +2,7 @@
  * @file MacroScope.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Defines tools to handle macro definitions
- * @version 0.2
+ * @version 1.0
  * @date 2023-02-18
  *
  * @copyright Copyright (c) 2023-2024
@@ -22,8 +22,6 @@ namespace Ark::internal
     class MacroScope
     {
     public:
-        MacroScope();
-
         /**
          * @brief Construct a new MacroScope object given a depth in the scope hierarchy
          *
@@ -74,7 +72,7 @@ namespace Ark::internal
 
     private:
         std::unordered_map<std::string, Node> m_macros;
-        unsigned int m_depth;
+        unsigned int m_depth { 0 };
     };
 }
 
