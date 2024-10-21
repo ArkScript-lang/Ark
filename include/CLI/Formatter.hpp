@@ -82,13 +82,6 @@ private:
     [[nodiscard]] static bool isFuncCall(const Ark::internal::Node& node);
 
     /**
-     * @param node
-     * @return true if the node is a String|Number|Symbol|Field
-     * @return false
-     */
-    static bool isPlainValue(const Ark::internal::Node& node);
-
-    /**
      * @brief Compute the line on which the deepest right most node of node is at
      * @param node
      * @return

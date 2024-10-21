@@ -349,7 +349,7 @@ namespace Ark::internal
         Node symbols(NodeType::List);
         setNodePosAndFilename(symbols);
         // then parse the symbols to import, if any
-        if (space())  // fixme: potential regression introduced here
+        if (space())  // FIXME: potential regression introduced here
         {
             comment.clear();
             newlineOrComment(&comment);
@@ -371,6 +371,7 @@ namespace Ark::internal
                     }
 
                     symbols.push_back(Node(NodeType::Symbol, symbol).attachNearestCommentBefore(comment));
+                    comment.clear();
                     setNodePosAndFilename(symbols.list().back());
                     import_data.symbols.push_back(symbol);
                 }
@@ -380,6 +381,9 @@ namespace Ark::internal
                 comment.clear();
                 newlineOrComment(&comment);
             }
+
+            if (!comment.empty() && !symbols.list().empty())
+                symbols.list().back().attachCommentAfter(comment);
         }
 
         leaf->push_back(packageNode);

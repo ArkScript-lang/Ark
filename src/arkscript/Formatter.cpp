@@ -117,20 +117,6 @@ bool Formatter::isFuncCall(const Node& node)
     return node.isListLike() && !node.constList().empty() && node.constList()[0].nodeType() == NodeType::Symbol;
 }
 
-bool Formatter::isPlainValue(const Node& node)
-{
-    switch (node.nodeType())
-    {
-        case NodeType::Symbol: [[fallthrough]];
-        case NodeType::Number: [[fallthrough]];
-        case NodeType::String: [[fallthrough]];
-        case NodeType::Field: return true;
-
-        default:
-            return false;
-    }
-}
-
 std::size_t Formatter::lineOfLastNodeIn(const Node& node)
 {
     if (node.isListLike() && !node.constList().empty())
@@ -449,14 +435,28 @@ std::string Formatter::formatImport(const Node& node, const std::size_t indent)
         package += ":*";
     else  // symbols is a list
     {
-        for (const auto& sym : symbols.constList())
+        if (const auto& sym_list = symbols.constList(); !sym_list.empty())
         {
-            if (sym.comment().empty())
-                package += " :" + sym.string();
-            else
-                package += "\n" + formatComment(sym.comment(), indent + 1) + prefix(indent + 1) + ":" + sym.string();
-            if (!sym.commentAfter().empty())
-                package += " " + formatComment(sym.commentAfter(), /* indent= */ 0);
+            const bool comment_after_last = !sym_list.back().commentAfter().empty();
+
+            for (const auto& sym : sym_list)
+            {
+                if (sym.comment().empty())
+                {
+                    if (comment_after_last)
+                        package += "\n" + prefix(indent + 1) + ":" + sym.string();
+                    else
+                        package += " :" + sym.string();
+                }
+                else
+                    package += "\n" + formatComment(sym.comment(), indent + 1) + prefix(indent + 1) + ":" + sym.string();
+            }
+
+            if (comment_after_last)
+            {
+                package += " " + formatComment(sym_list.back().commentAfter(), /* indent= */ 0);
+                package += "\n" + prefix(indent + 1);
+            }
         }
     }
 
@@ -509,14 +509,9 @@ std::string Formatter::formatMacro(const Node& node, const std::size_t indent)
     if (isListStartingWithKeyword(node, Keyword::If))
         return formatCondition(node, indent, /* is_macro= */ true);
 
-    std::string output;
-    // because some macro call like ($undef ...) are considered macros and we shouldn't confuse them and write ($ $undef ...)
-    if (!node.constList().empty() && node.constList().front().nodeType() == NodeType::Symbol && node.constList().front().string().starts_with('$'))
-        output = "(";
-    else
-        output = "($ ";
-
+    std::string output = "($ ";
     bool after_newline = false;
+
     for (std::size_t i = 0, end = node.constList().size(); i < end; ++i)
     {
         output += format(node.constList()[i], indent + 1, after_newline);

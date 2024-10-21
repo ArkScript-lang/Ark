@@ -89,6 +89,7 @@
 - ast-to-json dump now supports macros
 - the parser can detect ill-formed macros (that are seen as function macros while being value macros)
 - adding a `CALL_BUILTIN <builtin> <arg count>` super instruction
+- fixed formatting of comments after the last symbol in an import node
 
 ### Removed
 - removed unused `NodeType::Closure`
