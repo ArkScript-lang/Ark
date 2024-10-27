@@ -1,0 +1,5 @@
+At ) @ 1:8
+    1 | (fun ())
+      |        ^
+    2 |
+        Expected a body for the function

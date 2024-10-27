@@ -360,7 +360,7 @@ namespace Ark::internal
                 {
                     std::string symbol;
                     if (!name(&symbol))
-                        errorWithNextToken(fmt::format("Expected a valid symbol to import, not `{}'", symbol));
+                        errorWithNextToken("Expected a valid symbol to import");
                     if (symbol == "*")
                         error(fmt::format("Glob patterns can not be separated from the package, use (import {}:*) instead", import_data.toPackageString()), symbol);
 
@@ -582,7 +582,7 @@ namespace Ark::internal
         if (auto value_if_true = nodeOrValue(); value_if_true.has_value())
             leaf->push_back(value_if_true.value().attachNearestCommentBefore(comment));
         else
-            errorWithNextToken("Expected a value");
+            errorWithNextToken("Expected a node or value after condition");
 
         comment.clear();
         newlineOrComment(&comment);

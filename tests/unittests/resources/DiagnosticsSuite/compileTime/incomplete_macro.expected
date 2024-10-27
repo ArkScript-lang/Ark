@@ -1,0 +1,5 @@
+At ) @ 1:7
+    1 | ($ foo)
+      |       ^
+    2 |
+        Expected an argument list, atom or node while defining macro `foo'
