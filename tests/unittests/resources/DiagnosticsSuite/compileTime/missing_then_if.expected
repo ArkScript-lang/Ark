@@ -1,0 +1,5 @@
+At ) @ 1:6
+    1 | (if 1)
+      |      ^
+    2 |
+        Expected a node or value after condition

@@ -209,7 +209,7 @@ namespace Ark::internal
         if (auto condition = nodeOrValue(); condition.has_value())
             leaf->push_back(condition.value().attachNearestCommentBefore(comment));
         else
-            errorWithNextToken("If need a valid condition");
+            errorWithNextToken("`if' needs a valid condition");
 
         comment.clear();
         newlineOrComment(&comment);
@@ -217,7 +217,7 @@ namespace Ark::internal
         if (auto value_if_true = nodeOrValue(); value_if_true.has_value())
             leaf->push_back(value_if_true.value().attachNearestCommentBefore(comment));
         else
-            errorWithNextToken("Expected a value");
+            errorWithNextToken("Expected a node or value after condition");
 
         comment.clear();
         newlineOrComment(&comment);
@@ -252,7 +252,7 @@ namespace Ark::internal
         if (auto condition = nodeOrValue(); condition.has_value())
             leaf->push_back(condition.value().attachNearestCommentBefore(comment));
         else
-            errorWithNextToken("While need a valid condition");
+            errorWithNextToken("`while' needs a valid condition");
 
         comment.clear();
         newlineOrComment(&comment);
@@ -260,7 +260,7 @@ namespace Ark::internal
         if (auto body = nodeOrValue(); body.has_value())
             leaf->push_back(body.value().attachNearestCommentBefore(comment));
         else
-            errorWithNextToken("Expected a value");
+            errorWithNextToken("Expected a node or value after loop condition");
 
         setNodePosAndFilename(leaf->list().back());
         return leaf;
