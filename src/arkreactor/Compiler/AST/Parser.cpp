@@ -13,6 +13,7 @@ namespace Ark::internal
 
     void Parser::process(const std::string& filename, const std::string& code)
     {
+        m_logger.traceStart("process");
         initParser(filename, code);
 
         while (!isEOF())
@@ -40,6 +41,8 @@ namespace Ark::internal
                 errorWithNextToken("invalid syntax, expected node");
             }
         }
+
+        m_logger.traceEnd();
     }
 
     const Node& Parser::ast() const noexcept

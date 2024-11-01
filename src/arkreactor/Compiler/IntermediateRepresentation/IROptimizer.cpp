@@ -17,6 +17,7 @@ namespace Ark::internal
 
     void IROptimizer::process(const std::vector<IR::Block>& pages, const std::vector<std::string>& symbols, const std::vector<ValTableElem>& values)
     {
+        m_logger.traceStart("process");
         m_symbols = symbols;
         m_values = values;
 
@@ -74,6 +75,8 @@ namespace Ark::internal
                 }
             }
         }
+
+        m_logger.traceEnd();
     }
 
     const std::vector<IR::Block>& IROptimizer::intermediateRepresentation() const noexcept

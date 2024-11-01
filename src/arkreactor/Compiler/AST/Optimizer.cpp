@@ -8,8 +8,10 @@ namespace Ark::internal
 
     void Optimizer::process(const Node& ast)
     {
+        m_logger.traceStart("process");
         m_ast = ast;
         // FIXME activate this removeUnused();
+        m_logger.traceEnd();
     }
 
     const Node& Optimizer::ast() const noexcept

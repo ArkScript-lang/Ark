@@ -29,6 +29,8 @@ namespace Ark::internal
 
     void ImportSolver::process(const Node& origin_ast)
     {
+        m_logger.traceStart("process");
+
         while (!m_imports.empty())
         {
             Import import = m_imports.top();
@@ -63,7 +65,11 @@ namespace Ark::internal
             }
         }
 
+        m_logger.traceStart("findAndReplaceImports");
         m_ast = findAndReplaceImports(origin_ast).first;
+        m_logger.traceEnd();
+
+        m_logger.traceEnd();
     }
 
     std::pair<Node, bool> ImportSolver::findAndReplaceImports(const Node& ast)
@@ -142,6 +148,8 @@ namespace Ark::internal
 
     std::vector<Import> ImportSolver::parseImport(const std::filesystem::path& base_path, const Import& import)
     {
+        m_logger.traceStart(fmt::format("parseImport {}", base_path.string()));
+
         const auto path = findFile(base_path, import);
         if (path.extension() == ".arkm")  // Nothing to import in case of modules
         {
@@ -174,6 +182,7 @@ namespace Ark::internal
             false
         };
 
+        m_logger.traceEnd();
         return parser.imports();
     }
 

@@ -18,6 +18,7 @@
 #include <optional>
 
 #include <Ark/Platform.hpp>
+#include <Ark/Logger.hpp>
 #include <Ark/Compiler/Instructions.hpp>
 #include <Ark/Compiler/IntermediateRepresentation/Entity.hpp>
 #include <Ark/Compiler/AST/Node.hpp>
@@ -84,6 +85,7 @@ namespace Ark::internal
         std::vector<IR::Block> m_temp_pages;  ///< we need temporary code pages for some compilations passes
 
         unsigned m_debug;  ///< the debug level of the compiler
+        Logger m_logger;
 
         /**
          * @brief helper functions to get a temp or finalized code page

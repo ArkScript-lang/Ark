@@ -19,11 +19,12 @@ namespace Ark::internal
     using namespace literals;
 
     Compiler::Compiler(const unsigned debug) :
-        m_debug(debug)
+        m_debug(debug), m_logger("Compiler", debug)
     {}
 
     void Compiler::process(const Node& ast)
     {
+        m_logger.traceStart("process");
         m_code_pages.emplace_back();  // create empty page
 
         // gather symbols, values, and start to create code segments
@@ -32,6 +33,7 @@ namespace Ark::internal
             /* current_page */ Page { .index = 0, .is_temp = false },
             /* is_result_unused */ false,
             /* is_terminal */ false);
+        m_logger.traceEnd();
     }
 
     const std::vector<IR::Block>& Compiler::intermediateRepresentation() const noexcept

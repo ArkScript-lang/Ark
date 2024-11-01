@@ -18,6 +18,7 @@ namespace Ark::internal
 
     void IRCompiler::process(const std::vector<IR::Block>& pages, const std::vector<std::string>& symbols, const std::vector<ValTableElem>& values)
     {
+        m_logger.traceStart("process");
         pushFileHeader();
         pushSymAndValTables(symbols, values);
 
@@ -43,6 +44,8 @@ namespace Ark::internal
         std::vector<unsigned char> hash_out(picosha2::k_digest_size);
         picosha2::hash256(m_bytecode.begin() + header_size, m_bytecode.end(), hash_out);
         m_bytecode.insert(m_bytecode.begin() + header_size, hash_out.begin(), hash_out.end());
+
+        m_logger.traceEnd();
     }
 
     const bytecode_t& IRCompiler::bytecode() const noexcept

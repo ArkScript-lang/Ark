@@ -2,7 +2,7 @@
  * @file Logger.hpp
  * @author Alexandre Plateau (lexplt@gmail.comhf
  * @brief Internal logger
- * @version 0.1
+ * @version 1.0
  * @date 2024-08-30
  *
  * @copyright Copyright (c) 2024
@@ -14,18 +14,13 @@
 #include <fmt/format.h>
 
 #include <string>
+#include <chrono>
+#include <vector>
+#include <unordered_map>
+#include <fmt/color.h>
 
 namespace Ark::internal
 {
-    enum class LogLevel
-    {
-        None,
-        Info,
-        Debug,
-        Trace,
-        Other
-    };
-
     class Logger
     {
     public:
@@ -53,7 +48,11 @@ namespace Ark::internal
         void info(const char* fmt, Args&&... args)
         {
             if (shouldInfo())
-                fmt::println("[INFO ][{}] {}", m_name, fmt::vformat(fmt, fmt::make_format_args(args...)));
+                fmt::println(
+                    "{} [{}] {}",
+                    fmt::styled("INFO ", fmt::fg(fmt::color::cornflower_blue)),
+                    fmt::styled(m_name, fmt::fg(m_pass_color)),
+                    fmt::vformat(fmt, fmt::make_format_args(args...)));
         }
 
         /**
@@ -66,7 +65,27 @@ namespace Ark::internal
         void debug(const char* fmt, Args&&... args)
         {
             if (shouldDebug())
-                fmt::println("[DEBUG][{}] {}", m_name, fmt::vformat(fmt, fmt::make_format_args(args...)));
+                fmt::println(
+                    "{} [{}] {}",
+                    fmt::styled("DEBUG", fmt::fg(fmt::color::pale_violet_red)),
+                    fmt::styled(m_name, fmt::fg(m_pass_color)),
+                    fmt::vformat(fmt, fmt::make_format_args(args...)));
+        }
+
+        inline void traceStart(std::string&& trace_name)
+        {
+            m_trace_starts[trace_name] = std::chrono::high_resolution_clock::now();
+            m_active_traces.push_back(trace_name);
+        }
+
+        inline void traceEnd()
+        {
+            std::string trace_name = m_active_traces.back();
+            m_active_traces.pop_back();
+
+            const auto time = std::chrono::high_resolution_clock::now();
+            const std::chrono::duration<double, std::milli> ms_double = time - m_trace_starts[trace_name];
+            trace("{} took {:.3f}ms", trace_name, ms_double.count());
         }
 
         /**
@@ -79,12 +98,19 @@ namespace Ark::internal
         void trace(const char* fmt, Args&&... args)
         {
             if (shouldTrace())
-                fmt::println("[TRACE][{}] {}", m_name, fmt::vformat(fmt, fmt::make_format_args(args...)));
+                fmt::println(
+                    "{} [{}] {}",
+                    fmt::styled("TRACE", fmt::fg(fmt::color::golden_rod)),
+                    fmt::styled(m_name, fmt::fg(m_pass_color)),
+                    fmt::vformat(fmt, fmt::make_format_args(args...)));
         }
 
     private:
         unsigned m_debug;
         std::string m_name;
+        fmt::color m_pass_color;
+        std::unordered_map<std::string, std::chrono::time_point<std::chrono::high_resolution_clock>> m_trace_starts;
+        std::vector<std::string> m_active_traces;
     };
 }
 

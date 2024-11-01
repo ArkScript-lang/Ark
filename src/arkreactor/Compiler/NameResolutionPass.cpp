@@ -89,9 +89,15 @@ namespace Ark::internal
 
     void NameResolutionPass::process(const Node& ast)
     {
+        m_logger.traceStart("process");
+
         m_ast = ast;
         visit(ast);
+        m_logger.traceStart("checkForUndefinedSymbol");
         checkForUndefinedSymbol();
+        m_logger.traceEnd();
+
+        m_logger.traceEnd();
     }
 
     const Node& NameResolutionPass::ast() const noexcept
