@@ -31,7 +31,7 @@ std::string get_resource_path(const std::string& folder)
     return (ARK_TESTS_ROOT "tests/unittests/resources/") + folder;
 }
 
-std::string sanitize_error(const Ark::CodeError& e, bool remove_in_file_line)
+std::string sanitize_error(const Ark::CodeError& e, const bool remove_in_file_line)
 {
     std::stringstream stream;
     Ark::Diagnostics::generate(e, stream, /* colorize= */ false);

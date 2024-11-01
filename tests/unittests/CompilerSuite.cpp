@@ -1,6 +1,9 @@
 #include <boost/ut.hpp>
 
+#include <Ark/Compiler/Welder.hpp>
 #include <Ark/Compiler/Word.hpp>
+
+#include "TestsHelper.hpp"
 
 using namespace boost;
 
@@ -33,5 +36,27 @@ ut::suite<"Compiler"> compiler_suite = [] {
             expect(that % primary_arg == (arg & 0x0fff));
             expect(that % secondary_arg == ((padding << 4) | (arg & 0xf000) >> 12));
         };
+    };
+
+    "IR generation and optimization"_test = [] {
+        constexpr uint16_t features = Ark::DefaultFeatures | Ark::FeatureTestFailOnException;
+
+        iter_test_files(
+            "CompilerSuite/ir",
+            [](TestData&& data) {
+                Ark::Welder welder(0, { std::filesystem::path(ARK_TESTS_ROOT "/lib/") }, features);
+
+                should("compile without error ir/" + data.stem) = [&] {
+                    expect(mut(welder).computeASTFromFile(data.path));
+                    expect(mut(welder).generateBytecode());
+                };
+
+                should("output expected IR for " + data.stem) = [&] {
+                    std::string ir = welder.textualIR();
+
+                    ltrim(rtrim(ir));
+                    expect(that % ir == data.expected);
+                };
+            });
     };
 };
