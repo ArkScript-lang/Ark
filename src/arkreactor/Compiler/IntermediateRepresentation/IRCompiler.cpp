@@ -4,6 +4,7 @@
 #include <utility>
 #include <unordered_map>
 #include <picosha2.h>
+#include <fmt/ostream.h>
 
 #include <Ark/Constants.hpp>
 #include <Ark/Literals.hpp>
@@ -46,6 +47,47 @@ namespace Ark::internal
         m_bytecode.insert(m_bytecode.begin() + header_size, hash_out.begin(), hash_out.end());
 
         m_logger.traceEnd();
+    }
+
+    void IRCompiler::dumpToStream(std::ostream& stream) const
+    {
+        std::size_t index = 0;
+        for (const auto& block : m_ir)
+        {
+            fmt::println(stream, "page_{}", index);
+            for (const auto entity : block)
+            {
+                switch (entity.kind())
+                {
+                    case IR::Kind::Label:
+                        fmt::println(stream, ".L{}:", entity.label());
+                        break;
+
+                    case IR::Kind::Goto:
+                        fmt::println(stream, "\tGOTO L{}", entity.label());
+                        break;
+
+                    case IR::Kind::GotoIfTrue:
+                        fmt::println(stream, "\tGOTO_IF_TRUE L{}", entity.label());
+                        break;
+
+                    case IR::Kind::GotoIfFalse:
+                        fmt::println(stream, "\tGOTO_IF_FALSE L{}", entity.label());
+                        break;
+
+                    case IR::Kind::Opcode:
+                        fmt::println(stream, "\t{} {}", InstructionNames[entity.inst()], entity.primaryArg());
+                        break;
+
+                    case IR::Kind::Opcode2Args:
+                        fmt::println(stream, "\t{} {}, {}", InstructionNames[entity.inst()], entity.primaryArg(), entity.secondaryArg());
+                        break;
+                }
+            }
+
+            fmt::println(stream, "");
+            ++index;
+        }
     }
 
     const bytecode_t& IRCompiler::bytecode() const noexcept

@@ -43,6 +43,13 @@ namespace Ark::internal
         void process(const std::vector<IR::Block>& pages, const std::vector<std::string>& symbols, const std::vector<ValTableElem>& values);
 
         /**
+         * @brief Dump the IR given to `process` to an output stream
+         *
+         * @param stream output stream
+         */
+        void dumpToStream(std::ostream& stream) const;
+
+        /**
          * @brief Return the constructed bytecode object
          *
          * @return const bytecode_t&

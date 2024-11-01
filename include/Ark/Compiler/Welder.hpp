@@ -80,6 +80,7 @@ namespace Ark
         bool saveBytecodeToFile(const std::string& filename);
 
         [[nodiscard]] const internal::Node& ast() const noexcept;
+        [[nodiscard]] std::string textualIR() const noexcept;
         [[nodiscard]] const bytecode_t& bytecode() const noexcept;
 
     private:

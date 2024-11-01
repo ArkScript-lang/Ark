@@ -8,6 +8,7 @@
 #include <Ark/Files.hpp>
 #include <Ark/Exceptions.hpp>
 
+#include <sstream>
 #include <fmt/ostream.h>
 
 namespace Ark
@@ -59,11 +60,11 @@ namespace Ark
                 m_ir = m_ir_optimizer.intermediateRepresentation();
             }
 
-            if ((m_features & FeatureDumpIR) != 0)
-                dumpIRToFile();
-
             m_ir_compiler.process(m_ir, m_compiler.symbols(), m_compiler.values());
             m_bytecode = m_ir_compiler.bytecode();
+
+            if ((m_features & FeatureDumpIR) != 0)
+                dumpIRToFile();
 
             return true;
         }
@@ -97,6 +98,13 @@ namespace Ark
         return m_computed_ast;
     }
 
+    std::string Welder::textualIR() const noexcept
+    {
+        std::stringstream stream;
+        m_ir_compiler.dumpToStream(stream);
+        return stream.str();
+    }
+
     const bytecode_t& Welder::bytecode() const noexcept
     {
         return m_bytecode;
@@ -111,45 +119,7 @@ namespace Ark
             path.replace_extension(".ark.ir");
 
         std::ofstream output(path);
-
-        std::size_t index = 0;
-        for (const auto& block : m_ir)
-        {
-            fmt::println(output, "page_{}", index);
-            for (const auto entity : block)
-            {
-                switch (entity.kind())
-                {
-                    case internal::IR::Kind::Label:
-                        fmt::println(output, ".L{}:", entity.label());
-                        break;
-
-                    case internal::IR::Kind::Goto:
-                        fmt::println(output, "\tGOTO L{}", entity.label());
-                        break;
-
-                    case internal::IR::Kind::GotoIfTrue:
-                        fmt::println(output, "\tGOTO_IF_TRUE L{}", entity.label());
-                        break;
-
-                    case internal::IR::Kind::GotoIfFalse:
-                        fmt::println(output, "\tGOTO_IF_FALSE L{}", entity.label());
-                        break;
-
-                    case internal::IR::Kind::Opcode:
-                        fmt::println(output, "\t{} {}", internal::InstructionNames[entity.inst()], entity.primaryArg());
-                        break;
-
-                    case internal::IR::Kind::Opcode2Args:
-                        fmt::println(output, "\t{} {}, {}", internal::InstructionNames[entity.inst()], entity.primaryArg(), entity.secondaryArg());
-                        break;
-                }
-            }
-
-            fmt::println(output, "");
-            ++index;
-        }
-
+        m_ir_compiler.dumpToStream(output);
         output.close();
     }
 
