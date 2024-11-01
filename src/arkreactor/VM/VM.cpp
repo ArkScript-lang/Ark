@@ -354,7 +354,7 @@ namespace Ark
 #if ARK_USE_COMPUTED_GOTOS
 #    pragma GCC diagnostic push
 #    pragma GCC diagnostic ignored "-Wpedantic"
-            const std::array opcode_targets = {
+            constexpr std::array opcode_targets = {
                 &&TARGET_NOP,
                 &&TARGET_LOAD_SYMBOL,
                 &&TARGET_LOAD_CONST,

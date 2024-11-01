@@ -21,9 +21,9 @@ namespace Ark::internal
         Pass("MacroProcessor", debug)
     {
         // create executors pipeline
-        m_executors = { { std::make_shared<SymbolExecutor>(this),
-                          std::make_shared<ConditionalExecutor>(this),
-                          std::make_shared<FunctionExecutor>(this) } };
+        m_executors.emplace_back(std::make_shared<SymbolExecutor>(this));
+        m_executors.emplace_back(std::make_shared<ConditionalExecutor>(this));
+        m_executors.emplace_back(std::make_shared<FunctionExecutor>(this));
     }
 
     void MacroProcessor::process(const Node& ast)

@@ -49,7 +49,7 @@ namespace Ark
         Any = 99  ///< Used only for typechecking
     };
 
-    const std::array<std::string, 13> types_to_str = {
+    constexpr std::array types_to_str = {
         "List", "Number", "String", "Function",
         "CProc", "Closure", "UserType", "Nil",
         "Bool", "Bool", "Undefined", "Reference",
