@@ -20,6 +20,10 @@ on:
       - '.gitignore'
   pull_request:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 env:
   BUILD_TYPE: Debug
   SQLITE_VERSION: 3390100  # 3.39.1
