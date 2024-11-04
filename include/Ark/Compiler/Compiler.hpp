@@ -2,7 +2,7 @@
  * @file Compiler.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief ArkScript compiler is in charge of transforming the AST into bytecode
- * @version 3.0
+ * @version 3.1
  * @date 2020-10-27
  *
  * @copyright Copyright (c) 2020-2024
@@ -83,6 +83,7 @@ namespace Ark::internal
         std::vector<ValTableElem> m_values;
         std::vector<IR::Block> m_code_pages;
         std::vector<IR::Block> m_temp_pages;  ///< we need temporary code pages for some compilations passes
+        IR::label_t m_current_label = 0;
 
         unsigned m_debug;  ///< the debug level of the compiler
         Logger m_logger;

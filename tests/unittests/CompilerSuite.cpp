@@ -38,11 +38,33 @@ ut::suite<"Compiler"> compiler_suite = [] {
         };
     };
 
+    "IR generation"_test = [] {
+        constexpr uint16_t features = Ark::FeatureImportSolver | Ark::FeatureMacroProcessor | Ark::FeatureASTOptimizer | Ark::FeatureNameResolver | Ark::FeatureTestFailOnException;
+
+        iter_test_files(
+            "CompilerSuite/ir",
+            [](TestData&& data) {
+                Ark::Welder welder(0, { std::filesystem::path(ARK_TESTS_ROOT "/lib/") }, features);
+
+                should("compile without error ir/" + data.stem) = [&] {
+                    expect(mut(welder).computeASTFromFile(data.path));
+                    expect(mut(welder).generateBytecode());
+                };
+
+                should("output expected IR for " + data.stem) = [&] {
+                    std::string ir = welder.textualIR();
+
+                    ltrim(rtrim(ir));
+                    expect(that % ir == data.expected);
+                };
+            });
+    };
+
     "IR generation and optimization"_test = [] {
         constexpr uint16_t features = Ark::DefaultFeatures | Ark::FeatureTestFailOnException;
 
         iter_test_files(
-            "CompilerSuite/ir",
+            "CompilerSuite/optimized_ir",
             [](TestData&& data) {
                 Ark::Welder welder(0, { std::filesystem::path(ARK_TESTS_ROOT "/lib/") }, features);
 

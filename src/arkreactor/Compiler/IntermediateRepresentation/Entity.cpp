@@ -17,10 +17,10 @@ namespace Ark::internal::IR
         m_inst(inst), m_primary_arg(primary_arg), m_secondary_arg(secondary_arg)
     {}
 
-    Entity Entity::Label()
+    Entity Entity::Label(const label_t value)
     {
         auto label = Entity(Kind::Label);
-        label.m_label = Entity::LabelCounter++;
+        label.m_label = value;
 
         return label;
     }

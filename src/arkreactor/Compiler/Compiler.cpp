@@ -285,7 +285,7 @@ namespace Ark::internal
         compileExpression(x.constList()[1], p, false, false);
 
         // jump only if needed to the if
-        const auto label_then = IR::Entity::Label();
+        const auto label_then = IR::Entity::Label(m_current_label++);
         page(p).emplace_back(IR::Entity::GotoIf(label_then, true));
 
         // else code
@@ -293,7 +293,7 @@ namespace Ark::internal
             compileExpression(x.constList()[3], p, is_result_unused, is_terminal, var_name);
 
         // when else is finished, jump to end
-        const auto label_end = IR::Entity::Label();
+        const auto label_end = IR::Entity::Label(m_current_label++);
         page(p).emplace_back(IR::Entity::Goto(label_end));
 
         // absolute address to jump to if condition is true
@@ -376,12 +376,12 @@ namespace Ark::internal
             throwCompilerError("Invalid node ; if it was computed by a macro, check that a node is returned", x);
 
         // save current position to jump there at the end of the loop
-        const auto label_loop = IR::Entity::Label();
+        const auto label_loop = IR::Entity::Label(m_current_label++);
         page(p).emplace_back(label_loop);
         // push condition
         compileExpression(x.constList()[1], p, false, false);
         // absolute jump to end of block if condition is false
-        const auto label_end = IR::Entity::Label();
+        const auto label_end = IR::Entity::Label(m_current_label++);
         page(p).emplace_back(IR::Entity::GotoIf(label_end, false));
         // push code to page
         compileExpression(x.constList()[2], p, true, false);
@@ -439,7 +439,7 @@ namespace Ark::internal
             compileExpression(x.constList()[1], p, false, false);
             page(p).emplace_back(DUP);
 
-            const auto label_shortcircuit = IR::Entity::Label();
+            const auto label_shortcircuit = IR::Entity::Label(m_current_label++);
             for (std::size_t i = 2, end = x.constList().size(); i < end; ++i)
             {
                 switch (maybe_shortcircuit.value())

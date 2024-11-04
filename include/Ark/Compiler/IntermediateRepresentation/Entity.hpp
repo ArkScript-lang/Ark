@@ -2,7 +2,7 @@
  * @file Entity.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief An entity in the IR is a bundle of information
- * @version 0.1
+ * @version 1.0
  * @date 2024-10-05
  *
  * @copyright Copyright (c) 2024
@@ -44,7 +44,7 @@ namespace Ark::internal::IR
 
         Entity(Instruction inst, uint16_t primary_arg, uint16_t secondary_arg);
 
-        static Entity Label();
+        static Entity Label(label_t value);
 
         static Entity Goto(const Entity& label);
 
@@ -63,8 +63,6 @@ namespace Ark::internal::IR
         [[nodiscard]] inline uint16_t secondaryArg() const { return m_secondary_arg; }
 
     private:
-        inline static label_t LabelCounter = 0;
-
         Kind m_kind;
         label_t m_label { 0 };
         Instruction m_inst { NOP };
