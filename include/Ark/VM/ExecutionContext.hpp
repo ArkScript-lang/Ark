@@ -31,21 +31,21 @@ namespace Ark::internal
     {
         static inline unsigned Count = 0;
 
-        const bool primary;  ///< Tells if the current ExecutionContext is the primary one or not
-        std::size_t ip {};   ///< Instruction pointer
-        std::size_t pp {};   ///< Page pointer
-        uint16_t sp {};      ///< Stack pointer
-        uint16_t fc {};      ///< Frame count
+        std::size_t ip {};  ///< Instruction pointer
+        std::size_t pp {};  ///< Page pointer
+        uint16_t sp {};     ///< Stack pointer
+        uint16_t fc {};     ///< Frame count
         uint16_t last_symbol;
+        const bool primary;  ///< Tells if the current ExecutionContext is the primary one or not
 
-        std::array<Value, VMStackSize> stack {};
-        std::vector<std::shared_ptr<Scope>> stacked_closure_scopes {};  ///< Stack the closure scopes to keep the closure alive as long as we are calling them
-        std::optional<Scope> saved_scope {};                            ///< Scope created by CAPTURE <x> instructions, used by the MAKE_CLOSURE instruction
+        std::optional<Scope> saved_scope {};  ///< Scope created by CAPTURE <x> instructions, used by the MAKE_CLOSURE instruction
         std::vector<Scope> locals {};
+        std::vector<std::shared_ptr<Scope>> stacked_closure_scopes {};  ///< Stack the closure scopes to keep the closure alive as long as we are calling them
+        std::array<Value, VMStackSize> stack {};
 
         ExecutionContext() noexcept :
-            primary(Count == 0),
-            last_symbol(std::numeric_limits<uint16_t>::max())
+            last_symbol(std::numeric_limits<uint16_t>::max()),
+            primary(Count == 0)
         {
             Count++;
         }
