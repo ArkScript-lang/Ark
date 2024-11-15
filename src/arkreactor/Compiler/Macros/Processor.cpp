@@ -68,6 +68,7 @@ namespace Ark::internal
         }
     }
 
+    // todo find a better way to do this
     void MacroProcessor::registerFuncDef(const Node& node)
     {
         if (node.nodeType() == NodeType::List && node.constList().size() == 3 && node.constList()[0].nodeType() == NodeType::Keyword)
@@ -108,7 +109,11 @@ namespace Ark::internal
             std::size_t i = 0;
             while (i < node.list().size())
             {
-                if (node.list()[i].nodeType() == NodeType::Macro)
+                const std::size_t pos = i;
+                const bool had_begin = isBeginNode(node.list()[pos]);
+                bool added_begin = false;
+
+                if (node.list()[pos].nodeType() == NodeType::Macro)
                 {
                     // create a scope only if needed
                     if ((!m_macros.empty() && !m_macros.back().empty() && m_macros.back().depth() < depth) || !has_created)
@@ -117,43 +122,43 @@ namespace Ark::internal
                         m_macros.emplace_back(depth);
                     }
 
-                    const bool had_begin = isBeginNode(node.list()[i]);
-                    registerMacro(node.list()[i]);
-                    recurApply(node.list()[i]);
+                    registerMacro(node.list()[pos]);
+                    // in case we had a conditional, we need to evaluate it
+                    applyMacro(node.list()[pos], 0);
 
-                    // if we now have a surrounding (begin ...) and didn't have one before, remove it
-                    if (isBeginNode(node.list()[i]) && !had_begin)
-                        removeBegin(node, i);
-                    // if there is an unused node or a leftover macro need, we need to get rid of it in the final ast
-                    else if (node.list()[i].nodeType() == NodeType::Macro || node.list()[i].nodeType() == NodeType::Unused)
-                        node.list().erase(node.constList().begin() + static_cast<std::vector<Node>::difference_type>(i));
+                    added_begin = isBeginNode(node.list()[pos]) && !had_begin;
                 }
                 else  // running on non-macros
                 {
-                    const bool had_begin = isBeginNode(node.list()[i]);
-                    applyMacro(node.list()[i], 0);
-                    recurApply(node.list()[i]);
+                    applyMacro(node.list()[pos], 0);
+                    recurApply(node.list()[pos]);  // todo remove it
 
-                    const bool added_begin = isBeginNode(node.list()[i]) && !had_begin;
+                    added_begin = isBeginNode(node.list()[pos]) && !had_begin;
 
-                    if (node.list()[i].nodeType() == NodeType::Unused)
-                        node.list().erase(node.constList().begin() + static_cast<std::vector<Node>::difference_type>(i));
+                    if (node.list()[pos].nodeType() == NodeType::Unused)
+                        node.list().erase(node.constList().begin() + static_cast<std::vector<Node>::difference_type>(pos));
 
                     // process subnodes if any
-                    if (node.nodeType() == NodeType::List && i < node.constList().size())
+                    if (node.nodeType() == NodeType::List && pos < node.constList().size())
                     {
-                        processNode(node.list()[i], depth + 1);
+                        processNode(node.list()[pos], depth + 1);
                         // needed if we created a function node from a macro
-                        registerFuncDef(node.list()[i]);
+                        registerFuncDef(node.list()[pos]);
                     }
-
-                    // remove begins in macros
-                    if (added_begin && i < node.constList().size())
-                        removeBegin(node, i);
 
                     // go forward only if it isn't a macro, because we delete macros
                     // while running on the AST
                     ++i;
+                }
+
+                if (pos < node.constList().size())
+                {
+                    // if we now have a surrounding (begin ...) and didn't have one before, remove it
+                    if (added_begin)
+                        removeBegin(node, pos);
+                    // if there is an unused node or a leftover macro need, we need to get rid of it in the final ast
+                    else if (node.list()[pos].nodeType() == NodeType::Macro || node.list()[pos].nodeType() == NodeType::Unused)
+                        node.list().erase(node.constList().begin() + static_cast<std::vector<Node>::difference_type>(pos));
                 }
             }
 
