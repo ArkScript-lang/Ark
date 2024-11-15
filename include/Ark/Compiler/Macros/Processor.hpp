@@ -2,7 +2,7 @@
  * @file Processor.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Handles the macros and their expansion in ArkScript source code
- * @version 2.1
+ * @version 3.0
  * @date 2021-02-18
  *
  * @copyright Copyright (c) 2021-2024
@@ -97,7 +97,7 @@ namespace Ark::internal
          * @return true if it starts with a Begin
          * @return false
          */
-        static bool hadBegin(const Node& node);
+        static bool isBeginNode(const Node& node);
 
         /**
          * @brief Remove a begin block added by a macro
@@ -148,17 +148,6 @@ namespace Ark::internal
          * @return false
          */
         bool applyMacro(Node& node, unsigned depth);
-
-        /**
-         * @brief Unify a target node with a given map symbol => replacement node, recursively
-         *
-         * @param map
-         * @param target
-         * @param parent
-         * @param index position of target inside parent->list()
-         * @param unify_depth call depth to unify, to avoid deep recursive unification
-         */
-        void unify(const std::unordered_map<std::string, Node>& map, Node& target, Node* parent, std::size_t index, std::size_t unify_depth = 0);
 
         /**
          * @brief Set the file attributes of the output node based on the original node

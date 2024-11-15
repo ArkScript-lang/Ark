@@ -2,7 +2,7 @@
  * @file Executor.hpp
  * @author Ray John Alovera (rakista112@gmail.com), Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief The base class for all MacroExecutors
- * @version 2.0
+ * @version 3.0
  * @date 2024-03-03
  *
  * @copyright Copyright (c) 2021-2024
@@ -110,12 +110,6 @@ namespace Ark::internal
          * @return Node
          */
         Node evaluate(Node& node, unsigned depth, bool is_not_body) const;
-
-        /**
-         * @brief Applies the spread operator
-         * @details Proxy function for MacroProcessor::unify
-         */
-        void unify(const std::unordered_map<std::string, Node>&, Node&, Node*) const;
 
         /**
          * @brief Throw a macro processing error

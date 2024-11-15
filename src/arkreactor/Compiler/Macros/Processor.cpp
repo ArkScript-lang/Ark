@@ -117,14 +117,12 @@ namespace Ark::internal
                         m_macros.emplace_back(depth);
                     }
 
-                    const bool had = hadBegin(node.list()[i]);
-
-                    // register the macro we encountered
+                    const bool had_begin = isBeginNode(node.list()[i]);
                     registerMacro(node.list()[i]);
                     recurApply(node.list()[i]);
 
                     // if we now have a surrounding (begin ...) and didn't have one before, remove it
-                    if (hadBegin(node.list()[i]) && !had)
+                    if (isBeginNode(node.list()[i]) && !had_begin)
                         removeBegin(node, i);
                     // if there is an unused node or a leftover macro need, we need to get rid of it in the final ast
                     else if (node.list()[i].nodeType() == NodeType::Macro || node.list()[i].nodeType() == NodeType::Unused)
@@ -132,17 +130,16 @@ namespace Ark::internal
                 }
                 else  // running on non-macros
                 {
-                    bool added_begin = false;
-
-                    const bool had = hadBegin(node.list()[i]);
+                    const bool had_begin = isBeginNode(node.list()[i]);
                     applyMacro(node.list()[i], 0);
                     recurApply(node.list()[i]);
 
-                    if (hadBegin(node.list()[i]) && !had)
-                        added_begin = true;
-                    else if (node.list()[i].nodeType() == NodeType::Unused)
+                    const bool added_begin = isBeginNode(node.list()[i]) && !had_begin;
+
+                    if (node.list()[i].nodeType() == NodeType::Unused)
                         node.list().erase(node.constList().begin() + static_cast<std::vector<Node>::difference_type>(i));
 
+                    // process subnodes if any
                     if (node.nodeType() == NodeType::List && i < node.constList().size())
                     {
                         processNode(node.list()[i], depth + 1);
@@ -184,42 +181,6 @@ namespace Ark::internal
             }
         }
         return false;
-    }
-
-    void MacroProcessor::unify(const std::unordered_map<std::string, Node>& map, Node& target, Node* parent, const std::size_t index, const std::size_t unify_depth)
-    {
-        if (unify_depth > MaxMacroUnificationDepth)
-            throwMacroProcessingError(
-                fmt::format(
-                    "Max macro unification depth reached ({}). You may have a macro trying to evaluate itself, try splitting your code in multiple nodes.",
-                    MaxMacroUnificationDepth),
-                *parent);
-
-        if (target.nodeType() == NodeType::Symbol)
-        {
-            if (const auto p = map.find(target.string()); p != map.end())
-                target = p->second;
-        }
-        else if (target.isListLike())
-        {
-            for (std::size_t i = 0; i < target.list().size(); ++i)
-                unify(map, target.list()[i], &target, i, unify_depth + 1);
-        }
-        else if (target.nodeType() == NodeType::Spread)
-        {
-            Node sub_node = target;
-            sub_node.setNodeType(NodeType::Symbol);
-            unify(map, sub_node, parent, 0, unify_depth + 1);
-
-            if (sub_node.nodeType() != NodeType::List)
-                throwMacroProcessingError(fmt::format("Can not unify a {} to a Spread", typeToString(sub_node)), sub_node);
-
-            for (std::size_t i = 1, end = sub_node.list().size(); i < end; ++i)
-                parent->list().insert(
-                    parent->list().begin() + static_cast<std::vector<Node>::difference_type>(index + i),
-                    sub_node.list()[i]);
-            parent->list().erase(parent->list().begin() + static_cast<std::vector<Node>::difference_type>(index));  // remove the spread
-        }
     }
 
     void MacroProcessor::setWithFileAttributes(const Node origin, Node& output, const Node& macro)
@@ -634,7 +595,7 @@ namespace Ark::internal
         }
     }
 
-    bool MacroProcessor::hadBegin(const Node& node)
+    bool MacroProcessor::isBeginNode(const Node& node)
     {
         return node.nodeType() == NodeType::List &&
             !node.constList().empty() &&

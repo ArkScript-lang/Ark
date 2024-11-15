@@ -1,7 +1,10 @@
+#include <cassert>
 #include <Ark/Compiler/Macros/Executors/Function.hpp>
 
 #include <fmt/core.h>
 #include <ranges>
+
+#include <Ark/Constants.hpp>
 
 namespace Ark::internal
 {
@@ -10,6 +13,7 @@ namespace Ark::internal
         return node.nodeType() == NodeType::List && !node.constList().empty() && node.constList()[0].nodeType() == NodeType::Symbol;
     }
 
+    // fixme this needs more comments / split into methods
     bool FunctionExecutor::applyMacro(Node& node, const unsigned depth)
     {
         Node& first = node.list()[0];
@@ -84,5 +88,44 @@ namespace Ark::internal
         }
 
         return false;
+    }
+
+    void FunctionExecutor::unify(const std::unordered_map<std::string, Node>& map, Node& target, Node* parent, const std::size_t index, const std::size_t unify_depth)
+    {
+        if (unify_depth > MaxMacroUnificationDepth)
+            throwMacroProcessingError(
+                fmt::format(
+                    "Max macro unification depth reached ({}). You may have a macro trying to evaluate itself, try splitting your code in multiple nodes.",
+                    MaxMacroUnificationDepth),
+                *parent);
+
+        if (target.nodeType() == NodeType::Symbol)
+        {
+            if (const auto p = map.find(target.string()); p != map.end())
+                target = p->second;
+        }
+        else if (target.isListLike())
+        {
+            for (std::size_t i = 0; i < target.list().size(); ++i)
+                unify(map, target.list()[i], &target, i, unify_depth + 1);
+        }
+        else if (target.nodeType() == NodeType::Spread)
+        {
+            assert(parent != nullptr && "Parent node should be defined when unifying a spread");
+
+            Node sub_node = target;
+            sub_node.setNodeType(NodeType::Symbol);
+            unify(map, sub_node, parent, 0, unify_depth + 1);
+
+            if (sub_node.nodeType() != NodeType::List)
+                throwMacroProcessingError(fmt::format("Can not unify a {} to a Spread", typeToString(sub_node)), sub_node);
+
+            for (std::size_t i = 1, end = sub_node.list().size(); i < end; ++i)
+                parent->list().insert(
+                    parent->list().begin() + static_cast<std::vector<Node>::difference_type>(index + i),
+                    sub_node.list()[i]);
+            // remove the spread
+            parent->list().erase(parent->list().begin() + static_cast<std::vector<Node>::difference_type>(index));
+        }
     }
 }
