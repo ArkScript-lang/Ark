@@ -111,17 +111,6 @@ namespace Ark::internal
          * @param node the node in which there is an error
          */
         [[noreturn]] static void throwMacroProcessingError(const std::string& message, const Node& node);
-
-        /**
-         * @brief Execute a node, trying to emplace macros calls
-         * @details Proxy function for MacroProcessor::applyMacro
-         *
-         * @param node
-         * @param depth
-         * @return true
-         * @return false
-         */
-        bool applyMacroProxy(Node& node, unsigned depth) const;
     };
 
 }
