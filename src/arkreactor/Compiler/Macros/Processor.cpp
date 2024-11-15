@@ -21,8 +21,9 @@ namespace Ark::internal
         Pass("MacroProcessor", debug)
     {
         // create executors pipeline
+        m_conditional_executor = std::make_shared<ConditionalExecutor>(this);
         m_executors.emplace_back(std::make_shared<SymbolExecutor>(this));
-        m_executors.emplace_back(std::make_shared<ConditionalExecutor>(this));
+        m_executors.emplace_back(m_conditional_executor);
         m_executors.emplace_back(std::make_shared<FunctionExecutor>(this));
     }
 
@@ -46,7 +47,7 @@ namespace Ark::internal
         return m_ast;
     }
 
-    void MacroProcessor::registerMacro(Node& node)
+    void MacroProcessor::handleMacroNode(Node& node)
     {
         // a macro needs at least 2 nodes, name + value is the minimal form
         // this is guaranted by the parser
@@ -66,6 +67,9 @@ namespace Ark::internal
             assert(node.list()[1].nodeType() == NodeType::List && "Invalid macro argument's list");
             m_macros.back().add(first_node.string(), node);
         }
+        // in case we had a conditional, we need to evaluate and expand it
+        else if (m_conditional_executor->canHandle(node))
+            m_conditional_executor->applyMacro(node, 0);
     }
 
     // todo find a better way to do this
@@ -122,17 +126,13 @@ namespace Ark::internal
                         m_macros.emplace_back(depth);
                     }
 
-                    registerMacro(node.list()[pos]);
-                    // in case we had a conditional, we need to evaluate it
-                    applyMacro(node.list()[pos], 0);
-
+                    handleMacroNode(node.list()[pos]);
                     added_begin = isBeginNode(node.list()[pos]) && !had_begin;
                 }
                 else  // running on non-macros
                 {
                     applyMacro(node.list()[pos], 0);
                     recurApply(node.list()[pos]);  // todo remove it
-
                     added_begin = isBeginNode(node.list()[pos]) && !had_begin;
 
                     if (node.list()[pos].nodeType() == NodeType::Unused)

@@ -22,7 +22,7 @@ namespace Ark::internal
         }
 
         if (node.nodeType() == NodeType::Macro)
-            registerMacro(node);
+            handleMacroNode(node);
 
         return true;
     }

@@ -14,9 +14,9 @@ namespace Ark::internal
         return m_processor->findNearestMacro(name);
     }
 
-    void MacroExecutor::registerMacro(Node& node) const
+    void MacroExecutor::handleMacroNode(Node& node) const
     {
-        m_processor->registerMacro(node);
+        m_processor->handleMacroNode(node);
     }
 
     bool MacroExecutor::isTruthy(const Node& node) const

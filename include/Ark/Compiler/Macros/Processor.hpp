@@ -57,6 +57,7 @@ namespace Ark::internal
     private:
         Node m_ast;                        ///< The modified AST
         std::vector<MacroScope> m_macros;  ///< Handling macros in a scope fashion
+        std::shared_ptr<MacroExecutor> m_conditional_executor;
         std::vector<std::shared_ptr<MacroExecutor>> m_executors;
         std::unordered_map<std::string, Node> m_defined_functions;
 
@@ -117,12 +118,12 @@ namespace Ark::internal
         [[nodiscard]] bool isConstEval(const Node& node) const;
 
         /**
-         * @brief Registers macros based on their type
+         * @brief Registers macros based on their type, expand conditional macros
          * @details Validate macros and register them by their name
          *
          * @param node A node of type Macro
          */
-        void registerMacro(Node& node);
+        void handleMacroNode(Node& node);
 
         /**
          * @brief Registers a function definition node
