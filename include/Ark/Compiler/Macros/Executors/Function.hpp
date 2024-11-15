@@ -2,7 +2,7 @@
  * @file Function.hpp
  * @author Ray John Alovera (rakista112@gmail.com), Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Executor for List Macros
- * @version 2.1
+ * @version 3.0
  * @date 2021-05-04
  *
  * @copyright Copyright (c) 2021-2024
@@ -40,6 +40,9 @@ namespace Ark::internal
          * @return true if the executor can handle the given node
          */
         [[nodiscard]] bool canHandle(Node& node) override;
+
+    private:
+        void unify(const std::unordered_map<std::string, Node>& map, Node& target, Node* parent, std::size_t index = 0, std::size_t unify_depth = 0);
     };
 
 }
