@@ -33,9 +33,4 @@ namespace Ark::internal
     {
         MacroProcessor::throwMacroProcessingError(message, node);
     }
-
-    bool MacroExecutor::applyMacroProxy(Node& node, const unsigned depth) const
-    {
-        return m_processor->applyMacro(node, depth);
-    }
 }
