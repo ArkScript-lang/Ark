@@ -10,7 +10,7 @@ namespace Ark::internal
     {
         m_logger.traceStart("process");
         m_ast = ast;
-        // FIXME activate this removeUnused();
+        // todo: activate this removeUnused();
         m_logger.traceEnd();
     }
 

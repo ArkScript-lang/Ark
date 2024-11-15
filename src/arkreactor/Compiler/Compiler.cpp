@@ -207,7 +207,11 @@ namespace Ark::internal
             handleCalls(x, p, is_result_unused, is_terminal, var_name);
         }
         else
-            throwCompilerError("boop", x);  // FIXME
+            throwCompilerError(
+                fmt::format(
+                    "NodeType `{}' not handled in Compiler::compileExpression. Please fill an issue on GitHub: https://github.com/ArkScript-lang/Ark",
+                    typeToString(x)),
+                x);
     }
 
     void Compiler::compileSymbol(const Node& x, const Page p, const bool is_result_unused)
