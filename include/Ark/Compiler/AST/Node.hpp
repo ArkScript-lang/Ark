@@ -97,6 +97,13 @@ namespace Ark::internal
         [[nodiscard]] bool isListLike() const noexcept;
 
         /**
+         * @brief Copy a node to the current one, while keeping the filename and position in the file
+         *
+         * @param source node to copy type and value from
+         */
+        void updateValueAndType(const Node& source) noexcept;
+
+        /**
          * @brief Set the Node Type object
          *
          * @param type

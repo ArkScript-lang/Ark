@@ -150,14 +150,6 @@ namespace Ark::internal
         bool applyMacro(Node& node, unsigned depth);
 
         /**
-         * @brief Set the file attributes of the output node based on the original node
-         * @param origin original node
-         * @param output output node which will be modified
-         * @param macro modified node, macro applied
-         */
-        void setWithFileAttributes(const Node origin, Node& output, const Node& macro);
-
-        /**
          * @brief Check if the given node has exactly the provided argument count, otherwise throws an error
          *
          * @param node a list node with a macro application, eg (= a b)
