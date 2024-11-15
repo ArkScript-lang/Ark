@@ -74,13 +74,13 @@ namespace Ark::internal
         [[nodiscard]] const Node* findNearestMacro(const std::string& name) const;
 
         /**
-         * @brief Registers macros based on their type
+         * @brief Registers macros based on their type, expand conditional macros
          * @details Validate macros and register them by their name
-         *  Proxy function for MacroProcessor::registerMacro
+         *  Proxy function for MacroProcessor::handleMacroNode
          *
          * @param node A node of type Macro
          */
-        void registerMacro(Node& node) const;
+        void handleMacroNode(Node& node) const;
 
         /**
          * @brief Check if a node can be evaluated to true
