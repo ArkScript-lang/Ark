@@ -95,7 +95,7 @@ namespace Ark::internal
                     // modules are already handled, we can safely replace the node
                     x = m_modules[package].ast;
                     if (!m_modules[package].has_been_processed)
-                        x = findAndReplaceImports(x).first;  // FIXME?
+                        x = findAndReplaceImports(x).first;  // todo: ?
                     return std::make_pair(x, !m_modules[package].has_been_processed);
                 }
 
