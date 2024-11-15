@@ -76,14 +76,14 @@ namespace Ark::internal
                 if (!args_applied.empty())
                     unify(args_applied, temp_body, nullptr);
 
-                setWithFileAttributes(node, node, evaluate(temp_body, depth + 1, false));
+                node.updateValueAndType(evaluate(temp_body, depth + 1, false));
                 applyMacroProxy(node, depth + 1);  // todo: this seems useless
                 return true;
             }
         }
         else if (std::ranges::find(Language::macros, first.string()) != Language::macros.end())
         {
-            setWithFileAttributes(node, node, evaluate(node, depth + 1, false));
+            node.updateValueAndType(evaluate(node, depth + 1, false));
             return true;
         }
 

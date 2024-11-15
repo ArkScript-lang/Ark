@@ -70,6 +70,12 @@ namespace Ark::internal
         return m_type == NodeType::List || m_type == NodeType::Macro;
     }
 
+    void Node::updateValueAndType(const Node& source) noexcept
+    {
+        m_type = source.m_type;
+        m_value = source.m_value;
+    }
+
     void Node::setNodeType(const NodeType type) noexcept
     {
         m_type = type;

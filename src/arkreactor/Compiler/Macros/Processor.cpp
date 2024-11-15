@@ -188,13 +188,6 @@ namespace Ark::internal
         return false;
     }
 
-    void MacroProcessor::setWithFileAttributes(const Node origin, Node& output, const Node& macro)
-    {
-        output = macro;
-        output.setFilename(origin.filename());
-        output.setPos(origin.line(), origin.col());
-    }
-
     void MacroProcessor::checkMacroArgCount(const Node& node, std::size_t expected, const std::string& name, const std::string& kind)
     {
         const std::size_t argcount = node.constList().size();
@@ -337,9 +330,9 @@ namespace Ark::internal
                     if (isConstEval(lst))
                     {
                         if (!lst.list().empty() && lst.list()[0] == getListNode())
-                            setWithFileAttributes(node, node, Node(static_cast<long>(lst.list().size()) - 1));
+                            node.updateValueAndType(Node(static_cast<long>(lst.list().size()) - 1));
                         else
-                            setWithFileAttributes(node, node, Node(static_cast<long>(lst.list().size())));
+                            node.updateValueAndType(Node(static_cast<long>(lst.list().size())));
                     }
                 }
             }
@@ -351,12 +344,12 @@ namespace Ark::internal
                 {
                     // only apply len at compile time if we can
                     if (!lst.list().empty() && lst.list()[0] == getListNode())
-                        setWithFileAttributes(node, node, lst.list().size() - 1 == 0 ? getTrueNode() : getFalseNode());
+                        node.updateValueAndType(lst.list().size() - 1 == 0 ? getTrueNode() : getFalseNode());
                     else
-                        setWithFileAttributes(node, node, lst.list().empty() ? getTrueNode() : getFalseNode());
+                        node.updateValueAndType(lst.list().empty() ? getTrueNode() : getFalseNode());
                 }
                 else if (lst == getNilNode())
-                    setWithFileAttributes(node, node, getTrueNode());
+                    node.updateValueAndType(getTrueNode());
             }
             else if (name == "@")
             {
@@ -404,15 +397,15 @@ namespace Ark::internal
                         if (sublist.constList().size() > 1)
                         {
                             const Node sublistCopy = sublist.constList()[1];
-                            setWithFileAttributes(node, node, sublistCopy);
+                            node.updateValueAndType(sublistCopy);
                         }
                         else
-                            setWithFileAttributes(node, node, getNilNode());
+                            node.updateValueAndType(getNilNode());
                     }
                     else if (!sublist.list().empty())
-                        setWithFileAttributes(node, node, sublist.constList()[0]);
+                        node.updateValueAndType(sublist.constList()[0]);
                     else
-                        setWithFileAttributes(node, node, getNilNode());
+                        node.updateValueAndType(getNilNode());
                 }
             }
             else if (name == "tail")
@@ -427,11 +420,11 @@ namespace Ark::internal
                         if (sublist.list().size() > 1)
                         {
                             sublist.list().erase(sublist.constList().begin() + 1);
-                            setWithFileAttributes(node, node, sublist);
+                            node.updateValueAndType(sublist);
                         }
                         else
                         {
-                            setWithFileAttributes(node, node, Node(NodeType::List));
+                            node.updateValueAndType(Node(NodeType::List));
                             node.push_back(getListNode());
                         }
                     }
@@ -439,11 +432,11 @@ namespace Ark::internal
                     {
                         sublist.list().erase(sublist.constList().begin());
                         sublist.list().insert(sublist.list().begin(), getListNode());
-                        setWithFileAttributes(node, node, sublist);
+                        node.updateValueAndType(sublist);
                     }
                     else
                     {
-                        setWithFileAttributes(node, node, Node(NodeType::List));
+                        node.updateValueAndType(Node(NodeType::List));
                         node.push_back(getListNode());
                     }
                 }
@@ -487,19 +480,19 @@ namespace Ark::internal
                 if (sym.nodeType() == NodeType::Symbol)
                 {
                     if (const auto maybe_func = lookupDefinedFunction(sym.string()); maybe_func.has_value())
-                        setWithFileAttributes(node, node, Node(static_cast<long>(maybe_func->constList().size())));
+                        node.updateValueAndType(Node(static_cast<long>(maybe_func->constList().size())));
                     else
                         throwMacroProcessingError(fmt::format("When expanding `{}', expected a known function name, got unbound variable {}", Language::Argcount, sym.string()), sym);
                 }
                 else if (sym.nodeType() == NodeType::List && sym.constList().size() == 3 && sym.constList()[0].nodeType() == NodeType::Keyword && sym.constList()[0].keyword() == Keyword::Fun)
-                    setWithFileAttributes(node, node, Node(static_cast<long>(sym.constList()[1].constList().size())));
+                    node.updateValueAndType(Node(static_cast<long>(sym.constList()[1].constList().size())));
                 else
                     throwMacroProcessingError(fmt::format("When trying to apply `{}', got a {} instead of a Symbol or Function", Language::Argcount, typeToString(sym)), sym);
             }
             else if (name == Language::Repr)
             {
                 const Node ast = node.constList()[1];
-                setWithFileAttributes(node, node, Node(NodeType::String, ast.repr()));
+                node.updateValueAndType(Node(NodeType::String, ast.repr()));
             }
             else if (name == Language::Paste)
             {
@@ -531,7 +524,7 @@ namespace Ark::internal
         if (node.nodeType() == NodeType::List && !node.constList().empty())
         {
             for (auto& child : node.list())
-                setWithFileAttributes(child, child, evaluate(child, depth + 1, is_not_body));
+                child.updateValueAndType(evaluate(child, depth + 1, is_not_body));
         }
 
         if (node.nodeType() == NodeType::Spread)

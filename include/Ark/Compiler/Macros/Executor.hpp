@@ -64,14 +64,6 @@ namespace Ark::internal
         MacroProcessor* m_processor;  ///< This is a non-owned pointer.
 
         /**
-         * @brief Set the file attributes of the output node based on the original node
-         * @param origin original node
-         * @param output output node which will be modified
-         * @param macro modified node, macro applied
-         */
-        void setWithFileAttributes(const Node origin, Node& output, const Node& macro);
-
-        /**
          * @brief Find the nearest macro matching a giving name
          *
          * @details Proxy function for MacroProcessor::findNearestMacro
