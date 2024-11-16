@@ -132,11 +132,17 @@ namespace Ark::internal
                 else  // running on non-macros
                 {
                     applyMacro(node.list()[pos], 0);
-                    recurApply(node.list()[pos]);  // todo remove it
                     added_begin = isBeginNode(node.list()[pos]) && !had_begin;
 
                     if (node.list()[pos].nodeType() == NodeType::Unused)
                         node.list().erase(node.constList().begin() + static_cast<std::vector<Node>::difference_type>(pos));
+                    else
+                        // Go forward only if it isn't a macro, because we delete macros
+                        // while running on the AST. Also, applying a macro can result in
+                        // nodes being marked unused, and delete them immediately. When
+                        // that happens, we can't increment i, otherwise we delete a node,
+                        // advance, resulting in a node being skipped!
+                        ++i;
 
                     // process subnodes if any
                     if (node.nodeType() == NodeType::List && pos < node.constList().size())
@@ -145,10 +151,6 @@ namespace Ark::internal
                         // needed if we created a function node from a macro
                         registerFuncDef(node.list()[pos]);
                     }
-
-                    // go forward only if it isn't a macro, because we delete macros
-                    // while running on the AST
-                    ++i;
                 }
 
                 if (pos < node.constList().size())
@@ -581,15 +583,6 @@ namespace Ark::internal
                 // stop right here because we found one matching macro
                 return;
             }
-        }
-    }
-
-    void MacroProcessor::recurApply(Node& node)
-    {
-        if (applyMacro(node, 0) && node.isListLike())
-        {
-            for (auto& child : node.list())
-                recurApply(child);
         }
     }
 

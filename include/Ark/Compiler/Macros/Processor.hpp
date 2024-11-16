@@ -85,13 +85,6 @@ namespace Ark::internal
         void deleteNearestMacro(const std::string& name);
 
         /**
-         * @brief Recursively apply macros on a given node
-         *
-         * @param node
-         */
-        void recurApply(Node& node);
-
-        /**
          * @brief Check if a given node is a list node, and starts with a Begin
          *
          * @param node
