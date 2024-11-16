@@ -16,6 +16,7 @@ namespace Ark::internal
             {
                 node.updateValueAndType(macro->constList()[1]);
                 evaluate(node, depth + 1, false);
+                applyMacroProxy(node, depth + 1);
                 return true;
             }
         }

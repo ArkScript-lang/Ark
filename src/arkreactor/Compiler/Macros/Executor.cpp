@@ -14,6 +14,11 @@ namespace Ark::internal
         return m_processor->findNearestMacro(name);
     }
 
+    void MacroExecutor::applyMacroProxy(Node& node, unsigned depth)
+    {
+        m_processor->applyMacro(node, depth);
+    }
+
     void MacroExecutor::handleMacroNode(Node& node) const
     {
         m_processor->handleMacroNode(node);

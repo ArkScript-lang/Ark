@@ -74,6 +74,7 @@ namespace Ark::internal
                 unify(args_applied, temp_body, nullptr);
 
             node.updateValueAndType(evaluate(temp_body, depth + 1, false));
+            applyMacroProxy(node, depth + 1);
             return true;
         }
 
