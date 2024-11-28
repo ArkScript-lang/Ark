@@ -110,7 +110,7 @@ private:
      */
     static std::string prefix(const std::size_t indent)
     {
-        return std::string(indent * FormatterConfig.SpacePerIndent, ' ');
+        return std::string(indent * FormatterConfig::SpacePerIndent, ' ');
     }
 
     /**
