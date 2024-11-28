@@ -150,8 +150,7 @@ namespace Ark::Diagnostics
         std::stringstream ss;
 
         std::size_t size = 3;
-        // todo add "can be string" attribute
-        if (node.nodeType() == internal::NodeType::Symbol || node.nodeType() == internal::NodeType::String || node.nodeType() == internal::NodeType::Spread)
+        if (node.isStringLike())
             size = node.string().size();
 
         helper(

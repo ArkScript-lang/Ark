@@ -113,6 +113,13 @@ namespace Ark::internal
         [[nodiscard]] bool isListLike() const noexcept;
 
         /**
+         * @brief Check if the node is a string like node
+         * @return true if the node is either a symbol, a string or a spread
+         * @return false
+         */
+        [[nodiscard]] bool isStringLike() const noexcept;
+
+        /**
          * @brief Copy a node to the current one, while keeping the filename and position in the file
          *
          * @param source node to copy type and value from
