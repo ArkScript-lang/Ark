@@ -341,6 +341,7 @@ namespace Ark::internal
 
                 // save the import data structure to know we encounter an import node, and retrieve its data more easily later on
                 import_data.with_prefix = false;
+                import_data.is_glob = true;
                 m_imports.push_back(import_data);
 
                 return leaf;

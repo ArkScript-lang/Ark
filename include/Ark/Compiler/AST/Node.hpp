@@ -17,6 +17,7 @@
 #include <string>
 #include <vector>
 
+#include <Ark/Compiler/AST/Namespace.hpp>
 #include <Ark/Compiler/Common.hpp>
 #include <Ark/Platform.hpp>
 
@@ -29,7 +30,7 @@ namespace Ark::internal
     class ARK_API Node
     {
     public:
-        using Value = std::variant<double, std::string, Keyword, std::vector<Node>>;
+        using Value = std::variant<double, std::string, Keyword, std::vector<Node>, Namespace>;
 
         Node() = default;
 
@@ -39,6 +40,7 @@ namespace Ark::internal
         explicit Node(double value);
         explicit Node(long value);
         explicit Node(Keyword value);
+        explicit Node(Namespace namespace_);
 
         /**
          * @brief Return the string held by the value (if the node type allows it)
@@ -60,6 +62,20 @@ namespace Ark::internal
          * @return Keyword
          */
         [[nodiscard]] Keyword keyword() const noexcept;
+
+        /**
+         * @brief Return the namespace held by the value (if the node type allows it)
+         *
+         * @return Namespace&
+         */
+        [[nodiscard]] Namespace& arkNamespace() noexcept;
+
+        /**
+         * @brief Return the namespace held by the value (if the node type allows it)
+         *
+         * @return const Namespace&
+         */
+        [[nodiscard]] const Namespace& constArkNamespace() const noexcept;
 
         /**
          * @brief Every node has a list as well as a value so we can push_back on all node no matter their type

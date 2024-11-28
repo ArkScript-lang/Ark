@@ -168,6 +168,8 @@ namespace Ark::internal
             if (!m_macros.empty() && m_macros.back().depth() == depth)
                 m_macros.pop_back();
         }
+        else if (node.nodeType() == NodeType::Namespace)
+            processNode(*node.arkNamespace().ast, depth);
     }
 
     bool MacroProcessor::applyMacro(Node& node, const unsigned depth)
@@ -648,6 +650,7 @@ namespace Ark::internal
             case NodeType::Number:
             case NodeType::Macro:
             case NodeType::Spread:
+            case NodeType::Namespace:
             case NodeType::Unused:
                 return true;
         }

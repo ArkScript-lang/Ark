@@ -92,7 +92,7 @@ namespace Ark::internal
         m_logger.traceStart("process");
 
         m_ast = ast;
-        visit(ast);
+        visit(m_ast);
         m_logger.traceStart("checkForUndefinedSymbol");
         checkForUndefinedSymbol();
         m_logger.traceEnd();
@@ -111,7 +111,7 @@ namespace Ark::internal
         m_scope_resolver.registerInCurrent(sym, is_mutable);
     }
 
-    void NameResolutionPass::visit(const Node& node)
+    void NameResolutionPass::visit(Node& node)
     {
         switch (node.nodeType())
         {
@@ -164,18 +164,28 @@ namespace Ark::internal
                             }
                         }
 
-                        for (const auto& child : node.constList())
+                        for (auto& child : node.list())
                             visit(child);
                     }
                 }
                 break;
+
+            case NodeType::Namespace:
+            {
+                // TODO
+                auto& namespace_ = node.arkNamespace();
+                // m_scope_resolver.createNewNamespace(name, with_prefix, is_glob, symbols)
+                visit(*namespace_.ast);
+                // m_scope_resolver.removeNamespace()
+                break;
+            }
 
             default:
                 break;
         }
     }
 
-    void NameResolutionPass::visitKeyword(const Node& node, const Keyword keyword)
+    void NameResolutionPass::visitKeyword(Node& node, const Keyword keyword)
     {
         switch (keyword)
         {
@@ -187,7 +197,7 @@ namespace Ark::internal
                 // first, visit the value, then register the symbol
                 // this allows us to detect things like (let foo (fun (&foo) ()))
                 if (node.constList().size() > 2)
-                    visit(node.constList()[2]);
+                    visit(node.list()[2]);
                 if (node.constList().size() > 1 && node.constList()[1].nodeType() == NodeType::Symbol)
                 {
                     const std::string& name = node.constList()[1].string();
@@ -265,12 +275,12 @@ namespace Ark::internal
                     }
                 }
                 if (node.constList().size() > 2)
-                    visit(node.constList()[2]);
+                    visit(node.list()[2]);
                 m_scope_resolver.removeLocalScope();  // and remove it once the function has been compiled
                 break;
 
             default:
-                for (const auto& child : node.constList())
+                for (auto& child : node.list())
                     visit(child);
                 break;
         }

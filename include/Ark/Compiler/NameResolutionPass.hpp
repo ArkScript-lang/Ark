@@ -159,14 +159,14 @@ namespace Ark::internal
          * @brief Recursively visit nodes
          * @param node node to visit
          */
-        void visit(const Node& node);
+        void visit(Node& node);
 
         /**
          *
          * @param node a list node whose first child is a keyword
          * @param keyword
          */
-        void visitKeyword(const Node& node, Keyword keyword);
+        void visitKeyword(Node& node, Keyword keyword);
 
         /**
          * @brief Register a given node in the symbol table
