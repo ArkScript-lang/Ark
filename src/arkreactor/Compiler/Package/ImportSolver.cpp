@@ -92,13 +92,12 @@ namespace Ark::internal
                     if (!m_packages[package].has_been_processed)
                     {
                         const auto import = m_packages[package].import;
-                        // x = Node(Namespace {
-                        //     .name = import.prefix,
-                        //     .is_glob = import.is_glob,
-                        //     .with_prefix = import.with_prefix,
-                        //     .symbols = import.symbols,
-                        //     std::make_shared<Node>(findAndReplaceImports(x).first) });
-                        x = findAndReplaceImports(x).first;
+                        x = Node(Namespace {
+                            .name = import.prefix,
+                            .is_glob = import.is_glob,
+                            .with_prefix = import.with_prefix,
+                            .symbols = import.symbols,
+                            std::make_shared<Node>(findAndReplaceImports(x).first) });
                     }
                     // we parsed an import node, return true in the pair to notify the caller
                     return std::make_pair(x, /* is_import= */ true);
@@ -113,33 +112,7 @@ namespace Ark::internal
                 for (std::size_t i = 0; i < x.constList().size(); ++i)
                 {
                     auto [node, is_import] = findAndReplaceImports(x.constList()[i]);
-                    if (!is_import)
-                        x.list()[i] = node;
-                    else
-                    {
-                        // TODO: handle namespace nodes
-                        if (node.constList().size() > 1)
-                        {
-                            x.list()[i] = node.constList()[1];
-                            // NOTE maybe maybe maybe
-                            // why do we start at 2 and not 1?
-                            for (std::size_t j = 2, end_j = node.constList().size(); j < end_j; ++j)
-                            {
-                                if (i + j - 1 < x.list().size())
-                                    x.list().insert(
-                                        x.list().begin() + static_cast<std::vector<Node>::difference_type>(i + j - 1),
-                                        node.constList()[j]);
-                                else
-                                    x.list().push_back(node.constList()[j]);
-                            }
-
-                            // -2 because we skipped the Begin node and the first node of the block isn't inserted
-                            // but replaces an existing one
-                            i += node.constList().size() - 2;
-                        }
-                        else
-                            x.list()[i] = node;
-                    }
+                    x.list()[i] = node;
                 }
             }
         }

@@ -140,6 +140,9 @@ namespace Ark::internal
             if (!is_result_unused)
                 page(p).emplace_back(LOAD_CONST, i);
         }
+        // namespace nodes
+        else if (x.nodeType() == NodeType::Namespace)
+            compileExpression(*x.constArkNamespace().ast, p, is_result_unused, is_terminal, var_name);
         // empty code block should be nil
         else if (x.constList().empty())
         {

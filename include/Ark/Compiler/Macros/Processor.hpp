@@ -130,8 +130,9 @@ namespace Ark::internal
          *
          * @param node node on which to operate
          * @param depth
+         * @param is_processing_namespace
          */
-        void processNode(Node& node, unsigned depth);
+        void processNode(Node& node, unsigned depth, bool is_processing_namespace = false);
 
         /**
          * @brief Apply a macro on a given node

@@ -6,8 +6,6 @@
 
 namespace Ark::internal
 {
-    // TODO store something better than just the AST (AST+what we are importing as private/public/namespaced... vs all)
-    //      so that we can remember the order in which we encountered imports.
     struct Package
     {
         Node ast;
