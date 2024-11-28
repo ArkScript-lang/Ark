@@ -288,9 +288,8 @@ namespace Ark::internal
 
             case NodeType::Namespace:
             {
-                os << "( Namespace: ";
                 const auto details = constArkNamespace();
-                os << details.name << " ";
+                os << "( Namespace:" << details.name << " ";
                 details.ast->debugPrint(os) << " )";
                 break;
             }

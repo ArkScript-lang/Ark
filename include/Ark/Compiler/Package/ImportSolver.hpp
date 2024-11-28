@@ -54,8 +54,7 @@ namespace Ark::internal
         Node m_ast;
         std::stack<Import> m_imports;
         std::unordered_map<std::string, Package> m_packages;  ///< Package name to package AST & data mapping
-        // TODO is this ok? is this fine? this is sort of ugly
-        std::vector<std::string> m_imported;  ///< List of imports, in the order they were found and parsed
+        std::vector<std::string> m_imported;                  ///< List of imports, in the order they were found and parsed
 
         /**
          * @brief Visits the AST, looking for import nodes to replace with their parsed module version

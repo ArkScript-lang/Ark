@@ -97,7 +97,7 @@ namespace Ark::internal
         }
     }
 
-    void MacroProcessor::processNode(Node& node, unsigned depth)
+    void MacroProcessor::processNode(Node& node, unsigned depth, bool is_processing_namespace)
     {
         if (depth >= MaxMacroProcessingDepth)
             throwMacroProcessingError(
@@ -114,27 +114,30 @@ namespace Ark::internal
             while (i < node.list().size())
             {
                 const std::size_t pos = i;
-                const bool had_begin = isBeginNode(node.list()[pos]);
+                Node& child = node.list()[pos];
+                const bool had_begin = isBeginNode(child);
                 bool added_begin = false;
 
-                if (node.list()[pos].nodeType() == NodeType::Macro)
+                if (child.nodeType() == NodeType::Macro)
                 {
                     // create a scope only if needed
-                    if ((!m_macros.empty() && !m_macros.back().empty() && m_macros.back().depth() < depth) || !has_created)
+                    if ((!m_macros.empty() && !m_macros.back().empty() && m_macros.back().depth() < depth && !is_processing_namespace) ||
+                        (!has_created && !is_processing_namespace) ||
+                        (m_macros.empty() && is_processing_namespace))
                     {
                         has_created = true;
                         m_macros.emplace_back(depth);
                     }
 
-                    handleMacroNode(node.list()[pos]);
-                    added_begin = isBeginNode(node.list()[pos]) && !had_begin;
+                    handleMacroNode(child);
+                    added_begin = isBeginNode(child) && !had_begin;
                 }
                 else  // running on non-macros
                 {
-                    applyMacro(node.list()[pos], 0);
-                    added_begin = isBeginNode(node.list()[pos]) && !had_begin;
+                    applyMacro(child, 0);
+                    added_begin = isBeginNode(child) && !had_begin;
 
-                    if (node.list()[pos].nodeType() == NodeType::Unused)
+                    if (child.nodeType() == NodeType::Unused)
                         node.list().erase(node.constList().begin() + static_cast<std::vector<Node>::difference_type>(pos));
                     else
                         // Go forward only if it isn't a macro, because we delete macros
@@ -147,9 +150,9 @@ namespace Ark::internal
                     // process subnodes if any
                     if (node.nodeType() == NodeType::List && pos < node.constList().size())
                     {
-                        processNode(node.list()[pos], depth + 1);
+                        processNode(child, depth + 1);
                         // needed if we created a function node from a macro
-                        registerFuncDef(node.list()[pos]);
+                        registerFuncDef(child);
                     }
                 }
 
@@ -159,17 +162,24 @@ namespace Ark::internal
                     if (added_begin)
                         removeBegin(node, pos);
                     // if there is an unused node or a leftover macro need, we need to get rid of it in the final ast
-                    else if (node.list()[pos].nodeType() == NodeType::Macro || node.list()[pos].nodeType() == NodeType::Unused)
+                    else if (child.nodeType() == NodeType::Macro || child.nodeType() == NodeType::Unused)
                         node.list().erase(node.constList().begin() + static_cast<std::vector<Node>::difference_type>(pos));
                 }
             }
 
             // delete a scope only if needed
-            if (!m_macros.empty() && m_macros.back().depth() == depth)
+            if (!m_macros.empty() && m_macros.back().depth() == depth && !is_processing_namespace)
                 m_macros.pop_back();
         }
         else if (node.nodeType() == NodeType::Namespace)
-            processNode(*node.arkNamespace().ast, depth);
+        {
+            Node& namespace_ast = *node.arkNamespace().ast;
+            // We have to use depth - 1 because it was incremented previously, as a namespace node
+            // must be in a list node. Then depth - 1 is safe as depth is at least 1.
+            // Using a decreased value of depth ensures that macros are stored in the correct scope,
+            // and not deleted when the namespace traversal ends.
+            processNode(namespace_ast, depth - 1, /* is_processing_namespace= */ true);
+        }
     }
 
     bool MacroProcessor::applyMacro(Node& node, const unsigned depth)
