@@ -21,7 +21,7 @@
 #include <Ark/Compiler/Pass.hpp>
 #include <Ark/Compiler/AST/Node.hpp>
 #include <Ark/Compiler/AST/Import.hpp>
-#include <Ark/Compiler/Package/Module.hpp>
+#include <Ark/Compiler/Package/Package.hpp>
 
 namespace Ark::internal
 {
@@ -53,7 +53,7 @@ namespace Ark::internal
         std::filesystem::path m_root;  ///< Folder were the entry file is
         Node m_ast;
         std::stack<Import> m_imports;
-        std::unordered_map<std::string, Module> m_modules;  ///< Package to module map
+        std::unordered_map<std::string, Package> m_packages;  ///< Package name to package AST & data mapping
         // TODO is this ok? is this fine? this is sort of ugly
         std::vector<std::string> m_imported;  ///< List of imports, in the order they were found and parsed
 

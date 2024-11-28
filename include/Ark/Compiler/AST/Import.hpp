@@ -1,5 +1,5 @@
-#ifndef COMPILER_AST_IMPORT_HPP
-#define COMPILER_AST_IMPORT_HPP
+#ifndef ARK_COMPILER_AST_IMPORT_HPP
+#define ARK_COMPILER_AST_IMPORT_HPP
 
 #include <vector>
 #include <string>
@@ -31,13 +31,18 @@ namespace Ark::internal
         std::vector<std::string> package;
 
         /**
-         * @brief Import with prefix (the package) or not
+         * @brief Import with prefix (import package)
          *
          */
         bool with_prefix = true;
 
         /**
-         * @brief List of symbols to import, can be empty if none provided
+         * @brief Import as glob (import package:*)
+         */
+        bool is_glob = false;
+
+        /**
+         * @brief List of symbols to import, can be empty if none provided. (import package :a :b)
          *
          */
         std::vector<std::string> symbols;
@@ -66,17 +71,6 @@ namespace Ark::internal
                 [](const std::string& a, const std::string& b) {
                     return a + "/" + b;
                 });
-        }
-
-        /**
-         * @brief Check if we should import everything, given something like `(import foo.bar.egg:*)`
-         *
-         * @return true if all symbols of the file should be imported in the importer scope
-         * @return false otherwise
-         */
-        [[nodiscard]] bool isGlob() const
-        {
-            return !with_prefix && symbols.empty();
         }
 
         /**

@@ -29,16 +29,12 @@ std::string astToString(Ark::internal::Parser& parser)
         ss << i << ") " << data.prefix;
         if (data.isBasic())
             ss << " (basic)";
-        else if (data.isGlob())
+        if (data.is_glob)
             ss << " (glob)";
-        else
-        {
-            ss << " ( ";
-            for (const std::string& sym : data.symbols)
-                ss << sym << " ";
-            ss << ")";
-        }
-        ss << "\n";
+        ss << " ( ";
+        for (const std::string& sym : data.symbols)
+            ss << sym << " ";
+        ss << ")\n";
     }
 
     return ss.str();

@@ -40,28 +40,21 @@ namespace Ark::internal
             // It needs to be removed first because we might be adding
             // other imports later and don't want to pop THEM
             m_imports.pop();
+            const auto package = import.toPackageString();
 
-            // TODO: add special handling for each type of import (prefixed, with symbols, glob pattern)
-            if (!m_modules.contains(import.toPackageString()))
+            if (m_packages.contains(package))
             {
-                // NOTE: since the "file" (=root) argument doesn't change between all calls, we could get rid of it
-                std::vector<Import> additional_imports = parseImport(m_root, import);
-                // TODO import and store the new node as a Module node.
-                //      Module nodes should be scoped relatively to their packages
-                //      They should provide specific methods to resolve symbols,
-                //      mark them as public or private.
-                //      OR we could have a map<import, module>, update the module
-                //      accordingly, and once we are done concat all the nodes
-                //      in a single AST.
-                for (auto& additional_import : std::ranges::reverse_view(additional_imports))
-                    m_imports.push(additional_import);
+                // merge the definition, so that we can generate valid Full Qualified Names in the name & scope resolver
+                m_packages[package].import.with_prefix |= import.with_prefix;
+                m_packages[package].import.is_glob |= import.is_glob;
+                for (auto&& symbol : import.symbols)
+                    m_packages[package].import.symbols.push_back(symbol);
             }
             else
             {
-                // TODO: if we already imported a package we should merge their definition
-                //          (import foo:*) > (import foo:a)  -- no prefix
-                //          (import foo)  -- with prefix
-                //          and then decide what to do with the module
+                // NOTE: since the "file" (=root) argument doesn't change between all calls, we could get rid of it
+                for (auto& additional_import : std::ranges::reverse_view(parseImport(m_root, import)))
+                    m_imports.push(additional_import);
             }
         }
 
@@ -80,23 +73,35 @@ namespace Ark::internal
             if (x.constList().size() >= 2 && x.constList()[0].nodeType() == NodeType::Keyword &&
                 x.constList()[0].keyword() == Keyword::Import)
             {
-                // TODO maybe we'll have problems with :* ?
-                std::string package = std::accumulate(
-                    std::next(x.constList()[1].constList().begin()),
-                    x.constList()[1].constList().end(),
-                    x.constList()[1].constList()[0].string(),
+                // compute the package string: foo.bar.egg
+                const auto import_node = x.constList()[1].constList();
+                const std::string package = std::accumulate(
+                    std::next(import_node.begin()),
+                    import_node.end(),
+                    import_node[0].string(),
                     [](const std::string& acc, const Node& elem) -> std::string {
                         return acc + "." + elem.string();
                     });
 
+                // if it wasn't imported already, register it
                 if (std::ranges::find(m_imported, package) == m_imported.end())
                 {
                     m_imported.push_back(package);
                     // modules are already handled, we can safely replace the node
-                    x = m_modules[package].ast;
-                    if (!m_modules[package].has_been_processed)
-                        x = findAndReplaceImports(x).first;  // todo: ?
-                    return std::make_pair(x, !m_modules[package].has_been_processed);
+                    x = m_packages[package].ast;
+                    if (!m_packages[package].has_been_processed)
+                    {
+                        const auto import = m_packages[package].import;
+                        // x = Node(Namespace {
+                        //     .name = import.prefix,
+                        //     .is_glob = import.is_glob,
+                        //     .with_prefix = import.with_prefix,
+                        //     .symbols = import.symbols,
+                        //     std::make_shared<Node>(findAndReplaceImports(x).first) });
+                        x = findAndReplaceImports(x).first;
+                    }
+                    // we parsed an import node, return true in the pair to notify the caller
+                    return std::make_pair(x, /* is_import= */ true);
                 }
 
                 // Replace by empty node to avoid breaking the code gen
@@ -112,6 +117,7 @@ namespace Ark::internal
                         x.list()[i] = node;
                     else
                     {
+                        // TODO: handle namespace nodes
                         if (node.constList().size() > 1)
                         {
                             x.list()[i] = node.constList()[1];
@@ -138,7 +144,7 @@ namespace Ark::internal
             }
         }
 
-        return std::make_pair(x, false);
+        return std::make_pair(x, /* is_import= */ false);
     }
 
     const Node& ImportSolver::ast() const noexcept
@@ -166,8 +172,9 @@ namespace Ark::internal
             // empty symbols list
             module_node.push_back(Node(NodeType::List));
 
-            m_modules[import.toPackageString()] = Module {
+            m_packages[import.toPackageString()] = Package {
                 module_node,
+                import,
                 true
             };
 
@@ -177,8 +184,9 @@ namespace Ark::internal
         Parser parser(m_debug_level);
         const std::string code = Utils::readFile(path.generic_string());
         parser.process(path.string(), code);
-        m_modules[import.toPackageString()] = Module {
+        m_packages[import.toPackageString()] = Package {
             parser.ast(),
+            import,
             false
         };
 

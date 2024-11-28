@@ -2,7 +2,7 @@
  * @file Common.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Common code for the compiler
- * @version 0.4
+ * @version 0.5
  * @date 2021-10-02
  *
  * @copyright Copyright (c) 2021-2024
@@ -36,11 +36,12 @@ namespace Ark::internal
         Spread,
         Field,
         Macro,
+        Namespace,
         Unused
     };
 
     /// Node types as string, in the same order as the enum NodeType
-    constexpr std::array<std::string_view, 10> nodeTypes = {
+    constexpr std::array<std::string_view, 11> nodeTypes = {
         "Symbol",
         "Capture",
         "Keyword",
@@ -50,6 +51,7 @@ namespace Ark::internal
         "Spread",
         "Field",
         "Macro",
+        "Namespace",
         "Unused"
     };
 

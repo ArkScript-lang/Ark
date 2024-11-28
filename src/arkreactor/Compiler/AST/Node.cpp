@@ -30,6 +30,10 @@ namespace Ark::internal
         m_type(NodeType::Keyword), m_value(value)
     {}
 
+    Node::Node(Namespace namespace_) :
+        m_type(NodeType::Namespace), m_value(namespace_)
+    {}
+
     const std::string& Node::string() const noexcept
     {
         return std::get<std::string>(m_value);
@@ -43,6 +47,16 @@ namespace Ark::internal
     Keyword Node::keyword() const noexcept
     {
         return std::get<Keyword>(m_value);
+    }
+
+    Namespace& Node::arkNamespace() noexcept
+    {
+        return std::get<Namespace>(m_value);
+    }
+
+    const Namespace& Node::constArkNamespace() const noexcept
+    {
+        return std::get<Namespace>(m_value);
     }
 
     void Node::push_back(const Node& node) noexcept
@@ -198,6 +212,13 @@ namespace Ark::internal
                 data += "..." + string();
                 break;
 
+            // namespace node should not have a representation as it is purely internal,
+            // and it can't be exploited by macros (unless you try passing an import node
+            // to a macro, which should not happen?)
+            case NodeType::Namespace:
+                data += constArkNamespace().ast->repr();
+                break;
+
             case NodeType::Unused:
                 break;
         }
@@ -264,6 +285,15 @@ namespace Ark::internal
             case NodeType::Spread:
                 os << "Spread:" << string();
                 break;
+
+            case NodeType::Namespace:
+            {
+                os << "( Namespace: ";
+                const auto details = constArkNamespace();
+                os << details.name << " ";
+                details.ast->debugPrint(os) << " )";
+                break;
+            }
 
             case NodeType::Unused:
                 os << "Unused:" << string();

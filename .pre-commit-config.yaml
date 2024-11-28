@@ -22,7 +22,8 @@ repos:
           "--inline-suppr",
           "--suppressions-list=cppcheck-suppressions.txt",
           "--suppress=unusedStructMember",
-          "--suppress=checkersReport"
+          "--suppress=checkersReport",
+          "--check-level=exhaustive"
         ]
   - repo: https://github.com/compilerla/conventional-pre-commit
     rev: 'v3.2.0'
