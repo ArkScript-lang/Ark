@@ -1,0 +1,112 @@
+/**
+ * @file ScopeResolver.hpp
+ * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @brief Handle scope resolution at compile time
+ * @version 0.1
+ * @date 2024-11-30
+ *
+ * @copyright Copyright (c) 2024
+ *
+ */
+
+#ifndef ARK_COMPILER_NAMERESOLUTION_SCOPERESOLVER_HPP
+#define ARK_COMPILER_NAMERESOLUTION_SCOPERESOLVER_HPP
+
+#include <string>
+#include <optional>
+#include <memory>
+
+#include <Ark/Compiler/NameResolution/StaticScope.hpp>
+
+namespace Ark::internal
+{
+    class ScopeResolver
+    {
+    public:
+        /**
+         * @brief Create a ScopeResolver
+         * @details Kickstart by create a default global scope
+         */
+        ScopeResolver();
+
+        /**
+         * @brief Create a new scope
+         * @return StaticScope* non-owning raw pointer to the newly created scope
+         */
+        StaticScope* createNew();
+
+        /**
+         * @brief Remove the last scope
+         */
+        void removeLastScope();
+
+        /**
+         * @brief Create a new namespace scope
+         * @param name
+         * @param with_prefix
+         * @param is_glob
+         * @param symbols
+         * @return NamespaceScope* non-owning raw pointer to the newly created scope
+         */
+        NamespaceScope* createNewNamespace(const std::string& name, bool with_prefix, bool is_glob, const std::vector<std::string>& symbols);
+
+        /**
+         * @brief Register a Declaration in the current (last) scope
+         * @param name
+         * @param is_mutable
+         * @return std::string the fully qualified name assigned by the scope
+         */
+        std::string registerInCurrent(const std::string& name, bool is_mutable);
+
+        /**
+         * @brief Save the last scope as an unprefixed namespace, by attaching it to the nearest namespace scope
+         * @details Also handle removing the scope from the scope pile.
+         */
+        void saveUnprefixedNamespaceAndRemove();
+
+        /**
+         * @brief Checks the scopes in reverse order for 'name' and returns its mutability status
+         * @param name
+         * @return std::nullopt if the Declaration could not be found
+         * @return true if immutable
+         * @return false if mutable
+         */
+        [[nodiscard]] std::optional<bool> isImmutable(const std::string& name) const;
+
+        /**
+         * @brief Checks if any scope has 'name', in reverse order
+         * @param name
+         * @return
+         */
+        [[nodiscard]] bool isRegistered(const std::string& name) const;
+
+        /**
+         * @brief Checks if 'name' is in the current scope
+         *
+         * @param name
+         * @return
+         */
+        [[nodiscard]] bool isInScope(const std::string& name) const;
+
+        /**
+         * @brief Get a FQN from a variable name in the nearest scope it is declared in
+         *
+         * @param name
+         * @return std::string
+         */
+        [[nodiscard]] std::string getFullyQualifiedNameInNearestScope(const std::string& name);
+
+        /**
+         * @brief Return a non-owning raw pointer to the current scope
+         *
+         * @return StaticScope* non-owning pointer to the current scope
+         * @return nullptr if there are no scope
+         */
+        [[nodiscard]] StaticScope* currentScope() const;
+
+    private:
+        std::vector<std::unique_ptr<StaticScope>> m_scopes;
+    };
+}
+
+#endif  // ARK_COMPILER_NAMERESOLUTION_SCOPERESOLVER_HPP
