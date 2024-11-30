@@ -4,73 +4,8 @@
 #include <Ark/Utils.hpp>
 #include <Ark/Builtins/Builtins.hpp>
 
-#include <fmt/format.h>
-#include <ranges>
-
 namespace Ark::internal
 {
-    void ScopeResolver::Scope::add(const std::string& name, bool is_mutable)
-    {
-        m_vars.emplace(name, is_mutable);
-    }
-
-    std::optional<Variable> ScopeResolver::Scope::get(const std::string& name) const
-    {
-        if (const auto it = std::ranges::find(m_vars, name, &Variable::name); it != m_vars.end())
-            return *it;
-        return std::nullopt;
-    }
-
-    bool ScopeResolver::Scope::has(const std::string& name) const
-    {
-        return std::ranges::find(m_vars, name, &Variable::name) != m_vars.end();
-    }
-
-    ScopeResolver::ScopeResolver()
-    {
-        createNew();
-    }
-
-    void ScopeResolver::createNew()
-    {
-        m_scopes.emplace_back();
-    }
-
-    void ScopeResolver::removeLocalScope()
-    {
-        m_scopes.pop_back();
-    }
-
-    void ScopeResolver::registerInCurrent(const std::string& name, const bool is_mutable)
-    {
-        m_scopes.back().add(name, is_mutable);
-    }
-
-    std::optional<bool> ScopeResolver::isImmutable(const std::string& name) const
-    {
-        for (const auto& m_scope : std::ranges::reverse_view(m_scopes))
-        {
-            if (auto maybe = m_scope.get(name); maybe.has_value())
-                return !maybe.value().is_mutable;
-        }
-        return std::nullopt;
-    }
-
-    bool ScopeResolver::isRegistered(const std::string& name) const
-    {
-        return std::ranges::any_of(
-            m_scopes.rbegin(),
-            m_scopes.rend(),
-            [name](const Scope& scope) {
-                return scope.has(name);
-            });
-    }
-
-    bool ScopeResolver::isInScope(const std::string& name) const
-    {
-        return m_scopes.back().has(name);
-    }
-
     NameResolutionPass::NameResolutionPass(const unsigned debug) :
         Pass("NameResolution", debug),
         m_ast()
@@ -92,12 +27,17 @@ namespace Ark::internal
         m_logger.traceStart("process");
 
         m_ast = ast;
-        visit(m_ast);
+        visit(m_ast, /* register_declarations= */ true);
         m_logger.traceStart("checkForUndefinedSymbol");
-        checkForUndefinedSymbol();
+        // todo: implement check for undef syms another way
+        // checkForUndefinedSymbol();
         m_logger.traceEnd();
 
         m_logger.traceEnd();
+
+        m_logger.trace("AST after name resolution");
+        if (m_logger.shouldTrace())
+            m_ast.debugPrint(std::cout) << '\n';
     }
 
     const Node& NameResolutionPass::ast() const noexcept
@@ -105,17 +45,20 @@ namespace Ark::internal
         return m_ast;
     }
 
-    void NameResolutionPass::addDefinedSymbol(const std::string& sym, const bool is_mutable)
+    std::string NameResolutionPass::addDefinedSymbol(const std::string& sym, const bool is_mutable)
     {
         m_defined_symbols.emplace(sym);
-        m_scope_resolver.registerInCurrent(sym, is_mutable);
+        return m_scope_resolver.registerInCurrent(sym, is_mutable);
     }
 
-    void NameResolutionPass::visit(Node& node)
+    // todo: swap register_declarations for "register & set fqn : true, check undefined symbols : false" ?
+    void NameResolutionPass::visit(Node& node, const bool register_declarations)
     {
         switch (node.nodeType())
         {
             case NodeType::Symbol:
+                // todo: do we have to handle glob/symbol imports differently?
+                node.setString(m_scope_resolver.getFullyQualifiedNameInNearestScope(node.string()));
                 addSymbolNode(node);
                 break;
 
@@ -128,14 +71,14 @@ namespace Ark::internal
                 if (!node.constList().empty())
                 {
                     if (node.constList()[0].nodeType() == NodeType::Keyword)
-                        visitKeyword(node, node.constList()[0].keyword());
+                        visitKeyword(node, node.constList()[0].keyword(), register_declarations);
                     else
                     {
                         // function calls
                         // the UpdateRef function calls kind get a special treatment, like let/mut/set,
                         // because we need to check for mutability errors
                         if (node.constList().size() > 1 && node.constList()[0].nodeType() == NodeType::Symbol &&
-                            node.constList()[1].nodeType() == NodeType::Symbol)
+                            node.constList()[1].nodeType() == NodeType::Symbol && register_declarations)
                         {
                             const auto funcname = node.constList()[0].string();
                             const auto arg = node.constList()[1].string();
@@ -165,18 +108,45 @@ namespace Ark::internal
                         }
 
                         for (auto& child : node.list())
-                            visit(child);
+                            visit(child, register_declarations);
                     }
                 }
                 break;
 
             case NodeType::Namespace:
             {
-                // TODO
                 auto& namespace_ = node.arkNamespace();
-                // m_scope_resolver.createNewNamespace(name, with_prefix, is_glob, symbols)
-                visit(*namespace_.ast);
-                // m_scope_resolver.removeNamespace()
+                // no need to guard createNewNamespace with an if (register_declarations), as we removed the namespace on the first pass
+                m_scope_resolver.createNewNamespace(namespace_.name, namespace_.with_prefix, namespace_.is_glob, namespace_.symbols);
+                StaticScope* scope = m_scope_resolver.currentScope();
+
+                // remove the namespace node
+                node = *namespace_.ast;
+                visit(node, /* register_declarations= */ true);
+                // dual visit so that we can handle forward references
+                visit(node, /* register_declarations= */ false);
+
+                // if we had specific symbols to import, check that those exist
+                if (!namespace_.symbols.empty())
+                {
+                    for (const auto& sym : namespace_.symbols)
+                    {
+                        if (!scope->get(sym).has_value())
+                            throw CodeError(
+                                fmt::format("ImportError: Can not import symbol {} from {}, as it isn't in the package", sym, namespace_.name),
+                                node.filename(),
+                                node.constList()[1].line(),
+                                node.constList()[1].col(),
+                                sym);
+                    }
+                }
+
+                // if the namespace is glob or has symbols, keep it open in the nearest namespace scope
+                // so that it can be used while resolving symbols and computing fully qualified names
+                if (namespace_.is_glob || !namespace_.symbols.empty())
+                    m_scope_resolver.saveUnprefixedNamespaceAndRemove();
+                else
+                    m_scope_resolver.removeLastScope();
                 break;
             }
 
@@ -185,7 +155,7 @@ namespace Ark::internal
         }
     }
 
-    void NameResolutionPass::visitKeyword(Node& node, const Keyword keyword)
+    void NameResolutionPass::visitKeyword(Node& node, const Keyword keyword, const bool register_declarations)
     {
         switch (keyword)
         {
@@ -197,8 +167,8 @@ namespace Ark::internal
                 // first, visit the value, then register the symbol
                 // this allows us to detect things like (let foo (fun (&foo) ()))
                 if (node.constList().size() > 2)
-                    visit(node.list()[2]);
-                if (node.constList().size() > 1 && node.constList()[1].nodeType() == NodeType::Symbol)
+                    visit(node.list()[2], register_declarations);
+                if (node.constList().size() > 1 && node.constList()[1].nodeType() == NodeType::Symbol && register_declarations)
                 {
                     const std::string& name = node.constList()[1].string();
                     if (m_language_symbols.contains(name))
@@ -230,7 +200,12 @@ namespace Ark::internal
                                 name);
                     }
                     else
-                        addDefinedSymbol(name, keyword != Keyword::Let);
+                    {
+                        // update the declared variable name to use the fully qualified name
+                        // this will prevent name conflicts, and handle scope resolution
+                        const std::string fully_qualified_name = addDefinedSymbol(name, keyword != Keyword::Let);
+                        node.list()[1].setString(fully_qualified_name);
+                    }
                 }
                 break;
 
@@ -241,7 +216,9 @@ namespace Ark::internal
 
             case Keyword::Fun:
                 // create a new scope to track variables
-                m_scope_resolver.createNew();
+                if (register_declarations)
+                    m_scope_resolver.createNew();
+
                 if (node.constList()[1].nodeType() == NodeType::List)
                 {
                     for (const auto& child : node.constList()[1].constList())
@@ -268,24 +245,34 @@ namespace Ark::internal
                                     child.col(),
                                     child.repr());
                             }
-                            addDefinedSymbol(child.string(), /* is_mutable= */ true);
+
+                            if (register_declarations)
+                                addDefinedSymbol(child.string(), /* is_mutable= */ true);
                         }
-                        else if (child.nodeType() == NodeType::Symbol)
+                        else if (child.nodeType() == NodeType::Symbol && register_declarations)
                             addDefinedSymbol(child.string(), /* is_mutable= */ true);
                     }
                 }
                 if (node.constList().size() > 2)
-                    visit(node.list()[2]);
-                m_scope_resolver.removeLocalScope();  // and remove it once the function has been compiled
+                    visit(node.list()[2], register_declarations);
+
+                // remove the scope once the function has been compiled, only we were registering declarations
+                // there won't be any if register_declarations is false
+                if (register_declarations)
+                    m_scope_resolver.removeLastScope();
                 break;
 
             default:
                 for (auto& child : node.list())
-                    visit(child);
+                    visit(child, register_declarations);
                 break;
         }
     }
 
+    // todo: maybe do not add symbols to a list to check later,
+    //       but do it directly, using the static scope for resolution?
+    //       this should break the weird scoping we have at runtime, allowing us to add
+    //       some optimization and store scopes on the stack???
     void NameResolutionPass::addSymbolNode(const Node& symbol)
     {
         const std::string& name = symbol.string();
