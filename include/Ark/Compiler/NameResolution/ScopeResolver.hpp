@@ -59,10 +59,10 @@ namespace Ark::internal
         std::string registerInCurrent(const std::string& name, bool is_mutable);
 
         /**
-         * @brief Save the last scope as an unprefixed namespace, by attaching it to the nearest namespace scope
+         * @brief Save the last scope as a namespace, by attaching it to the nearest namespace scope
          * @details Also handle removing the scope from the scope pile.
          */
-        void saveUnprefixedNamespaceAndRemove();
+        void saveNamespaceAndRemove();
 
         /**
          * @brief Checks the scopes in reverse order for 'name' and returns its mutability status
