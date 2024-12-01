@@ -11,7 +11,7 @@ namespace Ark::internal
         m_vars.emplace(name, is_mutable);
     }
 
-    std::optional<Declaration> StaticScope::get(const std::string& name) const
+    std::optional<Declaration> StaticScope::get(const std::string& name, [[maybe_unused]] const bool extensive_lookup) const
     {
         if (const auto it = std::ranges::find(m_vars, name, &Declaration::name); it != m_vars.end())
             return *it;
@@ -23,7 +23,7 @@ namespace Ark::internal
         return name;
     }
 
-    bool StaticScope::saveUnprefixedNamespace([[maybe_unused]] std::unique_ptr<StaticScope>&)
+    bool StaticScope::saveNamespaceAndRemove([[maybe_unused]] std::unique_ptr<StaticScope>&)
     {
         // the scope can not be saved on a static scope
         return false;
@@ -42,7 +42,7 @@ namespace Ark::internal
         m_vars.emplace(fullyQualifiedName(name), is_mutable);
     }
 
-    std::optional<Declaration> NamespaceScope::get(const std::string& name) const
+    std::optional<Declaration> NamespaceScope::get(const std::string& name, const bool extensive_lookup) const
     {
         const bool starts_with_prefix = !m_namespace.empty() && name.starts_with(m_namespace + ":");
         // If the name starts with the namespace and we imported the namespace with prefix
@@ -61,11 +61,14 @@ namespace Ark::internal
             if (const auto it_fqn = std::ranges::find(m_vars, fullyQualifiedName(name), &Declaration::name); it_fqn != m_vars.end())
                 return *it_fqn;
         }
-        // lookup in the unprefixed saved scopes
-        for (const auto& scope : m_unprefixed_namespaces)
+        // lookup in the additional saved namespaces
+        if (extensive_lookup)
         {
-            if (auto maybe_decl = scope->get(name); maybe_decl.has_value())
-                return maybe_decl;
+            for (const auto& scope : m_additional_namespaces)
+            {
+                if (auto maybe_decl = scope->get(name, extensive_lookup); maybe_decl.has_value())
+                    return maybe_decl;
+            }
         }
         // otherwise we didn't find the name in the namespace
         return std::nullopt;
@@ -73,14 +76,15 @@ namespace Ark::internal
 
     std::string NamespaceScope::fullyQualifiedName(const std::string& name) const
     {
-        if (!m_namespace.empty())
+        const bool starts_with_prefix = !m_namespace.empty() && name.starts_with(m_namespace + ":");
+        if (!m_namespace.empty() && !starts_with_prefix)
             return fmt::format("{}:{}", m_namespace, name);
         return name;
     }
 
-    bool NamespaceScope::saveUnprefixedNamespace(std::unique_ptr<StaticScope>& scope)
+    bool NamespaceScope::saveNamespaceAndRemove(std::unique_ptr<StaticScope>& scope)
     {
-        m_unprefixed_namespaces.push_back(std::move(scope));
+        m_additional_namespaces.push_back(std::move(scope));
         return true;
     }
 }

@@ -31,11 +31,11 @@ namespace Ark::internal
         return m_scopes.back()->fullyQualifiedName(name);
     }
 
-    void ScopeResolver::saveUnprefixedNamespaceAndRemove()
+    void ScopeResolver::saveNamespaceAndRemove()
     {
         for (auto& m_scope : std::ranges::reverse_view(m_scopes) | std::ranges::views::drop(1))
         {
-            if (m_scope->saveUnprefixedNamespace(m_scopes.back()))
+            if (m_scope->saveNamespaceAndRemove(m_scopes.back()))
                 break;
         }
 
@@ -46,7 +46,7 @@ namespace Ark::internal
     {
         for (const auto& m_scope : std::ranges::reverse_view(m_scopes))
         {
-            if (auto maybe = m_scope->get(name); maybe.has_value())
+            if (auto maybe = m_scope->get(name, true); maybe.has_value())
                 return !maybe.value().is_mutable;
         }
         return std::nullopt;
@@ -56,7 +56,7 @@ namespace Ark::internal
     {
         for (const auto& m_scope : std::ranges::reverse_view(m_scopes))
         {
-            if (m_scope->get(name).has_value())
+            if (m_scope->get(name, true).has_value())
                 return true;
         }
         return false;
@@ -64,14 +64,14 @@ namespace Ark::internal
 
     bool ScopeResolver::isInScope(const std::string& name) const
     {
-        return m_scopes.back()->get(name).has_value();
+        return m_scopes.back()->get(name, false).has_value();
     }
 
     std::string ScopeResolver::getFullyQualifiedNameInNearestScope(const std::string& name)
     {
         for (const auto& m_scope : std::ranges::reverse_view(m_scopes))
         {
-            if (auto maybe_fqn = m_scope->get(name); maybe_fqn.has_value())
+            if (auto maybe_fqn = m_scope->get(name, true); maybe_fqn.has_value())
                 return maybe_fqn.value().name;
         }
         return name;

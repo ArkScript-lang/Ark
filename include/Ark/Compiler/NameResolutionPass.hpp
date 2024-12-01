@@ -69,7 +69,7 @@ namespace Ark::internal
          *
          * @param node a list node whose first child is a keyword
          * @param keyword
-         * @param register_declarations
+         * @param register_declarations whether or not the visit should register declarations
          */
         void visitKeyword(Node& node, Keyword keyword, bool register_declarations);
 

@@ -459,32 +459,36 @@ namespace Ark::internal
 
         while (!isEOF())
         {
+            const auto pos = getCursor();
             if (accept(IsChar('&')))  // captures
             {
                 has_captures = true;
                 std::string capture;
                 if (!name(&capture))
                     break;
-                args->push_back(Node(NodeType::Capture, capture).attachNearestCommentBefore(comment));
-                comment.clear();
-                newlineOrComment(&comment);
+                Node node = Node(NodeType::Capture, capture).attachNearestCommentBefore(comment);
+                setNodePosAndFilename(node, pos);
+                args->push_back(node);
             }
             else
             {
-                const auto pos = getCount();
+                const auto count = getCount();
                 std::string symbol;
                 if (!name(&symbol))
                     break;
                 if (has_captures)
                 {
-                    backtrack(pos);
+                    backtrack(count);
                     error("Captured variables should be at the end of the argument list", symbol);
                 }
 
-                args->push_back(Node(NodeType::Symbol, symbol).attachNearestCommentBefore(comment));
-                comment.clear();
-                newlineOrComment(&comment);
+                Node node = Node(NodeType::Symbol, symbol).attachNearestCommentBefore(comment);
+                setNodePosAndFilename(node, pos);
+                args->push_back(node);
             }
+
+            comment.clear();
+            newlineOrComment(&comment);
         }
 
         if (accept(IsChar(')')))

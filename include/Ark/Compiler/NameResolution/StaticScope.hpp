@@ -54,9 +54,10 @@ namespace Ark::internal
         /**
          * @brief Try to return a Declaration from this scope with a given name.
          * @param name
+         * @param extensive_lookup unused in StaticScope
          * @return std::optional<Declaration> std::nullopt if the Declaration isn't in scope
          */
-        [[nodiscard]] virtual std::optional<Declaration> get(const std::string& name) const;
+        [[nodiscard]] virtual std::optional<Declaration> get(const std::string& name, bool extensive_lookup) const;
 
         /**
          * @brief Given a Declaration name, compute its fully qualified name
@@ -66,12 +67,12 @@ namespace Ark::internal
         [[nodiscard]] virtual std::string fullyQualifiedName(const std::string& name) const;
 
         /**
-         * @brief Save an unprefixed namespace scope to help with lookup
+         * @brief Save a namespace scope to help with lookup
          *
          * @return true if the scope was saved, on NamespaceScope
          * @return false on StaticScope
          */
-        virtual bool saveUnprefixedNamespace(std::unique_ptr<StaticScope>&);
+        virtual bool saveNamespaceAndRemove(std::unique_ptr<StaticScope>&);
 
     private:
         std::unordered_set<Declaration> m_vars {};
@@ -92,9 +93,10 @@ namespace Ark::internal
         /**
          * @brief Try to return a Declaration from this scope with a given name.
          * @param name
+         * @param extensive_lookup if true, use the additional saved namespaces
          * @return std::optional<Declaration> std::nullopt if the Declaration isn't in scope
          */
-        [[nodiscard]] std::optional<Declaration> get(const std::string& name) const override;
+        [[nodiscard]] std::optional<Declaration> get(const std::string& name, bool extensive_lookup) const override;
 
         /**
          * @brief Given a Declaration name, compute its fully qualified name
@@ -104,12 +106,12 @@ namespace Ark::internal
         [[nodiscard]] std::string fullyQualifiedName(const std::string& name) const override;
 
         /**
-         * @brief Save an unprefixed namespace scope to help with lookup
+         * @brief Save a namespace scope to help with lookup
          *
          * @return true if the scope was saved, on NamespaceScope
          * @return false on StaticScope
          */
-        bool saveUnprefixedNamespace(std::unique_ptr<StaticScope>&) override;
+        bool saveNamespaceAndRemove(std::unique_ptr<StaticScope>&) override;
 
     private:
         std::string m_namespace;
@@ -117,7 +119,7 @@ namespace Ark::internal
         bool m_is_glob;
         std::vector<std::string> m_symbols;
         std::unordered_set<Declaration> m_vars {};
-        std::vector<std::unique_ptr<StaticScope>> m_unprefixed_namespaces;
+        std::vector<std::unique_ptr<StaticScope>> m_additional_namespaces;
     };
 }
 
