@@ -62,6 +62,15 @@ namespace Ark::internal
         [[nodiscard]] PageAddr_t pageAddr() const { return m_page_addr; }
 
         /**
+         * @brief Used when generating error messages in the VM, to see if a symbol might have been wrongly fully qualified
+         *
+         * @param end
+         * @param vm
+         * @return true if the closure has a field which is the end of 'end'
+         */
+        [[nodiscard]] bool hasFieldEndingWith(const std::string& end, VM& vm) const;
+
+        /**
          * @brief Print the closure to a string
          *
          * @param vm

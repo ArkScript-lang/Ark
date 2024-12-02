@@ -4,14 +4,14 @@
 (let b [4 5 6])
 
 (test:suite list {
-    (let make (fun (a b)
-        (fun (&a &b) ())))
+    (let make (fun (c d)
+        (fun (&c &d) ())))
     (let foo (make "hello" 1))
 
     # if this is failing, this is most likely to be a compiler problem
-    (test:eq ["hello" 1] [foo.a foo.b])
-    (test:eq 2 (len [foo.a foo.b]))
-    (test:eq ["hello"] (append [] foo.a))
+    (test:eq ["hello" 1] [foo.c foo.d])
+    (test:eq 2 (len [foo.c foo.d]))
+    (test:eq ["hello"] (append [] foo.c))
 
     (test:case "append and return a new list" {
         (test:eq (append a 4) [1 2 3 4])
