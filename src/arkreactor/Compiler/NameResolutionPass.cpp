@@ -119,15 +119,15 @@ namespace Ark::internal
             case NodeType::Namespace:
             {
                 auto& namespace_ = node.arkNamespace();
-                // no need to guard createNewNamespace with an if (register_declarations), as we removed the namespace on the first pass
+                // no need to guard createNewNamespace with an if (register_declarations), we want to keep the namespace node
+                // (which will get ignored by the compiler, that only uses its AST), so that we can (re)construct the
+                // scopes correctly
                 m_scope_resolver.createNewNamespace(namespace_.name, namespace_.with_prefix, namespace_.is_glob, namespace_.symbols);
                 StaticScope* scope = m_scope_resolver.currentScope();
 
-                // remove the namespace node
-                node = *namespace_.ast;
-                visit(node, /* register_declarations= */ true);
+                visit(*namespace_.ast, /* register_declarations= */ true);
                 // dual visit so that we can handle forward references
-                visit(node, /* register_declarations= */ false);
+                visit(*namespace_.ast, /* register_declarations= */ false);
 
                 // if we had specific symbols to import, check that those exist
                 if (!namespace_.symbols.empty())
