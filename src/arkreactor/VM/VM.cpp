@@ -619,7 +619,22 @@ namespace Ark
                                 push(field, context);
                         }
                         else
-                            throwVMError(ErrorKind::Scope, fmt::format("`{}' isn't in the closure environment: {}", m_state.m_symbols[arg], var->refClosure().toString(*this)));
+                        {
+                            if (!var->refClosure().hasFieldEndingWith(m_state.m_symbols[arg], *this))
+                                throwVMError(
+                                    ErrorKind::Scope,
+                                    fmt::format(
+                                        "`{0}' isn't in the closure environment: {1}",
+                                        m_state.m_symbols[arg],
+                                        var->refClosure().toString(*this)));
+                            throwVMError(
+                                ErrorKind::Scope,
+                                fmt::format(
+                                    "`{0}' isn't in the closure environment: {1}. A variable in the package might have the same name as '{0}', "
+                                    "and name resolution tried to fully qualify it. Rename either the variable or the capture to solve this",
+                                    m_state.m_symbols[arg],
+                                    var->refClosure().toString(*this)));
+                        }
                         DISPATCH();
                     }
 

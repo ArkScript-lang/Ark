@@ -1,0 +1,1 @@
+ScopeError: `b:b' isn't in the closure environment: (.a=hello .b=1). A variable in the package might have the same name as 'b:b', and name resolution tried to fully qualify it. Rename either the variable or the capture to solve this

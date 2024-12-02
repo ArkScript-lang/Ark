@@ -4,6 +4,8 @@
 #include <Ark/VM/Value.hpp>
 #include <Ark/VM/VM.hpp>
 
+#include <ranges>
+
 namespace Ark::internal
 {
     Closure::Closure(const Scope& scope, const PageAddr_t pa) noexcept :
@@ -15,6 +17,16 @@ namespace Ark::internal
         m_scope(scope_ptr),
         m_page_addr(pa)
     {}
+
+    bool Closure::hasFieldEndingWith(const std::string& end, VM& vm) const
+    {
+        for (const auto id : std::ranges::views::keys(m_scope->m_data))
+        {
+            if (end.ends_with(":" + vm.m_state.m_symbols[id]))
+                return true;
+        }
+        return false;
+    }
 
     std::string Closure::toString(VM& vm) const noexcept
     {
