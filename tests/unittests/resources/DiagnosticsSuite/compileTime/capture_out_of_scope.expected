@@ -1,2 +1,7 @@
-At &cap @ 1:0
+At &cap @ 2:17
+    1 | (let bar (fun () (let cap 0)))
+    2 | (let foo (fun (&cap) ()))
+      |                 ^~~~
+    3 | (print foo bar)
+    4 |
         Can not capture cap because it is referencing a variable defined in an unreachable scope.
