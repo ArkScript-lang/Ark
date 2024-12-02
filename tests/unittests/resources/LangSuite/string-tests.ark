@@ -1,5 +1,4 @@
 (import std.Testing)
-(import std.String)
 
 (test:suite string {
     (test:case "remove char in string at index" {
