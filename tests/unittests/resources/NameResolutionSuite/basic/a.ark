@@ -1,0 +1,14 @@
+(import b)
+(import c:*)
+(import d :lamp)
+
+(let b_ok (= "b:arg" b:arg))
+
+(let arg "a:arg")
+(let a_ok (= "a:arg" arg))
+
+(let b_foo_ok (= "aa aaa" (b:foo "aa" "aaa")))
+
+(let c_ok (and (= "c:egg" c:egg) (= "c:bacon" c:bacon)))
+
+(let d_ok (= "d:lamp" d:lamp))

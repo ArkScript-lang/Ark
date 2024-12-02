@@ -1,0 +1,5 @@
+(import b)
+
+(let start (= [1 0] (b:parent.child.get)))
+(b:parent.child.call)
+(let end (= [5 12] (b:parent.child.get)))
