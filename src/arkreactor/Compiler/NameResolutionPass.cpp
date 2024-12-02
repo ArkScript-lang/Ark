@@ -197,12 +197,13 @@ namespace Ark::internal
                         const std::string fully_qualified_name = m_scope_resolver.getFullyQualifiedNameInNearestScope(name);
                         node.list()[1].setString(fully_qualified_name);
                     }
-                    else if (keyword != Keyword::Set && register_declarations)
+                    else if (keyword != Keyword::Set)
                     {
                         // update the declared variable name to use the fully qualified name
                         // this will prevent name conflicts, and handle scope resolution
                         const std::string fully_qualified_name = addDefinedSymbol(name, keyword != Keyword::Let);
-                        node.list()[1].setString(fully_qualified_name);
+                        if (register_declarations)
+                            node.list()[1].setString(fully_qualified_name);
                     }
                 }
                 break;

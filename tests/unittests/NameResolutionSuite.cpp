@@ -60,4 +60,25 @@ ut::suite<"NameResolution"> name_resolution_suite = [] {
             expect(end.valueType() == Ark::ValueType::True) << "(b:parent.child.get) == [5 12]\n";
         };
     };
+
+    "[run a (import b, c, with make defined in both)]"_test = [] {
+        Ark::State state({ std::filesystem::path(ARK_TESTS_ROOT "/lib/") });
+
+        should("compile the resource without any error") = [&] {
+            expect(mut(state).doFile(get_resource_path("NameResolutionSuite/shadowing/a.ark")));
+        };
+
+        Ark::VM vm(state);
+        should("return exit code 0") = [&] {
+            expect(mut(vm).run() == 0_i);
+        };
+
+        should("resolve symbols from all namespaces without mixing them up") = [&] {
+            const auto b_ok = mut(vm).operator[]("b_ok");
+            expect(b_ok.valueType() == Ark::ValueType::True) << "(= b:result \"b:make\")\n";
+
+            const auto c_ok = mut(vm).operator[]("c_ok");
+            expect(c_ok.valueType() == Ark::ValueType::True) << "(= c:result \"c:make\")\n";
+        };
+    };
 };
