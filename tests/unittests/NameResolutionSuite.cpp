@@ -81,4 +81,25 @@ ut::suite<"NameResolution"> name_resolution_suite = [] {
             expect(c_ok.valueType() == Ark::ValueType::True) << "(= c:result \"c:make\")\n";
         };
     };
+
+    "[run a (import b (import c))]"_test = [] {
+        Ark::State state({ std::filesystem::path(ARK_TESTS_ROOT "/lib/") });
+
+        should("compile the resource without any error") = [&] {
+            expect(mut(state).doFile(get_resource_path("NameResolutionSuite/namespace_stacking/a.ark")));
+        };
+
+        Ark::VM vm(state);
+        should("return exit code 0") = [&] {
+            expect(mut(vm).run() == 0_i);
+        };
+
+        should("resolve symbols from all namespaces without generating bad fully qualified names") = [&] {
+            const auto b_ok = mut(vm).operator[]("b_ok");
+            expect(b_ok.valueType() == Ark::ValueType::True) << "(= b:test \"b:test\")\n";
+
+            const auto c_ok = mut(vm).operator[]("c_ok");
+            expect(c_ok.valueType() == Ark::ValueType::True) << "(= c:suite \"c:suite\")\n";
+        };
+    };
 };

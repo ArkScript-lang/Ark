@@ -1,0 +1,4 @@
+(import b)
+
+(let b_ok (= b:test "b:test"))
+(let c_ok (= c:suite "c:suite"))
