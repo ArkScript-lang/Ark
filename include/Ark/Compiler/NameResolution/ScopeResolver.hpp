@@ -15,6 +15,7 @@
 #include <string>
 #include <optional>
 #include <memory>
+#include <vector>
 
 #include <Ark/Compiler/NameResolution/StaticScope.hpp>
 
@@ -29,11 +30,15 @@ namespace Ark::internal
          */
         ScopeResolver();
 
+        ScopeResolver(const ScopeResolver&) = delete;
+        ScopeResolver& operator=(const ScopeResolver&) = delete;
+        ScopeResolver(ScopeResolver&&) = default;
+        ScopeResolver& operator=(ScopeResolver&&) = default;
+
         /**
          * @brief Create a new scope
-         * @return StaticScope* non-owning raw pointer to the newly created scope
          */
-        StaticScope* createNew();
+        void createNew();
 
         /**
          * @brief Remove the last scope
@@ -46,9 +51,8 @@ namespace Ark::internal
          * @param with_prefix
          * @param is_glob
          * @param symbols
-         * @return NamespaceScope* non-owning raw pointer to the newly created scope
          */
-        NamespaceScope* createNewNamespace(const std::string& name, bool with_prefix, bool is_glob, const std::vector<std::string>& symbols);
+        void createNewNamespace(const std::string& name, bool with_prefix, bool is_glob, const std::vector<std::string>& symbols);
 
         /**
          * @brief Register a Declaration in the current (last) scope
