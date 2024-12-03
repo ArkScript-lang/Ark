@@ -15,6 +15,7 @@
 #include <string>
 #include <optional>
 #include <memory>
+#include <vector>
 #include <unordered_set>
 
 namespace Ark::internal

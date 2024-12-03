@@ -2,10 +2,10 @@
 
 #include <ranges>
 #include <algorithm>
-#include <Ark/Exceptions.hpp>
 #include <fmt/core.h>
 
 #include <Ark/Files.hpp>
+#include <Ark/Exceptions.hpp>
 #include <Ark/Compiler/AST/Parser.hpp>
 
 namespace Ark::internal
@@ -53,7 +53,8 @@ namespace Ark::internal
             else
             {
                 // NOTE: since the "file" (=root) argument doesn't change between all calls, we could get rid of it
-                for (auto& additional_import : std::ranges::reverse_view(parseImport(m_root, import)))
+                std::vector<Import> temp = parseImport(m_root, import);
+                for (auto& additional_import : std::ranges::reverse_view(temp))
                     m_imports.push(additional_import);
             }
         }
@@ -107,7 +108,7 @@ namespace Ark::internal
                             .is_glob = import.is_glob,
                             .with_prefix = import.with_prefix,
                             .symbols = import.symbols,
-                            std::make_shared<Node>(findAndReplaceImports(x).first) });
+                            .ast = std::make_shared<Node>(findAndReplaceImports(x).first) });
                     }
                     // we parsed an import node, return true in the pair to notify the caller
                     return std::make_pair(x, /* is_import= */ true);

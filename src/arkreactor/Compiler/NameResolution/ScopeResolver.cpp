@@ -9,9 +9,9 @@ namespace Ark::internal
         createNewNamespace("", /* with_prefix= */ false, /* is_glob= */ true, /* symbols= */ {});
     }
 
-    StaticScope* ScopeResolver::createNew()
+    void ScopeResolver::createNew()
     {
-        return m_scopes.emplace_back(std::make_unique<StaticScope>()).get();
+        m_scopes.emplace_back(std::make_unique<StaticScope>());
     }
 
     void ScopeResolver::removeLastScope()
@@ -19,10 +19,9 @@ namespace Ark::internal
         m_scopes.pop_back();
     }
 
-    NamespaceScope* ScopeResolver::createNewNamespace(const std::string& name, bool with_prefix, bool is_glob, const std::vector<std::string>& symbols)
+    void ScopeResolver::createNewNamespace(const std::string& name, bool with_prefix, bool is_glob, const std::vector<std::string>& symbols)
     {
-        StaticScope* scope = m_scopes.emplace_back(std::make_unique<NamespaceScope>(name, with_prefix, is_glob, symbols)).get();
-        return dynamic_cast<NamespaceScope*>(scope);
+        m_scopes.emplace_back(std::make_unique<NamespaceScope>(name, with_prefix, is_glob, symbols));
     }
 
     std::string ScopeResolver::registerInCurrent(const std::string& name, const bool is_mutable)
