@@ -1,0 +1,6 @@
+At ber @ 2:12
+    1 | (let bar 12)
+    2 | (let a ber)
+      | ^~~~~~~~~~~
+    3 |
+        Unbound variable error "ber" (did you mean "bar"?)

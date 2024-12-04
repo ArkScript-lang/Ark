@@ -269,7 +269,7 @@ namespace Ark::internal
         // remove the old name node, to avoid false positive when looking for unbound symbols
         if (!old_name.empty())
         {
-            const auto it = std::ranges::find_if(m_symbol_nodes, [&old_name, &symbol](const Node& sym_node) -> bool {
+            auto it = std::ranges::find_if(m_symbol_nodes, [&old_name, &symbol](const Node& sym_node) -> bool {
                 return sym_node.string() == old_name &&
                     sym_node.col() == symbol.col() &&
                     sym_node.line() == symbol.line() &&
@@ -277,7 +277,6 @@ namespace Ark::internal
             });
             if (it != m_symbol_nodes.end())
             {
-                m_logger.info("Found {}, replacing it with {}", old_name, name);
                 it->setString(name);
                 return;
             }
@@ -329,20 +328,26 @@ namespace Ark::internal
 
     std::string NameResolutionPass::offerSuggestion(const std::string& str) const
     {
-        std::string suggestion;
-        // our suggestion shouldn't require more than half the string to change
-        std::size_t suggestion_distance = str.size() / 2;
-
-        for (const std::string& symbol : m_defined_symbols)
-        {
-            const std::size_t current_distance = Utils::levenshteinDistance(str, symbol);
-            if (current_distance <= suggestion_distance)
+        auto iterate = [](const std::string& word, const std::unordered_set<std::string>& dict) -> std::string {
+            std::string suggestion;
+            // our suggestion shouldn't require more than half the string to change
+            std::size_t suggestion_distance = word.size() / 2;
+            for (const std::string& symbol : dict)
             {
-                suggestion_distance = current_distance;
-                suggestion = symbol;
+                const std::size_t current_distance = Utils::levenshteinDistance(word, symbol);
+                if (current_distance <= suggestion_distance)
+                {
+                    suggestion_distance = current_distance;
+                    suggestion = symbol;
+                }
             }
-        }
+            return suggestion;
+        };
 
+        std::string suggestion = iterate(str, m_defined_symbols);
+        // look for a suggestion related to language builtins
+        if (suggestion.empty())
+            suggestion = iterate(str, m_language_symbols);
         // look for a suggestion related to a namespace change
         if (suggestion.empty())
         {
