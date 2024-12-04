@@ -1,4 +1,4 @@
-#include <Ark/Compiler/NameResolutionPass.hpp>
+#include <Ark/Compiler/NameResolution/NameResolutionPass.hpp>
 
 #include <Ark/Exceptions.hpp>
 #include <Ark/Utils.hpp>
@@ -36,8 +36,7 @@ namespace Ark::internal
             m_ast.debugPrint(std::cout) << '\n';
 
         m_logger.traceStart("checkForUndefinedSymbol");
-        // TODO: check for undefined symbols by revisiting the AST?
-        // checkForUndefinedSymbol();
+        checkForUndefinedSymbol();
         m_logger.traceEnd();
     }
 
@@ -58,15 +57,19 @@ namespace Ark::internal
         switch (node.nodeType())
         {
             case NodeType::Symbol:
-                node.setString(m_scope_resolver.getFullyQualifiedNameInNearestScope(node.string()));
-                addSymbolNode(node);
+            {
+                const std::string old_name = node.string();
+                node.setString(m_scope_resolver.getFullyQualifiedNameInNearestScope(old_name));
+                addSymbolNode(node, old_name);
                 break;
+            }
 
             case NodeType::Field:
                 for (auto& child : node.list())
                 {
-                    child.setString(m_scope_resolver.getFullyQualifiedNameInNearestScope(child.string()));
-                    addSymbolNode(child);
+                    const std::string old_name = child.string();
+                    child.setString(m_scope_resolver.getFullyQualifiedNameInNearestScope(old_name));
+                    addSymbolNode(child, old_name);
                 }
                 break;
 
@@ -255,13 +258,30 @@ namespace Ark::internal
         }
     }
 
-    void NameResolutionPass::addSymbolNode(const Node& symbol)
+    void NameResolutionPass::addSymbolNode(const Node& symbol, const std::string& old_name)
     {
         const std::string& name = symbol.string();
 
         // we don't accept builtins/operators as a user symbol
         if (m_language_symbols.contains(name))
             return;
+
+        // remove the old name node, to avoid false positive when looking for unbound symbols
+        if (!old_name.empty())
+        {
+            const auto it = std::ranges::find_if(m_symbol_nodes, [&old_name, &symbol](const Node& sym_node) -> bool {
+                return sym_node.string() == old_name &&
+                    sym_node.col() == symbol.col() &&
+                    sym_node.line() == symbol.line() &&
+                    sym_node.filename() == symbol.filename();
+            });
+            if (it != m_symbol_nodes.end())
+            {
+                m_logger.info("Found {}, replacing it with {}", old_name, name);
+                it->setString(name);
+                return;
+            }
+        }
 
         const auto it = std::ranges::find_if(m_symbol_nodes, [&name](const Node& sym_node) -> bool {
             return sym_node.string() == name;

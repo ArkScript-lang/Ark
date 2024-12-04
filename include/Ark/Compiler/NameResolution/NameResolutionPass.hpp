@@ -54,8 +54,8 @@ namespace Ark::internal
         Node m_ast;
         std::unordered_set<std::string> m_language_symbols;  ///< Precomputed set of language symbols that can't be used to define variables
         std::vector<Node> m_symbol_nodes;
-        std::unordered_set<std::string> m_defined_symbols;  // todo: useful??
-        std::vector<std::string> m_plugin_names;            // todo: useful??
+        std::unordered_set<std::string> m_defined_symbols;
+        std::vector<std::string> m_plugin_names;
         ScopeResolver m_scope_resolver;
 
         /**
@@ -77,8 +77,9 @@ namespace Ark::internal
          * @brief Register a given node in the symbol table
          *
          * @param symbol
+         * @param old_name old name for symbol, to replace it with the new one if it was renamed
          */
-        void addSymbolNode(const Node& symbol);
+        void addSymbolNode(const Node& symbol, const std::string& old_name = "");
 
         /**
          * @brief Checking if a symbol may be coming from a plugin

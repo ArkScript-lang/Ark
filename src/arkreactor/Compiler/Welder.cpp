@@ -4,7 +4,7 @@
 #include <Ark/Compiler/Package/ImportSolver.hpp>
 #include <Ark/Compiler/AST/Optimizer.hpp>
 #include <Ark/Compiler/Macros/Processor.hpp>
-#include <Ark/Compiler/NameResolutionPass.hpp>
+#include <Ark/Compiler/NameResolution/NameResolutionPass.hpp>
 #include <Ark/Files.hpp>
 #include <Ark/Exceptions.hpp>
 
