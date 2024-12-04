@@ -16,6 +16,7 @@
 #include <optional>
 #include <memory>
 #include <vector>
+#include <utility>
 
 #include <Ark/Compiler/NameResolution/StaticScope.hpp>
 
@@ -98,7 +99,15 @@ namespace Ark::internal
          * @param name
          * @return std::string
          */
-        [[nodiscard]] std::string getFullyQualifiedNameInNearestScope(const std::string& name);
+        [[nodiscard]] std::string getFullyQualifiedNameInNearestScope(const std::string& name) const;
+
+        /**
+         * @brief Checks if a name can be fully qualified (allows only unprefixed names to be resolved by glob namespaces or inside their own namespace)
+         *
+         * @param name
+         * @return std::pair<bool, std::string> if the name can be fully qualified, first element is true ; second element is the FQN
+         */
+        [[nodiscard]] std::pair<bool, std::string> canFullyQualifyName(const std::string& name);
 
         /**
          * @brief Return a non-owning raw pointer to the current scope

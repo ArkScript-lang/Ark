@@ -1,0 +1,7 @@
+At bar @ 3:12
+    1 | (import package.b)
+    2 |
+    3 | (print bar)
+      | ^~~~~~~~~~~
+    4 |
+        Unbound variable "bar". However, it exists in a namespace as "b:bar", did you forget to prefix it with its namespace?

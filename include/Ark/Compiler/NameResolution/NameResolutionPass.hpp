@@ -90,6 +90,8 @@ namespace Ark::internal
          */
         [[nodiscard]] bool mayBeFromPlugin(const std::string& name) const noexcept;
 
+        std::string updateSymbolWithFullyQualifiedName(Node& symbol);
+
         /**
          * @brief Checks for undefined symbols, not present in the defined symbols table
          *

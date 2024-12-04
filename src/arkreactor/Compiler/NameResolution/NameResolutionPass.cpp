@@ -59,7 +59,7 @@ namespace Ark::internal
             case NodeType::Symbol:
             {
                 const std::string old_name = node.string();
-                node.setString(m_scope_resolver.getFullyQualifiedNameInNearestScope(old_name));
+                updateSymbolWithFullyQualifiedName(node);
                 addSymbolNode(node, old_name);
                 break;
             }
@@ -68,6 +68,7 @@ namespace Ark::internal
                 for (auto& child : node.list())
                 {
                     const std::string old_name = child.string();
+                    // in case of field, no need to check if we can fully qualify names
                     child.setString(m_scope_resolver.getFullyQualifiedNameInNearestScope(old_name));
                     addSymbolNode(child, old_name);
                 }
@@ -197,8 +198,7 @@ namespace Ark::internal
                                 node.constList()[1].col(),
                                 name);
 
-                        const std::string fully_qualified_name = m_scope_resolver.getFullyQualifiedNameInNearestScope(name);
-                        node.list()[1].setString(fully_qualified_name);
+                        updateSymbolWithFullyQualifiedName(node.list()[1]);
                     }
                     else if (keyword != Keyword::Set)
                     {
@@ -236,9 +236,8 @@ namespace Ark::internal
 
                             // update the declared variable name to use the fully qualified name
                             // this will prevent name conflicts, and handle scope resolution
-                            const std::string fully_qualified_name = m_scope_resolver.getFullyQualifiedNameInNearestScope(child.string());
-                            addDefinedSymbol(fully_qualified_name, true);
-                            child.setString(fully_qualified_name);
+                            std::string fqn = updateSymbolWithFullyQualifiedName(child);
+                            addDefinedSymbol(fqn, true);
                         }
                         else if (child.nodeType() == NodeType::Symbol)
                             addDefinedSymbol(child.string(), /* is_mutable= */ true);
@@ -298,6 +297,26 @@ namespace Ark::internal
                 return plugin == splitted;
             });
         return it != m_plugin_names.end();
+    }
+
+    std::string NameResolutionPass::updateSymbolWithFullyQualifiedName(Node& symbol)
+    {
+        auto [allowed, fqn] = m_scope_resolver.canFullyQualifyName(symbol.string());
+
+        if (!allowed)
+        {
+            std::string match = m_scope_resolver.getFullyQualifiedNameInNearestScope(symbol.string());
+
+            throw CodeError(
+                fmt::format(R"(Unbound variable "{}". However, it exists in a namespace as "{}", did you forget to prefix it with its namespace?)", symbol.string(), match),
+                symbol.filename(),
+                symbol.line(),
+                symbol.col(),
+                symbol.repr());
+        }
+
+        symbol.setString(fqn);
+        return fqn;
     }
 
     void NameResolutionPass::checkForUndefinedSymbol() const
