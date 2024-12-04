@@ -20,8 +20,8 @@ ut::suite<"Diagnostics"> diagnostics_suite = [] {
             should("generate an error message at compile time for compileTime/" + data.stem) = [&] {
                 try
                 {
-                    mut(state).doFile(data.path, features);
-                    expect(0 == 1);  // we shouldn't be here, the compilation has to fail
+                    const bool ok = mut(state).doFile(data.path, features);
+                    expect(!ok) << fatal;  // we shouldn't be here, the compilation has to fail
                 }
                 catch (const Ark::CodeError& e)
                 {

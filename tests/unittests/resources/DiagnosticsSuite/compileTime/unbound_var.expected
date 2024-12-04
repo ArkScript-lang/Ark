@@ -1,0 +1,5 @@
+At b @ 1:9
+    1 | (let a b)
+      | ^~~~~~~~~
+    2 |
+        Unbound variable error "b" (variable is used but not defined)

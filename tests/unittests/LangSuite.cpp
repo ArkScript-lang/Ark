@@ -13,9 +13,15 @@ ut::suite<"Lang"> lang_suite = [] {
     "[run arkscript unittests]"_test = [] {
         Ark::State state({ std::filesystem::path(ARK_TESTS_ROOT "/lib/") });
 
-        should("compile the resource without any error") = [&] {
-            expect(mut(state).doFile(get_resource_path("LangSuite/unittests.ark")));
-        };
+        try
+        {
+            const bool ok = mut(state).doFile(get_resource_path("LangSuite/unittests.ark"));
+            expect(ok) << fatal << "compilation failed";
+        }
+        catch (const Ark::CodeError&)
+        {
+            expect(false) << fatal << "encountered an exception while compiling";
+        }
 
         Ark::VM vm(state);
         should("return exit code 0") = [&] {
