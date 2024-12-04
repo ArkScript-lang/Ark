@@ -1,1 +1,1 @@
-(str:removeAt "abc" 5)
+(string:removeAt "abc" 5)

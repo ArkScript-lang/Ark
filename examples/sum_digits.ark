@@ -2,7 +2,7 @@
 (import std.String)
 
 (let to-base (fun (n base) {
-  (let o (str:ord n))
+  (let o (string:ord n))
 
   (let v
     (if (and (>= o 48) (<= o 57))

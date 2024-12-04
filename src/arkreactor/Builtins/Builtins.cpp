@@ -55,11 +55,11 @@ namespace Ark::internal::Builtins
         { "sys:exit", Value(System::exit_) },
 
         // String
-        { "str:format", Value(String::format) },
-        { "str:find", Value(String::findSubStr) },
-        { "str:removeAt", Value(String::removeAtStr) },
-        { "str:ord", Value(String::ord) },
-        { "str:chr", Value(String::chr) },
+        { "string:format", Value(String::format) },
+        { "string:find", Value(String::findSubStr) },
+        { "string:removeAt", Value(String::removeAtStr) },
+        { "string:ord", Value(String::ord) },
+        { "string:chr", Value(String::chr) },
 
         // Mathematics
         { "math:exp", Value(Mathematics::exponential) },

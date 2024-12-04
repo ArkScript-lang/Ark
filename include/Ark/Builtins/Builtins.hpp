@@ -72,11 +72,11 @@ namespace Ark::internal::Builtins
 
     namespace String
     {
-        Value format(std::vector<Value>& n, VM* vm);       // str:format, multiple arguments
-        Value findSubStr(std::vector<Value>& n, VM* vm);   // str:find, 2 arguments
-        Value removeAtStr(std::vector<Value>& n, VM* vm);  // str:removeAt, 2 arguments
-        Value ord(std::vector<Value>& n, VM* vm);          // str:ord, 1 arguments
-        Value chr(std::vector<Value>& n, VM* vm);          // str:chr, 1 arguments
+        Value format(std::vector<Value>& n, VM* vm);       // string:format, multiple arguments
+        Value findSubStr(std::vector<Value>& n, VM* vm);   // string:find, 2 arguments
+        Value removeAtStr(std::vector<Value>& n, VM* vm);  // string:removeAt, 2 arguments
+        Value ord(std::vector<Value>& n, VM* vm);          // string:ord, 1 arguments
+        Value chr(std::vector<Value>& n, VM* vm);          // string:chr, 1 arguments
     }
 
     namespace Mathematics
