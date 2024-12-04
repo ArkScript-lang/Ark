@@ -34,7 +34,7 @@ namespace Ark::internal
     {
         for (auto& m_scope : std::ranges::reverse_view(m_scopes) | std::ranges::views::drop(1))
         {
-            if (m_scope->saveNamespaceAndRemove(m_scopes.back()))
+            if (m_scope->saveNamespace(m_scopes.back()))
                 break;
         }
 
@@ -66,14 +66,45 @@ namespace Ark::internal
         return m_scopes.back()->get(name, false).has_value();
     }
 
-    std::string ScopeResolver::getFullyQualifiedNameInNearestScope(const std::string& name)
+    std::string ScopeResolver::getFullyQualifiedNameInNearestScope(const std::string& name) const
     {
-        for (const auto& m_scope : std::ranges::reverse_view(m_scopes))
+        for (const auto& scope : std::ranges::reverse_view(m_scopes))
         {
-            if (auto maybe_fqn = m_scope->get(name, true); maybe_fqn.has_value())
+            if (auto maybe_fqn = scope->get(name, true); maybe_fqn.has_value())
                 return maybe_fqn.value().name;
         }
         return name;
+    }
+
+    std::pair<bool, std::string> ScopeResolver::canFullyQualifyName(const std::string& name)
+    {
+        // a given name can be fully qualified if
+        // old == new
+        // old != new and new has prefix
+        //     if the prefix namespace is glob
+        //     if the prefix namespace is with_prefix && it is the top most scope
+        const std::string maybe_fqn = getFullyQualifiedNameInNearestScope(name);
+
+        if (maybe_fqn == name)
+            return std::make_pair(true, maybe_fqn);
+
+        const std::string prefix = maybe_fqn.substr(0, maybe_fqn.find_first_of(':'));
+        auto namespaces =
+            std::ranges::reverse_view(m_scopes) | std::ranges::views::filter([](const auto& e) {
+                return e->isNamespace();
+            });
+        bool top = true;
+        for (auto& scope : namespaces)
+        {
+            if (top && prefix == scope->prefix())
+                return std::make_pair(true, maybe_fqn);
+            if (!top && prefix == scope->prefix() && scope->isGlob())
+                return std::make_pair(true, maybe_fqn);
+
+            top = false;
+        }
+
+        return std::make_pair(false, maybe_fqn);
     }
 
     StaticScope* ScopeResolver::currentScope() const

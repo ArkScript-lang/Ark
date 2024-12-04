@@ -73,7 +73,12 @@ namespace Ark::internal
          * @return true if the scope was saved, on NamespaceScope
          * @return false on StaticScope
          */
-        virtual bool saveNamespaceAndRemove(std::unique_ptr<StaticScope>&);
+        virtual bool saveNamespace(std::unique_ptr<StaticScope>&);
+
+        [[nodiscard]] virtual bool isNamespace() const;
+        [[nodiscard]] inline virtual bool withPrefix() const { return false; }
+        [[nodiscard]] inline virtual bool isGlob() const { return false; }
+        [[nodiscard]] inline virtual std::string prefix() const { return ""; }
 
     private:
         std::unordered_set<Declaration> m_vars {};
@@ -112,7 +117,12 @@ namespace Ark::internal
          * @return true if the scope was saved, on NamespaceScope
          * @return false on StaticScope
          */
-        bool saveNamespaceAndRemove(std::unique_ptr<StaticScope>&) override;
+        bool saveNamespace(std::unique_ptr<StaticScope>&) override;
+
+        [[nodiscard]] bool isNamespace() const override;
+        [[nodiscard]] inline bool withPrefix() const override { return m_with_prefix; }
+        [[nodiscard]] inline bool isGlob() const override { return m_is_glob; }
+        [[nodiscard]] inline std::string prefix() const override { return m_namespace; }
 
     private:
         std::string m_namespace;

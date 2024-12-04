@@ -23,9 +23,14 @@ namespace Ark::internal
         return name;
     }
 
-    bool StaticScope::saveNamespaceAndRemove([[maybe_unused]] std::unique_ptr<StaticScope>&)
+    bool StaticScope::saveNamespace([[maybe_unused]] std::unique_ptr<StaticScope>&)
     {
         // the scope can not be saved on a static scope
+        return false;
+    }
+
+    bool StaticScope::isNamespace() const
+    {
         return false;
     }
 
@@ -82,9 +87,14 @@ namespace Ark::internal
         return name;
     }
 
-    bool NamespaceScope::saveNamespaceAndRemove(std::unique_ptr<StaticScope>& scope)
+    bool NamespaceScope::saveNamespace(std::unique_ptr<StaticScope>& scope)
     {
         m_additional_namespaces.push_back(std::move(scope));
+        return true;
+    }
+
+    bool NamespaceScope::isNamespace() const
+    {
         return true;
     }
 }
