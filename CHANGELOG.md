@@ -91,6 +91,7 @@
 - the parser can detect ill-formed macros (that are seen as function macros while being value macros)
 - adding a `CALL_BUILTIN <builtin> <arg count>` super instruction
 - fixed formatting of comments after the last symbol in an import node
+- renamed `str:xyz` builtins to `string:xyz` for uniformity with the standard library
 
 ### Removed
 - removed unused `NodeType::Closure`

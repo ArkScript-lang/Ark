@@ -47,17 +47,14 @@
     (sys:sleep 1)
     (test:expect (< old (time)))
 
-    # no need to test str:format, we are already using it for the assertions,
-    # and it's also heavily tested in the C++ String repository in the ArkScript-lang organization (github)
-
-    (test:eq (str:find "abc" "d") -1)
-    (test:eq (str:find "abc" "a") 0)
-    (test:eq (str:find "abc" "bc") 1)
-    (test:eq (str:find "abcdefghijkl" "defijkl") -1)
-    (test:eq (str:find "abcdefghijkl" "defghijkl") 3)
-    (test:eq (str:removeAt "abcdefghijkl" 3) "abcefghijkl")
-    (test:eq (str:removeAt "abcdefghijkl" 0) "bcdefghijkl")
-    (test:eq (str:removeAt "abcdefghijkl" 11) "abcdefghijk")
+    (test:eq (string:find "abc" "d") -1)
+    (test:eq (string:find "abc" "a") 0)
+    (test:eq (string:find "abc" "bc") 1)
+    (test:eq (string:find "abcdefghijkl" "defijkl") -1)
+    (test:eq (string:find "abcdefghijkl" "defghijkl") 3)
+    (test:eq (string:removeAt "abcdefghijkl" 3) "abcefghijkl")
+    (test:eq (string:removeAt "abcdefghijkl" 0) "bcdefghijkl")
+    (test:eq (string:removeAt "abcdefghijkl" 11) "abcdefghijk")
 
     # no need to test the math functions since they're 1:1 binding of C++ functions and were carefully checked
     # before writing this comment, to ensure we aren't binding math:sin to the C++ tan function

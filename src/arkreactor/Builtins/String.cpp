@@ -12,16 +12,16 @@
 namespace Ark::internal::Builtins::String
 {
     /**
-     * @name str:format
+     * @name string:format
      * @brief Format a String given replacements
      * @details https://fmt.dev/latest/syntax.html
      * @param format the String to format
      * @param values as any argument as you need, of any valid ArkScript type
      * =begin
-     * (str:format "Hello {}, my name is {}" "world" "ArkScript")
+     * (string:format "Hello {}, my name is {}" "world" "ArkScript")
      * # Hello world, my name is ArkScript
      *
-     * (str:format "Test {} with {{}}" "1")
+     * (string:format "Test {} with {{}}" "1")
      * # Test 1 with {}
      * =end
      * @author https://github.com/SuperFola
@@ -30,7 +30,7 @@ namespace Ark::internal::Builtins::String
     {
         if (n.size() < 2 || n[0].valueType() != ValueType::String)
             types::generateError(
-                "str:format",
+                "string:format",
                 { { types::Contract { { types::Typedef("string", ValueType::String),
                                         types::Typedef("value", ValueType::Any, /* variadic */ true) } } } },
                 n);
@@ -60,7 +60,7 @@ namespace Ark::internal::Builtins::String
         catch (fmt::format_error& e)
         {
             throw std::runtime_error(
-                fmt::format("str:format: can not format \"{}\" ({} argument{} provided) because of {}",
+                fmt::format("string:format: can not format \"{}\" ({} argument{} provided) because of {}",
                             n[0].stringRef(),
                             n.size() - 1,
                             // if we have more than one argument (not counting the string to format), plural form
@@ -70,14 +70,14 @@ namespace Ark::internal::Builtins::String
     }
 
     /**
-     * @name str:find
+     * @name string:find
      * @brief Search a substring in a given String
      * @details The original String is not modified. Return -1 when not found
      * @param string the String to search in
      * @param substr the substring to search for
      * =begin
-     * (str:find "hello world" "hello")  # 0
-     * (str:find "hello world" "aworld")  # -1
+     * (string:find "hello world" "hello")  # 0
+     * (string:find "hello world" "aworld")  # -1
      * =end
      * @author https://github.com/SuperFola
      */
@@ -85,7 +85,7 @@ namespace Ark::internal::Builtins::String
     {
         if (!types::check(n, ValueType::String, ValueType::String))
             types::generateError(
-                "str:find",
+                "string:find",
                 { { types::Contract { { types::Typedef("string", ValueType::String), types::Typedef("substr", ValueType::String) } } } },
                 n);
 
@@ -96,14 +96,14 @@ namespace Ark::internal::Builtins::String
     }
 
     /**
-     * @name str:removeAt
+     * @name string:removeAt
      * @brief Remove a character from a String given an index
      * @details The original String is not modified
      * @param string the String to modify
      * @param index the index of the character to remove (can be negative to search from the end)
      * =begin
-     * (str:removeAt "hello world" 0)  # "ello world"
-     * (str:removeAt "hello world" -1)  # "hello worl"
+     * (string:removeAt "hello world" 0)  # "ello world"
+     * (string:removeAt "hello world" -1)  # "hello worl"
      * =end
      * @author https://github.com/SuperFola
      */
@@ -111,25 +111,25 @@ namespace Ark::internal::Builtins::String
     {
         if (!types::check(n, ValueType::String, ValueType::Number))
             types::generateError(
-                "str:removeAt",
+                "string:removeAt",
                 { { types::Contract { { types::Typedef("string", ValueType::String), types::Typedef("index", ValueType::Number) } } } },
                 n);
 
         long id = static_cast<long>(n[1].number());
         if (id < 0 || std::cmp_greater_equal(id, n[0].stringRef().size()))
-            throw std::runtime_error(fmt::format("str:removeAt: index {} out of range (length: {})", id, n[0].stringRef().size()));
+            throw std::runtime_error(fmt::format("string:removeAt: index {} out of range (length: {})", id, n[0].stringRef().size()));
 
         n[0].stringRef().erase(static_cast<std::size_t>(id), 1);
         return n[0];
     }
 
     /**
-     * @name str:ord
+     * @name string:ord
      * @brief Get the ordinal of a given character
      * @param char a String with a single UTF8 character
      * =begin
-     * (str:ord "h")  # 104
-     * (str:ord "Ô")  # 212
+     * (string:ord "h")  # 104
+     * (string:ord "Ô")  # 212
      * =end
      * @author https://github.com/SuperFola
      */
@@ -137,7 +137,7 @@ namespace Ark::internal::Builtins::String
     {
         if (!types::check(n, ValueType::String))
             types::generateError(
-                "str:ord",
+                "string:ord",
                 { { types::Contract { { types::Typedef("string", ValueType::String) } } } },
                 n);
 
@@ -145,12 +145,12 @@ namespace Ark::internal::Builtins::String
     }
 
     /**
-     * @name str:chr
+     * @name string:chr
      * @brief Create a character from an UTF8 codepoint
      * @param codepoint an UTF8 codepoint (Number)
      * =begin
-     * (str:chr 104)  # "h"
-     * (str:chr 212)  # "Ô"
+     * (string:chr 104)  # "h"
+     * (string:chr 212)  # "Ô"
      * =end
      * @author https://github.com/SuperFola
      */
@@ -158,7 +158,7 @@ namespace Ark::internal::Builtins::String
     {
         if (!types::check(n, ValueType::Number))
             types::generateError(
-                "str:chr",
+                "string:chr",
                 { { types::Contract { { types::Typedef("codepoint", ValueType::Number) } } } },
                 n);
 
