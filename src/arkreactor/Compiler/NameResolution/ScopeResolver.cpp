@@ -98,7 +98,7 @@ namespace Ark::internal
         {
             if (top && prefix == scope->prefix())
                 return std::make_pair(true, maybe_fqn);
-            if (!top && prefix == scope->prefix() && scope->isGlob())
+            if (!top && prefix == scope->prefix() && (scope->isGlob() || scope->hasSymbol(name)))
                 return std::make_pair(true, maybe_fqn);
 
             top = false;

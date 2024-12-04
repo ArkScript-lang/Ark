@@ -16,6 +16,7 @@
 #include <optional>
 #include <memory>
 #include <vector>
+#include <ranges>
 #include <unordered_set>
 
 namespace Ark::internal
@@ -79,6 +80,7 @@ namespace Ark::internal
         [[nodiscard]] inline virtual bool withPrefix() const { return false; }
         [[nodiscard]] inline virtual bool isGlob() const { return false; }
         [[nodiscard]] inline virtual std::string prefix() const { return ""; }
+        [[nodiscard]] inline virtual bool hasSymbol(const std::string&) const { return false; }
 
     private:
         std::unordered_set<Declaration> m_vars {};
@@ -123,6 +125,7 @@ namespace Ark::internal
         [[nodiscard]] inline bool withPrefix() const override { return m_with_prefix; }
         [[nodiscard]] inline bool isGlob() const override { return m_is_glob; }
         [[nodiscard]] inline std::string prefix() const override { return m_namespace; }
+        [[nodiscard]] inline bool hasSymbol(const std::string& symbol) const override { return std::ranges::find(m_symbols, symbol) != m_symbols.end(); }
 
     private:
         std::string m_namespace;

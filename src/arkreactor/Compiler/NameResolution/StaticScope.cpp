@@ -1,6 +1,5 @@
 #include <Ark/Compiler/NameResolution/StaticScope.hpp>
 
-#include <ranges>
 #include <utility>
 #include <fmt/format.h>
 
