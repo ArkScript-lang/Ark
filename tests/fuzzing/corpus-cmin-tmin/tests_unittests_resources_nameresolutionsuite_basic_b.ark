@@ -1,0 +1,7 @@
+(let fo0(fun(arg arg0)
+    (bar arg arg0)))
+
+(let arg"00000")
+
+(let bar(fun (one two)
+    (+ one "0" two)))

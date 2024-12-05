@@ -1,0 +1,7 @@
+(let foo (fun (arg arg2)
+    (bar arg arg2)))
+
+(let arg "b:arg")
+
+(let bar (fun (one two)
+    (+ one " " two)))

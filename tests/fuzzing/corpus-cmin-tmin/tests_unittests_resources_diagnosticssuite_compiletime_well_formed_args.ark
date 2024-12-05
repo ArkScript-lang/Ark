@@ -1,0 +1,5 @@
+($ defun (let n000 (fun a000 nil)))
+(let foo 0)
+(let a 2)
+(let b 3)
+(defun foo (a b) (+ a b))

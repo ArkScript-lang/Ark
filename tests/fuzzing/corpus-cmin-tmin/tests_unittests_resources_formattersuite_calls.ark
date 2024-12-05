@@ -1,10 +1,10 @@
-(let n00l000 (list:000000 _listeners
+(let ne0lis0 (list:filter _listeners
 (fun (ele0ent) (!= t00 (@ ele0ent 0)))))
 
 #00000000000000000000000000000
 #000000000000000000000000000000000
 
-        (list:0000000 _listeners (fun (ele0ent)
+        (l000:0000000 _listeners (fun (ele0ent)
             (if (= t00 (@ ele0ent 0)) {
-                ((@ ele0ent 1) v00)
-                (set f0000 true)})))
+                ((@ ele0ent 0) v00)
+                (set f00n0 true)})))

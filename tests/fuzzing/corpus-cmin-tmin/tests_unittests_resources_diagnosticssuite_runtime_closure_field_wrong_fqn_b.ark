@@ -1,0 +1,10 @@
+(let tests 0)
+(let c00000e (fun (&tests) ()))
+
+(let a 1)
+(let b 2)
+
+(let make (fun (a b)
+  (fun (&a &b) ())))
+(let foo (make "00000" 0))
+(let c [foo.a foo.b])

@@ -20,3 +20,4 @@ for file in glob.glob("**/*.ark", recursive=True):
         with open(f"tests/fuzzing/corpus/{new_filename}", "w") as f:
             with open(file) as source:
                 f.write(source.read())
+print("Copied all *.ark files to tests/fuzzing/corpus/")

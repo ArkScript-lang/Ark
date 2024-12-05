@@ -1,0 +1,3 @@
+(let b00 (fun () (let c00 0)))
+(let f0o0(fun (&c00) ()))
+(p0000 f00 b00)

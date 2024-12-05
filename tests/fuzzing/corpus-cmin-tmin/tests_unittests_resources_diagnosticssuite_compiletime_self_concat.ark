@@ -1,0 +1,2 @@
+(mut d [0 0 0])
+(concat! d d)

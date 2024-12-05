@@ -1,4 +1,0 @@
-(let su0 (fun (a b c)
-    (+ a b c)))
-
-(await (async su0 0 2 3 4))

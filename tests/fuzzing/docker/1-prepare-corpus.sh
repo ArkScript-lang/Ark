@@ -14,6 +14,8 @@ export AFL_MAP_SIZE=223723
 
 rm -rf tests/fuzzing/corpus-cmin/*
 rm -rf tests/fuzzing/corpus-cmin-tmin/*
+mkdir -p tests/fuzzing/corpus-cmin
+mkdir -p tests/fuzzing/corpus-cmin-tmin
 afl-cmin -i tests/fuzzing/corpus -o tests/fuzzing/corpus-cmin -T all -- "$exe" @@ -L "$ark_lib"
 
 cd tests/fuzzing/corpus-cmin || exit 1

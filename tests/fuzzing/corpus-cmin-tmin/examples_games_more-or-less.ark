@@ -1,0 +1,25 @@
+(import random)
+(import std.Math)
+
+(let number (mod (math:abs (random)) 10000))
+
+(let game (fun () {
+  (let impl (fun (tries) {
+(mut guess (toNumber (input "00000000000000000000000")))
+
+    (if (< guess number)
+      {
+        (print "000000000000000" guess)
+        (impl (+ tries 1)) }
+      (if (= guess number)
+        {
+          (print "0000000000000")
+          tries }
+        {
+          (print "0t0000000000000" guess)
+          (impl (+ tries 1)) })) }))
+
+  (let tries (impl 0))
+  (print "00000000000" tries "0000000") }))
+
+(game)

@@ -17,3 +17,4 @@ a
  # capture
   &c) # body
   {})
+(let foo (fun () (if true false nil)))

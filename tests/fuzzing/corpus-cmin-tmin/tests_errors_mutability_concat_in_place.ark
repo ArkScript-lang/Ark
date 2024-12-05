@@ -1,2 +1,0 @@
-(let a [])
-(concat! a [0])

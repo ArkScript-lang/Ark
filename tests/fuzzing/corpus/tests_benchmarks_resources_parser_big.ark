@@ -51,7 +51,7 @@
         (set _index (+ 1 _index))})
     _output }))
 
-(import lib.math :min :max)  # needed for math:min, math:max
+(import std.Math :min :max)  # needed for math:min, math:max
 
 # @brief Drop the first n elements of a list
 # @param _L the list to work on
@@ -68,7 +68,7 @@
             (list:drop (tail _L) (- _n 1))
             _L)
         {
-            (mut _index (max 0 _n))
+            (mut _index (math:max 0 _n))
             (mut _output [])
             (while (< _index (len _L)) {
                 (set _output (append _output (@ _L _index)))
@@ -197,7 +197,7 @@
 (let list:take (fun (_L _n) {
     (mut _index 0)
     (mut _output [])
-    (set _n (min _n (len _L)))
+    (set _n (math:min _n (len _L)))
 
     (while (< _index _n) {
         (set _output (append _output (@ _L _index)))
@@ -255,7 +255,7 @@
 # =end
 # @author https://github.com/FrenchMasterSword
 (let list:zip (fun (_a _b) {
-    (let _m (min (len _a) (len _b)))
+    (let _m (math:min (len _a) (len _b)))
     (mut _c [])
     (mut _index 0)
     (while (< _index _m) {

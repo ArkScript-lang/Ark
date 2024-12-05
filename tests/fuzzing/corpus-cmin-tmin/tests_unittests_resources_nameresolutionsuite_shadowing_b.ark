@@ -1,0 +1,3 @@
+(let make (fun (a b c)
+    "000000"))
+(let r00000 (make 0 2 3))

@@ -1,0 +1,18 @@
+(import std.Testing)
+
+(test:suite string {
+    (test:case "remove char in string at index" {
+        (test:eq "hllo world" (string:removeAt "hello world" 1))
+        (test:eq "ello world" (string:removeAt "hello world" 0))
+        (test:eq "hello worl" (string:removeAt "hello world" 10)) })
+
+    (test:case "find substring" {
+        (test:eq -1 (string:find "hello" "help"))
+        (test:eq 0 (string:find "hello" "hel"))
+        (test:eq 2 (string:find "hello" "llo"))
+        (test:eq -1 (string:find "" "1")) })
+
+    (test:case "format strings" {
+        (test:eq "nilfalsetrue" (string:format "{}{}{}" nil false true))
+        (test:eq "CProcedure" (string:format "{}" print))
+    })})

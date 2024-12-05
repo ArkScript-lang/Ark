@@ -1,0 +1,3 @@
+(import c)
+
+(let test (c:make_suite "b:test"))

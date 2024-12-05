@@ -1,3 +1,0 @@
-(while ($ a b) {
-    (set acc (+ acc (@ src a)))
-    (set a (+ 1 a))})

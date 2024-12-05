@@ -1,0 +1,7 @@
+($ partial (func ...defargs) {
+    ($ b0000(s00000-000 a (- ($a00000n0 func) (l00 defargs))))
+})
+
+(let t00000000 (fun (a b c) (* a b c)))
+(let test_func0 (partial t00000000 0))
+(test_func0)

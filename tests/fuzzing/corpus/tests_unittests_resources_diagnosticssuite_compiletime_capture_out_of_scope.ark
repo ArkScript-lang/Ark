@@ -1,0 +1,3 @@
+(let bar (fun () (let cap 0)))
+(let foo (fun (&cap) ()))
+(print foo bar)
