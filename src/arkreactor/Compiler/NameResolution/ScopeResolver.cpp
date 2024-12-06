@@ -26,8 +26,7 @@ namespace Ark::internal
 
     std::string ScopeResolver::registerInCurrent(const std::string& name, const bool is_mutable)
     {
-        m_scopes.back()->add(name, is_mutable);
-        return m_scopes.back()->fullyQualifiedName(name);
+        return m_scopes.back()->add(name, is_mutable);
     }
 
     void ScopeResolver::saveNamespaceAndRemove()
@@ -82,6 +81,7 @@ namespace Ark::internal
         // old == new
         // old != new and new has prefix
         //     if the prefix namespace is glob
+        //     if the prefix namespace has name in its symbols
         //     if the prefix namespace is with_prefix && it is the top most scope
         const std::string maybe_fqn = getFullyQualifiedNameInNearestScope(name);
 
@@ -100,6 +100,12 @@ namespace Ark::internal
                 return std::make_pair(true, maybe_fqn);
             if (!top && prefix == scope->prefix() && (scope->isGlob() || scope->hasSymbol(name)))
                 return std::make_pair(true, maybe_fqn);
+
+            for (const auto& saved_scope : scope->savedScopes())
+            {
+                if (prefix == saved_scope->prefix() && saved_scope->hasSymbol(name))
+                    return std::make_pair(true, maybe_fqn);
+            }
 
             top = false;
         }

@@ -23,7 +23,8 @@ namespace Ark::internal
 {
     struct Declaration
     {
-        std::string name;
+        std::string name;           ///< End name, can be modified to be hidden
+        std::string original_name;  ///< Original name, with the prefix, without hidden namespaces
         bool is_mutable;
 
         bool operator==(const Declaration& other) const = default;
@@ -35,7 +36,7 @@ struct std::hash<Ark::internal::Declaration>
 {
     inline size_t operator()(const Ark::internal::Declaration& x) const noexcept
     {
-        return std::hash<std::string> {}(x.name);
+        return std::hash<std::string> {}(x.original_name);
     }
 };
 
@@ -51,7 +52,7 @@ namespace Ark::internal
          * @param name
          * @param is_mutable
          */
-        virtual void add(const std::string& name, bool is_mutable);
+        virtual std::string add(const std::string& name, bool is_mutable);
 
         /**
          * @brief Try to return a Declaration from this scope with a given name.
@@ -59,7 +60,7 @@ namespace Ark::internal
          * @param extensive_lookup unused in StaticScope
          * @return std::optional<Declaration> std::nullopt if the Declaration isn't in scope
          */
-        [[nodiscard]] virtual std::optional<Declaration> get(const std::string& name, bool extensive_lookup) const;
+        [[nodiscard]] virtual std::optional<Declaration> get(const std::string& name, bool extensive_lookup);
 
         /**
          * @brief Given a Declaration name, compute its fully qualified name
@@ -81,9 +82,11 @@ namespace Ark::internal
         [[nodiscard]] inline virtual bool isGlob() const { return false; }
         [[nodiscard]] inline virtual std::string prefix() const { return ""; }
         [[nodiscard]] inline virtual bool hasSymbol(const std::string&) const { return false; }
+        [[nodiscard]] inline virtual const std::vector<std::unique_ptr<StaticScope>>& savedScopes() { return m_empty; }
 
     private:
         std::unordered_set<Declaration> m_vars {};
+        const std::vector<std::unique_ptr<StaticScope>> m_empty {};
     };
 
     class NamespaceScope final : public StaticScope
@@ -96,7 +99,7 @@ namespace Ark::internal
          * @param name
          * @param is_mutable
          */
-        void add(const std::string& name, bool is_mutable) override;
+        std::string add(const std::string& name, bool is_mutable) override;
 
         /**
          * @brief Try to return a Declaration from this scope with a given name.
@@ -104,7 +107,7 @@ namespace Ark::internal
          * @param extensive_lookup if true, use the additional saved namespaces
          * @return std::optional<Declaration> std::nullopt if the Declaration isn't in scope
          */
-        [[nodiscard]] std::optional<Declaration> get(const std::string& name, bool extensive_lookup) const override;
+        [[nodiscard]] std::optional<Declaration> get(const std::string& name, bool extensive_lookup) override;
 
         /**
          * @brief Given a Declaration name, compute its fully qualified name
@@ -126,6 +129,7 @@ namespace Ark::internal
         [[nodiscard]] inline bool isGlob() const override { return m_is_glob; }
         [[nodiscard]] inline std::string prefix() const override { return m_namespace; }
         [[nodiscard]] inline bool hasSymbol(const std::string& symbol) const override { return std::ranges::find(m_symbols, symbol) != m_symbols.end(); }
+        [[nodiscard]] inline const std::vector<std::unique_ptr<StaticScope>>& savedScopes() override { return m_additional_namespaces; }
 
     private:
         std::string m_namespace;

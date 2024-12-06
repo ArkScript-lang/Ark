@@ -1,0 +1,2 @@
+At abs @ 1:0
+        Unbound variable "abs". However, it exists in a namespace as "c:abs", did you forget to add it to the symbol list while importing?

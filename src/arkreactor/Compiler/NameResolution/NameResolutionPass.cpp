@@ -142,8 +142,8 @@ namespace Ark::internal
                             throw CodeError(
                                 fmt::format("ImportError: Can not import symbol {} from {}, as it isn't in the package", sym, namespace_.name),
                                 node.filename(),
-                                node.constList()[1].line(),
-                                node.constList()[1].col(),
+                                namespace_.ast->line(),
+                                namespace_.ast->col(),
                                 sym);
                     }
                 }
@@ -305,10 +305,18 @@ namespace Ark::internal
 
         if (!allowed)
         {
-            std::string match = m_scope_resolver.getFullyQualifiedNameInNearestScope(symbol.string());
-
+            if (fqn.ends_with("#hidden"))
+                throw CodeError(
+                    fmt::format(
+                        R"(Unbound variable "{}". However, it exists in a namespace as "{}", did you forget to add it to the symbol list while importing?)",
+                        symbol.string(),
+                        fqn.substr(0, fqn.find_first_of('#'))),
+                    symbol.filename(),
+                    symbol.line(),
+                    symbol.col(),
+                    symbol.repr());
             throw CodeError(
-                fmt::format(R"(Unbound variable "{}". However, it exists in a namespace as "{}", did you forget to prefix it with its namespace?)", symbol.string(), match),
+                fmt::format(R"(Unbound variable "{}". However, it exists in a namespace as "{}", did you forget to prefix it with its namespace?)", symbol.string(), fqn),
                 symbol.filename(),
                 symbol.line(),
                 symbol.col(),
@@ -335,9 +343,13 @@ namespace Ark::internal
                     message = fmt::format(R"(Unbound variable error "{}" (variable is used but not defined))", str);
                 else
                 {
-                    const std::string note_about_macros = " Inside macros, names must be fully qualified with their package prefix";
-                    const bool add_macro_note = suggestion.ends_with(":" + str);
-                    message = fmt::format(R"(Unbound variable error "{}" (did you mean "{}"?{}))", str, suggestion, add_macro_note ? note_about_macros : "");
+                    const std::string prefix = suggestion.substr(0, suggestion.find_first_of(':'));
+                    const std::string note_about_prefix = fmt::format(
+                        " You either forgot to import it in the symbol list (eg `(import {} :{})') or need to fully qualify it by adding the namespace",
+                        prefix,
+                        str);
+                    const bool add_note = suggestion.ends_with(":" + str);
+                    message = fmt::format(R"(Unbound variable error "{}" (did you mean "{}"?{}))", str, suggestion, add_note ? note_about_prefix : "");
                 }
 
                 throw CodeError(message, sym.filename(), sym.line(), sym.col(), sym.repr());

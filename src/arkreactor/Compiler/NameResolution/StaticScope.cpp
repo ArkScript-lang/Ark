@@ -5,12 +5,13 @@
 
 namespace Ark::internal
 {
-    void StaticScope::add(const std::string& name, bool is_mutable)
+    std::string StaticScope::add(const std::string& name, bool is_mutable)
     {
-        m_vars.emplace(name, is_mutable);
+        m_vars.emplace(name, name, is_mutable);
+        return name;
     }
 
-    std::optional<Declaration> StaticScope::get(const std::string& name, [[maybe_unused]] const bool extensive_lookup) const
+    std::optional<Declaration> StaticScope::get(const std::string& name, [[maybe_unused]] const bool extensive_lookup)
     {
         if (const auto it = std::ranges::find(m_vars, name, &Declaration::name); it != m_vars.end())
             return *it;
@@ -41,12 +42,29 @@ namespace Ark::internal
         m_symbols(symbols)
     {}
 
-    void NamespaceScope::add(const std::string& name, bool is_mutable)
+    std::string NamespaceScope::add(const std::string& name, bool is_mutable)
     {
-        m_vars.emplace(fullyQualifiedName(name), is_mutable);
+        // Since we do multiple passes on namespaces, we need to check if the given name is already hidden,
+        // so that we can save the name as it was on the first pass
+        if (name.ends_with("#hidden"))
+        {
+            std::string std_name = name.substr(0, name.find_first_of('#'));
+            return m_vars.emplace(name, std_name, is_mutable).first->name;
+        }
+
+        // Otherwise, we also have to check for the presence of a namespace prefix,
+        // and remove it when checking against the symbols list, to determine if we
+        // need to hide the name or not
+        const bool starts_with_prefix = !m_namespace.empty() && name.starts_with(m_namespace + ":");
+        std::string fqn = fullyQualifiedName(name);
+        std::string unprefixed_name = starts_with_prefix ? name.substr(name.find_first_of(':') + 1) : name;
+
+        if (!m_symbols.empty() && std::ranges::find(m_symbols, unprefixed_name) == m_symbols.end())
+            return m_vars.emplace(fqn + "#hidden", fqn, is_mutable).first->name;
+        return m_vars.emplace(fqn, fqn, is_mutable).first->name;
     }
 
-    std::optional<Declaration> NamespaceScope::get(const std::string& name, const bool extensive_lookup) const
+    std::optional<Declaration> NamespaceScope::get(const std::string& name, const bool extensive_lookup)
     {
         const bool starts_with_prefix = !m_namespace.empty() && name.starts_with(m_namespace + ":");
         // If the name starts with the namespace and we imported the namespace with prefix
@@ -57,13 +75,27 @@ namespace Ark::internal
                 return *it;
         }
         // If the name does not start with the prefix, and we import through either glob or symbol list
-        // search for the name in the namespace, while adding the namespace in front (as we use fully
-        // qualified names when registering declarations).
+        // search for the name in the namespace
+        // If the name does not start with the prefix, in a namespace with a symbol list but can be resolved,
+        // modify it to hide it to the end user
         // If the name wasn't qualified, in a prefixed namespace, look up for it but by qualifying the name
-        else if (!starts_with_prefix && (m_is_glob || std::ranges::find(m_symbols, name) != m_symbols.end() || m_with_prefix))
+        else if (!starts_with_prefix)
         {
-            if (const auto it_fqn = std::ranges::find(m_vars, fullyQualifiedName(name), &Declaration::name); it_fqn != m_vars.end())
-                return *it_fqn;
+            auto it = std::ranges::find(m_vars, fullyQualifiedName(name), &Declaration::name);
+            auto it_original = std::ranges::find(m_vars, fullyQualifiedName(name), &Declaration::original_name);
+            if ((m_is_glob || hasSymbol(name) || m_with_prefix) && it != m_vars.end())
+                return *it;
+            if (!m_symbols.empty() && it_original != m_vars.end())
+            {
+                // hide the name
+                if (it_original->name == it_original->original_name)
+                {
+                    bool is_mutable = it_original->is_mutable;
+                    m_vars.erase(it_original);
+                    return *std::get<0>(m_vars.emplace(fullyQualifiedName(name) + "#hidden", name, is_mutable));
+                }
+                return *it_original;
+            }
         }
         // lookup in the additional saved namespaces
         if (extensive_lookup)

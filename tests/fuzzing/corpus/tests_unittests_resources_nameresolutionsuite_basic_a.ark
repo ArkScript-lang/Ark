@@ -11,4 +11,4 @@
 
 (let c_ok (and (= "c:egg" c:egg) (= "c:bacon" c:bacon)))
 
-(let d_ok (= "d:lamp" d:lamp))
+(let d_ok (= "d:lamp" lamp))

@@ -1,0 +1,2 @@
+(let abs (fun (_x) _x))
+(let odd (fun (_n) (abs _n)))

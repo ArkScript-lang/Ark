@@ -378,6 +378,8 @@ namespace Ark::internal
                     comment.clear();
                     setNodePosAndFilename(symbols.list().back());
                     import_data.symbols.push_back(symbol);
+                    // we do not need the prefix when importing specific symbols
+                    import_data.with_prefix = false;
                 }
 
                 if (!space())

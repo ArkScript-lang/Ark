@@ -10,7 +10,7 @@ using namespace boost;
 ut::suite<"NameResolution"> name_resolution_suite = [] {
     using namespace ut;
 
-    "[run a (import b, c:*, d:lamp)]"_test = [] {
+    "[run a (import b, c:*, lamp)]"_test = [] {
         Ark::State state({ std::filesystem::path(ARK_TESTS_ROOT "/lib/") });
 
         should("compile the resource without any error") = [&] {
