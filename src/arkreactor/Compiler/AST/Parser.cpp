@@ -768,6 +768,7 @@ namespace Ark::internal
 
         std::optional<Node> leaf { NodeType::List };
         setNodePosAndFilename(leaf.value(), cursor);
+        setNodePosAndFilename(func.value(), cursor);
         leaf->push_back(func.value());
 
         while (!isEOF())

@@ -1,2 +1,6 @@
-At last @ 1:0
+At last @ 1:11
+    1 | ($ last ((last 1 5 6 7 8) 0 s "@" (@ a00s -9)))
+      |           ^~~~
+    2 | (last 1 5 6 7 8)
+    3 |
         Max macro processing depth reached (256). You may have a macro trying to evaluate itself, try splitting your code in multiple nodes.

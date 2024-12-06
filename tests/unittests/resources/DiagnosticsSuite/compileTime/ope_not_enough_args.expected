@@ -1,2 +1,5 @@
-At != @ 1:0
+At != @ 1:9
+    1 | (print (!= 1))
+      |         ^~
+    2 |
         Operator needs two arguments, but was called with 1
