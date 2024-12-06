@@ -305,18 +305,16 @@ namespace Ark::internal
 
         if (!allowed)
         {
+            std::string message;
             if (fqn.ends_with("#hidden"))
-                throw CodeError(
-                    fmt::format(
-                        R"(Unbound variable "{}". However, it exists in a namespace as "{}", did you forget to add it to the symbol list while importing?)",
-                        symbol.string(),
-                        fqn.substr(0, fqn.find_first_of('#'))),
-                    symbol.filename(),
-                    symbol.line(),
-                    symbol.col(),
-                    symbol.repr());
+                message = fmt::format(
+                    R"(Unbound variable "{}". However, it exists in a namespace as "{}", did you forget to add it to the symbol list while importing?)",
+                    symbol.string(),
+                    fqn.substr(0, fqn.find_first_of('#')));
+            else
+                message = fmt::format(R"(Unbound variable "{}". However, it exists in a namespace as "{}", did you forget to prefix it with its namespace?)", symbol.string(), fqn);
             throw CodeError(
-                fmt::format(R"(Unbound variable "{}". However, it exists in a namespace as "{}", did you forget to prefix it with its namespace?)", symbol.string(), fqn),
+                message,
                 symbol.filename(),
                 symbol.line(),
                 symbol.col(),

@@ -59,7 +59,7 @@ namespace Ark::internal
         std::string fqn = fullyQualifiedName(name);
         std::string unprefixed_name = starts_with_prefix ? name.substr(name.find_first_of(':') + 1) : name;
 
-        if (!m_symbols.empty() && std::ranges::find(m_symbols, unprefixed_name) == m_symbols.end())
+        if (!m_symbols.empty() && !hasSymbol(unprefixed_name))
             return m_vars.emplace(fqn + "#hidden", fqn, is_mutable).first->name;
         return m_vars.emplace(fqn, fqn, is_mutable).first->name;
     }
@@ -86,16 +86,7 @@ namespace Ark::internal
             if ((m_is_glob || hasSymbol(name) || m_with_prefix) && it != m_vars.end())
                 return *it;
             if (!m_symbols.empty() && it_original != m_vars.end())
-            {
-                // hide the name
-                if (it_original->name == it_original->original_name)
-                {
-                    bool is_mutable = it_original->is_mutable;
-                    m_vars.erase(it_original);
-                    return *std::get<0>(m_vars.emplace(fullyQualifiedName(name) + "#hidden", name, is_mutable));
-                }
                 return *it_original;
-            }
         }
         // lookup in the additional saved namespaces
         if (extensive_lookup)
