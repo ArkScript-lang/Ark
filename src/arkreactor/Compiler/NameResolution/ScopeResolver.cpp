@@ -89,6 +89,7 @@ namespace Ark::internal
             return std::make_pair(true, maybe_fqn);
 
         const std::string prefix = maybe_fqn.substr(0, maybe_fqn.find_first_of(':'));
+        const std::string unprefixed_name = maybe_fqn.substr(maybe_fqn.find_first_of(':') + 1);
         auto namespaces =
             std::ranges::reverse_view(m_scopes) | std::ranges::views::filter([](const auto& e) {
                 return e->isNamespace();
@@ -101,11 +102,8 @@ namespace Ark::internal
             if (!top && prefix == scope->prefix() && (scope->isGlob() || scope->hasSymbol(name)))
                 return std::make_pair(true, maybe_fqn);
 
-            for (const auto& saved_scope : scope->savedScopes())
-            {
-                if (prefix == saved_scope->prefix() && saved_scope->hasSymbol(name))
-                    return std::make_pair(true, maybe_fqn);
-            }
+            if (scope->recursiveHasSymbol(unprefixed_name))
+                return std::make_pair(true, maybe_fqn);
 
             top = false;
         }

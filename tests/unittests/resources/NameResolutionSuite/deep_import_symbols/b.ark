@@ -1,0 +1,3 @@
+(import c :odd)
+
+(let test (fun (n) (odd n)))
