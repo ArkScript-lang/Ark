@@ -92,6 +92,7 @@
 - adding a `CALL_BUILTIN <builtin> <arg count>` super instruction
 - fixed formatting of comments after the last symbol in an import node
 - renamed `str:xyz` builtins to `string:xyz` for uniformity with the standard library
+- `string:find` takes an optional third argument, startIndex (where to start the lookup from, default 0)
 
 ### Removed
 - removed unused `NodeType::Closure`

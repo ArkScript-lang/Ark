@@ -52,6 +52,7 @@
     (test:eq (string:find "abc" "bc") 1)
     (test:eq (string:find "abcdefghijkl" "defijkl") -1)
     (test:eq (string:find "abcdefghijkl" "defghijkl") 3)
+    (test:eq (string:find "abcdabcdabcd" "abcd" 2) 4)
     (test:eq (string:removeAt "abcdefghijkl" 3) "abcefghijkl")
     (test:eq (string:removeAt "abcdefghijkl" 0) "bcdefghijkl")
     (test:eq (string:removeAt "abcdefghijkl" 11) "abcdefghijk")

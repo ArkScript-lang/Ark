@@ -75,6 +75,7 @@ namespace Ark::internal::Builtins::String
      * @details The original String is not modified. Return -1 when not found
      * @param string the String to search in
      * @param substr the substring to search for
+     * @param (optional) startIndex index to start searching from
      * =begin
      * (string:find "hello world" "hello")  # 0
      * (string:find "hello world" "aworld")  # -1
@@ -83,13 +84,21 @@ namespace Ark::internal::Builtins::String
      */
     Value findSubStr(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (!types::check(n, ValueType::String, ValueType::String))
+        if (!types::check(n, ValueType::String, ValueType::String) &&
+            !types::check(n, ValueType::String, ValueType::String, ValueType::Number))
             types::generateError(
                 "string:find",
-                { { types::Contract { { types::Typedef("string", ValueType::String), types::Typedef("substr", ValueType::String) } } } },
+                { { types::Contract {
+                        { types::Typedef("string", ValueType::String),
+                          types::Typedef("substr", ValueType::String) } },
+                    types::Contract {
+                        { types::Typedef("string", ValueType::String),
+                          types::Typedef("substr", ValueType::String),
+                          types::Typedef("startIndex", ValueType::Number) } } } },
                 n);
 
-        std::size_t index = n[0].stringRef().find(n[1].stringRef());
+        const std::size_t start = n.size() == 3 ? static_cast<std::size_t>(n[2].number()) : 0;
+        const std::size_t index = n[0].stringRef().find(n[1].stringRef(), start);
         if (index != std::string::npos)
             return Value(static_cast<int>(index));
         return Value(-1);
