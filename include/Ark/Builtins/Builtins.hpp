@@ -77,6 +77,7 @@ namespace Ark::internal::Builtins
         Value removeAtStr(std::vector<Value>& n, VM* vm);  // string:removeAt, 2 arguments
         Value ord(std::vector<Value>& n, VM* vm);          // string:ord, 1 arguments
         Value chr(std::vector<Value>& n, VM* vm);          // string:chr, 1 arguments
+        Value setStringAt(std::vector<Value>& n, VM* vm);  // string::setAt, 3 arguments
     }
 
     namespace Mathematics

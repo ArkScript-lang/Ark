@@ -31,6 +31,7 @@
 - added `-fdump-ir` to dump the IR entities to a file named `{file}.ark.ir`
 - added 11 super instructions and their implementation to the VM
 - support for the glob import syntax and symbol import syntax
+- (experimental) `(string:setAt string index char)`
 
 ### Changed
 - instructions are on 4 bytes: 1 byte for the instruction, 1 byte of padding, 2 bytes for an immediate argument

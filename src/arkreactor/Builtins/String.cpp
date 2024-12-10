@@ -175,4 +175,30 @@ namespace Ark::internal::Builtins::String
         utf8::codepointToUtf8(static_cast<int>(n[0].number()), utf8.data());
         return Value(std::string(utf8.data()));
     }
+
+    /**
+     * @name string:setAt
+     * @brief Modify a given string and return a new one
+     * @details The original string is not modified
+     * @param string the string to modify
+     * @param index the index of the element to modify
+     * @param value the new character
+     * =begin
+     * (string:setAt "hello" 1 "a")  # "hallo"
+     * =end
+     * @author https://github.com/SuperFola
+     */
+    Value setStringAt(std::vector<Value>& n, VM* vm [[maybe_unused]])
+    {
+        if (!types::check(n, ValueType::String, ValueType::Number, ValueType::String))
+            types::generateError(
+                "string:setAt",
+                { { types::Contract { { types::Typedef("string", ValueType::String),
+                                        types::Typedef("index", ValueType::Number),
+                                        types::Typedef("value", ValueType::String) } } } },
+                n);
+
+        n[0].stringRef()[static_cast<std::size_t>(n[1].number())] = n[2].string()[0];
+        return n[0];
+    }
 }

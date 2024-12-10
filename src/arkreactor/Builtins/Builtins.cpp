@@ -60,6 +60,7 @@ namespace Ark::internal::Builtins
         { "string:removeAt", Value(String::removeAtStr) },
         { "string:ord", Value(String::ord) },
         { "string:chr", Value(String::chr) },
+        { "string:setAt", Value(String::setStringAt) },
 
         // Mathematics
         { "math:exp", Value(Mathematics::exponential) },
