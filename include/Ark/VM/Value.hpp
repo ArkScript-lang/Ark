@@ -114,9 +114,12 @@ namespace Ark
         [[nodiscard]] ValueType valueType() const noexcept { return m_type; }
         [[nodiscard]] bool isFunction() const noexcept
         {
-            const auto type = valueType();
-            return type == ValueType::PageAddr || type == ValueType::Closure || type == ValueType::CProc ||
-                (type == ValueType::Reference && reference()->isFunction());
+            return m_type == ValueType::PageAddr || m_type == ValueType::Closure || m_type == ValueType::CProc ||
+                (m_type == ValueType::Reference && reference()->isFunction());
+        }
+        [[nodiscard]] bool isIndexable() const noexcept
+        {
+            return m_type == ValueType::List || m_type == ValueType::String;
         }
 
         [[nodiscard]] double number() const { return std::get<double>(m_value); }

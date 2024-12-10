@@ -379,6 +379,8 @@ namespace Ark
                 &&TARGET_CONCAT_IN_PLACE,
                 &&TARGET_POP_LIST,
                 &&TARGET_POP_LIST_IN_PLACE,
+                &&TARGET_SET_AT_INDEX,
+                &&TARGET_SET_AT_2_INDEX,
                 &&TARGET_POP,
                 &&TARGET_DUP,
                 &&TARGET_ADD,
@@ -794,6 +796,104 @@ namespace Ark
                                     fmt::format("pop! index ({}) out of range (list size: {})", idx, list->list().size()));
 
                             list->list().erase(list->list().begin() + idx);
+                        }
+                        DISPATCH();
+                    }
+
+                    TARGET(SET_AT_INDEX)
+                    {
+                        {
+                            Value* list = popAndResolveAsPtr(context);
+                            Value number = *popAndResolveAsPtr(context);
+                            Value new_value = *popAndResolveAsPtr(context);
+
+                            if (!list->isIndexable() || number.valueType() != ValueType::Number || (list->valueType() == ValueType::String && new_value.valueType() != ValueType::String))
+                                types::generateError(
+                                    "@=",
+                                    { { types::Contract {
+                                          { types::Typedef("list", ValueType::List),
+                                            types::Typedef("index", ValueType::Number),
+                                            types::Typedef("new_value", ValueType::Any) } } },
+                                      { types::Contract {
+                                          { types::Typedef("string", ValueType::String),
+                                            types::Typedef("index", ValueType::Number),
+                                            types::Typedef("char", ValueType::String) } } } },
+                                    { *list, number });
+
+                            const std::size_t size = list->valueType() == ValueType::List ? list->list().size() : list->stringRef().size();
+                            long idx = static_cast<long>(number.number());
+                            idx = idx < 0 ? static_cast<long>(size) + idx : idx;
+                            if (std::cmp_greater_equal(idx, size))
+                                throwVMError(
+                                    ErrorKind::Index,
+                                    fmt::format("@= index ({}) out of range (indexable size: {})", idx, size));
+
+                            if (list->valueType() == ValueType::List)
+                                list->list()[static_cast<std::size_t>(idx)] = new_value;
+                            else
+                                list->stringRef()[static_cast<std::size_t>(idx)] = new_value.string()[0];
+                        }
+                        DISPATCH();
+                    }
+
+                    TARGET(SET_AT_2_INDEX)
+                    {
+                        {
+                            Value* list = popAndResolveAsPtr(context);
+                            Value x = *popAndResolveAsPtr(context);
+                            Value y = *popAndResolveAsPtr(context);
+                            Value new_value = *popAndResolveAsPtr(context);
+
+                            if (list->valueType() != ValueType::List || x.valueType() != ValueType::Number || y.valueType() != ValueType::Number)
+                                types::generateError(
+                                    "@@=",
+                                    { { types::Contract {
+                                        { types::Typedef("list", ValueType::List),
+                                          types::Typedef("x", ValueType::Number),
+                                          types::Typedef("y", ValueType::Number),
+                                          types::Typedef("new_value", ValueType::Any) } } } },
+                                    { *list, x, y });
+
+                            long idx_x = static_cast<long>(x.number());
+                            idx_x = idx_x < 0 ? static_cast<long>(list->list().size()) + idx_x : idx_x;
+                            if (std::cmp_greater_equal(idx_x, list->list().size()))
+                                throwVMError(
+                                    ErrorKind::Index,
+                                    fmt::format("@@= index (x: {}) out of range (list size: {})", idx_x, list->list().size()));
+
+                            if (!list->list()[static_cast<std::size_t>(idx_x)].isIndexable() ||
+                                (list->list()[static_cast<std::size_t>(idx_x)].valueType() == ValueType::String && new_value.valueType() != ValueType::String))
+                                types::generateError(
+                                    "@@=",
+                                    { { types::Contract {
+                                          { types::Typedef("list", ValueType::List),
+                                            types::Typedef("x", ValueType::Number),
+                                            types::Typedef("y", ValueType::Number),
+                                            types::Typedef("new_value", ValueType::Any) } } },
+                                      { types::Contract {
+                                          { types::Typedef("string", ValueType::String),
+                                            types::Typedef("x", ValueType::Number),
+                                            types::Typedef("y", ValueType::Number),
+                                            types::Typedef("char", ValueType::String) } } } },
+                                    { *list, x, y });
+
+                            const bool is_list = list->list()[static_cast<std::size_t>(idx_x)].valueType() == ValueType::List;
+                            const std::size_t size =
+                                is_list
+                                ? list->list()[static_cast<std::size_t>(idx_x)].list().size()
+                                : list->list()[static_cast<std::size_t>(idx_x)].stringRef().size();
+
+                            long idx_y = static_cast<long>(y.number());
+                            idx_y = idx_y < 0 ? static_cast<long>(size) + idx_y : idx_y;
+                            if (std::cmp_greater_equal(idx_y, size))
+                                throwVMError(
+                                    ErrorKind::Index,
+                                    fmt::format("@@= index (y: {}) out of range (inner indexable size: {})", idx_x, size));
+
+                            if (is_list)
+                                list->list()[static_cast<std::size_t>(idx_x)].list()[static_cast<std::size_t>(idx_y)] = new_value;
+                            else
+                                list->list()[static_cast<std::size_t>(idx_x)].stringRef()[static_cast<std::size_t>(idx_y)] = new_value.string()[0];
                         }
                         DISPATCH();
                     }

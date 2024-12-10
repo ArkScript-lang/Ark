@@ -87,21 +87,26 @@ namespace Ark::internal
         constexpr std::string_view AppendInPlace = "append!";
         constexpr std::string_view ConcatInPlace = "concat!";
         constexpr std::string_view PopInPlace = "pop!";
+        constexpr std::string_view SetAtInPlace = "@=";
+        constexpr std::string_view SetAt2InPlace = "@@=";
         /// All the builtins that modify in place a variable
         constexpr std::array UpdateRef = {
-            AppendInPlace, ConcatInPlace, PopInPlace
+            AppendInPlace, ConcatInPlace, PopInPlace,
+            SetAtInPlace, SetAt2InPlace
         };
 
         // This list is related to include/Ark/Compiler/Instructions.hpp
         // The order is very important
-        constexpr std::array<std::string_view, 7> listInstructions = {
+        constexpr std::array<std::string_view, 9> listInstructions = {
             "list",
             "append",
             "concat",
             AppendInPlace,
             ConcatInPlace,
             "pop",
-            PopInPlace
+            PopInPlace,
+            SetAtInPlace,
+            SetAt2InPlace
         };
 
         constexpr std::string_view SysArgs = "sys:args";

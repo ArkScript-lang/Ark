@@ -243,10 +243,14 @@ namespace Ark::internal
         // length of at least 1 since we got a symbol name
         const auto argc = x.constList().size() - 1u;
         // error, can not use append/concat/pop (and their in place versions) with a <2 length argument list
-        if (argc < 2 && inst != LIST)
+        if (argc < 2 && APPEND <= inst && inst <= POP)
             throwCompilerError(fmt::format("Can not use {} with less than 2 arguments", name), c0);
-        if (std::cmp_greater(argc, std::numeric_limits<uint16_t>::max()))
+        if (inst <= POP && std::cmp_greater(argc, std::numeric_limits<uint16_t>::max()))
             throwCompilerError(fmt::format("Too many arguments ({}), exceeds 65'535", argc), x);
+        if (argc != 3 && inst == SET_AT_INDEX)
+            throwCompilerError(fmt::format("Expected 3 arguments for {}, got {}", name, argc), c0);
+        if (argc != 4 && inst == SET_AT_2_INDEX)
+            throwCompilerError(fmt::format("Expected 4 arguments for {}, got {}", name, argc), c0);
 
         // compile arguments in reverse order
         for (std::size_t i = x.constList().size() - 1u; i > 0; --i)
@@ -259,7 +263,7 @@ namespace Ark::internal
         }
 
         // put inst and number of arguments
-        std::size_t inst_argc;
+        std::size_t inst_argc = 0;
         switch (inst)
         {
             case LIST:
@@ -273,13 +277,17 @@ namespace Ark::internal
                 inst_argc = argc - 1;
                 break;
 
-            default:
+            case POP_LIST:
+            case POP_LIST_IN_PLACE:
                 inst_argc = 0;
+                break;
+
+            default:
                 break;
         }
         page(p).emplace_back(inst, static_cast<uint16_t>(inst_argc));
 
-        if (is_result_unused && name.back() != '!')  // in-place functions never push a value
+        if (is_result_unused && name.back() != '!' && inst <= POP_LIST_IN_PLACE)  // in-place functions never push a value
         {
             compilerWarning("Ignoring return value of function", x);
             page(p).emplace_back(POP);
