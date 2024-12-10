@@ -1,4 +1,4 @@
-At ($symcat 5 2) @ 2:10
+At ($symcat 5 2) @ 2:8
     1 | ($ a ($symcat 5 2))
     2 | (print a)
       | ^~~~~~~~~

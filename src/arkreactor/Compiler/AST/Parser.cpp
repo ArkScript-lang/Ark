@@ -752,9 +752,9 @@ namespace Ark::internal
     {
         if (!accept(IsChar('(')))
             return std::nullopt;
-        auto cursor = getCursor();
         std::string comment;
         newlineOrComment(&comment);
+        auto cursor = getCursor();
 
         std::optional<Node> func;
         if (auto atom = anyAtomOf({ NodeType::Symbol, NodeType::Field }); atom.has_value())
@@ -784,7 +784,6 @@ namespace Ark::internal
         }
 
         leaf->list().back().attachCommentAfter(comment);
-        setNodePosAndFilename(leaf->list().back());
 
         comment.clear();
         if (newlineOrComment(&comment))
@@ -820,8 +819,6 @@ namespace Ark::internal
                 break;
         }
         leaf->list().back().attachCommentAfter(comment);
-
-        setNodePosAndFilename(leaf->list().back());
 
         expect(IsChar(']'));
         return leaf;
@@ -860,8 +857,10 @@ namespace Ark::internal
 
     std::optional<Node> Parser::anyAtomOf(const std::initializer_list<NodeType> types)
     {
+        auto cursor = getCursor();
         if (auto value = atom(); value.has_value())
         {
+            setNodePosAndFilename(value.value(), cursor);
             for (const auto type : types)
             {
                 if (value->nodeType() == type)
@@ -873,14 +872,15 @@ namespace Ark::internal
 
     std::optional<Node> Parser::nodeOrValue()
     {
+        auto cursor = getCursor();
         if (auto value = atom(); value.has_value())
         {
-            setNodePosAndFilename(value.value());
+            setNodePosAndFilename(value.value(), cursor);
             return value;
         }
         if (auto sub_node = node(); sub_node.has_value())
         {
-            setNodePosAndFilename(sub_node.value());
+            setNodePosAndFilename(sub_node.value(), cursor);
             return sub_node;
         }
 

@@ -1,4 +1,4 @@
-At (empty? 1 2) @ 2:10
+At (empty? 1 2) @ 2:8
     1 | ($ a (empty? 1 2))
     2 | (print a)
       | ^~~~~~~~~

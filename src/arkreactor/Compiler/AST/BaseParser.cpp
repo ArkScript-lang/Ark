@@ -105,7 +105,7 @@ namespace Ark::internal
         view = view.substr(0, it_pos);
         const auto nearest_newline_index = view.find_last_of('\n');
         if (nearest_newline_index != std::string_view::npos)
-            m_filepos.col = it_pos - nearest_newline_index + 1;
+            m_filepos.col = it_pos - nearest_newline_index;
         else
             m_filepos.col = it_pos + 1;
     }

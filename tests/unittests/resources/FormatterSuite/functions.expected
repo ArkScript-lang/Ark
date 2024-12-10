@@ -3,6 +3,7 @@
 
 (fun (a) {
   a })
+
 (call me maybe)
 (call
   (fun () {
