@@ -1,0 +1,6 @@
+At lst @ 2:6
+    1 | (let lst [[1 2 3]])
+    2 | (@@= lst 0 1 9)
+      |      ^~~
+    3 |
+        MutabilityError: Can not modify the constant list `lst' using `@@='

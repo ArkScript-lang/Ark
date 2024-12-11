@@ -32,6 +32,7 @@
 - added 11 super instructions and their implementation to the VM
 - support for the glob import syntax and symbol import syntax
 - (experimental) `(string:setAt string index char)`
+- added in place list mutation: `(@= list|string index new_value)`, `(@@= list|list<string> index1 index2 new_value|char)`
 
 ### Changed
 - instructions are on 4 bytes: 1 byte for the instruction, 1 byte of padding, 2 bytes for an immediate argument
