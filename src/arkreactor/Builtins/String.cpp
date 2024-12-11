@@ -198,7 +198,16 @@ namespace Ark::internal::Builtins::String
                                         types::Typedef("value", ValueType::String) } } } },
                 n);
 
-        n[0].stringRef()[static_cast<std::size_t>(n[1].number())] = n[2].string()[0];
+        auto& string = n[0].stringRef();
+
+        const std::size_t size = string.size();
+        long idx = static_cast<long>(n[1].number());
+        idx = idx < 0 ? static_cast<long>(size) + idx : idx;
+        if (std::cmp_greater_equal(idx, size))
+            throw std::runtime_error(
+                fmt::format("IndexError: string:setAt index ({}) out of range (string size: {})", idx, size));
+
+        string[static_cast<std::size_t>(idx)] = n[2].string()[0];
         return n[0];
     }
 }

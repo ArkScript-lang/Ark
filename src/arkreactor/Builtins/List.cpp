@@ -177,7 +177,16 @@ namespace Ark::internal::Builtins::List
                                         types::Typedef("value", ValueType::Any) } } } },
                 n);
 
-        n[0].list()[static_cast<std::size_t>(n[1].number())] = n[2];
+        auto& list = n[0].list();
+
+        const std::size_t size = list.size();
+        long idx = static_cast<long>(n[1].number());
+        idx = idx < 0 ? static_cast<long>(size) + idx : idx;
+        if (std::cmp_greater_equal(idx, size))
+            throw std::runtime_error(
+                fmt::format("IndexError: list:setAt index ({}) out of range (list size: {})", idx, size));
+
+        list[static_cast<std::size_t>(idx)] = n[2];
         return n[0];
     }
 }

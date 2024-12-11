@@ -30,6 +30,9 @@
 
     (test:eq (@ (list:setAt short_list 5 "a") 5) "a")
     (del short_list)
+    (test:eq (list:setAt [0 1 2 3] 0 9) [9 1 2 3])
+    (test:eq (list:setAt [0 1 2 3] 3 9) [0 1 2 9])
+    (test:eq (list:setAt [0 1 2 9] -1 9) [0 1 2 9])
 
     (mut numbers [0 1 2 3 4])
     (@= numbers 2 5)
@@ -43,6 +46,10 @@
     (@@= numbers -1 -1 -1)
     (@@= numbers -2 -2 -2)
     (test:eq numbers [[9 1 2 3] [4 "a" -2 7] [8 9 0 -1]])
+
+    (test:eq (string:setAt "hello" 0 "a") "aello")
+    (test:eq (string:setAt "hello" -1 "a") "hella")
+    (test:eq (string:setAt "hello" 4 "a") "hella")
 
     (test:expect (not (io:fileExists? "test.txt")))
     (io:writeFile "test.txt" "hello, world!")

@@ -31,8 +31,8 @@
 - added `-fdump-ir` to dump the IR entities to a file named `{file}.ark.ir`
 - added 11 super instructions and their implementation to the VM
 - support for the glob import syntax and symbol import syntax
-- (experimental) `(string:setAt string index char)`
-- added in place list mutation: `(@= list|string index new_value)`, `(@@= list|list<string> index1 index2 new_value|char)`
+- modify list and return a copy `(string:setAt string index char)` (bound checked)
+- added in place list mutation: `(@= list|string index new_value)`, `(@@= list|list<string> index1 index2 new_value|char)` (bound checked)
 
 ### Changed
 - instructions are on 4 bytes: 1 byte for the instruction, 1 byte of padding, 2 bytes for an immediate argument
@@ -94,7 +94,8 @@
 - adding a `CALL_BUILTIN <builtin> <arg count>` super instruction
 - fixed formatting of comments after the last symbol in an import node
 - renamed `str:xyz` builtins to `string:xyz` for uniformity with the standard library
-- `string:find` takes an optional third argument, startIndex (where to start the lookup from, default 0)
+- `string:find` takes an optional third argument, startIndex (where to start the lookup from, default 0
+- `list:setAt` can work with negative indexes, and is now bound checked
 
 ### Removed
 - removed unused `NodeType::Closure`
