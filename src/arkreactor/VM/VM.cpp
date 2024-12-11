@@ -1260,12 +1260,12 @@ namespace Ark
                                 var = var->reference();
 
                             if (var->valueType() == ValueType::Number)
-                                push(Value(var->number() + 1), context);
+                                push(Value(var->number() + secondary_arg), context);
                             else
                                 types::generateError(
                                     "+",
                                     { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
-                                    { *var, Value(1) });
+                                    { *var, Value(secondary_arg) });
                         }
                         DISPATCH();
                     }
@@ -1281,12 +1281,12 @@ namespace Ark
                                 var = var->reference();
 
                             if (var->valueType() == ValueType::Number)
-                                push(Value(var->number() - 1), context);
+                                push(Value(var->number() - secondary_arg), context);
                             else
                                 types::generateError(
                                     "-",
                                     { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
-                                    { *var, Value(1) });
+                                    { *var, Value(secondary_arg) });
                         }
                         DISPATCH();
                     }

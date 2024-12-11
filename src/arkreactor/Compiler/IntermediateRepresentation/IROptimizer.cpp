@@ -125,13 +125,13 @@ namespace Ark::internal
         // LOAD_SYMBOL a
         // LOAD_CONST n (1)
         // ADD / SUB
-        // ---> INCREMENT / DECREMENT a
-        if (third.inst() == ADD && first.inst() == LOAD_CONST && second.inst() == LOAD_SYMBOL && isNumber(first.primaryArg(), 1))
-            return IR::Entity(INCREMENT, second.primaryArg());
-        if (third.inst() == ADD && first.inst() == LOAD_SYMBOL && second.inst() == LOAD_CONST && isNumber(second.primaryArg(), 1))
-            return IR::Entity(INCREMENT, first.primaryArg());
-        if (third.inst() == SUB && first.inst() == LOAD_SYMBOL && second.inst() == LOAD_CONST && isNumber(second.primaryArg(), 1))
-            return IR::Entity(DECREMENT, first.primaryArg());
+        // ---> INCREMENT / DECREMENT a value
+        if (third.inst() == ADD && first.inst() == LOAD_CONST && second.inst() == LOAD_SYMBOL && isPositiveNumberInlinable(first.primaryArg()))
+            return IR::Entity(INCREMENT, second.primaryArg(), static_cast<uint16_t>(std::get<double>(m_values[first.primaryArg()].value)));
+        if (third.inst() == ADD && first.inst() == LOAD_SYMBOL && second.inst() == LOAD_CONST && isPositiveNumberInlinable(second.primaryArg()))
+            return IR::Entity(INCREMENT, first.primaryArg(), static_cast<uint16_t>(std::get<double>(m_values[second.primaryArg()].value)));
+        if (third.inst() == SUB && first.inst() == LOAD_SYMBOL && second.inst() == LOAD_CONST && isPositiveNumberInlinable(second.primaryArg()))
+            return IR::Entity(DECREMENT, first.primaryArg(), static_cast<uint16_t>(std::get<double>(m_values[second.primaryArg()].value)));
         // LOAD_SYMBOL list
         // TAIL / HEAD
         // STORE / SET_VAL a
@@ -148,8 +148,15 @@ namespace Ark::internal
         return std::nullopt;
     }
 
-    bool IROptimizer::isNumber(const uint16_t id, const double expected_number) const
+    bool IROptimizer::isPositiveNumberInlinable(const uint16_t id) const
     {
-        return std::cmp_less(id, m_values.size()) && m_values[id].type == ValTableElemType::Number && std::get<double>(m_values[id].value) == expected_number;
+        if (std::cmp_less(id, m_values.size()) && m_values[id].type == ValTableElemType::Number)
+        {
+            const double val = std::get<double>(m_values[id].value);
+            return val >= 0.0 &&
+                val < IR::MaxValueForDualArg &&
+                static_cast<double>(static_cast<long>(val)) == val;
+        }
+        return false;
     }
 }

@@ -55,7 +55,7 @@ namespace Ark::internal
         [[nodiscard]] std::optional<IR::Entity> compactEntities(const IR::Entity& first, const IR::Entity& second);
         [[nodiscard]] std::optional<IR::Entity> compactEntities(const IR::Entity& first, const IR::Entity& second, const IR::Entity& third);
 
-        [[nodiscard]] bool isNumber(uint16_t id, double expected_number) const;
+        [[nodiscard]] bool isPositiveNumberInlinable(uint16_t id) const;
     };
 }
 
