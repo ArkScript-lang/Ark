@@ -8,6 +8,8 @@
         (fun (&c &d) ())))
     (let foo (make "hello" 1))
 
+    (test:expect (empty? []))
+
     # if this is failing, this is most likely to be a compiler problem
     (test:eq ["hello" 1] [foo.c foo.d])
     (test:eq 2 (len [foo.c foo.d]))
