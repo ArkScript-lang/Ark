@@ -1,0 +1,7 @@
+At reverse @ 3:9
+    1 | (import package.list :reverse)
+    2 |
+    3 | (print (reverse [1 2 3]))
+      |         ^~~~~~~
+    4 |
+        Symbol `reverse' was resolved to `list:reverse', which is also a builtin name. Either the symbol or the package it's in needs to be renamed to avoid conflicting with the builtin.

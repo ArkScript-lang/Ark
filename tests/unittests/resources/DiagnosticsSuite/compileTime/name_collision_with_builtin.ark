@@ -1,0 +1,3 @@
+(import package.list :reverse)
+
+(print (reverse [1 2 3]))
