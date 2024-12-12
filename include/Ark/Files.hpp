@@ -68,6 +68,8 @@ namespace Ark::Utils
             return std::vector<uint8_t> {};
 
         const auto pos = ifs.tellg();
+        if (pos == 0)
+            return {};
         // reserve appropriate number of bytes
         std::vector<char> temp(static_cast<std::size_t>(pos));
         ifs.seekg(0, std::ios::beg);
