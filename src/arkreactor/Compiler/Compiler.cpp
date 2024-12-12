@@ -248,9 +248,9 @@ namespace Ark::internal
         if (inst <= POP && std::cmp_greater(argc, std::numeric_limits<uint16_t>::max()))
             throwCompilerError(fmt::format("Too many arguments ({}), exceeds 65'535", argc), x);
         if (argc != 3 && inst == SET_AT_INDEX)
-            throwCompilerError(fmt::format("Expected 3 arguments for {}, got {}", name, argc), c0);
+            throwCompilerError(fmt::format("Expected 3 arguments (list, index, value) for {}, got {}", name, argc), c0);
         if (argc != 4 && inst == SET_AT_2_INDEX)
-            throwCompilerError(fmt::format("Expected 4 arguments for {}, got {}", name, argc), c0);
+            throwCompilerError(fmt::format("Expected 4 arguments (list, y, x, value) for {}, got {}", name, argc), c0);
 
         // compile arguments in reverse order
         for (std::size_t i = x.constList().size() - 1u; i > 0; --i)
@@ -565,9 +565,7 @@ namespace Ark::internal
                 page(p).emplace_back(op);
             }
             else if (exp_count <= 1)
-            {
                 throwCompilerError(fmt::format("Operator needs two arguments, but was called with {}", exp_count), x.constList()[0]);
-            }
 
             // need to check we didn't push the (op A B C D...) things for operators not supporting it
             if (exp_count > 2)
@@ -585,9 +583,9 @@ namespace Ark::internal
                     default:
                         throwCompilerError(
                             fmt::format(
-                                "can not create a chained expression (of length {}) for operator `{}'. You most likely forgot a `)'.",
-                                exp_count,
-                                Language::operators[static_cast<std::size_t>(op - FIRST_OPERATOR)]),
+                                "`{}' requires 2 arguments, but got {}.",
+                                Language::operators[static_cast<std::size_t>(op - FIRST_OPERATOR)],
+                                exp_count),
                             x);
                 }
             }
