@@ -37,7 +37,11 @@
 
     (test:case "find element in list" {
         (test:eq (list:find a 0) -1)
-        (test:eq (list:find a 2) 1) })
+        (test:eq (list:find a 2) 1)
+        (test:eq (list:find [] nil) -1)
+        (test:eq (list:find [12] 12) 0)
+        (test:eq (list:find [1 2 3] 2) 1)
+        (test:eq (list:find [12] nil) -1) })
 
     (test:case "slice and return a new list" {
         (test:eq (list:slice a 0 0 1) [])
@@ -47,14 +51,42 @@
 
     (test:case "sort and return a new list" {
         (test:eq (list:sort [3 1 2]) a)
-        (test:eq a [1 2 3]) })
+        (test:eq a [1 2 3])
+        (test:eq (list:sort [5 4 3 2 1]) [1 2 3 4 5])
+        (test:eq (list:sort [5]) [5])
+        (test:eq (list:sort []) []) })
 
     (test:eq (list:fill 5 nil) [nil nil nil nil nil])
+    (let short_list (list:fill 12 nil))
+    (test:eq (len short_list) 12)
+    (mut i 0)
+    (while (< i 12) {
+        (test:eq (@ short_list i) nil)
+        (set i (+ 1 i)) })
+    (test:eq (@ (list:setAt short_list 5 "a") 5) "a")
 
     (test:case "modify list at index and return a new list" {
-        (let c (list:setAt a 1 "b"))
-        (test:eq c [1 "b" 3])
-        (test:eq a [1 2 3]) })
+        (let tmp (list:setAt a 1 "b"))
+        (test:eq tmp [1 "b" 3])
+        (test:eq a [1 2 3])
+        (test:eq (list:setAt [0 1 2 3] 0 9) [9 1 2 3])
+        (test:eq (list:setAt [0 1 2 3] 3 9) [0 1 2 9])
+        (test:eq (list:setAt [0 1 2 9] -1 9) [0 1 2 9]) })
+
+    (test:case "in place mutation with @=" {
+        (mut numbers [0 1 2 3 4])
+        (@= numbers 2 5)
+        (@= numbers -1 9)
+        (@= numbers -2 8)
+        (test:eq numbers [0 1 5 8 9] "@=") })
+
+    (test:case "in place 2D mutation with @@=" {
+        (mut numbers [[0 1 2 3] [4 5 6 7] [8 9 0 1]])
+        (@@= numbers 0 0 9)
+        (@@= numbers 1 1 "a")
+        (@@= numbers -1 -1 -1)
+        (@@= numbers -2 -2 -2)
+        (test:eq numbers [[9 1 2 3] [4 "a" -2 7] [8 9 0 -1]]) })
 
     (test:case "in place list mutation" {
         (mut c a)
