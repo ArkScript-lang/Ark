@@ -854,15 +854,15 @@ namespace Ark
                                           types::Typedef("new_value", ValueType::Any) } } } },
                                     { *list, x, y });
 
-                            long idx_x = static_cast<long>(x.number());
-                            idx_x = idx_x < 0 ? static_cast<long>(list->list().size()) + idx_x : idx_x;
-                            if (std::cmp_greater_equal(idx_x, list->list().size()))
+                            long idx_y = static_cast<long>(x.number());
+                            idx_y = idx_y < 0 ? static_cast<long>(list->list().size()) + idx_y : idx_y;
+                            if (std::cmp_greater_equal(idx_y, list->list().size()))
                                 throwVMError(
                                     ErrorKind::Index,
-                                    fmt::format("@@= index (x: {}) out of range (list size: {})", idx_x, list->list().size()));
+                                    fmt::format("@@= index (y: {}) out of range (list size: {})", idx_y, list->list().size()));
 
-                            if (!list->list()[static_cast<std::size_t>(idx_x)].isIndexable() ||
-                                (list->list()[static_cast<std::size_t>(idx_x)].valueType() == ValueType::String && new_value.valueType() != ValueType::String))
+                            if (!list->list()[static_cast<std::size_t>(idx_y)].isIndexable() ||
+                                (list->list()[static_cast<std::size_t>(idx_y)].valueType() == ValueType::String && new_value.valueType() != ValueType::String))
                                 types::generateError(
                                     "@@=",
                                     { { types::Contract {
@@ -877,23 +877,23 @@ namespace Ark
                                             types::Typedef("char", ValueType::String) } } } },
                                     { *list, x, y });
 
-                            const bool is_list = list->list()[static_cast<std::size_t>(idx_x)].valueType() == ValueType::List;
+                            const bool is_list = list->list()[static_cast<std::size_t>(idx_y)].valueType() == ValueType::List;
                             const std::size_t size =
                                 is_list
-                                ? list->list()[static_cast<std::size_t>(idx_x)].list().size()
-                                : list->list()[static_cast<std::size_t>(idx_x)].stringRef().size();
+                                ? list->list()[static_cast<std::size_t>(idx_y)].list().size()
+                                : list->list()[static_cast<std::size_t>(idx_y)].stringRef().size();
 
-                            long idx_y = static_cast<long>(y.number());
-                            idx_y = idx_y < 0 ? static_cast<long>(size) + idx_y : idx_y;
-                            if (std::cmp_greater_equal(idx_y, size))
+                            long idx_x = static_cast<long>(y.number());
+                            idx_x = idx_x < 0 ? static_cast<long>(size) + idx_x : idx_x;
+                            if (std::cmp_greater_equal(idx_x, size))
                                 throwVMError(
                                     ErrorKind::Index,
-                                    fmt::format("@@= index (y: {}) out of range (inner indexable size: {})", idx_x, size));
+                                    fmt::format("@@= index (x: {}) out of range (inner indexable size: {})", idx_x, size));
 
                             if (is_list)
-                                list->list()[static_cast<std::size_t>(idx_x)].list()[static_cast<std::size_t>(idx_y)] = new_value;
+                                list->list()[static_cast<std::size_t>(idx_y)].list()[static_cast<std::size_t>(idx_x)] = new_value;
                             else
-                                list->list()[static_cast<std::size_t>(idx_x)].stringRef()[static_cast<std::size_t>(idx_y)] = new_value.string()[0];
+                                list->list()[static_cast<std::size_t>(idx_y)].stringRef()[static_cast<std::size_t>(idx_x)] = new_value.string()[0];
                         }
                         DISPATCH();
                     }

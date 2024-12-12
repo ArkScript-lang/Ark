@@ -47,6 +47,11 @@
     (@@= numbers -2 -2 -2)
     (test:eq numbers [[9 1 2 3] [4 "a" -2 7] [8 9 0 -1]])
 
+    (mut strings ["hello" "world"])
+    (@@= strings 0 0 "a")
+    (@@= strings -1 -1 "b")
+    (test:eq strings ["aello" "worlb"])
+
     (test:eq (string:setAt "hello" 0 "a") "aello")
     (test:eq (string:setAt "hello" -1 "a") "hella")
     (test:eq (string:setAt "hello" 4 "a") "hella")
