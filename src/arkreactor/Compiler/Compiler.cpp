@@ -450,6 +450,13 @@ namespace Ark::internal
         if (maybe_shortcircuit.has_value())
         {
             // short circuit implementation
+            if (x.constList().size() < 3)
+                throwCompilerError(
+                    fmt::format(
+                        "Expected at least 2 arguments while compiling '{}', got {}",
+                        node.string(),
+                        x.constList().size() - 1),
+                    x);
 
             compileExpression(x.constList()[1], p, false, false);
             page(p).emplace_back(DUP);

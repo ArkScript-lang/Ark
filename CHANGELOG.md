@@ -33,6 +33,7 @@
 - support for the glob import syntax and symbol import syntax
 - modify list and return a copy `(string:setAt string index char)` (bound checked)
 - added in place list mutation: `(@= list|string index new_value)`, `(@@= list|list<string> index1 index2 new_value|char)` (bound checked)
+- compile time argument count check for `and` and `or`
 
 ### Changed
 - instructions are on 4 bytes: 1 byte for the instruction, 1 byte of padding, 2 bytes for an immediate argument

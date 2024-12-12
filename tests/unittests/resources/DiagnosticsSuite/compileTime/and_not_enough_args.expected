@@ -1,0 +1,5 @@
+At (and) @ 1:2
+    1 | (and)
+      | ^~~~~
+    2 |
+        Expected at least 2 arguments while compiling 'and', got 0
