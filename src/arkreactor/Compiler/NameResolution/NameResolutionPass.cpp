@@ -303,6 +303,17 @@ namespace Ark::internal
     {
         auto [allowed, fqn] = m_scope_resolver.canFullyQualifyName(symbol.string());
 
+        if (m_language_symbols.contains(fqn) && symbol.string() != fqn)
+        {
+            throw CodeError(
+                fmt::format(
+                    "Symbol `{}' was resolved to `{}', which is also a builtin name. Either the symbol or the package it's in needs to be renamed to avoid conflicting with the builtin.",
+                    symbol.string(), fqn),
+                symbol.filename(),
+                symbol.line(),
+                symbol.col(),
+                symbol.repr());
+        }
         if (!allowed)
         {
             std::string message;
