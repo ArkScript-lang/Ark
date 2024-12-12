@@ -1,0 +1,5 @@
+At concat! @ 1:2
+    1 | (concat! [])
+      |  ^~~~~~~
+    2 |
+        Can not use concat! with less than 2 arguments

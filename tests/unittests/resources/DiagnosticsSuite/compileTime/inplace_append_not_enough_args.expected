@@ -1,0 +1,5 @@
+At append! @ 1:2
+    1 | (append! [])
+      |  ^~~~~~~
+    2 |
+        Can not use append! with less than 2 arguments
