@@ -1,0 +1,5 @@
+At pop @ 1:2
+    1 | (pop [])
+      |  ^~~
+    2 |
+        Can not use pop with less than 2 arguments
