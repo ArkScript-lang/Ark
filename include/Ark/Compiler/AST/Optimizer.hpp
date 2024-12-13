@@ -54,33 +54,18 @@ namespace Ark::internal
         std::unordered_map<std::string, unsigned> m_sym_appearances;
 
         /**
-         * @brief Generate a fancy error message
-         *
-         * @param message
-         * @param node
-         */
-        [[noreturn]] static void throwOptimizerError(const std::string& message, const Node& node);
-
-        /**
-         * @brief Iterate over the AST and remove unused top level functions and constants
-         *
-         */
-        void removeUnused();
-
-        /**
-         * @brief Run a given functor on the global scope symbols
-         *
-         * @param node
-         * @param func
-         */
-        void runOnGlobalScopeVars(Node& node, const std::function<void(Node&, Node&, std::size_t)>& func);
-
-        /**
-         * @brief Count the occurrences of each symbol in the AST, recursively
+         * @brief Count the occurrences of each symbol in the AST, recursively, and prune if false/true, while false/true
          *
          * @param node
          */
-        void countOccurences(const Node& node);
+        void countAndPruneDeadCode(Node& node);
+
+        /**
+         * @brief Remove unused global variables from the AST
+         *
+         * @param node
+         */
+        void pruneUnusedGlobalVariables(Node& node);
     };
 }
 

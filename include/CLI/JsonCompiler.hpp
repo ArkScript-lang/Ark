@@ -16,8 +16,9 @@ public:
      *
      * @param debug the debug level
      * @param lib_env list of path to the directories of the std lib
+     * @param features compiler features to enable. By default, none are active to be able to dump a file AST without any processing
      */
-    JsonCompiler(unsigned debug, const std::vector<std::filesystem::path>& lib_env);
+    JsonCompiler(unsigned debug, const std::vector<std::filesystem::path>& lib_env, uint16_t features = 0);
 
     /**
      * @brief Feed the different variables with information taken from the given source code file

@@ -300,7 +300,6 @@ namespace Ark::internal
             }
 
             case NodeType::Unused:
-                os << "Unused:" << string();
                 break;
         }
         return os;

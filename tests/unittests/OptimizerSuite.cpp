@@ -7,14 +7,14 @@
 
 using namespace boost;
 
-ut::suite<"AST"> ast_suite = [] {
+ut::suite<"Optimizer"> optimizer_suite = [] {
     using namespace ut;
 
-    "[generate valid ast]"_test = [] {
+    "[generate optimized ast]"_test = [] {
         iter_test_files(
-            "ASTSuite",
+            "OptimizerSuite",
             [](TestData&& data) {
-                JsonCompiler compiler(false, { ARK_TESTS_ROOT "lib/" });
+                JsonCompiler compiler(false, { ARK_TESTS_ROOT "lib/" }, Ark::FeatureASTOptimizer);
 
                 std::string json;
                 should("parse " + data.stem) = [&] {

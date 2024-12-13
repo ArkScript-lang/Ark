@@ -5,12 +5,13 @@
 #include <ranges>
 #include <Ark/Exceptions.hpp>
 
-#include <fmt/core.h>
+#include <fmt/ranges.h>
+#include <fmt/format.h>
 
 using namespace Ark::internal;
 
-JsonCompiler::JsonCompiler(const unsigned debug, const std::vector<std::filesystem::path>& lib_env) :
-    m_welder(debug, lib_env, 0)
+JsonCompiler::JsonCompiler(const unsigned debug, const std::vector<std::filesystem::path>& lib_env, const uint16_t features) :
+    m_welder(debug, lib_env, features)
 {}
 
 void JsonCompiler::feed(const std::string& filename)
@@ -138,9 +139,14 @@ std::string JsonCompiler::_compile(const Node& node)
                     case Keyword::If:
                     {
                         // (if condition then else)
-                        json += fmt::format(
-                            R"({{"type": "If", "condition": {}, "then": {}, "else": {}}})",
-                            _compile(node.constList()[1]), _compile(node.constList()[2]), _compile(node.constList()[3]));
+                        if (node.constList().size() == 4)
+                            json += fmt::format(
+                                R"({{"type": "If", "condition": {}, "then": {}, "else": {}}})",
+                                _compile(node.constList()[1]), _compile(node.constList()[2]), _compile(node.constList()[3]));
+                        else
+                            json += fmt::format(
+                                R"({{"type": "If", "condition": {}, "then": {}}})",
+                                _compile(node.constList()[1]), _compile(node.constList()[2]));
                         break;
                     }
 
@@ -236,6 +242,9 @@ std::string JsonCompiler::_compile(const Node& node)
             break;
         }
 
+        case NodeType::Unused:
+            break;
+
         default:
             throw Ark::Error(fmt::format(
                 "Not handled NodeType::{} ({} at {}:{}), please report this error on GitHub",
@@ -247,15 +256,13 @@ std::string JsonCompiler::_compile(const Node& node)
     return json;
 }
 
-std::string JsonCompiler::toJsonList(const Node& node, std::size_t start)
+std::string JsonCompiler::toJsonList(const Node& node, const std::size_t start)
 {
-    std::string json = "[";
+    std::vector<std::string> json;
     for (std::size_t i = start, end = node.constList().size(); i < end; ++i)
     {
-        json += _compile(node.constList()[i]);
-        if (i != end - 1)
-            json += ", ";
+        if (node.constList()[i].nodeType() != NodeType::Unused)
+            json.push_back(_compile(node.constList()[i]));
     }
-    json += "]";
-    return json;
+    return fmt::format("[{}]", fmt::join(json, ", "));
 }
