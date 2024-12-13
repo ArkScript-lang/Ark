@@ -34,6 +34,7 @@
 - modify list and return a copy `(string:setAt string index char)` (bound checked)
 - added in place list mutation: `(@= list|string index new_value)`, `(@@= list|list<string> index1 index2 new_value|char)` (bound checked)
 - compile time argument count check for `and` and `or`
+- basic dead code elimination in the AST optimizer
 
 ### Changed
 - instructions are on 4 bytes: 1 byte for the instruction, 1 byte of padding, 2 bytes for an immediate argument
@@ -97,6 +98,7 @@
 - renamed `str:xyz` builtins to `string:xyz` for uniformity with the standard library
 - `string:find` takes an optional third argument, startIndex (where to start the lookup from, default 0
 - `list:setAt` can work with negative indexes, and is now bound checked
+- re-enabled the AST optimizer, only used for the main `arkscript` executable (not enabled when embedding arkscript, so that one can grab variables from the VM)
 
 ### Removed
 - removed unused `NodeType::Closure`

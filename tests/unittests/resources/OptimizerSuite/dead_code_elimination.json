@@ -1,0 +1,1 @@
+{"type": "Begin", "children": [{"type": "FunctionCall", "name": {"type": "Symbol", "name": "print"}, "args": [{"type": "String", "value": "true"}]}, {"type": "FunctionCall", "name": {"type": "Symbol", "name": "print"}, "args": [{"type": "String", "value": "false2"}]}]}
