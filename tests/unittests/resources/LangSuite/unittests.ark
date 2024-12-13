@@ -5,3 +5,15 @@
 (import list-tests)
 (import string-tests)
 (import async-tests)
+
+(import std.List)
+
+(let outputs (list:unzip [
+    vm-tests:vm-output
+    builtins-tests:builtin-output
+    utf8-tests:utf8-output
+    macro-tests:macro-output
+    list-tests:list-output
+    string-tests:string-output
+    async-tests:async-output ]))
+(print (string:format "{:=<20}\nSuccesses: {} - Failures: {}" "=" (list:sum (@ outputs 0)) (list:sum (@ outputs 1))))
