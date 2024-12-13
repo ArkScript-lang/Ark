@@ -1,5 +1,7 @@
 #include <Ark/Compiler/AST/Optimizer.hpp>
 
+#include <Ark/Exceptions.hpp>
+
 namespace Ark::internal
 {
     Optimizer::Optimizer(const unsigned debug) noexcept :
@@ -10,8 +12,12 @@ namespace Ark::internal
     {
         m_logger.traceStart("process");
         m_ast = ast;
-        // todo: activate this removeUnused();
+        removeUnused();
         m_logger.traceEnd();
+
+        m_logger.trace("AST after name pruning nodes");
+        if (m_logger.shouldTrace())
+            m_ast.debugPrint(std::cout) << '\n';
     }
 
     const Node& Optimizer::ast() const noexcept
@@ -30,16 +36,16 @@ namespace Ark::internal
         if (m_ast.nodeType() != NodeType::List)
             return;
 
-        runOnGlobalScopeVars(m_ast, [this](const Node& node, Node& parent [[maybe_unused]], int idx [[maybe_unused]]) {
-            m_sym_appearances[node.constList()[1].string()] = 0;
-        });
         countOccurences(m_ast);
+
+        for (const auto& [name, uses] : m_sym_appearances)
+            m_logger.debug("{} -> {}", name, uses);
 
         // logic: remove piece of code with only 1 reference, if they aren't function calls
         runOnGlobalScopeVars(m_ast, [this](const Node& node, Node& parent, const std::size_t idx) {
-            std::string name = node.constList()[1].string();
+            const std::string name = node.constList()[1].string();
             // a variable was only declared and never used
-            if (m_sym_appearances.contains(name) && m_sym_appearances[name] == 1 && parent.list()[idx].list()[2].nodeType() != NodeType::List)
+            if (m_sym_appearances.contains(name) && m_sym_appearances[name] < 1)
             {
                 m_logger.debug("Removing unused variable '{}'", name);
                 // erase the node from the list
@@ -72,22 +78,29 @@ namespace Ark::internal
                 if (kw == Keyword::Let || kw == Keyword::Mut)
                     func(*it, node, i);
             }
+            else if (it->nodeType() == NodeType::Namespace)
+            {
+                m_logger.debug("Traversing namespace {}", it->arkNamespace().name);
+                runOnGlobalScopeVars(*it->arkNamespace().ast, func);
+            }
         }
     }
 
-    void Optimizer::countOccurences(Node& node)
+    void Optimizer::countOccurences(const Node& node)
     {
         if (node.nodeType() == NodeType::Symbol || node.nodeType() == NodeType::Capture)
         {
-            // check if it's the name of something declared in global scope
-            if (const auto name = node.string(); m_sym_appearances.contains(name))
-                m_sym_appearances[name]++;
+            auto [element, inserted] = m_sym_appearances.try_emplace(node.string(), 0);
+            if (!inserted)
+                element->second++;
         }
-        else if (node.nodeType() == NodeType::List)
+        else if (node.nodeType() == NodeType::List || node.nodeType() == NodeType::Field)
         {
             // iterate over children
-            for (std::size_t i = 0, end = node.constList().size(); i != end; ++i)
-                countOccurences(node.list()[i]);
+            for (const auto& child : node.constList())
+                countOccurences(child);
         }
+        else if (node.nodeType() == NodeType::Namespace)
+            countOccurences(*node.constArkNamespace().ast);
     }
 }

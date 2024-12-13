@@ -15,11 +15,9 @@
 #include <functional>
 #include <unordered_map>
 #include <string>
-#include <cinttypes>
 
 #include <Ark/Compiler/Pass.hpp>
 #include <Ark/Compiler/AST/Node.hpp>
-#include <Ark/Exceptions.hpp>
 
 namespace Ark::internal
 {
@@ -82,7 +80,7 @@ namespace Ark::internal
          *
          * @param node
          */
-        void countOccurences(Node& node);
+        void countOccurences(const Node& node);
     };
 }
 
