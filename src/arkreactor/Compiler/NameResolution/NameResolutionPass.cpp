@@ -141,10 +141,10 @@ namespace Ark::internal
                         if (!scope->get(sym, true).has_value())
                             throw CodeError(
                                 fmt::format("ImportError: Can not import symbol {} from {}, as it isn't in the package", sym, namespace_.name),
-                                node.filename(),
+                                namespace_.ast->filename(),
                                 namespace_.ast->line(),
                                 namespace_.ast->col(),
-                                sym);
+                                "import");
                     }
                 }
 

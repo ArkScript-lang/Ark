@@ -82,17 +82,6 @@ namespace Ark::Utils
             bytecode[i] = static_cast<uint8_t>(temp[i]);
         return bytecode;
     }
-
-    /**
-     * @brief Get the canonical relative path from a path
-     *
-     * @param path
-     * @return std::string
-     */
-    inline std::string canonicalRelPath(const std::string& path)
-    {
-        return relative(std::filesystem::path(path)).generic_string();
-    }
 }
 
 #endif
