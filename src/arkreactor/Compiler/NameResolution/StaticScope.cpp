@@ -59,7 +59,7 @@ namespace Ark::internal
         std::string fqn = fullyQualifiedName(name);
         std::string unprefixed_name = starts_with_prefix ? name.substr(name.find_first_of(':') + 1) : name;
 
-        if (!m_symbols.empty() && !hasSymbol(unprefixed_name))
+        if (!m_symbols.empty() && !hasSymbol(unprefixed_name) && !m_with_prefix && !m_is_glob)
             return m_vars.emplace(fqn + "#hidden", fqn, is_mutable).first->name;
         return m_vars.emplace(fqn, fqn, is_mutable).first->name;
     }

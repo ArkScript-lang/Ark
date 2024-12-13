@@ -52,7 +52,7 @@ int main(int argc, char** argv)
     // Generic arguments
     std::vector<std::string> wrong, script_args;
 
-    uint16_t passes = Ark::DefaultFeatures;
+    uint16_t passes = Ark::DefaultFeatures | Ark::FeatureASTOptimizer;
 
     // clang-format off
     auto debug_flag = joinable(repeatable(option("-d", "--debug").call([&]{ debug++; })

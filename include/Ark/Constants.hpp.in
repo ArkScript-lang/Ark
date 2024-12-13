@@ -48,7 +48,7 @@ namespace Ark
     // Compiler options
     constexpr uint16_t FeatureImportSolver   = 1 << 0;
     constexpr uint16_t FeatureMacroProcessor = 1 << 1;
-    constexpr uint16_t FeatureASTOptimizer   = 1 << 2;
+    constexpr uint16_t FeatureASTOptimizer   = 1 << 2;  ///< This is disabled so that embedding ArkScript does not prune nodes from the AST ; it is active in the `arkscript` executable
     constexpr uint16_t FeatureIROptimizer    = 1 << 3;
     constexpr uint16_t FeatureNameResolver   = 1 << 4;
 
@@ -60,7 +60,6 @@ namespace Ark
     constexpr uint16_t DefaultFeatures =
         FeatureImportSolver
         | FeatureMacroProcessor
-        | FeatureASTOptimizer
         | FeatureIROptimizer
         | FeatureNameResolver;
 
