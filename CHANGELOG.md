@@ -99,6 +99,7 @@
 - `string:find` takes an optional third argument, startIndex (where to start the lookup from, default 0
 - `list:setAt` can work with negative indexes, and is now bound checked
 - re-enabled the AST optimizer, only used for the main `arkscript` executable (not enabled when embedding arkscript, so that one can grab variables from the VM)
+- loops have their own scope: variables created inside a loop won't leak outside it
 
 ### Removed
 - removed unused `NodeType::Closure`

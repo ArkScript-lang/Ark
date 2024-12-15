@@ -394,6 +394,8 @@ namespace Ark::internal
         if (x.constList().size() != 3)
             throwCompilerError("Invalid node ; if it was computed by a macro, check that a node is returned", x);
 
+        page(p).emplace_back(CREATE_SCOPE);
+
         // save current position to jump there at the end of the loop
         const auto label_loop = IR::Entity::Label(m_current_label++);
         page(p).emplace_back(label_loop);
@@ -410,6 +412,8 @@ namespace Ark::internal
 
         // absolute address to jump to if condition is false
         page(p).emplace_back(label_end);
+
+        page(p).emplace_back(POP_SCOPE);
     }
 
     void Compiler::compilePluginImport(const Node& x, const Page p)
