@@ -216,6 +216,15 @@ namespace Ark::internal
                     m_plugin_names.push_back(node.constList()[1].constList().back().string());
                 break;
 
+            case Keyword::While:
+                // create a new scope to track variables
+                m_scope_resolver.createNew();
+                for (auto& child : node.list())
+                    visit(child, register_declarations);
+                // remove the scope once the loop has been compiled, only we were registering declarations
+                m_scope_resolver.removeLastScope();
+                break;
+
             case Keyword::Fun:
                 // create a new scope to track variables
                 m_scope_resolver.createNew();

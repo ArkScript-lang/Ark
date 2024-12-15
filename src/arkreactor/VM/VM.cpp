@@ -383,6 +383,8 @@ namespace Ark
                 &&TARGET_SET_AT_2_INDEX,
                 &&TARGET_POP,
                 &&TARGET_DUP,
+                &&TARGET_CREATE_SCOPE,
+                &&TARGET_POP_SCOPE,
                 &&TARGET_ADD,
                 &&TARGET_SUB,
                 &&TARGET_MUL,
@@ -908,6 +910,18 @@ namespace Ark
                     {
                         context.stack[context.sp] = context.stack[context.sp - 1];
                         ++context.sp;
+                        DISPATCH();
+                    }
+
+                    TARGET(CREATE_SCOPE)
+                    {
+                        context.locals.emplace_back();
+                        DISPATCH();
+                    }
+
+                    TARGET(POP_SCOPE)
+                    {
+                        context.locals.pop_back();
                         DISPATCH();
                     }
 
