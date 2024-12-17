@@ -45,23 +45,23 @@
 (last 1 5 6 7 8)
 
 {
-(print "Testing macros in scopes and macro shadowing")
+  (print "Testing macros in scopes and macro shadowing")
 
-($ test (+ 1 2 3))
-(print "(global) Reading macro 'test', expected 6, " test)
+  ($ test (+ 1 2 3))
+  (print "(global) Reading macro 'test', expected 6, " test)
 
-((fun () {
-  ($ test (- 1 2 3))
-  (print "(sub scope) Reading macro 'test', expected -4, " test) }))
+  ((fun () {
+    ($ test (- 1 2 3))
+    (print "(sub scope) Reading macro 'test', expected -4, " test) }))
 
-(print "(global) Reading macro 'test', expected 6, " test)
+  (print "(global) Reading macro 'test', expected 6, " test)
 
-{
-  ($ test 555)
-  (print "(subscope) Reading macro 'test', expected 555, " test)
-  ($ undef test)
-  (print "(subscope, undef test) Reading macro 'test', expected 6, " test)
-  ($ undef a) } }
+  {
+    ($ test 555)
+    (print "(subscope) Reading macro 'test', expected 555, " test)
+    ($ undef test)
+    (print "(subscope, undef test) Reading macro 'test', expected 6, " test)
+    ($ undef a) } }
 (print "Demonstrating a threading macro")
 
 ($ -> (arg fn1 ...fn) {
