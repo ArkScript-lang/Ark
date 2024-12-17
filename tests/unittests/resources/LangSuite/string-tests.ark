@@ -23,6 +23,22 @@
         (test:eq (string:find "abcdefghijkl" "defghijkl") 3)
         (test:eq (string:find "abcdabcdabcd" "abcd" 2) 4) })
 
+    (test:case "get char in string" {
+        (test:eq "a" (@ "abc" 0))
+        (test:eq "c" (@ "abc" -1))
+        (test:eq "b" (@ "abc" -2))
+        (test:eq "b" (@ "abc" 1)) })
+
+    (test:case "get char in list of strings" {
+        (let nested_strings ["abc" "def" "ijk"])
+        (test:eq "a" (@@ nested_strings 0 0))
+        (test:eq "b" (@@ nested_strings -3 1))
+        (test:eq "c" (@@ nested_strings 0 -1))
+        (test:eq "k" (@@ nested_strings -1 -1))
+        (test:eq "i" (@@ nested_strings 2 0))
+        (test:eq "e" (@@ nested_strings 1 1))
+        (test:eq "e" (@@ nested_strings 1 -2)) })
+
     (test:case "update string" {
         (test:eq (string:setAt "hello" 0 "a") "aello")
         (test:eq (string:setAt "hello" -1 "a") "hella")

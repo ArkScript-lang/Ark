@@ -107,6 +107,18 @@ namespace Ark::internal
         }
     }
 
+    bool Compiler::isTernaryInst(const Instruction inst) noexcept
+    {
+        switch (inst)
+        {
+            case AT_AT:
+                return true;
+
+            default:
+                return false;
+        }
+    }
+
     void Compiler::compilerWarning(const std::string& message, const Node& node)
     {
         fmt::println("{} {}", fmt::styled("Warning", fmt::fg(fmt::color::dark_orange)), Diagnostics::makeContextWithNode(message, node));
@@ -562,7 +574,7 @@ namespace Ark::internal
 
                 // in order to be able to handle things like (op A B C D...)
                 // which should be transformed into A B op C op D op...
-                if (exp_count >= 2)
+                if (exp_count >= 2 && !isTernaryInst(op))
                     page(p).emplace_back(op);
             }
 
@@ -570,6 +582,12 @@ namespace Ark::internal
             {
                 if (exp_count != 1)
                     throwCompilerError(fmt::format("Operator needs one argument, but was called with {}", exp_count), x.constList()[0]);
+                page(p).emplace_back(op);
+            }
+            else if (isTernaryInst(op))
+            {
+                if (exp_count != 3)
+                    throwCompilerError(fmt::format("Operator needs three arguments, but was called with {}", exp_count), x.constList()[0]);
                 page(p).emplace_back(op);
             }
             else if (exp_count <= 1)
@@ -585,7 +603,8 @@ namespace Ark::internal
                     case SUB: [[fallthrough]];
                     case MUL: [[fallthrough]];
                     case DIV: [[fallthrough]];
-                    case MOD:
+                    case MOD: [[fallthrough]];
+                    case AT_AT:
                         break;
 
                     default:

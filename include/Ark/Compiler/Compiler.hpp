@@ -143,6 +143,15 @@ namespace Ark::internal
         static bool isUnaryInst(Instruction inst) noexcept;
 
         /**
+         * @brief Check if a given instruction is ternary (takes three arguments)
+         *
+         * @param inst
+         * @return true the instruction is ternary
+         * @return false
+         */
+        static bool isTernaryInst(Instruction inst) noexcept;
+
+        /**
          * @brief Display a warning message
          *
          * @param message
