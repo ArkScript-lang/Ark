@@ -35,6 +35,7 @@
 - added in place list mutation: `(@= list|string index new_value)`, `(@@= list|list<string> index1 index2 new_value|char)` (bound checked)
 - compile time argument count check for `and` and `or`
 - basic dead code elimination in the AST optimizer
+- new operator `@@` to get elements in list of lists / list of strings
 
 ### Changed
 - instructions are on 4 bytes: 1 byte for the instruction, 1 byte of padding, 2 bytes for an immediate argument

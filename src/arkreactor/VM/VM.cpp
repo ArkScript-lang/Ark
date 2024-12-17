@@ -404,6 +404,7 @@ namespace Ark
                 &&TARGET_TO_NUM,
                 &&TARGET_TO_STR,
                 &&TARGET_AT,
+                &&TARGET_AT_AT,
                 &&TARGET_MOD,
                 &&TARGET_TYPE,
                 &&TARGET_HASFIELD,
@@ -1165,6 +1166,51 @@ namespace Ark
                                     { { types::Contract { { types::Typedef("src", ValueType::List), types::Typedef("idx", ValueType::Number) } },
                                         types::Contract { { types::Typedef("src", ValueType::String), types::Typedef("idx", ValueType::Number) } } } },
                                     { a, *b });
+                        }
+                        DISPATCH();
+                    }
+
+                    TARGET(AT_AT)
+                    {
+                        {
+                            Value* x = popAndResolveAsPtr(context);
+                            Value* y = popAndResolveAsPtr(context);
+                            Value list = *popAndResolveAsPtr(context);  // be careful, it's not a pointer
+
+                            if (y->valueType() != ValueType::Number || x->valueType() != ValueType::Number ||
+                                list.valueType() != ValueType::List)
+                                types::generateError(
+                                    "@@",
+                                    { { types::Contract {
+                                        { types::Typedef("src", ValueType::List),
+                                          types::Typedef("y", ValueType::Number),
+                                          types::Typedef("x", ValueType::Number) } } } },
+                                    { list, *y, *x });
+
+                            long idx_y = static_cast<long>(y->number());
+                            idx_y = idx_y < 0 ? static_cast<long>(list.list().size()) + idx_y : idx_y;
+                            if (std::cmp_greater_equal(idx_y, list.list().size()))
+                                throwVMError(
+                                    ErrorKind::Index,
+                                    fmt::format("@@ index ({}) out of range (list size: {})", idx_y, list.list().size()));
+
+                            const bool is_list = list.list()[static_cast<std::size_t>(idx_y)].valueType() == ValueType::List;
+                            const std::size_t size =
+                                is_list
+                                ? list.list()[static_cast<std::size_t>(idx_y)].list().size()
+                                : list.list()[static_cast<std::size_t>(idx_y)].stringRef().size();
+
+                            long idx_x = static_cast<long>(x->number());
+                            idx_x = idx_x < 0 ? static_cast<long>(size) + idx_x : idx_x;
+                            if (std::cmp_greater_equal(idx_x, size))
+                                throwVMError(
+                                    ErrorKind::Index,
+                                    fmt::format("@@ index (x: {}) out of range (inner indexable size: {})", idx_x, size));
+
+                            if (is_list)
+                                push(list.list()[static_cast<std::size_t>(idx_y)].list()[static_cast<std::size_t>(idx_x)], context);
+                            else
+                                push(Value(std::string(1, list.list()[static_cast<std::size_t>(idx_y)].stringRef()[static_cast<std::size_t>(idx_x)])), context);
                         }
                         DISPATCH();
                     }
