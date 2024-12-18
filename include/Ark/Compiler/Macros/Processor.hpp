@@ -152,7 +152,17 @@ namespace Ark::internal
          * @param name the name of the macro being applied
          * @param kind the macro kind, empty by default (eg "operator", "condition")
          */
-        void checkMacroArgCount(const Node& node, std::size_t expected, const std::string& name, const std::string& kind = "");
+        static void checkMacroArgCountEq(const Node& node, std::size_t expected, const std::string& name, const std::string& kind = "");
+
+        /**
+         * @brief Check if the given node has at least the provided argument count, otherwise throws an error
+         *
+         * @param node a list node with a macro application, eg (= a b)
+         * @param expected expected argument count, not counting the macro
+         * @param name the name of the macro being applied
+         * @param kind the macro kind, empty by default (eg "operator", "condition")
+         */
+        static void checkMacroArgCountGe(const Node& node, std::size_t expected, const std::string& name, const std::string& kind = "");
 
         /**
          * @brief Evaluate only the macros

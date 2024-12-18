@@ -1,7 +1,6 @@
-At ($paste b (list)) @ 2:8
+At ($paste b (list)) @ 1:7
     1 | ($ a ($paste b []))
+      | ^~~~~~~~~~~~~~~~~~~
     2 | (print a)
-      | ^~~~~~~~~
     3 |
-      | ^
         When expanding `$paste', expected one argument, got 2 arguments

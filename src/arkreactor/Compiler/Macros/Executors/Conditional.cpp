@@ -22,7 +22,10 @@ namespace Ark::internal
         }
 
         if (node.nodeType() == NodeType::Macro)
+        {
             handleMacroNode(node);
+            applyMacroProxy(node, depth + 1);
+        }
 
         return true;
     }

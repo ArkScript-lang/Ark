@@ -15,7 +15,7 @@ namespace Ark::internal
             if (macro->constList().size() == 2)
             {
                 node.updateValueAndType(macro->constList()[1]);
-                evaluate(node, depth + 1, false);
+                node = evaluate(node, depth + 1, false);
                 applyMacroProxy(node, depth + 1);
                 return true;
             }

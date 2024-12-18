@@ -3,4 +3,4 @@ At (list) @ 1:17
       | ^~~~~~~~~~~~~~~~~~~~
     2 | (print a)
     3 |
-        When expanding `$symcat', expected either a Number, String or Symbol, got a List
+        When expanding `$symcat', expected either a Number, String or Symbol, got a List: (list)

@@ -59,6 +59,8 @@ namespace Ark::internal
         if (node.constList().size() == 2)
         {
             assert(first_node.nodeType() == NodeType::Symbol && "Can not define a macro without a symbol");
+            applyMacro(node.list()[1], 0);
+            node.list()[1] = evaluate(node.list()[1], 0, true);
             m_macros.back().add(first_node.string(), node);
         }
         // ($ name (args) body)
@@ -139,7 +141,7 @@ namespace Ark::internal
 
                     if (child.nodeType() == NodeType::Unused)
                         node.list().erase(node.constList().begin() + static_cast<std::vector<Node>::difference_type>(pos));
-                    else
+                    else if (!added_begin)
                         // Go forward only if it isn't a macro, because we delete macros
                         // while running on the AST. Also, applying a macro can result in
                         // nodes being marked unused, and delete them immediately. When
@@ -202,13 +204,27 @@ namespace Ark::internal
         return false;
     }
 
-    void MacroProcessor::checkMacroArgCount(const Node& node, std::size_t expected, const std::string& name, const std::string& kind)
+    void MacroProcessor::checkMacroArgCountEq(const Node& node, std::size_t expected, const std::string& name, const std::string& kind)
     {
         const std::size_t argcount = node.constList().size();
         if (argcount != expected + 1)
             throwMacroProcessingError(
                 fmt::format(
                     "Interpreting a `{}'{} with {} arguments, expected {}.",
+                    name,
+                    kind.empty() ? kind : " " + kind,
+                    argcount,
+                    expected),
+                node);
+    }
+
+    void MacroProcessor::checkMacroArgCountGe(const Node& node, std::size_t expected, const std::string& name, const std::string& kind)
+    {
+        const std::size_t argcount = node.constList().size();
+        if (argcount < expected + 1)
+            throwMacroProcessingError(
+                fmt::format(
+                    "Interpreting a `{}'{} with {} arguments, expected at least {}.",
                     name,
                     kind.empty() ? kind : " " + kind,
                     argcount,
@@ -238,77 +254,109 @@ namespace Ark::internal
             }
             else if (name == "=" && is_not_body)
             {
-                checkMacroArgCount(node, 2, "=", "condition");
+                checkMacroArgCountEq(node, 2, "=", "condition");
                 const Node one = evaluate(node.list()[1], depth + 1, is_not_body);
                 const Node two = evaluate(node.list()[2], depth + 1, is_not_body);
                 return (one == two) ? getTrueNode() : getFalseNode();
             }
             else if (name == "!=" && is_not_body)
             {
-                checkMacroArgCount(node, 2, "!=", "condition");
+                checkMacroArgCountEq(node, 2, "!=", "condition");
                 const Node one = evaluate(node.list()[1], depth + 1, is_not_body);
                 const Node two = evaluate(node.list()[2], depth + 1, is_not_body);
                 return (one != two) ? getTrueNode() : getFalseNode();
             }
             else if (name == "<" && is_not_body)
             {
-                checkMacroArgCount(node, 2, "<", "condition");
+                checkMacroArgCountEq(node, 2, "<", "condition");
                 const Node one = evaluate(node.list()[1], depth + 1, is_not_body);
                 const Node two = evaluate(node.list()[2], depth + 1, is_not_body);
                 return (one < two) ? getTrueNode() : getFalseNode();
             }
             else if (name == ">" && is_not_body)
             {
-                checkMacroArgCount(node, 2, ">", "condition");
+                checkMacroArgCountEq(node, 2, ">", "condition");
                 const Node one = evaluate(node.list()[1], depth + 1, is_not_body);
                 const Node two = evaluate(node.list()[2], depth + 1, is_not_body);
                 return !(one < two) && (one != two) ? getTrueNode() : getFalseNode();
             }
             else if (name == "<=" && is_not_body)
             {
-                checkMacroArgCount(node, 2, "<=", "condition");
+                checkMacroArgCountEq(node, 2, "<=", "condition");
                 const Node one = evaluate(node.list()[1], depth + 1, is_not_body);
                 const Node two = evaluate(node.list()[2], depth + 1, is_not_body);
                 return one < two || one == two ? getTrueNode() : getFalseNode();
             }
             else if (name == ">=" && is_not_body)
             {
-                checkMacroArgCount(node, 2, ">=", "condition");
+                checkMacroArgCountEq(node, 2, ">=", "condition");
                 const Node one = evaluate(node.list()[1], depth + 1, is_not_body);
                 const Node two = evaluate(node.list()[2], depth + 1, is_not_body);
                 return !(one < two) ? getTrueNode() : getFalseNode();
             }
             else if (name == "+" && is_not_body)
             {
-                checkMacroArgCount(node, 2, "+", "operator");
-                const Node one = evaluate(node.list()[1], depth + 1, is_not_body);
-                const Node two = evaluate(node.list()[2], depth + 1, is_not_body);
-                return (one.nodeType() == two.nodeType() && two.nodeType() == NodeType::Number) ? Node(one.number() + two.number()) : node;
+                checkMacroArgCountGe(node, 2, "+", "operator");
+                double v = 0.0;
+                for (auto& child : node.list() | std::ranges::views::drop(1))
+                {
+                    Node ev = evaluate(child, depth + 1, is_not_body);
+                    if (ev.nodeType() != NodeType::Number)
+                        return node;
+                    v += ev.number();
+                }
+                return Node(v);
             }
             else if (name == "-" && is_not_body)
             {
-                checkMacroArgCount(node, 2, "-", "operator");
+                checkMacroArgCountGe(node, 2, "-", "operator");
                 const Node one = evaluate(node.list()[1], depth + 1, is_not_body);
-                const Node two = evaluate(node.list()[2], depth + 1, is_not_body);
-                return (one.nodeType() == two.nodeType() && two.nodeType() == NodeType::Number) ? Node(one.number() - two.number()) : node;
+                if (one.nodeType() != NodeType::Number)
+                    return node;
+
+                double v = one.number();
+                for (auto& child : node.list() | std::ranges::views::drop(2))
+                {
+                    Node ev = evaluate(child, depth + 1, is_not_body);
+                    if (ev.nodeType() != NodeType::Number)
+                        return node;
+                    v -= ev.number();
+                }
+                return Node(v);
             }
             else if (name == "*" && is_not_body)
             {
-                checkMacroArgCount(node, 2, "*", "operator");
-                const Node one = evaluate(node.list()[1], depth + 1, is_not_body);
-                const Node two = evaluate(node.list()[2], depth + 1, is_not_body);
-                return (one.nodeType() == two.nodeType() && two.nodeType() == NodeType::Number) ? Node(one.number() * two.number()) : node;
+                checkMacroArgCountGe(node, 2, "*", "operator");
+                double v = 1.0;
+                for (auto& child : node.list() | std::ranges::views::drop(1))
+                {
+                    Node ev = evaluate(child, depth + 1, is_not_body);
+                    if (ev.nodeType() != NodeType::Number)
+                        return node;
+                    v *= ev.number();
+                }
+                return Node(v);
             }
             else if (name == "/" && is_not_body)
             {
-                checkMacroArgCount(node, 2, "/", "operator");
+                checkMacroArgCountGe(node, 2, "/", "operator");
                 const Node one = evaluate(node.list()[1], depth + 1, is_not_body);
-                const Node two = evaluate(node.list()[2], depth + 1, is_not_body);
-                return (one.nodeType() == two.nodeType() && two.nodeType() == NodeType::Number) ? Node(one.number() / two.number()) : node;
+                if (one.nodeType() != NodeType::Number)
+                    return node;
+
+                double v = one.number();
+                for (auto& child : node.list() | std::ranges::views::drop(2))
+                {
+                    Node ev = evaluate(child, depth + 1, is_not_body);
+                    if (ev.nodeType() != NodeType::Number)
+                        return node;
+                    v /= ev.number();
+                }
+                return Node(v);
             }
             else if (name == "not" && is_not_body)
             {
-                checkMacroArgCount(node, 1, "not", "condition");
+                checkMacroArgCountEq(node, 1, "not", "condition");
                 return (!isTruthy(evaluate(node.list()[1], depth + 1, is_not_body))) ? getTrueNode() : getFalseNode();
             }
             else if (name == Language::And && is_not_body)
@@ -367,7 +415,7 @@ namespace Ark::internal
             }
             else if (name == "@")
             {
-                checkMacroArgCount(node, 2, "@");
+                checkMacroArgCountEq(node, 2, "@");
 
                 Node sublist = evaluate(node.list()[1], depth + 1, is_not_body);
                 const Node idx = evaluate(node.list()[2], depth + 1, is_not_body);
@@ -460,7 +508,13 @@ namespace Ark::internal
                 if (node.list().size() <= 2)
                     throwMacroProcessingError(fmt::format("When expanding `{}', expected at least 2 arguments, got {} arguments", Language::Symcat, argcount), node);
                 if (node.list()[1].nodeType() != NodeType::Symbol)
-                    throwMacroProcessingError(fmt::format("When expanding `{}', expected the first argument to be a Symbol, got a {}", Language::Symcat, typeToString(node.list()[1])), node);
+                    throwMacroProcessingError(
+                        fmt::format(
+                            "When expanding `{}', expected the first argument to be a Symbol, got a {}: {}",
+                            Language::Symcat,
+                            typeToString(node.list()[1]),
+                            node.list()[1].repr()),
+                        node);
 
                 std::string sym = node.list()[1].string();
 
@@ -481,7 +535,13 @@ namespace Ark::internal
                             break;
 
                         default:
-                            throwMacroProcessingError(fmt::format("When expanding `{}', expected either a Number, String or Symbol, got a {}", Language::Symcat, typeToString(ev)), ev);
+                            throwMacroProcessingError(
+                                fmt::format(
+                                    "When expanding `{}', expected either a Number, String or Symbol, got a {}: {}",
+                                    Language::Symcat,
+                                    typeToString(ev),
+                                    ev.repr()),
+                                ev);
                     }
                 }
 
