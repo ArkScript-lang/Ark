@@ -40,6 +40,10 @@ def main():
     args = [f for f in sys.argv[1:] if "__arkscript__" not in f]
     files_count = len(args)
 
+    if files_count == 0:
+        print("No input files. Usage: script.py folder/*.ark")
+        exit(1)
+
     for i, file in enumerate(args):
         if os.path.exists(file) and os.path.isfile(file):
             print(f"{file}\n{'-' * len(file)}")
