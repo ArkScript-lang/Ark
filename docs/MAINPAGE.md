@@ -27,4 +27,4 @@ Also, it has:
 # Links
 
 - [Source code](https://github.com/ArkScript-lang/Ark)
-- [Main website](https://arkscript-lang.github.io)
+- [Main website](https://arkscript-lang.dev)
