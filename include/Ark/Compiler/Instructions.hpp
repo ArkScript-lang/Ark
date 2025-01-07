@@ -26,6 +26,7 @@ namespace Ark::internal
      */
     enum Instruction : uint8_t
     {
+        // @role Does nothing, useful for padding
         NOP = 0x00,
         SYM_TABLE_START = 0x01,
         VAL_TABLE_START = 0x02,
@@ -34,73 +35,232 @@ namespace Ark::internal
         FUNC_TYPE = 0x03,
         CODE_SEGMENT_START = 0x03,
 
+        // @args symbol id
+        // @role Load a symbol from its ID onto the stack
         LOAD_SYMBOL = 0x01,
+
+        // @args symbol id
+        // @role Load a constant from its ID onto the stack
         LOAD_CONST = 0x02,
+
+        // @args absolute address to jump to
+        // @role Jump to the provided address if the last value on the stack was equal to true. Remove the value from the stack no matter what it is
         POP_JUMP_IF_TRUE = 0x03,
+
+        // @args symbol id
+        // @role Take the value on top of the stack and create a variable in the current scope, named following the given symbol id (cf symbols table)
         STORE = 0x04,
+
+        // @args symbol id
+        // @role Take the value on top of the stack and put it inside a variable named following the symbol id (cf symbols table), in the nearest scope. Raise an error if it couldn't find a scope where the variable exists
         SET_VAL = 0x05,
+
+        // @args absolute address to jump to
+        // @role Jump to the provided address if the last value on the stack was equal to false. Remove the value from the stack no matter what it is
         POP_JUMP_IF_FALSE = 0x06,
+
+        // @args absolute address to jump to
+        // @role Jump to the provided address
         JUMP = 0x07,
+
+        // @role If in a code segment other than the main one, quit it, and push the value on top of the stack to the new stack; should as well delete the current environment. Otherwise, acts as a #[code HALT]
         RET = 0x08,
+
+        // @role Stop the Virtual Machine
         HALT = 0x09,
+
+        // @args argument count
+        // @role Call function from its symbol id located on top of the stack. Take the given number of arguments from the top of stack and give them to the function (the first argument taken from the stack will be the last one of the function). The stack of the function is now composed of its arguments, from the first to the last one
         CALL = 0x0a,
+
+        // @args symbol id
+        // @role Tell the Virtual Machine to capture the variable from the current environment. Main goal is to be able to handle closures, which need to save the environment in which they were created
         CAPTURE = 0x0b,
+
+        // @args builtin id
+        // @role Push the corresponding builtin function object on the stack
         BUILTIN = 0x0c,
+
+        // @args symbol id
+        // @role Remove a variable/constant named following the given symbol id (cf symbols table)
         DEL = 0x0d,
+
+        // @args constant id
+        // @role Push a Closure with the page address pointed by the constant, along with the saved scope created by CAPTURE instruction(s)
         MAKE_CLOSURE = 0x0e,
+
+        // @args symbol id
+        // @role Read the field named following the given symbol id (cf symbols table) of a #[code Closure] stored in TS. Pop TS and push the value of field read on the stack
         GET_FIELD = 0x0f,
+
+        // @args constant id
+        // @role Load a plugin dynamically, plugin name is stored as a string in the constants table
         PLUGIN = 0x10,
+
+        // @args number of elements
+        // @role Create a list from the N elements pushed on the stack. Follows the function calling convention
         LIST = 0x11,
+
+        // @args number of elements
+        // @role Append N elements to a list (TS). Elements are stored in TS(1)..TS(N). Follows the function calling convention
         APPEND = 0x12,
+
+        // @args number of elements
+        // @role Concatenate N lists to a list (TS). Lists to concat to TS are stored in TS(1)..TS(N). Follows the function calling convention
         CONCAT = 0x13,
+
+        // @args number of elements
+        // @role Append N elements to a reference to a list (TS), the list is being mutated in-place, no new object created. Elements are stored in TS(1)..TS(N). Follows the function calling convention
         APPEND_IN_PLACE = 0x14,
+
+        // @args number of elements
+        // @role Concatenate N lists to a reference to a list (TS), the list is being mutated in-place, no new object created. Lists to concat to TS are stored in TS(1)..TS(N). Follows the function calling convention
         CONCAT_IN_PLACE = 0x15,
+
+        // @role Remove an element from a list (TS), given an index (TS1). Push a new list without the removed element to the stack
         POP_LIST = 0x16,
+
+        // @role Remove an element from a reference to a list (TS), given an index (TS1). The list is mutated in-place, no new object created
         POP_LIST_IN_PLACE = 0x17,
+
+        // @role Modify a reference to a list or string (TS) by replacing the element at TS1 (must be a number) by the value in TS2. The object is mutated in-place, no new object created
         SET_AT_INDEX = 0x18,
+
+        // @role Modify a reference to a list (TS) by replacing TS[TS2][TS1] by the value in TS3. TS[TS2] can be a string (if it is, TS3 must be a string). The object is mutated in-place, no new object created
         SET_AT_2_INDEX = 0x19,
+
+        // @role Remove the top of the stack
         POP = 0x1a,
+
+        // @role Duplicate the top of the stack
         DUP = 0x1b,
+
+        // @role Create a new local scope
         CREATE_SCOPE = 0x1c,
+
+        // @role Destroy the last local scope
         POP_SCOPE = 0x1d,
 
         FIRST_OPERATOR = 0x1e,
+
+        // @role Push #[code TS1 + TS]
         ADD = 0x1e,
+
+        // @role Push #[code TS1 - TS]
         SUB = 0x1f,
+
+        // @role Push #[code TS1 * TS]
         MUL = 0x20,
+
+        // @role Push #[code TS1 / TS]
         DIV = 0x21,
+
+        // @role Push #[code TS1 > TS]
         GT = 0x22,
+
+        // @role Push #[code TS1 < TS]
         LT = 0x23,
+
+        // @role Push #[code TS1 <= TS]
         LE = 0x24,
+
+        // @role Push #[code TS1 >= TS]
         GE = 0x25,
+
+        // @role Push #[code TS1 != TS]
         NEQ = 0x26,
+
+        // @role Push #[code TS1 == TS]
         EQ = 0x27,
+
+        // @role Push #[code len(TS)], TS must be a list
         LEN = 0x28,
+
+        // @role Push #[code empty?(TS)], TS must be a list or string
         EMPTY = 0x29,
+
+        // @role Push #[code tail(TS)], all the elements of TS except the first one. TS must be a list or string
         TAIL = 0x2a,
+
+        // @role Push #[code head(TS)], the first element of TS or nil if empty. TS must be a list or string
         HEAD = 0x2b,
+
+        // @role Push true if TS is nil, false otherwise
         ISNIL = 0x2c,
+
+        // @role Throw an exception if TS1 is false, and display TS (must be a string). Do not push anything on the stack
         ASSERT = 0x2d,
+
+        // @role Convert TS to number (must be a string)
         TO_NUM = 0x2e,
+
+        // @role Convert TS to string
         TO_STR = 0x2f,
+
+        // @role Push the value at index TS (must be a number) in TS1, which must be a list or string
         AT = 0x30,
+
+        // @role Push the value at index TS (must be a number), inside the list or string at index TS1 (must be a number) in the list at TS2
         AT_AT = 0x31,
+
+        // @role Push #[code TS1 % TS]
         MOD = 0x32,
+
+        // @role Push the type of TS as a string
         TYPE = 0x33,
+
+        // @role Check if TS1 is a closure field of TS. TS must be a Closure, TS1 a String
         HASFIELD = 0x34,
+
+        // @role Push #[code !TS]
         NOT = 0x35,
 
+        // @args constant id, constant id
+        // @role Load two consts (#[code primary] then #[code secondary]) on the stack in one instruction
         LOAD_CONST_LOAD_CONST = 0x36,
+
+        // @args constant id, symbol id
+        // @role Load const #[code primary] into the symbol #[code secondary] (create a variable)
         LOAD_CONST_STORE = 0x37,
+
+        // @args constant id, symbol id
+        // @role Load const #[code primary] into the symbol #[code secondary] (search for the variable with the given symbol id)
         LOAD_CONST_SET_VAL = 0x38,
+
+        // @args symbol id, symbol id
+        // @role Store the value of the symbol #[code primary] into a new variable #[code secondary]
         STORE_FROM = 0x39,
+
+        // @args symbol id, symbol id
+        // @role Store the value of the symbol #[code primary] into an existing variable #[code secondary]
         SET_VAL_FROM = 0x3a,
+
+        // @args symbol id, count
+        // @role Increment the variable #[code primary] by #[code count] and push its value on the stack
         INCREMENT = 0x3b,
+
+        // @args symbol id, count
+        // @role Decrement the variable #[code primary] by #[code count] and push its value on the stack
         DECREMENT = 0x3c,
+
+        // @args symbol id, symbol id
+        // @role Load the symbol #[code primary], compute its tail, store it in a new variable #[code secondary]
         STORE_TAIL = 0x3d,
+
+        // @args symbol id, symbol id
+        // @role Load the symbol #[code primary], compute its head, store it in a new variable #[code secondary]
         STORE_HEAD = 0x3e,
+
+        // @args symbol id, symbol id
+        // @role Load the symbol #[code primary], compute its tail, store it in an existing variable #[code secondary]
         SET_VAL_TAIL = 0x3f,
+
+        // @args symbol id, symbol id
+        // @role Load the symbol #[code primary], compute its head, store it in an existing variable #[code secondary]
         SET_VAL_HEAD = 0x40,
+
+        // @args builtin id, argument count
+        // @role Call a builtin by its id in #[code primary], with #[code secondary] arguments. Bypass the stack size check because we do not push IP/PP since builtins calls do not alter the stack
         CALL_BUILTIN = 0x41
     };
 
