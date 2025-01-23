@@ -2,6 +2,8 @@
 
 #include <regex>
 #include <algorithm>
+#include <numeric>
+#include <ranges>
 
 namespace Ark::internal
 {
@@ -22,25 +24,25 @@ namespace Ark::internal
 
     std::size_t codepointLength(const std::string& str)
     {
-        std::size_t len = 0;
-        for (const auto c : str)
-            len += (c & 0xc0) != 0x80;
-        return len;
+        return std::accumulate(
+            str.begin(),
+            str.end(),
+            std::size_t { 0 },
+            [](const std::size_t acc, const char c) {
+                return acc + ((c & 0xc0) != 0x80);
+            });
     }
 
     std::size_t contextLen(const std::string& prefix)
     {
         const std::string word_break = " \t\n\r\v\f=+*&^%$#@!,./?<>;`~'\"[]{}()\\|";
-        long i = static_cast<long>(prefix.size()) - 1;
         std::size_t count = 0;
 
-        while (i >= 0)
+        for (const auto c : std::ranges::views::reverse(prefix))
         {
-            if (word_break.find(prefix[static_cast<std::size_t>(i)]) != std::string::npos)
+            if (word_break.find(c) != std::string::npos)
                 break;
-
             ++count;
-            --i;
         }
 
         return count;

@@ -167,17 +167,22 @@ if (ARK_BUILD_MODULES)
     set_directory_properties(PROPERTIES COMPILE_OPTIONS "${old_dir_compile_options}")
 endif ()
 
+if (ARK_TESTS OR ARK_BUILD_EXE)
+    add_subdirectory("${ark_SOURCE_DIR}/lib/replxx" EXCLUDE_FROM_ALL)
+endif ()
+
 if (ARK_TESTS)
-    file(GLOB_RECURSE UT_SOURCES
+    file(GLOB_RECURSE SOURCES
             ${ark_SOURCE_DIR}/tests/unittests/*.cpp
             ${ark_SOURCE_DIR}/lib/fmt/src/format.cc
             ${ark_SOURCE_DIR}/src/arkscript/Formatter.cpp
-            ${ark_SOURCE_DIR}/src/arkscript/JsonCompiler.cpp)
-    add_executable(unittests ${UT_SOURCES})
+            ${ark_SOURCE_DIR}/src/arkscript/JsonCompiler.cpp
+            ${ark_SOURCE_DIR}/src/arkscript/REPL/Utils.cpp)
+    add_executable(unittests ${SOURCES})
 
     add_subdirectory(${ark_SOURCE_DIR}/lib/ut)
     target_include_directories(unittests PUBLIC ${ark_SOURCE_DIR}/include)
-    target_link_libraries(unittests PUBLIC ArkReactor ut)
+    target_link_libraries(unittests PUBLIC ArkReactor ut replxx)
 
     add_compile_definitions(BOOST_UT_DISABLE_MODULE)
     target_compile_features(unittests PRIVATE cxx_std_20)
@@ -233,7 +238,6 @@ if (ARK_BUILD_EXE)
             ${ark_SOURCE_DIR}/lib/fmt/src/format.cc)
     add_executable(arkscript ${EXE_SOURCES})
 
-    add_subdirectory("${ark_SOURCE_DIR}/lib/replxx" EXCLUDE_FROM_ALL)
     add_subdirectory("${ark_SOURCE_DIR}/lib/clipp" EXCLUDE_FROM_ALL)
 
     target_include_directories(arkscript SYSTEM PUBLIC "${ark_SOURCE_DIR}/lib/clipp/include")

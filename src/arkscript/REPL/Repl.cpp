@@ -59,7 +59,7 @@ namespace Ark
 
         while (m_running)
         {
-            auto maybe_block = getCodeBlock();
+            std::optional<std::string> maybe_block = getCodeBlock();
 
             // save a valid ip if execution failed
             m_old_ip = m_vm.m_execution_contexts[0]->ip;
