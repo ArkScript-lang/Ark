@@ -5,7 +5,7 @@ import os
 
 def get_repl():
     executable = None
-    for p in ["./arkscript", "cmake-build-debug/arkscript", "build/arkscript"]:
+    for p in ["./arkscript", "cmake-build-debug/arkscript", "build/arkscript", "build/arkscript.exe"]:
         if os.path.exists(p):
             executable = p
             break
