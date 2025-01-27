@@ -34,6 +34,19 @@ namespace Ark::internal
      */
     void trimWhitespace(std::string& line);
 
+    /**
+     * @brief Compute a list of all the language keywords and builtins
+     *
+     * @return std::vector<std::string>
+     */
+    std::vector<std::string> getAllKeywords();
+
+    /**
+     * @brief Compute a list of pairs (word -> color) to be used for coloration by the REPL
+     * @return std::vector<std::pair<std::string, replxx::Replxx::Color>>
+     */
+    std::vector<std::pair<std::string, replxx::Replxx::Color>> getColorPerKeyword();
+
     replxx::Replxx::completions_t hookCompletion(const std::vector<std::string>& words, const std::string& context, int& length);
 
     void hookColor(const std::vector<std::pair<std::string, replxx::Replxx::Color>>& words_colors, const std::string& context, replxx::Replxx::colors_t& colors);

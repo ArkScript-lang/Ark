@@ -5,6 +5,9 @@
 #include <numeric>
 #include <ranges>
 
+#include <Ark/Builtins/Builtins.hpp>
+#include <Ark/Compiler/Common.hpp>
+
 namespace Ark::internal
 {
     long countOpenEnclosures(const std::string& line, const char open, const char close)
@@ -20,6 +23,52 @@ namespace Ark::internal
             const std::size_t string_end = line.find_last_not_of(" \t");
             line = line.substr(string_begin, string_end - string_begin + 1);
         }
+    }
+
+    std::vector<std::string> getAllKeywords()
+    {
+        std::vector<std::string> output;
+        output.reserve(keywords.size() + Language::listInstructions.size() + Language::operators.size() + Builtins::builtins.size() + 2);
+        for (auto keyword : keywords)
+            output.emplace_back(keyword);
+        for (auto inst : Language::listInstructions)
+            output.emplace_back(inst);
+        for (auto op : Language::operators)
+            output.emplace_back(op);
+        for (const auto& builtin : std::ranges::views::keys(Builtins::builtins))
+            output.push_back(builtin);
+        output.emplace_back("and");
+        output.emplace_back("or");
+
+        return output;
+    }
+
+    std::vector<std::pair<std::string, replxx::Replxx::Color>> getColorPerKeyword()
+    {
+        using namespace replxx;
+
+        std::vector<std::pair<std::string, Replxx::Color>> output;
+        output.reserve(keywords.size() + Language::listInstructions.size() + Language::operators.size() + Builtins::builtins.size() + 4);
+        for (auto keyword : keywords)
+            output.emplace_back(keyword, Replxx::Color::BRIGHTRED);
+        for (auto inst : Language::listInstructions)
+            output.emplace_back(inst, Replxx::Color::GREEN);
+        for (auto op : Language::operators)
+        {
+            auto safe_op = std::string(op);
+            if (const auto it = safe_op.find_first_of(R"(-+=/*<>[]()?")"); it != std::string::npos)
+                safe_op.insert(it, "\\");
+            output.emplace_back(safe_op, Replxx::Color::BRIGHTBLUE);
+        }
+        for (const auto& builtin : std::ranges::views::keys(Builtins::builtins))
+            output.emplace_back(builtin, Replxx::Color::GREEN);
+
+        output.emplace_back("and", Replxx::Color::BRIGHTBLUE);
+        output.emplace_back("or", Replxx::Color::BRIGHTBLUE);
+        output.emplace_back("[\\-|+]?[0-9]+(\\.[0-9]+)?", Replxx::Color::YELLOW);
+        output.emplace_back("\".*\"", Replxx::Color::MAGENTA);
+
+        return output;
     }
 
     std::size_t codepointLength(const std::string& str)
