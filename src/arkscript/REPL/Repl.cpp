@@ -4,7 +4,6 @@
 #include <ranges>
 
 #include <Ark/Builtins/Builtins.hpp>
-#include <Ark/Compiler/Common.hpp>
 
 #include <CLI/REPL/Repl.hpp>
 #include <CLI/REPL/Utils.hpp>
@@ -19,37 +18,8 @@ namespace Ark
         m_old_ip(0), m_lib_env(lib_env),
         m_state(m_lib_env), m_vm(m_state), m_has_init_vm(false)
     {
-        m_keywords.reserve(keywords.size() + Language::listInstructions.size() + Language::operators.size() + Builtins::builtins.size() + 2);
-        for (auto keyword : keywords)
-            m_keywords.emplace_back(keyword);
-        for (auto inst : Language::listInstructions)
-            m_keywords.emplace_back(inst);
-        for (auto op : Language::operators)
-            m_keywords.emplace_back(op);
-        for (const auto& builtin : std::ranges::views::keys(Builtins::builtins))
-            m_keywords.push_back(builtin);
-        m_keywords.emplace_back("and");
-        m_keywords.emplace_back("or");
-
-        m_words_colors.reserve(keywords.size() + Language::listInstructions.size() + Language::operators.size() + Builtins::builtins.size() + 4);
-        for (auto keyword : keywords)
-            m_words_colors.emplace_back(keyword, Replxx::Color::BRIGHTRED);
-        for (auto inst : Language::listInstructions)
-            m_words_colors.emplace_back(inst, Replxx::Color::GREEN);
-        for (auto op : Language::operators)
-        {
-            auto safe_op = std::string(op);
-            if (const auto it = safe_op.find_first_of(R"(-+=/*<>[]()?")"); it != std::string::npos)
-                safe_op.insert(it, "\\");
-            m_words_colors.emplace_back(safe_op, Replxx::Color::BRIGHTBLUE);
-        }
-        for (const auto& builtin : std::ranges::views::keys(Builtins::builtins))
-            m_words_colors.emplace_back(builtin, Replxx::Color::GREEN);
-
-        m_words_colors.emplace_back("and", Replxx::Color::BRIGHTBLUE);
-        m_words_colors.emplace_back("or", Replxx::Color::BRIGHTBLUE);
-        m_words_colors.emplace_back("[\\-|+]?[0-9]+(\\.[0-9]+)?", Replxx::Color::YELLOW);
-        m_words_colors.emplace_back("\".*\"", Replxx::Color::MAGENTA);
+        m_keywords = getAllKeywords();
+        m_words_colors = getColorPerKeyword();
     }
 
     int Repl::run()
