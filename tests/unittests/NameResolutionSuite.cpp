@@ -123,4 +123,46 @@ ut::suite<"NameResolution"> name_resolution_suite = [] {
             expect(c_ok.valueType() == Ark::ValueType::True) << "(= (test 5) 5)\n";
         };
     };
+
+    "[symbol import should not be shadowed by hidden symbol]"_test = [] {
+        Ark::State state({ std::filesystem::path(ARK_TESTS_ROOT "/lib/") });
+
+        should("compile the resource without any error") = [&] {
+            expect(mut(state).doFile(get_resource_path("NameResolutionSuite/shadowing_symbol/a.ark")));
+        };
+
+        Ark::VM vm(state);
+        should("return exit code 0") = [&] {
+            expect(mut(vm).run() == 0_i);
+        };
+
+        should("resolve symbols from all namespaces without generating bad fully qualified names") = [&] {
+            const auto a_range = mut(vm).operator[]("a_range");
+            expect(a_range.valueType() == Ark::ValueType::True) << "(= (range) \"b:map\")\n";
+
+            const auto a_map = mut(vm).operator[]("a_map");
+            expect(a_map.valueType() == Ark::ValueType::True) << "(= (map) \"c:map\")\n";
+        };
+    };
+
+    "[symbol import should not be shadowed by hidden symbol (bis)]"_test = [] {
+        Ark::State state({ std::filesystem::path(ARK_TESTS_ROOT "/lib/") });
+
+        should("compile the resource without any error") = [&] {
+            expect(mut(state).doFile(get_resource_path("NameResolutionSuite/shadowing_symbol_swap_import_order/a.ark")));
+        };
+
+        Ark::VM vm(state);
+        should("return exit code 0") = [&] {
+            expect(mut(vm).run() == 0_i);
+        };
+
+        should("resolve symbols from all namespaces without generating bad fully qualified names") = [&] {
+            const auto a_range = mut(vm).operator[]("a_range");
+            expect(a_range.valueType() == Ark::ValueType::True) << "(= (range) \"b:map\")\n";
+
+            const auto a_map = mut(vm).operator[]("a_map");
+            expect(a_map.valueType() == Ark::ValueType::True) << "(= (map) \"c:map\")\n";
+        };
+    };
 };

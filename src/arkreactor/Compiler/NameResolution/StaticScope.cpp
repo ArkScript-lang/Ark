@@ -91,11 +91,17 @@ namespace Ark::internal
         // lookup in the additional saved namespaces
         if (extensive_lookup)
         {
+            std::optional<Declaration> decl;
             for (const auto& scope : m_additional_namespaces)
             {
                 if (auto maybe_decl = scope->get(name, extensive_lookup); maybe_decl.has_value())
-                    return maybe_decl;
+                {
+                    // priorize non-hidden declarations
+                    if ((decl.has_value() && decl.value().name.ends_with("#hidden")) || !decl.has_value())
+                        decl = maybe_decl;
+                }
             }
+            return decl;
         }
         // otherwise we didn't find the name in the namespace
         return std::nullopt;

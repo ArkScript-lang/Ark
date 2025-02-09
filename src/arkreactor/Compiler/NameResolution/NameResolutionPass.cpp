@@ -333,6 +333,10 @@ namespace Ark::internal
                     fqn.substr(0, fqn.find_first_of('#')));
             else
                 message = fmt::format(R"(Unbound variable "{}". However, it exists in a namespace as "{}", did you forget to prefix it with its namespace?)", symbol.string(), fqn);
+
+            if (m_logger.shouldTrace())
+                m_ast.debugPrint(std::cout) << '\n';
+
             throw CodeError(
                 message,
                 symbol.filename(),

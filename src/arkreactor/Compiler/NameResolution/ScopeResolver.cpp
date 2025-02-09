@@ -67,12 +67,17 @@ namespace Ark::internal
 
     std::string ScopeResolver::getFullyQualifiedNameInNearestScope(const std::string& name) const
     {
+        std::optional<std::string> maybe_name;
         for (const auto& scope : std::ranges::reverse_view(m_scopes))
         {
             if (auto maybe_fqn = scope->get(name, true); maybe_fqn.has_value())
-                return maybe_fqn.value().name;
+            {
+                // priorize non-hidden symbols
+                if ((maybe_name.has_value() && maybe_name.value().ends_with("#hidden")) || !maybe_name.has_value())
+                    maybe_name = maybe_fqn.value().name;
+            }
         }
-        return name;
+        return maybe_name.value_or(name);
     }
 
     std::pair<bool, std::string> ScopeResolver::canFullyQualifyName(const std::string& name)
@@ -89,7 +94,7 @@ namespace Ark::internal
             return std::make_pair(true, maybe_fqn);
 
         const std::string prefix = maybe_fqn.substr(0, maybe_fqn.find_first_of(':'));
-        const std::string unprefixed_name = maybe_fqn.substr(maybe_fqn.find_first_of(':') + 1);
+        const std::string unprefixed_name = name.substr(name.find_first_of(':') + 1);
         auto namespaces =
             std::ranges::reverse_view(m_scopes) | std::ranges::views::filter([](const auto& e) {
                 return e->isNamespace();
