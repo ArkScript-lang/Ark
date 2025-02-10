@@ -9,6 +9,6 @@
 
 (let b_foo_ok (= "aa aaa" (b:foo "aa" "aaa")))
 
-(let c_ok (and (= "c:egg" c:egg) (= "c:bacon" c:bacon)))
+(let c_ok (and (= "c:egg" egg) (= "c:bacon" bacon)))
 
 (let d_ok (= "d:lamp" lamp))
