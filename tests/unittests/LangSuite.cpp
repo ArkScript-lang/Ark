@@ -27,5 +27,38 @@ ut::suite<"Lang"> lang_suite = [] {
         should("return exit code 0") = [&] {
             expect(mut(vm).run() == 0_i);
         };
+
+        should("have no failures") = [&] {
+            const auto failure_count = mut(vm).operator[]("failure_count");
+            expect(failure_count.valueType() == Ark::ValueType::Number &&
+                   failure_count.number() == 0.0)
+                << "failure_count = 0\n";
+        };
+    };
+
+    "[run arkscript stdlib unittests]"_test = [] {
+        Ark::State state({ std::filesystem::path(ARK_TESTS_ROOT "/lib/") });
+
+        try
+        {
+            const bool ok = mut(state).doFile(ARK_TESTS_ROOT "lib/std/tests/all.ark");
+            expect(ok) << fatal << "compilation failed";
+        }
+        catch (const Ark::CodeError&)
+        {
+            expect(false) << fatal << "encountered an exception while compiling";
+        }
+
+        Ark::VM vm(state);
+        should("return exit code 0") = [&] {
+            expect(mut(vm).run() == 0_i);
+        };
+
+        should("have no failures") = [&] {
+            const auto failure_count = mut(vm).operator[]("failure_count");
+            expect(failure_count.valueType() == Ark::ValueType::Number &&
+                   failure_count.number() == 0.0)
+                << "failure_count = 0\n";
+        };
     };
 };

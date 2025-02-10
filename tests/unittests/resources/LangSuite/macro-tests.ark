@@ -36,11 +36,11 @@
         ($ e (+ 1 2 3))
         ($ f (* 2 2 3))
         ($ g (- 1 2 3))
-        ($ h (/ 1 2 3))
+        ($ h (/ 12 2 3))
         (test:eq e 6)
         (test:eq f 12)
         (test:eq g -4)
-        (test:eq h (/ 1 6)) })
+        (test:eq h (/ 12 6)) })
 
     (test:case "node manipulation" {
         ($ node_tail () (tail (begin 1 2 3)))

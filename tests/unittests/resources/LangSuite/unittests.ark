@@ -16,4 +16,7 @@
     list-tests:list-output
     string-tests:string-output
     async-tests:async-output ]))
-(print (string:format "{:=<20}\nSuccesses: {} - Failures: {}" "=" (list:sum (@ outputs 0)) (list:sum (@ outputs 1))))
+(let success_count (list:sum (@ outputs 0)))
+(let failure_count (list:sum (@ outputs 1)))
+
+(print (string:format "{:=<20}\nSuccesses: {} - Failures: {}\n" "=" success_count failure_count))
