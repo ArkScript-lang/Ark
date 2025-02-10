@@ -131,10 +131,6 @@ Also, see [ArkScript Coding guidelines](https://arkscript-lang.dev/guidelines/co
 
 For performance reasons, some functions might be written in C++, in `include/Ark/Builtins/Builtins.hpp` and `src/Builtins/`.
 
-### Code structure
-
-![ArkScript code structure](.github/images/diagram.svg)
-
 ## Building
 
 ### Dependencies

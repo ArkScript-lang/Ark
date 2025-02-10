@@ -18,10 +18,6 @@ Don't know what to work on? No worries, we have a [list of things to do](https:/
 
 For an in-depth explanation: [Understanding the project architecture](https://arkscript-lang.dev/implementation/architecture.html).
 
-For a quick glance at the organization of the project, check this out:
-
-![diagram of the folders and subfolders in the project](.github/images/diagram.svg)
-
 ## Contributing to a module (or creating one)
 
 The repository for this is [ArkScript-lang/modules](https://github.com/ArkScript-lang/modules), and the language used is C++.

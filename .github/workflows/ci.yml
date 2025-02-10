@@ -65,22 +65,6 @@ jobs:
         with:
           folder: ${{ matrix.path }}
 
-  repo_visualizer:
-    runs-on: ubuntu-24.04
-    needs: [ check ]
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Update diagram
-        uses: githubocto/repo-visualizer@main
-        with:
-          excluded_paths: 'dist,node_modules,submodules'
-          should_push: false
-          output_file: 'diagram.svg'
-          artifact_name: 'diagram'
-
   build:
     runs-on: ${{ matrix.config.os }}
     name: ${{ matrix.config.name }}
@@ -394,12 +378,12 @@ jobs:
           sudo apt-get update --fix-missing
           sudo apt-get install -y clang-16 lld-16 libc++-16-dev libc++abi-16-dev clang-tools-16
 
-      - name: Install valgrind 3.20.0
+      - name: Install valgrind 3.24.0
         shell: bash
         run: |
-          wget --no-check-certificate http://ftp.us.debian.org/debian/pool/main/v/valgrind/valgrind_3.20.0-2.1_amd64.deb
+          wget --no-check-certificate http://ftp.us.debian.org/debian/pool/main/v/valgrind/valgrind_3.24.0-2_amd64.deb
           sudo apt remove needrestart
-          sudo apt install ./valgrind_3.20.0-2.1_amd64.deb
+          sudo apt install ./valgrind_3.24.0-2_amd64.deb
 
       - name: Valgrind checks for memory leaks
         shell: bash
