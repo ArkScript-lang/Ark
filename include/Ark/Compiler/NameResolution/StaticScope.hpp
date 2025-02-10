@@ -130,8 +130,11 @@ namespace Ark::internal
         [[nodiscard]] inline bool hasSymbol(const std::string& symbol) const override { return std::ranges::find(m_symbols, symbol) != m_symbols.end(); }
         [[nodiscard]] inline bool recursiveHasSymbol(const std::string& symbol) override
         {
-            if (hasSymbol(symbol) || (isGlob() && get(symbol, false).has_value()))
+            if (hasSymbol(symbol))
                 return true;
+            if (isGlob() && std::ranges::find(m_vars, fullyQualifiedName(symbol), &Declaration::name) != m_vars.end())
+                return true;
+
             for (const auto& saved_scope : m_additional_namespaces)
             {
                 if (saved_scope->recursiveHasSymbol(symbol))

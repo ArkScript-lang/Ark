@@ -107,6 +107,7 @@ namespace Ark::internal
             if (!top && prefix == scope->prefix() && (scope->isGlob() || scope->hasSymbol(name)))
                 return std::make_pair(true, maybe_fqn);
 
+            // check for the presence of the symbol in symbol imports and glob imports
             if (scope->recursiveHasSymbol(unprefixed_name))
                 return std::make_pair(true, maybe_fqn);
 
