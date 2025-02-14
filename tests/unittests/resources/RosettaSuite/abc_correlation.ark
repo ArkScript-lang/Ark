@@ -1,0 +1,35 @@
+(import std.String :split)
+(import std.List :filter :map)
+
+# define a custom helper to count occurrences in a collection
+(let countIf (fun (_L _f) {
+  # _inner will call itself on a given collection _L, which will evolve like this:
+  # abc -> bc -> c -> nil
+  (let _inner (fun (lst cond acc)
+    (if (not (empty? lst))
+      (_inner
+        (tail lst)
+        cond
+        # the counting happens here, conditions are expressions too
+        # thus we can put one inside a function call argument list
+        (if (cond (head lst))
+          (+ 1 acc)
+          acc))
+      acc)))
+  (_inner _L _f 0) }))
+
+(let mapFilter (fun (lst f)
+  (filter (map lst f) (fun (e) (not (nil? e)))) ))
+
+(let words (split (io:readFile "tests/unittests/resources/RosettaSuite/res/words.txt") "\n"))
+
+(let output (mapFilter words (fun (word) {
+  (let a (countIf word (fun (c) (= c "a"))))
+  (let b (countIf word (fun (c) (= c "b"))))
+  (let c (countIf word (fun (c) (= c "c"))))
+
+  (if (and (= a b) (= a c))
+    word) })))
+
+(let expected ["abc" "internet" "black" "venus" "jupiter" "neptune" "pluto"])
+(assert (= output expected) "output == expected")
