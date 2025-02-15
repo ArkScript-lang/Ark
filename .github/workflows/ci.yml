@@ -388,9 +388,22 @@ jobs:
       - name: Valgrind checks for memory leaks
         shell: bash
         run: |
-          valgrind --leak-check=full --show-leak-kinds=all \
-            --track-origins=yes --track-fds=yes \
-            --trace-children=yes \
+          # hack to close fd 155 and 158 as github leaves them open
+          # thread: https://github.com/actions/runner-images/issues/3729
+          # solution from: https://github.com/actions/runner-images/issues/3391#issuecomment-842139475
+          if [ -d /proc/$$/fd/ ]; then
+            for descriptor_path in /proc/$$/fd/*; do
+                descriptor="$(basename "$descriptor_path")"
+                # Don't close stdin/stderr/stdout (-gt 2)
+                if [ $descriptor -gt 2 ]; then
+                  exec {descriptor}<&-
+                fi
+            done
+          fi
+          valgrind --leak-check=full \
+            --show-leak-kinds=all --show-reachable=yes \
+            --track-origins=yes --track-fds=yes --trace-children=yes \
             --verbose -s \
+            --demangle=yes \
             --error-exitcode=1 \
             build/arkscript tests/unittests/resources/LangSuite/unittests.ark -L ./lib valgrind
