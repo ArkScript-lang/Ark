@@ -143,13 +143,13 @@ jobs:
         uses: ffurrer2/extract-release-notes@v1
 
       - name: Create release
-        uses: actions/create-release@v1
+        uses: softprops/action-gh-release@v2
         id: create_release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
+          name: ArkScript ${{ env.RELEASE_VERSION }}
           tag_name: ${{ env.RELEASE_VERSION }}
-          release_name: ArkScript ${{ env.RELEASE_VERSION }}
           draft: true
           prerelease: false
           body: ${{ steps.extract-release-notes.outputs.release_notes }}
@@ -161,7 +161,7 @@ jobs:
           description: |
             Please review it **before publishing it**, as this action would trigger workflows and GitHub webhooks,
             notifying everyone of a new release! You want to be sure **everything** is correct
-            [Release draft URL](${{ steps.create_release.outputs.html_url }})
+            [Release draft URL](${{ steps.create_release.outputs.url }})
           nodetail: true
           username: GitHub Actions
 
