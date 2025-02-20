@@ -19,6 +19,8 @@
 #include <ranges>
 #include <unordered_set>
 
+#include <Ark/Platform.hpp>
+
 namespace Ark::internal
 {
     struct Declaration
@@ -42,7 +44,7 @@ struct std::hash<Ark::internal::Declaration>
 
 namespace Ark::internal
 {
-    class StaticScope
+    class ARK_API StaticScope
     {
     public:
         virtual ~StaticScope() = default;
@@ -88,7 +90,7 @@ namespace Ark::internal
         std::unordered_set<Declaration> m_vars {};
     };
 
-    class NamespaceScope final : public StaticScope
+    class ARK_API NamespaceScope final : public StaticScope
     {
     public:
         NamespaceScope(std::string name, bool with_prefix, bool is_glob, const std::vector<std::string>& symbols);

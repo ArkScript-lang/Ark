@@ -24,7 +24,7 @@ namespace Ark::internal
      * @brief A class to handle the VM scope more efficiently
      *
      */
-    class Scope
+    class ARK_API Scope
     {
     public:
         /**

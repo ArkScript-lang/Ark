@@ -29,7 +29,7 @@ namespace Ark
         class Node;
     }
 
-    class Error : public std::runtime_error
+    class ARK_API Error : public std::runtime_error
     {
     public:
         explicit Error(const std::string& message) :
@@ -41,7 +41,7 @@ namespace Ark
      * @brief A type error triggered when types don't match
      *
      */
-    class TypeError final : public Error
+    class ARK_API TypeError final : public Error
     {
     public:
         explicit TypeError(const std::string& message) :
@@ -53,7 +53,7 @@ namespace Ark
      * @brief A special zero division error triggered when a number is divided by 0
      *
      */
-    class ZeroDivisionError final : public Error
+    class ARK_API ZeroDivisionError final : public Error
     {
     public:
         ZeroDivisionError() :
@@ -69,7 +69,7 @@ namespace Ark
      * @brief An assertion error, only triggered from ArkScript code through (assert expr error-message)
      *
      */
-    class AssertionFailed final : public Error
+    class ARK_API AssertionFailed final : public Error
     {
     public:
         explicit AssertionFailed(const std::string& message) :
@@ -81,7 +81,7 @@ namespace Ark
      * @brief CodeError thrown by the compiler (parser, macro processor, optimizer, and compiler itself)
      *
      */
-    struct CodeError final : Error
+    struct ARK_API CodeError final : Error
     {
         const std::string filename;
         const std::size_t line;

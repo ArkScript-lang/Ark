@@ -72,6 +72,9 @@ if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG OR APPLE)
             -Wno-unknown-warning-option
             # For our computed gotos needs
             -Wno-gnu-label-as-value
+            # enable optimization inside the shared lib
+            -fvisibility=hidden
+            -fno-semantic-interposition
     )
 
     if (APPLE)
