@@ -18,6 +18,7 @@
 #include <filesystem>
 #include <unordered_map>
 
+#include <Ark/Platform.hpp>
 #include <Ark/Compiler/Pass.hpp>
 #include <Ark/Compiler/AST/Node.hpp>
 #include <Ark/Compiler/AST/Import.hpp>
@@ -25,7 +26,7 @@
 
 namespace Ark::internal
 {
-    class ImportSolver final : public Pass
+    class ARK_API ImportSolver final : public Pass
     {
     public:
         /**

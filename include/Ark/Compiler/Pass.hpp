@@ -11,6 +11,7 @@
 #ifndef ARK_COMPILER_PASS_HPP
 #define ARK_COMPILER_PASS_HPP
 
+#include <Ark/Platform.hpp>
 #include <Ark/Compiler/AST/Node.hpp>
 #include <Ark/Logger.hpp>
 
@@ -19,7 +20,7 @@ namespace Ark::internal
     /**
      * @brief An interface to describe compiler passes
      */
-    class Pass
+    class ARK_API Pass
     {
     public:
         /**

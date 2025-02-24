@@ -12,6 +12,7 @@
 #ifndef COMPILER_MACROS_PROCESSOR_HPP
 #define COMPILER_MACROS_PROCESSOR_HPP
 
+#include <Ark/Platform.hpp>
 #include <Ark/Compiler/AST/Node.hpp>
 #include <Ark/Compiler/Macros/MacroScope.hpp>
 #include <Ark/Compiler/Pass.hpp>
@@ -28,7 +29,7 @@ namespace Ark::internal
      * @brief The class handling the macros definitions and calls, given an AST
      *
      */
-    class MacroProcessor final : public Pass
+    class ARK_API MacroProcessor final : public Pass
     {
     public:
         /**

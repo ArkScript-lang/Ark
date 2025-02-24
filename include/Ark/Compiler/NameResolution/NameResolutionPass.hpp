@@ -16,12 +16,13 @@
 #include <string>
 #include <unordered_set>
 
+#include <Ark/Platform.hpp>
 #include <Ark/Compiler/Pass.hpp>
 #include <Ark/Compiler/NameResolution/ScopeResolver.hpp>
 
 namespace Ark::internal
 {
-    class NameResolutionPass final : public Pass
+    class ARK_API NameResolutionPass final : public Pass
     {
     public:
         /**
