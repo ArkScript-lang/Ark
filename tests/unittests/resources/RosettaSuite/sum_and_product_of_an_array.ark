@@ -1,0 +1,9 @@
+(import std.List :sum :product :reduce)
+
+(let array [1 2 3 4])
+
+(assert (= (sum array) 10) "sum of array is 10")
+(assert (= (reduce array (fun (a b) (+ a b))) 10) "reduction of array with + is 10")
+
+(assert (= (product array) 24) "product of array is 24")
+(assert (= (reduce array (fun (a b) (* a b))) 24) "reduction of array with * is 24")
