@@ -76,6 +76,8 @@ if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG OR APPLE)
             -fvisibility=hidden
             -fno-semantic-interposition
     )
+    # set fmtlib visibility to default
+    target_compile_definitions(ArkReactor PUBLIC FMT_SHARED)
 
     if (APPLE)
         # The standard SSH libraries are depreciate on APPLE.
@@ -114,7 +116,8 @@ elseif (MSVC)
             /wd4267   # disable warning about data loss (size_t -> int)
             /wd4244   # disable warning about data loss (size_t -> char)
             /wd4505   # disable warning about unused static function was deleted
-            /wd4068)  # disable warnings about unknown pragmas.
+            /wd4068   # disable warnings about unknown pragmas.
+            /utf-8)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /STACK:8000000")  # set stack size to 8MB
 endif ()
 

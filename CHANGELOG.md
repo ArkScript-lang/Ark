@@ -101,6 +101,7 @@
 - `list:setAt` can work with negative indexes, and is now bound checked
 - re-enabled the AST optimizer, only used for the main `arkscript` executable (not enabled when embedding arkscript, so that one can grab variables from the VM)
 - loops have their own scope: variables created inside a loop won't leak outside it
+- upgraded fmtlib to 11.1.3-13
 
 ### Removed
 - removed unused `NodeType::Closure`
