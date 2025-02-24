@@ -49,6 +49,13 @@ namespace Ark::internal
     public:
         virtual ~StaticScope() = default;
 
+        StaticScope() = default;
+
+        StaticScope(const StaticScope&) = delete;
+        StaticScope& operator=(const StaticScope&) = delete;
+        StaticScope(StaticScope&&) = default;
+        StaticScope& operator=(StaticScope&&) = default;
+
         /**
          * @brief Add a Declaration to the scope, given a mutability status
          * @param name
@@ -94,6 +101,11 @@ namespace Ark::internal
     {
     public:
         NamespaceScope(std::string name, bool with_prefix, bool is_glob, const std::vector<std::string>& symbols);
+
+        NamespaceScope(const NamespaceScope&) = delete;
+        NamespaceScope& operator=(const NamespaceScope&) = delete;
+        NamespaceScope(NamespaceScope&&) = default;
+        NamespaceScope& operator=(NamespaceScope&&) = default;
 
         /**
          * @brief Add a Declaration to the scope, given a mutability status
