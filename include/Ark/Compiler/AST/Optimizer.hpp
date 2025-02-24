@@ -16,6 +16,7 @@
 #include <unordered_map>
 #include <string>
 
+#include <Ark/Platform.hpp>
 #include <Ark/Compiler/Pass.hpp>
 #include <Ark/Compiler/AST/Node.hpp>
 
@@ -25,7 +26,7 @@ namespace Ark::internal
      * @brief The ArkScript AST optimizer
      *
      */
-    class Optimizer final : public Pass
+    class ARK_API Optimizer final : public Pass
     {
     public:
         /**
