@@ -510,7 +510,7 @@ namespace Ark
                             // value on the stack
                             else [[likely]]
                             {
-                                Value* ip;
+                                const Value* ip;
                                 do
                                 {
                                     ip = popAndResolveAsPtr(context);
@@ -556,7 +556,7 @@ namespace Ark
                         if (!context.saved_scope)
                             context.saved_scope = Scope();
 
-                        Value* ptr = findNearestVariable(arg, context);
+                        const Value* ptr = findNearestVariable(arg, context);
                         if (!ptr)
                             throwVMError(ErrorKind::Scope, fmt::format("Couldn't capture `{}' as it is currently unbound", m_state.m_symbols[arg]));
                         else
@@ -992,49 +992,49 @@ namespace Ark
 
                     TARGET(GT)
                     {
-                        Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
+                        const Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
                         push((*a != *b && !(*a < *b)) ? Builtins::trueSym : Builtins::falseSym, context);
                         DISPATCH();
                     }
 
                     TARGET(LT)
                     {
-                        Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
+                        const Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
                         push((*a < *b) ? Builtins::trueSym : Builtins::falseSym, context);
                         DISPATCH();
                     }
 
                     TARGET(LE)
                     {
-                        Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
+                        const Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
                         push((((*a < *b) || (*a == *b)) ? Builtins::trueSym : Builtins::falseSym), context);
                         DISPATCH();
                     }
 
                     TARGET(GE)
                     {
-                        Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
+                        const Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
                         push(!(*a < *b) ? Builtins::trueSym : Builtins::falseSym, context);
                         DISPATCH();
                     }
 
                     TARGET(NEQ)
                     {
-                        Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
+                        const Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
                         push((*a != *b) ? Builtins::trueSym : Builtins::falseSym, context);
                         DISPATCH();
                     }
 
                     TARGET(EQ)
                     {
-                        Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
+                        const Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
                         push((*a == *b) ? Builtins::trueSym : Builtins::falseSym, context);
                         DISPATCH();
                     }
 
                     TARGET(LEN)
                     {
-                        Value* a = popAndResolveAsPtr(context);
+                        const Value* a = popAndResolveAsPtr(context);
 
                         if (a->valueType() == ValueType::List)
                             push(Value(static_cast<int>(a->constList().size())), context);
@@ -1051,7 +1051,7 @@ namespace Ark
 
                     TARGET(EMPTY)
                     {
-                        Value* a = popAndResolveAsPtr(context);
+                        const Value* a = popAndResolveAsPtr(context);
 
                         if (a->valueType() == ValueType::List)
                             push(a->constList().empty() ? Builtins::trueSym : Builtins::falseSym, context);
@@ -1068,28 +1068,29 @@ namespace Ark
 
                     TARGET(TAIL)
                     {
-                        Value* a = popAndResolveAsPtr(context);
+                        Value* const a = popAndResolveAsPtr(context);
                         push(helper::tail(a), context);
                         DISPATCH();
                     }
 
                     TARGET(HEAD)
                     {
-                        Value* a = popAndResolveAsPtr(context);
+                        Value* const a = popAndResolveAsPtr(context);
                         push(helper::head(a), context);
                         DISPATCH();
                     }
 
                     TARGET(ISNIL)
                     {
-                        Value* a = popAndResolveAsPtr(context);
+                        const Value* a = popAndResolveAsPtr(context);
                         push((*a == Builtins::nil) ? Builtins::trueSym : Builtins::falseSym, context);
                         DISPATCH();
                     }
 
                     TARGET(ASSERT)
                     {
-                        Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
+                        Value* const b = popAndResolveAsPtr(context);
+                        Value* const a = popAndResolveAsPtr(context);
 
                         if (b->valueType() != ValueType::String)
                             types::generateError(
@@ -1104,7 +1105,7 @@ namespace Ark
 
                     TARGET(TO_NUM)
                     {
-                        Value* a = popAndResolveAsPtr(context);
+                        const Value* a = popAndResolveAsPtr(context);
 
                         if (a->valueType() != ValueType::String)
                             types::generateError(
@@ -1122,7 +1123,7 @@ namespace Ark
 
                     TARGET(TO_STR)
                     {
-                        Value* a = popAndResolveAsPtr(context);
+                        const Value* a = popAndResolveAsPtr(context);
                         push(Value(a->toString(*this)), context);
                         DISPATCH();
                     }
@@ -1130,7 +1131,7 @@ namespace Ark
                     TARGET(AT)
                     {
                         {
-                            Value* b = popAndResolveAsPtr(context);
+                            const Value* b = popAndResolveAsPtr(context);
                             Value a = *popAndResolveAsPtr(context);  // be careful, it's not a pointer
 
                             if (b->valueType() != ValueType::Number)
@@ -1173,8 +1174,8 @@ namespace Ark
                     TARGET(AT_AT)
                     {
                         {
-                            Value* x = popAndResolveAsPtr(context);
-                            Value* y = popAndResolveAsPtr(context);
+                            const Value* x = popAndResolveAsPtr(context);
+                            const Value* y = popAndResolveAsPtr(context);
                             Value list = *popAndResolveAsPtr(context);  // be careful, it's not a pointer
 
                             if (y->valueType() != ValueType::Number || x->valueType() != ValueType::Number ||
@@ -1217,7 +1218,7 @@ namespace Ark
 
                     TARGET(MOD)
                     {
-                        Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
+                        const Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
                         if (a->valueType() != ValueType::Number || b->valueType() != ValueType::Number)
                             types::generateError(
                                 "mod",
@@ -1229,7 +1230,7 @@ namespace Ark
 
                     TARGET(TYPE)
                     {
-                        Value* a = popAndResolveAsPtr(context);
+                        const Value* a = popAndResolveAsPtr(context);
                         if (a == &m_undefined_value) [[unlikely]]
                             types::generateError(
                                 "type",
@@ -1243,14 +1244,15 @@ namespace Ark
                     TARGET(HASFIELD)
                     {
                         {
-                            Value *field = popAndResolveAsPtr(context), *closure = popAndResolveAsPtr(context);
+                            Value* const field = popAndResolveAsPtr(context);
+                            Value* const closure = popAndResolveAsPtr(context);
                             if (closure->valueType() != ValueType::Closure || field->valueType() != ValueType::String)
                                 types::generateError(
                                     "hasField",
                                     { { types::Contract { { types::Typedef("closure", ValueType::Closure), types::Typedef("field", ValueType::String) } } } },
                                     { *closure, *field });
 
-                            auto it = std::find(m_state.m_symbols.begin(), m_state.m_symbols.end(), field->stringRef());
+                            auto it = std::ranges::find(m_state.m_symbols, field->stringRef());
                             if (it == m_state.m_symbols.end())
                             {
                                 push(Builtins::falseSym, context);
@@ -1265,7 +1267,7 @@ namespace Ark
 
                     TARGET(NOT)
                     {
-                        Value* a = popAndResolveAsPtr(context);
+                        const Value* a = popAndResolveAsPtr(context);
                         push(!(*a) ? Builtins::trueSym : Builtins::falseSym, context);
                         DISPATCH();
                     }
