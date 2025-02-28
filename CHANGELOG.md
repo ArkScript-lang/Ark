@@ -36,6 +36,7 @@
 - compile time argument count check for `and` and `or`
 - basic dead code elimination in the AST optimizer
 - new operator `@@` to get elements in list of lists / list of strings
+- new builtin `random`, returning a random number between INT_MIN and INT_MAX, or in a custom range
 
 ### Changed
 - instructions are on 4 bytes: 1 byte for the instruction, 1 byte of padding, 2 bytes for an immediate argument

@@ -1,4 +1,5 @@
 (import std.Testing)
+(import std.List)
 
 (let foo (fun () ()))
 (let closure (fun (&foo) ()))
@@ -29,6 +30,15 @@
     (let old (time))
     (sys:sleep 1)
     (test:expect (< old (time)))
+
+    (mut rands [])
+    (mut i 0)
+    (while (< i 100) {
+      (append! rands (random 0 10))
+      (set i (+ 1 i)) })
+    (test:expect
+      (not (list:any rands (fun (e) (or (< e 0) (> e 10)))))
+      "should not find any number outside the given range")
 
     # no need to test the math functions since they're 1:1 binding of C++ functions and were carefully checked
     # before writing this comment, to ensure we aren't binding math:sin to the C++ tan function
