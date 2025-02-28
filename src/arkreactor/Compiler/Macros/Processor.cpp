@@ -568,10 +568,10 @@ namespace Ark::internal
                 const Node ast = node.constList()[1];
                 node.updateValueAndType(Node(NodeType::String, ast.repr()));
             }
-            else if (name == Language::Paste)
+            else if (name == Language::AsIs)
             {
                 if (node.list().size() != 2)
-                    throwMacroProcessingError(fmt::format("When expanding `{}', expected one argument, got {} arguments", Language::Paste, argcount), node);
+                    throwMacroProcessingError(fmt::format("When expanding `{}', expected one argument, got {} arguments", Language::AsIs, argcount), node);
                 return node.constList()[1];
             }
             else if (name == Language::Undef)
