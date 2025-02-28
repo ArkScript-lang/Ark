@@ -1,6 +1,6 @@
-At ($paste b (list)) @ 1:7
-    1 | ($ a ($paste b []))
+At ($as-is b (list)) @ 1:7
+    1 | ($ a ($as-is b []))
       | ^~~~~~~~~~~~~~~~~~~
     2 | (print a)
     3 |
-        When expanding `$paste', expected one argument, got 2 arguments
+        When expanding `$as-is', expected one argument, got 2 arguments

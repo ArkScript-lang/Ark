@@ -19,7 +19,6 @@
 - check on number of arguments passed to `type`
 - warning when the formatter deletes comment(s) by mistake
 - check on arguments passed to `list`, `concat`, `append` and friends to only push valid nodes (that produces a value)
-- `$paste` to paste a node inside a maro without evaluating it further ; useful to stop recursive evaluation of nodes inside function macros
 - introduced `Ark::internal::Pass` to describe compiler passes: they all output an AST (parser, import solver, macro processor, and optimizer for now)
 - add `-f(no-)importsolver`, `-f(no-)macroprocessor` and `-f(no-)optimizer` to toggle on and off those compiler passes
 - added resolving `empty?` as a macro when possible
@@ -37,6 +36,7 @@
 - basic dead code elimination in the AST optimizer
 - new operator `@@` to get elements in list of lists / list of strings
 - new builtin `random`, returning a random number between INT_MIN and INT_MAX, or in a custom range
+- `$as-is` to paste a node inside a maro without evaluating it further ; useful to stop recursive evaluation of nodes inside function macros
 
 ### Changed
 - instructions are on 4 bytes: 1 byte for the instruction, 1 byte of padding, 2 bytes for an immediate argument

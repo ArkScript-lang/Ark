@@ -1,2 +1,2 @@
-($ a ($paste b []))
+($ a ($as-is b []))
 (print a)
