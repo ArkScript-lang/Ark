@@ -556,7 +556,7 @@ namespace Ark
                         if (!context.saved_scope)
                             context.saved_scope = Scope();
 
-                        Value* ptr = (context.locals.back())[arg];
+                        Value* ptr = findNearestVariable(arg, context);
                         if (!ptr)
                             throwVMError(ErrorKind::Scope, fmt::format("Couldn't capture `{}' as it is currently unbound", m_state.m_symbols[arg]));
                         else
