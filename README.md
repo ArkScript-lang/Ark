@@ -53,10 +53,7 @@ Also, it has:
 ## More or less game
 
 ```clojure
-(import std.random)
-(import std.Math)
-
-(let number (mod (math:abs (random)) 10000))
+(let number (random 0 10000))
 
 (let game (fun () {
   (let impl (fun (tries) {

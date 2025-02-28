@@ -108,6 +108,8 @@ namespace Ark::internal::Builtins
         Value acosh_(std::vector<Value>& n, VM* vm);  // math:acosh, 1 argument
         Value asinh_(std::vector<Value>& n, VM* vm);  // math:asinh, 1 argument
         Value atanh_(std::vector<Value>& n, VM* vm);  // math:atanh, 1 argument
+
+        Value random(std::vector<Value>& n, VM* vm);  // random, 0-2 args
     }
 
     namespace Async

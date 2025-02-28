@@ -1,6 +1,7 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include <fmt/core.h>
+#include <random>
 
 #include <Ark/Builtins/Builtins.hpp>
 
@@ -384,5 +385,40 @@ namespace Ark::internal::Builtins::Mathematics
                 n);
 
         return Value(std::atanh(n[0].number()));
+    }
+
+    /**
+     * @name random
+     * @brief Compute a random number in [-2147483648, 2147483647] or in a custom range passed to the function
+     * @param min optional inclusive lower bound
+     * @param max optional inclusive upper bound. Must be present if `min` is passed
+     * =begin
+     * (print (random))  # a number in [-2147483648, 2147483647]
+     * (print (random 0 10))  # a number between 0 and 10
+     * =end
+     * @author https://github.com/SuperFola
+     */
+    Value random(std::vector<Value>& n, VM* vm [[maybe_unused]])
+    {
+        static std::mt19937 gen { std::random_device()() };
+
+        if (n.size() == 2 && !types::check(n, ValueType::Number, ValueType::Number))
+            types::generateError(
+                "random",
+                { { types::Contract {
+                    { types::Typedef("min", ValueType::Number), types::Typedef("max", ValueType::Number) } } } },
+                n);
+
+        if (n.size() == 2)
+        {
+            const auto inclusive_min = static_cast<int>(n[0].number()),
+                       inclusive_max = static_cast<int>(n[1].number());
+
+            std::uniform_int_distribution<> distrib(inclusive_min, inclusive_max);
+            return Value(distrib(gen));
+        }
+
+        const auto x = static_cast<int>(gen());
+        return Value(x);
     }
 }
