@@ -1132,7 +1132,7 @@ namespace Ark
                     {
                         {
                             const Value* b = popAndResolveAsPtr(context);
-                            Value a = *popAndResolveAsPtr(context);  // be careful, it's not a pointer
+                            Value& a = *popAndResolveAsPtr(context);
 
                             if (b->valueType() != ValueType::Number)
                                 types::generateError(
@@ -1176,7 +1176,7 @@ namespace Ark
                         {
                             const Value* x = popAndResolveAsPtr(context);
                             const Value* y = popAndResolveAsPtr(context);
-                            Value list = *popAndResolveAsPtr(context);  // be careful, it's not a pointer
+                            Value& list = *popAndResolveAsPtr(context);
 
                             if (y->valueType() != ValueType::Number || x->valueType() != ValueType::Number ||
                                 list.valueType() != ValueType::List)
