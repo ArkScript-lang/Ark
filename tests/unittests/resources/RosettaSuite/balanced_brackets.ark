@@ -1,0 +1,28 @@
+(import std.List)
+
+(let gen_string (fun (length) {
+  (mut output "")
+  (while (< (len output) length) {
+    (set output (+ output (@ "[]" (random 0 1)))) })
+  output }))
+
+(let balanced? (fun (str) {
+  (mut i 0)
+  (=
+    (len str)
+    (len
+      (list:takeWhile str (fun (char) {
+        (if (= "[" char)
+          (set i (+ i 1))
+          (set i (- i 1)))
+        (>= i 0) }))))}))
+
+(list:forEach
+  ["" "[]" "[][]" "[[][]]"]
+  (fun (str)
+    (assert (balanced? str) "string is balanced")))
+
+(list:forEach
+  ["][" "][][" "[]][[]"]
+  (fun (str)
+    (assert (not (balanced? str)) "string is not balanced")))
