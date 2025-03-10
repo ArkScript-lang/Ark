@@ -1,6 +1,6 @@
-#define _USE_MATH_DEFINES
-#include <cmath>
 #include <limits>
+#include <numbers>
+#include <cmath>
 
 #include <Ark/Builtins/Builtins.hpp>
 
@@ -12,10 +12,10 @@ namespace Ark::internal::Builtins
 
     namespace Mathematics
     {
-        extern const Value pi_ = Value(M_PI);
+        extern const Value pi_ = Value(std::numbers::pi);
         extern const Value e_ = Value(std::exp(1.0));
-        extern const Value tau_ = Value(M_PI * 2.0);
-        extern const Value inf_ = Value(HUGE_VAL);
+        extern const Value tau_ = Value(std::numbers::pi * 2.0);
+        extern const Value inf_ = Value(std::numeric_limits<double>::infinity());
         extern const Value nan_ = Value(std::numeric_limits<double>::signaling_NaN());
     }
 
