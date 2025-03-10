@@ -1,28 +1,50 @@
 #include <boost/ut.hpp>
 
 #include <Ark/Compiler/BytecodeReader.hpp>
+#include <Ark/Compiler/Welder.hpp>
 
 #include <string>
+#include <chrono>
+
+#include "TestsHelper.hpp"
 
 using namespace boost;
 
 ut::suite<"BytecodeReader"> bcr_suite = [] {
     using namespace ut;
 
-    Ark::BytecodeReader bcr;
-    bcr.feed(ARK_TESTS_ROOT "tests/unittests/resources/BytecodeReaderSuite/ackermann.arkc");
+    Ark::Welder welder(0, { std::filesystem::path(ARK_TESTS_ROOT "/lib/") });
 
-    "bytecode"_test = [bcr] {
+    const auto time_start =
+        static_cast<unsigned long long>(std::chrono::duration_cast<std::chrono::seconds>(
+                                            std::chrono::system_clock::now().time_since_epoch())
+                                            .count());
+
+    should("compile without error") = [&] {
+        expect(mut(welder).computeASTFromFile(get_resource_path("BytecodeReaderSuite/ackermann.ark")));
+        expect(mut(welder).generateBytecode());
+    };
+
+    const auto time_end =
+        static_cast<unsigned long long>(std::chrono::duration_cast<std::chrono::seconds>(
+                                            std::chrono::system_clock::now().time_since_epoch())
+                                            .count());
+
+    Ark::BytecodeReader bcr;
+    bcr.feed(welder.bytecode());
+
+    "bytecode"_test = [&] {
         should("find the version") = [bcr] {
             auto [major, minor, patch] = bcr.version();
-            expect(that % major == 4);
-            expect(that % minor == 0);
-            expect(that % patch == 0);
+            expect(that % major == ARK_VERSION_MAJOR);
+            expect(that % minor == ARK_VERSION_MINOR);
+            expect(that % patch == ARK_VERSION_PATCH);
         };
 
-        should("find the timestamp") = [bcr] {
+        should("find the timestamp") = [bcr, time_start, time_end] {
             const auto time = bcr.timestamp();
-            expect(that % time == 1717523961ull);
+            expect(that % time >= time_start);
+            expect(that % time <= time_end);
         };
 
         should("find the sha256") = [bcr] {
@@ -80,8 +102,8 @@ ut::suite<"BytecodeReader"> bcr_suite = [] {
             expect(that % pages.size() == 2ull);
             // 7 instructions on 4 bytes
             expect(that % pages[0].size() == 7 * 4ull);
-            // 32 instructions on 4 bytes
-            expect(that % pages[1].size() == 32 * 4ull);
+            // 24 instructions on 4 bytes
+            expect(that % pages[1].size() == 24 * 4ull);
         };
     };
 };
