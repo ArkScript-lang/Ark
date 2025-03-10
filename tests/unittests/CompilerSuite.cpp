@@ -2,6 +2,8 @@
 
 #include <Ark/Compiler/Welder.hpp>
 #include <Ark/Compiler/Word.hpp>
+#include <Ark/Compiler/Serialization/IEEE754Serializer.hpp>
+#include <Ark/Compiler/Serialization/IntegerSerializer.hpp>
 
 #include "TestsHelper.hpp"
 
@@ -9,6 +11,42 @@ using namespace boost;
 
 ut::suite<"Compiler"> compiler_suite = [] {
     using namespace ut;
+
+    const std::vector<double> nums = { 0.11, 0.000000000011, 2, -2, 12, 6, 4, 0, 14657892.35, 3.141592653589, 4092.7984 };
+
+    "IEEE754 serialization"_test = [&] {
+        using namespace Ark::internal::ieee754;
+
+        for (double original : nums)
+        {
+            const auto decomp = serialize(original);
+            auto recomp = deserialize(decomp);
+            expect(that % recomp == original);
+        }
+    };
+
+    "IEEE754 serialization via integer serialization Little Endian"_test = [&] {
+        using namespace Ark::internal;
+
+        for (const double original : nums)
+        {
+            std::vector<uint8_t> bytecode {};
+
+            const auto [exponent, mantissa] = ieee754::serialize(original);
+            serializeToVecLE(exponent, bytecode);
+            serializeToVecLE(mantissa, bytecode);
+
+            ieee754::DecomposedDouble d { 0, 0 };
+            d.exponent = deserializeLE<decltype(ieee754::DecomposedDouble::exponent)>(bytecode.begin(), bytecode.end());
+            d.mantissa = deserializeLE<decltype(ieee754::DecomposedDouble::mantissa)>(
+                bytecode.begin() + static_cast<std::vector<uint8_t>::difference_type>(sizeof(decltype(ieee754::DecomposedDouble::exponent))),
+                bytecode.end());
+
+            double val = ieee754::deserialize(d);
+
+            expect(that % val == original);
+        }
+    };
 
     "Word construction"_test = [] {
         should("create a word with a single argument on 2 bytes") = [] {
