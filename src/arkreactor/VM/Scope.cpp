@@ -41,13 +41,16 @@ namespace Ark::internal
         m_data.emplace_back(id, val);
     }
 
-    bool Scope::has(const uint16_t id) noexcept
+    bool Scope::maybeHas(const uint16_t id) const noexcept
     {
-        return m_min_id <= id && id <= m_max_id && operator[](id) != nullptr;
+        return m_min_id <= id && id <= m_max_id;
     }
 
     Value* Scope::operator[](const uint16_t id_to_look_for) noexcept
     {
+        if (!maybeHas(id_to_look_for))
+            return nullptr;
+
         for (auto& [id, value] : m_data)
         {
             if (id == id_to_look_for)
@@ -58,6 +61,9 @@ namespace Ark::internal
 
     const Value* Scope::operator[](const uint16_t id_to_look_for) const noexcept
     {
+        if (!maybeHas(id_to_look_for))
+            return nullptr;
+
         for (const auto& [id, value] : m_data)
         {
             if (id == id_to_look_for)

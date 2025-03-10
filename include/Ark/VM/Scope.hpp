@@ -57,13 +57,13 @@ namespace Ark::internal
         void push_back(uint16_t id, const Value& val) noexcept;
 
         /**
-         * @brief Check if the scope has a specific symbol in memory
+         * @brief Check if the scope maybe holds a specific symbol in memory
          *
          * @param id The id of the symbol
          * @return true On success
          * @return false Otherwise
          */
-        bool has(uint16_t id) noexcept;
+        bool maybeHas(uint16_t id) const noexcept;
 
         /**
          * @brief Get a value from its symbol id
