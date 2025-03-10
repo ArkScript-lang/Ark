@@ -172,23 +172,25 @@ DESCRIPTION
         ArkScript programming language
 
 SYNOPSIS
-        arkscript -h
-        arkscript -v
-        arkscript --dev-info
-        arkscript -e <expression>
+        arkscript -h 
+        arkscript -v 
+        arkscript --dev-info 
+        arkscript -e <expression> 
         arkscript -c <file> [-d] [-f(importsolver|no-importsolver)]
                   [-f(macroprocessor|no-macroprocessor)] [-f(optimizer|no-optimizer)]
+                  [-f(iroptimizer|no-iroptimizer)] [-fdump-ir] 
 
         arkscript <file> [-d] [-L <lib_dir>] [-f(importsolver|no-importsolver)]
                   [-f(macroprocessor|no-macroprocessor)] [-f(optimizer|no-optimizer)]
+                  [-f(iroptimizer|no-iroptimizer)] [-fdump-ir]  
 
-        arkscript -f <file> [--(dry-run|check)]
-        arkscript --ast <file> [-d] [-L <lib_dir>]
-        arkscript -bcr <file> -on
-        arkscript -bcr <file> -a [-s <start> <end>]
-        arkscript -bcr <file> -st [-s <start> <end>]
-        arkscript -bcr <file> -vt [-s <start> <end>]
-        arkscript -bcr <file> [-cs] [-p <page>] [-s <start> <end>]
+        arkscript -f <file> [--(dry-run|check)] 
+        arkscript --ast <file> [-d] [-L <lib_dir>] 
+        arkscript -bcr <file> -on 
+        arkscript -bcr <file> -a [-s <start> <end>] 
+        arkscript -bcr <file> -st [-s <start> <end>] 
+        arkscript -bcr <file> -vt [-s <start> <end>] 
+        arkscript -bcr <file> [-cs] [-p <page>] [-s <start> <end>] 
 
 OPTIONS
         -h, --help                  Display this message
@@ -206,6 +208,10 @@ OPTIONS
                                     Toggle on and off the macro processor pass
 
         -f(optimizer|no-optimizer)  Toggle on and off the optimizer pass
+        -f(iroptimizer|no-iroptimizer)
+                                    Toggle on and off the IR optimizer pass
+
+        -fdump-ir                   Dump IR to file.ark.ir
         -d, --debug...              Increase debug level (default: 0)
 
         -L, --lib                   Set the location of the ArkScript standard library. Paths can be
@@ -218,6 +224,10 @@ OPTIONS
                                     Toggle on and off the macro processor pass
 
         -f(optimizer|no-optimizer)  Toggle on and off the optimizer pass
+        -f(iroptimizer|no-iroptimizer)
+                                    Toggle on and off the IR optimizer pass
+
+        -fdump-ir                   Dump IR to file.ark.ir
         -f, --format                Format the given source file in place
         --dry-run                   Do not modify the file, only print out the changes
         --check                     Check if a file formating is correctly, without modifying it.
@@ -230,8 +240,8 @@ OPTIONS
                                     delimited by ';'
 
         -bcr, --bytecode-reader     Launch the bytecode reader
-        <file>                      If file isn't a bytecode file, the cached compiled will be
-                                    loaded ; if there are none, it will be compiled first
+        <file>                      .arkc bytecode file or .ark source file that will be compiled
+                                    first
 
         -on, --only-names           Display only the bytecode segments names and sizes
         -a, --all                   Display all the bytecode segments (default)
@@ -242,7 +252,7 @@ OPTIONS
         -s, --slice                 Select a slice of instructions in the bytecode
 
 VERSION
-        4.0.0-ff04fd55
+        4.0.0-c24c8f22
 
 LICENSE
         Mozilla Public License 2.0

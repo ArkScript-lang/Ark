@@ -123,7 +123,7 @@ int main(int argc, char** argv)
         )
         | (
             required("-bcr", "--bytecode-reader").set(selected, mode::bytecode_reader).doc("Launch the bytecode reader")
-            & value("file", file).doc("If file isn't a bytecode file, the cached compiled will be loaded ; if there are none, it will be compiled first")
+            & value("file", file).doc(".arkc bytecode file or .ark source file that will be compiled first")
             , (
                 option("-on", "--only-names").set(segment, Ark::BytecodeSegment::HeadersOnly).doc("Display only the bytecode segments names and sizes")
                 | (
@@ -294,6 +294,16 @@ int main(int argc, char** argv)
                 {
                     Ark::BytecodeReader bcr;
                     bcr.feed(file);
+                    if (!bcr.checkMagic())
+                    {
+                        // we got a potentially non-compiled file
+                        fmt::println("Compiling {}...", file);
+
+                        Ark::Welder welder(debug, lib_paths);
+                        welder.computeASTFromFile(file);
+                        welder.generateBytecode();
+                        bcr.feed(welder.bytecode());
+                    }
 
                     if (bcr_page == max_uint16 && bcr_start == max_uint16)
                         bcr.display(segment);
