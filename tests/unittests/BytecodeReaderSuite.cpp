@@ -2,6 +2,7 @@
 
 #include <Ark/Compiler/BytecodeReader.hpp>
 #include <Ark/Compiler/Welder.hpp>
+#include <picosha2.h>
 
 #include <string>
 #include <chrono>
@@ -31,7 +32,8 @@ ut::suite<"BytecodeReader"> bcr_suite = [] {
                                             .count());
 
     Ark::BytecodeReader bcr;
-    bcr.feed(welder.bytecode());
+    const auto bytecode = welder.bytecode();
+    bcr.feed(bytecode);
 
     "bytecode"_test = [&] {
         should("find the version") = [bcr] {
@@ -47,14 +49,12 @@ ut::suite<"BytecodeReader"> bcr_suite = [] {
             expect(that % time <= time_end);
         };
 
-        should("find the sha256") = [bcr] {
+        should("find the sha256") = [bcr, bytecode] {
             const auto sha256 = bcr.sha256();
-            const auto expected_sha = std::vector<unsigned char> {
-                0xcf, 0x79, 0x82, 0x6b, 0x81, 0x5c, 0xe4, 0x11,
-                0xce, 0x25, 0xbe, 0xc3, 0x05, 0x91, 0x21, 0x7f,
-                0x6c, 0x70, 0x54, 0x70, 0xd8, 0x8b, 0x2b, 0x90,
-                0x82, 0xcd, 0x70, 0x2e, 0xeb, 0x51, 0xb2, 0x75
-            };
+            std::vector<unsigned char> expected_sha(picosha2::k_digest_size);
+            // compute sha256 after header + sha
+            picosha2::hash256(bytecode.begin() + Ark::internal::bytecode::HeaderSize + 32, bytecode.end(), expected_sha);
+
             expect(that % sha256 == expected_sha);
         };
 

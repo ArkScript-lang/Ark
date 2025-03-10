@@ -41,12 +41,10 @@ namespace Ark::internal
             m_bytecode.push_back(0_u8);
         }
 
-        constexpr std::size_t header_size = 18;
-
         // generate a hash of the tables + bytecode
         std::vector<unsigned char> hash_out(picosha2::k_digest_size);
-        picosha2::hash256(m_bytecode.begin() + header_size, m_bytecode.end(), hash_out);
-        m_bytecode.insert(m_bytecode.begin() + header_size, hash_out.begin(), hash_out.end());
+        picosha2::hash256(m_bytecode.begin() + bytecode::HeaderSize, m_bytecode.end(), hash_out);
+        m_bytecode.insert(m_bytecode.begin() + bytecode::HeaderSize, hash_out.begin(), hash_out.end());
 
         m_logger.traceEnd();
     }

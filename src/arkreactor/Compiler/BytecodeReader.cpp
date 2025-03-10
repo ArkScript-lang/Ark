@@ -40,9 +40,11 @@ namespace Ark
 
     bool BytecodeReader::checkMagic() const
     {
-        return m_bytecode.size() >= 4 && m_bytecode[0] == 'a' &&
-            m_bytecode[1] == 'r' && m_bytecode[2] == 'k' &&
-            m_bytecode[3] == internal::Instruction::NOP;
+        return m_bytecode.size() >= bytecode::Magic.size() &&
+            m_bytecode[0] == bytecode::Magic[0] &&
+            m_bytecode[1] == bytecode::Magic[1] &&
+            m_bytecode[2] == bytecode::Magic[2] &&
+            m_bytecode[3] == bytecode::Magic[3];
     }
 
     const bytecode_t& BytecodeReader::bytecode() noexcept
@@ -52,7 +54,7 @@ namespace Ark
 
     Version BytecodeReader::version() const
     {
-        if (!checkMagic() || m_bytecode.size() < 10)
+        if (!checkMagic() || m_bytecode.size() < bytecode::Magic.size() + bytecode::Version.size())
             return Version { 0, 0, 0 };
 
         return Version {
@@ -65,7 +67,7 @@ namespace Ark
     unsigned long long BytecodeReader::timestamp() const
     {
         // 4 (ark\0) + version (2 bytes / number) + timestamp = 18 bytes
-        if (!checkMagic() || m_bytecode.size() < 18)
+        if (!checkMagic() || m_bytecode.size() < bytecode::HeaderSize)
             return 0;
 
         // reading the timestamp in big endian
@@ -82,27 +84,27 @@ namespace Ark
 
     std::vector<unsigned char> BytecodeReader::sha256() const
     {
-        if (!checkMagic() || m_bytecode.size() < 18 + picosha2::k_digest_size)
+        if (!checkMagic() || m_bytecode.size() < bytecode::HeaderSize + picosha2::k_digest_size)
             return {};
 
         std::vector<unsigned char> sha(picosha2::k_digest_size);
         for (std::size_t i = 0; i < picosha2::k_digest_size; ++i)
-            sha[i] = m_bytecode[18 + i];
+            sha[i] = m_bytecode[bytecode::HeaderSize + i];
         return sha;
     }
 
     Symbols BytecodeReader::symbols() const
     {
-        if (!checkMagic() || m_bytecode.size() < 18 + picosha2::k_digest_size ||
-            m_bytecode[18 + picosha2::k_digest_size] != SYM_TABLE_START)
+        if (!checkMagic() || m_bytecode.size() < bytecode::HeaderSize + picosha2::k_digest_size ||
+            m_bytecode[bytecode::HeaderSize + picosha2::k_digest_size] != SYM_TABLE_START)
             return {};
 
-        std::size_t i = 18 + picosha2::k_digest_size + 1;
+        std::size_t i = bytecode::HeaderSize + picosha2::k_digest_size + 1;
         const uint16_t size = readNumber(i);
         i++;
 
         Symbols block;
-        block.start = 18 + picosha2::k_digest_size;
+        block.start = bytecode::HeaderSize + picosha2::k_digest_size;
         block.symbols.reserve(size);
 
         for (uint16_t j = 0; j < size; ++j)
@@ -209,7 +211,7 @@ namespace Ark
     {
         if (!checkMagic())
         {
-            fmt::print("Invalid format");
+            fmt::println("Invalid format");
             return;
         }
 

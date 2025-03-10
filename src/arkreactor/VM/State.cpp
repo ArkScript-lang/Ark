@@ -155,7 +155,7 @@ namespace Ark
         const auto bytecode_hash = bcr.sha256();
 
         std::vector<unsigned char> hash(picosha2::k_digest_size);
-        picosha2::hash256(m_bytecode.begin() + 18 + picosha2::k_digest_size, m_bytecode.end(), hash);
+        picosha2::hash256(m_bytecode.begin() + bytecode::HeaderSize + picosha2::k_digest_size, m_bytecode.end(), hash);
         // checking integrity
         for (std::size_t j = 0; j < picosha2::k_digest_size; ++j)
         {
