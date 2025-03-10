@@ -78,6 +78,34 @@ void builtins(benchmark::State& s)
 }
 BENCHMARK(builtins)->Unit(benchmark::kMillisecond);
 
+// cppcheck-suppress constParameterCallback
+void binary_trees(benchmark::State& s)
+{
+    Ark::State state({ std::filesystem::path(ARK_TESTS_ROOT "/lib/") });
+    state.doFile(std::string(ARK_TESTS_ROOT) + "tests/benchmarks/resources/runtime/binary_trees.ark");
+
+    for (auto _ : s)
+    {
+        Ark::VM vm(state);
+        benchmark::DoNotOptimize(vm.run());
+    }
+}
+BENCHMARK(binary_trees)->Unit(benchmark::kMillisecond);
+
+// cppcheck-suppress constParameterCallback
+void for_sum(benchmark::State& s)
+{
+    Ark::State state;
+    state.doFile(std::string(ARK_TESTS_ROOT) + "tests/benchmarks/resources/runtime/for.ark");
+
+    for (auto _ : s)
+    {
+        Ark::VM vm(state);
+        benchmark::DoNotOptimize(vm.run());
+    }
+}
+BENCHMARK(for_sum)->Unit(benchmark::kMillisecond);
+
 // --------------------------------------------
 // parser benchmarks
 // --------------------------------------------

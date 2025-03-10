@@ -1,0 +1,64 @@
+(import std.Math)
+(import std.List)
+
+(let make_tree_list (fun (item depth) {
+  (if (> depth 0)
+    {
+      (let item2 (+ item item))
+      (let new_depth (- depth 1))
+      [item (make_tree_list (- item2 1) new_depth) (make_tree_list item2 new_depth)] }
+    [item nil nil]) }))
+
+(let make_tree_closure (fun (item depth) {
+  (let tree (fun (item left right)
+    (fun (&item &left &right) ())))
+
+  (if (> depth 0)
+    {
+      (let item2 (+ item item))
+      (let new_depth (- depth 1))
+      (tree item (make_tree_closure (- item2 1) new_depth) (make_tree_closure item2 new_depth)) }
+    (tree item nil nil)) }))
+
+(let check_tree_list (fun (node) {
+  (let item (head node))
+  (let left (@ node 1))
+  (let right (@ node 2))
+
+  (if (nil? left)
+    item
+    (- (+ item (check_tree_list left)) (check_tree_list right))) }))
+
+(let check_tree_closure (fun (node) {
+  (let item node.item)
+  (let left node.left)
+  (let right node.right)
+
+  (if (nil? left)
+    item
+    (- (+ item (check_tree_closure left)) (check_tree_closure right))) }))
+
+(let make_tree make_tree_list)
+(let check_tree check_tree_list)
+
+(let min_depth 4)
+(let max_depth 12)
+(let stretch_depth (+ max_depth 1))
+
+(check_tree (make_tree 0 stretch_depth))
+
+(let long_lived_tree (make_tree 0 max_depth))
+(mut count (math:ceil (math:pow 2 max_depth)))
+
+(list:forEach
+  [4 6 8 10 12]
+  (fun (depth) {
+    (mut check 0)
+
+    (list:forEach
+      (list:iota 1 count)
+      (fun (i) {
+        (set check (+ check (check_tree (make_tree i depth)) (check_tree (make_tree (- 0 i) depth)))) }))
+    (set count (math:ceil (/ count 4))) }))
+
+(check_tree long_lived_tree)
