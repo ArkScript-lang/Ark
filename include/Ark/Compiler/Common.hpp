@@ -16,6 +16,7 @@
 #include <string_view>
 #include <vector>
 #include <cinttypes>
+#include <Ark/Constants.hpp>
 
 namespace Ark
 {
@@ -24,6 +25,21 @@ namespace Ark
 
 namespace Ark::internal
 {
+    namespace bytecode
+    {
+        constexpr std::array Magic = { 'a', 'r', 'k', '\0' };
+        constexpr std::array Version = {
+            ARK_VERSION_MAJOR & 0xff00,
+            ARK_VERSION_MAJOR & 0x00ff,
+            ARK_VERSION_MINOR & 0xff00,
+            ARK_VERSION_MINOR & 0x00ff,
+            ARK_VERSION_PATCH & 0xff00,
+            ARK_VERSION_PATCH & 0x00ff
+        };
+        constexpr std::size_t TimestampLength = 8;
+        constexpr std::size_t HeaderSize = Magic.size() + Version.size() + TimestampLength;
+    }
+
     /// The different node types available
     enum class NodeType
     {
