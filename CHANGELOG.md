@@ -104,6 +104,7 @@
 - loops have their own scope: variables created inside a loop won't leak outside it
 - upgraded fmtlib to 11.1.3-13
 - allow capture in nested scope (before it was targeting only the current scope)
+- `-bcr` option can be given a source file, it will then be compiled before its bytecode is shown
 
 ### Removed
 - removed unused `NodeType::Closure`
