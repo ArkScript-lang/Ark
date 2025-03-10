@@ -1,6 +1,7 @@
 import csv
 import sys
 from tabulate import tabulate
+import colorama
 from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Optional, Dict
@@ -29,6 +30,7 @@ class Diff:
 
 @dataclass
 class Run:
+    benchmark: str
     name: str
     iterations: int
     real_time: float
@@ -50,8 +52,9 @@ class Run:
         return 1.0
 
     @staticmethod
-    def from_dict(line: Dict):
+    def from_dict(benchmark: str, line: Dict):
         return Run(
+            benchmark=benchmark,
             name=line["name"],
             iterations=int(line["iterations"]),
             real_time=float(line["real_time"]),
@@ -90,8 +93,25 @@ def read_csv(file: Path):
     with open(file) as f:
         reader = csv.DictReader(f, delimiter=',', quotechar='"')
         for row in reader:
-            bench.runs.append(Run.from_dict(row))
+            bench.runs.append(Run.from_dict(file.stem, row))
     return bench
+
+
+def colorize_diff(n: float) -> str:
+    if n > 0:
+        return colorama.Fore.RED + f"{n:.3f}" + colorama.Fore.RESET
+    elif n == 0:
+        return f"{n:.3f}"
+    return colorama.Fore.GREEN + f"{n:.3f}" + colorama.Fore.RESET
+
+
+def colorize_time_type(x, type_) -> str:
+    if isinstance(x, float):
+        x = f"{x:.3f}"
+
+    if type_ == 0:
+        return colorama.Fore.BLACK + colorama.Back.LIGHTBLUE_EX + x + colorama.Back.RESET + colorama.Fore.RESET
+    return colorama.Fore.BLACK + colorama.Back.LIGHTGREEN_EX + x + colorama.Back.RESET + colorama.Fore.RESET
 
 
 def main(files: List[str]):
@@ -99,7 +119,7 @@ def main(files: List[str]):
     benchmarks: List[Benchmark] = [read_csv(path) for path in paths]
 
     headers = ["", ""] + [b.name for b in benchmarks]
-    runs_by_name = {}
+    runs_by_name: Dict[str, List[Run]] = {}
     for b in benchmarks:
         for run in b.runs:
             if run.name not in runs_by_name:
@@ -107,19 +127,28 @@ def main(files: List[str]):
             runs_by_name[run.name].append(run)
 
     data = []
+    times = colorize_time_type("real_time", 0) + "\n" + colorize_time_type("cpu_time", 1)
+
     for (name, runs) in runs_by_name.items():
-        baseline = runs[0]
+        baseline: Run = runs[0]
+        baseline_index = headers.index(baseline.benchmark) - 2
         diffs = [r.diff_from_baseline(baseline) for r in runs[1:]]
+
+        padding = ["" for _ in range(baseline_index)] if baseline_index > 0 else []
         data.append(
+            [name, times] +
+            padding +
             [
-                name,
-                "real_time\ncpu_time",
-                f"{baseline.real_time}{baseline.time_unit}\n{baseline.cpu_time}{baseline.time_unit}"
-            ] + [
-                f"{diff.dt_real_time:.3f} ({diff.dt_rt_percent:.4f}%)\n{diff.dt_cpu_time:.3f} ({diff.dt_ct_percent:.4f}%)"
+                colorize_time_type(f"{baseline.real_time:.3f}{baseline.time_unit}", 0) + "\n" +
+                colorize_time_type(f"{baseline.cpu_time:.3f}{baseline.time_unit}", 1)
+            ] +
+            [
+                f"{colorize_time_type(diff.dt_real_time, 0)} ({colorize_diff(diff.dt_rt_percent)}%)\n" +
+                f"{colorize_time_type(diff.dt_cpu_time, 1)} ({colorize_diff(diff.dt_ct_percent)}%)"
                 for
                 diff in diffs
-            ])
+            ]
+        )
     print(tabulate(data, headers, tablefmt="presto"))
 
 
