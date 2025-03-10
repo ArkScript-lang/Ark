@@ -85,7 +85,6 @@ namespace Ark::internal
         std::vector<IR::Block> m_temp_pages;  ///< we need temporary code pages for some compilations passes
         IR::label_t m_current_label = 0;
 
-        unsigned m_debug;  ///< the debug level of the compiler
         Logger m_logger;
 
         /**

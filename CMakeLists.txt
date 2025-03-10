@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.16)
 
 project(ark CXX)
 
@@ -22,6 +22,7 @@ option(ARK_SANITIZERS "Enable ASAN and UBSAN" Off)
 option(ARK_TESTS "Build ArkScript unit tests" Off)
 option(ARK_BENCHMARKS "Build ArkScript benchmarks" Off)
 option(ARK_COVERAGE "Enable coverage while building (clang, gcc) (requires ARK_TESTS to be On)" Off)
+option(ARK_UNITY_BUILD "Enable unity build" Off)
 
 include(cmake/link_time_optimization.cmake)
 include(cmake/sanitizers.cmake)
@@ -52,6 +53,11 @@ target_include_directories(ArkReactor
         PUBLIC
         ${ark_SOURCE_DIR}/include)
 target_compile_features(ArkReactor PRIVATE cxx_std_20)
+
+if (ARK_UNITY_BUILD)
+    set_target_properties(ArkReactor PROPERTIES UNITY_BUILD ON UNITY_BUILD_MODE BATCH UNITY_BUILD_BATCH_SIZE 16)
+    set_source_files_properties(src/arkreactor/VM/VM.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION true)
+endif ()
 
 if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG OR APPLE)
     message(STATUS "Enabling computed gotos")
@@ -194,6 +200,10 @@ if (ARK_TESTS)
     target_compile_features(unittests PRIVATE cxx_std_20)
     target_compile_definitions(unittests PRIVATE ARK_TESTS_ROOT="${CMAKE_CURRENT_SOURCE_DIR}/")
 
+    if (ARK_UNITY_BUILD)
+        set_target_properties(unittests PROPERTIES UNITY_BUILD ON UNITY_BUILD_MODE BATCH UNITY_BUILD_BATCH_SIZE 16)
+    endif ()
+
     if (ARK_COVERAGE AND CMAKE_COMPILER_IS_CLANG)
         target_compile_options(unittests PRIVATE -coverage -fcoverage-mapping -fprofile-instr-generate)
         target_link_options(unittests PRIVATE -coverage -fcoverage-mapping -fprofile-instr-generate)
@@ -249,6 +259,10 @@ if (ARK_BUILD_EXE)
     target_include_directories(arkscript SYSTEM PUBLIC "${ark_SOURCE_DIR}/lib/clipp/include")
     target_link_libraries(arkscript PUBLIC ArkReactor replxx clipp)
     target_compile_features(arkscript PRIVATE cxx_std_20)
+
+    if (ARK_UNITY_BUILD)
+        set_target_properties(arkscript PROPERTIES UNITY_BUILD ON UNITY_BUILD_MODE BATCH UNITY_BUILD_BATCH_SIZE 16)
+    endif ()
 
     enable_lto(arkscript)
 

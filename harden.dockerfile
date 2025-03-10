@@ -33,7 +33,7 @@ COPY --from=submodule-initializor /out .
 COPY --from=submodule-initializor /rev .
 RUN cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ \
-    -DARK_BUILD_EXE=On -DARK_ENABLE_SYSTEM=Off -DARK_COMMIT="$(cat rev)" \
+    -DARK_BUILD_EXE=On -DARK_ENABLE_SYSTEM=Off -DARK_COMMIT="$(cat rev)" -DARK_UNITY_BUILD=On \
     && cmake --build build --target arkscript -- -j $(nproc)
 
 FROM alpine:3.19 AS organizer
