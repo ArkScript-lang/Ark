@@ -19,7 +19,7 @@ namespace Ark::internal
     using namespace literals;
 
     Compiler::Compiler(const unsigned debug) :
-        m_debug(debug), m_logger("Compiler", debug)
+        m_logger("Compiler", debug)
     {}
 
     void Compiler::process(const Node& ast)

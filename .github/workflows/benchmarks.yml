@@ -31,7 +31,8 @@ jobs:
         run: |
           cmake -Bbuild -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_C_COMPILER=clang-16 -DCMAKE_CXX_COMPILER=clang++-16 \
-            -DARK_SANITIZERS=Off -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=Off
+            -DARK_SANITIZERS=Off -DARK_BUILD_EXE=On -DARK_BUILD_MODULES=Off \
+            -DARK_UNITY_BUILD=On
           cmake --build build --config Release -- -j 4
 
       - uses: actions/setup-node@v4

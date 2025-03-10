@@ -102,7 +102,8 @@ runs:
          -DARK_COVERAGE=${{ inputs.coverage }} \
          -DARK_BUILD_EXE=On \
          -DARK_BUILD_MODULES=$ToggleModules -DARK_MOD_ALL=$ToggleModules -DARK_MOD_DRAFT=$ToggleModules \
-         -DARK_TESTS=On
+         -DARK_TESTS=On \
+         -DARK_UNITY_BUILD=On
         cmake --build build --config $BUILD_TYPE -j $(nproc)
 
     - name: Configure CMake Ark
@@ -121,5 +122,6 @@ runs:
           -DARK_BUILD_EXE=On \
           -DARK_BUILD_MODULES=$ToggleModules -DARK_MOD_ALL=$ToggleModules -DARK_MOD_DRAFT=$ToggleModules \
           -DARK_TESTS=On \
+          -DARK_UNITY_BUILD=On \
           $additional_args
         cmake --build build --config $BUILD_TYPE -j $(nproc)

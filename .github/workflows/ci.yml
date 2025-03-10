@@ -274,7 +274,8 @@ jobs:
             -DCMAKE_CXX_COMPILER=/AFLplusplus/afl-c++ \
             -DCMAKE_BUILD_TYPE=Release \
             -DARK_BUILD_EXE=On \
-            -DARK_SANITIZERS=On
+            -DARK_SANITIZERS=On \
+            -DARK_UNITY_BUILD=On
           cmake --build ${BUILD_FOLDER} --config Release -j 4
 
       - name: Fuzz
