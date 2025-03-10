@@ -28,12 +28,12 @@ namespace Ark::internal
     {
         // @role Does nothing, useful for padding
         NOP = 0x00,
-        SYM_TABLE_START = 0x01,
-        VAL_TABLE_START = 0x02,
-        NUMBER_TYPE = 0x01,
-        STRING_TYPE = 0x02,
-        FUNC_TYPE = 0x03,
-        CODE_SEGMENT_START = 0x03,
+        SYM_TABLE_START = 0xA1,
+        VAL_TABLE_START = 0xA2,
+        CODE_SEGMENT_START = 0xA3,
+        NUMBER_TYPE = 0xF1,
+        STRING_TYPE = 0xF2,
+        FUNC_TYPE = 0xF3,
 
         // @args symbol id
         // @role Load a symbol from its ID onto the stack

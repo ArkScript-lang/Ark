@@ -105,6 +105,8 @@
 - upgraded fmtlib to 11.1.3-13
 - allow capture in nested scope (before it was targeting only the current scope)
 - `-bcr` option can be given a source file, it will then be compiled before its bytecode is shown
+- magic numbers for tables start in bytecode files have been changed from 0x01, 0x02, 0x03 to 0xA1, 0xA2, 0xA3 (symbols, values, code) to make them stand out in hex editors
+- magic numbers for value types in bytecode files have been changed from 0x01, 0x02, 0x03 to 0xF1, 0xF2, 0xF3 (number, string, function)
 
 ### Removed
 - removed unused `NodeType::Closure`
