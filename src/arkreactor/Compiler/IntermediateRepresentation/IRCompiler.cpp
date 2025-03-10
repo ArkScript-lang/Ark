@@ -8,6 +8,8 @@
 
 #include <Ark/Constants.hpp>
 #include <Ark/Literals.hpp>
+#include <Ark/Compiler/Serialization/IntegerSerializer.hpp>
+#include <Ark/Compiler/Serialization/IEEE754Serializer.hpp>
 
 namespace Ark::internal
 {
@@ -186,10 +188,7 @@ namespace Ark::internal
 
         // push version
         for (const int n : std::array { ARK_VERSION_MAJOR, ARK_VERSION_MINOR, ARK_VERSION_PATCH })
-        {
-            m_bytecode.push_back(static_cast<uint8_t>((n & 0xff00) >> 8));
-            m_bytecode.push_back(static_cast<uint8_t>(n & 0x00ff));
-        }
+            serializeOn2BytesToVecBE(n, m_bytecode);
 
         // push timestamp
         const long long timestamp = std::chrono::duration_cast<std::chrono::seconds>(
@@ -210,8 +209,7 @@ namespace Ark::internal
             throw std::overflow_error(fmt::format("Too many symbols: {}, exceeds the maximum size of 2^16 - 1", symbol_size));
 
         m_bytecode.push_back(SYM_TABLE_START);
-        m_bytecode.push_back(static_cast<uint8_t>((symbol_size & 0xff00) >> 8));
-        m_bytecode.push_back(static_cast<uint8_t>(symbol_size & 0x00ff));
+        serializeOn2BytesToVecBE(symbol_size, m_bytecode);
 
         for (const auto& sym : symbols)
         {
@@ -227,8 +225,7 @@ namespace Ark::internal
             throw std::overflow_error(fmt::format("Too many values: {}, exceeds the maximum size of 2^16 - 1", value_size));
 
         m_bytecode.push_back(VAL_TABLE_START);
-        m_bytecode.push_back(static_cast<uint8_t>((value_size & 0xff00) >> 8));
-        m_bytecode.push_back(static_cast<uint8_t>(value_size & 0x00ff));
+        serializeOn2BytesToVecBE(value_size, m_bytecode);
 
         for (const ValTableElem& val : values)
         {
@@ -238,10 +235,9 @@ namespace Ark::internal
                 {
                     m_bytecode.push_back(NUMBER_TYPE);
                     const auto n = std::get<double>(val.value);
-                    std::string t = std::to_string(n);
-                    std::ranges::transform(t, std::back_inserter(m_bytecode), [](const char i) {
-                        return static_cast<uint8_t>(i);
-                    });
+                    const auto [exponent, mantissa] = ieee754::serialize(n);
+                    serializeToVecLE(exponent, m_bytecode);
+                    serializeToVecLE(mantissa, m_bytecode);
                     break;
                 }
 
@@ -259,8 +255,7 @@ namespace Ark::internal
                 {
                     m_bytecode.push_back(FUNC_TYPE);
                     const std::size_t addr = std::get<std::size_t>(val.value);
-                    m_bytecode.push_back(static_cast<uint8_t>((addr & 0xff00) >> 8));
-                    m_bytecode.push_back(static_cast<uint8_t>(addr & 0x00ff));
+                    serializeOn2BytesToVecBE(addr, m_bytecode);
                     break;
                 }
             }

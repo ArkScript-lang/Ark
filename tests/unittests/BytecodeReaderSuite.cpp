@@ -83,18 +83,21 @@ ut::suite<"BytecodeReader"> bcr_suite = [] {
                 Ark::Value(static_cast<uint16_t>(1)),
                 Ark::Value(0),
                 Ark::Value(1),
-                Ark::Value(7),
-                Ark::Value(3)
+                Ark::Value("Ackermann-Péter function, m=3, n=6: "),
+                Ark::Value(3),
+                Ark::Value(6)
             };
             expect(that % values_block.values.size() == expected_values.size());
             expect(that % values_block.start == symbols_block.end);
-            // + 1 for the header
-            // + 2 for the size
-            // + 5 for the type tags
-            // + 2 for the pageaddr
-            // + 4*8 for the numbers represented as strings on 8 chars
-            // + 5 for the \0 at the end of each value
-            expect(that % values_block.end == values_block.start + 1 + 2 + 5 + 2 + 4 * 8 + 5);
+            expect(
+                that % values_block.end == values_block.start + 1  // header size
+                    + 2                                            // size of the table
+                    + 6                                            // number of type tags
+                    + 2                                            // page addr length
+                    + 4 * 12                                       // number represented as DecomposedDouble
+                    + 37                                           // string length
+                    + 6                                            // null terminator
+            );
         };
 
         should("list all code page") = [values_block, pages, start_code] {

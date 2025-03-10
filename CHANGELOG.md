@@ -107,6 +107,7 @@
 - `-bcr` option can be given a source file, it will then be compiled before its bytecode is shown
 - magic numbers for tables start in bytecode files have been changed from 0x01, 0x02, 0x03 to 0xA1, 0xA2, 0xA3 (symbols, values, code) to make them stand out in hex editors
 - magic numbers for value types in bytecode files have been changed from 0x01, 0x02, 0x03 to 0xF1, 0xF2, 0xF3 (number, string, function)
+- numbers in the values table in bytecode files are no longer stringified but their IEEE754 representation is now encoded on 12 bytes (4 for the exponent, 8 for the mantissa)
 
 ### Removed
 - removed unused `NodeType::Closure`

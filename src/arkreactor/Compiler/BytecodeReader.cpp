@@ -6,6 +6,8 @@
 #include <iomanip>
 #include <unordered_map>
 #include <picosha2.h>
+#include <Ark/Compiler/Serialization/IEEE754Serializer.hpp>
+#include <Ark/Compiler/Serialization/IntegerSerializer.hpp>
 #include <fmt/core.h>
 #include <fmt/color.h>
 
@@ -140,10 +142,16 @@ namespace Ark
 
             if (type == NUMBER_TYPE)
             {
-                std::string val;
-                while (m_bytecode[i] != 0)
-                    val.push_back(static_cast<char>(m_bytecode[i++]));
-                block.values.emplace_back(std::stod(val));
+                auto exp = deserializeLE<decltype(ieee754::DecomposedDouble::exponent)>(
+                    m_bytecode.begin() + static_cast<std::vector<uint8_t>::difference_type>(i), m_bytecode.end());
+                i += sizeof(decltype(exp));
+                auto mant = deserializeLE<decltype(ieee754::DecomposedDouble::mantissa)>(
+                    m_bytecode.begin() + static_cast<std::vector<uint8_t>::difference_type>(i), m_bytecode.end());
+                i += sizeof(decltype(mant));
+
+                const ieee754::DecomposedDouble d { exp, mant };
+                double val = ieee754::deserialize(d);
+                block.values.emplace_back(val);
             }
             else if (type == STRING_TYPE)
             {
