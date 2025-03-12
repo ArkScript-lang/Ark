@@ -68,8 +68,6 @@ jobs:
 
       - name: Commit and push
         shell: bash
-        env:
-          GITHUB_TOKEN: ${{ secrets.BENCHMARKS_GITHUB_TOKEN }}
         run: |
           cd benchmarks
           git config --unset-all http.https://github.com/.extraheader
