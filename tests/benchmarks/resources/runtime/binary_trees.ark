@@ -38,8 +38,8 @@
     item
     (- (+ item (check_tree_closure left)) (check_tree_closure right))) }))
 
-(let make_tree make_tree_list)
-(let check_tree check_tree_list)
+(let make_tree make_tree_closure)
+(let check_tree check_tree_closure)
 
 (let min_depth 4)
 (let max_depth 12)
