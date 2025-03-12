@@ -239,7 +239,7 @@ namespace utf8
         }
         else if (codepoint > 0x007f && codepoint <= 0x07ff)
         {
-            dest[0] = -128;
+            dest[0] = static_cast<char>(-128);
             if (codepoint > 0xff)
                 dest[0] |= static_cast<char>((codepoint >> 6));
             dest[0] |= static_cast<char>(((codepoint & 0xc0) >> 6));
@@ -248,7 +248,7 @@ namespace utf8
         }
         else if (codepoint > 0x07ff && codepoint <= 0xffff)
         {
-            dest[0] = -32;
+            dest[0] = static_cast<char>(-32);
             if (codepoint > 0xfff)
                 dest[0] |= static_cast<char>(((codepoint & 0xf000) >> 12));
             dest[1] = static_cast<char>((0x80 | ((codepoint & 0xf00) >> 6)) | ((codepoint & 0xf0) >> 6));
@@ -257,7 +257,7 @@ namespace utf8
         }
         else if (codepoint > 0xffff && codepoint <= 0x10ffff)
         {
-            dest[0] = -16;
+            dest[0] = static_cast<char>(-16);
             if (codepoint > 0xfffff)
                 dest[0] |= static_cast<char>(((codepoint & 0x100000) >> 18));
             dest[0] |= static_cast<char>(((codepoint & 0xc0000) >> 18));

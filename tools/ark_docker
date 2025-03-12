@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+file=${1:-Dockerfile}
+docker run --rm -it $(docker build -q -f "$file" .)
