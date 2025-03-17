@@ -40,7 +40,7 @@ namespace Ark::internal
          * @param storage pointer to the shared scope storage
          * @param start first free starting position
          */
-        ScopeView(std::array<pair_t, ScopeStackSize>* storage, std::size_t start) noexcept;
+        ScopeView(pair_t* storage, std::size_t start) noexcept;
 
         /**
          * @brief Put a value in the scope
@@ -98,7 +98,7 @@ namespace Ark::internal
          */
         [[nodiscard]] inline const pair_t& atPos(const std::size_t i) const noexcept
         {
-            return (*m_storage)[m_start + i];
+            return m_storage[m_start + i];
         }
 
         /**
@@ -126,7 +126,7 @@ namespace Ark::internal
         friend class Ark::VM;
 
     private:
-        std::array<pair_t, ScopeStackSize>* m_storage;
+        pair_t* m_storage;
         std::size_t m_start;
         std::size_t m_size;
         uint16_t m_min_id;  ///< Minimum stored ID, used for a basic bloom filter

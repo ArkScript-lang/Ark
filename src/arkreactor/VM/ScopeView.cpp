@@ -4,7 +4,7 @@
 
 namespace Ark::internal
 {
-    ScopeView::ScopeView(std::array<pair_t, ScopeStackSize>* storage, const std::size_t start) noexcept :
+    ScopeView::ScopeView(pair_t* storage, const std::size_t start) noexcept :
         m_storage(storage), m_start(start), m_size(0), m_min_id(std::numeric_limits<uint16_t>::max()), m_max_id(0)
     {}
 
@@ -15,7 +15,7 @@ namespace Ark::internal
         if (id > m_max_id)
             m_max_id = id;
 
-        (*m_storage)[m_start + m_size] = std::make_pair(id, std::move(val));
+        m_storage[m_start + m_size] = std::make_pair(id, std::move(val));
         ++m_size;
     }
 
@@ -26,7 +26,7 @@ namespace Ark::internal
         if (id > m_max_id)
             m_max_id = id;
 
-        (*m_storage)[m_start + m_size] = std::make_pair(id, val);
+        m_storage[m_start + m_size] = std::make_pair(id, val);
         ++m_size;
     }
 
@@ -42,7 +42,7 @@ namespace Ark::internal
 
         for (std::size_t i = m_start; i < m_start + m_size; ++i)
         {
-            auto& [id, value] = (*m_storage)[i];
+            auto& [id, value] = m_storage[i];
             if (id == id_to_look_for)
                 return &value;
         }
@@ -56,7 +56,7 @@ namespace Ark::internal
 
         for (std::size_t i = m_start; i < m_start + m_size; ++i)
         {
-            auto& [id, value] = (*m_storage)[i];
+            auto& [id, value] = m_storage[i];
             if (id == id_to_look_for)
                 return &value;
         }
@@ -67,7 +67,7 @@ namespace Ark::internal
     {
         for (std::size_t i = m_start; i < m_start + m_size; ++i)
         {
-            const auto& [id, value] = (*m_storage)[i];
+            const auto& [id, value] = m_storage[i];
             if (value == val)
                 return id;
         }
