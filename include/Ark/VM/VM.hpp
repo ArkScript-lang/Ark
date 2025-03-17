@@ -5,7 +5,7 @@
  * @version 2.0
  * @date 2020-10-27
  *
- * @copyright Copyright (c) 2020-2024
+ * @copyright Copyright (c) 2020-2025
  *
  */
 
@@ -25,6 +25,7 @@
 #include <Ark/Compiler/Instructions.hpp>
 #include <Ark/VM/Value.hpp>
 #include <Ark/VM/State.hpp>
+#include <Ark/VM/ScopeView.hpp>
 #include <Ark/VM/ErrorKind.hpp>
 #include <Ark/VM/ExecutionContext.hpp>
 #include <Ark/Builtins/Builtins.hpp>

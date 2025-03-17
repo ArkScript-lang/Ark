@@ -79,7 +79,7 @@ namespace Ark
     VM::VM(State& state) noexcept :
         m_state(state), m_exit_code(0), m_running(false)
     {
-        m_execution_contexts.emplace_back(std::make_unique<ExecutionContext>())->locals.reserve(4);
+        m_execution_contexts.emplace_back(std::make_unique<ExecutionContext>());
     }
 
     void VM::init() noexcept
@@ -103,7 +103,7 @@ namespace Ark
         m_exit_code = 0;
 
         context.locals.clear();
-        context.locals.emplace_back();
+        context.locals.emplace_back(&context.scopes_storage, 0);
 
         // loading bound stuff
         // put them in the global frame if we can, aka the first one
@@ -233,8 +233,14 @@ namespace Ark
         ctx->stacked_closure_scopes.emplace_back(nullptr);
 
         ctx->locals.reserve(m_execution_contexts.front()->locals.size());
+        ctx->scopes_storage = m_execution_contexts.front()->scopes_storage;
         for (const auto& local : m_execution_contexts.front()->locals)
-            ctx->locals.push_back(local);
+        {
+            auto& scope = ctx->locals.emplace_back(&ctx->scopes_storage, local.m_start);
+            scope.m_size = local.m_size;
+            scope.m_min_id = local.m_min_id;
+            scope.m_max_id = local.m_max_id;
+        }
 
         return ctx;
     }
@@ -554,7 +560,7 @@ namespace Ark
                     TARGET(CAPTURE)
                     {
                         if (!context.saved_scope)
-                            context.saved_scope = Scope();
+                            context.saved_scope = ClosureScope();
 
                         const Value* ptr = findNearestVariable(arg, context);
                         if (!ptr)
@@ -916,7 +922,7 @@ namespace Ark
 
                     TARGET(CREATE_SCOPE)
                     {
-                        context.locals.emplace_back();
+                        context.locals.emplace_back(&context.scopes_storage, context.locals.back().storageEnd());
                         DISPATCH();
                     }
 
@@ -1470,7 +1476,7 @@ namespace Ark
         if (const uint16_t original_frame_count = context.fc; original_frame_count > 1)
         {
             // display call stack trace
-            const Scope old_scope = context.locals.back();
+            const ScopeView old_scope = context.locals.back();
 
             while (context.fc != 0)
             {
@@ -1515,8 +1521,8 @@ namespace Ark
             {
                 fmt::println(
                     "{} = {}",
-                    fmt::styled(m_state.m_symbols[old_scope.m_data[i].first], fmt::fg(fmt::color::cyan)),
-                    old_scope.m_data[i].second.toString(*this));
+                    fmt::styled(m_state.m_symbols[old_scope.atPos(i).first], fmt::fg(fmt::color::cyan)),
+                    old_scope.atPos(i).second.toString(*this));
             }
 
             while (context.fc != 1)

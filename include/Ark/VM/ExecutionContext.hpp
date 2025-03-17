@@ -5,7 +5,7 @@
  * @version 0.1
  * @date 2021-11-15
  *
- * @copyright Copyright (c) 2021-2024
+ * @copyright Copyright (c) 2021-2025
  *
  */
 
@@ -19,7 +19,8 @@
 
 #include <Ark/Constants.hpp>
 #include <Ark/VM/Value.hpp>
-#include <Ark/VM/Scope.hpp>
+#include <Ark/VM/ScopeView.hpp>
+#include <Ark/VM/Value/ClosureScope.hpp>
 
 #ifdef max
 #    undef max
@@ -38,9 +39,12 @@ namespace Ark::internal
         uint16_t last_symbol;
         const bool primary;  ///< Tells if the current ExecutionContext is the primary one or not
 
-        std::optional<Scope> saved_scope {};  ///< Scope created by CAPTURE <x> instructions, used by the MAKE_CLOSURE instruction
-        std::vector<Scope> locals {};
-        std::vector<std::shared_ptr<Scope>> stacked_closure_scopes {};  ///< Stack the closure scopes to keep the closure alive as long as we are calling them
+        std::optional<ClosureScope> saved_scope {};                            ///< Scope created by CAPTURE <x> instructions, used by the MAKE_CLOSURE instruction
+        std::vector<std::shared_ptr<ClosureScope>> stacked_closure_scopes {};  ///< Stack the closure scopes to keep the closure alive as long as we are calling them
+
+        std::vector<ScopeView> locals {};
+        std::array<ScopeView::pair_t, ScopeStackSize> scopes_storage {};  ///< All the ScopeView use this array to store id->value
+
         std::array<Value, VMStackSize> stack {};
 
         ExecutionContext() noexcept :

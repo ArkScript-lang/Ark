@@ -25,9 +25,9 @@ namespace Ark
 
 namespace Ark::internal
 {
-    class Scope;
-
     using PageAddr_t = uint16_t;
+
+    class ClosureScope;
 
     /**
      * @brief Closure management
@@ -42,18 +42,18 @@ namespace Ark::internal
          * @param scope the scope of the function turned into a closure
          * @param pa the current page address of the function turned into a closure
          */
-        Closure(const Scope& scope, PageAddr_t pa) noexcept;
+        Closure(const ClosureScope& scope, PageAddr_t pa) noexcept;
 
         /**
          * @brief Construct a new Closure object
          * @param scope_ptr a shared pointer to the scope of the function turned into a closure
          * @param pa the current page address of the function turned into a closure
          */
-        Closure(const std::shared_ptr<Scope>& scope_ptr, PageAddr_t pa) noexcept;
+        Closure(const std::shared_ptr<ClosureScope>& scope_ptr, PageAddr_t pa) noexcept;
 
-        [[nodiscard]] const Scope& scope() const noexcept { return *m_scope; }
-        [[nodiscard]] Scope& refScope() const noexcept { return *m_scope; }
-        [[nodiscard]] const std::shared_ptr<Scope>& scopePtr() const { return m_scope; }
+        [[nodiscard]] const ClosureScope& scope() const noexcept { return *m_scope; }
+        [[nodiscard]] ClosureScope& refScope() const noexcept { return *m_scope; }
+        [[nodiscard]] const std::shared_ptr<ClosureScope>& scopePtr() const { return m_scope; }
 
         /**
          *
@@ -68,7 +68,7 @@ namespace Ark::internal
          * @param vm
          * @return true if the closure has a field which is the end of 'end'
          */
-        [[nodiscard]] bool hasFieldEndingWith(const std::string& end, VM& vm) const;
+        [[nodiscard]] bool hasFieldEndingWith(const std::string& end, const VM& vm) const;
 
         /**
          * @brief Print the closure to a string
@@ -81,7 +81,7 @@ namespace Ark::internal
         friend ARK_API_INLINE bool operator<(const Closure& A, const Closure& B) noexcept;
 
     private:
-        std::shared_ptr<Scope> m_scope;
+        std::shared_ptr<ClosureScope> m_scope;
         // keep track of the code page number, in case we need it later
         PageAddr_t m_page_addr;
     };

@@ -226,7 +226,7 @@ int main(int argc, char** argv)
                     // vm
                     sizeof(Ark::VM),
                     sizeof(Ark::State),
-                    sizeof(Ark::internal::Scope),
+                    sizeof(Ark::internal::ScopeView),
                     sizeof(Ark::internal::ExecutionContext),
                     // misc
                     sizeof(std::vector<Ark::Value>),

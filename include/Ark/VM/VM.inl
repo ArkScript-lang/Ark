@@ -283,7 +283,6 @@ inline void VM::returnFromFuncCall(internal::ExecutionContext& context)
 {
     --context.fc;
     context.stacked_closure_scopes.pop_back();
-    // NOTE: high cpu cost because destroying variants cost
     context.locals.pop_back();
 }
 
@@ -332,8 +331,8 @@ inline void VM::call(internal::ExecutionContext& context, const uint16_t argc)
         {
             const PageAddr_t new_page_pointer = function.pageAddr();
 
-            // create dedicated frame
-            context.locals.emplace_back();
+            // create dedicated scope
+            context.locals.emplace_back(&context.scopes_storage, context.locals.back().storageEnd());
             swapStackForFunCall(argc, context);
 
             // store "reference" to the function to speed the recursive functions
@@ -351,8 +350,8 @@ inline void VM::call(internal::ExecutionContext& context, const uint16_t argc)
             Closure& c = function.refClosure();
             const PageAddr_t new_page_pointer = c.pageAddr();
 
-            // create dedicated frame
-            context.locals.emplace_back();
+            // create dedicated scope
+            context.locals.emplace_back(&context.scopes_storage, context.locals.back().storageEnd());
             // load saved scope
             c.refScope().mergeRefInto(context.locals.back());
             context.stacked_closure_scopes.back() = c.scopePtr();
