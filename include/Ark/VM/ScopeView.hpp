@@ -5,14 +5,14 @@
  * @version 0.2
  * @date 2020-10-27
  *
- * @copyright Copyright (c) 2020-2024
+ * @copyright Copyright (c) 2020-2025
  *
  */
 
 #ifndef ARK_VM_SCOPE_HPP
 #define ARK_VM_SCOPE_HPP
 
-#include <vector>
+#include <array>
 #include <cinttypes>
 
 #include <Ark/Platform.hpp>
@@ -24,21 +24,23 @@ namespace Ark::internal
      * @brief A class to handle the VM scope more efficiently
      *
      */
-    class ARK_API Scope
+    class ARK_API ScopeView
     {
     public:
-        /**
-         * @brief Construct a new Scope object
-         *
-         */
-        Scope() noexcept;
+        using pair_t = std::pair<uint16_t, Value>;
 
         /**
-         * @brief Merge values from this scope as refs in the other scope
-         * @details This scope must be kept alive for the ref to be used
-         * @param other
+         * @brief Deleted constructor to avoid creating ScopeViews pointing to nothing. Helps catch bugs at compile time
          */
-        void mergeRefInto(Scope& other);
+        ScopeView() = delete;
+
+        /**
+         * @brief Create a new ScopeView
+         *
+         * @param storage pointer to the shared scope storage
+         * @param start first free starting position
+         */
+        ScopeView(std::array<pair_t, ScopeStackSize>* storage, std::size_t start) noexcept;
 
         /**
          * @brief Put a value in the scope
@@ -90,19 +92,43 @@ namespace Ark::internal
         [[nodiscard]] uint16_t idFromValue(const Value& val) const noexcept;
 
         /**
+         * @brief Return the start index of the current
+         *
+         * @return const std::size_t
+         */
+        [[nodiscard]] inline const pair_t& atPos(const std::size_t i) const noexcept
+        {
+            return (*m_storage)[m_start + i];
+        }
+
+        /**
          * @brief Return the size of the scope
          *
          * @return const std::size_t
          */
-        [[nodiscard]] std::size_t size() const noexcept;
+        [[nodiscard]] inline std::size_t size() const noexcept
+        {
+            return m_size;
+        }
 
-        friend ARK_API bool operator==(const Scope& A, const Scope& B) noexcept;
+        /**
+         * @brief Compute the position of the first free slot in the shared storage, after this scope
+         *
+         * @return std::size_t
+         */
+        [[nodiscard]] inline std::size_t storageEnd() const noexcept
+        {
+            return m_start + m_size;
+        }
+
+        friend ARK_API bool operator==(const ScopeView& A, const ScopeView& B) noexcept;
 
         friend class Ark::VM;
-        friend class Ark::internal::Closure;
 
     private:
-        std::vector<std::pair<uint16_t, Value>> m_data;
+        std::array<pair_t, ScopeStackSize>* m_storage;
+        std::size_t m_start;
+        std::size_t m_size;
         uint16_t m_min_id;  ///< Minimum stored ID, used for a basic bloom filter
         uint16_t m_max_id;  ///< Maximum stored ID, used for a basic bloom filter
     };

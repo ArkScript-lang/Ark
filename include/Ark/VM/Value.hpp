@@ -204,7 +204,9 @@ namespace Ark
                 return A.string().empty();
 
             case ValueType::User:
+                [[fallthrough]];
             case ValueType::Nil:
+                [[fallthrough]];
             case ValueType::False:
                 return true;
 

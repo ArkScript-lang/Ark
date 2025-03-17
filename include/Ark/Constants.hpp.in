@@ -66,6 +66,7 @@ namespace Ark
     constexpr std::size_t MaxMacroProcessingDepth = 256;  ///< Controls the number of recursive calls to MacroProcessor::processNode
     constexpr std::size_t MaxMacroUnificationDepth = 256;  ///< Controls the number of recursive calls to MacroProcessor::unify
     constexpr std::size_t VMStackSize = 8192;
+    constexpr std::size_t ScopeStackSize = 8192;
 }
 
 #endif

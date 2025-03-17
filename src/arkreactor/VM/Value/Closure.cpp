@@ -1,6 +1,6 @@
 #include <Ark/VM/Value/Closure.hpp>
 
-#include <Ark/VM/Scope.hpp>
+#include <Ark/VM/Value/ClosureScope.hpp>
 #include <Ark/VM/Value.hpp>
 #include <Ark/VM/VM.hpp>
 
@@ -8,17 +8,17 @@
 
 namespace Ark::internal
 {
-    Closure::Closure(const Scope& scope, const PageAddr_t pa) noexcept :
-        m_scope(std::make_shared<Scope>(scope)),
+    Closure::Closure(const ClosureScope& scope, const PageAddr_t pa) noexcept :
+        m_scope(std::make_shared<ClosureScope>(scope)),
         m_page_addr(pa)
     {}
 
-    Closure::Closure(const std::shared_ptr<Scope>& scope_ptr, const PageAddr_t pa) noexcept :
+    Closure::Closure(const std::shared_ptr<ClosureScope>& scope_ptr, const PageAddr_t pa) noexcept :
         m_scope(scope_ptr),
         m_page_addr(pa)
     {}
 
-    bool Closure::hasFieldEndingWith(const std::string& end, VM& vm) const
+    bool Closure::hasFieldEndingWith(const std::string& end, const VM& vm) const
     {
         for (const auto id : std::ranges::views::keys(m_scope->m_data))
         {
