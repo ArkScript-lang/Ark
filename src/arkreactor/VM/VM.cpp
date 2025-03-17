@@ -103,7 +103,7 @@ namespace Ark
         m_exit_code = 0;
 
         context.locals.clear();
-        context.locals.emplace_back(&context.scopes_storage, 0);
+        context.locals.emplace_back(context.scopes_storage.data(), 0);
 
         // loading bound stuff
         // put them in the global frame if we can, aka the first one
@@ -236,7 +236,7 @@ namespace Ark
         ctx->scopes_storage = m_execution_contexts.front()->scopes_storage;
         for (const auto& local : m_execution_contexts.front()->locals)
         {
-            auto& scope = ctx->locals.emplace_back(&ctx->scopes_storage, local.m_start);
+            auto& scope = ctx->locals.emplace_back(ctx->scopes_storage.data(), local.m_start);
             scope.m_size = local.m_size;
             scope.m_min_id = local.m_min_id;
             scope.m_max_id = local.m_max_id;
@@ -922,7 +922,7 @@ namespace Ark
 
                     TARGET(CREATE_SCOPE)
                     {
-                        context.locals.emplace_back(&context.scopes_storage, context.locals.back().storageEnd());
+                        context.locals.emplace_back(context.scopes_storage.data(), context.locals.back().storageEnd());
                         DISPATCH();
                     }
 

@@ -332,7 +332,7 @@ inline void VM::call(internal::ExecutionContext& context, const uint16_t argc)
             const PageAddr_t new_page_pointer = function.pageAddr();
 
             // create dedicated scope
-            context.locals.emplace_back(&context.scopes_storage, context.locals.back().storageEnd());
+            context.locals.emplace_back(context.scopes_storage.data(), context.locals.back().storageEnd());
             swapStackForFunCall(argc, context);
 
             // store "reference" to the function to speed the recursive functions
@@ -351,7 +351,7 @@ inline void VM::call(internal::ExecutionContext& context, const uint16_t argc)
             const PageAddr_t new_page_pointer = c.pageAddr();
 
             // create dedicated scope
-            context.locals.emplace_back(&context.scopes_storage, context.locals.back().storageEnd());
+            context.locals.emplace_back(context.scopes_storage.data(), context.locals.back().storageEnd());
             // load saved scope
             c.refScope().mergeRefInto(context.locals.back());
             context.stacked_closure_scopes.back() = c.scopePtr();
