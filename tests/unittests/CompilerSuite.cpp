@@ -1,7 +1,7 @@
 #include <boost/ut.hpp>
 
 #include <Ark/Compiler/Welder.hpp>
-#include <Ark/Compiler/Word.hpp>
+#include <Ark/Compiler/IntermediateRepresentation/Word.hpp>
 #include <Ark/Compiler/Serialization/IEEE754Serializer.hpp>
 #include <Ark/Compiler/Serialization/IntegerSerializer.hpp>
 

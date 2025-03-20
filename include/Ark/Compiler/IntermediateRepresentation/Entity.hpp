@@ -15,7 +15,7 @@
 #include <cinttypes>
 #include <vector>
 
-#include <Ark/Compiler/Word.hpp>
+#include <Ark/Compiler/IntermediateRepresentation/Word.hpp>
 #include <Ark/Compiler/Instructions.hpp>
 
 namespace Ark::internal::IR
