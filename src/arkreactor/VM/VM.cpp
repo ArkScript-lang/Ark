@@ -363,6 +363,7 @@ namespace Ark
             constexpr std::array opcode_targets = {
                 &&TARGET_NOP,
                 &&TARGET_LOAD_SYMBOL,
+                &&TARGET_LOAD_SYMBOL_BY_INDEX,
                 &&TARGET_LOAD_CONST,
                 &&TARGET_POP_JUMP_IF_TRUE,
                 &&TARGET_STORE,
@@ -457,6 +458,16 @@ namespace Ark
                     TARGET(LOAD_SYMBOL)
                     {
                         push(loadSymbol(arg, context), context);
+                        DISPATCH();
+                    }
+
+                    TARGET(LOAD_SYMBOL_BY_INDEX)
+                    {
+                        Value& var = context.scopes_storage[arg].second;
+                        if (var.valueType() == ValueType::Reference)
+                            push(var.reference(), context);
+                        else
+                            push(var, context);
                         DISPATCH();
                     }
 
