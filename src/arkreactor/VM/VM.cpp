@@ -463,11 +463,9 @@ namespace Ark
 
                     TARGET(LOAD_SYMBOL_BY_INDEX)
                     {
-                        Value& var = context.scopes_storage[arg].second;
-                        if (var.valueType() == ValueType::Reference)
-                            push(var.reference(), context);
-                        else
-                            push(var, context);
+                        auto& [id, value] = context.locals.back().atPosReverse(arg);
+                        context.last_symbol = id;
+                        push(value, context);
                         DISPATCH();
                     }
 

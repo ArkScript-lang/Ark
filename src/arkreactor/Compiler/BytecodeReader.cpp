@@ -344,6 +344,7 @@ namespace Ark
 
         const std::unordered_map<Instruction, ArgKind> arg_kinds = {
             { LOAD_SYMBOL, ArgKind::Symbol },
+            { LOAD_SYMBOL_BY_INDEX, ArgKind::Raw },
             { LOAD_CONST, ArgKind::Value },
             { POP_JUMP_IF_TRUE, ArgKind::Raw },
             { STORE, ArgKind::Symbol },

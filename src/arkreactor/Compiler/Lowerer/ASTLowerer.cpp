@@ -237,7 +237,13 @@ namespace Ark::internal
         else if (getOperator(name).has_value())
             buildAndThrowError(fmt::format("Found a free standing operator: `{}`", name), x);
         else
-            page(p).emplace_back(LOAD_SYMBOL, addSymbol(x));  // using the variable
+        {
+            const std::optional<std::size_t> maybe_local_idx = m_locals_locator.lookupLastScopeByName(name);
+            if (maybe_local_idx.has_value())
+                page(p).emplace_back(LOAD_SYMBOL_BY_INDEX, static_cast<uint16_t>(maybe_local_idx.value()));
+            else
+                page(p).emplace_back(LOAD_SYMBOL, addSymbol(x));
+        }
 
         if (is_result_unused)
         {
@@ -338,15 +344,21 @@ namespace Ark::internal
             buildAndThrowError("Invalid node ; if it was computed by a macro, check that a node is returned", x);
 
         // capture, if needed
-        bool is_closure = false;
+        std::size_t capture_inst_count = 0;
         for (const auto& node : x.constList()[1].constList())
         {
             if (node.nodeType() == NodeType::Capture)
             {
                 page(p).emplace_back(CAPTURE, addSymbol(node));
-                is_closure = true;
+                ++capture_inst_count;
             }
         }
+        const bool is_closure = capture_inst_count > 0;
+
+        m_locals_locator.createScope(
+            is_closure
+                ? LocalsLocator::ScopeType::Closure
+                : LocalsLocator::ScopeType::Function);
 
         // create new page for function body
         m_code_pages.emplace_back();
@@ -358,7 +370,10 @@ namespace Ark::internal
         for (const auto& node : x.constList()[1].constList())
         {
             if (node.nodeType() == NodeType::Symbol)
+            {
                 page(function_body_page).emplace_back(STORE, addSymbol(node));
+                m_locals_locator.addLocal(node.string());
+            }
         }
 
         // push body of the function
@@ -366,6 +381,7 @@ namespace Ark::internal
 
         // return last value on the stack
         page(function_body_page).emplace_back(RET);
+        m_locals_locator.deleteScope();
 
         // if the computed function is unused, pop it
         if (is_result_unused)
@@ -391,7 +407,10 @@ namespace Ark::internal
             compileExpression(x.constList()[idx], p, false, false, name);
 
         if (n == Keyword::Let || n == Keyword::Mut)
+        {
             page(p).emplace_back(STORE, i);
+            m_locals_locator.addLocal(name);
+        }
         else
             page(p).emplace_back(SET_VAL, i);
     }
@@ -401,6 +420,7 @@ namespace Ark::internal
         if (x.constList().size() != 3)
             buildAndThrowError("Invalid node ; if it was computed by a macro, check that a node is returned", x);
 
+        m_locals_locator.createScope();
         page(p).emplace_back(CREATE_SCOPE);
 
         // save current position to jump there at the end of the loop
@@ -421,6 +441,7 @@ namespace Ark::internal
         page(p).emplace_back(label_end);
 
         page(p).emplace_back(POP_SCOPE);
+        m_locals_locator.deleteScope();
     }
 
     void ASTLowerer::compilePluginImport(const Node& x, const Page p)
