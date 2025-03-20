@@ -22,9 +22,9 @@ namespace Ark
         m_ast_optimizer(debug),
         m_name_resolver(debug),
         m_logger("Welder", debug),
+        m_lowerer(debug),
         m_ir_optimizer(debug),
-        m_ir_compiler(debug),
-        m_compiler(debug)
+        m_ir_compiler(debug)
     {}
 
     void Welder::registerSymbol(const std::string& name)
@@ -51,16 +51,16 @@ namespace Ark
     {
         try
         {
-            m_compiler.process(m_computed_ast);
-            m_ir = m_compiler.intermediateRepresentation();
+            m_lowerer.process(m_computed_ast);
+            m_ir = m_lowerer.intermediateRepresentation();
 
             if ((m_features & FeatureIROptimizer) != 0)
             {
-                m_ir_optimizer.process(m_ir, m_compiler.symbols(), m_compiler.values());
+                m_ir_optimizer.process(m_ir, m_lowerer.symbols(), m_lowerer.values());
                 m_ir = m_ir_optimizer.intermediateRepresentation();
             }
 
-            m_ir_compiler.process(m_ir, m_compiler.symbols(), m_compiler.values());
+            m_ir_compiler.process(m_ir, m_lowerer.symbols(), m_lowerer.values());
             m_bytecode = m_ir_compiler.bytecode();
 
             if ((m_features & FeatureDumpIR) != 0)
