@@ -92,13 +92,23 @@ namespace Ark::internal
         [[nodiscard]] uint16_t idFromValue(const Value& val) const noexcept;
 
         /**
-         * @brief Return the start index of the current
+         * @brief Return the element at index in scope
          *
-         * @return const std::size_t
+         * @return const pair_t&
          */
         [[nodiscard]] inline const pair_t& atPos(const std::size_t i) const noexcept
         {
             return m_storage[m_start + i];
+        }
+
+        /**
+         * @brief Return the element at index, starting from the end
+         *
+         * @return const pair_t&
+         */
+        [[nodiscard]] inline pair_t& atPosReverse(const std::size_t i) noexcept
+        {
+            return m_storage[m_start + m_size - 1 - i];
         }
 
         /**

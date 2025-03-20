@@ -23,6 +23,7 @@
 #include <Ark/Compiler/IntermediateRepresentation/Entity.hpp>
 #include <Ark/Compiler/AST/Node.hpp>
 #include <Ark/Compiler/ValTableElem.hpp>
+#include <Ark/Compiler/Lowerer/LocalsLocator.hpp>
 
 namespace Ark::internal
 {
@@ -77,6 +78,8 @@ namespace Ark::internal
             std::size_t index;
             bool is_temp;
         };
+
+        LocalsLocator m_locals_locator;
 
         // tables: symbols, values, plugins and codes
         std::vector<std::string> m_symbols;
