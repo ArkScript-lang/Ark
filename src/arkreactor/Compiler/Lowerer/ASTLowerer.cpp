@@ -1,28 +1,23 @@
-#include <Ark/Compiler/Compiler.hpp>
+#include <Ark/Compiler/Lowerer/ASTLowerer.hpp>
 
-#include <chrono>
 #include <limits>
 #include <utility>
-#include <filesystem>
 #include <algorithm>
 #include <fmt/core.h>
 #include <fmt/color.h>
 
-#include <Ark/Constants.hpp>
 #include <Ark/Literals.hpp>
-#include <Ark/Utils.hpp>
 #include <Ark/Builtins/Builtins.hpp>
-#include <Ark/Compiler/Macros/Processor.hpp>
 
 namespace Ark::internal
 {
     using namespace literals;
 
-    Compiler::Compiler(const unsigned debug) :
-        m_logger("Compiler", debug)
+    ASTLowerer::ASTLowerer(const unsigned debug) :
+        m_logger("ASTLowerer", debug)
     {}
 
-    void Compiler::process(const Node& ast)
+    void ASTLowerer::process(const Node& ast)
     {
         m_logger.traceStart("process");
         m_code_pages.emplace_back();  // create empty page
@@ -36,22 +31,22 @@ namespace Ark::internal
         m_logger.traceEnd();
     }
 
-    const std::vector<IR::Block>& Compiler::intermediateRepresentation() const noexcept
+    const std::vector<IR::Block>& ASTLowerer::intermediateRepresentation() const noexcept
     {
         return m_code_pages;
     }
 
-    const std::vector<std::string>& Compiler::symbols() const noexcept
+    const std::vector<std::string>& ASTLowerer::symbols() const noexcept
     {
         return m_symbols;
     }
 
-    const std::vector<ValTableElem>& Compiler::values() const noexcept
+    const std::vector<ValTableElem>& ASTLowerer::values() const noexcept
     {
         return m_values;
     }
 
-    std::optional<Instruction> Compiler::getOperator(const std::string& name) noexcept
+    std::optional<Instruction> ASTLowerer::getOperator(const std::string& name) noexcept
     {
         const auto it = std::ranges::find(Language::operators, name);
         if (it != Language::operators.end())
@@ -59,7 +54,7 @@ namespace Ark::internal
         return std::nullopt;
     }
 
-    std::optional<uint16_t> Compiler::getBuiltin(const std::string& name) noexcept
+    std::optional<uint16_t> ASTLowerer::getBuiltin(const std::string& name) noexcept
     {
         const auto it = std::ranges::find_if(Builtins::builtins,
                                              [&name](const std::pair<std::string, Value>& element) -> bool {
@@ -70,7 +65,7 @@ namespace Ark::internal
         return std::nullopt;
     }
 
-    std::optional<Instruction> Compiler::getListInstruction(const std::string& name) noexcept
+    std::optional<Instruction> ASTLowerer::getListInstruction(const std::string& name) noexcept
     {
         const auto it = std::ranges::find(Language::listInstructions, name);
         if (it != Language::listInstructions.end())
@@ -78,7 +73,7 @@ namespace Ark::internal
         return std::nullopt;
     }
 
-    bool Compiler::nodeProducesOutput(const Node& node)
+    bool ASTLowerer::nodeProducesOutput(const Node& node)
     {
         if (node.nodeType() == NodeType::List && !node.constList().empty() && node.constList()[0].nodeType() == NodeType::Keyword)
             return (node.constList()[0].keyword() == Keyword::Begin && node.constList().size() > 1) ||
@@ -87,7 +82,7 @@ namespace Ark::internal
         return true;  // any other node, function call, symbol, number...
     }
 
-    bool Compiler::isUnaryInst(const Instruction inst) noexcept
+    bool ASTLowerer::isUnaryInst(const Instruction inst) noexcept
     {
         switch (inst)
         {
@@ -107,7 +102,7 @@ namespace Ark::internal
         }
     }
 
-    bool Compiler::isTernaryInst(const Instruction inst) noexcept
+    bool ASTLowerer::isTernaryInst(const Instruction inst) noexcept
     {
         switch (inst)
         {
@@ -119,17 +114,17 @@ namespace Ark::internal
         }
     }
 
-    void Compiler::compilerWarning(const std::string& message, const Node& node)
+    void ASTLowerer::warning(const std::string& message, const Node& node)
     {
         fmt::println("{} {}", fmt::styled("Warning", fmt::fg(fmt::color::dark_orange)), Diagnostics::makeContextWithNode(message, node));
     }
 
-    void Compiler::throwCompilerError(const std::string& message, const Node& node)
+    void ASTLowerer::buildAndThrowError(const std::string& message, const Node& node)
     {
         throw CodeError(message, node.filename(), node.line(), node.col(), node.repr());
     }
 
-    void Compiler::compileExpression(const Node& x, const Page p, const bool is_result_unused, const bool is_terminal, const std::string& var_name)
+    void ASTLowerer::compileExpression(const Node& x, const Page p, const bool is_result_unused, const bool is_terminal, const std::string& var_name)
     {
         // register symbols
         if (x.nodeType() == NodeType::Symbol)
@@ -226,32 +221,32 @@ namespace Ark::internal
             handleCalls(x, p, is_result_unused, is_terminal, var_name);
         }
         else
-            throwCompilerError(
+            buildAndThrowError(
                 fmt::format(
-                    "NodeType `{}' not handled in Compiler::compileExpression. Please fill an issue on GitHub: https://github.com/ArkScript-lang/Ark",
+                    "NodeType `{}' not handled in ASTLowerer::compileExpression. Please fill an issue on GitHub: https://github.com/ArkScript-lang/Ark",
                     typeToString(x)),
                 x);
     }
 
-    void Compiler::compileSymbol(const Node& x, const Page p, const bool is_result_unused)
+    void ASTLowerer::compileSymbol(const Node& x, const Page p, const bool is_result_unused)
     {
         const std::string& name = x.string();
 
         if (const auto it_builtin = getBuiltin(name))
             page(p).emplace_back(Instruction::BUILTIN, it_builtin.value());
         else if (getOperator(name).has_value())
-            throwCompilerError(fmt::format("Found a free standing operator: `{}`", name), x);
+            buildAndThrowError(fmt::format("Found a free standing operator: `{}`", name), x);
         else
             page(p).emplace_back(LOAD_SYMBOL, addSymbol(x));  // using the variable
 
         if (is_result_unused)
         {
-            compilerWarning("Statement has no effect", x);
+            warning("Statement has no effect", x);
             page(p).emplace_back(POP);
         }
     }
 
-    void Compiler::compileListInstruction(const Node& c0, const Node& x, const Page p, const bool is_result_unused)
+    void ASTLowerer::compileListInstruction(const Node& c0, const Node& x, const Page p, const bool is_result_unused)
     {
         std::string name = c0.string();
         Instruction inst = getListInstruction(name).value();
@@ -260,13 +255,13 @@ namespace Ark::internal
         const auto argc = x.constList().size() - 1u;
         // error, can not use append/concat/pop (and their in place versions) with a <2 length argument list
         if (argc < 2 && APPEND <= inst && inst <= POP)
-            throwCompilerError(fmt::format("Can not use {} with less than 2 arguments", name), c0);
+            buildAndThrowError(fmt::format("Can not use {} with less than 2 arguments", name), c0);
         if (inst <= POP && std::cmp_greater(argc, std::numeric_limits<uint16_t>::max()))
-            throwCompilerError(fmt::format("Too many arguments ({}), exceeds 65'535", argc), x);
+            buildAndThrowError(fmt::format("Too many arguments ({}), exceeds 65'535", argc), x);
         if (argc != 3 && inst == SET_AT_INDEX)
-            throwCompilerError(fmt::format("Expected 3 arguments (list, index, value) for {}, got {}", name, argc), c0);
+            buildAndThrowError(fmt::format("Expected 3 arguments (list, index, value) for {}, got {}", name, argc), c0);
         if (argc != 4 && inst == SET_AT_2_INDEX)
-            throwCompilerError(fmt::format("Expected 4 arguments (list, y, x, value) for {}, got {}", name, argc), c0);
+            buildAndThrowError(fmt::format("Expected 4 arguments (list, y, x, value) for {}, got {}", name, argc), c0);
 
         // compile arguments in reverse order
         for (std::size_t i = x.constList().size() - 1u; i > 0; --i)
@@ -275,7 +270,7 @@ namespace Ark::internal
             if (nodeProducesOutput(node))
                 compileExpression(node, p, false, false);
             else
-                throwCompilerError(fmt::format("Invalid node inside call to {}", name), node);
+                buildAndThrowError(fmt::format("Invalid node inside call to {}", name), node);
         }
 
         // put inst and number of arguments
@@ -305,12 +300,12 @@ namespace Ark::internal
 
         if (is_result_unused && name.back() != '!' && inst <= POP_LIST_IN_PLACE)  // in-place functions never push a value
         {
-            compilerWarning("Ignoring return value of function", x);
+            warning("Ignoring return value of function", x);
             page(p).emplace_back(POP);
         }
     }
 
-    void Compiler::compileIf(const Node& x, const Page p, const bool is_result_unused, const bool is_terminal, const std::string& var_name)
+    void ASTLowerer::compileIf(const Node& x, const Page p, const bool is_result_unused, const bool is_terminal, const std::string& var_name)
     {
         // compile condition
         compileExpression(x.constList()[1], p, false, false);
@@ -335,12 +330,12 @@ namespace Ark::internal
         page(p).emplace_back(label_end);
     }
 
-    void Compiler::compileFunction(const Node& x, const Page p, const bool is_result_unused, const std::string& var_name)
+    void ASTLowerer::compileFunction(const Node& x, const Page p, const bool is_result_unused, const std::string& var_name)
     {
         if (const auto args = x.constList()[1]; args.nodeType() != NodeType::List)
-            throwCompilerError(fmt::format("Expected a well formed argument(s) list, got a {}", typeToString(args)), args);
+            buildAndThrowError(fmt::format("Expected a well formed argument(s) list, got a {}", typeToString(args)), args);
         if (x.constList().size() != 3)
-            throwCompilerError("Invalid node ; if it was computed by a macro, check that a node is returned", x);
+            buildAndThrowError("Invalid node ; if it was computed by a macro, check that a node is returned", x);
 
         // capture, if needed
         bool is_closure = false;
@@ -375,17 +370,17 @@ namespace Ark::internal
         // if the computed function is unused, pop it
         if (is_result_unused)
         {
-            compilerWarning("Unused declared function", x);
+            warning("Unused declared function", x);
             page(p).emplace_back(POP);
         }
     }
 
-    void Compiler::compileLetMutSet(const Keyword n, const Node& x, const Page p)
+    void ASTLowerer::compileLetMutSet(const Keyword n, const Node& x, const Page p)
     {
         if (const auto sym = x.constList()[1]; sym.nodeType() != NodeType::Symbol)
-            throwCompilerError(fmt::format("Expected a symbol, got a {}", typeToString(sym)), sym);
+            buildAndThrowError(fmt::format("Expected a symbol, got a {}", typeToString(sym)), sym);
         if (x.constList().size() != 3)
-            throwCompilerError("Invalid node ; if it was computed by a macro, check that a node is returned", x);
+            buildAndThrowError("Invalid node ; if it was computed by a macro, check that a node is returned", x);
 
         const std::string name = x.constList()[1].string();
         uint16_t i = addSymbol(x.constList()[1]);
@@ -401,10 +396,10 @@ namespace Ark::internal
             page(p).emplace_back(SET_VAL, i);
     }
 
-    void Compiler::compileWhile(const Node& x, const Page p)
+    void ASTLowerer::compileWhile(const Node& x, const Page p)
     {
         if (x.constList().size() != 3)
-            throwCompilerError("Invalid node ; if it was computed by a macro, check that a node is returned", x);
+            buildAndThrowError("Invalid node ; if it was computed by a macro, check that a node is returned", x);
 
         page(p).emplace_back(CREATE_SCOPE);
 
@@ -428,7 +423,7 @@ namespace Ark::internal
         page(p).emplace_back(POP_SCOPE);
     }
 
-    void Compiler::compilePluginImport(const Node& x, const Page p)
+    void ASTLowerer::compilePluginImport(const Node& x, const Page p)
     {
         std::string path;
         const Node package_node = x.constList()[1];
@@ -446,7 +441,7 @@ namespace Ark::internal
         page(p).emplace_back(PLUGIN, id);
     }
 
-    void Compiler::handleCalls(const Node& x, const Page p, bool is_result_unused, const bool is_terminal, const std::string& var_name)
+    void ASTLowerer::handleCalls(const Node& x, const Page p, bool is_result_unused, const bool is_terminal, const std::string& var_name)
     {
         constexpr std::size_t start_index = 1;
 
@@ -471,7 +466,7 @@ namespace Ark::internal
         {
             // short circuit implementation
             if (x.constList().size() < 3)
-                throwCompilerError(
+                buildAndThrowError(
                     fmt::format(
                         "Expected at least 2 arguments while compiling '{}', got {}",
                         node.string(),
@@ -512,7 +507,7 @@ namespace Ark::internal
                     if (nodeProducesOutput(x.constList()[i]))
                         compileExpression(x.constList()[i], p, false, false);
                     else
-                        throwCompilerError(fmt::format("Invalid node inside tail call to `{}'", node.repr()), x);
+                        buildAndThrowError(fmt::format("Invalid node inside tail call to `{}'", node.repr()), x);
                 }
 
                 // jump to the top of the function
@@ -526,7 +521,7 @@ namespace Ark::internal
                 // closure chains have been handled (eg: closure.field.field.function)
                 compileExpression(node, proc_page, false, false);  // storing proc
                 if (m_temp_pages.back().empty())
-                    throwCompilerError(fmt::format("Can not call {}", x.constList()[0].repr()), x);
+                    buildAndThrowError(fmt::format("Can not call {}", x.constList()[0].repr()), x);
 
                 // push arguments on current page
                 for (auto exp = x.constList().begin() + start_index, exp_end = x.constList().end(); exp != exp_end; ++exp)
@@ -534,7 +529,7 @@ namespace Ark::internal
                     if (nodeProducesOutput(*exp))
                         compileExpression(*exp, p, false, false);
                     else
-                        throwCompilerError(fmt::format("Invalid node inside call to `{}'", node.repr()), x);
+                        buildAndThrowError(fmt::format("Invalid node inside call to `{}'", node.repr()), x);
                 }
                 // push proc from temp page
                 for (const auto& inst : m_temp_pages.back())
@@ -567,7 +562,7 @@ namespace Ark::internal
                 if (nodeProducesOutput(x.constList()[index]))
                     compileExpression(x.constList()[index], p, false, false);
                 else
-                    throwCompilerError(fmt::format("Invalid node inside call to operator `{}'", node.repr()), x);
+                    buildAndThrowError(fmt::format("Invalid node inside call to operator `{}'", node.repr()), x);
 
                 if ((index + 1 < size && x.constList()[index + 1].nodeType() != NodeType::Capture) || index + 1 == size)
                     exp_count++;
@@ -581,17 +576,17 @@ namespace Ark::internal
             if (isUnaryInst(op))
             {
                 if (exp_count != 1)
-                    throwCompilerError(fmt::format("Operator needs one argument, but was called with {}", exp_count), x.constList()[0]);
+                    buildAndThrowError(fmt::format("Operator needs one argument, but was called with {}", exp_count), x.constList()[0]);
                 page(p).emplace_back(op);
             }
             else if (isTernaryInst(op))
             {
                 if (exp_count != 3)
-                    throwCompilerError(fmt::format("Operator needs three arguments, but was called with {}", exp_count), x.constList()[0]);
+                    buildAndThrowError(fmt::format("Operator needs three arguments, but was called with {}", exp_count), x.constList()[0]);
                 page(p).emplace_back(op);
             }
             else if (exp_count <= 1)
-                throwCompilerError(fmt::format("Operator needs two arguments, but was called with {}", exp_count), x.constList()[0]);
+                buildAndThrowError(fmt::format("Operator needs two arguments, but was called with {}", exp_count), x.constList()[0]);
 
             // need to check we didn't push the (op A B C D...) things for operators not supporting it
             if (exp_count > 2)
@@ -608,7 +603,7 @@ namespace Ark::internal
                         break;
 
                     default:
-                        throwCompilerError(
+                        buildAndThrowError(
                             fmt::format(
                                 "`{}' requires 2 arguments, but got {}.",
                                 Language::operators[static_cast<std::size_t>(op - FIRST_OPERATOR)],
@@ -622,7 +617,7 @@ namespace Ark::internal
             page(p).emplace_back(POP);
     }
 
-    uint16_t Compiler::addSymbol(const Node& sym)
+    uint16_t ASTLowerer::addSymbol(const Node& sym)
     {
         // otherwise, add the symbol, and return its id in the table
         auto it = std::ranges::find(m_symbols, sym.string());
@@ -635,10 +630,10 @@ namespace Ark::internal
         const auto distance = std::distance(m_symbols.begin(), it);
         if (distance < std::numeric_limits<uint16_t>::max())
             return static_cast<uint16_t>(distance);
-        throwCompilerError("Too many symbols (exceeds 65'536), aborting compilation.", sym);
+        buildAndThrowError("Too many symbols (exceeds 65'536), aborting compilation.", sym);
     }
 
-    uint16_t Compiler::addValue(const Node& x)
+    uint16_t ASTLowerer::addValue(const Node& x)
     {
         const ValTableElem v(x);
         auto it = std::ranges::find(m_values, v);
@@ -651,10 +646,10 @@ namespace Ark::internal
         const auto distance = std::distance(m_values.begin(), it);
         if (distance < std::numeric_limits<uint16_t>::max())
             return static_cast<uint16_t>(distance);
-        throwCompilerError("Too many values (exceeds 65'536), aborting compilation.", x);
+        buildAndThrowError("Too many values (exceeds 65'536), aborting compilation.", x);
     }
 
-    uint16_t Compiler::addValue(const std::size_t page_id, const Node& current)
+    uint16_t ASTLowerer::addValue(const std::size_t page_id, const Node& current)
     {
         const ValTableElem v(page_id);
         auto it = std::ranges::find(m_values, v);
@@ -667,6 +662,6 @@ namespace Ark::internal
         const auto distance = std::distance(m_values.begin(), it);
         if (distance < std::numeric_limits<uint16_t>::max())
             return static_cast<uint16_t>(distance);
-        throwCompilerError("Too many values (exceeds 65'536), aborting compilation.", current);
+        buildAndThrowError("Too many values (exceeds 65'536), aborting compilation.", current);
     }
 }

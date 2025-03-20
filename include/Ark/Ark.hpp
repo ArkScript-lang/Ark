@@ -16,7 +16,7 @@
 #include <Ark/Constants.hpp>
 #include <Ark/Utils.hpp>
 #include <Ark/VM/VM.hpp>
-#include <Ark/Compiler/Compiler.hpp>
+#include <Ark/Compiler/Welder.hpp>
 #include <Ark/TypeChecker.hpp>
 
 #endif

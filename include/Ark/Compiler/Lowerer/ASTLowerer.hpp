@@ -1,16 +1,16 @@
 /**
- * @file Compiler.hpp
+ * @file ASTLowerver.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
- * @brief ArkScript compiler is in charge of transforming the AST into bytecode
+ * @brief ArkScript compiler is in charge of transforming the AST into IR
  * @version 3.1
  * @date 2020-10-27
  *
- * @copyright Copyright (c) 2020-2024
+ * @copyright Copyright (c) 2020-2025
  *
  */
 
-#ifndef ARK_COMPILER_COMPILER_HPP
-#define ARK_COMPILER_COMPILER_HPP
+#ifndef ARK_COMPILER_LOWERER_ASTLOWERER_HPP
+#define ARK_COMPILER_LOWERER_ASTLOWERER_HPP
 
 #include <vector>
 #include <string>
@@ -30,18 +30,18 @@ namespace Ark::internal
     class Welder;
 
     /**
-     * @brief The ArkScript bytecode compiler
+     * @brief The ArkScript AST to IR compiler
      *
      */
-    class ARK_API Compiler final
+    class ARK_API ASTLowerer final
     {
     public:
         /**
-         * @brief Construct a new Compiler object
+         * @brief Construct a new ASTLowerer object
          *
          * @param debug the debug level
          */
-        explicit Compiler(unsigned debug);
+        explicit ASTLowerer(unsigned debug);
 
         /**
          * @brief Start the compilation
@@ -156,7 +156,7 @@ namespace Ark::internal
          * @param message
          * @param node
          */
-        static void compilerWarning(const std::string& message, const Node& node);
+        static void warning(const std::string& message, const Node& node);
 
         /**
          * @brief Throw a nice error message
@@ -164,7 +164,7 @@ namespace Ark::internal
          * @param message
          * @param node
          */
-        [[noreturn]] static void throwCompilerError(const std::string& message, const Node& node);
+        [[noreturn]] static void buildAndThrowError(const std::string& message, const Node& node);
 
         /**
          * @brief Compile an expression (a node) recursively
