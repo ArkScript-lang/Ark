@@ -37,6 +37,9 @@
 - new operator `@@` to get elements in list of lists / list of strings
 - new builtin `random`, returning a random number between INT_MIN and INT_MAX, or in a custom range
 - `$as-is` to paste a node inside a maro without evaluating it further ; useful to stop recursive evaluation of nodes inside function macros
+- `LOAD_SYMBOL_BY_INDEX` instruction, loading a local from the current scope by an index (0 being the last element added to the scope)
+- `STORE_FROM_INDEX` and `SET_VAL_FROM_INDEX` instructions for parity with the super instructions not using load by index
+- `INCREMENT_BY_INDEX` and `DECREMENT_BY_INDEX` instructions for parity with the super instructions not using load by index
 
 ### Changed
 - instructions are on 4 bytes: 1 byte for the instruction, 1 byte of padding, 2 bytes for an immediate argument
@@ -109,6 +112,8 @@
 - magic numbers for value types in bytecode files have been changed from 0x01, 0x02, 0x03 to 0xF1, 0xF2, 0xF3 (number, string, function)
 - numbers in the values table in bytecode files are no longer stringified but their IEEE754 representation is now encoded on 12 bytes (4 for the exponent, 8 for the mantissa)
 - changed how scopes are stored inside the VM to enhance performances. All scope data are now contiguous!
+- when possible, accessing variables from the current scope is compiled to a new instruction `LOAD_SYMBOL_BY_INDEX`, to avoid the sometimes expansive lookup by id
+  - this works inside normal scopes (introduced by while loops) and functions scopes, but not for closures
 
 ### Removed
 - removed unused `NodeType::Closure`

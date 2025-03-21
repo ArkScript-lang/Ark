@@ -101,13 +101,17 @@ namespace Ark::internal
             return IR::Entity(LOAD_CONST_STORE, first.primaryArg(), second.primaryArg());
         if (first.inst() == LOAD_CONST && second.inst() == SET_VAL)
             return IR::Entity(LOAD_CONST_SET_VAL, first.primaryArg(), second.primaryArg());
-        // LOAD_SYMBOL a
+        // LOAD_SYMBOL / LOAD_SYMBOL_BY_INDEX a
         // STORE / SET_VAL b
         // ---> STORE_FROM a b ; SET_VAL_FROM a b
         if (first.inst() == LOAD_SYMBOL && second.inst() == STORE)
             return IR::Entity(STORE_FROM, first.primaryArg(), second.primaryArg());
+        if (first.inst() == LOAD_SYMBOL_BY_INDEX && second.inst() == STORE)
+            return IR::Entity(STORE_FROM_INDEX, first.primaryArg(), second.primaryArg());
         if (first.inst() == LOAD_SYMBOL && second.inst() == SET_VAL)
             return IR::Entity(SET_VAL_FROM, first.primaryArg(), second.primaryArg());
+        if (first.inst() == LOAD_SYMBOL_BY_INDEX && second.inst() == SET_VAL)
+            return IR::Entity(SET_VAL_FROM_INDEX, first.primaryArg(), second.primaryArg());
         // BUILTIN i
         // CALL n
         // ---> CALL_BUILTIN i n
@@ -132,6 +136,15 @@ namespace Ark::internal
             return IR::Entity(INCREMENT, first.primaryArg(), static_cast<uint16_t>(std::get<double>(m_values[second.primaryArg()].value)));
         if (third.inst() == SUB && first.inst() == LOAD_SYMBOL && second.inst() == LOAD_CONST && isPositiveNumberInlinable(second.primaryArg()))
             return IR::Entity(DECREMENT, first.primaryArg(), static_cast<uint16_t>(std::get<double>(m_values[second.primaryArg()].value)));
+
+        // todo: refactor
+        if (third.inst() == ADD && first.inst() == LOAD_CONST && second.inst() == LOAD_SYMBOL_BY_INDEX && isPositiveNumberInlinable(first.primaryArg()))
+            return IR::Entity(INCREMENT_BY_INDEX, second.primaryArg(), static_cast<uint16_t>(std::get<double>(m_values[first.primaryArg()].value)));
+        if (third.inst() == ADD && first.inst() == LOAD_SYMBOL_BY_INDEX && second.inst() == LOAD_CONST && isPositiveNumberInlinable(second.primaryArg()))
+            return IR::Entity(INCREMENT_BY_INDEX, first.primaryArg(), static_cast<uint16_t>(std::get<double>(m_values[second.primaryArg()].value)));
+        if (third.inst() == SUB && first.inst() == LOAD_SYMBOL_BY_INDEX && second.inst() == LOAD_CONST && isPositiveNumberInlinable(second.primaryArg()))
+            return IR::Entity(DECREMENT_BY_INDEX, first.primaryArg(), static_cast<uint16_t>(std::get<double>(m_values[second.primaryArg()].value)));
+
         // LOAD_SYMBOL list
         // TAIL / HEAD
         // STORE / SET_VAL a

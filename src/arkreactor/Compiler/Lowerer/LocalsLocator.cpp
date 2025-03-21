@@ -19,13 +19,13 @@ namespace Ark::internal
 
     std::optional<std::size_t> LocalsLocator::lookupLastScopeByName(const std::string& name)
     {
-        auto& back = m_scopes.back();
+        auto& [data, type] = m_scopes.back();
 
-        if (back.type != ScopeType::Closure)
+        if (type != ScopeType::Closure)
         {
             // Compute the index of the variable in the active scope from the end.
-            if (const auto it = std::ranges::find(back.data, name); it != back.data.end())
-                return static_cast<std::size_t>(std::distance(it, back.data.end())) - 1;
+            if (const auto it = std::ranges::find(data, name); it != data.end())
+                return static_cast<std::size_t>(std::distance(it, data.end())) - 1;
         }
 
         return std::nullopt;
@@ -41,5 +41,22 @@ namespace Ark::internal
     void LocalsLocator::deleteScope()
     {
         m_scopes.pop_back();
+    }
+
+    void LocalsLocator::saveScopeLengthForBranch()
+    {
+        m_drop_for_conds.push_back(m_scopes.back().data.size());
+    }
+
+    void LocalsLocator::dropVarsForBranch()
+    {
+        const auto old_length = m_drop_for_conds.back();
+        m_drop_for_conds.pop_back();
+
+        auto& back = m_scopes.back();
+        if (back.data.size() > old_length)
+            back.data.erase(
+                back.data.begin() + static_cast<decltype(back.data)::difference_type>(old_length),
+                back.data.end());
     }
 }

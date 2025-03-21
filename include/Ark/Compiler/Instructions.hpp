@@ -235,37 +235,55 @@ namespace Ark::internal
         // @role Store the value of the symbol #[code primary] into a new variable #[code secondary]
         STORE_FROM = 0x3a,
 
+        // @args symbol index, symbol id
+        // @role Store the value of the symbol #[code primary] into a new variable #[code secondary]
+        STORE_FROM_INDEX = 0x3b,
+
         // @args symbol id, symbol id
         // @role Store the value of the symbol #[code primary] into an existing variable #[code secondary]
-        SET_VAL_FROM = 0x3b,
+        SET_VAL_FROM = 0x3c,
+
+        // @args symbol index, symbol id
+        // @role Store the value of the symbol #[code primary] into an existing variable #[code secondary]
+        SET_VAL_FROM_INDEX = 0x3d,
 
         // @args symbol id, count
         // @role Increment the variable #[code primary] by #[code count] and push its value on the stack
-        INCREMENT = 0x3c,
+        INCREMENT = 0x3e,
+
+        // @args symbol index, count
+        // @role Increment the variable #[code primary] by #[code count] and push its value on the stack
+        INCREMENT_BY_INDEX = 0x3f,
 
         // @args symbol id, count
         // @role Decrement the variable #[code primary] by #[code count] and push its value on the stack
-        DECREMENT = 0x3d,
+        DECREMENT = 0x40,
+
+        // @args symbol index, count
+        // @role Decrement the variable #[code primary] by #[code count] and push its value on the stack
+        DECREMENT_BY_INDEX = 0x41,
 
         // @args symbol id, symbol id
         // @role Load the symbol #[code primary], compute its tail, store it in a new variable #[code secondary]
-        STORE_TAIL = 0x3e,
+        STORE_TAIL = 0x42,
 
         // @args symbol id, symbol id
         // @role Load the symbol #[code primary], compute its head, store it in a new variable #[code secondary]
-        STORE_HEAD = 0x3f,
+        STORE_HEAD = 0x43,
 
         // @args symbol id, symbol id
         // @role Load the symbol #[code primary], compute its tail, store it in an existing variable #[code secondary]
-        SET_VAL_TAIL = 0x40,
+        SET_VAL_TAIL = 0x44,
 
         // @args symbol id, symbol id
         // @role Load the symbol #[code primary], compute its head, store it in an existing variable #[code secondary]
-        SET_VAL_HEAD = 0x41,
+        SET_VAL_HEAD = 0x45,
 
         // @args builtin id, argument count
         // @role Call a builtin by its id in #[code primary], with #[code secondary] arguments. Bypass the stack size check because we do not push IP/PP since builtins calls do not alter the stack
-        CALL_BUILTIN = 0x42
+        CALL_BUILTIN = 0x46,
+
+        LAST
     };
 
     constexpr std::array InstructionNames = {
@@ -330,15 +348,21 @@ namespace Ark::internal
         "LOAD_CONST_STORE",
         "LOAD_CONST_SET_VAL",
         "STORE_FROM",
+        "STORE_FROM_INDEX",
         "SET_VAL_FROM",
+        "SET_VAL_FROM_INDEX",
         "INCREMENT",
+        "INCREMENT_BY_INDEX",
         "DECREMENT",
+        "DECREMENT_BY_INDEX",
         "STORE_TAIL",
         "STORE_HEAD",
         "SET_VAL_TAIL",
         "SET_VAL_HEAD",
         "CALL_BUILTIN"
     };
+
+    static_assert(InstructionNames.size() == static_cast<std::size_t>(Instruction::LAST) && "Some instruction names appear to be missing");
 }
 
 #endif
