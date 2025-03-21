@@ -420,9 +420,13 @@ namespace Ark
                 &&TARGET_LOAD_CONST_STORE,
                 &&TARGET_LOAD_CONST_SET_VAL,
                 &&TARGET_STORE_FROM,
+                &&TARGET_STORE_FROM_INDEX,
                 &&TARGET_SET_VAL_FROM,
+                &&TARGET_SET_VAL_FROM_INDEX,
                 &&TARGET_INCREMENT,
+                &&TARGET_INCREMENT_BY_INDEX,
                 &&TARGET_DECREMENT,
+                &&TARGET_DECREMENT_BY_INDEX,
                 &&TARGET_STORE_TAIL,
                 &&TARGET_STORE_HEAD,
                 &&TARGET_SET_VAL_TAIL,
@@ -463,9 +467,7 @@ namespace Ark
 
                     TARGET(LOAD_SYMBOL_BY_INDEX)
                     {
-                        auto& [id, value] = context.locals.back().atPosReverse(arg);
-                        context.last_symbol = id;
-                        push(value, context);
+                        push(loadSymbolFromIndex(arg, context), context);
                         DISPATCH();
                     }
 
@@ -1319,10 +1321,24 @@ namespace Ark
                         DISPATCH();
                     }
 
+                    TARGET(STORE_FROM_INDEX)
+                    {
+                        UNPACK_ARGS();
+                        store(secondary_arg, loadSymbolFromIndex(primary_arg, context), context);
+                        DISPATCH();
+                    }
+
                     TARGET(SET_VAL_FROM)
                     {
                         UNPACK_ARGS();
                         setVal(secondary_arg, loadSymbol(primary_arg, context), context);
+                        DISPATCH();
+                    }
+
+                    TARGET(SET_VAL_FROM_INDEX)
+                    {
+                        UNPACK_ARGS();
+                        setVal(secondary_arg, loadSymbolFromIndex(primary_arg, context), context);
                         DISPATCH();
                     }
 
@@ -1347,11 +1363,53 @@ namespace Ark
                         DISPATCH();
                     }
 
+                    TARGET(INCREMENT_BY_INDEX)
+                    {
+                        UNPACK_ARGS();
+                        {
+                            Value* var = loadSymbolFromIndex(primary_arg, context);
+
+                            // use internal reference, shouldn't break anything so far, unless it's already a ref
+                            if (var->valueType() == ValueType::Reference)
+                                var = var->reference();
+
+                            if (var->valueType() == ValueType::Number)
+                                push(Value(var->number() + secondary_arg), context);
+                            else
+                                types::generateError(
+                                    "+",
+                                    { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
+                                    { *var, Value(secondary_arg) });
+                        }
+                        DISPATCH();
+                    }
+
                     TARGET(DECREMENT)
                     {
                         UNPACK_ARGS();
                         {
                             Value* var = loadSymbol(primary_arg, context);
+
+                            // use internal reference, shouldn't break anything so far, unless it's already a ref
+                            if (var->valueType() == ValueType::Reference)
+                                var = var->reference();
+
+                            if (var->valueType() == ValueType::Number)
+                                push(Value(var->number() - secondary_arg), context);
+                            else
+                                types::generateError(
+                                    "-",
+                                    { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
+                                    { *var, Value(secondary_arg) });
+                        }
+                        DISPATCH();
+                    }
+
+                    TARGET(DECREMENT_BY_INDEX)
+                    {
+                        UNPACK_ARGS();
+                        {
+                            Value* var = loadSymbolFromIndex(primary_arg, context);
 
                             // use internal reference, shouldn't break anything so far, unless it's already a ref
                             if (var->valueType() == ValueType::Reference)

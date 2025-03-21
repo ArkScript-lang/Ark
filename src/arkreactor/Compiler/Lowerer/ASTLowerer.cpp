@@ -322,7 +322,11 @@ namespace Ark::internal
 
         // else code
         if (x.constList().size() == 4)  // we have an else clause
+        {
+            m_locals_locator.saveScopeLengthForBranch();
             compileExpression(x.constList()[3], p, is_result_unused, is_terminal, var_name);
+            m_locals_locator.dropVarsForBranch();
+        }
 
         // when else is finished, jump to end
         const auto label_end = IR::Entity::Label(m_current_label++);
@@ -331,7 +335,9 @@ namespace Ark::internal
         // absolute address to jump to if condition is true
         page(p).emplace_back(label_then);
         // if code
+        m_locals_locator.saveScopeLengthForBranch();
         compileExpression(x.constList()[2], p, is_result_unused, is_terminal, var_name);
+        m_locals_locator.dropVarsForBranch();
         // set jump to end pos
         page(p).emplace_back(label_end);
     }

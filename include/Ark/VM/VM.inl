@@ -136,6 +136,13 @@ inline Value* VM::loadSymbol(const uint16_t id, internal::ExecutionContext& cont
     return nullptr;
 }
 
+inline Value* VM::loadSymbolFromIndex(const uint16_t index, internal::ExecutionContext& context)
+{
+    auto& [id, value] = context.locals.back().atPosReverse(index);
+    context.last_symbol = id;
+    return &value;
+}
+
 inline Value* VM::loadConstAsPtr(const uint16_t id) const
 {
     return &m_state.m_constants[id];

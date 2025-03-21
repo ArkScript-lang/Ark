@@ -188,6 +188,7 @@ namespace Ark
         // ================================================
 
         [[nodiscard]] inline Value* loadSymbol(uint16_t id, internal::ExecutionContext& context);
+        [[nodiscard]] inline Value* loadSymbolFromIndex(uint16_t index, internal::ExecutionContext& context);
         [[nodiscard]] inline Value* loadConstAsPtr(uint16_t id) const;
         inline void store(uint16_t id, const Value* val, internal::ExecutionContext& context);
         inline void setVal(uint16_t id, const Value* val, internal::ExecutionContext& context);
