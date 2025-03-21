@@ -533,12 +533,8 @@ namespace Ark
                             // value on the stack
                             else [[likely]]
                             {
-                                const Value* ip;
-                                do
-                                {
-                                    ip = popAndResolveAsPtr(context);
-                                } while (ip->valueType() != ValueType::InstPtr);
-
+                                const Value* ip = popAndResolveAsPtr(context);
+                                assert(ip->valueType() == ValueType::InstPtr && "Expected instruction pointer on the stack (is the stack trashed?)");
                                 context.ip = ip->pageAddr();
                                 context.pp = pop(context)->pageAddr();
 
