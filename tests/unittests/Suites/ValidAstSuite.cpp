@@ -3,7 +3,7 @@
 #include <CLI/JsonCompiler.hpp>
 #include <string>
 
-#include "TestsHelper.hpp"
+#include <TestsHelper.hpp>
 
 using namespace boost;
 
@@ -25,7 +25,7 @@ ut::suite<"AST"> ast_suite = [] {
                 };
 
                 should("output the expected AST for " + data.stem) = [&] {
-                    expect(that % json == data.expected);
+                    expect_or_diff(data.expected, json);
                 };
             },
             /* expected_ext= */ "json");

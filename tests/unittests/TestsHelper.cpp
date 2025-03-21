@@ -1,6 +1,10 @@
 #include "TestsHelper.hpp"
 
+#include <Ark/Utils.hpp>
+
+#include <dtl.hpp>
 #include <sstream>
+#include <boost/ut.hpp>
 
 void iter_test_files(const std::string& folder, std::function<void(TestData&&)>&& test, const std::string& expected_ext)
 {
@@ -13,7 +17,7 @@ void iter_test_files(const std::string& folder, std::function<void(TestData&&)>&
         expected_path.replace_extension(expected_ext);
         std::string expected = Ark::Utils::readFile(expected_path.generic_string());
         // getting rid of the \r because of Windows
-        expected.erase(std::remove(expected.begin(), expected.end(), '\r'), expected.end());
+        std::erase(expected, '\r');
         ltrim(rtrim(expected));
 
         auto data = TestData {
@@ -45,4 +49,21 @@ std::string sanitize_error(const Ark::CodeError& e, const bool remove_in_file_li
         diag.erase(0, diag.find_first_of('\n') + 1);
 
     return diag;
+}
+
+void expect_or_diff(const std::string& expected, const std::string& received)
+{
+    const bool comparison = expected == received;
+    boost::ut::expect(comparison) << [&] {
+        dtl::Diff<std::string, std::vector<std::string>> d(
+            Ark::Utils::splitString(received, '\n'),
+            Ark::Utils::splitString(expected, '\n'));
+        d.enableHuge();
+        d.compose();
+        d.composeUnifiedHunks();
+        std::stringstream stream;
+        d.printUnifiedFormat(stream);
+
+        return stream.str();
+    };
 }

@@ -186,11 +186,15 @@ endif ()
 if (ARK_TESTS)
     file(GLOB_RECURSE SOURCES
             ${ark_SOURCE_DIR}/tests/unittests/*.cpp
+            ${ark_SOURCE_DIR}/tests/unittests/Suites/*.cpp
             ${ark_SOURCE_DIR}/lib/fmt/src/format.cc
             ${ark_SOURCE_DIR}/src/arkscript/Formatter.cpp
             ${ark_SOURCE_DIR}/src/arkscript/JsonCompiler.cpp
             ${ark_SOURCE_DIR}/src/arkscript/REPL/Utils.cpp)
     add_executable(unittests ${SOURCES})
+    target_include_directories(unittests PUBLIC ${ark_SOURCE_DIR}/tests/unittests)
+
+    target_include_directories(unittests SYSTEM PUBLIC ${ark_SOURCE_DIR}/lib/dtl/dtl)
 
     add_subdirectory(${ark_SOURCE_DIR}/lib/ut)
     target_include_directories(unittests PUBLIC ${ark_SOURCE_DIR}/include)
