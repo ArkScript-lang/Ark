@@ -267,23 +267,39 @@ namespace Ark::internal
         // @role Load the symbol #[code primary], compute its tail, store it in a new variable #[code secondary]
         STORE_TAIL = 0x42,
 
+        // @args symbol index, symbol id
+        // @role Load the symbol #[code primary], compute its tail, store it in a new variable #[code secondary]
+        STORE_TAIL_BY_INDEX = 0x43,
+
         // @args symbol id, symbol id
         // @role Load the symbol #[code primary], compute its head, store it in a new variable #[code secondary]
-        STORE_HEAD = 0x43,
+        STORE_HEAD = 0x44,
+
+        // @args symbol index, symbol id
+        // @role Load the symbol #[code primary], compute its head, store it in a new variable #[code secondary]
+        STORE_HEAD_BY_INDEX = 0x45,
 
         // @args symbol id, symbol id
         // @role Load the symbol #[code primary], compute its tail, store it in an existing variable #[code secondary]
-        SET_VAL_TAIL = 0x44,
+        SET_VAL_TAIL = 0x46,
+
+        // @args symbol index, symbol id
+        // @role Load the symbol #[code primary], compute its tail, store it in an existing variable #[code secondary]
+        SET_VAL_TAIL_BY_INDEX = 0x47,
 
         // @args symbol id, symbol id
         // @role Load the symbol #[code primary], compute its head, store it in an existing variable #[code secondary]
-        SET_VAL_HEAD = 0x45,
+        SET_VAL_HEAD = 0x48,
+
+        // @args symbol index, symbol id
+        // @role Load the symbol #[code primary], compute its head, store it in an existing variable #[code secondary]
+        SET_VAL_HEAD_BY_INDEX = 0x49,
 
         // @args builtin id, argument count
         // @role Call a builtin by its id in #[code primary], with #[code secondary] arguments. Bypass the stack size check because we do not push IP/PP since builtins calls do not alter the stack
-        CALL_BUILTIN = 0x46,
+        CALL_BUILTIN = 0x4a,
 
-        LAST
+        InstructionsCount
     };
 
     constexpr std::array InstructionNames = {
@@ -356,13 +372,17 @@ namespace Ark::internal
         "DECREMENT",
         "DECREMENT_BY_INDEX",
         "STORE_TAIL",
+        "STORE_TAIL_BY_INDEX",
         "STORE_HEAD",
+        "STORE_HEAD_BY_INDEX",
         "SET_VAL_TAIL",
+        "SET_VAL_TAIL_BY_INDEX",
         "SET_VAL_HEAD",
+        "SET_VAL_HEAD_BY_INDEX",
         "CALL_BUILTIN"
     };
 
-    static_assert(InstructionNames.size() == static_cast<std::size_t>(Instruction::LAST) && "Some instruction names appear to be missing");
+    static_assert(InstructionNames.size() == static_cast<std::size_t>(Instruction::InstructionsCount) && "Some instruction names appear to be missing");
 }
 
 #endif
