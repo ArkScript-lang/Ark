@@ -82,16 +82,28 @@ namespace Ark::internal
             // STORE / SET_VAL a
             // ---> STORE_TAIL list a ; STORE_HEAD ; SET_VAL_TAIL ; SET_VAL_HEAD
             Rule { .expected = { LOAD_SYMBOL, TAIL, STORE }, .replacement = STORE_TAIL, .createReplacement = [](const Entities& e) {
-                      return std::make_pair(e[0].primaryArg(), e[1].primaryArg());
+                      return std::make_pair(e[0].primaryArg(), e[2].primaryArg());
                   } },
             Rule { .expected = { LOAD_SYMBOL, TAIL, SET_VAL }, .replacement = SET_VAL_TAIL, .createReplacement = [](const Entities& e) {
-                      return std::make_pair(e[0].primaryArg(), e[1].primaryArg());
+                      return std::make_pair(e[0].primaryArg(), e[2].primaryArg());
                   } },
             Rule { .expected = { LOAD_SYMBOL, HEAD, STORE }, .replacement = STORE_HEAD, .createReplacement = [](const Entities& e) {
-                      return std::make_pair(e[0].primaryArg(), e[1].primaryArg());
+                      return std::make_pair(e[0].primaryArg(), e[2].primaryArg());
                   } },
             Rule { .expected = { LOAD_SYMBOL, HEAD, SET_VAL }, .replacement = SET_VAL_HEAD, .createReplacement = [](const Entities& e) {
-                      return std::make_pair(e[0].primaryArg(), e[1].primaryArg());
+                      return std::make_pair(e[0].primaryArg(), e[2].primaryArg());
+                  } },
+            Rule { .expected = { LOAD_SYMBOL_BY_INDEX, TAIL, STORE }, .replacement = STORE_TAIL_BY_INDEX, .createReplacement = [](const Entities& e) {
+                      return std::make_pair(e[0].primaryArg(), e[2].primaryArg());
+                  } },
+            Rule { .expected = { LOAD_SYMBOL_BY_INDEX, TAIL, SET_VAL }, .replacement = SET_VAL_TAIL_BY_INDEX, .createReplacement = [](const Entities& e) {
+                      return std::make_pair(e[0].primaryArg(), e[2].primaryArg());
+                  } },
+            Rule { .expected = { LOAD_SYMBOL_BY_INDEX, HEAD, STORE }, .replacement = STORE_HEAD_BY_INDEX, .createReplacement = [](const Entities& e) {
+                      return std::make_pair(e[0].primaryArg(), e[2].primaryArg());
+                  } },
+            Rule { .expected = { LOAD_SYMBOL_BY_INDEX, HEAD, SET_VAL }, .replacement = SET_VAL_HEAD_BY_INDEX, .createReplacement = [](const Entities& e) {
+                      return std::make_pair(e[0].primaryArg(), e[2].primaryArg());
                   } }
         };
     }

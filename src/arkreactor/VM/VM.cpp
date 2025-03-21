@@ -428,11 +428,17 @@ namespace Ark
                 &&TARGET_DECREMENT,
                 &&TARGET_DECREMENT_BY_INDEX,
                 &&TARGET_STORE_TAIL,
+                &&TARGET_STORE_TAIL_BY_INDEX,
                 &&TARGET_STORE_HEAD,
+                &&TARGET_STORE_HEAD_BY_INDEX,
                 &&TARGET_SET_VAL_TAIL,
+                &&TARGET_SET_VAL_TAIL_BY_INDEX,
                 &&TARGET_SET_VAL_HEAD,
+                &&TARGET_SET_VAL_HEAD_BY_INDEX,
                 &&TARGET_CALL_BUILTIN
             };
+
+        static_assert(opcode_targets.size() == static_cast<std::size_t>(Instruction::InstructionsCount) && "Some instructions are not implemented in the VM");
 #    pragma GCC diagnostic pop
 #endif
 
@@ -1437,11 +1443,33 @@ namespace Ark
                         DISPATCH();
                     }
 
+                    TARGET(STORE_TAIL_BY_INDEX)
+                    {
+                        UNPACK_ARGS();
+                        {
+                            Value* list = loadSymbolFromIndex(primary_arg, context);
+                            Value tail = helper::tail(list);
+                            store(secondary_arg, &tail, context);
+                        }
+                        DISPATCH();
+                    }
+
                     TARGET(STORE_HEAD)
                     {
                         UNPACK_ARGS();
                         {
                             Value* list = loadSymbol(primary_arg, context);
+                            Value head = helper::head(list);
+                            store(secondary_arg, &head, context);
+                        }
+                        DISPATCH();
+                    }
+
+                    TARGET(STORE_HEAD_BY_INDEX)
+                    {
+                        UNPACK_ARGS();
+                        {
+                            Value* list = loadSymbolFromIndex(primary_arg, context);
                             Value head = helper::head(list);
                             store(secondary_arg, &head, context);
                         }
@@ -1459,11 +1487,33 @@ namespace Ark
                         DISPATCH();
                     }
 
+                    TARGET(SET_VAL_TAIL_BY_INDEX)
+                    {
+                        UNPACK_ARGS();
+                        {
+                            Value* list = loadSymbolFromIndex(primary_arg, context);
+                            Value tail = helper::tail(list);
+                            setVal(secondary_arg, &tail, context);
+                        }
+                        DISPATCH();
+                    }
+
                     TARGET(SET_VAL_HEAD)
                     {
                         UNPACK_ARGS();
                         {
                             Value* list = loadSymbol(primary_arg, context);
+                            Value head = helper::head(list);
+                            setVal(secondary_arg, &head, context);
+                        }
+                        DISPATCH();
+                    }
+
+                    TARGET(SET_VAL_HEAD_BY_INDEX)
+                    {
+                        UNPACK_ARGS();
+                        {
+                            Value* list = loadSymbolFromIndex(primary_arg, context);
                             Value head = helper::head(list);
                             setVal(secondary_arg, &head, context);
                         }
