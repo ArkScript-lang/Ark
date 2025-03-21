@@ -5,7 +5,7 @@
 #include <Ark/Compiler/Serialization/IEEE754Serializer.hpp>
 #include <Ark/Compiler/Serialization/IntegerSerializer.hpp>
 
-#include "TestsHelper.hpp"
+#include <TestsHelper.hpp>
 
 using namespace boost;
 
@@ -93,7 +93,7 @@ ut::suite<"Compiler"> compiler_suite = [] {
                     std::string ir = welder.textualIR();
 
                     ltrim(rtrim(ir));
-                    expect(that % ir == data.expected);
+                    expect_or_diff(data.expected, ir);
                 };
             });
     };
@@ -115,7 +115,7 @@ ut::suite<"Compiler"> compiler_suite = [] {
                     std::string ir = welder.textualIR();
 
                     ltrim(rtrim(ir));
-                    expect(that % ir == data.expected);
+                    expect_or_diff(data.expected, ir);
                 };
             });
     };

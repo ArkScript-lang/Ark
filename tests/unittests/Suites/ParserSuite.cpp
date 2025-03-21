@@ -7,7 +7,7 @@
 #include <sstream>
 #include <algorithm>
 
-#include "TestsHelper.hpp"
+#include <TestsHelper.hpp>
 
 using namespace boost;
 
@@ -60,7 +60,7 @@ ut::suite<"Parser"> parser_suite = [] {
                 ltrim(rtrim(ast));
 
                 should("output the same AST and imports (" + data.stem + ")") = [&] {
-                    expect(that % ast == data.expected);
+                    expect_or_diff(data.expected, ast);
                 };
             });
     };
@@ -80,7 +80,7 @@ ut::suite<"Parser"> parser_suite = [] {
                     should("output the same error message (" + data.stem + ")") = [&] {
                         std::string tested = sanitize_error(e);
                         ltrim(rtrim(tested));
-                        expect(that % tested == data.expected);
+                        expect_or_diff(data.expected, tested);
                     };
                 }
                 catch (...)

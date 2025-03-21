@@ -3,7 +3,7 @@
 #include <filesystem>
 
 #include <Ark/Ark.hpp>
-#include "TestsHelper.hpp"
+#include <TestsHelper.hpp>
 
 using namespace boost;
 
@@ -27,7 +27,7 @@ ut::suite<"Diagnostics"> diagnostics_suite = [] {
                 {
                     std::string diag = sanitize_error(e, /* remove_in_file_line= */ true);
                     rtrim(diag);
-                    expect(that % diag == data.expected);
+                    expect_or_diff(data.expected, diag);
                 }
             };
         });
@@ -54,7 +54,7 @@ ut::suite<"Diagnostics"> diagnostics_suite = [] {
                     if (diag.find_first_of('\n') != std::string::npos)
                         diag.erase(diag.find_first_of('\n'), diag.size() - 1);
                     ltrim(rtrim(diag));
-                    expect(that % diag == data.expected);
+                    expect_or_diff(data.expected, diag);
                 }
             };
         });

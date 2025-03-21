@@ -3,7 +3,6 @@
 #include <filesystem>
 
 #include <Ark/Ark.hpp>
-#include "TestsHelper.hpp"
 
 using namespace boost;
 

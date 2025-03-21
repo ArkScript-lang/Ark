@@ -46,4 +46,6 @@ inline std::string& rtrim(std::string& s)
 
 std::string sanitize_error(const Ark::CodeError& e, bool remove_in_file_line = false);
 
+void expect_or_diff(const std::string& expected, const std::string& received);
+
 #endif  // ARK_TESTSHELPER_HPP
