@@ -15,10 +15,7 @@
 #include <Ark/Platform.hpp>
 
 #if defined(ARK_OS_WINDOWS)
-// do not include winsock.h
-#    define WIN32_LEAN_AND_MEAN
-#    define NOMINMAX
-#    include <Windows.h>
+#    include <Proxy/MiniWindows.h>
 #elif defined(ARK_OS_LINUX)
 #    include <dlfcn.h>
 #else
