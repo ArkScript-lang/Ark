@@ -13,7 +13,88 @@ namespace Ark::internal
 
     IROptimizer::IROptimizer(const unsigned debug) :
         m_logger("IROptimizer", debug)
-    {}
+    {
+        m_ruleset_two = {
+            Rule {
+                { LOAD_CONST, LOAD_CONST }, LOAD_CONST_LOAD_CONST },
+            Rule {
+                { LOAD_CONST, STORE }, LOAD_CONST_STORE },
+            Rule {
+                { LOAD_CONST, SET_VAL }, LOAD_CONST_SET_VAL },
+            Rule {
+                { LOAD_SYMBOL, STORE }, STORE_FROM },
+            Rule {
+                { LOAD_SYMBOL_BY_INDEX, STORE }, STORE_FROM_INDEX },
+            Rule {
+                { LOAD_SYMBOL, SET_VAL }, SET_VAL_FROM },
+            Rule {
+                { LOAD_SYMBOL_BY_INDEX, SET_VAL }, SET_VAL_FROM_INDEX },
+            Rule {
+                { BUILTIN, CALL }, CALL_BUILTIN, [](const Entities& entities) {
+                    return Builtins::builtins[entities[0].primaryArg()].second.isFunction();
+                } }
+        };
+
+        m_ruleset_three = {
+            // LOAD_SYMBOL a / LOAD_SYMBOL_BY_INDEX index
+            // LOAD_CONST n (1)
+            // ADD / SUB
+            // ---> INCREMENT / DECREMENT a value
+            Rule {
+                { LOAD_CONST, LOAD_SYMBOL, ADD }, INCREMENT, [this](const Entities& e) {
+                    return isPositiveNumberInlinable(e[0].primaryArg());
+                },
+                [this](const Entities& e) {
+                    return std::make_pair(e[1].primaryArg(), numberAsArg(e[0].primaryArg()));
+                } },
+            Rule { { LOAD_SYMBOL, LOAD_CONST, ADD }, INCREMENT, [this](const Entities& e) {
+                      return isPositiveNumberInlinable(e[1].primaryArg());
+                  },
+                   [this](const Entities& e) {
+                       return std::make_pair(e[0].primaryArg(), numberAsArg(e[1].primaryArg()));
+                   } },
+            Rule { { LOAD_SYMBOL, LOAD_CONST, SUB }, DECREMENT, [this](const Entities& e) {
+                      return isPositiveNumberInlinable(e[1].primaryArg());
+                  },
+                   [this](const Entities& e) {
+                       return std::make_pair(e[0].primaryArg(), numberAsArg(e[1].primaryArg()));
+                   } },
+            Rule { { LOAD_CONST, LOAD_SYMBOL_BY_INDEX, ADD }, INCREMENT_BY_INDEX, [this](const Entities& e) {
+                      return isPositiveNumberInlinable(e[0].primaryArg());
+                  },
+                   [this](const Entities& e) {
+                       return std::make_pair(e[1].primaryArg(), numberAsArg(e[0].primaryArg()));
+                   } },
+            Rule { { LOAD_SYMBOL_BY_INDEX, LOAD_CONST, ADD }, INCREMENT_BY_INDEX, [this](const Entities& e) {
+                      return isPositiveNumberInlinable(e[1].primaryArg());
+                  },
+                   [this](const Entities& e) {
+                       return std::make_pair(e[0].primaryArg(), numberAsArg(e[1].primaryArg()));
+                   } },
+            Rule { { LOAD_SYMBOL_BY_INDEX, LOAD_CONST, SUB }, DECREMENT_BY_INDEX, [this](const Entities& e) {
+                      return isPositiveNumberInlinable(e[1].primaryArg());
+                  },
+                   [this](const Entities& e) {
+                       return std::make_pair(e[0].primaryArg(), numberAsArg(e[1].primaryArg()));
+                   } },
+            // LOAD_SYMBOL list
+            // TAIL / HEAD
+            // STORE / SET_VAL a
+            // ---> STORE_TAIL list a ; STORE_HEAD ; SET_VAL_TAIL ; SET_VAL_HEAD
+            Rule { .expected = { LOAD_SYMBOL, TAIL, STORE }, .replacement = STORE_TAIL, .createReplacement = [](const Entities& e) {
+                      return std::make_pair(e[0].primaryArg(), e[1].primaryArg());
+                  } },
+            Rule { .expected = { LOAD_SYMBOL, TAIL, SET_VAL }, .replacement = SET_VAL_TAIL, .createReplacement = [](const Entities& e) {
+                      return std::make_pair(e[0].primaryArg(), e[1].primaryArg());
+                  } },
+            Rule { .expected = { LOAD_SYMBOL, HEAD, STORE }, .replacement = STORE_HEAD, .createReplacement = [](const Entities& e) {
+                      return std::make_pair(e[0].primaryArg(), e[1].primaryArg());
+                  } },
+            Rule { .expected = { LOAD_SYMBOL, HEAD, SET_VAL }, .replacement = SET_VAL_HEAD, .createReplacement = [](const Entities& e) {
+                      return std::make_pair(e[0].primaryArg(), e[1].primaryArg());
+                  } }
+        };
+    }
 
     void IROptimizer::process(const std::vector<IR::Block>& pages, const std::vector<std::string>& symbols, const std::vector<ValTableElem>& values)
     {
@@ -47,7 +128,7 @@ namespace Ark::internal
 
                 if (i + 1 < end)
                     maybe_compacted = map(
-                        compactEntities(block[i], block[i + 1]),
+                        replaceWithRules(m_ruleset_two, { block[i], block[i + 1] }),
                         [](const auto& entity) {
                             return std::make_optional<EntityWithOffset>(entity, 2);
                         });
@@ -56,7 +137,7 @@ namespace Ark::internal
                         maybe_compacted,
                         [&, this]() {
                             return map(
-                                compactEntities(block[i], block[i + 1], block[i + 2]),
+                                replaceWithRules(m_ruleset_three, { block[i], block[i + 1], block[i + 2] }),
                                 [](const auto& entity) {
                                     return std::make_optional<EntityWithOffset>(entity, 3);
                                 });
@@ -84,79 +165,35 @@ namespace Ark::internal
         return m_ir;
     }
 
-    std::optional<IR::Entity> IROptimizer::compactEntities(const IR::Entity& first, const IR::Entity& second)
+    bool IROptimizer::match(const std::vector<Instruction>& expected_insts, const Entities& entities) const
     {
-        if (first.primaryArg() > IR::MaxValueForDualArg || second.primaryArg() > IR::MaxValueForDualArg)
-            return std::nullopt;
+        assert(expected_insts.size() == entities.size() && "Mismatching size between expected instructions and given entities");
 
-        // LOAD_CONST x
-        // LOAD_CONST y
-        // ---> LOAD_CONST_LOAD_CONST x y
-        if (first.inst() == LOAD_CONST && second.inst() == LOAD_CONST)
-            return IR::Entity(LOAD_CONST_LOAD_CONST, first.primaryArg(), second.primaryArg());
-        // LOAD_CONST x
-        // STORE / SET_VAL a
-        // ---> LOAD_CONST_STORE x a ; LOAD_CONST_SET_VAL x a
-        if (first.inst() == LOAD_CONST && second.inst() == STORE)
-            return IR::Entity(LOAD_CONST_STORE, first.primaryArg(), second.primaryArg());
-        if (first.inst() == LOAD_CONST && second.inst() == SET_VAL)
-            return IR::Entity(LOAD_CONST_SET_VAL, first.primaryArg(), second.primaryArg());
-        // LOAD_SYMBOL / LOAD_SYMBOL_BY_INDEX a
-        // STORE / SET_VAL b
-        // ---> STORE_FROM a b ; SET_VAL_FROM a b
-        if (first.inst() == LOAD_SYMBOL && second.inst() == STORE)
-            return IR::Entity(STORE_FROM, first.primaryArg(), second.primaryArg());
-        if (first.inst() == LOAD_SYMBOL_BY_INDEX && second.inst() == STORE)
-            return IR::Entity(STORE_FROM_INDEX, first.primaryArg(), second.primaryArg());
-        if (first.inst() == LOAD_SYMBOL && second.inst() == SET_VAL)
-            return IR::Entity(SET_VAL_FROM, first.primaryArg(), second.primaryArg());
-        if (first.inst() == LOAD_SYMBOL_BY_INDEX && second.inst() == SET_VAL)
-            return IR::Entity(SET_VAL_FROM_INDEX, first.primaryArg(), second.primaryArg());
-        // BUILTIN i
-        // CALL n
-        // ---> CALL_BUILTIN i n
-        if (first.inst() == BUILTIN && second.inst() == CALL && Builtins::builtins[first.primaryArg()].second.isFunction())
-            return IR::Entity(CALL_BUILTIN, first.primaryArg(), second.primaryArg());
+        for (std::size_t i = 0; i < expected_insts.size(); ++i)
+        {
+            if (expected_insts[i] != entities[i].inst())
+                return false;
+        }
 
-        return std::nullopt;
+        return true;
     }
 
-    std::optional<IR::Entity> IROptimizer::compactEntities(const IR::Entity& first, const IR::Entity& second, const IR::Entity& third)
+    std::optional<IR::Entity> IROptimizer::replaceWithRules(const std::vector<Rule>& rules, const Entities& entities)
     {
-        if (first.primaryArg() > IR::MaxValueForDualArg || second.primaryArg() > IR::MaxValueForDualArg || third.primaryArg() > IR::MaxValueForDualArg)
-            return std::nullopt;
+        for (auto&& entity : entities)
+        {
+            if (entity.primaryArg() > IR::MaxValueForDualArg)
+                return std::nullopt;
+        }
 
-        // LOAD_SYMBOL a
-        // LOAD_CONST n (1)
-        // ADD / SUB
-        // ---> INCREMENT / DECREMENT a value
-        if (third.inst() == ADD && first.inst() == LOAD_CONST && second.inst() == LOAD_SYMBOL && isPositiveNumberInlinable(first.primaryArg()))
-            return IR::Entity(INCREMENT, second.primaryArg(), static_cast<uint16_t>(std::get<double>(m_values[first.primaryArg()].value)));
-        if (third.inst() == ADD && first.inst() == LOAD_SYMBOL && second.inst() == LOAD_CONST && isPositiveNumberInlinable(second.primaryArg()))
-            return IR::Entity(INCREMENT, first.primaryArg(), static_cast<uint16_t>(std::get<double>(m_values[second.primaryArg()].value)));
-        if (third.inst() == SUB && first.inst() == LOAD_SYMBOL && second.inst() == LOAD_CONST && isPositiveNumberInlinable(second.primaryArg()))
-            return IR::Entity(DECREMENT, first.primaryArg(), static_cast<uint16_t>(std::get<double>(m_values[second.primaryArg()].value)));
-
-        // todo: refactor
-        if (third.inst() == ADD && first.inst() == LOAD_CONST && second.inst() == LOAD_SYMBOL_BY_INDEX && isPositiveNumberInlinable(first.primaryArg()))
-            return IR::Entity(INCREMENT_BY_INDEX, second.primaryArg(), static_cast<uint16_t>(std::get<double>(m_values[first.primaryArg()].value)));
-        if (third.inst() == ADD && first.inst() == LOAD_SYMBOL_BY_INDEX && second.inst() == LOAD_CONST && isPositiveNumberInlinable(second.primaryArg()))
-            return IR::Entity(INCREMENT_BY_INDEX, first.primaryArg(), static_cast<uint16_t>(std::get<double>(m_values[second.primaryArg()].value)));
-        if (third.inst() == SUB && first.inst() == LOAD_SYMBOL_BY_INDEX && second.inst() == LOAD_CONST && isPositiveNumberInlinable(second.primaryArg()))
-            return IR::Entity(DECREMENT_BY_INDEX, first.primaryArg(), static_cast<uint16_t>(std::get<double>(m_values[second.primaryArg()].value)));
-
-        // LOAD_SYMBOL list
-        // TAIL / HEAD
-        // STORE / SET_VAL a
-        // ---> STORE_TAIL list a ; STORE_HEAD ; SET_VAL_TAIL ; SET_VAL_HEAD
-        if (first.inst() == LOAD_SYMBOL && second.inst() == TAIL && third.inst() == STORE)
-            return IR::Entity(STORE_TAIL, first.primaryArg(), third.primaryArg());
-        if (first.inst() == LOAD_SYMBOL && second.inst() == TAIL && third.inst() == SET_VAL)
-            return IR::Entity(SET_VAL_TAIL, first.primaryArg(), third.primaryArg());
-        if (first.inst() == LOAD_SYMBOL && second.inst() == HEAD && third.inst() == STORE)
-            return IR::Entity(STORE_HEAD, first.primaryArg(), third.primaryArg());
-        if (first.inst() == LOAD_SYMBOL && second.inst() == HEAD && third.inst() == SET_VAL)
-            return IR::Entity(SET_VAL_HEAD, first.primaryArg(), third.primaryArg());
+        for (const auto& [expected, replacement, condition, createReplacement] : rules)
+        {
+            if (match(expected, entities) && condition(entities))
+            {
+                auto [first, second] = createReplacement(entities);
+                return IR::Entity(replacement, first, second);
+            }
+        }
 
         return std::nullopt;
     }
@@ -171,5 +208,10 @@ namespace Ark::internal
                 static_cast<double>(static_cast<long>(val)) == val;
         }
         return false;
+    }
+
+    uint16_t IROptimizer::numberAsArg(const uint16_t id) const
+    {
+        return static_cast<uint16_t>(std::get<double>(m_values[id].value));
     }
 }

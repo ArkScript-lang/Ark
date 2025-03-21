@@ -17,6 +17,7 @@
 #include <Ark/Compiler/IntermediateRepresentation/Entity.hpp>
 
 #include <optional>
+#include <functional>
 
 namespace Ark::internal
 {
@@ -47,15 +48,35 @@ namespace Ark::internal
         [[nodiscard]] const std::vector<IR::Block>& intermediateRepresentation() const noexcept;
 
     private:
+        using Entities = std::vector<IR::Entity>;
+        using DualArgs = std::pair<uint16_t, uint16_t>;
+
+        struct Rule
+        {
+            std::vector<Instruction> expected;
+            Instruction replacement;
+            std::function<bool(const Entities&)> condition = [](const Entities&) {
+                return true;
+            };  ///< Additional condition to match
+            std::function<DualArgs(const Entities&)> createReplacement =
+                [](const Entities& entities) {
+                    return std::make_pair(entities[0].primaryArg(), entities[1].primaryArg());
+                };  ///< Create the replacement instructions from given context
+        };
+
+        std::vector<Rule> m_ruleset_two;
+        std::vector<Rule> m_ruleset_three;
+
         Logger m_logger;
         std::vector<IR::Block> m_ir;
         std::vector<std::string> m_symbols;
         std::vector<ValTableElem> m_values;
 
-        [[nodiscard]] std::optional<IR::Entity> compactEntities(const IR::Entity& first, const IR::Entity& second);
-        [[nodiscard]] std::optional<IR::Entity> compactEntities(const IR::Entity& first, const IR::Entity& second, const IR::Entity& third);
+        [[nodiscard]] bool match(const std::vector<Instruction>& expected_insts, const Entities& entities) const;
+        std::optional<IR::Entity> replaceWithRules(const std::vector<Rule>& rules, const Entities& entities);
 
         [[nodiscard]] bool isPositiveNumberInlinable(uint16_t id) const;
+        [[nodiscard]] uint16_t numberAsArg(uint16_t id) const;
     };
 }
 
