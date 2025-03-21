@@ -1,5 +1,6 @@
 #include <Ark/Compiler/IntermediateRepresentation/IROptimizer.hpp>
 
+#include <cassert>
 #include <utility>
 #include <Ark/Builtins/Builtins.hpp>
 
