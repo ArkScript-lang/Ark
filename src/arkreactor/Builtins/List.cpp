@@ -51,13 +51,8 @@ namespace Ark::internal::Builtins::List
                 { { types::Contract { { types::Typedef("list", ValueType::List), types::Typedef("value", ValueType::Any) } } } },
                 n);
 
-        std::vector<Value>& l = n[0].list();
-        for (auto it = l.begin(), it_end = l.end(); it != it_end; ++it)
-        {
-            if (*it == n[1])  // FIXME cast
-                return Value(static_cast<int>(std::distance<Value::Iterator>(l.begin(), it)));
-        }
-
+        if (const auto it = std::ranges::find(n[0].list(), n[1]); it != n[0].list().end())
+            return Value(static_cast<int>(std::distance<Value::Iterator>(n[0].list().begin(), it)));
         return Value(-1);
     }
 

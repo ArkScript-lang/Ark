@@ -2,10 +2,10 @@
  * @file BytecodeReader.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief A bytecode disassembler for ArkScript
- * @version 0.5
+ * @version 1.0
  * @date 2020-10-27
  *
- * @copyright Copyright (c) 2020-2024
+ * @copyright Copyright (c) 2020-2025
  *
  */
 
@@ -95,13 +95,6 @@ namespace Ark
          * @return true if the magic 'ark\0' was found
          */
         [[nodiscard]] bool checkMagic() const;
-
-        /**
-         * @brief Return the bytecode object constructed
-         *
-         * @return const bytecode_t&
-         */
-        [[nodiscard]] const bytecode_t& bytecode() noexcept;
 
         /**
          *

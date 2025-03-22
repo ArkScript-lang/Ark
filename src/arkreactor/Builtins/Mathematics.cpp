@@ -43,12 +43,12 @@ namespace Ark::internal::Builtins::Mathematics
     {
         if (!types::check(n, ValueType::Number))
             types::generateError(
-                "math:log",
+                "math:ln",
                 { { types::Contract { { types::Typedef("value", ValueType::Number) } } } },
                 n);
 
         if (n[0].number() <= 0.0)
-            throw std::runtime_error(fmt::format("math:log: value {} must be greater than 0", n[0].number()));
+            throw std::runtime_error(fmt::format("math:ln: value {} must be greater than 0", n[0].number()));
 
         return Value(std::log(n[0].number()));
     }
@@ -128,7 +128,7 @@ namespace Ark::internal::Builtins::Mathematics
     {
         if (!types::check(n, ValueType::Any))
             types::generateError(
-                "math:exp",
+                "math:NaN?",
                 { { types::Contract { { types::Typedef("value", ValueType::Any) } } } },
                 n);
 
