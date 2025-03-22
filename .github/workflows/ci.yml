@@ -176,7 +176,7 @@ jobs:
           compiler_version: 16
           sanitizers: On
           coverage: On
-          with_deps: false
+          with_deps: true
 
       - name: Run tests
         run: |

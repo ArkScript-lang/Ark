@@ -194,7 +194,6 @@ namespace Ark::Diagnostics
         if (e.filename != ARK_NO_NAME_FILE)
             file_content = Utils::readFile(e.filename);
 
-        // TODO enhance the error messages
         helper(
             os,
             e.what(),

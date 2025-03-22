@@ -1637,21 +1637,13 @@ namespace Ark
                     fmt::styled(m_state.m_symbols[old_scope.atPos(i).first], fmt::fg(fmt::color::cyan)),
                     old_scope.atPos(i).second.toString(*this));
             }
-
-            while (context.fc != 1)
-            {
-                Value* tmp = pop(context);
-                if (tmp->valueType() == ValueType::InstPtr)
-                    --context.fc;
-                *tmp = m_no_value;
-            }
-            // pop the PP as well
-            pop(context);
         }
 
-        std::cerr << "At IP: " << (saved_ip / 4)  // dividing by 4 because the instructions are actually on 4 bytes
-                  << ", PP: " << saved_pp
-                  << ", SP: " << saved_sp
-                  << "\n";
+        fmt::println(
+            "At IP: {}, PP: {}, SP: {}",
+            // dividing by 4 because the instructions are actually on 4 bytes
+            fmt::styled(saved_ip / 4, fmt::fg(fmt::color::cyan)),
+            fmt::styled(saved_pp, fmt::fg(fmt::color::green)),
+            fmt::styled(saved_sp, fmt::fg(fmt::color::yellow)));
     }
 }

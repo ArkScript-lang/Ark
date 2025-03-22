@@ -79,7 +79,7 @@ namespace Ark::internal
     {
         if (node.nodeType() == NodeType::List && node.constList().size() == 3 && node.constList()[0].nodeType() == NodeType::Keyword)
         {
-            Keyword kw = node.constList()[0].keyword();
+            const Keyword kw = node.constList()[0].keyword();
             // checking for function definition, which can occur only inside an assignment node
             if (kw != Keyword::Let && kw != Keyword::Mut && kw != Keyword::Set)
                 return;
@@ -99,7 +99,7 @@ namespace Ark::internal
         }
     }
 
-    void MacroProcessor::processNode(Node& node, unsigned depth, bool is_processing_namespace)
+    void MacroProcessor::processNode(Node& node, unsigned depth, const bool is_processing_namespace)
     {
         if (depth >= MaxMacroProcessingDepth)
             throwMacroProcessingError(
@@ -666,7 +666,7 @@ namespace Ark::internal
             node.constList()[0].keyword() == Keyword::Begin;
     }
 
-    void MacroProcessor::removeBegin(Node& node, std::size_t i)
+    void MacroProcessor::removeBegin(Node& node, const std::size_t i)
     {
         if (node.isListLike() && node.list()[i].nodeType() == NodeType::List && !node.list()[i].list().empty())
         {

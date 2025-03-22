@@ -77,7 +77,6 @@ namespace Ark::Utils
         ifs.close();
 
         auto bytecode = std::vector<uint8_t>(static_cast<std::size_t>(pos));
-        // TODO would it be faster to memcpy?
         for (std::size_t i = 0; i < static_cast<std::size_t>(pos); ++i)
             bytecode[i] = static_cast<uint8_t>(temp[i]);
         return bytecode;

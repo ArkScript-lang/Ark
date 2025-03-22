@@ -47,11 +47,6 @@ namespace Ark
             m_bytecode[3] == bytecode::Magic[3];
     }
 
-    const bytecode_t& BytecodeReader::bytecode() noexcept
-    {
-        return m_bytecode;
-    }
-
     Version BytecodeReader::version() const
     {
         if (!checkMagic() || m_bytecode.size() < bytecode::Magic.size() + bytecode::Version.size())

@@ -353,7 +353,7 @@ namespace Ark::internal
         Node symbols(NodeType::List);
         setNodePosAndFilename(symbols);
         // then parse the symbols to import, if any
-        if (space())  // FIXME: potential regression introduced here
+        if (space())
         {
             comment.clear();
             newlineOrComment(&comment);
