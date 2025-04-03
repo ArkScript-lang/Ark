@@ -1,0 +1,2 @@
+Function f expected 1 argument
+  -> n (Number) was of type String

@@ -14,6 +14,7 @@
 
 #include <string>
 #include <vector>
+#include <ostream>
 
 #include <Ark/VM/Value.hpp>
 
@@ -62,15 +63,15 @@ namespace Ark::types
      */
     struct ARK_API Typedef
     {
-        std::string_view name;
+        std::string name;
         std::vector<ValueType> types;
         bool variadic;
 
-        Typedef(const std::string_view& type_name, const ValueType type, const bool is_variadic = false) :
+        Typedef(const std::string& type_name, const ValueType type, const bool is_variadic = false) :
             name(type_name), types { type }, variadic(is_variadic)
         {}
 
-        Typedef(const std::string_view& type_name, const std::vector<ValueType>& type_list, const bool is_variadic = false) :
+        Typedef(const std::string& type_name, const std::vector<ValueType>& type_list, const bool is_variadic = false) :
             name(type_name), types(type_list), variadic(is_variadic)
         {}
     };
@@ -90,8 +91,15 @@ namespace Ark::types
      * @param funcname ArkScript name of the function
      * @param contracts types contracts the function can follow
      * @param args provided argument list
+     * @param os output stream, default to cout
+     * @param colorize enable output colorizing
      */
-    ARK_API void generateError [[noreturn]] (const std::string_view& funcname, const std::vector<Contract>& contracts, const std::vector<Value>& args);
+    ARK_API void generateError [[noreturn]] (
+        const std::string_view& funcname,
+        const std::vector<Contract>& contracts,
+        const std::vector<Value>& args,
+        std::ostream& os = std::cout,
+        bool colorize = true);
 }
 
 #endif

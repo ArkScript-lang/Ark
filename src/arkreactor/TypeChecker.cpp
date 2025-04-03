@@ -3,7 +3,9 @@
 #include <limits>
 #include <algorithm>
 #include <fmt/core.h>
+#include <fmt/args.h>
 #include <fmt/color.h>
+#include <fmt/ostream.h>
 
 #include <Ark/Exceptions.hpp>
 
@@ -25,20 +27,25 @@ namespace Ark::types
         return acc;
     }
 
-    void displayContract(const Contract& contract, const std::vector<Value>& args)
+    void displayContract(const Contract& contract, const std::vector<Value>& args, std::ostream& os, const bool colorize)
     {
-        auto displayArg = [](const Typedef& td, bool correct) {
+        auto displayArg = [colorize, &os](const Typedef& td, const bool correct) {
             const std::string arg_str = typeListToString(td.types);
 
-            fmt::print(
-                "  -> {}{} ({}) ",
-                td.variadic ? "variadic " : "",
-                fmt::styled(
-                    td.name,
-                    correct
-                        ? fmt::fg(fmt::color::green)
-                        : fmt::fg(fmt::color::magenta)),
-                arg_str);
+            fmt::dynamic_format_arg_store<fmt::format_context> store;
+            store.push_back(td.variadic ? "variadic " : "");
+            if (colorize)
+                store.push_back(
+                    fmt::styled(
+                        td.name,
+                        correct
+                            ? fmt::fg(fmt::color::green)
+                            : fmt::fg(fmt::color::magenta)));
+            else
+                store.push_back(td.name);
+            store.push_back(arg_str);
+
+            fmt::vprint(os, "  -> {}{} ({})", store);
         };
 
         for (std::size_t i = 0, end = contract.arguments.size(); i < end; ++i)
@@ -57,36 +64,61 @@ namespace Ark::types
 
                 if (bad_type)
                 {
-                    displayArg(td, false);
-                    fmt::print("{} argument{} do not match", fmt::styled(bad_type, fmt::fg(fmt::color::red)), bad_type > 1 ? "s" : "");
+                    displayArg(td, /* correct= */ false);
+
+                    fmt::dynamic_format_arg_store<fmt::format_context> store;
+                    if (colorize)
+                        store.push_back(fmt::styled(bad_type, fmt::fg(fmt::color::red)));
+                    else
+                        store.push_back(bad_type);
+                    store.push_back(bad_type > 1 ? "s" : "");
+
+                    fmt::vprint(os, " {} argument{} do not match", store);
                 }
                 else
-                    displayArg(td, true);
+                    displayArg(td, /* correct= */ true);
             }
             else
             {
                 // provided argument but wrong type
                 if (i < args.size() && td.types[0] != ValueType::Any && std::ranges::find(td.types, args[i].valueType()) == td.types.end())
                 {
-                    displayArg(td, false);
-                    fmt::print("was of type {}", fmt::styled(types_to_str[static_cast<std::size_t>(args[i].valueType())], fmt::fg(fmt::color::red)));
+                    displayArg(td, /* correct= */ false);
+                    const auto type = types_to_str[static_cast<std::size_t>(args[i].valueType())];
+
+                    fmt::dynamic_format_arg_store<fmt::format_context> store;
+                    if (colorize)
+                        store.push_back(fmt::styled(type, fmt::fg(fmt::color::red)));
+                    else
+                        store.push_back(type);
+                    fmt::vprint(os, " was of type {}", store);
                 }
                 // non-provided argument
                 else if (i >= args.size())
                 {
-                    displayArg(td, false);
-                    fmt::print(fmt::fg(fmt::color::red), "was not provided");
+                    displayArg(td, /* correct= */ false);
+                    if (colorize)
+                        fmt::print(os, "{}", fmt::styled(" was not provided", fmt::fg(fmt::color::red)));
+                    else
+                        fmt::print(os, " was not provided");
                 }
                 else
-                    displayArg(td, true);
+                    displayArg(td, /* correct= */ true);
             }
-            fmt::print("\n");
+            fmt::print(os, "\n");
         }
     }
 
-    [[noreturn]] void generateError(const std::string_view& funcname, const std::vector<Contract>& contracts, const std::vector<Value>& args)
+    [[noreturn]] void generateError(const std::string_view& funcname, const std::vector<Contract>& contracts, const std::vector<Value>& args, std::ostream& os, bool colorize)
     {
-        fmt::print("Function {} expected ", fmt::styled(funcname, fmt::fg(fmt::color::blue)));
+        {
+            fmt::dynamic_format_arg_store<fmt::format_context> store;
+            if (colorize)
+                store.push_back(fmt::styled(funcname, fmt::fg(fmt::color::blue)));
+            else
+                store.push_back(funcname);
+            fmt::vprint(os, "Function {} expected ", store);
+        }
 
         std::vector<Value> sanitizedArgs;
         std::ranges::copy_if(args, std::back_inserter(sanitizedArgs), [](const Value& value) -> bool {
@@ -107,34 +139,53 @@ namespace Ark::types
 
         if (min_argc != max_argc)
         {
-            fmt::print(
-                "between {} argument{} and {} argument{}",
-                fmt::styled(min_argc, fmt::fg(fmt::color::yellow)),
-                min_argc > 1 ? "s" : "",
-                fmt::styled(max_argc, fmt::fg(fmt::color::yellow)),
-                max_argc > 1 ? "s" : "");
+            fmt::dynamic_format_arg_store<fmt::format_context> store;
+            if (colorize)
+                store.push_back(fmt::styled(min_argc, fmt::fg(fmt::color::yellow)));
+            else
+                store.push_back(min_argc);
+            store.push_back(min_argc > 1 ? "s" : "");
+            if (colorize)
+                store.push_back(fmt::styled(max_argc, fmt::fg(fmt::color::yellow)));
+            else
+                store.push_back(max_argc);
+            store.push_back(max_argc > 1 ? "s" : "");
+
+            fmt::vprint(os, "between {} argument{} and {} argument{}", store);
 
             if (sanitizedArgs.size() < min_argc || sanitizedArgs.size() > max_argc)
                 correct_argcount = false;
         }
         else
         {
-            fmt::print("{} argument{}", fmt::styled(min_argc, fmt::fg(fmt::color::yellow)), min_argc > 1 ? "s" : "");
+            fmt::dynamic_format_arg_store<fmt::format_context> store;
+            if (colorize)
+                store.push_back(fmt::styled(min_argc, fmt::fg(fmt::color::yellow)));
+            else
+                store.push_back(min_argc);
+            store.push_back(min_argc > 1 ? "s" : "");
+
+            fmt::vprint(os, "{} argument{}", store);
 
             if (sanitizedArgs.size() != min_argc)
                 correct_argcount = false;
         }
 
         if (!correct_argcount)
-            fmt::print(" but got {}", fmt::styled(sanitizedArgs.size(), fmt::fg(fmt::color::red)));
+        {
+            if (colorize)
+                fmt::print(os, " but got {}", fmt::styled(sanitizedArgs.size(), fmt::fg(fmt::color::red)));
+            else
+                fmt::print(os, " but got {}", sanitizedArgs.size());
+        }
 
-        fmt::print("\n");
+        fmt::print(os, "\n");
 
-        displayContract(contracts[0], sanitizedArgs);
+        displayContract(contracts[0], sanitizedArgs, os, colorize);
         for (std::size_t i = 1, end = contracts.size(); i < end; ++i)
         {
-            std::cout << "Alternative " << (i + 1) << ":\n";
-            displayContract(contracts[i], sanitizedArgs);
+            fmt::print(os, "Alternative {}:\n", i + 1);
+            displayContract(contracts[i], sanitizedArgs, os, colorize);
         }
 
         throw TypeError("");
