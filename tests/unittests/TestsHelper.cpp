@@ -8,7 +8,7 @@
 
 void iter_test_files(const std::string& folder, std::function<void(TestData&&)>&& test, const std::string& expected_ext)
 {
-    for (const auto& entry : std::filesystem::directory_iterator((ARK_TESTS_ROOT "tests/unittests/resources/") + folder))
+    for (const auto& entry : std::filesystem::directory_iterator(get_resource_path(folder)))
     {
         if (entry.path().extension() != ".ark")
             continue;

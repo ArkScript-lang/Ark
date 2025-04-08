@@ -15,7 +15,7 @@ ut::suite<"Diagnostics"> diagnostics_suite = [] {
     iter_test_files(
         "DiagnosticsSuite/compileTime",
         [](TestData&& data) {
-            Ark::State state({ std::filesystem::path(ARK_TESTS_ROOT "/lib/") });
+            Ark::State state({ lib_path });
 
             should("generate an error message at compile time for compileTime/" + data.stem) = [&] {
                 try
@@ -35,7 +35,7 @@ ut::suite<"Diagnostics"> diagnostics_suite = [] {
     iter_test_files(
         "DiagnosticsSuite/runtime",
         [](TestData&& data) {
-            Ark::State state({ std::filesystem::path(ARK_TESTS_ROOT "/lib/") });
+            Ark::State state({ lib_path });
 
             should("compile without error runtime/" + data.stem) = [&] {
                 expect(mut(state).doFile(data.path, features));
@@ -46,7 +46,7 @@ ut::suite<"Diagnostics"> diagnostics_suite = [] {
                 {
                     Ark::VM vm(state);
                     vm.run(/* fail_with_exception= */ true);
-                    expect(0 == 1);  // we shouldn't be here, an error should be generatedds
+                    expect(0 == 1);  // we shouldn't be here, an error should be generated
                 }
                 catch (const std::exception& e)
                 {

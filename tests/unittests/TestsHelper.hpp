@@ -16,17 +16,35 @@
 #    define ARK_TESTS_ROOT ""
 #endif
 
+const auto lib_path = std::filesystem::path(ARK_TESTS_ROOT "/lib/");
+
 struct TestData
 {
     std::string path;      ///< The file we are testing, eg tests/unittests/resources/ASTSuite/testname.ark
-    std::string stem;      ///< The stem of the path, testname
+    std::string stem;      ///< The stem of the path, "testname"
     std::string expected;  ///< Content of the expected file alongside the test file
 };
 
+/**
+ * @brief Iterate over the files inside a folder, looking for "name.ark" & "name.expected" files to create a TestData structure
+ * @param folder folder to list files in
+ * @param test test function, taking a TestData&& with the paths of the input and its expected result
+ * @param expected_ext optionally specify the expected extension. Defaults to "expected"
+ */
 void iter_test_files(const std::string& folder, std::function<void(TestData&&)>&& test, const std::string& expected_ext = "expected");
 
+/**
+ * @brief Given an input folder, returns the resource path relatives to the project root
+ * @param folder
+ * @return std::string full path to the resource
+ */
 std::string get_resource_path(const std::string& folder);
 
+/**
+ * @brief Remove spaces at the beginning of a string, in place
+ * @param s reference to a string
+ * @return std::string& the modified string
+ */
 inline std::string& ltrim(std::string& s)
 {
     s.erase(s.begin(), std::ranges::find_if(s, [](const unsigned char ch) {
@@ -35,6 +53,11 @@ inline std::string& ltrim(std::string& s)
     return s;
 }
 
+/**
+ * @brief Remove spaces at the end of a string, in place
+ * @param s reference to a string
+ * @return std::string& the modified string
+ */
 inline std::string& rtrim(std::string& s)
 {
     s.erase(std::ranges::find_if(s.rbegin(), s.rend(), [](const unsigned char ch) {

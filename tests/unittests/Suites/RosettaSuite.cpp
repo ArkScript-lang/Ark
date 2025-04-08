@@ -14,7 +14,7 @@ ut::suite<"Rosetta"> rosetta_suite = [] {
         iter_test_files(
             "RosettaSuite",
             [](TestData&& data) {
-                Ark::State state({ std::filesystem::path(ARK_TESTS_ROOT "/lib/") });
+                Ark::State state({ lib_path });
 
                 should("compile " + data.stem) = [&] {
                     try

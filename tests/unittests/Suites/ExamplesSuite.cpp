@@ -19,7 +19,7 @@ ut::suite<"Examples"> examples_suite = [] {
             auto stem = entry.path().stem().generic_string();
 
             should("run " + stem + " example") = [&] {
-                Ark::State state({ std::filesystem::path(ARK_TESTS_ROOT "/lib/") });
+                Ark::State state({ lib_path });
                 state.setArgs({});
 
                 try

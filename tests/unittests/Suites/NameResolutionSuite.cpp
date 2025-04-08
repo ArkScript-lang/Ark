@@ -1,7 +1,5 @@
 #include <boost/ut.hpp>
 
-#include <filesystem>
-
 #include <Ark/Ark.hpp>
 #include <TestsHelper.hpp>
 
@@ -11,7 +9,7 @@ ut::suite<"NameResolution"> name_resolution_suite = [] {
     using namespace ut;
 
     "[run a (import b, c:*, lamp)]"_test = [] {
-        Ark::State state({ std::filesystem::path(ARK_TESTS_ROOT "/lib/") });
+        Ark::State state({ lib_path });
 
         should("compile the resource without any error") = [&] {
             expect(mut(state).doFile(get_resource_path("NameResolutionSuite/basic/a.ark")));
@@ -41,7 +39,7 @@ ut::suite<"NameResolution"> name_resolution_suite = [] {
     };
 
     "[run a (import b, call closures)]"_test = [] {
-        Ark::State state({ std::filesystem::path(ARK_TESTS_ROOT "/lib/") });
+        Ark::State state({ lib_path });
 
         should("compile the resource without any error") = [&] {
             expect(mut(state).doFile(get_resource_path("NameResolutionSuite/forward_reference/a.ark")));
@@ -62,7 +60,7 @@ ut::suite<"NameResolution"> name_resolution_suite = [] {
     };
 
     "[run a (import b, c, with make defined in both)]"_test = [] {
-        Ark::State state({ std::filesystem::path(ARK_TESTS_ROOT "/lib/") });
+        Ark::State state({ lib_path });
 
         should("compile the resource without any error") = [&] {
             expect(mut(state).doFile(get_resource_path("NameResolutionSuite/shadowing/a.ark")));
@@ -83,7 +81,7 @@ ut::suite<"NameResolution"> name_resolution_suite = [] {
     };
 
     "[run a (import b (import c))]"_test = [] {
-        Ark::State state({ std::filesystem::path(ARK_TESTS_ROOT "/lib/") });
+        Ark::State state({ lib_path });
 
         should("compile the resource without any error") = [&] {
             expect(mut(state).doFile(get_resource_path("NameResolutionSuite/namespace_stacking/a.ark")));
@@ -104,7 +102,7 @@ ut::suite<"NameResolution"> name_resolution_suite = [] {
     };
 
     "[run a (import b (import c :odd)), (import c :abs)]"_test = [] {
-        Ark::State state({ std::filesystem::path(ARK_TESTS_ROOT "/lib/") });
+        Ark::State state({ lib_path });
 
         should("compile the resource without any error") = [&] {
             expect(mut(state).doFile(get_resource_path("NameResolutionSuite/deep_import_symbols/a.ark")));
@@ -125,7 +123,7 @@ ut::suite<"NameResolution"> name_resolution_suite = [] {
     };
 
     "[symbol import should not be shadowed by hidden symbol]"_test = [] {
-        Ark::State state({ std::filesystem::path(ARK_TESTS_ROOT "/lib/") });
+        Ark::State state({ lib_path });
 
         should("compile the resource without any error") = [&] {
             expect(mut(state).doFile(get_resource_path("NameResolutionSuite/shadowing_symbol/a.ark")));
@@ -146,7 +144,7 @@ ut::suite<"NameResolution"> name_resolution_suite = [] {
     };
 
     "[symbol import should not be shadowed by hidden symbol (bis)]"_test = [] {
-        Ark::State state({ std::filesystem::path(ARK_TESTS_ROOT "/lib/") });
+        Ark::State state({ lib_path });
 
         should("compile the resource without any error") = [&] {
             expect(mut(state).doFile(get_resource_path("NameResolutionSuite/shadowing_symbol_swap_import_order/a.ark")));

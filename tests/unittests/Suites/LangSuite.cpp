@@ -11,7 +11,7 @@ ut::suite<"Lang"> lang_suite = [] {
     using namespace ut;
 
     "[run arkscript unittests]"_test = [] {
-        Ark::State state({ std::filesystem::path(ARK_TESTS_ROOT "/lib/") });
+        Ark::State state({ lib_path });
 
         try
         {
@@ -37,7 +37,7 @@ ut::suite<"Lang"> lang_suite = [] {
     };
 
     "[run arkscript stdlib unittests]"_test = [] {
-        Ark::State state({ std::filesystem::path(ARK_TESTS_ROOT "/lib/") });
+        Ark::State state({ lib_path });
 
         try
         {

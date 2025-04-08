@@ -82,7 +82,7 @@ ut::suite<"Compiler"> compiler_suite = [] {
         iter_test_files(
             "CompilerSuite/ir",
             [](TestData&& data) {
-                Ark::Welder welder(0, { std::filesystem::path(ARK_TESTS_ROOT "/lib/") }, features);
+                Ark::Welder welder(0, { lib_path }, features);
 
                 should("compile without error ir/" + data.stem) = [&] {
                     expect(mut(welder).computeASTFromFile(data.path));
@@ -104,7 +104,7 @@ ut::suite<"Compiler"> compiler_suite = [] {
         iter_test_files(
             "CompilerSuite/optimized_ir",
             [](TestData&& data) {
-                Ark::Welder welder(0, { std::filesystem::path(ARK_TESTS_ROOT "/lib/") }, features);
+                Ark::Welder welder(0, { lib_path }, features);
 
                 should("compile without error ir/" + data.stem) = [&] {
                     expect(mut(welder).computeASTFromFile(data.path));

@@ -8,11 +8,16 @@
 #include <Ark/VM/State.hpp>
 #include <Ark/VM/VM.hpp>
 
+std::string get_resource(const std::string& path)
+{
+    return (ARK_TESTS_ROOT "tests/benchmarks/resources/") + path;
+}
+
 // cppcheck-suppress constParameterCallback
 void quicksort(benchmark::State& s)
 {
     Ark::State state;
-    state.doFile(std::string(ARK_TESTS_ROOT) + "tests/benchmarks/resources/runtime/quicksort.ark");
+    state.doFile(get_resource("runtime/quicksort.ark"));
 
     for (auto _ : s)
     {
@@ -26,7 +31,7 @@ BENCHMARK(quicksort)->Unit(benchmark::kMillisecond);
 void ackermann(benchmark::State& s)
 {
     Ark::State state;
-    state.doFile(std::string(ARK_TESTS_ROOT) + "tests/benchmarks/resources/runtime/ackermann.ark");
+    state.doFile(get_resource("runtime/ackermann.ark"));
 
     for (auto _ : s)
     {
@@ -40,7 +45,7 @@ BENCHMARK(ackermann)->Unit(benchmark::kMillisecond)->Iterations(50);
 void fibonacci(benchmark::State& s)
 {
     Ark::State state;
-    state.doFile(std::string(ARK_TESTS_ROOT) + "tests/benchmarks/resources/runtime/fibonacci.ark");
+    state.doFile(get_resource("runtime/fibonacci.ark"));
 
     for (auto _ : s)
     {
@@ -54,7 +59,7 @@ BENCHMARK(fibonacci)->Unit(benchmark::kMillisecond)->Iterations(100);
 void man_or_boy(benchmark::State& s)
 {
     Ark::State state;
-    state.doFile(std::string(ARK_TESTS_ROOT) + "tests/benchmarks/resources/runtime/man_or_boy_test.ark");
+    state.doFile(get_resource("runtime/man_or_boy_test.ark"));
 
     for (auto _ : s)
     {
@@ -68,7 +73,7 @@ BENCHMARK(man_or_boy)->Unit(benchmark::kMillisecond);
 void builtins(benchmark::State& s)
 {
     Ark::State state;
-    state.doFile(std::string(ARK_TESTS_ROOT) + "tests/benchmarks/resources/runtime/builtins.ark");
+    state.doFile(get_resource("runtime/builtins.ark"));
 
     for (auto _ : s)
     {
@@ -82,7 +87,7 @@ BENCHMARK(builtins)->Unit(benchmark::kMillisecond);
 void binary_trees(benchmark::State& s)
 {
     Ark::State state({ std::filesystem::path(ARK_TESTS_ROOT "/lib/") });
-    state.doFile(std::string(ARK_TESTS_ROOT) + "tests/benchmarks/resources/runtime/binary_trees.ark");
+    state.doFile(get_resource("runtime/binary_trees.ark"));
 
     for (auto _ : s)
     {
@@ -96,7 +101,7 @@ BENCHMARK(binary_trees)->Unit(benchmark::kMillisecond);
 void for_sum(benchmark::State& s)
 {
     Ark::State state;
-    state.doFile(std::string(ARK_TESTS_ROOT) + "tests/benchmarks/resources/runtime/for.ark");
+    state.doFile(get_resource("runtime/for.ark"));
 
     for (auto _ : s)
     {
@@ -119,13 +124,28 @@ std::string readFile(const std::string& filename)
 
 constexpr int simple = 0, medium = 1, big = 2;
 
+std::string select_file(long selection)
+{
+    switch (selection)
+    {
+        case simple:
+            return "simple.ark";
+        case medium:
+            return "medium.ark";
+        case big:
+            return "big.ark";
+        default:
+            return "no name provided error";
+    }
+}
+
 // cppcheck-suppress constParameterCallback
 static void BM_Parse(benchmark::State& state)
 {
     using namespace std::string_literals;
 
     const long selection = state.range(0);
-    const std::string filename = "tests/benchmarks/resources/parser/"s + (selection == simple ? "simple.ark" : (selection == medium ? "medium.ark" : "big.ark"));
+    const std::string filename = get_resource("parser/"s + select_file(selection));
     const std::string code = readFile(filename);
     long linesCount = 0;
     for (const char c : code)
@@ -159,7 +179,7 @@ static void BM_Welder(benchmark::State& state)
     using namespace std::string_literals;
 
     const long selection = state.range(0);
-    const std::string filename = "tests/benchmarks/resources/parser/"s + (selection == simple ? "simple.ark" : (selection == medium ? "medium.ark" : "big.ark"));
+    const std::string filename = get_resource("parser/"s + select_file(selection));
 
     for (auto _ : state)
     {

@@ -14,7 +14,7 @@ using namespace boost;
 ut::suite<"BytecodeReader"> bcr_suite = [] {
     using namespace ut;
 
-    Ark::Welder welder(0, { std::filesystem::path(ARK_TESTS_ROOT "/lib/") });
+    Ark::Welder welder(0, { lib_path });
 
     const auto time_start =
         static_cast<unsigned long long>(std::chrono::duration_cast<std::chrono::seconds>(
