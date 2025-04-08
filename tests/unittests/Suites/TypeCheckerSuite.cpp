@@ -47,9 +47,17 @@ Input parse_input(const std::string& path)
         << fmt::format("not enough defined arguments in test input {}\n", path)
         << fatal;
 
-    // parsing following lines defining argument types "# name:ArkType"
+    // parsing following lines defining argument types "# name:ArkType,name:ArkType,..."
     Ark::types::Contract args;
     auto parse_def = [&path, &args](std::size_t i, const std::string& def, bool is_sum_type = false) {
+        // create variadic argument
+        if (def == "..." && !args.arguments.empty())
+        {
+            args.arguments.back().variadic = true;
+            // bypass all the subsequent tests as they would fail since "..." isn't a valid typedef
+            return;
+        }
+
         const auto arg_name = def.substr(0, def.find_first_of(':'));
         const auto type_name = def.substr(def.find_first_of(':') + 1);
 
