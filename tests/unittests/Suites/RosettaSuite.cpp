@@ -11,7 +11,7 @@ ut::suite<"Rosetta"> rosetta_suite = [] {
     using namespace ut;
 
     "[run arkscript rosetta code solutions]"_test = [] {
-        iter_test_files(
+        iterTestFiles(
             "RosettaSuite",
             [](TestData&& data) {
                 Ark::State state({ lib_path });

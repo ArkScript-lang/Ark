@@ -79,7 +79,7 @@ ut::suite<"Compiler"> compiler_suite = [] {
     "IR generation"_test = [] {
         constexpr uint16_t features = Ark::FeatureImportSolver | Ark::FeatureMacroProcessor | Ark::FeatureASTOptimizer | Ark::FeatureNameResolver | Ark::FeatureTestFailOnException;
 
-        iter_test_files(
+        iterTestFiles(
             "CompilerSuite/ir",
             [](TestData&& data) {
                 Ark::Welder welder(0, { lib_path }, features);
@@ -93,7 +93,7 @@ ut::suite<"Compiler"> compiler_suite = [] {
                     std::string ir = welder.textualIR();
 
                     ltrim(rtrim(ir));
-                    expect_or_diff(data.expected, ir);
+                    expectOrDiff(data.expected, ir);
                 };
             });
     };
@@ -101,7 +101,7 @@ ut::suite<"Compiler"> compiler_suite = [] {
     "IR generation and optimization"_test = [] {
         constexpr uint16_t features = Ark::DefaultFeatures | Ark::FeatureTestFailOnException;
 
-        iter_test_files(
+        iterTestFiles(
             "CompilerSuite/optimized_ir",
             [](TestData&& data) {
                 Ark::Welder welder(0, { lib_path }, features);
@@ -115,7 +115,7 @@ ut::suite<"Compiler"> compiler_suite = [] {
                     std::string ir = welder.textualIR();
 
                     ltrim(rtrim(ir));
-                    expect_or_diff(data.expected, ir);
+                    expectOrDiff(data.expected, ir);
                 };
             });
     };

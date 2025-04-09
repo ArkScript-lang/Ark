@@ -22,7 +22,7 @@ ut::suite<"BytecodeReader"> bcr_suite = [] {
                                             .count());
 
     should("compile without error") = [&] {
-        expect(mut(welder).computeASTFromFile(get_resource_path("BytecodeReaderSuite/ackermann.ark")));
+        expect(mut(welder).computeASTFromFile(getResourcePath("BytecodeReaderSuite/ackermann.ark")));
         expect(mut(welder).generateBytecode());
     };
 

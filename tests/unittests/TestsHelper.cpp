@@ -6,36 +6,45 @@
 #include <sstream>
 #include <boost/ut.hpp>
 
-void iter_test_files(const std::string& folder, std::function<void(TestData&&)>&& test, const std::string& expected_ext)
+void iterTestFiles(const std::string& folder, std::function<void(TestData&&)>&& test, IterTestFilesParam&& params)
 {
-    for (const auto& entry : std::filesystem::directory_iterator(get_resource_path(folder)))
+    const auto path = params.folder_is_resource ? getResourcePath(folder) : folder;
+    for (const auto& entry : std::filesystem::directory_iterator(path))
     {
-        if (entry.path().extension() != ".ark")
+        if (entry.path().extension() != ".ark" && params.skip_folders)
+            continue;
+        if (entry.path().extension() == "." + params.expected_ext && !params.skip_folders)
             continue;
 
-        std::filesystem::path expected_path = entry.path();
-        expected_path.replace_extension(expected_ext);
-        std::string expected = Ark::Utils::readFile(expected_path.generic_string());
-        // getting rid of the \r because of Windows
-        std::erase(expected, '\r');
-        ltrim(rtrim(expected));
+        std::string expected;
+
+        if (!params.ignore_expected)
+        {
+            std::filesystem::path expected_path = entry.path();
+            expected_path.replace_extension(params.expected_ext);
+            expected = Ark::Utils::readFile(expected_path.generic_string());
+            // getting rid of the \r because of Windows
+            std::erase(expected, '\r');
+            ltrim(rtrim(expected));
+        }
 
         auto data = TestData {
             .path = entry.path().generic_string(),
             .stem = entry.path().stem().generic_string(),
-            .expected = expected
+            .expected = expected,
+            .is_folder = is_directory(entry.path())
         };
 
         test(std::move(data));
     }
 }
 
-std::string get_resource_path(const std::string& folder)
+std::string getResourcePath(const std::string& folder)
 {
     return (ARK_TESTS_ROOT "tests/unittests/resources/") + folder;
 }
 
-std::string sanitize_error(const Ark::CodeError& e, const bool remove_in_file_line)
+std::string sanitizeError(const Ark::CodeError& e, const bool remove_in_file_line)
 {
     std::stringstream stream;
     Ark::Diagnostics::generate(e, stream, /* colorize= */ false);
@@ -51,7 +60,7 @@ std::string sanitize_error(const Ark::CodeError& e, const bool remove_in_file_li
     return diag;
 }
 
-void expect_or_diff(const std::string& expected, const std::string& received)
+void expectOrDiff(const std::string& expected, const std::string& received)
 {
     const bool comparison = expected == received;
     boost::ut::expect(comparison) << [&] {

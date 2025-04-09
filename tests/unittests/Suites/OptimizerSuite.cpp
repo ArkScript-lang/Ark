@@ -11,7 +11,7 @@ ut::suite<"Optimizer"> optimizer_suite = [] {
     using namespace ut;
 
     "[generate optimized ast]"_test = [] {
-        iter_test_files(
+        iterTestFiles(
             "OptimizerSuite",
             [](TestData&& data) {
                 JsonCompiler compiler(false, { lib_path }, Ark::FeatureASTOptimizer);
@@ -25,9 +25,9 @@ ut::suite<"Optimizer"> optimizer_suite = [] {
                 };
 
                 should("output the expected AST for " + data.stem) = [&] {
-                    expect_or_diff(data.expected, json);
+                    expectOrDiff(data.expected, json);
                 };
             },
-            /* expected_ext= */ "json");
+            { .expected_ext = "json" });
     };
 };

@@ -44,7 +44,7 @@ ut::suite<"Parser"> parser_suite = [] {
     using namespace ut;
 
     "[successful parsing]"_test = [] {
-        iter_test_files(
+        iterTestFiles(
             "ParserSuite/success",
             [](TestData&& data) {
                 Ark::internal::Parser parser(/* debug= */ 0);
@@ -60,13 +60,13 @@ ut::suite<"Parser"> parser_suite = [] {
                 ltrim(rtrim(ast));
 
                 should("output the same AST and imports (" + data.stem + ")") = [&] {
-                    expect_or_diff(data.expected, ast);
+                    expectOrDiff(data.expected, ast);
                 };
             });
     };
 
     "[error reporting]"_test = [] {
-        iter_test_files(
+        iterTestFiles(
             "ParserSuite/failure",
             [](TestData&& data) {
                 try
@@ -78,9 +78,9 @@ ut::suite<"Parser"> parser_suite = [] {
                 catch (const Ark::CodeError& e)
                 {
                     should("output the same error message (" + data.stem + ")") = [&] {
-                        std::string tested = sanitize_error(e);
+                        std::string tested = sanitizeError(e);
                         ltrim(rtrim(tested));
-                        expect_or_diff(data.expected, tested);
+                        expectOrDiff(data.expected, tested);
                     };
                 }
                 catch (...)

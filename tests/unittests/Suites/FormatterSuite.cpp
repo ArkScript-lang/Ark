@@ -9,7 +9,7 @@ using namespace boost;
 ut::suite<"Formatter"> formatter_suite = [] {
     using namespace ut;
 
-    iter_test_files(
+    iterTestFiles(
         "FormatterSuite",
         [](TestData&& data) {
             std::string formatted_code;
@@ -23,7 +23,7 @@ ut::suite<"Formatter"> formatter_suite = [] {
                 formatted_code = formatter.output();
                 // data.expected is ltrim(rtrim(file content))
                 // we want to ensure that a blank line has been added
-                expect_or_diff((data.expected + "\n"), formatted_code);
+                expectOrDiff((data.expected + "\n"), formatted_code);
             };
 
             should("not update an already correctly formatted code (" + data.stem + ")") = [&] {
@@ -33,7 +33,7 @@ ut::suite<"Formatter"> formatter_suite = [] {
                 }));
 
                 const std::string code = formatter.output();
-                expect_or_diff(formatted_code, code);
+                expectOrDiff(formatted_code, code);
             };
         });
 };

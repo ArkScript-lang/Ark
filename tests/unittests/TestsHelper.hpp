@@ -23,6 +23,15 @@ struct TestData
     std::string path;      ///< The file we are testing, eg tests/unittests/resources/ASTSuite/testname.ark
     std::string stem;      ///< The stem of the path, "testname"
     std::string expected;  ///< Content of the expected file alongside the test file
+    bool is_folder = false;
+};
+
+struct IterTestFilesParam
+{
+    const std::string expected_ext = "expected";
+    bool skip_folders = true;
+    bool folder_is_resource = true;
+    bool ignore_expected = false;
 };
 
 /**
@@ -31,14 +40,14 @@ struct TestData
  * @param test test function, taking a TestData&& with the paths of the input and its expected result
  * @param expected_ext optionally specify the expected extension. Defaults to "expected"
  */
-void iter_test_files(const std::string& folder, std::function<void(TestData&&)>&& test, const std::string& expected_ext = "expected");
+void iterTestFiles(const std::string& folder, std::function<void(TestData&&)>&& test, IterTestFilesParam&& params = {});
 
 /**
  * @brief Given an input folder, returns the resource path relatives to the project root
  * @param folder
  * @return std::string full path to the resource
  */
-std::string get_resource_path(const std::string& folder);
+std::string getResourcePath(const std::string& folder);
 
 /**
  * @brief Remove spaces at the beginning of a string, in place
@@ -67,8 +76,8 @@ inline std::string& rtrim(std::string& s)
     return s;
 }
 
-std::string sanitize_error(const Ark::CodeError& e, bool remove_in_file_line = false);
+std::string sanitizeError(const Ark::CodeError& e, bool remove_in_file_line = false);
 
-void expect_or_diff(const std::string& expected, const std::string& received);
+void expectOrDiff(const std::string& expected, const std::string& received);
 
 #endif  // ARK_TESTSHELPER_HPP

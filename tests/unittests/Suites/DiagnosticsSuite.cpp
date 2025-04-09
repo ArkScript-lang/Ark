@@ -12,7 +12,7 @@ ut::suite<"Diagnostics"> diagnostics_suite = [] {
 
     constexpr uint16_t features = Ark::DefaultFeatures | Ark::FeatureTestFailOnException;
 
-    iter_test_files(
+    iterTestFiles(
         "DiagnosticsSuite/compileTime",
         [](TestData&& data) {
             Ark::State state({ lib_path });
@@ -25,14 +25,14 @@ ut::suite<"Diagnostics"> diagnostics_suite = [] {
                 }
                 catch (const Ark::CodeError& e)
                 {
-                    std::string diag = sanitize_error(e, /* remove_in_file_line= */ true);
+                    std::string diag = sanitizeError(e, /* remove_in_file_line= */ true);
                     rtrim(diag);
-                    expect_or_diff(data.expected, diag);
+                    expectOrDiff(data.expected, diag);
                 }
             };
         });
 
-    iter_test_files(
+    iterTestFiles(
         "DiagnosticsSuite/runtime",
         [](TestData&& data) {
             Ark::State state({ lib_path });
@@ -54,7 +54,7 @@ ut::suite<"Diagnostics"> diagnostics_suite = [] {
                     if (diag.find_first_of('\n') != std::string::npos)
                         diag.erase(diag.find_first_of('\n'), diag.size() - 1);
                     ltrim(rtrim(diag));
-                    expect_or_diff(data.expected, diag);
+                    expectOrDiff(data.expected, diag);
                 }
             };
         });

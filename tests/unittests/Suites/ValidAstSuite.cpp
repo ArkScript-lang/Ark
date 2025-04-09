@@ -11,7 +11,7 @@ ut::suite<"AST"> ast_suite = [] {
     using namespace ut;
 
     "[generate valid ast]"_test = [] {
-        iter_test_files(
+        iterTestFiles(
             "ASTSuite",
             [](TestData&& data) {
                 JsonCompiler compiler(false, { lib_path });
@@ -25,9 +25,9 @@ ut::suite<"AST"> ast_suite = [] {
                 };
 
                 should("output the expected AST for " + data.stem) = [&] {
-                    expect_or_diff(data.expected, json);
+                    expectOrDiff(data.expected, json);
                 };
             },
-            /* expected_ext= */ "json");
+            { .expected_ext = "json" });
     };
 };

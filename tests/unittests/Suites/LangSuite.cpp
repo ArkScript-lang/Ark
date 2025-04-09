@@ -15,7 +15,7 @@ ut::suite<"Lang"> lang_suite = [] {
 
         try
         {
-            const bool ok = mut(state).doFile(get_resource_path("LangSuite/unittests.ark"));
+            const bool ok = mut(state).doFile(getResourcePath("LangSuite/unittests.ark"));
             expect(ok) << fatal << "compilation failed";
         }
         catch (const Ark::CodeError&)

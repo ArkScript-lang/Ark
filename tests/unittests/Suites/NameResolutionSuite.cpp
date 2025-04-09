@@ -12,7 +12,7 @@ ut::suite<"NameResolution"> name_resolution_suite = [] {
         Ark::State state({ lib_path });
 
         should("compile the resource without any error") = [&] {
-            expect(mut(state).doFile(get_resource_path("NameResolutionSuite/basic/a.ark")));
+            expect(mut(state).doFile(getResourcePath("NameResolutionSuite/basic/a.ark")));
         };
 
         Ark::VM vm(state);
@@ -42,7 +42,7 @@ ut::suite<"NameResolution"> name_resolution_suite = [] {
         Ark::State state({ lib_path });
 
         should("compile the resource without any error") = [&] {
-            expect(mut(state).doFile(get_resource_path("NameResolutionSuite/forward_reference/a.ark")));
+            expect(mut(state).doFile(getResourcePath("NameResolutionSuite/forward_reference/a.ark")));
         };
 
         Ark::VM vm(state);
@@ -63,7 +63,7 @@ ut::suite<"NameResolution"> name_resolution_suite = [] {
         Ark::State state({ lib_path });
 
         should("compile the resource without any error") = [&] {
-            expect(mut(state).doFile(get_resource_path("NameResolutionSuite/shadowing/a.ark")));
+            expect(mut(state).doFile(getResourcePath("NameResolutionSuite/shadowing/a.ark")));
         };
 
         Ark::VM vm(state);
@@ -84,7 +84,7 @@ ut::suite<"NameResolution"> name_resolution_suite = [] {
         Ark::State state({ lib_path });
 
         should("compile the resource without any error") = [&] {
-            expect(mut(state).doFile(get_resource_path("NameResolutionSuite/namespace_stacking/a.ark")));
+            expect(mut(state).doFile(getResourcePath("NameResolutionSuite/namespace_stacking/a.ark")));
         };
 
         Ark::VM vm(state);
@@ -105,7 +105,7 @@ ut::suite<"NameResolution"> name_resolution_suite = [] {
         Ark::State state({ lib_path });
 
         should("compile the resource without any error") = [&] {
-            expect(mut(state).doFile(get_resource_path("NameResolutionSuite/deep_import_symbols/a.ark")));
+            expect(mut(state).doFile(getResourcePath("NameResolutionSuite/deep_import_symbols/a.ark")));
         };
 
         Ark::VM vm(state);
@@ -126,7 +126,7 @@ ut::suite<"NameResolution"> name_resolution_suite = [] {
         Ark::State state({ lib_path });
 
         should("compile the resource without any error") = [&] {
-            expect(mut(state).doFile(get_resource_path("NameResolutionSuite/shadowing_symbol/a.ark")));
+            expect(mut(state).doFile(getResourcePath("NameResolutionSuite/shadowing_symbol/a.ark")));
         };
 
         Ark::VM vm(state);
@@ -147,7 +147,7 @@ ut::suite<"NameResolution"> name_resolution_suite = [] {
         Ark::State state({ lib_path });
 
         should("compile the resource without any error") = [&] {
-            expect(mut(state).doFile(get_resource_path("NameResolutionSuite/shadowing_symbol_swap_import_order/a.ark")));
+            expect(mut(state).doFile(getResourcePath("NameResolutionSuite/shadowing_symbol_swap_import_order/a.ark")));
         };
 
         Ark::VM vm(state);
