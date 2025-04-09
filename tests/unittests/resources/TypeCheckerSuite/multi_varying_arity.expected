@@ -1,0 +1,7 @@
+Function f expected between 2 arguments and 3 arguments but got 1
+  -> n (Number)
+  -> m (Number) was not provided
+Alternative 2:
+  -> n (Number)
+  -> m (String) was not provided
+  -> o (List) was not provided

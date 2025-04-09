@@ -1,5 +1,6 @@
 #include <boost/ut.hpp>
 
+#include <ranges>
 #include <string>
 #include <sstream>
 #include <fmt/core.h>
@@ -18,6 +19,7 @@ struct Input
     Ark::types::Contract expected_arg_types;
     std::vector<Ark::Value> given_args;
 
+    std::string filename;
     bool initialized = false;
 };
 
@@ -160,6 +162,7 @@ Input parse_input(const std::string& path)
         .expected_arg_count = arg_count,
         .expected_arg_types = args,
         .given_args = given_args,
+        .filename = std::filesystem::path(path).stem().generic_string(),
         .initialized = true
     };
 }
@@ -167,28 +170,58 @@ Input parse_input(const std::string& path)
 ut::suite<"TypeChecker"> type_checker_suite = [] {
     using namespace ut;
 
-    iter_test_files("TypeCheckerSuite", [&](TestData&& data) {
-        const Input input = parse_input(data.path);
-        expect(fatal(input.initialized)) << "invalid test input: " << data.stem;
+    iterTestFiles(
+        "TypeCheckerSuite",
+        [&](TestData&& data) {
+            std::vector<Input> inputs;
+            std::vector<Ark::types::Contract> contracts;
 
-        should("generate error message " + data.stem) = [input, data] {
-            std::stringstream stream;
-            try
+            if (data.is_folder)
             {
-                Ark::types::generateError(
-                    input.func,
-                    { input.expected_arg_types },
-                    input.given_args,
-                    stream,
-                    /* colorize= */ false);
-                expect(fatal(false)) << "generateError should throw an Ark::TypeError";
+                iterTestFiles(
+                    data.path,
+                    [&inputs](TestData&& inner) {
+                        const Input input = parse_input(inner.path);
+                        expect(fatal(input.initialized)) << "invalid test input: " << inner.stem;
+                        inputs.push_back(input);
+                    },
+                    { .folder_is_resource = false, .ignore_expected = true });
+
+                std::ranges::sort(inputs, [](const Input& a, const Input& b) {
+                    return a.filename < b.filename;
+                });
+
+                std::ranges::transform(inputs, std::back_inserter(contracts), [](const Input& input) {
+                    return input.expected_arg_types;
+                });
             }
-            catch (const Ark::TypeError&)
+            else
             {
-                auto result = stream.str();
-                rtrim(ltrim(result));
-                expect_or_diff(data.expected, result);
+                const Input input = parse_input(data.path);
+                expect(fatal(input.initialized)) << "invalid test input: " << data.stem;
+                inputs.push_back(input);
+                contracts.push_back(input.expected_arg_types);
             }
-        };
-    });
+
+            should("generate error message " + data.stem) = [inputs, contracts, data] {
+                std::stringstream stream;
+                try
+                {
+                    Ark::types::generateError(
+                        inputs.front().func,
+                        contracts,
+                        inputs.front().given_args,
+                        stream,
+                        /* colorize= */ false);
+                    expect(fatal(false)) << "generateError should throw an Ark::TypeError";
+                }
+                catch (const Ark::TypeError&)
+                {
+                    auto result = stream.str();
+                    rtrim(ltrim(result));
+                    expectOrDiff(data.expected, result);
+                }
+            };
+        },
+        { .skip_folders = false });
 };
