@@ -3,9 +3,8 @@
 #include <Ark/Compiler/Instructions.hpp>
 #include <Ark/Builtins/Builtins.hpp>
 
-#include <iomanip>
 #include <unordered_map>
-#include <picosha2.h>
+#include <Proxy/Picosha2.hpp>
 #include <Ark/Compiler/Serialization/IEEE754Serializer.hpp>
 #include <Ark/Compiler/Serialization/IntegerSerializer.hpp>
 #include <fmt/core.h>

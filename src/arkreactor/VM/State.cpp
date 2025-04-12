@@ -9,7 +9,7 @@
 #    pragma warning(disable : 4996)
 #endif
 
-#include <picosha2.h>
+#include <Proxy/Picosha2.hpp>
 #include <Ark/Compiler/BytecodeReader.hpp>
 #include <fmt/core.h>
 #include <fmt/color.h>

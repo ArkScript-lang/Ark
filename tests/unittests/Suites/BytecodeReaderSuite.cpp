@@ -2,7 +2,7 @@
 
 #include <Ark/Compiler/BytecodeReader.hpp>
 #include <Ark/Compiler/Welder.hpp>
-#include <picosha2.h>
+#include <Proxy/Picosha2.hpp>
 
 #include <string>
 #include <chrono>

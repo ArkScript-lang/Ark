@@ -3,7 +3,7 @@
 #include <chrono>
 #include <utility>
 #include <unordered_map>
-#include <picosha2.h>
+#include <Proxy/Picosha2.hpp>
 #include <fmt/ostream.h>
 
 #include <Ark/Constants.hpp>
