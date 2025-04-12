@@ -74,6 +74,13 @@ namespace Ark::internal
         return std::numeric_limits<uint16_t>::max();
     }
 
+    void ScopeView::reset() noexcept
+    {
+        m_size = 0;
+        m_min_id = std::numeric_limits<uint16_t>::max();
+        m_max_id = 0;
+    }
+
     bool operator==(const ScopeView& A, const ScopeView& B) noexcept
     {
         // if we have two scopes with the same number of elements and starting at the same position,

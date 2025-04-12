@@ -391,6 +391,7 @@ namespace Ark
                 &&TARGET_POP,
                 &&TARGET_DUP,
                 &&TARGET_CREATE_SCOPE,
+                &&TARGET_RESET_SCOPE,
                 &&TARGET_POP_SCOPE,
                 &&TARGET_ADD,
                 &&TARGET_SUB,
@@ -936,6 +937,12 @@ namespace Ark
                     TARGET(CREATE_SCOPE)
                     {
                         context.locals.emplace_back(context.scopes_storage.data(), context.locals.back().storageEnd());
+                        DISPATCH();
+                    }
+
+                    TARGET(RESET_SCOPE)
+                    {
+                        context.locals.back().reset();
                         DISPATCH();
                     }
 
