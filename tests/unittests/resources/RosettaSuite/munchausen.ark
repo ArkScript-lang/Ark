@@ -1,0 +1,28 @@
+(import std.List)
+
+(let self-exponent (fun (x n acc)
+  (if (> n 0)
+    (self-exponent x (- n 1) (* x acc))
+    acc)))
+
+(let cache (list:map (list:iota 0 10) (fun (x) (if (= x 0) 0 (self-exponent x x 1)))))
+
+(let is_munchhausen (fun (number) {
+  (mut total 0)
+  (mut n number)
+  (mut continue true)
+
+  (while (and (> n 0) continue) {
+    (let digit (mod n 10))
+    (set total (+ total (@ cache digit)))
+    (if (> total number)
+      (set continue false)
+      (set n (math:floor (/ n 10)))) })
+
+  (= total number) }))
+
+
+(assert (is_munchhausen 1) "1 is a Munchhausen number")
+(assert (is_munchhausen 3435) "3435 is a Munchhausen number")
+
+(assert (not (is_munchhausen 677)) "677 is not a Munchhausen number")
