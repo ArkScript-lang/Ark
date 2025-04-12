@@ -41,6 +41,7 @@
 - `STORE_FROM_INDEX` and `SET_VAL_FROM_INDEX` instructions for parity with the super instructions not using load by index
 - `INCREMENT_BY_INDEX` and `DECREMENT_BY_INDEX` instructions for parity with the super instructions not using load by index
 - `STORE_TAIL_BY_INDEX`, `STORE_HEAD_BY_INDEX`, `SET_VAL_TAIL_BY_INDEX`, `SET_VAL_HEAD_BY_INDEX` super instructions added for parity with the super instructions not using load by index
+- `RESET_SCOPE` instruction emitted at the end of a while loop to reset a scope so that we can create multiple variables and use `LOAD_SYMBOL_BY_INDEX`
 
 ### Changed
 - instructions are on 4 bytes: 1 byte for the instruction, 1 byte of padding, 2 bytes for an immediate argument

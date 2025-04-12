@@ -440,6 +440,10 @@ namespace Ark::internal
         // push code to page
         compileExpression(x.constList()[2], p, true, false);
 
+        // reset the scope at the end of the loop so that indices are still valid
+        // otherwise, (while true { (let a 5) (print a) (let b 6) (print b) })
+        // would print 5, 6, then only 6 as we emit LOAD_SYMBOL_FROM_INDEX 0 and b is the last in the scope
+        page(p).emplace_back(RESET_SCOPE);
         // loop, jump to the condition
         page(p).emplace_back(IR::Entity::Goto(label_loop));
 

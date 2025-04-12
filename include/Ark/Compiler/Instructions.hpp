@@ -142,162 +142,165 @@ namespace Ark::internal
         // @role Create a new local scope
         CREATE_SCOPE = 0x1d,
 
-        // @role Destroy the last local scope
-        POP_SCOPE = 0x1e,
+        // @role Reset the current scope so that it is empty
+        RESET_SCOPE = 0x1e,
 
-        FIRST_OPERATOR = 0x1f,
+        // @role Destroy the last local scope
+        POP_SCOPE = 0x1f,
+
+        FIRST_OPERATOR = 0x20,
 
         // @role Push #[code TS1 + TS]
-        ADD = 0x1f,
+        ADD = 0x20,
 
         // @role Push #[code TS1 - TS]
-        SUB = 0x20,
+        SUB = 0x21,
 
         // @role Push #[code TS1 * TS]
-        MUL = 0x21,
+        MUL = 0x22,
 
         // @role Push #[code TS1 / TS]
-        DIV = 0x22,
+        DIV = 0x23,
 
         // @role Push #[code TS1 > TS]
-        GT = 0x23,
+        GT = 0x24,
 
         // @role Push #[code TS1 < TS]
-        LT = 0x24,
+        LT = 0x25,
 
         // @role Push #[code TS1 <= TS]
-        LE = 0x25,
+        LE = 0x26,
 
         // @role Push #[code TS1 >= TS]
-        GE = 0x26,
+        GE = 0x27,
 
         // @role Push #[code TS1 != TS]
-        NEQ = 0x27,
+        NEQ = 0x28,
 
         // @role Push #[code TS1 == TS]
-        EQ = 0x28,
+        EQ = 0x29,
 
         // @role Push #[code len(TS)], TS must be a list
-        LEN = 0x29,
+        LEN = 0x2a,
 
         // @role Push #[code empty?(TS)], TS must be a list or string
-        EMPTY = 0x2a,
+        EMPTY = 0x2b,
 
         // @role Push #[code tail(TS)], all the elements of TS except the first one. TS must be a list or string
-        TAIL = 0x2b,
+        TAIL = 0x2c,
 
         // @role Push #[code head(TS)], the first element of TS or nil if empty. TS must be a list or string
-        HEAD = 0x2c,
+        HEAD = 0x2d,
 
         // @role Push true if TS is nil, false otherwise
-        ISNIL = 0x2d,
+        ISNIL = 0x2e,
 
         // @role Throw an exception if TS1 is false, and display TS (must be a string). Do not push anything on the stack
-        ASSERT = 0x2e,
+        ASSERT = 0x2f,
 
         // @role Convert TS to number (must be a string)
-        TO_NUM = 0x2f,
+        TO_NUM = 0x30,
 
         // @role Convert TS to string
-        TO_STR = 0x30,
+        TO_STR = 0x31,
 
         // @role Push the value at index TS (must be a number) in TS1, which must be a list or string
-        AT = 0x31,
+        AT = 0x32,
 
         // @role Push the value at index TS (must be a number), inside the list or string at index TS1 (must be a number) in the list at TS2
-        AT_AT = 0x32,
+        AT_AT = 0x33,
 
         // @role Push #[code TS1 % TS]
-        MOD = 0x33,
+        MOD = 0x34,
 
         // @role Push the type of TS as a string
-        TYPE = 0x34,
+        TYPE = 0x35,
 
         // @role Check if TS1 is a closure field of TS. TS must be a Closure, TS1 a String
-        HASFIELD = 0x35,
+        HASFIELD = 0x36,
 
         // @role Push #[code !TS]
-        NOT = 0x36,
+        NOT = 0x37,
 
         // @args constant id, constant id
         // @role Load two consts (#[code primary] then #[code secondary]) on the stack in one instruction
-        LOAD_CONST_LOAD_CONST = 0x37,
+        LOAD_CONST_LOAD_CONST = 0x38,
 
         // @args constant id, symbol id
         // @role Load const #[code primary] into the symbol #[code secondary] (create a variable)
-        LOAD_CONST_STORE = 0x38,
+        LOAD_CONST_STORE = 0x39,
 
         // @args constant id, symbol id
         // @role Load const #[code primary] into the symbol #[code secondary] (search for the variable with the given symbol id)
-        LOAD_CONST_SET_VAL = 0x39,
+        LOAD_CONST_SET_VAL = 0x3a,
 
         // @args symbol id, symbol id
         // @role Store the value of the symbol #[code primary] into a new variable #[code secondary]
-        STORE_FROM = 0x3a,
+        STORE_FROM = 0x3b,
 
         // @args symbol index, symbol id
         // @role Store the value of the symbol #[code primary] into a new variable #[code secondary]
-        STORE_FROM_INDEX = 0x3b,
+        STORE_FROM_INDEX = 0x3c,
 
         // @args symbol id, symbol id
         // @role Store the value of the symbol #[code primary] into an existing variable #[code secondary]
-        SET_VAL_FROM = 0x3c,
+        SET_VAL_FROM = 0x3d,
 
         // @args symbol index, symbol id
         // @role Store the value of the symbol #[code primary] into an existing variable #[code secondary]
-        SET_VAL_FROM_INDEX = 0x3d,
+        SET_VAL_FROM_INDEX = 0x3e,
 
         // @args symbol id, count
         // @role Increment the variable #[code primary] by #[code count] and push its value on the stack
-        INCREMENT = 0x3e,
+        INCREMENT = 0x3f,
 
         // @args symbol index, count
         // @role Increment the variable #[code primary] by #[code count] and push its value on the stack
-        INCREMENT_BY_INDEX = 0x3f,
+        INCREMENT_BY_INDEX = 0x40,
 
         // @args symbol id, count
         // @role Decrement the variable #[code primary] by #[code count] and push its value on the stack
-        DECREMENT = 0x40,
+        DECREMENT = 0x41,
 
         // @args symbol index, count
         // @role Decrement the variable #[code primary] by #[code count] and push its value on the stack
-        DECREMENT_BY_INDEX = 0x41,
+        DECREMENT_BY_INDEX = 0x42,
 
         // @args symbol id, symbol id
         // @role Load the symbol #[code primary], compute its tail, store it in a new variable #[code secondary]
-        STORE_TAIL = 0x42,
+        STORE_TAIL = 0x43,
 
         // @args symbol index, symbol id
         // @role Load the symbol #[code primary], compute its tail, store it in a new variable #[code secondary]
-        STORE_TAIL_BY_INDEX = 0x43,
+        STORE_TAIL_BY_INDEX = 0x44,
 
         // @args symbol id, symbol id
         // @role Load the symbol #[code primary], compute its head, store it in a new variable #[code secondary]
-        STORE_HEAD = 0x44,
+        STORE_HEAD = 0x45,
 
         // @args symbol index, symbol id
         // @role Load the symbol #[code primary], compute its head, store it in a new variable #[code secondary]
-        STORE_HEAD_BY_INDEX = 0x45,
+        STORE_HEAD_BY_INDEX = 0x46,
 
         // @args symbol id, symbol id
         // @role Load the symbol #[code primary], compute its tail, store it in an existing variable #[code secondary]
-        SET_VAL_TAIL = 0x46,
+        SET_VAL_TAIL = 0x47,
 
         // @args symbol index, symbol id
         // @role Load the symbol #[code primary], compute its tail, store it in an existing variable #[code secondary]
-        SET_VAL_TAIL_BY_INDEX = 0x47,
+        SET_VAL_TAIL_BY_INDEX = 0x48,
 
         // @args symbol id, symbol id
         // @role Load the symbol #[code primary], compute its head, store it in an existing variable #[code secondary]
-        SET_VAL_HEAD = 0x48,
+        SET_VAL_HEAD = 0x49,
 
         // @args symbol index, symbol id
         // @role Load the symbol #[code primary], compute its head, store it in an existing variable #[code secondary]
-        SET_VAL_HEAD_BY_INDEX = 0x49,
+        SET_VAL_HEAD_BY_INDEX = 0x4a,
 
         // @args builtin id, argument count
         // @role Call a builtin by its id in #[code primary], with #[code secondary] arguments. Bypass the stack size check because we do not push IP/PP since builtins calls do not alter the stack
-        CALL_BUILTIN = 0x4a,
+        CALL_BUILTIN = 0x4b,
 
         InstructionsCount
     };
@@ -333,6 +336,7 @@ namespace Ark::internal
         "POP",
         "DUP",
         "CREATE_SCOPE",
+        "RESET_SCOPE",
         "POP_SCOPE",
         // operators
         "ADD",

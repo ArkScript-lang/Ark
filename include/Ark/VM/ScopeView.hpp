@@ -112,6 +112,11 @@ namespace Ark::internal
         }
 
         /**
+         * @brief Reset size, min and max id for the scope, to signify it's empty
+         */
+        void reset() noexcept;
+
+        /**
          * @brief Return the size of the scope
          *
          * @return const std::size_t
