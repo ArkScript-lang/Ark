@@ -4,7 +4,7 @@
 ### Added
 - more tests for the io builtins
 - added lines and code coloration in the error context
-- new dependency: fmtlib
+- new dependency: `fmtlib`
 - added the padding/instruction/argumentation values when displaying instructions in the bytecode reader
 - `$repr` macro to get a string representation of a given node
 - added boost-ext/ut to write unit tests in C++
@@ -56,7 +56,7 @@
 - upgraded from C++17 to C++20
 - new parser, new syntax for imports: `(import package.sub.file)`
 - allow nodes to be empty when dumping the AST to JSON
-- macros can be declared inside a begin block within a cond macro and used in the scope surrounding the cond macro
+- macros can be declared inside a `begin` block within a cond macro and used in the scope surrounding the cond macro
 - `arkscript --version` and `arkscript --help` now output ArkScript version with the commit hash
 - `void Value::toString(std::ostream&, VM&)` now becomes `std::string Value::toString(VM&)`
 - removed `Node::operator<<` to replace it with `Node::debugPrint`
@@ -84,8 +84,8 @@
 - disallow passing invalid nodes as arguments to functions and operators
 - checking for unevaluated spread inside macros
 - checking for invalid symbols when defining a function through a macro
-- added a max macro unification depth
-- added a max macro evaluation depth
+- added a max macro unification depth (256)
+- added a max macro evaluation depth (256)
 - introduced `internal::listInstructions` with the different instructions, to be used by the compiler and name resolution pass
 - checking for forbidden variable/constant name in the name & scope resolution pass, to give errors to the user before compiling some weird code
 - repl completion and colors are now generated automatically from the builtins, keywords & operators
@@ -107,12 +107,12 @@
 - `list:setAt` can work with negative indexes, and is now bound checked
 - re-enabled the AST optimizer, only used for the main `arkscript` executable (not enabled when embedding arkscript, so that one can grab variables from the VM)
 - loops have their own scope: variables created inside a loop won't leak outside it
-- upgraded fmtlib to 11.1.3-13
+- upgraded `fmtlib` to 11.1.3-13
 - allow capture in nested scope (before it was targeting only the current scope)
 - `-bcr` option can be given a source file, it will then be compiled before its bytecode is shown
 - magic numbers for tables start in bytecode files have been changed from 0x01, 0x02, 0x03 to 0xA1, 0xA2, 0xA3 (symbols, values, code) to make them stand out in hex editors
 - magic numbers for value types in bytecode files have been changed from 0x01, 0x02, 0x03 to 0xF1, 0xF2, 0xF3 (number, string, function)
-- numbers in the values table in bytecode files are no longer stringified but their IEEE754 representation is now encoded on 12 bytes (4 for the exponent, 8 for the mantissa)
+- numbers in the values table in bytecode files are no longer turned to string, but their IEEE754 representation is now encoded on 12 bytes (4 for the exponent, 8 for the mantissa)
 - changed how scopes are stored inside the VM to enhance performances. All scope data are now contiguous!
 - when possible, accessing variables from the current scope is compiled to a new instruction `LOAD_SYMBOL_BY_INDEX`, to avoid the sometimes expansive lookup by id
   - this works inside normal scopes (introduced by while loops) and functions scopes, but not for closures
@@ -151,11 +151,6 @@
 - fixed a bug in the macro processor where macros were deleted when they shouldn't
 - fixed a bug where macro functions with no argument would crash the macro processor
 
-### Removed
-
-### Deprecated
-
-
 ## [3.4.0] - 2022-09-12
 ### Added
 - added new `async` and `await` builtins
@@ -168,7 +163,7 @@
 ### Changed
 - printing a closure will now print its fields instead of `Closure<1432>`
 - macros are always evaluated, even when they aren't any user defined macro
-- argcount works on symbols and anonymous functions
+- `argcount` works on symbols and anonymous functions
 
 ### Deprecated
 - deprecating `Value VM::resolve(const Value* val, Args&&... args)`
@@ -206,12 +201,12 @@
 ### Changed
 - the compiler can now remove unused values from the stack
 - enhancing the compiler code
-- debloating the parser methods argument's lists
+- removing bloat in the parser methods argument's lists
 
 ## [3.1.3] - 2022-01-29
 ### Added
 - adding an ExecutionContext to host the pointers (instruction, page, stack) and execution related structures (stack, locals, scopes), to ease the transition to a parallelized VM
-    - the VM can have multiple independant context running on the same bytecode
+    - the VM can have multiple independent context running on the same bytecode
 - the VM now takes a reference to an `Ark::State` instead of a raw non-owning pointer
 - adding `ARK_PROFILER_MIPS` to toggle instruction per second calculation
 - adding new way to typecheck in builtins
@@ -221,7 +216,7 @@
 
 ### Changed
 - splitting Utils.hpp into multiple files for easier maintenance and contextualisation
-- reserving a default scope size of 3, which yields really good performance results compared to nothing being reserved
+- reserving a default scope size of 3, which yields good performance results compared to nothing being reserved
 - upgrading the builtins error handling to use the `BetterTypeError`
 - the VM now displays the debug info (ip, pp, sp) at the end of the backtrace instead of the beginning
 
@@ -252,13 +247,13 @@
 - the parser is now an internal class
 - the AST Optimizer was moved to `Compiler/AST`
 - changed the ARKSCRIPT_PATH to be a collection of paths to look into, separated by `;`
-- updating replxx to avoid a bug when compiling with clang
+- updating `replxx` to avoid a bug when compiling with clang
 
 ### Removed
-- removed `ARK_SCOPE_DICHOTOMY` flag so that scopes don't use dichotomic search but a linear one, since it proved to be faster on small sets of values. This goes toward prioritizing small functions, and code being cut in multiple smaller scopes
+- removed `ARK_SCOPE_DICHOTOMY` flag so that scopes don't use dichotomy search but a linear one, since it proved to be faster on small sets of values. This goes toward prioritizing small functions, and code being cut in multiple smaller scopes
 - removing `download-arkscript.sh` from the repo
 - removed `isFraction`, `isInteger`, `isFloat` from Ark/Utils.hpp (worked on strings and used regex)
-- removed mpark variant to use standard variant
+- removed `mpark::variant` to use standard variant
 - `Ark::FeatureFunctionArityCheck` was removed, making arity checks mandatory
 
 ## [3.1.1] - 2021-09-19
@@ -267,7 +262,7 @@
 - Now using clang-format to ensure the code is correctly formatted
 
 ### Changed
-- the macro processor can now handle multiple macro definitions in a if-macro: `!{if true { !{a 1} !{b 2} }}` is finally working
+- the macro processor can now handle multiple macro definitions in an if-macro: `!{if true { !{a 1} !{b 2} }}` is finally working
 
 ### Deprecated
 - `ark` command is now marked as deprecated, in favor of `arkscript`
@@ -304,7 +299,7 @@
     - only the segments' titles and length
 - verifying that we give enough arguments
 - we can now import macros from other files
-- undefining macros is now possible by using `!{undef macro_name}`
+- undefined macros is now possible by using `!{undef macro_name}`
 - `str:join` added in the standard library
 - `str:split` can now take longer separators
 - added `symcat` in macros to concatenate a symbol and a number/string/symbol to create a new one
@@ -314,7 +309,7 @@
 - enhanced standard library
 
 ### Changed
-- updating doxyfile and some docstrings
+- updating `doxyfile` and some docstrings
 - updating the download script
 - enhancing examples
 - creating a Scope allocates 4 pairs instead of 2, reducing the number of reallocations needed
@@ -350,23 +345,23 @@
 
 ## [3.0.15] - 2020-12-27
 ### Added
-- new submodule, plasma-umass/coz (a profiler)
+- new submodule, `plasma-umass/coz` (a profiler)
 - macros for profiling, enabled only if `ARK_PROFILE` is defined
 - cmake flags using -D to turn on/off sys:exec and the coz profiler
-- mpark variant is now the default used instead of the default STL variant (faster, better, stronger, and its creator is quite a god)
+- `mpark::variant` is now the default used instead of the default STL variant (faster, better, stronger, and its creator is quite a god)
 - new cmake flag, -DARK_SCOPE_DICHOTOMY=On|Off (default Off)
 - using internal only references to constants and symbols to reduce the number of useless copies of the value type
 
 ### Changed
 - updated standard library
 - updated modules, adding hash
-- updated the error handlers to avoid errors (sigsev) when handling errors (lexing, parsing, optimization and compilation error)
+- updated the error handlers to avoid errors (sigsegv) when handling errors (lexing, parsing, optimization and compilation error)
 - better error message at runtime when a plugin can not be found
 - fixes issue #203 (imports are ill-formed when given an absolute path)
 - fixes issue #205 (search for the standard library folder in more common places)
 - transitioning from C++ streams to printf
-- replaced the thirdparty/ folder with a git submodule in thirdparties/
-- now checking that a scope doesn't have our symbol before doing a `mut` operation (in dichotomic mode it was automatically handled, but not in linear mode)
+- replaced the `thirdparty/` folder with a git submodule in `thirdparties/`
+- now checking that a scope doesn't have our symbol before doing a `mut` operation (in dichotomy mode it was automatically handled, but not in linear mode)
 - enhancing the cmake defines (`-DARK_XYZ`) and the code using them
 - lighter Frame (from 40B to 32B), moved some unrelated logic from the frame to the virtual machine
 - `(sys:exec)` now returns the stdout output of the given command
@@ -393,9 +388,9 @@
 - the parser is now stricter and gives better error messages when we give too many/not enough arguments to a keyword
 - better handling of the code given to the REPL (adds new line)
 - renamed the executable from `Ark` to `ark`
-- now using Github Actions instead of Travis
+- now using GitHub Actions instead of Travis
 - the parser can now detect when let/mut/set are fed too many arguments, and generate an error
-- the compilater now handles `(set a b.c.d)`
+- the compiler now handles `(set a b.c.d)`
 - using a new plugin interface, more C-like
 
 ### Removed
@@ -412,13 +407,13 @@
 
 ### Changed
 - `list:find` returns -1 to stay consistent with `str:find`
-- **hot fix** `(mut a 10) (let b 12) (set a b) (set a 11)`, the immutability was transfered from b to a
+- **hot fix** `(mut a 10) (let b 12) (set a b) (set a 11)`, the immutability was transferred from b to a
 - converting `list`, `append` and `concat` to instructions
 - instructions `LIST` `CONCAT` and `APPEND` added to replace the corresponding builtins
 
 ## [3.0.12] - 2020-09-06
 ### Added
-- using a macro to define the default filename (when none is given, eg when loading bytecode files or from the REPL)
+- using a macro to define the default filename (when none is given, e.g. when loading bytecode files or from the REPL)
 - `PLUGIN <const id>` instruction to load plugin dynamically and not when the VM boots up
 - updated search paths for `(import "lib.ark")`, looking in ./, lib/std/ and lib/
 - added a case to display NOT instructions in the bytecode reader
@@ -426,10 +421,10 @@
 - enhanced error message when calling a non-function object
 - eliminating unused global scope variables in the compiler
 - adding a new feature enabled by default: `FeatureRemoveUnusedVars` (not enabled for the REPL for obvious reasons)
-- added replxx as a submodule
+- added `replxx` as a submodule
 - added custom destructor to the user type, called when a scope is destroyed and when we use `(del obj)`
 - added a GVL (global virtual machine lock) to be able to use the VM in a multithreaded context
-- dockerfile + specific github action to build and push stable and nightly docker images, thanks to @yardenshoham
+- dockerfile + specific GitHub action to build and push stable and nightly docker images, thanks to @yardenshoham
 - added guards to the bytecode reader to stop reading if we're missing an entry point; now telling the user about it
 
 ### Changed
@@ -447,7 +442,7 @@
 - enhancing lexer and parser error messages
 - else clause in if constructions is now optional
 - updating error messages in the VM
-- updated the repl to add auto completion, coloration and persistance by @PierrePharel
+- updated the repl to add auto-completion, coloration and persistence by @PierrePharel
 - moving the parser, lexer and AST node to Compiler/ from Parser/
 - better import error messages at parsing
 - format can now handle any value type
@@ -472,25 +467,25 @@
 - adding UTF-8 support in programs (experimental)
 - more benchmarks
 - on error, the VM now display the value of each variable in the current scope
-- added thirdparty/madureira/String, to replace std::string in Ark::internal::Value which was heavy and slower than the new implementation
+- added `thirdparty/madureira/String`, to replace std::string in Ark::internal::Value which was heavy and slower than the new implementation
 - minimizing the size of the usertype
 
 ### Changed
 - UserType does not need to be given a manually defined type id but relies on `typeid(T)`
-- performance boost of the VM by using pointers to avoid unecessary copies
-- renaming `isNaN` to `NaN?`, `isInf` to `Inf?` for uniformisation (see `empty?`, `nil?`)
+- performance boost of the VM by using pointers to avoid unnecessary copies
+- renaming `isNaN` to `NaN?`, `isInf` to `Inf?` for uniformization (see `empty?`, `nil?`)
 - renaming CLI feature options:
     - `-ffunction-arity-check` becomes `-ffac`, same for the `-fno-` version
     - `-fauthorize-invalid-token-after-paren` becomes `-faitap`, some for the `-fno-` version
 - improving compiler performances by using const ref when passing nodes around
-- renaming the FFI "builtins" because it's not a FFI but a set of functions using the VM API
-- the VM should display a backtrace even if an unknown error occured
+- renaming the FFI "builtins" because it's not an FFI but a set of functions using the VM API
+- the VM should display a backtrace even if an unknown error occurred
 - transforming inline code from the vm into not inline code when possible to speed compilation, using macros instead of inline functions
 - smaller value class
 - smaller vm frames
-- forked madureira/String and modified it for the needs of the project, added it as a submodule
+- forked `madureira/String` and modified it for the needs of the project, added it as a submodule
 - removed the VM pointer from the value class to make it lighter, now the VM is sending a pointer of itself to the C procedures
-- removed const and type from value, now using a uint8_t to store those informations
+- removed const and type from value, now using an uint8_t to store this information
 
 ### Removed
 - removed NFT from the internal API to rely only on the value type
@@ -529,7 +524,7 @@
 - added `product` in `lib/List/Product.ark`, by @FrenchMasterSword
 
 ### Changed
-- a quoted code (defered evaluation) isn't capturing anymore surrounding variables' values, thus increasing greatly performances
+- a quoted code (deferred evaluation) isn't capturing anymore surrounding variables' values, thus increasing greatly performances
 - lists are printed like `["string" 1 true]` now, instead of `( string 1 true )`
 - updated `zip` so that it can work with lists of different sizes, by @FrenchMasterSword
 - better cyclic includes detection
@@ -539,7 +534,7 @@
 ### Added
 - it's now possible to compare Values using `operator<`
 - `reverseList` (added to the FFI) by @rinz13r
-- a warning will now pop up during compilation if code appears to be ill-formed (eg number/string/list right after a `(`)
+- a warning will now pop up during compilation if code appears to be ill-formed (e.g. number/string/list right after a `(`)
 - option `-f(allow-invalid-token-after-paren|no-invalid-token-after-paren)` was added (default: OFF)
 
 ### Changed
@@ -591,7 +586,7 @@
 - we can now create `Ark::Value` with floats
 
 ### Changed
-- the `init()` internal method of the VM shouldn't stop when a binded function isn't used in the code, just ignore it
+- the `init()` internal method of the VM shouldn't stop when a bound function isn't used in the code, just ignore it
 - the compiler shouldn't crash on a bad code block
 - better line counter in lexer
 - the VM shouldn't try to run a non-existing bytecode file if the compilation fails (when calling `doFile()`)
@@ -606,7 +601,7 @@
 - adding function `system`, taking a command from a string ; can be deleted if `ARK_ENABLE_SYSTEM` is set to 0 in the CMakeLists
 
 ### Changed
-- updating CMakeLists.txt to avoid building unuseful stuff from google benchmark
+- updating CMakeLists.txt to avoid building unuseful stuff from Google benchmark
 - `toNumber` doesn't raise an unrecoverable error but returns `nil` if the conversion failed
 - `print` no longer add a space between each element
 - updating the way the builtins are handled (in VM/FFI) to make it easier to add functions
@@ -623,7 +618,7 @@
 - some functions playing with list should also be able to play with Strings: `headof`, `tailof`, `firstof`, `len`, `empty?`, `@`
 - `firstof` should segfault when the list/String is empty
 - fixing type of `nil` to be `"Nil"` instead of `nil` when using `(type nil)`
-- uniformised names of builtins: pascal case (impacted functions are `firstOf`, `headOf` and `tailOf`, as well as `hasField`)
+- using uniformed names of builtins: pascal case (impacted functions are `firstOf`, `headOf` and `tailOf`, as well as `hasField`)
 - fixing bug with `writeFile` when sending a mode: the mode was also the content of the file, it no longer is
 
 ## [3.0.2] - 2019-08-22
@@ -652,13 +647,13 @@
 
 ## [3.0.0] - 2019
 ### Added
-- adding `del` and `mut` keywords. Now `let` is for settings constants and `mut` for variables. Also it isn't possible to use `let` to define the same constant twice
+- adding `del` and `mut` keywords. Now `let` is for settings constants and `mut` for variables. Also, it isn't possible to use `let` to define the same constant twice
 - `google/benchmark` library for the benchmarks
 - ArkScript version section in bytecode
 - timestamp (build date)
-- major versions of the compiler and the virtual machine used must match, a compatibility accross versions will be kept if they have the same major number
+- major versions of the compiler and the virtual machine used must match, a compatibility across versions will be kept if they have the same major number
 - many opcodes to handle the operators
-- persist flag for the VM (if persist is false (default value), each time we call vm.run(), the frames will be reseted)
+- persist flag for the VM (if persist is false (default value), each time we call vm.run(), the frames will be reset)
 - adding captures through functions arguments: `(fun (&captured std-argument) (...))`
 - adding closure fields reading (readonly)
 
@@ -666,7 +661,7 @@
 - moved everything from the "folder namespaces" to a single `Ark::internal` namespace
 - using `#` instead of `'` for the comments, using `'` to quote instead of `` ` ``
 - the lexer is now detecting the type of the tokens it's playing with
-- using `std::runtime_error`s instead of `exit(1)` when an error occured
+- using `std::runtime_error`s instead of `exit(1)` when an error occurred
 - the VM should throw an error if we try to use `set` on a constant
 - we can avoid passing all the arguments to a function, they will just be undefined
 - the CLI is now able to determine if it should compile & run, run from the arkscript cache or run the file as a bytecode file
@@ -677,13 +672,13 @@
 
 ## [2.2.0-dev] - 2019-06-01
 ### Added
-- option in the CMakeLists.txt to use MPIR or not (defaults to no MPIR)
+- option in the CMakeLists.txt to use `MPIR` or not (defaults to no `MPIR`)
 - information about the compilation options used for ArkScript in the CLI
 - we can now use `` ` `` to quote
 
 ### Changed
 - using a vector instead of a map in the `Frame` to speed up things
-- using double or MPIR depending on the compilation options
+- using double or `MPIR` depending on the compilation options
 - moving `mod` in the FFI
 - renamed methods in `Node`
 
@@ -703,20 +698,20 @@
 - adding a guard in the VM to be sure the builtins are all present in the VM FFI
 
 ### Changed
-- the frames stack is handled differently, using shared pointers to avoid unecessary copies of frame's environments, it improves execution speed by *a lot*
+- the frames stack is handled differently, using shared pointers to avoid unnecessary copies of frame's environments, it improves execution speed by *a lot*
 - new CLI
 - handling floating pointer numbers and rational numbers
 
 ## [2.0.0-dev] - 02-05-2020
 ### Added
-- configure.py script, to download, build and install mpir 3.0.0
+- configure.py script, to download, build and install `mpir` 3.0.0
 - builtins functions: input, toNumber, toString
 - **breaking change** adding `PLUGIN_TABLE_START` with a value of 3 in the compiler/VM
 - adding plugins management
 
 ### Changed
-- splitted lib/Exceptions.ark into lib/Exceptions.ark and lib/Either.ark
-- renamed FindGMP FindMPIR, and we're now searching for MPIR and linking with it
+- split `lib/Exceptions.ark` into `lib/Exceptions.ark` and `lib/Either.ark`
+- renamed FindGMP FindMPIR, and we're now searching for `MPIR` and linking with it
 - proper exception handling
 - the VM shouldn't throw a runtime error if it can't link a function name and a function address
 - **breaking change** the `CODE_SEGMENT_START` is now equal to 4
@@ -733,7 +728,7 @@
 - adding `import` keyword (handled by parser), throwing an error if a cyclic included is detected
 
 ### Changed
-- CMakeLists.txt to add `install` rules: installing ArkScript in bin/ and the ArkScript standard library in share/.Ark/lib/
+- CMakeLists.txt to add `install` rules: installing ArkScript in `bin/` and the ArkScript standard library in `share/.Ark/lib/`
 - updated documentation
 
 ## [1.2.1-dev] - 2019
@@ -746,7 +741,7 @@
 - micro optimization: using numbers as variable names internally, instead of strings
 
 ### Removed
-- unnecessary destructors removed to let the compiler auto generate T(T&&) (to avoid implicitly using T(const T&))
+- unnecessary destructors removed to let the compiler auto generate `T(T&&)` (to avoid implicitly using `T(const T&)`)
 
 ## [1.2.0-dev] - 2019
 ### Added
@@ -763,7 +758,7 @@
 - tests
 
 ### Removed
-- dozerg::HugeNumber, it was too slow
+- `dozerg::HugeNumber`, it was too slow
 
 ## [1.1.0-dev] - 2019
 ### Added
@@ -785,7 +780,7 @@
 - beginning of the documentation
 - compiler (ark code to ark bytecode)
 - bytecode reader (human readable format)
-- dozerg::HugeNumber to handle big numbers
+- `dozerg::HugeNumber` to handle big numbers
 - simple VM handling all the instructions, able to run an ark bytecode
 - interpreter and VM FFI
 - logger
@@ -806,4 +801,4 @@
 - utils to play with strings and numbers
 - default CLI (using clipp)
 - CMakeLists to compile the project
-- ryjen::format to format strings
+- `ryjen::format` to format strings
