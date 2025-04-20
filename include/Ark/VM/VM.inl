@@ -47,47 +47,7 @@ Value VM::call(const std::string& name, Args&&... args)
     return *popAndResolveAsPtr(context);
 }
 
-template <typename... Args>
-Value VM::resolve(const Value* val, Args&&... args)
-{
-    using namespace internal;
-
-    // TODO: deprecate resolve(const Value*, Args&&...) and add a resolve(ExecutionContext*, const Value*, Args&&...)
-    ExecutionContext& context = *m_execution_contexts.front().get();
-
-    if (!val->isFunction())
-        throw TypeError("Value::resolve couldn't resolve a non-function");
-
-    const std::size_t ip = context.ip;
-    const std::size_t pp = context.pp;
-
-    // convert and push arguments in reverse order
-    std::vector<Value> fnargs { { Value(std::forward<Args>(args))... } };
-    for (auto it = fnargs.rbegin(), it_end = fnargs.rend(); it != it_end; ++it)
-        push(*it, context);
-    // push function
-    push(*val, context);
-
-    const std::size_t frames_count = context.fc;
-    // call it
-    call(context, static_cast<uint16_t>(sizeof...(Args)));
-    // reset instruction pointer, otherwise the safeRun method will start at ip = -1
-    // without doing context.ip++ as intended (done right after the call() in the loop, but here
-    // we start outside this loop)
-    context.ip = 0;
-
-    // run until the function returns
-    safeRun(context, /* untilFrameCount */ frames_count);
-
-    // restore VM state
-    context.ip = ip;
-    context.pp = pp;
-
-    // get result
-    return *popAndResolveAsPtr(context);
-}
-
-inline Value VM::resolve(internal::ExecutionContext* context, std::vector<Value>& n)
+inline Value VM::resolve(internal::ExecutionContext* context, const std::vector<Value>& n)
 {
     if (!n[0].isFunction())
         throw TypeError(fmt::format("VM::resolve couldn't resolve a non-function ({})", types_to_str[static_cast<std::size_t>(n[0].valueType())]));
