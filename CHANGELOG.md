@@ -129,6 +129,7 @@
 - removed `and` and `or` instructions in favor of a better implementation to support short-circuiting
 - removed `LET` and `MUT` instructions in favor of a single new `STORE` instruction
 - removed `SAVE_ENV` instruction
+- removed `Value VM::resolve(const Value* val, Args&&... args)`, which has been deprecated in ArkScript v3.4.0
 
 ## [3.5.0] - 2023-02-19
 ### Added

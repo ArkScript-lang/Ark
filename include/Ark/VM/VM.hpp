@@ -83,24 +83,13 @@ namespace Ark
         // ================================================
 
         /**
-         * @brief Resolving a function call (called by plugins and builtins)
-         *
-         * @tparam Args
-         * @param val the ArkScript function object
-         * @param args C++ argument list
-         * @return Value
-         */
-        template <typename... Args>
-        [[deprecated("Use resolve(ExecutionContext*, vector<Value>&) instead")]] Value resolve(const Value* val, Args&&... args);
-
-        /**
          * @brief Resolves a function call (called by plugins and builtins)
          *
          * @param context the execution context to use
          * @param n the function and its arguments
          * @return Value
          */
-        inline Value resolve(internal::ExecutionContext* context, std::vector<Value>& n);
+        inline Value resolve(internal::ExecutionContext* context, const std::vector<Value>& n);
 
         /**
          * @brief Ask the VM to exit with a given exit code
@@ -108,6 +97,15 @@ namespace Ark
          * @param code an exit code
          */
         void exit(int code) noexcept;
+
+        /**
+         * @brief Return a pointer to the first execution context, for the main thread of the app
+         * @return internal::ExecutionContext*
+         */
+        inline internal::ExecutionContext* getDefaultContext()
+        {
+            return m_execution_contexts.front().get();
+        }
 
         /**
          * @brief Create an execution context and returns it
