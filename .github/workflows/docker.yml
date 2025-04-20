@@ -12,39 +12,48 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-        if: ${{ contains(github.event.head_commit.message, '[skip ci]') != true }}
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Declare some variables
+        shell: bash
+        run: |
+          echo "sha_short=$(git rev-parse --short "$GITHUB_SHA")" >> "$GITHUB_ENV"
+          echo "branch=$(echo ${GITHUB_REF#refs/heads/})" >> "$GITHUB_ENV"
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # v3.6.0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2 # v3.10.0
 
       - name: Build and push stable Docker image
         uses: docker/build-push-action@471d1dc4e07e5cdedd4c2171150001c434f0b7a4 # v6.15.0
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-          repository: arkscript/stable
-          dockerfile: Dockerfile
-          # tag with the git commit SHA
-          tag_with_sha: true
-          tags: latest
+          file: Dockerfile
+          tags: arkscript/stable:latest,arkscript/stable:${{ env.sha_short }}
           # push the image only if the event that kicked off the workflow was a push of a git tah
           push: ${{ startsWith(github.ref, 'refs/tags/') }}
+          # keep .git repository
+          context: .
 
       - name: Build and push nightly Docker image
         uses: docker/build-push-action@471d1dc4e07e5cdedd4c2171150001c434f0b7a4 # v6.15.0
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-          repository: arkscript/nightly
-          dockerfile: Dockerfile
-          # tag with the git commit SHA
-          tag_with_sha: true
-          tags: latest
+          file: Dockerfile
+          tags: arkscript/nightly:latest,arkscript/nightly:${{ env.sha_short }}
+          # keep .git repository
+          context: .
 
       - name: Build and push harden Docker image
         uses: docker/build-push-action@471d1dc4e07e5cdedd4c2171150001c434f0b7a4 # v6.15.0
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-          repository: arkscript/harden
-          dockerfile: harden.dockerfile
-          # tag with the git commit SHA
-          tag_with_sha: true
-          tags: latest
+          file: harden.dockerfile
+          tags: arkscript/harden:latest
+          push: true
+          # keep .git repository
+          context: .
