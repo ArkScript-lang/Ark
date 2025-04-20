@@ -62,7 +62,7 @@ runs:
         brew install llvm@${{ inputs.compiler_version }}
 
     - name: Setup Windows environment
-      uses: ilammy/msvc-dev-cmd@v1
+      uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756 # v1.13.0
       if: startsWith(inputs.os_name, 'windows')
 
     - name: Install MacOS dependencies
