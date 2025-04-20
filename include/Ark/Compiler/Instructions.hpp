@@ -40,7 +40,7 @@ namespace Ark::internal
         LOAD_SYMBOL = 0x01,
 
         // @args stack index
-        // @role Load a symbol from the locals stack by its index
+        // @role Load a symbol from the locals stack by its index (starting from the end of the current scope)
         LOAD_SYMBOL_BY_INDEX = 0x02,
 
         // @args symbol id

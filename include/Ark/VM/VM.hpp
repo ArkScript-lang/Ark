@@ -185,10 +185,48 @@ namespace Ark
         //               instruction helpers
         // ================================================
 
+        /**
+         * @brief Load a symbol by its id in the current context. Performs a lookup in the scope stack, in reverse order.
+         *
+         * @param id symbol id
+         * @param context
+         * @return Value* nullptr if the symbol could not be loaded
+         */
         [[nodiscard]] inline Value* loadSymbol(uint16_t id, internal::ExecutionContext& context);
+
+        /**
+         * @brief Load a symbol by its (reversed) index in the current scope
+         *
+         * @param index index of the symbol to load, starting from the end
+         * @param context
+         * @return Value*
+         */
         [[nodiscard]] inline Value* loadSymbolFromIndex(uint16_t index, internal::ExecutionContext& context);
+
+        /**
+         * @brief Load a constant from the constant table by its id
+         *
+         * @param id
+         * @return Value*
+         */
         [[nodiscard]] inline Value* loadConstAsPtr(uint16_t id) const;
+
+        /**
+         * @brief Create a new symbol with an associated value in the current scope
+         *
+         * @param id
+         * @param val
+         * @param context
+         */
         inline void store(uint16_t id, const Value* val, internal::ExecutionContext& context);
+
+        /**
+         * @brief Change the value of a symbol given its identifier
+         *
+         * @param id
+         * @param val
+         * @param context
+         */
         inline void setVal(uint16_t id, const Value* val, internal::ExecutionContext& context);
 
         // ================================================
