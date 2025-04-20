@@ -98,6 +98,9 @@ inline Value* VM::loadSymbol(const uint16_t id, internal::ExecutionContext& cont
 
 inline Value* VM::loadSymbolFromIndex(const uint16_t index, internal::ExecutionContext& context)
 {
+    // we need to load symbols from the end, because function calls add a reference to the current function
+    // upon calling it. Which changes the index by 1, making it less clear, because it needs special
+    // treatment only for function calls.
     auto& [id, value] = context.locals.back().atPosReverse(index);
     context.last_symbol = id;
     return &value;
