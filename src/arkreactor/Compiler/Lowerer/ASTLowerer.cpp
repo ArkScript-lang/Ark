@@ -630,7 +630,7 @@ namespace Ark::internal
             else if (exp_count <= 1)
                 buildAndThrowError(fmt::format("Operator needs two arguments, but was called with {}", exp_count), x.constList()[0]);
 
-            page(p).back().setSourceLocation(node.filename(), node.line());
+            page(p).back().setSourceLocation(x.filename(), x.line());
 
             // need to check we didn't push the (op A B C D...) things for operators not supporting it
             if (exp_count > 2)

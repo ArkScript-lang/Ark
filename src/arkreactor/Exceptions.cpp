@@ -108,23 +108,44 @@ namespace Ark::Diagnostics
             if (i == target_line || (i > target_line && overflow > 0))
             {
                 fmt::print(os, "      |");
-                // if we have an overflow then we start at the beginning of the line
-                const std::size_t curr_col_start = (overflow == 0) ? col_start : 0;
-                // if we have an overflow, it is used as the end of the line
-                const std::size_t col_end = (i == target_line) ? std::min<std::size_t>(col_start + sym_size, ctx[target_line].size())
-                                                               : std::min<std::size_t>(overflow, ctx[i].size());
-                // update the overflow to avoid going here again if not needed
-                overflow = (overflow > ctx[i].size()) ? overflow - ctx[i].size() : 0;
 
-                fmt::print(
-                    os,
-                    "{: <{}}{:~<{}}\n",
-                    // padding of spaces
-                    " ",
-                    std::max(1_z, curr_col_start),  // fixing padding when the error is on the first character
-                    // underline the error in red
-                    fmt::styled("^", colorize ? fmt::fg(fmt::color::red) : fmt::text_style()),
-                    col_end - curr_col_start);
+                if (sym_size > 0)
+                {
+                    // if we have an overflow then we start at the beginning of the line
+                    const std::size_t curr_col_start = (overflow == 0) ? col_start : 0;
+                    // if we have an overflow, it is used as the end of the line
+                    const std::size_t col_end = (i == target_line) ? std::min<std::size_t>(col_start + sym_size, ctx[target_line].size())
+                                                                   : std::min<std::size_t>(overflow, ctx[i].size());
+                    // update the overflow to avoid going here again if not needed
+                    overflow = (overflow > ctx[i].size()) ? overflow - ctx[i].size() : 0;
+
+                    fmt::print(
+                        os,
+                        "{: <{}}{:~<{}}\n",
+                        // padding of spaces
+                        " ",
+                        std::max(1_z, curr_col_start),  // fixing padding when the error is on the first character
+                        // underline the error in red
+                        fmt::styled("^", colorize ? fmt::fg(fmt::color::red) : fmt::text_style()),
+                        col_end - curr_col_start);
+                }
+                else
+                {
+                    // first non-whitespace character of the line
+                    // +1 for the leading whitespace after `    |` before the code
+                    const std::size_t curr_col_start = ctx[i].find_first_not_of(" \t\v") + 1;
+
+                    // highlight the current line but skip any leading whitespace
+                    fmt::print(
+                        os,
+                        "{: <{}}{:~<{}}\n",
+                        // padding of spaces
+                        " ",
+                        curr_col_start,
+                        // underline the whole line in red
+                        fmt::styled("^", colorize ? fmt::fg(fmt::color::red) : fmt::text_style()),
+                        ctx[target_line].size() - curr_col_start);
+                }
             }
         }
     }

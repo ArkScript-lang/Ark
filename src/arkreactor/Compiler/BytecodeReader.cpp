@@ -305,7 +305,6 @@ namespace Ark
 
         const auto syms = symbols();
         const auto vals = values(syms);
-        // todo display files and inst_locs tables
         const auto files = filenames(vals);
         const auto inst_locs = instLocations(files);
         const auto code_block = code(inst_locs);
@@ -382,6 +381,33 @@ namespace Ark
                 fmt::print("\n");
             if (segment == BytecodeSegment::Values)
                 return;
+        }
+
+        // inst locs + file
+        {
+            std::size_t size = inst_locs.locations.size();
+            std::size_t sliceSize = size;
+
+            bool showVal = (segment == BytecodeSegment::All || segment == BytecodeSegment::InstructionLocation);
+            if (showVal && sStart.has_value() && sEnd.has_value() && (sStart.value() > size || sEnd.value() > size))
+                fmt::print(fmt::fg(fmt::color::red), "Slice start or end can't be greater than the segment size: {}\n", size);
+            else if (showVal && sStart.has_value() && sEnd.has_value())
+                sliceSize = sEnd.value() - sStart.value() + 1;
+
+            if (showVal || segment == BytecodeSegment::HeadersOnly)
+                fmt::println("{} (length: {})", fmt::styled("Instruction locations table", fmt::fg(fmt::color::cyan)), sliceSize);
+            if (showVal)
+                fmt::println(" PP, IP");
+
+            for (std::size_t j = 0; j < size; ++j)
+            {
+                if (auto start = sStart; auto end = sEnd)
+                    showVal = showVal && (j >= start.value() && j <= end.value());
+
+                const auto& location = inst_locs.locations[j];
+                if (showVal)
+                    fmt::println("{:>3},{:>3} -> {}:{}", location.page_pointer, location.inst_pointer, files.filenames[location.filename_id], location.line);
+            }
         }
 
         const auto stringify_value = [](const Value& val) -> std::string {

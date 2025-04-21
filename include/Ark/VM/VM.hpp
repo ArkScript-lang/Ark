@@ -339,6 +339,15 @@ namespace Ark
         static void throwVMError(internal::ErrorKind kind, const std::string& message);
 
         /**
+         * @brief Find the nearest source location information given instruction and page pointers
+         *
+         * @param ip
+         * @param pp
+         * @return std::optional<InstLoc>
+         */
+        std::optional<internal::InstLoc> findSourceLocation(std::size_t ip, std::size_t pp);
+
+        /**
          * @brief Display a backtrace when the VM encounter an exception
          *
          * @param context

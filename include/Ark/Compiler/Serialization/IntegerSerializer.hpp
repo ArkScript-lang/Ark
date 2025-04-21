@@ -55,10 +55,10 @@ namespace Ark::internal
     template <std::integral T>
     T deserializeBE(std::vector<uint8_t>::const_iterator begin, std::vector<uint8_t>::const_iterator end)
     {
-        constexpr std::size_t length = sizeof(T) - 1;
+        constexpr std::size_t length = sizeof(T);
         T result {};
         for (std::size_t i = 0; i < length && begin != end; ++i, ++begin)
-            result += static_cast<T>(*begin) << (8 * (length - i));
+            result += static_cast<T>(*begin) << (8 * (length - i - 1));
 
         return result;
     }

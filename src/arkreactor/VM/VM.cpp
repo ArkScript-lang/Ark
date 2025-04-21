@@ -1587,11 +1587,50 @@ namespace Ark
         throw std::runtime_error(std::string(errorKinds[static_cast<std::size_t>(kind)]) + ": " + message + "\n");
     }
 
+    std::optional<InstLoc> VM::findSourceLocation(const std::size_t ip, const std::size_t pp)
+    {
+        std::optional<InstLoc> match = std::nullopt;
+
+        for (const auto location : m_state.m_inst_locations)
+        {
+            if (location.page_pointer == pp && !match)
+                match = location;
+
+            // select the best match: we want to find the location that's nearest our instruction pointer
+            if (location.page_pointer == pp && match && location.inst_pointer <= ip / 4)
+                match = location;
+
+            // early exit because we won't find anything better, as inst locations are ordered by ascending (pp, ip)
+            if (location.page_pointer > pp || (location.page_pointer == pp && location.inst_pointer > ip / 4))
+                break;
+        }
+
+        return match;
+    }
+
     void VM::backtrace(ExecutionContext& context) noexcept
     {
         const std::size_t saved_ip = context.ip;
         const std::size_t saved_pp = context.pp;
         const uint16_t saved_sp = context.sp;
+
+        const auto maybe_location = findSourceLocation(context.ip, context.pp);
+        if (maybe_location)
+        {
+            const auto filename = m_state.m_filenames[maybe_location->filename_id];
+
+            fmt::println("In file {}", filename, maybe_location->line + 1);
+
+            if (Utils::fileExists(filename))
+                Diagnostics::makeContext(
+                    std::cout,
+                    Utils::readFile(filename),
+                    maybe_location->line,
+                    /* col_start= */ 0,
+                    /* sym_size= */ 0,
+                    /* colorize= */ true);
+            fmt::println("");
+        }
 
         if (const uint16_t original_frame_count = context.fc; original_frame_count > 1)
         {
@@ -1600,6 +1639,9 @@ namespace Ark
 
             while (context.fc != 0)
             {
+                const auto maybe_call_loc = findSourceLocation(context.ip, context.pp);
+                const auto loc_as_text = maybe_call_loc ? fmt::format(" ({}:{})", m_state.m_filenames[maybe_call_loc->filename_id], maybe_call_loc->line + 1) : "";
+
                 fmt::print("[{}] ", fmt::styled(context.fc, fmt::fg(fmt::color::cyan)));
                 if (context.pp != 0)
                 {
@@ -1608,9 +1650,9 @@ namespace Ark
                         context);
 
                     if (id < m_state.m_symbols.size())
-                        fmt::println("In function `{}'", fmt::styled(m_state.m_symbols[id], fmt::fg(fmt::color::green)));
+                        fmt::println("In function `{}'{}", fmt::styled(m_state.m_symbols[id], fmt::fg(fmt::color::green)), loc_as_text);
                     else  // should never happen
-                        fmt::println("In function `{}'", fmt::styled("???", fmt::fg(fmt::color::gold)));
+                        fmt::println("In function `{}'{}", fmt::styled("???", fmt::fg(fmt::color::gold)), loc_as_text);
 
                     Value* ip;
                     do
@@ -1624,7 +1666,7 @@ namespace Ark
                 }
                 else
                 {
-                    fmt::println("In global scope");
+                    fmt::println("In global scope{}", loc_as_text);
                     break;
                 }
 

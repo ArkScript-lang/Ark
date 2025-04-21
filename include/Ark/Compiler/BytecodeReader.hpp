@@ -32,7 +32,8 @@ namespace Ark
         Symbols,
         Values,
         Code,
-        HeadersOnly
+        HeadersOnly,
+        InstructionLocation
     };
 
     struct Version
