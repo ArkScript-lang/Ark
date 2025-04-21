@@ -114,7 +114,9 @@ namespace Ark
                 return "undefined";
 
             case ValueType::Reference:
-                return reference()->toString(vm);
+                if (reference() != this)
+                    return reference()->toString(vm);
+                return "Ref(self)";
 
             case ValueType::InstPtr:
                 return fmt::format("Instruction @ {}", pageAddr());
