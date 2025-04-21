@@ -2,6 +2,7 @@
 
 #include <Ark/Compiler/BytecodeReader.hpp>
 #include <Ark/Compiler/Welder.hpp>
+#include <Ark/Literals.hpp>
 #include <Proxy/Picosha2.hpp>
 
 #include <string>
@@ -10,11 +11,13 @@
 #include <TestsHelper.hpp>
 
 using namespace boost;
+using namespace Ark::literals;
 
 ut::suite<"BytecodeReader"> bcr_suite = [] {
     using namespace ut;
 
     Ark::Welder welder(0, { lib_path });
+    const std::string script_path = getResourcePath("BytecodeReaderSuite/ackermann.ark");
 
     const auto time_start =
         static_cast<unsigned long long>(std::chrono::duration_cast<std::chrono::seconds>(
@@ -22,7 +25,7 @@ ut::suite<"BytecodeReader"> bcr_suite = [] {
                                             .count());
 
     should("compile without error") = [&] {
-        expect(mut(welder).computeASTFromFile(getResourcePath("BytecodeReaderSuite/ackermann.ark")));
+        expect(mut(welder).computeASTFromFile(script_path));
         expect(mut(welder).generateBytecode());
     };
 
@@ -60,7 +63,10 @@ ut::suite<"BytecodeReader"> bcr_suite = [] {
 
         const auto symbols_block = bcr.symbols();
         const auto values_block = bcr.values(symbols_block);
-        const auto [pages, start_code] = bcr.code(values_block);
+        // todo test the filenames and inst_locations block
+        const auto filenames_block = bcr.filenames(values_block);
+        const auto inst_locations_block = bcr.instLocations(filenames_block);
+        const auto [pages, start_code] = bcr.code(inst_locations_block);
 
         should("list all symbols") = [symbols_block] {
             using namespace std::literals::string_literals;
@@ -100,8 +106,21 @@ ut::suite<"BytecodeReader"> bcr_suite = [] {
             );
         };
 
-        should("list all code page") = [values_block, pages, start_code] {
-            expect(that % start_code == values_block.end);
+        should("list all filenames") = [values_block, filenames_block, script_path] {
+            expect(that % values_block.end == filenames_block.start);
+            expect(that % filenames_block.filenames.size() == 1_z);
+            expect(that % filenames_block.filenames.front() == script_path);
+        };
+
+        should("have registered some instruction locations") = [filenames_block, inst_locations_block] {
+            expect(that % filenames_block.end == inst_locations_block.start);
+            expect(that % inst_locations_block.locations.size() > 1_z);
+            expect(that % inst_locations_block.locations.front().page_pointer == 0_z);
+            expect(that % inst_locations_block.locations.back().page_pointer == 1_z);
+        };
+
+        should("list all code page") = [inst_locations_block, pages, start_code] {
+            expect(that % start_code == inst_locations_block.end);
             expect(that % pages.size() == 2ull);
             // 7 instructions on 4 bytes
             expect(that % pages[0].size() == 7 * 4ull);

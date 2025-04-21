@@ -171,12 +171,85 @@ namespace Ark
         return block;
     }
 
-    Code BytecodeReader::code(const Values& values) const
+    Filenames BytecodeReader::filenames(const Ark::Values& values) const
     {
         if (!checkMagic())
             return {};
 
         std::size_t i = values.end;
+        if (m_bytecode[i] != FILENAMES_TABLE_START)
+            return {};
+        i++;
+
+        const uint16_t size = readNumber(i);
+        i++;
+
+        Filenames block;
+        block.start = values.end;
+        block.filenames.reserve(size);
+
+        for (uint16_t j = 0; j < size; ++j)
+        {
+            std::string val;
+            while (m_bytecode[i] != 0)
+                val.push_back(static_cast<char>(m_bytecode[i++]));
+            block.filenames.emplace_back(val);
+            i++;
+        }
+
+        block.end = i;
+        return block;
+    }
+
+    InstLocations BytecodeReader::instLocations(const Ark::Filenames& filenames) const
+    {
+        if (!checkMagic())
+            return {};
+
+        std::size_t i = filenames.end;
+        if (m_bytecode[i] != INST_LOC_TABLE_START)
+            return {};
+        i++;
+
+        const uint16_t size = readNumber(i);
+        i++;
+
+        InstLocations block;
+        block.start = filenames.end;
+        block.locations.reserve(size);
+
+        for (uint16_t j = 0; j < size; ++j)
+        {
+            auto pp = readNumber(i);
+            i++;
+
+            auto ip = readNumber(i);
+            i++;
+
+            auto file_id = readNumber(i);
+            i++;
+
+            auto line = deserializeBE<uint32_t>(
+                m_bytecode.begin() + static_cast<std::vector<uint8_t>::difference_type>(i), m_bytecode.end());
+            i += 4;
+
+            block.locations.push_back(
+                { .page_pointer = pp,
+                  .inst_pointer = ip,
+                  .filename_id = file_id,
+                  .line = line });
+        }
+
+        block.end = i;
+        return block;
+    }
+
+    Code BytecodeReader::code(const InstLocations& instLocations) const
+    {
+        if (!checkMagic())
+            return {};
+
+        std::size_t i = instLocations.end;
 
         Code block;
         block.start = i;
@@ -232,7 +305,10 @@ namespace Ark
 
         const auto syms = symbols();
         const auto vals = values(syms);
-        const auto code_block = code(vals);
+        // todo display files and inst_locs tables
+        const auto files = filenames(vals);
+        const auto inst_locs = instLocations(files);
+        const auto code_block = code(inst_locs);
 
         // symbols table
         {

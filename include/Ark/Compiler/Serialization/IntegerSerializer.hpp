@@ -30,15 +30,15 @@ namespace Ark::internal
     void serializeOn2BytesToVecLE(std::integral auto number, std::vector<uint8_t>& out)
     {
         constexpr auto mask = static_cast<decltype(number)>(0xff);
-        for (std::size_t i = 0; i < 2; ++i)
-            out.push_back(static_cast<uint8_t>((number & (mask << (8 * i))) >> (8 * i)));
+        out.push_back(static_cast<uint8_t>(number & mask));
+        out.push_back(static_cast<uint8_t>((number & (mask << 8)) >> 8));
     }
 
     void serializeOn2BytesToVecBE(std::integral auto number, std::vector<uint8_t>& out)
     {
         constexpr auto mask = static_cast<decltype(number)>(0xff);
-        for (std::size_t i = 0; i < 2; ++i)
-            out.push_back(static_cast<uint8_t>((number & (mask << (8 * (1 - i)))) >> (8 * (1 - i))));
+        out.push_back(static_cast<uint8_t>((number & (mask << 8)) >> 8));
+        out.push_back(static_cast<uint8_t>(number & mask));
     }
 
     template <std::integral T>

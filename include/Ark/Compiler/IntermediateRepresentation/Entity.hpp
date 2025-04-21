@@ -5,7 +5,7 @@
  * @version 1.0
  * @date 2024-10-05
  *
- * @copyright Copyright (c) 2024
+ * @copyright Copyright (c) 2024-2025
  *
  */
 
@@ -62,12 +62,22 @@ namespace Ark::internal::IR
 
         [[nodiscard]] inline uint16_t secondaryArg() const { return m_secondary_arg; }
 
+        void setSourceLocation(const std::string& filename, std::size_t line);
+
+        [[nodiscard]] inline bool hasValidSourceLocation() const { return !m_source_file.empty(); }
+
+        [[nodiscard]] inline const std::string& filename() const { return m_source_file; }
+
+        [[nodiscard]] inline std::size_t sourceLine() const { return m_source_line; }
+
     private:
         Kind m_kind;
         label_t m_label { 0 };
         Instruction m_inst { NOP };
         uint16_t m_primary_arg { 0 };
         uint16_t m_secondary_arg { 0 };
+        std::string m_source_file;
+        std::size_t m_source_line { 0 };
     };
 
     using Block = std::vector<Entity>;

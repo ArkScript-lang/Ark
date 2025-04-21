@@ -167,10 +167,14 @@ namespace Ark
 
         const auto syms = bcr.symbols();
         const auto vals = bcr.values(syms);
-        const auto [pages, _] = bcr.code(vals);
+        const auto files = bcr.filenames(vals);
+        const auto inst_locs = bcr.instLocations(files);
+        const auto [pages, _] = bcr.code(inst_locs);
 
         m_symbols = syms.symbols;
         m_constants = vals.values;
+        m_filenames = files.filenames;
+        m_inst_locations = inst_locs.locations;
         m_pages = pages;
     }
 
@@ -178,6 +182,8 @@ namespace Ark
     {
         m_symbols.clear();
         m_constants.clear();
+        m_filenames.clear();
+        m_inst_locations.clear();
         m_pages.clear();
         m_binded.clear();
     }

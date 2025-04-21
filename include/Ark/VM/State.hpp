@@ -2,10 +2,10 @@
  * @file State.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief State used by the virtual machine: it loads the bytecode, can compile it if needed, load C++ functions...
- * @version 0.4
+ * @version 1.0
  * @date 2020-10-27
  *
- * @copyright Copyright (c) 2020-2024
+ * @copyright Copyright (c) 2020-2025
  *
  */
 
@@ -21,6 +21,7 @@
 #include <Ark/VM/Value.hpp>
 #include <Ark/Compiler/Common.hpp>
 #include <Ark/Exceptions.hpp>
+#include <Ark/Compiler/IntermediateRepresentation/InstLoc.hpp>
 
 namespace Ark
 {
@@ -148,6 +149,8 @@ namespace Ark
         // related to the bytecode
         std::vector<std::string> m_symbols;
         std::vector<Value> m_constants;
+        std::vector<std::string> m_filenames;
+        std::vector<internal::InstLoc> m_inst_locations;
         std::vector<bytecode_t> m_pages;
 
         // related to the execution

@@ -20,6 +20,7 @@
 #include <Ark/Platform.hpp>
 #include <Ark/Compiler/Common.hpp>
 #include <Ark/VM/Value.hpp>
+#include <Ark/Compiler/IntermediateRepresentation/InstLoc.hpp>
 
 namespace Ark
 {
@@ -52,6 +53,20 @@ namespace Ark
     {
         std::vector<Value> values {};
         std::size_t start {};  ///< Point to the VAL_TABLE_START byte in the bytecode
+        std::size_t end {};    ///< Point to the byte following the last byte of the table in the bytecode
+    };
+
+    struct Filenames
+    {
+        std::vector<std::string> filenames {};
+        std::size_t start {};  ///< Point to the FILENAMES_TABLE_START byte in the bytecode
+        std::size_t end {};    ///< Point to the byte following the last byte of the table in the bytecode
+    };
+
+    struct InstLocations
+    {
+        std::vector<internal::InstLoc> locations {};
+        std::size_t start {};  ///< Point to the INST_LOC_TABLE_START byte in the bytecode
         std::size_t end {};    ///< Point to the byte following the last byte of the table in the bytecode
     };
 
@@ -129,9 +144,21 @@ namespace Ark
 
         /**
          * @param values
+         * @return Filenames
+         */
+        [[nodiscard]] Filenames filenames(const Values& values) const;
+
+        /**
+         * @param filenames
+         * @return InstLocations
+         */
+        [[nodiscard]] InstLocations instLocations(const Filenames& filenames) const;
+
+        /**
+         * @param instLocations
          * @return Code
          */
-        [[nodiscard]] Code code(const Values& values) const;
+        [[nodiscard]] Code code(const InstLocations& instLocations) const;
 
         /**
          * @brief Display the bytecode opcode in a human friendly way.

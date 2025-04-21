@@ -2,10 +2,10 @@
  * @file Instructions.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief The different instructions used by the compiler and virtual machine
- * @version 0.1
+ * @version 1.0
  * @date 2020-10-27
  *
- * @copyright Copyright (c) 2020-2024
+ * @copyright Copyright (c) 2020-2025
  *
  */
 
@@ -34,6 +34,8 @@ namespace Ark::internal
         NUMBER_TYPE = 0xF1,
         STRING_TYPE = 0xF2,
         FUNC_TYPE = 0xF3,
+        FILENAMES_TABLE_START = 0xA4,
+        INST_LOC_TABLE_START = 0xA5,
 
         // @args symbol id
         // @role Load a symbol from its ID onto the stack

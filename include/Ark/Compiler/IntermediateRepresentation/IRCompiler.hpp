@@ -2,10 +2,10 @@
  * @file IRCompiler.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Compile the intermediate representation to bytecode
- * @version 0.1
+ * @version 0.2
  * @date 2024-10-05
  *
- * @copyright Copyright (c) 2024
+ * @copyright Copyright (c) 2024-2025
  *
  */
 
@@ -60,11 +60,12 @@ namespace Ark::internal
         Logger m_logger;
         bytecode_t m_bytecode;
         std::vector<IR::Block> m_ir;
+        std::vector<std::string> m_filenames;
 
         void compile();
 
         /**
-         * @brief Push a word to the m_bytecode
+         * @brief Push a word (4 bytes) to the m_bytecode
          * @param word
          */
         void pushWord(const Word& word);
@@ -75,11 +76,10 @@ namespace Ark::internal
          */
         void pushFileHeader() noexcept;
 
-        /**
-         * @brief Push the symbols and values tables
-         *
-         */
-        void pushSymAndValTables(const std::vector<std::string>& symbols, const std::vector<ValTableElem>& values);
+        void pushSymbolTable(const std::vector<std::string>& symbols);
+        void pushValueTable(const std::vector<ValTableElem>& values);
+        void pushFilenameTable();
+        void pushInstLocTable(const std::vector<IR::Block>& pages);
     };
 }
 

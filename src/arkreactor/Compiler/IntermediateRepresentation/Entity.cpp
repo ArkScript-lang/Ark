@@ -49,4 +49,10 @@ namespace Ark::internal::IR
             return Word(m_inst, m_primary_arg, m_secondary_arg);
         return Word(0, 0);
     }
+
+    void Entity::setSourceLocation(const std::string& filename, std::size_t line)
+    {
+        m_source_file = filename;
+        m_source_line = line;
+    }
 }

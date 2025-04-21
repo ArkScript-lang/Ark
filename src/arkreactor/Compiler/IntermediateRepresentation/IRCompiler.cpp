@@ -8,6 +8,7 @@
 
 #include <Ark/Constants.hpp>
 #include <Ark/Literals.hpp>
+#include <Ark/Compiler/IntermediateRepresentation/InstLoc.hpp>
 #include <Ark/Compiler/Serialization/IntegerSerializer.hpp>
 #include <Ark/Compiler/Serialization/IEEE754Serializer.hpp>
 
@@ -23,7 +24,21 @@ namespace Ark::internal
     {
         m_logger.traceStart("process");
         pushFileHeader();
-        pushSymAndValTables(symbols, values);
+        pushSymbolTable(symbols);
+        pushValueTable(values);
+
+        // compute a list of unique filenames
+        for (const auto& page : pages)
+        {
+            for (const auto& inst : page)
+            {
+                if (std::ranges::find(m_filenames, inst.filename()) == m_filenames.end() && inst.hasValidSourceLocation())
+                    m_filenames.push_back(inst.filename());
+            }
+        }
+
+        pushFilenameTable();
+        pushInstLocTable(pages);
 
         m_ir = pages;
         compile();
@@ -55,7 +70,7 @@ namespace Ark::internal
         for (const auto& block : m_ir)
         {
             fmt::println(stream, "page_{}", index);
-            for (const auto entity : block)
+            for (const auto& entity : block)
             {
                 switch (entity.kind())
                 {
@@ -113,13 +128,12 @@ namespace Ark::internal
                 throw std::overflow_error(fmt::format("Size of page {} exceeds the maximum size of 2^16 - 1", i));
 
             m_bytecode.push_back(CODE_SEGMENT_START);
-            m_bytecode.push_back(static_cast<uint8_t>((page_size & 0xff00) >> 8));
-            m_bytecode.push_back(static_cast<uint8_t>(page_size & 0x00ff));
+            serializeOn2BytesToVecBE(page_size, m_bytecode);
 
             // register labels position
             uint16_t pos = 0;
             std::unordered_map<IR::label_t, uint16_t> label_to_position;
-            for (auto inst : page)
+            for (auto& inst : page)
             {
                 switch (inst.kind())
                 {
@@ -132,7 +146,7 @@ namespace Ark::internal
                 }
             }
 
-            for (auto inst : page)
+            for (auto& inst : page)
             {
                 switch (inst.kind())
                 {
@@ -200,7 +214,7 @@ namespace Ark::internal
         }
     }
 
-    void IRCompiler::pushSymAndValTables(const std::vector<std::string>& symbols, const std::vector<ValTableElem>& values)
+    void IRCompiler::pushSymbolTable(const std::vector<std::string>& symbols)
     {
         const std::size_t symbol_size = symbols.size();
         if (symbol_size > std::numeric_limits<uint16_t>::max())
@@ -217,7 +231,10 @@ namespace Ark::internal
             });
             m_bytecode.push_back(0_u8);
         }
+    }
 
+    void IRCompiler::pushValueTable(const std::vector<ValTableElem>& values)
+    {
         const std::size_t value_size = values.size();
         if (value_size > std::numeric_limits<uint16_t>::max())
             throw std::overflow_error(fmt::format("Too many values: {}, exceeds the maximum size of 2^16 - 1", value_size));
@@ -259,6 +276,74 @@ namespace Ark::internal
             }
 
             m_bytecode.push_back(0_u8);
+        }
+    }
+
+    void IRCompiler::pushFilenameTable()
+    {
+        if (m_filenames.size() > std::numeric_limits<uint16_t>::max())
+            throw std::overflow_error(fmt::format("Too many filenames: {}, exceeds the maximum size of 2^16 - 1", m_filenames.size()));
+
+        m_bytecode.push_back(FILENAMES_TABLE_START);
+        // push number of elements
+        serializeOn2BytesToVecBE(m_filenames.size(), m_bytecode);
+
+        for (const auto& name : m_filenames)
+        {
+            std::ranges::transform(name, std::back_inserter(m_bytecode), [](const char i) {
+                return static_cast<uint8_t>(i);
+            });
+            m_bytecode.push_back(0_u8);
+        }
+    }
+
+    void IRCompiler::pushInstLocTable(const std::vector<IR::Block>& pages)
+    {
+        std::vector<internal::InstLoc> locations;
+        for (std::size_t i = 0, end = pages.size(); i < end; ++i)
+        {
+            const auto& page = pages[i];
+            uint16_t ip = 0;
+
+            for (const auto& inst : page)
+            {
+                if (inst.hasValidSourceLocation())
+                {
+                    // we are guaranteed to have a value since we listed all existing filenames in IRCompiler::process before,
+                    // thus we do not have to check if std::ranges::find returned a valid iterator.
+                    auto file_id = static_cast<uint16_t>(std::distance(m_filenames.begin(), std::ranges::find(m_filenames, inst.filename())));
+
+                    std::optional<internal::InstLoc> prev = std::nullopt;
+                    if (!locations.empty())
+                        prev = locations.back();
+
+                    // skip redundant instruction location
+                    if (!(prev.has_value() && prev->filename_id == file_id && prev->line == inst.sourceLine() && prev->page_pointer == i))
+                        locations.push_back(
+                            { .page_pointer = static_cast<uint16_t>(i),
+                              .inst_pointer = ip,
+                              .filename_id = file_id,
+                              .line = static_cast<uint32_t>(inst.sourceLine()) });
+                }
+
+                if (inst.kind() != IR::Kind::Label)
+                    ++ip;
+            }
+        }
+
+        m_bytecode.push_back(INST_LOC_TABLE_START);
+        serializeOn2BytesToVecBE(locations.size(), m_bytecode);
+
+        std::optional<internal::InstLoc> prev = std::nullopt;
+
+        for (const auto& loc : locations)
+        {
+            serializeOn2BytesToVecBE(loc.page_pointer, m_bytecode);
+            serializeOn2BytesToVecBE(loc.inst_pointer, m_bytecode);
+            serializeOn2BytesToVecBE(loc.filename_id, m_bytecode);
+            serializeToVecBE(loc.line, m_bytecode);
+
+            prev = loc;
         }
     }
 }
