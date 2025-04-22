@@ -44,7 +44,7 @@ std::string getResourcePath(const std::string& folder)
     return (ARK_TESTS_ROOT "tests/unittests/resources/") + folder;
 }
 
-std::string sanitizeError(const Ark::CodeError& e, const bool remove_in_file_line)
+std::string sanitizeCodeError(const Ark::CodeError& e, const bool remove_in_file_line)
 {
     std::stringstream stream;
     Ark::Diagnostics::generate(e, stream, /* colorize= */ false);
@@ -56,6 +56,27 @@ std::string sanitizeError(const Ark::CodeError& e, const bool remove_in_file_lin
 
     if (remove_in_file_line)
         diag.erase(0, diag.find_first_of('\n') + 1);
+
+    return diag;
+}
+
+std::string sanitizeRuntimeError(const std::exception& e)
+{
+    // std::replace(s.begin(), s.end(), '\\', '/');
+    std::string diag = e.what();
+
+    // because of windows
+    diag.erase(std::ranges::remove(diag, '\r').begin(), diag.end());
+    std::ranges::replace(diag, '\\', '/');
+
+    // remove the directory prefix so that we are environment agnostic
+    while (diag.find(ARK_TESTS_ROOT) != std::string::npos)
+        diag.erase(diag.find(ARK_TESTS_ROOT), std::size(ARK_TESTS_ROOT) - 1);
+    ltrim(rtrim(diag));
+    // remove last line, At IP:.., PP:.., SP:..
+    diag.erase(diag.find_last_of('\n'), diag.size() - 1);
+    // we most likely have a blank line at the end now
+    rtrim(diag);
 
     return diag;
 }

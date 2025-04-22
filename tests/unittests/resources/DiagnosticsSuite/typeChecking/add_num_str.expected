@@ -1,0 +1,11 @@
+Function + expected 2 arguments
+  -> a (Number)
+  -> b (Number) was of type String
+Alternative 2:
+  -> a (String) was of type Number
+  -> b (String)
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/add_num_str.ark
+    1 | (+ 1 "2")
+      | ^~~~~~~~
+    2 |

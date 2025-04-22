@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <utility>
+#include <optional>
 #include <unordered_map>
 #include <Proxy/Picosha2.hpp>
 #include <fmt/ostream.h>

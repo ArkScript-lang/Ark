@@ -15,6 +15,7 @@
 #include <string>
 #include <vector>
 #include <ostream>
+#include <sstream>
 
 #include <Ark/VM/Value.hpp>
 
@@ -111,10 +112,10 @@ namespace Ark::types
             m_passed_args(args)
         {}
 
-        [[nodiscard]] std::string details() const override
+        [[nodiscard]] std::string details(const bool colorize) const override
         {
             std::stringstream stream;
-            generateError(m_funcname, m_contracts, m_passed_args, stream, shouldColorize());
+            generateError(m_funcname, m_contracts, m_passed_args, stream, colorize);
             return stream.str();
         }
 

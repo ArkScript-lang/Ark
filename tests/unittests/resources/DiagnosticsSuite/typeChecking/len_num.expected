@@ -1,0 +1,9 @@
+Function len expected 1 argument
+  -> value (List) was of type Number
+Alternative 2:
+  -> value (String) was of type Number
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/len_num.ark
+    1 | (len 1)
+      | ^~~~~~
+    2 |

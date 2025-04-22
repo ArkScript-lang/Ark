@@ -14,6 +14,7 @@
 
 #include <cinttypes>
 #include <vector>
+#include <string>
 
 #include <Ark/Compiler/IntermediateRepresentation/Word.hpp>
 #include <Ark/Compiler/Instructions.hpp>

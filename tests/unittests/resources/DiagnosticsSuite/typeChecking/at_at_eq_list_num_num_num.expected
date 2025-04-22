@@ -1,0 +1,15 @@
+Function @@= expected 4 arguments
+  -> list (List)
+  -> x (Number)
+  -> y (Number)
+  -> new_value (any)
+Alternative 2:
+  -> string (String) was of type List
+  -> x (Number)
+  -> y (Number)
+  -> char (String) was of type Number
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/at_at_eq_list_num_num_num.ark
+    1 | (@@= [1 2 3 4] 0 1 4)
+      | ^~~~~~~~~~~~~~~~~~~~
+    2 |

@@ -1,0 +1,8 @@
+Function mod expected 2 arguments
+  -> a (Number) was of type String
+  -> b (Number) was of type String
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/mod_str_str.ark
+    1 | (mod "1" "2")
+      | ^~~~~~~~~~~~
+    2 |

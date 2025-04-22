@@ -756,7 +756,7 @@ namespace Ark
 
                         if (list->valueType() != ValueType::List)
                             throw types::TypeCheckingError(
-                                "concat",
+                                "concat!",
                                 { { types::Contract { { types::Typedef("list", ValueType::List) } } } },
                                 { *list });
 
@@ -842,7 +842,7 @@ namespace Ark
                                           { types::Typedef("string", ValueType::String),
                                             types::Typedef("index", ValueType::Number),
                                             types::Typedef("char", ValueType::String) } } } },
-                                    { *list, number });
+                                    { *list, number, new_value });
 
                             const std::size_t size = list->valueType() == ValueType::List ? list->list().size() : list->stringRef().size();
                             long idx = static_cast<long>(number.number());
@@ -876,7 +876,7 @@ namespace Ark
                                           types::Typedef("x", ValueType::Number),
                                           types::Typedef("y", ValueType::Number),
                                           types::Typedef("new_value", ValueType::Any) } } } },
-                                    { *list, x, y });
+                                    { *list, x, y, new_value });
 
                             long idx_y = static_cast<long>(x.number());
                             idx_y = idx_y < 0 ? static_cast<long>(list->list().size()) + idx_y : idx_y;
@@ -899,7 +899,7 @@ namespace Ark
                                             types::Typedef("x", ValueType::Number),
                                             types::Typedef("y", ValueType::Number),
                                             types::Typedef("char", ValueType::String) } } } },
-                                    { *list, x, y });
+                                    { *list, x, y, new_value });
 
                             const bool is_list = list->list()[static_cast<std::size_t>(idx_y)].valueType() == ValueType::List;
                             const std::size_t size =
@@ -1554,7 +1554,7 @@ namespace Ark
                 throw NestedError(e, stream.str());
             }
             else
-                showBacktraceWithException(Error(e.details()), context);
+                showBacktraceWithException(Error(e.details(/* colorize= */ true)), context);
         }
         catch (const std::exception& e)
         {

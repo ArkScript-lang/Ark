@@ -1,0 +1,13 @@
+Function @= expected 3 arguments
+  -> list (List) was of type Number
+  -> index (Number)
+  -> new_value (any)
+Alternative 2:
+  -> string (String) was of type Number
+  -> index (Number)
+  -> char (String) was of type Number
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/at_eq_num_num_num.ark
+    1 | (@= 1 2 3)
+      | ^~~~~~~~~
+    2 |

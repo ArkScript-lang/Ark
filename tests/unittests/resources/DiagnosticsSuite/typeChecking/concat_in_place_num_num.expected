@@ -1,0 +1,8 @@
+Function concat! expected 1 argument
+  -> list (List) was of type Number
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/concat_in_place_num_num.ark
+    1 | (mut L 1)
+    2 | (concat! L 5)
+      | ^~~~~~~~~~~~
+    3 |

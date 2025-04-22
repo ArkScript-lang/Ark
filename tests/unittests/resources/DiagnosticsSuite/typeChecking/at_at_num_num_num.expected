@@ -1,0 +1,9 @@
+Function @@ expected 3 arguments
+  -> src (List) was of type Number
+  -> y (Number)
+  -> x (Number)
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/at_at_num_num_num.ark
+    1 | (@@ 1 2 3)
+      | ^~~~~~~~~
+    2 |

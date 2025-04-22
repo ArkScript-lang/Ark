@@ -36,24 +36,10 @@ namespace Ark
             std::runtime_error(message)
         {}
 
-        [[nodiscard]] virtual std::string details() const
+        [[nodiscard]] virtual std::string details(bool colorize [[maybe_unused]]) const
         {
             return what();
         }
-
-        Error& colorize(const bool toggle) noexcept
-        {
-            m_colorize = toggle;
-            return *this;
-        }
-
-        [[nodiscard]] bool shouldColorize() const noexcept
-        {
-            return m_colorize;
-        }
-
-    private:
-        bool m_colorize = true;
     };
 
     /**
@@ -85,7 +71,7 @@ namespace Ark
     public:
         NestedError(const Error& e, const std::string& details) :
             Error("NestedError"),
-            m_details(Error(e).colorize(false).details() + "\n" + details)
+            m_details(e.details(/* colorize= */ false) + "\n" + details)
         {}
 
         NestedError(const std::exception& e, const std::string& details) :

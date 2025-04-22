@@ -1,0 +1,8 @@
+Function pop! expected 2 arguments
+  -> list (List) was of type Number
+  -> index (Number)
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/pop_in_place_num_num.ark
+    1 | (pop! 5 5)
+      | ^~~~~~~~~
+    2 |

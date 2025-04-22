@@ -76,7 +76,9 @@ inline std::string& rtrim(std::string& s)
     return s;
 }
 
-std::string sanitizeError(const Ark::CodeError& e, bool remove_in_file_line = false);
+std::string sanitizeCodeError(const Ark::CodeError& e, bool remove_in_file_line = false);
+
+std::string sanitizeRuntimeError(const std::exception& e);
 
 void expectOrDiff(const std::string& expected, const std::string& received);
 

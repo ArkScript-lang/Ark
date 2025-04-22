@@ -78,7 +78,7 @@ ut::suite<"Parser"> parser_suite = [] {
                 catch (const Ark::CodeError& e)
                 {
                     should("output the same error message (" + data.stem + ")") = [&] {
-                        std::string tested = sanitizeError(e);
+                        std::string tested = sanitizeCodeError(e);
                         ltrim(rtrim(tested));
                         expectOrDiff(data.expected, tested);
                     };
