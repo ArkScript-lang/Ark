@@ -137,8 +137,8 @@ namespace Ark::internal
             {
                 uint16_t i = addSymbol(*it);
                 page(p).emplace_back(GET_FIELD, i);
-                page(p).back().setSourceLocation(it->filename(), it->line());
             }
+            page(p).back().setSourceLocation(x.filename(), x.line());
         }
         // register values
         else if (x.nodeType() == NodeType::String || x.nodeType() == NodeType::Number)
@@ -212,6 +212,7 @@ namespace Ark::internal
 
                 case Keyword::Del:
                     page(p).emplace_back(DEL, addSymbol(x.constList()[1]));
+                    page(p).back().setSourceLocation(x.constList()[1].filename(), x.constList()[1].line());
                     break;
             }
         }
@@ -425,7 +426,7 @@ namespace Ark::internal
         else
             page(p).emplace_back(SET_VAL, i);
 
-        page(p).back().setSourceLocation(x.constList()[1].filename(), x.constList()[1].line());
+        page(p).back().setSourceLocation(x.filename(), x.line());
     }
 
     void ASTLowerer::compileWhile(const Node& x, const Page p)

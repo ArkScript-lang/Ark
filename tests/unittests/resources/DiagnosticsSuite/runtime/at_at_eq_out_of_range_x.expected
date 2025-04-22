@@ -1,1 +1,7 @@
 IndexError: @@= index (x: 1) out of range (inner indexable size: 1)
+
+In file tests/unittests/resources/DiagnosticsSuite/runtime/at_at_eq_out_of_range_x.ark
+    1 | (mut a [[1]])
+    2 | (@@= a 0 1 2)
+      | ^~~~~~~~~~~~
+    3 |

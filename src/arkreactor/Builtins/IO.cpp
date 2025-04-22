@@ -63,7 +63,7 @@ namespace Ark::internal::Builtins::IO
         if (types::check(n, ValueType::String))
             fmt::print("{}", n[0].string());
         else if (!n.empty())
-            types::generateError("input", { { types::Contract {}, types::Contract { { types::Typedef("prompt", ValueType::String) } } } }, n);
+            throw types::TypeCheckingError("input", { { types::Contract {}, types::Contract { { types::Typedef("prompt", ValueType::String) } } } }, n);
 
         std::string line;
         std::getline(std::cin, line);
@@ -95,7 +95,7 @@ namespace Ark::internal::Builtins::IO
                 throw std::runtime_error(fmt::format("io:writeFile: couldn't write to file \"{}\"", n[0].stringRef()));
         }
         else
-            types::generateError(
+            throw types::TypeCheckingError(
                 "io:writeFile",
                 { { types::Contract { { types::Typedef("filename", ValueType::String), types::Typedef("content", ValueType::Any) } } } },
                 n);
@@ -127,7 +127,7 @@ namespace Ark::internal::Builtins::IO
                 throw std::runtime_error(fmt::format("io:appendToFile: couldn't write to file \"{}\"", n[0].stringRef()));
         }
         else
-            types::generateError(
+            throw types::TypeCheckingError(
                 "io:appendToFile",
                 { { types::Contract { { types::Typedef("filename", ValueType::String), types::Typedef("content", ValueType::Any) } } } },
                 n);
@@ -147,7 +147,7 @@ namespace Ark::internal::Builtins::IO
     Value readFile(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::String))
-            types::generateError(
+            throw types::TypeCheckingError(
                 "io:readFile",
                 { { types::Contract { { types::Typedef("filename", ValueType::String) } } } },
                 n);
@@ -172,7 +172,7 @@ namespace Ark::internal::Builtins::IO
     Value fileExists(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::String))
-            types::generateError(
+            throw types::TypeCheckingError(
                 "io:fileExists?",
                 { { types::Contract { { types::Typedef("filename", ValueType::String) } } } },
                 n);
@@ -192,7 +192,7 @@ namespace Ark::internal::Builtins::IO
     Value listFiles(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::String))
-            types::generateError(
+            throw types::TypeCheckingError(
                 "io:listFiles",
                 { { types::Contract { { types::Typedef("path", ValueType::String) } } } },
                 n);
@@ -218,7 +218,7 @@ namespace Ark::internal::Builtins::IO
     Value isDirectory(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::String))
-            types::generateError(
+            throw types::TypeCheckingError(
                 "io:dir?",
                 { { types::Contract { { types::Typedef("path", ValueType::String) } } } },
                 n);
@@ -238,7 +238,7 @@ namespace Ark::internal::Builtins::IO
     Value makeDir(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::String))
-            types::generateError(
+            throw types::TypeCheckingError(
                 "io:makeDir",
                 { { types::Contract { { types::Typedef("path", ValueType::String) } } } },
                 n);
@@ -260,7 +260,7 @@ namespace Ark::internal::Builtins::IO
     Value removeFiles(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (n.empty() || n[0].valueType() != ValueType::String)
-            types::generateError(
+            throw types::TypeCheckingError(
                 "io:removeFiles",
                 { { types::Contract { { types::Typedef("filename", ValueType::String), types::Typedef("filenames", ValueType::String, /* variadic */ true) } } } },
                 n);
@@ -268,7 +268,7 @@ namespace Ark::internal::Builtins::IO
         for (auto it = n.begin(), it_end = n.end(); it != it_end; ++it)
         {
             if (it->valueType() != ValueType::String)
-                types::generateError(
+                throw types::TypeCheckingError(
                     "io:removeFiles",
                     { { types::Contract { { types::Typedef("filename", ValueType::String), types::Typedef("filenames", ValueType::String, /* variadic */ true) } } } },
                     n);

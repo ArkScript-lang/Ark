@@ -204,7 +204,18 @@ namespace Ark::internal
             if (match(expected, entities) && condition(entities))
             {
                 auto [first, second] = createReplacement(entities);
-                return IR::Entity(replacement, first, second);
+                auto output = IR::Entity(replacement, first, second);
+
+                for (const auto& entity : entities)
+                {
+                    if (entity.hasValidSourceLocation())
+                    {
+                        output.setSourceLocation(entity.filename(), entity.sourceLine());
+                        break;
+                    }
+                }
+
+                return output;
             }
         }
 

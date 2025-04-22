@@ -1,1 +1,9 @@
 ScopeError: `c' isn't in the closure environment: (.a=5)
+
+In file tests/unittests/resources/DiagnosticsSuite/runtime/unknown_field.ark
+    1 | (let a 5)
+    2 | (let c 6)
+    3 | (let b (fun (&a) ()))
+    4 | (print b.c)
+      | ^~~~~~~~~~
+    5 |

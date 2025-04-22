@@ -205,22 +205,16 @@ ut::suite<"TypeChecker"> type_checker_suite = [] {
 
             should("generate error message " + data.stem) = [inputs, contracts, data] {
                 std::stringstream stream;
-                try
-                {
-                    Ark::types::generateError(
-                        inputs.front().func,
-                        contracts,
-                        inputs.front().given_args,
-                        stream,
-                        /* colorize= */ false);
-                    expect(fatal(false)) << "generateError should throw an Ark::TypeError";
-                }
-                catch (const Ark::TypeError&)
-                {
-                    auto result = stream.str();
-                    rtrim(ltrim(result));
-                    expectOrDiff(data.expected, result);
-                }
+                Ark::types::generateError(
+                    inputs.front().func,
+                    contracts,
+                    inputs.front().given_args,
+                    stream,
+                    /* colorize= */ false);
+
+                auto result = stream.str();
+                rtrim(ltrim(result));
+                expectOrDiff(data.expected, result);
             };
         },
         { .skip_folders = false });

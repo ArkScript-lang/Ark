@@ -43,7 +43,7 @@ namespace Ark::internal::Builtins::System
     Value system_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::String))
-            types::generateError(
+            throw types::TypeCheckingError(
                 "sys:exec",
                 { { types::Contract { { types::Typedef("command", ValueType::String) } } } },
                 n);
@@ -75,7 +75,7 @@ namespace Ark::internal::Builtins::System
     Value sleep(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::Number))
-            types::generateError(
+            throw types::TypeCheckingError(
                 "sys:sleep",
                 { { types::Contract { { types::Typedef("duration", ValueType::Number) } } } },
                 n);
@@ -99,7 +99,7 @@ namespace Ark::internal::Builtins::System
     Value exit_(std::vector<Value>& n, VM* vm)
     {
         if (!types::check(n, ValueType::Number))
-            types::generateError(
+            throw types::TypeCheckingError(
                 "sys:exit",
                 { { types::Contract { { types::Typedef("exitCode", ValueType::Number) } } } },
                 n);

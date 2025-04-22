@@ -83,7 +83,7 @@ namespace Ark::Diagnostics
         }
     }
 
-    void makeContext(std::ostream& os, const std::string& code, const std::size_t target_line, const std::size_t col_start, const std::size_t sym_size, const bool colorize)
+    void makeContext(std::ostream& os, const std::string& code, const std::size_t target_line, const std::size_t col_start, const std::size_t sym_size, const bool whole_line, const bool colorize)
     {
         using namespace Ark::literals;
 
@@ -109,7 +109,7 @@ namespace Ark::Diagnostics
             {
                 fmt::print(os, "      |");
 
-                if (sym_size > 0)
+                if (!whole_line)
                 {
                     // if we have an overflow then we start at the beginning of the line
                     const std::size_t curr_col_start = (overflow == 0) ? col_start : 0;
@@ -159,7 +159,7 @@ namespace Ark::Diagnostics
         fmt::print(os, "At {} @ {}:{}\n", expr, line + 1, column);
 
         if (!code.empty())
-            makeContext(os, code, line, column, sym_size, colorize);
+            makeContext(os, code, line, column, sym_size, /* whole_line= */ false, colorize);
 
         const auto message_lines = Utils::splitString(message, '\n');
         for (const auto& text : message_lines)

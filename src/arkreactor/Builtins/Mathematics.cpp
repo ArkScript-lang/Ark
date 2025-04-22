@@ -22,7 +22,7 @@ namespace Ark::internal::Builtins::Mathematics
     Value exponential(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::Number))
-            types::generateError(
+            throw types::TypeCheckingError(
                 "math:exp",
                 { { types::Contract { { types::Typedef("value", ValueType::Number) } } } },
                 n);
@@ -42,7 +42,7 @@ namespace Ark::internal::Builtins::Mathematics
     Value logarithm(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::Number))
-            types::generateError(
+            throw types::TypeCheckingError(
                 "math:ln",
                 { { types::Contract { { types::Typedef("value", ValueType::Number) } } } },
                 n);
@@ -65,7 +65,7 @@ namespace Ark::internal::Builtins::Mathematics
     Value ceil_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::Number))
-            types::generateError(
+            throw types::TypeCheckingError(
                 "math:ceil",
                 { { types::Contract { { types::Typedef("value", ValueType::Number) } } } },
                 n);
@@ -85,7 +85,7 @@ namespace Ark::internal::Builtins::Mathematics
     Value floor_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::Number))
-            types::generateError(
+            throw types::TypeCheckingError(
                 "math:floor",
                 { { types::Contract { { types::Typedef("value", ValueType::Number) } } } },
                 n);
@@ -106,7 +106,7 @@ namespace Ark::internal::Builtins::Mathematics
     Value round_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::Number))
-            types::generateError(
+            throw types::TypeCheckingError(
                 "math:round",
                 { { types::Contract { { types::Typedef("value", ValueType::Number) } } } },
                 n);
@@ -127,7 +127,7 @@ namespace Ark::internal::Builtins::Mathematics
     Value isnan_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::Any))
-            types::generateError(
+            throw types::TypeCheckingError(
                 "math:NaN?",
                 { { types::Contract { { types::Typedef("value", ValueType::Any) } } } },
                 n);
@@ -151,7 +151,7 @@ namespace Ark::internal::Builtins::Mathematics
     Value isinf_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::Any))
-            types::generateError(
+            throw types::TypeCheckingError(
                 "math:Inf?",
                 { { types::Contract { { types::Typedef("value", ValueType::Any) } } } },
                 n);
@@ -175,7 +175,7 @@ namespace Ark::internal::Builtins::Mathematics
     Value cos_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::Number))
-            types::generateError(
+            throw types::TypeCheckingError(
                 "math:cos",
                 { { types::Contract { { types::Typedef("value", ValueType::Number) } } } },
                 n);
@@ -196,7 +196,7 @@ namespace Ark::internal::Builtins::Mathematics
     Value sin_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::Number))
-            types::generateError(
+            throw types::TypeCheckingError(
                 "math:sin",
                 { { types::Contract { { types::Typedef("value", ValueType::Number) } } } },
                 n);
@@ -217,7 +217,7 @@ namespace Ark::internal::Builtins::Mathematics
     Value tan_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::Number))
-            types::generateError(
+            throw types::TypeCheckingError(
                 "math:tan",
                 { { types::Contract { { types::Typedef("value", ValueType::Number) } } } },
                 n);
@@ -237,7 +237,7 @@ namespace Ark::internal::Builtins::Mathematics
     Value acos_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::Number))
-            types::generateError(
+            throw types::TypeCheckingError(
                 "math:arccos",
                 { { types::Contract { { types::Typedef("value", ValueType::Number) } } } },
                 n);
@@ -257,7 +257,7 @@ namespace Ark::internal::Builtins::Mathematics
     Value asin_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::Number))
-            types::generateError(
+            throw types::TypeCheckingError(
                 "math:arcsin",
                 { { types::Contract { { types::Typedef("value", ValueType::Number) } } } },
                 n);
@@ -277,7 +277,7 @@ namespace Ark::internal::Builtins::Mathematics
     Value atan_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::Number))
-            types::generateError(
+            throw types::TypeCheckingError(
                 "math:arctan",
                 { { types::Contract { { types::Typedef("value", ValueType::Number) } } } },
                 n);
@@ -294,7 +294,7 @@ namespace Ark::internal::Builtins::Mathematics
     Value cosh_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::Number))
-            types::generateError(
+            throw types::TypeCheckingError(
                 "math:cosh",
                 { { types::Contract { { types::Typedef("value", ValueType::Number) } } } },
                 n);
@@ -311,7 +311,7 @@ namespace Ark::internal::Builtins::Mathematics
     Value sinh_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::Number))
-            types::generateError(
+            throw types::TypeCheckingError(
                 "math:sinh",
                 { { types::Contract { { types::Typedef("value", ValueType::Number) } } } },
                 n);
@@ -328,7 +328,7 @@ namespace Ark::internal::Builtins::Mathematics
     Value tanh_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::Number))
-            types::generateError(
+            throw types::TypeCheckingError(
                 "math:tanh",
                 { { types::Contract { { types::Typedef("value", ValueType::Number) } } } },
                 n);
@@ -345,7 +345,7 @@ namespace Ark::internal::Builtins::Mathematics
     Value acosh_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::Number))
-            types::generateError(
+            throw types::TypeCheckingError(
                 "math:acosh",
                 { { types::Contract { { types::Typedef("value", ValueType::Number) } } } },
                 n);
@@ -362,7 +362,7 @@ namespace Ark::internal::Builtins::Mathematics
     Value asinh_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::Number))
-            types::generateError(
+            throw types::TypeCheckingError(
                 "math:asinh",
                 { { types::Contract { { types::Typedef("value", ValueType::Number) } } } },
                 n);
@@ -379,7 +379,7 @@ namespace Ark::internal::Builtins::Mathematics
     Value atanh_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::Number))
-            types::generateError(
+            throw types::TypeCheckingError(
                 "math:atanh",
                 { { types::Contract { { types::Typedef("value", ValueType::Number) } } } },
                 n);
@@ -403,7 +403,7 @@ namespace Ark::internal::Builtins::Mathematics
         static std::mt19937 gen { std::random_device()() };
 
         if (n.size() == 2 && !types::check(n, ValueType::Number, ValueType::Number))
-            types::generateError(
+            throw types::TypeCheckingError(
                 "random",
                 { { types::Contract {
                     { types::Typedef("min", ValueType::Number), types::Typedef("max", ValueType::Number) } } } },

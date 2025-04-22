@@ -29,7 +29,7 @@ namespace Ark::internal::Builtins::String
     Value format(std::vector<Value>& n, VM* vm)
     {
         if (n.size() < 2 || n[0].valueType() != ValueType::String)
-            types::generateError(
+            throw types::TypeCheckingError(
                 "string:format",
                 { { types::Contract { { types::Typedef("string", ValueType::String),
                                         types::Typedef("value", ValueType::Any, /* variadic */ true) } } } },
@@ -86,7 +86,7 @@ namespace Ark::internal::Builtins::String
     {
         if (!types::check(n, ValueType::String, ValueType::String) &&
             !types::check(n, ValueType::String, ValueType::String, ValueType::Number))
-            types::generateError(
+            throw types::TypeCheckingError(
                 "string:find",
                 { { types::Contract {
                         { types::Typedef("string", ValueType::String),
@@ -119,7 +119,7 @@ namespace Ark::internal::Builtins::String
     Value removeAtStr(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::String, ValueType::Number))
-            types::generateError(
+            throw types::TypeCheckingError(
                 "string:removeAt",
                 { { types::Contract { { types::Typedef("string", ValueType::String), types::Typedef("index", ValueType::Number) } } } },
                 n);
@@ -145,7 +145,7 @@ namespace Ark::internal::Builtins::String
     Value ord(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::String))
-            types::generateError(
+            throw types::TypeCheckingError(
                 "string:ord",
                 { { types::Contract { { types::Typedef("string", ValueType::String) } } } },
                 n);
@@ -166,7 +166,7 @@ namespace Ark::internal::Builtins::String
     Value chr(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::Number))
-            types::generateError(
+            throw types::TypeCheckingError(
                 "string:chr",
                 { { types::Contract { { types::Typedef("codepoint", ValueType::Number) } } } },
                 n);
@@ -191,7 +191,7 @@ namespace Ark::internal::Builtins::String
     Value setStringAt(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::String, ValueType::Number, ValueType::String))
-            types::generateError(
+            throw types::TypeCheckingError(
                 "string:setAt",
                 { { types::Contract { { types::Typedef("string", ValueType::String),
                                         types::Typedef("index", ValueType::Number),

@@ -1,1 +1,8 @@
 TypeError: `a' is a Number, not a Closure, can not get the field `c' from it
+
+In file tests/unittests/resources/DiagnosticsSuite/runtime/not_a_closure.ark
+    1 | (let a 5)
+    2 | (let c 5)
+    3 | (let b a.c)
+      | ^~~~~~~~~~
+    4 |

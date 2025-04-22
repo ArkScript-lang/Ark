@@ -1,1 +1,9 @@
 ArityError: Function at page 1 needs 3 arguments, but it received 4
+
+In file tests/unittests/resources/DiagnosticsSuite/runtime/arity_error_async.ark
+    1 | (let sum (fun (a b c)
+    2 |     (+ a b c)))
+    3 |
+    4 | (await (async sum 1 2 3 4))
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~
+    5 |

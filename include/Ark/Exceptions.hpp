@@ -5,7 +5,7 @@
  * @version 1.3
  * @date 2020-10-27
  *
- * @copyright Copyright (c) 2020-2024
+ * @copyright Copyright (c) 2020-2025
  *
  */
 
@@ -35,6 +35,25 @@ namespace Ark
         explicit Error(const std::string& message) :
             std::runtime_error(message)
         {}
+
+        [[nodiscard]] virtual std::string details() const
+        {
+            return what();
+        }
+
+        Error& colorize(const bool toggle) noexcept
+        {
+            m_colorize = toggle;
+            return *this;
+        }
+
+        [[nodiscard]] bool shouldColorize() const noexcept
+        {
+            return m_colorize;
+        }
+
+    private:
+        bool m_colorize = true;
     };
 
     /**
@@ -50,22 +69,6 @@ namespace Ark
     };
 
     /**
-     * @brief A special zero division error triggered when a number is divided by 0
-     *
-     */
-    class ARK_API ZeroDivisionError final : public Error
-    {
-    public:
-        ZeroDivisionError() :
-            Error(
-                "ZeroDivisionError: In ordinary arithmetic, the expression has no meaning, "
-                "as there is no number which, when multiplied by 0, gives a (assuming a != 0), "
-                "and so division by zero is undefined. Since any number multiplied by 0 is 0, "
-                "the expression 0/0 is also undefined.")
-        {}
-    };
-
-    /**
      * @brief An assertion error, only triggered from ArkScript code through (assert expr error-message)
      *
      */
@@ -75,6 +78,28 @@ namespace Ark
         explicit AssertionFailed(const std::string& message) :
             Error("AssertionFailed: " + message)
         {}
+    };
+
+    class ARK_API NestedError final : public Error
+    {
+    public:
+        NestedError(const Error& e, const std::string& details) :
+            Error("NestedError"),
+            m_details(Error(e).colorize(false).details() + "\n" + details)
+        {}
+
+        NestedError(const std::exception& e, const std::string& details) :
+            Error("NestedError"),
+            m_details(e.what() + ("\n" + details))
+        {}
+
+        [[nodiscard]] const char* what() const noexcept override
+        {
+            return m_details.c_str();
+        }
+
+    private:
+        std::string m_details;
     };
 
     /**
@@ -111,9 +136,10 @@ namespace Ark
          * @param target_line line where the error is
          * @param col_start where the error starts on the given line
          * @param sym_size bad expression that triggered the error
+         * @param whole_line when true, underline the whole line, disregarding col_start and sym_size
          * @param colorize generate colors or not
          */
-        ARK_API void makeContext(std::ostream& os, const std::string& code, std::size_t target_line, std::size_t col_start, std::size_t sym_size, bool colorize);
+        ARK_API void makeContext(std::ostream& os, const std::string& code, std::size_t target_line, std::size_t col_start, std::size_t sym_size, bool whole_line, bool colorize);
 
         /**
          * @brief Helper used by the compiler to generate a colorized context from a node

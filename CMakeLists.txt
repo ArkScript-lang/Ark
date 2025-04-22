@@ -228,6 +228,7 @@ if (ARK_TESTS)
                 --exclude 'tests/*'
                 --exclude 'lib/*'
                 --exclude '/usr/*'
+                --exclude 'build/*'
                 --gcov-tool ${ark_SOURCE_DIR}/tests/llvm-gcov.sh
                 --output-file coverage.info
                 # generate report

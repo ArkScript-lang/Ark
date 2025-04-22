@@ -7,8 +7,6 @@
 #include <fmt/color.h>
 #include <fmt/ostream.h>
 
-#include <Ark/Exceptions.hpp>
-
 namespace Ark::types
 {
     std::string typeListToString(const std::vector<ValueType>& types)
@@ -109,7 +107,7 @@ namespace Ark::types
         }
     }
 
-    [[noreturn]] void generateError(const std::string_view& funcname, const std::vector<Contract>& contracts, const std::vector<Value>& args, std::ostream& os, bool colorize)
+    void generateError(const std::string_view& funcname, const std::vector<Contract>& contracts, const std::vector<Value>& args, std::ostream& os, bool colorize)
     {
         {
             fmt::dynamic_format_arg_store<fmt::format_context> store;
@@ -187,7 +185,5 @@ namespace Ark::types
             fmt::print(os, "Alternative {}:\n", i + 1);
             displayContract(contracts[i], sanitizedArgs, os, colorize);
         }
-
-        throw TypeError("");
     }
 }

@@ -22,7 +22,7 @@ namespace Ark::internal::Builtins::List
     Value reverseList(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::List))
-            types::generateError(
+            throw types::TypeCheckingError(
                 "list:reverse",
                 { { types::Contract { { types::Typedef("list", ValueType::List) } } } },
                 n);
@@ -46,7 +46,7 @@ namespace Ark::internal::Builtins::List
     Value findInList(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::List, ValueType::Any))
-            types::generateError(
+            throw types::TypeCheckingError(
                 "list:find",
                 { { types::Contract { { types::Typedef("list", ValueType::List), types::Typedef("value", ValueType::Any) } } } },
                 n);
@@ -72,7 +72,7 @@ namespace Ark::internal::Builtins::List
     Value sliceList(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::List, ValueType::Number, ValueType::Number, ValueType::Number))
-            types::generateError(
+            throw types::TypeCheckingError(
                 "list:slice",
                 { { types::Contract { { types::Typedef("list", ValueType::List),
                                         types::Typedef("start", ValueType::Number),
@@ -114,7 +114,7 @@ namespace Ark::internal::Builtins::List
     Value sort_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::List))
-            types::generateError(
+            throw types::TypeCheckingError(
                 "list:sort",
                 { { types::Contract { { types::Typedef("list", ValueType::List) } } } },
                 n);
@@ -136,7 +136,7 @@ namespace Ark::internal::Builtins::List
     Value fill(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::Number, ValueType::Any))
-            types::generateError(
+            throw types::TypeCheckingError(
                 "list:fill",
                 { { types::Contract { { types::Typedef("size", ValueType::Number),
                                         types::Typedef("value", ValueType::Any) } } } },
@@ -165,7 +165,7 @@ namespace Ark::internal::Builtins::List
     Value setListAt(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::List, ValueType::Number, ValueType::Any))
-            types::generateError(
+            throw types::TypeCheckingError(
                 "list:setAt",
                 { { types::Contract { { types::Typedef("list", ValueType::List),
                                         types::Typedef("index", ValueType::Number),

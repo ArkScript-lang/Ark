@@ -5,7 +5,7 @@
  * @version 1.1
  * @date 2022-01-16
  *
- * @copyright Copyright (c) 2022-2024
+ * @copyright Copyright (c) 2022-2025
  *
  */
 
@@ -94,12 +94,35 @@ namespace Ark::types
      * @param os output stream, default to cout
      * @param colorize enable output colorizing
      */
-    ARK_API void generateError [[noreturn]] (
+    ARK_API void generateError(
         const std::string_view& funcname,
         const std::vector<Contract>& contracts,
         const std::vector<Value>& args,
         std::ostream& os = std::cout,
         bool colorize = true);
+
+    class ARK_API TypeCheckingError : public Error
+    {
+    public:
+        TypeCheckingError(std::string&& funcname, const std::vector<Contract>& contracts, const std::vector<Value>& args) :
+            Error("TypeCheckingError"),
+            m_funcname(std::move(funcname)),
+            m_contracts(contracts),
+            m_passed_args(args)
+        {}
+
+        [[nodiscard]] std::string details() const override
+        {
+            std::stringstream stream;
+            generateError(m_funcname, m_contracts, m_passed_args, stream, shouldColorize());
+            return stream.str();
+        }
+
+    private:
+        std::string m_funcname;
+        std::vector<Contract> m_contracts;
+        std::vector<Value> m_passed_args;
+    };
 }
 
 #endif

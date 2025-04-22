@@ -338,6 +338,8 @@ namespace Ark
          */
         static void throwVMError(internal::ErrorKind kind, const std::string& message);
 
+        void showBacktraceWithException(const std::exception& e, internal::ExecutionContext& context);
+
         /**
          * @brief Find the nearest source location information given instruction and page pointers
          *
@@ -351,8 +353,10 @@ namespace Ark
          * @brief Display a backtrace when the VM encounter an exception
          *
          * @param context
+         * @param os
+         * @param colorize
          */
-        void backtrace(internal::ExecutionContext& context) noexcept;
+        void backtrace(internal::ExecutionContext& context, std::ostream& os = std::cout, bool colorize = true);
 
         /**
          * @brief Function called when the CALL instruction is met in the bytecode

@@ -1,1 +1,13 @@
 ArityError: Function `foo' needs 2 arguments, but it received 1
+
+In file tests/unittests/resources/DiagnosticsSuite/runtime/not_enough_args.ark
+    1 | (let foo (fun (a b) (+ a b)))
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    2 | (foo 1)
+    3 |
+
+[2] In function `foo' (tests/unittests/resources/DiagnosticsSuite/runtime/not_enough_args.ark:1)
+[1] In global scope (tests/unittests/resources/DiagnosticsSuite/runtime/not_enough_args.ark:2)
+
+Current scope variables values:
+foo = Function @ 1

@@ -51,9 +51,16 @@ ut::suite<"Diagnostics"> diagnostics_suite = [] {
                 catch (const std::exception& e)
                 {
                     std::string diag = e.what();
-                    if (diag.find_first_of('\n') != std::string::npos)
-                        diag.erase(diag.find_first_of('\n'), diag.size() - 1);
+                    // because of windows
+                    diag.erase(std::ranges::remove(diag, '\r').begin(), diag.end());
+                    // remove the directory prefix so that we are environment agnostic
+                    while (diag.find(ARK_TESTS_ROOT) != std::string::npos)
+                        diag.erase(diag.find(ARK_TESTS_ROOT), std::size(ARK_TESTS_ROOT) - 1);
                     ltrim(rtrim(diag));
+                    // remove last line, At IP:.., PP:.., SP:..
+                    diag.erase(diag.find_last_of('\n'), diag.size() - 1);
+                    // we most likely have a blank line at the end now
+                    rtrim(diag);
                     expectOrDiff(data.expected, diag);
                 }
             };

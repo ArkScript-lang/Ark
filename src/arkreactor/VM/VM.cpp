@@ -6,6 +6,7 @@
 #include <ranges>
 #include <fmt/core.h>
 #include <fmt/color.h>
+#include <fmt/ostream.h>
 
 #include <Ark/Files.hpp>
 #include <Ark/Utils.hpp>
@@ -46,7 +47,7 @@ namespace Ark
                 return b;
             }
 
-            types::generateError(
+            throw types::TypeCheckingError(
                 "tail",
                 { { types::Contract { { types::Typedef("value", ValueType::List) } },
                     types::Contract { { types::Typedef("value", ValueType::String) } } } },
@@ -68,7 +69,7 @@ namespace Ark
                 return Value(std::string(1, a->stringRef()[0]));
             }
 
-            types::generateError(
+            throw types::TypeCheckingError(
                 "head",
                 { { types::Contract { { types::Typedef("value", ValueType::List) } },
                     types::Contract { { types::Typedef("value", ValueType::String) } } } },
@@ -688,7 +689,7 @@ namespace Ark
                         {
                             Value* list = popAndResolveAsPtr(context);
                             if (list->valueType() != ValueType::List)
-                                types::generateError(
+                                throw types::TypeCheckingError(
                                     "append",
                                     { { types::Contract { { types::Typedef("list", ValueType::List) } } } },
                                     { *list });
@@ -710,7 +711,7 @@ namespace Ark
                         {
                             Value* list = popAndResolveAsPtr(context);
                             if (list->valueType() != ValueType::List)
-                                types::generateError(
+                                throw types::TypeCheckingError(
                                     "concat",
                                     { { types::Contract { { types::Typedef("list", ValueType::List) } } } },
                                     { *list });
@@ -722,7 +723,7 @@ namespace Ark
                                 Value* next = popAndResolveAsPtr(context);
 
                                 if (list->valueType() != ValueType::List || next->valueType() != ValueType::List)
-                                    types::generateError(
+                                    throw types::TypeCheckingError(
                                         "concat",
                                         { { types::Contract { { types::Typedef("dst", ValueType::List), types::Typedef("src", ValueType::List) } } } },
                                         { *list, *next });
@@ -739,7 +740,7 @@ namespace Ark
                         Value* list = popAndResolveAsPtr(context);
 
                         if (list->valueType() != ValueType::List)
-                            types::generateError(
+                            throw types::TypeCheckingError(
                                 "append!",
                                 { { types::Contract { { types::Typedef("list", ValueType::List) } } } },
                                 { *list });
@@ -754,7 +755,7 @@ namespace Ark
                         Value* list = popAndResolveAsPtr(context);
 
                         if (list->valueType() != ValueType::List)
-                            types::generateError(
+                            throw types::TypeCheckingError(
                                 "concat",
                                 { { types::Contract { { types::Typedef("list", ValueType::List) } } } },
                                 { *list });
@@ -764,7 +765,7 @@ namespace Ark
                             Value* next = popAndResolveAsPtr(context);
 
                             if (list->valueType() != ValueType::List || next->valueType() != ValueType::List)
-                                types::generateError(
+                                throw types::TypeCheckingError(
                                     "concat!",
                                     { { types::Contract { { types::Typedef("dst", ValueType::List), types::Typedef("src", ValueType::List) } } } },
                                     { *list, *next });
@@ -781,7 +782,7 @@ namespace Ark
                             Value number = *popAndResolveAsPtr(context);
 
                             if (list.valueType() != ValueType::List || number.valueType() != ValueType::Number)
-                                types::generateError(
+                                throw types::TypeCheckingError(
                                     "pop",
                                     { { types::Contract { { types::Typedef("list", ValueType::List), types::Typedef("index", ValueType::Number) } } } },
                                     { list, number });
@@ -806,7 +807,7 @@ namespace Ark
                             Value number = *popAndResolveAsPtr(context);
 
                             if (list->valueType() != ValueType::List || number.valueType() != ValueType::Number)
-                                types::generateError(
+                                throw types::TypeCheckingError(
                                     "pop!",
                                     { { types::Contract { { types::Typedef("list", ValueType::List), types::Typedef("index", ValueType::Number) } } } },
                                     { *list, number });
@@ -831,7 +832,7 @@ namespace Ark
                             Value new_value = *popAndResolveAsPtr(context);
 
                             if (!list->isIndexable() || number.valueType() != ValueType::Number || (list->valueType() == ValueType::String && new_value.valueType() != ValueType::String))
-                                types::generateError(
+                                throw types::TypeCheckingError(
                                     "@=",
                                     { { types::Contract {
                                           { types::Typedef("list", ValueType::List),
@@ -868,7 +869,7 @@ namespace Ark
                             Value new_value = *popAndResolveAsPtr(context);
 
                             if (list->valueType() != ValueType::List || x.valueType() != ValueType::Number || y.valueType() != ValueType::Number)
-                                types::generateError(
+                                throw types::TypeCheckingError(
                                     "@@=",
                                     { { types::Contract {
                                         { types::Typedef("list", ValueType::List),
@@ -886,7 +887,7 @@ namespace Ark
 
                             if (!list->list()[static_cast<std::size_t>(idx_y)].isIndexable() ||
                                 (list->list()[static_cast<std::size_t>(idx_y)].valueType() == ValueType::String && new_value.valueType() != ValueType::String))
-                                types::generateError(
+                                throw types::TypeCheckingError(
                                     "@@=",
                                     { { types::Contract {
                                           { types::Typedef("list", ValueType::List),
@@ -965,7 +966,7 @@ namespace Ark
                         else if (a->valueType() == ValueType::String && b->valueType() == ValueType::String)
                             push(Value(a->string() + b->string()), context);
                         else
-                            types::generateError(
+                            throw types::TypeCheckingError(
                                 "+",
                                 { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } },
                                     types::Contract { { types::Typedef("a", ValueType::String), types::Typedef("b", ValueType::String) } } } },
@@ -978,7 +979,7 @@ namespace Ark
                         Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
 
                         if (a->valueType() != ValueType::Number || b->valueType() != ValueType::Number)
-                            types::generateError(
+                            throw types::TypeCheckingError(
                                 "-",
                                 { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
                                 { *a, *b });
@@ -991,7 +992,7 @@ namespace Ark
                         Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
 
                         if (a->valueType() != ValueType::Number || b->valueType() != ValueType::Number)
-                            types::generateError(
+                            throw types::TypeCheckingError(
                                 "*",
                                 { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
                                 { *a, *b });
@@ -1004,7 +1005,7 @@ namespace Ark
                         Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
 
                         if (a->valueType() != ValueType::Number || b->valueType() != ValueType::Number)
-                            types::generateError(
+                            throw types::TypeCheckingError(
                                 "/",
                                 { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
                                 { *a, *b });
@@ -1067,7 +1068,7 @@ namespace Ark
                         else if (a->valueType() == ValueType::String)
                             push(Value(static_cast<int>(a->string().size())), context);
                         else
-                            types::generateError(
+                            throw types::TypeCheckingError(
                                 "len",
                                 { { types::Contract { { types::Typedef("value", ValueType::List) } },
                                     types::Contract { { types::Typedef("value", ValueType::String) } } } },
@@ -1084,7 +1085,7 @@ namespace Ark
                         else if (a->valueType() == ValueType::String)
                             push(a->string().empty() ? Builtins::trueSym : Builtins::falseSym, context);
                         else
-                            types::generateError(
+                            throw types::TypeCheckingError(
                                 "empty?",
                                 { { types::Contract { { types::Typedef("value", ValueType::List) } },
                                     types::Contract { { types::Typedef("value", ValueType::String) } } } },
@@ -1119,7 +1120,7 @@ namespace Ark
                         Value* const a = popAndResolveAsPtr(context);
 
                         if (b->valueType() != ValueType::String)
-                            types::generateError(
+                            throw types::TypeCheckingError(
                                 "assert",
                                 { { types::Contract { { types::Typedef("expr", ValueType::Any), types::Typedef("message", ValueType::String) } } } },
                                 { *a, *b });
@@ -1134,7 +1135,7 @@ namespace Ark
                         const Value* a = popAndResolveAsPtr(context);
 
                         if (a->valueType() != ValueType::String)
-                            types::generateError(
+                            throw types::TypeCheckingError(
                                 "toNumber",
                                 { { types::Contract { { types::Typedef("value", ValueType::String) } } } },
                                 { *a });
@@ -1161,7 +1162,7 @@ namespace Ark
                             Value& a = *popAndResolveAsPtr(context);
 
                             if (b->valueType() != ValueType::Number)
-                                types::generateError(
+                                throw types::TypeCheckingError(
                                     "@",
                                     { { types::Contract { { types::Typedef("src", ValueType::List), types::Typedef("idx", ValueType::Number) } },
                                         types::Contract { { types::Typedef("src", ValueType::String), types::Typedef("idx", ValueType::Number) } } } },
@@ -1188,7 +1189,7 @@ namespace Ark
                                         fmt::format("{} out of range \"{}\" (length {})", idx, a.string(), a.string().size()));
                             }
                             else
-                                types::generateError(
+                                throw types::TypeCheckingError(
                                     "@",
                                     { { types::Contract { { types::Typedef("src", ValueType::List), types::Typedef("idx", ValueType::Number) } },
                                         types::Contract { { types::Typedef("src", ValueType::String), types::Typedef("idx", ValueType::Number) } } } },
@@ -1206,7 +1207,7 @@ namespace Ark
 
                             if (y->valueType() != ValueType::Number || x->valueType() != ValueType::Number ||
                                 list.valueType() != ValueType::List)
-                                types::generateError(
+                                throw types::TypeCheckingError(
                                     "@@",
                                     { { types::Contract {
                                         { types::Typedef("src", ValueType::List),
@@ -1246,7 +1247,7 @@ namespace Ark
                     {
                         const Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
                         if (a->valueType() != ValueType::Number || b->valueType() != ValueType::Number)
-                            types::generateError(
+                            throw types::TypeCheckingError(
                                 "mod",
                                 { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
                                 { *a, *b });
@@ -1258,7 +1259,7 @@ namespace Ark
                     {
                         const Value* a = popAndResolveAsPtr(context);
                         if (a == &m_undefined_value) [[unlikely]]
-                            types::generateError(
+                            throw types::TypeCheckingError(
                                 "type",
                                 { { types::Contract { { types::Typedef("value", ValueType::Any) } } } },
                                 {});
@@ -1273,7 +1274,7 @@ namespace Ark
                             Value* const field = popAndResolveAsPtr(context);
                             Value* const closure = popAndResolveAsPtr(context);
                             if (closure->valueType() != ValueType::Closure || field->valueType() != ValueType::String)
-                                types::generateError(
+                                throw types::TypeCheckingError(
                                     "hasField",
                                     { { types::Contract { { types::Typedef("closure", ValueType::Closure), types::Typedef("field", ValueType::String) } } } },
                                     { *closure, *field });
@@ -1364,7 +1365,7 @@ namespace Ark
                             if (var->valueType() == ValueType::Number)
                                 push(Value(var->number() + secondary_arg), context);
                             else
-                                types::generateError(
+                                throw types::TypeCheckingError(
                                     "+",
                                     { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
                                     { *var, Value(secondary_arg) });
@@ -1385,7 +1386,7 @@ namespace Ark
                             if (var->valueType() == ValueType::Number)
                                 push(Value(var->number() + secondary_arg), context);
                             else
-                                types::generateError(
+                                throw types::TypeCheckingError(
                                     "+",
                                     { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
                                     { *var, Value(secondary_arg) });
@@ -1406,7 +1407,7 @@ namespace Ark
                             if (var->valueType() == ValueType::Number)
                                 push(Value(var->number() - secondary_arg), context);
                             else
-                                types::generateError(
+                                throw types::TypeCheckingError(
                                     "-",
                                     { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
                                     { *var, Value(secondary_arg) });
@@ -1427,7 +1428,7 @@ namespace Ark
                             if (var->valueType() == ValueType::Number)
                                 push(Value(var->number() - secondary_arg), context);
                             else
-                                types::generateError(
+                                throw types::TypeCheckingError(
                                     "-",
                                     { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
                                     { *var, Value(secondary_arg) });
@@ -1542,19 +1543,29 @@ namespace Ark
 #endif
             }
         }
+        catch (const Error& e)
+        {
+            if (fail_with_exception)
+            {
+                std::stringstream stream;
+                backtrace(context, stream, /* colorize= */ false);
+                // It's important we have an Ark::Error here, as the constructor for NestedError
+                // does more than just aggregate error messages, hence the code duplication.
+                throw NestedError(e, stream.str());
+            }
+            else
+                showBacktraceWithException(Error(e.details()), context);
+        }
         catch (const std::exception& e)
         {
             if (fail_with_exception)
-                throw;
-
-            fmt::println("{}", e.what());
-            backtrace(context);
-#ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
-            // don't report a "failed" exit code so that the fuzzers can more accurately triage crashes
-            m_exit_code = 0;
-#else
-            m_exit_code = 1;
-#endif
+            {
+                std::stringstream stream;
+                backtrace(context, stream, /* colorize= */ false);
+                throw NestedError(e, stream.str());
+            }
+            else
+                showBacktraceWithException(e, context);
         }
         catch (...)
         {
@@ -1587,6 +1598,18 @@ namespace Ark
         throw std::runtime_error(std::string(errorKinds[static_cast<std::size_t>(kind)]) + ": " + message + "\n");
     }
 
+    void VM::showBacktraceWithException(const std::exception& e, internal::ExecutionContext& context)
+    {
+        fmt::println("{}", e.what());
+        backtrace(context);
+#ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
+        // don't report a "failed" exit code so that the fuzzers can more accurately triage crashes
+        m_exit_code = 0;
+#else
+        m_exit_code = 1;
+#endif
+    }
+
     std::optional<InstLoc> VM::findSourceLocation(const std::size_t ip, const std::size_t pp)
     {
         std::optional<InstLoc> match = std::nullopt;
@@ -1596,19 +1619,21 @@ namespace Ark
             if (location.page_pointer == pp && !match)
                 match = location;
 
-            // select the best match: we want to find the location that's nearest our instruction pointer
-            if (location.page_pointer == pp && match && location.inst_pointer <= ip / 4)
+            // select the best match: we want to find the location that's nearest our instruction pointer,
+            // but not equal to it as the IP will always be pointing to the next instruction,
+            // not yet executed. Thus, the erroneous instruction is the previous one.
+            if (location.page_pointer == pp && match && location.inst_pointer < ip / 4)
                 match = location;
 
             // early exit because we won't find anything better, as inst locations are ordered by ascending (pp, ip)
-            if (location.page_pointer > pp || (location.page_pointer == pp && location.inst_pointer > ip / 4))
+            if (location.page_pointer > pp || (location.page_pointer == pp && location.inst_pointer >= ip / 4))
                 break;
         }
 
         return match;
     }
 
-    void VM::backtrace(ExecutionContext& context) noexcept
+    void VM::backtrace(ExecutionContext& context, std::ostream& os, const bool colorize)
     {
         const std::size_t saved_ip = context.ip;
         const std::size_t saved_pp = context.pp;
@@ -1619,17 +1644,18 @@ namespace Ark
         {
             const auto filename = m_state.m_filenames[maybe_location->filename_id];
 
-            fmt::println("In file {}", filename, maybe_location->line + 1);
+            fmt::println(os, "In file {}", filename, maybe_location->line + 1);
 
             if (Utils::fileExists(filename))
                 Diagnostics::makeContext(
-                    std::cout,
+                    os,
                     Utils::readFile(filename),
                     maybe_location->line,
                     /* col_start= */ 0,
                     /* sym_size= */ 0,
-                    /* colorize= */ true);
-            fmt::println("");
+                    /* whole_line= */ true,
+                    /* colorize= */ colorize);
+            fmt::println(os, "");
         }
 
         if (const uint16_t original_frame_count = context.fc; original_frame_count > 1)
@@ -1642,7 +1668,7 @@ namespace Ark
                 const auto maybe_call_loc = findSourceLocation(context.ip, context.pp);
                 const auto loc_as_text = maybe_call_loc ? fmt::format(" ({}:{})", m_state.m_filenames[maybe_call_loc->filename_id], maybe_call_loc->line + 1) : "";
 
-                fmt::print("[{}] ", fmt::styled(context.fc, fmt::fg(fmt::color::cyan)));
+                fmt::print(os, "[{}] ", fmt::styled(context.fc, colorize ? fmt::fg(fmt::color::cyan) : fmt::text_style()));
                 if (context.pp != 0)
                 {
                     const uint16_t id = findNearestVariableIdWithValue(
@@ -1650,9 +1676,9 @@ namespace Ark
                         context);
 
                     if (id < m_state.m_symbols.size())
-                        fmt::println("In function `{}'{}", fmt::styled(m_state.m_symbols[id], fmt::fg(fmt::color::green)), loc_as_text);
+                        fmt::println(os, "In function `{}'{}", fmt::styled(m_state.m_symbols[id], colorize ? fmt::fg(fmt::color::green) : fmt::text_style()), loc_as_text);
                     else  // should never happen
-                        fmt::println("In function `{}'{}", fmt::styled("???", fmt::fg(fmt::color::gold)), loc_as_text);
+                        fmt::println(os, "In function `{}'{}", fmt::styled("???", colorize ? fmt::fg(fmt::color::gold) : fmt::text_style()), loc_as_text);
 
                     Value* ip;
                     do
@@ -1666,33 +1692,35 @@ namespace Ark
                 }
                 else
                 {
-                    fmt::println("In global scope{}", loc_as_text);
+                    fmt::println(os, "In global scope{}", loc_as_text);
                     break;
                 }
 
                 if (original_frame_count - context.fc > 7)
                 {
-                    fmt::println("...");
+                    fmt::println(os, "...");
                     break;
                 }
             }
 
             // display variables values in the current scope
-            fmt::println("\nCurrent scope variables values:");
+            fmt::println(os, "\nCurrent scope variables values:");
             for (std::size_t i = 0, size = old_scope.size(); i < size; ++i)
             {
                 fmt::println(
+                    os,
                     "{} = {}",
-                    fmt::styled(m_state.m_symbols[old_scope.atPos(i).first], fmt::fg(fmt::color::cyan)),
+                    fmt::styled(m_state.m_symbols[old_scope.atPos(i).first], colorize ? fmt::fg(fmt::color::cyan) : fmt::text_style()),
                     old_scope.atPos(i).second.toString(*this));
             }
         }
 
         fmt::println(
+            os,
             "At IP: {}, PP: {}, SP: {}",
             // dividing by 4 because the instructions are actually on 4 bytes
-            fmt::styled(saved_ip / 4, fmt::fg(fmt::color::cyan)),
-            fmt::styled(saved_pp, fmt::fg(fmt::color::green)),
-            fmt::styled(saved_sp, fmt::fg(fmt::color::yellow)));
+            fmt::styled(saved_ip / 4, colorize ? fmt::fg(fmt::color::cyan) : fmt::text_style()),
+            fmt::styled(saved_pp, colorize ? fmt::fg(fmt::color::green) : fmt::text_style()),
+            fmt::styled(saved_sp, colorize ? fmt::fg(fmt::color::yellow) : fmt::text_style()));
     }
 }

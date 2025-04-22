@@ -1,1 +1,7 @@
 ScopeError: Unbound variable `a'
+
+In file tests/unittests/resources/DiagnosticsSuite/runtime/unbound_var.ark
+    1 | (let b a)
+      | ^~~~~~~~
+    2 | (let a 5)
+    3 |

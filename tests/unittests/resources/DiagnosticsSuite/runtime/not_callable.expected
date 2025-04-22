@@ -1,1 +1,6 @@
 TypeError: nil is not a Function but a Nil
+
+In file tests/unittests/resources/DiagnosticsSuite/runtime/not_callable.ark
+    1 | (())
+      | ^~~
+    2 |
