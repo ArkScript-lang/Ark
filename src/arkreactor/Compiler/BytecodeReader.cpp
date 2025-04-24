@@ -396,7 +396,7 @@ namespace Ark
 
             if (showVal || segment == BytecodeSegment::HeadersOnly)
                 fmt::println("{} (length: {})", fmt::styled("Instruction locations table", fmt::fg(fmt::color::cyan)), sliceSize);
-            if (showVal)
+            if (showVal && size > 0)
                 fmt::println(" PP, IP");
 
             for (std::size_t j = 0; j < size; ++j)
@@ -408,6 +408,9 @@ namespace Ark
                 if (showVal)
                     fmt::println("{:>3},{:>3} -> {}:{}", location.page_pointer, location.inst_pointer, files.filenames[location.filename_id], location.line);
             }
+
+            if (showVal)
+                fmt::print("\n");
         }
 
         const auto stringify_value = [](const Value& val) -> std::string {
