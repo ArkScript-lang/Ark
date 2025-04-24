@@ -1600,7 +1600,10 @@ namespace Ark
 
     void VM::showBacktraceWithException(const std::exception& e, internal::ExecutionContext& context)
     {
-        fmt::println("{}", e.what());
+        std::string text = e.what();
+        if (!text.empty() && text.back() != '\n')
+            text += '\n';
+        fmt::println("{}", text);
         backtrace(context);
 #ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
         // don't report a "failed" exit code so that the fuzzers can more accurately triage crashes

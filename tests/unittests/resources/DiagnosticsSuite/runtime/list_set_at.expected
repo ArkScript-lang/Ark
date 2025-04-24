@@ -1,4 +1,5 @@
 IndexError: list:setAt index (4) out of range (list size: 4)
+
 In file tests/unittests/resources/DiagnosticsSuite/runtime/list_set_at.ark
     1 | (list:setAt [0 1 2 3] 4 9)
       | ^~~~~~~~~~~~~~~~~~~~~~~~~

@@ -71,13 +71,21 @@ namespace Ark
     public:
         NestedError(const Error& e, const std::string& details) :
             Error("NestedError"),
-            m_details(e.details(/* colorize= */ false) + "\n" + details)
-        {}
+            m_details(e.details(/* colorize= */ false))
+        {
+            if (!m_details.empty() && m_details.back() != '\n')
+                m_details += '\n';
+            m_details += "\n" + details;
+        }
 
         NestedError(const std::exception& e, const std::string& details) :
             Error("NestedError"),
-            m_details(e.what() + ("\n" + details))
-        {}
+            m_details(e.what())
+        {
+            if (!m_details.empty() && m_details.back() != '\n')
+                m_details += '\n';
+            m_details += "\n" + details;
+        }
 
         [[nodiscard]] const char* what() const noexcept override
         {
