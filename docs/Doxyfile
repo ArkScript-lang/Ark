@@ -50,14 +50,12 @@ WARN_LOGFILE           = warnings.log
 INPUT                  = ../include \
                          ../src \
                          ./ \
-                         ../lib/modules/bitwise/documentation \
-                         ../lib/modules/console/documentation \
-                         ../lib/modules/database/documentation \
-                         ../lib/modules/hash/documentation \
-                         ../lib/modules/http/documentation \
-                         ../lib/modules/json/documentation \
-                         ../lib/modules/msgpack/documentation \
-                         ../lib/modules/random/documentation
+                         ../lib/modules/src/bitwise/documentation \
+                         ../lib/modules/src/console/documentation \
+                         ../lib/modules/src/hash/documentation \
+                         ../lib/modules/draft/database/documentation \
+                         ../lib/modules/draft/http/documentation \
+                         ../lib/modules/draft/json/documentation
 
 INPUT_ENCODING         = UTF-8
 INPUT_FILE_ENCODING    =
