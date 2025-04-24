@@ -9,14 +9,7 @@ In file tests/unittests/resources/DiagnosticsSuite/runtime/recursion_depth.ark
     5 | }))
 
 [2047] In function `foo' (tests/unittests/resources/DiagnosticsSuite/runtime/recursion_depth.ark:3)
-[2046] In function `foo' (tests/unittests/resources/DiagnosticsSuite/runtime/recursion_depth.ark:3)
-[2045] In function `foo' (tests/unittests/resources/DiagnosticsSuite/runtime/recursion_depth.ark:3)
-[2044] In function `foo' (tests/unittests/resources/DiagnosticsSuite/runtime/recursion_depth.ark:3)
-[2043] In function `foo' (tests/unittests/resources/DiagnosticsSuite/runtime/recursion_depth.ark:3)
-[2042] In function `foo' (tests/unittests/resources/DiagnosticsSuite/runtime/recursion_depth.ark:3)
-[2041] In function `foo' (tests/unittests/resources/DiagnosticsSuite/runtime/recursion_depth.ark:3)
-[2040] In function `foo' (tests/unittests/resources/DiagnosticsSuite/runtime/recursion_depth.ark:3)
-...
+[   1] In global scope (tests/unittests/resources/DiagnosticsSuite/runtime/recursion_depth.ark:7)
 
 Current scope variables values:
 foo = Function @ 1

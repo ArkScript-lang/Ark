@@ -1661,27 +1661,44 @@ namespace Ark
             fmt::println(os, "");
         }
 
-        if (const uint16_t original_frame_count = context.fc; original_frame_count > 1)
+        if (context.fc > 1)
         {
             // display call stack trace
             const ScopeView old_scope = context.locals.back();
+
+            std::string previous_trace;
+            std::size_t displayed_traces = 0;
+            std::size_t consecutive_similar_traces = 0;
 
             while (context.fc != 0)
             {
                 const auto maybe_call_loc = findSourceLocation(context.ip, context.pp);
                 const auto loc_as_text = maybe_call_loc ? fmt::format(" ({}:{})", m_state.m_filenames[maybe_call_loc->filename_id], maybe_call_loc->line + 1) : "";
 
-                fmt::print(os, "[{}] ", fmt::styled(context.fc, colorize ? fmt::fg(fmt::color::cyan) : fmt::text_style()));
                 if (context.pp != 0)
                 {
                     const uint16_t id = findNearestVariableIdWithValue(
                         Value(static_cast<PageAddr_t>(context.pp)),
                         context);
+                    const auto func_name = (id < m_state.m_symbols.size()) ? m_state.m_symbols[id] : "???";
 
-                    if (id < m_state.m_symbols.size())
-                        fmt::println(os, "In function `{}'{}", fmt::styled(m_state.m_symbols[id], colorize ? fmt::fg(fmt::color::green) : fmt::text_style()), loc_as_text);
-                    else  // should never happen
-                        fmt::println(os, "In function `{}'{}", fmt::styled("???", colorize ? fmt::fg(fmt::color::gold) : fmt::text_style()), loc_as_text);
+                    if (func_name + loc_as_text != previous_trace)
+                    {
+                        fmt::println(
+                            os,
+                            "[{:4}] In function `{}'{}",
+                            fmt::styled(context.fc, colorize ? fmt::fg(fmt::color::cyan) : fmt::text_style()),
+                            fmt::styled(func_name, colorize ? fmt::fg(fmt::color::green) : fmt::text_style()),
+                            loc_as_text);
+                        previous_trace = func_name + loc_as_text;
+                        ++displayed_traces;
+                        consecutive_similar_traces = 0;
+                    }
+                    else if (consecutive_similar_traces == 0)
+                    {
+                        fmt::println("{0:^{1}}", "...", 21 + func_name.size() + loc_as_text.size());
+                        ++consecutive_similar_traces;
+                    }
 
                     Value* ip;
                     do
@@ -1695,11 +1712,11 @@ namespace Ark
                 }
                 else
                 {
-                    fmt::println(os, "In global scope{}", loc_as_text);
+                    fmt::println(os, "[{:4}] In global scope{}", fmt::styled(context.fc, colorize ? fmt::fg(fmt::color::cyan) : fmt::text_style()), loc_as_text);
                     break;
                 }
 
-                if (original_frame_count - context.fc > 7)
+                if (displayed_traces > 7)
                 {
                     fmt::println(os, "...");
                     break;
