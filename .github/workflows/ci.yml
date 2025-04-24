@@ -55,8 +55,6 @@ jobs:
       matrix:
         path:
           - examples
-          - examples/games
-          - examples/games/snake
 
     steps:
       - uses: actions/checkout@v4
