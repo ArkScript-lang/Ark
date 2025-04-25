@@ -1,0 +1,7 @@
+Function string:ord expected 1 argument
+  -> string (String) was of type Number
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/stringord_num.ark
+    1 | (string:ord 1)
+      | ^~~~~~~~~~~~~
+    2 |

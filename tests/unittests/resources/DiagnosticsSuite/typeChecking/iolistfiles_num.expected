@@ -1,0 +1,7 @@
+Function io:listFiles expected 1 argument
+  -> path (String) was of type Number
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/iolistfiles_num.ark
+    1 | (io:listFiles 1)
+      | ^~~~~~~~~~~~~~~
+    2 |

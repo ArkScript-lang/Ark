@@ -1,0 +1,7 @@
+Function await expected 1 argument
+  -> future (UserType) was of type Number
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/await_num.ark
+    1 | (await 1)
+      | ^~~~~~~~
+    2 |

@@ -1,0 +1,8 @@
+Function list:fill expected 2 arguments but got 1
+  -> size (Number) was of type String
+  -> value (any) was not provided
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/listfill_str.ark
+    1 | (list:fill "hello")
+      | ^~~~~~~~~~~~~~~~~~
+    2 |

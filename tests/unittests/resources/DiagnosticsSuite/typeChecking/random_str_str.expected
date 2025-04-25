@@ -1,0 +1,8 @@
+Function random expected 2 arguments
+  -> min (Number) was of type String
+  -> max (Number) was of type String
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/random_str_str.ark
+    1 | (random "1" "2")
+      | ^~~~~~~~~~~~~~~
+    2 |

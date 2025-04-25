@@ -1,0 +1,9 @@
+Function io:removeFiles expected 2 arguments
+  -> filename (String)
+  -> variadic filenames (String) 1 argument do not match
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/ioremovefiles_str_num.ark
+    1 | (io:writeFile "hello" "content")
+    2 | (io:removeFiles "hello" 1)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~
+    3 |

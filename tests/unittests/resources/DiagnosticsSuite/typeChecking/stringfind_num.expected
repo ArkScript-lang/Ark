@@ -1,0 +1,12 @@
+Function string:find expected between 2 arguments and 3 arguments but got 1
+  -> string (String) was of type Number
+  -> substr (String) was not provided
+Alternative 2:
+  -> string (String) was of type Number
+  -> substr (String) was not provided
+  -> startIndex (Number) was not provided
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/stringfind_num.ark
+    1 | (string:find 1)
+      | ^~~~~~~~~~~~~~
+    2 |

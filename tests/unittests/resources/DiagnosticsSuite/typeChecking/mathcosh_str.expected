@@ -1,0 +1,7 @@
+Function math:cosh expected 1 argument
+  -> value (Number) was of type String
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/mathcosh_str.ark
+    1 | (math:cosh "1")
+      | ^~~~~~~~~~~~~~
+    2 |
