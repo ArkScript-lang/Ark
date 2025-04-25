@@ -126,12 +126,6 @@ namespace Ark::internal::Builtins::Mathematics
      */
     Value isnan_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (!types::check(n, ValueType::Any))
-            throw types::TypeCheckingError(
-                "math:NaN?",
-                { { types::Contract { { types::Typedef("value", ValueType::Any) } } } },
-                n);
-
         if (n[0].valueType() != ValueType::Number)
             return falseSym;
 
@@ -150,12 +144,6 @@ namespace Ark::internal::Builtins::Mathematics
      */
     Value isinf_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (!types::check(n, ValueType::Any))
-            throw types::TypeCheckingError(
-                "math:Inf?",
-                { { types::Contract { { types::Typedef("value", ValueType::Any) } } } },
-                n);
-
         if (n[0].valueType() != ValueType::Number)
             return falseSym;
 

@@ -1696,7 +1696,7 @@ namespace Ark
                     }
                     else if (consecutive_similar_traces == 0)
                     {
-                        fmt::println("{0:^{1}}", "...", 21 + func_name.size() + loc_as_text.size());
+                        fmt::println(os, "       ...");
                         ++consecutive_similar_traces;
                     }
 

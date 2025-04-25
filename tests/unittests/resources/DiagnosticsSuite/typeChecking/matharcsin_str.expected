@@ -1,0 +1,7 @@
+Function math:arcsin expected 1 argument
+  -> value (Number) was of type String
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/matharcsin_str.ark
+    1 | (math:arcsin "1")
+      | ^~~~~~~~~~~~~~~~
+    2 |

@@ -1,0 +1,7 @@
+Function math:atanh expected 1 argument
+  -> value (Number) was of type String
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/mathatanh_str.ark
+    1 | (math:atanh "1")
+      | ^~~~~~~~~~~~~~~
+    2 |

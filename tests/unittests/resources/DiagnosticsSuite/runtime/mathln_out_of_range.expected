@@ -1,0 +1,6 @@
+math:ln: value -1 must be greater than 0
+
+In file tests/unittests/resources/DiagnosticsSuite/runtime/mathln_out_of_range.ark
+    1 | (math:ln -1)
+      | ^~~~~~~~~~~
+    2 |
