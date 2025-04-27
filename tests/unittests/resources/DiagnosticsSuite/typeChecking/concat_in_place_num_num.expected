@@ -1,5 +1,6 @@
-Function concat! expected 1 argument
-  -> list (List) was of type Number
+Function concat! expected 2 arguments
+  -> dst (List) was of type Number
+  -> src (List) was of type Number
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/concat_in_place_num_num.ark
     1 | (mut L 1)

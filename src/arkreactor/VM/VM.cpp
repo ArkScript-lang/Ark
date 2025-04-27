@@ -710,12 +710,6 @@ namespace Ark
                     {
                         {
                             Value* list = popAndResolveAsPtr(context);
-                            if (list->valueType() != ValueType::List)
-                                throw types::TypeCheckingError(
-                                    "concat",
-                                    { { types::Contract { { types::Typedef("list", ValueType::List) } } } },
-                                    { *list });
-
                             Value obj { *list };
 
                             for (uint16_t i = 0; i < arg; ++i)
@@ -753,12 +747,6 @@ namespace Ark
                     TARGET(CONCAT_IN_PLACE)
                     {
                         Value* list = popAndResolveAsPtr(context);
-
-                        if (list->valueType() != ValueType::List)
-                            throw types::TypeCheckingError(
-                                "concat!",
-                                { { types::Contract { { types::Typedef("list", ValueType::List) } } } },
-                                { *list });
 
                         for (uint16_t i = 0; i < arg; ++i)
                         {
