@@ -689,10 +689,15 @@ namespace Ark
                         {
                             Value* list = popAndResolveAsPtr(context);
                             if (list->valueType() != ValueType::List)
+                            {
+                                std::vector<Value> args = { *list };
+                                for (uint16_t i = 0; i < arg; ++i)
+                                    args.push_back(*popAndResolveAsPtr(context));
                                 throw types::TypeCheckingError(
                                     "append",
-                                    { { types::Contract { { types::Typedef("list", ValueType::List) } } } },
-                                    { *list });
+                                    { { types::Contract { { types::Typedef("list", ValueType::List), types::Typedef("value", ValueType::Any, /* variadic= */ true) } } } },
+                                    args);
+                            }
 
                             const auto size = static_cast<uint16_t>(list->constList().size());
 
@@ -734,10 +739,15 @@ namespace Ark
                         Value* list = popAndResolveAsPtr(context);
 
                         if (list->valueType() != ValueType::List)
+                        {
+                            std::vector<Value> args = { *list };
+                            for (uint16_t i = 0; i < arg; ++i)
+                                args.push_back(*popAndResolveAsPtr(context));
                             throw types::TypeCheckingError(
                                 "append!",
-                                { { types::Contract { { types::Typedef("list", ValueType::List) } } } },
-                                { *list });
+                                { { types::Contract { { types::Typedef("list", ValueType::List), types::Typedef("value", ValueType::Any, /* variadic= */ true) } } } },
+                                args);
+                        }
 
                         for (uint16_t i = 0; i < arg; ++i)
                             list->push_back(*popAndResolveAsPtr(context));

@@ -1,2 +1,2 @@
-Function f expected 1 argument but got 2
+Function f expected at least 1 argument and got 2
   -> variadic vararg (Number) 1 argument do not match

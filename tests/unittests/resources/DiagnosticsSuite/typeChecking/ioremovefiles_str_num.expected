@@ -1,4 +1,4 @@
-Function io:removeFiles expected 2 arguments
+Function io:removeFiles expected at least 2 arguments and got 2
   -> filename (String)
   -> variadic filenames (String) 1 argument do not match
 

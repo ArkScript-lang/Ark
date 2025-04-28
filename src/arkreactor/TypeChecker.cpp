@@ -125,12 +125,16 @@ namespace Ark::types
 
         // get expected arguments count
         std::size_t min_argc = std::numeric_limits<std::size_t>::max(), max_argc = 0;
+        bool variadic = false;
         for (const auto& [arguments] : contracts)
         {
             if (arguments.size() < min_argc)
                 min_argc = arguments.size();
             if (arguments.size() > max_argc)
                 max_argc = arguments.size();
+
+            if (!arguments.empty() && arguments.back().variadic)
+                variadic = true;
         }
 
         bool correct_argcount = true;
@@ -157,24 +161,26 @@ namespace Ark::types
         else
         {
             fmt::dynamic_format_arg_store<fmt::format_context> store;
+            store.push_back(variadic ? "at least " : "");
             if (colorize)
                 store.push_back(fmt::styled(min_argc, fmt::fg(fmt::color::yellow)));
             else
                 store.push_back(min_argc);
             store.push_back(min_argc > 1 ? "s" : "");
 
-            fmt::vprint(os, "{} argument{}", store);
+            fmt::vprint(os, "{}{} argument{}", store);
 
             if (sanitizedArgs.size() != min_argc)
                 correct_argcount = false;
         }
 
-        if (!correct_argcount)
+        if (!correct_argcount || variadic)
         {
+            std::string preposition = (variadic && args.size() >= min_argc) ? "and" : "but";
             if (colorize)
-                fmt::print(os, " but got {}", fmt::styled(sanitizedArgs.size(), fmt::fg(fmt::color::red)));
+                fmt::print(os, " {} got {}", preposition, fmt::styled(sanitizedArgs.size(), fmt::fg(fmt::color::red)));
             else
-                fmt::print(os, " but got {}", sanitizedArgs.size());
+                fmt::print(os, " {} got {}", preposition, sanitizedArgs.size());
         }
 
         fmt::print(os, "\n");

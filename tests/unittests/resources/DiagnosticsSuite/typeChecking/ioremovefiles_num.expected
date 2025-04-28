@@ -1,6 +1,5 @@
-Function io:removeFiles expected 2 arguments but got 1
-  -> filename (String) was of type Number
-  -> variadic filenames (String) was not provided
+Function io:removeFiles expected at least 1 argument and got 1
+  -> variadic filename (String) 1 argument do not match
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/ioremovefiles_num.ark
     1 | (io:removeFiles 1)
