@@ -75,7 +75,7 @@ namespace Ark
                 return string();
 
             case ValueType::PageAddr:
-                return fmt::format("Function @ {}", pageAddr());
+                return fmt::format("Function@{}", pageAddr());
 
             case ValueType::CProc:
                 return "CProcedure";
@@ -119,7 +119,7 @@ namespace Ark
                 return "Ref(self)";
 
             case ValueType::InstPtr:
-                return fmt::format("Instruction @ {}", pageAddr());
+                return fmt::format("Instruction@{}", pageAddr());
 
             default:
                 return "~\\._./~";

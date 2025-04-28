@@ -1,4 +1,4 @@
-ArityError: Function `foo' needs 2 arguments, but it received 1
+ArityError: When calling `(foo)', received 1 argument, but expected 2: `(foo a b)'
 
 In file tests/unittests/resources/DiagnosticsSuite/runtime/not_enough_args.ark
     1 | (let foo (fun (a b) (+ a b)))
@@ -10,4 +10,4 @@ In file tests/unittests/resources/DiagnosticsSuite/runtime/not_enough_args.ark
 [   1] In global scope (tests/unittests/resources/DiagnosticsSuite/runtime/not_enough_args.ark:2)
 
 Current scope variables values:
-foo = Function @ 1
+foo = Function@1

@@ -21,6 +21,7 @@
 #include <unordered_map>
 #include <algorithm>
 #include <fmt/core.h>
+#include <fmt/ranges.h>
 
 #include <Ark/Compiler/Instructions.hpp>
 #include <Ark/VM/Value.hpp>
@@ -337,6 +338,8 @@ namespace Ark
          * @param message
          */
         static void throwVMError(internal::ErrorKind kind, const std::string& message);
+
+        void throwArityError(std::size_t passed_arg_count, std::size_t expected_arg_count, internal::ExecutionContext& context);
 
         void showBacktraceWithException(const std::exception& e, internal::ExecutionContext& context);
 
