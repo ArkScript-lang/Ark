@@ -1586,6 +1586,47 @@ namespace Ark
         throw std::runtime_error(std::string(errorKinds[static_cast<std::size_t>(kind)]) + ": " + message + "\n");
     }
 
+    void VM::throwArityError(std::size_t passed_arg_count, std::size_t expected_arg_count, internal::ExecutionContext& context)
+    {
+        std::vector<std::string> arg_names;
+        arg_names.reserve(expected_arg_count + 1);
+        if (expected_arg_count > 0)
+            arg_names.emplace_back("");  // for formatting, so that we have a space between the function and the args
+
+        std::size_t index = 0;
+        while (m_state.m_pages[context.pp][index] == STORE)
+        {
+            const auto id = static_cast<uint16_t>((m_state.m_pages[context.pp][index + 2] << 8) + m_state.m_pages[context.pp][index + 3]);
+            arg_names.push_back(m_state.m_symbols[id]);
+            index += 4;
+        }
+
+        std::vector<std::string> arg_vals;
+        arg_vals.reserve(passed_arg_count + 1);
+        if (passed_arg_count > 0)
+            arg_vals.emplace_back("");  // for formatting, so that we have a space between the function and the args
+
+        for (std::size_t i = 0; i < passed_arg_count && i + 1 >= context.sp; ++i)
+            // -1 on the stack because we always point to the next available slot
+            arg_vals.push_back(context.stack[context.sp - i - 1].toString(*this));
+
+        std::string function_name = (context.last_symbol < m_state.m_symbols.size())
+            ? m_state.m_symbols[context.last_symbol]
+            : Value(static_cast<PageAddr_t>(context.pp)).toString(*this);
+
+        throwVMError(
+            ErrorKind::Arity,
+            fmt::format(
+                "When calling `({}{})', received {} argument{}, but expected {}: `({}{})'",
+                function_name,
+                fmt::join(arg_vals, " "),
+                passed_arg_count,
+                passed_arg_count > 1 ? "s" : "",
+                expected_arg_count,
+                function_name,
+                fmt::join(arg_names, " ")));
+    }
+
     void VM::showBacktraceWithException(const std::exception& e, internal::ExecutionContext& context)
     {
         std::string text = e.what();
