@@ -318,18 +318,11 @@ inline void VM::call(internal::ExecutionContext& context, const uint16_t argc)
 
         default:
         {
-            if (context.last_symbol < m_state.m_symbols.size())
-                throwVMError(
-                    ErrorKind::Type,
-                    fmt::format(
-                        "`{}' is not a Function but a {}",
-                        m_state.m_symbols[context.last_symbol], types_to_str[static_cast<std::size_t>(function.valueType())]));
-            else
-                throwVMError(
-                    ErrorKind::Type,
-                    fmt::format(
-                        "{} is not a Function but a {}",
-                        function.toString(*this), types_to_str[static_cast<std::size_t>(function.valueType())]));
+            throwVMError(
+                ErrorKind::Type,
+                fmt::format(
+                    "{} is not a Function but a {}",
+                    function.toString(*this), types_to_str[static_cast<std::size_t>(function.valueType())]));
         }
     }
 
