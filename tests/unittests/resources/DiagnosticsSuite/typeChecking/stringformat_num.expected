@@ -1,4 +1,4 @@
-Function string:format expected 2 arguments but got 1
+Function string:format expected at least 2 arguments but got 1
   -> string (String) was of type Number
   -> variadic value (any) was not provided
 

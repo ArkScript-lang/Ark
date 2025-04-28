@@ -262,7 +262,7 @@ namespace Ark::internal::Builtins::IO
         if (n.empty() || n[0].valueType() != ValueType::String)
             throw types::TypeCheckingError(
                 "io:removeFiles",
-                { { types::Contract { { types::Typedef("filename", ValueType::String), types::Typedef("filenames", ValueType::String, /* variadic */ true) } } } },
+                { { types::Contract { { types::Typedef("filename", ValueType::String, /* is_variadic= */ true) } } } },
                 n);
 
         for (auto it = n.begin(), it_end = n.end(); it != it_end; ++it)
