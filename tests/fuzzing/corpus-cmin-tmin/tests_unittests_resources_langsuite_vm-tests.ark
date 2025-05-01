@@ -1,7 +1,7 @@
 (import std.Testing)
 
 (let tests 0)
-(let closure(fun (&tests) ()))
+(let closure (fun (&tests) ()))
 (let make (fun (a b c)
     (fun (&a &b &c) ())))
 (let make2 (fun (a b c)
@@ -27,8 +27,8 @@
 (let bob (create-human "Bob" 38))
 
 (test:suite vm {
-    (test:case "000000et0c0op000t0o0s" {
-    (test:eq (+ 1 2) 3)
+    (test:case "arithmetic operations" {
+        (test:eq (+ 1 2) 3)
         (test:eq (+ 1.5 2.5) 4.0)
         (test:eq (+ "a" "b") "ab")
         (test:eq (- 1 2) -1)
@@ -40,7 +40,7 @@
         (test:eq (mod 12 5) 2)
         (test:eq (mod 12.5 5.5) 1.5) })
 
-    (test:case "0000a0i000s" {
+    (test:case "comparisons" {
         (test:expect (> 0 -4))
         (test:expect (> "hello" "a"))
         (test:expect (< -4 0))
@@ -61,7 +61,7 @@
         (test:neq "" true)
         (test:neq "" false) })
 
-    (test:case "l0n0t00 0nd00i0t op00ati00s" {
+    (test:case "lengths and list operations" {
         (test:eq (len "hello") 5)
         (test:eq (len "") 0)
         (test:eq (len [""]) 1)
@@ -72,8 +72,8 @@
         (test:eq (tail "a") "")
         (test:eq (tail "abc") "bc")
         (test:eq (tail []) [])
-        (test:eq (tail [0]) [])
-        (test:eq (tail [0 2 3]) [2 3])
+        (test:eq (tail [1]) [])
+        (test:eq (tail [1 2 3]) [2 3])
         (test:eq (head "") "")
         (test:eq (head "a") "a")
         (test:eq (head "abc") "a")
@@ -84,7 +84,7 @@
         (test:expect (not (nil? "")))
         (test:expect (not (nil? []))) })
 
-    (test:case "00n0e0s0on0" {
+    (test:case "conversions" {
         (test:eq (toNumber "12") 12)
         (test:eq (toNumber "abc") nil)
         (test:eq (toNumber "-12.5") -12.5)
@@ -95,28 +95,28 @@
         (test:eq (toString [1 2]) "[1 2]")
         (test:eq (toString ["12"]) "[\"12\"]") })
 
-    (test:case "i0d00in0" {
+    (test:case "indexing" {
         (test:eq (@ "hello" 1) "e")
         (test:eq (@ "hello" -1) "o")
         (test:eq (@ "hello" -4) "e")
-        (test:eq (@ ["0" "e" "l" "0" "o"] 1) "e")
-        (test:eq (@ ["0" "0" "0" "l" "o"] -1) "o")
-        (test:eq (@ ["h" "e" "0" "l" "o"] -4) "e") })
+        (test:eq (@ ["h" "e" "l" "l" "o"] 1) "e")
+        (test:eq (@ ["h" "e" "l" "l" "o"] -1) "o")
+        (test:eq (@ ["h" "e" "l" "l" "o"] -4) "e") })
 
-    (test:case "00ort-0ir0ui0i0g" {
+    (test:case "Short-circuiting" {
         (let falsy (fun () {
             (test:expect false)
             false }))
         (test:expect (or true (falsy)))
         (test:expect (not (and false (falsy)))) })
 
-    (test:case "0e 0o00an000000" {
+    (test:case "De Morgan's law" {
         (test:expect (and true true true))
         (test:expect (not (and true nil true)))
         (test:expect (or false true nil))
         (test:expect (not (or false "" nil))) })
 
-    (test:case "00p00" {
+    (test:case "types" {
         (test:eq (type []) "List")
         (test:eq (type 1) "Number")
         (test:eq (type "") "String")
@@ -126,11 +126,11 @@
         (test:eq (type nil) "Nil")
         (test:eq (type true) "Bool")
         (test:eq (type false) "Bool")
-        (test:expect (hasField closure "0m000s00:t0st0"))
+        (test:expect (hasField closure "vm-tests:tests"))
         (test:expect (not (hasField closure "12"))) })
 
-    (test:case "c000u00s" {
-        (test:eq (toString closure) "0.vm0000ts:000ts00)")
+    (test:case "closures" {
+        (test:eq (toString closure) "(.vm-tests:tests=0)")
         (test:eq closure_1 closure_1_bis)
         (test:eq closure_1 closure_2)
         (test:neq closure_1 closure_4)
@@ -144,4 +144,23 @@
 
         (test:eq (parent.child.get) [1 0])
         (parent.child.call)
-        (test:eq (parent.child.get) [5 12]) })})
+        (test:eq (parent.child.get) [5 12]) })
+
+    (test:case "increment and decrement vars" {
+        (mut var 0)
+        (set var (+ var 5))
+        (set var (+ 10 var))
+        (set var (- var 1))
+        (test:eq var 14) })
+
+    (test:case "set/store head and tail" {
+        (mut data [1 2 3 4])
+        (let data2 (tail data))
+        (set data (tail data))
+        (test:eq data2 data)
+        (test:eq data [2 3 4])
+
+        (let data3 (head data))
+        (set data (head data))
+        (test:eq data3 data)
+        (test:eq data 2) })})

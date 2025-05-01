@@ -1,0 +1,13 @@
+(mut funcs [])
+
+(mut i 0)
+(while (< i 10) {
+  (let ii i)
+  (append! funcs (fun (&ii) (* ii ii)))
+  (set i (+ i 1)) })
+
+(set i 0)
+# display the result of all but the last
+(while (< i 9) {
+  (assert (= ((@ funcs i)) (* i i)) "(@ funcs i) returns (* i i)")
+  (set i (+ 1 i)) })

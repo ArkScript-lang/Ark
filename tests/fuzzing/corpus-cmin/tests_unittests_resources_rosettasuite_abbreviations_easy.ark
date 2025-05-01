@@ -1,0 +1,54 @@
+(let commands "Add ALTer  BAckup Bottom  CAppend Change SCHANGE  CInsert CLAst COMPress COpy COUnt COVerlay CURsor DELete CDelete Down DUPlicate Xedit EXPand EXTract Find NFind NFINDUp NFUp CFind FINdup FUp FOrward GET Help HEXType Input POWerinput Join SPlit SPLTJOIN  LOAD  Locate CLocate  LOWercase UPPercase  LPrefix MACRO MErge MODify MOve MSG Next Overlay PARSE PREServe PURge PUT PUTD  Query  QUIT READ  RECover REFRESH RENum REPeat  Replace CReplace  RESet  RESTore  RGTLEFT RIght LEft  SAVE  SET SHift SI  SORT  SOS  STAck STATus  TOP TRAnsfer Type Up")
+
+(let user_words "riG   rePEAT copies  put mo   rest    types   fup.    6       poweRin")
+
+(import std.List)
+(import std.String)
+
+(let abbrev_length (fun (word)
+  (len
+    (list:takeWhile
+      word
+      (fun (char) {
+        (let ord (string:ord char))
+        (and (<= 65 ord) (<= ord 90)) })))))
+
+(let extract_cmds (fun (text)
+  (list:filter (string:split text " ") (fun (elem) (not (empty? elem))))))
+
+(let cmds_with_abbrev_len
+  (list:map
+    (extract_cmds commands)
+    (fun (cmd)
+      [cmd (abbrev_length cmd)] )))
+
+(let find_abbrev (fun (word) {
+  (let wlen (len word))
+  (let lower (string:toLower word))
+
+  (list:map
+    (list:filter
+      cmds_with_abbrev_len
+      (fun (cmd_with_len) {
+        (let cmd (string:toLower (head cmd_with_len)))
+        (let min_len (@ cmd_with_len 1))
+
+        (and
+          (<= min_len wlen)
+          (<= wlen (len cmd))
+          (= lower (string:slice cmd 0 wlen))) }))
+    (fun (cmd_with_len) (head cmd_with_len))) }))
+
+(let user_inputs (extract_cmds user_words))
+
+(assert
+  (=
+    ["RIGHT" "REPEAT" "*error*" "PUT" "MOVE" "RESTORE" "*error*" "*error*" "*error*" "POWERINPUT"]
+    (list:map
+      user_inputs
+      (fun (str) {
+        (let abbrevs (find_abbrev str))
+        (if (empty? abbrevs)
+          "*error*"
+          (string:toUpper (head abbrevs))) })))
+  "commands were correctly deciphered")

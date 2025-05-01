@@ -1,18 +1,61 @@
 (import std.Testing)
 
-(test:suite st00ng {
-    (test:case "re0ov0 00a0 i00000000000000000" {
+(test:suite string {
+    (test:expect (empty? ""))
+
+    (test:case "remove char in string at index" {
         (test:eq "hllo world" (string:removeAt "hello world" 1))
         (test:eq "ello world" (string:removeAt "hello world" 0))
-        (test:eq "hello worl" (string:removeAt "hello world" 10)) })
+        (test:eq "hello worl" (string:removeAt "hello world" 10))
+        (test:eq (string:removeAt "abcdefghijkl" 3) "abcefghijkl")
+        (test:eq (string:removeAt "abcdefghijkl" 0) "bcdefghijkl")
+        (test:eq (string:removeAt "abcdefghijkl" 11) "abcdefghijk") })
 
-    (test:case "fi0d 0ubstr0ng" {
-        (test:eq -1 (string:find "hello" "000p"))
+    (test:case "find substring" {
+        (test:eq -1 (string:find "hello" "help"))
         (test:eq 0 (string:find "hello" "hel"))
         (test:eq 2 (string:find "hello" "llo"))
-      (test:eq -1 (string:find "" "1")) })
+        (test:eq -1 (string:find "" "1"))
+        (test:eq (string:find "abc" "d") -1)
+        (test:eq (string:find "abc" "a") 0)
+        (test:eq (string:find "abc" "bc") 1)
+        (test:eq (string:find "abcdefghijkl" "defijkl") -1)
+        (test:eq (string:find "abcdefghijkl" "defghijkl") 3)
+        (test:eq (string:find "abcdabcdabcd" "abcd" 2) 4) })
 
-   (test:case "0o000t 0tri00s" {
+    (test:case "get char in string" {
+        (test:eq "a" (@ "abc" 0))
+        (test:eq "c" (@ "abc" -1))
+        (test:eq "b" (@ "abc" -2))
+        (test:eq "b" (@ "abc" 1)) })
+
+    (test:case "get char in list of strings" {
+        (let nested_strings ["abc" "def" "ijk"])
+        (test:eq "a" (@@ nested_strings 0 0))
+        (test:eq "b" (@@ nested_strings -3 1))
+        (test:eq "c" (@@ nested_strings 0 -1))
+        (test:eq "k" (@@ nested_strings -1 -1))
+        (test:eq "i" (@@ nested_strings 2 0))
+        (test:eq "e" (@@ nested_strings 1 1))
+        (test:eq "e" (@@ nested_strings 1 -2)) })
+
+    (test:case "update string" {
+        (test:eq (string:setAt "hello" 0 "a") "aello")
+        (test:eq (string:setAt "hello" -1 "a") "hella")
+        (test:eq (string:setAt "hello" 4 "a") "hella") })
+
+    (test:case "in place mutation of strings with @=" {
+        (mut data "hello world")
+        (@= data 0 "a")
+        (@= data -2 "L")
+        (test:eq data "aello worLd") })
+
+    (test:case "in place mutation of strings with @@=" {
+        (mut strings ["hello" "world"])
+        (@@= strings 0 0 "a")
+        (@@= strings -1 -1 "b")
+        (test:eq strings ["aello" "worlb"]) })
+
+    (test:case "format strings" {
         (test:eq "nilfalsetrue" (string:format "{}{}{}" nil false true))
-        (test:eq "CProcedure" (string:format "{}" print))
-    })})
+        (test:eq "CProcedure" (string:format "{}" print)) })})

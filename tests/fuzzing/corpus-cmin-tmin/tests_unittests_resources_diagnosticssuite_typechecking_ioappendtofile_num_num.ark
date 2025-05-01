@@ -1,0 +1,1 @@
+(io:appendToFile 0 2)

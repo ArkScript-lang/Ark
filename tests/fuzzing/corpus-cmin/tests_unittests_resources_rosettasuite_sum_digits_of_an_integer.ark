@@ -1,0 +1,27 @@
+(import std.List)
+(import std.String)
+
+(let to-base (fun (n base) {
+  (let o (string:ord n))
+
+  (let v
+    (if (and (>= o 48) (<= o 57))
+      (- o 48)
+      (if (and (>= o 97) (<= o 122))
+        (- o 87)
+        (if (and (>= o 65) (<= o 90))
+          (- o 55)
+          o))))
+  (mod v base) }))
+
+(let sum-digits (fun (n base) {
+  (let number
+    (if (not (= "String" (type n)))
+      (toString n)
+      n))
+  (list:reduce (list:map number (fun (e) (to-base e base))) (fun (a b) (+ a b))) }))
+
+(assert (= (sum-digits 1 10) 1) "sum of digits in 10 (base 10) is 1")
+(assert (= (sum-digits 1234 10) 10) "sum of digits in 1234 (base 10) is 10")
+(assert (= (sum-digits "fe" 16) 29) "sum of digits in fe (base 16) is 29")
+(assert (= (sum-digits "f0e" 16) 29) "sum of digits in f0e (base 16) is 29")

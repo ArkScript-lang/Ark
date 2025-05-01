@@ -8,55 +8,98 @@
         (fun (&c &d) ())))
     (let foo (make "hello" 1))
 
-    # 000t0is0is0f000000000000000000000000000000000000000000000000bl0m
+    (test:expect (empty? []))
+
+    # if this is failing, this is m00000000000000000000000000000000lem
     (test:eq ["hello" 1] [foo.c foo.d])
     (test:eq 2 (len [foo.c foo.d]))
-  (test:eq ["hello"] (append [] foo.c))
+    (test:eq ["hello"] (append [] foo.c))
 
-    (test:case "a0000d and r00u000a n00000s0" {
+    (test:case "append and return a new list" {
         (test:eq (append a 4) [1 2 3 4])
-        (test:eq a [1 2 3])
+    (test:eq a [1 2 3])
         (test:eq (append a a) [1 2 3 [1 2 3]])
         (test:eq a [1 2 3]) })
 
-    (test:case "000000000000000000a000w0l0st" {
+    (test:case "concat and return a new list" {
         (test:eq (concat a b) [1 2 3 4 5 6])
         (test:eq a [1 2 3])
         (test:eq b [4 5 6]) })
 
-    (test:case "pop0and00000000000000000t" {
+    (test:case "pop and return a new list" {
         (test:eq (pop a 0) [2 3])
         (test:eq (pop a 1) [1 3])
         (test:eq (pop a 2) [1 2])
         (test:eq a [1 2 3]) })
 
-    (test:case "r0v0rs0 an0 return a new0list" {
+    (test:case "reverse and return a new list" {
         (test:eq (list:reverse a) [3 2 1])
         (test:eq a [1 2 3])
         (test:eq (list:reverse []) []) })
 
-    (test:case "f0000000000000000is0" {
+    (test:case "find element in list" {
         (test:eq (list:find a 0) -1)
-        (test:eq (list:find a 2) 1) })
+        (test:eq (list:find a 2) 1)
+        (test:eq (list:find [] nil) -1)
+        (test:eq (list:find [12] 12) 0)
+        (test:eq (list:find [1 2 3] 2) 1)
+        (test:eq (list:find [12] nil) -1) })
 
-    (test:case "sl00e000d0r0tur0 0000w lis0" {
+    (test:case "slice and return a new list" {
         (test:eq (list:slice a 0 0 1) [])
         (test:eq a [1 2 3])
         (test:eq (list:slice a 0 3 2) [1 3])
         (test:eq a [1 2 3]) })
 
-    (test:case "sort 0n000eturn a ne00l000" {
+    (test:case "sort and return a new list" {
         (test:eq (list:sort [3 1 2]) a)
-        (test:eq a [1 2 3]) })
+        (test:eq a [1 2 3])
+        (test:eq (list:sort [5 4 3 2 1]) [1 2 3 4 5])
+        (test:eq (list:sort [5]) [5])
+        (test:eq (list:sort []) []) })
 
     (test:eq (list:fill 5 nil) [nil nil nil nil nil])
+    (let short_list (list:fill 12 nil))
+    (test:eq (len short_list) 12)
+    (mut i 0)
+    (while (< i 12) {
+        (test:eq (@ short_list i) nil)
+        (set i (+ 1 i)) })
+    (test:eq (@ (list:setAt short_list 5 "a") 5) "a")
 
-    (test:case "m0dify 0000 0000n0e0 an000e0urn0a 00w0l00t" {
-        (let c (list:setAt a 1 "b"))
-        (test:eq c [1 "b" 3])
-        (test:eq a [1 2 3]) })
+    (test:case "modify list at index and return a new list" {
+        (let tmp (list:setAt a 1 "b"))
+        (test:eq tmp [1 "b" 3])
+        (test:eq a [1 2 3])
+        (test:eq (list:setAt [0 1 2 3] 0 9) [9 1 2 3])
+        (test:eq (list:setAt [0 1 2 3] 3 9) [0 1 2 9])
+        (test:eq (list:setAt [0 1 2 9] -1 9) [0 1 2 9]) })
 
-    (test:case "0000l00e l0st0m0ta0ion" {
+    (test:case "get element in 2D list" {
+        (let nested_list [[0 1 2] [3 4 5] [6 7 8]])
+        (test:eq 0 (@@ nested_list 0 0))
+        (test:eq 2 (@@ nested_list 0 -1))
+        (test:eq 1 (@@ nested_list 0 -2))
+        (test:eq 8 (@@ nested_list -1 -1))
+        (test:eq 4 (@@ nested_list 1 1))
+        (test:eq 4 (@@ nested_list -2 1)) })
+
+    (test:case "in place mutation with @=" {
+        (mut numbers [0 1 2 3 4])
+        (@= numbers 2 5)
+        (@= numbers -1 9)
+        (@= numbers -2 8)
+        (test:eq numbers [0 1 5 8 9] "@=") })
+
+    (test:case "in place 2D mutation with @@=" {
+        (mut numbers [[0 1 2 3] [4 5 6 7] [8 9 0 1]])
+        (@@= numbers 0 0 9)
+        (@@= numbers 1 1 "a")
+        (@@= numbers -1 -1 -1)
+        (@@= numbers -2 -2 -2)
+        (test:eq numbers [[9 1 2 3] [4 "a" -2 7] [8 9 0 -1]]) })
+
+    (test:case "in place list mutation" {
         (mut c a)
         (mut d b)
         (append! c 4)

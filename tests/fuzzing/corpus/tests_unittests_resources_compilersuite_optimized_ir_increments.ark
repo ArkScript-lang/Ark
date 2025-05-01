@@ -1,0 +1,7 @@
+(mut i 1)
+(set i (+ i 4))
+(set i (+ 6 i))
+(set i (- i 8))
+# should not be inlined
+(set i (+ i 4096))
+(set i (+ i 1.01))

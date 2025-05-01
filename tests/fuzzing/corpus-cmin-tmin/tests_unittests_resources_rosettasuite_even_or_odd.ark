@@ -1,0 +1,11 @@
+(let is_even (fun (i)
+  (= 0 (mod i 2))))
+
+(let is_odd (fun (i)
+  (= 1 (mod i 2))))
+
+(assert (is_even 0) "000000000")
+(assert (not (is_even 3)) "0000000000000")
+
+(assert (is_odd 3) "00000000")
+(assert (not (is_odd 4)) "000000000000")

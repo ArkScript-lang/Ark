@@ -1,0 +1,3 @@
+(import package.c :odd)
+
+(print (abs 2))

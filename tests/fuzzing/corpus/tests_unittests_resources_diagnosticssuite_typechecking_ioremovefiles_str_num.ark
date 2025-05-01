@@ -1,0 +1,2 @@
+(io:writeFile "hello" "content")
+(io:removeFiles "hello" 1)

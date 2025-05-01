@@ -23,6 +23,7 @@ include/Ark/Constants.hpp
 /fuzzing/
 /output/
 /tmp/
+.afl-tmin-temp-*
 ## Fuzzer crash triage
 /fct-ok/
 /fct-bad/

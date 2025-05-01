@@ -1,0 +1,34 @@
+($ if2 (conds bothConditionsAreTrue firstConditionIsTrue secondConditionIsTrue noConditionIsTrue) {
+  (mut result1 (head conds))
+  (mut result2 (@ conds 1))
+  (if (and result1 result2)
+    bothConditionsAreTrue
+    (if result1
+      firstConditionIsTrue
+      (if result2
+        secondConditionIsTrue
+        noConditionIsTrue)))})
+
+(if2 (true true)
+  (assert true "if2 true true")
+  (assert false "if2 true false")
+  (assert false "if2 false true")
+  (assert false "if2 false false"))
+
+(if2 (true false)
+  (assert false "if2 true true")
+  (assert true "if2 true false")
+  (assert false "if2 false true")
+  (assert false "if2 false false"))
+
+(if2 (false true)
+  (assert false "if2 true true")
+  (assert false "if2 true false")
+  (assert true "if2 false true")
+  (assert false "if2 false false"))
+
+(if2 (false false)
+  (assert false "if2 true true")
+  (assert false "if2 true false")
+  (assert false "if2 false true")
+  (assert true "if2 false false"))

@@ -1,0 +1,17 @@
+(let create_user (fun (username password age) {
+  (let change_username (fun (new_name)
+    (set username new_name)))
+  (let check_password (fun (pass)
+    (= pass password)))
+
+  (fun (&username &password &age &change_username &check_password) ()) }))
+
+(let me (create_user "Lex" "passw0rd" 25))
+(let john (create_user "John" "qwerty123" 28))
+
+(assert (not (me.check_password "test!")) "password is not 'test!'")
+(assert (!= me.username john.username) "usernames are distinct")
+
+(assert (= me.username "Lex") "my username is Lex")
+(me.change_username "Rosetta")
+(assert (= me.username "Rosetta") "my username is now Rosetta!")

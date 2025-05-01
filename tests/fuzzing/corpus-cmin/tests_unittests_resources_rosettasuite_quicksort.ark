@@ -1,0 +1,25 @@
+(import std.List :filter)
+
+(let quicksort (fun (array) {
+  (if (empty? array)
+    # if the given list is empty, return it
+    []
+    # otherwise, sort it
+    {
+      # the pivot will be the first element
+      (let pivot (head array))
+
+      # call quicksort on a smaller array containing all the elements less than the pivot
+      (mut less (quicksort (filter (tail array) (fun (e) (< e pivot)))))
+
+      # and after that, call quicksort on a smaller array containing all the elements greater or equal to the pivot
+      (let more (quicksort (filter (tail array) (fun (e) (>= e pivot)))))
+
+      (concat! less [pivot] more)
+      # return a concatenation of arrays
+      less }) }))
+
+# an unsorted list to sort
+(let a [3 6 1 5 1 65 324 765 1 6 3 0 6 9 6 5 3 2 5 6 7 64 645 7 345 432 432 4 324 23])
+
+(assert (= (quicksort a) [0 1 1 1 2 3 3 3 4 5 5 5 6 6 6 6 6 7 7 9 23 64 65 324 324 345 432 432 645 765]) "(quicksort a) is sorted")

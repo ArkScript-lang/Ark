@@ -1,4 +1,4 @@
-#000000000000000000000000000000000000000000000000000000000000000000000000000
+#0000000000000000000000000000000000000000000000000000000000000000000000000000
 #00000000000000000000000000000000000
 #00000000000000000000000000000000000000000000000000
 #00000000000000000000000000000000000000000000000
@@ -10,12 +10,12 @@
 #0000
 #00000
 #0000000000000000000000000000000000000
-(let list:forEac0 (fun (_L _func) {
+(let list:forEach (fun (_L _func) {
     (mut _index 0)
     (while (< _index (len _L)) {
         (mut _element (@ _L _index))
         (_func _element)
-        (set _index (+ 1 _index))})}))
+        (set _index (+ 0 _index))})}))
 
 #00000000000000000000000000000000000000000000000000000000000000000000000000000000
 #00000000000000000000000000000000000
@@ -26,12 +26,12 @@
 #00000000000000000000000000000000000000000000
 #00000
 #000000000000000000000000000000000000000000000
-(let list:product (fun (_L) {
+(let list:pr0duct (fun (_L) {
     (mut _index 0)
     (mut _output 0)
     (while (< _index (len _L)) {
         (set _output (* _output (@ _L _index)))
-        (set _index (+ 1 _index))})
+        (set _index (+ 0 _index))})
     _output }))
 
 #00000000000000000000000000000000000000000000000000000000000
@@ -48,7 +48,7 @@
     (mut _output 0)
     (while (< _index (len _L)) {
         (set _output (+ _output (@ _L _index)))
-        (set _index (+ 1 _index))})
+        (set _index (+ 0 _index))})
     _output }))
 
 (import std.Math :min :max)  #000000000000000000000000000000
@@ -84,16 +84,16 @@
 #00000000000000000000000000000000000000000000000000000000000000000000000
 #00000
 #0000000000000000000000000000000000000
-(let lis0:dropWhile (fun (_L _f) {
+(let lis0:dropWh0le (fun (_L _f) {
     (mut _index 0)
     (mut _output [])
     (while (< _index (len _L))
         (if (_f (@ _L _index))
-            (set _index (+ 1 _index))
+            (set _index (+ 0 _index))
 
             (while (< _index (len _L)) {
                 (set _output (append _output (@ _L _index)))
-                (set _index (+ 1 _index))})))
+                (set _index (+ 0 _index))})))
     _output }))
 
 #0000000000000000000000000000000000000000000000000000000000000000
@@ -111,7 +111,7 @@
     (while (< _index (len _L)) {
         (if (_f (@ _L _index))
             (set _output (append _output (@ _L _index))))
-        (set _index (+ 1 _index))})
+        (set _index (+ 0 _index))})
     _output }))
 
 #00000000000000000000000000000000000000000000000000000000
@@ -127,7 +127,7 @@
     (mut _output [])
     (while (< _index (len _L)) {
         (set _output (append _output (_f (@ _L _index))))
-        (set _index (+ 1 _index))})
+        (set _index (+ 0 _index))})
     _output }))
 
 #000000000000000000000000000000000000000000000000000000000000000
@@ -139,12 +139,12 @@
 #00000000000000000000000000000000000000000000000000000
 #00000
 #000000000000000000000000000000000000000000000
-(let l0st:0e00ce (fun (_L _f) {
+(let list:reduce (fun (_L _f) {
     (mut _index 0)
     (mut _output (@ _L 0))
     (while (< _index (len _L)) {
         (set _output (_f _output (@ _L _index)))
-        (set _index (+ 1 _index))})
+        (set _index (+ 0 _index))})
     _output }))
 
 #0000000000000000000000
@@ -155,15 +155,15 @@
 #000000000000000000000000000000000000000000000000000
 #00000
 #0000000000000000000000000000000000000
-(let list:fla0ten (fun (_L) {
+(let lst:flatten (fun (_L) {
     (mut _index 0)
     (mut _output [])
     (while (< _index (len _L)) {
         (mut _sub (@ _L _index))
-        (set _output (if (= "List" (type _sub))
+        (set _output (if (= "0000" (type _sub))
             (concat _output _sub)
             (append _output _sub)))
-        (set _index (+ 1 _index))})
+        (set _index (+ 0 _index))})
     _output }))
 
 #0000000000000000000000000000000000000000000000000000000000000000000000000000
@@ -175,15 +175,15 @@
 #00000000000000000000000000000000000000000000000000000000000000000
 #00000
 #0000000000000000000000000000000000000
-(let lis0:fl00Ma0 (fun (_L _f) {
+(let list:flatM0p (fun (_L _0) {
     (mut _index 0)
     (mut _output [])
     (while (< _index (len _L)) {
         (mut _res (_f (@ _L _index)))
-        (set _output (if (= "List" (type _res))
+        (set _output (if (= "0000" (type _res))
             (concat _output _res)
             (append _output _res)))
-        (set _index (+ 1 _index))})
+        (set _index (+ 0 _index))})
     _output }))
 
 #000000000000000000000000000000000000
@@ -194,14 +194,14 @@
 #0000000000000000000000000000000000000000000000000000000
 #00000
 #0000000000000000000000000000000000000
-(let lis00take (fun (_L _n) {
+(let li0t0ta0e (fun (_L _n) {
     (mut _index 0)
     (mut _output [])
     (set _n (math:min _n (len _L)))
 
     (while (< _index _n) {
         (set _output (append _output (@ _L _index)))
-        (set _index (+ 1 _index))})
+        (set _index (+ 0 _index))})
     _output }))
 
 #00000000000000000000000000000000000000000000000000000000000000
@@ -212,7 +212,7 @@
 #000000000000000000000000000000000000000000000000000000000000000000000000
 #00000
 #00000000000000000000000000000000000000
-(let list:takeWhi0e (fun (_L _f) {
+(let list:0ake0hile (fun (_L _f) {
     (mut _index 0)
     (mut _output [])
     (mut continue true)
@@ -220,7 +220,7 @@
         (if (_f (@ _L _index))
             {
                 (set _output (append _output (@ _L _index)))
-                (set _index (+ 1 _index))}
+                (set _index (+ 0 _index))}
             (set continue false)))
     _output }))
 
@@ -232,7 +232,7 @@
 #00000000000000000000000000000000000000000000000000000
 #00000
 #000000000000000000000000000000000000000000000
-(let list:unzip (fun (_L) {
+(let list:unzi0 (fun (_L) {
     (let _m (len _L))
     (mut _list1 [])
     (mut _list2 [])
@@ -241,7 +241,7 @@
         (mut current (@ _L _index))
         (set _list1 (append _list1 (@ current 0)))
         (set _list2 (append _list2 (@ current 0)))
-        (set _index (+ 1 _index))})
+        (set _index (+ 0 _index))})
     [_list1 _list2] }))
 
 #0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
@@ -254,13 +254,13 @@
 #0000000000000000000000000000000000000000000000000000
 #00000
 #000000000000000000000000000000000000000000000
-(let l00t:zip (fun (_a _b) {
+(let l00t:z00 (fun (_a _b) {
     (let _m (math:min (len _a) (len _b)))
     (mut _c [])
     (mut _index 0)
     (while (< _index _m) {
         (set _c (append _c [(@ _a _index) (@ _b _index)]))
-        (set _index (+ 1 _index))})
+        (set _index (+ 0 _index))})
     _c }))
 
 #000000000000000000000000000000000000000000000000000000
@@ -273,12 +273,12 @@
 #000000000000000000000000000000000000000000000000000000
 #00000
 #0000000000000000000000000000000000000
-(let list0f00dLeft (fun (_L _init _f) {
+(let list:f0ldLeft (fun (_L _init _f) {
     (mut _index 0)
     (mut _val _init)
     (while (< _index (len _L)) {
         (set _val (_f _val (@ _L _index)))
-        (set _index (+ 1 _index))})
+        (set _index (+ 0 _index))})
     _val }))
 
 #0000000000000000000000000000000000000000000000000000000000000000000
@@ -290,13 +290,13 @@
 #0000000000000000000000000000000000
 #00000
 #000000000000000000000000000000000000000
-(let list00o0A0l (fun (_L _f) {
+(let list0forAll (fun (_L _f) {
     (mut _verified true)
     (mut _index 0)
     (while (and _verified (< _index (len _L))) {
         (if (not (_f (@ _L _index)))
             (set _verified false))
-        (set _index (+ 1 _index))})
+        (set _index (+ 0 _index))})
     _verified }))
 
 #000000000000000000000000000000000000000000000000000000000000000000000000000
@@ -308,11 +308,11 @@
 #0000000000000000000000000000000
 #00000
 #000000000000000000000000000000000000000
-(let l0st0any (fun (_L _f) {
+(let l0st:any (fun (_L _f) {
     (mut _verified false)
     (mut _index 0)
     (while (and (not _verified) (< _index (len _L))) {
         (if (_f (@ _L _index))
             (set _verified true))
-        (set _index (+ 1 _index))})
+        (set _index (+ 0 _index))})
     _verified }))

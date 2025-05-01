@@ -1,0 +1,11 @@
+(let point(fun(x y)
+  (fun (&x &y) ())))
+
+(let point1 (point 0 5))
+(let point2 (point 2.0 -0.8))
+
+(assert
+  (and
+    (!= point1.x point2.x)
+    (!= point1.y point2.y))
+  "0000000000000000000000000000000")

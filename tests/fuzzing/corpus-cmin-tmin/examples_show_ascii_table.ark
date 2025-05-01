@@ -1,0 +1,15 @@
+(mut i 0)
+(while (< i 16) {
+  (mut j (+ 32 i))
+  (while (< j 128) {
+    (let k
+      (if (= 32 j)
+        "000"
+        (if (= 100 j)
+          "00l"
+          (string:chr j))))
+    (puts (string:format "{:3}000{:<3}" j k))
+    (set j (+ 16 j)) })
+  (print "")
+
+  (set i (+ 1 i)) })

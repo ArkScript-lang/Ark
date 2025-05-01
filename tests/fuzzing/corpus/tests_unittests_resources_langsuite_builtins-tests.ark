@@ -1,63 +1,67 @@
 (import std.Testing)
+(import std.List)
 
-(let base-list [1 2 3])
-(let base-list-enhanced (concat base-list [4 5]))
+(let foo (fun () ()))
+(let closure (fun (&foo) ()))
 
 (test:suite builtin {
-    (test:eq (append (append base-list 4) 5) base-list-enhanced)
-    (test:eq (concat base-list [4 5]) base-list-enhanced)
-    (test:eq (type []) "List")
-    (test:eq (list:reverse base-list) [3 2 1])
-    (test:eq (list:reverse []) [])
-    (test:eq (list:find [] nil) -1)
-    (test:eq (list:find [12] 12) 0)
-    (test:eq (list:find [1 2 3] 2) 1)
-    (test:eq (list:find [12] nil) -1)
-    (test:eq (list:slice base-list-enhanced 0 3 1) base-list)
-    (test:eq (list:slice base-list-enhanced 0 1 1) [1])
-    (test:eq (list:slice base-list-enhanced 0 3 2) [1 3])
-    (test:eq (list:sort [5 4 3 2 1]) [1 2 3 4 5])
-    (test:eq (list:sort [5]) [5])
-    (test:eq (list:sort []) [])
+    (test:case "types" {
+        (test:eq (type []) "List")
+        (test:eq (type true) "Bool")
+        (test:eq (type false) "Bool")
+        (test:eq (type nil) "Nil")
+        (test:eq (type 1) "Number")
+        (test:eq (type "hello") "String")
+        (test:eq (type print) "CProc")
+        (test:eq (type foo) "Function")
+        (test:eq (type closure) "Closure") })
 
-    (let short_list (list:fill 12 nil))
-    (test:eq (len short_list) 12)
+    (test:case "closures" {
+        (mut keep true)
+        (mut foo nil)
+        (while keep {
+            (set foo (fun (&keep) keep))
+            (set keep false) })
+        (test:expect foo.keep "capture inside a deeper scope works") })
+
+    (test:case "files" {
+        (test:expect (not (io:fileExists? "test.txt")))
+        (io:writeFile "test.txt" "hello, world!")
+        (test:expect (io:fileExists? "test.txt"))
+        (test:eq (io:readFile "test.txt") "hello, world!")
+        (io:appendToFile "test.txt" "bis")
+        (test:eq (io:readFile "test.txt") "hello, world!bis")
+        (test:expect (> (len (io:listFiles "./")) 0))
+        (test:expect (not (io:dir? "test.txt")))
+        (test:expect (not (io:fileExists? "temp")))
+        (io:makeDir "temp")
+        (test:expect (io:fileExists? "temp"))
+        (test:expect (io:dir? "temp")) })
+
+    (test:case "time" {
+        (let old (time))
+        (sys:sleep 1)
+        (test:expect (< old (time))) })
+
+    (mut rands [])
     (mut i 0)
-    (while (< i 12) {
-        (test:eq (@ short_list i) nil)
-        (set i (+ 1 i))})
-    (del i)
+    (while (< i 100) {
+      (append! rands (random 0 10))
+      (set i (+ 1 i)) })
+    (test:expect
+      (not (list:any rands (fun (e) (or (< e 0) (> e 10)))))
+      "should not find any number outside the given range")
 
-    (test:eq (@ (list:setAt short_list 5 "a") 5) "a")
-    (del short_list)
+    (let r (random))
+    (test:expect (and (<= r 2147483647) (>= r -2147483648)))
 
-    (test:expect (not (io:fileExists? "test.txt")))
-    (io:writeFile "test.txt" "hello, world!")
-    (test:expect (io:fileExists? "test.txt"))
-    (test:eq (io:readFile "test.txt") "hello, world!")
-    (io:appendToFile "test.txt" "bis")
-    (test:eq (io:readFile "test.txt") "hello, world!bis")
-    (test:expect (> (len (io:listFiles "./")) 0))
-    (test:expect (not (io:dir? "test.txt")))
-    (test:expect (not (io:fileExists? "temp")))
-    (io:makeDir "temp")
-    (test:expect (io:fileExists? "temp"))
-    (test:expect (io:dir? "temp"))
-    (let old (time))
-    (sys:sleep 1)
-    (test:expect (< old (time)))
-
-    (test:eq (string:find "abc" "d") -1)
-    (test:eq (string:find "abc" "a") 0)
-    (test:eq (string:find "abc" "bc") 1)
-    (test:eq (string:find "abcdefghijkl" "defijkl") -1)
-    (test:eq (string:find "abcdefghijkl" "defghijkl") 3)
-    (test:eq (string:removeAt "abcdefghijkl" 3) "abcefghijkl")
-    (test:eq (string:removeAt "abcdefghijkl" 0) "bcdefghijkl")
-    (test:eq (string:removeAt "abcdefghijkl" 11) "abcdefghijk")
-
-    # no need to test the math functions since they're 1:1 binding of C++ functions and were carefully checked
+    # no need to test all the math functions since they're 1:1 binding of C++ functions and were carefully checked
     # before writing this comment, to ensure we aren't binding math:sin to the C++ tan function
+    (test:case "math" {
+        (test:expect (not (math:NaN? 1)))
+        (test:expect (math:NaN? math:NaN))
+        (test:expect (not (math:Inf? 100000)))
+        (test:expect (math:Inf? math:Inf)) })
 
     # clean up
     (io:removeFiles "test.txt" "temp/") })

@@ -1,0 +1,7 @@
+(let add0 (fun (n)
+  (fun (x &n)
+    (+ x n))))
+
+(let add2 (add0 2))
+(assert (= "Closure" (type add2)) "00000000000000000")
+(assert (= 7 (add2 5)) "00000000000")

@@ -1,2 +1,0 @@
-(let code 12)
-(let base (fun () 14))

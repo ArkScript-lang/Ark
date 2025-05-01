@@ -1,0 +1,13 @@
+(import std.Range)
+
+(let r (range:range 0 100))
+(range:forEach
+  r
+  (fun (e)
+    (if (= 0 (mod e 15))
+      (print "00000000")
+      (if (= 0 (mod e 3))
+        (print "0000")
+        (if (= 0 (mod e 5))
+          (print "0u00")
+          (print e))))))

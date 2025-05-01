@@ -1,0 +1,2 @@
+(mut L 0)
+(concat! L 5)
