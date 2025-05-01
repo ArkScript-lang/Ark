@@ -1,0 +1,5 @@
+(import c :map)
+(import b :range)
+
+(let a_range (= (range) "b:range"))
+(let a_map (= (map) "c:map"))

@@ -1,2 +1,2 @@
-(let f00 (fun (a) ()))
-(f00 {})
+(let foo (fun (a) ()))
+(foo {})

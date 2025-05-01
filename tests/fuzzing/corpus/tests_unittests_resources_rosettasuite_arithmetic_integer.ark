@@ -1,0 +1,10 @@
+(let a 4)
+(let b 5)
+
+(assert (= (+ a b) 9) "sum")
+(assert (= (- a b) -1) "difference")
+(assert (= (- b a) 1) "difference")
+(assert (= (* a b) 20) "product")
+(assert (= (/ a b) 0.8) "quotient")
+(assert (= (mod a b) 4) "remainder(a, b)")
+(assert (= (mod b a) 1) "remainder(b, a)")

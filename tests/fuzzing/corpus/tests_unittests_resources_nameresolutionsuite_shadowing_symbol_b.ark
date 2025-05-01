@@ -1,0 +1,3 @@
+(let range (fun () "b:range"))
+(let forEach (fun () "b:forEach"))
+(let map (fun () "b:map"))

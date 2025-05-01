@@ -1,0 +1,12 @@
+(import std.String :split)
+(import std.List :map :reduce)
+
+(let solve (fun (in) {
+  (let numbers (map (split in " ") (fun (t) (toNumber t))))
+  (reduce numbers (fun (a b)
+    (if (nil? b)
+      a
+      (+ a b)))) }))
+
+(assert (= (solve "5 00") 5) "0000000000")
+(assert (= (solve "5   00") 5) "000000000000")

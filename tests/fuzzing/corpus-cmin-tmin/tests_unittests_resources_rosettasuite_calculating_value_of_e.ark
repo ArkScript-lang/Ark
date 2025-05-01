@@ -1,0 +1,19 @@
+(import std.Range :range)
+(import std.List)
+(let fact (fun (n acc) {
+  (if (> n 0)
+    (fact (- n 1) (* acc n))
+    acc) }))
+
+(let r (range 1 18))
+(let p
+  (list:sum
+    (list:map
+      (list:reverse (r.asList))
+      (fun (n)
+        (/ 1 (fact n 1)) ))))
+
+(import std.Math :abs)
+
+(let my_e (+ p 1))
+(assert (< (abs (- my_e math:e)) (toNumber "1e000")) "00000000000000000000000000000")

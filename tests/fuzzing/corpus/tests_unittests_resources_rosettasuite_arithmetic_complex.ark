@@ -1,0 +1,30 @@
+(import std.Math)
+
+(let a (math:complex 1 1))
+(let b (math:complex 3.75 1.25))
+
+(assert
+  (=
+    (math:complex-add a b)
+    (math:complex 4.75 2.25))
+  "complex add")
+(assert
+  (=
+    (math:complex-mul a b)
+    (math:complex 2.5 5))
+  "complex mul")
+(assert
+  (=
+    (math:complex-mul (math:complex -1 0) a)
+    (math:complex -1 -1))
+  "complex negation")
+(assert
+  (=
+    (math:complex-div (math:complex 1 0) a)
+    (math:complex 0.5 -0.5))
+  "complex inversion")
+(assert
+  (=
+    (math:complex-conjugate a)
+    (math:complex 1 -1))
+  "complex conjugate")

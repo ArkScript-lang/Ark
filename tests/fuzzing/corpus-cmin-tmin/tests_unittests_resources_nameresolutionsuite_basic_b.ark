@@ -1,4 +1,4 @@
-(let fo0(fun(arg arg0)
+(let foo(fun(arg arg0)
     (bar arg arg0)))
 
 (let arg"00000")

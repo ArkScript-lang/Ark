@@ -1,0 +1,12 @@
+(let fibo (fun (n) {
+  (mut i 0)
+  (mut a 0)
+  (mut b 1)
+  (while (< i n) {
+    (let c (+ a b))
+    (set a b)
+    (set b c)
+    (set i (+ 1 i)) })
+  a }))
+
+(assert (= 6765 (fibo 20)) "(fibo 20) == 6765")

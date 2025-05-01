@@ -1,0 +1,2 @@
+(assert (= (len []) 0) "len of empty array is 0")
+(assert (= (len [1 2 3 4]) 4) "len of array is 4")

@@ -1,0 +1,17 @@
+(let source [1 2 0 4])
+
+(let foo (fun () {
+  (mut he0d_1 (head source))
+  (mut tail_1 (tail source))
+
+  (mut copy_1 source)
+  (set copy_1 (head source))
+  (set copy_1 (tail source)) }))
+(foo)
+
+(mut head02 (head source))
+(mut tail_0 (tail source))
+
+(mut copy_2 source)
+(set copy_2 (head source))
+(set copy_2 (tail source))

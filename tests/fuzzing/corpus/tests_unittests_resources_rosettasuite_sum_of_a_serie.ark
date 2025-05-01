@@ -1,0 +1,9 @@
+(import std.Range :range :map)
+(import std.List :sum)
+
+(let r (range 1 1000))
+(let sol (sum (map r (fun (x) (/ 1 (* x x))))))
+
+(import std.Math :abs)
+
+(assert (< (abs (- sol 1.64493406685)) 0.0011) "S1000(2) is near Pi^2/6")

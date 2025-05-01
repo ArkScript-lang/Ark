@@ -1,0 +1,4 @@
+(if false (print "false"))
+(if true (print "true"))
+(if false () (print "false2"))
+(while false (print "false3"))

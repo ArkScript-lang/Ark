@@ -1,1 +1,1 @@
-(let f00 (fun (a b) ($ a b)))
+(let foo (fun (a b) ($ a b)))

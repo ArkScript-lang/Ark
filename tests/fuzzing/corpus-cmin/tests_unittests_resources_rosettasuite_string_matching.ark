@@ -1,0 +1,6 @@
+(assert (= 0 (string:find "abcd" "ab")) "abcd starts with ab")
+(assert (= 6 (string:find "hello world" "world")) "world is located at 6")
+(assert (= -1 (string:find "abcd" "zn")) "abcd does not contain zn")
+(assert (= -1 (string:find "abab" "bb")) "abab does not contain bb")
+(assert (= 0 (string:find "abab" "ab")) "abab contains ab")
+(assert (= 2 (string:find "abab" "ab" 1)) "starting lookup at index 1, we found ab at position 2")

@@ -6,5 +6,5 @@
 
 (let make (fun (a b)
   (fun (&a &b) ())))
-(let foo (make "00000" 0))
+(let foo (make "00000" 1))
 (let c [foo.a foo.b])

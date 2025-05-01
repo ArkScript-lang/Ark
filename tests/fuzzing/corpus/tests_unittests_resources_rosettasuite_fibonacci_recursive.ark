@@ -1,0 +1,6 @@
+(let fibo (fun (n)
+  (if (< n 2)
+    n
+    (+ (fibo (- n 1)) (fibo (- n 2))))))
+
+(assert (= 6765 (fibo 20)) "(fibo 20) == 6765")

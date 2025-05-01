@@ -19,6 +19,19 @@ mkdir -p tests/fuzzing/corpus-cmin-tmin
 afl-cmin -i tests/fuzzing/corpus -o tests/fuzzing/corpus-cmin -T all -- "$exe" @@ -L "$ark_lib"
 
 cd tests/fuzzing/corpus-cmin || exit 1
-for i in *.ark; do
-  afl-tmin -i "$i" -o "../corpus-cmin-tmin/$i" -- "$exe" @@ -L "$ark_lib"
+
+cores=$(nproc)
+input_dir="."
+output_dir="../corpus-cmin-tmin"
+# shellcheck disable=SC2012
+total=$(ls "$input_dir" | wc -l)
+
+for k in $(seq 1 "${cores}" "${total}"); do
+	for i in $(seq 0 $(("$cores" - 1))); do
+		# shellcheck disable=SC2012
+		file=$(ls -Sr $input_dir | sed $(("$i" + "$k"))"q;d")
+		afl-tmin -i "$input_dir/$file" -o "$output_dir/$file" -- "$exe" @@ -L "$ark_lib" & #put the command to run after the --
+	done
+
+	wait
 done

@@ -1,0 +1,7 @@
+(let addN (fun (n)
+  (fun (x &n)
+    (+ x n))))
+
+(let add2 (addN 2))
+(assert (= "Closure" (type add2)) "add2 is a closure")
+(assert (= 7 (add2 5)) "add2 5 is 7")

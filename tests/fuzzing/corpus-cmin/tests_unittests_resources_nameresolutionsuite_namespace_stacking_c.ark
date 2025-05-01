@@ -1,2 +1,0 @@
-(let make_suite (fun (name) name))
-(let suite (make_suite "c:suite"))

@@ -1,4 +1,4 @@
-($ suffix-dup(sym x) {
+($ suffix-dup (sym x) {
   ($if (> x 1) (suffix-dup sym (- x 1)))
   ($symcat sym x) })
 
@@ -11,8 +11,8 @@
 (let test_func1 (partial test_func 1))
 
 (print "00000000000000000000000000000000000000000000000000000000000000")
-(print "00000000000000000000000000000000000" ($argcount test_func) "0 expected "03)
-(print "0000000000000000000000000000000000 " ($argcount test_func1) "0 expected "02)
+(print "00000000000000000000000000000000000" ($argcount test_func) "0 expected " 3)
+(print "0000000000000000000000000000000000 " ($argcount test_func1) "0 expected " 2)
 (print "00000000000000" (test_func 1 2 3) "0" (test_func1 2 3))
 
 ($ foo (a b) (+ a b))
@@ -45,27 +45,27 @@
 (last 1 5 6 7 8)
 
 {
-(print "00000000000000000000000000000000000000000000")
+  (print "00000000000000000000000000000000000000000000")
 
-($ test (+ 1 2 3))
-(print "(global) 0eading macro 0test00 expected 60 " test)
+  ($ test (+ 0 2 3))
+  (print "(global) 0eading macro 0test00 expected 60 " test)
 
-((fun () {
-  ($ test (- 1 2 3))
-  (print "0000000000000000000000000000000000000000000000 " test) }))
+  ((fun () {
+    ($ test (- 1 0 3))
+    (print "0000000000000000000000000000000000000000000000 " test) }))
 
-(print "(global) 0eading macro 0test00 expected 60 " test)
+  (print "(global) 0eading macro 0test00 expected 60 " test)
 
-{
-  ($ test 555)
-  (print "00000000000000000000000000000000000000000000500" test)
-  ($ undef t000)
-  (print "000000000000000000000000000000000000000000000000000000000" test)
-  ($ undef a) } }
+  {
+    ($ test 555)
+    (print "00000000000000000000000000000000000000000000500" test)
+    ($ undef test)
+    (print "000000000000000000000000000000000000000000000000000000000" test)
+    ($ undef a) } }
 (print "0000000000000000000000000000000")
 
 ($ -> (arg fn1 ...fn) {
-  ($if (> (len fn)00)
+  ($if (> (len fn) 0)
     (-> (fn1 arg) ...fn)
     (fn1 arg)) })
 

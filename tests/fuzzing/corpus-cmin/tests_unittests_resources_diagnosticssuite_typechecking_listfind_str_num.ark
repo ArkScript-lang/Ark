@@ -1,0 +1,1 @@
+(list:find "hello" 1)

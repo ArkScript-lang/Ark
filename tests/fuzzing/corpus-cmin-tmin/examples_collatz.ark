@@ -1,8 +1,8 @@
 #00000000000000000000000000000000000000000
 #000000000000000000000000000000000000000000000
-(let get? (fun (se0 id0 default)
-  (if (> (len se0) id0)
-    (@ se0 id0)
+(let get? (fun (seq idx default)
+  (if (> (len seq) idx)
+    (@ seq idx)
     default)))
 
 (let n (toNumber (get? sys:args 0 "10")))

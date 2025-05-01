@@ -1,0 +1,11 @@
+(mut collection [])
+(mut i 0)
+(while (< i 1000000) {
+  (append! collection i)
+  (set i (+ i 1)) })
+
+(mut sum 0)
+(set i 0)
+(while (< i 1000000) {
+  (set sum (+ sum (@ collection i)))
+  (set i (+ i 1)) })

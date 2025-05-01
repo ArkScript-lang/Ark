@@ -1,0 +1,3 @@
+(assert (= false (math:Inf? 0)) "00000000000000000")
+(assert (math:Inf? math:Inf) "00000000000000000000")
+(assert (not (math:Inf? math:NaN)) "000000000000000000000000")

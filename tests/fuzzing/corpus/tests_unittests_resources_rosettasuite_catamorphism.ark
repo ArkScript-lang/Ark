@@ -1,0 +1,7 @@
+(import std.List :reduce :foldLeft)
+
+(let sum (fun (a b) (+ a b)))
+
+(assert (= 10 (reduce [1 2 3 4] sum)) "reduce array to 10")
+(assert (= 10 (foldLeft [1 2 3 4] 0 sum)) "fold array to 10")
+(assert (= 12 (foldLeft [1 2 3 4] 2 sum)) "fold array to 12 with initial value")

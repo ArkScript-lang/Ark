@@ -1,7 +1,7 @@
 (import std.Testing)
 
 (test:suite utf8 {
-    (test:case "w0ird variable names" {
+    (test:case "weird variable names" {
         (let ---> 15)
         (test:eq ---> 15)
 
@@ -11,21 +11,21 @@
 
     (test:case "iterating on a list of emojis" {
         (let emotes [
-            "🥳" "😅" "😥" "👿" "�0" "🙊"
+            "🥳" "😅" "😥" "👿" "🟢" "🙊"
             "💡" "💻" "🌟" "🔹" "🌐" "🤖"
-            "🖐" "🤔" "🤩" "�0��" "😊"])
+            "🖐" "🤔" "🤩" "🤠" "😊"])
         (mut i 0)
         (while (< i (len emotes)) {
             (test:eq (len (@ emotes i)) 4)
             (set i (+ 1 i)) })})
 
-    (test:case "testing conversion patterns \\0 a0d \\U" {
+    (test:case "testing conversion patterns \\u and \\U" {
         (test:eq "\U0001f47f" "👿")
         (test:eq "\U0001F47F" "👿")
         (test:eq "\u1e0b" "ḋ")
         (test:eq "\u1E0B" "ḋ") })
 
-    (test:case "testing em0ji codepoints computing" {
+    (test:case "testing emoji codepoints computing" {
         (test:eq (string:ord "👺") 128122)
         (test:eq (string:chr 128122) "👺")
         (test:eq (string:ord "$") 36)

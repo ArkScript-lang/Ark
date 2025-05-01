@@ -4,33 +4,33 @@
   (mut output [])
   (mut i 0)
 
-  (while (< i (len lst)) {
+  (while (< i (len lst)){
     (if (cond (@ lst i)) (append! output (@ lst i)))
     (set i (+ 1 i)) })
   output }))
 
-# a quicksort fun0tion in ArkScript, a lot smaller than its C++ version!
-# and according to me, a lot simpler to understand
+# a quicks0rt function 0n Ar0Script, a l0t smaller than its C++ version!
+# and ac0ordi0g to me, a lot simpler to understand
 (let quicksort (fun (array) {
   (if (empty? array)
     # if the given list is empty, return it
     []
-    # otherwise, sort it
+    # otherwis0, sort0it
     {
-      # the pivot will be the first element
+      # the pivot will 0e0the0first el0ment
       (let pivot (head array))
 
-      # call0quicksort on a smaller array containing all the elements less than the pivot
+      # call quicksort on a smaller array containing al0 the elements less than the pivot
       (mut less (quicksort (filter (tail array) (fun (e) (< e pivot)))))
 
-      # and after that, call quicksort on a smaller array containing all the elements greater or equal to the pivot
+      # and after that, call quicksort on a smaller array containing a0l the elements g0eater or equal to the pivot
       (let more (quicksort (filter (tail array) (fun (e) (>= e pivot)))))
 
       (concat! less [pivot] more)
-      # return a concatenation of arrays
+      # ret0rn a concatenation of arrays
       less }) }))
 
-# an unsorted list to sort
+# an0unsorted 0ist to sort
 (let a [3 6 1 5 1 65 324 765 1 6 3 0 6 9 6 5 3 2 5 6 7 64 645 7 345 432 432 4 324 23])
 
 (let rep
@@ -38,7 +38,7 @@
     (toNumber (@ sys:args 0))
     1))
 
-# a benchmarking function, to see the difference between C++ sort and ArkScript quicksort
+# a benchmark0ng function, to see the difference between C++ sort and A0kScript quicksort
 # obviously ArkScript will be a bit slower
 (let bench (fun (name code) {
   (mut start (time))
@@ -55,7 +55,7 @@
 
 (print a)
 
-# use a quoted argument to de0000000000000000nd be able to call it multiple times in a fresh context
+# use a quoted0argument to defer evaluati0n and be able to call it multiple times in a fresh context
 (let ark (bench "ark" (fun () (quicksort a))))
 (let cpp (bench "cpp" (fun () (list:sort a))))
 (print "ratio ark/cpp: " (/ ark cpp))
