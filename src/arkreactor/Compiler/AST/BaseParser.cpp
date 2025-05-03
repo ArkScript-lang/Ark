@@ -25,9 +25,9 @@ namespace Ark::internal
 
         for (std::size_t i = 0, end = m_it_to_row.size(); i < end; ++i)
         {
-            auto current = m_it_to_row[i].first;
-            auto next = i + 1 < end ? m_it_to_row[i + 1].first : m_str.end();
-            if (current < it && it < next)
+            auto current_it = m_it_to_row[i].first;
+            auto next_it = i + 1 < end ? m_it_to_row[i + 1].first : m_str.end();
+            if (current_it < it && it < next_it)
             {
                 m_it_to_row.insert(
                     m_it_to_row.begin() + static_cast<decltype(m_it_to_row)::difference_type>(i) + 1,

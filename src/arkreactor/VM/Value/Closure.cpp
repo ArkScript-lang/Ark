@@ -1,7 +1,6 @@
 #include <Ark/VM/Value/Closure.hpp>
 
 #include <Ark/VM/Value/ClosureScope.hpp>
-#include <Ark/VM/Value.hpp>
 #include <Ark/VM/VM.hpp>
 
 #include <ranges>
@@ -20,12 +19,9 @@ namespace Ark::internal
 
     bool Closure::hasFieldEndingWith(const std::string& end, const VM& vm) const
     {
-        for (const auto id : std::ranges::views::keys(m_scope->m_data))
-        {
-            if (end.ends_with(":" + vm.m_state.m_symbols[id]))
-                return true;
-        }
-        return false;
+        return std::ranges::any_of(std::ranges::views::keys(m_scope->m_data), [&vm, &end](const auto& id) {
+            return end.ends_with(":" + vm.m_state.m_symbols[id]);
+        });
     }
 
     std::string Closure::toString(VM& vm) const noexcept

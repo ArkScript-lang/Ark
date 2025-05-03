@@ -362,6 +362,7 @@ namespace Ark
 #    pragma GCC diagnostic push
 #    pragma GCC diagnostic ignored "-Wpedantic"
             constexpr std::array opcode_targets = {
+                // cppcheck-suppress syntaxError ; cppcheck do not know about labels addresses (GCC extension)
                 &&TARGET_NOP,
                 &&TARGET_LOAD_SYMBOL,
                 &&TARGET_LOAD_SYMBOL_BY_INDEX,
@@ -455,6 +456,7 @@ namespace Ark
             m_running = true;
 
             DISPATCH();
+            // cppcheck-suppress unreachableCode ; analysis cannot follow the chain of goto... but it works!
             {
 #if !ARK_USE_COMPUTED_GOTOS
             dispatch_opcode:
@@ -1739,7 +1741,7 @@ namespace Ark
                         ++consecutive_similar_traces;
                     }
 
-                    Value* ip;
+                    const Value* ip;
                     do
                     {
                         ip = popAndResolveAsPtr(context);

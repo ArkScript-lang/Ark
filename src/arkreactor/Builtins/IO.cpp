@@ -21,9 +21,10 @@ namespace Ark::internal::Builtins::IO
      * =end
      * @author https://github.com/SuperFola
      */
+    // cppcheck-suppress constParameterReference
     Value print(std::vector<Value>& n, VM* vm)
     {
-        for (auto& value : n)
+        for (const auto& value : n)
             fmt::print("{}", value.toString(*vm));
         fmt::println("");
 
@@ -40,9 +41,10 @@ namespace Ark::internal::Builtins::IO
      * =end
      * @author https://github.com/SuperFola
      */
+    // cppcheck-suppress constParameterReference
     Value puts_(std::vector<Value>& n, VM* vm)
     {
-        for (auto& value : n)
+        for (const auto& value : n)
             fmt::print("{}", value.toString(*vm));
 
         return nil;
@@ -58,6 +60,7 @@ namespace Ark::internal::Builtins::IO
      * =end
      * @author https://github.com/SuperFola
      */
+    // cppcheck-suppress constParameterReference
     Value input(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (types::check(n, ValueType::String))
@@ -144,6 +147,7 @@ namespace Ark::internal::Builtins::IO
      * =end
      * @author https://github.com/SuperFola
      */
+    // cppcheck-suppress constParameterReference
     Value readFile(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::String))
@@ -169,6 +173,7 @@ namespace Ark::internal::Builtins::IO
      * =end
      * @author https://github.com/SuperFola
      */
+    // cppcheck-suppress constParameterReference
     Value fileExists(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::String))
@@ -189,6 +194,7 @@ namespace Ark::internal::Builtins::IO
      * =end
      * @author https://github.com/SuperFola
      */
+    // cppcheck-suppress constParameterReference
     Value listFiles(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::String))
@@ -215,6 +221,7 @@ namespace Ark::internal::Builtins::IO
      * =end
      * @author https://github.com/SuperFola
      */
+    // cppcheck-suppress constParameterReference
     Value isDirectory(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::String))
@@ -235,6 +242,7 @@ namespace Ark::internal::Builtins::IO
      * =end
      * @author https://github.com/SuperFola
      */
+    // cppcheck-suppress constParameterReference
     Value makeDir(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::String))
@@ -257,6 +265,7 @@ namespace Ark::internal::Builtins::IO
      * =end
      * @author https://github.com/SuperFola
      */
+    // cppcheck-suppress constParameterReference
     Value removeFiles(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (n.empty() || n[0].valueType() != ValueType::String)

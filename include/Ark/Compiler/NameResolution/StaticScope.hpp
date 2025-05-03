@@ -4,7 +4,7 @@
  * @brief Static scopes (for functions, loops) and namespace scopes (for packages) definitions, used at compile time
  * @date 2024-11-30
  *
- * @copyright Copyright (c) 2024
+ * @copyright Copyright (c) 2024-2025
  *
  */
 
@@ -141,20 +141,7 @@ namespace Ark::internal
         [[nodiscard]] inline bool isGlob() const override { return m_is_glob; }
         [[nodiscard]] inline std::string prefix() const override { return m_namespace; }
         [[nodiscard]] inline bool hasSymbol(const std::string& symbol) const override { return std::ranges::find(m_symbols, symbol) != m_symbols.end(); }
-        [[nodiscard]] inline bool recursiveHasSymbol(const std::string& symbol) override
-        {
-            if (hasSymbol(symbol))
-                return true;
-            if (isGlob() && std::ranges::find(m_vars, fullyQualifiedName(symbol), &Declaration::name) != m_vars.end())
-                return true;
-
-            for (const auto& saved_scope : m_additional_namespaces)
-            {
-                if (saved_scope->recursiveHasSymbol(symbol))
-                    return true;
-            }
-            return false;
-        }
+        [[nodiscard]] bool recursiveHasSymbol(const std::string& symbol) override;
 
     private:
         std::string m_namespace;

@@ -40,6 +40,7 @@ namespace Ark::internal::Builtins::System
      * =end
      * @author https://github.com/SuperFola
      */
+    // cppcheck-suppress constParameterReference
     Value system_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::String))
@@ -72,6 +73,7 @@ namespace Ark::internal::Builtins::System
      * =end
      * @author https://github.com/SuperFola
      */
+    // cppcheck-suppress constParameterReference
     Value sleep(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::Number))
@@ -96,6 +98,7 @@ namespace Ark::internal::Builtins::System
      * =end
      * @author https://github.com/SuperFola
      */
+    // cppcheck-suppress constParameterReference
     Value exit_(std::vector<Value>& n, VM* vm)
     {
         if (!types::check(n, ValueType::Number))

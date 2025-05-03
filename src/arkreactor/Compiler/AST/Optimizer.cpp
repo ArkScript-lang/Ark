@@ -46,7 +46,7 @@ namespace Ark::internal
         else if (node.nodeType() == NodeType::List)
         {
             // FIXME: very primitive removal of (if true/false ...) and (while false ...)
-            if (node.constList().size() > 1 && node.constList().front().nodeType() == NodeType::Keyword &&
+            if (node.constList().size() >= 3 && node.constList().front().nodeType() == NodeType::Keyword &&
                 (node.constList().front().keyword() == Keyword::If || node.constList().front().keyword() == Keyword::While))
             {
                 const auto keyword = node.constList().front().keyword();

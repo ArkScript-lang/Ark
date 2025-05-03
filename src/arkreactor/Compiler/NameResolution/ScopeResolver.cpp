@@ -52,12 +52,9 @@ namespace Ark::internal
 
     bool ScopeResolver::isRegistered(const std::string& name) const
     {
-        for (const auto& m_scope : std::ranges::reverse_view(m_scopes))
-        {
-            if (m_scope->get(name, true).has_value())
-                return true;
-        }
-        return false;
+        return std::ranges::any_of(std::ranges::reverse_view(m_scopes), [&name](const auto& scope) {
+            return scope->get(name, true).has_value();
+        });
     }
 
     bool ScopeResolver::isInScope(const std::string& name) const

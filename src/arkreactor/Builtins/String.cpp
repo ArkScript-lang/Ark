@@ -163,6 +163,7 @@ namespace Ark::internal::Builtins::String
      * =end
      * @author https://github.com/SuperFola
      */
+    // cppcheck-suppress constParameterReference
     Value chr(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::Number))

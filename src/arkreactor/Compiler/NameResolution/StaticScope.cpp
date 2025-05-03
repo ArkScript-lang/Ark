@@ -1,6 +1,7 @@
 #include <Ark/Compiler/NameResolution/StaticScope.hpp>
 
 #include <utility>
+#include <ranges>
 #include <fmt/format.h>
 
 namespace Ark::internal
@@ -96,7 +97,7 @@ namespace Ark::internal
             {
                 if (auto maybe_decl = scope->get(name, extensive_lookup); maybe_decl.has_value())
                 {
-                    // priorize non-hidden declarations
+                    // prioritize non-hidden declarations
                     if ((decl.has_value() && decl.value().name.ends_with("#hidden")) || !decl.has_value())
                         decl = maybe_decl;
                 }
@@ -124,5 +125,19 @@ namespace Ark::internal
     bool NamespaceScope::isNamespace() const
     {
         return true;
+    }
+
+    bool NamespaceScope::recursiveHasSymbol(const std::string& symbol)
+    {
+        if (hasSymbol(symbol))
+            return true;
+        if (isGlob() && std::ranges::find(m_vars, fullyQualifiedName(symbol), &Declaration::name) != m_vars.end())
+            return true;
+
+        return std::ranges::any_of(
+            m_additional_namespaces,
+            [&symbol](const auto& saved_scope) {
+                return saved_scope->recursiveHasSymbol(symbol);
+            });
     }
 }
