@@ -4,7 +4,7 @@
  * @brief AST node used by the parser, optimizer and compiler
  * @date 2020-10-27
  *
- * @copyright Copyright (c) 2020-2024
+ * @copyright Copyright (c) 2020-2025
  *
  */
 
@@ -39,7 +39,7 @@ namespace Ark::internal
         explicit Node(double value);
         explicit Node(long value);
         explicit Node(Keyword value);
-        explicit Node(Namespace namespace_);
+        explicit Node(const Namespace& namespace_);
 
         /**
          * @brief Return the string held by the value (if the node type allows it)
@@ -218,7 +218,7 @@ namespace Ark::internal
         friend bool operator<(const Node& A, const Node& B);
 
     private:
-        NodeType m_type;
+        NodeType m_type { NodeType::Unused };
         Value m_value;
         // position of the node in the original code, useful when it comes to parser errors
         std::size_t m_line = 0, m_col = 0;

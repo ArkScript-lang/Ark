@@ -16,11 +16,10 @@ namespace Ark
     Repl::Repl(const std::vector<std::filesystem::path>& lib_env) :
         m_line_count(1), m_running(true),
         m_old_ip(0), m_lib_env(lib_env),
-        m_state(m_lib_env), m_vm(m_state), m_has_init_vm(false)
-    {
-        m_keywords = getAllKeywords();
-        m_words_colors = getColorPerKeyword();
-    }
+        m_state(m_lib_env), m_vm(m_state), m_has_init_vm(false),
+        m_keywords(getAllKeywords()),
+        m_words_colors(getColorPerKeyword())
+    {}
 
     int Repl::run()
     {

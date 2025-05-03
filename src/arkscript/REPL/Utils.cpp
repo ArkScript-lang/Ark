@@ -29,14 +29,20 @@ namespace Ark::internal
     {
         std::vector<std::string> output;
         output.reserve(keywords.size() + Language::listInstructions.size() + Language::operators.size() + Builtins::builtins.size() + 2);
-        for (auto keyword : keywords)
-            output.emplace_back(keyword);
-        for (auto inst : Language::listInstructions)
-            output.emplace_back(inst);
-        for (auto op : Language::operators)
-            output.emplace_back(op);
-        for (const auto& builtin : std::ranges::views::keys(Builtins::builtins))
-            output.push_back(builtin);
+
+        std::ranges::transform(keywords, std::back_inserter(output), [](const auto& string_view) {
+            return std::string(string_view);
+        });
+        std::ranges::transform(Language::listInstructions, std::back_inserter(output), [](const auto& string_view) {
+            return std::string(string_view);
+        });
+        std::ranges::transform(Language::operators, std::back_inserter(output), [](const auto& string_view) {
+            return std::string(string_view);
+        });
+        std::ranges::transform(std::ranges::views::keys(Builtins::builtins), std::back_inserter(output), [](const auto& string) {
+            return string;
+        });
+
         output.emplace_back("and");
         output.emplace_back("or");
 
@@ -46,22 +52,27 @@ namespace Ark::internal
     std::vector<std::pair<std::string, replxx::Replxx::Color>> getColorPerKeyword()
     {
         using namespace replxx;
+        using K = std::string;
+        using V = Replxx::Color;
 
-        std::vector<std::pair<std::string, Replxx::Color>> output;
+        std::vector<std::pair<K, V>> output;
         output.reserve(keywords.size() + Language::listInstructions.size() + Language::operators.size() + Builtins::builtins.size() + 4);
-        for (auto keyword : keywords)
-            output.emplace_back(keyword, Replxx::Color::BRIGHTRED);
-        for (auto inst : Language::listInstructions)
-            output.emplace_back(inst, Replxx::Color::GREEN);
-        for (auto op : Language::operators)
-        {
-            auto safe_op = std::string(op);
+
+        std::ranges::transform(keywords, std::back_inserter(output), [](const auto& string_view) {
+            return std::make_pair(std::string(string_view), Replxx::Color::BRIGHTRED);
+        });
+        std::ranges::transform(Language::listInstructions, std::back_inserter(output), [](const auto& string_view) {
+            return std::make_pair(std::string(string_view), Replxx::Color::GREEN);
+        });
+        std::ranges::transform(Language::operators, std::back_inserter(output), [](const auto& string_view) {
+            auto safe_op = std::string(string_view);
             if (const auto it = safe_op.find_first_of(R"(-+=/*<>[]()?")"); it != std::string::npos)
                 safe_op.insert(it, "\\");
-            output.emplace_back(safe_op, Replxx::Color::BRIGHTBLUE);
-        }
-        for (const auto& builtin : std::ranges::views::keys(Builtins::builtins))
-            output.emplace_back(builtin, Replxx::Color::GREEN);
+            return std::make_pair(safe_op, Replxx::Color::BRIGHTBLUE);
+        });
+        std::ranges::transform(std::ranges::views::keys(Builtins::builtins), std::back_inserter(output), [](const auto& string) {
+            return std::make_pair(string, Replxx::Color::GREEN);
+        });
 
         output.emplace_back("and", Replxx::Color::BRIGHTBLUE);
         output.emplace_back("or", Replxx::Color::BRIGHTBLUE);

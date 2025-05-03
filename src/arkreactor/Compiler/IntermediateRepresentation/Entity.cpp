@@ -19,10 +19,10 @@ namespace Ark::internal::IR
 
     Entity Entity::Label(const label_t value)
     {
-        auto label = Entity(Kind::Label);
-        label.m_label = value;
+        auto entity = Entity(Kind::Label);
+        entity.m_label = value;
 
-        return label;
+        return entity;
     }
 
     Entity Entity::Goto(const Entity& label)

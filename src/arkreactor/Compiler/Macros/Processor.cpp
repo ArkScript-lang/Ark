@@ -50,7 +50,7 @@ namespace Ark::internal
     void MacroProcessor::handleMacroNode(Node& node)
     {
         // a macro needs at least 2 nodes, name + value is the minimal form
-        // this is guaranted by the parser
+        // this is guaranteed by the parser
         assert(node.constList().size() >= 2 && "Invalid macro, missing value");
 
         const Node& first_node = node.list()[0];
@@ -66,7 +66,7 @@ namespace Ark::internal
         // ($ name (args) body)
         else if (node.constList().size() == 3 && first_node.nodeType() == NodeType::Symbol)
         {
-            assert(node.list()[1].nodeType() == NodeType::List && "Invalid macro argument's list");
+            assert(node.constList()[1].nodeType() == NodeType::List && "Invalid macro argument's list");
             m_macros.back().add(first_node.string(), node);
         }
         // in case we had a conditional, we need to evaluate and expand it
@@ -565,8 +565,8 @@ namespace Ark::internal
             }
             else if (name == Language::Repr)
             {
-                const Node ast = node.constList()[1];
-                node.updateValueAndType(Node(NodeType::String, ast.repr()));
+                const Node arg = node.constList()[1];
+                node.updateValueAndType(Node(NodeType::String, arg.repr()));
             }
             else if (name == Language::AsIs)
             {

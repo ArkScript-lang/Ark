@@ -54,7 +54,7 @@ namespace Ark
     bool State::compile(const std::string& file, const std::string& output, const uint16_t features) const
     {
         Welder welder(m_debug_level, m_libenv, features);
-        for (auto& p : m_binded)
+        for (const auto& p : m_binded)
             welder.registerSymbol(p.first);
 
         if (!welder.computeASTFromFile(file))
@@ -103,7 +103,7 @@ namespace Ark
     bool State::doString(const std::string& code, const uint16_t features)
     {
         Welder welder(m_debug_level, m_libenv, features);
-        for (auto& p : m_binded)
+        for (const auto& p : m_binded)
             welder.registerSymbol(p.first);
 
         if (!welder.computeASTFromString(code))

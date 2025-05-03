@@ -300,7 +300,7 @@ inline void VM::call(internal::ExecutionContext& context, const uint16_t argc)
         // is it a user defined closure?
         case ValueType::Closure:
         {
-            Closure& c = function.refClosure();
+            const Closure& c = function.closure();
             const PageAddr_t new_page_pointer = c.pageAddr();
 
             // create dedicated scope

@@ -30,7 +30,7 @@ namespace Ark::internal
         m_type(NodeType::Keyword), m_value(value)
     {}
 
-    Node::Node(Namespace namespace_) :
+    Node::Node(const Namespace& namespace_) :
         m_type(NodeType::Namespace), m_value(namespace_)
     {}
 

@@ -206,14 +206,11 @@ namespace Ark::internal
                 auto [first, second] = createReplacement(entities);
                 auto output = IR::Entity(replacement, first, second);
 
-                for (const auto& entity : entities)
-                {
-                    if (entity.hasValidSourceLocation())
-                    {
-                        output.setSourceLocation(entity.filename(), entity.sourceLine());
-                        break;
-                    }
-                }
+                if (auto it = std::ranges::find_if(entities, [](const auto& entity) {
+                        return entity.hasValidSourceLocation();
+                    });
+                    it != entities.end())
+                    output.setSourceLocation(it->filename(), it->sourceLine());
 
                 return output;
             }

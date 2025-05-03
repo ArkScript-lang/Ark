@@ -155,11 +155,11 @@ namespace Ark::internal
         if (leaf->constList().size() == 1)
         {
             // we haven't parsed anything while in "macro state"
-            std::string symbol;
-            if (!name(&symbol))
+            std::string symbol_name;
+            if (!name(&symbol_name))
                 errorWithNextToken(token + " needs a symbol");
 
-            leaf->push_back(Node(NodeType::Symbol, symbol));
+            leaf->push_back(Node(NodeType::Symbol, symbol_name));
         }
 
         comment.clear();
@@ -185,11 +185,11 @@ namespace Ark::internal
         std::string comment;
         newlineOrComment(&comment);
 
-        std::string symbol;
-        if (!name(&symbol))
+        std::string symbol_name;
+        if (!name(&symbol_name))
             errorWithNextToken("del needs a symbol");
 
-        leaf->push_back(Node(NodeType::Symbol, symbol));
+        leaf->push_back(Node(NodeType::Symbol, symbol_name));
         leaf->list().back().attachNearestCommentBefore(comment);
         setNodePosAndFilename(leaf->list().back());
 
@@ -209,8 +209,8 @@ namespace Ark::internal
 
         leaf->push_back(Node(Keyword::If));
 
-        if (auto condition = nodeOrValue(); condition.has_value())
-            leaf->push_back(condition.value().attachNearestCommentBefore(comment));
+        if (auto cond_expr = nodeOrValue(); cond_expr.has_value())
+            leaf->push_back(cond_expr.value().attachNearestCommentBefore(comment));
         else
             errorWithNextToken("`if' needs a valid condition");
 
@@ -252,8 +252,8 @@ namespace Ark::internal
 
         leaf->push_back(Node(Keyword::While));
 
-        if (auto condition = nodeOrValue(); condition.has_value())
-            leaf->push_back(condition.value().attachNearestCommentBefore(comment));
+        if (auto cond_expr = nodeOrValue(); cond_expr.has_value())
+            leaf->push_back(cond_expr.value().attachNearestCommentBefore(comment));
         else
             errorWithNextToken("`while' needs a valid condition");
 
@@ -362,22 +362,22 @@ namespace Ark::internal
             {
                 if (accept(IsChar(':')))  // parsing potential :a :b :c
                 {
-                    std::string symbol;
-                    if (!name(&symbol))
+                    std::string symbol_name;
+                    if (!name(&symbol_name))
                         errorWithNextToken("Expected a valid symbol to import");
-                    if (symbol == "*")
-                        error(fmt::format("Glob patterns can not be separated from the package, use (import {}:*) instead", import_data.toPackageString()), symbol);
+                    if (symbol_name == "*")
+                        error(fmt::format("Glob patterns can not be separated from the package, use (import {}:*) instead", import_data.toPackageString()), symbol_name);
 
-                    if (symbol.size() >= 2 && symbol[symbol.size() - 2] == ':' && symbol.back() == '*')
+                    if (symbol_name.size() >= 2 && symbol_name[symbol_name.size() - 2] == ':' && symbol_name.back() == '*')
                     {
                         backtrack(getCount() - 2);  // we can backtrack n-2 safely here because we know the previous chars were ":*"
                         error("Glob pattern can not follow a symbol to import", ":*");
                     }
 
-                    symbols.push_back(Node(NodeType::Symbol, symbol).attachNearestCommentBefore(comment));
+                    symbols.push_back(Node(NodeType::Symbol, symbol_name).attachNearestCommentBefore(comment));
                     comment.clear();
                     setNodePosAndFilename(symbols.list().back());
-                    import_data.symbols.push_back(symbol);
+                    import_data.symbols.push_back(symbol_name);
                     // we do not need the prefix when importing specific symbols
                     import_data.with_prefix = false;
                 }
@@ -468,25 +468,25 @@ namespace Ark::internal
                 std::string capture;
                 if (!name(&capture))
                     break;
-                Node node = Node(NodeType::Capture, capture).attachNearestCommentBefore(comment);
-                setNodePosAndFilename(node, pos);
-                args->push_back(node);
+                Node capture_node = Node(NodeType::Capture, capture).attachNearestCommentBefore(comment);
+                setNodePosAndFilename(capture_node, pos);
+                args->push_back(capture_node);
             }
             else
             {
                 const auto count = getCount();
-                std::string symbol;
-                if (!name(&symbol))
+                std::string symbol_name;
+                if (!name(&symbol_name))
                     break;
                 if (has_captures)
                 {
                     backtrack(count);
-                    error("Captured variables should be at the end of the argument list", symbol);
+                    error("Captured variables should be at the end of the argument list", symbol_name);
                 }
 
-                Node node = Node(NodeType::Symbol, symbol).attachNearestCommentBefore(comment);
-                setNodePosAndFilename(node, pos);
-                args->push_back(node);
+                Node arg_node = Node(NodeType::Symbol, symbol_name).attachNearestCommentBefore(comment);
+                setNodePosAndFilename(arg_node, pos);
+                args->push_back(arg_node);
             }
 
             comment.clear();
@@ -581,8 +581,8 @@ namespace Ark::internal
         newlineOrComment(&comment);
         leaf->attachNearestCommentBefore(comment);
 
-        if (const auto condition = nodeOrValue(); condition.has_value())
-            leaf->push_back(condition.value());
+        if (const auto cond_expr = nodeOrValue(); cond_expr.has_value())
+            leaf->push_back(cond_expr.value());
         else
             errorWithNextToken("$if need a valid condition");
 
@@ -689,13 +689,13 @@ namespace Ark::internal
         newlineOrComment(&comment);
         leaf->attachNearestCommentBefore(comment);
 
-        std::string symbol;
-        if (!name(&symbol))
+        std::string symbol_name;
+        if (!name(&symbol_name))
             errorWithNextToken("$ needs a symbol to declare a macro");
         comment.clear();
         newlineOrComment(&comment);
 
-        leaf->push_back(Node(NodeType::Symbol, symbol).attachNearestCommentBefore(comment));
+        leaf->push_back(Node(NodeType::Symbol, symbol_name).attachNearestCommentBefore(comment));
 
         const auto position = getCount();
         if (const auto args = macroArgs(); args.has_value())
@@ -711,7 +711,7 @@ namespace Ark::internal
             if (value.has_value())
                 leaf->push_back(value.value());
             else
-                errorWithNextToken(fmt::format("Expected an argument list, atom or node while defining macro `{}'", symbol));
+                errorWithNextToken(fmt::format("Expected an argument list, atom or node while defining macro `{}'", symbol_name));
 
             setNodePosAndFilename(leaf->list().back());
             if (accept(IsChar(')')))
@@ -737,7 +737,7 @@ namespace Ark::internal
         else
         {
             backtrack(position);
-            errorWithNextToken(fmt::format("Expected a value while defining macro `{}'", symbol));
+            errorWithNextToken(fmt::format("Expected a value while defining macro `{}'", symbol_name));
         }
 
         setNodePosAndFilename(leaf->list().back());
@@ -758,8 +758,8 @@ namespace Ark::internal
         auto cursor = getCursor();
 
         std::optional<Node> func;
-        if (auto atom = anyAtomOf({ NodeType::Symbol, NodeType::Field }); atom.has_value())
-            func = atom->attachNearestCommentBefore(comment);
+        if (auto sym_or_field = anyAtomOf({ NodeType::Symbol, NodeType::Field }); sym_or_field.has_value())
+            func = sym_or_field->attachNearestCommentBefore(comment);
         else if (auto nested = node(); nested.has_value())
             func = nested->attachNearestCommentBefore(comment);
         else

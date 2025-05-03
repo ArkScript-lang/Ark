@@ -179,10 +179,13 @@ std::string JsonCompiler::_compile(const Node& node)
                         bool is_glob = node.constList()[2].nodeType() == NodeType::Symbol && node.constList()[2].string() == "*";
                         std::vector<std::string> syms;
                         if (node.constList()[2].nodeType() == NodeType::List)
-                        {
-                            for (const auto& sym : node.constList()[2].constList())
-                                syms.push_back('"' + sym.string() + '"');
-                        }
+                            std::ranges::transform(
+                                node.constList()[2].constList(),
+                                std::back_inserter(syms),
+                                [](const auto& sym) {
+                                    return fmt::format("{:?}", sym.string());
+                                });
+
                         json += fmt::format(
                             R"({{"type": "Import", "package": "{}", "glob": {}, "symbols": [{}]}})",
                             package,

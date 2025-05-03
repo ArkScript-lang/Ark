@@ -19,6 +19,7 @@ namespace Ark::internal::Builtins::Mathematics
      * =end
      * @author https://github.com/SuperFola
      */
+    // cppcheck-suppress constParameterReference
     Value exponential(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::Number))
@@ -39,6 +40,7 @@ namespace Ark::internal::Builtins::Mathematics
      * =end
      * @author https://github.com/SuperFola
      */
+    // cppcheck-suppress constParameterReference
     Value logarithm(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::Number))
@@ -62,6 +64,7 @@ namespace Ark::internal::Builtins::Mathematics
      * =end
      * @author https://github.com/SuperFola
      */
+    // cppcheck-suppress constParameterReference
     Value ceil_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::Number))
@@ -82,6 +85,7 @@ namespace Ark::internal::Builtins::Mathematics
      * =end
      * @author https://github.com/SuperFola
      */
+    // cppcheck-suppress constParameterReference
     Value floor_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::Number))
@@ -103,6 +107,7 @@ namespace Ark::internal::Builtins::Mathematics
      * =end
      * @author https://github.com/SuperFola
      */
+    // cppcheck-suppress constParameterReference
     Value round_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::Number))
@@ -124,6 +129,7 @@ namespace Ark::internal::Builtins::Mathematics
      * =end
      * @author https://github.com/SuperFola
      */
+    // cppcheck-suppress constParameterReference
     Value isnan_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (n[0].valueType() != ValueType::Number)
@@ -142,6 +148,7 @@ namespace Ark::internal::Builtins::Mathematics
      * =end
      * @author https://github.com/SuperFola
      */
+    // cppcheck-suppress constParameterReference
     Value isinf_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (n[0].valueType() != ValueType::Number)
@@ -160,6 +167,7 @@ namespace Ark::internal::Builtins::Mathematics
      * =end
      * @author https://github.com/SuperFola
      */
+    // cppcheck-suppress constParameterReference
     Value cos_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::Number))
@@ -181,6 +189,7 @@ namespace Ark::internal::Builtins::Mathematics
      * =end
      * @author https://github.com/SuperFola
      */
+    // cppcheck-suppress constParameterReference
     Value sin_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::Number))
@@ -202,6 +211,7 @@ namespace Ark::internal::Builtins::Mathematics
      * =end
      * @author https://github.com/SuperFola
      */
+    // cppcheck-suppress constParameterReference
     Value tan_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::Number))
@@ -222,6 +232,7 @@ namespace Ark::internal::Builtins::Mathematics
      * =end
      * @author https://github.com/SuperFola
      */
+    // cppcheck-suppress constParameterReference
     Value acos_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::Number))
@@ -242,6 +253,7 @@ namespace Ark::internal::Builtins::Mathematics
      * =end
      * @author https://github.com/SuperFola
      */
+    // cppcheck-suppress constParameterReference
     Value asin_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::Number))
@@ -262,6 +274,7 @@ namespace Ark::internal::Builtins::Mathematics
      * =end
      * @author https://github.com/SuperFola
      */
+    // cppcheck-suppress constParameterReference
     Value atan_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::Number))
@@ -279,6 +292,7 @@ namespace Ark::internal::Builtins::Mathematics
      * @param value the Number
      * @author https://github.com/Gryfenfer97
      */
+    // cppcheck-suppress constParameterReference
     Value cosh_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::Number))
@@ -296,6 +310,7 @@ namespace Ark::internal::Builtins::Mathematics
      * @param value the Number
      * @author https://github.com/Gryfenfer97
      */
+    // cppcheck-suppress constParameterReference
     Value sinh_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::Number))
@@ -313,6 +328,7 @@ namespace Ark::internal::Builtins::Mathematics
      * @param value the Number
      * @author https://github.com/Gryfenfer97
      */
+    // cppcheck-suppress constParameterReference
     Value tanh_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::Number))
@@ -330,6 +346,7 @@ namespace Ark::internal::Builtins::Mathematics
      * @param value the Number
      * @author https://github.com/Gryfenfer97
      */
+    // cppcheck-suppress constParameterReference
     Value acosh_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::Number))
@@ -347,6 +364,7 @@ namespace Ark::internal::Builtins::Mathematics
      * @param value the Number
      * @author https://github.com/Gryfenfer97
      */
+    // cppcheck-suppress constParameterReference
     Value asinh_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::Number))
@@ -364,6 +382,7 @@ namespace Ark::internal::Builtins::Mathematics
      * @param value the Number
      * @author https://github.com/Gryfenfer97
      */
+    // cppcheck-suppress constParameterReference
     Value atanh_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::Number))
@@ -386,6 +405,7 @@ namespace Ark::internal::Builtins::Mathematics
      * =end
      * @author https://github.com/SuperFola
      */
+    // cppcheck-suppress constParameterReference
     Value random(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         static std::mt19937 gen { std::random_device()() };
