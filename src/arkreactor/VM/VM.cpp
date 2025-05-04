@@ -263,6 +263,9 @@ namespace Ark
     Future* VM::createFuture(std::vector<Value>& args)
     {
         ExecutionContext* ctx = createAndGetContext();
+        // so that we have access to the presumed symbol id of the function we are calling
+        // assuming that the callee is always the global context
+        ctx->last_symbol = m_execution_contexts.front()->last_symbol;
 
         // doing this after having created the context
         // because the context uses the mutex and we don't want a deadlock
@@ -1618,7 +1621,7 @@ namespace Ark
         if (passed_arg_count > 0)
             arg_vals.emplace_back("");  // for formatting, so that we have a space between the function and the args
 
-        for (std::size_t i = 0; i < passed_arg_count && i + 1 >= context.sp; ++i)
+        for (std::size_t i = 0; i < passed_arg_count && i + 1 <= context.sp; ++i)
             // -1 on the stack because we always point to the next available slot
             arg_vals.push_back(context.stack[context.sp - i - 1].toString(*this));
 

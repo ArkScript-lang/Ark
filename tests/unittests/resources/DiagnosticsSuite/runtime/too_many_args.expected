@@ -1,4 +1,4 @@
-ArityError: When calling `(foo)', received 3 arguments, but expected 2: `(foo a b)'
+ArityError: When calling `(foo 1 2 3)', received 3 arguments, but expected 2: `(foo a b)'
 
 In file tests/unittests/resources/DiagnosticsSuite/runtime/too_many_args.ark
     1 | (let foo (fun (a b) (+ a b)))
