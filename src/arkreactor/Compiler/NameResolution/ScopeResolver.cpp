@@ -1,6 +1,7 @@
 #include <Ark/Compiler/NameResolution/ScopeResolver.hpp>
 
 #include <ranges>
+#include <algorithm>
 
 namespace Ark::internal
 {
