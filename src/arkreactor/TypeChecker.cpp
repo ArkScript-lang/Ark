@@ -112,7 +112,7 @@ namespace Ark::types
         {
             fmt::dynamic_format_arg_store<fmt::format_context> store;
             if (colorize)
-                store.push_back(fmt::styled(funcname, fmt::fg(fmt::color::blue)));
+                store.push_back(fmt::styled(funcname, fmt::fg(fmt::color::cyan)));
             else
                 store.push_back(funcname);
             fmt::vprint(os, "Function {} expected ", store);
