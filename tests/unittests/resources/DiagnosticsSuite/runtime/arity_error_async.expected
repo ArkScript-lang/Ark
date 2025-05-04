@@ -1,4 +1,4 @@
-ArityError: When calling `(Function@1)', received 4 arguments, but expected 3: `(Function@1 a b c)'
+ArityError: When calling `(sum 1 2 3 4)', received 4 arguments, but expected 3: `(sum a b c)'
 
 In file tests/unittests/resources/DiagnosticsSuite/runtime/arity_error_async.ark
     1 | (let sum (fun (a b c)
