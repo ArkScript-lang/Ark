@@ -2,7 +2,6 @@
  * @file Scope.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief The virtual machine scope system
- * @version 0.2
  * @date 2020-10-27
  *
  * @copyright Copyright (c) 2020-2025

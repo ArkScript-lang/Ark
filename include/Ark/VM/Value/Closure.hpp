@@ -2,10 +2,9 @@
  * @file Closure.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Subtype of the value type, handling closures
- * @version 2.0
  * @date 2024-04-21
  *
- * @copyright Copyright (c) 2020-2024
+ * @copyright Copyright (c) 2020-2025
  *
  */
 

@@ -2,7 +2,6 @@
  * @file ClosureScope.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Subtype of the value type, handling closures
- * @version 0.1
  * @date 2025-03-17
  *
  * @copyright Copyright (c) 2025

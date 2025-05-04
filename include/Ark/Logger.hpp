@@ -1,11 +1,10 @@
 /**
  * @file Logger.hpp
- * @author Alexandre Plateau (lexplt@gmail.comhf
+ * @author Alexandre Plateau (lexplt@gmail.com)
  * @brief Internal logger
- * @version 1.0
  * @date 2024-08-30
  *
- * @copyright Copyright (c) 2024
+ * @copyright Copyright (c) 2024-2025)
  */
 #ifndef ARK_LOGGER_HPP
 #define ARK_LOGGER_HPP

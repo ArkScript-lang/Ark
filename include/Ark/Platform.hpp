@@ -2,10 +2,9 @@
  * @file Platform.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief ArkScript configuration macros
- * @version 0.2
  * @date 2020-10-27
  *
- * @copyright Copyright (c) 2020-2024
+ * @copyright Copyright (c) 2020-2025
  *
  */
 

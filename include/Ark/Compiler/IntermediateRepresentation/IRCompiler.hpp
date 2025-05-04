@@ -2,7 +2,6 @@
  * @file IRCompiler.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Compile the intermediate representation to bytecode
- * @version 0.2
  * @date 2024-10-05
  *
  * @copyright Copyright (c) 2024-2025

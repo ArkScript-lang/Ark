@@ -2,7 +2,6 @@
  * @file LocalsLocator.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Track locals at compile
- * @version 0.1
  * @date 2025-03-20
  *
  * @copyright Copyright (c) 2025

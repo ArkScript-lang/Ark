@@ -2,10 +2,9 @@
  * @file Parser.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Parse ArkScript code, but do not handle any import declarations
- * @version 0.2
  * @date 2024-05-12
  *
- * @copyright Copyright (c) 2024
+ * @copyright Copyright (c) 2024-2025
  *
  */
 

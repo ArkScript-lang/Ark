@@ -2,10 +2,9 @@
  * @file Pass.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Interface for a compiler pass (take in an AST, output an AST)
- * @version 1.0
  * @date 2024-07-21
  *
- * @copyright Copyright (c) 2024
+ * @copyright Copyright (c) 2024-2025
  *
  */
 #ifndef ARK_COMPILER_PASS_HPP

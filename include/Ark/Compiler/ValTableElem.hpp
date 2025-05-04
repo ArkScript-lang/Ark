@@ -2,10 +2,9 @@
  * @file ValTableElem.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief The basic value type handled by the compiler
- * @version 1.0
  * @date 2020-10-27
  *
- * @copyright Copyright (c) 2020-2024
+ * @copyright Copyright (c) 2020-2025
  *
  */
 

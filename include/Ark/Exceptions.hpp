@@ -2,7 +2,6 @@
  * @file Exceptions.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com), Max (madstk1@pm.me)
  * @brief ArkScript homemade exceptions
- * @version 1.3
  * @date 2020-10-27
  *
  * @copyright Copyright (c) 2020-2025

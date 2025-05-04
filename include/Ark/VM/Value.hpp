@@ -1,11 +1,10 @@
 /**
  * @file Value.hpp
- * @author Default value type handled by the virtual machine
- * @brief
- * @version 2.0
+ * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @brief Default value type handled by the virtual machine
  * @date 2024-04-20
  *
- * @copyright Copyright (c) 2020-2024
+ * @copyright Copyright (c) 2020-2025
  *
  */
 

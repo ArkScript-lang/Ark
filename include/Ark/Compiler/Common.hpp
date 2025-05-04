@@ -2,10 +2,9 @@
  * @file Common.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Common code for the compiler
- * @version 0.5
  * @date 2021-10-02
  *
- * @copyright Copyright (c) 2021-2024
+ * @copyright Copyright (c) 2021-2025
  *
  */
 

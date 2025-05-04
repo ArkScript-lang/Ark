@@ -2,10 +2,9 @@
  * @file Welder.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief In charge of welding everything needed to compile code
- * @version 0.5
  * @date 2023-03-26
  *
- * @copyright Copyright (c) 2023-2024
+ * @copyright Copyright (c) 2023-2025
  *
  */
 

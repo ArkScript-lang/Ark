@@ -2,10 +2,9 @@
  * @file MacroScope.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Defines tools to handle macro definitions
- * @version 1.0
  * @date 2023-02-18
  *
- * @copyright Copyright (c) 2023-2024
+ * @copyright Copyright (c) 2023-2025
  *
  */
 

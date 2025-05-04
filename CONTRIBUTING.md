@@ -117,10 +117,9 @@ for (std::size_t i = 0, end = container.size(); i < end; i++)
  * @file Lexer.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Tokenize ArkScript code
- * @version 0.1
  * @date 2020-10-27
  *
- * @copyright Copyright (c) 2020
+ * @copyright Copyright (c) 2025
  *
  */
 
@@ -136,7 +135,6 @@ Snippet to recapitulate guidelines for headers:
  * @file Lexer.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Tokenize ArkScript code
- * @version 0.1
  * @date 2020-10-27
  *
  * @copyright Copyright (c) 2020

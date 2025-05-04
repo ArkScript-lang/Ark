@@ -2,10 +2,9 @@
  * @file Utils.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Lots of utilities about string, filesystem and more
- * @version 1.0
  * @date 2024-07-09
  *
- * @copyright Copyright (c) 2020-2024
+ * @copyright Copyright (c) 2020-2025
  *
  */
 
