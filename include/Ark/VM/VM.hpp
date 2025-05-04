@@ -2,7 +2,6 @@
  * @file VM.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief The ArkScript virtual machine
- * @version 2.0
  * @date 2020-10-27
  *
  * @copyright Copyright (c) 2020-2025

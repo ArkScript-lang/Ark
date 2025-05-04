@@ -2,10 +2,9 @@
  * @file ImportSolver.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Handle imports, resolve them with modules and everything
- * @version 2.1
  * @date 2024-07-21
  *
- * @copyright Copyright (c) 2020-2024
+ * @copyright Copyright (c) 2020-2025
  *
  */
 

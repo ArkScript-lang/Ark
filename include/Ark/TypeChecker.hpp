@@ -2,7 +2,6 @@
  * @file TypeChecker.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief
- * @version 1.1
  * @date 2022-01-16
  *
  * @copyright Copyright (c) 2022-2025

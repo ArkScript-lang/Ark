@@ -2,10 +2,9 @@
  * @file Symbol.hpp
  * @author Ray John Alovera (rakista112@gmail.com), Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Executor for Symbol Macros
- * @version 1.1
  * @date 2021-05-04
  *
- * @copyright Copyright (c) 2021-2024
+ * @copyright Copyright (c) 2021-2025
  *
  */
 

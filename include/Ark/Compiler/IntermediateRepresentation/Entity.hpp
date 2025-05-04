@@ -2,7 +2,6 @@
  * @file Entity.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief An entity in the IR is a bundle of information
- * @version 1.0
  * @date 2024-10-05
  *
  * @copyright Copyright (c) 2024-2025

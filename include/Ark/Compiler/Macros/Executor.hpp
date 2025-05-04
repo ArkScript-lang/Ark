@@ -2,10 +2,9 @@
  * @file Executor.hpp
  * @author Ray John Alovera (rakista112@gmail.com), Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief The base class for all MacroExecutors
- * @version 3.0
  * @date 2024-03-03
  *
- * @copyright Copyright (c) 2021-2024
+ * @copyright Copyright (c) 2021-2025
  *
  */
 

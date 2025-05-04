@@ -2,10 +2,9 @@
  * @file Word.hpp
  * @author  Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Describe an instruction and its immediate argument
- * @version 1.0
  * @date 2022-07-02
  *
- * @copyright Copyright (c) 2022-2024
+ * @copyright Copyright (c) 2022-2025
  *
  */
 

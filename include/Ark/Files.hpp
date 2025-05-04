@@ -2,10 +2,9 @@
  * @file Files.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Lots of utilities about the filesystem
- * @version 0.3
  * @date 2024-07-09
  *
- * @copyright Copyright (c) 2021-2024
+ * @copyright Copyright (c) 2021-2025
  *
  */
 

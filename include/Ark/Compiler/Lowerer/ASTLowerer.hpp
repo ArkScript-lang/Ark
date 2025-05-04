@@ -2,7 +2,6 @@
  * @file ASTLowerver.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief ArkScript compiler is in charge of transforming the AST into IR
- * @version 3.1
  * @date 2020-10-27
  *
  * @copyright Copyright (c) 2020-2025

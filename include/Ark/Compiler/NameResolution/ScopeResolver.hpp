@@ -2,10 +2,9 @@
  * @file ScopeResolver.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Handle scope resolution at compile time
- * @version 0.1
  * @date 2024-11-30
  *
- * @copyright Copyright (c) 2024
+ * @copyright Copyright (c) 2024-2025
  *
  */
 

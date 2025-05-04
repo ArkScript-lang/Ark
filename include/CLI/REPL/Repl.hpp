@@ -2,10 +2,9 @@
  * @file Repl.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief ArkScript REPL - Read Eval Print Loop
- * @version 1.0
  * @date 2020-10-27
  *
- * @copyright Copyright (c) 2020-2024
+ * @copyright Copyright (c) 2020-2025
  *
  */
 

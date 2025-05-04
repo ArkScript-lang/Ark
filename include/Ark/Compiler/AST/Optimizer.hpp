@@ -2,10 +2,9 @@
  * @file Optimizer.hpp
  * @author Alexandre Plateau (lexplt.dev@gmail.com)
  * @brief Optimizes a given ArkScript AST
- * @version 1.1
  * @date 2024-07-09
  *
- * @copyright Copyright (c) 2020-2024
+ * @copyright Copyright (c) 2020-2025
  *
  */
 
