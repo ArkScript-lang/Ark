@@ -1,7 +1,7 @@
 #include <Ark/Compiler/NameResolution/StaticScope.hpp>
 
 #include <utility>
-#include <ranges>
+#include <algorithm>
 #include <fmt/format.h>
 
 namespace Ark::internal
