@@ -42,6 +42,15 @@ endif ()
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+file(GENERATE OUTPUT ${ark_SOURCE_DIR}/pch/pch.cpp CONTENT "")
+add_library(PCH OBJECT ${ark_SOURCE_DIR}/pch/pch.cpp)
+target_precompile_headers(PCH PRIVATE ${ark_SOURCE_DIR}/pch/pch.hpp)
+target_include_directories(PCH PRIVATE ${ark_SOURCE_DIR}/pch)
+target_compile_features(PCH PRIVATE cxx_std_20)
+if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG OR APPLE)
+    target_compile_options(PCH PRIVATE -fvisibility=hidden -fno-semantic-interposition -Wno-gnu-label-as-value)
+endif()
+
 # files needed for the library ArkReactor
 file(GLOB_RECURSE SOURCE_FILES
         ${ark_SOURCE_DIR}/src/arkreactor/*.cpp
@@ -49,6 +58,7 @@ file(GLOB_RECURSE SOURCE_FILES
 
 add_library(ArkReactor SHARED ${SOURCE_FILES})
 enable_lto(ArkReactor)
+target_precompile_headers(ArkReactor REUSE_FROM PCH)
 target_include_directories(ArkReactor
         PUBLIC
         ${ark_SOURCE_DIR}/include)
@@ -56,7 +66,7 @@ target_compile_features(ArkReactor PRIVATE cxx_std_20)
 
 if (ARK_UNITY_BUILD)
     set_target_properties(ArkReactor PROPERTIES UNITY_BUILD ON UNITY_BUILD_MODE BATCH UNITY_BUILD_BATCH_SIZE 16)
-    set_source_files_properties(src/arkreactor/VM/VM.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION true)
+    set_source_files_properties(${ark_SOURCE_DIR}/src/arkreactor/VM/VM.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION true)
 endif ()
 
 if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG OR APPLE)
@@ -192,6 +202,7 @@ if (ARK_TESTS)
             ${ark_SOURCE_DIR}/src/arkscript/JsonCompiler.cpp
             ${ark_SOURCE_DIR}/src/arkscript/REPL/Utils.cpp)
     add_executable(unittests ${SOURCES})
+    target_precompile_headers(unittests REUSE_FROM PCH)
     target_include_directories(unittests PUBLIC ${ark_SOURCE_DIR}/tests/unittests)
 
     target_include_directories(unittests SYSTEM PUBLIC ${ark_SOURCE_DIR}/lib/dtl/dtl)
@@ -261,6 +272,7 @@ if (ARK_BUILD_EXE)
 
     add_subdirectory("${ark_SOURCE_DIR}/lib/clipp" EXCLUDE_FROM_ALL)
 
+    target_precompile_headers(arkscript REUSE_FROM PCH)
     target_include_directories(arkscript SYSTEM PUBLIC "${ark_SOURCE_DIR}/lib/clipp/include")
     target_link_libraries(arkscript PUBLIC ArkReactor replxx clipp)
     target_compile_features(arkscript PRIVATE cxx_std_20)

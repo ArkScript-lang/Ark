@@ -11,10 +11,6 @@
 #ifndef ARK_COMPILER_INTERMEDIATEREPRESENTATION_ENTITY_HPP
 #define ARK_COMPILER_INTERMEDIATEREPRESENTATION_ENTITY_HPP
 
-#include <cinttypes>
-#include <vector>
-#include <string>
-
 #include <Ark/Compiler/IntermediateRepresentation/Word.hpp>
 #include <Ark/Compiler/Instructions.hpp>
 

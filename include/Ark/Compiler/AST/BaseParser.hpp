@@ -1,10 +1,6 @@
 #ifndef SRC_BASEPARSER_HPP
 #define SRC_BASEPARSER_HPP
 
-#include <string>
-#include <vector>
-#include <initializer_list>
-
 #include <Ark/Platform.hpp>
 #include <Ark/Compiler/AST/Predicates.hpp>
 #include <Ark/Compiler/AST/utf8_char.hpp>

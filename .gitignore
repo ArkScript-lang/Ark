@@ -49,6 +49,7 @@ out/
 # Precompiled Headers
 *.gch
 *.pch
+pch/pch.cpp
 
 # Compiled Dynamic libraries
 *.so

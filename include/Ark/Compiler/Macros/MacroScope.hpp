@@ -13,9 +13,6 @@
 
 #include <Ark/Compiler/AST/Node.hpp>
 
-#include <unordered_map>
-#include <string>
-
 namespace Ark::internal
 {
     class MacroScope

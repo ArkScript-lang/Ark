@@ -15,9 +15,6 @@
 #include <Ark/Compiler/ValTableElem.hpp>
 #include <Ark/Compiler/IntermediateRepresentation/Entity.hpp>
 
-#include <optional>
-#include <functional>
-
 namespace Ark::internal
 {
     class ARK_API IROptimizer final

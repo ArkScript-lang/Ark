@@ -1,9 +1,6 @@
 #ifndef UTF8_DECODER_H
 #define UTF8_DECODER_H
 
-#include <array>
-#include <cstdint>
-
 namespace utf8
 {
     enum class Utf8Type

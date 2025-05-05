@@ -1,8 +1,6 @@
 #ifndef ARK_COMPILER_INTERMEDIATEREPRESENTATION_INSTLOC_HPP
 #define ARK_COMPILER_INTERMEDIATEREPRESENTATION_INSTLOC_HPP
 
-#include <cstdint>
-
 namespace Ark::internal
 {
     // pp (2 bytes), ip (2 bytes), filename id (2 bytes), line (4 bytes) -> 10 bytes per record

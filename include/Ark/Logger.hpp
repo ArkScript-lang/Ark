@@ -9,13 +9,7 @@
 #ifndef ARK_LOGGER_HPP
 #define ARK_LOGGER_HPP
 
-#include <iostream>
 #include <fmt/format.h>
-
-#include <string>
-#include <chrono>
-#include <vector>
-#include <unordered_map>
 #include <fmt/color.h>
 
 namespace Ark::internal

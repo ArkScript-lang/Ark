@@ -11,14 +11,6 @@
 #ifndef ARK_VM_VM_HPP
 #define ARK_VM_VM_HPP
 
-#include <array>
-#include <vector>
-#include <string>
-#include <cassert>
-#include <utility>
-#include <cinttypes>
-#include <unordered_map>
-#include <algorithm>
 #include <fmt/core.h>
 #include <fmt/ranges.h>
 

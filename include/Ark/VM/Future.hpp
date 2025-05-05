@@ -11,9 +11,6 @@
 #ifndef ARK_VM_FUTURE_HPP
 #define ARK_VM_FUTURE_HPP
 
-#include <future>
-#include <vector>
-
 #include <Ark/VM/Value.hpp>
 #include <Ark/VM/ExecutionContext.hpp>
 

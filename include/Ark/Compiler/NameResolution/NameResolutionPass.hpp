@@ -11,10 +11,6 @@
 #ifndef ARK_COMPILER_NAMERESOLUTIONPASS_HPP
 #define ARK_COMPILER_NAMERESOLUTIONPASS_HPP
 
-#include <vector>
-#include <string>
-#include <unordered_set>
-
 #include <Ark/Platform.hpp>
 #include <Ark/Compiler/Pass.hpp>
 #include <Ark/Compiler/NameResolution/ScopeResolver.hpp>

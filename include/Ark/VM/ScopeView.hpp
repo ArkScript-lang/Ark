@@ -11,9 +11,6 @@
 #ifndef ARK_VM_SCOPE_HPP
 #define ARK_VM_SCOPE_HPP
 
-#include <array>
-#include <cinttypes>
-
 #include <Ark/Platform.hpp>
 #include <Ark/VM/Value.hpp>
 

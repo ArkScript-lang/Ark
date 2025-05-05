@@ -11,9 +11,6 @@
 #ifndef ARK_COMPILER_VALTABLEELEM_HPP
 #define ARK_COMPILER_VALTABLEELEM_HPP
 
-#include <variant>
-#include <string>
-
 #include <Ark/Compiler/AST/Node.hpp>
 
 namespace Ark::internal

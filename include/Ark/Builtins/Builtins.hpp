@@ -11,8 +11,6 @@
 #ifndef ARK_BUILTINS_BUILTINS_HPP
 #define ARK_BUILTINS_BUILTINS_HPP
 
-#include <vector>
-
 #include <Ark/VM/Value.hpp>
 #include <Ark/Exceptions.hpp>
 

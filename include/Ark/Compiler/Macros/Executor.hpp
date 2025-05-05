@@ -11,9 +11,6 @@
 #ifndef ARK_COMPILER_EXECUTOR_HPP
 #define ARK_COMPILER_EXECUTOR_HPP
 
-#include <optional>
-#include <unordered_map>
-
 #include <Ark/Compiler/AST/Node.hpp>
 
 namespace Ark::internal

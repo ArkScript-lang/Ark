@@ -1,10 +1,6 @@
 #ifndef ARK_COMPILER_AST_IMPORT_HPP
 #define ARK_COMPILER_AST_IMPORT_HPP
 
-#include <vector>
-#include <string>
-#include <numeric>
-
 #include <Ark/Platform.hpp>
 
 namespace Ark::internal

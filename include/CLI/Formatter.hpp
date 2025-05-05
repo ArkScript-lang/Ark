@@ -1,8 +1,6 @@
 #ifndef ARK_FORMATTER_HPP
 #define ARK_FORMATTER_HPP
 
-#include <string>
-
 #include <Ark/Compiler/AST/Parser.hpp>
 
 constexpr struct FormatterConfig

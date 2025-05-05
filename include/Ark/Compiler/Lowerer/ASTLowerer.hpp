@@ -11,11 +11,6 @@
 #ifndef ARK_COMPILER_LOWERER_ASTLOWERER_HPP
 #define ARK_COMPILER_LOWERER_ASTLOWERER_HPP
 
-#include <vector>
-#include <string>
-#include <cinttypes>
-#include <optional>
-
 #include <Ark/Platform.hpp>
 #include <Ark/Logger.hpp>
 #include <Ark/Compiler/Instructions.hpp>

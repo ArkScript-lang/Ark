@@ -11,11 +11,6 @@
 #ifndef ARK_VM_EXECUTIONCONTEXT_HPP
 #define ARK_VM_EXECUTIONCONTEXT_HPP
 
-#include <array>
-#include <limits>
-#include <memory>
-#include <optional>
-
 #include <Ark/Constants.hpp>
 #include <Ark/VM/Value.hpp>
 #include <Ark/VM/ScopeView.hpp>

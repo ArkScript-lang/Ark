@@ -11,12 +11,6 @@
 #ifndef ARK_COMPILER_NAMERESOLUTION_SCOPERESOLVER_HPP
 #define ARK_COMPILER_NAMERESOLUTION_SCOPERESOLVER_HPP
 
-#include <string>
-#include <optional>
-#include <memory>
-#include <vector>
-#include <utility>
-
 #include <Ark/Compiler/NameResolution/StaticScope.hpp>
 
 namespace Ark::internal

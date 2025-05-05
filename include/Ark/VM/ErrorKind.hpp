@@ -1,9 +1,6 @@
 #ifndef ARK_VM_ERRORKIND_HPP
 #define ARK_VM_ERRORKIND_HPP
 
-#include <array>
-#include <string_view>
-
 namespace Ark::internal
 {
     enum class ErrorKind

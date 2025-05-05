@@ -11,8 +11,6 @@
 #ifndef ARK_COMPILER_INSTRUCTIONS_HPP
 #define ARK_COMPILER_INSTRUCTIONS_HPP
 
-#include <array>
-
 namespace Ark::internal
 {
     /**

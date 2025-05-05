@@ -1,12 +1,6 @@
 #ifndef SRC_UTF8_CHAR_HPP
 #define SRC_UTF8_CHAR_HPP
 
-#include <array>
-#include <string>
-#include <limits>
-
-#undef max
-
 namespace Ark::internal
 {
     class utf8_char_t

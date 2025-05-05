@@ -11,9 +11,6 @@
 #ifndef ARK_COMPILER_INTERMEDIATEREPRESENTATION_IRCOMPILER_HPP
 #define ARK_COMPILER_INTERMEDIATEREPRESENTATION_IRCOMPILER_HPP
 
-#include <vector>
-#include <string>
-
 #include <Ark/Platform.hpp>
 #include <Ark/Logger.hpp>
 #include <Ark/Compiler/Common.hpp>

@@ -11,10 +11,6 @@
 #ifndef VM_VALUE_CLOSURE_HPP
 #define VM_VALUE_CLOSURE_HPP
 
-#include <memory>
-#include <iostream>
-#include <string>
-
 #include <Ark/Platform.hpp>
 
 namespace Ark

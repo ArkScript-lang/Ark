@@ -11,9 +11,6 @@
 #ifndef REPL_REPLXX_UTIL_HPP
 #define REPL_REPLXX_UTIL_HPP
 
-#include <vector>
-#include <string>
-
 #include <replxx.hxx>
 
 namespace Ark::internal

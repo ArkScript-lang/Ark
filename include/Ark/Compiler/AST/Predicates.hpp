@@ -1,9 +1,6 @@
 #ifndef SRC_PREDICATES_HPP
 #define SRC_PREDICATES_HPP
 
-#include <string>
-#include <cctype>
-
 #include <Ark/Compiler/AST/utf8_char.hpp>
 
 namespace Ark::internal

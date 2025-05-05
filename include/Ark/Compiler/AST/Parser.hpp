@@ -18,10 +18,6 @@
 #include <Ark/Utils.hpp>
 #include <Ark/Platform.hpp>
 
-#include <string>
-#include <optional>
-#include <vector>
-
 #include <utf8.hpp>
 
 namespace Ark::internal

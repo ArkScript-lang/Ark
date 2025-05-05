@@ -11,13 +11,6 @@
 #ifndef ARK_COMPILER_NAMERESOLUTION_STATICSCOPE_HPP
 #define ARK_COMPILER_NAMERESOLUTION_STATICSCOPE_HPP
 
-#include <string>
-#include <optional>
-#include <memory>
-#include <vector>
-#include <ranges>
-#include <unordered_set>
-
 #include <Ark/Platform.hpp>
 
 namespace Ark::internal

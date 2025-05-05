@@ -11,10 +11,6 @@
 #ifndef ARK_VM_STATE_HPP
 #define ARK_VM_STATE_HPP
 
-#include <string>
-#include <vector>
-#include <unordered_map>
-#include <filesystem>
 #include <Ark/Constants.hpp>
 
 #include <Ark/VM/Value.hpp>

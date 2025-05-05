@@ -11,9 +11,6 @@
 #ifndef ARK_REPL_REPL_HPP
 #define ARK_REPL_REPL_HPP
 
-#include <string>
-#include <optional>
-
 #include <Ark/VM/VM.hpp>
 #include <Ark/VM/State.hpp>
 

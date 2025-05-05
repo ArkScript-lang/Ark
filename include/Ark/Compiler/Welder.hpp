@@ -11,10 +11,6 @@
 #ifndef ARK_COMPILER_WELDER_HPP
 #define ARK_COMPILER_WELDER_HPP
 
-#include <string>
-#include <vector>
-#include <filesystem>
-
 #include <Ark/Compiler/Common.hpp>
 #include <Ark/Compiler/AST/Node.hpp>
 #include <Ark/Compiler/AST/Parser.hpp>

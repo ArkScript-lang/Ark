@@ -11,9 +11,6 @@
 #ifndef VM_VALUE_USERTYPE_HPP
 #define VM_VALUE_USERTYPE_HPP
 
-#include <iostream>
-#include <cinttypes>
-
 #include <Ark/Platform.hpp>
 
 namespace Ark

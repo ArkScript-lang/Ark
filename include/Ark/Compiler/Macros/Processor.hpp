@@ -16,10 +16,6 @@
 #include <Ark/Compiler/Macros/MacroScope.hpp>
 #include <Ark/Compiler/Pass.hpp>
 
-#include <unordered_map>
-#include <optional>
-#include <string>
-
 namespace Ark::internal
 {
     class MacroExecutor;

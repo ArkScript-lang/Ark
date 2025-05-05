@@ -11,12 +11,6 @@
 #ifndef ARK_COMPILER_IMPORTSOLVER_HPP
 #define ARK_COMPILER_IMPORTSOLVER_HPP
 
-#include <stack>
-#include <vector>
-#include <string>
-#include <filesystem>
-#include <unordered_map>
-
 #include <Ark/Platform.hpp>
 #include <Ark/Compiler/Pass.hpp>
 #include <Ark/Compiler/AST/Node.hpp>

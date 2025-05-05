@@ -11,10 +11,6 @@
 #ifndef ARK_COMPILER_LOWERER_LOCALSLOCATOR_HPP
 #define ARK_COMPILER_LOWERER_LOCALSLOCATOR_HPP
 
-#include <vector>
-#include <string>
-#include <optional>
-
 namespace Ark::internal
 {
     class LocalsLocator

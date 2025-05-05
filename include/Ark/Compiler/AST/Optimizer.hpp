@@ -11,10 +11,6 @@
 #ifndef COMPILER_AST_OPTIMIZER_HPP
 #define COMPILER_AST_OPTIMIZER_HPP
 
-#include <functional>
-#include <unordered_map>
-#include <string>
-
 #include <Ark/Platform.hpp>
 #include <Ark/Compiler/Pass.hpp>
 #include <Ark/Compiler/AST/Node.hpp>

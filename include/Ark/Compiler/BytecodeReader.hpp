@@ -11,11 +11,6 @@
 #ifndef ARK_COMPILER_BYTECODEREADER_HPP
 #define ARK_COMPILER_BYTECODEREADER_HPP
 
-#include <vector>
-#include <string>
-#include <cinttypes>
-#include <optional>
-
 #include <Ark/Platform.hpp>
 #include <Ark/Compiler/Common.hpp>
 #include <Ark/VM/Value.hpp>

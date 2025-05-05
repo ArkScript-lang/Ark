@@ -1,10 +1,6 @@
 #ifndef ARK_COMPILER_SERIALIZATION_INTEGERSERIALIZER_HPP
 #define ARK_COMPILER_SERIALIZATION_INTEGERSERIALIZER_HPP
 
-#include <span>
-#include <vector>
-#include <concepts>
-
 namespace Ark::internal
 {
     void serializeToVecLE(std::integral auto number, std::vector<uint8_t>& out)

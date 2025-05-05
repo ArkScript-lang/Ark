@@ -1,12 +1,6 @@
 #ifndef ARK_COMPILER_SERIALIZATION_IEEE754SERIALIZER_HPP
 #define ARK_COMPILER_SERIALIZATION_IEEE754SERIALIZER_HPP
 
-#include <climits>
-#include <cmath>
-#include <limits>
-#include <vector>
-#include <bit>
-
 namespace Ark::internal::ieee754
 {
     // Narrowing conversion from long long to double, 9223372036854775807 becomes 9223372036854775808.

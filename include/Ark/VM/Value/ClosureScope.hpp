@@ -11,10 +11,6 @@
 #ifndef ARK_VM_VALUE_CLOSURESCOPE_HPP
 #define ARK_VM_VALUE_CLOSURESCOPE_HPP
 
-#include <vector>
-#include <utility>
-#include <cinttypes>
-
 #include <Ark/Platform.hpp>
 #include <Ark/VM/Value.hpp>
 
