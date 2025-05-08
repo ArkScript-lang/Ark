@@ -1625,6 +1625,15 @@ namespace Ark
             // -1 on the stack because we always point to the next available slot
             arg_vals.push_back(context.stack[context.sp - i - 1].toString(*this));
 
+        // set ip/pp to the callee location so that the error can pin-point the line
+        // where the bad call happened
+        if (context.sp >= 2 + passed_arg_count)
+        {
+            context.ip = context.stack[context.sp - 1 - passed_arg_count].pageAddr();
+            context.pp = context.stack[context.sp - 2 - passed_arg_count].pageAddr();
+            returnFromFuncCall(context);
+        }
+
         std::string function_name = (context.last_symbol < m_state.m_symbols.size())
             ? m_state.m_symbols[context.last_symbol]
             : Value(static_cast<PageAddr_t>(context.pp)).toString(*this);

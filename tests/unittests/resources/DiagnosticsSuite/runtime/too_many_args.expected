@@ -2,12 +2,6 @@ ArityError: When calling `(foo 1 2 3)', received 3 arguments, but expected 2: `(
 
 In file tests/unittests/resources/DiagnosticsSuite/runtime/too_many_args.ark
     1 | (let foo (fun (a b) (+ a b)))
-      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
     2 | (foo 1 2 3)
+      | ^~~~~~~~~~
     3 |
-
-[   2] In function `foo' (tests/unittests/resources/DiagnosticsSuite/runtime/too_many_args.ark:1)
-[   1] In global scope (tests/unittests/resources/DiagnosticsSuite/runtime/too_many_args.ark:2)
-
-Current scope variables values:
-foo = Function@1

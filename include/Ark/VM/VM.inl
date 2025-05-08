@@ -1,3 +1,6 @@
+#ifndef ARK_VM_VM_INL
+#define ARK_VM_VM_INL
+
 template <typename... Args>
 Value VM::call(const std::string& name, Args&&... args)
 {
@@ -361,3 +364,5 @@ inline void VM::callBuiltin(internal::ExecutionContext& context, const Value& bu
     // call proc
     push(builtin.proc()(args, this), context);
 }
+
+#endif
