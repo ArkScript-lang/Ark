@@ -25,11 +25,11 @@ namespace Ark::internal
             const std::size_t args_needed = args.list().size();
             const std::size_t args_given = node.constList().size() - 1;  // remove the first (the name of the macro)
             const std::string macro_name = macro->constList()[0].string();
-            // thanks to the parser, we are guaranted that the spread will be in last position, if any
+            // thanks to the parser, we are guaranteed that the spread will be in last position, if any
             const bool has_spread = args_needed > 0 && args.list().back().nodeType() == NodeType::Spread;
 
             // save the args given to the macro by giving them a name (from the macro args block),
-            // and a value (in nocde.constList())
+            // and a value (in node.constList())
             std::unordered_map<std::string, Node> args_applied;
             std::size_t j = 0;
             for (std::size_t i = 1, end = node.constList().size(); i < end; ++i)
@@ -115,14 +115,18 @@ namespace Ark::internal
             unify(map, sub_node, parent, 0, unify_depth + 1);
 
             if (sub_node.nodeType() != NodeType::List)
-                throwMacroProcessingError(fmt::format("Can not unify a {} to a Spread", typeToString(sub_node)), sub_node);
+                parent->list()[index] = sub_node;
+            else
+            {
+                const bool is_list = sub_node.list().front() == getListNode();
 
-            for (std::size_t i = 1, end = sub_node.list().size(); i < end; ++i)
-                parent->list().insert(
-                    parent->list().begin() + static_cast<std::vector<Node>::difference_type>(index + i),
-                    sub_node.list()[i]);
-            // remove the spread
-            parent->list().erase(parent->list().begin() + static_cast<std::vector<Node>::difference_type>(index));
+                for (std::size_t i = is_list ? 1 : 0, end = sub_node.list().size(); i < end; ++i)
+                    parent->list().insert(
+                        parent->list().begin() + static_cast<std::vector<Node>::difference_type>(index + i + (is_list ? 0 : 1)),
+                        sub_node.list()[i]);
+                // remove the spread
+                parent->list().erase(parent->list().begin() + static_cast<std::vector<Node>::difference_type>(index));
+            }
         }
     }
 }

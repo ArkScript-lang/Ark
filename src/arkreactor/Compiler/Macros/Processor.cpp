@@ -593,6 +593,11 @@ namespace Ark::internal
                         Language::Undef, typeToString(sym)),
                     sym);
             }
+            else if (name == "$type")
+            {
+                const Node arg = node.constList()[1];
+                node.updateValueAndType(Node(NodeType::String, typeToString(arg)));
+            }
         }
 
         if (node.nodeType() == NodeType::List && !node.constList().empty())
@@ -619,7 +624,7 @@ namespace Ark::internal
         else if ((node.nodeType() == NodeType::Number && node.number() != 0.0) || (node.nodeType() == NodeType::String && !node.string().empty()))
             return true;
         else if (node.nodeType() == NodeType::Spread)
-            throwMacroProcessingError("Can not determine the truth value of a spreaded symbol", node);
+            throwMacroProcessingError("Can not determine the truth value of a spread symbol", node);
         return false;
     }
 
