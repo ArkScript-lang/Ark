@@ -337,7 +337,7 @@ namespace Ark::internal
                 setNodePosAndFilename(leaf->list().back());
 
                 space();
-                expect(IsChar(')'));
+                expectSuffixOrError(')', fmt::format("in import `{}'", import_data.toPackageString()));
 
                 // save the import data structure to know we encounter an import node, and retrieve its data more easily later on
                 import_data.with_prefix = false;
@@ -441,7 +441,7 @@ namespace Ark::internal
         }
 
         newlineOrComment(&comment);
-        expect(IsChar(!alt_syntax ? ')' : '}'));
+        expectSuffixOrError(!alt_syntax ? ')' : '}', "to close block");
         setNodePosAndFilename(leaf->list().back());
         leaf->list().back().attachCommentAfter(comment);
         return leaf;
@@ -731,7 +731,7 @@ namespace Ark::internal
             if (newlineOrComment(&comment))
                 leaf->list().back().attachCommentAfter(comment);
 
-            expect(IsChar(')'));
+            expectSuffixOrError(')', fmt::format("to close macro `{}'", symbol_name));
             return leaf;
         }
         else
@@ -745,7 +745,7 @@ namespace Ark::internal
         if (newlineOrComment(&comment))
             leaf->list().back().attachCommentAfter(comment);
 
-        expect(IsChar(')'));
+        expectSuffixOrError(')', fmt::format("to close macro `{}'", symbol_name));
         return leaf;
     }
 
@@ -790,7 +790,7 @@ namespace Ark::internal
         if (newlineOrComment(&comment))
             leaf->list().back().attachCommentAfter(comment);
 
-        expect(IsChar(')'));
+        expectSuffixOrError(')', fmt::format("in function call to `{}'", func.value().repr()));
         return leaf;
     }
 
@@ -821,7 +821,7 @@ namespace Ark::internal
         }
         leaf->list().back().attachCommentAfter(comment);
 
-        expect(IsChar(']'));
+        expectSuffixOrError(']', "to end list definition");
         return leaf;
     }
 
@@ -907,8 +907,7 @@ namespace Ark::internal
 
             if (result->isListLike())
                 setNodePosAndFilename(result->list().back());
-            if (!suffix(')'))
-                errorMissingSuffix(')', name);
+            expectSuffixOrError(')', "after " + name);
 
             comment.clear();
             if (spaceComment(&comment))

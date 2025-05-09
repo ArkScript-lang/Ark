@@ -93,7 +93,7 @@ namespace Ark::internal
         for (std::size_t i = 0, end = m_it_to_row.size(); i < end; ++i)
         {
             auto [at, line] = m_it_to_row[i];
-            if (it < at)
+            if (it <= at)
             {
                 m_filepos.row = line - 1;
                 break;
@@ -132,9 +132,10 @@ namespace Ark::internal
         error(message, next_token);
     }
 
-    void BaseParser::errorMissingSuffix(const char suffix, const std::string& node_name)
+    void BaseParser::expectSuffixOrError(const char suffix, const std::string& context)
     {
-        errorWithNextToken(fmt::format("Missing '{}' after {}", suffix, node_name));
+        if (!accept(IsChar(suffix)))
+            errorWithNextToken(fmt::format("Missing '{}' {}", suffix, context));
     }
 
     bool BaseParser::accept(const CharPred& t, std::string* s)
@@ -238,11 +239,6 @@ namespace Ark::internal
         if (!accept(IsChar(c)))
             return false;
         return true;
-    }
-
-    bool BaseParser::suffix(const char c)
-    {
-        return accept(IsChar(c));
     }
 
     bool BaseParser::number(std::string* s)
