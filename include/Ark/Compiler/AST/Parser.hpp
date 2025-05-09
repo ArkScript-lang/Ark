@@ -184,7 +184,7 @@ namespace Ark::internal
                     if (accept(IsChar('"')))
                         break;
                     if (isEOF())
-                        errorMissingSuffix('"', "string");
+                        expectSuffixOrError('"', "after string");
                 }
 
                 return { Node(NodeType::String, res) };

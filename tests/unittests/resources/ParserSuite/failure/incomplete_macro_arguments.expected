@@ -2,4 +2,4 @@ In file tests/unittests/resources/ParserSuite/failure/incomplete_macro_arguments
 At EOF @ 1:9
     1 | ($ foo (a
       |         ^
-        Expected ')'
+        Missing ')' in function call to `a'

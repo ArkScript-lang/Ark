@@ -50,7 +50,7 @@ namespace Ark::internal
 
         void initParser(const std::string& filename, const std::string& code);
 
-        FilePosition getCursor() const;
+        [[nodiscard]] FilePosition getCursor() const;
 
         /**
          *
@@ -67,12 +67,12 @@ namespace Ark::internal
         void errorWithNextToken(const std::string& message);
 
         /**
-         * @brief Generate an error for a given node when a suffix is missing
+         * @brief Check for a closing char or generate an error
          *
          * @param suffix a suffix char, eg " or )
-         * @param node_name can be "string", "node" ; represents a structure
+         * @param context can be "string", "node" ; represents a structure
          */
-        void errorMissingSuffix(char suffix, const std::string& node_name);
+        void expectSuffixOrError(char suffix, const std::string& context);
 
         /**
          *
@@ -84,7 +84,7 @@ namespace Ark::internal
          *
          * @return file size in bytes
          */
-        std::size_t getSize() const { return m_str.size(); }
+        [[nodiscard]] std::size_t getSize() const { return m_str.size(); }
 
         /**
          *
@@ -119,7 +119,6 @@ namespace Ark::internal
         bool spaceComment(std::string* s = nullptr);
         bool newlineOrComment(std::string* s = nullptr);
         bool prefix(char c);
-        bool suffix(char c);
         bool number(std::string* s = nullptr);
         bool signedNumber(std::string* s = nullptr);
         bool hexNumber(unsigned length, std::string* s = nullptr);
