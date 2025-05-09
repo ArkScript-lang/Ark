@@ -31,7 +31,7 @@ Also, it has:
 * **macros**: if/else, values, and functions
 * tail call optimization
 * a REPL with autocompletion and coloration
-* a growing standard library, composed of ArkScript code (under `lib/std/`) and C++ (under `lib/ext/`)
+* a growing standard library, composed of ArkScript code (under `lib/std/`) and C++ (under `lib/modules/`)
 * a lot of unit tests (but never enough), which are ran before every release to ensure everything works as expected
 * docker images:
     * [stable](https://hub.docker.com/r/arkscript/stable), built after each release
@@ -172,25 +172,25 @@ DESCRIPTION
         ArkScript programming language
 
 SYNOPSIS
-        arkscript -h 
-        arkscript -v 
-        arkscript --dev-info 
-        arkscript -e <expression> 
+        arkscript -h
+        arkscript -v
+        arkscript --dev-info
+        arkscript -e <expression>
         arkscript -c <file> [-d] [-f(importsolver|no-importsolver)]
                   [-f(macroprocessor|no-macroprocessor)] [-f(optimizer|no-optimizer)]
-                  [-f(iroptimizer|no-iroptimizer)] [-fdump-ir] 
+                  [-f(iroptimizer|no-iroptimizer)] [-fdump-ir]
 
         arkscript <file> [-d] [-L <lib_dir>] [-f(importsolver|no-importsolver)]
                   [-f(macroprocessor|no-macroprocessor)] [-f(optimizer|no-optimizer)]
-                  [-f(iroptimizer|no-iroptimizer)] [-fdump-ir]  
+                  [-f(iroptimizer|no-iroptimizer)] [-fdump-ir]
 
-        arkscript -f <file> [--(dry-run|check)] 
-        arkscript --ast <file> [-d] [-L <lib_dir>] 
-        arkscript -bcr <file> -on 
-        arkscript -bcr <file> -a [-s <start> <end>] 
-        arkscript -bcr <file> -st [-s <start> <end>] 
-        arkscript -bcr <file> -vt [-s <start> <end>] 
-        arkscript -bcr <file> [-cs] [-p <page>] [-s <start> <end>] 
+        arkscript -f <file> [--(dry-run|check)]
+        arkscript --ast <file> [-d] [-L <lib_dir>]
+        arkscript -bcr <file> -on
+        arkscript -bcr <file> -a [-s <start> <end>]
+        arkscript -bcr <file> -st [-s <start> <end>]
+        arkscript -bcr <file> -vt [-s <start> <end>]
+        arkscript -bcr <file> [-cs] [-p <page>] [-s <start> <end>]
 
 OPTIONS
         -h, --help                  Display this message
