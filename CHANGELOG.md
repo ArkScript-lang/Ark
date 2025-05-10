@@ -119,6 +119,7 @@
 - when possible, accessing variables from the current scope is compiled to a new instruction `LOAD_SYMBOL_BY_INDEX`, to avoid the sometimes expansive lookup by id
   - this works inside normal scopes (introduced by while loops) and functions scopes, but not for closures
 - VM stack size is now 4096 instead of 8192
+- `Ark::CodeError` now takes a `CodeErrorContext` to store the source (filename, line, column, expression) of an error
 
 ### Removed
 - removed unused `NodeType::Closure`

@@ -118,7 +118,7 @@ namespace Ark::internal
     void BaseParser::error(const std::string& error, std::string exp)
     {
         const auto [row, col] = getCursor();
-        throw CodeError(error, m_filename, row, col, std::move(exp), m_sym);
+        throw CodeError(error, CodeErrorContext(m_filename, row, col, std::move(exp), m_sym));
     }
 
     void BaseParser::errorWithNextToken(const std::string& message)
