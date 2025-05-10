@@ -120,10 +120,12 @@ namespace Ark
     struct ARK_API CodeError final : Error
     {
         const CodeErrorContext context;
+        const std::optional<CodeErrorContext> additional_context;
 
-        CodeError(const std::string& what, CodeErrorContext ctx) :
+        CodeError(const std::string& what, CodeErrorContext ctx, std::optional<CodeErrorContext> maybe_more_context = std::nullopt) :
             Error(what),
-            context(std::move(ctx))
+            context(std::move(ctx)),
+            additional_context(std::move(maybe_more_context))
         {}
     };
 

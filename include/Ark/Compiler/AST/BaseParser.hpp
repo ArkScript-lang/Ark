@@ -6,6 +6,7 @@
 #include <initializer_list>
 
 #include <Ark/Platform.hpp>
+#include <Ark/Exceptions.hpp>
 #include <Ark/Compiler/AST/Predicates.hpp>
 #include <Ark/Compiler/AST/utf8_char.hpp>
 
@@ -52,27 +53,32 @@ namespace Ark::internal
 
         [[nodiscard]] FilePosition getCursor() const;
 
+        [[nodiscard]] CodeErrorContext generateErrorContext(const std::string& expr);
+
         /**
          *
          * @param error an error message
          * @param exp the expression causing the error
+         * @param additional_context optional context created when a node is being parsed
          */
-        void error(const std::string& error, std::string exp);
+        void error(const std::string& error, std::string exp, const std::optional<CodeErrorContext>& additional_context = std::nullopt);
 
         /**
          * @brief Fetch the next token (space and paren delimited) to generate an error
          *
          * @param message an error message
+         * @param additional_context optional context created when a node is being parsed
          */
-        void errorWithNextToken(const std::string& message);
+        void errorWithNextToken(const std::string& message, const std::optional<CodeErrorContext>& additional_context = std::nullopt);
 
         /**
          * @brief Check for a closing char or generate an error
          *
          * @param suffix a suffix char, eg " or )
          * @param context can be "string", "node" ; represents a structure
+         * @param additional_context optional context created when a node is being parsed
          */
-        void expectSuffixOrError(char suffix, const std::string& context);
+        void expectSuffixOrError(char suffix, const std::string& context, const std::optional<CodeErrorContext>& additional_context = std::nullopt);
 
         /**
          *
@@ -92,6 +98,11 @@ namespace Ark::internal
          */
         [[nodiscard]] bool isEOF() const { return m_it == m_str.end(); }
 
+        /**
+         * @brief Backtrack to a given position (this is NOT an offset!)
+         *
+         * @param n position in the source file (byte number)
+         */
         void backtrack(long n);
 
         /**
