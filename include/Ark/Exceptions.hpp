@@ -12,6 +12,7 @@
 #define INCLUDE_ARK_EXCEPTIONS_HPP
 
 #include <string>
+#include <utility>
 #include <vector>
 #include <stdexcept>
 #include <optional>
@@ -95,11 +96,7 @@ namespace Ark
         std::string m_details;
     };
 
-    /**
-     * @brief CodeError thrown by the compiler (parser, macro processor, optimizer, and compiler itself)
-     *
-     */
-    struct ARK_API CodeError final : Error
+    struct ARK_API CodeErrorContext final
     {
         const std::string filename;
         const std::size_t line;
@@ -107,15 +104,26 @@ namespace Ark
         const std::string expr;
         const std::optional<internal::utf8_char_t> symbol;
 
-        CodeError(
-            const std::string& what,
-            std::string filename_,
-            const std::size_t lineNum,
-            const std::size_t column,
-            std::string exp,
-            const std::optional<internal::utf8_char_t> opt_sym = std::nullopt) :
+        CodeErrorContext(std::string filename_, const std::size_t lineNum, const std::size_t column, std::string expression, const std::optional<internal::utf8_char_t> maybe_symbol = std::nullopt) :
+            filename(std::move(filename_)),
+            line(lineNum),
+            col(column),
+            expr(std::move(expression)),
+            symbol(maybe_symbol)
+        {}
+    };
+
+    /**
+     * @brief CodeError thrown by the compiler (parser, macro processor, optimizer, and compiler itself)
+     *
+     */
+    struct ARK_API CodeError final : Error
+    {
+        const CodeErrorContext context;
+
+        CodeError(const std::string& what, CodeErrorContext ctx) :
             Error(what),
-            filename(std::move(filename_)), line(lineNum), col(column), expr(std::move(exp)), symbol(opt_sym)
+            context(std::move(ctx))
         {}
     };
 

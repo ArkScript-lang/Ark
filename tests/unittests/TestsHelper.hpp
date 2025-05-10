@@ -38,7 +38,7 @@ struct IterTestFilesParam
  * @brief Iterate over the files inside a folder, looking for "name.ark" & "name.expected" files to create a TestData structure
  * @param folder folder to list files in
  * @param test test function, taking a TestData&& with the paths of the input and its expected result
- * @param expected_ext optionally specify the expected extension. Defaults to "expected"
+ * @param params optionally specify the expected extension. Defaults to "expected"
  */
 void iterTestFiles(const std::string& folder, std::function<void(TestData&&)>&& test, IterTestFilesParam&& params = {});
 
@@ -56,9 +56,11 @@ std::string getResourcePath(const std::string& folder);
  */
 inline std::string& ltrim(std::string& s)
 {
-    s.erase(s.begin(), std::ranges::find_if(s, [](const unsigned char ch) {
-                return !std::isspace(ch);
-            }));
+    s.erase(
+        s.begin(),
+        std::ranges::find_if(s.begin(), s.end(), [](const unsigned char ch) {
+            return !std::isspace(ch);
+        }));
     return s;
 }
 
@@ -69,10 +71,11 @@ inline std::string& ltrim(std::string& s)
  */
 inline std::string& rtrim(std::string& s)
 {
-    s.erase(std::ranges::find_if(s.rbegin(), s.rend(), [](const unsigned char ch) {
-                return !std::isspace(ch);
-            }).base(),
-            s.end());
+    s.erase(
+        std::ranges::find_if(s.rbegin(), s.rend(), [](const unsigned char ch) {
+            return !std::isspace(ch);
+        }).base(),
+        s.end());
     return s;
 }
 

@@ -194,9 +194,9 @@ namespace Ark::Diagnostics
             colorize = false;
 
         std::string escaped_symbol;
-        if (e.symbol.has_value())
+        if (e.context.symbol.has_value())
         {
-            switch (e.symbol.value().codepoint())
+            switch (e.context.symbol.value().codepoint())
             {
                 case '\n': escaped_symbol = "'\\n'"; break;
                 case '\r': escaped_symbol = "'\\r'"; break;
@@ -205,25 +205,25 @@ namespace Ark::Diagnostics
                 case '\0': escaped_symbol = "EOF"; break;
                 case ' ': escaped_symbol = "' '"; break;
                 default:
-                    escaped_symbol = e.symbol.value().c_str();
+                    escaped_symbol = e.context.symbol.value().c_str();
             }
         }
         else
-            escaped_symbol = e.expr;
+            escaped_symbol = e.context.expr;
 
         std::string file_content;
-        if (e.filename != ARK_NO_NAME_FILE)
-            file_content = Utils::readFile(e.filename);
+        if (e.context.filename != ARK_NO_NAME_FILE)
+            file_content = Utils::readFile(e.context.filename);
 
         helper(
             os,
             e.what(),
             colorize,
-            e.filename,
+            e.context.filename,
             file_content,
             escaped_symbol,
-            e.line,
-            e.col,
-            e.expr.size());
+            e.context.line,
+            e.context.col,
+            e.context.expr.size());
     }
 }

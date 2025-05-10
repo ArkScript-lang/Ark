@@ -206,9 +206,10 @@ namespace Ark::internal
         throw CodeError(
             fmt::format("While processing file {}, couldn't import {}: file not found",
                         file.generic_string(), import.toPackageString()),
-            file.generic_string(),
-            import.line,
-            import.col,
-            fmt::format("(import {})", import.toPackageString()));
+            CodeErrorContext(
+                file.generic_string(),
+                import.line,
+                import.col,
+                fmt::format("(import {})", import.toPackageString())));
     }
 }
