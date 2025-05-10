@@ -115,13 +115,28 @@ namespace Ark::internal
         return m_filepos;
     }
 
-    void BaseParser::error(const std::string& error, std::string exp)
+    CodeErrorContext BaseParser::generateErrorContext(const std::string& expr)
     {
         const auto [row, col] = getCursor();
-        throw CodeError(error, CodeErrorContext(m_filename, row, col, std::move(exp), m_sym));
+
+        return CodeErrorContext(
+            m_filename,
+            row,
+            col,
+            expr,
+            m_sym);
     }
 
-    void BaseParser::errorWithNextToken(const std::string& message)
+    void BaseParser::error(const std::string& error, std::string exp, const std::optional<CodeErrorContext>& additional_context)
+    {
+        const auto [row, col] = getCursor();
+        throw CodeError(
+            error,
+            CodeErrorContext(m_filename, row, col, std::move(exp), m_sym),
+            additional_context);
+    }
+
+    void BaseParser::errorWithNextToken(const std::string& message, const std::optional<CodeErrorContext>& additional_context)
     {
         const auto pos = getCount();
         std::string next_token;
@@ -129,13 +144,13 @@ namespace Ark::internal
         anyUntil(IsEither(IsInlineSpace, IsEither(IsChar('('), IsChar(')'))), &next_token);
         backtrack(pos);
 
-        error(message, next_token);
+        error(message, next_token, additional_context);
     }
 
-    void BaseParser::expectSuffixOrError(const char suffix, const std::string& context)
+    void BaseParser::expectSuffixOrError(const char suffix, const std::string& context, const std::optional<CodeErrorContext>& additional_context)
     {
         if (!accept(IsChar(suffix)))
-            errorWithNextToken(fmt::format("Missing '{}' {}", suffix, context));
+            errorWithNextToken(fmt::format("Missing '{}' {}", suffix, context), additional_context);
     }
 
     bool BaseParser::accept(const CharPred& t, std::string* s)
