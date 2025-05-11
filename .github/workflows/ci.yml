@@ -380,12 +380,13 @@ jobs:
           sudo apt-get update --fix-missing
           sudo apt-get install -y clang-16 lld-16 libc++-16-dev libc++abi-16-dev clang-tools-16
 
-      - name: Install valgrind 3.24.0
+      - name: Install valgrind 3.24+
         shell: bash
         run: |
-          wget --no-check-certificate http://ftp.us.debian.org/debian/pool/main/v/valgrind/valgrind_3.24.0-2_amd64.deb
+          valgrind_ver=3.24.0-3_amd64
+          wget --no-check-certificate http://ftp.us.debian.org/debian/pool/main/v/valgrind/valgrind_${valgrind_ver}.deb
           sudo apt remove needrestart
-          sudo apt install ./valgrind_3.24.0-2_amd64.deb
+          sudo apt install ./valgrind_${valgrind_ver}.deb
 
       - name: Valgrind checks for memory leaks
         shell: bash
