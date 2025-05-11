@@ -1,6 +1,6 @@
 IndexError: pop! index (4) out of range (list size: 3)
 
-In file tests/unittests/resources/DiagnosticsSuite/runtime/out_of_range_in_place.ark
+In file tests/unittests/resources/DiagnosticsSuite/runtime/out_of_range_in_place.ark:2
     1 | (mut a [1 2 3])
     2 | (pop! a 4)
       | ^~~~~~~~~

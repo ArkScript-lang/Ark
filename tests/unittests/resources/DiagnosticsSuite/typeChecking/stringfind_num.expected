@@ -6,7 +6,7 @@ Alternative 2:
   -> substr (String) was not provided
   -> startIndex (Number) was not provided
 
-In file tests/unittests/resources/DiagnosticsSuite/typeChecking/stringfind_num.ark
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/stringfind_num.ark:1
     1 | (string:find 1)
       | ^~~~~~~~~~~~~~
     2 |

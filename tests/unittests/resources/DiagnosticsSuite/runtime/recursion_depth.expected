@@ -1,6 +1,6 @@
 VMError: Maximum recursion depth exceeded. You could consider rewriting your function `foo' to make use of tail-call optimization.
 
-In file tests/unittests/resources/DiagnosticsSuite/runtime/recursion_depth.ark
+In file tests/unittests/resources/DiagnosticsSuite/runtime/recursion_depth.ark:3
     1 | (let foo (fun (a) {
     2 |     # hack to avoid getting TCO-ed
     3 |     (let tmp (foo (+ a 1)))

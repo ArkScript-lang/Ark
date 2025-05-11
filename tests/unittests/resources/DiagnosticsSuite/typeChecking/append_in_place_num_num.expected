@@ -2,7 +2,7 @@ Function append! expected at least 2 arguments and got 2
   -> list (List) was of type Number
   -> variadic value (any)
 
-In file tests/unittests/resources/DiagnosticsSuite/typeChecking/append_in_place_num_num.ark
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/append_in_place_num_num.ark:2
     1 | (mut L 1)
     2 | (append! L 5)
       | ^~~~~~~~~~~~

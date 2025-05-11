@@ -1,6 +1,6 @@
 DivisionByZero: Can not compute expression (/ 5 0)
 
-In file tests/unittests/resources/DiagnosticsSuite/runtime/db0.ark
+In file tests/unittests/resources/DiagnosticsSuite/runtime/db0.ark:1
     1 | (/ 5 0.0)
       | ^~~~~~~~
     2 |

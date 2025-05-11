@@ -1,7 +1,7 @@
 Function math:sinh expected 1 argument
   -> value (Number) was of type String
 
-In file tests/unittests/resources/DiagnosticsSuite/typeChecking/mathsinh_str.ark
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/mathsinh_str.ark:1
     1 | (math:sinh "1")
       | ^~~~~~~~~~~~~~
     2 |

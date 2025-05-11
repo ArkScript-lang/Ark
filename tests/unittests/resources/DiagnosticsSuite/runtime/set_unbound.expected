@@ -1,6 +1,6 @@
 ScopeError: Unbound variable `a', can not change its value to 5
 
-In file tests/unittests/resources/DiagnosticsSuite/runtime/set_unbound.ark
+In file tests/unittests/resources/DiagnosticsSuite/runtime/set_unbound.ark:1
     1 | (set a 5)
       | ^~~~~~~~
     2 | (let a 0)

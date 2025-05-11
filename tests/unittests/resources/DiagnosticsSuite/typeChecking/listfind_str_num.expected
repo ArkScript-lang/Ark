@@ -2,7 +2,7 @@ Function list:find expected 2 arguments
   -> list (List) was of type String
   -> value (any)
 
-In file tests/unittests/resources/DiagnosticsSuite/typeChecking/listfind_str_num.ark
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/listfind_str_num.ark:1
     1 | (list:find "hello" 1)
       | ^~~~~~~~~~~~~~~~~~~~
     2 |

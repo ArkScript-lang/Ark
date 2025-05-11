@@ -2,7 +2,7 @@ Function string:removeAt expected 2 arguments but got 1
   -> string (String) was of type Number
   -> index (Number) was not provided
 
-In file tests/unittests/resources/DiagnosticsSuite/typeChecking/stringremoveat_num.ark
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/stringremoveat_num.ark:1
     1 | (string:removeAt 1)
       | ^~~~~~~~~~~~~~~~~~
     2 |

@@ -1,4 +1,4 @@
-In file tests/unittests/resources/ParserSuite/failure/incorrect_arg_capture.ark
+In file tests/unittests/resources/ParserSuite/failure/incorrect_arg_capture.ark:1
 At c @ 1:12
     1 | (fun (a &b c) 1)
       |            ^

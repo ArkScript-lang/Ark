@@ -1,7 +1,7 @@
 Function math:round expected 1 argument
   -> value (Number) was of type String
 
-In file tests/unittests/resources/DiagnosticsSuite/typeChecking/mathround_str.ark
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/mathround_str.ark:1
     1 | (math:round "1")
       | ^~~~~~~~~~~~~~~
     2 |

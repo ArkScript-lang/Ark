@@ -1,6 +1,6 @@
 IndexError: @@= index (y: 1) out of range (list size: 1)
 
-In file tests/unittests/resources/DiagnosticsSuite/runtime/at_at_eq_out_of_range_y.ark
+In file tests/unittests/resources/DiagnosticsSuite/runtime/at_at_eq_out_of_range_y.ark:2
     1 | (mut a [[1]])
     2 | (@@= a 1 0 2)
       | ^~~~~~~~~~~~

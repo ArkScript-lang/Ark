@@ -2,7 +2,7 @@ Function concat expected 2 arguments
   -> dst (List) was of type Number
   -> src (List) was of type Number
 
-In file tests/unittests/resources/DiagnosticsSuite/typeChecking/concat_num_num.ark
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/concat_num_num.ark:1
     1 | (concat 1 3)
       | ^~~~~~~~~~~
     2 |

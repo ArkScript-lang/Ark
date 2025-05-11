@@ -1,7 +1,7 @@
 Function math:ln expected 1 argument
   -> value (Number) was of type String
 
-In file tests/unittests/resources/DiagnosticsSuite/typeChecking/mathln_str.ark
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/mathln_str.ark:1
     1 | (math:ln "1")
       | ^~~~~~~~~~~~
     2 |

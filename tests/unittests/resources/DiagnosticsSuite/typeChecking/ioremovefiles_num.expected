@@ -1,7 +1,7 @@
 Function io:removeFiles expected at least 1 argument and got 1
   -> variadic filename (String) 1 argument do not match
 
-In file tests/unittests/resources/DiagnosticsSuite/typeChecking/ioremovefiles_num.ark
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/ioremovefiles_num.ark:1
     1 | (io:removeFiles 1)
       | ^~~~~~~~~~~~~~~~~
     2 |

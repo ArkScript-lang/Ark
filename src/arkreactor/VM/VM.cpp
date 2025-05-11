@@ -1700,15 +1700,15 @@ namespace Ark
         {
             const auto filename = m_state.m_filenames[maybe_location->filename_id];
 
-            fmt::println(os, "In file {}", filename, maybe_location->line + 1);
-
             if (Utils::fileExists(filename))
                 Diagnostics::makeContext(
                     os,
-                    Utils::readFile(filename),
+                    filename,
+                    /* expr= */ std::nullopt,
+                    /* sym_size= */ 0,
                     maybe_location->line,
                     /* col_start= */ 0,
-                    /* sym_size= */ 0,
+                    /* maybe_context= */ std::nullopt,
                     /* whole_line= */ true,
                     /* colorize= */ colorize);
             fmt::println(os, "");

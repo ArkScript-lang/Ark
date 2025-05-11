@@ -1,7 +1,7 @@
 Function string:chr expected 1 argument
   -> codepoint (Number) was of type String
 
-In file tests/unittests/resources/DiagnosticsSuite/typeChecking/stringchr_str.ark
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/stringchr_str.ark:1
     1 | (string:chr "1")
       | ^~~~~~~~~~~~~~~
     2 |

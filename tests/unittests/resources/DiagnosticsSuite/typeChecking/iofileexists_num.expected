@@ -1,7 +1,7 @@
 Function io:fileExists? expected 1 argument
   -> filename (String) was of type Number
 
-In file tests/unittests/resources/DiagnosticsSuite/typeChecking/iofileexists_num.ark
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/iofileexists_num.ark:1
     1 | (io:fileExists? 1)
       | ^~~~~~~~~~~~~~~~~
     2 |

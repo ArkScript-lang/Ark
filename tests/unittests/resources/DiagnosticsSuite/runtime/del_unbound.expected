@@ -1,6 +1,6 @@
 ScopeError: Can not delete unbound variable `a'
 
-In file tests/unittests/resources/DiagnosticsSuite/runtime/del_unbound.ark
+In file tests/unittests/resources/DiagnosticsSuite/runtime/del_unbound.ark:1
     1 | (del a)
       | ^~~~~~
     2 | (let a 0)
