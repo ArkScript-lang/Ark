@@ -208,8 +208,8 @@ namespace Ark::Diagnostics
             if (i + 1 == start_line_skipping_at && i + 1 != stop_line_skipping_at)
                 fmt::print(os, "  ... |\n");
 
-            // show where the error occurred
-            if (i == target_line || (i > target_line && overflow > 0))
+            // show where the error occurred (do not mark empty lines as being part of the error when we have overflow)
+            if (i == target_line || (i > target_line && overflow > 0 && !lines[i].empty()))
             {
                 fmt::print(os, "{}", line_no_num);
 
@@ -234,7 +234,7 @@ namespace Ark::Diagnostics
                             // underline the error in red
                             fmt::styled("^", colorize ? fmt::fg(fmt::color::red) : fmt::text_style()),
                             col_end - curr_col_start);
-                    else if (i == target_line)  // i == target_line to avoid having to deal with overflow
+                    else if (i == target_line)  // maybe_context has a value, i == target_line to avoid having to deal with overflow
                     {
                         const auto padding_size = std::max(1_z, maybe_context->col);
 

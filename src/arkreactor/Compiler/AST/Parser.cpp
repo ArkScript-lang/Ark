@@ -38,7 +38,17 @@ namespace Ark::internal
             else
             {
                 backtrack(pos);
-                errorWithNextToken("invalid syntax, expected node");
+                std::string out = peek();
+                std::string message;
+                if (out == ")")
+                    message = "Unexpected closing paren";
+                else if (out == "}")
+                    message = "Unexpected closing bracket";
+                else if (out == "]")
+                    message = "Unexpected closing square bracket";
+                else
+                    errorWithNextToken("invalid syntax, expected node");
+                errorWithNextToken(message);
             }
         }
 

@@ -122,6 +122,8 @@ namespace Ark::internal
          */
         bool expect(const CharPred& t, std::string* s = nullptr);
 
+        [[nodiscard]] std::string peek() const;
+
         // basic parsers
 
         bool space(std::string* s = nullptr);

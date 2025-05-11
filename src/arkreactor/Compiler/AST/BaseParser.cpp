@@ -181,6 +181,11 @@ namespace Ark::internal
         return true;
     }
 
+    std::string BaseParser::peek() const
+    {
+        return m_sym.c_str();
+    }
+
     bool BaseParser::space(std::string* s)
     {
         if (accept(IsSpace))
