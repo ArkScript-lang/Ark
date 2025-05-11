@@ -135,14 +135,25 @@ namespace Ark
          * @brief Helper to create a colorized context to report errors to the user
          *
          * @param os stream in which the error will be written
-         * @param code content of the source file where the error is
+         * @param filename path to the file in which the error is
+         * @param expr optional expression causing the error
+         * @param sym_size length of expression to underline (can be 0)
          * @param target_line line where the error is
          * @param col_start where the error starts on the given line
-         * @param sym_size bad expression that triggered the error
+         * @param maybe_context optional context, parent of the error
          * @param whole_line when true, underline the whole line, disregarding col_start and sym_size
          * @param colorize generate colors or not
          */
-        ARK_API void makeContext(std::ostream& os, const std::string& code, std::size_t target_line, std::size_t col_start, std::size_t sym_size, bool whole_line, bool colorize);
+        ARK_API void makeContext(
+            std::ostream& os,
+            const std::string& filename,
+            const std::optional<std::string>& expr,
+            std::size_t sym_size,
+            std::size_t target_line,
+            std::size_t col_start,
+            const std::optional<CodeErrorContext>& maybe_context,
+            bool whole_line,
+            bool colorize);
 
         /**
          * @brief Helper used by the compiler to generate a colorized context from a node

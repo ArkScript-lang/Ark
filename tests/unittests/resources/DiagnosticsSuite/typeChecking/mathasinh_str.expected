@@ -1,7 +1,7 @@
 Function math:asinh expected 1 argument
   -> value (Number) was of type String
 
-In file tests/unittests/resources/DiagnosticsSuite/typeChecking/mathasinh_str.ark
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/mathasinh_str.ark:1
     1 | (math:asinh "1")
       | ^~~~~~~~~~~~~~~
     2 |

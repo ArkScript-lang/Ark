@@ -3,7 +3,7 @@ Function empty? expected 1 argument
 Alternative 2:
   -> value (String) was of type Number
 
-In file tests/unittests/resources/DiagnosticsSuite/typeChecking/empty_num.ark
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/empty_num.ark:1
     1 | (empty? 1)
       | ^~~~~~~~~
     2 |

@@ -1,6 +1,6 @@
 TypeError: nil is not a Function but a Nil
 
-In file tests/unittests/resources/DiagnosticsSuite/runtime/nil_not_a_function.ark
+In file tests/unittests/resources/DiagnosticsSuite/runtime/nil_not_a_function.ark:1
     1 | (())
       | ^~~
     2 | (fun (a b) (if 1 2 3))

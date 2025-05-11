@@ -1,4 +1,4 @@
-In file tests/unittests/resources/ParserSuite/failure/incomplete_macro.ark
+In file tests/unittests/resources/ParserSuite/failure/incomplete_macro.ark:1
 At ( @ 1:4
     1 | ($ (a) a)
       |    ^

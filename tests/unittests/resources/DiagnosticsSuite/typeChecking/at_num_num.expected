@@ -5,7 +5,7 @@ Alternative 2:
   -> src (String) was of type Number
   -> idx (Number)
 
-In file tests/unittests/resources/DiagnosticsSuite/typeChecking/at_num_num.ark
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/at_num_num.ark:1
     1 | (@ 1 2)
       | ^~~~~~
     2 |

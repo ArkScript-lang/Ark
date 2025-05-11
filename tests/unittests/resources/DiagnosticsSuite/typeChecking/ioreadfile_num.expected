@@ -1,7 +1,7 @@
 Function io:readFile expected 1 argument
   -> filename (String) was of type Number
 
-In file tests/unittests/resources/DiagnosticsSuite/typeChecking/ioreadfile_num.ark
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/ioreadfile_num.ark:1
     1 | (io:readFile 1)
       | ^~~~~~~~~~~~~~
     2 |

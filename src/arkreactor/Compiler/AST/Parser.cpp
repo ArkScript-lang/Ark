@@ -274,8 +274,10 @@ namespace Ark::internal
         std::optional<Node> leaf { NodeType::List };
         setNodePosAndFilename(leaf.value());
 
+        auto context = generateErrorContext("(");
         if (!accept(IsChar('(')))
             return std::nullopt;
+
         std::string comment;
         newlineOrComment(&comment);
         leaf->attachNearestCommentBefore(comment);
@@ -337,7 +339,7 @@ namespace Ark::internal
                 setNodePosAndFilename(leaf->list().back());
 
                 space();
-                expectSuffixOrError(')', fmt::format("in import `{}'", import_data.toPackageString()));
+                expectSuffixOrError(')', fmt::format("in import `{}'", import_data.toPackageString()), context);
 
                 // save the import data structure to know we encounter an import node, and retrieve its data more easily later on
                 import_data.with_prefix = false;
@@ -401,7 +403,7 @@ namespace Ark::internal
         if (newlineOrComment(&comment))
             leaf->list().back().attachCommentAfter(comment);
 
-        expect(IsChar(')'));
+        expectSuffixOrError(')', fmt::format("in import `{}'", import_data.toPackageString()), context);
         return leaf;
     }
 
@@ -410,6 +412,7 @@ namespace Ark::internal
         std::optional<Node> leaf { NodeType::List };
         setNodePosAndFilename(leaf.value());
 
+        auto context = generateErrorContext("(");
         bool alt_syntax = false;
         std::string comment;
         if (accept(IsChar('(')))
@@ -441,7 +444,7 @@ namespace Ark::internal
         }
 
         newlineOrComment(&comment);
-        expectSuffixOrError(!alt_syntax ? ')' : '}', "to close block");
+        expectSuffixOrError(alt_syntax ? '}' : ')', "to close block", context);
         setNodePosAndFilename(leaf->list().back());
         leaf->list().back().attachCommentAfter(comment);
         return leaf;
@@ -679,6 +682,7 @@ namespace Ark::internal
         std::optional<Node> leaf { NodeType::Macro };
         setNodePosAndFilename(leaf.value());
 
+        auto context = generateErrorContext("(");
         if (!accept(IsChar('(')))
             return std::nullopt;
         std::string comment;
@@ -731,13 +735,13 @@ namespace Ark::internal
             if (newlineOrComment(&comment))
                 leaf->list().back().attachCommentAfter(comment);
 
-            expectSuffixOrError(')', fmt::format("to close macro `{}'", symbol_name));
+            expectSuffixOrError(')', fmt::format("to close macro `{}'", symbol_name), context);
             return leaf;
         }
         else
         {
             backtrack(position);
-            errorWithNextToken(fmt::format("Expected a value while defining macro `{}'", symbol_name));
+            errorWithNextToken(fmt::format("Expected a value while defining macro `{}'", symbol_name), context);
         }
 
         setNodePosAndFilename(leaf->list().back());
@@ -745,12 +749,13 @@ namespace Ark::internal
         if (newlineOrComment(&comment))
             leaf->list().back().attachCommentAfter(comment);
 
-        expectSuffixOrError(')', fmt::format("to close macro `{}'", symbol_name));
+        expectSuffixOrError(')', fmt::format("to close macro `{}'", symbol_name), context);
         return leaf;
     }
 
     std::optional<Node> Parser::functionCall()
     {
+        auto context = generateErrorContext("(");
         if (!accept(IsChar('(')))
             return std::nullopt;
         std::string comment;
@@ -790,7 +795,7 @@ namespace Ark::internal
         if (newlineOrComment(&comment))
             leaf->list().back().attachCommentAfter(comment);
 
-        expectSuffixOrError(')', fmt::format("in function call to `{}'", func.value().repr()));
+        expectSuffixOrError(')', fmt::format("in function call to `{}'", func.value().repr()), context);
         return leaf;
     }
 
@@ -799,6 +804,7 @@ namespace Ark::internal
         std::optional<Node> leaf { NodeType::List };
         setNodePosAndFilename(leaf.value());
 
+        auto context = generateErrorContext("[");
         if (!accept(IsChar('[')))
             return std::nullopt;
         leaf->push_back(Node(NodeType::Symbol, "list"));
@@ -821,7 +827,7 @@ namespace Ark::internal
         }
         leaf->list().back().attachCommentAfter(comment);
 
-        expectSuffixOrError(']', "to end list definition");
+        expectSuffixOrError(']', "to end list definition", context);
         return leaf;
     }
 
@@ -891,6 +897,7 @@ namespace Ark::internal
     std::optional<Node> Parser::wrapped(std::optional<Node> (Parser::*parser)(), const std::string& name)
     {
         auto cursor = getCursor();
+        auto context = generateErrorContext("(");
         if (!prefix('('))
             return std::nullopt;
         std::string comment;
@@ -907,7 +914,7 @@ namespace Ark::internal
 
             if (result->isListLike())
                 setNodePosAndFilename(result->list().back());
-            expectSuffixOrError(')', "after " + name);
+            expectSuffixOrError(')', "after " + name, context);
 
             comment.clear();
             if (spaceComment(&comment))

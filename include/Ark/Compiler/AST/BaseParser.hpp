@@ -1,5 +1,5 @@
-#ifndef SRC_BASEPARSER_HPP
-#define SRC_BASEPARSER_HPP
+#ifndef ARK_COMPILER_AST_BASEPARSER_HPP
+#define ARK_COMPILER_AST_BASEPARSER_HPP
 
 #include <string>
 #include <vector>
@@ -157,4 +157,4 @@ namespace Ark::internal
     };
 }
 
-#endif
+#endif  // ARK_COMPILER_AST_BASEPARSER_HPP

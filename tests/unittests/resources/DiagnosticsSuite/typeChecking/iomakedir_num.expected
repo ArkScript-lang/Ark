@@ -1,7 +1,7 @@
 Function io:makeDir expected 1 argument
   -> path (String) was of type Number
 
-In file tests/unittests/resources/DiagnosticsSuite/typeChecking/iomakedir_num.ark
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/iomakedir_num.ark:1
     1 | (io:makeDir 1)
       | ^~~~~~~~~~~~~
     2 |

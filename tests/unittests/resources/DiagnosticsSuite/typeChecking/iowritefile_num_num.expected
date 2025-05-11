@@ -2,7 +2,7 @@ Function io:writeFile expected 2 arguments
   -> filename (String) was of type Number
   -> content (any)
 
-In file tests/unittests/resources/DiagnosticsSuite/typeChecking/iowritefile_num_num.ark
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/iowritefile_num_num.ark:1
     1 | (io:writeFile 1 2)
       | ^~~~~~~~~~~~~~~~~
     2 |

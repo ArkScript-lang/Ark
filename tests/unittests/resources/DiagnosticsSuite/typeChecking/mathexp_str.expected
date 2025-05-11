@@ -1,7 +1,7 @@
 Function math:exp expected 1 argument
   -> value (Number) was of type String
 
-In file tests/unittests/resources/DiagnosticsSuite/typeChecking/mathexp_str.ark
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/mathexp_str.ark:1
     1 | (math:exp "1")
       | ^~~~~~~~~~~~~
     2 |

@@ -1,5 +1,6 @@
 #include <Ark/Exceptions.hpp>
 
+#include <cassert>
 #include <sstream>
 #include <algorithm>
 #include <fmt/core.h>
@@ -83,57 +84,191 @@ namespace Ark::Diagnostics
         }
     }
 
-    void makeContext(std::ostream& os, const std::string& code, const std::size_t target_line, const std::size_t col_start, const std::size_t sym_size, const bool whole_line, const bool colorize)
+    void makeContext(
+        std::ostream& os,
+        const std::string& filename,
+        const std::optional<std::string>& expr,
+        const std::size_t sym_size,
+        const std::size_t target_line,
+        const std::size_t col_start,
+        const std::optional<CodeErrorContext>& maybe_context,  // can not be populated at runtime, only compile time
+        const bool whole_line,
+        const bool colorize)
     {
+        assert(!(maybe_context && whole_line) && "Can not create error context when a context is given AND the whole line has to be underlined");
+
         using namespace Ark::literals;
 
-        const std::vector<std::string> ctx = Utils::splitString(code, '\n');
-        if (target_line >= ctx.size())
-            return;
+        auto show_file_location = [&] {
+            if (filename != ARK_NO_NAME_FILE)
+                fmt::print(os, "In file {}:{}\n", filename, target_line + 1);
+            if (expr)
+                fmt::print(os, "At {} @ {}:{}\n", expr.value(), target_line + 1, col_start);
+        };
 
-        const std::size_t first_line = target_line >= 3 ? target_line - 3 : 0;
-        const std::size_t last_line = (target_line + 3) <= ctx.size() ? target_line + 3 : ctx.size();
-        std::size_t overflow = (col_start + sym_size < ctx[target_line].size()) ? 0 : col_start + sym_size - ctx[target_line].size();  // number of characters that are on more lines below
+        auto compute_start_end_window = [](const std::size_t center_of_window, const std::size_t line_count) {
+            std::size_t start = center_of_window >= 3 ? center_of_window - 3 : 0;
+            std::size_t end = center_of_window + 3 <= line_count ? center_of_window + 3 : line_count;
+            return std::make_pair(start, end);
+        };
+
+        auto print_line = [&os, colorize](const std::size_t i, const std::vector<std::string>& lines, LineColorContextCounts& color_context) {
+            // show current line with its number
+            fmt::print(os, "{: >5} |{}", i + 1, !lines[i].empty() ? " " : "");
+            if (colorize)
+                colorizeLine(lines[i], color_context, os);
+            else
+                fmt::print(os, "{}", lines[i]);
+            fmt::print(os, "\n");
+        };
+
+        const std::string line_no_num = "      |";
+
+        auto print_context_hint = [&os, &maybe_context, &line_no_num, colorize]() mutable {
+            if (!maybe_context)
+                return;
+
+            fmt::print(os, "{}", line_no_num);
+            fmt::print(
+                os,
+                "{: <{}}{}\n",
+                // padding os spaces
+                " ",
+                std::max(1_z, maybe_context->col),  // fixing padding when the error is on the first character
+                // underline the parent of the error in red
+                fmt::styled("^ expression started here", colorize ? fmt::fg(fmt::color::red) : fmt::text_style()));
+        };
+
+        const std::string code = filename == ARK_NO_NAME_FILE ? "" : Utils::readFile(filename);
+        const std::vector<std::string> lines = Utils::splitString(code, '\n');
+        if (target_line >= lines.size() || code.empty())
+        {
+            // show the "in file..." before early return
+            show_file_location();
+            return;
+        }
+
+        auto [first_line, last_line] = compute_start_end_window(target_line, lines.size());
+        // number of characters that are on more lines below
+        std::size_t overflow = (col_start + sym_size < lines[target_line].size()) ? 0 : col_start + sym_size - lines[target_line].size();
+
+        const bool ctx_same_file = maybe_context && maybe_context->filename == filename;
+        const bool ctx_in_window = ctx_same_file && maybe_context &&
+            maybe_context->line >= first_line &&
+            maybe_context->line < last_line;
+
+        std::size_t start_line_skipping_at = 0;
+        std::size_t stop_line_skipping_at = first_line;
+        if (ctx_same_file && !ctx_in_window)
+        {
+            // showing the context will require an ellipsis, to avoid showing too many lines in the error message
+            if (maybe_context->line + 3 < first_line)
+                start_line_skipping_at = maybe_context->line + 3;
+            else
+                stop_line_skipping_at = start_line_skipping_at;
+
+            // due to how context works, if it points to the same file,
+            // we are guaranteed it will be before our error
+            first_line = maybe_context->line >= 3 ? maybe_context->line - 3 : 0;
+        }
+        else if (maybe_context && !ctx_same_file && !maybe_context->filename.empty())
+        {
+            // show the location of the parent of our error first
+            fmt::print(os, "Error originated from file {}:{}\n", maybe_context->filename, maybe_context->line + 1);
+
+            const std::vector<std::string> ctx_source_lines = Utils::splitString(Utils::readFile(maybe_context->filename), '\n');
+            auto [ctx_first_line, ctx_last_line] = compute_start_end_window(maybe_context->line, ctx_source_lines.size());
+            LineColorContextCounts line_color_context_counts;
+
+            for (auto i = ctx_first_line; i < ctx_last_line; ++i)
+            {
+                print_line(i, ctx_source_lines, line_color_context_counts);
+                if (i == maybe_context->line)
+                    print_context_hint();
+            }
+
+            fmt::print(os, "\n");
+        }
+
+        show_file_location();
         LineColorContextCounts line_color_context_counts;
 
         for (auto i = first_line; i < last_line; ++i)
         {
-            fmt::print(os, "{: >5} |{}", i + 1, !ctx[i].empty() ? " " : "");
-            if (colorize)
-                colorizeLine(ctx[i], line_color_context_counts, os);
-            else
-                fmt::print(os, "{}", ctx[i]);
-            fmt::print(os, "\n");
+            if (i >= start_line_skipping_at && i < stop_line_skipping_at)
+                continue;
+            print_line(i, lines, line_color_context_counts);
 
+            // if the error context is in the current file, point to it as the parent of our error
+            if (maybe_context && i == maybe_context->line && i != target_line)
+                print_context_hint();
+
+            // if the next line number wants us to skip line, and start != stop (meaning they got adjusted),
+            // display an ellipsis
+            if (i + 1 == start_line_skipping_at && i + 1 != stop_line_skipping_at)
+                fmt::print(os, "  ... |\n");
+
+            // show where the error occurred
             if (i == target_line || (i > target_line && overflow > 0))
             {
-                fmt::print(os, "      |");
+                fmt::print(os, "{}", line_no_num);
 
                 if (!whole_line)
                 {
                     // if we have an overflow then we start at the beginning of the line
                     const std::size_t curr_col_start = (overflow == 0) ? col_start : 0;
                     // if we have an overflow, it is used as the end of the line
-                    const std::size_t col_end = (i == target_line) ? std::min<std::size_t>(col_start + sym_size, ctx[target_line].size())
-                                                                   : std::min<std::size_t>(overflow, ctx[i].size());
+                    const std::size_t col_end = (i == target_line) ? std::min<std::size_t>(col_start + sym_size, lines[target_line].size())
+                                                                   : std::min<std::size_t>(overflow, lines[i].size());
                     // update the overflow to avoid going here again if not needed
-                    overflow = (overflow > ctx[i].size()) ? overflow - ctx[i].size() : 0;
+                    overflow = (overflow > lines[i].size()) ? overflow - lines[i].size() : 0;
 
-                    fmt::print(
-                        os,
-                        "{: <{}}{:~<{}}\n",
-                        // padding of spaces
-                        " ",
-                        std::max(1_z, curr_col_start),  // fixing padding when the error is on the first character
-                        // underline the error in red
-                        fmt::styled("^", colorize ? fmt::fg(fmt::color::red) : fmt::text_style()),
-                        col_end - curr_col_start);
+                    // show the error where it's at, using the normal process, if there is no context OR if the context line is different from the error line
+                    if (!maybe_context || maybe_context->line != target_line)
+                        fmt::print(
+                            os,
+                            "{: <{}}{:~<{}}\n",
+                            // padding of spaces
+                            " ",
+                            std::max(1_z, curr_col_start),  // fixing padding when the error is on the first character
+                            // underline the error in red
+                            fmt::styled("^", colorize ? fmt::fg(fmt::color::red) : fmt::text_style()),
+                            col_end - curr_col_start);
+                    else if (i == target_line)  // i == target_line to avoid having to deal with overflow
+                    {
+                        const auto padding_size = std::max(1_z, maybe_context->col);
+
+                        fmt::print(
+                            os,
+                            "{: <{}}{}{}{: <{}}\n",
+                            // padding of spaces
+                            " ",
+                            padding_size,
+                            // indicate where the parent is, with color
+                            fmt::styled("│", colorize ? fmt::fg(fmt::color::red) : fmt::text_style()),
+                            // yet another padding of spaces between the parent and error column (if need be)
+                            (maybe_context->col == col_start) ? "" : fmt::format("{: <{}}", " ", col_start - maybe_context->col),
+                            // underline the error in red
+                            fmt::styled("└─ error", colorize ? fmt::fg(fmt::color::red) : fmt::text_style()),
+                            col_end - curr_col_start);
+                        // new line, some spacing between the error and the parent
+                        fmt::print(os, "{}{: <{}}{}\n", line_no_num, " ", padding_size, fmt::styled("│", colorize ? fmt::fg(fmt::color::red) : fmt::text_style()));
+                        // new line, now show the "expression started here for the source"
+                        fmt::print(
+                            os,
+                            "{}{: <{}}{}\n",
+                            line_no_num,
+                            // padding of spaces
+                            " ",
+                            padding_size,
+                            fmt::styled("└─ expression started here", colorize ? fmt::fg(fmt::color::red) : fmt::text_style()));
+                    }
                 }
                 else
                 {
                     // first non-whitespace character of the line
                     // +1 for the leading whitespace after `    |` before the code
-                    const std::size_t curr_col_start = ctx[i].find_first_not_of(" \t\v") + 1;
+                    const std::size_t curr_col_start = lines[i].find_first_not_of(" \t\v") + 1;
 
                     // highlight the current line but skip any leading whitespace
                     fmt::print(
@@ -144,22 +279,19 @@ namespace Ark::Diagnostics
                         curr_col_start,
                         // underline the whole line in red
                         fmt::styled("^", colorize ? fmt::fg(fmt::color::red) : fmt::text_style()),
-                        ctx[target_line].size() - curr_col_start);
+                        lines[target_line].size() - curr_col_start);
                 }
             }
         }
     }
 
-    template <typename T>
-    void helper(std::ostream& os, const std::string& message, const bool colorize, const std::string& filename, const std::string& code, const T& expr,
-                const std::size_t line, std::size_t column, const std::size_t sym_size)
+    void helper(std::ostream& os, const std::string& message, const bool colorize,
+                const std::string& filename,
+                const std::optional<std::string>& expr, const std::size_t sym_size,
+                const std::size_t line, const std::size_t column,
+                const std::optional<CodeErrorContext>& maybe_context = std::nullopt)
     {
-        if (filename != ARK_NO_NAME_FILE)
-            fmt::print(os, "In file {}\n", filename);
-        fmt::print(os, "At {} @ {}:{}\n", expr, line + 1, column);
-
-        if (!code.empty())
-            makeContext(os, code, line, column, sym_size, /* whole_line= */ false, colorize);
+        makeContext(os, filename, expr, sym_size, line, column, maybe_context, /* whole_line= */ false, colorize);
 
         const auto message_lines = Utils::splitString(message, '\n');
         for (const auto& text : message_lines)
@@ -179,11 +311,10 @@ namespace Ark::Diagnostics
             message,
             true,
             node.filename(),
-            (node.filename() == ARK_NO_NAME_FILE) ? "" : Utils::readFile(node.filename()),
             node.repr(),
+            size,
             node.line(),
-            node.col(),
-            size);
+            node.col());
 
         return ss.str();
     }
@@ -211,19 +342,15 @@ namespace Ark::Diagnostics
         else
             escaped_symbol = e.context.expr;
 
-        std::string file_content;
-        if (e.context.filename != ARK_NO_NAME_FILE)
-            file_content = Utils::readFile(e.context.filename);
-
         helper(
             os,
             e.what(),
             colorize,
             e.context.filename,
-            file_content,
             escaped_symbol,
+            e.context.expr.size(),
             e.context.line,
             e.context.col,
-            e.context.expr.size());
+            e.additional_context);
     }
 }

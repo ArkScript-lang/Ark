@@ -1,6 +1,6 @@
 io:readFile: couldn't read file "non-existing-file.weird" because it doesn't exist
 
-In file tests/unittests/resources/DiagnosticsSuite/typeChecking/ioreadfile_inexistent.ark
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/ioreadfile_inexistent.ark:1
     1 | (io:readFile "non-existing-file.weird")
       | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     2 |

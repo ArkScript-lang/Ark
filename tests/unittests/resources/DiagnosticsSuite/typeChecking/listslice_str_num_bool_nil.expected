@@ -4,7 +4,7 @@ Function list:slice expected 4 arguments
   -> end (Number) was of type Bool
   -> step (Number) was of type Nil
 
-In file tests/unittests/resources/DiagnosticsSuite/typeChecking/listslice_str_num_bool_nil.ark
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/listslice_str_num_bool_nil.ark:1
     1 | (list:slice "hello" 1 true nil)
       | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     2 |

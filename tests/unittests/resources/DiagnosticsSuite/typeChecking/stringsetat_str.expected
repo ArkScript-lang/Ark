@@ -3,7 +3,7 @@ Function string:setAt expected 3 arguments but got 1
   -> index (Number) was not provided
   -> value (String) was not provided
 
-In file tests/unittests/resources/DiagnosticsSuite/typeChecking/stringsetat_str.ark
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/stringsetat_str.ark:1
     1 | (string:setAt "1")
       | ^~~~~~~~~~~~~~~~~
     2 |

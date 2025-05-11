@@ -2,7 +2,7 @@ Function + expected 2 arguments
   -> a (Number) was of type String
   -> b (Number) was of type Function
 
-In file tests/unittests/resources/DiagnosticsSuite/typeChecking/increment_str_num.ark
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/increment_str_num.ark:2
     1 | (mut n "1")
     2 | (set n (+ n 1))
       | ^~~~~~~~~~~~~~

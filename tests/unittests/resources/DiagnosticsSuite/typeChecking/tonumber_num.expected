@@ -1,7 +1,7 @@
 Function toNumber expected 1 argument
   -> value (String) was of type Number
 
-In file tests/unittests/resources/DiagnosticsSuite/typeChecking/tonumber_num.ark
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/tonumber_num.ark:1
     1 | (toNumber 5)
       | ^~~~~~~~~~~
     2 |
