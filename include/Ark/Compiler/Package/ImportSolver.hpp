@@ -48,11 +48,17 @@ namespace Ark::internal
         [[nodiscard]] const Node& ast() const noexcept override;
 
     private:
+        struct ImportWithSource
+        {
+            std::filesystem::path file;
+            Import import;
+        };
+
         unsigned m_debug_level;
         std::vector<std::filesystem::path> m_libenv;
         std::filesystem::path m_root;  ///< Folder were the entry file is
         Node m_ast;
-        std::stack<Import> m_imports;
+        std::stack<ImportWithSource> m_imports;
         std::unordered_map<std::string, Package> m_packages;  ///< Package name to package AST & data mapping
         std::vector<std::string> m_imported;                  ///< List of imports, in the order they were found and parsed
 
@@ -67,11 +73,11 @@ namespace Ark::internal
          * @brief Parse a given file and returns a list of its imports.
          *        The AST is parsed and stored in m_modules[import.prefix]
          *
-         * @param base_path path to the file containing the import
+         * @param source path to the file containing the import
          * @param import current import directive
-         * @return std::vector<Import> imports found in the processed file
+         * @return std::vector<ImportWithSource> imports found in the processed file
          */
-        std::vector<Import> parseImport(const std::filesystem::path& base_path, const Import& import);
+        std::vector<ImportWithSource> parseImport(const std::filesystem::path& source, const Import& import);
 
         /**
          * @brief Search for an import file, using the root file path
