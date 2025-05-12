@@ -1,0 +1,6 @@
+At (import error__this_file_will_never_exist) @ 1:42
+    1 | (import error__this_file_will_never_exist)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    2 |
+    3 | (print 1)
+        While processing file import_not_found.ark, couldn't import error__this_file_will_never_exist: file not found

@@ -16,13 +16,10 @@ namespace Ark::internal
 
     ImportSolver& ImportSolver::setup(const std::filesystem::path& root, const std::vector<Import>& origin_imports)
     {
-        if (is_directory(root))
-            m_root = root;
-        else
-            m_root = root.parent_path();
+        m_root = root.parent_path();
 
         for (const auto& origin_import : std::ranges::reverse_view(origin_imports))
-            m_imports.push(origin_import);
+            m_imports.push({ root, origin_import });
 
         return *this;
     }
@@ -33,27 +30,27 @@ namespace Ark::internal
 
         while (!m_imports.empty())
         {
-            Import import = m_imports.top();
-            m_logger.debug("Importing {}", import.toPackageString());
+            ImportWithSource source = m_imports.top();
+            m_logger.debug("Importing {}", source.import.toPackageString());
 
             // Remove the top element to process the other imports
             // It needs to be removed first because we might be adding
             // other imports later and don't want to pop THEM
             m_imports.pop();
-            const auto package = import.toPackageString();
+            const auto package = source.import.toPackageString();
 
             if (m_packages.contains(package))
             {
                 // merge the definition, so that we can generate valid Full Qualified Names in the name & scope resolver
-                m_packages[package].import.with_prefix |= import.with_prefix;
-                m_packages[package].import.is_glob |= import.is_glob;
-                for (auto&& symbol : import.symbols)
+                m_packages[package].import.with_prefix |= source.import.with_prefix;
+                m_packages[package].import.is_glob |= source.import.is_glob;
+                for (auto&& symbol : source.import.symbols)
                     m_packages[package].import.symbols.push_back(symbol);
             }
             else
             {
                 // NOTE: since the "file" (=root) argument doesn't change between all calls, we could get rid of it
-                std::vector<Import> temp = parseImport(m_root, import);
+                std::vector<ImportWithSource> temp = parseImport(source.file, source.import);
                 for (auto& additional_import : std::ranges::reverse_view(temp))
                     m_imports.push(additional_import);
             }
@@ -138,11 +135,11 @@ namespace Ark::internal
         return m_ast;
     }
 
-    std::vector<Import> ImportSolver::parseImport(const std::filesystem::path& base_path, const Import& import)
+    std::vector<ImportSolver::ImportWithSource> ImportSolver::parseImport(const std::filesystem::path& source, const Import& import)
     {
-        m_logger.traceStart(fmt::format("parseImport {}", base_path.string()));
+        m_logger.traceStart(fmt::format("parseImport {}", source.string()));
 
-        const auto path = findFile(base_path, import);
+        const auto path = findFile(source, import);
         if (path.extension() == ".arkm")  // Nothing to import in case of modules
         {
             // Creating an import node that will stay there when visiting the AST and
@@ -151,9 +148,11 @@ namespace Ark::internal
             module_node.push_back(Node(Keyword::Import));
 
             auto package_node = Node(NodeType::List);
-            std::ranges::transform(import.package, std::back_inserter(package_node.list()), [](const std::string& stem) {
-                return Node(NodeType::String, stem);
-            });
+            std::ranges::transform(
+                import.package,
+                std::back_inserter(package_node.list()), [](const std::string& stem) {
+                    return Node(NodeType::String, stem);
+                });
             module_node.push_back(package_node);
             // empty symbols list
             module_node.push_back(Node(NodeType::List));
@@ -177,7 +176,15 @@ namespace Ark::internal
         };
 
         m_logger.traceEnd();
-        return parser.imports();
+
+        auto imports = parser.imports();
+        std::vector<ImportWithSource> output;
+        std::ranges::transform(
+            imports,
+            std::back_inserter(output), [&path](const Import& i) {
+                return ImportWithSource { path, i };
+            });
+        return output;
     }
 
     std::optional<std::filesystem::path> testExtensions(const std::filesystem::path& folder, const std::string& package_path)
@@ -205,7 +212,7 @@ namespace Ark::internal
         // fallback, we couldn't find the file
         throw CodeError(
             fmt::format("While processing file {}, couldn't import {}: file not found",
-                        file.generic_string(), import.toPackageString()),
+                        file.filename().string(), import.toPackageString()),
             CodeErrorContext(
                 file.generic_string(),
                 import.line,
