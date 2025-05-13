@@ -1,4 +1,9 @@
 At test_func1!2 @ 13:28
+    1 | ($ suffix-dup (sym x) {
+      | ^ macro expansion started here
+    2 |     ($if (> x 1)
+    3 |         (suffix-dup sym (- x 1)))
+  ... |
    10 |
    11 | (let test_func (fun (a b c) (* a b c)))
    12 | (let test_func1 (partial test_func 1))

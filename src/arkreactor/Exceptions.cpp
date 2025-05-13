@@ -136,7 +136,9 @@ namespace Ark::Diagnostics
                 " ",
                 std::max(1_z, maybe_context->col),  // fixing padding when the error is on the first character
                 // underline the parent of the error in red
-                fmt::styled("^ expression started here", colorize ? fmt::fg(fmt::color::red) : fmt::text_style()));
+                fmt::styled(
+                    maybe_context->is_macro_expansion ? "^ macro expansion started here" : "^ expression started here",
+                    colorize ? fmt::fg(fmt::color::red) : fmt::text_style()));
         };
 
         const std::string code = filename == ARK_NO_NAME_FILE ? "" : Utils::readFile(filename);
@@ -240,17 +242,17 @@ namespace Ark::Diagnostics
 
                         fmt::print(
                             os,
-                            "{: <{}}{}{}{: <{}}\n",
+                            "{: <{}}{}{}{}\n",
                             // padding of spaces
                             " ",
                             padding_size,
                             // indicate where the parent is, with color
                             fmt::styled("│", colorize ? fmt::fg(fmt::color::red) : fmt::text_style()),
                             // yet another padding of spaces between the parent and error column (if need be)
-                            (maybe_context->col == col_start) ? "" : fmt::format("{: <{}}", " ", col_start - maybe_context->col),
+                            // -2 to account for the │ and then └
+                            (col_start - maybe_context->col <= 2) ? "" : fmt::format("{: <{}}", " ", col_start - maybe_context->col - 2),
                             // underline the error in red
-                            fmt::styled("└─ error", colorize ? fmt::fg(fmt::color::red) : fmt::text_style()),
-                            col_end - curr_col_start);
+                            fmt::styled("└─ error", colorize ? fmt::fg(fmt::color::red) : fmt::text_style()));
                         // new line, some spacing between the error and the parent
                         fmt::print(os, "{}{: <{}}{}\n", line_no_num, " ", padding_size, fmt::styled("│", colorize ? fmt::fg(fmt::color::red) : fmt::text_style()));
                         // new line, now show the "expression started here for the source"
@@ -261,7 +263,9 @@ namespace Ark::Diagnostics
                             // padding of spaces
                             " ",
                             padding_size,
-                            fmt::styled("└─ expression started here", colorize ? fmt::fg(fmt::color::red) : fmt::text_style()));
+                            fmt::styled(
+                                maybe_context->is_macro_expansion ? "└─ macro expansion started here" : "└─ expression started here",
+                                colorize ? fmt::fg(fmt::color::red) : fmt::text_style()));
                     }
                 }
                 else

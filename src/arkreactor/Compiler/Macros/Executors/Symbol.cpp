@@ -23,4 +23,11 @@ namespace Ark::internal
 
         return false;
     }
+
+    Node SymbolExecutor::macroNode(Node& node)
+    {
+        if (const Node* macro = findNearestMacro(node.string()); macro != nullptr)
+            return *macro;
+        return {};
+    }
 }

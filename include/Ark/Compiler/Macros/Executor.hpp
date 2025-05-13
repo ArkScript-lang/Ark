@@ -58,6 +58,14 @@ namespace Ark::internal
          */
         virtual bool canHandle(Node& node) = 0;
 
+        /**
+         * @brief Returns the macro node that will be expanded
+         *
+         * @param node AST node on which the executor will run
+         * @return Node
+         */
+        virtual Node macroNode(Node& node) = 0;
+
     protected:
         unsigned int m_debug;
         MacroProcessor* m_processor;  ///< This is a non-owned pointer.
@@ -118,7 +126,7 @@ namespace Ark::internal
          * @param message the error
          * @param node the node in which there is an error
          */
-        [[noreturn]] static void throwMacroProcessingError(const std::string& message, const Node& node);
+        [[noreturn]] void throwMacroProcessingError(const std::string& message, const Node& node);
     };
 
 }

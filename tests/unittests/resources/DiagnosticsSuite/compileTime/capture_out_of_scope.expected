@@ -4,4 +4,4 @@ At &cap @ 2:16
       |                ^~~~
     3 | (print foo bar)
     4 |
-        Can not capture cap because it is referencing a variable defined in an unreachable scope.
+        Can not capture `cap' because it is referencing a variable defined in an unreachable scope.

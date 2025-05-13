@@ -2,4 +2,4 @@ At &d @ 1:14
     1 | (mut d (fun (&d) (print d)))
       |              ^~
     2 |
-        Can not capture d because it is referencing a variable defined in an unreachable scope.
+        Can not capture `d' because it is referencing a variable defined in an unreachable scope.

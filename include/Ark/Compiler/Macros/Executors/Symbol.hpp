@@ -28,7 +28,7 @@ namespace Ark::internal
         /**
          *
          * @param node
-         * @param depth depth of the macro processor evalution
+         * @param depth depth of the macro processor evaluation
          * @return true if the applying worked
          */
         bool applyMacro(Node& node, unsigned depth) override;
@@ -39,6 +39,8 @@ namespace Ark::internal
          * @return true if the executor can handle the given node
          */
         [[nodiscard]] bool canHandle(Node& node) override;
+
+        [[nodiscard]] Node macroNode(Node& node) override;
     };
 
 }

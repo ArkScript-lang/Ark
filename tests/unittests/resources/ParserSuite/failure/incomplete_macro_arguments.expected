@@ -1,7 +1,7 @@
 In file tests/unittests/resources/ParserSuite/failure/incomplete_macro_arguments.ark:1
 At EOF @ 1:9
     1 | ($ foo (a
-      |        │ └─ error
+      |        │└─ error
       |        │
       |        └─ expression started here
         Missing ')' in function call to `a'

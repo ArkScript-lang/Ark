@@ -39,6 +39,8 @@ namespace Ark::internal
          * @return true if the executor can handle the given node
          */
         [[nodiscard]] bool canHandle(Node& node) override;
+
+        [[nodiscard]] Node macroNode(Node& node) override;
     };
 
 }

@@ -63,7 +63,6 @@ ut::suite<"BytecodeReader"> bcr_suite = [] {
 
         const auto symbols_block = bcr.symbols();
         const auto values_block = bcr.values(symbols_block);
-        // todo test the filenames and inst_locations block
         const auto filenames_block = bcr.filenames(values_block);
         const auto inst_locations_block = bcr.instLocations(filenames_block);
         const auto [pages, start_code] = bcr.code(inst_locations_block);
