@@ -1,4 +1,12 @@
 At ($ partial (func ...defargs) (begin ($ bloc (suffix-dup a (len defargs))) (fun (bloc) (func ...defargs bloc)) ($undef bloc))) @ 17:17
+    4 |         ($ p (a b c) (* a b c)))
+    5 |     ($symcat sym x)})
+    6 |
+    7 | ($ partial (func ...defargs) {
+      | ^ macro expansion started here
+    8 |     ($ bloc (suffix-dup a (len defargs)))
+    9 |     (fun (bloc) (func ...defargs bloc))
+  ... |
    14 |         (* a b)
    15 |         (let inner (partial te t_func 0))
    16 |         (let est_func

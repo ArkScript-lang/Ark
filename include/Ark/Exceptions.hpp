@@ -103,6 +103,7 @@ namespace Ark
         const std::size_t col;
         const std::string expr;
         const std::optional<internal::utf8_char_t> symbol;
+        const bool is_macro_expansion = false;
 
         CodeErrorContext(std::string filename_, const std::size_t lineNum, const std::size_t column, std::string expression, const std::optional<internal::utf8_char_t> maybe_symbol = std::nullopt) :
             filename(std::move(filename_)),
@@ -110,6 +111,15 @@ namespace Ark
             col(column),
             expr(std::move(expression)),
             symbol(maybe_symbol)
+        {}
+
+        CodeErrorContext(std::string filename_, const std::size_t lineNum, const std::size_t column, std::string expression, const bool from_macro_expansion) :
+            filename(std::move(filename_)),
+            line(lineNum),
+            col(column),
+            expr(std::move(expression)),
+            symbol(std::nullopt),
+            is_macro_expansion(from_macro_expansion)
         {}
     };
 

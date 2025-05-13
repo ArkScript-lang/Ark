@@ -197,7 +197,11 @@ namespace Ark::internal
         {
             if (executor->canHandle(node))
             {
-                if (executor->applyMacro(node, depth))
+                m_macros_being_applied.push_back(executor->macroNode(node));
+                const bool applied = executor->applyMacro(node, depth);
+                m_macros_being_applied.pop_back();
+
+                if (applied)
                     return true;
             }
         }
@@ -733,8 +737,29 @@ namespace Ark::internal
         return false;
     }
 
-    void MacroProcessor::throwMacroProcessingError(const std::string& message, const Node& node)
+    void MacroProcessor::throwMacroProcessingError(const std::string& message, const Node& node) const
     {
-        throw CodeError(message, CodeErrorContext(node.filename(), node.line(), node.col(), node.repr()));
+        const std::optional<CodeErrorContext> maybe_context = [this]() -> std::optional<CodeErrorContext> {
+            if (!m_macros_being_applied.empty())
+            {
+                const Node& origin = m_macros_being_applied.front();
+                return CodeErrorContext(
+                    origin.filename(),
+                    origin.line(),
+                    origin.col(),
+                    origin.repr(),
+                    /* from_macro_expansion= */ true);
+            }
+            return std::nullopt;
+        }();
+
+        throw CodeError(
+            message,
+            CodeErrorContext(
+                node.filename(),
+                node.line(),
+                node.col(),
+                node.repr()),
+            maybe_context);
     }
 }

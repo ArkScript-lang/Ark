@@ -36,6 +36,6 @@ namespace Ark::internal
 
     void MacroExecutor::throwMacroProcessingError(const std::string& message, const Node& node)
     {
-        MacroProcessor::throwMacroProcessingError(message, node);
+        m_processor->throwMacroProcessingError(message, node);
     }
 }

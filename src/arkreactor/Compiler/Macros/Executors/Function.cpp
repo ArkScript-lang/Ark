@@ -87,6 +87,14 @@ namespace Ark::internal
         return false;
     }
 
+    Node FunctionExecutor::macroNode(Node& node)
+    {
+        const Node& first = node.list()[0];
+        if (const Node* macro = findNearestMacro(first.string()); macro != nullptr && macro->constList().size() == 3)
+            return *macro;
+        return {};
+    }
+
     void FunctionExecutor::unify(const std::unordered_map<std::string, Node>& map, Node& target, Node* parent, const std::size_t index, const std::size_t unify_depth)
     {
         if (unify_depth > MaxMacroUnificationDepth)

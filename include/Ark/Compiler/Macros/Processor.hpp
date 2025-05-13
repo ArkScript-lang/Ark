@@ -55,8 +55,9 @@ namespace Ark::internal
         friend class MacroExecutor;
 
     private:
-        Node m_ast;                        ///< The modified AST
-        std::vector<MacroScope> m_macros;  ///< Handling macros in a scope fashion
+        Node m_ast;                                ///< The modified AST
+        std::vector<MacroScope> m_macros;          ///< Handling macros in a scope fashion
+        std::vector<Node> m_macros_being_applied;  ///< Stack of macros being applied. The last one is the current one we are working on
         std::shared_ptr<MacroExecutor> m_conditional_executor;
         std::vector<std::shared_ptr<MacroExecutor>> m_executors;
         std::unordered_map<std::string, Node> m_defined_functions;
@@ -152,7 +153,7 @@ namespace Ark::internal
          * @param name the name of the macro being applied
          * @param kind the macro kind, empty by default (eg "operator", "condition")
          */
-        static void checkMacroArgCountEq(const Node& node, std::size_t expected, const std::string& name, const std::string& kind = "");
+        void checkMacroArgCountEq(const Node& node, std::size_t expected, const std::string& name, const std::string& kind = "");
 
         /**
          * @brief Check if the given node has at least the provided argument count, otherwise throws an error
@@ -162,7 +163,7 @@ namespace Ark::internal
          * @param name the name of the macro being applied
          * @param kind the macro kind, empty by default (eg "operator", "condition")
          */
-        static void checkMacroArgCountGe(const Node& node, std::size_t expected, const std::string& name, const std::string& kind = "");
+        void checkMacroArgCountGe(const Node& node, std::size_t expected, const std::string& name, const std::string& kind = "");
 
         /**
          * @brief Evaluate only the macros
@@ -181,7 +182,7 @@ namespace Ark::internal
          * @return true
          * @return false
          */
-        static bool isTruthy(const Node& node);
+        bool isTruthy(const Node& node);
 
         /**
          * @brief Throw a macro processing error
@@ -189,7 +190,7 @@ namespace Ark::internal
          * @param message the error
          * @param node the node in which there is an error
          */
-        [[noreturn]] static void throwMacroProcessingError(const std::string& message, const Node& node);
+        [[noreturn]] void throwMacroProcessingError(const std::string& message, const Node& node) const;
     };
 }
 

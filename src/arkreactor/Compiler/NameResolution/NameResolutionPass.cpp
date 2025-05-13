@@ -243,7 +243,7 @@ namespace Ark::internal
                         {
                             if (!m_scope_resolver.isRegistered(child.string()) && register_declarations)
                                 throw CodeError(
-                                    fmt::format("Can not capture {} because it is referencing a variable defined in an unreachable scope.", child.string()),
+                                    fmt::format("Can not capture `{}' because it is referencing a variable defined in an unreachable scope.", child.string()),
                                     CodeErrorContext(
                                         child.filename(),
                                         child.line(),

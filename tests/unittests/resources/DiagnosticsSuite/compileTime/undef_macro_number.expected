@@ -1,5 +1,7 @@
 At 1 @ 1:9
     1 | ($undef 1)
-      |         ^
+      | │       └─ error
+      | │
+      | └─ macro expansion started here
     2 |
         When expanding `$undef', got a Number. Can not un-define a macro without a valid name

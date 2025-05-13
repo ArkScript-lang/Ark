@@ -34,4 +34,9 @@ namespace Ark::internal
     {
         return node.nodeType() == NodeType::Macro && node.list()[0].nodeType() == NodeType::Keyword && node.list()[0].keyword() == Keyword::If;
     }
+
+    Node ConditionalExecutor::macroNode(Node& node)
+    {
+        return node;
+    }
 }
