@@ -1,0 +1,42 @@
+name: CodSpeed
+
+on:
+  push:
+    branches: [ dev ]
+
+  pull_request:
+
+  # `workflow_dispatch` allows CodSpeed to trigger backtest
+  # performance analysis in order to generate initial data.
+  workflow_dispatch:
+
+jobs:
+  benchmarks:
+    name: Run benchmarks
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout ArkScript
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup compilers and tools
+        shell: bash
+        run: |
+          sudo apt-get install -y clang-16 lld-16 libc++-16-dev libc++abi-16-dev clang-tools-16
+
+      - name: Build the benchmark target
+        run: |
+          cmake -Bbuild \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCODSPEED_MODE=instrumentation \
+            -DARK_BENCHMARKS=On -DARK_BENCHMARKS_CODSPEED=On \
+            -DCMAKE_C_COMPILER=clang-16 -DCMAKE_CXX_COMPILER=clang++-16 \
+            -DARK_SANITIZERS=Off -DARK_BUILD_EXE=Off -DARK_BUILD_MODULES=Off \
+            -DARK_UNITY_BUILD=On
+          cmake --build build --config RelWithDebInfo -- -j 4
+
+      - name: Run the benchmarks
+        uses: CodSpeedHQ/action@0010eb0ca6e89b80c88e8edaaa07cfe5f3e6664d  # v3.5.0
+        with:
+          run: ./build/bench
+          token: ${{ secrets.CODSPEED_TOKEN }}
