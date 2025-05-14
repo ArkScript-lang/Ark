@@ -68,7 +68,6 @@ if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG OR APPLE)
             -Wall -Wextra -pedantic -Wstrict-aliasing
             -Wshadow
             -Wconversion
-            -Werror
             # Allow deprecation warnings to not be treated as errors
             -Wno-error=deprecated-declarations
             # We use pragmas to disable warnings we understand.
@@ -82,6 +81,10 @@ if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG OR APPLE)
             -fvisibility=hidden
             -fno-semantic-interposition
     )
+    if (NOT ARK_BENCHMARKS)
+        target_compile_options(ArkReactor PUBLIC -Werror)
+    endif()
+
     # set fmtlib visibility to default
     target_compile_definitions(ArkReactor PUBLIC FMT_SHARED)
 
