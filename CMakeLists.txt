@@ -264,6 +264,9 @@ if (ARK_BENCHMARKS)
 endif ()
 
 if (ARK_BUILD_EXE)
+    # ArkScript lib needs to know if we are building an exe to enable/disable specific code for embedding
+    target_compile_definitions(ArkReactor PRIVATE ARK_BUILD_EXE=1)
+
     # additional files needed for the exe (repl, command line and stuff)
     file(GLOB_RECURSE EXE_SOURCES
             ${ark_SOURCE_DIR}/src/arkscript/*.cpp
