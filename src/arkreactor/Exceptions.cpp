@@ -325,8 +325,10 @@ namespace Ark::Diagnostics
 
     void generate(const CodeError& e, std::ostream& os, bool colorize)
     {
+#ifdef ARK_BUILD_EXE
         if (const char* nocolor = std::getenv("NOCOLOR"); nocolor != nullptr)
             colorize = false;
+#endif
 
         std::string escaped_symbol;
         if (e.context.symbol.has_value())
