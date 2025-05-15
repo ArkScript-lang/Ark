@@ -4,6 +4,7 @@
 ![Downloads](https://img.shields.io/github/downloads/arkscript-lang/ark/total?color=%2324cc24&style=for-the-badge&logo=github)
 ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/ArkScript-lang/Ark/ci.yml?logo=cmake&style=for-the-badge&branch=dev)
 [![Coverage](https://img.shields.io/coverallsCoverage/github/ArkScript-lang/Ark?style=for-the-badge)](https://coveralls.io/github/ArkScript-lang/Ark?branch=dev)
+[![CodSpeed Badge](https://img.shields.io/endpoint?style=for-the-badge&url=https://codspeed.io/badge.json)](https://codspeed.io/ArkScript-lang/Ark)
 
 <img align="right" src=".github/images/ArkTransparent-by-mazz.png" width=200px alt="ArkScript log by Mazz">
 
