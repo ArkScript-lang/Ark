@@ -19,8 +19,9 @@
 #include <Ark/Platform.hpp>
 
 #include <string>
-#include <optional>
 #include <vector>
+#include <optional>
+#include <functional>
 
 #include <utf8.hpp>
 
@@ -61,6 +62,8 @@ namespace Ark::internal
         Node m_ast;
         std::vector<Import> m_imports;
         unsigned m_allow_macro_behavior;  ///< Toggled on when inside a macro definition, off afterward
+        std::size_t m_nested_nodes;       ///< Nested node counter
+        std::vector<std::function<std::optional<Node>()>> m_parsers;
 
         /**
          * @brief Update a node given a file position

@@ -6,9 +6,46 @@ namespace Ark::internal
 {
     Parser::Parser(const unsigned debug, const bool interpret) :
         BaseParser(), m_interpret(interpret), m_logger("Parser", debug),
-        m_ast(NodeType::List), m_imports({}), m_allow_macro_behavior(0)
+        m_ast(NodeType::List), m_imports({}), m_allow_macro_behavior(0),
+        m_nested_nodes(0)
     {
         m_ast.push_back(Node(Keyword::Begin));
+
+        m_parsers = {
+            [this]() {
+                return wrapped(&Parser::letMutSet, "variable assignment or declaration");
+            },
+            [this]() {
+                return wrapped(&Parser::function, "function");
+            },
+            [this]() {
+                return wrapped(&Parser::condition, "condition");
+            },
+            [this]() {
+                return wrapped(&Parser::loop, "loop");
+            },
+            [this]() {
+                return import_();
+            },
+            [this]() {
+                return block();
+            },
+            [this]() {
+                return wrapped(&Parser::macroCondition, "$if");
+            },
+            [this]() {
+                return macro();
+            },
+            [this]() {
+                return wrapped(&Parser::del, "del");
+            },
+            [this]() {
+                return functionCall();
+            },
+            [this]() {
+                return list();
+            }
+        };
     }
 
     void Parser::process(const std::string& filename, const std::string& code)
@@ -78,54 +115,27 @@ namespace Ark::internal
 
     std::optional<Node> Parser::node()
     {
+        ++m_nested_nodes;
+
+        if (m_nested_nodes > MaxNestedNodes)
+            errorWithNextToken(fmt::format("Too many nested node while parsing, exceeds limit of {}. Consider rewriting your code by breaking it in functions and macros.", MaxNestedNodes));
+
         // save current position in buffer to be able to go back if needed
         const auto position = getCount();
+        std::optional<Node> result = std::nullopt;
 
-        if (auto result = wrapped(&Parser::letMutSet, "variable assignment or declaration"))
-            return result;
-        backtrack(position);
+        for (auto&& parser : m_parsers)
+        {
+            result = parser();
 
-        if (auto result = wrapped(&Parser::function, "function"))
-            return result;
-        backtrack(position);
+            if (result)
+                break;
+            backtrack(position);
+        }
 
-        if (auto result = wrapped(&Parser::condition, "condition"))
-            return result;
-        backtrack(position);
-
-        if (auto result = wrapped(&Parser::loop, "loop"))
-            return result;
-        backtrack(position);
-
-        if (auto result = import_(); result.has_value())
-            return result;
-        backtrack(position);
-
-        if (auto result = block(); result.has_value())
-            return result;
-        backtrack(position);
-
-        if (auto result = wrapped(&Parser::macroCondition, "$if"))
-            return result;
-        backtrack(position);
-
-        if (auto result = macro(); result.has_value())
-            return result;
-        backtrack(position);
-
-        if (auto result = wrapped(&Parser::del, "del"))
-            return result;
-        backtrack(position);
-
-        if (auto result = functionCall(); result.has_value())
-            return result;
-        backtrack(position);
-
-        if (auto result = list(); result.has_value())
-            return result;
-        backtrack(position);
-
-        return std::nullopt;  // will never reach
+        // return std::nullopt only on parsing error, nothing matched, the user provided terrible code
+        --m_nested_nodes;
+        return result;
     }
 
     std::optional<Node> Parser::letMutSet()
