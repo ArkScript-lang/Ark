@@ -203,7 +203,7 @@ namespace Ark::internal
                 break;
 
             case NodeType::Macro:
-                data += "($ ";
+                data += "(macro ";
                 for (std::size_t i = 0, end = constList().size(); i < end; ++i)
                 {
                     data += constList()[i].repr();

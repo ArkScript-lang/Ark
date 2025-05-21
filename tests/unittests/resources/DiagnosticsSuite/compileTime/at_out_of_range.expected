@@ -1,6 +1,6 @@
-At (@ (list 1 5 6 7 8) -9) @ 1:39
-    1 | ($ last (...args) (print args " => " (@ args -9)))
-      | │                                    └─ error
+At (@ (list 1 5 6 7 8) -9) @ 1:43
+    1 | (macro last (...args) (print args " => " (@ args -9)))
+      | │                                        └─ error
       | │
       | └─ macro expansion started here
     2 | (last 1 5 6 7 8)

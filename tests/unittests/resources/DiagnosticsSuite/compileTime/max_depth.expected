@@ -1,6 +1,6 @@
-At / @ 1:10
-    1 | ($ size (/ size 4))
-      |          ^
+At / @ 1:14
+    1 | (macro size (/ size 4))
+      |              ^
     2 | (let sum size)
     3 |
         Max recursion depth reached (256). You most likely have a badly defined recursive macro calling itself without a proper exit condition

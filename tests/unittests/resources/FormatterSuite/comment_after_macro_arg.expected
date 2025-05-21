@@ -1,4 +1,4 @@
-($ -> () #comment
+(macro -> () #comment
   {
     ($if (> (len fn) 0)
       (-> (fn1 arg) ...fn)

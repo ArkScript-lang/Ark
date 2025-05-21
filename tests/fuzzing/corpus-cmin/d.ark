@@ -1,4 +1,4 @@
-($ __count_placeholders (acc x ...xs)
+(macro __count_placeholders (acc x ...xs)
     ($if (empty? xs)
         ($if (= "_" ($repr x))
             (+ 1 acc)
@@ -7,11 +7,11 @@
             (__count_placeholders (+ 1 acc) ...xs)
             (__count_placeholders acc ...xs))))
 
-($ __suffix_dup (sym x) {
+(macro __suffix_dup (sym x) {
   ($if (> x 1) (__suffix_dup sym (- x 1)))
   ($symcat sym x) })
 
-($ __replace_placeholders (replacements x ...xs) {
+(macro __replace_placeholders (replacements x ...xs) {
   ($if (empty? xs)
     ($if (= "_" ($repr x))
         (head replacements)
@@ -24,10 +24,10 @@
             x
             (__replace_placeholders replacements ...xs) }))})
 
-($ ! (call ...args) {
-    ($ length (__count_placeholders 0 ...args))
-    ($ arg_bloc (__suffix_dup arg length))
-    ($ all_args (__replace_placeholders [arg_bloc] ...args))
+(macro ! (call ...args) {
+    (macro length (__count_placeholders 0 ...args))
+    (macro arg_bloc (__suffix_dup arg length))
+    (macro all_args (__replace_placeholders [arg_bloc] ...args))
     (fun (arg_bloc) (call all_args)) })
 
 (let foo (fun (a b c d)

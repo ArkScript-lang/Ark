@@ -1,1 +1,1 @@
-($ foo (bar bar egg) ())
+(macro foo (bar bar egg) ())

@@ -7,6 +7,7 @@
 "while"
 "begin"
 "import"
+"macro"
 
 "("
 ")"

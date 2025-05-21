@@ -1,2 +1,2 @@
-($ a ($as-is b []))
+(macro a ($as-is b []))
 (print a)

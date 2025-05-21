@@ -1,5 +1,5 @@
-At b @ 1:13
-    1 | ($ foo (bar bar egg) ())
-      |             ^~~
+At b @ 1:17
+    1 | (macro foo (bar bar egg) ())
+      |                 ^~~
     2 |
         Argument names must be unique, can not reuse `bar'

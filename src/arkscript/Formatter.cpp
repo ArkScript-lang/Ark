@@ -512,7 +512,7 @@ std::string Formatter::formatMacro(const Node& node, const std::size_t indent)
     if (isListStartingWithKeyword(node, Keyword::If))
         return formatCondition(node, indent, /* is_macro= */ true);
 
-    std::string result = "($ ";
+    std::string result = "(macro ";
     bool after_newline = false;
 
     for (std::size_t i = 0, end = node.constList().size(); i < end; ++i)

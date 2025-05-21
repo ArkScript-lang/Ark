@@ -1,2 +1,2 @@
-($ a (empty? 1 2))
+(macro a (empty? 1 2))
 (p0000 a)

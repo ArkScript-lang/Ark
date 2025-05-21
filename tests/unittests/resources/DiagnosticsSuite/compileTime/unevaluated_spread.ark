@@ -1,4 +1,4 @@
-($ partial {
+(macro partial {
   (fun (a) (func ...defargs)) })
 
 (let b (partial))

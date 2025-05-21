@@ -1,1 +1,1 @@
-(while($ a 0){(mut c(()))})
+(while(macro a 0){(mut c(()))})

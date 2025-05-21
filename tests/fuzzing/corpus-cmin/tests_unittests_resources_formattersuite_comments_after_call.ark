@@ -1,4 +1,4 @@
-($ foo (...args # all the args go there
+(macro foo (...args # all the args go there
 ) () # the body is empty
 )
 [ a b c # last element
