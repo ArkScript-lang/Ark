@@ -75,6 +75,13 @@
         (test:eq (list:setAt [0 1 2 3] 3 9) [0 1 2 9])
         (test:eq (list:setAt [0 1 2 9] -1 9) [0 1 2 9]) })
 
+    (test:case "get element in list" {
+      (test:eq 0 (@ [0] -1))
+      (test:eq 0 (@ [0] 0))
+      (test:eq 5 (@ [0 5 9] 1))
+      (test:eq 5 (@ [0 5 9] -2))
+      (test:eq 9 (@ [0 5 9] -1)) })
+
     (test:case "get element in 2D list" {
         (let nested_list [[0 1 2] [3 4 5] [6 7 8]])
         (test:eq 0 (@@ nested_list 0 0))
@@ -82,7 +89,19 @@
         (test:eq 1 (@@ nested_list 0 -2))
         (test:eq 8 (@@ nested_list -1 -1))
         (test:eq 4 (@@ nested_list 1 1))
-        (test:eq 4 (@@ nested_list -2 1)) })
+        (test:eq 4 (@@ nested_list -2 1))
+
+        (let nested_list_1 [[0]])
+        (test:eq 0 (@@ nested_list_1 0 0))
+        (test:eq 0 (@@ nested_list_1 -1 0))
+        (test:eq 0 (@@ nested_list_1 0 -1))
+        (test:eq 0 (@@ nested_list_1 -1 -1))
+
+        (let nested_list_2 [[0 5 9]])
+        (test:eq 0 (@@ nested_list_2 0 0))
+        (test:eq 0 (@@ nested_list_2 -1 0))
+        (test:eq 9 (@@ nested_list_2 0 -1))
+        (test:eq 9 (@@ nested_list_2 -1 -1)) })
 
     (test:case "in place mutation with @=" {
         (mut numbers [0 1 2 3 4])
