@@ -1171,25 +1171,27 @@ namespace Ark
                                         types::Contract { { types::Typedef("src", ValueType::String), types::Typedef("idx", ValueType::Number) } } } },
                                     { a, *b });
 
-                            long idx = static_cast<long>(b->number());
+                            const auto num = static_cast<long>(b->number());
 
                             if (a.valueType() == ValueType::List)
                             {
-                                if (std::cmp_less(std::abs(idx), a.list().size()))
-                                    push(a.list()[static_cast<std::size_t>(idx < 0 ? static_cast<long>(a.list().size()) + idx : idx)], context);
+                                const auto index = static_cast<std::size_t>(num < 0 ? static_cast<long>(a.list().size()) + num : num);
+                                if (index < a.list().size())
+                                    push(a.list()[index], context);
                                 else
                                     throwVMError(
                                         ErrorKind::Index,
-                                        fmt::format("{} out of range {} (length {})", idx, a.toString(*this), a.list().size()));
+                                        fmt::format("{} out of range {} (length {})", num, a.toString(*this), a.list().size()));
                             }
                             else if (a.valueType() == ValueType::String)
                             {
-                                if (std::cmp_less(std::abs(idx), a.string().size()))
-                                    push(Value(std::string(1, a.string()[static_cast<std::size_t>(idx < 0 ? static_cast<long>(a.string().size()) + idx : idx)])), context);
+                                const auto index = static_cast<std::size_t>(num < 0 ? static_cast<long>(a.string().size()) + num : num);
+                                if (index < a.string().size())
+                                    push(Value(std::string(1, a.string()[index])), context);
                                 else
                                     throwVMError(
                                         ErrorKind::Index,
-                                        fmt::format("{} out of range \"{}\" (length {})", idx, a.string(), a.string().size()));
+                                        fmt::format("{} out of range \"{}\" (length {})", num, a.string(), a.string().size()));
                             }
                             else
                                 throw types::TypeCheckingError(
