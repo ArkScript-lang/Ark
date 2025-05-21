@@ -708,14 +708,14 @@ namespace Ark::internal
         std::string comment;
         newlineOrComment(&comment);
 
-        if (!oneOf({ "$" }))
+        if (!oneOf({ "macro" }))
             return std::nullopt;
         newlineOrComment(&comment);
         leaf->attachNearestCommentBefore(comment);
 
         std::string symbol_name;
         if (!name(&symbol_name))
-            errorWithNextToken("$ needs a symbol to declare a macro");
+            errorWithNextToken("Expected a symbol to declare a macro");
         comment.clear();
         newlineOrComment(&comment);
 

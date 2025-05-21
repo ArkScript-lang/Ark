@@ -55,7 +55,7 @@ namespace Ark::internal
 
         const Node& first_node = node.list()[0];
 
-        // ($ name value)
+        // (macro name value)
         if (node.constList().size() == 2)
         {
             assert(first_node.nodeType() == NodeType::Symbol && "Can not define a macro without a symbol");

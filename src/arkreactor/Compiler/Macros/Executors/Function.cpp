@@ -17,7 +17,7 @@ namespace Ark::internal
     {
         const Node& first = node.list()[0];
 
-        // ($ name (args) body)
+        // (macro name (args) body)
         if (const Node* macro = findNearestMacro(first.string()); macro != nullptr && macro->constList().size() == 3)
         {
             Node temp_body = macro->constList()[2];

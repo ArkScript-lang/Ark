@@ -1,2 +1,2 @@
-($ b ($symcat c))
+(macro b ($symcat c))
 (print b)

@@ -1,5 +1,5 @@
 At (foo 1 2 3 4) @ 4:2
-    1 | ($ foo (a b c)
+    1 | (macro foo (a b c)
       | ^ macro expansion started here
     2 |     (+ a b c))
     3 |

@@ -54,7 +54,7 @@
 - more documentation about the compiler implementation
 - more documentation about the virtual machine
 - closures can be now be compared field per field: `(= closure1 closure2)` will work only if they have the same fields (name) and if the values match
-- macros are now defined like `($ name value)` / `($ name (args args args) body)` / `($if cond then else)`
+- macros are now defined like `(macro name value)` / `(macro name (args args args) body)` / `($if cond then else)`
 - upgraded from C++17 to C++20
 - new parser, new syntax for imports: `(import package.sub.file)`
 - allow nodes to be empty when dumping the AST to JSON
@@ -67,7 +67,7 @@
 - fixed a bug in the compiler where one could pass something other than a list to `(fun)` as the argument block, resulting in a crash
 - fixed a bug in the compiler generating not callable functions
 - fixed a bug in the macro processor generating invalid `let` / `mut` / `set` nodes
-- fixed a bug in the macro processor allowing out of bounds access with `($ test (@ [1 2 3] -5))`
+- fixed a bug in the macro processor allowing out of bounds access with `(macro test (@ [1 2 3] -5))`
 - fixed a bug in the vm which wrongfully allowed self concat in place: `(concat! lst lst)`
 - fixed a bug in the compiler where one could "use" operators without calling them: `(print nil?)`
 - fixed a bug in the compiler allowing the use of operators without any argument: `(+)`

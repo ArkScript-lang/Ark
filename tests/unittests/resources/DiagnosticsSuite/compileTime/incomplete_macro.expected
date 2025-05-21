@@ -1,5 +1,5 @@
-At ) @ 1:7
-    1 | ($ foo)
-      |       ^
+At ) @ 1:11
+    1 | (macro foo)
+      |           ^
     2 |
         Expected an argument list, atom or node while defining macro `foo'

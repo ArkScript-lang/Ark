@@ -1,6 +1,6 @@
-At (list) @ 1:17
-    1 | ($ a ($symcat b []))
-      | │               └─ error
+At (list) @ 1:21
+    1 | (macro a ($symcat b []))
+      | │                   └─ error
       | │
       | └─ macro expansion started here
     2 | (print a)

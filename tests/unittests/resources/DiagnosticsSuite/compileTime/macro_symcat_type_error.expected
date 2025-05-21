@@ -1,6 +1,6 @@
-At ($symcat 5 2) @ 1:7
-    1 | ($ a ($symcat 5 2))
-      | │     └─ error
+At ($symcat 5 2) @ 1:11
+    1 | (macro a ($symcat 5 2))
+      | │         └─ error
       | │
       | └─ macro expansion started here
     2 | (print a)

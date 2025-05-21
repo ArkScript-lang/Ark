@@ -1,5 +1,5 @@
 At ...defargs @ 2:18
-    1 | ($ partial {
+    1 | (macro partial {
     2 |   (fun (a) (func ...defargs)) })
       |                  ^~~~~~~~~~
     3 |
