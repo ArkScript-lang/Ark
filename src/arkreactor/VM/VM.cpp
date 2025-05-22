@@ -396,7 +396,7 @@ namespace Ark
                 &&TARGET_POP,
                 &&TARGET_DUP,
                 &&TARGET_CREATE_SCOPE,
-                &&TARGET_RESET_SCOPE,
+                &&TARGET_RESET_SCOPE_JUMP,
                 &&TARGET_POP_SCOPE,
                 &&TARGET_ADD,
                 &&TARGET_SUB,
@@ -944,9 +944,10 @@ namespace Ark
                         DISPATCH();
                     }
 
-                    TARGET(RESET_SCOPE)
+                    TARGET(RESET_SCOPE_JUMP)
                     {
                         context.locals.back().reset();
+                        context.ip = arg * 4;  // instructions are 4 bytes
                         DISPATCH();
                     }
 

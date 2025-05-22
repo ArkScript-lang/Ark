@@ -452,9 +452,8 @@ namespace Ark::internal
         // reset the scope at the end of the loop so that indices are still valid
         // otherwise, (while true { (let a 5) (print a) (let b 6) (print b) })
         // would print 5, 6, then only 6 as we emit LOAD_SYMBOL_FROM_INDEX 0 and b is the last in the scope
-        page(p).emplace_back(RESET_SCOPE);
         // loop, jump to the condition
-        page(p).emplace_back(IR::Entity::Goto(label_loop));
+        page(p).emplace_back(IR::Entity::Goto(label_loop, RESET_SCOPE_JUMP));
 
         // absolute address to jump to if condition is false
         page(p).emplace_back(label_end);

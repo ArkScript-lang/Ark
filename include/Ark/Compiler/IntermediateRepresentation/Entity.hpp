@@ -24,8 +24,6 @@ namespace Ark::internal::IR
     {
         Label,
         Goto,
-        GotoIfTrue,
-        GotoIfFalse,
         Opcode,
         Opcode2Args
     };
@@ -46,7 +44,7 @@ namespace Ark::internal::IR
 
         static Entity Label(label_t value);
 
-        static Entity Goto(const Entity& label);
+        static Entity Goto(const Entity& label, Instruction inst = Instruction::JUMP);
 
         static Entity GotoIf(const Entity& label, bool cond);
 

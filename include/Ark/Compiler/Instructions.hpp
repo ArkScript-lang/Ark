@@ -143,8 +143,8 @@ namespace Ark::internal
         // @role Create a new local scope
         CREATE_SCOPE = 0x1d,
 
-        // @role Reset the current scope so that it is empty
-        RESET_SCOPE = 0x1e,
+        // @role Reset the current scope so that it is empty, and jump to a given location
+        RESET_SCOPE_JUMP = 0x1e,
 
         // @role Destroy the last local scope
         POP_SCOPE = 0x1f,
@@ -337,7 +337,7 @@ namespace Ark::internal
         "POP",
         "DUP",
         "CREATE_SCOPE",
-        "RESET_SCOPE",
+        "RESET_SCOPE_JUMP",
         "POP_SCOPE",
         // operators
         "ADD",

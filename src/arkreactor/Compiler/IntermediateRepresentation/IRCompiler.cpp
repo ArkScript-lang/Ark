@@ -80,15 +80,7 @@ namespace Ark::internal
                         break;
 
                     case IR::Kind::Goto:
-                        fmt::println(stream, "\tGOTO L{}", entity.label());
-                        break;
-
-                    case IR::Kind::GotoIfTrue:
-                        fmt::println(stream, "\tGOTO_IF_TRUE L{}", entity.label());
-                        break;
-
-                    case IR::Kind::GotoIfFalse:
-                        fmt::println(stream, "\tGOTO_IF_FALSE L{}", entity.label());
+                        fmt::println(stream, "\t{} L{}", InstructionNames[entity.inst()], entity.label());
                         break;
 
                     case IR::Kind::Opcode:
@@ -152,15 +144,7 @@ namespace Ark::internal
                 switch (inst.kind())
                 {
                     case IR::Kind::Goto:
-                        pushWord(Word(JUMP, label_to_position[inst.label()]));
-                        break;
-
-                    case IR::Kind::GotoIfTrue:
-                        pushWord(Word(POP_JUMP_IF_TRUE, label_to_position[inst.label()]));
-                        break;
-
-                    case IR::Kind::GotoIfFalse:
-                        pushWord(Word(POP_JUMP_IF_FALSE, label_to_position[inst.label()]));
+                        pushWord(Word(inst.inst(), label_to_position[inst.label()]));
                         break;
 
                     case IR::Kind::Opcode:

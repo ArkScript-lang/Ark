@@ -25,20 +25,18 @@ namespace Ark::internal::IR
         return entity;
     }
 
-    Entity Entity::Goto(const Entity& label)
+    Entity Entity::Goto(const Entity& label, const Instruction inst)
     {
         auto jump = Entity(Kind::Goto);
         jump.m_label = label.m_label;
+        jump.m_inst = inst;
 
         return jump;
     }
 
     Entity Entity::GotoIf(const Entity& label, const bool cond)
     {
-        auto jump = Entity(cond ? Kind::GotoIfTrue : Kind::GotoIfFalse);
-        jump.m_label = label.m_label;
-
-        return jump;
+        return Goto(label, cond ? POP_JUMP_IF_TRUE : POP_JUMP_IF_FALSE);
     }
 
     Word Entity::bytecode() const
