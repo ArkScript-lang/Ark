@@ -83,6 +83,10 @@ namespace Ark::internal
                         fmt::println(stream, "\t{} L{}", InstructionNames[entity.inst()], entity.label());
                         break;
 
+                    case IR::Kind::GotoWithArg:
+                        fmt::println(stream, "\t{} L{}, {}", InstructionNames[entity.inst()], entity.label(), entity.primaryArg());
+                        break;
+
                     case IR::Kind::Opcode:
                         fmt::println(stream, "\t{} {}", InstructionNames[entity.inst()], entity.primaryArg());
                         break;
@@ -145,6 +149,10 @@ namespace Ark::internal
                 {
                     case IR::Kind::Goto:
                         pushWord(Word(inst.inst(), label_to_position[inst.label()]));
+                        break;
+
+                    case IR::Kind::GotoWithArg:
+                        pushWord(Word(inst.inst(), inst.primaryArg(), label_to_position[inst.label()]));
                         break;
 
                     case IR::Kind::Opcode:

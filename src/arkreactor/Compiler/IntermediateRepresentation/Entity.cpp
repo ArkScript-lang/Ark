@@ -34,6 +34,16 @@ namespace Ark::internal::IR
         return jump;
     }
 
+    Entity Entity::GotoWithArg(const Entity& label, const Instruction inst, const uint16_t primary_arg)
+    {
+        auto jump = Entity(Kind::GotoWithArg);
+        jump.m_label = label.m_label;
+        jump.m_inst = inst;
+        jump.m_primary_arg = primary_arg;
+
+        return jump;
+    }
+
     Entity Entity::GotoIf(const Entity& label, const bool cond)
     {
         return Goto(label, cond ? POP_JUMP_IF_TRUE : POP_JUMP_IF_FALSE);
