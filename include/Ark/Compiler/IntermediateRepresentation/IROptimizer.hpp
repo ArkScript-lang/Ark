@@ -48,19 +48,41 @@ namespace Ark::internal
 
     private:
         using Entities = std::vector<IR::Entity>;
-        using DualArgs = std::pair<uint16_t, uint16_t>;
+        using Condition_t = std::function<bool(const Entities&)>;
+        using Replacement_t = std::function<IR::Entity(const Entities&)>;
 
         struct Rule
         {
             std::vector<Instruction> expected;
-            Instruction replacement;
-            std::function<bool(const Entities&)> condition = [](const Entities&) {
-                return true;
-            };  ///< Additional condition to match
-            std::function<DualArgs(const Entities&)> createReplacement =
-                [](const Entities& entities) {
-                    return std::make_pair(entities[0].primaryArg(), entities[1].primaryArg());
-                };  ///< Create the replacement instructions from given context
+            Condition_t condition;            ///< Additional condition to match
+            Replacement_t createReplacement;  ///< Create the replacement instructions from given context
+
+            Rule(
+                std::vector<Instruction>&& input,
+                Instruction replacement,
+                Condition_t&& cond = [](const Entities&) {
+                    return true;
+                }) :
+                expected(std::move(input)), condition(std::move(cond)), createReplacement([replacement](const Entities& e) {
+                    return IR::Entity(replacement, e[0].primaryArg(), e[1].primaryArg());
+                })
+            {}
+
+            Rule(
+                std::vector<Instruction>&& input,
+                Condition_t&& cond,
+                Replacement_t&& repl) :
+                expected(std::move(input)), condition(std::move(cond)), createReplacement(std::move(repl))
+            {}
+
+            Rule(
+                std::vector<Instruction>&& input,
+                Replacement_t&& repl) :
+                expected(std::move(input)), condition([](const Entities&) {
+                    return true;
+                }),
+                createReplacement(std::move(repl))
+            {}
         };
 
         std::vector<Rule> m_ruleset_two;

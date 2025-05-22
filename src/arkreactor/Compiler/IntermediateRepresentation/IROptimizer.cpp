@@ -42,69 +42,69 @@ namespace Ark::internal
             // ADD / SUB
             // ---> INCREMENT / DECREMENT a value
             Rule {
-                { LOAD_CONST, LOAD_SYMBOL, ADD }, INCREMENT, [this](const Entities& e) {
+                { LOAD_CONST, LOAD_SYMBOL, ADD }, [this](const Entities& e) {
                     return isPositiveNumberInlinable(e[0].primaryArg());
                 },
                 [this](const Entities& e) {
-                    return std::make_pair(e[1].primaryArg(), numberAsArg(e[0].primaryArg()));
+                    return IR::Entity(INCREMENT, e[1].primaryArg(), numberAsArg(e[0].primaryArg()));
                 } },
-            Rule { { LOAD_SYMBOL, LOAD_CONST, ADD }, INCREMENT, [this](const Entities& e) {
+            Rule { { LOAD_SYMBOL, LOAD_CONST, ADD }, [this](const Entities& e) {
                       return isPositiveNumberInlinable(e[1].primaryArg());
                   },
                    [this](const Entities& e) {
-                       return std::make_pair(e[0].primaryArg(), numberAsArg(e[1].primaryArg()));
+                       return IR::Entity(INCREMENT, e[0].primaryArg(), numberAsArg(e[1].primaryArg()));
                    } },
-            Rule { { LOAD_SYMBOL, LOAD_CONST, SUB }, DECREMENT, [this](const Entities& e) {
+            Rule { { LOAD_SYMBOL, LOAD_CONST, SUB }, [this](const Entities& e) {
                       return isPositiveNumberInlinable(e[1].primaryArg());
                   },
                    [this](const Entities& e) {
-                       return std::make_pair(e[0].primaryArg(), numberAsArg(e[1].primaryArg()));
+                       return IR::Entity(DECREMENT, e[0].primaryArg(), numberAsArg(e[1].primaryArg()));
                    } },
-            Rule { { LOAD_CONST, LOAD_SYMBOL_BY_INDEX, ADD }, INCREMENT_BY_INDEX, [this](const Entities& e) {
+            Rule { { LOAD_CONST, LOAD_SYMBOL_BY_INDEX, ADD }, [this](const Entities& e) {
                       return isPositiveNumberInlinable(e[0].primaryArg());
                   },
                    [this](const Entities& e) {
-                       return std::make_pair(e[1].primaryArg(), numberAsArg(e[0].primaryArg()));
+                       return IR::Entity(INCREMENT_BY_INDEX, e[1].primaryArg(), numberAsArg(e[0].primaryArg()));
                    } },
-            Rule { { LOAD_SYMBOL_BY_INDEX, LOAD_CONST, ADD }, INCREMENT_BY_INDEX, [this](const Entities& e) {
+            Rule { { LOAD_SYMBOL_BY_INDEX, LOAD_CONST, ADD }, [this](const Entities& e) {
                       return isPositiveNumberInlinable(e[1].primaryArg());
                   },
                    [this](const Entities& e) {
-                       return std::make_pair(e[0].primaryArg(), numberAsArg(e[1].primaryArg()));
+                       return IR::Entity(INCREMENT_BY_INDEX, e[0].primaryArg(), numberAsArg(e[1].primaryArg()));
                    } },
-            Rule { { LOAD_SYMBOL_BY_INDEX, LOAD_CONST, SUB }, DECREMENT_BY_INDEX, [this](const Entities& e) {
+            Rule { { LOAD_SYMBOL_BY_INDEX, LOAD_CONST, SUB }, [this](const Entities& e) {
                       return isPositiveNumberInlinable(e[1].primaryArg());
                   },
                    [this](const Entities& e) {
-                       return std::make_pair(e[0].primaryArg(), numberAsArg(e[1].primaryArg()));
+                       return IR::Entity(DECREMENT_BY_INDEX, e[0].primaryArg(), numberAsArg(e[1].primaryArg()));
                    } },
             // LOAD_SYMBOL list
             // TAIL / HEAD
             // STORE / SET_VAL a
             // ---> STORE_TAIL list a ; STORE_HEAD ; SET_VAL_TAIL ; SET_VAL_HEAD
-            Rule { .expected = { LOAD_SYMBOL, TAIL, STORE }, .replacement = STORE_TAIL, .createReplacement = [](const Entities& e) {
-                      return std::make_pair(e[0].primaryArg(), e[2].primaryArg());
+            Rule { { LOAD_SYMBOL, TAIL, STORE }, [](const Entities& e) {
+                      return IR::Entity(STORE_TAIL, e[0].primaryArg(), e[2].primaryArg());
                   } },
-            Rule { .expected = { LOAD_SYMBOL, TAIL, SET_VAL }, .replacement = SET_VAL_TAIL, .createReplacement = [](const Entities& e) {
-                      return std::make_pair(e[0].primaryArg(), e[2].primaryArg());
+            Rule { { LOAD_SYMBOL, TAIL, SET_VAL }, [](const Entities& e) {
+                      return IR::Entity(SET_VAL_TAIL, e[0].primaryArg(), e[2].primaryArg());
                   } },
-            Rule { .expected = { LOAD_SYMBOL, HEAD, STORE }, .replacement = STORE_HEAD, .createReplacement = [](const Entities& e) {
-                      return std::make_pair(e[0].primaryArg(), e[2].primaryArg());
+            Rule { { LOAD_SYMBOL, HEAD, STORE }, [](const Entities& e) {
+                      return IR::Entity(STORE_HEAD, e[0].primaryArg(), e[2].primaryArg());
                   } },
-            Rule { .expected = { LOAD_SYMBOL, HEAD, SET_VAL }, .replacement = SET_VAL_HEAD, .createReplacement = [](const Entities& e) {
-                      return std::make_pair(e[0].primaryArg(), e[2].primaryArg());
+            Rule { { LOAD_SYMBOL, HEAD, SET_VAL }, [](const Entities& e) {
+                      return IR::Entity(SET_VAL_HEAD, e[0].primaryArg(), e[2].primaryArg());
                   } },
-            Rule { .expected = { LOAD_SYMBOL_BY_INDEX, TAIL, STORE }, .replacement = STORE_TAIL_BY_INDEX, .createReplacement = [](const Entities& e) {
-                      return std::make_pair(e[0].primaryArg(), e[2].primaryArg());
+            Rule { { LOAD_SYMBOL_BY_INDEX, TAIL, STORE }, [](const Entities& e) {
+                      return IR::Entity(STORE_TAIL_BY_INDEX, e[0].primaryArg(), e[2].primaryArg());
                   } },
-            Rule { .expected = { LOAD_SYMBOL_BY_INDEX, TAIL, SET_VAL }, .replacement = SET_VAL_TAIL_BY_INDEX, .createReplacement = [](const Entities& e) {
-                      return std::make_pair(e[0].primaryArg(), e[2].primaryArg());
+            Rule { { LOAD_SYMBOL_BY_INDEX, TAIL, SET_VAL }, [](const Entities& e) {
+                      return IR::Entity(SET_VAL_TAIL_BY_INDEX, e[0].primaryArg(), e[2].primaryArg());
                   } },
-            Rule { .expected = { LOAD_SYMBOL_BY_INDEX, HEAD, STORE }, .replacement = STORE_HEAD_BY_INDEX, .createReplacement = [](const Entities& e) {
-                      return std::make_pair(e[0].primaryArg(), e[2].primaryArg());
+            Rule { { LOAD_SYMBOL_BY_INDEX, HEAD, STORE }, [](const Entities& e) {
+                      return IR::Entity(STORE_HEAD_BY_INDEX, e[0].primaryArg(), e[2].primaryArg());
                   } },
-            Rule { .expected = { LOAD_SYMBOL_BY_INDEX, HEAD, SET_VAL }, .replacement = SET_VAL_HEAD_BY_INDEX, .createReplacement = [](const Entities& e) {
-                      return std::make_pair(e[0].primaryArg(), e[2].primaryArg());
+            Rule { { LOAD_SYMBOL_BY_INDEX, HEAD, SET_VAL }, [](const Entities& e) {
+                      return IR::Entity(SET_VAL_HEAD_BY_INDEX, e[0].primaryArg(), e[2].primaryArg());
                   } }
         };
     }
@@ -199,12 +199,11 @@ namespace Ark::internal
                 return std::nullopt;
         }
 
-        for (const auto& [expected, replacement, condition, createReplacement] : rules)
+        for (const auto& [expected, condition, createReplacement] : rules)
         {
             if (match(expected, entities) && condition(entities))
             {
-                auto [first, second] = createReplacement(entities);
-                auto output = IR::Entity(replacement, first, second);
+                auto output = createReplacement(entities);
 
                 if (auto it = std::ranges::find_if(entities, [](const auto& entity) {
                         return entity.hasValidSourceLocation();
