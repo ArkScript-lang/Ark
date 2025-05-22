@@ -1,0 +1,106 @@
+#!/usr/bin/env python3
+
+import os
+import sys
+import glob
+from itertools import islice, tee
+
+super_insts = [
+    "LOAD_CONST_LOAD_CONST",
+    "LOAD_CONST_STORE",
+    "LOAD_CONST_SET_VAL",
+    "STORE_FROM",
+    "STORE_FROM_INDEX",
+    "SET_VAL_FROM",
+    "SET_VAL_FROM_INDEX",
+    "INCREMENT",
+    "INCREMENT_BY_INDEX",
+    "DECREMENT",
+    "DECREMENT_BY_INDEX",
+    "STORE_TAIL",
+    "STORE_TAIL_BY_INDEX",
+    "STORE_HEAD",
+    "STORE_HEAD_BY_INDEX",
+    "SET_VAL_TAIL",
+    "SET_VAL_TAIL_BY_INDEX",
+    "SET_VAL_HEAD",
+    "SET_VAL_HEAD_BY_INDEX",
+    "CALL_BUILTIN",
+]
+
+executable = None
+for p in ["./arkscript", "cmake-build-debug/arkscript", "build/arkscript", "build/arkscript.exe"]:
+    if os.path.exists(p):
+        executable = p
+        break
+if executable is None:
+    print("Couldn't find a valid arkscript executable")
+    sys.exit(1)
+
+ir = []
+
+rosetta = glob.glob("tests/unittests/resources/RosettaSuite/*.ark")
+for file in [
+                "tests/unittests/resources/LangSuite/unittests.ark",
+                "lib/std/tests/all.ark"
+            ] + rosetta:
+    os.system(f"{executable} -c {file} -fno-optimizer -fdump-ir")
+
+    if os.path.exists(f"{file}.ir"):
+        with open(f"{file}.ir") as f:
+            pages = f.read().split("\n\n")
+            for page in pages:
+                # only keep the instruction names
+                insts = [
+                    i.replace("\t", "").split(" ")[0]
+                    for i in page.split("\n")
+                ]
+                # remove the page name (page_<num>)
+                ir.append(insts[1:])
+
+
+def window(iterable, size):
+    iterators = tee(iterable, size)
+    iterators = [islice(iterator, i, None) for i, iterator in enumerate(iterators)]
+    yield from zip(*iterators)
+
+
+def skip_inst_for_frequency(inst):
+    return inst in super_insts or inst.startswith(".L")
+
+
+frequent_2 = {}
+frequent_3 = {}
+super_insts_freqs = {}
+
+for page in ir:
+    for pair in window(page, 3):
+        pair_two = (pair[0], pair[1])
+
+        if pair[0] in super_insts:
+            super_insts_freqs[pair[0]] = super_insts_freqs.get(pair[0], 0) + 1
+
+        # if there is a label in the middle of the expression group,
+        # omit it from the frequencies as this can't be optimized
+        if not skip_inst_for_frequency(pair[0]) and not skip_inst_for_frequency(pair[1]):
+            count_two = frequent_2.get(pair_two, 0)
+            frequent_2[pair_two] = count_two + 1
+            if not skip_inst_for_frequency(pair[2]):
+                count_three = frequent_3.get(pair, 0)
+                frequent_3[pair] = count_three + 1
+
+
+def print_most_freqs(data, max_percent=20):
+    most = sorted(data.items(), key=lambda e: e[1], reverse=True)
+    interesting = most[:(len(most) * max_percent) // 100]
+    print("\n".join(f"{insts} -> {count}" for (insts, count) in interesting))
+
+
+print("Super instructions present:")
+print_most_freqs(super_insts_freqs, max_percent=100)
+
+print("\nPairs of two:")
+print_most_freqs(frequent_2)
+
+print("\nPairs of three:")
+print_most_freqs(frequent_3)
