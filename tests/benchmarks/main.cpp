@@ -8,108 +8,33 @@
 #include <Ark/VM/State.hpp>
 #include <Ark/VM/VM.hpp>
 
+#define ARK_CREATE_RUNTIME_BENCH(name)                                       \
+    void name(benchmark::State& s)                                           \
+    {                                                                        \
+        Ark::State state({ std::filesystem::path(ARK_TESTS_ROOT "/lib/") }); \
+        state.doFile(get_resource("runtime/" #name ".ark"));                 \
+        for (auto _ : s)                                                     \
+        {                                                                    \
+            Ark::VM vm(state);                                               \
+            benchmark::DoNotOptimize(vm.run());                              \
+        }                                                                    \
+    }                                                                        \
+    BENCHMARK(name)->Unit(benchmark::kMillisecond)
+
 std::string get_resource(const std::string& path)
 {
     return (ARK_TESTS_ROOT "tests/benchmarks/resources/") + path;
 }
 
-// cppcheck-suppress constParameterCallback
-void quicksort(benchmark::State& s)
-{
-    Ark::State state;
-    state.doFile(get_resource("runtime/quicksort.ark"));
-
-    for (auto _ : s)
-    {
-        Ark::VM vm(state);
-        benchmark::DoNotOptimize(vm.run());
-    }
-}
-BENCHMARK(quicksort)->Unit(benchmark::kMillisecond);
-
-// cppcheck-suppress constParameterCallback
-void ackermann(benchmark::State& s)
-{
-    Ark::State state;
-    state.doFile(get_resource("runtime/ackermann.ark"));
-
-    for (auto _ : s)
-    {
-        Ark::VM vm(state);
-        benchmark::DoNotOptimize(vm.run());
-    }
-}
-BENCHMARK(ackermann)->Unit(benchmark::kMillisecond)->Iterations(50);
-
-// cppcheck-suppress constParameterCallback
-void fibonacci(benchmark::State& s)
-{
-    Ark::State state;
-    state.doFile(get_resource("runtime/fibonacci.ark"));
-
-    for (auto _ : s)
-    {
-        Ark::VM vm(state);
-        benchmark::DoNotOptimize(vm.run());
-    }
-}
-BENCHMARK(fibonacci)->Unit(benchmark::kMillisecond)->Iterations(100);
-
-// cppcheck-suppress constParameterCallback
-void man_or_boy(benchmark::State& s)
-{
-    Ark::State state;
-    state.doFile(get_resource("runtime/man_or_boy_test.ark"));
-
-    for (auto _ : s)
-    {
-        Ark::VM vm(state);
-        benchmark::DoNotOptimize(vm.run());
-    }
-}
-BENCHMARK(man_or_boy)->Unit(benchmark::kMillisecond);
-
-// cppcheck-suppress constParameterCallback
-void builtins(benchmark::State& s)
-{
-    Ark::State state;
-    state.doFile(get_resource("runtime/builtins.ark"));
-
-    for (auto _ : s)
-    {
-        Ark::VM vm(state);
-        benchmark::DoNotOptimize(vm.run());
-    }
-}
-BENCHMARK(builtins)->Unit(benchmark::kMillisecond);
-
-// cppcheck-suppress constParameterCallback
-void binary_trees(benchmark::State& s)
-{
-    Ark::State state({ std::filesystem::path(ARK_TESTS_ROOT "/lib/") });
-    state.doFile(get_resource("runtime/binary_trees.ark"));
-
-    for (auto _ : s)
-    {
-        Ark::VM vm(state);
-        benchmark::DoNotOptimize(vm.run());
-    }
-}
-BENCHMARK(binary_trees)->Unit(benchmark::kMillisecond);
-
-// cppcheck-suppress constParameterCallback
-void for_sum(benchmark::State& s)
-{
-    Ark::State state;
-    state.doFile(get_resource("runtime/for.ark"));
-
-    for (auto _ : s)
-    {
-        Ark::VM vm(state);
-        benchmark::DoNotOptimize(vm.run());
-    }
-}
-BENCHMARK(for_sum)->Unit(benchmark::kMillisecond);
+ARK_CREATE_RUNTIME_BENCH(quicksort);
+ARK_CREATE_RUNTIME_BENCH(ackermann)->Iterations(50);
+ARK_CREATE_RUNTIME_BENCH(fibonacci)->Iterations(100);
+ARK_CREATE_RUNTIME_BENCH(man_or_boy);
+ARK_CREATE_RUNTIME_BENCH(builtins);
+ARK_CREATE_RUNTIME_BENCH(binary_trees);
+ARK_CREATE_RUNTIME_BENCH(for_sum);
+ARK_CREATE_RUNTIME_BENCH(create_closure);
+ARK_CREATE_RUNTIME_BENCH(create_list);
 
 // --------------------------------------------
 // parser benchmarks
@@ -124,7 +49,7 @@ std::string readFile(const std::string& filename)
 
 constexpr int simple = 0, medium = 1, big = 2;
 
-std::string select_file(long selection)
+std::string select_file(const long selection)
 {
     switch (selection)
     {
@@ -150,7 +75,7 @@ static void BM_Parse(benchmark::State& state)
     long linesCount = 0;
     for (const char c : code)
         if (c == '\n')
-            ++linesCount;
+            ++linesCount;  // cppcheck-suppress useStlAlgorithm
 
     long long nodes = 0;
     long long lines = 0;
