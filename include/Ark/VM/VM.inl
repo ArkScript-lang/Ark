@@ -158,15 +158,13 @@ inline Value* VM::pop(internal::ExecutionContext& context)
 
 inline void VM::push(const Value& value, internal::ExecutionContext& context)
 {
-    context.stack[context.sp].m_type = value.m_type;
-    context.stack[context.sp].m_value = value.m_value;
+    context.stack[context.sp] = value;
     ++context.sp;
 }
 
 inline void VM::push(Value&& value, internal::ExecutionContext& context)
 {
-    context.stack[context.sp].m_type = std::move(value.m_type);
-    context.stack[context.sp].m_value = std::move(value.m_value);
+    context.stack[context.sp] = std::move(value);
     ++context.sp;
 }
 
