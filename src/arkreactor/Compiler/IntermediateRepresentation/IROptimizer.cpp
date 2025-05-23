@@ -33,7 +33,8 @@ namespace Ark::internal
             Rule {
                 { BUILTIN, CALL }, CALL_BUILTIN, [](const Entities& entities) {
                     return Builtins::builtins[entities[0].primaryArg()].second.isFunction();
-                } }
+                } },
+            Rule { { LOAD_SYMBOL, CALL }, CALL_SYMBOL }
         };
 
         m_ruleset_three = {

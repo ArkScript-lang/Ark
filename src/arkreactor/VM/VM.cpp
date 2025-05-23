@@ -442,7 +442,8 @@ namespace Ark
                 &&TARGET_SET_VAL_HEAD,
                 &&TARGET_SET_VAL_HEAD_BY_INDEX,
                 &&TARGET_CALL_BUILTIN,
-                &&TARGET_LT_CONST_JUMP_IF_FALSE
+                &&TARGET_LT_CONST_JUMP_IF_FALSE,
+                &&TARGET_CALL_SYMBOL
             };
 
         static_assert(opcode_targets.size() == static_cast<std::size_t>(Instruction::InstructionsCount) && "Some instructions are not implemented in the VM");
@@ -565,13 +566,6 @@ namespace Ark
 
                     TARGET(CALL)
                     {
-                        // stack pointer + 2 because we push IP and PP
-                        if (context.sp + 2u >= VMStackSize) [[unlikely]]
-                            throwVMError(
-                                ErrorKind::VM,
-                                fmt::format(
-                                    "Maximum recursion depth exceeded. You could consider rewriting your function `{}' to make use of tail-call optimization.",
-                                    m_state.m_symbols[context.last_symbol]));
                         call(context, arg);
                         if (!m_running)
                             GOTO_HALT();
@@ -1547,6 +1541,15 @@ namespace Ark
                         const Value* sym = popAndResolveAsPtr(context);
                         if (!(*sym < *loadConstAsPtr(primary_arg)))
                             context.ip = secondary_arg * 4;
+                        DISPATCH();
+                    }
+
+                    TARGET(CALL_SYMBOL)
+                    {
+                        UNPACK_ARGS();
+                        call(context, secondary_arg, loadSymbol(primary_arg, context));
+                        if (!m_running)
+                            GOTO_HALT();
                         DISPATCH();
                     }
 #pragma endregion

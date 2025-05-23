@@ -307,6 +307,8 @@ namespace Ark::internal
         // @role Compare #[code TS < constant], if the comparison fails, jump to the given address. Otherwise, does nothing
         LT_CONST_JUMP_IF_FALSE = 0x4c,
 
+        CALL_SYMBOL = 0x4d,
+
         InstructionsCount
     };
 
@@ -389,7 +391,8 @@ namespace Ark::internal
         "SET_VAL_HEAD",
         "SET_VAL_HEAD_BY_INDEX",
         "CALL_BUILTIN",
-        "LT_CONST_JUMP_IF_FALSE"
+        "LT_CONST_JUMP_IF_FALSE",
+        "CALL_SYMBOL"
     };
 
     static_assert(InstructionNames.size() == static_cast<std::size_t>(Instruction::InstructionsCount) && "Some instruction names appear to be missing");
