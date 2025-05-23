@@ -75,6 +75,45 @@ namespace Ark
                     types::Contract { { types::Typedef("value", ValueType::String) } } } },
                 { *a });
         }
+
+        inline Value at(Value& container, Value& index, VM& vm)
+        {
+            if (index.valueType() != ValueType::Number)
+                throw types::TypeCheckingError(
+                    "@",
+                    { { types::Contract { { types::Typedef("src", ValueType::List), types::Typedef("idx", ValueType::Number) } },
+                        types::Contract { { types::Typedef("src", ValueType::String), types::Typedef("idx", ValueType::Number) } } } },
+                    { container, index });
+
+            const auto num = static_cast<long>(index.number());
+
+            if (container.valueType() == ValueType::List)
+            {
+                const auto i = static_cast<std::size_t>(num < 0 ? static_cast<long>(container.list().size()) + num : num);
+                if (i < container.list().size())
+                    return container.list()[i];
+                else
+                    VM::throwVMError(
+                        ErrorKind::Index,
+                        fmt::format("{} out of range {} (length {})", num, container.toString(vm), container.list().size()));
+            }
+            else if (container.valueType() == ValueType::String)
+            {
+                const auto i = static_cast<std::size_t>(num < 0 ? static_cast<long>(container.string().size()) + num : num);
+                if (i < container.string().size())
+                    return Value(std::string(1, container.string()[i]));
+                else
+                    VM::throwVMError(
+                        ErrorKind::Index,
+                        fmt::format("{} out of range \"{}\" (length {})", num, container.string(), container.string().size()));
+            }
+            else
+                throw types::TypeCheckingError(
+                    "@",
+                    { { types::Contract { { types::Typedef("src", ValueType::List), types::Typedef("idx", ValueType::Number) } },
+                        types::Contract { { types::Typedef("src", ValueType::String), types::Typedef("idx", ValueType::Number) } } } },
+                    { container, index });
+        }
     }
 
     VM::VM(State& state) noexcept :
@@ -367,6 +406,11 @@ namespace Ark
         }
     }
 
+    void VM::throwVMError(ErrorKind kind, const std::string& message)
+    {
+        throw std::runtime_error(std::string(errorKinds[static_cast<std::size_t>(kind)]) + ": " + message + "\n");
+    }
+
     int VM::run(const bool fail_with_exception)
     {
         init();
@@ -496,7 +540,9 @@ namespace Ark
                 &&TARGET_NEQ_CONST_JUMP_IF_TRUE,
                 &&TARGET_CALL_SYMBOL,
                 &&TARGET_GET_FIELD_FROM_SYMBOL,
-                &&TARGET_GET_FIELD_FROM_SYMBOL_INDEX
+                &&TARGET_GET_FIELD_FROM_SYMBOL_INDEX,
+                &&TARGET_AT_SYM_SYM,
+                &&TARGET_AT_SYM_INDEX_SYM_INDEX
             };
 
         static_assert(opcode_targets.size() == static_cast<std::size_t>(Instruction::InstructionsCount) && "Some instructions are not implemented in the VM");
@@ -1167,46 +1213,9 @@ namespace Ark
 
                     TARGET(AT)
                     {
-                        {
-                            const Value* b = popAndResolveAsPtr(context);
-                            Value& a = *popAndResolveAsPtr(context);
-
-                            if (b->valueType() != ValueType::Number)
-                                throw types::TypeCheckingError(
-                                    "@",
-                                    { { types::Contract { { types::Typedef("src", ValueType::List), types::Typedef("idx", ValueType::Number) } },
-                                        types::Contract { { types::Typedef("src", ValueType::String), types::Typedef("idx", ValueType::Number) } } } },
-                                    { a, *b });
-
-                            const auto num = static_cast<long>(b->number());
-
-                            if (a.valueType() == ValueType::List)
-                            {
-                                const auto index = static_cast<std::size_t>(num < 0 ? static_cast<long>(a.list().size()) + num : num);
-                                if (index < a.list().size())
-                                    push(a.list()[index], context);
-                                else
-                                    throwVMError(
-                                        ErrorKind::Index,
-                                        fmt::format("{} out of range {} (length {})", num, a.toString(*this), a.list().size()));
-                            }
-                            else if (a.valueType() == ValueType::String)
-                            {
-                                const auto index = static_cast<std::size_t>(num < 0 ? static_cast<long>(a.string().size()) + num : num);
-                                if (index < a.string().size())
-                                    push(Value(std::string(1, a.string()[index])), context);
-                                else
-                                    throwVMError(
-                                        ErrorKind::Index,
-                                        fmt::format("{} out of range \"{}\" (length {})", num, a.string(), a.string().size()));
-                            }
-                            else
-                                throw types::TypeCheckingError(
-                                    "@",
-                                    { { types::Contract { { types::Typedef("src", ValueType::List), types::Typedef("idx", ValueType::Number) } },
-                                        types::Contract { { types::Typedef("src", ValueType::String), types::Typedef("idx", ValueType::Number) } } } },
-                                    { a, *b });
-                        }
+                        Value& b = *popAndResolveAsPtr(context);
+                        Value& a = *popAndResolveAsPtr(context);
+                        push(helper::at(a, b, *this), context);
                         DISPATCH();
                     }
 
@@ -1270,12 +1279,6 @@ namespace Ark
                     TARGET(TYPE)
                     {
                         const Value* a = popAndResolveAsPtr(context);
-                        if (a == &m_undefined_value) [[unlikely]]
-                            throw types::TypeCheckingError(
-                                "type",
-                                { { types::Contract { { types::Typedef("value", ValueType::Any) } } } },
-                                {});
-
                         push(Value(types_to_str[static_cast<unsigned>(a->valueType())]), context);
                         DISPATCH();
                     }
@@ -1613,6 +1616,20 @@ namespace Ark
                         push(getField(loadSymbolFromIndex(primary_arg, context), secondary_arg, context), context);
                         DISPATCH();
                     }
+
+                    TARGET(AT_SYM_SYM)
+                    {
+                        UNPACK_ARGS();
+                        push(helper::at(*loadSymbol(primary_arg, context), *loadSymbol(secondary_arg, context), *this), context);
+                        DISPATCH();
+                    }
+
+                    TARGET(AT_SYM_INDEX_SYM_INDEX)
+                    {
+                        UNPACK_ARGS();
+                        push(helper::at(*loadSymbolFromIndex(primary_arg, context), *loadSymbolFromIndex(secondary_arg, context), *this), context);
+                        DISPATCH();
+                    }
 #pragma endregion
                 }
 #if ARK_USE_COMPUTED_GOTOS
@@ -1671,11 +1688,6 @@ namespace Ark
                 return id;
         }
         return std::numeric_limits<uint16_t>::max();
-    }
-
-    void VM::throwVMError(ErrorKind kind, const std::string& message)
-    {
-        throw std::runtime_error(std::string(errorKinds[static_cast<std::size_t>(kind)]) + ": " + message + "\n");
     }
 
     void VM::throwArityError(std::size_t passed_arg_count, std::size_t expected_arg_count, internal::ExecutionContext& context)

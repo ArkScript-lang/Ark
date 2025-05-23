@@ -148,6 +148,14 @@ namespace Ark
          */
         [[nodiscard]] bool forceReloadPlugins() const;
 
+        /**
+         * @brief Throw a VM error message
+         *
+         * @param kind type of VM error
+         * @param message
+         */
+        [[noreturn]] static void throwVMError(internal::ErrorKind kind, const std::string& message);
+
         friend class Value;
         friend class internal::Closure;
         friend class Repl;
@@ -331,14 +339,6 @@ namespace Ark
          * @return uint16_t
          */
         uint16_t findNearestVariableIdWithValue(const Value& value, internal::ExecutionContext& context) const noexcept;
-
-        /**
-         * @brief Throw a VM error message
-         *
-         * @param kind type of VM error
-         * @param message
-         */
-        [[noreturn]] static void throwVMError(internal::ErrorKind kind, const std::string& message);
 
         [[noreturn]] void throwArityError(std::size_t passed_arg_count, std::size_t expected_arg_count, internal::ExecutionContext& context);
 
