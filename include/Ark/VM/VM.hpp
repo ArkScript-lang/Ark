@@ -229,6 +229,8 @@ namespace Ark
          */
         inline void setVal(uint16_t id, const Value* val, internal::ExecutionContext& context);
 
+        Value getField(Value* closure, uint16_t id, internal::ExecutionContext& context);
+
         // ================================================
         //                 stack related
         // ================================================
@@ -336,9 +338,9 @@ namespace Ark
          * @param kind type of VM error
          * @param message
          */
-        static void throwVMError(internal::ErrorKind kind, const std::string& message);
+        [[noreturn]] static void throwVMError(internal::ErrorKind kind, const std::string& message);
 
-        void throwArityError(std::size_t passed_arg_count, std::size_t expected_arg_count, internal::ExecutionContext& context);
+        [[noreturn]] void throwArityError(std::size_t passed_arg_count, std::size_t expected_arg_count, internal::ExecutionContext& context);
 
         void showBacktraceWithException(const std::exception& e, internal::ExecutionContext& context);
 

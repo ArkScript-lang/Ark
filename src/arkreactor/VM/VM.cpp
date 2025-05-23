@@ -116,6 +116,53 @@ namespace Ark
         }
     }
 
+    Value VM::getField(Value* closure, const uint16_t id, ExecutionContext& context)
+    {
+        if (closure->valueType() != ValueType::Closure)
+        {
+            if (context.last_symbol < m_state.m_symbols.size()) [[likely]]
+                throwVMError(
+                    ErrorKind::Type,
+                    fmt::format(
+                        "`{}' is a {}, not a Closure, can not get the field `{}' from it",
+                        m_state.m_symbols[context.last_symbol],
+                        types_to_str[static_cast<std::size_t>(closure->valueType())],
+                        m_state.m_symbols[id]));
+            else
+                throwVMError(ErrorKind::Type,
+                             fmt::format(
+                                 "{} is not a Closure, can not get the field `{}' from it",
+                                 types_to_str[static_cast<std::size_t>(closure->valueType())],
+                                 m_state.m_symbols[id]));
+        }
+
+        if (Value* field = closure->refClosure().refScope()[id]; field != nullptr)
+        {
+            // check for CALL instruction (the instruction because context.ip is already on the next instruction word)
+            if (m_state.m_pages[context.pp][context.ip] == CALL)
+                return Value(Closure(closure->refClosure().scopePtr(), field->pageAddr()));
+            else
+                return *field;
+        }
+        else
+        {
+            if (!closure->refClosure().hasFieldEndingWith(m_state.m_symbols[id], *this))
+                throwVMError(
+                    ErrorKind::Scope,
+                    fmt::format(
+                        "`{0}' isn't in the closure environment: {1}",
+                        m_state.m_symbols[id],
+                        closure->refClosure().toString(*this)));
+            throwVMError(
+                ErrorKind::Scope,
+                fmt::format(
+                    "`{0}' isn't in the closure environment: {1}. A variable in the package might have the same name as '{0}', "
+                    "and name resolution tried to fully qualify it. Rename either the variable or the capture to solve this",
+                    m_state.m_symbols[id],
+                    closure->refClosure().toString(*this)));
+        }
+    }
+
     Value& VM::operator[](const std::string& name) noexcept
     {
         // find id of object
@@ -443,7 +490,9 @@ namespace Ark
                 &&TARGET_SET_VAL_HEAD_BY_INDEX,
                 &&TARGET_CALL_BUILTIN,
                 &&TARGET_LT_CONST_JUMP_IF_FALSE,
-                &&TARGET_CALL_SYMBOL
+                &&TARGET_CALL_SYMBOL,
+                &&TARGET_GET_FIELD_FROM_SYMBOL,
+                &&TARGET_GET_FIELD_FROM_SYMBOL_INDEX
             };
 
         static_assert(opcode_targets.size() == static_cast<std::size_t>(Instruction::InstructionsCount) && "Some instructions are not implemented in the VM");
@@ -618,49 +667,7 @@ namespace Ark
                     TARGET(GET_FIELD)
                     {
                         Value* var = popAndResolveAsPtr(context);
-                        if (var->valueType() != ValueType::Closure)
-                        {
-                            if (context.last_symbol < m_state.m_symbols.size()) [[likely]]
-                                throwVMError(
-                                    ErrorKind::Type,
-                                    fmt::format(
-                                        "`{}' is a {}, not a Closure, can not get the field `{}' from it",
-                                        m_state.m_symbols[context.last_symbol],
-                                        types_to_str[static_cast<std::size_t>(var->valueType())],
-                                        m_state.m_symbols[arg]));
-                            else
-                                throwVMError(ErrorKind::Type,
-                                             fmt::format(
-                                                 "{} is not a Closure, can not get the field `{}' from it",
-                                                 types_to_str[static_cast<std::size_t>(var->valueType())],
-                                                 m_state.m_symbols[arg]));
-                        }
-
-                        if (Value* field = var->refClosure().refScope()[arg]; field != nullptr)
-                        {
-                            // check for CALL instruction (the instruction because context.ip is already on the next instruction word)
-                            if (m_state.m_pages[context.pp][context.ip] == CALL)
-                                push(Value(Closure(var->refClosure().scopePtr(), field->pageAddr())), context);
-                            else
-                                push(field, context);
-                        }
-                        else
-                        {
-                            if (!var->refClosure().hasFieldEndingWith(m_state.m_symbols[arg], *this))
-                                throwVMError(
-                                    ErrorKind::Scope,
-                                    fmt::format(
-                                        "`{0}' isn't in the closure environment: {1}",
-                                        m_state.m_symbols[arg],
-                                        var->refClosure().toString(*this)));
-                            throwVMError(
-                                ErrorKind::Scope,
-                                fmt::format(
-                                    "`{0}' isn't in the closure environment: {1}. A variable in the package might have the same name as '{0}', "
-                                    "and name resolution tried to fully qualify it. Rename either the variable or the capture to solve this",
-                                    m_state.m_symbols[arg],
-                                    var->refClosure().toString(*this)));
-                        }
+                        push(getField(var, arg, context), context);
                         DISPATCH();
                     }
 
@@ -1550,6 +1557,20 @@ namespace Ark
                         call(context, secondary_arg, loadSymbol(primary_arg, context));
                         if (!m_running)
                             GOTO_HALT();
+                        DISPATCH();
+                    }
+
+                    TARGET(GET_FIELD_FROM_SYMBOL)
+                    {
+                        UNPACK_ARGS();
+                        push(getField(loadSymbol(primary_arg, context), secondary_arg, context), context);
+                        DISPATCH();
+                    }
+
+                    TARGET(GET_FIELD_FROM_SYMBOL_INDEX)
+                    {
+                        UNPACK_ARGS();
+                        push(getField(loadSymbolFromIndex(primary_arg, context), secondary_arg, context), context);
                         DISPATCH();
                     }
 #pragma endregion

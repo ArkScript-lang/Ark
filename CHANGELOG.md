@@ -44,6 +44,8 @@
 - `RESET_SCOPE_JUMP` instruction emitted at the end of a while loop to reset a scope so that we can create multiple variables and use `LOAD_SYMBOL_BY_INDEX`
 - instruction source location ; two new bytecode tables were added: one for filenames, another for (page pointer, instruction pointer, file id, line), allowing the VM to display better error messages when the source is available
 - show source location when a runtime error is thrown in the VM
+- `CAL_SYMBOL` super instruction to load and call a symbol in a single instruction
+- `GET_FIELD_FROM_SYMBOL` and `GET_FIELD_FROM_SYMBOL_INDEX` super instructions to get a field from a closure and push it to the stack
 
 ### Changed
 - instructions are on 4 bytes: 1 byte for the instruction, 1 byte of padding, 2 bytes for an immediate argument
