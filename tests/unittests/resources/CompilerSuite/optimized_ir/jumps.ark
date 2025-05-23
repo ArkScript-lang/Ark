@@ -15,3 +15,7 @@
 # EQ_CONST_JUMP_IF_TRUE
 (if (= i 5)
   (print "i = 5"))
+
+# NEQ_CONST_JUMP_IF_TRUE
+(if (!= i 5)
+  (print "i != 5"))
