@@ -26,6 +26,10 @@ super_insts = [
     "SET_VAL_HEAD",
     "SET_VAL_HEAD_BY_INDEX",
     "CALL_BUILTIN",
+    "LT_CONST_JUMP_IF_FALSE",
+    "CALL_SYMBOL",
+    "GET_FIELD_FROM_SYMBOL",
+    "GET_FIELD_FROM_SYMBOL_INDEX"
 ]
 
 executable = None
@@ -66,7 +70,7 @@ def window(iterable, size):
 
 
 def skip_inst_for_frequency(inst):
-    return inst in super_insts or inst.startswith(".L")
+    return inst in super_insts or inst.startswith(".L") or inst == "HALT"
 
 
 frequent_2 = {}
