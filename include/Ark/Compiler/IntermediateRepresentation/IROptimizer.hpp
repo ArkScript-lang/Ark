@@ -57,31 +57,24 @@ namespace Ark::internal
             Condition_t condition;            ///< Additional condition to match
             Replacement_t createReplacement;  ///< Create the replacement instructions from given context
 
-            Rule(
-                std::vector<Instruction>&& input,
-                Instruction replacement,
-                Condition_t&& cond = [](const Entities&) {
-                    return true;
-                }) :
-                expected(std::move(input)), condition(std::move(cond)), createReplacement([replacement](const Entities& e) {
-                    return IR::Entity(replacement, e[0].primaryArg(), e[1].primaryArg());
-                })
-            {}
+            constexpr static auto default_cond = [](const Entities&) {
+                return true;
+            };
 
-            Rule(
-                std::vector<Instruction>&& input,
-                Condition_t&& cond,
-                Replacement_t&& repl) :
+            Rule(std::vector<Instruction>&& input, Instruction replacement, Condition_t&& cond = default_cond) :
+                expected(std::move(input)), condition(std::move(cond))
+            {
+                createReplacement = [replacement](const Entities& e) {
+                    return IR::Entity(replacement, e[0].primaryArg(), e[1].primaryArg());
+                };
+            }
+
+            Rule(std::vector<Instruction>&& input, Condition_t&& cond, Replacement_t&& repl) :
                 expected(std::move(input)), condition(std::move(cond)), createReplacement(std::move(repl))
             {}
 
-            Rule(
-                std::vector<Instruction>&& input,
-                Replacement_t&& repl) :
-                expected(std::move(input)), condition([](const Entities&) {
-                    return true;
-                }),
-                createReplacement(std::move(repl))
+            Rule(std::vector<Instruction>&& input, Replacement_t&& repl) :
+                expected(std::move(input)), condition(default_cond), createReplacement(std::move(repl))
             {}
         };
 
