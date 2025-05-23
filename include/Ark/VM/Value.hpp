@@ -49,10 +49,20 @@ namespace Ark
     };
 
     constexpr std::array types_to_str = {
-        "List", "Number", "String", "Function",
-        "CProc", "Closure", "UserType", "Nil",
-        "Bool", "Bool", "Undefined", "Reference",
-        "InstPtr"
+        "List",
+        "Number",
+        "String",
+        "Function",
+        "CProc",
+        "Closure",
+        "UserType",
+        "Nil",
+        "Bool",
+        "Bool",
+        "Undefined",
+        "Reference",
+        "InstPtr",
+        "Any"
     };
 
     class ARK_API Value

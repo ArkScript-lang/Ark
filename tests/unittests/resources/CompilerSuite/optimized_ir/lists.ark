@@ -1,4 +1,5 @@
 (let source [1 2 3 4])
+(let n 1)
 
 (let foo (fun () {
   # STORE_HEAD
@@ -11,7 +12,10 @@
    # SET_VAL_HEAD
   (set copy_1 (head source))
   # SET_VAL_TAIL
-  (set copy_1 (tail source)) }))
+  (set copy_1 (tail source))
+
+  # AT_SYM_SYM
+  (@ source n) }))
 (foo)
 
 # STORE_HEAD_BY_INDEX
@@ -24,3 +28,6 @@
 (set copy_2 (head source))
 # SET_VAL_TAIL_BY_INDEX
 (set copy_2 (tail source))
+
+# AT_SYM_INDEX_SYM_INDEX
+(@ source n)

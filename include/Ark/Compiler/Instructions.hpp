@@ -335,6 +335,9 @@ namespace Ark::internal
         // @role Push the field of a given symbol (which has to be a closure) on the stack
         GET_FIELD_FROM_SYMBOL_INDEX = 0x53,
 
+        AT_SYM_SYM = 0x54,
+        AT_SYM_INDEX_SYM_INDEX = 0x55,
+
         InstructionsCount
     };
 
@@ -424,7 +427,9 @@ namespace Ark::internal
         "NEQ_CONST_JUMP_IF_TRUE",
         "CALL_SYMBOL",
         "GET_FIELD_FROM_SYMBOL",
-        "GET_FIELD_FROM_SYMBOL_INDEX"
+        "GET_FIELD_FROM_SYMBOL_INDEX",
+        "AT_SYM_SYM",
+        "AT_SYM_INDEX_SYM_INDEX"
     };
 
     static_assert(InstructionNames.size() == static_cast<std::size_t>(Instruction::InstructionsCount) && "Some instruction names appear to be missing");

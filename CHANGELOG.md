@@ -49,6 +49,7 @@
 - `GET_FIELD_FROM_SYMBOL` and `GET_FIELD_FROM_SYMBOL_INDEX` super instructions to get a field from a closure and push it to the stack
 - `EQ_CONST_JUMP_IF_TRUE` and `EQ_SYM_INDEX_JUMP_IF_TRUE` to compare a symbol to a const and a symbol to a symbol (respectively), then jump to an address if true (useful for conditions that check a simple `(= x n)` condition)
 - `NEQ_CONST_JUMP_IF_TRUE` as a super instruction counterpart to `EQ_CONST_JUMP_IF_TRUE`
+- `AT_SYM_SYM` and `AT_SYM_INDEX_SYM_INDEX` super instructions, to get an element from a list in a single instruction, avoiding 2 push and 2 pop
 
 ### Changed
 - instructions are on 4 bytes: 1 byte for the instruction, 1 byte of padding, 2 bytes for an immediate argument
