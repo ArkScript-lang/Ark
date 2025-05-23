@@ -491,6 +491,8 @@ namespace Ark
                 &&TARGET_CALL_BUILTIN,
                 &&TARGET_LT_CONST_JUMP_IF_FALSE,
                 &&TARGET_LT_SYM_JUMP_IF_FALSE,
+                &&TARGET_EQ_CONST_JUMP_IF_TRUE,
+                &&TARGET_EQ_SYM_INDEX_JUMP_IF_TRUE,
                 &&TARGET_CALL_SYMBOL,
                 &&TARGET_GET_FIELD_FROM_SYMBOL,
                 &&TARGET_GET_FIELD_FROM_SYMBOL_INDEX
@@ -1557,6 +1559,24 @@ namespace Ark
                         UNPACK_ARGS();
                         const Value* sym = popAndResolveAsPtr(context);
                         if (!(*sym < *loadSymbol(primary_arg, context)))
+                            context.ip = secondary_arg * 4;
+                        DISPATCH();
+                    }
+
+                    TARGET(EQ_CONST_JUMP_IF_TRUE)
+                    {
+                        UNPACK_ARGS();
+                        const Value* sym = popAndResolveAsPtr(context);
+                        if (*sym == *loadConstAsPtr(primary_arg))
+                            context.ip = secondary_arg * 4;
+                        DISPATCH();
+                    }
+
+                    TARGET(EQ_SYM_INDEX_JUMP_IF_TRUE)
+                    {
+                        UNPACK_ARGS();
+                        const Value* sym = popAndResolveAsPtr(context);
+                        if (*sym == *loadSymbolFromIndex(primary_arg, context))
                             context.ip = secondary_arg * 4;
                         DISPATCH();
                     }

@@ -104,13 +104,19 @@ namespace Ark::internal
                   } },
             // LOAD_CONST id / LOAD_SYMBOL id
             // <comparison operator>
-            // POP_JUMP_IF_FALSE
-            // ---> <OP>_(CONST|SYM)_JUMP_IF_FALSE
+            // POP_JUMP_IF_(FALSE|TRUE)
+            // ---> <OP>_(CONST|SYM)_JUMP_IF_(FALSE|TRUE)
             Rule { { LOAD_CONST, LT, POP_JUMP_IF_FALSE }, [](const Entities& e) {
                       return IR::Entity::GotoWithArg(e[2], LT_CONST_JUMP_IF_FALSE, e[0].primaryArg());
                   } },
             Rule { { LOAD_SYMBOL, LT, POP_JUMP_IF_FALSE }, [](const Entities& e) {
                       return IR::Entity::GotoWithArg(e[2], LT_SYM_JUMP_IF_FALSE, e[0].primaryArg());
+                  } },
+            Rule { { LOAD_CONST, EQ, POP_JUMP_IF_TRUE }, [](const Entities& e) {
+                      return IR::Entity::GotoWithArg(e[2], EQ_CONST_JUMP_IF_TRUE, e[0].primaryArg());
+                  } },
+            Rule { { LOAD_SYMBOL_BY_INDEX, EQ, POP_JUMP_IF_TRUE }, [](const Entities& e) {
+                      return IR::Entity::GotoWithArg(e[2], EQ_SYM_INDEX_JUMP_IF_TRUE, e[0].primaryArg());
                   } }
         };
     }

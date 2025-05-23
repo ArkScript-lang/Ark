@@ -1,11 +1,17 @@
 (let foo (fun (e) e))
 
 (mut i 0)
+# LT_CONST_JUMP_IF_FALSE
 (while (< i 100) {
   (e i)
   (set i (+ 1 i)) })
 
 (let n 100)
+# LT_SYM_JUMP_IF_FALSE
 (while (< i n) {
   (e i)
   (set i (+ 1 i)) })
+
+# EQ_CONST_JUMP_IF_TRUE
+(if (= i 5)
+  (print "i = 5"))
