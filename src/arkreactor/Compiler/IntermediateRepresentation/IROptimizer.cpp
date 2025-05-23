@@ -102,12 +102,15 @@ namespace Ark::internal
             Rule { { LOAD_SYMBOL_BY_INDEX, HEAD, SET_VAL }, [](const Entities& e) {
                       return IR::Entity(SET_VAL_HEAD_BY_INDEX, e[0].primaryArg(), e[2].primaryArg());
                   } },
-            // LOAD_CONST id
+            // LOAD_CONST id / LOAD_SYMBOL id
             // <comparison operator>
             // POP_JUMP_IF_FALSE
-            // ---> <OP>_CONST_JUMP_IF_FALSE
+            // ---> <OP>_(CONST|SYM)_JUMP_IF_FALSE
             Rule { { LOAD_CONST, LT, POP_JUMP_IF_FALSE }, [](const Entities& e) {
                       return IR::Entity::GotoWithArg(e[2], LT_CONST_JUMP_IF_FALSE, e[0].primaryArg());
+                  } },
+            Rule { { LOAD_SYMBOL, LT, POP_JUMP_IF_FALSE }, [](const Entities& e) {
+                      return IR::Entity::GotoWithArg(e[2], LT_SYM_JUMP_IF_FALSE, e[0].primaryArg());
                   } }
         };
     }
