@@ -123,8 +123,8 @@ ut::suite<"BytecodeReader"> bcr_suite = [] {
             expect(that % pages.size() == 2ull);
             // 7 instructions on 4 bytes
             expect(that % pages[0].size() == 7 * 4ull);
-            // 23 instructions on 4 bytes
-            expect(that % pages[1].size() == 23 * 4ull);
+            // 21 instructions on 4 bytes
+            expect(that % pages[1].size() == 21 * 4ull);
         };
     };
 };
