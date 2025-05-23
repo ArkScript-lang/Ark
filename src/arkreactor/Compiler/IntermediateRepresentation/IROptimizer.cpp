@@ -16,25 +16,20 @@ namespace Ark::internal
         m_logger("IROptimizer", debug)
     {
         m_ruleset_two = {
-            Rule {
-                { LOAD_CONST, LOAD_CONST }, LOAD_CONST_LOAD_CONST },
-            Rule {
-                { LOAD_CONST, STORE }, LOAD_CONST_STORE },
-            Rule {
-                { LOAD_CONST, SET_VAL }, LOAD_CONST_SET_VAL },
-            Rule {
-                { LOAD_SYMBOL, STORE }, STORE_FROM },
-            Rule {
-                { LOAD_SYMBOL_BY_INDEX, STORE }, STORE_FROM_INDEX },
-            Rule {
-                { LOAD_SYMBOL, SET_VAL }, SET_VAL_FROM },
-            Rule {
-                { LOAD_SYMBOL_BY_INDEX, SET_VAL }, SET_VAL_FROM_INDEX },
+            Rule { { LOAD_CONST, LOAD_CONST }, LOAD_CONST_LOAD_CONST },
+            Rule { { LOAD_CONST, STORE }, LOAD_CONST_STORE },
+            Rule { { LOAD_CONST, SET_VAL }, LOAD_CONST_SET_VAL },
+            Rule { { LOAD_SYMBOL, STORE }, STORE_FROM },
+            Rule { { LOAD_SYMBOL_BY_INDEX, STORE }, STORE_FROM_INDEX },
+            Rule { { LOAD_SYMBOL, SET_VAL }, SET_VAL_FROM },
+            Rule { { LOAD_SYMBOL_BY_INDEX, SET_VAL }, SET_VAL_FROM_INDEX },
             Rule {
                 { BUILTIN, CALL }, CALL_BUILTIN, [](const Entities& entities) {
                     return Builtins::builtins[entities[0].primaryArg()].second.isFunction();
                 } },
-            Rule { { LOAD_SYMBOL, CALL }, CALL_SYMBOL }
+            Rule { { LOAD_SYMBOL, CALL }, CALL_SYMBOL },
+            Rule { { LOAD_SYMBOL, GET_FIELD }, GET_FIELD_FROM_SYMBOL },
+            Rule { { LOAD_SYMBOL_BY_INDEX, GET_FIELD }, GET_FIELD_FROM_SYMBOL_INDEX },
         };
 
         m_ruleset_three = {
