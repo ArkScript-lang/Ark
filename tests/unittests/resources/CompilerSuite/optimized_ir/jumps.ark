@@ -4,3 +4,8 @@
 (while (< i 100) {
   (e i)
   (set i (+ 1 i)) })
+
+(let n 100)
+(while (< i n) {
+  (e i)
+  (set i (+ 1 i)) })
