@@ -534,6 +534,7 @@ namespace Ark
                 &&TARGET_SET_VAL_HEAD_BY_INDEX,
                 &&TARGET_CALL_BUILTIN,
                 &&TARGET_LT_CONST_JUMP_IF_FALSE,
+                &&TARGET_LT_CONST_JUMP_IF_TRUE,
                 &&TARGET_LT_SYM_JUMP_IF_FALSE,
                 &&TARGET_EQ_CONST_JUMP_IF_TRUE,
                 &&TARGET_EQ_SYM_INDEX_JUMP_IF_TRUE,
@@ -1554,6 +1555,15 @@ namespace Ark
                         UNPACK_ARGS();
                         const Value* sym = popAndResolveAsPtr(context);
                         if (!(*sym < *loadConstAsPtr(primary_arg)))
+                            context.ip = secondary_arg * 4;
+                        DISPATCH();
+                    }
+
+                    TARGET(LT_CONST_JUMP_IF_TRUE)
+                    {
+                        UNPACK_ARGS();
+                        const Value* sym = popAndResolveAsPtr(context);
+                        if (*sym < *loadConstAsPtr(primary_arg))
                             context.ip = secondary_arg * 4;
                         DISPATCH();
                     }
