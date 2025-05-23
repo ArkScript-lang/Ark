@@ -44,7 +44,7 @@ namespace Ark::internal
         // @role Load a symbol from the locals stack by its index (starting from the end of the current scope)
         LOAD_SYMBOL_BY_INDEX = 0x02,
 
-        // @args symbol id
+        // @args constant id
         // @role Load a constant from its ID onto the stack
         LOAD_CONST = 0x03,
 
@@ -303,6 +303,10 @@ namespace Ark::internal
         // @role Call a builtin by its id in #[code primary], with #[code secondary] arguments. Bypass the stack size check because we do not push IP/PP since builtins calls do not alter the stack
         CALL_BUILTIN = 0x4b,
 
+        // @args constant id, absolute address to jump to
+        // @role Compare #[code TS < constant], if the comparison fails, jump to the given address. Otherwise, does nothing
+        LT_CONST_JUMP_IF_FALSE = 0x4c,
+
         InstructionsCount
     };
 
@@ -384,7 +388,8 @@ namespace Ark::internal
         "SET_VAL_TAIL_BY_INDEX",
         "SET_VAL_HEAD",
         "SET_VAL_HEAD_BY_INDEX",
-        "CALL_BUILTIN"
+        "CALL_BUILTIN",
+        "LT_CONST_JUMP_IF_FALSE"
     };
 
     static_assert(InstructionNames.size() == static_cast<std::size_t>(Instruction::InstructionsCount) && "Some instruction names appear to be missing");
