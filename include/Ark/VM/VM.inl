@@ -257,7 +257,7 @@ inline void VM::returnFromFuncCall(internal::ExecutionContext& context)
     context.locals.pop_back();
 }
 
-inline void VM::call(internal::ExecutionContext& context, const uint16_t argc)
+inline void VM::call(internal::ExecutionContext& context, const uint16_t argc, Value* function_ptr)
 {
     /*
         Argument: number of arguments when calling the function
@@ -268,7 +268,15 @@ inline void VM::call(internal::ExecutionContext& context, const uint16_t argc)
     */
     using namespace internal;
 
-    Value function = *popAndResolveAsPtr(context);
+    // stack pointer + 2 because we push IP and PP
+    if (context.sp + 2u >= VMStackSize) [[unlikely]]
+        throwVMError(
+            ErrorKind::VM,
+            fmt::format(
+                "Maximum recursion depth exceeded. You could consider rewriting your function `{}' to make use of tail-call optimization.",
+                m_state.m_symbols[context.last_symbol]));
+
+    Value function = function_ptr == nullptr ? *popAndResolveAsPtr(context) : *function_ptr;
     context.stacked_closure_scopes.emplace_back(nullptr);
 
     switch (function.valueType())
