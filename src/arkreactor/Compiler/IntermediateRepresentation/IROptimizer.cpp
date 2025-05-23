@@ -117,6 +117,9 @@ namespace Ark::internal
                   } },
             Rule { { LOAD_SYMBOL_BY_INDEX, EQ, POP_JUMP_IF_TRUE }, [](const Entities& e) {
                       return IR::Entity::GotoWithArg(e[2], EQ_SYM_INDEX_JUMP_IF_TRUE, e[0].primaryArg());
+                  } },
+            Rule { { LOAD_CONST, NEQ, POP_JUMP_IF_TRUE }, [](const Entities& e) {
+                      return IR::Entity::GotoWithArg(e[2], NEQ_CONST_JUMP_IF_TRUE, e[0].primaryArg());
                   } }
         };
     }
