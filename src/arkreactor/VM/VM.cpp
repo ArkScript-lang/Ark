@@ -441,7 +441,8 @@ namespace Ark
                 &&TARGET_SET_VAL_TAIL_BY_INDEX,
                 &&TARGET_SET_VAL_HEAD,
                 &&TARGET_SET_VAL_HEAD_BY_INDEX,
-                &&TARGET_CALL_BUILTIN
+                &&TARGET_CALL_BUILTIN,
+                &&TARGET_LT_CONST_JUMP_IF_FALSE
             };
 
         static_assert(opcode_targets.size() == static_cast<std::size_t>(Instruction::InstructionsCount) && "Some instructions are not implemented in the VM");
@@ -1537,6 +1538,15 @@ namespace Ark
                         callBuiltin(context, Builtins::builtins[primary_arg].second, secondary_arg);
                         if (!m_running)
                             GOTO_HALT();
+                        DISPATCH();
+                    }
+
+                    TARGET(LT_CONST_JUMP_IF_FALSE)
+                    {
+                        UNPACK_ARGS();
+                        const Value* sym = popAndResolveAsPtr(context);
+                        if (!(*sym < *loadConstAsPtr(primary_arg)))
+                            context.ip = secondary_arg * 4;
                         DISPATCH();
                     }
 #pragma endregion
