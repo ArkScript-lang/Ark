@@ -15,11 +15,18 @@
 #include <Ark/Compiler/ValTableElem.hpp>
 #include <Ark/Compiler/IntermediateRepresentation/Entity.hpp>
 
+#include <span>
 #include <optional>
 #include <functional>
 
 namespace Ark::internal
 {
+    struct EntityWithOffset
+    {
+        IR::Entity entity;
+        std::size_t offset;
+    };
+
     class ARK_API IROptimizer final
     {
     public:
@@ -47,9 +54,9 @@ namespace Ark::internal
         [[nodiscard]] const std::vector<IR::Block>& intermediateRepresentation() const noexcept;
 
     private:
-        using Entities = std::vector<IR::Entity>;
-        using Condition_t = std::function<bool(const Entities&)>;
-        using Replacement_t = std::function<IR::Entity(const Entities&)>;
+        using Entities = std::span<const IR::Entity>;
+        using Condition_t = std::function<bool(const Entities)>;
+        using Replacement_t = std::function<IR::Entity(const Entities)>;
 
         struct Rule
         {
@@ -57,14 +64,14 @@ namespace Ark::internal
             Condition_t condition;            ///< Additional condition to match
             Replacement_t createReplacement;  ///< Create the replacement instructions from given context
 
-            constexpr static auto default_cond = [](const Entities&) {
+            constexpr static auto default_cond = [](const Entities) {
                 return true;
             };
 
             Rule(std::vector<Instruction>&& input, Instruction replacement, Condition_t&& cond = default_cond) :
                 expected(std::move(input)), condition(std::move(cond))
             {
-                createReplacement = [replacement](const Entities& e) {
+                createReplacement = [replacement](const Entities e) {
                     return IR::Entity(replacement, e[0].primaryArg(), e[1].primaryArg());
                 };
             }
@@ -78,16 +85,16 @@ namespace Ark::internal
             {}
         };
 
-        std::vector<Rule> m_ruleset_two;
-        std::vector<Rule> m_ruleset_three;
+        std::vector<Rule> m_ruleset;
 
         Logger m_logger;
         std::vector<IR::Block> m_ir;
         std::vector<std::string> m_symbols;
         std::vector<ValTableElem> m_values;
 
-        [[nodiscard]] bool match(const std::vector<Instruction>& expected_insts, const Entities& entities) const;
-        std::optional<IR::Entity> replaceWithRules(const std::vector<Rule>& rules, const Entities& entities);
+        [[nodiscard]] bool match(const std::vector<Instruction>& expected_insts, std::span<const IR::Entity> entities) const;
+        [[nodiscard]] bool canBeOptimizedSafely(std::span<const IR::Entity> entities, std::size_t window_size) const;
+        std::optional<EntityWithOffset> replaceWithRules(const std::vector<Rule>& rules, std::span<const IR::Entity> entities);
 
         [[nodiscard]] bool isPositiveNumberInlinable(uint16_t id) const;
         [[nodiscard]] uint16_t numberAsArg(uint16_t id) const;
