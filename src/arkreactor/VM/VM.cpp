@@ -535,8 +535,10 @@ namespace Ark
                 &&TARGET_SET_VAL_FROM_INDEX,
                 &&TARGET_INCREMENT,
                 &&TARGET_INCREMENT_BY_INDEX,
+                &&TARGET_INCREMENT_STORE,
                 &&TARGET_DECREMENT,
                 &&TARGET_DECREMENT_BY_INDEX,
+                &&TARGET_DECREMENT_STORE,
                 &&TARGET_STORE_TAIL,
                 &&TARGET_STORE_TAIL_BY_INDEX,
                 &&TARGET_STORE_HEAD,
@@ -750,8 +752,10 @@ namespace Ark
 
                     TARGET(LIST)
                     {
-                        Value l = createList(arg, context);
-                        push(std::move(l), context);
+                        {
+                            Value l = createList(arg, context);
+                            push(std::move(l), context);
+                        }
                         DISPATCH();
                     }
 
@@ -1434,6 +1438,30 @@ namespace Ark
                         DISPATCH();
                     }
 
+                    TARGET(INCREMENT_STORE)
+                    {
+                        UNPACK_ARGS();
+                        {
+                            Value* var = loadSymbol(primary_arg, context);
+
+                            // use internal reference, shouldn't break anything so far, unless it's already a ref
+                            if (var->valueType() == ValueType::Reference)
+                                var = var->reference();
+
+                            if (var->valueType() == ValueType::Number)
+                            {
+                                Value val = Value(var->number() + secondary_arg);
+                                setVal(primary_arg, &val, context);
+                            }
+                            else
+                                throw types::TypeCheckingError(
+                                    "+",
+                                    { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
+                                    { *var, Value(secondary_arg) });
+                        }
+                        DISPATCH();
+                    }
+
                     TARGET(DECREMENT)
                     {
                         UNPACK_ARGS();
@@ -1467,6 +1495,30 @@ namespace Ark
 
                             if (var->valueType() == ValueType::Number)
                                 push(Value(var->number() - secondary_arg), context);
+                            else
+                                throw types::TypeCheckingError(
+                                    "-",
+                                    { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
+                                    { *var, Value(secondary_arg) });
+                        }
+                        DISPATCH();
+                    }
+
+                    TARGET(DECREMENT_STORE)
+                    {
+                        UNPACK_ARGS();
+                        {
+                            Value* var = loadSymbol(primary_arg, context);
+
+                            // use internal reference, shouldn't break anything so far, unless it's already a ref
+                            if (var->valueType() == ValueType::Reference)
+                                var = var->reference();
+
+                            if (var->valueType() == ValueType::Number)
+                            {
+                                Value val = Value(var->number() - secondary_arg);
+                                setVal(primary_arg, &val, context);
+                            }
                             else
                                 throw types::TypeCheckingError(
                                     "-",
@@ -1523,8 +1575,10 @@ namespace Ark
                     TARGET(STORE_LIST)
                     {
                         UNPACK_ARGS();
-                        Value l = createList(primary_arg, context);
-                        store(secondary_arg, &l, context);
+                        {
+                            Value l = createList(primary_arg, context);
+                            store(secondary_arg, &l, context);
+                        }
                         DISPATCH();
                     }
 

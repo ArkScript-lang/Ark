@@ -8,3 +8,8 @@
 # should not be inlined
 (set i (+ i 4096))
 (set i (+ i 1.01))
+
+(while (< i 100) {
+  (set i (+ i 1))
+  (set i (+ 1 i))
+  (set i (- i 1)) })
