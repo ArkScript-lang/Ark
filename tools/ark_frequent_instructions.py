@@ -40,7 +40,9 @@ super_insts = [
     "GET_FIELD_FROM_SYMBOL",
     "GET_FIELD_FROM_SYMBOL_INDEX",
     "AT_SYM_SYM",
-    "AT_SYM_INDEX_SYM_INDEX"
+    "AT_SYM_INDEX_SYM_INDEX",
+    "CHECK_TYPE_OF",
+    "CHECK_TYPE_OF_BY_INDEX"
 ]
 
 executable = None

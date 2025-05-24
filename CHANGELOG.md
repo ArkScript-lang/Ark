@@ -1,6 +1,6 @@
 # Change Log
 
-## [4.0.0] - 20XX-XX-XX
+## [4.0.0] - 2025-XX-XX
 ### Added
 - more tests for the io builtins
 - added lines and code coloration in the error context
@@ -55,6 +55,7 @@
 - `NEQ_CONST_JUMP_IF_TRUE` as a super instruction counterpart to `EQ_CONST_JUMP_IF_TRUE`
 - `NEQ_SYM_JUMP_IF_FALSE`, counterpart of `LT_SYM_JUMP_IF_FALSE` for inequality
 - `AT_SYM_SYM` and `AT_SYM_INDEX_SYM_INDEX` super instructions, to get an element from a list in a single instruction, avoiding 2 push and 2 pop
+- `CHECK_TYPE_OF` and `CHECK_TYPE_OF_BY_INDEX` super instructions, to check the type of variable against a constant in a single instruction
 
 ### Changed
 - instructions are on 4 bytes: 1 byte for the instruction, 1 byte of padding, 2 bytes for an immediate argument

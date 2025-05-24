@@ -134,6 +134,24 @@ namespace Ark::internal
             // ---> AT_SYM_SYM id id2
             Rule { { LOAD_SYMBOL, LOAD_SYMBOL, AT }, AT_SYM_SYM },
             Rule { { LOAD_SYMBOL_BY_INDEX, LOAD_SYMBOL_BY_INDEX, AT }, AT_SYM_INDEX_SYM_INDEX },
+            // LOAD_SYMBOL sym
+            // TYPE
+            // LOAD_CONST cst
+            // EQ
+            // ---> CHECK_TYPE_OF sym, cst
+            // also works with LOAD_CONST cst, LOAD_SYMBOL sym, TYPE, EQ, but args will be flipped
+            Rule { { LOAD_SYMBOL, TYPE, LOAD_CONST, EQ }, [](const Entities e) {
+                      return IR::Entity(CHECK_TYPE_OF, e[0].primaryArg(), e[2].primaryArg());
+                  } },
+            Rule { { LOAD_CONST, LOAD_SYMBOL, TYPE, EQ }, [](const Entities e) {
+                      return IR::Entity(CHECK_TYPE_OF, e[1].primaryArg(), e[0].primaryArg());
+                  } },
+            Rule { { LOAD_SYMBOL_BY_INDEX, TYPE, LOAD_CONST, EQ }, [](const Entities e) {
+                      return IR::Entity(CHECK_TYPE_OF_BY_INDEX, e[0].primaryArg(), e[2].primaryArg());
+                  } },
+            Rule { { LOAD_CONST, LOAD_SYMBOL_BY_INDEX, TYPE, EQ }, [](const Entities e) {
+                      return IR::Entity(CHECK_TYPE_OF_BY_INDEX, e[1].primaryArg(), e[0].primaryArg());
+                  } },
         };
     }
 

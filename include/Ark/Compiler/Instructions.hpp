@@ -366,6 +366,14 @@ namespace Ark::internal
         // @role Push symbol[symbol2]
         AT_SYM_INDEX_SYM_INDEX = 0x5b,
 
+        // @args symbol id, constant id
+        // @role Check that the type of symbol is the given constant, push true if so, false otherwise
+        CHECK_TYPE_OF = 0x5c,
+
+        // @args symbol index, constant id
+        // @role Check that the type of symbol is the given constant, push true if so, false otherwise
+        CHECK_TYPE_OF_BY_INDEX = 0x5d,
+
         InstructionsCount
     };
 
@@ -463,7 +471,9 @@ namespace Ark::internal
         "GET_FIELD_FROM_SYMBOL",
         "GET_FIELD_FROM_SYMBOL_INDEX",
         "AT_SYM_SYM",
-        "AT_SYM_INDEX_SYM_INDEX"
+        "AT_SYM_INDEX_SYM_INDEX",
+        "CHECK_TYPE_OF",
+        "CHECK_TYPE_OF_BY_INDEX"
     };
 
     static_assert(InstructionNames.size() == static_cast<std::size_t>(Instruction::InstructionsCount) && "Some instruction names appear to be missing");

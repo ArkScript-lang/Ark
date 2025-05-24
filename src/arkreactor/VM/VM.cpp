@@ -548,7 +548,9 @@ namespace Ark
                 &&TARGET_GET_FIELD_FROM_SYMBOL,
                 &&TARGET_GET_FIELD_FROM_SYMBOL_INDEX,
                 &&TARGET_AT_SYM_SYM,
-                &&TARGET_AT_SYM_INDEX_SYM_INDEX
+                &&TARGET_AT_SYM_INDEX_SYM_INDEX,
+                &&TARGET_CHECK_TYPE_OF,
+                &&TARGET_CHECK_TYPE_OF_BY_INDEX
             };
 
         static_assert(opcode_targets.size() == static_cast<std::size_t>(Instruction::InstructionsCount) && "Some instructions are not implemented in the VM");
@@ -1693,6 +1695,34 @@ namespace Ark
                     {
                         UNPACK_ARGS();
                         push(helper::at(*loadSymbolFromIndex(primary_arg, context), *loadSymbolFromIndex(secondary_arg, context), *this), context);
+                        DISPATCH();
+                    }
+
+                    TARGET(CHECK_TYPE_OF)
+                    {
+                        UNPACK_ARGS();
+                        Value* sym = loadSymbol(primary_arg, context);
+                        Value* cst = loadConstAsPtr(secondary_arg);
+                        push(
+                            cst->valueType() == ValueType::String &&
+                                    types_to_str[static_cast<unsigned>(sym->valueType())] == cst->string()
+                                ? Builtins::trueSym
+                                : Builtins::falseSym,
+                            context);
+                        DISPATCH();
+                    }
+
+                    TARGET(CHECK_TYPE_OF_BY_INDEX)
+                    {
+                        UNPACK_ARGS();
+                        Value* sym = loadSymbolFromIndex(primary_arg, context);
+                        Value* cst = loadConstAsPtr(secondary_arg);
+                        push(
+                            cst->valueType() == ValueType::String &&
+                                    types_to_str[static_cast<unsigned>(sym->valueType())] == cst->string()
+                                ? Builtins::trueSym
+                                : Builtins::falseSym,
+                            context);
                         DISPATCH();
                     }
 #pragma endregion
