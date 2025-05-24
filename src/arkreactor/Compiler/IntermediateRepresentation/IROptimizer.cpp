@@ -222,7 +222,8 @@ namespace Ark::internal
 
     bool IROptimizer::match(const std::vector<Instruction>& expected_insts, const std::span<const IR::Entity> entities) const
     {
-        assert(expected_insts.size() <= entities.size() && "Mismatching size between expected instructions and given entities");
+        if (expected_insts.size() > entities.size())
+            return false;
 
         for (std::size_t i = 0; i < expected_insts.size(); ++i)
         {
