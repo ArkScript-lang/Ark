@@ -316,36 +316,52 @@ namespace Ark::internal
         LT_SYM_JUMP_IF_FALSE = 0x4e,
 
         // @args constant id, absolute address to jump to
+        // @role Compare #[code TS > constant], if the comparison succeeds, jump to the given address. Otherwise, does nothing
+        GT_CONST_JUMP_IF_TRUE = 0x4f,
+
+        // @args constant id, absolute address to jump to
+        // @role Compare #[code TS > constant], if the comparison fails, jump to the given address. Otherwise, does nothing
+        GT_CONST_JUMP_IF_FALSE = 0x50,
+
+        // @args symbol id, absolute address to jump to
+        // @role Compare #[code TS > symbol], if the comparison fails, jump to the given address. Otherwise, does nothing
+        GT_SYM_JUMP_IF_FALSE = 0x51,
+
+        // @args constant id, absolute address to jump to
         // @role Compare #[code TS == constant], if the comparison succeeds, jump to the given address. Otherwise, does nothing
-        EQ_CONST_JUMP_IF_TRUE = 0x4f,
+        EQ_CONST_JUMP_IF_TRUE = 0x52,
 
         // @args symbol index, absolute address to jump to
         // @role Compare #[code TS == symbol], if the comparison succeeds, jump to the given address. Otherwise, does nothing
-        EQ_SYM_INDEX_JUMP_IF_TRUE = 0x50,
+        EQ_SYM_INDEX_JUMP_IF_TRUE = 0x53,
 
         // @args constant id, absolute address to jump to
         // @role Compare #[code TS != constant], if the comparison succeeds, jump to the given address. Otherwise, does nothing
-        NEQ_CONST_JUMP_IF_TRUE = 0x51,
+        NEQ_CONST_JUMP_IF_TRUE = 0x54,
+
+        // @args symbol id, absolute address to jump to
+        // @role Compare #[code TS != symbol], if the comparison fails, jump to the given address. Otherwise, does nothing
+        NEQ_SYM_JUMP_IF_FALSE = 0x55,
 
         // @args symbol id, argument count
         // @role Call a symbol by its id in #[code primary], with #[code secondary] arguments
-        CALL_SYMBOL = 0x52,
+        CALL_SYMBOL = 0x56,
 
         // @args symbol id, field id in symbols table
         // @role Push the field of a given symbol (which has to be a closure) on the stack
-        GET_FIELD_FROM_SYMBOL = 0x53,
+        GET_FIELD_FROM_SYMBOL = 0x57,
 
         // @args symbol index, field id in symbols table
         // @role Push the field of a given symbol (which has to be a closure) on the stack
-        GET_FIELD_FROM_SYMBOL_INDEX = 0x54,
+        GET_FIELD_FROM_SYMBOL_INDEX = 0x58,
 
         // @args symbol id, symbol id2
         // @role Push symbol[symbol2]
-        AT_SYM_SYM = 0x55,
+        AT_SYM_SYM = 0x59,
 
         // @args symbol index, symbol index2
         // @role Push symbol[symbol2]
-        AT_SYM_INDEX_SYM_INDEX = 0x56,
+        AT_SYM_INDEX_SYM_INDEX = 0x5a,
 
         InstructionsCount
     };
@@ -432,9 +448,13 @@ namespace Ark::internal
         "LT_CONST_JUMP_IF_FALSE",
         "LT_CONST_JUMP_IF_TRUE",
         "LT_SYM_JUMP_IF_FALSE",
+        "GT_CONST_JUMP_IF_TRUE",
+        "GT_CONST_JUMP_IF_FALSE",
+        "GT_SYM_JUMP_IF_FALSE",
         "EQ_CONST_JUMP_IF_TRUE",
         "EQ_SYM_INDEX_JUMP_IF_TRUE",
         "NEQ_CONST_JUMP_IF_TRUE",
+        "NEQ_SYM_JUMP_IF_FALSE",
         "CALL_SYMBOL",
         "GET_FIELD_FROM_SYMBOL",
         "GET_FIELD_FROM_SYMBOL_INDEX",

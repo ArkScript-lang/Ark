@@ -46,10 +46,14 @@
 - show source location when a runtime error is thrown in the VM
 - `LT_CONST_JUMP_IF_FALSE` and `LT_SYM_JUMP_IF_FALSE` to compare a symbol to a const and a symbol to a symbol (respectively), then jump to an address if false (useful for while loops that check a simple `(< x n)` condition)
 - `LT_CONST_JUMP_IF_TRUE`, counterpart of `LT_CONST_JUMP_IF_FALSE`
+- `GT_CONST_JUMP_IF_TRUE`, counterpart of `LT_CONST_JUMP_IF_TRUE`
+- `GT_CONST_JUMP_IF_FALSE`, counterpart of `LT_CONST_JUMP_IF_FALSE`
+- `GT_SYM_JUMP_IF_FALSE`, counterpart of `LT_SYM_JUMP_IF_FALSE`
 - `CALL_SYMBOL` super instruction to load and call a symbol in a single instruction
 - `GET_FIELD_FROM_SYMBOL` and `GET_FIELD_FROM_SYMBOL_INDEX` super instructions to get a field from a closure and push it to the stack
 - `EQ_CONST_JUMP_IF_TRUE` and `EQ_SYM_INDEX_JUMP_IF_TRUE` to compare a symbol to a const and a symbol to a symbol (respectively), then jump to an address if true (useful for conditions that check a simple `(= x n)` condition)
 - `NEQ_CONST_JUMP_IF_TRUE` as a super instruction counterpart to `EQ_CONST_JUMP_IF_TRUE`
+- `NEQ_SYM_JUMP_IF_FALSE`, counterpart of `LT_SYM_JUMP_IF_FALSE` for inequality
 - `AT_SYM_SYM` and `AT_SYM_INDEX_SYM_INDEX` super instructions, to get an element from a list in a single instruction, avoiding 2 push and 2 pop
 
 ### Changed

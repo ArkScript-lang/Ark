@@ -115,6 +115,15 @@ namespace Ark::internal
             Rule { { LOAD_SYMBOL, LT, POP_JUMP_IF_FALSE }, [](const Entities& e) {
                       return IR::Entity::GotoWithArg(e[2], LT_SYM_JUMP_IF_FALSE, e[0].primaryArg());
                   } },
+            Rule { { LOAD_CONST, GT, POP_JUMP_IF_TRUE }, [](const Entities& e) {
+                      return IR::Entity::GotoWithArg(e[2], GT_CONST_JUMP_IF_TRUE, e[0].primaryArg());
+                  } },
+            Rule { { LOAD_CONST, GT, POP_JUMP_IF_FALSE }, [](const Entities& e) {
+                      return IR::Entity::GotoWithArg(e[2], GT_CONST_JUMP_IF_FALSE, e[0].primaryArg());
+                  } },
+            Rule { { LOAD_SYMBOL, GT, POP_JUMP_IF_FALSE }, [](const Entities& e) {
+                      return IR::Entity::GotoWithArg(e[2], GT_SYM_JUMP_IF_FALSE, e[0].primaryArg());
+                  } },
             Rule { { LOAD_CONST, EQ, POP_JUMP_IF_TRUE }, [](const Entities& e) {
                       return IR::Entity::GotoWithArg(e[2], EQ_CONST_JUMP_IF_TRUE, e[0].primaryArg());
                   } },
@@ -124,11 +133,15 @@ namespace Ark::internal
             Rule { { LOAD_CONST, NEQ, POP_JUMP_IF_TRUE }, [](const Entities& e) {
                       return IR::Entity::GotoWithArg(e[2], NEQ_CONST_JUMP_IF_TRUE, e[0].primaryArg());
                   } },
+            Rule { { LOAD_SYMBOL, NEQ, POP_JUMP_IF_FALSE }, [](const Entities& e) {
+                      return IR::Entity::GotoWithArg(e[2], NEQ_SYM_JUMP_IF_FALSE, e[0].primaryArg());
+                  } },
             // LOAD_SYMBOL id
             // LOAD_SYMBOL id2
             // AT
             // ---> AT_SYM_SYM id id2
-            Rule { { LOAD_SYMBOL, LOAD_SYMBOL, AT }, AT_SYM_SYM }, Rule { { LOAD_SYMBOL_BY_INDEX, LOAD_SYMBOL_BY_INDEX, AT }, AT_SYM_INDEX_SYM_INDEX }
+            Rule { { LOAD_SYMBOL, LOAD_SYMBOL, AT }, AT_SYM_SYM },
+            Rule { { LOAD_SYMBOL_BY_INDEX, LOAD_SYMBOL_BY_INDEX, AT }, AT_SYM_INDEX_SYM_INDEX },
         };
     }
 
