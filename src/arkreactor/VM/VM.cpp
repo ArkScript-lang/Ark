@@ -485,7 +485,8 @@ namespace Ark
                 &&TARGET_SET_AT_INDEX,
                 &&TARGET_SET_AT_2_INDEX,
                 &&TARGET_POP,
-                &&TARGET_DUP,
+                &&TARGET_SHORTCIRCUIT_AND,
+                &&TARGET_SHORTCIRCUIT_OR,
                 &&TARGET_CREATE_SCOPE,
                 &&TARGET_RESET_SCOPE_JUMP,
                 &&TARGET_POP_SCOPE,
@@ -988,10 +989,21 @@ namespace Ark
                         DISPATCH();
                     }
 
-                    TARGET(DUP)
+                    TARGET(SHORTCIRCUIT_AND)
                     {
-                        context.stack[context.sp] = context.stack[context.sp - 1];
-                        ++context.sp;
+                        if (!*peekAndResolveAsPtr(context))
+                            context.ip = arg * 4;
+                        else
+                            pop(context);
+                        DISPATCH();
+                    }
+
+                    TARGET(SHORTCIRCUIT_OR)
+                    {
+                        if (!!*peekAndResolveAsPtr(context))
+                            context.ip = arg * 4;
+                        else
+                            pop(context);
                         DISPATCH();
                     }
 

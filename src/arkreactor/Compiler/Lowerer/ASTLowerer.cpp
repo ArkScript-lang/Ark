@@ -488,17 +488,12 @@ namespace Ark::internal
         const auto node = x.constList()[0];
         const std::optional<Instruction> maybe_operator = node.nodeType() == NodeType::Symbol ? getOperator(node.string()) : std::nullopt;
 
-        enum class ShortcircuitOp
-        {
-            And,
-            Or
-        };
-        const std::optional<ShortcircuitOp> maybe_shortcircuit =
+        const std::optional<Instruction> maybe_shortcircuit =
             node.nodeType() == NodeType::Symbol
             ? (node.string() == Language::And
-                   ? std::make_optional(ShortcircuitOp::And)
+                   ? std::make_optional(Instruction::SHORTCIRCUIT_AND)
                    : (node.string() == Language::Or
-                          ? std::make_optional(ShortcircuitOp::Or)
+                          ? std::make_optional(Instruction::SHORTCIRCUIT_OR)
                           : std::nullopt))
             : std::nullopt;
 
@@ -514,25 +509,16 @@ namespace Ark::internal
                     x);
 
             compileExpression(x.constList()[1], p, false, false);
-            page(p).emplace_back(DUP);
 
             const auto label_shortcircuit = IR::Entity::Label(m_current_label++);
+            auto shortcircuit_entity = IR::Entity::Goto(label_shortcircuit, maybe_shortcircuit.value());
+            page(p).emplace_back(shortcircuit_entity);
+
             for (std::size_t i = 2, end = x.constList().size(); i < end; ++i)
             {
-                switch (maybe_shortcircuit.value())
-                {
-                    case ShortcircuitOp::And:
-                        page(p).emplace_back(IR::Entity::GotoIf(label_shortcircuit, false));
-                        break;
-                    case ShortcircuitOp::Or:
-                        page(p).emplace_back(IR::Entity::GotoIf(label_shortcircuit, true));
-                        break;
-                }
-                page(p).emplace_back(POP);
-
                 compileExpression(x.constList()[i], p, false, false);
                 if (i + 1 != end)
-                    page(p).emplace_back(DUP);
+                    page(p).emplace_back(shortcircuit_entity);
             }
 
             page(p).emplace_back(label_shortcircuit);

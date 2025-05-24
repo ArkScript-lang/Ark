@@ -252,6 +252,14 @@ namespace Ark
         inline Value* pop(internal::ExecutionContext& context);
 
         /**
+         * @brief Return a pointer to the top of the stack without consuming it, and resolve it if possible
+         *
+         * @param context
+         * @return Value*
+         */
+        inline Value* peekAndResolveAsPtr(internal::ExecutionContext& context);
+
+        /**
          * @brief Push a value on the stack
          *
          * @param value

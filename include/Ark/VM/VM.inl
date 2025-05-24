@@ -156,6 +156,18 @@ inline Value* VM::pop(internal::ExecutionContext& context)
     return &m_undefined_value;
 }
 
+inline Value* VM::peekAndResolveAsPtr(internal::ExecutionContext& context)
+{
+    if (context.sp > 0)
+    {
+        Value* tmp = &context.stack[context.sp - 1];
+        if (tmp->valueType() == ValueType::Reference)
+            return tmp->reference();
+        return tmp;
+    }
+    return &m_undefined_value;
+}
+
 inline void VM::push(const Value& value, internal::ExecutionContext& context)
 {
     context.stack[context.sp] = value;

@@ -137,231 +137,234 @@ namespace Ark::internal
         // @role Remove the top of the stack
         POP = 0x1b,
 
-        // @role Duplicate the top of the stack
-        DUP = 0x1c,
+        // @role Pop the top of the stack, if it's false, jump to an address
+        SHORTCIRCUIT_AND = 0x1c,
+
+        // @role Pop the top of the stack, if it's true, jump to an address
+        SHORTCIRCUIT_OR = 0x1d,
 
         // @role Create a new local scope
-        CREATE_SCOPE = 0x1d,
+        CREATE_SCOPE = 0x1e,
 
         // @role Reset the current scope so that it is empty, and jump to a given location
-        RESET_SCOPE_JUMP = 0x1e,
+        RESET_SCOPE_JUMP = 0x1f,
 
         // @role Destroy the last local scope
-        POP_SCOPE = 0x1f,
+        POP_SCOPE = 0x20,
 
-        FIRST_OPERATOR = 0x20,
+        FIRST_OPERATOR = 0x21,
 
         // @role Push #[code TS1 + TS]
-        ADD = 0x20,
+        ADD = 0x21,
 
         // @role Push #[code TS1 - TS]
-        SUB = 0x21,
+        SUB = 0x22,
 
         // @role Push #[code TS1 * TS]
-        MUL = 0x22,
+        MUL = 0x23,
 
         // @role Push #[code TS1 / TS]
-        DIV = 0x23,
+        DIV = 0x24,
 
         // @role Push #[code TS1 > TS]
-        GT = 0x24,
+        GT = 0x25,
 
         // @role Push #[code TS1 < TS]
-        LT = 0x25,
+        LT = 0x26,
 
         // @role Push #[code TS1 <= TS]
-        LE = 0x26,
+        LE = 0x27,
 
         // @role Push #[code TS1 >= TS]
-        GE = 0x27,
+        GE = 0x28,
 
         // @role Push #[code TS1 != TS]
-        NEQ = 0x28,
+        NEQ = 0x29,
 
         // @role Push #[code TS1 == TS]
-        EQ = 0x29,
+        EQ = 0x2a,
 
         // @role Push #[code len(TS)], TS must be a list
-        LEN = 0x2a,
+        LEN = 0x2b,
 
         // @role Push #[code empty?(TS)], TS must be a list or string
-        EMPTY = 0x2b,
+        EMPTY = 0x2c,
 
         // @role Push #[code tail(TS)], all the elements of TS except the first one. TS must be a list or string
-        TAIL = 0x2c,
+        TAIL = 0x2d,
 
         // @role Push #[code head(TS)], the first element of TS or nil if empty. TS must be a list or string
-        HEAD = 0x2d,
+        HEAD = 0x2e,
 
         // @role Push true if TS is nil, false otherwise
-        ISNIL = 0x2e,
+        ISNIL = 0x2f,
 
         // @role Throw an exception if TS1 is false, and display TS (must be a string). Do not push anything on the stack
-        ASSERT = 0x2f,
+        ASSERT = 0x30,
 
         // @role Convert TS to number (must be a string)
-        TO_NUM = 0x30,
+        TO_NUM = 0x31,
 
         // @role Convert TS to string
-        TO_STR = 0x31,
+        TO_STR = 0x32,
 
         // @role Push the value at index TS (must be a number) in TS1, which must be a list or string
-        AT = 0x32,
+        AT = 0x33,
 
         // @role Push the value at index TS (must be a number), inside the list or string at index TS1 (must be a number) in the list at TS2
-        AT_AT = 0x33,
+        AT_AT = 0x34,
 
         // @role Push #[code TS1 % TS]
-        MOD = 0x34,
+        MOD = 0x35,
 
         // @role Push the type of TS as a string
-        TYPE = 0x35,
+        TYPE = 0x36,
 
         // @role Check if TS1 is a closure field of TS. TS must be a Closure, TS1 a String
-        HASFIELD = 0x36,
+        HASFIELD = 0x37,
 
         // @role Push #[code !TS]
-        NOT = 0x37,
+        NOT = 0x38,
 
         // @args constant id, constant id
         // @role Load two consts (#[code primary] then #[code secondary]) on the stack in one instruction
-        LOAD_CONST_LOAD_CONST = 0x38,
+        LOAD_CONST_LOAD_CONST = 0x39,
 
         // @args constant id, symbol id
         // @role Load const #[code primary] into the symbol #[code secondary] (create a variable)
-        LOAD_CONST_STORE = 0x39,
+        LOAD_CONST_STORE = 0x3a,
 
         // @args constant id, symbol id
         // @role Load const #[code primary] into the symbol #[code secondary] (search for the variable with the given symbol id)
-        LOAD_CONST_SET_VAL = 0x3a,
+        LOAD_CONST_SET_VAL = 0x3b,
 
         // @args symbol id, symbol id
         // @role Store the value of the symbol #[code primary] into a new variable #[code secondary]
-        STORE_FROM = 0x3b,
+        STORE_FROM = 0x3c,
 
         // @args symbol index, symbol id
         // @role Store the value of the symbol #[code primary] into a new variable #[code secondary]
-        STORE_FROM_INDEX = 0x3c,
+        STORE_FROM_INDEX = 0x3d,
 
         // @args symbol id, symbol id
         // @role Store the value of the symbol #[code primary] into an existing variable #[code secondary]
-        SET_VAL_FROM = 0x3d,
+        SET_VAL_FROM = 0x3e,
 
         // @args symbol index, symbol id
         // @role Store the value of the symbol #[code primary] into an existing variable #[code secondary]
-        SET_VAL_FROM_INDEX = 0x3e,
+        SET_VAL_FROM_INDEX = 0x3f,
 
         // @args symbol id, count
         // @role Increment the variable #[code primary] by #[code count] and push its value on the stack
-        INCREMENT = 0x3f,
+        INCREMENT = 0x40,
 
         // @args symbol index, count
         // @role Increment the variable #[code primary] by #[code count] and push its value on the stack
-        INCREMENT_BY_INDEX = 0x40,
+        INCREMENT_BY_INDEX = 0x41,
 
         // @args symbol id, count
         // @role Decrement the variable #[code primary] by #[code count] and push its value on the stack
-        DECREMENT = 0x41,
+        DECREMENT = 0x42,
 
         // @args symbol index, count
         // @role Decrement the variable #[code primary] by #[code count] and push its value on the stack
-        DECREMENT_BY_INDEX = 0x42,
+        DECREMENT_BY_INDEX = 0x43,
 
         // @args symbol id, symbol id
         // @role Load the symbol #[code primary], compute its tail, store it in a new variable #[code secondary]
-        STORE_TAIL = 0x43,
+        STORE_TAIL = 0x44,
 
         // @args symbol index, symbol id
         // @role Load the symbol #[code primary], compute its tail, store it in a new variable #[code secondary]
-        STORE_TAIL_BY_INDEX = 0x44,
+        STORE_TAIL_BY_INDEX = 0x45,
 
         // @args symbol id, symbol id
         // @role Load the symbol #[code primary], compute its head, store it in a new variable #[code secondary]
-        STORE_HEAD = 0x45,
+        STORE_HEAD = 0x46,
 
         // @args symbol index, symbol id
         // @role Load the symbol #[code primary], compute its head, store it in a new variable #[code secondary]
-        STORE_HEAD_BY_INDEX = 0x46,
+        STORE_HEAD_BY_INDEX = 0x47,
 
         // @args symbol id, symbol id
         // @role Load the symbol #[code primary], compute its tail, store it in an existing variable #[code secondary]
-        SET_VAL_TAIL = 0x47,
+        SET_VAL_TAIL = 0x48,
 
         // @args symbol index, symbol id
         // @role Load the symbol #[code primary], compute its tail, store it in an existing variable #[code secondary]
-        SET_VAL_TAIL_BY_INDEX = 0x48,
+        SET_VAL_TAIL_BY_INDEX = 0x49,
 
         // @args symbol id, symbol id
         // @role Load the symbol #[code primary], compute its head, store it in an existing variable #[code secondary]
-        SET_VAL_HEAD = 0x49,
+        SET_VAL_HEAD = 0x4a,
 
         // @args symbol index, symbol id
         // @role Load the symbol #[code primary], compute its head, store it in an existing variable #[code secondary]
-        SET_VAL_HEAD_BY_INDEX = 0x4a,
+        SET_VAL_HEAD_BY_INDEX = 0x4b,
 
         // @args builtin id, argument count
         // @role Call a builtin by its id in #[code primary], with #[code secondary] arguments. Bypass the stack size check because we do not push IP/PP since builtins calls do not alter the stack
-        CALL_BUILTIN = 0x4b,
+        CALL_BUILTIN = 0x4c,
 
         // @args constant id, absolute address to jump to
         // @role Compare #[code TS < constant], if the comparison fails, jump to the given address. Otherwise, does nothing
-        LT_CONST_JUMP_IF_FALSE = 0x4c,
+        LT_CONST_JUMP_IF_FALSE = 0x4d,
 
         // @args constant id, absolute address to jump to
         // @role Compare #[code TS < constant], if the comparison succeeds, jump to the given address. Otherwise, does nothing
-        LT_CONST_JUMP_IF_TRUE = 0x4d,
+        LT_CONST_JUMP_IF_TRUE = 0x4e,
 
         // @args symbol id, absolute address to jump to
         // @role Compare #[code TS < symbol], if the comparison fails, jump to the given address. Otherwise, does nothing
-        LT_SYM_JUMP_IF_FALSE = 0x4e,
+        LT_SYM_JUMP_IF_FALSE = 0x4f,
 
         // @args constant id, absolute address to jump to
         // @role Compare #[code TS > constant], if the comparison succeeds, jump to the given address. Otherwise, does nothing
-        GT_CONST_JUMP_IF_TRUE = 0x4f,
+        GT_CONST_JUMP_IF_TRUE = 0x50,
 
         // @args constant id, absolute address to jump to
         // @role Compare #[code TS > constant], if the comparison fails, jump to the given address. Otherwise, does nothing
-        GT_CONST_JUMP_IF_FALSE = 0x50,
+        GT_CONST_JUMP_IF_FALSE = 0x51,
 
         // @args symbol id, absolute address to jump to
         // @role Compare #[code TS > symbol], if the comparison fails, jump to the given address. Otherwise, does nothing
-        GT_SYM_JUMP_IF_FALSE = 0x51,
+        GT_SYM_JUMP_IF_FALSE = 0x52,
 
         // @args constant id, absolute address to jump to
         // @role Compare #[code TS == constant], if the comparison succeeds, jump to the given address. Otherwise, does nothing
-        EQ_CONST_JUMP_IF_TRUE = 0x52,
+        EQ_CONST_JUMP_IF_TRUE = 0x53,
 
         // @args symbol index, absolute address to jump to
         // @role Compare #[code TS == symbol], if the comparison succeeds, jump to the given address. Otherwise, does nothing
-        EQ_SYM_INDEX_JUMP_IF_TRUE = 0x53,
+        EQ_SYM_INDEX_JUMP_IF_TRUE = 0x54,
 
         // @args constant id, absolute address to jump to
         // @role Compare #[code TS != constant], if the comparison succeeds, jump to the given address. Otherwise, does nothing
-        NEQ_CONST_JUMP_IF_TRUE = 0x54,
+        NEQ_CONST_JUMP_IF_TRUE = 0x55,
 
         // @args symbol id, absolute address to jump to
         // @role Compare #[code TS != symbol], if the comparison fails, jump to the given address. Otherwise, does nothing
-        NEQ_SYM_JUMP_IF_FALSE = 0x55,
+        NEQ_SYM_JUMP_IF_FALSE = 0x56,
 
         // @args symbol id, argument count
         // @role Call a symbol by its id in #[code primary], with #[code secondary] arguments
-        CALL_SYMBOL = 0x56,
+        CALL_SYMBOL = 0x57,
 
         // @args symbol id, field id in symbols table
         // @role Push the field of a given symbol (which has to be a closure) on the stack
-        GET_FIELD_FROM_SYMBOL = 0x57,
+        GET_FIELD_FROM_SYMBOL = 0x58,
 
         // @args symbol index, field id in symbols table
         // @role Push the field of a given symbol (which has to be a closure) on the stack
-        GET_FIELD_FROM_SYMBOL_INDEX = 0x58,
+        GET_FIELD_FROM_SYMBOL_INDEX = 0x59,
 
         // @args symbol id, symbol id2
         // @role Push symbol[symbol2]
-        AT_SYM_SYM = 0x59,
+        AT_SYM_SYM = 0x5a,
 
         // @args symbol index, symbol index2
         // @role Push symbol[symbol2]
-        AT_SYM_INDEX_SYM_INDEX = 0x5a,
+        AT_SYM_INDEX_SYM_INDEX = 0x5b,
 
         InstructionsCount
     };
@@ -395,7 +398,8 @@ namespace Ark::internal
         "SET_AT_INDEX",
         "SET_AT_2_INDEX",
         "POP",
-        "DUP",
+        "SHORTCIRCUIT_AND",
+        "SHORTCIRCUIT_OR",
         "CREATE_SCOPE",
         "RESET_SCOPE_JUMP",
         "POP_SCOPE",
