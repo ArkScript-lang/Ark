@@ -3,6 +3,7 @@
 #include <cassert>
 #include <utility>
 #include <ranges>
+#include <algorithm>
 
 #include <Ark/Builtins/Builtins.hpp>
 
