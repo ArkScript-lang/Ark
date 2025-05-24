@@ -239,6 +239,8 @@ namespace Ark
 
         Value getField(Value* closure, uint16_t id, internal::ExecutionContext& context);
 
+        Value createList(std::size_t count, internal::ExecutionContext& context);
+
         // ================================================
         //                 stack related
         // ================================================

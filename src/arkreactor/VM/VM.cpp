@@ -202,6 +202,18 @@ namespace Ark
         }
     }
 
+    Value VM::createList(const std::size_t count, internal::ExecutionContext& context)
+    {
+        Value l(ValueType::List);
+        if (count != 0)
+            l.list().reserve(count);
+
+        for (uint16_t i = 0; i < count; ++i)
+            l.push_back(*popAndResolveAsPtr(context));
+
+        return l;
+    }
+
     Value& VM::operator[](const std::string& name) noexcept
     {
         // find id of object
@@ -529,6 +541,7 @@ namespace Ark
                 &&TARGET_STORE_TAIL_BY_INDEX,
                 &&TARGET_STORE_HEAD,
                 &&TARGET_STORE_HEAD_BY_INDEX,
+                &&TARGET_STORE_LIST,
                 &&TARGET_SET_VAL_TAIL,
                 &&TARGET_SET_VAL_TAIL_BY_INDEX,
                 &&TARGET_SET_VAL_HEAD,
@@ -737,15 +750,8 @@ namespace Ark
 
                     TARGET(LIST)
                     {
-                        {
-                            Value l(ValueType::List);
-                            if (arg != 0)
-                                l.list().reserve(arg);
-
-                            for (uint16_t i = 0; i < arg; ++i)
-                                l.push_back(*popAndResolveAsPtr(context));
-                            push(std::move(l), context);
-                        }
+                        Value l = createList(arg, context);
+                        push(std::move(l), context);
                         DISPATCH();
                     }
 
@@ -1511,6 +1517,14 @@ namespace Ark
                             Value head = helper::head(list);
                             store(secondary_arg, &head, context);
                         }
+                        DISPATCH();
+                    }
+
+                    TARGET(STORE_LIST)
+                    {
+                        UNPACK_ARGS();
+                        Value l = createList(primary_arg, context);
+                        store(secondary_arg, &l, context);
                         DISPATCH();
                     }
 

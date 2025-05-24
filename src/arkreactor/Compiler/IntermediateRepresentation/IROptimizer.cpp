@@ -26,6 +26,7 @@ namespace Ark::internal
             Rule { { LOAD_SYMBOL, CALL }, CALL_SYMBOL },
             Rule { { LOAD_SYMBOL, GET_FIELD }, GET_FIELD_FROM_SYMBOL },
             Rule { { LOAD_SYMBOL_BY_INDEX, GET_FIELD }, GET_FIELD_FROM_SYMBOL_INDEX },
+            Rule { { LIST, STORE }, STORE_LIST },
             // LOAD_SYMBOL a / LOAD_SYMBOL_BY_INDEX index
             // LOAD_CONST n (1)
             // ADD / SUB
