@@ -386,6 +386,14 @@ namespace Ark::internal
         // @role Check that the type of symbol is the given constant, push true if so, false otherwise
         CHECK_TYPE_OF_BY_INDEX = 0x60,
 
+        // @args symbol id, number of elements
+        // @role Append N elements to a reference to a list (symbol id), the list is being mutated in-place, no new object created. Elements are stored in TS(1)..TS(N). Follows the function calling convention
+        APPEND_IN_PLACE_SYM = 0x61,
+
+        // @args symbol index, number of elements
+        // @role Append N elements to a reference to a list (symbol index), the list is being mutated in-place, no new object created. Elements are stored in TS(1)..TS(N). Follows the function calling convention
+        APPEND_IN_PLACE_SYM_INDEX = 0x62,
+
         InstructionsCount
     };
 
@@ -488,7 +496,9 @@ namespace Ark::internal
         "AT_SYM_SYM",
         "AT_SYM_INDEX_SYM_INDEX",
         "CHECK_TYPE_OF",
-        "CHECK_TYPE_OF_BY_INDEX"
+        "CHECK_TYPE_OF_BY_INDEX",
+        "APPEND_IN_PLACE_SYM",
+        "APPEND_IN_PLACE_SYM_INDEX"
     };
 
     static_assert(InstructionNames.size() == static_cast<std::size_t>(Instruction::InstructionsCount) && "Some instruction names appear to be missing");

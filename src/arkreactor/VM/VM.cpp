@@ -214,6 +214,23 @@ namespace Ark
         return l;
     }
 
+    void VM::listAppendInPlace(Value* list, const std::size_t count, ExecutionContext& context)
+    {
+        if (list->valueType() != ValueType::List)
+        {
+            std::vector<Value> args = { *list };
+            for (std::size_t i = 0; i < count; ++i)
+                args.push_back(*popAndResolveAsPtr(context));
+            throw types::TypeCheckingError(
+                "append!",
+                { { types::Contract { { types::Typedef("list", ValueType::List), types::Typedef("value", ValueType::Any, /* variadic= */ true) } } } },
+                args);
+        }
+
+        for (std::size_t i = 0; i < count; ++i)
+            list->push_back(*popAndResolveAsPtr(context));
+    }
+
     Value& VM::operator[](const std::string& name) noexcept
     {
         // find id of object
@@ -565,7 +582,9 @@ namespace Ark
                 &&TARGET_AT_SYM_SYM,
                 &&TARGET_AT_SYM_INDEX_SYM_INDEX,
                 &&TARGET_CHECK_TYPE_OF,
-                &&TARGET_CHECK_TYPE_OF_BY_INDEX
+                &&TARGET_CHECK_TYPE_OF_BY_INDEX,
+                &&TARGET_APPEND_IN_PLACE_SYM,
+                &&TARGET_APPEND_IN_PLACE_SYM_INDEX
             };
 
         static_assert(opcode_targets.size() == static_cast<std::size_t>(Instruction::InstructionsCount) && "Some instructions are not implemented in the VM");
@@ -812,20 +831,7 @@ namespace Ark
                     TARGET(APPEND_IN_PLACE)
                     {
                         Value* list = popAndResolveAsPtr(context);
-
-                        if (list->valueType() != ValueType::List)
-                        {
-                            std::vector<Value> args = { *list };
-                            for (uint16_t i = 0; i < arg; ++i)
-                                args.push_back(*popAndResolveAsPtr(context));
-                            throw types::TypeCheckingError(
-                                "append!",
-                                { { types::Contract { { types::Typedef("list", ValueType::List), types::Typedef("value", ValueType::Any, /* variadic= */ true) } } } },
-                                args);
-                        }
-
-                        for (uint16_t i = 0; i < arg; ++i)
-                            list->push_back(*popAndResolveAsPtr(context));
+                        listAppendInPlace(list, arg, context);
                         DISPATCH();
                     }
 
@@ -1791,6 +1797,20 @@ namespace Ark
                                 ? Builtins::trueSym
                                 : Builtins::falseSym,
                             context);
+                        DISPATCH();
+                    }
+
+                    TARGET(APPEND_IN_PLACE_SYM)
+                    {
+                        UNPACK_ARGS();
+                        listAppendInPlace(loadSymbol(primary_arg, context), secondary_arg, context);
+                        DISPATCH();
+                    }
+
+                    TARGET(APPEND_IN_PLACE_SYM_INDEX)
+                    {
+                        UNPACK_ARGS();
+                        listAppendInPlace(loadSymbolFromIndex(primary_arg, context), secondary_arg, context);
                         DISPATCH();
                     }
 #pragma endregion

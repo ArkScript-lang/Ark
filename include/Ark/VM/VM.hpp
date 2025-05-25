@@ -241,6 +241,8 @@ namespace Ark
 
         Value createList(std::size_t count, internal::ExecutionContext& context);
 
+        void listAppendInPlace(Value* list, std::size_t count, internal::ExecutionContext& context);
+
         // ================================================
         //                 stack related
         // ================================================

@@ -28,6 +28,8 @@ namespace Ark::internal
             Rule { { LOAD_SYMBOL, GET_FIELD }, GET_FIELD_FROM_SYMBOL },
             Rule { { LOAD_SYMBOL_BY_INDEX, GET_FIELD }, GET_FIELD_FROM_SYMBOL_INDEX },
             Rule { { LIST, STORE }, STORE_LIST },
+            Rule { { LOAD_SYMBOL, APPEND_IN_PLACE }, APPEND_IN_PLACE_SYM },
+            Rule { { LOAD_SYMBOL_BY_INDEX, APPEND_IN_PLACE }, APPEND_IN_PLACE_SYM_INDEX },
             // LOAD_SYMBOL a / LOAD_SYMBOL_BY_INDEX index
             // LOAD_CONST n (1)
             // ADD / SUB

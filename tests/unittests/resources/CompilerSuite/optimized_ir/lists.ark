@@ -1,5 +1,5 @@
 # STORE_LIST
-(let source [1 2 3 4])
+(mut source [1 2 3 4])
 (let n 1)
 
 (let foo (fun () {
@@ -14,6 +14,9 @@
   (set copy_1 (head source))
   # SET_VAL_TAIL
   (set copy_1 (tail source))
+
+  # APPEND_IN_PLACE_SYM
+  (append! source 6)
 
   # AT_SYM_SYM
   (@ source n) }))
@@ -32,3 +35,6 @@
 
 # AT_SYM_INDEX_SYM_INDEX
 (@ source n)
+
+# APPEND_IN_PLACE_SYM_INDEX
+(append! tail_2 5)
