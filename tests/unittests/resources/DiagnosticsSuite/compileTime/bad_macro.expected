@@ -1,0 +1,8 @@
+At ( @ 1:15
+    1 | (macro f00 100( a b c))
+      | │            └─ error
+      | │
+      | └─ expression started here
+    2 |
+    3 | (f00 1 2.3 4)
+        Missing ')' to close macro `f00'

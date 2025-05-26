@@ -726,6 +726,7 @@ namespace Ark::internal
             leaf->push_back(args.value());
         else
         {
+            // if we couldn't parse arguments, then we have a value
             backtrack(position);
 
             ++m_allow_macro_behavior;
@@ -738,8 +739,11 @@ namespace Ark::internal
                 errorWithNextToken(fmt::format("Expected an argument list, atom or node while defining macro `{}'", symbol_name));
 
             setNodePosAndFilename(leaf->list().back());
-            if (accept(IsChar(')')))
-                return leaf;
+            comment.clear();
+            if (newlineOrComment(&comment))
+                leaf->list().back().attachCommentAfter(comment);
+            expectSuffixOrError(')', fmt::format("to close macro `{}'", symbol_name), context);
+            return leaf;
         }
 
         ++m_allow_macro_behavior;
@@ -748,7 +752,7 @@ namespace Ark::internal
 
         if (value.has_value())
             leaf->push_back(value.value());
-        else if (leaf->list().size() == 2)
+        else if (leaf->list().size() == 2)  // the argument list is actually a function call and it's okay
         {
             setNodePosAndFilename(leaf->list().back());
             comment.clear();
