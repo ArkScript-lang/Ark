@@ -365,6 +365,8 @@ namespace Ark
          */
         std::optional<internal::InstLoc> findSourceLocation(std::size_t ip, std::size_t pp);
 
+        std::string debugShowSource();
+
         /**
          * @brief Display a backtrace when the VM encounter an exception
          *

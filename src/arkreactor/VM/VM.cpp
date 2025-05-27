@@ -1961,6 +1961,18 @@ namespace Ark
         return match;
     }
 
+    std::string VM::debugShowSource()
+    {
+        auto& context = m_execution_contexts.front();
+        auto maybe_source_loc = findSourceLocation(context->ip, context->pp);
+        if (maybe_source_loc)
+        {
+            const auto filename = m_state.m_filenames[maybe_source_loc->filename_id];
+            return fmt::format("{}:{} -- IP: {}, PP: {}", filename, maybe_source_loc->line + 1, maybe_source_loc->inst_pointer, maybe_source_loc->page_pointer);
+        }
+        return "No source location found";
+    }
+
     void VM::backtrace(ExecutionContext& context, std::ostream& os, const bool colorize)
     {
         const std::size_t saved_ip = context.ip;
