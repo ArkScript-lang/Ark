@@ -7,8 +7,7 @@
 namespace Ark::internal
 {
     NameResolutionPass::NameResolutionPass(const unsigned debug) :
-        Pass("NameResolution", debug),
-        m_ast()
+        Pass("NameResolution", debug)
     {
         for (const auto& builtin : Builtins::builtins)
             m_language_symbols.emplace(builtin.first);

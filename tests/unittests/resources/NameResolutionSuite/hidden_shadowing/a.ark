@@ -1,0 +1,4 @@
+(import b :foo)
+(import c :bar)
+
+(let ok (and (= foo "b:foo") (= bar "c:bar")))

@@ -163,4 +163,22 @@ ut::suite<"NameResolution"> name_resolution_suite = [] {
             expect(a_map.valueType() == Ark::ValueType::True) << "(= (map) \"c:map\")\n";
         };
     };
+
+    "[importing two symbols from different modules with the same hidden symbols should resolve correctly]"_test = [] {
+        Ark::State state({ lib_path });
+
+        should("compile the resource without any error") = [&] {
+            expect(mut(state).doFile(getResourcePath("NameResolutionSuite/hidden_shadowing/a.ark")));
+        };
+
+        Ark::VM vm(state);
+        should("return exit code 0") = [&] {
+            expect(mut(vm).run() == 0_i);
+        };
+
+        should("resolve symbols from all namespaces without generating bad fully qualified names") = [&] {
+            const auto a_ok = mut(vm).operator[]("ok");
+            expect(a_ok.valueType() == Ark::ValueType::True) << "(and (= foo \"b:foo\") (= bar \"c:bar\"))\n";
+        };
+    };
 };

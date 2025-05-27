@@ -70,8 +70,11 @@ namespace Ark::internal
         {
             if (auto maybe_fqn = scope->get(name, true); maybe_fqn.has_value())
             {
-                // priorize non-hidden symbols
-                if ((maybe_name.has_value() && maybe_name.value().ends_with("#hidden")) || !maybe_name.has_value())
+                // prioritize non-hidden symbols
+                if ((maybe_name.has_value() &&
+                     maybe_name.value().ends_with("#hidden") &&
+                     !maybe_fqn.value().name.ends_with("#hidden")) ||
+                    !maybe_name.has_value())
                     maybe_name = maybe_fqn.value().name;
             }
         }
