@@ -76,9 +76,18 @@ namespace Ark::internal
     bool ASTLowerer::nodeProducesOutput(const Node& node)
     {
         if (node.nodeType() == NodeType::List && !node.constList().empty() && node.constList()[0].nodeType() == NodeType::Keyword)
-            return (node.constList()[0].keyword() == Keyword::Begin && node.constList().size() > 1) ||
+            // a begin node produces a value if the last node in it produces a value
+            return (node.constList()[0].keyword() == Keyword::Begin && node.constList().size() > 1 && nodeProducesOutput(node.constList().back())) ||
+                // a function always produces a value ; even if it ends with a node not producing one, the VM returns nil
                 node.constList()[0].keyword() == Keyword::Fun ||
-                node.constList()[0].keyword() == Keyword::If;
+                // a condition produces a value if all its branches produce a value
+                (node.constList()[0].keyword() == Keyword::If &&
+                 nodeProducesOutput(node.constList()[2]) &&
+                 (node.constList().size() == 3 || nodeProducesOutput(node.constList()[3])));
+        // in place list instruction, as well as assert, do not produce values
+        if (node.nodeType() == NodeType::List && !node.constList().empty() && node.constList()[0].nodeType() == NodeType::Symbol)
+            return std::ranges::find(Language::UpdateRef, node.constList().front().string()) == Language::UpdateRef.end() &&
+                node.constList().front().string() != "assert";
         return true;  // any other node, function call, symbol, number...
     }
 
