@@ -10,15 +10,6 @@
 
 namespace Ark::internal::Builtins::Mathematics
 {
-    /**
-     * @name math:exp
-     * @brief Calculate e^number
-     * @param value the Number
-     * =begin
-     * (math:exp 1)  # 2.7182...
-     * =end
-     * @author https://github.com/SuperFola
-     */
     // cppcheck-suppress constParameterReference
     Value exponential(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
@@ -31,15 +22,6 @@ namespace Ark::internal::Builtins::Mathematics
         return Value(std::exp(n[0].number()));
     }
 
-    /**
-     * @name math:ln
-     * @brief Calculate the logarithm of a number
-     * @param value the Number
-     * =begin
-     * (math:ln 1)  # 0
-     * =end
-     * @author https://github.com/SuperFola
-     */
     // cppcheck-suppress constParameterReference
     Value logarithm(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
@@ -55,15 +37,6 @@ namespace Ark::internal::Builtins::Mathematics
         return Value(std::log(n[0].number()));
     }
 
-    /**
-     * @name math:ceil
-     * @brief Get the smallest possible integer greater than the number
-     * @param value the Number
-     * =begin
-     * (math:ceil 0.2)  # 1
-     * =end
-     * @author https://github.com/SuperFola
-     */
     // cppcheck-suppress constParameterReference
     Value ceil_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
@@ -76,15 +49,6 @@ namespace Ark::internal::Builtins::Mathematics
         return Value(std::ceil(n[0].number()));
     }
 
-    /**
-     * @name math:floor
-     * @brief Get the smallest possible integer equal to the given number
-     * @param value the Number
-     * =begin
-     * (math:floor 1.7)  # 1
-     * =end
-     * @author https://github.com/SuperFola
-     */
     // cppcheck-suppress constParameterReference
     Value floor_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
@@ -97,16 +61,6 @@ namespace Ark::internal::Builtins::Mathematics
         return Value(std::floor(n[0].number()));
     }
 
-    /**
-     * @name math:round
-     * @brief Get the smallest possible integer equal to or greater than the given number
-     * @param value the Number
-     * =begin
-     * (math:round 0.2)  # 0
-     * (math:round 0.6)  # 1
-     * =end
-     * @author https://github.com/SuperFola
-     */
     // cppcheck-suppress constParameterReference
     Value round_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
@@ -119,16 +73,6 @@ namespace Ark::internal::Builtins::Mathematics
         return Value(std::round(n[0].number()));
     }
 
-    /**
-     * @name math:NaN?
-     * @brief Check if a Number is NaN
-     * @param value the Number
-     * =begin
-     * (math:NaN? 2)  # false
-     * (math:NaN? nan)  # true
-     * =end
-     * @author https://github.com/SuperFola
-     */
     // cppcheck-suppress constParameterReference
     Value isnan_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
@@ -138,16 +82,6 @@ namespace Ark::internal::Builtins::Mathematics
         return std::isnan(n[0].number()) ? trueSym : falseSym;
     }
 
-    /**
-     * @name math:Inf?
-     * @brief Check if a Number if Inf
-     * @param value the Number
-     * =begin
-     * (math:Inf? 1)  # false
-     * (math:Inf? nan)  # false
-     * =end
-     * @author https://github.com/SuperFola
-     */
     // cppcheck-suppress constParameterReference
     Value isinf_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
@@ -157,16 +91,6 @@ namespace Ark::internal::Builtins::Mathematics
         return std::isinf(n[0].number()) ? trueSym : falseSym;
     }
 
-    /**
-     * @name math:cos
-     * @brief Calculate the cosinus of a number
-     * @param value the Number (radians)
-     * =begin
-     * (math:cos 0)  # 1
-     * (math:cos math:pi)  # -1
-     * =end
-     * @author https://github.com/SuperFola
-     */
     // cppcheck-suppress constParameterReference
     Value cos_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
@@ -179,16 +103,6 @@ namespace Ark::internal::Builtins::Mathematics
         return Value(std::cos(n[0].number()));
     }
 
-    /**
-     * @name math:sin
-     * @brief Calculate the sinus of a number
-     * @param value the Number (radians)
-     * =begin
-     * (math:sin 0)  # 0
-     * (math:cos (/ math:pi 2))  # 1
-     * =end
-     * @author https://github.com/SuperFola
-     */
     // cppcheck-suppress constParameterReference
     Value sin_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
@@ -201,16 +115,6 @@ namespace Ark::internal::Builtins::Mathematics
         return Value(std::sin(n[0].number()));
     }
 
-    /**
-     * @name math:tan
-     * @brief Calculate the tangent of a number
-     * @param value the Number (radians)
-     * =begin
-     * (math:tan 0)  # 0
-     * (math:cos (/ math:pi 4))  # 1
-     * =end
-     * @author https://github.com/SuperFola
-     */
     // cppcheck-suppress constParameterReference
     Value tan_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
@@ -223,15 +127,6 @@ namespace Ark::internal::Builtins::Mathematics
         return Value(std::tan(n[0].number()));
     }
 
-    /**
-     * @name math:arccos
-     * @brief Calculate the arc cosinus of a number
-     * @param value the Number
-     * =begin
-     * (math:arccos 1)  # 0
-     * =end
-     * @author https://github.com/SuperFola
-     */
     // cppcheck-suppress constParameterReference
     Value acos_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
@@ -244,15 +139,6 @@ namespace Ark::internal::Builtins::Mathematics
         return Value(std::acos(n[0].number()));
     }
 
-    /**
-     * @name math:arcsin
-     * @brief Calculate the arc sinus of a number
-     * @param value the Number
-     * =begin
-     * (math:arcsin 1)  # 1.570796326794897 (/ math:pi 2)
-     * =end
-     * @author https://github.com/SuperFola
-     */
     // cppcheck-suppress constParameterReference
     Value asin_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
@@ -265,15 +151,6 @@ namespace Ark::internal::Builtins::Mathematics
         return Value(std::asin(n[0].number()));
     }
 
-    /**
-     * @name math:arctan
-     * @brief Calculate the arc tangent of a number
-     * @param value the Number
-     * =begin
-     * (math:arctan 0)  # 0
-     * =end
-     * @author https://github.com/SuperFola
-     */
     // cppcheck-suppress constParameterReference
     Value atan_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
@@ -286,12 +163,6 @@ namespace Ark::internal::Builtins::Mathematics
         return Value(std::atan(n[0].number()));
     }
 
-    /**
-     * @name math:cosh
-     * @brief Calculate the hyperbolic cosinus of a number
-     * @param value the Number
-     * @author https://github.com/Gryfenfer97
-     */
     // cppcheck-suppress constParameterReference
     Value cosh_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
@@ -304,12 +175,6 @@ namespace Ark::internal::Builtins::Mathematics
         return Value(std::cosh(n[0].number()));
     }
 
-    /**
-     * @name math:sinh
-     * @brief Calculate the hyperbolic sinus of a number
-     * @param value the Number
-     * @author https://github.com/Gryfenfer97
-     */
     // cppcheck-suppress constParameterReference
     Value sinh_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
@@ -322,12 +187,6 @@ namespace Ark::internal::Builtins::Mathematics
         return Value(std::sinh(n[0].number()));
     }
 
-    /**
-     * @name math:tanh
-     * @brief Calculate the hyperbolic tangent of a number
-     * @param value the Number
-     * @author https://github.com/Gryfenfer97
-     */
     // cppcheck-suppress constParameterReference
     Value tanh_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
@@ -340,12 +199,6 @@ namespace Ark::internal::Builtins::Mathematics
         return Value(std::tanh(n[0].number()));
     }
 
-    /**
-     * @name math:acosh
-     * @brief Calculate the hyperbolic arc cosinus of a number
-     * @param value the Number
-     * @author https://github.com/Gryfenfer97
-     */
     // cppcheck-suppress constParameterReference
     Value acosh_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
@@ -358,12 +211,6 @@ namespace Ark::internal::Builtins::Mathematics
         return Value(std::acosh(n[0].number()));
     }
 
-    /**
-     * @name math:asinh
-     * @brief Calculate the hyperbolic arc sinus of a number
-     * @param value the Number
-     * @author https://github.com/Gryfenfer97
-     */
     // cppcheck-suppress constParameterReference
     Value asinh_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
@@ -376,12 +223,6 @@ namespace Ark::internal::Builtins::Mathematics
         return Value(std::asinh(n[0].number()));
     }
 
-    /**
-     * @name math:atanh
-     * @brief Calculate the hyperbolic arc tangent of a number
-     * @param value the Number
-     * @author https://github.com/Gryfenfer97
-     */
     // cppcheck-suppress constParameterReference
     Value atanh_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {

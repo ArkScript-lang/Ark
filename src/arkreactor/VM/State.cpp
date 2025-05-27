@@ -20,7 +20,11 @@ namespace Ark
         m_debug_level(0),
         m_libenv(libenv),
         m_filename(ARK_NO_NAME_FILE)
-    {}
+    {
+        // default value for builtin__sys:args is empty list
+        const Value val(ValueType::List);
+        m_binded[std::string(internal::Language::SysArgs)] = val;
+    }
 
     bool State::feed(const std::string& bytecode_filename)
     {
@@ -126,7 +130,6 @@ namespace Ark
         });
 
         m_binded[std::string(internal::Language::SysArgs)] = val;
-        m_binded[std::string(internal::Language::SysPlatform)] = Value(ARK_PLATFORM_NAME);
     }
 
     void State::setDebug(const unsigned level) noexcept
@@ -186,6 +189,10 @@ namespace Ark
         m_inst_locations.clear();
         m_pages.clear();
         m_binded.clear();
+
+        // default value for builtin__sys:args is empty list
+        const Value val(ValueType::List);
+        m_binded[std::string(internal::Language::SysArgs)] = val;
     }
 }
 

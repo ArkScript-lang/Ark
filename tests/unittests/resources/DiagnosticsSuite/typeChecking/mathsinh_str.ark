@@ -1,1 +1,1 @@
-(math:sinh "1")
+(builtin__math:sinh "1")

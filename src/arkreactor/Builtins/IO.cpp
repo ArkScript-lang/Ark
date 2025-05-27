@@ -74,16 +74,6 @@ namespace Ark::internal::Builtins::IO
         return Value(line);
     }
 
-    /**
-     * @name io:writeFile
-     * @brief Write content to a file. Return nil
-     * @param filename path to the file to write to (will be overwritten if it exists)
-     * @param content can be any valid ArkScript value
-     * =begin
-     * (io:writeFile "hello.json" "{\"key\": 12}")
-     * =end
-     * @author https://github.com/SuperFola
-     */
     Value writeFile(std::vector<Value>& n, VM* vm)
     {
         if (types::check(n, ValueType::String, ValueType::Any))
@@ -106,16 +96,6 @@ namespace Ark::internal::Builtins::IO
         return nil;
     }
 
-    /**
-     * @name io:appendToFile
-     * @brief Append content to a file. Return nil
-     * @param filename path to the file to append to
-     * @param content can be any valid ArkScript value
-     * =begin
-     * (io:writeFile "hello.json" "{\"key\": 12}")
-     * =end
-     * @author https://github.com/SuperFola
-     */
     Value appendToFile(std::vector<Value>& n, VM* vm)
     {
         if (types::check(n, ValueType::String, ValueType::Any))
@@ -138,15 +118,6 @@ namespace Ark::internal::Builtins::IO
         return nil;
     }
 
-    /**
-     * @name io:readFile
-     * @brief Read the content from a file as a String
-     * @param filename the path of the file to read
-     * =begin
-     * (io:readFile "hello.json")
-     * =end
-     * @author https://github.com/SuperFola
-     */
     // cppcheck-suppress constParameterReference
     Value readFile(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
@@ -164,15 +135,6 @@ namespace Ark::internal::Builtins::IO
         return Value(Utils::readFile(filename));
     }
 
-    /**
-     * @name io:fileExists?
-     * @brief Check if a file exists, return True or False
-     * @param filename the path of the file
-     * =begin
-     * (io:fileExists? "hello.json")
-     * =end
-     * @author https://github.com/SuperFola
-     */
     // cppcheck-suppress constParameterReference
     Value fileExists(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
@@ -185,15 +147,6 @@ namespace Ark::internal::Builtins::IO
         return Utils::fileExists(n[0].string()) ? trueSym : falseSym;
     }
 
-    /**
-     * @name io:listFiles
-     * @brief List files in a folder, as a List of String
-     * @param path A directory
-     * =begin
-     * (io:listFiles "/tmp/hello")
-     * =end
-     * @author https://github.com/SuperFola
-     */
     // cppcheck-suppress constParameterReference
     Value listFiles(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
@@ -212,15 +165,6 @@ namespace Ark::internal::Builtins::IO
         return Value(std::move(r));
     }
 
-    /**
-     * @name io:dir?
-     * @brief Check if a path represents a directory
-     * @param path A directory
-     * =begin
-     * (io:dir? "/tmp/hello")
-     * =end
-     * @author https://github.com/SuperFola
-     */
     // cppcheck-suppress constParameterReference
     Value isDirectory(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
@@ -233,15 +177,6 @@ namespace Ark::internal::Builtins::IO
         return (std::filesystem::is_directory(std::filesystem::path(n[0].string()))) ? trueSym : falseSym;
     }
 
-    /**
-     * @name io:makeDir
-     * @brief Create a directory
-     * @param path A directory
-     * =begin
-     * (io:makeDir "/tmp/myDir")
-     * =end
-     * @author https://github.com/SuperFola
-     */
     // cppcheck-suppress constParameterReference
     Value makeDir(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
@@ -255,36 +190,16 @@ namespace Ark::internal::Builtins::IO
         return nil;
     }
 
-    /**
-     * @name io:removeFiles
-     * @brief Delete files
-     * @details Take multiple arguments, all String, each one representing a path to a file
-     * @param filenames path to file
-     * =begin
-     * (io:removeFiles "/tmp/test.ark" "hello.json")
-     * =end
-     * @author https://github.com/SuperFola
-     */
     // cppcheck-suppress constParameterReference
-    Value removeFiles(std::vector<Value>& n, VM* vm [[maybe_unused]])
+    Value removeFile(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (n.empty() || n[0].valueType() != ValueType::String)
+        if (!types::check(n, ValueType::String))
             throw types::TypeCheckingError(
-                "io:removeFiles",
-                { { types::Contract { { types::Typedef("filename", ValueType::String, /* is_variadic= */ true) } } } },
+                "io:removeFile",
+                { { types::Contract { { types::Typedef("filename", ValueType::String) } } } },
                 n);
 
-        for (auto it = n.begin(), it_end = n.end(); it != it_end; ++it)
-        {
-            if (it->valueType() != ValueType::String)
-                throw types::TypeCheckingError(
-                    "io:removeFiles",
-                    { { types::Contract { { types::Typedef("filename", ValueType::String), types::Typedef("filenames", ValueType::String, /* variadic */ true) } } } },
-                    n);
-
-            std::filesystem::remove_all(std::filesystem::path(it->string()));
-        }
-
+        std::filesystem::remove_all(std::filesystem::path(n[0].string()));
         return nil;
     }
 }

@@ -24,23 +24,9 @@
             (set keep false) })
         (test:expect foo.keep "capture inside a deeper scope works") })
 
-    (test:case "files" {
-        (test:expect (not (io:fileExists? "test.txt")))
-        (io:writeFile "test.txt" "hello, world!")
-        (test:expect (io:fileExists? "test.txt"))
-        (test:eq (io:readFile "test.txt") "hello, world!")
-        (io:appendToFile "test.txt" "bis")
-        (test:eq (io:readFile "test.txt") "hello, world!bis")
-        (test:expect (> (len (io:listFiles "./")) 0))
-        (test:expect (not (io:dir? "test.txt")))
-        (test:expect (not (io:fileExists? "temp")))
-        (io:makeDir "temp")
-        (test:expect (io:fileExists? "temp"))
-        (test:expect (io:dir? "temp")) })
-
     (test:case "time" {
         (let old (time))
-        (sys:sleep 1)
+        (builtin__sys:sleep 1)
         (test:expect (< old (time))) })
 
     (mut rands [])
@@ -58,10 +44,7 @@
     # no need to test all the math functions since they're 1:1 binding of C++ functions and were carefully checked
     # before writing this comment, to ensure we aren't binding math:sin to the C++ tan function
     (test:case "math" {
-        (test:expect (not (math:NaN? 1)))
-        (test:expect (math:NaN? math:NaN))
-        (test:expect (not (math:Inf? 100000)))
-        (test:expect (math:Inf? math:Inf)) })
-
-    # clean up
-    (io:removeFiles "test.txt" "temp/") })
+        (test:expect (not (builtin__math:NaN? 1)))
+        (test:expect (builtin__math:NaN? builtin__math:NaN))
+        (test:expect (not (builtin__math:Inf? 100000)))
+        (test:expect (builtin__math:Inf? builtin__math:Inf)) }) })

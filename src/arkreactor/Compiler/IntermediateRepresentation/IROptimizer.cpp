@@ -20,10 +20,27 @@ namespace Ark::internal
             Rule { { LOAD_SYMBOL_BY_INDEX, STORE }, STORE_FROM_INDEX },
             Rule { { LOAD_SYMBOL, SET_VAL }, SET_VAL_FROM },
             Rule { { LOAD_SYMBOL_BY_INDEX, SET_VAL }, SET_VAL_FROM_INDEX },
-            Rule {
-                { BUILTIN, CALL }, CALL_BUILTIN, [](const Entities entities) {
-                    return Builtins::builtins[entities[0].primaryArg()].second.isFunction();
-                } },
+            Rule { { STORE, PUSH_RETURN_ADDRESS, LOAD_SYMBOL_BY_INDEX, BUILTIN, CALL }, [](const Entities entities) {
+                      return Builtins::builtins[entities[3].primaryArg()].second.isFunction();
+                  },
+                   [](const Entities e) {
+                       return IR::Entity(CALL_BUILTIN_WITHOUT_RETURN_ADDRESS, e[3].primaryArg(), 1);
+                   } },
+            Rule { { STORE, STORE, PUSH_RETURN_ADDRESS, LOAD_SYMBOL_BY_INDEX, LOAD_SYMBOL_BY_INDEX, BUILTIN, CALL }, [](const Entities entities) {
+                      return Builtins::builtins[entities[5].primaryArg()].second.isFunction();
+                  },
+                   [](const Entities e) {
+                       return IR::Entity(CALL_BUILTIN_WITHOUT_RETURN_ADDRESS, e[5].primaryArg(), 2);
+                   } },
+            Rule { { STORE, STORE, STORE, PUSH_RETURN_ADDRESS, LOAD_SYMBOL_BY_INDEX, LOAD_SYMBOL_BY_INDEX, LOAD_SYMBOL_BY_INDEX, BUILTIN, CALL }, [](const Entities entities) {
+                      return Builtins::builtins[entities[7].primaryArg()].second.isFunction();
+                  },
+                   [](const Entities e) {
+                       return IR::Entity(CALL_BUILTIN_WITHOUT_RETURN_ADDRESS, e[7].primaryArg(), 3);
+                   } },
+            Rule { { BUILTIN, CALL }, CALL_BUILTIN, [](const Entities entities) {
+                      return Builtins::builtins[entities[0].primaryArg()].second.isFunction();
+                  } },
             Rule { { LOAD_SYMBOL, CALL }, CALL_SYMBOL },
             Rule { { LOAD_SYMBOL, GET_FIELD }, GET_FIELD_FROM_SYMBOL },
             Rule { { LOAD_SYMBOL_BY_INDEX, GET_FIELD }, GET_FIELD_FROM_SYMBOL_INDEX },

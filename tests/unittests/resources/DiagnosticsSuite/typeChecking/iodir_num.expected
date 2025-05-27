@@ -2,6 +2,6 @@ Function io:dir? expected 1 argument
   -> path (String) was of type Number
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/iodir_num.ark:1
-    1 | (io:dir? 1)
-      | ^~~~~~~~~~
+    1 | (builtin__io:dir? 1)
+      | ^~~~~~~~~~~~~~~~~~~
     2 |

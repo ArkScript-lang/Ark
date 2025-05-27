@@ -2,6 +2,7 @@
 #include <numbers>
 #include <cmath>
 
+#include <Ark/Constants.hpp>
 #include <Ark/Builtins/Builtins.hpp>
 
 namespace Ark::internal::Builtins
@@ -9,6 +10,7 @@ namespace Ark::internal::Builtins
     extern const Value falseSym = Value(ValueType::False);
     extern const Value trueSym = Value(ValueType::True);
     extern const Value nil = Value(ValueType::Nil);
+    extern const Value platform = Value(ARK_PLATFORM_NAME);
 
     namespace Mathematics
     {
@@ -26,67 +28,68 @@ namespace Ark::internal::Builtins
         { "nil", nil },
 
         // List
-        { "list:reverse", Value(List::reverseList) },
-        { "list:find", Value(List::findInList) },
-        { "list:slice", Value(List::sliceList) },
-        { "list:sort", Value(List::sort_) },
-        { "list:fill", Value(List::fill) },
-        { "list:setAt", Value(List::setListAt) },
+        { "builtin__list:reverse", Value(List::reverseList) },
+        { "builtin__list:find", Value(List::findInList) },
+        { "builtin__list:slice", Value(List::sliceList) },
+        { "builtin__list:sort", Value(List::sort_) },
+        { "builtin__list:fill", Value(List::fill) },
+        { "builtin__list:setAt", Value(List::setListAt) },
 
         // IO
         { "print", Value(IO::print) },
         { "puts", Value(IO::puts_) },
         { "input", Value(IO::input) },
-        { "io:writeFile", Value(IO::writeFile) },
-        { "io:appendToFile", Value(IO::appendToFile) },
-        { "io:readFile", Value(IO::readFile) },
-        { "io:fileExists?", Value(IO::fileExists) },
-        { "io:listFiles", Value(IO::listFiles) },
-        { "io:dir?", Value(IO::isDirectory) },
-        { "io:makeDir", Value(IO::makeDir) },
-        { "io:removeFiles", Value(IO::removeFiles) },
+        { "builtin__io:writeFile", Value(IO::writeFile) },
+        { "builtin__io:appendToFile", Value(IO::appendToFile) },
+        { "builtin__io:readFile", Value(IO::readFile) },
+        { "builtin__io:fileExists?", Value(IO::fileExists) },
+        { "builtin__io:listFiles", Value(IO::listFiles) },
+        { "builtin__io:dir?", Value(IO::isDirectory) },
+        { "builtin__io:makeDir", Value(IO::makeDir) },
+        { "builtin__io:removeFile", Value(IO::removeFile) },
 
         // Time
         { "time", Value(Time::timeSinceEpoch) },
 
         // System
-        { "sys:exec", Value(System::system_) },
-        { "sys:sleep", Value(System::sleep) },
-        { "sys:exit", Value(System::exit_) },
+        { "builtin__sys:platform", platform },
+        { "builtin__sys:exec", Value(System::system_) },
+        { "builtin__sys:sleep", Value(System::sleep) },
+        { "builtin__sys:exit", Value(System::exit_) },
 
         // String
-        { "string:format", Value(String::format) },
-        { "string:find", Value(String::findSubStr) },
-        { "string:removeAt", Value(String::removeAtStr) },
-        { "string:ord", Value(String::ord) },
-        { "string:chr", Value(String::chr) },
-        { "string:setAt", Value(String::setStringAt) },
+        { "format", Value(String::format) },
+        { "builtin__string:find", Value(String::findSubStr) },
+        { "builtin__string:removeAt", Value(String::removeAtStr) },
+        { "builtin__string:ord", Value(String::ord) },
+        { "builtin__string:chr", Value(String::chr) },
+        { "builtin__string:setAt", Value(String::setStringAt) },
 
         // Mathematics
-        { "math:exp", Value(Mathematics::exponential) },
-        { "math:ln", Value(Mathematics::logarithm) },
-        { "math:ceil", Value(Mathematics::ceil_) },
-        { "math:floor", Value(Mathematics::floor_) },
-        { "math:round", Value(Mathematics::round_) },
-        { "math:NaN?", Value(Mathematics::isnan_) },
-        { "math:Inf?", Value(Mathematics::isinf_) },
-        { "math:pi", Mathematics::pi_ },
-        { "math:e", Mathematics::e_ },
-        { "math:tau", Mathematics::tau_ },
-        { "math:Inf", Mathematics::inf_ },
-        { "math:NaN", Mathematics::nan_ },
-        { "math:cos", Value(Mathematics::cos_) },
-        { "math:sin", Value(Mathematics::sin_) },
-        { "math:tan", Value(Mathematics::tan_) },
-        { "math:arccos", Value(Mathematics::acos_) },
-        { "math:arcsin", Value(Mathematics::asin_) },
-        { "math:arctan", Value(Mathematics::atan_) },
-        { "math:cosh", Value(Mathematics::cosh_) },
-        { "math:sinh", Value(Mathematics::sinh_) },
-        { "math:tanh", Value(Mathematics::tanh_) },
-        { "math:acosh", Value(Mathematics::acosh_) },
-        { "math:asinh", Value(Mathematics::asinh_) },
-        { "math:atanh", Value(Mathematics::atanh_) },
+        { "builtin__math:exp", Value(Mathematics::exponential) },
+        { "builtin__math:ln", Value(Mathematics::logarithm) },
+        { "builtin__math:ceil", Value(Mathematics::ceil_) },
+        { "builtin__math:floor", Value(Mathematics::floor_) },
+        { "builtin__math:round", Value(Mathematics::round_) },
+        { "builtin__math:NaN?", Value(Mathematics::isnan_) },
+        { "builtin__math:Inf?", Value(Mathematics::isinf_) },
+        { "builtin__math:pi", Mathematics::pi_ },
+        { "builtin__math:e", Mathematics::e_ },
+        { "builtin__math:tau", Mathematics::tau_ },
+        { "builtin__math:Inf", Mathematics::inf_ },
+        { "builtin__math:NaN", Mathematics::nan_ },
+        { "builtin__math:cos", Value(Mathematics::cos_) },
+        { "builtin__math:sin", Value(Mathematics::sin_) },
+        { "builtin__math:tan", Value(Mathematics::tan_) },
+        { "builtin__math:arccos", Value(Mathematics::acos_) },
+        { "builtin__math:arcsin", Value(Mathematics::asin_) },
+        { "builtin__math:arctan", Value(Mathematics::atan_) },
+        { "builtin__math:cosh", Value(Mathematics::cosh_) },
+        { "builtin__math:sinh", Value(Mathematics::sinh_) },
+        { "builtin__math:tanh", Value(Mathematics::tanh_) },
+        { "builtin__math:acosh", Value(Mathematics::acosh_) },
+        { "builtin__math:asinh", Value(Mathematics::asinh_) },
+        { "builtin__math:atanh", Value(Mathematics::atanh_) },
         { "random", Value(Mathematics::random) },
 
         // Async

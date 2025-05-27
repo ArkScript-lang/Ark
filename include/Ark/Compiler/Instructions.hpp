@@ -321,81 +321,85 @@ namespace Ark::internal
         // @role Call a builtin by its id in #[code primary], with #[code secondary] arguments. Bypass the stack size check because we do not push IP/PP since builtins calls do not alter the stack
         CALL_BUILTIN = 0x50,
 
+        // @args builtin id, argument count
+        // @role Call a builtin by its id in #[code primary], with #[code secondary] arguments. Bypass the stack size check because we do not push IP/PP since builtins calls do not alter the stack, as well as the return address removal
+        CALL_BUILTIN_WITHOUT_RETURN_ADDRESS = 0x51,
+
         // @args constant id, absolute address to jump to
         // @role Compare #[code TS < constant], if the comparison fails, jump to the given address. Otherwise, does nothing
-        LT_CONST_JUMP_IF_FALSE = 0x51,
+        LT_CONST_JUMP_IF_FALSE = 0x52,
 
         // @args constant id, absolute address to jump to
         // @role Compare #[code TS < constant], if the comparison succeeds, jump to the given address. Otherwise, does nothing
-        LT_CONST_JUMP_IF_TRUE = 0x52,
+        LT_CONST_JUMP_IF_TRUE = 0x53,
 
         // @args symbol id, absolute address to jump to
         // @role Compare #[code TS < symbol], if the comparison fails, jump to the given address. Otherwise, does nothing
-        LT_SYM_JUMP_IF_FALSE = 0x53,
+        LT_SYM_JUMP_IF_FALSE = 0x54,
 
         // @args constant id, absolute address to jump to
         // @role Compare #[code TS > constant], if the comparison succeeds, jump to the given address. Otherwise, does nothing
-        GT_CONST_JUMP_IF_TRUE = 0x54,
+        GT_CONST_JUMP_IF_TRUE = 0x55,
 
         // @args constant id, absolute address to jump to
         // @role Compare #[code TS > constant], if the comparison fails, jump to the given address. Otherwise, does nothing
-        GT_CONST_JUMP_IF_FALSE = 0x55,
+        GT_CONST_JUMP_IF_FALSE = 0x56,
 
         // @args symbol id, absolute address to jump to
         // @role Compare #[code TS > symbol], if the comparison fails, jump to the given address. Otherwise, does nothing
-        GT_SYM_JUMP_IF_FALSE = 0x56,
+        GT_SYM_JUMP_IF_FALSE = 0x57,
 
         // @args constant id, absolute address to jump to
         // @role Compare #[code TS == constant], if the comparison succeeds, jump to the given address. Otherwise, does nothing
-        EQ_CONST_JUMP_IF_TRUE = 0x57,
+        EQ_CONST_JUMP_IF_TRUE = 0x58,
 
         // @args symbol index, absolute address to jump to
         // @role Compare #[code TS == symbol], if the comparison succeeds, jump to the given address. Otherwise, does nothing
-        EQ_SYM_INDEX_JUMP_IF_TRUE = 0x58,
+        EQ_SYM_INDEX_JUMP_IF_TRUE = 0x59,
 
         // @args constant id, absolute address to jump to
         // @role Compare #[code TS != constant], if the comparison succeeds, jump to the given address. Otherwise, does nothing
-        NEQ_CONST_JUMP_IF_TRUE = 0x59,
+        NEQ_CONST_JUMP_IF_TRUE = 0x5a,
 
         // @args symbol id, absolute address to jump to
         // @role Compare #[code TS != symbol], if the comparison fails, jump to the given address. Otherwise, does nothing
-        NEQ_SYM_JUMP_IF_FALSE = 0x5a,
+        NEQ_SYM_JUMP_IF_FALSE = 0x5b,
 
         // @args symbol id, argument count
         // @role Call a symbol by its id in #[code primary], with #[code secondary] arguments
-        CALL_SYMBOL = 0x5b,
+        CALL_SYMBOL = 0x5c,
 
         // @args symbol id, field id in symbols table
         // @role Push the field of a given symbol (which has to be a closure) on the stack
-        GET_FIELD_FROM_SYMBOL = 0x5c,
+        GET_FIELD_FROM_SYMBOL = 0x5d,
 
         // @args symbol index, field id in symbols table
         // @role Push the field of a given symbol (which has to be a closure) on the stack
-        GET_FIELD_FROM_SYMBOL_INDEX = 0x5d,
+        GET_FIELD_FROM_SYMBOL_INDEX = 0x5e,
 
         // @args symbol id, symbol id2
         // @role Push symbol[symbol2]
-        AT_SYM_SYM = 0x5e,
+        AT_SYM_SYM = 0x5f,
 
         // @args symbol index, symbol index2
         // @role Push symbol[symbol2]
-        AT_SYM_INDEX_SYM_INDEX = 0x5f,
+        AT_SYM_INDEX_SYM_INDEX = 0x60,
 
         // @args symbol id, constant id
         // @role Check that the type of symbol is the given constant, push true if so, false otherwise
-        CHECK_TYPE_OF = 0x60,
+        CHECK_TYPE_OF = 0x61,
 
         // @args symbol index, constant id
         // @role Check that the type of symbol is the given constant, push true if so, false otherwise
-        CHECK_TYPE_OF_BY_INDEX = 0x61,
+        CHECK_TYPE_OF_BY_INDEX = 0x62,
 
         // @args symbol id, number of elements
         // @role Append N elements to a reference to a list (symbol id), the list is being mutated in-place, no new object created. Elements are stored in TS(1)..TS(N). Follows the function calling convention
-        APPEND_IN_PLACE_SYM = 0x62,
+        APPEND_IN_PLACE_SYM = 0x63,
 
         // @args symbol index, number of elements
         // @role Append N elements to a reference to a list (symbol index), the list is being mutated in-place, no new object created. Elements are stored in TS(1)..TS(N). Follows the function calling convention
-        APPEND_IN_PLACE_SYM_INDEX = 0x63,
+        APPEND_IN_PLACE_SYM_INDEX = 0x64,
 
         InstructionsCount
     };
@@ -484,6 +488,7 @@ namespace Ark::internal
         "SET_VAL_HEAD",
         "SET_VAL_HEAD_BY_INDEX",
         "CALL_BUILTIN",
+        "CALL_BUILTIN_WITHOUT_RETURN_ADDRESS",
         "LT_CONST_JUMP_IF_FALSE",
         "LT_CONST_JUMP_IF_TRUE",
         "LT_SYM_JUMP_IF_FALSE",

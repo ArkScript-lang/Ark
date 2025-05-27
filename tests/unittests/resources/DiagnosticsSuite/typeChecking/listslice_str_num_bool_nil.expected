@@ -5,6 +5,6 @@ Function list:slice expected 4 arguments
   -> step (Number) was of type Nil
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/listslice_str_num_bool_nil.ark:1
-    1 | (list:slice "hello" 1 true nil)
-      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    1 | (builtin__list:slice "hello" 1 true nil)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     2 |

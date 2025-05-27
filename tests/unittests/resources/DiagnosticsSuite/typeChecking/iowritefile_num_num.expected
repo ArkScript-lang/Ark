@@ -3,6 +3,6 @@ Function io:writeFile expected 2 arguments
   -> content (any)
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/iowritefile_num_num.ark:1
-    1 | (io:writeFile 1 2)
-      | ^~~~~~~~~~~~~~~~~
+    1 | (builtin__io:writeFile 1 2)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~
     2 |

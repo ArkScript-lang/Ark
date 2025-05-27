@@ -1,7 +1,5 @@
-At reverse @ 3:9
-    1 | (import package.list :reverse)
+At random @ 1:0
+    1 | (let random (fun (l) l))
+      | ^~~~~~
     2 |
-    3 | (print (reverse [1 2 3]))
-      |         ^~~~~~~
-    4 |
-        Symbol `reverse' was resolved to `list:reverse', which is also a builtin name. Either the symbol or the package it's in needs to be renamed to avoid conflicting with the builtin.
+        Can not use a reserved identifier ('random') as a constant name.

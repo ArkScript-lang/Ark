@@ -147,6 +147,52 @@ ut::suite<"Embedding"> embedding_suite = [] {
         };
     };
 
+    "[retrieve sys:args in embedded code]"_test = [] {
+        Ark::State state({ ARK_TESTS_ROOT "lib" });
+
+        should("compile the string without any error") = [&] {
+            expect(mut(state).doString("(import std.Sys) (let foo sys:args) (let b foo)"));
+        };
+
+        Ark::VM vm(state);
+        double timestamp = 0.0;
+        should("return exit code 0") = [&] {
+            expect(mut(vm).run() == 0_i);
+            timestamp = vm["t"].number();
+        };
+
+        should("have symbol foo registered") = [&] {
+            const auto foo = mut(vm)["foo"];
+            expect(foo.valueType() == Ark::ValueType::List);
+            expect(foo.constList().size() == 0_z);
+        };
+    };
+
+    "[set and retrieve sys:args in embedded code]"_test = [] {
+        Ark::State state({ ARK_TESTS_ROOT "lib" });
+        state.setArgs({ "foo", "bar", "--eggs" });
+
+        should("compile the string without any error") = [&] {
+            expect(mut(state).doString("(import std.Sys) (let foo sys:args) (let b foo)"));
+        };
+
+        Ark::VM vm(state);
+        double timestamp = 0.0;
+        should("return exit code 0") = [&] {
+            expect(mut(vm).run() == 0_i);
+            timestamp = vm["t"].number();
+        };
+
+        should("have symbol foo registered") = [&] {
+            const auto foo = mut(vm)["foo"];
+            expect(foo.valueType() == Ark::ValueType::List);
+            expect(foo.constList().size() == 3_z);
+            expect(foo.constList()[0].string() == "foo");
+            expect(foo.constList()[1].string() == "bar");
+            expect(foo.constList()[2].string() == "--eggs");
+        };
+    };
+
     "[load usertype and cpp lambdas and call them from arkscript]"_test = [] {
         Ark::State state;
         state.loadFunction("getBreakfast", [](std::vector<Ark::Value>& n [[maybe_unused]], Ark::VM* vm [[maybe_unused]]) -> Ark::Value {

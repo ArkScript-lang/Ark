@@ -1,5 +1,6 @@
 (import std.String :split)
 (import std.List :filter :map)
+(import std.IO)
 
 # define a custom helper to count occurrences in a collection
 (let countIf (fun (_L _f) {

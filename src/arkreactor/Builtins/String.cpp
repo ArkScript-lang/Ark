@@ -12,16 +12,16 @@
 namespace Ark::internal::Builtins::String
 {
     /**
-     * @name string:format
+     * @name format
      * @brief Format a String given replacements
      * @details https://fmt.dev/latest/syntax.html
      * @param format the String to format
      * @param values as any argument as you need, of any valid ArkScript type
      * =begin
-     * (string:format "Hello {}, my name is {}" "world" "ArkScript")
+     * (format "Hello {}, my name is {}" "world" "ArkScript")
      * # Hello world, my name is ArkScript
      *
-     * (string:format "Test {} with {{}}" "1")
+     * (format "Test {} with {{}}" "1")
      * # Test 1 with {}
      * =end
      * @author https://github.com/SuperFola
@@ -30,7 +30,7 @@ namespace Ark::internal::Builtins::String
     {
         if (n.size() < 2 || n[0].valueType() != ValueType::String)
             throw types::TypeCheckingError(
-                "string:format",
+                "format",
                 { { types::Contract { { types::Typedef("string", ValueType::String),
                                         types::Typedef("value", ValueType::Any, /* variadic */ true) } } } },
                 n);
@@ -60,7 +60,7 @@ namespace Ark::internal::Builtins::String
         catch (fmt::format_error& e)
         {
             throw std::runtime_error(
-                fmt::format("string:format: can not format \"{}\" ({} argument{} provided) because of {}",
+                fmt::format("format: can not format \"{}\" ({} argument{} provided) because of {}",
                             n[0].stringRef(),
                             n.size() - 1,
                             // if we have more than one argument (not counting the string to format), plural form
@@ -69,19 +69,6 @@ namespace Ark::internal::Builtins::String
         }
     }
 
-    /**
-     * @name string:find
-     * @brief Search a substring in a given String
-     * @details The original String is not modified. Return -1 when not found
-     * @param string the String to search in
-     * @param substr the substring to search for
-     * @param (optional) startIndex index to start searching from
-     * =begin
-     * (string:find "hello world" "hello")  # 0
-     * (string:find "hello world" "aworld")  # -1
-     * =end
-     * @author https://github.com/SuperFola
-     */
     Value findSubStr(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::String, ValueType::String) &&
@@ -104,18 +91,6 @@ namespace Ark::internal::Builtins::String
         return Value(-1);
     }
 
-    /**
-     * @name string:removeAt
-     * @brief Remove a character from a String given an index
-     * @details The original String is not modified
-     * @param string the String to modify
-     * @param index the index of the character to remove (can be negative to search from the end)
-     * =begin
-     * (string:removeAt "hello world" 0)  # "ello world"
-     * (string:removeAt "hello world" -1)  # "hello worl"
-     * =end
-     * @author https://github.com/SuperFola
-     */
     Value removeAtStr(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::String, ValueType::Number))
@@ -132,16 +107,6 @@ namespace Ark::internal::Builtins::String
         return n[0];
     }
 
-    /**
-     * @name string:ord
-     * @brief Get the ordinal of a given character
-     * @param char a String with a single UTF8 character
-     * =begin
-     * (string:ord "h")  # 104
-     * (string:ord "Ô")  # 212
-     * =end
-     * @author https://github.com/SuperFola
-     */
     Value ord(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::String))
@@ -153,16 +118,6 @@ namespace Ark::internal::Builtins::String
         return Value(utf8::codepoint(n[0].stringRef().c_str()));
     }
 
-    /**
-     * @name string:chr
-     * @brief Create a character from an UTF8 codepoint
-     * @param codepoint an UTF8 codepoint (Number)
-     * =begin
-     * (string:chr 104)  # "h"
-     * (string:chr 212)  # "Ô"
-     * =end
-     * @author https://github.com/SuperFola
-     */
     // cppcheck-suppress constParameterReference
     Value chr(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
@@ -177,18 +132,6 @@ namespace Ark::internal::Builtins::String
         return Value(std::string(utf8.data()));
     }
 
-    /**
-     * @name string:setAt
-     * @brief Modify a given string and return a new one
-     * @details The original string is not modified
-     * @param string the string to modify
-     * @param index the index of the element to modify
-     * @param value the new character
-     * =begin
-     * (string:setAt "hello" 1 "a")  # "hallo"
-     * =end
-     * @author https://github.com/SuperFola
-     */
     Value setStringAt(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::String, ValueType::Number, ValueType::String))

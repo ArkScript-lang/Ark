@@ -1,1 +1,1 @@
-(list:slice "hello" 1 true nil)
+(builtin__list:slice "hello" 1 true nil)
