@@ -542,7 +542,7 @@ namespace Ark::internal
                     if (nodeProducesOutput(x.constList()[i]))
                         compileExpression(x.constList()[i], p, false, false);
                     else
-                        buildAndThrowError(fmt::format("Invalid node inside tail call to `{}'", node.repr()), x);
+                        buildAndThrowError(fmt::format("Invalid node inside tail call to `{}'", node.repr()), x.constList()[i]);
                 }
 
                 // jump to the top of the function
@@ -565,7 +565,7 @@ namespace Ark::internal
                     if (nodeProducesOutput(*exp))
                         compileExpression(*exp, p, false, false);
                     else
-                        buildAndThrowError(fmt::format("Invalid node inside call to `{}'", node.repr()), x);
+                        buildAndThrowError(fmt::format("Invalid node inside call to `{}'", node.repr()), *exp);
                 }
                 // push proc from temp page
                 for (const auto& inst : m_temp_pages.back())
@@ -599,7 +599,7 @@ namespace Ark::internal
                 if (nodeProducesOutput(x.constList()[index]))
                     compileExpression(x.constList()[index], p, false, false);
                 else
-                    buildAndThrowError(fmt::format("Invalid node inside call to operator `{}'", node.repr()), x);
+                    buildAndThrowError(fmt::format("Invalid node inside call to operator `{}'", node.repr()), x.constList()[index]);
 
                 if ((index + 1 < size && x.constList()[index + 1].nodeType() != NodeType::Capture) || index + 1 == size)
                     exp_count++;

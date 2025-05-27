@@ -169,6 +169,18 @@ namespace Ark::internal
         Node& attachCommentAfter(const std::string& comment);
 
         /**
+         * @brief Set the m_alt_syntax flag of the node
+         * @param toggle
+         */
+        void setAltSyntax(bool toggle);
+
+        /**
+         * @brief Check if a node is alt syntax
+         * @return bool
+         */
+        [[nodiscard]] bool isAltSyntax() const;
+
+        /**
          * @brief Get the line at which this node was created
          *
          * @return std::size_t
@@ -225,6 +237,7 @@ namespace Ark::internal
         std::string m_filename;
         std::string m_comment;
         std::string m_after_comment;  ///< Comment after node
+        bool m_alt_syntax = false;    ///< Used to tell if a node uses the alternative syntax (if available), eg (begin) / {}, (list) / []
     };
 
     const Node& getTrueNode();

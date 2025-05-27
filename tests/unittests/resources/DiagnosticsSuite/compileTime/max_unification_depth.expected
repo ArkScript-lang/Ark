@@ -1,4 +1,4 @@
-At (macro partial (func ...defargs) (begin (macro bloc (suffix-dup a (len defargs))) (fun (bloc) (func ...defargs bloc)) ($undef bloc))) @ 17:17
+At (macro partial (func ...defargs) {(macro bloc (suffix-dup a (len defargs))) (fun (bloc) (func ...defargs bloc)) ($undef bloc)}) @ 17:17
     4 |         (macro p (a b c) (* a b c)))
     5 |     ($symcat sym x)})
     6 |
@@ -13,6 +13,6 @@ At (macro partial (func ...defargs) (begin (macro bloc (suffix-dup a (len defarg
    17 |                 (macro partial (func ...defargs) {
       | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    18 |                     (macro bloc (suffix-dup a (len defargs)))
-      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    19 |                     (fun (bloc) (func ...defargs bloc))
         Max macro unification depth reached (256). You may have a macro trying to evaluate itself, try splitting your code in multiple nodes.

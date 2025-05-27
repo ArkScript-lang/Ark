@@ -446,6 +446,7 @@ namespace Ark::internal
         else
             return std::nullopt;
 
+        leaf->setAltSyntax(alt_syntax);
         leaf->push_back(Node(Keyword::Begin).attachNearestCommentBefore(comment));
 
         comment.clear();
@@ -831,6 +832,7 @@ namespace Ark::internal
         auto context = generateErrorContext("[");
         if (!accept(IsChar('[')))
             return std::nullopt;
+        leaf->setAltSyntax(true);
         leaf->push_back(Node(NodeType::Symbol, "list"));
 
         std::string comment;

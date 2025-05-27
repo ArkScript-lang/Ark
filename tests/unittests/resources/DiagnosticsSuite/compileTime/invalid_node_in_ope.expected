@@ -1,5 +1,5 @@
-At (+ (begin) 1) @ 1:2
+At {} @ 1:4
     1 | (+ {} 1)
-      | ^~~~~~~~
+      |    ^~
     2 |
         Invalid node inside call to operator `+'

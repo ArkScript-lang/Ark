@@ -1,4 +1,4 @@
-At ($as-is b (list)) @ 1:11
+At ($as-is b []) @ 1:11
     1 | (macro a ($as-is b []))
       | │         └─ error
       | │

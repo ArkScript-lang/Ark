@@ -132,6 +132,16 @@ namespace Ark::internal
         return *this;
     }
 
+    void Node::setAltSyntax(const bool toggle)
+    {
+        m_alt_syntax = toggle;
+    }
+
+    bool Node::isAltSyntax() const
+    {
+        return m_alt_syntax;
+    }
+
     std::size_t Node::line() const noexcept
     {
         return m_line;
@@ -183,14 +193,41 @@ namespace Ark::internal
                 break;
 
             case NodeType::List:
-                data += "(";
-                for (std::size_t i = 0, end = constList().size(); i < end; ++i)
+                if (m_alt_syntax)
                 {
-                    data += constList()[i].repr();
-                    if (i < end - 1)
-                        data += " ";
+                    const auto first = constList().front();
+                    char open = 0;
+                    if (first.nodeType() == NodeType::Keyword && first.keyword() == Keyword::Begin)
+                        open = '{';
+                    else if (first.nodeType() == NodeType::Symbol && first.string() == "list")
+                        open = '[';
+                    else
+                        assert(false && "Alt syntax nodes can only be begin or list");
+
+                    data += open;
+                    for (std::size_t i = 1, end = constList().size(); i < end; ++i)
+                    {
+                        data += constList()[i].repr();
+                        if (i < end - 1)
+                            data += " ";
+                    }
+
+                    if (open == '{')
+                        data += "}";
+                    else if (open == '[')
+                        data += "]";
                 }
-                data += ")";
+                else
+                {
+                    data += "(";
+                    for (std::size_t i = 0, end = constList().size(); i < end; ++i)
+                    {
+                        data += constList()[i].repr();
+                        if (i < end - 1)
+                            data += " ";
+                    }
+                    data += ")";
+                }
                 break;
 
             case NodeType::Field:

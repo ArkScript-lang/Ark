@@ -1,8 +1,8 @@
-At (list) @ 1:21
+At [] @ 1:21
     1 | (macro a ($symcat b []))
       | │                   └─ error
       | │
       | └─ macro expansion started here
     2 | (print a)
     3 |
-        When expanding `$symcat', expected either a Number, String or Symbol, got a List: (list)
+        When expanding `$symcat', expected either a Number, String or Symbol, got a List: []
