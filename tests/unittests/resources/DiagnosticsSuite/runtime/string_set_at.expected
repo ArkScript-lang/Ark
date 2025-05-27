@@ -1,6 +1,6 @@
 IndexError: string:setAt index (4) out of range (string size: 4)
 
 In file tests/unittests/resources/DiagnosticsSuite/runtime/string_set_at.ark:1
-    1 | (string:setAt "0123" 4 "9")
-      | ^~~~~~~~~~~~~~~~~~~~~~~~~~
+    1 | (builtin__string:setAt "0123" 4 "9")
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     2 |

@@ -3,6 +3,6 @@ Function list:fill expected 2 arguments but got 1
   -> value (any) was not provided
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/listfill_str.ark:1
-    1 | (list:fill "hello")
-      | ^~~~~~~~~~~~~~~~~~
+    1 | (builtin__list:fill "hello")
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~
     2 |

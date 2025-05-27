@@ -2,6 +2,6 @@ Function math:cos expected 1 argument
   -> value (Number) was of type String
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/mathcos_str.ark:1
-    1 | (math:cos "1")
-      | ^~~~~~~~~~~~~
+    1 | (builtin__math:cos "1")
+      | ^~~~~~~~~~~~~~~~~~~~~~
     2 |

@@ -124,8 +124,7 @@ namespace Ark::internal
             SetAt2InPlace
         };
 
-        constexpr std::string_view SysArgs = "sys:args";
-        constexpr std::string_view SysPlatform = "sys:platform";
+        constexpr std::string_view SysArgs = "builtin__sys:args";
 
         constexpr std::string_view And = "and";
         constexpr std::string_view Or = "or";

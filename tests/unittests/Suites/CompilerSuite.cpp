@@ -106,12 +106,12 @@ ut::suite<"Compiler"> compiler_suite = [] {
             [](TestData&& data) {
                 Ark::Welder welder(0, { lib_path }, features);
 
-                should("compile without error ir/" + data.stem) = [&] {
+                should("compile without error optimized_ir/" + data.stem) = [&] {
                     expect(mut(welder).computeASTFromFile(data.path));
                     expect(mut(welder).generateBytecode());
                 };
 
-                should("output expected IR for " + data.stem) = [&] {
+                should("output expected optimized IR for " + data.stem) = [&] {
                     std::string ir = welder.textualIR();
 
                     ltrim(rtrim(ir));

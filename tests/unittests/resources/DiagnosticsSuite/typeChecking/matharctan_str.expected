@@ -2,6 +2,6 @@ Function math:arctan expected 1 argument
   -> value (Number) was of type String
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/matharctan_str.ark:1
-    1 | (math:arctan "1")
-      | ^~~~~~~~~~~~~~~~
+    1 | (builtin__math:arctan "1")
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~
     2 |

@@ -3,6 +3,6 @@ Function io:appendToFile expected 2 arguments
   -> content (any)
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/ioappendtofile_num_num.ark:1
-    1 | (io:appendToFile 1 2)
-      | ^~~~~~~~~~~~~~~~~~~~
+    1 | (builtin__io:appendToFile 1 2)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     2 |

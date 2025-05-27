@@ -9,16 +9,6 @@
 
 namespace Ark::internal::Builtins::List
 {
-    /**
-     * @name list:reverse
-     * @brief Reverse a given list and return a new one
-     * @details The original list is not modified
-     * @param list the list to reverse
-     * =begin
-     * (list:reverse [1 2 3])  # [3 2 1]
-     * =end
-     * @author https://github.com/SuperFola
-     */
     Value reverseList(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::List))
@@ -31,18 +21,6 @@ namespace Ark::internal::Builtins::List
         return n[0];
     }
 
-    /**
-     * @name list:find
-     * @brief Search an element in a List
-     * @details The original list is not modified
-     * @param list the List to search in
-     * @param value the element to search
-     * =begin
-     * (list:find [1 2 3] 1)  # 0
-     * (list:find [1 2 3] 0)  # -1
-     * =end
-     * @author https://github.com/SuperFola
-     */
     Value findInList(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::List, ValueType::Any))
@@ -56,19 +34,6 @@ namespace Ark::internal::Builtins::List
         return Value(-1);
     }
 
-    /**
-     * @name list:slice
-     * @brief Get a slice from a List
-     * @details The original list is not modified
-     * @param list the list to reverse
-     * @param start included, must be positive
-     * @param end not included, must be positive and smaller than the list
-     * @param step must be greater than 0
-     * =begin
-     * (list:slice [1 2 3 4 5] 1 4 2)  # [2 4]
-     * =end
-     * @author https://github.com/SuperFola
-     */
     Value sliceList(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::List, ValueType::Number, ValueType::Number, ValueType::Number))
@@ -101,16 +66,6 @@ namespace Ark::internal::Builtins::List
         return Value(std::move(list));
     }
 
-    /**
-     * @name list:sort
-     * @brief Sort a List and return a new one
-     * @details The original list is not modified
-     * @param list the list to sort
-     * =begin
-     * (list:sort [4 2 3])  # [1 2 4]
-     * =end
-     * @author https://github.com/SuperFola
-     */
     Value sort_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::List))
@@ -123,16 +78,6 @@ namespace Ark::internal::Builtins::List
         return n[0];
     }
 
-    /**
-     * @name list:fill
-     * @brief Generate a List of n copies of an element
-     * @param count the number of copies
-     * @param value the element to copy
-     * =begin
-     * (list:fill 4 nil)  # [nil nil nil nil]
-     * =end
-     * @author https://github.com/SuperFola
-     */
     Value fill(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::Number, ValueType::Any))
@@ -150,18 +95,6 @@ namespace Ark::internal::Builtins::List
         return Value(std::move(l));
     }
 
-    /**
-     * @name list:setAt
-     * @brief Modify a given list and return a new one
-     * @details The original list is not modified
-     * @param list the list to modify
-     * @param index the index of the element to modify
-     * @param value the new element
-     * =begin
-     * (list:setAt [1 2 3] 0 5)  # [5 2 3]
-     * =end
-     * @author https://github.com/SuperFola
-     */
     Value setListAt(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::List, ValueType::Number, ValueType::Any))

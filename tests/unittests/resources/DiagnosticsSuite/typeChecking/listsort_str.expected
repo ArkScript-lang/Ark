@@ -2,6 +2,6 @@ Function list:sort expected 1 argument
   -> list (List) was of type String
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/listsort_str.ark:1
-    1 | (list:sort "hello")
-      | ^~~~~~~~~~~~~~~~~~
+    1 | (builtin__list:sort "hello")
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~
     2 |

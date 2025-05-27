@@ -1,0 +1,7 @@
+ArityError: When calling `(asinh)', received 0 argument, but expected 1: `(asinh a)'
+
+In file tests/unittests/resources/DiagnosticsSuite/runtime/builtin_proxy_not_enough_args.ark:2
+    1 | (let asinh (fun (_x) (builtin__math:asinh _x)))
+    2 | (asinh)
+      | ^~~~~~
+    3 |

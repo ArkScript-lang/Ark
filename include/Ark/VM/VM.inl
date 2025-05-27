@@ -309,11 +309,20 @@ inline void VM::call(internal::ExecutionContext& context, const uint16_t argc, V
         index += 4;  // instructions are on 4 bytes
     }
 
+    // no store? check for CALL_BUILTIN_WITHOUT_RETURN_ADDRESS
+    if (index == 0 && m_state.m_pages[context.pp][0] == CALL_BUILTIN_WITHOUT_RETURN_ADDRESS)
+    {
+        const uint8_t padding = m_state.m_pages[context.pp][context.ip + 1];
+        const uint16_t arg = static_cast<uint16_t>((m_state.m_pages[context.pp][context.ip + 2] << 8) +
+                                                   m_state.m_pages[context.pp][context.ip + 3]);
+        needed_argc = static_cast<uint16_t>((padding << 4) | (arg & 0xf000) >> 12);
+    }
+
     if (std::cmp_not_equal(needed_argc, argc)) [[unlikely]]
         throwArityError(argc, needed_argc, context);
 }
 
-inline void VM::callBuiltin(internal::ExecutionContext& context, const Value& builtin, const uint16_t argc)
+inline void VM::callBuiltin(internal::ExecutionContext& context, const Value& builtin, const uint16_t argc, const bool remove_return_address)
 {
     // drop arguments from the stack
     std::vector<Value> args;
@@ -330,7 +339,7 @@ inline void VM::callBuiltin(internal::ExecutionContext& context, const Value& bu
         args.emplace_back(*val);
     }
     // +2 to skip PP/IP that were pushed by PUSH_RETURN_ADDRESS
-    context.sp -= argc + 2;
+    context.sp -= argc + (remove_return_address ? 2 : 0);
     // call proc
     push(builtin.proc()(args, this), context);
 }

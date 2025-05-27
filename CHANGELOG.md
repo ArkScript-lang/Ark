@@ -136,6 +136,10 @@
   - this works inside normal scopes (introduced by while loops) and functions scopes, but not for closures
 - VM stack size is now 4096 instead of 8192
 - `Ark::CodeError` now takes a `CodeErrorContext` to store the source (filename, line, column, expression) of an error
+- renamed `string:format` to `format`
+- `io:removeFiles` is now `io:removeFile` and works on a single file/path
+- renamed almost all builtins to prefix them with `builtin__`, to have them proxied in the standard library (to be able to import and scope them properly)
+- new super instruction `CALL_BUILTIN_WITHOUT_RETURN_ADDRESS` to optimize the proxied builtins, skipping the return address deletion
 
 ### Removed
 - removed unused `NodeType::Closure`

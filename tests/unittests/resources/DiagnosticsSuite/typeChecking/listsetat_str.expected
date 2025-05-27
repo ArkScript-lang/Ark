@@ -4,6 +4,6 @@ Function list:setAt expected 3 arguments but got 1
   -> value (any) was not provided
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/listsetat_str.ark:1
-    1 | (list:setAt "hello")
-      | ^~~~~~~~~~~~~~~~~~~
+    1 | (builtin__list:setAt "hello")
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
     2 |

@@ -381,8 +381,9 @@ namespace Ark
          * @param context
          * @param builtin the builtin to call
          * @param argc number of arguments already sent
+         * @param remove_return_address remove the return address pushed by the compiler
          */
-        inline void callBuiltin(internal::ExecutionContext& context, const Value& builtin, uint16_t argc);
+        inline void callBuiltin(internal::ExecutionContext& context, const Value& builtin, uint16_t argc, bool remove_return_address = true);
     };
 
 #include "VM.inl"

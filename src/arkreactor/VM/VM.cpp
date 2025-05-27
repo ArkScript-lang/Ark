@@ -567,6 +567,7 @@ namespace Ark
                 &&TARGET_SET_VAL_HEAD,
                 &&TARGET_SET_VAL_HEAD_BY_INDEX,
                 &&TARGET_CALL_BUILTIN,
+                &&TARGET_CALL_BUILTIN_WITHOUT_RETURN_ADDRESS,
                 &&TARGET_LT_CONST_JUMP_IF_FALSE,
                 &&TARGET_LT_CONST_JUMP_IF_TRUE,
                 &&TARGET_LT_SYM_JUMP_IF_FALSE,
@@ -1651,6 +1652,16 @@ namespace Ark
                         DISPATCH();
                     }
 
+                    TARGET(CALL_BUILTIN_WITHOUT_RETURN_ADDRESS)
+                    {
+                        UNPACK_ARGS();
+                        // no stack size check because we do not push IP/PP since we are just calling a builtin
+                        callBuiltin(context, Builtins::builtins[primary_arg].second, secondary_arg, /* remove_return_address= */ false);
+                        if (!m_running)
+                            GOTO_HALT();
+                        DISPATCH();
+                    }
+
                     TARGET(LT_CONST_JUMP_IF_FALSE)
                     {
                         UNPACK_ARGS();
@@ -1895,6 +1906,13 @@ namespace Ark
             const auto id = static_cast<uint16_t>((m_state.m_pages[context.pp][index + 2] << 8) + m_state.m_pages[context.pp][index + 3]);
             arg_names.push_back(m_state.m_symbols[id]);
             index += 4;
+        }
+        // we only the blank space for formatting and no arg names, probably because of a CALL_BUILTIN_WITHOUT_RETURN_ADDRESS
+        if (arg_names.size() == 1 && index == 0)
+        {
+            assert(m_state.m_pages[context.pp][0] == CALL_BUILTIN_WITHOUT_RETURN_ADDRESS && "expected a CALL_BUILTIN_WITHOUT_RETURN_ADDRESS instruction or STORE instructions");
+            for (std::size_t i = 0; i < expected_arg_count; ++i)
+                arg_names.push_back(std::string(1, static_cast<char>('a' + i)));
         }
 
         std::vector<std::string> arg_vals;
