@@ -1,0 +1,7 @@
+IndexError: @@ index (x: -2) out of range (inner indexable size: 3)
+
+In file tests/unittests/resources/DiagnosticsSuite/runtime/at_at_ok_negative_outside_list.ark:2
+    1 | (let a [[1 2 3] [4 5 6]])
+    2 | (@@ a 1 -5)
+      | ^~~~~~~~~~
+    3 |

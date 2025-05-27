@@ -1,0 +1,7 @@
+IndexError: @@= index (x: -1) out of range (inner indexable size: 3)
+
+In file tests/unittests/resources/DiagnosticsSuite/runtime/at_at_eq_ok_negative_outside_list.ark:2
+    1 | (mut a [[1 2 3] [4 5 6]])
+    2 | (@@= a 1 -4 9)
+      | ^~~~~~~~~~~~~
+    3 |

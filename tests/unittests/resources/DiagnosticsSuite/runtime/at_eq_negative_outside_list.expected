@@ -1,0 +1,7 @@
+IndexError: @= index (-1) out of range (indexable size: 3)
+
+In file tests/unittests/resources/DiagnosticsSuite/runtime/at_eq_negative_outside_list.ark:2
+    1 | (mut a [1 2 3])
+    2 | (@= a -4 5)
+      | ^~~~~~~~~~
+    3 |

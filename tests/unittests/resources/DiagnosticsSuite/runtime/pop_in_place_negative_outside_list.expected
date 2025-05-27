@@ -1,0 +1,7 @@
+IndexError: pop! index (-1) out of range (list size: 0)
+
+In file tests/unittests/resources/DiagnosticsSuite/runtime/pop_in_place_negative_outside_list.ark:2
+    1 | (mut a [])
+    2 | (pop! a -1)
+      | ^~~~~~~~~~
+    3 |

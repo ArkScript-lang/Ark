@@ -868,7 +868,7 @@ namespace Ark
 
                             long idx = static_cast<long>(number.number());
                             idx = idx < 0 ? static_cast<long>(list.list().size()) + idx : idx;
-                            if (std::cmp_greater_equal(idx, list.list().size()))
+                            if (std::cmp_greater_equal(idx, list.list().size()) || idx < 0)
                                 throwVMError(
                                     ErrorKind::Index,
                                     fmt::format("pop index ({}) out of range (list size: {})", idx, list.list().size()));
@@ -893,7 +893,7 @@ namespace Ark
 
                             long idx = static_cast<long>(number.number());
                             idx = idx < 0 ? static_cast<long>(list->list().size()) + idx : idx;
-                            if (std::cmp_greater_equal(idx, list->list().size()))
+                            if (std::cmp_greater_equal(idx, list->list().size()) || idx < 0)
                                 throwVMError(
                                     ErrorKind::Index,
                                     fmt::format("pop! index ({}) out of range (list size: {})", idx, list->list().size()));
@@ -926,7 +926,7 @@ namespace Ark
                             const std::size_t size = list->valueType() == ValueType::List ? list->list().size() : list->stringRef().size();
                             long idx = static_cast<long>(number.number());
                             idx = idx < 0 ? static_cast<long>(size) + idx : idx;
-                            if (std::cmp_greater_equal(idx, size))
+                            if (std::cmp_greater_equal(idx, size) || idx < 0)
                                 throwVMError(
                                     ErrorKind::Index,
                                     fmt::format("@= index ({}) out of range (indexable size: {})", idx, size));
@@ -959,7 +959,7 @@ namespace Ark
 
                             long idx_y = static_cast<long>(x.number());
                             idx_y = idx_y < 0 ? static_cast<long>(list->list().size()) + idx_y : idx_y;
-                            if (std::cmp_greater_equal(idx_y, list->list().size()))
+                            if (std::cmp_greater_equal(idx_y, list->list().size()) || idx_y < 0)
                                 throwVMError(
                                     ErrorKind::Index,
                                     fmt::format("@@= index (y: {}) out of range (list size: {})", idx_y, list->list().size()));
@@ -988,7 +988,7 @@ namespace Ark
 
                             long idx_x = static_cast<long>(y.number());
                             idx_x = idx_x < 0 ? static_cast<long>(size) + idx_x : idx_x;
-                            if (std::cmp_greater_equal(idx_x, size))
+                            if (std::cmp_greater_equal(idx_x, size) || idx_x < 0)
                                 throwVMError(
                                     ErrorKind::Index,
                                     fmt::format("@@= index (x: {}) out of range (inner indexable size: {})", idx_x, size));
@@ -1273,7 +1273,7 @@ namespace Ark
 
                             long idx_y = static_cast<long>(y->number());
                             idx_y = idx_y < 0 ? static_cast<long>(list.list().size()) + idx_y : idx_y;
-                            if (std::cmp_greater_equal(idx_y, list.list().size()))
+                            if (std::cmp_greater_equal(idx_y, list.list().size()) || idx_y < 0)
                                 throwVMError(
                                     ErrorKind::Index,
                                     fmt::format("@@ index ({}) out of range (list size: {})", idx_y, list.list().size()));
@@ -1286,7 +1286,7 @@ namespace Ark
 
                             long idx_x = static_cast<long>(x->number());
                             idx_x = idx_x < 0 ? static_cast<long>(size) + idx_x : idx_x;
-                            if (std::cmp_greater_equal(idx_x, size))
+                            if (std::cmp_greater_equal(idx_x, size) || idx_x < 0)
                                 throwVMError(
                                     ErrorKind::Index,
                                     fmt::format("@@ index (x: {}) out of range (inner indexable size: {})", idx_x, size));
