@@ -151,8 +151,8 @@ namespace Ark::Diagnostics
         }
 
         auto [first_line, last_line] = compute_start_end_window(target_line, lines.size());
-        // number of characters that are on more lines below
-        std::size_t overflow = (col_start + sym_size < lines[target_line].size()) ? 0 : col_start + sym_size - lines[target_line].size();
+        // overflow is non-zero when the expression doesn't fit on the target line
+        std::size_t overflow = (col_start + sym_size <= lines[target_line].size()) ? 0 : sym_size;
 
         const bool ctx_same_file = maybe_context && maybe_context->filename == filename;
         const bool ctx_in_window = ctx_same_file && maybe_context &&
@@ -217,13 +217,20 @@ namespace Ark::Diagnostics
 
                 if (!whole_line)
                 {
-                    // if we have an overflow then we start at the beginning of the line
-                    const std::size_t curr_col_start = (overflow == 0) ? col_start : 0;
+                    std::size_t line_first_char = lines[i].find_first_not_of(" \t\v");
+                    line_first_char = line_first_char == std::string::npos ? 0 : line_first_char;
+
+                    // if we have an overflow then we start at the beginning of the line (first non-space character)
+                    const std::size_t curr_col_start = (i == target_line) ? col_start : (overflow == 0 ? col_start : line_first_char + 1);
                     // if we have an overflow, it is used as the end of the line
                     const std::size_t col_end = (i == target_line) ? std::min<std::size_t>(col_start + sym_size, lines[target_line].size())
-                                                                   : std::min<std::size_t>(overflow, lines[i].size());
+                                                                   : std::min<std::size_t>(line_first_char + overflow, lines[i].size());
                     // update the overflow to avoid going here again if not needed
-                    overflow = (overflow > lines[i].size()) ? overflow - lines[i].size() : 0;
+                    // using min between overflow and what we need to delete to avoid underflow
+                    overflow -= std::min(overflow, lines[i].size() - line_first_char);
+                    // if there is overflow left, and it's the last line of the context, extend it
+                    if (overflow > 0 && i + 1 == last_line)
+                        ++last_line;
 
                     // show the error where it's at, using the normal process, if there is no context OR if the context line is different from the error line
                     if (!maybe_context || maybe_context->line != target_line)

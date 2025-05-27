@@ -294,6 +294,7 @@ namespace Ark::internal
         std::optional<Node> leaf { NodeType::List };
         setNodePosAndFilename(leaf.value());
 
+        const auto [row, col] = getCursor();
         auto context = generateErrorContext("(");
         if (!accept(IsChar('(')))
             return std::nullopt;
@@ -309,6 +310,8 @@ namespace Ark::internal
         leaf->push_back(Node(Keyword::Import));
 
         Import import_data;
+        import_data.col = col;
+        import_data.line = row;
 
         const auto pos = getCount();
         if (!packageName(&import_data.prefix))
@@ -320,10 +323,6 @@ namespace Ark::internal
             errorWithNextToken(fmt::format("Import name too long, expected at most 255 characters, got {}", import_data.prefix.size()));
         }
         import_data.package.push_back(import_data.prefix);
-
-        const auto [row, col] = getCursor();
-        import_data.col = col;
-        import_data.line = row;
 
         Node packageNode(NodeType::List);
         setNodePosAndFilename(packageNode.attachNearestCommentBefore(comment));

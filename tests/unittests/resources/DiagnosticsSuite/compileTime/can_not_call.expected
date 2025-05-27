@@ -1,5 +1,5 @@
 At ((begin)) @ 1:4
     1 |  (((begin)))
-      | ^~~~~~~~~~~~
+      |    ^~~~~~~~
     2 |
         Can not call (begin)
