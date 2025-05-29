@@ -497,6 +497,7 @@ namespace Ark
                 &&TARGET_JUMP,
                 &&TARGET_RET,
                 &&TARGET_HALT,
+                &&TARGET_PUSH_RETURN_ADDRESS,
                 &&TARGET_CALL,
                 &&TARGET_CAPTURE,
                 &&TARGET_BUILTIN,
@@ -703,6 +704,14 @@ namespace Ark
                     {
                         m_running = false;
                         GOTO_HALT();
+                    }
+
+                    TARGET(PUSH_RETURN_ADDRESS)
+                    {
+                        push(Value(static_cast<PageAddr_t>(context.pp)), context);
+                        // arg * 4 to skip over the call instruction, so that the return address points to AFTER the call
+                        push(Value(ValueType::InstPtr, static_cast<PageAddr_t>(arg * 4)), context);
+                        DISPATCH();
                     }
 
                     TARGET(CALL)
