@@ -121,10 +121,8 @@ ut::suite<"BytecodeReader"> bcr_suite = [] {
         should("list all code page") = [inst_locations_block, pages, start_code] {
             expect(that % start_code == inst_locations_block.end);
             expect(that % pages.size() == 2ull);
-            // 7 instructions on 4 bytes
-            expect(that % pages[0].size() == 7 * 4ull);
-            // 19 instructions on 4 bytes
-            expect(that % pages[1].size() == 19 * 4ull);
+            expect(that % pages[0].size() == 9 * 4ull);
+            expect(that % pages[1].size() == 20 * 4ull);
         };
     };
 };

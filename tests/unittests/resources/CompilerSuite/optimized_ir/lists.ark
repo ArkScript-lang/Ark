@@ -24,6 +24,7 @@
 
 # STORE_HEAD_BY_INDEX
 (mut head_2 (head source))
+(print head_2)
 # STORE_TAIL_BY_INDEX
 (mut tail_2 (tail source))
 

@@ -58,6 +58,8 @@
 - `CHECK_TYPE_OF` and `CHECK_TYPE_OF_BY_INDEX` super instructions, to check the type of variable against a constant in a single instruction
 - `INCREMENT_STORE` and `DECREMENT_STORE` super instructions, to update a value in place when incrementing/decrementing it by a set amount
 - `APPEND_IN_PLACE_SYM` and `APPEND_IN_PLACE_SYM_INDEX` super instructions
+- `PUSH_RETURN_ADDRESS` instruction now replaces the VM auto push of IP/PP
+- remove the stack swapping by pushing arguments in the reverse order by which they are loaded
 
 ### Changed
 - instructions are on 4 bytes: 1 byte for the instruction, 1 byte of padding, 2 bytes for an immediate argument

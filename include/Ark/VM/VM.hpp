@@ -14,6 +14,7 @@
 #include <array>
 #include <vector>
 #include <string>
+#include <ranges>
 #include <cassert>
 #include <utility>
 #include <cinttypes>
@@ -294,17 +295,6 @@ namespace Ark
          * @return Value*
          */
         inline Value* popAndResolveAsPtr(internal::ExecutionContext& context);
-
-        /**
-         * @brief Move stack values around and invert them
-         * @details values:     1,  2, 3, _, _
-         *          wanted:    pp, ip, 3, 2, 1
-         *          positions:  0,  1, 2, 3, 4
-         *
-         * @param argc number of arguments to swap around
-         * @param context
-         */
-        inline void swapStackForFunCall(uint16_t argc, internal::ExecutionContext& context);
 
         // ================================================
         //                locals related
