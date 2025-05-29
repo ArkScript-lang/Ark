@@ -1,7 +1,9 @@
 #include <Ark/Compiler/Lowerer/ASTLowerer.hpp>
 
 #include <limits>
+#include <ranges>
 #include <utility>
+#include <ranges>
 #include <algorithm>
 #include <fmt/core.h>
 #include <fmt/color.h>
@@ -536,7 +538,8 @@ namespace Ark::internal
         {
             if (is_terminal && x.constList()[0].nodeType() == NodeType::Symbol && var_name == x.constList()[0].string())
             {
-                // push the arguments in reverse order
+                // push the arguments in reverse order because the function loads its arguments in the order they are defined:
+                // (fun (a b c) ...) -> load a, then b, then c
                 for (std::size_t i = x.constList().size() - 1; i >= start_index; --i)
                 {
                     if (nodeProducesOutput(x.constList()[i]))
@@ -559,7 +562,11 @@ namespace Ark::internal
                 if (m_temp_pages.back().empty())
                     buildAndThrowError(fmt::format("Can not call {}", x.constList()[0].repr()), x);
 
-                // push arguments on current page
+                const auto label_return = IR::Entity::Label(m_current_label++);
+                page(p).emplace_back(IR::Entity::Goto(label_return, PUSH_RETURN_ADDRESS));
+
+                // push arguments on current page in reverse order
+                // fixme: not reverse order
                 for (auto exp = x.constList().begin() + start_index, exp_end = x.constList().end(); exp != exp_end; ++exp)
                 {
                     if (nodeProducesOutput(*exp))
@@ -574,7 +581,7 @@ namespace Ark::internal
 
                 // number of arguments
                 std::size_t args_count = 0;
-                for (auto it = x.constList().begin() + 1, it_end = x.constList().end(); it != it_end; ++it)
+                for (auto it = x.constList().begin() + start_index, it_end = x.constList().end(); it != it_end; ++it)
                 {
                     if (it->nodeType() != NodeType::Capture)
                         args_count++;
@@ -582,6 +589,9 @@ namespace Ark::internal
                 // call the procedure
                 page(p).emplace_back(CALL, args_count);
                 page(p).back().setSourceLocation(node.filename(), node.line());
+
+                // patch the PUSH_RETURN_ADDRESS instruction with the return location (IP=CALL instruction IP)
+                page(p).emplace_back(label_return);
             }
         }
         else  // operator

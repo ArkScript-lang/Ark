@@ -74,325 +74,328 @@ namespace Ark::internal
         // @role Stop the Virtual Machine
         HALT = 0x0a,
 
+        // @role push pp, then ip on the stack, preparing for a call instruction
+        PUSH_RETURN_ADDRESS = 0x0b,
+
         // @args argument count
         // @role Call function from its symbol id located on top of the stack. Take the given number of arguments from the top of stack and give them to the function (the first argument taken from the stack will be the last one of the function). The stack of the function is now composed of its arguments, from the first to the last one
-        CALL = 0x0b,
+        CALL = 0x0c,
 
         // @args symbol id
         // @role Tell the Virtual Machine to capture the variable from the current environment. Main goal is to be able to handle closures, which need to save the environment in which they were created
-        CAPTURE = 0x0c,
+        CAPTURE = 0x0d,
 
         // @args builtin id
         // @role Push the corresponding builtin function object on the stack
-        BUILTIN = 0x0d,
+        BUILTIN = 0x0e,
 
         // @args symbol id
         // @role Remove a variable/constant named following the given symbol id (cf symbols table)
-        DEL = 0x0e,
+        DEL = 0x0f,
 
         // @args constant id
         // @role Push a Closure with the page address pointed by the constant, along with the saved scope created by CAPTURE instruction(s)
-        MAKE_CLOSURE = 0x0f,
+        MAKE_CLOSURE = 0x10,
 
         // @args symbol id
         // @role Read the field named following the given symbol id (cf symbols table) of a #[code Closure] stored in TS. Pop TS and push the value of field read on the stack
-        GET_FIELD = 0x10,
+        GET_FIELD = 0x11,
 
         // @args constant id
         // @role Load a plugin dynamically, plugin name is stored as a string in the constants table
-        PLUGIN = 0x11,
+        PLUGIN = 0x12,
 
         // @args number of elements
         // @role Create a list from the N elements pushed on the stack. Follows the function calling convention
-        LIST = 0x12,
+        LIST = 0x13,
 
         // @args number of elements
         // @role Append N elements to a list (TS). Elements are stored in TS(1)..TS(N). Follows the function calling convention
-        APPEND = 0x13,
+        APPEND = 0x14,
 
         // @args number of elements
         // @role Concatenate N lists to a list (TS). Lists to concat to TS are stored in TS(1)..TS(N). Follows the function calling convention
-        CONCAT = 0x14,
+        CONCAT = 0x15,
 
         // @args number of elements
         // @role Append N elements to a reference to a list (TS), the list is being mutated in-place, no new object created. Elements are stored in TS(1)..TS(N). Follows the function calling convention
-        APPEND_IN_PLACE = 0x15,
+        APPEND_IN_PLACE = 0x16,
 
         // @args number of elements
         // @role Concatenate N lists to a reference to a list (TS), the list is being mutated in-place, no new object created. Lists to concat to TS are stored in TS(1)..TS(N). Follows the function calling convention
-        CONCAT_IN_PLACE = 0x16,
+        CONCAT_IN_PLACE = 0x17,
 
         // @role Remove an element from a list (TS), given an index (TS1). Push a new list without the removed element to the stack
-        POP_LIST = 0x17,
+        POP_LIST = 0x18,
 
         // @role Remove an element from a reference to a list (TS), given an index (TS1). The list is mutated in-place, no new object created
-        POP_LIST_IN_PLACE = 0x18,
+        POP_LIST_IN_PLACE = 0x19,
 
         // @role Modify a reference to a list or string (TS) by replacing the element at TS1 (must be a number) by the value in TS2. The object is mutated in-place, no new object created
-        SET_AT_INDEX = 0x19,
+        SET_AT_INDEX = 0x1a,
 
         // @role Modify a reference to a list (TS) by replacing TS[TS2][TS1] by the value in TS3. TS[TS2] can be a string (if it is, TS3 must be a string). The object is mutated in-place, no new object created
-        SET_AT_2_INDEX = 0x1a,
+        SET_AT_2_INDEX = 0x1b,
 
         // @role Remove the top of the stack
-        POP = 0x1b,
+        POP = 0x1c,
 
         // @role Pop the top of the stack, if it's false, jump to an address
-        SHORTCIRCUIT_AND = 0x1c,
+        SHORTCIRCUIT_AND = 0x1d,
 
         // @role Pop the top of the stack, if it's true, jump to an address
-        SHORTCIRCUIT_OR = 0x1d,
+        SHORTCIRCUIT_OR = 0x1e,
 
         // @role Create a new local scope
-        CREATE_SCOPE = 0x1e,
+        CREATE_SCOPE = 0x1f,
 
         // @role Reset the current scope so that it is empty, and jump to a given location
-        RESET_SCOPE_JUMP = 0x1f,
+        RESET_SCOPE_JUMP = 0x20,
 
         // @role Destroy the last local scope
-        POP_SCOPE = 0x20,
+        POP_SCOPE = 0x21,
 
-        FIRST_OPERATOR = 0x21,
+        FIRST_OPERATOR = 0x22,
 
         // @role Push #[code TS1 + TS]
-        ADD = 0x21,
+        ADD = 0x22,
 
         // @role Push #[code TS1 - TS]
-        SUB = 0x22,
+        SUB = 0x23,
 
         // @role Push #[code TS1 * TS]
-        MUL = 0x23,
+        MUL = 0x24,
 
         // @role Push #[code TS1 / TS]
-        DIV = 0x24,
+        DIV = 0x25,
 
         // @role Push #[code TS1 > TS]
-        GT = 0x25,
+        GT = 0x26,
 
         // @role Push #[code TS1 < TS]
-        LT = 0x26,
+        LT = 0x27,
 
         // @role Push #[code TS1 <= TS]
-        LE = 0x27,
+        LE = 0x28,
 
         // @role Push #[code TS1 >= TS]
-        GE = 0x28,
+        GE = 0x29,
 
         // @role Push #[code TS1 != TS]
-        NEQ = 0x29,
+        NEQ = 0x2a,
 
         // @role Push #[code TS1 == TS]
-        EQ = 0x2a,
+        EQ = 0x2b,
 
         // @role Push #[code len(TS)], TS must be a list
-        LEN = 0x2b,
+        LEN = 0x2c,
 
         // @role Push #[code empty?(TS)], TS must be a list or string
-        EMPTY = 0x2c,
+        EMPTY = 0x2d,
 
         // @role Push #[code tail(TS)], all the elements of TS except the first one. TS must be a list or string
-        TAIL = 0x2d,
+        TAIL = 0x2e,
 
         // @role Push #[code head(TS)], the first element of TS or nil if empty. TS must be a list or string
-        HEAD = 0x2e,
+        HEAD = 0x2f,
 
         // @role Push true if TS is nil, false otherwise
-        ISNIL = 0x2f,
+        ISNIL = 0x30,
 
         // @role Throw an exception if TS1 is false, and display TS (must be a string). Do not push anything on the stack
-        ASSERT = 0x30,
+        ASSERT = 0x31,
 
         // @role Convert TS to number (must be a string)
-        TO_NUM = 0x31,
+        TO_NUM = 0x32,
 
         // @role Convert TS to string
-        TO_STR = 0x32,
+        TO_STR = 0x33,
 
         // @role Push the value at index TS (must be a number) in TS1, which must be a list or string
-        AT = 0x33,
+        AT = 0x34,
 
         // @role Push the value at index TS (must be a number), inside the list or string at index TS1 (must be a number) in the list at TS2
-        AT_AT = 0x34,
+        AT_AT = 0x35,
 
         // @role Push #[code TS1 % TS]
-        MOD = 0x35,
+        MOD = 0x36,
 
         // @role Push the type of TS as a string
-        TYPE = 0x36,
+        TYPE = 0x37,
 
         // @role Check if TS1 is a closure field of TS. TS must be a Closure, TS1 a String
-        HASFIELD = 0x37,
+        HASFIELD = 0x38,
 
         // @role Push #[code !TS]
-        NOT = 0x38,
+        NOT = 0x39,
 
         // @args constant id, constant id
         // @role Load two consts (#[code primary] then #[code secondary]) on the stack in one instruction
-        LOAD_CONST_LOAD_CONST = 0x39,
+        LOAD_CONST_LOAD_CONST = 0x3a,
 
         // @args constant id, symbol id
         // @role Load const #[code primary] into the symbol #[code secondary] (create a variable)
-        LOAD_CONST_STORE = 0x3a,
+        LOAD_CONST_STORE = 0x3b,
 
         // @args constant id, symbol id
         // @role Load const #[code primary] into the symbol #[code secondary] (search for the variable with the given symbol id)
-        LOAD_CONST_SET_VAL = 0x3b,
+        LOAD_CONST_SET_VAL = 0x3c,
 
         // @args symbol id, symbol id
         // @role Store the value of the symbol #[code primary] into a new variable #[code secondary]
-        STORE_FROM = 0x3c,
+        STORE_FROM = 0x3d,
 
         // @args symbol index, symbol id
         // @role Store the value of the symbol #[code primary] into a new variable #[code secondary]
-        STORE_FROM_INDEX = 0x3d,
+        STORE_FROM_INDEX = 0x3e,
 
         // @args symbol id, symbol id
         // @role Store the value of the symbol #[code primary] into an existing variable #[code secondary]
-        SET_VAL_FROM = 0x3e,
+        SET_VAL_FROM = 0x3f,
 
         // @args symbol index, symbol id
         // @role Store the value of the symbol #[code primary] into an existing variable #[code secondary]
-        SET_VAL_FROM_INDEX = 0x3f,
+        SET_VAL_FROM_INDEX = 0x40,
 
         // @args symbol id, count
         // @role Increment the variable #[code primary] by #[code count] and push its value on the stack
-        INCREMENT = 0x40,
+        INCREMENT = 0x41,
 
         // @args symbol index, count
         // @role Increment the variable #[code primary] by #[code count] and push its value on the stack
-        INCREMENT_BY_INDEX = 0x41,
+        INCREMENT_BY_INDEX = 0x42,
 
         // @args symbol id, count
         // @role Increment the variable #[code primary] by #[code count] and store its value in the given symbol id
-        INCREMENT_STORE = 0x42,
+        INCREMENT_STORE = 0x43,
 
         // @args symbol id, count
         // @role Decrement the variable #[code primary] by #[code count] and push its value on the stack
-        DECREMENT = 0x43,
+        DECREMENT = 0x44,
 
         // @args symbol index, count
         // @role Decrement the variable #[code primary] by #[code count] and push its value on the stack
-        DECREMENT_BY_INDEX = 0x44,
+        DECREMENT_BY_INDEX = 0x45,
 
         // @args symbol id, count
         // @role Decrement the variable #[code primary] by #[code count] and store its value in the given symbol id
-        DECREMENT_STORE = 0x45,
+        DECREMENT_STORE = 0x46,
 
         // @args symbol id, symbol id
         // @role Load the symbol #[code primary], compute its tail, store it in a new variable #[code secondary]
-        STORE_TAIL = 0x46,
+        STORE_TAIL = 0x47,
 
         // @args symbol index, symbol id
         // @role Load the symbol #[code primary], compute its tail, store it in a new variable #[code secondary]
-        STORE_TAIL_BY_INDEX = 0x47,
+        STORE_TAIL_BY_INDEX = 0x48,
 
         // @args symbol id, symbol id
         // @role Load the symbol #[code primary], compute its head, store it in a new variable #[code secondary]
-        STORE_HEAD = 0x48,
+        STORE_HEAD = 0x49,
 
         // @args symbol index, symbol id
         // @role Load the symbol #[code primary], compute its head, store it in a new variable #[code secondary]
-        STORE_HEAD_BY_INDEX = 0x49,
+        STORE_HEAD_BY_INDEX = 0x4a,
 
         // @args number, symbol id
         // @role Create a list of #[code number] elements, and store it in a new variable #[code secondary]
-        STORE_LIST = 0x4a,
+        STORE_LIST = 0x4b,
 
         // @args symbol id, symbol id
         // @role Load the symbol #[code primary], compute its tail, store it in an existing variable #[code secondary]
-        SET_VAL_TAIL = 0x4b,
+        SET_VAL_TAIL = 0x4c,
 
         // @args symbol index, symbol id
         // @role Load the symbol #[code primary], compute its tail, store it in an existing variable #[code secondary]
-        SET_VAL_TAIL_BY_INDEX = 0x4c,
+        SET_VAL_TAIL_BY_INDEX = 0x4d,
 
         // @args symbol id, symbol id
         // @role Load the symbol #[code primary], compute its head, store it in an existing variable #[code secondary]
-        SET_VAL_HEAD = 0x4d,
+        SET_VAL_HEAD = 0x4e,
 
         // @args symbol index, symbol id
         // @role Load the symbol #[code primary], compute its head, store it in an existing variable #[code secondary]
-        SET_VAL_HEAD_BY_INDEX = 0x4e,
+        SET_VAL_HEAD_BY_INDEX = 0x4f,
 
         // @args builtin id, argument count
         // @role Call a builtin by its id in #[code primary], with #[code secondary] arguments. Bypass the stack size check because we do not push IP/PP since builtins calls do not alter the stack
-        CALL_BUILTIN = 0x4f,
+        CALL_BUILTIN = 0x50,
 
         // @args constant id, absolute address to jump to
         // @role Compare #[code TS < constant], if the comparison fails, jump to the given address. Otherwise, does nothing
-        LT_CONST_JUMP_IF_FALSE = 0x50,
+        LT_CONST_JUMP_IF_FALSE = 0x51,
 
         // @args constant id, absolute address to jump to
         // @role Compare #[code TS < constant], if the comparison succeeds, jump to the given address. Otherwise, does nothing
-        LT_CONST_JUMP_IF_TRUE = 0x51,
+        LT_CONST_JUMP_IF_TRUE = 0x52,
 
         // @args symbol id, absolute address to jump to
         // @role Compare #[code TS < symbol], if the comparison fails, jump to the given address. Otherwise, does nothing
-        LT_SYM_JUMP_IF_FALSE = 0x52,
+        LT_SYM_JUMP_IF_FALSE = 0x53,
 
         // @args constant id, absolute address to jump to
         // @role Compare #[code TS > constant], if the comparison succeeds, jump to the given address. Otherwise, does nothing
-        GT_CONST_JUMP_IF_TRUE = 0x53,
+        GT_CONST_JUMP_IF_TRUE = 0x54,
 
         // @args constant id, absolute address to jump to
         // @role Compare #[code TS > constant], if the comparison fails, jump to the given address. Otherwise, does nothing
-        GT_CONST_JUMP_IF_FALSE = 0x54,
+        GT_CONST_JUMP_IF_FALSE = 0x55,
 
         // @args symbol id, absolute address to jump to
         // @role Compare #[code TS > symbol], if the comparison fails, jump to the given address. Otherwise, does nothing
-        GT_SYM_JUMP_IF_FALSE = 0x55,
+        GT_SYM_JUMP_IF_FALSE = 0x56,
 
         // @args constant id, absolute address to jump to
         // @role Compare #[code TS == constant], if the comparison succeeds, jump to the given address. Otherwise, does nothing
-        EQ_CONST_JUMP_IF_TRUE = 0x56,
+        EQ_CONST_JUMP_IF_TRUE = 0x57,
 
         // @args symbol index, absolute address to jump to
         // @role Compare #[code TS == symbol], if the comparison succeeds, jump to the given address. Otherwise, does nothing
-        EQ_SYM_INDEX_JUMP_IF_TRUE = 0x57,
+        EQ_SYM_INDEX_JUMP_IF_TRUE = 0x58,
 
         // @args constant id, absolute address to jump to
         // @role Compare #[code TS != constant], if the comparison succeeds, jump to the given address. Otherwise, does nothing
-        NEQ_CONST_JUMP_IF_TRUE = 0x58,
+        NEQ_CONST_JUMP_IF_TRUE = 0x59,
 
         // @args symbol id, absolute address to jump to
         // @role Compare #[code TS != symbol], if the comparison fails, jump to the given address. Otherwise, does nothing
-        NEQ_SYM_JUMP_IF_FALSE = 0x59,
+        NEQ_SYM_JUMP_IF_FALSE = 0x5a,
 
         // @args symbol id, argument count
         // @role Call a symbol by its id in #[code primary], with #[code secondary] arguments
-        CALL_SYMBOL = 0x5a,
+        CALL_SYMBOL = 0x5b,
 
         // @args symbol id, field id in symbols table
         // @role Push the field of a given symbol (which has to be a closure) on the stack
-        GET_FIELD_FROM_SYMBOL = 0x5b,
+        GET_FIELD_FROM_SYMBOL = 0x5c,
 
         // @args symbol index, field id in symbols table
         // @role Push the field of a given symbol (which has to be a closure) on the stack
-        GET_FIELD_FROM_SYMBOL_INDEX = 0x5c,
+        GET_FIELD_FROM_SYMBOL_INDEX = 0x5d,
 
         // @args symbol id, symbol id2
         // @role Push symbol[symbol2]
-        AT_SYM_SYM = 0x5d,
+        AT_SYM_SYM = 0x5e,
 
         // @args symbol index, symbol index2
         // @role Push symbol[symbol2]
-        AT_SYM_INDEX_SYM_INDEX = 0x5e,
+        AT_SYM_INDEX_SYM_INDEX = 0x5f,
 
         // @args symbol id, constant id
         // @role Check that the type of symbol is the given constant, push true if so, false otherwise
-        CHECK_TYPE_OF = 0x5f,
+        CHECK_TYPE_OF = 0x60,
 
         // @args symbol index, constant id
         // @role Check that the type of symbol is the given constant, push true if so, false otherwise
-        CHECK_TYPE_OF_BY_INDEX = 0x60,
+        CHECK_TYPE_OF_BY_INDEX = 0x61,
 
         // @args symbol id, number of elements
         // @role Append N elements to a reference to a list (symbol id), the list is being mutated in-place, no new object created. Elements are stored in TS(1)..TS(N). Follows the function calling convention
-        APPEND_IN_PLACE_SYM = 0x61,
+        APPEND_IN_PLACE_SYM = 0x62,
 
         // @args symbol index, number of elements
         // @role Append N elements to a reference to a list (symbol index), the list is being mutated in-place, no new object created. Elements are stored in TS(1)..TS(N). Follows the function calling convention
-        APPEND_IN_PLACE_SYM_INDEX = 0x62,
+        APPEND_IN_PLACE_SYM_INDEX = 0x63,
 
         InstructionsCount
     };
@@ -409,6 +412,7 @@ namespace Ark::internal
         "JUMP",
         "RET",
         "HALT",
+        "PUSH_RETURN_ADDRESS",
         "CALL",
         "CAPTURE",
         "BUILTIN",

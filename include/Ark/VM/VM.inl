@@ -198,37 +198,31 @@ inline Value* VM::popAndResolveAsPtr(internal::ExecutionContext& context)
 inline void VM::swapStackForFunCall(const uint16_t argc, internal::ExecutionContext& context)
 {
     using namespace internal;
+    const auto first = static_cast<int16_t>(context.sp - argc);
 
-    // move values around and invert them
-    //
-    // values:     1,  2, 3, _, _
-    // wanted:    pp, ip, 3, 2, 1
-    // positions:  0,  1, 2, 3, 4
-    //
-    // move values first, from position x to y, with
-    //    y = argc - x + 1
-    // then place pp and ip
     switch (argc)  // must be positive
     {
         case 0:
-            push(Value(static_cast<PageAddr_t>(context.pp)), context);
-            push(Value(ValueType::InstPtr, static_cast<PageAddr_t>(context.ip)), context);
             break;
 
         case 1:
-            context.stack[context.sp + 1] = context.stack[context.sp - 1];
-            context.stack[context.sp - 1] = Value(static_cast<PageAddr_t>(context.pp));
-            context.stack[context.sp + 0] = Value(ValueType::InstPtr, static_cast<PageAddr_t>(context.ip));
-            context.sp += 2;
             break;
 
-        default:  // 2 or more elements
-        {
-            const auto first = static_cast<int16_t>(context.sp - argc);
+        case 2:
+            std::swap(
+                context.stack[context.sp - 1],
+                context.stack[static_cast<std::size_t>(first + 0)]);
+            break;
+
+        default:
             // move first argument to the very end
-            context.stack[context.sp + 1] = context.stack[static_cast<std::size_t>(first + 0)];
+            std::swap(
+                context.stack[context.sp - 1],
+                context.stack[static_cast<std::size_t>(first + 0)]);
             //  move second argument right before the last one
-            context.stack[context.sp + 0] = context.stack[static_cast<std::size_t>(first + 1)];
+            std::swap(
+                context.stack[context.sp - 2],
+                context.stack[static_cast<std::size_t>(first + 1)]);
             //  move the rest, if any
             uint16_t x = 2;
             const uint16_t stop = ((argc % 2 == 0) ? argc : (argc - 1)) / 2;
@@ -236,18 +230,12 @@ inline void VM::swapStackForFunCall(const uint16_t argc, internal::ExecutionCont
             {
                 // destination, origin
                 std::swap(
-                    context.stack[static_cast<std::size_t>(context.sp - x + 1)],
+                    context.stack[static_cast<std::size_t>(context.sp - x - 1)],
                     context.stack[static_cast<std::size_t>(first + x)]);
                 ++x;
             }
-            context.stack[static_cast<std::size_t>(first + 0)] = Value(static_cast<PageAddr_t>(context.pp));
-            context.stack[static_cast<std::size_t>(first + 1)] = Value(ValueType::InstPtr, static_cast<PageAddr_t>(context.ip));
-            context.sp += 2;
             break;
-        }
     }
-
-    context.fc++;
 }
 
 #pragma endregion
@@ -280,8 +268,7 @@ inline void VM::call(internal::ExecutionContext& context, const uint16_t argc, V
     */
     using namespace internal;
 
-    // stack pointer + 2 because we push IP and PP
-    if (context.sp + 2u >= VMStackSize) [[unlikely]]
+    if (context.sp >= VMStackSize) [[unlikely]]
         throwVMError(
             ErrorKind::VM,
             fmt::format(
@@ -307,7 +294,9 @@ inline void VM::call(internal::ExecutionContext& context, const uint16_t argc, V
 
             // create dedicated scope
             context.locals.emplace_back(context.scopes_storage.data(), context.locals.back().storageEnd());
+
             swapStackForFunCall(argc, context);
+            context.fc++;
 
             // store "reference" to the function to speed the recursive functions
             if (context.last_symbol < m_state.m_symbols.size()) [[likely]]
@@ -331,6 +320,7 @@ inline void VM::call(internal::ExecutionContext& context, const uint16_t argc, V
             context.stacked_closure_scopes.back() = c.scopePtr();
 
             swapStackForFunCall(argc, context);
+            context.fc++;
 
             context.pp = new_page_pointer;
             context.ip = 0;
@@ -378,7 +368,8 @@ inline void VM::callBuiltin(internal::ExecutionContext& context, const Value& bu
             val = val->reference();
         args.emplace_back(*val);
     }
-    context.sp -= argc;
+    // +2 to skip PP/IP that were pushed by PUSH_RETURN_ADDRESS
+    context.sp -= argc + 2;
     // call proc
     push(builtin.proc()(args, this), context);
 }
