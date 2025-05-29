@@ -3,7 +3,6 @@
 #include <utility>
 #include <numeric>
 #include <limits>
-#include <ranges>
 #include <fmt/core.h>
 #include <fmt/color.h>
 #include <fmt/ostream.h>
@@ -1906,7 +1905,7 @@ namespace Ark
             // -1 on the stack because we always point to the next available slot
             arg_vals.push_back(context.stack[context.sp - i - 1].toString(*this));
 
-        // set ip/pp to the callee location so that the error can pin-point the line
+        // set ip/pp to the callee location so that the error can pinpoint the line
         // where the bad call happened
         if (context.sp >= 2 + passed_arg_count)
         {
@@ -1987,6 +1986,7 @@ namespace Ark
         const std::size_t saved_ip = context.ip;
         const std::size_t saved_pp = context.pp;
         const uint16_t saved_sp = context.sp;
+        const std::size_t max_consecutive_traces = 7;
 
         const auto maybe_location = findSourceLocation(context.ip, context.pp);
         if (maybe_location)
@@ -2056,17 +2056,19 @@ namespace Ark
                     context.pp = pop(context)->pageAddr();
                     returnFromFuncCall(context);
                 }
-                else
-                {
-                    fmt::println(os, "[{:4}] In global scope{}", fmt::styled(context.fc, colorize ? fmt::fg(fmt::color::cyan) : fmt::text_style()), loc_as_text);
-                    break;
-                }
 
-                if (displayed_traces > 7)
+                if (displayed_traces > max_consecutive_traces)
                 {
-                    fmt::println(os, "...");
+                    fmt::println(os, "       ...");
                     break;
                 }
+            }
+
+            if (context.pp == 0)
+            {
+                const auto maybe_call_loc = findSourceLocation(context.ip, context.pp);
+                const auto loc_as_text = maybe_call_loc ? fmt::format(" ({}:{})", m_state.m_filenames[maybe_call_loc->filename_id], maybe_call_loc->line + 1) : "";
+                fmt::println(os, "[{:4}] In global scope{}", fmt::styled(context.fc, colorize ? fmt::fg(fmt::color::cyan) : fmt::text_style()), loc_as_text);
             }
 
             // display variables values in the current scope

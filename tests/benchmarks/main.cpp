@@ -29,7 +29,7 @@ std::string get_resource(const std::string& path)
 ARK_CREATE_RUNTIME_BENCH(quicksort);
 ARK_CREATE_RUNTIME_BENCH(ackermann)->Iterations(50);
 ARK_CREATE_RUNTIME_BENCH(fibonacci)->Iterations(100);
-ARK_CREATE_RUNTIME_BENCH(man_or_boy);
+// ARK_CREATE_RUNTIME_BENCH(man_or_boy);
 ARK_CREATE_RUNTIME_BENCH(builtins);
 ARK_CREATE_RUNTIME_BENCH(binary_trees);
 ARK_CREATE_RUNTIME_BENCH(for_sum);

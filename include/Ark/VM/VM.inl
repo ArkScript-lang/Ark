@@ -16,10 +16,14 @@ Value VM::call(const std::string& name, Args&&... args)
     const auto it = std::ranges::find(m_state.m_symbols, name);
     assert(it != m_state.m_symbols.end() && "Unbound variable");
 
-    // convert and push arguments in reverse order
+    // we need to push pp then ip manually, because the PUSH_RETURN_ADDRESS instruction is not present
+    push(Value(static_cast<internal::PageAddr_t>(0)), context);
+    push(Value(ValueType::InstPtr, static_cast<internal::PageAddr_t>(0)), context);
+
+    // convert and push arguments
     std::vector<Value> fnargs { { Value(std::forward<Args>(args))... } };
-    for (auto it2 = fnargs.rbegin(), it_end = fnargs.rend(); it2 != it_end; ++it2)
-        push(*it2, context);
+    for (auto&& arg : fnargs | std::views::reverse)
+        push(arg, context);
 
     // find function object and push it if it's a pageaddr/closure
     if (const auto dist = std::distance(m_state.m_symbols.begin(), it); std::cmp_less(dist, std::numeric_limits<uint16_t>::max()))
@@ -58,9 +62,13 @@ inline Value VM::resolve(internal::ExecutionContext* context, const std::vector<
     const std::size_t ip = context->ip;
     const std::size_t pp = context->pp;
 
-    // convert and push arguments in reverse order
-    for (auto it = n.begin() + 1, it_end = n.end(); it != it_end; ++it)
-        push(*it, *context);
+    // we need to push pp then ip manually, because the PUSH_RETURN_ADDRESS instruction is not present
+    push(Value(static_cast<internal::PageAddr_t>(pp)), *context);
+    push(Value(ValueType::InstPtr, static_cast<internal::PageAddr_t>(ip)), *context);
+
+    // convert and push arguments
+    for (auto&& val : std::ranges::drop_view(n, 1) | std::views::reverse)
+        push(val, *context);
     push(n[0], *context);
 
     const std::size_t frames_count = context->fc;
@@ -195,49 +203,6 @@ inline Value* VM::popAndResolveAsPtr(internal::ExecutionContext& context)
     return tmp;
 }
 
-inline void VM::swapStackForFunCall(const uint16_t argc, internal::ExecutionContext& context)
-{
-    using namespace internal;
-    const auto first = static_cast<int16_t>(context.sp - argc);
-
-    switch (argc)  // must be positive
-    {
-        case 0:
-            break;
-
-        case 1:
-            break;
-
-        case 2:
-            std::swap(
-                context.stack[context.sp - 1],
-                context.stack[static_cast<std::size_t>(first + 0)]);
-            break;
-
-        default:
-            // move first argument to the very end
-            std::swap(
-                context.stack[context.sp - 1],
-                context.stack[static_cast<std::size_t>(first + 0)]);
-            //  move second argument right before the last one
-            std::swap(
-                context.stack[context.sp - 2],
-                context.stack[static_cast<std::size_t>(first + 1)]);
-            //  move the rest, if any
-            uint16_t x = 2;
-            const uint16_t stop = ((argc % 2 == 0) ? argc : (argc - 1)) / 2;
-            while (x <= stop)
-            {
-                // destination, origin
-                std::swap(
-                    context.stack[static_cast<std::size_t>(context.sp - x - 1)],
-                    context.stack[static_cast<std::size_t>(first + x)]);
-                ++x;
-            }
-            break;
-    }
-}
-
 #pragma endregion
 
 inline Value* VM::findNearestVariable(const uint16_t id, internal::ExecutionContext& context) noexcept
@@ -268,7 +233,7 @@ inline void VM::call(internal::ExecutionContext& context, const uint16_t argc, V
     */
     using namespace internal;
 
-    if (context.sp >= VMStackSize) [[unlikely]]
+    if (std::cmp_greater_equal(context.sp + 2, VMStackSize)) [[unlikely]]
         throwVMError(
             ErrorKind::VM,
             fmt::format(
@@ -295,13 +260,11 @@ inline void VM::call(internal::ExecutionContext& context, const uint16_t argc, V
             // create dedicated scope
             context.locals.emplace_back(context.scopes_storage.data(), context.locals.back().storageEnd());
 
-            swapStackForFunCall(argc, context);
-            context.fc++;
-
             // store "reference" to the function to speed the recursive functions
             if (context.last_symbol < m_state.m_symbols.size()) [[likely]]
                 context.locals.back().push_back(context.last_symbol, function);
 
+            context.fc++;
             context.pp = new_page_pointer;
             context.ip = 0;
             break;
@@ -319,9 +282,7 @@ inline void VM::call(internal::ExecutionContext& context, const uint16_t argc, V
             c.refScope().mergeRefInto(context.locals.back());
             context.stacked_closure_scopes.back() = c.scopePtr();
 
-            swapStackForFunCall(argc, context);
             context.fc++;
-
             context.pp = new_page_pointer;
             context.ip = 0;
             break;
@@ -363,7 +324,7 @@ inline void VM::callBuiltin(internal::ExecutionContext& context, const Value& bu
         // because we pull `argc` from the CALL instruction generated by the compiler,
         // we are guaranteed to have `argc` values pushed on the stack ; thus we can
         // skip the `if (context.sp > 0)` check
-        Value* val = &context.stack[context.sp - argc + j];
+        Value* val = &context.stack[context.sp - 1 - j];
         if (val->valueType() == ValueType::Reference)
             val = val->reference();
         args.emplace_back(*val);

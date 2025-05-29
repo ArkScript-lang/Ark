@@ -186,6 +186,7 @@ namespace Ark::internal
         void compileLetMutSet(Keyword n, const Node& x, Page p);
         void compileWhile(const Node& x, Page p);
         void compilePluginImport(const Node& x, Page p);
+        void pushFunctionCallArguments(const Node& call, Page p, bool is_tail_call);
         void handleCalls(const Node& x, Page p, bool is_result_unused, bool is_terminal, const std::string& var_name);
 
         /**

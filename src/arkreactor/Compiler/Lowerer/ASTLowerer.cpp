@@ -492,6 +492,33 @@ namespace Ark::internal
         page(p).back().setSourceLocation(x.filename(), x.line());
     }
 
+    void ASTLowerer::pushFunctionCallArguments(const Node& call, const Page p, const bool is_tail_call)
+    {
+        const auto node = call.constList()[0];
+
+        // push the arguments in reverse order because the function loads its arguments in the order they are defined:
+        // (fun (a b c) ...) -> load 'a', then 'b', then 'c'
+        // We have to push arguments in this order and load them in reverse, because we are using references internally,
+        // which can cause problems for recursive functions that swap their arguments around.
+        // Eg (let foo (fun (a b c) (if (> a 0) (foo (- a 1) c (+ b c)) 1))) (foo 12 0 1)
+        // On the second self-call, b and c would have the same value, since we set c to (+ b c), and we pushed c as the
+        // value for argument b, but loaded it as a reference.
+        for (auto&& value : std::ranges::drop_view(call.constList(), 1) | std::views::reverse)
+        {
+            if (nodeProducesOutput(value))
+                compileExpression(value, p, false, false);
+            else
+            {
+                std::string message;
+                if (is_tail_call)
+                    message = fmt::format("Invalid node inside tail call to `{}'", node.repr());
+                else
+                    message = fmt::format("Invalid node inside call to `{}'", node.repr());
+                buildAndThrowError(message, value);
+            }
+        }
+    }
+
     void ASTLowerer::handleCalls(const Node& x, const Page p, bool is_result_unused, const bool is_terminal, const std::string& var_name)
     {
         constexpr std::size_t start_index = 1;
@@ -538,15 +565,7 @@ namespace Ark::internal
         {
             if (is_terminal && x.constList()[0].nodeType() == NodeType::Symbol && var_name == x.constList()[0].string())
             {
-                // push the arguments in reverse order because the function loads its arguments in the order they are defined:
-                // (fun (a b c) ...) -> load a, then b, then c
-                for (std::size_t i = x.constList().size() - 1; i >= start_index; --i)
-                {
-                    if (nodeProducesOutput(x.constList()[i]))
-                        compileExpression(x.constList()[i], p, false, false);
-                    else
-                        buildAndThrowError(fmt::format("Invalid node inside tail call to `{}'", node.repr()), x.constList()[i]);
-                }
+                pushFunctionCallArguments(x, p, /* is_tail_call= */ true);
 
                 // jump to the top of the function
                 page(p).emplace_back(JUMP, 0_u16);
@@ -565,15 +584,7 @@ namespace Ark::internal
                 const auto label_return = IR::Entity::Label(m_current_label++);
                 page(p).emplace_back(IR::Entity::Goto(label_return, PUSH_RETURN_ADDRESS));
 
-                // push arguments on current page in reverse order
-                // fixme: not reverse order
-                for (auto exp = x.constList().begin() + start_index, exp_end = x.constList().end(); exp != exp_end; ++exp)
-                {
-                    if (nodeProducesOutput(*exp))
-                        compileExpression(*exp, p, false, false);
-                    else
-                        buildAndThrowError(fmt::format("Invalid node inside call to `{}'", node.repr()), *exp);
-                }
+                pushFunctionCallArguments(x, p, /* is_tail_call= */ false);
                 // push proc from temp page
                 for (const auto& inst : m_temp_pages.back())
                     page(p).push_back(inst);
