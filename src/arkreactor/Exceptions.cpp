@@ -195,7 +195,7 @@ namespace Ark::Diagnostics
         show_file_location();
         LineColorContextCounts line_color_context_counts;
 
-        for (auto i = first_line; i < last_line; ++i)
+        for (auto i = first_line; i < last_line && i < lines.size(); ++i)
         {
             if (i >= start_line_skipping_at && i < stop_line_skipping_at)
                 continue;
