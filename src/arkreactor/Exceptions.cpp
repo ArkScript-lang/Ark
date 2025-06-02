@@ -239,10 +239,10 @@ namespace Ark::Diagnostics
                             "{: <{}}{:~<{}}\n",
                             // padding of spaces
                             " ",
-                            std::max(1_z, curr_col_start),  // fixing padding when the error is on the first character
+                            std::max(1_z, std::min(curr_col_start, col_end)),  // fixing padding when the error is on the first character
                             // underline the error in red
                             fmt::styled("^", colorize ? fmt::fg(fmt::color::red) : fmt::text_style()),
-                            col_end - curr_col_start);
+                            curr_col_start < col_end ? col_end - curr_col_start : 1);
                     else if (i == target_line)  // maybe_context has a value, i == target_line to avoid having to deal with overflow
                     {
                         const auto padding_size = std::max(1_z, maybe_context->col);
