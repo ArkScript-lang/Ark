@@ -3,6 +3,7 @@
 
 #include <Ark/Exceptions.hpp>
 
+#include <cassert>
 #include <fmt/core.h>
 
 namespace Ark::internal
