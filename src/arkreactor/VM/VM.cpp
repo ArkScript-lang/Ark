@@ -1783,8 +1783,8 @@ namespace Ark
                     TARGET(CHECK_TYPE_OF)
                     {
                         UNPACK_ARGS();
-                        Value* sym = loadSymbol(primary_arg, context);
-                        Value* cst = loadConstAsPtr(secondary_arg);
+                        const Value* sym = loadSymbol(primary_arg, context);
+                        const Value* cst = loadConstAsPtr(secondary_arg);
                         push(
                             cst->valueType() == ValueType::String &&
                                     types_to_str[static_cast<unsigned>(sym->valueType())] == cst->string()
@@ -1797,8 +1797,8 @@ namespace Ark
                     TARGET(CHECK_TYPE_OF_BY_INDEX)
                     {
                         UNPACK_ARGS();
-                        Value* sym = loadSymbolFromIndex(primary_arg, context);
-                        Value* cst = loadConstAsPtr(secondary_arg);
+                        const Value* sym = loadSymbolFromIndex(primary_arg, context);
+                        const Value* cst = loadConstAsPtr(secondary_arg);
                         push(
                             cst->valueType() == ValueType::String &&
                                     types_to_str[static_cast<unsigned>(sym->valueType())] == cst->string()
@@ -1971,7 +1971,7 @@ namespace Ark
 
     std::string VM::debugShowSource()
     {
-        auto& context = m_execution_contexts.front();
+        const auto& context = m_execution_contexts.front();
         auto maybe_source_loc = findSourceLocation(context->ip, context->pp);
         if (maybe_source_loc)
         {

@@ -14,6 +14,12 @@
 #include <CLI/REPL/Repl.hpp>
 #include <CLI/Formatter.hpp>
 
+#ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
+#    define ARK_ERROR_EXIT_CODE 0
+#else
+#    define ARK_ERROR_EXIT_CODE -1
+#endif
+
 int main(int argc, char** argv)
 {
     using namespace clipp;
@@ -247,7 +253,7 @@ int main(int argc, char** argv)
                 state.setDebug(debug);
 
                 if (!state.doFile(file, passes))
-                    return -1;
+                    return ARK_ERROR_EXIT_CODE;
 
                 break;
             }
@@ -259,7 +265,7 @@ int main(int argc, char** argv)
                 state.setArgs(script_args);
 
                 if (!state.doFile(file, passes))
-                    return -1;
+                    return ARK_ERROR_EXIT_CODE;
 
                 Ark::VM vm(state);
                 return vm.run();
@@ -273,7 +279,7 @@ int main(int argc, char** argv)
                 if (!state.doString(eval_expression))
                 {
                     std::cerr << "Could not evaluate expression\n";
-                    return -1;
+                    return ARK_ERROR_EXIT_CODE;
                 }
 
                 Ark::VM vm(state);
@@ -317,7 +323,7 @@ int main(int argc, char** argv)
                 catch (const std::exception& e)
                 {
                     std::cerr << e.what() << std::endl;
-                    return -1;
+                    return ARK_ERROR_EXIT_CODE;
                 }
                 break;
             }
