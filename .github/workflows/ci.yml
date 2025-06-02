@@ -224,17 +224,18 @@ jobs:
           export ASAN_OPTIONS=detect_odr_violation=0
           ./unittests
 
+      - uses: actions/setup-python@v5
+        if: ${{ ! startsWith(matrix.config.name, 'Windows') }}
+        with:
+          python-version: '3.13'
+
       - name: Modules tests
+        if: ${{ ! startsWith(matrix.config.name, 'Windows') }}
         shell: bash
         run: |
           export ASAN_OPTIONS=detect_odr_violation=0
           chmod u+x ./lib/modules/.github/run-tests
           (./lib/modules/.github/run-tests src)
-
-      - uses: actions/setup-python@v5
-        if: ${{ ! startsWith(matrix.config.name, 'Windows') }}
-        with:
-          python-version: '3.13'
 
       - name: REPL tests
         if: ${{ ! startsWith(matrix.config.name, 'Windows') }}
