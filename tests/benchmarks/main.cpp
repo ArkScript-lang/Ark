@@ -47,7 +47,7 @@ std::string readFile(const std::string& filename)
     return code;
 }
 
-constexpr int simple = 0, medium = 1, big = 2;
+constexpr int simple = 0, medium = 1, big = 2, bigger = 3;
 
 std::string select_file(const long selection)
 {
@@ -59,6 +59,8 @@ std::string select_file(const long selection)
             return "medium.ark";
         case big:
             return "big.ark";
+        case bigger:
+            return "bigger.ark";
         default:
             return "no name provided error";
     }
@@ -97,6 +99,7 @@ static void BM_Parse(benchmark::State& state)
 BENCHMARK(BM_Parse)->Name("New parser - Simple - 39 nodes")->Arg(simple)->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_Parse)->Name("New parser - Medium - 83 nodes")->Arg(medium)->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_Parse)->Name("New parser - Big - 665 nodes")->Arg(big)->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_Parse)->Name("New parser - Bigger")->Arg(bigger)->Unit(benchmark::kMillisecond);
 
 // cppcheck-suppress constParameterCallback
 static void BM_Welder(benchmark::State& state)
@@ -117,5 +120,6 @@ static void BM_Welder(benchmark::State& state)
 BENCHMARK(BM_Welder)->Name("Welder - Simple - 39 nodes")->Arg(simple)->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_Welder)->Name("Welder - Medium - 83 nodes")->Arg(medium)->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_Welder)->Name("Welder - Big - 665 nodes")->Arg(big)->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_Welder)->Name("Welder - Bigger")->Arg(bigger)->Unit(benchmark::kMillisecond);
 
 BENCHMARK_MAIN();
