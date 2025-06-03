@@ -142,6 +142,7 @@ namespace Ark
         m_exit_code = 0;
 
         context.locals.clear();
+        context.locals.reserve(128);
         context.locals.emplace_back(context.scopes_storage.data(), 0);
 
         // loading bound stuff
