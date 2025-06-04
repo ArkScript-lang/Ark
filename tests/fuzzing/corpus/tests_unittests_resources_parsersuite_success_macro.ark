@@ -1,6 +1,6 @@
 (macro a 1)
 (macro b () 2)
-($
+(macro
 c # macro name
 ( # arg list
 d # macro argument

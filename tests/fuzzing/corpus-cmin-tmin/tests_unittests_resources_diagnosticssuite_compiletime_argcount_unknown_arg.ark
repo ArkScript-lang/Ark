@@ -4,9 +4,9 @@
     ($symcat sym x)})
 
 (macro partial (func ...defargs) {
-   (macro bloc (suffix-dup a (- ($argcount func) (len defargs))))
+    (macro bloc (suffix-dup a (- ($argcount func) (len defargs))))
     (fun (bloc) (func ...defargs bloc))
-    ($undef o0)})
+    ($undef b000)})
 
 (let test_func (fun (a b c) (* a b c)))
 (let t0s0_f0000 (partial test_func 0))

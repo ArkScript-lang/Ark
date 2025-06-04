@@ -1,3 +1,5 @@
+(import std.String :chr)
+
 (mut i 0)
 (while (< i 16) {
   (mut j (+ 32 i))
@@ -7,8 +9,8 @@
         "Spc"
         (if (= 127 j)
           "Del"
-          (string:chr j))))
-    (puts (string:format "{:3} : {:<3}" j k))
+          (chr j))))
+    (puts (format "{:3} : {:<3}" j k))
     (set j (+ 16 j)) })
   (print "")
 

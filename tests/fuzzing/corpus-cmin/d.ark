@@ -31,7 +31,7 @@
     (fun (arg_bloc) (call all_args)) })
 
 (let foo (fun (a b c d)
-    (print (string:format "{} {} {} {}" a b c d))))
+    (print (format "{} {} {} {}" a b c d))))
 
 (let t (! foo _ 1 _ 2))
 (print (t 5 6))

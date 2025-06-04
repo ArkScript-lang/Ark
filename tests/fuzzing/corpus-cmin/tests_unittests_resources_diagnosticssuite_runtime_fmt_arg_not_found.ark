@@ -1,1 +1,1 @@
-(string:format "Hello {}, I'm {}" "World")
+(format "Hello {}, I'm {}" "World")

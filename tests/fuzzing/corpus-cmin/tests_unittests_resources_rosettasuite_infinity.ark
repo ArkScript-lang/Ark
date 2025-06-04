@@ -1,3 +1,5 @@
+(import std.Math)
+
 (assert (= false (math:Inf? 0)) "0 is not infinite")
 (assert (math:Inf? math:Inf) "math:Inf is infinite")
 (assert (not (math:Inf? math:NaN)) "math:NaN is not infinite")

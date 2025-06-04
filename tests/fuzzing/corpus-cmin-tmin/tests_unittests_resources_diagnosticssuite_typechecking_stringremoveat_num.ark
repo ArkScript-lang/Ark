@@ -1,1 +1,1 @@
-(string:removeAt 0)
+(builtin__string:removeAt 0)

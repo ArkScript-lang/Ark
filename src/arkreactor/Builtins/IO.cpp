@@ -69,15 +69,20 @@ namespace Ark::internal::Builtins::IO
             throw types::TypeCheckingError("input", { { types::Contract {}, types::Contract { { types::Typedef("prompt", ValueType::String) } } } }, n);
 
         std::string line;
+#ifndef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
         std::getline(std::cin, line);
+#else
+        line = "fuzzer input";
+#endif
 
         return Value(line);
     }
 
-    Value writeFile(std::vector<Value>& n, VM* vm)
+    Value writeFile(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (types::check(n, ValueType::String, ValueType::Any))
         {
+#ifndef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
             std::ofstream f(n[0].string());
             if (f.is_open())
             {
@@ -86,6 +91,7 @@ namespace Ark::internal::Builtins::IO
             }
             else
                 throw std::runtime_error(fmt::format("io:writeFile: couldn't write to file \"{}\"", n[0].stringRef()));
+#endif
         }
         else
             throw types::TypeCheckingError(
@@ -96,10 +102,11 @@ namespace Ark::internal::Builtins::IO
         return nil;
     }
 
-    Value appendToFile(std::vector<Value>& n, VM* vm)
+    Value appendToFile(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (types::check(n, ValueType::String, ValueType::Any))
         {
+#ifndef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
             std::ofstream f(n[0].string(), std::ios::out | std::ios::app);
             if (f.is_open())
             {
@@ -108,6 +115,7 @@ namespace Ark::internal::Builtins::IO
             }
             else
                 throw std::runtime_error(fmt::format("io:appendToFile: couldn't write to file \"{}\"", n[0].stringRef()));
+#endif
         }
         else
             throw types::TypeCheckingError(
@@ -199,7 +207,9 @@ namespace Ark::internal::Builtins::IO
                 { { types::Contract { { types::Typedef("filename", ValueType::String) } } } },
                 n);
 
+#ifndef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
         std::filesystem::remove_all(std::filesystem::path(n[0].string()));
+#endif
         return nil;
     }
 }

@@ -1,17 +1,41 @@
-(let source [1 2 3 4])
+# STORE_LIST
+(mut source [1 2 3 4])
+(let n 1)
 
 (let foo (fun () {
+  # STORE_HEAD
   (mut head_1 (head source))
+  # STORE_TAIL
   (mut tail_1 (tail source))
 
+  # STORE_FROM
   (mut copy_1 source)
+   # SET_VAL_HEAD
   (set copy_1 (head source))
-  (set copy_1 (tail source)) }))
+  # SET_VAL_TAIL
+  (set copy_1 (tail source))
+
+  # APPEND_IN_PLACE_SYM
+  (append! source 6)
+
+  # AT_SYM_SYM
+  (@ source n) }))
 (foo)
 
+# STORE_HEAD_BY_INDEX
 (mut head_2 (head source))
+(print head_2)
+# STORE_TAIL_BY_INDEX
 (mut tail_2 (tail source))
 
 (mut copy_2 source)
+# SET_VAL_HEAD_BY_INDEX
 (set copy_2 (head source))
+# SET_VAL_TAIL_BY_INDEX
 (set copy_2 (tail source))
+
+# AT_SYM_INDEX_SYM_INDEX
+(@ source n)
+
+# APPEND_IN_PLACE_SYM_INDEX
+(append! tail_2 5)

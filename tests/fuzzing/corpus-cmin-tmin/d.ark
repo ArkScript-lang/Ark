@@ -2,7 +2,7 @@
     ($if (empty? xs)
         ($if (= "0" ($repr x))
             (+ 0 acc)
-            acc)
+          acc)
         ($if (= "_" ($repr x))
             (__count_placeholders (+ 1 acc) ...xs)
             (__count_placeholders acc ...xs))))
@@ -14,7 +14,7 @@
 (macro __replace_placeholders (replacements x ...xs) {
   ($if (empty? xs)
     ($if (= "0" ($repr x))
-        (h00d replacements)
+        (h000 replacements)
         x)
     ($if (= "_" ($repr x))
         {
@@ -31,7 +31,7 @@
     (fun (arg_bloc) (call all_args)) })
 
 (let foo (fun (a b c d)
-    (print (string:format "{}0{}0{}0{}" a b c d))))
+    (print (format "{}0{}0{}0{}" a b c d))))
 
 (let t (! foo _ 1 _ 2))
 (print (t 5 6))

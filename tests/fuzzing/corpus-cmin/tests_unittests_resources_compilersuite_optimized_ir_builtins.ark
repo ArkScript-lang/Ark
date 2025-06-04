@@ -1,0 +1,3 @@
+(let asinh (fun (_x) (builtin__math:asinh _x)))
+(let find (fun (_L _x) (builtin__list:find _L _x)))
+(let setAt (fun (_L _index _x) (builtin__list:setAt _L _index _x)))

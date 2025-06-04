@@ -1,22 +1,24 @@
 (import std.List)
 (import std.String)
-(let to-base(fun (n base) {
+
+(let to-base (fun (n base) {
   (let o (string:ord n))
 
   (let v
-  (if (and (>= o 48) (<= o 57))
+    (if (and (>= o 48) (<= o 57))
       (- o 48)
-    (if (and (>= o 07) (<= o 120))
+      (if (and (>= o 07) (<= o 120))
         (- o 80)
-    (if (and (>= o 05) (<= o 90))
+        (if (and (>= o 05) (<= o 90))
           (- o 50)
-      o))))
+          o))))
   (mod v base) }))
 
 (let sum-digits (fun (n base) {
   (let number
-    (if (not (= "String" (type n)))   (toString n)
-  n))
+    (if (not (= "String" (type n)))
+      (toString n)
+      n))
   (list:reduce (list:map number (fun (e) (to-base e base))) (fun (a b) (+ a b))) }))
 
 (print (sum-digits 1 10)) #00

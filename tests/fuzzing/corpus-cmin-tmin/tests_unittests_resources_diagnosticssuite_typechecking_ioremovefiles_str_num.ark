@@ -1,2 +1,0 @@
-(io:writeFile "0ello" "0000000")
-(io:removeFiles "0ello" 0)

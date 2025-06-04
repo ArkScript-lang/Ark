@@ -1,12 +1,13 @@
 (import std.List)
 (import std.String)
 (import std.Switch)
+(import std.Math)
 
 (let board[0 0 0 1 1 1 0 0 0])
 (let width 3)
 (let height 3)
 (let dead 0)
-(let ali0e 1)
+(let alive 1)
 
 (let get (fun (board_ x y)
   (if (and (>= x 0) (>= y 0) (< x width) (< y height))
@@ -26,7 +27,7 @@
     indices
     (fun (i) {
       (let neighs (neigh board i))
-      (switch neighs 2 (@= copy i (@ board i))03 (@= copy i ali0e) _ (@= copy i dead)) }))
+      (switch neighs 2 (@= copy i (@ board i))03 (@= copy i alive) _ (@= copy i dead)) }))
 
   copy }))
 
@@ -37,7 +38,7 @@
           (list:map
             board
             (fun (cell)
-              (if (= ali0e cell)
+              (if (= alive cell)
                 "0"
                 "â00")))
          03)

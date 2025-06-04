@@ -1,3 +1,5 @@
-(assert (= false (math:Inf? 0)) "00000000000000000")
+(import std.Math)
+
+(assert (= false (math:Inf? 0)) "0000000000000000e")
 (assert (math:Inf? math:Inf) "00000000000000000000")
 (assert (not (math:Inf? math:NaN)) "000000000000000000000000")

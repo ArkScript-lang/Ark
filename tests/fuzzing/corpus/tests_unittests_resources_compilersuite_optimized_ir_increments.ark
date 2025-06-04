@@ -1,7 +1,15 @@
 (mut i 1)
+# INCREMENT_BY_INDEX
 (set i (+ i 4))
+# INCREMENT_BY_INDEX
 (set i (+ 6 i))
+# DECREMENT_BY_INDEX
 (set i (- i 8))
 # should not be inlined
 (set i (+ i 4096))
 (set i (+ i 1.01))
+
+(while (< i 100) {
+  (set i (+ i 1))
+  (set i (+ 1 i))
+  (set i (- i 1)) })

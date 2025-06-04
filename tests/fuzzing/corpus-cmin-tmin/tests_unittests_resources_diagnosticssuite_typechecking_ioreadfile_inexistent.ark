@@ -1,1 +1,1 @@
-(io:readFile "00000000000000000000000")
+(builtin__io:readFile "non-existin00file.weird")

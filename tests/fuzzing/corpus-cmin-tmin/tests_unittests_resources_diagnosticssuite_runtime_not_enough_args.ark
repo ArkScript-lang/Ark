@@ -1,2 +1,2 @@
 (let foo (fun (a b) (+ a b)))
-(foo 0)
+(foo 1)

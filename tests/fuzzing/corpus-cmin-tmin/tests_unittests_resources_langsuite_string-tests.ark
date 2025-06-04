@@ -4,24 +4,24 @@
     (test:expect (empty? ""))
 
     (test:case "remove char in string at index" {
-        (test:eq "hllo world" (string:removeAt "hello world" 1))
-        (test:eq "ello world" (string:removeAt "hello world" 0))
-        (test:eq "hello worl" (string:removeAt "hello world" 10))
-        (test:eq (string:removeAt "abcdefghijkl" 3) "abcefghijkl")
-        (test:eq (string:removeAt "abcdefghijkl" 0) "bcdefghijkl")
-        (test:eq (string:removeAt "abcdefghijkl" 11) "abcdefghijk") })
+        (test:eq "hllo world" (builtin__string:removeAt "hello world" 1))
+        (test:eq "ello world" (builtin__string:removeAt "hello world" 0))
+        (test:eq "hello worl" (builtin__string:removeAt "hello world" 10))
+        (test:eq (builtin__string:removeAt "abcdefghijkl" 3) "abcefghijkl")
+        (test:eq (builtin__string:removeAt "abcdefghijkl" 0) "bcdefghijkl")
+        (test:eq (builtin__string:removeAt "abcdefghijkl" 11) "abcdefghijk") })
 
     (test:case "find substring" {
-        (test:eq -1 (string:find "hello" "help"))
-        (test:eq 0 (string:find "hello" "hel"))
-        (test:eq 2 (string:find "hello" "llo"))
-        (test:eq -1 (string:find "" "1"))
-        (test:eq (string:find "abc" "d") -1)
-        (test:eq (string:find "abc" "a") 0)
-        (test:eq (string:find "abc" "bc") 1)
-        (test:eq (string:find "abcdefghijkl" "defijkl") -1)
-        (test:eq (string:find "abcdefghijkl" "defghijkl") 3)
-        (test:eq (string:find "abcdabcdabcd" "abcd" 2) 4) })
+        (test:eq -1 (builtin__string:find "hello" "help"))
+        (test:eq 0 (builtin__string:find "hello" "hel"))
+        (test:eq 2 (builtin__string:find "hello" "llo"))
+        (test:eq -1 (builtin__string:find "" "1"))
+        (test:eq (builtin__string:find "abc" "d") -1)
+        (test:eq (builtin__string:find "abc" "a") 0)
+        (test:eq (builtin__string:find "abc" "bc") 1)
+        (test:eq (builtin__string:find "abcdefghijkl" "defijkl") -1)
+        (test:eq (builtin__string:find "abcdefghijkl" "defghijkl") 3)
+        (test:eq (builtin__string:find "abcdabcdabcd" "abcd" 2) 4) })
 
     (test:case "get char in string" {
         (test:eq "a" (@ "abc" 0))
@@ -40,9 +40,9 @@
         (test:eq "e" (@@ nested_strings 1 -2)) })
 
     (test:case "update string" {
-        (test:eq (string:setAt "hello" 0 "a") "aello")
-        (test:eq (string:setAt "hello" -1 "a") "hella")
-        (test:eq (string:setAt "hello" 4 "a") "hella") })
+        (test:eq (builtin__string:setAt "hello" 0 "a") "aello")
+        (test:eq (builtin__string:setAt "hello" -1 "a") "hella")
+        (test:eq (builtin__string:setAt "hello" 4 "a") "hella") })
 
     (test:case "in place mutation of strings with @=" {
         (mut data "hello world")
@@ -57,5 +57,5 @@
         (test:eq strings ["aello" "worlb"]) })
 
     (test:case "format strings" {
-        (test:eq "nilfalsetrue" (string:format "{}{}{}" nil false true))
-        (test:eq "CProcedure" (string:format "{}" print)) })})
+        (test:eq "nilfalsetrue" (format "{}{}{}" nil false true))
+        (test:eq "CProcedure" (format "{}" print)) })})

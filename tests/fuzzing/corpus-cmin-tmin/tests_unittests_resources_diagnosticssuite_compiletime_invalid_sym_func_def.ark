@@ -1,2 +1,2 @@
-(macro defun(na0e a000 bod0) (let na0e (fun a000 bod0)))
+(macro defun (name ar00 bod0) (let name (fun ar00 bod0)))
 (defun 0 (a b) (+ a b))

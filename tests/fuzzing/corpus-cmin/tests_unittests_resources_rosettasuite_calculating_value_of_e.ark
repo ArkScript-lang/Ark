@@ -1,5 +1,6 @@
 (import std.Range :range)
 (import std.List)
+(import std.Math)
 
 (let fact (fun (n acc) {
   (if (> n 0)

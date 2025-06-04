@@ -1,3 +1,3 @@
-(import package.list :reverse)
+(import package.list :random)
 
-(print (reverse [1 2 3]))
+(print (random [1 2 3]))

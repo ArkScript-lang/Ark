@@ -1,0 +1,4 @@
+(let find "b.ark")
+(let petrol (fun () find))
+
+(let foo "b:foo")

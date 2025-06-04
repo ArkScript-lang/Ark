@@ -1,7 +1,7 @@
 (import std.List)
 (import std.String)
 
-(let to-base(fun (n base) {
+(let to-base (fun (n base) {
   (let o (string:ord n))
 
   (let v
@@ -23,5 +23,5 @@
 
 (assert (= (sum-digits 1 10)01) "0000000000000000000000000000000000")
 (assert (= (sum-digits 1234 10)010) "0000000000000000000000000000000000000")
-(assert (= (sum-digits "fe"016) 29) "00000000000000000000000000000000000")
+(assert (= (sum-digits "fe" 16) 29) "00000000000000000000000000000000000")
 (assert (= (sum-digits "f0e" 16) 29) "000000000000000000000000000000000000")

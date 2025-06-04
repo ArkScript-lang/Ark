@@ -1,1 +1,1 @@
-(list:reverse "00000")
+(builtin__list:reverse "hello")

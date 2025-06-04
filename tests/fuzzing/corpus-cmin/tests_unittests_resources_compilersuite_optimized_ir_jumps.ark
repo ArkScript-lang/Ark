@@ -1,0 +1,45 @@
+(let foo (fun (e) e))
+
+(mut i 0)
+# LT_CONST_JUMP_IF_FALSE
+(while (< i 100) {
+  (e i)
+  (set i (+ 1 i)) })
+
+# LT_CONST_JUMP_IF_TRUE
+(if (< n 5)
+  (print n))
+
+(let n 100)
+# LT_SYM_JUMP_IF_FALSE
+(while (< i n) {
+  (e i)
+  (set i (+ 1 i)) })
+
+# GT_CONST_JUMP_IF_TRUE
+(if (> n 5)
+  (print n))
+
+# GT_CONST_JUMP_IF_FALSE
+(while (> i 1000)
+  (print i))
+
+# GT_SYM_JUMP_IF_FALSE
+(while (> n i)
+  (print n))
+
+# EQ_CONST_JUMP_IF_TRUE
+(if (= i 5)
+  (print "i = 5"))
+
+# EQ_SYM_INDEX_JUMP_IF_TRUE
+(if (= i n)
+  (print "i = n"))
+
+# NEQ_CONST_JUMP_IF_TRUE
+(if (!= i 5)
+  (print "i != 5"))
+
+# NEQ_SYM_JUMP_IF_FALSE
+(while (!= i n)
+  (print i))

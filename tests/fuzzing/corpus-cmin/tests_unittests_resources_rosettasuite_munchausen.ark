@@ -1,4 +1,5 @@
 (import std.List)
+(import std.Math)
 
 (let self-exponent (fun (x n acc)
   (if (> n 0)
