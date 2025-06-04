@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+# generate the doxydoc, because I can't remember where I have to launch the command from
+# It HAS to be launched from docs/, otherwise it will grab too many source files and generate
+# documentation for all the thirdparties, etc.
+# This will write to ../website/impl (creating both folders if needed).
+
+cd docs/ && doxygen && cd ..
