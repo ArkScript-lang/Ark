@@ -1,1 +1,1 @@
-(io:readFile "non-existing-file.weird")
+(builtin__io:readFile "non-existing-file.weird")

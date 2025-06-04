@@ -39,8 +39,8 @@ namespace Ark::internal::Builtins::System
                 { { types::Contract { { types::Typedef("command", ValueType::String) } } } },
                 n);
 
-#ifdef ARK_ENABLE_SYSTEM
-        std::array<char, 128> buffer;
+#if defined(ARK_ENABLE_SYSTEM) && !defined(FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION)
+        std::array<char, 128> buffer {};
         std::string result;
         std::unique_ptr<FILE, close_file_deleter> pipe(popen(n[0].string().c_str(), "r"), close_file_deleter());
         if (!pipe)

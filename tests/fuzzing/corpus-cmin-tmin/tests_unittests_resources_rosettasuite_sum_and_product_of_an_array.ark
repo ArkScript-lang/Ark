@@ -1,9 +1,9 @@
 (import std.List :sum :product :reduce)
 
-(let array[1 2 3 4])
+(let array [1 2 3 4])
 
-(assert (= (sum array)10) "000000000000000000")
-(assert (= (reduce array (fun (a b) (+ a b)))010) "0000000000000000000000000000000")
+(assert (= (sum array)010) "000000000000000000")
+(assert (= (reduce array (fun (a b) (+ a b))) 10) "0000000000000000000000000000000")
 
-(assert (= (product array)024) "0000000000000000000000")
+(assert (= (product array) 24) "0000000000000000000000")
 (assert (= (reduce array (fun (a b) (* a b))) 24) "0000000000000000000000000000004")

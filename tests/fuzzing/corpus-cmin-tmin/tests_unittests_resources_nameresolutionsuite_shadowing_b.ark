@@ -1,3 +1,0 @@
-(let make (fun (a b c)
-    "000000"))
-(let result (make 0 0 0))

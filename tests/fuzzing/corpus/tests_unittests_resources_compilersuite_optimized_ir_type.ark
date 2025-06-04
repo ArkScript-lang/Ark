@@ -1,0 +1,18 @@
+(let a 5)
+
+# CHECK_TYPE_OF
+(if (= (type a) "Number")
+  (print "num"))
+# CHECK_TYPE_OF
+(if (= "Number" (type a))
+  (print "num"))
+
+(let foo (fun () {
+  # CHECK_TYPE_OF_BY_INDEX
+  (if (= (type a) "Number")
+    (print "num"))
+  # CHECK_TYPE_OF_BY_INDEX
+  (if (= "Number" (type a))
+    (print "num")) }))
+
+(foo)

@@ -1,1 +1,1 @@
-(io:fileExists? 0)
+(builtin__io:fileExists? 1)

@@ -1,1 +1,1 @@
-(sys:sleep "0")
+(builtin__sys:sleep "1")

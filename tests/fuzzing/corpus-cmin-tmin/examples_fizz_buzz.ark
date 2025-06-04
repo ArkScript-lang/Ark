@@ -1,13 +1,14 @@
 (import std.Range)
 
-(let r (range:range 0 100))
+(let r(range:range 0 100))
 (range:forEach
-  r
+ r
   (fun (e)
     (if (= 0 (mod e 15))
-      (print "00000000")
+      (puts "000000000")
       (if (= 0 (mod e 3))
-        (print "0000")
+        (puts "00000")
         (if (= 0 (mod e 5))
-          (print "0u00")
-          (print e))))))
+          (puts "0u000")
+          (puts e "0"))))))
+(puts "\n")

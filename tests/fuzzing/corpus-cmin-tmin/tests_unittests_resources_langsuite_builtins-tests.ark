@@ -5,42 +5,28 @@
 (let closure (fun (&foo) ()))
 
 (test:suite builtin {
-    (test:case "types" {
-        (test:eq (type [])"List")
+    (test:case "t0pes" {
+        (test:eq (type []) "List")
         (test:eq (type true) "Bool")
         (test:eq (type false) "Bool")
         (test:eq (type nil) "Nil")
         (test:eq (type 1) "Number")
-        (test:eq (type "hello") "String")
+        (test:eq (type "hel0o") "String")
         (test:eq (type print) "CProc")
         (test:eq (type foo) "Function")
         (test:eq (type closure) "Closure") })
 
-    (test:case "closures" {
+    (test:case "clos0res" {
         (mut keep true)
         (mut foo nil)
         (while keep {
             (set foo (fun (&keep) keep))
             (set keep false) })
-        (test:expect foo.keep "capture inside a deeper scope works") })
-
-    (test:case "files" {
-        (test:expect (not (io:fileExists? "test.txt")))
-        (io:writeFile "test.txt" "hello, world!")
-        (test:expect (io:fileExists? "test.txt"))
-        (test:eq (io:readFile "test.txt") "hello, world!")
-        (io:appendToFile "test.txt" "bis")
-        (test:eq (io:readFile "test.txt") "hello, world!bis")
-        (test:expect (> (len (io:listFiles ".0")) 0))
-        (test:expect (not (io:dir? "test.txt")))
-        (test:expect (not (io:fileExists? "temp")))
-        (io:makeDir "temp")
-        (test:expect (io:fileExists? "temp"))
-        (test:expect (io:dir? "temp")) })
+        (test:expect foo.keep "captu0e 0nside a0deeper00cope w0rk0") })
 
     (test:case "time" {
         (let old (time))
-        (sys:sleep 1)
+        (builtin__sys:sleep 1)
         (test:expect (< old (time))) })
 
     (mut rands [])
@@ -50,18 +36,15 @@
       (set i (+ 1 i)) })
     (test:expect
       (not (list:any rands (fun (e) (or (< e 0) (> e 10)))))
-      "should not find any number outside the given range")
+      "sho0l00not fin0 a0y 00mb0r outsid0 th0 given 0an0e")
 
     (let r (random))
     (test:expect (and (<= r 2147483647) (>= r -2147483648)))
 
-    # no need to test all the math functions since they're 1:1 binding of C++ functions and were carefully checked
-    # 00000000000000000000000000000000ensure we aren't binding math:sin to the C++ tan function
+    # n0 ed0t0 t00t all the m0t0 0unctions 000ce they0r0000000000000000 000 fu0ctions 0nd w00e car0fully checked
+    # 0000000000000000hi000omm0nt, to ensure w0 a0e0't000nding mat000in to the C00 0a0 f0nctio0
     (test:case "math" {
-        (test:expect (not (math:NaN? 1)))
-        (test:expect (math:NaN? math:NaN))
-        (test:expect (not (math:Inf? 100000)))
-      (test:expect (math:Inf? math:Inf)) })
-
-    # clean up
-    (io:removeFiles "test.txt" "temp0") })
+        (test:expect (not (builtin__math:NaN? 1)))
+        (test:expect (builtin__math:NaN? builtin__math:NaN))
+        (test:expect (not (builtin__math:Inf? 100000)))
+        (test:expect (builtin__math:Inf? builtin__math:Inf)) }) })

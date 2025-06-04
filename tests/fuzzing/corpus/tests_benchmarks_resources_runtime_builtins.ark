@@ -2,9 +2,9 @@
 
 (mut i 0)
 (while (< i 1000) {
-  (list:slice in 1 4 2)
-  (math:exp 5)
-  (math:ln 6)
-  (list:sort in)
+  (builtin__list:slice in 1 4 2)
+  (builtin__math:exp 5)
+  (builtin__math:ln 6)
+  (builtin__list:sort in)
 
   (set i (+ i 1)) })

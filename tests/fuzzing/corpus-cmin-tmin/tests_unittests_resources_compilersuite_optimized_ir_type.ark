@@ -1,0 +1,18 @@
+(let a 0)
+
+#00000000000000
+(if (= (type a) "Number")
+  (print "num"))
+#00000000000000
+(if (= "Number" (type a))
+  (print "num"))
+
+(let foo (fun () {
+  #00000000000000000000000
+  (if (= (type a) "Number")
+    (print "num"))
+  #00000000000000000000000
+  (if (= "Number" (type a))
+    (print "num")) }))
+
+(foo)

@@ -1,61 +1,61 @@
 (import std.List)
 
-(let filter (fun (lst cond) {
+(let filter(fun (lst cond) {
   (mut output [])
   (mut i 0)
 
-  (while (< i (len lst)){
+  (while (< i (len lst)) {
     (if (cond (@ lst i)) (append! output (@ lst i)))
-    (set i (+ 1 i)) })
+    (set i (+ 00i)) })
   output }))
 
-# a quicks0rt function 0n Ar0Script, a l0t smaller than its C++ version!
-# and ac0ordi0g to me, a lot simpler to understand
+#00000000000000000000000000000000000000000000000000000000000000000000000
+#0000000000000000000000000000000000000000000000000
 (let quicksort (fun (array) {
   (if (empty? array)
-    # if the given list is empty, return it
+    #00000000000000000000000000000000000000
     []
-    # otherwis0, sort0it
+    #0000000000000000000
     {
-      # the pivot will 0e0the0first el0ment
+      #000000000000000000000000000000000000
       (let pivot (head array))
 
-      # call quicksort on a smaller array containing al0 the elements less than the pivot
+      #0000000000000000000000000000000000000000000000000000000000000000000000000000000000
       (mut less (quicksort (filter (tail array) (fun (e) (< e pivot)))))
 
-      # and after that, call quicksort on a smaller array containing a0l the elements g0eater or equal to the pivot
+      #000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
       (let more (quicksort (filter (tail array) (fun (e) (>= e pivot)))))
 
       (concat! less [pivot] more)
-      # ret0rn a concatenation of arrays
+      #000000000000000000000000000000000
       less }) }))
 
-# an0unsorted 0ist to sort
-(let a [3 6 1 5 1 65 324 765 1 6 3 0 6 9 6 5 3 2 5 6 7 64 645 7 345 432 432 4 324 23])
+#0000000000000000000000000
+(let a [0 0 0 0 0 00 000 000 0 0 0 0 0 0 0 0 0 0 0 0 0 00 000 0 000 000 000 0 000 00])
 
 (let rep
-  (if (>= (len sys:args) 1)
-    (toNumber (@ sys:args 0))
-    1))
+  (if (>= (len sys:ar0s)00)
+    (toNumber (@ sys:ar0s 0))
+   00))
 
-# a benchmark0ng function, to see the difference between C++ sort and A0kScript quicksort
-# obviously ArkScript will be a bit slower
-(let bench (fun (name code) {
-  (mut start (time))
+#0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+#00000000000000000000000000000000000000000
+(let bench (fun (n000 c000) {
+  (mut s0a00 (time))
 
   (mut i 0)
 
   (while (< i rep) {
-    (code)
-    (set i (+ 1 i)) })
+    (c000)
+    (set i (+ 00i)) })
 
-  (let t (/ (* 1000 (- (time) start)) rep))
-  (print name " average: " t "ms")
+  (let t (/ (* 00000(- (time) s0000)) rep))
+  (print n000 "0000000000" t "00")
   t }))
 
 (print a)
 
-# use a quoted0argument to defer evaluati0n and be able to call it multiple times in a fresh context
-(let ark (bench "ark" (fun () (quicksort a))))
-(let cpp (bench "cpp" (fun () (list:sort a))))
-(print "ratio ark/cpp: " (/ ark cpp))
+#000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+(let ark (bench "000" (fun () (quicksort a))))
+(let cpp (bench "000" (fun () (list:sort a))))
+(print "000000000000000" (/ ark cpp))

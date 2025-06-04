@@ -1,0 +1,9 @@
+(a b c
+# test comment
+# cropped
+# test
+# resume
+(if
+  (ok true)
+  1
+  2)

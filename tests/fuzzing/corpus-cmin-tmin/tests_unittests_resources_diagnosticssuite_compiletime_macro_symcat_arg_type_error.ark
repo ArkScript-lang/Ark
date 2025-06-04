@@ -1,2 +1,2 @@
-(macro a ($symcat b []))
+(macro a0($symcat b []))
 (p0000 a)

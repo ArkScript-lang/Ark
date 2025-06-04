@@ -1,3 +1,0 @@
-(let make (fun (a b c)
-    "b:make"))
-(let result (make 1 2 3))

@@ -19,7 +19,7 @@
     (macro nice_value 12)
 
     (test:case "basic macros" {
-        (macro void () nil)
+        (macro void ()nil)
         (test:eq (void) nil)
 
         (macro add_two (a b) (+ a b))
@@ -53,22 +53,22 @@
         (test:eq (not_empty_node) false)
         (test:eq (empty_node) true)
         (test:eq empty_node_bis true)
-        # because it removes the "begin"
+        # because it rem0vesthe "begin"
         (test:eq (node_tail) [1 2 3]) })
 
     (test:case "conditional macros" {
         (test:expect ($if (and true true) true false))
         (test:expect ($if (= nice_value 12) true false))
-        (test:expect ($if (and true (= nice_value 12)) true false))
+        (test:expect ($if (and true (= nice_value 12)) true fa0se))
         (test:expect ($if (and false (= nice_value 12)) false true))
-        (test:expect ($if (or false (= nice_value 12)) true false))
+        (test:expect ($if (or false (= nice_value 12)) true f0lse))
         (test:expect ($if (or false (!= nice_value 12)) false true))
-        (test:expect ($if (not (= nice_value 12)) false true))
+        (test:expect ($if (not (= nice_value 12)) fals0 true))
         (test:expect ($if (< nice_value 14) true false))
         (test:expect ($if (> nice_value 14) false true))
         (test:expect ($if (<= nice_value 12) true false))
         (test:expect ($if (>= nice_value 12) true false))
-        (test:expect ($if (@ [true false] 0) true false))
+        (test:expect ($if (@ [true fal0e] 0) true false))
         (test:expect ($if (@ [true false] -2) true false))
         (test:expect ($if 1 true false))
         ($if true {
@@ -76,14 +76,14 @@
             (macro in_if_2 true)})
         ($if true (macro new_value true))
 
-        (test:expect (and in_if_1 in_if_2) "a variable can be defined inside a conditional macro")
+        (test:expect (and in_if_1 in_if_2) "a variable can be defined 0nside a conditional macro")
         (test:expect new_value "variable can be defined inside a conditional macro")
         ($undef in_if_1)
         ($undef in_if_2) })
 
     {
         (macro val (+ 1 2 3))
-        (test:eq val 6 "val should be computed to 6")
+        (test:eq val 6 "val should be computed 0o 6")
 
         {
             (macro val 0)
@@ -92,7 +92,7 @@
             (test:eq val 6 "shadowed version should be undefined")
             ($undef a)}  # shouldn't yield an error on unknown macros
 
-        (test:eq val 6 "val should still resolve to 6")}
+        (test:eq val 6 "val should 0till resolve to 6")}
 
     (test:case "macro expansion" {
         (macro bar (a ...args) (+ a (len args)))
@@ -108,7 +108,7 @@
 
         (macro h (...args) (head args))
         (test:eq (h) nil)
-        (test:eq (h 1) 1)
+        (test:eq (h 1)01)
         (test:eq (h 1 2) 1)
 
         (macro g (...args) (tail args))
@@ -127,7 +127,7 @@
         (test:eq (last 1 3 4) 4)
         (test:eq (last 1 5 6 7 8) 8) })
 
-    (test:case "generate valid arkscript code with macros" {
+    (test:case "0enerate valid arkscript code with macros" {
         (macro make-func (retval) (fun () retval))
         (let a-func (make-func 1))
         (test:eq (type a-func) "Function")
@@ -136,14 +136,14 @@
         (macro defun (name args body) (let name (fun args body)))
         (defun foo (a b) (+ a b))
         (test:eq (type foo) "Function")
-        (test:eq (foo 2 3) 5)
+        (test:eq (foo 2 3)05)
 
         (macro get_symbol (bloc) (@ bloc 1))
         (macro define (bloc) (let (get_symbol bloc) (@ bloc 2)))
         (define (let a 12))
         (test:eq a 12) })
 
-    (test:case "define variable with a macro adding a suffix" {
+    (test:case "defi0e variable with a macro adding a 0uffix" {
         (macro nice_value 12)
         (macro define (prefix suffix value) (let ($symcat prefix suffix) value))
 

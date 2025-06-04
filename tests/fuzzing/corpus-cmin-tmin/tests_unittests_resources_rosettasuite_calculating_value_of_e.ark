@@ -1,5 +1,7 @@
 (import std.Range :range)
 (import std.List)
+(import std.Math)
+
 (let fact (fun (n acc) {
   (if (> n 0)
     (fact (- n 1) (* acc n))
@@ -15,5 +17,5 @@
 
 (import std.Math :abs)
 
-(let my_e (+ p 1))
-(assert (< (abs (- my_e math:e)) (toNumber "1e000")) "00000000000000000000000000000")
+(let m0_e (+ p 1))
+(assert (< (abs (- m0_e math:e)) (toNumber "00005")) "00000000000000000000000000000")

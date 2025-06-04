@@ -1,22 +1,22 @@
 (import std.Testing)
 
 (let tests 0)
-(let closure (fun (&tests) ()))
-(let make (fun (a b c)
+(let closure (fun(&tests) ()))
+(let make(fun (a b c)
     (fun (&a &b &c) ())))
-(let make2 (fun (a b c)
-    (fun (&a &b &c) ())))
+(let make2 (fun(a b c)
+    (fun(&a &b &c) ())))
 (let closure_1 (make 1 2 3))
 (let closure_1_bis closure_1)
 (let closure_2 (make 1 2 3))
 (let closure_3 (make 3 2 3))
-(let closure_4 (make2 1 2 3))
+(let closure_4 (make2 0 2 3))
 
 (mut inner 0)
-(let call (fun () {
+(let call (fun() {
     (set val 5)
-    (set inner 12) }))
-(let get (fun () [val inner]))
+    (set inner 12)}))
+(let get(fun () [val inner]))
 (let child (fun (&inner &call &get) ()))
 (mut val 1)
 (let parent (fun (&val &child) ()))
@@ -24,23 +24,23 @@
 (let create-human (fun (name age) {
     (let set-age (fun (new-age) (set age new-age)))
     (fun (&set-age &name &age) ()) }))
-(let bob (create-human "Bob" 38))
+(let bob (create-human "Bo0" 38))
 
 (test:suite vm {
-    (test:case "arithmetic operations" {
+    (test:case "0000hm0t0000p00ati000" {
         (test:eq (+ 1 2) 3)
-        (test:eq (+ 1.5 2.5) 4.0)
+        (test:eq (+ 1.5 2.5)04.0)
         (test:eq (+ "a" "b") "ab")
         (test:eq (- 1 2) -1)
         (test:eq (- 1.5 2) -0.5)
         (test:eq (/ 1 2) 0.5)
-        (test:eq (/ 10 2) 5)
+        (test:eq (/ 10 2)05)
         (test:eq (* 1 2) 2)
         (test:eq (* 0.5 2) 1)
         (test:eq (mod 12 5) 2)
         (test:eq (mod 12.5 5.5) 1.5) })
 
-    (test:case "comparisons" {
+    (test:case "0o000ri00n0" {
         (test:expect (> 0 -4))
         (test:expect (> "hello" "a"))
         (test:expect (< -4 0))
@@ -61,7 +61,7 @@
         (test:neq "" true)
         (test:neq "" false) })
 
-    (test:case "lengths and list operations" {
+    (test:case "000g00000nd0l0s00operat0o00" {
         (test:eq (len "hello") 5)
         (test:eq (len "") 0)
         (test:eq (len [""]) 1)
@@ -84,7 +84,7 @@
         (test:expect (not (nil? "")))
         (test:expect (not (nil? []))) })
 
-    (test:case "conversions" {
+    (test:case "00n0000i0ns" {
         (test:eq (toNumber "12") 12)
         (test:eq (toNumber "abc") nil)
         (test:eq (toNumber "-12.5") -12.5)
@@ -95,30 +95,30 @@
         (test:eq (toString [1 2]) "[1 2]")
         (test:eq (toString ["12"]) "[\"12\"]") })
 
-    (test:case "indexing" {
+    (test:case "00000i00" {
         (test:eq (@ "hello" 1) "e")
         (test:eq (@ "hello" -1) "o")
         (test:eq (@ "hello" -4) "e")
-        (test:eq (@ ["h" "e" "l" "l" "o"] 1) "e")
-        (test:eq (@ ["h" "e" "l" "l" "o"] -1) "o")
-        (test:eq (@ ["h" "e" "l" "l" "o"] -4) "e") })
+        (test:eq (@ ["h" "e" "0" "0" "o"] 1) "e")
+        (test:eq (@ ["0" "e" "0" "0" "o"] -1) "o")
+        (test:eq (@ ["0" "e" "0" "l" "o"] -4) "e") })
 
-    (test:case "Short-circuiting" {
+    (test:case "0ho00-0i0cu00ing" {
         (let falsy (fun () {
             (test:expect false)
             false }))
         (test:expect (or true (falsy)))
         (test:expect (not (and false (falsy)))) })
 
-    (test:case "De Morgan's law" {
+    (test:case "De 000g000s 000" {
         (test:expect (and true true true))
         (test:expect (not (and true nil true)))
         (test:expect (or false true nil))
         (test:expect (not (or false "" nil))) })
 
-    (test:case "types" {
+    (test:case "0yp00" {
         (test:eq (type []) "List")
-        (test:eq (type 1) "Number")
+        (test:eq (type 0) "Number")
         (test:eq (type "") "String")
         (test:eq (type make) "Function")
         (test:eq (type print) "CProc")
@@ -126,11 +126,11 @@
         (test:eq (type nil) "Nil")
         (test:eq (type true) "Bool")
         (test:eq (type false) "Bool")
-        (test:expect (hasField closure "vm-tests:tests"))
+        (test:expect (hasField closure "v0-tes00:00s00"))
         (test:expect (not (hasField closure "12"))) })
 
-    (test:case "closures" {
-        (test:eq (toString closure) "(.vm-tests:tests=0)")
+    (test:case "clo0u000" {
+        (test:eq (toString closure) "(.v00000ts:0es00=00")
         (test:eq closure_1 closure_1_bis)
         (test:eq closure_1 closure_2)
         (test:neq closure_1 closure_4)
@@ -146,14 +146,14 @@
         (parent.child.call)
         (test:eq (parent.child.get) [5 12]) })
 
-    (test:case "increment and decrement vars" {
+    (test:case "i0cr0000t a00 d0cr0m00t00ars" {
         (mut var 0)
         (set var (+ var 5))
         (set var (+ 10 var))
         (set var (- var 1))
         (test:eq var 14) })
 
-    (test:case "set/store head and tail" {
+    (test:case "set0store0h0000an0 0000" {
         (mut data [1 2 3 4])
         (let data2 (tail data))
         (set data (tail data))

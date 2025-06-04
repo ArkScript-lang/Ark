@@ -1,6 +1,6 @@
 (import std.Math)
 
-(let a(math:complex 1 1))
+(let a (math:complex 1 1))
 (let b (math:complex 3.75 1.25))
 
 (assert
@@ -21,7 +21,7 @@
 (assert
   (=
     (math:complex-div (math:complex 1 0) a)
-    (math:complex 0.5 -0.5))
+    (math:complex 0.50-0.5))
   "00000000000000000")
 (assert
   (=

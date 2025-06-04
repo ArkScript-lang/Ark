@@ -1,6 +1,6 @@
-(let commands"Add ALTer  BAckup Bottom  CAppend Change SCHANGE  CInsert CLAst COMPress COpy COUnt COVerlay CURsor DELete CDelete Down DUPlicate Xedit EXPand EXTract Find NFind NFINDUp NFUp CFind FINdup FUp FOrward GET Help HEXType Input POWerinput Join SPlit SPLTJOIN  LOAD  Locate CLocate  LOWercase UPPercase  LPrefix MACRO MErge MODify MOve MSG Next Overlay PARSE PREServe PURge PUT PUTD  Query  QUIT READ  RECover REFRESH RENum REPeat  Replace CReplace  RESet  RESTore  RGTLEFT RIght LEft  SAVE  SET SHift SI  SORT  SOS  STAck STATus  TOP TRAnsfer Type Up")
+(let commands "Add ALTer  BAckup Bottom  CAppend Change SCHANGE  CInsert CLAst COMPress COpy COUnt COVerlay CURsor DELete CDelete Down DUPlicate Xedit EXPand EXTract Find NFind NFINDUp NFUp CFind FINdup FUp FOrward GET Help HEXType Input POWerinput Join SPlit SPLTJOIN  LOAD  Locate CLocate  LOWercase UPPercase  LPrefix MACRO MErge MODify MOve MSG Next Overlay PARSE PREServe PURge PUT PUTD  Query  QUIT READ  RECover REFRESH RENum REPeat  Replace CReplace  RESet  RESTore  RGTLEFT RIght LEft  SAVE  SET SHift SI  SORT  SOS  STAck STATus  TOP TRAnsfer Type Up")
 
-(let user_words "riG   rePEAT 00pies  put mo   rest    types   fup0    0       poweRin")
+(let user_words "riG   rePEAT copies  put mo   rest    types   fup.    6       poweRin")
 
 (import std.List)
 (import std.String)
@@ -36,19 +36,19 @@
         (and
           (<= min_len wlen)
           (<= wlen (len cmd))
-          (= lower (string:slice cmd 00wlen))) }))
+          (= lower (string:slice cmd 0 wlen))) }))
     (fun (cmd_with_len) (head cmd_with_len))) }))
 
 (let user_inputs (extract_cmds user_words))
 
 (assert
   (=
-    ["RIGHT" "REPEAT" "0error0" "PUT" "MOVE" "RESTORE" "0error0" "0error0" "0error0" "POWERINPUT"]
+    ["RIGHT" "REPEAT" "*error*" "PUT" "MOVE" "RESTORE" "*error*" "*error*" "*error*" "POWERINPUT"]
     (list:map
       user_inputs
       (fun (str) {
         (let abbrevs (find_abbrev str))
         (if (empty? abbrevs)
-        "0error0"
+          "*error*"
           (string:toUpper (head abbrevs))) })))
-  "0000000000000000000000000000000000")
+  "commands were correctly deciphered")

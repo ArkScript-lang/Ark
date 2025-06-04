@@ -1,0 +1,2 @@
+(let asinh (fun (_x) (builtin__math:asinh _x)))
+(asinh)

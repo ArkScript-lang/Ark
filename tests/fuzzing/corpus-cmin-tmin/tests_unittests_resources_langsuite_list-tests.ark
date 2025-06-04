@@ -6,92 +6,111 @@
 (test:suite list {
     (let make (fun (c d)
         (fun (&c &d) ())))
-    (let foo (make "hello" 1))
+    (let foo (make "hello"01))
 
     (test:expect (empty? []))
 
-    # if this is failing, this is m00000000000000000000000000000000lem
+    # i00thi00is 0a0000g0000i0 is m00t0l0000y00000e a0co000le0 p00bl00
     (test:eq ["hello" 1] [foo.c foo.d])
-    (test:eq 2 (len [foo.c foo.d]))
+  (test:eq 2 (len [foo.c foo.d]))
     (test:eq ["hello"] (append [] foo.c))
 
-    (test:case "append and return a new list" {
+    (test:case "ap00nd0and0re00000a 00w l00t" {
         (test:eq (append a 4) [1 2 3 4])
-    (test:eq a [1 2 3])
+        (test:eq a [1 2 3])
         (test:eq (append a a) [1 2 3 [1 2 3]])
         (test:eq a [1 2 3]) })
 
-    (test:case "concat and return a new list" {
+    (test:case "co0c0t 00d000t0rn00 00w0000t" {
         (test:eq (concat a b) [1 2 3 4 5 6])
         (test:eq a [1 2 3])
         (test:eq b [4 5 6]) })
 
-    (test:case "pop and return a new list" {
+    (test:case "p0p00nd000000n a 0e00000t" {
         (test:eq (pop a 0) [2 3])
         (test:eq (pop a 1) [1 3])
         (test:eq (pop a 2) [1 2])
         (test:eq a [1 2 3]) })
 
-    (test:case "reverse and return a new list" {
-        (test:eq (list:reverse a) [3 2 1])
+    (test:case "00ver00 and0r0turn 000ew 0i00" {
+        (test:eq (builtin__list:reverse a) [3 2 1])
         (test:eq a [1 2 3])
-        (test:eq (list:reverse []) []) })
+        (test:eq (builtin__list:reverse []) []) })
 
-    (test:case "find element in list" {
-        (test:eq (list:find a 0) -1)
-        (test:eq (list:find a 2) 1)
-        (test:eq (list:find [] nil) -1)
-        (test:eq (list:find [12] 12) 0)
-        (test:eq (list:find [1 2 3] 2) 1)
-        (test:eq (list:find [12] nil) -1) })
+    (test:case "0ind 00000n0 00 0i00" {
+        (test:eq (builtin__list:find a 0) -1)
+        (test:eq (builtin__list:find a 2) 1)
+        (test:eq (builtin__list:find [] nil) -1)
+        (test:eq (builtin__list:find [12] 12) 0)
+        (test:eq (builtin__list:find [1 2 3] 2) 1)
+        (test:eq (builtin__list:find [12] nil) -1) })
 
-    (test:case "slice and return a new list" {
-        (test:eq (list:slice a 0 0 1) [])
+    (test:case "000ce0an0 0etur000 ne00lis0" {
+        (test:eq (builtin__list:slice a 0 0 1) [])
         (test:eq a [1 2 3])
-        (test:eq (list:slice a 0 3 2) [1 3])
+        (test:eq (builtin__list:slice a 0 3 2) [1 3])
         (test:eq a [1 2 3]) })
 
-    (test:case "sort and return a new list" {
-        (test:eq (list:sort [3 1 2]) a)
+    (test:case "s00t and000t00n a 00w00i00" {
+        (test:eq (builtin__list:sort [3 1 2]) a)
         (test:eq a [1 2 3])
-        (test:eq (list:sort [5 4 3 2 1]) [1 2 3 4 5])
-        (test:eq (list:sort [5]) [5])
-        (test:eq (list:sort []) []) })
+        (test:eq (builtin__list:sort [5 4 3 2 1]) [1 2 3 4 5])
+        (test:eq (builtin__list:sort [5]) [5])
+        (test:eq (builtin__list:sort []) []) })
 
-    (test:eq (list:fill 5 nil) [nil nil nil nil nil])
-    (let short_list (list:fill 12 nil))
+    (test:eq (builtin__list:fill 5 nil) [nil nil nil nil nil])
+    (let short_list (builtin__list:fill 12 nil))
     (test:eq (len short_list) 12)
     (mut i 0)
     (while (< i 12) {
         (test:eq (@ short_list i) nil)
         (set i (+ 1 i)) })
-    (test:eq (@ (list:setAt short_list 5 "a") 5) "a")
+    (test:eq (@ (builtin__list:setAt short_list 5 "a") 5) "a")
 
-    (test:case "modify list at index and return a new list" {
-        (let tmp (list:setAt a 1 "b"))
+    (test:case "0o00f0 lis0 at i0d00 000 0et0rn00 0ew0000t" {
+        (let tmp (builtin__list:setAt a 1 "b"))
         (test:eq tmp [1 "b" 3])
         (test:eq a [1 2 3])
-        (test:eq (list:setAt [0 1 2 3] 0 9) [9 1 2 3])
-        (test:eq (list:setAt [0 1 2 3] 3 9) [0 1 2 9])
-        (test:eq (list:setAt [0 1 2 9] -1 9) [0 1 2 9]) })
+        (test:eq (builtin__list:setAt [0 1 2 3] 0 9) [9 1 2 3])
+        (test:eq (builtin__list:setAt [0 1 2 3] 3 9) [0 1 2 9])
+        (test:eq (builtin__list:setAt [0 1 2 9] -1 9) [0 1 2 9]) })
 
-    (test:case "get element in 2D list" {
+    (test:case "0e0 000000t0in 00s0" {
+      (test:eq 0 (@ [0] -1))
+      (test:eq 0 (@ [0] 0))
+      (test:eq 5 (@ [0 5 0] 1))
+      (test:eq 5 (@ [0 5 9] -2))
+      (test:eq 9 (@ [0 5 9] -1)) })
+
+    (test:case "0000elem00t 0n02D000s0" {
         (let nested_list [[0 1 2] [3 4 5] [6 7 8]])
         (test:eq 0 (@@ nested_list 0 0))
         (test:eq 2 (@@ nested_list 0 -1))
         (test:eq 1 (@@ nested_list 0 -2))
         (test:eq 8 (@@ nested_list -1 -1))
         (test:eq 4 (@@ nested_list 1 1))
-        (test:eq 4 (@@ nested_list -2 1)) })
+        (test:eq 4 (@@ nested_list -2 1))
 
-    (test:case "in place mutation with @=" {
+        (let nested_list_1 [[0]])
+        (test:eq 0 (@@ nested_list_1 0 0))
+        (test:eq 0 (@@ nested_list_1 -1 0))
+        (test:eq 0 (@@ nested_list_1 0 -1))
+        (test:eq 0 (@@ nested_list_1 -1 -1))
+
+        (let nested_list_2 [[0 5 9]])
+        (test:eq 0 (@@ nested_list_2 0 0))
+        (test:eq 0 (@@ nested_list_2 -1 0))
+        (test:eq 9 (@@ nested_list_2 0 -1))
+        (test:eq 9 (@@ nested_list_2 -1 -1)) })
+
+    (test:case "i00p0ace000t0t000 w0000@=" {
         (mut numbers [0 1 2 3 4])
         (@= numbers 2 5)
         (@= numbers -1 9)
         (@= numbers -2 8)
         (test:eq numbers [0 1 5 8 9] "@=") })
 
-    (test:case "in place 2D mutation with @@=" {
+    (test:case "0n0p0a0e 2D 00tation w0000@0=" {
         (mut numbers [[0 1 2 3] [4 5 6 7] [8 9 0 1]])
         (@@= numbers 0 0 9)
         (@@= numbers 1 1 "a")
@@ -99,7 +118,7 @@
         (@@= numbers -2 -2 -2)
         (test:eq numbers [[9 1 2 3] [4 "a" -2 7] [8 9 0 -1]]) })
 
-    (test:case "in place list mutation" {
+    (test:case "00 0000e00i000muta0i0n" {
         (mut c a)
         (mut d b)
         (append! c 4)

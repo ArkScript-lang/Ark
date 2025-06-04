@@ -1,1 +1,1 @@
-(io:readFile 0)
+(builtin__io:readFile 1)
