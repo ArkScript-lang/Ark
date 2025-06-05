@@ -63,6 +63,30 @@ Ark::UserType::ControlFuncs* get_cfs()
 ut::suite<"Embedding"> embedding_suite = [] {
     using namespace ut;
 
+    "[run string and call arkscript function from cpp without args]"_test = [] {
+        Ark::State state;
+
+        should("compile the string without any error") = [&] {
+            expect(mut(state).doString("(let foo (fun () 4))"));
+        };
+
+        Ark::VM vm(state);
+        should("return exit code 0") = [&] {
+            expect(mut(vm).run() == 0_i);
+        };
+
+        should("have symbol foo registered") = [&] {
+            const auto func = mut(vm)["foo"];
+            expect(func.isFunction());
+        };
+
+        should("(foo) have a value of 4") = [&] {
+            const auto value = mut(vm).call("foo");
+            expect(value.valueType() == Ark::ValueType::Number);
+            expect(value.number() == 4.0_d);
+        };
+    };
+
     "[run string and call arkscript function from cpp]"_test = [] {
         Ark::State state;
 
