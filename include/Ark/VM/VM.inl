@@ -21,9 +21,12 @@ Value VM::call(const std::string& name, Args&&... args)
     push(Value(ValueType::InstPtr, static_cast<internal::PageAddr_t>(0)), context);
 
     // convert and push arguments
-    std::vector<Value> fnargs { { Value(std::forward<Args>(args))... } };
-    for (auto&& arg : fnargs | std::views::reverse)
-        push(arg, context);
+    if (sizeof...(args) > 0)
+    {
+        std::vector<Value> fnargs { { Value(std::forward<Args>(args))... } };
+        for (auto&& arg : fnargs | std::views::reverse)
+            push(arg, context);
+    }
 
     // find function object and push it if it's a pageaddr/closure
     if (const auto dist = std::distance(m_state.m_symbols.begin(), it); std::cmp_less(dist, std::numeric_limits<uint16_t>::max()))
