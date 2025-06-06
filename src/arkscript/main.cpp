@@ -17,7 +17,7 @@
 #ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
 #    define ARK_ERROR_EXIT_CODE 0
 #else
-#    define ARK_ERROR_EXIT_CODE -1
+#    define ARK_ERROR_EXIT_CODE (-1)
 #endif
 
 int main(int argc, char** argv)

@@ -347,6 +347,7 @@ jobs:
         run: |
           mkdir crashes
           cp output/default/crashes/id:* crashes/
+          (cd crashes && find . -type f -exec mv '{}' '{}'.ark \;)
           tar -czvf crashes.tar.gz crashes
 
       - name: Upload crashes
