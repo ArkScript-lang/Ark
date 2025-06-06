@@ -64,7 +64,7 @@ if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG OR APPLE)
     target_compile_definitions(ArkReactor PRIVATE ARK_USE_COMPUTED_GOTOS=1)
 
     target_compile_options(ArkReactor
-            PUBLIC
+            PRIVATE
             -Wall -Wextra -pedantic -Wstrict-aliasing
             -Wshadow
             -Wconversion
@@ -82,8 +82,8 @@ if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG OR APPLE)
             -fno-semantic-interposition
     )
     if (NOT ARK_BENCHMARKS)
-        target_compile_options(ArkReactor PUBLIC -Werror)
-    endif()
+        target_compile_options(ArkReactor PRIVATE -Werror)
+    endif ()
 
     # set fmtlib visibility to default
     target_compile_definitions(ArkReactor PUBLIC FMT_SHARED)
@@ -92,7 +92,7 @@ if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG OR APPLE)
         # The standard SSH libraries are depreciate on APPLE.
         # Thus they currently generate a warning that we have to ignore for now.
         # Though we should look to fix that in the future.
-        target_compile_options(ArkReactor PUBLIC -Wno-deprecated-declarations)
+        target_compile_options(ArkReactor PRIVATE -Wno-deprecated-declarations)
     endif ()
 
     # The following sub-modules link with -L/usr/local/lib
@@ -104,21 +104,21 @@ if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG OR APPLE)
     #   lib/modules/msgpack/CMakeFiles/msgpack.dir/__/submodules/msgpack-cpp/src/vrefbuffer.c.o
     #   lib/modules/msgpack/CMakeFiles/msgpack.dir/__/submodules/msgpack-cpp/src/zone.c.o
     target_compile_options(ArkReactor
-            PUBLIC
+            PRIVATE
             -Wno-unused-command-line-argument)
 
     # The nlohmann/json.hpp external project has unused typedefs in the code
     # to compensate for this error we remove the following warning.
     if (CMAKE_COMPILER_IS_CLANG)
-        target_compile_options(ArkReactor PUBLIC -Wno-unused-local-typedef)
+        target_compile_options(ArkReactor PRIVATE -Wno-unused-local-typedef)
     elseif (CMAKE_COMPILER_IS_GNUCXX)
-        target_compile_options(ArkReactor PUBLIC -Wno-unused-local-typedefs)
+        target_compile_options(ArkReactor PRIVATE -Wno-unused-local-typedefs)
     endif ()
 
 elseif (MSVC)
     target_compile_definitions(ArkReactor PRIVATE ARK_USE_COMPUTED_GOTOS=0)
     target_compile_options(ArkReactor
-            PUBLIC
+            PRIVATE
             /W4
             /MP4      # build multiple source files concurrently
             /EHa      # set exception model to standard C++ stack unwinding
@@ -126,7 +126,8 @@ elseif (MSVC)
             /wd4244   # disable warning about data loss (size_t -> char)
             /wd4505   # disable warning about unused static function was deleted
             /wd4068   # disable warnings about unknown pragmas.
-            /utf-8)
+    )
+    target_compile_options(ArkReactor PUBLIC /utf-8)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /STACK:8000000")  # set stack size to 8MB
 endif ()
 
@@ -252,7 +253,7 @@ if (ARK_BENCHMARKS)
         CPMAddPackage(
                 URI "gh:CodSpeedHQ/codspeed-cpp#5324618a1a14e0aa9a99dcfb467b9c2a57957e19@1.1.1"
                 SOURCE_SUBDIR google_benchmark)
-    else()
+    else ()
         CPMAddPackage("gh:google/benchmark@1.8.3")
     endif ()
 
