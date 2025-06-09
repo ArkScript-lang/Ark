@@ -226,7 +226,7 @@ int main(int argc, char** argv)
                     sizeof(Ark::Value),
                     sizeof(Ark::Value::Value_t),
                     sizeof(Ark::ValueType),
-                    sizeof(Ark::Value::ProcType),
+                    sizeof(Ark::Procedure),
                     sizeof(Ark::internal::Closure),
                     sizeof(Ark::UserType),
                     // vm

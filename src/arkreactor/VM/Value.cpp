@@ -1,4 +1,5 @@
 #include <Ark/VM/Value.hpp>
+#include <Ark/VM/Value/Procedure.hpp>
 
 #include <fmt/format.h>
 #include <fmt/ostream.h>
@@ -34,7 +35,7 @@ namespace Ark
         m_type(ValueType::PageAddr), m_value(value)
     {}
 
-    Value::Value(Value::ProcType value) noexcept :
+    Value::Value(Procedure&& value) noexcept :
         m_type(ValueType::CProc), m_value(value)
     {}
 
