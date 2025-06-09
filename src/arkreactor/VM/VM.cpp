@@ -319,7 +319,7 @@ namespace Ark
                 // put it in the global frame, aka the first one
                 auto it = std::ranges::find(m_state.m_symbols, std::string(map[i].name));
                 if (it != m_state.m_symbols.end())
-                    context.locals[0].push_back(static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it)), Value(map[i].value));
+                    context.locals[0].push_back(static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it)), Value(Procedure(map[i].value)));
 
                 ++i;
             }
@@ -421,7 +421,7 @@ namespace Ark
                     if (it != m_state.m_symbols.end())
                         m_execution_contexts[0]->locals[0].push_back(
                             static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it)),
-                            Value(map[i].value));
+                            Value(Procedure(map[i].value)));
 
                     ++i;
                 }

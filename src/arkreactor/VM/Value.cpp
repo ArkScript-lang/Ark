@@ -36,7 +36,7 @@ namespace Ark
     {}
 
     Value::Value(Procedure&& value) noexcept :
-        m_type(ValueType::CProc), m_value(value)
+        m_type(ValueType::CProc), m_value(std::move(value))
     {}
 
     Value::Value(std::vector<Value>&& value) noexcept :

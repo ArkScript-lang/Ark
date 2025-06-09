@@ -1,7 +1,7 @@
 /**
  * @file Procedure.hpp
  * @author Justin Andreas Lacoste (me@justin.cx)
- * @brief Wrapper object user-defined functions
+ * @brief Wrapper object for user-defined functions
  * @date 2025-06-09
  *
  * @copyright Copyright (c) 2025
@@ -12,7 +12,6 @@
 #define ARK_VM_PROCEDURE_HPP
 
 #include <functional>
-#include <type_traits>
 #include <vector>
 
 namespace Ark
@@ -29,18 +28,33 @@ namespace Ark
         using PointerType = Value (*)(std::vector<Value>&, VM*);
         using CallbackType = std::function<Value(std::vector<Value>&, VM*)>;
 
+        ///
+        /// Due to clang (sometimes) rejecting forward declared types
+        /// in templates (`Value` causes issues), we have to implement
+        /// the constructor for the actual `CallbackType` using SFINAE
+        /// and a templated constructor, such that when clang
+        /// encounters the constructor, it knows the actual
+        /// declaration of `Value`.
+        ///
         /**
-         * @brief Create new Procedure from a plain C-style function pointer taking std::vector<Value>& and VM*.
-         *
-         * @param functor the function to store
+         * @brief Create a new procedure.
          */
-        template <typename T,
-                  typename = std::enable_if_t<std::is_pointer_v<T> && std::is_convertible_v<T, PointerType>>>
-        Procedure(T functor) noexcept :
-            m_procedure(functor) {}
+        template <typename T>
+        explicit Procedure(T&& cb)
+        {
+            m_procedure = cb;
+        }
 
-        Procedure(const CallbackType&) noexcept;
-        Procedure(CallbackType&&) noexcept;
+        /**
+         * @brief Create a new procedure from a stateless C function pointer.
+         */
+        Procedure(PointerType c_ptr);
+
+        Procedure(const Procedure&);
+        Procedure(Procedure&&);
+
+        Procedure& operator=(const Procedure& other);
+        Procedure& operator=(Procedure&& other);
 
         Value operator()(std::vector<Value>&, VM*) const;
 
