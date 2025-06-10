@@ -117,9 +117,9 @@ namespace Ark
         return feed(welder.bytecode());
     }
 
-    void State::loadFunction(const std::string& name, const Procedure::CallbackType function) noexcept
+    void State::loadFunction(const std::string& name, Procedure::CallbackType&& function) noexcept
     {
-        m_binded[name] = Value(Procedure(function));
+        m_binded[name] = Value(std::move(function));
     }
 
     void State::setArgs(const std::vector<std::string>& args) noexcept

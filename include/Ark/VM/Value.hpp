@@ -113,6 +113,7 @@ namespace Ark
         explicit Value(int value) noexcept;
         explicit Value(double value) noexcept;
         explicit Value(const std::string& value) noexcept;
+        explicit Value(const char* value) noexcept;
         explicit Value(internal::PageAddr_t value) noexcept;
         explicit Value(Procedure&& value) noexcept;
         explicit Value(std::vector<Value>&& value) noexcept;

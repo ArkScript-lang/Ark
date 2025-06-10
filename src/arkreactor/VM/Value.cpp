@@ -16,7 +16,7 @@ namespace Ark
         if (type == ValueType::List)
             m_value = std::vector<Value>();
         else if (type == ValueType::String)
-            m_value = "";
+            m_value = std::string();
     }
 
     Value::Value(const int value) noexcept :
@@ -29,6 +29,10 @@ namespace Ark
 
     Value::Value(const std::string& value) noexcept :
         m_type(ValueType::String), m_value(value)
+    {}
+
+    Value::Value(const char* value) noexcept :
+        m_type(ValueType::String), m_value(std::string(value))
     {}
 
     Value::Value(internal::PageAddr_t value) noexcept :

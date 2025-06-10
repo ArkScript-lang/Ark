@@ -83,7 +83,7 @@ namespace Ark
          * @param name the name of the function in ArkScript
          * @param function the code of the function
          */
-        void loadFunction(const std::string& name, Procedure::CallbackType function) noexcept;
+        void loadFunction(const std::string& name, Procedure::CallbackType&& function) noexcept;
 
         /**
          * @brief Set the script arguments in sys:args

@@ -148,7 +148,7 @@ ut::suite<"Embedding"> embedding_suite = [] {
         Ark::State state;
 
         int capture = 42;
-        state.loadFunction("my_function", [=](std::vector<Ark::Value>& args, Ark::VM* /*vm*/) {
+        state.loadFunction("my_function", [=](std::vector<Ark::Value>& args, [[maybe_unused]] Ark::VM* /*vm*/) {
             int solution = 0;
             for (const Ark::Value& value : args)
             {
@@ -177,7 +177,7 @@ ut::suite<"Embedding"> embedding_suite = [] {
         Ark::State state;
 
         std::string name = "";
-        state.loadFunction("my_function", [&name](std::vector<Ark::Value>& args, Ark::VM* /*vm*/) {
+        state.loadFunction("my_function", [&name](std::vector<Ark::Value>& args, [[maybe_unused]] Ark::VM* /*vm*/) {
             for (const Ark::Value& value : args)
             {
                 name.append(value.string());

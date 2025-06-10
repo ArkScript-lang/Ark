@@ -40,21 +40,15 @@ namespace Ark
          * @brief Create a new procedure.
          */
         template <typename T>
-        explicit Procedure(T&& cb)
+        Procedure(T&& cb) :
+            m_procedure(cb)
         {
-            m_procedure = cb;
         }
 
         /**
          * @brief Create a new procedure from a stateless C function pointer.
          */
         Procedure(PointerType c_ptr);
-
-        Procedure(const Procedure&);
-        Procedure(Procedure&&);
-
-        Procedure& operator=(const Procedure& other);
-        Procedure& operator=(Procedure&& other);
 
         Value operator()(std::vector<Value>&, VM*) const;
 
