@@ -1,4 +1,5 @@
 #include <Ark/VM/Value.hpp>
+#include <Ark/VM/Value/Procedure.hpp>
 
 #include <fmt/format.h>
 #include <fmt/ostream.h>
@@ -15,7 +16,7 @@ namespace Ark
         if (type == ValueType::List)
             m_value = std::vector<Value>();
         else if (type == ValueType::String)
-            m_value = "";
+            m_value = std::string();
     }
 
     Value::Value(const int value) noexcept :
@@ -30,12 +31,16 @@ namespace Ark
         m_type(ValueType::String), m_value(value)
     {}
 
+    Value::Value(const char* value) noexcept :
+        m_type(ValueType::String), m_value(std::string(value))
+    {}
+
     Value::Value(internal::PageAddr_t value) noexcept :
         m_type(ValueType::PageAddr), m_value(value)
     {}
 
-    Value::Value(Value::ProcType value) noexcept :
-        m_type(ValueType::CProc), m_value(value)
+    Value::Value(Procedure&& value) noexcept :
+        m_type(ValueType::CProc), m_value(std::move(value))
     {}
 
     Value::Value(std::vector<Value>&& value) noexcept :

@@ -18,6 +18,7 @@
 #include <Ark/Constants.hpp>
 
 #include <Ark/VM/Value.hpp>
+#include <Ark/VM/Value/Procedure.hpp>
 #include <Ark/Compiler/Common.hpp>
 #include <Ark/Exceptions.hpp>
 #include <Ark/Compiler/IntermediateRepresentation/InstLoc.hpp>
@@ -82,7 +83,7 @@ namespace Ark
          * @param name the name of the function in ArkScript
          * @param function the code of the function
          */
-        void loadFunction(const std::string& name, Value::ProcType function) noexcept;
+        void loadFunction(const std::string& name, Procedure::CallbackType&& function) noexcept;
 
         /**
          * @brief Set the script arguments in sys:args

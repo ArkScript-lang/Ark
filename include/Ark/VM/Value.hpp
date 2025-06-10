@@ -19,6 +19,7 @@
 
 #include <Ark/VM/Value/Closure.hpp>
 #include <Ark/VM/Value/UserType.hpp>
+#include <Ark/VM/Value/Procedure.hpp>
 #include <Ark/Platform.hpp>
 
 namespace Ark
@@ -68,14 +69,13 @@ namespace Ark
     class ARK_API Value
     {
     public:
-        using ProcType = Value (*)(std::vector<Value>&, VM*);
         using Iterator = std::vector<Value>::iterator;
 
         using Value_t = std::variant<
             double,                //  8 bytes
             std::string,           // 32 bytes
             internal::PageAddr_t,  //  2 bytes
-            ProcType,              //  8 bytes
+            Procedure,             // 32 bytes
             internal::Closure,     // 24 bytes
             UserType,              // 24 bytes
             std::vector<Value>,    // 24 bytes
@@ -113,8 +113,9 @@ namespace Ark
         explicit Value(int value) noexcept;
         explicit Value(double value) noexcept;
         explicit Value(const std::string& value) noexcept;
+        explicit Value(const char* value) noexcept;
         explicit Value(internal::PageAddr_t value) noexcept;
-        explicit Value(ProcType value) noexcept;
+        explicit Value(Procedure&& value) noexcept;
         explicit Value(std::vector<Value>&& value) noexcept;
         explicit Value(internal::Closure&& value) noexcept;
         explicit Value(UserType&& value) noexcept;
@@ -170,7 +171,7 @@ namespace Ark
         [[nodiscard]] constexpr uint8_t typeNum() const noexcept { return static_cast<uint8_t>(m_type); }
 
         [[nodiscard]] internal::PageAddr_t pageAddr() const { return std::get<internal::PageAddr_t>(m_value); }
-        [[nodiscard]] const ProcType& proc() const { return std::get<ProcType>(m_value); }
+        [[nodiscard]] const Procedure& proc() const { return std::get<Procedure>(m_value); }
         [[nodiscard]] const internal::Closure& closure() const { return std::get<internal::Closure>(m_value); }
         [[nodiscard]] internal::Closure& refClosure() { return std::get<internal::Closure>(m_value); }
     };

@@ -122,9 +122,9 @@ Input parse_input(const std::string& path)
                     break;
 
                 case Ark::ValueType::CProc:
-                    given_args.emplace_back([](std::vector<Ark::Value>&, Ark::VM*) -> Ark::Value {
+                    given_args.emplace_back(Ark::Procedure([](std::vector<Ark::Value>&, Ark::VM*) -> Ark::Value {
                         return Ark::Value(Ark::ValueType::Nil);
-                    });
+                    }));
                     break;
 
                 case Ark::ValueType::Nil:

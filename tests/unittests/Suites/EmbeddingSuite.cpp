@@ -1,10 +1,12 @@
 #include <boost/ut.hpp>
 
 #include <Ark/Ark.hpp>
+#include <Ark/Literals.hpp>
 #include <vector>
 #include <iostream>
 
 using namespace boost;
+using namespace Ark::literals;
 
 Ark::Value my_function(std::vector<Ark::Value>& args, Ark::VM* vm [[maybe_unused]])
 {
@@ -139,6 +141,63 @@ ut::suite<"Embedding"> embedding_suite = [] {
             expect(mut(vm).run() == 0_i);
             const double new_time = vm["t"].number();
             expect(that % timestamp < new_time);
+        };
+    };
+
+    "[load cpp function with captured data]"_test = [] {
+        Ark::State state;
+
+        int capture = 42;
+        state.loadFunction("my_function", [=](std::vector<Ark::Value>& args, [[maybe_unused]] Ark::VM* /*vm*/) {
+            int solution = 0;
+            for (const Ark::Value& value : args)
+            {
+                solution += value.number();
+            }
+            return Ark::Value(capture + solution);
+        });
+
+        should("compile the string without any error") = [&] {
+            expect(mut(state).doString("(let bar (my_function 1 2 3 1))"));
+        };
+
+        Ark::VM vm(state);
+        should("return exit code 0") = [&] {
+            expect(mut(vm).run() == 0_i);
+        };
+
+        should("compute egg to 49") = [&] {
+            auto egg = mut(vm)["bar"];
+            expect(egg.valueType() == Ark::ValueType::Number);
+            expect(egg.number() == 49_i);
+        };
+    };
+
+    "[load cpp function with captured reference]"_test = [] {
+        Ark::State state;
+
+        std::string name = "";
+        state.loadFunction("my_function", [&name](std::vector<Ark::Value>& args, [[maybe_unused]] Ark::VM* /*vm*/) {
+            for (const Ark::Value& value : args)
+            {
+                name.append(value.string());
+            }
+            return Ark::Value();
+        });
+
+        should("compile the string without any error") = [&] {
+            expect(mut(state).doString(R"(
+                (my_function "Iron" " " "Man")
+            )"));
+        };
+
+        Ark::VM vm(state);
+        should("return exit code 0") = [&] {
+            expect(mut(vm).run() == 0_i);
+        };
+
+        should("have mutated the capture variable") = [&] {
+            expect(name == "Iron Man");
         };
     };
 
