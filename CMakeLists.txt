@@ -207,6 +207,10 @@ if (ARK_TESTS)
     add_executable(unittests ${SOURCES})
     target_include_directories(unittests PUBLIC ${ark_SOURCE_DIR}/tests/unittests)
 
+    if (MINGW)
+      target_link_options(unittests PRIVATE -static)
+    endif ()
+
     target_include_directories(unittests SYSTEM PUBLIC ${ark_SOURCE_DIR}/lib/dtl/dtl)
 
     add_subdirectory(${ark_SOURCE_DIR}/lib/ut)
