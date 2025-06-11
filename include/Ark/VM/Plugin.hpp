@@ -94,7 +94,10 @@ namespace Ark::internal
             T funcptr;
 
 #if defined(ARK_OS_WINDOWS)
-            if (NULL == (funcptr = reinterpret_cast<T>(GetProcAddress(m_instance, procname.c_str()))))
+            // casting from FARPROC -> void* -> T is required on MingW
+            // target, immediate conversion from FARPROC -> T will fail.
+            void* pluginhandle = reinterpret_cast<void*>(GetProcAddress(m_instance, procname.c_str()));
+            if (NULL == (funcptr = reinterpret_cast<T>(pluginhandle)))
             {
                 throw std::system_error(
                     std::error_code(::GetLastError(), std::system_category()), std::string("PluginError: Couldn't find ") + procname);

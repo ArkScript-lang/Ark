@@ -13,7 +13,11 @@
 #        define _ARM_
 #    endif
 
-#    define NOMINMAX
+// Do not define NOMINMAX, if it's already defined (without, the
+// #define causes issues on MingW)
+#    ifndef NOMINMAX
+#        define NOMINMAX
+#    endif
 
 // https://learn.microsoft.com/en-us/windows/win32/api/errhandlingapi/nf-errhandlingapi-getlasterror
 #    include <errhandlingapi.h>

@@ -88,6 +88,15 @@ if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG OR APPLE)
     # set fmtlib visibility to default
     target_compile_definitions(ArkReactor PUBLIC FMT_SHARED)
 
+    # Enable FMT_LIB_EXPORT on MingW, otherwise it will fail to compile.
+    if (MINGW)
+        target_compile_definitions(ArkReactor PUBLIC FMT_LIB_EXPORT)
+        # Add -static to linking flags for MingW, otherwise it will
+        # dynamically link to libgcc_s_seh-1.dll, libwinpthread-1.dll
+        # and libstdc++-6.dll
+        target_link_options(ArkReactor PRIVATE -static)
+    endif ()
+
     if (APPLE)
         # The standard SSH libraries are depreciate on APPLE.
         # Thus they currently generate a warning that we have to ignore for now.
@@ -282,6 +291,11 @@ if (ARK_BUILD_EXE)
 
     if (ARK_UNITY_BUILD)
         set_target_properties(arkscript PROPERTIES UNITY_BUILD ON UNITY_BUILD_MODE BATCH UNITY_BUILD_BATCH_SIZE 16)
+    endif ()
+
+    if (MINGW)
+      # Statically link the arkscript executable
+      target_link_options(arkscript PRIVATE -static)
     endif ()
 
     enable_lto(arkscript)
