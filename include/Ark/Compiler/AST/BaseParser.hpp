@@ -84,7 +84,7 @@ namespace Ark::internal
          *
          * @return distance in characters from the beginning of the file to the cursor
          */
-        long getCount() { return std::distance(m_str.begin(), m_it); }
+        long getCount() { return static_cast<long>(std::distance(m_str.begin(), m_it)); }
 
         /**
          *

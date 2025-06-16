@@ -84,15 +84,18 @@ namespace Ark::internal
         if (std::cmp_greater_equal(n, m_str.size()))
             return;
 
-        m_it = m_str.begin() + n;
+        if (std::cmp_less(n, m_str.size()))
+            m_it = m_str.begin() + n;
+        else
+            m_it = m_str.begin();
+
         auto [it, sym] = utf8_char_t::at(m_it, m_str.end());
         m_next_it = it;
         m_sym = sym;
 
         // search for the nearest it < m_it in the map to know the line number
-        for (std::size_t i = 0, end = m_it_to_row.size(); i < end; ++i)
+        for (const auto& [at, line] : m_it_to_row)
         {
-            auto [at, line] = m_it_to_row[i];
             if (it <= at)
             {
                 m_filepos.row = line - 1;
