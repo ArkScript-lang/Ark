@@ -14,6 +14,7 @@
 
 #include <string>
 #include <chrono>
+#include <source_location>
 #include <vector>
 #include <unordered_map>
 #include <fmt/color.h>
@@ -23,6 +24,18 @@ namespace Ark::internal
     class Logger
     {
     public:
+        struct MessageAndLocation
+        {
+            std::string_view message;
+            std::source_location location;
+
+            template <typename T>
+            // cppcheck-suppress noExplicitConstructor ; we actually want string_views to be casted automatically as MessageAndLocation
+            MessageAndLocation(T&& msg, const std::source_location loc = std::source_location::current()) :
+                message { std::forward<T>(msg) }, location { loc }
+            {}
+        };
+
         /**
          * @brief Construct a new Logger object
          *
@@ -57,18 +70,21 @@ namespace Ark::internal
         /**
          * @brief Write a debug level log using fmtlib
          * @tparam Args
-         * @param fmt format string
+         * @param data format string
          * @param args
          */
         template <typename... Args>
-        void debug(const char* fmt, Args&&... args)
+        void debug(const Logger::MessageAndLocation data, Args&&... args)
         {
             if (shouldDebug())
                 fmt::println(
-                    "{} [{}] {}",
+                    "{} [{}] {}({}:{}) {}",
                     fmt::styled("DEBUG", fmt::fg(fmt::color::pale_violet_red)),
                     fmt::styled(m_name, fmt::fg(m_pass_color)),
-                    fmt::vformat(fmt, fmt::make_format_args(args...)));
+                    fmt::styled(data.location.file_name(), fmt::fg(fmt::color::pale_turquoise)),
+                    fmt::styled(data.location.line(), fmt::fg(fmt::color::pale_turquoise)),
+                    fmt::styled(data.location.column(), fmt::fg(fmt::color::pale_turquoise)),
+                    fmt::vformat(data.message, fmt::make_format_args(args...)));
         }
 
         inline void traceStart(std::string&& trace_name)
