@@ -30,6 +30,7 @@ concurrency:
 env:
   BUILD_TYPE: Debug
   SQLITE_VERSION: 3390100  # 3.39.1
+  EMSDK_VERSION: 4.0.10
 
 jobs:
   check:
@@ -65,6 +66,38 @@ jobs:
         uses: ArkScript-lang/action-format@master
         with:
           folder: ${{ matrix.path }}
+
+  build-with-emscripten:
+    runs-on: ubuntu-24.04
+    name: "Build with emscripten"
+    needs: [ check ]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup emsdk
+        uses: mymindstorm/setup-emsdk@6ab9eb1bda2574c4ddb79809fc9247783eaf9021 # v14
+        with:
+          version: ${{ env.EMSDK_VERSION }}
+          actions-cache-folder: 'emsdk-cache'
+
+      - name: Verify
+        run: emcc -v
+
+      - name: Compile
+        shell: bash
+        run: |
+          emcmake cmake -Bbuild \
+            -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
+            -DARK_SANITIZERS=Off \
+            -DARK_COVERAGE=Off \
+            -DARK_BUILD_EXE=Off \
+            -DARK_BUILD_MODULES=Off \
+            -DARK_TESTS=Off \
+            -DARK_UNITY_BUILD=On
+          cmake --build build --config ${{ env.BUILD_TYPE }} -j $(nproc)
 
   build:
     runs-on: ${{ matrix.config.os }}

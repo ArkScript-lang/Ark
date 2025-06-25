@@ -23,11 +23,18 @@ option(ARK_TESTS "Build ArkScript unit tests" Off)
 option(ARK_BENCHMARKS "Build ArkScript benchmarks" Off)
 option(ARK_COVERAGE "Enable coverage while building (clang, gcc) (requires ARK_TESTS to be On)" Off)
 option(ARK_UNITY_BUILD "Enable unity build" Off)
+option(ARK_JS_ONLY "Compiles to native JS (No WASM). Can be used only when compiling with emsdk" OFF)
 
-include(cmake/link_time_optimization.cmake)
-include(cmake/sanitizers.cmake)
+if (${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
+    set(ARK_EMSCRIPTEN TRUE)
+endif ()
+
+if (NOT ARK_EMSCRIPTEN)
+    include(cmake/link_time_optimization.cmake)
+    include(cmake/sanitizers.cmake)
+    include(GNUInstallDirs)  # Uses GNU Install directory variables
+endif ()
 include(cmake/CPM.cmake)
-include(GNUInstallDirs)  # Uses GNU Install directory variables
 
 # configure installer.iss
 configure_file(
@@ -48,7 +55,9 @@ file(GLOB_RECURSE SOURCE_FILES
         ${ark_SOURCE_DIR}/lib/fmt/src/format.cc)
 
 add_library(ArkReactor SHARED ${SOURCE_FILES})
-enable_lto(ArkReactor)
+if (NOT ARK_EMSCRIPTEN)
+    enable_lto(ArkReactor)
+endif ()
 target_include_directories(ArkReactor
         PUBLIC
         ${ark_SOURCE_DIR}/include)
@@ -57,6 +66,31 @@ target_compile_features(ArkReactor PRIVATE cxx_std_20)
 if (ARK_UNITY_BUILD)
     set_target_properties(ArkReactor PROPERTIES UNITY_BUILD ON UNITY_BUILD_MODE BATCH UNITY_BUILD_BATCH_SIZE 16)
     set_source_files_properties(src/arkreactor/VM/VM.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION true)
+endif ()
+
+if (ARK_EMSCRIPTEN)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/public")
+
+    # ArkScript lib needs to know if we are building an exe to enable/disable specific code for embedding
+    target_compile_definitions(ArkReactor PRIVATE ARK_BUILD_EXE=1)
+
+    add_executable(ArkEmscripten ${ark_SOURCE_DIR}/src/arkemscripten/main.cpp)
+    target_link_libraries(ArkEmscripten PUBLIC ArkReactor)
+    target_compile_features(ArkEmscripten PRIVATE cxx_std_20)
+
+    # enable_lto(ArkEmscripten)
+
+    if (ARK_JS_ONLY)
+        message(STATUS "Setting compilation target to native JavaScript")
+        set(CMAKE_EXECUTABLE_SUFFIX ".js")
+        set_target_properties(ArkReactor PROPERTIES LINK_FLAGS "-s WASM=0 -s NO_DISABLE_EXCEPTION_CATCHING")
+        set_target_properties(ArkEmscripten PROPERTIES LINK_FLAGS "-s WASM=0 -s NO_DISABLE_EXCEPTION_CATCHING -s EXPORTED_FUNCTIONS='[_main]' -s EXPORTED_RUNTIME_METHODS=['run'] -lembind")
+    else ()
+        message(STATUS "Setting compilation target to WASM")
+        set(CMAKE_EXECUTABLE_SUFFIX ".wasm.js")
+        set_target_properties(ArkReactor PROPERTIES LINK_FLAGS "-s WASM=1 -s NO_DISABLE_EXCEPTION_CATCHING")
+        set_target_properties(ArkEmscripten PROPERTIES LINK_FLAGS "-s WASM=1 -s NO_DISABLE_EXCEPTION_CATCHING -s EXPORTED_FUNCTIONS='[_main]' -s EXPORTED_RUNTIME_METHODS=['run'] -lembind")
+    endif ()
 endif ()
 
 if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG OR APPLE)
@@ -81,7 +115,7 @@ if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG OR APPLE)
             -fvisibility=hidden
             -fno-semantic-interposition
     )
-    if (NOT ARK_BENCHMARKS)
+    if (NOT ARK_BENCHMARKS AND NOT ARK_EMSCRIPTEN)
         target_compile_options(ArkReactor PRIVATE -Werror)
     endif ()
 
@@ -150,22 +184,23 @@ configure_file(
         ${ark_SOURCE_DIR}/include/Ark/Constants.hpp)
 
 # Installation rules
+if (NOT ARK_EMSCRIPTEN)
+    # Installs the dynamic library file.
+    install(TARGETS ArkReactor
+            LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
-# Installs the dynamic library file.
-install(TARGETS ArkReactor
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+    # Install header files
+    install(DIRECTORY ${ark_SOURCE_DIR}/include/
+            DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
-# Install header files
-install(DIRECTORY ${ark_SOURCE_DIR}/include/
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-
-# Install the standard library
-if (NOT ARK_NO_STDLIB)
-    install(DIRECTORY ${ark_SOURCE_DIR}/lib/std/
-            DESTINATION ${CMAKE_INSTALL_LIBDIR}/Ark/std
-            FILES_MATCHING PATTERN "*.ark"
-            PATTERN "std/tests" EXCLUDE
-            PATTERN "std/.github" EXCLUDE)
+    # Install the standard library
+    if (NOT ARK_NO_STDLIB)
+        install(DIRECTORY ${ark_SOURCE_DIR}/lib/std/
+                DESTINATION ${CMAKE_INSTALL_LIBDIR}/Ark/std
+                FILES_MATCHING PATTERN "*.ark"
+                PATTERN "std/tests" EXCLUDE
+                PATTERN "std/.github" EXCLUDE)
+    endif ()
 endif ()
 
 # COMPILATION RELATED

@@ -28,11 +28,19 @@ include/Ark/Constants.hpp
 /fct-ok/
 /fct-bad/
 
+# WASM
+/public/node_modules
+/public/*.wasm.wasm
+/public/*.wasm.js
+/public/package.json
+/public/package-lock.json
+
 # Folders
 .vs/
 .idea/
 .cache/
 build/
+build_emscripten/
 ninja/
 cmake-build-*/
 out/
