@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>ArkScript emscripten</title>
+</head>
+<body>
+<div>
+    <textarea id="code" cols="80" rows="10"></textarea>
+    <button id="run">Submit</button>
+</div>
+<div>
+    <textarea id="output" cols="80" rows="10" readonly></textarea>
+</div>
+
+<script>
+    let output = "";
+    log = console.log;
+    window.console.log = (message) => {
+        output = message;
+    };
+
+    var Module = {
+        onRuntimeInitialized: function () {
+            document.getElementById("run").addEventListener("click", () => {
+                const code = document.getElementById("code").value;
+                console.log(code);
+
+                try {
+                    Module.run(code);
+                    document.getElementById("output").innerText = output;
+                } catch (e) {
+                    document.getElementById("output").innerText = e;
+                }
+            });
+        }
+    };
+</script>
+
+<script>
+    (function (e, t) {
+        console.log("Loading client...");
+
+        const scriptName = `ArkEmscripten${e.WebAssembly ? ".wasm" : ""}.js`;
+        console.log(`Script set to ${scriptName}`);
+
+        const loader = t.createElement("script");
+        loader.async = true;
+        loader.type = "text/javascript";
+        loader.src = scriptName;
+        loader.onerror = (t) => {
+            console.error("Script Error");
+            console.error(t);
+            setTimeout(() => {
+                e.location.reload();
+            }, 3000);
+        };
+
+        const node = t.getElementsByTagName("script")[0];
+        node.parentNode.insertBefore(loader, node);
+    })(window, document);
+</script>
+</body>
+</html>
