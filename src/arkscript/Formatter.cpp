@@ -291,15 +291,17 @@ std::string Formatter::formatFunction(const Node& node, const std::size_t indent
     {
         bool comment_in_args = false;
         std::string args;
+        const bool split = shouldSplitOnNewline(args_node);
+
         for (std::size_t i = 0, end = args_node.constList().size(); i < end; ++i)
         {
             const Node arg_i = args_node.constList()[i];
             if (!arg_i.comment().empty())
                 comment_in_args = true;
 
-            args += format(arg_i, indent + (comment_in_args ? 1 : 0), comment_in_args);
+            args += format(arg_i, indent + ((comment_in_args || split) ? 1 : 0), i > 0 && (comment_in_args || split));
             if (i != end - 1)
-                args += comment_in_args ? '\n' : ' ';
+                args += (comment_in_args || split) ? '\n' : ' ';
         }
 
         formatted_args += fmt::format("({}{})", (comment_in_args ? "\n" : ""), args);

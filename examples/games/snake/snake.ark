@@ -108,7 +108,11 @@
 
         (return test) }
       (throw "Out of bounds"))))
-  (fun (&data &apple_sprite &draw_board &has_apple_left? &eat_apple_at) ()) }))
+  (fun (&data
+    &apple_sprite
+    &draw_board
+    &has_apple_left?
+    &eat_apple_at) ()) }))
 
 # instanciating
 (let board (create-board-object))
@@ -155,7 +159,14 @@
       (sf:set:pos snake_sprite (* 20 (@ current 0)) (* 20 (@ current 1)))
       (sf:draw snake_sprite)
       (set acc (+ 1 acc)) }) }))
-  (fun (&move &reset_auto_move &auto_move &draw &pos &should_move &last_direction &snake_sprite) ()) }))
+  (fun (&move
+    &reset_auto_move
+    &auto_move
+    &draw
+    &pos
+    &should_move
+    &last_direction
+    &snake_sprite) ()) }))
 
 # instanciating
 (let snake (create-snake-object))

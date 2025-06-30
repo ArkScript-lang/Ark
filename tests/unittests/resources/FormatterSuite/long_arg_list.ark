@@ -1,0 +1,1 @@
+(fun (&name &passed &failed &failures &cases &case_pointer &case_desc &display_cases_success &toggle_display_cases_success &inc_passed &inc_failed &register_failure &add_case &pop_case &update_case_ptr &need_case? &active &set_active) ())
