@@ -30,8 +30,7 @@ include/Ark/Constants.hpp
 
 # WASM
 /public/node_modules
-/public/*.wasm.wasm
-/public/*.wasm.js
+/public/ArkEmscripten.*
 /public/package.json
 /public/package-lock.json
 

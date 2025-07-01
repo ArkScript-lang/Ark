@@ -13,24 +13,29 @@
 </div>
 
 <script>
-    let output = "";
     log = console.log;
+    var can_capture = false;
+
     window.console.log = (message) => {
-        output = message;
+        log(message);
+        if (can_capture)
+            document.getElementById("output").value += message + "\n";
     };
 
     var Module = {
         onRuntimeInitialized: function () {
             document.getElementById("run").addEventListener("click", () => {
+                document.getElementById("output").value = "";
                 const code = document.getElementById("code").value;
-                console.log(code);
 
                 try {
+                    can_capture = true;
                     Module.run(code);
-                    document.getElementById("output").innerText = output;
                 } catch (e) {
-                    document.getElementById("output").innerText = e;
+                    document.getElementById("output").value = e;
                 }
+
+                can_capture = false;
             });
         }
     };
