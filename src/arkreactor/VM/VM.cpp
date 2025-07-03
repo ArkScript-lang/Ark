@@ -178,7 +178,7 @@ namespace Ark
         if (Value* field = closure->refClosure().refScope()[id]; field != nullptr)
         {
             // check for CALL instruction (the instruction because context.ip is already on the next instruction word)
-            if (m_state.m_pages[context.pp][context.ip] == CALL)
+            if (m_state.inst(context.pp, context.ip) == CALL)
                 return Value(Closure(closure->refClosure().scopePtr(), field->pageAddr()));
             else
                 return *field;
@@ -462,14 +462,14 @@ namespace Ark
 #    define GOTO_HALT() break
 #endif
 
-#define NEXTOPARG()                                                                      \
-    do                                                                                   \
-    {                                                                                    \
-        inst = m_state.m_pages[context.pp][context.ip];                                  \
-        padding = m_state.m_pages[context.pp][context.ip + 1];                           \
-        arg = static_cast<uint16_t>((m_state.m_pages[context.pp][context.ip + 2] << 8) + \
-                                    m_state.m_pages[context.pp][context.ip + 3]);        \
-        context.ip += 4;                                                                 \
+#define NEXTOPARG()                                                                   \
+    do                                                                                \
+    {                                                                                 \
+        inst = m_state.inst(context.pp, context.ip);                                  \
+        padding = m_state.inst(context.pp, context.ip + 1);                           \
+        arg = static_cast<uint16_t>((m_state.inst(context.pp, context.ip + 2) << 8) + \
+                                    m_state.inst(context.pp, context.ip + 3));        \
+        context.ip += 4;                                                              \
     } while (false)
 #define DISPATCH() \
     NEXTOPARG();   \
@@ -1901,16 +1901,16 @@ namespace Ark
             arg_names.emplace_back("");  // for formatting, so that we have a space between the function and the args
 
         std::size_t index = 0;
-        while (m_state.m_pages[context.pp][index] == STORE)
+        while (m_state.inst(context.pp, index) == STORE)
         {
-            const auto id = static_cast<uint16_t>((m_state.m_pages[context.pp][index + 2] << 8) + m_state.m_pages[context.pp][index + 3]);
+            const auto id = static_cast<uint16_t>((m_state.inst(context.pp, index + 2) << 8) + m_state.inst(context.pp, index + 3));
             arg_names.push_back(m_state.m_symbols[id]);
             index += 4;
         }
         // we only the blank space for formatting and no arg names, probably because of a CALL_BUILTIN_WITHOUT_RETURN_ADDRESS
         if (arg_names.size() == 1 && index == 0)
         {
-            assert(m_state.m_pages[context.pp][0] == CALL_BUILTIN_WITHOUT_RETURN_ADDRESS && "expected a CALL_BUILTIN_WITHOUT_RETURN_ADDRESS instruction or STORE instructions");
+            assert(m_state.inst(context.pp, 0) == CALL_BUILTIN_WITHOUT_RETURN_ADDRESS && "expected a CALL_BUILTIN_WITHOUT_RETURN_ADDRESS instruction or STORE instructions");
             for (std::size_t i = 0; i < expected_arg_count; ++i)
                 arg_names.push_back(std::string(1, static_cast<char>('a' + i)));
         }

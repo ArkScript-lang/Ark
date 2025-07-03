@@ -79,7 +79,7 @@ namespace Ark
     /**
      * @brief This class is just a helper to
      * - check if a bytecode is valid
-     * - display it in a human readable way by using the opcode names
+     * - display it in a human-readable way by using the opcode names
      *
      */
     class ARK_API BytecodeReader final

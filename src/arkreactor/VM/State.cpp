@@ -19,7 +19,8 @@ namespace Ark
     State::State(const std::vector<std::filesystem::path>& libenv) noexcept :
         m_debug_level(0),
         m_libenv(libenv),
-        m_filename(ARK_NO_NAME_FILE)
+        m_filename(ARK_NO_NAME_FILE),
+        m_max_page_size(0)
     {
         // default value for builtin__sys:args is empty list
         const Value val(ValueType::List);
@@ -178,7 +179,24 @@ namespace Ark
         m_constants = vals.values;
         m_filenames = files.filenames;
         m_inst_locations = inst_locs.locations;
-        m_pages = pages;
+
+        m_max_page_size = 0;
+        for (const bytecode_t& page : pages)
+        {
+            if (page.size() > m_max_page_size)
+                m_max_page_size = page.size();
+        }
+
+        // Make m_code as a big contiguous chunk of instructions,
+        // aligned on the biggest page size.
+        // This might have a downside when we have a single big page and
+        // a bunch of smaller ones, though I couldn't measure it while testing.
+        m_code.resize(m_max_page_size * pages.size(), Instruction::NOP);
+        for (std::size_t i = 0, end = pages.size(); i < end; ++i)
+        {
+            for (std::size_t j = 0, end_j = pages[i].size(); j < end_j; ++j)
+                m_code[i * m_max_page_size + j] = pages[i][j];
+        }
     }
 
     void State::reset() noexcept
@@ -187,7 +205,8 @@ namespace Ark
         m_constants.clear();
         m_filenames.clear();
         m_inst_locations.clear();
-        m_pages.clear();
+        m_max_page_size = 0;
+        m_code.clear();
         m_binded.clear();
 
         // default value for builtin__sys:args is empty list
