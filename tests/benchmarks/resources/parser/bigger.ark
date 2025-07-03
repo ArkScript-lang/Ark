@@ -39,13 +39,13 @@
 # @param _x the number to pow
 # @param _a the exponent
 # @author https://github.com/SuperFola
-(let pow (fun (_x _a) (math:exp (* _a (math:ln _x)))))
+(let pow (fun (_x _a) (builtin__math:exp (* _a (builtin__math:ln _x)))))
 
 # @brief Get the square root of a number
 # @details Square roots can't be taken for negative numbers for obvious reasons.
 # @param _x the number
 # @author https://github.com/SuperFola
-(let sqrt (fun (_x) (math:exp (* 0.5 (math:ln _x)))))
+(let sqrt (fun (_x) (builtin__math:exp (* 0.5 (builtin__math:ln _x)))))
 
 # @brief Run the fibonacci function on a number
 # @param n the number
@@ -71,7 +71,7 @@
     (if (or (= 0 (mod n 2)) (= 1 n))
       false
       {
-        (let k (math:ceil (+ 1 (sqrt n))))
+        (let k (builtin__math:ceil (+ 1 (sqrt n))))
         (mut i 3)
         (mut continue true)
 
@@ -91,7 +91,7 @@
   (assert (>= n 2) "divs: n must be greater or equal to 2")
   (mut i 2)
   (mut divisors [1])
-  (let top (math:ceil (/ n 2)))
+  (let top (builtin__math:ceil (/ n 2)))
 
   (while (and (<= i top) (!= top n)) {
     (if (= (mod n i) 0)
@@ -109,7 +109,7 @@
 (let log (fun (x n) {
   (assert (> x 0) "log: x must be greater than 0")
   (assert (>= n 1) "log: n must be greater or equal to 1")
-  (math:round (/ (math:ln x) (math:ln n))) }))
+  (builtin__math:round (/ (builtin__math:ln x) (builtin__math:ln n))) }))
 
 # @brief Returns the logarithm base 2 of a number
 # @param x the number
@@ -134,7 +134,7 @@
 # =begin
 # (floordiv 14 6) # Returns 2
 # =end
-(let floordiv (fun (a b) (math:floor (/ a b))))
+(let floordiv (fun (a b) (builtin__math:floor (/ a b))))
 
 # @brief Create a complex number
 # @param real the real part of the complex number
@@ -710,8 +710,8 @@
   (while (< _index (len text)) {
     (set _e (@ text _index))
 
-    (if (in_range (string:ord _e) 65 90)
-      (set _e (string:chr (+ (string:ord _e) 32))))
+    (if (in_range (builtin__string:ord _e) 65 90)
+      (set _e (builtin__string:chr (+ (builtin__string:ord _e) 32))))
     (set _output (+ _output _e))
     (set _index (+ _index 1)) })
   _output }))
@@ -735,8 +735,8 @@
   (while (< _index (len _string)) {
     (set _e (@ _string _index))
 
-    (if (in_range (string:ord _e) 97 122)
-      (set _e (string:chr (- (string:ord _e) 32))))
+    (if (in_range (builtin__string:ord _e) 97 122)
+      (set _e (builtin__string:chr (- (builtin__string:ord _e) 32))))
     (set _output (+ _output _e))
     (set _index (+ _index 1)) })
   _output }))
@@ -800,7 +800,7 @@
 # =end
 # @author https://github.com/Natendrtfm
 (let split (fun (_string _separator) {
-  (mut _at (string:find _string _separator))
+  (mut _at (builtin__string:find _string _separator))
   (let _seplen (len _separator))
   (let _strlen (len _string))
   (mut _output [])
@@ -819,7 +819,7 @@
             (append! _output _last)
             (set _last "")
             (set _i (+ _at _seplen))
-            (set _at (string:find _string _separator _i))
+            (set _at (builtin__string:find _string _separator _i))
             (if (= -1 _at)
               (set _at _strlen)) }) })
 
@@ -841,7 +841,7 @@
 # =end
 (let replace (fun (_string _pattern _new) {
   (mut _out _string)
-  (mut _idx (string:find _out _pattern))
+  (mut _idx (builtin__string:find _out _pattern))
   (let _pattern_sz (len _pattern))
 
   (while (!= -1 _idx) {
@@ -849,7 +849,7 @@
     (mut _next_segment (sliceStr _out (+ _idx _pattern_sz) (- (len _out) (+ _idx _pattern_sz))))
 
     (set _out (+ _first_segment _new _next_segment))
-    (set _idx (string:find _next_segment _pattern))
+    (set _idx (builtin__string:find _next_segment _pattern))
     (if (!= -1 _idx)
       (set _idx (+ _idx (len _first_segment) (len _new)))) })
   _out }))
@@ -893,7 +893,7 @@
 
   (while (< _index _line_count) {
     (let _current (@ _lines _index))
-    (let _marker_pos (string:find _current "|"))
+    (let _marker_pos (builtin__string:find _current "|"))
     (if (= -1 _marker_pos)
       (set _output (+ _output _current))
       (set _output (+ _output (sliceStr _current (+ 1 _marker_pos) (len _current)))))
