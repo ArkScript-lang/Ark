@@ -306,18 +306,18 @@ inline void VM::call(internal::ExecutionContext& context, const uint16_t argc, V
                 needed_argc = 0;
 
     // every argument is a MUT declaration in the bytecode
-    while (m_state.m_pages[context.pp][index] == STORE)
+    while (m_state.inst(context.pp, index) == STORE)
     {
         needed_argc += 1;
         index += 4;  // instructions are on 4 bytes
     }
 
     // no store? check for CALL_BUILTIN_WITHOUT_RETURN_ADDRESS
-    if (index == 0 && m_state.m_pages[context.pp][0] == CALL_BUILTIN_WITHOUT_RETURN_ADDRESS)
+    if (index == 0 && m_state.inst(context.pp, 0) == CALL_BUILTIN_WITHOUT_RETURN_ADDRESS)
     {
-        const uint8_t padding = m_state.m_pages[context.pp][context.ip + 1];
-        const uint16_t arg = static_cast<uint16_t>((m_state.m_pages[context.pp][context.ip + 2] << 8) +
-                                                   m_state.m_pages[context.pp][context.ip + 3]);
+        const uint8_t padding = m_state.inst(context.pp, context.ip + 1);
+        const uint16_t arg = static_cast<uint16_t>((m_state.inst(context.pp, context.ip + 2) << 8) +
+                                                   m_state.inst(context.pp, context.ip + 3));
         needed_argc = static_cast<uint16_t>((padding << 4) | (arg & 0xf000) >> 12);
     }
 

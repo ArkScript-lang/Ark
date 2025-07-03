@@ -133,7 +133,7 @@ namespace Ark
          * @return true on success
          * @return false on failure and raise an exception
          */
-        bool compile(const std::string& file, const std::string& output, uint16_t features) const;
+        [[nodiscard]] bool compile(const std::string& file, const std::string& output, uint16_t features) const;
 
         static void throwStateError(const std::string& message)
         {
@@ -151,10 +151,23 @@ namespace Ark
         std::vector<Value> m_constants;
         std::vector<std::string> m_filenames;
         std::vector<internal::InstLoc> m_inst_locations;
-        std::vector<bytecode_t> m_pages;
+        std::size_t m_max_page_size;
+        bytecode_t m_code;
 
         // related to the execution
-        std::unordered_map<std::string, Value> m_binded;
+        std::unordered_map<std::string, Value> m_binded;  ///< Values binded to the State, to be used by the VM
+
+        /**
+         * @brief Get an instruction in a given page, with a given instruction pointer
+         *
+         * @param pp page pointer
+         * @param ip instruction pointer
+         * @return uint8_t instruction
+         */
+        [[nodiscard]] inline constexpr uint8_t inst(const std::size_t pp, const std::size_t ip) const noexcept
+        {
+            return m_code[pp * m_max_page_size + ip];
+        }
     };
 }
 

@@ -1,0 +1,9 @@
+name,iterations,real_time,cpu_time,time_unit,bytes_per_second,items_per_second,label,error_occurred,error_message
+"quicksort",6934,0.100461,0.100319,ms,,,,,
+"ackermann/iterations:50",50,32.764,32.7365,ms,,,,,
+"fibonacci/iterations:100",100,3.52737,3.52382,ms,,,,,
+"builtins",1212,0.571866,0.571354,ms,,,,,
+"binary_trees",1,893.398,892.54,ms,,,,,
+"for_sum",9,81.0522,80.978,ms,,,,,
+"create_closure",907,0.777191,0.776437,ms,,,,,
+"create_list",410,1.7468,1.74436,ms,,,,,
