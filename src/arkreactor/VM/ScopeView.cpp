@@ -8,8 +8,11 @@ namespace Ark::internal
         m_storage(storage), m_start(start), m_size(0), m_min_id(std::numeric_limits<uint16_t>::max()), m_max_id(0)
     {}
 
-    void ScopeView::push_back(uint16_t id, Value&& val) noexcept
+    bool ScopeView::push_back(uint16_t id, Value&& val) noexcept
     {
+        if (m_start + m_size >= ScopeStackSize) [[unlikely]]
+            return false;
+
         if (id < m_min_id)
             m_min_id = id;
         if (id > m_max_id)
@@ -17,10 +20,14 @@ namespace Ark::internal
 
         m_storage[m_start + m_size] = std::make_pair(id, std::move(val));
         ++m_size;
+        return true;
     }
 
-    void ScopeView::push_back(uint16_t id, const Value& val) noexcept
+    bool ScopeView::push_back(uint16_t id, const Value& val) noexcept
     {
+        if (m_start + m_size >= ScopeStackSize) [[unlikely]]
+            return false;
+
         if (id < m_min_id)
             m_min_id = id;
         if (id > m_max_id)
@@ -28,6 +35,7 @@ namespace Ark::internal
 
         m_storage[m_start + m_size] = std::make_pair(id, val);
         ++m_size;
+        return true;
     }
 
     bool ScopeView::maybeHas(const uint16_t id) const noexcept

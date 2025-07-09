@@ -46,16 +46,18 @@ namespace Ark::internal
          *
          * @param id The symbol id of the variable
          * @param val The value linked to the symbol
+         * @return bool true if the allocation succeeded, false otherwise
          */
-        void push_back(uint16_t id, Value&& val) noexcept;
+        bool push_back(uint16_t id, Value&& val) noexcept;
 
         /**
          * @brief Put a value in the scope
          *
          * @param id The symbol id of the variable
          * @param val The value linked to the symbol
+         * @return bool true if the allocation succeeded, false otherwise
          */
-        void push_back(uint16_t id, const Value& val) noexcept;
+        bool push_back(uint16_t id, const Value& val) noexcept;
 
         /**
          * @brief Check if the scope maybe holds a specific symbol in memory

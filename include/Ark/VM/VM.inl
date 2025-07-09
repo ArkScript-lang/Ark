@@ -130,7 +130,10 @@ inline void VM::store(const uint16_t id, const Value* val, internal::ExecutionCo
     // avoid adding the pair (id, _) multiple times, with different values
     Value* local = context.locals.back()[id];
     if (local == nullptr) [[likely]]
-        context.locals.back().push_back(id, *val);
+    {
+        if (!context.locals.back().push_back(id, *val))
+            throw Error(fmt::format("Can not create variable: no more heap space (limit: {}). If you are using a recursive algorithm, try making use of tail call optimization to reduce the number of allocated scopes.", ScopeStackSize));
+    }
     else
         *local = *val;
 }
