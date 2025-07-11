@@ -13,5 +13,4 @@ In file tests/unittests/resources/DiagnosticsSuite/runtime/recursion_depth.ark:3
 [   0] In global scope (tests/unittests/resources/DiagnosticsSuite/runtime/recursion_depth.ark:7)
 
 Current scope variables values:
-foo = Function@1
 a = 2045
