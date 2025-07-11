@@ -225,7 +225,7 @@ inline void VM::returnFromFuncCall(internal::ExecutionContext& context)
     context.locals.pop_back();
 }
 
-inline void VM::call(internal::ExecutionContext& context, const uint16_t argc, Value* function_ptr)
+inline void VM::call(internal::ExecutionContext& context, const uint16_t argc, Value* function_ptr, internal::PageAddr_t or_address)
 {
     /*
         Argument: number of arguments when calling the function
@@ -243,30 +243,41 @@ inline void VM::call(internal::ExecutionContext& context, const uint16_t argc, V
                 "Maximum recursion depth exceeded. You could consider rewriting your function `{}' to make use of tail-call optimization.",
                 m_state.m_symbols[context.last_symbol]));
 
-    Value function = function_ptr == nullptr ? *popAndResolveAsPtr(context) : *function_ptr;
+    ValueType call_type;
+    Value* maybe_value_ptr = nullptr;
+    if (function_ptr == nullptr && or_address == 0)
+        maybe_value_ptr = popAndResolveAsPtr(context);
+    else if (or_address != 0)
+        call_type = ValueType::PageAddr;
+    else
+        maybe_value_ptr = function_ptr;
+
+    if (maybe_value_ptr != nullptr)
+    {
+        call_type = maybe_value_ptr->valueType();
+        if (call_type == ValueType::PageAddr)
+            or_address = maybe_value_ptr->pageAddr();
+    }
+
     context.stacked_closure_scopes.emplace_back(nullptr);
 
-    switch (function.valueType())
+    switch (call_type)
     {
         // is it a builtin function name?
         case ValueType::CProc:
         {
-            callBuiltin(context, function, argc);
+            callBuiltin(context, *maybe_value_ptr, argc);
             return;
         }
 
         // is it a user defined function?
         case ValueType::PageAddr:
         {
-            const PageAddr_t new_page_pointer = function.pageAddr();
+            const PageAddr_t new_page_pointer = or_address;
 
             // create dedicated scope
             context.locals.emplace_back(context.scopes_storage.data(), context.locals.back().storageEnd());
-
-            // store "reference" to the function to speed the recursive functions
-            if (context.last_symbol < m_state.m_symbols.size()) [[likely]]
-                context.locals.back().push_back(context.last_symbol, function);
-
+            // set up pointers (frame counter, page, instruction)
             context.fc++;
             context.pp = new_page_pointer;
             context.ip = 0;
@@ -276,7 +287,7 @@ inline void VM::call(internal::ExecutionContext& context, const uint16_t argc, V
         // is it a user defined closure?
         case ValueType::Closure:
         {
-            const Closure& c = function.closure();
+            const Closure& c = maybe_value_ptr->closure();
             const PageAddr_t new_page_pointer = c.pageAddr();
 
             // create dedicated scope
@@ -297,7 +308,7 @@ inline void VM::call(internal::ExecutionContext& context, const uint16_t argc, V
                 ErrorKind::Type,
                 fmt::format(
                     "{} is not a Function but a {}",
-                    function.toString(*this), types_to_str[static_cast<std::size_t>(function.valueType())]));
+                    maybe_value_ptr->toString(*this), types_to_str[static_cast<std::size_t>(call_type)]));
         }
     }
 

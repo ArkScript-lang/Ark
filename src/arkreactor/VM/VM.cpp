@@ -520,6 +520,7 @@ namespace Ark
                 &&TARGET_CREATE_SCOPE,
                 &&TARGET_RESET_SCOPE_JUMP,
                 &&TARGET_POP_SCOPE,
+                &&TARGET_GET_CURRENT_PAGE_ADDR,
                 &&TARGET_ADD,
                 &&TARGET_SUB,
                 &&TARGET_MUL,
@@ -579,6 +580,7 @@ namespace Ark
                 &&TARGET_NEQ_CONST_JUMP_IF_TRUE,
                 &&TARGET_NEQ_SYM_JUMP_IF_FALSE,
                 &&TARGET_CALL_SYMBOL,
+                &&TARGET_CALL_CURRENT_PAGE,
                 &&TARGET_GET_FIELD_FROM_SYMBOL,
                 &&TARGET_GET_FIELD_FROM_SYMBOL_INDEX,
                 &&TARGET_AT_SYM_SYM,
@@ -1051,6 +1053,13 @@ namespace Ark
                     TARGET(POP_SCOPE)
                     {
                         context.locals.pop_back();
+                        DISPATCH();
+                    }
+
+                    TARGET(GET_CURRENT_PAGE_ADDR)
+                    {
+                        context.last_symbol = arg;
+                        push(Value(static_cast<PageAddr_t>(context.pp)), context);
                         DISPATCH();
                     }
 
@@ -1759,6 +1768,16 @@ namespace Ark
                     {
                         UNPACK_ARGS();
                         call(context, secondary_arg, loadSymbol(primary_arg, context));
+                        if (!m_running)
+                            GOTO_HALT();
+                        DISPATCH();
+                    }
+
+                    TARGET(CALL_CURRENT_PAGE)
+                    {
+                        UNPACK_ARGS();
+                        context.last_symbol = primary_arg;
+                        call(context, secondary_arg, /* function_ptr= */ nullptr, /* or_address= */ static_cast<PageAddr_t>(context.pp));
                         if (!m_running)
                             GOTO_HALT();
                         DISPATCH();

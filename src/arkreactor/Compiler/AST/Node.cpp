@@ -90,6 +90,14 @@ namespace Ark::internal
         return m_type == NodeType::Symbol || m_type == NodeType::String || m_type == NodeType::Spread;
     }
 
+    bool Node::isFunction() const noexcept
+    {
+        return m_type == NodeType::List &&
+            !constList().empty() &&
+            constList()[0].nodeType() == NodeType::Keyword &&
+            constList()[0].keyword() == Keyword::Fun;
+    }
+
     void Node::updateValueAndType(const Node& source) noexcept
     {
         m_type = source.m_type;
@@ -136,6 +144,16 @@ namespace Ark::internal
     void Node::setAltSyntax(const bool toggle)
     {
         m_alt_syntax = toggle;
+    }
+
+    void Node::setFunctionKind(bool anonymous)
+    {
+        m_is_anonymous_function = anonymous;
+    }
+
+    bool Node::isAnonymousFunction() const noexcept
+    {
+        return m_is_anonymous_function;
     }
 
     bool Node::isAltSyntax() const

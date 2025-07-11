@@ -119,6 +119,13 @@ namespace Ark::internal
         [[nodiscard]] bool isStringLike() const noexcept;
 
         /**
+         * @brief Check if the node is a function
+         * @return true if the node is a function declaration
+         * @return false
+         */
+        [[nodiscard]] bool isFunction() const noexcept;
+
+        /**
          * @brief Copy a node to the current one, while keeping the filename and position in the file
          *
          * @param source node to copy type and value from
@@ -173,6 +180,19 @@ namespace Ark::internal
          * @param toggle
          */
         void setAltSyntax(bool toggle);
+
+        /**
+         * @brief Set the m_is_anonymous_function flag on the node
+         * @param anonymous true to mark the node as an anonymous function
+         */
+        void setFunctionKind(bool anonymous);
+
+        /**
+         * @brief Check if a node is an anonymous function
+         * @return true if the node is of an anonymous function
+         * @return false
+         */
+        [[nodiscard]] bool isAnonymousFunction() const noexcept;
 
         /**
          * @brief Check if a node is alt syntax
@@ -236,8 +256,9 @@ namespace Ark::internal
         std::size_t m_line = 0, m_col = 0;
         std::string m_filename;
         std::string m_comment;
-        std::string m_after_comment;  ///< Comment after node
-        bool m_alt_syntax = false;    ///< Used to tell if a node uses the alternative syntax (if available), eg (begin) / {}, (list) / []
+        std::string m_after_comment;          ///< Comment after node
+        bool m_alt_syntax = false;            ///< Used to tell if a node uses the alternative syntax (if available), eg (begin) / {}, (list) / []
+        bool m_is_anonymous_function = true;  ///< Function nodes are marked as anonymous/non-anonymous by the ASTLowerer, to enable some optimisations
     };
 
     const Node& getTrueNode();

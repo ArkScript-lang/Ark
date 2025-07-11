@@ -19,7 +19,7 @@ namespace Ark::internal
         m_logger("ASTLowerer", debug)
     {}
 
-    void ASTLowerer::process(const Node& ast)
+    void ASTLowerer::process(Node& ast)
     {
         m_logger.traceStart("process");
         m_code_pages.emplace_back();  // create empty page
@@ -135,7 +135,7 @@ namespace Ark::internal
         throw CodeError(message, CodeErrorContext(node.filename(), node.line(), node.col(), node.repr()));
     }
 
-    void ASTLowerer::compileExpression(const Node& x, const Page p, const bool is_result_unused, const bool is_terminal, const std::string& var_name)
+    void ASTLowerer::compileExpression(Node& x, const Page p, const bool is_result_unused, const bool is_terminal)
     {
         // register symbols
         if (x.nodeType() == NodeType::Symbol)
@@ -143,7 +143,7 @@ namespace Ark::internal
         else if (x.nodeType() == NodeType::Field)
         {
             // the parser guarantees us that there is at least 2 elements (eg: a.b)
-            compileSymbol(x.constList()[0], p, is_result_unused);
+            compileSymbol(x.list()[0], p, is_result_unused);
             for (auto it = x.constList().begin() + 1, end = x.constList().end(); it != end; ++it)
             {
                 uint16_t i = addSymbol(*it);
@@ -161,7 +161,7 @@ namespace Ark::internal
         }
         // namespace nodes
         else if (x.nodeType() == NodeType::Namespace)
-            compileExpression(*x.constArkNamespace().ast, p, is_result_unused, is_terminal, var_name);
+            compileExpression(*x.constArkNamespace().ast, p, is_result_unused, is_terminal);
         else if (x.nodeType() == NodeType::Unused)
         {
             // do nothing, explicitly
@@ -176,15 +176,15 @@ namespace Ark::internal
             }
         }
         // list instructions
-        else if (const auto c0 = x.constList()[0]; c0.nodeType() == NodeType::Symbol && getListInstruction(c0.string()).has_value())
-            compileListInstruction(c0, x, p, is_result_unused);
+        else if (const auto head = x.constList()[0]; head.nodeType() == NodeType::Symbol && getListInstruction(head.string()).has_value())
+            compileListInstruction(x, p, is_result_unused);
         // registering structures
         else if (x.constList()[0].nodeType() == NodeType::Keyword)
         {
             switch (const Keyword keyword = x.constList()[0].keyword())
             {
                 case Keyword::If:
-                    compileIf(x, p, is_result_unused, is_terminal, var_name);
+                    compileIf(x, p, is_result_unused, is_terminal);
                     break;
 
                 case Keyword::Set:
@@ -196,20 +196,19 @@ namespace Ark::internal
                     break;
 
                 case Keyword::Fun:
-                    compileFunction(x, p, is_result_unused, var_name);
+                    compileFunction(x, p, is_result_unused);
                     break;
 
                 case Keyword::Begin:
                 {
-                    for (std::size_t i = 1, size = x.constList().size(); i < size; ++i)
+                    for (std::size_t i = 1, size = x.list().size(); i < size; ++i)
                         compileExpression(
-                            x.constList()[i],
+                            x.list()[i],
                             p,
                             // All the nodes in a begin (except for the last one) are producing a result that we want to drop.
                             (i != size - 1) || is_result_unused,
                             // If the begin is a terminal node, only its last node is terminal.
-                            is_terminal && (i == size - 1),
-                            var_name);
+                            is_terminal && (i == size - 1));
                     break;
                 }
 
@@ -229,9 +228,9 @@ namespace Ark::internal
         }
         else if (x.nodeType() == NodeType::List)
         {
-            // if we are here, we should have a function name
-            // push arguments first, then function name, then call it
-            handleCalls(x, p, is_result_unused, is_terminal, var_name);
+            // If we are here, we should have a function name via the m_opened_vars.
+            // Push arguments first, then function name, then call it.
+            handleCalls(x, p, is_result_unused, is_terminal);
         }
         else
             buildAndThrowError(
@@ -241,7 +240,7 @@ namespace Ark::internal
                 x);
     }
 
-    void ASTLowerer::compileSymbol(const Node& x, const Page p, const bool is_result_unused)
+    void ASTLowerer::compileSymbol(Node& x, const Page p, const bool is_result_unused)
     {
         const std::string& name = x.string();
 
@@ -265,27 +264,28 @@ namespace Ark::internal
         }
     }
 
-    void ASTLowerer::compileListInstruction(const Node& c0, const Node& x, const Page p, const bool is_result_unused)
+    void ASTLowerer::compileListInstruction(Node& x, const Page p, const bool is_result_unused)
     {
-        std::string name = c0.string();
+        const Node head = x.constList()[0];
+        std::string name = x.constList()[0].string();
         Instruction inst = getListInstruction(name).value();
 
         // length of at least 1 since we got a symbol name
         const auto argc = x.constList().size() - 1u;
         // error, can not use append/concat/pop (and their in place versions) with a <2 length argument list
         if (argc < 2 && APPEND <= inst && inst <= POP)
-            buildAndThrowError(fmt::format("Can not use {} with less than 2 arguments", name), c0);
+            buildAndThrowError(fmt::format("Can not use {} with less than 2 arguments", name), head);
         if (inst <= POP && std::cmp_greater(argc, std::numeric_limits<uint16_t>::max()))
             buildAndThrowError(fmt::format("Too many arguments ({}), exceeds 65'535", argc), x);
         if (argc != 3 && inst == SET_AT_INDEX)
-            buildAndThrowError(fmt::format("Expected 3 arguments (list, index, value) for {}, got {}", name, argc), c0);
+            buildAndThrowError(fmt::format("Expected 3 arguments (list, index, value) for {}, got {}", name, argc), head);
         if (argc != 4 && inst == SET_AT_2_INDEX)
-            buildAndThrowError(fmt::format("Expected 4 arguments (list, y, x, value) for {}, got {}", name, argc), c0);
+            buildAndThrowError(fmt::format("Expected 4 arguments (list, y, x, value) for {}, got {}", name, argc), head);
 
         // compile arguments in reverse order
         for (std::size_t i = x.constList().size() - 1u; i > 0; --i)
         {
-            const auto node = x.constList()[i];
+            Node& node = x.list()[i];
             if (nodeProducesOutput(node))
                 compileExpression(node, p, false, false);
             else
@@ -316,7 +316,7 @@ namespace Ark::internal
                 break;
         }
         page(p).emplace_back(inst, static_cast<uint16_t>(inst_argc));
-        page(p).back().setSourceLocation(c0.filename(), c0.line());
+        page(p).back().setSourceLocation(head.filename(), head.line());
 
         if (is_result_unused && name.back() != '!' && inst <= POP_LIST_IN_PLACE)  // in-place functions never push a value
         {
@@ -325,10 +325,10 @@ namespace Ark::internal
         }
     }
 
-    void ASTLowerer::compileIf(const Node& x, const Page p, const bool is_result_unused, const bool is_terminal, const std::string& var_name)
+    void ASTLowerer::compileIf(Node& x, const Page p, const bool is_result_unused, const bool is_terminal)
     {
         // compile condition
-        compileExpression(x.constList()[1], p, false, false);
+        compileExpression(x.list()[1], p, false, false);
         page(p).back().setSourceLocation(x.constList()[1].filename(), x.constList()[1].line());
 
         // jump only if needed to the "true" branch
@@ -339,7 +339,7 @@ namespace Ark::internal
         if (x.constList().size() == 4)  // we have an else clause
         {
             m_locals_locator.saveScopeLengthForBranch();
-            compileExpression(x.constList()[3], p, is_result_unused, is_terminal, var_name);
+            compileExpression(x.list()[3], p, is_result_unused, is_terminal);
             page(p).back().setSourceLocation(x.constList()[3].filename(), x.constList()[3].line());
             m_locals_locator.dropVarsForBranch();
         }
@@ -352,14 +352,14 @@ namespace Ark::internal
         page(p).emplace_back(label_then);
         // if code
         m_locals_locator.saveScopeLengthForBranch();
-        compileExpression(x.constList()[2], p, is_result_unused, is_terminal, var_name);
+        compileExpression(x.list()[2], p, is_result_unused, is_terminal);
         page(p).back().setSourceLocation(x.constList()[2].filename(), x.constList()[2].line());
         m_locals_locator.dropVarsForBranch();
         // set jump to end pos
         page(p).emplace_back(label_end);
     }
 
-    void ASTLowerer::compileFunction(const Node& x, const Page p, const bool is_result_unused, const std::string& var_name)
+    void ASTLowerer::compileFunction(Node& x, const Page p, const bool is_result_unused)
     {
         if (const auto args = x.constList()[1]; args.nodeType() != NodeType::List)
             buildAndThrowError(fmt::format("Expected a well formed argument(s) list, got a {}", typeToString(args)), args);
@@ -399,8 +399,16 @@ namespace Ark::internal
             }
         }
 
+        // Register an opened variable as "#anonymous", which won't match any valid names inside ASTLowerer::handleCalls.
+        // This way we can continue to safely apply optimisations on
+        // (let name (fun (e) (map lst (fun (e) (name e)))))
+        // Otherwise, `name` would have been optimized to a GET_CURRENT_PAGE_ADDRESS, which would have returned the wrong page.
+        if (x.isAnonymousFunction())
+            m_opened_vars.push("#anonymous");
         // push body of the function
-        compileExpression(x.constList()[2], function_body_page, false, true, var_name);
+        compileExpression(x.list()[2], function_body_page, false, true);
+        if (x.isAnonymousFunction())
+            m_opened_vars.pop();
 
         // return last value on the stack
         page(function_body_page).emplace_back(RET);
@@ -414,7 +422,7 @@ namespace Ark::internal
         }
     }
 
-    void ASTLowerer::compileLetMutSet(const Keyword n, const Node& x, const Page p)
+    void ASTLowerer::compileLetMutSet(const Keyword n, Node& x, const Page p)
     {
         if (const auto sym = x.constList()[1]; sym.nodeType() != NodeType::Symbol)
             buildAndThrowError(fmt::format("Expected a symbol, got a {}", typeToString(sym)), sym);
@@ -424,10 +432,17 @@ namespace Ark::internal
         const std::string name = x.constList()[1].string();
         uint16_t i = addSymbol(x.constList()[1]);
 
+        const bool is_function = x.constList()[2].isFunction();
+        if (is_function)
+        {
+            m_opened_vars.push(name);
+            x.list()[2].setFunctionKind(/* anonymous= */ false);
+        }
+
         // put value before symbol id
         // starting at index = 2 because x is a (let|mut|set variable ...) node
         for (std::size_t idx = 2, end = x.constList().size(); idx < end; ++idx)
-            compileExpression(x.constList()[idx], p, false, false, name);
+            compileExpression(x.list()[idx], p, false, false);
 
         if (n == Keyword::Let || n == Keyword::Mut)
         {
@@ -437,10 +452,12 @@ namespace Ark::internal
         else
             page(p).emplace_back(SET_VAL, i);
 
+        if (is_function)
+            m_opened_vars.pop();
         page(p).back().setSourceLocation(x.filename(), x.line());
     }
 
-    void ASTLowerer::compileWhile(const Node& x, const Page p)
+    void ASTLowerer::compileWhile(Node& x, const Page p)
     {
         if (x.constList().size() != 3)
             buildAndThrowError("Invalid node ; if it was computed by a macro, check that a node is returned", x);
@@ -453,12 +470,12 @@ namespace Ark::internal
         const auto label_loop = IR::Entity::Label(m_current_label++);
         page(p).emplace_back(label_loop);
         // push condition
-        compileExpression(x.constList()[1], p, false, false);
+        compileExpression(x.list()[1], p, false, false);
         // absolute jump to end of block if condition is false
         const auto label_end = IR::Entity::Label(m_current_label++);
         page(p).emplace_back(IR::Entity::GotoIf(label_end, false));
         // push code to page
-        compileExpression(x.constList()[2], p, true, false);
+        compileExpression(x.list()[2], p, true, false);
 
         // reset the scope at the end of the loop so that indices are still valid
         // otherwise, (while true { (let a 5) (print a) (let b 6) (print b) })
@@ -473,7 +490,7 @@ namespace Ark::internal
         m_locals_locator.deleteScope();
     }
 
-    void ASTLowerer::compilePluginImport(const Node& x, const Page p)
+    void ASTLowerer::compilePluginImport(Node& x, const Page p)
     {
         std::string path;
         const Node package_node = x.constList()[1];
@@ -492,7 +509,7 @@ namespace Ark::internal
         page(p).back().setSourceLocation(x.filename(), x.line());
     }
 
-    void ASTLowerer::pushFunctionCallArguments(const Node& call, const Page p, const bool is_tail_call)
+    void ASTLowerer::pushFunctionCallArguments(Node& call, const Page p, const bool is_tail_call)
     {
         const auto node = call.constList()[0];
 
@@ -503,7 +520,7 @@ namespace Ark::internal
         // Eg (let foo (fun (a b c) (if (> a 0) (foo (- a 1) c (+ b c)) 1))) (foo 12 0 1)
         // On the second self-call, b and c would have the same value, since we set c to (+ b c), and we pushed c as the
         // value for argument b, but loaded it as a reference.
-        for (auto&& value : std::ranges::drop_view(call.constList(), 1) | std::views::reverse)
+        for (Node& value : std::ranges::drop_view(call.list(), 1) | std::views::reverse)
         {
             if (nodeProducesOutput(value))
                 compileExpression(value, p, false, false);
@@ -519,11 +536,11 @@ namespace Ark::internal
         }
     }
 
-    void ASTLowerer::handleCalls(const Node& x, const Page p, bool is_result_unused, const bool is_terminal, const std::string& var_name)
+    void ASTLowerer::handleCalls(Node& x, const Page p, bool is_result_unused, const bool is_terminal)
     {
         constexpr std::size_t start_index = 1;
 
-        const auto node = x.constList()[0];
+        Node& node = x.list()[0];
         const std::optional<Instruction> maybe_operator = node.nodeType() == NodeType::Symbol ? getOperator(node.string()) : std::nullopt;
 
         const std::optional<Instruction> maybe_shortcircuit =
@@ -546,7 +563,7 @@ namespace Ark::internal
                         x.constList().size() - 1),
                     x);
 
-            compileExpression(x.constList()[1], p, false, false);
+            compileExpression(x.list()[1], p, false, false);
 
             const auto label_shortcircuit = IR::Entity::Label(m_current_label++);
             auto shortcircuit_entity = IR::Entity::Goto(label_shortcircuit, maybe_shortcircuit.value());
@@ -554,7 +571,7 @@ namespace Ark::internal
 
             for (std::size_t i = 2, end = x.constList().size(); i < end; ++i)
             {
-                compileExpression(x.constList()[i], p, false, false);
+                compileExpression(x.list()[i], p, false, false);
                 if (i + 1 != end)
                     page(p).emplace_back(shortcircuit_entity);
             }
@@ -563,7 +580,7 @@ namespace Ark::internal
         }
         else if (!maybe_operator.has_value())
         {
-            if (is_terminal && x.constList()[0].nodeType() == NodeType::Symbol && var_name == x.constList()[0].string())
+            if (is_terminal && node.nodeType() == NodeType::Symbol && !m_opened_vars.empty() && m_opened_vars.top() == node.string())
             {
                 pushFunctionCallArguments(x, p, /* is_tail_call= */ true);
 
@@ -576,8 +593,23 @@ namespace Ark::internal
             {
                 m_temp_pages.emplace_back();
                 const auto proc_page = Page { .index = m_temp_pages.size() - 1u, .is_temp = true };
-                // closure chains have been handled (eg: closure.field.field.function)
-                compileExpression(node, proc_page, false, false);  // storing proc
+
+                // compile the function resolution to a separate page
+                if (node.nodeType() == NodeType::Symbol && !m_opened_vars.empty() && m_opened_vars.top() == node.string())
+                {
+                    // The function is trying to call itself, but this isn't a tail call.
+                    // We can skip the LOAD_SYMBOL function_name and directly push the current
+                    // function page, which will be quicker than a local variable resolution.
+                    // We set its argument to the symbol id of the function we are calling,
+                    // so that the VM knowns the name of the last called function.
+                    page(proc_page).emplace_back(GET_CURRENT_PAGE_ADDR, addSymbol(node));
+                }
+                else
+                {
+                    // closure chains have been handled (eg: closure.field.field.function)
+                    compileExpression(node, proc_page, false, false);  // storing proc
+                }
+
                 if (m_temp_pages.back().empty())
                     buildAndThrowError(fmt::format("Can not call {}", x.constList()[0].repr()), x);
 
@@ -618,7 +650,7 @@ namespace Ark::internal
             for (std::size_t index = start_index, size = x.constList().size(); index < size; ++index)
             {
                 if (nodeProducesOutput(x.constList()[index]))
-                    compileExpression(x.constList()[index], p, false, false);
+                    compileExpression(x.list()[index], p, false, false);
                 else
                     buildAndThrowError(fmt::format("Invalid node inside call to operator `{}'", node.repr()), x.constList()[index]);
 
