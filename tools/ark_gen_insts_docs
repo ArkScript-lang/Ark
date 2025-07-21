@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+# generate the instructions documentation and copy it to the clipboard
+
+echo "Generating instructions documentation..."
+python3 docs/gen_instructions_documentation.py | pbcopy
+echo "Done! Documentation has been copied to the clipboard"

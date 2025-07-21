@@ -5,9 +5,9 @@
 #---------------------------------------------------------------------------
 PROJECT_NAME           = ArkScript
 PROJECT_NUMBER         =
-PROJECT_BRIEF          = "A small, fast, functional and scripting language for video games"
+PROJECT_BRIEF          = "A small, lisp-inspired, functional scripting language"
 PROJECT_LOGO           = ../.github/images/ArkTransparent-small.png
-OUTPUT_DIRECTORY       = ../../website/
+OUTPUT_DIRECTORY       = ../../hugo-website/static/
 CREATE_SUBDIRS         = YES
 ABBREVIATE_BRIEF       =
 BUILTIN_STL_SUPPORT    = YES
@@ -49,14 +49,7 @@ WARN_LOGFILE           = warnings.log
 #---------------------------------------------------------------------------
 INPUT                  = ../include \
                          ../src \
-                         ./ \
-                         ../lib/modules/src/bitwise/documentation \
-                         ../lib/modules/src/console/documentation \
-                         ../lib/modules/src/hash/documentation \
-                         ../lib/modules/draft/database/documentation \
-                         ../lib/modules/draft/http/documentation \
-                         ../lib/modules/draft/json/documentation
-
+                         ./
 INPUT_ENCODING         = UTF-8
 INPUT_FILE_ENCODING    =
 
