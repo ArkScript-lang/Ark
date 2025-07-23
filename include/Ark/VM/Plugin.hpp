@@ -1,6 +1,6 @@
 /**
  * @file Plugin.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief Loads .dll/.so/.dynlib files
  * @date 2020-10-27
  *

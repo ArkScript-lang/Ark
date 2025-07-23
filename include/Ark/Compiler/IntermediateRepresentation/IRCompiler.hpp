@@ -1,6 +1,6 @@
 /**
  * @file IRCompiler.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief Compile the intermediate representation to bytecode
  * @date 2024-10-05
  *

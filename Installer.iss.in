@@ -1,7 +1,7 @@
 [Setup]
 AppName=ArkScript
 AppVersion=@ARK_VERSION_MAJOR@.@ARK_VERSION_MINOR@.@ARK_VERSION_PATCH@
-AppPublisher=Alexandre Plateau
+AppPublisher=Lex Plateau
 AppPublisherURL=https://arkscript-lang.dev
 DefaultDirName={autopf}\ArkScript
 DefaultGroupName=ArkScript
@@ -104,4 +104,3 @@ begin
     RemovePath(ExpandConstant('{app}\bin'));
   end;
 end;
-

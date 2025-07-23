@@ -1,6 +1,6 @@
 /**
  * @file Pass.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief Interface for a compiler pass (take in an AST, output an AST)
  * @date 2024-07-21
  *

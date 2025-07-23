@@ -1,6 +1,6 @@
 /**
  * @file ValTableElem.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief The basic value type handled by the compiler
  * @date 2020-10-27
  *

@@ -1,6 +1,6 @@
 /**
  * @file VM.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief The ArkScript virtual machine
  * @date 2020-10-27
  *

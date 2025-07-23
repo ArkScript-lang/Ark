@@ -1,6 +1,6 @@
 /**
  * @file ASTLowerver.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief ArkScript compiler is in charge of transforming the AST into IR
  * @date 2020-10-27
  *

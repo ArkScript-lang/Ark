@@ -1,6 +1,6 @@
 /**
  * @file ExecutionContext.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief Keeping track of the internal data needed by the VM
  * @date 2021-11-15
  *

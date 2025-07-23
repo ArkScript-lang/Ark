@@ -8,7 +8,7 @@
 
 <img align="right" src=".github/images/ArkTransparent-by-mazz.png" width=200px alt="ArkScript log by Mazz">
 
-* [Documentation](https://arkscript-lang.dev/documentation.html)
+* [Documentation](https://arkscript-lang.dev/docs/guides/contributing/)
 * [Discussions](https://github.com/orgs/ArkScript-lang/discussions): to receive help with the language, discuss new features and ideas
 * [Modules](https://github.com/ArkScript-lang/modules)
 
@@ -44,9 +44,9 @@ Also, it has:
 
 ```clojure
 (let fibo (fun (n)
-    (if (< n 2)
-        n
-        (+ (fibo (- n 1)) (fibo (- n 2))))))
+  (if (< n 2)
+    n
+    (+ (fibo (- n 1)) (fibo (- n 2))))))
 
 (print (fibo 28))  # display 317811
 ```
@@ -104,7 +104,7 @@ cmake --install build
 * Create a branch for your feature: `git switch -c feat-my-awesome-idea`
 * When you're done, push it to your fork and submit a pull request
 
-Make sure you follow the [contribution guidelines](CONTRIBUTING.md) before submitting your pull request!
+Make sure you follow the [contribution guidelines](https://arkscript-lang.dev/docs/guides/contributing/) before submitting your pull request!
 
 Don't know what to work on? No worries, we have a [list of things to do](https://github.com/ArkScript-lang/Ark/issues) :wink:
 
@@ -115,7 +115,7 @@ We have other projects tightly related to ArkScript, which aren't necessarily C+
 * the [standard library](https://github.com/ArkScript-lang/std), written in ArkScript itself
 * the [standard library modules](https://github.com/ArkScript-lang/modules), extending the capacities of the language, written in C++
 * [ArkDoc](https://github.com/ArkScript-lang/ArkDoc), a documentation generator *à la doxygen* for ArkScript, written in Python 3
-* our [website](https://github.com/ArkScript-lang/website) written in HTML, CSS and JavaScript
+* our [website](https://github.com/ArkScript-lang/website) written in Markdown using a static site generator
 
 ### Our beloved contributors
 
@@ -123,9 +123,9 @@ We have other projects tightly related to ArkScript, which aren't necessarily C+
 
 ### Coding guidelines for contributing
 
-See [C++ Coding guidelines](https://github.com/ArkScript-lang/Ark/blob/dev/CONTRIBUTING.md#c-coding-guidelines) if you want to contribute to ArkScript compiler / runtime.
+See [C++ Coding guidelines](https://arkscript-lang.dev/docs/guides/coding_guidelines/#c-coding-guidelines) if you want to contribute to ArkScript compiler / runtime.
 
-Also, see [ArkScript Coding guidelines](https://arkscript-lang.dev/guidelines/coding.html) for other files, written in ArkScript.
+Also, see [ArkScript Coding guidelines](https://arkscript-lang.dev/docs/guides/coding_guidelines/) for other files, written in ArkScript.
 
 For performance reasons, some functions might be written in C++, in `include/Ark/Builtins/Builtins.hpp` and `src/Builtins/`.
 
@@ -153,6 +153,7 @@ Different CMake switches are available to customize the build:
 * `-DARK_SANITIZERS` to enable ASAN and UBSAN
 * `-DARK_TESTS` to build the unit tests (separate target named `unittests`)
   * `-DARK_COVERAGE` to enable coverage analysis ; only works in conjunction with `-DARK_TESTS`, enables the `coverage` target: `cmake --build build --target coverage`
+* `-DARK_JS_ONLY` to build a `.js` instead of `.wasm` when building with emscripten
 
 ```bash
 # first, clone it
@@ -261,21 +262,13 @@ LICENSE
 
 ### In your own project
 
-Please refer to the [embedding ArkScript](https://arkscript-lang.dev/tutorials/embedding.html) tutorial.
+Please refer to the [embedding ArkScript](https://arkscript-lang.dev/docs/tutorials/embedding/) tutorial.
 
 ## Performances
 
-See https://github.com/ArkScript-lang/benchmarks
+See https://arkscript-lang.dev/tools/benchmarks/
 
-## Games
-
-You can find a snake created in ArkScript in the folder examples/games/snake (run it from there, otherwise it won't find the font and the sprites ; you won't need to install the SFML).
-
-![ArkSnake](.github/images/ArkSnake.png)
-
-Controls are the arrows (left, right, up and down), the game closes itself when you successfully collect the 3 apples.
-
-## The donors
+## The sponsors
 
 Huge thanks to those people for their donations to support the project:
 
@@ -295,6 +288,10 @@ This project was inspired by [game programing patterns](http://gameprogrammingpa
 
 ## Copyright and Licence information
 
-Copyright (c) 2019-2024 Alexandre Plateau. All rights reserved.
+Copyright (c) 2019-2025 Lex Plateau. All rights reserved.
 
-This ArkScript distribution contains no GNU GPL code, which means it can be used in proprietary projects.
+### Using ArkScript in your company
+
+I (Lex Plateau) am working pretty much alone on this project, and I try to do my best to leave it as bug free and as performant as possible. However, this is a side project for which I'm currently **not paid** to work on, thus I can't fix every bug or address every feature request in a timely manner.
+
+Please reach out either by email (lexplt.dev@gmail.com) or via a [discussion](https://github.com/orgs/ArkScript-lang/discussions) before using the language in a company project, so that we can set up a support contract. If you don't want to set up a contract, your issues and support requests won't be prioritized (and possibly left unanswered).

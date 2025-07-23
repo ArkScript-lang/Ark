@@ -1,6 +1,6 @@
 /**
  * @file Platform.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief ArkScript configuration macros
  * @date 2020-10-27
  *

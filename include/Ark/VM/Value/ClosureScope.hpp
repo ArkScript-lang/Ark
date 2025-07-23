@@ -1,6 +1,6 @@
 /**
  * @file ClosureScope.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief Subtype of the value type, handling closures
  * @date 2025-03-17
  *

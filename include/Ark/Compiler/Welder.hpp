@@ -1,6 +1,6 @@
 /**
  * @file Welder.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief In charge of welding everything needed to compile code
  * @date 2023-03-26
  *

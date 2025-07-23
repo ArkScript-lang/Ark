@@ -1,6 +1,6 @@
 /**
  * @file Exceptions.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com), Max (madstk1@pm.me)
+ * @author Lex Plateau (lexplt.dev@gmail.com), Max (madstk1@pm.me)
  * @brief ArkScript homemade exceptions
  * @date 2020-10-27
  *

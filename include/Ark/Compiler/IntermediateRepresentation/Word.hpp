@@ -1,6 +1,6 @@
 /**
  * @file Word.hpp
- * @author  Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author  Lex Plateau (lexplt.dev@gmail.com)
  * @brief Describe an instruction and its immediate argument
  * @date 2022-07-02
  *

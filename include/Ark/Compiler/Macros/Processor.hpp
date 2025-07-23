@@ -1,6 +1,6 @@
 /**
  * @file Processor.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief Handles the macros and their expansion in ArkScript source code
  * @date 2021-02-18
  *

@@ -1,6 +1,6 @@
 /**
  * @file MacroScope.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief Defines tools to handle macro definitions
  * @date 2023-02-18
  *

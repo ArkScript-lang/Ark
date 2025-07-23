@@ -1,6 +1,6 @@
 /**
  * @file ImportSolver.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief Handle imports, resolve them with modules and everything
  * @date 2024-07-21
  *

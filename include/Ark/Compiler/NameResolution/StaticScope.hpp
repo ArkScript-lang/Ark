@@ -1,6 +1,6 @@
 /**
  * @file StaticScope.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief Static scopes (for functions, loops) and namespace scopes (for packages) definitions, used at compile time
  * @date 2024-11-30
  *

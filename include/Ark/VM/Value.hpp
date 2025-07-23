@@ -1,6 +1,6 @@
 /**
  * @file Value.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief Default value type handled by the virtual machine
  * @date 2024-04-20
  *

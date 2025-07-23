@@ -1,6 +1,6 @@
 /**
  * @file Ark.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief Includes the needed files to start using ArkScript
  * @date 2020-10-27
  *

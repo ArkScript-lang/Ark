@@ -1,6 +1,6 @@
 /**
  * @file Optimizer.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief Optimizes a given ArkScript AST
  * @date 2024-07-09
  *

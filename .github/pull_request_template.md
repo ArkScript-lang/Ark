@@ -6,9 +6,9 @@ Closes # (issue)
 
 ## Checklist
 
-- [ ] I have read the [Contributor guide](CONTRIBUTING.md)
+- [ ] I have read the [Contributor guide](https://arkscript-lang.dev/docs/guides/contributing/)
 - [ ] My code follows the style guidelines of this project
 - [ ] I have commented my code, particularly in hard-to-understand areas
-- [ ] I have updated the documentation if needed
+- [ ] I have updated the documentation if needed (on https://github.com/ArkScript-lang/website, content/docs/)
 - [ ] I have added tests that prove my fix/feature is working
 - [ ] New and existing tests pass locally with my changes

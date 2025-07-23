@@ -1,6 +1,6 @@
 /**
  * @file NameResolutionPass.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief Resolves names and fully qualify them in the AST (prefixing them with the package they are from)
  * @date 2024-07-22
  *

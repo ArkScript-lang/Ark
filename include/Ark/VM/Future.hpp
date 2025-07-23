@@ -1,6 +1,6 @@
 /**
  * @file Future.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief Internal object to resolve asynchronously a function call in ArkScript
  * @date 2022-05-28
  *

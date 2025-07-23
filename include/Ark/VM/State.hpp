@@ -1,6 +1,6 @@
 /**
  * @file State.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief State used by the virtual machine: it loads the bytecode, can compile it if needed, load C++ functions...
  * @date 2020-10-27
  *

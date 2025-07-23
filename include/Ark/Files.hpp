@@ -1,6 +1,6 @@
 /**
  * @file Files.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief Lots of utilities about the filesystem
  * @date 2024-07-09
  *

@@ -1,6 +1,6 @@
 /**
  * @file IROptimizer.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief Optimize IR based on IR entity grouped by 2 (or more)
  * @date 2024-10-11
  *

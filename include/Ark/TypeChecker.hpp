@@ -1,6 +1,6 @@
 /**
  * @file TypeChecker.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief
  * @date 2022-01-16
  *

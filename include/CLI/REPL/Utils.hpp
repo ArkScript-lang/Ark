@@ -1,6 +1,6 @@
 /**
  * @file Utils.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief replxx utilities
  * @date 2020-10-27
  *

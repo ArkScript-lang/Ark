@@ -1,6 +1,6 @@
 /**
  * @file Node.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief AST node used by the parser, optimizer and compiler
  * @date 2020-10-27
  *

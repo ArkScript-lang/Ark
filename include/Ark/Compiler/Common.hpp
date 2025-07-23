@@ -1,6 +1,6 @@
 /**
  * @file Common.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief Common code for the compiler
  * @date 2021-10-02
  *

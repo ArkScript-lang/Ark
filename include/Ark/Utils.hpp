@@ -1,6 +1,6 @@
 /**
  * @file Utils.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief Lots of utilities about string, filesystem and more
  * @date 2024-07-09
  *

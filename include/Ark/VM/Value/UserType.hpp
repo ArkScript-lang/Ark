@@ -1,6 +1,6 @@
 /**
  * @file UserType.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief Subtype of the value, capable of handling any C++ type
  * @date 2020-10-27
  *

@@ -1,6 +1,6 @@
 /**
  * @file Logger.hpp
- * @author Alexandre Plateau (lexplt@gmail.com)
+ * @author Lex Plateau (lexplt@gmail.com)
  * @brief Internal logger
  * @date 2024-08-30
  *

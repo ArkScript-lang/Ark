@@ -1,6 +1,6 @@
 /**
  * @file LocalsLocator.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief Track locals at compile
  * @date 2025-03-20
  *

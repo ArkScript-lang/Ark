@@ -1,6 +1,6 @@
 /**
  * @file Parser.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief Parse ArkScript code, but do not handle any import declarations
  * @date 2024-05-12
  *

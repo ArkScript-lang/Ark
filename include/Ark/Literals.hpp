@@ -1,6 +1,6 @@
 /**
  * @file Literals.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief User defined literals for Ark internals
  * @date 2021-10-2
  *
