@@ -371,9 +371,10 @@ namespace Ark
          *
          * @param context
          * @param argc number of arguments already sent
-         * @param function_ptr optional pointer to the function to call. If not provided, obtain it from the stack
+         * @param function_ptr optional pointer to the function to call. If not provided, obtain it from the stack (unless or_address is not 0)
+         * @param or_address optional page address, used if non-zero and function_ptr is nullptr
          */
-        inline void call(internal::ExecutionContext& context, uint16_t argc, Value* function_ptr = nullptr);
+        inline void call(internal::ExecutionContext& context, uint16_t argc, Value* function_ptr = nullptr, internal::PageAddr_t or_address = 0);
 
         /**
          * @brief Builtin called when the CALL_BUILTIN instruction is met in the bytecode

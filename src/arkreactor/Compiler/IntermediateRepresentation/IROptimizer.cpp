@@ -42,6 +42,7 @@ namespace Ark::internal
                       return Builtins::builtins[entities[0].primaryArg()].second.isFunction();
                   } },
             Rule { { LOAD_SYMBOL, CALL }, CALL_SYMBOL },
+            Rule { { GET_CURRENT_PAGE_ADDR, CALL }, CALL_CURRENT_PAGE },
             Rule { { LOAD_SYMBOL, GET_FIELD }, GET_FIELD_FROM_SYMBOL },
             Rule { { LOAD_SYMBOL_BY_INDEX, GET_FIELD }, GET_FIELD_FROM_SYMBOL_INDEX },
             Rule { { LIST, STORE }, STORE_LIST },

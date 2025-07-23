@@ -61,6 +61,8 @@
 - `PUSH_RETURN_ADDRESS` instruction now replaces the VM auto push of IP/PP
 - remove the stack swapping by pushing arguments in the reverse order by which they are loaded
 - wasm export: we can now run ArkScript code on the web!
+- `GET_CURRENT_PAGE_ADDRESS` instruction to push the current page address to the stack
+- `CALL_CURRENT_PAGE` super instruction, calling the current page with a given number of arguments (avoid loading a page address on the stack, then popping it to perform the call)
 
 ### Changed
 - instructions are on 4 bytes: 1 byte for the instruction, 1 byte of padding, 2 bytes for an immediate argument
@@ -141,6 +143,7 @@
 - `io:removeFiles` is now `io:removeFile` and works on a single file/path
 - renamed almost all builtins to prefix them with `builtin__`, to have them proxied in the standard library (to be able to import and scope them properly)
 - new super instruction `CALL_BUILTIN_WITHOUT_RETURN_ADDRESS` to optimize the proxied builtins, skipping the return address deletion
+- the VM no longer store a reference to the current function being called in the newly created scope
 
 ### Removed
 - removed unused `NodeType::Closure`

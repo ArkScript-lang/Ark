@@ -1,0 +1,32 @@
+(let queenPuzzle (fun (rows columns)
+  (if (<= rows 0)
+    [[]]
+    (addQueen (- rows 1) columns))))
+
+(let addQueen (fun (newRow columns) {
+  (mut newSolutions [])
+  (let prev (queenPuzzle newRow columns))
+
+  (mut i 0)
+  (while (< i (len prev)) {
+    (let solution (@ prev i))
+    (mut newColumn 0)
+    (while (< newColumn columns) {
+      (if (not (hasConflict newRow newColumn solution)) (append! newSolutions (append solution newColumn)))
+      (set newColumn (+ newColumn 1)) })
+
+    (set i (+ i 1)) })
+
+  newSolutions }))
+
+(let hasConflict (fun (newRow newColumn solution) {
+  (mut i 0)
+  (mut conflict false)
+  (while (and (< i newRow) (not conflict)) {
+    (if (or (= (@ solution i) newColumn) (= (+ (@ solution i) i) (+ newColumn newRow)) (= (- (@ solution i) i) (- newColumn newRow)))
+      (set conflict true))
+    (set i (+ i 1)) })
+
+  conflict }))
+
+(assert (= (len (queenPuzzle 8 8)) 92) "92 solutions were found")

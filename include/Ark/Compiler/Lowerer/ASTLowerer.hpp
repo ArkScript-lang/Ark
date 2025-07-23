@@ -11,6 +11,7 @@
 #ifndef ARK_COMPILER_LOWERER_ASTLOWERER_HPP
 #define ARK_COMPILER_LOWERER_ASTLOWERER_HPP
 
+#include <stack>
 #include <vector>
 #include <string>
 #include <cinttypes>
@@ -48,7 +49,7 @@ namespace Ark::internal
          *
          * @param ast
          */
-        void process(const Node& ast);
+        void process(Node& ast);
 
         /**
          * @brief Return the IR blocks (one per scope)
@@ -86,6 +87,7 @@ namespace Ark::internal
         std::vector<IR::Block> m_code_pages;
         std::vector<IR::Block> m_temp_pages;  ///< we need temporary code pages for some compilations passes
         IR::label_t m_current_label = 0;
+        std::stack<std::string> m_opened_vars;  ///< stack of vars we are currently declaring
 
         Logger m_logger;
 
@@ -175,19 +177,18 @@ namespace Ark::internal
          * @param p the current page number we're on
          * @param is_result_unused
          * @param is_terminal
-         * @param var_name
          */
-        void compileExpression(const Node& x, Page p, bool is_result_unused, bool is_terminal, const std::string& var_name = "");
+        void compileExpression(Node& x, Page p, bool is_result_unused, bool is_terminal);
 
-        void compileSymbol(const Node& x, Page p, bool is_result_unused);
-        void compileListInstruction(const Node& c0, const Node& x, Page p, bool is_result_unused);
-        void compileIf(const Node& x, Page p, bool is_result_unused, bool is_terminal, const std::string& var_name);
-        void compileFunction(const Node& x, Page p, bool is_result_unused, const std::string& var_name);
-        void compileLetMutSet(Keyword n, const Node& x, Page p);
-        void compileWhile(const Node& x, Page p);
-        void compilePluginImport(const Node& x, Page p);
-        void pushFunctionCallArguments(const Node& call, Page p, bool is_tail_call);
-        void handleCalls(const Node& x, Page p, bool is_result_unused, bool is_terminal, const std::string& var_name);
+        void compileSymbol(Node& x, Page p, bool is_result_unused);
+        void compileListInstruction(Node& x, Page p, bool is_result_unused);
+        void compileIf(Node& x, Page p, bool is_result_unused, bool is_terminal);
+        void compileFunction(Node& x, Page p, bool is_result_unused);
+        void compileLetMutSet(Keyword n, Node& x, Page p);
+        void compileWhile(Node& x, Page p);
+        void compilePluginImport(Node& x, Page p);
+        void pushFunctionCallArguments(Node& call, Page p, bool is_tail_call);
+        void handleCalls(Node& x, Page p, bool is_result_unused, bool is_terminal);
 
         /**
          * @brief Register a given node in the symbol table
