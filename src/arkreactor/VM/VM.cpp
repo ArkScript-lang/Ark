@@ -208,7 +208,7 @@ namespace Ark
         if (count != 0)
             l.list().reserve(count);
 
-        for (uint16_t i = 0; i < count; ++i)
+        for (std::size_t i = 0; i < count; ++i)
             l.push_back(*popAndResolveAsPtr(context));
 
         return l;
