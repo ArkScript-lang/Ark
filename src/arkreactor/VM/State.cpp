@@ -1,7 +1,7 @@
 #include <Ark/VM/State.hpp>
 
 #include <Ark/Constants.hpp>
-#include <Ark/Files.hpp>
+#include <Ark/Utils/Files.hpp>
 #include <Ark/Compiler/Welder.hpp>
 
 #ifdef _MSC_VER

@@ -22,7 +22,7 @@
 #include <Ark/Compiler/IntermediateRepresentation/IROptimizer.hpp>
 #include <Ark/Compiler/IntermediateRepresentation/IRCompiler.hpp>
 #include <Ark/Constants.hpp>
-#include <Ark/Logger.hpp>
+#include <Ark/Utils/Logger.hpp>
 #include <Ark/Compiler/Package/ImportSolver.hpp>
 #include <Ark/Compiler/Macros/Processor.hpp>
 #include <Ark/Compiler/AST/Optimizer.hpp>

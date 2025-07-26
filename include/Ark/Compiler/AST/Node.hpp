@@ -18,7 +18,7 @@
 
 #include <Ark/Compiler/AST/Namespace.hpp>
 #include <Ark/Compiler/Common.hpp>
-#include <Ark/Platform.hpp>
+#include <Ark/Utils/Platform.hpp>
 
 namespace Ark::internal
 {

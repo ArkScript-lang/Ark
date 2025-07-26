@@ -14,8 +14,8 @@
 #include <vector>
 #include <string>
 
-#include <Ark/Platform.hpp>
-#include <Ark/Logger.hpp>
+#include <Ark/Utils/Platform.hpp>
+#include <Ark/Utils/Logger.hpp>
 #include <Ark/Compiler/Common.hpp>
 #include <Ark/Compiler/ValTableElem.hpp>
 #include <Ark/Compiler/IntermediateRepresentation/Entity.hpp>

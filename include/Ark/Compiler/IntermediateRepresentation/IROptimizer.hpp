@@ -10,8 +10,8 @@
 #ifndef ARK_COMPILER_INTERMEDIATEREPRESENTATION_IROPTIMIZER_HPP
 #define ARK_COMPILER_INTERMEDIATEREPRESENTATION_IROPTIMIZER_HPP
 
-#include <Ark/Platform.hpp>
-#include <Ark/Logger.hpp>
+#include <Ark/Utils/Platform.hpp>
+#include <Ark/Utils/Logger.hpp>
 #include <Ark/Compiler/ValTableElem.hpp>
 #include <Ark/Compiler/IntermediateRepresentation/Entity.hpp>
 

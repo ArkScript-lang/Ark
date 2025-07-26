@@ -20,7 +20,7 @@
 #include <iostream>
 
 #include <Ark/Compiler/AST/utf8_char.hpp>
-#include <Ark/Platform.hpp>
+#include <Ark/Utils/Platform.hpp>
 
 namespace Ark
 {

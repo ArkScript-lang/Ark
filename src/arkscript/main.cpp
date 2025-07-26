@@ -8,7 +8,7 @@
 #include <fmt/core.h>
 #include <fmt/color.h>
 
-#include <Ark/Files.hpp>
+#include <Ark/Utils/Files.hpp>
 #include <Ark/Compiler/BytecodeReader.hpp>
 #include <CLI/JsonCompiler.hpp>
 #include <CLI/REPL/Repl.hpp>

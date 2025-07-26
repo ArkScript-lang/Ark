@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <fmt/core.h>
 
-#include <Ark/Files.hpp>
+#include <Ark/Utils/Files.hpp>
 #include <Ark/Exceptions.hpp>
 #include <Ark/Compiler/AST/Parser.hpp>
 

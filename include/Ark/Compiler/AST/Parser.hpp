@@ -14,9 +14,9 @@
 #include <Ark/Compiler/AST/BaseParser.hpp>
 #include <Ark/Compiler/AST/Node.hpp>
 #include <Ark/Compiler/AST/Import.hpp>
-#include <Ark/Logger.hpp>
-#include <Ark/Utils.hpp>
-#include <Ark/Platform.hpp>
+#include <Ark/Utils/Logger.hpp>
+#include <Ark/Utils/Utils.hpp>
+#include <Ark/Utils/Platform.hpp>
 
 #include <string>
 #include <vector>

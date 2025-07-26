@@ -11,7 +11,7 @@
 #ifndef ARK_VM_PLUGIN_HPP
 #define ARK_VM_PLUGIN_HPP
 
-#include <Ark/Platform.hpp>
+#include <Ark/Utils/Platform.hpp>
 
 #if defined(ARK_OS_WINDOWS)
 #    include <Proxy/MiniWindows.h>

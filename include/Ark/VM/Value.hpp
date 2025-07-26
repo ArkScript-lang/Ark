@@ -20,7 +20,7 @@
 #include <Ark/VM/Value/Closure.hpp>
 #include <Ark/VM/Value/UserType.hpp>
 #include <Ark/VM/Value/Procedure.hpp>
-#include <Ark/Platform.hpp>
+#include <Ark/Utils/Platform.hpp>
 
 namespace Ark
 {

@@ -17,7 +17,7 @@
 #include <filesystem>
 #include <unordered_map>
 
-#include <Ark/Platform.hpp>
+#include <Ark/Utils/Platform.hpp>
 #include <Ark/Compiler/Pass.hpp>
 #include <Ark/Compiler/AST/Node.hpp>
 #include <Ark/Compiler/AST/Import.hpp>

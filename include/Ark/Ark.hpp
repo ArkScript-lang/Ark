@@ -13,7 +13,7 @@
 
 #include <Ark/Exceptions.hpp>
 #include <Ark/Constants.hpp>
-#include <Ark/Utils.hpp>
+#include <Ark/Utils/Utils.hpp>
 #include <Ark/VM/VM.hpp>
 #include <Ark/Compiler/Welder.hpp>
 #include <Ark/TypeChecker.hpp>

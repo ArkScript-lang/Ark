@@ -5,7 +5,7 @@
 #include <vector>
 #include <initializer_list>
 
-#include <Ark/Platform.hpp>
+#include <Ark/Utils/Platform.hpp>
 #include <Ark/Exceptions.hpp>
 #include <Ark/Compiler/AST/Predicates.hpp>
 #include <Ark/Compiler/AST/utf8_char.hpp>

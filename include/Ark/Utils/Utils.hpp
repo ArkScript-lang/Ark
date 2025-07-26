@@ -11,7 +11,7 @@
 #ifndef INCLUDE_ARK_UTILS_HPP
 #define INCLUDE_ARK_UTILS_HPP
 
-#include <Ark/Platform.hpp>
+#include <Ark/Utils/Platform.hpp>
 
 #include <algorithm>
 #include <string>

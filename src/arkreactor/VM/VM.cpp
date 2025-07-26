@@ -7,8 +7,8 @@
 #include <fmt/color.h>
 #include <fmt/ostream.h>
 
-#include <Ark/Files.hpp>
-#include <Ark/Utils.hpp>
+#include <Ark/Utils/Files.hpp>
+#include <Ark/Utils/Utils.hpp>
 #include <Ark/TypeChecker.hpp>
 #include <Ark/Compiler/Instructions.hpp>
 

@@ -7,7 +7,7 @@
 
 #include <Ark/VM/Value.hpp>
 #include <Ark/TypeChecker.hpp>
-#include <Ark/Utils.hpp>
+#include <Ark/Utils/Utils.hpp>
 #include <TestsHelper.hpp>
 
 using namespace boost;

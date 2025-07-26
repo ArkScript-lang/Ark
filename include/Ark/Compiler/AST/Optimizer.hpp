@@ -15,7 +15,7 @@
 #include <unordered_map>
 #include <string>
 
-#include <Ark/Platform.hpp>
+#include <Ark/Utils/Platform.hpp>
 #include <Ark/Compiler/Pass.hpp>
 #include <Ark/Compiler/AST/Node.hpp>
 

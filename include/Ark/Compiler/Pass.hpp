@@ -10,9 +10,9 @@
 #ifndef ARK_COMPILER_PASS_HPP
 #define ARK_COMPILER_PASS_HPP
 
-#include <Ark/Platform.hpp>
+#include <Ark/Utils/Platform.hpp>
 #include <Ark/Compiler/AST/Node.hpp>
-#include <Ark/Logger.hpp>
+#include <Ark/Utils/Logger.hpp>
 
 namespace Ark::internal
 {

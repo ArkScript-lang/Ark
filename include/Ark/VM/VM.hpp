@@ -30,7 +30,7 @@
 #include <Ark/VM/ErrorKind.hpp>
 #include <Ark/VM/ExecutionContext.hpp>
 #include <Ark/Builtins/Builtins.hpp>
-#include <Ark/Platform.hpp>
+#include <Ark/Utils/Platform.hpp>
 #include <Ark/VM/Plugin.hpp>
 #include <Ark/VM/Future.hpp>
 

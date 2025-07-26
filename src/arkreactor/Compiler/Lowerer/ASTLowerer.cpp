@@ -8,7 +8,7 @@
 #include <fmt/core.h>
 #include <fmt/color.h>
 
-#include <Ark/Literals.hpp>
+#include <Ark/Utils/Literals.hpp>
 #include <Ark/Builtins/Builtins.hpp>
 
 namespace Ark::internal

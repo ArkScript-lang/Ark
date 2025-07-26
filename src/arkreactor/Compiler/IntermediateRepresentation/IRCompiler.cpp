@@ -8,7 +8,7 @@
 #include <fmt/ostream.h>
 
 #include <Ark/Constants.hpp>
-#include <Ark/Literals.hpp>
+#include <Ark/Utils/Literals.hpp>
 #include <Ark/Compiler/IntermediateRepresentation/InstLoc.hpp>
 #include <Ark/Compiler/Serialization/IntegerSerializer.hpp>
 #include <Ark/Compiler/Serialization/IEEE754Serializer.hpp>

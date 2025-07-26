@@ -5,7 +5,7 @@
 #include <string>
 #include <numeric>
 
-#include <Ark/Platform.hpp>
+#include <Ark/Utils/Platform.hpp>
 
 namespace Ark::internal
 {

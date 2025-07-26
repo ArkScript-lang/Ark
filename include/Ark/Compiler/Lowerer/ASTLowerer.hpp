@@ -17,8 +17,8 @@
 #include <cinttypes>
 #include <optional>
 
-#include <Ark/Platform.hpp>
-#include <Ark/Logger.hpp>
+#include <Ark/Utils/Platform.hpp>
+#include <Ark/Utils/Logger.hpp>
 #include <Ark/Compiler/Instructions.hpp>
 #include <Ark/Compiler/IntermediateRepresentation/Entity.hpp>
 #include <Ark/Compiler/AST/Node.hpp>

@@ -1,7 +1,7 @@
 #include <Ark/Compiler/NameResolution/NameResolutionPass.hpp>
 
 #include <Ark/Exceptions.hpp>
-#include <Ark/Utils.hpp>
+#include <Ark/Utils/Utils.hpp>
 #include <Ark/Builtins/Builtins.hpp>
 
 namespace Ark::internal
