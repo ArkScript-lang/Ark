@@ -57,7 +57,7 @@ ut::suite<"Parser"> parser_suite = [] {
                 };
 
                 std::string ast = astToString(parser);
-                ltrim(rtrim(ast));
+                Ark::Utils::ltrim(Ark::Utils::rtrim(ast));
 
                 should("output the same AST and imports (" + data.stem + ")") = [&] {
                     expectOrDiff(data.expected, ast);
@@ -79,7 +79,7 @@ ut::suite<"Parser"> parser_suite = [] {
                 {
                     should("output the same error message (" + data.stem + ")") = [&] {
                         std::string tested = sanitizeCodeError(e);
-                        ltrim(rtrim(tested));
+                        Ark::Utils::ltrim(Ark::Utils::rtrim(tested));
                         expectOrDiff(data.expected, tested);
                     };
                 }

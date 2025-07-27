@@ -104,6 +104,8 @@ if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG OR APPLE)
             -Wconversion
             # Allow deprecation warnings to not be treated as errors
             -Wno-error=deprecated-declarations
+            # Allow command line flags to not be treated as errors when unused
+            -Wno-unused-command-line-argument
             # We use pragmas to disable warnings we understand.
             # So we need to disable the warning about pragmas.
             -Wno-unknown-pragmas
@@ -128,18 +130,6 @@ if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG OR APPLE)
         # Though we should look to fix that in the future.
         target_compile_options(ArkReactor PRIVATE -Wno-deprecated-declarations)
     endif ()
-
-    # The following sub-modules link with -L/usr/local/lib
-    # This causes a warning that is fatal. To prevent this
-    # we disable this warning until this issue is fixed.
-    #
-    #   lib/modules/msgpack/CMakeFiles/msgpack.dir/__/submodules/msgpack-cpp/src/objectc.c.o
-    #   lib/modules/msgpack/CMakeFiles/msgpack.dir/__/submodules/msgpack-cpp/src/version.c.o
-    #   lib/modules/msgpack/CMakeFiles/msgpack.dir/__/submodules/msgpack-cpp/src/vrefbuffer.c.o
-    #   lib/modules/msgpack/CMakeFiles/msgpack.dir/__/submodules/msgpack-cpp/src/zone.c.o
-    target_compile_options(ArkReactor
-            PRIVATE
-            -Wno-unused-command-line-argument)
 
     # The nlohmann/json.hpp external project has unused typedefs in the code
     # to compensate for this error we remove the following warning.
@@ -220,6 +210,7 @@ endif ()
 
 if (ARK_TESTS OR ARK_BUILD_EXE)
     add_subdirectory("${ark_SOURCE_DIR}/lib/replxx" EXCLUDE_FROM_ALL)
+    add_subdirectory("${ark_SOURCE_DIR}/lib/clipp" EXCLUDE_FROM_ALL)
 endif ()
 
 if (ARK_TESTS)
@@ -308,8 +299,6 @@ if (ARK_BUILD_EXE)
             ${ark_SOURCE_DIR}/src/arkscript/*.cpp
             ${ark_SOURCE_DIR}/lib/fmt/src/format.cc)
     add_executable(arkscript ${EXE_SOURCES})
-
-    add_subdirectory("${ark_SOURCE_DIR}/lib/clipp" EXCLUDE_FROM_ALL)
 
     target_include_directories(arkscript SYSTEM PUBLIC "${ark_SOURCE_DIR}/lib/clipp/include")
     target_link_libraries(arkscript PUBLIC ArkReactor replxx clipp)

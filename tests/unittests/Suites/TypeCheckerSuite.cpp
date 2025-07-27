@@ -213,7 +213,7 @@ ut::suite<"TypeChecker"> type_checker_suite = [] {
                     /* colorize= */ false);
 
                 auto result = stream.str();
-                rtrim(ltrim(result));
+                Ark::Utils::rtrim(Ark::Utils::ltrim(result));
                 expectOrDiff(data.expected, result);
             };
         },

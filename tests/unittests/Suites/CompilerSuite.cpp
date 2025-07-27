@@ -92,7 +92,7 @@ ut::suite<"Compiler"> compiler_suite = [] {
                 should("output expected IR for " + data.stem) = [&] {
                     std::string ir = welder.textualIR();
 
-                    ltrim(rtrim(ir));
+                    Ark::Utils::ltrim(Ark::Utils::rtrim(ir));
                     expectOrDiff(data.expected, ir);
                 };
             });
@@ -114,7 +114,7 @@ ut::suite<"Compiler"> compiler_suite = [] {
                 should("output expected optimized IR for " + data.stem) = [&] {
                     std::string ir = welder.textualIR();
 
-                    ltrim(rtrim(ir));
+                    Ark::Utils::ltrim(Ark::Utils::rtrim(ir));
                     expectOrDiff(data.expected, ir);
                 };
             });

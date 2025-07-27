@@ -25,7 +25,7 @@ void iterTestFiles(const std::string& folder, std::function<void(TestData&&)>&& 
             expected = Ark::Utils::readFile(expected_path.generic_string());
             // getting rid of the \r because of Windows
             std::erase(expected, '\r');
-            ltrim(rtrim(expected));
+            Ark::Utils::ltrim(Ark::Utils::rtrim(expected));
         }
 
         auto data = TestData {
@@ -72,11 +72,11 @@ std::string sanitizeRuntimeError(const std::exception& e)
     // remove the directory prefix so that we are environment agnostic
     while (diag.find(ARK_TESTS_ROOT) != std::string::npos)
         diag.erase(diag.find(ARK_TESTS_ROOT), std::size(ARK_TESTS_ROOT) - 1);
-    ltrim(rtrim(diag));
+    Ark::Utils::ltrim(Ark::Utils::rtrim(diag));
     // remove last line, At IP:.., PP:.., SP:..
     diag.erase(diag.find_last_of('\n'), diag.size() - 1);
     // we most likely have a blank line at the end now
-    rtrim(diag);
+    Ark::Utils::rtrim(diag);
 
     return diag;
 }

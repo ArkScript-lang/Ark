@@ -2,6 +2,7 @@
 #define ARK_TESTSHELPER_HPP
 
 #include <Ark/Utils/Files.hpp>
+#include <Ark/Utils/Utils.hpp>
 #include <Ark/Exceptions.hpp>
 
 #include <string>
@@ -48,36 +49,6 @@ void iterTestFiles(const std::string& folder, std::function<void(TestData&&)>&& 
  * @return std::string full path to the resource
  */
 std::string getResourcePath(const std::string& folder);
-
-/**
- * @brief Remove spaces at the beginning of a string, in place
- * @param s reference to a string
- * @return std::string& the modified string
- */
-inline std::string& ltrim(std::string& s)
-{
-    s.erase(
-        s.begin(),
-        std::ranges::find_if(s.begin(), s.end(), [](const unsigned char ch) {
-            return !std::isspace(ch);
-        }));
-    return s;
-}
-
-/**
- * @brief Remove spaces at the end of a string, in place
- * @param s reference to a string
- * @return std::string& the modified string
- */
-inline std::string& rtrim(std::string& s)
-{
-    s.erase(
-        std::ranges::find_if(s.rbegin(), s.rend(), [](const unsigned char ch) {
-            return !std::isspace(ch);
-        }).base(),
-        s.end());
-    return s;
-}
 
 std::string sanitizeCodeError(const Ark::CodeError& e, bool remove_in_file_line = false);
 

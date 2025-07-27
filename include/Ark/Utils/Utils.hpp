@@ -45,6 +45,36 @@ namespace Ark::Utils
     }
 
     /**
+     * @brief Remove spaces at the beginning of a string, in place
+     * @param s reference to a string
+     * @return std::string& the modified string
+     */
+    inline std::string& ltrim(std::string& s)
+    {
+        s.erase(
+            s.begin(),
+            std::ranges::find_if(s.begin(), s.end(), [](const unsigned char ch) {
+                return !std::isspace(ch);
+            }));
+        return s;
+    }
+
+    /**
+     * @brief Remove spaces at the end of a string, in place
+     * @param s reference to a string
+     * @return std::string& the modified string
+     */
+    inline std::string& rtrim(std::string& s)
+    {
+        s.erase(
+            std::ranges::find_if(s.rbegin(), s.rend(), [](const unsigned char ch) {
+                return !std::isspace(ch);
+            }).base(),
+            s.end());
+        return s;
+    }
+
+    /**
      * @brief Checks if a string is a valid double
      *
      * @param s the string
