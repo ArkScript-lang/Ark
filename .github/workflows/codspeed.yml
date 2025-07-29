@@ -36,7 +36,7 @@ jobs:
           cmake --build build --config RelWithDebInfo -- -j 4
 
       - name: Run the benchmarks
-        uses: CodSpeedHQ/action@ad71f92d9429aabfcf70738be9defdbbfc7b75e2  # v3.6.1
+        uses: CodSpeedHQ/action@0b6e7a3d96c9d2a6057e7bcea6b45aaf2f7ce60b  # v3.8.0
         with:
           run: ./build/bench
           token: ${{ secrets.CODSPEED_TOKEN }}
