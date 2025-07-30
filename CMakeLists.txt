@@ -237,6 +237,9 @@ if (ARK_TESTS)
     if (ARK_UNITY_BUILD)
         set_target_properties(unittests PROPERTIES UNITY_BUILD ON UNITY_BUILD_MODE BATCH UNITY_BUILD_BATCH_SIZE 16)
     endif ()
+    set_target_properties(unittests PROPERTIES
+            VS_DEBUGGER_WORKING_DIRECTORY "${ark_SOURCE_DIR}"
+            VS_DEBUGGER_COMMAND "$<TARGET_FILE:unittests>")
 
     if (ARK_COVERAGE AND CMAKE_COMPILER_IS_CLANG)
         target_compile_options(unittests PRIVATE -coverage -fcoverage-mapping -fprofile-instr-generate)
@@ -307,6 +310,9 @@ if (ARK_BUILD_EXE)
     if (ARK_UNITY_BUILD)
         set_target_properties(arkscript PROPERTIES UNITY_BUILD ON UNITY_BUILD_MODE BATCH UNITY_BUILD_BATCH_SIZE 16)
     endif ()
+    set_target_properties(arkscript PROPERTIES
+            VS_DEBUGGER_WORKING_DIRECTORY "${ark_SOURCE_DIR}"
+            VS_DEBUGGER_COMMAND "$<TARGET_FILE:arkscript>")
 
     enable_lto(arkscript)
 
