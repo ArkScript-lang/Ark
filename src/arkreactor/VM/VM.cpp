@@ -2054,46 +2054,43 @@ namespace Ark
             std::size_t displayed_traces = 0;
             std::size_t consecutive_similar_traces = 0;
 
-            while (context.fc != 0)
+            while (context.fc != 0 && context.pp != 0)
             {
                 const auto maybe_call_loc = findSourceLocation(context.ip, context.pp);
                 const auto loc_as_text = maybe_call_loc ? fmt::format(" ({}:{})", m_state.m_filenames[maybe_call_loc->filename_id], maybe_call_loc->line + 1) : "";
 
-                if (context.pp != 0)
+                const uint16_t id = findNearestVariableIdWithValue(
+                    Value(static_cast<PageAddr_t>(context.pp)),
+                    context);
+                const auto func_name = (id < m_state.m_symbols.size()) ? m_state.m_symbols[id] : "???";
+
+                if (func_name + loc_as_text != previous_trace)
                 {
-                    const uint16_t id = findNearestVariableIdWithValue(
-                        Value(static_cast<PageAddr_t>(context.pp)),
-                        context);
-                    const auto func_name = (id < m_state.m_symbols.size()) ? m_state.m_symbols[id] : "???";
-
-                    if (func_name + loc_as_text != previous_trace)
-                    {
-                        fmt::println(
-                            os,
-                            "[{:4}] In function `{}'{}",
-                            fmt::styled(context.fc, colorize ? fmt::fg(fmt::color::cyan) : fmt::text_style()),
-                            fmt::styled(func_name, colorize ? fmt::fg(fmt::color::green) : fmt::text_style()),
-                            loc_as_text);
-                        previous_trace = func_name + loc_as_text;
-                        ++displayed_traces;
-                        consecutive_similar_traces = 0;
-                    }
-                    else if (consecutive_similar_traces == 0)
-                    {
-                        fmt::println(os, "       ...");
-                        ++consecutive_similar_traces;
-                    }
-
-                    const Value* ip;
-                    do
-                    {
-                        ip = popAndResolveAsPtr(context);
-                    } while (ip->valueType() != ValueType::InstPtr);
-
-                    context.ip = ip->pageAddr();
-                    context.pp = pop(context)->pageAddr();
-                    returnFromFuncCall(context);
+                    fmt::println(
+                        os,
+                        "[{:4}] In function `{}'{}",
+                        fmt::styled(context.fc, colorize ? fmt::fg(fmt::color::cyan) : fmt::text_style()),
+                        fmt::styled(func_name, colorize ? fmt::fg(fmt::color::green) : fmt::text_style()),
+                        loc_as_text);
+                    previous_trace = func_name + loc_as_text;
+                    ++displayed_traces;
+                    consecutive_similar_traces = 0;
                 }
+                else if (consecutive_similar_traces == 0)
+                {
+                    fmt::println(os, "       ...");
+                    ++consecutive_similar_traces;
+                }
+
+                const Value* ip;
+                do
+                {
+                    ip = popAndResolveAsPtr(context);
+                } while (ip->valueType() != ValueType::InstPtr);
+
+                context.ip = ip->pageAddr();
+                context.pp = pop(context)->pageAddr();
+                returnFromFuncCall(context);
 
                 if (displayed_traces > max_consecutive_traces)
                 {
