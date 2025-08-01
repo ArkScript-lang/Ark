@@ -70,6 +70,7 @@ namespace Ark
     {
     public:
         using Iterator = std::vector<Value>::iterator;
+        using Ref_t = Value*;
 
         using Value_t = std::variant<
             double,                //  8 bytes
@@ -79,7 +80,7 @@ namespace Ark
             internal::Closure,     // 24 bytes
             UserType,              // 24 bytes
             std::vector<Value>,    // 24 bytes
-            Value*                 //  8 bytes
+            Ref_t                  //  8 bytes
             >;                     // +8 bytes overhead
         //                      total 40 bytes
 

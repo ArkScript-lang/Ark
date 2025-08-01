@@ -204,40 +204,27 @@ int main(int argc, char** argv)
 
             case mode::dev_info:
             {
-                fmt::println(
-                    "Have been compiled with {}\n\n"
-                    "sizeof(Ark::Value)    = {}B\n"
-                    "      sizeof(Value_t) = {}B\n"
-                    "      sizeof(ValueType) = {}B\n"
-                    "      sizeof(Ark::Procedure) = {}B\n"
-                    "      sizeof(Ark::Closure)   = {}B\n"
-                    "      sizeof(Ark::UserType)  = {}B\n"
-                    "\nVirtual Machine\n"
-                    "sizeof(Ark::VM)       = {}B\n"
-                    "      sizeof(Ark::State)    = {}B\n"
-                    "      sizeof(Ark::Scope)    = {}B\n"
-                    "      sizeof(ExecutionContext) = {}B\n"
-                    "\nMisc\n"
-                    "    sizeof(vector<Ark::Value>) = {}B\n"
-                    "    sizeof(char)          = {}B\n"
-                    "\nsizeof(Node)           = {}B",
-                    ARK_COMPILER,
-                    // value
-                    sizeof(Ark::Value),
-                    sizeof(Ark::Value::Value_t),
-                    sizeof(Ark::ValueType),
-                    sizeof(Ark::Procedure),
-                    sizeof(Ark::internal::Closure),
-                    sizeof(Ark::UserType),
-                    // vm
-                    sizeof(Ark::VM),
-                    sizeof(Ark::State),
-                    sizeof(Ark::internal::ScopeView),
-                    sizeof(Ark::internal::ExecutionContext),
-                    // misc
-                    sizeof(std::vector<Ark::Value>),
-                    sizeof(char),
-                    sizeof(Ark::internal::Node));
+                fmt::println("Compiler used: {}\n", ARK_COMPILER);
+                fmt::println("{:^34}|{:^8}|{:^10}", "Type", "SizeOf", "AlignOf");
+
+#define ARK_PRINT_SIZE(type) fmt::println("{:<34}| {:<7}| {:<9}", #type, sizeof(type), alignof(type))
+                ARK_PRINT_SIZE(char);
+
+                ARK_PRINT_SIZE(Ark::Value);
+                ARK_PRINT_SIZE(Ark::Value::Value_t);
+                ARK_PRINT_SIZE(Ark::ValueType);
+                ARK_PRINT_SIZE(Ark::Procedure);
+                ARK_PRINT_SIZE(std::vector<Ark::Value>);
+                ARK_PRINT_SIZE(Ark::internal::Closure);
+                ARK_PRINT_SIZE(Ark::UserType);
+
+                ARK_PRINT_SIZE(Ark::VM);
+                ARK_PRINT_SIZE(Ark::State);
+                ARK_PRINT_SIZE(Ark::internal::ScopeView);
+                ARK_PRINT_SIZE(Ark::internal::ExecutionContext);
+
+                ARK_PRINT_SIZE(Ark::internal::Node);
+#undef ARK_PRINT_SIZE
                 break;
             }
 

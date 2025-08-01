@@ -8,8 +8,8 @@
  *
  */
 
-#ifndef VM_VALUE_USERTYPE_HPP
-#define VM_VALUE_USERTYPE_HPP
+#ifndef ARK_VM_VALUE_USERTYPE_HPP
+#define ARK_VM_VALUE_USERTYPE_HPP
 
 #include <iostream>
 #include <cinttypes>
