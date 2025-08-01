@@ -7,6 +7,7 @@
 #include <clipp.h>
 #include <fmt/core.h>
 #include <fmt/color.h>
+#include <ankerl/unordered_dense.h>
 
 #include <Ark/Utils/Files.hpp>
 #include <Ark/Compiler/BytecodeReader.hpp>
@@ -215,6 +216,7 @@ int main(int argc, char** argv)
                 ARK_PRINT_SIZE(Ark::ValueType);
                 ARK_PRINT_SIZE(Ark::Procedure);
                 ARK_PRINT_SIZE(std::vector<Ark::Value>);
+                ARK_PRINT_SIZE(Ark::Value::Dict_t);
                 ARK_PRINT_SIZE(Ark::internal::Closure);
                 ARK_PRINT_SIZE(Ark::UserType);
 

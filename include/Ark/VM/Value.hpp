@@ -17,6 +17,8 @@
 #include <cinttypes>
 #include <array>
 
+#include <ankerl/unordered_dense.h>
+
 #include <Ark/VM/Value/Closure.hpp>
 #include <Ark/VM/Value/UserType.hpp>
 #include <Ark/VM/Value/Procedure.hpp>
@@ -70,6 +72,7 @@ namespace Ark
     {
     public:
         using Iterator = std::vector<Value>::iterator;
+        using Dict_t = ankerl::unordered_dense::map<Value, Value>;
         using Ref_t = Value*;
 
         using Value_t = std::variant<
@@ -164,6 +167,7 @@ namespace Ark
 
         friend class Ark::VM;
         friend class Ark::BytecodeReader;
+        friend struct ankerl::unordered_dense::hash<Ark::Value>;
 
     private:
         ValueType m_type;
@@ -229,5 +233,25 @@ namespace Ark
         }
     }
 }
+
+template <>
+struct std::hash<std::vector<Ark::Value>>
+{
+    [[nodiscard]] std::size_t operator()(const std::vector<Ark::Value>& s) const noexcept
+    {
+        return std::hash<const Ark::Value*> {}(s.data());
+    }
+};
+
+template <>
+struct ankerl::unordered_dense::hash<Ark::Value>
+{
+    using is_avalanching = void;
+
+    [[nodiscard]] uint64_t operator()(const Ark::Value& x) const noexcept
+    {
+        return detail::wyhash::hash(std::hash<decltype(x.m_value)> {}(x.m_value));
+    }
+};
 
 #endif
