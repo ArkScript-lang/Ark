@@ -135,13 +135,22 @@ namespace Ark
         friend ARK_API bool operator==(const UserType& A, const UserType& B) noexcept;
         friend ARK_API bool operator<(const UserType& A, const UserType& B) noexcept;
         friend ARK_API std::ostream& operator<<(std::ostream& os, const UserType& A) noexcept;
+        friend struct std::hash<Ark::UserType>;
 
     private:
         uint16_t m_type_id;
         void* m_data;
         ControlFuncs* m_funcs;
     };
-
 }
+
+template <>
+struct std::hash<Ark::UserType>
+{
+    [[nodiscard]] std::size_t operator()(const Ark::UserType& s) const noexcept
+    {
+        return std::hash<void*> {}(s.m_data);
+    }
+};
 
 #endif

@@ -54,9 +54,20 @@ namespace Ark
         bool operator<(const Procedure& other) const noexcept;
         bool operator==(const Procedure& other) const noexcept;
 
+        friend struct std::hash<Ark::Procedure>;
+
     private:
         CallbackType m_procedure;
     };
 }
+
+template <>
+struct std::hash<Ark::Procedure>
+{
+    [[nodiscard]] std::size_t operator()(const Ark::Procedure& s) const noexcept
+    {
+        return std::hash<const void*> {}(static_cast<const void*>(&s));
+    }
+};
 
 #endif
