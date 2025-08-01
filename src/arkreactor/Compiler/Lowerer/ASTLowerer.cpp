@@ -8,6 +8,7 @@
 #include <fmt/core.h>
 #include <fmt/color.h>
 
+#include <Ark/Exceptions.hpp>
 #include <Ark/Utils/Literals.hpp>
 #include <Ark/Builtins/Builtins.hpp>
 
