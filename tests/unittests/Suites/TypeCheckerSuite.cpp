@@ -138,6 +138,9 @@ Input parse_input(const std::string& path)
                 case Ark::ValueType::Closure:
                     // unsupported
                     [[fallthrough]];
+                case Ark::ValueType::Dict:
+                    // unsupported
+                    [[fallthrough]];
                 case Ark::ValueType::User:
                     // unsupported
                     [[fallthrough]];

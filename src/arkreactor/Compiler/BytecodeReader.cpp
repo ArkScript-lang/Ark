@@ -371,7 +371,7 @@ namespace Ark
                             fmt::println("{}) (PageAddr) {}", j, val.pageAddr());
                             break;
                         default:
-                            fmt::print(fmt::fg(fmt::color::red), "Value type not handled: {}\n", types_to_str[static_cast<std::size_t>(val.valueType())]);
+                            fmt::print(fmt::fg(fmt::color::red), "Value type not handled: {}\n", std::to_string(val.valueType()));
                             break;
                     }
                 }

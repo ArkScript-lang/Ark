@@ -165,13 +165,13 @@ namespace Ark
                     fmt::format(
                         "`{}' is a {}, not a Closure, can not get the field `{}' from it",
                         m_state.m_symbols[context.last_symbol],
-                        types_to_str[static_cast<std::size_t>(closure->valueType())],
+                        std::to_string(closure->valueType()),
                         m_state.m_symbols[id]));
             else
                 throwVMError(ErrorKind::Type,
                              fmt::format(
                                  "{} is not a Closure, can not get the field `{}' from it",
-                                 types_to_str[static_cast<std::size_t>(closure->valueType())],
+                                 std::to_string(closure->valueType()),
                                  m_state.m_symbols[id]));
         }
 
@@ -1333,7 +1333,7 @@ namespace Ark
                     TARGET(TYPE)
                     {
                         const Value* a = popAndResolveAsPtr(context);
-                        push(Value(types_to_str[static_cast<unsigned>(a->valueType())]), context);
+                        push(Value(std::to_string(a->valueType())), context);
                         DISPATCH();
                     }
 
@@ -1818,7 +1818,7 @@ namespace Ark
                         const Value* cst = loadConstAsPtr(secondary_arg);
                         push(
                             cst->valueType() == ValueType::String &&
-                                    types_to_str[static_cast<unsigned>(sym->valueType())] == cst->string()
+                                    std::to_string(sym->valueType()) == cst->string()
                                 ? Builtins::trueSym
                                 : Builtins::falseSym,
                             context);
@@ -1832,7 +1832,7 @@ namespace Ark
                         const Value* cst = loadConstAsPtr(secondary_arg);
                         push(
                             cst->valueType() == ValueType::String &&
-                                    types_to_str[static_cast<unsigned>(sym->valueType())] == cst->string()
+                                    std::to_string(sym->valueType()) == cst->string()
                                 ? Builtins::trueSym
                                 : Builtins::falseSym,
                             context);

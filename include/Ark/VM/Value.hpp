@@ -16,6 +16,7 @@
 #include <string>
 #include <cinttypes>
 #include <array>
+#include <type_traits>
 
 #include <ankerl/unordered_dense.h>
 
@@ -31,7 +32,7 @@ namespace Ark
 
     // Order is important because we are doing some optimizations to check ranges
     // of types based on their integer values.
-    enum class ValueType
+    enum class ValueType : unsigned
     {
         List = 0,
         Number = 1,
@@ -40,15 +41,16 @@ namespace Ark
         CProc = 4,
         Closure = 5,
         User = 6,
+        Dict = 7,
 
-        Nil = 7,
-        True = 8,
-        False = 9,
-        Undefined = 10,
-        Reference = 11,
-        InstPtr = 12,
+        Nil = 8,
+        True = 9,
+        False = 10,
+        Undefined = 11,
+        Reference = 12,
+        InstPtr = 13,
 
-        Any = 99  ///< Used only for typechecking
+        Any = 14  ///< Used only for typechecking
     };
 
     constexpr std::array types_to_str = {
@@ -59,6 +61,7 @@ namespace Ark
         "CProc",
         "Closure",
         "UserType",
+        "Dict",
         "Nil",
         "Bool",
         "Bool",
@@ -226,11 +229,19 @@ namespace Ark
                 return true;
 
             case ValueType::True:
-                return false;
-
+                [[fallthrough]];
             default:
                 return false;
         }
+    }
+}
+
+namespace std
+{
+    [[nodiscard]] inline std::string to_string(const Ark::ValueType type) noexcept
+    {
+        const auto index = static_cast<std::underlying_type_t<Ark::ValueType>>(type);
+        return Ark::types_to_str[index];
     }
 }
 
