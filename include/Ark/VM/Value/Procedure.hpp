@@ -40,15 +40,14 @@ namespace Ark
          * @brief Create a new procedure.
          */
         template <typename T>
-        Procedure(T&& cb) :
+        Procedure(T&& cb) :  // cppcheck-suppress noExplicitConstructor ; we explicitly want implicit conversion to Procedure
             m_procedure(cb)
-        {
-        }
+        {}
 
         /**
          * @brief Create a new procedure from a stateless C function pointer.
          */
-        Procedure(PointerType c_ptr);
+        Procedure(PointerType c_ptr);  // cppcheck-suppress noExplicitConstructor ; we explicitly want implicit conversion to Procedure
 
         Value operator()(std::vector<Value>&, VM*) const;
 
