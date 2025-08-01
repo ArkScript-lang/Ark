@@ -22,3 +22,6 @@
 [submodule "lib/dtl"]
 	path = lib/dtl
 	url = https://github.com/cubicdaiya/dtl.git
+[submodule "lib/ankerl_unordered_dense"]
+	path = lib/ankerl_unordered_dense
+	url = https://github.com/martinus/unordered_dense.git
