@@ -36,7 +36,7 @@ Value VM::call(const std::string& name, Args&&... args)
         assert(var != nullptr && "Couldn't find variable");
 
         if (!var->isFunction())
-            throwVMError(ErrorKind::Type, fmt::format("Can't call '{}': it isn't a Function but a {}", name, types_to_str[static_cast<std::size_t>(var->valueType())]));
+            throwVMError(ErrorKind::Type, fmt::format("Can't call '{}': it isn't a Function but a {}", name, std::to_string(var->valueType())));
 
         push(Value(var), context);
         context.last_symbol = id;
@@ -60,7 +60,7 @@ Value VM::call(const std::string& name, Args&&... args)
 inline Value VM::resolve(internal::ExecutionContext* context, const std::vector<Value>& n)
 {
     if (!n[0].isFunction())
-        throw TypeError(fmt::format("VM::resolve couldn't resolve a non-function ({})", types_to_str[static_cast<std::size_t>(n[0].valueType())]));
+        throw TypeError(fmt::format("VM::resolve couldn't resolve a non-function ({})", std::to_string(n[0].valueType())));
 
     const std::size_t ip = context->ip;
     const std::size_t pp = context->pp;
@@ -308,7 +308,7 @@ inline void VM::call(internal::ExecutionContext& context, const uint16_t argc, V
                 ErrorKind::Type,
                 fmt::format(
                     "{} is not a Function but a {}",
-                    maybe_value_ptr->toString(*this), types_to_str[static_cast<std::size_t>(call_type)]));
+                    maybe_value_ptr->toString(*this), std::to_string(call_type)));
         }
     }
 

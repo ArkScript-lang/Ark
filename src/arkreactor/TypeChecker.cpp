@@ -20,7 +20,7 @@ namespace Ark::types
         {
             if (i > 0)
                 acc += ", ";
-            acc += types_to_str[static_cast<std::size_t>(types[i])];
+            acc += std::to_string(types[i]);
         }
         return acc;
     }
@@ -82,7 +82,7 @@ namespace Ark::types
                 if (i < args.size() && td.types[0] != ValueType::Any && std::ranges::find(td.types, args[i].valueType()) == td.types.end())
                 {
                     displayArg(td, /* correct= */ false);
-                    const auto type = types_to_str[static_cast<std::size_t>(args[i].valueType())];
+                    const auto type = std::to_string(args[i].valueType());
 
                     fmt::dynamic_format_arg_store<fmt::format_context> store;
                     if (colorize)
