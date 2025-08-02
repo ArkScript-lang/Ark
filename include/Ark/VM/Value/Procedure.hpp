@@ -66,7 +66,7 @@ struct std::hash<Ark::Procedure>
 {
     [[nodiscard]] std::size_t operator()(const Ark::Procedure& s) const noexcept
     {
-        return std::hash<const void*> {}(static_cast<const void*>(&s));
+        return std::hash<const void*> {}(static_cast<const void*>(&s.m_procedure));
     }
 };
 

@@ -94,6 +94,15 @@ namespace Ark::internal::Builtins
 
         // Async
         { "async", Value(Async::async) },
-        { "await", Value(Async::await) }
+        { "await", Value(Async::await) },
+
+        // Dict
+        { "dict", Value(Dict::dict) },
+        { "builtin__dict:get", Value(Dict::get) },
+        { "builtin__dict:add", Value(Dict::add) },
+        { "builtin__dict:contains", Value(Dict::contains) },
+        { "builtin__dict:remove", Value(Dict::remove) },
+        { "builtin__dict:keys", Value(Dict::keys) },
+        { "builtin__dict:size", Value(Dict::size) }
     };
 }

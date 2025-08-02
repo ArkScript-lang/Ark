@@ -118,6 +118,17 @@ namespace Ark::internal::Builtins
         ARK_BUILTIN(async);
         ARK_BUILTIN(await);
     }
+
+    namespace Dict
+    {
+        ARK_BUILTIN(dict);
+        ARK_BUILTIN(get);
+        ARK_BUILTIN(add);
+        ARK_BUILTIN(contains);
+        ARK_BUILTIN(remove);
+        ARK_BUILTIN(keys);
+        ARK_BUILTIN(size);
+    }
 }
 
 #undef ARK_BUILTIN

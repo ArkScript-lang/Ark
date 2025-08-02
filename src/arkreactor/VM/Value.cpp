@@ -1,5 +1,6 @@
 #include <Ark/VM/Value.hpp>
 #include <Ark/VM/Value/Procedure.hpp>
+#include <Ark/VM/Value/Dict.hpp>
 
 #include <fmt/format.h>
 #include <fmt/ostream.h>
@@ -14,7 +15,7 @@ namespace Ark
         m_type(type)
     {
         if (type == ValueType::List)
-            m_value = std::vector<Value>();
+            m_value = List_t();
         else if (type == ValueType::String)
             m_value = std::string();
     }
@@ -23,11 +24,11 @@ namespace Ark
         m_type(ValueType::Number), m_value(static_cast<double>(value))
     {}
 
-    Value::Value(double value) noexcept :
+    Value::Value(const double value) noexcept :
         m_type(ValueType::Number), m_value(value)
     {}
 
-    Value::Value(const std::string& value) noexcept :
+    Value::Value(const String_t& value) noexcept :
         m_type(ValueType::String), m_value(value)
     {}
 
@@ -43,7 +44,7 @@ namespace Ark
         m_type(ValueType::CProc), m_value(std::move(value))
     {}
 
-    Value::Value(std::vector<Value>&& value) noexcept :
+    Value::Value(List_t&& value) noexcept :
         m_type(ValueType::List), m_value(std::move(value))
     {}
 
@@ -55,7 +56,11 @@ namespace Ark
         m_type(ValueType::User), m_value(value)
     {}
 
-    Value::Value(Value* ref) noexcept :
+    Value::Value(Dict_t&& value) noexcept :
+        m_type(ValueType::Dict), m_value(std::make_shared<Dict_t>(std::move(value)))
+    {}
+
+    Value::Value(Ref_t ref) noexcept :
         m_type(ValueType::Reference), m_value(ref)
     {}
 
@@ -105,6 +110,9 @@ namespace Ark
 
             case ValueType::User:
                 return fmt::format("{}", fmt::streamed(usertype()));
+
+            case ValueType::Dict:
+                return dict().toString(vm);
 
             case ValueType::Nil:
                 return "nil";

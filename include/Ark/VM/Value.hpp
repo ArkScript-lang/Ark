@@ -16,9 +16,8 @@
 #include <string>
 #include <cinttypes>
 #include <array>
+#include <memory>
 #include <type_traits>
-
-#include <ankerl/unordered_dense.h>
 
 #include <Ark/VM/Value/Closure.hpp>
 #include <Ark/VM/Value/UserType.hpp>
@@ -27,9 +26,6 @@
 
 namespace Ark
 {
-    class VM;
-    class BytecodeReader;
-
     // Order is important because we are doing some optimizations to check ranges
     // of types based on their integer values.
     enum class ValueType : unsigned
@@ -70,24 +66,47 @@ namespace Ark
         "InstPtr",
         "Any"
     };
+}
+
+template <>
+struct std::hash<Ark::ValueType>
+{
+    [[nodiscard]] std::size_t operator()(const Ark::ValueType& s) const noexcept
+    {
+        return std::hash<std::underlying_type_t<Ark::ValueType>> {}(static_cast<std::underlying_type_t<Ark::ValueType>>(s));
+    }
+};
+
+namespace Ark
+{
+    class VM;
+    class BytecodeReader;
+
+    namespace internal
+    {
+        class Dict;
+    }
 
     class ARK_API Value
     {
     public:
-        using Iterator = std::vector<Value>::iterator;
-        using Dict_t = ankerl::unordered_dense::map<Value, Value>;
+        using Number_t = double;
+        using String_t = std::string;
+        using List_t = std::vector<Value>;
         using Ref_t = Value*;
+        using Dict_t = internal::Dict;
 
         using Value_t = std::variant<
-            double,                //  8 bytes
-            std::string,           // 32 bytes
-            internal::PageAddr_t,  //  2 bytes
-            Procedure,             // 32 bytes
-            internal::Closure,     // 24 bytes
-            UserType,              // 24 bytes
-            std::vector<Value>,    // 24 bytes
-            Ref_t                  //  8 bytes
-            >;                     // +8 bytes overhead
+            Number_t,                 //  8 bytes
+            String_t,                 // 32 bytes
+            internal::PageAddr_t,     //  2 bytes
+            Procedure,                // 32 bytes
+            internal::Closure,        // 24 bytes
+            UserType,                 // 24 bytes
+            List_t,                   // 24 bytes
+            std::shared_ptr<Dict_t>,  // 32 bytes
+            Ref_t                     //  8 bytes
+            >;                        // +8 bytes overhead
         //                      total 40 bytes
 
         /**
@@ -119,14 +138,15 @@ namespace Ark
 
         explicit Value(int value) noexcept;
         explicit Value(double value) noexcept;
-        explicit Value(const std::string& value) noexcept;
+        explicit Value(const String_t& value) noexcept;
         explicit Value(const char* value) noexcept;
         explicit Value(internal::PageAddr_t value) noexcept;
         explicit Value(Procedure&& value) noexcept;
-        explicit Value(std::vector<Value>&& value) noexcept;
+        explicit Value(List_t&& value) noexcept;
         explicit Value(internal::Closure&& value) noexcept;
         explicit Value(UserType&& value) noexcept;
-        explicit Value(Value* ref) noexcept;
+        explicit Value(Dict_t&& value) noexcept;
+        explicit Value(Ref_t ref) noexcept;
 
         [[nodiscard]] ValueType valueType() const noexcept { return m_type; }
         [[nodiscard]] bool isFunction() const noexcept
@@ -139,14 +159,22 @@ namespace Ark
             return m_type == ValueType::List || m_type == ValueType::String;
         }
 
-        [[nodiscard]] double number() const { return std::get<double>(m_value); }
-        [[nodiscard]] const std::string& string() const { return std::get<std::string>(m_value); }
-        [[nodiscard]] const std::vector<Value>& constList() const { return std::get<std::vector<Value>>(m_value); }
+        [[nodiscard]] Number_t number() const { return std::get<Number_t>(m_value); }
+
+        [[nodiscard]] const String_t& string() const { return std::get<String_t>(m_value); }
+        [[nodiscard]] String_t& stringRef() { return std::get<String_t>(m_value); }
+
+
+        [[nodiscard]] const List_t& constList() const { return std::get<List_t>(m_value); }
+        [[nodiscard]] List_t& list() { return std::get<List_t>(m_value); }
+
         [[nodiscard]] const UserType& usertype() const { return std::get<UserType>(m_value); }
-        [[nodiscard]] std::vector<Value>& list() { return std::get<std::vector<Value>>(m_value); }
-        [[nodiscard]] std::string& stringRef() { return std::get<std::string>(m_value); }
         [[nodiscard]] UserType& usertypeRef() { return std::get<UserType>(m_value); }
-        [[nodiscard]] Value* reference() const { return std::get<Value*>(m_value); }
+
+        [[nodiscard]] const Dict_t& dict() const { return *std::get<std::shared_ptr<Dict_t>>(m_value); }
+        [[nodiscard]] Dict_t& dictRef() { return *std::get<std::shared_ptr<Dict_t>>(m_value); }
+
+        [[nodiscard]] Ref_t reference() const { return std::get<Ref_t>(m_value); }
 
         /**
          * @brief Add an element to the list held by the value (if the value type is set to list)
@@ -170,7 +198,7 @@ namespace Ark
 
         friend class Ark::VM;
         friend class Ark::BytecodeReader;
-        friend struct ankerl::unordered_dense::hash<Ark::Value>;
+        friend struct std::hash<Ark::Value>;
 
     private:
         ValueType m_type;
@@ -255,13 +283,20 @@ struct std::hash<std::vector<Ark::Value>>
 };
 
 template <>
-struct ankerl::unordered_dense::hash<Ark::Value>
+struct std::hash<std::shared_ptr<Ark::Value::Dict_t>>
 {
-    using is_avalanching = void;
-
-    [[nodiscard]] uint64_t operator()(const Ark::Value& x) const noexcept
+    [[nodiscard]] std::size_t operator()(const std::shared_ptr<Ark::Value::Dict_t>& s) const noexcept
     {
-        return detail::wyhash::hash(std::hash<decltype(x.m_value)> {}(x.m_value));
+        return std::hash<const Ark::Value::Dict_t*> {}(s.get());
+    }
+};
+
+template <>
+struct std::hash<Ark::Value>
+{
+    [[nodiscard]] std::size_t operator()(const Ark::Value& s) const noexcept
+    {
+        return std::hash<Ark::Value::Value_t> {}(s.m_value);
     }
 };
 
