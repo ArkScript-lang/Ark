@@ -7,10 +7,10 @@
 #include <clipp.h>
 #include <fmt/core.h>
 #include <fmt/color.h>
-#include <ankerl/unordered_dense.h>
 
 #include <Ark/Utils/Files.hpp>
 #include <Ark/Compiler/BytecodeReader.hpp>
+#include <Ark/VM/Value/Dict.hpp>
 #include <CLI/JsonCompiler.hpp>
 #include <CLI/REPL/Repl.hpp>
 #include <CLI/Formatter.hpp>

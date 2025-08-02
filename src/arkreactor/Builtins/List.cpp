@@ -5,7 +5,6 @@
 #include <fmt/core.h>
 
 #include <Ark/TypeChecker.hpp>
-#include <Ark/VM/VM.hpp>
 
 namespace Ark::internal::Builtins::List
 {
@@ -17,7 +16,7 @@ namespace Ark::internal::Builtins::List
                 { { types::Contract { { types::Typedef("list", ValueType::List) } } } },
                 n);
 
-        std::reverse(n[0].list().begin(), n[0].list().end());
+        std::ranges::reverse(n[0].list());
         return n[0];
     }
 
@@ -30,7 +29,7 @@ namespace Ark::internal::Builtins::List
                 n);
 
         if (const auto it = std::ranges::find(n[0].list(), n[1]); it != n[0].list().end())
-            return Value(static_cast<int>(std::distance<Value::Iterator>(n[0].list().begin(), it)));
+            return Value(static_cast<int>(std::distance<decltype(n[0].list().begin())>(n[0].list().begin(), it)));
         return Value(-1);
     }
 
@@ -45,7 +44,7 @@ namespace Ark::internal::Builtins::List
                                         types::Typedef("step", ValueType::Number) } } } },
                 n);
 
-        long step = static_cast<long>(n[3].number());
+        const long step = static_cast<long>(n[3].number());
         if (step <= 0)
             throw std::runtime_error("list:slice: step can not be null or negative");
 
@@ -87,8 +86,9 @@ namespace Ark::internal::Builtins::List
                                         types::Typedef("value", ValueType::Any) } } } },
                 n);
 
-        auto c = static_cast<std::size_t>(n[0].number());
+        const auto c = static_cast<std::size_t>(n[0].number());
         std::vector<Value> l;
+        l.reserve(c);
         for (std::size_t i = 0; i < c; i++)
             l.push_back(n[1]);
 
