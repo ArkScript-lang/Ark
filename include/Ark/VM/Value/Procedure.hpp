@@ -40,7 +40,8 @@ namespace Ark
          * @brief Create a new procedure.
          */
         template <typename T>
-        Procedure(T&& cb) :  // cppcheck-suppress noExplicitConstructor ; we explicitly want implicit conversion to Procedure
+        // cppcheck-suppress noExplicitConstructor ; we explicitly want implicit conversion to Procedure
+        Procedure(T&& cb) :
             m_procedure(cb)
         {}
 
