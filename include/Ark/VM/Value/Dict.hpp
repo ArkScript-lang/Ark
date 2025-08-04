@@ -1,5 +1,5 @@
 /**
-* @file Dict.hpp
+ * @file Dict.hpp
  * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief Define how dictionaries are handled
  * @date 2025-08-03
@@ -89,4 +89,4 @@ namespace Ark::internal
     };
 }
 
-#endif // ARK_VM_VALUE_DICT_HPP
+#endif  // ARK_VM_VALUE_DICT_HPP
