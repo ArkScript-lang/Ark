@@ -32,9 +32,8 @@ namespace Ark::internal
     {
         std::vector<Value> keys;
         keys.reserve(m_dict.size());
+        std::ranges::copy(std::ranges::views::keys(m_dict), std::back_inserter(keys));
 
-        for (auto&& key : std::ranges::views::keys(m_dict))
-            keys.push_back(key);
         return keys;
     }
 
