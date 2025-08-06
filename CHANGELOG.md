@@ -145,6 +145,9 @@
 - renamed almost all builtins to prefix them with `builtin__`, to have them proxied in the standard library (to be able to import and scope them properly)
 - new super instruction `CALL_BUILTIN_WITHOUT_RETURN_ADDRESS` to optimize the proxied builtins, skipping the return address deletion
 - the VM no longer store a reference to the current function being called in the newly created scope
+- execution contexts can be reused for async calls if they are not active, to avoid constantly requesting memory and creating (heavy) contexts
+  - if there is more than 5 contexts, the 6th one will be destroyed once it completes
+- execution contexts are now marked as free to be reused (or deleted) once a value has been computed, without waiting for a call to `await`
 
 ### Removed
 - removed unused `NodeType::Closure`

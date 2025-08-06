@@ -15,6 +15,7 @@
 #include <limits>
 #include <memory>
 #include <optional>
+#include <atomic>
 
 #include <Ark/Constants.hpp>
 #include <Ark/VM/Value.hpp>
@@ -37,6 +38,7 @@ namespace Ark::internal
         uint16_t fc {};     ///< Frame count
         uint16_t last_symbol;
         const bool primary;  ///< Tells if the current ExecutionContext is the primary one or not
+        std::atomic_bool active;
 
         std::optional<ClosureScope> saved_scope {};                            ///< Scope created by CAPTURE <x> instructions, used by the MAKE_CLOSURE instruction
         std::vector<std::shared_ptr<ClosureScope>> stacked_closure_scopes {};  ///< Stack the closure scopes to keep the closure alive as long as we are calling them
@@ -50,7 +52,18 @@ namespace Ark::internal
             last_symbol(std::numeric_limits<uint16_t>::max()),
             primary(Count == 0)
         {
+            active.store(true);
             Count++;
+        }
+
+        [[nodiscard]] bool isFree() const
+        {
+            return !active.load();
+        }
+
+        void setActive(const bool toggle)
+        {
+            active.store(toggle);
         }
     };
 }
