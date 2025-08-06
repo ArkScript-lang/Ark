@@ -1,0 +1,9 @@
+Function dict:add expected 3 arguments but got 1
+  -> dictionary (Dict) was of type Number
+  -> key (any) was not provided
+  -> value (any) was not provided
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/dict_add_num.ark:1
+    1 | (builtin__dict:add 1)
+      | ^~~~~~~~~~~~~~~~~~~~
+    2 |

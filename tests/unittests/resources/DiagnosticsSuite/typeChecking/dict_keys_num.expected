@@ -1,0 +1,7 @@
+Function dict:keys expected 1 argument
+  -> dictionary (Dict) was of type Number
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/dict_keys_num.ark:1
+    1 | (builtin__dict:keys 1)
+      | ^~~~~~~~~~~~~~~~~~~~~
+    2 |

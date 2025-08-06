@@ -1,0 +1,8 @@
+Function dict:remove expected 2 arguments but got 1
+  -> dictionary (Dict) was of type Number
+  -> key (any) was not provided
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/dict_remove_num.ark:1
+    1 | (builtin__dict:remove 1)
+      | ^~~~~~~~~~~~~~~~~~~~~~~
+    2 |
