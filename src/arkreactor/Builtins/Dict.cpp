@@ -1,8 +1,8 @@
 #include <Ark/Builtins/Builtins.hpp>
-#include <Ark/VM/Value/Dict.hpp>
 
 #include <fmt/format.h>
 
+#include <Ark/VM/Value/Dict.hpp>
 #include <Ark/TypeChecker.hpp>
 
 namespace Ark::internal::Builtins::Dict
@@ -55,7 +55,7 @@ namespace Ark::internal::Builtins::Dict
                 n);
 
         n[0].dictRef().set(n[1], n[2]);
-        return Nil;
+        return nil;
     }
 
     Value contains(std::vector<Value>& n, VM* vm [[maybe_unused]])
@@ -67,7 +67,7 @@ namespace Ark::internal::Builtins::Dict
                                         types::Typedef("key", ValueType::Any) } } } },
                 n);
 
-        return n[0].dictRef().contains(n[1]) ? True : False;
+        return n[0].dictRef().contains(n[1]) ? trueSym : falseSym;
     }
 
     Value remove(std::vector<Value>& n, VM* vm [[maybe_unused]])
@@ -80,7 +80,7 @@ namespace Ark::internal::Builtins::Dict
                 n);
 
         n[0].dictRef().remove(n[1]);
-        return Nil;
+        return nil;
     }
 
     Value keys(std::vector<Value>& n, VM* vm [[maybe_unused]])
