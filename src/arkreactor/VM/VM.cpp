@@ -370,10 +370,7 @@ namespace Ark
         }
 
         if (ctx == nullptr)
-        {
-            m_execution_contexts.push_back(std::make_unique<ExecutionContext>());
-            ctx = m_execution_contexts.back().get();
-        }
+            ctx = m_execution_contexts.emplace_back(std::make_unique<ExecutionContext>()).get();
 
         assert(!ctx->primary && "The new context shouldn't be marked as primary!");
         assert(ctx != m_execution_contexts.front().get() && "The new context isn't really new!");

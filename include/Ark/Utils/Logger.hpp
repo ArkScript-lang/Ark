@@ -74,7 +74,7 @@ namespace Ark::internal
          * @param args
          */
         template <typename... Args>
-        void debug(const Logger::MessageAndLocation data, Args&&... args)
+        void debug(const Logger::MessageAndLocation& data, Args&&... args)
         {
             if (shouldDebug())
                 fmt::println(
