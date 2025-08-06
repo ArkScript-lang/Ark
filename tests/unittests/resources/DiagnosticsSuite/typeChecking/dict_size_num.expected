@@ -1,0 +1,7 @@
+Function dict:size expected 1 argument
+  -> dictionary (Dict) was of type Number
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/dict_size_num.ark:1
+    1 | (builtin__dict:size 1)
+      | ^~~~~~~~~~~~~~~~~~~~~
+    2 |

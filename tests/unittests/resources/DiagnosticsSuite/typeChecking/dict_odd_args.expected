@@ -1,0 +1,6 @@
+dict: require an even number of argument to construct (key, value) pairs and create a dictionary. Got 1 argument
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/dict_odd_args.ark:1
+    1 | (dict 1)
+      | ^~~~~~~
+    2 |
