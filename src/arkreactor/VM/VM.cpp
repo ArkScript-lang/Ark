@@ -344,18 +344,54 @@ namespace Ark
     {
         const std::lock_guard lock(m_mutex);
 
-        m_execution_contexts.push_back(std::make_unique<ExecutionContext>());
-        ExecutionContext* ctx = m_execution_contexts.back().get();
-        ctx->stacked_closure_scopes.emplace_back(nullptr);
+        ExecutionContext* ctx = nullptr;
 
-        ctx->locals.reserve(m_execution_contexts.front()->locals.size());
-        ctx->scopes_storage = m_execution_contexts.front()->scopes_storage;
-        for (const auto& local : m_execution_contexts.front()->locals)
+        // Try and find a free execution context.
+        // If there is only one context, this is the primary one, which can't be reused.
+        // Otherwise, we can check if a context is marked as free and reserve it!
+        // It is possible that all contexts are being used, thus we will create one (active by default) in that case.
+
+        if (m_execution_contexts.size() > 1)
         {
-            auto& scope = ctx->locals.emplace_back(ctx->scopes_storage.data(), local.m_start);
-            scope.m_size = local.m_size;
-            scope.m_min_id = local.m_min_id;
-            scope.m_max_id = local.m_max_id;
+            for (std::size_t i = 0; i < m_execution_contexts.size(); ++i)
+            {
+                if (!m_execution_contexts[i]->primary && m_execution_contexts[i]->isFree())
+                {
+                    ctx = m_execution_contexts[i].get();
+                    ctx->setActive(true);
+                    // reset the context before using it
+                    ctx->sp = 0;
+                    ctx->saved_scope.reset();
+                    ctx->stacked_closure_scopes.clear();
+                    ctx->locals.clear();
+                    break;
+                }
+            }
+        }
+
+        if (ctx == nullptr)
+        {
+            m_execution_contexts.push_back(std::make_unique<ExecutionContext>());
+            ctx = m_execution_contexts.back().get();
+        }
+
+        assert(!ctx->primary && "The new context shouldn't be marked as primary!");
+        assert(ctx != m_execution_contexts.front().get() && "The new context isn't really new!");
+
+        const ExecutionContext& primary_ctx = *m_execution_contexts.front();
+        ctx->locals.reserve(primary_ctx.locals.size());
+        ctx->scopes_storage = primary_ctx.scopes_storage;
+        ctx->stacked_closure_scopes.emplace_back(nullptr);
+        ctx->fc = 1;
+
+        for (const auto& scope_view : primary_ctx.locals)
+        {
+            auto& new_scope = ctx->locals.emplace_back(ctx->scopes_storage.data(), scope_view.m_start);
+            for (std::size_t i = 0; i < scope_view.size(); ++i)
+            {
+                const auto& [id, val] = scope_view.atPos(i);
+                new_scope.push_back(id, val);
+            }
         }
 
         return ctx;
@@ -365,14 +401,30 @@ namespace Ark
     {
         const std::lock_guard lock(m_mutex);
 
-        const auto it =
-            std::ranges::remove_if(
-                m_execution_contexts,
-                [ec](const std::unique_ptr<ExecutionContext>& ctx) {
-                    return ctx.get() == ec;
-                })
-                .begin();
-        m_execution_contexts.erase(it);
+        // 1 + 4 additional contexts, it's a bit much (~600kB per context) to have in memory
+        if (m_execution_contexts.size() > 5)
+        {
+            const auto it =
+                std::ranges::remove_if(
+                    m_execution_contexts,
+                    [ec](const std::unique_ptr<ExecutionContext>& ctx) {
+                        return ctx.get() == ec;
+                    })
+                    .begin();
+            m_execution_contexts.erase(it);
+        }
+        else
+        {
+            // mark the used context as ready to be used again
+            for (std::size_t i = 1; i < m_execution_contexts.size(); ++i)
+            {
+                if (m_execution_contexts[i].get() == ec)
+                {
+                    ec->setActive(false);
+                    break;
+                }
+            }
+        }
     }
 
     Future* VM::createFuture(std::vector<Value>& args)

@@ -37,8 +37,6 @@ namespace Ark::internal
         Value resolve();
 
     private:
-        ExecutionContext* m_context;
-        VM* m_vm;
         std::future<Value> m_value;  ///< The actual thread
     };
 }

@@ -1,5 +1,6 @@
 (import std.Testing)
 (import std.List)
+(import std.Sys :sleep)
 
 (let foo (fun (a b) (+ a b)))
 (let async-foo (async foo 1 2))
@@ -37,4 +38,20 @@
         (let time-async (- (time) start-async))
 
         (test:eq 1000 res-async)
-        (test:eq 1000 res-non-async)})})
+        (test:eq 1000 res-non-async)})
+
+    (test:case "execution contexts get reused" {
+        # this forces the VM to create more than 5 execution context,
+        # and delete the 6th
+        (async sleep 128)
+        (async sleep 128)
+        (async sleep 128)
+        (async sleep 128)
+        (async sleep 128)
+        (sleep 250)  # wait for the async call to complete
+
+        # we have 5 contexts here, and 4 that are free to be (re)used
+        (async sleep 128) (sleep 200)
+        (async sleep 128) (sleep 200)
+        (async sleep 128) (sleep 200)
+        (async sleep 128) (sleep 200) }) })
