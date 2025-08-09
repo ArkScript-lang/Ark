@@ -64,12 +64,19 @@ namespace Ark::internal
             }
 
             case NodeType::Field:
-                for (auto& child : node.list())
+                for (std::size_t i = 0, end = node.list().size(); i < end; ++i)
                 {
-                    const std::string old_name = child.string();
-                    // in case of field, no need to check if we can fully qualify names
-                    child.setString(m_scope_resolver.getFullyQualifiedNameInNearestScope(old_name));
-                    addSymbolNode(child, old_name);
+                    Node& child = node.list()[i];
+
+                    if (i == 0)
+                    {
+                        const std::string old_name = child.string();
+                        // in case of field, no need to check if we can fully qualify names
+                        child.setString(m_scope_resolver.getFullyQualifiedNameInNearestScope(old_name));
+                        addSymbolNode(child, old_name);
+                    }
+                    else
+                        addSymbolNode(child);
                 }
                 break;
 
@@ -249,10 +256,19 @@ namespace Ark::internal
                                         child.col(),
                                         child.repr()));
 
+                            // save the old unqualified name of the capture, so that we can use it in the
+                            // ASTLowerer later one
+                            if (!child.getUnqualifiedName())
+                            {
+                                child.setUnqualifiedName(child.string());
+                                m_defined_symbols.emplace(child.string());
+                            }
                             // update the declared variable name to use the fully qualified name
                             // this will prevent name conflicts, and handle scope resolution
+                            std::string old_name = child.string();
                             std::string fqn = updateSymbolWithFullyQualifiedName(child);
-                            addDefinedSymbol(fqn, true);
+                            // FIXME: addDefinedSymbol(fqn, true); ?
+                            addDefinedSymbol(old_name, true);
                         }
                         else if (child.nodeType() == NodeType::Symbol)
                             addDefinedSymbol(child.string(), /* is_mutable= */ true);

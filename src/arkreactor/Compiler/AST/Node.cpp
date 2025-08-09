@@ -98,6 +98,11 @@ namespace Ark::internal
             constList()[0].keyword() == Keyword::Fun;
     }
 
+    const std::optional<std::string>& Node::getUnqualifiedName() const noexcept
+    {
+        return m_unqualified_name;
+    }
+
     void Node::updateValueAndType(const Node& source) noexcept
     {
         m_type = source.m_type;
@@ -107,6 +112,11 @@ namespace Ark::internal
     void Node::setNodeType(const NodeType type) noexcept
     {
         m_type = type;
+    }
+
+    void Node::setUnqualifiedName(const std::string& name) noexcept
+    {
+        m_unqualified_name = name;
     }
 
     void Node::setString(const std::string& value) noexcept

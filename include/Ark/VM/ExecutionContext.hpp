@@ -40,7 +40,8 @@ namespace Ark::internal
         const bool primary;  ///< Tells if the current ExecutionContext is the primary one or not
         std::atomic_bool active;
 
-        std::optional<ClosureScope> saved_scope {};                            ///< Scope created by CAPTURE <x> instructions, used by the MAKE_CLOSURE instruction
+        std::optional<ClosureScope> saved_scope {};  ///< Scope created by CAPTURE <x> instructions, used by the MAKE_CLOSURE instruction
+        std::optional<uint16_t> capture_rename_id {};
         std::vector<std::shared_ptr<ClosureScope>> stacked_closure_scopes {};  ///< Stack the closure scopes to keep the closure alive as long as we are calling them
 
         std::vector<ScopeView> locals {};

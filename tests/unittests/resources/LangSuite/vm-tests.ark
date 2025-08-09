@@ -128,11 +128,11 @@
         (test:eq (type true) "Bool")
         (test:eq (type false) "Bool")
         (test:eq (type (dict)) "Dict")
-        (test:expect (hasField closure "vm-tests:tests"))
+        (test:expect (hasField closure "tests"))
         (test:expect (not (hasField closure "12"))) })
 
     (test:case "closures" {
-        (test:eq (toString closure) "(.vm-tests:tests=0)")
+        (test:eq (toString closure) "(.tests=0)")
         (test:eq closure_1 closure_1_bis)
         (test:eq closure_1 closure_2)
         (test:neq closure_1 closure_4)

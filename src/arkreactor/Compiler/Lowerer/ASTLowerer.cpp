@@ -373,7 +373,20 @@ namespace Ark::internal
         {
             if (node.nodeType() == NodeType::Capture)
             {
-                page(p).emplace_back(CAPTURE, addSymbol(node));
+                const uint16_t symbol_id = addSymbol(node);
+
+                // We have an unqualified name that isn't the captured name
+                // This means we need to rename the captured value
+                if (const auto& maybe_nqn = node.getUnqualifiedName(); maybe_nqn.has_value() && maybe_nqn.value() != node.string())
+                {
+                    const uint16_t nqn_id = addSymbol(Node(NodeType::Symbol, maybe_nqn.value()));
+
+                    page(p).emplace_back(RENAME_NEXT_CAPTURE, nqn_id);
+                    page(p).emplace_back(CAPTURE, symbol_id);
+                }
+                else
+                    page(p).emplace_back(CAPTURE, symbol_id);
+
                 ++capture_inst_count;
             }
         }

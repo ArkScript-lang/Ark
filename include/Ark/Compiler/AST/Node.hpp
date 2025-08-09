@@ -15,6 +15,7 @@
 #include <ostream>
 #include <string>
 #include <vector>
+#include <optional>
 
 #include <Ark/Compiler/AST/Namespace.hpp>
 #include <Ark/Compiler/Common.hpp>
@@ -126,6 +127,13 @@ namespace Ark::internal
         [[nodiscard]] bool isFunction() const noexcept;
 
         /**
+         * @brief Get the unqualified name, if it has been set
+         *
+         * @return const std::optional<std::string>&
+         */
+        [[nodiscard]] const std::optional<std::string>& getUnqualifiedName() const noexcept;
+
+        /**
          * @brief Copy a node to the current one, while keeping the filename and position in the file
          *
          * @param source node to copy type and value from
@@ -138,6 +146,13 @@ namespace Ark::internal
          * @param type
          */
         void setNodeType(NodeType type) noexcept;
+
+        /**
+         * @brief Set the unqualified name (used by Capture nodes)
+         *
+         * @param name
+         */
+        void setUnqualifiedName(const std::string& name) noexcept;
 
         /**
          * @brief Set the String object
@@ -252,6 +267,7 @@ namespace Ark::internal
     private:
         NodeType m_type { NodeType::Unused };
         Value m_value;
+        std::optional<std::string> m_unqualified_name { std::nullopt };  ///< Used by Capture nodes, to have the FQN in the value, and the captured name here
         // position of the node in the original code, useful when it comes to parser errors
         std::size_t m_line = 0, m_col = 0;
         std::string m_filename;
