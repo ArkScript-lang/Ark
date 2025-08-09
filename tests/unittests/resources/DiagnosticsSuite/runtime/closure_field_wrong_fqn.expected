@@ -1,9 +1,0 @@
-ScopeError: `b:b' isn't in the closure environment: (.a=hello .b=1). A variable in the package might have the same name as 'b:b', and name resolution tried to fully qualify it. Rename either the variable or the capture to solve this
-
-In file tests/unittests/resources/DiagnosticsSuite/runtime/closure_field_wrong_fqn/b.ark:10
-    7 | (let make (fun (a b)
-    8 |     (fun (&a &b) ())))
-    9 | (let foo (make "hello" 1))
-   10 | (let c [foo.a foo.b])
-      | ^~~~~~~~~~~~~~~~~~~~
-   11 |

@@ -549,6 +549,7 @@ namespace Ark
                 &&TARGET_PUSH_RETURN_ADDRESS,
                 &&TARGET_CALL,
                 &&TARGET_CAPTURE,
+                &&TARGET_RENAME_NEXT_CAPTURE,
                 &&TARGET_BUILTIN,
                 &&TARGET_DEL,
                 &&TARGET_MAKE_CLOSURE,
@@ -785,9 +786,17 @@ namespace Ark
                         else
                         {
                             ptr = ptr->valueType() == ValueType::Reference ? ptr->reference() : ptr;
-                            context.saved_scope.value().push_back(arg, *ptr);
+                            uint16_t id = context.capture_rename_id.value_or(arg);
+                            context.saved_scope.value().push_back(id, *ptr);
+                            context.capture_rename_id.reset();
                         }
 
+                        DISPATCH();
+                    }
+
+                    TARGET(RENAME_NEXT_CAPTURE)
+                    {
+                        context.capture_rename_id = arg;
                         DISPATCH();
                     }
 
