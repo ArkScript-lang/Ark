@@ -93,7 +93,8 @@
         (test:eq (toString true) "true")
         (test:eq (toString false) "false")
         (test:eq (toString [1 2]) "[1 2]")
-        (test:eq (toString ["12"]) "[\"12\"]") })
+        (test:eq (toString ["12"]) "[\"12\"]")
+        (test:eq (toString (dict "key" "value")) "{key: value}") })
 
     (test:case "indexing" {
         (test:eq (@ "hello" 1) "e")
@@ -126,6 +127,7 @@
         (test:eq (type nil) "Nil")
         (test:eq (type true) "Bool")
         (test:eq (type false) "Bool")
+        (test:eq (type (dict)) "Dict")
         (test:expect (hasField closure "vm-tests:tests"))
         (test:expect (not (hasField closure "12"))) })
 
@@ -145,6 +147,14 @@
         (test:eq (parent.child.get) [1 0])
         (parent.child.call)
         (test:eq (parent.child.get) [5 12]) })
+
+    (test:case "closure capture" {
+        (mut keep true)
+        (mut foo nil)
+        (while keep {
+            (set foo (fun (&keep) keep))
+            (set keep false) })
+        (test:expect foo.keep "capture inside a deeper scope works") })
 
     (test:case "increment and decrement vars" {
         (mut var 0)
