@@ -8,14 +8,15 @@
  *
  */
 
-#ifndef INCLUDE_ARK_ARK_HPP
-#define INCLUDE_ARK_ARK_HPP
+#ifndef ARK_ARK_HPP
+#define ARK_ARK_HPP
 
 #include <Ark/Exceptions.hpp>
 #include <Ark/Constants.hpp>
 #include <Ark/Utils/Utils.hpp>
 #include <Ark/VM/VM.hpp>
+#include <Ark/VM/DefaultValues.hpp>
 #include <Ark/Compiler/Welder.hpp>
 #include <Ark/TypeChecker.hpp>
 
-#endif
+#endif  // ARK_ARK_HPP

@@ -1,6 +1,7 @@
 #include <Ark/VM/Future.hpp>
 
 #include <Ark/VM/VM.hpp>
+#include <Ark/VM/DefaultValues.hpp>
 
 namespace Ark::internal
 {
