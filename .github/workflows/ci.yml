@@ -1,4 +1,4 @@
-name: "Building and testing ArkScript"
+name: "Testing ArkScript"
 
 on:
   push:
@@ -165,7 +165,7 @@ jobs:
           # Generic
           cp lib/*.arkm artifact/lib
           cp lib/std/*.ark artifact/lib/std
-          rm -rf artifact/lib/std/{.git,.github,tests/__arkscript__}
+          cp tests/unittests/*.arkm artifact/lib
 
       - name: Organize temp artifact
         shell: bash
@@ -173,6 +173,7 @@ jobs:
           mkdir -p temp/tests/unittests/
           cp build/unittests temp/ || true
           cp build/$BUILD_TYPE/unittests.exe temp/ || true
+          cp tests/unittests/*.arkm temp/tests/unittests
           cp -r tests/unittests temp/tests/unittests
 
       - name: Upload artifact

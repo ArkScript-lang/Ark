@@ -1,7 +1,8 @@
 (import std.Testing)
 
 (let tests 0)
-(let closure (fun (&tests) ()))
+(let foo 12)
+(let closure (fun (&tests &foo) ()))
 (let make (fun (a b c)
     (fun (&a &b &c) ())))
 (let make2 (fun (a b c)
@@ -132,7 +133,7 @@
         (test:expect (not (hasField closure "12"))) })
 
     (test:case "closures" {
-        (test:eq (toString closure) "(.tests=0)")
+        (test:eq (toString closure) "(.tests=0 .foo=12)")
         (test:eq closure_1 closure_1_bis)
         (test:eq closure_1 closure_2)
         (test:neq closure_1 closure_4)
