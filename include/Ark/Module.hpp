@@ -1,6 +1,7 @@
 #ifndef INCLUDE_ARK_MODULE_HPP
 #define INCLUDE_ARK_MODULE_HPP
 
+#include <Ark/VM/DefaultValues.hpp>
 #include <Ark/VM/VM.hpp>
 #include <Ark/TypeChecker.hpp>
 

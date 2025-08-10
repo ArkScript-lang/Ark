@@ -388,15 +388,6 @@ namespace Ark
     };
 
 #include "VM.inl"
-
-    // todo: move to a separate file
-
-    /// ArkScript Nil value
-    const auto Nil = Value(ValueType::Nil);
-    /// ArkScript False value
-    const auto False = Value(ValueType::False);
-    /// ArkScript True value
-    const auto True = Value(ValueType::True);
 }
 
 #endif

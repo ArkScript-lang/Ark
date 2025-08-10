@@ -1,6 +1,6 @@
 #include <Ark/VM/Value/Dict.hpp>
 
-#include <Ark/VM/VM.hpp>
+#include <Ark/VM/DefaultValues.hpp>
 
 #include <ranges>
 
