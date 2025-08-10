@@ -353,19 +353,21 @@ namespace Ark
 
         if (m_execution_contexts.size() > 1)
         {
-            for (std::size_t i = 0; i < m_execution_contexts.size(); ++i)
+            const auto it = std::ranges::find_if(
+                m_execution_contexts,
+                [](const std::unique_ptr<ExecutionContext>& context) -> bool {
+                    return !context->primary && context->isFree();
+                });
+
+            if (it != m_execution_contexts.end())
             {
-                if (!m_execution_contexts[i]->primary && m_execution_contexts[i]->isFree())
-                {
-                    ctx = m_execution_contexts[i].get();
-                    ctx->setActive(true);
-                    // reset the context before using it
-                    ctx->sp = 0;
-                    ctx->saved_scope.reset();
-                    ctx->stacked_closure_scopes.clear();
-                    ctx->locals.clear();
-                    break;
-                }
+                ctx = it->get();
+                ctx->setActive(true);
+                // reset the context before using it
+                ctx->sp = 0;
+                ctx->saved_scope.reset();
+                ctx->stacked_closure_scopes.clear();
+                ctx->locals.clear();
             }
         }
 

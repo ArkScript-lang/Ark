@@ -78,6 +78,7 @@ namespace Ark::internal::Builtins::IO
         return Value(line);
     }
 
+    // cppcheck-suppress constParameterReference
     Value writeFile(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (types::check(n, ValueType::String, ValueType::Any))
@@ -102,6 +103,7 @@ namespace Ark::internal::Builtins::IO
         return nil;
     }
 
+    // cppcheck-suppress constParameterReference
     Value appendToFile(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (types::check(n, ValueType::String, ValueType::Any))

@@ -144,17 +144,20 @@ namespace Ark::internal
                 // if we had specific symbols to import, check that those exist
                 if (!namespace_.symbols.empty())
                 {
-                    for (const auto& sym : namespace_.symbols)
-                    {
-                        if (!scope->get(sym, true).has_value())
-                            throw CodeError(
-                                fmt::format("ImportError: Can not import symbol {} from {}, as it isn't in the package", sym, namespace_.name),
-                                CodeErrorContext(
-                                    namespace_.ast->filename(),
-                                    namespace_.ast->line(),
-                                    namespace_.ast->col(),
-                                    "import"));
-                    }
+                    const auto it = std::ranges::find_if(
+                        namespace_.symbols,
+                        [&scope](const std::string& sym) -> bool {
+                            return !scope->get(sym, true).has_value();
+                        });
+
+                    if (it != namespace_.symbols.end())
+                        throw CodeError(
+                            fmt::format("ImportError: Can not import symbol {} from {}, as it isn't in the package", *it, namespace_.name),
+                            CodeErrorContext(
+                                namespace_.ast->filename(),
+                                namespace_.ast->line(),
+                                namespace_.ast->col(),
+                                "import"));
                 }
 
                 m_scope_resolver.saveNamespaceAndRemove();
@@ -266,7 +269,7 @@ namespace Ark::internal
                             // update the declared variable name to use the fully qualified name
                             // this will prevent name conflicts, and handle scope resolution
                             std::string old_name = child.string();
-                            std::string fqn = updateSymbolWithFullyQualifiedName(child);
+                            updateSymbolWithFullyQualifiedName(child);
                             // FIXME: addDefinedSymbol(fqn, true); ?
                             addDefinedSymbol(old_name, true);
                         }

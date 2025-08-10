@@ -241,7 +241,7 @@ namespace Ark::internal
                 x);
     }
 
-    void ASTLowerer::compileSymbol(Node& x, const Page p, const bool is_result_unused)
+    void ASTLowerer::compileSymbol(const Node& x, const Page p, const bool is_result_unused)
     {
         const std::string& name = x.string();
 
@@ -504,7 +504,7 @@ namespace Ark::internal
         m_locals_locator.deleteScope();
     }
 
-    void ASTLowerer::compilePluginImport(Node& x, const Page p)
+    void ASTLowerer::compilePluginImport(const Node& x, const Page p)
     {
         std::string path;
         const Node package_node = x.constList()[1];

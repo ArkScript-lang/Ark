@@ -4,6 +4,7 @@
 
 namespace Ark::internal
 {
+    // cppcheck-suppress constParameterReference
     Future::Future(ExecutionContext* context, VM* vm, std::vector<Value>& args)
     {
         m_value = std::async(
