@@ -1,5 +1,5 @@
 /**
- * @file Plugin.hpp
+ * @file SharedLibrary.hpp
  * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief Loads .dll/.so/.dynlib files
  * @date 2020-10-27
@@ -8,8 +8,8 @@
  *
  */
 
-#ifndef ARK_VM_PLUGIN_HPP
-#define ARK_VM_PLUGIN_HPP
+#ifndef ARK_VM_SHAREDLIBRARY_HPP
+#define ARK_VM_SHAREDLIBRARY_HPP
 
 #include <Ark/Utils/Platform.hpp>
 
@@ -29,7 +29,7 @@
 namespace Ark::internal
 {
     /**
-     * @brief Handling a shared library as an ArkScript plugin
+     * @brief Handling a shared library as an ArkScript VM plugin
      *
      */
     class SharedLibrary
@@ -103,7 +103,7 @@ namespace Ark::internal
             if (NULL == (funcptr = reinterpret_cast<T>(dlsym(m_instance, procname.c_str()))))
             {
                 throw std::system_error(
-                    std::error_code(errno, std::system_category()), fmt::format("PluginError: Couldn't find {}, {}", procname, dlerror()));
+                    std::error_code(errno, std::system_category()), fmt::format("SharedLibraryError: Couldn't find {}, {}", procname, dlerror()));
             }
 #endif
             return funcptr;
@@ -120,4 +120,4 @@ namespace Ark::internal
     };
 }
 
-#endif
+#endif  // ARK_VM_SHAREDLIBRARY_HPP

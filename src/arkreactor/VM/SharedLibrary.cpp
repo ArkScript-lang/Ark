@@ -1,4 +1,4 @@
-#include <Ark/VM/Plugin.hpp>
+#include <Ark/VM/SharedLibrary.hpp>
 
 #include <sstream>
 #include <iostream>
@@ -34,7 +34,7 @@ namespace Ark::internal
         if (NULL == (m_instance = LoadLibrary(m_path.c_str())))
         {
             throw std::system_error(
-                std::error_code(::GetLastError(), std::system_category()), "Couldn't load the library at " + path);
+                std::error_code(::GetLastError(), std::system_category()), fmt::format("Couldn't load the library at {}", path));
         }
 #elif defined(ARK_OS_LINUX)
         if (nullptr == (m_instance = dlopen(m_path.c_str(), RTLD_LAZY | RTLD_GLOBAL)))
