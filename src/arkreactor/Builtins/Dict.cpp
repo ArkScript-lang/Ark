@@ -17,6 +17,7 @@ namespace Ark::internal::Builtins::Dict
      * =end
      * @author https://github.com/SuperFola
      */
+    // cppcheck-suppress constParameterReference
     Value dict(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (n.size() % 2 != 0)

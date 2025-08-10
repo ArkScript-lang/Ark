@@ -180,13 +180,13 @@ namespace Ark::internal
          */
         void compileExpression(Node& x, Page p, bool is_result_unused, bool is_terminal);
 
-        void compileSymbol(Node& x, Page p, bool is_result_unused);
+        void compileSymbol(const Node& x, Page p, bool is_result_unused);
         void compileListInstruction(Node& x, Page p, bool is_result_unused);
         void compileIf(Node& x, Page p, bool is_result_unused, bool is_terminal);
         void compileFunction(Node& x, Page p, bool is_result_unused);
         void compileLetMutSet(Keyword n, Node& x, Page p);
         void compileWhile(Node& x, Page p);
-        void compilePluginImport(Node& x, Page p);
+        void compilePluginImport(const Node& x, Page p);
         void pushFunctionCallArguments(Node& call, Page p, bool is_tail_call);
         void handleCalls(Node& x, Page p, bool is_result_unused, bool is_terminal);
 
