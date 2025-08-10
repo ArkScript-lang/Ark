@@ -1,7 +1,6 @@
 #include <iostream>
 #include <optional>
 #include <filesystem>
-#include <limits>
 #include <cstdlib>
 
 #include <clipp.h>
@@ -16,9 +15,9 @@
 #include <CLI/Formatter.hpp>
 
 #ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
-#    define ARK_ERROR_EXIT_CODE 0
+constexpr int ArkErrorExitCode = 0;
 #else
-#    define ARK_ERROR_EXIT_CODE (-1)
+constexpr int ArkErrorExitCode = -1;
 #endif
 
 int main(int argc, char** argv)
@@ -42,13 +41,11 @@ int main(int argc, char** argv)
 
     unsigned debug = 0;
 
-    constexpr uint16_t max_uint16 = std::numeric_limits<uint16_t>::max();
-
     // Bytecode reader
     // by default, select all pages and segment types, without slicing anything
-    uint16_t bcr_page = max_uint16;
-    uint16_t bcr_start = max_uint16;
-    uint16_t bcr_end = max_uint16;
+    uint16_t bcr_page = Ark::MaxValue16Bits;
+    uint16_t bcr_start = Ark::MaxValue16Bits;
+    uint16_t bcr_end = Ark::MaxValue16Bits;
     auto segment = Ark::BytecodeSegment::All;
     // Eval / Run / AST dump
     std::string file, eval_expression;
@@ -242,8 +239,7 @@ int main(int argc, char** argv)
                 state.setDebug(debug);
 
                 if (!state.doFile(file, passes))
-                    return ARK_ERROR_EXIT_CODE;
-
+                    return ArkErrorExitCode;
                 break;
             }
 
@@ -254,7 +250,7 @@ int main(int argc, char** argv)
                 state.setArgs(script_args);
 
                 if (!state.doFile(file, passes))
-                    return ARK_ERROR_EXIT_CODE;
+                    return ArkErrorExitCode;
 
                 Ark::VM vm(state);
                 return vm.run();
@@ -268,7 +264,7 @@ int main(int argc, char** argv)
                 if (!state.doString(eval_expression))
                 {
                     std::cerr << "Could not evaluate expression\n";
-                    return ARK_ERROR_EXIT_CODE;
+                    return ArkErrorExitCode;
                 }
 
                 Ark::VM vm(state);
@@ -300,11 +296,11 @@ int main(int argc, char** argv)
                         bcr.feed(welder.bytecode());
                     }
 
-                    if (bcr_page == max_uint16 && bcr_start == max_uint16)
+                    if (bcr_page == Ark::MaxValue16Bits && bcr_start == Ark::MaxValue16Bits)
                         bcr.display(segment);
-                    else if (bcr_page != max_uint16 && bcr_start == max_uint16)
+                    else if (bcr_page != Ark::MaxValue16Bits && bcr_start == Ark::MaxValue16Bits)
                         bcr.display(segment, std::nullopt, std::nullopt, bcr_page);
-                    else if (bcr_page == max_uint16 && bcr_start != max_uint16)
+                    else if (bcr_page == Ark::MaxValue16Bits && bcr_start != Ark::MaxValue16Bits)
                         bcr.display(segment, bcr_start, bcr_end);
                     else
                         bcr.display(segment, bcr_start, bcr_end, bcr_page);
@@ -312,7 +308,7 @@ int main(int argc, char** argv)
                 catch (const std::exception& e)
                 {
                     std::cerr << e.what() << std::endl;
-                    return ARK_ERROR_EXIT_CODE;
+                    return ArkErrorExitCode;
                 }
                 break;
             }

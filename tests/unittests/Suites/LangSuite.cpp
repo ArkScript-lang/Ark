@@ -11,7 +11,7 @@ ut::suite<"Lang"> lang_suite = [] {
     using namespace ut;
 
     "[run arkscript unittests]"_test = [] {
-        Ark::State state({ lib_path });
+        Ark::State state({ lib_path, unittests_path });
 
         try
         {

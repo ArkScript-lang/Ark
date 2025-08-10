@@ -1,0 +1,8 @@
+(import std.Testing)
+
+(test:suite module {
+    (test:case "import and call plugin" {
+        (import testmodule)
+
+        (test:eq (testmodule:foo 1) 1)
+        (test:eq (testmodule:foo) nil) })})

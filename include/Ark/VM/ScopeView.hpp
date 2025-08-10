@@ -47,7 +47,7 @@ namespace Ark::internal
          * @param id The symbol id of the variable
          * @param val The value linked to the symbol
          */
-        void push_back(uint16_t id, Value&& val) noexcept;
+        void pushBack(uint16_t id, Value&& val) noexcept;
 
         /**
          * @brief Put a value in the scope
@@ -55,7 +55,15 @@ namespace Ark::internal
          * @param id The symbol id of the variable
          * @param val The value linked to the symbol
          */
-        void push_back(uint16_t id, const Value& val) noexcept;
+        void pushBack(uint16_t id, const Value& val) noexcept;
+
+        /**
+         * @brief Insert one or more pairs at the beginning of the scope
+         * @details This can ONLY be called on the last known scope, otherwise it will override the data of the next scope!
+         *
+         * @param values
+         */
+        void insertFront(const std::vector<pair_t>& values) noexcept;
 
         /**
          * @brief Check if the scope maybe holds a specific symbol in memory

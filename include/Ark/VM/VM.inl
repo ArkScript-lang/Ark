@@ -29,7 +29,7 @@ Value VM::call(const std::string& name, Args&&... args)
     }
 
     // find function object and push it if it's a pageaddr/closure
-    if (const auto dist = std::distance(m_state.m_symbols.begin(), it); std::cmp_less(dist, std::numeric_limits<uint16_t>::max()))
+    if (const auto dist = std::distance(m_state.m_symbols.begin(), it); std::cmp_less(dist, MaxValue16Bits))
     {
         const uint16_t id = static_cast<uint16_t>(dist);
         Value* var = findNearestVariable(id, context);
@@ -130,7 +130,7 @@ inline void VM::store(const uint16_t id, const Value* val, internal::ExecutionCo
     // avoid adding the pair (id, _) multiple times, with different values
     Value* local = context.locals.back()[id];
     if (local == nullptr) [[likely]]
-        context.locals.back().push_back(id, *val);
+        context.locals.back().pushBack(id, *val);
     else
         *local = *val;
 }

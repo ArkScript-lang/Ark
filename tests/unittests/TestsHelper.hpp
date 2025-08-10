@@ -18,6 +18,7 @@
 #endif
 
 const auto lib_path = std::filesystem::path(ARK_TESTS_ROOT "/lib/");
+const auto unittests_path = std::filesystem::path(ARK_TESTS_ROOT "/tests/unittests/");
 
 struct TestData
 {

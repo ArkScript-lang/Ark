@@ -12,7 +12,6 @@
 #define ARK_VM_EXECUTIONCONTEXT_HPP
 
 #include <array>
-#include <limits>
 #include <memory>
 #include <optional>
 #include <atomic>
@@ -21,10 +20,6 @@
 #include <Ark/VM/Value.hpp>
 #include <Ark/VM/ScopeView.hpp>
 #include <Ark/VM/Value/ClosureScope.hpp>
-
-#ifdef max
-#    undef max
-#endif
 
 namespace Ark::internal
 {
@@ -50,7 +45,7 @@ namespace Ark::internal
         std::array<Value, VMStackSize> stack {};
 
         ExecutionContext() noexcept :
-            last_symbol(std::numeric_limits<uint16_t>::max()),
+            last_symbol(MaxValue16Bits),
             primary(Count == 0)
         {
             active.store(true);

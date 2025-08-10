@@ -235,6 +235,8 @@ if (ARK_EMSCRIPTEN)
 endif ()
 
 if (ARK_TESTS)
+    add_subdirectory(${ark_SOURCE_DIR}/tests/unittests/TestModule)
+
     file(GLOB_RECURSE SOURCES
             ${ark_SOURCE_DIR}/tests/unittests/*.cpp
             ${ark_SOURCE_DIR}/tests/unittests/Suites/*.cpp
