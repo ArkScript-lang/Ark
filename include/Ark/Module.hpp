@@ -5,14 +5,7 @@
 #include <Ark/VM/VM.hpp>
 #include <Ark/TypeChecker.hpp>
 
-namespace Ark
-{
-    struct mapping
-    {
-        const char* name;
-        Value (*value)(std::vector<Value>&, VM*);
-    };
-}
+#include <Ark/VM/ModuleMapping.hpp>
 
 #undef ARK_API
 
