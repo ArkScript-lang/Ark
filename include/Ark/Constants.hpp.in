@@ -43,6 +43,10 @@ constexpr std::string_view ARK_FULL_VERSION { "@ARK_VERSION_MAJOR@.@ARK_VERSION_
 #include <cinttypes>
 #include <cstddef>
 
+#ifdef max
+#    undef max
+#endif
+
 namespace Ark
 {
     // Compiler options
