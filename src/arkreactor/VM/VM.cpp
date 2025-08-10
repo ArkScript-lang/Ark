@@ -2,7 +2,6 @@
 
 #include <utility>
 #include <numeric>
-#include <limits>
 #include <fmt/core.h>
 #include <fmt/color.h>
 #include <fmt/ostream.h>
@@ -151,7 +150,7 @@ namespace Ark
         {
             auto it = std::ranges::find(m_state.m_symbols, sym_id);
             if (it != m_state.m_symbols.end())
-                context.locals[0].push_back(static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it)), value);
+                context.locals[0].pushBack(static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it)), value);
         }
     }
 
@@ -242,7 +241,7 @@ namespace Ark
         }
 
         const auto dist = std::distance(m_state.m_symbols.begin(), it);
-        if (std::cmp_less(dist, std::numeric_limits<uint16_t>::max()))
+        if (std::cmp_less(dist, MaxValue16Bits))
         {
             ExecutionContext& context = *m_execution_contexts.front();
 
@@ -311,18 +310,20 @@ namespace Ark
         // load the mapping from the dynamic library
         try
         {
+            std::vector<ScopeView::pair_t> data;
             const mapping* map = m_shared_lib_objects.back()->get<mapping* (*)()>("getFunctionsMapping")();
-            // load the mapping data
+
             std::size_t i = 0;
             while (map[i].name != nullptr)
             {
-                // put it in the global frame, aka the first one
-                auto it = std::ranges::find(m_state.m_symbols, std::string(map[i].name));
+                const auto it = std::ranges::find(m_state.m_symbols, std::string(map[i].name));
                 if (it != m_state.m_symbols.end())
-                    context.locals[0].push_back(static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it)), Value(map[i].value));
+                    data.emplace_back(static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it)), Value(map[i].value));
 
                 ++i;
             }
+
+            context.locals.back().insertFront(data);
         }
         catch (const std::system_error& e)
         {
@@ -389,7 +390,7 @@ namespace Ark
             for (std::size_t i = 0; i < scope_view.size(); ++i)
             {
                 const auto& [id, val] = scope_view.atPos(i);
-                new_scope.push_back(id, val);
+                new_scope.pushBack(id, val);
             }
         }
 
@@ -470,7 +471,7 @@ namespace Ark
                     // put it in the global frame, aka the first one
                     auto it = std::ranges::find(m_state.m_symbols, std::string(map[i].name));
                     if (it != m_state.m_symbols.end())
-                        m_execution_contexts[0]->locals[0].push_back(
+                        m_execution_contexts[0]->locals[0].pushBack(
                             static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it)),
                             Value(map[i].value));
 
@@ -1969,7 +1970,7 @@ namespace Ark
             if (const auto id = local.idFromValue(value); id < m_state.m_symbols.size())
                 return id;
         }
-        return std::numeric_limits<uint16_t>::max();
+        return MaxValue16Bits;
     }
 
     void VM::throwArityError(std::size_t passed_arg_count, std::size_t expected_arg_count, internal::ExecutionContext& context)

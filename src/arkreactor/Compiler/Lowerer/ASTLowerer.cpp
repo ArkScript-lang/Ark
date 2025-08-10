@@ -1,9 +1,7 @@
 #include <Ark/Compiler/Lowerer/ASTLowerer.hpp>
 
-#include <limits>
 #include <ranges>
 #include <utility>
-#include <ranges>
 #include <algorithm>
 #include <fmt/core.h>
 #include <fmt/color.h>
@@ -276,8 +274,8 @@ namespace Ark::internal
         // error, can not use append/concat/pop (and their in place versions) with a <2 length argument list
         if (argc < 2 && APPEND <= inst && inst <= POP)
             buildAndThrowError(fmt::format("Can not use {} with less than 2 arguments", name), head);
-        if (inst <= POP && std::cmp_greater(argc, std::numeric_limits<uint16_t>::max()))
-            buildAndThrowError(fmt::format("Too many arguments ({}), exceeds 65'535", argc), x);
+        if (inst <= POP && std::cmp_greater(argc, MaxValue16Bits))
+            buildAndThrowError(fmt::format("Too many arguments ({}), exceeds {}", argc, MaxValue16Bits), x);
         if (argc != 3 && inst == SET_AT_INDEX)
             buildAndThrowError(fmt::format("Expected 3 arguments (list, index, value) for {}, got {}", name, argc), head);
         if (argc != 4 && inst == SET_AT_2_INDEX)
@@ -734,9 +732,9 @@ namespace Ark::internal
         }
 
         const auto distance = std::distance(m_symbols.begin(), it);
-        if (distance < std::numeric_limits<uint16_t>::max())
+        if (std::cmp_less(distance, MaxValue16Bits))
             return static_cast<uint16_t>(distance);
-        buildAndThrowError("Too many symbols (exceeds 65'536), aborting compilation.", sym);
+        buildAndThrowError(fmt::format("Too many symbols (exceeds {}), aborting compilation.", MaxValue16Bits), sym);
     }
 
     uint16_t ASTLowerer::addValue(const Node& x)
@@ -750,9 +748,9 @@ namespace Ark::internal
         }
 
         const auto distance = std::distance(m_values.begin(), it);
-        if (distance < std::numeric_limits<uint16_t>::max())
+        if (std::cmp_less(distance, MaxValue16Bits))
             return static_cast<uint16_t>(distance);
-        buildAndThrowError("Too many values (exceeds 65'536), aborting compilation.", x);
+        buildAndThrowError(fmt::format("Too many values (exceeds {}), aborting compilation.", MaxValue16Bits), x);
     }
 
     uint16_t ASTLowerer::addValue(const std::size_t page_id, const Node& current)
@@ -766,8 +764,8 @@ namespace Ark::internal
         }
 
         const auto distance = std::distance(m_values.begin(), it);
-        if (distance < std::numeric_limits<uint16_t>::max())
+        if (std::cmp_less(distance, MaxValue16Bits))
             return static_cast<uint16_t>(distance);
-        buildAndThrowError("Too many values (exceeds 65'536), aborting compilation.", current);
+        buildAndThrowError(fmt::format("Too many values (exceeds {}), aborting compilation.", MaxValue16Bits), current);
     }
 }

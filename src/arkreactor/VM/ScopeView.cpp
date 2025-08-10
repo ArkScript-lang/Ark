@@ -1,14 +1,16 @@
 #include <Ark/VM/ScopeView.hpp>
 
-#include <limits>
+#include <Ark/Constants.hpp>
+
+#include <cassert>
 
 namespace Ark::internal
 {
     ScopeView::ScopeView(pair_t* storage, const std::size_t start) noexcept :
-        m_storage(storage), m_start(start), m_size(0), m_min_id(std::numeric_limits<uint16_t>::max()), m_max_id(0)
+        m_storage(storage), m_start(start), m_size(0), m_min_id(MaxValue16Bits), m_max_id(0)
     {}
 
-    void ScopeView::push_back(uint16_t id, Value&& val) noexcept
+    void ScopeView::pushBack(uint16_t id, Value&& val) noexcept
     {
         if (id < m_min_id)
             m_min_id = id;
@@ -19,7 +21,7 @@ namespace Ark::internal
         ++m_size;
     }
 
-    void ScopeView::push_back(uint16_t id, const Value& val) noexcept
+    void ScopeView::pushBack(uint16_t id, const Value& val) noexcept
     {
         if (id < m_min_id)
             m_min_id = id;
@@ -28,6 +30,36 @@ namespace Ark::internal
 
         m_storage[m_start + m_size] = std::make_pair(id, val);
         ++m_size;
+    }
+
+    void ScopeView::insertFront(const std::vector<pair_t>& values) noexcept
+    {
+        const std::size_t offset_by = values.size();
+        // If there is one day a bug with bad references, this can be caused by this code,
+        // called when inserting plugins variables in a scope (because we invalidate said
+        // references by moving them to another slot inside m_storage).
+        for (std::size_t i = 0; i < m_size; ++i)
+        {
+            // This is a weak attempt to prevent / notice the bug before it goes in production,
+            // if you hit this assertion read the comments carefully!
+            assert(m_storage[m_start + m_size - i - 1].second.valueType() != ValueType::Reference && "References can not be moved around!");
+            m_storage[m_start + m_size - i + offset_by - 1] = m_storage[m_start + m_size - i - 1];
+        }
+
+        std::size_t i = 0;
+        for (const pair_t& pair : values)
+        {
+            const uint16_t id = pair.first;
+            if (id < m_min_id)
+                m_min_id = id;
+            if (id > m_max_id)
+                m_max_id = id;
+
+            m_storage[m_start + i] = pair;
+            ++i;
+        }
+
+        m_size += offset_by;
     }
 
     bool ScopeView::maybeHas(const uint16_t id) const noexcept
@@ -71,13 +103,13 @@ namespace Ark::internal
             if (value == val)
                 return id;
         }
-        return std::numeric_limits<uint16_t>::max();
+        return MaxValue16Bits;
     }
 
     void ScopeView::reset() noexcept
     {
         m_size = 0;
-        m_min_id = std::numeric_limits<uint16_t>::max();
+        m_min_id = MaxValue16Bits;
         m_max_id = 0;
     }
 

@@ -29,9 +29,9 @@ namespace Ark::internal
         for (auto& [id, value] : m_data)
         {
             if (value.valueType() == ValueType::Reference)
-                other.push_back(id, value);
+                other.pushBack(id, value);
             else
-                other.push_back(id, Value(&value));
+                other.pushBack(id, Value(&value));
         }
     }
 

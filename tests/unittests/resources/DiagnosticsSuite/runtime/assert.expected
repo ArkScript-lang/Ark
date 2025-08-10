@@ -1,0 +1,6 @@
+AssertionFailed: test
+
+In file tests/unittests/resources/DiagnosticsSuite/runtime/assert.ark:1
+    1 | (assert false "test")
+      | ^~~~~~~~~~~~~~~~~~~~
+    2 |

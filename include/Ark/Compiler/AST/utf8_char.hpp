@@ -5,8 +5,6 @@
 #include <string>
 #include <limits>
 
-#undef max
-
 namespace Ark::internal
 {
     class utf8_char_t

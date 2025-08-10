@@ -12,6 +12,7 @@
 #define INCLUDE_ARK_CONSTANTS_HPP_IN
 
 #include <string_view>
+#include <limits>
 
 // clang-format off
 constexpr int ARK_VERSION_MAJOR = @ARK_VERSION_MAJOR@;
@@ -61,6 +62,8 @@ namespace Ark
         | FeatureMacroProcessor
         | FeatureIROptimizer
         | FeatureNameResolver;
+
+    constexpr uint16_t MaxValue16Bits = std::numeric_limits<uint16_t>::max();
 
     constexpr std::size_t MaxNestedNodes = 1024;  ///< Maximum number of nodes that can be nested while parsing code
     constexpr std::size_t MaxMacroProcessingDepth = 256;  ///< Controls the number of recursive calls to MacroProcessor::processNode
