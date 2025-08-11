@@ -1,6 +1,6 @@
 /**
  * @file Word.hpp
- * @author  Lex Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief Describe an instruction and its immediate argument
  * @date 2022-07-02
  *
@@ -10,6 +10,8 @@
 
 #ifndef ARK_COMPILER_WORD_HPP
 #define ARK_COMPILER_WORD_HPP
+
+#include <cinttypes>
 
 namespace Ark::internal
 {

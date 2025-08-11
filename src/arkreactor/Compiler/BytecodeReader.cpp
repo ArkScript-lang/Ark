@@ -430,58 +430,168 @@ namespace Ark
         enum class ArgKind
         {
             Symbol,
-            Value,
+            Constant,
             Builtin,
-            Raw
+            Raw,  ///< eg: Stack index, jump address, number
+            ConstConst,
+            ConstSym,
+            SymConst,
+            SymSym,
+            BuiltinRaw,  ///< Builtin, number
+            ConstRaw,    ///< Constant, number
+            SymRaw,      ///< Symbol, number
+            RawSym,      ///< Symbol index, symbol
+            RawConst,    ///< Symbol index, constant
+            RawRaw       ///< Symbol index, symbol index
         };
 
         struct Arg
         {
             ArgKind kind;
+            uint8_t padding;
             uint16_t arg;
+
+            [[nodiscard]] uint16_t primary() const
+            {
+                return arg & 0x0fff;
+            }
+
+            [[nodiscard]] uint16_t secondary() const
+            {
+                return static_cast<uint16_t>((padding << 4) | (arg & 0xf000) >> 12);
+            }
         };
 
         const std::unordered_map<Instruction, ArgKind> arg_kinds = {
             { LOAD_SYMBOL, ArgKind::Symbol },
             { LOAD_SYMBOL_BY_INDEX, ArgKind::Raw },
-            { LOAD_CONST, ArgKind::Value },
+            { LOAD_CONST, ArgKind::Constant },
             { POP_JUMP_IF_TRUE, ArgKind::Raw },
             { STORE, ArgKind::Symbol },
             { SET_VAL, ArgKind::Symbol },
             { POP_JUMP_IF_FALSE, ArgKind::Raw },
             { JUMP, ArgKind::Raw },
             { CALL, ArgKind::Raw },
-            { CALL_BUILTIN, ArgKind::Raw },
             { CAPTURE, ArgKind::Symbol },
+            { RENAME_NEXT_CAPTURE, ArgKind::Symbol },
             { BUILTIN, ArgKind::Builtin },
             { DEL, ArgKind::Symbol },
-            { MAKE_CLOSURE, ArgKind::Value },
+            { MAKE_CLOSURE, ArgKind::Constant },
             { GET_FIELD, ArgKind::Symbol },
-            { PLUGIN, ArgKind::Value },
+            { PLUGIN, ArgKind::Constant },
             { LIST, ArgKind::Raw },
             { APPEND, ArgKind::Raw },
             { CONCAT, ArgKind::Raw },
             { APPEND_IN_PLACE, ArgKind::Raw },
-            { CONCAT_IN_PLACE, ArgKind::Raw }
+            { CONCAT_IN_PLACE, ArgKind::Raw },
+            { GET_CURRENT_PAGE_ADDR, ArgKind::Symbol },
+            { LOAD_CONST_LOAD_CONST, ArgKind::ConstConst },
+            { LOAD_CONST_STORE, ArgKind::ConstSym },
+            { LOAD_CONST_SET_VAL, ArgKind::ConstSym },
+            { STORE_FROM, ArgKind::SymSym },
+            { STORE_FROM_INDEX, ArgKind::RawSym },
+            { SET_VAL_FROM, ArgKind::SymSym },
+            { SET_VAL_FROM_INDEX, ArgKind::RawSym },
+            { INCREMENT, ArgKind::SymRaw },
+            { INCREMENT_BY_INDEX, ArgKind::RawRaw },
+            { INCREMENT_STORE, ArgKind::RawRaw },
+            { DECREMENT, ArgKind::SymRaw },
+            { DECREMENT_BY_INDEX, ArgKind::RawRaw },
+            { DECREMENT_STORE, ArgKind::SymRaw },
+            { STORE_TAIL, ArgKind::SymSym },
+            { STORE_TAIL_BY_INDEX, ArgKind::RawSym },
+            { STORE_HEAD, ArgKind::SymSym },
+            { STORE_HEAD_BY_INDEX, ArgKind::RawSym },
+            { STORE_LIST, ArgKind::RawSym },
+            { SET_VAL_TAIL, ArgKind::SymSym },
+            { SET_VAL_TAIL_BY_INDEX, ArgKind::RawSym },
+            { SET_VAL_HEAD, ArgKind::SymSym },
+            { SET_VAL_HEAD_BY_INDEX, ArgKind::RawSym },
+            { CALL_BUILTIN, ArgKind::BuiltinRaw },
+            { CALL_BUILTIN_WITHOUT_RETURN_ADDRESS, ArgKind::BuiltinRaw },
+            { LT_CONST_JUMP_IF_FALSE, ArgKind::ConstRaw },
+            { LT_CONST_JUMP_IF_TRUE, ArgKind::ConstRaw },
+            { LT_SYM_JUMP_IF_FALSE, ArgKind::SymRaw },
+            { GT_CONST_JUMP_IF_TRUE, ArgKind::ConstRaw },
+            { GT_CONST_JUMP_IF_FALSE, ArgKind::ConstRaw },
+            { GT_SYM_JUMP_IF_FALSE, ArgKind::SymRaw },
+            { EQ_CONST_JUMP_IF_TRUE, ArgKind::ConstRaw },
+            { EQ_SYM_INDEX_JUMP_IF_TRUE, ArgKind::SymRaw },
+            { NEQ_CONST_JUMP_IF_TRUE, ArgKind::ConstRaw },
+            { NEQ_SYM_JUMP_IF_FALSE, ArgKind::SymRaw },
+            { CALL_SYMBOL, ArgKind::SymRaw },
+            { CALL_CURRENT_PAGE, ArgKind::SymRaw },
+            { GET_FIELD_FROM_SYMBOL, ArgKind::SymSym },
+            { GET_FIELD_FROM_SYMBOL_INDEX, ArgKind::RawSym },
+            { AT_SYM_SYM, ArgKind::SymSym },
+            { AT_SYM_INDEX_SYM_INDEX, ArgKind::RawRaw },
+            { CHECK_TYPE_OF, ArgKind::SymConst },
+            { CHECK_TYPE_OF_BY_INDEX, ArgKind::RawConst },
+            { APPEND_IN_PLACE_SYM, ArgKind::SymRaw },
+            { APPEND_IN_PLACE_SYM_INDEX, ArgKind::RawRaw }
         };
 
-        const auto color_print_inst = [&syms, &vals, &stringify_value](const std::string& name, std::optional<Arg> arg = std::nullopt) {
+        const auto builtin_name = [](const uint16_t idx) {
+            return Builtins::builtins[idx].first;
+        };
+        const auto value_str = [&stringify_value, &vals](const uint16_t idx) {
+            return stringify_value(vals.values[idx]);
+        };
+        const auto symbol_name = [&syms](const uint16_t idx) {
+            return syms.symbols[idx];
+        };
+
+        const auto color_print_inst = [=](const std::string& name, std::optional<Arg> arg = std::nullopt) {
             fmt::print("{}", fmt::styled(name, fmt::fg(fmt::color::gold)));
             if (arg.has_value())
             {
-                switch (auto [kind, idx] = arg.value(); kind)
+                constexpr auto sym_color = fmt::fg(fmt::color::green);
+                constexpr auto const_color = fmt::fg(fmt::color::magenta);
+                constexpr auto raw_color = fmt::fg(fmt::color::red);
+
+                switch (auto [kind, _, idx] = arg.value(); kind)
                 {
                     case ArgKind::Symbol:
-                        fmt::print(fmt::fg(fmt::color::green), " {}\n", syms.symbols[idx]);
+                        fmt::print(sym_color, " {}\n", symbol_name(idx));
                         break;
-                    case ArgKind::Value:
-                        fmt::print(fmt::fg(fmt::color::magenta), " {}\n", stringify_value(vals.values[idx]));
+                    case ArgKind::Constant:
+                        fmt::print(const_color, " {}\n", value_str(idx));
                         break;
                     case ArgKind::Builtin:
-                        fmt::print(" {}\n", Builtins::builtins[idx].first);
+                        fmt::print(" {}\n", builtin_name(idx));
                         break;
                     case ArgKind::Raw:
-                        fmt::print(fmt::fg(fmt::color::red), " ({})\n", idx);
+                        fmt::print(raw_color, " ({})\n", idx);
+                        break;
+                    case ArgKind::ConstConst:
+                        fmt::print(" {}, {}\n", fmt::styled(value_str(arg->primary()), const_color), fmt::styled(value_str(arg->secondary()), const_color));
+                        break;
+                    case ArgKind::ConstSym:
+                        fmt::print(" {}, {}\n", fmt::styled(value_str(arg->primary()), const_color), fmt::styled(symbol_name(arg->secondary()), sym_color));
+                        break;
+                    case ArgKind::SymConst:
+                        fmt::print(" {}, {}\n", fmt::styled(symbol_name(arg->primary()), sym_color), fmt::styled(value_str(arg->secondary()), const_color));
+                        break;
+                    case ArgKind::SymSym:
+                        fmt::print(" {}, {}\n", fmt::styled(symbol_name(arg->primary()), sym_color), fmt::styled(symbol_name(arg->secondary()), sym_color));
+                        break;
+                    case ArgKind::BuiltinRaw:
+                        fmt::print(" {}, {}\n", builtin_name(arg->primary()), fmt::styled(arg->secondary(), raw_color));
+                        break;
+                    case ArgKind::ConstRaw:
+                        fmt::print(" {}, {}\n", fmt::styled(value_str(arg->primary()), const_color), fmt::styled(arg->secondary(), raw_color));
+                        break;
+                    case ArgKind::SymRaw:
+                        fmt::print(" {}, {}\n", fmt::styled(symbol_name(arg->primary()), sym_color), fmt::styled(arg->secondary(), raw_color));
+                        break;
+                    case ArgKind::RawSym:
+                        fmt::print(" {}, {}\n", fmt::styled(arg->primary(), raw_color), fmt::styled(symbol_name(arg->secondary()), sym_color));
+                        break;
+                    case ArgKind::RawConst:
+                        fmt::print(" {}, {}\n", fmt::styled(arg->primary(), raw_color), fmt::styled(value_str(arg->secondary()), const_color));
+                        break;
+                    case ArgKind::RawRaw:
+                        fmt::print(" {}, {}\n", fmt::styled(arg->primary(), raw_color), fmt::styled(arg->secondary(), raw_color));
                         break;
                 }
             }
@@ -540,7 +650,7 @@ namespace Ark
                         {
                             const auto inst_name = InstructionNames[idx];
                             if (const auto iinst = static_cast<Instruction>(inst); arg_kinds.contains(iinst))
-                                color_print_inst(inst_name, Arg { arg_kinds.at(iinst), arg });
+                                color_print_inst(inst_name, Arg { arg_kinds.at(iinst), padding, arg });
                             else
                                 color_print_inst(inst_name);
                         }
