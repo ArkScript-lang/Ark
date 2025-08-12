@@ -83,9 +83,9 @@ int main(int argc, char** argv)
     auto ir_dump = option("-fdump-ir").call([&] { passes |= Ark::FeatureDumpIR; })
         .doc("Dump IR to file.ark.ir");
 
-    const auto compiler_passes_flag = (
+    const auto run_flags = (
         // cppcheck-suppress constStatement
-        import_solver_pass_flag, macro_proc_pass_flag, optimizer_pass_flag, ir_optimizer_pass_flag, ir_dump
+        debug_flag, lib_dir_flag, import_solver_pass_flag, macro_proc_pass_flag, optimizer_pass_flag, ir_optimizer_pass_flag, ir_dump
     );
 
     auto cli = (
@@ -97,18 +97,15 @@ int main(int argc, char** argv)
             & value("expression", eval_expression)
         )
         | (
-            debug_flag
-            , lib_dir_flag
-            , compiler_passes_flag
-            , required("-c", "--compile").set(selected, mode::compile).doc("Compile the given program to bytecode, but do not run")
-            & value("file", file)
-        )
-        | (
-            debug_flag
-            , lib_dir_flag
-            , compiler_passes_flag
-            , value("file", file).set(selected, mode::run)
-            , any_other(script_args)
+            run_flags
+            , (
+                required("-c", "--compile").set(selected, mode::compile).doc("Compile the given program to bytecode, but do not run")
+                & value("file", file)
+            )
+            | (
+                value("file", file).set(selected, mode::run)
+                , any_other(script_args)
+            )
         )
         | (
             required("-f", "--format").set(selected, mode::format).doc("Format the given source file in place")

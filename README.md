@@ -179,11 +179,7 @@ SYNOPSIS
         arkscript -e <expression>
         arkscript [-d] [-L <lib_dir>] [-f(importsolver|no-importsolver)]
                   [-f(macroprocessor|no-macroprocessor)] [-f(optimizer|no-optimizer)]
-                  [-f(iroptimizer|no-iroptimizer)] [-fdump-ir] -c <file>
-
-        arkscript [-d] [-L <lib_dir>] [-f(importsolver|no-importsolver)]
-                  [-f(macroprocessor|no-macroprocessor)] [-f(optimizer|no-optimizer)]
-                  [-f(iroptimizer|no-iroptimizer)] [-fdump-ir] <file>
+                  [-f(iroptimizer|no-iroptimizer)] [-fdump-ir] ((-c <file>) | (<file> ))
 
         arkscript -f <file> [--(dry-run|check)]
         arkscript [-d] [-L <lib_dir>] --ast <file>
@@ -216,22 +212,6 @@ OPTIONS
 
         -fdump-ir                   Dump IR to file.ark.ir
         -c, --compile               Compile the given program to bytecode, but do not run
-        -d, --debug...              Increase debug level (default: 0)
-
-        -L, --lib                   Set the location of the ArkScript standard library. Paths can be
-                                    delimited by ';'
-
-        -f(importsolver|no-importsolver)
-                                    Toggle on and off the import solver pass
-
-        -f(macroprocessor|no-macroprocessor)
-                                    Toggle on and off the macro processor pass
-
-        -f(optimizer|no-optimizer)  Toggle on and off the optimizer pass
-        -f(iroptimizer|no-iroptimizer)
-                                    Toggle on and off the IR optimizer pass
-
-        -fdump-ir                   Dump IR to file.ark.ir
         -f, --format                Format the given source file in place
         --dry-run                   Do not modify the file, only print out the changes
         --check                     Check if a file formating is correctly, without modifying it.
