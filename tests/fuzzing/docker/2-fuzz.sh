@@ -31,7 +31,7 @@ export BUILD_FOLDER=build
 # 50-70% of the time
 # export AFL_DISABLE_TRIM=1
 
-DEFAULT_ARGS="-i tests/fuzzing/corpus-cmin-tmin -o output -a ascii -s $FUZZER_SEED -t $FUZZER_TIMEOUT_EXEC_MS -- ${BUILD_FOLDER}/arkscript @@ -L /src/lib"
+DEFAULT_ARGS="-i tests/fuzzing/corpus-cmin-tmin -o output -a ascii -s $FUZZER_SEED -t $FUZZER_TIMEOUT_EXEC_MS -- ${BUILD_FOLDER}/arkscript -L /src/lib @@"
 
 case $1 in
   0)

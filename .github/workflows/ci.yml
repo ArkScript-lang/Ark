@@ -321,7 +321,7 @@ jobs:
             -s $FUZZER_SEED \
             -t $FUZZER_TIMEOUT_EXEC_MS \
             -V $FUZZ_TIME_SEC \
-            -- ${BUILD_FOLDER}/arkscript @@ -L ./lib
+            -- ${BUILD_FOLDER}/arkscript -L ./lib @@
 
       - uses: 8BitJonny/gh-get-current-pr@3.0.0
         id: PR
@@ -346,7 +346,7 @@ jobs:
         run: |
           echo "FUZZ_SUMMARY<<EOF" >> $GITHUB_ENV
           afl-whatsup -s -d output >> $GITHUB_ENV
-          afl-showmap -C -i output -o /dev/null -- ./${BUILD_FOLDER}/arkscript @@ -L ./lib | sed -r "s/\x1B\[([0-9]{1,3}(;[0-9]{1,2};?)?)?[mGK]//g" | grep -v Reading | grep -v Scanning >> $GITHUB_ENV
+          afl-showmap -C -i output -o /dev/null -- ./${BUILD_FOLDER}/arkscript -L ./lib @@ | sed -r "s/\x1B\[([0-9]{1,3}(;[0-9]{1,2};?)?)?[mGK]//g" | grep -v Reading | grep -v Scanning >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
       - name: Summarize
@@ -354,7 +354,7 @@ jobs:
         shell: bash
         run: |
           afl-whatsup -s -d output
-          afl-showmap -C -i output -o /dev/null -- ./${BUILD_FOLDER}/arkscript @@ -L ./lib
+          afl-showmap -C -i output -o /dev/null -- ./${BUILD_FOLDER}/arkscript -L ./lib @@
 
       - name: Find Comment
         uses: peter-evans/find-comment@v3
@@ -445,4 +445,4 @@ jobs:
             --verbose -s \
             --demangle=yes \
             --error-exitcode=1 \
-            build/arkscript tests/unittests/resources/LangSuite/unittests.ark -L ./lib valgrind
+            build/arkscript -L ./lib tests/unittests/resources/LangSuite/unittests.ark valgrind

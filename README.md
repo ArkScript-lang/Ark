@@ -1,4 +1,4 @@
-# ArkScript  ![Latest version](https://img.shields.io/github/v/release/arkscript-lang/ark?style=for-the-badge&include_prereleases)
+ # ArkScript  ![Latest version](https://img.shields.io/github/v/release/arkscript-lang/ark?style=for-the-badge&include_prereleases)
 
 ![Code size](https://img.shields.io/github/languages/code-size/arkscript-lang/ark?style=for-the-badge&logo=github)
 ![Downloads](https://img.shields.io/github/downloads/arkscript-lang/ark/total?color=%2324cc24&style=for-the-badge&logo=github)
@@ -12,7 +12,7 @@
 * [Discussions](https://github.com/orgs/ArkScript-lang/discussions): to receive help with the language, discuss new features and ideas
 * [Modules](https://github.com/ArkScript-lang/modules)
 
-**Nota bene**: the project is referred as "Ark" and as "ArkScript". The official public name is "ArkScript" since "Ark" is already being used by [another language](https://github.com/ark-lang/ark)
+**Note**: the project is referred as "Ark" and as "ArkScript". The official public name is "ArkScript" since "Ark" is already being used by [another language](https://github.com/ark-lang/ark)
 
 ## Key features
 
@@ -61,18 +61,18 @@ Also, it has:
     (let guess (toNumber (input "Input a numeric value: ")))
     (if (< guess number)
       {
-        (print "It's more than " guess)
+        (print (format "It's more than {}!" guess))
         (impl (+ tries 1)) }
       (if (= guess number)
         {
           (print "You found it!")
           tries }
         {
-          (print "It's less than " guess)
+          (print (format "It's less than {}!" guess))
           (impl (+ tries 1)) }))}))
 
-  (let tries (impl 0))
-  (print "You won in " tries " tries.") }))
+  (let count (impl 0))
+  (print (format "You won in {} guesses." count)) }))
 
 (game)
 ```
@@ -142,7 +142,7 @@ For performance reasons, some functions might be written in C++, in `include/Ark
 
 ⚠️ When passing a specific C++ compiler to CMake, add the corresponding C compiler as ArkScript relies on C code as well ; otherwise you'll cryptic get compilation/linking errors (using `CMAKE_CXX_COMPILER` and `CMAKE_C_COMPILER`).
 
-### Through CMake
+### Using CMake
 
 Different CMake switches are available to customize the build:
 
@@ -169,7 +169,7 @@ cmake --install build --config Release
 
 Desired output of `arkscript --help`:
 
-```bash
+```
 DESCRIPTION
         ArkScript programming language
 
@@ -178,16 +178,16 @@ SYNOPSIS
         arkscript -v
         arkscript --dev-info
         arkscript -e <expression>
-        arkscript -c <file> [-d] [-f(importsolver|no-importsolver)]
+        arkscript [-d] [-L <lib_dir>] [-f(importsolver|no-importsolver)]
                   [-f(macroprocessor|no-macroprocessor)] [-f(optimizer|no-optimizer)]
-                  [-f(iroptimizer|no-iroptimizer)] [-fdump-ir]
+                  [-f(iroptimizer|no-iroptimizer)] [-fdump-ir] -c <file>
 
-        arkscript <file> [-d] [-L <lib_dir>] [-f(importsolver|no-importsolver)]
+        arkscript [-d] [-L <lib_dir>] [-f(importsolver|no-importsolver)]
                   [-f(macroprocessor|no-macroprocessor)] [-f(optimizer|no-optimizer)]
-                  [-f(iroptimizer|no-iroptimizer)] [-fdump-ir]
+                  [-f(iroptimizer|no-iroptimizer)] [-fdump-ir] <file>
 
         arkscript -f <file> [--(dry-run|check)]
-        arkscript --ast <file> [-d] [-L <lib_dir>]
+        arkscript [-d] [-L <lib_dir>] --ast <file>
         arkscript -bcr <file> -on
         arkscript -bcr <file> -a [-s <start> <end>]
         arkscript -bcr <file> -st [-s <start> <end>]
@@ -200,8 +200,10 @@ OPTIONS
         --dev-info                  Display development information and exit
         -e, --eval                  Evaluate ArkScript expression
 
-        -c, --compile               Compile the given program to bytecode, but do not run
         -d, --debug...              Increase debug level (default: 0)
+
+        -L, --lib                   Set the location of the ArkScript standard library. Paths can be
+                                    delimited by ';'
 
         -f(importsolver|no-importsolver)
                                     Toggle on and off the import solver pass
@@ -214,6 +216,7 @@ OPTIONS
                                     Toggle on and off the IR optimizer pass
 
         -fdump-ir                   Dump IR to file.ark.ir
+        -c, --compile               Compile the given program to bytecode, but do not run
         -d, --debug...              Increase debug level (default: 0)
 
         -L, --lib                   Set the location of the ArkScript standard library. Paths can be
@@ -235,12 +238,12 @@ OPTIONS
         --check                     Check if a file formating is correctly, without modifying it.
                                     Return 1 if formating is needed, 0 otherwise
 
-        --ast                       Compile the given program and output its AST as JSON to stdout
         -d, --debug...              Increase debug level (default: 0)
 
         -L, --lib                   Set the location of the ArkScript standard library. Paths can be
                                     delimited by ';'
 
+        --ast                       Compile the given program and output its AST as JSON to stdout
         -bcr, --bytecode-reader     Launch the bytecode reader
         <file>                      .arkc bytecode file or .ark source file that will be compiled
                                     first
@@ -254,7 +257,7 @@ OPTIONS
         -s, --slice                 Select a slice of instructions in the bytecode
 
 VERSION
-        4.0.0-c24c8f22
+        4.0.0-32c501fb
 
 LICENSE
         Mozilla Public License 2.0

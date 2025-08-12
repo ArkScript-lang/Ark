@@ -97,18 +97,17 @@ int main(int argc, char** argv)
             & value("expression", eval_expression)
         )
         | (
-            required("-c", "--compile").set(selected, mode::compile).doc("Compile the given program to bytecode, but do not run")
-            & value("file", file)
-            , debug_flag
+            debug_flag
+            , lib_dir_flag
             , compiler_passes_flag
+            , required("-c", "--compile").set(selected, mode::compile).doc("Compile the given program to bytecode, but do not run")
+            & value("file", file)
         )
         | (
-            value("file", file).set(selected, mode::run)
-            , (
-                  debug_flag
-                , lib_dir_flag
-                , compiler_passes_flag
-            )
+            debug_flag
+            , lib_dir_flag
+            , compiler_passes_flag
+            , value("file", file).set(selected, mode::run)
             , any_other(script_args)
         )
         | (
@@ -120,10 +119,10 @@ int main(int argc, char** argv)
             )
         )
         | (
-            required("--ast").set(selected, mode::ast).doc("Compile the given program and output its AST as JSON to stdout")
-            & value("file", file)
-            , debug_flag
+            debug_flag
             , lib_dir_flag
+            , required("--ast").set(selected, mode::ast).doc("Compile the given program and output its AST as JSON to stdout")
+            & value("file", file)
         )
         | (
             required("-bcr", "--bytecode-reader").set(selected, mode::bytecode_reader).doc("Launch the bytecode reader")
