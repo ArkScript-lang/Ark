@@ -8,9 +8,9 @@
 
 <img align="right" src=".github/images/ArkTransparent-by-mazz.png" width=200px alt="ArkScript log by Mazz">
 
-* [Documentation](https://arkscript-lang.dev/docs/guides/contributing/)
-* [Discussions](https://github.com/orgs/ArkScript-lang/discussions): to receive help with the language, discuss new features and ideas
-* [Modules](https://github.com/ArkScript-lang/modules)
+* [📚 Documentation](https://arkscript-lang.dev/docs/guides/contributing/)
+* [🛝 Playground](https://playground.arkscript-lang.dev/), try the language online now!
+* [🗣️ Discussions](https://github.com/orgs/ArkScript-lang/discussions): to receive help with the language, discuss new features and ideas
 
 **Note**: the project is referred as "Ark" and as "ArkScript". The official public name is "ArkScript" since "Ark" is already being used by [another language](https://github.com/ark-lang/ark)
 
@@ -22,18 +22,17 @@ ArkScript is
 * **a scripting language**: very easy to embed it in your projects. Registering your own functions in the language is made easy
 * **portable**: a unique bytecode which can be run everywhere the virtual machine is
 * **a functional language**: every parameter is passed by value, everything is immutable unless specified
-* **powerful**: provides closures and explicit capture
-* **promoting functionalities before performances**: expressiveness often brings more productivity, though performances aren't left behind
-* **a Lisp inspired language**, with fewer parentheses: `[...]` is expanded to `(list ...)` and `{}` to `(begin ...)`
+* **expressive**: has only 8 types to represent any data you might need, provides closures with explicit capture
+* **promoting functionalities before performances**: expressiveness often brings more productivity
+* **decent performance wise**: even if performances aren't priority #1, ArkScript has an optimizing compiler and [decent performances](https://arkscript-lang.dev/tools/benchmarks/)
+* **a Lisp inspired language**: your code is data and can be easily manipulated via *macros*
 * **extensible**: supports C++ module to use it in the language, adding functionalities
 
 Also, it has:
 
-* **macros**: if/else, values, and functions
-* tail call optimization
 * a REPL with autocompletion and coloration
-* a growing standard library, composed of ArkScript code (under `lib/std/`) and C++ (under `lib/modules/`)
-* a lot of unit tests (but never enough), which are ran before every release to ensure everything works as expected
+* a built-in code opinionated non-configurable formatter
+* a functional standard library, composed of ArkScript code (under `lib/std/`) and C++ (under `lib/modules/`)
 * docker images:
     * [stable](https://hub.docker.com/r/arkscript/stable), built after each release
     * [nightly](https://hub.docker.com/r/arkscript/nightly), built after each commit
