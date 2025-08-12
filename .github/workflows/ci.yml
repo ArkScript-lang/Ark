@@ -42,7 +42,7 @@ jobs:
           - 'src'
           - 'include'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Run clang-format style check for C/C++/Protobuf programs.
         uses: jidicula/clang-format-action@4726374d1aa3c6aecf132e5197e498979588ebc8  # v4.15.0
         with:
@@ -61,7 +61,7 @@ jobs:
           - examples
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Format check
         uses: ArkScript-lang/action-format@master
         with:
@@ -73,7 +73,7 @@ jobs:
     needs: [ check ]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: recursive
 
@@ -135,7 +135,7 @@ jobs:
           }
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: recursive
 
@@ -194,7 +194,7 @@ jobs:
     name: Coverage
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: recursive
 
@@ -242,7 +242,7 @@ jobs:
           - { os: macos-latest,   name: "MacOS Clang 16",  artifact: "macos-clang-16", compiler_version: 16, }
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: recursive
 
@@ -298,7 +298,7 @@ jobs:
       options: --cpus 4
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: recursive
 
@@ -397,7 +397,7 @@ jobs:
     needs: [ build ]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: recursive
 
