@@ -138,4 +138,19 @@ namespace Ark
                 return "~\\._./~";
         }
     }
+
+    bool operator==(const Value& A, const Value& B) noexcept
+    {
+        // values should have the same type
+        if (A.m_type != B.m_type)
+            return false;
+        // all the types >= Nil are Nil itself, True, False, Undefined
+        if (A.typeNum() >= static_cast<uint8_t>(ValueType::Nil))
+            return true;
+
+        if (A.valueType() == ValueType::Dict)
+            return A.dict() == B.dict();
+
+        return A.m_value == B.m_value;
+    }
 }

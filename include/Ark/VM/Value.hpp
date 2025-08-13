@@ -192,7 +192,7 @@ namespace Ark
 
         std::string toString(VM& vm) const noexcept;
 
-        friend ARK_API_INLINE bool operator==(const Value& A, const Value& B) noexcept;
+        friend ARK_API bool operator==(const Value& A, const Value& B) noexcept;
         friend ARK_API_INLINE bool operator<(const Value& A, const Value& B) noexcept;
         friend ARK_API_INLINE bool operator!(const Value& A) noexcept;
 
@@ -211,18 +211,6 @@ namespace Ark
         [[nodiscard]] const internal::Closure& closure() const { return std::get<internal::Closure>(m_value); }
         [[nodiscard]] internal::Closure& refClosure() { return std::get<internal::Closure>(m_value); }
     };
-
-    inline bool operator==(const Value& A, const Value& B) noexcept
-    {
-        // values should have the same type
-        if (A.m_type != B.m_type)
-            return false;
-        // all the types >= Nil are Nil itself, True, False, Undefined
-        if (A.typeNum() >= static_cast<uint8_t>(ValueType::Nil))
-            return true;
-
-        return A.m_value == B.m_value;
-    }
 
     inline bool operator<(const Value& A, const Value& B) noexcept
     {

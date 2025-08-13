@@ -84,9 +84,16 @@ namespace Ark::internal
          */
         std::string toString(VM& vm) const;
 
+        friend bool operator==(const Dict&, const Dict&) noexcept;
+
     private:
         ankerl::unordered_dense::map<Value, Value> m_dict;
     };
+
+    inline bool operator==(const Dict& A, const Dict& B) noexcept
+    {
+        return A.m_dict == B.m_dict;
+    }
 }
 
 #endif  // ARK_VM_VALUE_DICT_HPP
