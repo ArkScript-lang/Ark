@@ -125,6 +125,7 @@ namespace Ark::internal
         };
 
         constexpr std::string_view SysArgs = "builtin__sys:args";
+        constexpr std::string_view SysProgramName = "builtin__sys:programName";
 
         constexpr std::string_view And = "and";
         constexpr std::string_view Or = "or";

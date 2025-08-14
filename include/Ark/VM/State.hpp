@@ -60,12 +60,12 @@ namespace Ark
         /**
          * @brief Compile a file, and use the resulting bytecode
          *
-         * @param file path to an ArkScript code file
+         * @param file_path path to an ArkScript code file
          * @param features compiler features to enable/disable
          * @return true on success
          * @return false on failure
          */
-        bool doFile(const std::string& file, uint16_t features = DefaultFeatures);
+        bool doFile(const std::string& file_path, uint16_t features = DefaultFeatures);
 
         /**
          * @brief Compile a string (representing ArkScript code) and store resulting bytecode in m_bytecode

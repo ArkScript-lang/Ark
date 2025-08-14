@@ -54,7 +54,7 @@ int main(int argc, char** argv)
     bool format_dry_run = false;
     bool format_check = false;
     // Generic arguments
-    std::vector<std::string> wrong, script_args;
+    std::vector<std::string> script_args;
 
     uint16_t passes = Ark::DefaultFeatures | Ark::FeatureASTOptimizer;
 
@@ -102,10 +102,7 @@ int main(int argc, char** argv)
                 required("-c", "--compile").set(selected, mode::compile).doc("Compile the given program to bytecode, but do not run")
                 & value("file", file)
             )
-            | (
-                value("file", file).set(selected, mode::run)
-                , any_other(script_args)
-            )
+            | value("file", file).set(selected, mode::run)
         )
         | (
             required("-f", "--format").set(selected, mode::format).doc("Format the given source file in place")
@@ -143,7 +140,7 @@ int main(int argc, char** argv)
                 )
             )
         )
-        , any_other(wrong)
+        , any_other(script_args)
     );
     // clang-format on
 
@@ -160,7 +157,7 @@ int main(int argc, char** argv)
                               .append_section("VERSION", fmt::format("        {}", ARK_FULL_VERSION))
                               .append_section("LICENSE", "        Mozilla Public License 2.0");
 
-    if (parse(argc, argv, cli) && wrong.empty())
+    if (parse(argc, argv, cli))
     {
         using namespace Ark;
 
@@ -320,13 +317,6 @@ int main(int argc, char** argv)
                     return 1;
             }
         }
-    }
-    else
-    {
-        for (const auto& arg : wrong)
-            std::cerr << "'" << arg.c_str() << "' isn't a valid argument\n";
-
-        std::cout << usage_lines(cli, fmt) << std::endl;
     }
 
     return 0;

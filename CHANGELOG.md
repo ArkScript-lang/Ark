@@ -64,6 +64,7 @@
 - `GET_CURRENT_PAGE_ADDRESS` instruction to push the current page address to the stack
 - `CALL_CURRENT_PAGE` super instruction, calling the current page with a given number of arguments (avoid loading a page address on the stack, then popping it to perform the call)
 - new data type `Dict`, which can be created with `(dict "key" "value" ...)`, and manipulated with `dict:get`, `dict:add`, `dict:contains`, `dict:remove`, `dict:keys` and `dict:size`
+- added program name under `builtin__sys:programName`
 
 ### Changed
 - instructions are on 4 bytes: 1 byte for the instruction, 1 byte of padding, 2 bytes for an immediate argument
