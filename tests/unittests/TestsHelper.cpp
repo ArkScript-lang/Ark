@@ -8,35 +8,37 @@
 
 void iterTestFiles(const std::string& folder, std::function<void(TestData&&)>&& test, IterTestFilesParam&& params)
 {
-    const auto path = params.folder_is_resource ? getResourcePath(folder) : folder;
-    for (const auto& entry : std::filesystem::directory_iterator(path))
-    {
-        if (entry.path().extension() != ".ark" && params.skip_folders)
-            continue;
-        if (entry.path().extension() == "." + params.expected_ext && !params.skip_folders)
-            continue;
-
-        std::string expected;
-
-        if (!params.ignore_expected)
+    boost::ut::test(folder) = [&] {
+        const auto path = params.folder_is_resource ? getResourcePath(folder) : folder;
+        for (const auto& entry : std::filesystem::directory_iterator(path))
         {
-            std::filesystem::path expected_path = entry.path();
-            expected_path.replace_extension(params.expected_ext);
-            expected = Ark::Utils::readFile(expected_path.generic_string());
-            // getting rid of the \r because of Windows
-            std::erase(expected, '\r');
-            Ark::Utils::ltrim(Ark::Utils::rtrim(expected));
+            if (entry.path().extension() != ".ark" && params.skip_folders)
+                continue;
+            if (entry.path().extension() == "." + params.expected_ext && !params.skip_folders)
+                continue;
+
+            std::string expected;
+
+            if (!params.ignore_expected)
+            {
+                std::filesystem::path expected_path = entry.path();
+                expected_path.replace_extension(params.expected_ext);
+                expected = Ark::Utils::readFile(expected_path.generic_string());
+                // getting rid of the \r because of Windows
+                std::erase(expected, '\r');
+                Ark::Utils::ltrim(Ark::Utils::rtrim(expected));
+            }
+
+            auto data = TestData {
+                .path = entry.path().generic_string(),
+                .stem = entry.path().stem().generic_string(),
+                .expected = expected,
+                .is_folder = is_directory(entry.path())
+            };
+
+            test(std::move(data));
         }
-
-        auto data = TestData {
-            .path = entry.path().generic_string(),
-            .stem = entry.path().stem().generic_string(),
-            .expected = expected,
-            .is_folder = is_directory(entry.path())
-        };
-
-        test(std::move(data));
-    }
+    };
 }
 
 std::string getResourcePath(const std::string& folder)

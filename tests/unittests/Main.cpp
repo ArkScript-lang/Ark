@@ -1,9 +1,14 @@
 #include <boost/ut.hpp>
+#include <string>
 
-int main()
+int main(const int argc, char** argv)
 {
     using namespace boost;
 
-    ut::cfg<ut::override> = { .filter = "*" };
+    std::string filter = "*";
+    if (argc >= 2)
+        filter = argv[1];
+
+    ut::cfg<ut::override> = { .filter = filter };
     return ut::cfg<ut::override>.run();
 }
