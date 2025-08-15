@@ -1,6 +1,6 @@
-At (hasField t 1 2 3) @ 2:2
+At (hasField t 1 2 3) @ 2:1
     1 | (let t nil)
     2 | (hasField t 1 2 3)
-      |  ^~~~~~~~~~~~~~~~
+      | ^~~~~~~~~~~~~~~~~
     3 |
         `hasField' requires 2 arguments, but got 4.
