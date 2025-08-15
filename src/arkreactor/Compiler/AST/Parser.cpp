@@ -445,10 +445,9 @@ namespace Ark::internal
         return leaf;
     }
 
-    std::optional<Node> Parser::block(const FilePosition filepos [[maybe_unused]])
+    std::optional<Node> Parser::block(const FilePosition filepos)
     {
         std::optional<Node> leaf { NodeType::List };
-        setNodePosAndFilename(leaf.value());
 
         auto context = generateErrorContext("(");
         bool alt_syntax = false;
@@ -484,9 +483,8 @@ namespace Ark::internal
 
         newlineOrComment(&comment);
         expectSuffixOrError(alt_syntax ? '}' : ')', "to close block", context);
-        setNodePosAndFilename(leaf->list().back());
         leaf->list().back().attachCommentAfter(comment);
-        return leaf;
+        return positioned(leaf, filepos);
     }
 
     std::optional<Node> Parser::functionArgs(const FilePosition filepos)
