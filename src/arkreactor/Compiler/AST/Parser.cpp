@@ -312,7 +312,6 @@ namespace Ark::internal
     std::optional<Node> Parser::import_(const FilePosition filepos)
     {
         std::optional<Node> leaf { NodeType::List };
-        setNodePosAndFilename(leaf.value());
 
         auto context = generateErrorContext("(");
         if (!accept(IsChar('(')))
@@ -343,23 +342,25 @@ namespace Ark::internal
         }
         import_data.package.push_back(import_data.prefix);
 
-        Node packageNode(NodeType::List);
-        setNodePosAndFilename(packageNode.attachNearestCommentBefore(comment));
+        Node packageNode = positioned(Node(NodeType::List), getCursor()).attachNearestCommentBefore(comment);
         packageNode.push_back(Node(NodeType::Symbol, import_data.prefix));
 
         // first, parse the package name
         while (!isEOF())
         {
+            const auto item_pos = getCursor();
+
             // parsing package folder.foo.bar.yes
             if (accept(IsChar('.')))
             {
+                const auto package_pos = getCursor();
                 std::string path;
                 if (!packageName(&path))
                     errorWithNextToken("Package name expected after '.'");
                 else
                 {
-                    packageNode.push_back(Node(NodeType::Symbol, path));
-                    setNodePosAndFilename(packageNode.list().back());
+                    packageNode.push_back(positioned(Node(NodeType::Symbol, path), package_pos));
+
                     import_data.package.push_back(path);
                     import_data.prefix = path;  // in the end we will store the last element of the package, which is what we want
 
@@ -370,11 +371,10 @@ namespace Ark::internal
                     }
                 }
             }
-            else if (accept(IsChar(':')) && accept(IsChar('*')))  // parsing :*
+            else if (accept(IsChar(':')) && accept(IsChar('*')))  // parsing :*, terminal in imports
             {
                 leaf->push_back(packageNode);
-                leaf->push_back(Node(NodeType::Symbol, "*"));
-                setNodePosAndFilename(leaf->list().back());
+                leaf->push_back(positioned(Node(NodeType::Symbol, "*"), item_pos));
 
                 space();
                 expectSuffixOrError(')', fmt::format("in import `{}'", import_data.toPackageString()), context);
@@ -384,14 +384,13 @@ namespace Ark::internal
                 import_data.is_glob = true;
                 m_imports.push_back(import_data);
 
-                return leaf;
+                return positioned(leaf, filepos);
             }
             else
                 break;
         }
 
-        Node symbols(NodeType::List);
-        setNodePosAndFilename(symbols);
+        Node symbols = positioned(Node(NodeType::List), getCursor());
         // then parse the symbols to import, if any
         if (space())
         {
@@ -402,6 +401,7 @@ namespace Ark::internal
             {
                 if (accept(IsChar(':')))  // parsing potential :a :b :c
                 {
+                    const auto symbol_pos = getCursor();
                     std::string symbol_name;
                     if (!name(&symbol_name))
                         errorWithNextToken("Expected a valid symbol to import");
@@ -414,9 +414,9 @@ namespace Ark::internal
                         error("Glob pattern can not follow a symbol to import", ":*");
                     }
 
-                    symbols.push_back(Node(NodeType::Symbol, symbol_name).attachNearestCommentBefore(comment));
+                    symbols.push_back(positioned(Node(NodeType::Symbol, symbol_name).attachNearestCommentBefore(comment), symbol_pos));
                     comment.clear();
-                    setNodePosAndFilename(symbols.list().back());
+
                     import_data.symbols.push_back(symbol_name);
                     // we do not need the prefix when importing specific symbols
                     import_data.with_prefix = false;
@@ -442,7 +442,7 @@ namespace Ark::internal
             leaf->list().back().attachCommentAfter(comment);
 
         expectSuffixOrError(')', fmt::format("in import `{}'", import_data.toPackageString()), context);
-        return leaf;
+        return positioned(leaf, filepos);
     }
 
     std::optional<Node> Parser::block(const FilePosition filepos)
