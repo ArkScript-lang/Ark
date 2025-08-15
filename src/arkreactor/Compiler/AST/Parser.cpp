@@ -213,10 +213,9 @@ namespace Ark::internal
         return leaf;
     }
 
-    std::optional<Node> Parser::del(const FilePosition filepos [[maybe_unused]])
+    std::optional<Node> Parser::del(const FilePosition filepos)
     {
         std::optional<Node> leaf { NodeType::List };
-        setNodePosAndFilename(leaf.value());
 
         if (!oneOf({ "del" }))
             return std::nullopt;
@@ -231,9 +230,8 @@ namespace Ark::internal
 
         leaf->push_back(Node(NodeType::Symbol, symbol_name));
         leaf->list().back().attachNearestCommentBefore(comment);
-        setNodePosAndFilename(leaf->list().back());
 
-        return leaf;
+        return positioned(leaf, filepos);
     }
 
     std::optional<Node> Parser::condition(const FilePosition filepos)
