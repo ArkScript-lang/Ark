@@ -221,7 +221,7 @@ namespace Ark::internal
 
                 case Keyword::Del:
                     page(p).emplace_back(DEL, addSymbol(x.constList()[1]));
-                    page(p).back().setSourceLocation(x.constList()[1].filename(), x.constList()[1].line());
+                    page(p).back().setSourceLocation(x.filename(), x.line());
                     break;
             }
         }

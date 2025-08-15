@@ -65,14 +65,6 @@ namespace Ark::internal
         std::size_t m_nested_nodes;       ///< Nested node counter
         std::vector<std::function<std::optional<Node>(FilePosition)>> m_parsers;
 
-        /**
-         * @brief Update a node given a file position
-         * @param node node to update
-         * @param cursor the node position in file
-         * @return Node& the modified node
-         */
-        Node& setNodePosAndFilename(Node& node, const std::optional<FilePosition>& cursor = std::nullopt) const;
-
         [[nodiscard]] Node positioned(Node node, FilePosition cursor) const;
         [[nodiscard]] std::optional<Node>& positioned(std::optional<Node>& node, FilePosition cursor) const;
 
