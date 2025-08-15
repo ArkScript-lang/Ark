@@ -102,17 +102,6 @@ namespace Ark::internal
         return m_imports;
     }
 
-    Node& Parser::setNodePosAndFilename(Node& node, const std::optional<FilePosition>& cursor) const
-    {
-        if (node.line() != 0 || node.col() != 0)
-            return node;
-
-        const auto [row, col] = cursor.value_or(getCursor());
-        node.setPos(row, col);
-        node.setFilename(m_filename);
-        return node;
-    }
-
     Node Parser::positioned(Node node, const FilePosition cursor) const
     {
         const auto [row, col] = cursor;
@@ -550,7 +539,6 @@ namespace Ark::internal
                 // if value is nil, just add an empty argument bloc to prevent bugs when
                 // declaring functions inside macros
                 Node args = value.value();
-                setNodePosAndFilename(args);  // fixme: remove
                 if (args.nodeType() == NodeType::Symbol && args.string() == "nil")
                     leaf->push_back(Node(NodeType::List));
                 else
@@ -569,7 +557,6 @@ namespace Ark::internal
                 leaf->push_back(value.value().attachNearestCommentBefore(comment));
             else
                 errorWithNextToken("Expected a body for the function");
-            setNodePosAndFilename(leaf->list().back());  // fixme: remove
             return positioned(leaf, filepos);
         }
 
@@ -595,7 +582,6 @@ namespace Ark::internal
         else
             errorWithNextToken("Expected a body for the function");
 
-        setNodePosAndFilename(leaf->list().back());  // fixme: remove
         return positioned(leaf, filepos);
     }
 
@@ -635,7 +621,6 @@ namespace Ark::internal
             leaf->list().back().attachCommentAfter(comment);
         }
 
-        setNodePosAndFilename(leaf->list().back());  // fixme: remove
         return positioned(leaf, filepos);
     }
 
@@ -1074,22 +1059,17 @@ namespace Ark::internal
 
     std::optional<Node> Parser::nodeOrValue()
     {
-        auto cursor = getCursor();
         if (auto value = atom(); value.has_value())
             return value;
         if (auto sub_node = node(); sub_node.has_value())
-        {
-            // fixme: remove this
-            setNodePosAndFilename(sub_node.value(), cursor);
             return sub_node;
-        }
 
         return std::nullopt;
     }
 
     std::optional<Node> Parser::wrapped(std::optional<Node> (Parser::*parser)(FilePosition), const std::string& name)
     {
-        auto cursor = getCursor();
+        const auto cursor = getCursor();
         auto context = generateErrorContext("(");
         if (!prefix('('))
             return std::nullopt;
@@ -1099,14 +1079,11 @@ namespace Ark::internal
         if (auto result = (this->*parser)(cursor); result.has_value())
         {
             result->attachNearestCommentBefore(result->comment() + comment);
-            setNodePosAndFilename(result.value(), cursor);  // fixme: remove
 
             comment.clear();
             if (newlineOrComment(&comment))
                 result.value().attachCommentAfter(comment);
 
-            if (result->isListLike())
-                setNodePosAndFilename(result->list().back());  // fixme: remove
             expectSuffixOrError(')', "after " + name, context);
 
             comment.clear();
