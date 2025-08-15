@@ -243,7 +243,7 @@ namespace Ark::internal
         return matched;
     }
 
-    bool BaseParser::newlineOrComment(std::string* s)
+    bool BaseParser::newlineOrComment(std::string* s)  // fixme: take a reference? and clear the string first
     {
         bool matched = false;
 

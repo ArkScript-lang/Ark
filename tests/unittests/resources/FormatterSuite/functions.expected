@@ -1,6 +1,5 @@
 (fun () ())
 (fun (a b) (+ a b))
-
 (fun (a) {
   a })
 
