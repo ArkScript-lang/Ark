@@ -798,15 +798,15 @@ namespace Ark::internal
         return leaf;
     }
 
-    std::optional<Node> Parser::functionCall(const FilePosition filepos [[maybe_unused]])
+    std::optional<Node> Parser::functionCall(const FilePosition filepos)
     {
         auto context = generateErrorContext("(");
         if (!accept(IsChar('(')))
             return std::nullopt;
         std::string comment;
         newlineOrComment(&comment);
-        auto cursor = getCursor();
 
+        const auto func_name_pos = getCursor();
         std::optional<Node> func;
         if (auto sym_or_field = anyAtomOf({ NodeType::Symbol, NodeType::Field }); sym_or_field.has_value())
             func = sym_or_field->attachNearestCommentBefore(comment);
@@ -818,9 +818,7 @@ namespace Ark::internal
         newlineOrComment(&comment);
 
         std::optional<Node> leaf { NodeType::List };
-        setNodePosAndFilename(leaf.value(), cursor);
-        setNodePosAndFilename(func.value(), cursor);
-        leaf->push_back(func.value());
+        leaf->push_back(positioned(func.value(), func_name_pos));
 
         while (!isEOF())
         {
@@ -841,13 +839,12 @@ namespace Ark::internal
             leaf->list().back().attachCommentAfter(comment);
 
         expectSuffixOrError(')', fmt::format("in function call to `{}'", func.value().repr()), context);
-        return leaf;
+        return positioned(leaf, filepos);
     }
 
-    std::optional<Node> Parser::list(const FilePosition filepos [[maybe_unused]])
+    std::optional<Node> Parser::list(const FilePosition filepos)
     {
         std::optional<Node> leaf { NodeType::List };
-        setNodePosAndFilename(leaf.value());
 
         auto context = generateErrorContext("[");
         if (!accept(IsChar('[')))
@@ -874,7 +871,7 @@ namespace Ark::internal
         leaf->list().back().attachCommentAfter(comment);
 
         expectSuffixOrError(']', "to end list definition", context);
-        return leaf;
+        return positioned(leaf, filepos);
     }
 
     std::optional<Node> Parser::number(const FilePosition filepos)
@@ -887,6 +884,8 @@ namespace Ark::internal
             double output;
             if (Utils::isDouble(res, &output))
                 return positioned(Node(output), filepos);
+
+            // fixme: find a better way to send an error here
             backtrack(pos);
             error("Is not a valid number", res);
         }
@@ -1080,10 +1079,8 @@ namespace Ark::internal
 
     std::optional<Node> Parser::anyAtomOf(const std::initializer_list<NodeType> types)
     {
-        auto cursor = getCursor();
         if (auto value = atom(); value.has_value())
         {
-            setNodePosAndFilename(value.value(), cursor);
             for (const auto type : types)
             {
                 if (value->nodeType() == type)

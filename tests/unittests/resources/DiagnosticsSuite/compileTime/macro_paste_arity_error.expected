@@ -1,6 +1,6 @@
-At ($as-is b []) @ 1:11
+At ($as-is b []) @ 1:10
     1 | (macro a ($as-is b []))
-      | │         └─ error
+      | │        └─ error
       | │
       | └─ macro expansion started here
     2 | (print a)

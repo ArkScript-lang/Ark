@@ -1,5 +1,5 @@
-At (and true) @ 1:7
+At (and true) @ 1:6
     1 | ($if (and true) {})
-      |       ^~~~~~~~~~
+      |      ^~~~~~~~~~
     2 |
         Interpreting a `and' chain with 1 arguments, expected at least 2.

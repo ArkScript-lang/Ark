@@ -1,6 +1,6 @@
-At (empty? 1 2) @ 1:11
+At (empty? 1 2) @ 1:10
     1 | (macro a (empty? 1 2))
-      |           ^~~~~~~~~~~
+      |          ^~~~~~~~~~~~
     2 | (print a)
     3 |
         When expanding `empty?' inside a macro, got 2 arguments, expected 1

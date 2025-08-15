@@ -1,9 +1,9 @@
-At (foo 1 2) @ 4:2
+At (foo 1 2) @ 4:1
     1 | (macro foo (a b c ...d)
       | ^ macro expansion started here
     2 |     (+ a b c ...d))
     3 |
     4 | (foo 1 2)
-      |  ^~~~~~~
+      | ^~~~~~~~
     5 |
         Macro `foo' got 2 argument(s) but needed at least 3
