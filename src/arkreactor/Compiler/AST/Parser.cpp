@@ -12,38 +12,38 @@ namespace Ark::internal
         m_ast.push_back(Node(Keyword::Begin));
 
         m_parsers = {
-            [this]() {
+            [this](FilePosition) {
                 return wrapped(&Parser::letMutSet, "variable assignment or declaration");
             },
-            [this]() {
+            [this](FilePosition) {
                 return wrapped(&Parser::function, "function");
             },
-            [this]() {
+            [this](FilePosition) {
                 return wrapped(&Parser::condition, "condition");
             },
-            [this]() {
+            [this](FilePosition) {
                 return wrapped(&Parser::loop, "loop");
             },
-            [this]() {
-                return import_();
+            [this](const FilePosition filepos) {
+                return import_(filepos);
             },
-            [this]() {
-                return block();
+            [this](const FilePosition filepos) {
+                return block(filepos);
             },
-            [this]() {
+            [this](FilePosition) {
                 return wrapped(&Parser::macroCondition, "$if");
             },
-            [this]() {
-                return macro();
+            [this](const FilePosition filepos) {
+                return macro(filepos);
             },
-            [this]() {
+            [this](FilePosition) {
                 return wrapped(&Parser::del, "del");
             },
-            [this]() {
-                return functionCall();
+            [this](const FilePosition filepos) {
+                return functionCall(filepos);
             },
-            [this]() {
-                return list();
+            [this](const FilePosition filepos) {
+                return list(filepos);
             }
         };
     }
@@ -113,6 +113,25 @@ namespace Ark::internal
         return node;
     }
 
+    Node Parser::positioned(Node node, const FilePosition cursor) const
+    {
+        const auto [row, col] = cursor;
+        node.setPos(row, col);
+        node.setFilename(m_filename);
+        return node;
+    }
+
+    std::optional<Node>& Parser::positioned(std::optional<Node>& node, const FilePosition cursor) const
+    {
+        if (!node)
+            return node;
+
+        const auto [row, col] = cursor;
+        node->setPos(row, col);
+        node->setFilename(m_filename);
+        return node;
+    }
+
     std::optional<Node> Parser::node()
     {
         ++m_nested_nodes;
@@ -122,11 +141,12 @@ namespace Ark::internal
 
         // save current position in buffer to be able to go back if needed
         const auto position = getCount();
+        const auto filepos = getCursor();
         std::optional<Node> result = std::nullopt;
 
         for (auto&& parser : m_parsers)
         {
-            result = parser();
+            result = parser(filepos);
 
             if (result)
                 break;
@@ -138,7 +158,7 @@ namespace Ark::internal
         return result;
     }
 
-    std::optional<Node> Parser::letMutSet()
+    std::optional<Node> Parser::letMutSet(const FilePosition filepos [[maybe_unused]])
     {
         std::optional<Node> leaf { NodeType::List };
         setNodePosAndFilename(leaf.value());
@@ -193,7 +213,7 @@ namespace Ark::internal
         return leaf;
     }
 
-    std::optional<Node> Parser::del()
+    std::optional<Node> Parser::del(const FilePosition filepos [[maybe_unused]])
     {
         std::optional<Node> leaf { NodeType::List };
         setNodePosAndFilename(leaf.value());
@@ -216,7 +236,7 @@ namespace Ark::internal
         return leaf;
     }
 
-    std::optional<Node> Parser::condition()
+    std::optional<Node> Parser::condition(const FilePosition filepos [[maybe_unused]])
     {
         std::optional<Node> leaf { NodeType::List };
         setNodePosAndFilename(leaf.value());
@@ -259,7 +279,7 @@ namespace Ark::internal
         return leaf;
     }
 
-    std::optional<Node> Parser::loop()
+    std::optional<Node> Parser::loop(const FilePosition filepos [[maybe_unused]])
     {
         std::optional<Node> leaf { NodeType::List };
         setNodePosAndFilename(leaf.value());
@@ -289,12 +309,11 @@ namespace Ark::internal
         return leaf;
     }
 
-    std::optional<Node> Parser::import_()
+    std::optional<Node> Parser::import_(const FilePosition filepos)
     {
         std::optional<Node> leaf { NodeType::List };
         setNodePosAndFilename(leaf.value());
 
-        const auto [row, col] = getCursor();
         auto context = generateErrorContext("(");
         if (!accept(IsChar('(')))
             return std::nullopt;
@@ -310,8 +329,8 @@ namespace Ark::internal
         leaf->push_back(Node(Keyword::Import));
 
         Import import_data;
-        import_data.col = col;
-        import_data.line = row;
+        import_data.col = filepos.col;
+        import_data.line = filepos.row;
 
         const auto pos = getCount();
         if (!packageName(&import_data.prefix))
@@ -426,7 +445,7 @@ namespace Ark::internal
         return leaf;
     }
 
-    std::optional<Node> Parser::block()
+    std::optional<Node> Parser::block(const FilePosition filepos [[maybe_unused]])
     {
         std::optional<Node> leaf { NodeType::List };
         setNodePosAndFilename(leaf.value());
@@ -470,7 +489,7 @@ namespace Ark::internal
         return leaf;
     }
 
-    std::optional<Node> Parser::functionArgs()
+    std::optional<Node> Parser::functionArgs(const FilePosition filepos [[maybe_unused]])
     {
         expect(IsChar('('));
         std::optional<Node> args { NodeType::List };
@@ -521,7 +540,7 @@ namespace Ark::internal
         return std::nullopt;
     }
 
-    std::optional<Node> Parser::function()
+    std::optional<Node> Parser::function(const FilePosition filepos [[maybe_unused]])
     {
         std::optional<Node> leaf { NodeType::List };
         setNodePosAndFilename(leaf.value());
@@ -567,7 +586,8 @@ namespace Ark::internal
         }
 
         const auto position = getCount();
-        if (auto args = functionArgs(); args.has_value())
+        const auto args_file_pos = getCursor();
+        if (auto args = functionArgs(args_file_pos); args.has_value())
             leaf->push_back(args.value().attachNearestCommentBefore(comment_before_args));
         else
         {
@@ -591,7 +611,7 @@ namespace Ark::internal
         return leaf;
     }
 
-    std::optional<Node> Parser::macroCondition()
+    std::optional<Node> Parser::macroCondition(const FilePosition filepos [[maybe_unused]])
     {
         std::optional<Node> leaf { NodeType::Macro };
         setNodePosAndFilename(leaf.value());
@@ -632,7 +652,7 @@ namespace Ark::internal
         return leaf;
     }
 
-    std::optional<Node> Parser::macroArgs()
+    std::optional<Node> Parser::macroArgs(const FilePosition filepos [[maybe_unused]])
     {
         if (!accept(IsChar('(')))
             return std::nullopt;
@@ -697,7 +717,7 @@ namespace Ark::internal
         return args;
     }
 
-    std::optional<Node> Parser::macro()
+    std::optional<Node> Parser::macro(const FilePosition filepos [[maybe_unused]])
     {
         std::optional<Node> leaf { NodeType::Macro };
         setNodePosAndFilename(leaf.value());
@@ -722,7 +742,8 @@ namespace Ark::internal
         leaf->push_back(Node(NodeType::Symbol, symbol_name).attachNearestCommentBefore(comment));
 
         const auto position = getCount();
-        if (const auto args = macroArgs(); args.has_value())
+        const auto args_file_pos = getCursor();
+        if (const auto args = macroArgs(args_file_pos); args.has_value())
             leaf->push_back(args.value());
         else
         {
@@ -777,7 +798,7 @@ namespace Ark::internal
         return leaf;
     }
 
-    std::optional<Node> Parser::functionCall()
+    std::optional<Node> Parser::functionCall(const FilePosition filepos [[maybe_unused]])
     {
         auto context = generateErrorContext("(");
         if (!accept(IsChar('(')))
@@ -823,7 +844,7 @@ namespace Ark::internal
         return leaf;
     }
 
-    std::optional<Node> Parser::list()
+    std::optional<Node> Parser::list(const FilePosition filepos [[maybe_unused]])
     {
         std::optional<Node> leaf { NodeType::List };
         setNodePosAndFilename(leaf.value());
@@ -856,31 +877,201 @@ namespace Ark::internal
         return leaf;
     }
 
+    std::optional<Node> Parser::number(const FilePosition filepos)
+    {
+        const long pos = getCount();
+
+        std::string res;
+        if (signedNumber(&res))
+        {
+            double output;
+            if (Utils::isDouble(res, &output))
+                return positioned(Node(output), filepos);
+            backtrack(pos);
+            error("Is not a valid number", res);
+        }
+        return std::nullopt;
+    }
+
+    std::optional<Node> Parser::string(const FilePosition filepos)
+    {
+        std::string res;
+        if (accept(IsChar('"')))
+        {
+            while (true)
+            {
+                if (accept(IsChar('\\')))
+                {
+                    if (!m_interpret)
+                        res += '\\';
+
+                    if (accept(IsChar('"')))
+                        res += '"';
+                    else if (accept(IsChar('\\')))
+                        res += '\\';
+                    else if (accept(IsChar('n')))
+                        res += m_interpret ? '\n' : 'n';
+                    else if (accept(IsChar('t')))
+                        res += m_interpret ? '\t' : 't';
+                    else if (accept(IsChar('v')))
+                        res += m_interpret ? '\v' : 'v';
+                    else if (accept(IsChar('r')))
+                        res += m_interpret ? '\r' : 'r';
+                    else if (accept(IsChar('a')))
+                        res += m_interpret ? '\a' : 'a';
+                    else if (accept(IsChar('b')))
+                        res += m_interpret ? '\b' : 'b';
+                    else if (accept(IsChar('f')))
+                        res += m_interpret ? '\f' : 'f';
+                    else if (accept(IsChar('u')))
+                    {
+                        std::string seq;
+                        if (hexNumber(4, &seq))
+                        {
+                            if (m_interpret)
+                            {
+                                char utf8_str[5];
+                                utf8::decode(seq.c_str(), utf8_str);
+                                if (*utf8_str == '\0')
+                                    error("Invalid escape sequence", "\\u" + seq);
+                                res += utf8_str;
+                            }
+                            else
+                                res += "u" + seq;
+                        }
+                        else
+                            error("Invalid escape sequence", "\\u");
+                    }
+                    else if (accept(IsChar('U')))
+                    {
+                        std::string seq;
+                        if (hexNumber(8, &seq))
+                        {
+                            if (m_interpret)
+                            {
+                                std::size_t begin = 0;
+                                for (; seq[begin] == '0'; ++begin)
+                                    ;
+                                char utf8_str[5];
+                                utf8::decode(seq.c_str() + begin, utf8_str);
+                                if (*utf8_str == '\0')
+                                    error("Invalid escape sequence", "\\U" + seq);
+                                res += utf8_str;
+                            }
+                            else
+                                res += "U" + seq;
+                        }
+                        else
+                            error("Invalid escape sequence", "\\U");
+                    }
+                    else
+                    {
+                        backtrack(getCount() - 1);
+                        error("Unknown escape sequence", "\\");
+                    }
+                }
+                else
+                    accept(IsNot(IsEither(IsChar('\\'), IsChar('"'))), &res);
+
+                if (accept(IsChar('"')))
+                    break;
+                if (isEOF())
+                    expectSuffixOrError('"', "after string");
+            }
+
+            return positioned(Node(NodeType::String, res), filepos);
+        }
+        return std::nullopt;
+    }
+
+    std::optional<Node> Parser::field(const FilePosition filepos)
+    {
+        std::string sym;
+        if (!name(&sym))
+            return std::nullopt;
+
+        std::optional<Node> leaf { Node(NodeType::Field) };
+        leaf->push_back(Node(NodeType::Symbol, sym));
+
+        while (true)
+        {
+            if (leaf->list().size() == 1 && !accept(IsChar('.')))  // Symbol:abc
+                return std::nullopt;
+
+            if (leaf->list().size() > 1 && !accept(IsChar('.')))
+                break;
+
+            const auto filepos_inner = getCursor();
+            std::string res;
+            if (!name(&res))
+                errorWithNextToken("Expected a field name: <symbol>.<field>");
+            leaf->push_back(positioned(Node(NodeType::Symbol, res), filepos_inner));
+        }
+
+        return positioned(leaf, filepos);
+    }
+
+    std::optional<Node> Parser::symbol(const FilePosition filepos)
+    {
+        std::string res;
+        if (!name(&res))
+            return std::nullopt;
+        return positioned(Node(NodeType::Symbol, res), filepos);
+    }
+
+    std::optional<Node> Parser::spread(const FilePosition filepos)
+    {
+        std::string res;
+        if (sequence("..."))
+        {
+            if (!name(&res))
+                errorWithNextToken("Expected a name for the variadic");
+            return positioned(Node(NodeType::Spread, res), filepos);
+        }
+        return std::nullopt;
+    }
+
+    std::optional<Node> Parser::nil(const FilePosition filepos)
+    {
+        if (!accept(IsChar('(')))
+            return std::nullopt;
+
+        std::string comment;
+        newlineOrComment(&comment);
+        if (!accept(IsChar(')')))
+            return std::nullopt;
+
+        if (m_interpret)
+            return positioned(Node(NodeType::Symbol, "nil").attachNearestCommentBefore(comment), filepos);
+        return positioned(Node(NodeType::List).attachNearestCommentBefore(comment), filepos);
+    }
+
     std::optional<Node> Parser::atom()
     {
         const auto pos = getCount();
+        const auto filepos = getCursor();
 
-        if (auto res = Parser::number(); res.has_value())
+        if (auto res = Parser::number(filepos); res.has_value())
             return res;
         backtrack(pos);
 
-        if (auto res = Parser::string(); res.has_value())
+        if (auto res = Parser::string(filepos); res.has_value())
             return res;
         backtrack(pos);
 
-        if (auto res = Parser::spread(); m_allow_macro_behavior > 0 && res.has_value())
+        if (auto res = Parser::spread(filepos); m_allow_macro_behavior > 0 && res.has_value())
             return res;
         backtrack(pos);
 
-        if (auto res = Parser::field(); res.has_value())
+        if (auto res = Parser::field(filepos); res.has_value())
             return res;
         backtrack(pos);
 
-        if (auto res = Parser::symbol(); res.has_value())
+        if (auto res = Parser::symbol(filepos); res.has_value())
             return res;
         backtrack(pos);
 
-        if (auto res = Parser::nil(); res.has_value())
+        if (auto res = Parser::nil(filepos); res.has_value())
             return res;
         backtrack(pos);
 
@@ -906,10 +1097,7 @@ namespace Ark::internal
     {
         auto cursor = getCursor();
         if (auto value = atom(); value.has_value())
-        {
-            setNodePosAndFilename(value.value(), cursor);
             return value;
-        }
         if (auto sub_node = node(); sub_node.has_value())
         {
             setNodePosAndFilename(sub_node.value(), cursor);
@@ -919,7 +1107,7 @@ namespace Ark::internal
         return std::nullopt;
     }
 
-    std::optional<Node> Parser::wrapped(std::optional<Node> (Parser::*parser)(), const std::string& name)
+    std::optional<Node> Parser::wrapped(std::optional<Node> (Parser::*parser)(FilePosition), const std::string& name)
     {
         auto cursor = getCursor();
         auto context = generateErrorContext("(");
@@ -928,7 +1116,7 @@ namespace Ark::internal
         std::string comment;
         newlineOrComment(&comment);
 
-        if (auto result = (this->*parser)(); result.has_value())
+        if (auto result = (this->*parser)(cursor); result.has_value())
         {
             result->attachNearestCommentBefore(result->comment() + comment);
             setNodePosAndFilename(result.value(), cursor);
