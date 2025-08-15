@@ -279,10 +279,9 @@ namespace Ark::internal
         return leaf;
     }
 
-    std::optional<Node> Parser::loop(const FilePosition filepos [[maybe_unused]])
+    std::optional<Node> Parser::loop(const FilePosition filepos)
     {
         std::optional<Node> leaf { NodeType::List };
-        setNodePosAndFilename(leaf.value());
 
         if (!oneOf({ "while" }))
             return std::nullopt;
@@ -305,8 +304,7 @@ namespace Ark::internal
         else
             errorWithNextToken("Expected a node or value after loop condition");
 
-        setNodePosAndFilename(leaf->list().back());
-        return leaf;
+        return positioned(leaf, filepos);
     }
 
     std::optional<Node> Parser::import_(const FilePosition filepos)
