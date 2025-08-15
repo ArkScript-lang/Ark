@@ -236,10 +236,9 @@ namespace Ark::internal
         return leaf;
     }
 
-    std::optional<Node> Parser::condition(const FilePosition filepos [[maybe_unused]])
+    std::optional<Node> Parser::condition(const FilePosition filepos)
     {
         std::optional<Node> leaf { NodeType::List };
-        setNodePosAndFilename(leaf.value());
 
         if (!oneOf({ "if" }))
             return std::nullopt;
@@ -275,8 +274,7 @@ namespace Ark::internal
         else if (!comment.empty())
             leaf->attachCommentAfter(comment);
 
-        setNodePosAndFilename(leaf->list().back());
-        return leaf;
+        return positioned(leaf, filepos);
     }
 
     std::optional<Node> Parser::loop(const FilePosition filepos)
