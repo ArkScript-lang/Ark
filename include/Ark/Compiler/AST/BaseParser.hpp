@@ -129,8 +129,8 @@ namespace Ark::internal
         bool space(std::string* s = nullptr);
         bool inlineSpace(std::string* s = nullptr);
         bool comment(std::string* s = nullptr);
-        bool spaceComment(std::string* s = nullptr);
-        bool newlineOrComment(std::string* s = nullptr);
+        [[nodiscard]] std::string spaceComment();
+        [[nodiscard]] std::string newlineOrComment();
         bool prefix(char c);
         bool number(std::string* s = nullptr);
         bool signedNumber(std::string* s = nullptr);

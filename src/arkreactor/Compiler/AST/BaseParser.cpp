@@ -229,32 +229,26 @@ namespace Ark::internal
         return false;
     }
 
-    bool BaseParser::spaceComment(std::string* s)
+    std::string BaseParser::spaceComment()
     {
-        bool matched = false;
+        std::string s;
 
         inlineSpace();
-        while (!isEOF() && comment(s))
-        {
+        while (!isEOF() && comment(&s))
             inlineSpace();
-            matched = true;
-        }
 
-        return matched;
+        return s;
     }
 
-    bool BaseParser::newlineOrComment(std::string* s)  // fixme: take a reference? and clear the string first
+    std::string BaseParser::newlineOrComment()
     {
-        bool matched = false;
+        std::string s;
 
         space();
-        while (!isEOF() && comment(s))
-        {
+        while (!isEOF() && comment(&s))
             space();
-            matched = true;
-        }
 
-        return matched;
+        return s;
     }
 
     bool BaseParser::prefix(const char c)
