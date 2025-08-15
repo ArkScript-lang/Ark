@@ -652,13 +652,12 @@ namespace Ark::internal
         return leaf;
     }
 
-    std::optional<Node> Parser::macroArgs(const FilePosition filepos [[maybe_unused]])
+    std::optional<Node> Parser::macroArgs(const FilePosition filepos)
     {
         if (!accept(IsChar('(')))
             return std::nullopt;
 
         std::optional<Node> args { NodeType::List };
-        setNodePosAndFilename(args.value());
 
         std::string comment;
         newlineOrComment(&comment);
@@ -714,13 +713,12 @@ namespace Ark::internal
                 args->list().back().attachCommentAfter(comment);
         }
 
-        return args;
+        return positioned(args, filepos);
     }
 
-    std::optional<Node> Parser::macro(const FilePosition filepos [[maybe_unused]])
+    std::optional<Node> Parser::macro(const FilePosition filepos)
     {
         std::optional<Node> leaf { NodeType::Macro };
-        setNodePosAndFilename(leaf.value());
 
         auto context = generateErrorContext("(");
         if (!accept(IsChar('(')))
@@ -759,12 +757,11 @@ namespace Ark::internal
             else
                 errorWithNextToken(fmt::format("Expected an argument list, atom or node while defining macro `{}'", symbol_name));
 
-            setNodePosAndFilename(leaf->list().back());
             comment.clear();
             if (newlineOrComment(&comment))
                 leaf->list().back().attachCommentAfter(comment);
             expectSuffixOrError(')', fmt::format("to close macro `{}'", symbol_name), context);
-            return leaf;
+            return positioned(leaf, filepos);
         }
 
         ++m_allow_macro_behavior;
@@ -775,13 +772,12 @@ namespace Ark::internal
             leaf->push_back(value.value());
         else if (leaf->list().size() == 2)  // the argument list is actually a function call and it's okay
         {
-            setNodePosAndFilename(leaf->list().back());
             comment.clear();
             if (newlineOrComment(&comment))
                 leaf->list().back().attachCommentAfter(comment);
 
             expectSuffixOrError(')', fmt::format("to close macro `{}'", symbol_name), context);
-            return leaf;
+            return positioned(leaf, filepos);
         }
         else
         {
@@ -789,13 +785,12 @@ namespace Ark::internal
             errorWithNextToken(fmt::format("Expected a value while defining macro `{}'", symbol_name), context);
         }
 
-        setNodePosAndFilename(leaf->list().back());
         comment.clear();
         if (newlineOrComment(&comment))
             leaf->list().back().attachCommentAfter(comment);
 
         expectSuffixOrError(')', fmt::format("to close macro `{}'", symbol_name), context);
-        return leaf;
+        return positioned(leaf, filepos);
     }
 
     std::optional<Node> Parser::functionCall(const FilePosition filepos)
@@ -1097,6 +1092,7 @@ namespace Ark::internal
             return value;
         if (auto sub_node = node(); sub_node.has_value())
         {
+            // fixme: remove this
             setNodePosAndFilename(sub_node.value(), cursor);
             return sub_node;
         }
@@ -1116,14 +1112,14 @@ namespace Ark::internal
         if (auto result = (this->*parser)(cursor); result.has_value())
         {
             result->attachNearestCommentBefore(result->comment() + comment);
-            setNodePosAndFilename(result.value(), cursor);
+            setNodePosAndFilename(result.value(), cursor);  // fixme: remove
 
             comment.clear();
             if (newlineOrComment(&comment))
                 result.value().attachCommentAfter(comment);
 
             if (result->isListLike())
-                setNodePosAndFilename(result->list().back());
+                setNodePosAndFilename(result->list().back());  // fixme: remove
             expectSuffixOrError(')', "after " + name, context);
 
             comment.clear();
