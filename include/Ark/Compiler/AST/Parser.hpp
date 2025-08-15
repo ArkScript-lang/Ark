@@ -63,7 +63,7 @@ namespace Ark::internal
         std::vector<Import> m_imports;
         unsigned m_allow_macro_behavior;  ///< Toggled on when inside a macro definition, off afterward
         std::size_t m_nested_nodes;       ///< Nested node counter
-        std::vector<std::function<std::optional<Node>()>> m_parsers;
+        std::vector<std::function<std::optional<Node>(FilePosition)>> m_parsers;
 
         /**
          * @brief Update a node given a file position
@@ -73,188 +73,30 @@ namespace Ark::internal
          */
         Node& setNodePosAndFilename(Node& node, const std::optional<FilePosition>& cursor = std::nullopt) const;
 
+        [[nodiscard]] Node positioned(Node node, FilePosition cursor) const;
+        [[nodiscard]] std::optional<Node>& positioned(std::optional<Node>& node, FilePosition cursor) const;
+
         std::optional<Node> node();
-        std::optional<Node> letMutSet();
-        std::optional<Node> del();
-        std::optional<Node> condition();
-        std::optional<Node> loop();
-        std::optional<Node> import_();
-        std::optional<Node> block();
-        std::optional<Node> functionArgs();
-        std::optional<Node> function();
-        std::optional<Node> macroCondition();
-        std::optional<Node> macroArgs();
-        std::optional<Node> macro();
-        std::optional<Node> functionCall();
-        std::optional<Node> list();
+        std::optional<Node> letMutSet(FilePosition filepos);
+        std::optional<Node> del(FilePosition filepos);
+        std::optional<Node> condition(FilePosition filepos);
+        std::optional<Node> loop(FilePosition filepos);
+        std::optional<Node> import_(FilePosition filepos);
+        std::optional<Node> block(FilePosition filepos);
+        std::optional<Node> functionArgs(FilePosition filepos);
+        std::optional<Node> function(FilePosition filepos);
+        std::optional<Node> macroCondition(FilePosition filepos);
+        std::optional<Node> macroArgs(FilePosition filepos);
+        std::optional<Node> macro(FilePosition filepos);
+        std::optional<Node> functionCall(FilePosition filepos);
+        std::optional<Node> list(FilePosition filepos);
 
-        std::optional<Node> number()
-        {
-            auto pos = getCount();
-
-            std::string res;
-            if (signedNumber(&res))
-            {
-                double output;
-                if (Utils::isDouble(res, &output))
-                    return std::optional<Node>(output);
-                backtrack(pos);
-                error("Is not a valid number", res);
-            }
-            return std::nullopt;
-        }
-
-        std::optional<Node> string()
-        {
-            std::string res;
-            if (accept(IsChar('"')))
-            {
-                while (true)
-                {
-                    if (accept(IsChar('\\')))
-                    {
-                        if (!m_interpret)
-                            res += '\\';
-
-                        if (accept(IsChar('"')))
-                            res += '"';
-                        else if (accept(IsChar('\\')))
-                            res += '\\';
-                        else if (accept(IsChar('n')))
-                            res += m_interpret ? '\n' : 'n';
-                        else if (accept(IsChar('t')))
-                            res += m_interpret ? '\t' : 't';
-                        else if (accept(IsChar('v')))
-                            res += m_interpret ? '\v' : 'v';
-                        else if (accept(IsChar('r')))
-                            res += m_interpret ? '\r' : 'r';
-                        else if (accept(IsChar('a')))
-                            res += m_interpret ? '\a' : 'a';
-                        else if (accept(IsChar('b')))
-                            res += m_interpret ? '\b' : 'b';
-                        else if (accept(IsChar('f')))
-                            res += m_interpret ? '\f' : 'f';
-                        else if (accept(IsChar('u')))
-                        {
-                            std::string seq;
-                            if (hexNumber(4, &seq))
-                            {
-                                if (m_interpret)
-                                {
-                                    char utf8_str[5];
-                                    utf8::decode(seq.c_str(), utf8_str);
-                                    if (*utf8_str == '\0')
-                                        error("Invalid escape sequence", "\\u" + seq);
-                                    res += utf8_str;
-                                }
-                                else
-                                    res += "u" + seq;
-                            }
-                            else
-                                error("Invalid escape sequence", "\\u");
-                        }
-                        else if (accept(IsChar('U')))
-                        {
-                            std::string seq;
-                            if (hexNumber(8, &seq))
-                            {
-                                if (m_interpret)
-                                {
-                                    std::size_t begin = 0;
-                                    for (; seq[begin] == '0'; ++begin)
-                                        ;
-                                    char utf8_str[5];
-                                    utf8::decode(seq.c_str() + begin, utf8_str);
-                                    if (*utf8_str == '\0')
-                                        error("Invalid escape sequence", "\\U" + seq);
-                                    res += utf8_str;
-                                }
-                                else
-                                    res += "U" + seq;
-                            }
-                            else
-                                error("Invalid escape sequence", "\\U");
-                        }
-                        else
-                        {
-                            backtrack(getCount() - 1);
-                            error("Unknown escape sequence", "\\");
-                        }
-                    }
-                    else
-                        accept(IsNot(IsEither(IsChar('\\'), IsChar('"'))), &res);
-
-                    if (accept(IsChar('"')))
-                        break;
-                    if (isEOF())
-                        expectSuffixOrError('"', "after string");
-                }
-
-                return { Node(NodeType::String, res) };
-            }
-            return std::nullopt;
-        }
-
-        std::optional<Node> field()
-        {
-            std::string sym;
-            if (!name(&sym))
-                return std::nullopt;
-
-            std::optional<Node> leaf { Node(NodeType::Field) };
-            setNodePosAndFilename(leaf.value());
-            leaf->push_back(Node(NodeType::Symbol, sym));
-
-            while (true)
-            {
-                if (leaf->list().size() == 1 && !accept(IsChar('.')))  // Symbol:abc
-                    return std::nullopt;
-
-                if (leaf->list().size() > 1 && !accept(IsChar('.')))
-                    break;
-                std::string res;
-                if (!name(&res))
-                    errorWithNextToken("Expected a field name: <symbol>.<field>");
-                leaf->push_back(Node(NodeType::Symbol, res));
-            }
-
-            return leaf;
-        }
-
-        std::optional<Node> symbol()
-        {
-            std::string res;
-            if (!name(&res))
-                return std::nullopt;
-            return { Node(NodeType::Symbol, res) };
-        }
-
-        std::optional<Node> spread()
-        {
-            std::string res;
-            if (sequence("..."))
-            {
-                if (!name(&res))
-                    errorWithNextToken("Expected a name for the variadic");
-                return { Node(NodeType::Spread, res) };
-            }
-            return std::nullopt;
-        }
-
-        std::optional<Node> nil()
-        {
-            if (!accept(IsChar('(')))
-                return std::nullopt;
-
-            std::string comment;
-            newlineOrComment(&comment);
-            if (!accept(IsChar(')')))
-                return std::nullopt;
-
-            if (m_interpret)
-                return { Node(NodeType::Symbol, "nil").attachNearestCommentBefore(comment) };
-            return { Node(NodeType::List).attachNearestCommentBefore(comment) };
-        }
+        std::optional<Node> number(FilePosition filepos);
+        std::optional<Node> string(FilePosition filepos);
+        std::optional<Node> field(FilePosition filepos);
+        std::optional<Node> symbol(FilePosition filepos);
+        std::optional<Node> spread(FilePosition filepos);
+        std::optional<Node> nil(FilePosition filepos);
 
         /**
          * @brief Try to parse an atom (number, string, spread, field, symbol, nil)
@@ -264,7 +106,7 @@ namespace Ark::internal
 
         /**
          * @brief Try to parse an atom, if any, match its type against the given list
-         * @param types autorized types
+         * @param types authorized types
          * @return std::optional<Node> std::nullopt if the parsed atom didn't match the given types
          */
         std::optional<Node> anyAtomOf(std::initializer_list<NodeType> types);
@@ -281,7 +123,7 @@ namespace Ark::internal
          * @param name construction name, eg "let", "condition"
          * @return std::optional<Node> std::nullopt if the parser didn't match
          */
-        std::optional<Node> wrapped(std::optional<Node> (Parser::*parser)(), const std::string& name);
+        std::optional<Node> wrapped(std::optional<Node> (Parser::*parser)(FilePosition), const std::string& name);
     };
 }
 
