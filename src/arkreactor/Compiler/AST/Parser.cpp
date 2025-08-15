@@ -489,11 +489,10 @@ namespace Ark::internal
         return leaf;
     }
 
-    std::optional<Node> Parser::functionArgs(const FilePosition filepos [[maybe_unused]])
+    std::optional<Node> Parser::functionArgs(const FilePosition filepos)
     {
         expect(IsChar('('));
         std::optional<Node> args { NodeType::List };
-        setNodePosAndFilename(args.value());
 
         std::string comment;
         newlineOrComment(&comment);
@@ -510,9 +509,8 @@ namespace Ark::internal
                 std::string capture;
                 if (!name(&capture))
                     break;
-                Node capture_node = Node(NodeType::Capture, capture).attachNearestCommentBefore(comment);
-                setNodePosAndFilename(capture_node, pos);
-                args->push_back(capture_node);
+
+                args->push_back(positioned(Node(NodeType::Capture, capture), pos));
             }
             else
             {
@@ -526,24 +524,23 @@ namespace Ark::internal
                     error("Captured variables should be at the end of the argument list", symbol_name);
                 }
 
-                Node arg_node = Node(NodeType::Symbol, symbol_name).attachNearestCommentBefore(comment);
-                setNodePosAndFilename(arg_node, pos);
-                args->push_back(arg_node);
+                args->push_back(positioned(Node(NodeType::Symbol, symbol_name), pos));
             }
 
+            if (!comment.empty())
+                args->list().back().attachNearestCommentBefore(comment);
             comment.clear();
             newlineOrComment(&comment);
         }
 
         if (accept(IsChar(')')))
-            return args;
+            return positioned(args, filepos);
         return std::nullopt;
     }
 
-    std::optional<Node> Parser::function(const FilePosition filepos [[maybe_unused]])
+    std::optional<Node> Parser::function(const FilePosition filepos)
     {
         std::optional<Node> leaf { NodeType::List };
-        setNodePosAndFilename(leaf.value());
 
         if (!oneOf({ "fun" }))
             return std::nullopt;
@@ -562,7 +559,7 @@ namespace Ark::internal
                 // if value is nil, just add an empty argument bloc to prevent bugs when
                 // declaring functions inside macros
                 Node args = value.value();
-                setNodePosAndFilename(args);
+                setNodePosAndFilename(args);  // fixme: remove
                 if (args.nodeType() == NodeType::Symbol && args.string() == "nil")
                     leaf->push_back(Node(NodeType::List));
                 else
@@ -581,8 +578,8 @@ namespace Ark::internal
                 leaf->push_back(value.value().attachNearestCommentBefore(comment));
             else
                 errorWithNextToken("Expected a body for the function");
-            setNodePosAndFilename(leaf->list().back());
-            return leaf;
+            setNodePosAndFilename(leaf->list().back());  // fixme: remove
+            return positioned(leaf, filepos);
         }
 
         const auto position = getCount();
@@ -607,14 +604,13 @@ namespace Ark::internal
         else
             errorWithNextToken("Expected a body for the function");
 
-        setNodePosAndFilename(leaf->list().back());
-        return leaf;
+        setNodePosAndFilename(leaf->list().back());  // fixme: remove
+        return positioned(leaf, filepos);
     }
 
-    std::optional<Node> Parser::macroCondition(const FilePosition filepos [[maybe_unused]])
+    std::optional<Node> Parser::macroCondition(const FilePosition filepos)
     {
         std::optional<Node> leaf { NodeType::Macro };
-        setNodePosAndFilename(leaf.value());
 
         if (!oneOf({ "$if" }))
             return std::nullopt;
@@ -648,8 +644,8 @@ namespace Ark::internal
             leaf->list().back().attachCommentAfter(comment);
         }
 
-        setNodePosAndFilename(leaf->list().back());
-        return leaf;
+        setNodePosAndFilename(leaf->list().back());  // fixme: remove
+        return positioned(leaf, filepos);
     }
 
     std::optional<Node> Parser::macroArgs(const FilePosition filepos)
