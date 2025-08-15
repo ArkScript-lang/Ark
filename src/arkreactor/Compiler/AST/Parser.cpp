@@ -158,10 +158,9 @@ namespace Ark::internal
         return result;
     }
 
-    std::optional<Node> Parser::letMutSet(const FilePosition filepos [[maybe_unused]])
+    std::optional<Node> Parser::letMutSet(const FilePosition filepos)
     {
         std::optional<Node> leaf { NodeType::List };
-        setNodePosAndFilename(leaf.value());
 
         std::string token;
         if (!oneOf({ "let", "mut", "set" }, &token))
@@ -210,7 +209,7 @@ namespace Ark::internal
         else
             errorWithNextToken("Expected a value");
 
-        return leaf;
+        return positioned(leaf, filepos);
     }
 
     std::optional<Node> Parser::del(const FilePosition filepos)
