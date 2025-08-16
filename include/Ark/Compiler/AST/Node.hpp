@@ -23,6 +23,15 @@
 
 namespace Ark::internal
 {
+    // todo: remove and use codeerrorcontext -> contextposition
+    struct NodePos
+    {
+        std::size_t start_line = 0;  // todo: do not default init to track the last nodes without a position inside the parser (?)
+        std::size_t start_col = 0;
+        std::size_t end_line = 0;
+        std::size_t end_col = 0;
+    };
+
     /**
      * @brief A node of an Abstract Syntax Tree for ArkScript
      *
@@ -215,19 +224,15 @@ namespace Ark::internal
          */
         [[nodiscard]] bool isAltSyntax() const;
 
-        /**
-         * @brief Get the line at which this node was created
-         *
-         * @return std::size_t
-         */
         [[nodiscard]] std::size_t line() const noexcept;
+        [[nodiscard]] std::size_t col() const noexcept;
 
         /**
-         * @brief Get the column at which this node was created
+         * @brief Get the position of the node (start and end)
          *
-         * @return std::size_t
+         * @return const NodePos
          */
-        [[nodiscard]] std::size_t col() const noexcept;
+        [[nodiscard]] NodePos position() const noexcept;
 
         /**
          * @brief Return the filename in which this node was created
@@ -269,7 +274,7 @@ namespace Ark::internal
         Value m_value;
         std::optional<std::string> m_unqualified_name { std::nullopt };  ///< Used by Capture nodes, to have the FQN in the value, and the captured name here
         // position of the node in the original code, useful when it comes to parser errors
-        std::size_t m_line = 0, m_col = 0;
+        NodePos m_pos;
         std::string m_filename;
         std::string m_comment;
         std::string m_after_comment;          ///< Comment after node

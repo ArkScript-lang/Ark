@@ -215,8 +215,7 @@ namespace Ark::internal
                         file.filename().string(), import.toPackageString()),
             CodeErrorContext(
                 file.generic_string(),
-                import.line,
-                import.col,
+                ContextPosition { .line = import.line, .column = import.col },
                 fmt::format("(import {})", import.toPackageString())));
     }
 }

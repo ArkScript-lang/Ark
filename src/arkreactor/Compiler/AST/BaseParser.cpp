@@ -124,8 +124,7 @@ namespace Ark::internal
 
         return CodeErrorContext(
             m_filename,
-            row,
-            col,
+            ContextPosition { .line = row, .column = col },
             expr,
             m_sym);
     }
@@ -135,7 +134,11 @@ namespace Ark::internal
         const auto [row, col] = getCursor();
         throw CodeError(
             error,
-            CodeErrorContext(m_filename, row, col, std::move(exp), m_sym),
+            CodeErrorContext(
+                m_filename,
+                ContextPosition { .line = row, .column = col },
+                std::move(exp),
+                m_sym),
             additional_context);
     }
 

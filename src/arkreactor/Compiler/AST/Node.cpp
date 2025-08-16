@@ -126,8 +126,8 @@ namespace Ark::internal
 
     void Node::setPos(const std::size_t line, const std::size_t col) noexcept
     {
-        m_line = line;
-        m_col = col;
+        m_pos.start_line = line;
+        m_pos.start_col = col;
     }
 
     void Node::setFilename(const std::string& filename) noexcept
@@ -173,12 +173,17 @@ namespace Ark::internal
 
     std::size_t Node::line() const noexcept
     {
-        return m_line;
+        return m_pos.start_line;
     }
 
     std::size_t Node::col() const noexcept
     {
-        return m_col;
+        return m_pos.start_col;
+    }
+
+    NodePos Node::position() const noexcept
+    {
+        return m_pos;
     }
 
     const std::string& Node::filename() const noexcept
