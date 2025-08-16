@@ -44,7 +44,7 @@ namespace Ark::Diagnostics
                 "{: <{}}{}\n",
                 // padding os spaces
                 " ",
-                std::max(1_z, maybe_context->col),  // fixing padding when the error is on the first character
+                std::max(1_z, maybe_context->at.column),  // fixing padding when the error is on the first character
                 // underline the parent of the error in red
                 fmt::styled(
                     maybe_context->is_macro_expansion ? "^ macro expansion started here" : "^ expression started here",
@@ -67,16 +67,16 @@ namespace Ark::Diagnostics
         std::size_t overflow = (loc.start.column + sym_size <= targetLine.size()) ? 0 : sym_size;
 
         const bool ctx_same_file = maybe_context && maybe_context->filename == loc.filename;
-        const bool ctx_in_window = ctx_same_file && maybe_context && source_printer.coversLine(maybe_context->line);
+        const bool ctx_in_window = ctx_same_file && maybe_context && source_printer.coversLine(maybe_context->at.line);
 
         if (ctx_same_file && !ctx_in_window)
-            source_printer.extendWindow(maybe_context->line);
+            source_printer.extendWindow(maybe_context->at.line);
         else if (maybe_context && !ctx_same_file && !maybe_context->filename.empty())
         {
             // show the location of the parent of our error first
-            fmt::print(os, "Error originated from file {}:{}\n", maybe_context->filename, maybe_context->line + 1);
+            fmt::print(os, "Error originated from file {}:{}\n", maybe_context->filename, maybe_context->at.line + 1);
 
-            Printer printer(maybe_context->filename, maybe_context->line, colorize);
+            Printer printer(maybe_context->filename, maybe_context->at.line, colorize);
             while (printer.hasContent())
             {
                 printer.printLine(os);
@@ -97,7 +97,7 @@ namespace Ark::Diagnostics
             source_printer.printLine(os);
 
             // if the error context is in the current file, point to it as the parent of our error
-            if (maybe_context && i == maybe_context->line && i != loc.start.line)
+            if (maybe_context && i == maybe_context->at.line && i != loc.start.line)
                 print_context_hint();
 
             // show where the error occurred (do not mark empty lines as being part of the error when we have overflow)
@@ -123,7 +123,7 @@ namespace Ark::Diagnostics
                         source_printer.extendWindowEnd();
 
                     // show the error where it's at, using the normal process, if there is no context OR if the context line is different from the error line
-                    if (!maybe_context || maybe_context->line != loc.start.line)
+                    if (!maybe_context || maybe_context->at.line != loc.start.line)
                         fmt::print(
                             os,
                             "{: <{}}{:~<{}}\n",
@@ -135,7 +135,7 @@ namespace Ark::Diagnostics
                             curr_col_start < col_end ? col_end - curr_col_start : 1);
                     else if (i == loc.start.line)  // maybe_context has a value, i == target_line to avoid having to deal with overflow
                     {
-                        const auto padding_size = std::max(1_z, maybe_context->col);
+                        const auto padding_size = std::max(1_z, maybe_context->at.column);
 
                         fmt::print(
                             os,
@@ -147,7 +147,7 @@ namespace Ark::Diagnostics
                             fmt::styled("│", colorize ? fmt::fg(fmt::color::red) : fmt::text_style()),
                             // yet another padding of spaces between the parent and error column (if need be)
                             // -2 to account for the │ and then └
-                            (loc.start.column - maybe_context->col <= 2) ? "" : fmt::format("{: <{}}", " ", loc.start.column - maybe_context->col - 2),
+                            (loc.start.column - maybe_context->at.column <= 2) ? "" : fmt::format("{: <{}}", " ", loc.start.column - maybe_context->at.column - 2),
                             // underline the error in red
                             fmt::styled("└─ error", colorize ? fmt::fg(fmt::color::red) : fmt::text_style()));
                         // new line, some spacing between the error and the parent
@@ -258,8 +258,8 @@ namespace Ark::Diagnostics
             e.context.filename,
             escaped_symbol,
             e.context.expr.size(),
-            e.context.line,
-            e.context.col,
+            e.context.at.line,
+            e.context.at.column,
             e.additional_context);
     }
 }
