@@ -8,8 +8,8 @@
  *
  */
 
-#ifndef ARK_DIAGNOSTICS_HPP
-#define ARK_DIAGNOSTICS_HPP
+#ifndef ARK_ERROR_DIAGNOSTICS_HPP
+#define ARK_ERROR_DIAGNOSTICS_HPP
 
 #include <string>
 #include <optional>
@@ -63,4 +63,4 @@ namespace Ark::Diagnostics
     ARK_API void generate(const CodeError& e, std::ostream& os = std::cout, bool colorize = true);
 }
 
-#endif  // ARK_DIAGNOSTICS_HPP
+#endif  // ARK_ERROR_DIAGNOSTICS_HPP

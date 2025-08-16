@@ -8,8 +8,8 @@
  *
  */
 
-#ifndef INCLUDE_ARK_EXCEPTIONS_HPP
-#define INCLUDE_ARK_EXCEPTIONS_HPP
+#ifndef ARK_ERROR_EXCEPTIONS_HPP
+#define ARK_ERROR_EXCEPTIONS_HPP
 
 #include <string>
 #include <utility>
@@ -137,4 +137,4 @@ namespace Ark
     };
 }
 
-#endif
+#endif  // ARK_ERROR_EXCEPTIONS_HPP
