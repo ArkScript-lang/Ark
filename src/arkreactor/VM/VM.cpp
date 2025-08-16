@@ -2081,7 +2081,7 @@ namespace Ark
         const std::size_t saved_ip = context.ip;
         const std::size_t saved_pp = context.pp;
         const uint16_t saved_sp = context.sp;
-        const std::size_t max_consecutive_traces = 7;
+        constexpr std::size_t max_consecutive_traces = 7;
 
         const auto maybe_location = findSourceLocation(context.ip, context.pp);
         if (maybe_location)
@@ -2090,14 +2090,14 @@ namespace Ark
 
             if (Utils::fileExists(filename))
                 Diagnostics::makeContext(
+                    Diagnostics::ErrorLocation {
+                        .filename = filename,
+                        .start = Diagnostics::FilePos { .line = maybe_location->line, .column = 0 },
+                        .end = std::nullopt,
+                        .whole_line = true },
                     os,
-                    filename,
                     /* expr= */ std::nullopt,
-                    /* sym_size= */ 0,
-                    maybe_location->line,
-                    /* col_start= */ 0,
                     /* maybe_context= */ std::nullopt,
-                    /* whole_line= */ true,
                     /* colorize= */ colorize);
             fmt::println(os, "");
         }
@@ -2119,7 +2119,7 @@ namespace Ark
                 const uint16_t id = findNearestVariableIdWithValue(
                     Value(static_cast<PageAddr_t>(context.pp)),
                     context);
-                const auto func_name = (id < m_state.m_symbols.size()) ? m_state.m_symbols[id] : "???";
+                const std::string& func_name = (id < m_state.m_symbols.size()) ? m_state.m_symbols[id] : "???";
 
                 if (func_name + loc_as_text != previous_trace)
                 {

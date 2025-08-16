@@ -802,7 +802,7 @@ namespace Ark::internal
             if (Utils::isDouble(res, &output))
                 return positioned(Node(output), filepos);
 
-            // fixme: find a better way to send an error here
+            // FIXME: find a better way to send an error here
             backtrack(pos);
             error("Is not a valid number", res);
         }
