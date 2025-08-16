@@ -6,7 +6,7 @@
 #include <initializer_list>
 
 #include <Ark/Utils/Platform.hpp>
-#include <Ark/Exceptions.hpp>
+#include <Ark/Error/Exceptions.hpp>
 #include <Ark/Compiler/AST/Predicates.hpp>
 #include <Ark/Compiler/AST/utf8_char.hpp>
 

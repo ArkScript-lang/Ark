@@ -20,7 +20,7 @@
 #include <Ark/VM/Value.hpp>
 #include <Ark/VM/Value/Procedure.hpp>
 #include <Ark/Compiler/Common.hpp>
-#include <Ark/Exceptions.hpp>
+#include <Ark/Error/Exceptions.hpp>
 #include <Ark/Compiler/IntermediateRepresentation/InstLoc.hpp>
 
 namespace Ark

@@ -1,6 +1,6 @@
 #include <Ark/Compiler/NameResolution/NameResolutionPass.hpp>
 
-#include <Ark/Exceptions.hpp>
+#include <Ark/Error/Exceptions.hpp>
 #include <Ark/Utils/Utils.hpp>
 #include <Ark/Builtins/Builtins.hpp>
 

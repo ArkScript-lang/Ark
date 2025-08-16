@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 #include <ranges>
-#include <Ark/Exceptions.hpp>
+#include <Ark/Error/Exceptions.hpp>
 
 #include <fmt/ranges.h>
 #include <fmt/format.h>

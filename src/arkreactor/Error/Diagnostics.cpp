@@ -1,9 +1,8 @@
-#include <Ark/Exceptions.hpp>
+#include <Ark/Error/Exceptions.hpp>
 
 #include <cassert>
 #include <sstream>
 #include <algorithm>
-#include <fmt/core.h>
 #include <fmt/color.h>
 #include <fmt/ostream.h>
 
@@ -41,7 +40,7 @@ namespace Ark::Diagnostics
         // clang-format on
         constexpr std::size_t pairing_color_size = pairing_color.size();
 
-        for (const char& c : line)
+        for (const char c : line)
         {
             if (isPairableChar(c))
             {

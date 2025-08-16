@@ -2,7 +2,7 @@
 
 #include <Ark/Utils/Files.hpp>
 #include <Ark/Compiler/AST/Parser.hpp>
-#include <Ark/Exceptions.hpp>
+#include <Ark/Error/Exceptions.hpp>
 
 #include <sstream>
 #include <algorithm>

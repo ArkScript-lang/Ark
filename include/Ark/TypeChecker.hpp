@@ -16,7 +16,7 @@
 #include <ostream>
 #include <sstream>
 
-#include <Ark/Exceptions.hpp>
+#include <Ark/Error/Exceptions.hpp>
 #include <Ark/VM/Value.hpp>
 
 namespace Ark::types

@@ -11,7 +11,7 @@
 #ifndef ARK_ARK_HPP
 #define ARK_ARK_HPP
 
-#include <Ark/Exceptions.hpp>
+#include <Ark/Error/Exceptions.hpp>
 #include <Ark/Constants.hpp>
 #include <Ark/Utils/Utils.hpp>
 #include <Ark/VM/VM.hpp>

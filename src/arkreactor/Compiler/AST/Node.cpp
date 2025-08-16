@@ -1,7 +1,7 @@
 #include <Ark/Compiler/Common.hpp>
 #include <Ark/Compiler/AST/Node.hpp>
 
-#include <Ark/Exceptions.hpp>
+#include <Ark/Error/Exceptions.hpp>
 
 #include <cassert>
 #include <fmt/core.h>

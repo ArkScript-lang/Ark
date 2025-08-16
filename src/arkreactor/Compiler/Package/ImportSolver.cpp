@@ -5,7 +5,7 @@
 #include <fmt/core.h>
 
 #include <Ark/Utils/Files.hpp>
-#include <Ark/Exceptions.hpp>
+#include <Ark/Error/Exceptions.hpp>
 #include <Ark/Compiler/AST/Parser.hpp>
 
 namespace Ark::internal

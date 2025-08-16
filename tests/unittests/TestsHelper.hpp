@@ -3,7 +3,8 @@
 
 #include <Ark/Utils/Files.hpp>
 #include <Ark/Utils/Utils.hpp>
-#include <Ark/Exceptions.hpp>
+#include <Ark/Error/Exceptions.hpp>
+#include <Ark/Error/Diagnostics.hpp>
 
 #include <string>
 #include <algorithm>
