@@ -21,7 +21,7 @@ namespace Ark::Diagnostics
         const std::optional<CodeErrorContext>& maybe_context,  // can not be populated at runtime, only compile time
         const bool colorize)
     {
-        assert(!(maybe_context && loc.whole_line) && "Can not create error context when a context is given AND the whole line has to be underlined");
+        assert(!(maybe_context && loc.wholeLineIsError()) && "Can not create error context when a context is given AND the whole line has to be underlined");
 
         using namespace Ark::literals;
 
@@ -105,7 +105,7 @@ namespace Ark::Diagnostics
             {
                 fmt::print(os, "{}", line_no_num);
 
-                if (!loc.whole_line)
+                if (!loc.wholeLineIsError())
                 {
                     std::size_t line_first_char = line.find_first_not_of(" \t\v");
                     line_first_char = line_first_char == std::string::npos ? 0 : line_first_char;
@@ -197,8 +197,7 @@ namespace Ark::Diagnostics
                 .filename = filename,
                 .start = FilePos { .line = line, .column = column },
                 // FIXME: hack using sym_size
-                .end = FilePos { .line = line, .column = column + sym_size },
-                .whole_line = false },
+                .end = FilePos { .line = line, .column = column + sym_size } },
             os, expr, maybe_context, colorize);
 
         const auto message_lines = Utils::splitString(message, '\n');

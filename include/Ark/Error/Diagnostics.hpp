@@ -32,7 +32,10 @@ namespace Ark::Diagnostics
         FilePos start;
         std::optional<FilePos> end;
 
-        bool whole_line;  ///< If true, we ignore the column
+        [[nodiscard]] bool wholeLineIsError() const
+        {
+            return !end.has_value();
+        }
     };
 
     /**
