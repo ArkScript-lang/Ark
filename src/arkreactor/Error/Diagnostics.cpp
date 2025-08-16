@@ -1,4 +1,4 @@
-#include <Ark/Error/Exceptions.hpp>
+#include <Ark/Error/Diagnostics.hpp>
 
 #include <cassert>
 #include <sstream>
@@ -15,25 +15,21 @@
 namespace Ark::Diagnostics
 {
     void makeContext(
+        ErrorLocation loc,
         std::ostream& os,
-        const std::string& filename,
         const std::optional<std::string>& expr,
-        const std::size_t sym_size,
-        const std::size_t target_line,
-        const std::size_t col_start,
         const std::optional<CodeErrorContext>& maybe_context,  // can not be populated at runtime, only compile time
-        const bool whole_line,
         const bool colorize)
     {
-        assert(!(maybe_context && whole_line) && "Can not create error context when a context is given AND the whole line has to be underlined");
+        assert(!(maybe_context && loc.whole_line) && "Can not create error context when a context is given AND the whole line has to be underlined");
 
         using namespace Ark::literals;
 
         auto show_file_location = [&] {
-            if (filename != ARK_NO_NAME_FILE)
-                fmt::print(os, "In file {}:{}\n", filename, target_line + 1);
+            if (loc.filename != ARK_NO_NAME_FILE)
+                fmt::print(os, "In file {}:{}\n", loc.filename, loc.start.line + 1);
             if (expr)
-                fmt::print(os, "At {} @ {}:{}\n", expr.value(), target_line + 1, col_start);
+                fmt::print(os, "At {} @ {}:{}\n", expr.value(), loc.start.line + 1, loc.start.column);
         };
 
         const std::string line_no_num = "      |";
@@ -55,7 +51,7 @@ namespace Ark::Diagnostics
                     colorize ? fmt::fg(fmt::color::red) : fmt::text_style()));
         };
 
-        Printer source_printer(filename, target_line, colorize);
+        Printer source_printer(loc.filename, loc.start.line, colorize);
         if (!source_printer.hasContent())
         {
             // show the "in file..." before early return
@@ -64,11 +60,13 @@ namespace Ark::Diagnostics
         }
         const std::string& targetLine = source_printer.targetLine();
 
-        // fixme: migrate to end line/end column
+        // FIXME: hack
+        std::size_t sym_size = loc.end ? loc.end->column - loc.start.column : 0;
+        // FIXME: migrate to end line/end column
         // overflow is non-zero when the expression doesn't fit on the target line
-        std::size_t overflow = (col_start + sym_size <= targetLine.size()) ? 0 : sym_size;
+        std::size_t overflow = (loc.start.column + sym_size <= targetLine.size()) ? 0 : sym_size;
 
-        const bool ctx_same_file = maybe_context && maybe_context->filename == filename;
+        const bool ctx_same_file = maybe_context && maybe_context->filename == loc.filename;
         const bool ctx_in_window = ctx_same_file && maybe_context && source_printer.coversLine(maybe_context->line);
 
         if (ctx_same_file && !ctx_in_window)
@@ -99,24 +97,24 @@ namespace Ark::Diagnostics
             source_printer.printLine(os);
 
             // if the error context is in the current file, point to it as the parent of our error
-            if (maybe_context && i == maybe_context->line && i != target_line)
+            if (maybe_context && i == maybe_context->line && i != loc.start.line)
                 print_context_hint();
 
             // show where the error occurred (do not mark empty lines as being part of the error when we have overflow)
-            if (source_printer.isTargetLine() || (i > target_line && overflow > 0 && !line.empty()))
+            if (source_printer.isTargetLine() || (i > loc.start.line && overflow > 0 && !line.empty()))
             {
                 fmt::print(os, "{}", line_no_num);
 
-                if (!whole_line)
+                if (!loc.whole_line)
                 {
                     std::size_t line_first_char = line.find_first_not_of(" \t\v");
                     line_first_char = line_first_char == std::string::npos ? 0 : line_first_char;
 
                     // if we have an overflow then we start at the beginning of the line (first non-space character)
-                    const std::size_t curr_col_start = (i == target_line) ? col_start : (overflow == 0 ? col_start : line_first_char + 1);
+                    const std::size_t curr_col_start = (i == loc.start.line) ? loc.start.column : (overflow == 0 ? loc.start.column : line_first_char + 1);
                     // if we have an overflow, it is used as the end of the line
-                    const std::size_t col_end = (i == target_line) ? std::min<std::size_t>(col_start + sym_size, targetLine.size())
-                                                                   : std::min<std::size_t>(line_first_char + overflow, line.size());
+                    const std::size_t col_end = (i == loc.start.line) ? std::min<std::size_t>(loc.start.column + sym_size, targetLine.size())
+                                                                      : std::min<std::size_t>(line_first_char + overflow, line.size());
                     // update the overflow to avoid going here again if not needed
                     // using min between overflow and what we need to delete to avoid underflow
                     overflow -= std::min(overflow, line.size() - line_first_char);
@@ -125,7 +123,7 @@ namespace Ark::Diagnostics
                         source_printer.extendWindowEnd();
 
                     // show the error where it's at, using the normal process, if there is no context OR if the context line is different from the error line
-                    if (!maybe_context || maybe_context->line != target_line)
+                    if (!maybe_context || maybe_context->line != loc.start.line)
                         fmt::print(
                             os,
                             "{: <{}}{:~<{}}\n",
@@ -135,7 +133,7 @@ namespace Ark::Diagnostics
                             // underline the error in red
                             fmt::styled("^", colorize ? fmt::fg(fmt::color::red) : fmt::text_style()),
                             curr_col_start < col_end ? col_end - curr_col_start : 1);
-                    else if (i == target_line)  // maybe_context has a value, i == target_line to avoid having to deal with overflow
+                    else if (i == loc.start.line)  // maybe_context has a value, i == target_line to avoid having to deal with overflow
                     {
                         const auto padding_size = std::max(1_z, maybe_context->col);
 
@@ -149,7 +147,7 @@ namespace Ark::Diagnostics
                             fmt::styled("│", colorize ? fmt::fg(fmt::color::red) : fmt::text_style()),
                             // yet another padding of spaces between the parent and error column (if need be)
                             // -2 to account for the │ and then └
-                            (col_start - maybe_context->col <= 2) ? "" : fmt::format("{: <{}}", " ", col_start - maybe_context->col - 2),
+                            (loc.start.column - maybe_context->col <= 2) ? "" : fmt::format("{: <{}}", " ", loc.start.column - maybe_context->col - 2),
                             // underline the error in red
                             fmt::styled("└─ error", colorize ? fmt::fg(fmt::color::red) : fmt::text_style()));
                         // new line, some spacing between the error and the parent
@@ -194,7 +192,14 @@ namespace Ark::Diagnostics
                 const std::size_t line, const std::size_t column,
                 const std::optional<CodeErrorContext>& maybe_context = std::nullopt)
     {
-        makeContext(os, filename, expr, sym_size, line, column, maybe_context, /* whole_line= */ false, colorize);
+        makeContext(
+            ErrorLocation {
+                .filename = filename,
+                .start = FilePos { .line = line, .column = column },
+                // FIXME: hack using sym_size
+                .end = FilePos { .line = line, .column = column + sym_size },
+                .whole_line = false },
+            os, expr, maybe_context, colorize);
 
         const auto message_lines = Utils::splitString(message, '\n');
         for (const auto& text : message_lines)

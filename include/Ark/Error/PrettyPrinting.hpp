@@ -107,7 +107,7 @@ namespace Ark::Diagnostics
             return m_window;
         }
 
-        // fixme
+        // FIXME: we should not need this?
         [[nodiscard]] inline std::size_t current() const
         {
             return m_current_line;
