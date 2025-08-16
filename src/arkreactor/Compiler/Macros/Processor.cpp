@@ -8,7 +8,7 @@
 #include <fmt/core.h>
 
 #include <Ark/Constants.hpp>
-#include <Ark/Exceptions.hpp>
+#include <Ark/Error/Exceptions.hpp>
 #include <Ark/Builtins/Builtins.hpp>
 #include <Ark/Compiler/Macros/Executor.hpp>
 #include <Ark/Compiler/Macros/Executors/Symbol.hpp>

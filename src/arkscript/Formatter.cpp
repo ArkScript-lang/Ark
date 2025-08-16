@@ -5,7 +5,8 @@
 #include <fmt/color.h>
 
 #include <Ark/Utils/Files.hpp>
-#include <Ark/Exceptions.hpp>
+#include <Ark/Error/Exceptions.hpp>
+#include <Ark/Error/Diagnostics.hpp>
 #include <Ark/Compiler/Common.hpp>
 
 using namespace Ark;

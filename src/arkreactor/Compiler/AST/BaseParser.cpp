@@ -1,5 +1,5 @@
 #include <Ark/Compiler/AST/BaseParser.hpp>
-#include <Ark/Exceptions.hpp>
+#include <Ark/Error/Exceptions.hpp>
 
 #include <utility>
 #include <algorithm>

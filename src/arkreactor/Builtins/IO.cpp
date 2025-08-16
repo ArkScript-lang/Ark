@@ -6,7 +6,7 @@
 
 #include <Ark/Utils/Files.hpp>
 #include <Ark/VM/VM.hpp>
-#include <Ark/Exceptions.hpp>
+#include <Ark/Error/Exceptions.hpp>
 #include <Ark/TypeChecker.hpp>
 
 namespace Ark::internal::Builtins::IO
