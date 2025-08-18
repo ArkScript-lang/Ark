@@ -446,8 +446,7 @@ namespace Ark::internal
                     else
                         throwMacroProcessingError(fmt::format("Index ({}) out of range (list size: {})", num_idx, real_size), node);
 
-                    output.setFilename(node.filename());
-                    output.setPos(node.line(), node.col());
+                    output.setPositionFrom(node);
                     return output;
                 }
             }

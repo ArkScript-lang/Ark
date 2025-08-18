@@ -149,7 +149,7 @@ namespace Ark::internal
                 uint16_t i = addSymbol(*it);
                 page(p).emplace_back(GET_FIELD, i);
             }
-            page(p).back().setSourceLocation(x.filename(), x.line());
+            page(p).back().setSourceLocation(x.filename(), x.position().start.line);
         }
         // register values
         else if (x.nodeType() == NodeType::String || x.nodeType() == NodeType::Number)
@@ -222,7 +222,7 @@ namespace Ark::internal
 
                 case Keyword::Del:
                     page(p).emplace_back(DEL, addSymbol(x.constList()[1]));
-                    page(p).back().setSourceLocation(x.filename(), x.line());
+                    page(p).back().setSourceLocation(x.filename(), x.position().start.line);
                     break;
             }
         }
@@ -316,7 +316,7 @@ namespace Ark::internal
                 break;
         }
         page(p).emplace_back(inst, static_cast<uint16_t>(inst_argc));
-        page(p).back().setSourceLocation(head.filename(), head.line());
+        page(p).back().setSourceLocation(head.filename(), head.position().start.line);
 
         if (is_result_unused && name.back() != '!' && inst <= POP_LIST_IN_PLACE)  // in-place functions never push a value
         {
@@ -329,7 +329,7 @@ namespace Ark::internal
     {
         // compile condition
         compileExpression(x.list()[1], p, false, false);
-        page(p).back().setSourceLocation(x.constList()[1].filename(), x.constList()[1].line());
+        page(p).back().setSourceLocation(x.constList()[1].filename(), x.constList()[1].position().start.line);
 
         // jump only if needed to the "true" branch
         const auto label_then = IR::Entity::Label(m_current_label++);
@@ -340,7 +340,7 @@ namespace Ark::internal
         {
             m_locals_locator.saveScopeLengthForBranch();
             compileExpression(x.list()[3], p, is_result_unused, is_terminal);
-            page(p).back().setSourceLocation(x.constList()[3].filename(), x.constList()[3].line());
+            page(p).back().setSourceLocation(x.constList()[3].filename(), x.constList()[3].position().start.line);
             m_locals_locator.dropVarsForBranch();
         }
 
@@ -353,7 +353,7 @@ namespace Ark::internal
         // if code
         m_locals_locator.saveScopeLengthForBranch();
         compileExpression(x.list()[2], p, is_result_unused, is_terminal);
-        page(p).back().setSourceLocation(x.constList()[2].filename(), x.constList()[2].line());
+        page(p).back().setSourceLocation(x.constList()[2].filename(), x.constList()[2].position().start.line);
         m_locals_locator.dropVarsForBranch();
         // set jump to end pos
         page(p).emplace_back(label_end);
@@ -467,7 +467,7 @@ namespace Ark::internal
 
         if (is_function)
             m_opened_vars.pop();
-        page(p).back().setSourceLocation(x.filename(), x.line());
+        page(p).back().setSourceLocation(x.filename(), x.position().start.line);
     }
 
     void ASTLowerer::compileWhile(Node& x, const Page p)
@@ -477,7 +477,7 @@ namespace Ark::internal
 
         m_locals_locator.createScope();
         page(p).emplace_back(CREATE_SCOPE);
-        page(p).back().setSourceLocation(x.filename(), x.line());
+        page(p).back().setSourceLocation(x.filename(), x.position().start.line);
 
         // save current position to jump there at the end of the loop
         const auto label_loop = IR::Entity::Label(m_current_label++);
@@ -519,7 +519,7 @@ namespace Ark::internal
         uint16_t id = addValue(Node(NodeType::String, path));
         // add plugin instruction + id of the constant referring to the plugin path
         page(p).emplace_back(PLUGIN, id);
-        page(p).back().setSourceLocation(x.filename(), x.line());
+        page(p).back().setSourceLocation(x.filename(), x.position().start.line);
     }
 
     void ASTLowerer::pushFunctionCallArguments(Node& call, const Page p, const bool is_tail_call)
@@ -599,7 +599,7 @@ namespace Ark::internal
 
                 // jump to the top of the function
                 page(p).emplace_back(JUMP, 0_u16);
-                page(p).back().setSourceLocation(node.filename(), node.line());
+                page(p).back().setSourceLocation(node.filename(), node.position().start.line);
                 return;  // skip the potential Instruction::POP at the end
             }
             else
@@ -644,7 +644,7 @@ namespace Ark::internal
                 }
                 // call the procedure
                 page(p).emplace_back(CALL, args_count);
-                page(p).back().setSourceLocation(node.filename(), node.line());
+                page(p).back().setSourceLocation(node.filename(), node.position().start.line);
 
                 // patch the PUSH_RETURN_ADDRESS instruction with the return location (IP=CALL instruction IP)
                 page(p).emplace_back(label_return);
@@ -691,7 +691,7 @@ namespace Ark::internal
             else if (exp_count <= 1)
                 buildAndThrowError(fmt::format("Operator needs two arguments, but was called with {}", exp_count), x.constList()[0]);
 
-            page(p).back().setSourceLocation(x.filename(), x.line());
+            page(p).back().setSourceLocation(x.filename(), x.position().start.line);
 
             // need to check we didn't push the (op A B C D...) things for operators not supporting it
             if (exp_count > 2)

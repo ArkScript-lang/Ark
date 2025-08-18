@@ -253,8 +253,8 @@ std::string JsonCompiler::_compile(const Node& node)
                 "Not handled NodeType::{} ({} at {}:{}), please report this error on GitHub",
                 nodeTypes[static_cast<std::size_t>(node.nodeType())].data(),
                 node.filename(),
-                node.line(),
-                node.col()));
+                node.position().start.line,
+                node.position().start.column));
     }
     return json;
 }
