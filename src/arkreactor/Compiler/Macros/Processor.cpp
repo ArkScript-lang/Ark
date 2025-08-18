@@ -745,7 +745,7 @@ namespace Ark::internal
                 const Node& origin = m_macros_being_applied.front();
                 return CodeErrorContext(
                     origin.filename(),
-                    ContextPosition { origin.line(), origin.col() },
+                    origin.position(),
                     origin.repr(),
                     /* from_macro_expansion= */ true);
             }
@@ -756,7 +756,7 @@ namespace Ark::internal
             message,
             CodeErrorContext(
                 node.filename(),
-                ContextPosition { node.line(), node.col() },
+                node.position(),
                 node.repr()),
             maybe_context);
     }

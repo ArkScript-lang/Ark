@@ -132,7 +132,7 @@ namespace Ark::internal
 
     void ASTLowerer::buildAndThrowError(const std::string& message, const Node& node)
     {
-        throw CodeError(message, CodeErrorContext(node.filename(), ContextPosition { node.line(), node.col() }, node.repr()));
+        throw CodeError(message, CodeErrorContext(node.filename(), node.position(), node.repr()));
     }
 
     void ASTLowerer::compileExpression(Node& x, const Page p, const bool is_result_unused, const bool is_terminal)

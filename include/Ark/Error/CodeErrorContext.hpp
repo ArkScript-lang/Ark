@@ -14,35 +14,27 @@
 #include <string>
 
 #include <Ark/Utils/Platform.hpp>
+#include <Ark/Utils/Position.hpp>
 #include <Ark/Compiler/AST/utf8_char.hpp>
 
 namespace Ark
 {
-    struct ARK_API ContextPosition final
-    {
-        std::size_t line;
-        std::size_t column;
-
-        // todo: add end position?
-    };
-
     struct ARK_API CodeErrorContext final
     {
         const std::string filename;
-        const ContextPosition at;
-        const std::string expr;
+        const internal::FileSpan at;
+        const std::string expr;  // todo: get rid of this?
         const std::optional<internal::utf8_char_t> symbol;
         const bool is_macro_expansion = false;
 
-        // TODO: create an aggregate for line/column (start+end)
-        CodeErrorContext(std::string filename_, const ContextPosition pos, std::string expression, const std::optional<internal::utf8_char_t> maybe_symbol = std::nullopt) :
+        CodeErrorContext(std::string filename_, const internal::FileSpan& pos, std::string expression, const std::optional<internal::utf8_char_t> maybe_symbol = std::nullopt) :
             filename(std::move(filename_)),
             at(pos),
             expr(std::move(expression)),
             symbol(maybe_symbol)
         {}
 
-        CodeErrorContext(std::string filename_, const ContextPosition pos, std::string expression, const bool from_macro_expansion) :
+        CodeErrorContext(std::string filename_, const internal::FileSpan& pos, std::string expression, const bool from_macro_expansion) :
             filename(std::move(filename_)),
             at(pos),
             expr(std::move(expression)),

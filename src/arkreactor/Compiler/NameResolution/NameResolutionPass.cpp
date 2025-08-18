@@ -102,7 +102,7 @@ namespace Ark::internal
                                     fmt::format("MutabilityError: Can not modify the constant list `{}' using `{}'", arg, funcname),
                                     CodeErrorContext(
                                         node.filename(),
-                                        ContextPosition { node.constList()[1].line(), node.constList()[1].col() },
+                                        node.constList()[1].position(),
                                         arg));
 
                             // check that we aren't doing a (append! a a) nor a (concat! a a)
@@ -115,7 +115,7 @@ namespace Ark::internal
                                             fmt::format("MutabilityError: Can not {} the list `{}' to itself", funcname, arg),
                                             CodeErrorContext(
                                                 node.filename(),
-                                                ContextPosition { node.constList()[1].line(), node.constList()[1].col() },
+                                                node.constList()[1].position(),
                                                 arg));
                                 }
                             }
@@ -154,7 +154,7 @@ namespace Ark::internal
                             fmt::format("ImportError: Can not import symbol {} from {}, as it isn't in the package", *it, namespace_.name),
                             CodeErrorContext(
                                 namespace_.ast->filename(),
-                                ContextPosition { namespace_.ast->line(), namespace_.ast->col() },
+                                namespace_.ast->position(),
                                 "import"));
                 }
 
@@ -188,7 +188,7 @@ namespace Ark::internal
                             fmt::format("Can not use a reserved identifier ('{}') as a {} name.", name, keyword == Keyword::Let ? "constant" : "variable"),
                             CodeErrorContext(
                                 node.filename(),
-                                ContextPosition { node.constList()[1].line(), node.constList()[1].col() },
+                                node.constList()[1].position(),
                                 name));
 
                     if (m_scope_resolver.isInScope(name) && keyword == Keyword::Let && register_declarations)
@@ -196,7 +196,7 @@ namespace Ark::internal
                             fmt::format("MutabilityError: Can not use 'let' to redefine variable `{}'", name),
                             CodeErrorContext(
                                 node.filename(),
-                                ContextPosition { node.constList()[1].line(), node.constList()[1].col() },
+                                node.constList()[1].position(),
                                 name));
                     if (keyword == Keyword::Set && m_scope_resolver.isRegistered(name))
                     {
@@ -205,7 +205,7 @@ namespace Ark::internal
                                 fmt::format("MutabilityError: Can not set the constant `{}' to {}", name, node.constList()[2].repr()),
                                 CodeErrorContext(
                                     node.filename(),
-                                    ContextPosition { node.constList()[1].line(), node.constList()[1].col() },
+                                    node.constList()[1].position(),
                                     name));
 
                         updateSymbolWithFullyQualifiedName(node.list()[1]);
@@ -250,7 +250,7 @@ namespace Ark::internal
                                     fmt::format("Can not capture `{}' because it is referencing a variable defined in an unreachable scope.", child.string()),
                                     CodeErrorContext(
                                         child.filename(),
-                                        ContextPosition { child.line(), child.col() },
+                                        child.position(),
                                         child.repr()));
 
                             // save the old unqualified name of the capture, so that we can use it in the
@@ -339,7 +339,7 @@ namespace Ark::internal
                     symbol.string(), fqn),
                 CodeErrorContext(
                     symbol.filename(),
-                    ContextPosition { symbol.line(), symbol.col() },
+                    symbol.position(),
                     symbol.repr()));
         }
         if (!allowed)
@@ -360,7 +360,7 @@ namespace Ark::internal
                 message,
                 CodeErrorContext(
                     symbol.filename(),
-                    ContextPosition { symbol.line(), symbol.col() },
+                    symbol.position(),
                     symbol.repr()));
         }
 
@@ -393,7 +393,7 @@ namespace Ark::internal
                     message = fmt::format(R"(Unbound variable error "{}" (did you mean "{}"?{}))", str, suggestion, add_note ? note_about_prefix : "");
                 }
 
-                throw CodeError(message, CodeErrorContext(sym.filename(), ContextPosition { sym.line(), sym.col() }, sym.repr()));
+                throw CodeError(message, CodeErrorContext(sym.filename(), sym.position(), sym.repr()));
             }
         }
     }

@@ -196,9 +196,9 @@ namespace Ark::internal
         return {};
     }
 
-    std::filesystem::path ImportSolver::findFile(const std::filesystem::path& file, const Import& import) const
+    std::filesystem::path ImportSolver::findFile(const std::filesystem::path& file, const Import& import_) const
     {
-        const std::string package_path = import.packageToPath();
+        const std::string package_path = import_.packageToPath();
         if (auto maybe_path = testExtensions(m_root, package_path); maybe_path.has_value())
             return maybe_path.value();
 
@@ -212,10 +212,10 @@ namespace Ark::internal
         // fallback, we couldn't find the file
         throw CodeError(
             fmt::format("While processing file {}, couldn't import {}: file not found",
-                        file.filename().string(), import.toPackageString()),
+                        file.filename().string(), import_.toPackageString()),
             CodeErrorContext(
                 file.generic_string(),
-                ContextPosition { .line = import.line, .column = import.col },
-                fmt::format("(import {})", import.toPackageString())));
+                FileSpan { .start = FilePos { .line = import_.line, .column = import_.col }, .end = std::nullopt },
+                fmt::format("(import {})", import_.toPackageString())));
     }
 }
