@@ -16,21 +16,16 @@
 #include <iostream>
 
 #include <Ark/Utils/Platform.hpp>
+#include <Ark/Utils/Position.hpp>
 #include <Ark/Error/Exceptions.hpp>
 
 namespace Ark::Diagnostics
 {
-    struct FilePos
-    {
-        std::size_t line;    ///< 0-indexed line number
-        std::size_t column;  ///< 0-indexed column number
-    };
-
     struct ErrorLocation
     {
         std::string filename;  ///< Complete path to the file where the error is
-        FilePos start;
-        std::optional<FilePos> end;
+        internal::FilePos start;
+        std::optional<internal::FilePos> end;
 
         [[nodiscard]] bool wholeLineIsError() const
         {

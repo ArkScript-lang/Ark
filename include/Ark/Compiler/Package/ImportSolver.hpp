@@ -83,10 +83,10 @@ namespace Ark::internal
          * @brief Search for an import file, using the root file path
          *
          * @param file path to the file containing the import
-         * @param import current import directive
+         * @param import_ current import directive
          * @return std::filesystem::path
          */
-        [[nodiscard]] std::filesystem::path findFile(const std::filesystem::path& file, const Import& import) const;
+        [[nodiscard]] std::filesystem::path findFile(const std::filesystem::path& file, const Import& import_) const;
     };
 }
 

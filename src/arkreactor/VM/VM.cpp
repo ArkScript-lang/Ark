@@ -2092,7 +2092,7 @@ namespace Ark
                 Diagnostics::makeContext(
                     Diagnostics::ErrorLocation {
                         .filename = filename,
-                        .start = Diagnostics::FilePos { .line = maybe_location->line, .column = 0 },
+                        .start = FilePos { .line = maybe_location->line, .column = 0 },
                         .end = std::nullopt },
                     os,
                     /* expr= */ std::nullopt,

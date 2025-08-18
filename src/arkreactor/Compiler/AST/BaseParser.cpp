@@ -124,7 +124,7 @@ namespace Ark::internal
 
         return CodeErrorContext(
             m_filename,
-            ContextPosition { .line = row, .column = col },
+            FileSpan { .start = FilePos { .line = row, .column = col }, .end = std::nullopt },  // todo: fill .end
             expr,
             m_sym);
     }
@@ -136,7 +136,7 @@ namespace Ark::internal
             error,
             CodeErrorContext(
                 m_filename,
-                ContextPosition { .line = row, .column = col },
+                FileSpan { .start = FilePos { .line = row, .column = col }, .end = std::nullopt },  // todo: fill .end
                 std::move(exp),
                 m_sym),
             additional_context);

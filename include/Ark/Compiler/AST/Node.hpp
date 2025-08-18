@@ -20,18 +20,10 @@
 #include <Ark/Compiler/AST/Namespace.hpp>
 #include <Ark/Compiler/Common.hpp>
 #include <Ark/Utils/Platform.hpp>
+#include <Ark/Utils/Position.hpp>
 
 namespace Ark::internal
 {
-    // todo: remove and use codeerrorcontext -> contextposition
-    struct NodePos
-    {
-        std::size_t start_line = 0;  // todo: do not default init to track the last nodes without a position inside the parser (?)
-        std::size_t start_col = 0;
-        std::size_t end_line = 0;
-        std::size_t end_col = 0;
-    };
-
     /**
      * @brief A node of an Abstract Syntax Tree for ArkScript
      *
@@ -176,6 +168,7 @@ namespace Ark::internal
          * @param line
          * @param col
          */
+        // todo: remove/enhance?
         void setPos(std::size_t line, std::size_t col) noexcept;
 
         /**
@@ -224,15 +217,24 @@ namespace Ark::internal
          */
         [[nodiscard]] bool isAltSyntax() const;
 
-        [[nodiscard]] std::size_t line() const noexcept;
-        [[nodiscard]] std::size_t col() const noexcept;
+        // todo: remove
+        [[nodiscard]] std::size_t line() const noexcept
+        {
+            return m_pos.start.line;
+        }
+
+        // todo: remove
+        [[nodiscard]] std::size_t col() const noexcept
+        {
+            return m_pos.start.column;
+        }
 
         /**
-         * @brief Get the position of the node (start and end)
+         * @brief Get the span of the node (start and end)
          *
-         * @return const NodePos
+         * @return const FileSpan
          */
-        [[nodiscard]] NodePos position() const noexcept;
+        [[nodiscard]] FileSpan position() const noexcept;
 
         /**
          * @brief Return the filename in which this node was created
@@ -274,7 +276,7 @@ namespace Ark::internal
         Value m_value;
         std::optional<std::string> m_unqualified_name { std::nullopt };  ///< Used by Capture nodes, to have the FQN in the value, and the captured name here
         // position of the node in the original code, useful when it comes to parser errors
-        NodePos m_pos;
+        FileSpan m_pos;
         std::string m_filename;
         std::string m_comment;
         std::string m_after_comment;          ///< Comment after node

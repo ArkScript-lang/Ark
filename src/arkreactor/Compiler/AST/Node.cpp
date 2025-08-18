@@ -9,30 +9,30 @@
 namespace Ark::internal
 {
     Node::Node(const NodeType node_type, const std::string& value) :
-        m_type(node_type), m_value(value)
+        m_type(node_type), m_value(value), m_pos()
     {}
 
     Node::Node(const NodeType node_type) :
-        m_type(node_type)
+        m_type(node_type), m_pos()
     {
         if (m_type == NodeType::List || m_type == NodeType::Macro || m_type == NodeType::Field)
             m_value = std::vector<Node>();
     }
 
     Node::Node(double value) :
-        m_type(NodeType::Number), m_value(value)
+        m_type(NodeType::Number), m_value(value), m_pos()
     {}
 
     Node::Node(const long value) :
-        m_type(NodeType::Number), m_value(static_cast<double>(value))
+        m_type(NodeType::Number), m_value(static_cast<double>(value)), m_pos()
     {}
 
     Node::Node(Keyword value) :
-        m_type(NodeType::Keyword), m_value(value)
+        m_type(NodeType::Keyword), m_value(value), m_pos()
     {}
 
     Node::Node(const Namespace& namespace_) :
-        m_type(NodeType::Namespace), m_value(namespace_)
+        m_type(NodeType::Namespace), m_value(namespace_), m_pos()
     {}
 
     const std::string& Node::string() const noexcept
@@ -126,8 +126,8 @@ namespace Ark::internal
 
     void Node::setPos(const std::size_t line, const std::size_t col) noexcept
     {
-        m_pos.start_line = line;
-        m_pos.start_col = col;
+        m_pos.start.line = line;
+        m_pos.start.column = col;
     }
 
     void Node::setFilename(const std::string& filename) noexcept
@@ -156,7 +156,7 @@ namespace Ark::internal
         m_alt_syntax = toggle;
     }
 
-    void Node::setFunctionKind(bool anonymous)
+    void Node::setFunctionKind(const bool anonymous)
     {
         m_is_anonymous_function = anonymous;
     }
@@ -171,17 +171,7 @@ namespace Ark::internal
         return m_alt_syntax;
     }
 
-    std::size_t Node::line() const noexcept
-    {
-        return m_pos.start_line;
-    }
-
-    std::size_t Node::col() const noexcept
-    {
-        return m_pos.start_col;
-    }
-
-    NodePos Node::position() const noexcept
+    FileSpan Node::position() const noexcept
     {
         return m_pos;
     }
