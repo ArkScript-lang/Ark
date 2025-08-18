@@ -16,7 +16,7 @@ namespace Ark::internal
             }) != m_it_to_row.end())
             return;
 
-        // if the mapping is empty, the loop while never hit and we'll never insert anything
+        // if the mapping is empty, the loop while never hit, and we'll never insert anything
         if (m_it_to_row.empty())
         {
             m_it_to_row.emplace_back(it, row);
@@ -51,6 +51,8 @@ namespace Ark::internal
         m_next_it = it;
         m_sym = sym;
 
+        m_previous_filepos = m_filepos;
+
         if (*m_it == '\n')
         {
             ++m_filepos.row;
@@ -81,13 +83,10 @@ namespace Ark::internal
 
     void BaseParser::backtrack(const long n)
     {
-        if (std::cmp_greater_equal(n, m_str.size()))
-            return;
-
         if (std::cmp_less(n, m_str.size()))
             m_it = m_str.begin() + n;
         else
-            m_it = m_str.begin();
+            return;
 
         auto [it, sym] = utf8_char_t::at(m_it, m_str.end());
         m_next_it = it;
@@ -111,11 +110,19 @@ namespace Ark::internal
             m_filepos.col = it_pos - nearest_newline_index;
         else
             m_filepos.col = it_pos + 1;
+        // We can say that the previous position is the current one, as there isn't anything usable right now
+        // Which means we will have to use accept()/next(), which will move filepos and previous_filepos correctly
+        m_previous_filepos = m_filepos;
     }
 
     FilePosition BaseParser::getCursor() const
     {
         return m_filepos;
+    }
+
+    FilePosition BaseParser::getPreviousCursor() const
+    {
+        return m_previous_filepos;
     }
 
     CodeErrorContext BaseParser::generateErrorContext(const std::string& expr)
