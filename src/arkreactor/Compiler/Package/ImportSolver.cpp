@@ -106,8 +106,8 @@ namespace Ark::internal
                             .with_prefix = import.with_prefix,
                             .symbols = import.symbols,
                             .ast = std::make_shared<Node>(findAndReplaceImports(x).first) });
-                        x.arkNamespace().ast->setPos(ast.line(), ast.col());
-                        x.arkNamespace().ast->setFilename(ast.filename());
+
+                        x.arkNamespace().ast->setPositionFrom(ast);
                     }
                     // we parsed an import node, return true in the pair to notify the caller
                     return std::make_pair(x, /* is_import= */ true);

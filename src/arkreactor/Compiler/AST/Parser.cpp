@@ -102,8 +102,11 @@ namespace Ark::internal
     Node Parser::positioned(Node node, const FilePosition cursor) const
     {
         const auto [row, col] = cursor;
-        node.setPos(row, col);
-        node.setFilename(m_filename);
+        node.m_filename = m_filename;
+        node.m_pos = FileSpan {
+            .start = FilePos { .line = row, .column = col },
+            .end = std::nullopt
+        };
         return node;
     }
 
@@ -113,8 +116,11 @@ namespace Ark::internal
             return node;
 
         const auto [row, col] = cursor;
-        node->setPos(row, col);
-        node->setFilename(m_filename);
+        node->m_filename = m_filename;
+        node->m_pos = FileSpan {
+            .start = FilePos { .line = row, .column = col },
+            .end = std::nullopt
+        };
         return node;
     }
 

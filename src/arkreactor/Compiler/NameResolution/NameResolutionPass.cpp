@@ -298,8 +298,7 @@ namespace Ark::internal
         {
             auto it = std::ranges::find_if(m_symbol_nodes, [&old_name, &symbol](const Node& sym_node) -> bool {
                 return sym_node.string() == old_name &&
-                    sym_node.col() == symbol.col() &&
-                    sym_node.line() == symbol.line() &&
+                    sym_node.position().start == symbol.position().start &&
                     sym_node.filename() == symbol.filename();
             });
             if (it != m_symbol_nodes.end())

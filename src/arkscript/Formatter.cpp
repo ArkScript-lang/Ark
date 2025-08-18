@@ -122,12 +122,12 @@ std::size_t Formatter::lineOfLastNodeIn(const Node& node)
 {
     if (node.isListLike() && !node.constList().empty())
     {
-        std::size_t child_line = lineOfLastNodeIn(node.constList().back());
-        if (child_line < node.line())
-            return node.line();
+        const std::size_t child_line = lineOfLastNodeIn(node.constList().back());
+        if (child_line < node.position().start.line)
+            return node.position().start.line;
         return child_line;
     }
-    return node.line();
+    return node.position().start.line;
 }
 
 bool Formatter::shouldSplitOnNewline(const Node& node)
@@ -157,11 +157,11 @@ bool Formatter::shouldAddNewLineBetweenNodes(const Node& node, const std::size_t
     // and the line count between the two nodes is more than 1,
     // maybe we should add a new line to preserve user spacing.
     // However, if the current node has a comment, do not add a new line, this is causing the spacing.
-    if (child.line() - previous_line > 1 && child.comment().empty())
+    if (child.position().start.line - previous_line > 1 && child.comment().empty())
         return true;
     // If we do have a comment but the spacing is more than 2,
     // then add a newline to preserve user spacing.
-    if (child.line() - previous_line > 2 && !child.comment().empty())
+    if (child.position().start.line - previous_line > 2 && !child.comment().empty())
         return true;
     return false;
 }

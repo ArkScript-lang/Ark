@@ -223,8 +223,8 @@ namespace Ark::Diagnostics
             node.filename(),
             node.repr(),
             size,
-            node.line(),
-            node.col());
+            node.position().start.line,
+            node.position().start.column);
 
         return ss.str();
     }

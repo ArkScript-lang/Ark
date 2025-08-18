@@ -163,20 +163,11 @@ namespace Ark::internal
         void setString(const std::string& value) noexcept;
 
         /**
-         * @brief Set the Position of the node in the text
+         * @brief Position the current node at a given span in a file
          *
-         * @param line
-         * @param col
+         * @param source node to copy filename and position from
          */
-        // todo: remove/enhance?
-        void setPos(std::size_t line, std::size_t col) noexcept;
-
-        /**
-         * @brief Set the original Filename where the node was
-         *
-         * @param filename
-         */
-        void setFilename(const std::string& filename) noexcept;
+        void setPositionFrom(const Node& source) noexcept;
 
         /**
          * @brief Set the comment field with the nearest comment before this node
@@ -216,18 +207,6 @@ namespace Ark::internal
          * @return bool
          */
         [[nodiscard]] bool isAltSyntax() const;
-
-        // todo: remove
-        [[nodiscard]] std::size_t line() const noexcept
-        {
-            return m_pos.start.line;
-        }
-
-        // todo: remove
-        [[nodiscard]] std::size_t col() const noexcept
-        {
-            return m_pos.start.column;
-        }
 
         /**
          * @brief Get the span of the node (start and end)
@@ -270,6 +249,7 @@ namespace Ark::internal
 
         friend bool operator==(const Node& A, const Node& B);
         friend bool operator<(const Node& A, const Node& B);
+        friend class Parser;
 
     private:
         NodeType m_type { NodeType::Unused };

@@ -124,15 +124,10 @@ namespace Ark::internal
         m_value = value;
     }
 
-    void Node::setPos(const std::size_t line, const std::size_t col) noexcept
+    void Node::setPositionFrom(const Node& source) noexcept
     {
-        m_pos.start.line = line;
-        m_pos.start.column = col;
-    }
-
-    void Node::setFilename(const std::string& filename) noexcept
-    {
-        m_filename = filename;
+        m_filename = source.m_filename;
+        m_pos = source.m_pos;
     }
 
     Node& Node::attachNearestCommentBefore(const std::string& comment)

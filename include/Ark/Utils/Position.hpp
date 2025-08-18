@@ -21,6 +21,11 @@ namespace Ark::internal
     {
         std::size_t line;    ///< 0-indexed line number
         std::size_t column;  ///< 0-indexed column number
+
+        [[nodiscard]] inline bool operator==(const FilePos& rhs) const noexcept
+        {
+            return line == rhs.line && column == rhs.column;
+        }
     };
 
     /**
