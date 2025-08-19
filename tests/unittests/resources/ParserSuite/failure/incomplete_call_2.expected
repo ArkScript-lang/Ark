@@ -1,5 +1,4 @@
 In file tests/unittests/resources/ParserSuite/failure/incomplete_call_2.ark:10
-At EOF @ 10:0
     1 | (a b c
       | ^ expression started here
     2 | # test comment

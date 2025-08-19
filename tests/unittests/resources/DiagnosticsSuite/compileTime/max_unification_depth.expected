@@ -1,4 +1,3 @@
-At (macro partial (func ...defargs) {(macro bloc (suffix-dup a (len defargs))) (fun (bloc) (func ...defargs bloc)) ($undef bloc)}) @ 17:17
     4 |         (macro p (a b c) (* a b c)))
     5 |     ($symcat sym x)})
     6 |

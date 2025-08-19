@@ -1,5 +1,4 @@
 In file tests/unittests/resources/ParserSuite/failure/incomplete_string.ark:1
-At EOF @ 1:14
     1 | (let a "1 2 3)
       |              ^
         Missing '"' after string

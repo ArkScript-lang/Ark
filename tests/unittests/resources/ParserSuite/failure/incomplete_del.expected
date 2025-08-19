@@ -1,5 +1,4 @@
 In file tests/unittests/resources/ParserSuite/failure/incomplete_del.ark:1
-At ) @ 1:5
     1 | (del)
       |     ^
         del needs a symbol

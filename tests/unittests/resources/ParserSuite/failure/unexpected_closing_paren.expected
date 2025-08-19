@@ -1,5 +1,4 @@
 In file tests/unittests/resources/ParserSuite/failure/unexpected_closing_paren.ark:1
-At ) @ 1:10
     1 | (print 1))
       |          ^
     2 |

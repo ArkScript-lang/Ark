@@ -1,4 +1,3 @@
-At b @ 1:17
     1 | (macro foo (bar bar egg) ())
       |                 ^~~
     2 |

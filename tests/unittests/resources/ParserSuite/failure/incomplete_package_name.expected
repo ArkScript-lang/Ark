@@ -1,5 +1,4 @@
 In file tests/unittests/resources/ParserSuite/failure/incomplete_package_name.ark:1
-At EOF @ 1:12
     1 | (import a.b.
       |            ^
         Package name expected after '.'

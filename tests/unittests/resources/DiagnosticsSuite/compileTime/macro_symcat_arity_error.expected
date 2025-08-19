@@ -1,4 +1,3 @@
-At ($symcat b) @ 1:12
     1 | (macro a { ($symcat b) })
       |            ^~~~~~~~~~~
     2 | (print a)

@@ -1,4 +1,3 @@
-At type @ 1:9
     1 | (print (type))
       |         ^~~~
     2 |

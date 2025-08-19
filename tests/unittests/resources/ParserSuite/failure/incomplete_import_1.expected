@@ -1,5 +1,4 @@
 In file tests/unittests/resources/ParserSuite/failure/incomplete_import_1.ark:1
-At ) @ 1:8
     1 | (import)
       |        ^
         Import expected a package name

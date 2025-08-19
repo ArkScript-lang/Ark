@@ -1,5 +1,4 @@
 In file tests/unittests/resources/ParserSuite/failure/incomplete_fun.ark:1
-At ) @ 1:14
     1 | (fun (a b &c))
       |              ^
         Expected a body for the function

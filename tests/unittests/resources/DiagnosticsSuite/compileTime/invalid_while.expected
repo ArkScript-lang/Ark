@@ -1,4 +1,3 @@
-At (while {(mut acc (+ acc (@ [] 1)))}) @ 1:1
     1 | (while (macro a 1) {
       | ^~~~~~~~~~~~~~~~~~~
     2 |     (mut acc (+ acc (@ [] a)))})

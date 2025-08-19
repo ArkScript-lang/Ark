@@ -1,4 +1,3 @@
-At bar @ 3:8
     1 | (import package.b)
     2 |
     3 | (print bar)

@@ -1,4 +1,3 @@
-At (foo 1 2) @ 4:1
     1 | (macro foo (a b c)
       | ^ macro expansion started here
     2 |     (+ a b c))

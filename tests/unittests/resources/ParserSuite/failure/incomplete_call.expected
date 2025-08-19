@@ -1,5 +1,4 @@
 In file tests/unittests/resources/ParserSuite/failure/incomplete_call.ark:1
-At EOF @ 1:25
     1 | (a b c (if (ok true) 1 2)
       | │                      └─ error
       | │

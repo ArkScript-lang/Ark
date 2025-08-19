@@ -1,4 +1,3 @@
-At &d @ 1:14
     1 | (mut d (fun (&d) (print d)))
       |              ^~
     2 |

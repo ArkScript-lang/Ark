@@ -1,5 +1,4 @@
 In file tests/unittests/resources/ParserSuite/failure/incomplete_macro_spread.ark:1
-At ) @ 1:20
     1 | (macro foo (bar ...) (bar))
       |                    ^
     2 |

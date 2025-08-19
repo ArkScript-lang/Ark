@@ -1,4 +1,3 @@
-At &cap @ 2:16
     1 | (let bar (fun () (let cap 0)))
     2 | (let foo (fun (&cap) ()))
       |                ^~~~
