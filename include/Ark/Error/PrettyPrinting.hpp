@@ -16,6 +16,7 @@
 #include <optional>
 
 #include <Ark/Utils/Platform.hpp>
+#include <Ark/Utils/Position.hpp>
 
 namespace Ark::Diagnostics
 {
@@ -30,20 +31,21 @@ namespace Ark::Diagnostics
     {
         std::size_t start;  ///< First line number to display
         std::size_t target;
+        std::size_t target_end;
         std::size_t end;  ///< Last line of the context, not displayed
 
         std::optional<std::size_t> skip_start_at = std::nullopt;
         std::optional<std::size_t> resume_at = std::nullopt;
 
         Window() :
-            start(0), target(0), end(0)
+            start(0), target(0), target_end(0), end(0)
         {}
 
-        Window(const std::size_t target_line, const std::size_t line_count) :
-            target(target_line)
+        Window(const std::size_t target_line, const std::size_t target_line_end, const std::size_t line_count) :
+            target(target_line), target_end(target_line_end)
         {
             start = target_line >= 3 ? target_line - 3 : 0;
-            end = target_line + 3 <= line_count ? target_line + 3 : line_count;
+            end = target_line_end + 3 <= line_count ? target_line_end + 3 : line_count;
         }
 
         [[nodiscard]] bool hasSkip() const
@@ -63,9 +65,19 @@ namespace Ark::Diagnostics
          *
          * @param filename path to the file that has an error
          * @param target_line line of the error (0-indexed)
+         * @param end_target_line optional end line for the error (0-indexed)
          * @param colorize if we should colorize the output or not
          */
-        Printer(const std::string& filename, std::size_t target_line, bool colorize);
+        Printer(const std::string& filename, std::size_t target_line, std::optional<std::size_t> end_target_line, bool colorize);
+
+        /**
+         * @brief Slice the source code to get code between two cursors
+         *
+         * @param start
+         * @param end
+         * @return std::string
+         */
+        [[nodiscard]] std::string sliceCode(internal::FilePos start, const std::optional<internal::FilePos>& end) const;
 
         /**
          * @brief Extend the window of lines to show, to include a given line.
@@ -74,8 +86,6 @@ namespace Ark::Diagnostics
          * @param line_to_include line to include (0-indexed)
          */
         void extendWindow(std::size_t line_to_include);
-
-        void extendWindowEnd();
 
         /**
          * @brief Print the current line and advance by one
@@ -118,10 +128,7 @@ namespace Ark::Diagnostics
             return m_source[m_current_line];
         }
 
-        [[nodiscard]] inline const std::string& targetLine() const
-        {
-            return m_source[m_window.target];
-        }
+        const static inline std::string GhostLinePrefix = "      |";
 
     private:
         bool m_should_colorize;

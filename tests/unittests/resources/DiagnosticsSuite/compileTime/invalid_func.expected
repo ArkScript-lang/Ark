@@ -1,4 +1,4 @@
     1 | (let foo (fun (a b) (macro a b)))
-      |          ^~~~~~~~~~~
+      |          ^~~~~~~~~~~~~~~~~~~~~
     2 |
         Invalid node ; if it was computed by a macro, check that a node is returned

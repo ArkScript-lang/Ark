@@ -31,6 +31,13 @@ namespace Ark::Diagnostics
         {
             return !end.has_value();
         }
+
+        [[nodiscard]] std::optional<decltype(internal::FilePos::line)> maybeEndLine() const noexcept
+        {
+            if (end)
+                return end->line;
+            return std::nullopt;
+        }
     };
 
     /**
@@ -38,14 +45,12 @@ namespace Ark::Diagnostics
      *
      * @param loc error location
      * @param os stream in which the error will be written
-     * @param expr optional expression causing the error
      * @param maybe_context optional context, parent of the error
      * @param colorize generate colors or not
      */
     ARK_API void makeContext(
-        ErrorLocation loc,
+        const ErrorLocation& loc,
         std::ostream& os,
-        const std::optional<std::string>& expr,
         const std::optional<CodeErrorContext>& maybe_context,
         bool colorize);
 

@@ -74,14 +74,47 @@ namespace Ark::Diagnostics
         }
     }
 
-    Printer::Printer(const std::string& filename, const std::size_t target_line, const bool colorize) :
+    Printer::Printer(
+        const std::string& filename, const std::size_t target_line,
+        const std::optional<std::size_t> end_target_line, const bool colorize) :
         m_should_colorize(colorize)
     {
         const std::string code = filename == ARK_NO_NAME_FILE ? "" : Utils::readFile(filename);
         m_source = Utils::splitString(code, '\n');
 
-        m_window = Window(target_line, m_source.size());
+        m_window = Window(target_line, end_target_line.value_or(target_line), m_source.size());
         m_current_line = m_window.start;
+    }
+
+    std::string Printer::sliceCode(const internal::FilePos start, const std::optional<internal::FilePos>& end) const
+    {
+        std::string code;
+        if (!end)
+        {
+            code = m_source[start.line];
+            Utils::ltrim(Utils::rtrim(code));
+        }
+        else
+        {
+            if (start.line == end->line)
+                code = m_source[start.line].substr(start.column, end->column);
+            else
+            {
+                code = m_source[start.line].substr(start.column);
+
+                if (end->line - start.line > 1)
+                {
+                    for (std::size_t i = start.line + 1; i <= end->line - 1; ++i)
+                    {
+                        code += "\n";
+                        code += m_source[i];
+                    }
+                }
+                code += "\n" + m_source[end->line].substr(0, end->column);
+            }
+        }
+
+        return code;
     }
 
     void Printer::extendWindow(const std::size_t line_to_include)
@@ -95,11 +128,6 @@ namespace Ark::Diagnostics
         // we are guaranteed it will be before our error
         m_window.start = line_to_include >= 3 ? line_to_include - 3 : 0;
         m_current_line = m_window.start;
-    }
-
-    void Printer::extendWindowEnd()
-    {
-        m_window.end++;
     }
 
     void Printer::printLine(std::ostream& os)
@@ -135,7 +163,7 @@ namespace Ark::Diagnostics
 
     bool Printer::isTargetLine() const
     {
-        return m_current_line == m_window.target + 1;
+        return m_window.target + 1 <= m_current_line && m_current_line <= m_window.target_end + 1;
     }
 
     bool Printer::hasContent() const
@@ -145,7 +173,7 @@ namespace Ark::Diagnostics
 
     bool Printer::coversLine(const std::size_t line_number) const
     {
-        return line_number >= m_window.start && line_number < m_window.end;
+        return m_window.start <= line_number && line_number < m_window.end;
     }
 
 }

@@ -1,4 +1,4 @@
     1 | (mut print 5)
-      | ^~~~~
+      | ^~~~~~~~~~~~
     2 |
         Can not use a reserved identifier ('print') as a variable name.

@@ -15,7 +15,6 @@
 
 #include <Ark/Utils/Platform.hpp>
 #include <Ark/Utils/Position.hpp>
-#include <Ark/Compiler/AST/utf8_char.hpp>
 
 namespace Ark
 {
@@ -23,22 +22,16 @@ namespace Ark
     {
         const std::string filename;
         const internal::FileSpan at;
-        const std::string expr;  // todo: get rid of this?
-        const std::optional<internal::utf8_char_t> symbol;
         const bool is_macro_expansion = false;
 
-        CodeErrorContext(std::string filename_, const internal::FileSpan& pos, std::string expression, const std::optional<internal::utf8_char_t> maybe_symbol = std::nullopt) :
+        CodeErrorContext(std::string filename_, const internal::FileSpan& pos) :
             filename(std::move(filename_)),
-            at(pos),
-            expr(std::move(expression)),
-            symbol(maybe_symbol)
+            at(pos)
         {}
 
-        CodeErrorContext(std::string filename_, const internal::FileSpan& pos, std::string expression, const bool from_macro_expansion) :
+        CodeErrorContext(std::string filename_, const internal::FileSpan& pos, const bool from_macro_expansion) :
             filename(std::move(filename_)),
             at(pos),
-            expr(std::move(expression)),
-            symbol(std::nullopt),
             is_macro_expansion(from_macro_expansion)
         {}
     };

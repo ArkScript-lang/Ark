@@ -14,57 +14,46 @@
 
 namespace Ark::Diagnostics
 {
+    using namespace Ark::literals;
+
+    void showFileLocation(std::ostream& os, const ErrorLocation& loc)
+    {
+        if (loc.filename != ARK_NO_NAME_FILE)
+            fmt::print(os, "In file {}:{}\n", loc.filename, loc.start.line + 1);
+    }
+
+    void hintWithContext(std::ostream& os, const std::optional<CodeErrorContext>& maybe_context, const bool colorize)
+    {
+        if (!maybe_context)
+            return;
+
+        fmt::print(os, "{}", Printer::GhostLinePrefix);
+        fmt::print(
+            os,
+            "{: <{}}{}\n",
+            // padding os spaces
+            " ",
+            std::max(1_z, maybe_context->at.start.column),  // fixing padding when the error is on the first character
+            // underline the parent of the error in red
+            fmt::styled(
+                maybe_context->is_macro_expansion ? "^ macro expansion started here" : "^ expression started here",
+                colorize ? fmt::fg(fmt::color::red) : fmt::text_style()));
+    }
+
     void makeContext(
-        ErrorLocation loc,
+        const ErrorLocation& loc,
         std::ostream& os,
-        const std::optional<std::string>& expr,
         const std::optional<CodeErrorContext>& maybe_context,  // can not be populated at runtime, only compile time
         const bool colorize)
     {
         assert(!(maybe_context && loc.wholeLineIsError()) && "Can not create error context when a context is given AND the whole line has to be underlined");
 
-        using namespace Ark::literals;
-
-        auto show_file_location = [&] {
-            if (loc.filename != ARK_NO_NAME_FILE)
-                fmt::print(os, "In file {}:{}\n", loc.filename, loc.start.line + 1);
-            if (expr)
-                fmt::print(os, "At {} @ {}:{}\n", expr.value(), loc.start.line + 1, loc.start.column);
-        };
-
-        const std::string line_no_num = "      |";
-
-        auto print_context_hint = [&os, &maybe_context, &line_no_num, colorize]() mutable {
-            if (!maybe_context)
-                return;
-
-            fmt::print(os, "{}", line_no_num);
-            fmt::print(
-                os,
-                "{: <{}}{}\n",
-                // padding os spaces
-                " ",
-                std::max(1_z, maybe_context->at.start.column),  // fixing padding when the error is on the first character
-                // underline the parent of the error in red
-                fmt::styled(
-                    maybe_context->is_macro_expansion ? "^ macro expansion started here" : "^ expression started here",
-                    colorize ? fmt::fg(fmt::color::red) : fmt::text_style()));
-        };
-
-        Printer source_printer(loc.filename, loc.start.line, colorize);
+        Printer source_printer(loc.filename, loc.start.line, loc.maybeEndLine(), colorize);
         if (!source_printer.hasContent())
         {
-            // show the "in file..." before early return
-            show_file_location();
+            showFileLocation(os, loc);
             return;
         }
-        const std::string& targetLine = source_printer.targetLine();
-
-        // FIXME: hack
-        std::size_t sym_size = loc.end ? loc.end->column - loc.start.column : 0;
-        // FIXME: migrate to end line/end column
-        // overflow is non-zero when the expression doesn't fit on the target line
-        std::size_t overflow = (loc.start.column + sym_size <= targetLine.size()) ? 0 : sym_size;
 
         const bool ctx_same_file = maybe_context && maybe_context->filename == loc.filename;
         const bool ctx_in_window = ctx_same_file && maybe_context && source_printer.coversLine(maybe_context->at.start.line);
@@ -76,18 +65,22 @@ namespace Ark::Diagnostics
             // show the location of the parent of our error first
             fmt::print(os, "Error originated from file {}:{}\n", maybe_context->filename, maybe_context->at.start.line + 1);
 
-            Printer printer(maybe_context->filename, maybe_context->at.start.line, colorize);
+            std::optional<decltype(internal::FilePos::line)> maybe_end_line = std::nullopt;
+            if (maybe_context->at.end)
+                maybe_end_line = maybe_context->at.end->line;
+            Printer printer(maybe_context->filename, maybe_context->at.start.line, maybe_end_line, colorize);
+
             while (printer.hasContent())
             {
                 printer.printLine(os);
                 if (printer.isTargetLine())
-                    print_context_hint();  // todo: migrate to pretty printer?
+                    hintWithContext(os, maybe_context, colorize);
             }
 
             fmt::print(os, "\n");
         }
 
-        show_file_location();
+        showFileLocation(os, loc);
 
         while (source_printer.hasContent())
         {
@@ -97,43 +90,36 @@ namespace Ark::Diagnostics
             source_printer.printLine(os);
 
             // if the error context is in the current file, point to it as the parent of our error
-            if (maybe_context && i == maybe_context->at.start.line && i != loc.start.line)
-                print_context_hint();
+            if (ctx_same_file && i == maybe_context->at.start.line && i != loc.start.line)
+                hintWithContext(os, maybe_context, colorize);
 
-            // show where the error occurred (do not mark empty lines as being part of the error when we have overflow)
-            if (source_printer.isTargetLine() || (i > loc.start.line && overflow > 0 && !line.empty()))
+            // show where the error occurred
+            if (source_printer.isTargetLine() && !line.empty())
             {
-                fmt::print(os, "{}", line_no_num);
+                fmt::print(os, "{}", Printer::GhostLinePrefix);
 
                 if (!loc.wholeLineIsError())
                 {
-                    std::size_t line_first_char = line.find_first_not_of(" \t\v");
-                    line_first_char = line_first_char == std::string::npos ? 0 : line_first_char;
+                    const std::size_t line_first_char = (line.find_first_not_of(" \t\v") == std::string::npos) ? 0 : line.find_first_not_of(" \t\v");
 
-                    // if we have an overflow then we start at the beginning of the line (first non-space character)
-                    const std::size_t curr_col_start = (i == loc.start.line) ? loc.start.column : (overflow == 0 ? loc.start.column : line_first_char + 1);
-                    // if we have an overflow, it is used as the end of the line
-                    const std::size_t col_end = (i == loc.start.line) ? std::min<std::size_t>(loc.start.column + sym_size, targetLine.size())
-                                                                      : std::min<std::size_t>(line_first_char + overflow, line.size());
-                    // update the overflow to avoid going here again if not needed
-                    // using min between overflow and what we need to delete to avoid underflow
-                    overflow -= std::min(overflow, line.size() - line_first_char);
-                    // if there is overflow left, and it's the last line of the context, extend it
-                    if (overflow > 0 && i + 1 == source_printer.window().end)
-                        source_printer.extendWindowEnd();
+                    const std::size_t col_start = (i == loc.start.line) ? loc.start.column : line_first_char + 1;
+                    // due to the `!loc.wholeLineIsError()` check, we are guaranteed to have a value in loc.end
+                    const std::size_t col_end = (i == loc.end->line) ? loc.end->column : line.size();
 
-                    // show the error where it's at, using the normal process, if there is no context OR if the context line is different from the error line
+                    // show the error where it's at, using the normal process, if there is no context OR
+                    // if the context line is different from the error line
                     if (!maybe_context || maybe_context->at.start.line != loc.start.line)
                         fmt::print(
                             os,
                             "{: <{}}{:~<{}}\n",
                             // padding of spaces
                             " ",
-                            std::max(1_z, std::min(curr_col_start, col_end)),  // fixing padding when the error is on the first character
+                            std::max(1_z, std::min(col_start, col_end)),  // fixing padding when the error is on the first character
                             // underline the error in red
                             fmt::styled("^", colorize ? fmt::fg(fmt::color::red) : fmt::text_style()),
-                            curr_col_start < col_end ? col_end - curr_col_start : 1);
-                    else if (i == loc.start.line)  // maybe_context has a value, i == target_line to avoid having to deal with overflow
+                            col_start < col_end ? col_end - col_start : 1);
+                    // cppcheck-suppress knownConditionTrueFalse ; suppressing error so that the condition is explicit to the reader
+                    else if (maybe_context && maybe_context->at.start.line == loc.start.line && i == loc.start.line)
                     {
                         const auto padding_size = std::max(1_z, maybe_context->at.start.column);
 
@@ -149,16 +135,21 @@ namespace Ark::Diagnostics
                             // -2 to account for the │ and then └
                             (loc.start.column - maybe_context->at.start.column <= 2)
                                 ? ""
-                                : fmt::format("{: <{}}", " ", loc.start.column - maybe_context->at.start.column - 2),
+                                : std::string(loc.start.column - maybe_context->at.start.column - 2, ' '),
                             // underline the error in red
                             fmt::styled("└─ error", colorize ? fmt::fg(fmt::color::red) : fmt::text_style()));
                         // new line, some spacing between the error and the parent
-                        fmt::print(os, "{}{: <{}}{}\n", line_no_num, " ", padding_size, fmt::styled("│", colorize ? fmt::fg(fmt::color::red) : fmt::text_style()));
+                        fmt::print(
+                            os,
+                            "{}{: <{}}{}\n", Printer::GhostLinePrefix,
+                            " ",
+                            padding_size,
+                            fmt::styled("│", colorize ? fmt::fg(fmt::color::red) : fmt::text_style()));
                         // new line, now show the "expression started here for the source"
                         fmt::print(
                             os,
                             "{}{: <{}}{}\n",
-                            line_no_num,
+                            Printer::GhostLinePrefix,
                             // padding of spaces
                             " ",
                             padding_size,
@@ -171,7 +162,7 @@ namespace Ark::Diagnostics
                 {
                     // first non-whitespace character of the line
                     // +1 for the leading whitespace after `    |` before the code
-                    const std::size_t curr_col_start = line.find_first_not_of(" \t\v") + 1;
+                    const std::size_t col_start = line.find_first_not_of(" \t\v") + 1;
 
                     // highlight the current line but skip any leading whitespace
                     fmt::print(
@@ -179,32 +170,27 @@ namespace Ark::Diagnostics
                         "{: <{}}{:~<{}}\n",
                         // padding of spaces
                         " ",
-                        curr_col_start,
+                        col_start,
                         // underline the whole line in red
                         fmt::styled("^", colorize ? fmt::fg(fmt::color::red) : fmt::text_style()),
-                        targetLine.size() - curr_col_start);
+                        line.size() - col_start);
                 }
             }
         }
     }
 
     void helper(std::ostream& os, const std::string& message, const bool colorize,
-                const std::string& filename,
-                const std::optional<std::string>& expr, const std::size_t sym_size,
-                // todo: use FileSpan / FilePos instead
-                const std::size_t line, const std::size_t column,
+                const std::string& filename, const internal::FileSpan& at,
                 const std::optional<CodeErrorContext>& maybe_context = std::nullopt)
     {
         makeContext(
             ErrorLocation {
                 .filename = filename,
-                .start = internal::FilePos { .line = line, .column = column },
-                // FIXME: hack using sym_size
-                .end = internal::FilePos { .line = line, .column = column + sym_size } },
-            os, expr, maybe_context, colorize);
+                .start = at.start,
+                .end = at.end },
+            os, maybe_context, colorize);
 
-        const auto message_lines = Utils::splitString(message, '\n');
-        for (const auto& text : message_lines)
+        for (const auto& text : Utils::splitString(message, '\n'))
             fmt::print(os, "        {}\n", text);
     }
 
@@ -212,19 +198,12 @@ namespace Ark::Diagnostics
     {
         std::stringstream ss;
 
-        std::size_t size = 3;
-        if (node.isStringLike())
-            size = node.string().size();
-
         helper(
             ss,
             message,
             true,
             node.filename(),
-            node.repr(),
-            size,
-            node.position().start.line,
-            node.position().start.column);
+            node.position());
 
         return ss.str();
     }
@@ -236,33 +215,12 @@ namespace Ark::Diagnostics
             colorize = false;
 #endif
 
-        std::string escaped_symbol;
-        if (e.context.symbol.has_value())
-        {
-            switch (e.context.symbol.value().codepoint())
-            {
-                case '\n': escaped_symbol = "'\\n'"; break;
-                case '\r': escaped_symbol = "'\\r'"; break;
-                case '\t': escaped_symbol = "'\\t'"; break;
-                case '\v': escaped_symbol = "'\\v'"; break;
-                case '\0': escaped_symbol = "EOF"; break;
-                case ' ': escaped_symbol = "' '"; break;
-                default:
-                    escaped_symbol = e.context.symbol.value().c_str();
-            }
-        }
-        else
-            escaped_symbol = e.context.expr;
-
         helper(
             os,
             e.what(),
             colorize,
             e.context.filename,
-            escaped_symbol,
-            e.context.expr.size(),
-            e.context.at.start.line,
-            e.context.at.start.column,
+            e.context.at,
             e.additional_context);
     }
 }

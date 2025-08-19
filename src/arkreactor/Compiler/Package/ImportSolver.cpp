@@ -215,7 +215,6 @@ namespace Ark::internal
                         file.filename().string(), import_.toPackageString()),
             CodeErrorContext(
                 file.generic_string(),
-                FileSpan { .start = FilePos { .line = import_.line, .column = import_.col }, .end = std::nullopt },
-                fmt::format("(import {})", import_.toPackageString())));
+                FileSpan { .start = FilePos { .line = import_.line, .column = import_.col }, .end = std::nullopt }));
     }
 }

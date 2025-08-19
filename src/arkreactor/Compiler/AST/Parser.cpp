@@ -175,13 +175,14 @@ namespace Ark::internal
         if (m_allow_macro_behavior > 0)
         {
             const auto position = getCount();
+            const auto value_pos = getCursor();
             if (const auto value = nodeOrValue(); value.has_value())
             {
                 const Node& sym = value.value();
                 if (sym.nodeType() == NodeType::List || sym.nodeType() == NodeType::Symbol || sym.nodeType() == NodeType::Macro || sym.nodeType() == NodeType::Spread)
                     leaf->push_back(sym);
                 else
-                    error(fmt::format("Can not use a {} as a symbol name, even in a macro", nodeTypes[static_cast<std::size_t>(sym.nodeType())]), sym.repr());
+                    error(fmt::format("Can not use a {} as a symbol name, even in a macro", nodeTypes[static_cast<std::size_t>(sym.nodeType())]), value_pos);
             }
             else
                 backtrack(position);
@@ -288,7 +289,7 @@ namespace Ark::internal
     {
         std::optional<Node> leaf { NodeType::List };
 
-        auto context = generateErrorContext("(");
+        auto context = generateErrorContextAtCurrentPosition();
         if (!accept(IsChar('(')))
             return std::nullopt;
 
@@ -379,13 +380,10 @@ namespace Ark::internal
                     if (!name(&symbol_name))
                         errorWithNextToken("Expected a valid symbol to import");
                     if (symbol_name == "*")
-                        error(fmt::format("Glob patterns can not be separated from the package, use (import {}:*) instead", import_data.toPackageString()), symbol_name);
+                        error(fmt::format("Glob patterns can not be separated from the package, use (import {}:*) instead", import_data.toPackageString()), symbol_pos);
 
                     if (symbol_name.size() >= 2 && symbol_name[symbol_name.size() - 2] == ':' && symbol_name.back() == '*')
-                    {
-                        backtrack(getCount() - 2);  // we can backtrack n-2 safely here because we know the previous chars were ":*"
-                        error("Glob pattern can not follow a symbol to import", ":*");
-                    }
+                        error("Glob pattern can not follow a symbol to import", FilePosition { .row = symbol_pos.row, .col = symbol_pos.col + symbol_name.size() - 2 });
 
                     symbols.push_back(positioned(Node(NodeType::Symbol, symbol_name).attachNearestCommentBefore(comment), symbol_pos));
                     comment.clear();
@@ -421,7 +419,7 @@ namespace Ark::internal
     {
         std::optional<Node> leaf { NodeType::List };
 
-        auto context = generateErrorContext("(");
+        auto context = generateErrorContextAtCurrentPosition();
         bool alt_syntax = false;
         std::string comment;
         if (accept(IsChar('(')))
@@ -481,15 +479,11 @@ namespace Ark::internal
             }
             else
             {
-                const auto count = getCount();
                 std::string symbol_name;
                 if (!name(&symbol_name))
                     break;
                 if (has_captures)
-                {
-                    backtrack(count);
-                    error("Captured variables should be at the end of the argument list", symbol_name);
-                }
+                    error("Captured variables should be at the end of the argument list", pos);
 
                 args->push_back(positioned(Node(NodeType::Symbol, symbol_name), pos));
             }
@@ -667,7 +661,7 @@ namespace Ark::internal
     {
         std::optional<Node> leaf { NodeType::Macro };
 
-        auto context = generateErrorContext("(");
+        auto context = generateErrorContextAtCurrentPosition();
         if (!accept(IsChar('(')))
             return std::nullopt;
 
@@ -733,7 +727,7 @@ namespace Ark::internal
 
     std::optional<Node> Parser::functionCall(const FilePosition filepos)
     {
-        auto context = generateErrorContext("(");
+        auto context = generateErrorContextAtCurrentPosition();
         if (!accept(IsChar('(')))
             return std::nullopt;
         std::string comment = newlineOrComment();
@@ -776,7 +770,7 @@ namespace Ark::internal
     {
         std::optional<Node> leaf { NodeType::List };
 
-        auto context = generateErrorContext("[");
+        auto context = generateErrorContextAtCurrentPosition();
         if (!accept(IsChar('[')))
             return std::nullopt;
         leaf->setAltSyntax(true);
@@ -803,8 +797,6 @@ namespace Ark::internal
 
     std::optional<Node> Parser::number(const FilePosition filepos)
     {
-        const long pos = getCount();
-
         std::string res;
         if (signedNumber(&res))
         {
@@ -812,9 +804,7 @@ namespace Ark::internal
             if (Utils::isDouble(res, &output))
                 return positioned(Node(output), filepos);
 
-            // FIXME: find a better way to send an error here
-            backtrack(pos);
-            error("Is not a valid number", res);
+            error("Is not a valid number", filepos);
         }
         return std::nullopt;
     }
@@ -826,6 +816,8 @@ namespace Ark::internal
         {
             while (true)
             {
+                const auto pos = getCursor();
+
                 if (accept(IsChar('\\')))
                 {
                     if (!m_interpret)
@@ -859,14 +851,14 @@ namespace Ark::internal
                                 char utf8_str[5];
                                 utf8::decode(seq.c_str(), utf8_str);
                                 if (*utf8_str == '\0')
-                                    error("Invalid escape sequence", "\\u" + seq);
+                                    error("Invalid escape sequence", pos);
                                 res += utf8_str;
                             }
                             else
                                 res += "u" + seq;
                         }
                         else
-                            error("Invalid escape sequence", "\\u");
+                            error("Invalid escape sequence", pos);
                     }
                     else if (accept(IsChar('U')))
                     {
@@ -881,19 +873,19 @@ namespace Ark::internal
                                 char utf8_str[5];
                                 utf8::decode(seq.c_str() + begin, utf8_str);
                                 if (*utf8_str == '\0')
-                                    error("Invalid escape sequence", "\\U" + seq);
+                                    error("Invalid escape sequence", pos);
                                 res += utf8_str;
                             }
                             else
                                 res += "U" + seq;
                         }
                         else
-                            error("Invalid escape sequence", "\\U");
+                            error("Invalid escape sequence", pos);
                     }
                     else
                     {
                         backtrack(getCount() - 1);
-                        error("Unknown escape sequence", "\\");
+                        error("Unknown escape sequence", pos);
                     }
                 }
                 else
@@ -1029,7 +1021,7 @@ namespace Ark::internal
     std::optional<Node> Parser::wrapped(std::optional<Node> (Parser::*parser)(FilePosition), const std::string& name)
     {
         const auto cursor = getCursor();
-        auto context = generateErrorContext("(");
+        auto context = generateErrorContextAtCurrentPosition();
         if (!prefix('('))
             return std::nullopt;
 
@@ -1041,6 +1033,9 @@ namespace Ark::internal
             result.value().attachCommentAfter(newlineOrComment());
 
             expectSuffixOrError(')', "after " + name, context);
+
+            const auto end_cursor = getCursor();
+            result.value().m_pos.end = FilePos { .line = end_cursor.row, .column = end_cursor.col };
 
             result.value().attachCommentAfter(spaceComment());
             return result;

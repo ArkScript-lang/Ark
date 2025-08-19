@@ -745,18 +745,11 @@ namespace Ark::internal
                 return CodeErrorContext(
                     origin.filename(),
                     origin.position(),
-                    origin.repr(),
                     /* from_macro_expansion= */ true);
             }
             return std::nullopt;
         }();
 
-        throw CodeError(
-            message,
-            CodeErrorContext(
-                node.filename(),
-                node.position(),
-                node.repr()),
-            maybe_context);
+        throw CodeError(message, CodeErrorContext(node.filename(), node.position()), maybe_context);
     }
 }
