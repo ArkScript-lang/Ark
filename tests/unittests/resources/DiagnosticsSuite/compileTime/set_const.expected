@@ -1,5 +1,5 @@
     1 | (let a 5)
-      | ^
+      | ^~~~~~~~
     2 | (set a 6)
     3 |
         MutabilityError: Can not set the constant `a' to 6

@@ -71,7 +71,7 @@ namespace Ark::internal
         if (code.empty())
         {
             m_sym = utf8_char_t();
-            error("Expected symbol, got empty string", "");
+            error("Expected symbol, got empty string", m_filepos);
         }
 
         m_str = code;
@@ -125,39 +125,55 @@ namespace Ark::internal
         return m_previous_filepos;
     }
 
-    CodeErrorContext BaseParser::generateErrorContext(const std::string& expr)
+    FilePosition BaseParser::computeNextCursor()
+    {
+        if (m_next_it == m_str.end())
+            return getCursor();
+
+        auto [_, sym] = utf8_char_t::at(m_next_it, m_str.end());
+        if (*m_next_it == '\n')
+        {
+            return FilePosition {
+                .row = m_filepos.row + 1,
+                .col = 0
+            };
+        }
+
+        return FilePosition {
+            .row = m_filepos.row,
+            .col = m_filepos.col + (sym.isPrintable() ? 1 : 0)
+        };
+    }
+
+    CodeErrorContext BaseParser::generateErrorContextAtCurrentPosition() const
     {
         const auto [row, col] = getCursor();
 
         return CodeErrorContext(
             m_filename,
-            FileSpan { .start = FilePos { .line = row, .column = col }, .end = std::nullopt },  // todo: fill .end
-            expr,
-            m_sym);
+            // for additional contexts, the end position is useless
+            FileSpan { .start = FilePos { .line = row, .column = col }, .end = std::nullopt });
     }
 
-    void BaseParser::error(const std::string& error, std::string exp, const std::optional<CodeErrorContext>& additional_context)
+    void BaseParser::error(const std::string& error, const FilePosition start_at, const std::optional<CodeErrorContext>& additional_context) const
     {
         const auto [row, col] = getCursor();
         throw CodeError(
             error,
             CodeErrorContext(
                 m_filename,
-                FileSpan { .start = FilePos { .line = row, .column = col }, .end = std::nullopt },  // todo: fill .end
-                std::move(exp),
-                m_sym),
+                FileSpan {
+                    .start = FilePos { .line = start_at.row, .column = start_at.col },
+                    .end = FilePos { .line = row, .column = col } }),
             additional_context);
     }
 
     void BaseParser::errorWithNextToken(const std::string& message, const std::optional<CodeErrorContext>& additional_context)
     {
-        const auto pos = getCount();
-        std::string next_token;
+        const auto filepos = getCursor();
 
-        anyUntil(IsEither(IsInlineSpace, IsEither(IsChar('('), IsChar(')'))), &next_token);
-        backtrack(pos);
-
-        error(message, next_token, additional_context);
+        anyUntil(IsEither(IsInlineSpace, IsEither(IsChar('('), IsChar(')'))));
+        error(message, filepos, additional_context);
     }
 
     void BaseParser::expectSuffixOrError(const char suffix, const std::string& context, const std::optional<CodeErrorContext>& additional_context)
@@ -186,7 +202,7 @@ namespace Ark::internal
     {
         // throw an error if the predicate couldn't consume the symbol
         if (!t(m_sym.codepoint()))
-            error("Expected " + t.name, m_sym.c_str());
+            error("Expected " + t.name, getCursor());
         // otherwise, add it to the string and go to the next symbol
         if (s != nullptr)
             *s += m_sym.c_str();

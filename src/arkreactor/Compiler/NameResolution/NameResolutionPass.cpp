@@ -100,10 +100,7 @@ namespace Ark::internal
                             if (std::ranges::find(Language::UpdateRef, funcname) != Language::UpdateRef.end() && m_scope_resolver.isImmutable(arg).value_or(false))
                                 throw CodeError(
                                     fmt::format("MutabilityError: Can not modify the constant list `{}' using `{}'", arg, funcname),
-                                    CodeErrorContext(
-                                        node.filename(),
-                                        node.constList()[1].position(),
-                                        arg));
+                                    CodeErrorContext(node.filename(), node.constList()[1].position()));
 
                             // check that we aren't doing a (append! a a) nor a (concat! a a)
                             if (funcname == Language::AppendInPlace || funcname == Language::ConcatInPlace)
@@ -113,10 +110,7 @@ namespace Ark::internal
                                     if (node.constList()[i].nodeType() == NodeType::Symbol && node.constList()[i].string() == arg)
                                         throw CodeError(
                                             fmt::format("MutabilityError: Can not {} the list `{}' to itself", funcname, arg),
-                                            CodeErrorContext(
-                                                node.filename(),
-                                                node.constList()[1].position(),
-                                                arg));
+                                            CodeErrorContext(node.filename(), node.constList()[1].position()));
                                 }
                             }
                         }
@@ -152,10 +146,7 @@ namespace Ark::internal
                     if (it != namespace_.symbols.end())
                         throw CodeError(
                             fmt::format("ImportError: Can not import symbol {} from {}, as it isn't in the package", *it, namespace_.name),
-                            CodeErrorContext(
-                                namespace_.ast->filename(),
-                                namespace_.ast->position(),
-                                "import"));
+                            CodeErrorContext(namespace_.ast->filename(), namespace_.ast->position()));
                 }
 
                 m_scope_resolver.saveNamespaceAndRemove();
@@ -186,27 +177,18 @@ namespace Ark::internal
                     if (m_language_symbols.contains(name) && register_declarations)
                         throw CodeError(
                             fmt::format("Can not use a reserved identifier ('{}') as a {} name.", name, keyword == Keyword::Let ? "constant" : "variable"),
-                            CodeErrorContext(
-                                node.filename(),
-                                node.constList()[1].position(),
-                                name));
+                            CodeErrorContext(node.filename(), node.constList()[1].position()));
 
                     if (m_scope_resolver.isInScope(name) && keyword == Keyword::Let && register_declarations)
                         throw CodeError(
                             fmt::format("MutabilityError: Can not use 'let' to redefine variable `{}'", name),
-                            CodeErrorContext(
-                                node.filename(),
-                                node.constList()[1].position(),
-                                name));
+                            CodeErrorContext(node.filename(), node.constList()[1].position()));
                     if (keyword == Keyword::Set && m_scope_resolver.isRegistered(name))
                     {
                         if (m_scope_resolver.isImmutable(name).value_or(false) && register_declarations)
                             throw CodeError(
                                 fmt::format("MutabilityError: Can not set the constant `{}' to {}", name, node.constList()[2].repr()),
-                                CodeErrorContext(
-                                    node.filename(),
-                                    node.constList()[1].position(),
-                                    name));
+                                CodeErrorContext(node.filename(), node.constList()[1].position()));
 
                         updateSymbolWithFullyQualifiedName(node.list()[1]);
                     }
@@ -248,10 +230,7 @@ namespace Ark::internal
                             if (!m_scope_resolver.isRegistered(child.string()) && register_declarations)
                                 throw CodeError(
                                     fmt::format("Can not capture `{}' because it is referencing a variable defined in an unreachable scope.", child.string()),
-                                    CodeErrorContext(
-                                        child.filename(),
-                                        child.position(),
-                                        child.repr()));
+                                    CodeErrorContext(child.filename(), child.position()));
 
                             // save the old unqualified name of the capture, so that we can use it in the
                             // ASTLowerer later one
@@ -336,10 +315,7 @@ namespace Ark::internal
                 fmt::format(
                     "Symbol `{}' was resolved to `{}', which is also a builtin name. Either the symbol or the package it's in needs to be renamed to avoid conflicting with the builtin.",
                     symbol.string(), fqn),
-                CodeErrorContext(
-                    symbol.filename(),
-                    symbol.position(),
-                    symbol.repr()));
+                CodeErrorContext(symbol.filename(), symbol.position()));
         }
         if (!allowed)
         {
@@ -355,12 +331,7 @@ namespace Ark::internal
             if (m_logger.shouldTrace())
                 m_ast.debugPrint(std::cout) << '\n';
 
-            throw CodeError(
-                message,
-                CodeErrorContext(
-                    symbol.filename(),
-                    symbol.position(),
-                    symbol.repr()));
+            throw CodeError(message, CodeErrorContext(symbol.filename(), symbol.position()));
         }
 
         symbol.setString(fqn);
@@ -392,7 +363,7 @@ namespace Ark::internal
                     message = fmt::format(R"(Unbound variable error "{}" (did you mean "{}"?{}))", str, suggestion, add_note ? note_about_prefix : "");
                 }
 
-                throw CodeError(message, CodeErrorContext(sym.filename(), sym.position(), sym.repr()));
+                throw CodeError(message, CodeErrorContext(sym.filename(), sym.position()));
             }
         }
     }

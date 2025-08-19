@@ -1,4 +1,4 @@
     1 | (import a :*)
-      |             ^
+      |            ^
     2 |
         Glob patterns can not be separated from the package, use (import a:*) instead

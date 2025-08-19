@@ -54,16 +54,18 @@ namespace Ark::internal
 
         [[nodiscard]] FilePosition getCursor() const;
         [[nodiscard]] FilePosition getPreviousCursor() const;
+        [[nodiscard]] FilePosition computeNextCursor();
 
-        [[nodiscard]] CodeErrorContext generateErrorContext(const std::string& expr);
+        [[nodiscard]] CodeErrorContext generateErrorContextAtCurrentPosition() const;
 
         /**
+         * @brief Create an error context and throw an error containing said context
          *
          * @param error an error message
-         * @param exp the expression causing the error
+         * @param start_at position in the file where the parsing for the erroneous token started
          * @param additional_context optional context created when a node is being parsed
          */
-        void error(const std::string& error, std::string exp, const std::optional<CodeErrorContext>& additional_context = std::nullopt);
+        void error(const std::string& error, FilePosition start_at, const std::optional<CodeErrorContext>& additional_context = std::nullopt) const;
 
         /**
          * @brief Fetch the next token (space and paren delimited) to generate an error
