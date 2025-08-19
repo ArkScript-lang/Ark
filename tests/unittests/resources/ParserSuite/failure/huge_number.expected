@@ -1,5 +1,4 @@
 In file tests/unittests/resources/ParserSuite/failure/huge_number.ark:1
-At 1 @ 1:8
     1 | (let a 1e+4932)
       |        ^~~~~~~
         Is not a valid number

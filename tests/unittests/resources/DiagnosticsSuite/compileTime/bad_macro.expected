@@ -1,4 +1,3 @@
-At ( @ 1:15
     1 | (macro f00 100( a b c))
       | │            └─ error
       | │

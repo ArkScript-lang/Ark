@@ -1,4 +1,3 @@
-At print @ 1:0
     1 | (mut print 5)
       | ^~~~~
     2 |

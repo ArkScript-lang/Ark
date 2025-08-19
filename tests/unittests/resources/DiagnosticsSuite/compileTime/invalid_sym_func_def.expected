@@ -1,4 +1,3 @@
-At 0 @ 2:8
     1 | (macro defun (name args body) (let name (fun args body)))
     2 | (defun 0 (a b) (+ a b))
       |        ^

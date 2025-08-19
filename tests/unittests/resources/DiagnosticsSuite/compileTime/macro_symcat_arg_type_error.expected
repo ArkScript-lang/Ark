@@ -1,4 +1,3 @@
-At [] @ 1:21
     1 | (macro a ($symcat b []))
       | │                   └─ error
       | │

@@ -1,4 +1,3 @@
-At abs @ 3:9
     1 | (import package.c :odd)
     2 |
     3 | (print (abs 2))

@@ -1,4 +1,3 @@
-At args @ 1:29
     1 | (macro defun (let name (fun args nil)))
       |                             ^~~~
     2 | (let foo 1)
