@@ -473,7 +473,7 @@ namespace Ark::internal
                 has_captures = true;
                 std::string capture;
                 if (!name(&capture))
-                    break;
+                    error("No symbol provided to capture", pos);
 
                 args->push_back(positioned(Node(NodeType::Capture, capture), pos));
             }
@@ -647,12 +647,7 @@ namespace Ark::internal
 
         comment = newlineOrComment();
         if (!comment.empty())
-        {
-            if (args->list().empty())
-                args->attachCommentAfter(comment);
-            else
-                args->list().back().attachCommentAfter(comment);
-        }
+            args->attachCommentAfter(comment);
 
         return positioned(args, filepos);
     }
@@ -858,7 +853,7 @@ namespace Ark::internal
                                 res += "u" + seq;
                         }
                         else
-                            error("Invalid escape sequence", pos);
+                            error("Invalid escape sequence, expected 4 hex digits: \\uabcd", pos);
                     }
                     else if (accept(IsChar('U')))
                     {
@@ -880,7 +875,7 @@ namespace Ark::internal
                                 res += "U" + seq;
                         }
                         else
-                            error("Invalid escape sequence", pos);
+                            error("Invalid escape sequence, expected 8 hex digits: \\UABCDEF78", pos);
                     }
                     else
                     {

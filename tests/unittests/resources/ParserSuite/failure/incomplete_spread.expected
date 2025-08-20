@@ -1,0 +1,5 @@
+In file tests/unittests/resources/ParserSuite/failure/incomplete_spread.ark:1
+    1 | (macro foo (...) ())
+      |                ^
+    2 |
+        Expected a name for the variadic arguments list

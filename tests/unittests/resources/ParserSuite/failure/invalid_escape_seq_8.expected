@@ -1,0 +1,5 @@
+In file tests/unittests/resources/ParserSuite/failure/invalid_escape_seq_8.ark:1
+    1 | (print "\Ugggg")
+      |         ^~
+    2 |
+        Invalid escape sequence, expected 8 hex digits: \UABCDEF78

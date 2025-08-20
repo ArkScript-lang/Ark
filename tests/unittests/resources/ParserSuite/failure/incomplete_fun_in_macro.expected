@@ -1,0 +1,6 @@
+In file tests/unittests/resources/ParserSuite/failure/incomplete_fun_in_macro.ark:2
+    1 | (macro bar {
+    2 |   (let foo (fun (a b))) })
+      |                      ^
+    3 |
+        Expected a body for the function

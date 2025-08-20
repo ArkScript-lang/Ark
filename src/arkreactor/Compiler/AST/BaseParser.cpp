@@ -51,8 +51,6 @@ namespace Ark::internal
         m_next_it = it;
         m_sym = sym;
 
-        m_previous_filepos = m_filepos;
-
         if (*m_it == '\n')
         {
             ++m_filepos.row;
@@ -109,19 +107,11 @@ namespace Ark::internal
             m_filepos.col = it_pos - nearest_newline_index;
         else
             m_filepos.col = it_pos + 1;
-        // We can say that the previous position is the current one, as there isn't anything usable right now
-        // Which means we will have to use accept()/next(), which will move filepos and previous_filepos correctly
-        m_previous_filepos = m_filepos;
     }
 
     FilePosition BaseParser::getCursor() const
     {
         return m_filepos;
-    }
-
-    FilePosition BaseParser::getPreviousCursor() const
-    {
-        return m_previous_filepos;
     }
 
     CodeErrorContext BaseParser::generateErrorContextAtCurrentPosition() const

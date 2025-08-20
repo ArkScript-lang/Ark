@@ -30,9 +30,8 @@ namespace Ark::internal
         std::string m_str;
         std::vector<std::pair<std::string::iterator, std::size_t>> m_it_to_row;  ///< A crude map of \n position to line number to speed up line number computing
         std::string::iterator m_it, m_next_it;
-        utf8_char_t m_sym;                ///< The current utf8 character we're on
-        FilePosition m_filepos;           ///< The position of the cursor in the file
-        FilePosition m_previous_filepos;  ///< The previous position of the cursor in the file
+        utf8_char_t m_sym;       ///< The current utf8 character we're on
+        FilePosition m_filepos;  ///< The position of the cursor in the file
 
         /**
          * @brief Register the position of a new line, with an iterator pointing to the new line and the row number
@@ -53,7 +52,6 @@ namespace Ark::internal
         void initParser(const std::string& filename, const std::string& code);
 
         [[nodiscard]] FilePosition getCursor() const;
-        [[nodiscard]] FilePosition getPreviousCursor() const;
 
         [[nodiscard]] CodeErrorContext generateErrorContextAtCurrentPosition() const;
 

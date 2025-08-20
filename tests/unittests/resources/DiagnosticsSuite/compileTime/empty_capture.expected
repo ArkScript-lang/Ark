@@ -1,0 +1,4 @@
+    1 | (let foo (fun (a b &) ()))
+      |                    ^
+    2 |
+        No symbol provided to capture
