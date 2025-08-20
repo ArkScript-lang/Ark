@@ -12,6 +12,7 @@
 #define ARK_ERROR_PRETTYPRINTING_HPP
 
 #include <string>
+#include <vector>
 #include <ostream>
 #include <optional>
 
