@@ -133,9 +133,9 @@ namespace Ark::Diagnostics
                             fmt::styled("│", colorize ? fmt::fg(fmt::color::red) : fmt::text_style()),
                             // yet another padding of spaces between the parent and error column (if need be)
                             // -2 to account for the │ and then └
-                            (loc.start.column - maybe_context->at.start.column <= 2)
+                            (loc.start.column - padding_size < 2)
                                 ? ""
-                                : std::string(loc.start.column - maybe_context->at.start.column - 2, ' '),
+                                : std::string(loc.start.column - padding_size - 1, ' '),
                             // underline the error in red
                             fmt::styled("└─ error", colorize ? fmt::fg(fmt::color::red) : fmt::text_style()));
                         // new line, some spacing between the error and the parent

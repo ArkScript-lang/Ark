@@ -102,9 +102,8 @@ namespace Ark::internal
             }
         }
         // compute the position in the line
-        std::string_view view = m_str;
         const auto it_pos = static_cast<std::size_t>(std::distance(m_str.begin(), m_it));
-        view = view.substr(0, it_pos);
+        const std::string_view view { m_str.begin(), m_it };
         const auto nearest_newline_index = view.find_last_of('\n');
         if (nearest_newline_index != std::string_view::npos)
             m_filepos.col = it_pos - nearest_newline_index;
@@ -123,26 +122,6 @@ namespace Ark::internal
     FilePosition BaseParser::getPreviousCursor() const
     {
         return m_previous_filepos;
-    }
-
-    FilePosition BaseParser::computeNextCursor()
-    {
-        if (m_next_it == m_str.end())
-            return getCursor();
-
-        auto [_, sym] = utf8_char_t::at(m_next_it, m_str.end());
-        if (*m_next_it == '\n')
-        {
-            return FilePosition {
-                .row = m_filepos.row + 1,
-                .col = 0
-            };
-        }
-
-        return FilePosition {
-            .row = m_filepos.row,
-            .col = m_filepos.col + (sym.isPrintable() ? 1 : 0)
-        };
     }
 
     CodeErrorContext BaseParser::generateErrorContextAtCurrentPosition() const

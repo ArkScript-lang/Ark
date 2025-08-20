@@ -517,7 +517,7 @@ namespace Ark::internal
                             Language::Symcat,
                             typeToString(node.list()[1]),
                             node.list()[1].repr()),
-                        node);
+                        node.list()[1]);
 
                 std::string sym = node.list()[1].string();
 

@@ -1,5 +1,5 @@
     1 | (macro a ($symcat 5 2))
-      | │        └─ error
+      | │                 └─ error
       | │
       | └─ macro expansion started here
     2 | (print a)

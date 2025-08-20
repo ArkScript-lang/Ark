@@ -1,4 +1,4 @@
     1 | [(mut c 1)]
-      |  ^~~~~~~~~
+      |  ^~~~~~~~
     2 |
         Invalid node inside call to list

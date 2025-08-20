@@ -102,7 +102,7 @@ namespace Ark::internal
     Node Parser::positioned(Node node, const FilePosition cursor) const
     {
         const auto [row, col] = cursor;
-        const auto [end_row, end_col] = getPreviousCursor();
+        const auto [end_row, end_col] = getCursor();
 
         node.m_filename = m_filename;
         node.m_pos = FileSpan {
@@ -118,7 +118,7 @@ namespace Ark::internal
             return node;
 
         const auto [row, col] = cursor;
-        const auto [end_row, end_col] = getPreviousCursor();
+        const auto [end_row, end_col] = getCursor();
 
         node->m_filename = m_filename;
         node->m_pos = FileSpan {
@@ -741,10 +741,10 @@ namespace Ark::internal
         else
             return std::nullopt;
 
-        comment = newlineOrComment();
-
         std::optional<Node> leaf { NodeType::List };
         leaf->push_back(positioned(func.value(), func_name_pos));
+
+        comment = newlineOrComment();
 
         while (!isEOF())
         {
@@ -1033,9 +1033,6 @@ namespace Ark::internal
             result.value().attachCommentAfter(newlineOrComment());
 
             expectSuffixOrError(')', "after " + name, context);
-
-            const auto end_cursor = getCursor();
-            result.value().m_pos.end = FilePos { .line = end_cursor.row, .column = end_cursor.col };
 
             result.value().attachCommentAfter(spaceComment());
             return result;

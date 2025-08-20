@@ -54,7 +54,6 @@ namespace Ark::internal
 
         [[nodiscard]] FilePosition getCursor() const;
         [[nodiscard]] FilePosition getPreviousCursor() const;
-        [[nodiscard]] FilePosition computeNextCursor();
 
         [[nodiscard]] CodeErrorContext generateErrorContextAtCurrentPosition() const;
 
