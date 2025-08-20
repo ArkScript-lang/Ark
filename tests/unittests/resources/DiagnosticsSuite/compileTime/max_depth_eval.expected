@@ -1,5 +1,5 @@
     1 | (macro last ((last 1 5 6 7 8) 0 s "@" (@ a00s -9)))
-      | │            └─ error
+      | │             └─ error
       | │
       | └─ macro expansion started here
     2 | (last 1 5 6 7 8)

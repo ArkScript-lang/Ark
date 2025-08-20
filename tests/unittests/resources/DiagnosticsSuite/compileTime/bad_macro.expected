@@ -1,5 +1,5 @@
     1 | (macro f00 100( a b c))
-      | │            └─ error
+      | │             └─ error
       | │
       | └─ expression started here
     2 |
