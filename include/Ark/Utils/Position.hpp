@@ -19,8 +19,8 @@ namespace Ark::internal
 {
     struct ARK_API FilePos
     {
-        std::size_t line;    ///< 0-indexed line number
-        std::size_t column;  ///< 0-indexed column number
+        std::size_t line = 0;    ///< 0-indexed line number
+        std::size_t column = 0;  ///< 0-indexed column number
 
         [[nodiscard]] inline bool operator==(const FilePos& rhs) const noexcept
         {
