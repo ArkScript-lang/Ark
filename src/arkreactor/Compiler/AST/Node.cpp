@@ -161,11 +161,6 @@ namespace Ark::internal
         return m_is_anonymous_function;
     }
 
-    bool Node::isAltSyntax() const
-    {
-        return m_alt_syntax;
-    }
-
     FileSpan Node::position() const noexcept
     {
         return m_pos;

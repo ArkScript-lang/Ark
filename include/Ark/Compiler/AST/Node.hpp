@@ -203,12 +203,6 @@ namespace Ark::internal
         [[nodiscard]] bool isAnonymousFunction() const noexcept;
 
         /**
-         * @brief Check if a node is alt syntax
-         * @return bool
-         */
-        [[nodiscard]] bool isAltSyntax() const;
-
-        /**
          * @brief Get the span of the node (start and end)
          *
          * @return const FileSpan
