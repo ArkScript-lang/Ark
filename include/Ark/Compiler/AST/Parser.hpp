@@ -8,8 +8,8 @@
  *
  */
 
-#ifndef COMPILER_AST_PARSER_HPP
-#define COMPILER_AST_PARSER_HPP
+#ifndef ARK_COMPILER_AST_PARSER_HPP
+#define ARK_COMPILER_AST_PARSER_HPP
 
 #include <Ark/Compiler/AST/BaseParser.hpp>
 #include <Ark/Compiler/AST/Node.hpp>
@@ -27,15 +27,21 @@
 
 namespace Ark::internal
 {
+    enum class ParserMode
+    {
+        Interpret,  ///< Escape sequences and `()` will be replaced by their UTF8 representation and `nil`, respectively
+        Raw         ///< Keep all text as is without modifying it (useful for the code formatter)
+    };
+
     class ARK_API Parser final : public BaseParser
     {
     public:
         /**
          * @brief Constructs a new Parser object
          * @param debug debug level
-         * @param interpret interpret escape codes in strings
+         * @param mode how the parser should behave regarding certain nodes and errors
          */
-        explicit Parser(unsigned debug, bool interpret = true);
+        explicit Parser(unsigned debug, ParserMode mode = ParserMode::Interpret);
 
         /**
          * @brief Parse the given code
@@ -57,7 +63,7 @@ namespace Ark::internal
         [[nodiscard]] const std::vector<Import>& imports() const;
 
     private:
-        bool m_interpret;  ///< interpret escape codes in strings
+        ParserMode m_mode;
         Logger m_logger;
         Node m_ast;
         std::vector<Import> m_imports;
@@ -119,4 +125,4 @@ namespace Ark::internal
     };
 }
 
-#endif
+#endif  // ARK_COMPILER_AST_PARSER_HPP

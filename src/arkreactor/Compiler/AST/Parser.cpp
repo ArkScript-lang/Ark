@@ -4,8 +4,8 @@
 
 namespace Ark::internal
 {
-    Parser::Parser(const unsigned debug, const bool interpret) :
-        BaseParser(), m_interpret(interpret), m_logger("Parser", debug),
+    Parser::Parser(const unsigned debug, const ParserMode mode) :
+        BaseParser(), m_mode(mode), m_logger("Parser", debug),
         m_ast(NodeType::List), m_imports({}), m_allow_macro_behavior(0),
         m_nested_nodes(0)
     {
@@ -815,7 +815,7 @@ namespace Ark::internal
 
                 if (accept(IsChar('\\')))
                 {
-                    if (!m_interpret)
+                    if (m_mode != ParserMode::Interpret)
                         res += '\\';
 
                     if (accept(IsChar('"')))
@@ -823,25 +823,25 @@ namespace Ark::internal
                     else if (accept(IsChar('\\')))
                         res += '\\';
                     else if (accept(IsChar('n')))
-                        res += m_interpret ? '\n' : 'n';
+                        res += m_mode == ParserMode::Interpret ? '\n' : 'n';
                     else if (accept(IsChar('t')))
-                        res += m_interpret ? '\t' : 't';
+                        res += m_mode == ParserMode::Interpret ? '\t' : 't';
                     else if (accept(IsChar('v')))
-                        res += m_interpret ? '\v' : 'v';
+                        res += m_mode == ParserMode::Interpret ? '\v' : 'v';
                     else if (accept(IsChar('r')))
-                        res += m_interpret ? '\r' : 'r';
+                        res += m_mode == ParserMode::Interpret ? '\r' : 'r';
                     else if (accept(IsChar('a')))
-                        res += m_interpret ? '\a' : 'a';
+                        res += m_mode == ParserMode::Interpret ? '\a' : 'a';
                     else if (accept(IsChar('b')))
-                        res += m_interpret ? '\b' : 'b';
+                        res += m_mode == ParserMode::Interpret ? '\b' : 'b';
                     else if (accept(IsChar('f')))
-                        res += m_interpret ? '\f' : 'f';
+                        res += m_mode == ParserMode::Interpret ? '\f' : 'f';
                     else if (accept(IsChar('u')))
                     {
                         std::string seq;
                         if (hexNumber(4, &seq))
                         {
-                            if (m_interpret)
+                            if (m_mode == ParserMode::Interpret)
                             {
                                 char utf8_str[5];
                                 utf8::decode(seq.c_str(), utf8_str);
@@ -860,7 +860,7 @@ namespace Ark::internal
                         std::string seq;
                         if (hexNumber(8, &seq))
                         {
-                            if (m_interpret)
+                            if (m_mode == ParserMode::Interpret)
                             {
                                 std::size_t begin = 0;
                                 for (; seq[begin] == '0'; ++begin)
@@ -953,7 +953,7 @@ namespace Ark::internal
         if (!accept(IsChar(')')))
             return std::nullopt;
 
-        if (m_interpret)
+        if (m_mode == ParserMode::Interpret)
             return positioned(Node(NodeType::Symbol, "nil").attachNearestCommentBefore(comment), filepos);
         return positioned(Node(NodeType::List).attachNearestCommentBefore(comment), filepos);
     }

@@ -13,11 +13,11 @@ using namespace Ark;
 using namespace Ark::internal;
 
 Formatter::Formatter(const bool dry_run) :
-    m_dry_run(dry_run), m_parser(/* debug= */ 0, /* interpret= */ false), m_updated(false)
+    m_dry_run(dry_run), m_parser(/* debug= */ 0, ParserMode::Raw), m_updated(false)
 {}
 
 Formatter::Formatter(std::string filename, const bool dry_run) :
-    m_filename(std::move(filename)), m_dry_run(dry_run), m_parser(/* debug= */ 0, /* interpret= */ false), m_updated(false)
+    m_filename(std::move(filename)), m_dry_run(dry_run), m_parser(/* debug= */ 0, ParserMode::Raw), m_updated(false)
 {}
 
 void Formatter::run()
@@ -88,11 +88,15 @@ void Formatter::processAst(const Node& ast)
 
 void Formatter::warnIfCommentsWereRemoved(const std::string& original_code, const std::string& filename)
 {
-    if (std::ranges::count(original_code, '#') != std::ranges::count(m_output, '#'))
+    const std::size_t before_count = std::ranges::count(original_code, '#');
+    const std::size_t after_count = std::ranges::count(m_output, '#');
+
+    if (before_count != after_count)
     {
         fmt::println(
-            "{}: one or more comments from the original source code seem to have been removed by mistake while formatting {}",
+            "{}: one or more comments from the original source code seem to have been {} by mistake while formatting {}",
             fmt::styled("Warning", fmt::fg(fmt::color::dark_orange)),
+            before_count > after_count ? "removed" : "duplicated",
             filename != ARK_NO_NAME_FILE ? filename : "file");
         fmt::println("Please fill an issue on GitHub: https://github.com/ArkScript-lang/Ark");
     }

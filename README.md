@@ -31,7 +31,7 @@ ArkScript is
 Also, it has:
 
 * a REPL with autocompletion and coloration
-* a built-in code opinionated non-configurable formatter
+* a built-in opinionated non-configurable code formatter
 * a functional standard library, composed of ArkScript code (under `lib/std/`) and C++ (under `lib/modules/`)
 * docker images:
     * [stable](https://hub.docker.com/r/arkscript/stable), built after each release
