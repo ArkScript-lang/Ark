@@ -35,4 +35,12 @@ ut::suite<"Repl"> repl_suite = [] {
         Ark::internal::trimWhitespace(line);
         expect(that % line == expected);
     };
+
+    "getters"_test = [] {
+        const auto kws = Ark::internal::getAllKeywords();
+        const auto colors = Ark::internal::getColorPerKeyword();
+
+        expect(that % kws.size() != 0);
+        expect(that % kws.size() <= colors.size());
+    };
 };
