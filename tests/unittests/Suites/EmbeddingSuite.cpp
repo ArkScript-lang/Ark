@@ -230,6 +230,24 @@ ut::suite<"Embedding"> embedding_suite = [] {
         };
     };
 
+    "[errors in C++ functions called in ArkScript bubble up]"_test = [] {
+        constexpr uint16_t features = Ark::DefaultFeatures | Ark::FeatureTestFailOnException;
+
+        Ark::State state;
+        state.loadFunction("my_function", my_function);
+
+        should("compile the string without any error") = [&] {
+            expect(mut(state).doString("(let bar (my_function 1 2 nil 1))", features));
+        };
+
+        Ark::VM vm(state);
+        should("return exit code 1") = [&] {
+            expect(throws([&] {
+                mut(vm).run(/* fail_with_exception= */ true);
+            }));
+        };
+    };
+
     "[retrieve sys:args in embedded code]"_test = [] {
         Ark::State state({ ARK_TESTS_ROOT "lib" });
 

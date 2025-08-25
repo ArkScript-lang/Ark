@@ -102,7 +102,7 @@ namespace Ark::types
         std::ostream& os = std::cout,
         bool colorize = true);
 
-    class ARK_API TypeCheckingError : public Error
+    class ARK_API TypeCheckingError final : public Error
     {
     public:
         TypeCheckingError(std::string&& funcname, const std::vector<Contract>& contracts, const std::vector<Value>& args) :
