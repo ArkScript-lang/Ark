@@ -596,8 +596,11 @@ namespace Ark::internal
                         Language::Undef, typeToString(sym)),
                     sym);
             }
-            else if (name == "$type")
+            else if (name == Language::Type)
             {
+                if (node.list().size() != 2)
+                    throwMacroProcessingError(fmt::format("When expanding `{}', expected one argument, got {} arguments", Language::Type, argcount), node);
+
                 const Node arg = node.constList()[1];
                 node.updateValueAndType(Node(NodeType::String, typeToString(arg)));
             }

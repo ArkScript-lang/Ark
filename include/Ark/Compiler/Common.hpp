@@ -135,13 +135,15 @@ namespace Ark::internal
         constexpr std::string_view Argcount = "$argcount";
         constexpr std::string_view Repr = "$repr";
         constexpr std::string_view AsIs = "$as-is";
+        constexpr std::string_view Type = "$type";
 
         constexpr std::array macros = {
             Undef,
             Symcat,
             Argcount,
             Repr,
-            AsIs
+            AsIs,
+            Type
         };
 
         // This list is related to include/Ark/Compiler/Instructions.hpp
