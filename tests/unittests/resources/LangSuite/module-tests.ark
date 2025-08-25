@@ -5,4 +5,8 @@
         (import testmodule)
 
         (test:eq (testmodule:foo 1) 1)
-        (test:eq (testmodule:foo) nil) })})
+        (test:eq (testmodule:foo) nil) })
+
+    (test:case "load twice the same module without error" {
+        (import testmodule)
+        (import testmodule) })})
