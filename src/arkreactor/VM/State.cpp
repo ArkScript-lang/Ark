@@ -29,15 +29,15 @@ namespace Ark
         m_binded[std::string(internal::Language::SysProgramName)] = Value("");
     }
 
-    bool State::feed(const std::string& bytecode_filename)
+    bool State::feed(const std::string& bytecode_filename, const bool fail_with_exception)
     {
         if (!Utils::fileExists(bytecode_filename))
             return false;
 
-        return feed(Utils::readFileAsBytes(bytecode_filename));
+        return feed(Utils::readFileAsBytes(bytecode_filename), fail_with_exception);
     }
 
-    bool State::feed(const bytecode_t& bytecode)
+    bool State::feed(const bytecode_t& bytecode, const bool fail_with_exception)
     {
         BytecodeReader bcr;
         bcr.feed(bytecode);
@@ -51,8 +51,11 @@ namespace Ark
             configure(bcr);
             return true;
         }
-        catch (const std::exception& e)  // FIXME I don't like this shit
+        catch (const std::exception& e)
         {
+            if (fail_with_exception)
+                throw;
+
             fmt::println("{}", e.what());
             return false;
         }
@@ -152,9 +155,7 @@ namespace Ark
         const auto [major, minor, patch] = bcr.version();
         if (major != ARK_VERSION_MAJOR)
         {
-            std::string str_version = std::to_string(major) + "." +
-                std::to_string(minor) + "." +
-                std::to_string(patch);
+            const std::string str_version = fmt::format("{}.{}.{}", major, minor, patch);
             throwStateError(fmt::format("Compiler and VM versions don't match: got {} while running {}", str_version, ARK_VERSION));
         }
 

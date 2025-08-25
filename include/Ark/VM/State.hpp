@@ -43,19 +43,21 @@ namespace Ark
          * @brief Feed the state by giving it the path to an existing bytecode file
          *
          * @param bytecode_filename
+         * @param fail_with_exception
          * @return true on success
          * @return false on failure
          */
-        bool feed(const std::string& bytecode_filename);
+        bool feed(const std::string& bytecode_filename, bool fail_with_exception = false);
 
         /**
          * @brief Feed the state with ArkScript bytecode
          *
          * @param bytecode
+         * @param fail_with_exception
          * @return true on success
          * @return false on failure
          */
-        bool feed(const bytecode_t& bytecode);
+        bool feed(const bytecode_t& bytecode, bool fail_with_exception = false);
 
         /**
          * @brief Compile a file, and use the resulting bytecode
