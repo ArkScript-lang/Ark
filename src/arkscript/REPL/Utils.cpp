@@ -125,7 +125,7 @@ namespace Ark::internal
         const std::string prefix = context.substr(prefix_len);
         for (const auto& e : words)
         {
-            if (e.starts_with(prefix) == 0)
+            if (e.starts_with(prefix))
                 completions.emplace_back(e.c_str());
         }
 

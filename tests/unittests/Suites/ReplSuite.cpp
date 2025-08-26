@@ -2,6 +2,8 @@
 
 #include <CLI/REPL/Utils.hpp>
 
+#include <ranges>
+
 using namespace boost;
 
 ut::suite<"Repl"> repl_suite = [] {
@@ -36,11 +38,31 @@ ut::suite<"Repl"> repl_suite = [] {
         expect(that % line == expected);
     };
 
-    "getters"_test = [] {
-        const auto kws = Ark::internal::getAllKeywords();
-        const auto colors = Ark::internal::getColorPerKeyword();
+    const auto kws = Ark::internal::getAllKeywords();
+    const auto colors = Ark::internal::getColorPerKeyword();
 
+    "getters"_test = [&] {
         expect(that % kws.size() != 0);
         expect(that % kws.size() <= colors.size());
+    };
+
+    "hints"_test = [&] {
+        int length = 5;
+        const auto completions = Ark::internal::hookCompletion(kws, "appen", length);
+
+        expect(that % completions.size() == 2);
+        expect(std::ranges::find_if(completions, [](const replxx::Replxx::Completion& v) {
+                   return v.text() == "append";
+               }) != completions.end());
+        expect(std::ranges::find_if(completions, [](const replxx::Replxx::Completion& v) {
+                   return v.text() == "append!";
+               }) != completions.end());
+
+        length = 5;
+        replxx::Replxx::Color color;
+        const auto hints = Ark::internal::hookHint(kws, "toStr", length, color);
+
+        expect(that % hints.size() == 1);
+        expect(color == replxx::Replxx::Color::GREEN);
     };
 };
