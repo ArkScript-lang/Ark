@@ -114,13 +114,6 @@ namespace Ark::internal
         [[nodiscard]] bool isListLike() const noexcept;
 
         /**
-         * @brief Check if the node is a string like node
-         * @return true if the node is either a symbol, a string or a spread
-         * @return false
-         */
-        [[nodiscard]] bool isStringLike() const noexcept;
-
-        /**
          * @brief Check if the node is a function
          * @return true if the node is a function declaration
          * @return false

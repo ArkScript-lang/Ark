@@ -85,11 +85,6 @@ namespace Ark::internal
         return m_type == NodeType::List || m_type == NodeType::Macro;
     }
 
-    bool Node::isStringLike() const noexcept
-    {
-        return m_type == NodeType::Symbol || m_type == NodeType::String || m_type == NodeType::Spread;
-    }
-
     bool Node::isFunction() const noexcept
     {
         return m_type == NodeType::List &&
