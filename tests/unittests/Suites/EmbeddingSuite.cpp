@@ -67,6 +67,7 @@ ut::suite<"Embedding"> embedding_suite = [] {
 
     "[run string and call arkscript function from cpp without args]"_test = [] {
         Ark::State state;
+        state.setDebug(3);  // so that the logger branches can be used as well, and covered
 
         should("compile the string without any error") = [&] {
             expect(mut(state).doString("(let foo (fun () 4))"));
