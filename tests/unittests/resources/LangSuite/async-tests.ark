@@ -4,6 +4,7 @@
 
 (let foo (fun (a b) (+ a b)))
 (let async-foo (async foo 1 2))
+(let async-foo-2 (async foo 2 3))
 
 (let size 1000)
 (let data (list:fill size 1))
@@ -16,6 +17,13 @@
     acc }))
 
 (test:suite async {
+    (test:case "compare futures" {
+        (test:expect (not (< async-foo async-foo-2)))
+        (test:expect (not (= async-foo async-foo-2)))
+        (test:expect (= async-foo async-foo))
+        (test:expect (not (empty? (toString async-foo-2))))
+        (del async-foo-2) })
+
     (test:case "async-foo should be an awaitable function returning 3" {
         (test:eq (type async-foo) "UserType")
         (test:eq (await async-foo) 3)})
