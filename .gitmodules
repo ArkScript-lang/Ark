@@ -4,24 +4,24 @@
 [submodule "lib/modules"]
 	path = lib/modules
 	url = https://github.com/ArkScript-lang/modules.git
-[submodule "lib/clipp"]
-	path = lib/clipp
+[submodule "thirdparties/clipp"]
+	path = thirdparties/clipp
 	url = https://github.com/SuperFola/clipp
-[submodule "lib/picosha2"]
-	path = lib/picosha2
+[submodule "thirdparties/picosha2"]
+	path = thirdparties/picosha2
 	url = https://github.com/okdshin/PicoSHA2.git
-[submodule "lib/replxx"]
-	path = lib/replxx
+[submodule "thirdparties/replxx"]
+	path = thirdparties/replxx
 	url = https://github.com/AmokHuginnsson/replxx.git
-[submodule "lib/fmt"]
-	path = lib/fmt
+[submodule "thirdparties/fmt"]
+	path = thirdparties/fmt
 	url = https://github.com/fmtlib/fmt.git
-[submodule "lib/ut"]
-	path = lib/ut
+[submodule "thirdparties/ut"]
+	path = thirdparties/ut
 	url = https://github.com/boost-ext/ut.git
-[submodule "lib/dtl"]
-	path = lib/dtl
+[submodule "thirdparties/dtl"]
+	path = thirdparties/dtl
 	url = https://github.com/cubicdaiya/dtl.git
-[submodule "lib/ankerl_unordered_dense"]
-	path = lib/ankerl_unordered_dense
+[submodule "thirdparties/ankerl_unordered_dense"]
+	path = thirdparties/ankerl_unordered_dense
 	url = https://github.com/martinus/unordered_dense.git

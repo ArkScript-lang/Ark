@@ -5,6 +5,7 @@
 !include
 !lib
 !src
+!thirdparties
 !.gitmodules
 !CMakeLists.txt
 !Installer.iss.in

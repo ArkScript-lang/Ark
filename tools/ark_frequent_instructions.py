@@ -29,6 +29,7 @@ super_insts = [
     "SET_VAL_HEAD",
     "SET_VAL_HEAD_BY_INDEX",
     "CALL_BUILTIN",
+    "CALL_BUILTIN_WITHOUT_RETURN_ADDRESS",
     "LT_CONST_JUMP_IF_FALSE",
     "LT_CONST_JUMP_IF_TRUE",
     "LT_SYM_JUMP_IF_FALSE",
@@ -40,12 +41,15 @@ super_insts = [
     "NEQ_CONST_JUMP_IF_TRUE",
     "NEQ_SYM_JUMP_IF_FALSE",
     "CALL_SYMBOL",
+    "CALL_CURRENT_PAGE",
     "GET_FIELD_FROM_SYMBOL",
     "GET_FIELD_FROM_SYMBOL_INDEX",
     "AT_SYM_SYM",
     "AT_SYM_INDEX_SYM_INDEX",
     "CHECK_TYPE_OF",
-    "CHECK_TYPE_OF_BY_INDEX"
+    "CHECK_TYPE_OF_BY_INDEX",
+    "APPEND_IN_PLACE_SYM",
+    "APPEND_IN_PLACE_SYM_INDEX"
 ]
 
 executable = None
@@ -64,7 +68,7 @@ for file in [
                 "tests/unittests/resources/LangSuite/unittests.ark",
                 "lib/std/tests/all.ark"
             ] + rosetta:
-    os.system(f"{executable} -c {file} -fno-optimizer -fdump-ir")
+    os.system(f"{executable} -c {file} -fno-optimizer -fdump-ir --lib './lib/;./tests/unittests/'")
 
     if os.path.exists(f"{file}.ir"):
         with open(f"{file}.ir") as f:
@@ -77,6 +81,7 @@ for file in [
                 ]
                 # remove the page name (page_<num>)
                 ir.append(insts[1:])
+        os.remove(f"{file}.ir")
 
 
 def window(iterable, size):
@@ -86,7 +91,10 @@ def window(iterable, size):
 
 
 def skip_inst_for_frequency(inst):
-    return inst in super_insts or inst.startswith(".L") or inst == "HALT"
+    return inst in super_insts or inst.startswith(".L") or inst in [
+        "HALT",
+        "PUSH_RETURN_ADDRESS"  # only pushes to the stack, can not be coupled to another instruction that pops
+    ]
 
 
 frequent_2 = {}
@@ -101,8 +109,11 @@ for page in ir:
             super_insts_freqs[pair[0]] = super_insts_freqs.get(pair[0], 0) + 1
 
         # if there is a label in the middle of the expression group,
-        # omit it from the frequencies as this can't be optimized
-        if not skip_inst_for_frequency(pair[0]) and not skip_inst_for_frequency(pair[1]):
+        # omit it from the frequencies as this can't be optimized.
+        # also skip (store, store, [_]) as we can't optimize double stores
+        # (used for function argument lists)
+        if not skip_inst_for_frequency(pair[0]) and not skip_inst_for_frequency(pair[1]) and \
+                not (pair[0] == pair[1] and pair[1] == 'STORE'):
             count_two = frequent_2.get(pair_two, 0)
             frequent_2[pair_two] = count_two + 1
             if not skip_inst_for_frequency(pair[2]):

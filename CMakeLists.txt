@@ -69,7 +69,7 @@ endif ()
 
 file(GLOB_RECURSE SOURCE_FILES
         ${ark_SOURCE_DIR}/src/arkreactor/*.cpp
-        ${ark_SOURCE_DIR}/lib/fmt/src/format.cc)
+        ${ark_SOURCE_DIR}/thirdparties/fmt/src/format.cc)
 
 add_library(ArkReactor SHARED ${SOURCE_FILES})
 
@@ -82,8 +82,8 @@ target_include_directories(ArkReactor
         ${ark_SOURCE_DIR}/include)
 target_include_directories(ArkReactor
         SYSTEM PUBLIC
-        "${ark_SOURCE_DIR}/lib/picosha2/"
-        "${ark_SOURCE_DIR}/lib/fmt/include")
+        "${ark_SOURCE_DIR}/thirdparties/picosha2/"
+        "${ark_SOURCE_DIR}/thirdparties/fmt/include")
 
 target_compile_features(ArkReactor PRIVATE cxx_std_20)
 
@@ -162,7 +162,7 @@ endif ()
 # Link libraries
 #####################################################
 
-add_subdirectory("${ark_SOURCE_DIR}/lib/ankerl_unordered_dense" EXCLUDE_FROM_ALL)
+add_subdirectory("${ark_SOURCE_DIR}/thirdparties/ankerl_unordered_dense" EXCLUDE_FROM_ALL)
 target_link_libraries(ArkReactor PUBLIC unordered_dense::unordered_dense)
 
 if (UNIX OR LINUX)
@@ -207,8 +207,8 @@ if (ARK_BUILD_MODULES)
 endif ()
 
 if (ARK_TESTS OR ARK_BUILD_EXE)
-    add_subdirectory("${ark_SOURCE_DIR}/lib/replxx" EXCLUDE_FROM_ALL)
-    add_subdirectory("${ark_SOURCE_DIR}/lib/clipp" EXCLUDE_FROM_ALL)
+    add_subdirectory("${ark_SOURCE_DIR}/thirdparties/replxx" EXCLUDE_FROM_ALL)
+    add_subdirectory("${ark_SOURCE_DIR}/thirdparties/clipp" EXCLUDE_FROM_ALL)
 endif ()
 
 if (ARK_EMSCRIPTEN)
@@ -240,16 +240,16 @@ if (ARK_TESTS)
     file(GLOB_RECURSE SOURCES
             ${ark_SOURCE_DIR}/tests/unittests/*.cpp
             ${ark_SOURCE_DIR}/tests/unittests/Suites/*.cpp
-            ${ark_SOURCE_DIR}/lib/fmt/src/format.cc
+            ${ark_SOURCE_DIR}/thirdparties/fmt/src/format.cc
             ${ark_SOURCE_DIR}/src/arkscript/Formatter.cpp
             ${ark_SOURCE_DIR}/src/arkscript/JsonCompiler.cpp
             ${ark_SOURCE_DIR}/src/arkscript/REPL/Utils.cpp)
     add_executable(unittests ${SOURCES})
     target_include_directories(unittests PUBLIC ${ark_SOURCE_DIR}/tests/unittests)
 
-    target_include_directories(unittests SYSTEM PUBLIC ${ark_SOURCE_DIR}/lib/dtl/dtl)
+    target_include_directories(unittests SYSTEM PUBLIC ${ark_SOURCE_DIR}/thirdparties/dtl/dtl)
 
-    add_subdirectory(${ark_SOURCE_DIR}/lib/ut)
+    add_subdirectory(${ark_SOURCE_DIR}/thirdparties/ut)
     target_include_directories(unittests PUBLIC ${ark_SOURCE_DIR}/include)
     target_link_libraries(unittests PUBLIC ArkReactor ut replxx)
 
@@ -283,6 +283,7 @@ if (ARK_TESTS)
                 --filter range
                 --exclude 'tests/*'
                 --exclude 'lib/*'
+                --exclude 'thirdparties/*'
                 --exclude '/usr/*'
                 --exclude 'build/*'
                 --gcov-tool ${ark_SOURCE_DIR}/tests/llvm-gcov.sh
@@ -323,10 +324,10 @@ if (ARK_BUILD_EXE)
     # additional files needed for the exe (repl, command line and stuff)
     file(GLOB_RECURSE EXE_SOURCES
             ${ark_SOURCE_DIR}/src/arkscript/*.cpp
-            ${ark_SOURCE_DIR}/lib/fmt/src/format.cc)
+            ${ark_SOURCE_DIR}/thirdparties/fmt/src/format.cc)
     add_executable(arkscript ${EXE_SOURCES})
 
-    target_include_directories(arkscript SYSTEM PUBLIC "${ark_SOURCE_DIR}/lib/clipp/include")
+    target_include_directories(arkscript SYSTEM PUBLIC "${ark_SOURCE_DIR}/thirdparties/clipp/include")
     target_link_libraries(arkscript PUBLIC ArkReactor replxx clipp)
     target_compile_features(arkscript PRIVATE cxx_std_20)
 
