@@ -282,7 +282,6 @@ if (ARK_TESTS)
                 --ignore-errors inconsistent
                 --filter range
                 --exclude 'tests/*'
-                --exclude 'lib/*'
                 --exclude 'thirdparties/*'
                 --exclude '/usr/*'
                 --exclude 'build/*'
