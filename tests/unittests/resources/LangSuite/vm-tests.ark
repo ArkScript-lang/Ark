@@ -52,6 +52,7 @@
         (test:expect (>= 0 -4))
         (test:expect (>= "hello" "hello"))
         (test:expect (>= "hello" "abc"))
+        (test:expect (< 1 "a"))  # comparisons between types are ordered on type id...
         (test:neq "hello" "abc")
         (test:neq nil true)
         (test:neq nil false)
@@ -60,7 +61,8 @@
         (test:neq "" 1)
         (test:neq "" nil)
         (test:neq "" true)
-        (test:neq "" false) })
+        (test:neq "" false)
+        (test:expect (< parent bob)) })
 
     (test:case "lengths and list operations" {
         (test:eq (len "hello") 5)
@@ -69,6 +71,7 @@
         (test:eq (len []) 0)
         (test:expect (empty? ""))
         (test:expect (empty? []))
+        (test:expect (not []))
         (test:eq (tail "") "")
         (test:eq (tail "a") "")
         (test:eq (tail "abc") "bc")
