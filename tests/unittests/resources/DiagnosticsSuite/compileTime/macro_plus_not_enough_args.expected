@@ -1,0 +1,4 @@
+    1 | (macro a (+ 1))
+      |          ^~~~~
+    2 |
+        Interpreting a `+' operator with 1 argument, expected at least 2.

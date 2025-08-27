@@ -1,0 +1,3 @@
+(import package.builtin__list)
+
+(print (reverse))

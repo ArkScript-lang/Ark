@@ -1,0 +1,6 @@
+    1 | ($undef a b)
+      | │└─ error
+      | │
+      | └─ macro expansion started here
+    2 |
+        When expanding `$undef', expected one argument, got 2 arguments

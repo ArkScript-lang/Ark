@@ -1,0 +1,4 @@
+    1 | ($if (= 1) ())
+      |      ^~~~~
+    2 |
+        Interpreting a `=' condition with 1 argument, expected 2.

@@ -214,10 +214,11 @@ namespace Ark::internal
         if (argcount != expected + 1)
             throwMacroProcessingError(
                 fmt::format(
-                    "Interpreting a `{}'{} with {} arguments, expected {}.",
+                    "Interpreting a `{}'{} with {} argument{}, expected {}.",
                     name,
                     kind.empty() ? kind : " " + kind,
-                    argcount,
+                    argcount - 1,
+                    argcount > 2 ? "s" : "",
                     expected),
                 node);
     }
@@ -228,10 +229,11 @@ namespace Ark::internal
         if (argcount < expected + 1)
             throwMacroProcessingError(
                 fmt::format(
-                    "Interpreting a `{}'{} with {} arguments, expected at least {}.",
+                    "Interpreting a `{}'{} with {} argument{}, expected at least {}.",
                     name,
                     kind.empty() ? kind : " " + kind,
-                    argcount,
+                    argcount - 1,
+                    argcount > 2 ? "s" : "",
                     expected),
                 node);
     }

@@ -1,0 +1,6 @@
+    1 | (import package.builtin__list)
+    2 |
+    3 | (print (reverse))
+      |         ^~~~~~~
+    4 |
+        Symbol `reverse' was resolved to `builtin__list:reverse', which is also a builtin name. Either the symbol or the package it's in needs to be renamed to avoid conflicting with the builtin.

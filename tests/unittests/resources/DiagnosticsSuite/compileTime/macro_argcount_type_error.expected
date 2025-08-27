@@ -1,0 +1,6 @@
+    1 | ($argcount 1)
+      | │          └─ error
+      | │
+      | └─ macro expansion started here
+    2 |
+        When trying to apply `$argcount', got a Number instead of a Symbol or Function
