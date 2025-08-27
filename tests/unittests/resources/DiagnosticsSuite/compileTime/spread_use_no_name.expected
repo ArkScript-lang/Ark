@@ -1,0 +1,6 @@
+    1 | (macro bar (...args)
+    2 |   (print ...))
+      |             ^
+    3 | (bar 1 2 3)
+    4 |
+        Expected a name for the variadic
