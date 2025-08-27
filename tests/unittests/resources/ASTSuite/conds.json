@@ -1,0 +1,1 @@
+{"type": "Begin", "children": [{"type": "If", "condition": {"type": "Symbol", "name": "true"}, "then": {"type": "Number", "value": 1}, "else": {"type": "Number", "value": 2}}, {"type": "If", "condition": {"type": "Symbol", "name": "true"}, "then": {"type": "Number", "value": 3}}]}
