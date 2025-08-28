@@ -425,31 +425,26 @@ namespace Ark
 
     Future* VM::createFuture(std::vector<Value>& args)
     {
+        const std::lock_guard lock(m_mutex_futures);
+
         ExecutionContext* ctx = createAndGetContext();
         // so that we have access to the presumed symbol id of the function we are calling
         // assuming that the callee is always the global context
         ctx->last_symbol = m_execution_contexts.front()->last_symbol;
 
-        // doing this after having created the context
-        // because the context uses the mutex and we don't want a deadlock
-        const std::lock_guard lock(m_mutex);
         m_futures.push_back(std::make_unique<Future>(ctx, this, args));
-
         return m_futures.back().get();
     }
 
     void VM::deleteFuture(Future* f)
     {
-        const std::lock_guard lock(m_mutex);
+        const std::lock_guard lock(m_mutex_futures);
 
-        const auto it =
-            std::ranges::remove_if(
-                m_futures,
-                [f](const std::unique_ptr<Future>& future) {
-                    return future.get() == f;
-                })
-                .begin();
-        m_futures.erase(it);
+        std::erase_if(
+            m_futures,
+            [f](const std::unique_ptr<Future>& future) {
+                return future.get() == f;
+            });
     }
 
     bool VM::forceReloadPlugins() const

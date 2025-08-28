@@ -17,6 +17,11 @@
 #include <Ark/VM/Value.hpp>
 #include <Ark/VM/ExecutionContext.hpp>
 
+namespace Ark
+{
+    class VM;
+}
+
 namespace Ark::internal
 {
     class Future
@@ -31,15 +36,18 @@ namespace Ark::internal
         Future(ExecutionContext* context, VM* vm, std::vector<Value>& args);
 
         /**
-         * @brief Await the future, blocking the thread it is ran on
+         * @brief Await the future, blocking the thread it is run on
          * @return Value Nil if the future is invalid (has already been awaited), otherwise the value
          */
         Value resolve();
 
-        UserType::ControlFuncs ControlFunctions;
+        static UserType::ControlFuncs ControlFunctions;
 
     private:
         std::future<Value> m_value;  ///< The actual thread
+        VM* m_vm;                    ///< Non-owning pointer
+
+        void deleteSelfViaVM();
     };
 }
 

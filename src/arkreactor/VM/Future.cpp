@@ -5,17 +5,21 @@
 
 namespace Ark::internal
 {
-    // cppcheck-suppress constParameterReference
-    Future::Future(ExecutionContext* context, VM* vm, std::vector<Value>& args)
-    {
-        ControlFunctions.ostream_func = [](std::ostream& os, const UserType& user) -> std::ostream& {
+    UserType::ControlFuncs Future::ControlFunctions = {
+        .ostream_func = [](std::ostream& os, const UserType& user) -> std::ostream& {
             os << "Future@" << user.data();
             return os;
-        };
-        ControlFunctions.deleter = [vm](void* data) {
-            vm->deleteFuture(static_cast<Future*>(data));
-        };
+        },
+        .deleter = [](void* data) {
+            Future* f = static_cast<Future*>(data);
+            f->deleteSelfViaVM();
+        }
+    };
 
+    // cppcheck-suppress constParameterReference
+    Future::Future(ExecutionContext* context, VM* vm, std::vector<Value>& args) :
+        m_vm(vm)
+    {
         m_value = std::async(
             std::launch::async,
             [vm, context, args]() mutable {
@@ -38,5 +42,10 @@ namespace Ark::internal
         m_value.wait();
         Value res = m_value.get();
         return res;
+    }
+
+    void Future::deleteSelfViaVM()
+    {
+        m_vm->deleteFuture(this);
     }
 }

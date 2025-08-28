@@ -166,7 +166,7 @@ namespace Ark
         std::vector<std::unique_ptr<internal::ExecutionContext>> m_execution_contexts;
         int m_exit_code;  ///< VM exit code, defaults to 0. Can be changed through `sys:exit`
         bool m_running;
-        std::mutex m_mutex;
+        std::mutex m_mutex, m_mutex_futures;
         std::vector<std::shared_ptr<internal::SharedLibrary>> m_shared_lib_objects;
         std::vector<std::unique_ptr<internal::Future>> m_futures;  ///< Storing the promises while we are resolving them
 
