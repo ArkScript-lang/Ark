@@ -106,7 +106,12 @@
         (test:eq (@ "hello" -4) "e")
         (test:eq (@ ["h" "e" "l" "l" "o"] 1) "e")
         (test:eq (@ ["h" "e" "l" "l" "o"] -1) "o")
-        (test:eq (@ ["h" "e" "l" "l" "o"] -4) "e") })
+        (test:eq (@ ["h" "e" "l" "l" "o"] -4) "e")
+
+        (let lst [1 2 3])
+        (let idx 1)
+        # AT_SYM_INDEX_SYM_INDEX
+        (test:eq (@ lst idx) 2) })
 
     (test:case "Short-circuiting" {
         (let falsy (fun () {
@@ -179,6 +184,15 @@
     (test:case "hack to test usually optimized append_in_place" {
         (mut data [])
         (append! ((fun () data)) 5) })
+
+    (test:case "optimized jumps" {
+        (mut i 10)
+        (let n 5)
+        # GT_SYM_JUMP_IF_FALSE
+        (while (> i n) (set i (- i 1)))
+        # GT_CONST_JUMP_IF_FALSE
+        (while (> i 5) (set i (- i 1)))
+        (test:eq i 5) })
 
     (test:case "set/store head and tail" {
         (mut data [1 2 3 4])
