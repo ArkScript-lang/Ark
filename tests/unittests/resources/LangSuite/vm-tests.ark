@@ -162,38 +162,53 @@
 
     (test:case "increment and decrement vars" {
         (mut var 0)
+        # INCREMENT_BY_INDEX
         (set var (+ var 5))
+        # INCREMENT_BY_INDEX
         (set var (+ 10 var))
+        # DECREMENT_BY_INDEX
         (set var (- var 1))
+        # INCREMENT_STORE
         ((fun () (set var (+ 1 var))))
+        # DECREMENT_STORE
         ((fun () (set var (- var 1))))
         (test:eq 15 ((fun () (+ var 1))))
         (test:eq 13 ((fun () (- var 1))))
         (test:eq var 14) })
 
+    (test:case "hack to test usually optimized append_in_place" {
+        (mut data [])
+        (append! ((fun () data)) 5) })
+
     (test:case "set/store head and tail" {
         (mut data [1 2 3 4])
+        # STORE_TAIL_BY_INDEX
         (let data2 (tail data))
+        # SET_VAL_TAIL_BY_INDEX
         (set data (tail data))
         (test:eq data2 data)
         (test:eq data [2 3 4])
 
+        # SET_VAL_TAIL
         ((fun () (set data (tail data))))
         (test:eq data [3 4])
 
         (mut tmp [1 2 3])
+        # SET_VAL_HEAD
         ((fun () (set tmp (head tmp))))
         (test:eq tmp 1)
 
+        # STORE_HEAD
         ((fun () {
             (let data_head (head data))
             (test:eq data_head 3) }))
-        ((fun (lst) {
-            (let lst_head (head lst))
-            (test:eq lst_head 1) })
-        [1 2 3])
+        ((fun () {
+            (let data_tail (tail data))
+            (test:eq data_tail [4]) }))
 
+        # STORE_HEAD_BY_INDEX
         (let data3 (head data))
+        # SET_VAL_HEAD_BY_INDEX
         (set data (head data))
         (test:eq data3 data)
         (test:eq data 3) })})

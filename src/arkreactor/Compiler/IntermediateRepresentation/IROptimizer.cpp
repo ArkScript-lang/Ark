@@ -66,7 +66,7 @@ namespace Ark::internal
                        return IR::Entity(INCREMENT_STORE, e[0].primaryArg(), numberAsArg(e[1].primaryArg()));
                    } },
             Rule { { LOAD_SYMBOL, LOAD_CONST, SUB, SET_VAL }, [this](const Entities e) {
-                      return isPositiveNumberInlinable(e[1].primaryArg()) && e[1].primaryArg() == e[3].primaryArg();
+                      return isPositiveNumberInlinable(e[1].primaryArg()) && e[0].primaryArg() == e[3].primaryArg();
                   },
                    [this](const Entities e) {
                        return IR::Entity(DECREMENT_STORE, e[0].primaryArg(), numberAsArg(e[1].primaryArg()));
