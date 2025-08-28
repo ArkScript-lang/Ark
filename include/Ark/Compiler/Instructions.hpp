@@ -413,6 +413,10 @@ namespace Ark::internal
         // @role Append N elements to a reference to a list (symbol index), the list is being mutated in-place, no new object created. Elements are stored in TS(1)..TS(N). Follows the function calling convention
         APPEND_IN_PLACE_SYM_INDEX = 0x67,
 
+        // @args symbol index, symbol id
+        // @role Compute the length of the list at symbol index, and store it in a variable (symbol id)
+        STORE_LEN = 0x68,
+
         InstructionsCount
     };
 
@@ -522,7 +526,8 @@ namespace Ark::internal
         "CHECK_TYPE_OF",
         "CHECK_TYPE_OF_BY_INDEX",
         "APPEND_IN_PLACE_SYM",
-        "APPEND_IN_PLACE_SYM_INDEX"
+        "APPEND_IN_PLACE_SYM_INDEX",
+        "STORE_LEN"
     };
 
     static_assert(InstructionNames.size() == static_cast<std::size_t>(Instruction::InstructionsCount) && "Some instruction names appear to be missing");

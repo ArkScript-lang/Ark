@@ -196,6 +196,10 @@
 
     (test:case "set/store head and tail" {
         (mut data [1 2 3 4])
+        # STORE_LEN
+        (let length (len data))
+        (test:eq length 4)
+
         # STORE_TAIL_BY_INDEX
         (let data2 (tail data))
         # SET_VAL_TAIL_BY_INDEX

@@ -1,0 +1,10 @@
+Function len expected 1 argument
+  -> value (List) was of type Number
+Alternative 2:
+  -> value (String) was of type Number
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/store_len_num.ark:2
+    1 | (let a 1)
+    2 | (let l (len a))
+      | ^~~~~~~~~~~~~~
+    3 |

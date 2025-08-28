@@ -528,7 +528,8 @@ namespace Ark
             { CHECK_TYPE_OF, ArgKind::SymConst },
             { CHECK_TYPE_OF_BY_INDEX, ArgKind::RawConst },
             { APPEND_IN_PLACE_SYM, ArgKind::SymRaw },
-            { APPEND_IN_PLACE_SYM_INDEX, ArgKind::RawRaw }
+            { APPEND_IN_PLACE_SYM_INDEX, ArgKind::RawRaw },
+            { STORE_LEN, ArgKind::RawSym }
         };
 
         const auto builtin_name = [](const uint16_t idx) {

@@ -632,7 +632,8 @@ namespace Ark
                 &&TARGET_CHECK_TYPE_OF,
                 &&TARGET_CHECK_TYPE_OF_BY_INDEX,
                 &&TARGET_APPEND_IN_PLACE_SYM,
-                &&TARGET_APPEND_IN_PLACE_SYM_INDEX
+                &&TARGET_APPEND_IN_PLACE_SYM_INDEX,
+                &&TARGET_STORE_LEN
             };
 
         static_assert(opcode_targets.size() == static_cast<std::size_t>(Instruction::InstructionsCount) && "Some instructions are not implemented in the VM");
@@ -1902,6 +1903,27 @@ namespace Ark
                     {
                         UNPACK_ARGS();
                         listAppendInPlace(loadSymbolFromIndex(primary_arg, context), secondary_arg, context);
+                        DISPATCH();
+                    }
+
+                    TARGET(STORE_LEN)
+                    {
+                        UNPACK_ARGS();
+                        {
+                            Value* a = loadSymbolFromIndex(primary_arg, context);
+                            Value len;
+                            if (a->valueType() == ValueType::List)
+                                len = Value(static_cast<int>(a->constList().size()));
+                            else if (a->valueType() == ValueType::String)
+                                len = Value(static_cast<int>(a->string().size()));
+                            else
+                                throw types::TypeCheckingError(
+                                    "len",
+                                    { { types::Contract { { types::Typedef("value", ValueType::List) } },
+                                        types::Contract { { types::Typedef("value", ValueType::String) } } } },
+                                    { *a });
+                            store(secondary_arg, &len, context);
+                        }
                         DISPATCH();
                     }
 #pragma endregion

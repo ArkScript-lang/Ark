@@ -1,5 +1,8 @@
 # STORE_LIST
 (mut source [1 2 3 4])
+# STORE_LEN
+(let length (len source))
+
 (let n 1)
 
 (let foo (fun () {
