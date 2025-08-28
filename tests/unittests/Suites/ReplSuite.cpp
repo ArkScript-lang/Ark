@@ -40,6 +40,9 @@ ut::suite<"Repl"> repl_suite = [] {
 
     const auto kws = Ark::internal::getAllKeywords();
     const auto colors = Ark::internal::getColorPerKeyword();
+    const auto append_color = std::ranges::find_if(colors, [](const auto& pair) {
+                                  return pair.first == "append";
+                              })->second;
 
     "getters"_test = [&] {
         expect(that % kws.size() != 0);
@@ -57,6 +60,13 @@ ut::suite<"Repl"> repl_suite = [] {
         expect(std::ranges::find_if(completions, [](const replxx::Replxx::Completion& v) {
                    return v.text() == "append!";
                }) != completions.end());
+
+        replxx::Replxx::colors_t colored(6, replxx::Replxx::Color::DEFAULT);
+        Ark::internal::hookColor(colors, "append", colored);
+        expect(that % colored.size() == 6);
+        expect(std::ranges::all_of(colored, [append_color](const replxx::Replxx::Color& c) {
+            return c == append_color;
+        }));
 
         length = 5;
         replxx::Replxx::Color color;
