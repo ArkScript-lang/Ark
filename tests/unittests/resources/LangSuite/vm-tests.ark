@@ -167,7 +167,7 @@
         (set var (- var 1))
         ((fun () (set var (+ 1 var))))
         ((fun () (set var (- var 1))))
-        (test:eq 14 ((fun () (+ var 1))))
+        (test:eq 15 ((fun () (+ var 1))))
         (test:eq 13 ((fun () (- var 1))))
         (test:eq var 14) })
 
@@ -178,7 +178,22 @@
         (test:eq data2 data)
         (test:eq data [2 3 4])
 
+        ((fun () (set data (tail data))))
+        (test:eq data [3 4])
+
+        (mut tmp [1 2 3])
+        ((fun () (set tmp (head tmp))))
+        (test:eq tmp 1)
+
+        ((fun () {
+            (let data_head (head data))
+            (test:eq data_head 3) }))
+        ((fun (lst) {
+            (let lst_head (head lst))
+            (test:eq lst_head 1) })
+        [1 2 3])
+
         (let data3 (head data))
         (set data (head data))
         (test:eq data3 data)
-        (test:eq data 2) })})
+        (test:eq data 3) })})
