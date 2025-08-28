@@ -13,6 +13,7 @@
 
 #include <iostream>
 #include <cinttypes>
+#include <functional>
 
 #include <Ark/Utils/Platform.hpp>
 
@@ -52,8 +53,8 @@ namespace Ark
          */
         struct ControlFuncs
         {
-            std::ostream& (*ostream_func)(std::ostream&, const UserType&) = nullptr;
-            void (*deleter)(void*) = nullptr;
+            std::function<std::ostream&(std::ostream&, const UserType&)> ostream_func = nullptr;
+            std::function<void(void*)> deleter = nullptr;
         };
 
         /**
@@ -74,7 +75,7 @@ namespace Ark
          * @brief Free memory through the control functions block
          *
          */
-        void del();
+        void del() const;
 
         /**
          * @brief Get the pointer to the object

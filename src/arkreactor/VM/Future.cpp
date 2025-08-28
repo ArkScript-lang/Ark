@@ -8,6 +8,14 @@ namespace Ark::internal
     // cppcheck-suppress constParameterReference
     Future::Future(ExecutionContext* context, VM* vm, std::vector<Value>& args)
     {
+        ControlFunctions.ostream_func = [](std::ostream& os, const UserType& user) -> std::ostream& {
+            os << "Future@" << user.data();
+            return os;
+        };
+        ControlFunctions.deleter = [vm](void* data) {
+            vm->deleteFuture(static_cast<Future*>(data));
+        };
+
         m_value = std::async(
             std::launch::async,
             [vm, context, args]() mutable {

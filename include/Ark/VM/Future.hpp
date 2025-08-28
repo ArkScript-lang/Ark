@@ -36,6 +36,8 @@ namespace Ark::internal
          */
         Value resolve();
 
+        UserType::ControlFuncs ControlFunctions;
+
     private:
         std::future<Value> m_value;  ///< The actual thread
     };

@@ -2,7 +2,7 @@
 
 namespace Ark
 {
-    void UserType::del()
+    void UserType::del() const
     {
         if (m_funcs && m_funcs->deleter)
             m_funcs->deleter(m_data);
