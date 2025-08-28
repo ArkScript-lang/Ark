@@ -32,7 +32,7 @@ namespace Ark::internal
      * @brief Handling a shared library as an ArkScript VM plugin
      *
      */
-    class SharedLibrary
+    class ARK_API SharedLibrary
     {
     public:
         /**
