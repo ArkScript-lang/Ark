@@ -165,6 +165,10 @@
         (set var (+ var 5))
         (set var (+ 10 var))
         (set var (- var 1))
+        ((fun () (set var (+ 1 var))))
+        ((fun () (set var (- var 1))))
+        (test:eq 14 ((fun () (+ var 1))))
+        (test:eq 13 ((fun () (- var 1))))
         (test:eq var 14) })
 
     (test:case "set/store head and tail" {
