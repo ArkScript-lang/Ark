@@ -1,0 +1,12 @@
+Function len expected 1 argument
+  -> value (List) was of type Number
+Alternative 2:
+  -> value (String) was of type Number
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/lt_len_sym_jump_if_false_num.ark:3
+    1 | (let data 1)
+    2 | (mut i 0)
+    3 | (while (< i (len data)) {
+      | ^~~~~~~~~~~~~~~~~~~~~~~~
+    4 |   (print i " " (@ data i))
+    5 |   (set i (+ 1 i)) })
