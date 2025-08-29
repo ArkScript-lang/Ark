@@ -238,6 +238,8 @@ namespace Ark
          */
         inline void setVal(uint16_t id, const Value* val, internal::ExecutionContext& context);
 
+        inline void jump(uint16_t address, internal::ExecutionContext& context);
+
         Value getField(Value* closure, uint16_t id, internal::ExecutionContext& context);
 
         Value createList(std::size_t count, internal::ExecutionContext& context);

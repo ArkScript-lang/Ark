@@ -153,6 +153,12 @@ inline void VM::setVal(const uint16_t id, const Value* val, internal::ExecutionC
                 val->toString(*this)));
 }
 
+inline void VM::jump(const uint16_t address, internal::ExecutionContext& context)
+{
+    // instructions are on 4 bytes!
+    context.ip = address * 4;
+}
+
 #pragma endregion
 
 #pragma region "stack management"

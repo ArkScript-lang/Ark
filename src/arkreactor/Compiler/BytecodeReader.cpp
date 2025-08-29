@@ -484,6 +484,7 @@ namespace Ark
             { CONCAT, ArgKind::Raw },
             { APPEND_IN_PLACE, ArgKind::Raw },
             { CONCAT_IN_PLACE, ArgKind::Raw },
+            { RESET_SCOPE_JUMP, ArgKind::Raw },
             { GET_CURRENT_PAGE_ADDR, ArgKind::Symbol },
             { LOAD_CONST_LOAD_CONST, ArgKind::ConstConst },
             { LOAD_CONST_STORE, ArgKind::ConstSym },

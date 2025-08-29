@@ -685,7 +685,7 @@ namespace Ark
                     TARGET(POP_JUMP_IF_TRUE)
                     {
                         if (Value boolean = *popAndResolveAsPtr(context); !!boolean)
-                            context.ip = arg * 4;  // instructions are 4 bytes
+                            jump(arg, context);
                         DISPATCH();
                     }
 
@@ -704,13 +704,13 @@ namespace Ark
                     TARGET(POP_JUMP_IF_FALSE)
                     {
                         if (Value boolean = *popAndResolveAsPtr(context); !boolean)
-                            context.ip = arg * 4;  // instructions are 4 bytes
+                            jump(arg, context);
                         DISPATCH();
                     }
 
                     TARGET(JUMP)
                     {
-                        context.ip = arg * 4;  // instructions are 4 bytes
+                        jump(arg, context);
                         DISPATCH();
                     }
 
@@ -1075,7 +1075,7 @@ namespace Ark
                     TARGET(SHORTCIRCUIT_AND)
                     {
                         if (!*peekAndResolveAsPtr(context))
-                            context.ip = arg * 4;
+                            jump(arg, context);
                         else
                             pop(context);
                         DISPATCH();
@@ -1084,7 +1084,7 @@ namespace Ark
                     TARGET(SHORTCIRCUIT_OR)
                     {
                         if (!!*peekAndResolveAsPtr(context))
-                            context.ip = arg * 4;
+                            jump(arg, context);
                         else
                             pop(context);
                         DISPATCH();
@@ -1099,7 +1099,7 @@ namespace Ark
                     TARGET(RESET_SCOPE_JUMP)
                     {
                         context.locals.back().reset();
-                        context.ip = arg * 4;  // instructions are 4 bytes
+                        jump(arg, context);
                         DISPATCH();
                     }
 
@@ -1729,7 +1729,7 @@ namespace Ark
                         UNPACK_ARGS();
                         const Value* sym = popAndResolveAsPtr(context);
                         if (!(*sym < *loadConstAsPtr(primary_arg)))
-                            context.ip = secondary_arg * 4;
+                            jump(secondary_arg, context);
                         DISPATCH();
                     }
 
@@ -1738,7 +1738,7 @@ namespace Ark
                         UNPACK_ARGS();
                         const Value* sym = popAndResolveAsPtr(context);
                         if (*sym < *loadConstAsPtr(primary_arg))
-                            context.ip = secondary_arg * 4;
+                            jump(secondary_arg, context);
                         DISPATCH();
                     }
 
@@ -1747,7 +1747,7 @@ namespace Ark
                         UNPACK_ARGS();
                         const Value* sym = popAndResolveAsPtr(context);
                         if (!(*sym < *loadSymbol(primary_arg, context)))
-                            context.ip = secondary_arg * 4;
+                            jump(secondary_arg, context);
                         DISPATCH();
                     }
 
@@ -1757,7 +1757,7 @@ namespace Ark
                         const Value* sym = popAndResolveAsPtr(context);
                         const Value* cst = loadConstAsPtr(primary_arg);
                         if (*cst < *sym)
-                            context.ip = secondary_arg * 4;
+                            jump(secondary_arg, context);
                         DISPATCH();
                     }
 
@@ -1767,7 +1767,7 @@ namespace Ark
                         const Value* sym = popAndResolveAsPtr(context);
                         const Value* cst = loadConstAsPtr(primary_arg);
                         if (!(*cst < *sym))
-                            context.ip = secondary_arg * 4;
+                            jump(secondary_arg, context);
                         DISPATCH();
                     }
 
@@ -1777,7 +1777,7 @@ namespace Ark
                         const Value* sym = popAndResolveAsPtr(context);
                         const Value* rhs = loadSymbol(primary_arg, context);
                         if (!(*rhs < *sym))
-                            context.ip = secondary_arg * 4;
+                            jump(secondary_arg, context);
                         DISPATCH();
                     }
 
@@ -1786,7 +1786,7 @@ namespace Ark
                         UNPACK_ARGS();
                         const Value* sym = popAndResolveAsPtr(context);
                         if (*sym == *loadConstAsPtr(primary_arg))
-                            context.ip = secondary_arg * 4;
+                            jump(secondary_arg, context);
                         DISPATCH();
                     }
 
@@ -1795,7 +1795,7 @@ namespace Ark
                         UNPACK_ARGS();
                         const Value* sym = popAndResolveAsPtr(context);
                         if (*sym == *loadSymbolFromIndex(primary_arg, context))
-                            context.ip = secondary_arg * 4;
+                            jump(secondary_arg, context);
                         DISPATCH();
                     }
 
@@ -1804,7 +1804,7 @@ namespace Ark
                         UNPACK_ARGS();
                         const Value* sym = popAndResolveAsPtr(context);
                         if (*sym != *loadConstAsPtr(primary_arg))
-                            context.ip = secondary_arg * 4;
+                            jump(secondary_arg, context);
                         DISPATCH();
                     }
 
@@ -1813,7 +1813,7 @@ namespace Ark
                         UNPACK_ARGS();
                         const Value* sym = popAndResolveAsPtr(context);
                         if (*sym == *loadSymbol(primary_arg, context))
-                            context.ip = secondary_arg * 4;
+                            jump(secondary_arg, context);
                         DISPATCH();
                     }
 
