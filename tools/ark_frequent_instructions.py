@@ -49,7 +49,9 @@ super_insts = [
     "CHECK_TYPE_OF",
     "CHECK_TYPE_OF_BY_INDEX",
     "APPEND_IN_PLACE_SYM",
-    "APPEND_IN_PLACE_SYM_INDEX"
+    "APPEND_IN_PLACE_SYM_INDEX",
+    "STORE_LEN",
+    "LT_LEN_SYM_JUMP_IF_FALSE"
 ]
 
 executable = None

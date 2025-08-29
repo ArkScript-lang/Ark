@@ -194,8 +194,12 @@ namespace Ark::internal
             Rule { { LOAD_CONST, LOAD_SYMBOL_BY_INDEX, TYPE, EQ }, [](const Entities e) {
                       return IR::Entity(CHECK_TYPE_OF_BY_INDEX, e[1].primaryArg(), e[0].primaryArg());
                   } },
+            // ---
             Rule { { LOAD_SYMBOL_BY_INDEX, LEN, STORE }, [](const Entities e) {
                       return IR::Entity(STORE_LEN, e[0].primaryArg(), e[2].primaryArg());
+                  } },
+            Rule { { LOAD_SYMBOL, LEN, LT, POP_JUMP_IF_FALSE }, [](const Entities e) {
+                      return IR::Entity::GotoWithArg(e[3], LT_LEN_SYM_JUMP_IF_FALSE, e[0].primaryArg());
                   } },
         };
     }

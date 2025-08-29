@@ -633,7 +633,8 @@ namespace Ark
                 &&TARGET_CHECK_TYPE_OF_BY_INDEX,
                 &&TARGET_APPEND_IN_PLACE_SYM,
                 &&TARGET_APPEND_IN_PLACE_SYM_INDEX,
-                &&TARGET_STORE_LEN
+                &&TARGET_STORE_LEN,
+                &&TARGET_LT_LEN_SYM_JUMP_IF_FALSE
             };
 
         static_assert(opcode_targets.size() == static_cast<std::size_t>(Instruction::InstructionsCount) && "Some instructions are not implemented in the VM");
@@ -1923,6 +1924,30 @@ namespace Ark
                                         types::Contract { { types::Typedef("value", ValueType::String) } } } },
                                     { *a });
                             store(secondary_arg, &len, context);
+                        }
+                        DISPATCH();
+                    }
+
+                    TARGET(LT_LEN_SYM_JUMP_IF_FALSE)
+                    {
+                        UNPACK_ARGS();
+                        {
+                            const Value* sym = loadSymbol(primary_arg, context);
+                            Value size;
+
+                            if (sym->valueType() == ValueType::List)
+                                size = Value(static_cast<int>(sym->constList().size()));
+                            else if (sym->valueType() == ValueType::String)
+                                size = Value(static_cast<int>(sym->string().size()));
+                            else
+                                throw types::TypeCheckingError(
+                                    "len",
+                                    { { types::Contract { { types::Typedef("value", ValueType::List) } },
+                                        types::Contract { { types::Typedef("value", ValueType::String) } } } },
+                                    { *sym });
+
+                            if (!(*popAndResolveAsPtr(context) < size))
+                                jump(secondary_arg, context);
                         }
                         DISPATCH();
                     }

@@ -414,8 +414,12 @@ namespace Ark::internal
         APPEND_IN_PLACE_SYM_INDEX = 0x67,
 
         // @args symbol index, symbol id
-        // @role Compute the length of the list at symbol index, and store it in a variable (symbol id)
+        // @role Compute the length of the list or string at symbol index, and store it in a variable (symbol id)
         STORE_LEN = 0x68,
+
+        // @args symbol id, absolute address to jump to
+        // @role Compute the length of a symbol (list or string), and pop TS to compare it, then jump if false
+        LT_LEN_SYM_JUMP_IF_FALSE = 0x69,
 
         InstructionsCount
     };
@@ -527,7 +531,8 @@ namespace Ark::internal
         "CHECK_TYPE_OF_BY_INDEX",
         "APPEND_IN_PLACE_SYM",
         "APPEND_IN_PLACE_SYM_INDEX",
-        "STORE_LEN"
+        "STORE_LEN",
+        "LT_LEN_SYM_JUMP_IF_FALSE"
     };
 
     static_assert(InstructionNames.size() == static_cast<std::size_t>(Instruction::InstructionsCount) && "Some instruction names appear to be missing");
