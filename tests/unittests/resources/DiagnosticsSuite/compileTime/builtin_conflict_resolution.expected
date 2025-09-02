@@ -1,4 +1,4 @@
-    1 | (import package.builtin__list)
+    1 | (import package.builtin__list:*)
     2 |
     3 | (print (reverse))
       |         ^~~~~~~

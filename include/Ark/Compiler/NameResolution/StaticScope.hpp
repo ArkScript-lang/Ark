@@ -65,10 +65,11 @@ namespace Ark::internal
         /**
          * @brief Try to return a Declaration from this scope with a given name.
          * @param name
+         * @param origin_namespace unused in StaticScope
          * @param extensive_lookup unused in StaticScope
          * @return std::optional<Declaration> std::nullopt if the Declaration isn't in scope
          */
-        [[nodiscard]] virtual std::optional<Declaration> get(const std::string& name, bool extensive_lookup);
+        [[nodiscard]] virtual std::optional<Declaration> get(const std::string& name, const std::string& origin_namespace, bool extensive_lookup);
 
         /**
          * @brief Given a Declaration name, compute its fully qualified name
@@ -115,10 +116,11 @@ namespace Ark::internal
         /**
          * @brief Try to return a Declaration from this scope with a given name.
          * @param name
+         * @param origin_namespace namespace's name of the variable we are trying to find
          * @param extensive_lookup if true, use the additional saved namespaces
          * @return std::optional<Declaration> std::nullopt if the Declaration isn't in scope
          */
-        [[nodiscard]] std::optional<Declaration> get(const std::string& name, bool extensive_lookup) override;
+        [[nodiscard]] std::optional<Declaration> get(const std::string& name, const std::string& origin_namespace, bool extensive_lookup) override;
 
         /**
          * @brief Given a Declaration name, compute its fully qualified name

@@ -139,8 +139,8 @@ namespace Ark::internal
                 {
                     const auto it = std::ranges::find_if(
                         namespace_.symbols,
-                        [&scope](const std::string& sym) -> bool {
-                            return !scope->get(sym, true).has_value();
+                        [&scope, &namespace_](const std::string& sym) -> bool {
+                            return !scope->get(sym, namespace_.name, true).has_value();
                         });
 
                     if (it != namespace_.symbols.end())

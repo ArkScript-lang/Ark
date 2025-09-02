@@ -45,7 +45,7 @@ namespace Ark::internal
     {
         for (const auto& m_scope : std::ranges::reverse_view(m_scopes))
         {
-            if (auto maybe = m_scope->get(name, true); maybe.has_value())
+            if (auto maybe = m_scope->get(name, currentNamespace(), true); maybe.has_value())
                 return !maybe.value().is_mutable;
         }
         return std::nullopt;
@@ -53,22 +53,24 @@ namespace Ark::internal
 
     bool ScopeResolver::isRegistered(const std::string& name) const
     {
-        return std::ranges::any_of(std::ranges::reverse_view(m_scopes), [&name](const auto& scope) {
-            return scope->get(name, true).has_value();
+        const std::string origin_namespace = currentNamespace();
+        return std::ranges::any_of(std::ranges::reverse_view(m_scopes), [&name, &origin_namespace](const auto& scope) {
+            return scope->get(name, origin_namespace, true).has_value();
         });
     }
 
     bool ScopeResolver::isInScope(const std::string& name) const
     {
-        return m_scopes.back()->get(name, false).has_value();
+        return m_scopes.back()->get(name, currentNamespace(), false).has_value();
     }
 
     std::string ScopeResolver::getFullyQualifiedNameInNearestScope(const std::string& name) const
     {
+        const std::string prefix = currentNamespace();
         std::optional<std::string> maybe_name;
         for (const auto& scope : std::ranges::reverse_view(m_scopes))
         {
-            if (auto maybe_fqn = scope->get(name, true); maybe_fqn.has_value())
+            if (auto maybe_fqn = scope->get(name, prefix, true); maybe_fqn.has_value())
             {
                 // prioritize non-hidden symbols
                 if ((maybe_name.has_value() &&
@@ -123,5 +125,17 @@ namespace Ark::internal
         if (!m_scopes.empty()) [[likely]]
             return m_scopes.back().get();
         return nullptr;
+    }
+
+    std::string ScopeResolver::currentNamespace() const
+    {
+        for (const auto& scope : std::ranges::reverse_view(m_scopes))
+        {
+            if (scope->isNamespace())
+                return scope->prefix();
+        }
+
+        // no namespace name, thus no prefix ; "" is either the default namespace, a function scope or a while loop
+        return "";
     }
 }
