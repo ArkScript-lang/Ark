@@ -46,6 +46,7 @@ super_insts = [
     "GET_FIELD_FROM_SYMBOL_INDEX",
     "AT_SYM_SYM",
     "AT_SYM_INDEX_SYM_INDEX",
+    "AT_SYM_INDEX_CONST",
     "CHECK_TYPE_OF",
     "CHECK_TYPE_OF_BY_INDEX",
     "APPEND_IN_PLACE_SYM",
@@ -99,13 +100,17 @@ def skip_inst_for_frequency(inst):
     ]
 
 
-frequent_2 = {}
-frequent_3 = {}
+frequent = {
+    2: {},
+    3: {},
+    4: {},
+}
 super_insts_freqs = {}
 
 for page in ir:
-    for pair in window(page, 3):
+    for pair in window(page, 4):
         pair_two = (pair[0], pair[1])
+        pair_three = (pair[0], pair[1], pair[2])
 
         if pair[0] in super_insts:
             super_insts_freqs[pair[0]] = super_insts_freqs.get(pair[0], 0) + 1
@@ -116,14 +121,19 @@ for page in ir:
         # (used for function argument lists)
         if not skip_inst_for_frequency(pair[0]) and not skip_inst_for_frequency(pair[1]) and \
                 not (pair[0] == pair[1] and pair[1] == 'STORE'):
-            count_two = frequent_2.get(pair_two, 0)
-            frequent_2[pair_two] = count_two + 1
+            count_two = frequent[2].get(pair_two, 0)
+            frequent[2][pair_two] = count_two + 1
+
             if not skip_inst_for_frequency(pair[2]):
-                count_three = frequent_3.get(pair, 0)
-                frequent_3[pair] = count_three + 1
+                count_three = frequent[3].get(pair_three, 0)
+                frequent[3][pair_three] = count_three + 1
+
+                if not skip_inst_for_frequency(pair[3]):
+                    count_four = frequent[4].get(pair, 0)
+                    frequent[4][pair] = count_four + 1
 
 
-def print_most_freqs(data, max_percent=20):
+def print_most_freqs(data, max_percent=10):
     most = sorted(data.items(), key=lambda e: e[1], reverse=True)
     interesting = most[:(len(most) * max_percent) // 100]
     print("\n".join(f"{insts} -> {count}" for (insts, count) in interesting))
@@ -132,8 +142,6 @@ def print_most_freqs(data, max_percent=20):
 print("Super instructions present:")
 print_most_freqs(super_insts_freqs, max_percent=100)
 
-print("\nPairs of two:")
-print_most_freqs(frequent_2)
-
-print("\nPairs of three:")
-print_most_freqs(frequent_3)
+for i in (2, 3, 4):
+    print(f"\nPairs of {i}:")
+    print_most_freqs(frequent[i])

@@ -66,6 +66,7 @@
 - new data type `Dict`, which can be created with `(dict "key" "value" ...)`, and manipulated with `dict:get`, `dict:add`, `dict:contains`, `dict:remove`, `dict:keys` and `dict:size`
 - added program name under `builtin__sys:programName
 - `STORE_LEN` super instruction, to load a symbol by index and store its length (if it's a string or list) in a new variable
+- `AT_SYM_INDEX_CONST` super instruction, to load a value from a container using a constant as the index
 
 ### Changed
 - instructions are on 4 bytes: 1 byte for the instruction, 1 byte of padding, 2 bytes for an immediate argument

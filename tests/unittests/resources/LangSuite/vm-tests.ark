@@ -111,7 +111,9 @@
         (let lst [1 2 3])
         (let idx 1)
         # AT_SYM_INDEX_SYM_INDEX
-        (test:eq (@ lst idx) 2) })
+        (test:eq (@ lst idx) 2)
+        # AT_SYM_INDEX_CONST
+        (test:eq (@ lst 1) 2) })
 
     (test:case "Short-circuiting" {
         (let falsy (fun () {

@@ -40,5 +40,8 @@
 # AT_SYM_INDEX_SYM_INDEX
 (@ source n)
 
+# AT_SYM_INDEX_CONST
+(@ source 2)
+
 # APPEND_IN_PLACE_SYM_INDEX
 (append! tail_2 5)

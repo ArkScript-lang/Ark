@@ -526,6 +526,7 @@ namespace Ark
             { GET_FIELD_FROM_SYMBOL_INDEX, ArgKind::RawSym },
             { AT_SYM_SYM, ArgKind::SymSym },
             { AT_SYM_INDEX_SYM_INDEX, ArgKind::RawRaw },
+            { AT_SYM_INDEX_CONST, ArgKind::RawConst },
             { CHECK_TYPE_OF, ArgKind::SymConst },
             { CHECK_TYPE_OF_BY_INDEX, ArgKind::RawConst },
             { APPEND_IN_PLACE_SYM, ArgKind::SymRaw },

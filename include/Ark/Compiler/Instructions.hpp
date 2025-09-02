@@ -397,29 +397,33 @@ namespace Ark::internal
         // @role Push symbol[symbol2]
         AT_SYM_INDEX_SYM_INDEX = 0x63,
 
+        // @args symbol index, constant id
+        // @role Push symbol[constant]
+        AT_SYM_INDEX_CONST = 0x64,
+
         // @args symbol id, constant id
         // @role Check that the type of symbol is the given constant, push true if so, false otherwise
-        CHECK_TYPE_OF = 0x64,
+        CHECK_TYPE_OF = 0x65,
 
         // @args symbol index, constant id
         // @role Check that the type of symbol is the given constant, push true if so, false otherwise
-        CHECK_TYPE_OF_BY_INDEX = 0x65,
+        CHECK_TYPE_OF_BY_INDEX = 0x66,
 
         // @args symbol id, number of elements
         // @role Append N elements to a reference to a list (symbol id), the list is being mutated in-place, no new object created. Elements are stored in TS(1)..TS(N). Follows the function calling convention
-        APPEND_IN_PLACE_SYM = 0x66,
+        APPEND_IN_PLACE_SYM = 0x67,
 
         // @args symbol index, number of elements
         // @role Append N elements to a reference to a list (symbol index), the list is being mutated in-place, no new object created. Elements are stored in TS(1)..TS(N). Follows the function calling convention
-        APPEND_IN_PLACE_SYM_INDEX = 0x67,
+        APPEND_IN_PLACE_SYM_INDEX = 0x68,
 
         // @args symbol index, symbol id
         // @role Compute the length of the list or string at symbol index, and store it in a variable (symbol id)
-        STORE_LEN = 0x68,
+        STORE_LEN = 0x69,
 
         // @args symbol id, absolute address to jump to
         // @role Compute the length of a symbol (list or string), and pop TS to compare it, then jump if false
-        LT_LEN_SYM_JUMP_IF_FALSE = 0x69,
+        LT_LEN_SYM_JUMP_IF_FALSE = 0x6a,
 
         InstructionsCount
     };
@@ -527,6 +531,7 @@ namespace Ark::internal
         "GET_FIELD_FROM_SYMBOL_INDEX",
         "AT_SYM_SYM",
         "AT_SYM_INDEX_SYM_INDEX",
+        "AT_SYM_INDEX_CONST",
         "CHECK_TYPE_OF",
         "CHECK_TYPE_OF_BY_INDEX",
         "APPEND_IN_PLACE_SYM",

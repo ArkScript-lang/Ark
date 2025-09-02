@@ -176,6 +176,7 @@ namespace Ark::internal
             // ---> AT_SYM_SYM id id2
             Rule { { LOAD_SYMBOL, LOAD_SYMBOL, AT }, AT_SYM_SYM },
             Rule { { LOAD_SYMBOL_BY_INDEX, LOAD_SYMBOL_BY_INDEX, AT }, AT_SYM_INDEX_SYM_INDEX },
+            Rule { { LOAD_SYMBOL_BY_INDEX, LOAD_CONST, AT }, AT_SYM_INDEX_CONST },
             // LOAD_SYMBOL sym
             // TYPE
             // LOAD_CONST cst

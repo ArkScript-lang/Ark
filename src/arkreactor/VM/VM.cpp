@@ -629,6 +629,7 @@ namespace Ark
                 &&TARGET_GET_FIELD_FROM_SYMBOL_INDEX,
                 &&TARGET_AT_SYM_SYM,
                 &&TARGET_AT_SYM_INDEX_SYM_INDEX,
+                &&TARGET_AT_SYM_INDEX_CONST,
                 &&TARGET_CHECK_TYPE_OF,
                 &&TARGET_CHECK_TYPE_OF_BY_INDEX,
                 &&TARGET_APPEND_IN_PLACE_SYM,
@@ -1862,6 +1863,13 @@ namespace Ark
                     {
                         UNPACK_ARGS();
                         push(helper::at(*loadSymbolFromIndex(primary_arg, context), *loadSymbolFromIndex(secondary_arg, context), *this), context);
+                        DISPATCH();
+                    }
+
+                    TARGET(AT_SYM_INDEX_CONST)
+                    {
+                        UNPACK_ARGS();
+                        push(helper::at(*loadSymbolFromIndex(primary_arg, context), *loadConstAsPtr(secondary_arg), *this), context);
                         DISPATCH();
                     }
 
