@@ -1,0 +1,2 @@
+(macro b000{
+  (let f000(fun (a b)))})

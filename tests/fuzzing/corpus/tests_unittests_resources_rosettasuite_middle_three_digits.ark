@@ -1,0 +1,23 @@
+(import std.Math)
+(import std.String)
+
+(let middle_three_digits (fun (i) {
+  (let s (toString (math:abs i)))
+  (if (and (math:odd (len s)) (>= (len s) 3))
+    (string:slice s (- (/ (len s) 2) 1) 3)
+    nil) }))
+
+(import std.List :map)
+
+(assert
+  (=
+    (map [123 12345 1234567 987654321 10001 -10001 -123 -100 100 -12345]
+      middle_three_digits)
+    ["123" "234" "345" "654" "000" "000" "123" "100" "100" "234"])
+  "good numbers work")
+(assert
+  (=
+    (map [1 2 -1 -10 2002 -2002 0]
+      middle_three_digits)
+    [nil nil nil nil nil nil nil])
+  "bad numbers do not work")

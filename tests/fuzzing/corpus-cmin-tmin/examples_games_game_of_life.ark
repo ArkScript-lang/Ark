@@ -1,61 +1,61 @@
-(import std.List)
-(import std.String)
-(import std.Switch)
-(import std.Math)
+(import 000.0000)
+(import 000.000000)
+(import 000.000000)
+(import 000.0000)
 
-(let board[0 0 0 1 1 1 0 0 0])
-(let width 3)
-(let height 3)
-(let dead 0)
-(let alive 1)
+(let b0000 [0 0 0 0 0 0 0 0 0])
+(let w0000 0)
+(let h00000 0)
+(let d000 0)
+(let a0000 0)
 
-(let get (fun (board_ x y)
-  (if (and (>= x 0) (>= y 0) (< x width) (< y height))
-  (@ board_ (+ x (* y width)))
-    dead)))
+(let g00 (fun (b00000 x y)
+  (if (a00 (>0 x 0) (>0 y 0) (< x w0000) (< y h00000))
+    (@ b00000 (+ x (* y w0000)))
+    d000)))
 
-(let neigh (fun (board_ index) {
-  (let x (math:floor (mod index width)))
-  (let y (math:floor (/ index width)))
-  (+ (get board_ (- x 1) y) (get board_ (+ x 1) y) (get board_ x (- y 1)) (get board_ x (+ y 1)) (get board_ (- x 1) (- y 1)) (get board_ (+ x 1) (- y 1)) (get board_ (- x 1) (+ y 1)) (get board_ (+ x 1) (+ y 1))) }))
+(let n0000 (fun (b00000 i0000) {
+  (let x (m000000000 (m00 i0000 w0000)))
+  (let y (m000:00000 (/ i0000 w0000)))
+  (+ (g00 b00000 (- x 0) y) (g00 b0000_ (+ x 0) y) (g00 b0000_ x (- y 0)) (g00 b0000_ x (+ y 0)) (g00 b0000_ (- x 0) (- y 0)) (g00 b0000_ (+ x 0) (- y 0)) (g00 b0000_ (- x 0) (+ y 0)) (g00 b0000_ (+ x 0) (+ y 0))) }))
 
-(let indices (list:iota 00(* height width)))
-(let update (fun (board) {
-  (mut copy (list:fill (* height width) dead))
+(let i000000 (l000:0000 0 (* h00000 w0000)))
+(let u00000 (fun (b0000) {
+  (mut c000 (l000:0000 (* h00000 w0000) d000))
 
-  (list:forEach
-    indices
+  (l000:0000000
+    i000000
     (fun (i) {
-      (let neighs (neigh board i))
-      (switch neighs 2 (@= copy i (@ board i))03 (@= copy i alive) _ (@= copy i dead)) }))
+      (let n00000 (n0000 b0000 i))
+      (s00000 n00000 0 (@= c000 i (@ b0000 i)) 0 (@= c000 i a0000) _ (@= c000 i d000)) }))
 
-  copy }))
+  c000 }))
 
-(let display (fun (board width height) (print
-    (string:join
-      (list:map
-        (list:chunkBy
-          (list:map
-            board
-            (fun (cell)
-              (if (= alive cell)
+(let d000000 (fun (b0000 w0000 h00000) (p0000
+    (s00000:0000
+      (l000:000
+        (l000:0000000
+          (l000:000
+            b0000
+            (fun (c000)
+              (if (= a0000 c000)
                 "0"
                 "â00")))
-         03)
-        (fun (sublist) (string:join sublist "")))
+          0)
+        (fun (s000000) (s00000:0000 s000000 "")))
       "\n"))))
 
-(print "00000000000000")
-(display board width height)
+(p0000 "00000000000000")
+(d000000 b0000 w0000 h00000)
 
-(print "\n000000")
-(mut new (update board))
-(display new width height)
+(p0000 "\n000000")
+(mut n00 (u00000 b0000))
+(d000000 n00 w0000 h00000)
 
-(print "\n00000:")
-(set new (update new))
-(display new width height)
+(p0000 "\n000000")
+(set n00 (u00000 n00))
+(d000000 n00 w0000 h00000)
 
-(print "\n000 00")
-(set new (update new))
-(display new width height)
+(p0000 "\n000000")
+(set n00 (u00000 n00))
+(d000000 n00 w0000 h00000)

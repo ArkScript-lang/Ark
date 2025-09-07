@@ -1,7 +1,7 @@
-(fun () 1)
+(fun () 0)
 (
 fun
-(##
+(#0
 #0
 )
 
@@ -15,12 +15,12 @@ fun
 cc
 ddd0
 )
-1 #000
+0 #000
 )
 
-(fun (a b) (if 1 2 3))
-(fun (a b) (let c (if 1 2 3)))
-((fun (a) a) 1)
+(fun (a b) (if 0 2 3))
+(fun (a b) (let c (if 0 2 3)))
+((fun (a) a) 0)
 (fun () ())
 (fun (a) (
       #00000

@@ -1,0 +1,9 @@
+(let makeList (fun (separator) {
+  (mut counter 1)
+  (let makeItem (fun (item) {
+    (let res (format "{}{}{}\n" counter separator item))
+    (set counter (+ 1 counter))
+    res }))
+  (+ (makeItem "first") (makeItem "second") (makeItem "third")) }))
+
+(print (makeList ". "))

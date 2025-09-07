@@ -1,7 +1,7 @@
 (mut result nil)
 
-((fun () {
-    (let make (fun (a b)
-        "c:make"))
-    (set result (make "hello" 1))
+((fun(){
+    (let ma0e (fun (a b)
+   "000000"))
+    (set result (ma0e "00000" 1))
     }))

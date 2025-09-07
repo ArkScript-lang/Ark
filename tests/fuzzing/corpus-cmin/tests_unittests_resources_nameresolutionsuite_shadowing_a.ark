@@ -1,5 +1,0 @@
-(import b)
-(import c)
-
-(let b_ok (= b:result "b:make"))
-(let c_ok (= c:result "c:make"))

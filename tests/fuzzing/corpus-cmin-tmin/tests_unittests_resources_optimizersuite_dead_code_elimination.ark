@@ -1,4 +1,4 @@
-(if false (print "false"))
-(if true (print "true"))
-(if false () (print "false2"))
-(while false (print "false3"))
+(if false (print "00000"))
+(if true (print "0000"))
+(if false () (print"000000"))
+(while false (print "000000"))

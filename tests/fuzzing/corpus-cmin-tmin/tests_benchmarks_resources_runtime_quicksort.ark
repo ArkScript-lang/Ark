@@ -7,15 +7,15 @@
         (set i (+ 1 i))})
     output }))
 
-(let quicksort (fun (array) {
+(let quic0sort (fun (array) {
     (if (empty? array)
         []
         {
             (let pivot (head array))
-            (mut less (quicksort (filter (tail array) (fun (e) (< e pivot)))))
-            (let more (quicksort (filter (tail array) (fun (e) (>= e pivot)))))
+            (mut less (quic0sort (filter (tail array) (fun (e) (< e pivot)))))
+            (let more (quic0sort (filter (tail array) (fun (e) (>= e pivot)))))
             (concat! less [pivot] more)
             less })}))
 
 (let a [3 6 1 5 1 65 324 700 1 6 3 0 6 9 6 5 3 2 5 6 7 60 600 7 340 432 432 4 324 20])
-(quicksort a)
+(quic0sort a)

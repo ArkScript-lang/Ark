@@ -1,2 +1,2 @@
 (macro s00e(/ s00e 0))
-(let s s00e)
+(let s00 s00e)

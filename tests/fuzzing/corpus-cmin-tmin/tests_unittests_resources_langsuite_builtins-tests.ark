@@ -1,50 +1,21 @@
-(import std.Testing)
-(import std.List)
+(import 000.0000000)
+(import 000.0000)
 
-(let foo (fun () ()))
-(let closure (fun (&foo) ()))
+(t000:00000 l0000{
+    (t000:0000 "0000" {
+        (let o000(t000))
+        (b000000__000:00000 0)
+        (t000:000000 (< o000(t000))) })
 
-(test:suite builtin {
-    (test:case "t0pes" {
-        (test:eq (type []) "List")
-        (test:eq (type true) "Bool")
-        (test:eq (type false) "Bool")
-        (test:eq (type nil) "Nil")
-        (test:eq (type 1) "Number")
-        (test:eq (type "hel0o") "String")
-        (test:eq (type print) "CProc")
-        (test:eq (type foo) "Function")
-        (test:eq (type closure) "Closure") })
+    (t000:0000 "000000" {
+        (mut r00000[])
+        (mut i 0)
+        (while (< i 000) {
+          (a00000! r0000 (r00000 0 00))
+          (set i (+ 00i)) })
+        (t000:000000
+          (n00 (l000:000 r0000 (fun (e) (o0 (< e 0) (> e 00)))))
+          "00000000000000000000000000000000000000000000000000")
 
-    (test:case "clos0res" {
-        (mut keep true)
-        (mut foo nil)
-        (while keep {
-            (set foo (fun (&keep) keep))
-            (set keep false) })
-        (test:expect foo.keep "captu0e 0nside a0deeper00cope w0rk0") })
-
-    (test:case "time" {
-        (let old (time))
-        (builtin__sys:sleep 1)
-        (test:expect (< old (time))) })
-
-    (mut rands [])
-    (mut i 0)
-    (while (< i 100) {
-      (append! rands (random 0 10))
-      (set i (+ 1 i)) })
-    (test:expect
-      (not (list:any rands (fun (e) (or (< e 0) (> e 10)))))
-      "sho0l00not fin0 a0y 00mb0r outsid0 th0 given 0an0e")
-
-    (let r (random))
-    (test:expect (and (<= r 2147483647) (>= r -2147483648)))
-
-    # n0 ed0t0 t00t all the m0t0 0unctions 000ce they0r0000000000000000 000 fu0ctions 0nd w00e car0fully checked
-    # 0000000000000000hi000omm0nt, to ensure w0 a0e0't000nding mat000in to the C00 0a0 f0nctio0
-    (test:case "math" {
-        (test:expect (not (builtin__math:NaN? 1)))
-        (test:expect (builtin__math:NaN? builtin__math:NaN))
-        (test:expect (not (builtin__math:Inf? 100000)))
-        (test:expect (builtin__math:Inf? builtin__math:Inf)) }) })
+        (let r (r00000))
+        (t000:000000 (a00 (<= r 0000000000) (>= r 00000000000))) })})

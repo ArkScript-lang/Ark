@@ -1,10 +1,10 @@
 (if true #000000000000
-    o0 #000
+    ok #000
     )
-(if true o0 #000
+(if true ok #000
 )
-(if true o0) #000
+(if true ok) #000
 (if true
-    o0
+    ok
     n0 #00000000
 )

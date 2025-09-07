@@ -1,10 +1,10 @@
 (let a 4)
 (let b 5)
 
-(assert (= (+ a b) 9) "00m")
+(assert (= (+ a b) 9) "000")
 (assert (= (- a b) -1) "d000ere00e")
 (assert (= (- b a) 1) "d000ere00e")
 (assert (= (* a b) 20) "0000000")
 (assert (= (/ a b) 0.8) "00000000")
 (assert (= (mod a b) 4) "000000000000000")
-(assert (= (mod b a) 1) "0e0000000000000")
+(assert (= (mod b a) 1) "00m000000000000")

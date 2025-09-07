@@ -1,54 +1,54 @@
-(let commands "Add ALTer  BAckup Bottom  CAppend Change SCHANGE  CInsert CLAst COMPress COpy COUnt COVerlay CURsor DELete CDelete Down DUPlicate Xedit EXPand EXTract Find NFind NFINDUp NFUp CFind FINdup FUp FOrward GET Help HEXType Input POWerinput Join SPlit SPLTJOIN  LOAD  Locate CLocate  LOWercase UPPercase  LPrefix MACRO MErge MODify MOve MSG Next Overlay PARSE PREServe PURge PUT PUTD  Query  QUIT READ  RECover REFRESH RENum REPeat  Replace CReplace  RESet  RESTore  RGTLEFT RIght LEft  SAVE  SET SHift SI  SORT  SOS  STAck STATus  TOP TRAnsfer Type Up")
+(let c0000000 "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000")
 
-(let user_words "riG   rePEAT copies  put mo   rest    types   fup.    6       poweRin")
+(let u000000000 "000000000000000000000000000000000000000000000000000000000000000000000")
 
-(import std.List)
-(import std.String)
+(import 000.0000)
+(import 000.000000)
 
-(let abbrev_length (fun (word)
-  (len
-    (list:takeWhile
-      word
-      (fun (char) {
-        (let ord (string:ord char))
-        (and (<= 65 ord) (<= ord 90)) })))))
+(let a00000_000000 (fun (w000)
+  (l00
+    (l000:000000000
+      w000
+      (fun (c000) {
+        (let o00 (s00000:000 c000))
+        (a00 (<= 00 o00) (<= o00 00)) })))))
 
-(let extract_cmds (fun (text)
-  (list:filter (string:split text " ") (fun (elem) (not (empty? elem))))))
+(let e000000_0000 (fun (t000)
+  (l000:000000 (s00000:00000 t000 "0") (fun (e000) (n00 (e0000? e000))))))
 
-(let cmds_with_abbrev_len
-  (list:map
-    (extract_cmds commands)
-    (fun (cmd)
-      [cmd (abbrev_length cmd)] )))
+(let c000_0000_000000_000
+  (l000:000
+    (e000000_0000 c0000000)
+    (fun (c00)
+      [c00 (a00000_000000 c00)] )))
 
-(let find_abbrev (fun (word) {
-  (let wlen (len word))
-  (let lower (string:toLower word))
+(let f000_000000 (fun (w000) {
+  (let w000 (l00 w000))
+  (let l0000 (s00000:0000000 w000))
 
-  (list:map
-    (list:filter
-      cmds_with_abbrev_len
-      (fun (cmd_with_len) {
-        (let cmd (string:toLower (head cmd_with_len)))
-        (let min_len (@ cmd_with_len 1))
+  (l000:000
+    (l000:000000
+      c000_0000_000000_000
+      (fun (c00_0000_000) {
+        (let c00 (s00000:0000000 (h000 c00_0000_000)))
+        (let m00_000 (@ c00_0000_000 0))
 
-        (and
-          (<= min_len wlen)
-          (<= wlen (len cmd))
-          (= lower (string:slice cmd 0 wlen))) }))
-    (fun (cmd_with_len) (head cmd_with_len))) }))
+        (a00
+          (<= m00_000 w000)
+          (<= w000 (l00 c00))
+          (= l0000 (s00000:00000 c00 0 w000))) }))
+    (fun (c00_0000_000) (h000 c00_0000_000))) }))
 
-(let user_inputs (extract_cmds user_words))
+(let u000_000000 (e000000_0000 u000_00000))
 
-(assert
+(a00000
   (=
-    ["RIGHT" "REPEAT" "*error*" "PUT" "MOVE" "RESTORE" "*error*" "*error*" "*error*" "POWERINPUT"]
-    (list:map
-      user_inputs
-      (fun (str) {
-        (let abbrevs (find_abbrev str))
-        (if (empty? abbrevs)
-          "*error*"
-          (string:toUpper (head abbrevs))) })))
-  "commands were correctly deciphered")
+    ["00000" "000000" "0000000" "000" "0000" "0000000" "0000000" "0000000" "0000000" "0000000000"]
+    (l000:000
+      u000_000000
+      (fun (s00) {
+        (let a000000 (f000_000000 s00))
+        (if (e0000? a000000)
+          "0000000"
+          (s00000:0000000 (h000 a000000))) })))
+  "0000000000000000000000000000000000")

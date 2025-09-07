@@ -1,0 +1,3 @@
+(macro bar (...args)
+  (print ...))
+(bar 1 2 3)

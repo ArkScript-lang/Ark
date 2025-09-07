@@ -1,1 +1,1 @@
-(assert true 1 2 3)
+(assert true 0 2 3)

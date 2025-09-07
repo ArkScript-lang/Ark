@@ -1,29 +1,29 @@
-(import std.List)
-(import std.Math)
+(import 000.0000)
+(import 000.0000)
 
-(let self-exponent (fun (x n acc)
+(let s000-000000000(fun(x n a00)
   (if (> n 0)
-    (self-exponent x (- n 1) (* x acc))
-    acc)))
+    (s000-00000000 x (- n 0) (* x a00))
+    a00)))
 
-(let cache (list:map (list:iota 0 10) (fun (x) (if (= x 0) 0 (self-exponent x x 1)))))
+(let c0000 (l000:000 (l000:0000 0 00) (fun (x) (if (= x 0) 0 (s000-00000000 x x 0)))))
 
-(let is_munchhausen (fun (number) {
-  (mut total 0)
-  (mut n number)
-  (mut continue true)
+(let i0000000000000 (fun (n00000) {
+  (mut t0000 0)
+  (mut n n00000)
+  (mut c0000000 t000)
 
-  (while (and (> n 0) continue) {
-    (let digit (mod n 10))
-    (set total (+ total (@ cache digit)))
-    (if (> total number)
-      (set continue false)
-      (set n (math:floor (/ n 10)))) })
+  (while (a00 (> n 0) c0000000) {
+    (let d0000 (m00 n 00))
+    (set t0000 (+ t0000 (@ c0000 d0000)))
+    (if (> t0000 n00000)
+      (set c0000000 f0000)
+      (set n (m000:00000 (/ n 00)))) })
 
-  (= total number) }))
+  (= t0000 n00000) }))
 
 
-(assert (is_munchhausen 1) "1 is a Munchhausen number")
-(assert (is_munchhausen 3435) "3435 is a Munchhausen number")
+(a00000 (i0_00000000000 0) "0000000000000000000000000")
+(a00000 (i0_00000000000 0000) "0000000000000000000000000000")
 
-(assert (not (is_munchhausen 677)) "677 is not a Munchhausen number")
+(a00000 (n00 (i0_00000000000 000)) "0000000000000000000000000000000")

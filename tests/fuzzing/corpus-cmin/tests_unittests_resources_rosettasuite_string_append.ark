@@ -1,2 +1,0 @@
-(let s "12345678")
-(assert (= (+ s "9!") "123456789!") "string concat works with +")

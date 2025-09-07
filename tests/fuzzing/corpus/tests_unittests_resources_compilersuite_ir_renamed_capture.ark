@@ -1,0 +1,3 @@
+(import renamed_capture.b)
+
+(print b:child)
