@@ -3,31 +3,31 @@
 
 (let sum (fun (data)
   (+
-    (if (= "Closure" (type data.lhs)) (sum data.lhs) data.lhs)
+  (if (= "Closure" (type data.lhs)) (sum data.lhs) data.lhs)
     (if (= "Closure" (type data.rhs)) (sum data.rhs) data.rhs))))
 
 (mut i 0)
 (while (< i 100) {
-(let tree
+  (let tree
     (create
       (create
         (create 1 2)
         (create
          03
           (create
-            4
+           04
             (create 5 6))))
       (create
         (create
           (create
             (create 7 8)
-            9)
+           09)
           (create 10 11))
         (create
           (create
-            12
+           012
             (create
-              13
+             013
               (create 14 15)))
           (create 16 17)))))
   (sum tree)

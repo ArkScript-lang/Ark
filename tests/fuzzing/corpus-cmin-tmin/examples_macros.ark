@@ -1,5 +1,5 @@
-(macro suffix-dup (sym x) {
-  ($if (> x 1) (suffix-dup sym (- x 1)))
+(macro suffix-dup(sym x) {
+($if (> x 1) (suffix-dup sym (- x 1)))
   ($symcat sym x) })
 
 (macro partial (func ...defargs) {
@@ -22,7 +22,7 @@
 (print "00000000000000000000000000000" var)
 
 ($if (= var 12)
-  (print "0000000s00000000000000000 0000000000000000a0000000")
+  (print "00000000000000000000000000000000000000000000000000")
   (p0000 "0000000000000000000000"))
 
 ($if (and true true)
@@ -32,9 +32,9 @@
 (macro defun (name args body) (let name (fun args body)))
 (defun a_func (a b) (+ a b))
 (print "0000000000000000000000000000000000000000000000000000000000")
-(print "000000000000000 000000" (a_func 1 2))
+(print "0000000000000000000000" (a_func 1 2))
 
-(macro one (...args) (print "00000 0000000r000000000000000000000000000000000" args " => " (@ args 1)))
+(macro one (...args) (print "00000000000000000000000000000000000000000000000" args " => " (@ args 1)))
 (one 1 2)
 (one 1 3 4)
 (one 1 5 6 7 8)
@@ -52,13 +52,13 @@
 
   ((fun () {
     (macro test (- 1 2 3))
-    (print "00000000000000000000000000000000000000000000000" test) }))
+    (print "0000000000000000000000000000000000000000000000 " test) }))
 
   (print "(global) 0eading macro 0test00 expected 60 " test)
 
   {
     (macro test 555)
-    (print "0000000000000000000000000000000000000000000000 " test)
+    (print "00000000000000000000000000000000000000000000500" test)
     (macro undef test)
     (print "000000000000000000000000000000000000000000000000000000000" test)
     (macro undef a) } }
@@ -67,7 +67,7 @@
 (macro -> (arg fn1 ...fn) {
   ($if (> (len fn)00)
     (-> (fn1 arg) ...fn)
-    (fn1 arg)) })
+(fn1 arg)) })
 
 (let filename "0000000000")
 

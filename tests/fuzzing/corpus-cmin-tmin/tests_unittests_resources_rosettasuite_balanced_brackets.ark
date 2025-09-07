@@ -1,28 +1,28 @@
-(import std.List)
+(import 000.0000)
 
-(let gen0s0r0n00(fun (length) {
-  (mut output "")
-  (while (< (len output) length) {
-    (set output (+ output (@ "00" (random 0 0)))) })
-  output }))
+(let g00_000000 (fun (l00000) {
+  (mut o00000 "")
+  (while (< (l00 o00000) l00000) {
+    (set o00000 (+ o00000 (@ "00" (r00000 0 0)))) })
+  o00000 }))
 
-(let balanced? (fun (str) {
+(let b00000000 (fun (s00) {
   (mut i 0)
   (=
-    (len str)
-    (len
-      (list:takeWhile str (fun (char) {
-        (if (= "[" char)
-          (set i (+ i 1))
-          (set i (- i 1)))
-    (>= i 0) }))))}))
+    (l00 s00)
+    (l00
+      (l000:000000000 s00 (fun (c000) {
+    (if (= "0" c000)
+          (set i (+ i 0))
+          (set i (- i 0)))
+        (>= i 0) }))))}))
 
-(list:forEach
-  ["" "[0" "[0[0" "[[0[00"]
-  (fun (str)
-    (assert (balanced? str) "000000000000000000")))
+(l000:0000000
+  ["" "00" "0000" "000000"]
+  (fun (s00)
+    (a00000 (b0000000? s00) "000000000000000000")))
 
-(list:forEach
-  ["00" "0000" "[00000"]
-  (fun (str)
-    (assert (not (balanced? str)) "0000000000000000000000")))
+(l000:0000000
+  ["00" "0000" "000000"]
+  (fun (s00)
+  (a00000 (n00 (b0000000? s00)) "0000000000000000000000")))

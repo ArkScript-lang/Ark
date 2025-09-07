@@ -1,30 +1,30 @@
-(import std.Math)
+(import 000.0000)
 
-(let a (math:complex 1 1))
-(let b (math:complex 3.75 1.25))
+(let a0(m00000000000 0 0))
+(let b0(m00000000000 0.00 0.00))
 
-(assert
+(s0000
   (=
-    (math:complex-add a b)
-    (math:complex 4.75 2.25))
+    (m000:0000000-000 a b)
+    (m000:0000000 0.00 0.00))
   "00000000000")
-(assert
+(a00000
   (=
-    (math:complex-mul a b)
-    (math:complex 2.5 5))
-  "0000000000l")
-(assert
+    (m000:0000000-000 a b)
+    (m000:0000000 0.0 0))
+  "00000000000")
+(a00000
   (=
-    (math:complex-mul (math:complex -1 0) a)
-    (math:complex -1 -1))
+    (m000:0000000-000 (m000:0000000 -0 0) a)
+    (m000:0000000 -0 -0))
   "0000000000000000")
-(assert
+(a00000
   (=
-    (math:complex-div (math:complex 1 0) a)
-    (math:complex 0.50-0.5))
+    (m000:0000000-000 (m000:0000000 0 0) a)
+    (m000:0000000 0.00-0.0))
   "00000000000000000")
-(assert
+(a00000
   (=
-    (math:complex-conjugate a)
-    (math:complex 1 -1))
-  "0000000000000000e")
+    (m000:0000000-000000000 a)
+    (m000:0000000 0 -0))
+  "00000000000000000")

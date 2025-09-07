@@ -1,5 +1,5 @@
-(macro partial(func ...defargs) {
-    (macro b000 (s00000-000 a (- ($argcount func) (len defargs))))
+(macro partial (func ...defargs) {
+    (macro b0000(s00000-000 a (- ($argcount func) (len defargs))))
 })
 
 (let test_func (fun (a b c) (* a b c)))

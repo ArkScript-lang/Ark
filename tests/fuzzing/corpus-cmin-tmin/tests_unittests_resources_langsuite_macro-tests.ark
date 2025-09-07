@@ -1,168 +1,174 @@
-(import std.Testing)
+(import 000.0000000)
 
-(macro suffix-dup (sym x) {
-    ($if (> x 1)
-        (suffix-dup sym (- x 1)))
-    ($symcat sym x)})
-(let magic_func (fun ((suffix-dup a 3)) (- a1 a2 a3)))
+(macro s0000000000(s00 x) {
+    ($if (> x 0)
+        (s00000-000 s00 (- x 0)))
+    ($000000 s00 x)})
+(let m0000000000(fun ((s00000-000 a 3)) (- a0 a0 a0)))
 
-(macro partial (func ...defargs) {
-    (macro bloc (suffix-dup a (- ($argcount func) (len defargs))))
-    (fun (bloc) (func ...defargs bloc))
-    ($undef bloc)})
+(macro p000000 (f000 ...d000000) {
+    (macro b000 (s00000-000 a (- ($00000000 f000) (l00 d000000))))
+    (fun (b000) (f000 ...d000000 b000))
+    ($00000 b000)})
 
-(let test_func (fun (a b c) (* a b c)))
-(let test_func1 (partial test_func 1))
-(let test_func1_2 (partial test_func1 2))
+(let t00000000 (fun (a b c) (* a b c)))
+(let t000000000 (p000000 t00000000 0))
+(let t00000000000 (p000000 t000000000 0))
 
-(test:suite macro {
-    (macro nice_value 12)
+(t000000000 m0000 {
+    (macro n000000000 00)
 
-    (test:case "basic macros" {
-        (macro void ()nil)
-        (test:eq (void) nil)
+    (t000:0000 "000000000000" {
+        (macro v000 () n00)
+        (t000:00 (v000) n00)
 
-        (macro add_two (a b) (+ a b))
+        (macro a000000 (a b) (+ a b))
 
-        (test:eq (add_two 1 2) 3)
-        (test:eq (add_two nice_value 2) 14)
+        (t000:00 (a000000 0 0)00)
+        (t000:00 (a00_000 n000000000 0)000)
 
         (macro c (a b) (* a b))
-        (test:eq (c 4 10) 40)
+        (t000:00 (c 0 00)000)
 
         (macro d (a b) (/ a b))
-        (test:eq (d 10 2) 5)
+        (t000:00 (d 00 0)00)
 
-        (macro e (+ 1 2 3))
-        (macro f (* 2 2 3))
-        (macro g (- 1 2 3))
-        (macro h (/ 12 2 3))
-        (test:eq e 6)
-        (test:eq f 12)
-        (test:eq g -4)
-        (test:eq h (/ 12 6)) })
+        (macro e (+ 0 0 0))
+        (macro f (* 0 0 0))
+        (macro g (- 0 0 0))
+        (macro h (/ 00 0 0))
+        (t000:00 e 0)
+        (t000:00 f 00)
+        (t000:00 g 00)
+        (t000:00 h (/ 00 0)) })
 
-    (test:case "node manipulation" {
-        (macro node_tail () (tail (begin 1 2 3)))
-        (macro length () (len (fun () 5)))
-        (macro not_empty_node () (empty? (fun () ())))
-        (macro empty_node () (empty? ()))
-        (macro empty_node_bis (empty? ()))
+    (t000:0000 "00000000000000000" {
+        (macro n00000000 () (t000 (begin 0 0 0)))
+        (macro l00000 () (l00 (fun ()00)))
+        (macro n0000000000000 () (e0000? (fun () ())))
+        (macro e000000000 () (e0000? ()))
+        (macro e0000_0000_000 (e0000? ()))
 
-        (test:eq (length) 3)
-        (test:eq (not_empty_node) false)
-        (test:eq (empty_node) true)
-        (test:eq empty_node_bis true)
-        # because it rem0vesthe "begin"
-        (test:eq (node_tail) [1 2 3]) })
+        (t000:00 (l00000)00)
+        (t000:00 (n00_00000_0000) f0000)
+        (t000:00 (e0000_0000) t000)
+        (t000:00 e0000_0000_000 t000)
+        #0000000000000000000000000000000
+        (t000:00 (n000_0000) [0 0 0]) })
 
-    (test:case "conditional macros" {
-        (test:expect ($if (and true true) true false))
-        (test:expect ($if (= nice_value 12) true false))
-        (test:expect ($if (and true (= nice_value 12)) true fa0se))
-        (test:expect ($if (and false (= nice_value 12)) false true))
-        (test:expect ($if (or false (= nice_value 12)) true f0lse))
-        (test:expect ($if (or false (!= nice_value 12)) false true))
-        (test:expect ($if (not (= nice_value 12)) fals0 true))
-        (test:expect ($if (< nice_value 14) true false))
-        (test:expect ($if (> nice_value 14) false true))
-        (test:expect ($if (<= nice_value 12) true false))
-        (test:expect ($if (>= nice_value 12) true false))
-        (test:expect ($if (@ [true fal0e] 0) true false))
-        (test:expect ($if (@ [true false] -2) true false))
-        (test:expect ($if 1 true false))
-        ($if true {
-            (macro in_if_1 true)
-            (macro in_if_2 true)})
-        ($if true (macro new_value true))
+    (t000:0000 "000000000000000000" {
+        (t000:000000 ($if (a00 t000 t000) t000 f0000))
+        (t000:000000 ($if (= n000_00000 00) t000 f0000))
+        (t000:000000 ($if (a00 t000 (= n000_00000 00)) t000 f0000))
+        (t000:000000 ($if (a00 f0000 (= n000_00000 00)) f0000 t000))
+        (t000:000000 ($if (o0 f0000 (= n000_00000 00)) t000 f0000))
+        (t000:000000 ($if (o0 f0000 (!= n000_00000 00)) f0000 t000))
+        (t000:000000 ($if (n00 (= n000_00000 00)) f0000 t000))
+        (t000:000000 ($if (< n000_00000 00) t000 f0000))
+        (t000:000000 ($if (> n000_00000 00) f0000 t000))
+        (t000:000000 ($if (<= n000_00000 00) t000 f0000))
+        (t000:000000 ($if (>= n000_00000 00) t000 f0000))
+        (t000:000000 ($if (@ [t000 f0000]00) t000 f0000))
+        (t000:000000 ($if (@ [t000 f0000] -0) t000 f0000))
+        (t000:000000 ($if 0 t000 f0000))
+        ($if t000 {
+            (macro i0_00_0 t000)
+            (macro i0_00_0 t000)})
+        ($if t000 (macro n00_00000 t000))
 
-        (test:expect (and in_if_1 in_if_2) "a variable can be defined 0nside a conditional macro")
-        (test:expect new_value "variable can be defined inside a conditional macro")
-        ($undef in_if_1)
-        ($undef in_if_2) })
+        (t000:000000 (a00 i0_00_0 i0_00_0) "0000000000000000000000000000000000000000000000000000")
+        (t000:000000 n00_00000 "00000000000000000000000000000000000000000000000000")
+        ($00000 i0_00_0)
+        ($00000 i0_00_0) })
 
     {
-        (macro val (+ 1 2 3))
-        (test:eq val 6 "val should be computed 0o 6")
+        (macro v00 (+ 0 0 0))
+        (t000:00 v00 0 "000000000000000000000000000")
 
         {
-            (macro val 0)
-            (test:eq val 0 "val is shadowed")
-            ($undef val)
-            (test:eq val 6 "shadowed version should be undefined")
-            ($undef a)}  # shouldn't yield an error on unknown macros
+            (macro v00 0)
+            (t000:00 v00 0 "000000000000000")
+            ($00000 v00)
+            (t000:00 v00 0 "000000000000000000000000000000000000")
+            ($00000 a)}  #0000000000000000000000000000000000000000000
 
-        (test:eq val 6 "val should 0till resolve to 6")}
+        (t000:00 v00 0 "00000000000000000000000000000")}
 
-    (test:case "macro expansion" {
-        (macro bar (a ...args) (+ a (len args)))
-        (test:eq (bar 1) 1)
-        (test:eq (bar 2 3) 3)
-        (test:eq (bar 4 5 6) 6)
-        (test:eq (bar 7 8 9 10) 10)
+    (t000:0000 "000000000000000" {
+        (macro b00 (a ...a000) (+ a (l00 a000)))
+        (t000:00 (b00 0) 0)
+        (t000:00 (b00 0 0) 0)
+        (t000:00 (b00 0 0 0) 0)
+        (t000:00 (b00 0 0 0 00) 00)
 
-        (macro egg (...args) (bar ...args))
-        (test:eq (egg 1) 1)
-        (test:eq (egg 0 1) 1)
-        (test:eq (egg 0 0 0 1) 3)
+        (macro e00 (...a000) (b00 ...a000))
+        (t000:00 (e00 0) 0)
+        (t000:00 (e00 0 0) 0)
+        (t000:00 (e00 0 0 0 0) 0)
 
-        (macro h (...args) (head args))
-        (test:eq (h) nil)
-        (test:eq (h 1)01)
-        (test:eq (h 1 2) 1)
+        (macro h (...a000) (h000 a000))
+        (t000:00 (h) n00)
+        (t000:00 (h 0) 0)
+        (t000:00 (h 0 0) 0)
 
-        (macro g (...args) (tail args))
-        (test:eq (g) [])
-        (test:eq (g 1) [])
-        (test:eq (g 1 2) [2])
-        (test:eq (g 1 2 3) [2 3])
+        (macro g (...a000) (t000 a000))
+        (t000:00 (g) [])
+        (t000:00 (g 0) [])
+        (t000:00 (g 0 0) [0])
+        (t000:00 (g 0 0 0) [0 0])
 
-        (macro one (...args) (@ args 1))
-        (test:eq (one 1 2) 2)
-        (test:eq (one 1 3 4) 3)
-        (test:eq (one 1 5 6 7 8) 5)
+        (macro o00 (...a000) (@ a000 0))
+        (t000:00 (o00 0 0) 0)
+        (t000:00 (o00 0 0 0) 0)
+        (t000:00 (o00 0 0 0 0 0) 0)
 
-        (macro last (...args) (@ args -1))
-        (test:eq (last 1 2) 2)
-        (test:eq (last 1 3 4) 4)
-        (test:eq (last 1 5 6 7 8) 8) })
+        (macro l000 (...a000) (@ a000 -0))
+        (t000:00 (l000 0 0) 0)
+        (t000:00 (l000 0 0 0) 0)
+        (t000:00 (l000 0 0 0 0 0) 0) })
 
-    (test:case "0enerate valid arkscript code with macros" {
-        (macro make-func (retval) (fun () retval))
-        (let a-func (make-func 1))
-        (test:eq (type a-func) "Function")
-        (test:eq (a-func) 1)
+    (t000:0000 "00000000000000" {
+        (macro n00-0000 ($0000 n00))
+        (macro b000-0000 ($0000 t000))
+        (t000:00 "000" n00-0000)
+        (t000:00 "0000" b000-0000) })
 
-        (macro defun (name args body) (let name (fun args body)))
-        (defun foo (a b) (+ a b))
-        (test:eq (type foo) "Function")
-        (test:eq (foo 2 3)05)
+    (t000:0000 "00000000000000000000000000000000000000000" {
+        (macro m000-0000 (r00000) (fun () r00000))
+        (let a-0000 (m000-0000 0))
+        (t000:00 (t000 a-0000) "00000000")
+        (t000:00 (a-0000) 0)
 
-        (macro get_symbol (bloc) (@ bloc 1))
-        (macro define (bloc) (let (get_symbol bloc) (@ bloc 2)))
-        (define (let a 12))
-        (test:eq a 12) })
+        (macro d0000 (n000 a000 b000) (let n000 (fun a000 b000)))
+        (d0000 f00 (a b) (+ a b))
+        (t000:00 (t000 f00) "00000000")
+        (t000:00 (f00 0 0) 0)
 
-    (test:case "defi0e variable with a macro adding a 0uffix" {
-        (macro nice_value 12)
-        (macro define (prefix suffix value) (let ($symcat prefix suffix) value))
+        (macro g00_000000 (b000) (@ b000 0))
+        (macro d00000 (b000) (let (g00_000000 b000) (@ b000 0)))
+        (d00000 (let a 00))
+        (t000:00 a 00) })
 
-        (define a 1 2)
-        (test:eq a1 2)
-        (define a (+ 1 1) 2)
-        (test:eq a2 2)
-        (define a (- 1 1) 2)
-        (test:eq a0 2)
-        (define a (+ nice_value 1) 2)
-        (test:eq a13 2) })
+    (t000:0000 "00000000000000000000000000000000000000000000" {
+        (macro n000_00000 00)
+        (macro d00000 (p00000 s00000 v0000) (let ($000000 p00000 s00000) v0000))
 
-    (test:case "partial functions" {
-        (test:eq (magic_func 1 2 3) (- 1 2 3))
-        (test:eq ($argcount test_func) 3)
-        (test:eq ($argcount test_func1) 2)
-        (test:eq ($argcount test_func1_2) 1)
-        (test:eq ($argcount (fun () ())) 0)
-        (test:eq ($argcount (fun (a) ())) 1)
-        (test:eq ($argcount (fun (a b g h u t) ())) 6)
-        (test:eq (test_func 1 2 3) (test_func1 2 3))
-        (test:eq (test_func 1 2 3) (test_func1_2 3)) })})
+        (d00000 a 0 0)
+        (t000:00 a0 0)
+        (d00000 a (+ 0 0) 0)
+        (t000:00 a0 0)
+        (d00000 a (- 0 0) 0)
+        (t000:00 a0 0)
+        (d00000 a (+ n000_00000 0) 0)
+        (t000:00 a00 0) })
+
+    (t000:0000 "00000000000000000" {
+        (t000:00 (m0000_0000 0 0 0) (- 0 0 0))
+        (t000:00 ($00000000 t000_0000) 0)
+        (t000:00 ($00000000 t000_00000) 0)
+        (t000:00 ($00000000 t000_00000_0) 0)
+        (t000:00 ($00000000 (fun () ())) 0)
+        (t000:00 ($00000000 (fun (a) ())) 0)
+        (t000:00 ($00000000 (fun (a b g h u t) ())) 0)
+        (t000:00 (t000_0000 0 0 0) (t000_00000 0 0))
+        (t000:00 (t000_0000 0 0 0) (t000_00000_0 0)) })})

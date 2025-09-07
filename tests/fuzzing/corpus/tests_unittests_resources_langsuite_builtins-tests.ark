@@ -1,50 +1,21 @@
 (import std.Testing)
 (import std.List)
 
-(let foo (fun () ()))
-(let closure (fun (&foo) ()))
-
 (test:suite builtin {
-    (test:case "types" {
-        (test:eq (type []) "List")
-        (test:eq (type true) "Bool")
-        (test:eq (type false) "Bool")
-        (test:eq (type nil) "Nil")
-        (test:eq (type 1) "Number")
-        (test:eq (type "hello") "String")
-        (test:eq (type print) "CProc")
-        (test:eq (type foo) "Function")
-        (test:eq (type closure) "Closure") })
-
-    (test:case "closures" {
-        (mut keep true)
-        (mut foo nil)
-        (while keep {
-            (set foo (fun (&keep) keep))
-            (set keep false) })
-        (test:expect foo.keep "capture inside a deeper scope works") })
-
     (test:case "time" {
         (let old (time))
         (builtin__sys:sleep 1)
         (test:expect (< old (time))) })
 
-    (mut rands [])
-    (mut i 0)
-    (while (< i 100) {
-      (append! rands (random 0 10))
-      (set i (+ 1 i)) })
-    (test:expect
-      (not (list:any rands (fun (e) (or (< e 0) (> e 10)))))
-      "should not find any number outside the given range")
+    (test:case "random" {
+        (mut rands [])
+        (mut i 0)
+        (while (< i 100) {
+          (append! rands (random 0 10))
+          (set i (+ 1 i)) })
+        (test:expect
+          (not (list:any rands (fun (e) (or (< e 0) (> e 10)))))
+          "should not find any number outside the given range")
 
-    (let r (random))
-    (test:expect (and (<= r 2147483647) (>= r -2147483648)))
-
-    # no need to test all the math functions since they're 1:1 binding of C++ functions and were carefully checked
-    # before writing this comment, to ensure we aren't binding math:sin to the C++ tan function
-    (test:case "math" {
-        (test:expect (not (builtin__math:NaN? 1)))
-        (test:expect (builtin__math:NaN? builtin__math:NaN))
-        (test:expect (not (builtin__math:Inf? 100000)))
-        (test:expect (builtin__math:Inf? builtin__math:Inf)) }) })
+        (let r (random))
+        (test:expect (and (<= r 2147483647) (>= r -2147483648))) })})

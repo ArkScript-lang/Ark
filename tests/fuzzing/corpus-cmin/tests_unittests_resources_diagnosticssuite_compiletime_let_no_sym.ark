@@ -1,2 +1,0 @@
-(let foo (fun () ()))
-(let (foo a b) 5)

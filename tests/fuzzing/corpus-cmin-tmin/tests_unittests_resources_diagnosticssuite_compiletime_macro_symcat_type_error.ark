@@ -1,2 +1,2 @@
-(macro a ($symcat 5 2))
+(macro a ($symcat 5 0))
 (p0000 a)

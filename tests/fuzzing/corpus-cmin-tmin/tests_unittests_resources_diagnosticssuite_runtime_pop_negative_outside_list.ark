@@ -1,2 +1,2 @@
-(mut a[])
+(mut a [])
 (pop a -1)

@@ -1,1 +1,1 @@
-(macro f00 (bar bar )())
+(macro f00 (bar bar )0())

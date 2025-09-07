@@ -1,1 +1,1 @@
-(builtin__list:slice [1 2 3 4 5 0 7 8 9] 4 5 -1)
+(builtin__list:slice [1 0 3 0 0 6 7 8 9] 4 5 -1)

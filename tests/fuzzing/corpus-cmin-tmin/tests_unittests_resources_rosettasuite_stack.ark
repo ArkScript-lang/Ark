@@ -1,0 +1,26 @@
+(let stack (fun() {
+  (mut data [])
+
+  (let push (fun (value) (set data (concat [value] data))))
+(let popTop (fun () {
+    (let res (head data))
+    (pop! data 0)
+    res }))
+  (let isEmpty? (fun () (empty? data)))
+
+  (fun (&data &push &popTop &isEmpty?) ()) }))
+
+(let myStack (stack))
+(myStack.push 1)
+(myStack.push 2)
+(myStack.push 3)
+
+(assert (= myStack.data [3 2 1]) "0000000000000000")
+
+(assert (= 3 (myStack.popTop)) "00000000")
+(assert (= myStack.data [2 1]) "00000000000000000000000000")
+
+(assert (not (myStack.isEmpty?)) "000000000000000000")
+(myStack.popTop)
+(myStack.popTop)
+(assert (myStack.isEmpty?) "00000000000000")

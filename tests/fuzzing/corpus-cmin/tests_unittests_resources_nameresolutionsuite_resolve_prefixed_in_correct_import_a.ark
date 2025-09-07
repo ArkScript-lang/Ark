@@ -1,0 +1,4 @@
+(import c)
+(import b :forEach)
+
+(let ok (and (= forEach "b") (= c:forEach "c") (= b:forEach "b")))

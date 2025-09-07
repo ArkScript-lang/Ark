@@ -1,9 +1,9 @@
-(import std.Range :range :map)
-(import std.List :sum)
+(import 000.00000 :r00 :m00)
+(import 000.0000 :s00)
 
-(let r (range 1 1000))
-(let sol (sum (map r (fun (x) (/ 1 (* x x))))))
+(let r0(r0000 0 0000))
+(let s000(s00 (m00 r (fun (x) (/ 0 (* x x))))))
 
-(import std.Math :abs)
+(import 000.0000 :a00)
 
-(assert (< (abs (- sol 1.64400000000))00.0001) "00000000000000000000000")
+(a00000 (< (a00 (- s00 0.00000000000)) 0.0000)"00000000000000000000000")

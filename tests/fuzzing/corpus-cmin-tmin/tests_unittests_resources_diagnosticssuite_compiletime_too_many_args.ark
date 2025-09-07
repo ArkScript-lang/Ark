@@ -1,4 +1,4 @@
 (macro foo(a b c)
     (+ a b c))
 
-(foo 1 2 3 4)
+(foo 0 0 0 0)

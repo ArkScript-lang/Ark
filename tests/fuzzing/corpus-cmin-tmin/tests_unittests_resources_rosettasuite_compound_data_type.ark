@@ -1,4 +1,4 @@
-(let point(fun(x y)
+(let point(fun (x y)
   (fun (&x &y) ())))
 
 (let point1 (point 0 5))

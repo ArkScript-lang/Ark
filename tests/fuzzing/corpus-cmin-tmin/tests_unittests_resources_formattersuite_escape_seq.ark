@@ -1,5 +1,5 @@
 (let a"\r\n\v\t")
 (let b"\\\"")
-(let c "\a\b\f")
+(let c0"\a\b\f")
 (let d "\u1000")
-(let e "\U100000000)
+(let e"\U10000000)

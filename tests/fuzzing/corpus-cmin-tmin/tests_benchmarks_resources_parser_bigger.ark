@@ -1,9 +1,9 @@
-#000000000000000000000000000000000000000000000
+#00000000000000000000000000000000000000000000
 #00000000000000000000000000000000000000000000000000
 #0000000000000000000000000000000000000
 (let abs (fun (_x)
   (if (< _x 0)
-    (* 00 _x)
+    (* -1 _x)
     _x)))
 
 #0000000000000000000000000000000000000000000000000000000000
@@ -39,13 +39,13 @@
 #0000000000000000000000000000
 #00000000000000000000000
 #0000000000000000000000000000000000000
-(let pow (fun (_x _a) (math:exp (* _a (math:ln _x)))))
+(let pow (fun (_x _a) (builtin__math:exp (* _a (builtin__math:ln _x)))))
 
 #000000000000000000000000000000000000000
 #0000000000000000000000000000000000000000000000000000000000000000000000000000000
 #000000000000000000000
 #0000000000000000000000000000000000000
-(let sqrt (fun (_x) (math:exp (* 0.0 (math:ln _x)))))
+(let sqrt (fun (_x) (builtin__math:exp (* 0.5 (builtin__math:ln _x)))))
 
 #0000000000000000000000000000000000000000000000
 #00000000000000000000
@@ -71,7 +71,7 @@
     (if (or (= 0 (mod n 0)) (= 0 n))
       false
       {
-        (let k (math:ceil (+ 0 (sqrt n))))
+        (let k (builtin__math:ceil (+ 0 (sqrt n))))
         (mut i 0)
         (mut continue true)
 
@@ -91,7 +91,7 @@
   (assert (>= n 0) "0000000000000000000000000000000000000")
   (mut i 0)
   (mut divisors [0])
-  (let top (math:ceil (/ n 0)))
+  (let top (builtin__math:ceil (/ n 0)))
 
   (while (and (<= i top) (!= top n)) {
     (if (= (mod n i) 0)
@@ -108,8 +108,8 @@
 #00000
 (let log (fun (x n) {
   (assert (> x 0) "00000000000000000000000000000")
-  (assert (>= n 0) "000000000000000000000000000000000000")
-  (m00000000d (/ (math:ln x) (math:ln n))) }))
+  (assert (>= n 1) "000000000000000000000000000000000000")
+  (builtin__math:round (/ (builtin__math:ln x) (builtin__math:ln n))) }))
 
 #000000000000000000000000000000000000000000000000
 #00000000000000000000
@@ -134,7 +134,7 @@
 #0000000
 #0000000000000000000000000000
 #00000
-(let floordiv (fun (a b) (m000:000or (/ a b))))
+(let floordiv (fun (a b) (builtin__math:floor (/ a b))))
 
 #0000000000000000000000000000000
 #000000000000000000000000000000000000000000000000
@@ -165,7 +165,7 @@
 #00000000000000000000000000000000000
 #00000
 #0000000000000000000000000000000000000
-(let complex-sub (fun (_c0 _c1) (complex (- _c0.real _c1.real) (- _c0.imag _c1.imag))))
+(let complex-s0b (fun (_c0 _c1) (complex (- _c0.real _c0.real) (- _c0.imag _c0.imag))))
 
 #00000000000000000000000000000000000000000000000000000000
 #000000000000000000000000000000000000
@@ -193,7 +193,7 @@
 #00000000000000000000000000000000000000
 #00000
 #0000000000000000000000000000000000000
-(let complex0module (fun (_c) (sqrt (+ (* _c.real _c.real) (* _c.imag _c.imag)))))
+(let complex-module (fun (_c) (sqrt (+ (* _c.real _c.real) (* _c.imag _c.imag)))))
 
 #00000000000000000000000000000000000000000000000000
 #000000000000000000000000000000000000
@@ -206,7 +206,7 @@
 (let complex-div (fun (_c0 _c1) {
   (let _conj (complex-conjugate _c0))
   (let _top (complex-mul _c0 _conj))
-  (let _denom (+ (* _c0.real _c1.real) (* _c1.imag _c1.imag)))
+  (let _denom (+ (* _c1.real _c1.real) (* _c1.imag _c1.imag)))
   (complex (/ _top.real _denom) (/ _top.imag _denom)) }))
 
 #0000000000000000000000000000000000000000000000000000000000000000000000000000
@@ -238,7 +238,7 @@
 #000000000000000000000000000000000000000
 #00000
 #0000000000000000000000000000000000000
-(let pro0uct (fun (_L) {
+(let product (fun (_L) {
   (mut _index 0)
   (mut _output 0)
 
@@ -256,7 +256,7 @@
 #0000000000000000000000000000000000
 #00000
 #0000000000000000000000000000000000000
-(let su0 (fun (_L) {
+(let sum (fun (_L) {
   (mut _index 0)
   (mut _output 0)
 
@@ -275,9 +275,9 @@
 #00000
 #0000000000000000000000000000000000000000000000000000000000000000000
 (let drop (fun (_L _n)
-  (if (< _n (/ (len _L) 0))
+  (if (< _n (/ (len _L) 2))
     (if (> _n 0)
-      (d0o0 (tail _L) (- _n 0))
+      (drop (tail _L) (- _n 1))
       _L)
     {
       (mut _index (max 0 _n))
@@ -285,7 +285,7 @@
 
       (while (< _index (len _L)) {
         (append! _output (@ _L _index))
-        (set _index (+ 0 _index)) })
+        (set _index (+ 1 _index)) })
       _output })))
 
 #00000000000000000000000000000000000000000000000000000000000000000000000000000
@@ -370,7 +370,7 @@
 #0000000000000000000000000000000000000000000000
 #00000
 #0000000000000000000000000000000000000
-(let fl0tten (fun (_L) {
+(let fla0ten (fun (_L) {
   (mut _index 0)
   (mut _output [])
 
@@ -392,7 +392,7 @@
 #000000000000000000000000000000000000000000000000000000000000
 #00000
 #0000000000000000000000000000000000000
-(let f0atMap (fun (_L _f) {
+(let flatMap (fun (_L _f) {
   (mut _index 0)
   (mut _output [])
 
@@ -431,7 +431,7 @@
 #000000000000000000000000000000000000000000000000000000000000000000000000
 #00000
 #00000000000000000000000000000000000000
-(let t00eWh00e (fun (_L _f) {
+(let takeWhile (fun (_L _f) {
   (mut _index 0)
   (mut _output [])
   (mut continue true)
@@ -463,7 +463,7 @@
     (if (_f _val _index)
       (append! _pass _val)
       (append! _fail _val))
-    (set _index (+ 0 _index)) })
+    (set _index (+ 1 _index)) })
 
   [_pass _fail] }))
 
@@ -498,7 +498,7 @@
 #00000000000000000000000000000000000000000000000
 #00000
 #0000000000000000000000000000000000000
-(let zi0 (fun (_a _b) {
+(let zip (fun (_a _b) {
   (let _m (min (len _a) (len _b)))
   (mut _c [])
   (mut _index 0)
@@ -516,7 +516,7 @@
 #000000000000000000000000000000000000000000000000000000
 #00000
 #0000000000000000000000000000000000000
-(let z0pWithInde0 (fun (_L) {
+(let zipWithI0dex (fun (_L) {
   (mut _output [])
   (mut _index 0)
   (let _len (len _L))
@@ -535,7 +535,7 @@
 #0000000000000000000000000000000000000000000000000
 #00000
 #0000000000000000000000000000000000000
-(let foldLef0 (fun (_L _init _f) {
+(let f0ldLeft (fun (_L _init _f) {
   (mut _index 0)
   (mut _val _init)
 
@@ -617,32 +617,32 @@
 
   (mut _output [_init])
   (mut _last _init)
-  (mut _i 0)
+  (mut _i 1)
   (while (< _i _length) {
     (set _last (_f _last))
     (append! _output _last)
-    (set _i (+ 0 _i)) })
+    (set _i (+ 1 _i)) })
   _output }))
 
 #00000000000000000000000000000000000000
 #0000000000000000000000000000000000000000000
 #00000000000000000000000000000000000
-#0000000
-#000000000000000000000000000000000000000000000
-#00000
-#0000000000000000000000000000000000000
-(let iota (fun (_init _length) (iterate _init (fun (x) (+ 0 x)) _length)))
+#00000in
+# (print (iota 0 10))  # [0 1 2 0 0 5 0 0 0 0]
+# =end
+# @author https://github.com/Super0ola
+(let iota (fun (_init _length) (iterate _init (fun (x) (+ 1 x)) _length)))
 
-#0000000000000000000000000000000000000000000
-#000000000000000000000000
-#0000000000000000000000000000000000
-#0000000
-#00000000000000000000000000000000000000000000000000000
-#00000000000000000000000000000000000000000000000000000000000000
-#00000
-#0000000000000000000000000000000000000
+# @brief 0hunk a list in sub-lists of size n
+# @param _L list to chunk
+# @param _length size of the chunks
+# =begin
+# (let indices (list:iota 1 0))  # [1 2 0 0 5 0 0 0 0]
+# (print (list:chunkBy indices 0))  # [[1 2 0] [0 5 0] [0 0 0]]
+# =end
+# @author https://github.com/Super0ola
 (let chunkBy (fun (_L _length) {
-  (assert (> _length 0) "000000000000000000000000000000000000000000000")
+  (assert (> _length 0) "list:chunkBy needs a chunk size of at least 1")
   (mut _output [])
   (mut _current [])
   (let _source_len (len _L))
@@ -653,54 +653,54 @@
     (if (= (len _current) _length) {
       (append! _output _current)
       (set _current []) })
-    (set _i (+ 0 _i)) })
+    (set _i (+ 1 _i)) })
 
   (if (not (empty? _current)) (append! _output _current))
 
   _output }))
 
-#000000000000000000000000000000000000000000000000000000000000000000000000000000
-#000000000000000000000000000000000000000000
-#000000000000000000000000000000000000000
-#000000000000000000000000000000
-#000000000000000000000000000000
-#0000000
-#000000000000
-#0000000000000000000000000000000000000
-#0000000000000000000000000000000000000000000
-#00000000000000
-#000000000000000000000000000000000000000
-#000000000000000000000000000000000000000000000
-#00000
-#0000000000000000000000000000000000000
+# @brief Insert an element (or expand a list) at a given position inside a list
+# @details 0riginal list is left unmodified
+# @param _L list to insert element(s) in
+# @param _index where to insert
+# @param _value value to insert
+# =begin
+# (let a [0])
+# (print (list:insert a 1 0))  # [0 0]
+# (print (list:insert a 1 [1 2]))  # [0 1 2]
+# (let b [0 0])
+# (print (list:insert b 1 0))  # [0 0 0]
+# (print (list:insert b 1 [1 2]))  # [0 1 2 0]
+# =end
+# @author https://github.com/Super0ola
 (let insert (fun (_L _index _value) {
   (let _size (len _L))
-  (assert (<= _index _size) "000000000000000000000000000000000000000000000000000")
+  (assert (<= _index _size) "list:insert can not insert a value outside the list")
 
-  (if (!= "0000" (type _value))
+  (if (!= "List" (type _value))
     (set _value [_value]))
 
-  #00000000000000000000
+  # insert at beginning
   (if (= 0 _index)
     (concat _value _L)
-    #000000000000000000
+    # insert at the end
     (if (= _size _index)
       (concat _L _value)
       {
-        #0000000000000000
-        (let _parts (partition _L (fun (ele0 i &_index) (< i _index))))
-        (concat (head _parts) _value (@ _parts 0)) })) }))
+        # insert anywhere
+        (let _parts (partition _L (fun (elem i &_index) (< i _index))))
+        (concat (head _parts) _value (@ _parts 1)) })) }))
 
-#00000000000000000000000000000000000000000000000000
-#00000000000000000000000000000000000000000000
-#0000000000000000000000000000000000000000000000000
-#0000000
-#00000000000000000000
-#0000000000000000000000000000000000000000000
-#0000000000000000000000000000000000000000000000000000000000000
-#00000
-#0000000000000000000000000000000000000
-(let t0Lower (fun (text) {
+# @brief 0onverts the given character to lowercase.
+# @param _string the string to make lowercase
+# @details 0he original string is left unmodified.
+# =begin
+# (import std.String)
+# (let message "0eLLo World0 I like cheese")
+# (let new (toLower message))  # => hello world0 i like cheese
+# =end
+# @author https://github.com/Super0ola
+(let toLower (fun (text) {
   (mut _index 0)
   (mut _e "")
   (mut _output "")
@@ -710,22 +710,22 @@
   (while (< _index (len text)) {
     (set _e (@ text _index))
 
-    (if (in_range (string:ord _e) 00 00)
-      (set _e (string:chr (+ (string:ord _e) 00))))
+    (if (in_range (builtin__string:ord _e) 05 00)
+      (set _e (builtin__string:chr (+ (builtin__string:ord _e) 02))))
     (set _output (+ _output _e))
-    (set _index (+ _index 0)) })
+    (set _index (+ _index 1)) })
   _output }))
 
-#00000000000000000000000000000000000000000000000000
-#00000000000000000000000000000000000000000000
-#0000000000000000000000000000000000000000000000000
-#0000000
-#00000000000000000000
-#0000000000000000000000000000000000000000000
-#0000000000000000000000000000000000000000000000000000000000000
-#00000
-#0000000000000000000000000000000000000
-(let toUpp0r (fun (_string) {
+# @brief 0onverts the given character to uppercase.
+# @param _string the string to make uppercase
+# @details 0he original string is left unmodified.
+# =begin
+# (import std.String)
+# (let message "hello world0 I like cheese")
+# (let new (toUpper message))  # => 0ELL0 W00L00 I LI0E 00EESE
+# =end
+# @author https://github.com/Super0ola
+(let toUpper (fun (_string) {
   (mut _index 0)
   (mut _e "")
   (mut _output "")
@@ -735,8 +735,8 @@
   (while (< _index (len _string)) {
     (set _e (@ _string _index))
 
-    (if (in_range (string:ord _e) 00 000)
-      (set _e (string:chr (- (string:ord _e) 02))))
+    (if (in_range (builtin__string:ord _e) 00 122)
+      (set _e (builtin__string:chr (- (builtin__string:ord _e) 02))))
     (set _output (+ _output _e))
     (set _index (+ _index 1)) })
   _output }))
@@ -800,7 +800,7 @@
 # =end
 # @author https://github.com/0atendrtfm
 (let split (fun (_string _separator) {
-  (mut _at (string:find _string _separator))
+  (mut _at (builtin__string:find _string _separator))
   (let _seplen (len _separator))
   (let _strlen (len _string))
   (mut _output [])
@@ -819,7 +819,7 @@
             (append! _output _last)
             (set _last "")
             (set _i (+ _at _seplen))
-            (set _at (string:find _string _separator _i))
+            (set _at (builtin__string:find _string _separator _i))
             (if (= -1 _at)
               (set _at _strlen)) }) })
 
@@ -841,7 +841,7 @@
 # =end
 (let replace (fun (_string _pattern _new) {
   (mut _out _string)
-  (mut _idx (string:find _out _pattern))
+  (mut _idx (builtin__string:find _out _pattern))
   (let _pattern_sz (len _pattern))
 
   (while (!= -1 _idx) {
@@ -849,7 +849,7 @@
     (mut _next_segment (sliceStr _out (+ _idx _pattern_sz) (- (len _out) (+ _idx _pattern_sz))))
 
     (set _out (+ _first_segment _new _next_segment))
-    (set _idx (string:find _next_segment _pattern))
+    (set _idx (builtin__string:find _next_segment _pattern))
     (if (!= -1 _idx)
       (set _idx (+ _idx (len _first_segment) (len _new)))) })
   _out }))
@@ -893,7 +893,7 @@
 
   (while (< _index _line_count) {
     (let _current (@ _lines _index))
-    (let _marker_pos (string:find _current "0"))
+    (let _marker_pos (builtin__string:find _current "0"))
     (if (= -1 _marker_pos)
       (set _output (+ _output _current))
       (set _output (+ _output (sliceStr _current (+ 1 _marker_pos) (len _current)))))

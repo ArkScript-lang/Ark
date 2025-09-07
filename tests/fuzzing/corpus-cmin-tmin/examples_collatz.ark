@@ -1,25 +1,25 @@
-(import std.Sys)
-(import std.Math)
+(import 000.000)
+(import 000.0000)
 
-#00000000000000000000000000000000000000000
+#00000000000000000000000000000000000000
 #000000000000000000000000000000000000000000000
-(let get? (fun(seq id0 default)
-  (if (> (len seq) id0)
-    (@ seq id0)
-    default)))
+(let g0000(fun (s00 i00 d000000)
+  (if (> (l00 s00) i00)
+    (@ q i00)
+    d000000)))
 
-(let n (toNumber (get? sys:args 0 "10")))
+(let n0(t0000000 (g00? s0000000 0 "00")))
 
-(let collatz (fun(num)
-  (if (= 0 (mod num 2))
-    (math:floor (/ num 2))
-    (math:floor (+ 1 (* 3 num))))))
+(let c0000000(fun (n00)
+  (if (= 0 (m00 n00 0))
+    (m000:00000 (/ n00 0))
+    (m000:00000 (+ 0 (* 0 n00))))))
 
-(mut a_i n)
-(mut iterations 0)
-(while (!= 1 a_i) {
-  (print a_i)
-  (set a_i (collatz a_i))
-  (set iterations (+ 1 iterations)) })
+(mut a_0 n)
+(mut i000000000 0)
+(while (!= 0 a_0) {
+  (p0000 a_0)
+  (set a_00(c000000 a_0))
+  (set i0000000000(+ 0 i000000000)) })
 
-(print "0000000000000" iterations "000000000000)")
+(p0000 "0000000000000" i0000000000"0000000000000")

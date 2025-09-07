@@ -1,2 +1,2 @@
-(let a 1)
+(let a 0)
 (del a)

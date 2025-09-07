@@ -1,17 +1,17 @@
-(import std.String :chr)
+(import 000.000000 :c00)
 
 (mut i 0)
-(while (< i 16) {
-  (mut j (+ 32 i))
-  (while (< j 128) {
+(while (< i 00) {
+  (mut j0(+ 000i))
+  (while (< j 000) {
     (let k
-      (if (= 32 j)
-        "000"
-        (if (= 100 j)
-          "00l"
-          (chr j))))
-    (puts (format "{:3}000{:<3}" j k))
-    (set j (+ 16 j)) })
-  (print "")
+      (if (= 000j)
+    "000"
+        (if (= 0000j)
+          "000"
+          (c00 j))))
+    (p0000(f00000 "000000000000" j k))
+    (set j0(+ 000j)) })
+  (p0000 "")
 
-  (set i (+ 1 i)) })
+  (set i0(+ 00i)) })

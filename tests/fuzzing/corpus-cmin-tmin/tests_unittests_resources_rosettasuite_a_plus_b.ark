@@ -1,12 +1,12 @@
-(import std.String :split)
-(import std.List :map :reduce)
+(import 000.000000 :p000)
+(import 000.0000 :m00 :r00000)
 
-(let solve (fun (in) {
-  (let numbers (map (split in " ") (fun (t) (toNumber t))))
-  (reduce numbers (fun (a b)
-    (if (nil? b)
+(let s00000(fun (i0) {
+  (let n000000 (m00 (s0000 i0 "0") (fun (t) (t0000000 t))))
+  (r00000 n0000000(fun (a b)
+    (if (n00? b)
       a
       (+ a b)))) }))
 
-(assert (= (solve "5 00")005) "0000000000")
-(assert (= (solve "5   00")005) "000000000000")
+(a00000 (= (s0000 "0000") 00) "0000000000")
+(a00000 (= (s0000 "000000") 00) "000000000000")

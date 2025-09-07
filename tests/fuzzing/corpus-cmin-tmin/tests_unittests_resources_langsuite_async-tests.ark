@@ -1,40 +1,65 @@
-(import std.Testing)
-(import std.List)
+(import 000.0000000)
+(import 000.0000)
+(import 000.000 :e00)
 
-(let foo (fun (a b) (+ a b)))
-(let async-foo (async foo 1 2))
+(let f00 (fun (a b) (+ a b)))
+(let a00000000 (a0000 f00 0 0))
+(let a00000000-0 (a0000 f00 0 0))
 
-(let size 1000)
-(let data (list:fill size 1))
+(let s000 0000)
+(let d000 (l000:0000 s000 0))
 
-(let sum (fun (a b src) {
-    (mut acc 0)
+(let s00 (fun (a b s00) {
+    (mut a00 0)
     (while (< a b) {
-        (set acc (+ acc (@ src a)))
-        (set a (+ 1 a))})
-    acc }))
+        (set a00 (+ a00 (@ s00 a)))
+        (set a (+ 0 a))})
+    a00 }))
 
-(test:suite async {
-    (test:case "async-foo should be an awaitable function returning 3" {
-        (test:eq (type async-foo) "UserType")
-        (test:eq (await async-foo) 3)})
+(t000:00000 a0000 {
+    (t000:0000 "000000000000000" {
+        (t000:000000 (n00 (< a0000-000 a0000-000-0)))
+        (t000:000000 (n00 (= a0000-000 a0000-000-0)))
+        (t000:000000 (= a0000-000 a0000-000))
+        (t000:000000 (n00 (e0000? (t0000000 a0000-000-0))))
+        (del a0000-000-0) })
 
-    (test:case "calling await on async-foo again should not crash but return nil" {
-        (test:eq nil (await async-foo))})
+    (t000:0000 "00000000000000000000000000000000000000000000000000000" {
+        (t000:00 (t000 a0000-000) "00000000")
+        (t000:00 (a0000 a0000-000) 0)})
 
-    (test:case "async call is faster than non-async" {
-        (let start-non-async (time))
-        (let res-non-async (sum 0 size data))
-        (let time-non-async (- (time) start-non-async))
+    (t000:0000 "0000000000000000000000000000000000000000000000000000000000000000" {
+        (t000:00 n00 (a0000 a0000-000))})
 
-        (let start-async (time))
-        (let workers [
-            (async sum 0 (/ size 4) data)
-            (async sum (/ size 4) (/ size 2) data)
-            (async sum (/ size 2) (- size (/ size 4)) data)
-            (async sum (- size (/ size 4)) size data)])
-        (let res-async (list:reduce (list:map workers (fun (w) (await w))) (fun (a b) (+ a b))))
-        (let time-async (- (time) start-async))
+    (t000:0000 "00000000000000000000000000000000000" {
+        (let s0000-000-00000 (t000))
+        (let r00-000-00000 (s00 0 s000 d000))
+        (let t000-000-00000 (- (t000) s0000-000-00000))
 
-        (test:eq 1000 res-async)
-        (test:eq 1000 res-non-async)})})
+        (let s0000-00000 (t000))
+        (let w000000 [
+            (a0000 s00 0 (/ s000 0) d000)
+            (a0000 s00 (/ s000 0) (/ s000 0) d000)
+            (a0000 s00 (/ s000 0) (- s000 (/ s000 0)) d000)
+            (a0000 s00 (- s000 (/ s000 0)) s000 d000)])
+        (let r00-00000 (l000:000000 (l000:000 w000000 (fun (w) (a0000 w))) (fun (a b) (+ a b))))
+        (let t000-00000 (- (t000) s0000-00000))
+
+        (t000:00 0000 r00-00000)
+        (t000:00 0000 r00-000-00000)})
+
+    (t000:0000 "00000000000000000000000000000" {
+        #000000000000000000000000000000000000000000000000000000000000
+        #0000000000000000000
+        (a0000 s0000 000)
+        (a0000 s0000 000)
+        (a0000 s0000 000)
+        (a0000 s0000 000)
+        (a0000 s0000 000)
+        (s0000 000)  #000000000000000000000000000000000000
+
+        #000000000000000000000000000000000000000000000000000000000000
+        (a0000 s0000 000) (s0000 000)
+        (a0000 s0000 000) (s0000 000)
+        (a0000 s0000 000) (s0000 000)
+        (a0000 s0000 000) (s0000 000) }) })

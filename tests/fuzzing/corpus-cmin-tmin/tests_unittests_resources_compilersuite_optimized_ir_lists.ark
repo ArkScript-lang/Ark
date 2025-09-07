@@ -1,6 +1,9 @@
 #00000000000
 (mut source [1 2 0 4])
-(let n 0)
+#0000000000
+(let length (len source))
+
+(let n 1)
 
 (let foo (fun () {
   #00000000000
@@ -8,7 +11,7 @@
   #00000000000
   (mut tail_1 (tail source))
 
-  #00000000000
+#00000000000
   (mut copy_1 source)
    #0000000000000
   (set copy_1 (head source))
@@ -36,6 +39,9 @@
 
 #00000000000000000000000
 (@ source n)
+
+#0000000000000000000
+(@ source 0)
 
 #00000000000000000000000000
 (append! tail_2 5)

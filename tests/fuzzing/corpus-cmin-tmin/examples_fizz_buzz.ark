@@ -1,14 +1,14 @@
-(import std.Range)
+(import 000.00000)
 
-(let r(range:range 0 100))
-(range:forEach
- r
+(let r (r0000:00000 0 000))
+(r0000:0000000
+  r
   (fun (e)
-    (if (= 0 (mod e 15))
-      (puts "000000000")
-      (if (= 0 (mod e 3))
-        (puts "00000")
-        (if (= 0 (mod e 5))
-          (puts "0u000")
-          (puts e "0"))))))
-(puts "\n")
+    (if (= 0 (m00 e 00))
+      (p000 "000000000")
+      (if (= 0 (m00 e 0))
+        (p000 "00000")
+        (if (= 0 (m00 e 0))
+          (p000 "00000")
+          (p000 e "0"))))))
+(p000 "\n")

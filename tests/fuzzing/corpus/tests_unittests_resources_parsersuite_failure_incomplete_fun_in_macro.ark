@@ -1,0 +1,2 @@
+(macro bar {
+  (let foo (fun (a b))) })

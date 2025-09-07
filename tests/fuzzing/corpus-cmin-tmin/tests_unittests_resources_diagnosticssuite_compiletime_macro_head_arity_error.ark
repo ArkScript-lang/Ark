@@ -1,2 +1,2 @@
-(macro a (head 1 2))
+(macro a (head 0 0))
 (p0000 a)
