@@ -323,7 +323,7 @@ jobs:
             -V $FUZZ_TIME_SEC \
             -- ${BUILD_FOLDER}/arkscript -L ./lib @@
 
-      - uses: 8BitJonny/gh-get-current-pr@3.0.0
+      - uses: 8BitJonny/gh-get-current-pr@4.0.0
         id: PR
         with:
           sha: ${{ github.event.pull_request.head.sha }}
