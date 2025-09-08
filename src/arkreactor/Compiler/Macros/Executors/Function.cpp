@@ -111,6 +111,16 @@ namespace Ark::internal
         }
         else if (target.isListLike())
         {
+            if (target.nodeType() == NodeType::Macro && target.list()[0].nodeType() == NodeType::Symbol)
+            {
+                if (const std::string macro_name = target.list()[0].string(); map.contains(macro_name))
+                    throwMacroProcessingError(
+                        fmt::format(
+                            "Can not define a macro by reusing the argument name `{}'",
+                            macro_name),
+                        target);
+            }
+
             for (std::size_t i = 0; i < target.list().size(); ++i)
                 unify(map, target.list()[i], &target, i, unify_depth + 1);
         }

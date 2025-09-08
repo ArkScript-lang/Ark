@@ -1,0 +1,8 @@
+(macro ! (call ...all_args) {
+    (macro all_args 5)
+    (fun (arg_bloc) (call all_args)) })
+
+(let foo (fun (a b c d) ()))
+
+(let t (! foo _ 1 _ 2))
+(print (t 5 6))
