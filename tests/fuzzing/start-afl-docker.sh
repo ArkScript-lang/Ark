@@ -30,6 +30,12 @@ generate_corpus_in_docker() {
     bash /src/tests/fuzzing/docker/build-and-make-corpus.sh
 }
 
+usage() {
+  echo "Usage: start-afl-docker.sh [mode]"
+  echo "  fuzz: start afldocker with ramdisk and run the fuzzers"
+  echo "  corpus: compute a corpus from tests/fuzzing/corpus/"
+}
+
 if [[ $# == 1 ]]; then
   case $1 in
     fuzz)
@@ -40,11 +46,9 @@ if [[ $# == 1 ]]; then
       generate_corpus_in_docker
       ;;
     *)
-      echo "Usage: start-afl-docker.sh [mode]"
-      echo "  fuzz: start afldocker with ramdisk and run the fuzzers"
-      echo "  corpus: compute a corpus from tests/fuzzing/corpus/"
+      usage
       ;;
   esac
 else
-  start_afl_with_ramdisk
+  usage
 fi
