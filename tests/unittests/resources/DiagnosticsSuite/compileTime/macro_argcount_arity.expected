@@ -1,0 +1,5 @@
+    1 | (let a 5)
+    2 | (print ($argcount) a)
+      |        ^~~~~~~~~~~
+    3 |
+        When expanding `$argcount' inside a macro, got 0 argument, expected 1

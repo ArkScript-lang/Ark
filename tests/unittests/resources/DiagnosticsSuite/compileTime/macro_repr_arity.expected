@@ -1,0 +1,6 @@
+    1 | (let foo ($repr))
+      | │        └─ error
+      | │
+      | └─ macro expansion started here
+    2 |
+        When expanding `$repr' inside a macro, got 0 argument, expected 1
