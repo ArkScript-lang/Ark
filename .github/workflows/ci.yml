@@ -258,7 +258,7 @@ jobs:
           export ASAN_OPTIONS=detect_odr_violation=0
           ./unittests
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         if: ${{ ! startsWith(matrix.config.name, 'Windows') }}
         with:
           python-version: '3.13'
