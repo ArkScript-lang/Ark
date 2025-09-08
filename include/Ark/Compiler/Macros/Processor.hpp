@@ -151,9 +151,10 @@ namespace Ark::internal
          * @param node a list node with a macro application, eg (= a b)
          * @param expected expected argument count, not counting the macro
          * @param name the name of the macro being applied
+         * @param is_expansion if the error message should switch from "Interpreting ..." to "When expanding ..."
          * @param kind the macro kind, empty by default (eg "operator", "condition")
          */
-        void checkMacroArgCountEq(const Node& node, std::size_t expected, const std::string& name, const std::string& kind = "");
+        void checkMacroArgCountEq(const Node& node, std::size_t expected, const std::string& name, bool is_expansion = false, const std::string& kind = "");
 
         /**
          * @brief Check if the given node has at least the provided argument count, otherwise throws an error

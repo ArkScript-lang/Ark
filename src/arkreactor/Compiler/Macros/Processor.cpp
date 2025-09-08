@@ -208,19 +208,31 @@ namespace Ark::internal
         return false;
     }
 
-    void MacroProcessor::checkMacroArgCountEq(const Node& node, std::size_t expected, const std::string& name, const std::string& kind)
+    void MacroProcessor::checkMacroArgCountEq(const Node& node, std::size_t expected, const std::string& name, const bool is_expansion, const std::string& kind)
     {
         const std::size_t argcount = node.constList().size();
         if (argcount != expected + 1)
-            throwMacroProcessingError(
-                fmt::format(
-                    "Interpreting a `{}'{} with {} argument{}, expected {}.",
-                    name,
-                    kind.empty() ? kind : " " + kind,
-                    argcount - 1,
-                    argcount > 2 ? "s" : "",
-                    expected),
-                node);
+        {
+            if (is_expansion)
+                throwMacroProcessingError(
+                    fmt::format(
+                        "When expanding `{}' inside a macro, got {} argument{}, expected {}",
+                        name,
+                        argcount - 1,
+                        argcount > 2 ? "s" : "",
+                        expected),
+                    node);
+            else
+                throwMacroProcessingError(
+                    fmt::format(
+                        "Interpreting a `{}'{} with {} argument{}, expected {}.",
+                        name,
+                        kind.empty() ? kind : " " + kind,
+                        argcount - 1,
+                        argcount > 2 ? "s" : "",
+                        expected),
+                    node);
+        }
     }
 
     void MacroProcessor::checkMacroArgCountGe(const Node& node, std::size_t expected, const std::string& name, const std::string& kind)
@@ -260,42 +272,42 @@ namespace Ark::internal
             }
             else if (name == "=" && is_not_body)
             {
-                checkMacroArgCountEq(node, 2, "=", "condition");
+                checkMacroArgCountEq(node, 2, "=", /* is_expansion= */ false, "condition");
                 const Node one = evaluate(node.list()[1], depth + 1, is_not_body);
                 const Node two = evaluate(node.list()[2], depth + 1, is_not_body);
                 return (one == two) ? getTrueNode() : getFalseNode();
             }
             else if (name == "!=" && is_not_body)
             {
-                checkMacroArgCountEq(node, 2, "!=", "condition");
+                checkMacroArgCountEq(node, 2, "!=", /* is_expansion= */ false, "condition");
                 const Node one = evaluate(node.list()[1], depth + 1, is_not_body);
                 const Node two = evaluate(node.list()[2], depth + 1, is_not_body);
                 return (one != two) ? getTrueNode() : getFalseNode();
             }
             else if (name == "<" && is_not_body)
             {
-                checkMacroArgCountEq(node, 2, "<", "condition");
+                checkMacroArgCountEq(node, 2, "<", /* is_expansion= */ false, "condition");
                 const Node one = evaluate(node.list()[1], depth + 1, is_not_body);
                 const Node two = evaluate(node.list()[2], depth + 1, is_not_body);
                 return (one < two) ? getTrueNode() : getFalseNode();
             }
             else if (name == ">" && is_not_body)
             {
-                checkMacroArgCountEq(node, 2, ">", "condition");
+                checkMacroArgCountEq(node, 2, ">", /* is_expansion= */ false, "condition");
                 const Node one = evaluate(node.list()[1], depth + 1, is_not_body);
                 const Node two = evaluate(node.list()[2], depth + 1, is_not_body);
                 return !(one < two) && (one != two) ? getTrueNode() : getFalseNode();
             }
             else if (name == "<=" && is_not_body)
             {
-                checkMacroArgCountEq(node, 2, "<=", "condition");
+                checkMacroArgCountEq(node, 2, "<=", /* is_expansion= */ false, "condition");
                 const Node one = evaluate(node.list()[1], depth + 1, is_not_body);
                 const Node two = evaluate(node.list()[2], depth + 1, is_not_body);
                 return one < two || one == two ? getTrueNode() : getFalseNode();
             }
             else if (name == ">=" && is_not_body)
             {
-                checkMacroArgCountEq(node, 2, ">=", "condition");
+                checkMacroArgCountEq(node, 2, ">=", /* is_expansion= */ false, "condition");
                 const Node one = evaluate(node.list()[1], depth + 1, is_not_body);
                 const Node two = evaluate(node.list()[2], depth + 1, is_not_body);
                 return !(one < two) ? getTrueNode() : getFalseNode();
@@ -362,7 +374,7 @@ namespace Ark::internal
             }
             else if (name == "not" && is_not_body)
             {
-                checkMacroArgCountEq(node, 1, "not", "condition");
+                checkMacroArgCountEq(node, 1, "not", /* is_expansion= */ false, "condition");
                 return (!isTruthy(evaluate(node.list()[1], depth + 1, is_not_body))) ? getTrueNode() : getFalseNode();
             }
             else if (name == Language::And && is_not_body)
@@ -391,8 +403,8 @@ namespace Ark::internal
             }
             else if (name == "len")
             {
-                if (node.list().size() > 2)
-                    throwMacroProcessingError(fmt::format("When expanding `len' inside a macro, got {} arguments, expected 1", argcount), node);
+                checkMacroArgCountEq(node, 1, "len", true);
+
                 if (Node& lst = node.list()[1]; lst.nodeType() == NodeType::List)  // only apply len at compile time if we can
                 {
                     if (isConstEval(lst))
@@ -406,8 +418,8 @@ namespace Ark::internal
             }
             else if (name == "empty?")
             {
-                if (node.list().size() > 2)
-                    throwMacroProcessingError(fmt::format("When expanding `empty?' inside a macro, got {} arguments, expected 1", argcount), node);
+                checkMacroArgCountEq(node, 1, "empty?", true);
+
                 if (Node& lst = node.list()[1]; lst.nodeType() == NodeType::List && isConstEval(lst))
                 {
                     // only apply len at compile time if we can
@@ -454,8 +466,8 @@ namespace Ark::internal
             }
             else if (name == "head")
             {
-                if (node.list().size() > 2)
-                    throwMacroProcessingError(fmt::format("When expanding `head' inside a macro, got {} arguments, expected 1", argcount), node);
+                checkMacroArgCountEq(node, 1, "head", true);
+
                 if (node.list()[1].nodeType() == NodeType::List)
                 {
                     Node& sublist = node.list()[1];
@@ -477,8 +489,8 @@ namespace Ark::internal
             }
             else if (name == "tail")
             {
-                if (node.list().size() > 2)
-                    throwMacroProcessingError(fmt::format("When expanding `tail' inside a macro, got {} arguments, expected 1", argcount), node);
+                checkMacroArgCountEq(node, 1, "tail", true);
+
                 if (node.list()[1].nodeType() == NodeType::List)
                 {
                     Node sublist = node.list()[1];
@@ -555,6 +567,8 @@ namespace Ark::internal
             }
             else if (name == Language::Argcount)
             {
+                checkMacroArgCountEq(node, 1, Language::Argcount.data(), true);
+
                 const Node sym = node.constList()[1];
                 if (sym.nodeType() == NodeType::Symbol)
                 {
@@ -570,6 +584,8 @@ namespace Ark::internal
             }
             else if (name == Language::Repr)
             {
+                checkMacroArgCountEq(node, 1, Language::Repr.data(), true);
+
                 const Node arg = node.constList()[1];
                 node.updateValueAndType(Node(NodeType::String, arg.repr()));
             }
