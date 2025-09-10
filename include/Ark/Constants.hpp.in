@@ -69,10 +69,12 @@ namespace Ark
 
     constexpr uint16_t MaxValue16Bits = std::numeric_limits<uint16_t>::max();
 
-    constexpr std::size_t MaxNestedNodes = 1024;  ///< Maximum number of nodes that can be nested while parsing code
-    constexpr std::size_t MaxMacroProcessingDepth = 256;  ///< Controls the number of recursive calls to MacroProcessor::processNode
+    constexpr std::size_t MaxNestedNodes = 1024;           ///< Maximum number of nodes that can be nested while parsing code
+    constexpr std::size_t MaxMacroProcessingDepth = 256;   ///< Controls the number of recursive calls to MacroProcessor::processNode
     constexpr std::size_t MaxMacroUnificationDepth = 256;  ///< Controls the number of recursive calls to MacroProcessor::unify
     constexpr std::size_t VMStackSize = 4096;
+    constexpr std::size_t VMOverflowBufferSize = 256;                                          ///< Additional number of elements the stack can tolerate
+    constexpr std::size_t VMStackSizeWithOverflowBuffer = VMStackSize + VMOverflowBufferSize;  ///< Exceeding VMStackSize, even if we are below VMStackSizeWithOverflowBuffer, means we stack overflowed
     constexpr std::size_t ScopeStackSize = 8192;
 }
 

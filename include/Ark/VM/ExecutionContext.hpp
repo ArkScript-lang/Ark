@@ -33,6 +33,7 @@ namespace Ark::internal
         uint16_t fc {};     ///< Frame count
         uint16_t last_symbol;
         const bool primary;  ///< Tells if the current ExecutionContext is the primary one or not
+        uint16_t inst_exec_counter {};
         std::atomic_bool active;
 
         std::optional<ClosureScope> saved_scope {};  ///< Scope created by CAPTURE <x> instructions, used by the MAKE_CLOSURE instruction
@@ -42,7 +43,7 @@ namespace Ark::internal
         std::vector<ScopeView> locals {};
         std::array<ScopeView::pair_t, ScopeStackSize> scopes_storage {};  ///< All the ScopeView use this array to store id->value
 
-        std::array<Value, VMStackSize> stack {};
+        std::array<Value, VMStackSizeWithOverflowBuffer> stack {};
 
         ExecutionContext() noexcept :
             last_symbol(MaxValue16Bits),

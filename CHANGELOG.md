@@ -154,6 +154,7 @@
 - captures are not renamed anymore by the NameResolutionPass (which used to fully qualify captured names when possible, which isn't desirable: when you capture `&foo`, you expect to be able to use `.foo` not `.module:foo`)
 - when loading a module, its mappings are loaded in the current scope instead of the global scope
 - argument order in the CLI changed: the file to run (and its optional script arguments) are now last, to be more consistent with all the other existing tooling (Python, Docker...)
+- VM stack size has been upped to 4096 + 256, to have a buffer to be able to catch stack overflows without hindering performances too much
 
 ### Removed
 - removed unused `NodeType::Closure`
