@@ -40,6 +40,7 @@ namespace Ark::internal
 
                 // todo: this fails because we don't have a string because we are defining a (macro ! (call ...args) ...) inside another (macro ! (call ...args) ...)
                 //       most likely the first macro got applied to another macro. We shouldn't apply macro on macros
+                // assert(args.list()[j].nodeType() == NodeType::String || args.list()[j].nodeType() == NodeType::Spread);  // todo: temp
                 const std::string& arg_name = args.list()[j].string();
                 if (args.list()[j].nodeType() == NodeType::Symbol)
                 {
@@ -121,10 +122,16 @@ namespace Ark::internal
                             "Can not define a macro by reusing the argument name `{}'",
                             macro_name),
                         target);
-            }
 
-            for (std::size_t i = 0; i < target.list().size(); ++i)
-                unify(map, target.list()[i], &target, i, unify_depth + 1);
+                // proceed for expansion only on the value of each macro
+                unify(map, target.list().back(), &target, target.list().size() - 1, unify_depth + 1);
+            }
+            else
+            {
+                // proceed for expansion on normal nodes, we can safely run on all subnodes
+                for (std::size_t i = 0; i < target.list().size(); ++i)
+                    unify(map, target.list()[i], &target, i, unify_depth + 1);
+            }
         }
         else if (target.nodeType() == NodeType::Spread)
         {

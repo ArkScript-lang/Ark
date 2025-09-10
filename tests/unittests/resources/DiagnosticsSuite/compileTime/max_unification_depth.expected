@@ -6,16 +6,13 @@
     8 |     (macro bloc (suffix-dup a (len defargs)))
     9 |     (fun (bloc) (func ...defargs bloc))
   ... |
-   14 |         (* a b)
    15 |         (let inner (partial te t_func 0))
    16 |         (let est_func
    17 |                 (macro partial (func ...defargs) {
-      |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    18 |                     (macro bloc (suffix-dup a (len defargs)))
       |                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    19 |                     (fun (bloc) (func ...defargs bloc))
-      |                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      | ^
    20 |                     ($undef bloc)}))))
-      |                     ^~~~~~~~~~~~~~~
    21 |
         Max macro unification depth reached (256). You may have a macro trying to evaluate itself, try splitting your code in multiple nodes.
