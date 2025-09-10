@@ -1,0 +1,8 @@
+    3 |
+    4 | (let foo (fun () {
+    5 |   (let n 1)
+    6 |   (let foo 5)
+      |   ^~~~~~~~~~
+    7 |
+    8 |   (foo)
+        Can not define a variable using the same name as the function it is defined inside
