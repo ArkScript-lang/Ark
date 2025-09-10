@@ -505,19 +505,22 @@ namespace Ark
 #    define GOTO_HALT() break
 #endif
 
-#define NEXTOPARG()                                                                         \
-    do                                                                                      \
-    {                                                                                       \
-        inst = m_state.inst(context.pp, context.ip);                                        \
-        padding = m_state.inst(context.pp, context.ip + 1);                                 \
-        arg = static_cast<uint16_t>((m_state.inst(context.pp, context.ip + 2) << 8) +       \
-                                    m_state.inst(context.pp, context.ip + 3));              \
-        context.ip += 4;                                                                    \
-        context.inst_exec_counter = (context.inst_exec_counter + 1) % VMOverflowBufferSize; \
-        if (context.inst_exec_counter < 2 && context.sp >= VMStackSize)                     \
-        {                                                                                   \
-            throw Error("Stack overflow");                                                  \
-        }                                                                                   \
+#define NEXTOPARG()                                                                                                               \
+    do                                                                                                                            \
+    {                                                                                                                             \
+        inst = m_state.inst(context.pp, context.ip);                                                                              \
+        padding = m_state.inst(context.pp, context.ip + 1);                                                                       \
+        arg = static_cast<uint16_t>((m_state.inst(context.pp, context.ip + 2) << 8) +                                             \
+                                    m_state.inst(context.pp, context.ip + 3));                                                    \
+        context.ip += 4;                                                                                                          \
+        context.inst_exec_counter = (context.inst_exec_counter + 1) % VMOverflowBufferSize;                                       \
+        if (context.inst_exec_counter < 2 && context.sp >= VMStackSize)                                                           \
+        {                                                                                                                         \
+            if (context.pp != 0)                                                                                                  \
+                throw Error("Stack overflow. You could consider rewriting your function to make use of tail-call optimization."); \
+            else                                                                                                                  \
+                throw Error("Stack overflow. Are you trying to call a function with too many arguments?");                        \
+        }                                                                                                                         \
     } while (false)
 #define DISPATCH() \
     NEXTOPARG();   \
