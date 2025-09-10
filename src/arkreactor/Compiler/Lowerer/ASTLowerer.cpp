@@ -604,6 +604,9 @@ namespace Ark::internal
             }
             else
             {
+                if (!nodeProducesOutput(node))
+                    buildAndThrowError(fmt::format("Can not call `{}', as it doesn't return a value", node.repr()), node);
+
                 m_temp_pages.emplace_back();
                 const auto proc_page = Page { .index = m_temp_pages.size() - 1u, .is_temp = true };
 
@@ -614,7 +617,7 @@ namespace Ark::internal
                     // We can skip the LOAD_SYMBOL function_name and directly push the current
                     // function page, which will be quicker than a local variable resolution.
                     // We set its argument to the symbol id of the function we are calling,
-                    // so that the VM knowns the name of the last called function.
+                    // so that the VM knows the name of the last called function.
                     page(proc_page).emplace_back(GET_CURRENT_PAGE_ADDR, addSymbol(node));
                 }
                 else

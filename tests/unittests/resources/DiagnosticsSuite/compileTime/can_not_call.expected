@@ -1,4 +1,4 @@
     1 |  (((begin)))
-      |   ^~~~~~~~~
+      |    ^~~~~~~
     2 |
-        Can not call (begin)
+        Can not call `(begin)', as it doesn't return a value
