@@ -96,8 +96,6 @@ namespace Ark::Diagnostics
             // show where the error occurred
             if (source_printer.isTargetLine() && !line.empty())
             {
-                fmt::print(os, "{}", Printer::GhostLinePrefix);
-
                 if (!loc.wholeLineIsError())
                 {
                     const std::size_t line_first_char = (line.find_first_not_of(" \t\v") == std::string::npos) ? 0 : line.find_first_not_of(" \t\v");
@@ -105,6 +103,11 @@ namespace Ark::Diagnostics
                     const std::size_t col_start = (i == loc.start.line) ? loc.start.column : line_first_char + 1;
                     // due to the `!loc.wholeLineIsError()` check, we are guaranteed to have a value in loc.end
                     const std::size_t col_end = (i == loc.end->line) ? loc.end->column : line.size();
+
+                    // ignore the last line that is sometimes erroneous in multiline contexts
+                    if (i == loc.end->line && loc.end->line != loc.start.line && col_start >= col_end)
+                        continue;
+                    fmt::print(os, "{}", Printer::GhostLinePrefix);
 
                     // show the error where it's at, using the normal process, if there is no context OR
                     // if the context line is different from the error line
@@ -162,6 +165,8 @@ namespace Ark::Diagnostics
                 }
                 else
                 {
+                    fmt::print(os, "{}", Printer::GhostLinePrefix);
+
                     // first non-whitespace character of the line
                     // +1 for the leading whitespace after `    |` before the code
                     const std::size_t col_start = line.find_first_not_of(" \t\v") + 1;

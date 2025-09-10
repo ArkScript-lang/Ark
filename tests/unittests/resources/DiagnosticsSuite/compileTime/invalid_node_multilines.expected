@@ -3,6 +3,5 @@
     2 | 80000000000000000
       | ^~~~~~~~~~~~~~~~
     3 | (
-      | ^
     4 |
         invalid syntax, expected node
