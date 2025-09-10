@@ -327,6 +327,11 @@ namespace Ark::internal
 
     void ASTLowerer::compileIf(Node& x, const Page p, const bool is_result_unused, const bool is_terminal)
     {
+        if (x.constList().size() == 1)
+            buildAndThrowError("Invalid condition: missing 'cond' and 'then' nodes, expected (if cond then)", x);
+        if (x.constList().size() == 2)
+            buildAndThrowError(fmt::format("Invalid condition: missing 'then' node, expected (if {} then)", x.constList()[1].repr()), x);
+
         // compile condition
         compileExpression(x.list()[1], p, false, false);
         page(p).back().setSourceLocation(x.constList()[1].filename(), x.constList()[1].position().start.line);
