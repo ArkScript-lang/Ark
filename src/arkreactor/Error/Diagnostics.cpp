@@ -122,6 +122,11 @@ namespace Ark::Diagnostics
                     else if (maybe_context && maybe_context->at.start.line == loc.start.line && i == loc.start.line)
                     {
                         const auto padding_size = std::max(1_z, maybe_context->at.start.column);
+                        const std::string inner_padding =
+                            // -2 to account for the │ and then └
+                            (loc.start.column < padding_size || loc.start.column - padding_size < 2)
+                            ? ""
+                            : std::string(std::max(1_z, loc.start.column - padding_size - 1), ' ');
 
                         fmt::print(
                             os,
@@ -132,10 +137,7 @@ namespace Ark::Diagnostics
                             // indicate where the parent is, with color
                             fmt::styled("│", colorize ? fmt::fg(fmt::color::red) : fmt::text_style()),
                             // yet another padding of spaces between the parent and error column (if need be)
-                            // -2 to account for the │ and then └
-                            (loc.start.column - padding_size < 2)
-                                ? ""
-                                : std::string(loc.start.column - padding_size - 1, ' '),
+                            inner_padding,
                             // underline the error in red
                             fmt::styled("└─ error", colorize ? fmt::fg(fmt::color::red) : fmt::text_style()));
                         // new line, some spacing between the error and the parent
