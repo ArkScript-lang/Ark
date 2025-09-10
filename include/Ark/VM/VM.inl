@@ -185,19 +185,19 @@ inline Value* VM::peekAndResolveAsPtr(internal::ExecutionContext& context)
     return &m_undefined_value;
 }
 
-inline void VM::push(const Value& value, internal::ExecutionContext& context)
+inline void VM::push(const Value& value, internal::ExecutionContext& context) noexcept
 {
     context.stack[context.sp] = value;
     ++context.sp;
 }
 
-inline void VM::push(Value&& value, internal::ExecutionContext& context)
+inline void VM::push(Value&& value, internal::ExecutionContext& context) noexcept
 {
     context.stack[context.sp] = std::move(value);
     ++context.sp;
 }
 
-inline void VM::push(Value* valptr, internal::ExecutionContext& context)
+inline void VM::push(Value* valptr, internal::ExecutionContext& context) noexcept
 {
     context.stack[context.sp].m_type = ValueType::Reference;
     context.stack[context.sp].m_value = valptr;

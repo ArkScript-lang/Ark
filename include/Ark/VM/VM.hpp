@@ -272,7 +272,7 @@ namespace Ark
          * @param value
          * @param context
          */
-        inline void push(const Value& value, internal::ExecutionContext& context);
+        inline void push(const Value& value, internal::ExecutionContext& context) noexcept;
 
         /**
          * @brief Push a value on the stack
@@ -280,7 +280,7 @@ namespace Ark
          * @param value
          * @param context
          */
-        inline void push(Value&& value, internal::ExecutionContext& context);
+        inline void push(Value&& value, internal::ExecutionContext& context) noexcept;
 
         /**
          * @brief Push a value on the stack as a reference
@@ -288,7 +288,7 @@ namespace Ark
          * @param valptr
          * @param context
          */
-        inline void push(Value* valptr, internal::ExecutionContext& context);
+        inline void push(Value* valptr, internal::ExecutionContext& context) noexcept;
 
         /**
          * @brief Pop a value from the stack and resolve it if possible, then return it
