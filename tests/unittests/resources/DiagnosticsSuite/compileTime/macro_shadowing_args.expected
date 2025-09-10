@@ -3,7 +3,6 @@
     2 |     (macro all_args 5)
       |     ^~~~~~~~~~~~~~~~~
     3 |     (fun (arg_bloc) (call all_args)) })
-      | ^
     4 |
     5 | (let foo (fun (a b c d) ()))
         Can not define a macro by reusing the argument name `all_args'

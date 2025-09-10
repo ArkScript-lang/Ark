@@ -5,6 +5,7 @@
 #include <Ark/Utils/Utils.hpp>
 
 #include <array>
+#include <cassert>
 
 #include <fmt/color.h>
 #include <fmt/ostream.h>
@@ -124,6 +125,7 @@ namespace Ark::Diagnostics
             m_window.skip_start_at = line_to_include + 3;
         m_window.resume_at = m_window.start;
 
+        assert(line_to_include <= m_window.start && "line_to_include has to be before the start of our base context, source of errors are always before our errors");
         // due to how context works, if it points to the same file,
         // we are guaranteed it will be before our error
         m_window.start = line_to_include >= 3 ? line_to_include - 3 : 0;
