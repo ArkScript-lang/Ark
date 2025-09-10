@@ -1,0 +1,4 @@
+    1 | (if ($if false 0) ($if false 1))
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    2 |
+        Invalid condition: missing 'cond' and 'then' nodes, expected (if cond then)

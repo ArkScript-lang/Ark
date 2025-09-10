@@ -1,0 +1,10 @@
+    1 | (let fi00 (fun (n)
+    2 |   (if (< n 2)
+      |   ^~~~~~~~~~
+    3 |     ($if (= "0" ($repr x))
+      |     ^~~~~~~~~~~~~~~~~~~~~
+    4 |       (fi00 (- n 2))))))
+      |       ^~~~~~~~~~~~~~~
+    5 | (fi00 22)
+    6 |
+        Invalid condition: missing 'then' node, expected (if (< n 2) then)
