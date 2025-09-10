@@ -450,6 +450,9 @@ namespace Ark::internal
         const std::string name = x.constList()[1].string();
         uint16_t i = addSymbol(x.constList()[1]);
 
+        if (!m_opened_vars.empty() && m_opened_vars.top() == name)
+            buildAndThrowError("Can not define a variable using the same name as the function it is defined inside", x);
+
         const bool is_function = x.constList()[2].isFunction();
         if (is_function)
         {

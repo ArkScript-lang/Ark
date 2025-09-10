@@ -1,0 +1,11 @@
+(mut source [1 2 0 4])
+(let n 1)
+
+(let foo (fun () {
+  (let n 1)
+  (let foo 5)
+
+  (foo)
+  (@ source n) }))
+
+(foo)
