@@ -505,14 +505,19 @@ namespace Ark
 #    define GOTO_HALT() break
 #endif
 
-#define NEXTOPARG()                                                                   \
-    do                                                                                \
-    {                                                                                 \
-        inst = m_state.inst(context.pp, context.ip);                                  \
-        padding = m_state.inst(context.pp, context.ip + 1);                           \
-        arg = static_cast<uint16_t>((m_state.inst(context.pp, context.ip + 2) << 8) + \
-                                    m_state.inst(context.pp, context.ip + 3));        \
-        context.ip += 4;                                                              \
+#define NEXTOPARG()                                                                         \
+    do                                                                                      \
+    {                                                                                       \
+        inst = m_state.inst(context.pp, context.ip);                                        \
+        padding = m_state.inst(context.pp, context.ip + 1);                                 \
+        arg = static_cast<uint16_t>((m_state.inst(context.pp, context.ip + 2) << 8) +       \
+                                    m_state.inst(context.pp, context.ip + 3));              \
+        context.ip += 4;                                                                    \
+        context.inst_exec_counter = (context.inst_exec_counter + 1) % VMOverflowBufferSize; \
+        if (context.inst_exec_counter < 2 && context.sp >= VMStackSize)                     \
+        {                                                                                   \
+            throw Error("Stack overflow");                                                  \
+        }                                                                                   \
     } while (false)
 #define DISPATCH() \
     NEXTOPARG();   \
@@ -761,6 +766,7 @@ namespace Ark
                         push(Value(static_cast<PageAddr_t>(context.pp)), context);
                         // arg * 4 to skip over the call instruction, so that the return address points to AFTER the call
                         push(Value(ValueType::InstPtr, static_cast<PageAddr_t>(arg * 4)), context);
+                        context.inst_exec_counter++;
                         DISPATCH();
                     }
 
@@ -1431,6 +1437,7 @@ namespace Ark
                         UNPACK_ARGS();
                         push(loadConstAsPtr(primary_arg), context);
                         push(loadConstAsPtr(secondary_arg), context);
+                        context.inst_exec_counter++;
                         DISPATCH();
                     }
 
