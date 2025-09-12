@@ -1,6 +1,6 @@
 # Change Log
 
-## [4.0.0] - 2025-XX-XX
+## [4.0.0] - 2025-09-12
 ### Added
 - more tests for the io builtins
 - added lines and code coloration in the error context
