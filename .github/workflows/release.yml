@@ -34,7 +34,7 @@ jobs:
             artifact: "windows-msvc-22"
           }
           - {
-            os: macos-latest, name: "MacOS Clang 16",
+            os: macos-14, name: "MacOS Clang 16",
             artifact: "macos-clang-16",
             compiler: clang, compiler_version: 16,
           }
