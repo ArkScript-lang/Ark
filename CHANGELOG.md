@@ -1,5 +1,13 @@
 # Change Log
 
+## [Unreleased version] - 20XX-XX-XX
+### Added
+
+### Changed
+- the formatter properly formats dictionaries (key-value pairs on their own line, always)
+
+### Removed
+
 ## [4.0.0] - 2025-09-12
 ### Added
 - more tests for the io builtins

@@ -153,7 +153,7 @@ bool Formatter::shouldAddNewLineBetweenNodes(const Node& node, const std::size_t
         return false;
 
     const auto& list = node.constList();
-    std::size_t previous_line = lineOfLastNodeIn(list[at - 1]);
+    const std::size_t previous_line = lineOfLastNodeIn(list[at - 1]);
 
     const auto& child = list[at];
 
@@ -321,16 +321,14 @@ std::string Formatter::formatFunction(const Node& node, const std::size_t indent
 
 std::string Formatter::formatVariable(const Node& node, const std::size_t indent)
 {
-    std::string keyword = std::string(keywords[static_cast<std::size_t>(node.constList()[0].keyword())]);
+    const auto keyword = std::string(keywords[static_cast<std::size_t>(node.constList()[0].keyword())]);
 
     const Node body_node = node.constList()[2];
     const std::string formatted_bind = format(node.constList()[1], indent, false);
 
     // we don't want to add another indentation level here, because it would result in a (let a (fun ()\n{indent+=4}...))
-    if (isFuncDef(body_node))
+    if (isFuncDef(body_node) || !shouldSplitOnNewline(body_node))
         return fmt::format("({} {} {})", keyword, formatted_bind, format(body_node, indent, false));
-    if (!shouldSplitOnNewline(body_node))
-        return fmt::format("({} {} {})", keyword, formatted_bind, format(body_node, indent + 1, false));
     return fmt::format("({} {}\n{})", keyword, formatted_bind, format(body_node, indent + 1, true));
 }
 
@@ -484,11 +482,16 @@ std::string Formatter::formatDel(const Node& node, const std::size_t indent)
 std::string Formatter::formatCall(const Node& node, const std::size_t indent)
 {
     bool is_list = false;
-    if (!node.constList().empty() && node.constList().front().nodeType() == NodeType::Symbol &&
-        node.constList().front().string() == "list")
-        is_list = true;
-
+    bool is_dict = false;
     bool is_multiline = false;
+
+    if (!node.constList().empty() && node.constList().front().nodeType() == NodeType::Symbol)
+    {
+        if (node.constList().front().string() == "list")
+            is_list = true;
+        else if (node.constList().front().string() == "dict")
+            is_dict = true;
+    }
 
     std::vector<std::string> formatted_args;
     for (std::size_t i = 1, end = node.constList().size(); i < end; ++i)
@@ -502,14 +505,24 @@ std::string Formatter::formatCall(const Node& node, const std::size_t indent)
     std::string result = is_list ? "[" : ("(" + format(node.constList()[0], indent, false));
     for (std::size_t i = 0, end = formatted_args.size(); i < end; ++i)
     {
-        const std::string formatted_node = formatted_args[i];
-        if (is_multiline)
+        const std::string& formatted_node = formatted_args[i];
+        if (is_dict)
+        {
+            if (i % 2 == 0 && formatted_args.size() > 2)  // one pair per line if we have at least 2 key-value pairs
+                result += "\n" + format(node.constList()[i + 1], indent + 1, true);
+            else
+                result += " " + formatted_node;
+        }
+        else if (is_multiline)
             result += "\n" + format(node.constList()[i + 1], indent + 1, true);
-        else
-            result += (is_list && i == 0 ? "" : " ") + formatted_node;
+        else if (is_list && i == 0)
+            result += formatted_node;
+        else  // put all arguments on the same line
+            result += " " + formatted_node;
     }
     if (!node.constList().back().commentAfter().empty())
         result += "\n" + prefix(indent);
+
     result += is_list ? "]" : ")";
     return result;
 }
