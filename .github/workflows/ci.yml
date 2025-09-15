@@ -2,7 +2,7 @@ name: "Testing ArkScript"
 
 on:
   push:
-    branches: [ dev, master ]
+    branches: [ dev ]
     paths-ignore:
       - '.github/workflows/benchmarks.yml'
       - '.github/workflows/docker.yml'
