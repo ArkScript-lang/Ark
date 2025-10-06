@@ -357,7 +357,7 @@ jobs:
           afl-showmap -C -i output -o /dev/null -- ./${BUILD_FOLDER}/arkscript -L ./lib @@
 
       - name: Find Comment
-        uses: peter-evans/find-comment@v3
+        uses: peter-evans/find-comment@v4
         if: steps.PR.outputs.pr_found == 'true'
         id: fc
         with:
