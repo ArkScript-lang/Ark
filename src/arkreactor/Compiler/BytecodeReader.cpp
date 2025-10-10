@@ -271,6 +271,29 @@ namespace Ark
         return block;
     }
 
+    std::optional<InstLoc> BytecodeReader::findSourceLocation(const std::vector<InstLoc>& inst_locations, const std::size_t ip, const std::size_t pp) const
+    {
+        std::optional<InstLoc> match = std::nullopt;
+
+        for (const auto location : inst_locations)
+        {
+            if (location.page_pointer == pp && !match)
+                match = location;
+
+            // select the best match: we want to find the location that's nearest our instruction pointer,
+            // but not equal to it as the IP will always be pointing to the next instruction,
+            // not yet executed. Thus, the erroneous instruction is the previous one.
+            if (location.page_pointer == pp && match && location.inst_pointer < ip / 4)
+                match = location;
+
+            // early exit because we won't find anything better, as inst locations are ordered by ascending (pp, ip)
+            if (location.page_pointer > pp || (location.page_pointer == pp && location.inst_pointer >= ip / 4))
+                break;
+        }
+
+        return match;
+    }
+
     void BytecodeReader::display(const BytecodeSegment segment,
                                  const std::optional<uint16_t> sStart,
                                  const std::optional<uint16_t> sEnd,
@@ -638,13 +661,27 @@ namespace Ark
                         return;
                     }
 
+                    std::optional<InstLoc> previous_loc = std::nullopt;
+
                     for (std::size_t j = sStart.value_or(0), end = sEnd.value_or(page.size()); j < end; j += 4)
                     {
                         const uint8_t inst = page[j];
-                        // TEMP
                         const uint8_t padding = page[j + 1];
                         const auto arg = static_cast<uint16_t>((page[j + 2] << 8) + page[j + 3]);
 
+                        auto maybe_loc = findSourceLocation(inst_locs.locations, j, pp);
+
+                        // location
+                        // we want to print it only when it changed, either the file, the line, or both
+                        if (maybe_loc && (!previous_loc || maybe_loc != previous_loc))
+                        {
+                            if (!previous_loc || previous_loc->filename_id != maybe_loc->filename_id)
+                                fmt::println("{}", files.filenames[maybe_loc->filename_id]);
+                            fmt::print("{:>4}", maybe_loc->line + 1);
+                            previous_loc = maybe_loc;
+                        }
+                        else
+                            fmt::print("    ");
                         // instruction number
                         fmt::print(fmt::fg(fmt::color::cyan), "{:>4}", j / 4);
                         // padding inst arg arg
