@@ -257,10 +257,13 @@ namespace Ark::internal
                 page(p).emplace_back(LOAD_SYMBOL, addSymbol(x));
         }
 
+        page(p).back().setSourceLocation(x.filename(), x.position().start.line);
+
         if (is_result_unused)
         {
             warning("Statement has no effect", x);
             page(p).emplace_back(POP);
+            page(p).back().setSourceLocation(x.filename(), x.position().start.line);
         }
     }
 
@@ -639,6 +642,7 @@ namespace Ark::internal
 
                 const auto label_return = IR::Entity::Label(m_current_label++);
                 page(p).emplace_back(IR::Entity::Goto(label_return, PUSH_RETURN_ADDRESS));
+                page(p).back().setSourceLocation(x.filename(), x.position().start.line);
 
                 pushFunctionCallArguments(x, p, /* is_tail_call= */ false);
                 // push proc from temp page
