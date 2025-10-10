@@ -161,6 +161,15 @@ namespace Ark
         [[nodiscard]] Code code(const InstLocations& instLocations) const;
 
         /**
+         * @brief Find the location of an instruction
+         * @param inst_locations
+         * @param ip
+         * @param pp
+         * @return
+         */
+        std::optional<internal::InstLoc> findSourceLocation(const std::vector<internal::InstLoc>& inst_locations, std::size_t ip, std::size_t pp) const;
+
+        /**
          * @brief Display the bytecode opcode in a human friendly way.
          *
          * @param segment selected bytecode segment that will be displayed

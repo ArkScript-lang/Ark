@@ -12,6 +12,8 @@ namespace Ark::internal
         uint16_t inst_pointer;
         uint16_t filename_id;
         uint32_t line;
+
+        std::strong_ordering operator<=>(const InstLoc&) const = default;
     };
 }
 
