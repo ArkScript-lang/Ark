@@ -83,7 +83,7 @@ jobs:
           artifact-name: 'arkscript.exe'
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: ${{ matrix.config.artifact }}
           path: artifact
