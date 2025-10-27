@@ -177,13 +177,13 @@ jobs:
           cp -r tests/unittests temp/tests/unittests
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: ${{ matrix.config.artifact }}
           path: artifact
 
       - name: Upload temp artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: temp-${{ matrix.config.artifact }}
           path: temp
@@ -386,7 +386,7 @@ jobs:
 
       - name: Upload crashes
         continue-on-error: true
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: crashes
           path: crashes.tar.gz
