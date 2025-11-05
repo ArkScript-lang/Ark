@@ -240,7 +240,7 @@ namespace Ark
 
         inline void jump(uint16_t address, internal::ExecutionContext& context);
 
-        Value getField(Value* closure, uint16_t id, internal::ExecutionContext& context);
+        Value getField(Value* closure, uint16_t id, const internal::ExecutionContext& context);
 
         Value createList(std::size_t count, internal::ExecutionContext& context);
 
@@ -355,9 +355,9 @@ namespace Ark
          * @param pp
          * @return std::optional<InstLoc>
          */
-        std::optional<internal::InstLoc> findSourceLocation(std::size_t ip, std::size_t pp);
+        std::optional<internal::InstLoc> findSourceLocation(std::size_t ip, std::size_t pp) const;
 
-        std::string debugShowSource();
+        std::string debugShowSource() const;
 
         /**
          * @brief Display a backtrace when the VM encounter an exception

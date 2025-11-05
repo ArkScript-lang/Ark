@@ -150,7 +150,7 @@ namespace Ark
         }
     }
 
-    Value VM::getField(Value* closure, const uint16_t id, ExecutionContext& context)
+    Value VM::getField(Value* closure, const uint16_t id, const ExecutionContext& context)
     {
         if (closure->valueType() != ValueType::Closure)
         {
@@ -218,7 +218,7 @@ namespace Ark
                 args.push_back(*popAndResolveAsPtr(context));
             throw types::TypeCheckingError(
                 "append!",
-                { { types::Contract { { types::Typedef("list", ValueType::List), types::Typedef("value", ValueType::Any, /* variadic= */ true) } } } },
+                { { types::Contract { { types::Typedef("list", ValueType::List), types::Typedef("value", ValueType::Any, /* is_variadic= */ true) } } } },
                 args);
         }
 
@@ -454,7 +454,7 @@ namespace Ark
         {
             for (const auto& shared_lib : m_shared_lib_objects)
             {
-                const mapping* map = shared_lib->template get<mapping* (*)()>("getFunctionsMapping")();
+                const mapping* map = shared_lib->get<mapping* (*)()>("getFunctionsMapping")();
                 // load the mapping data
                 std::size_t i = 0;
                 while (map[i].name != nullptr)
@@ -1540,7 +1540,7 @@ namespace Ark
 
                             if (var->valueType() == ValueType::Number)
                             {
-                                Value val = Value(var->number() + secondary_arg);
+                                auto val = Value(var->number() + secondary_arg);
                                 setVal(primary_arg, &val, context);
                             }
                             else
@@ -1606,7 +1606,7 @@ namespace Ark
 
                             if (var->valueType() == ValueType::Number)
                             {
-                                Value val = Value(var->number() - secondary_arg);
+                                auto val = Value(var->number() - secondary_arg);
                                 setVal(primary_arg, &val, context);
                             }
                             else
@@ -2101,7 +2101,7 @@ namespace Ark
 #endif
     }
 
-    std::optional<InstLoc> VM::findSourceLocation(const std::size_t ip, const std::size_t pp)
+    std::optional<InstLoc> VM::findSourceLocation(const std::size_t ip, const std::size_t pp) const
     {
         std::optional<InstLoc> match = std::nullopt;
 
@@ -2124,7 +2124,7 @@ namespace Ark
         return match;
     }
 
-    std::string VM::debugShowSource()
+    std::string VM::debugShowSource() const
     {
         const auto& context = m_execution_contexts.front();
         auto maybe_source_loc = findSourceLocation(context->ip, context->pp);
