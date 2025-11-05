@@ -129,6 +129,11 @@ namespace Ark::internal::Builtins
         ARK_BUILTIN(keys);
         ARK_BUILTIN(size);
     }
+
+    namespace Bytecode
+    {
+        ARK_BUILTIN(disassemble);
+    }
 }
 
 #undef ARK_BUILTIN

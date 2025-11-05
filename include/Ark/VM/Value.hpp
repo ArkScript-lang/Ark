@@ -176,6 +176,8 @@ namespace Ark
 
         [[nodiscard]] Ref_t reference() const { return std::get<Ref_t>(m_value); }
 
+        [[nodiscard]] internal::PageAddr_t pageAddr() const { return std::get<internal::PageAddr_t>(m_value); }
+
         /**
          * @brief Add an element to the list held by the value (if the value type is set to list)
          *
@@ -206,7 +208,6 @@ namespace Ark
 
         [[nodiscard]] constexpr uint8_t typeNum() const noexcept { return static_cast<uint8_t>(m_type); }
 
-        [[nodiscard]] internal::PageAddr_t pageAddr() const { return std::get<internal::PageAddr_t>(m_value); }
         [[nodiscard]] const Procedure& proc() const { return std::get<Procedure>(m_value); }
         [[nodiscard]] const internal::Closure& closure() const { return std::get<internal::Closure>(m_value); }
         [[nodiscard]] internal::Closure& refClosure() { return std::get<internal::Closure>(m_value); }

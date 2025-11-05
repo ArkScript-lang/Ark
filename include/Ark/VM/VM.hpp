@@ -157,6 +157,11 @@ namespace Ark
          */
         [[noreturn]] static void throwVMError(internal::ErrorKind kind, const std::string& message);
 
+        inline const bytecode_t& bytecode() const
+        {
+            return m_state.m_bytecode;
+        }
+
         friend class Value;
         friend class internal::Closure;
         friend class Repl;

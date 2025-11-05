@@ -103,6 +103,9 @@ namespace Ark::internal::Builtins
         { "builtin__dict:contains", Value(Dict::contains) },
         { "builtin__dict:remove", Value(Dict::remove) },
         { "builtin__dict:keys", Value(Dict::keys) },
-        { "builtin__dict:size", Value(Dict::size) }
+        { "builtin__dict:size", Value(Dict::size) },
+
+        // Bytecode
+        { "disassemble", Value(Bytecode::disassemble) }
     };
 }

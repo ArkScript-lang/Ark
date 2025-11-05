@@ -2,6 +2,7 @@
 
 ## [Unreleased version] - 20XX-XX-XX
 ### Added
+- new builtin `disassemble` to print the bytecode of a function
 
 ### Changed
 - the formatter properly formats dictionaries (key-value pairs on their own line, always)

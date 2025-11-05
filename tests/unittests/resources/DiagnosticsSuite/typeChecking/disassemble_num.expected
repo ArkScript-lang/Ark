@@ -1,0 +1,7 @@
+Function disassemble expected 1 argument
+  -> f (Function) was of type Number
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/disassemble_num.ark:1
+    1 | (disassemble 1)
+      | ^~~~~~~~~~~~~~
+    2 |

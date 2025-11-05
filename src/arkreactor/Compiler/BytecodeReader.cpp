@@ -305,13 +305,16 @@ namespace Ark
             return;
         }
 
-        auto [major, minor, patch] = version();
-        fmt::println("Version:   {}.{}.{}", major, minor, patch);
-        fmt::println("Timestamp: {}", timestamp());
-        fmt::print("SHA256:    ");
-        for (const auto sha = sha256(); unsigned char h : sha)
-            fmt::print("{:02x}", h);
-        fmt::print("\n\n");
+        if (segment == BytecodeSegment::All || segment == BytecodeSegment::HeadersOnly)
+        {
+            auto [major, minor, patch] = version();
+            fmt::println("Version:   {}.{}.{}", major, minor, patch);
+            fmt::println("Timestamp: {}", timestamp());
+            fmt::print("SHA256:    ");
+            for (const auto sha = sha256(); unsigned char h : sha)
+                fmt::print("{:02x}", h);
+            fmt::print("\n\n");
+        }
 
         // reading the different tables, one after another
 
@@ -649,10 +652,8 @@ namespace Ark
                     if (displayCode)
                         fmt::print("NOP");
                 }
-                else
+                else if (cPage.value_or(pp) == pp)
                 {
-                    if (cPage.value_or(pp) != pp)
-                        continue;
                     if (segment == BytecodeSegment::HeadersOnly)
                         continue;
                     if (sStart.has_value() && sEnd.has_value() && ((sStart.value() > page.size()) || (sEnd.value() > page.size())))
