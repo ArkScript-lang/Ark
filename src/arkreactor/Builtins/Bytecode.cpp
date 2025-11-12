@@ -1,6 +1,7 @@
 #include <Ark/Builtins/Builtins.hpp>
 
 #include <Ark/Compiler/BytecodeReader.hpp>
+#include <Ark/VM/VM.hpp>
 
 #include <Ark/VM/DefaultValues.hpp>
 #include <Ark/TypeChecker.hpp>
