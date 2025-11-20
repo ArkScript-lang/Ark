@@ -14,7 +14,7 @@ namespace Ark::internal::Builtins::String
     /**
      * @name format
      * @brief Format a String given replacements
-     * @details https://fmt.dev/latest/syntax.html
+     * @details https://fmt.dev/12.0/syntax/
      * @param format the String to format
      * @param values as any argument as you need, of any valid ArkScript type
      * =begin

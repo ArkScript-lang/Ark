@@ -254,7 +254,7 @@ See https://arkscript-lang.dev/tools/benchmarks/
 
 Huge thanks to those people for their donations to support the project:
 
-* [TheCountVEVO](https://github.com/TheCountVEVO)
+* TheCountVEVO
 * [llexto](https://github.com/llexto)
 * COUR Eloïse
 * [AKPINAR Dylan](https://github.com/DylanAkp)
