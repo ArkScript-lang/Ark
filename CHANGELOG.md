@@ -82,7 +82,7 @@
 - enhanced the bytecode reader and its command line interface
 - added the padding/instruction/argumentation values when displaying instructions in the bytecode reader
 - fixed underline bug in the error context
-- the str:format functions now expects strings following this syntax: https://fmt.dev/latest/syntax.html
+- the str:format functions now expects strings following this syntax: https://fmt.dev/12.0/syntax/
 - more documentation about the compiler implementation
 - more documentation about the virtual machine
 - closures can be now be compared field per field: `(= closure1 closure2)` will work only if they have the same fields (name) and if the values match
