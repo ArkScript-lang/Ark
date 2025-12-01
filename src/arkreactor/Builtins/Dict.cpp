@@ -63,7 +63,7 @@ namespace Ark::internal::Builtins::Dict
     {
         if (!types::check(n, ValueType::Dict, ValueType::Any))
             throw types::TypeCheckingError(
-                "dict:contains",
+                "dict:contains?",
                 { { types::Contract { { types::Typedef("dictionary", ValueType::Dict),
                                         types::Typedef("key", ValueType::Any) } } } },
                 n);

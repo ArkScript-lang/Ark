@@ -6,6 +6,7 @@
 
 ### Changed
 - the formatter properly formats dictionaries (key-value pairs on their own line, always)
+- renamed `dict:contains` to `dict:contains?` so that all functions returning booleans have `?` suffix ; added temporary alias `dict:contains`
 
 ### Removed
 
