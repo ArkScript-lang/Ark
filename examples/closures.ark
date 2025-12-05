@@ -1,7 +1,7 @@
 # Inspired by
 # Closures and object are equivalent: http://wiki.c2.com/?ClosuresAndObjectsAreEquivalent
 # this will construct a closure capturing the 3 arguments, plus a function to set the age
-(let create-human (fun (name age weight) {
+(let create-human (fun (name (mut age) weight) {
   # functions can be invoked in the closure scope
   (let set-age (fun (new-age)
     (set age new-age)))

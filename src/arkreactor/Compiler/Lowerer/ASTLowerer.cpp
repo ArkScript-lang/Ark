@@ -413,7 +413,8 @@ namespace Ark::internal
         // pushing arguments from the stack into variables in the new scope
         for (const auto& node : x.constList()[1].constList())
         {
-            if (node.nodeType() == NodeType::Symbol)
+            // TODO: handle refarg with a new kind of instruction?
+            if (node.nodeType() == NodeType::Symbol || node.nodeType() == NodeType::MutArg || node.nodeType() == NodeType::RefArg)
             {
                 page(function_body_page).emplace_back(STORE, addSymbol(node));
                 m_locals_locator.addLocal(node.string());

@@ -673,7 +673,7 @@
 # (print (list:insert b 1 [1 2]))  # [0 1 2 9]
 # =end
 # @author https://github.com/SuperFola
-(let insert (fun (_L _index _value) {
+(let insert (fun (_L _index (mut _value)) {
   (let _size (len _L))
   (assert (<= _index _size) "list:insert can not insert a value outside the list")
 

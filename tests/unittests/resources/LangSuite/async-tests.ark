@@ -9,7 +9,7 @@
 (let size 1000)
 (let data (list:fill size 1))
 
-(let sum (fun (a b src) {
+(let sum (fun ((mut a) b src) {
     (mut acc 0)
     (while (< a b) {
         (set acc (+ acc (@ src a)))
