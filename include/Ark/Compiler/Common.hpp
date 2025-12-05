@@ -43,6 +43,8 @@ namespace Ark::internal
     enum class NodeType
     {
         Symbol,
+        MutArg,
+        RefArg,
         Capture,
         Keyword,
         String,
@@ -56,8 +58,10 @@ namespace Ark::internal
     };
 
     /// Node types as string, in the same order as the enum NodeType
-    constexpr std::array<std::string_view, 11> nodeTypes = {
+    constexpr std::array<std::string_view, 13> nodeTypes = {
         "Symbol",
+        "MutArg",
+        "RefArg",
         "Capture",
         "Keyword",
         "String",
