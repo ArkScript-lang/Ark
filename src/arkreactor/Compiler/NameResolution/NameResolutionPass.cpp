@@ -243,10 +243,11 @@ namespace Ark::internal
                             // this will prevent name conflicts, and handle scope resolution
                             std::string old_name = child.string();
                             updateSymbolWithFullyQualifiedName(child);
-                            // FIXME: addDefinedSymbol(fqn, true); ?
                             addDefinedSymbol(old_name, true);
                         }
-                        else if (child.nodeType() == NodeType::Symbol)
+                        else if (child.nodeType() == NodeType::Symbol || child.nodeType() == NodeType::RefArg)
+                            addDefinedSymbol(child.string(), /* is_mutable= */ false);
+                        else if (child.nodeType() == NodeType::MutArg)
                             addDefinedSymbol(child.string(), /* is_mutable= */ true);
                     }
                 }

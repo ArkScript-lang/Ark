@@ -1,7 +1,7 @@
 Stack overflow. You could consider rewriting your function to make use of tail-call optimization.
 
 In file tests/unittests/resources/DiagnosticsSuite/runtime/stackoverflow_recur.ark:4
-    1 | (let A (fun (k x1 x0 x3 x4 x5) {
+    1 | (let A (fun ((mut k) x1 x0 x3 x4 x5) {
     2 |     (let B (fun () {
     3 |         (set k (- k 1))
     4 |     (B k A x1 x0 x3 x4) }))

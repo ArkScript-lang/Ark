@@ -38,6 +38,22 @@ std::string JsonCompiler::_compile(const Node& node)
             break;
         }
 
+        case NodeType::MutArg:
+        {
+            json += fmt::format(
+                R"({{"type": "MutArg", "name": "{}"}})",
+                node.string());
+            break;
+        }
+
+        case NodeType::RefArg:
+        {
+            json += fmt::format(
+                R"({{"type": "RefArg", "name": "{}"}})",
+                node.string());
+            break;
+        }
+
         case NodeType::Spread:
         {
             json += fmt::format(

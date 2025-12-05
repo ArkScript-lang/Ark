@@ -22,7 +22,7 @@
 (mut val 1)
 (let parent (fun (&val &child) ()))
 
-(let create-human (fun (name age) {
+(let create-human (fun (name (mut age)) {
     (let set-age (fun (new-age) (set age new-age)))
     (fun (&set-age &name &age) ()) }))
 (let bob (create-human "Bob" 38))

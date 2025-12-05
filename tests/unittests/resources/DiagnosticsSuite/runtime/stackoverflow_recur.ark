@@ -1,4 +1,4 @@
-(let A (fun (k x1 x0 x3 x4 x5) {
+(let A (fun ((mut k) x1 x0 x3 x4 x5) {
     (let B (fun () {
         (set k (- k 1))
     (B k A x1 x0 x3 x4) }))
