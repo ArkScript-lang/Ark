@@ -504,6 +504,7 @@ namespace Ark::internal
                 arg_with_attr.setString(symbol_name);
 
                 args->push_back(positioned(arg_with_attr, pos));
+                std::ignore = newlineOrComment();
                 expect(IsChar(')'));
             }
             else

@@ -740,6 +740,8 @@ namespace Ark::internal
                     return isConstEval(child);
                 });
 
+            case NodeType::MutArg:
+            case NodeType::RefArg:
             case NodeType::Capture:
             case NodeType::Field:
                 return false;
