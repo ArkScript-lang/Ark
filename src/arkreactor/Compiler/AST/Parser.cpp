@@ -477,6 +477,35 @@ namespace Ark::internal
 
                 args->push_back(positioned(Node(NodeType::Capture, capture), pos));
             }
+            else if (accept(IsChar('(')))
+            {
+                // attribute modifiers: mut, ref
+                std::string modifier;
+                std::ignore = newlineOrComment();
+                if (!oneOf({ "mut", "ref" }, &modifier))
+                    // We cannot return an error like this:
+                    //   error("Expected an attribute modifier, either `mut' or `ref'", pos);
+                    // Because it would break on macro instantiations like (fun ((suffix-dup a 3)) ())
+                    return std::nullopt;
+
+                NodeType type = NodeType::Unused;
+                if (modifier == "mut")
+                    type = NodeType::MutArg;
+                else if (modifier == "ref")
+                    type = NodeType::RefArg;
+
+                Node arg_with_attr = Node(type);
+                std::string comment2 = newlineOrComment();
+                arg_with_attr.attachCommentAfter(comment2);
+
+                std::string symbol_name;
+                if (!name(&symbol_name))
+                    error(fmt::format("Expected a symbol name for the attribute with modifier `{}'", modifier), pos);
+                arg_with_attr.setString(symbol_name);
+
+                args->push_back(positioned(arg_with_attr, pos));
+                expect(IsChar(')'));
+            }
             else
             {
                 std::string symbol_name;

@@ -185,6 +185,14 @@ namespace Ark::internal
                 data += string();
                 break;
 
+            case NodeType::MutArg:
+                data += "(mut " + string() + ")";
+                break;
+
+            case NodeType::RefArg:
+                data += "(ref " + string() + ")";
+                break;
+
             case NodeType::Capture:
                 data += "&" + string();
                 break;
@@ -282,6 +290,14 @@ namespace Ark::internal
         {
             case NodeType::Symbol:
                 os << "Symbol:" << string();
+                break;
+
+            case NodeType::MutArg:
+                os << "MutArg:" << string();
+                break;
+
+            case NodeType::RefArg:
+                os << "RefArg:" << string();
                 break;
 
             case NodeType::Capture:
