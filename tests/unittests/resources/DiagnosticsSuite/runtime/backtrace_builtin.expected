@@ -1,16 +1,16 @@
 Function list:sort expected 1 argument
   -> list (List) was of type String
 
-In file /lib/std/List.ark:40
-   37 | # (list:sort [4 2 3])  # [1 2 4]
-   38 | # =end
-   39 | # @author https://github.com/SuperFola
-   40 | (let sort (fun (_L) (builtin__list:sort _L)))
+In file /lib/std/List.ark:51
+   48 | # (list:sort [4 2 3])  # [1 2 4]
+   49 | # =end
+   50 | # @author https://github.com/SuperFola
+   51 | (let sort (fun (_L) (builtin__list:sort _L)))
       | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   41 |
-   42 | # @brief Generate a List of n copies of an element
+   52 |
+   53 | # @brief Generate a List of n copies of an element
 
-[   2] In function `list:sort' (/lib/std/List.ark:40)
+[   2] In function `list:sort' (/lib/std/List.ark:51)
 [   1] In global scope (tests/unittests/resources/DiagnosticsSuite/runtime/backtrace_builtin.ark:3)
 
 Current scope variables values:
