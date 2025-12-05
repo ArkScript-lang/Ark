@@ -22,3 +22,10 @@
   (if true
     false
     nil)))
+
+(fun (
+  # mutable
+  (mut a)
+  # readonly ref
+  (ref b)
+  &c) ())

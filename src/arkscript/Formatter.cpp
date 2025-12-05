@@ -186,6 +186,12 @@ std::string Formatter::format(const Node& node, std::size_t indent, bool after_n
         case NodeType::Symbol:
             result += node.string();
             break;
+        case NodeType::MutArg:
+            result += fmt::format("(mut {})", node.string());
+            break;
+        case NodeType::RefArg:
+            result += fmt::format("(ref {})", node.string());
+            break;
         case NodeType::Capture:
             result += "&" + node.string();
             break;
