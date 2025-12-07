@@ -543,6 +543,7 @@ namespace Ark
                 &&TARGET_LOAD_CONST,
                 &&TARGET_POP_JUMP_IF_TRUE,
                 &&TARGET_STORE,
+                &&TARGET_STORE_REF,
                 &&TARGET_SET_VAL,
                 &&TARGET_POP_JUMP_IF_FALSE,
                 &&TARGET_JUMP,
@@ -702,6 +703,15 @@ namespace Ark
                     TARGET(STORE)
                     {
                         store(arg, popAndResolveAsPtr(context), context);
+                        DISPATCH();
+                    }
+
+                    TARGET(STORE_REF)
+                    {
+                        // Not resolving a potential ref is on purpose!
+                        // This instruction is only used by functions when storing arguments
+                        Value* tmp = pop(context);
+                        store(arg, tmp, context);
                         DISPATCH();
                     }
 
@@ -2037,7 +2047,8 @@ namespace Ark
             arg_names.emplace_back("");  // for formatting, so that we have a space between the function and the args
 
         std::size_t index = 0;
-        while (m_state.inst(context.pp, index) == STORE)
+        while (m_state.inst(context.pp, index) == STORE ||
+               m_state.inst(context.pp, index) == STORE_REF)
         {
             const auto id = static_cast<uint16_t>((m_state.inst(context.pp, index + 2) << 8) + m_state.inst(context.pp, index + 3));
             arg_names.push_back(m_state.m_symbols[id]);

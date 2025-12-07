@@ -413,10 +413,14 @@ namespace Ark::internal
         // pushing arguments from the stack into variables in the new scope
         for (const auto& node : x.constList()[1].constList())
         {
-            // TODO: handle refarg with a new kind of instruction?
-            if (node.nodeType() == NodeType::Symbol || node.nodeType() == NodeType::MutArg || node.nodeType() == NodeType::RefArg)
+            if (node.nodeType() == NodeType::Symbol || node.nodeType() == NodeType::MutArg)
             {
                 page(function_body_page).emplace_back(STORE, addSymbol(node));
+                m_locals_locator.addLocal(node.string());
+            }
+            else if (node.nodeType() == NodeType::RefArg)
+            {
+                page(function_body_page).emplace_back(STORE_REF, addSymbol(node));
                 m_locals_locator.addLocal(node.string());
             }
         }
@@ -426,7 +430,7 @@ namespace Ark::internal
         // (let name (fun (e) (map lst (fun (e) (name e)))))
         // Otherwise, `name` would have been optimized to a GET_CURRENT_PAGE_ADDRESS, which would have returned the wrong page.
         if (x.isAnonymousFunction())
-            m_opened_vars.push("#anonymous");
+            m_opened_vars.emplace("#anonymous");
         // push body of the function
         compileExpression(x.list()[2], function_body_page, false, true);
         if (x.isAnonymousFunction())

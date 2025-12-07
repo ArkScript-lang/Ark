@@ -1,0 +1,31 @@
+(let sum (fun ((ref data))
+  (+
+    (if (= "List" (type (@ data 0))) (sum (@ data 0)) (@ data 0))
+    (if (= "List" (type (@ data 1))) (sum (@ data 1)) (@ data 1)))))
+
+(mut i 0)
+(while (< i 100) {
+  (let tree
+    [
+      [
+        [1 2]
+        [
+          3
+          [
+            4
+            [5 6]]]]
+      [
+        [
+          [
+            [7 8]
+            9]
+          [10 11]]
+        [
+          [
+            12
+            [
+              13
+              [14 15]]]
+          [16 17]]]])
+  (sum tree)
+  (set i (+ 1 i) )})

@@ -117,6 +117,8 @@ inline Value* VM::loadSymbolFromIndex(const uint16_t index, internal::ExecutionC
     // treatment only for function calls.
     auto& [id, value] = context.locals.back().atPosReverse(index);
     context.last_symbol = id;
+    if (value.valueType() == ValueType::Reference)
+        return value.reference();
     return &value;
 }
 
@@ -323,7 +325,8 @@ inline void VM::call(internal::ExecutionContext& context, const uint16_t argc, V
                 needed_argc = 0;
 
     // every argument is a MUT declaration in the bytecode
-    while (m_state.inst(context.pp, index) == STORE)
+    while (m_state.inst(context.pp, index) == STORE ||
+           m_state.inst(context.pp, index) == STORE_REF)
     {
         needed_argc += 1;
         index += 4;  // instructions are on 4 bytes

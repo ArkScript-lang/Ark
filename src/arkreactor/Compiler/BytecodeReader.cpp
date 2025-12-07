@@ -494,6 +494,7 @@ namespace Ark
             { LOAD_CONST, ArgKind::Constant },
             { POP_JUMP_IF_TRUE, ArgKind::Raw },
             { STORE, ArgKind::Symbol },
+            { STORE_REF, ArgKind::Symbol },
             { SET_VAL, ArgKind::Symbol },
             { POP_JUMP_IF_FALSE, ArgKind::Raw },
             { JUMP, ArgKind::Raw },
