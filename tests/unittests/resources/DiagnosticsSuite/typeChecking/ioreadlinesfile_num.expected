@@ -1,0 +1,7 @@
+Function io:readLinesFile expected 1 argument
+  -> filename (String) was of type Number
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/ioreadlinesfile_num.ark:1
+    1 | (builtin__io:readLinesFile 1)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    2 |
