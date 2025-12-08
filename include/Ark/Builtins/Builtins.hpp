@@ -52,6 +52,7 @@ namespace Ark::internal::Builtins
         ARK_BUILTIN(writeFile);
         ARK_BUILTIN(appendToFile);
         ARK_BUILTIN(readFile);
+        ARK_BUILTIN(readLinesFile);
         ARK_BUILTIN(fileExists);
         ARK_BUILTIN(listFiles);
         ARK_BUILTIN(isDirectory);

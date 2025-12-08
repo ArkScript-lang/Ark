@@ -5,6 +5,7 @@
 #include <fmt/core.h>
 
 #include <Ark/Utils/Files.hpp>
+#include <Ark/Utils/Utils.hpp>
 #include <Ark/VM/VM.hpp>
 #include <Ark/Error/Exceptions.hpp>
 #include <Ark/TypeChecker.hpp>
@@ -143,6 +144,26 @@ namespace Ark::internal::Builtins::IO
                 fmt::format("io:readFile: couldn't read file \"{}\" because it doesn't exist", filename));
 
         return Value(Utils::readFile(filename));
+    }
+
+    // cppcheck-suppress constParameterReference
+    Value readLinesFile(std::vector<Value>& n, VM* vm [[maybe_unused]])
+    {
+        if (!types::check(n, ValueType::String))
+            throw types::TypeCheckingError(
+                "io:readLinesFile",
+                { { types::Contract { { types::Typedef("filename", ValueType::String) } } } },
+                n);
+
+        std::string filename = n[0].string();
+        if (!Utils::fileExists(filename))
+            throw std::runtime_error(
+                fmt::format("io:readLinesFile: couldn't read file \"{}\" because it doesn't exist", filename));
+
+        Value out = Value(ValueType::List);
+        for (auto&& s : Utils::splitString(Utils::readFile(filename), '\n'))
+            out.push_back(Value(s));
+        return out;
     }
 
     // cppcheck-suppress constParameterReference
