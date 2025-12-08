@@ -3,6 +3,7 @@
 ## [Unreleased version] - 20XX-XX-XX
 ### Added
 - new builtin `disassemble` to print the bytecode of a function
+- new builtin `io:readFileLines` to read lines from a file as a list of strings
 
 ### Changed
 - the formatter properly formats dictionaries (key-value pairs on their own line, always)
