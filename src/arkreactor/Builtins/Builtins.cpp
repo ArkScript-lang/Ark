@@ -42,6 +42,7 @@ namespace Ark::internal::Builtins
         { "builtin__io:writeFile", Value(IO::writeFile) },
         { "builtin__io:appendToFile", Value(IO::appendToFile) },
         { "builtin__io:readFile", Value(IO::readFile) },
+        { "builtin__io:readLinesFile", Value(IO::readLinesFile) },
         { "builtin__io:fileExists?", Value(IO::fileExists) },
         { "builtin__io:listFiles", Value(IO::listFiles) },
         { "builtin__io:dir?", Value(IO::isDirectory) },
