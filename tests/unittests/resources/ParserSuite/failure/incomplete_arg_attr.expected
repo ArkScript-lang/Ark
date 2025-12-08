@@ -1,0 +1,5 @@
+In file tests/unittests/resources/ParserSuite/failure/incomplete_arg_attr.ark:1
+    1 | (fun ((mut)) ())
+      |       ^~~~
+    2 |
+        Expected a symbol name for the attribute with modifier `mut'

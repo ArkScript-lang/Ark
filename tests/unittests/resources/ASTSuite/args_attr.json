@@ -1,0 +1,1 @@
+{"type": "Begin", "children": [{"type": "Fun", "args": [{"type": "Symbol", "name": "a"}, {"type": "MutArg", "name": "b"}, {"type": "RefArg", "name": "c"}], "body": {"type": "FunctionCall", "name": {"type": "Symbol", "name": "+"}, "args": [{"type": "Symbol", "name": "a"}, {"type": "Symbol", "name": "b"}, {"type": "Symbol", "name": "c"}]}}]}
