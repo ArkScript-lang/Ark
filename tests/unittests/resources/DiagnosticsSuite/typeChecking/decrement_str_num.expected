@@ -1,6 +1,11 @@
 Function - expected 2 arguments
-  -> a (Number) was of type String
-  -> b (Number) was of type Function
+Call
+  ↳ (- 1 Function@1)
+Signature
+  ↳ (- a b)
+Arguments
+  → `a' (expected Number), got 1 (String)
+  → `b' (expected Number), got Function@1 (Function)
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/decrement_str_num.ark:2
     1 | (mut n "1")

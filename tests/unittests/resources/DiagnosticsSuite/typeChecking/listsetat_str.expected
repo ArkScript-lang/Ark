@@ -1,7 +1,12 @@
 Function list:setAt expected 3 arguments but got 1
-  -> list (List) was of type String
-  -> index (Number) was not provided
-  -> value (any) was not provided
+Call
+  ↳ (list:setAt hello)
+Signature
+  ↳ (list:setAt list index value)
+Arguments
+  → `list' (expected List), got hello (String)
+  → `index' (expected Number) was not provided
+  → `value' (expected any) was not provided
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/listsetat_str.ark:1
     1 | (builtin__list:setAt "hello")

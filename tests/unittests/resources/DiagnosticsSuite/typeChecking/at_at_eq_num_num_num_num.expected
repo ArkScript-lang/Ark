@@ -1,8 +1,13 @@
 Function @@= expected 4 arguments
-  -> list (List) was of type Number
-  -> x (Number)
-  -> y (Number)
-  -> new_value (any)
+Call
+  ↳ (@@= 1 2 3 4)
+Signature
+  ↳ (@@= list x y new_value)
+Arguments
+  → `list' (expected List), got 1 (Number)
+  → `x' (expected Number) ✓
+  → `y' (expected Number) ✓
+  → `new_value' (expected any) ✓
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/at_at_eq_num_num_num_num.ark:1
     1 | (@@= 1 2 3 4)

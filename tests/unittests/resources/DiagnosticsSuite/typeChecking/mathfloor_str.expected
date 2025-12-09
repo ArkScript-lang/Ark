@@ -1,5 +1,10 @@
 Function math:floor expected 1 argument
-  -> value (Number) was of type String
+Call
+  ↳ (math:floor 1)
+Signature
+  ↳ (math:floor value)
+Arguments
+  → `value' (expected Number), got 1 (String)
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/mathfloor_str.ark:1
     1 | (builtin__math:floor "1")

@@ -1,8 +1,13 @@
 Function list:slice expected 4 arguments
-  -> list (List) was of type String
-  -> start (Number)
-  -> end (Number) was of type Bool
-  -> step (Number) was of type Nil
+Call
+  ↳ (list:slice hello 1 true nil)
+Signature
+  ↳ (list:slice list start end step)
+Arguments
+  → `list' (expected List), got hello (String)
+  → `start' (expected Number) ✓
+  → `end' (expected Number), got true (Bool)
+  → `step' (expected Number), got nil (Nil)
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/listslice_str_num_bool_nil.ark:1
     1 | (builtin__list:slice "hello" 1 true nil)

@@ -1,6 +1,11 @@
 Function assert expected 2 arguments
-  -> expr (any)
-  -> message (String) was of type Number
+Call
+  ↳ (assert 1 2)
+Signature
+  ↳ (assert expr message)
+Arguments
+  → `expr' (expected any) ✓
+  → `message' (expected String), got 2 (Number)
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/assert_num_num.ark:1
     1 | (assert 1 2)

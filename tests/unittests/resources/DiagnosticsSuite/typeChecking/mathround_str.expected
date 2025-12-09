@@ -1,5 +1,10 @@
 Function math:round expected 1 argument
-  -> value (Number) was of type String
+Call
+  ↳ (math:round 1)
+Signature
+  ↳ (math:round value)
+Arguments
+  → `value' (expected Number), got 1 (String)
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/mathround_str.ark:1
     1 | (builtin__math:round "1")

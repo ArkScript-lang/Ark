@@ -1,7 +1,16 @@
 Function head expected 1 argument
-  -> value (List) was of type Number
+Call
+  ↳ (head 5)
+Signature
+  ↳ (head value)
+Arguments
+  → `value' (expected List), got 5 (Number)
+
 Alternative 2:
-  -> value (String) was of type Number
+Signature
+  ↳ (head value)
+Arguments
+  → `value' (expected String), got 5 (Number)
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/head_num.ark:1
     1 | (head 5)

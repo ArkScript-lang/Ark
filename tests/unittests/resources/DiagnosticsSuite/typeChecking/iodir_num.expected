@@ -1,5 +1,10 @@
 Function io:dir? expected 1 argument
-  -> path (String) was of type Number
+Call
+  ↳ (io:dir? 1)
+Signature
+  ↳ (io:dir? path)
+Arguments
+  → `path' (expected String), got 1 (Number)
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/iodir_num.ark:1
     1 | (builtin__io:dir? 1)

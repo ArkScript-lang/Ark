@@ -1,2 +1,10 @@
 Function f expected at least 1 argument and got 2
-  -> variadic vararg (Number) 1 argument do not match
+Call
+  ↳ (f 1 hello)
+Signature
+  ↳ (f vararg)
+Arguments
+  → variadic `vararg' (expected Number): 1 argument do not match:
+    1 (Number) ✓
+    hello (String) ×
+  → unexpected additional args: hello (String)
