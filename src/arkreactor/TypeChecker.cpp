@@ -7,6 +7,8 @@
 #include <fmt/color.h>
 #include <fmt/ostream.h>
 
+#include <Ark/VM/VM.hpp>
+
 namespace Ark::types
 {
     std::string typeListToString(const std::vector<ValueType>& types)
@@ -25,7 +27,7 @@ namespace Ark::types
         return acc;
     }
 
-    void displayContract(const Contract& contract, const std::vector<Value>& args, std::ostream& os, const bool colorize)
+    void displayContract(const std::string_view& funcname, const Contract& contract, const std::vector<Value>& args, VM& vm, std::ostream& os, const bool colorize)
     {
         auto displayArg = [colorize, &os](const Typedef& td, const bool correct) {
             const std::string arg_str = typeListToString(td.types);
@@ -43,8 +45,16 @@ namespace Ark::types
                 store.push_back(td.name);
             store.push_back(arg_str);
 
-            fmt::vprint(os, "  -> {}{} ({})", store);
+            fmt::vprint(os, "  → {}`{}' (expected {})", store);
         };
+
+        fmt::print(os, "  ↳ ({}", funcname);
+        for (const Value& arg : args)
+            fmt::print(os, " {}", arg.toString(vm));
+        fmt::print(os, ")\nExpected `({}", funcname);
+        for (const Typedef& td : contract.arguments)
+            fmt::print(os, " {}", td.name);
+        fmt::print(os, ")'\n");
 
         for (std::size_t i = 0, end = contract.arguments.size(); i < end; ++i)
         {
@@ -53,25 +63,36 @@ namespace Ark::types
             if (td.variadic && i < args.size())
             {
                 // variadic argument in contract and enough provided arguments
-                std::size_t bad_type = 0;
+                std::size_t bad_type_count = 0;
+                std::string formatted_varargs;
                 for (std::size_t j = i, args_end = args.size(); j < args_end; ++j)
                 {
+                    bool type_ok = true;
                     if (td.types[0] != ValueType::Any && std::ranges::find(td.types, args[j].valueType()) == td.types.end())
-                        bad_type++;
+                    {
+                        bad_type_count++;
+                        type_ok = false;
+                    }
+                    formatted_varargs += fmt::format(
+                        "\n    {} ({}) {}",
+                        args[j].toString(vm),
+                        std::to_string(args[j].valueType()),
+                        type_ok ? "✓" : "×");
                 }
 
-                if (bad_type)
+                if (bad_type_count)
                 {
                     displayArg(td, /* correct= */ false);
 
                     fmt::dynamic_format_arg_store<fmt::format_context> store;
                     if (colorize)
-                        store.push_back(fmt::styled(bad_type, fmt::fg(fmt::color::red)));
+                        store.push_back(fmt::styled(bad_type_count, fmt::fg(fmt::color::red)));
                     else
-                        store.push_back(bad_type);
-                    store.push_back(bad_type > 1 ? "s" : "");
+                        store.push_back(bad_type_count);
+                    store.push_back(bad_type_count > 1 ? "s" : "");
+                    store.push_back(formatted_varargs);
 
-                    fmt::vprint(os, " {} argument{} do not match", store);
+                    fmt::vprint(os, ": {} argument{} do not match:{}", store);
                 }
                 else
                     displayArg(td, /* correct= */ true);
@@ -85,11 +106,12 @@ namespace Ark::types
                     const auto type = std::to_string(args[i].valueType());
 
                     fmt::dynamic_format_arg_store<fmt::format_context> store;
+                    store.push_back(args[i].toString(vm));
                     if (colorize)
                         store.push_back(fmt::styled(type, fmt::fg(fmt::color::red)));
                     else
                         store.push_back(type);
-                    fmt::vprint(os, " was of type {}", store);
+                    fmt::vprint(os, ": {} ({})", store);
                 }
                 // non-provided argument
                 else if (i >= args.size())
@@ -105,9 +127,21 @@ namespace Ark::types
             }
             fmt::print(os, "\n");
         }
+
+        if (contract.arguments.size() < args.size())
+        {
+            fmt::print(os, "  → unexpected additional args: ");
+            for (std::size_t i = contract.arguments.size(), end = args.size(); i < end; ++i)
+            {
+                fmt::print(os, "{} ({})", args[i].toString(vm), std::to_string(args[i].valueType()));
+                if (i + 1 != end)
+                    fmt::print(os, ", ");
+            }
+            fmt::print(os, "\n");
+        }
     }
 
-    void generateError(const std::string_view& funcname, const std::vector<Contract>& contracts, const std::vector<Value>& args, std::ostream& os, bool colorize)
+    void generateError(const std::string_view& funcname, const std::vector<Contract>& contracts, const std::vector<Value>& args, VM& vm, std::ostream& os, bool colorize)
     {
         {
             fmt::dynamic_format_arg_store<fmt::format_context> store;
@@ -185,11 +219,11 @@ namespace Ark::types
 
         fmt::print(os, "\n");
 
-        displayContract(contracts[0], sanitizedArgs, os, colorize);
+        displayContract(funcname, contracts[0], sanitizedArgs, vm, os, colorize);
         for (std::size_t i = 1, end = contracts.size(); i < end; ++i)
         {
             fmt::print(os, "Alternative {}:\n", i + 1);
-            displayContract(contracts[i], sanitizedArgs, os, colorize);
+            displayContract(funcname, contracts[i], sanitizedArgs, vm, os, colorize);
         }
     }
 }

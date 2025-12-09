@@ -1,6 +1,9 @@
 # Change Log
 
 ## [Unreleased version] - 20XX-XX-XX
+### Breaking changes
+- Function arguments are now immutable by default and an argument attribute `mut` must be added: `(fun (a b c) (set b 5))` -> `(fun (a (mut b) c) (set b 5))`
+
 ### Added
 - new builtin `disassemble` to print the bytecode of a function
 - new builtin `io:readFileLines` to read lines from a file as a list of strings

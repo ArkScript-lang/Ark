@@ -22,6 +22,8 @@
 
 namespace Ark
 {
+    class VM;
+
     namespace internal
     {
         class Node;
@@ -34,7 +36,7 @@ namespace Ark
             std::runtime_error(message)
         {}
 
-        [[nodiscard]] virtual std::string details(bool colorize [[maybe_unused]]) const
+        [[nodiscard]] virtual std::string details(bool colorize [[maybe_unused]], VM& vm [[maybe_unused]]) const
         {
             return what();
         }
@@ -67,9 +69,9 @@ namespace Ark
     class ARK_API NestedError final : public Error
     {
     public:
-        NestedError(const Error& e, const std::string& details) :
+        NestedError(const Error& e, const std::string& details, VM& vm) :
             Error("NestedError"),
-            m_details(e.details(/* colorize= */ false))
+            m_details(e.details(/* colorize= */ false, vm))
         {
             if (!m_details.empty() && m_details.back() != '\n')
                 m_details += '\n';
