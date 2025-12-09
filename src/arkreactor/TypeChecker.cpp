@@ -31,8 +31,8 @@ namespace Ark::types
 
     void displayContract(const std::string_view& funcname, const Contract& contract, const std::vector<Value>& args, VM& vm, std::ostream& os, const bool colorize)
     {
-        constexpr std::string checkmark = "✓";
-        constexpr std::string crossmark = "×";
+        const std::string checkmark = "✓";
+        const std::string crossmark = "×";
 
         auto displayArg = [colorize, &os](const Typedef& td, const bool correct) {
             const std::string arg_str = typeListToString(td.types);
