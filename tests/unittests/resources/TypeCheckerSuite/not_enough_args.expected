@@ -1,3 +1,8 @@
 Function f expected 2 arguments but got 1
-  -> n (Number)
-  -> m (Number) was not provided
+Call
+  ↳ (f 1)
+Signature
+  ↳ (f n m)
+Arguments
+  → `n' (expected Number) ✓
+  → `m' (expected Number) was not provided

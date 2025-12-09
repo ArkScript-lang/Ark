@@ -1,5 +1,10 @@
 Function list:sort expected 1 argument
-  -> list (List) was of type String
+Call
+  ↳ (list:sort live)
+Signature
+  ↳ (list:sort list)
+Arguments
+  → `list' (expected List), got live (String)
 
 In file /lib/std/List.ark:51
    48 | # (list:sort [4 2 3])  # [1 2 4]

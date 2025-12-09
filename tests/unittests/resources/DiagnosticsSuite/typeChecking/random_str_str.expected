@@ -1,6 +1,11 @@
 Function random expected 2 arguments
-  -> min (Number) was of type String
-  -> max (Number) was of type String
+Call
+  ↳ (random 1 2)
+Signature
+  ↳ (random min max)
+Arguments
+  → `min' (expected Number), got 1 (String)
+  → `max' (expected Number), got 2 (String)
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/random_str_str.ark:1
     1 | (random "1" "2")

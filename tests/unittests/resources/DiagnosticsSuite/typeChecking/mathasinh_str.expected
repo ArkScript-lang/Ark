@@ -1,5 +1,10 @@
 Function math:asinh expected 1 argument
-  -> value (Number) was of type String
+Call
+  ↳ (math:asinh 1)
+Signature
+  ↳ (math:asinh value)
+Arguments
+  → `value' (expected Number), got 1 (String)
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/mathasinh_str.ark:1
     1 | (builtin__math:asinh "1")

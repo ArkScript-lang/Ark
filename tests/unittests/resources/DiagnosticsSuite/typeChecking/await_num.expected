@@ -1,5 +1,10 @@
 Function await expected 1 argument
-  -> future (UserType) was of type Number
+Call
+  ↳ (await 1)
+Signature
+  ↳ (await future)
+Arguments
+  → `future' (expected UserType), got 1 (Number)
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/await_num.ark:1
     1 | (await 1)

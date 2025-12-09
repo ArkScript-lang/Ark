@@ -1,6 +1,11 @@
 Function dict:get expected 2 arguments but got 1
-  -> dictionary (Dict) was of type Number
-  -> key (any) was not provided
+Call
+  ↳ (dict:get 1)
+Signature
+  ↳ (dict:get dictionary key)
+Arguments
+  → `dictionary' (expected Dict), got 1 (Number)
+  → `key' (expected any) was not provided
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/dict_get_num.ark:1
     1 | (builtin__dict:get 1)

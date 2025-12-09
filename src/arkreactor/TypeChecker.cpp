@@ -22,7 +22,7 @@ namespace Ark::types
         {
             if (i > 0)
                 acc += ", ";
-            if (i + 1 == end)
+            if (i + 1 == end && types.size() > 1)
                 acc += "or ";
             acc += std::to_string(types[i]);
         }
@@ -31,6 +31,9 @@ namespace Ark::types
 
     void displayContract(const std::string_view& funcname, const Contract& contract, const std::vector<Value>& args, VM& vm, std::ostream& os, const bool colorize)
     {
+        constexpr std::string checkmark = "✓";
+        constexpr std::string crossmark = "×";
+
         auto displayArg = [colorize, &os](const Typedef& td, const bool correct) {
             const std::string arg_str = typeListToString(td.types);
 
@@ -76,7 +79,7 @@ namespace Ark::types
                         "\n    {} ({}) {}",
                         args[j].toString(vm),
                         std::to_string(args[j].valueType()),
-                        type_ok ? "✓" : "×");
+                        type_ok ? checkmark : crossmark);
                 }
 
                 if (bad_type_count)
@@ -110,7 +113,7 @@ namespace Ark::types
                         store.push_back(fmt::styled(type, fmt::fg(fmt::color::red)));
                     else
                         store.push_back(type);
-                    fmt::vprint(os, ": {} ({})", store);
+                    fmt::vprint(os, ", got {} ({})", store);
                 }
                 // non-provided argument
                 else if (i >= args.size())
@@ -122,7 +125,10 @@ namespace Ark::types
                         fmt::print(os, " was not provided");
                 }
                 else
+                {
                     displayArg(td, /* correct= */ true);
+                    fmt::print(os, " {}", checkmark);
+                }
             }
             fmt::print(os, "\n");
         }

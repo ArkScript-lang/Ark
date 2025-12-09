@@ -1,9 +1,18 @@
 Function + expected 2 arguments
-  -> a (Number)
-  -> b (Number) was of type String
+Call
+  ↳ (+ 1 2)
+Signature
+  ↳ (+ a b)
+Arguments
+  → `a' (expected Number) ✓
+  → `b' (expected Number), got 2 (String)
+
 Alternative 2:
-  -> a (String) was of type Number
-  -> b (String)
+Signature
+  ↳ (+ a b)
+Arguments
+  → `a' (expected String), got 1 (Number)
+  → `b' (expected String) ✓
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/add_num_str.ark:1
     1 | (+ 1 "2")

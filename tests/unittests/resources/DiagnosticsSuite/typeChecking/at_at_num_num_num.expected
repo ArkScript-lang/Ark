@@ -1,7 +1,12 @@
 Function @@ expected 3 arguments
-  -> src (List) was of type Number
-  -> y (Number)
-  -> x (Number)
+Call
+  ↳ (@@ 1 2 3)
+Signature
+  ↳ (@@ src y x)
+Arguments
+  → `src' (expected List), got 1 (Number)
+  → `y' (expected Number) ✓
+  → `x' (expected Number) ✓
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/at_at_num_num_num.ark:1
     1 | (@@ 1 2 3)

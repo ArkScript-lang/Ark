@@ -1,6 +1,11 @@
 Function / expected 2 arguments
-  -> a (Number) was of type String
-  -> b (Number)
+Call
+  ↳ (/ 3 5)
+Signature
+  ↳ (/ a b)
+Arguments
+  → `a' (expected Number), got 3 (String)
+  → `b' (expected Number) ✓
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/div_str_num.ark:1
     1 | (/ "3" 5)

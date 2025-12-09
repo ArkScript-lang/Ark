@@ -1,6 +1,11 @@
 Function io:writeFile expected 2 arguments
-  -> filename (String) was of type Number
-  -> content (any)
+Call
+  ↳ (io:writeFile 1 2)
+Signature
+  ↳ (io:writeFile filename content)
+Arguments
+  → `filename' (expected String), got 1 (Number)
+  → `content' (expected any) ✓
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/iowritefile_num_num.ark:1
     1 | (builtin__io:writeFile 1 2)

@@ -1,6 +1,11 @@
 Function concat! expected 2 arguments
-  -> dst (List)
-  -> src (List) was of type Number
+Call
+  ↳ (concat! [] 5)
+Signature
+  ↳ (concat! dst src)
+Arguments
+  → `dst' (expected List) ✓
+  → `src' (expected List), got 5 (Number)
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/concat_in_place_list_num.ark:2
     1 | (mut L [])

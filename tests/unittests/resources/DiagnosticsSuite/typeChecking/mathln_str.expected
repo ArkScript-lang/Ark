@@ -1,5 +1,10 @@
 Function math:ln expected 1 argument
-  -> value (Number) was of type String
+Call
+  ↳ (math:ln 1)
+Signature
+  ↳ (math:ln value)
+Arguments
+  → `value' (expected Number), got 1 (String)
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/mathln_str.ark:1
     1 | (builtin__math:ln "1")

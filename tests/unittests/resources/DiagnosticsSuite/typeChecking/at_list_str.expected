@@ -1,9 +1,18 @@
 Function @ expected 2 arguments
-  -> src (List)
-  -> idx (Number) was of type String
+Call
+  ↳ (@ [] 1)
+Signature
+  ↳ (@ src idx)
+Arguments
+  → `src' (expected List) ✓
+  → `idx' (expected Number), got 1 (String)
+
 Alternative 2:
-  -> src (String) was of type List
-  -> idx (Number) was of type String
+Signature
+  ↳ (@ src idx)
+Arguments
+  → `src' (expected String), got [] (List)
+  → `idx' (expected Number), got 1 (String)
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/at_list_str.ark:1
     1 | (@ [] "1")
