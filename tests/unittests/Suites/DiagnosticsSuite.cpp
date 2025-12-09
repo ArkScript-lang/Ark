@@ -28,6 +28,8 @@ ut::suite<"Diagnostics"> diagnostics_suite = [] {
                     std::string diag = sanitizeCodeError(e, /* remove_in_file_line= */ true);
                     Ark::Utils::rtrim(diag);
                     expectOrDiff(data.expected, diag);
+                    if (shouldWriteNewDiffsTofile() && data.expected != diag)
+                        updateExpectedFile(data, diag);
                 }
             };
         });
@@ -52,6 +54,8 @@ ut::suite<"Diagnostics"> diagnostics_suite = [] {
                 {
                     std::string diag = sanitizeRuntimeError(e);
                     expectOrDiff(data.expected, diag);
+                    if (shouldWriteNewDiffsTofile() && data.expected != diag)
+                        updateExpectedFile(data, diag);
                 }
             };
         });
@@ -76,6 +80,8 @@ ut::suite<"Diagnostics"> diagnostics_suite = [] {
                 {
                     std::string diag = sanitizeRuntimeError(e);
                     expectOrDiff(data.expected, diag);
+                    if (shouldWriteNewDiffsTofile() && data.expected != diag)
+                        updateExpectedFile(data, diag);
                 }
             };
         });

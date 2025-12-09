@@ -223,6 +223,8 @@ ut::suite<"TypeChecker"> type_checker_suite = [] {
                 auto result = stream.str();
                 Ark::Utils::rtrim(Ark::Utils::ltrim(result));
                 expectOrDiff(data.expected, result);
+                if (shouldWriteNewDiffsTofile() && data.expected != result)
+                    updateExpectedFile(data, result);
             };
         },
         { .skip_folders = false });

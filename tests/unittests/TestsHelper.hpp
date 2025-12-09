@@ -21,6 +21,13 @@
 const auto lib_path = std::filesystem::path(ARK_TESTS_ROOT "/lib/");
 const auto unittests_path = std::filesystem::path(ARK_TESTS_ROOT "/tests/unittests/");
 
+/**
+ * @brief Check if the tests should update their dataset
+ * @param should used by Main.cpp to toggle on/off the updating mechanism
+ * @return true if the tests should write the actual data to the 'expected' file
+ */
+bool shouldWriteNewDiffsTofile(std::optional<bool> should = std::nullopt);
+
 struct TestData
 {
     std::string path;      ///< The file we are testing, eg tests/unittests/resources/ASTSuite/testname.ark
@@ -36,6 +43,8 @@ struct IterTestFilesParam
     bool folder_is_resource = true;
     bool ignore_expected = false;
 };
+
+void updateExpectedFile(const TestData& data, const std::string& actual);
 
 /**
  * @brief Iterate over the files inside a folder, looking for "name.ark" & "name.expected" files to create a TestData structure
