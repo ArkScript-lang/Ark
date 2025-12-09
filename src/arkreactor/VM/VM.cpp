@@ -2000,7 +2000,7 @@ namespace Ark
                 throw NestedError(e, stream.str());
             }
             else
-                showBacktraceWithException(Error(e.details(/* colorize= */ true)), context);
+                showBacktraceWithException(Error(e.details(/* colorize= */ true, *this)), context);
         }
         catch (const std::exception& e)
         {
