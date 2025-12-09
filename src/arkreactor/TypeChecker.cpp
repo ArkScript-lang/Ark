@@ -22,6 +22,8 @@ namespace Ark::types
         {
             if (i > 0)
                 acc += ", ";
+            if (i + 1 == end)
+                acc += "or ";
             acc += std::to_string(types[i]);
         }
         return acc;
@@ -48,13 +50,10 @@ namespace Ark::types
             fmt::vprint(os, "  → {}`{}' (expected {})", store);
         };
 
-        fmt::print(os, "  ↳ ({}", funcname);
-        for (const Value& arg : args)
-            fmt::print(os, " {}", arg.toString(vm));
-        fmt::print(os, ")\nExpected `({}", funcname);
+        fmt::print(os, "Signature\n  ↳ ({}", funcname);
         for (const Typedef& td : contract.arguments)
             fmt::print(os, " {}", td.name);
-        fmt::print(os, ")'\n");
+        fmt::print(os, ")\nArguments\n");
 
         for (std::size_t i = 0, end = contract.arguments.size(); i < end; ++i)
         {
@@ -217,12 +216,15 @@ namespace Ark::types
                 fmt::print(os, " {} got {}", preposition, sanitizedArgs.size());
         }
 
-        fmt::print(os, "\n");
+        fmt::print(os, "\nCall\n  ↳ ({}", funcname);
+        for (const Value& arg : args)
+            fmt::print(os, " {}", arg.toString(vm));
+        fmt::print(os, ")\n");
 
         displayContract(funcname, contracts[0], sanitizedArgs, vm, os, colorize);
         for (std::size_t i = 1, end = contracts.size(); i < end; ++i)
         {
-            fmt::print(os, "Alternative {}:\n", i + 1);
+            fmt::print(os, "\nAlternative {}:\n", i + 1);
             displayContract(funcname, contracts[i], sanitizedArgs, vm, os, colorize);
         }
     }

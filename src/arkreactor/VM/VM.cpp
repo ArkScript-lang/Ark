@@ -1997,7 +1997,7 @@ namespace Ark
                 backtrace(context, stream, /* colorize= */ false);
                 // It's important we have an Ark::Error here, as the constructor for NestedError
                 // does more than just aggregate error messages, hence the code duplication.
-                throw NestedError(e, stream.str());
+                throw NestedError(e, stream.str(), *this);
             }
             else
                 showBacktraceWithException(Error(e.details(/* colorize= */ true, *this)), context);
