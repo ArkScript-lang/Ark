@@ -6,6 +6,28 @@
 #include <sstream>
 #include <boost/ut.hpp>
 
+bool shouldWriteNewDiffsTofile(const std::optional<bool> should)
+{
+    static bool update = false;
+    if (should.has_value())
+        update = should.value();
+
+    return update;
+}
+
+void updateExpectedFile(const TestData& data, const std::string& actual)
+{
+    std::filesystem::path expected_path = data.path;
+    expected_path.replace_extension("expected");
+
+    std::ofstream f(expected_path.generic_string());
+    if (f.is_open())
+    {
+        f << actual;
+        f.close();
+    }
+}
+
 void iterTestFiles(const std::string& folder, std::function<void(TestData&&)>&& test, IterTestFilesParam&& params)
 {
     boost::ut::test(folder) = [&] {
