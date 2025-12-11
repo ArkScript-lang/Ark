@@ -1,3 +1,4 @@
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/spread_use_no_name.ark:2
     1 | (macro bar (...args)
     2 |   (print ...))
       |             ^

@@ -1,3 +1,4 @@
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/reused_macro_arg.ark:1
     1 | (macro foo (bar bar egg) ())
       |                 ^~~
     2 |

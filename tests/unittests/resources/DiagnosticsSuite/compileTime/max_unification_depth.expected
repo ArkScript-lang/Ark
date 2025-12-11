@@ -1,8 +1,9 @@
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/max_unification_depth.ark:18
     4 |         (macro p (a b c) (* a b c)))
     5 |     ($symcat sym x)})
     6 |
+      | ┌─ macro expansion started here
     7 | (macro partial (func ...defargs) {
-      | ^ macro expansion started here
     8 |     (macro bloc (suffix-dup a (len defargs)))
     9 |     (fun (bloc) (func ...defargs bloc))
   ... |

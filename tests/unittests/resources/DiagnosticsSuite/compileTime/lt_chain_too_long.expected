@@ -1,3 +1,4 @@
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/lt_chain_too_long.ark:1
     1 | (< 1 2 3)
       | ^~~~~~~~
     2 |

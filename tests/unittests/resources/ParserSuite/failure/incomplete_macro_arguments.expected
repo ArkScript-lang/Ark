@@ -1,5 +1,5 @@
 In file tests/unittests/resources/ParserSuite/failure/incomplete_macro_arguments.ark:2
+      |            ┌─ expression started here
     1 | (macro foo (a
-      |            ^ expression started here
     2 |
         Missing ')' in function call to `a'

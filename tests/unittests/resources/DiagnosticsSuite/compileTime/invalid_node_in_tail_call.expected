@@ -1,3 +1,4 @@
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/invalid_node_in_tail_call.ark:1
     1 | (let foo (fun (a) (foo {})))
       |                        ^~
     2 | (foo 1)

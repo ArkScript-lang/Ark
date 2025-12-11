@@ -1,3 +1,4 @@
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/macro_head_arity_error.ark:1
     1 | (macro a (head 1 2))
       |          ^~~~~~~~~~
     2 | (print a)

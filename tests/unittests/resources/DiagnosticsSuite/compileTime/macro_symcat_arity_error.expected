@@ -1,3 +1,4 @@
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/macro_symcat_arity_error.ark:1
     1 | (macro a { ($symcat b) })
       |            ^~~~~~~~~~~
     2 | (print a)

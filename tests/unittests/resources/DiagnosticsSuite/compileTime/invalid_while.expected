@@ -1,3 +1,4 @@
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/invalid_while.ark:1
     1 | (while (macro a 1) {
       | ^~~~~~~~~~~~~~~~~~~
     2 |     (mut acc (+ acc (@ [] a)))})

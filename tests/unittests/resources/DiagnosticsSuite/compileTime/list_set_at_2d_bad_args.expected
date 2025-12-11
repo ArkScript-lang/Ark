@@ -1,3 +1,4 @@
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/list_set_at_2d_bad_args.ark:2
     1 | (mut lst [[1 2 3]])
     2 | (@@= lst 0 9)
       |  ^~~

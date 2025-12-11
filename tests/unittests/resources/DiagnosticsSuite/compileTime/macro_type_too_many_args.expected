@@ -1,3 +1,4 @@
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/macro_type_too_many_args.ark:1
     1 | (macro foo ($type 1 2))
       | │          └─ error
       | │

@@ -1,3 +1,4 @@
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/set_const.ark:1
     1 | (let a 5)
       | ^~~~~~~~
     2 | (set a 6)

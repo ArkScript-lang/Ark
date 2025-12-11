@@ -1,3 +1,4 @@
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/redefine.ark:1
     1 | (mut a 5)
       | ^~~~~~~~
     2 | (let a 6)

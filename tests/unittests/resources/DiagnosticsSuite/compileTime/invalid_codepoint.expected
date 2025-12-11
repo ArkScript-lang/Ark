@@ -1,3 +1,4 @@
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/invalid_codepoint.ark:1
     1 | �
       | ^~
     2 |

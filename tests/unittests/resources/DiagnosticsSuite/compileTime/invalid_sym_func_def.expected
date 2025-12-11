@@ -1,3 +1,4 @@
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/invalid_sym_func_def.ark:2
     1 | (macro defun (name args body) (let name (fun args body)))
     2 | (defun 0 (a b) (+ a b))
       |        ^

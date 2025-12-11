@@ -1,3 +1,4 @@
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/if_missing_then.ark:2
     1 | (let fi00 (fun (n)
     2 |   (if (< n 2)
       |   ^~~~~~~~~~

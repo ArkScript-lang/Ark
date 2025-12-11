@@ -1,3 +1,4 @@
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/forbidden_name_bis.ark:1
     1 | (mut print 5)
       | ^~~~~~~~~~~~
     2 |

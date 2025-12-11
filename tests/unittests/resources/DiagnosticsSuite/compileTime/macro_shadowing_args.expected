@@ -1,5 +1,6 @@
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/macro_shadowing_args.ark:2
+      | ┌─ macro expansion started here
     1 | (macro ! (call ...all_args) {
-      | ^ macro expansion started here
     2 |     (macro all_args 5)
       |     ^~~~~~~~~~~~~~~~~
     3 |     (fun (arg_bloc) (call all_args)) })

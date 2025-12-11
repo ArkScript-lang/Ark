@@ -1,3 +1,4 @@
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/missing_body_while.ark:1
     1 | (while 1)
       |         ^
     2 |

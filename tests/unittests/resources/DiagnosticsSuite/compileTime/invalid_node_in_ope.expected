@@ -1,3 +1,4 @@
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/invalid_node_in_ope.ark:1
     1 | (+ {} 1)
       |    ^~
     2 |

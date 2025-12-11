@@ -1,3 +1,4 @@
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/macro_argcount_type_error.ark:1
     1 | ($argcount 1)
       | │          └─ error
       | │

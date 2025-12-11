@@ -1,3 +1,4 @@
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/invalid_let.ark:6
     3 | })
     4 |
     5 | (let test_func (fun (a b c) (* a b c)))
