@@ -65,7 +65,9 @@ namespace Ark::Diagnostics
         else if (maybe_context && !ctx_same_file && !maybe_context->filename.empty())
         {
             // show the location of the parent of our error first
-            fmt::print(os, "Error originated from file {}:{}\n", maybe_context->filename, maybe_context->at.start.line + 1);
+            std::string uniformised_filename;
+            std::ranges::replace_copy(maybe_context->filename, std::back_inserter(uniformised_filename), '\\', '/');
+            fmt::print(os, "Error originated from file {}:{}\n", uniformised_filename, maybe_context->at.start.line + 1);
 
             std::optional<decltype(internal::FilePos::line)> maybe_end_line = std::nullopt;
             if (maybe_context->at.end)
