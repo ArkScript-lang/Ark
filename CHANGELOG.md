@@ -12,6 +12,7 @@
 - the formatter properly formats dictionaries (key-value pairs on their own line, always)
 - renamed `dict:contains` to `dict:contains?` so that all functions returning booleans have `?` suffix ; added temporary alias `dict:contains`
 - renamed `math:even` to `math:even?`, and `math:odd` to `math:odd?`
+- `string:removeAt` can work with negative indexes
 
 ### Removed
 
