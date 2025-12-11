@@ -58,6 +58,7 @@ void iterTestFiles(const std::string& folder, std::function<void(TestData&&)>&& 
                 .is_folder = is_directory(entry.path())
             };
 
+            std::cout << "test on '" << entry.path().generic_string() << std::endl;
             test(std::move(data));
         }
     };
