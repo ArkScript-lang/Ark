@@ -193,9 +193,11 @@ namespace Ark::Diagnostics
                 const std::string& filename, const internal::FileSpan& at,
                 const std::optional<CodeErrorContext>& maybe_context = std::nullopt)
     {
+        std::string uniformised_filename;
+        std::ranges::replace_copy(filename, std::back_inserter(uniformised_filename), '\\', '/');
         makeContext(
             ErrorLocation {
-                .filename = filename,
+                .filename = uniformised_filename,
                 .start = at.start,
                 .end = at.end },
             os, maybe_context, colorize);

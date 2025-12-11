@@ -75,6 +75,7 @@ std::string sanitizeCodeError(const Ark::CodeError& e)
 
     std::string diag = stream.str();
     diag.erase(std::ranges::remove(diag, '\r').begin(), diag.end());
+
     while (diag.find(ARK_TESTS_ROOT) != std::string::npos)
         diag.erase(diag.find(ARK_TESTS_ROOT), std::size(ARK_TESTS_ROOT) - 1);
 
