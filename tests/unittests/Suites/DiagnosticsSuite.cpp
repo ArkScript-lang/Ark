@@ -14,7 +14,7 @@ ut::suite<"Diagnostics"> diagnostics_suite = [] {
 
     iterTestFiles(
         "DiagnosticsSuite/compileTime",
-        [](TestData&& data) {
+        [](const TestData& data) {
             Ark::State state({ lib_path });
 
             should("generate an error message at compile time for compileTime/" + data.stem) = [&] {
@@ -36,7 +36,7 @@ ut::suite<"Diagnostics"> diagnostics_suite = [] {
 
     iterTestFiles(
         "DiagnosticsSuite/runtime",
-        [](TestData&& data) {
+        [](const TestData& data) {
             Ark::State state({ lib_path });
 
             should("compile without error runtime/" + data.stem) = [&] {
@@ -62,7 +62,7 @@ ut::suite<"Diagnostics"> diagnostics_suite = [] {
 
     iterTestFiles(
         "DiagnosticsSuite/typeChecking",
-        [](TestData&& data) {
+        [](const TestData& data) {
             Ark::State state({ lib_path });
 
             should("compile without error typeChecking/" + data.stem) = [&] {

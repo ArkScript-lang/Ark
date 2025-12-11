@@ -81,7 +81,7 @@ ut::suite<"Compiler"> compiler_suite = [] {
 
         iterTestFiles(
             "CompilerSuite/ir",
-            [](TestData&& data) {
+            [](const TestData& data) {
                 Ark::Welder welder(0, { lib_path }, features);
 
                 should("compile without error ir/" + data.stem) = [&] {
@@ -103,7 +103,7 @@ ut::suite<"Compiler"> compiler_suite = [] {
 
         iterTestFiles(
             "CompilerSuite/optimized_ir",
-            [](TestData&& data) {
+            [](const TestData& data) {
                 Ark::Welder welder(0, { lib_path }, features);
 
                 should("compile without error optimized_ir/" + data.stem) = [&] {

@@ -13,7 +13,7 @@ ut::suite<"AST"> ast_suite = [] {
     "[generate valid ast]"_test = [] {
         iterTestFiles(
             "ASTSuite",
-            [](TestData&& data) {
+            [](const TestData& data) {
                 JsonCompiler compiler(false, { lib_path });
 
                 std::string json;

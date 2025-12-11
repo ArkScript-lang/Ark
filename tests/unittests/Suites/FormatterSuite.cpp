@@ -11,7 +11,7 @@ ut::suite<"Formatter"> formatter_suite = [] {
 
     iterTestFiles(
         "FormatterSuite",
-        [](TestData&& data) {
+        [](const TestData& data) {
             std::string formatted_code;
 
             should("output a correctly formatted code for " + data.stem) = [&] {

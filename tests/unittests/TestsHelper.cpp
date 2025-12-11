@@ -28,7 +28,7 @@ void updateExpectedFile(const TestData& data, const std::string& actual)
     }
 }
 
-void iterTestFiles(const std::string& folder, std::function<void(TestData&&)>&& test, IterTestFilesParam&& params)
+void iterTestFiles(const std::string& folder, std::function<void(const TestData&)>&& test, IterTestFilesParam&& params)
 {
     boost::ut::test(folder) = [&] {
         const auto path = params.folder_is_resource ? getResourcePath(folder) : folder;
@@ -58,8 +58,8 @@ void iterTestFiles(const std::string& folder, std::function<void(TestData&&)>&& 
                 .is_folder = is_directory(entry.path())
             };
 
-            std::cout << "test on '" << entry.path().generic_string() << std::endl;
-            test(std::move(data));
+            std::cout << "test on '" << entry.path().generic_string() << "'" << std::endl;
+            test(data);
         }
     };
 }

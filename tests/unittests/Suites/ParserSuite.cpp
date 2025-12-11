@@ -46,7 +46,7 @@ ut::suite<"Parser"> parser_suite = [] {
     "[successful parsing]"_test = [] {
         iterTestFiles(
             "ParserSuite/success",
-            [](TestData&& data) {
+            [](const TestData& data) {
                 Ark::internal::Parser parser(/* debug= */ 0);
 
                 should("parse " + data.stem) = [&] {
@@ -68,7 +68,7 @@ ut::suite<"Parser"> parser_suite = [] {
     "[error reporting]"_test = [] {
         iterTestFiles(
             "ParserSuite/failure",
-            [](TestData&& data) {
+            [](const TestData& data) {
                 try
                 {
                     Ark::internal::Parser parser(/* debug= */ 0);

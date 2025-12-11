@@ -52,7 +52,7 @@ void updateExpectedFile(const TestData& data, const std::string& actual);
  * @param test test function, taking a TestData&& with the paths of the input and its expected result
  * @param params optionally specify the expected extension. Defaults to "expected"
  */
-void iterTestFiles(const std::string& folder, std::function<void(TestData&&)>&& test, IterTestFilesParam&& params = {});
+void iterTestFiles(const std::string& folder, std::function<void(const TestData&)>&& test, IterTestFilesParam&& params = {});
 
 /**
  * @brief Given an input folder, returns the resource path relatives to the project root

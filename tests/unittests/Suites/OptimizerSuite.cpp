@@ -13,7 +13,7 @@ ut::suite<"Optimizer"> optimizer_suite = [] {
     "[generate optimized ast]"_test = [] {
         iterTestFiles(
             "OptimizerSuite",
-            [](TestData&& data) {
+            [](const TestData& data) {
                 JsonCompiler compiler(false, { lib_path }, Ark::FeatureASTOptimizer);
 
                 std::string json;

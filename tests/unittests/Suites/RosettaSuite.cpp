@@ -13,7 +13,7 @@ ut::suite<"Rosetta"> rosetta_suite = [] {
     "[run arkscript rosetta code solutions]"_test = [] {
         iterTestFiles(
             "RosettaSuite",
-            [](TestData&& data) {
+            [](const TestData&data) {
                 Ark::State state({ lib_path });
 
                 should("compile " + data.stem) = [&] {

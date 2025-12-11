@@ -177,7 +177,7 @@ ut::suite<"TypeChecker"> type_checker_suite = [] {
 
     iterTestFiles(
         "TypeCheckerSuite",
-        [&](TestData&& data) {
+        [&](const TestData& data) {
             std::vector<Input> inputs;
             std::vector<Ark::types::Contract> contracts;
 
@@ -185,7 +185,7 @@ ut::suite<"TypeChecker"> type_checker_suite = [] {
             {
                 iterTestFiles(
                     data.path,
-                    [&inputs](TestData&& inner) {
+                    [&inputs](const TestData& inner) {
                         const Input input = parse_input(inner.path);
                         expect(fatal(input.initialized)) << "invalid test input: " << inner.stem;
                         inputs.push_back(input);
