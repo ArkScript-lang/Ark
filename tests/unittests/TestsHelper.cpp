@@ -68,18 +68,15 @@ std::string getResourcePath(const std::string& folder)
     return (ARK_TESTS_ROOT "tests/unittests/resources/") + folder;
 }
 
-std::string sanitizeCodeError(const Ark::CodeError& e, const bool remove_in_file_line)
+std::string sanitizeCodeError(const Ark::CodeError& e)
 {
     std::stringstream stream;
     Ark::Diagnostics::generate(e, stream, /* colorize= */ false);
 
     std::string diag = stream.str();
     diag.erase(std::ranges::remove(diag, '\r').begin(), diag.end());
-    if (diag.find(ARK_TESTS_ROOT) != std::string::npos)
+    while (diag.find(ARK_TESTS_ROOT) != std::string::npos)
         diag.erase(diag.find(ARK_TESTS_ROOT), std::size(ARK_TESTS_ROOT) - 1);
-
-    if (remove_in_file_line)
-        diag.erase(0, diag.find_first_of('\n') + 1);
 
     return diag;
 }

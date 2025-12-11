@@ -61,7 +61,7 @@ void iterTestFiles(const std::string& folder, std::function<void(TestData&&)>&& 
  */
 std::string getResourcePath(const std::string& folder);
 
-std::string sanitizeCodeError(const Ark::CodeError& e, bool remove_in_file_line = false);
+std::string sanitizeCodeError(const Ark::CodeError& e);
 
 std::string sanitizeRuntimeError(const std::exception& e);
 

@@ -168,6 +168,17 @@ namespace Ark::Diagnostics
         return m_window.target + 1 <= m_current_line && m_current_line <= m_window.target_end + 1;
     }
 
+    bool Printer::isNextLineTheFirstLineOfTarget() const
+    {
+        return m_window.target == m_current_line;
+    }
+
+    bool Printer::isLastLineOfTarget() const
+    {
+        return m_window.target != m_window.target_end &&
+            m_current_line == m_window.target_end + 1;
+    }
+
     bool Printer::hasContent() const
     {
         return m_current_line < m_window.end && !m_source.empty() && m_window.target < m_window.end;

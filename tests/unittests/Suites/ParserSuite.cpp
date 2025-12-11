@@ -81,6 +81,8 @@ ut::suite<"Parser"> parser_suite = [] {
                         std::string tested = sanitizeCodeError(e);
                         Ark::Utils::ltrim(Ark::Utils::rtrim(tested));
                         expectOrDiff(data.expected, tested);
+                        if (shouldWriteNewDiffsTofile() && data.expected != tested)
+                            updateExpectedFile(data, tested);
                     };
                 }
                 catch (...)

@@ -22,7 +22,7 @@ namespace Ark::Diagnostics
             fmt::print(os, "In file {}:{}\n", loc.filename, loc.start.line + 1);
     }
 
-    void hintWithContext(std::ostream& os, const std::optional<CodeErrorContext>& maybe_context, const bool colorize)
+    void hintWithContext(std::ostream& os, const std::optional<CodeErrorContext>& maybe_context, const bool colorize, const bool start)
     {
         if (!maybe_context)
             return;
@@ -36,7 +36,9 @@ namespace Ark::Diagnostics
             std::max(1_z, maybe_context->at.start.column),  // fixing padding when the error is on the first character
             // underline the parent of the error in red
             fmt::styled(
-                maybe_context->is_macro_expansion ? "^ macro expansion started here" : "^ expression started here",
+                start
+                    ? (maybe_context->is_macro_expansion ? "┌─ macro expansion started here" : "┌─ expression started here")
+                    : "└─ ... and ended here",
                 colorize ? fmt::fg(fmt::color::red) : fmt::text_style()));
     }
 
@@ -72,9 +74,11 @@ namespace Ark::Diagnostics
 
             while (printer.hasContent())
             {
+                if (printer.isNextLineTheFirstLineOfTarget())
+                    hintWithContext(os, maybe_context, colorize, /* start= */ true);
                 printer.printLine(os);
-                if (printer.isTargetLine())
-                    hintWithContext(os, maybe_context, colorize);
+                if (printer.isLastLineOfTarget())
+                    hintWithContext(os, maybe_context, colorize, /* start= */ false);
             }
 
             fmt::print(os, "\n");
@@ -87,11 +91,10 @@ namespace Ark::Diagnostics
             const std::size_t i = source_printer.current();
             const std::string& line = source_printer.currentLine();
 
-            source_printer.printLine(os);
-
             // if the error context is in the current file, point to it as the parent of our error
-            if (ctx_same_file && i == maybe_context->at.start.line && i != loc.start.line)
-                hintWithContext(os, maybe_context, colorize);
+            if (ctx_same_file && i == maybe_context->at.start.line && i < loc.start.line)
+                hintWithContext(os, maybe_context, colorize, /* start= */ true);
+            source_printer.printLine(os);
 
             // show where the error occurred
             if (source_printer.isTargetLine() && !line.empty())

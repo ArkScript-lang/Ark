@@ -103,6 +103,10 @@ namespace Ark::Diagnostics
          */
         [[nodiscard]] bool isTargetLine() const;
 
+        [[nodiscard]] bool isNextLineTheFirstLineOfTarget() const;
+
+        [[nodiscard]] bool isLastLineOfTarget() const;
+
         /**
          * @brief Check if there are lines to print
          *

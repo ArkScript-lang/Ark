@@ -25,7 +25,7 @@ ut::suite<"Diagnostics"> diagnostics_suite = [] {
                 }
                 catch (const Ark::CodeError& e)
                 {
-                    std::string diag = sanitizeCodeError(e, /* remove_in_file_line= */ true);
+                    std::string diag = sanitizeCodeError(e);
                     Ark::Utils::rtrim(diag);
                     expectOrDiff(data.expected, diag);
                     if (shouldWriteNewDiffsTofile() && data.expected != diag)
