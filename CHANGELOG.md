@@ -1,8 +1,13 @@
 # Change Log
 
-## [Unreleased version] - 20XX-XX-XX
+## [4.1.0] - 2025-12-12
 ### Breaking changes
 - Function arguments are now immutable by default and an argument attribute `mut` must be added: `(fun (a b c) (set b 5))` -> `(fun (a (mut b) c) (set b 5))`
+
+### Deprecated
+- `dict:contains`, use `dict:contains?`
+- `math:even`, use `math:even?`
+- `math:odd`, use `math:odd?`
 
 ### Added
 - new builtin `disassemble` to print the bytecode of a function
@@ -13,8 +18,6 @@
 - renamed `dict:contains` to `dict:contains?` so that all functions returning booleans have `?` suffix ; added temporary alias `dict:contains`
 - renamed `math:even` to `math:even?`, and `math:odd` to `math:odd?`
 - `string:removeAt` can work with negative indexes
-
-### Removed
 
 ## [4.0.0] - 2025-09-12
 ### Added
