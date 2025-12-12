@@ -20,25 +20,28 @@ namespace Ark::internal
             Rule { { LOAD_SYMBOL_BY_INDEX, STORE }, STORE_FROM_INDEX },
             Rule { { LOAD_SYMBOL, SET_VAL }, SET_VAL_FROM },
             Rule { { LOAD_SYMBOL_BY_INDEX, SET_VAL }, SET_VAL_FROM_INDEX },
-            Rule { { STORE, PUSH_RETURN_ADDRESS, LOAD_SYMBOL_BY_INDEX, BUILTIN, CALL }, [](const Entities entities) {
-                      return Builtins::builtins[entities[3].primaryArg()].second.isFunction();
-                  },
+            Rule { { STORE, PUSH_RETURN_ADDRESS, LOAD_SYMBOL_BY_INDEX, BUILTIN, CALL },
+                   [](const Entities entities, const std::size_t start_idx) {
+                       return Builtins::builtins[entities[3].primaryArg()].second.isFunction() && start_idx == 0;
+                   },
                    [](const Entities e) {
                        return IR::Entity(CALL_BUILTIN_WITHOUT_RETURN_ADDRESS, e[3].primaryArg(), 1);
                    } },
-            Rule { { STORE, STORE, PUSH_RETURN_ADDRESS, LOAD_SYMBOL_BY_INDEX, LOAD_SYMBOL_BY_INDEX, BUILTIN, CALL }, [](const Entities entities) {
-                      return Builtins::builtins[entities[5].primaryArg()].second.isFunction();
-                  },
+            Rule { { STORE, STORE, PUSH_RETURN_ADDRESS, LOAD_SYMBOL_BY_INDEX, LOAD_SYMBOL_BY_INDEX, BUILTIN, CALL },
+                   [](const Entities entities, const std::size_t start_idx) {
+                       return Builtins::builtins[entities[5].primaryArg()].second.isFunction() && start_idx == 0;
+                   },
                    [](const Entities e) {
                        return IR::Entity(CALL_BUILTIN_WITHOUT_RETURN_ADDRESS, e[5].primaryArg(), 2);
                    } },
-            Rule { { STORE, STORE, STORE, PUSH_RETURN_ADDRESS, LOAD_SYMBOL_BY_INDEX, LOAD_SYMBOL_BY_INDEX, LOAD_SYMBOL_BY_INDEX, BUILTIN, CALL }, [](const Entities entities) {
-                      return Builtins::builtins[entities[7].primaryArg()].second.isFunction();
-                  },
+            Rule { { STORE, STORE, STORE, PUSH_RETURN_ADDRESS, LOAD_SYMBOL_BY_INDEX, LOAD_SYMBOL_BY_INDEX, LOAD_SYMBOL_BY_INDEX, BUILTIN, CALL },
+                   [](const Entities entities, const std::size_t start_idx) {
+                       return Builtins::builtins[entities[7].primaryArg()].second.isFunction() && start_idx == 0;
+                   },
                    [](const Entities e) {
                        return IR::Entity(CALL_BUILTIN_WITHOUT_RETURN_ADDRESS, e[7].primaryArg(), 3);
                    } },
-            Rule { { BUILTIN, CALL }, CALL_BUILTIN, [](const Entities entities) {
+            Rule { { BUILTIN, CALL }, CALL_BUILTIN, [](const Entities entities, const std::size_t) {
                       return Builtins::builtins[entities[0].primaryArg()].second.isFunction();
                   } },
             Rule { { LOAD_SYMBOL, CALL }, CALL_SYMBOL },
@@ -53,56 +56,56 @@ namespace Ark::internal
             // ADD / SUB
             // STORE
             // ---> INCREMENT_STORE / DECREMENT_STORE a value
-            Rule { { LOAD_CONST, LOAD_SYMBOL, ADD, SET_VAL }, [this](const Entities e) {
+            Rule { { LOAD_CONST, LOAD_SYMBOL, ADD, SET_VAL }, [this](const Entities e, const std::size_t) {
                       return isPositiveNumberInlinable(e[0].primaryArg()) && e[1].primaryArg() == e[3].primaryArg();
                   },
                    [this](const Entities e) {
                        return IR::Entity(INCREMENT_STORE, e[1].primaryArg(), numberAsArg(e[0].primaryArg()));
                    } },
-            Rule { { LOAD_SYMBOL, LOAD_CONST, ADD, SET_VAL }, [this](const Entities e) {
+            Rule { { LOAD_SYMBOL, LOAD_CONST, ADD, SET_VAL }, [this](const Entities e, const std::size_t) {
                       return isPositiveNumberInlinable(e[1].primaryArg()) && e[0].primaryArg() == e[3].primaryArg();
                   },
                    [this](const Entities e) {
                        return IR::Entity(INCREMENT_STORE, e[0].primaryArg(), numberAsArg(e[1].primaryArg()));
                    } },
-            Rule { { LOAD_SYMBOL, LOAD_CONST, SUB, SET_VAL }, [this](const Entities e) {
+            Rule { { LOAD_SYMBOL, LOAD_CONST, SUB, SET_VAL }, [this](const Entities e, const std::size_t) {
                       return isPositiveNumberInlinable(e[1].primaryArg()) && e[0].primaryArg() == e[3].primaryArg();
                   },
                    [this](const Entities e) {
                        return IR::Entity(DECREMENT_STORE, e[0].primaryArg(), numberAsArg(e[1].primaryArg()));
                    } },
             // without the final store, just increment/decrement
-            Rule { { LOAD_CONST, LOAD_SYMBOL, ADD }, [this](const Entities e) {
+            Rule { { LOAD_CONST, LOAD_SYMBOL, ADD }, [this](const Entities e, const std::size_t) {
                       return isPositiveNumberInlinable(e[0].primaryArg());
                   },
                    [this](const Entities e) {
                        return IR::Entity(INCREMENT, e[1].primaryArg(), numberAsArg(e[0].primaryArg()));
                    } },
-            Rule { { LOAD_SYMBOL, LOAD_CONST, ADD }, [this](const Entities e) {
+            Rule { { LOAD_SYMBOL, LOAD_CONST, ADD }, [this](const Entities e, const std::size_t) {
                       return isPositiveNumberInlinable(e[1].primaryArg());
                   },
                    [this](const Entities e) {
                        return IR::Entity(INCREMENT, e[0].primaryArg(), numberAsArg(e[1].primaryArg()));
                    } },
-            Rule { { LOAD_SYMBOL, LOAD_CONST, SUB }, [this](const Entities e) {
+            Rule { { LOAD_SYMBOL, LOAD_CONST, SUB }, [this](const Entities e, const std::size_t) {
                       return isPositiveNumberInlinable(e[1].primaryArg());
                   },
                    [this](const Entities e) {
                        return IR::Entity(DECREMENT, e[0].primaryArg(), numberAsArg(e[1].primaryArg()));
                    } },
-            Rule { { LOAD_CONST, LOAD_SYMBOL_BY_INDEX, ADD }, [this](const Entities e) {
+            Rule { { LOAD_CONST, LOAD_SYMBOL_BY_INDEX, ADD }, [this](const Entities e, const std::size_t) {
                       return isPositiveNumberInlinable(e[0].primaryArg());
                   },
                    [this](const Entities e) {
                        return IR::Entity(INCREMENT_BY_INDEX, e[1].primaryArg(), numberAsArg(e[0].primaryArg()));
                    } },
-            Rule { { LOAD_SYMBOL_BY_INDEX, LOAD_CONST, ADD }, [this](const Entities e) {
+            Rule { { LOAD_SYMBOL_BY_INDEX, LOAD_CONST, ADD }, [this](const Entities e, const std::size_t) {
                       return isPositiveNumberInlinable(e[1].primaryArg());
                   },
                    [this](const Entities e) {
                        return IR::Entity(INCREMENT_BY_INDEX, e[0].primaryArg(), numberAsArg(e[1].primaryArg()));
                    } },
-            Rule { { LOAD_SYMBOL_BY_INDEX, LOAD_CONST, SUB }, [this](const Entities e) {
+            Rule { { LOAD_SYMBOL_BY_INDEX, LOAD_CONST, SUB }, [this](const Entities e, const std::size_t) {
                       return isPositiveNumberInlinable(e[1].primaryArg());
                   },
                    [this](const Entities e) {
@@ -222,10 +225,10 @@ namespace Ark::internal
             while (i < end)
             {
                 std::optional<EntityWithOffset> maybe_compacted = replaceWithRules(
-                    m_ruleset,
                     std::span(
                         block.begin() + static_cast<IR::Block::difference_type>(i),
-                        block.size() - i));
+                        block.size() - i),
+                    i);
 
                 if (maybe_compacted.has_value())
                 {
@@ -273,11 +276,11 @@ namespace Ark::internal
             });
     }
 
-    std::optional<EntityWithOffset> IROptimizer::replaceWithRules(const std::vector<Rule>& rules, const std::span<const IR::Entity> entities)
+    std::optional<EntityWithOffset> IROptimizer::replaceWithRules(const std::span<const IR::Entity> entities, const std::size_t position_in_block)
     {
-        for (const auto& [expected, condition, createReplacement] : rules)
+        for (const auto& [expected, condition, createReplacement] : m_ruleset)
         {
-            if (match(expected, entities) && condition(entities))
+            if (match(expected, entities) && condition(entities, position_in_block))
             {
                 const std::size_t window_size = expected.size();
                 if (!canBeOptimizedSafely(entities, window_size))

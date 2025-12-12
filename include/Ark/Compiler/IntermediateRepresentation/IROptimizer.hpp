@@ -55,7 +55,7 @@ namespace Ark::internal
 
     private:
         using Entities = std::span<const IR::Entity>;
-        using Condition_t = std::function<bool(const Entities)>;
+        using Condition_t = std::function<bool(const Entities, const std::size_t)>;
         using Replacement_t = std::function<IR::Entity(const Entities)>;
 
         struct Rule
@@ -64,7 +64,7 @@ namespace Ark::internal
             Condition_t condition;            ///< Additional condition to match
             Replacement_t createReplacement;  ///< Create the replacement instructions from given context
 
-            constexpr static auto default_cond = [](const Entities) {
+            constexpr static auto default_cond = [](const Entities, const std::size_t) {
                 return true;
             };
 
@@ -94,7 +94,7 @@ namespace Ark::internal
 
         [[nodiscard]] bool match(const std::vector<Instruction>& expected_insts, std::span<const IR::Entity> entities) const;
         [[nodiscard]] bool canBeOptimizedSafely(std::span<const IR::Entity> entities, std::size_t window_size) const;
-        std::optional<EntityWithOffset> replaceWithRules(const std::vector<Rule>& rules, std::span<const IR::Entity> entities);
+        std::optional<EntityWithOffset> replaceWithRules(std::span<const IR::Entity> entities, const std::size_t position_in_block);
 
         [[nodiscard]] bool isPositiveNumberInlinable(uint16_t id) const;
         [[nodiscard]] uint16_t numberAsArg(uint16_t id) const;
