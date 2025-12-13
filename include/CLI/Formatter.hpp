@@ -7,8 +7,8 @@
 
 constexpr struct FormatterConfig
 {
-    static constexpr std::size_t SpacePerIndent = 2;   ///< Indentation level of each node
-    static constexpr std::size_t LongLineLength = 32;  ///< Max number of characters per line segment to consider splitting
+    static constexpr std::size_t SpacePerIndent = 2;    ///< Indentation level of each node
+    static constexpr std::size_t LongLineLength = 120;  ///< Max number of characters per line segment to consider splitting
 } FormatterConfig;
 
 class Formatter final
@@ -87,6 +87,8 @@ private:
      * @return
      */
     static std::size_t lineOfLastNodeIn(const Ark::internal::Node& node);
+
+    [[nodiscard]] bool isLongLine(const Ark::internal::Node& node);
 
     /**
      * @brief Decide if a node should be split on a newline or not

@@ -18,6 +18,7 @@
   true
   true
   false)
-(if (= 1 2) {
-  (foo)
-  (bar) })
+(if (= 1 2)
+  {
+    (foo)
+    (bar) })

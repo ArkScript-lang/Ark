@@ -1,5 +1,13 @@
 # Change Log
 
+## [4.1.1] - 2025-12-13
+### Fixed
+- the formatter was breaking functions' arguments list containing argument attributes on multiple lines for no reason
+- the formatter was formatting begin nodes inside conditions badly, putting the `{` on the same line as the condition, making it hard to know if the condition had `then` and `else` nodes or a single multi nodes `then` node
+
+### Changed
+- long function calls are split on multiple lines
+
 ## [4.1.0] - 2025-12-12
 ### Breaking changes
 - Function arguments are now immutable by default and an argument attribute `mut` must be added: `(fun (a b c) (set b 5))` -> `(fun (a (mut b) c) (set b 5))`

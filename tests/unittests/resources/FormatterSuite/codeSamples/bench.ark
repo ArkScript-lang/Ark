@@ -1,0 +1,31 @@
+# @brief Benchmark some given code by running it a given number of times
+# @param code code to run, eg. a function call
+# @param times number of times to run the code
+# =begin
+# (let fib (fun (n)
+#   (if (< n 2)
+#     n
+#     (+ (fib (- n 1)) (fib (- n 2))))))
+# (bench (fib 23) 10)
+# # (fib 23), 10 times
+# #   ↪︎ range: [4.7 - 5.02] ms
+# #   ↪︎ mean: 4.85ms
+# #   ↪︎ median: 4.86ms
+# =end
+# @author https://github.com/SuperFola
+(macro bench (code times) {
+  (mut _i 0)
+  (mut _data [])
+  (while (< _i times) {
+    (let _start (time))
+    {
+      ($as-is code) }
+    (let _end (time))
+    (append! _data (* 1000 (- _end _start)))
+    (set _i (+ 1 _i)) })
+
+  (mut _mean (/ (list:sum _data) (len _data)))
+  (mut _median (list:median _data))
+  (mut _max (list:max _data))
+  (mut _min (list:min _data))
+  (print (format "{}, {} times\n  ↪︎ range: [{:.3} - {:.3}] ms\n  ↪︎ mean: {:.3}ms\n  ↪︎ median: {:.3}ms" ($repr code) times _min _max _mean _median)) })

@@ -5,6 +5,7 @@
 (list:forEach
   _listeners
   (fun (element)
-    (if (= typ (@ element 0)) {
-      ((@ element 1) val)
-      (set found true) })))
+    (if (= typ (@ element 0))
+      {
+        ((@ element 1) val)
+        (set found true) })))

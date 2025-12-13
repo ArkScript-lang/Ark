@@ -8,9 +8,11 @@
 #include <Ark/Error/Exceptions.hpp>
 #include <Ark/Error/Diagnostics.hpp>
 #include <Ark/Compiler/Common.hpp>
+#include <Ark/Utils/Literals.hpp>
 
 using namespace Ark;
 using namespace Ark::internal;
+using namespace Ark::literals;
 
 Formatter::Formatter(const bool dry_run) :
     m_dry_run(dry_run), m_parser(/* debug= */ 0, ParserMode::Raw), m_updated(false)
@@ -134,15 +136,28 @@ std::size_t Formatter::lineOfLastNodeIn(const Node& node)
     return node.position().start.line;
 }
 
-bool Formatter::shouldSplitOnNewline(const Node& node)
+bool Formatter::isLongLine(const Node& node)
 {
     const std::string formatted = format(node, 0, false);
-    const std::string::size_type sz = formatted.find_first_of('\n');
+    const std::size_t max_len =
+        std::ranges::max(
+            Utils::splitString(formatted, '\n'),
+            [](const std::string& lhs, const std::string& rhs) {
+                return lhs.size() < rhs.size();
+            })
+            .size();
+    const std::size_t newlines = std::ranges::count(formatted, '\n');
 
-    const bool is_long_line = !((sz < FormatterConfig::LongLineLength || (sz == std::string::npos && formatted.size() < FormatterConfig::LongLineLength)));
+    // split on multiple lines if we have a very long node,
+    // or if we added many line breaks while doing dumb formatting
+    return max_len >= FormatterConfig::LongLineLength || (newlines > 0 && node.isListLike() && newlines + 1 >= node.constList().size());
+}
+
+bool Formatter::shouldSplitOnNewline(const Node& node)
+{
     if (node.comment().empty() && (isBeginBlock(node) || isFuncCall(node)))
         return false;
-    if (is_long_line || (node.isListLike() && node.constList().size() > 1) || !node.comment().empty())
+    if (isLongLine(node) || (node.isListLike() && node.constList().size() > 1) || !node.comment().empty())
         return true;
     return false;
 }
@@ -302,7 +317,7 @@ std::string Formatter::formatFunction(const Node& node, const std::size_t indent
     {
         bool comment_in_args = false;
         std::string args;
-        const bool split = shouldSplitOnNewline(args_node);
+        const bool split = (isLongLine(args_node) || !args_node.comment().empty());
 
         for (std::size_t i = 0, end = args_node.constList().size(); i < end; ++i)
         {
@@ -354,7 +369,7 @@ std::string Formatter::formatCondition(const Node& node, const std::size_t inden
         cond_on_newline ? "\n" : " ",
         formatted_cond);
 
-    const bool split_then_newline = shouldSplitOnNewline(then_node);
+    const bool split_then_newline = shouldSplitOnNewline(then_node) || isBeginBlock(then_node);
 
     // (if cond then)
     if (node.constList().size() == 3)
@@ -509,6 +524,19 @@ std::string Formatter::formatCall(const Node& node, const std::size_t indent)
     }
 
     std::string result = is_list ? "[" : ("(" + format(node.constList()[0], indent, false));
+
+    // Split args on multiple lines even if, individually, they fit in the configured line length, if grouped together
+    // on a single line they are too long
+    const std::size_t args_line_length = std::accumulate(
+        formatted_args.begin(),
+        formatted_args.end(),
+        result.size() + 1,  // +1 to count the closing paren/bracket
+        [](const std::size_t acc, const std::string& val) {
+            return acc + val.size() + 1_z;
+        });
+    if (args_line_length >= FormatterConfig::LongLineLength)
+        is_multiline = true;
+
     for (std::size_t i = 0, end = formatted_args.size(); i < end; ++i)
     {
         const std::string& formatted_node = formatted_args[i];

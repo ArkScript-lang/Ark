@@ -106,7 +106,7 @@ std::string sanitizeRuntimeError(const std::exception& e)
 void expectOrDiff(const std::string& expected, const std::string& received)
 {
     const bool comparison = expected == received;
-    boost::ut::expect(comparison) << [&] {
+    const auto diff = [&] {
         dtl::Diff<std::string, std::vector<std::string>> d(
             Ark::Utils::splitString(received, '\n'),
             Ark::Utils::splitString(expected, '\n'));
@@ -118,4 +118,6 @@ void expectOrDiff(const std::string& expected, const std::string& received)
 
         return stream.str();
     };
+
+    boost::ut::expect(comparison) << diff;
 }

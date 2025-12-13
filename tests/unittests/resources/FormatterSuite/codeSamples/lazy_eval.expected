@@ -1,0 +1,20 @@
+# @brief Take a function, and return a closure to lazy evaluate it
+# @param f the function to lazy evaluated
+# =begin
+# (let complex_stuff (fun () {
+#     # do complex work in the function
+#     42 }))
+# (let lazy (lazy:eval complex_stuff))
+# (print (lazy))
+# =end
+# @author https://github.com/SuperFola
+(let eval (fun (f) {
+  (mut _has_been_called false)
+  (mut _memorized_value nil)
+
+  (fun (&f &_has_been_called &_memorized_value) {
+    (if (not _has_been_called)
+      {
+        (set _has_been_called true)
+        (set _memorized_value (f)) })
+    _memorized_value }) }))
