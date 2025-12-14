@@ -133,8 +133,12 @@
         (test:eq (type 1) "Number")
         (test:eq (type "") "String")
         (test:eq (type make) "Function")
+        # CHECK_TYPE_OF
+        ((fun () (test:expect (= (type make) "Function"))))
         (test:eq (type print) "CProc")
         (test:eq (type closure) "Closure")
+        # CHECK_TYPE_OF
+        ((fun () (test:expect (= (type closure) "Closure"))))
         (test:eq (type nil) "Nil")
         (test:eq (type true) "Bool")
         (test:eq (type false) "Bool")
