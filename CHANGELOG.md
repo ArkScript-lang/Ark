@@ -4,6 +4,7 @@
 ### Added
 - the repl prints the output of the last expression it ran
 - new super instructions: `MUL_BY`, `MUL_BY_INDEX`, `MUL_SET_VAL` that can do multiplications (and optional storing in vars) in place
+- new super instruction: `FUSED_MATH`, which can fuse 2 to 3 math operations in one go (ADD, SUB, MUL, DIV)
 
 ### Fixed
 - the REPL doesn't color `import` in two colors (red for `imp__t` and blue for `___or_`), it keeps the first color that matched (red for import here)

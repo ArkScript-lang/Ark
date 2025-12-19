@@ -429,9 +429,20 @@ namespace Ark::internal
         // @role Compute the length of a symbol (list or string), and pop TS to compare it, then jump if false
         LT_LEN_SYM_JUMP_IF_FALSE = 0x6b,
 
+        // @args symbol id, offset number
+        // @role Multiply the symbol by (offset symbol - 2048), then push it to the stack
         MUL_BY = 0x6c,
+
+        // @args symbol index, offset number
+        // @role Multiply the symbol by (offset symbol - 2048), then push it to the stack
         MUL_BY_INDEX = 0x6d,
+
+        // @args symbol id, offset number
+        // @role Multiply the symbol by (offset symbol - 2048), then store the result using the given symbol id
         MUL_SET_VAL = 0x6e,
+
+        // @args op1, op2, op3
+        // @role Pop 3 or 4 values from the stack, and apply the ops sequentially (only ADD, SUB, MUL, and DIV are supported). Push the result to the stack. Only op3 may be NOP.
         FUSED_MATH = 0x6f,
 
         InstructionsCount

@@ -126,6 +126,19 @@ namespace Ark
 
             return a;
         }
+
+        inline std::string mathInstToStr(const Instruction op)
+        {
+            if (op == ADD)
+                return "+";
+            if (op == SUB)
+                return "-";
+            if (op == MUL)
+                return "*";
+            if (op == DIV)
+                return "/";
+            return "???";
+        }
     }
 
     VM::VM(State& state) noexcept :
@@ -2084,14 +2097,14 @@ namespace Ark
 
                         if (d->valueType() != ValueType::Number || c->valueType() != ValueType::Number)
                             throw types::TypeCheckingError(
-                                InstructionNames[op1],
+                                helper::mathInstToStr(op1),
                                 { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
                                 { *c, *d });
 
                         double temp = helper::doMath(c->number(), d->number(), op1);
                         if (b->valueType() != ValueType::Number)
                             throw types::TypeCheckingError(
-                                InstructionNames[op2],
+                                helper::mathInstToStr(op2),
                                 { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
                                 { *b, Value(temp) });
                         temp = helper::doMath(b->number(), temp, op2);
@@ -2103,7 +2116,7 @@ namespace Ark
                             const Value* a = popAndResolveAsPtr(context);
                             if (a->valueType() != ValueType::Number)
                                 throw types::TypeCheckingError(
-                                    InstructionNames[op3],
+                                    helper::mathInstToStr(op3),
                                     { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
                                     { *a, Value(temp) });
 
