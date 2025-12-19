@@ -745,7 +745,7 @@ namespace Ark
                     {
                         // Not resolving a potential ref is on purpose!
                         // This instruction is only used by functions when storing arguments
-                        Value* tmp = pop(context);
+                        const Value* tmp = pop(context);
                         store(arg, tmp, context);
                         DISPATCH();
                     }
