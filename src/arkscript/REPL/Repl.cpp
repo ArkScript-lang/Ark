@@ -1,6 +1,7 @@
 #include <fstream>
 #include <filesystem>
 #include <fmt/core.h>
+#include <fmt/color.h>
 #include <ranges>
 
 #include <Ark/Builtins/Builtins.hpp>

@@ -4,6 +4,9 @@
 ### Added
 - the repl prints the output of the last expression it ran
 
+### Fixed
+- the REPL doesn't color `import` in two colors (red for `imp__t` and blue for `___or_`), it keeps the first color that matched (red for import here)
+
 ### Changed
 
 ### Removed
