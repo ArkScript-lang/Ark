@@ -766,6 +766,9 @@ namespace Ark::internal
         else
             return std::nullopt;
 
+        if (func.value().nodeType() == NodeType::Symbol && func.value().string() == "ref")
+            error("`ref' can not be used outside a function's arguments list.", func_name_pos);
+
         std::optional<Node> leaf { NodeType::List };
         leaf->push_back(positioned(func.value(), func_name_pos));
 
