@@ -1,0 +1,14 @@
+(mut a 5)
+# MUL_BY_INDEX
+(set a (* a 6))
+(set a (* 6 a))
+
+(let foo (fun () {
+  # MUL_BY
+  (mut b (* a 7))
+  (mut b (* 7 a))
+  # MUL_SET_VAL
+  (set a (* a 8))
+  (set a (* 8 a)) }))
+
+(foo)

@@ -33,6 +33,8 @@ namespace Ark::internal::IR
 
     /// The maximum value an argument can have when an IR entity has two arguments
     constexpr uint16_t MaxValueForDualArg = 0x0fff;
+    constexpr uint16_t MaxValueForSmallNumber = 0x0800;
+    static_assert(MaxValueForSmallNumber + MaxValueForSmallNumber - 1 == MaxValueForDualArg);
 
     class Entity
     {

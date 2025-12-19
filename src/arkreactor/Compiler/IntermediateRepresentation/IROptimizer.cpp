@@ -51,10 +51,47 @@ namespace Ark::internal
             Rule { { LIST, STORE }, STORE_LIST },
             Rule { { LOAD_SYMBOL, APPEND_IN_PLACE }, APPEND_IN_PLACE_SYM },
             Rule { { LOAD_SYMBOL_BY_INDEX, APPEND_IN_PLACE }, APPEND_IN_PLACE_SYM_INDEX },
-            // LOAD_SYMBOL a / LOAD_SYMBOL_BY_INDEX index
-            // LOAD_CONST n (1)
-            // ADD / SUB
-            // STORE
+            // LOAD_CONST, LOAD_SYMBOL a, MUL, SET_VAL / LOAD_SYMBOL a, LOAD_CONST, MUL, SET_VAL
+            // ---> MUL_SET_VAL a value
+            Rule { { LOAD_CONST, LOAD_SYMBOL, MUL, SET_VAL }, [this](const Entities e, const std::size_t) {
+                      return isSmallerNumberInlinable(e[0].primaryArg()) && e[1].primaryArg() == e[3].primaryArg();
+                  },
+                   [this](const Entities e) {
+                       return IR::Entity(MUL_SET_VAL, e[1].primaryArg(), smallerNumberAsArg(e[0].primaryArg()));
+                   } },
+            Rule { { LOAD_SYMBOL, LOAD_CONST, MUL, SET_VAL }, [this](const Entities e, const std::size_t) {
+                      return isSmallerNumberInlinable(e[1].primaryArg()) && e[0].primaryArg() == e[3].primaryArg();
+                  },
+                   [this](const Entities e) {
+                       return IR::Entity(MUL_SET_VAL, e[0].primaryArg(), smallerNumberAsArg(e[1].primaryArg()));
+                   } },
+            // LOAD_CONST, LOAD_SYMBOL a, MUL / LOAD_SYMBOL a, LOAD_CONST, MUL
+            // ---> MUL_(BY|BY_INDEX) a value
+            Rule { { LOAD_CONST, LOAD_SYMBOL, MUL }, [this](const Entities e, const std::size_t) {
+                      return isSmallerNumberInlinable(e[0].primaryArg());
+                  },
+                   [this](const Entities e) {
+                       return IR::Entity(MUL_BY, e[1].primaryArg(), smallerNumberAsArg(e[0].primaryArg()));
+                   } },
+            Rule { { LOAD_SYMBOL, LOAD_CONST, MUL }, [this](const Entities e, const std::size_t) {
+                      return isSmallerNumberInlinable(e[1].primaryArg());
+                  },
+                   [this](const Entities e) {
+                       return IR::Entity(MUL_BY, e[0].primaryArg(), smallerNumberAsArg(e[1].primaryArg()));
+                   } },
+            Rule { { LOAD_CONST, LOAD_SYMBOL_BY_INDEX, MUL }, [this](const Entities e, const std::size_t) {
+                      return isSmallerNumberInlinable(e[0].primaryArg());
+                  },
+                   [this](const Entities e) {
+                       return IR::Entity(MUL_BY_INDEX, e[1].primaryArg(), smallerNumberAsArg(e[0].primaryArg()));
+                   } },
+            Rule { { LOAD_SYMBOL_BY_INDEX, LOAD_CONST, MUL }, [this](const Entities e, const std::size_t) {
+                      return isSmallerNumberInlinable(e[1].primaryArg());
+                  },
+                   [this](const Entities e) {
+                       return IR::Entity(MUL_BY_INDEX, e[0].primaryArg(), smallerNumberAsArg(e[1].primaryArg()));
+                   } },
+            // (LOAD_SYMBOL a | LOAD_SYMBOL_BY_INDEX index), LOAD_CONST n (=1), (ADD | SUB), STORE
             // ---> INCREMENT_STORE / DECREMENT_STORE a value
             Rule { { LOAD_CONST, LOAD_SYMBOL, ADD, SET_VAL }, [this](const Entities e, const std::size_t) {
                       return isPositiveNumberInlinable(e[0].primaryArg()) && e[1].primaryArg() == e[3].primaryArg();
@@ -111,9 +148,7 @@ namespace Ark::internal
                    [this](const Entities e) {
                        return IR::Entity(DECREMENT_BY_INDEX, e[0].primaryArg(), numberAsArg(e[1].primaryArg()));
                    } },
-            // LOAD_SYMBOL list
-            // TAIL / HEAD
-            // STORE / SET_VAL a
+            // LOAD_SYMBOL list, (TAIL | HEAD), (STORE | SET_VAL a)
             // ---> STORE_TAIL list a ; STORE_HEAD ; SET_VAL_TAIL ; SET_VAL_HEAD
             Rule { { LOAD_SYMBOL, TAIL, STORE }, [](const Entities e) {
                       return IR::Entity(STORE_TAIL, e[0].primaryArg(), e[2].primaryArg());
@@ -139,9 +174,7 @@ namespace Ark::internal
             Rule { { LOAD_SYMBOL_BY_INDEX, HEAD, SET_VAL }, [](const Entities e) {
                       return IR::Entity(SET_VAL_HEAD_BY_INDEX, e[0].primaryArg(), e[2].primaryArg());
                   } },
-            // LOAD_CONST id / LOAD_SYMBOL id
-            // <comparison operator>
-            // POP_JUMP_IF_(FALSE|TRUE)
+            // (LOAD_CONST id | LOAD_SYMBOL id), <comparison operator>, POP_JUMP_IF_(FALSE|TRUE)
             // ---> <OP>_(CONST|SYM)_JUMP_IF_(FALSE|TRUE)
             Rule { { LOAD_CONST, LT, POP_JUMP_IF_FALSE }, [](const Entities e) {
                       return IR::Entity::GotoWithArg(e[2], LT_CONST_JUMP_IF_FALSE, e[0].primaryArg());
@@ -173,17 +206,12 @@ namespace Ark::internal
             Rule { { LOAD_SYMBOL, NEQ, POP_JUMP_IF_FALSE }, [](const Entities e) {
                       return IR::Entity::GotoWithArg(e[2], NEQ_SYM_JUMP_IF_FALSE, e[0].primaryArg());
                   } },
-            // LOAD_SYMBOL id
-            // LOAD_SYMBOL id2
-            // AT
+            // LOAD_SYMBOL id, LOAD_SYMBOL id2, AT
             // ---> AT_SYM_SYM id id2
             Rule { { LOAD_SYMBOL, LOAD_SYMBOL, AT }, AT_SYM_SYM },
             Rule { { LOAD_SYMBOL_BY_INDEX, LOAD_SYMBOL_BY_INDEX, AT }, AT_SYM_INDEX_SYM_INDEX },
             Rule { { LOAD_SYMBOL_BY_INDEX, LOAD_CONST, AT }, AT_SYM_INDEX_CONST },
-            // LOAD_SYMBOL sym
-            // TYPE
-            // LOAD_CONST cst
-            // EQ
+            // LOAD_SYMBOL sym, TYPE, LOAD_CONST cst, EQ
             // ---> CHECK_TYPE_OF sym, cst
             // also works with LOAD_CONST cst, LOAD_SYMBOL sym, TYPE, EQ, but args will be flipped
             Rule { { LOAD_SYMBOL, TYPE, LOAD_CONST, EQ }, [](const Entities e) {
@@ -313,8 +341,36 @@ namespace Ark::internal
         return false;
     }
 
+    bool IROptimizer::isSmallerNumberInlinable(const uint16_t id) const
+    {
+        if (std::cmp_less(id, m_values.size()) && m_values[id].type == ValTableElemType::Number)
+        {
+            const double val = std::get<double>(m_values[id].value) + IR::MaxValueForSmallNumber;
+            return val >= 0.0 &&
+                val < IR::MaxValueForDualArg &&
+                static_cast<double>(static_cast<long>(val)) == val;
+        }
+        return false;
+    }
+
+    bool IROptimizer::isNumberEqualTo(const uint16_t id, const int number) const
+    {
+        if (std::cmp_less(id, m_values.size()) && m_values[id].type == ValTableElemType::Number)
+        {
+            const double val = std::get<double>(m_values[id].value);
+            return static_cast<double>(static_cast<long>(val)) == val &&
+                static_cast<int>(val) == number;
+        }
+        return false;
+    }
+
     uint16_t IROptimizer::numberAsArg(const uint16_t id) const
     {
         return static_cast<uint16_t>(std::get<double>(m_values[id].value));
+    }
+
+    uint16_t IROptimizer::smallerNumberAsArg(const uint16_t id) const
+    {
+        return static_cast<uint16_t>(std::get<double>(m_values[id].value) + IR::MaxValueForSmallNumber);
     }
 }

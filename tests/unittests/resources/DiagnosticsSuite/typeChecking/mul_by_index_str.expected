@@ -1,0 +1,14 @@
+Function * expected 2 arguments
+Call
+  ↳ (* 5 6)
+Signature
+  ↳ (* a b)
+Arguments
+  → `a' (expected Number), got 5 (String)
+  → `b' (expected Number) ✓
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/mul_by_index_str.ark:2
+    1 | (mut a "5")
+    2 | (set a (* a 6))
+      | ^~~~~~~~~~~~~~
+    3 |

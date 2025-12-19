@@ -429,6 +429,10 @@ namespace Ark::internal
         // @role Compute the length of a symbol (list or string), and pop TS to compare it, then jump if false
         LT_LEN_SYM_JUMP_IF_FALSE = 0x6b,
 
+        MUL_BY = 0x6c,
+        MUL_BY_INDEX = 0x6d,
+        MUL_SET_VAL = 0x6e,
+
         InstructionsCount
     };
 
@@ -542,7 +546,10 @@ namespace Ark::internal
         "APPEND_IN_PLACE_SYM",
         "APPEND_IN_PLACE_SYM_INDEX",
         "STORE_LEN",
-        "LT_LEN_SYM_JUMP_IF_FALSE"
+        "LT_LEN_SYM_JUMP_IF_FALSE",
+        "MUL_BY",
+        "MUL_BY_INDEX",
+        "MUL_SET_VAL"
     };
 
     static_assert(InstructionNames.size() == static_cast<std::size_t>(Instruction::InstructionsCount) && "Some instruction names appear to be missing");

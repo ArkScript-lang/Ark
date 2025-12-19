@@ -97,7 +97,10 @@ namespace Ark::internal
         std::optional<EntityWithOffset> replaceWithRules(std::span<const IR::Entity> entities, const std::size_t position_in_block);
 
         [[nodiscard]] bool isPositiveNumberInlinable(uint16_t id) const;
+        [[nodiscard]] bool isSmallerNumberInlinable(uint16_t id) const;
+        [[nodiscard]] bool isNumberEqualTo(uint16_t id, int number) const;
         [[nodiscard]] uint16_t numberAsArg(uint16_t id) const;
+        [[nodiscard]] uint16_t smallerNumberAsArg(uint16_t id) const;
     };
 }
 

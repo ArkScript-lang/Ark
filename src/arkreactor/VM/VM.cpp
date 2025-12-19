@@ -644,7 +644,10 @@ namespace Ark
                 &&TARGET_APPEND_IN_PLACE_SYM,
                 &&TARGET_APPEND_IN_PLACE_SYM_INDEX,
                 &&TARGET_STORE_LEN,
-                &&TARGET_LT_LEN_SYM_JUMP_IF_FALSE
+                &&TARGET_LT_LEN_SYM_JUMP_IF_FALSE,
+                &&TARGET_MUL_BY,
+                &&TARGET_MUL_BY_INDEX,
+                &&TARGET_MUL_SET_VAL
             };
 
         static_assert(opcode_targets.size() == static_cast<std::size_t>(Instruction::InstructionsCount) && "Some instructions are not implemented in the VM");
@@ -1976,6 +1979,75 @@ namespace Ark
 
                             if (!(*popAndResolveAsPtr(context) < size))
                                 jump(secondary_arg, context);
+                        }
+                        DISPATCH();
+                    }
+
+                    TARGET(MUL_BY)
+                    {
+                        UNPACK_ARGS();
+                        {
+                            Value* var = loadSymbol(primary_arg, context);
+                            const int other = static_cast<int>(secondary_arg) - 2048;
+
+                            // use internal reference, shouldn't break anything so far, unless it's already a ref
+                            if (var->valueType() == ValueType::Reference)
+                                var = var->reference();
+
+                            if (var->valueType() == ValueType::Number)
+                                push(Value(var->number() * other), context);
+                            else
+                                throw types::TypeCheckingError(
+                                    "*",
+                                    { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
+                                    { *var, Value(other) });
+                        }
+                        DISPATCH();
+                    }
+
+                    TARGET(MUL_BY_INDEX)
+                    {
+                        UNPACK_ARGS();
+                        {
+                            Value* var = loadSymbolFromIndex(primary_arg, context);
+                            const int other = static_cast<int>(secondary_arg) - 2048;
+
+                            // use internal reference, shouldn't break anything so far, unless it's already a ref
+                            if (var->valueType() == ValueType::Reference)
+                                var = var->reference();
+
+                            if (var->valueType() == ValueType::Number)
+                                push(Value(var->number() * other), context);
+                            else
+                                throw types::TypeCheckingError(
+                                    "*",
+                                    { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
+                                    { *var, Value(other) });
+                        }
+                        DISPATCH();
+                    }
+
+                    TARGET(MUL_SET_VAL)
+                    {
+                        UNPACK_ARGS();
+                        {
+                            Value* var = loadSymbol(primary_arg, context);
+                            const int other = static_cast<int>(secondary_arg) - 2048;
+
+                            // use internal reference, shouldn't break anything so far, unless it's already a ref
+                            if (var->valueType() == ValueType::Reference)
+                                var = var->reference();
+
+                            if (var->valueType() == ValueType::Number)
+                            {
+                                auto val = Value(var->number() * other);
+                                setVal(primary_arg, &val, context);
+                            }
+                            else
+                                throw types::TypeCheckingError(
+                                    "*",
+                                    { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
+                                    { *var, Value(other) });
                         }
                         DISPATCH();
                     }

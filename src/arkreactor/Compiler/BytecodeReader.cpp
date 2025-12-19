@@ -559,7 +559,10 @@ namespace Ark
             { APPEND_IN_PLACE_SYM, ArgKind::SymRaw },
             { APPEND_IN_PLACE_SYM_INDEX, ArgKind::RawRaw },
             { STORE_LEN, ArgKind::RawSym },
-            { LT_LEN_SYM_JUMP_IF_FALSE, ArgKind::SymRaw }
+            { LT_LEN_SYM_JUMP_IF_FALSE, ArgKind::SymRaw },
+            { MUL_BY, ArgKind::RawRaw },
+            { MUL_BY_INDEX, ArgKind::RawRaw },
+            { MUL_SET_VAL, ArgKind::RawRaw }
         };
 
         const auto builtin_name = [](const uint16_t idx) {
