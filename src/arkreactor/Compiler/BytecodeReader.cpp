@@ -661,10 +661,8 @@ namespace Ark
                     if (displayCode)
                         fmt::print("NOP");
                 }
-                else if (cPage.value_or(pp) == pp)
+                else if (cPage.value_or(pp) == pp && segment != BytecodeSegment::HeadersOnly)
                 {
-                    if (segment == BytecodeSegment::HeadersOnly)
-                        continue;
                     if (sStart.has_value() && sEnd.has_value() && ((sStart.value() > page.size()) || (sEnd.value() > page.size())))
                     {
                         fmt::print(fmt::fg(fmt::color::red), "Slice start or end can't be greater than the segment size: {}\n", page.size());

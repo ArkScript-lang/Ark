@@ -8,6 +8,7 @@
 
 ### Fixed
 - the REPL doesn't color `import` in two colors (red for `imp__t` and blue for `___or_`), it keeps the first color that matched (red for import here)
+- page numbers are correctly counted when using the bytecode reader with '--only-names', instead of displaying `0` every time
 
 ### Changed
 
