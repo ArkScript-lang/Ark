@@ -26,7 +26,8 @@ namespace Ark::internal::IR
         Goto,
         GotoWithArg,
         Opcode,
-        Opcode2Args
+        Opcode2Args,
+        Opcode3Args
     };
 
     using label_t = std::size_t;
@@ -44,6 +45,8 @@ namespace Ark::internal::IR
         explicit Entity(Instruction inst, uint16_t arg = 0);
 
         Entity(Instruction inst, uint16_t primary_arg, uint16_t secondary_arg);
+
+        Entity(Instruction inst, uint8_t inst2, uint8_t inst3, uint8_t inst4);
 
         static Entity Label(label_t value);
 
@@ -65,6 +68,8 @@ namespace Ark::internal::IR
 
         [[nodiscard]] inline uint16_t secondaryArg() const { return m_secondary_arg; }
 
+        [[nodiscard]] inline uint16_t tertiaryArg() const { return m_tertiary_arg; }
+
         void setSourceLocation(const std::string& filename, std::size_t line);
 
         [[nodiscard]] inline bool hasValidSourceLocation() const { return !m_source_file.empty(); }
@@ -79,6 +84,7 @@ namespace Ark::internal::IR
         Instruction m_inst { NOP };
         uint16_t m_primary_arg { 0 };
         uint16_t m_secondary_arg { 0 };
+        uint16_t m_tertiary_arg { 0 };
         std::string m_source_file;
         std::size_t m_source_line { 0 };
     };

@@ -468,7 +468,8 @@ namespace Ark
             SymRaw,      ///< Symbol, number
             RawSym,      ///< Symbol index, symbol
             RawConst,    ///< Symbol index, constant
-            RawRaw       ///< Symbol index, symbol index
+            RawRaw,      ///< Symbol index, symbol index
+            RawRawRaw
         };
 
         struct Arg
@@ -562,7 +563,8 @@ namespace Ark
             { LT_LEN_SYM_JUMP_IF_FALSE, ArgKind::SymRaw },
             { MUL_BY, ArgKind::RawRaw },
             { MUL_BY_INDEX, ArgKind::RawRaw },
-            { MUL_SET_VAL, ArgKind::RawRaw }
+            { MUL_SET_VAL, ArgKind::RawRaw },
+            { FUSED_MATH, ArgKind::RawRawRaw }
         };
 
         const auto builtin_name = [](const uint16_t idx) {
@@ -626,6 +628,9 @@ namespace Ark
                         break;
                     case ArgKind::RawRaw:
                         fmt::print(" {}, {}\n", fmt::styled(arg->primary(), raw_color), fmt::styled(arg->secondary(), raw_color));
+                        break;
+                    case ArgKind::RawRawRaw:
+                        fmt::print(" {}, {}, {}\n", fmt::styled(arg->padding, raw_color), fmt::styled((arg->arg & 0xff00) >> 8, raw_color), fmt::styled(arg->arg & 0x00ff, raw_color));
                         break;
                 }
             }
