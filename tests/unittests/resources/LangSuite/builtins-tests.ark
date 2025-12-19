@@ -1,6 +1,9 @@
 (import std.Testing)
 (import std.List)
 
+(let foo (fun ((mut a) (ref b) c)
+  (+ a (* b c))))
+
 (test:suite builtin {
     (test:case "time" {
         (let old (time))
@@ -18,4 +21,7 @@
           "should not find any number outside the given range")
 
         (let r (random))
-        (test:expect (and (<= r 2147483647) (>= r -2147483648))) })})
+        (test:expect (and (<= r 2147483647) (>= r -2147483648))) })
+
+    (test:case "disassemble" {
+      (disassemble foo) }) })
