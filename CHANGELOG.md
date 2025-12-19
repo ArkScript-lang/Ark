@@ -1,5 +1,13 @@
 # Change Log
 
+## [Unreleased changes] - 20XX-XX-XX
+### Added
+- the repl prints the output of the last expression it ran
+
+### Changed
+
+### Removed
+
 ## [4.1.1] - 2025-12-13
 ### Fixed
 - the formatter was breaking functions' arguments list containing argument attributes on multiple lines for no reason

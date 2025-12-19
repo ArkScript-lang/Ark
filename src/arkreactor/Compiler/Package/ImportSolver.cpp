@@ -16,7 +16,8 @@ namespace Ark::internal
 
     ImportSolver& ImportSolver::setup(const std::filesystem::path& root, const std::vector<Import>& origin_imports)
     {
-        m_root = root.parent_path();
+        // keep the given root if it's a directory, it means it comes from a code string evaluation in the state, where we don't have a filename
+        m_root = is_directory(root) ? root : root.parent_path();
 
         for (const auto& origin_import : std::ranges::reverse_view(origin_imports))
             m_imports.push({ root, origin_import });
