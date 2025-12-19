@@ -1,0 +1,6 @@
+In file tests/unittests/resources/ParserSuite/failure/ref_as_func_call.ark:2
+    1 | (let a 1)
+    2 | (let b (ref a))
+      |         ^~~
+    3 |
+        `ref' can not be used outside a function's arguments list.
